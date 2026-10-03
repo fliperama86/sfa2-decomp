@@ -2,13 +2,17 @@
 
 Primary working target: Japanese Street Fighter Zero 2, `SLPS_004.15`.
 See the [matching build](docs/matching-build.md), the
-[matching pilot](docs/matching-pilot.md) and the root [plan](../PLAN.md).
+[overlay map](docs/overlays.md), the [matching pilot](docs/matching-pilot.md)
+and the root [plan](../PLAN.md).
 
 Public tools, free of game data:
 
 - `tools/matchbuild.py`: whole-image build, comparison and report.
-- `tools/test_matchbuild.py`: controls for the build tool.
-- `tools/baseline.py`: disc and file manifest, pin and verify.
+- `tools/fndiff.py`: instruction diff of one unit against the baseline.
+- `tools/test_matchbuild.py`: controls for the build tool and the diff.
+- `tools/baseline.py`: disc and file manifest: pin, verify, extract.
+- `tools/pac.py`: chunk archives: list, extract, scan for code.
+- `tools/test_disc_tools.py`: controls for the two disc tools.
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
 - `tools/test_verify_cc1_golden.py`: controls for that checker.
 
@@ -17,6 +21,8 @@ Private files:
 - `local/src/`: reconstructed C, `build.toml`, `symbols.ld`.
 - `local/build/`: generated objects, linked image and reports.
 - `local/baseline/manifest.json`: per-file hashes derived from the disc image.
+- `local/baseline/pac-inventory.json`: chunk and code inventory of the archives.
+- `local/extract/`: disc files copied out of the image, hash-checked.
 - `local/toolchain/`: native compiler, its build script and golden outputs.
 - `local/audit/`: pinned main executable, selected disc extracts, inventories,
   initial Ghidra analysis and original load mapping.

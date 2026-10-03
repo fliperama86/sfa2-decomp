@@ -9,11 +9,14 @@ compares against the image, a directory of extracted files, or both.
 """
 
 import argparse
+import fnmatch
 import hashlib
 import json
+import os
 import struct
 import sys
-from pathlib import Path
+import tempfile
+from pathlib import Path, PurePosixPath
 
 USER_DATA = 2048
 EXE_MAGIC = b"PS-X EXE"
@@ -94,6 +97,38 @@ def cmd_pin(args):
     return 0
 
 
+def unsafe_path_reason(rel):
+    """Why a manifest path must not be used as a relative file path, or None."""
+    if not isinstance(rel, str) or not rel:
+        return "empty path"
+    if "\\" in rel or "\0" in rel:
+        return "backslash or NUL in path"
+    if rel.startswith("/") or PurePosixPath(rel).is_absolute():
+        return "absolute path"
+    parts = rel.split("/")
+    if any(part in ("", ".", "..") for part in parts):
+        return "empty, '.' or '..' path component"
+    return None
+
+
+def load_manifest(path):
+    """Read a manifest and reject it if any file path is unsafe or repeated."""
+    man = json.loads(Path(path).read_text())
+    problems, seen = [], set()
+    for ent in man["files"]:
+        reason = unsafe_path_reason(ent.get("path"))
+        if reason:
+            problems.append(f"{ent.get('path')!r}: {reason}")
+        elif ent["path"] in seen:
+            problems.append(f"{ent['path']!r}: listed more than once")
+        seen.add(ent.get("path"))
+    if problems:
+        for problem in problems:
+            print(f"UNSAFE MANIFEST PATH: {problem}")
+        return None
+    return man
+
+
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -106,7 +141,9 @@ def cmd_verify(args):
     if not args.image and not args.files:
         print("verify needs --image and/or --files", file=sys.stderr)
         return 2
-    man = json.loads(Path(args.manifest).read_text())
+    man = load_manifest(args.manifest)
+    if man is None:
+        return 1
     ok = True
     if args.image:
         size, digest = hash_image(args.image)
@@ -152,9 +189,93 @@ def cmd_verify(args):
     return 0 if ok else 1
 
 
+def contained_directory(root, parts):
+    """Create and return root/parts without ever passing through a link.
+
+    `root` is already resolved. Each component must be a real directory or
+    absent. A symbolic link anywhere on the way is refused, so the result is
+    always inside `root`.
+    """
+    current = root
+    for part in parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f"{current} is a symbolic link")
+        if not current.exists():
+            current.mkdir()
+        elif not current.is_dir():
+            raise ValueError(f"{current} exists and is not a directory")
+    return current
+
+
+def write_replacing(directory, name, data):
+    """Write `data` as directory/name without writing through an existing entry.
+
+    The content goes to a newly created temporary file that then replaces the
+    name. An existing symbolic or hard link at that name is replaced as a
+    directory entry, so whatever it pointed to is left untouched.
+    """
+    target = directory / name
+    if target.is_dir() and not target.is_symlink():
+        raise ValueError(f"{target} is a directory")
+    handle, temporary = tempfile.mkstemp(dir=directory, prefix=".extract-")
+    try:
+        with os.fdopen(handle, "wb") as out:
+            out.write(data)
+        os.replace(temporary, target)
+    except BaseException:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+        raise
+
+
+def cmd_extract(args):
+    """Copy disc files out of the image, checking each against the manifest."""
+    man = load_manifest(args.manifest)
+    if man is None:
+        return 1
+    ss, po = man["sector_size"], man["payload_offset"]
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    out = out.resolve()
+    # Inputs that an output file must never replace.
+    protected = [Path(args.image).resolve(), Path(args.manifest).resolve()]
+    written = bad = 0
+    with open(args.image, "rb") as img:
+        for ent in man["files"]:
+            if not fnmatch.fnmatch(ent["path"], args.match):
+                continue
+            parts = ent["path"].split("/")
+            try:
+                directory = contained_directory(out, parts[:-1])
+                target = directory / parts[-1]
+                for source in protected:
+                    if target == source or (target.exists() and os.path.samefile(target, source)):
+                        raise ValueError(f"{target} is an input of this command")
+                data = b"".join(read_file_bytes(img, ent["lba"], ent["size"], ss, po))
+                if hashlib.sha256(data).hexdigest() != ent["sha256"]:
+                    print(f"MISMATCH (image): {ent['path']}")
+                    bad += 1
+                    continue
+                write_replacing(directory, parts[-1], data)
+            except (ValueError, OSError) as exc:
+                print(f"REFUSED: {ent['path']}: {exc}")
+                bad += 1
+                continue
+            written += 1
+    print(f"extracted {written} files, {bad} mismatched or refused")
+    return 0 if written and not bad else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
+    x = sub.add_parser("extract", help="copy verified files out of the image")
+    x.add_argument("--manifest", required=True)
+    x.add_argument("--image", required=True)
+    x.add_argument("--out", required=True)
+    x.add_argument("--match", default="*", help="glob on the disc path")
+    x.set_defaults(fn=cmd_extract)
     p = sub.add_parser("pin", help="write a manifest from an inventory and image")
     p.add_argument("--inventory", required=True)
     p.add_argument("--out", required=True)
