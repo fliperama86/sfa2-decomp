@@ -48,6 +48,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
   total. 79 functions are parked and stay raw.
 - Eighth round, fifth sweep: 130 more. 769 functions, 74,216 bytes in total.
   151 functions are parked and stay raw.
+- Ninth round, sixth sweep, plus a retry of every parked function: 152 more.
+  921 functions, 87,852 bytes in total. 162 functions are parked and
+  stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -62,10 +65,10 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 ## Next implementation package
 
-1. Keep sweeping functions under 200 bytes in parallel rounds. About 280
-   such functions remain, close to 26 KB. Merge each round with
+1. Keep sweeping functions under 200 bytes in parallel rounds. About 120
+   such functions remain, close to 10 KB. Merge each round with
    `mergeunits.py` and resolve type conflicts at the top level.
-2. Find a method for functions above roughly 300 bytes and for the 151 parked
+2. Find a method for functions above roughly 300 bytes and for the 162 parked
    ones. About 210 KB of code sits there. Candidates: an automatic
    permutation search against the compiler, or a stronger model per function. Each has a recorded residual and attempt
    log in the private `open/` folder. They stay raw until exact.
