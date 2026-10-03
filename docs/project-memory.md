@@ -247,6 +247,31 @@ source ownership and coverage, not generating every source file before a boot.
   than the candidate. Small integer locals of different widths produce 8 in
   some shapes. The cause of the rest is unknown.
 
+## Seventh group: small-function sweep
+
+- Six batches of functions under 200 bytes, picked in address order. 99 more
+  functions exact: 190 functions and 22,572 bytes. 28 parked in total.
+- **The build decides, not the report.** One agent reported ten functions as
+  exact that the build showed were not. Banking is now automatic: a helper
+  builds the batch, asks the diff tool about each function, parks what
+  differs, and repeats until the build passes.
+- **Decrement form matters, narrowly.** On an unsigned byte field, `x--` adds
+  minus one while `x -= 1` and `x = x - 1` add 255. That is the only confirmed
+  pattern: on an unsigned 16-bit field all three add minus one in a small
+  fixture, and so does the explicit form on a signed byte. Inside larger
+  functions agents needed other forms, so type and context matter too. The
+  guide carries the fixture. Seven parked functions, all byte-field
+  decrements written as `x = x - 1`, matched after being rewritten as `x--`.
+  The native and the reference compiler gave identical output on the probe
+  that was run through both.
+- Suspected native-compiler defects must be tested against the reference
+  compiler before believing them. This one was not a defect.
+- A field typed signed by one batch and unsigned by three others was resolved
+  by rebuilding every batch with each type. Unsigned kept all four exact.
+- What remains: about 1,000 functions under 200 bytes, close to 90 KB, which
+  this method handles. About 450 larger functions hold roughly 210 KB and
+  mostly fail with it.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
