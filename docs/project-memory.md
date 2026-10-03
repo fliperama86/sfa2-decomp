@@ -372,6 +372,23 @@ source ownership and coverage, not generating every source file before a boot.
 - After this round about 120 functions under 200 bytes remain,
   close to 10 KB. 450 larger functions hold about 211 KB.
 
+## Thirteenth group: end of the small-function sweep
+
+- Five batches, 117 small functions attempted, 106 exact: 1,027 functions and
+  96,944 bytes, close to 30 percent of the resident code bytes.
+  173 parked in total, about 20 KB. A second retry of the parked
+  pool recovered nothing, which confirms the fixed banking step.
+- What the sweep showed overall. Functions under 200 bytes match at roughly
+  85 percent with this method. The misses fall into a few repeating kinds:
+  one register off, one instruction scheduled early or late, two blocks merged
+  or kept apart, an unused stack reservation, and hand-written assembly.
+- Remaining in the resident image: 450 functions of 200 bytes or more,
+  about 211 KB. The earlier rounds showed this method mostly fails there.
+- Next method under test: an automatic permutation search that rewrites a
+  near-miss candidate and recompiles until the bytes match. It costs CPU, not
+  model tokens. Its results still go through the normal build before they
+  count.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

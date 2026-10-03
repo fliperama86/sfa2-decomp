@@ -51,6 +51,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Ninth round, sixth sweep, plus a retry of every parked function: 152 more.
   921 functions, 87,852 bytes in total. 162 functions are parked and
   stay raw.
+- Tenth round, last sweep of small functions: 106 more. 1,027 functions,
+  96,944 bytes in total, close to 30 percent of the resident code bytes.
+  173 functions are parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -65,18 +68,22 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 ## Next implementation package
 
-1. Keep sweeping functions under 200 bytes in parallel rounds. About 120
-   such functions remain, close to 10 KB. Merge each round with
-   `mergeunits.py` and resolve type conflicts at the top level.
-2. Find a method for functions above roughly 300 bytes and for the 162 parked
-   ones. About 210 KB of code sits there. Candidates: an automatic
-   permutation search against the compiler, or a stronger model per function. Each has a recorded residual and attempt
-   log in the private `open/` folder. They stay raw until exact.
-3. Replace `func_<address>` names where several units now agree on a role,
-   and move repeated prototypes into shared headers.
-4. Account for the library code at the top of the code area. It needs its own
-   handling: assembly owners for the hand-written stubs, per-unit assembler
-   settings, and a decision on hardware-register access.
+The sweep of small functions is done. What remains in the resident image:
+450 functions of 200 bytes or more holding about 211 KB, and 173 parked
+functions holding about 20 KB.
+
+1. Bring up an automatic permutation search for candidates that have the right
+   logic and the wrong register allocation or instruction order. Run it over
+   the parked pool first.
+2. Attempt the larger functions with the same agent method to get candidates,
+   then pass the near misses to the permutation search.
+3. Handle the library area: assembly owners for hand-written stubs, a rule for
+   hardware-register access, per-unit assembler settings, and the division
+   check expansion.
+4. Replace `func_<address>` names where several units agree on a role, turn
+   the recorded casts and wrapper structs into proper members, and move
+   repeated prototypes into shared headers. Every such change must rebuild
+   exact.
 5. Add data and read-only data ownership to the matching build when a unit
    first needs it. Until then such units are rejected, not misplaced.
 
