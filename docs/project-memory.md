@@ -417,6 +417,23 @@ source ownership and coverage, not generating every source file before a boot.
   once signed and once unsigned, where the candidate reuses one load. That
   pattern has now appeared several times.
 
+## Fifteenth group: second medium round
+
+- Eight batches over functions of 200 to 300 bytes: 70 attempted, 42 exact.
+  1,111 functions and 117,020 bytes. 229 parked, about 33 KB.
+- Two type conflicts at merge on one struct, signed against unsigned. Each was
+  settled by rebuilding both batches with each type.
+- A second switch function is exact in its code and differs only in the
+  address of its jump table. Read-only data ownership for the build is being
+  added as a separate change.
+- One function copies a 39-word local table from data. Its source assigns a
+  struct from an extern to get the same copy loop, because the build cannot
+  own the initialiser's data yet. That is a stand-in, to be replaced by the
+  real initialiser once data ownership exists.
+- Two more functions carry an unused local array to reproduce a stack frame
+  the original reserves and never uses. That makes four. It matches, and it
+  is not an explanation of why the original reserves the space.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
