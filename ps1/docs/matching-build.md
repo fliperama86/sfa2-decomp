@@ -44,17 +44,22 @@ PS-X EXE header. Every payload byte has exactly one owner.
 - **c**: a unit, compiled from one C source file. A unit declares its functions
   as `name`, `address`, `size`. Its text range is the run of those functions in
   address order. Inside a unit, each function must end where the next begins.
+- **rodata**: the read-only data of a unit, for example the jump table of a
+  `switch`. A unit may declare one range for it with `rodata = { address, size }`.
+  The range need not be near the text. The unit owns it and it is compared with
+  the baseline like a function. Read-only data is the only data a unit can own.
 - **raw**: retained baseline bytes. Raw ranges are never declared. They are
-  computed as the complement of all unit ranges, so a gap cannot silently count
-  as recovered source.
+  computed as the complement of all text ranges and all rodata ranges, so a gap
+  cannot silently count as recovered source.
 - **asm**: reserved for reviewed assembly owners. Not implemented yet.
 
 The 2,048-byte PS-X EXE header is retained from the baseline and reported as
 raw.
 
 Rejected before any compilation: overlapping units, ranges outside the payload,
-addresses or sizes that are not multiples of four, zero sizes, duplicate
-function or unit names, a gap between functions of one unit, and any name in
+addresses or sizes that are not multiples of four, zero sizes, a rodata range
+that overlaps any text range (including its own unit's) or any other rodata
+range, duplicate function or unit names, a gap between functions of one unit, and any name in
 `symbols.ld` that is also a declared unit function. The last rule matters
 because a linker-script assignment would silently override the compiled symbol.
 
@@ -102,6 +107,9 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "example", address = 0x80000000, size = 4 },
 ]
+# Optional. The one range that holds the unit's read-only data, for example a
+# jump table. Address and size are multiples of four.
+rodata = { address = 0x80001000, size = 24 }
 ```
 
 `symbols.ld` sits next to `build.toml`, holds lines of the form
@@ -202,7 +210,9 @@ reproduces the same image, and for units the native build must not compile.
 ```
 
 `fndiff.py` is a diagnostic for a unit that does not match yet. It links the
-unit object left by the last build alone at the unit's start address and prints
+unit object left by the last build alone at the unit's start address, with its
+read-only data at the declared rodata address so that jump-table addresses in
+the code come out right, and prints
 an aligned instruction diff against the baseline range. It works when sizes are
 wrong and the whole-image link was never reached. It decides nothing:
 `matchbuild.py` remains the only authority on whether a build is exact.
@@ -231,12 +241,17 @@ runs is the unit object cache, described after the steps.
    with `as -EL -G0 -march=r3000 -mabi=32 -no-pad-sections`. Every subprocess
    exit status is enforced. Without `-no-pad-sections` the assembler pads each
    section to 16 bytes and a unit would spill past its declared range.
-4. Reject a unit object whose allocated sections other than `.text` are
-   non-empty. Data and read-only data ownership is not implemented yet and must
-   not be discarded or placed silently.
+4. Check the unit object's allocated sections. `.text` must equal the declared
+   text range. Read-only data (`.rodata` and `.rdata`, added together) must
+   equal the declared `rodata` size exactly; a unit that declares none must have
+   none, and a unit that declares a range must have data for it. Any other
+   non-empty allocated section (`.data`, `.bss`, `.sdata`) and any common symbol
+   is rejected, because that data would have no owner. This compiler puts a
+   jump table in `.rodata`.
 5. Generate `raw.s` with one section per raw range using `.incbin` on the
    extracted payload, and `link.ld` placing every range at its explicit address
-   in address order. Link with undefined symbols as errors.
+   in address order. A unit's read-only data is its own output section at the
+   declared rodata address, placed the same way as text. Raw ranges exclude it. Link with undefined symbols as errors.
 6. Convert the ELF to a flat image. Rebuilt executable is baseline header plus
    image.
 
@@ -247,6 +262,10 @@ holds the unit object, the compiler output `.s`, the converted `.gnu.s` and a
 JSON file with the object's SHA-256 and the key inputs in readable form. A hit
 skips those three steps for that unit and copies the three files into the build
 directory under their usual names.
+
+The declared rodata range is not in the key. It does not change the object: the
+assembler leaves the table's address to the linker, so a different range gives
+the same bytes. The object checks that use the range (step 4) run on hits too.
 
 The key is the SHA-256 of a canonical encoding of:
 
@@ -312,6 +331,9 @@ All fail closed with a non-zero exit status.
   and its bytes equal the baseline range. Report the first differing offset and
   the count of equal instruction words.
 - Each unit's `.text` size equals its declared range.
+- Each unit's read-only data size equals its declared `rodata` size, and the
+  rodata range of the image equals the baseline range. A difference fails the
+  build with a message naming the unit's rodata and the first differing offset.
 - Image size and SHA-256 equal the baseline payload. Rebuilt executable SHA-256
   equals the baseline executable.
 - Comparator controls on every successful build: flipping one byte inside each
@@ -319,17 +341,22 @@ All fail closed with a non-zero exit status.
   one raw byte must make the image check fail. A control that does not trip
   fails the build. When units own the whole payload there is no raw byte to
   flip: the raw control is recorded as not applicable and the function controls
-  stay mandatory.
+  stay mandatory. Flipping one byte inside each rodata range must make exactly
+  that unit's rodata fail and no function fail.
 
 `test_matchbuild.py` runs the tool against temporary copies of the private
 configuration and requires failure for: the `[selftest]` source mutation, a
-wrong declared size, two overlapping units, a symbol removed from `symbols.ld`,
+wrong declared size, two overlapping units, a unit with read-only data and no
+`rodata`, a rodata range of the wrong size, address or alignment, a rodata range
+that overlaps text or another rodata range or lies outside the payload, a symbol removed from `symbols.ld`,
 a unit function duplicated in `symbols.ld`, a wrong `cc1` hash pin, a wrong
 baseline hash, a maspsx commit that does not exist, and floating-point source
 when the default compiler is marked `no_float`. It requires success for: the
 unmodified build; a maspsx checkout whose script is edited to abort, which
 passes only because the pinned commit runs instead; and a synthetic fixture
-whose whole payload is one C function.
+whose whole payload is one C function, and a synthetic fixture whose function
+has a jump table that the baseline places away from the text, with raw filler
+between them.
 
 `test_verify_cc1_golden.py` covers the compiler checker with a stand-in
 compiler: a selected case with a missing input or missing expected output must
@@ -343,9 +370,12 @@ fail, as must a differing output and an empty selection.
   unit's preprocessed text, which covers included headers;
 - tools: which compiler was used, paths, versions, pinned hashes and commits;
 - per unit and function: addresses, sizes, exact or not, hashes;
+- per unit rodata: address, size, exact or not, first differing offset, hashes;
 - per unit cache state (`hit`, `miss` or `off`) and key, with totals in the
   text summary, for example `cache: 118 hits, 2 misses`;
-- coverage in bytes by owner kind, plus the function count owned by C;
+- coverage in bytes by owner kind (`c_bytes` for code, `rodata_bytes`, raw),
+  plus the function count owned by C. Retained raw bytes exclude rodata. The
+  summary line shows the rodata bytes;
 - overall `exact` flag, image and executable hashes, control results.
 
 ## Baseline manifest
@@ -384,7 +414,8 @@ new `type` or a struct with no fields is kept. A unit that drops a base type,
 struct or field is a conflict. `symbols.ld` keeps the base text and appends each unit's new
 statements; the same name with two values is a conflict, and two names for one
 value is a warning. A symbol that a merged unit now defines is dropped. New
-`[[unit]]` tables are appended; a changed base table or a repeated unit name
+`[[unit]]` tables are appended, including a `rodata` key, which is written back as
+`rodata = { address = 0x..., size = N }`; a changed base table or a repeated unit name
 is a conflict. New files are copied. A base file that a unit changed is a
 conflict unless named with `--take`. A path that is a file in one place and a
 directory in another (for example a new file `support` in one unit and
@@ -398,6 +429,7 @@ and `--out` does not exist. The merged directory then has to pass
 
 ## Limits
 
-No data or read-only data ownership, no assembly owners, no overlay images, no
+No data ownership other than one read-only data range per unit, no assembly
+owners, no overlay images, no
 incremental builds. Compiler provenance is unchanged from the pilot: a
 compatible toolchain, not a uniquely identified original.

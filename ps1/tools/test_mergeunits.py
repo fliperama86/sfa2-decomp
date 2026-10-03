@@ -11,6 +11,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -47,12 +48,14 @@ sym_b = 0x1004;
 BASE_FIELDS = "struct S size=8\n0x0 u32 a\n"
 
 
-def unit_text(name: str, functions: list[tuple[str, int, int]]) -> str:
+def unit_text(name: str, functions: list[tuple[str, int, int]], rodata: tuple[int, int] | None = None) -> str:
     lines = [f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = ["-O2", "-G0"]\nfunctions = [']
     for fn, address, size in functions:
         lines.append(f'  {{ name = "{fn}", address = {address:#x}, size = {size} }},')
-    lines.append("]\n")
-    return "\n".join(lines)
+    lines.append("]")
+    if rodata is not None:
+        lines.append(f"rodata = {{ address = {rodata[0]:#x}, size = {rodata[1]} }}")
+    return "\n".join(lines) + "\n"
 
 
 def write(directory: Path, relative: str, text: str) -> None:
@@ -72,7 +75,9 @@ def make_base(root: Path) -> Path:
     return base
 
 
-def make_unit(root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None) -> Path:
+def make_unit(
+    root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None, rodata=None
+) -> Path:
     """Copy the base, then add one unit the way an agent would."""
     directory = root / name
     for path in base.rglob("*"):
@@ -80,7 +85,7 @@ def make_unit(root: Path, base: Path, name: str, *, functions=(), symbols="", fi
             write(directory, path.relative_to(base).as_posix(), path.read_text())
     if functions:
         with open(directory / "build.toml", "a") as handle:
-            handle.write("\n" + unit_text(name, list(functions)))
+            handle.write("\n" + unit_text(name, list(functions), rodata))
     write(directory, f"{name}.c", f"/* {name} */\n")
     with open(directory / "symbols.ld", "a") as handle:
         handle.write(symbols)
@@ -169,6 +174,43 @@ def case_clean(d: Path):
         if needle not in out(proc):
             return f"summary lacks {needle!r}:\n{out(proc)}"
     return None
+
+
+def case_rodata_round_trip(d: Path):
+    """A unit table with a rodata key merges and is written back in the usual style."""
+    base = make_base(d)
+    one = make_unit(d, base, "u_one", functions=[("one_fn", 0x80000200, 32)], rodata=(0x80000800, 24))
+    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)])
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    got = (d / "out" / "build.toml").read_text()
+    want = (
+        BASE_BUILD
+        + "\n"
+        + unit_text("u_one", [("one_fn", 0x80000200, 32)], (0x80000800, 24))
+        + "\n"
+        + unit_text("u_two", [("two_fn", 0x80000300, 8)])
+    )
+    if got != want:
+        return f"build.toml differs:\n{got}"
+    if "rodata = { address = 0x80000800, size = 24 }" not in got:
+        return "rodata line not in the expected style"
+    parsed = tomllib.loads(got)
+    if parsed["unit"][1]["rodata"] != {"address": 0x80000800, "size": 24} or "rodata" in parsed["unit"][2]:
+        return "parsed rodata differs"
+    return None
+
+
+def case_rodata_changed_in_base_unit(d: Path):
+    base = make_base(d)
+    one = make_unit(d, base, "u_one", functions=[("one_fn", 0x80000200, 32)], rodata=(0x80000800, 24))
+    # u_two inherits a different rodata for the same unit name: a conflict.
+    two = make_unit(d, base, "u_two", functions=[("one_fn", 0x80000200, 32)], rodata=(0x80000900, 24))
+    text = (two / "build.toml").read_text().replace('name = "u_two"', 'name = "u_one"')
+    (two / "build.toml").write_text(text)
+    proc = run("--base", base, "--out", d / "out", one, two)
+    return expect_conflict(proc, d, "is added by both")
 
 
 def case_symbol_removed(d: Path):
@@ -447,6 +489,8 @@ def case_success_leaves_no_staging(d: Path):
 
 CASES = [
     Case("clean-merge", case_clean),
+    Case("rodata-round-trip", case_rodata_round_trip),
+    Case("rodata-same-unit-added-twice", case_rodata_changed_in_base_unit),
     Case("symbol-removed-when-unit-defines-it", case_symbol_removed),
     Case("symbol-conflict-between-units", case_symbol_conflict),
     Case("symbol-conflict-with-base", case_symbol_changes_base_value),
