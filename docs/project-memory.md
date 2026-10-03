@@ -389,6 +389,34 @@ source ownership and coverage, not generating every source file before a boot.
   model tokens. Its results still go through the normal build before they
   count.
 
+## Fourteenth group: medium functions and first permutation results
+
+- Eight batches over functions of 200 to 300 bytes: 70 attempted, 39 exact.
+  That is 56 percent, against roughly 85 percent for the small ones. Three
+  more came back from the parked pool. 1,069 functions and 106,776 bytes.
+  201 parked, about 27 KB.
+- **The function table undercounts some functions.** A routine that ends in
+  an endless loop is followed by an epilogue the disassembler did not attach
+  to it, so the listed size is short by the epilogue. Candidates for such
+  functions looked 20 or 24 bytes too long and were parked. The retry helper
+  now extends a candidate into the gap when the built code is longer than the
+  listed size and still ends before the next function. Two functions matched
+  that way. Earlier notes that such originals have no epilogue were wrong.
+- **Permutation search, first results.** The open-source permuter runs on the
+  real toolchain. Both sides are linked at the function's address, so the
+  score sees real immediates, and a result only counts after the normal build
+  accepts it. On five hand-picked near misses it found nothing in eight
+  minutes each. In a sweep it then matched one function whose candidate
+  started far from the target. The form it found adds one extra pointer
+  variable; the source carries a comment saying it was machine-found.
+  Passes that insert meaningless code are switched off.
+- **First function that needs data ownership.** One routine is a switch
+  compiled to a jump table. The build rejects any unit with read-only data,
+  so it cannot match until the build can own data ranges.
+- One routine's residual is that the original loads the same field twice,
+  once signed and once unsigned, where the candidate reuses one load. That
+  pattern has now appeared several times.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
