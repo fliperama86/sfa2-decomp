@@ -21,6 +21,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_matchbuild.py` | public | Controls for the build tool and the diff |
 | `ps1/tools/structgen.py` | public | Struct-layout generator, layout check, field-file merge |
 | `ps1/tools/test_structgen.py` | public | Controls for the struct generator |
+| `ps1/tools/mergeunits.py` | public | Merge per-unit work directories |
+| `ps1/tools/test_mergeunits.py` | public | Controls for the merge tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
 | `ps1/tools/verify_cc1_golden.py` | public | Compare a compiler with saved reference output |
 | `ps1/tools/test_verify_cc1_golden.py` | public | Controls for the compiler checker |
@@ -297,6 +299,24 @@ manifest is refused.
 
 The published root pins remain the disc and executable hashes in the
 [pilot report](matching-pilot.md). The manifest is a derived index.
+
+## Merging unit work directories
+
+Several units can be reconstructed at once, each in its own sibling copy of
+the configuration directory. See the [matching guide](matching-guide.md).
+
+```sh
+.venv/bin/python ps1/tools/mergeunits.py --base DIR --out NEWDIR UNITDIR [UNITDIR ...]
+```
+
+The merge is mechanical and refuses to guess. `types.fields` goes through the
+field-file merge. `symbols.ld` keeps the base text and appends each unit's new
+statements; the same name with two values is a conflict, and two names for one
+value is a warning. A symbol that a merged unit now defines is dropped. New
+`[[unit]]` tables are appended; a changed base table or a repeated unit name
+is a conflict. New files are copied. A base file that a unit changed is a
+conflict unless named with `--take`. On any conflict nothing is written. The
+merged directory then has to pass `matchbuild.py` like any other.
 
 ## Limits
 

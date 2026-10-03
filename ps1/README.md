@@ -2,14 +2,16 @@
 
 Primary working target: Japanese Street Fighter Zero 2, `SLPS_004.15`.
 See the [matching build](docs/matching-build.md), the
-[overlay map](docs/overlays.md), the [matching pilot](docs/matching-pilot.md)
+[matching guide](docs/matching-guide.md), the [overlay map](docs/overlays.md), the [matching pilot](docs/matching-pilot.md)
 and the root [plan](../PLAN.md).
 
 Public tools, free of game data:
 
 - `tools/matchbuild.py`: whole-image build, comparison and report.
 - `tools/fndiff.py`: instruction diff of one unit against the baseline.
-- `tools/test_matchbuild.py`: controls for the build tool and the diff.
+- `tools/structgen.py`: struct layouts from a field table, with layout check.
+- `tools/mergeunits.py`: merge per-unit work directories.
+- `tools/test_matchbuild.py`, `test_structgen.py`, `test_mergeunits.py`: controls.
 - `tools/baseline.py`: disc and file manifest: pin, verify, extract.
 - `tools/pac.py`: chunk archives: list, extract, scan for code.
 - `tools/test_disc_tools.py`: controls for the two disc tools.
@@ -18,7 +20,8 @@ Public tools, free of game data:
 
 Private files:
 
-- `local/src/`: reconstructed C, `build.toml`, `symbols.ld`.
+- `local/src/`: reconstructed C, `build.toml`, `symbols.ld`, `types.fields`.
+- `local/open/`: candidates that do not match yet, with their residuals.
 - `local/build/`: generated objects, linked image and reports.
 - `local/baseline/manifest.json`: per-file hashes derived from the disc image.
 - `local/baseline/pac-inventory.json`: chunk and code inventory of the archives.
