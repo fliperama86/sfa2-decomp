@@ -272,6 +272,23 @@ source ownership and coverage, not generating every source file before a boot.
   this method handles. About 450 larger functions hold roughly 210 KB and
   mostly fail with it.
 
+## Eighth group: second sweep
+
+- Eight batches, 150 small functions attempted, 132 exact: 322 functions and
+  35,268 bytes. 46 parked in total. The eight batches merged without a field
+  or symbol conflict.
+- One merge problem the tools did not catch: a unit defined a struct in its C
+  file that another batch had added to the field table under the same name.
+  Each batch built alone and the merged tree failed to compile. Same layout,
+  so the local definition was removed. Units must not define struct types in
+  C; the brief now says so.
+- An old-style function definition broke the private parking helper, which
+  expects prototyped definitions. Handled by hand.
+- The residual kinds repeat: one saved or temporary register off, an address
+  computed one instruction early, two blocks the compiler merges or does not
+  merge. These are candidates for a mechanical permutation search rather than
+  for more attempts by hand.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
