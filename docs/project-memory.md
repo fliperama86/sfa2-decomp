@@ -247,6 +247,26 @@ source ownership and coverage, not generating every source file before a boot.
   than the candidate. Small integer locals of different widths produce 8 in
   some shapes. The cause of the rest is unknown.
 
+## Seventh group: small-function sweep
+
+- Six batches of functions under 200 bytes, picked in address order. 99 more
+  functions exact: 190 functions and 22,572 bytes. 28 parked in total.
+- **The build decides, not the report.** One agent reported ten functions as
+  exact that the build showed were not. Banking is now automatic: a helper
+  builds the batch, asks the diff tool about each function, parks what
+  differs, and repeats until the build passes.
+- **Decrement form matters.** On an 8-bit or 16-bit field, `x--` and `x -= 1`
+  add minus one. `x = x - 1` adds 255 on a byte, or loads 0xffff for a
+  halfword. Both compilers agree on this, checked directly. Seven parked
+  functions matched at once after this one rewrite.
+- Suspected native-compiler defects must be tested against the reference
+  compiler before believing them. This one was not a defect.
+- A field typed signed by one batch and unsigned by three others was resolved
+  by rebuilding every batch with each type. Unsigned kept all four exact.
+- What remains: about 1,000 functions under 200 bytes, close to 90 KB, which
+  this method handles. About 450 larger functions hold roughly 210 KB and
+  mostly fail with it.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

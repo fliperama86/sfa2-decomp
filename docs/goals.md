@@ -38,6 +38,8 @@ payloads, accurate source coverage, and retained human/AI refinements.
   9,836 bytes in total. Six functions are parked and stay raw.
 - Third parallel round: 21 more functions. 91 functions, 13,316 bytes in
   total. Fifteen functions are parked and stay raw.
+- Fourth round, a sweep over small functions: 99 more. 190 functions, 22,572
+  bytes in total. 28 functions are parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -52,10 +54,12 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 ## Next implementation package
 
-1. Keep widening in parallel rounds over ranges next to matched units. Merge
-   each round with `mergeunits.py` and resolve type conflicts at the top level.
-2. Retry the fifteen parked functions, with a different method than the
-   one that failed. See the project memory. Each has a recorded residual and attempt
+1. Keep sweeping functions under 200 bytes in parallel rounds. About 1,000
+   such functions remain, close to 90 KB. Merge each round with
+   `mergeunits.py` and resolve type conflicts at the top level.
+2. Find a method for functions above roughly 300 bytes and for the 28 parked
+   ones. About 210 KB of code sits there. Candidates: an automatic
+   permutation search against the compiler, or a stronger model per function. Each has a recorded residual and attempt
    log in the private `open/` folder. They stay raw until exact.
 3. Replace `func_<address>` names where several units now agree on a role,
    and move repeated prototypes into shared headers.

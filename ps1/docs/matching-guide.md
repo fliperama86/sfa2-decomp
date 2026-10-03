@@ -83,9 +83,18 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
 - Identical tails before a common jump are merged. If the original keeps two
   identical blocks apart, the source reached them differently.
 - A zero stored from a register rather than `$zero` came from a variable.
+- On an 8-bit or 16-bit field, `x--` and `x -= 1` add minus one. `x = x - 1`
+  adds 255 on a byte, or loads 0xffff for a halfword. Pick the form from the
+  constant in the listing.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
+
+## Before reporting
+
+Run the build one last time after your final edit and report from that
+output. A function is exact only if that last build says so. Earlier results
+do not count.
 
 ## When stuck
 
