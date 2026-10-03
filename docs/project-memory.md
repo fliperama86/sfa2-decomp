@@ -289,6 +289,19 @@ source ownership and coverage, not generating every source file before a boot.
   merge. These are candidates for a mechanical permutation search rather than
   for more attempts by hand.
 
+## Ninth group: third sweep
+
+- Eight batches, 188 small functions attempted, 179 exact: 501 functions and
+  49,596 bytes. 55 parked in total.
+- One field conflict at merge: a pointer typed as bytes by one batch and as a
+  pointer to an object by four others. The single use was rewritten to member
+  access through the object pointer and stayed exact.
+- A recurring object field at one offset is declared unsigned 16-bit, yet
+  different functions need it read as a signed halfword or as a single byte to
+  match. The casts work, but the field's true type is still open.
+- After this round about 640 functions under 200 bytes remain,
+  close to 58 KB. 450 larger functions hold about 211 KB.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
