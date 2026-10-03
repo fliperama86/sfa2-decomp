@@ -231,8 +231,9 @@ reproduces the same image, and for units the native build must not compile.
 ```
 
 `test_matchbuild.py --only TEXT` runs the cases whose name contains the text
-and says so in its last lines. It is for working on one area; only a run
-without it is the full control set.
+and says so in its last lines, with the number of cases that ran. A text that
+matches no case is an error: nothing runs and the exit status is 2. It is for
+working on one area; only a run without it is the full control set.
 
 `fndiff.py` is a diagnostic for a unit that does not match yet. It links the
 unit object left by the last build alone at the unit's start address, with its

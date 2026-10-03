@@ -113,15 +113,24 @@ def fixture_toolchain(parsed: dict) -> dict:
 
 
 def add_include_dir(copy: Path, entry: str) -> None:
-    """Add one entry to [toolchain] include_dirs of a copied configuration."""
+    """Add one entry to [toolchain] include_dirs of a copied configuration.
+
+    Works whether the key is absent, an empty list or a populated one. The
+    list is rebuilt from its parsed value, so the result is valid TOML.
+    """
     path = copy / "build.toml"
     text = path.read_text()
-    existing = re.search(r"^include_dirs\s*=\s*\[(.*?)\]", text, flags=re.M | re.S)
-    if existing:
-        inner = existing.group(1).strip().rstrip(",")
-        text = text[: existing.start()] + f"include_dirs = [{inner}, {json.dumps(entry)}]" + text[existing.end() :]
+    current = tomllib.loads(text).get("toolchain", {}).get("include_dirs")
+    line = "include_dirs = [" + ", ".join(json.dumps(item) for item in [*(current or []), entry]) + "]"
+    if current is None:
+        text = replace_once(text, "[toolchain]\n", f"[toolchain]\n{line}\n", "[toolchain] header")
     else:
-        text = replace_once(text, "[toolchain]\n", f"[toolchain]\ninclude_dirs = [{json.dumps(entry)}]\n", "[toolchain] header")
+        existing = re.findall(r"^include_dirs\s*=\s*\[[^\]]*\]", text, flags=re.M)
+        if len(existing) != 1:
+            raise SystemExit(f"test setup: expected one include_dirs list in build.toml, found {len(existing)}")
+        text = text.replace(existing[0], line)
+    if tomllib.loads(text)["toolchain"]["include_dirs"] != [*(current or []), entry]:
+        raise SystemExit("test setup: include_dirs was not rewritten as intended")
     path.write_text(text)
 
 
@@ -1443,6 +1452,81 @@ def run_cache_case(case: CacheCase, cfg_dir: Path, parsed: dict) -> tuple[bool, 
         ctx.cleanup()
 
 
+def select_cases(cases: list, only: str) -> list:
+    """The cases whose name contains `only`. An empty `only` selects all."""
+    return [case for case in cases if only in case.name]
+
+
+def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
+    """The test runner's own helpers: case selection and the include list edit."""
+
+    class Named:
+        def __init__(self, name):
+            self.name = name
+
+    def selection(root: Path):
+        cases = [Named("alpha-one"), Named("alpha-two"), Named("beta")]
+        picks = {only: [c.name for c in select_cases(cases, only)] for only in ("", "alpha", "beta", "gamma")}
+        want = {"": ["alpha-one", "alpha-two", "beta"], "alpha": ["alpha-one", "alpha-two"], "beta": ["beta"], "gamma": []}
+        return None if picks == want else f"selection is wrong: {picks}"
+
+    def run_self(only: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(Path(__file__).resolve()), "--config", str(config_path), "--only", only],
+            capture_output=True, text=True,
+        )
+
+    def empty_selection(root: Path):
+        proc = run_self("no-case-has-this-name")
+        if proc.returncode == 0:
+            return "an --only text that selects nothing must not exit 0"
+        if "no case matches" not in proc.stdout + proc.stderr or "all cases behaved as required" in proc.stdout:
+            return f"an empty selection must say so and must not report success:\n{proc.stdout}{proc.stderr}"
+        return None
+
+    def nonempty_selection(root: Path):
+        proc = run_self("runner-selection-filter")
+        ran = [line for line in proc.stdout.splitlines() if line.startswith(("ok  ", "FAIL"))]
+        if proc.returncode != 0 or ran != ["ok   runner-selection-filter: behaves as required"]:
+            return f"a matching --only text must run exactly the matching case:\n{proc.stdout}{proc.stderr}"
+        if "not the full control set" not in proc.stdout:
+            return "a filtered run must say that it is not the full control set"
+        return None
+
+    def include_list(root: Path):
+        head = '[baseline]\nexecutable = "x"\n\n[toolchain]\n'
+        tail = 'cpp = "clang"\n\n[toolchain.cc1]\nkind = "local"\n'
+        variants = {
+            "absent": ("", []),
+            "empty": ("include_dirs = []\n", []),
+            "empty-spaced": ("include_dirs = [ ]\n", []),
+            "one": ('include_dirs = ["a"]\n', ["a"]),
+            "two-trailing-comma": ('include_dirs = ["a", "b/c",]\n', ["a", "b/c"]),
+            "multi-line": ('include_dirs = [\n  "a",\n  "b",\n]\n', ["a", "b"]),
+        }
+        for label, (line, before) in variants.items():
+            copy = root / label
+            copy.mkdir()
+            (copy / "build.toml").write_text(head + line + tail)
+            add_include_dir(copy, "selftest_inc")
+            try:
+                parsed = tomllib.loads((copy / "build.toml").read_text())
+            except tomllib.TOMLDecodeError as exc:
+                return f"{label}: the edited file is not valid TOML: {exc}"
+            if parsed["toolchain"].get("include_dirs") != [*before, "selftest_inc"]:
+                return f"{label}: include_dirs is {parsed['toolchain'].get('include_dirs')}"
+            if parsed["toolchain"].get("cpp") != "clang" or parsed["toolchain"]["cc1"] != {"kind": "local"}:
+                return f"{label}: the rest of [toolchain] changed"
+        return None
+
+    return [
+        CacheCase("runner-selection-filter", selection),
+        CacheCase("runner-selection-empty-fails", empty_selection),
+        CacheCase("runner-selection-nonempty-runs", nonempty_selection),
+        CacheCase("runner-include-list-edit", include_list),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/local/src/build.toml")
@@ -1458,22 +1542,31 @@ def main() -> int:
         print("configuration has no [selftest] section", file=sys.stderr)
         return 2
 
+    builds = select_cases(make_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed), args.only)
+    units = select_cases(
+        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
+    )
+    if not builds and not caches and not units:
+        print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)
+        return 2
+
     failed = 0
-    wanted = lambda cases: [case for case in cases if args.only in case.name]
-    for case in wanted(make_cases(cfg_dir, parsed)):
+    for case in builds:
         ok, message = run_case(case, cfg_dir)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
-    for case in wanted(make_cache_cases(parsed)):
+    for case in caches:
         ok, message = run_cache_case(case, cfg_dir, parsed)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
-    for case in wanted(make_cache_unit_cases() + make_rodata_unit_cases(parsed)):
+    for case in units:
         ok, message = run_cache_unit_case(case)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
+    ran = len(builds) + len(caches) + len(units)
     if args.only:
-        print(f"note: only cases matching {args.only!r} ran; this is not the full control set")
+        print(f"note: only the {ran} case(s) matching {args.only!r} ran; this is not the full control set")
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
     return 1 if failed else 0
 
