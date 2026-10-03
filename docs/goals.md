@@ -67,6 +67,12 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Fourteenth round, functions of 300 to 500 bytes in game code: 31 of 54
   matched, and one more came back from the parked pool. 1,187 functions,
   141,124 bytes in total, about 43 percent of the resident code bytes.
+- Rounds fifteen and sixteen, the rest of the game functions under 1,000
+  bytes: 50 of 78 matched. First pass over the functions of 1,000 bytes and
+  more, one per agent: 3 of 16. The permutation search and retries of the
+  parked pool brought back 18. 22 library functions came in from a public
+  reconstruction of the Sony SDK, built unchanged. 1,274 functions, 176,328
+  bytes in total, about 54 percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -85,20 +91,20 @@ The sweep of small functions is done. What remains in the resident image:
 See the project memory for the current counts of unattempted and parked
 functions; they change with every round.
 
-1. Bring up an automatic permutation search for candidates that have the right
-   logic and the wrong register allocation or instruction order. Run it over
-   the parked pool first.
-2. Attempt the larger functions with the same agent method to get candidates,
-   then pass the near misses to the permutation search.
-3. Handle the library area: assembly owners for hand-written stubs, a rule for
-   hardware-register access, per-unit assembler settings, and the division
-   check expansion.
-4. Replace `func_<address>` names where several units agree on a role, turn
+1. Land the build-tool change that is ready on its branch: units that own
+   initialised data, declare their bss, or are written in assembly. Then
+   import the remaining identified SDK files: those with data of their own,
+   and the BIOS call stubs as assembly units.
+2. Library files that were identified only in part: adapt the reference
+   source to this SDK version, one file per agent, as whole-object units.
+3. Continue the permutation search over the parked pool. About 210 parked
+   functions have not been tried yet. Then a second, different attempt on what remains.
+4. Six game functions of 1,700 to 2,400 bytes have not been attempted.
+5. Replace `func_<address>` names where several units agree on a role, turn
    the recorded casts and wrapper structs into proper members, and move
    repeated prototypes into shared headers. Every such change must rebuild
    exact.
-5. Jump tables are owned as read-only data now. Other data, such as local
-   table initialisers, still has no owner. Add it when a unit first needs it.
+6. Read-only data is owned per unit. Game data tables still have no owner.
 
 ## Overlays
 
