@@ -499,10 +499,15 @@ unfinished.
 SDK library identification:
 
 - A public reconstruction of the Sony SDK libraries exists in the SOTN
-  decompilation project (repository under AGPL-3.0, the SDK files marked
-  MIT). It is kept as a reference checkout and never copied into this
-  repository. Any future publication of private source must review that
-  provenance.
+  decompilation project (repository under AGPL-3.0, the SDK C files marked
+  MIT): `xeeynamo/sotn-decomp` at revision
+  `62d03266cc927aabefea3b0605cabc254b48831b`. Nothing from it is committed or
+  published here. Private copies do exist in the ignored workspace under
+  `ps1/local/src/sdk/`: the 15 imported files from `src/main/psxsdk/<library>/`
+  unchanged, each library's internal headers from the same directories, and
+  the shared headers from `include/` and `include/psxsdk/`. The copied headers
+  do not all carry the licence marker of the C files. Any future publication
+  of private source must review that provenance file by file.
 - A private helper compiles every reference file with this project's
   toolchain, masks the relocated instruction fields and searches the image.
   179 inventoried library functions and 36 that the inventory had missed
