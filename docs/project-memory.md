@@ -475,6 +475,85 @@ source ownership and coverage, not generating every source file before a boot.
 - Success by size so far: about 85 percent under 200 bytes, 58 percent from
   200 to 300, 57 percent from 300 to 500.
 
+## Eighteenth group: end of the game sweep, large functions, SDK identification
+
+Counts at this snapshot. No round is in progress, so they include nothing
+unfinished.
+
+- 1,274 functions exact, 176,328 bytes, 68 bytes of read-only data in four
+  ranges. About 54 percent of the inventoried resident code bytes. Both
+  compilers reproduce the image.
+- Rounds fifteen and sixteen, game functions of 300 to 1,000 bytes: 78
+  attempted, 50 exact.
+- Functions of 1,000 bytes and more, one per agent: 16 attempted, 3 exact.
+  The failures are register allocation, loop-invariant hoisting and stack
+  frame size, with the logic and usually the size right.
+- The permutation search has now tried 107 parked functions and matched 20,
+  all of them accepted by the build. Retries against newer trees and the
+  division expansion brought back a few more. About 200 parked functions have
+  not been tried.
+- Parked: 287 functions, about 79 KB (210 game, 77 library). Unattempted: 91
+  functions, about 73 KB (6 game functions of 1,700 bytes and more, 85
+  library).
+
+SDK library identification:
+
+- A public reconstruction of the Sony SDK libraries exists in the SOTN
+  decompilation project (repository under AGPL-3.0, the SDK C files marked
+  MIT): `xeeynamo/sotn-decomp` at revision
+  `62d03266cc927aabefea3b0605cabc254b48831b`. Nothing from it is committed or
+  published here. Private copies do exist in the ignored workspace under
+  `ps1/local/src/sdk/`: the 15 imported files from `src/main/psxsdk/<library>/`
+  unchanged, each library's internal headers from the same directories, and
+  the shared headers from `include/` and `include/psxsdk/`. The copied headers
+  do not all carry the licence marker of the C files. Any future publication
+  of private source must review that provenance file by file.
+- A private helper compiles every reference file with this project's
+  toolchain, masks the relocated instruction fields and searches the image.
+  179 inventoried library functions and 36 that the inventory had missed
+  match a reference function in every fixed bit. 84 reference files match as
+  whole objects, most of them one-function BIOS call stubs. 130 more
+  functions have a close candidate. The relocations of the matches also give
+  the address of 133 SDK symbols, with no conflict.
+- The SDK in this executable is close to the reference but not the same
+  version: two version strings differ. Files that match only in part need
+  adapting.
+- 15 reference files with no writable data of their own were built unchanged
+  as units and are exact: 22 functions. Real SDK names come with them.
+- **Correction to the eleventh group.** No library function needed a newer
+  assembler. Every match was found with the project's assembler setting. What
+  the library needed was the division expansion, now a build option. The
+  per-unit assembler setting is dropped as a plan.
+- The function inventory undercounts library code: 36 functions reached only
+  through pointers have no entry. The percentages above use the inventory as
+  it is.
+
+Build tool:
+
+- Division expansion, include directories, read-only data that ends short of
+  a word, and a float guard that ignores literals are in. One matched unit
+  needed the padding rule.
+- Ready on a branch, not merged: units that own initialised data and declare
+  their bss, assembly units counted apart from C, and a check that rejects
+  inline assembly in C units. A trial showed the reference files with data
+  still fail there for a reason not yet examined: the native compiler crashes
+  on three of them under the build's preprocessing, though it compiles them
+  in the identification helper, which passes the reference's own defines.
+
+Lessons:
+
+- The banking helper parked a whole batch of matched functions when the build
+  stopped on a configuration error and left no objects. Nothing was lost, the
+  candidates were restored from the parked copies. The helper now stops on
+  configuration and environment errors.
+- Two helpers dropped a unit's read-only data line when they removed or split
+  the unit, which broke the next unit's table. Fixed.
+- A third function needed a second symbol for one address inside the shared
+  state block to get its own base register.
+- One agent redid a function that the parked retry had already recovered,
+  because the round was planned from a tree older than the retry. Plan rounds
+  from the newest tree.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
