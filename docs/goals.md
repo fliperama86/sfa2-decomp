@@ -34,6 +34,8 @@ payloads, accurate source coverage, and retained human/AI refinements.
   code-bearing chunk on the disc, estimated link addresses.
 - First parallel round: five units matched side by side and merged
   mechanically. 33 more functions. 45 functions, 5,548 bytes in total.
+- Second parallel round: five more units, 25 more functions. 70 functions,
+  9,836 bytes in total. Six functions are parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -50,7 +52,7 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 1. Keep widening in parallel rounds over ranges next to matched units. Merge
    each round with `mergeunits.py` and resolve type conflicts at the top level.
-2. Retry the three parked functions. Each has a recorded residual and attempt
+2. Retry the six parked functions. Each has a recorded residual and attempt
    log in the private `open/` folder. They stay raw until exact.
 3. Replace `func_<address>` names where several units now agree on a role,
    and move repeated prototypes into shared headers.
