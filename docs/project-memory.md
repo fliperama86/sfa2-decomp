@@ -163,6 +163,42 @@ source ownership and coverage, not generating every source file before a boot.
 - Work on a candidate in a sibling copy of `ps1/local/src` with `--config` and
   its own `--tag`. The main tree then stays exact while a PR is under review.
 
+## Fourth group: first parallel round
+
+- Five subagents each matched one unit in its own copy of the private source
+  directory. 33 functions became exact; 45 functions and 5,548 bytes in total.
+  Three functions did not match and are parked in `ps1/local/open/` with their
+  residual and attempt log. They stay raw. Nothing inexact enters the build.
+- Shared structs are now a field table, `types.fields`. The build generates
+  the header and checks the layout with a second compiler. Hand-written
+  padding is gone. `mergeunits.py` merges unit directories and reports every
+  disagreement instead of resolving it.
+- The merge surfaced two type conflicts on the object struct. Both were real
+  knowledge: offset `0x18` is the current sequence step and `0x88` the current
+  frame record. One agent had invented a second struct with unsigned fields
+  for the sequence step. The existing signed struct matches the same code,
+  because a 16-bit copy loads unsigned whatever the field's sign.
+- The two player objects behave as one array of two. Code reaches the other
+  player as the first plus one or the second minus one.
+- **Second use of two names for one address.** One routine stores the address
+  of the global state block into a pointer inside that block. The original
+  loads the address on its own; with one symbol the compiler derives it from
+  the store address. A second symbol at the same address matches. Hypothesis:
+  the state block sits inside a larger object with a lower base symbol, which
+  would give both effects without a second name. Not verified.
+- The pointer inside the state block points back at the block itself in that
+  routine. The struct used for its target may be the same type as the block.
+  Not unified yet.
+- One address is read as a signed byte in one unit and as an unsigned 16-bit
+  value in another. Each unit declares its own extern. Meaning unknown.
+- Lessons for briefs: give each agent its own scratch folder, and check the
+  tool paths in the brief before launch. One tool path was wrong in this round
+  and every agent had to find the tool elsewhere.
+- Open residuals: a routine that reserves 16 bytes of stack it never uses,
+  where two 16-bit locals only produce 8; a routine whose two saved registers
+  come out swapped; a routine whose second loop the original strength-reduces
+  and the candidate does not.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
