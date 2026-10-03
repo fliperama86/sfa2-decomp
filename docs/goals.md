@@ -97,7 +97,7 @@ functions; they change with every round.
    and the BIOS call stubs as assembly units.
 2. Library files that were identified only in part: adapt the reference
    source to this SDK version, one file per agent, as whole-object units.
-3. Continue the permutation search over the parked pool. About 210 parked
+3. Continue the permutation search over the parked pool. About 200 parked
    functions have not been tried yet. Then a second, different attempt on what remains.
 4. Six game functions of 1,700 to 2,400 bytes have not been attempted.
 5. Replace `func_<address>` names where several units agree on a role, turn

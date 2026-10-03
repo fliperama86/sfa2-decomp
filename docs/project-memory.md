@@ -490,7 +490,7 @@ unfinished.
   frame size, with the logic and usually the size right.
 - The permutation search has now tried 107 parked functions and matched 20,
   all of them accepted by the build. Retries against newer trees and the
-  division expansion brought back a few more. About 210 parked functions have
+  division expansion brought back a few more. About 200 parked functions have
   not been tried.
 - Parked: 287 functions, about 79 KB (210 game, 77 library). Unattempted: 91
   functions, about 73 KB (6 game functions of 1,700 bytes and more, 85
