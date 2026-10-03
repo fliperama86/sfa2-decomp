@@ -17,8 +17,10 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | Path | Visibility | Content |
 | --- | --- | --- |
 | `ps1/tools/matchbuild.py` | public | Build, link, compare, report |
-| `ps1/tools/test_matchbuild.py` | public | Negative controls for the build tool |
+| `ps1/tools/test_matchbuild.py` | public | Controls for the build tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
+| `ps1/tools/verify_cc1_golden.py` | public | Compare a compiler with saved reference output |
+| `ps1/tools/test_verify_cc1_golden.py` | public | Controls for the compiler checker |
 | `ps1/local/src/build.toml` | private | Baseline pin, toolchain pins, unit declarations |
 | `ps1/local/src/symbols.ld` | private | Addresses of symbols not defined by C units |
 | `ps1/local/src/*.c` | private | Reconstructed source, one file per unit |
@@ -137,8 +139,13 @@ Each run deletes and recreates `build/<tag>/`. Nothing is reused.
 1. Read and validate the configuration. Check the baseline hash, the `PS-X EXE`
    magic, and that the file size equals header size plus payload size. Extract
    the payload to the build directory.
-2. Check toolchain pins: `cc1` SHA-256 (hashed on the host where it runs) and
-   the maspsx git commit. Record tool versions.
+2. Check toolchain pins. The `cc1` SHA-256 is hashed on the host where it
+   runs. For maspsx, the pinned commit is exported from the checkout's object
+   database into the build directory and that copy is what runs. The
+   checkout's working tree, its HEAD and any stale bytecode therefore cannot
+   change the code that executes. A pinned commit missing from the checkout
+   fails the build. The report records whether the checkout was dirty. Record
+   tool versions.
 3. Per unit: preprocess with
    `clang -E -P -x c -target mipsel-none-elf -nostdinc`, compile with
    `cc1 -quiet <flags>`, convert with `maspsx --aspsx-version=<v>`, assemble
@@ -167,14 +174,23 @@ All fail closed with a non-zero exit status.
 - Comparator controls on every successful build: flipping one byte inside each
   C function of the image must make exactly that function fail, and flipping
   one raw byte must make the image check fail. A control that does not trip
-  fails the build.
+  fails the build. When units own the whole payload there is no raw byte to
+  flip: the raw control is recorded as not applicable and the function controls
+  stay mandatory.
 
 `test_matchbuild.py` runs the tool against temporary copies of the private
 configuration and requires failure for: the `[selftest]` source mutation, a
 wrong declared size, two overlapping units, a symbol removed from `symbols.ld`,
 a unit function duplicated in `symbols.ld`, a wrong `cc1` hash pin, a wrong
-baseline hash, and floating-point source when the default compiler is marked
-`no_float`. It also requires the unmodified build to pass.
+baseline hash, a maspsx commit that does not exist, and floating-point source
+when the default compiler is marked `no_float`. It requires success for: the
+unmodified build; a maspsx checkout whose script is edited to abort, which
+passes only because the pinned commit runs instead; and a synthetic fixture
+whose whole payload is one C function.
+
+`test_verify_cc1_golden.py` covers the compiler checker with a stand-in
+compiler: a selected case with a missing input or missing expected output must
+fail, as must a differing output and an empty selection.
 
 ## Report
 

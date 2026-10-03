@@ -7,9 +7,10 @@ See the [matching build](docs/matching-build.md), the
 Public tools, free of game data:
 
 - `tools/matchbuild.py`: whole-image build, comparison and report.
-- `tools/test_matchbuild.py`: negative controls for the build tool.
+- `tools/test_matchbuild.py`: controls for the build tool.
 - `tools/baseline.py`: disc and file manifest, pin and verify.
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
+- `tools/test_verify_cc1_golden.py`: controls for that checker.
 
 Private files:
 

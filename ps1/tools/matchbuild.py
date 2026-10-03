@@ -13,12 +13,14 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import hashlib
+import io
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tomllib
 from pathlib import Path
 
@@ -208,6 +210,7 @@ def run_controls(
                 {
                     "kind": "function",
                     "target": fn.name,
+                    "applicable": True,
                     "tripped": tripped,
                     "detail": f"functions failing: {failed}, image exact: {result.image_exact}",
                 }
@@ -221,13 +224,22 @@ def run_controls(
             {
                 "kind": "raw",
                 "target": f"raw byte at {address + size // 2:#010x}",
+                "applicable": True,
                 "tripped": tripped,
                 "detail": f"image exact: {result.image_exact}, functions exact: {result.all_functions_exact}",
             }
         )
     else:
+        # A payload fully owned by units has no raw byte to mutate. The
+        # function controls above already cover every byte of it.
         controls.append(
-            {"kind": "raw", "target": "none", "tripped": False, "detail": "no raw range to mutate"}
+            {
+                "kind": "raw",
+                "target": "none",
+                "applicable": False,
+                "tripped": False,
+                "detail": "no raw range: the payload is fully owned by units",
+            }
         )
     return controls
 
@@ -525,11 +537,18 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
 # Subprocess helpers
 
 
-def run(args, *, cwd: Path | None = None, input: bytes | None = None, step: str) -> subprocess.CompletedProcess:
+def run(
+    args,
+    *,
+    cwd: Path | None = None,
+    input: bytes | None = None,
+    env: dict | None = None,
+    step: str,
+) -> subprocess.CompletedProcess:
     """Run a command and enforce its exit status."""
     argv = [str(a) for a in args]
     try:
-        result = subprocess.run(argv, cwd=cwd, input=input, capture_output=True)
+        result = subprocess.run(argv, cwd=cwd, input=input, env=env, capture_output=True)
     except OSError as exc:
         raise StepError(f"{step}: cannot execute {argv[0]}: {exc}")
     if result.returncode != 0:
@@ -688,15 +707,48 @@ def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, in
     (build / "link.ld").write_text("\n".join(lines) + "\n")
 
 
-def check_pins(cfg: Config, compiler: Compiler) -> tuple[list[str], dict]:
-    errors = []
+def export_maspsx(cfg: Config, build: Path) -> tuple[list[str], dict, Path | None]:
+    """Export the pinned maspsx commit into the build directory.
+
+    The build runs this exported copy, never the checkout's working tree, so
+    local edits, a different HEAD or stale bytecode in the checkout cannot
+    change the code that runs. Returns (errors, tool record, script path).
+    """
+    git = ["git", "-C", cfg.maspsx.parent]
+    try:
+        top = Path(run([*git, "rev-parse", "--show-toplevel"], step="maspsx repository").stdout.decode().strip())
+        commit = run(
+            [*git, "rev-parse", "--verify", "--quiet", f"{cfg.maspsx_commit}^{{commit}}"],
+            step="maspsx pinned commit",
+        ).stdout.decode().strip()
+    except StepError as exc:
+        return [f"maspsx commit {cfg.maspsx_commit} is not available in {cfg.maspsx.parent}: {exc}"], {}, None
+    head = run([*git, "rev-parse", "HEAD"], step="maspsx head").stdout.decode().strip()
+    dirty = bool(run([*git, "status", "--porcelain"], step="maspsx status").stdout.strip())
+    script_rel = Path(os.path.realpath(cfg.maspsx)).relative_to(os.path.realpath(top))
+    record = {
+        "repository": str(top),
+        "script": str(script_rel),
+        "pinned_commit": commit,
+        "executed": "export of the pinned commit",
+        "checkout_head": head,
+        "checkout_dirty": dirty,
+    }
+    # Run from the top level: git archive only covers the current directory's subtree.
+    archive = run(["git", "-C", top, "archive", "--format=tar", commit], step="maspsx export").stdout
+    export_dir = build / "maspsx"
+    export_dir.mkdir()
+    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        tar.extractall(export_dir, filter="data")
+    script = export_dir / script_rel
+    if not script.is_file():
+        return [f"maspsx script {script_rel} does not exist in pinned commit {commit}"], record, None
+    return [], record, script
+
+
+def check_pins(cfg: Config, compiler: Compiler, build: Path) -> tuple[list[str], dict, Path | None]:
     tools: dict = {}
-    # maspsx commit
-    result = run(["git", "-C", cfg.maspsx.parent, "rev-parse", "HEAD"], step="maspsx commit")
-    commit = result.stdout.decode().strip()
-    tools["maspsx"] = {"path": str(cfg.maspsx), "commit": commit, "pinned_commit": cfg.maspsx_commit}
-    if not commit.startswith(cfg.maspsx_commit):
-        errors.append(f"maspsx commit mismatch: checkout is {commit}, configuration pins {cfg.maspsx_commit}")
+    errors, tools["maspsx"], maspsx_script = export_maspsx(cfg, build)
     # cc1 hash
     actual = compiler.actual_hash()
     tools["cc1"] = {
@@ -708,7 +760,7 @@ def check_pins(cfg: Config, compiler: Compiler) -> tuple[list[str], dict]:
     }
     if actual != cfg.cc1.sha256:
         errors.append(f"cc1 sha256 mismatch: binary is {actual}, configuration pins {cfg.cc1.sha256}")
-    return errors, tools
+    return errors, tools, maspsx_script
 
 
 def collect_versions(cfg: Config, tools: dict) -> None:
@@ -737,11 +789,13 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
 
     compiler = Compiler(cfg.cc1, tag)
     compiler.check_master()
-    pin_errors, tools = check_pins(cfg, compiler)
+    pin_errors, tools, maspsx_script = check_pins(cfg, compiler, build)
     report["tools"] = tools
     if pin_errors:
         return report, pin_errors
     collect_versions(cfg, tools)
+    # The exported copy carries no bytecode; keep it that way.
+    maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
 
     payload = cfg.payload
     (build / "payload.bin").write_bytes(payload)
@@ -767,8 +821,9 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
                 continue
         compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
         converted = run(
-            [sys.executable, cfg.maspsx, f"--aspsx-version={cfg.aspsx_version}"],
+            [sys.executable, maspsx_script, f"--aspsx-version={cfg.aspsx_version}"],
             input=asm.read_bytes(),
+            env=maspsx_env,
             step=f"maspsx {unit.name}",
         )
         gnu.write_bytes(converted.stdout)
@@ -815,7 +870,7 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
     if comparison.image_exact:
         controls = run_controls(image, payload, cfg.load, cfg.units)
         for control in controls:
-            if not control["tripped"]:
+            if control["applicable"] and not control["tripped"]:
                 failures.append(f"comparator control did not trip: {control['kind']} {control['target']}: {control['detail']}")
     else:
         controls = []
@@ -870,8 +925,16 @@ def summary_text(report: dict, failures: list[str]) -> str:
         lines.append(f"executable sha256: {report['executable_sha256']}")
         lines.append(f"baseline sha256:   {report['baseline_executable_sha256']}")
         controls = report["controls"]
-        tripped = sum(1 for c in controls if c["tripped"])
-        lines.append(f"comparator controls: {tripped}/{len(controls)} tripped" if controls else "comparator controls: not run")
+        applicable = [c for c in controls if c["applicable"]]
+        tripped = sum(1 for c in applicable if c["tripped"])
+        if controls:
+            note = "" if len(applicable) == len(controls) else " (raw control not applicable: no raw range)"
+            lines.append(f"comparator controls: {tripped}/{len(applicable)} tripped{note}")
+        else:
+            lines.append("comparator controls: not run")
+        maspsx = report.get("tools", {}).get("maspsx", {})
+        if maspsx.get("checkout_dirty"):
+            lines.append("note: the maspsx checkout has local changes; the pinned commit was exported and run instead")
     for reason in failures:
         lines.append(f"FAIL: {reason}")
     lines.append("RESULT: " + ("FAIL" if failures else "PASS"))

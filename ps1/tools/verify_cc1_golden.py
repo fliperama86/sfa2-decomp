@@ -49,9 +49,14 @@ def main() -> int:
         if str(meta.get("compiler")) != args.compiler:
             continue
         src, ref = os.path.join(d, "metrics.i"), os.path.join(d, "metrics.s")
-        if not (os.path.isfile(src) and os.path.isfile(ref)):
-            continue
         total += 1
+        # A selected case with a missing artifact is a failure, never a skip:
+        # otherwise an incomplete golden set could report full agreement.
+        missing = [os.path.basename(p) for p in (src, ref) if not os.path.isfile(p)]
+        if missing:
+            bad += 1
+            print(f"FAIL {name}: missing {', '.join(missing)}")
+            continue
         with tempfile.TemporaryDirectory() as td:
             out = os.path.join(td, "out.s")
             p = subprocess.run([args.cc1, *meta["flags"], src, "-o", out],
