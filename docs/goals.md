@@ -46,6 +46,8 @@ payloads, accurate source coverage, and retained human/AI refinements.
   55 functions are parked and stay raw.
 - Seventh round, fourth sweep: 138 more. 639 functions, 63,900 bytes in
   total. 79 functions are parked and stay raw.
+- Eighth round, fifth sweep: 130 more. 769 functions, 74,216 bytes in total.
+  151 functions are parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -60,16 +62,19 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 ## Next implementation package
 
-1. Keep sweeping functions under 200 bytes in parallel rounds. About 480
-   such functions remain, close to 41 KB. Merge each round with
+1. Keep sweeping functions under 200 bytes in parallel rounds. About 280
+   such functions remain, close to 26 KB. Merge each round with
    `mergeunits.py` and resolve type conflicts at the top level.
-2. Find a method for functions above roughly 300 bytes and for the 79 parked
+2. Find a method for functions above roughly 300 bytes and for the 151 parked
    ones. About 210 KB of code sits there. Candidates: an automatic
    permutation search against the compiler, or a stronger model per function. Each has a recorded residual and attempt
    log in the private `open/` folder. They stay raw until exact.
 3. Replace `func_<address>` names where several units now agree on a role,
    and move repeated prototypes into shared headers.
-4. Add data and read-only data ownership to the matching build when a unit
+4. Account for the library code at the top of the code area. It needs its own
+   handling: assembly owners for the hand-written stubs, per-unit assembler
+   settings, and a decision on hardware-register access.
+5. Add data and read-only data ownership to the matching build when a unit
    first needs it. Until then such units are rejected, not misplaced.
 
 ## Overlays
