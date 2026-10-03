@@ -187,6 +187,9 @@ def format_unit(unit: dict) -> str:
                 fields = ", ".join(f"{k} = {format_value(k, v)}" for k, v in function.items())
                 lines.append(f"  {{ {fields} }},")
             lines.append("]")
+        elif isinstance(value, dict):
+            fields = ", ".join(f"{k} = {format_value(k, v)}" for k, v in value.items())
+            lines.append(f"{key} = {{ {fields} }}")
         else:
             lines.append(f"{key} = {format_value(key, value)}")
     text = "\n".join(lines) + "\n"

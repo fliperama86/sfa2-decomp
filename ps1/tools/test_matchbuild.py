@@ -34,6 +34,25 @@ FIXTURE_SOURCE = "int value(void) { return 7; }\n"
 FIXTURE_SIZE = 8
 HEADER_SIZE = 2048
 
+# Synthetic read-only data fixture: a dense switch that compiles to a jump table.
+RODATA_SOURCE = """\
+extern int g;
+int pick(int a) {
+    switch (a) {
+    case 0: return g + 1;
+    case 1: return g * 3;
+    case 2: return g - 5;
+    case 3: return g ^ 9;
+    case 4: return g | 2;
+    case 5: return g & 6;
+    }
+    return 0;
+}
+"""
+RODATA_GAP = 0x40  # raw filler between the end of the text and the table
+RODATA_TAIL = 0x20  # raw filler after the table
+FILLER = 0xA5
+
 
 class Case:
     def __init__(self, name, expect_pass, reason, mutate=None, verify=None, fndiff=None):
@@ -263,7 +282,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + types_cases + [
+    return float_cases + types_cases + make_rodata_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -278,6 +297,200 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("unknown-maspsx-commit", False, "maspsx commit", unknown_maspsx_commit),
         Case("dirty-maspsx-checkout", True, "", dirty_maspsx, verify_dirty_reported),
         Case("all-c-payload", True, "", all_c_fixture, verify_all_c),
+    ]
+
+
+class RodataFixture:
+    """A one-unit configuration whose function has a jump table placed away from the text.
+
+    The baseline comes from the same toolchain. A seed build with the correct
+    declarations over a payload of filler bytes fails its comparison but leaves
+    the image. That image, text and table with filler between and after them,
+    becomes the baseline payload. The table sits RODATA_GAP bytes after the
+    text, so it is not adjacent to it.
+    """
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = parsed["toolchain"]
+        self.text_size = 0
+        self.table = 0
+        self.baseline = b""
+
+    def write(self, copy: Path, payload: bytes, text_size: int, rodata, extra: str = "") -> None:
+        (copy / "pick.c").write_text(RODATA_SOURCE)
+        (copy / "other.c").write_text("int other(void) { return 1; }\n")
+        (copy / "symbols.ld").write_text(f"g = {FIXTURE_LOAD + 0x10000:#x};\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        ro = "" if rodata is None else f"rodata = {{ address = {rodata[0]:#x}, size = {rodata[1]} }}\n"
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+            + "[[unit]]\n"
+            'name = "pick"\n'
+            'source = "pick.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "pick", address = {FIXTURE_LOAD:#x}, size = {text_size} }} ]\n'
+            + ro
+            + extra
+        )
+
+    def _seed(self, name: str, payload: bytes, text_size: int, rodata) -> Path:
+        """Run a throwaway build. Returns its build directory (caller removes it)."""
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        if copy.exists():
+            shutil.rmtree(copy)
+        copy.mkdir()
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        self.write(copy, payload, text_size, rodata)
+        proc = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        self.last = proc
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("rodata-geometry", bytes(64), 4, None)
+        try:
+            with open(build / "unit-pick.o", "rb") as handle:
+                sizes = {sec.name: sec["sh_size"] for sec in ELFFile(handle).iter_sections()}
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        if not sizes.get(".text") or not sizes.get(".rodata"):
+            raise SystemExit(f"test setup: the fixture object has no jump table: {sizes}")
+        self.text_size, self.table = sizes[".text"], sizes[".rodata"]
+        build = self._seed(
+            "rodata-seed", bytes([FILLER]) * self.payload_size, self.text_size, (self.table_address, self.table)
+        )
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.payload_size:
+                raise SystemExit(f"test setup: the rodata seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        if self.baseline[self.text_size : self.text_size + RODATA_GAP] != bytes([FILLER]) * RODATA_GAP:
+            raise SystemExit("test setup: no raw filler between the text and the table")
+
+    @property
+    def table_address(self) -> int:
+        return FIXTURE_LOAD + self.text_size + RODATA_GAP
+
+    @property
+    def payload_size(self) -> int:
+        return self.text_size + RODATA_GAP + self.table + RODATA_TAIL
+
+    def install(self, copy: Path, *, address=None, size=None, declare=True, extra="", source=None, baseline=None):
+        """Replace the copy with the fixture, with the given declaration."""
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        rodata = None
+        if declare:
+            rodata = (self.table_address if address is None else address, self.table if size is None else size)
+        self.write(copy, self.baseline if baseline is None else baseline, self.text_size, rodata, extra)
+        if source is not None:
+            (copy / "pick.c").write_text(source)
+
+
+def make_rodata_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = RodataFixture(cfg_dir, parsed)
+
+    def geometry():
+        fx.prepare()
+        return fx
+
+    def declared(copy: Path):
+        fx.install(copy)
+
+    def verify_declared(report: dict):
+        cov = report.get("coverage", {})
+        if cov.get("rodata_bytes") != fx.table:
+            return f"coverage rodata_bytes is {cov.get('rodata_bytes')}, want {fx.table}"
+        if cov.get("c_bytes") != fx.text_size or cov.get("raw_payload_bytes") != RODATA_GAP + RODATA_TAIL:
+            return f"coverage does not split text, rodata and raw: {cov}"
+        ro = report["units"][0].get("rodata")
+        if not ro or not ro["exact"] or ro["address"] != fx.table_address or ro["size"] != fx.table or ro["first_diff"] is not None:
+            return f"per-unit rodata record is wrong: {ro}"
+        kinds = {c["kind"]: c for c in report["controls"]}
+        for kind in ("function", "rodata", "raw"):
+            if kind not in kinds or not kinds[kind]["applicable"] or not kinds[kind]["tripped"]:
+                return f"control {kind!r} missing or not tripped: {report['controls']}"
+        return None
+
+    def at(delta: int):
+        return lambda copy: fx.install(copy, address=geometry().table_address + delta)
+
+    def sized(delta: int):
+        return lambda copy: fx.install(copy, size=geometry().table + delta)
+
+    def own_text(copy: Path):
+        fx.install(copy, address=FIXTURE_LOAD + 4)
+
+    def outside(copy: Path):
+        fx.install(copy, address=FIXTURE_LOAD + geometry().payload_size)
+
+    def other_text(copy: Path):
+        extra = (
+            '\n[[unit]]\nname = "other"\nsource = "other.c"\nflags = ["-O2"]\n'
+            f'functions = [ {{ name = "other", address = {geometry().table_address:#x}, size = 4 }} ]\n'
+        )
+        fx.install(copy, extra=extra)
+
+    def other_rodata(copy: Path):
+        tail = FIXTURE_LOAD + geometry().payload_size - 4
+        extra = (
+            '\n[[unit]]\nname = "other"\nsource = "other.c"\nflags = ["-O2"]\n'
+            f'functions = [ {{ name = "other", address = {tail:#x}, size = 4 }} ]\n'
+            f"rodata = {{ address = {geometry().table_address + 4:#x}, size = 8 }}\n"
+        )
+        fx.install(copy, extra=extra)
+
+    def no_table(copy: Path):
+        fx.install(copy, source="int pick(int a) { return a + 1; }\n")
+
+    def table_byte_differs(copy: Path):
+        # Same code and declaration; one byte of the baseline table differs.
+        geometry()
+        baseline = bytearray(fx.baseline)
+        baseline[fx.table_address - FIXTURE_LOAD + 8] ^= 0x10
+        fx.install(copy, baseline=bytes(baseline))
+
+    def verify_table_differs(report: dict):
+        ro = report["units"][0].get("rodata") if "units" in report else None
+        if not ro or ro["exact"] or ro["first_diff"] != 8:
+            return f"rodata record should report offset 8: {ro}"
+        if not all(f["exact"] for f in report["units"][0]["functions"]):
+            return "the code must still be exact"
+        return None
+
+    return [
+        Case("rodata-declared", True, "", declared, verify_declared, fndiff=("pick", 0, "IDENTICAL")),
+        Case("rodata-undeclared", False, "rodata must be declared", lambda c: fx.install(c, declare=False)),
+        Case("rodata-size-too-small", False, "rodata size mismatch", sized(-4)),
+        Case("rodata-size-too-large", False, "rodata size mismatch", sized(4)),
+        Case("rodata-size-misaligned", False, "is not a multiple of four", sized(2)),
+        Case("rodata-zero-size", False, "size must be greater than zero", lambda c: fx.install(c, size=0)),
+        Case("rodata-address-wrong", False, "rodata: bytes differ from baseline", at(8)),
+        Case("rodata-address-misaligned", False, "is not a multiple of four", at(2)),
+        Case("rodata-table-byte-differs", False, "rodata: bytes differ from baseline at offset 8", table_byte_differs, verify_table_differs),
+        Case("rodata-overlaps-other-text", False, "overlaps the text range of unit 'other'", other_text),
+        Case("rodata-overlaps-other-rodata", False, "overlaps the rodata range of unit 'pick'", other_rodata),
+        Case("rodata-overlaps-own-text", False, "overlaps its own text range", own_text),
+        Case("rodata-outside-payload", False, "outside the payload", outside),
+        Case("rodata-declared-but-absent", False, "declares rodata", no_table),
     ]
 
 
@@ -902,6 +1115,97 @@ def make_cache_unit_cases() -> list[CacheCase]:
     return [CacheCase(name, body) for name, body in table]
 
 
+def make_rodata_unit_cases(parsed: dict) -> list[CacheCase]:
+    """Read-only data ownership without a build: ranges, controls and object checks."""
+    UnitDecl, FunctionDecl, RodataDecl = matchbuild.UnitDecl, matchbuild.FunctionDecl, matchbuild.RodataDecl
+    load = 0x1000
+
+    def unit(name: str, text: int, size: int, rodata=None):
+        return UnitDecl(name, f"{name}.c", (), (FunctionDecl(f"{name}_fn", text, size),), RodataDecl(*rodata) if rodata else None)
+
+    units = [
+        unit("a", load + 0x10, 0x20, (load + 0x200, 0x18)),
+        unit("b", load + 0x40, 0x10),
+        unit("c", load + 0x60, 0x10, (load + 0x100, 0x8)),
+    ]
+
+    def raw(root: Path):
+        got = matchbuild.raw_ranges(load, 0x300, units)
+        want = [(load, 0x10), (load + 0x30, 0x10), (load + 0x50, 0x10), (load + 0x70, 0x90), (load + 0x108, 0xF8), (load + 0x218, 0xE8)]
+        return None if got == want else f"raw ranges {got} != {want}"
+
+    def controls(root: Path):
+        payload = bytes((i * 7 + 3) & 0xFF for i in range(0x300))
+        image = payload
+        records = matchbuild.run_controls(image, payload, load, units)
+        kinds = [c["kind"] for c in records]
+        if kinds.count("rodata") != 2 or kinds.count("function") != 3 or kinds.count("raw") != 1:
+            return f"unexpected controls: {kinds}"
+        if not all(c["tripped"] for c in records if c["applicable"]):
+            return f"a control did not trip: {records}"
+        # One flipped byte anywhere in a rodata range is flagged for exactly that unit.
+        for u in units:
+            if u.rodata is None:
+                continue
+            for off in (0, u.rodata.size - 1):
+                result = matchbuild.compare_image(
+                    matchbuild.flip_byte(image, u.rodata.address - load + off), payload, load, units
+                )
+                failed = [r.unit for r in result.rodata if not r.exact]
+                if failed != [u.name] or not result.all_functions_exact or result.image_exact:
+                    return f"flip at {off} in {u.name} rodata flagged {failed}"
+                bad = next(r for r in result.rodata if r.unit == u.name)
+                if bad.first_diff != off:
+                    return f"first_diff {bad.first_diff}, want {off}"
+        # A byte just outside the range is raw, not rodata.
+        result = matchbuild.compare_image(matchbuild.flip_byte(image, 0x200 + 0x18), payload, load, units)
+        if not result.all_rodata_exact or result.image_exact:
+            return "a raw byte next to a rodata range was attributed to the rodata"
+        return None
+
+    def object_checks(root: Path):
+        prefix = parsed["toolchain"]["binutils_prefix"]
+        assembler = shutil.which(prefix + "as")
+        if assembler is None:
+            raise SystemExit(f"test setup: {prefix}as not on PATH")
+
+        def build(name: str, body: str) -> Path:
+            source, obj = root / f"{name}.s", root / f"{name}.o"
+            source.write_text(body)
+            subprocess.run([assembler, *matchbuild.AS_FLAGS, "-o", str(obj), str(source)], check=True)
+            return obj
+
+        text = ".text\n.word 0\n.word 0\n"
+        only_text = build("t", text)
+        both = build("both", text + '.section .rodata,"a"\n.word 1\n.word 2\n' + '.section .rdata,"a"\n.word 3\n')
+        rdata = build("rdata", text + '.section .rdata,"a"\n.word 3\n.word 4\n')
+        data = build("data", text + '.section .rodata,"a"\n.word 1\n.data\n.word 9\n')
+        plain = unit("u", load, 8)
+        with_ro = lambda n: unit("u", load, 8, (load + 0x100, n))
+        checks = [
+            ("no table, none declared", only_text, plain, []),
+            ("no table, one declared", only_text, with_ro(8), ["declares rodata"]),
+            ("table, none declared", both, plain, ["rodata must be declared"]),
+            ("rodata and rdata add up", both, with_ro(12), []),
+            ("rodata and rdata wrong total", both, with_ro(8), ["rodata size mismatch"]),
+            ("rdata alone", rdata, with_ro(8), []),
+            ("data is still rejected", data, with_ro(4), ["only .text and read-only data"]),
+        ]
+        for label, obj, decl, wanted in checks:
+            errors = matchbuild.check_unit_object(obj, decl)
+            text_errors = " | ".join(errors)
+            if len(errors) != len(wanted) or any(w not in text_errors for w in wanted):
+                return f"{label}: got {errors}, wanted {wanted}"
+        return None
+
+    table = (
+        ("rodata-unit-raw-ranges", raw),
+        ("rodata-unit-controls", controls),
+        ("rodata-unit-object-checks", object_checks),
+    )
+    return [CacheCase(name, body) for name, body in table]
+
+
 def run_cache_unit_case(case: CacheCase) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory(prefix="mb-cache-unit-") as tmp:
         try:
@@ -945,7 +1249,7 @@ def main() -> int:
         ok, message = run_cache_case(case, cfg_dir, parsed)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
-    for case in make_cache_unit_cases():
+    for case in make_cache_unit_cases() + make_rodata_unit_cases(parsed):
         ok, message = run_cache_unit_case(case)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok

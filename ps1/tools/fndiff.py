@@ -24,7 +24,7 @@ from capstone import CS_ARCH_MIPS, CS_MODE_LITTLE_ENDIAN, CS_MODE_MIPS32, Cs
 from elftools.elf.elffile import ELFFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from matchbuild import DISCARDED_SECTIONS, ConfigError, load_config  # noqa: E402
+from matchbuild import DISCARDED_SECTIONS, RODATA_SECTIONS, ConfigError, load_config  # noqa: E402
 
 
 def words(data: bytes) -> list[bytes]:
@@ -38,11 +38,16 @@ def link_alone(cfg, unit, build: Path) -> Path:
         raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
     others = [fn for other in cfg.units if other.name != unit.name for fn in other.functions]
     script = build / f"unit-{unit.name}.fndiff.ld"
+    rodata = ""
+    if unit.rodata is not None:
+        # Jump-table addresses in the code depend on where the table sits.
+        rodata = f" .rodata {unit.rodata.address:#x} : SUBALIGN(1) {{ " + " ".join(f"*({s})" for s in RODATA_SECTIONS) + " }\n"
     script.write_text(
         f'INCLUDE "{cfg.symbols_path}"\n'
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
+        + rodata
         + " /DISCARD/ : { " + " ".join(f"*({s})" for s in DISCARDED_SECTIONS) + " *(.note*) }\n"
         + "}\n"
     )
