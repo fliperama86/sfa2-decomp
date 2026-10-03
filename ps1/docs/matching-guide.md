@@ -83,9 +83,21 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
 - Identical tails before a common jump are merged. If the original keeps two
   identical blocks apart, the source reached them differently.
 - A zero stored from a register rather than `$zero` came from a variable.
-- On an 8-bit or 16-bit field, `x--` and `x -= 1` add minus one. `x = x - 1`
-  adds 255 on a byte, or loads 0xffff for a halfword. Pick the form from the
-  constant in the listing.
+- Expression form, type and surrounding code all change what a decrement
+  compiles to. One pattern is confirmed on a small fixture, for an unsigned
+  byte field only:
+
+  ```c
+  struct S { unsigned char x; };
+  void a(struct S *p) { p->x--; }          /* addu $2,$2,-1  */
+  void b(struct S *p) { p->x -= 1; }       /* addu $2,$2,255 */
+  void c(struct S *p) { p->x = p->x - 1; } /* addu $2,$2,255 */
+  ```
+
+  The same three forms on an unsigned 16-bit field all add minus one in that
+  fixture, and so does the explicit form on a signed byte. Inside larger
+  functions other forms have been needed. Do not treat this as a general
+  mapping: read the constant in the listing and try the forms.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

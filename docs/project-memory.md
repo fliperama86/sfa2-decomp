@@ -255,10 +255,15 @@ source ownership and coverage, not generating every source file before a boot.
   exact that the build showed were not. Banking is now automatic: a helper
   builds the batch, asks the diff tool about each function, parks what
   differs, and repeats until the build passes.
-- **Decrement form matters.** On an 8-bit or 16-bit field, `x--` and `x -= 1`
-  add minus one. `x = x - 1` adds 255 on a byte, or loads 0xffff for a
-  halfword. Both compilers agree on this, checked directly. Seven parked
-  functions matched at once after this one rewrite.
+- **Decrement form matters, narrowly.** On an unsigned byte field, `x--` adds
+  minus one while `x -= 1` and `x = x - 1` add 255. That is the only confirmed
+  pattern: on an unsigned 16-bit field all three add minus one in a small
+  fixture, and so does the explicit form on a signed byte. Inside larger
+  functions agents needed other forms, so type and context matter too. The
+  guide carries the fixture. Seven parked functions, all byte-field
+  decrements written as `x = x - 1`, matched after being rewritten as `x--`.
+  The native and the reference compiler gave identical output on the probe
+  that was run through both.
 - Suspected native-compiler defects must be tested against the reference
   compiler before believing them. This one was not a defect.
 - A field typed signed by one batch and unsigned by three others was resolved
