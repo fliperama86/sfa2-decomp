@@ -13,9 +13,9 @@ A clean rebuild, independent byte comparison, bounded execution tests, and
 mutation controls passed.
 
 The [matching build](ps1/docs/matching-build.md) now rebuilds the complete
-resident executable byte-identically from declared owners: 1,027 functions
-(96,944 bytes) compiled from C at their original addresses, and the remaining
-517,456 payload bytes retained from the baseline and counted as raw. Retained
+resident executable byte-identically from declared owners: 1,069 functions
+(106,776 bytes) compiled from C at their original addresses, and the remaining
+507,624 payload bytes retained from the baseline and counted as raw. Retained
 bytes are scaffolding, not recovered source. This is not a full-game
 decompilation.
 The [Windows pilot](windows/docs/gameplay-pilot.md) is behaviorally tested but
