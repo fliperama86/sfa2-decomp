@@ -203,16 +203,19 @@ source ownership and coverage, not generating every source file before a boot.
 
 - Five more units, merged with no conflict. 25 more functions exact: 70
   functions and 9,836 bytes. Three more functions are parked; six in total.
-- The merge was clean because every agent used `field_<offset>` names. Type
-  conflicts only appear when someone invents a struct or a role name.
+- The merge was clean this time. Shared `field_<offset>` names avoid name
+  conflicts only. Units can still disagree on a field's width, signedness or
+  pointer type, and the merge then stops on it.
 - Cleanup debt recorded, not yet done: several units name addresses inside the
   global state block, or the two players' fields, as separate symbols or as
   one-field wrapper structs. They match, but they should become members of the
   existing structs. Each change has to be rebuilt and stay exact.
 - One function keeps a `goto`. Without it the compiler merges two duplicated
   check chains and the size is wrong.
-- Three functions read past their own return or use an uninitialised local, as
-  the original does. They are reproduced as written, not repaired.
+- In three functions the C that matches uses an uninitialised local or falls
+  off the end without a return value. That is a property of the matching
+  candidate. It is not proof of a bug in the original source, which would need
+  its own caller and data-flow evidence.
 - A round can run while the previous PR is in review, as long as the main
   private tree stays at the reviewed state. Merged rounds wait in a sibling
   directory and are promoted after the PR merges.
@@ -223,6 +226,26 @@ source ownership and coverage, not generating every source file before a boot.
   registers, a missing strength reduction, a load that lands in the wrong
   register, register allocation order, and a conditional term the compiler
   turns into a branch.
+
+## Sixth group: third parallel round
+
+- Five units attempted. 21 more functions exact: 91 functions and 13,316
+  bytes. Nine more functions are parked; fifteen in total.
+- Two units failed completely. Their four functions are 320 to 716 bytes.
+  Small functions match on the first or second build. Functions above roughly
+  300 bytes often end with the right logic and size but the wrong register
+  allocation or instruction order, and repeated source reshaping does not fix
+  that. More rounds of the same method will keep parking the large ones.
+- Field and symbol additions from a unit that matched nothing are not merged.
+  They are unverified. Their field notes are kept next to the parked source.
+- Clue for the global state block: one original routine builds the address of
+  one member in a register and reaches another member at a negative offset
+  from it. Every build here loads each member through its own address. This
+  fits the earlier hypothesis that the block is reached through a pointer or
+  sits inside a larger object. Not verified.
+- Several routines reserve stack space they never use: 8 or 16 bytes more
+  than the candidate. Small integer locals of different widths produce 8 in
+  some shapes. The cause of the rest is unknown.
 
 ## Windows reference
 
