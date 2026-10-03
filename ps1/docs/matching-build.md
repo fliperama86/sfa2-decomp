@@ -220,6 +220,15 @@ content is the first `size` bytes of the concatenated 2,048-byte user-data
 fields starting at the file's LBA. `baseline.py verify` recomputes and compares,
 against the image, against a directory of extracted files, or both.
 
+`baseline.py extract` copies files out of the image and refuses any whose hash
+differs from the manifest. A manifest is rejected as a whole if any path is
+absolute, has an empty, `.` or `..` component, contains a backslash, or
+repeats. Output stays inside `--out`: a symbolic link on the way to a
+destination is refused, and each file is written to a new temporary file that
+then replaces the destination name, so an existing symbolic or hard link there
+is replaced and never written through. A destination that is the image or the
+manifest is refused.
+
 The published root pins remain the disc and executable hashes in the
 [pilot report](matching-pilot.md). The manifest is a derived index.
 

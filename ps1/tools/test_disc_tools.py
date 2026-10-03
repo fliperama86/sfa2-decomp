@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import struct
 import subprocess
 import sys
@@ -87,6 +88,98 @@ def baseline_cases(root: Path):
     yield "pin-wrong-image", tool("baseline.py", "pin", "--inventory", inventory, "--out", root / "m2.json", "--image", bad_image), 1, "image mismatch"
 
 
+def outcome(ok: bool, text: str) -> subprocess.CompletedProcess:
+    """Wrap a direct check so it reports like a tool run."""
+    return subprocess.CompletedProcess([], 0 if ok else 1, text if ok else "", "")
+
+
+def extract_safety_cases(root: Path):
+    """Extraction must stay inside --out and must not write through links or onto its inputs."""
+    base = root / "safety"
+    base.mkdir()
+    files = {"A.BIN": b"alpha" * 500, "DIR/B.BIN": b"beta" * 700}
+    image = base / "disc.img"
+    inventory = base / "inventory.json"
+    inventory.write_text(json.dumps(make_image(image, files)))
+    manifest = base / "manifest.json"
+    yield "safety-setup", tool("baseline.py", "pin", "--inventory", inventory, "--out", manifest), 0, "pinned 2 files"
+    good = json.loads(manifest.read_text())
+    image_bytes, manifest_bytes = image.read_bytes(), manifest.read_bytes()
+
+    outside = base / "outside"
+    outside.mkdir()
+    important = outside / "important.txt"
+    important.write_bytes(b"keep me")
+
+    def untouched() -> bool:
+        return (
+            important.read_bytes() == b"keep me"
+            and sorted(x.name for x in outside.iterdir()) == ["important.txt"]
+            and image.read_bytes() == image_bytes
+            and manifest.read_bytes() == manifest_bytes
+        )
+
+    def renamed(name: str, old: str, new: str) -> Path:
+        changed = json.loads(json.dumps(good))
+        for entry in changed["files"]:
+            if entry["path"] == old:
+                entry["path"] = new
+        path = base / f"{name}.json"
+        path.write_text(json.dumps(changed))
+        return path
+
+    def extract(manifest_path: Path, image_path: Path, out: Path) -> subprocess.CompletedProcess:
+        return tool("baseline.py", "extract", "--manifest", manifest_path, "--image", image_path, "--out", out)
+
+    traversal = renamed("traversal", "A.BIN", "../outside/important.txt")
+    yield "extract-parent-path", extract(traversal, image, base / "out1"), 1, "UNSAFE MANIFEST PATH"
+    yield "extract-parent-path-untouched", outcome(untouched(), "outside and inputs unchanged"), 0, "unchanged"
+    absolute = renamed("absolute", "A.BIN", str(important))
+    yield "extract-absolute-path", extract(absolute, image, base / "out2"), 1, "UNSAFE MANIFEST PATH"
+    yield "extract-absolute-path-untouched", outcome(untouched(), "outside and inputs unchanged"), 0, "unchanged"
+    yield "verify-unsafe-manifest", tool("baseline.py", "verify", "--manifest", traversal, "--image", image), 1, "UNSAFE MANIFEST PATH"
+
+    out3 = base / "out3"
+    out3.mkdir()
+    (out3 / "DIR").symlink_to(outside, target_is_directory=True)
+    yield "extract-symlinked-directory", extract(manifest, image, out3), 1, "is a symbolic link"
+    yield "extract-symlinked-directory-untouched", outcome(untouched(), "outside and inputs unchanged"), 0, "unchanged"
+
+    out4 = base / "out4"
+    out4.mkdir()
+    os.link(important, out4 / "A.BIN")
+    yield "extract-hard-linked-destination", extract(manifest, image, out4), 0, "extracted 2 files"
+    replaced = (out4 / "A.BIN").read_bytes() == files["A.BIN"]
+    yield "extract-hard-linked-destination-untouched", outcome(untouched() and replaced, "link target unchanged, file replaced"), 0, "unchanged"
+
+    out5 = base / "out5"
+    out5.mkdir()
+    (out5 / "A.BIN").symlink_to(important)
+    yield "extract-symlinked-destination", extract(manifest, image, out5), 0, "extracted 2 files"
+    replaced = not (out5 / "A.BIN").is_symlink() and (out5 / "A.BIN").read_bytes() == files["A.BIN"]
+    yield "extract-symlinked-destination-untouched", outcome(untouched() and replaced, "link target unchanged, file replaced"), 0, "unchanged"
+
+    out6 = base / "out6"
+    out6.mkdir()
+    image_in_out = out6 / "A.BIN"
+    image_in_out.write_bytes(image_bytes)
+    yield "extract-onto-image", extract(manifest, image_in_out, out6), 1, "is an input of this command"
+    yield "extract-onto-image-untouched", outcome(image_in_out.read_bytes() == image_bytes, "image unchanged"), 0, "unchanged"
+
+    out7 = base / "out7"
+    (out7 / "DIR").mkdir(parents=True)
+    manifest_in_out = out7 / "DIR" / "B.BIN"
+    manifest_in_out.write_bytes(manifest_bytes)
+    yield "extract-onto-manifest", extract(manifest_in_out, image, out7), 1, "is an input of this command"
+    yield "extract-onto-manifest-untouched", outcome(manifest_in_out.read_bytes() == manifest_bytes, "manifest unchanged"), 0, "unchanged"
+
+    out8 = base / "out8"
+    out8.mkdir()
+    os.link(image, out8 / "A.BIN")
+    yield "extract-onto-linked-image", extract(manifest, image, out8), 1, "is an input of this command"
+    yield "extract-onto-linked-image-untouched", outcome(untouched(), "outside and inputs unchanged"), 0, "unchanged"
+
+
 def pac_cases(root: Path):
     good = make_archive([(4, b"abcd" * 700), (0x20000, b"xy" * 10)])
     path = root / "GOOD.PAC"
@@ -123,7 +216,7 @@ def main() -> int:
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        for name, proc, want_status, want_text in [*baseline_cases(root), *pac_cases(root)]:
+        for name, proc, want_status, want_text in [*baseline_cases(root), *extract_safety_cases(root), *pac_cases(root)]:
             output = proc.stdout + proc.stderr
             ok = proc.returncode == want_status and want_text in output
             print(f"{'ok  ' if ok else 'FAIL'} {name}: exit {proc.returncode}, wanted {want_status} with {want_text!r}")

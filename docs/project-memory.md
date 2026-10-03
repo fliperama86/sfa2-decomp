@@ -150,8 +150,10 @@ source ownership and coverage, not generating every source file before a boot.
 - **Two names for one address.** The original loads the entry for the last
   pairing in two separate blocks. With one symbol name both compilers merge
   the blocks and the unit comes out 16 bytes short. The source therefore uses
-  a second symbol at the same address, with a comment. This says the original
-  source reached that address through two different expressions. It is the one
+  a second symbol at the same address, with a comment. Hypothesis, not a
+  finding: the original source may have reached that address through two
+  different expressions. A matching reconstruction does not prove what the
+  original expression was. It is the one
   place where the C is shaped by the compiler's merging rather than by a
   recovered meaning. Verified with the reference compiler too.
 - The original stores a zeroed local rather than a constant in one run of byte
