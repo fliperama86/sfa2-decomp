@@ -310,13 +310,45 @@ source ownership and coverage, not generating every source file before a boot.
   a 16-bit value with a shift left by 16 and an arithmetic shift right by 24,
   then stores a byte. Every C spelling tried, including a union split, a
   signed cast and an `int` local, compiles to a plain shift right by 8. The
-  original must use the shifted value somewhere else as a full integer. Not
-  solved.
+  hypothesis is that the original uses the shifted value somewhere else as
+  a full integer. Failed spellings do not establish what the original
+  expression was. Not solved.
 - Full rebuilds became slow with more than a hundred units. Banking one batch
   takes over a minute. An object cache keyed on every compile input is in
   progress; link and all checks will still run on every build.
 - After this round about 480 functions under 200 bytes remain,
   close to 41 KB. 450 larger functions hold about 211 KB.
+
+## Eleventh group: fifth sweep and the library area
+
+- Eight batches, 206 small functions attempted, 130 exact: 769 functions and
+  74,216 bytes. 151 parked in total.
+- The upper code area, from about `0x80157000`, is library code, not game
+  code. Agents recognised graphics, sound and disc routines by behaviour.
+  Many of its C functions match with the same compiler. Three things there do
+  not fit the current rules or tools:
+  - About thirty functions are hand-written stubs that jump into the BIOS or
+    use `syscall` or `break`. C cannot produce them. They need assembly owners,
+    which the build does not have yet.
+  - Several routines only match when stores to hardware registers are treated
+    as volatile. One agent confirmed that on one function. The brief forbids
+    `volatile` because it was meant to stop steering tricks. For real
+    memory-mapped registers it is the honest construct. Not allowed yet;
+    needs a rule change.
+  - A few units show a different assembler behaviour: `li` as `addiu` and a
+    three-instruction table lookup. That points to library objects assembled
+    with a newer assembler than the game code. The build has one assembler
+    setting for everything. Needs a per-unit setting. Hypothesis until a unit
+    matches with it.
+- An agent changed the type of an existing field in the shared table. Its own
+  batch built, and an already matched unit silently stopped matching inside
+  that batch. The banking helper reported the failing unit, the line was
+  restored, and the batch passed. The merge would also have refused it.
+- The private parking helper reused a unit name when a unit was split twice
+  and overwrote a source file. Four functions that were probably exact were
+  lost and go back into the pool. Fixed in the helper.
+- After this round about 280 functions under 200 bytes remain,
+  close to 26 KB. 450 larger functions hold about 211 KB.
 
 ## Windows reference
 
