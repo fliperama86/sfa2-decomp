@@ -874,11 +874,15 @@ def cache_key(inputs: dict) -> str:
 
 
 def _read_entry(entry: Path, key: str) -> dict:
-    """Parse and sanity-check entry.json. Raises OSError, ValueError, KeyError or TypeError."""
+    """Parse and validate entry.json. Any malformed content raises one of CACHE_READ_ERRORS."""
     record = json.loads((entry / "entry.json").read_bytes())
-    if record["key"] != key:
+    if not isinstance(record, dict):
+        raise ValueError("entry metadata is not a mapping")
+    if not isinstance(record.get("key"), str) or record["key"] != key:
         raise ValueError("entry records a different key")
-    files = record["files"]
+    files = record.get("files")
+    if not isinstance(files, dict):
+        raise ValueError("entry file list is not a mapping")
     if set(files) != set(CACHE_PAYLOAD) or not all(
         isinstance(v, str) and re.fullmatch(r"[0-9a-f]{64}", v) for v in files.values()
     ):
@@ -886,12 +890,16 @@ def _read_entry(entry: Path, key: str) -> dict:
     return files
 
 
+# RecursionError: deeply nested JSON. UnicodeDecodeError and JSONDecodeError are ValueErrors.
+CACHE_READ_ERRORS = (OSError, ValueError, KeyError, TypeError, AttributeError, RecursionError, MemoryError)
+
+
 def cache_valid(entry: Path, key: str) -> bool:
     """True when the entry is complete and every file matches its recorded hash."""
     try:
         files = _read_entry(entry, key)
         return all(file_sha(entry / name) == files[name] for name in CACHE_PAYLOAD)
-    except (OSError, ValueError, KeyError, TypeError):
+    except CACHE_READ_ERRORS:
         return False
 
 
@@ -912,7 +920,7 @@ def cache_fetch(entry: Path, key: str, dests: dict[str, Path], before_copy=None)
             if file_sha(dests[name]) != files[name]:
                 raise ValueError(f"{name} does not match the entry metadata")
         return True
-    except (OSError, ValueError, KeyError, TypeError):
+    except CACHE_READ_ERRORS:
         for dest in dests.values():
             dest.unlink(missing_ok=True)
         return False
@@ -962,7 +970,13 @@ def cache_store(
             pass  # a concurrent run published first; use or ignore its entry
     finally:
         shutil.rmtree(temp, ignore_errors=True)
-        shutil.rmtree(aside, ignore_errors=True)
+        if aside.is_dir() and not aside.is_symlink():
+            shutil.rmtree(aside, ignore_errors=True)
+        else:
+            try:
+                aside.unlink(missing_ok=True)  # a broken entry that was a plain file
+            except OSError:
+                pass
 
 
 def build_all(

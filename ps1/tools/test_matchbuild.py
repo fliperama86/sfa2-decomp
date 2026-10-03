@@ -356,7 +356,10 @@ class CacheContext:
     def run(self, extra: tuple[str, ...] = (), env: dict | None = None):
         """Build once. Returns (process, report, per-unit cache records)."""
         proc = run_tool(self.config, self.tag, self.cache, extra, env)
-        report = json.loads((self.build / "report.json").read_text())
+        try:
+            report = json.loads((self.build / "report.json").read_text())
+        except OSError:
+            report = {}  # the build aborted before writing a report
         return proc, report, report.get("cache", {}).get("units", {})
 
     def entry(self, key: str) -> Path:
@@ -557,6 +560,28 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
             return "the incomplete entry was not replaced"
         return None
 
+    def malformed_files_field(ctx):
+        """Only the files field of a valid entry becomes a list: the next build must rebuild and PASS."""
+        p1, _, u1 = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        entry = ctx.entry(u1[first]["key"])
+        record = json.loads((entry / "entry.json").read_text())
+        record["files"] = list(record["files"])
+        (entry / "entry.json").write_text(json.dumps(record))
+        p2, _, u2 = ctx.run()
+        if not passed(p2) or u2[first]["cache"] != "miss":
+            return f"an entry whose files field is a list must miss and rebuild to PASS: {states(u2)}; {describe(p2)}"
+        if "Traceback" in p2.stdout + p2.stderr:
+            return "the build printed a traceback"
+        fresh = json.loads((entry / "entry.json").read_text())
+        if not isinstance(fresh["files"], dict) or not matchbuild.cache_valid(entry, u1[first]["key"]):
+            return "the malformed entry was not replaced by a valid one"
+        _, _, u3 = ctx.run()
+        if states(u3)[first] != "hit":
+            return "the replaced entry does not hit"
+        return None
+
     def listing(cache: Path):
         return {str(p.relative_to(cache)): p.stat().st_mtime_ns for p in cache.rglob("*")}
 
@@ -606,6 +631,7 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
         CacheCase("cache-assembler-identity", assembler_identity),
         CacheCase("cache-corrupt-entry", corrupt),
         CacheCase("cache-missing-file", missing_file),
+        CacheCase("cache-malformed-files-field", malformed_files_field),
         CacheCase("cache-off", no_cache),
     ]
     if "types" in parsed:
@@ -740,6 +766,124 @@ def make_cache_unit_cases() -> list[CacheCase]:
                 return f"recorded hash of {name} does not match the stored file"
         return None
 
+    def good_record(cache: Path) -> dict:
+        return json.loads((cache / key / "entry.json").read_text())
+
+    def malformed_shapes(record: dict) -> list[tuple[str, object]]:
+        """Metadata variants that must all be rejected. A bytes value is written as is."""
+        names = list(matchbuild.CACHE_PAYLOAD)
+        hashes = record["files"]
+        return [
+            ("files-list", {**record, "files": names}),
+            ("files-string", {**record, "files": "unit.o"}),
+            ("files-number", {**record, "files": 7}),
+            ("files-null", {**record, "files": None}),
+            ("files-missing", {k: v for k, v in record.items() if k != "files"}),
+            ("files-empty", {**record, "files": {}}),
+            ("files-extra-name", {**record, "files": {**hashes, "extra": "0" * 64}}),
+            ("files-missing-name", {**record, "files": {n: hashes[n] for n in names[:-1]}}),
+            ("hash-number", {**record, "files": {**hashes, names[0]: 5}}),
+            ("hash-null", {**record, "files": {**hashes, names[0]: None}}),
+            ("hash-list", {**record, "files": {**hashes, names[0]: [hashes[names[0]]]}}),
+            ("hash-nested", {**record, "files": {**hashes, names[0]: {"a": {"b": [1]}}}}),
+            ("hash-short", {**record, "files": {**hashes, names[0]: "ab"}}),
+            ("hash-upper", {**record, "files": {**hashes, names[0]: hashes[names[0]].upper()}}),
+            ("key-missing", {k: v for k, v in record.items() if k != "key"}),
+            ("key-number", {**record, "key": 5}),
+            ("key-list", {**record, "key": [key]}),
+            ("key-null", {**record, "key": None}),
+            ("top-list", [record]),
+            ("top-string", "entry"),
+            ("top-number", 3),
+            ("top-null", None),
+            ("top-true", True),
+            ("empty-object", {}),
+            ("invalid-json", b"{not json"),
+            ("empty-file", b""),
+            ("truncated", json.dumps(record).encode()[:40]),
+            ("invalid-utf8", b"\xff\xfe\x80{"),
+            ("deep-nesting", b"[" * 200000 + b"]" * 200000),
+            ("deep-nesting-object", b'{"files":' * 100000),
+        ]
+
+    def write_entry_json(cache: Path, value) -> None:
+        path = cache / key / "entry.json"
+        if path.is_dir():
+            shutil.rmtree(path)
+        path.write_bytes(value if isinstance(value, bytes) else json.dumps(value).encode())
+
+    def check_rejected(cache: Path, root: Path, label: str):
+        """Both readers must miss without raising and leave no partial files."""
+        out = dests(root)
+        try:
+            if matchbuild.cache_valid(cache / key, key):
+                return f"{label}: validation accepted malformed metadata"
+            if matchbuild.cache_fetch(cache / key, key, out):
+                return f"{label}: fetch accepted malformed metadata"
+        except Exception as exc:
+            return f"{label}: a reader raised {type(exc).__name__}: {exc}"
+        if any(p.exists() for p in out.values()):
+            return f"{label}: partial files left in the build directory"
+        return None
+
+    def check_replaced(cache: Path, root: Path, label: str):
+        try:
+            store(cache, root, "fresh")
+        except Exception as exc:
+            return f"{label}: publication raised {type(exc).__name__}: {exc}"
+        if not matchbuild.cache_valid(cache / key, key) or writer_of(cache) != "fresh":
+            return f"{label}: the malformed entry was not replaced by a valid one"
+        if not matchbuild.cache_fetch(cache / key, key, dests(root)):
+            return f"{label}: the replacement entry does not hit"
+        if leftovers(cache) or any(p.name.endswith(".old") for p in cache.iterdir()):
+            return f"{label}: temporary directories left behind"
+        return None
+
+    def malformed_files_container(root: Path):
+        """files is a list holding the expected names: the set check passes, .values() does not exist."""
+        cache = root / "cache"
+        store(cache, root, "a")
+        write_entry_json(cache, {**good_record(cache), "files": list(matchbuild.CACHE_PAYLOAD)})
+        return check_rejected(cache, root, "files as a list") or check_replaced(cache, root, "files as a list")
+
+    def malformed_table(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        record = good_record(cache)
+        for label, value in malformed_shapes(record):
+            write_entry_json(cache, value)
+            problem = check_rejected(cache, root, label) or check_replaced(cache, root, label)
+            if problem:
+                return problem
+        return None
+
+    def malformed_directory(root: Path):
+        """entry.json is a directory, and the entry itself is a plain file."""
+        cache = root / "cache"
+        store(cache, root, "a")
+        (cache / key / "entry.json").unlink()
+        (cache / key / "entry.json").mkdir()
+        problem = check_rejected(cache, root, "entry.json as a directory") or check_replaced(
+            cache, root, "entry.json as a directory"
+        )
+        if problem:
+            return problem
+        shutil.rmtree(cache / key)
+        (cache / key).write_bytes(b"not a directory")
+        return check_rejected(cache, root, "entry as a file") or check_replaced(cache, root, "entry as a file")
+
+    def malformed_during_fetch(root: Path):
+        """The metadata is malformed when fetch reads it, with the copy hook installed."""
+        cache = root / "cache"
+        store(cache, root, "a")
+        write_entry_json(cache, {**good_record(cache), "files": list(matchbuild.CACHE_PAYLOAD)})
+        out = dests(root)
+        try:
+            hit = matchbuild.cache_fetch(cache / key, key, out, before_copy=lambda: None)
+        except Exception as exc:
+            return f"fetch raised {type(exc).__name__}: {exc}"
+        return "fetch accepted a list as files" if hit else None
+
     table = (
         ("cache-unit-fetch", fetch_ok),
         ("cache-unit-publish-keeps-valid", publish_keeps_valid),
@@ -750,6 +894,10 @@ def make_cache_unit_cases() -> list[CacheCase]:
         ("cache-unit-read-tampered", read_tampered),
         ("cache-unit-read-wrong-key", read_wrong_key),
         ("cache-unit-stored-hashes", stored_hashes),
+        ("cache-unit-malformed-files-container", malformed_files_container),
+        ("cache-unit-malformed-table", malformed_table),
+        ("cache-unit-malformed-directory", malformed_directory),
+        ("cache-unit-malformed-during-fetch", malformed_during_fetch),
     )
     return [CacheCase(name, body) for name, body in table]
 
