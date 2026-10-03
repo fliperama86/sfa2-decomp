@@ -35,6 +35,9 @@ EXE_MAGIC = b"PS-X EXE"
 # Sections that are not loaded on target and are dropped by the linker script.
 # Read-only data sections a unit object may hold. All of them go to one output section.
 RODATA_SECTIONS = (".rodata", ".rdata")
+# Sections of each loaded range kind a unit may declare, and the bss sections.
+LOADED_SECTIONS = {"rodata": RODATA_SECTIONS, "data": (".data",)}
+BSS_SECTIONS = (".bss", ".sbss")
 DISCARDED_SECTIONS = (".reginfo", ".MIPS.abiflags", ".pdr", ".comment", ".gnu.attributes")
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 TAG_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*\Z")
@@ -106,6 +109,12 @@ class UnitDecl:
     flags: tuple[str, ...]
     functions: tuple[FunctionDecl, ...]  # sorted by address
     rodata: RodataDecl | None = None  # the one read-only data range, if declared
+    data: RodataDecl | None = None  # the one initialised data range, if declared
+    bss: RodataDecl | None = None  # where the uninitialised data lives, if declared
+
+    def loaded(self) -> list[tuple[str, RodataDecl]]:
+        """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
+        return [(k, d) for k, d in (("rodata", self.rodata), ("data", self.data)) if d is not None]
 
     @property
     def start(self) -> int:
@@ -133,6 +142,8 @@ class FunctionResult:
 
 @dataclasses.dataclass(frozen=True)
 class RodataResult:
+    """Comparison of one rodata or data range (`kind`)."""
+
     unit: str
     address: int
     size: int
@@ -140,6 +151,7 @@ class RodataResult:
     first_diff: int | None  # offset inside the range, None when equal
     image_sha256: str
     baseline_sha256: str
+    kind: str = "rodata"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -151,6 +163,7 @@ class ImageComparison:
     image_exact: bool
     functions: tuple[FunctionResult, ...]
     rodata: tuple[RodataResult, ...] = ()
+    data: tuple[RodataResult, ...] = ()
 
     @property
     def all_functions_exact(self) -> bool:
@@ -160,22 +173,30 @@ class ImageComparison:
     def all_rodata_exact(self) -> bool:
         return all(r.exact for r in self.rodata)
 
+    @property
+    def all_data_exact(self) -> bool:
+        return all(r.exact for r in self.data)
+
+    @property
+    def all_ranges_exact(self) -> bool:
+        return self.all_rodata_exact and self.all_data_exact
+
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
 def owned_ranges(units: list[UnitDecl] | tuple[UnitDecl, ...]) -> list[tuple[int, int]]:
-    """(start, end) of every unit text range and rodata range, sorted."""
+    """(start, end) of every unit text, rodata and data range, sorted."""
     owned = [(u.start, u.end) for u in units]
-    owned += [(u.rodata.address, u.rodata.end) for u in units if u.rodata is not None]
+    owned += [(d.address, d.end) for u in units for _, d in u.loaded()]
     return sorted(owned)
 
 
 def raw_ranges(load: int, size: int, units: list[UnitDecl] | tuple[UnitDecl, ...]) -> list[tuple[int, int]]:
     """Return (address, size) of every payload byte range not owned by a unit.
 
-    Owned means a unit's text range or its read-only data range.
+    Owned means a unit's text range, its read-only data range or its data range.
     """
     ranges = []
     cursor = load
@@ -200,26 +221,27 @@ def compare_image(
     declared addresses, so a mutated copy of the image exercises the same code.
     """
     results = []
-    rodata_results = []
+    range_results: dict[str, list[RodataResult]] = {kind: [] for kind in LOADED_SECTIONS}
     for unit in units:
-        if unit.rodata is not None:
-            off = unit.rodata.address - load
-            got = image[off : off + unit.rodata.size]
-            want = payload[off : off + unit.rodata.size]
+        for kind, decl in unit.loaded():
+            off = decl.address - load
+            got = image[off : off + decl.size]
+            want = payload[off : off + decl.size]
             first_diff = None
-            if len(got) != unit.rodata.size or len(want) != unit.rodata.size:
+            if len(got) != decl.size or len(want) != decl.size:
                 first_diff = min(len(got), len(want))
             else:
-                first_diff = next((i for i in range(unit.rodata.size) if got[i] != want[i]), None)
-            rodata_results.append(
+                first_diff = next((i for i in range(decl.size) if got[i] != want[i]), None)
+            range_results[kind].append(
                 RodataResult(
                     unit=unit.name,
-                    address=unit.rodata.address,
-                    size=unit.rodata.size,
+                    address=decl.address,
+                    size=decl.size,
                     exact=first_diff is None,
                     first_diff=first_diff,
                     image_sha256=sha256(got),
                     baseline_sha256=sha256(want),
+                    kind=kind,
                 )
             )
         for fn in unit.functions:
@@ -260,7 +282,8 @@ def compare_image(
         baseline_sha256=sha256(payload),
         image_exact=(image == payload),
         functions=tuple(results),
-        rodata=tuple(rodata_results),
+        rodata=tuple(range_results["rodata"]),
+        data=tuple(range_results["data"]),
     )
 
 
@@ -282,7 +305,7 @@ def run_controls(
         for fn in unit.functions:
             result = compare_image(flip_byte(image, fn.address - load), payload, load, units)
             failed = [f.name for f in result.functions if not f.exact]
-            tripped = failed == [fn.name] and result.all_rodata_exact and not result.image_exact
+            tripped = failed == [fn.name] and result.all_ranges_exact and not result.image_exact
             controls.append(
                 {
                     "kind": "function",
@@ -292,18 +315,19 @@ def run_controls(
                     "detail": f"functions failing: {failed}, image exact: {result.image_exact}",
                 }
             )
-        if unit.rodata is not None:
-            result = compare_image(flip_byte(image, unit.rodata.address - load), payload, load, units)
-            failed = [r.unit for r in result.rodata if not r.exact]
-            tripped = failed == [unit.name] and result.all_functions_exact and not result.image_exact
+        for kind, decl in unit.loaded():
+            result = compare_image(flip_byte(image, decl.address - load), payload, load, units)
+            failed = [r.unit for r in getattr(result, kind) if not r.exact]
+            other = result.all_data_exact if kind == "rodata" else result.all_rodata_exact
+            tripped = failed == [unit.name] and result.all_functions_exact and other and not result.image_exact
             controls.append(
                 {
-                    "kind": "rodata",
-                    "target": f"{unit.name} rodata",
+                    "kind": kind,
+                    "target": f"{unit.name} {kind}",
                     "applicable": True,
                     "tripped": tripped,
                     "detail": (
-                        f"rodata failing: {failed}, functions exact: {result.all_functions_exact}, "
+                        f"{kind} failing: {failed}, functions exact: {result.all_functions_exact}, "
                         f"image exact: {result.image_exact}"
                     ),
                 }
@@ -312,7 +336,7 @@ def run_controls(
     if ranges:
         address, size = ranges[0]
         result = compare_image(flip_byte(image, address - load + size // 2), payload, load, units)
-        tripped = (not result.image_exact) and result.all_functions_exact and result.all_rodata_exact
+        tripped = (not result.image_exact) and result.all_functions_exact and result.all_ranges_exact
         controls.append(
             {
                 "kind": "raw",
@@ -321,7 +345,7 @@ def run_controls(
                 "tripped": tripped,
                 "detail": (
                     f"image exact: {result.image_exact}, functions exact: {result.all_functions_exact}, "
-                    f"rodata exact: {result.all_rodata_exact}"
+                    f"rodata exact: {result.all_rodata_exact}, data exact: {result.all_data_exact}"
                 ),
             }
         )
@@ -435,49 +459,63 @@ def _get_hex(table: dict, key: str, where: str, errors: list[str]) -> str:
     return value
 
 
-def parse_rodata(value, where: str, errors: list[str]) -> tuple[RodataDecl | None, bool]:
-    """Parse the optional `rodata = { address = .., size = .. }` key. Returns (decl, ok)."""
+def parse_rodata(value, where: str, errors: list[str], key: str = "rodata") -> tuple[RodataDecl | None, bool]:
+    """Parse the optional `rodata`, `data` or `bss` key `{ address = .., size = .. }`. Returns (decl, ok)."""
     if value is None:
         return None, True
     if not isinstance(value, dict) or set(value) != {"address", "size"}:
-        errors.append(f"{where}: 'rodata' must be a table with exactly 'address' and 'size'")
+        errors.append(f"{where}: '{key}' must be a table with exactly 'address' and 'size'")
         return None, False
     ok = True
     for label in ("address", "size"):
         item = value[label]
         if not isinstance(item, int) or isinstance(item, bool):
-            errors.append(f"{where}: rodata {label} must be an integer")
+            errors.append(f"{where}: {key} {label} must be an integer")
             ok = False
         elif item % 4:
-            errors.append(f"{where}: rodata {label} {item:#x} is not a multiple of four")
+            errors.append(f"{where}: {key} {label} {item:#x} is not a multiple of four")
             ok = False
     if ok and value["size"] <= 0:
-        errors.append(f"{where}: rodata size must be greater than zero")
+        errors.append(f"{where}: {key} size must be greater than zero")
         ok = False
     return (RodataDecl(value["address"], value["size"]) if ok else None), ok
 
 
 def rodata_overlaps(units: list[UnitDecl]) -> list[str]:
-    """Each rodata range against every text range and every other rodata range."""
+    """Each rodata or data range against every text range and every other rodata or data range."""
     errors = []
     for unit in units:
-        r = unit.rodata
-        if r is None:
-            continue
-        for other in units:
-            if r.address < other.end and other.start < r.end:
-                whose = "its own text range" if other is unit else f"the text range of unit {other.name!r}"
-                errors.append(
-                    f"unit {unit.name!r}: rodata range {r.address:#x}-{r.end:#x} overlaps {whose} "
-                    f"({other.start:#x}-{other.end:#x})"
-                )
-            if other is not unit and other.rodata is not None and unit.name < other.name:
-                o = other.rodata
-                if r.address < o.end and o.address < r.end:
+        for kind, r in unit.loaded():
+            for other in units:
+                if r.address < other.end and other.start < r.end:
+                    whose = "its own text range" if other is unit else f"the text range of unit {other.name!r}"
                     errors.append(
-                        f"unit {unit.name!r}: rodata range {r.address:#x}-{r.end:#x} overlaps the rodata range "
-                        f"of unit {other.name!r} ({o.address:#x}-{o.end:#x})"
+                        f"unit {unit.name!r}: {kind} range {r.address:#x}-{r.end:#x} overlaps {whose} "
+                        f"({other.start:#x}-{other.end:#x})"
                     )
+                for other_kind, o in other.loaded():
+                    if (other.name, other_kind) <= (unit.name, kind):
+                        continue
+                    if r.address < o.end and o.address < r.end:
+                        errors.append(
+                            f"unit {unit.name!r}: {kind} range {r.address:#x}-{r.end:#x} overlaps the {other_kind} "
+                            f"range of unit {other.name!r} ({o.address:#x}-{o.end:#x})"
+                        )
+    return errors
+
+
+def bss_overlaps(units: list[UnitDecl]) -> list[str]:
+    """Two bss ranges must not overlap."""
+    errors = []
+    for unit in units:
+        for other in units:
+            if unit.bss is None or other.bss is None or not unit.name < other.name:
+                continue
+            if unit.bss.address < other.bss.end and other.bss.address < unit.bss.end:
+                errors.append(
+                    f"unit {unit.name!r}: bss range {unit.bss.address:#x}-{unit.bss.end:#x} overlaps the bss range "
+                    f"of unit {other.name!r} ({other.bss.address:#x}-{other.bss.end:#x})"
+                )
     return errors
 
 
@@ -610,7 +648,9 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             if fn_name and ok:
                 functions.append(FunctionDecl(fn_name, address, size))
         rodata, rodata_ok = parse_rodata(table.get("rodata"), where, errors)
-        if not name or not functions or len(functions) != len(fn_tables) or not rodata_ok:
+        data, data_ok = parse_rodata(table.get("data"), where, errors, "data")
+        bss, bss_ok = parse_rodata(table.get("bss"), where, errors, "bss")
+        if not name or not functions or len(functions) != len(fn_tables) or not (rodata_ok and data_ok and bss_ok):
             continue
         functions.sort(key=lambda f: f.address)
         contiguous = True
@@ -622,7 +662,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss))
 
     # Unit overlap.
     ordered = sorted(units, key=lambda u: u.start)
@@ -634,6 +674,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             )
 
     errors += rodata_overlaps(units)
+    errors += bss_overlaps(units)
 
     # symbols.ld
     symbols_path = directory / "symbols.ld"
@@ -721,12 +762,18 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                             f"unit {unit.name!r} range {unit.start:#x}-{unit.end:#x} is outside the payload "
                             f"{config.load:#x}-{config.load + config.payload_size:#x}"
                         )
-                    if unit.rodata is not None and (
-                        unit.rodata.address < config.load or unit.rodata.end > config.load + config.payload_size
+                    for kind, decl in unit.loaded():
+                        if decl.address < config.load or decl.end > config.load + config.payload_size:
+                            errors.append(
+                                f"unit {unit.name!r} {kind} range {decl.address:#x}-{decl.end:#x} "
+                                f"is outside the payload {config.load:#x}-{config.load + config.payload_size:#x}"
+                            )
+                    if unit.bss is not None and (
+                        unit.bss.address < config.load + config.payload_size and config.load < unit.bss.end
                     ):
                         errors.append(
-                            f"unit {unit.name!r} rodata range {unit.rodata.address:#x}-{unit.rodata.end:#x} "
-                            f"is outside the payload {config.load:#x}-{config.load + config.payload_size:#x}"
+                            f"unit {unit.name!r} bss range {unit.bss.address:#x}-{unit.bss.end:#x} "
+                            f"touches the payload {config.load:#x}-{config.load + config.payload_size:#x}"
                         )
     if errors:
         raise ConfigError(errors)
@@ -836,16 +883,16 @@ def check_unit_object(obj_path: Path, unit: UnitDecl) -> list[str]:
     """Check one unit object.
 
     Allocated sections: `.text` must equal the declared range, read-only data
-    (`.rodata`, `.rdata`), rounded up to a multiple of four, must equal the
-    declared rodata range, anything else non-empty is rejected, and so are
-    common symbols.
+    (`.rodata`, `.rdata`), `.data` and bss (`.bss`, `.sbss`), each rounded up to
+    a multiple of four, must equal the declared range of its kind, anything
+    else non-empty is rejected, and so are common symbols.
     """
     errors = []
     declared = unit.end - unit.start
     with open(obj_path, "rb") as handle:
         elf = ELFFile(handle)
         text_size = 0
-        rodata_size = 0
+        sizes = {"rodata": 0, "data": 0, "bss": 0}
         for section in elf.iter_sections():
             name = section.name
             if not name or not (section["sh_flags"] & SHF_ALLOC):
@@ -855,29 +902,36 @@ def check_unit_object(obj_path: Path, unit: UnitDecl) -> list[str]:
             elif name in DISCARDED_SECTIONS:
                 continue
             elif name in RODATA_SECTIONS:
-                rodata_size += section["sh_size"]
+                sizes["rodata"] += section["sh_size"]
+            elif name in LOADED_SECTIONS["data"]:
+                sizes["data"] += section["sh_size"]
+            elif name in BSS_SECTIONS:
+                sizes["bss"] += section["sh_size"]
             elif section["sh_size"] > 0:
                 errors.append(
                     f"unit {unit.name!r}: non-empty allocated section {name} ({section['sh_size']} bytes); "
-                    f"only .text and read-only data are owned by a unit"
+                    f"only .text, read-only data, data and bss are owned by a unit"
                 )
         symtab = elf.get_section_by_name(".symtab")
         if symtab is not None:
             for sym in symtab.iter_symbols():
                 if sym["st_shndx"] == "SHN_COMMON":
-                    errors.append(f"unit {unit.name!r}: common symbol {sym.name!r} (only .text and read-only data are owned by a unit)")
-        if unit.rodata is None and rodata_size:
-            errors.append(
-                f"unit {unit.name!r}: the object has {rodata_size} bytes of read-only data, "
-                f"so rodata must be declared (rodata = {{ address = .., size = {rodata_size} }})"
-            )
-        elif unit.rodata is not None and rodata_size == 0:
-            errors.append(f"unit {unit.name!r}: declares rodata ({unit.rodata.size} bytes) but the object has none")
-        elif unit.rodata is not None and (rodata_size + 3) // 4 * 4 != unit.rodata.size:
-            errors.append(
-                f"unit {unit.name!r}: rodata size mismatch: the object has {rodata_size} bytes of "
-                f"read-only data, declared {unit.rodata.size}"
-            )
+                    errors.append(f"unit {unit.name!r}: common symbol {sym.name!r} (only .text, read-only data, data and bss are owned by a unit)")
+        what = {"rodata": "read-only data", "data": "data", "bss": "bss"}
+        for kind, decl in (("rodata", unit.rodata), ("data", unit.data), ("bss", unit.bss)):
+            size = sizes[kind]
+            if decl is None and size:
+                errors.append(
+                    f"unit {unit.name!r}: the object has {size} bytes of {what[kind]}, "
+                    f"so {kind} must be declared ({kind} = {{ address = .., size = {size} }})"
+                )
+            elif decl is not None and size == 0:
+                errors.append(f"unit {unit.name!r}: declares {kind} ({decl.size} bytes) but the object has none")
+            elif decl is not None and (size + 3) // 4 * 4 != decl.size:
+                errors.append(
+                    f"unit {unit.name!r}: {kind} size mismatch: the object has {size} bytes of "
+                    f"{what[kind]}, declared {decl.size}"
+                )
         if text_size != declared:
             errors.append(
                 f"unit {unit.name!r}: text size mismatch: .text is {text_size} bytes, declared range is {declared}"
@@ -906,6 +960,13 @@ def elf_function_checks(elf_path: Path, units: list[UnitDecl]) -> list[str]:
                     errors.append(
                         f"function {fn.name!r}: size mismatch: ELF symbol size {sym['st_size']}, declared {fn.size}"
                     )
+            if unit.bss is not None:
+                section = elf.get_section_by_name(f".bss.{unit.name}")
+                if section is None or section["sh_addr"] != unit.bss.address:
+                    got = "missing" if section is None else f"{section['sh_addr']:#x}"
+                    errors.append(
+                        f"unit {unit.name!r}: bss section is {got} in the linked ELF, declared {unit.bss.address:#x}"
+                    )
     return errors
 
 
@@ -916,18 +977,22 @@ def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, in
         raw_lines.append(f'.incbin "payload.bin", {address - cfg.load}, {size}')
     (build / "raw.s").write_text("\n".join(raw_lines) + "\n")
 
-    entries = [(address, f".raw{index}", f"*(.raw{index})") for index, (address, _) in enumerate(ranges)]
+    entries = [(address, f".raw{index}", f"*(.raw{index})", "") for index, (address, _) in enumerate(ranges)]
     for unit in cfg.units:
-        entries.append((unit.start, f".text.{unit.name}", f"unit-{unit.name}.o(.text)"))
-        if unit.rodata is not None:
-            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in RODATA_SECTIONS)
+        entries.append((unit.start, f".text.{unit.name}", f"unit-{unit.name}.o(.text)", ""))
+        for kind, decl in unit.loaded():
+            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in LOADED_SECTIONS[kind])
             # The object may end up to three bytes short of the declared range.
             # Fill to the declared size so that the unit owns the padding.
-            entries.append((unit.rodata.address, f".rodata.{unit.name}", f"{patterns} . = {unit.rodata.size:#x};"))
+            entries.append((decl.address, f".{kind}.{unit.name}", f"{patterns} . = {decl.size:#x};", ""))
+        if unit.bss is not None:
+            # NOLOAD: the section takes no bytes of the flat image.
+            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in BSS_SECTIONS)
+            entries.append((unit.bss.address, f".bss.{unit.name}", patterns, " (NOLOAD)"))
     entries.sort()
     lines = ["OUTPUT_ARCH(mips)", f'INCLUDE "{cfg.symbols_path}"', "SECTIONS {"]
-    for address, name, pattern in entries:
-        lines.append(f" {name} {address:#x} : SUBALIGN(1) {{ {pattern} }}")
+    for address, name, pattern, attrs in entries:
+        lines.append(f" {name} {address:#x}{attrs} : SUBALIGN(1) {{ {pattern} }}")
     lines.append(" /DISCARD/ : { " + " ".join(f"*({s})" for s in DISCARDED_SECTIONS) + " *(.note*) }")
     lines.append("}")
     (build / "link.ld").write_text("\n".join(lines) + "\n")
@@ -1295,10 +1360,10 @@ def build_all(
                 f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
                 f"({fn.equal_words}/{fn.total_words} words equal)"
             )
-    for ro in comparison.rodata:
+    for ro in comparison.rodata + comparison.data:
         if not ro.exact:
             failures.append(
-                f"unit {ro.unit!r} rodata: bytes differ from baseline at offset {ro.first_diff} "
+                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
                 f"(range {ro.address:#x}, {ro.size} bytes)"
             )
     if not comparison.image_exact:
@@ -1321,6 +1386,8 @@ def build_all(
 
     c_bytes = sum(u.end - u.start for u in cfg.units)
     rodata_bytes = sum(u.rodata.size for u in cfg.units if u.rodata is not None)
+    data_bytes = sum(u.data.size for u in cfg.units if u.data is not None)
+    bss_bytes = sum(u.bss.size for u in cfg.units if u.bss is not None)
     report.update(
         {
             "units": [
@@ -1335,6 +1402,8 @@ def build_all(
                     "rodata": next(
                         (dataclasses.asdict(r) for r in comparison.rodata if r.unit == u.name), None
                     ),
+                    "data": next((dataclasses.asdict(r) for r in comparison.data if r.unit == u.name), None),
+                    "bss": dataclasses.asdict(u.bss) if u.bss is not None else None,
                 }
                 for u in cfg.units
             ],
@@ -1342,10 +1411,12 @@ def build_all(
                 "c_bytes": c_bytes,
                 "c_functions": sum(len(u.functions) for u in cfg.units),
                 "rodata_bytes": rodata_bytes,
-                "raw_payload_bytes": cfg.payload_size - c_bytes - rodata_bytes,
+                "data_bytes": data_bytes,
+                "raw_payload_bytes": cfg.payload_size - c_bytes - rodata_bytes - data_bytes,
                 "raw_header_bytes": HEADER_SIZE,
                 "raw_ranges": len(ranges),
             },
+            "bss_bytes": bss_bytes,
             "image_sha256": comparison.image_sha256,
             "executable_sha256": exe_sha,
             "baseline_executable_sha256": cfg.baseline_sha256,
@@ -1367,10 +1438,11 @@ def summary_text(report: dict, failures: list[str]) -> str:
             state = "exact" if f["exact"] else f"DIFFERENT at offset {f['first_diff']}"
             lines.append(f"  {f['unit']}.{f['name']}: {f['size']} bytes, {state}")
         for u in report["units"]:
-            ro = u.get("rodata")
-            if ro:
-                state = "exact" if ro["exact"] else f"DIFFERENT at offset {ro['first_diff']}"
-                lines.append(f"  {u['name']} rodata: {ro['size']} bytes at {ro['address']:#x}, {state}")
+            for kind in ("rodata", "data"):
+                ro = u.get(kind)
+                if ro:
+                    state = "exact" if ro["exact"] else f"DIFFERENT at offset {ro['first_diff']}"
+                    lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
         cov = report["coverage"]
         lines.append(f"functions exact: {exact}/{len(functions)}")
         states = [u.get("cache", "off") for u in report["units"]]
@@ -1381,6 +1453,7 @@ def summary_text(report: dict, failures: list[str]) -> str:
         lines.append(
             f"coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
             f"rodata {cov['rodata_bytes']:,} bytes, "
+            f"data {cov['data_bytes']:,} bytes, "
             f"raw payload {cov['raw_payload_bytes']:,} bytes, header {cov['raw_header_bytes']:,} bytes raw"
         )
         lines.append(f"image sha256:      {report['image_sha256']}")
