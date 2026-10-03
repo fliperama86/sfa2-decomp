@@ -302,6 +302,22 @@ source ownership and coverage, not generating every source file before a boot.
 - After this round about 640 functions under 200 bytes remain,
   close to 58 KB. 450 larger functions hold about 211 KB.
 
+## Tenth group: fourth sweep
+
+- Eight batches, 162 small functions attempted, 138 exact: 639 functions and
+  63,900 bytes. 79 parked in total. The merge had no conflict.
+- A pattern now parked about ten times: the original takes the high byte of
+  a 16-bit value with a shift left by 16 and an arithmetic shift right by 24,
+  then stores a byte. Every C spelling tried, including a union split, a
+  signed cast and an `int` local, compiles to a plain shift right by 8. The
+  original must use the shifted value somewhere else as a full integer. Not
+  solved.
+- Full rebuilds became slow with more than a hundred units. Banking one batch
+  takes over a minute. An object cache keyed on every compile input is in
+  progress; link and all checks will still run on every build.
+- After this round about 480 functions under 200 bytes remain,
+  close to 41 KB. 450 larger functions hold about 211 KB.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
