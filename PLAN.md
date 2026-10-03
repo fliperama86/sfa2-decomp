@@ -18,13 +18,19 @@ is required to finish this selected target unless explicitly added.
 
 ## Current state
 
-- Static baseline audit and resident-code load mapping exist.
-- Three connected functions match exactly from typed C: 592 bytes.
-- A compatible GCC 2.6.3-based build pipeline and bounded tests exist privately.
-- No whole-program source inventory, complete linked reconstruction, overlay
-  coverage, rebuilt disc, or live-gameplay observations are claimed.
-- The new repository's public-facing files are documentation and safe tooling.
-  Current execution commands require the migrated ignored workspace.
+- Static baseline audit and resident-code load mapping exist. All 260 disc
+  files are pinned by hash in a private manifest derived from the disc image.
+- Eight connected functions match exactly from typed C: 1,228 bytes.
+- The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
+  executable byte-identically from declared owners. C units link at original
+  addresses; the other 613,172 payload bytes are retained raw and counted
+  separately. Checks fail closed and carry their own negative controls.
+- The build runs locally with a native GCC 2.6.3. The pinned reference
+  compiler reproduces the same image.
+- No whole-program source inventory, overlay coverage, data ownership, rebuilt
+  disc, or live-gameplay observations are claimed.
+- The repository's public-facing files are documentation and safe tooling.
+  Current execution commands require the ignored private workspace.
 
 ## Validation principle
 
@@ -43,16 +49,16 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Stage | Deliverable | State |
 | --- | --- | --- |
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
-| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Partial static audit; expand next |
-| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Pilot only; whole-image workflow planned |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Planned beyond the pilot |
+| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; overlay map and boundaries open |
+| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image and code ranges; data, assembly owners and overlays planned |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Eight functions; expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 
-Start the next implementation package by extending the selected resident family
-or its callers and defining how ranges become owners in the matching build.
-Do not start a new generic architecture project or require a full-disc builder
-before extending useful source coverage.
+Continue by adding units to the matching build, following callers and callees
+of the matched group. Add data ownership to the build when a unit first needs
+it. Do not start a new generic architecture project or require a full-disc
+builder before extending useful source coverage.
 
 Assembly/raw retention can bootstrap a whole-image build, but its bytes must be
 reported separately from recovered C. A byte-identical copy-through build is

@@ -21,8 +21,12 @@ or an assistant-specific memory directory to recover the project's context.
   authoritative handoff.
 - Be concise, answer first, one subject at a time. Avoid excessive identifiers,
   long status recaps, the em dash character, and suggestions about stopping work.
-- Work on `main`; branches and PRs need a request. No agent attribution in their
-  names/titles. Commit/push when requested, after checking what will be published.
+- Since 2026-10-03 the user wants a branch and pull request for every change
+  unless told otherwise. Open the PR, check it every 60 seconds for the owner's
+  comments, apply requested changes, and merge when the owner approves in a
+  plain comment (no GitHub review). The repository is public, so only the
+  owner's comments count. No agent attribution in branch names or PR titles.
+  Check what will be published before every push.
 - Always launch MAME windowed, including scripted/headless usage if ever needed.
 - User-owned original inputs must remain unchanged. No passwords in files or
   reports. Existing external tools and scoped environments are preferable to
@@ -88,6 +92,38 @@ source ownership and coverage, not generating every source file before a boot.
   correctness claim. Unicorn MIPS32 is not cycle-accurate PS1/R3000/GTE proof.
 - The roughly twenty-minute pilot benefited from previous Windows recovery;
   it is not a controlled productivity benchmark or a whole-game time estimate.
+
+## Matching build and second group
+
+- `ps1/tools/matchbuild.py` is the build entry point. Contract:
+  `ps1/docs/matching-build.md`. Private inputs: `ps1/local/src/`. The pilot
+  scripts under `ps1/local/matching-pilot/` are historical evidence only.
+- The whole resident executable rebuilds byte-identically: eight C functions
+  (1,228 bytes) at original addresses, everything else retained raw. Raw bytes
+  are scaffolding and are reported separately from recovered C.
+- Second group, all exact on the first C candidate: four adjacent setup helpers
+  at `0x80130988` to `0x80130b10` and the small caller at `0x80131f7c`. The
+  first helper copies five table pointers into the object, which are the box
+  tables the metrics family reads. Shared types live in `object.h`.
+- Scratchpad holds per-side resource pointers. The right side's set sits 0xb0
+  above the left side's. Names in `symbols.ld` are inferred.
+- **Assembler correction:** the original expands indexed symbol loads through
+  `$at` with `addiu` and a preceding `nop`. That is ASPSX 2.21 or older, not
+  2.34. The pilot family contains no such load, so 2.34 matched it by chance.
+  Versions 1.07, 2.08 and 2.21 all match the eight functions; a division would
+  separate them. The build uses 2.21.
+- A native macOS `cc1` now runs the build without the remote host. It was
+  built from the old-gcc recipe plus `MASK_GPOPT` in the target defaults, which
+  the reference binary reports and that recipe lacks. It emits identical
+  assembly on 121 of 131 reference outputs. The ten failures are all
+  floating-point constants, wrong because GCC 2.6.3 assumes host words as wide
+  as its 32-bit `HOST_WIDE_INT`. The build marks it `no_float` and refuses such
+  units. `--reference` rebuilds with the pinned Linux binary.
+- The SSH control socket is now `ps1/local/toolchain/ssh.sock`. The user gives
+  the password in the session. Feed it to ssh through an askpass helper that
+  reads an environment variable, so it never reaches a file or a script.
+- Resident code calls addresses above the resident image, and `PL##.PAC` files
+  contain MIPS code. See the open overlay question in [goals](goals.md).
 
 ## Windows reference
 
@@ -156,5 +192,12 @@ source ownership and coverage, not generating every source file before a boot.
   native logs through `cmd /d /c`, then check the actual exit code.
 - VC5 link/dumpbin require both `MSDIS100.DLL` and `MSVCP50.DLL` alongside tools.
   Never fix this by overwriting modern system DLLs or installing an old browser.
+- GNU as pads every section to 16 bytes. A unit whose code size is not a
+  multiple of 16 then overlaps its neighbour. Assemble with `-no-pad-sections`.
+  The pilot family was 592 bytes, a multiple of 16, which hid this.
+- A linker-script assignment silently overrides a symbol defined by an object.
+  Never list a unit's own function in `symbols.ld`; the build rejects it.
+- One matching family is thin evidence for a toolchain setting. The assembler
+  version only showed up with different instruction patterns.
 - The old repo has concurrent unrelated CPS2 changes. Migration is copy-only;
   do not reset, stage, delete, or commit those changes as part of this project.

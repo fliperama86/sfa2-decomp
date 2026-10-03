@@ -10,7 +10,14 @@ second simultaneous delivery target.
 The [PS1 pilot](ps1/docs/matching-pilot.md) rebuilds three connected functions
 from readable C, matching all 592 original bytes at their original addresses.
 A clean rebuild, independent byte comparison, bounded execution tests, and
-mutation controls passed. This is a routine-level result, not a full-game build.
+mutation controls passed.
+
+The [matching build](ps1/docs/matching-build.md) now rebuilds the complete
+resident executable byte-identically from declared owners: eight functions
+(1,228 bytes) compiled from C at their original addresses, and the remaining
+613,172 payload bytes retained from the baseline and counted as raw. Retained
+bytes are scaffolding, not recovered source. This is not a full-game
+decompilation.
 The [Windows pilot](windows/docs/gameplay-pilot.md) is behaviorally tested but
 not byte-matching. VC5 tools are available; game matching with VC5 is untested.
 
@@ -50,8 +57,9 @@ python3.12 -m venv .venv
 .venv/bin/python tools/verify_workspace.py
 ```
 
-Rebuilding PS1 C additionally uses the documented historical compiler on the
-existing remote Windows/WSL machine and local MIPS tools. See the
+Rebuilding PS1 C uses a private native build of the documented historical
+compiler and local MIPS tools. The pinned reference compiler on the remote
+Windows/WSL machine is optional and reproduces the same image. See the
 [PS1 instructions](ps1/README.md). Do not copy an old virtual environment;
 its launchers can retain paths to another repository.
 
