@@ -456,6 +456,25 @@ source ownership and coverage, not generating every source file before a boot.
   symbol. A stray backup file from an agent also reached the main private
   tree and was removed.
 
+## Seventeenth group: larger game functions
+
+- 54 functions of 300 to 500 bytes attempted, 31 exact. One more came back
+  from the parked pool through the permutation search. 1,187 functions and
+  141,124 bytes, about 43 percent of the resident code bytes.
+- **Reconciling the previous round's parked count.** The parked pool went
+  from 229 to 259 in the last milestone, 35 additions and 5 recoveries, while
+  63 attempts with 39 matches explain only 24 additions. The other 11 were
+  functions parked by the first four batches of this round, which had already
+  been banked when that snapshot was taken. The parked pool is shared across
+  rounds and a snapshot can include a round in progress. From now on the
+  milestone notes give the parked count at the moment of the snapshot and
+  say which rounds it includes.
+- Parked pool at this snapshot: 270 functions, about 48 KB. It includes
+  round fifteen batches banked so far, if any. Unattempted: 193 functions,
+  about 139 KB, not counting those handed to agents in the running round.
+- Success by size so far: about 85 percent under 200 bytes, 58 percent from
+  200 to 300, 57 percent from 300 to 500.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
