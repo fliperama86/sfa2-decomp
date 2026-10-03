@@ -20,6 +20,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+import structgen
+
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = Path(__file__).resolve().parent / "matchbuild.py"
 FNDIFF = Path(__file__).resolve().parent / "fndiff.py"
@@ -222,6 +224,26 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
             return "function controls must still trip"
         return None
 
+    def shadow_header(copy: Path):
+        (copy / parsed["types"]["header"]).write_text("/* a hand-written header that would shadow the generated one */\n")
+
+    def overlapping_field(copy: Path):
+        path = copy / parsed["types"]["fields"]
+        model = structgen.parse(path.read_text(), str(path))
+        # The appended line joins the last struct in the file.
+        first = min(model.structs[-1].fields, key=lambda f: f.offset)
+        text = path.read_text()
+        path.write_text(text + ("" if text.endswith("\n") else "\n") + f"{first.offset:#x} u8 selftest_overlap\n")
+
+    types_cases = (
+        [
+            Case("types-shadowing-header", False, "would shadow the generated header", shadow_header),
+            Case("types-overlapping-field", False, "overlaps field", overlapping_field),
+        ]
+        if "types" in parsed
+        else []
+    )
+
     # Only meaningful when the default compiler declares the limitation.
     float_cases = (
         [Case("float-with-no-float-compiler", False, "floating-point token", add_float)]
@@ -234,7 +256,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + [
+    return float_cases + types_cases + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,

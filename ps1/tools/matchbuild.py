@@ -26,6 +26,8 @@ from pathlib import Path
 
 from elftools.elf.elffile import ELFFile
 
+import structgen
+
 SHF_ALLOC = 0x2
 HEADER_SIZE = 2048
 EXE_MAGIC = b"PS-X EXE"
@@ -278,6 +280,8 @@ class Config:
     units: list[UnitDecl]
     symbols_path: Path
     symbol_names: list[str]
+    types_fields: Path | None = None  # [types] fields file, None when absent
+    types_header: str = ""
     # Filled in during validation of the baseline.
     baseline: bytes = b""
     load: int = 0
@@ -483,6 +487,29 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 f"the assignment would override the compiled symbol"
             )
 
+    # Shared types: the generated header must not be shadowed by a source-side file.
+    types_fields: Path | None = None
+    types_header = ""
+    types_t = raw.get("types")
+    if types_t is not None:
+        if not isinstance(types_t, dict):
+            errors.append("[types] must be a table")
+        else:
+            fields_rel = _get_str(types_t, "fields", "[types]", errors)
+            types_header = _get_str(types_t, "header", "[types]", errors, re.compile(r"[A-Za-z0-9_.-]+\Z"))
+            if fields_rel:
+                types_fields = _expand(fields_rel, directory)
+                if not types_fields.is_file():
+                    errors.append(f"[types]: fields file not found: {fields_rel}")
+            if types_header:
+                source_dirs = {directory} | {_expand(u.source, directory).parent for u in units}
+                for source_dir in sorted(source_dirs):
+                    if (source_dir / types_header).exists():
+                        errors.append(
+                            f"{source_dir / types_header} would shadow the generated header {types_header!r}: "
+                            f"quoted includes resolve next to the including file first"
+                        )
+
     config = Config(
         path=config_path,
         directory=directory,
@@ -497,6 +524,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         units=units,
         symbols_path=symbols_path,
         symbol_names=symbol_names,
+        types_fields=types_fields,
+        types_header=types_header,
     )
 
     # Baseline executable.
@@ -776,6 +805,16 @@ def file_sha(path: Path) -> str:
     return sha256(path.read_bytes())
 
 
+def generate_types(cfg: Config, build: Path) -> Path:
+    """Generate and layout-check the shared header into <build>/gen. Raises FieldsError."""
+    gen = build / "gen"
+    gen.mkdir()
+    model = structgen.parse(cfg.types_fields.read_text(), str(cfg.types_fields))
+    (gen / cfg.types_header).write_text(structgen.generate_header(model, cfg.types_header))
+    structgen.check_layout(model, cfg.cpp, cfg.types_header, gen)
+    return gen
+
+
 def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
     """Run the pipeline. Returns the report and the list of failure reasons."""
     failures: list[str] = []
@@ -786,6 +825,15 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
         "baseline": sha256(cfg.baseline),
         "sources": {u.name: file_sha(_expand(u.source, cfg.directory)) for u in cfg.units},
     }
+
+    include_args: list = []
+    if cfg.types_fields is not None:
+        report["inputs"]["types_fields"] = file_sha(cfg.types_fields)
+        try:
+            gen = generate_types(cfg, build)
+        except structgen.FieldsError as exc:
+            return report, [f"shared types: {error}" for error in exc.errors]
+        include_args = ["-I", gen]
 
     compiler = Compiler(cfg.cc1, tag)
     compiler.check_master()
@@ -806,7 +854,7 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
         source = _expand(unit.source, cfg.directory)
         pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
         run(
-            [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", source, "-o", pre],
+            [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
             step=f"preprocess {unit.name}",
         )
         # The preprocessed text covers the source and every header it includes.
