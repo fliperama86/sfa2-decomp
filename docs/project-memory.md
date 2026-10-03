@@ -199,6 +199,31 @@ source ownership and coverage, not generating every source file before a boot.
   come out swapped; a routine whose second loop the original strength-reduces
   and the candidate does not.
 
+## Fifth group: second parallel round
+
+- Five more units, merged with no conflict. 25 more functions exact: 70
+  functions and 9,836 bytes. Three more functions are parked; six in total.
+- The merge was clean because every agent used `field_<offset>` names. Type
+  conflicts only appear when someone invents a struct or a role name.
+- Cleanup debt recorded, not yet done: several units name addresses inside the
+  global state block, or the two players' fields, as separate symbols or as
+  one-field wrapper structs. They match, but they should become members of the
+  existing structs. Each change has to be rebuilt and stay exact.
+- One function keeps a `goto`. Without it the compiler merges two duplicated
+  check chains and the size is wrong.
+- Three functions read past their own return or use an uninitialised local, as
+  the original does. They are reproduced as written, not repaired.
+- A round can run while the previous PR is in review, as long as the main
+  private tree stays at the reviewed state. Merged rounds wait in a sibling
+  directory and are promoted after the PR merges.
+- Private helpers under `ps1/local/`: `setup_round.py` creates the unit work
+  directories from address ranges, `park.py` takes unmatched functions out of
+  a unit and splits it around them, `round_brief.md` is the agent brief.
+- Parked residual kinds so far: unused stack reservation, swapped saved
+  registers, a missing strength reduction, a load that lands in the wrong
+  register, register allocation order, and a conditional term the compiler
+  turns into a branch.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
