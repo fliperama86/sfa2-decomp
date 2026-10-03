@@ -434,6 +434,28 @@ source ownership and coverage, not generating every source file before a boot.
   the original reserves and never uses. That makes four. It matches, and it
   is not an explanation of why the original reserves the space.
 
+## Sixteenth group: last medium functions, first larger ones, first jump table
+
+- 63 functions attempted: 43 of 200 to 300 bytes, mostly library code, and 20
+  of 300 to 500 bytes of game code. 39 exact. The larger game functions
+  matched 13 of 20. Library code is harder, mainly because of
+  hardware-register stores.
+- Five more came back from the parked pool. Four were matched by the
+  permutation sweep running in the background. One is the first switch
+  function, accepted now that the build owns its 24-byte jump table as
+  read-only data.
+- 1,155 functions and 128,896 bytes. 259 parked, about 43 KB.
+- Lessons that helped several functions: a `u8` loop counter removes a stack
+  frame that an `int` or `short` counter creates; a loop written with `goto`
+  can keep a test-then-decrement order that `do/while` loses; a decrement
+  through an `int` temporary gives `addiu -1` where `--` on a halfword does
+  not. These are observations on specific functions, not general rules.
+- An agent deleted an existing symbol line in its copy, which broke the link
+  of an older unit there. Restored by hand. The merge tool does not flag a
+  deleted symbol line, because deleting is normal when a unit takes over a
+  symbol. A stray backup file from an agent also reached the main private
+  tree and was removed.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
