@@ -64,6 +64,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
   300 to 500 bytes. 39 of 63 matched, and five came back from the parked
   pool. 1,155 functions, 128,896 bytes in total, plus the first jump table.
   259 functions are parked and stay raw.
+- Fourteenth round, functions of 300 to 500 bytes in game code: 31 of 54
+  matched, and one more came back from the parked pool. 1,187 functions,
+  141,124 bytes in total, about 43 percent of the resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -79,8 +82,8 @@ ignored. The 68k/CPS2 implementation stays behind. The
 ## Next implementation package
 
 The sweep of small functions is done. What remains in the resident image:
-236 unattempted functions of 300 bytes or more holding about 156 KB, and 259 parked
-functions holding about 43 KB.
+See the project memory for the current counts of unattempted and parked
+functions; they change with every round.
 
 1. Bring up an automatic permutation search for candidates that have the right
    logic and the wrong register allocation or instruction order. Run it over
