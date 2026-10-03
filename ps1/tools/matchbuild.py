@@ -65,6 +65,15 @@ def find_float(preprocessed: str) -> str | None:
     return match.group(0) if match else None
 
 
+ASM_RE = re.compile(r"\b(?:asm|__asm|__asm__)\b")
+
+
+def find_inline_asm(preprocessed: str) -> str | None:
+    """The first `asm`, `__asm` or `__asm__` token in preprocessed C, outside string and character literals."""
+    match = ASM_RE.search(LITERAL_RE.sub('""', preprocessed))
+    return match.group(0) if match else None
+
+
 class ConfigError(Exception):
     """One or more configuration problems, all reported together."""
 
@@ -111,6 +120,7 @@ class UnitDecl:
     rodata: RodataDecl | None = None  # the one read-only data range, if declared
     data: RodataDecl | None = None  # the one initialised data range, if declared
     bss: RodataDecl | None = None  # where the uninitialised data lives, if declared
+    kind: str = "c"  # "c", or "asm" for a unit written in assembly
 
     def loaded(self) -> list[tuple[str, RodataDecl]]:
         """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
@@ -613,10 +623,16 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         source = _get_str(table, "source", where, errors)
         if source and not _expand(source, directory).is_file():
             errors.append(f"{where}: source file not found: {source}")
+        kind = table.get("kind", "c")
+        if kind not in ("c", "asm"):
+            errors.append(f"{where}: kind must be 'c' or 'asm'")
+            kind = "c"
         flags = table.get("flags", [])
         if not isinstance(flags, list) or not all(isinstance(f, str) and FLAG_RE.match(f) for f in flags):
             errors.append(f"{where}: 'flags' must be a list of plain option strings")
             flags = []
+        if kind == "asm" and flags:
+            errors.append(f"{where}: an assembly unit takes no flags")
         functions = []
         fn_tables = table.get("functions", [])
         if not isinstance(fn_tables, list) or not fn_tables:
@@ -662,7 +678,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind))
 
     # Unit overlap.
     ordered = sorted(units, key=lambda u: u.start)
@@ -1294,6 +1310,12 @@ def build_all(
     for unit in cfg.units:
         source = _expand(unit.source, cfg.directory)
         pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
+        if unit.kind == "asm":
+            # Assembled as written: no preprocessing, compiler, maspsx or cache.
+            run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
+            report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
+            failures += check_unit_object(obj, unit)
+            continue
         run(
             [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
             step=f"preprocess {unit.name}",
@@ -1308,6 +1330,13 @@ def build_all(
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
                 continue
+        token = find_inline_asm(pre.read_text(errors="replace"))
+        if token:
+            failures.append(
+                f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
+                f"code that was assembly goes into an assembly unit (kind = \"asm\")"
+            )
+            continue
         inputs = cache_key_inputs(cfg, tools, unit, report["inputs"]["preprocessed"][unit.name], maspsx_script)
         key = cache_key(inputs)
         entry = cache_dir / key if cache_dir is not None else None
@@ -1384,7 +1413,10 @@ def build_all(
     else:
         controls = []
 
-    c_bytes = sum(u.end - u.start for u in cfg.units)
+    c_units = [u for u in cfg.units if u.kind == "c"]
+    asm_units = [u for u in cfg.units if u.kind == "asm"]
+    c_bytes = sum(u.end - u.start for u in c_units)
+    asm_bytes = sum(u.end - u.start for u in asm_units)
     rodata_bytes = sum(u.rodata.size for u in cfg.units if u.rodata is not None)
     data_bytes = sum(u.data.size for u in cfg.units if u.data is not None)
     bss_bytes = sum(u.bss.size for u in cfg.units if u.bss is not None)
@@ -1393,6 +1425,7 @@ def build_all(
             "units": [
                 {
                     "name": u.name,
+                    "kind": u.kind,
                     "cache": report["cache"]["units"][u.name]["cache"],
                     "cache_key": report["cache"]["units"][u.name]["key"],
                     "range": [u.start, u.end],
@@ -1409,10 +1442,12 @@ def build_all(
             ],
             "coverage": {
                 "c_bytes": c_bytes,
-                "c_functions": sum(len(u.functions) for u in cfg.units),
+                "c_functions": sum(len(u.functions) for u in c_units),
+                "asm_bytes": asm_bytes,
+                "asm_functions": sum(len(u.functions) for u in asm_units),
                 "rodata_bytes": rodata_bytes,
                 "data_bytes": data_bytes,
-                "raw_payload_bytes": cfg.payload_size - c_bytes - rodata_bytes - data_bytes,
+                "raw_payload_bytes": cfg.payload_size - c_bytes - asm_bytes - rodata_bytes - data_bytes,
                 "raw_header_bytes": HEADER_SIZE,
                 "raw_ranges": len(ranges),
             },
@@ -1452,6 +1487,7 @@ def summary_text(report: dict, failures: list[str]) -> str:
             lines.append(f"cache: {states.count('hit')} hits, {states.count('miss')} misses")
         lines.append(
             f"coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
+            f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions), "
             f"rodata {cov['rodata_bytes']:,} bytes, "
             f"data {cov['data_bytes']:,} bytes, "
             f"raw payload {cov['raw_payload_bytes']:,} bytes, header {cov['raw_header_bytes']:,} bytes raw"

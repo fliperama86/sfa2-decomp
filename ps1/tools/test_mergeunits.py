@@ -49,9 +49,12 @@ BASE_FIELDS = "struct S size=8\n0x0 u32 a\n"
 
 
 def unit_text(
-    name: str, functions: list[tuple[str, int, int]], rodata: tuple[int, int] | None = None, data=None, bss=None
+    name: str, functions: list[tuple[str, int, int]], rodata: tuple[int, int] | None = None, data=None, bss=None, kind=None
 ) -> str:
-    lines = [f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = ["-O2", "-G0"]\nfunctions = [']
+    if kind is None:
+        lines = [f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = ["-O2", "-G0"]\nfunctions = [']
+    else:
+        lines = [f'[[unit]]\nname = "{name}"\nkind = "{kind}"\nsource = "{name}.c"\nfunctions = [']
     for fn, address, size in functions:
         lines.append(f'  {{ name = "{fn}", address = {address:#x}, size = {size} }},')
     lines.append("]")
@@ -82,7 +85,7 @@ def make_base(root: Path) -> Path:
 
 
 def make_unit(
-    root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None, rodata=None, data=None, bss=None
+    root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None, rodata=None, data=None, bss=None, kind=None
 ) -> Path:
     """Copy the base, then add one unit the way an agent would."""
     directory = root / name
@@ -91,7 +94,7 @@ def make_unit(
             write(directory, path.relative_to(base).as_posix(), path.read_text())
     if functions:
         with open(directory / "build.toml", "a") as handle:
-            handle.write("\n" + unit_text(name, list(functions), rodata, data, bss))
+            handle.write("\n" + unit_text(name, list(functions), rodata, data, bss, kind))
     write(directory, f"{name}.c", f"/* {name} */\n")
     with open(directory / "symbols.ld", "a") as handle:
         handle.write(symbols)
@@ -215,7 +218,7 @@ def case_data_bss_round_trip(d: Path):
         d, base, "u_one", functions=[("one_fn", 0x80000200, 32)], rodata=(0x80000800, 24),
         data=(0x80000900, 16), bss=(0x80300000, 8),
     )
-    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)])
+    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)], kind="asm")
     proc = run("--base", base, "--out", d / "out", one, two)
     if proc.returncode != 0:
         return out(proc)
@@ -225,7 +228,7 @@ def case_data_bss_round_trip(d: Path):
         + "\n"
         + unit_text("u_one", [("one_fn", 0x80000200, 32)], (0x80000800, 24), (0x80000900, 16), (0x80300000, 8))
         + "\n"
-        + unit_text("u_two", [("two_fn", 0x80000300, 8)])
+        + unit_text("u_two", [("two_fn", 0x80000300, 8)], kind="asm")
     )
     if got != want:
         return f"build.toml differs:\n{got}"
@@ -234,6 +237,8 @@ def case_data_bss_round_trip(d: Path):
         return "parsed data or bss differs"
     if "data" in parsed["unit"][2] or "bss" in parsed["unit"][2]:
         return "a unit without data or bss gained one"
+    if parsed["unit"][2].get("kind") != "asm" or "kind" in parsed["unit"][1]:
+        return "kind did not survive the merge"
     return None
 
 

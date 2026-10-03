@@ -83,6 +83,21 @@ int pick(int a) {
     return total;
 }
 """
+ASM_C_SOURCE = "int pick(int a) { return a + 1; }\n"
+ASM_SOURCE = """\
+.set noreorder
+.text
+.globl stub
+.type stub, @function
+stub:
+    addiu $v0, $a0, 1
+    addu  $v0, $v0, $a1
+    jr    $ra
+    nop
+.size stub, . - stub
+"""
+ASM_SIZE = 16
+ASM_KIND = 'kind = "asm"\n'
 BSS_ADDRESS = 0x80300000  # outside the fixture payload
 RODATA_GAP = 0x40  # raw filler between the end of the text and the table
 RODATA_TAIL = 0x20  # raw filler after the table
@@ -269,6 +284,15 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
             + "typedef char selftest_literal_b['.' + '\\'' + 1];\n"
         )
 
+    def add_inline_asm(copy: Path):
+        path = copy / target_unit["source"]
+        path.write_text(path.read_text() + '\n__asm__("nop");\n')
+
+    def asm_in_literals(copy: Path):
+        # The tokens inside string and character literals are data.
+        path = copy / target_unit["source"]
+        path.write_text(path.read_text() + '\ntypedef char selftest_asm_text[sizeof("__asm__ asm __asm")];\n')
+
     include_guard = "#include <selftest_inc.h>\n#ifndef SELFTEST_INC_OK\n#error include directory not used\n#endif\n"
 
     def use_include(copy: Path, listed: bool, body: str = "#define SELFTEST_INC_OK 1\n"):
@@ -366,6 +390,10 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if parsed["toolchain"]["cc1"].get("no_float")
         else []
     )
+    asm_cases = [
+        Case("asm-inline-in-c-unit", False, "inline assembly", add_inline_asm),
+        Case("asm-word-in-literal", True, "", asm_in_literals),
+    ]
     include_cases = [
         Case("include-dir", True, "", lambda c: use_include(c, True)),
         Case("include-dir-not-listed", False, "preprocess", lambda c: use_include(c, False)),
@@ -379,7 +407,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -901,6 +929,125 @@ class DivisionFixture:
         for child in copy.iterdir():
             shutil.rmtree(child) if child.is_dir() else child.unlink()
         self.write(copy, self.baseline, self.text_size, expand_div)
+
+
+class AsmFixture:
+    """A C unit followed by an assembly unit, then raw filler.
+
+    The baseline is the image of a seed build over a payload of filler bytes.
+    """
+
+    TAIL = 0x20
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.text_size = 0
+        self.baseline = b""
+
+    @property
+    def payload_size(self) -> int:
+        return self.text_size + ASM_SIZE + self.TAIL
+
+    def write(self, copy: Path, payload: bytes, text_size: int, asm_source: str, extra: str = "", asm_extra: str = ASM_KIND) -> None:
+        (copy / "pick.c").write_text(ASM_C_SOURCE)
+        (copy / "stub.s").write_text(asm_source)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+            + "[[unit]]\n"
+            'name = "pick"\n'
+            'source = "pick.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "pick", address = {FIXTURE_LOAD:#x}, size = {text_size} }} ]\n\n'
+            "[[unit]]\n"
+            'name = "stub"\n'
+            'source = "stub.s"\n'
+            f'functions = [ {{ name = "stub", address = {FIXTURE_LOAD + text_size:#x}, size = {ASM_SIZE} }} ]\n'
+            + asm_extra
+            + extra
+        )
+
+    def _seed(self, name: str, payload: bytes, text_size: int) -> Path:
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        self.write(copy, payload, text_size, ASM_SOURCE)
+        self.last = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("asm-geometry", bytes(64), 4)
+        try:
+            with open(build / "unit-pick.o", "rb") as handle:
+                self.text_size = ELFFile(handle).get_section_by_name(".text")["sh_size"]
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        build = self._seed("asm-seed", bytes([FILLER]) * self.payload_size, self.text_size)
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.payload_size:
+                raise SystemExit(f"test setup: the assembly seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+
+    def install(self, copy: Path, *, asm_source: str = ASM_SOURCE, extra: str = "", asm_extra: str = ASM_KIND) -> None:
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        self.write(copy, self.baseline, self.text_size, asm_source, extra, asm_extra)
+
+
+def make_asm_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = AsmFixture(cfg_dir, parsed)
+
+    def verify_unit(report: dict):
+        kinds = {u["name"]: u.get("kind") for u in report["units"]}
+        if kinds != {"pick": "c", "stub": "asm"}:
+            return f"unit kinds are wrong: {kinds}"
+        cov = report["coverage"]
+        if cov.get("asm_functions") != 1 or cov.get("asm_bytes") != ASM_SIZE or cov.get("c_functions") != 1:
+            return f"assembly accounting is wrong: {cov}"
+        if cov["c_bytes"] != fx.text_size:
+            return f"c_bytes must exclude the assembly unit: {cov}"
+        owned = cov["c_bytes"] + cov["asm_bytes"] + cov["raw_payload_bytes"] + cov["rodata_bytes"] + cov["data_bytes"]
+        if owned != fx.payload_size:
+            return f"coverage does not add up to the payload: {owned} != {fx.payload_size}"
+        if report["cache"]["units"]["stub"] != {"cache": "off", "key": None}:
+            return f"an assembly unit is not cached: {report['cache']['units']['stub']}"
+        if "stub" in report["inputs"]["preprocessed"]:
+            return "an assembly unit is not preprocessed"
+        control = [c for c in report["controls"] if c["kind"] == "function" and c["target"] == "stub"]
+        if len(control) != 1 or not control[0]["tripped"]:
+            return f"function control for the assembly function missing or not tripped: {report['controls']}"
+        return None
+
+    def unknown_kind(copy: Path):
+        fx.install(copy, asm_extra='kind = "pascal"\n')
+
+    return [
+        Case("asm-unit", True, "", lambda c: fx.install(c), verify_unit, fndiff=("stub", 0, "IDENTICAL")),
+        Case("asm-instruction-differs", False, "function 'stub': bytes differ from baseline", lambda c: fx.install(c, asm_source=ASM_SOURCE.replace("$a0, 1", "$a0, 2"))),
+        Case("asm-unit-with-flags", False, "an assembly unit takes no flags", lambda c: fx.install(c, asm_extra=ASM_KIND + 'flags = ["-O2"]\n')),
+        Case("kind-unknown", False, "kind must be 'c' or 'asm'", unknown_kind),
+    ]
 
 
 def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
