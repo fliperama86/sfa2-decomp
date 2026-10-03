@@ -1,0 +1,37 @@
+# All private platform workspaces, game-derived source/data, and tools
+**/local/
+/local/
+# Environments and generated products
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+# Defense in depth for binary inputs and toolchains
+*.bin
+*.rom
+*.iso
+*.cue
+*.chd
+*.zip
+*.tar.gz
+*.exe
+*.EXE
+*.dll
+*.DLL
+*.obj
+*.o
+*.elf
+*.lib
+*.gpr
+*.rep/
+*.sock
+*.lock
+.env
+.env.*
+!.env.example
+.DS_Store
