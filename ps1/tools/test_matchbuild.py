@@ -22,6 +22,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = Path(__file__).resolve().parent / "matchbuild.py"
+FNDIFF = Path(__file__).resolve().parent / "fndiff.py"
 
 # Synthetic all-C fixture: one authored function that is the whole payload.
 FIXTURE_LOAD = 0x80010000
@@ -31,12 +32,13 @@ HEADER_SIZE = 2048
 
 
 class Case:
-    def __init__(self, name, expect_pass, reason, mutate=None, verify=None):
+    def __init__(self, name, expect_pass, reason, mutate=None, verify=None, fndiff=None):
         self.name = name
         self.expect_pass = expect_pass
         self.reason = reason  # substring required in the tool output when it must fail
         self.mutate = mutate
         self.verify = verify  # optional check of report.json, returns an error string or None
+        self.fndiff = fndiff  # optional (unit, expected exit status, required text) for fndiff.py
 
 
 def replace_once(text: str, old: str, new: str, what: str) -> str:
@@ -227,11 +229,17 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         else []
     )
 
-    return float_cases + [
-        Case("clean", True, ""),
-        Case("source-mutation", False, f"function '{target_unit['functions'][0]['name']}': bytes differ", mutate_source)
+    mutation_reason = (
+        f"function '{target_unit['functions'][0]['name']}': bytes differ"
         if selftest["unit"] == unit["name"]
-        else Case("source-mutation", False, "bytes differ", mutate_source),
+        else "bytes differ"
+    )
+    return float_cases + [
+        Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
+        Case(
+            "source-mutation", False, mutation_reason, mutate_source,
+            fndiff=(target_unit["name"], 1, "DIFFERENT"),
+        ),
         Case("wrong-size", False, "text size mismatch", wrong_size),
         Case("overlapping-units", False, "overlap", overlapping),
         Case("symbol-removed", False, "undefined reference", remove_symbol),
@@ -271,6 +279,16 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
             problem = case.verify(json.loads((build / "report.json").read_text()))
             if problem:
                 return False, problem
+        if case.fndiff:
+            unit_name, want_status, want_text = case.fndiff
+            diff = subprocess.run(
+                [sys.executable, str(FNDIFF), "--config", str(copy / "build.toml"), "--tag", tag, unit_name],
+                capture_output=True,
+                text=True,
+            )
+            if diff.returncode != want_status or want_text not in diff.stdout:
+                return False, f"fndiff exit {diff.returncode}, wanted {want_status} with {want_text!r}:\n{diff.stdout[-600:]}"
+            message += f"; fndiff reports {want_text}"
         return True, message
     finally:
         for leftover in (copy, build):

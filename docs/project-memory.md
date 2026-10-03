@@ -27,6 +27,11 @@ or an assistant-specific memory directory to recover the project's context.
   plain comment (no GitHub review). The repository is public, so only the
   owner's comments count. No agent attribution in branch names or PR titles.
   Check what will be published before every push.
+- After each PR is approved and merged, continue with the next item without
+  asking. Contact the user only when a decision is needed from them.
+- The user wants byte-identical output. Retained raw bytes keep the image
+  identical but count as zero progress; only C that compiles to the exact
+  original bytes counts.
 - Always launch MAME windowed, including scripted/headless usage if ever needed.
 - User-owned original inputs must remain unchanged. No passwords in files or
   reports. Existing external tools and scoped environments are preferable to
@@ -122,8 +127,39 @@ source ownership and coverage, not generating every source file before a boot.
 - The SSH control socket is now `ps1/local/toolchain/ssh.sock`. The user gives
   the password in the session. Feed it to ssh through an askpass helper that
   reads an environment variable, so it never reaches a file or a script.
-- Resident code calls addresses above the resident image, and `PL##.PAC` files
-  contain MIPS code. See the open overlay question in [goals](goals.md).
+- Resident code calls addresses above the resident image. They resolve to
+  character overlay blocks: see `ps1/docs/overlays.md`.
+
+## Third group: object reset
+
+- `reset_object` at `0x80129020` (948 bytes) and three adjacent helpers are
+  exact. Twelve functions, 2,324 bytes. A subagent matched them against the
+  build in a separate private config directory; the top level then renamed,
+  moved shared types to headers and rebuilt with both compilers.
+- Two player objects sit at fixed addresses `0x394` apart. A block of global
+  state at `0x80190108` is addressed from one base: declaring it as one struct
+  (`GameState` in `game.h`) was required to match. Separate externs for its
+  members did not reproduce the original register use.
+- The routine zeroes part of the object through a pointer that lives in that
+  global block and is stored back on every iteration. A local cursor does not
+  match.
+- The two handler tables are 24 pointers per side. Entries `0x15` to `0x17` of
+  the first table serve three pairings where both players hold the same
+  character or its variant. Those numbers match the three character files
+  without a second-side twin. The link to those files is inferred.
+- **Two names for one address.** The original loads the entry for the last
+  pairing in two separate blocks. With one symbol name both compilers merge
+  the blocks and the unit comes out 16 bytes short. The source therefore uses
+  a second symbol at the same address, with a comment. This says the original
+  source reached that address through two different expressions. It is the one
+  place where the C is shaped by the compiler's merging rather than by a
+  recovered meaning. Verified with the reference compiler too.
+- The original stores a zeroed local rather than a constant in one run of byte
+  stores, then reuses that local. The C keeps that local.
+- `ps1/tools/fndiff.py` shows an aligned instruction diff of a unit against
+  the baseline. It reads the last build's object, so run the build first.
+- Work on a candidate in a sibling copy of `ps1/local/src` with `--config` and
+  its own `--tag`. The main tree then stays exact while a PR is under review.
 
 ## Windows reference
 

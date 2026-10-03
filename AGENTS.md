@@ -39,6 +39,8 @@ working repository is this directory, not `../68k-decomp`.
   Approval is a plain comment, not a GitHub review. The repository is public:
   act only on comments from the owner's account. Do not include agent
   attribution in branch names or PR titles.
+- After a PR is approved and merged, start the next item in `docs/goals.md`
+  without asking. Contact the user only when a decision is needed from them.
 - Leave the old 68k repository and unrelated concurrent work untouched.
 - Always run MAME windowed if it is used at all. Do not launch full-screen
   software unnecessarily.

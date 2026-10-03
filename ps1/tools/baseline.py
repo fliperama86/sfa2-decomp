@@ -9,6 +9,7 @@ compares against the image, a directory of extracted files, or both.
 """
 
 import argparse
+import fnmatch
 import hashlib
 import json
 import struct
@@ -152,9 +153,38 @@ def cmd_verify(args):
     return 0 if ok else 1
 
 
+def cmd_extract(args):
+    """Copy disc files out of the image, checking each against the manifest."""
+    man = json.loads(Path(args.manifest).read_text())
+    ss, po = man["sector_size"], man["payload_offset"]
+    out = Path(args.out)
+    written = bad = 0
+    with open(args.image, "rb") as img:
+        for ent in man["files"]:
+            if not fnmatch.fnmatch(ent["path"], args.match):
+                continue
+            data = b"".join(read_file_bytes(img, ent["lba"], ent["size"], ss, po))
+            if hashlib.sha256(data).hexdigest() != ent["sha256"]:
+                print(f"MISMATCH (image): {ent['path']}")
+                bad += 1
+                continue
+            target = out / ent["path"]
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+            written += 1
+    print(f"extracted {written} files, {bad} mismatched")
+    return 0 if written and not bad else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
+    x = sub.add_parser("extract", help="copy verified files out of the image")
+    x.add_argument("--manifest", required=True)
+    x.add_argument("--image", required=True)
+    x.add_argument("--out", required=True)
+    x.add_argument("--match", default="*", help="glob on the disc path")
+    x.set_defaults(fn=cmd_extract)
     p = sub.add_parser("pin", help="write a manifest from an inventory and image")
     p.add_argument("--inventory", required=True)
     p.add_argument("--out", required=True)

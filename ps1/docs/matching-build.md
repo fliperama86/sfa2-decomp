@@ -17,7 +17,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | Path | Visibility | Content |
 | --- | --- | --- |
 | `ps1/tools/matchbuild.py` | public | Build, link, compare, report |
-| `ps1/tools/test_matchbuild.py` | public | Controls for the build tool |
+| `ps1/tools/fndiff.py` | public | Instruction diff of one unit against the baseline |
+| `ps1/tools/test_matchbuild.py` | public | Controls for the build tool and the diff |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
 | `ps1/tools/verify_cc1_golden.py` | public | Compare a compiler with saved reference output |
 | `ps1/tools/test_verify_cc1_golden.py` | public | Controls for the compiler checker |
@@ -127,7 +128,14 @@ reproduces the same image, and for units the native build must not compile.
 ```sh
 .venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference]
 .venv/bin/python ps1/tools/test_matchbuild.py [--config PATH]
+.venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
+
+`fndiff.py` is a diagnostic for a unit that does not match yet. It links the
+unit object left by the last build alone at the unit's start address and prints
+an aligned instruction diff against the baseline range. It works when sizes are
+wrong and the whole-image link was never reached. It decides nothing:
+`matchbuild.py` remains the only authority on whether a build is exact.
 
 Exit status: 0 all checks passed, 1 failed check or build step, 2 invalid
 configuration, 3 unusable environment such as a missing SSH master.

@@ -27,6 +27,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   the family's two callers. Eight functions, 1,228 bytes in total.
 - Native local compiler, checked against saved reference outputs. The pinned
   reference compiler rebuilds the same image.
+- The object reset routine and three adjacent helpers matched from C. It is
+  the second caller of the first family and calls most of the earlier group.
+  Twelve functions, 2,324 bytes in total.
+- Static [overlay map](../ps1/docs/overlays.md): archive format, every
+  code-bearing chunk on the disc, estimated link addresses.
 
 ## Current checkpoint
 
@@ -37,22 +42,21 @@ ignored. The 68k/CPS2 implementation stays behind. The
 
 ## Next implementation package
 
-1. Reconstruct the large object reset routine that calls the whole matched
-   group, with its remaining small callees. It is the other caller of the
-   matched family and ties the group together.
-2. Add data and read-only data ownership to the matching build when a unit
+1. Reconstruct the six resident routines the reset routine still calls by
+   address, then the routines its two handler tables point to.
+2. Widen the work: split neighbouring address ranges into units that can be
+   matched independently, and merge shared types at the top level.
+3. Add data and read-only data ownership to the matching build when a unit
    first needs it. Until then such units are rejected, not misplaced.
-3. Resolve the overlay question below far enough to name what the resident
-   code calls.
 
-## Open overlay question
+## Overlays
 
-Resident code calls three addresses above the end of the resident image. Two
-of them are the same routine at two bases 0x18000 apart, chosen by player side.
-The per-character `PL##.PAC` and `PL##X.PAC` archives contain MIPS code, which
-fits one code copy per side. Archive format, load addresses and which archive
-entry holds the code are not yet established. Nothing here was observed in a
-running game.
+The [overlay map](../ps1/docs/overlays.md) records the archive format, every
+code-bearing chunk on the disc and its estimated link address, and what the
+three out-of-image calls in the matched code resolve to. It is static analysis.
+Still open: confirming the map from the resident loader code, and how the
+matching build should own overlay blocks, including one source linked at two
+addresses for the two player sides.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime
