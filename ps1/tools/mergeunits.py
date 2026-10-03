@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import os
 import re
 import shutil
 import sys
@@ -263,6 +264,9 @@ def merge_fields(
             conflicts += [f"{unit.label}: {e}" for e in exc.errors]
     if len(models) != len(units) + 1:
         return base_text, 0
+    for unit, model in zip(units, models[1:]):
+        if (unit.directory / TYPES_FILE).is_file():
+            conflicts += [f"conflict: {unit.label} {e}" for e in _removed_declarations(models[0], model)]
     try:
         merged = structgen.merge_models(models)
     except structgen.FieldsError as exc:
@@ -270,8 +274,31 @@ def merge_fields(
         return base_text, 0
     count = lambda model: sum(len(s.fields) for s in model.structs)
     added = count(merged) - count(models[0])
-    # Nothing new: keep the base text, with its comments, as it is.
-    return (structgen.format_fields(merged) if added else base_text), added
+    # Compare the whole model (types, empty structs, padding-only structs), not a
+    # count. Nothing new: keep the base text, with its comments, as it is.
+    changed = structgen.format_fields(merged) != structgen.format_fields(models[0])
+    return (structgen.format_fields(merged) if changed else base_text), added
+
+
+def _removed_declarations(base: structgen.Model, unit: structgen.Model) -> list[str]:
+    """Base declarations that a unit copy no longer has; the union would hide that."""
+    removed = []
+    for name in base.types:
+        if name not in unit.types:
+            removed.append(f"removes base type {name!r} from {TYPES_FILE}")
+    unit_structs = {s.name: s for s in unit.structs}
+    for struct in base.structs:
+        other = unit_structs.get(struct.name)
+        if other is None:
+            removed.append(f"removes base struct {struct.name!r} from {TYPES_FILE}")
+            continue
+        # A field that is still there but different is the merge's conflict to report.
+        offsets = {f.offset for f in other.fields}
+        names = {f.name for f in other.fields}
+        for f in struct.fields:
+            if f.offset not in offsets and f.name not in names:
+                removed.append(f"removes base field {struct.name}.{f.name} from {TYPES_FILE}")
+    return removed
 
 
 # ---------------------------------------------------------------------------
@@ -322,7 +349,25 @@ def merge_files(
     for relative, unit in takes.items():
         if relative not in chosen or chosen[relative][0] is not unit:
             conflicts.append(f"conflict: --take {unit.label}:{relative} names a file that unit does not modify")
+    owners = {relative: "base" for relative in base_files}
+    owners.update({relative: unit.label for relative, (unit, _) in chosen.items()})
+    conflicts += prefix_collisions(owners)
     return {relative: path for relative, (_, path) in chosen.items()}
+
+
+def prefix_collisions(owners: dict[str, str]) -> list[str]:
+    """A path that is a file in one place and a directory in another cannot both exist."""
+    found = []
+    for relative in sorted(owners):
+        parts = relative.split("/")
+        for end in range(1, len(parts)):
+            parent = "/".join(parts[:end])
+            if parent in owners:
+                found.append(
+                    f"conflict: {parent} is a file in {owners[parent]} but a directory in "
+                    f"{owners[relative]} (holding {relative})"
+                )
+    return found
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +407,32 @@ def read_inputs(base_dir: Path, units: list[Unit], name: str, conflicts: list[st
     return base_text, texts
 
 
+def publish(base: Path, out: Path, fields: str, symbols: str, build: str, copied: dict[str, Path]) -> None:
+    """Write the whole result next to `out`, then publish it with one rename.
+
+    Any failure removes the staging directory and leaves `out` absent.
+    """
+    out.parent.mkdir(parents=True, exist_ok=True)
+    staging = out.parent / f".{out.name}.staging-{os.getpid()}"
+    if os.path.lexists(staging):
+        raise UsageError(f"staging directory exists: {staging}")
+    try:
+        shutil.copytree(base, staging, ignore=shutil.ignore_patterns("__pycache__", ".*"))
+        (staging / TYPES_FILE).write_text(fields)
+        (staging / SYMBOLS_FILE).write_text(symbols)
+        (staging / BUILD_FILE).write_text(build)
+        for relative, source in copied.items():
+            target = staging / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+        if os.path.lexists(out):
+            raise UsageError(f"output exists: {out}")
+        os.rename(staging, out)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Merge unit directories into one configuration directory")
     parser.add_argument("--base", type=Path, required=True)
@@ -374,7 +445,7 @@ def main(argv: list[str] | None = None) -> int:
         for directory in [args.base, *args.unitdirs]:
             if not directory.is_dir():
                 raise UsageError(f"not a directory: {directory}")
-        if args.out.exists():
+        if os.path.lexists(args.out):
             raise UsageError(f"output exists: {args.out}")
         units = [Unit(d, d.resolve().name) for d in args.unitdirs]
         labels = [u.label for u in units]
@@ -411,14 +482,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"RESULT: FAIL ({len(conflicts)} conflict(s)); nothing written", file=sys.stderr)
         return 1
 
-    shutil.copytree(args.base, args.out, ignore=shutil.ignore_patterns("__pycache__", ".*"))
-    (args.out / TYPES_FILE).write_text(fields_text)
-    (args.out / SYMBOLS_FILE).write_text(symbols_text)
-    (args.out / BUILD_FILE).write_text(build_text)
-    for relative, source in copied.items():
-        target = args.out / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
+    try:
+        publish(args.base, args.out, fields_text, symbols_text, build_text, copied)
+    except UsageError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
     added_units = sum(len(tables) for tables in new_units.values())
     print(f"units added: {added_units}")

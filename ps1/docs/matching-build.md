@@ -150,8 +150,10 @@ Commands of `ps1/tools/structgen.py`:
   independently that a real compiler lays the struct out as declared.
 - `merge A B [C ...] -o OUT` writes the union. Structs and fields present in
   several inputs must agree exactly. Any disagreement, including two names at
-  one offset, is listed with both sources and nothing is written. Output is
-  deterministic: structs in first-seen order (a struct used by value moves after
+  one offset, is listed with both sources and nothing is written. A name used
+  as a `type` in one input and a `struct` in another is also a conflict. The
+  merged text is parsed and validated again before it is written, so an
+  invalid result is an error, not a file. Output is deterministic: structs in first-seen order (a struct used by value moves after
   the struct it embeds), fields sorted by offset.
 
 Build integration. The optional table
@@ -310,13 +312,22 @@ the configuration directory. See the [matching guide](matching-guide.md).
 ```
 
 The merge is mechanical and refuses to guess. `types.fields` goes through the
-field-file merge. `symbols.ld` keeps the base text and appends each unit's new
+field-file merge. A change to the declarations counts, not only new fields: a
+new `type` or a struct with no fields is kept. A unit that drops a base type,
+struct or field is a conflict. `symbols.ld` keeps the base text and appends each unit's new
 statements; the same name with two values is a conflict, and two names for one
 value is a warning. A symbol that a merged unit now defines is dropped. New
 `[[unit]]` tables are appended; a changed base table or a repeated unit name
 is a conflict. New files are copied. A base file that a unit changed is a
-conflict unless named with `--take`. On any conflict nothing is written. The
-merged directory then has to pass `matchbuild.py` like any other.
+conflict unless named with `--take`. A path that is a file in one place and a
+directory in another (for example a new file `support` in one unit and
+`support/helper.h` in another, or in the base) is a conflict.
+
+On any conflict nothing is written. Otherwise the result is built in a hidden
+staging directory next to `--out` and published with a single rename after
+everything was written. If anything fails, the staging directory is removed
+and `--out` does not exist. The merged directory then has to pass
+`matchbuild.py` like any other.
 
 ## Limits
 

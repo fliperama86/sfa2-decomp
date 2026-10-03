@@ -374,6 +374,12 @@ def merge_models(models: list[Model]) -> Model:
     by_name: dict[str, StructDecl] = {}
     for model in models:
         for decl in model.types.values():
+            clash = by_name.get(decl.name)
+            if clash is not None:
+                conflicts.append(
+                    f"conflict: name {decl.name!r} is a struct ({clash.loc}) and a type ({decl.loc})"
+                )
+                continue
             old = merged.types.get(decl.name)
             if old is None:
                 merged.types[decl.name] = TypeDecl(decl.name, decl.size, decl.align, decl.loc)
@@ -383,6 +389,12 @@ def merge_models(models: list[Model]) -> Model:
                     f"vs size={decl.size:#x} align={decl.align} ({decl.loc})"
                 )
         for struct in model.structs:
+            clash = merged.types.get(struct.name)
+            if clash is not None:
+                conflicts.append(
+                    f"conflict: name {struct.name!r} is a type ({clash.loc}) and a struct ({struct.loc})"
+                )
+                continue
             target = by_name.get(struct.name)
             if target is None:
                 target = StructDecl(struct.name, struct.size, struct.loc)
@@ -416,6 +428,11 @@ def merge_models(models: list[Model]) -> Model:
     errors = validate(merged)
     if errors:
         raise FieldsError(errors)
+    # Fail closed: the text that would be written must pass the tool's own parser.
+    try:
+        parse(format_fields(merged), "merged result")
+    except FieldsError as exc:
+        raise FieldsError([f"merged result is not valid: {e}" for e in exc.errors])
     return merged
 
 

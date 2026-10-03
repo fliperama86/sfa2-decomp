@@ -258,6 +258,14 @@ MERGE_CONFLICTS = [
         lambda d: merge_conflict(d, "struct S size=8\n0 u32 a\n", "struct S size=8\n2 u16 b\n", "overlaps"),
     ),
     Case(
+        "merge-conflict-type-vs-struct-name",
+        lambda d: merge_conflict(d, "type Shared size=4 align=4\n", "struct Shared size=4\n0 u32 a\n", "'Shared' is a type"),
+    ),
+    Case(
+        "merge-conflict-struct-vs-type-name",
+        lambda d: merge_conflict(d, "struct Shared size=4\n0 u32 a\n", "type Shared size=4 align=4\n", "'Shared' is a struct"),
+    ),
+    Case(
         "merge-conflicts-listed-together",
         lambda d: _count_conflicts(d),
     ),
@@ -272,6 +280,23 @@ def _count_conflicts(d: Path):
     return None if proc.returncode != 0 and len(lines) == 2 else f"expected two conflicts:\n{out(proc)}"
 
 
+def case_merge_validates_own_result(d: Path):
+    """If the merged model could not be parsed back, merge must fail instead of returning it."""
+    sys.path.insert(0, str(TOOL.parent))
+    import structgen
+
+    models = [structgen.parse("struct S size=4\n0 u32 a\n", "a")]
+    original = structgen.format_fields
+    structgen.format_fields = lambda model: original(model) + "struct S size=4\n"
+    try:
+        structgen.merge_models(models)
+    except structgen.FieldsError as exc:
+        return None if "merged result is not valid" in str(exc) else f"wrong error: {exc}"
+    finally:
+        structgen.format_fields = original
+    return "an unparseable merge result was returned"
+
+
 CASES = (
     [Case("valid-generates-and-checks", case_valid), Case("check-catches-wrong-layout", case_check_catches_wrong_layout)]
     + [Case("deterministic", case_deterministic)]
@@ -279,6 +304,7 @@ CASES = (
     + [Case("errors-reported-together", case_errors_reported_together)]
     + [Case("merge-union", case_merge_union), Case("merge-orders-by-dependency", case_merge_order_by_dependency)]
     + MERGE_CONFLICTS
+    + [Case("merge-validates-its-own-result", case_merge_validates_own_result)]
 )
 
 

@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mergeunits  # noqa: E402
 import structgen  # noqa: E402
 
 TOOL = Path(__file__).resolve().parent / "mergeunits.py"
@@ -304,6 +305,146 @@ def case_conflicts_listed_together(d: Path):
     return None
 
 
+def declaration_only(d: Path, fields: str):
+    base = make_base(d)
+    one = make_unit(d, base, "u_one", fields=fields)
+    two = make_unit(d, base, "u_two")
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    text = (d / "out" / "types.fields").read_text()
+    try:
+        model = structgen.parse(text)
+    except structgen.FieldsError as exc:
+        return f"merged types.fields is invalid: {exc}"
+    want = structgen.parse(BASE_FIELDS + fields)
+    got = (sorted(model.types), sorted(s.name for s in model.structs))
+    if got != (sorted(want.types), sorted(s.name for s in want.structs)):
+        return f"declarations lost: {got}\n{text}"
+    return None
+
+
+def case_decl_type_only(d: Path):
+    return declaration_only(d, "type Callback size=4 align=4\n")
+
+
+def case_decl_empty_struct_only(d: Path):
+    return declaration_only(d, "struct Opaque size=8\n")
+
+
+def case_decl_both(d: Path):
+    return declaration_only(d, "type Callback size=4 align=4\nstruct Opaque size=8\n")
+
+
+def case_unchanged_keeps_base_text(d: Path):
+    base = make_base(d)
+    one = make_unit(d, base, "u_one")
+    two = make_unit(d, base, "u_two")
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    return None if (d / "out" / "types.fields").read_text() == BASE_FIELDS else "base text was rewritten"
+
+
+def case_type_struct_name_clash(d: Path):
+    base = make_base(d)
+    one = make_unit(d, base, "u_one", fields="type Shared size=4 align=4\n")
+    two = make_unit(d, base, "u_two", fields="struct Shared size=4\n")
+    problems = []
+    for order in ((one, two), (two, one)):
+        proc = run("--base", base, "--out", d / "out", *order)
+        problem = expect_conflict(proc, d, "'Shared'")
+        if problem:
+            problems.append(problem)
+    return "; ".join(problems) or None
+
+
+def case_base_struct_removed(d: Path):
+    base, one, two = setup_two(d)
+    write(two, "types.fields", "struct U size=4\n0x0 u8 y\n")
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "removes base struct 'S'")
+
+
+def case_base_field_removed(d: Path):
+    base, one, two = setup_two(d)
+    write(two, "types.fields", "struct S size=8\n")
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "removes base field S.a")
+
+
+def case_base_type_removed(d: Path):
+    base = make_base(d)
+    write(base, "types.fields", "type Fn size=4 align=4\n" + BASE_FIELDS)
+    one = make_unit(d, base, "u_one")
+    two = make_unit(d, base, "u_two")
+    write(two, "types.fields", BASE_FIELDS)
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "removes base type 'Fn'")
+
+
+def staging_leftovers(d: Path):
+    return [p.name for p in d.iterdir() if "staging" in p.name]
+
+
+def case_file_dir_conflict(d: Path):
+    base, one, two = setup_two(d)
+    write(one, "support", "x\n")
+    write(two, "support/helper.h", "y\n")
+    for order in ((one, two), (two, one)):
+        proc = run("--base", base, "--out", d / "out", *order)
+        problem = expect_conflict(proc, d, "support is a file in")
+        if problem:
+            return problem
+        if staging_leftovers(d):
+            return f"staging left behind: {staging_leftovers(d)}"
+    return None
+
+
+def case_new_file_under_base_file(d: Path):
+    base, one, two = setup_two(d)
+    (one / "shared.h").unlink()
+    write(one, "shared.h/inner.h", "x\n")  # a directory where the base has a file
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "shared.h is a file in base")
+
+
+def case_new_file_over_base_directory(d: Path):
+    base, one, two = setup_two(d)
+    (one / "sub" / "data.h").unlink()
+    (one / "sub").rmdir()
+    write(one, "sub", "x\n")  # a file where the base, and the other unit, have a directory
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "sub is a file in u_one")
+
+
+def case_unexpected_failure_leaves_nothing(d: Path):
+    import shutil
+
+    base, one, two = setup_two(d, files={"new/two.h": "x\n"})
+
+    def boom(src, dst, *args, **kwargs):
+        raise OSError("injected failure")
+
+    original = shutil.copyfile
+    shutil.copyfile = boom
+    try:
+        mergeunits.main(["--base", str(base), "--out", str(d / "out"), str(one), str(two)])
+        return "the injected failure did not propagate"
+    except OSError:
+        pass
+    finally:
+        shutil.copyfile = original
+    if (d / "out").exists():
+        return "--out left behind"
+    if staging_leftovers(d):
+        return f"staging left behind: {staging_leftovers(d)}"
+    return None
+
+
+def case_success_leaves_no_staging(d: Path):
+    base, one, two = setup_two(d)
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    return f"staging left behind: {staging_leftovers(d)}" if staging_leftovers(d) else None
+
+
 CASES = [
     Case("clean-merge", case_clean),
     Case("symbol-removed-when-unit-defines-it", case_symbol_removed),
@@ -323,6 +464,19 @@ CASES = [
     Case("existing-out", case_existing_out),
     Case("missing-directory", case_missing_directory),
     Case("conflicts-listed-together-nothing-written", case_conflicts_listed_together),
+    Case("declaration-only-type", case_decl_type_only),
+    Case("declaration-only-empty-struct", case_decl_empty_struct_only),
+    Case("declaration-only-type-and-struct", case_decl_both),
+    Case("no-new-declarations-keeps-base-text", case_unchanged_keeps_base_text),
+    Case("type-struct-name-clash-both-orders", case_type_struct_name_clash),
+    Case("base-struct-removed-by-unit", case_base_struct_removed),
+    Case("base-field-removed-by-unit", case_base_field_removed),
+    Case("base-type-removed-by-unit", case_base_type_removed),
+    Case("file-directory-conflict-both-orders", case_file_dir_conflict),
+    Case("new-directory-under-base-file", case_new_file_under_base_file),
+    Case("new-file-over-base-directory", case_new_file_over_base_directory),
+    Case("unexpected-failure-leaves-nothing", case_unexpected_failure_leaves_nothing),
+    Case("success-leaves-no-staging", case_success_leaves_no_staging),
 ]
 
 
