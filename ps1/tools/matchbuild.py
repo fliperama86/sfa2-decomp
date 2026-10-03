@@ -47,10 +47,19 @@ SYMBOL_STMT_RE = re.compile(r"([A-Za-z_.$][A-Za-z0-9_.$]*)\s*=\s*(0[xX][0-9a-fA-
 AS_FLAGS = ("-EL", "-G0", "-march=r3000", "-mabi=32", "-no-pad-sections")
 # Floating-point types and literals in preprocessed C, for compilers marked no_float.
 # Bump when anything about how cache entries are keyed or laid out changes.
-CACHE_FORMAT = "matchbuild-objcache-2"
+CACHE_FORMAT = "matchbuild-objcache-3"
 CACHE_PAYLOAD = ("unit.o", "unit.s", "unit.gnu.s")
 CACHE_FILES = (*CACHE_PAYLOAD, "entry.json")
 FLOAT_RE = re.compile(r"\b(?:float|double)\b|(?<![\w.])(?:\d+\.\d*|\.\d+|\d+(?=[eE]))(?:[eE][+-]?\d+)?")
+# String and character literals. Their text is data, not code: a version
+# string such as "1.71" is not a floating-point constant.
+LITERAL_RE = re.compile(r'"(?:[^"\\\n]|\\.)*"' + "|" + r"'(?:[^'\\\n]|\\.)*'")
+
+
+def find_float(preprocessed: str) -> str | None:
+    """The first floating-point type or literal in preprocessed C, outside string and character literals."""
+    match = FLOAT_RE.search(LITERAL_RE.sub('""', preprocessed))
+    return match.group(0) if match else None
 
 
 class ConfigError(Exception):
@@ -367,6 +376,8 @@ class Config:
     symbol_names: list[str]
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
+    expand_div: bool = False  # run maspsx with --expand-div
+    include_dirs: tuple[Path, ...] = ()  # extra -I directories for the preprocessor
     # Filled in during validation of the baseline.
     baseline: bytes = b""
     load: int = 0
@@ -505,6 +516,23 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     maspsx_commit = _get_str(tool_t, "maspsx_commit", "[toolchain]", errors, re.compile(r"[0-9a-f]{7,40}\Z"))
     aspsx_version = _get_str(tool_t, "aspsx_version", "[toolchain]", errors, re.compile(r"[0-9.]+\Z"))
     prefix = _get_str(tool_t, "binutils_prefix", "[toolchain]", errors, re.compile(r"[A-Za-z0-9_.-]+\Z"))
+    expand_div = tool_t.get("expand_div", False)
+    if not isinstance(expand_div, bool):
+        errors.append("[toolchain]: 'expand_div' must be a boolean")
+        expand_div = False
+    include_dirs: list[Path] = []
+    include_t = tool_t.get("include_dirs", [])
+    if not isinstance(include_t, list) or not all(isinstance(item, str) and item for item in include_t):
+        errors.append("[toolchain]: 'include_dirs' must be a list of non-empty strings")
+    else:
+        for item in include_t:
+            path = _expand(item, directory)
+            if not path.is_dir():
+                errors.append(f"[toolchain]: include directory not found: {item}")
+            elif path in include_dirs:
+                errors.append(f"[toolchain]: include directory listed twice: {item}")
+            else:
+                include_dirs.append(path)
 
     kind = _get_str(cc1_t, "kind", cc1_where, errors)
     cc1 = Cc1Config(kind=kind, sha256=_get_hex(cc1_t, "sha256", cc1_where, errors), name=cc1_key)
@@ -636,7 +664,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 if not types_fields.is_file():
                     errors.append(f"[types]: fields file not found: {fields_rel}")
             if types_header:
-                source_dirs = {directory} | {_expand(u.source, directory).parent for u in units}
+                source_dirs = {directory} | {_expand(u.source, directory).parent for u in units} | set(include_dirs)
                 for source_dir in sorted(source_dirs):
                     if (source_dir / types_header).exists():
                         errors.append(
@@ -660,6 +688,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         symbol_names=symbol_names,
         types_fields=types_fields,
         types_header=types_header,
+        expand_div=expand_div,
+        include_dirs=tuple(include_dirs),
     )
 
     # Baseline executable.
@@ -806,8 +836,9 @@ def check_unit_object(obj_path: Path, unit: UnitDecl) -> list[str]:
     """Check one unit object.
 
     Allocated sections: `.text` must equal the declared range, read-only data
-    (`.rodata`, `.rdata`) must equal the declared rodata range, anything else
-    non-empty is rejected, and so are common symbols.
+    (`.rodata`, `.rdata`), rounded up to a multiple of four, must equal the
+    declared rodata range, anything else non-empty is rejected, and so are
+    common symbols.
     """
     errors = []
     declared = unit.end - unit.start
@@ -842,7 +873,7 @@ def check_unit_object(obj_path: Path, unit: UnitDecl) -> list[str]:
             )
         elif unit.rodata is not None and rodata_size == 0:
             errors.append(f"unit {unit.name!r}: declares rodata ({unit.rodata.size} bytes) but the object has none")
-        elif unit.rodata is not None and rodata_size != unit.rodata.size:
+        elif unit.rodata is not None and (rodata_size + 3) // 4 * 4 != unit.rodata.size:
             errors.append(
                 f"unit {unit.name!r}: rodata size mismatch: the object has {rodata_size} bytes of "
                 f"read-only data, declared {unit.rodata.size}"
@@ -890,7 +921,9 @@ def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, in
         entries.append((unit.start, f".text.{unit.name}", f"unit-{unit.name}.o(.text)"))
         if unit.rodata is not None:
             patterns = " ".join(f"unit-{unit.name}.o({s})" for s in RODATA_SECTIONS)
-            entries.append((unit.rodata.address, f".rodata.{unit.name}", patterns))
+            # The object may end up to three bytes short of the declared range.
+            # Fill to the declared size so that the unit owns the padding.
+            entries.append((unit.rodata.address, f".rodata.{unit.name}", f"{patterns} . = {unit.rodata.size:#x};"))
     entries.sort()
     lines = ["OUTPUT_ARCH(mips)", f'INCLUDE "{cfg.symbols_path}"', "SECTIONS {"]
     for address, name, pattern in entries:
@@ -998,6 +1031,11 @@ def generate_types(cfg: Config, build: Path) -> Path:
     return gen
 
 
+def maspsx_flags(cfg: Config) -> list[str]:
+    """Options passed to maspsx besides the assembler version."""
+    return ["--expand-div"] if cfg.expand_div else []
+
+
 def cache_key_inputs(
     cfg: Config, tools: dict, unit: UnitDecl, preprocessed_sha256: str, maspsx_script: Path
 ) -> dict:
@@ -1019,6 +1057,7 @@ def cache_key_inputs(
         "maspsx_commit": tools["maspsx"]["pinned_commit"],
         "maspsx_script": tools["maspsx"]["script"],
         "aspsx_version": cfg.aspsx_version,
+        "maspsx_flags": maspsx_flags(cfg),
         "as_flags": list(AS_FLAGS),
         "as_version": tools["as"]["version"],
         "as_sha256": tools["as"]["sha256"],
@@ -1166,6 +1205,10 @@ def build_all(
         except structgen.FieldsError as exc:
             return report, [f"shared types: {error}" for error in exc.errors]
         include_args = ["-I", gen]
+    for include_dir in cfg.include_dirs:
+        include_args += ["-I", include_dir]
+    report["inputs"]["include_dirs"] = [str(d) for d in cfg.include_dirs]
+    report["inputs"]["maspsx_flags"] = maspsx_flags(cfg)
 
     compiler = Compiler(cfg.cc1, tag)
     compiler.check_master()
@@ -1193,10 +1236,10 @@ def build_all(
         # The preprocessed text covers the source and every header it includes.
         report["inputs"]["preprocessed"][unit.name] = file_sha(pre)
         if cfg.cc1.no_float:
-            match = FLOAT_RE.search(pre.read_text(errors="replace"))
-            if match:
+            token = find_float(pre.read_text(errors="replace"))
+            if token:
                 failures.append(
-                    f"unit {unit.name!r}: floating-point token {match.group(0)!r} is not supported by "
+                    f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
                 continue
@@ -1211,7 +1254,7 @@ def build_all(
         if status != "hit":
             compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
             converted = run(
-                [sys.executable, maspsx_script, f"--aspsx-version={cfg.aspsx_version}"],
+                [sys.executable, maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={cfg.aspsx_version}"],
                 input=asm.read_bytes(),
                 env=maspsx_env,
                 step=f"maspsx {unit.name}",

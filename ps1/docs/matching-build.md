@@ -48,6 +48,10 @@ PS-X EXE header. Every payload byte has exactly one owner.
   `switch`. A unit may declare one range for it with `rodata = { address, size }`.
   The range need not be near the text. The unit owns it and it is compared with
   the baseline like a function. Read-only data is the only data a unit can own.
+  The declared size is a whole number of words. An object whose read-only data
+  ends one to three bytes short of a word is accepted: the link fills the range
+  to its declared size with zero bytes, the unit owns that padding, and it is
+  compared with the baseline like the rest of the range.
 - **raw**: retained baseline bytes. Raw ranges are never declared. They are
   computed as the complement of all text ranges and all rodata ranges, so a gap
   cannot silently count as recovered source.
@@ -78,6 +82,8 @@ maspsx = "~/Projects/references/maspsx/maspsx.py"
 maspsx_commit = "<git commit>"
 aspsx_version = "2.34"
 binutils_prefix = "mipsel-linux-gnu-"
+expand_div = true          # optional, default false: run maspsx with --expand-div
+include_dirs = ["include"] # optional: extra include directories for every unit
 
 [toolchain.cc1]            # default compiler
 kind = "local"
@@ -114,6 +120,19 @@ rodata = { address = 0x80001000, size = 24 }
 
 `symbols.ld` sits next to `build.toml`, holds lines of the form
 `name = 0x80000000;` and is included by the generated linker script.
+
+`expand_div` selects how a division is assembled. The original assembler
+expands a division into the divide instruction plus checks for a zero divisor
+and for overflow. With `expand_div = true` maspsx writes that expansion; without
+it the GNU assembler emits the bare instruction and a function that divides
+cannot match. The option applies to every unit and is part of the cache key.
+
+`include_dirs` lists directories, relative to `build.toml`, that are passed to
+the preprocessor with `-I` for every unit, after the generated types directory
+and in the listed order. A listed directory that does not exist, or one listed
+twice, is a configuration error. So is a file in one of them named like the
+generated types header. Their content needs no separate hash: the
+preprocessed text of each unit already covers every header it includes.
 
 ## Shared types
 
@@ -195,7 +214,9 @@ assembly on 121 of 131 saved reference outputs. All ten differences are
 floating-point constants, which that build gets wrong because of the 64-bit
 host. `no_float = true` makes the tool reject any unit whose preprocessed text
 contains `float`, `double` or a floating literal, so that defect cannot reach a
-build. `ps1/tools/verify_cc1_golden.py` repeats the comparison.
+build. String and character literals are blanked before that search: their text
+is data, and a version string such as `"1.71"` is not a floating constant.
+`ps1/tools/verify_cc1_golden.py` repeats the comparison.
 
 Which compiler produced a build does not weaken an exact result: identical
 bytes are identical bytes. `--reference` exists to show that the pinned binary
@@ -205,9 +226,13 @@ reproduces the same image, and for units the native build must not compile.
 
 ```sh
 .venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference] [--cache DIR | --no-cache]
-.venv/bin/python ps1/tools/test_matchbuild.py [--config PATH]
+.venv/bin/python ps1/tools/test_matchbuild.py [--config PATH] [--only TEXT]
 .venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
+
+`test_matchbuild.py --only TEXT` runs the cases whose name contains the text
+and says so in its last lines. It is for working on one area; only a run
+without it is the full control set.
 
 `fndiff.py` is a diagnostic for a unit that does not match yet. It links the
 unit object left by the last build alone at the unit's start address, with its
@@ -236,22 +261,25 @@ runs is the unit object cache, described after the steps.
    fails the build. The report records whether the checkout was dirty. Record
    tool versions.
 3. Per unit: preprocess with
-   `clang -E -P -x c -target mipsel-none-elf -nostdinc`, compile with
-   `cc1 -quiet <flags>`, convert with `maspsx --aspsx-version=<v>`, assemble
+   `clang -E -P -x c -target mipsel-none-elf -nostdinc` plus one `-I` per
+   include directory, compile with
+   `cc1 -quiet <flags>`, convert with `maspsx [--expand-div] --aspsx-version=<v>`, assemble
    with `as -EL -G0 -march=r3000 -mabi=32 -no-pad-sections`. Every subprocess
    exit status is enforced. Without `-no-pad-sections` the assembler pads each
    section to 16 bytes and a unit would spill past its declared range.
 4. Check the unit object's allocated sections. `.text` must equal the declared
-   text range. Read-only data (`.rodata` and `.rdata`, added together) must
-   equal the declared `rodata` size exactly; a unit that declares none must have
-   none, and a unit that declares a range must have data for it. Any other
+   text range. Read-only data (`.rodata` and `.rdata`, added together), rounded
+   up to a multiple of four, must equal the declared `rodata` size; a unit that
+   declares none must have none, and a unit that declares a range must have data
+   for it. Any other
    non-empty allocated section (`.data`, `.bss`, `.sdata`) and any common symbol
    is rejected, because that data would have no owner. This compiler puts a
    jump table in `.rodata`.
 5. Generate `raw.s` with one section per raw range using `.incbin` on the
    extracted payload, and `link.ld` placing every range at its explicit address
    in address order. A unit's read-only data is its own output section at the
-   declared rodata address, placed the same way as text. Raw ranges exclude it. Link with undefined symbols as errors.
+   declared rodata address, placed the same way as text and filled with zero
+   bytes up to the declared size. Raw ranges exclude it. Link with undefined symbols as errors.
 6. Convert the ELF to a flat image. Rebuilt executable is baseline header plus
    image.
 
@@ -276,7 +304,7 @@ The key is the SHA-256 of a canonical encoding of:
 - the verified cc1 SHA-256 and which table is in use (`cc1` or
   `cc1_reference`);
 - the full pinned maspsx commit hash and the script path inside it;
-- the aspsx version;
+- the aspsx version and the other maspsx options (`--expand-div` or none);
 - the assembler flags;
 - the assembler's first banner line and the SHA-256 of the executable file
   that `<prefix>as` resolves to on `PATH`, after resolving symlinks. The banner
@@ -331,8 +359,9 @@ All fail closed with a non-zero exit status.
   and its bytes equal the baseline range. Report the first differing offset and
   the count of equal instruction words.
 - Each unit's `.text` size equals its declared range.
-- Each unit's read-only data size equals its declared `rodata` size, and the
-  rodata range of the image equals the baseline range. A difference fails the
+- Each unit's read-only data size, rounded up to a multiple of four, equals its
+  declared `rodata` size, and the rodata range of the image, padding included,
+  equals the baseline range. A difference fails the
   build with a message naming the unit's rodata and the first differing offset.
 - Image size and SHA-256 equal the baseline payload. Rebuilt executable SHA-256
   equals the baseline executable.
@@ -350,9 +379,17 @@ wrong declared size, two overlapping units, a unit with read-only data and no
 `rodata`, a rodata range of the wrong size, address or alignment, a rodata range
 that overlaps text or another rodata range or lies outside the payload, a symbol removed from `symbols.ld`,
 a unit function duplicated in `symbols.ld`, a wrong `cc1` hash pin, a wrong
-baseline hash, a maspsx commit that does not exist, and floating-point source
-when the default compiler is marked `no_float`. It requires success for: the
-unmodified build; a maspsx checkout whose script is edited to abort, which
+baseline hash, a maspsx commit that does not exist, floating-point source
+when the default compiler is marked `no_float`, a padded rodata range whose
+padding byte differs from the baseline or whose declared size is a word off, a
+dividing function built without `expand_div`, an `expand_div` that is not a
+boolean, a header that is only reachable through an include directory that is
+not listed, a listed include directory that is missing or that shadows the
+generated types header, and an included header that changes the generated
+code. It requires success for: the
+unmodified build; float-looking text inside string and character literals; a
+header reached through a listed include directory; read-only data that ends
+two bytes short of a word; a dividing function with `expand_div`; a maspsx checkout whose script is edited to abort, which
 passes only because the pinned commit runs instead; and a synthetic fixture
 whose whole payload is one C function, and a synthetic fixture whose function
 has a jump table that the baseline places away from the text, with raw filler
@@ -371,6 +408,8 @@ fail, as must a differing output and an empty selection.
 - tools: which compiler was used, paths, versions, pinned hashes and commits;
 - per unit and function: addresses, sizes, exact or not, hashes;
 - per unit rodata: address, size, exact or not, first differing offset, hashes;
+- `inputs.include_dirs` and `inputs.maspsx_flags`: the include directories and
+  the maspsx options the build used;
 - per unit cache state (`hit`, `miss` or `off`) and key, with totals in the
   text summary, for example `cache: 118 hits, 2 misses`;
 - coverage in bytes by owner kind (`c_bytes` for code, `rodata_bytes`, raw),
