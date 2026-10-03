@@ -57,6 +57,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Eleventh round, first pass over functions of 200 to 300 bytes: 39 of 70
   matched, plus three recovered from the parked pool. 1,069 functions,
   106,776 bytes in total. 201 functions are parked and stay raw.
+- Twelfth round, second pass over functions of 200 to 300 bytes: 42 of 70
+  matched. 1,111 functions, 117,020 bytes in total. 229 functions are
+  parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -72,8 +75,8 @@ ignored. The 68k/CPS2 implementation stays behind. The
 ## Next implementation package
 
 The sweep of small functions is done. What remains in the resident image:
-380 unattempted functions of 200 bytes or more holding about 195 KB, and 201 parked
-functions holding about 27 KB.
+310 unattempted functions of 200 bytes or more holding about 178 KB, and 229 parked
+functions holding about 33 KB.
 
 1. Bring up an automatic permutation search for candidates that have the right
    logic and the wrong register allocation or instruction order. Run it over
