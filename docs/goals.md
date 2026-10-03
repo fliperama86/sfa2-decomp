@@ -60,6 +60,10 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Twelfth round, second pass over functions of 200 to 300 bytes: 42 of 70
   matched. 1,111 functions, 117,020 bytes in total. 229 functions are
   parked and stay raw.
+- Thirteenth round: the last functions of 200 to 300 bytes and a first 20 of
+  300 to 500 bytes. 39 of 63 matched, and five came back from the parked
+  pool. 1,155 functions, 128,896 bytes in total, plus the first jump table.
+  259 functions are parked and stay raw.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -75,8 +79,8 @@ ignored. The 68k/CPS2 implementation stays behind. The
 ## Next implementation package
 
 The sweep of small functions is done. What remains in the resident image:
-310 unattempted functions of 200 bytes or more holding about 178 KB, and 229 parked
-functions holding about 33 KB.
+236 unattempted functions of 300 bytes or more holding about 156 KB, and 259 parked
+functions holding about 43 KB.
 
 1. Bring up an automatic permutation search for candidates that have the right
    logic and the wrong register allocation or instruction order. Run it over
@@ -90,8 +94,8 @@ functions holding about 33 KB.
    the recorded casts and wrapper structs into proper members, and move
    repeated prototypes into shared headers. Every such change must rebuild
    exact.
-5. Add data and read-only data ownership to the matching build when a unit
-   first needs it. Until then such units are rejected, not misplaced.
+5. Jump tables are owned as read-only data now. Other data, such as local
+   table initialisers, still has no owner. Add it when a unit first needs it.
 
 ## Overlays
 
