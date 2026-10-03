@@ -20,6 +20,7 @@ import sys
 import tomllib
 from pathlib import Path
 
+import matchbuild
 import structgen
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,9 +50,11 @@ def replace_once(text: str, old: str, new: str, what: str) -> str:
     return text.replace(old, new)
 
 
-def run_tool(config: Path, tag: str) -> subprocess.CompletedProcess:
+def run_tool(config: Path, tag: str, cache: Path | None = None, extra: tuple[str, ...] = ()) -> subprocess.CompletedProcess:
+    """Run the tool, with an explicit cache directory when one is given."""
+    cache_args = [] if cache is None else ["--cache", str(cache)]
     return subprocess.run(
-        [sys.executable, str(TOOL), "--config", str(config), "--tag", tag],
+        [sys.executable, str(TOOL), "--config", str(config), "--tag", tag, *cache_args, *extra],
         capture_output=True,
         text=True,
     )
@@ -278,14 +281,15 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
     copy = cfg_dir.with_name(f"{cfg_dir.name}.selftest-{case.name}")
     tag = f"selftest-{case.name}"
     build = cfg_dir.parent / "build" / tag
+    cache = cfg_dir.parent / "build" / f".selftest-cache-{case.name}"
     try:
-        for leftover in (copy, build):
+        for leftover in (copy, build, cache):
             if leftover.exists():
                 shutil.rmtree(leftover)
         shutil.copytree(cfg_dir, copy)
         if case.mutate:
             case.mutate(copy)
-        proc = run_tool(copy / "build.toml", tag)
+        proc = run_tool(copy / "build.toml", tag, cache)
         output = proc.stdout + proc.stderr
         if case.expect_pass:
             if proc.returncode != 0 or "RESULT: PASS" not in output:
@@ -313,9 +317,261 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
             message += f"; fndiff reports {want_text}"
         return True, message
     finally:
-        for leftover in (copy, build):
+        for leftover in (copy, build, cache):
             if leftover.exists():
                 shutil.rmtree(leftover)
+
+
+# ---------------------------------------------------------------------------
+# Object cache cases: several builds of one copy against one cache directory.
+
+
+class CacheCase:
+    """A scenario driven by `body(ctx)`; it returns an error string or None."""
+
+    def __init__(self, name, body):
+        self.name = name
+        self.body = body
+
+
+class CacheContext:
+    def __init__(self, name: str, cfg_dir: Path, parsed: dict):
+        self.copy = cfg_dir.with_name(f"{cfg_dir.name}.selftest-{name}")
+        self.tag = f"selftest-{name}"
+        self.build = cfg_dir.parent / "build" / self.tag
+        self.cache = cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        self.config = self.copy / "build.toml"
+        self.target = next(u for u in parsed["unit"] if u["name"] == parsed["selftest"]["unit"])
+
+    def cleanup(self):
+        for leftover in (self.copy, self.build, self.cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+
+    def run(self, extra: tuple[str, ...] = ()):
+        """Build once. Returns (process, report, per-unit cache records)."""
+        proc = run_tool(self.config, self.tag, self.cache, extra)
+        report = json.loads((self.build / "report.json").read_text())
+        return proc, report, report.get("cache", {}).get("units", {})
+
+    def entry(self, key: str) -> Path:
+        return self.cache / key
+
+
+def states(units: dict) -> dict:
+    return {name: record["cache"] for name, record in units.items()}
+
+
+def passed(proc) -> bool:
+    return proc.returncode == 0 and "RESULT: PASS" in proc.stdout
+
+
+def describe(proc) -> str:
+    return f"exit {proc.returncode}:\n{(proc.stdout + proc.stderr)[-800:]}"
+
+
+def make_cache_cases(parsed: dict) -> list[CacheCase]:
+    selftest = parsed["selftest"]
+    first = parsed["unit"][0]["name"]
+
+    def edit_config(ctx: CacheContext, pattern: str, repl, what: str):
+        text = ctx.config.read_text()
+        new, count = re.subn(pattern, repl, text, count=1)
+        if count != 1:
+            raise SystemExit(f"test setup: cannot locate {what} in build.toml")
+        ctx.config.write_text(new)
+
+    def reuse(ctx):
+        p1, r1, u1 = ctx.run()
+        if not passed(p1) or any(v != "miss" for v in states(u1).values()):
+            return f"cold build: expected PASS with all misses, got {states(u1)}; {describe(p1)}"
+        p2, r2, u2 = ctx.run()
+        if not passed(p2):
+            return f"warm build did not pass; {describe(p2)}"
+        if any(v != "hit" for v in states(u2).values()):
+            return f"warm build: expected all hits, got {states(u2)}"
+        if f"cache: {len(u2)} hits, 0 misses" not in p2.stdout:
+            return "summary line lacks the hit totals"
+        if {n: v["key"] for n, v in u1.items()} != {n: v["key"] for n, v in u2.items()}:
+            return "keys changed between identical builds"
+        for field in ("image_sha256", "executable_sha256"):
+            if r1[field] != r2[field]:
+                return f"{field} differs between cold and warm builds"
+        return None
+
+    def source_mutation(ctx):
+        p1, _, u1 = ctx.run()
+        if not passed(p1):
+            return f"clean cached build did not pass; {describe(p1)}"
+        path = ctx.copy / ctx.target["source"]
+        text = path.read_text()
+        if text.count(selftest["find"]) != 1:
+            raise SystemExit("test setup: selftest 'find' text not found exactly once")
+        path.write_text(text.replace(selftest["find"], selftest["replace"]))
+        p2, _, u2 = ctx.run()
+        if p2.returncode == 0 or "bytes differ" not in p2.stdout:
+            return f"mutated build must fail on the byte comparison; {describe(p2)}"
+        name = ctx.target["name"]
+        if u2[name]["cache"] != "miss" or u2[name]["key"] == u1[name]["key"]:
+            return "the mutated unit must miss under a new key"
+        return None
+
+    def key_inputs(ctx):
+        p1, _, u1 = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        # A repeated flag is valid for the compiler and changes the flag list.
+        edit_config(
+            ctx,
+            r"flags\s*=\s*\[([^\]]*?)\s*,?\s*\]",
+            lambda m: f"flags = [{m.group(1)}, {m.group(1).split(',')[-1].strip()}]",
+            "first unit flags",
+        )
+        _, _, u2 = ctx.run()
+        if u2[first]["key"] == u1[first]["key"] or u2[first]["cache"] != "miss":
+            return "changed flags did not change the key"
+        if any(u2[n]["cache"] != "hit" for n in u2 if n != first):
+            return f"other units should still hit: {states(u2)}"
+        old = parsed["toolchain"]["aspsx_version"]
+        edit_config(ctx, r'(aspsx_version\s*=\s*)"[^"]*"', lambda m: f'{m.group(1)}"{old}.1"', "aspsx_version")
+        _, _, u3 = ctx.run()
+        if any(u3[n]["key"] == u1[n]["key"] or u3[n]["cache"] != "miss" for n in u3):
+            return "a changed aspsx version must change every key and miss"
+        return None
+
+    def pinned_cc1(ctx):
+        p1, _, _ = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        old = parsed["toolchain"]["cc1"]["sha256"]
+        flipped = ("0" if old[0] != "0" else "1") + old[1:]
+        edit_config(ctx, re.escape(old), lambda m: flipped, "cc1 sha256")
+        p2, _, u2 = ctx.run()
+        if p2.returncode == 0 or "cc1 sha256 mismatch" not in p2.stdout:
+            return f"a wrong pin must fail the pin check even with a warm cache; {describe(p2)}"
+        if u2:
+            return "no unit may be looked up after a failed pin check"
+        return None
+
+    def key_function(ctx):
+        """Every key input is covered: changing any one changes the key."""
+        base = {
+            "format": matchbuild.CACHE_FORMAT,
+            "preprocessed_sha256": "a" * 64,
+            "unit": "u",
+            "cc1_flags": ["-O2"],
+            "cc1_sha256": "b" * 64,
+            "cc1_table": "cc1",
+            "maspsx_commit": "c" * 40,
+            "maspsx_script": "m.py",
+            "aspsx_version": "2.21",
+            "as_flags": list(matchbuild.AS_FLAGS),
+            "as_version": "GNU assembler 1",
+        }
+        key = matchbuild.cache_key(base)
+        for field, value in base.items():
+            changed = {**base, field: [*value, "x"] if isinstance(value, list) else value + "x"}
+            if matchbuild.cache_key(changed) == key:
+                return f"key ignores {field}"
+        return None
+
+    def corrupt(ctx):
+        p1, _, u1 = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        entry = ctx.entry(u1[first]["key"])
+        obj = entry / "unit.o"
+        data = bytearray(obj.read_bytes())
+        data[len(data) // 2] ^= 0xFF
+        obj.write_bytes(bytes(data))
+        p2, _, u2 = ctx.run()
+        if not passed(p2) or u2[first]["cache"] != "miss":
+            return f"a corrupted entry must miss and rebuild to PASS: {states(u2)}; {describe(p2)}"
+        recorded = json.loads((entry / "entry.json").read_text())["object_sha256"]
+        if matchbuild.file_sha(obj) != recorded or obj.read_bytes() == bytes(data):
+            return "the corrupted entry was not replaced"
+        _, _, u3 = ctx.run()
+        if states(u3)[first] != "hit":
+            return "the replaced entry does not hit"
+        return None
+
+    def missing_file(ctx):
+        p1, _, u1 = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        entry = ctx.entry(u1[first]["key"])
+        (entry / "unit.gnu.s").unlink()
+        p2, _, u2 = ctx.run()
+        if not passed(p2) or u2[first]["cache"] != "miss":
+            return f"an entry with a missing file must miss: {states(u2)}; {describe(p2)}"
+        if not (entry / "unit.gnu.s").is_file():
+            return "the incomplete entry was not replaced"
+        return None
+
+    def listing(cache: Path):
+        return {str(p.relative_to(cache)): p.stat().st_mtime_ns for p in cache.rglob("*")}
+
+    def no_cache(ctx):
+        p1, _, _ = ctx.run()
+        if not passed(p1):
+            return f"seed build did not pass; {describe(p1)}"
+        before = listing(ctx.cache)
+        p2, _, u2 = ctx.run(("--no-cache",))
+        if not passed(p2) or any(v != "off" for v in states(u2).values()):
+            return f"--no-cache must report off for every unit: {states(u2)}; {describe(p2)}"
+        if "cache: off" not in p2.stdout:
+            return "summary line does not say the cache is off"
+        if listing(ctx.cache) != before:
+            return "--no-cache touched the cache directory"
+        shutil.rmtree(ctx.cache)
+        p3, _, _ = ctx.run(("--no-cache",))
+        if not passed(p3) or ctx.cache.exists():
+            return "--no-cache created the cache directory"
+        return None
+
+    def header_change(ctx):
+        p1, r1, _ = ctx.run()
+        if not passed(p1):
+            return f"clean build did not pass; {describe(p1)}"
+        fields = ctx.copy / parsed["types"]["fields"]
+        text = fields.read_text()
+        fields.write_text(
+            text + ("" if text.endswith("\n") else "\n") + "\nstruct SelftestExtra size=0x4\n0x000 u32 selftest_extra\n"
+        )
+        _, r2, u2 = ctx.run()
+        changed = [n for n in u2 if r2["inputs"]["preprocessed"][n] != r1["inputs"]["preprocessed"][n]]
+        if not changed:
+            return "the header change did not alter any preprocessed text"
+        for name in u2:
+            want = "miss" if name in changed else "hit"
+            if u2[name]["cache"] != want:
+                return f"unit {name}: expected {want}, got {u2[name]['cache']}"
+        return None
+
+    cases = [
+        CacheCase("cache-reuse", reuse),
+        CacheCase("cache-source-mutation", source_mutation),
+        CacheCase("cache-key-inputs", key_inputs),
+        CacheCase("cache-pinned-cc1", pinned_cc1),
+        CacheCase("cache-key-function", key_function),
+        CacheCase("cache-corrupt-entry", corrupt),
+        CacheCase("cache-missing-file", missing_file),
+        CacheCase("cache-off", no_cache),
+    ]
+    if "types" in parsed:
+        cases.append(CacheCase("cache-header-change", header_change))
+    return cases
+
+
+def run_cache_case(case: CacheCase, cfg_dir: Path, parsed: dict) -> tuple[bool, str]:
+    ctx = CacheContext(case.name, cfg_dir, parsed)
+    try:
+        ctx.cleanup()
+        shutil.copytree(cfg_dir, ctx.copy)
+        problem = case.body(ctx)
+        return (False, problem) if problem else (True, "behaves as required")
+    finally:
+        ctx.cleanup()
 
 
 def main() -> int:
@@ -335,6 +591,10 @@ def main() -> int:
     failed = 0
     for case in make_cases(cfg_dir, parsed):
         ok, message = run_case(case, cfg_dir)
+        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
+        failed += not ok
+    for case in make_cache_cases(parsed):
+        ok, message = run_cache_case(case, cfg_dir, parsed)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")

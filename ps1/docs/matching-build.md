@@ -196,7 +196,7 @@ reproduces the same image, and for units the native build must not compile.
 ## Command line
 
 ```sh
-.venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference]
+.venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference] [--cache DIR | --no-cache]
 .venv/bin/python ps1/tools/test_matchbuild.py [--config PATH]
 .venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
@@ -212,7 +212,8 @@ configuration, 3 unusable environment such as a missing SSH master.
 
 ## Pipeline
 
-Each run deletes and recreates `build/<tag>/`. Nothing is reused.
+Each run deletes and recreates `build/<tag>/`. The only thing reused between
+runs is the unit object cache, described after the steps.
 
 1. Read and validate the configuration. Check the baseline hash, the `PS-X EXE`
    magic, and that the file size equals header size plus payload size. Extract
@@ -238,6 +239,49 @@ Each run deletes and recreates `build/<tag>/`. Nothing is reused.
    in address order. Link with undefined symbols as errors.
 6. Convert the ELF to a flat image. Rebuilt executable is baseline header plus
    image.
+
+### Object cache
+
+What is cached: per unit, the output of compile, maspsx and assemble. An entry
+holds the unit object, the compiler output `.s`, the converted `.gnu.s` and a
+JSON file with the object's SHA-256 and the key inputs in readable form. A hit
+skips those three steps for that unit and copies the three files into the build
+directory under their usual names.
+
+The key is the SHA-256 of a canonical encoding of:
+
+- a cache format version string;
+- the preprocessed text (as its hash in the JSON);
+- the unit name, because the compiler may record the input file name;
+- the unit's cc1 flags;
+- the verified cc1 SHA-256 and which table is in use (`cc1` or
+  `cc1_reference`);
+- the full pinned maspsx commit hash and the script path inside it;
+- the aspsx version;
+- the assembler flags;
+- the first line of `<prefix>as --version`.
+
+Preprocessing and the float guard run before the lookup, so the key covers the
+source and every header it includes, and a `no_float` compiler still rejects
+float tokens on a hit. The pin checks also run first. A wrong cc1 hash fails
+before any lookup.
+
+A hit is used only if every expected file exists and the object's SHA-256
+matches the JSON. Otherwise it counts as a miss: the unit is rebuilt and the
+entry replaced. Entries are written in a temporary sibling directory and then
+renamed. A run that loses the rename race to a concurrent run carries on.
+
+What always runs, on hits and misses alike: the unit object checks, raw and
+linker script generation, the link, the image conversion, every function and
+image comparison, the executable hash check and every comparator control. The
+cache cannot turn a failing build into a passing one. A stale object cannot be
+used because any change to the source, a header, the flags or a pinned tool
+changes the key.
+
+Location: `<config dir>/../build/.objcache/`, shared by all tags. `--cache DIR`
+overrides it and `--no-cache` neither reads nor writes it. The build directory
+is deleted on every run; the cache directory is not. Delete the cache directory
+to start cold. The remote compiler path uses the same cache with its own keys.
 
 ## Checks
 
@@ -278,6 +322,8 @@ fail, as must a differing output and an empty selection.
   unit's preprocessed text, which covers included headers;
 - tools: which compiler was used, paths, versions, pinned hashes and commits;
 - per unit and function: addresses, sizes, exact or not, hashes;
+- per unit cache state (`hit`, `miss` or `off`) and key, with totals in the
+  text summary, for example `cache: 118 hits, 2 misses`;
 - coverage in bytes by owner kind, plus the function count owned by C;
 - overall `exact` flag, image and executable hashes, control results.
 
