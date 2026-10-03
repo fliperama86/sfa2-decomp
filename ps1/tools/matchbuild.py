@@ -45,8 +45,9 @@ SYMBOL_STMT_RE = re.compile(r"([A-Za-z_.$][A-Za-z0-9_.$]*)\s*=\s*(0[xX][0-9a-fA-
 AS_FLAGS = ("-EL", "-G0", "-march=r3000", "-mabi=32", "-no-pad-sections")
 # Floating-point types and literals in preprocessed C, for compilers marked no_float.
 # Bump when anything about how cache entries are keyed or laid out changes.
-CACHE_FORMAT = "matchbuild-objcache-1"
-CACHE_FILES = ("unit.o", "unit.s", "unit.gnu.s", "entry.json")
+CACHE_FORMAT = "matchbuild-objcache-2"
+CACHE_PAYLOAD = ("unit.o", "unit.s", "unit.gnu.s")
+CACHE_FILES = (*CACHE_PAYLOAD, "entry.json")
 FLOAT_RE = re.compile(r"\b(?:float|double)\b|(?<![\w.])(?:\d+\.\d*|\.\d+|\d+(?=[eE]))(?:[eE][+-]?\d+)?")
 
 
@@ -796,12 +797,31 @@ def check_pins(cfg: Config, compiler: Compiler, build: Path) -> tuple[list[str],
     return errors, tools, maspsx_script
 
 
+def resolve_executable(name: str, step: str) -> Path:
+    """The file a bare tool name runs, with symlinks resolved."""
+    found = shutil.which(name)
+    if found is None:
+        raise StepError(f"{step}: cannot find {name} on PATH")
+    return Path(os.path.realpath(found))
+
+
 def collect_versions(cfg: Config, tools: dict) -> None:
     tools["python"] = sys.version.split()[0]
+    python = Path(os.path.realpath(sys.executable))
+    tools["python_executable"] = {"path": str(python), "version": sys.version, "sha256": file_sha(python)}
     tools["cpp"] = {"path": cfg.cpp, "version": first_line(run([cfg.cpp, "--version"], step="cpp version").stdout)}
     for tool in ("as", "ld", "objcopy"):
         name = cfg.binutils_prefix + tool
-        tools[tool] = {"name": name, "version": first_line(run([name, "--version"], step=f"{tool} version").stdout)}
+        # Identify the executable by content. The banner is self-reported and
+        # two different builds can print the same line. Later steps run this
+        # resolved file, not the bare name.
+        path = resolve_executable(name, f"{tool} version")
+        tools[tool] = {
+            "name": name,
+            "path": str(path),
+            "sha256": file_sha(path),
+            "version": first_line(run([path, "--version"], step=f"{tool} version").stdout),
+        }
     tools["aspsx_version"] = cfg.aspsx_version
 
 
@@ -827,7 +847,8 @@ def cache_key_inputs(
     The preprocessed text enters only as its hash. The unit name is included
     because the compiler may record the input file name, which derives from it.
     The maspsx script path is included because the pinned commit holds more
-    than one script.
+    than one script. The assembler and the Python interpreter that runs maspsx
+    enter by the content hash of the resolved executable plus their version.
     """
     return {
         "format": CACHE_FORMAT,
@@ -841,6 +862,9 @@ def cache_key_inputs(
         "aspsx_version": cfg.aspsx_version,
         "as_flags": list(AS_FLAGS),
         "as_version": tools["as"]["version"],
+        "as_sha256": tools["as"]["sha256"],
+        "python_version": tools["python_executable"]["version"],
+        "python_sha256": tools["python_executable"]["sha256"],
     }
 
 
@@ -849,42 +873,96 @@ def cache_key(inputs: dict) -> str:
     return sha256(canonical.encode("ascii"))
 
 
-def cache_lookup(entry: Path) -> bool:
-    """True when the entry is complete and its object matches the recorded hash."""
+def _read_entry(entry: Path, key: str) -> dict:
+    """Parse and sanity-check entry.json. Raises OSError, ValueError, KeyError or TypeError."""
+    record = json.loads((entry / "entry.json").read_bytes())
+    if record["key"] != key:
+        raise ValueError("entry records a different key")
+    files = record["files"]
+    if set(files) != set(CACHE_PAYLOAD) or not all(
+        isinstance(v, str) and re.fullmatch(r"[0-9a-f]{64}", v) for v in files.values()
+    ):
+        raise ValueError("entry file hashes are malformed")
+    return files
+
+
+def cache_valid(entry: Path, key: str) -> bool:
+    """True when the entry is complete and every file matches its recorded hash."""
     try:
-        if not all((entry / name).is_file() for name in CACHE_FILES):
-            return False
-        recorded = json.loads((entry / "entry.json").read_text())["object_sha256"]
-        return file_sha(entry / "unit.o") == recorded
+        files = _read_entry(entry, key)
+        return all(file_sha(entry / name) == files[name] for name in CACHE_PAYLOAD)
     except (OSError, ValueError, KeyError, TypeError):
         return False
 
 
-def cache_store(cache_dir: Path, key: str, inputs: dict, obj: Path, asm: Path, gnu: Path) -> None:
-    """Publish an entry atomically. Losing a race to a concurrent run is fine."""
+def cache_fetch(entry: Path, key: str, dests: dict[str, Path], before_copy=None) -> bool:
+    """Copy an entry into the build directory. True only for a verified hit.
+
+    The entry may be replaced or removed by another run at any point. So the
+    metadata is read once, the files are copied, and each copy is hashed
+    against that metadata. Any error or mismatch is a miss and leaves no
+    partial files. `before_copy` is a test hook between the read and the copy.
+    """
+    try:
+        files = _read_entry(entry, key)
+        if before_copy is not None:
+            before_copy()
+        for name in CACHE_PAYLOAD:
+            shutil.copyfile(entry / name, dests[name])
+            if file_sha(dests[name]) != files[name]:
+                raise ValueError(f"{name} does not match the entry metadata")
+        return True
+    except (OSError, ValueError, KeyError, TypeError):
+        for dest in dests.values():
+            dest.unlink(missing_ok=True)
+        return False
+
+
+def cache_store(
+    cache_dir: Path, key: str, inputs: dict, obj: Path, asm: Path, gnu: Path, before_publish=None
+) -> None:
+    """Publish an entry atomically. Never replaces a valid entry.
+
+    A valid entry published by another run is kept. Only an invalid one is
+    moved aside. `before_publish` is a test hook run just before publication.
+    """
     cache_dir.mkdir(parents=True, exist_ok=True)
     entry = cache_dir / key
     temp = Path(tempfile.mkdtemp(prefix=".tmp-", dir=cache_dir))
+    aside = temp.with_name(temp.name + ".old")
     try:
-        shutil.copyfile(obj, temp / "unit.o")
-        shutil.copyfile(asm, temp / "unit.s")
-        shutil.copyfile(gnu, temp / "unit.gnu.s")
-        record = {"object_sha256": file_sha(obj), "key": key, "inputs": inputs}
+        for name, source in zip(CACHE_PAYLOAD, (obj, asm, gnu)):
+            shutil.copyfile(source, temp / name)
+        # Hash the stored copies, not the sources, so the record matches the files.
+        files = {name: file_sha(temp / name) for name in CACHE_PAYLOAD}
+        record = {"object_sha256": files["unit.o"], "files": files, "key": key, "inputs": inputs}
         (temp / "entry.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        if before_publish is not None:
+            before_publish()
+        if cache_valid(entry, key):
+            return
         if entry.exists():
-            # A broken entry is being replaced. Move it aside first: rename
-            # cannot replace a non-empty directory.
+            # Rename cannot replace a non-empty directory. Move the broken
+            # entry aside, then look at what was actually moved: a valid entry
+            # may have been published between the check and the rename.
             try:
-                os.rename(entry, temp.with_name(temp.name + ".old"))
+                os.rename(entry, aside)
             except OSError:
                 pass
-            shutil.rmtree(temp.with_name(temp.name + ".old"), ignore_errors=True)
+            else:
+                if cache_valid(aside, key):
+                    try:
+                        os.rename(aside, entry)
+                        return
+                    except OSError:
+                        pass
         try:
             os.rename(temp, entry)
         except OSError:
             pass  # a concurrent run published first; use or ignore its entry
     finally:
         shutil.rmtree(temp, ignore_errors=True)
+        shutil.rmtree(aside, ignore_errors=True)
 
 
 def build_all(
@@ -930,6 +1008,7 @@ def build_all(
     (build / "payload.bin").write_bytes(payload)
 
     prefix = cfg.binutils_prefix
+    assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
     for unit in cfg.units:
         source = _expand(unit.source, cfg.directory)
@@ -953,13 +1032,10 @@ def build_all(
         entry = cache_dir / key if cache_dir is not None else None
         status = "off"
         if entry is not None:
-            status = "hit" if cache_lookup(entry) else "miss"
+            hit = cache_fetch(entry, key, {"unit.o": obj, "unit.s": asm, "unit.gnu.s": gnu})
+            status = "hit" if hit else "miss"
         report["cache"]["units"][unit.name] = {"cache": status, "key": key}
-        if status == "hit":
-            shutil.copyfile(entry / "unit.o", obj)
-            shutil.copyfile(entry / "unit.s", asm)
-            shutil.copyfile(entry / "unit.gnu.s", gnu)
-        else:
+        if status != "hit":
             compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
             converted = run(
                 [sys.executable, maspsx_script, f"--aspsx-version={cfg.aspsx_version}"],
@@ -969,7 +1045,7 @@ def build_all(
             )
             gnu.write_bytes(converted.stdout)
             run(
-                [prefix + "as", *AS_FLAGS, "-o", obj, gnu],
+                [assembler, *AS_FLAGS, "-o", obj, gnu],
                 step=f"assemble {unit.name}",
             )
             if entry is not None:
@@ -983,7 +1059,7 @@ def build_all(
 
     ranges = raw_ranges(cfg.load, cfg.payload_size, cfg.units)
     generate_raw_and_linker(cfg, build, ranges)
-    run([prefix + "as", *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
+    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in cfg.units] + ["raw.o"]
     run(
         [prefix + "ld", "-EL", "-T", "link.ld", "-e", f"{cfg.load:#x}", "-o", "image.elf", *objects],

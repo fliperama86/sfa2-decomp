@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import tomllib
 from pathlib import Path
 
@@ -50,13 +51,16 @@ def replace_once(text: str, old: str, new: str, what: str) -> str:
     return text.replace(old, new)
 
 
-def run_tool(config: Path, tag: str, cache: Path | None = None, extra: tuple[str, ...] = ()) -> subprocess.CompletedProcess:
+def run_tool(
+    config: Path, tag: str, cache: Path | None = None, extra: tuple[str, ...] = (), env: dict | None = None
+) -> subprocess.CompletedProcess:
     """Run the tool, with an explicit cache directory when one is given."""
     cache_args = [] if cache is None else ["--cache", str(cache)]
     return subprocess.run(
         [sys.executable, str(TOOL), "--config", str(config), "--tag", tag, *cache_args, *extra],
         capture_output=True,
         text=True,
+        env=env,
     )
 
 
@@ -340,17 +344,18 @@ class CacheContext:
         self.tag = f"selftest-{name}"
         self.build = cfg_dir.parent / "build" / self.tag
         self.cache = cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        self.wrappers = cfg_dir.with_name(f"{cfg_dir.name}.selftest-{name}-bin")
         self.config = self.copy / "build.toml"
         self.target = next(u for u in parsed["unit"] if u["name"] == parsed["selftest"]["unit"])
 
     def cleanup(self):
-        for leftover in (self.copy, self.build, self.cache):
+        for leftover in (self.copy, self.build, self.cache, self.wrappers):
             if leftover.exists():
                 shutil.rmtree(leftover)
 
-    def run(self, extra: tuple[str, ...] = ()):
+    def run(self, extra: tuple[str, ...] = (), env: dict | None = None):
         """Build once. Returns (process, report, per-unit cache records)."""
-        proc = run_tool(self.config, self.tag, self.cache, extra)
+        proc = run_tool(self.config, self.tag, self.cache, extra, env)
         report = json.loads((self.build / "report.json").read_text())
         return proc, report, report.get("cache", {}).get("units", {})
 
@@ -467,12 +472,56 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
             "aspsx_version": "2.21",
             "as_flags": list(matchbuild.AS_FLAGS),
             "as_version": "GNU assembler 1",
+            "as_sha256": "d" * 64,
+            "python_version": "3.12.0 (main)",
+            "python_sha256": "e" * 64,
         }
         key = matchbuild.cache_key(base)
         for field, value in base.items():
             changed = {**base, field: [*value, "x"] if isinstance(value, list) else value + "x"}
             if matchbuild.cache_key(changed) == key:
                 return f"key ignores {field}"
+        return None
+
+    def assembler_identity(ctx):
+        """An assembler that keeps its banner but changes its output must not hit."""
+        prefix = parsed["toolchain"]["binutils_prefix"]
+        real = shutil.which(prefix + "as")
+        if real is None:
+            raise SystemExit(f"test setup: {prefix}as not on PATH")
+        ctx.wrappers.mkdir()
+        wrapper = ctx.wrappers / (prefix + "as")
+
+        def install(mutate: bool):
+            wrapper.write_text(
+                f"#!{sys.executable}\n"
+                "import subprocess, sys\n"
+                "from elftools.elf.elffile import ELFFile\n"
+                f"result = subprocess.run([{real!r}, *sys.argv[1:]])\n"
+                f"if result.returncode == 0 and {mutate!r} and '-o' in sys.argv:\n"
+                "    out = sys.argv[sys.argv.index('-o') + 1]\n"
+                "    data = bytearray(open(out, 'rb').read())\n"
+                "    data[ELFFile(open(out, 'rb')).get_section_by_name('.text')['sh_offset']] ^= 0xFF\n"
+                "    open(out, 'wb').write(bytes(data))\n"
+                "sys.exit(result.returncode)\n"
+            )
+            wrapper.chmod(0o755)
+
+        env = {**os.environ, "PATH": f"{ctx.wrappers}{os.pathsep}{os.environ['PATH']}"}
+        install(False)
+        p1, r1, u1 = ctx.run(env=env)
+        if not passed(p1) or any(v != "miss" for v in states(u1).values()):
+            return f"seed build through the faithful wrapper: {states(u1)}; {describe(p1)}"
+        install(True)  # same banner, same path, different bytes
+        p2, r2, u2 = ctx.run(env=env)
+        if r2["tools"]["as"]["version"] != r1["tools"]["as"]["version"]:
+            return "test setup: the banner changed"
+        if p2.returncode == 0 or "bytes differ" not in p2.stdout:
+            return f"the changed assembler must fail the byte comparison, not pass from the cache: {sorted(set(states(u2).values()))};{describe(p2)}"
+        if any(v != "miss" for v in states(u2).values()) or any(u2[n]["key"] == u1[n]["key"] for n in u2):
+            return f"a changed assembler executable must change every key and miss: {sorted(set(states(u2).values()))}"
+        if r2["tools"]["as"].get("sha256") == r1["tools"]["as"].get("sha256"):
+            return "the report does not identify the assembler by content"
         return None
 
     def corrupt(ctx):
@@ -554,6 +603,7 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
         CacheCase("cache-key-inputs", key_inputs),
         CacheCase("cache-pinned-cc1", pinned_cc1),
         CacheCase("cache-key-function", key_function),
+        CacheCase("cache-assembler-identity", assembler_identity),
         CacheCase("cache-corrupt-entry", corrupt),
         CacheCase("cache-missing-file", missing_file),
         CacheCase("cache-off", no_cache),
@@ -561,6 +611,156 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
     if "types" in parsed:
         cases.append(CacheCase("cache-header-change", header_change))
     return cases
+
+
+# Object cache publication and lookup, driven directly in a controlled order.
+
+
+def make_cache_unit_cases() -> list[CacheCase]:
+    key = "k" * 64
+
+    def sources(root: Path, tag: str) -> tuple[Path, Path, Path]:
+        paths = tuple(root / f"src-{tag}{ext}" for ext in (".o", ".s", ".gnu.s"))
+        for path in paths:
+            path.write_bytes(f"{tag}{path.suffix}".encode() * 8)
+        return paths
+
+    def dests(root: Path) -> dict[str, Path]:
+        return {name: root / f"out-{name}" for name in matchbuild.CACHE_PAYLOAD}
+
+    def store(cache: Path, root: Path, tag: str, **kw):
+        matchbuild.cache_store(cache, key, {"writer": tag}, *sources(root, tag), **kw)
+
+    def writer_of(cache: Path) -> str:
+        return json.loads((cache / key / "entry.json").read_text())["inputs"]["writer"]
+
+    def leftovers(cache: Path) -> list[str]:
+        return [p.name for p in cache.iterdir() if p.name.startswith(".tmp-")]
+
+    def fetch_ok(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        out = dests(root)
+        if not matchbuild.cache_fetch(cache / key, key, out):
+            return "a valid entry must hit"
+        if out["unit.o"].read_bytes() != b"a.o" * 8:
+            return "the copied object differs from the stored one"
+        return None
+
+    def publish_keeps_valid(root: Path):
+        """Another writer publishes a valid entry after this one missed."""
+        cache = root / "cache"
+        store(cache, root, "second", before_publish=lambda: store(cache, root, "first"))
+        if writer_of(cache) != "first":
+            return f"a valid entry published by another writer was replaced by {writer_of(cache)!r}"
+        if not matchbuild.cache_valid(cache / key, key) or leftovers(cache):
+            return "entry invalid or temporary directories left behind"
+        return None
+
+    def publish_replaces_invalid(root: Path):
+        cache = root / "cache"
+        store(cache, root, "first")
+        (cache / key / "unit.o").write_bytes(b"broken")
+        store(cache, root, "second")
+        if writer_of(cache) != "second" or not matchbuild.cache_valid(cache / key, key):
+            return "an invalid entry must be replaced by a valid one"
+        if leftovers(cache) or any(p.name.endswith(".old") for p in cache.iterdir()):
+            return "temporary directories left behind"
+        return None
+
+    def publish_winner_after_broken(root: Path):
+        """The broken entry is replaced by another writer's valid one before publication."""
+        cache = root / "cache"
+        store(cache, root, "first")
+        (cache / key / "unit.o").write_bytes(b"broken")
+
+        def hook():
+            shutil.rmtree(cache / key)
+            store(cache, root, "winner")
+
+        store(cache, root, "second", before_publish=hook)
+        if writer_of(cache) != "winner":
+            return f"the winner was replaced by {writer_of(cache)!r}"
+        return None
+
+    def read_entry_removed(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        out = dests(root)
+        if matchbuild.cache_fetch(cache / key, key, out, before_copy=lambda: shutil.rmtree(cache / key)):
+            return "an entry removed during the read must be a miss"
+        if any(p.exists() for p in out.values()):
+            return "partial files left in the build directory"
+        return None
+
+    def read_entry_swapped(root: Path):
+        """The entry is replaced by another valid one after the metadata was read."""
+        cache = root / "cache"
+        store(cache, root, "a")
+        out = dests(root)
+
+        def swap():
+            shutil.rmtree(cache / key)
+            store(cache, root, "b")
+
+        if matchbuild.cache_fetch(cache / key, key, out, before_copy=swap):
+            return "a copy that does not match the metadata read earlier must be a miss"
+        if any(p.exists() for p in out.values()):
+            return "mismatching files left in the build directory"
+        return None
+
+    def read_tampered(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        for name in matchbuild.CACHE_PAYLOAD:
+            path = cache / key / name
+            good = path.read_bytes()
+            path.write_bytes(good[:-1] + bytes([good[-1] ^ 1]))
+            hit = matchbuild.cache_fetch(cache / key, key, dests(root))
+            path.write_bytes(good)
+            if hit:
+                return f"a modified {name} must be a miss"
+        return None
+
+    def read_wrong_key(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        other = "z" * 64
+        shutil.copytree(cache / key, cache / other)
+        if matchbuild.cache_fetch(cache / other, other, dests(root)):
+            return "an entry that records a different key must be a miss"
+        return None
+
+    def stored_hashes(root: Path):
+        cache = root / "cache"
+        store(cache, root, "a")
+        record = json.loads((cache / key / "entry.json").read_text())
+        for name in matchbuild.CACHE_PAYLOAD:
+            if record["files"][name] != matchbuild.file_sha(cache / key / name):
+                return f"recorded hash of {name} does not match the stored file"
+        return None
+
+    table = (
+        ("cache-unit-fetch", fetch_ok),
+        ("cache-unit-publish-keeps-valid", publish_keeps_valid),
+        ("cache-unit-publish-replaces-invalid", publish_replaces_invalid),
+        ("cache-unit-publish-winner-after-broken", publish_winner_after_broken),
+        ("cache-unit-read-entry-removed", read_entry_removed),
+        ("cache-unit-read-entry-swapped", read_entry_swapped),
+        ("cache-unit-read-tampered", read_tampered),
+        ("cache-unit-read-wrong-key", read_wrong_key),
+        ("cache-unit-stored-hashes", stored_hashes),
+    )
+    return [CacheCase(name, body) for name, body in table]
+
+
+def run_cache_unit_case(case: CacheCase) -> tuple[bool, str]:
+    with tempfile.TemporaryDirectory(prefix="mb-cache-unit-") as tmp:
+        try:
+            problem = case.body(Path(tmp))
+        except Exception as exc:  # an unfixed or broken cache must fail the case, not the suite
+            problem = f"raised {type(exc).__name__}: {exc}"
+    return (False, problem) if problem else (True, "behaves as required")
 
 
 def run_cache_case(case: CacheCase, cfg_dir: Path, parsed: dict) -> tuple[bool, str]:
@@ -595,6 +795,10 @@ def main() -> int:
         failed += not ok
     for case in make_cache_cases(parsed):
         ok, message = run_cache_case(case, cfg_dir, parsed)
+        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
+        failed += not ok
+    for case in make_cache_unit_cases():
+        ok, message = run_cache_unit_case(case)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")

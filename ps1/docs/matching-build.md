@@ -259,17 +259,38 @@ The key is the SHA-256 of a canonical encoding of:
 - the full pinned maspsx commit hash and the script path inside it;
 - the aspsx version;
 - the assembler flags;
-- the first line of `<prefix>as --version`.
+- the assembler's first banner line and the SHA-256 of the executable file
+  that `<prefix>as` resolves to on `PATH`, after resolving symlinks. The banner
+  is self-reported and can match across different builds, so the content hash
+  is what identifies the tool. The build runs that resolved file;
+- the Python interpreter that runs maspsx: its full version string and the
+  SHA-256 of the resolved executable. Its standard library is not hashed.
+
+The compiler is covered by its pinned SHA-256 and maspsx by the pinned commit
+that is exported and run. The preprocessor runs before the key, so its effect
+is already in the preprocessed text. The linker and objcopy run after the
+cache and do not touch cached objects. The report records the path and SHA-256
+of the assembler, linker, objcopy and interpreter.
 
 Preprocessing and the float guard run before the lookup, so the key covers the
 source and every header it includes, and a `no_float` compiler still rejects
 float tokens on a hit. The pin checks also run first. A wrong cc1 hash fails
 before any lookup.
 
-A hit is used only if every expected file exists and the object's SHA-256
-matches the JSON. Otherwise it counts as a miss: the unit is rebuilt and the
-entry replaced. Entries are written in a temporary sibling directory and then
-renamed. A run that loses the rename race to a concurrent run carries on.
+The JSON records the key and the SHA-256 of each of the three files. A reader
+reads the JSON once, copies the three files into the build directory, and
+hashes each copy against what it read. A wrong key, a missing file, a read
+error or any mismatch is a miss and removes the partial copies. An entry that
+disappears or changes during the read is therefore a miss, never an error.
+After a miss the unit is rebuilt and published.
+
+Entries are written in a temporary sibling directory and then renamed.
+Publication re-checks the existing entry first. A valid entry, including one
+that another run published after this run missed, is kept and never replaced.
+Only an invalid entry is moved aside and replaced; the moved copy is checked
+once more and put back if it turns out to be valid. A run that loses the
+rename race to a concurrent run carries on. The format version is part of the
+key, so entries written under an older key layout are never hit.
 
 What always runs, on hits and misses alike: the unit object checks, raw and
 linker script generation, the link, the image conversion, every function and
