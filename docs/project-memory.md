@@ -350,6 +350,28 @@ source ownership and coverage, not generating every source file before a boot.
 - After this round about 280 functions under 200 bytes remain,
   close to 26 KB. 450 larger functions hold about 211 KB.
 
+## Twelfth group: sixth sweep and a retry of the parked pool
+
+- Eight batches over the lowest addresses, 163 small functions attempted, 135
+  exact. Then every parked function was rebuilt on its own as a single-function
+  unit, which recovered 17 more. 921 functions and 87,852 bytes.
+  162 parked in total.
+- Why functions were parked by mistake: when a unit failed to compile, the
+  build stopped before later units had objects, and the banking helper read
+  the missing objects as differences. It now parks only the unit that failed
+  to build and looks again. The retry is a separate helper and can be repeated
+  after any round.
+- Three merge conflicts, all resolved mechanically by rebuilding each batch
+  with each candidate type: one field typed as a word by a batch whose only
+  users of it had been parked, so that line was dropped as unverified; one
+  signed-versus-unsigned halfword; and two batches that each invented a
+  struct with the same name, one of which was renamed.
+- One function needs the assembler's division checks expanded, which the
+  build has no option for. Open tool item, with per-unit assembler settings.
+- The program entry routine is hand-written assembly.
+- After this round about 120 functions under 200 bytes remain,
+  close to 10 KB. 450 larger functions hold about 211 KB.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
