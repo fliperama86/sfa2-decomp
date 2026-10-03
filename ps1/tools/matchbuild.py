@@ -21,6 +21,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import tomllib
 from pathlib import Path
 
@@ -43,6 +44,10 @@ SYMBOL_STMT_RE = re.compile(r"([A-Za-z_.$][A-Za-z0-9_.$]*)\s*=\s*(0[xX][0-9a-fA-
 # would spill a unit past its declared range.
 AS_FLAGS = ("-EL", "-G0", "-march=r3000", "-mabi=32", "-no-pad-sections")
 # Floating-point types and literals in preprocessed C, for compilers marked no_float.
+# Bump when anything about how cache entries are keyed or laid out changes.
+CACHE_FORMAT = "matchbuild-objcache-2"
+CACHE_PAYLOAD = ("unit.o", "unit.s", "unit.gnu.s")
+CACHE_FILES = (*CACHE_PAYLOAD, "entry.json")
 FLOAT_RE = re.compile(r"\b(?:float|double)\b|(?<![\w.])(?:\d+\.\d*|\.\d+|\d+(?=[eE]))(?:[eE][+-]?\d+)?")
 
 
@@ -792,12 +797,31 @@ def check_pins(cfg: Config, compiler: Compiler, build: Path) -> tuple[list[str],
     return errors, tools, maspsx_script
 
 
+def resolve_executable(name: str, step: str) -> Path:
+    """The file a bare tool name runs, with symlinks resolved."""
+    found = shutil.which(name)
+    if found is None:
+        raise StepError(f"{step}: cannot find {name} on PATH")
+    return Path(os.path.realpath(found))
+
+
 def collect_versions(cfg: Config, tools: dict) -> None:
     tools["python"] = sys.version.split()[0]
+    python = Path(os.path.realpath(sys.executable))
+    tools["python_executable"] = {"path": str(python), "version": sys.version, "sha256": file_sha(python)}
     tools["cpp"] = {"path": cfg.cpp, "version": first_line(run([cfg.cpp, "--version"], step="cpp version").stdout)}
     for tool in ("as", "ld", "objcopy"):
         name = cfg.binutils_prefix + tool
-        tools[tool] = {"name": name, "version": first_line(run([name, "--version"], step=f"{tool} version").stdout)}
+        # Identify the executable by content. The banner is self-reported and
+        # two different builds can print the same line. Later steps run this
+        # resolved file, not the bare name.
+        path = resolve_executable(name, f"{tool} version")
+        tools[tool] = {
+            "name": name,
+            "path": str(path),
+            "sha256": file_sha(path),
+            "version": first_line(run([path, "--version"], step=f"{tool} version").stdout),
+        }
     tools["aspsx_version"] = cfg.aspsx_version
 
 
@@ -815,10 +839,159 @@ def generate_types(cfg: Config, build: Path) -> Path:
     return gen
 
 
-def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
-    """Run the pipeline. Returns the report and the list of failure reasons."""
+def cache_key_inputs(
+    cfg: Config, tools: dict, unit: UnitDecl, preprocessed_sha256: str, maspsx_script: Path
+) -> dict:
+    """Everything that can change the unit object, in readable form.
+
+    The preprocessed text enters only as its hash. The unit name is included
+    because the compiler may record the input file name, which derives from it.
+    The maspsx script path is included because the pinned commit holds more
+    than one script. The assembler and the Python interpreter that runs maspsx
+    enter by the content hash of the resolved executable plus their version.
+    """
+    return {
+        "format": CACHE_FORMAT,
+        "preprocessed_sha256": preprocessed_sha256,
+        "unit": unit.name,
+        "cc1_flags": list(unit.flags),
+        "cc1_sha256": tools["cc1"]["sha256"],
+        "cc1_table": cfg.cc1.name,
+        "maspsx_commit": tools["maspsx"]["pinned_commit"],
+        "maspsx_script": tools["maspsx"]["script"],
+        "aspsx_version": cfg.aspsx_version,
+        "as_flags": list(AS_FLAGS),
+        "as_version": tools["as"]["version"],
+        "as_sha256": tools["as"]["sha256"],
+        "python_version": tools["python_executable"]["version"],
+        "python_sha256": tools["python_executable"]["sha256"],
+    }
+
+
+def cache_key(inputs: dict) -> str:
+    canonical = json.dumps(inputs, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return sha256(canonical.encode("ascii"))
+
+
+def _read_entry(entry: Path, key: str) -> dict:
+    """Parse and validate entry.json. Any malformed content raises one of CACHE_READ_ERRORS."""
+    record = json.loads((entry / "entry.json").read_bytes())
+    if not isinstance(record, dict):
+        raise ValueError("entry metadata is not a mapping")
+    if not isinstance(record.get("key"), str) or record["key"] != key:
+        raise ValueError("entry records a different key")
+    files = record.get("files")
+    if not isinstance(files, dict):
+        raise ValueError("entry file list is not a mapping")
+    if set(files) != set(CACHE_PAYLOAD) or not all(
+        isinstance(v, str) and re.fullmatch(r"[0-9a-f]{64}", v) for v in files.values()
+    ):
+        raise ValueError("entry file hashes are malformed")
+    return files
+
+
+# RecursionError: deeply nested JSON. UnicodeDecodeError and JSONDecodeError are ValueErrors.
+CACHE_READ_ERRORS = (OSError, ValueError, KeyError, TypeError, AttributeError, RecursionError, MemoryError)
+
+
+def cache_valid(entry: Path, key: str) -> bool:
+    """True when the entry is complete and every file matches its recorded hash."""
+    try:
+        files = _read_entry(entry, key)
+        return all(file_sha(entry / name) == files[name] for name in CACHE_PAYLOAD)
+    except CACHE_READ_ERRORS:
+        return False
+
+
+def cache_fetch(entry: Path, key: str, dests: dict[str, Path], before_copy=None) -> bool:
+    """Copy an entry into the build directory. True only for a verified hit.
+
+    The entry may be replaced or removed by another run at any point. So the
+    metadata is read once, the files are copied, and each copy is hashed
+    against that metadata. Any error or mismatch is a miss and leaves no
+    partial files. `before_copy` is a test hook between the read and the copy.
+    """
+    try:
+        files = _read_entry(entry, key)
+        if before_copy is not None:
+            before_copy()
+        for name in CACHE_PAYLOAD:
+            shutil.copyfile(entry / name, dests[name])
+            if file_sha(dests[name]) != files[name]:
+                raise ValueError(f"{name} does not match the entry metadata")
+        return True
+    except CACHE_READ_ERRORS:
+        for dest in dests.values():
+            dest.unlink(missing_ok=True)
+        return False
+
+
+def cache_store(
+    cache_dir: Path, key: str, inputs: dict, obj: Path, asm: Path, gnu: Path, before_publish=None
+) -> None:
+    """Publish an entry atomically. Never replaces a valid entry.
+
+    A valid entry published by another run is kept. Only an invalid one is
+    moved aside. `before_publish` is a test hook run just before publication.
+    """
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    entry = cache_dir / key
+    temp = Path(tempfile.mkdtemp(prefix=".tmp-", dir=cache_dir))
+    aside = temp.with_name(temp.name + ".old")
+    try:
+        for name, source in zip(CACHE_PAYLOAD, (obj, asm, gnu)):
+            shutil.copyfile(source, temp / name)
+        # Hash the stored copies, not the sources, so the record matches the files.
+        files = {name: file_sha(temp / name) for name in CACHE_PAYLOAD}
+        record = {"object_sha256": files["unit.o"], "files": files, "key": key, "inputs": inputs}
+        (temp / "entry.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        if before_publish is not None:
+            before_publish()
+        if cache_valid(entry, key):
+            return
+        if entry.exists():
+            # Rename cannot replace a non-empty directory. Move the broken
+            # entry aside, then look at what was actually moved: a valid entry
+            # may have been published between the check and the rename.
+            try:
+                os.rename(entry, aside)
+            except OSError:
+                pass
+            else:
+                if cache_valid(aside, key):
+                    try:
+                        os.rename(aside, entry)
+                        return
+                    except OSError:
+                        pass
+        try:
+            os.rename(temp, entry)
+        except OSError:
+            pass  # a concurrent run published first; use or ignore its entry
+    finally:
+        shutil.rmtree(temp, ignore_errors=True)
+        if aside.is_dir() and not aside.is_symlink():
+            shutil.rmtree(aside, ignore_errors=True)
+        else:
+            try:
+                aside.unlink(missing_ok=True)  # a broken entry that was a plain file
+            except OSError:
+                pass
+
+
+def build_all(
+    cfg: Config, tag: str, build: Path, cache_dir: Path | None = None, report: dict | None = None
+) -> tuple[dict, list[str]]:
+    """Run the pipeline. Returns the report and the list of failure reasons.
+
+    `cache_dir` is the object cache, None to disable it. A caller may pass the
+    report so that a step failure still leaves what was recorded so far.
+    """
     failures: list[str] = []
-    report: dict = {"tag": tag}
+    if report is None:
+        report = {"tag": tag}
+    report["tag"] = tag
+    report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
         "symbols": file_sha(cfg.symbols_path),
@@ -849,6 +1022,7 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
     (build / "payload.bin").write_bytes(payload)
 
     prefix = cfg.binutils_prefix
+    assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
     for unit in cfg.units:
         source = _expand(unit.source, cfg.directory)
@@ -867,25 +1041,39 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
                 continue
-        compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
-        converted = run(
-            [sys.executable, maspsx_script, f"--aspsx-version={cfg.aspsx_version}"],
-            input=asm.read_bytes(),
-            env=maspsx_env,
-            step=f"maspsx {unit.name}",
-        )
-        gnu.write_bytes(converted.stdout)
-        run(
-            [prefix + "as", *AS_FLAGS, "-o", obj, gnu],
-            step=f"assemble {unit.name}",
-        )
+        inputs = cache_key_inputs(cfg, tools, unit, report["inputs"]["preprocessed"][unit.name], maspsx_script)
+        key = cache_key(inputs)
+        entry = cache_dir / key if cache_dir is not None else None
+        status = "off"
+        if entry is not None:
+            hit = cache_fetch(entry, key, {"unit.o": obj, "unit.s": asm, "unit.gnu.s": gnu})
+            status = "hit" if hit else "miss"
+        report["cache"]["units"][unit.name] = {"cache": status, "key": key}
+        if status != "hit":
+            compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
+            converted = run(
+                [sys.executable, maspsx_script, f"--aspsx-version={cfg.aspsx_version}"],
+                input=asm.read_bytes(),
+                env=maspsx_env,
+                step=f"maspsx {unit.name}",
+            )
+            gnu.write_bytes(converted.stdout)
+            run(
+                [assembler, *AS_FLAGS, "-o", obj, gnu],
+                step=f"assemble {unit.name}",
+            )
+            if entry is not None:
+                try:
+                    cache_store(cache_dir, key, inputs, obj, asm, gnu)
+                except OSError:
+                    pass  # an unwritable cache must not fail the build
         failures += check_unit_object(obj, unit)
     if failures:
         return report, failures
 
     ranges = raw_ranges(cfg.load, cfg.payload_size, cfg.units)
     generate_raw_and_linker(cfg, build, ranges)
-    run([prefix + "as", *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
+    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in cfg.units] + ["raw.o"]
     run(
         [prefix + "ld", "-EL", "-T", "link.ld", "-e", f"{cfg.load:#x}", "-o", "image.elf", *objects],
@@ -929,6 +1117,8 @@ def build_all(cfg: Config, tag: str, build: Path) -> tuple[dict, list[str]]:
             "units": [
                 {
                     "name": u.name,
+                    "cache": report["cache"]["units"][u.name]["cache"],
+                    "cache_key": report["cache"]["units"][u.name]["key"],
                     "range": [u.start, u.end],
                     "functions": [
                         dataclasses.asdict(f) for f in comparison.functions if f.unit == u.name
@@ -965,6 +1155,11 @@ def summary_text(report: dict, failures: list[str]) -> str:
             lines.append(f"  {f['unit']}.{f['name']}: {f['size']} bytes, {state}")
         cov = report["coverage"]
         lines.append(f"functions exact: {exact}/{len(functions)}")
+        states = [u.get("cache", "off") for u in report["units"]]
+        if states and all(state == "off" for state in states):
+            lines.append("cache: off")
+        else:
+            lines.append(f"cache: {states.count('hit')} hits, {states.count('miss')} misses")
         lines.append(
             f"coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
             f"raw payload {cov['raw_payload_bytes']:,} bytes, header {cov['raw_header_bytes']:,} bytes raw"
@@ -999,6 +1194,8 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="compile with [toolchain.cc1_reference] instead of [toolchain.cc1]",
     )
+    parser.add_argument("--cache", type=Path, help="object cache directory (default: <config dir>/../build/.objcache)")
+    parser.add_argument("--no-cache", action="store_true", help="do not read or write the object cache")
     args = parser.parse_args(argv)
 
     if not TAG_RE.match(args.tag):
@@ -1006,6 +1203,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     config_path = Path(os.path.abspath(args.config))
     build = config_path.parent.parent / "build" / args.tag
+    cache_dir = None
+    if not args.no_cache:
+        cache_dir = Path(os.path.abspath(args.cache)) if args.cache else config_path.parent.parent / "build" / ".objcache"
     if build.exists():
         shutil.rmtree(build)
 
@@ -1018,10 +1218,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     build.mkdir(parents=True)
+    report: dict = {"tag": args.tag}
     try:
-        report, failures = build_all(cfg, args.tag, build)
+        report, failures = build_all(cfg, args.tag, build, cache_dir, report)
     except StepError as exc:
-        report, failures = {"tag": args.tag}, [str(exc)]
+        failures = [str(exc)]
     except EnvironmentFailure as exc:
         print(f"ENVIRONMENT ERROR: {exc}")
         print("RESULT: FAIL")
