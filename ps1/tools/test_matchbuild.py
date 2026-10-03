@@ -49,6 +49,17 @@ int pick(int a) {
     return 0;
 }
 """
+# Six bytes of read-only data: the object ends two bytes short of a word.
+PADDED_SOURCE = """
+char *pick(void) {
+    return "hello";
+}
+"""
+DIVISION_SOURCE = """
+int pick(int a, int b) {
+    return a / b;
+}
+"""
 RODATA_GAP = 0x40  # raw filler between the end of the text and the table
 RODATA_TAIL = 0x20  # raw filler after the table
 FILLER = 0xA5
@@ -94,6 +105,33 @@ def toml_table(name: str, table: dict) -> str:
         else:
             lines.append(f"{key} = {json.dumps(value)}")
     return "\n".join(lines) + "\n\n" + "".join(toml_table(n, t) for n, t in subtables)
+
+
+def fixture_toolchain(parsed: dict) -> dict:
+    """The configured toolchain without keys that name directories of the real configuration."""
+    return {key: value for key, value in parsed["toolchain"].items() if key != "include_dirs"}
+
+
+def add_include_dir(copy: Path, entry: str) -> None:
+    """Add one entry to [toolchain] include_dirs of a copied configuration.
+
+    Works whether the key is absent, an empty list or a populated one. The
+    list is rebuilt from its parsed value, so the result is valid TOML.
+    """
+    path = copy / "build.toml"
+    text = path.read_text()
+    current = tomllib.loads(text).get("toolchain", {}).get("include_dirs")
+    line = "include_dirs = [" + ", ".join(json.dumps(item) for item in [*(current or []), entry]) + "]"
+    if current is None:
+        text = replace_once(text, "[toolchain]\n", f"[toolchain]\n{line}\n", "[toolchain] header")
+    else:
+        existing = re.findall(r"^include_dirs\s*=\s*\[[^\]]*\]", text, flags=re.M)
+        if len(existing) != 1:
+            raise SystemExit(f"test setup: expected one include_dirs list in build.toml, found {len(existing)}")
+        text = text.replace(existing[0], line)
+    if tomllib.loads(text)["toolchain"]["include_dirs"] != [*(current or []), entry]:
+        raise SystemExit("test setup: include_dirs was not rewritten as intended")
+    path.write_text(text)
 
 
 def fixture_executable(payload: bytes) -> bytes:
@@ -198,6 +236,30 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         path = copy / target_unit["source"]
         path.write_text(path.read_text() + "\ndouble selftest_float(void) { return 1.5; }\n")
 
+    def float_in_literals(copy: Path):
+        # Float-looking text inside string and character literals is data.
+        path = copy / target_unit["source"]
+        path.write_text(
+            path.read_text()
+            + '\ntypedef char selftest_literal_a[sizeof("$Id: x.c,v 1.71 float 2e3 \\" 3.5")];\n'
+            + "typedef char selftest_literal_b['.' + '\\'' + 1];\n"
+        )
+
+    include_guard = "#include <selftest_inc.h>\n#ifndef SELFTEST_INC_OK\n#error include directory not used\n#endif\n"
+
+    def use_include(copy: Path, listed: bool, body: str = "#define SELFTEST_INC_OK 1\n"):
+        (copy / "selftest_inc").mkdir()
+        (copy / "selftest_inc" / "selftest_inc.h").write_text(body)
+        if listed:
+            add_include_dir(copy, "selftest_inc")
+        path = copy / target_unit["source"]
+        path.write_text(include_guard + path.read_text())
+
+    def include_shadows_header(copy: Path):
+        (copy / "selftest_inc").mkdir()
+        (copy / "selftest_inc" / parsed["types"]["header"]).write_text("/* would shadow the generated header */\n")
+        add_include_dir(copy, "selftest_inc")
+
     def all_c_fixture(copy: Path):
         """Replace the copy with a fixture whose whole payload is one C function.
 
@@ -218,7 +280,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
                 "[baseline]\n"
                 'executable = "baseline.bin"\n'
                 f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
-                + toml_table("toolchain", parsed["toolchain"])
+                + toml_table("toolchain", fixture_toolchain(parsed))
                 + "[[unit]]\n"
                 'name = "value"\n'
                 'source = "value.c"\n'
@@ -264,6 +326,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     types_cases = (
         [
             Case("types-shadowing-header", False, "would shadow the generated header", shadow_header),
+            Case("include-dir-shadows-header", False, "would shadow the generated header", include_shadows_header),
             Case("types-overlapping-field", False, "overlaps field", overlapping_field),
         ]
         if "types" in parsed
@@ -272,17 +335,27 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
 
     # Only meaningful when the default compiler declares the limitation.
     float_cases = (
-        [Case("float-with-no-float-compiler", False, "floating-point token", add_float)]
+        [
+            Case("float-with-no-float-compiler", False, "floating-point token", add_float),
+            Case("float-text-in-literals", True, "", float_in_literals),
+        ]
         if parsed["toolchain"]["cc1"].get("no_float")
         else []
     )
+    include_cases = [
+        Case("include-dir", True, "", lambda c: use_include(c, True)),
+        Case("include-dir-not-listed", False, "preprocess", lambda c: use_include(c, False)),
+        Case("include-dir-changes-code", False, "text size mismatch", lambda c: use_include(
+            c, True, "#define SELFTEST_INC_OK 1\nint selftest_inc_extra(void) { return 1; }\n")),
+        Case("include-dir-missing", False, "include directory not found", lambda c: add_include_dir(c, "selftest_absent")),
+    ]
 
     mutation_reason = (
         f"function '{target_unit['functions'][0]['name']}': bytes differ"
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + types_cases + make_rodata_cases(cfg_dir, parsed) + [
+    return float_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -310,16 +383,20 @@ class RodataFixture:
     text, so it is not adjacent to it.
     """
 
+    source = RODATA_SOURCE
+    label = "rodata"  # names the throwaway seed builds
+
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
         self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
-        self.toolchain = parsed["toolchain"]
+        self.toolchain = fixture_toolchain(parsed)
         self.text_size = 0
-        self.table = 0
+        self.table = 0  # declared size: the object's read-only data rounded up to four
+        self.object_rodata = 0
         self.baseline = b""
 
     def write(self, copy: Path, payload: bytes, text_size: int, rodata, extra: str = "") -> None:
-        (copy / "pick.c").write_text(RODATA_SOURCE)
+        (copy / "pick.c").write_text(self.source)
         (copy / "other.c").write_text("int other(void) { return 1; }\n")
         (copy / "symbols.ld").write_text(f"g = {FIXTURE_LOAD + 0x10000:#x};\n")
         executable = fixture_executable(payload)
@@ -362,17 +439,18 @@ class RodataFixture:
             return
         from elftools.elf.elffile import ELFFile
 
-        build = self._seed("rodata-geometry", bytes(64), 4, None)
+        build = self._seed(f"{self.label}-geometry", bytes(64), 4, None)
         try:
             with open(build / "unit-pick.o", "rb") as handle:
                 sizes = {sec.name: sec["sh_size"] for sec in ELFFile(handle).iter_sections()}
         finally:
             shutil.rmtree(build, ignore_errors=True)
-        if not sizes.get(".text") or not sizes.get(".rodata"):
-            raise SystemExit(f"test setup: the fixture object has no jump table: {sizes}")
-        self.text_size, self.table = sizes[".text"], sizes[".rodata"]
+        self.object_rodata = sizes.get(".rodata", 0) + sizes.get(".rdata", 0)
+        if not sizes.get(".text") or not self.object_rodata:
+            raise SystemExit(f"test setup: the fixture object has no read-only data: {sizes}")
+        self.text_size, self.table = sizes[".text"], (self.object_rodata + 3) // 4 * 4
         build = self._seed(
-            "rodata-seed", bytes([FILLER]) * self.payload_size, self.text_size, (self.table_address, self.table)
+            f"{self.label}-seed", bytes([FILLER]) * self.payload_size, self.text_size, (self.table_address, self.table)
         )
         try:
             image = build / "image.bin"
@@ -491,6 +569,144 @@ def make_rodata_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("rodata-overlaps-own-text", False, "overlaps its own text range", own_text),
         Case("rodata-outside-payload", False, "outside the payload", outside),
         Case("rodata-declared-but-absent", False, "declares rodata", no_table),
+    ]
+
+
+class PaddedFixture(RodataFixture):
+    """Read-only data that ends two bytes short of a word."""
+
+    source = PADDED_SOURCE
+    label = "padded"
+
+
+def make_padded_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = PaddedFixture(cfg_dir, parsed)
+
+    def geometry():
+        fx.prepare()
+        if fx.object_rodata % 4 == 0:
+            raise SystemExit(f"test setup: the padded fixture has {fx.object_rodata} bytes of read-only data, a whole number of words")
+        return fx
+
+    def verify_padded(report: dict):
+        ro = report["units"][0].get("rodata")
+        if not ro or not ro["exact"] or ro["size"] != fx.table or fx.table - fx.object_rodata not in (1, 2, 3):
+            return f"the padded range should be owned and exact: {ro}, object {fx.object_rodata}"
+        if report.get("coverage", {}).get("rodata_bytes") != fx.table:
+            return f"coverage must count the padding as rodata: {report.get('coverage')}"
+        return None
+
+    def padding_differs(copy: Path):
+        geometry()
+        baseline = bytearray(fx.baseline)
+        baseline[fx.table_address - FIXTURE_LOAD + fx.table - 1] ^= 0x01
+        fx.install(copy, baseline=bytes(baseline))
+
+    def verify_padding_differs(report: dict):
+        ro = report["units"][0].get("rodata") if "units" in report else None
+        if not ro or ro["exact"] or ro["first_diff"] != fx.table - 1:
+            return f"the rodata record should report the last padding byte: {ro}"
+        return None
+
+    return [
+        Case("rodata-padded", True, "", lambda c: geometry().install(c), verify_padded, fndiff=("pick", 0, "IDENTICAL")),
+        Case("rodata-padding-differs", False, "rodata: bytes differ from baseline", padding_differs, verify_padding_differs),
+        Case("rodata-padded-one-word-short", False, "rodata size mismatch", lambda c: geometry().install(c, size=fx.table - 4)),
+        Case("rodata-padded-one-word-long", False, "rodata size mismatch", lambda c: geometry().install(c, size=fx.table + 4)),
+    ]
+
+
+class DivisionFixture:
+    """One function that divides, followed by raw filler.
+
+    The baseline is the image of a seed build made with `expand_div = true`.
+    """
+
+    TAIL = 0x20
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.text_size = 0
+        self.baseline = b""
+
+    def write(self, copy: Path, payload: bytes, text_size: int, expand_div: bool) -> None:
+        (copy / "pick.c").write_text(DIVISION_SOURCE)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", {**self.toolchain, "expand_div": expand_div})
+            + "[[unit]]\n"
+            'name = "pick"\n'
+            'source = "pick.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "pick", address = {FIXTURE_LOAD:#x}, size = {text_size} }} ]\n'
+        )
+
+    def _seed(self, name: str, payload: bytes, text_size: int) -> Path:
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        self.write(copy, payload, text_size, True)
+        self.last = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("division-geometry", bytes(64), 4)
+        try:
+            with open(build / "unit-pick.o", "rb") as handle:
+                self.text_size = ELFFile(handle).get_section_by_name(".text")["sh_size"]
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        build = self._seed("division-seed", bytes([FILLER]) * (self.text_size + self.TAIL), self.text_size)
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.text_size + self.TAIL:
+                raise SystemExit(f"test setup: the division seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+
+    def install(self, copy: Path, expand_div: bool) -> None:
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        self.write(copy, self.baseline, self.text_size, expand_div)
+
+
+def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = DivisionFixture(cfg_dir, parsed)
+
+    def verify_on(report: dict):
+        if report.get("inputs", {}).get("maspsx_flags") != ["--expand-div"]:
+            return f"the report must record the maspsx flag: {report.get('inputs', {}).get('maspsx_flags')}"
+        return None
+
+    def not_boolean(copy: Path):
+        fx.install(copy, True)
+        path = copy / "build.toml"
+        path.write_text(replace_once(path.read_text(), "expand_div = true", 'expand_div = "yes"', "expand_div"))
+
+    return [
+        Case("expand-div-on", True, "", lambda c: fx.install(c, True), verify_on, fndiff=("pick", 0, "IDENTICAL")),
+        # The same source without the option: the assembler expands the division its own way.
+        Case("expand-div-off", False, "text size mismatch", lambda c: fx.install(c, False)),
+        Case("expand-div-not-boolean", False, "'expand_div' must be a boolean", not_boolean),
     ]
 
 
@@ -658,6 +874,16 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
         _, _, u3 = ctx.run()
         if any(u3[n]["key"] == u1[n]["key"] or u3[n]["cache"] != "miss" for n in u3):
             return "a changed aspsx version must change every key and miss"
+        if "expand_div" in parsed["toolchain"]:
+            edit_config(
+                ctx, r"(expand_div\s*=\s*)(true|false)",
+                lambda m: m.group(1) + ("false" if m.group(2) == "true" else "true"), "expand_div",
+            )
+        else:
+            edit_config(ctx, r'(aspsx_version\s*=\s*"[^"]*"\n)', lambda m: m.group(1) + "expand_div = true\n", "aspsx_version line")
+        _, _, u4 = ctx.run()
+        if any(u4[n]["key"] == u3[n]["key"] or u4[n]["cache"] != "miss" for n in u4):
+            return "a changed expand_div must change every key and miss"
         return None
 
     def pinned_cc1(ctx):
@@ -1226,9 +1452,85 @@ def run_cache_case(case: CacheCase, cfg_dir: Path, parsed: dict) -> tuple[bool, 
         ctx.cleanup()
 
 
+def select_cases(cases: list, only: str) -> list:
+    """The cases whose name contains `only`. An empty `only` selects all."""
+    return [case for case in cases if only in case.name]
+
+
+def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
+    """The test runner's own helpers: case selection and the include list edit."""
+
+    class Named:
+        def __init__(self, name):
+            self.name = name
+
+    def selection(root: Path):
+        cases = [Named("alpha-one"), Named("alpha-two"), Named("beta")]
+        picks = {only: [c.name for c in select_cases(cases, only)] for only in ("", "alpha", "beta", "gamma")}
+        want = {"": ["alpha-one", "alpha-two", "beta"], "alpha": ["alpha-one", "alpha-two"], "beta": ["beta"], "gamma": []}
+        return None if picks == want else f"selection is wrong: {picks}"
+
+    def run_self(only: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(Path(__file__).resolve()), "--config", str(config_path), "--only", only],
+            capture_output=True, text=True,
+        )
+
+    def empty_selection(root: Path):
+        proc = run_self("no-case-has-this-name")
+        if proc.returncode == 0:
+            return "an --only text that selects nothing must not exit 0"
+        if "no case matches" not in proc.stdout + proc.stderr or "all cases behaved as required" in proc.stdout:
+            return f"an empty selection must say so and must not report success:\n{proc.stdout}{proc.stderr}"
+        return None
+
+    def nonempty_selection(root: Path):
+        proc = run_self("runner-selection-filter")
+        ran = [line for line in proc.stdout.splitlines() if line.startswith(("ok  ", "FAIL"))]
+        if proc.returncode != 0 or ran != ["ok   runner-selection-filter: behaves as required"]:
+            return f"a matching --only text must run exactly the matching case:\n{proc.stdout}{proc.stderr}"
+        if "not the full control set" not in proc.stdout:
+            return "a filtered run must say that it is not the full control set"
+        return None
+
+    def include_list(root: Path):
+        head = '[baseline]\nexecutable = "x"\n\n[toolchain]\n'
+        tail = 'cpp = "clang"\n\n[toolchain.cc1]\nkind = "local"\n'
+        variants = {
+            "absent": ("", []),
+            "empty": ("include_dirs = []\n", []),
+            "empty-spaced": ("include_dirs = [ ]\n", []),
+            "one": ('include_dirs = ["a"]\n', ["a"]),
+            "two-trailing-comma": ('include_dirs = ["a", "b/c",]\n', ["a", "b/c"]),
+            "multi-line": ('include_dirs = [\n  "a",\n  "b",\n]\n', ["a", "b"]),
+        }
+        for label, (line, before) in variants.items():
+            copy = root / label
+            copy.mkdir()
+            (copy / "build.toml").write_text(head + line + tail)
+            add_include_dir(copy, "selftest_inc")
+            try:
+                parsed = tomllib.loads((copy / "build.toml").read_text())
+            except tomllib.TOMLDecodeError as exc:
+                return f"{label}: the edited file is not valid TOML: {exc}"
+            if parsed["toolchain"].get("include_dirs") != [*before, "selftest_inc"]:
+                return f"{label}: include_dirs is {parsed['toolchain'].get('include_dirs')}"
+            if parsed["toolchain"].get("cpp") != "clang" or parsed["toolchain"]["cc1"] != {"kind": "local"}:
+                return f"{label}: the rest of [toolchain] changed"
+        return None
+
+    return [
+        CacheCase("runner-selection-filter", selection),
+        CacheCase("runner-selection-empty-fails", empty_selection),
+        CacheCase("runner-selection-nonempty-runs", nonempty_selection),
+        CacheCase("runner-include-list-edit", include_list),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/local/src/build.toml")
+    parser.add_argument("--only", default="", help="run only the cases whose name contains this text")
     args = parser.parse_args()
     config_path = Path(os.path.abspath(args.config))
     cfg_dir = config_path.parent
@@ -1240,19 +1542,31 @@ def main() -> int:
         print("configuration has no [selftest] section", file=sys.stderr)
         return 2
 
+    builds = select_cases(make_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed), args.only)
+    units = select_cases(
+        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
+    )
+    if not builds and not caches and not units:
+        print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)
+        return 2
+
     failed = 0
-    for case in make_cases(cfg_dir, parsed):
+    for case in builds:
         ok, message = run_case(case, cfg_dir)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
-    for case in make_cache_cases(parsed):
+    for case in caches:
         ok, message = run_cache_case(case, cfg_dir, parsed)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
-    for case in make_cache_unit_cases() + make_rodata_unit_cases(parsed):
+    for case in units:
         ok, message = run_cache_unit_case(case)
         print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
         failed += not ok
+    ran = len(builds) + len(caches) + len(units)
+    if args.only:
+        print(f"note: only the {ran} case(s) matching {args.only!r} ran; this is not the full control set")
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
     return 1 if failed else 0
 
