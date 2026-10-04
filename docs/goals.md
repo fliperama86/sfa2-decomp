@@ -130,6 +130,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   that the reconstruction lacks: 30 more functions. 1,545 functions exact,
   1,492 from C, 243,804 bytes, and 53 from assembly. 315 of the 347
   inventoried library functions are exact.
+- The CD file of the library is whole, with its data. A wave of small
+  packages, one function each, made seven more library functions exact,
+  four of them without any source to start from and one of 4,480 bytes.
+  1,554 functions exact: 1,501 from C, 254,744 bytes, and 53 from
+  assembly. 324 of the 347 inventoried library functions are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -149,12 +154,12 @@ See the project memory for the current counts of unattempted and parked
 functions; they change with every round.
 
 1. The rest of the library. A first pass of adaptation is done. Open there:
-   32 inventoried functions, 9 of them parked: 25 whose adapted source
-   still differs, seven that have no source yet, and three questions that
-   need a
+   23 inventoried functions, 9 of them parked, each with a candidate that
+   still differs, and four questions that need a
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
-   and loads that only a volatile field reproduces.
+   loads that only a volatile field reproduces, and a delay instruction
+   that the assembler emulation does not produce.
 2. The parked pool: 135 game functions are parked, each with a candidate.
    The sixth permutation sweep left 56 of them with a closer candidate, so
    another sweep and another round of agent retries both have new material.
