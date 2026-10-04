@@ -1262,6 +1262,87 @@ Lessons:
   own compile script: thousands of variants a minute. It only finds what
   its grid contains.
 
+## Twenty-eighth group: library functions that were exact but not imported
+
+Counts at this snapshot. A seventh permutation sweep over the parked game
+functions is running and is not part of these counts.
+
+- 1,545 functions exact. 1,492 come from C, 243,804 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data owned by units is 1,808 bytes in 23
+  ranges; initialised data is unchanged at 5,084 bytes. 362,664 payload
+  bytes stay raw. About 74 percent of the inventoried resident code bytes:
+  241,408 of 328,096, counted as before.
+- 30 functions are new, 7,080 bytes, all library. 14 of them are in the
+  resident inventory, 6,756 bytes. The other 16 are small library functions
+  that the inventory does not list.
+- Against the inventory: 315 of its 347 library functions are exact, 64,448
+  of 87,896 bytes. Game functions are unchanged: 1,167 of 1,302. By area the
+  count is 1,168 game functions and 377 library functions.
+- Parked: 144 functions, about 64 KB (135 game, 9 library). Unattempted: 23
+  functions, about 22 KB, all library.
+- 245 C functions now sit in SDK units, 39 more than before: the 30 new ones
+  and 9 that address-named units owned and that now carry their SDK names.
+
+What was in the way:
+
+- Thirteen library functions compiled exact for several rounds and still
+  counted as unattempted or parked. The importer skipped them each time
+  with the same reason: their read-only data could not be placed.
+- The compiler keeps one copy of identical string literals in a file and
+  emits an inline function's strings where the function is defined, used or
+  not. A function built alone, as a part of a file that is not whole yet,
+  therefore gets such a string next to its own strings, where the image
+  does not have it. Three message strings did this: two that inline helpers
+  of the CD file carry, and one that two functions of the SPU file share.
+- An adapted file now names such a string as an external array when it is
+  built as a part, exactly as it already does for the file's data. The
+  code is the same. The string's bytes stay raw until the file is whole.
+- The primitive file of the GPU library was exact in every function and
+  still not whole: in this SDK version one setter sits after the line
+  setters, and one 28-byte function follows it that the reconstruction does
+  not have. With the order fixed and that function written, the file is
+  one unit with all 38 functions and its strings.
+
+A wrong reference that the comparison could not see:
+
+- One CD function was reported exact by the file checker and failed in the
+  build by one word. Its source installed the interrupt callback as the
+  data-ready callback. The image installs another function there, 364
+  bytes, absent from the reconstruction: the callback of a running read. It
+  takes one sector per interrupt, restarts the read after an error and ends
+  it. It is written now and exact; its name is not original.
+- The checker masks the address fields of instructions, so a reference to
+  the wrong function of the same file looked exact. It now checks that
+  every reference to a function of the file leads to where that function
+  was placed. Control: with the wrong callback put back, it objects.
+- No published count was wrong: the function was never owned before this
+  group. The build compares linked bytes and refused it.
+
+Importer:
+
+- A run of several functions that fails is now split and each function is
+  judged alone, instead of the whole run being left out.
+- An inline function that the image holds as a function of its own, because
+  the file takes its address, is emitted as a plain function when it is a
+  part by itself.
+
+Still open in the library, 32 inventoried functions:
+
+- CD: two functions. GPU system file: 13, eight unattempted and five
+  parked, several of them behind the two open questions about volatile fields
+  and struct copies through a call. Sound: five. SPU: two. Counter file:
+  three, behind the assembler question.
+- Seven have no source yet: three in the GPU area, one of them 4,480 bytes,
+  three in the sound area and one parked.
+
+Lessons:
+
+- **A function that compiles exact and is not owned is a finding.** Read
+  the importer's skip list after every import. The reason was printed for
+  several rounds and nobody acted on it.
+- A masked comparison proves the instructions, not which symbol an address
+  field names. Names need their own check, also for functions.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
