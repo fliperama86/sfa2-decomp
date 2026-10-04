@@ -117,7 +117,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
   from assembly. About 70 percent of the inventoried resident code bytes.
 - Third retry wave and the end of the fifth permutation sweep: 9 more
   functions. 1,500 functions exact: 1,447 from C, 233,184 bytes, and 53
-  from assembly. 1,153 of the 1,302 inventoried game functions.
+  from assembly. 1,152 of the 1,302 inventoried game functions are exact.
+  The by-area count of 1,153 game functions has one more: an exact 8-byte
+  function in the game area that the inventory does not list.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the

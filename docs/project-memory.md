@@ -1148,9 +1148,14 @@ Counts at this snapshot. No round is in progress.
   inventory, all out of the parked pool.
 - Parked: 164 functions, about 69 KB (150 game, 14 library). Unattempted: 32
   functions, about 28 KB, all library.
-- By area: 1,153 game functions and 347 library functions are exact. The
-  inventory lists 1,302 game functions with 240,200 bytes; 173,420 of those
-  bytes are owned, about 72 percent.
+- By area: 1,153 game functions and 347 library functions are exact. That
+  is a count by address, below or above the start of the library.
+- Against the inventory: 1,152 of its 1,302 game functions are exact, with
+  173,420 of their 240,200 bytes, about 72 percent. The other 150 are the
+  parked game functions. The by-area count has one more because one exact
+  function in the game area, 8 bytes right before the object reset routine,
+  has no inventory entry. Keep the two counts apart: a by-area total is not
+  a numerator over the inventory.
 
 Where the 9 came from:
 
