@@ -85,6 +85,12 @@ payloads, accurate source coverage, and retained human/AI refinements.
   own, 13 units from four files. 26 more functions. 1,357 functions exact:
   1,315 from C, 187,008 bytes, and 42 from assembly, plus 392 bytes of
   read-only data. About 57 percent of the inventoried resident code bytes.
+- First header adapted to this SDK version: one struct of the sound library
+  is four bytes smaller here than in the reference. With it, 39 functions of
+  the largest partly identified file compile exact from unchanged reference
+  code. 28 more functions. 1,385 functions exact: 1,343 from C, 200,332
+  bytes, and 42 from assembly. About 61 percent of the inventoried resident
+  code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -107,10 +113,12 @@ functions; they change with every round.
    source to this SDK version, one file per agent, as whole-object units.
    Every file identified as a whole is in the build, and so is every run of
    exact functions from the partly identified files that have no writable
-   data. What remains there needs work on the source: functions that differ
-   from the reference, functions the reference does not have, and the six
-   files with writable data.
-2. Continue the permutation search over the parked pool. 164 parked
+   data or whose adapted copy offers its data as external. Look for a
+   regular difference first, such as a struct of another size: one adapted
+   header was worth 28 functions. What remains needs work on the source:
+   functions that differ from the reference, functions the reference does
+   not have, and five files with writable data that are not adapted yet.
+2. Continue the permutation search over the parked pool. 159 parked
    functions have not been tried yet. Then a second, different attempt on what remains.
 3. Six game functions of 1,700 to 2,400 bytes have not been attempted.
 4. Replace `func_<address>` names where several units agree on a role, turn
