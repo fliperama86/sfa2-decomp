@@ -1038,6 +1038,104 @@ Lesson:
   already owned as an assembly unit and stopped on the duplicate name. It
   now skips functions the base owns.
 
+## Twenty-fifth group: second attempt on the parked pool
+
+Counts at this snapshot. The fifth permutation sweep is still running: it
+had tried about half of its 63 functions, and its 2 matches up to then are
+included. Nothing else is in progress.
+
+- 1,491 functions exact. 1,438 come from C, 231,308 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data are unchanged at
+  1,480 and 5,084 bytes. 375,488 payload bytes stay raw. About 70 percent of
+  the inventoried resident code bytes: 229,236 of 328,096, counted as before.
+- 25 functions are new, 5,492 bytes, all game functions of the resident
+  inventory, all out of the parked pool. One of them is 24 bytes longer than
+  the inventory lists it: the epilogue after an endless loop.
+- Parked: 173 functions, about 71 KB (159 game, 14 library). Unattempted: 32
+  functions, about 28 KB, all library.
+- By area: 1,144 game functions and 347 library functions are exact.
+
+Where the 25 came from:
+
+- 20 from agents that retried parked functions. Each agent got five
+  functions and started from the earlier candidate, not from nothing: build,
+  read the diff, name the kind of residual, then try what the candidate had
+  not tried. Two waves of eight agents, 80 functions. The first wave took
+  the candidates the permutation search had scored as middling: 13 of 40.
+  The second took the far ones and those never scored: 7 of 40, one of them
+  only short of the epilogue that the retry helper adds.
+- 3 by hand. Two were byte-exact results of the search that it had refused
+  to write back because they carried junk: a self-assignment in one, an
+  unused `volatile` variable in the other. Without the junk the first is
+  exact as it stands. The second needs an unused local array instead, the
+  stand-in already used in four units for a stack frame the original
+  reserves and never uses. A script then tried that stand-in on all 198
+  parked candidates: one more became exact, two came closer.
+- 2 from the fifth permutation sweep so far.
+
+What made retries work, from the agents' reports:
+
+- A local pointer to a player object or to the state block, where the
+  original keeps the address in a saved register. The second player written
+  as the first plus one, or the first as the second minus one.
+- A shared tail split into two separate calls, or early returns in place of
+  a shared state variable. The opposite also occurred: two branches merged
+  into one condition.
+- A `goto` to keep a test or a tail where the original has it. A retry loop
+  written as a `for` with a `goto` back, not as nested `do/while`.
+- A test routed through a local, so that the compiler emits the mask and the
+  compare as two instructions.
+
+Residual kinds that came back again and stay unsolved:
+
+- **High byte through two shifts.** Four more functions take the
+  high byte of a loaded halfword with a shift left by 16 and an arithmetic
+  shift right by 24, after copying the value to a second register. Every
+  form tried folds to a shift right by 8: signed, unsigned and int locals,
+  explicit shifts, a double read, a copy through another type. Writing the
+  two shifts out did match one function where the value is a product, so
+  the form depends on what is shifted.
+- **Parameters copied out of the argument registers at entry.** Several
+  originals move their parameters into other registers first and then use
+  the argument registers as temporaries. One guess was that these are
+  bodies of inline functions expanded into a thin caller. A test on one
+  function did not confirm it: the build was no closer. The cause is not
+  known.
+- Loads the original schedules after a computation where the build hoists
+  them, two saved registers swapped that no declaration order moves, and a
+  frame that is larger above the spill slots, where an unused local lands
+  below them.
+
+Judgment calls taken at the top level:
+
+- One exact function picks the left or the right player by arithmetic on
+  the address of one field of the left player, because that is how the
+  original derives both addresses, and no selection through the fields
+  matched. It is written plainly with comments and flagged here.
+- Unused local arrays as a frame stand-in: the earlier notes count four
+  units, and two were added in this step, with one fixed comment that says
+  it is a stand-in and not an explanation. This is the only dummy construct
+  that is accepted.
+- The two search results cleaned by hand count as machine-found and say so.
+  That makes 54 marked functions.
+
+Tool changes, all private:
+
+- A sweep now writes a clearly closer variant back as the parked candidate
+  when it has no junk, so that the next sweep continues from it. Before,
+  every sweep started from the same candidate.
+- A helper sets up a retry batch from parked candidates, and there is a
+  prompt for retries that lists what has worked.
+
+Mistake:
+
+- The script that tried the unused local scored each variant with a helper
+  that rebuilds a function's search folder. That deleted the best
+  non-matching variants the fourth sweep had left for the parked functions.
+  Nothing that counts was lost: matches are written back at once and were
+  already banked. The fifth sweep regenerates what is useful. The lesson is
+  to check what a helper deletes before running it over the whole pool.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

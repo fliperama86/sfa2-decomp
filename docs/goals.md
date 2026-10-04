@@ -110,6 +110,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   ten small stubs are assembly units. 25 more functions. 1,466 functions
   exact: 1,413 from C, 225,816 bytes, and 53 from assembly, 1,040 bytes.
   About 68 percent of the inventoried resident code bytes.
+- Second attempt on the parked pool: agents retried 80 parked game
+  functions from their earlier candidates, 20 exact. Three more by hand.
+  A fifth permutation sweep is running: 2 matches so far. 25 more
+  functions. 1,491 functions exact: 1,438 from C, 231,308 bytes, and 53
+  from assembly. About 70 percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -134,9 +139,13 @@ functions; they change with every round.
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
    and loads that only a volatile field reproduces.
-2. A second, different attempt on the parked pool: 184 game functions are
-   parked, each with a candidate, and the permutation search has tried all
-   of them once.
+2. The parked pool: 159 game functions are parked, each with a candidate.
+   Retries by agents from the earlier candidate matched one in four. Still
+   to retry that way: about 40 of the farther candidates, and whatever the
+   fifth permutation sweep leaves of the 63 closest. Two residual kinds
+   keep coming back and have no known source form: a high byte taken with
+   two shifts, and parameters copied out of the argument registers at
+   entry.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
