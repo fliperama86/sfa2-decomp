@@ -1452,6 +1452,103 @@ Lessons:
 - When the roles of two saved registers are swapped, look at which uses sit
   inside which loop before permuting declarations.
 
+## Thirtieth group: one-function retries on the parked game pool, seventh sweep
+
+Counts at this snapshot. An eighth sweep over 32 parked candidates is
+running and is not part of these counts.
+
+- 1,582 functions exact. 1,529 come from C, 262,676 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data owned by units
+  are unchanged at 2,264 and 5,900 bytes. 342,520 payload bytes stay raw.
+  About 79 percent of the inventoried resident code bytes: 260,280 of
+  328,096, counted as before.
+- 28 functions are new, 7,932 bytes, all game functions of the resident
+  inventory, all out of the parked pool.
+- Against the inventory: 1,195 of its 1,302 game functions are exact,
+  184,892 of 240,200 bytes, about 77 percent. The other 107 are parked.
+  Library unchanged: 324 of 347. By area the count is 1,196 game functions
+  and 386 library functions.
+- Parked: 116 functions, about 57 KB (107 game, 9 library). Unattempted by
+  the counting rule: 14 library functions, about 11 KB, as before.
+
+Where the 28 came from:
+
+- 20 from agents with one function each, 50 packages in five waves of ten,
+  taken in order of the search's score for the candidate. By score: 12 of
+  20 with a score up to 15, 6 of 16 from 20 to 60, 2 of 10 above 60, none
+  of 4 whose candidate did not compile. An agent took between one and
+  twenty-three minutes. Most of the 30 that did not match came back closer,
+  several at one or two differing slots.
+- 5 from the seventh permutation sweep: all 135 parked game candidates,
+  five minutes each. 19 more left with a closer candidate.
+- 3 that the search had found byte-exact and its own filter had rejected
+  for a leftover unused variable, two of them already in the sixth sweep.
+  Cleaned by hand: the variable removed, or replaced by the commented
+  stand-in for an unused stack frame. One of the 20 agent results is a
+  sibling of these, written in the same form.
+
+Marks in the sources:
+
+- 74 functions say that their form was found by the search, 5 more that it
+  was found by the search and cleaned by hand, 11 that they were finished
+  by hand from a candidate the search had reshaped, and 1 that it was
+  written in the form of a sibling the search had found. A function carries
+  the first mark only when a sweep log reports the match.
+
+Source forms that decided functions, each the only change needed:
+
+- `mask &= flags; if (mask)` instead of `if (mask & flags)`.
+- Separate paths that each end in their own call, instead of one shared
+  index local and one call.
+- Return type `int` with `if (a && b) return 1; return 0;`.
+- A callee prototype with one more parameter, so that a loaded value lands
+  in the argument register.
+- A read placed inside the condition with a comma expression, to fix the
+  order of two loads.
+- A load into a wider local copied into a narrower one, where the original
+  has a register copy that the compiler otherwise merges away.
+- The base written first in an address sum, where one `addu` had its
+  operands the other way round.
+- The operands of one `|` chain reordered.
+- A global declared as an array and read as its first element. The
+  compiler orders such a load after stores through an object pointer and
+  does not order a scalar global that way. The array declaration is a
+  compatible reconstruction: it reproduces the load schedule. It does not
+  establish the original declaration or data layout. Inferred hypothesis,
+  unproven: the original reads that global as an array element or a struct
+  member.
+
+Evidence for the open question about `volatile`, a fifth case and the
+first in game code:
+
+- One 72-byte function is exact when its counter is declared `volatile`
+  and incremented with a plain `++`: the original reloads the counter after
+  the store into a register that nothing reads. No other form gave that
+  load. The matching guide forbids `volatile`, so the function stays parked
+  and the exact form is kept outside the tree as evidence.
+
+Tooling, all private:
+
+- A parked candidate that needs fields or symbols the tree does not have
+  now carries them in files next to it. The search, the retry setup and the
+  recovery step lay them over their own copies of the tables; the tree
+  gets a field only through a function that is exact with it. Seven parked
+  candidates that the search could never compile do compile now.
+- The search's preparation step shared one directory between parallel
+  chunks, which gave a rare false "does not compile". It is per function
+  now. One of the seven was that.
+
+Lessons:
+
+- **The package shape matters more than the model's effort.** The same
+  functions had been retried before in groups of several per agent. One
+  function, its search score, its size and one line of what is known
+  matched 40 percent of them.
+- A search result rejected for a leftover variable is one hand edit away.
+  Read the rejected results after every sweep.
+- A candidate that does not compile is invisible to the search. Check the
+  sweep log for those first.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
