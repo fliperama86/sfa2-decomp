@@ -1136,6 +1136,62 @@ Mistake:
   already banked. The fifth sweep regenerates what is useful. The lesson is
   to check what a helper deletes before running it over the whole pool.
 
+## Twenty-sixth group: third retry wave, end of the fifth sweep, 1,500 functions
+
+Counts at this snapshot. No round is in progress.
+
+- 1,500 functions exact. 1,447 come from C, 233,184 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data are unchanged at
+  1,480 and 5,084 bytes. 373,612 payload bytes stay raw. About 70 percent of
+  the inventoried resident code bytes: 231,112 of 328,096, counted as before.
+- 9 functions are new, 1,876 bytes, all game functions of the resident
+  inventory, all out of the parked pool.
+- Parked: 164 functions, about 69 KB (150 game, 14 library). Unattempted: 32
+  functions, about 28 KB, all library.
+- By area: 1,153 game functions and 347 library functions are exact. That
+  is a count by address, below or above the start of the library.
+- Against the inventory: 1,152 of its 1,302 game functions are exact, with
+  173,420 of their 240,200 bytes, about 72 percent. The other 150 are the
+  parked game functions. The by-area count has one more because one exact
+  function in the game area, 8 bytes right before the object reset routine,
+  has no inventory entry. Keep the two counts apart: a by-area total is not
+  a numerator over the inventory.
+
+Where the 9 came from:
+
+- 6 from a third wave of retries, eight agents on the last 38 far
+  candidates. Over the three waves agents retried 118 parked game functions
+  and matched 26: 13 of the 40 middling ones, 7 of the first 40 far ones, 6
+  of the last 38.
+- 3 from the rest of the fifth permutation sweep. The sweep tried the 63
+  closest candidates for six minutes each and matched 5. For 32 more it
+  found a clearly closer variant and kept it as the new candidate.
+- 57 functions carry the machine-found mark now.
+
+Cleanup asked for by the review:
+
+- 29 source files of exact units still held notes that said "residual" or
+  "not exact". They dated from before the match, or described a function
+  that had since been cut out of the unit. Each such note now starts with a
+  label that says it is historical. A helper applies the label before every
+  promotion.
+
+Lessons:
+
+- **A merge can carry unverified additions.** A batch directory that kept
+  one exact function also holds the fields and symbols its agent added for
+  the functions that did not match. The merge took them all: 13 fields and
+  25 symbols that nothing exact uses. They were removed again before the
+  build, and only the three fields the exact unit needs stayed. They are
+  kept as notes next to the parked candidates. The earlier rule covered
+  only batches that matched nothing.
+- The first attempt to remove them compared the field file line by line and
+  deleted fields that the merge had merely reformatted. The build caught it
+  at once. Compare the parsed model, not the text.
+- A parked candidate can depend on a field its batch added and that was
+  never merged. It then does not compile against the tree, and the
+  permutation search skips it. The notes above are what a later retry needs.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
