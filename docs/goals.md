@@ -80,6 +80,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   functions exact: 1,289 from C, 179,396 bytes, and 42 from assembly, 672
   bytes, plus 236 bytes of read-only data and 4,356 bytes of initialised
   data. About 55 percent of the inventoried resident code bytes.
+- Parts of SDK files that match the reference only in part: every run of
+  functions that is exact as the reference has it came in as a unit of its
+  own, 13 units from four files. 26 more functions. 1,357 functions exact:
+  1,315 from C, 187,008 bytes, and 42 from assembly, plus 392 bytes of
+  read-only data. About 57 percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -100,8 +105,12 @@ functions; they change with every round.
 
 1. Library files that were identified only in part: adapt the reference
    source to this SDK version, one file per agent, as whole-object units.
-   Every file identified as a whole is in the build now.
-2. Continue the permutation search over the parked pool. 167 parked
+   Every file identified as a whole is in the build, and so is every run of
+   exact functions from the partly identified files that have no writable
+   data. What remains there needs work on the source: functions that differ
+   from the reference, functions the reference does not have, and the six
+   files with writable data.
+2. Continue the permutation search over the parked pool. 164 parked
    functions have not been tried yet. Then a second, different attempt on what remains.
 3. Six game functions of 1,700 to 2,400 bytes have not been attempted.
 4. Replace `func_<address>` names where several units agree on a role, turn
