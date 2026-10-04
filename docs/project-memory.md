@@ -880,6 +880,107 @@ Lessons:
 - A stale identification record gives a wrong unit: after editing an adapted
   file, the identification has to run again before the import.
 
+## Twenty-third group: large game functions, fourth permutation sweep, second SDK pass
+
+Counts at this snapshot. The fourth permutation sweep is still running: it
+had tried 62 of 151 parked functions, and its 16 matches up to then are
+included. Nothing else is in progress.
+
+- 1,441 functions exact. 1,399 come from C, 223,596 bytes, and 42 from
+  assembly, 672 bytes. Units own 1,480 bytes of read-only data in 16 ranges
+  and 5,084 bytes of initialised data in seven. 383,568 payload bytes stay
+  raw. About 67 percent of the inventoried resident code bytes: 221,200 of
+  328,096, counted as before.
+- 22 functions are new, 9,040 bytes: 18 game functions and 4 library
+  functions. All 22 are in the inventory.
+- Parked: 223 functions, about 79 KB (198 game, 25 library). Unattempted: 32
+  functions, about 28 KB, all library. The pools moved like this: 16 parked
+  game functions matched in the sweep, 2 parked library functions matched,
+  2 unattempted game and 2 unattempted library functions matched, and the 4
+  large game functions that did not match went from unattempted to parked.
+- By area: 1,105 game functions and 336 library functions are exact. 206 of
+  the library functions are built from reference C: 70 in 28 whole files and
+  136 in 24 parts from nine files.
+
+Large game functions:
+
+- The six game functions of 1,700 to 2,436 bytes went to one agent each. Two
+  are exact, 1,944 and 2,420 bytes. With the earlier rounds that is 5 of 22
+  at 1,000 bytes and more.
+- The four misses: one has the right size and differs in 46 instruction
+  slots by register choice. The others are 16, 24 and 32 bytes short, with
+  a merged division, a comparison the compiler folds away, and tails the
+  compiler merges or keeps apart. All four candidates are parked.
+- One agent noted that the rigid order of loads and stores around a few
+  scratch globals in its function looks like `volatile` access. It did not
+  use it. This is the same question as in the graphics library and is not
+  decided.
+
+Permutation search:
+
+- The search runs on this machine now. The fourth sweep covers the parked
+  functions the earlier sweeps had not tried, four minutes each, in three
+  parallel runs.
+- All 16 matches it had found at this snapshot passed the retry of the
+  parked pool and the build. That makes 36 functions whose matching form was
+  found by the search, out of 169 tried so far.
+- **Every machine-found function now says so in its source.** Until now only
+  one of the earlier 20 carried the comment. The search renames nothing and
+  inserts no dummy code, but it adds temporaries and reshapes expressions,
+  and a reader should know that the form was not written by hand. The saved
+  form from before the search is kept privately for each of them.
+
+Second pass over the adapted SDK files:
+
+- Agents were now allowed to write functions the reference does not have.
+  Banked from that pass: two rewritten functions and one new function in the
+  graphics library, and one more whole file in the CD library that the
+  identification had skipped for a guard that this machine does not need.
+- Written but not banked: three of four missing functions of the CD
+  library's main file are exact by the checker, yet none of that file's
+  functions with strings can be owned before the file is whole, and two of
+  its functions still differ by register choice. The large sound function
+  the reference keeps as assembly is written and 24 bytes short in its
+  stack frame. The SPU function the reference lacks is 8 bytes too long.
+- One function is exact only with `volatile` on a variable the reference
+  does not have. It is held back with the other `volatile` cases.
+- Tested: a struct assignment and a `memcpy` of any form are both expanded
+  in place by this compiler. Only `-fno-builtin` gives the call that four
+  graphics functions have in the image. Setting that flag for those units is
+  a decision that is still open.
+
+**A function can be exact in code and wrong in which variable it touches.**
+
+- The comparison skips the instruction fields that relocations fill. Two
+  stores of the same shape to two different variables then look alike. One
+  adapted function zeroed two queue indices in the wrong order and passed
+  the checker. The import caught it only by accident, because the two names
+  came out with two addresses each and stayed unresolved.
+- The checker now requires that every name stands for one address across a
+  file, and reports where the code implies two. It also reports when a
+  file's own data is not laid out as in the image, which means the file
+  cannot become one whole unit yet.
+- The build was never fooled: it compares linked bytes, addresses included.
+
+Tool changes, all private:
+
+- Functions that are `static` in the reference are global in a part,
+  because another part of the same file may call them. Without that, a part
+  could not link against a function that had become exact in a sibling
+  part, and three parts that had been in the build dropped out of a trial
+  import.
+- The address pairing in the identification now follows the base register,
+  so that two interleaved address computations are not mixed up.
+- The identification no longer refuses floating-point source on a machine
+  whose compiler handles it. One more reference file built and matched whole.
+
+Lesson:
+
+- Regenerating all parts on every import is right, and it means an import
+  can lose functions as well as gain them. Compare the set of owned
+  addresses with the promoted tree before promoting. A trial import fell
+  from 1,419 to 1,402 before the cause was fixed.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

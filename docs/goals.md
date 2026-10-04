@@ -97,6 +97,13 @@ payloads, accurate source coverage, and retained human/AI refinements.
   exact: 1,377 from C, 214,556 bytes, and 42 from assembly, plus 1,456
   bytes of read-only data and 5,084 bytes of initialised data. About 65
   percent of the inventoried resident code bytes.
+- Round seventeen: the six game functions of 1,700 bytes and more, one per
+  agent, 2 exact. Fourth permutation sweep, still running at this snapshot:
+  16 matches from the first 62 parked functions. Second pass over the
+  adapted SDK files: 4 more. 22 more functions in all. 1,441 functions
+  exact: 1,399 from C, 223,596 bytes, and 42 from assembly. About 67
+  percent of the inventoried resident code bytes. Every game function has
+  now been attempted.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -121,9 +128,11 @@ functions; they change with every round.
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
    and loads that only a volatile field reproduces.
-2. Continue the permutation search over the parked pool. 151 parked
-   functions have not been tried yet. Then a second, different attempt on what remains.
-3. Six game functions of 1,700 to 2,400 bytes have not been attempted.
+2. Finish the fourth permutation sweep over the parked pool and bank its
+   matches. Then a second, different attempt on what remains: 198 game
+   functions are parked, each with a candidate.
+3. Every game function has been attempted. Four of the six largest are
+   parked with candidates that have the right size or nearly.
 4. Replace `func_<address>` names where several units agree on a role, turn
    the recorded casts and wrapper structs into proper members, and move
    repeated prototypes into shared headers. Every such change must rebuild
