@@ -981,6 +981,63 @@ Lesson:
   addresses with the promoted tree before promoting. A trial import fell
   from 1,419 to 1,402 before the cause was fixed.
 
+## Twenty-fourth group: end of the fourth sweep, assembly units for assembly code
+
+Counts at this snapshot. No round is in progress.
+
+- 1,466 functions exact. 1,413 come from C, 225,816 bytes. 53 come from
+  assembly, 1,040 bytes. Read-only data and initialised data are unchanged at
+  1,480 and 5,084 bytes. 380,980 payload bytes stay raw. About 68 percent of
+  the inventoried resident code bytes: 223,768 of 328,096, counted as before.
+- 25 functions are new, 2,588 bytes: 14 from C, 2,220 bytes, and 11 from
+  assembly, 368 bytes. 14 are game functions and 11 are library functions.
+  All 25 came out of the parked pool.
+- Parked: 198 functions, about 76 KB (184 game, 14 library). Unattempted: 32
+  functions, about 28 KB, all library.
+- By area: 1,119 game functions and 347 library functions are exact.
+- **Scope of "every game function has been attempted".** It means the game
+  functions of the resident function inventory. It says nothing about the
+  overlays or about a whole-game inventory, which do not exist yet.
+
+Fourth permutation sweep, finished:
+
+- 151 parked functions tried, four minutes each. 30 matched and all 30
+  passed the retry of the parked pool and the build. The candidates of 5 did
+  not compile and were skipped.
+- Over all sweeps: 258 functions tried, 50 matched. Every one of the 50 says
+  in its source that its form was machine-found.
+- Every parked function has now been through the search once. More of the
+  same search on the same candidates is not expected to give much. What is
+  left needs a different candidate first.
+
+Assembly units for code that was assembly:
+
+- 11 functions that C cannot produce are assembly units now, written from
+  the disassembly one instruction per line: the program entry routine, a
+  function that returns the global pointer, four calls to a debugging host
+  through the `break` instruction, and five BIOS call stubs that the SDK
+  reference has no file for.
+- The entry routine clears the bss, sets the stack, frame and global
+  pointers, sets up the heap and calls the main function. An agent had parked
+  it as not matchable from C.
+- The four words that follow the entry routine in the image are a table it
+  reads. They are data inside the code area and belong to no function. They
+  stay raw.
+- These units keep `func_<address>` names. What each one does is in a
+  comment. The BIOS stubs name the table and the function number.
+- **Rule applied.** An assembly unit is for code whose original source was
+  assembly. The evidence here is the instructions themselves: `break`, a
+  jump through a register loaded with a BIOS table address, reading the
+  global pointer, setting the stack pointer. None of this is game logic.
+  Writing a game function as assembly because it resists C is not the same
+  thing and has not been done.
+
+Lesson:
+
+- The retry helper took a parked candidate for a function that the base
+  already owned as an assembly unit and stopped on the duplicate name. It
+  now skips functions the base owns.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
