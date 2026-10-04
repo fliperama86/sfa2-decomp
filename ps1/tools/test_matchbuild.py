@@ -1310,7 +1310,9 @@ class CacheContext:
             report = json.loads((self.build / "report.json").read_text())
         except OSError:
             report = {}  # the build aborted before writing a report
-        return proc, report, report.get("cache", {}).get("units", {})
+        # An assembly unit is never cached and has no key. The cases speak about the units that are.
+        records = report.get("cache", {}).get("units", {})
+        return proc, report, {name: record for name, record in records.items() if record.get("key") is not None}
 
     def entry(self, key: str) -> Path:
         return self.cache / key

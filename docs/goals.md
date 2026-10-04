@@ -73,6 +73,13 @@ payloads, accurate source coverage, and retained human/AI refinements.
   parked pool brought back 18. 22 library functions came in from a public
   reconstruction of the Sony SDK, built unchanged. 1,274 functions, 176,328
   bytes in total, about 54 percent of the inventoried resident code bytes.
+- The build tool owns initialised data, bss and assembly units, and rejects a
+  symbol file that reassigns a symbol a unit defines. With it the last
+  identified SDK files came in: five C files with data of their own, and 42
+  BIOS and system call stubs as assembly units. 57 more functions. 1,331
+  functions exact: 1,289 from C, 179,396 bytes, and 42 from assembly, 672
+  bytes, plus 236 bytes of read-only data and 4,356 bytes of initialised
+  data. About 55 percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -91,20 +98,18 @@ The sweep of small functions is done. What remains in the resident image:
 See the project memory for the current counts of unattempted and parked
 functions; they change with every round.
 
-1. Land the build-tool change that is ready on its branch: units that own
-   initialised data, declare their bss, or are written in assembly. Then
-   import the remaining identified SDK files: those with data of their own,
-   and the BIOS call stubs as assembly units.
-2. Library files that were identified only in part: adapt the reference
+1. Library files that were identified only in part: adapt the reference
    source to this SDK version, one file per agent, as whole-object units.
-3. Continue the permutation search over the parked pool. About 200 parked
+   Every file identified as a whole is in the build now.
+2. Continue the permutation search over the parked pool. 167 parked
    functions have not been tried yet. Then a second, different attempt on what remains.
-4. Six game functions of 1,700 to 2,400 bytes have not been attempted.
-5. Replace `func_<address>` names where several units agree on a role, turn
+3. Six game functions of 1,700 to 2,400 bytes have not been attempted.
+4. Replace `func_<address>` names where several units agree on a role, turn
    the recorded casts and wrapper structs into proper members, and move
    repeated prototypes into shared headers. Every such change must rebuild
    exact.
-6. Read-only data is owned per unit. Game data tables still have no owner.
+5. Data is owned per unit. Game data tables still have no owner. The program
+   entry routine is assembly and has no owner yet.
 
 ## Overlays
 
@@ -122,8 +127,8 @@ observation only when it answers a specific remaining question.
 ## Not yet accomplished
 
 Whole executable/overlay source inventory, a whole image built from source
-rather than mostly retained bytes, data ownership, assembly owners, overlay
-images, complete gameplay reconstruction, SDK exception accounting, final
+rather than mostly retained bytes, ownership of game data, assembly owners
+beyond the SDK stubs, overlay images, complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, and source-publication policy review. Existing private source is not
 implicitly cleared for Git publication by the repository migration.
 
