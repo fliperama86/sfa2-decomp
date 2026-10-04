@@ -1512,8 +1512,11 @@ Source forms that decided functions, each the only change needed:
 - The operands of one `|` chain reordered.
 - A global declared as an array and read as its first element. The
   compiler orders such a load after stores through an object pointer and
-  does not order a scalar global that way. This is a finding about the
-  data: that global is an array element or a member in the original.
+  does not order a scalar global that way. The array declaration is a
+  compatible reconstruction: it reproduces the load schedule. It does not
+  establish the original declaration or data layout. Inferred hypothesis,
+  unproven: the original reads that global as an array element or a struct
+  member.
 
 Evidence for the open question about `volatile`, a fifth case and the
 first in game code:
