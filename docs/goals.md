@@ -102,8 +102,14 @@ payloads, accurate source coverage, and retained human/AI refinements.
   16 matches from the first 62 parked functions. Second pass over the
   adapted SDK files: 4 more. 22 more functions in all. 1,441 functions
   exact: 1,399 from C, 223,596 bytes, and 42 from assembly. About 67
-  percent of the inventoried resident code bytes. Every game function has
-  now been attempted.
+  percent of the inventoried resident code bytes. Every game function of
+  the resident function inventory has now been attempted. That says nothing
+  about overlays or a whole-game inventory.
+- The fourth permutation sweep finished: 30 matches from 151 parked
+  functions, 14 of them after the last record. The program entry routine and
+  ten small stubs are assembly units. 25 more functions. 1,466 functions
+  exact: 1,413 from C, 225,816 bytes, and 53 from assembly, 1,040 bytes.
+  About 68 percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -128,17 +134,18 @@ functions; they change with every round.
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
    and loads that only a volatile field reproduces.
-2. Finish the fourth permutation sweep over the parked pool and bank its
-   matches. Then a second, different attempt on what remains: 198 game
-   functions are parked, each with a candidate.
-3. Every game function has been attempted. Four of the six largest are
-   parked with candidates that have the right size or nearly.
+2. A second, different attempt on the parked pool: 184 game functions are
+   parked, each with a candidate, and the permutation search has tried all
+   of them once.
+3. Every game function of the resident inventory has been attempted. Four
+   of the six largest are parked with candidates that have the right size or
+   nearly.
 4. Replace `func_<address>` names where several units agree on a role, turn
    the recorded casts and wrapper structs into proper members, and move
    repeated prototypes into shared headers. Every such change must rebuild
    exact.
-5. Data is owned per unit. Game data tables still have no owner. The program
-   entry routine is assembly and has no owner yet.
+5. Data is owned per unit. Game data tables still have no owner. The four
+   words after the program entry routine, a table it reads, have none either.
 
 ## Overlays
 
