@@ -82,6 +82,31 @@ duplicate function or unit names, a gap between functions of one unit, and any n
 `symbols.ld` that is also a declared unit function. The last rule matters
 because a linker-script assignment would silently override the compiled symbol.
 
+### Symbols a unit defines
+
+A unit owns every symbol its object defines with global or weak binding: its
+functions, and the variables and tables in its read-only data, data and bss.
+Such a symbol lives at the unit's declared range of that kind plus the
+symbol's offset in the object. Where one kind is made of two object sections
+(`.rodata` then `.rdata`, `.bss` then `.sbss`), the second follows the first
+directly, as the link places them.
+
+`symbols.ld` must not assign any of those names. The assignment would win at
+the link: the symbol would become an absolute address and the declared range
+would no longer be where the code's variable lives, while the build could still
+compare equal. The rule for declared functions above is the part of this that
+can be checked before compilation. The rest needs the objects, so it is checked
+after every unit object passed its own checks and before the link, and a
+collision fails the build with exit status 1 and a message naming the symbol,
+the unit and the object section.
+
+A different name at the same address stays allowed. `symbols.ld` may give an
+address that a unit owns a second name, as long as the name itself is not one
+the unit defines.
+
+Local symbols (`static`) are outside the rule: a linker-script assignment
+cannot rebind them.
+
 ## Configuration
 
 `build.toml`, paths relative to the file itself, `~` expanded:
@@ -292,6 +317,15 @@ an aligned instruction diff against the baseline range. It works when sizes are
 wrong and the whole-image link was never reached. It decides nothing:
 `matchbuild.py` remains the only authority on whether a build is exact.
 
+Symbols of the other units are given to that link as addresses. Their declared
+functions come from the configuration, as before. Every other global or weak
+symbol a sibling unit defines is read from the sibling's object in the same
+build directory and placed by the rule in "Symbols a unit defines": declared
+range of its kind plus offset. This needs no linked image and no entry in
+`symbols.ld`. A sibling without an object there, or a symbol whose kind the
+sibling does not declare, contributes nothing, and a reference to it fails the
+link with the linker's message.
+
 Exit status: 0 all checks passed, 1 failed check or build step, 2 invalid
 configuration, 3 unusable environment such as a missing SSH master.
 
@@ -422,6 +456,15 @@ All fail closed with a non-zero exit status.
 - Each unit's bss size, rounded up to a multiple of four, equals its declared
   `bss` size. In the linked ELF the unit's bss section starts at the declared
   address.
+- No name assigned in `symbols.ld` is a global or weak symbol defined by a
+  unit object. Checked before the link.
+- In the linked ELF, every global or weak symbol that a unit object defines in
+  its text, read-only data, data or bss is bound inside that unit's output
+  section of that kind, at the declared address of the kind plus the symbol's
+  offset in the object. A symbol that is absolute, missing, in another section
+  or at another address fails the build with a message naming the unit, the
+  symbol and both locations. This repeats the rule above on the result of the
+  link, so the rule does not depend on how an override was written.
 - Image size and SHA-256 equal the baseline payload. Rebuilt executable SHA-256
   equals the baseline executable.
 - Comparator controls on every successful build: flipping one byte inside each
@@ -448,6 +491,25 @@ that ends short of a word; a unit with declared bss that its code refers to;
 and an assembly unit next to a C unit, whose functions count as assembly and
 not as C and whose control trips. `test_mergeunits.py` requires that `kind`,
 `data` and `bss` of a new unit table survive a merge unchanged.
+
+For symbol ownership it requires failure for: a bss range declared at another
+address while `symbols.ld` assigns the unit's two bss variables their old
+addresses, which built and passed before the rule existed; and a data variable
+of a unit assigned in `symbols.ld` at its correct address. It requires success
+for a second name in `symbols.ld` at the address of a unit's bss variable. A
+unit case assembles an authored object with a symbol in every owned kind,
+including the second section of read-only data and of bss, and requires the
+addresses computed for them. It then links the object twice with a
+hand-written script, once clean and once with an assignment that overrides
+its bss symbol, and requires the check of the linked ELF to accept the first,
+which confirms the computed addresses against the linker, and to reject the
+second.
+
+For `fndiff.py` it uses a fixture of two units, where one owns a data variable
+and a bss variable and the other's function reads the first and updates the
+second. It requires the whole build to pass and the diff of the using unit to
+report identical code, and, with that unit's size declared wrong so that the
+build stops before the link, the diff to still link and report different code.
 
 `test_matchbuild.py` runs the tool against temporary copies of the private
 configuration and requires failure for: the `[selftest]` source mutation, a
