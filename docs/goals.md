@@ -135,6 +135,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   four of them without any source to start from and one of 4,480 bytes.
   1,554 functions exact: 1,501 from C, 254,744 bytes, and 53 from
   assembly. 324 of the 347 inventoried library functions are exact.
+- The same one-function packages on the parked game pool, in order of the
+  search's score: 20 of 50 exact in five waves. With a seventh sweep and
+  three search results cleaned by hand: 28 more game functions. 1,582
+  functions exact: 1,529 from C, 262,676 bytes, and 53 from assembly.
+  1,195 of the 1,302 inventoried game functions are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -160,13 +165,16 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 135 game functions are parked, each with a candidate.
-   The sixth permutation sweep left 56 of them with a closer candidate, so
-   another sweep and another round of agent retries both have new material.
-   One residual kind still has no known source form: parameters copied out
-   of the argument registers at entry. For the high byte taken with two
-   shifts the form is known: four of the eight parked functions are exact,
-   three still lack a register copy and one differs in two slots.
+2. The parked pool: 107 game functions are parked, each with a candidate.
+   One function per agent, with the search's score and what else is known
+   in the prompt, is the method that works: 20 of 50 in five waves, most
+   of the others closer than before. 77 parked game functions have not
+   had such a retry yet. An eighth sweep runs over the candidates the
+   agents improved and over seven that the search could not compile
+   before. One residual kind still has no known source form: parameters
+   copied out of the argument registers at entry. For the high byte taken
+   with two shifts five of the eight functions are exact; three still
+   lack a register copy.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
