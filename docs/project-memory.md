@@ -766,6 +766,120 @@ Lesson:
   the near misses in this file were one struct. Finding it took two small
   comparisons and was worth 13 KB of code.
 
+## Twenty-second group: reference files adapted to this SDK version
+
+Counts at this snapshot. No round is in progress.
+
+- 1,419 functions exact. 1,377 come from C, 214,556 bytes, and 42 from
+  assembly, 672 bytes. Units own 1,456 bytes of read-only data in 15 ranges
+  and 5,084 bytes of initialised data in seven. 392,632 payload bytes stay
+  raw. About 65 percent of the inventoried resident code bytes: 212,160 of
+  328,096, counted as before.
+- 34 functions are new, 14,224 bytes. 8 came out of the parked pool and 17
+  from the unattempted ones. 9 have no inventory entry.
+- Parked: 237 functions, about 75 KB (210 game, 27 library). Unattempted: 40
+  functions, about 41 KB (6 game functions of 1,700 bytes and more, 34
+  library). The permutation search has 151 parked functions left to try.
+- By area: 1,087 game functions and 332 library functions are exact. 197 of
+  the library functions are built from reference C: 66 in 27 whole files and
+  131 in 22 parts from nine files. 164 of the 197 have the reference's body
+  unchanged. 33 are adapted, two of which are one-line functions the
+  reference file does not have. 40 functions that agents had matched from
+  the disassembly changed owner to reference source in this step.
+
+How the work was done:
+
+- Six agents, one library area each, edited only adapted copies of that
+  library's files. Their loop was the checker: it compiles one file and
+  compares each function with the image in about a second. An agent's
+  result counted for nothing by itself. Afterwards the identification and
+  the import ran again over all adapted files and the build decided.
+- 22 files are adapted now, three of them headers. The interrupt file's
+  version string is still a listed replacement.
+
+What this SDK version does differently, as far as the exact code shows:
+
+- Sound library. The tick settings are separate variables, not one struct.
+  The internal init function takes a flag, and the two public init entry
+  points are one-line wrappers in the same file. Note-on has no mute check,
+  and note-on and the control change handler scale volume differently. The
+  voice key-on does no per-score volume scaling.
+- CD library. The control functions wait for the drive lid through a
+  function the reference does not have, instead of retrying a no-op
+  command. Timeouts are half as long. The interrupt state has one more
+  byte, used to defer the acknowledge. One message string differs.
+- Graphics library. The library state is one struct of 128 bytes where the
+  reference has separate variables. The drawing area limits come from two
+  small tables indexed by the GPU type. One message string is spelled
+  differently.
+- SPU library. The hardware init sets the voice registers through an
+  internal function that the reference does not have.
+- Three image functions that the identification had taken for one reference
+  function are something else: each delivers an event with fixed arguments.
+
+Open, with what is known:
+
+- **One object looks assembled by another assembler.** The root counter
+  file of the system library shows small constants loaded with `addiu`, a
+  three-instruction table lookup, and stores in the delay slot of the
+  return. The project's assembler setting does not produce these. Running
+  the conversion by hand with a newer setting gave the lookup form and the
+  delay-slot store. This reopens the per-unit assembler setting that the
+  eighteenth group dropped. It needs a tool change and is not decided.
+- **Struct copies through a call.** Four graphics functions copy a struct
+  by calling the BIOS copy routine. The compiler expands a `memcpy` of
+  constant size in place. Not tried yet: a plain struct assignment, which
+  this compiler may turn into a call. A compiler flag for those units is the
+  other way and needs a decision.
+- **Loads that only a volatile field reproduces.** Several graphics
+  functions load the GPU type through a pointer register and the limits
+  with a sign extension. The agent found only a `volatile` field gives that
+  form, and it breaks other functions. Not used.
+- One SPU function is one instruction short: the image has a `nop` after a
+  load that the conversion step does not emit. The cause is not known.
+- The functions the reference does not have were not written: four in the
+  CD library, one in the SPU library, one in the graphics library, and one
+  the reference keeps as assembly in the sound library.
+- In the CD library's main file, several exact functions print through one
+  inline function, and the image holds that message once. A part would hold
+  its own copy, so those functions stay raw until the file is whole.
+
+Honesty notes:
+
+- An adapted function says what the image does, starting from the
+  reference. It is not the reference's function any more and is counted
+  apart from the unchanged ones.
+- Names for things the reference does not have are placeholders chosen by
+  the agents and marked in the source: the separate tick variables, the
+  graphics state struct, the lid-wait function, a few others. They are not
+  recovered names.
+- Agents flagged edits whose only effect is on register use or frame size.
+  All of them are in functions that are not exact and are in no unit. They
+  are to be removed or justified before such a function is accepted.
+- **A function can be exact in code and wrong in data.** The comparison
+  skips the instruction fields that hold addresses, so it cannot see a
+  string that differs. Two message strings differed. The checker now also
+  compares the strings a function refers to. The build compared them all
+  along, which is why those functions had been left out.
+
+How the tools changed, all private:
+
+- A part keeps the body of an inline function that lies outside its run, as
+  `extern inline`, so that the run's functions still expand it in place and
+  the unit emits no copy. Without that, three functions were 4 bytes short.
+- When the addresses in the code do not settle where a part's read-only
+  data lives, the import searches the image for the bytes.
+- Every import now removes all parts and generates them again, so that a
+  run that grew or a file that became whole replaces what was there.
+
+Lessons:
+
+- Never tidy a folder that running agents are working in. A cleanup that
+  removed unmodified copies deleted five files two agents had just copied
+  to start on. They were restored within a minute and held no edits.
+- A stale identification record gives a wrong unit: after editing an adapted
+  file, the identification has to run again before the import.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
