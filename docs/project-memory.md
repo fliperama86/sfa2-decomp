@@ -695,6 +695,77 @@ Lessons:
 - Function definitions on one line broke the first split of a reference
   file. The split now handles them.
 
+## Twenty-first group: the first adapted header
+
+Counts at this snapshot. No round is in progress.
+
+- 1,385 functions exact. 1,343 come from C, 200,332 bytes, and 42 from
+  assembly, 672 bytes. Read-only data and initialised data are unchanged at
+  392 and 4,356 bytes. 408,648 payload bytes stay raw. About 61 percent of
+  the inventoried resident code bytes: 198,744 of 328,096, counted as before.
+- 28 functions are new, 13,324 bytes. 5 came out of the parked pool and 16
+  from the unattempted ones. 7 have no inventory entry.
+- Parked: 245 functions, about 76 KB (210 game, 35 library). Unattempted: 57
+  functions, about 53 KB (6 game functions of 1,700 bytes and more, 51
+  library). The permutation search has 159 parked functions left to try.
+- By area: 1,087 game functions and 298 library functions are exact. 123 of
+  the library functions are built from reference C: 49 in 20 whole files and
+  74 in 17 parts from five files.
+
+What was found:
+
+- The largest partly identified file is the voice manager of the sound
+  library: 50 functions in the reference, most of them close to the image and
+  not equal. A word-by-word comparison of one such function with the image,
+  ignoring the fields that relocations fill, showed three differing
+  instructions, all the same constant: an element size of 48 bytes here
+  against 52 in the reference. Other functions multiply an index by 48 where
+  the reference multiplies by 52.
+- Mapping every data address the code uses against the reference's offsets
+  placed the difference: the first 8 bytes of the per-voice struct agree,
+  everything after is 4 bytes lower, and what follows the array of 24 voices
+  is 96 bytes lower. This SDK version's struct has no fields at offsets 8 to
+  11, where the reference has three.
+- The private copy of that header drops the three fields. It is the first
+  adapted header. With it, 39 functions of the file are exact as the
+  reference wrote them: the function bodies are unchanged, only the struct
+  they compile against differs. 11 of them were already exact as units
+  written by agents and changed owner. They came in as four more parts.
+- Every other unit that includes the header was rebuilt against the adapted
+  copy and stayed exact.
+- Seven functions of the file are still not exact. Three of them use the
+  missing fields in the reference, so their code really differs here. The
+  rest differ in a few instructions or were not compared yet.
+
+How the tools changed, all private:
+
+- Adapted files live in their own folder under the reference's relative
+  paths. The identification and the import read the reference with those
+  files laid over it, so an adapted header reaches every file that includes
+  it. Two files are adapted in that folder so far: the header, and the voice
+  manager source, which gained an external variant of its data and had the
+  statements that use the missing fields removed or stubbed, all in
+  functions that are not exact yet. The version string of the interrupt file
+  is still a listed replacement.
+- A part cannot own its file's data. The adapted source offers its data as
+  external declarations under a macro that part sources define. The
+  addresses come from the original code, as for any other name.
+- The identification now also places a function by its neighbours. Between
+  two exact functions whose distance in the image equals their distance in
+  the object, a function in between is exact if it matches at the same
+  relative place. This found eight functions that are too short or too
+  common to be located alone, such as empty functions and twins with
+  identical code.
+- A checker compiles one adapted file and compares each of its functions
+  with the image in about a second. It is the working loop for adapting a
+  file and decides nothing.
+
+Lesson:
+
+- Look for a regular difference before working on single functions. Most of
+  the near misses in this file were one struct. Finding it took two small
+  comparisons and was worth 13 KB of code.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
