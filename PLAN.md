@@ -20,17 +20,17 @@ is required to finish this selected target unless explicitly added.
 
 - Static baseline audit and resident-code load mapping exist. All 260 disc
   files are pinned by hash in a private manifest derived from the disc image.
-- 1,500 functions match exactly: 1,447 from C (233,184 bytes) and 53 from
+- 1,515 functions match exactly: 1,462 from C (236,724 bytes) and 53 from
   assembly (1,040 bytes): stubs and the program entry routine, code that was
   assembly in the original. Units also own 1,480 bytes of
   read-only data in 16 ranges and 5,084 bytes of initialised data in seven.
   206 of the C functions are Sony SDK library functions built from a public
   reconstruction of the SDK, part of them adapted to this SDK version, and
-  42 of the stubs are generated from its macros. 57 functions have a form
+  42 of the stubs are generated from its macros. 71 functions have a form
   found by an automatic permutation search and say so in their source.
 - The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
   executable byte-identically from declared owners. C units link at original
-  addresses; the other 373,612 payload bytes are retained raw and counted
+  addresses; the other 370,072 payload bytes are retained raw and counted
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
@@ -58,7 +58,7 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; static [overlay map](ps1/docs/overlays.md); loader confirmation and boundaries open |
 | Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners; overlays planned |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,500 functions (1,153 game, 347 library); expanding |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,515 functions (1,168 game, 347 library); expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 

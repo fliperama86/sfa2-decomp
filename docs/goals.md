@@ -120,6 +120,10 @@ payloads, accurate source coverage, and retained human/AI refinements.
   from assembly. 1,152 of the 1,302 inventoried game functions are exact.
   The by-area count of 1,153 game functions has one more: an exact 8-byte
   function in the game area that the inventory does not list.
+- The source form for the high byte taken with two shifts was found, in
+  units the search had already matched. With it and a sixth permutation
+  sweep: 15 more functions. 1,515 functions exact: 1,462 from C, 236,724
+  bytes, and 53 from assembly. 1,167 of the 1,302 inventoried game functions.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -144,13 +148,13 @@ functions; they change with every round.
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
    and loads that only a volatile field reproduces.
-2. The parked pool: 150 game functions are parked, each with a candidate.
-   Agents have retried 118 of them once and matched 26. The fifth
-   permutation sweep left 32 improved candidates for a next sweep. Two
-   residual kinds keep coming back and have no known source form: a high
-   byte taken with two shifts, and parameters copied out of the argument
-   registers at entry. Finding the source form for either would unlock
-   several functions at once.
+2. The parked pool: 135 game functions are parked, each with a candidate.
+   The sixth permutation sweep left 56 of them with a closer candidate, so
+   another sweep and another round of agent retries both have new material.
+   One residual kind still has no known source form: parameters copied out
+   of the argument registers at entry. For the high byte taken with two
+   shifts the form is known: four of the eight parked functions are exact,
+   three still lack a register copy and one differs in two slots.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
