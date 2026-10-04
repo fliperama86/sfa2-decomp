@@ -24,7 +24,15 @@ from capstone import CS_ARCH_MIPS, CS_MODE_LITTLE_ENDIAN, CS_MODE_MIPS32, Cs
 from elftools.elf.elffile import ELFFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from matchbuild import BSS_SECTIONS, DISCARDED_SECTIONS, LOADED_SECTIONS, ConfigError, load_config  # noqa: E402
+from matchbuild import (  # noqa: E402
+    BSS_SECTIONS,
+    DISCARDED_SECTIONS,
+    LOADED_SECTIONS,
+    ConfigError,
+    defined_symbols,
+    load_config,
+    symbol_address,
+)
 
 
 def words(data: bytes) -> list[bytes]:
@@ -37,6 +45,18 @@ def link_alone(cfg, unit, build: Path) -> Path:
     if not obj.is_file():
         raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
     others = [fn for other in cfg.units if other.name != unit.name for fn in other.functions]
+    assigned = {fn.name for fn in others}
+    siblings = []
+    for other in cfg.units:
+        sibling = build / f"unit-{other.name}.o"
+        if other.name == unit.name or not sibling.is_file():
+            continue
+        # Variables and tables of a sibling sit at its declared ranges plus their offset in its object.
+        for sym in defined_symbols(sibling):
+            address = symbol_address(other, sym)
+            if address is not None and sym.name not in assigned:
+                assigned.add(sym.name)
+                siblings.append((sym.name, address))
     script = build / f"unit-{unit.name}.fndiff.ld"
     placed = ""
     for kind, decl in unit.loaded():
@@ -47,6 +67,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
     script.write_text(
         f'INCLUDE "{cfg.symbols_path}"\n'
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
+        + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
         + placed

@@ -83,6 +83,8 @@ int pick(int a) {
     return total;
 }
 """
+SIBLING_OWNER_SOURCE = "int datum = 7;\nint counter;\nint owner(void) { return 1; }\n"
+SIBLING_USER_SOURCE = "extern int datum;\nextern int counter;\nint consumer(int a) { counter = counter + datum + a; return counter; }\n"
 ASM_C_SOURCE = "int pick(int a) { return a + 1; }\n"
 ASM_SOURCE = """\
 .set noreorder
@@ -407,7 +409,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -1050,6 +1052,134 @@ def make_asm_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
+class SiblingFixture:
+    """Two C units: one owns a data and a bss variable, the other's function uses both.
+
+    The baseline is the image of a seed build over filler bytes. Layout: the
+    owner text, the consumer text, RODATA_GAP filler, the owner data, RODATA_TAIL
+    filler. The owner bss sits at BSS_ADDRESS, outside the payload.
+    """
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.owner_text = self.consumer_text = self.data = self.bss = 0
+        self.baseline = b""
+
+    @property
+    def data_address(self) -> int:
+        return FIXTURE_LOAD + self.owner_text + self.consumer_text + RODATA_GAP
+
+    @property
+    def payload_size(self) -> int:
+        return self.owner_text + self.consumer_text + RODATA_GAP + self.data + RODATA_TAIL
+
+    def write(self, copy: Path, payload: bytes, sizes: tuple[int, int], data, bss, consumer_extra: int = 0) -> None:
+        (copy / "owner.c").write_text(SIBLING_OWNER_SOURCE)
+        (copy / "consumer.c").write_text(SIBLING_USER_SOURCE)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        owner_text, consumer_text = sizes
+        owned = "".join(
+            f"{kind} = {{ address = {decl[0]:#x}, size = {decl[1]} }}\n" for kind, decl in (("data", data), ("bss", bss)) if decl
+        )
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+            + "[[unit]]\n"
+            'name = "owner"\n'
+            'source = "owner.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "owner", address = {FIXTURE_LOAD:#x}, size = {owner_text} }} ]\n'
+            + owned
+            + "\n[[unit]]\n"
+            'name = "consumer"\n'
+            'source = "consumer.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "consumer", address = {FIXTURE_LOAD + owner_text:#x}, size = {consumer_text + consumer_extra} }} ]\n'
+        )
+
+    def _seed(self, name: str, payload: bytes, sizes: tuple[int, int], data, bss) -> Path:
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        self.write(copy, payload, sizes, data, bss)
+        self.last = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("sibling-geometry", bytes(64), (4, 4), None, None)
+        try:
+            found = {}
+            for unit in ("owner", "consumer"):
+                with open(build / f"unit-{unit}.o", "rb") as handle:
+                    found[unit] = {sec.name: sec["sh_size"] for sec in ELFFile(handle).iter_sections()}
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        self.owner_text, self.consumer_text = found["owner"][".text"], found["consumer"][".text"]
+        self.data = (found["owner"].get(".data", 0) + 3) // 4 * 4
+        self.bss = sum(found["owner"].get(name, 0) for name in matchbuild.BSS_SECTIONS)
+        self.bss = (self.bss + 3) // 4 * 4
+        if not (self.owner_text and self.consumer_text and self.data and self.bss):
+            raise SystemExit(f"test setup: the sibling objects lack text, data or bss: {found}")
+        build = self._seed(
+            "sibling-seed",
+            bytes([FILLER]) * self.payload_size,
+            (self.owner_text, self.consumer_text),
+            (self.data_address, self.data),
+            (BSS_ADDRESS, self.bss),
+        )
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.payload_size:
+                raise SystemExit(f"test setup: the sibling seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+
+    def install(self, copy: Path, *, consumer_extra: int = 0) -> None:
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        self.write(
+            copy,
+            self.baseline,
+            (self.owner_text, self.consumer_text),
+            (self.data_address, self.data),
+            (BSS_ADDRESS, self.bss),
+            consumer_extra,
+        )
+
+
+def make_sibling_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = SiblingFixture(cfg_dir, parsed)
+    return [
+        Case("sibling-data-bss", True, "", lambda c: fx.install(c), fndiff=("consumer", 0, "IDENTICAL")),
+        # The size is wrong, so the build stops before the link; fndiff still links the unit.
+        Case(
+            "sibling-data-bss-before-link",
+            False,
+            "text size mismatch",
+            lambda c: fx.install(c, consumer_extra=4),
+            fndiff=("consumer", 1, "DIFFERENT"),
+        ),
+    ]
+
+
 def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     fx = DivisionFixture(cfg_dir, parsed)
 
@@ -1068,6 +1198,36 @@ def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         # The same source without the option: the assembler expands the division its own way.
         Case("expand-div-off", False, "text size mismatch", lambda c: fx.install(c, False)),
         Case("expand-div-not-boolean", False, "'expand_div' must be a boolean", not_boolean),
+    ]
+
+
+def make_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Names that `symbols.ld` assigns although a unit object defines them."""
+    bss = BssFixture(cfg_dir, parsed)
+    data = DataFixture(cfg_dir, parsed)
+
+    def assigned(fx, text: str, **install):
+        def mutate(copy: Path):
+            fx.install(copy, **install)
+            with open(copy / "symbols.ld", "a") as handle:
+                handle.write(text)
+
+        return mutate
+
+    def table_assignment(copy: Path):
+        assigned(data, f"table = {data.table_address:#x};\n")(copy)
+
+    return [
+        # The declared bss is at the wrong place, but the assignments give the unit's own
+        # variables their old addresses: the link bound them as absolute and the build passed.
+        Case(
+            "symbol-bss-overridden",
+            False,
+            "which unit 'pick' defines",
+            assigned(bss, f"counter = {BSS_ADDRESS:#x}; total = {BSS_ADDRESS + 4:#x};\n", address=BSS_ADDRESS + 0x100),
+        ),
+        Case("symbol-data-overridden", False, "which unit 'pick' defines", table_assignment),
+        Case("symbol-alias-allowed", True, "", assigned(bss, f"counter_alias = {BSS_ADDRESS:#x};\n")),
     ]
 
 
@@ -1107,7 +1267,7 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
                 text=True,
             )
             if diff.returncode != want_status or want_text not in diff.stdout:
-                return False, f"fndiff exit {diff.returncode}, wanted {want_status} with {want_text!r}:\n{diff.stdout[-600:]}"
+                return False, f"fndiff exit {diff.returncode}, wanted {want_status} with {want_text!r}:\n{diff.stdout[-600:]}{diff.stderr[-600:]}"
             message += f"; fndiff reports {want_text}"
         return True, message
     finally:
@@ -1793,6 +1953,64 @@ def make_rodata_unit_cases(parsed: dict) -> list[CacheCase]:
     return [CacheCase(name, body) for name, body in table]
 
 
+def make_symbol_unit_cases(parsed: dict) -> list[CacheCase]:
+    """The check of the linked ELF for the symbols a unit defines, on an authored object."""
+    UnitDecl, FunctionDecl, RodataDecl = matchbuild.UnitDecl, matchbuild.FunctionDecl, matchbuild.RodataDecl
+    text, bss, rodata, data = 0x1000, 0x2000, 0x3000, 0x4000
+    # Each kind holds one word before its symbol, and the second section of a kind follows the first.
+    expected = {"pick": text, "counter": bss + 4, "small": bss + 12, "ro_second": rodata + 4, "rd_second": rodata + 12, "data_second": data + 4}
+
+    def binding_check(root: Path):
+        prefix = parsed["toolchain"]["binutils_prefix"]
+        assembler, linker = shutil.which(prefix + "as"), shutil.which(prefix + "ld")
+        if assembler is None or linker is None:
+            raise SystemExit(f"test setup: {prefix}as and {prefix}ld must be on PATH")
+        (root / "pick.s").write_text(
+            ".set noreorder\n.text\n.globl pick\n.type pick, @function\npick:\n    jr $ra\n    nop\n.size pick, . - pick\n"
+            ".section .rodata\n.word 1\n.globl ro_second\nro_second:\n.word 2\n"
+            '.section .rdata,"a",@progbits\n.word 3\n.globl rd_second\nrd_second:\n.word 4\n'
+            ".data\n.word 5\n.globl data_second\ndata_second:\n.word 6\n"
+            ".bss\n.space 4\n.globl counter\ncounter:\n.space 4\n"
+            '.section .sbss,"aw",@nobits\n.space 4\n.globl small\nsmall:\n.space 4\n'
+        )
+        subprocess.run([assembler, *matchbuild.AS_FLAGS, "-o", str(root / "unit-pick.o"), str(root / "pick.s")], check=True)
+        unit = UnitDecl(
+            "pick", "pick.s", (), (FunctionDecl("pick", text, 8),),
+            rodata=RodataDecl(rodata, 16), data=RodataDecl(data, 8), bss=RodataDecl(bss, 16), kind="asm",
+        )
+        defined = {"pick": matchbuild.defined_symbols(root / "unit-pick.o")}
+        placed = {sym.name: matchbuild.symbol_address(unit, sym) for sym in defined["pick"]}
+        if placed != expected:
+            return f"symbols are placed at {placed}, want {expected}"
+        links = {}
+        for label, assignment in (("clean", ""), ("overridden", f"counter = {bss + 4:#x};\n")):
+            (root / f"{label}.ld").write_text(
+                "OUTPUT_ARCH(mips)\n"
+                + assignment
+                + "SECTIONS {\n"
+                f" .text.pick {text:#x} : SUBALIGN(1) {{ unit-pick.o(.text) }}\n"
+                f" .bss.pick {bss:#x} (NOLOAD) : SUBALIGN(1) {{ unit-pick.o(.bss) unit-pick.o(.sbss) }}\n"
+                f" .rodata.pick {rodata:#x} : SUBALIGN(1) {{ unit-pick.o(.rodata) unit-pick.o(.rdata) }}\n"
+                f" .data.pick {data:#x} : SUBALIGN(1) {{ unit-pick.o(.data) }}\n"
+                " /DISCARD/ : { *(.reginfo) *(.MIPS.abiflags) *(.pdr) *(.gnu.attributes) }\n"
+                "}\n"
+            )
+            proc = subprocess.run(
+                [linker, "-EL", "-T", f"{label}.ld", "-e", f"{text:#x}", "-o", f"{label}.elf", "unit-pick.o"],
+                cwd=root, capture_output=True, text=True,
+            )
+            if proc.returncode != 0:
+                return f"{label}: the authored link failed:\n{proc.stderr}"
+            links[label] = matchbuild.elf_symbol_checks(root / f"{label}.elf", [unit], defined)
+        if links["clean"]:
+            return f"a correctly placed symbol was rejected: {links['clean']}"
+        if len(links["overridden"]) != 1 or "'counter' is bound to" not in links["overridden"][0]:
+            return f"an overridden symbol must be rejected once, naming it: {links['overridden']}"
+        return None
+
+    return [CacheCase("symbol-binding-check", binding_check)]
+
+
 def run_cache_unit_case(case: CacheCase) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory(prefix="mb-cache-unit-") as tmp:
         try:
@@ -1906,7 +2124,7 @@ def main() -> int:
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
     caches = select_cases(make_cache_cases(parsed), args.only)
     units = select_cases(
-        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
+        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

@@ -38,6 +38,8 @@ RODATA_SECTIONS = (".rodata", ".rdata")
 # Sections of each loaded range kind a unit may declare, and the bss sections.
 LOADED_SECTIONS = {"rodata": RODATA_SECTIONS, "data": (".data",)}
 BSS_SECTIONS = (".bss", ".sbss")
+# The object sections a unit owns, per kind, in the order the link places them.
+OWNED_SECTIONS = {"text": (".text",), "rodata": RODATA_SECTIONS, "data": LOADED_SECTIONS["data"], "bss": BSS_SECTIONS}
 DISCARDED_SECTIONS = (".reginfo", ".MIPS.abiflags", ".pdr", ".comment", ".gnu.attributes")
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 TAG_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*\Z")
@@ -134,6 +136,16 @@ class UnitDecl:
     def end(self) -> int:
         last = self.functions[-1]
         return last.address + last.size
+
+
+@dataclasses.dataclass(frozen=True)
+class DefinedSymbol:
+    """A global or weak symbol that a unit object defines."""
+
+    name: str
+    kind: str  # text, rodata, data or bss; "other" for an absolute symbol or any other section
+    section: str  # the object section, "*ABS*" for an absolute symbol
+    offset: int  # within the unit's range of that kind; st_value for "other"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -955,6 +967,89 @@ def check_unit_object(obj_path: Path, unit: UnitDecl) -> list[str]:
     return errors
 
 
+def defined_symbols(obj_path: Path) -> list[DefinedSymbol]:
+    """The global and weak symbols a unit object defines, with their offset in the unit's range of that kind."""
+    found = []
+    with open(obj_path, "rb") as handle:
+        elf = ELFFile(handle)
+        symtab = elf.get_section_by_name(".symtab")
+        if symtab is None:
+            return found
+        sizes = {section.name: section["sh_size"] for section in elf.iter_sections()}
+        for sym in symtab.iter_symbols():
+            index = sym["st_shndx"]
+            if sym["st_info"]["bind"] not in ("STB_GLOBAL", "STB_WEAK") or index in ("SHN_UNDEF", "SHN_COMMON") or not sym.name:
+                continue
+            section = "*ABS*" if index == "SHN_ABS" else (elf.get_section(index).name if isinstance(index, int) else None)
+            kind = next((k for k, names in OWNED_SECTIONS.items() if section in names), "other")
+            if kind == "other":
+                found.append(DefinedSymbol(sym.name, kind, section or str(index), sym["st_value"]))
+                continue
+            names = OWNED_SECTIONS[kind]
+            before = sum(sizes.get(name, 0) for name in names[: names.index(section)])
+            found.append(DefinedSymbol(sym.name, kind, section, sym["st_value"] + before))
+    return found
+
+
+def symbol_address(unit: UnitDecl, sym: DefinedSymbol) -> int | None:
+    """Where the link puts a symbol of the unit, None when its kind is not declared or not owned."""
+    if sym.kind == "text":
+        return unit.start + sym.offset
+    decl = {"rodata": unit.rodata, "data": unit.data, "bss": unit.bss}.get(sym.kind)
+    return None if decl is None else decl.address + sym.offset
+
+
+def symbol_override_errors(units: list[UnitDecl], defined: dict[str, list[DefinedSymbol]], symbol_names: list[str]) -> list[str]:
+    """Names that `symbols.ld` assigns although a unit object defines them."""
+    errors = []
+    assigned = set(symbol_names)
+    for unit in units:
+        for sym in defined.get(unit.name, []):
+            if sym.name in assigned:
+                errors.append(
+                    f"symbols.ld defines {sym.name!r}, which unit {unit.name!r} defines in {sym.section}; "
+                    f"the assignment would override the symbol"
+                )
+    return errors
+
+
+def elf_symbol_checks(elf_path: Path, units: list[UnitDecl], defined: dict[str, list[DefinedSymbol]]) -> list[str]:
+    """Each symbol a unit defines is bound in its output section at the declared address plus its offset."""
+    errors = []
+    with open(elf_path, "rb") as handle:
+        elf = ELFFile(handle)
+        symtab = elf.get_section_by_name(".symtab")
+        # Locals of other units may share a name; only a global or weak symbol takes part in the link.
+        linked = {}
+        if symtab is not None:
+            for sym in symtab.iter_symbols():
+                if sym["st_info"]["bind"] in ("STB_GLOBAL", "STB_WEAK"):
+                    linked[sym.name] = sym
+        for unit in units:
+            for sym in defined.get(unit.name, []):
+                want = symbol_address(unit, sym)
+                if want is None:
+                    continue
+                section = f".{sym.kind}.{unit.name}"
+                got = linked.get(sym.name)
+                if got is None:
+                    where = "missing"
+                elif got["st_shndx"] == "SHN_ABS":
+                    where = f"an absolute address {got['st_value']:#x}"
+                elif not isinstance(got["st_shndx"], int) or elf.get_section(got["st_shndx"]).name != section:
+                    other = elf.get_section(got["st_shndx"]).name if isinstance(got["st_shndx"], int) else got["st_shndx"]
+                    where = f"{other} at {got['st_value']:#x}"
+                elif got["st_value"] != want:
+                    where = f"{section} at {got['st_value']:#x}"
+                else:
+                    continue
+                errors.append(
+                    f"unit {unit.name!r}: symbol {sym.name!r} is bound to {where} in the linked ELF, "
+                    f"expected {section} at {want:#x}"
+                )
+    return errors
+
+
 def elf_function_checks(elf_path: Path, units: list[UnitDecl]) -> list[str]:
     """Each declared function exists in the linked ELF with the declared address and size."""
     errors = []
@@ -995,15 +1090,16 @@ def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, in
 
     entries = [(address, f".raw{index}", f"*(.raw{index})", "") for index, (address, _) in enumerate(ranges)]
     for unit in cfg.units:
-        entries.append((unit.start, f".text.{unit.name}", f"unit-{unit.name}.o(.text)", ""))
+        patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS["text"])
+        entries.append((unit.start, f".text.{unit.name}", patterns, ""))
         for kind, decl in unit.loaded():
-            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in LOADED_SECTIONS[kind])
+            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS[kind])
             # The object may end up to three bytes short of the declared range.
             # Fill to the declared size so that the unit owns the padding.
             entries.append((decl.address, f".{kind}.{unit.name}", f"{patterns} . = {decl.size:#x};", ""))
         if unit.bss is not None:
             # NOLOAD: the section takes no bytes of the flat image.
-            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in BSS_SECTIONS)
+            patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS["bss"])
             entries.append((unit.bss.address, f".bss.{unit.name}", patterns, " (NOLOAD)"))
     entries.sort()
     lines = ["OUTPUT_ARCH(mips)", f'INCLUDE "{cfg.symbols_path}"', "SECTIONS {"]
@@ -1366,6 +1462,10 @@ def build_all(
         failures += check_unit_object(obj, unit)
     if failures:
         return report, failures
+    defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in cfg.units}
+    failures += symbol_override_errors(cfg.units, defined, cfg.symbol_names)
+    if failures:
+        return report, failures
 
     ranges = raw_ranges(cfg.load, cfg.payload_size, cfg.units)
     generate_raw_and_linker(cfg, build, ranges)
@@ -1382,6 +1482,7 @@ def build_all(
     (build / "rebuilt.exe").write_bytes(executable)
 
     failures += elf_function_checks(build / "image.elf", cfg.units)
+    failures += elf_symbol_checks(build / "image.elf", cfg.units, defined)
     comparison = compare_image(image, payload, cfg.load, cfg.units)
     for fn in comparison.functions:
         if not fn.exact:
