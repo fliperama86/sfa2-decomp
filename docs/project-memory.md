@@ -554,6 +554,85 @@ Lessons:
   because the round was planned from a tree older than the retry. Plan rounds
   from the newest tree.
 
+## Nineteenth group: data and assembly owners, the rest of the identified SDK
+
+Counts at this snapshot. No round is in progress.
+
+- 1,331 functions exact. 1,289 come from C, 179,396 bytes. 42 come from
+  assembly, 672 bytes. Units own 236 bytes of read-only data in seven ranges
+  and 4,356 bytes of initialised data in five. 429,740 payload bytes stay
+  raw. About 55 percent of the inventoried resident code bytes: 179,280 of
+  328,096, counting only functions the inventory lists, at its sizes.
+- 57 functions are new: 15 from C and the 42 from assembly. 34 of them came
+  out of the parked pool, where agents had tried the stubs and parts of the
+  interrupt file in C. 5 came from the unattempted ones. 18 have no
+  inventory entry.
+- Parked: 253 functions, about 77 KB (210 game, 43 library). Unattempted: 86
+  functions, about 72 KB (6 game functions of 1,700 bytes and more, 80
+  library). The permutation search has 167 parked functions left to try.
+- By area: 1,087 game functions and 244 library functions are exact.
+
+Build tool, merged:
+
+- Units own initialised data and declare their bss. Units can be written in
+  assembly and are counted apart from C. A C unit with inline assembly is
+  rejected.
+- **A unit owns the symbols its object defines.** The review found a false
+  pass: a unit's bss declared at a wrong address still built exact when the
+  symbol file assigned the unit's own variables their old addresses. The
+  link bound them as absolute and nothing compared the declared range with
+  where the variables really were. The build now rejects any symbol-file
+  name that a unit object defines as a global or weak symbol, and checks in
+  the linked image that each such symbol sits in its unit's range. A second
+  name for the same address stays allowed.
+- The instruction diff reads the data and bss symbols of sibling units from
+  their objects, so it links a unit that uses another unit's variables
+  without a whole-image link.
+
+SDK import:
+
+- Five reference files with data of their own are in as C units: four from
+  the interrupt and vertical-sync code of `libetc` and one from `libsnd`. 27
+  functions. 12 of those were already exact as units written by agents and
+  changed owner to the reference source, which brings the real SDK names.
+- One of the five is the first adapted file. Its code equals the reference.
+  Its version string names an older revision of the file, 1.71 against 1.73
+  in the reference, so the private copy carries this executable's string.
+  That replacement is the only change. The other 19 imported C files are
+  built unchanged. 20 files and 49 functions in total.
+- 42 stubs are assembly units of four instructions, 16 bytes each: 40 jump
+  into the BIOS through its three call tables, 2 are system calls. In the
+  reference each is a C file holding one macro that expands to inline
+  assembly. The assembly source here is generated from the macro's
+  arguments. The function inventory lists the BIOS stubs as 12 bytes: the
+  closing `nop` is part of the stub in the reference macro and the unit owns
+  it.
+- Every reference file that was identified as a whole object is now in the
+  build. What remains of the library needs adapted source.
+- **Correction to the eighteenth group.** The files with data did not fail
+  for a compiler crash here. With the pinned compiler as the default, four
+  of the five built and matched at once. The fifth failed twice for other
+  reasons: the import had not copied a header it includes from another
+  library's directory, and then its version string differed. The crash of
+  the native macOS compiler on these files was not examined again.
+
+Second working machine:
+
+- Since 2026-10-03 the work also runs on the Linux host that holds the
+  pinned compiler. There it is the default compiler, with no remote step and
+  no float restriction. Both machines produce the same image.
+- The build-tool suite adds its two float cases only where the default
+  compiler is marked `no_float`. A full run is therefore two cases smaller
+  on the Linux host. State which machine a case count comes from.
+
+Lessons:
+
+- A count of test cases is a property of the configuration, not only of the
+  code. The reviewer's count and the local one differed by the two float
+  cases.
+- An override in the symbol file is silent for data just as it is for
+  functions. The earlier lesson covered functions only.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

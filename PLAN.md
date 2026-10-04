@@ -20,17 +20,19 @@ is required to finish this selected target unless explicitly added.
 
 - Static baseline audit and resident-code load mapping exist. All 260 disc
   files are pinned by hash in a private manifest derived from the disc image.
-- 1,274 functions match exactly from C: 176,328 bytes, plus 68 bytes of
-  read-only data in four owned ranges. 22 of them are Sony SDK library
-  functions built from a public reconstruction of the SDK.
+- 1,331 functions match exactly: 1,289 from C (179,396 bytes) and 42 BIOS and
+  system call stubs from assembly (672 bytes). Units also own 236 bytes of
+  read-only data in seven ranges and 4,356 bytes of initialised data in five.
+  49 of the C functions are Sony SDK library functions built from a public
+  reconstruction of the SDK, and the stubs are generated from its macros.
 - The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
   executable byte-identically from declared owners. C units link at original
-  addresses; the other 438,004 payload bytes are retained raw and counted
+  addresses; the other 429,740 payload bytes are retained raw and counted
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
-- No whole-program source inventory, overlay coverage, data ownership, rebuilt
-  disc, or live-gameplay observations are claimed.
+- No whole-program source inventory, overlay coverage, ownership of game data,
+  rebuilt disc, or live-gameplay observations are claimed.
 - The repository's public-facing files are documentation and safe tooling.
   Current execution commands require the ignored private workspace.
 
@@ -52,8 +54,8 @@ C or intentional changes require separate behavioral tests and clear labels.
 | --- | --- | --- |
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; static [overlay map](ps1/docs/overlays.md); loader confirmation and boundaries open |
-| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image and code ranges; data, assembly owners and overlays planned |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,274 functions; expanding |
+| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners; overlays planned |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,331 functions (1,087 game, 244 library); expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 

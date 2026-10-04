@@ -47,7 +47,7 @@ PS-X EXE header. Every payload byte has exactly one owner.
 - **rodata**: the read-only data of a unit, for example the jump table of a
   `switch`. A unit may declare one range for it with `rodata = { address, size }`.
   The range need not be near the text. The unit owns it and it is compared with
-  the baseline like a function. Read-only data is the only data a unit can own.
+  the baseline like a function.
   The declared size is a whole number of words. An object whose read-only data
   ends one to three bytes short of a word is accepted: the link fills the range
   to its declared size with zero bytes, the unit owns that padding, and it is
