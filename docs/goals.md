@@ -124,6 +124,12 @@ payloads, accurate source coverage, and retained human/AI refinements.
   units the search had already matched. With it and a sixth permutation
   sweep: 15 more functions. 1,515 functions exact: 1,462 from C, 236,724
   bytes, and 53 from assembly. 1,167 of the 1,302 inventoried game functions.
+- Library functions that already compiled exact were not imported, because
+  each shared a message string with a neighbour or sat in a file whose
+  function order differs here. With that solved, and two functions written
+  that the reconstruction lacks: 30 more functions. 1,545 functions exact,
+  1,492 from C, 243,804 bytes, and 53 from assembly. 315 of the 347
+  inventoried library functions are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -143,8 +149,9 @@ See the project memory for the current counts of unattempted and parked
 functions; they change with every round.
 
 1. The rest of the library. A first pass of adaptation is done. Open there:
-   about 30 functions that still differ from the adapted reference, the
-   functions the reference does not have, and three questions that need a
+   32 inventoried functions, 9 of them parked: 25 whose adapted source
+   still differs, seven that have no source yet, and three questions that
+   need a
    decision, listed in the project memory: an object that looks assembled
    by another assembler, struct copies that the image does through a call,
    and loads that only a volatile field reproduces.
