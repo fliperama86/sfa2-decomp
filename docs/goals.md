@@ -91,6 +91,12 @@ payloads, accurate source coverage, and retained human/AI refinements.
   code. 28 more functions. 1,385 functions exact: 1,343 from C, 200,332
   bytes, and 42 from assembly. About 61 percent of the inventoried resident
   code bytes.
+- Reference files adapted to this SDK version by agents, one library area
+  each, against a checker that compares every function with the image. 34
+  more functions, and seven more files that are whole. 1,419 functions
+  exact: 1,377 from C, 214,556 bytes, and 42 from assembly, plus 1,456
+  bytes of read-only data and 5,084 bytes of initialised data. About 65
+  percent of the inventoried resident code bytes.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -109,16 +115,13 @@ The sweep of small functions is done. What remains in the resident image:
 See the project memory for the current counts of unattempted and parked
 functions; they change with every round.
 
-1. Library files that were identified only in part: adapt the reference
-   source to this SDK version, one file per agent, as whole-object units.
-   Every file identified as a whole is in the build, and so is every run of
-   exact functions from the partly identified files that have no writable
-   data or whose adapted copy offers its data as external. Look for a
-   regular difference first, such as a struct of another size: one adapted
-   header was worth 28 functions. What remains needs work on the source:
-   functions that differ from the reference, functions the reference does
-   not have, and five files with writable data that are not adapted yet.
-2. Continue the permutation search over the parked pool. 159 parked
+1. The rest of the library. A first pass of adaptation is done. Open there:
+   about 30 functions that still differ from the adapted reference, the
+   functions the reference does not have, and three questions that need a
+   decision, listed in the project memory: an object that looks assembled
+   by another assembler, struct copies that the image does through a call,
+   and loads that only a volatile field reproduces.
+2. Continue the permutation search over the parked pool. 151 parked
    functions have not been tried yet. Then a second, different attempt on what remains.
 3. Six game functions of 1,700 to 2,400 bytes have not been attempted.
 4. Replace `func_<address>` names where several units agree on a role, turn
