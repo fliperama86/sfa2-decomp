@@ -1343,6 +1343,115 @@ Lessons:
 - A masked comparison proves the instructions, not which symbol an address
   field names. Names need their own check, also for functions.
 
+## Twenty-ninth group: the CD file whole, a wave of one-function packages
+
+Counts at this snapshot. The seventh permutation sweep over the parked game
+functions is still running and is not part of these counts.
+
+- 1,554 functions exact. 1,501 come from C, 254,744 bytes, and 53 from
+  assembly, 1,040 bytes. Units own 2,264 bytes of read-only data in 18
+  ranges and 5,900 bytes of initialised data in eight. 350,452 payload bytes
+  stay raw. About 77 percent of the inventoried resident code bytes: 252,348
+  of 328,096, counted as before.
+- 9 functions are new, 10,940 bytes, all library and all in the inventory.
+- Against the inventory: 324 of its 347 library functions are exact, 75,388
+  of 87,896 bytes. Game functions are unchanged: 1,167 of 1,302. By area the
+  count is 1,168 game functions and 386 library functions.
+- Parked: 144 functions, about 64 KB (135 game, 9 library). Unattempted by
+  the counting rule: 14 functions, about 11 KB, all library. Each of the 14
+  has a candidate in an adapted library file that still differs; the rule
+  calls a function parked only when its candidate sits in the parked pool.
+- 253 C functions sit in SDK units.
+
+Correction to the twenty-eighth group: it said that seven library functions
+had no source and 25 had an adapted source that differed. Two of the 25 had
+no source either. Their nearest match named two reference functions that are
+exact elsewhere in the image; the two are variants for another file format
+that the reconstruction does not have. Nine had no source, 23 had one.
+
+The CD file, two functions and the file's data:
+
+- The interrupt routine was one instruction too long. Its local buffer is
+  `volatile` in the reconstruction and is not here: a plain load needs no
+  separate zero extension.
+- The read-wait routine had two saved registers swapped. Returning the
+  result inside the loop instead of after it made it exact. The compiler
+  weights each use of a value by loop depth when it hands out saved
+  registers, so where the last read sits decides.
+- Data layout of this SDK version: the read state table is initialised data
+  and follows the interrupt state, two byte variables are in the other
+  order, one table entry differs, and the init structure has five pointers
+  and no version string. With that the file is one unit: 18 functions, 576
+  bytes of read-only data, 816 bytes of data. The message strings that
+  parts had to name are owned by the file again.
+- Four variables of the file are common symbols. The original linker put
+  them in the common area, which lies inside the zero-filled end of the
+  executable. The build tool does not allow a unit bss range there, so the
+  file names the four and the link places them by address.
+
+A wave of ten packages, one function or one file each, seven exact:
+
+- The two sound fade routines. This SDK version has them at 1,404 and 1,200
+  bytes; the reconstruction has small later forms. Each does both
+  directions here. The names follow the order in which their caller calls
+  them, which is the only evidence for which is which.
+- One SPU function: a value stored through a local, so that the compiler
+  merges two stores.
+- Four functions that had no source at all, written as address-named units:
+  4,480, 684, 408 and 352 bytes. The largest is a decoder of drawing
+  primitives with debug output, not the text formatter it was taken for.
+  Roles are the agents' readings, not verified names.
+- Each of the seven took an agent one to four minutes. Three of the four
+  without a source were exact at the first build.
+- Not exact: the sound data-entry routine (29 slots; the original frame is
+  24 bytes larger with space that is never accessed), the two variants
+  mentioned in the correction (written new; 40 and 23 slots), a voice
+  allocation routine (the image reloads a global inside a loop that has no
+  store and no call) and a volume routine (order of three saved registers).
+
+Questions that need the owner, now four:
+
+- New: the original assembler puts a delay instruction between a load into
+  a register and a following load of a constant into the same register. The
+  pinned assembler emulation does not. One SPU function differs only by
+  that instruction. Tested in a scratch copy with a one-line rule: that
+  function becomes exact and all 1,547 functions that were exact stay
+  exact; the pattern occurs nowhere else in the tree. Upstream has no such
+  rule. Taking it needs a way to carry a patch for the pinned tool.
+- Unchanged: struct copies that the image does through a call, loads that
+  only a volatile field reproduces, and the object that looks assembled by
+  another assembler.
+
+An observation about the raw count:
+
+- The last 176,124 bytes of the payload, from 0x80183904, are zero. The
+  uninitialised area of the program lies inside the file. Those bytes are
+  counted as raw today, about half of all raw bytes. A unit cannot declare
+  a bss range there. Counting that area by itself would need a change to
+  the build tool and is not designed yet.
+
+Tools and method, all private:
+
+- A helper tries several complete bodies for one library function through
+  the file checker and restores the file. Thousands of variants are not
+  needed: five to twenty pointed ones decided every function above.
+- A second brief for library agents lists the source forms that decided
+  functions, and makes the shared header read-only while several agents
+  work in one library.
+
+Lessons:
+
+- **Small packages with pointed context work.** One function per agent, the
+  known residual and the neighbours to read in the prompt: seven of ten in
+  minutes. The earlier per-library packages left exactly these functions.
+- A near match that names a reference function which is exact elsewhere is
+  another function. Check before counting it as an adapted source.
+- A `volatile` in the reconstruction describes a later SDK version. Test
+  the function without it before anything else when one instruction is
+  extra after a load.
+- When the roles of two saved registers are swapped, look at which uses sit
+  inside which loop before permuting declarations.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
