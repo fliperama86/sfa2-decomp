@@ -24,7 +24,15 @@ from capstone import CS_ARCH_MIPS, CS_MODE_LITTLE_ENDIAN, CS_MODE_MIPS32, Cs
 from elftools.elf.elffile import ELFFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from matchbuild import DISCARDED_SECTIONS, RODATA_SECTIONS, ConfigError, load_config  # noqa: E402
+from matchbuild import (  # noqa: E402
+    BSS_SECTIONS,
+    DISCARDED_SECTIONS,
+    LOADED_SECTIONS,
+    ConfigError,
+    defined_symbols,
+    load_config,
+    symbol_address,
+)
 
 
 def words(data: bytes) -> list[bytes]:
@@ -37,17 +45,32 @@ def link_alone(cfg, unit, build: Path) -> Path:
     if not obj.is_file():
         raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
     others = [fn for other in cfg.units if other.name != unit.name for fn in other.functions]
+    assigned = {fn.name for fn in others}
+    siblings = []
+    for other in cfg.units:
+        sibling = build / f"unit-{other.name}.o"
+        if other.name == unit.name or not sibling.is_file():
+            continue
+        # Variables and tables of a sibling sit at its declared ranges plus their offset in its object.
+        for sym in defined_symbols(sibling):
+            address = symbol_address(other, sym)
+            if address is not None and sym.name not in assigned:
+                assigned.add(sym.name)
+                siblings.append((sym.name, address))
     script = build / f"unit-{unit.name}.fndiff.ld"
-    rodata = ""
-    if unit.rodata is not None:
-        # Jump-table addresses in the code depend on where the table sits.
-        rodata = f" .rodata {unit.rodata.address:#x} : SUBALIGN(1) {{ " + " ".join(f"*({s})" for s in RODATA_SECTIONS) + " }\n"
+    placed = ""
+    for kind, decl in unit.loaded():
+        # Addresses of tables and variables in the code depend on where they sit.
+        placed += f" .{kind} {decl.address:#x} : SUBALIGN(1) {{ " + " ".join(f"*({s})" for s in LOADED_SECTIONS[kind]) + " }\n"
+    if unit.bss is not None:
+        placed += f" .bss {unit.bss.address:#x} (NOLOAD) : SUBALIGN(1) {{ " + " ".join(f"*({s})" for s in BSS_SECTIONS) + " }\n"
     script.write_text(
         f'INCLUDE "{cfg.symbols_path}"\n'
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
+        + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
-        + rodata
+        + placed
         + " /DISCARD/ : { " + " ".join(f"*({s})" for s in DISCARDED_SECTIONS) + " *(.note*) }\n"
         + "}\n"
     )

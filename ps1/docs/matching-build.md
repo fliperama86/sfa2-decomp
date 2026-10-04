@@ -52,20 +52,60 @@ PS-X EXE header. Every payload byte has exactly one owner.
   ends one to three bytes short of a word is accepted: the link fills the range
   to its declared size with zero bytes, the unit owns that padding, and it is
   compared with the baseline like the rest of the range.
+- **data**: the initialised writable data of a unit, its `.data` section. A
+  unit may declare one range for it with `data = { address, size }`. The rules
+  are those of rodata: the unit owns the range, it is compared with the
+  baseline, the declared size is a whole number of words, and an object that
+  ends one to three bytes short is filled with zero bytes that the unit owns.
+- **bss**: the uninitialised data of a unit, its `.bss` and `.sbss` sections. A
+  unit may declare one range for it with `bss = { address, size }`. The range
+  lies outside the payload, so there are no bytes to compare and it adds
+  nothing to coverage. Declaring it fixes where the unit's uninitialised
+  symbols live, which the code that refers to them depends on.
+- **asm**: a unit written in assembly, `kind = "asm"`. It is for code whose
+  original source was assembly, such as the system-call stubs of the SDK. It is
+  assembled directly and checked like any unit, and its functions are reported
+  as assembly, never as C. See "Assembly units".
 - **raw**: retained baseline bytes. Raw ranges are never declared. They are
-  computed as the complement of all text ranges and all rodata ranges, so a gap
+  computed as the complement of all text, rodata and data ranges, so a gap
   cannot silently count as recovered source.
-- **asm**: reserved for reviewed assembly owners. Not implemented yet.
 
 The 2,048-byte PS-X EXE header is retained from the baseline and reported as
 raw.
 
 Rejected before any compilation: overlapping units, ranges outside the payload,
-addresses or sizes that are not multiples of four, zero sizes, a rodata range
-that overlaps any text range (including its own unit's) or any other rodata
-range, duplicate function or unit names, a gap between functions of one unit, and any name in
+addresses or sizes that are not multiples of four, zero sizes, a rodata or data
+range that overlaps any text range (including its own unit's) or any other
+rodata or data range, a bss range that touches the payload or overlaps another
+bss range, an unknown `kind`, an assembly unit with `flags`,
+duplicate function or unit names, a gap between functions of one unit, and any name in
 `symbols.ld` that is also a declared unit function. The last rule matters
 because a linker-script assignment would silently override the compiled symbol.
+
+### Symbols a unit defines
+
+A unit owns every symbol its object defines with global or weak binding: its
+functions, and the variables and tables in its read-only data, data and bss.
+Such a symbol lives at the unit's declared range of that kind plus the
+symbol's offset in the object. Where one kind is made of two object sections
+(`.rodata` then `.rdata`, `.bss` then `.sbss`), the second follows the first
+directly, as the link places them.
+
+`symbols.ld` must not assign any of those names. The assignment would win at
+the link: the symbol would become an absolute address and the declared range
+would no longer be where the code's variable lives, while the build could still
+compare equal. The rule for declared functions above is the part of this that
+can be checked before compilation. The rest needs the objects, so it is checked
+after every unit object passed its own checks and before the link, and a
+collision fails the build with exit status 1 and a message naming the symbol,
+the unit and the object section.
+
+A different name at the same address stays allowed. `symbols.ld` may give an
+address that a unit owns a second name, as long as the name itself is not one
+the unit defines.
+
+Local symbols (`static`) are outside the rule: a linker-script assignment
+cannot rebind them.
 
 ## Configuration
 
@@ -116,6 +156,18 @@ functions = [
 # Optional. The one range that holds the unit's read-only data, for example a
 # jump table. Address and size are multiples of four.
 rodata = { address = 0x80001000, size = 24 }
+# Optional. The unit's initialised data (.data) and where its uninitialised
+# data (.bss, .sbss) lives. Same form and alignment rules as rodata.
+data = { address = 0x80002000, size = 16 }
+bss = { address = 0x80300000, size = 8 }
+
+[[unit]]
+name = "stubs"
+kind = "asm"               # optional, "c" by default
+source = "stubs.s"
+functions = [
+  { name = "stub", address = 0x80000004, size = 16 },
+]
 ```
 
 `symbols.ld` sits next to `build.toml`, holds lines of the form
@@ -133,6 +185,28 @@ and in the listed order. A listed directory that does not exist, or one listed
 twice, is a configuration error. So is a file in one of them named like the
 generated types header. Their content needs no separate hash: the
 preprocessed text of each unit already covers every header it includes.
+
+## Assembly units
+
+A unit with `kind = "asm"` names an assembly file in GNU assembler syntax. It
+is not preprocessed, compiled or passed through maspsx: it is assembled with
+the same assembler and flags as every other unit. It has no `flags` key. Each
+declared function must be a symbol of the object with its size set, as for a C
+unit, so the source marks it with `.type name, @function` and `.size`.
+Everything after assembly is the same: the object checks, the link at the
+declared address, the comparison with the baseline and the controls. An
+assembly unit may declare `rodata`, `data` and `bss` like a C unit.
+
+Assembly units are not cached. They take one assembler run.
+
+Accounting keeps the two kinds apart. The functions and bytes of assembly
+units are reported as `asm_functions` and `asm_bytes` and are not part of
+`c_functions` and `c_bytes`. The summary names them separately.
+
+A C unit must not hide assembly. After string and character literals are
+blanked, a preprocessed C unit that contains the token `asm`, `__asm` or
+`__asm__` fails the build with a message naming the unit. Code that was
+assembly goes into an assembly unit.
 
 ## Shared types
 
@@ -237,11 +311,20 @@ working on one area; only a run without it is the full control set.
 
 `fndiff.py` is a diagnostic for a unit that does not match yet. It links the
 unit object left by the last build alone at the unit's start address, with its
-read-only data at the declared rodata address so that jump-table addresses in
-the code come out right, and prints
+read-only data, data and bss at their declared addresses so that the addresses
+in the code come out right, and prints
 an aligned instruction diff against the baseline range. It works when sizes are
 wrong and the whole-image link was never reached. It decides nothing:
 `matchbuild.py` remains the only authority on whether a build is exact.
+
+Symbols of the other units are given to that link as addresses. Their declared
+functions come from the configuration, as before. Every other global or weak
+symbol a sibling unit defines is read from the sibling's object in the same
+build directory and placed by the rule in "Symbols a unit defines": declared
+range of its kind plus offset. This needs no linked image and no entry in
+`symbols.ld`. A sibling without an object there, or a symbol whose kind the
+sibling does not declare, contributes nothing, and a reference to it fails the
+link with the linker's message.
 
 Exit status: 0 all checks passed, 1 failed check or build step, 2 invalid
 configuration, 3 unusable environment such as a missing SSH master.
@@ -272,15 +355,19 @@ runs is the unit object cache, described after the steps.
    text range. Read-only data (`.rodata` and `.rdata`, added together), rounded
    up to a multiple of four, must equal the declared `rodata` size; a unit that
    declares none must have none, and a unit that declares a range must have data
-   for it. Any other
-   non-empty allocated section (`.data`, `.bss`, `.sdata`) and any common symbol
-   is rejected, because that data would have no owner. This compiler puts a
-   jump table in `.rodata`.
+   for it. The same holds for `.data` against `data` and for `.bss` plus `.sbss`
+   against `bss`. Any other non-empty allocated section (for example `.sdata`)
+   and any common symbol is rejected, because that data would have no owner.
+   This compiler puts a jump table in `.rodata`. maspsx turns the compiler's
+   `.comm` and `.lcomm` into definitions in `.bss`, as the original assembler
+   did, so an uninitialised global of a unit is part of its bss range.
 5. Generate `raw.s` with one section per raw range using `.incbin` on the
    extracted payload, and `link.ld` placing every range at its explicit address
    in address order. A unit's read-only data is its own output section at the
    declared rodata address, placed the same way as text and filled with zero
-   bytes up to the declared size. Raw ranges exclude it. Link with undefined symbols as errors.
+   bytes up to the declared size. Its `.data` is placed the same way at the
+   declared data address. Its bss is an output section at the declared bss
+   address that occupies no bytes of the image. Raw ranges exclude it. Link with undefined symbols as errors.
 6. Convert the ELF to a flat image. Rebuilt executable is baseline header plus
    image.
 
@@ -292,7 +379,7 @@ JSON file with the object's SHA-256 and the key inputs in readable form. A hit
 skips those three steps for that unit and copies the three files into the build
 directory under their usual names.
 
-The declared rodata range is not in the key. It does not change the object: the
+The declared rodata, data and bss ranges are not in the key. It does not change the object: the
 assembler leaves the table's address to the linker, so a different range gives
 the same bytes. The object checks that use the range (step 4) run on hits too.
 
@@ -364,6 +451,20 @@ All fail closed with a non-zero exit status.
   declared `rodata` size, and the rodata range of the image, padding included,
   equals the baseline range. A difference fails the
   build with a message naming the unit's rodata and the first differing offset.
+- The same two checks for `.data` against the declared `data` range, with
+  messages that say `data`.
+- Each unit's bss size, rounded up to a multiple of four, equals its declared
+  `bss` size. In the linked ELF the unit's bss section starts at the declared
+  address.
+- No name assigned in `symbols.ld` is a global or weak symbol defined by a
+  unit object. Checked before the link.
+- In the linked ELF, every global or weak symbol that a unit object defines in
+  its text, read-only data, data or bss is bound inside that unit's output
+  section of that kind, at the declared address of the kind plus the symbol's
+  offset in the object. A symbol that is absolute, missing, in another section
+  or at another address fails the build with a message naming the unit, the
+  symbol and both locations. This repeats the rule above on the result of the
+  link, so the rule does not depend on how an override was written.
 - Image size and SHA-256 equal the baseline payload. Rebuilt executable SHA-256
   equals the baseline executable.
 - Comparator controls on every successful build: flipping one byte inside each
@@ -372,7 +473,43 @@ All fail closed with a non-zero exit status.
   fails the build. When units own the whole payload there is no raw byte to
   flip: the raw control is recorded as not applicable and the function controls
   stay mandatory. Flipping one byte inside each rodata range must make exactly
-  that unit's rodata fail and no function fail.
+  that unit's rodata fail and no function fail. Flipping one byte inside each
+  data range must make exactly that unit's data fail, and nothing else.
+
+For data, bss and assembly units `test_matchbuild.py` requires failure for: a
+unit with `.data` and no `data`; a `data` range of the wrong size, alignment or
+address, one whose baseline byte differs, one that overlaps a text, rodata or
+other data range or lies outside the payload, and one declared by a unit that
+has no `.data`; a unit with bss and no `bss`; a `bss` range of the wrong size,
+one that touches the payload, one that overlaps another bss range, one
+declared by a unit that has none, and one at the wrong address, which shows as
+differing code; an unknown `kind`; an assembly unit with `flags`; a C unit
+that contains inline assembly; and an assembly unit with one changed
+instruction. It requires success, with the report checked, for: a unit with
+declared data, with coverage, the data record and a tripped data control; data
+that ends short of a word; a unit with declared bss that its code refers to;
+and an assembly unit next to a C unit, whose functions count as assembly and
+not as C and whose control trips. `test_mergeunits.py` requires that `kind`,
+`data` and `bss` of a new unit table survive a merge unchanged.
+
+For symbol ownership it requires failure for: a bss range declared at another
+address while `symbols.ld` assigns the unit's two bss variables their old
+addresses, which built and passed before the rule existed; and a data variable
+of a unit assigned in `symbols.ld` at its correct address. It requires success
+for a second name in `symbols.ld` at the address of a unit's bss variable. A
+unit case assembles an authored object with a symbol in every owned kind,
+including the second section of read-only data and of bss, and requires the
+addresses computed for them. It then links the object twice with a
+hand-written script, once clean and once with an assignment that overrides
+its bss symbol, and requires the check of the linked ELF to accept the first,
+which confirms the computed addresses against the linker, and to reject the
+second.
+
+For `fndiff.py` it uses a fixture of two units, where one owns a data variable
+and a bss variable and the other's function reads the first and updates the
+second. It requires the whole build to pass and the diff of the using unit to
+report identical code, and, with that unit's size declared wrong so that the
+build stops before the link, the diff to still link and report different code.
 
 `test_matchbuild.py` runs the tool against temporary copies of the private
 configuration and requires failure for: the `[selftest]` source mutation, a
@@ -408,14 +545,18 @@ fail, as must a differing output and an empty selection.
   unit's preprocessed text, which covers included headers;
 - tools: which compiler was used, paths, versions, pinned hashes and commits;
 - per unit and function: addresses, sizes, exact or not, hashes;
+- per unit `kind` (`c` or `asm`);
 - per unit rodata: address, size, exact or not, first differing offset, hashes;
+- per unit data: the same record as rodata; per unit bss: address and size;
 - `inputs.include_dirs` and `inputs.maspsx_flags`: the include directories and
   the maspsx options the build used;
 - per unit cache state (`hit`, `miss` or `off`) and key, with totals in the
   text summary, for example `cache: 118 hits, 2 misses`;
-- coverage in bytes by owner kind (`c_bytes` for code, `rodata_bytes`, raw),
-  plus the function count owned by C. Retained raw bytes exclude rodata. The
-  summary line shows the rodata bytes;
+- coverage in bytes by owner kind (`c_bytes` and `asm_bytes` for code,
+  `rodata_bytes`, `data_bytes`, raw), plus the function counts `c_functions`
+  and `asm_functions`. Retained raw bytes exclude rodata and data. `bss_bytes`
+  is recorded next to coverage and is not part of it. The summary line shows
+  C, assembly, rodata, data and raw;
 - overall `exact` flag, image and executable hashes, control results.
 
 ## Baseline manifest
@@ -454,7 +595,7 @@ new `type` or a struct with no fields is kept. A unit that drops a base type,
 struct or field is a conflict. `symbols.ld` keeps the base text and appends each unit's new
 statements; the same name with two values is a conflict, and two names for one
 value is a warning. A symbol that a merged unit now defines is dropped. New
-`[[unit]]` tables are appended, including a `rodata` key, which is written back as
+`[[unit]]` tables are appended, including `kind` and the `rodata`, `data` and `bss` keys, which are written back as
 `rodata = { address = 0x..., size = N }`; a changed base table or a repeated unit name
 is a conflict. New files are copied. A base file that a unit changed is a
 conflict unless named with `--take`. A path that is a file in one place and a
@@ -469,7 +610,6 @@ and `--out` does not exist. The merged directory then has to pass
 
 ## Limits
 
-No data ownership other than one read-only data range per unit, no assembly
-owners, no overlay images, no
-incremental builds. Compiler provenance is unchanged from the pilot: a
+One range of each data kind per unit, no overlay images, no incremental
+builds. Compiler provenance is unchanged from the pilot: a
 compatible toolchain, not a uniquely identified original.

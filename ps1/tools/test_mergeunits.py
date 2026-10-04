@@ -48,13 +48,22 @@ sym_b = 0x1004;
 BASE_FIELDS = "struct S size=8\n0x0 u32 a\n"
 
 
-def unit_text(name: str, functions: list[tuple[str, int, int]], rodata: tuple[int, int] | None = None) -> str:
-    lines = [f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = ["-O2", "-G0"]\nfunctions = [']
+def unit_text(
+    name: str, functions: list[tuple[str, int, int]], rodata: tuple[int, int] | None = None, data=None, bss=None, kind=None
+) -> str:
+    if kind is None:
+        lines = [f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = ["-O2", "-G0"]\nfunctions = [']
+    else:
+        lines = [f'[[unit]]\nname = "{name}"\nkind = "{kind}"\nsource = "{name}.c"\nfunctions = [']
     for fn, address, size in functions:
         lines.append(f'  {{ name = "{fn}", address = {address:#x}, size = {size} }},')
     lines.append("]")
     if rodata is not None:
         lines.append(f"rodata = {{ address = {rodata[0]:#x}, size = {rodata[1]} }}")
+    if data is not None:
+        lines.append(f"data = {{ address = {data[0]:#x}, size = {data[1]} }}")
+    if bss is not None:
+        lines.append(f"bss = {{ address = {bss[0]:#x}, size = {bss[1]} }}")
     return "\n".join(lines) + "\n"
 
 
@@ -76,7 +85,7 @@ def make_base(root: Path) -> Path:
 
 
 def make_unit(
-    root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None, rodata=None
+    root: Path, base: Path, name: str, *, functions=(), symbols="", fields="", files=None, rodata=None, data=None, bss=None, kind=None
 ) -> Path:
     """Copy the base, then add one unit the way an agent would."""
     directory = root / name
@@ -85,7 +94,7 @@ def make_unit(
             write(directory, path.relative_to(base).as_posix(), path.read_text())
     if functions:
         with open(directory / "build.toml", "a") as handle:
-            handle.write("\n" + unit_text(name, list(functions), rodata))
+            handle.write("\n" + unit_text(name, list(functions), rodata, data, bss, kind))
     write(directory, f"{name}.c", f"/* {name} */\n")
     with open(directory / "symbols.ld", "a") as handle:
         handle.write(symbols)
@@ -199,6 +208,37 @@ def case_rodata_round_trip(d: Path):
     parsed = tomllib.loads(got)
     if parsed["unit"][1]["rodata"] != {"address": 0x80000800, "size": 24} or "rodata" in parsed["unit"][2]:
         return "parsed rodata differs"
+    return None
+
+
+def case_data_bss_round_trip(d: Path):
+    """The data and bss keys of a unit table survive a merge unchanged."""
+    base = make_base(d)
+    one = make_unit(
+        d, base, "u_one", functions=[("one_fn", 0x80000200, 32)], rodata=(0x80000800, 24),
+        data=(0x80000900, 16), bss=(0x80300000, 8),
+    )
+    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)], kind="asm")
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    got = (d / "out" / "build.toml").read_text()
+    want = (
+        BASE_BUILD
+        + "\n"
+        + unit_text("u_one", [("one_fn", 0x80000200, 32)], (0x80000800, 24), (0x80000900, 16), (0x80300000, 8))
+        + "\n"
+        + unit_text("u_two", [("two_fn", 0x80000300, 8)], kind="asm")
+    )
+    if got != want:
+        return f"build.toml differs:\n{got}"
+    parsed = tomllib.loads(got)
+    if parsed["unit"][1]["data"] != {"address": 0x80000900, "size": 16} or parsed["unit"][1]["bss"] != {"address": 0x80300000, "size": 8}:
+        return "parsed data or bss differs"
+    if "data" in parsed["unit"][2] or "bss" in parsed["unit"][2]:
+        return "a unit without data or bss gained one"
+    if parsed["unit"][2].get("kind") != "asm" or "kind" in parsed["unit"][1]:
+        return "kind did not survive the merge"
     return None
 
 
@@ -490,6 +530,7 @@ def case_success_leaves_no_staging(d: Path):
 CASES = [
     Case("clean-merge", case_clean),
     Case("rodata-round-trip", case_rodata_round_trip),
+    Case("data-bss-round-trip", case_data_bss_round_trip),
     Case("rodata-same-unit-added-twice", case_rodata_changed_in_base_unit),
     Case("symbol-removed-when-unit-defines-it", case_symbol_removed),
     Case("symbol-conflict-between-units", case_symbol_conflict),

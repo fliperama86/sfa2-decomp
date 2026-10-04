@@ -60,6 +60,47 @@ int pick(int a, int b) {
     return a / b;
 }
 """
+# Initialised data, a short data object and an uninitialised global that a function uses.
+DATA_SOURCE = """
+int table[4] = { 3, 5, 7, 11 };
+int pick(int a) {
+    table[1] = a;
+    return table[a & 3];
+}
+"""
+DATA_PADDED_SOURCE = """
+char buf[6] = { 1, 2, 3, 4, 5, 6 };
+char *pick(void) {
+    return buf;
+}
+"""
+BSS_SOURCE = """
+int counter;
+int total;
+int pick(int a) {
+    counter = counter + a;
+    total = total + counter;
+    return total;
+}
+"""
+SIBLING_OWNER_SOURCE = "int datum = 7;\nint counter;\nint owner(void) { return 1; }\n"
+SIBLING_USER_SOURCE = "extern int datum;\nextern int counter;\nint consumer(int a) { counter = counter + datum + a; return counter; }\n"
+ASM_C_SOURCE = "int pick(int a) { return a + 1; }\n"
+ASM_SOURCE = """\
+.set noreorder
+.text
+.globl stub
+.type stub, @function
+stub:
+    addiu $v0, $a0, 1
+    addu  $v0, $v0, $a1
+    jr    $ra
+    nop
+.size stub, . - stub
+"""
+ASM_SIZE = 16
+ASM_KIND = 'kind = "asm"\n'
+BSS_ADDRESS = 0x80300000  # outside the fixture payload
 RODATA_GAP = 0x40  # raw filler between the end of the text and the table
 RODATA_TAIL = 0x20  # raw filler after the table
 FILLER = 0xA5
@@ -245,6 +286,15 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
             + "typedef char selftest_literal_b['.' + '\\'' + 1];\n"
         )
 
+    def add_inline_asm(copy: Path):
+        path = copy / target_unit["source"]
+        path.write_text(path.read_text() + '\n__asm__("nop");\n')
+
+    def asm_in_literals(copy: Path):
+        # The tokens inside string and character literals are data.
+        path = copy / target_unit["source"]
+        path.write_text(path.read_text() + '\ntypedef char selftest_asm_text[sizeof("__asm__ asm __asm")];\n')
+
     include_guard = "#include <selftest_inc.h>\n#ifndef SELFTEST_INC_OK\n#error include directory not used\n#endif\n"
 
     def use_include(copy: Path, listed: bool, body: str = "#define SELFTEST_INC_OK 1\n"):
@@ -342,6 +392,10 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if parsed["toolchain"]["cc1"].get("no_float")
         else []
     )
+    asm_cases = [
+        Case("asm-inline-in-c-unit", False, "inline assembly", add_inline_asm),
+        Case("asm-word-in-literal", True, "", asm_in_literals),
+    ]
     include_cases = [
         Case("include-dir", True, "", lambda c: use_include(c, True)),
         Case("include-dir-not-listed", False, "preprocess", lambda c: use_include(c, False)),
@@ -355,7 +409,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -385,6 +439,7 @@ class RodataFixture:
 
     source = RODATA_SOURCE
     label = "rodata"  # names the throwaway seed builds
+    kind = "rodata"  # the declaration key the fixture exercises: rodata, data or bss
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -401,7 +456,7 @@ class RodataFixture:
         (copy / "symbols.ld").write_text(f"g = {FIXTURE_LOAD + 0x10000:#x};\n")
         executable = fixture_executable(payload)
         (copy / "baseline.bin").write_bytes(executable)
-        ro = "" if rodata is None else f"rodata = {{ address = {rodata[0]:#x}, size = {rodata[1]} }}\n"
+        ro = "" if rodata is None else f"{self.kind} = {{ address = {rodata[0]:#x}, size = {rodata[1]} }}\n"
         (copy / "build.toml").write_text(
             "[baseline]\n"
             'executable = "baseline.bin"\n'
@@ -445,9 +500,10 @@ class RodataFixture:
                 sizes = {sec.name: sec["sh_size"] for sec in ELFFile(handle).iter_sections()}
         finally:
             shutil.rmtree(build, ignore_errors=True)
-        self.object_rodata = sizes.get(".rodata", 0) + sizes.get(".rdata", 0)
+        sections = matchbuild.BSS_SECTIONS if self.kind == "bss" else matchbuild.LOADED_SECTIONS[self.kind]
+        self.object_rodata = sum(sizes.get(name, 0) for name in sections)
         if not sizes.get(".text") or not self.object_rodata:
-            raise SystemExit(f"test setup: the fixture object has no read-only data: {sizes}")
+            raise SystemExit(f"test setup: the fixture object has no {self.kind}: {sizes}")
         self.text_size, self.table = sizes[".text"], (self.object_rodata + 3) // 4 * 4
         build = self._seed(
             f"{self.label}-seed", bytes([FILLER]) * self.payload_size, self.text_size, (self.table_address, self.table)
@@ -464,11 +520,13 @@ class RodataFixture:
 
     @property
     def table_address(self) -> int:
-        return FIXTURE_LOAD + self.text_size + RODATA_GAP
+        return BSS_ADDRESS if self.kind == "bss" else FIXTURE_LOAD + self.text_size + RODATA_GAP
 
     @property
     def payload_size(self) -> int:
-        return self.text_size + RODATA_GAP + self.table + RODATA_TAIL
+        # Bss holds no payload bytes: only raw filler follows the text.
+        table = 0 if self.kind == "bss" else self.table
+        return self.text_size + RODATA_GAP + table + RODATA_TAIL
 
     def install(self, copy: Path, *, address=None, size=None, declare=True, extra="", source=None, baseline=None):
         """Replace the copy with the fixture, with the given declaration."""
@@ -616,6 +674,192 @@ def make_padded_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
+class DataFixture(RodataFixture):
+    """Initialised data, placed away from the text."""
+
+    source = DATA_SOURCE
+    label = "data"
+    kind = "data"
+
+
+class DataPaddedFixture(DataFixture):
+    """Initialised data that ends two bytes short of a word."""
+
+    source = DATA_PADDED_SOURCE
+    label = "datapadded"
+
+
+class BssFixture(RodataFixture):
+    """An uninitialised global that the code refers to, with its bss outside the payload."""
+
+    source = BSS_SOURCE
+    label = "bss"
+    kind = "bss"
+
+
+def make_data_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = DataFixture(cfg_dir, parsed)
+    pad = DataPaddedFixture(cfg_dir, parsed)
+
+    def geometry():
+        fx.prepare()
+        return fx
+
+    def verify_declared(report: dict):
+        cov = report.get("coverage", {})
+        if cov.get("data_bytes") != fx.table or cov.get("rodata_bytes") != 0:
+            return f"coverage data_bytes is {cov.get('data_bytes')}, want {fx.table}: {cov}"
+        if cov.get("c_bytes") != fx.text_size or cov.get("raw_payload_bytes") != RODATA_GAP + RODATA_TAIL:
+            return f"coverage does not split text, data and raw: {cov}"
+        unit = report["units"][0]
+        rec = unit.get("data")
+        if not rec or not rec["exact"] or rec["address"] != fx.table_address or rec["size"] != fx.table or rec["first_diff"] is not None:
+            return f"per-unit data record is wrong: {rec}"
+        if unit.get("rodata") is not None or unit.get("bss") is not None:
+            return f"unit must not report rodata or bss: {unit}"
+        kinds = {c["kind"]: c for c in report["controls"]}
+        for kind in ("function", "data", "raw"):
+            if kind not in kinds or not kinds[kind]["applicable"] or not kinds[kind]["tripped"]:
+                return f"control {kind!r} missing or not tripped: {report['controls']}"
+        return None
+
+    def at(delta: int):
+        return lambda copy: fx.install(copy, address=geometry().table_address + delta)
+
+    def sized(delta: int):
+        return lambda copy: fx.install(copy, size=geometry().table + delta)
+
+    def other_unit(address: int, extra: str = "") -> str:
+        return (
+            '\n[[unit]]\nname = "other"\nsource = "other.c"\nflags = ["-O2"]\n'
+            f'functions = [ {{ name = "other", address = {address:#x}, size = 4 }} ]\n' + extra
+        )
+
+    def other_text(copy: Path):
+        fx.install(copy, extra=other_unit(geometry().table_address))
+
+    def other_data(copy: Path):
+        tail = FIXTURE_LOAD + geometry().payload_size - 4
+        extra = other_unit(tail, f"data = {{ address = {geometry().table_address + 4:#x}, size = 8 }}\n")
+        fx.install(copy, extra=extra)
+
+    def other_rodata(copy: Path):
+        tail = FIXTURE_LOAD + geometry().payload_size - 4
+        extra = other_unit(tail, f"rodata = {{ address = {geometry().table_address + 4:#x}, size = 8 }}\n")
+        fx.install(copy, extra=extra)
+
+    def no_data(copy: Path):
+        fx.install(copy, source="int pick(int a) { return a + 1; }\n")
+
+    def byte_differs(copy: Path):
+        geometry()
+        baseline = bytearray(fx.baseline)
+        baseline[fx.table_address - FIXTURE_LOAD + 8] ^= 0x10
+        fx.install(copy, baseline=bytes(baseline))
+
+    def verify_differs(report: dict):
+        rec = report["units"][0].get("data") if "units" in report else None
+        if not rec or rec["exact"] or rec["first_diff"] != 8:
+            return f"data record should report offset 8: {rec}"
+        if not all(f["exact"] for f in report["units"][0]["functions"]):
+            return "the code must still be exact"
+        return None
+
+    def padded():
+        pad.prepare()
+        if pad.object_rodata % 4 == 0:
+            raise SystemExit(f"test setup: the padded fixture has {pad.object_rodata} bytes of data, a whole number of words")
+        return pad
+
+    def verify_padded(report: dict):
+        rec = report["units"][0].get("data")
+        if not rec or not rec["exact"] or rec["size"] != pad.table or pad.table - pad.object_rodata not in (1, 2, 3):
+            return f"the padded range should be owned and exact: {rec}, object {pad.object_rodata}"
+        if report.get("coverage", {}).get("data_bytes") != pad.table:
+            return f"coverage must count the padding as data: {report.get('coverage')}"
+        return None
+
+    def padding_differs(copy: Path):
+        padded()
+        baseline = bytearray(pad.baseline)
+        baseline[pad.table_address - FIXTURE_LOAD + pad.table - 1] ^= 0x01
+        pad.install(copy, baseline=bytes(baseline))
+
+    return [
+        Case("data-declared", True, "", lambda c: fx.install(c), verify_declared, fndiff=("pick", 0, "IDENTICAL")),
+        Case("data-undeclared", False, "data must be declared", lambda c: fx.install(c, declare=False)),
+        Case("data-size-too-small", False, "data size mismatch", sized(-4)),
+        Case("data-size-too-large", False, "data size mismatch", sized(4)),
+        Case("data-size-misaligned", False, "is not a multiple of four", sized(2)),
+        Case("data-zero-size", False, "size must be greater than zero", lambda c: fx.install(c, size=0)),
+        Case("data-address-wrong", False, "data: bytes differ from baseline", at(8)),
+        Case("data-address-misaligned", False, "is not a multiple of four", at(2)),
+        Case("data-byte-differs", False, "data: bytes differ from baseline at offset 8", byte_differs, verify_differs),
+        Case("data-overlaps-other-text", False, "overlaps the text range of unit 'other'", other_text),
+        Case("data-overlaps-other-data", False, "overlaps the data range of unit 'pick'", other_data),
+        Case("data-overlaps-other-rodata", False, "overlaps the data range of unit 'pick'", other_rodata),
+        Case("data-overlaps-own-text", False, "overlaps its own text range", lambda c: fx.install(c, address=FIXTURE_LOAD + 4)),
+        Case("data-outside-payload", False, "outside the payload", lambda c: fx.install(c, address=FIXTURE_LOAD + geometry().payload_size)),
+        Case("data-declared-but-absent", False, "declares data", no_data),
+        Case("data-padded", True, "", lambda c: padded() and pad.install(c), verify_padded),
+        Case("data-padding-differs", False, "data: bytes differ from baseline", padding_differs),
+        Case("data-padded-one-word-short", False, "data size mismatch", lambda c: padded() and pad.install(c, size=pad.table - 4)),
+    ]
+
+
+def make_bss_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = BssFixture(cfg_dir, parsed)
+
+    def geometry():
+        fx.prepare()
+        return fx
+
+    def verify_declared(report: dict):
+        cov = report.get("coverage", {})
+        if report.get("bss_bytes") != fx.table or "bss_bytes" in cov:
+            return f"bss_bytes must sit next to coverage, not in it: {report.get('bss_bytes')}, {cov}"
+        if cov.get("c_bytes") != fx.text_size or cov.get("raw_payload_bytes") != RODATA_GAP + RODATA_TAIL:
+            return f"bss must add nothing to coverage: {cov}"
+        unit = report["units"][0]
+        if unit.get("bss") != {"address": BSS_ADDRESS, "size": fx.table}:
+            return f"per-unit bss record is wrong: {unit.get('bss')}"
+        if any(c["kind"] == "bss" for c in report["controls"]):
+            return "bss has no control"
+        return None
+
+    def at(delta: int):
+        return lambda copy: fx.install(copy, address=BSS_ADDRESS + delta)
+
+    def sized(delta: int):
+        return lambda copy: fx.install(copy, size=geometry().table + delta)
+
+    def other_bss(copy: Path):
+        tail = FIXTURE_LOAD + geometry().payload_size - 4
+        extra = (
+            '\n[[unit]]\nname = "other"\nsource = "other.c"\nflags = ["-O2"]\n'
+            f'functions = [ {{ name = "other", address = {tail:#x}, size = 4 }} ]\n'
+            f"bss = {{ address = {BSS_ADDRESS + 4:#x}, size = 8 }}\n"
+        )
+        fx.install(copy, extra=extra)
+
+    def no_bss(copy: Path):
+        fx.install(copy, source="int pick(int a) { return a + 1; }\n")
+
+    return [
+        Case("bss-declared", True, "", lambda c: fx.install(c), verify_declared, fndiff=("pick", 0, "IDENTICAL")),
+        Case("bss-undeclared", False, "bss must be declared", lambda c: fx.install(c, declare=False)),
+        Case("bss-size-too-small", False, "bss size mismatch", sized(-4)),
+        Case("bss-size-too-large", False, "bss size mismatch", sized(4)),
+        Case("bss-size-misaligned", False, "is not a multiple of four", sized(2)),
+        Case("bss-zero-size", False, "size must be greater than zero", lambda c: fx.install(c, size=0)),
+        Case("bss-address-wrong", False, "function 'pick': bytes differ from baseline", at(8)),
+        Case("bss-address-misaligned", False, "is not a multiple of four", at(2)),
+        Case("bss-touches-payload", False, "touches the payload", lambda c: fx.install(c, address=FIXTURE_LOAD + 8)),
+        Case("bss-overlaps-other-bss", False, "overlaps the bss range", other_bss),
+        Case("bss-declared-but-absent", False, "declares bss", no_bss),
+    ]
+
+
 class DivisionFixture:
     """One function that divides, followed by raw filler.
 
@@ -689,6 +933,253 @@ class DivisionFixture:
         self.write(copy, self.baseline, self.text_size, expand_div)
 
 
+class AsmFixture:
+    """A C unit followed by an assembly unit, then raw filler.
+
+    The baseline is the image of a seed build over a payload of filler bytes.
+    """
+
+    TAIL = 0x20
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.text_size = 0
+        self.baseline = b""
+
+    @property
+    def payload_size(self) -> int:
+        return self.text_size + ASM_SIZE + self.TAIL
+
+    def write(self, copy: Path, payload: bytes, text_size: int, asm_source: str, extra: str = "", asm_extra: str = ASM_KIND) -> None:
+        (copy / "pick.c").write_text(ASM_C_SOURCE)
+        (copy / "stub.s").write_text(asm_source)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+            + "[[unit]]\n"
+            'name = "pick"\n'
+            'source = "pick.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "pick", address = {FIXTURE_LOAD:#x}, size = {text_size} }} ]\n\n'
+            "[[unit]]\n"
+            'name = "stub"\n'
+            'source = "stub.s"\n'
+            f'functions = [ {{ name = "stub", address = {FIXTURE_LOAD + text_size:#x}, size = {ASM_SIZE} }} ]\n'
+            + asm_extra
+            + extra
+        )
+
+    def _seed(self, name: str, payload: bytes, text_size: int) -> Path:
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        self.write(copy, payload, text_size, ASM_SOURCE)
+        self.last = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("asm-geometry", bytes(64), 4)
+        try:
+            with open(build / "unit-pick.o", "rb") as handle:
+                self.text_size = ELFFile(handle).get_section_by_name(".text")["sh_size"]
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        build = self._seed("asm-seed", bytes([FILLER]) * self.payload_size, self.text_size)
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.payload_size:
+                raise SystemExit(f"test setup: the assembly seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+
+    def install(self, copy: Path, *, asm_source: str = ASM_SOURCE, extra: str = "", asm_extra: str = ASM_KIND) -> None:
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        self.write(copy, self.baseline, self.text_size, asm_source, extra, asm_extra)
+
+
+def make_asm_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = AsmFixture(cfg_dir, parsed)
+
+    def verify_unit(report: dict):
+        kinds = {u["name"]: u.get("kind") for u in report["units"]}
+        if kinds != {"pick": "c", "stub": "asm"}:
+            return f"unit kinds are wrong: {kinds}"
+        cov = report["coverage"]
+        if cov.get("asm_functions") != 1 or cov.get("asm_bytes") != ASM_SIZE or cov.get("c_functions") != 1:
+            return f"assembly accounting is wrong: {cov}"
+        if cov["c_bytes"] != fx.text_size:
+            return f"c_bytes must exclude the assembly unit: {cov}"
+        owned = cov["c_bytes"] + cov["asm_bytes"] + cov["raw_payload_bytes"] + cov["rodata_bytes"] + cov["data_bytes"]
+        if owned != fx.payload_size:
+            return f"coverage does not add up to the payload: {owned} != {fx.payload_size}"
+        if report["cache"]["units"]["stub"] != {"cache": "off", "key": None}:
+            return f"an assembly unit is not cached: {report['cache']['units']['stub']}"
+        if "stub" in report["inputs"]["preprocessed"]:
+            return "an assembly unit is not preprocessed"
+        control = [c for c in report["controls"] if c["kind"] == "function" and c["target"] == "stub"]
+        if len(control) != 1 or not control[0]["tripped"]:
+            return f"function control for the assembly function missing or not tripped: {report['controls']}"
+        return None
+
+    def unknown_kind(copy: Path):
+        fx.install(copy, asm_extra='kind = "pascal"\n')
+
+    return [
+        Case("asm-unit", True, "", lambda c: fx.install(c), verify_unit, fndiff=("stub", 0, "IDENTICAL")),
+        Case("asm-instruction-differs", False, "function 'stub': bytes differ from baseline", lambda c: fx.install(c, asm_source=ASM_SOURCE.replace("$a0, 1", "$a0, 2"))),
+        Case("asm-unit-with-flags", False, "an assembly unit takes no flags", lambda c: fx.install(c, asm_extra=ASM_KIND + 'flags = ["-O2"]\n')),
+        Case("kind-unknown", False, "kind must be 'c' or 'asm'", unknown_kind),
+    ]
+
+
+class SiblingFixture:
+    """Two C units: one owns a data and a bss variable, the other's function uses both.
+
+    The baseline is the image of a seed build over filler bytes. Layout: the
+    owner text, the consumer text, RODATA_GAP filler, the owner data, RODATA_TAIL
+    filler. The owner bss sits at BSS_ADDRESS, outside the payload.
+    """
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.owner_text = self.consumer_text = self.data = self.bss = 0
+        self.baseline = b""
+
+    @property
+    def data_address(self) -> int:
+        return FIXTURE_LOAD + self.owner_text + self.consumer_text + RODATA_GAP
+
+    @property
+    def payload_size(self) -> int:
+        return self.owner_text + self.consumer_text + RODATA_GAP + self.data + RODATA_TAIL
+
+    def write(self, copy: Path, payload: bytes, sizes: tuple[int, int], data, bss, consumer_extra: int = 0) -> None:
+        (copy / "owner.c").write_text(SIBLING_OWNER_SOURCE)
+        (copy / "consumer.c").write_text(SIBLING_USER_SOURCE)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        executable = fixture_executable(payload)
+        (copy / "baseline.bin").write_bytes(executable)
+        owner_text, consumer_text = sizes
+        owned = "".join(
+            f"{kind} = {{ address = {decl[0]:#x}, size = {decl[1]} }}\n" for kind, decl in (("data", data), ("bss", bss)) if decl
+        )
+        (copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+            + "[[unit]]\n"
+            'name = "owner"\n'
+            'source = "owner.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "owner", address = {FIXTURE_LOAD:#x}, size = {owner_text} }} ]\n'
+            + owned
+            + "\n[[unit]]\n"
+            'name = "consumer"\n'
+            'source = "consumer.c"\n'
+            f"flags = [{self.flags}]\n"
+            f'functions = [ {{ name = "consumer", address = {FIXTURE_LOAD + owner_text:#x}, size = {consumer_text + consumer_extra} }} ]\n'
+        )
+
+    def _seed(self, name: str, payload: bytes, sizes: tuple[int, int], data, bss) -> Path:
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        self.write(copy, payload, sizes, data, bss)
+        self.last = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+        shutil.rmtree(copy)
+        shutil.rmtree(cache, ignore_errors=True)
+        return build
+
+    def prepare(self) -> None:
+        if self.baseline:
+            return
+        from elftools.elf.elffile import ELFFile
+
+        build = self._seed("sibling-geometry", bytes(64), (4, 4), None, None)
+        try:
+            found = {}
+            for unit in ("owner", "consumer"):
+                with open(build / f"unit-{unit}.o", "rb") as handle:
+                    found[unit] = {sec.name: sec["sh_size"] for sec in ELFFile(handle).iter_sections()}
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+        self.owner_text, self.consumer_text = found["owner"][".text"], found["consumer"][".text"]
+        self.data = (found["owner"].get(".data", 0) + 3) // 4 * 4
+        self.bss = sum(found["owner"].get(name, 0) for name in matchbuild.BSS_SECTIONS)
+        self.bss = (self.bss + 3) // 4 * 4
+        if not (self.owner_text and self.consumer_text and self.data and self.bss):
+            raise SystemExit(f"test setup: the sibling objects lack text, data or bss: {found}")
+        build = self._seed(
+            "sibling-seed",
+            bytes([FILLER]) * self.payload_size,
+            (self.owner_text, self.consumer_text),
+            (self.data_address, self.data),
+            (BSS_ADDRESS, self.bss),
+        )
+        try:
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != self.payload_size:
+                raise SystemExit(f"test setup: the sibling seed build produced no image:\n{self.last.stdout}")
+            self.baseline = image.read_bytes()
+        finally:
+            shutil.rmtree(build, ignore_errors=True)
+
+    def install(self, copy: Path, *, consumer_extra: int = 0) -> None:
+        self.prepare()
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        self.write(
+            copy,
+            self.baseline,
+            (self.owner_text, self.consumer_text),
+            (self.data_address, self.data),
+            (BSS_ADDRESS, self.bss),
+            consumer_extra,
+        )
+
+
+def make_sibling_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    fx = SiblingFixture(cfg_dir, parsed)
+    return [
+        Case("sibling-data-bss", True, "", lambda c: fx.install(c), fndiff=("consumer", 0, "IDENTICAL")),
+        # The size is wrong, so the build stops before the link; fndiff still links the unit.
+        Case(
+            "sibling-data-bss-before-link",
+            False,
+            "text size mismatch",
+            lambda c: fx.install(c, consumer_extra=4),
+            fndiff=("consumer", 1, "DIFFERENT"),
+        ),
+    ]
+
+
 def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     fx = DivisionFixture(cfg_dir, parsed)
 
@@ -707,6 +1198,36 @@ def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         # The same source without the option: the assembler expands the division its own way.
         Case("expand-div-off", False, "text size mismatch", lambda c: fx.install(c, False)),
         Case("expand-div-not-boolean", False, "'expand_div' must be a boolean", not_boolean),
+    ]
+
+
+def make_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Names that `symbols.ld` assigns although a unit object defines them."""
+    bss = BssFixture(cfg_dir, parsed)
+    data = DataFixture(cfg_dir, parsed)
+
+    def assigned(fx, text: str, **install):
+        def mutate(copy: Path):
+            fx.install(copy, **install)
+            with open(copy / "symbols.ld", "a") as handle:
+                handle.write(text)
+
+        return mutate
+
+    def table_assignment(copy: Path):
+        assigned(data, f"table = {data.table_address:#x};\n")(copy)
+
+    return [
+        # The declared bss is at the wrong place, but the assignments give the unit's own
+        # variables their old addresses: the link bound them as absolute and the build passed.
+        Case(
+            "symbol-bss-overridden",
+            False,
+            "which unit 'pick' defines",
+            assigned(bss, f"counter = {BSS_ADDRESS:#x}; total = {BSS_ADDRESS + 4:#x};\n", address=BSS_ADDRESS + 0x100),
+        ),
+        Case("symbol-data-overridden", False, "which unit 'pick' defines", table_assignment),
+        Case("symbol-alias-allowed", True, "", assigned(bss, f"counter_alias = {BSS_ADDRESS:#x};\n")),
     ]
 
 
@@ -746,7 +1267,7 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
                 text=True,
             )
             if diff.returncode != want_status or want_text not in diff.stdout:
-                return False, f"fndiff exit {diff.returncode}, wanted {want_status} with {want_text!r}:\n{diff.stdout[-600:]}"
+                return False, f"fndiff exit {diff.returncode}, wanted {want_status} with {want_text!r}:\n{diff.stdout[-600:]}{diff.stderr[-600:]}"
             message += f"; fndiff reports {want_text}"
         return True, message
     finally:
@@ -1405,7 +1926,7 @@ def make_rodata_unit_cases(parsed: dict) -> list[CacheCase]:
         only_text = build("t", text)
         both = build("both", text + '.section .rodata,"a"\n.word 1\n.word 2\n' + '.section .rdata,"a"\n.word 3\n')
         rdata = build("rdata", text + '.section .rdata,"a"\n.word 3\n.word 4\n')
-        data = build("data", text + '.section .rodata,"a"\n.word 1\n.data\n.word 9\n')
+        data = build("data", text + '.section .rodata,"a"\n.word 1\n.sdata\n.word 9\n')
         plain = unit("u", load, 8)
         with_ro = lambda n: unit("u", load, 8, (load + 0x100, n))
         checks = [
@@ -1415,7 +1936,7 @@ def make_rodata_unit_cases(parsed: dict) -> list[CacheCase]:
             ("rodata and rdata add up", both, with_ro(12), []),
             ("rodata and rdata wrong total", both, with_ro(8), ["rodata size mismatch"]),
             ("rdata alone", rdata, with_ro(8), []),
-            ("data is still rejected", data, with_ro(4), ["only .text and read-only data"]),
+            ("sdata is still rejected", data, with_ro(4), ["only .text, read-only data, data and bss"]),
         ]
         for label, obj, decl, wanted in checks:
             errors = matchbuild.check_unit_object(obj, decl)
@@ -1430,6 +1951,64 @@ def make_rodata_unit_cases(parsed: dict) -> list[CacheCase]:
         ("rodata-unit-object-checks", object_checks),
     )
     return [CacheCase(name, body) for name, body in table]
+
+
+def make_symbol_unit_cases(parsed: dict) -> list[CacheCase]:
+    """The check of the linked ELF for the symbols a unit defines, on an authored object."""
+    UnitDecl, FunctionDecl, RodataDecl = matchbuild.UnitDecl, matchbuild.FunctionDecl, matchbuild.RodataDecl
+    text, bss, rodata, data = 0x1000, 0x2000, 0x3000, 0x4000
+    # Each kind holds one word before its symbol, and the second section of a kind follows the first.
+    expected = {"pick": text, "counter": bss + 4, "small": bss + 12, "ro_second": rodata + 4, "rd_second": rodata + 12, "data_second": data + 4}
+
+    def binding_check(root: Path):
+        prefix = parsed["toolchain"]["binutils_prefix"]
+        assembler, linker = shutil.which(prefix + "as"), shutil.which(prefix + "ld")
+        if assembler is None or linker is None:
+            raise SystemExit(f"test setup: {prefix}as and {prefix}ld must be on PATH")
+        (root / "pick.s").write_text(
+            ".set noreorder\n.text\n.globl pick\n.type pick, @function\npick:\n    jr $ra\n    nop\n.size pick, . - pick\n"
+            ".section .rodata\n.word 1\n.globl ro_second\nro_second:\n.word 2\n"
+            '.section .rdata,"a",@progbits\n.word 3\n.globl rd_second\nrd_second:\n.word 4\n'
+            ".data\n.word 5\n.globl data_second\ndata_second:\n.word 6\n"
+            ".bss\n.space 4\n.globl counter\ncounter:\n.space 4\n"
+            '.section .sbss,"aw",@nobits\n.space 4\n.globl small\nsmall:\n.space 4\n'
+        )
+        subprocess.run([assembler, *matchbuild.AS_FLAGS, "-o", str(root / "unit-pick.o"), str(root / "pick.s")], check=True)
+        unit = UnitDecl(
+            "pick", "pick.s", (), (FunctionDecl("pick", text, 8),),
+            rodata=RodataDecl(rodata, 16), data=RodataDecl(data, 8), bss=RodataDecl(bss, 16), kind="asm",
+        )
+        defined = {"pick": matchbuild.defined_symbols(root / "unit-pick.o")}
+        placed = {sym.name: matchbuild.symbol_address(unit, sym) for sym in defined["pick"]}
+        if placed != expected:
+            return f"symbols are placed at {placed}, want {expected}"
+        links = {}
+        for label, assignment in (("clean", ""), ("overridden", f"counter = {bss + 4:#x};\n")):
+            (root / f"{label}.ld").write_text(
+                "OUTPUT_ARCH(mips)\n"
+                + assignment
+                + "SECTIONS {\n"
+                f" .text.pick {text:#x} : SUBALIGN(1) {{ unit-pick.o(.text) }}\n"
+                f" .bss.pick {bss:#x} (NOLOAD) : SUBALIGN(1) {{ unit-pick.o(.bss) unit-pick.o(.sbss) }}\n"
+                f" .rodata.pick {rodata:#x} : SUBALIGN(1) {{ unit-pick.o(.rodata) unit-pick.o(.rdata) }}\n"
+                f" .data.pick {data:#x} : SUBALIGN(1) {{ unit-pick.o(.data) }}\n"
+                " /DISCARD/ : { *(.reginfo) *(.MIPS.abiflags) *(.pdr) *(.gnu.attributes) }\n"
+                "}\n"
+            )
+            proc = subprocess.run(
+                [linker, "-EL", "-T", f"{label}.ld", "-e", f"{text:#x}", "-o", f"{label}.elf", "unit-pick.o"],
+                cwd=root, capture_output=True, text=True,
+            )
+            if proc.returncode != 0:
+                return f"{label}: the authored link failed:\n{proc.stderr}"
+            links[label] = matchbuild.elf_symbol_checks(root / f"{label}.elf", [unit], defined)
+        if links["clean"]:
+            return f"a correctly placed symbol was rejected: {links['clean']}"
+        if len(links["overridden"]) != 1 or "'counter' is bound to" not in links["overridden"][0]:
+            return f"an overridden symbol must be rejected once, naming it: {links['overridden']}"
+        return None
+
+    return [CacheCase("symbol-binding-check", binding_check)]
 
 
 def run_cache_unit_case(case: CacheCase) -> tuple[bool, str]:
@@ -1545,7 +2124,7 @@ def main() -> int:
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
     caches = select_cases(make_cache_cases(parsed), args.only)
     units = select_cases(
-        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
+        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)
