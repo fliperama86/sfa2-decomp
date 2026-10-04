@@ -1192,6 +1192,76 @@ Lessons:
   never merged. It then does not compile against the tree, and the
   permutation search skips it. The notes above are what a later retry needs.
 
+## Twenty-seventh group: the high-byte form, sixth sweep
+
+Counts at this snapshot. No round is in progress.
+
+- 1,515 functions exact. 1,462 come from C, 236,724 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data are unchanged at
+  1,480 and 5,084 bytes. 370,072 payload bytes stay raw. About 72 percent of
+  the inventoried resident code bytes: 234,652 of 328,096, counted as before.
+- 15 functions are new, 3,540 bytes, all game functions of the resident
+  inventory, all out of the parked pool.
+- Parked: 149 functions, about 66 KB (135 game, 14 library). Unattempted: 32
+  functions, about 28 KB, all library.
+- Against the inventory: 1,167 of its 1,302 game functions are exact, with
+  176,960 of their 240,200 bytes, about 74 percent. The other 135 are parked.
+  By area the count is 1,168 game functions and 347 library functions; the
+  one more is the 8-byte function the inventory does not list.
+
+The high byte taken with two shifts:
+
+- Sixteen game functions in the image take the high byte of a loaded
+  halfword with a shift left by 16 and a shift right by 24. Half of them
+  were exact already and half were parked with that as their residual. All
+  but three sit within 12 KB of each other.
+- Four enumerations of the source form on one small parked function, about
+  9,000 variants compiled and compared in about a minute, did not find it.
+  Neither did 27 sets of compiler flags.
+- The form was in the tree all along, in five units that the permutation
+  search had matched: copy the halfword into a signed 16-bit local, shift
+  that right by 8 into an unsigned 16-bit local, and store that local. The
+  unsigned 16-bit temporary is what keeps the two shifts. With any other
+  type the compiler folds them into one shift right by 8. The first
+  enumeration had tried every type for that temporary except this one.
+- With that form all eight parked functions produce the two shifts. One
+  became exact at once. Three more were matched by the search after it, and
+  those showed the second half: where the original has a register copy
+  between the load and the shifts, the source reused one local for a
+  second, unrelated value later in the function. Three functions still lack
+  that copy and one differs in two slots.
+- A local union of a word and its two bytes was also tested. It does make
+  the compiler reserve an unused stack frame, which no other source form had
+  done by itself, but the frame has another size and the extraction is not
+  the two shifts. Not the answer, and kept as a lead for the unused frames.
+
+Where the 15 came from:
+
+- 11 from the sixth permutation sweep: all parked game candidates except
+  the eight above, five minutes each. 142 tried, 56 more left with a closer
+  candidate, 6 whose candidate does not compile against the tree, 2 that
+  were byte-exact but carried junk and were not written back.
+- 4 of the eight functions with the two shifts: 1 by an agent with the
+  form, 3 by a longer search run started from the candidates with the form.
+
+Marks:
+
+- 71 functions say that their form was found by the search. One more says
+  that it was finished by hand from a candidate the search had reshaped.
+  Since a sweep now writes closer candidates back, a saved earlier form no
+  longer proves that the search found the final one. The mark is given only
+  when a sweep reports the match.
+
+Lessons:
+
+- **Read the exact units before enumerating.** The answer to a residual
+  that agents had failed on about ten times was already in five matched
+  files. A search over the image for the instruction pattern, then a look
+  at which of those functions are exact, found it in minutes.
+- A fast enumeration over one function is cheap to set up with the search's
+  own compile script: thousands of variants a minute. It only finds what
+  its grid contains.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
