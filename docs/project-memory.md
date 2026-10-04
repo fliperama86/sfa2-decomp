@@ -633,6 +633,68 @@ Lessons:
 - An override in the symbol file is silent for data just as it is for
   functions. The earlier lesson covered functions only.
 
+## Twentieth group: parts of partly identified SDK files
+
+Counts at this snapshot. No round is in progress.
+
+- 1,357 functions exact. 1,315 come from C, 187,008 bytes, and 42 from
+  assembly, 672 bytes. Units own 392 bytes of read-only data in nine ranges
+  and 4,356 bytes of initialised data in five. 421,972 payload bytes stay
+  raw. About 57 percent of the inventoried resident code bytes: 186,440 of
+  328,096, counted as before.
+- 26 functions are new, 7,612 bytes. 3 came out of the parked pool and 13
+  from the unattempted ones. 10 have no inventory entry.
+- Parked: 250 functions, about 77 KB (210 game, 40 library). Unattempted: 73
+  functions, about 65 KB (6 game functions of 1,700 bytes and more, 67
+  library). The permutation search has 164 parked functions left to try.
+- By area: 1,087 game functions and 270 library functions are exact. 84 of
+  the library functions are built from reference C: 49 in 20 whole files and
+  35 in 13 parts.
+
+What a part is:
+
+- A reference file that the identification found only in part still holds
+  functions that compile to the original bytes as they are. A run of such
+  functions, neighbours in the reference file and gap-free in the image,
+  becomes one unit. 13 units from four files of `libgpu`, `libsnd` and
+  `libspu`, 35 functions. 9 of them were already exact as units written by
+  agents and changed owner.
+- The source of a part is the reference file with every function outside the
+  run reduced to its prototype and the lines that pull in assembly removed.
+  The function bodies are unchanged. A function that was `static` and now
+  lives outside the part gets a global prototype.
+- The address of a part's read-only data, and of every name it uses that was
+  not located before, is read from the original code at the object's
+  relocation sites. A wrong address cannot pass, because the build compares
+  the linked bytes.
+- A part is a stage, not the goal. When a file's remaining functions match,
+  its parts are replaced by one unit for the whole file.
+
+What the parts showed about this SDK version:
+
+- Two functions that share one file in the reference are two separate
+  objects here: another file's object sits between them in the image. Each
+  came in as its own part with no change to the code.
+- In one file the image holds a function, between two of the file's
+  functions, that the reference file does not define. In another, one
+  function is kept as assembly by the reference itself. Both stay raw.
+- One function's read-only data is not one range in the image: 16 bytes of
+  other data sit between its items. It stays raw until the file is whole. Of
+  the eight other functions of its run, five came in one by one and three
+  were exact already.
+- Six partly identified files have writable data. A part cannot own a file's
+  data, because several parts of one file would each define it. They are not
+  handled yet.
+
+Lessons:
+
+- The symbol rule made its first catch on real input. The import re-added the
+  address of a variable that a unit from the previous import defines, and the
+  build refused it. The helper now treats the symbols of every imported file
+  as defined, not only those of the files it is importing in that run.
+- Function definitions on one line broke the first split of a reference
+  file. The split now handles them.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
