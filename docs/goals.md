@@ -216,9 +216,9 @@ functions; they change with every round.
    moved. Then 37 of the 49 symbols on which units disagreed moved, each
    with a declaration that keeps every unit exact. 18 data symbols and 1
    function pointer symbol are still declared only in units. 12 of them
-   have no common declaration: for 8 every candidate fails to compile in
-   some unit, for 2 every candidate changes code in some unit, 2 are mixed.
-   These 12 are worth reading one by one.
+   have no common declaration: for 7 the compiler rejects some unit with
+   every candidate, for 3 every candidate gives nonmatching code in some
+   unit, 2 show both. These 12 are worth reading one by one.
    Turning wrapper structs into proper members is a separate step that
    these counts say nothing about; names are untouched.
 5. Data is owned per unit. Game data tables still have no owner. The four

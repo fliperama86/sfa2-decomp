@@ -2066,14 +2066,19 @@ What moved:
   units from 64 to 27. The header has 785 extern declarations, 748 from
   the group before and 37 new.
 
-The 12 without a common declaration, by how the candidates fail:
+The 12 without a common declaration, by the failure the build reported
+for each candidate. Two classes were observed: a compiler failure, where
+the compiler rejects a unit, and nonmatching code, where a unit compiles
+to other bytes or to another size. A build stops at the first failure, so
+a reported size mismatch does not show that every later unit compiled.
 
-- 8: every candidate fails to compile in some unit. For 4 the candidates
-  differ in shape, an array against a scalar. For 4 they differ in the
-  struct type; one of these is a pointer declared with six struct types.
-- 2: every candidate compiles, and each changes the code of some unit.
-  Both are scalars declared with three widths.
-- 2: one candidate fails to compile and the other changes code.
+- 7: a compiler failure for every candidate. For 3 the candidates differ
+  in shape, an array against a scalar. For 4 they differ in the struct
+  type; one of these is a pointer declared with six struct types.
+- 3: nonmatching code for every candidate. Two are scalars declared with
+  three widths, one is an array declared with two element widths.
+- 2: a compiler failure for some candidates and nonmatching code for the
+  others.
 
 What stays in units, counted the same way: 27 data symbols, which are the
 12 above, 4 declared with the typedef that has two definitions, 1 that the
@@ -2081,6 +2086,12 @@ build threw out of the header two groups ago, 1 whose declaration the
 first script does not parse, and the 9 that are in the header and also in
 the one unit left as it is. And 1 symbol written with explicit function
 pointer syntax.
+
+A correction made in review: the private table marks every failed build
+with one prefix. The first text of this group read that prefix as a compile
+error and counted 8, 2 and 2. Two of those builds stopped at a size
+mismatch, which is nonmatching code. Classify failures by what the build
+reported, not by the table's label.
 
 Reading, labelled as such:
 
