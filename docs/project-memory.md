@@ -2314,10 +2314,14 @@ Findings that change the plan for overlays:
 
 - Four modules have one content across many files (24, 63, 42 and 21
   chunks). They are the cheapest place to start.
-- A second-side block is its first-side block linked at another address.
-  Four characters carry one more module with the same property at another
-  distance. So "one source at two addresses" is a property of the data, and
-  the build needs a second link, not a second source.
+- Inferred, not proven: a second-side block is its first-side block
+  linked at another address. The comparison supports it: 19,542 of the
+  19,599 differing words fall into classes that the distance explains. 57
+  do not and were not explained one by one, and one pair of different size
+  was not compared. Four characters carry one more module with the same
+  picture at another distance. The proposed approach for the build follows
+  from that: one source and a second link. It becomes a fact for a block
+  only when both links rebuild exactly.
 - The resident tables of per-character entry addresses send character
   numbers 21 to 23 on the second side into the first-side block. That fits
   the three character files without a second-side twin.
@@ -2338,6 +2342,13 @@ Lessons:
 - Agreement between two static sources is still static. The page says what
   an exact function does and what the bytes are; it does not say a load was
   observed.
+- A comparison that explains nearly every difference is support for a
+  reading, not the reading itself. The first text of this group and of the
+  page said that the second side "is" a second link and that the tables
+  exist as an "identical copy". Review corrected both: the first is an
+  inference with 57 unexplained words and one pair not compared; in the
+  second, the table contents are identical and the six address words are
+  each 0x694 higher, which is exactly what makes them point at the copy.
 - A one-off script is not evidence a reviewer can rerun. Each number on the
   page comes from a command of the published tool, or from an address and
   a count that can be read off the executable.

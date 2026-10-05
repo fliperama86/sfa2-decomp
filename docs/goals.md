@@ -174,8 +174,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - The overlay map is confirmed against the resident loader: an exact
   function indexes destination tables by two fields of an archive entry,
   and for all 16 code-bearing slots the table's address equals the
-  address estimated from the code. Second-side blocks are first-side
-  blocks linked at a fixed distance.
+  address estimated from the code. A word-by-word comparison of the two
+  sides' blocks supports, without proving, that a second-side block is its
+  first-side block linked at a fixed distance.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -253,9 +254,11 @@ Next, in this order:
    sizes, and which modules share which code. Start with the four modules
    that have one content across many files.
 2. A proposal for how the matching build owns an overlay block: a baseline
-   that is a chunk of an archive instead of the executable, and one source
-   linked at two addresses for the two sides. This needs the owner's
-   decision before it is built.
+   that is a chunk of an archive instead of the executable, and, as the
+   proposed treatment of the two sides, one source linked at two addresses.
+   That treatment is an inference from the comparison until both links of
+   a block rebuild exactly. This needs the owner's decision before it is
+   built.
 3. A pilot: one overlay module, or part of one, rebuilt exactly.
 
 Still open in the map itself: how the loader treats the entries without a

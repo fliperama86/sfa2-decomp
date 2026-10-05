@@ -77,10 +77,13 @@ one starts, which bounds its length from above.
 What tables 3, 4 and 5 address is not established. Inferred from the sound
 library calls in the same units: sound headers, sample data and sequences.
 
-The executable holds a second, identical copy of the tables and of the
-address block, 0x694 bytes further on. A scan of the code for instruction
-pairs that form an address found none that points at the copy. That does not
-prove it unused.
+The executable holds the tables a second time, 0x694 bytes further on. The
+contents of the five bounded tables are identical there, and so are the
+eight words from the start of table 5 to the address block. The second
+address block is not identical to the first: each of its six words is the
+first block's word plus 0x694, so it points at the second set of tables. A
+scan of the code for instruction pairs that form an address found none that
+points at the second set. That does not prove it unused.
 
 ## The static estimates agree with table 0
 
@@ -162,11 +165,15 @@ word and names how a differing word relates to the distance `0x18000`:
 was not compared. The classes say what a difference is consistent with; a
 word is not proven to be an address by falling into one.
 
-Read as: the second-side block is the first-side block linked `0x18000`
-higher. Most of the 57 other words follow from the next point.
+Inferred from these counts, not established: a second-side block is its
+first-side block linked `0x18000` higher, from the same source. The counts
+support that reading strongly and do not prove it for every block. 57 words
+fall outside the classes and were not explained one by one, and the pair of
+`PL06` was not compared at all. Some of the 57 are addresses in the modules
+of the next table, which sit at other distances.
 
-Four characters carry one more module per side, and its second-side copy is
-linked at a different distance:
+Four characters carry one more module per side. Its two copies sit at
+another distance than the blocks do:
 
 | Files | First side | Second side | Words identical | Explained by the distance | Other |
 | --- | --- | --- | ---: | ---: | ---: |
@@ -194,7 +201,7 @@ destination range covers it. 38 symbols are covered:
 - Six at `0x80010000` to `0x80013834`. Two of them open a stack frame in the
   one content of slot `0x12`, one in the one content of slot `0x28`.
 - `0x80078e44` opens a frame in the slot `0x0` module and `0x8008ef44` in
-  the slot `0x8` module: the two placements of one extra character module.
+  the slot `0x8` module, at the same offset in both.
 - `data_800fb100`, the destination of slots 2 and 3.
 - Six in the character blocks. `0x801b0000` opens a frame in 17 of the 25
   first-side blocks, so the block's start is code there, not data as the
@@ -243,9 +250,10 @@ synthetic inputs.
 
 ## Open
 
-- Decide which overlay blocks enter the matching build, and how a build
-  expresses one source linked at two addresses for the two sides. The
-  measurements above say the second link differs by one distance per module.
+- Decide which overlay blocks enter the matching build, and how it treats
+  the two sides. Proposed, on the strength of the comparison above: one
+  source and a second link at the other address. Whether that holds for a
+  block is only shown when both of its links rebuild exactly.
 - Function boundaries inside the blocks. Nothing here inventories them.
 - How the loader treats slot `0xffff` and table 5, and the order in which it
   uses the range at `0x801e0000`.
