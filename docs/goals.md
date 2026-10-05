@@ -140,6 +140,13 @@ payloads, accurate source coverage, and retained human/AI refinements.
   three search results cleaned by hand: 28 more game functions. 1,582
   functions exact: 1,529 from C, 262,676 bytes, and 53 from assembly.
   1,195 of the 1,302 inventoried game functions are exact.
+- The source form for the last residual kind without one was found, in a
+  function that was already exact: the same call written once per path,
+  where the compiler merges only the call instruction. A comparison of
+  every parked function with every exact one found more such twins. With
+  both, 50 more one-function packages and an eighth sweep: 25 more game
+  functions. 1,607 functions exact: 1,554 from C, 268,396 bytes, and 53
+  from assembly. 1,220 of the 1,302 inventoried game functions are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -165,16 +172,16 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 107 game functions are parked, each with a candidate.
-   One function per agent, with the search's score and what else is known
-   in the prompt, is the method that works: 20 of 50 in five waves, most
-   of the others closer than before. 77 parked game functions have not
-   had such a retry yet. An eighth sweep runs over the candidates the
-   agents improved and over seven that the search could not compile
-   before. One residual kind still has no known source form: parameters
-   copied out of the argument registers at entry. For the high byte taken
-   with two shifts five of the eight functions are exact; three still
-   lack a register copy.
+2. The parked pool: 82 game functions are parked, each with a candidate.
+   One function per agent is the method: 38 of 100 packages so far. Leads
+   from the image raise the rate: the sign of a merged call in the listing,
+   and an exact function with the same instructions. Both lists exist for
+   the whole pool and go into every prompt. 37 parked game functions have
+   not had a one-function retry yet, most of them large or far from exact.
+   Two groups share one unexplained residual each: three functions of the
+   high byte family, which need the loaded halfword and its copy in the
+   opposite registers, and four neighbours whose original keeps values in
+   two registers and masks a parameter twice.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.

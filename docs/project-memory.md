@@ -1549,6 +1549,160 @@ Lessons:
 - A candidate that does not compile is invisible to the search. Check the
   sweep log for those first.
 
+## Thirty-first group: the same call once per path, exact twins, eighth sweep
+
+Counts at this snapshot. Nothing is running.
+
+- 1,607 functions exact. 1,554 come from C, 268,396 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data owned by units is 2,332 bytes in 19
+  ranges, 68 bytes and one range more: one of the new functions has a jump
+  table. Initialised data is unchanged at 5,900 bytes. 336,732 payload bytes
+  stay raw. About 81 percent of the inventoried resident code bytes: 266,000
+  of 328,096, counted as before.
+- 25 functions are new, 5,720 bytes, all game functions of the resident
+  inventory, all out of the parked pool.
+- Against the inventory: 1,220 of its 1,302 game functions are exact,
+  190,612 of 240,200 bytes, about 79 percent. The other 82 are parked.
+  Library unchanged: 324 of 347. By area the count is 1,221 game functions
+  and 386 library functions.
+- Parked: 91 functions, about 51 KB (82 game, 9 library). Unattempted by
+  the counting rule: 14 library functions, about 11 KB, as before.
+
+Where the 25 came from:
+
+- 18 from agents with one function each: 50 packages over 49 functions,
+  one function twice.
+  - 10 were the next by search score. A machine restart cut their first
+    run after five minutes; the second run started from the files the
+    first had left. 4 exact, 3 of them already exact in the file the
+    interrupted agent left.
+  - 21 more, most of them the next by score: 8 exact.
+  - 3 that have an exact twin, named in the prompt: 2 exact.
+  - 6 far candidates chosen by the sign of a merged call in the listing:
+    1 exact.
+  - 10 that had had such a retry before, now with the two lead lists
+    described below: 3 exact.
+- 4 written at the top level from the two findings below: 3 with the
+  merged-call form, 1 in the form of its twin. Two of the three are
+  functions on which an agent had just reported no match.
+- 1 that the eighth sweep had found byte-exact and its own filter had
+  rejected for a local that was assigned and never read. Without the local
+  it is still exact.
+- 2 from the eighth permutation sweep: 32 parked candidates, five minutes
+  each. 5 more left with a closer candidate, 24 unchanged. The restart cut
+  the sweep after 6 functions; the other 26 ran afterwards.
+
+Finding one, the same call written once per path. This is the residual
+kind that had no known source form, recorded so far as parameters copied
+out of the argument registers at entry.
+
+- Signs in the listing: a branch that lands directly on a call instruction
+  whose delay slot is empty; before that call, a reload of the argument
+  register or a store through it that only one path runs; a reload of the
+  argument register before the first call of the function, although it
+  still holds the parameter.
+- Source: an early-return arm that ends in its own copy of the last call,
+  `if (c == 0) { g(o); return; } f(o, 7); g(o);`, where the candidates had
+  `if (c != 0) f(o, 7); g(o);`. The compiler merges the two calls, but only
+  the call instruction. The argument setup stays with each path.
+- A function with exactly this shape was already exact in the tree. A
+  parked function with the same twenty instructions, apart from one
+  constant and one call target, had been tried with other forms by agents
+  and by the search.
+- 8 functions are exact with it: 3 by hand and 5 by agents, most of them
+  at the first attempt.
+- A companion form: when one arm passes a constant literally and the last
+  call passes a local that starts with the same constant, the local needs
+  the callee's 16-bit parameter type. With `int` the compiler sees that the
+  argument register already holds the constant and drops the arm's own
+  load.
+
+Finding two, exact twins.
+
+- A private script compares the instruction sequence of every parked game
+  function, with immediates masked, with every exact game function. Two
+  parked functions had a twin at 100 percent, two at 90 percent, and 19
+  more between 60 and 81 percent.
+- Written in the twin's form (statement order, local types, separate
+  externs against struct members), 4 are exact, and a fifth took its shape
+  from the twin and was decided by a callee prototype.
+- A second list gives, per parked function, runs of ten or more
+  instructions that an exact function has too. 30 parked functions had one.
+- Both lists go into every retry prompt now.
+
+Other source forms that decided functions, each the last change needed:
+
+- A callee prototype that takes the object, so that the argument register
+  is set up before the call, and a second argument passed as a literal 0.
+- A 16-bit value assembled with the low byte assigned first and the shifted
+  high byte ORed in after it, for the operand order of one `or`.
+- A halfword read into an `int` local through a signed cast, then copied
+  into the 16-bit local and clamped, for a load, a branch and a register
+  copy in that order.
+- An array indexed inside the loop instead of a separate pointer local.
+- `x++` on a global where the candidate had `x = x + 1`.
+- Parameters taken as `int` and masked in place.
+- The callee branch written first: `if (c == 0) { return f(o) != 0; }
+  return 0;`.
+
+Marks in the sources:
+
+- 76 functions say that their form was found by the search, 6 more that it
+  was found by the search and cleaned by hand, 22 that they were finished
+  by hand from a candidate the search had reshaped, and 4 that they were
+  written by hand in the form of such a function. The first mark still
+  requires a sweep log that reports the match.
+
+Still parked: 29 of the 49 functions, as their packages reported it.
+
+- Three functions of the high byte family need the loaded halfword in one
+  register and its copy in another, the other way round from what every
+  form gives. In the three exact siblings a later read into the copy local
+  decides the registers; these three have no later read. About 11,000
+  enumerated variants of local types, declaration order and cast form gave
+  nothing exact.
+- Four neighbouring functions keep one value in two registers, mask a
+  parameter twice and leave a comparison of a masked bit with its own mask
+  unfolded. A fifth member of the family is exact through the search.
+  Inferred, not proven: one shared source idiom, an inline function or a
+  macro, that has not been identified.
+- 19 of the 29 differ in seven slots or fewer: two registers swapped, or
+  one instruction a slot early.
+
+Evidence for the open question about `volatile`, unchanged in substance:
+
+- The callee of the 72-byte function was read. It does not use the register
+  that the extra load fills, so the load has no reader in the original.
+  It has no exact twin that shows another form. The function stays
+  parked.
+
+Tooling, all private:
+
+- The twin list and the shared-run list, rebuilt from the function table,
+  the listing and the build configuration.
+- The retry prompt has a one-function addendum: the lead lists, the search
+  score and its meaning, and one scratch folder per agent.
+
+Lessons:
+
+- **Look for an exact twin before retrying a parked function.** The pool
+  was worked function by function, and the tree already held the answer
+  for several of them. The comparison takes a minute for the whole pool.
+- A residual kind without a known form is a reason to search the exact
+  units for the same instructions, not to enumerate source variants. This
+  note was already in the private runbook and was not applied to this kind.
+- Background work does not survive a machine restart. Agents leave their
+  work in files, so a second run can start from them: read the newest work
+  folders first after a restart.
+- Agents that share a scratch folder overwrite each other's scripts. In
+  this round one such script then wrote another function's body into the
+  wrong unit file. The agents restored the files, and every unit file was
+  checked to define its own function before banking. Each agent now has its
+  own scratch folder and builds only under its own tag.
+- An exact form from an agent can still be spelled more plainly. One
+  function was exact with a nested double assignment; a comma expression
+  with `|=` gives the same bytes and reads as ordinary code.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
