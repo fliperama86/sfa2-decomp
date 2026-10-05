@@ -67,6 +67,11 @@ matching lines.
   scalar, a struct where it has a pointer) is a reason to leave `externs.h`
   out of that unit and declare your own, and to say so in the report: the
   two forms compile differently, and which units need which is a finding.
+  `externs.h` also defines five function pointer typedefs (`ObjectFn`,
+  `HandlerFn`, `FrameFn`, `ObjectFnInt`, `UnitFn`) and declares the callback
+  tables that use them. Do not define one of those typedefs in a unit that
+  includes the header: this compiler rejects a repeated typedef, even an
+  identical one.
 - Plain C89. Hex for values that are identifiers or masks.
 
 ## What is allowed
