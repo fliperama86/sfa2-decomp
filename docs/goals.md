@@ -205,9 +205,11 @@ functions; they change with every round.
    them because the callers need one signature and the definition has
    another; the list is a work item of its own. Data externs are done
    where all units agree: 594 symbols in a shared header. 138 symbols stay
-   in units, 87 of them because their type is a struct that only one unit
-   defines. Moving those structs into the field table is the next step; it
-   is the same work as turning wrapper structs into proper members.
+   in units. 87 of them are callback tables whose type is a function
+   pointer typedef that units define for themselves; one shared definition
+   of those typedefs would let the tables move too. That is a separate
+   step from turning wrapper structs into proper members, which this count
+   says nothing about.
 5. Data is owned per unit. Game data tables still have no owner. The four
    words after the program entry routine, a table it reads, have none either.
 
