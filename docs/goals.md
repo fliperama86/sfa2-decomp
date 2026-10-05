@@ -161,6 +161,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Five function pointer typedefs and 154 callback symbols followed into
   the same header. The units lost 68 typedef lines and 257 declarators and
   stay exact.
+- Of the 49 data symbols that units declared differently, 37 have one
+  declaration that keeps every unit exact, found by rebuilding, and moved
+  into the header too. 12 have none.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -210,8 +213,12 @@ functions; they change with every round.
    where all units agree: 594 symbols in a shared header. 138 symbols stay
    in units at that step. The callback tables followed: five function
    pointer typedefs have one shared definition and 154 callback symbols
-   moved. 55 data symbols and 1 function pointer symbol are still declared
-   only in units, 49 of them because units disagree on type or shape.
+   moved. Then 37 of the 49 symbols on which units disagreed moved, each
+   with a declaration that keeps every unit exact. 18 data symbols and 1
+   function pointer symbol are still declared only in units. 12 of them
+   have no common declaration: for 7 the compiler rejects some unit with
+   every candidate, for 3 every candidate gives nonmatching code in some
+   unit, 2 show both. These 12 are worth reading one by one.
    Turning wrapper structs into proper members is a separate step that
    these counts say nothing about; names are untouched.
 5. Data is owned per unit. Game data tables still have no owner. The four

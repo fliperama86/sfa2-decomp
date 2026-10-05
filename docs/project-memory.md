@@ -2037,6 +2037,69 @@ Lessons:
   the moved symbols are 83 typedef-based and 71 explicit ones, not "the 87
   callback tables", and 4 of the 87 stay because of `ScriptFn`.
 
+## Thirty-sixth group: the data symbols that units declared differently
+
+No function count changes in this group. The image, every owner and the
+build configuration are the same as in the thirty-fifth group: 1,616
+functions exact.
+
+The test. 49 data symbols were declared with different types or shapes in
+different units. For each, every declared form was put into all units that
+declare the symbol, the tree was rebuilt, and the build said whether every
+unit stayed exact: 108 builds.
+
+- 19 symbols: every form that was tried keeps all units exact. For these
+  the build does not choose.
+- 18 symbols: some forms keep all units exact and others do not.
+- 12 symbols: no form keeps all units exact.
+
+What moved:
+
+- The 37 symbols of the first two kinds have one declaration each in the
+  shared header now. Where several forms pass, the one that most units
+  already used was taken. That choice is a convention of this step. It is
+  not a result of the build and says nothing about the original
+  declaration.
+- 70 unit declarations had another form than the one taken. The units
+  lost 197 declarators. Counted with the independent counter: data
+  declarators in units went from 353 to 156, data symbols declared in
+  units from 64 to 27. The header has 785 extern declarations, 748 from
+  the group before and 37 new.
+
+The 12 without a common declaration, by the failure the build reported
+for each candidate. Two classes were observed: a compiler failure, where
+the compiler rejects a unit, and nonmatching code, where a unit compiles
+to other bytes or to another size. A build stops at the first failure, so
+a reported size mismatch does not show that every later unit compiled.
+
+- 7: a compiler failure for every candidate. For 3 the candidates differ
+  in shape, an array against a scalar. For 4 they differ in the struct
+  type; one of these is a pointer declared with six struct types.
+- 3: nonmatching code for every candidate. Two are scalars declared with
+  three widths, one is an array declared with two element widths.
+- 2: a compiler failure for some candidates and nonmatching code for the
+  others.
+
+What stays in units, counted the same way: 27 data symbols, which are the
+12 above, 4 declared with the typedef that has two definitions, 1 that the
+build threw out of the header two groups ago, 1 whose declaration the
+first script does not parse, and the 9 that are in the header and also in
+the one unit left as it is. And 1 symbol written with explicit function
+pointer syntax.
+
+A correction made in review: the private table marks every failed build
+with one prefix. The first text of this group read that prefix as a compile
+error and counted 8, 2 and 2. Two of those builds stopped at a size
+mismatch, which is nonmatching code. Classify failures by what the build
+reported, not by the table's label.
+
+Reading, labelled as such:
+
+- Inferred, not proven: the 12 are places where the reconstruction has not
+  settled what the data is, or where the original source declared one
+  symbol differently in different files. The build cannot tell these two
+  apart. Each of the 12 is open.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
