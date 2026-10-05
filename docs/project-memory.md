@@ -1987,6 +1987,56 @@ Lessons:
   are function pointer typedefs; the review found it. Name a category only
   after listing its members.
 
+## Thirty-fifth group: callback typedefs and callback tables in the shared header
+
+No function count changes in this group. The image, every owner and the
+build configuration are the same as in the thirty-fourth group: 1,616
+functions exact.
+
+What changed, counted with the independent counter of the thirty-fourth
+group before and after, and by listing the header's new lines:
+
+- Five function pointer typedefs have one definition each at the top of the
+  shared header for externs: `ObjectFn`, `HandlerFn`, `FrameFn`,
+  `ObjectFnInt`, `UnitFn`. 68 typedef lines left the units: 60, 4, 2, 1
+  and 1 in that order.
+- 154 callback symbols moved into the header. 83 are declared with one of
+  those typedefs: 72 with `ObjectFn`, 4 with `HandlerFn`, 3 with `FrameFn`,
+  2 with `UnitFn`, 2 with `ObjectFnInt`. 71 are written with explicit
+  function pointer syntax.
+- The units lost 257 declarators: 156 that the counter calls data (the
+  typedef-based ones) and 101 written with explicit function pointer
+  syntax. Data declarators in units went from 509 to 353, explicit ones
+  from 102 to 1.
+- The header has 748 extern declarations now, 594 from the group before
+  and 154 new.
+
+What stays in units:
+
+- `ScriptFn` has two definitions in the units, one returning a byte and
+  one returning nothing, in 3 typedef lines. It stays, and so do the 4
+  symbols declared with it.
+- 64 data symbols are still declared in units: the 49 on which units
+  disagree, those 4, 1 that the build threw out of the header in the group
+  before, 1 that the first script does not parse, and the 9 that are in the
+  header and also in the one unit left as it is.
+- 1 symbol written with explicit function pointer syntax stays: it is a
+  pointer to a function pointer, a form the script does not parse.
+- One other typedef line stays in a unit. It is not a function pointer.
+
+A property of the compiler that the step depends on:
+
+- This compiler rejects a repeated typedef, even an identical one. A
+  typedef in the shared header therefore had to leave every unit that
+  includes the header, and the matching guide now says so.
+
+Lessons:
+
+- Listing the members before naming the category, as the review of the
+  previous group asked, cost one script and changed two sentences here:
+  the moved symbols are 83 typedef-based and 71 explicit ones, not "the 87
+  callback tables", and 4 of the 87 stay because of `ScriptFn`.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
