@@ -2181,6 +2181,105 @@ Open, for the owner:
   decompilation projects and is a legal grey area. The owner was told so
   before deciding.
 
+## Thirty-eighth group: one function at the top level, a 16-bit local scaled in place
+
+Counts at this snapshot. They were recounted with a separate script that
+reads the build configuration and the inventory; run on the previous tree
+it gives the thirty-second group's figures.
+
+- 1,617 functions exact. 1,564 come from C, 271,532 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data owned by units
+  are unchanged at 2,332 and 5,900 bytes. 333,596 payload bytes stay raw.
+  About 82 percent of the inventoried resident code bytes: 269,136 of
+  328,096.
+- 1 function is new, 208 bytes: `func_801386f0`, a game function of the
+  resident inventory, out of the parked pool.
+- Against the inventory: 1,230 of its 1,302 game functions are exact,
+  193,748 of 240,200 bytes, about 81 percent. The other 72 are parked.
+  Library unchanged: 324 of 347. By area the count is 1,231 game functions
+  and 386 library functions.
+- Parked: 81 functions, about 47 KB (72 game, 9 library). Unattempted by
+  the counting rule: 14 library functions, as before.
+
+What ran. The goals asked for the allocation model to be applied function
+by function at the top level before more agent waves. This is the first
+function done that way. Its parked candidate differed in 3 instructions,
+and an agent's variant that was never banked differed in 1: the original
+computes a scaled table byte into one register and copies it into a second
+with `move`; that variant computed it twice.
+
+- The compiler's dumps for the candidate and for variants: the first
+  instruction list, the list after combining, the first scheduling pass,
+  local and global register allocation.
+- Variants by hand, each compiled and compared. They were not counted.
+- A scripted sweep of 1,080 forms that keep separate locals for the table
+  byte, the product and an unsigned 16-bit copy: none exact. The closest,
+  8 of them, differ in 2 instructions.
+- A scripted sweep of 114 forms in which one 16-bit local takes the table
+  byte and is then scaled, half signed and half unsigned: 9 exact, all
+  signed. The 9 are one form. Each scales with `t <<= 3` and compares `t`;
+  they differ only in a cast or a multiplication by one on the compare, and
+  6 of them carry an assignment to a second local that nothing reads.
+- The retry of the parked pool with the real build accepted the function,
+  and an uncached default build gives 1,617 of 1,617 exact with the
+  baseline's executable hash.
+
+The source that rebuilds the bytes has one local for the value:
+`s16 t; t = table[index]; t <<= 3;` and every later use is `t`. The same
+function with `t = t << 3` is exact too. With `t *= 8`, with `t = t * 8`,
+with an unsigned 16-bit local, or with separate locals for the product and
+its copy it is not. This is a compatible reconstruction. It does not show
+how the original was written.
+
+Two spellings of the rest rebuild the same bytes. The first exact one read
+the object through another struct with a signed field and declared the
+data itself as signed. The published unit takes the parameter type its one
+caller passes, includes the shared prototype and data headers, and casts
+to signed 16 bits at the five places that need the signed reading of a
+field and of a global the headers declare unsigned. It was chosen because
+it agrees with the shared declarations, not because it is known to be
+closer to the original.
+
+It did not carry over. The next closest parked function, `func_8014c9f4`,
+also one instruction away and also a copy next to a shift, stayed where it
+was through 96 forms: 84 over the types of two locals and seven spellings
+of the shift, and 12 that reuse the copy local for an earlier read.
+
+Inferred, not proven. Read from the dumps of this one function; not
+checked against the compiler's source:
+
+- The scheduling pass works backwards from the end of a block. Nearly
+  every instruction that sets a register which is set only once gets the
+  same top priority there. Among such equals the one that comes later in
+  the source is placed later, and a load is taken before a non-load. So
+  the order of two instructions can follow from the order of two source
+  statements, and from whether a register is set once or more often.
+- In global allocation a register avoids a hard register that a
+  conflicting, lower-ranked register prefers. A register computed from a
+  block-local temporary prefers that temporary's hard register. This
+  decided which of two registers got `$v1` in several variants.
+- Rank is refs, weighted by their logarithm, over the length of the live
+  range. Both numbers are printed in the allocation dump. One instruction
+  more or less in a range decided close cases here.
+- A 16-bit mask or sign extension in a later block is dropped only when
+  the compiler can follow the value back through registers that are each
+  set once. A scratch local shared with a 16-bit field value kept the mask.
+
+Corrections and lessons:
+
+- The quick tester compares the disassembly of one linked function. It
+  said "exact" for nine forms. Only the retry of the parked pool and the
+  default build made it a count.
+- The retry of the parked pool first stopped at once: a symbol fragment
+  saved next to another parked candidate named 9 functions that units own
+  by now, and the build rejects such assignments. The private helper that
+  lays those fragments over a trial tree now skips lines for functions the
+  trial tree's units define. A fragment saved from a batch folder is a
+  snapshot; check it against the tree it is applied to.
+- The retry tool rewrites the order of the symbol file. Only the one line
+  of the new function was removed in the published tree; the set of
+  remaining lines equals the trial tree's.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

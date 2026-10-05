@@ -20,7 +20,7 @@ is required to finish this selected target unless explicitly added.
 
 - Static baseline audit and resident-code load mapping exist. All 260 disc
   files are pinned by hash in a private manifest derived from the disc image.
-- 1,616 functions match exactly: 1,563 from C (271,324 bytes) and 53 from
+- 1,617 functions match exactly: 1,564 from C (271,532 bytes) and 53 from
   assembly (1,040 bytes): stubs and the program entry routine, code that was
   assembly in the original. Units also own 2,332 bytes of
   read-only data in 19 ranges and 5,900 bytes of initialised data in eight.
@@ -65,7 +65,7 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; static [overlay map](ps1/docs/overlays.md); loader confirmation and boundaries open |
 | Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners; overlays planned |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,616 functions (1,230 game, 386 library); expanding |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,617 functions (1,231 game, 386 library); expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 
