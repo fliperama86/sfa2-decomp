@@ -302,7 +302,7 @@ reproduces the same image, and for units the native build must not compile.
 
 ```sh
 .venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference] [--cache DIR | --no-cache]
-.venv/bin/python ps1/tools/test_matchbuild.py [--config PATH] [--only TEXT]
+.venv/bin/python ps1/tools/test_matchbuild.py [--config PATH] [--only TEXT] [--jobs N]
 .venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
 
@@ -310,6 +310,20 @@ reproduces the same image, and for units the native build must not compile.
 and says so in its last lines, with the number of cases that ran. A text that
 matches no case is an error: nothing runs and the exit status is 2. It is for
 working on one area; only a run without it is the full control set.
+
+`test_matchbuild.py --jobs N` runs up to N cases at the same time; the
+default is the number of processors, at most 8, and `--jobs 1` runs them one
+after another. Every case builds its own copy of the configuration under its
+own build tag with its own, empty object cache, all named after the case, so
+running cases side by side changes nothing in what a case builds or checks.
+One thing is shared: the cases of a synthetic fixture (read-only data, data,
+bss, division, assembly, sibling units) take their baseline from throwaway
+seed builds under names fixed per fixture. Those seed builds run one at a
+time per fixture; a control case checks that for every fixture class.
+Results are printed in the fixed order of the cases. A case that raises an
+error is reported as a failed case and the others still run. Two runs of the
+whole suite on one checkout at the same time are still not supported: they
+would use the same names.
 
 `fndiff.py` is a diagnostic for a unit that does not match yet. It links the
 unit object left by the last build alone at the unit's start address, with its
