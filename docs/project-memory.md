@@ -2257,3 +2257,9 @@ Open, for the owner:
   version only showed up with different instruction patterns.
 - The old repo has concurrent unrelated CPS2 changes. Migration is copy-only;
   do not reset, stage, delete, or commit those changes as part of this project.
+- "These cases are independent" is a claim to test by running them side by
+  side, not to read off their names. The control cases of `matchbuild.py`
+  each have their own copy, tag and cache, but the cases of one synthetic
+  fixture share throwaway seed builds under fixed names. The first parallel
+  run failed 29 of 112 cases for that reason alone. Seed builds are now
+  serialized per fixture, and a control case checks every fixture class.

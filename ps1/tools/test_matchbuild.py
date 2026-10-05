@@ -10,6 +10,7 @@ to pass. The copies and their build directories are removed afterwards.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import os
@@ -18,6 +19,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import tomllib
 from pathlib import Path
 
@@ -427,7 +430,27 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
-class RodataFixture:
+class SeededFixture:
+    """A fixture whose baseline comes from throwaway seed builds.
+
+    The seed builds use fixed directory names taken from `label`. Several
+    cases share one fixture object, and two objects of one class share the
+    names, so `prepare` lets one caller at a time seed a label. Cases that use
+    different labels still run side by side.
+    """
+
+    label = ""
+    _locks: dict[str, threading.Lock] = {}
+    _locks_guard = threading.Lock()
+
+    def prepare(self) -> None:
+        with SeededFixture._locks_guard:
+            lock = SeededFixture._locks.setdefault(self.label, threading.Lock())
+        with lock:
+            self._prepare()
+
+
+class RodataFixture(SeededFixture):
     """A one-unit configuration whose function has a jump table placed away from the text.
 
     The baseline comes from the same toolchain. A seed build with the correct
@@ -489,7 +512,7 @@ class RodataFixture:
         self.last = proc
         return build
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         if self.baseline:
             return
         from elftools.elf.elffile import ELFFile
@@ -860,12 +883,13 @@ def make_bss_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
-class DivisionFixture:
+class DivisionFixture(SeededFixture):
     """One function that divides, followed by raw filler.
 
     The baseline is the image of a seed build made with `expand_div = true`.
     """
 
+    label = "division"
     TAIL = 0x20
 
     def __init__(self, cfg_dir: Path, parsed: dict):
@@ -906,18 +930,18 @@ class DivisionFixture:
         shutil.rmtree(cache, ignore_errors=True)
         return build
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         if self.baseline:
             return
         from elftools.elf.elffile import ELFFile
 
-        build = self._seed("division-geometry", bytes(64), 4)
+        build = self._seed(f"{self.label}-geometry", bytes(64), 4)
         try:
             with open(build / "unit-pick.o", "rb") as handle:
                 self.text_size = ELFFile(handle).get_section_by_name(".text")["sh_size"]
         finally:
             shutil.rmtree(build, ignore_errors=True)
-        build = self._seed("division-seed", bytes([FILLER]) * (self.text_size + self.TAIL), self.text_size)
+        build = self._seed(f"{self.label}-seed", bytes([FILLER]) * (self.text_size + self.TAIL), self.text_size)
         try:
             image = build / "image.bin"
             if not image.is_file() or image.stat().st_size != self.text_size + self.TAIL:
@@ -933,12 +957,13 @@ class DivisionFixture:
         self.write(copy, self.baseline, self.text_size, expand_div)
 
 
-class AsmFixture:
+class AsmFixture(SeededFixture):
     """A C unit followed by an assembly unit, then raw filler.
 
     The baseline is the image of a seed build over a payload of filler bytes.
     """
 
+    label = "asm"
     TAIL = 0x20
 
     def __init__(self, cfg_dir: Path, parsed: dict):
@@ -990,18 +1015,18 @@ class AsmFixture:
         shutil.rmtree(cache, ignore_errors=True)
         return build
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         if self.baseline:
             return
         from elftools.elf.elffile import ELFFile
 
-        build = self._seed("asm-geometry", bytes(64), 4)
+        build = self._seed(f"{self.label}-geometry", bytes(64), 4)
         try:
             with open(build / "unit-pick.o", "rb") as handle:
                 self.text_size = ELFFile(handle).get_section_by_name(".text")["sh_size"]
         finally:
             shutil.rmtree(build, ignore_errors=True)
-        build = self._seed("asm-seed", bytes([FILLER]) * self.payload_size, self.text_size)
+        build = self._seed(f"{self.label}-seed", bytes([FILLER]) * self.payload_size, self.text_size)
         try:
             image = build / "image.bin"
             if not image.is_file() or image.stat().st_size != self.payload_size:
@@ -1052,13 +1077,15 @@ def make_asm_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
-class SiblingFixture:
+class SiblingFixture(SeededFixture):
     """Two C units: one owns a data and a bss variable, the other's function uses both.
 
     The baseline is the image of a seed build over filler bytes. Layout: the
     owner text, the consumer text, RODATA_GAP filler, the owner data, RODATA_TAIL
     filler. The owner bss sits at BSS_ADDRESS, outside the payload.
     """
+
+    label = "sibling"
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -1117,12 +1144,12 @@ class SiblingFixture:
         shutil.rmtree(cache, ignore_errors=True)
         return build
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         if self.baseline:
             return
         from elftools.elf.elffile import ELFFile
 
-        build = self._seed("sibling-geometry", bytes(64), (4, 4), None, None)
+        build = self._seed(f"{self.label}-geometry", bytes(64), (4, 4), None, None)
         try:
             found = {}
             for unit in ("owner", "consumer"):
@@ -1137,7 +1164,7 @@ class SiblingFixture:
         if not (self.owner_text and self.consumer_text and self.data and self.bss):
             raise SystemExit(f"test setup: the sibling objects lack text, data or bss: {found}")
         build = self._seed(
-            "sibling-seed",
+            f"{self.label}-seed",
             bytes([FILLER]) * self.payload_size,
             (self.owner_text, self.consumer_text),
             (self.data_address, self.data),
@@ -2033,6 +2060,35 @@ def run_cache_case(case: CacheCase, cfg_dir: Path, parsed: dict) -> tuple[bool, 
         ctx.cleanup()
 
 
+def run_ordered(jobs: int, tasks: list):
+    """Run `tasks` (callables returning (ok, message)) on up to `jobs` threads.
+
+    Yields the results in the order of `tasks`, each as soon as it and all
+    earlier ones are done, whatever order they finish in. A task that raises
+    is a failed case, not a broken run: each case has its own copy, build tag
+    and cache directory, and one of them must not take the others down. That
+    includes `SystemExit`, which the setup helpers raise ("test setup: ...")
+    and which `except Exception` does not catch. An interrupt is not a result:
+    `KeyboardInterrupt` still ends the run. What cases do share, a fixture's
+    seed builds, is serialized by `SeededFixture`.
+    """
+
+    def guarded(task):
+        try:
+            return task()
+        except SystemExit as exc:
+            return False, f"stopped with SystemExit: {exc.code}"
+        except Exception as exc:
+            return False, f"raised {type(exc).__name__}: {exc}"
+
+    if jobs <= 1:
+        for task in tasks:
+            yield guarded(task)
+        return
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        yield from pool.map(guarded, tasks)
+
+
 def select_cases(cases: list, only: str) -> list:
     """The cases whose name contains `only`. An empty `only` selects all."""
     return [case for case in cases if only in case.name]
@@ -2100,7 +2156,114 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
                 return f"{label}: the rest of [toolchain] changed"
         return None
 
+    def ordered(root: Path):
+        gate = threading.Event()
+
+        def slow_first():
+            gate.wait(5)
+            return True, "first"
+
+        def fast_second():
+            gate.set()
+            return True, "second"
+
+        def raising():
+            raise RuntimeError("boom")
+
+        for jobs in (1, 4):
+            gate.clear()
+            if jobs == 1:
+                gate.set()
+            started = time.monotonic()
+            got = list(run_ordered(jobs, [slow_first, fast_second, raising]))
+            if [g[0] for g in got] != [True, True, False] or [got[0][1], got[1][1]] != ["first", "second"]:
+                return f"jobs={jobs}: results are not in task order or lost a result: {got}"
+            if "RuntimeError: boom" not in got[2][1]:
+                return f"jobs={jobs}: a raising task must become a failed case that names the error: {got[2]}"
+            if time.monotonic() - started > 4:
+                return f"jobs={jobs}: the second task did not run while the first was waiting"
+        return None
+
+    def setup_exit(root: Path):
+        def setup_fails():
+            # A real setup helper: it stops with SystemExit when its text is not there once.
+            replace_once("no such text", "absent", "x", "the probe text")
+            return True, "not reached"
+
+        def exits_with_status():
+            raise SystemExit(3)
+
+        def interrupted():
+            raise KeyboardInterrupt
+
+        def succeeds():
+            return True, "second"
+
+        for jobs in (1, 4):
+            for failing, wanted in ((setup_fails, "test setup: expected exactly one occurrence of the probe text"), (exits_with_status, "3")):
+                try:
+                    got = list(run_ordered(jobs, [failing, succeeds]))
+                except SystemExit as exc:
+                    return f"jobs={jobs}, {failing.__name__}: SystemExit left the runner ({exc.code}) and the next task has no result"
+                if len(got) != 2 or got[0][0] is not False or wanted not in got[0][1]:
+                    return f"jobs={jobs}, {failing.__name__}: the exit must be a failed case that names its reason: {got}"
+                if got[1] != (True, "second"):
+                    return f"jobs={jobs}, {failing.__name__}: the task after the exit must still run and report: {got}"
+            try:
+                got = list(run_ordered(jobs, [interrupted, succeeds]))
+            except KeyboardInterrupt:
+                continue
+            return f"jobs={jobs}: an interrupt must end the run, not become a case result: {got}"
+        return None
+
+    def seeds_one_at_a_time(root: Path):
+        def peak_of(cls, enter) -> int:
+            state = {"inside": 0, "peak": 0}
+            count = threading.Lock()
+
+            class Probe(cls):
+                def _prepare(self):
+                    with count:
+                        state["inside"] += 1
+                        state["peak"] = max(state["peak"], state["inside"])
+                    time.sleep(0.05)
+                    with count:
+                        state["inside"] -= 1
+
+            # Separate objects, as the case lists create them: they share only the label.
+            probes = [Probe.__new__(Probe) for _ in range(4)]
+            with ThreadPoolExecutor(max_workers=4) as pool:
+                list(pool.map(enter, probes))
+            return state["peak"]
+
+        def below(cls) -> list:
+            return [sub for child in cls.__subclasses__() for sub in (child, *below(child))]
+
+        # Found, not listed: a fixture class added later is checked too. The
+        # probe classes of an earlier call are local classes and do not count.
+        families = [cls for cls in below(SeededFixture) if "<locals>" not in cls.__qualname__]
+        seeders = [v for v in globals().values() if isinstance(v, type) and "_seed" in vars(v)]
+        unlocked = [cls.__name__ for cls in seeders if not issubclass(cls, SeededFixture)]
+        if unlocked or not seeders:
+            return f"classes that run seed builds must derive from SeededFixture: {unlocked or 'none found'}"
+        labels = [cls.label for cls in families]
+        if "" in labels or len(set(labels)) != len(labels):
+            return f"every fixture class needs its own seed label: {labels}"
+        for cls in families:
+            if "prepare" in vars(cls):
+                return f"{cls.__name__} overrides prepare and so seeds without the label's lock"
+            peak = peak_of(cls, lambda probe: probe.prepare())
+            if peak != 1:
+                return f"{cls.__name__}: {peak} callers seeded the label at the same time"
+        # The probe must be able to see an overlap: without the lock all four are inside together.
+        if peak_of(RodataFixture, lambda probe: probe._prepare()) < 2:
+            return "the probe saw no overlap where nothing prevents one"
+        return None
+
     return [
+        CacheCase("runner-parallel-order", ordered),
+        CacheCase("runner-setup-exit-is-failed-case", setup_exit),
+        CacheCase("runner-fixture-seeds-serialized", seeds_one_at_a_time),
         CacheCase("runner-selection-filter", selection),
         CacheCase("runner-selection-empty-fails", empty_selection),
         CacheCase("runner-selection-nonempty-runs", nonempty_selection),
@@ -2112,7 +2275,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/src/build.toml")
     parser.add_argument("--only", default="", help="run only the cases whose name contains this text")
+    parser.add_argument(
+        "--jobs", type=int, default=min(8, os.cpu_count() or 1),
+        help="cases to run at the same time (default: up to 8); 1 runs them one after another",
+    )
     args = parser.parse_args()
+    if args.jobs < 1:
+        print("--jobs must be at least 1", file=sys.stderr)
+        return 2
     config_path = Path(os.path.abspath(args.config))
     cfg_dir = config_path.parent
     if config_path.name != "build.toml":
@@ -2132,20 +2302,21 @@ def main() -> int:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)
         return 2
 
+    # Every case works on its own copy, build tag and cache directory, named
+    # after the case, so the cases can run side by side. The seed builds that
+    # the cases of one fixture share are serialized (`SeededFixture`). The
+    # cases are reported in their fixed order.
+    ordered_cases = [*builds, *caches, *units]
+    tasks = (
+        [lambda case=case: run_case(case, cfg_dir) for case in builds]
+        + [lambda case=case: run_cache_case(case, cfg_dir, parsed) for case in caches]
+        + [lambda case=case: run_cache_unit_case(case) for case in units]
+    )
     failed = 0
-    for case in builds:
-        ok, message = run_case(case, cfg_dir)
-        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
+    for case, (ok, message) in zip(ordered_cases, run_ordered(args.jobs, tasks)):
+        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}", flush=True)
         failed += not ok
-    for case in caches:
-        ok, message = run_cache_case(case, cfg_dir, parsed)
-        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
-        failed += not ok
-    for case in units:
-        ok, message = run_cache_unit_case(case)
-        print(f"{'ok  ' if ok else 'FAIL'} {case.name}: {message}")
-        failed += not ok
-    ran = len(builds) + len(caches) + len(units)
+    ran = len(ordered_cases)
     if args.only:
         print(f"note: only the {ran} case(s) matching {args.only!r} ran; this is not the full control set")
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
