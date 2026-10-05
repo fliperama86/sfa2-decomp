@@ -1875,9 +1875,12 @@ the tree was rebuilt, and the build said which units stayed exact.
 
 What this says, as far as it goes:
 
-- 130 of the 244 disagreements were accidents of the reconstruction: units
-  were matched one by one, each with whatever prototype its author wrote,
-  and the true signature works everywhere.
+- For 130 of the 244 the definition's signature keeps every reconstructed
+  caller exact. These disagreements can be consolidated: units were matched
+  one by one, each with the prototype its author wrote, and the build does
+  not need the difference. That makes the definition's signature compatible
+  with all reconstructed callers. It does not make it the original
+  declaration, and it does not show that the other prototypes were wrong.
 - For 94 functions callers and definition cannot share one typed prototype
   and stay exact (66, 25 and 3). Inferred, not proven: the original
   declared these without a parameter list, or defined them in the old
