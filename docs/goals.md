@@ -155,6 +155,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Repeated prototypes moved into one shared header: 781 functions, one
   prototype each, chosen by rebuilding. The units lost 2,039 prototype
   lines and stay exact. No count of exact functions changed.
+- Data externs that all units declare the same way moved into a second
+  shared header: 594 symbols. The units lost 1,218 extern declarators and
+  stay exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -200,8 +203,13 @@ functions; they change with every round.
    such change must rebuild exact. Prototypes are done: one shared header
    for 781 functions. 85 functions keep prototypes in their units, 66 of
    them because the callers need one signature and the definition has
-   another; the list is a work item of its own. Externs of data are the
-   next mechanical step of the same kind.
+   another; the list is a work item of its own. Data externs are done
+   where all units agree: 594 symbols in a shared header. 138 symbols stay
+   in units. 87 of them are callback tables whose type is a function
+   pointer typedef that units define for themselves; one shared definition
+   of those typedefs would let the tables move too. That is a separate
+   step from turning wrapper structs into proper members, which this count
+   says nothing about.
 5. Data is owned per unit. Game data tables still have no owner. The four
    words after the program entry routine, a table it reads, have none either.
 

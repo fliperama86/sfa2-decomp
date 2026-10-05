@@ -60,6 +60,13 @@ matching lines.
   If your code needs another parameter list or return type for a function
   than the header gives, leave `protos.h` out of that unit, declare what the
   unit needs, and say so in the report. The disagreement is a finding.
+- Data externs that every unit declares the same way come from the shared
+  header `externs.h`, included after `game.h` like `protos.h`. Declare in
+  your own `.c` file only what it does not have. A symbol that you need
+  with another type or shape than the header gives (an array where it has a
+  scalar, a struct where it has a pointer) is a reason to leave `externs.h`
+  out of that unit and declare your own, and to say so in the report: the
+  two forms compile differently, and which units need which is a finding.
 - Plain C89. Hex for values that are identifiers or masks.
 
 ## What is allowed

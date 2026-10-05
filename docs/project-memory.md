@@ -1923,6 +1923,70 @@ Lessons:
   independent count found it. Count with a second, simpler method before
   publishing totals of a rewrite.
 
+## Thirty-fourth group: one shared header for data externs
+
+No function count changes in this group. The image, every owner and the
+build configuration are the same as in the thirty-third group: 1,616
+functions exact.
+
+What changed:
+
+- Units declared the data they use themselves: 1,727 extern declarators
+  for 732 data symbols in 646 unit files.
+- 594 symbols now have one declaration each in a shared header that 644
+  units include. The units lost 1,218 declarators. 509 declarators for 147
+  symbols remain in units.
+- 138 symbols are declared only in units. 9 are in the header and also in
+  one unit that includes only the object header and was left as it is.
+  594 and 138 make the 732.
+- The matching guide has the rule for data externs next to the one for
+  prototypes.
+
+How a symbol qualified. This step tested no candidates. A symbol moved only
+when every unit that declares it uses the same type and the same shape
+(scalar, pointer, array) and the type is one the generated types header
+defines. Then the tree was rebuilt.
+
+- 49 symbols stay because units disagree on type or shape. An array in one
+  unit and a scalar in another compile differently, so these are findings
+  to resolve one by one, not noise.
+- 87 stay because their type is a function pointer typedef that units
+  define for themselves: `ObjectFn` for 72 of them and five other names for
+  the rest, 160 declarators in all. These are callback tables, not struct
+  data.
+- 1 was thrown out of the header by the build, and 1 has a declaration the
+  script does not parse.
+
+Scope, counted with a second method that walks each extern statement
+character by character:
+
+- The counter calls "data" every extern declarator that is neither
+  written with explicit function pointer syntax nor a function prototype.
+  So the 1,727 and the 509 include the 160 declarators of callback tables
+  whose type is a function pointer typedef.
+- The separate count of 102 declarators for 72 symbols covers explicit
+  function pointer syntax only, not all function pointer objects. The
+  script does not handle those 102. They were not touched, and neither
+  were 6 function prototypes written with `extern`.
+- The totals above are from the second method, before and after, and agree
+  with the script's own count of removed declarators.
+
+Tooling, private:
+
+- The script that writes the header and rewrites the units, with the same
+  back-off as the one for prototypes, and the independent counter.
+
+Lessons:
+
+- The count of the previous group was corrected in review because it used
+  the tool's own pattern. This group's totals were taken with a separate
+  counter first. It showed one thing the tool's numbers did not: 9 symbols
+  that are both in the header and in a unit.
+- The script reported 87 symbols with a unit-local type. The first text
+  of this group called those types structs without listing them. All 87
+  are function pointer typedefs; the review found it. Name a category only
+  after listing its members.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
