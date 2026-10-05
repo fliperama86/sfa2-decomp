@@ -1703,6 +1703,139 @@ Lessons:
   function was exact with a nested double assignment; a comma expression
   with `|=` gives the same bytes and reads as ordinary code.
 
+## Thirty-second group: far and large functions, ninth sweep, locals assigned twice
+
+Counts at this snapshot. One agent package of the last wave has not
+reported and is not part of these counts.
+
+- 1,616 functions exact. 1,563 come from C, 271,324 bytes, and 53 from
+  assembly, 1,040 bytes. Read-only data and initialised data owned by units
+  are unchanged at 2,332 and 5,900 bytes. 333,804 payload bytes stay raw.
+  About 82 percent of the inventoried resident code bytes: 268,928 of
+  328,096, counted as before.
+- 9 functions are new, 2,928 bytes, all game functions of the resident
+  inventory, all out of the parked pool.
+- Against the inventory: 1,229 of its 1,302 game functions are exact,
+  193,540 of 240,200 bytes, about 81 percent. The other 73 are parked.
+  Library unchanged: 324 of 347. By area the count is 1,230 game functions
+  and 386 library functions.
+- Parked: 82 functions, about 48 KB (73 game, 9 library). Unattempted by
+  the counting rule: 14 library functions, about 11 KB, as before.
+
+Where the 9 came from:
+
+- 6 from agents with one function each: 47 packages reported, over 41
+  functions.
+  - 10 functions of 104 to 328 bytes that were far from exact and never
+    had a package of their own: 2 exact, one of them in the form of an
+    exact function that shares a run of instructions. In most of the others the agent found a mistake
+    of structure in the old candidate (a missing counter, a store on the
+    wrong side of a test, a wrong mask constant).
+  - 10 of 388 to 868 bytes, also first packages: 3 exact, one of them
+    rewritten in the form of an exact neighbour.
+  - 10 of 708 to 1,528 bytes: none exact. Most reports say that the blocks
+    match and that registers, the frame or a spill slot differ.
+  - 1 sibling of a function solved at the top level: not exact.
+  - 17 chosen because their residual shows one of the three forms below,
+    6 of them for the second time in this round: 1 exact, 9 closer, 6
+    unchanged, 1 not reported.
+- 1 written at the top level with the value copy form below. Its last
+  difference was the operand order of one sum.
+- 2 from the ninth permutation sweep: the 46 parked game candidates that
+  agents had changed, five minutes each. 16 more left with a closer
+  candidate, 28 unchanged.
+
+Three source forms, all about a local that is assigned more than once:
+
+- **Value copy.** The original loads a word, copies it to a second register
+  and shifts the loaded register in place, then stores one half from each.
+  Source: load into a local, copy it into a second local, assign the
+  shifted value back to the first (`t = load; v = t; t = v >> 16;`). A
+  fresh local for the shifted value loses the copy.
+- **A conversion that stays.** A truncating shift, an `andi 0xffff` or an
+  unfolded compare of a masked bit with its mask stays in the original
+  where the compiler would normally drop it. Source: one narrow local that
+  is assigned at two places, for example the operand of a first test and
+  then the operand of a second. The search found this in a function on
+  which about twenty hand forms had failed.
+- **One scratch local for a chain of values.** Where the listing uses one
+  register for an index, then an extent, then a result, one local reused
+  for all three reproduces the registers. In one function this alone moved
+  the object parameter out of the first argument register, as in the
+  original.
+
+The model behind them, from a register allocation dump of the compiler and
+from the results. Inferred from this compiler's behaviour on the
+reconstructions, not a statement about the original source:
+
+- Locals that die exactly once inside one basic block are given registers
+  first, lowest free register first. Locals that are assigned or die
+  several times, or live in several blocks, come later, by rank.
+- The compiler forgets what it knew about the upper bits of a local that
+  is assigned more than once. That is why the conversion stays.
+- The residual recorded earlier as a parameter moved out of its argument
+  register at entry is, where no merged call explains it, a consequence:
+  the original has one more temporary alive in the first block, a
+  temporary takes the argument register, and the parameter is pushed out.
+  In the function solved at the top level both entry copies appeared by
+  themselves once the value copy was right.
+
+What was tested and did not hold:
+
+- **Inline helper functions.** The idea that the unexplained copies are
+  the formal parameters of small inlined helpers. Three agents tested it on
+  three families with about 130 hand-written and 1,700 enumerated
+  variants, after about 760 enumerated at the top level.
+  No function became exact. A helper loses the value copy in every shape
+  tried, and the entry copies it seemed to produce were a side effect of
+  one more temporary, as above.
+- **Other compiler flags.** One large candidate was compiled with thirteen
+  other flag sets (`-O1`, `-O3`, and single optimisations switched off).
+  Every one was further from the original than `-O2`. Tested on one
+  function only.
+- **The high byte family.** One of the three became exact in the ninth
+  sweep, in the form of its exact siblings: the copy local is read back
+  from the stored byte later. One is at 4 differing slots. The third has no
+  later read and is unchanged after about 13,000 enumerated variants.
+- **The four neighbours with two masks.** The three forms reproduce most
+  of what was missing (the kept `andi 0xffff`, the unfolded compare, the
+  copy of the table entry). What is left is the order of the registers.
+
+Marks in the sources:
+
+- 78 functions say that their form was found by the search, 6 more that it
+  was found by the search and cleaned by hand, 25 that they were finished
+  by hand from a candidate the search had reshaped, 4 that they were
+  written by hand in the form of such a function, and 1 that its form came
+  from a scripted enumeration of variants and was finished by hand.
+
+Tooling, all private:
+
+- A flag comparison script for one candidate, and a variant tester that
+  compiles a function body in a third of a second without a project build.
+  The second made the enumerations above possible.
+- The retry prompt has the three forms, the model and the scratch local
+  note.
+
+Lessons:
+
+- **A hypothesis written down early and not tested costs a day.** The
+  reading of the function with the kept shift (one local for both tests)
+  was noted at the top level on the first day and then left. The search
+  found the same form a day later. Test a specific hypothesis at once when
+  the tester makes it a one-minute job.
+- A theory that explains every residual at once, like the inline helpers,
+  needs a cheap decisive test before agents are sent after it. Here the
+  first agent results showed the mechanism behind the apparent success.
+- Ask for the allocation dump. One agent used the compiler's own dump and
+  explained in one report what two days of variants had not.
+- The yield of plain retry waves is falling: 20 of 50, 18 of 50, 6 of 47.
+  The functions that are left need the model applied one by one.
+- Agents that had the automatic search's rewritten candidate as their
+  starting file found it broken in one case (locals used before they are
+  set). Keep the last hand-written candidate next to it and say so in the
+  prompt.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -147,6 +147,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   both, 50 more one-function packages and an eighth sweep: 25 more game
   functions. 1,607 functions exact: 1,554 from C, 268,396 bytes, and 53
   from assembly. 1,220 of the 1,302 inventoried game functions are exact.
+- First one-function attempts on the far and the large parked functions,
+  a ninth sweep, and three more source forms, all about locals that are
+  assigned more than once: 9 more game functions. 1,616 functions exact:
+  1,563 from C, 271,324 bytes, and 53 from assembly. 1,229 of the 1,302
+  inventoried game functions are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -172,16 +177,18 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 82 game functions are parked, each with a candidate.
-   One function per agent is the method: 38 of 100 packages so far. Leads
-   from the image raise the rate: the sign of a merged call in the listing,
-   and an exact function with the same instructions. Both lists exist for
-   the whole pool and go into every prompt. 37 parked game functions have
-   not had a one-function retry yet, most of them large or far from exact.
-   Two groups share one unexplained residual each: three functions of the
-   high byte family, which need the loaded halfword and its copy in the
-   opposite registers, and four neighbours whose original keeps values in
-   two registers and masks a parameter twice.
+2. The parked pool: 73 game functions are parked, each with a candidate.
+   One function per agent is the method: 44 of 147 packages so far, and the
+   rate is falling: 6 of the last 47. All but seven parked game functions
+   have had such a package; six of the seven are above 1,500 bytes. What is
+   left differs mostly in which register a value gets. The working model
+   for that, from a register allocation dump: locals that die once inside
+   one block get registers first, the others later by rank, and a local
+   that is assigned more than once loses what the compiler knew about its
+   upper bits. The forms that follow from it made two functions exact and
+   brought nine others closer, two of them to 4 and 12 differing slots.
+   Next: apply the model function by function at the top level, with the
+   allocation dump, before more waves.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
