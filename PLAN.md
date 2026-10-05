@@ -63,7 +63,7 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Stage | Deliverable | State |
 | --- | --- | --- |
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
-| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; static [overlay map](ps1/docs/overlays.md); loader confirmation and boundaries open |
+| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables; function boundaries inside overlays open |
 | Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners; overlays planned |
 | Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,617 functions (1,231 game, 386 library); expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |

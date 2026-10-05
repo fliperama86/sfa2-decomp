@@ -171,6 +171,12 @@ payloads, accurate source coverage, and retained human/AI refinements.
   a compound shift. 1,617 functions exact: 1,564 from C, 271,532 bytes,
   and 53 from assembly. 1,230 of the 1,302 inventoried game functions
   are exact.
+- The overlay map is confirmed against the resident loader: an exact
+  function indexes destination tables by two fields of an archive entry,
+  and for all 16 code-bearing slots the table's address equals the
+  address estimated from the code. A word-by-word comparison of the two
+  sides' blocks supports, without proving, that a second-side block is its
+  first-side block linked at a fixed distance.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -235,12 +241,28 @@ functions; they change with every round.
 
 ## Overlays
 
-The [overlay map](../ps1/docs/overlays.md) records the archive format, every
-code-bearing chunk on the disc and its estimated link address, and what the
-three out-of-image calls in the matched code resolve to. It is static analysis.
-Still open: confirming the map from the resident loader code, and how the
-matching build should own overlay blocks, including one source linked at two
-addresses for the two player sides.
+This is the current focus, by the owner's decision of 2026-10-05.
+
+The [overlay map](../ps1/docs/overlays.md) records the archive format, what
+the exact loader functions do with an archive entry, the loader's destination
+tables, every code-bearing chunk on the disc with its link address, and how
+the second-side blocks differ from the first-side ones. No game was run.
+
+Next, in this order:
+
+1. An inventory of the functions inside the overlay modules: boundaries,
+   sizes, and which modules share which code. Start with the four modules
+   that have one content across many files.
+2. A proposal for how the matching build owns an overlay block: a baseline
+   that is a chunk of an archive instead of the executable, and, as the
+   proposed treatment of the two sides, one source linked at two addresses.
+   That treatment is an inference from the comparison until both links of
+   a block rebuild exactly. This needs the owner's decision before it is
+   built.
+3. A pilot: one overlay module, or part of one, rebuilt exactly.
+
+Still open in the map itself: how the loader treats the entries without a
+table destination, and what owns 11 data symbols above the stage blocks.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime

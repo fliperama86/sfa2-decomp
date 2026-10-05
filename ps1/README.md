@@ -13,7 +13,8 @@ Public tools, free of game data:
 - `tools/mergeunits.py`: merge per-unit work directories.
 - `tools/test_matchbuild.py`, `test_structgen.py`, `test_mergeunits.py`: controls.
 - `tools/baseline.py`: disc and file manifest: pin, verify, extract.
-- `tools/pac.py`: chunk archives: list, extract, scan for code.
+- `tools/pac.py`: chunk archives: list, extract, scan for code, compare with
+  the loader's destination tables, compare the two sides' blocks.
 - `tools/test_disc_tools.py`: controls for the two disc tools.
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
 - `tools/test_verify_cc1_golden.py`: controls for that checker.
