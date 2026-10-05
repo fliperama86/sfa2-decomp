@@ -1845,16 +1845,25 @@ group: 1,616 functions exact, the same build configuration byte for byte.
 What changed:
 
 - Units used to carry their own prototypes of the functions they call:
-  2,327 prototype lines for 864 functions in 646 unit files.
+  2,335 prototype declarations for 866 functions in 646 unit files.
 - 781 functions now have one prototype each in a shared header that 643
-  units include. The units lost 2,039 prototype lines. 288 prototype lines
-  for 87 functions remain in units.
+  units include. The units lost 2,039 prototype lines. 296 declarations
+  for 89 functions remain in units; 85 of those functions are declared
+  only in units.
 - The matching guide says where prototypes live now and what a unit does
   when it needs another one.
 
 How the one prototype per function was chosen. Nothing was decided by
 reading: every candidate was put into all units that declare the function,
 the tree was rebuilt, and the build said which units stayed exact.
+
+The scope of that test is narrower than the totals above. Its scanner does
+not accept a parenthesis inside a parameter list, so it saw 2,327
+declarations of 864 functions. It missed 8 declarations that have a
+callback parameter. They belong to 5 functions: 2 were not scanned at all,
+3 were scanned through declarations of another form. The classification
+below is of the 864 scanned functions. The 8 declarations and the 2
+functions were not tested and stay in their units.
 
 - 620 functions had the same prototype in every unit and in the
   definition. 615 moved as they were. 4 use a type that only their unit
@@ -1867,7 +1876,8 @@ the tree was rebuilt, and the build said which units stayed exact.
   the definition. For 94 the definition's signature keeps every caller
   exact. For 53 only the callers' prototype does, and the definition needs
   its own. For 4 only the form without a parameter list does.
-- Of those 244, 166 are in the header. 78 stay in the units: the 3 without
+- Of those 244, 166 are in the header. 615 and 166 make the 781. 78 stay
+  in the units: the 3 without
   a common prototype, 66 where the callers' prototype cannot stand in a
   header that the defining unit also includes, because the definition has
   another signature, and 9 that the build threw out of the header for
@@ -1907,6 +1917,11 @@ Lessons:
   that drives it before promoting.
 - A change of this size needs no agent. A script and the build are enough
   when the build can judge every step.
+- A count taken with the pattern of the tool it describes inherits the
+  tool's blind spot. The first totals here came from the scanner's own
+  pattern and were short by 8 declarations and 2 functions. The reviewer's
+  independent count found it. Count with a second, simpler method before
+  publishing totals of a rewrite.
 
 ## Windows reference
 
