@@ -52,8 +52,14 @@ matching lines.
   existing line. Gaps become padding automatically.
 - To reference something outside the unit, add `name = 0x...;` to
   `symbols.ld`. Never list a function that a unit defines.
-- Prototypes of functions from other units go at the top of the unit's own
-  `.c` file. Shared headers are consolidated later at the top level.
+- Prototypes of functions from other units come from the shared header
+  `protos.h` in the config directory. A unit includes it right after
+  `game.h`. It holds one prototype per function: the one that keeps every
+  unit exact. Look there before declaring anything. Put a prototype at the
+  top of your own `.c` file only for a function the header does not have.
+  If your code needs another parameter list or return type for a function
+  than the header gives, leave `protos.h` out of that unit, declare what the
+  unit needs, and say so in the report. The disagreement is a finding.
 - Plain C89. Hex for values that are identifiers or masks.
 
 ## What is allowed

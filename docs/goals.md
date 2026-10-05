@@ -152,6 +152,9 @@ payloads, accurate source coverage, and retained human/AI refinements.
   assigned more than once: 9 more game functions. 1,616 functions exact:
   1,563 from C, 271,324 bytes, and 53 from assembly. 1,229 of the 1,302
   inventoried game functions are exact.
+- Repeated prototypes moved into one shared header: 781 functions, one
+  prototype each, chosen by rebuilding. The units lost 2,039 prototype
+  lines and stay exact. No count of exact functions changed.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -192,10 +195,13 @@ functions; they change with every round.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
-4. Replace `func_<address>` names where several units agree on a role, turn
-   the recorded casts and wrapper structs into proper members, and move
-   repeated prototypes into shared headers. Every such change must rebuild
-   exact.
+4. Replace `func_<address>` names where several units agree on a role and
+   turn the recorded casts and wrapper structs into proper members. Every
+   such change must rebuild exact. Prototypes are done: one shared header
+   for 781 functions. 83 functions keep prototypes in their units, 66 of
+   them because the callers need one signature and the definition has
+   another; the list is a work item of its own. Externs of data are the
+   next mechanical step of the same kind.
 5. Data is owned per unit. Game data tables still have no owner. The four
    words after the program entry routine, a table it reads, have none either.
 

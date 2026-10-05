@@ -1836,6 +1836,75 @@ Lessons:
   set). Keep the last hand-written candidate next to it and say so in the
   prompt.
 
+## Thirty-third group: one shared header for prototypes
+
+No function count changes in this group. The private tree was rewritten
+and rebuilt; the image and every owner are the same as in the thirty-second
+group: 1,616 functions exact, the same build configuration byte for byte.
+
+What changed:
+
+- Units used to carry their own prototypes of the functions they call:
+  2,327 prototype lines for 864 functions in 646 unit files.
+- 781 functions now have one prototype each in a shared header that 643
+  units include. The units lost 2,039 prototype lines. 288 prototype lines
+  for 87 functions remain in units.
+- The matching guide says where prototypes live now and what a unit does
+  when it needs another one.
+
+How the one prototype per function was chosen. Nothing was decided by
+reading: every candidate was put into all units that declare the function,
+the tree was rebuilt, and the build said which units stayed exact.
+
+- 620 functions had the same prototype in every unit and in the
+  definition. 615 moved as they were. 4 use a type that only their unit
+  defines, and the build threw 1 out of the header.
+- 93 functions had prototypes that differ between units. For 36 the
+  definition's signature keeps every unit exact. For 33 another typed
+  prototype does. For 21 only the form without a parameter list does: the
+  callers pass different argument lists. For 3 nothing does.
+- 151 functions had one prototype in all callers and another signature in
+  the definition. For 94 the definition's signature keeps every caller
+  exact. For 53 only the callers' prototype does, and the definition needs
+  its own. For 4 only the form without a parameter list does.
+- Of those 244, 166 are in the header. 78 stay in the units: the 3 without
+  a common prototype, 66 where the callers' prototype cannot stand in a
+  header that the defining unit also includes, because the definition has
+  another signature, and 9 that the build threw out of the header for
+  another conflict.
+
+What this says, as far as it goes:
+
+- 130 of the 244 disagreements were accidents of the reconstruction: units
+  were matched one by one, each with whatever prototype its author wrote,
+  and the true signature works everywhere.
+- For 94 functions callers and definition cannot share one typed prototype
+  and stay exact (66, 25 and 3). Inferred, not proven: the original
+  declared these without a parameter list, or defined them in the old
+  style with narrow parameter types, so that callers pass plain integers.
+  The compiler's own behaviour is the only evidence; no original
+  declaration is known.
+- One unit keeps all its own prototypes and does not include the header:
+  with the shared prototypes it stops being exact.
+
+Tooling, private:
+
+- A script that tries every candidate prototype of a function in all units
+  and rebuilds, and one that writes the header, rewrites the units and
+  backs off a function or a unit until the build passes. The first took
+  about four hours of builds for 244 functions; the second about one.
+
+Lessons:
+
+- The first version of the rewriting script had no text for a prototype
+  that only the definition spells, and silently kept 104 functions out of
+  the header. The total did not reconcile with the table of test results
+  (26 in the header where 130 should have been), and that is how it was
+  found. Reconcile the output of a mechanical rewrite against the table
+  that drives it before promoting.
+- A change of this size needs no agent. A script and the build are enough
+  when the build can judge every step.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
