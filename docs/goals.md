@@ -166,6 +166,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   into the header too. 12 have none.
 - The reconstructed PS1 source is published in `ps1/src/`: 760 files. The
   SDK headers of another project, which it needs to build, are not.
+- One more game function, done at the top level with the compiler's
+  dumps instead of an agent package: a 16-bit local scaled in place with
+  a compound shift. 1,617 functions exact: 1,564 from C, 271,532 bytes,
+  and 53 from assembly. 1,230 of the 1,302 inventoried game functions
+  are exact.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -191,7 +196,7 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 73 game functions are parked, each with a candidate.
+2. The parked pool: 72 game functions are parked, each with a candidate.
    One function per agent is the method: 44 of 147 packages so far, and the
    rate is falling: 6 of the last 47. All but seven parked game functions
    have had such a package; six of the seven are above 1,500 bytes. What is
@@ -202,7 +207,9 @@ functions; they change with every round.
    upper bits. The forms that follow from it made two functions exact and
    brought nine others closer, two of them to 4 and 12 differing slots.
    Next: apply the model function by function at the top level, with the
-   allocation dump, before more waves.
+   allocation dump, before more waves. Started: the closest function
+   became exact that way, the second closest did not. The thirty-eighth
+   group of the project memory has what the dumps showed.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.

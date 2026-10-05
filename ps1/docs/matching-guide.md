@@ -116,6 +116,14 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   fixture, and so does the explicit form on a signed byte. Inside larger
   functions other forms have been needed. Do not treat this as a general
   mapping: read the constant in the listing and try the forms.
+- A shifted value in two registers (`sll $a1,$v1,3` and, in the delay slot
+  of the next branch, `move $v1,$a1`; a compare reads the first, a store
+  and the code after a join read the second) was rebuilt in one function
+  from one signed 16-bit local scaled in place: `t = table[i]; t <<= 3;`.
+  `t = t << 3` gave the same code there; `t *= 8`, `t = t * 8`, an
+  unsigned 16-bit local, and separate locals for the product and its copy
+  did not. One function is thin evidence: try the spellings, do not treat
+  this as a mapping.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

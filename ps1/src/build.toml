@@ -7011,3 +7011,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014a4f4", address = 0x8014a4f4, size = 204 },
 ]
+
+[[unit]]
+name = "u_801386f0"
+source = "u_801386f0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801386f0", address = 0x801386f0, size = 208 },
+]
