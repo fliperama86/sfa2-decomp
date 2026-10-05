@@ -10,7 +10,8 @@ project.
 - Commit: `62d03266cc927aabefea3b0605cabc254b48831b`, folder
   `src/main/psxsdk`.
 - License: MIT, by the `SPDX-License-Identifier: MIT` line that each of those
-  files carries there. The line is kept here.
+  files carries there. The line is kept here, and [`LICENSE`](LICENSE) in
+  this folder has the license text with the reference's copyright line.
 
 ## What is here
 

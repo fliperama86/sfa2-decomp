@@ -164,7 +164,7 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Of the 49 data symbols that units declared differently, 37 have one
   declaration that keeps every unit exact, found by rebuilding, and moved
   into the header too. 12 have none.
-- The reconstructed PS1 source is published in `ps1/src/`: 759 files. The
+- The reconstructed PS1 source is published in `ps1/src/`: 760 files. The
   SDK headers of another project, which it needs to build, are not.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the

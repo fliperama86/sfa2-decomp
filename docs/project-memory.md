@@ -2110,15 +2110,15 @@ projects do and after the license of the reused library code had been
 checked. Until then the rule was that no game-derived source enters Git
 without an explicit review. This group is that review.
 
-What is published, in `ps1/src/`: 759 files.
+What is published, in `ps1/src/`: 760 files.
 
 - 646 C files of game code and 4 shared headers.
 - The Sony library part in `ps1/src/sdk/`: 50 C files, 5 internal headers
   and 42 assembly stubs.
 - 8 assembly files for code that is assembly in the original: the program
   entry routine and small stubs.
-- The build configuration, the symbol file, the field table and the note
-  on the library part's provenance.
+- The build configuration, the symbol file, the field table, and the note
+  on the library part's provenance with its license file.
 
 What is not published, and why:
 
@@ -2141,7 +2141,11 @@ sotn-decomp at the commit the project has used throughout:
   42 stubs are generated from the reference's one-line stub files; they
   got the MIT tag line with this change.
 - A note in the library folder names the project, the commit and the
-  license, and lists the above.
+  license, and lists the above. A license file in the same folder carries
+  the MIT text with the reference's copyright line; the review of the
+  publication asked for it, because the license's own condition is that
+  the notice travels with the copies. The adaptations made here are under
+  the same terms. This covers the library folder only.
 
 The scan before the first push, over exactly the files to be added:
 
