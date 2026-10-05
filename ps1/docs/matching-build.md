@@ -321,7 +321,9 @@ bss, division, assembly, sibling units) take their baseline from throwaway
 seed builds under names fixed per fixture. Those seed builds run one at a
 time per fixture; a control case checks that for every fixture class.
 Results are printed in the fixed order of the cases. A case that raises an
-error is reported as a failed case and the others still run. Two runs of the
+error is reported as a failed case and the others still run. The same holds
+for a case whose setup stops with `SystemExit` ("test setup: ..."), for one
+case at a time as well as side by side. An interrupt still ends the run. Two runs of the
 whole suite on one checkout at the same time are still not supported: they
 would use the same names.
 

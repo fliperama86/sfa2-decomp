@@ -2066,13 +2066,18 @@ def run_ordered(jobs: int, tasks: list):
     Yields the results in the order of `tasks`, each as soon as it and all
     earlier ones are done, whatever order they finish in. A task that raises
     is a failed case, not a broken run: each case has its own copy, build tag
-    and cache directory, and one of them must not take the others down. What
-    cases do share, a fixture's seed builds, is serialized by `SeededFixture`.
+    and cache directory, and one of them must not take the others down. That
+    includes `SystemExit`, which the setup helpers raise ("test setup: ...")
+    and which `except Exception` does not catch. An interrupt is not a result:
+    `KeyboardInterrupt` still ends the run. What cases do share, a fixture's
+    seed builds, is serialized by `SeededFixture`.
     """
 
     def guarded(task):
         try:
             return task()
+        except SystemExit as exc:
+            return False, f"stopped with SystemExit: {exc.code}"
         except Exception as exc:
             return False, f"raised {type(exc).__name__}: {exc}"
 
@@ -2179,6 +2184,38 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
                 return f"jobs={jobs}: the second task did not run while the first was waiting"
         return None
 
+    def setup_exit(root: Path):
+        def setup_fails():
+            # A real setup helper: it stops with SystemExit when its text is not there once.
+            replace_once("no such text", "absent", "x", "the probe text")
+            return True, "not reached"
+
+        def exits_with_status():
+            raise SystemExit(3)
+
+        def interrupted():
+            raise KeyboardInterrupt
+
+        def succeeds():
+            return True, "second"
+
+        for jobs in (1, 4):
+            for failing, wanted in ((setup_fails, "test setup: expected exactly one occurrence of the probe text"), (exits_with_status, "3")):
+                try:
+                    got = list(run_ordered(jobs, [failing, succeeds]))
+                except SystemExit as exc:
+                    return f"jobs={jobs}, {failing.__name__}: SystemExit left the runner ({exc.code}) and the next task has no result"
+                if len(got) != 2 or got[0][0] is not False or wanted not in got[0][1]:
+                    return f"jobs={jobs}, {failing.__name__}: the exit must be a failed case that names its reason: {got}"
+                if got[1] != (True, "second"):
+                    return f"jobs={jobs}, {failing.__name__}: the task after the exit must still run and report: {got}"
+            try:
+                got = list(run_ordered(jobs, [interrupted, succeeds]))
+            except KeyboardInterrupt:
+                continue
+            return f"jobs={jobs}: an interrupt must end the run, not become a case result: {got}"
+        return None
+
     def seeds_one_at_a_time(root: Path):
         def peak_of(cls, enter) -> int:
             state = {"inside": 0, "peak": 0}
@@ -2225,6 +2262,7 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
 
     return [
         CacheCase("runner-parallel-order", ordered),
+        CacheCase("runner-setup-exit-is-failed-case", setup_exit),
         CacheCase("runner-fixture-seeds-serialized", seeds_one_at_a_time),
         CacheCase("runner-selection-filter", selection),
         CacheCase("runner-selection-empty-fails", empty_selection),
