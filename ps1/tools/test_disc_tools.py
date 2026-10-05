@@ -57,6 +57,37 @@ def make_archive(chunks: list[tuple[int, bytes]]) -> bytearray:
     return data
 
 
+def make_code(base: int, functions: int = 10) -> bytes:
+    """MIPS-shaped code linked at `base`: each function calls the next one and returns.
+
+    A word pointing at the block's own start and an address formed by `lui`
+    and `addiu` follow, so that relinking changes every kind of word that
+    `pac.py sides` names.
+    """
+    words = []
+    for n in range(functions):
+        target = base + 20 * ((n + 1) % functions)
+        words += [0x27BDFFE8, 0x0C000000 | (target >> 2) & 0x03FFFFFF, 0, 0x03E00008, 0x27BD0018]
+    data = base + 0x8000  # the low half has its sign bit set: the upper half carries
+    words += [base, 0x3C020000 | (data + 0x8000) >> 16, 0x24420000 | data & 0xFFFF]
+    return struct.pack(f"<{len(words)}I", *words)
+
+
+def make_executable(start: int, pointers: int, tables: list[list[int]]) -> bytes:
+    """A PS-X executable holding destination tables one after another, then the block of their addresses."""
+    words, starts = [], []
+    for table in tables:
+        starts.append(start + 4 * len(words))
+        words += table
+    words += [0] * ((pointers - start) // 4 - len(words))
+    words += starts + [0]
+    body = struct.pack(f"<{len(words)}I", *words)
+    header = bytearray(0x800)
+    header[:8] = b"PS-X EXE"
+    struct.pack_into("<II", header, 0x18, start, len(body))
+    return bytes(header) + body
+
+
 def baseline_cases(root: Path):
     files = {"A.BIN": bytes(range(256)) * 20, "DIR/B.BIN": b"second file" * 300}
     image = root / "disc.img"
@@ -210,6 +241,81 @@ def pac_cases(root: Path):
     (scan_bad / "GOOD.PAC").write_bytes(good)
     (scan_bad / "WORD.PAC").write_bytes(wrong_word)
     yield "pac-scan-rejects", tool("pac.py", "scan", scan_bad), 1, "1 rejected"
+    yield "pac-list-table-and-slot", tool("pac.py", "list", path), 0, "(table 2, slot 0x0)"
+
+    # The loader's tables: an executable whose table 0 sends slot 4 to FIRST and slot 5 to SECOND.
+    start, pointers, first, second = 0x80100000, 0x80100100, 0x80200000, 0x80218000
+    table0 = [0x80300000, 0x80300000, 0x80300000, 0x80300000, first, second]
+    exe = root / "MAIN.EXE"
+    exe.write_bytes(make_executable(start, pointers, [table0, [0x80400000], [0x80500000]]))
+    side1, side2 = make_code(first), make_code(second)
+    maps = root / "maps"
+    maps.mkdir()
+    (maps / "PL00.PAC").write_bytes(make_archive([(4, side1), (0x10000, b"data" * 8)]))
+    (maps / "PL00X.PAC").write_bytes(make_archive([(5, side2)]))
+    loadmap = lambda *a: tool("pac.py", "loadmap", *a)  # noqa: E731
+    yield "loadmap-agrees", loadmap(exe, maps, "--pointers", hex(pointers)), 0, "2 agree with the table, 0 differ"
+    yield "loadmap-bounds", loadmap(exe, maps, "--pointers", hex(pointers)), 0, "table 0: at most 6 entries"
+    yield "loadmap-last-table", loadmap(exe, maps, "--pointers", hex(pointers)), 0, "table 2: length not bounded"
+
+    # The same archives against a table that sends slot 5 somewhere else.
+    moved = root / "MOVED.EXE"
+    moved.write_bytes(make_executable(start, pointers, [table0[:5] + [second + 0x1000], [0x80400000], [0x80500000]]))
+    yield "loadmap-estimate-differs", loadmap(moved, maps, "--pointers", hex(pointers)), 1, "ESTIMATE DIFFERS: 0x80218000"
+    # A code chunk whose slot lies beyond the table has no destination to agree with.
+    beyond = root / "beyond"
+    beyond.mkdir()
+    (beyond / "A.PAC").write_bytes(make_archive([(9, side1)]))
+    yield "loadmap-code-without-entry", loadmap(exe, beyond, "--pointers", hex(pointers)), 1, "ESTIMATE DIFFERS"
+    # A data chunk there is counted, not judged.
+    nodata = root / "nodata"
+    nodata.mkdir()
+    (nodata / "A.PAC").write_bytes(make_archive([(9, b"data" * 8), (4, side1)]))
+    yield "loadmap-data-without-entry", loadmap(exe, nodata, "--pointers", hex(pointers)), 0, "chunks without a table entry: 1"
+    yield "loadmap-no-pointer-block", loadmap(exe, maps, "--pointers", hex(start)), 1, "no block of table addresses"
+    # Symbols outside the image: one at a function start of the first block, one in the middle
+    # of a function, one where nothing is loaded, one inside the image (not reported).
+    names = root / "symbols.ld"
+    names.write_text(
+        f"entry = {first + 20:#x};\nmiddle = {first + 24:#x};\nnowhere = 0x80600000;\ninside = {start:#x};\n"
+    )
+    with_symbols = loadmap(exe, maps, "--pointers", hex(pointers), "--symbols", names)
+    yield "loadmap-symbol-at-function", with_symbols, 0, f"entry {first + 20:#x}  slot 0x4: 1/1/1"
+    yield "loadmap-symbol-inside-function", with_symbols, 0, f"middle {first + 24:#x}  slot 0x4: 1/0/1"
+    yield "loadmap-symbol-unloaded", with_symbols, 0, "no chunk reaches 1 symbol(s) from 0x80600000 to 0x80600000"
+    yield "loadmap-symbol-in-image-skipped", outcome("inside" not in with_symbols.stdout, "not reported"), 0, "not reported"
+    yield "loadmap-pointers-outside", loadmap(exe, maps, "--pointers", "0x80700000"), 1, "no block of table addresses"
+    yield "loadmap-not-an-executable", loadmap(path, maps, "--pointers", hex(pointers)), 1, "not a PS-X executable"
+    short = root / "SHORT.EXE"
+    short.write_bytes(exe.read_bytes()[:-8])
+    yield "loadmap-short-executable", loadmap(short, maps, "--pointers", hex(pointers)), 1, "shorter than its header says"
+    yield "loadmap-rejected-archive", loadmap(exe, scan_bad, "--pointers", hex(pointers)), 1, "1 rejected"
+    empty_dir = root / "none"
+    empty_dir.mkdir()
+    yield "loadmap-no-archive", loadmap(exe, empty_dir, "--pointers", hex(pointers)), 1, "no archive parsed"
+
+    # The two sides: relinked code differs only in ways the distance explains.
+    sides = lambda *a: tool("pac.py", "sides", *a)  # noqa: E731
+    yield "sides-relinked", sides(exe, maps, "--pointers", hex(pointers)), 0, "PL00.PAC and PL00X.PAC: 40 words identical, 13 differ, 0 other"
+    # Ten calls, one pointer and one address pair: see make_code.
+    for want in ("10  jump target moved", "1  word pointing into the block", "1  upper half", "1  lower half"):
+        yield f"sides-class-{want.split()[1]}-{want.split()[2]}", sides(exe, maps, "--pointers", hex(pointers)), 0, want
+    # One word changed for no reason the distance explains.
+    odd = root / "odd"
+    odd.mkdir()
+    changed = bytearray(side2)
+    struct.pack_into("<I", changed, 8, 0x12345678)
+    (odd / "PL00.PAC").write_bytes(make_archive([(4, side1)]))
+    (odd / "PL00X.PAC").write_bytes(make_archive([(5, bytes(changed))]))
+    yield "sides-unexplained-word", sides(exe, odd, "--pointers", hex(pointers), "--show", 4), 0, "0x8: 00000000 12345678"
+    # A twin of another size is not compared, and a run that compared nothing fails.
+    sized = root / "sized"
+    sized.mkdir()
+    (sized / "PL00.PAC").write_bytes(make_archive([(4, side1)]))
+    (sized / "PL00X.PAC").write_bytes(make_archive([(5, side2 + bytes(4))]))
+    yield "sides-size-differs", sides(exe, sized, "--pointers", hex(pointers)), 1, "sizes differ (0xd4, 0xd8), not compared"
+    yield "sides-no-twin", sides(exe, nodata, "--pointers", hex(pointers)), 1, "0 pairs compared"
+    yield "sides-slot-outside-table", sides(exe, maps, "--pointers", hex(pointers), "--second", 9), 1, "table 0 has no such slots"
 
 
 def main() -> int:

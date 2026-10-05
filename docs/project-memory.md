@@ -2280,6 +2280,68 @@ Corrections and lessons:
   of the new function was removed in the published tree; the set of
   remaining lines equals the trial tree's.
 
+## Thirty-ninth group: the overlay map confirmed against the loader
+
+The owner chose overlays as the next focus on 2026-10-05. The parked pool
+stays as it is: 81 functions, 72 of them game functions.
+
+No function count changes in this group: 1,617 functions exact.
+
+What was open: the overlay map gave link addresses that were estimates from
+the code inside the chunks, and said that the loader had not been read.
+
+What ran, all static:
+
+- A search of the executable's data for the estimated addresses found a
+  table that lists them. A block of six table addresses refers to it.
+- `func_801501a0`, already exact, indexes that block with two 16-bit fields
+  of an archive entry. So the entry's first word is a slot and a table
+  number, not one type, and the destination of a chunk is
+  `tables[table][slot]`.
+- `pac.py loadmap` (new) reads the tables from the executable and compares
+  them with the estimates over all 239 archives: 1,572 chunks, 247 with
+  code, in 16 slots of table 0. All 16 agree, none differs.
+- `pac.py sides` (new) compares each second-side character block with its
+  first-side twin: 391,211 words identical, 19,542 differing in a way the
+  distance of 0x18000 explains, 57 other. 20 pairs; one pair differs in
+  size by four bytes and was not compared.
+- `pac.py loadmap --symbols` lists the symbols that the source assigns
+  outside the image with the chunks loaded over them: 38 covered, 76 not.
+- `test_disc_tools.py`: 26 new control cases on synthetic inputs, 62 in
+  all, all as required.
+
+Findings that change the plan for overlays:
+
+- Four modules have one content across many files (24, 63, 42 and 21
+  chunks). They are the cheapest place to start.
+- A second-side block is its first-side block linked at another address.
+  Four characters carry one more module with the same property at another
+  distance. So "one source at two addresses" is a property of the data, and
+  the build needs a second link, not a second source.
+- The resident tables of per-character entry addresses send character
+  numbers 21 to 23 on the second side into the first-side block. That fits
+  the three character files without a second-side twin.
+
+Corrections to the earlier overlay page:
+
+- It read the entry's first word as one 32-bit type. Exact code reads two
+  16-bit fields.
+- It said each character block starts with data. 17 of the 25 first-side
+  blocks open a stack frame at their first word.
+- It called two estimates weak. The table confirms them.
+
+Lessons:
+
+- Search the data before reading code for a table. The addresses the
+  static pass had estimated were sitting in the executable as words; the
+  function that uses them was then one search away and already exact.
+- Agreement between two static sources is still static. The page says what
+  an exact function does and what the bytes are; it does not say a load was
+  observed.
+- A one-off script is not evidence a reviewer can rerun. Each number on the
+  page comes from a command of the published tool, or from an address and
+  a count that can be read off the executable.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
