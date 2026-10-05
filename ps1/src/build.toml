@@ -1,0 +1,7013 @@
+# Matching-build configuration. Contract: ps1/docs/matching-build.md
+
+[baseline]
+executable = "../audit/files/SLPS_004.15"
+sha256 = "0a522fd4791edfe95150edea057ca7113b8d0e93ed085be6854c042012c4a2a2"
+
+[toolchain]
+cpp = "clang"
+maspsx = "~/Projects/references/maspsx/maspsx.py"
+maspsx_commit = "e85ecb373828aabea96d7e6400974d4f91ce8c74"
+# 2.21 or older: the original uses addiu and a nop in $at expansions.
+aspsx_version = "2.21"
+binutils_prefix = "mipsel-linux-gnu-"
+include_dirs = ["sdk/include", "sdk/include/psxsdk"]
+expand_div = true
+
+# The pinned GCC 2.6.3 binary, run locally on this machine.
+[toolchain.cc1]
+kind = "local"
+path = "../toolchain/cc1-psx-26"
+sha256 = "c248a5272dc1a4537b177c71e3d785f48204718e36b076d5d7940b9469a0beb8"
+
+[selftest]
+unit = "metrics"
+find = "for (slot = 11; slot != -1; --slot)"
+replace = "for (slot = 10; slot != -1; --slot)"
+
+[[unit]]
+name = "metrics"
+source = "metrics.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "build_metrics", address = 0x80142128, size = 524 },
+  { name = "box_delta", address = 0x80142334, size = 36 },
+  { name = "wide_delta", address = 0x80142358, size = 32 },
+]
+
+[[unit]]
+name = "object_setup"
+source = "object_setup.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "select_box_tables", address = 0x80130988, size = 180 },
+  { name = "init_table_fields", address = 0x80130a3c, size = 156 },
+  { name = "set_start_position", address = 0x80130ad8, size = 24 },
+  { name = "set_side_field_0d", address = 0x80130af0, size = 32 },
+]
+
+[[unit]]
+name = "kind_swap"
+source = "kind_swap.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "swap_kind", address = 0x80131f7c, size = 244 },
+]
+
+[[unit]]
+name = "object_reset"
+source = "object_reset.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "reset_object", address = 0x80129020, size = 948 },
+  { name = "func_801293d4", address = 0x801293d4, size = 84 },
+  { name = "func_80129428", address = 0x80129428, size = 32 },
+  { name = "func_80129448", address = 0x80129448, size = 32 },
+]
+
+[types]
+fields = "types.fields"
+header = "types.gen.h"
+
+[[unit]]
+name = "setup_pre"
+source = "setup_pre.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013060c", address = 0x8013060c, size = 108 },
+  { name = "func_80130678", address = 0x80130678, size = 136 },
+  { name = "func_80130700", address = 0x80130700, size = 104 },
+  { name = "func_80130768", address = 0x80130768, size = 120 },
+  { name = "func_801307e0", address = 0x801307e0, size = 228 },
+  { name = "func_801308c4", address = 0x801308c4, size = 196 },
+]
+
+[[unit]]
+name = "reset_pre"
+source = "reset_pre.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128c48", address = 0x80128c48, size = 56 },
+  { name = "func_80128c80", address = 0x80128c80, size = 136 },
+  { name = "func_80128d08", address = 0x80128d08, size = 80 },
+  { name = "func_80128d58", address = 0x80128d58, size = 76 },
+  { name = "func_80128da4", address = 0x80128da4, size = 120 },
+  { name = "func_80128e1c", address = 0x80128e1c, size = 56 },
+  { name = "func_80128e54", address = 0x80128e54, size = 40 },
+  { name = "func_80128e7c", address = 0x80128e7c, size = 56 },
+  { name = "func_80128eb4", address = 0x80128eb4, size = 40 },
+  { name = "func_80128edc", address = 0x80128edc, size = 232 },
+  { name = "func_80128fc4", address = 0x80128fc4, size = 84 },
+  { name = "func_80129018", address = 0x80129018, size = 8 },
+]
+
+[[unit]]
+name = "misc_3f"
+source = "misc_3f.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f2a8", address = 0x8013f2a8, size = 32 },
+  { name = "func_8013f2c8", address = 0x8013f2c8, size = 16 },
+  { name = "func_8013f2d8", address = 0x8013f2d8, size = 36 },
+  { name = "func_8013f2fc", address = 0x8013f2fc, size = 188 },
+  { name = "func_8013f3b8", address = 0x8013f3b8, size = 48 },
+]
+
+[[unit]]
+name = "misc_4a"
+source = "misc_4a.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149f14", address = 0x80149f14, size = 12 },
+  { name = "func_80149f20", address = 0x80149f20, size = 164 },
+  { name = "func_80149fc4", address = 0x80149fc4, size = 116 },
+  { name = "func_8014a038", address = 0x8014a038, size = 32 },
+  { name = "func_8014a058", address = 0x8014a058, size = 164 },
+  { name = "func_8014a0fc", address = 0x8014a0fc, size = 116 },
+]
+
+[[unit]]
+name = "state_38"
+source = "state_38.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138c78", address = 0x80138c78, size = 32 },
+  { name = "func_80138c98", address = 0x80138c98, size = 72 },
+  { name = "func_80138ce0", address = 0x80138ce0, size = 144 },
+]
+
+[[unit]]
+name = "state_38b"
+source = "state_38b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138ec4", address = 0x80138ec4, size = 176 },
+]
+
+[[unit]]
+name = "post_setup"
+source = "post_setup.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130b10", address = 0x80130b10, size = 368 },
+  { name = "func_80130c80", address = 0x80130c80, size = 320 },
+  { name = "func_80130dc0", address = 0x80130dc0, size = 256 },
+  { name = "func_80130ec0", address = 0x80130ec0, size = 60 },
+  { name = "func_80130efc", address = 0x80130efc, size = 48 },
+  { name = "func_80130f2c", address = 0x80130f2c, size = 244 },
+  { name = "func_80131020", address = 0x80131020, size = 116 },
+  { name = "func_80131094", address = 0x80131094, size = 276 },
+]
+
+[[unit]]
+name = "pre_swap_a"
+source = "pre_swap_a.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801312b8", address = 0x801312b8, size = 180 },
+  { name = "func_8013136c", address = 0x8013136c, size = 80 },
+  { name = "func_801313bc", address = 0x801313bc, size = 172 },
+  { name = "func_80131468", address = 0x80131468, size = 180 },
+  { name = "func_8013151c", address = 0x8013151c, size = 284 },
+  { name = "func_80131638", address = 0x80131638, size = 244 },
+]
+
+[[unit]]
+name = "post_swap"
+source = "post_swap.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132070", address = 0x80132070, size = 120 },
+  { name = "func_801320e8", address = 0x801320e8, size = 88 },
+  { name = "func_80132140", address = 0x80132140, size = 88 },
+  { name = "func_80132198", address = 0x80132198, size = 80 },
+]
+
+[[unit]]
+name = "post_swap_b"
+source = "post_swap_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132370", address = 0x80132370, size = 236 },
+]
+
+[[unit]]
+name = "metrics_post"
+source = "metrics_post.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142424", address = 0x80142424, size = 284 },
+  { name = "func_80142540", address = 0x80142540, size = 152 },
+]
+
+[[unit]]
+name = "pre_setup"
+source = "pre_setup.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130470", address = 0x80130470, size = 12 },
+  { name = "func_8013047c", address = 0x8013047c, size = 136 },
+  { name = "func_80130504", address = 0x80130504, size = 72 },
+  { name = "func_8013054c", address = 0x8013054c, size = 192 },
+]
+
+[[unit]]
+name = "state_38_pre"
+source = "state_38_pre.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138838", address = 0x80138838, size = 52 },
+  { name = "func_8013886c", address = 0x8013886c, size = 60 },
+  { name = "func_801388a8", address = 0x801388a8, size = 188 },
+  { name = "func_80138964", address = 0x80138964, size = 356 },
+  { name = "func_80138ac8", address = 0x80138ac8, size = 32 },
+  { name = "func_80138ae8", address = 0x80138ae8, size = 80 },
+  { name = "func_80138b38", address = 0x80138b38, size = 92 },
+  { name = "func_80138b94", address = 0x80138b94, size = 80 },
+  { name = "func_80138be4", address = 0x80138be4, size = 148 },
+]
+
+[[unit]]
+name = "pre_setup_a"
+source = "pre_setup_a.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012fe60", address = 0x8012fe60, size = 288 },
+  { name = "func_8012ff80", address = 0x8012ff80, size = 184 },
+  { name = "func_80130038", address = 0x80130038, size = 80 },
+]
+
+[[unit]]
+name = "pre_setup_a_b"
+source = "pre_setup_a_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130184", address = 0x80130184, size = 84 },
+  { name = "func_801301d8", address = 0x801301d8, size = 128 },
+]
+
+[[unit]]
+name = "pre_setup_a_c"
+source = "pre_setup_a_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130280", address = 0x80130280, size = 132 },
+  { name = "func_80130304", address = 0x80130304, size = 156 },
+  { name = "func_801303a0", address = 0x801303a0, size = 208 },
+]
+
+[[unit]]
+name = "pre_swap_b"
+source = "pre_swap_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131854", address = 0x80131854, size = 608 },
+]
+
+[[unit]]
+name = "pre_swap_b_b"
+source = "pre_swap_b_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131c7c", address = 0x80131c7c, size = 236 },
+  { name = "func_80131d68", address = 0x80131d68, size = 144 },
+  { name = "func_80131df8", address = 0x80131df8, size = 144 },
+]
+
+[[unit]]
+name = "s128464_r1"
+source = "s128464_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128464", address = 0x80128464, size = 140 },
+]
+
+[[unit]]
+name = "s128464_r7"
+source = "s128464_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129d14", address = 0x80129d14, size = 148 },
+]
+
+[[unit]]
+name = "s128464_r8"
+source = "s128464_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a108", address = 0x8012a108, size = 76 },
+  { name = "func_8012a154", address = 0x8012a154, size = 64 },
+]
+
+[[unit]]
+name = "s128464_r91"
+source = "s128464_r91.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801299d0", address = 0x801299d0, size = 40 },
+]
+
+[[unit]]
+name = "s128464_r92"
+source = "s128464_r92.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129b68", address = 0x80129b68, size = 40 },
+  { name = "func_80129b90", address = 0x80129b90, size = 40 },
+  { name = "func_80129bb8", address = 0x80129bb8, size = 40 },
+  { name = "func_80129be0", address = 0x80129be0, size = 40 },
+]
+
+[[unit]]
+name = "s128464_r92_b"
+source = "s128464_r92_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129c40", address = 0x80129c40, size = 40 },
+  { name = "func_80129c68", address = 0x80129c68, size = 40 },
+]
+
+[[unit]]
+name = "s12a5ac_r1"
+source = "s12a5ac_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a5ac", address = 0x8012a5ac, size = 64 },
+  { name = "func_8012a5ec", address = 0x8012a5ec, size = 152 },
+]
+
+[[unit]]
+name = "s12a5ac_r2"
+source = "s12a5ac_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a8dc", address = 0x8012a8dc, size = 64 },
+  { name = "func_8012a91c", address = 0x8012a91c, size = 132 },
+]
+
+[[unit]]
+name = "s12a5ac_r3"
+source = "s12a5ac_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ab5c", address = 0x8012ab5c, size = 148 },
+]
+
+[[unit]]
+name = "s12a5ac_r4"
+source = "s12a5ac_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012aef8", address = 0x8012aef8, size = 100 },
+]
+
+[[unit]]
+name = "s12a5ac_r5"
+source = "s12a5ac_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b0e4", address = 0x8012b0e4, size = 96 },
+  { name = "func_8012b144", address = 0x8012b144, size = 64 },
+]
+
+[[unit]]
+name = "s12a5ac_r6"
+source = "s12a5ac_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b2c4", address = 0x8012b2c4, size = 96 },
+]
+
+[[unit]]
+name = "s12a5ac_r7"
+source = "s12a5ac_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b590", address = 0x8012b590, size = 152 },
+]
+
+[[unit]]
+name = "s12a5ac_r8"
+source = "s12a5ac_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012bc24", address = 0x8012bc24, size = 156 },
+  { name = "func_8012bcc0", address = 0x8012bcc0, size = 64 },
+]
+
+[[unit]]
+name = "s12be70_r1"
+source = "s12be70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012be70", address = 0x8012be70, size = 80 },
+  { name = "func_8012bec0", address = 0x8012bec0, size = 64 },
+  { name = "func_8012bf00", address = 0x8012bf00, size = 76 },
+  { name = "func_8012bf4c", address = 0x8012bf4c, size = 40 },
+]
+
+[[unit]]
+name = "s12be70_r2"
+source = "s12be70_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c06c", address = 0x8012c06c, size = 84 },
+  { name = "func_8012c0c0", address = 0x8012c0c0, size = 64 },
+]
+
+[[unit]]
+name = "s12be70_r3"
+source = "s12be70_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c6a4", address = 0x8012c6a4, size = 136 },
+  { name = "func_8012c72c", address = 0x8012c72c, size = 136 },
+]
+
+[[unit]]
+name = "s12be70_r4"
+source = "s12be70_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c89c", address = 0x8012c89c, size = 144 },
+  { name = "func_8012c92c", address = 0x8012c92c, size = 100 },
+  { name = "func_8012c990", address = 0x8012c990, size = 116 },
+  { name = "func_8012ca04", address = 0x8012ca04, size = 196 },
+  { name = "func_8012cac8", address = 0x8012cac8, size = 116 },
+  { name = "func_8012cb3c", address = 0x8012cb3c, size = 196 },
+  { name = "func_8012cc00", address = 0x8012cc00, size = 108 },
+  { name = "func_8012cc6c", address = 0x8012cc6c, size = 60 },
+]
+
+[[unit]]
+name = "s12ce5c_r1"
+source = "s12ce5c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ce5c", address = 0x8012ce5c, size = 64 },
+  { name = "func_8012ce9c", address = 0x8012ce9c, size = 64 },
+  { name = "func_8012cedc", address = 0x8012cedc, size = 64 },
+]
+
+[[unit]]
+name = "s12ce5c_r2"
+source = "s12ce5c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d030", address = 0x8012d030, size = 84 },
+  { name = "func_8012d084", address = 0x8012d084, size = 56 },
+  { name = "func_8012d0bc", address = 0x8012d0bc, size = 36 },
+  { name = "func_8012d0e0", address = 0x8012d0e0, size = 36 },
+  { name = "func_8012d104", address = 0x8012d104, size = 64 },
+  { name = "func_8012d144", address = 0x8012d144, size = 44 },
+]
+
+[[unit]]
+name = "s12ce5c_r3"
+source = "s12ce5c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d264", address = 0x8012d264, size = 72 },
+  { name = "func_8012d2ac", address = 0x8012d2ac, size = 100 },
+]
+
+[[unit]]
+name = "s12ce5c_r3_b"
+source = "s12ce5c_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d394", address = 0x8012d394, size = 84 },
+  { name = "func_8012d3e8", address = 0x8012d3e8, size = 64 },
+  { name = "func_8012d428", address = 0x8012d428, size = 188 },
+]
+
+[[unit]]
+name = "s12ce5c_r4"
+source = "s12ce5c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d910", address = 0x8012d910, size = 164 },
+  { name = "func_8012d9b4", address = 0x8012d9b4, size = 120 },
+]
+
+[[unit]]
+name = "s12ce5c_r5"
+source = "s12ce5c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012dbd4", address = 0x8012dbd4, size = 132 },
+  { name = "func_8012dc58", address = 0x8012dc58, size = 168 },
+  { name = "func_8012dd00", address = 0x8012dd00, size = 92 },
+  { name = "func_8012dd5c", address = 0x8012dd5c, size = 136 },
+  { name = "func_8012dde4", address = 0x8012dde4, size = 120 },
+  { name = "func_8012de5c", address = 0x8012de5c, size = 64 },
+]
+
+[[unit]]
+name = "s12dee4_r2"
+source = "s12dee4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e00c", address = 0x8012e00c, size = 64 },
+  { name = "func_8012e04c", address = 0x8012e04c, size = 176 },
+  { name = "func_8012e0fc", address = 0x8012e0fc, size = 64 },
+  { name = "func_8012e13c", address = 0x8012e13c, size = 44 },
+]
+
+[[unit]]
+name = "s12dee4_r3"
+source = "s12dee4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e334", address = 0x8012e334, size = 88 },
+]
+
+[[unit]]
+name = "s12dee4_r4"
+source = "s12dee4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e4c4", address = 0x8012e4c4, size = 140 },
+  { name = "func_8012e550", address = 0x8012e550, size = 176 },
+]
+
+[[unit]]
+name = "s12dee4_r5"
+source = "s12dee4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e888", address = 0x8012e888, size = 76 },
+  { name = "func_8012e8d4", address = 0x8012e8d4, size = 176 },
+  { name = "func_8012e984", address = 0x8012e984, size = 64 },
+  { name = "func_8012e9c4", address = 0x8012e9c4, size = 52 },
+  { name = "func_8012e9f8", address = 0x8012e9f8, size = 72 },
+  { name = "func_8012ea40", address = 0x8012ea40, size = 84 },
+]
+
+[[unit]]
+name = "s12dee4_r6"
+source = "s12dee4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ebfc", address = 0x8012ebfc, size = 84 },
+]
+
+[[unit]]
+name = "s12edac_r1"
+source = "s12edac_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012edac", address = 0x8012edac, size = 144 },
+  { name = "func_8012ee3c", address = 0x8012ee3c, size = 64 },
+  { name = "func_8012ee7c", address = 0x8012ee7c, size = 168 },
+  { name = "func_8012ef24", address = 0x8012ef24, size = 128 },
+  { name = "func_8012efa4", address = 0x8012efa4, size = 40 },
+  { name = "func_8012efcc", address = 0x8012efcc, size = 24 },
+  { name = "func_8012efe4", address = 0x8012efe4, size = 20 },
+]
+
+[[unit]]
+name = "s12edac_r2"
+source = "s12edac_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f1b8", address = 0x8012f1b8, size = 120 },
+  { name = "func_8012f230", address = 0x8012f230, size = 136 },
+]
+
+[[unit]]
+name = "s12edac_r3"
+source = "s12edac_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f384", address = 0x8012f384, size = 92 },
+  { name = "func_8012f3e0", address = 0x8012f3e0, size = 40 },
+]
+
+[[unit]]
+name = "s12edac_r4"
+source = "s12edac_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f4dc", address = 0x8012f4dc, size = 144 },
+  { name = "func_8012f56c", address = 0x8012f56c, size = 48 },
+  { name = "func_8012f59c", address = 0x8012f59c, size = 80 },
+  { name = "func_8012f5ec", address = 0x8012f5ec, size = 44 },
+  { name = "func_8012f618", address = 0x8012f618, size = 136 },
+  { name = "func_8012f6a0", address = 0x8012f6a0, size = 56 },
+  { name = "func_8012f6d8", address = 0x8012f6d8, size = 172 },
+  { name = "func_8012f784", address = 0x8012f784, size = 60 },
+  { name = "func_8012f7c0", address = 0x8012f7c0, size = 64 },
+  { name = "func_8012f800", address = 0x8012f800, size = 56 },
+  { name = "func_8012f838", address = 0x8012f838, size = 96 },
+]
+
+[[unit]]
+name = "s12edac_r4_b"
+source = "s12edac_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f8c4", address = 0x8012f8c4, size = 172 },
+  { name = "func_8012f970", address = 0x8012f970, size = 64 },
+]
+
+[[unit]]
+name = "s1340e4_r1"
+source = "s1340e4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801340e4", address = 0x801340e4, size = 56 },
+  { name = "func_8013411c", address = 0x8013411c, size = 56 },
+  { name = "func_80134154", address = 0x80134154, size = 112 },
+  { name = "func_801341c4", address = 0x801341c4, size = 112 },
+]
+
+[[unit]]
+name = "s1340e4_r2"
+source = "s1340e4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80135c0c", address = 0x80135c0c, size = 116 },
+  { name = "func_80135c80", address = 0x80135c80, size = 8 },
+]
+
+[[unit]]
+name = "s1340e4_r3"
+source = "s1340e4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013600c", address = 0x8013600c, size = 48 },
+  { name = "func_8013603c", address = 0x8013603c, size = 48 },
+  { name = "func_8013606c", address = 0x8013606c, size = 180 },
+  { name = "func_80136120", address = 0x80136120, size = 96 },
+  { name = "func_80136180", address = 0x80136180, size = 36 },
+  { name = "func_801361a4", address = 0x801361a4, size = 88 },
+]
+
+[[unit]]
+name = "s1340e4_r3_b"
+source = "s1340e4_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136290", address = 0x80136290, size = 100 },
+  { name = "func_801362f4", address = 0x801362f4, size = 104 },
+  { name = "func_8013635c", address = 0x8013635c, size = 80 },
+  { name = "func_801363ac", address = 0x801363ac, size = 88 },
+]
+
+[[unit]]
+name = "s136668_r2"
+source = "s136668_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136898", address = 0x80136898, size = 20 },
+  { name = "func_801368ac", address = 0x801368ac, size = 20 },
+]
+
+[[unit]]
+name = "s136668_r3"
+source = "s136668_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801369b0", address = 0x801369b0, size = 36 },
+  { name = "func_801369d4", address = 0x801369d4, size = 88 },
+]
+
+[[unit]]
+name = "s136668_r4"
+source = "s136668_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136b34", address = 0x80136b34, size = 44 },
+  { name = "func_80136b60", address = 0x80136b60, size = 96 },
+]
+
+[[unit]]
+name = "s136668_r5"
+source = "s136668_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136c8c", address = 0x80136c8c, size = 64 },
+  { name = "func_80136ccc", address = 0x80136ccc, size = 80 },
+  { name = "func_80136d1c", address = 0x80136d1c, size = 84 },
+  { name = "func_80136d70", address = 0x80136d70, size = 84 },
+  { name = "func_80136dc4", address = 0x80136dc4, size = 56 },
+  { name = "func_80136dfc", address = 0x80136dfc, size = 108 },
+  { name = "func_80136e68", address = 0x80136e68, size = 40 },
+  { name = "func_80136e90", address = 0x80136e90, size = 64 },
+  { name = "func_80136ed0", address = 0x80136ed0, size = 64 },
+  { name = "func_80136f10", address = 0x80136f10, size = 128 },
+]
+
+[[unit]]
+name = "s137004_r1"
+source = "s137004_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137220", address = 0x80137220, size = 168 },
+  { name = "func_801372c8", address = 0x801372c8, size = 156 },
+  { name = "func_80137364", address = 0x80137364, size = 132 },
+]
+
+[[unit]]
+name = "s137004_r2"
+source = "s137004_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801374c0", address = 0x801374c0, size = 164 },
+]
+
+[[unit]]
+name = "s137004_r3"
+source = "s137004_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137640", address = 0x80137640, size = 120 },
+]
+
+[[unit]]
+name = "s137004_r4"
+source = "s137004_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013786c", address = 0x8013786c, size = 32 },
+  { name = "func_8013788c", address = 0x8013788c, size = 76 },
+]
+
+[[unit]]
+name = "s137004_r5"
+source = "s137004_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137b10", address = 0x80137b10, size = 84 },
+  { name = "func_80137b64", address = 0x80137b64, size = 124 },
+  { name = "func_80137be0", address = 0x80137be0, size = 116 },
+  { name = "func_80137c54", address = 0x80137c54, size = 52 },
+]
+
+[[unit]]
+name = "s137cc0_r1"
+source = "s137cc0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137cc0", address = 0x80137cc0, size = 136 },
+  { name = "func_80137d48", address = 0x80137d48, size = 52 },
+  { name = "func_80137d7c", address = 0x80137d7c, size = 76 },
+  { name = "func_80137dc8", address = 0x80137dc8, size = 112 },
+]
+
+[[unit]]
+name = "s137cc0_r1_b"
+source = "s137cc0_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137e94", address = 0x80137e94, size = 108 },
+  { name = "func_80137f00", address = 0x80137f00, size = 112 },
+  { name = "func_80137f70", address = 0x80137f70, size = 116 },
+  { name = "func_80137fe4", address = 0x80137fe4, size = 140 },
+  { name = "func_80138070", address = 0x80138070, size = 128 },
+  { name = "func_801380f0", address = 0x801380f0, size = 84 },
+  { name = "func_80138144", address = 0x80138144, size = 32 },
+]
+
+[[unit]]
+name = "s137cc0_r2"
+source = "s137cc0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138358", address = 0x80138358, size = 68 },
+  { name = "func_8013839c", address = 0x8013839c, size = 116 },
+  { name = "func_80138410", address = 0x80138410, size = 180 },
+]
+
+[[unit]]
+name = "s137cc0_r2_b"
+source = "s137cc0_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138588", address = 0x80138588, size = 24 },
+  { name = "func_801385a0", address = 0x801385a0, size = 108 },
+  { name = "func_8013860c", address = 0x8013860c, size = 28 },
+]
+
+[[unit]]
+name = "s137cc0_r2_b_b"
+source = "s137cc0_r2_b_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801386a4", address = 0x801386a4, size = 76 },
+]
+
+[[unit]]
+name = "s1387c0_r1"
+source = "s1387c0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801387c0", address = 0x801387c0, size = 120 },
+]
+
+[[unit]]
+name = "s1387c0_r2"
+source = "s1387c0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138f74", address = 0x80138f74, size = 184 },
+]
+
+[[unit]]
+name = "s1387c0_r3"
+source = "s1387c0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139a1c", address = 0x80139a1c, size = 92 },
+]
+
+[[unit]]
+name = "s1387c0_r4"
+source = "s1387c0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139d04", address = 0x80139d04, size = 72 },
+]
+
+[[unit]]
+name = "s1387c0_r5"
+source = "s1387c0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139dbc", address = 0x80139dbc, size = 160 },
+  { name = "func_80139e5c", address = 0x80139e5c, size = 88 },
+  { name = "func_80139eb4", address = 0x80139eb4, size = 160 },
+]
+
+[[unit]]
+name = "s1387c0_r6"
+source = "s1387c0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013a050", address = 0x8013a050, size = 116 },
+  { name = "func_8013a0c4", address = 0x8013a0c4, size = 144 },
+  { name = "func_8013a154", address = 0x8013a154, size = 176 },
+]
+
+[[unit]]
+name = "s1387c0_r7"
+source = "s1387c0_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013a2a4", address = 0x8013a2a4, size = 124 },
+]
+
+[[unit]]
+name = "s1387c0_r8"
+source = "s1387c0_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013a350", address = 0x8013a350, size = 88 },
+]
+
+[[unit]]
+name = "s1387c0_r9"
+source = "s1387c0_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ad2c", address = 0x8013ad2c, size = 56 },
+  { name = "func_8013ad64", address = 0x8013ad64, size = 64 },
+]
+
+[[unit]]
+name = "s13af1c_r1"
+source = "s13af1c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013af1c", address = 0x8013af1c, size = 136 },
+  { name = "func_8013afa4", address = 0x8013afa4, size = 96 },
+  { name = "func_8013b004", address = 0x8013b004, size = 96 },
+  { name = "func_8013b064", address = 0x8013b064, size = 96 },
+]
+
+[[unit]]
+name = "s13af1c_r2"
+source = "s13af1c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013b7b8", address = 0x8013b7b8, size = 108 },
+]
+
+[[unit]]
+name = "s13af1c_r3"
+source = "s13af1c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013b97c", address = 0x8013b97c, size = 100 },
+]
+
+[[unit]]
+name = "s13af1c_r4"
+source = "s13af1c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013bbc4", address = 0x8013bbc4, size = 160 },
+  { name = "func_8013bc64", address = 0x8013bc64, size = 172 },
+]
+
+[[unit]]
+name = "s13af1c_r5"
+source = "s13af1c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ca3c", address = 0x8013ca3c, size = 140 },
+  { name = "func_8013cac8", address = 0x8013cac8, size = 40 },
+  { name = "func_8013caf0", address = 0x8013caf0, size = 128 },
+  { name = "func_8013cb70", address = 0x8013cb70, size = 108 },
+  { name = "func_8013cbdc", address = 0x8013cbdc, size = 108 },
+  { name = "func_8013cc48", address = 0x8013cc48, size = 108 },
+  { name = "func_8013ccb4", address = 0x8013ccb4, size = 40 },
+  { name = "func_8013ccdc", address = 0x8013ccdc, size = 128 },
+  { name = "func_8013cd5c", address = 0x8013cd5c, size = 108 },
+  { name = "func_8013cdc8", address = 0x8013cdc8, size = 40 },
+  { name = "func_8013cdf0", address = 0x8013cdf0, size = 108 },
+  { name = "func_8013ce5c", address = 0x8013ce5c, size = 108 },
+  { name = "func_8013cec8", address = 0x8013cec8, size = 108 },
+  { name = "func_8013cf34", address = 0x8013cf34, size = 128 },
+  { name = "func_8013cfb4", address = 0x8013cfb4, size = 40 },
+  { name = "func_8013cfdc", address = 0x8013cfdc, size = 40 },
+  { name = "func_8013d004", address = 0x8013d004, size = 52 },
+  { name = "func_8013d038", address = 0x8013d038, size = 52 },
+  { name = "func_8013d06c", address = 0x8013d06c, size = 52 },
+  { name = "func_8013d0a0", address = 0x8013d0a0, size = 40 },
+]
+
+[[unit]]
+name = "s13d0fc_r1"
+source = "s13d0fc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d0fc", address = 0x8013d0fc, size = 52 },
+  { name = "func_8013d130", address = 0x8013d130, size = 40 },
+  { name = "func_8013d158", address = 0x8013d158, size = 40 },
+  { name = "func_8013d180", address = 0x8013d180, size = 40 },
+]
+
+[[unit]]
+name = "s13d0fc_r2"
+source = "s13d0fc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d21c", address = 0x8013d21c, size = 84 },
+]
+
+[[unit]]
+name = "s13d0fc_r3"
+source = "s13d0fc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d358", address = 0x8013d358, size = 192 },
+  { name = "func_8013d418", address = 0x8013d418, size = 180 },
+  { name = "func_8013d4cc", address = 0x8013d4cc, size = 84 },
+]
+
+[[unit]]
+name = "s13d0fc_r4"
+source = "s13d0fc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013dce0", address = 0x8013dce0, size = 172 },
+  { name = "func_8013dd8c", address = 0x8013dd8c, size = 160 },
+  { name = "func_8013de2c", address = 0x8013de2c, size = 84 },
+]
+
+[[unit]]
+name = "s13d0fc_r5"
+source = "s13d0fc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013df68", address = 0x8013df68, size = 192 },
+]
+
+[[unit]]
+name = "s13d0fc_r6"
+source = "s13d0fc_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e190", address = 0x8013e190, size = 84 },
+]
+
+[[unit]]
+name = "s13d0fc_r7"
+source = "s13d0fc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e3b4", address = 0x8013e3b4, size = 84 },
+  { name = "func_8013e408", address = 0x8013e408, size = 160 },
+]
+
+[[unit]]
+name = "s13e574_r1"
+source = "s13e574_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e574", address = 0x8013e574, size = 84 },
+  { name = "func_8013e5c8", address = 0x8013e5c8, size = 108 },
+]
+
+[[unit]]
+name = "s13e574_r2"
+source = "s13e574_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e7f0", address = 0x8013e7f0, size = 92 },
+]
+
+[[unit]]
+name = "s13e574_r3"
+source = "s13e574_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ead4", address = 0x8013ead4, size = 84 },
+]
+
+[[unit]]
+name = "s13e574_r4"
+source = "s13e574_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ebf4", address = 0x8013ebf4, size = 92 },
+]
+
+[[unit]]
+name = "s13e574_r6"
+source = "s13e574_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ee80", address = 0x8013ee80, size = 84 },
+  { name = "func_8013eed4", address = 0x8013eed4, size = 84 },
+]
+
+[[unit]]
+name = "s13e574_r7"
+source = "s13e574_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f04c", address = 0x8013f04c, size = 124 },
+]
+
+[[unit]]
+name = "s13e574_r8"
+source = "s13e574_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013fd98", address = 0x8013fd98, size = 188 },
+]
+
+[[unit]]
+name = "s13e574_r9"
+source = "s13e574_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140ec0", address = 0x80140ec0, size = 64 },
+]
+
+[[unit]]
+name = "s13e574_r10"
+source = "s13e574_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140f98", address = 0x80140f98, size = 72 },
+  { name = "func_80140fe0", address = 0x80140fe0, size = 120 },
+  { name = "func_80141058", address = 0x80141058, size = 112 },
+]
+
+[[unit]]
+name = "s13e574_r11"
+source = "s13e574_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801411c4", address = 0x801411c4, size = 132 },
+]
+
+[[unit]]
+name = "s14147c_r1"
+source = "s14147c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014147c", address = 0x8014147c, size = 96 },
+]
+
+[[unit]]
+name = "s14147c_r2"
+source = "s14147c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801416ec", address = 0x801416ec, size = 156 },
+  { name = "func_80141788", address = 0x80141788, size = 68 },
+  { name = "func_801417cc", address = 0x801417cc, size = 124 },
+  { name = "func_80141848", address = 0x80141848, size = 116 },
+  { name = "func_801418bc", address = 0x801418bc, size = 76 },
+]
+
+[[unit]]
+name = "s14147c_r3"
+source = "s14147c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141c4c", address = 0x80141c4c, size = 160 },
+]
+
+[[unit]]
+name = "s14147c_r4"
+source = "s14147c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142718", address = 0x80142718, size = 96 },
+  { name = "func_80142778", address = 0x80142778, size = 96 },
+]
+
+[[unit]]
+name = "s14147c_r5"
+source = "s14147c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801428e4", address = 0x801428e4, size = 92 },
+  { name = "func_80142940", address = 0x80142940, size = 40 },
+]
+
+[[unit]]
+name = "s142adc_r1"
+source = "s142adc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142adc", address = 0x80142adc, size = 96 },
+  { name = "func_80142b3c", address = 0x80142b3c, size = 100 },
+  { name = "func_80142ba0", address = 0x80142ba0, size = 100 },
+  { name = "func_80142c04", address = 0x80142c04, size = 108 },
+]
+
+[[unit]]
+name = "s142adc_r2"
+source = "s142adc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143688", address = 0x80143688, size = 64 },
+]
+
+[[unit]]
+name = "s142adc_r3"
+source = "s142adc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801436dc", address = 0x801436dc, size = 64 },
+  { name = "func_8014371c", address = 0x8014371c, size = 32 },
+  { name = "func_8014373c", address = 0x8014373c, size = 64 },
+]
+
+[[unit]]
+name = "s142adc_r4"
+source = "s142adc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801439e8", address = 0x801439e8, size = 156 },
+  { name = "func_80143a84", address = 0x80143a84, size = 184 },
+]
+
+[[unit]]
+name = "s142adc_r5"
+source = "s142adc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143d68", address = 0x80143d68, size = 100 },
+]
+
+[[unit]]
+name = "s142adc_r6"
+source = "s142adc_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143e60", address = 0x80143e60, size = 64 },
+  { name = "func_80143ea0", address = 0x80143ea0, size = 92 },
+  { name = "func_80143efc", address = 0x80143efc, size = 80 },
+  { name = "func_80143f4c", address = 0x80143f4c, size = 76 },
+]
+
+[[unit]]
+name = "s142adc_r7"
+source = "s142adc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143fdc", address = 0x80143fdc, size = 84 },
+  { name = "func_80144030", address = 0x80144030, size = 96 },
+  { name = "func_80144090", address = 0x80144090, size = 84 },
+]
+
+[[unit]]
+name = "s144120_r1"
+source = "s144120_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144120", address = 0x80144120, size = 120 },
+  { name = "func_80144198", address = 0x80144198, size = 48 },
+]
+
+[[unit]]
+name = "s144120_r1_b"
+source = "s144120_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144220", address = 0x80144220, size = 36 },
+  { name = "func_80144244", address = 0x80144244, size = 36 },
+  { name = "func_80144268", address = 0x80144268, size = 92 },
+  { name = "func_801442c4", address = 0x801442c4, size = 92 },
+]
+
+[[unit]]
+name = "s144120_r2"
+source = "s144120_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144364", address = 0x80144364, size = 76 },
+]
+
+[[unit]]
+name = "s144120_r3"
+source = "s144120_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014448c", address = 0x8014448c, size = 40 },
+  { name = "func_801444b4", address = 0x801444b4, size = 76 },
+]
+
+[[unit]]
+name = "s144120_r4"
+source = "s144120_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144544", address = 0x80144544, size = 76 },
+  { name = "func_80144590", address = 0x80144590, size = 92 },
+  { name = "func_801445ec", address = 0x801445ec, size = 84 },
+  { name = "func_80144640", address = 0x80144640, size = 92 },
+  { name = "func_8014469c", address = 0x8014469c, size = 84 },
+]
+
+[[unit]]
+name = "s144120_r5"
+source = "s144120_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144734", address = 0x80144734, size = 76 },
+  { name = "func_80144780", address = 0x80144780, size = 64 },
+  { name = "func_801447c0", address = 0x801447c0, size = 112 },
+]
+
+[[unit]]
+name = "s144120_r5_b"
+source = "s144120_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801448c4", address = 0x801448c4, size = 116 },
+  { name = "func_80144938", address = 0x80144938, size = 72 },
+  { name = "func_80144980", address = 0x80144980, size = 84 },
+]
+
+[[unit]]
+name = "s1449fc_r1"
+source = "s1449fc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801449fc", address = 0x801449fc, size = 20 },
+  { name = "func_80144a10", address = 0x80144a10, size = 92 },
+  { name = "func_80144a6c", address = 0x80144a6c, size = 84 },
+  { name = "func_80144ac0", address = 0x80144ac0, size = 84 },
+  { name = "func_80144b14", address = 0x80144b14, size = 132 },
+]
+
+[[unit]]
+name = "s1449fc_r2"
+source = "s1449fc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144bdc", address = 0x80144bdc, size = 76 },
+  { name = "func_80144c28", address = 0x80144c28, size = 92 },
+  { name = "func_80144c84", address = 0x80144c84, size = 84 },
+  { name = "func_80144cd8", address = 0x80144cd8, size = 92 },
+  { name = "func_80144d34", address = 0x80144d34, size = 84 },
+]
+
+[[unit]]
+name = "s1449fc_r3"
+source = "s1449fc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144dcc", address = 0x80144dcc, size = 76 },
+]
+
+[[unit]]
+name = "s1449fc_r4"
+source = "s1449fc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144e90", address = 0x80144e90, size = 32 },
+]
+
+[[unit]]
+name = "s1449fc_r5"
+source = "s1449fc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144ec4", address = 0x80144ec4, size = 32 },
+  { name = "func_80144ee4", address = 0x80144ee4, size = 44 },
+]
+
+[[unit]]
+name = "s1449fc_r6"
+source = "s1449fc_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014594c", address = 0x8014594c, size = 64 },
+  { name = "func_8014598c", address = 0x8014598c, size = 148 },
+]
+
+[[unit]]
+name = "s1449fc_r7"
+source = "s1449fc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80145aa0", address = 0x80145aa0, size = 32 },
+  { name = "func_80145ac0", address = 0x80145ac0, size = 64 },
+  { name = "func_80145b00", address = 0x80145b00, size = 96 },
+]
+
+[[unit]]
+name = "s1449fc_r8"
+source = "s1449fc_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80145be0", address = 0x80145be0, size = 32 },
+  { name = "func_80145c00", address = 0x80145c00, size = 64 },
+  { name = "func_80145c40", address = 0x80145c40, size = 60 },
+  { name = "func_80145c7c", address = 0x80145c7c, size = 132 },
+  { name = "func_80145d00", address = 0x80145d00, size = 32 },
+]
+
+[[unit]]
+name = "s1460ec_r1"
+source = "s1460ec_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801460ec", address = 0x801460ec, size = 152 },
+  { name = "func_80146184", address = 0x80146184, size = 64 },
+]
+
+[[unit]]
+name = "s1460ec_r2"
+source = "s1460ec_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014630c", address = 0x8014630c, size = 104 },
+  { name = "func_80146374", address = 0x80146374, size = 32 },
+  { name = "func_80146394", address = 0x80146394, size = 188 },
+  { name = "func_80146450", address = 0x80146450, size = 40 },
+]
+
+[[unit]]
+name = "s1460ec_r3"
+source = "s1460ec_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801466ec", address = 0x801466ec, size = 64 },
+  { name = "func_8014672c", address = 0x8014672c, size = 104 },
+  { name = "func_80146794", address = 0x80146794, size = 140 },
+  { name = "func_80146820", address = 0x80146820, size = 32 },
+  { name = "func_80146840", address = 0x80146840, size = 36 },
+  { name = "func_80146864", address = 0x80146864, size = 36 },
+  { name = "func_80146888", address = 0x80146888, size = 36 },
+  { name = "func_801468ac", address = 0x801468ac, size = 36 },
+  { name = "func_801468d0", address = 0x801468d0, size = 36 },
+  { name = "func_801468f4", address = 0x801468f4, size = 36 },
+  { name = "func_80146918", address = 0x80146918, size = 36 },
+  { name = "func_8014693c", address = 0x8014693c, size = 36 },
+  { name = "func_80146960", address = 0x80146960, size = 56 },
+]
+
+[[unit]]
+name = "s1460ec_r4"
+source = "s1460ec_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147158", address = 0x80147158, size = 160 },
+  { name = "func_801471f8", address = 0x801471f8, size = 64 },
+]
+
+[[unit]]
+name = "s1460ec_r5"
+source = "s1460ec_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801476d8", address = 0x801476d8, size = 32 },
+  { name = "func_801476f8", address = 0x801476f8, size = 180 },
+  { name = "func_801477ac", address = 0x801477ac, size = 96 },
+]
+
+[[unit]]
+name = "s147a4c_r1"
+source = "s147a4c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147a4c", address = 0x80147a4c, size = 64 },
+  { name = "func_80147a8c", address = 0x80147a8c, size = 88 },
+  { name = "func_80147ae4", address = 0x80147ae4, size = 64 },
+  { name = "func_80147b24", address = 0x80147b24, size = 92 },
+  { name = "func_80147b80", address = 0x80147b80, size = 48 },
+  { name = "func_80147bb0", address = 0x80147bb0, size = 92 },
+  { name = "func_80147c0c", address = 0x80147c0c, size = 68 },
+  { name = "func_80147c50", address = 0x80147c50, size = 84 },
+  { name = "func_80147ca4", address = 0x80147ca4, size = 68 },
+  { name = "func_80147ce8", address = 0x80147ce8, size = 108 },
+  { name = "func_80147d54", address = 0x80147d54, size = 76 },
+  { name = "func_80147da0", address = 0x80147da0, size = 88 },
+  { name = "func_80147df8", address = 0x80147df8, size = 32 },
+  { name = "func_80147e18", address = 0x80147e18, size = 152 },
+  { name = "func_80147eb0", address = 0x80147eb0, size = 64 },
+  { name = "func_80147ef0", address = 0x80147ef0, size = 20 },
+  { name = "func_80147f04", address = 0x80147f04, size = 84 },
+  { name = "func_80147f58", address = 0x80147f58, size = 48 },
+  { name = "func_80147f88", address = 0x80147f88, size = 48 },
+  { name = "func_80147fb8", address = 0x80147fb8, size = 76 },
+  { name = "func_80148004", address = 0x80148004, size = 172 },
+  { name = "func_801480b0", address = 0x801480b0, size = 68 },
+  { name = "func_801480f4", address = 0x801480f4, size = 32 },
+  { name = "func_80148114", address = 0x80148114, size = 32 },
+  { name = "func_80148134", address = 0x80148134, size = 96 },
+  { name = "func_80148194", address = 0x80148194, size = 140 },
+]
+
+[[unit]]
+name = "s147a4c_r1_b"
+source = "s147a4c_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801482e0", address = 0x801482e0, size = 196 },
+]
+
+[[unit]]
+name = "s148588_r1"
+source = "s148588_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148588", address = 0x80148588, size = 64 },
+]
+
+[[unit]]
+name = "s148588_r2"
+source = "s148588_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148608", address = 0x80148608, size = 64 },
+  { name = "func_80148648", address = 0x80148648, size = 92 },
+]
+
+[[unit]]
+name = "s148588_r3"
+source = "s148588_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148734", address = 0x80148734, size = 32 },
+  { name = "func_80148754", address = 0x80148754, size = 32 },
+]
+
+[[unit]]
+name = "s148588_r4"
+source = "s148588_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014886c", address = 0x8014886c, size = 64 },
+  { name = "func_801488ac", address = 0x801488ac, size = 64 },
+  { name = "func_801488ec", address = 0x801488ec, size = 96 },
+]
+
+[[unit]]
+name = "s148588_r5"
+source = "s148588_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148a04", address = 0x80148a04, size = 32 },
+  { name = "func_80148a24", address = 0x80148a24, size = 80 },
+]
+
+[[unit]]
+name = "s148588_r6"
+source = "s148588_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148c8c", address = 0x80148c8c, size = 64 },
+  { name = "func_80148ccc", address = 0x80148ccc, size = 124 },
+]
+
+[[unit]]
+name = "s148588_r7"
+source = "s148588_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148e44", address = 0x80148e44, size = 32 },
+  { name = "func_80148e64", address = 0x80148e64, size = 32 },
+  { name = "func_80148e84", address = 0x80148e84, size = 36 },
+  { name = "func_80148ea8", address = 0x80148ea8, size = 36 },
+]
+
+[[unit]]
+name = "s148588_r8"
+source = "s148588_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801490dc", address = 0x801490dc, size = 64 },
+  { name = "func_8014911c", address = 0x8014911c, size = 60 },
+  { name = "func_80149158", address = 0x80149158, size = 100 },
+]
+
+[[unit]]
+name = "s148588_r8_b"
+source = "s148588_r8_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149238", address = 0x80149238, size = 64 },
+  { name = "func_80149278", address = 0x80149278, size = 72 },
+  { name = "func_801492c0", address = 0x801492c0, size = 68 },
+  { name = "func_80149304", address = 0x80149304, size = 68 },
+  { name = "func_80149348", address = 0x80149348, size = 80 },
+  { name = "func_80149398", address = 0x80149398, size = 120 },
+  { name = "func_80149410", address = 0x80149410, size = 84 },
+  { name = "func_80149464", address = 0x80149464, size = 92 },
+  { name = "func_801494c0", address = 0x801494c0, size = 32 },
+  { name = "func_801494e0", address = 0x801494e0, size = 164 },
+  { name = "func_80149584", address = 0x80149584, size = 64 },
+]
+
+[[unit]]
+name = "s1495d8_r1"
+source = "s1495d8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801495d8", address = 0x801495d8, size = 32 },
+]
+
+[[unit]]
+name = "s1495d8_r2"
+source = "s1495d8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149888", address = 0x80149888, size = 88 },
+  { name = "func_801498e0", address = 0x801498e0, size = 64 },
+]
+
+[[unit]]
+name = "s1495d8_r3"
+source = "s1495d8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149aa8", address = 0x80149aa8, size = 16 },
+  { name = "func_80149ab8", address = 0x80149ab8, size = 64 },
+  { name = "func_80149af8", address = 0x80149af8, size = 136 },
+]
+
+[[unit]]
+name = "s1495d8_r4"
+source = "s1495d8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149c30", address = 0x80149c30, size = 128 },
+  { name = "func_80149cb0", address = 0x80149cb0, size = 24 },
+  { name = "func_80149cc8", address = 0x80149cc8, size = 48 },
+  { name = "func_80149cf8", address = 0x80149cf8, size = 80 },
+  { name = "func_80149d48", address = 0x80149d48, size = 36 },
+]
+
+[[unit]]
+name = "s1495d8_r5"
+source = "s1495d8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149e3c", address = 0x80149e3c, size = 140 },
+  { name = "func_80149ec8", address = 0x80149ec8, size = 76 },
+]
+
+[[unit]]
+name = "s1495d8_r6"
+source = "s1495d8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a364", address = 0x8014a364, size = 100 },
+  { name = "func_8014a3c8", address = 0x8014a3c8, size = 100 },
+  { name = "func_8014a42c", address = 0x8014a42c, size = 100 },
+  { name = "func_8014a490", address = 0x8014a490, size = 100 },
+]
+
+[[unit]]
+name = "s1495d8_r7"
+source = "s1495d8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a5c0", address = 0x8014a5c0, size = 68 },
+  { name = "func_8014a604", address = 0x8014a604, size = 68 },
+]
+
+[[unit]]
+name = "s1495d8_r8"
+source = "s1495d8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a688", address = 0x8014a688, size = 80 },
+  { name = "func_8014a6d8", address = 0x8014a6d8, size = 84 },
+  { name = "func_8014a72c", address = 0x8014a72c, size = 92 },
+  { name = "func_8014a788", address = 0x8014a788, size = 184 },
+  { name = "func_8014a840", address = 0x8014a840, size = 112 },
+  { name = "func_8014a8b0", address = 0x8014a8b0, size = 156 },
+]
+
+[[unit]]
+name = "s14aa4c_r1"
+source = "s14aa4c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014aa4c", address = 0x8014aa4c, size = 128 },
+  { name = "func_8014aacc", address = 0x8014aacc, size = 84 },
+  { name = "func_8014ab20", address = 0x8014ab20, size = 84 },
+  { name = "func_8014ab74", address = 0x8014ab74, size = 84 },
+  { name = "func_8014abc8", address = 0x8014abc8, size = 48 },
+  { name = "func_8014abf8", address = 0x8014abf8, size = 68 },
+  { name = "func_8014ac3c", address = 0x8014ac3c, size = 148 },
+  { name = "func_8014acd0", address = 0x8014acd0, size = 148 },
+  { name = "func_8014ad64", address = 0x8014ad64, size = 84 },
+  { name = "func_8014adb8", address = 0x8014adb8, size = 112 },
+  { name = "func_8014ae28", address = 0x8014ae28, size = 44 },
+  { name = "func_8014ae54", address = 0x8014ae54, size = 52 },
+  { name = "func_8014ae88", address = 0x8014ae88, size = 68 },
+  { name = "func_8014aecc", address = 0x8014aecc, size = 132 },
+  { name = "func_8014af50", address = 0x8014af50, size = 132 },
+]
+
+[[unit]]
+name = "s14aa4c_r2"
+source = "s14aa4c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b13c", address = 0x8014b13c, size = 160 },
+  { name = "func_8014b1dc", address = 0x8014b1dc, size = 160 },
+  { name = "func_8014b27c", address = 0x8014b27c, size = 196 },
+]
+
+[[unit]]
+name = "s14b59c_r1"
+source = "s14b59c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b59c", address = 0x8014b59c, size = 180 },
+  { name = "func_8014b650", address = 0x8014b650, size = 180 },
+  { name = "func_8014b704", address = 0x8014b704, size = 180 },
+  { name = "func_8014b7b8", address = 0x8014b7b8, size = 184 },
+]
+
+[[unit]]
+name = "s14b59c_r1_b"
+source = "s14b59c_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b940", address = 0x8014b940, size = 76 },
+  { name = "func_8014b98c", address = 0x8014b98c, size = 92 },
+  { name = "func_8014b9e8", address = 0x8014b9e8, size = 72 },
+  { name = "func_8014ba30", address = 0x8014ba30, size = 72 },
+  { name = "func_8014ba78", address = 0x8014ba78, size = 72 },
+  { name = "func_8014bac0", address = 0x8014bac0, size = 104 },
+]
+
+[[unit]]
+name = "s14b59c_r2"
+source = "s14b59c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bcd8", address = 0x8014bcd8, size = 76 },
+  { name = "func_8014bd24", address = 0x8014bd24, size = 88 },
+  { name = "func_8014bd7c", address = 0x8014bd7c, size = 88 },
+  { name = "func_8014bdd4", address = 0x8014bdd4, size = 88 },
+  { name = "func_8014be2c", address = 0x8014be2c, size = 76 },
+]
+
+[[unit]]
+name = "s14b59c_r2_b"
+source = "s14b59c_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bf58", address = 0x8014bf58, size = 80 },
+]
+
+[[unit]]
+name = "s14c00c_r1"
+source = "s14c00c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c00c", address = 0x8014c00c, size = 76 },
+  { name = "func_8014c058", address = 0x8014c058, size = 88 },
+  { name = "func_8014c0b0", address = 0x8014c0b0, size = 88 },
+]
+
+[[unit]]
+name = "s14c00c_r1_b"
+source = "s14c00c_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c178", address = 0x8014c178, size = 112 },
+  { name = "func_8014c1e8", address = 0x8014c1e8, size = 144 },
+  { name = "func_8014c278", address = 0x8014c278, size = 140 },
+  { name = "func_8014c304", address = 0x8014c304, size = 92 },
+  { name = "func_8014c360", address = 0x8014c360, size = 76 },
+]
+
+[[unit]]
+name = "s14c00c_r2"
+source = "s14c00c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c468", address = 0x8014c468, size = 64 },
+]
+
+[[unit]]
+name = "s14c00c_r2_b"
+source = "s14c00c_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c528", address = 0x8014c528, size = 80 },
+  { name = "func_8014c578", address = 0x8014c578, size = 128 },
+  { name = "func_8014c5f8", address = 0x8014c5f8, size = 76 },
+]
+
+[[unit]]
+name = "s14c00c_r3"
+source = "s14c00c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c994", address = 0x8014c994, size = 96 },
+]
+
+[[unit]]
+name = "s14c00c_r3_b"
+source = "s14c00c_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014cba4", address = 0x8014cba4, size = 84 },
+  { name = "func_8014cbf8", address = 0x8014cbf8, size = 136 },
+  { name = "func_8014cc80", address = 0x8014cc80, size = 48 },
+  { name = "func_8014ccb0", address = 0x8014ccb0, size = 64 },
+  { name = "func_8014ccf0", address = 0x8014ccf0, size = 64 },
+  { name = "func_8014cd30", address = 0x8014cd30, size = 112 },
+  { name = "func_8014cda0", address = 0x8014cda0, size = 108 },
+  { name = "func_8014ce0c", address = 0x8014ce0c, size = 108 },
+  { name = "func_8014ce78", address = 0x8014ce78, size = 100 },
+  { name = "func_8014cedc", address = 0x8014cedc, size = 164 },
+  { name = "func_8014cf80", address = 0x8014cf80, size = 188 },
+]
+
+[[unit]]
+name = "s14d108_r1"
+source = "s14d108_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d108", address = 0x8014d108, size = 68 },
+  { name = "func_8014d14c", address = 0x8014d14c, size = 108 },
+  { name = "func_8014d1b8", address = 0x8014d1b8, size = 96 },
+  { name = "func_8014d218", address = 0x8014d218, size = 152 },
+  { name = "func_8014d2b0", address = 0x8014d2b0, size = 152 },
+  { name = "func_8014d348", address = 0x8014d348, size = 96 },
+  { name = "func_8014d3a8", address = 0x8014d3a8, size = 64 },
+  { name = "func_8014d3e8", address = 0x8014d3e8, size = 156 },
+  { name = "func_8014d484", address = 0x8014d484, size = 156 },
+]
+
+[[unit]]
+name = "s14d108_r1_b"
+source = "s14d108_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d5e0", address = 0x8014d5e0, size = 140 },
+  { name = "func_8014d66c", address = 0x8014d66c, size = 180 },
+  { name = "func_8014d720", address = 0x8014d720, size = 180 },
+]
+
+[[unit]]
+name = "s14d8a4_r1"
+source = "s14d8a4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d8a4", address = 0x8014d8a4, size = 48 },
+  { name = "func_8014d8d4", address = 0x8014d8d4, size = 72 },
+  { name = "func_8014d91c", address = 0x8014d91c, size = 64 },
+  { name = "func_8014d95c", address = 0x8014d95c, size = 64 },
+  { name = "func_8014d99c", address = 0x8014d99c, size = 16 },
+  { name = "func_8014d9ac", address = 0x8014d9ac, size = 108 },
+]
+
+[[unit]]
+name = "s14d8a4_r2"
+source = "s14d8a4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014dbc8", address = 0x8014dbc8, size = 104 },
+  { name = "func_8014dc30", address = 0x8014dc30, size = 144 },
+  { name = "func_8014dcc0", address = 0x8014dcc0, size = 84 },
+]
+
+[[unit]]
+name = "s14d8a4_r3"
+source = "s14d8a4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014de20", address = 0x8014de20, size = 116 },
+]
+
+[[unit]]
+name = "s14d8a4_r4"
+source = "s14d8a4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e080", address = 0x8014e080, size = 52 },
+]
+
+[[unit]]
+name = "s14d8a4_r5"
+source = "s14d8a4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e25c", address = 0x8014e25c, size = 180 },
+]
+
+[[unit]]
+name = "s14d8a4_r5_b"
+source = "s14d8a4_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e3d0", address = 0x8014e3d0, size = 52 },
+]
+
+[[unit]]
+name = "s14d8a4_r7"
+source = "s14d8a4_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e504", address = 0x8014e504, size = 36 },
+  { name = "func_8014e528", address = 0x8014e528, size = 36 },
+]
+
+[[unit]]
+name = "s14d8a4_r8"
+source = "s14d8a4_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e5f4", address = 0x8014e5f4, size = 96 },
+]
+
+[[unit]]
+name = "s14d8a4_r9"
+source = "s14d8a4_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e6b0", address = 0x8014e6b0, size = 32 },
+  { name = "func_8014e6d0", address = 0x8014e6d0, size = 32 },
+  { name = "func_8014e6f0", address = 0x8014e6f0, size = 32 },
+  { name = "func_8014e710", address = 0x8014e710, size = 8 },
+]
+
+[[unit]]
+name = "s14d8a4_r9_b"
+source = "s14d8a4_r9_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e758", address = 0x8014e758, size = 44 },
+  { name = "func_8014e784", address = 0x8014e784, size = 104 },
+]
+
+[[unit]]
+name = "s14ec80_r1"
+source = "s14ec80_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014ec80", address = 0x8014ec80, size = 132 },
+  { name = "func_8014ed04", address = 0x8014ed04, size = 56 },
+  { name = "func_8014ed3c", address = 0x8014ed3c, size = 56 },
+  { name = "func_8014ed74", address = 0x8014ed74, size = 56 },
+]
+
+[[unit]]
+name = "s14ec80_r1_b"
+source = "s14ec80_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014ee5c", address = 0x8014ee5c, size = 156 },
+  { name = "func_8014eef8", address = 0x8014eef8, size = 176 },
+  { name = "func_8014efa8", address = 0x8014efa8, size = 144 },
+]
+
+[[unit]]
+name = "s14ec80_r2"
+source = "s14ec80_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f3b8", address = 0x8014f3b8, size = 80 },
+  { name = "func_8014f408", address = 0x8014f408, size = 180 },
+  { name = "func_8014f4bc", address = 0x8014f4bc, size = 24 },
+]
+
+[[unit]]
+name = "s14ec80_r3"
+source = "s14ec80_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f59c", address = 0x8014f59c, size = 56 },
+  { name = "func_8014f5d4", address = 0x8014f5d4, size = 48 },
+  { name = "func_8014f604", address = 0x8014f604, size = 140 },
+]
+
+[[unit]]
+name = "s14ec80_r4"
+source = "s14ec80_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f76c", address = 0x8014f76c, size = 140 },
+]
+
+[[unit]]
+name = "s14f9f0_r1"
+source = "s14f9f0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f9f0", address = 0x8014f9f0, size = 112 },
+]
+
+[[unit]]
+name = "s14f9f0_r2"
+source = "s14f9f0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014fd28", address = 0x8014fd28, size = 116 },
+]
+
+[[unit]]
+name = "s14f9f0_r3"
+source = "s14f9f0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015003c", address = 0x8015003c, size = 196 },
+  { name = "func_80150100", address = 0x80150100, size = 128 },
+  { name = "func_80150180", address = 0x80150180, size = 32 },
+  { name = "func_801501a0", address = 0x801501a0, size = 164 },
+  { name = "func_80150244", address = 0x80150244, size = 80 },
+]
+
+[[unit]]
+name = "s14f9f0_r4"
+source = "s14f9f0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801503f8", address = 0x801503f8, size = 104 },
+  { name = "func_80150460", address = 0x80150460, size = 92 },
+  { name = "func_801504bc", address = 0x801504bc, size = 192 },
+]
+
+[[unit]]
+name = "s14f9f0_r5"
+source = "s14f9f0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150758", address = 0x80150758, size = 132 },
+]
+
+[[unit]]
+name = "s14f9f0_r6"
+source = "s14f9f0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801507e8", address = 0x801507e8, size = 144 },
+  { name = "func_80150878", address = 0x80150878, size = 132 },
+  { name = "func_801508fc", address = 0x801508fc, size = 136 },
+  { name = "func_80150984", address = 0x80150984, size = 104 },
+  { name = "func_801509ec", address = 0x801509ec, size = 80 },
+  { name = "func_80150a3c", address = 0x80150a3c, size = 80 },
+  { name = "func_80150a8c", address = 0x80150a8c, size = 112 },
+  { name = "func_80150afc", address = 0x80150afc, size = 132 },
+]
+
+[[unit]]
+name = "s150c6c_r1"
+source = "s150c6c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150c6c", address = 0x80150c6c, size = 92 },
+]
+
+[[unit]]
+name = "s150c6c_r2"
+source = "s150c6c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150cd0", address = 0x80150cd0, size = 136 },
+]
+
+[[unit]]
+name = "s150c6c_r3"
+source = "s150c6c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150e4c", address = 0x80150e4c, size = 72 },
+  { name = "func_80150e94", address = 0x80150e94, size = 172 },
+]
+
+[[unit]]
+name = "s150c6c_r4"
+source = "s150c6c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150f7c", address = 0x80150f7c, size = 156 },
+]
+
+[[unit]]
+name = "s150c6c_r7"
+source = "s150c6c_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801519b4", address = 0x801519b4, size = 80 },
+]
+
+[[unit]]
+name = "s150c6c_r8"
+source = "s150c6c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151f64", address = 0x80151f64, size = 136 },
+  { name = "func_80151fec", address = 0x80151fec, size = 156 },
+  { name = "func_80152088", address = 0x80152088, size = 156 },
+]
+
+[[unit]]
+name = "s150c6c_r8_b"
+source = "s150c6c_r8_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801521a0", address = 0x801521a0, size = 128 },
+  { name = "func_80152220", address = 0x80152220, size = 64 },
+]
+
+[[unit]]
+name = "s150c6c_r9"
+source = "s150c6c_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801523a4", address = 0x801523a4, size = 32 },
+  { name = "func_801523c4", address = 0x801523c4, size = 64 },
+]
+
+[[unit]]
+name = "s152444_r1"
+source = "s152444_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152444", address = 0x80152444, size = 68 },
+  { name = "func_80152488", address = 0x80152488, size = 84 },
+  { name = "func_801524dc", address = 0x801524dc, size = 64 },
+  { name = "func_8015251c", address = 0x8015251c, size = 108 },
+  { name = "func_80152588", address = 0x80152588, size = 72 },
+  { name = "func_801525d0", address = 0x801525d0, size = 32 },
+  { name = "func_801525f0", address = 0x801525f0, size = 120 },
+  { name = "func_80152668", address = 0x80152668, size = 104 },
+  { name = "func_801526d0", address = 0x801526d0, size = 48 },
+]
+
+[[unit]]
+name = "s152444_r2"
+source = "s152444_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152774", address = 0x80152774, size = 64 },
+  { name = "func_801527b4", address = 0x801527b4, size = 120 },
+  { name = "func_8015282c", address = 0x8015282c, size = 68 },
+  { name = "func_80152870", address = 0x80152870, size = 32 },
+  { name = "func_80152890", address = 0x80152890, size = 32 },
+  { name = "func_801528b0", address = 0x801528b0, size = 48 },
+]
+
+[[unit]]
+name = "s152444_r4"
+source = "s152444_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152ee8", address = 0x80152ee8, size = 152 },
+]
+
+[[unit]]
+name = "s152444_r5"
+source = "s152444_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153154", address = 0x80153154, size = 120 },
+  { name = "func_801531cc", address = 0x801531cc, size = 100 },
+]
+
+[[unit]]
+name = "s152444_r6"
+source = "s152444_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153328", address = 0x80153328, size = 96 },
+  { name = "func_80153388", address = 0x80153388, size = 168 },
+  { name = "func_80153430", address = 0x80153430, size = 156 },
+  { name = "func_801534cc", address = 0x801534cc, size = 72 },
+  { name = "func_80153514", address = 0x80153514, size = 144 },
+]
+
+[[unit]]
+name = "s153854_r1"
+source = "s153854_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153854", address = 0x80153854, size = 156 },
+  { name = "func_801538f0", address = 0x801538f0, size = 76 },
+]
+
+[[unit]]
+name = "s153854_r2"
+source = "s153854_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153c7c", address = 0x80153c7c, size = 20 },
+]
+
+[[unit]]
+name = "s153854_r4"
+source = "s153854_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153ed8", address = 0x80153ed8, size = 52 },
+  { name = "func_80153f0c", address = 0x80153f0c, size = 124 },
+  { name = "func_80153f88", address = 0x80153f88, size = 40 },
+]
+
+[[unit]]
+name = "s153854_r5"
+source = "s153854_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153fb8", address = 0x80153fb8, size = 164 },
+]
+
+[[unit]]
+name = "s153854_r6"
+source = "s153854_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015406c", address = 0x8015406c, size = 128 },
+]
+
+[[unit]]
+name = "s153854_r7"
+source = "s153854_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801542e4", address = 0x801542e4, size = 8 },
+  { name = "func_801542ec", address = 0x801542ec, size = 120 },
+]
+
+[[unit]]
+name = "s153854_r8"
+source = "s153854_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80154584", address = 0x80154584, size = 72 },
+]
+
+[[unit]]
+name = "s153854_r9"
+source = "s153854_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155088", address = 0x80155088, size = 40 },
+]
+
+[[unit]]
+name = "s153854_r10"
+source = "s153854_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155c90", address = 0x80155c90, size = 56 },
+  { name = "func_80155cc8", address = 0x80155cc8, size = 132 },
+  { name = "func_80155d4c", address = 0x80155d4c, size = 148 },
+]
+
+[[unit]]
+name = "s153854_r11"
+source = "s153854_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155eac", address = 0x80155eac, size = 132 },
+]
+
+[[unit]]
+name = "s153854_r11_b"
+source = "s153854_r11_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155f98", address = 0x80155f98, size = 128 },
+  { name = "func_80156018", address = 0x80156018, size = 108 },
+  { name = "func_80156084", address = 0x80156084, size = 16 },
+  { name = "func_80156094", address = 0x80156094, size = 64 },
+]
+
+[[unit]]
+name = "s156398_r1"
+source = "s156398_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156454", address = 0x80156454, size = 92 },
+  { name = "func_801564b0", address = 0x801564b0, size = 64 },
+]
+
+[[unit]]
+name = "s156398_r2"
+source = "s156398_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801565f4", address = 0x801565f4, size = 176 },
+  { name = "func_801566a4", address = 0x801566a4, size = 68 },
+]
+
+[[unit]]
+name = "s156398_r4"
+source = "s156398_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156bc8", address = 0x80156bc8, size = 184 },
+]
+
+[[unit]]
+name = "s156398_r5"
+source = "s156398_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80157174", address = 0x80157174, size = 128 },
+  { name = "func_801571f4", address = 0x801571f4, size = 64 },
+  { name = "func_80157234", address = 0x80157234, size = 60 },
+]
+
+[[unit]]
+name = "s156398_r6"
+source = "s156398_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80157360", address = 0x80157360, size = 32 },
+]
+
+
+
+
+
+[[unit]]
+name = "s1577bc_r16_b"
+source = "s1577bc_r16_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80158374", address = 0x80158374, size = 196 },
+  { name = "func_80158438", address = 0x80158438, size = 56 },
+]
+
+[[unit]]
+name = "s158894_r1"
+source = "s158894_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80158894", address = 0x80158894, size = 56 },
+]
+
+
+[[unit]]
+name = "s158894_r4"
+source = "s158894_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80158f64", address = 0x80158f64, size = 132 },
+]
+
+[[unit]]
+name = "s158894_r4_b"
+source = "s158894_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801590a4", address = 0x801590a4, size = 24 },
+]
+
+[[unit]]
+name = "s158894_r5"
+source = "s158894_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801598bc", address = 0x801598bc, size = 44 },
+]
+
+
+
+
+[[unit]]
+name = "s158894_r11"
+source = "s158894_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015a560", address = 0x8015a560, size = 16 },
+  { name = "func_8015a570", address = 0x8015a570, size = 104 },
+  { name = "func_8015a5d8", address = 0x8015a5d8, size = 64 },
+]
+
+
+
+
+[[unit]]
+name = "s15bfe8_r8"
+source = "s15bfe8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015c814", address = 0x8015c814, size = 16 },
+]
+
+[[unit]]
+name = "s15bfe8_r9"
+source = "s15bfe8_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015c938", address = 0x8015c938, size = 32 },
+  { name = "func_8015c958", address = 0x8015c958, size = 32 },
+  { name = "func_8015c978", address = 0x8015c978, size = 24 },
+  { name = "func_8015c990", address = 0x8015c990, size = 24 },
+  { name = "func_8015c9a8", address = 0x8015c9a8, size = 24 },
+]
+
+[[unit]]
+name = "s15bfe8_r10"
+source = "s15bfe8_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015ce04", address = 0x8015ce04, size = 32 },
+  { name = "func_8015ce24", address = 0x8015ce24, size = 32 },
+  { name = "func_8015ce44", address = 0x8015ce44, size = 128 },
+]
+
+[[unit]]
+name = "s15bfe8_r11"
+source = "s15bfe8_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015cfc8", address = 0x8015cfc8, size = 128 },
+]
+
+
+
+
+
+[[unit]]
+name = "s15e200_r10"
+source = "s15e200_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015f734", address = 0x8015f734, size = 24 },
+  { name = "func_8015f74c", address = 0x8015f74c, size = 16 },
+]
+
+
+
+
+
+
+
+
+
+
+
+[[unit]]
+name = "s160fbc_r10"
+source = "s160fbc_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80164e88", address = 0x80164e88, size = 56 },
+  { name = "func_80164ec0", address = 0x80164ec0, size = 48 },
+  { name = "func_80164ef0", address = 0x80164ef0, size = 56 },
+]
+
+[[unit]]
+name = "s118900_r1"
+source = "s118900_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80118900", address = 0x80118900, size = 8 },
+]
+
+[[unit]]
+name = "s118900_r2"
+source = "s118900_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80118fc8", address = 0x80118fc8, size = 104 },
+]
+
+[[unit]]
+name = "s118900_r3"
+source = "s118900_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119144", address = 0x80119144, size = 84 },
+  { name = "func_80119198", address = 0x80119198, size = 68 },
+]
+
+[[unit]]
+name = "s118900_r4"
+source = "s118900_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801192bc", address = 0x801192bc, size = 52 },
+  { name = "func_801192f0", address = 0x801192f0, size = 80 },
+  { name = "func_80119340", address = 0x80119340, size = 100 },
+  { name = "func_801193a4", address = 0x801193a4, size = 88 },
+]
+
+[[unit]]
+name = "s118900_r7"
+source = "s118900_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119b34", address = 0x80119b34, size = 8 },
+]
+
+[[unit]]
+name = "s118900_r8"
+source = "s118900_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119d08", address = 0x80119d08, size = 128 },
+  { name = "func_80119d88", address = 0x80119d88, size = 84 },
+]
+
+[[unit]]
+name = "s118900_r9"
+source = "s118900_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011a55c", address = 0x8011a55c, size = 152 },
+  { name = "func_8011a5f4", address = 0x8011a5f4, size = 16 },
+  { name = "func_8011a604", address = 0x8011a604, size = 180 },
+  { name = "func_8011a6b8", address = 0x8011a6b8, size = 140 },
+  { name = "func_8011a744", address = 0x8011a744, size = 56 },
+]
+
+[[unit]]
+name = "s11b678_r1"
+source = "s11b678_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011b678", address = 0x8011b678, size = 144 },
+]
+
+[[unit]]
+name = "s11b678_r2"
+source = "s11b678_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011bdc0", address = 0x8011bdc0, size = 88 },
+]
+
+[[unit]]
+name = "s11b678_r3"
+source = "s11b678_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011cd68", address = 0x8011cd68, size = 88 },
+]
+
+[[unit]]
+name = "s11b678_r4"
+source = "s11b678_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011e918", address = 0x8011e918, size = 32 },
+  { name = "func_8011e938", address = 0x8011e938, size = 88 },
+]
+
+[[unit]]
+name = "s11b678_r5"
+source = "s11b678_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ea68", address = 0x8011ea68, size = 108 },
+]
+
+[[unit]]
+name = "s11b678_r6"
+source = "s11b678_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011eae4", address = 0x8011eae4, size = 48 },
+  { name = "func_8011eb14", address = 0x8011eb14, size = 56 },
+]
+
+[[unit]]
+name = "s11f674_r1"
+source = "s11f674_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f674", address = 0x8011f674, size = 64 },
+]
+
+[[unit]]
+name = "s11f674_r2"
+source = "s11f674_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f70c", address = 0x8011f70c, size = 104 },
+  { name = "func_8011f774", address = 0x8011f774, size = 116 },
+  { name = "func_8011f7e8", address = 0x8011f7e8, size = 84 },
+  { name = "func_8011f83c", address = 0x8011f83c, size = 84 },
+  { name = "func_8011f890", address = 0x8011f890, size = 84 },
+  { name = "func_8011f8e4", address = 0x8011f8e4, size = 48 },
+  { name = "func_8011f914", address = 0x8011f914, size = 40 },
+  { name = "func_8011f93c", address = 0x8011f93c, size = 48 },
+  { name = "func_8011f96c", address = 0x8011f96c, size = 40 },
+]
+
+[[unit]]
+name = "s11f674_r2_b"
+source = "s11f674_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fa20", address = 0x8011fa20, size = 48 },
+]
+
+[[unit]]
+name = "s11f674_r2_c"
+source = "s11f674_r2_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fc00", address = 0x8011fc00, size = 84 },
+  { name = "func_8011fc54", address = 0x8011fc54, size = 48 },
+]
+
+[[unit]]
+name = "s11f674_r3"
+source = "s11f674_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fec8", address = 0x8011fec8, size = 92 },
+  { name = "func_8011ff24", address = 0x8011ff24, size = 80 },
+  { name = "func_8011ff74", address = 0x8011ff74, size = 52 },
+]
+
+[[unit]]
+name = "s11ffdc_r1"
+source = "s11ffdc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ffdc", address = 0x8011ffdc, size = 76 },
+  { name = "func_80120028", address = 0x80120028, size = 56 },
+  { name = "func_80120060", address = 0x80120060, size = 32 },
+  { name = "func_80120080", address = 0x80120080, size = 112 },
+  { name = "func_801200f0", address = 0x801200f0, size = 60 },
+  { name = "func_8012012c", address = 0x8012012c, size = 60 },
+  { name = "func_80120168", address = 0x80120168, size = 128 },
+  { name = "func_801201e8", address = 0x801201e8, size = 164 },
+]
+
+[[unit]]
+name = "s11ffdc_r2"
+source = "s11ffdc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120374", address = 0x80120374, size = 64 },
+  { name = "func_801203b4", address = 0x801203b4, size = 84 },
+  { name = "func_80120408", address = 0x80120408, size = 60 },
+  { name = "func_80120444", address = 0x80120444, size = 84 },
+  { name = "func_80120498", address = 0x80120498, size = 92 },
+  { name = "func_801204f4", address = 0x801204f4, size = 96 },
+  { name = "func_80120554", address = 0x80120554, size = 112 },
+  { name = "func_801205c4", address = 0x801205c4, size = 64 },
+]
+
+[[unit]]
+name = "s11ffdc_r3"
+source = "s11ffdc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801209c4", address = 0x801209c4, size = 108 },
+]
+
+[[unit]]
+name = "s11ffdc_r4"
+source = "s11ffdc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120af8", address = 0x80120af8, size = 60 },
+]
+
+[[unit]]
+name = "s11ffdc_r5"
+source = "s11ffdc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120c14", address = 0x80120c14, size = 140 },
+  { name = "func_80120ca0", address = 0x80120ca0, size = 80 },
+]
+
+[[unit]]
+name = "s120f40_r1"
+source = "s120f40_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120f40", address = 0x80120f40, size = 88 },
+  { name = "func_80120f98", address = 0x80120f98, size = 108 },
+  { name = "func_80121004", address = 0x80121004, size = 84 },
+]
+
+[[unit]]
+name = "s120f40_r2"
+source = "s120f40_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801211dc", address = 0x801211dc, size = 112 },
+  { name = "func_8012124c", address = 0x8012124c, size = 32 },
+  { name = "func_8012126c", address = 0x8012126c, size = 92 },
+  { name = "func_801212c8", address = 0x801212c8, size = 32 },
+  { name = "func_801212e8", address = 0x801212e8, size = 32 },
+  { name = "func_80121308", address = 0x80121308, size = 112 },
+  { name = "func_80121378", address = 0x80121378, size = 72 },
+]
+
+[[unit]]
+name = "s120f40_r3"
+source = "s120f40_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121680", address = 0x80121680, size = 176 },
+  { name = "func_80121730", address = 0x80121730, size = 80 },
+  { name = "func_80121780", address = 0x80121780, size = 84 },
+  { name = "func_801217d4", address = 0x801217d4, size = 160 },
+  { name = "func_80121874", address = 0x80121874, size = 136 },
+]
+
+[[unit]]
+name = "s120f40_r4"
+source = "s120f40_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121a64", address = 0x80121a64, size = 156 },
+  { name = "func_80121b00", address = 0x80121b00, size = 192 },
+  { name = "func_80121bc0", address = 0x80121bc0, size = 140 },
+  { name = "func_80121c4c", address = 0x80121c4c, size = 60 },
+  { name = "func_80121c88", address = 0x80121c88, size = 88 },
+  { name = "func_80121ce0", address = 0x80121ce0, size = 160 },
+]
+
+[[unit]]
+name = "s1221e8_r1"
+source = "s1221e8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801221e8", address = 0x801221e8, size = 72 },
+]
+
+[[unit]]
+name = "s1221e8_r2"
+source = "s1221e8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012256c", address = 0x8012256c, size = 104 },
+]
+
+[[unit]]
+name = "s1221e8_r3"
+source = "s1221e8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801229b4", address = 0x801229b4, size = 144 },
+  { name = "func_80122a44", address = 0x80122a44, size = 80 },
+  { name = "func_80122a94", address = 0x80122a94, size = 168 },
+  { name = "func_80122b3c", address = 0x80122b3c, size = 116 },
+  { name = "func_80122bb0", address = 0x80122bb0, size = 172 },
+]
+
+[[unit]]
+name = "s1221e8_r4"
+source = "s1221e8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122d90", address = 0x80122d90, size = 196 },
+]
+
+[[unit]]
+name = "s1221e8_r5"
+source = "s1221e8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122f6c", address = 0x80122f6c, size = 80 },
+  { name = "func_80122fbc", address = 0x80122fbc, size = 144 },
+  { name = "func_8012304c", address = 0x8012304c, size = 32 },
+]
+
+[[unit]]
+name = "s1221e8_r6"
+source = "s1221e8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012318c", address = 0x8012318c, size = 160 },
+]
+
+[[unit]]
+name = "s1221e8_r7"
+source = "s1221e8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123504", address = 0x80123504, size = 48 },
+]
+
+[[unit]]
+name = "s1221e8_r8"
+source = "s1221e8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012370c", address = 0x8012370c, size = 60 },
+  { name = "func_80123748", address = 0x80123748, size = 188 },
+]
+
+[[unit]]
+name = "s123968_r1"
+source = "s123968_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801239cc", address = 0x801239cc, size = 152 },
+  { name = "func_80123a64", address = 0x80123a64, size = 96 },
+  { name = "func_80123ac4", address = 0x80123ac4, size = 92 },
+  { name = "func_80123b20", address = 0x80123b20, size = 44 },
+  { name = "func_80123b4c", address = 0x80123b4c, size = 60 },
+  { name = "func_80123b88", address = 0x80123b88, size = 76 },
+]
+
+[[unit]]
+name = "s123968_r2"
+source = "s123968_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123d0c", address = 0x80123d0c, size = 88 },
+]
+
+[[unit]]
+name = "s123968_r3"
+source = "s123968_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012411c", address = 0x8012411c, size = 188 },
+  { name = "func_801241d8", address = 0x801241d8, size = 72 },
+]
+
+[[unit]]
+name = "s123968_r4"
+source = "s123968_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801246a4", address = 0x801246a4, size = 40 },
+]
+
+[[unit]]
+name = "s123968_r5"
+source = "s123968_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80124a7c", address = 0x80124a7c, size = 108 },
+  { name = "func_80124ae8", address = 0x80124ae8, size = 40 },
+  { name = "func_80124b10", address = 0x80124b10, size = 172 },
+]
+
+[[unit]]
+name = "s123968_r6"
+source = "s123968_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125060", address = 0x80125060, size = 96 },
+]
+
+[[unit]]
+name = "s123968_r6_b"
+source = "s123968_r6_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012510c", address = 0x8012510c, size = 56 },
+]
+
+[[unit]]
+name = "s123968_r7"
+source = "s123968_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125268", address = 0x80125268, size = 136 },
+]
+
+[[unit]]
+name = "s123968_r8"
+source = "s123968_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125394", address = 0x80125394, size = 168 },
+  { name = "func_8012543c", address = 0x8012543c, size = 24 },
+  { name = "func_80125454", address = 0x80125454, size = 24 },
+  { name = "func_8012546c", address = 0x8012546c, size = 136 },
+]
+
+[[unit]]
+name = "s1257d0_r1"
+source = "s1257d0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801257d0", address = 0x801257d0, size = 36 },
+]
+
+[[unit]]
+name = "s1257d0_r2"
+source = "s1257d0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125938", address = 0x80125938, size = 112 },
+]
+
+[[unit]]
+name = "s1257d0_r3"
+source = "s1257d0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125afc", address = 0x80125afc, size = 28 },
+]
+
+[[unit]]
+name = "s1257d0_r4"
+source = "s1257d0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125b34", address = 0x80125b34, size = 76 },
+]
+
+[[unit]]
+name = "s1257d0_r5"
+source = "s1257d0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801260ac", address = 0x801260ac, size = 132 },
+]
+
+[[unit]]
+name = "s1257d0_r6"
+source = "s1257d0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126244", address = 0x80126244, size = 184 },
+]
+
+[[unit]]
+name = "s1257d0_r8"
+source = "s1257d0_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012655c", address = 0x8012655c, size = 80 },
+  { name = "func_801265ac", address = 0x801265ac, size = 88 },
+  { name = "func_80126604", address = 0x80126604, size = 20 },
+]
+
+[[unit]]
+name = "s1257d0_r9"
+source = "s1257d0_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126620", address = 0x80126620, size = 120 },
+  { name = "func_80126698", address = 0x80126698, size = 48 },
+  { name = "func_801266c8", address = 0x801266c8, size = 144 },
+  { name = "func_80126758", address = 0x80126758, size = 32 },
+  { name = "func_80126778", address = 0x80126778, size = 96 },
+  { name = "func_801267d8", address = 0x801267d8, size = 192 },
+  { name = "func_80126898", address = 0x80126898, size = 100 },
+  { name = "func_801268fc", address = 0x801268fc, size = 52 },
+  { name = "func_80126930", address = 0x80126930, size = 176 },
+  { name = "func_801269e0", address = 0x801269e0, size = 32 },
+]
+
+[[unit]]
+name = "u_8011ef00"
+source = "u_8011ef00.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ef00", address = 0x8011ef00, size = 52 },
+]
+
+[[unit]]
+name = "u_8011ef34"
+source = "u_8011ef34.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ef34", address = 0x8011ef34, size = 84 },
+]
+
+[[unit]]
+name = "u_8011f1e0"
+source = "u_8011f1e0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f1e0", address = 0x8011f1e0, size = 96 },
+]
+
+[[unit]]
+name = "u_8011f38c"
+source = "u_8011f38c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f38c", address = 0x8011f38c, size = 120 },
+]
+
+[[unit]]
+name = "u_8011f404"
+source = "u_8011f404.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f404", address = 0x8011f404, size = 44 },
+]
+
+[[unit]]
+name = "u_8011f430"
+source = "u_8011f430.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f430", address = 0x8011f430, size = 116 },
+]
+
+[[unit]]
+name = "u_8011f4a4"
+source = "u_8011f4a4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f4a4", address = 0x8011f4a4, size = 96 },
+]
+
+[[unit]]
+name = "u_8011f504"
+source = "u_8011f504.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f504", address = 0x8011f504, size = 88 },
+]
+
+[[unit]]
+name = "u_8011f55c"
+source = "u_8011f55c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f55c", address = 0x8011f55c, size = 68 },
+]
+
+
+
+
+
+
+
+
+
+[[unit]]
+name = "s126adc_r1"
+source = "s126adc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126adc", address = 0x80126adc, size = 176 },
+  { name = "func_80126b8c", address = 0x80126b8c, size = 64 },
+]
+
+[[unit]]
+name = "s126adc_r2"
+source = "s126adc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126cd0", address = 0x80126cd0, size = 152 },
+  { name = "func_80126d68", address = 0x80126d68, size = 128 },
+  { name = "func_80126de8", address = 0x80126de8, size = 140 },
+  { name = "func_80126e74", address = 0x80126e74, size = 36 },
+  { name = "func_80126e98", address = 0x80126e98, size = 100 },
+  { name = "func_80126efc", address = 0x80126efc, size = 88 },
+  { name = "func_80126f54", address = 0x80126f54, size = 64 },
+  { name = "func_80126f94", address = 0x80126f94, size = 96 },
+  { name = "func_80126ff4", address = 0x80126ff4, size = 56 },
+  { name = "func_8012702c", address = 0x8012702c, size = 120 },
+  { name = "func_801270a4", address = 0x801270a4, size = 156 },
+  { name = "func_80127140", address = 0x80127140, size = 72 },
+  { name = "func_80127188", address = 0x80127188, size = 160 },
+  { name = "func_80127228", address = 0x80127228, size = 80 },
+  { name = "func_80127278", address = 0x80127278, size = 88 },
+  { name = "func_801272d0", address = 0x801272d0, size = 88 },
+  { name = "func_80127328", address = 0x80127328, size = 104 },
+  { name = "func_80127390", address = 0x80127390, size = 72 },
+  { name = "func_801273d8", address = 0x801273d8, size = 84 },
+  { name = "func_8012742c", address = 0x8012742c, size = 72 },
+  { name = "func_80127474", address = 0x80127474, size = 84 },
+  { name = "func_801274c8", address = 0x801274c8, size = 72 },
+  { name = "func_80127510", address = 0x80127510, size = 84 },
+  { name = "func_80127564", address = 0x80127564, size = 72 },
+  { name = "func_801275ac", address = 0x801275ac, size = 84 },
+  { name = "func_80127600", address = 0x80127600, size = 72 },
+  { name = "func_80127648", address = 0x80127648, size = 84 },
+  { name = "func_8012769c", address = 0x8012769c, size = 104 },
+  { name = "func_80127704", address = 0x80127704, size = 72 },
+  { name = "func_8012774c", address = 0x8012774c, size = 84 },
+  { name = "func_801277a0", address = 0x801277a0, size = 72 },
+  { name = "func_801277e8", address = 0x801277e8, size = 84 },
+  { name = "func_8012783c", address = 0x8012783c, size = 72 },
+  { name = "func_80127884", address = 0x80127884, size = 84 },
+  { name = "func_801278d8", address = 0x801278d8, size = 72 },
+  { name = "func_80127920", address = 0x80127920, size = 84 },
+  { name = "func_80127974", address = 0x80127974, size = 72 },
+  { name = "func_801279bc", address = 0x801279bc, size = 84 },
+  { name = "func_80127a10", address = 0x80127a10, size = 180 },
+  { name = "func_80127ac4", address = 0x80127ac4, size = 180 },
+  { name = "func_80127b78", address = 0x80127b78, size = 176 },
+  { name = "func_80127c28", address = 0x80127c28, size = 176 },
+]
+
+
+
+
+[[unit]]
+name = "s15c6b0_r4"
+source = "s15c6b0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801656ac", address = 0x801656ac, size = 32 },
+  { name = "func_801656cc", address = 0x801656cc, size = 32 },
+  { name = "func_801656ec", address = 0x801656ec, size = 164 },
+  { name = "func_80165790", address = 0x80165790, size = 32 },
+  { name = "func_801657b0", address = 0x801657b0, size = 52 },
+  { name = "func_801657e4", address = 0x801657e4, size = 72 },
+  { name = "func_8016582c", address = 0x8016582c, size = 20 },
+  { name = "func_80165840", address = 0x80165840, size = 16 },
+]
+
+[[unit]]
+name = "s15c6b0_r5"
+source = "s15c6b0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80165d34", address = 0x80165d34, size = 80 },
+]
+
+
+
+
+
+[[unit]]
+name = "s15c6b0_r9_b"
+source = "s15c6b0_r9_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801681dc", address = 0x801681dc, size = 32 },
+  { name = "func_801681fc", address = 0x801681fc, size = 32 },
+]
+
+[[unit]]
+name = "s1682d0_r1"
+source = "s1682d0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801682d0", address = 0x801682d0, size = 152 },
+  { name = "func_80168368", address = 0x80168368, size = 64 },
+  { name = "func_801683a8", address = 0x801683a8, size = 64 },
+]
+
+[[unit]]
+name = "s1682d0_r2"
+source = "s1682d0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801688f4", address = 0x801688f4, size = 20 },
+]
+
+[[unit]]
+name = "s1682d0_r3"
+source = "s1682d0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80168a14", address = 0x80168a14, size = 16 },
+]
+
+[[unit]]
+name = "s1682d0_r4"
+source = "s1682d0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80168f18", address = 0x80168f18, size = 56 },
+  { name = "func_80168f50", address = 0x80168f50, size = 56 },
+  { name = "func_80168f88", address = 0x80168f88, size = 196 },
+]
+
+[[unit]]
+name = "s1682d0_r5"
+source = "s1682d0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801691ac", address = 0x801691ac, size = 44 },
+]
+
+
+[[unit]]
+name = "s1682d0_r7"
+source = "s1682d0_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80169abc", address = 0x80169abc, size = 104 },
+  { name = "func_80169b24", address = 0x80169b24, size = 44 },
+]
+
+[[unit]]
+name = "s1682d0_r8"
+source = "s1682d0_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a0cc", address = 0x8016a0cc, size = 160 },
+]
+
+[[unit]]
+name = "s1682d0_r9"
+source = "s1682d0_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a3b0", address = 0x8016a3b0, size = 144 },
+  { name = "func_8016a440", address = 0x8016a440, size = 92 },
+]
+
+[[unit]]
+name = "s1682d0_r10"
+source = "s1682d0_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a730", address = 0x8016a730, size = 148 },
+  { name = "func_8016a7c4", address = 0x8016a7c4, size = 32 },
+  { name = "func_8016a7e4", address = 0x8016a7e4, size = 148 },
+]
+
+[[unit]]
+name = "s16b2c8_r1"
+source = "s16b2c8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016b340", address = 0x8016b340, size = 36 },
+]
+
+
+[[unit]]
+name = "s16b2c8_r4"
+source = "s16b2c8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016cc18", address = 0x8016cc18, size = 124 },
+  { name = "func_8016cc94", address = 0x8016cc94, size = 32 },
+]
+
+[[unit]]
+name = "s16b2c8_r5"
+source = "s16b2c8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016ce4c", address = 0x8016ce4c, size = 132 },
+  { name = "func_8016ced0", address = 0x8016ced0, size = 36 },
+]
+
+[[unit]]
+name = "s16b2c8_r5_b"
+source = "s16b2c8_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016cf70", address = 0x8016cf70, size = 168 },
+  { name = "func_8016d018", address = 0x8016d018, size = 84 },
+  { name = "func_8016d06c", address = 0x8016d06c, size = 52 },
+  { name = "func_8016d0a0", address = 0x8016d0a0, size = 60 },
+  { name = "func_8016d0dc", address = 0x8016d0dc, size = 96 },
+  { name = "func_8016d13c", address = 0x8016d13c, size = 44 },
+  { name = "func_8016d168", address = 0x8016d168, size = 16 },
+]
+
+[[unit]]
+name = "s16b2c8_r6"
+source = "s16b2c8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016d440", address = 0x8016d440, size = 140 },
+]
+
+[[unit]]
+name = "m12028c_r1"
+source = "m12028c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012028c", address = 0x8012028c, size = 232 },
+]
+
+[[unit]]
+name = "m12028c_r2"
+source = "m12028c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120a30", address = 0x80120a30, size = 200 },
+]
+
+[[unit]]
+name = "m12028c_r4"
+source = "m12028c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122e54", address = 0x80122e54, size = 280 },
+]
+
+[[unit]]
+name = "m12028c_r5"
+source = "m12028c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012306c", address = 0x8012306c, size = 288 },
+]
+
+[[unit]]
+name = "m12028c_r8"
+source = "m12028c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80124220", address = 0x80124220, size = 228 },
+]
+
+[[unit]]
+name = "m12028c_r9"
+source = "m12028c_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125144", address = 0x80125144, size = 292 },
+]
+
+[[unit]]
+name = "m126130_r1"
+source = "m126130_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126130", address = 0x80126130, size = 276 },
+]
+
+[[unit]]
+name = "m126130_r2"
+source = "m126130_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801262fc", address = 0x801262fc, size = 220 },
+  { name = "func_801263d8", address = 0x801263d8, size = 252 },
+]
+
+[[unit]]
+name = "m126130_r3"
+source = "m126130_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126a00", address = 0x80126a00, size = 220 },
+]
+
+[[unit]]
+name = "m126130_r4"
+source = "m126130_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126bcc", address = 0x80126bcc, size = 260 },
+]
+
+[[unit]]
+name = "m126130_r5"
+source = "m126130_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012867c", address = 0x8012867c, size = 252 },
+]
+
+[[unit]]
+name = "m126130_r6"
+source = "m126130_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a804", address = 0x8012a804, size = 216 },
+]
+
+[[unit]]
+name = "m126130_r7"
+source = "m126130_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012abf0", address = 0x8012abf0, size = 260 },
+  { name = "func_8012acf4", address = 0x8012acf4, size = 268 },
+  { name = "func_8012ae00", address = 0x8012ae00, size = 248 },
+]
+
+[[unit]]
+name = "m12af5c_r2"
+source = "m12af5c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b7b8", address = 0x8012b7b8, size = 292 },
+]
+
+[[unit]]
+name = "m12af5c_r3"
+source = "m12af5c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012bf74", address = 0x8012bf74, size = 248 },
+]
+
+[[unit]]
+name = "m12af5c_r5"
+source = "m12af5c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c7b4", address = 0x8012c7b4, size = 232 },
+]
+
+[[unit]]
+name = "m12af5c_r7"
+source = "m12af5c_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d170", address = 0x8012d170, size = 244 },
+]
+
+[[unit]]
+name = "m12af5c_r8"
+source = "m12af5c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012df44", address = 0x8012df44, size = 200 },
+]
+
+[[unit]]
+name = "m12e168_r3"
+source = "m12e168_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012eff8", address = 0x8012eff8, size = 232 },
+  { name = "func_8012f0e0", address = 0x8012f0e0, size = 216 },
+]
+
+[[unit]]
+name = "m12e168_r5"
+source = "m12e168_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f408", address = 0x8012f408, size = 212 },
+]
+
+[[unit]]
+name = "m133df4_r1"
+source = "m133df4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80133df4", address = 0x80133df4, size = 220 },
+  { name = "func_80133ed0", address = 0x80133ed0, size = 264 },
+  { name = "func_80133fd8", address = 0x80133fd8, size = 268 },
+]
+
+[[unit]]
+name = "m133df4_r2"
+source = "m133df4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80135ef0", address = 0x80135ef0, size = 284 },
+]
+
+[[unit]]
+name = "m133df4_r3"
+source = "m133df4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136bc0", address = 0x80136bc0, size = 204 },
+]
+
+[[unit]]
+name = "m133df4_r4"
+source = "m133df4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801373e8", address = 0x801373e8, size = 216 },
+]
+
+[[unit]]
+name = "m133df4_r5"
+source = "m133df4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137564", address = 0x80137564, size = 220 },
+]
+
+[[unit]]
+name = "m133df4_r6"
+source = "m133df4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801378d8", address = 0x801378d8, size = 228 },
+]
+
+[[unit]]
+name = "m138290_r1"
+source = "m138290_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138290", address = 0x80138290, size = 200 },
+]
+
+[[unit]]
+name = "m138290_r5"
+source = "m138290_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139f84", address = 0x80139f84, size = 204 },
+]
+
+[[unit]]
+name = "m138290_r7"
+source = "m138290_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013bd10", address = 0x8013bd10, size = 228 },
+]
+
+[[unit]]
+name = "m13c970_r2"
+source = "m13c970_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d270", address = 0x8013d270, size = 232 },
+]
+
+[[unit]]
+name = "m13c970_r3"
+source = "m13c970_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013de80", address = 0x8013de80, size = 232 },
+]
+
+[[unit]]
+name = "m13eb28_r5"
+source = "m13eb28_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f0c8", address = 0x8013f0c8, size = 244 },
+  { name = "func_8013f1bc", address = 0x8013f1bc, size = 236 },
+]
+
+[[unit]]
+name = "u_8011ee64"
+source = "u_8011ee64.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ee64", address = 0x8011ee64, size = 156 },
+]
+
+[[unit]]
+name = "u_80120b34"
+source = "u_80120b34.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120b34", address = 0x80120b34, size = 224 },
+]
+
+[[unit]]
+name = "u_8014e828"
+source = "u_8014e828.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e828", address = 0x8014e828, size = 104 },
+]
+
+[[unit]]
+name = "m14025c_r1"
+source = "m14025c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014025c", address = 0x8014025c, size = 280 },
+  { name = "func_80140374", address = 0x80140374, size = 280 },
+  { name = "func_8014048c", address = 0x8014048c, size = 268 },
+]
+
+[[unit]]
+name = "m14025c_r2"
+source = "m14025c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801410c8", address = 0x801410c8, size = 252 },
+]
+
+[[unit]]
+name = "m14025c_r3"
+source = "m14025c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141618", address = 0x80141618, size = 212 },
+]
+
+[[unit]]
+name = "m14025c_r4"
+source = "m14025c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141908", address = 0x80141908, size = 248 },
+  { name = "func_80141a00", address = 0x80141a00, size = 296 },
+  { name = "func_80141b28", address = 0x80141b28, size = 292 },
+]
+
+[[unit]]
+name = "m141f28_r4"
+source = "m141f28_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014377c", address = 0x8014377c, size = 232 },
+]
+
+[[unit]]
+name = "m141f28_r5"
+source = "m141f28_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801443b0", address = 0x801443b0, size = 220 },
+]
+
+[[unit]]
+name = "m141f28_r6"
+source = "m141f28_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80146998", address = 0x80146998, size = 256 },
+  { name = "func_80146a98", address = 0x80146a98, size = 264 },
+]
+
+[[unit]]
+name = "m141f28_r7"
+source = "m141f28_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147238", address = 0x80147238, size = 296 },
+]
+
+[[unit]]
+name = "m1474b8_r1"
+source = "m1474b8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801474b8", address = 0x801474b8, size = 204 },
+]
+
+[[unit]]
+name = "m1474b8_r2"
+source = "m1474b8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147968", address = 0x80147968, size = 228 },
+]
+
+[[unit]]
+name = "m1474b8_r6"
+source = "m1474b8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148d48", address = 0x80148d48, size = 252 },
+]
+
+[[unit]]
+name = "m14a4f4_r7"
+source = "m14a4f4_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014da18", address = 0x8014da18, size = 208 },
+  { name = "func_8014dae8", address = 0x8014dae8, size = 224 },
+]
+
+[[unit]]
+name = "m14dd14_r2"
+source = "m14dd14_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014eb9c", address = 0x8014eb9c, size = 228 },
+]
+
+[[unit]]
+name = "m14dd14_r3"
+source = "m14dd14_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f0bc", address = 0x8014f0bc, size = 216 },
+]
+
+[[unit]]
+name = "m14dd14_r7"
+source = "m14dd14_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014fa60", address = 0x8014fa60, size = 244 },
+  { name = "func_8014fb54", address = 0x8014fb54, size = 248 },
+  { name = "func_8014fc4c", address = 0x8014fc4c, size = 220 },
+]
+
+[[unit]]
+name = "m14ff20_r2"
+source = "m14ff20_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150638", address = 0x80150638, size = 288 },
+]
+
+[[unit]]
+name = "m14ff20_r3"
+source = "m14ff20_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150b80", address = 0x80150b80, size = 236 },
+]
+
+[[unit]]
+name = "m14ff20_r4"
+source = "m14ff20_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150d58", address = 0x80150d58, size = 244 },
+]
+
+[[unit]]
+name = "m14ff20_r5"
+source = "m14ff20_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801510bc", address = 0x801510bc, size = 200 },
+]
+
+[[unit]]
+name = "m14ff20_r6"
+source = "m14ff20_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801518a0", address = 0x801518a0, size = 276 },
+]
+
+[[unit]]
+name = "m152b40_r1"
+source = "m152b40_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152b40", address = 0x80152b40, size = 244 },
+  { name = "func_80152c34", address = 0x80152c34, size = 244 },
+  { name = "func_80152d28", address = 0x80152d28, size = 204 },
+  { name = "func_80152df4", address = 0x80152df4, size = 244 },
+]
+
+[[unit]]
+name = "m152b40_r2"
+source = "m152b40_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152f80", address = 0x80152f80, size = 264 },
+  { name = "func_80153088", address = 0x80153088, size = 204 },
+]
+
+[[unit]]
+name = "m152b40_r3"
+source = "m152b40_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153230", address = 0x80153230, size = 248 },
+]
+
+[[unit]]
+name = "m152b40_r4"
+source = "m152b40_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801535a4", address = 0x801535a4, size = 276 },
+]
+
+[[unit]]
+name = "m15393c_r1"
+source = "m15393c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015393c", address = 0x8015393c, size = 252 },
+]
+
+[[unit]]
+name = "m15393c_r2"
+source = "m15393c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153b74", address = 0x80153b74, size = 264 },
+]
+
+[[unit]]
+name = "m15393c_r3"
+source = "m15393c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153cac", address = 0x80153cac, size = 208 },
+]
+
+[[unit]]
+name = "m15393c_r5"
+source = "m15393c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801541e0", address = 0x801541e0, size = 260 },
+]
+
+[[unit]]
+name = "m15393c_r6"
+source = "m15393c_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801544a8", address = 0x801544a8, size = 220 },
+]
+
+[[unit]]
+name = "m15393c_r8"
+source = "m15393c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801564f0", address = 0x801564f0, size = 200 },
+]
+
+[[unit]]
+name = "m11907c_r1"
+source = "m11907c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011907c", address = 0x8011907c, size = 200 },
+]
+
+[[unit]]
+name = "m11907c_r2"
+source = "m11907c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801191dc", address = 0x801191dc, size = 224 },
+]
+
+[[unit]]
+name = "m11907c_r3"
+source = "m11907c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119718", address = 0x80119718, size = 292 },
+]
+
+[[unit]]
+name = "m11907c_r4"
+source = "m11907c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011a784", address = 0x8011a784, size = 252 },
+]
+
+[[unit]]
+name = "m11907c_r5"
+source = "m11907c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011abe4", address = 0x8011abe4, size = 216 },
+]
+
+[[unit]]
+name = "m11907c_r7"
+source = "m11907c_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011e990", address = 0x8011e990, size = 216 },
+]
+
+[[unit]]
+name = "m11907c_r8"
+source = "m11907c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f240", address = 0x8011f240, size = 236 },
+]
+
+[[unit]]
+name = "m11907c_r9"
+source = "m11907c_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f5a0", address = 0x8011f5a0, size = 212 },
+]
+
+[[unit]]
+name = "m1566e8_r1"
+source = "m1566e8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801566e8", address = 0x801566e8, size = 252 },
+]
+
+[[unit]]
+name = "m1566e8_r2"
+source = "m1566e8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80157090", address = 0x80157090, size = 228 },
+]
+
+
+
+
+[[unit]]
+name = "m15bd0c_r4"
+source = "m15bd0c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015cec4", address = 0x8015cec4, size = 260 },
+]
+
+
+
+
+
+
+[[unit]]
+name = "m166638_r3"
+source = "m166638_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801683e8", address = 0x801683e8, size = 256 },
+]
+
+[[unit]]
+name = "m166638_r4"
+source = "m166638_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80168908", address = 0x80168908, size = 268 },
+]
+
+[[unit]]
+name = "m166638_r5"
+source = "m166638_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80168e18", address = 0x80168e18, size = 256 },
+]
+
+[[unit]]
+name = "m166638_r6"
+source = "m166638_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a49c", address = 0x8016a49c, size = 208 },
+]
+
+[[unit]]
+name = "m166638_r7"
+source = "m166638_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016cd84", address = 0x8016cd84, size = 200 },
+]
+
+[[unit]]
+name = "l121058_r2"
+source = "l121058_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801218fc", address = 0x801218fc, size = 360 },
+]
+
+[[unit]]
+name = "l121058_r3"
+source = "l121058_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121dc4", address = 0x80121dc4, size = 300 },
+]
+
+[[unit]]
+name = "l121058_r4"
+source = "l121058_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122230", address = 0x80122230, size = 436 },
+]
+
+[[unit]]
+name = "l121058_r5"
+source = "l121058_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122424", address = 0x80122424, size = 328 },
+]
+
+[[unit]]
+name = "l121058_r6"
+source = "l121058_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122630", address = 0x80122630, size = 420 },
+]
+
+[[unit]]
+name = "l122c5c_r3"
+source = "l122c5c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123534", address = 0x80123534, size = 472 },
+]
+
+[[unit]]
+name = "l122c5c_r4"
+source = "l122c5c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123bd4", address = 0x80123bd4, size = 312 },
+]
+
+[[unit]]
+name = "l122c5c_r5"
+source = "l122c5c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123e34", address = 0x80123e34, size = 324 },
+  { name = "func_80123f78", address = 0x80123f78, size = 420 },
+]
+
+[[unit]]
+name = "l124bbc_r1"
+source = "l124bbc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80124bbc", address = 0x80124bbc, size = 436 },
+  { name = "func_80124d70", address = 0x80124d70, size = 348 },
+]
+
+[[unit]]
+name = "l124bbc_r2"
+source = "l124bbc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801257f4", address = 0x801257f4, size = 324 },
+]
+
+[[unit]]
+name = "l124bbc_r4"
+source = "l124bbc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125dc0", address = 0x80125dc0, size = 412 },
+  { name = "func_80125f5c", address = 0x80125f5c, size = 336 },
+]
+
+[[unit]]
+name = "u_80123254"
+source = "u_80123254.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123254", address = 0x80123254, size = 216 },
+]
+
+[[unit]]
+name = "u_80123968"
+source = "u_80123968.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123968", address = 0x80123968, size = 100 },
+]
+
+[[unit]]
+name = "u_80123d64"
+source = "u_80123d64.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123d64", address = 0x80123d64, size = 208 },
+]
+
+[[unit]]
+name = "u_80129c08"
+source = "u_80129c08.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129c08", address = 0x80129c08, size = 56 },
+]
+
+[[unit]]
+name = "u_8014f4d4"
+source = "u_8014f4d4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f4d4", address = 0x8014f4d4, size = 200 },
+]
+rodata = { address = 0x8016d9f8, size = 24 }
+
+[[unit]]
+name = "l128814_r2"
+source = "l128814_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801299f8", address = 0x801299f8, size = 368 },
+]
+
+[[unit]]
+name = "l128814_r3"
+source = "l128814_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129da8", address = 0x80129da8, size = 472 },
+  { name = "func_80129f80", address = 0x80129f80, size = 392 },
+]
+
+[[unit]]
+name = "l128814_r4"
+source = "l128814_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a1e4", address = 0x8012a1e4, size = 448 },
+]
+
+[[unit]]
+name = "l12a3f4_r1"
+source = "l12a3f4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a3f4", address = 0x8012a3f4, size = 440 },
+]
+
+[[unit]]
+name = "l12a3f4_r2"
+source = "l12a3f4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a684", address = 0x8012a684, size = 384 },
+]
+
+[[unit]]
+name = "l12a3f4_r3"
+source = "l12a3f4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a9a0", address = 0x8012a9a0, size = 444 },
+]
+
+[[unit]]
+name = "l12a3f4_r4"
+source = "l12a3f4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b184", address = 0x8012b184, size = 320 },
+]
+
+[[unit]]
+name = "l12a3f4_r5"
+source = "l12a3f4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b324", address = 0x8012b324, size = 312 },
+  { name = "func_8012b45c", address = 0x8012b45c, size = 308 },
+]
+
+[[unit]]
+name = "l12a3f4_r6"
+source = "l12a3f4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ba80", address = 0x8012ba80, size = 300 },
+]
+
+[[unit]]
+name = "l12bd00_r1"
+source = "l12bd00_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012bd00", address = 0x8012bd00, size = 368 },
+]
+
+[[unit]]
+name = "l12bd00_r4"
+source = "l12bd00_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d4e4", address = 0x8012d4e4, size = 412 },
+  { name = "func_8012d680", address = 0x8012d680, size = 356 },
+]
+
+[[unit]]
+name = "l12e38c_r1"
+source = "l12e38c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e38c", address = 0x8012e38c, size = 312 },
+]
+
+[[unit]]
+name = "l12e38c_r2"
+source = "l12e38c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ec50", address = 0x8012ec50, size = 348 },
+]
+
+[[unit]]
+name = "l134624_r1"
+source = "l134624_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80134624", address = 0x80134624, size = 400 },
+]
+
+[[unit]]
+name = "l134624_r2"
+source = "l134624_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80135858", address = 0x80135858, size = 440 },
+]
+
+[[unit]]
+name = "l134624_r5"
+source = "l134624_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801376b8", address = 0x801376b8, size = 436 },
+]
+
+[[unit]]
+name = "l134624_r6"
+source = "l134624_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801379bc", address = 0x801379bc, size = 340 },
+]
+
+[[unit]]
+name = "l138164_r1"
+source = "l138164_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138164", address = 0x80138164, size = 300 },
+]
+
+[[unit]]
+name = "l138164_r3"
+source = "l138164_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013b824", address = 0x8013b824, size = 344 },
+]
+
+[[unit]]
+name = "l138164_r4"
+source = "l138164_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013b9e0", address = 0x8013b9e0, size = 484 },
+]
+
+[[unit]]
+name = "l138164_r5"
+source = "l138164_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d65c", address = 0x8013d65c, size = 472 },
+]
+
+[[unit]]
+name = "l138164_r5_b"
+source = "l138164_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d9d0", address = 0x8013d9d0, size = 376 },
+]
+
+[[unit]]
+name = "l13e028_r3"
+source = "l13e028_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013fab4", address = 0x8013fab4, size = 356 },
+]
+
+[[unit]]
+name = "l13e028_r4"
+source = "l13e028_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801400fc", address = 0x801400fc, size = 352 },
+]
+
+[[unit]]
+name = "l13e028_r5"
+source = "l13e028_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140598", address = 0x80140598, size = 472 },
+]
+
+[[unit]]
+name = "l1409d8_r1"
+source = "l1409d8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801409d8", address = 0x801409d8, size = 388 },
+]
+
+[[unit]]
+name = "l1409d8_r2"
+source = "l1409d8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801412a4", address = 0x801412a4, size = 472 },
+]
+
+[[unit]]
+name = "l1409d8_r4"
+source = "l1409d8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142fe8", address = 0x80142fe8, size = 412 },
+]
+
+[[unit]]
+name = "u_8012af5c"
+source = "u_8012af5c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012af5c", address = 0x8012af5c, size = 200 },
+]
+
+[[unit]]
+name = "l143864_r1"
+source = "l143864_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143864", address = 0x80143864, size = 388 },
+]
+
+[[unit]]
+name = "l143864_r2"
+source = "l143864_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143c1c", address = 0x80143c1c, size = 332 },
+]
+rodata = { address = 0x8016d9cc, size = 8 }
+
+[[unit]]
+name = "l143864_r3"
+source = "l143864_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801451ac", address = 0x801451ac, size = 320 },
+]
+
+[[unit]]
+name = "l143864_r4"
+source = "l143864_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801461c4", address = 0x801461c4, size = 328 },
+]
+
+[[unit]]
+name = "l143864_r5"
+source = "l143864_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80146478", address = 0x80146478, size = 312 },
+  { name = "func_801465b0", address = 0x801465b0, size = 316 },
+]
+
+[[unit]]
+name = "l147360_r1"
+source = "l147360_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147360", address = 0x80147360, size = 344 },
+]
+
+[[unit]]
+name = "l147360_r2"
+source = "l147360_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80147584", address = 0x80147584, size = 340 },
+]
+
+[[unit]]
+name = "l147360_r3"
+source = "l147360_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014780c", address = 0x8014780c, size = 348 },
+]
+
+[[unit]]
+name = "l147360_r4"
+source = "l147360_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148b60", address = 0x80148b60, size = 300 },
+]
+
+[[unit]]
+name = "l147360_r6"
+source = "l147360_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a1ec", address = 0x8014a1ec, size = 376 },
+]
+
+[[unit]]
+name = "l14de94_r1"
+source = "l14de94_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014de94", address = 0x8014de94, size = 492 },
+]
+
+[[unit]]
+name = "l14de94_r3"
+source = "l14de94_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014fd9c", address = 0x8014fd9c, size = 388 },
+]
+
+[[unit]]
+name = "l14de94_r4"
+source = "l14de94_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150294", address = 0x80150294, size = 348 },
+]
+
+[[unit]]
+name = "l14de94_r6"
+source = "l14de94_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801536b8", address = 0x801536b8, size = 412 },
+]
+
+[[unit]]
+name = "l153a38_r1"
+source = "l153a38_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153a38", address = 0x80153a38, size = 316 },
+]
+
+[[unit]]
+name = "l153a38_r2"
+source = "l153a38_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80154364", address = 0x80154364, size = 324 },
+]
+
+[[unit]]
+name = "l153a38_r4"
+source = "l153a38_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156898", address = 0x80156898, size = 392 },
+  { name = "func_80156a20", address = 0x80156a20, size = 424 },
+]
+
+[[unit]]
+name = "x120604_r3"
+source = "x120604_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801213c0", address = 0x801213c0, size = 704 },
+]
+
+[[unit]]
+name = "x120604_r4"
+source = "x120604_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121f74", address = 0x80121f74, size = 628 },
+]
+
+[[unit]]
+name = "x124304_r2"
+source = "x124304_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801246cc", address = 0x801246cc, size = 944 },
+]
+
+[[unit]]
+name = "x124304_r3"
+source = "x124304_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125b80", address = 0x80125b80, size = 576 },
+]
+
+[[unit]]
+name = "x12c100_r4"
+source = "x12c100_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80134e94", address = 0x80134e94, size = 556 },
+]
+
+[[unit]]
+name = "x135a10_r2"
+source = "x135a10_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80135c88", address = 0x80135c88, size = 616 },
+]
+
+[[unit]]
+name = "u_80121058"
+source = "u_80121058.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121058", address = 0x80121058, size = 388 },
+]
+
+[[unit]]
+name = "u_80131e88"
+source = "u_80131e88.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131e88", address = 0x80131e88, size = 244 },
+]
+
+[[unit]]
+name = "u_80132e84"
+source = "u_80132e84.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132e84", address = 0x80132e84, size = 268 },
+]
+
+[[unit]]
+name = "y1189c4_r2"
+source = "y1189c4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80118d10", address = 0x80118d10, size = 328 },
+  { name = "func_80118e58", address = 0x80118e58, size = 368 },
+]
+
+[[unit]]
+name = "y1189c4_r3"
+source = "y1189c4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801194f4", address = 0x801194f4, size = 416 },
+]
+
+[[unit]]
+name = "y1199ec_r2"
+source = "y1199ec_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119b3c", address = 0x80119b3c, size = 452 },
+]
+
+[[unit]]
+name = "y1199ec_r3"
+source = "y1199ec_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119e74", address = 0x80119e74, size = 420 },
+]
+
+[[unit]]
+name = "y1199ec_r4"
+source = "y1199ec_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011a410", address = 0x8011a410, size = 332 },
+]
+
+[[unit]]
+name = "y11bc84_r1"
+source = "y11bc84_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011bc84", address = 0x8011bc84, size = 316 },
+]
+
+[[unit]]
+name = "y11bc84_r2"
+source = "y11bc84_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011be18", address = 0x8011be18, size = 344 },
+]
+
+[[unit]]
+name = "y11bc84_r3"
+source = "y11bc84_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011c568", address = 0x8011c568, size = 444 },
+]
+
+[[unit]]
+name = "y11bc84_r4"
+source = "y11bc84_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011cbb8", address = 0x8011cbb8, size = 432 },
+]
+
+[[unit]]
+name = "y11bc84_r5"
+source = "y11bc84_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011cdc0", address = 0x8011cdc0, size = 472 },
+]
+
+[[unit]]
+name = "y11bc84_r6"
+source = "y11bc84_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011d5b8", address = 0x8011d5b8, size = 404 },
+]
+
+[[unit]]
+name = "y11fcc0_r5"
+source = "y11fcc0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140770", address = 0x80140770, size = 616 },
+]
+
+[[unit]]
+name = "y142c70_r1"
+source = "y142c70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142c70", address = 0x80142c70, size = 844 },
+]
+
+[[unit]]
+name = "y142c70_r2"
+source = "y142c70_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143184", address = 0x80143184, size = 552 },
+  { name = "func_801433ac", address = 0x801433ac, size = 640 },
+]
+
+[[unit]]
+name = "y142c70_r3"
+source = "y142c70_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144f10", address = 0x80144f10, size = 668 },
+]
+rodata = { address = 0x8016d9d4, size = 12 }
+
+[[unit]]
+name = "y146ba0_r2"
+source = "y146ba0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148ecc", address = 0x80148ecc, size = 528 },
+]
+
+[[unit]]
+name = "y14e890_r2"
+source = "y14e890_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f194", address = 0x8014f194, size = 548 },
+]
+
+[[unit]]
+name = "y14e890_r3"
+source = "y14e890_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155a24", address = 0x80155a24, size = 620 },
+]
+
+[[unit]]
+name = "u_8011983c"
+source = "u_8011983c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011983c", address = 0x8011983c, size = 432 },
+]
+
+[[unit]]
+name = "u_8012332c"
+source = "u_8012332c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012332c", address = 0x8012332c, size = 472 },
+]
+
+[[unit]]
+name = "u_80124ecc"
+source = "u_80124ecc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80124ecc", address = 0x80124ecc, size = 404 },
+]
+
+[[unit]]
+name = "u_8012c494"
+source = "u_8012c494.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c494", address = 0x8012c494, size = 312 },
+]
+
+[[unit]]
+name = "z11b708"
+source = "z11b708.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011b708", address = 0x8011b708, size = 1404 },
+]
+
+[[unit]]
+name = "z127cd8"
+source = "z127cd8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80127cd8", address = 0x80127cd8, size = 1048 },
+]
+
+[[unit]]
+name = "z133848"
+source = "z133848.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80133848", address = 0x80133848, size = 1452 },
+]
+
+[[unit]]
+name = "l143864_r6"
+source = "l143864_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80146ba0", address = 0x80146ba0, size = 344 },
+  { name = "func_80146cf8", address = 0x80146cf8, size = 324 },
+  { name = "func_80146e3c", address = 0x80146e3c, size = 452 },
+  { name = "func_80147000", address = 0x80147000, size = 344 },
+]
+rodata = { address = 0x8016d9e0, size = 24 }
+
+[[unit]]
+name = "sdk_libsnd_vm_vsu"
+source = "sdk/libsnd/vm_vsu.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmVSetUp", address = 0x80164db4, size = 212 },
+]
+
+[[unit]]
+name = "sdk_libsnd_sstable"
+source = "sdk/libsnd/sstable.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSetTableSize", address = 0x801650bc, size = 480 },
+]
+
+[[unit]]
+name = "sdk_libsnd_adsr"
+source = "sdk/libsnd/adsr.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsUtResolveADSR", address = 0x801680f4, size = 92 },
+  { name = "_SsUtBuildADSR", address = 0x80168150, size = 140 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_rev"
+source = "sdk/libsnd/ut_rev.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtSetReverbType", address = 0x8016821c, size = 164 },
+  { name = "SsUtGetReverbType", address = 0x801682c0, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_gva"
+source = "sdk/libsnd/ut_gva.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtGetVagAtr", address = 0x801684e8, size = 576 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_sva"
+source = "sdk/libsnd/ut_sva.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtSetVagAtr", address = 0x80168728, size = 460 },
+]
+
+[[unit]]
+name = "sdk_libsnd_stop"
+source = "sdk/libsnd/stop.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndStop", address = 0x801691d8, size = 364 },
+  { name = "SsSeqStop", address = 0x80169344, size = 40 },
+  { name = "SsSepStop", address = 0x8016936c, size = 44 },
+]
+
+[[unit]]
+name = "sdk_libsnd_sscall"
+source = "sdk/libsnd/sscall.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSeqCalledTbyT", address = 0x80169398, size = 628 },
+]
+
+[[unit]]
+name = "sdk_libsnd_tempo"
+source = "sdk/libsnd/tempo.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndTempo", address = 0x8016a1d0, size = 480 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssclose"
+source = "sdk/libsnd/ssclose.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsClose", address = 0x8016a56c, size = 380 },
+  { name = "SsSeqClose", address = 0x8016a6e8, size = 36 },
+  { name = "SsSepClose", address = 0x8016a70c, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_util"
+source = "sdk/libspu/s_m_util.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SpuIsInAllocateArea", address = 0x8016b258, size = 112 },
+  { name = "_SpuIsInAllocateArea_", address = 0x8016b2c8, size = 120 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_crwa"
+source = "sdk/libspu/s_crwa.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuClearReverbWorkArea", address = 0x8016ca68, size = 416 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_sr"
+source = "sdk/libspu/s_sr.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetReverb", address = 0x8016ccb4, size = 208 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_q"
+source = "sdk/libspu/s_q.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuQuit", address = 0x8016cef4, size = 124 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_sav"
+source = "sdk/libspu/s_sav.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetAnyVoice", address = 0x8016d7cc, size = 180 },
+]
+
+[[unit]]
+name = "u_80119ddc"
+source = "u_80119ddc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119ddc", address = 0x80119ddc, size = 152 },
+]
+
+[[unit]]
+name = "u_80137004"
+source = "u_80137004.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137004", address = 0x80137004, size = 108 },
+]
+
+[[unit]]
+name = "u_80137070"
+source = "u_80137070.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137070", address = 0x80137070, size = 108 },
+]
+
+[[unit]]
+name = "u_801370dc"
+source = "u_801370dc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801370dc", address = 0x801370dc, size = 108 },
+]
+
+[[unit]]
+name = "u_80137148"
+source = "u_80137148.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137148", address = 0x80137148, size = 108 },
+]
+
+[[unit]]
+name = "u_801371b4"
+source = "u_801371b4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801371b4", address = 0x801371b4, size = 108 },
+]
+
+[[unit]]
+name = "u_80138628"
+source = "u_80138628.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138628", address = 0x80138628, size = 124 },
+]
+
+[[unit]]
+name = "u_801395f8"
+source = "u_801395f8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801395f8", address = 0x801395f8, size = 236 },
+]
+
+[[unit]]
+name = "u_801396e4"
+source = "u_801396e4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801396e4", address = 0x801396e4, size = 236 },
+]
+
+
+
+[[unit]]
+name = "sdk_libapi_a09"
+kind = "asm"
+source = "sdk/libapi/a09.s"
+functions = [
+  { name = "CloseEvent", address = 0x801575cc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a36"
+kind = "asm"
+source = "sdk/libapi/a36.s"
+functions = [
+  { name = "EnterCriticalSection", address = 0x801575dc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a54"
+kind = "asm"
+source = "sdk/libapi/a54.s"
+functions = [
+  { name = "close", address = 0x801575ec, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a53"
+kind = "asm"
+source = "sdk/libapi/a53.s"
+functions = [
+  { name = "write", address = 0x801575fc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a12"
+kind = "asm"
+source = "sdk/libapi/a12.s"
+functions = [
+  { name = "EnableEvent", address = 0x8015761c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a65"
+kind = "asm"
+source = "sdk/libapi/a65.s"
+functions = [
+  { name = "format", address = 0x8015763c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a13"
+kind = "asm"
+source = "sdk/libapi/a13.s"
+functions = [
+  { name = "DisableEvent", address = 0x801577cc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a91"
+kind = "asm"
+source = "sdk/libapi/a91.s"
+functions = [
+  { name = "ChangeClearPAD", address = 0x801577fc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c57"
+kind = "asm"
+source = "sdk/libapi/c57.s"
+functions = [
+  { name = "InitHeap", address = 0x8015780c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a67"
+kind = "asm"
+source = "sdk/libapi/a67.s"
+functions = [
+  { name = "nextfile", address = 0x8015781c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c67"
+kind = "asm"
+source = "sdk/libapi/c67.s"
+functions = [
+  { name = "Exec", address = 0x8015782c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a08"
+kind = "asm"
+source = "sdk/libapi/a08.s"
+functions = [
+  { name = "OpenEvent", address = 0x8015783c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a52"
+kind = "asm"
+source = "sdk/libapi/a52.s"
+functions = [
+  { name = "read", address = 0x8015784c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a11"
+kind = "asm"
+source = "sdk/libapi/a11.s"
+functions = [
+  { name = "TestEvent", address = 0x8015785c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a37"
+kind = "asm"
+source = "sdk/libapi/a37.s"
+functions = [
+  { name = "ExitCriticalSection", address = 0x8015786c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a50"
+kind = "asm"
+source = "sdk/libapi/a50.s"
+functions = [
+  { name = "open", address = 0x8015787c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a66"
+kind = "asm"
+source = "sdk/libapi/a66.s"
+functions = [
+  { name = "firstfile", address = 0x8015788c, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c68"
+kind = "asm"
+source = "sdk/libapi/c68.s"
+functions = [
+  { name = "FlushCache", address = 0x801578ac, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c21"
+kind = "asm"
+source = "sdk/libc/c21.s"
+functions = [
+  { name = "strcat", address = 0x801578bc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c23"
+kind = "asm"
+source = "sdk/libc/c23.s"
+functions = [
+  { name = "strcmp", address = 0x801578cc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c25"
+kind = "asm"
+source = "sdk/libc/c25.s"
+functions = [
+  { name = "strcpy", address = 0x801578dc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c47"
+kind = "asm"
+source = "sdk/libc/c47.s"
+functions = [
+  { name = "rand", address = 0x801578ec, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c73"
+kind = "asm"
+source = "sdk/libapi/c73.s"
+functions = [
+  { name = "GPU_cw", address = 0x8015a530, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c42"
+kind = "asm"
+source = "sdk/libc/c42.s"
+functions = [
+  { name = "memcpy", address = 0x8015a540, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c63"
+kind = "asm"
+source = "sdk/libc/c63.s"
+functions = [
+  { name = "printf", address = 0x8015a550, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c43"
+kind = "asm"
+source = "sdk/libc/c43.s"
+functions = [
+  { name = "memset", address = 0x8015bcfc, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a07"
+kind = "asm"
+source = "sdk/libapi/a07.s"
+functions = [
+  { name = "DeliverEvent", address = 0x8015c7f4, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libetc_intr"
+source = "sdk/libetc/intr.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "ResetCallback", address = 0x8015efc0, size = 48 },
+  { name = "InterruptCallback", address = 0x8015eff0, size = 48 },
+  { name = "DMACallback", address = 0x8015f020, size = 48 },
+  { name = "VSyncCallback", address = 0x8015f050, size = 52 },
+  { name = "VSyncCallbacks", address = 0x8015f084, size = 48 },
+  { name = "StopCallback", address = 0x8015f0b4, size = 48 },
+  { name = "RestartCallback", address = 0x8015f0e4, size = 48 },
+  { name = "CheckCallback", address = 0x8015f114, size = 16 },
+  { name = "GetIntrMask", address = 0x8015f124, size = 24 },
+  { name = "SetIntrMask", address = 0x8015f13c, size = 28 },
+  { name = "startIntr", address = 0x8015f158, size = 220 },
+  { name = "trapIntr", address = 0x8015f234, size = 488 },
+  { name = "setIntr", address = 0x8015f41c, size = 340 },
+  { name = "stopIntr", address = 0x8015f570, size = 176 },
+  { name = "restartIntr", address = 0x8015f620, size = 136 },
+  { name = "memclr", address = 0x8015f6a8, size = 44 },
+]
+rodata = { address = 0x8016e154, size = 108 }
+data = { address = 0x80181e64, size = 4252 }
+
+[[unit]]
+name = "sdk_libapi_a25"
+kind = "asm"
+source = "sdk/libapi/a25.s"
+functions = [
+  { name = "HookEntryInt", address = 0x8015f6d4, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a24"
+kind = "asm"
+source = "sdk/libapi/a24.s"
+functions = [
+  { name = "ResetEntryInt", address = 0x8015f6e4, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_l10"
+kind = "asm"
+source = "sdk/libapi/l10.s"
+functions = [
+  { name = "ChangeClearRCnt", address = 0x8015f6f4, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c114"
+kind = "asm"
+source = "sdk/libapi/c114.s"
+functions = [
+  { name = "_96_remove", address = 0x8015f704, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_a23"
+kind = "asm"
+source = "sdk/libapi/a23.s"
+functions = [
+  { name = "ReturnFromException", address = 0x8015f714, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libc_c19"
+kind = "asm"
+source = "sdk/libc/c19.s"
+functions = [
+  { name = "setjmp", address = 0x8015f724, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libetc_intr_dma"
+source = "sdk/libetc/intr_dma.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "startIntrDMA", address = 0x8015f75c, size = 80 },
+  { name = "trapIntrDMA", address = 0x8015f7ac, size = 388 },
+  { name = "setIntrDMA", address = 0x8015f930, size = 168 },
+  { name = "DMA_memclr", address = 0x8015f9d8, size = 44 },
+]
+rodata = { address = 0x8016e1c0, size = 44 }
+data = { address = 0x80182f04, size = 40 }
+
+[[unit]]
+name = "sdk_libetc_intr_vb"
+source = "sdk/libetc/intr_vb.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "startIntrVSync", address = 0x8015fa04, size = 88 },
+  { name = "trapIntrVSync", address = 0x8015fa5c, size = 124 },
+  { name = "setIntrVSync", address = 0x8015fad8, size = 44 },
+  { name = "VSync_memclr", address = 0x8015fb04, size = 44 },
+]
+data = { address = 0x80182f2c, size = 40 }
+
+[[unit]]
+name = "sdk_libetc_vsync"
+source = "sdk/libetc/vsync.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "VSync", address = 0x8015fb30, size = 328 },
+  { name = "v_wait", address = 0x8015fc78, size = 156 },
+]
+rodata = { address = 0x8016e1ec, size = 16 }
+data = { address = 0x80182f54, size = 16 }
+
+[[unit]]
+name = "sdk_libc_a63"
+kind = "asm"
+source = "sdk/libc/a63.s"
+functions = [
+  { name = "puts", address = 0x8015fd14, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vs_vtbp"
+source = "sdk/libsnd/vs_vtbp.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsVabTransBodyPartly", address = 0x8015fe50, size = 368 },
+]
+data = { address = 0x80182f6c, size = 8 }
+
+[[unit]]
+name = "sdk_libapi_a10"
+kind = "asm"
+source = "sdk/libapi/a10.s"
+functions = [
+  { name = "WaitEvent", address = 0x8016cc08, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_c172"
+kind = "asm"
+source = "sdk/libcard/c172.s"
+functions = [
+  { name = "_card_load", address = 0x8016d880, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_c171"
+kind = "asm"
+source = "sdk/libcard/c171.s"
+functions = [
+  { name = "_card_info", address = 0x8016d890, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_a78"
+kind = "asm"
+source = "sdk/libcard/a78.s"
+functions = [
+  { name = "_card_write", address = 0x8016d8d0, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_a74"
+kind = "asm"
+source = "sdk/libcard/a74.s"
+functions = [
+  { name = "InitCARD", address = 0x8016d8e0, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_a75"
+kind = "asm"
+source = "sdk/libcard/a75.s"
+functions = [
+  { name = "StartCARD", address = 0x8016d8f0, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libapi_c112"
+kind = "asm"
+source = "sdk/libapi/c112.s"
+functions = [
+  { name = "_bu_init", address = 0x8016d900, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcard_a80"
+kind = "asm"
+source = "sdk/libcard/a80.s"
+functions = [
+  { name = "_new_card", address = 0x8016d910, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libgpu_ext"
+source = "sdk/libgpu/ext.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "LoadTPage", address = 0x8015c49c, size = 236 },
+  { name = "LoadClut", address = 0x8015c588, size = 104 },
+  { name = "SetDefDrawEnv", address = 0x8015c5f0, size = 192 },
+  { name = "SetDefDispEnv", address = 0x8015c6b0, size = 60 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssinit"
+source = "sdk/libsnd/ssinit.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsInit", address = 0x80164f28, size = 340 },
+  { name = "SsInit", address = 0x8016507c, size = 32 },
+  { name = "SsInitHot", address = 0x8016509c, size = 32 },
+]
+data = { address = 0x801830fc, size = 48 }
+
+[[unit]]
+name = "sdk_libsnd_sstick"
+source = "sdk/libsnd/sstick.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSetTickMode", address = 0x8016529c, size = 384 },
+]
+rodata = { address = 0x8016e1fc, size = 24 }
+
+[[unit]]
+name = "sdk_libsnd_vs_vh"
+source = "sdk/libsnd/vs_vh.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsVabOpenHead", address = 0x80165850, size = 52 },
+  { name = "SsVabOpenHeadSticky", address = 0x80165884, size = 52 },
+  { name = "SsVabFakeHead", address = 0x801658b8, size = 52 },
+  { name = "SsVabOpenHeadWithMode", address = 0x801658ec, size = 1096 },
+]
+
+[[unit]]
+name = "sdk_libsnd_seqinit"
+source = "sdk/libsnd/seqinit.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsInitSoundSeq", address = 0x80168a24, size = 808 },
+  { name = "SsSeqOpen", address = 0x80168d4c, size = 204 },
+]
+rodata = { address = 0x8016e4c4, size = 96 }
+
+[[unit]]
+name = "sdk_libspu_s_srmp"
+source = "sdk/libspu/s_srmp.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetReverbModeParam", address = 0x8016a878, size = 1296 },
+  { name = "_spu_setReverbAttr", address = 0x8016ad88, size = 1232 },
+]
+data = { address = 0x8018365c, size = 680 }
+
+[[unit]]
+name = "sdk_libspu_s_sca"
+source = "sdk/libspu/s_sca.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetCommonAttr", address = 0x8016b364, size = 916 },
+]
+rodata = { address = 0x8016e524, size = 64 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[[unit]]
+name = "z1350c0"
+source = "z1350c0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801350c0", address = 0x801350c0, size = 1944 },
+]
+
+[[unit]]
+name = "z1550b0"
+source = "z1550b0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801550b0", address = 0x801550b0, size = 2420 },
+]
+
+[[unit]]
+name = "sdk_libcd_event"
+source = "sdk/libcd/event.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdInit", address = 0x8015c6ec, size = 144 },
+  { name = "def_cbsync", address = 0x8015c77c, size = 40 },
+  { name = "def_cbready", address = 0x8015c7a4, size = 40 },
+  { name = "def_cbread", address = 0x8015c7cc, size = 40 },
+]
+rodata = { address = 0x8016def4, size = 24 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[[unit]]
+name = "u_8011fcc0"
+source = "u_8011fcc0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fcc0", address = 0x8011fcc0, size = 384 },
+]
+
+[[unit]]
+name = "u_80141f28"
+source = "u_80141f28.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141f28", address = 0x80141f28, size = 264 },
+]
+
+[[unit]]
+name = "u_80142378"
+source = "u_80142378.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142378", address = 0x80142378, size = 172 },
+]
+
+[[unit]]
+name = "u_801441c8"
+source = "u_801441c8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801441c8", address = 0x801441c8, size = 88 },
+]
+
+[[unit]]
+name = "u_801483a4"
+source = "u_801483a4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801483a4", address = 0x801483a4, size = 240 },
+]
+
+[[unit]]
+name = "u_80148494"
+source = "u_80148494.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148494", address = 0x80148494, size = 244 },
+]
+
+[[unit]]
+name = "u_80148774"
+source = "u_80148774.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148774", address = 0x80148774, size = 248 },
+]
+
+[[unit]]
+name = "u_801491bc"
+source = "u_801491bc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801491bc", address = 0x801491bc, size = 124 },
+]
+
+[[unit]]
+name = "u_801495f8"
+source = "u_801495f8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801495f8", address = 0x801495f8, size = 456 },
+]
+
+[[unit]]
+name = "u_801497c0"
+source = "u_801497c0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801497c0", address = 0x801497c0, size = 200 },
+]
+
+[[unit]]
+name = "u_80152260"
+source = "u_80152260.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152260", address = 0x80152260, size = 248 },
+]
+
+[[unit]]
+name = "u_801529f4"
+source = "u_801529f4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801529f4", address = 0x801529f4, size = 228 },
+]
+
+[[unit]]
+name = "u_80155de0"
+source = "u_80155de0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155de0", address = 0x80155de0, size = 204 },
+]
+
+[[unit]]
+name = "u_80155f30"
+source = "u_80155f30.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80155f30", address = 0x80155f30, size = 104 },
+]
+
+[[unit]]
+name = "u_801560d4"
+source = "u_801560d4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801560d4", address = 0x801560d4, size = 332 },
+]
+
+[[unit]]
+name = "u_80156818"
+source = "u_80156818.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156818", address = 0x80156818, size = 128 },
+]
+
+[[unit]]
+name = "asm_entry"
+kind = "asm"
+source = "asm/entry.s"
+functions = [
+  { name = "func_80118908", address = 0x80118908, size = 172 },
+]
+
+[[unit]]
+name = "asm_getgp"
+kind = "asm"
+source = "asm/getgp.s"
+functions = [
+  { name = "func_8015789c", address = 0x8015789c, size = 8 },
+]
+
+[[unit]]
+name = "asm_hostio"
+kind = "asm"
+source = "asm/hostio.s"
+functions = [
+  { name = "func_8015fde4", address = 0x8015fde4, size = 32 },
+  { name = "func_8015fe04", address = 0x8015fe04, size = 36 },
+  { name = "func_8015fe28", address = 0x8015fe28, size = 16 },
+  { name = "func_8015fe38", address = 0x8015fe38, size = 24 },
+]
+
+[[unit]]
+name = "asm_bios_b0_0e"
+kind = "asm"
+source = "asm/bios_b0_0e.s"
+functions = [
+  { name = "func_8015760c", address = 0x8015760c, size = 16 },
+]
+
+[[unit]]
+name = "asm_bios_b0_12"
+kind = "asm"
+source = "asm/bios_b0_12.s"
+functions = [
+  { name = "func_8015762c", address = 0x8015762c, size = 16 },
+]
+
+[[unit]]
+name = "asm_bios_b0_0f"
+kind = "asm"
+source = "asm/bios_b0_0f.s"
+functions = [
+  { name = "func_801577bc", address = 0x801577bc, size = 16 },
+]
+
+[[unit]]
+name = "asm_bios_b0_13"
+kind = "asm"
+source = "asm/bios_b0_13.s"
+functions = [
+  { name = "func_801577dc", address = 0x801577dc, size = 16 },
+]
+
+[[unit]]
+name = "asm_bios_b0_10"
+kind = "asm"
+source = "asm/bios_b0_10.s"
+functions = [
+  { name = "func_801577ec", address = 0x801577ec, size = 16 },
+]
+
+[[unit]]
+name = "u_8013e4a8"
+source = "u_8013e4a8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e4a8", address = 0x8013e4a8, size = 204 },
+]
+
+[[unit]]
+name = "u_801414dc"
+source = "u_801414dc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801414dc", address = 0x801414dc, size = 88 },
+]
+
+[[unit]]
+name = "u_801415c0"
+source = "u_801415c0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801415c0", address = 0x801415c0, size = 88 },
+]
+
+[[unit]]
+name = "u_8014b870"
+source = "u_8014b870.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b870", address = 0x8014b870, size = 104 },
+]
+
+[[unit]]
+name = "u_8014bb28"
+source = "u_8014bb28.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bb28", address = 0x8014bb28, size = 224 },
+]
+
+[[unit]]
+name = "u_8014bc08"
+source = "u_8014bc08.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bc08", address = 0x8014bc08, size = 208 },
+]
+
+[[unit]]
+name = "u_8014be78"
+source = "u_8014be78.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014be78", address = 0x8014be78, size = 112 },
+]
+
+[[unit]]
+name = "u_8014c108"
+source = "u_8014c108.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c108", address = 0x8014c108, size = 112 },
+]
+
+[[unit]]
+name = "u_8014c804"
+source = "u_8014c804.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c804", address = 0x8014c804, size = 272 },
+]
+
+[[unit]]
+name = "u_8014dd14"
+source = "u_8014dd14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014dd14", address = 0x8014dd14, size = 268 },
+]
+
+[[unit]]
+name = "u_8014e310"
+source = "u_8014e310.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e310", address = 0x8014e310, size = 88 },
+]
+
+[[unit]]
+name = "u_8014e40c"
+source = "u_8014e40c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e40c", address = 0x8014e40c, size = 104 },
+]
+
+[[unit]]
+name = "u_8014e7ec"
+source = "u_8014e7ec.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e7ec", address = 0x8014e7ec, size = 60 },
+]
+
+[[unit]]
+name = "u_8015a8c4"
+source = "u_8015a8c4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015a8c4", address = 0x8015a8c4, size = 288 },
+]
+
+[[unit]]
+name = "v2_r2"
+source = "v2_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f038", address = 0x8014f038, size = 132 },
+]
+
+[[unit]]
+name = "v3_r1"
+source = "v3_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a194", address = 0x8012a194, size = 80 },
+]
+
+[[unit]]
+name = "v4_r2"
+source = "v4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128b28", address = 0x80128b28, size = 144 },
+]
+
+[[unit]]
+name = "v4_r4"
+source = "v4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011948c", address = 0x8011948c, size = 104 },
+]
+
+[[unit]]
+name = "v4_r5"
+source = "v4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011b594", address = 0x8011b594, size = 228 },
+]
+
+[[unit]]
+name = "v5_r1"
+source = "v5_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ed1c", address = 0x8013ed1c, size = 116 },
+]
+
+[[unit]]
+name = "v5_r3"
+source = "v5_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012ea94", address = 0x8012ea94, size = 96 },
+]
+
+[[unit]]
+name = "v6_r1"
+source = "v6_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f7f8", address = 0x8014f7f8, size = 288 },
+]
+
+[[unit]]
+name = "v6_r2"
+source = "v6_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012cf1c", address = 0x8012cf1c, size = 276 },
+]
+
+[[unit]]
+name = "v7_r2"
+source = "v7_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e710", address = 0x8013e710, size = 224 },
+]
+
+[[unit]]
+name = "v7_r4"
+source = "v7_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f2b8", address = 0x8012f2b8, size = 204 },
+]
+
+[[unit]]
+name = "v8_r2"
+source = "v8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e84c", address = 0x8013e84c, size = 248 },
+]
+
+[[unit]]
+name = "v8_r3"
+source = "v8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128bb8", address = 0x80128bb8, size = 144 },
+]
+
+[[unit]]
+name = "v9_r1"
+source = "v9_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801285e0", address = 0x801285e0, size = 156 },
+]
+
+[[unit]]
+name = "v10_r1"
+source = "v10_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f690", address = 0x8014f690, size = 220 },
+]
+
+[[unit]]
+name = "v13_r1"
+source = "v13_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e264", address = 0x8012e264, size = 208 },
+]
+
+[[unit]]
+name = "v13_r2"
+source = "v13_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ffe4", address = 0x8013ffe4, size = 280 },
+]
+
+[[unit]]
+name = "v15_r1"
+source = "v15_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151020", address = 0x80151020, size = 156 },
+]
+
+[[unit]]
+name = "v16_r1"
+source = "v16_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156d28", address = 0x80156d28, size = 872 },
+]
+
+[[unit]]
+name = "u_8011e5c8"
+source = "u_8011e5c8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011e5c8", address = 0x8011e5c8, size = 456 },
+]
+
+[[unit]]
+name = "u_801264d4"
+source = "u_801264d4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801264d4", address = 0x801264d4, size = 136 },
+]
+
+[[unit]]
+name = "u_80130088"
+source = "u_80130088.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130088", address = 0x80130088, size = 252 },
+]
+
+[[unit]]
+name = "u_80148a74"
+source = "u_80148a74.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148a74", address = 0x80148a74, size = 236 },
+]
+
+[[unit]]
+name = "u_80151184"
+source = "u_80151184.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151184", address = 0x80151184, size = 68 },
+]
+
+[[unit]]
+name = "u_80156c80"
+source = "u_80156c80.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156c80", address = 0x80156c80, size = 168 },
+]
+
+[[unit]]
+name = "v17_r3"
+source = "v17_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f010", address = 0x8011f010, size = 92 },
+]
+
+[[unit]]
+name = "v18_r3"
+source = "v18_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f14c", address = 0x8011f14c, size = 148 },
+]
+
+[[unit]]
+name = "v19_r4"
+source = "v19_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012faf8", address = 0x8012faf8, size = 648 },
+]
+
+[[unit]]
+name = "v22_r2"
+source = "v22_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119030", address = 0x80119030, size = 76 },
+]
+
+[[unit]]
+name = "v22_r3"
+source = "v22_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128978", address = 0x80128978, size = 432 },
+]
+
+[[unit]]
+name = "v24_r2"
+source = "v24_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ef88", address = 0x8011ef88, size = 136 },
+]
+
+[[unit]]
+name = "u_801250c0"
+source = "u_801250c0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801250c0", address = 0x801250c0, size = 76 },
+]
+
+[[unit]]
+name = "u_80136404"
+source = "u_80136404.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136404", address = 0x80136404, size = 156 },
+]
+
+[[unit]]
+name = "u_8014bee8"
+source = "u_8014bee8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bee8", address = 0x8014bee8, size = 112 },
+]
+
+[[unit]]
+name = "v26_r2"
+source = "v26_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b8d8", address = 0x8014b8d8, size = 104 },
+]
+
+[[unit]]
+name = "u_8011fc84"
+source = "u_8011fc84.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fc84", address = 0x8011fc84, size = 60 },
+]
+
+[[unit]]
+name = "u_80122c5c"
+source = "u_80122c5c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80122c5c", address = 0x80122c5c, size = 308 },
+]
+
+[[unit]]
+name = "u_8012da2c"
+source = "u_8012da2c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012da2c", address = 0x8012da2c, size = 424 },
+]
+
+[[unit]]
+name = "u_801361fc"
+source = "u_801361fc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801361fc", address = 0x801361fc, size = 148 },
+]
+
+[[unit]]
+name = "u_80136f90"
+source = "u_80136f90.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136f90", address = 0x80136f90, size = 108 },
+]
+
+[[unit]]
+name = "u_80139a78"
+source = "u_80139a78.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139a78", address = 0x80139a78, size = 652 },
+]
+
+[[unit]]
+name = "u_80149d6c"
+source = "u_80149d6c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149d6c", address = 0x80149d6c, size = 208 },
+]
+
+[[unit]]
+name = "u_8014c644"
+source = "u_8014c644.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c644", address = 0x8014c644, size = 448 },
+]
+
+[[unit]]
+name = "u_8014c914"
+source = "u_8014c914.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c914", address = 0x8014c914, size = 128 },
+]
+
+[[unit]]
+name = "u_8014ca7c"
+source = "u_8014ca7c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014ca7c", address = 0x8014ca7c, size = 160 },
+]
+
+[[unit]]
+name = "u_8014cb1c"
+source = "u_8014cb1c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014cb1c", address = 0x8014cb1c, size = 136 },
+]
+
+[[unit]]
+name = "u_8014d520"
+source = "u_8014d520.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d520", address = 0x8014d520, size = 192 },
+]
+
+[[unit]]
+name = "u_80153dfc"
+source = "u_80153dfc.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153dfc", address = 0x80153dfc, size = 220 },
+]
+
+[[unit]]
+name = "u_801540ec"
+source = "u_801540ec.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801540ec", address = 0x801540ec, size = 244 },
+]
+
+[[unit]]
+name = "sdk_libgpu_prim"
+source = "sdk/libgpu/prim.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "GetTPage", address = 0x8015bd0c, size = 200 },
+  { name = "GetClut", address = 0x8015bdd4, size = 24 },
+  { name = "DumpTPage", address = 0x8015bdec, size = 208 },
+  { name = "DumpClut", address = 0x8015bebc, size = 64 },
+  { name = "NextPrim", address = 0x8015befc, size = 28 },
+  { name = "IsEndPrim", address = 0x8015bf18, size = 28 },
+  { name = "AddPrim", address = 0x8015bf34, size = 60 },
+  { name = "AddPrims", address = 0x8015bf70, size = 60 },
+  { name = "CatPrim", address = 0x8015bfac, size = 36 },
+  { name = "TermPrim", address = 0x8015bfd0, size = 24 },
+  { name = "SetSemiTrans", address = 0x8015bfe8, size = 40 },
+  { name = "SetShadeTex", address = 0x8015c010, size = 40 },
+  { name = "SetPolyF3", address = 0x8015c038, size = 20 },
+  { name = "SetPolyFT3", address = 0x8015c04c, size = 20 },
+  { name = "SetPolyG3", address = 0x8015c060, size = 20 },
+  { name = "SetPolyGT3", address = 0x8015c074, size = 20 },
+  { name = "SetPolyF4", address = 0x8015c088, size = 20 },
+  { name = "SetPolyFT4", address = 0x8015c09c, size = 20 },
+  { name = "SetPolyG4", address = 0x8015c0b0, size = 20 },
+  { name = "SetPolyGT4", address = 0x8015c0c4, size = 20 },
+  { name = "SetSprt8", address = 0x8015c0d8, size = 20 },
+  { name = "SetSprt16", address = 0x8015c0ec, size = 20 },
+  { name = "SetSprt", address = 0x8015c100, size = 20 },
+  { name = "SetTile1", address = 0x8015c114, size = 20 },
+  { name = "SetTile8", address = 0x8015c128, size = 20 },
+  { name = "SetTile16", address = 0x8015c13c, size = 20 },
+  { name = "SetTile", address = 0x8015c150, size = 20 },
+  { name = "SetLineF2", address = 0x8015c164, size = 20 },
+  { name = "SetLineG2", address = 0x8015c178, size = 20 },
+  { name = "SetLineF3", address = 0x8015c18c, size = 32 },
+  { name = "SetLineG3", address = 0x8015c1ac, size = 32 },
+  { name = "SetLineF4", address = 0x8015c1cc, size = 32 },
+  { name = "SetLineG4", address = 0x8015c1ec, size = 32 },
+  { name = "SetBlockFill", address = 0x8015c20c, size = 20 },
+  { name = "func_8015c220", address = 0x8015c220, size = 28 },
+  { name = "MargePrim", address = 0x8015c23c, size = 52 },
+  { name = "DumpDrawEnv", address = 0x8015c270, size = 384 },
+  { name = "DumpDispEnv", address = 0x8015c3f0, size = 172 },
+]
+rodata = { address = 0x8016de24, size = 208 }
+
+[[unit]]
+name = "sdk_libcd_bios"
+source = "sdk/libcd/bios.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "getintr", address = 0x8015d048, size = 1340 },
+  { name = "CD_sync", address = 0x8015d584, size = 628 },
+  { name = "CD_ready", address = 0x8015d7f8, size = 704 },
+  { name = "CD_cw", address = 0x8015dab8, size = 1108 },
+  { name = "CD_vol", address = 0x8015df0c, size = 136 },
+  { name = "CD_wait_shell", address = 0x8015df94, size = 152 },
+  { name = "CD_flush", address = 0x8015e02c, size = 224 },
+  { name = "CD_initvol", address = 0x8015e10c, size = 244 },
+  { name = "CD_initintr", address = 0x8015e200, size = 104 },
+  { name = "CD_init", address = 0x8015e268, size = 596 },
+  { name = "CD_read_restart", address = 0x8015e4bc, size = 716 },
+  { name = "CD_read_begin", address = 0x8015e788, size = 248 },
+  { name = "CD_read_wait", address = 0x8015e880, size = 680 },
+  { name = "CD_datasync", address = 0x8015eb28, size = 348 },
+  { name = "CD_getsector", address = 0x8015ec84, size = 224 },
+  { name = "CD_set_test_parmnum", address = 0x8015ed64, size = 16 },
+  { name = "callback", address = 0x8015ed74, size = 224 },
+  { name = "cb_read", address = 0x8015ee54, size = 364 },
+]
+rodata = { address = 0x8016df14, size = 576 }
+data = { address = 0x80181b34, size = 816 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[[unit]]
+name = "z15a618"
+source = "z15a618.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015a618", address = 0x8015a618, size = 684 },
+]
+
+[[unit]]
+name = "z15a9e4"
+source = "z15a9e4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015a9e4", address = 0x8015a9e4, size = 408 },
+]
+
+[[unit]]
+name = "z15ab7c"
+source = "z15ab7c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015ab7c", address = 0x8015ab7c, size = 4480 },
+]
+
+[[unit]]
+name = "z16904c"
+source = "z16904c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016904c", address = 0x8016904c, size = 352 },
+]
+
+[[unit]]
+name = "sdk_libsnd_decre"
+source = "sdk/libsnd/decre.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndDecrescendo", address = 0x8016960c, size = 1200 },
+]
+
+[[unit]]
+name = "sdk_libsnd_cres"
+source = "sdk/libsnd/cres.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndCrescendo", address = 0x80169b50, size = 1404 },
+]
+
+[[unit]]
+name = "sdk_libapi_counter_p1"
+source = "sdk/libapi/counter_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "GetRCnt", address = 0x801576e8, size = 56 },
+]
+
+[[unit]]
+name = "sdk_libcd_sys_p1"
+source = "sdk/libcd/sys_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdReset", address = 0x8015c824, size = 108 },
+  { name = "CdFlush", address = 0x8015c890, size = 32 },
+  { name = "CdSetDebug", address = 0x8015c8b0, size = 24 },
+  { name = "CdComstr", address = 0x8015c8c8, size = 56 },
+  { name = "CdIntstr", address = 0x8015c900, size = 56 },
+]
+rodata = { address = 0x8016df0c, size = 8 }
+
+[[unit]]
+name = "sdk_libcd_sys_p2"
+source = "sdk/libcd/sys_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdControl", address = 0x8015c9c0, size = 328 },
+  { name = "CdControlF", address = 0x8015cb08, size = 316 },
+  { name = "CdControlB", address = 0x8015cc44, size = 340 },
+  { name = "CdMix", address = 0x8015cd98, size = 36 },
+  { name = "CdGetSector", address = 0x8015cdbc, size = 36 },
+  { name = "CdDataCallback", address = 0x8015cde0, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p1"
+source = "sdk/libgpu/sys_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "ResetGraph", address = 0x801578fc, size = 348 },
+  { name = "SetGraphReverse", address = 0x80157a58, size = 276 },
+  { name = "SetGraphDebug", address = 0x80157b6c, size = 108 },
+  { name = "SetGraphQueue", address = 0x80157bd8, size = 172 },
+  { name = "GetGraphType", address = 0x80157c84, size = 16 },
+  { name = "GetGraphDebug", address = 0x80157c94, size = 16 },
+  { name = "DrawSyncCallback", address = 0x80157ca4, size = 92 },
+  { name = "SetDispMask", address = 0x80157d00, size = 156 },
+  { name = "DrawSync", address = 0x80157d9c, size = 108 },
+  { name = "checkRECT", address = 0x80157e08, size = 296 },
+  { name = "ClearImage", address = 0x80157f30, size = 148 },
+  { name = "LoadImage", address = 0x80157fc4, size = 100 },
+  { name = "StoreImage", address = 0x80158028, size = 100 },
+  { name = "MoveImage", address = 0x8015808c, size = 196 },
+  { name = "ClearOTag", address = 0x80158150, size = 184 },
+  { name = "ClearOTagR", address = 0x80158208, size = 152 },
+  { name = "DrawPrim", address = 0x801582a0, size = 96 },
+  { name = "DrawOTag", address = 0x80158300, size = 116 },
+]
+rodata = { address = 0x8016db08, size = 360 }
+
+[[unit]]
+name = "sdk_libgpu_sys_p2"
+source = "sdk/libgpu/sys_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "GetODE", address = 0x801588cc, size = 52 },
+  { name = "SetTexWindow", address = 0x80158900, size = 60 },
+  { name = "SetDrawArea", address = 0x8015893c, size = 132 },
+  { name = "SetDrawOffset", address = 0x801589c0, size = 68 },
+  { name = "SetPriority", address = 0x80158a04, size = 40 },
+  { name = "SetDrawMode", address = 0x80158a2c, size = 88 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p4"
+source = "sdk/libgpu/sys_p4.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_otc", address = 0x801590bc, size = 232 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p5"
+source = "sdk/libgpu/sys_p5.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_cwb", address = 0x80159900, size = 80 },
+  { name = "_cwc", address = 0x80159950, size = 76 },
+  { name = "_param", address = 0x8015999c, size = 48 },
+  { name = "_addque", address = 0x801599cc, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p6"
+source = "sdk/libgpu/sys_p6.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_reset", address = 0x8015a000, size = 316 },
+  { name = "_sync", address = 0x8015a13c, size = 328 },
+  { name = "set_alarm", address = 0x8015a284, size = 52 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p7"
+source = "sdk/libgpu/sys_p7.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "gpu_probe", address = 0x8015a424, size = 224 },
+  { name = "memset2", address = 0x8015a504, size = 44 },
+]
+
+[[unit]]
+name = "sdk_libsnd_seqread_p1"
+source = "sdk/libsnd/seqread_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSeqPlay", address = 0x80166274, size = 276 },
+  { name = "_SsGetSeqData", address = 0x80166388, size = 688 },
+  { name = "_SsNoteOn", address = 0x80166638, size = 280 },
+  { name = "_SsSetProgramChange", address = 0x80166750, size = 124 },
+  { name = "_SsSetControlChange", address = 0x801667cc, size = 924 },
+  { name = "_SsContModulation", address = 0x80166b68, size = 316 },
+  { name = "_SsContPortaTime", address = 0x80166ca4, size = 316 },
+  { name = "_SsContPortamento", address = 0x80166de0, size = 360 },
+  { name = "_SsContResetAll", address = 0x80166f48, size = 204 },
+  { name = "_SsContNrpn1", address = 0x80167014, size = 308 },
+  { name = "_SsContNrpn2", address = 0x80167148, size = 328 },
+  { name = "_SsContRpn1", address = 0x80167290, size = 124 },
+  { name = "_SsContRpn2", address = 0x8016730c, size = 124 },
+]
+rodata = { address = 0x8016e250, size = 488 }
+
+[[unit]]
+name = "sdk_libsnd_seqread_p2"
+source = "sdk/libsnd/seqread_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndSetVabAttr", address = 0x80167968, size = 716 },
+  { name = "_SsSetPitchBend", address = 0x80167c34, size = 176 },
+  { name = "_SsGetMetaEvent", address = 0x80167ce4, size = 852 },
+  { name = "_SsReadDeltaValue", address = 0x80168038, size = 188 },
+]
+rodata = { address = 0x8016e438, size = 140 }
+
+[[unit]]
+name = "sdk_libsnd_ssstart_p1"
+source = "sdk/libsnd/ssstart_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsStart", address = 0x8016541c, size = 656 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vmanager_p1"
+source = "sdk/libsnd/vmanager_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmKeyOnNow", address = 0x8016023c, size = 1248 },
+  { name = "SpuVmDoAllocate", address = 0x8016071c, size = 564 },
+  { name = "vmNoiseOn", address = 0x80160950, size = 1220 },
+  { name = "vmNoiseOn2", address = 0x80160e14, size = 424 },
+  { name = "note2pitch", address = 0x80160fbc, size = 188 },
+  { name = "note2pitch2", address = 0x80161078, size = 256 },
+  { name = "SePitchBend", address = 0x80161178, size = 440 },
+  { name = "SsUtVibrateOn", address = 0x80161330, size = 8 },
+  { name = "SsUtVibrateOff", address = 0x80161338, size = 8 },
+  { name = "SeAutoVol", address = 0x80161340, size = 440 },
+  { name = "SetAutoVol", address = 0x801614f8, size = 908 },
+  { name = "SeAutoPan", address = 0x80161884, size = 440 },
+  { name = "SetAutoPan", address = 0x80161a3c, size = 896 },
+  { name = "SpuVmInit", address = 0x80161dbc, size = 1024 },
+  { name = "SpuVmNoiseOnWithAdsr", address = 0x801621bc, size = 152 },
+  { name = "SpuVmNoiseOff", address = 0x80162254, size = 180 },
+  { name = "SpuVmNoiseOn", address = 0x80162308, size = 128 },
+  { name = "SpuVmPBVoice", address = 0x80162388, size = 536 },
+  { name = "SpuVmPitchBend", address = 0x801625a0, size = 240 },
+  { name = "SpuVmFlush", address = 0x80162690, size = 964 },
+  { name = "SpuVmKeyOn", address = 0x80162a54, size = 1216 },
+  { name = "SpuVmKeyOff", address = 0x80162f14, size = 504 },
+  { name = "SpuVmSeKeyOn", address = 0x8016310c, size = 236 },
+  { name = "SpuVmSeKeyOff", address = 0x801631f8, size = 52 },
+  { name = "KeyOnCheck", address = 0x8016322c, size = 8 },
+  { name = "SpuVmSetSeqVol", address = 0x80163234, size = 376 },
+  { name = "SpuVmGetSeqVol", address = 0x801633ac, size = 112 },
+  { name = "SpuVmGetSeqLVol", address = 0x8016341c, size = 84 },
+  { name = "SpuVmGetSeqRVol", address = 0x80163470, size = 84 },
+  { name = "SpuVmSeqKeyOff", address = 0x801634c4, size = 320 },
+  { name = "SpuVmSetProgVol", address = 0x80163604, size = 116 },
+  { name = "SpuVmGetProgVol", address = 0x80163678, size = 84 },
+  { name = "SpuVmSetProgPan", address = 0x801636cc, size = 116 },
+  { name = "SpuVmGetProgPan", address = 0x80163740, size = 84 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vmanager_p2"
+source = "sdk/libsnd/vmanager_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtKeyOn", address = 0x80163b58, size = 1000 },
+  { name = "SsUtKeyOff", address = 0x80163f40, size = 512 },
+  { name = "SsUtKeyOnV", address = 0x80164140, size = 1004 },
+  { name = "SsUtKeyOffV", address = 0x8016452c, size = 280 },
+  { name = "SsUtPitchBend", address = 0x80164644, size = 144 },
+  { name = "SsUtChangePitch", address = 0x801646d4, size = 344 },
+  { name = "SsUtChangeADSR", address = 0x8016482c, size = 236 },
+  { name = "SsUtGetDetVVol", address = 0x80164918, size = 88 },
+  { name = "SsUtSetDetVVol", address = 0x80164970, size = 124 },
+  { name = "SsUtGetVVol", address = 0x801649ec, size = 140 },
+  { name = "SsUtSetVVol", address = 0x80164a78, size = 156 },
+  { name = "SsUtAutoVol", address = 0x80164b14, size = 84 },
+  { name = "SsUtAutoPan", address = 0x80164b68, size = 84 },
+  { name = "SsUtAllKeyOff", address = 0x80164bbc, size = 504 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_m_p1"
+source = "sdk/libspu/s_m_m_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuMalloc", address = 0x8016d178, size = 712 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_m_p2"
+source = "sdk/libspu/s_m_m_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_gcSPU", address = 0x8016d4cc, size = 768 },
+]
+
+[[unit]]
+name = "sdk_libspu_spu_p1"
+source = "sdk/libspu/spu_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_reset", address = 0x8016b6f8, size = 144 },
+]
+
+[[unit]]
+name = "sdk_libspu_spu_p2"
+source = "sdk/libspu/spu_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_setVoiceRegs", address = 0x8016bd40, size = 392 },
+  { name = "_spu_writeByIO", address = 0x8016bec8, size = 836 },
+  { name = "_spu_FiDMA", address = 0x8016c20c, size = 428 },
+  { name = "_spu_r_", address = 0x8016c3b8, size = 496 },
+  { name = "_spu_t", address = 0x8016c5a8, size = 680 },
+  { name = "_spu_write", address = 0x8016c850, size = 136 },
+  { name = "_spu_read", address = 0x8016c8d8, size = 104 },
+  { name = "_spu_FsetRXX", address = 0x8016c940, size = 72 },
+  { name = "_spu_FsetRXXa", address = 0x8016c988, size = 164 },
+  { name = "_spu_FgetRXXa", address = 0x8016ca2c, size = 60 },
+]
+rodata = { address = 0x8016e584, size = 40 }
+
+[[unit]]
+name = "v27_r1"
+source = "v27_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fae0", address = 0x8011fae0, size = 144 },
+]
+
+[[unit]]
+name = "v27_r2"
+source = "v27_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011e790", address = 0x8011e790, size = 392 },
+]
+
+[[unit]]
+name = "v32_r1"
+source = "v32_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012bbac", address = 0x8012bbac, size = 120 },
+]
+
+[[unit]]
+name = "v33_r1"
+source = "v33_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fb70", address = 0x8011fb70, size = 144 },
+]
+
+[[unit]]
+name = "v34_r1"
+source = "v34_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801259a8", address = 0x801259a8, size = 340 },
+]
+
+[[unit]]
+name = "v35_r1"
+source = "v35_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f898", address = 0x8012f898, size = 44 },
+]
+
+[[unit]]
+name = "v36_r1"
+source = "v36_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801321e8", address = 0x801321e8, size = 392 },
+]
+
+[[unit]]
+name = "v39_r1"
+source = "v39_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801227d4", address = 0x801227d4, size = 480 },
+]
+
+[[unit]]
+name = "v41_r1"
+source = "v41_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129678", address = 0x80129678, size = 320 },
+]
+
+[[unit]]
+name = "v42_r1"
+source = "v42_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136a2c", address = 0x80136a2c, size = 144 },
+]
+
+[[unit]]
+name = "v47_r1"
+source = "v47_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c5cc", address = 0x8012c5cc, size = 216 },
+]
+
+[[unit]]
+name = "v49_r1"
+source = "v49_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d834", address = 0x8013d834, size = 412 },
+]
+
+[[unit]]
+name = "v51_r1"
+source = "v51_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139f54", address = 0x80139f54, size = 48 },
+]
+
+[[unit]]
+name = "v52_r1"
+source = "v52_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136668", address = 0x80136668, size = 108 },
+]
+
+[[unit]]
+name = "v58_r1"
+source = "v58_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013c970", address = 0x8013c970, size = 204 },
+]
+
+[[unit]]
+name = "v59_r1"
+source = "v59_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013fef8", address = 0x8013fef8, size = 236 },
+]
+
+[[unit]]
+name = "v66_r1"
+source = "v66_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e944", address = 0x8013e944, size = 400 },
+]
+
+[[unit]]
+name = "v68_r1"
+source = "v68_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012c100", address = 0x8012c100, size = 916 },
+]
+
+[[unit]]
+name = "v69_r1"
+source = "v69_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144830", address = 0x80144830, size = 148 },
+]
+
+[[unit]]
+name = "v72_r1"
+source = "v72_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b340", address = 0x8014b340, size = 604 },
+]
+
+[[unit]]
+name = "v73_r1"
+source = "v73_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80148220", address = 0x80148220, size = 192 },
+]
+
+[[unit]]
+name = "v74_r1"
+source = "v74_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014afd4", address = 0x8014afd4, size = 184 },
+]
+
+[[unit]]
+name = "v76_r1"
+source = "v76_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a170", address = 0x8014a170, size = 124 },
+]
+
+[[unit]]
+name = "u_80130258"
+source = "u_80130258.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80130258", address = 0x80130258, size = 40 },
+]
+
+[[unit]]
+name = "u_8013f5f8"
+source = "u_8013f5f8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f5f8", address = 0x8013f5f8, size = 716 },
+]
+
+[[unit]]
+name = "u_8013fe54"
+source = "u_8013fe54.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013fe54", address = 0x8013fe54, size = 164 },
+]
+
+[[unit]]
+name = "u_8014e0b4"
+source = "u_8014e0b4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e0b4", address = 0x8014e0b4, size = 424 },
+]
+
+[[unit]]
+name = "u_801528e0"
+source = "u_801528e0.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801528e0", address = 0x801528e0, size = 276 },
+]
+
+[[unit]]
+name = "v80_r1"
+source = "v80_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801384c4", address = 0x801384c4, size = 196 },
+]
+
+[[unit]]
+name = "v83_r1"
+source = "v83_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132f90", address = 0x80132f90, size = 376 },
+]
+
+[[unit]]
+name = "v85_r1"
+source = "v85_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012cca8", address = 0x8012cca8, size = 436 },
+]
+
+[[unit]]
+name = "v86_r1"
+source = "v86_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801425d8", address = 0x801425d8, size = 320 },
+]
+
+[[unit]]
+name = "v88_r1"
+source = "v88_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012dee4", address = 0x8012dee4, size = 96 },
+]
+
+[[unit]]
+name = "v95_r1"
+source = "v95_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156398", address = 0x80156398, size = 188 },
+]
+
+[[unit]]
+name = "v96_r1"
+source = "v96_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e718", address = 0x8014e718, size = 64 },
+]
+
+[[unit]]
+name = "v97_r1"
+source = "v97_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e2b0", address = 0x8013e2b0, size = 260 },
+]
+
+[[unit]]
+name = "v102_r1"
+source = "v102_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e634", address = 0x8013e634, size = 220 },
+]
+
+[[unit]]
+name = "v103_r1"
+source = "v103_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142a14", address = 0x80142a14, size = 200 },
+]
+
+[[unit]]
+name = "v104_r1"
+source = "v104_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012a3a4", address = 0x8012a3a4, size = 80 },
+]
+
+[[unit]]
+name = "v106_r1"
+source = "v106_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d7d4", address = 0x8014d7d4, size = 208 },
+]
+
+[[unit]]
+name = "v108_r1"
+source = "v108_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d7e4", address = 0x8012d7e4, size = 300 },
+]
+
+[[unit]]
+name = "v109_r1"
+source = "v109_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e168", address = 0x8012e168, size = 252 },
+]
+
+[[unit]]
+name = "v111_r1"
+source = "v111_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012d310", address = 0x8012d310, size = 132 },
+]
+
+[[unit]]
+name = "v112_r1"
+source = "v112_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801368fc", address = 0x801368fc, size = 180 },
+]
+
+[[unit]]
+name = "v113_r1"
+source = "v113_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013950c", address = 0x8013950c, size = 236 },
+]
+
+[[unit]]
+name = "v115_r1"
+source = "v115_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801366d4", address = 0x801366d4, size = 112 },
+]
+
+[[unit]]
+name = "v120_r1"
+source = "v120_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014edac", address = 0x8014edac, size = 176 },
+]
+
+[[unit]]
+name = "v122_r1"
+source = "v122_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128814", address = 0x80128814, size = 356 },
+]
+
+[[unit]]
+name = "v123_r1"
+source = "v123_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b024", address = 0x8012b024, size = 192 },
+]
+
+[[unit]]
+name = "v124_r1"
+source = "v124_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012eb18", address = 0x8012eb18, size = 228 },
+]
+rodata = { address = 0x8016d960, size = 68 }
+
+[[unit]]
+name = "v128_r1"
+source = "v128_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014d03c", address = 0x8014d03c, size = 204 },
+]
+
+[[unit]]
+name = "u_801297b8"
+source = "u_801297b8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801297b8", address = 0x801297b8, size = 536 },
+]
+
+[[unit]]
+name = "u_80142968"
+source = "u_80142968.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142968", address = 0x80142968, size = 172 },
+]
+
+[[unit]]
+name = "v136_r1"
+source = "v136_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e368", address = 0x8014e368, size = 104 },
+]
+
+[[unit]]
+name = "v141_r1"
+source = "v141_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ae00", address = 0x8013ae00, size = 284 },
+]
+
+[[unit]]
+name = "v145_r1"
+source = "v145_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132b30", address = 0x80132b30, size = 448 },
+]
+
+[[unit]]
+name = "v146_r1"
+source = "v146_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801336a0", address = 0x801336a0, size = 424 },
+]
+
+[[unit]]
+name = "v147_r1"
+source = "v147_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012e600", address = 0x8012e600, size = 648 },
+]
+
+[[unit]]
+name = "v163_r1"
+source = "v163_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f994", address = 0x8011f994, size = 140 },
+]
+
+[[unit]]
+name = "v172_r1"
+source = "v172_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139304", address = 0x80139304, size = 520 },
+]
+
+[[unit]]
+name = "u_80128778"
+source = "u_80128778.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80128778", address = 0x80128778, size = 156 },
+]
+
+[[unit]]
+name = "u_8014a4f4"
+source = "u_8014a4f4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a4f4", address = 0x8014a4f4, size = 204 },
+]

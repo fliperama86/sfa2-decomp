@@ -2100,6 +2100,83 @@ Reading, labelled as such:
   symbol differently in different files. The build cannot tell these two
   apart. Each of the 12 is open.
 
+## Thirty-seventh group: the reconstructed source is published
+
+No function count changes in this group: 1,616 functions exact.
+
+The decision. On 2026-10-05 the owner decided to publish the reconstructed
+PS1 source in this repository, after asking what other decompilation
+projects do and after the license of the reused library code had been
+checked. Until then the rule was that no game-derived source enters Git
+without an explicit review. This group is that review.
+
+What is published, in `ps1/src/`: 759 files.
+
+- 646 C files of game code and 4 shared headers.
+- The Sony library part in `ps1/src/sdk/`: 50 C files, 5 internal headers
+  and 42 assembly stubs.
+- 8 assembly files for code that is assembly in the original: the program
+  entry routine and small stubs.
+- The build configuration, the symbol file, the field table and the note
+  on the library part's provenance.
+
+What is not published, and why:
+
+- 38 SDK headers that the library part needs to compile. They are
+  unchanged copies from another project, sotn-decomp. 8 carry an AGPL tag
+  there and 30 carry none in a repository whose license is AGPL-3.0. They
+  are ignored by Git and stay local. The build needs them; a note in the
+  library folder says where to copy them from.
+- The executable, the compiler binary, disc extracts, analysis databases
+  and the working folders, as before.
+- The Windows research source. The decision covered the PS1 source.
+
+Provenance of the library part, checked file by file against a checkout of
+sotn-decomp at the commit the project has used throughout:
+
+- All 180 files of that project's SDK folder carry an MIT tag. The 50 C
+  files here keep it: 20 are unchanged, 12 are adapted to this game's SDK
+  version, and 18 are parts of reference files cut out by this project's
+  importer. Of the 5 internal headers, 2 are unchanged and 3 adapted. The
+  42 stubs are generated from the reference's one-line stub files; they
+  got the MIT tag line with this change.
+- A note in the library folder names the project, the commit and the
+  license, and lists the above.
+
+The scan before the first push, over exactly the files to be added:
+
+- No binary file. The largest file is the build configuration, 177 KB of
+  text.
+- No absolute path of this machine, no user name, no e-mail address, no
+  credential pattern. One stray helper script of an agent with local paths
+  was in the folder and was deleted.
+- No file with an AGPL tag.
+
+What changed in the tree for the publication. None of it changes the build
+configuration's units or any compiled byte:
+
+- The first comment line of 653 files said "Private reconstruction". It
+  says "Reconstruction" now.
+- The default configuration path of three tools points at `ps1/src/`. The
+  tool test suite was rerun for that.
+- The folder moved from the ignored workspace to `ps1/src/`. The relative
+  paths in the configuration still resolve on this machine through two
+  local links that Git ignores.
+
+Verification: an uncached build from the new location gives 1,616 of 1,616
+functions exact and the baseline's executable hash.
+
+Open, for the owner:
+
+- The repository has no license file. The published game source therefore
+  carries no license of this project; the library part keeps its own. Which
+  license, if any, is the owner's choice.
+- A build from a fresh clone still needs the inputs listed in the PS1
+  instructions. There is no import pipeline.
+- Publishing reconstructed game source is common practice among
+  decompilation projects and is a legal grey area. The owner was told so
+  before deciding.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

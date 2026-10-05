@@ -26,15 +26,17 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
 | `ps1/tools/verify_cc1_golden.py` | public | Compare a compiler with saved reference output |
 | `ps1/tools/test_verify_cc1_golden.py` | public | Controls for the compiler checker |
-| `ps1/local/src/build.toml` | private | Baseline pin, toolchain pins, unit declarations |
-| `ps1/local/src/symbols.ld` | private | Addresses of symbols not defined by C units |
-| `ps1/local/src/*.c` | private | Reconstructed source, one file per unit |
-| `ps1/local/build/<tag>/` | generated | Objects, linker script, ELF, image, report |
+| `ps1/src/build.toml` | public | Baseline pin, toolchain pins, unit declarations |
+| `ps1/src/symbols.ld` | public | Addresses of symbols not defined by C units |
+| `ps1/src/*.c` | public | Reconstructed source, one file per unit |
+| `ps1/src/sdk/include/` | private | SDK headers of another project, under its license |
+| `ps1/build/<tag>/` | generated | Objects, linker script, ELF, image, report |
 | `ps1/local/baseline/manifest.json` | private | Per-file hashes derived from the disc image |
 | `ps1/local/toolchain/` | private | Compiler binaries, SSH control socket |
 
 The public tools contain no game data, addresses, names, hosts or credentials.
-All of those come from the private configuration.
+Addresses and names come from the configuration in `ps1/src/`; binaries and
+hosts come from local inputs that are not in the repository.
 
 ## Ownership model
 
@@ -511,7 +513,7 @@ second. It requires the whole build to pass and the diff of the using unit to
 report identical code, and, with that unit's size declared wrong so that the
 build stops before the link, the diff to still link and report different code.
 
-`test_matchbuild.py` runs the tool against temporary copies of the private
+`test_matchbuild.py` runs the tool against temporary copies of the
 configuration and requires failure for: the `[selftest]` source mutation, a
 wrong declared size, two overlapping units, a unit with read-only data and no
 `rodata`, a rodata range of the wrong size, address or alignment, a rodata range

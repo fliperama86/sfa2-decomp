@@ -43,10 +43,11 @@ or resolving loading questions. Nonmatching code needs its own validation.
 - [`docs/goals.md`](docs/goals.md): completed milestones and next work package.
 - [`docs/migration.md`](docs/migration.md): copied/excluded files and verification.
 
-All game-derived code, ROM/disc extracts, compiler binaries, analysis databases,
-and detailed experiment outputs remain under ignored `local/` directories.
-The Git-visible repository does not yet provide a fresh-clone import/build
-pipeline; the migrated private workspace is required for current commands.
+The reconstructed PS1 source is in [`ps1/src/`](ps1/src/). ROM/disc extracts,
+compiler binaries, analysis databases, third-party SDK headers and detailed
+experiment outputs remain under ignored directories. The repository does not
+yet provide a fresh-clone import/build pipeline: building needs local inputs
+that it does not contain. See the [PS1 instructions](ps1/README.md).
 
 ## Existing local workspace
 

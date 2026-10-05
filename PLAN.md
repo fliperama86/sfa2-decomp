@@ -42,8 +42,9 @@ is required to finish this selected target unless explicitly added.
   compiler reproduces the same image.
 - No whole-program source inventory, overlay coverage, ownership of game data,
   rebuilt disc, or live-gameplay observations are claimed.
-- The repository's public-facing files are documentation and safe tooling.
-  Current execution commands require the ignored private workspace.
+- The repository's public-facing files are documentation, tooling and, since
+  2026-10-05, the reconstructed PS1 source in `ps1/src/`. Building it needs
+  local inputs that the repository does not contain.
 
 ## Validation principle
 

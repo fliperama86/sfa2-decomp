@@ -44,9 +44,11 @@ full build or decompilation already exists.
 
 ## Distribution and operations
 
-- No game binaries, extracted assets, game-derived analysis/source, credentials,
-  or toolchain binaries enter Git under the current conservative policy.
-  Contributor-source publication requires an explicit provenance/policy review.
+- No game binaries, extracted assets, analysis databases, credentials,
+  toolchain binaries or third-party files under another license enter Git.
+  The reconstructed PS1 source is published in `ps1/src/` by the owner's
+  decision of 2026-10-05, after a provenance review. Anything else that is
+  game-derived needs its own decision.
 - Private workspaces are ignored by directory, not only extension. Suffixless
   executables and `.c` pseudocode must remain protected too.
 - Review external implementation licenses/provenance before copying. Referencing

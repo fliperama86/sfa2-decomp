@@ -103,7 +103,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Instruction diff of one unit against the baseline")
     parser.add_argument("unit")
     parser.add_argument("function", nargs="?", help="limit the diff to one function of the unit")
-    parser.add_argument("--config", type=Path, default=root / "ps1/local/src/build.toml")
+    parser.add_argument("--config", type=Path, default=root / "ps1/src/build.toml")
     parser.add_argument("--tag", default="default")
     parser.add_argument("--all", action="store_true", help="print matching instructions too")
     parser.add_argument("--context", type=int, default=3, help="matching instructions shown around a difference")
