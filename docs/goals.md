@@ -164,6 +164,8 @@ payloads, accurate source coverage, and retained human/AI refinements.
 - Of the 49 data symbols that units declared differently, 37 have one
   declaration that keeps every unit exact, found by rebuilding, and moved
   into the header too. 12 have none.
+- The reconstructed PS1 source is published in `ps1/src/`: 760 files. The
+  SDK headers of another project, which it needs to build, are not.
 - Shared struct layouts now come from a field table, and unit work
   directories merge with a tool. See the
   [matching build](../ps1/docs/matching-build.md) and the
@@ -172,8 +174,8 @@ payloads, accurate source coverage, and retained human/AI refinements.
 ## Current checkpoint
 
 This independent repository is the active workspace. Documents, goals, lessons,
-and safe tools are publishable; private working artifacts remain local and
-ignored. The 68k/CPS2 implementation stays behind. The
+tools and the reconstructed PS1 source are published; inputs, binaries and
+working artifacts remain local and ignored. The 68k/CPS2 implementation stays behind. The
 [migration record](migration.md) tracks the completed checks and exclusions.
 
 ## Next implementation package
@@ -242,8 +244,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, overlay images, complete gameplay reconstruction, SDK exception accounting, final
-reproducible delivery, and source-publication policy review. Existing private source is not
-implicitly cleared for Git publication by the repository migration.
+reproducible delivery, a license for the published source, and a build path
+from a fresh clone.
 
 Windows VC5 matching remains optional comparison work, not a blocker for PS1.
 The generic 68000 backend and CPS2 reconstruction remain in the original repo,

@@ -1,6 +1,13 @@
 # All private platform workspaces, game-derived source/data, and tools
 **/local/
 /local/
+# The reconstructed source is tracked in ps1/src. Not tracked there:
+# third-party headers under another license, and local inputs and products.
+/ps1/src/sdk/include/
+/ps1/audit
+/ps1/toolchain
+/ps1/build/
+/ps1/src.selftest-*
 # Environments and generated products
 .venv/
 venv/

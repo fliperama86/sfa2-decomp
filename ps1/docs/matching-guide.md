@@ -2,7 +2,7 @@
 
 How to reconstruct one unit of the PS1 executable as C that compiles to the
 exact original bytes. Contract of the tools: [matching build](matching-build.md).
-This guide holds no game data. Addresses, names and sources stay private.
+This guide holds no game data. Addresses, names and sources are in `ps1/src/`.
 
 ## Goal
 
@@ -12,8 +12,8 @@ progress to report, not a result.
 
 ## Workspace
 
-Each unit is worked on in its own private configuration directory, a sibling
-copy of the main one, with its own build tag. Nothing else is edited. The
+Each unit is worked on in its own configuration directory, a working copy of
+the main one that is not committed, with its own build tag. Nothing else is edited. The
 directory holds:
 
 - `build.toml`: units and their functions (name, address, size).

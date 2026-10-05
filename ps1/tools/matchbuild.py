@@ -1616,7 +1616,7 @@ def summary_text(report: dict, failures: list[str]) -> str:
 def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description="PS1 matching build")
-    parser.add_argument("--config", type=Path, default=root / "ps1/local/src/build.toml")
+    parser.add_argument("--config", type=Path, default=root / "ps1/src/build.toml")
     parser.add_argument("--tag", default="default")
     parser.add_argument(
         "--reference",

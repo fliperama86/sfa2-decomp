@@ -18,11 +18,27 @@ Public tools, free of game data:
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
 - `tools/test_verify_cc1_golden.py`: controls for that checker.
 
+Reconstructed source, published:
+
+- `src/`: reconstructed C, `build.toml`, `symbols.ld`, `types.fields`, the
+  shared headers, and the Sony library part in `src/sdk/` (see its README for
+  where that part comes from and its license).
+
+Needed to build and not in the repository:
+
+- `audit/files/SLPS_004.15`: your own copy of the executable. The build
+  checks its hash.
+- `toolchain/cc1-psx-26`: a GCC 2.6.3 compiler for the PlayStation target.
+  The build checks its hash.
+- `src/sdk/include/`: the SDK headers of the sotn-decomp project, copied
+  unchanged from the commit named in `src/sdk/README.md`.
+- A checkout of `maspsx` at the commit pinned in `src/build.toml`, MIPS
+  binutils and `clang` as preprocessor.
+
 Private files:
 
-- `local/src/`: reconstructed C, `build.toml`, `symbols.ld`, `types.fields`.
 - `local/open/`: candidates that do not match yet, with their residuals.
-- `local/build/`: generated objects, linked image and reports.
+- `build/` and `local/build/`: generated objects, linked image and reports.
 - `local/baseline/manifest.json`: per-file hashes derived from the disc image.
 - `local/baseline/pac-inventory.json`: chunk and code inventory of the archives.
 - `local/extract/`: disc files copied out of the image, hash-checked.

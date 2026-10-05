@@ -22,11 +22,15 @@ working repository is this directory, not `../68k-decomp`.
 
 ## Safety and workflow
 
-- Never commit game binaries, extracted assets, game-derived analysis/source,
-  compiler binaries, analysis databases, or credentials. Private artifacts live
-  under `ps1/local/`, `windows/local/`, `research/local/`, or root `local/`.
-  Any future publication of reconstructed source needs an explicit review of
-  the current publication policy and provenance.
+- The reconstructed PS1 source is published in `ps1/src/` by the owner's
+  decision of 2026-10-05; the project memory records the review. Never commit
+  game binaries, extracted assets, analysis databases, compiler binaries,
+  credentials, or third-party files under a license this repository does not
+  carry (the SDK headers of `ps1/src/sdk/include/` are ignored for that
+  reason). Private artifacts live under `ps1/local/`, `windows/local/`,
+  `research/local/`, or root `local/`. Anything else that is game-derived,
+  the Windows reconstruction included, stays private until the owner decides
+  otherwise.
 - Inspect license, provenance, and user intent before reusing reference code.
   `~/Projects/references` contains external tools/reference repositories.
 - Preserve original inputs and historical evidence; write new reports instead

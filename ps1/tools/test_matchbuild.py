@@ -2110,7 +2110,7 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
-    parser.add_argument("--config", type=Path, default=ROOT / "ps1/local/src/build.toml")
+    parser.add_argument("--config", type=Path, default=ROOT / "ps1/src/build.toml")
     parser.add_argument("--only", default="", help="run only the cases whose name contains this text")
     args = parser.parse_args()
     config_path = Path(os.path.abspath(args.config))
