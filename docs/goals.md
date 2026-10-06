@@ -281,10 +281,11 @@ Next, in this order:
 5. The last tool step of the proposal: second links, for the two sides.
    The first pilot target needs one link only and does not wait for it.
 6. A pilot: one overlay module, or part of one, rebuilt exactly. First
-   target, the module of slot `0x2a`: 23 of the 28 functions that the
-   sweep counts are exact, 3,640 of 6,052 bytes. Five are parked with
-   candidates that still differ. Next: a second attempt on those five,
-   then the second pilot target, which needs the second link.
+   target, the module of slot `0x2a`: 25 of the 28 functions that the
+   sweep counts are exact, 3,988 of 6,052 bytes. Three are parked with
+   candidates of the right size that differ in a few instructions. Next:
+   the second link, then the second pilot target. The three wait for a
+   permutation search with the parked resident functions.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 

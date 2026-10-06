@@ -2845,6 +2845,50 @@ Lessons:
 - The loop is what makes a round cheap now: a try costs under a second, and
   a batch of five small functions is done in a minute.
 
+## Forty-eighth group: second attempts on the module's parked functions
+
+Resident image: no change, 1,617 functions exact. Module image `slot2a`: 25
+functions exact, 3,988 bytes, up from 23. Its other 17,208 bytes are retained
+raw.
+
+What ran:
+
+- The five parked functions each got a work directory with the candidate of
+  the first round, built from the merged tree.
+- One was read at the top level first: a single instruction differed, a
+  signed load where the candidate had an unsigned one. A cast made it exact.
+  Its agent had not been able to judge it, because of the setup fault of the
+  last group.
+- The other four went to one agent each, with the residual and a ranked list
+  of ideas for it. One became exact: the two loop constants come out in the
+  original's order when the masked copy of a pointer is taken into a local at
+  the top of the loop body. The fix was none of the four ideas of its brief.
+- The whole build: 1,617 of 1,617 resident and 25 of 25 module functions
+  exact, 1,645 and 26 comparator controls tripped, the baseline's executable
+  hash.
+
+The three that stay parked, all now with the original's size:
+
+- 696 bytes, 4 instruction slots differ. Both stores to the one byte are
+  kept when the first goes through a second symbol for the same memory. The
+  compiler then places that store elsewhere than the original has it.
+- 1,084 bytes, 3 slots. The two tails were never the same text: one branch
+  subtracts one from two values and the other does not. Writing that out
+  gave the size. One constant sits in another register.
+- 284 bytes, 7 slots. The loop counter and one mask have each other's
+  registers.
+
+Lessons:
+
+- Read a one-instruction residual before handing it out. It took one
+  minute at the top level.
+- A ranked list of ideas in a brief helps even when the fix is not on it:
+  three of the four agents reported which ideas moved the residual and
+  which did not, and that is what the next attempt starts from.
+- "The compiler merges the two tails" was the first round's reading of the
+  large function. The tails differed in the source. When a residual is
+  blamed on an optimisation, look for a difference in the code first.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
