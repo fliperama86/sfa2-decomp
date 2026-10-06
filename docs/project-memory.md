@@ -3590,6 +3590,75 @@ Lesson:
   that place. The bytes of two wrappers are the same; what they call is
   not, and the callee's address was already established.
 
+## Sixty-first group: a second overlay module, the one of slot 0xb
+
+The owner chose more overlay modules as the next item on 2026-10-06, once
+the automatic ways of naming library functions were used up. Not decided:
+finishing the library by hand, and second attempts on the older parked
+game functions.
+
+Counts, from the build:
+
+- Module image `slot0b`: 54 of the 61 functions that the sweep counts are
+  exact, 5,356 of 7,960 bytes. 26,080 bytes of the chunk are retained raw.
+  24 archives carry this content. 55 comparator controls trip.
+- 7 functions are parked with candidates, 2,604 bytes, after two attempts
+  each.
+- The resident image and the other three module images are unchanged:
+  1,747 functions, the same hash; `slot2a` 25, `slot16` 11, `slot17` 11.
+- 25 unit files, 38 symbols and 12 structs with 82 lines of the field
+  table are new.
+
+What ran:
+
+- A first round of seven agents, one batch each, two to eight minutes:
+  52 of 61 exact. Banking kept only
+  what each batch's own module build calls exact.
+- Second attempts on the nine parked functions, one agent each, with the
+  residual named: two more exact, one of them only because its unit
+  lacked two declarations after it was split from a larger file.
+- Every one of the 54 exact functions has the start and the size that the
+  sweep gave it.
+
+Fixed at the top level before the pull request:
+
+- Six declarations of four module functions in other units disagreed
+  with the definitions. Five now agree, with a cast at the call where the
+  units use different views of the same object. One stays on purpose and says
+  so in the file: a caller that must not mask a byte argument. With the
+  definition's prototype the caller has one instruction more than the
+  original; with an int parameter the definition has one more. Both were
+  tried.
+- One agent had named a variable of the resident image with the module's
+  suffix. It has the plain name now.
+
+What the round shows:
+
+- `symbols.ld` had names from the resident side for three addresses of
+  this module before the module was touched. Two of those functions are
+  exact now, so those two addresses have a name from the resident side
+  and a name from the module. That is the state that `slot2a` already has
+  for one function; calls are not renamed here.
+- Two batches described the module's objects with a struct of their own,
+  each a partial view of the same memory. The build is exact with both.
+  Folding them into one is open.
+- One function needs a stack frame 8 bytes larger than its code uses. It
+  is exact with the stand-in that the matching guide allows for that, an
+  unused local array with a comment that says what it is.
+
+The seven that stay parked, by their agents' reports: three differ in
+registers or in the order of a few instructions with the size right; two
+differ in size, one because the build merges two branches and one because
+it hoists a value that the original recomputes; one small one loads two
+fields in the other order; and the largest has the right size and frame
+now and 77 differing slots.
+
+Lesson:
+
+- Run the check for mismatched declarations on the merged tree before
+  anything else. It is quick, and every mismatch it finds is a question
+  about what the code really is: here one of six was not a mistake.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
