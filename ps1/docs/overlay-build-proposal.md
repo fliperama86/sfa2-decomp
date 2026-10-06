@@ -72,6 +72,15 @@ functions = [ { name = "example", address = 0x801e0020, size = 248 } ]
   every other image that is not a second link (next section), as absolute
   addresses. Those come from the configuration, so no other image has to be
   built first.
+- No such source of absolute addresses ever supplies a name that the
+  objects of the current link define. That covers every global or weak
+  definition of its units: functions and the symbols in read-only data,
+  data and bss, whether the units are the link's own or taken over from the
+  image it is like. An assignment under such a name would override the
+  definition, which is the owned-symbol fault the build rejects today.
+- The check of the linked file stays and runs per image: every such symbol
+  must be bound inside its unit's section of that link, at the range that
+  link gives the unit plus the symbol's offset.
 - Data symbols of another image are reached through `symbols.ld` only, for
   now. Placing them needs that image's objects, as `fndiff.py` does for
   sibling units. That can follow when a unit needs it.
@@ -96,6 +105,14 @@ address = 0x8008bf00
 - It has no units of its own. It takes every unit of the image it is like,
   with each range moved by the difference of the two addresses, links the
   same objects a second time and compares the result with its own baseline.
+- In that link the units define their names at the moved ranges. The
+  functions of the image it is like are therefore not given to it as
+  absolute addresses: the rule above excludes them, because its own objects
+  define them. A call from one such unit to another binds to the second
+  placement, never to the first.
+- The moved ranges include bss. Whether a block's uninitialised data moves
+  with it is not known. If it does not, the code that refers to it differs
+  and the unit fails.
 - A unit that is exact in the first image and differs in the second fails
   the build and names the image. That is the test of the inference, unit by
   unit. It stays an inference for every unit that has not passed it.
@@ -151,6 +168,13 @@ four; two images that overlap in memory, both exact; a name used in two
 images; a second link that is exact; a second link with one word changed,
 which must fail in the second image only; a unit left out of a second link,
 reported as such.
+
+For the binding inside a second link: two units taken over from the first
+image, one calling the other. The second link must be exact, with the call
+bound to the second placement of the callee. The same fixture with the
+callee's name also supplied at its first-side address must fail and name
+the symbol, so that a binding to the first side cannot pass. A third case
+does the same for a data symbol that one unit defines and the other reads.
 
 ## Pilot
 
