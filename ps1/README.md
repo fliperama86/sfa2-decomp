@@ -15,7 +15,8 @@ Public tools, free of game data:
 - `tools/baseline.py`: disc and file manifest: pin, verify, extract.
 - `tools/pac.py`: chunk archives: list, extract, scan for code, compare with
   the loader's destination tables, compare the two sides' blocks, inventory
-  the functions inside the modules.
+  the functions inside the modules, sort the functions of the executable
+  that an inventory does not list.
 - `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,
   and a comparison of them with an inventory.
 - `tools/test_disc_tools.py`: controls for the two disc tools.

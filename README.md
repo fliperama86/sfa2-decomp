@@ -14,7 +14,8 @@ mutation controls passed.
 
 The [matching build](ps1/docs/matching-build.md) now rebuilds the complete
 resident executable byte-identically from declared owners: 1,617 functions at
-their original addresses. 1,564 are compiled from C (271,532 bytes) and 53 are
+their original addresses, of the 1,852 that a sweep of its code counts.
+1,564 are compiled from C (271,532 bytes) and 53 are
 assembled from assembly source (1,040 bytes): BIOS and system call stubs, a
 few host-debugging stubs and the program entry routine. Units also own 2,332
 bytes of read-only data and 5,900 bytes of initialised data. The

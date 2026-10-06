@@ -182,6 +182,14 @@ another distance than the blocks do:
 | `PL0E`, `PL0EX` | slot `0x2b` at `0x80077000` | slot `0x2c` at `0x8008bf00` | 7,679 | 463 | 0 |
 | `PL11`, `PL11X` and `PL13`, `PL13X` | slot `0x16` at `0x8007bc00` | slot `0x17` at `0x8008bf00` | 5,580 | 106 | 8 |
 
+The 8 other words of the last row have an explanation since. `sides --first
+0x16 --second 0x17 --show 4` prints them: in each pair four `jal` words,
+whose targets lie `0x18000` higher on the second side. That is the distance
+of the character blocks, not of this module. The build gives the three
+names behind them their second-side addresses in the image `slot17`, which
+is exact with them. The count in the table is the measurement as it was
+made and stays.
+
 `PL15`, `PL16` and `PL17` have no `X` twin, and neither has `SELE.PAC`. The
 resident image has two tables of 24 addresses, `handlers_left` and
 `handlers_right`. Every entry of the first lies in the first-side block.
@@ -263,10 +271,95 @@ another tool. `funcscan.py compare` sweeps the same range:
 - The program entry routine is 16 bytes longer: the sweep takes in the four
   table words after it. It is the one function that ends without a return.
 - The sweep reports 202 functions that the inventory does not list.
-  `compare --show 202` names them with their sizes. They were not examined
-  one by one. Which of them are game functions is not sorted out, and the
-  counts of inventoried functions elsewhere in this project do not include
-  them.
+  `compare --show 202` names them with their sizes. The next section sorts
+  them. The counts of inventoried functions elsewhere in this project do
+  not include them.
+
+### The functions the resident inventory does not list
+
+`pac.py unlisted` sweeps the resident executable as `compare` does, takes
+the functions whose start the inventory does not have, and says three
+things about each:
+
+- Its area. A function that starts below `--library` is game code, any
+  other library code. The address used, `0x80157000`, is the project's
+  working boundary. It is approximate: it lies inside a function that
+  starts below it and is counted as game code.
+- Whether the build has it: whether a unit of the resident image declares a
+  function at that address in the build configuration.
+- One way it is referred to, the first of these that applies:
+  1. called by the executable: a `jal` or a `j` to its start inside a
+     function that the sweep finds in the executable;
+  2. called by modules only: the same inside a function that the sweep
+     finds in a code-bearing chunk of table 0, each distinct content of a
+     slot read once;
+  3. address in a data word: a word equal to its start, in the executable
+     or in such a chunk, outside every function that the sweep finds there;
+  4. address formed in code: a `lui` and the first `addiu` or `ori` after
+     it that reads the register it loaded, at most eight words later and
+     before another `lui` into that register, which together form its
+     start;
+  5. no reference found.
+
+A jump from inside the function itself is not counted. The classes say what
+was counted. A word may equal an address by chance, the two halves of a
+pair need not belong together, and a function without a counted reference
+may be reached in a way the command does not look for.
+
+The sweep has to reach the end of the code. The inventory ends one function
+early: swept to the inventory's end, the command reports one function of
+the build that is no start of the sweep, at `0x8016d910`. The build declares
+it with 16 bytes, so the code ends at `0x8016d920`, and `--end` says so.
+
+What the command prints for that range:
+
+- 1,852 functions, 348,000 of the 348,192 bytes swept. The words outside
+  them are 48 zero words and no other. Every word of the resident code is
+  in a function of the sweep or is padding.
+- All 1,649 starts of the inventory are found, and every function of the
+  build is a start of the sweep.
+- 203 functions are not in the inventory, 19,760 bytes: the 202 above and
+  the one after the inventory's end.
+
+| Area | In the build | Reference | Functions | Bytes |
+| --- | --- | --- | ---: | ---: |
+| game | no | called by modules only | 29 | 3,700 |
+| game | no | address in a data word | 88 | 11,024 |
+| game | no | address formed in code | 1 | 216 |
+| game | no | no reference found | 15 | 596 |
+| game | yes | address in a data word | 1 | 8 |
+| library | no | called by modules only | 2 | 636 |
+| library | no | address in a data word | 2 | 264 |
+| library | no | no reference found | 3 | 168 |
+| library | yes | called by the executable | 2 | 24 |
+| library | yes | called by modules only | 13 | 156 |
+| library | yes | address formed in code | 2 | 212 |
+| library | yes | no reference found | 45 | 2,756 |
+
+By area: 1,302 game functions in the inventory and 134 not, 1,436
+together, of which the build has 1,231. 347 library functions in the
+inventory and 69 not, 416 together, of which the build has 386.
+
+What this sorts out:
+
+- All 134 in the game area are counted as game functions from here on, and
+  all 69 in the library area as library functions. The count of functions
+  to rebuild in the resident image is 1,852, not 1,649. The inventory file
+  itself is not changed; reports that say "of the 1,302 inventoried game
+  functions" mean the inventory.
+- Inferred, not established: the inventory was made by following calls
+  inside the executable. Only 2 of the 203 are called from there. The others
+  are called from modules, stand in tables, or have no counted reference.
+- 119 of the 134 game functions have a counted reference. For the other
+  15 the boundary from the sweep is the only evidence. Nine of those are 8
+  bytes by the rows of `--out`, a `jr ra` and its delay slot. Such a pair
+  is either an empty
+  function or a last return of the function before it that nothing
+  reaches. Which it is, is not decided here; the matching build decides it
+  for each when the code around it is rebuilt.
+- 45 library functions of the build have no counted reference. That fits
+  library objects that are linked whole and used in part, and is not
+  examined further.
 
 ### Counts
 
@@ -372,6 +465,9 @@ With the executable and the archives extracted as the
     --symbols ps1/src/symbols.ld --out FUNCTIONS_TSV
 .venv/bin/python ps1/tools/funcscan.py compare EXECUTABLE --base 0x80118900 --offset 0x800 \
     --inventory RESIDENT_INVENTORY_TSV
+.venv/bin/python ps1/tools/pac.py unlisted EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \
+    --inventory RESIDENT_INVENTORY_TSV --library 0x80157000 --end 0x8016d920 \
+    --config ps1/src/build.toml --symbols ps1/src/symbols.ld --out UNLISTED_TSV
 ```
 
 `0x8017eb1c` is the address of `data_8017eb1c` in `ps1/src/symbols.ld`.
@@ -397,8 +493,10 @@ and `ps1/tools/test_funcscan.py` for the sweep, all on synthetic inputs.
   been tried.
 - The inventory of functions is an estimate from a sweep. Names, and which
   functions of different characters are one source, are not established.
-- The 202 functions of the resident executable that the sweep reports and
-  the inventory does not list.
+- Of the 203 functions of the resident executable that the inventory does
+  not list: the 15 in the game area without a counted reference, and the 7
+  in the library area that the build does not have and no library function
+  is identified for yet.
 - The call into the middle of a function in the block of `PL17.PAC`.
 - How the loader treats slot `0xffff` and table 5, and the order in which it
   uses the range at `0x801e0000`.
