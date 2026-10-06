@@ -1347,7 +1347,13 @@ class ModuleSeeds(SeededFixture):
         self.cfg_dir = cfg_dir
         self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
         self.toolchain = fixture_toolchain(parsed)
-        self.chunks: dict[str, bytes] = {}
+        self._chunks: dict[str, bytes] = {}
+
+    @property
+    def chunks(self) -> dict[str, bytes]:
+        """The seeded chunks. Reading them prepares the seeds, so that no case depends on another having run first."""
+        self.prepare()
+        return self._chunks
 
     def _seed(self, key: str, value: int, offset: int, total: int) -> bytes:
         return self._seed_units(key, [("value", IMAGE_BODY.format(name="value", value=value), offset, 8)], total)
@@ -1403,27 +1409,29 @@ class ModuleSeeds(SeededFixture):
                     shutil.rmtree(leftover, ignore_errors=True)
 
     def _prepare(self) -> None:
-        if self.chunks:
+        if self._chunks:
             return
-        self.chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
-        self.chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
-        self.chunks["R"] = self._seed_units(
+        # Filled into a local first: the chunks appear whole or not at all.
+        chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
+        chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
+        chunks["R"] = self._seed_units(
             "R", self.CROSS_RES, self.CROSS_RES_SIZE, f"mod_fn = {FIXTURE_LOAD:#x};\n"
         )
-        self.chunks["M"] = self._seed_units(
+        chunks["M"] = self._seed_units(
             "M", self.CROSS_MOD, CALLER_SIZE, f"res_fn = {FIXTURE_LOAD + 8:#x};\n"
         )
-        self.chunks["F"] = self._seed_units("F", self.TWO_SIDES, self.TWO_SIZE)
-        self.chunks["G"] = self._seed_units("G", self.TWO_SIDES, self.TWO_SIZE, load=SECOND_ADDRESS)
+        chunks["F"] = self._seed_units("F", self.TWO_SIDES, self.TWO_SIZE)
+        chunks["G"] = self._seed_units("G", self.TWO_SIDES, self.TWO_SIZE, load=SECOND_ADDRESS)
         for key, load, inside in (
             ("H", FIXTURE_LOAD, FIXTURE_LOAD + MOVED_OFFSET),
             ("I", SECOND_ADDRESS, SECOND_ADDRESS + MOVED_OFFSET),
             ("J", SECOND_ADDRESS, FIXTURE_LOAD + MOVED_OFFSET),
             ("K", SECOND_ADDRESS, MOVED_ELSEWHERE),
         ):
-            self.chunks[key] = self._seed_units(key, self.READER, MOVED_TOTAL, self.reader_symbols(inside), load)
+            chunks[key] = self._seed_units(key, self.READER, MOVED_TOTAL, self.reader_symbols(inside), load)
         for key, address in zip(("S1", "S2"), self.SYM_ADDRESSES):
-            self.chunks[key] = self._seed_units(key, self.SYM, CALLER_SIZE, f"ext_fn = {address:#x};\n")
+            chunks[key] = self._seed_units(key, self.SYM, CALLER_SIZE, f"ext_fn = {address:#x};\n")
+        self._chunks = chunks
 
 
 class ImageFixture:
@@ -2077,6 +2085,9 @@ def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
 
     def install(chunk=None, leave_out=()):
         return lambda copy: install_two_sides(fx, seeds, copy, None if chunk is None else chunk(seeds), leave_out)
+
+    # `chunk(seeds)` reads a seeded chunk before `install_two_sides` runs. Reading `seeds.chunks` prepares
+    # the seeds, so each of these cases also runs alone.
 
     def words_of(chunk, start, size):
         return [(i, int.from_bytes(chunk[i : i + 4], "little")) for i in range(start, start + size, 4)]

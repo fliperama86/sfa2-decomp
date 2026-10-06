@@ -3004,8 +3004,20 @@ now ended the tool with a traceback, also in a configuration without any
 second link. The integers are read as the linker reads them now, and one
 that it would not read is a configuration error.
 
+A second finding of the review, in the controls: four cases with a changed
+second chunk only passed after another case had prepared the seed builds.
+Run alone, each failed with a missing key, before the tool was even
+called. The whole suite hid it, because some earlier case always prepares.
+Reading the seeded chunks now prepares them, for every case at once, and
+each case of the module fixtures was run alone in a fresh process.
+
 Lessons:
 
+- A case must pass alone. A whole run only shows that the cases pass in
+  that order. Run each new case by itself once before a pull request; the
+  filter that selects one case exists.
+- Fix a setup dependency where the shared thing is read, not in the four
+  cases that were caught. The accessor prepares; no case has to remember.
 - A file has one owner of its format. `symbols.ld` is the linker's. The
   first time a tool reads a value from it, read the linker's rules for
   that value, and test a form that the two languages read differently.
