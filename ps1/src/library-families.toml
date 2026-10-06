@@ -1,0 +1,39 @@
+# Which family a function of the Sony library belongs to.
+# Read by ps1/tools/families.py, which takes the first that applies:
+# a name, a BIOS call, a folder.
+
+# By the name under which the build declares the function, where the folder
+# of its unit holds more than one family.
+[names]
+GPU_cw = "graphics"
+ChangeClearPAD = "pads"
+_bu_init = "memory card"
+_96_remove = "disc"
+open = "files"
+close = "files"
+read = "files"
+write = "files"
+firstfile = "files"
+nextfile = "files"
+format = "files"
+
+# By the BIOS call of a stub that the build declares without a library
+# name: table and number. The comments give the names of the calls in the
+# public PSX-SPX documentation of the BIOS.
+[bios]
+"b0:0e" = "threads"  # OpenTh
+"b0:0f" = "threads"  # CloseTh
+"b0:10" = "threads"  # ChangeTh
+"b0:12" = "pads"     # InitPAD2
+"b0:13" = "pads"     # StartPAD2
+
+# By the folder of the unit's source under sdk/.
+[folders]
+libgpu = "graphics"
+libsnd = "sound"
+libspu = "sound"
+libcd = "disc"
+libcard = "memory card"
+libapi = "system"
+libetc = "system"
+libc = "C library"

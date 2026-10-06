@@ -17,10 +17,13 @@ Public tools, free of game data:
   the loader's destination tables, compare the two sides' blocks, inventory
   the functions inside the modules, sort the functions of the executable
   that an inventory does not list.
+- `tools/families.py`: which game functions of the executable call which
+  part of the Sony library, by `src/library-families.toml`.
 - `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,
   and a comparison of them with an inventory.
 - `tools/test_disc_tools.py`: controls for the two disc tools.
 - `tools/test_funcscan.py`: controls for the sweep.
+- `tools/test_families.py`: controls for the family labels.
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
 - `tools/test_verify_cc1_golden.py`: controls for that checker.
 

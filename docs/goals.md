@@ -312,6 +312,11 @@ After the pilot, in this order, by the owner's decisions of 2026-10-06:
    functions it calls, directly or through other functions: graphics,
    sound, disc, pads. It tells code that touches hardware from game logic
    before proper names exist, and prepares naming.
+   Done for the resident image: `families.py` and the
+   [family page](../ps1/docs/library-families.md). 91 of its 1,436 game
+   functions call the library directly, and 1,117 reach no library
+   function. Next: the overlay modules, where most game code is. Open:
+   116 library functions have no family yet.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a

@@ -636,23 +636,33 @@ def code_references(words: list[int], base: int, functions: list[tuple[int, int]
     return found
 
 
-def build_functions(path: str) -> set[int]:
-    """The addresses of the functions that the units of the resident image declare in a build configuration.
+def resident_functions(path: str) -> dict[int, tuple[str, str]]:
+    """The functions that the units of the resident image declare in a build configuration.
 
-    A unit belongs to the resident image when it has no `image` key or the
-    key says `resident`, as in the matching build. A function without an
-    integer address raises FormatError.
+    From the address of each to its name and the source of its unit, each
+    an empty string when the configuration does not give it. A unit belongs
+    to the resident image when it has no `image` key or the key says
+    `resident`, as in the matching build. A function without an integer
+    address raises FormatError.
     """
     with open(path, "rb") as handle:
         units = tomllib.load(handle).get("unit", [])
+    found: dict = {}
     try:
-        resident = [unit for unit in units if unit.get("image", RESIDENT) == RESIDENT]
-        found = {f["address"] for unit in resident for f in unit.get("functions", [])}
+        for unit in units:
+            if unit.get("image", RESIDENT) == RESIDENT:
+                for function in unit.get("functions", []):
+                    found[function["address"]] = (str(function.get("name", "")), str(unit.get("source", "")))
     except (KeyError, TypeError, AttributeError):
-        found = {None}
+        found = {None: ("", "")}
     if not all(type(address) is int for address in found):
         raise FormatError(f"{path}: a function of a unit has no integer address")
     return found
+
+
+def build_functions(path: str) -> set[int]:
+    """The addresses of the functions that the units of the resident image declare in a build configuration."""
+    return set(resident_functions(path))
 
 
 def cmd_unlisted(args) -> int:
