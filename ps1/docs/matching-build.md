@@ -796,7 +796,13 @@ code calls a module.
 - A name that no unit of any image declares and `symbols.ld` does not
   assign is undefined and fails the link, as before.
 - `fndiff.py` gives the link of one unit alone the declared functions of the
-  other images in the same way.
+  other images in the same way, and the rule holds for that link too. Before
+  it links, it refuses a unit whose object defines a name that the link is
+  given as an address: a name of `symbols.ld`, a function of another image,
+  or a function or symbol of another unit of the same image. A whole build
+  rejects the first two before its link and the third in it. An instruction
+  diff cannot stand in for this: the overridden symbol would link, at the
+  wrong address, without a word.
 
 `--image NAME` builds one image: `resident` or a declared name. Any other
 name is a configuration error with exit status 2, also when the
@@ -881,6 +887,15 @@ in front; a failed link, naming the image, for a call of a function that nothing
 declares; an identical result of `fndiff.py` for the module unit that calls
 the resident function, also with `--rebuild`; and, for the unmodified
 configuration, no `others.ld` and an unchanged linker script.
+
+For the same rule in the link of one unit it requires a refusal before the
+link, without and with `--rebuild`, that names the symbol, the unit and
+section and where the name comes from: a module unit with a variable under a
+resident function's name, with the image in front; a resident unit with a
+variable under a module function's name, without; an assembly unit with a
+weak symbol under such a name; a variable under a name that `symbols.ld`
+assigns; and a variable under the name of a function of another unit of the
+same image.
 
 Cases on the comparison alone, without a build, require of what it reports
 as failures: nothing for an equal image; the line for the whole image, and

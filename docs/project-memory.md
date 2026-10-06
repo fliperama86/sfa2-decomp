@@ -2704,11 +2704,31 @@ What ran:
 - `fndiff.py` gives the link of one unit alone the same names.
 - Without a declared image nothing is written and the linker script is
   what it was.
-- `test_matchbuild.py`: 8 new cases, 187 in all.
+- `test_matchbuild.py`: 13 new cases, 192 in all. The 187 of the first
+  version ran in full; the 5 added in review ran with the cases of the loop.
+
+What review of the pull request found: the rule was applied in the whole
+build and not in the link of one unit that `fndiff.py` makes. There an
+address given for another image's function silently replaced a variable of
+the same name in the unit, and the diff said nothing. The implementer had
+reported exactly that as a judgment call, "the build check covers that",
+and the top level let it pass. `fndiff.py` now runs the two checks of the
+whole build before its link and a third for names of other units of the
+same image, which a whole build leaves to the linker.
 
 How the work was split: contract first, then one package for a subagent
 with targeted cases only. It took five minutes. The whole suite and the
 real build ran at the top level.
+
+Lessons:
+
+- A judgment call in a subagent's report is a decision waiting for the top
+  level, not a note. "The other tool covers that" was accepted without
+  asking whether the contract's rule had an exception for this tool. It
+  had none.
+- A rule about "every link" needs the list of links. There are two kinds:
+  the link of an image and the link of one unit. Each rule for one must be
+  asked of the other.
 
 ## Windows reference
 

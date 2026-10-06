@@ -2650,6 +2650,71 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the same failure of the resident unit must read as before, without an image: {say(proc)}"
         return None
 
+    def unbuilt(ctx, units=None, chunk="A", symbols: str | None = None, **sources):
+        """The module fixture with sources that a whole build rejects. The build runs and leaves the objects."""
+        seeds.prepare()
+        images.install(
+            ctx.copy, chunk=seeds.chunks[chunk], code=seeds.chunks["B"],
+            units=units or [images.unit("res", FIXTURE_LOAD, 8, image=None), images.unit("mod", FIXTURE_LOAD, 8)],
+            sources={"res": IMAGE_BODY.format(name="res", value=9), **sources},
+        )
+        if symbols is not None:
+            (ctx.copy / "symbols.ld").write_text(symbols)
+        proc, _, _ = ctx.run()
+        return "test setup: the whole build must reject this fixture" if passed(proc) else None
+
+    def refused_both_ways(ctx, unit_name: str, start: str):
+        """Without and with `--rebuild`: not exit 0, and a line that starts with `start`."""
+        for mode, proc in (("without --rebuild", plain(ctx, unit_name)), ("with --rebuild", rebuild(ctx, unit_name))):
+            lines = (proc.stdout + proc.stderr).splitlines()
+            if proc.returncode == 0 or not any(line.startswith(start) for line in lines):
+                return f"{mode}: unit {unit_name!r} must be refused with a line that starts {start!r}: {say(proc)}"
+            if (ctx.build / f"unit-{unit_name}.fndiff.elf").exists():
+                return f"{mode}: the unit was linked although a name given to the link overrides its symbol"
+        return None
+
+    def override_cross_module(ctx):
+        """A module unit defines a variable under the name of a function that the resident image declares."""
+        problem = unbuilt(ctx, mod="int res_fn = 1;\nint mod_fn(void) { return res_fn; }\n")
+        return problem or refused_both_ways(
+            ctx, "mod", "image 'example': others.ld defines 'res_fn', which unit 'mod' defines in .data and image 'resident' declares"
+        )
+
+    def override_cross_resident(ctx):
+        """The other direction: the resident unit defines a variable under the module function's name."""
+        problem = unbuilt(ctx, res="int mod_fn = 1;\nint res_fn(void) { return mod_fn; }\n")
+        return problem or refused_both_ways(
+            ctx, "res", "others.ld defines 'mod_fn', which unit 'res' defines in .data and image 'example' declares"
+        )
+
+    def override_weak(ctx):
+        """A weak definition counts like a global one. The module unit is assembly here."""
+        source = (
+            ".text\n.globl mod_fn\n.type mod_fn, @function\nmod_fn:\n jr $31\n nop\n.size mod_fn, .-mod_fn\n"
+            ".weak res_fn\nres_fn:\n .word 0\n"
+        )
+        units = [images.unit("res", FIXTURE_LOAD, 8, image=None), images.unit("mod", FIXTURE_LOAD, 8, extra='kind = "asm"\n')]
+        problem = unbuilt(ctx, units=units, mod=source)
+        return problem or refused_both_ways(
+            ctx, "mod", "image 'example': others.ld defines 'res_fn', which unit 'mod' defines in .text and image 'resident' declares"
+        )
+
+    def override_symbols(ctx):
+        """The rule of `symbols.ld` holds for the link of one unit too."""
+        problem = unbuilt(ctx, symbols="taken = 0x80700000;\n", mod="int taken = 1;\nint mod_fn(void) { return taken; }\n")
+        return problem or refused_both_ways(ctx, "mod", "image 'example': symbols.ld defines 'taken', which unit 'mod' defines in .data")
+
+    def override_sibling(ctx):
+        """A unit defines a variable under the name of a function of another unit of its image."""
+        units = [images.unit("callee", FIXTURE_LOAD, 8), images.unit("caller", FIXTURE_LOAD + 8, CALLER_SIZE)]
+        problem = unbuilt(
+            ctx, units=units, chunk="D", callee=IMAGE_BODY.format(name="callee", value=7),
+            caller="int callee_fn = 1;\nint caller_fn(void) { return callee_fn; }\n",
+        )
+        return problem or refused_both_ways(
+            ctx, "caller", "image 'example': unit 'caller' defines 'callee_fn' in .data, which unit 'callee' of its image defines too"
+        )
+
     def module_calls_sibling(ctx):
         seeds.prepare()
         images.install(
@@ -2719,6 +2784,11 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-module-syntax-error", module_syntax_error),
         CacheCase("fndiff-rebuild-module-wrong-size", module_wrong_size),
         CacheCase("fndiff-module-link-fails", module_link_fails),
+        CacheCase("names-fndiff-override-in-module-unit", override_cross_module),
+        CacheCase("names-fndiff-override-in-resident-unit", override_cross_resident),
+        CacheCase("names-fndiff-override-by-weak-symbol", override_weak),
+        CacheCase("names-fndiff-override-of-symbols-file-name", override_symbols),
+        CacheCase("names-fndiff-override-of-sibling-name", override_sibling),
         CacheCase("fndiff-module-object-missing", module_object_missing),
         CacheCase("fndiff-rebuild-module-publication-fails", module_publication_fails),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
