@@ -299,8 +299,15 @@ Next, in this order:
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 
-1. Sort the 202 resident functions that the sweep found and the inventory
-   does not list.
+1. Done: the resident functions that the sweep found and the inventory
+   does not list are sorted. They are 203, one more than counted before:
+   the code goes on for one function after the inventory's end. 134 start
+   in the game area and 69 in the library area; the build already has 1
+   and 62 of them. The resident image has 1,852 functions by the sweep,
+   1,436 game and 416 library, and the build has 1,231 and 386 of them.
+   The 203 are counted as candidates: a boundary from the sweep and an
+   approximate split by area, each established only when it is rebuilt.
+   See the [overlay map](../ps1/docs/overlays.md).
 2. A tool that labels each game function by the family of Sony library
    functions it calls, directly or through other functions: graphics,
    sound, disc, pads. It tells code that touches hardware from game logic
@@ -310,9 +317,10 @@ Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
-Open in the resident image, found by the sweep: 202 functions that the
-resident inventory does not list. Sorting them means saying which are game
-functions and which enter the inventory.
+Open in the resident image: 15 of the functions that the inventory does not
+list start in the game area and have no reference that the sorting counts.
+For them the boundary from the sweep is the only evidence. 133 game
+functions outside the inventory are not rebuilt and have had no round yet.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime

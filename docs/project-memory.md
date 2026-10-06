@@ -3060,6 +3060,90 @@ tried.
 The pilot ends here. Its three parked functions of `slot2a` go to the
 permutation search with the parked resident functions.
 
+## Fifty-second group: the functions outside the resident inventory
+
+No function count of the build changes. What changes is what the counts
+are measured against.
+
+What ran:
+
+- `pac.py unlisted`, a new command: it sweeps the resident executable,
+  takes the functions whose start the inventory does not have, and says of
+  each its area, whether the build has it, and how the executable and the
+  modules refer to it. The method and the table are in
+  `ps1/docs/overlays.md`.
+- 203 functions are outside the inventory, not 202. The earlier count
+  swept to the inventory's end, and the code goes on for one more function.
+  The command showed it: swept to the inventory's end, one function of the
+  build was no start of the sweep.
+- Swept to the end of the code, every word is in a function or is zero
+  padding: 1,852 functions, 1,436 in the game area and 416 in the library
+  area. The build has 1,231 and 386. The two old denominators, 1,302 and
+  347, are the inventory's and stay what older reports mean.
+- The per-chunk sweep of `pac.py functions` became a generator that both
+  commands use. Its totals on the real archives are unchanged.
+- `test_disc_tools.py`: 288 cases, 125 of them for the new command, and
+  `test_funcscan.py`: 159 cases, on the head after review. The first cases
+  were a package for one subagent, against the rules written in the tool
+  and the overlay map; the expected output is worked out in the test from
+  the layout of a synthetic executable, not read from the tool.
+- Private mutation tables, each change run under a time and a memory
+  limit, on the head after review: 152 changes to the new code and 174 to
+  the sweep, every one noticed. The table of the `functions` command had 7
+  entries that no longer matched the moved loop. They were rewritten; they
+  and one new entry are noticed, as the other 95 were in the whole run
+  before review.
+
+What review of the pull request found:
+
+- A unit that says `image = "resident"` was taken for a module unit. The
+  build contract has two spellings of the resident image, no key and that
+  one. The command read the configuration of another tool by one of them
+  and would have reported rebuilt functions as not in the build.
+- `--end 0` was taken for no `--end`: the code read `args.end or` the
+  default. The sweep then ran over another range than the one asked for
+  and reported success.
+- The count of cases in the first version of this entry, 281 and 118, was
+  read before the last case was added. The head had 283 and 120.
+- Not blocking: a `j` or `jal` takes the upper four bits of its target
+  from the address of its delay slot, not from its own. The new code and
+  the sweep both used the jump's own address. No address of this game is
+  affected. Both now call one function for it, with cases on each side of
+  a 256 MB border for the jump's own word and the word before it.
+
+Lessons from the review:
+
+- A tool that reads another tool's file reads that tool's contract for
+  it, defaults and second spellings included. `symbols.ld` in the fiftieth
+  group and `build.toml` here are the same mistake.
+- `value or default` is wrong for an option where zero is a value. Ask
+  whether the option was given.
+- A count goes into a text after the last change to what it counts. This
+  is the fourth time; the rule now is: the count is read off the run that
+  is made after the last edit of the test file, and that run is the last
+  thing before the commit.
+- When a fix adds a shared function, each rule of it needs a case that
+  tells it from its neighbours. The first case for the delay slot told
+  the jump's own address from the next word and not the next word from
+  the one after; a changed copy of the tool showed the gap.
+- The reviewer's note on pull request 56 is in the overlay map: the 8
+  unexplained words of the pair of slots `0x16` and `0x17` are calls into
+  the character block, which lies at another distance.
+
+Lessons:
+
+- A count made over a range is only as good as the range. The 202 came
+  from a default that took the range from the inventory being checked.
+  Check the range against a second source: here the build's own function
+  table reached one function further.
+- When a count can be reconciled, print the reconciliation. The command
+  prints what lies between the functions it found, and that line is what
+  shows that nothing else is left in the code.
+- A refactoring of a counted command needs the controls run before
+  anything else. Moving the chunk loop into a generator changed one number,
+  the size of a chunk whose length is no multiple of four, and a control
+  case named it at once.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

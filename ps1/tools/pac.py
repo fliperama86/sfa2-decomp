@@ -23,6 +23,9 @@ second-side archive with its first-side twin word by word. `functions`
 sweeps every code-bearing chunk for function boundaries with funcscan.py and
 counts how many functions are distinct and which slots have them in common,
 with funcscan.py's four counts that a wrong boundary can disturb.
+`unlisted` sweeps the resident executable, takes the functions that an
+inventory of it does not list, and counts how the executable and the modules
+refer to each: see `cmd_unlisted`.
 Nothing here was observed in a running game.
 """
 
@@ -35,6 +38,7 @@ import json
 import re
 import struct
 import sys
+import tomllib
 from pathlib import Path
 
 import funcscan
@@ -389,21 +393,16 @@ def starts_function(words: list[int], index: int) -> bool:
     return False
 
 
-def cmd_functions(args) -> int:
-    try:
-        table = load_tables(args)[1][0]  # the last table is the one without a bound, and table 0 is never the last
-    except (OSError, FormatError) as exc:
-        print(f"{args.executable}: {exc}")
-        return 1
-    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
-    offered = taken = 0
-    archives, bad = read_archives(args.directory)
-    slots: dict[int, dict] = {}
+def swept_chunks(archives: list, table: list[int], symbols: list[int]):
+    """Every distinct content of a code-bearing chunk of table 0, once per slot, with the functions swept in it.
+
+    Yields the first archive with that content, the slot, its destination,
+    the size of the chunk in bytes, its whole words, the functions as
+    (address, size), the number of symbols whose address lies in the chunk
+    and how many of those were taken as a function start. A destination that
+    is not a multiple of four raises FormatError.
+    """
     seen: set[tuple[int, bytes]] = set()
-    distinct_bytes: set[bytes] = set()
-    sizes: dict[bytes, int] = {}
-    counts = dict.fromkeys((key for key, _ in funcscan.CHECKS), 0)
-    rows = []
     for name, data, chunks in archives:
         for c in chunks:
             body = data[c["offset"] : c["offset"] + c["size"]]
@@ -413,19 +412,38 @@ def cmd_functions(args) -> int:
             seen.add(key)
             base = table[c["slot"]]
             if base % 4:
-                print(f"slot {c['slot']:#x}: the destination {base:#x} is not a multiple of four")
-                return 1
+                raise FormatError(f"slot {c['slot']:#x}: the destination {base:#x} is not a multiple of four")
             words = list(struct.unpack_from(f"<{len(body) // 4}I", body))
             # A symbol belongs to one module and its address lies in others too: see starts_function.
             inside = [a for a in symbols if base <= a < base + 4 * len(words)]
             entries = [a for a in inside if starts_function(words, (a - base) // 4)]
-            offered += len(inside)
-            taken += len(entries)
             found = funcscan.scan(words, base, 0, len(words), funcscan.reader(words, base), entries)
+            yield name, c["slot"], base, len(body), words, found, len(inside), len(entries)
+
+
+def cmd_functions(args) -> int:
+    try:
+        table = load_tables(args)[1][0]  # the last table is the one without a bound, and table 0 is never the last
+    except (OSError, FormatError) as exc:
+        print(f"{args.executable}: {exc}")
+        return 1
+    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+    offered = taken = contents = 0
+    archives, bad = read_archives(args.directory)
+    slots: dict[int, dict] = {}
+    distinct_bytes: set[bytes] = set()
+    sizes: dict[bytes, int] = {}
+    counts = dict.fromkeys((key for key, _ in funcscan.CHECKS), 0)
+    rows = []
+    try:
+        for name, slot, base, length, words, found, inside, entries in swept_chunks(archives, table, symbols):
+            contents += 1
+            offered += inside
+            taken += entries
             for check, count in funcscan.census(words, base, 0, len(words), found).items():
                 counts[check] += count
-            entry = slots.setdefault(c["slot"], {"contents": [], "size": 0, "functions": 0, "bytes": 0, "exact": set()})
-            entry["size"] += len(body)
+            entry = slots.setdefault(slot, {"contents": [], "size": 0, "functions": 0, "bytes": 0, "exact": set()})
+            entry["size"] += length
             entry["functions"] += len(found)
             entry["bytes"] += sum(size for _, size in found)
             here = set()
@@ -437,13 +455,16 @@ def cmd_functions(args) -> int:
                 here.add(blind)
                 distinct_bytes.add(exact)
                 sizes[blind] = size
-                rows.append(f"{name}\t{c['slot']:#x}\t{address:08x}\t{size}\t{blind.hex()[:16]}")
+                rows.append(f"{name}\t{slot:#x}\t{address:08x}\t{size}\t{blind.hex()[:16]}")
             entry["contents"].append(here)
+    except FormatError as exc:
+        print(exc)
+        return 1
     if not slots:
         print("no code-bearing chunk found")
         return 1
     blind = {slot: set().union(*entry["contents"]) for slot, entry in slots.items()}
-    print(f"{len(archives)} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {len(seen)}")
+    print(f"{len(archives)} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {contents}")
     print(
         " slot  destination  contents  content bytes  functions  function bytes"
         "  distinct by bytes  distinct address-blind  in no other slot"
@@ -557,6 +578,187 @@ def cmd_sides(args) -> int:
     return 1 if bad or not compared else 0
 
 
+RESIDENT = "resident"  # the image of a unit without an `image` key in a build configuration
+PAIR_REACH = 8  # words after a `lui` in which the instruction that completes an address is looked for
+REFERENCES = (
+    ("called by the executable", ("call", "executable")),
+    ("called by modules only", ("call", "modules")),
+    ("address in a data word", ("word", "executable"), ("word", "modules")),
+    ("address formed in code", ("pair", "executable"), ("pair", "modules")),
+)
+NO_REFERENCE = "no reference found"
+
+
+def code_references(words: list[int], base: int, functions: list[tuple[int, int]], wanted: dict[int, int]) -> collections.Counter:
+    """Count what the code of `functions` and the words outside them hold of the addresses in `wanted`.
+
+    `wanted` maps the start of a function to its size. The result counts
+    (start, kind) with three kinds:
+
+    - `call`: a `jal` or a `j` to the start, inside one of `functions`. A
+      jump from inside the wanted function itself is not counted.
+    - `pair`: inside one of `functions`, a `lui` and the first `addiu` or
+      `ori` after it that reads the register it loaded, at most PAIR_REACH
+      words later and before another `lui` into that register, which
+      together form the start.
+    - `word`: a word outside every one of `functions` that equals the start.
+
+    None of the three proves a reference. A data word may equal an address
+    by chance, and the two halves of a pair need not belong together.
+    """
+    found: collections.Counter = collections.Counter()
+    code = [False] * len(words)
+    for address, size in functions:
+        low, high = (address - base) // 4, (address - base + size) // 4
+        code[low:high] = [True] * (high - low)
+        for index in range(low, high):
+            word = words[index]
+            op = word >> 26
+            here = base + 4 * index
+            if op in (0x02, 0x03):
+                target = funcscan.jump_target(word, here)
+                if target in wanted and not target <= here < target + wanted[target]:
+                    found[target, "call"] += 1
+            elif op == 0x0F:
+                register = (word >> 16) & 0x1F
+                for later in words[index + 1 : min(index + 1 + PAIR_REACH, high)]:
+                    if later >> 26 == 0x0F and (later >> 16) & 0x1F == register:
+                        break
+                    if later >> 26 in (0x09, 0x0D) and (later >> 21) & 0x1F == register:
+                        half = later & 0xFFFF
+                        target = ((word & 0xFFFF) << 16) + (funcscan.signed16(half) if later >> 26 == 0x09 else half)
+                        if target & 0xFFFFFFFF in wanted:
+                            found[target & 0xFFFFFFFF, "pair"] += 1
+                        break
+    for index, word in enumerate(words):
+        if not code[index] and word in wanted:
+            found[word, "word"] += 1
+    return found
+
+
+def build_functions(path: str) -> set[int]:
+    """The addresses of the functions that the units of the resident image declare in a build configuration.
+
+    A unit belongs to the resident image when it has no `image` key or the
+    key says `resident`, as in the matching build. A function without an
+    integer address raises FormatError.
+    """
+    with open(path, "rb") as handle:
+        units = tomllib.load(handle).get("unit", [])
+    try:
+        resident = [unit for unit in units if unit.get("image", RESIDENT) == RESIDENT]
+        found = {f["address"] for unit in resident for f in unit.get("functions", [])}
+    except (KeyError, TypeError, AttributeError):
+        found = {None}
+    if not all(type(address) is int for address in found):
+        raise FormatError(f"{path}: a function of a unit has no integer address")
+    return found
+
+
+def cmd_unlisted(args) -> int:
+    """Sort the functions of the resident executable that an inventory of it does not list.
+
+    The executable is swept from the first address of the inventory to
+    `--end`, or to the end of the inventory's last function. A function of
+    the sweep whose start the inventory does not have is unlisted. Each is
+    given:
+
+    - an area: game code if it starts below `--library`, library code
+      otherwise;
+    - whether a unit of the resident image declares a function at its start
+      in the build configuration: see `build_functions`;
+    - one way it is referred to, the first that applies of REFERENCES. The
+      references come from `code_references`, over the functions that the
+      sweep finds in the executable and the words of the image outside
+      them, and over every distinct content of a code-bearing chunk of
+      table 0 in the same way.
+
+    The classes say what was counted. A function without a counted
+    reference may still be reached in a way this does not look for.
+    """
+    try:
+        image, tables = load_tables(args)
+        table = tables[0]
+        wanted = funcscan.read_inventory(args.inventory)
+        if not wanted:
+            raise FormatError("the inventory is empty")
+        owned = build_functions(args.config) if args.config else set()
+    except (OSError, FormatError, tomllib.TOMLDecodeError) as exc:
+        print(exc)
+        return 1
+    words = list(struct.unpack_from(f"<{len(image.payload) // 4}I", image.payload))
+    start = min(wanted)
+    end = max(address + size for address, size in wanted.items()) if args.end is None else args.end
+    if not image.start <= start < end <= image.start + 4 * len(words) or start % 4 or end % 4:
+        print(f"the range to sweep, {start:#x} to {end:#x}, is not a range of words inside the image")
+        return 1
+    low, high = (start - image.start) // 4, (end - image.start) // 4
+    swept = funcscan.scan(words, image.start, low, high, funcscan.reader(words, image.start))
+    found = dict(swept)
+    unlisted = {address: size for address, size in swept if address not in wanted}
+    missing = sorted(a for a in wanted if a not in found)
+    outside = sorted(a for a in owned if a not in found)
+
+    counts: dict[str, collections.Counter] = {"executable": code_references(words, image.start, swept, unlisted)}
+    counts["modules"] = collections.Counter()
+    archives, bad = read_archives(args.directory)
+    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+    contents = 0
+    try:
+        for _, _, base, _, body, functions, _, _ in swept_chunks(archives, table, symbols):
+            contents += 1
+            counts["modules"].update(code_references(body, base, functions, unlisted))
+    except FormatError as exc:
+        print(exc)
+        return 1
+
+    def reference(address: int) -> str:
+        for name, *sources in REFERENCES:
+            if any(counts[source][address, kind] for kind, source in sources):
+                return name
+        return NO_REFERENCE
+
+    def area(address: int) -> str:
+        return "game" if address < args.library else "library"
+
+    inside = {a for address, size in swept for a in range(address, address + size, 4)}
+    between = [words[(a - image.start) // 4] for a in range(start, end, 4) if a not in inside]
+    print(f"{len(archives)} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {contents}")
+    print(
+        f"swept {start:#x} to {end:#x}, {end - start} bytes: {len(swept)} functions, {4 * len(inside)} bytes;"
+        f" outside them {between.count(0)} zero words and {len(between) - between.count(0)} other words"
+    )
+    print(f"inventory: {len(wanted)} functions; starts that the sweep does not find: {len(missing)}")
+    if args.config:
+        print(f"functions of the build that are no start of the sweep: {len(outside)}")
+        for address in outside[: args.show]:
+            print(f"  {address:#x}")
+    print(f"not in the inventory: {len(unlisted)} functions, {sum(unlisted.values())} bytes")
+    classes: collections.Counter = collections.Counter()
+    sizes: collections.Counter = collections.Counter()
+    rows = []
+    for address, size in sorted(unlisted.items()):
+        key = (area(address), "yes" if address in owned else "no", reference(address))
+        classes[key] += 1
+        sizes[key] += size
+        numbers = "\t".join(str(counts[source][address, kind]) for kind in ("call", "word", "pair") for source in counts)
+        rows.append(f"{address:08x}\t{size}\t" + "\t".join(key) + f"\t{numbers}")
+    print(" area     in the build  reference                 functions   bytes")
+    order = [name for name, *_ in REFERENCES] + [NO_REFERENCE]
+    for key in sorted(classes, key=lambda k: (k[0], k[1] == "yes", order.index(k[2]))):
+        print(f" {key[0]:8} {key[1]:13} {key[2]:25} {classes[key]:9} {sizes[key]:7}")
+    for name in ("game", "library"):
+        listed = sum(1 for a in wanted if area(a) == name)
+        more = sum(1 for a in unlisted if area(a) == name)
+        built = sum(1 for a in found if area(a) == name and a in owned)
+        tail = f"; in the build: {built}" if args.config else ""
+        print(f"{name}: {listed} in the inventory and {more} not, {listed + more} together{tail}")
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text("".join(row + "\n" for row in rows))
+    return 1 if bad or missing else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -580,6 +782,7 @@ def main() -> int:
         ("loadmap", cmd_loadmap, "compare the loader's destination tables with the code estimates"),
         ("sides", cmd_sides, "compare second-side blocks with their first-side twins"),
         ("functions", cmd_functions, "sweep the code-bearing chunks for functions and count distinct ones"),
+        ("unlisted", cmd_unlisted, "sort the functions of the executable that an inventory does not list"),
     ):
         p = sub.add_parser(name, help=text)
         p.add_argument("executable", help="the resident PS-X executable")
@@ -597,6 +800,18 @@ def main() -> int:
             p.add_argument(
                 "--symbols",
                 help="a file of `name = 0xADDRESS;` lines: each is an entry of the modules where a function with a frame starts there",
+            )
+        elif name == "unlisted":
+            p.add_argument("--inventory", required=True, help="address, name and size per line, as funcscan.py compare reads it")
+            p.add_argument("--library", type=address, required=True, help="a function that starts at or above this is library code")
+            p.add_argument("--end", type=address, help="address after the last word to sweep (default: the end of the inventory)")
+            p.add_argument("--config", help="a build configuration: its resident units say which functions are in the build")
+            p.add_argument("--symbols", help="as for `functions`: entries of the modules")
+            p.add_argument("--show", type=int, default=10, help="addresses to print per finding")
+            p.add_argument(
+                "--out",
+                help="one line per function: address, size, area, in the build, reference, then calls, words and pairs,"
+                " each counted in the executable and in the modules",
             )
         else:
             p.add_argument("--first", type=address, default=4, help="slot of the first-side block (default 4)")

@@ -90,6 +90,24 @@ def make_executable(start: int, pointers: int, tables: list[list[int]]) -> bytes
     return bytes(header) + body
 
 
+def make_program(start: int, code: list[int], tables: list[list[int]]) -> tuple[bytes, int]:
+    """A PS-X executable holding code and data words, then the destination tables, then the block of their addresses.
+
+    Returns the executable and the address of the block.
+    """
+    words, starts = list(code), []
+    for table in tables:
+        starts.append(start + 4 * len(words))
+        words += table
+    pointers = start + 4 * len(words)
+    words += starts + [0]
+    body = struct.pack(f"<{len(words)}I", *words)
+    header = bytearray(0x800)
+    header[:8] = b"PS-X EXE"
+    struct.pack_into("<II", header, 0x18, start, len(body))
+    return bytes(header) + body, pointers
+
+
 def baseline_cases(root: Path):
     files = {"A.BIN": bytes(range(256)) * 20, "DIR/B.BIN": b"second file" * 300}
     image = root / "disc.img"
@@ -557,11 +575,453 @@ def function_cases(root: Path):
     yield "address-blind-saved-registers", outcome(saved == [*range(16, 24), 28, 29, 30], f"as required {saved}"), 0, "as required"
 
 
+def unlisted_cases(root: Path):
+    """`pac.py unlisted`: the functions of the executable that an inventory does not list, and how they are referred to.
+
+    One executable holds a function in each of its 64-byte blocks, one per rule, and the functions that refer
+    to them. Its expected output is worked out here from the layout, not read from the tool.
+    """
+    OPEN, CLOSE, RETURN, ONE, STOP = 0x27BDFFE8, 0x27BD0018, 0x03E00008, 0x24020001, 0xFFFFFFFF
+    V0, V1, A0, A1 = 2, 3, 4, 5
+    ADDI, ADDIU, ANDI, ORI, XORI = 0x08, 0x09, 0x0C, 0x0D, 0x0E
+    jal = lambda t: 0x0C000000 | t >> 2 & 0x03FFFFFF  # noqa: E731
+    jump = lambda t: 0x08000000 | t >> 2 & 0x03FFFFFF  # noqa: E731
+    lui = lambda reg, value: 0x3C000000 | reg << 16 | value & 0xFFFF  # noqa: E731
+    imm = lambda op, rt, rs, value: op << 26 | rs << 21 | rt << 16 | value & 0xFFFF  # noqa: E731
+    upper = lambda target, op: (target + 0x8000) >> 16 if op in (ADDI, ADDIU) else target >> 16  # noqa: E731
+
+    def form(target: int, op: int = ADDIU, into: int = A0) -> list[int]:
+        """`lui v0` and the instruction that completes `target` from it."""
+        return [lui(V0, upper(target, op)), imm(op, into, V0, target)]
+
+    def verdict(ok: bool, detail: str) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess([], 0 if ok else 1, "as required" if ok else "", "" if ok else detail)
+
+    # The layout. The executable starts one block before the first function of the inventory.
+    START, BLOCK, SLOT_BASE = 0x8010F800, 0x40, 0x80200000
+    IMAGE = START - BLOCK
+    names = [
+        "call_exe", "jump_exe", "self_jal", "self_j", "self_first", "adjacent_call", "adjacent_before", "switch", "calls_unlisted", "callee_of_unlisted",
+        "loose_jal", "mod_only", "both",
+        "word_exe", "word_mod", "word_inside", "all_three", "mod_call_exe_word", "word_and_pair",
+        "pair_exe", "pair_mod", "pair_ori", "pair_reach8", "pair_reach9", "pair_beyond", "pair_lui_same",
+        "pair_lui_other", "pair_first_a", "pair_first_b", "pair_other_rt", "pair_other_rs",
+        "not_andi", "not_xori", "none", "area_below", "area_at", "straddler", "build_yes", "build_image",
+        "symbol_word", "not_addi", "pair_positive",
+    ]  # fmt: skip
+    addr = {"first": START, **{name: START + BLOCK * (n + 1) for n, name in enumerate(names)}}
+    assert addr["pair_exe"] & 0xFFFF >= 0x8000 and addr["pair_ori"] & 0xFFFF >= 0x8000
+    assert addr["pair_positive"] & 0xFFFF < 0x8000 and addr["pair_first_a"] >> 16 == addr["pair_first_b"] >> 16 == 0x8010
+    memory: dict[int, int] = {}
+    spans: list[tuple[int, int]] = []
+
+    def put(address: int, words: list[int], function: bool = True) -> None:
+        for n, word in enumerate(words):
+            memory[address + 4 * n] = word
+        if function:
+            spans.append((address, 4 * len(words)))
+
+    plain = [OPEN, ONE, RETURN, CLOSE]
+    bodies = {name: plain for name in names}
+    bodies["self_jal"] = [OPEN, jal(addr["self_jal"]), 0, RETURN, CLOSE]
+    bodies["self_j"] = [OPEN, jump(addr["self_j"]), 0, RETURN, CLOSE]
+    bodies["self_first"] = [jal(addr["self_first"]), 0, RETURN, CLOSE]
+    table = addr["switch"] + 4 * 12  # the cases are the words 5 and 8 of the function, after a `lui at` and a `lw v0,lo(at)`
+    bodies["switch"] = [
+        OPEN, lui(1, upper(table, ADDIU)), imm(0x23, V0, 1, table), 0x00400008, 0, ONE, RETURN, 0, ONE, RETURN, CLOSE,
+    ]  # fmt: skip
+    bodies["calls_unlisted"] = [OPEN, jal(addr["callee_of_unlisted"]), 0, RETURN, CLOSE]
+    bodies["straddler"] = [OPEN, *[ONE] * 6, RETURN, CLOSE]
+    put(IMAGE, plain)  # before the first address of the inventory: never swept
+    put(addr["first"], plain)
+    for name in names:
+        put(addr[name], bodies[name])
+    put(addr["switch"] + 44, [STOP, addr["switch"] + 20, addr["switch"] + 32, STOP], False)  # the table of the cases
+    cursor = START + BLOCK * (len(names) + 1)
+    listed: list[tuple[int, int, str]] = [(addr["first"], 16, "first")]
+    # A function that calls the one before it, right after it.
+    put(addr["adjacent_call"] + 16, [jal(addr["adjacent_call"]), 0, RETURN, CLOSE])
+    listed.append((addr["adjacent_call"] + 16, 16, "adjacent_host"))
+    # A function that ends with the call, right before it.
+    put(addr["adjacent_before"] - 12, [OPEN, RETURN, jal(addr["adjacent_before"])])
+    listed.append((addr["adjacent_before"] - 12, 12, "adjacent_before_host"))
+
+    def host(name: str, words: list[int], gap: bool = True, framed: bool = True) -> None:
+        nonlocal cursor
+        body = [OPEN, *words, RETURN, CLOSE] if framed else words
+        put(cursor, body)
+        listed.append((cursor, 4 * len(body), name))
+        cursor += 4 * len(body) + (4 if gap else 0)
+
+    def loose(words: list[int], gap: bool = True) -> None:
+        nonlocal cursor
+        put(cursor, words, False)
+        cursor += 4 * len(words) + (4 if gap else 0)
+
+    def pair_host(name: str, target: int, op: int = ADDIU) -> None:
+        host(name, form(target, op))
+
+    host("calls", [
+        jal(addr["call_exe"]), 0, jal(addr["both"]), 0, jal(addr["all_three"]), 0, jump(addr["jump_exe"]), 0, addr["word_inside"], jal(addr["build_yes"]), 0,
+    ])  # fmt: skip
+    pair_host("h_pair_exe", addr["pair_exe"])
+    pair_host("h_all_three", addr["all_three"])
+    pair_host("h_word_and_pair", addr["word_and_pair"])
+    pair_host("h_pair_ori", addr["pair_ori"], ORI)
+    pair_host("h_pair_positive", addr["pair_positive"])
+    pair = form(addr["pair_reach8"])
+    host("h_reach8", [pair[0], *[0] * 7, pair[1]])
+    pair = form(addr["pair_reach9"])
+    host("h_reach9", [pair[0], *[0] * 8, pair[1]])
+    target = addr["pair_lui_same"]
+    host("h_lui_same", [lui(V0, upper(target, ADDIU)), lui(V0, 0), imm(ADDIU, A0, V0, target)])
+    target = addr["pair_lui_other"]
+    host("h_lui_other", [lui(V0, upper(target, ADDIU)), lui(V1, 0), imm(ADDIU, A0, V0, target)])
+    first_a, first_b = addr["pair_first_a"], addr["pair_first_b"]
+    host("h_first", [lui(V0, upper(first_a, ADDIU)), imm(ADDIU, A0, V0, first_b), imm(ADDIU, A0, V0, first_a)])
+    target = addr["pair_other_rt"]
+    host("h_other_rt", [lui(V0, upper(target, ADDIU)), imm(ADDIU, A1, A1, 5), imm(ADDIU, A0, V0, target)])
+    target = addr["pair_other_rs"]
+    host("h_other_rs", [lui(V0, upper(target, ADDIU)), imm(ADDIU, A0, V1, target)])
+    for name, op in (("not_addi", ADDI), ("not_andi", ANDI), ("not_xori", XORI)):
+        host(f"h_{name}", [lui(V0, upper(addr[name], op)), imm(op, A0, V0, addr[name])])
+    # The addiu lies right after the function: out of reach whatever its distance.
+    target = addr["pair_beyond"]
+    host("h_beyond", [OPEN, RETURN, lui(V0, upper(target, ADDIU))], gap=False, framed=False)
+    loose([imm(ADDIU, A0, V0, target), STOP])
+    loose([jal(addr["loose_jal"]), STOP])
+    loose([addr["word_exe"], addr["all_three"], addr["word_and_pair"], addr["mod_call_exe_word"], STOP])
+    host("last", [])
+    inventory_end = cursor - 4
+    after = cursor
+    put(after, plain)
+    cursor += 16
+    after_end = cursor
+    code = [memory.get(a, 0) for a in range(IMAGE, cursor + 4, 4)]
+    table0 = [0x80300000] * 4 + [SLOT_BASE]
+    tables = [table0, [0x80400000], [0x80500000]]
+    program, pointers = make_program(IMAGE, code, tables)
+    image_end = IMAGE + len(program) - 0x800
+    exe = root / "UNLISTED.EXE"
+    exe.write_bytes(program)
+
+    # The modules: nine functions in slot 4, and a data word after them. The same content in two archives.
+    def module_function(*words: int) -> list[int]:
+        return [OPEN, *words, RETURN, CLOSE]
+
+    module: list[int] = []
+    for words in (
+        [jal(addr["mod_only"])], [jal(addr["both"])], [addr["word_inside"]], [jal(addr["mod_call_exe_word"])],
+        form(addr["pair_mod"]), [], [], [], [],
+    ):  # fmt: skip
+        module += module_function(*words)
+    module += [0, addr["word_mod"], STOP]
+    module_bytes = struct.pack(f"<{len(module)}I", *module)
+
+    def folder(name: str, **archives: bytes) -> Path:
+        path = root / name
+        path.mkdir()
+        for stem, data in archives.items():
+            (path / f"{stem}.PAC").write_bytes(data)
+        return path
+
+    # A second content in slot 4, the same one in slot 3, and chunks that must not be read: a code chunk of
+    # table 1, one of a slot beyond table 0, and data in slot 4 that holds the address eight times.
+    def words_of(functions: list[list[int]]) -> bytes:
+        flat = [w for words in functions for w in module_function(*words)]
+        return struct.pack(f"<{len(flat)}I", *flat)
+
+    second = words_of([[jal(addr["mod_only"])], *[[]] * 8])
+    trap = words_of([[jal(addr["none"])], *[[]] * 8])
+    data = struct.pack("<8I", *[addr["none"]] * 8)
+    mods = folder(
+        "unl-mods",
+        A=bytes(make_archive([(4, module_bytes)])),
+        B=bytes(make_archive([(4, module_bytes)])),
+        C=bytes(make_archive([(4, second), (0x10004, trap), (9, trap), (4, data)])),
+        D=bytes(make_archive([(3, second)])),
+    )
+
+    def inventory_file(name: str, entries: list[tuple[int, int, str]]) -> Path:
+        path = root / f"{name}.tsv"
+        path.write_text("".join(f"{a:08x}\t{n}\t{size}\n" for a, size, n in entries))
+        return path
+
+    inventory = inventory_file("unl-inventory", listed)
+    library = addr["area_at"]
+
+    # What each unlisted function is referred to by: the class and the six counts (calls, words, pairs; executable, modules).
+    EXE, MOD = "called by the executable", "called by modules only"
+    WORD, FORMED, NONE = "address in a data word", "address formed in code", "no reference found"
+    order = [EXE, MOD, WORD, FORMED, NONE]
+    expected = {
+        "call_exe": (EXE, (1, 0, 0, 0, 0, 0)),
+        "jump_exe": (EXE, (1, 0, 0, 0, 0, 0)),
+        "adjacent_call": (EXE, (1, 0, 0, 0, 0, 0)),
+        "adjacent_before": (EXE, (1, 0, 0, 0, 0, 0)),
+        "callee_of_unlisted": (EXE, (1, 0, 0, 0, 0, 0)),
+        "build_yes": (EXE, (1, 0, 0, 0, 0, 0)),
+        "mod_only": (MOD, (0, 3, 0, 0, 0, 0)),
+        "both": (EXE, (1, 1, 0, 0, 0, 0)),
+        "word_exe": (WORD, (0, 0, 1, 0, 0, 0)),
+        "word_mod": (WORD, (0, 0, 0, 1, 0, 0)),
+        "all_three": (EXE, (1, 0, 1, 0, 1, 0)),
+        "mod_call_exe_word": (MOD, (0, 1, 1, 0, 0, 0)),
+        "word_and_pair": (WORD, (0, 0, 1, 0, 1, 0)),
+        "pair_exe": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_mod": (FORMED, (0, 0, 0, 0, 0, 1)),
+        "pair_ori": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_reach8": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_lui_other": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_first_b": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_other_rt": (FORMED, (0, 0, 0, 0, 1, 0)),
+        "pair_positive": (FORMED, (0, 0, 0, 0, 1, 0)),
+    }  # every other function: NONE and six zeros. self_jal, self_j, loose_jal, word_inside, pair_reach9, pair_beyond,
+    # pair_lui_same, pair_first_a, pair_other_rs and the three not_* are the ones that must stay without a reference.
+    name_at = {a: n for n, a in addr.items()} | {after: "after"}
+    size_of = dict(spans)
+
+    def predict(end: int, owned: set[int], library: int = addr["area_at"], entries=listed, with_config: bool = False) -> dict:
+        wanted = {a for a, _, _ in entries}
+        swept = sorted((a, s) for a, s in spans if START <= a and a + s <= end)
+        inside = {x for a, s in swept for x in range(a, a + s, 4)}
+        between = [memory.get(x, 0) for x in range(START, end, 4) if x not in inside]
+        area = lambda a: "game" if a < library else "library"  # noqa: E731
+        unlisted = [(a, s) for a, s in swept if a not in wanted]
+        rows, classes = {}, {}
+        for a, s in unlisted:
+            ref, counts = expected.get(name_at[a], (NONE, (0,) * 6))
+            built = "yes" if a in owned else "no"
+            rows[a] = f"{a:08x}\t{s}\t{area(a)}\t{built}\t{ref}\t" + "\t".join(map(str, counts))
+            n, b = classes.get((area(a), built, ref), (0, 0))
+            classes[area(a), built, ref] = (n + 1, b + s)
+        table = [
+            f" {k[0]:8} {k[1]:13} {k[2]:25} {n:9} {b:7}"
+            for k, (n, b) in sorted(classes.items(), key=lambda kv: (kv[0][0], kv[0][1] == "yes", order.index(kv[0][2])))
+        ]
+        totals = {}
+        for part in ("game", "library"):
+            listed_n = sum(1 for a in wanted if area(a) == part)
+            more = sum(1 for a, _ in unlisted if area(a) == part)
+            built = sum(1 for a, _ in swept if area(a) == part and a in owned)
+            tail = f"; in the build: {built}" if with_config else ""
+            totals[part] = f"{part}: {listed_n} in the inventory and {more} not, {listed_n + more} together{tail}"
+        return {
+            "rows": rows,
+            "table": " area     in the build  reference                 functions   bytes\n" + "\n".join(table) + "\n",
+            "totals": totals,
+            "swept": f"swept {START:#x} to {end:#x}, {end - START} bytes: {len(swept)} functions, {4 * len(inside)} bytes;"
+            f" outside them {between.count(0)} zero words and {len(between) - between.count(0)} other words",
+            "inventory": f"inventory: {len(wanted)} functions; starts that the sweep does not find: {len([a for a in wanted if a not in dict(swept)])}",
+            "count": f"not in the inventory: {len(unlisted)} functions, {sum(s for _, s in unlisted)} bytes",
+        }
+
+    def unlisted(*args, directory: Path = mods, program_file: Path = exe, inv: Path = inventory, lib: int = library, pointer: int = pointers):
+        return tool("pac.py", "unlisted", program_file, directory, "--pointers", hex(pointer), "--inventory", inv, "--library", hex(lib), *args)
+
+    # No configuration: every function is out of the build, and no line is about the build.
+    out0 = root / "unl-made" / "deeper" / "rows.tsv"
+    run = unlisted("--out", out0)
+    want = predict(inventory_end, set())
+    yield "unlisted-parsed", run, 0, "4 archives parsed, 0 rejected; code-bearing chunks with distinct contents: 3"
+    yield "unlisted-swept", run, 0, want["swept"]
+    yield "unlisted-inventory", run, 0, want["inventory"]
+    yield "unlisted-count", run, 0, want["count"]
+    yield "unlisted-classes", run, 0, want["table"]
+    yield "unlisted-game-total", run, 0, want["totals"]["game"] + "\n"
+    yield "unlisted-library-total", run, 0, want["totals"]["library"] + "\n"
+    yield "unlisted-no-build-lines", verdict("functions of the build" not in run.stdout and "in the build:" not in run.stdout, run.stdout), 0, "as required"
+    yield "unlisted-out-folder-made", verdict(out0.exists(), "no file"), 0, "as required"
+    rows = out0.read_text().splitlines() if out0.exists() else []
+    by_address = {line.split("\t")[0]: line for line in rows}
+    yield "unlisted-out-rows-in-order", verdict(rows == [want["rows"][a] for a in sorted(want["rows"])], "\n".join(rows)), 0, "as required"
+    yield "unlisted-out-row-count", verdict(len(rows) == len(names), f"{len(rows)} rows"), 0, "as required"
+    for name in names:
+        a = addr[name]
+        yield f"unlisted-row-{name}", verdict(by_address.get(f"{a:08x}") == want["rows"][a], f"{by_address.get(f'{a:08x}')!r} not {want['rows'][a]!r}"), 0, "as required"
+    yield "unlisted-before-the-inventory-not-swept", verdict(f"{IMAGE:08x}" not in by_address, "swept"), 0, "as required"
+    yield "unlisted-after-the-inventory-not-swept", verdict(f"{after:08x}" not in by_address, "swept"), 0, "as required"
+
+    # The range: to the end of the inventory by default, to --end when given.
+    run = unlisted("--end", hex(after_end), "--out", root / "unl-end.tsv")
+    want_end = predict(after_end, set())
+    yield "unlisted-end-swept", run, 0, want_end["swept"]
+    yield "unlisted-end-count", run, 0, want_end["count"]
+    yield "unlisted-end-classes", run, 0, want_end["table"]
+    end_rows = (root / "unl-end.tsv").read_text().splitlines() if (root / "unl-end.tsv").exists() else []
+    yield "unlisted-end-adds-the-function", verdict(f"{after:08x}\t16\tlibrary\tno\t{NONE}\t0\t0\t0\t0\t0\t0" in end_rows, str(end_rows[-1:])), 0, "as required"
+    run = unlisted("--end", hex(image_end), "--out", root / "unl-whole.tsv")
+    yield "unlisted-end-at-the-image-end", run, 0, f"swept {START:#x} to {image_end:#x}, {image_end - START} bytes:"
+    yield "unlisted-end-past-the-image", unlisted("--end", hex(image_end + 4)), 1, "is not a range of words inside the image"
+    yield "unlisted-end-zero", unlisted("--end", "0"), 1, f"the range to sweep, {START:#x} to 0x0, is not a range of words inside the image"
+    yield "unlisted-end-not-on-a-word", unlisted("--end", hex(inventory_end + 2)), 1, "is not a range of words inside the image"
+    yield "unlisted-end-at-the-start", unlisted("--end", hex(START)), 1, "is not a range of words inside the image"
+    yield "unlisted-end-before-the-start", unlisted("--end", hex(START - 4)), 1, "is not a range of words inside the image"
+    below = inventory_file("unl-below", [(IMAGE - 0x1000, 16, "x")])
+    yield "unlisted-start-below-the-image", unlisted(inv=below), 1, "is not a range of words inside the image"
+    odd = inventory_file("unl-odd", [(START + 2, 14, "x")])
+    yield "unlisted-start-not-on-a-word", unlisted(inv=odd), 1, "is not a range of words inside the image"
+    at_image = inventory_file("unl-at-image", [(IMAGE, 16, "before")])
+    run = unlisted(inv=at_image)
+    yield "unlisted-start-at-the-image", run, 0, f"swept {IMAGE:#x} to {IMAGE + 16:#x}, 16 bytes: 1 functions, 16 bytes;"
+
+    # Inventories that do not fit.
+    missing = inventory_file("unl-missing", [*listed, (addr["none"] + 0x20, 16, "gap")])
+    run = unlisted(inv=missing)
+    yield "unlisted-start-not-found", run, 1, f"inventory: {len(listed) + 1} functions; starts that the sweep does not find: 1"
+    yield "unlisted-start-not-found-still-sorts", run, 1, predict(inventory_end, set())["count"]
+    empty = root / "unl-empty.tsv"
+    empty.write_text("nothing here\nnor here\n")
+    run = unlisted(inv=empty)
+    yield "unlisted-empty-inventory", run, 1, "the inventory is empty"
+    yield "unlisted-empty-inventory-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+    run = unlisted(inv=root / "unl-absent.tsv")
+    yield "unlisted-no-inventory-file", run, 1, "No such file"
+    yield "unlisted-no-inventory-file-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+    for flag, value in (("--library", "x"), ("--inventory", "x"), ("--pointers", "x")):
+        arguments = {"--pointers": hex(pointers), "--inventory": str(inventory), "--library": hex(library)}
+        del arguments[flag]
+        run = tool("pac.py", "unlisted", exe, mods, *[a for pair in arguments.items() for a in pair])
+        yield f"unlisted-requires-{flag[2:]}", run, 2, f"the following arguments are required: {flag}"
+
+    # The area: below --library is game, at it or above is library, and the start decides.
+    straddle = addr["straddler"]
+    run = unlisted("--library", hex(straddle + 0x10), "--out", root / "unl-straddle.tsv")
+    want_lib = predict(inventory_end, set(), straddle + 0x10)
+    straddle_rows = (root / "unl-straddle.tsv").read_text().splitlines() if (root / "unl-straddle.tsv").exists() else []
+    yield "unlisted-straddling-function-is-game", verdict(f"{straddle:08x}\t36\tgame\tno\t{NONE}" in "\n".join(straddle_rows), "\n".join(straddle_rows[-6:])), 0, "as required"
+    yield "unlisted-next-function-is-library", verdict(f"{addr['build_yes']:08x}\t16\tlibrary\t" in "\n".join(straddle_rows), "\n".join(straddle_rows[-6:])), 0, "as required"
+    yield "unlisted-straddle-totals", run, 0, want_lib["totals"]["game"] + "\n"
+    yield "unlisted-straddle-classes", run, 0, want_lib["table"]
+    yield "unlisted-area-at-the-limit", verdict(by_address.get(f"{addr['area_at']:08x}", "").split("\t")[2:3] == ["library"] and by_address.get(f"{addr['area_below']:08x}", "").split("\t")[2:3] == ["game"], str(by_address.get(f"{addr['area_at']:08x}"))), 0, "as required"
+
+    # The build configuration.
+    outside = [0x80000000, addr["none"] + 4, after]
+    config = root / "unl-build.toml"
+    config.write_text(
+        "[[unit]]\nname = \"resident\"\n"
+        f"functions = [{{ name = \"a\", address = {addr['first']:#x} }}, {{ name = \"b\", address = {addr['build_yes']:#x} }}]\n"
+        "[[unit]]\nname = \"overlay\"\nimage = \"overlay.bin\"\n"
+        f"functions = [{{ name = \"c\", address = {addr['build_image']:#x} }}, {{ name = \"d\", address = {addr['pair_exe']:#x} }}]\n"
+        "[[unit]]\nname = \"bare\"\n"
+        "[[unit]]\nname = \"outside\"\n"
+        f"functions = [{', '.join(f'{{ address = {a:#x} }}' for a in outside)}]\n"
+    )
+    owned = {addr["first"], addr["build_yes"], *outside}
+    run = unlisted("--config", config, "--show", 2, "--out", root / "unl-config.tsv")
+    want_cfg = predict(inventory_end, owned, library, with_config=True)
+    yield "unlisted-config-outside-count", run, 0, "functions of the build that are no start of the sweep: 3\n"
+    yield "unlisted-config-show-limit", run, 0, f"  {outside[0]:#x}\n  {outside[1]:#x}\n"
+    yield "unlisted-config-show-limit-last", verdict(f"  {outside[2]:#x}" not in run.stdout, run.stdout), 0, "as required"
+    yield "unlisted-config-classes", run, 0, want_cfg["table"]
+    yield "unlisted-config-game-total", run, 0, want_cfg["totals"]["game"] + "\n"
+    yield "unlisted-config-library-total", run, 0, want_cfg["totals"]["library"] + "\n"
+    yield "unlisted-config-swept", run, 0, want_cfg["swept"]
+    cfg_rows = (root / "unl-config.tsv").read_text().splitlines() if (root / "unl-config.tsv").exists() else []
+    cfg_by = {line.split("\t")[0]: line for line in cfg_rows}
+    for name in ("build_yes", "build_image", "pair_exe", "call_exe"):
+        a = addr[name]
+        yield f"unlisted-config-row-{name}", verdict(cfg_by.get(f"{a:08x}") == want_cfg["rows"][a], f"{cfg_by.get(f'{a:08x}')!r} not {want_cfg['rows'][a]!r}"), 0, "as required"
+    yield "unlisted-config-whole-rows", verdict([cfg_by.get(f"{a:08x}") for a in sorted(want_cfg["rows"])] == [want_cfg["rows"][a] for a in sorted(want_cfg["rows"])], "rows differ"), 0, "as required"
+    # A unit of the resident image may say so: `image = "resident"` and no key are the same.
+    spelled = root / "unl-build-spelled.toml"
+    spelled.write_text(config.read_text().replace('name = "resident"\n', 'name = "resident"\nimage = "resident"\n'))
+    plain_run, spelled_run = unlisted("--config", config), unlisted("--config", spelled)
+    yield "unlisted-config-resident-spelled-out", spelled_run, 0, want_cfg["totals"]["game"] + "\n"
+    yield "unlisted-config-resident-spelled-out-same", verdict('image = "resident"' in spelled.read_text() and spelled_run.stdout == plain_run.stdout, spelled_run.stdout), 0, "as required"
+    yield "unlisted-config-show-default", unlisted("--config", config), 0, f"  {outside[0]:#x}\n  {outside[1]:#x}\n  {outside[2]:#x}\n"
+    run = unlisted("--config", config, "--end", hex(after_end), "--out", root / "unl-config-end.tsv")
+    want_cfg_end = predict(after_end, owned, library, with_config=True)
+    yield "unlisted-config-end-outside-count", run, 0, "functions of the build that are no start of the sweep: 2\n"
+    yield "unlisted-config-end-library-total", run, 0, want_cfg_end["totals"]["library"] + "\n"
+    yield "unlisted-config-end-classes", run, 0, want_cfg_end["table"]
+    # A configuration without units declares nothing.
+    nothing = root / "unl-nothing.toml"
+    nothing.write_text("title = 'x'\n")
+    run = unlisted("--config", nothing)
+    yield "unlisted-config-without-units", run, 0, "functions of the build that are no start of the sweep: 0\n"
+    yield "unlisted-config-without-units-total", run, 0, predict(inventory_end, set(), library, with_config=True)["totals"]["game"] + "\n"
+    broken = root / "unl-broken.toml"
+    broken.write_text("[[unit\nx")
+    run = unlisted("--config", broken)
+    yield "unlisted-config-broken", run, 1, "Expected ']]'"
+    yield "unlisted-config-broken-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+    for label, entry in (("without-address", '{ name = "a" }'), ("address-as-text", '{ address = "0x80110000" }'), ("address-as-truth", "{ address = true }"), ("no-table", "4")):
+        odd_config = root / f"unl-{label}.toml"
+        odd_config.write_text(f"[[unit]]\nname = \"resident\"\nfunctions = [{entry}]\n")
+        run = unlisted("--config", odd_config)
+        yield f"unlisted-config-function-{label}", run, 1, "a function of a unit has no integer address"
+        yield f"unlisted-config-function-{label}-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+    run = unlisted("--config", root / "unl-absent.toml")
+    yield "unlisted-config-missing", run, 1, "No such file"
+    yield "unlisted-config-missing-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+
+    # The modules: a rejected archive, a destination that is not a multiple of four, an executable that does not fit.
+    damaged = bytearray(make_archive([(4, module_bytes)]))
+    damaged[USER_DATA] ^= 1
+    bad = folder("unl-bad", A=bytes(make_archive([(4, module_bytes)])), B=bytes(damaged))
+    run = unlisted(directory=bad)
+    yield "unlisted-rejected-archive", run, 1, "1 archives parsed, 1 rejected; code-bearing chunks with distinct contents: 1"
+    yield "unlisted-rejected-still-sorts", run, 1, want["count"]
+    askew, askew_pointers = make_program(IMAGE, code, [[0x80300000] * 4 + [SLOT_BASE + 2], [0x80400000], [0x80500000]])
+    (root / "UNL-ASKEW.EXE").write_bytes(askew)
+    yield "unlisted-destination-not-a-multiple-of-four", unlisted(program_file=root / "UNL-ASKEW.EXE", pointer=askew_pointers), 1, (
+        f"slot 0x4: the destination {SLOT_BASE + 2:#x} is not a multiple of four"
+    )
+    run = unlisted(program_file=mods / "A.PAC")
+    yield "unlisted-not-an-executable", run, 1, "not a PS-X executable"
+    yield "unlisted-not-an-executable-no-traceback", verdict("Traceback" not in run.stderr, run.stderr), 0, "as required"
+    yield "unlisted-no-pointer-block", unlisted(pointer=IMAGE), 1, "no block of table addresses"
+
+    # An address is written with eight digits.
+    low_code = [OPEN, ONE, RETURN, CLOSE] * 2
+    low_exe, low_pointers = make_program(0x00100000, low_code, [[0x00300000] * 4 + [0x00200000], [0x00400000], [0x00500000]])
+    (root / "UNL-LOW.EXE").write_bytes(low_exe)
+    low_mods = folder("unl-low", A=bytes(make_archive([(4, make_code(0x00200000))])))
+    low_out = root / "unl-low.tsv"
+    unlisted("--end", "0x00100020", "--out", low_out, program_file=root / "UNL-LOW.EXE", directory=low_mods, pointer=low_pointers, lib=0x00100000, inv=inventory_file("unl-low-inventory", [(0x00100000, 16, "x")]))
+    low_rows = low_out.read_text().splitlines() if low_out.exists() else []
+    yield "unlisted-out-low-address", verdict(low_rows == [f"00100010\t16\tlibrary\tno\t{NONE}\t0\t0\t0\t0\t0\t0"], str(low_rows)), 0, "as required"
+
+    # The upper four bits of a call's target are those of its delay slot's address. A `jal` in the last
+    # word below 0x90000000 calls a function above; one word earlier it calls a function below.
+    edge = 0x8FFFFFC0
+    near, beyond = edge + 4 * 4, edge + 4 * 20
+    for label, padding, target in (("across", 6, beyond), ("below", 5, near)):
+        caller = [OPEN, *[ONE] * padding, jal(target), 0, RETURN, CLOSE]
+        edge_code = [*plain, *plain, *caller, *[0] * (12 - len(caller)), *plain]
+        assert edge + 4 * edge_code.index(jal(target)) == (0x8FFFFFFC if label == "across" else 0x8FFFFFF8)
+        edge_exe, edge_pointers = make_program(edge, edge_code, [[0x00300000] * 4 + [0x00200000], [0x00400000], [0x00500000]])
+        (root / f"UNL-EDGE-{label}.EXE").write_bytes(edge_exe)
+        edge_out = root / f"unl-edge-{label}.tsv"
+        unlisted(
+            "--end", hex(edge + 4 * len(edge_code)), "--out", edge_out, program_file=root / f"UNL-EDGE-{label}.EXE", directory=low_mods,
+            pointer=edge_pointers, lib=beyond, inv=inventory_file(f"unl-edge-{label}", [(edge, 16, "first"), (edge + 32, 4 * len(caller), "caller")]),
+        )  # fmt: skip
+        edge_rows = edge_out.read_text().splitlines() if edge_out.exists() else []
+        called = lambda a: f"{EXE}\t1" if a == target else f"{NONE}\t0"  # noqa: E731
+        wanted_rows = [f"{near:08x}\t16\tgame\tno\t{called(near)}\t0\t0\t0\t0\t0", f"{beyond:08x}\t16\tlibrary\tno\t{called(beyond)}\t0\t0\t0\t0\t0"]
+        yield f"unlisted-call-{label}-a-region", verdict(edge_rows == wanted_rows, str(edge_rows)), 0, "as required"
+
+    # Entries of the modules: a function whose start is a symbol is told from the words before it.
+    glue = [addr["symbol_word"], ONE, 0x3C028020, 0x8C420000, OPEN, ONE, RETURN, CLOSE]
+    glued = b"".join(struct.pack("<I", w) for w in [*[w for _ in range(8) for w in plain], STOP, *glue])
+    symbolic = folder("unl-glue", A=bytes(make_archive([(4, glued)])))
+    symbols = root / "unl-symbols.ld"
+    symbols.write_text(f"entry = {SLOT_BASE + 4 * (32 + 1 + 2):#x};\n")
+    for label, extra, count in (("without-symbols", [], 0), ("with-symbols", ["--symbols", symbols], 1)):
+        made = root / f"unl-glue-{label}.tsv"
+        run = unlisted(*extra, "--out", made, directory=symbolic)
+        found = {line.split("\t")[0]: line.split("\t") for line in made.read_text().splitlines()} if made.exists() else {}
+        columns = found.get(f"{addr['symbol_word']:08x}", [])
+        yield f"unlisted-glue-{label}", verdict(columns[8:9] == [str(count)] and columns[4:5] == [WORD if count else NONE], str(columns)), 0, "as required"
+
+
 def main() -> int:
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        for name, proc, want_status, want_text in [*baseline_cases(root), *extract_safety_cases(root), *pac_cases(root), *function_cases(root)]:
+        for name, proc, want_status, want_text in [*baseline_cases(root), *extract_safety_cases(root), *pac_cases(root), *function_cases(root), *unlisted_cases(root)]:
             output = proc.stdout + proc.stderr
             ok = proc.returncode == want_status and want_text in output
             print(f"{'ok  ' if ok else 'FAIL'} {name}: exit {proc.returncode}, wanted {want_status} with {want_text!r}")

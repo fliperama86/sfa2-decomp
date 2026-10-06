@@ -100,6 +100,11 @@ def branch_target(word: int, index: int) -> int | None:
     return None
 
 
+def jump_target(word: int, address: int) -> int:
+    """Where a `j` or `jal` at `address` goes. The upper four bits are those of the address of its delay slot."""
+    return (address + 4) & 0xF0000000 | (word & 0x03FFFFFF) << 2
+
+
 def nearest(words: list[int], index: int, low: int, opcode: int, register: int) -> int | None:
     """Index of the nearest word before `index` with this opcode and target register, or None.
 
@@ -138,7 +143,7 @@ def scan(
     called = {(a - base) // 4 for a in entries if a % 4 == 0}
     for position in range(low, high):
         if words[position] >> 26 == 0x03:
-            called.add((((base + 4 * position) & 0xF0000000 | (words[position] & 0x03FFFFFF) << 2) - base) // 4)
+            called.add((jump_target(words[position], base + 4 * position) - base) // 4)
     functions = []
     index = low
     while index < high:
@@ -164,7 +169,7 @@ def scan(
             elif op == 0x03:
                 calls = True
             elif op == 0x02:  # j: a branch inside the function
-                goal = (((base + 4 * index) & 0xF0000000 | (word & 0x03FFFFFF) << 2) - base) // 4
+                goal = (jump_target(word, base + 4 * index) - base) // 4
                 if goal < high:
                     far = max(far, goal)
             elif op == 0 and word & 0x3F == 0x08:  # jr through another register
