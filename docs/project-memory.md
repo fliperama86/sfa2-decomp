@@ -2685,6 +2685,51 @@ Lessons:
   targeted cases only, the whole suite and the real build left to the top
   level. That is the size to aim for.
 
+## Forty-fifth group: names across images
+
+No function count changes in this group: 1,617 functions exact.
+
+What was open: each image was linked alone and saw only its own units and
+`symbols.ld`. Module code that calls the resident image could not link.
+
+What ran:
+
+- Every link is given the declared functions of the units of all other
+  images as absolute addresses, in a file `others.ld` beside its linker
+  script. The addresses come from the configuration, so one image builds
+  alone with all names in reach. Only functions cross images.
+- A name given that way must not be a symbol that an object of the same
+  link defines. The check runs before the link, beside the `symbols.ld`
+  check, and names the symbol, the unit and the declaring image.
+- `fndiff.py` gives the link of one unit alone the same names.
+- Without a declared image nothing is written and the linker script is
+  what it was.
+- `test_matchbuild.py`: 13 new cases, 192 in all. The 187 of the first
+  version ran in full; the 5 added in review ran with the cases of the loop.
+
+What review of the pull request found: the rule was applied in the whole
+build and not in the link of one unit that `fndiff.py` makes. There an
+address given for another image's function silently replaced a variable of
+the same name in the unit, and the diff said nothing. The implementer had
+reported exactly that as a judgment call, "the build check covers that",
+and the top level let it pass. `fndiff.py` now runs the two checks of the
+whole build before its link and a third for names of other units of the
+same image, which a whole build leaves to the linker.
+
+How the work was split: contract first, then one package for a subagent
+with targeted cases only. It took five minutes. The whole suite and the
+real build ran at the top level.
+
+Lessons:
+
+- A judgment call in a subagent's report is a decision waiting for the top
+  level, not a note. "The other tool covers that" was accepted without
+  asking whether the contract's rule had an exception for this tool. It
+  had none.
+- A rule about "every link" needs the list of links. There are two kinds:
+  the link of an image and the link of one unit. Each rule for one must be
+  asked of the other.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

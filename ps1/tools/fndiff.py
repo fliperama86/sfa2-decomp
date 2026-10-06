@@ -36,8 +36,10 @@ from matchbuild import (  # noqa: E402
     defined_symbols,
     load_config,
     named,
+    other_image_override_errors,
     prepare_pipeline,
     symbol_address,
+    symbol_override_errors,
     unit_object,
 )
 
@@ -53,7 +55,9 @@ def link_alone(cfg, unit, build: Path) -> Path:
         raise SystemExit(named(unit.image, f"no object {obj}: run matchbuild with the same --tag first"))
     neighbours = cfg.units_of(unit.image)
     others = [fn for other in neighbours if other.name != unit.name for fn in other.functions]
-    assigned = {fn.name for fn in others}
+    across = cfg.functions_of_others(unit.image)
+    assigned = {fn.name for fn in others} | {name for name, _, _ in across}
+    owner = {fn.name: other.name for other in neighbours if other.name != unit.name for fn in other.functions}
     siblings = []
     for other in neighbours:
         sibling = build / f"unit-{other.name}.o"
@@ -64,7 +68,22 @@ def link_alone(cfg, unit, build: Path) -> Path:
             address = symbol_address(other, sym)
             if address is not None and sym.name not in assigned:
                 assigned.add(sym.name)
+                owner[sym.name] = other.name
                 siblings.append((sym.name, address))
+    # Every name this link is given as an address must not be one that the unit's object defines: the
+    # address would override the definition. A whole build rejects the first two kinds before its link,
+    # and its linker the third.
+    own = defined_symbols(obj)
+    errors = symbol_override_errors([unit], {unit.name: own}, cfg.symbol_names)
+    errors += other_image_override_errors([unit], {unit.name: own}, across)
+    errors += [
+        f"unit {unit.name!r} defines {sym.name!r} in {sym.section}, which unit {owner[sym.name]!r} of its image "
+        f"defines too; the address given for it would override the symbol"
+        for sym in own
+        if sym.name in owner
+    ]
+    if errors:
+        raise SystemExit("\n".join(named(unit.image, error) for error in errors))
     script = build / f"unit-{unit.name}.fndiff.ld"
     placed = ""
     for kind, decl in unit.loaded():
@@ -76,6 +95,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
         f'INCLUDE "{cfg.symbols_path}"\n'
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
         + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
+        + "".join(f"{name} = {address:#x};\n" for name, address, _ in across)
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
         + placed
