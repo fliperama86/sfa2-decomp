@@ -577,6 +577,161 @@ fail, as must a differing output and an empty selection.
   C, assembly, rodata, data and raw;
 - overall `exact` flag, image and executable hashes, control results.
 
+## Module images
+
+The build knows two kinds of image. The **resident image** is the payload of
+the baseline executable; everything above describes it. A **module image** is
+one chunk of an archive, which the resident loader copies to a fixed address.
+The [overlay map](overlays.md) describes the archives and the loader's
+tables. Module images are declared. A configuration that declares none
+builds exactly as before, and its report and summary are unchanged.
+
+### Declaration
+
+```toml
+[overlays]
+table_pointers = 0x80001000   # address, inside the resident payload, of the block of table addresses
+
+[[image]]
+name = "example"
+archive = "../extract/EXAMPLE.PAC"
+slot = 0x2a
+sha256 = "<hex of the chunk's bytes>"
+address = 0x80200000
+
+[[unit]]
+name = "unit"
+image = "example"             # the resident image when absent
+source = "example/unit.c"
+functions = [ { name = "function", address = 0x80200000, size = 4 } ]
+```
+
+- `name` follows the rule for a build tag. `resident` is reserved: it names
+  the resident image on the command line and may not be declared.
+- `archive` is a path relative to `build.toml`. The file has the layout that
+  `pac.py` documents and is read with the same reader.
+- The image is the one chunk of that file with table number 0 and the given
+  `slot`. Its payload is the chunk's bytes and covers
+  `[address, address + size of the chunk)`. `sha256` pins those bytes.
+- `address` must equal the entry of the loader's table 0 for that slot. The
+  tables are read from the baseline executable through the block at
+  `table_pointers`, as `pac.py loadmap` reads them.
+
+Every payload byte of a module image has exactly one owner, with the kinds of
+the ownership model: c, asm, rodata, data and raw, and bss outside the
+payload. There is no header. A payload whose size is not a multiple of four
+keeps its last one to three bytes raw.
+
+Rejected before any compilation, with exit status 2:
+
+- an `[[image]]` when `[overlays]` or its `table_pointers` is missing; a
+  `table_pointers` that is not an address of a whole block inside the
+  resident payload, or a block that the table reader rejects;
+- an image name that is not a valid tag, is repeated or is `resident`;
+- an archive that is missing or that the archive reader rejects;
+- no chunk, or more than one chunk, with table number 0 and the slot;
+- a chunk whose SHA-256 differs from `sha256`;
+- an `address` that is not a multiple of four, a slot beyond table 0, or an
+  `address` that differs from the table's entry for the slot;
+- a unit whose `image` names no declared image.
+
+The range rules of the ownership model apply to each image by itself. A
+unit's text, rodata and data ranges must lie inside the payload of its own
+image. Overlap is judged among the units of one image only: units of
+different images may cover the same addresses, as the modules do in memory.
+A bss range must not touch the payload of its own image and must not overlap
+another bss range of the same image. Unit and function names stay unique
+across all images, and no name in `symbols.ld` may be a declared function of
+any image.
+
+### Build
+
+Units are preprocessed, compiled, assembled and checked as objects exactly as
+before, whatever their image. Then each image is linked alone: the resident
+image first, in `build/<tag>/` as before, then each module image in the order
+of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
+`raw.s`, `link.ld`, `image.elf` and `image.bin`. The unit objects stay in
+`build/<tag>/`.
+
+- The raw ranges of a module image are the complement of its units inside
+  its payload.
+- Its link takes the objects of its own units and its raw ranges, includes
+  `symbols.ld`, and treats undefined symbols as errors. It does not see the
+  units of any other image. The resident link does not see module units.
+  Names across images are a later change; until then a module unit can only
+  refer to itself, to the other units of its image and to `symbols.ld`.
+- Every check of the resident image runs for a module image against its own
+  payload: the function, text, rodata, data, bss and symbol checks, image
+  size and SHA-256 against the chunk, and the comparator controls. No
+  executable is rebuilt for a module image, so there is no executable hash.
+- A failure in a module image names it: the message starts with
+  `image '<name>': `.
+- The run is exact only if every image it built is exact.
+
+`--image NAME` builds one image: `resident` or a declared name. Any other
+name is a configuration error with exit status 2. Only the units of that
+image are compiled, and only that image is linked and checked. The baselines
+of all declared images are still validated.
+
+### Report
+
+- `images` is a list with one record per module image that was built, in
+  declaration order: `name`, `archive`, `slot`, `address`, `size`,
+  `baseline_sha256`, `image_sha256`, `exact`, `carriers`, `units`,
+  `coverage`, `bss_bytes` and `controls`. `units`, `bss_bytes` and
+  `controls` have the form of the resident keys of the same name.
+  `coverage` has the resident's keys without `raw_header_bytes`.
+- `carriers` is the number of chunks with table number 0, that slot and the
+  same bytes in the files of the archive's directory that the archive reader
+  accepts. It counts the declared chunk, so it is at least 1.
+- The keys `units`, `coverage`, `bss_bytes`, `image_sha256`,
+  `executable_sha256`, `baseline_executable_sha256` and `controls` at the top
+  of the report describe the resident image and hold only its units. A unit
+  of a module image appears in its image's record and nowhere else.
+- `inputs.sources`, `inputs.preprocessed` and `cache.units` cover every unit
+  that was compiled. `inputs.images` maps each declared image to the SHA-256
+  of its archive file and of its chunk.
+- `selected_image` is present when `--image` was given. With a module image
+  selected the resident keys listed above are absent; with `resident`
+  selected `images` is absent.
+- Without any declared image the report has no `images`, `inputs.images` or
+  `selected_image` key.
+
+The summary gains, per module image, after the resident's lines: one line
+per function and per rodata or data range as for the resident, then lines
+that start with `image <name>` for the count of exact functions, the
+coverage, the image and baseline hashes, the carriers and the comparator
+controls. Without any declared image the summary is unchanged.
+
+### Controls
+
+`test_matchbuild.py` uses synthetic fixtures only: a resident executable
+whose payload holds the block of table addresses and the tables, and
+archives written by the test. It requires failure, with a message that names
+the fault, for: an image without `[overlays]`; a `table_pointers` outside the
+payload; an image named `resident`; a repeated image name; a missing archive;
+an archive with one changed byte in an entry's first-word copy; no chunk with
+the slot; two chunks with the slot; a wrong chunk hash; an address that
+differs from the table; an address that is not a multiple of four; a slot
+beyond the table; a unit with an unknown image; a module unit whose range
+lies outside its image; two overlapping units of one module image; a module
+unit whose bss touches its image's payload; a function name used in the
+resident image and in a module image; a module function with one changed
+instruction, whose failure must name the image and leave the resident image
+exact; a wrong declared size in a module unit; and `--image` with an unknown
+name.
+
+It requires success, with the report checked, for: a module image whose
+whole payload is one C function, with its record, its coverage and a tripped
+function control; a module image with raw bytes around its function and a
+size that is not a multiple of four, with the raw count and a tripped raw
+control; two module images at the same address with different contents, both
+exact; a module unit and a resident unit that cover the same addresses;
+`--image` with a module name, where the resident keys are absent, and with
+`resident`, where `images` is absent; the carriers count with a second
+archive that holds the same bytes and a third that holds others; and the
+unmodified configuration, whose report has no `images` key.
+
 ## Baseline manifest
 
 `baseline.py pin` reads the user's disc image and the audit inventory and writes
@@ -628,6 +783,10 @@ and `--out` does not exist. The merged directory then has to pass
 
 ## Limits
 
-One range of each data kind per unit, no overlay images, no incremental
-builds. Compiler provenance is unchanged from the pilot: a
-compatible toolchain, not a uniquely identified original.
+One range of each data kind per unit, no incremental builds. Module images
+are linked alone: a unit cannot yet refer by name to a unit of another
+image, the second link of the two sides does not exist yet, and `fndiff.py`
+and `mergeunits.py` do not know the `image` key. The
+[proposal](overlay-build-proposal.md) describes those steps. Compiler
+provenance is unchanged from the pilot: a compatible toolchain, not a
+uniquely identified original.

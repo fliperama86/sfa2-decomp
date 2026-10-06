@@ -263,9 +263,11 @@ Next, in this order:
    that is a chunk of an archive instead of the executable, and, as the
    proposed treatment of the two sides, one source linked at two addresses.
    That treatment is an inference from the comparison until both links of
-   a block rebuild exactly. The
-   [proposal](../ps1/docs/overlay-build-proposal.md) is written and lists
-   seven decisions. Nothing is built before the owner decides them.
+   a block rebuild exactly. The owner accepted the design of the
+   [proposal](../ps1/docs/overlay-build-proposal.md) as written on
+   2026-10-06. Open: whether module source is published. The tool changes
+   come in four steps; the first, module images with a chunk baseline, is
+   in the [matching build](../ps1/docs/matching-build.md).
 2. A pilot: one overlay module, or part of one, rebuilt exactly.
 
 Still open in the map itself: how the loader treats the entries without a

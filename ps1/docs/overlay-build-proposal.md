@@ -2,8 +2,12 @@
 
 Parents: [overlay map](overlays.md), [matching build](matching-build.md).
 
-Status: a proposal. Nothing here is built. It asks the owner for the
-decisions listed at the end. Numbers come from the overlay map.
+Status: the owner accepted the design as written on 2026-10-06 and said to
+go ahead. That is read here as decisions 1 to 6 below. Decision 7, whether
+module source is published, was not answered and is needed before the pilot
+units. The build steps follow in separate changes; the
+[matching build](matching-build.md) says what exists. Numbers come from the
+overlay map.
 
 ## What the design has to respect
 
