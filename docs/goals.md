@@ -275,9 +275,12 @@ Next, in this order:
 3. Done: `fndiff.py` compares a unit of a module image with its own
    image, and control cases show that `mergeunits.py` carries the `image`
    key and treats the image tables as base.
-4. The other tool steps of the proposal: names across images, then second
-   links.
-5. A pilot: one overlay module, or part of one, rebuilt exactly.
+4. Done: names across images. Every link is given the declared functions
+   of the other images, so module code and resident code can call each
+   other by name.
+5. The last tool step of the proposal: second links, for the two sides.
+   The first pilot target needs one link only and does not wait for it.
+6. A pilot: one overlay module, or part of one, rebuilt exactly.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 

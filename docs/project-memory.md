@@ -2685,6 +2685,31 @@ Lessons:
   targeted cases only, the whole suite and the real build left to the top
   level. That is the size to aim for.
 
+## Forty-fifth group: names across images
+
+No function count changes in this group: 1,617 functions exact.
+
+What was open: each image was linked alone and saw only its own units and
+`symbols.ld`. Module code that calls the resident image could not link.
+
+What ran:
+
+- Every link is given the declared functions of the units of all other
+  images as absolute addresses, in a file `others.ld` beside its linker
+  script. The addresses come from the configuration, so one image builds
+  alone with all names in reach. Only functions cross images.
+- A name given that way must not be a symbol that an object of the same
+  link defines. The check runs before the link, beside the `symbols.ld`
+  check, and names the symbol, the unit and the declaring image.
+- `fndiff.py` gives the link of one unit alone the same names.
+- Without a declared image nothing is written and the linker script is
+  what it was.
+- `test_matchbuild.py`: 8 new cases, 187 in all.
+
+How the work was split: contract first, then one package for a subagent
+with targeted cases only. It took five minutes. The whole suite and the
+real build ran at the top level.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -777,8 +777,9 @@ code calls a module.
   functions of the units of all other images as absolute addresses. They are
   written to `others.ld` in the directory of the link, one line
   `name = 0x...;` per function, and the linker script includes that file
-  after `symbols.ld`. For a configuration without module images the file is
-  not written and the linker script is unchanged.
+  after `symbols.ld`. With a module image declared the file is written for
+  every link, also when it holds no line. For a configuration without
+  module images it is not written and the linker script is unchanged.
 - The addresses come from the configuration. No other image has to be built
   for them, so `--image` builds one image with every such name in reach.
 - Only declared functions cross images. A variable or table of another image
@@ -874,8 +875,9 @@ image's function is an assigned address. It requires: the whole build
 exact; each image exact when built alone with `--image`; two module images
 at one address that both call the resident function, both exact; a failure
 before the link, naming the symbol, the unit and the declaring image, for a
-module unit that defines a variable with the name of a resident function; a
-failed link, naming the image, for a call of a function that nothing
+module unit that defines a variable with the name of a resident function,
+and the same for a resident unit and a module function, without an image
+in front; a failed link, naming the image, for a call of a function that nothing
 declares; an identical result of `fndiff.py` for the module unit that calls
 the resident function, also with `--rebuild`; and, for the unmodified
 configuration, no `others.ld` and an unchanged linker script.
