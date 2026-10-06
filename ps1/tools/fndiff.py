@@ -98,7 +98,7 @@ def link_alone(cfg, unit, build: Path, second=None) -> Path:
     if errors:
         raise SystemExit("\n".join(named(target, error) for error in errors))
     # The addresses that the unit's image gives names of symbols.ld take their place: they come last.
-    local = next((i.symbols for i in cfg.images if i.name == target), {})
+    local = cfg.local_symbols(target)[0]
     suffix = "" if second is None else f".{second.name}"
     script = build / f"unit-{unit.name}{suffix}.fndiff.ld"
     placed = ""

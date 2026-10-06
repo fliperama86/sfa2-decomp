@@ -443,6 +443,7 @@ class Config:
     units: list[UnitDecl]  # the units of every image
     symbols_path: Path
     symbol_names: list[str]
+    symbol_values: dict[str, int] = dataclasses.field(default_factory=dict)  # the address of each name of symbols.ld
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
     expand_div: bool = False  # run maspsx with --expand-div
@@ -480,6 +481,27 @@ class Config:
         decl = next((i for i in self.images if i.name == image), None)
         skipped = {image} if decl is None or decl.like is None else {image, decl.like}
         return [(fn.name, fn.address, u.image) for u in self.units if u.image not in skipped for fn in u.functions]
+
+    def local_symbols(self, image: str) -> tuple[dict[str, int], dict[str, int]]:
+        """The assignments of local.ld for the link of `image`, and the moved names among them.
+
+        A second link is given every name of symbols.ld whose address lies inside the payload of the image it
+        is like, at that address plus the shift. Its own [image.symbols] come after and win. The second
+        dictionary holds the moved names that were given: not those that the table replaces.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        if decl is None:
+            return {}, {}
+        first = None if decl.like is None else next((i for i in self.images if i.name == decl.like), None)
+        moved: dict[str, int] = {}
+        if first is not None:
+            shift = decl.address - first.address
+            moved = {
+                name: address + shift
+                for name, address in self.symbol_values.items()
+                if first.address <= address < first.address + first.size and name not in decl.symbols
+            }
+        return {**moved, **decl.symbols}, moved
 
     def links_second(self, image: str) -> ImageDecl | None:
         """The declaration of `image` when it is a second link, else None."""
@@ -537,8 +559,8 @@ def _expand(value: str, directory: Path) -> Path:
     return Path(os.path.normpath(path))
 
 
-def parse_symbols(text: str, errors: list[str]) -> list[str]:
-    """Return names assigned in a symbols.ld file (simple `name = value;` lines)."""
+def parse_symbols(text: str, errors: list[str], values: dict[str, int] | None = None) -> list[str]:
+    """Return names assigned in a symbols.ld file (simple `name = value;` lines); `values` gets their addresses."""
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     names: list[str] = []
     for stmt in (s.strip() for s in text.split(";")):
@@ -550,6 +572,8 @@ def parse_symbols(text: str, errors: list[str]) -> list[str]:
             continue
         if match.group(1) in names:
             errors.append(f"symbols.ld: duplicate assignment of {match.group(1)!r}")
+        if values is not None:
+            values[match.group(1)] = int(match.group(2), 0)
         names.append(match.group(1))
     return names
 
@@ -1032,8 +1056,9 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     # symbols.ld
     symbols_path = directory / "symbols.ld"
     symbol_names: list[str] = []
+    symbol_values: dict[str, int] = {}
     try:
-        symbol_names = parse_symbols(symbols_path.read_text(), errors)
+        symbol_names = parse_symbols(symbols_path.read_text(), errors, symbol_values)
     except OSError as exc:
         errors.append(f"cannot read {symbols_path}: {exc}")
     for image in images:
@@ -1086,6 +1111,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         units=units,
         symbols_path=symbols_path,
         symbol_names=symbol_names,
+        symbol_values=symbol_values,
         types_fields=types_fields,
         types_header=types_header,
         expand_div=expand_div,
@@ -2098,7 +2124,7 @@ def build_all(
         try:
             fields, found = link_image(
                 cfg, build, build / f"image-{image.name}", image.address, image.payload,
-                linked, defined, cache_units, assembler, None, image.name, image.symbols,
+                linked, defined, cache_units, assembler, None, image.name, cfg.local_symbols(image.name)[0],
                 others=cfg.link_names(image.name, defined), again=image.like is not None,
             )
         except StepError as exc:
@@ -2126,7 +2152,7 @@ def build_all(
         )
         if image.like is not None:
             first = next(i for i in cfg.images if i.name == image.like)
-            records[-1].update({"like": image.like, "shift": image.address - first.address, "left_out": list(left_out)})
+            records[-1].update({"like": image.like, "shift": image.address - first.address, "left_out": list(left_out), "moved_symbols": cfg.local_symbols(image.name)[1]})
     if cfg.images and selected != RESIDENT:
         report["images"] = records
     return report, failures

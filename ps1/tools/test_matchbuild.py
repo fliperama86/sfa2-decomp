@@ -457,7 +457,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_second_cases(cfg_dir, parsed) + make_second_build_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_second_cases(cfg_dir, parsed) + make_second_build_cases(cfg_dir, parsed) + make_moved_symbol_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -1282,6 +1282,11 @@ IMAGE_CHUNK = bytes(range(1, 17))
 IMAGE_SIZE = len(IMAGE_CHUNK)
 IMAGE_BODY = "int {name}_fn(void) {{ return {value}; }}\n"
 SECOND_SLOT, SECOND_ADDRESS = 2, 0x80800000  # the second link: its slot and its entry in table 0
+MOVED_READER_SIZE = 24  # a function that reads two variables of symbols.ld
+MOVED_TOTAL = 0x60  # the payload of the images of the moved-names fixture: the reader, then raw bytes
+MOVED_OFFSET = 0x40  # the variable inside the payload that no unit owns
+MOVED_OUTSIDE = 0x80400000  # a name of symbols.ld outside both payloads
+MOVED_ELSEWHERE = 0x80500000  # the address that the table of the second link gives the inside name
 TWO_CALLER_SIZE = 48  # the caller of the second-link fixture: it calls a function and reads a variable
 CALLER_SIZE = 32  # a function that calls another: frame, jal and its delay slot, restore, return
 
@@ -1328,6 +1333,15 @@ class ModuleSeeds(SeededFixture):
         ("lone", IMAGE_BODY.format(name="lone", value=3), 20 + TWO_CALLER_SIZE, 8),
     ]
     TWO_SIZE = 28 + TWO_CALLER_SIZE
+    # The unit "reader" reads `inside_var`, which symbols.ld places inside the payload of the first image where no
+    # unit owns the bytes, and `outside_var`, which it places outside. "H" is the first image, "I" the second link
+    # at SECOND_ADDRESS with the inside name moved; "J" reads it at the first address, "K" at MOVED_ELSEWHERE.
+    READER = [("reader", "extern int inside_var;\nextern int outside_var;\n"
+               "int reader_fn(void) { return inside_var + outside_var; }\n", 0, MOVED_READER_SIZE)]
+
+    @staticmethod
+    def reader_symbols(inside: int) -> str:
+        return f"inside_var = {inside:#x};\noutside_var = {MOVED_OUTSIDE:#x};\n"
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -1401,6 +1415,13 @@ class ModuleSeeds(SeededFixture):
         )
         self.chunks["F"] = self._seed_units("F", self.TWO_SIDES, self.TWO_SIZE)
         self.chunks["G"] = self._seed_units("G", self.TWO_SIDES, self.TWO_SIZE, load=SECOND_ADDRESS)
+        for key, load, inside in (
+            ("H", FIXTURE_LOAD, FIXTURE_LOAD + MOVED_OFFSET),
+            ("I", SECOND_ADDRESS, SECOND_ADDRESS + MOVED_OFFSET),
+            ("J", SECOND_ADDRESS, FIXTURE_LOAD + MOVED_OFFSET),
+            ("K", SECOND_ADDRESS, MOVED_ELSEWHERE),
+        ):
+            self.chunks[key] = self._seed_units(key, self.READER, MOVED_TOTAL, self.reader_symbols(inside), load)
         for key, address in zip(("S1", "S2"), self.SYM_ADDRESSES):
             self.chunks[key] = self._seed_units(key, self.SYM, CALLER_SIZE, f"ext_fn = {address:#x};\n")
 
@@ -2199,6 +2220,103 @@ def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("second-link-variable-at-first-address", False, differs.format("caller_fn"),
              install(chunk=patched_variable), verify_fails, status=1),
     ]
+
+
+def install_moved_names(fx, seeds, copy: Path, body: str = "I", table: dict | None = None) -> None:
+    """The fixture of the moved names: one unit that reads a name inside the first image and one outside it."""
+    seeds.prepare()
+    chunk = seeds.chunks[body]
+    second = {"like": "example", **({"symbols": table} if table else {})}
+    fx.install(
+        copy, chunk=seeds.chunks["H"], code=bytes(0), symbols=seeds.reader_symbols(FIXTURE_LOAD + MOVED_OFFSET),
+        images=[
+            fx.image(seeds.chunks["H"]),
+            fx.image(chunk, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS, **second),
+        ],
+        archives={"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, chunk)]))},
+        units=[fx.unit("reader", FIXTURE_LOAD, MOVED_READER_SIZE)],
+        sources={"reader": seeds.READER[0][1]},
+    )
+
+
+def make_moved_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Names of symbols.ld inside the first image move with a second link."""
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+    moved = SECOND_ADDRESS + MOVED_OFFSET
+    record = lambda report, name: next((r for r in report.get("images", []) if r["name"] == name), None)
+
+    def install(body="I", table=None):
+        return lambda copy: install_moved_names(fx, seeds, copy, body, table)
+
+    def exact_both(report):
+        first, second = record(report, "example"), record(report, "second")
+        if first is None or second is None or not (first["exact"] and second["exact"]):
+            return None, "both images must be exact"
+        if "moved_symbols" in first:
+            return None, "an image that is not a second link has no moved_symbols"
+        return second, None
+
+    def verify_moved(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if second.get("moved_symbols") != {"inside_var": moved}:
+            return f"moved_symbols is {second.get('moved_symbols')!r}"
+        return None if second.get("symbols") == {} else f"symbols is {second.get('symbols')!r}"
+
+    def verify_outside(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if "outside_var" in second.get("moved_symbols", {}):
+            return "a name outside the first image's payload is not moved"
+        return None
+
+    def verify_table(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if second.get("moved_symbols") != {} or second.get("symbols") != {"inside_var": MOVED_ELSEWHERE}:
+            return f"moved_symbols {second.get('moved_symbols')!r}, symbols {second.get('symbols')!r}"
+        return None
+
+    def verify_fails(report: dict):
+        first, second = record(report, "example"), record(report, "second")
+        failures = report.get("failures", [])
+        if first is None or not first["exact"] or second is None or second["exact"]:
+            return "the first image must be exact and the second link not"
+        if not failures or not all(f.startswith("image 'second': ") for f in failures):
+            return f"failures must all name the second link: {failures}"
+        return None
+
+    return [
+        Case("second-moved-symbol-exact", True, "", install(), verify_moved),
+        Case("second-moved-symbol-outside-is-not-moved", True, "", install(), verify_outside),
+        Case("second-moved-symbol-read-at-first-address", False, "image 'second': function 'reader_fn': bytes differ",
+             install("J"), verify_fails, status=1),
+        Case("second-moved-symbol-table-wins", True, "", install("K", {"inside_var": MOVED_ELSEWHERE}), verify_table),
+    ]
+
+
+def make_moved_symbol_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+
+    def identical(ctx):
+        install_moved_names(fx, seeds, ctx.copy)
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build must pass: {describe(proc)}"
+        proc = subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "--image", "second", "reader"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the reader as the second link has it must be IDENTICAL: exit {proc.returncode}\n{(proc.stdout + proc.stderr)[-600:]}"
+        return None
+
+    return [CacheCase("second-moved-symbol-fndiff-identical", identical)]
 
 
 def make_second_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
@@ -4052,7 +4170,7 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed) + make_second_fndiff_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed) + make_second_fndiff_cases(cfg_dir, parsed) + make_moved_symbol_fndiff_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
