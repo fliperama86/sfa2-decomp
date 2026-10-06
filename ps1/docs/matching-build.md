@@ -607,7 +607,8 @@ functions = [ { name = "function", address = 0x80200000, size = 4 } ]
 ```
 
 - `name` follows the rule for a build tag. `resident` is reserved: it names
-  the resident image on the command line and may not be declared.
+  the resident image on the command line and in a unit's `image` key, where
+  it means the same as leaving the key out, and it may not be declared.
 - `archive` is a path relative to `build.toml`. The file has the layout that
   `pac.py` documents and is read with the same reader.
 - The image is the one chunk of that file with table number 0 and the given
@@ -625,12 +626,12 @@ keeps its last one to three bytes raw.
 Rejected before any compilation, with exit status 2:
 
 - an `[[image]]` when `[overlays]` or its `table_pointers` is missing; a
-  `table_pointers` that is not an address of a whole block inside the
-  resident payload, or a block that the table reader rejects;
+  `table_pointers` that is not a multiple of four or not an address inside
+  the resident payload, or a block that the table reader rejects;
 - an image name that is not a valid tag, is repeated or is `resident`;
 - an archive that is missing or that the archive reader rejects;
 - no chunk, or more than one chunk, with table number 0 and the slot;
-- a chunk whose SHA-256 differs from `sha256`;
+- a chunk without bytes, or one whose SHA-256 differs from `sha256`;
 - an `address` that is not a multiple of four, a slot beyond table 0, or an
   `address` that differs from the table's entry for the slot;
 - a unit whose `image` names no declared image.
@@ -669,7 +670,8 @@ of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
 - The run is exact only if every image it built is exact.
 
 `--image NAME` builds one image: `resident` or a declared name. Any other
-name is a configuration error with exit status 2. Only the units of that
+name is a configuration error with exit status 2, also when the
+configuration declares no image. Only the units of that
 image are compiled, and only that image is linked and checked. The baselines
 of all declared images are still validated.
 
@@ -711,8 +713,8 @@ archives written by the test. It requires failure, with a message that names
 the fault, for: an image without `[overlays]`; a `table_pointers` outside the
 payload; an image named `resident`; a repeated image name; a missing archive;
 an archive with one changed byte in an entry's first-word copy; no chunk with
-the slot; two chunks with the slot; a wrong chunk hash; an address that
-differs from the table; an address that is not a multiple of four; a slot
+the slot; two chunks with the slot; a chunk without bytes; a wrong chunk
+hash; an address that differs from the table; an address that is not a multiple of four; a slot
 beyond the table; a unit with an unknown image; a module unit whose range
 lies outside its image; two overlapping units of one module image; a module
 unit whose bss touches its image's payload; a function name used in the
@@ -785,8 +787,9 @@ and `--out` does not exist. The merged directory then has to pass
 
 One range of each data kind per unit, no incremental builds. Module images
 are linked alone: a unit cannot yet refer by name to a unit of another
-image, the second link of the two sides does not exist yet, and `fndiff.py`
-and `mergeunits.py` do not know the `image` key. The
+image, and the second link of the two sides does not exist yet. `fndiff.py`
+refuses a unit of a module image, and `mergeunits.py` does not know the
+`image` key. The
 [proposal](overlay-build-proposal.md) describes those steps. Compiler
 provenance is unchanged from the pilot: a compatible toolchain, not a
 uniquely identified original.
