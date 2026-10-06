@@ -106,6 +106,24 @@ def built_code(elf_path: Path) -> tuple[int, bytes, dict[str, tuple[int, int]]]:
 
 
 UNIT_FILES = (".i", ".s", ".gnu.s", ".o", ".compiler.log")
+# What a whole build leaves to say what it found. They describe the objects of that build.
+BUILD_RESULTS = ("report.json", "summary.txt")
+
+
+def publish(scratch: Path, build: Path, unit_name: str, replace=os.replace) -> None:
+    """Move the files of one unit from `scratch` into the build directory.
+
+    The report and the summary of the last whole build go first: once one
+    file of the unit is replaced they no longer describe the directory, and
+    an interruption between two replacements must not leave them behind. If
+    they cannot be removed, nothing is replaced. `replace` moves one file;
+    the controls pass one that fails.
+    """
+    for name in BUILD_RESULTS:
+        (build / name).unlink(missing_ok=True)
+    for ext in UNIT_FILES:
+        if (scratch / f"unit-{unit_name}{ext}").exists():
+            replace(scratch / f"unit-{unit_name}{ext}", build / f"unit-{unit_name}{ext}")
 
 
 def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | None:
@@ -113,9 +131,10 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
 
     The pipeline of a whole build runs here for this unit alone, in a scratch
     directory inside the build directory, so that a failed step leaves the
-    previous object and the report as they were. Prints what fails in the
-    object checks and which way the object came. Returns an exit status when
-    the unit cannot go on, else None.
+    previous object and the report as they were. Once the pipeline has
+    succeeded the report is removed before the first file is replaced: see
+    `publish`. Prints what fails in the object checks and which way the
+    object came. Returns an exit status when the unit cannot go on, else None.
     """
     scratch = build / f".rebuild-{os.getpid()}"
     report = {
@@ -141,14 +160,14 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
                 print(f"FAIL: {reason}")
             print("RESULT: FAIL (the unit's previous object and the report are unchanged)")
             return 1
-        for ext in UNIT_FILES:
-            if (scratch / f"unit-{unit.name}{ext}").exists():
-                os.replace(scratch / f"unit-{unit.name}{ext}", build / f"unit-{unit.name}{ext}")
+        try:
+            publish(scratch, build, unit.name)
+        except OSError as exc:
+            print(f"FAIL: cannot put the files of unit {unit.name!r} into {build}: {exc}")
+            print("RESULT: FAIL (run matchbuild.py again: the build directory may hold files of two builds)")
+            return 1
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
-    # The report and the summary describe a build whose objects are no longer all here.
-    for name in ("report.json", "summary.txt"):
-        (build / name).unlink(missing_ok=True)
     print(f"object of unit {unit.name!r}: cache {report['cache']['units'][unit.name]['cache']}")
     for reason in failures:
         print(f"FAIL: {reason}")

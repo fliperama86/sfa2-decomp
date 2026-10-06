@@ -2603,7 +2603,9 @@ What ran:
   copied.
 - A failed step keeps the previous object and the report: the unit is built
   in a scratch directory and moved into place only when its object exists.
-- `test_matchbuild.py`: 11 new cases, 168 in all, all as required.
+- `test_matchbuild.py`: 15 new cases, 172 in all. The 168 of the first
+  version ran in full and behaved as required; the 4 added in review are
+  cases on one function.
 - The real configuration builds as before: 1,617 of 1,617 functions exact
   and the same report keys.
 
@@ -2611,6 +2613,14 @@ Timed on this machine with `date` around the commands, not printed by any
 tool: a whole build with every object cached 33.7 seconds, one
 `fndiff.py --rebuild` of a real unit 0.72 seconds. The implementer measured
 0.75 seconds when the object was not in the cache.
+
+What review of the pull request found: the report was removed after the
+unit's files had been replaced. An interruption or an error between two
+replacements left the earlier "exact" next to a changed object, which is the
+one thing the removal exists to prevent. The reviewer showed it with an
+interrupt injected after the first replacement. The replacement is now one
+function that removes the report first and replaces nothing if that fails,
+with four cases on it.
 
 What it does not do: decide. Only a whole build says a unit is exact, and
 the removed report keeps an earlier result from being read as one. A changed
@@ -2626,6 +2636,10 @@ Lessons:
 - A comment added to a source file does not change the cache key, because
   the preprocessor drops it. A timing meant to show a cache miss was a hit
   until the change was one the preprocessed text keeps.
+- A safety rule has an order. "The report is removed" was in the contract
+  and had a case; "before anything it describes changes" was in neither.
+  When a rule exists to prevent a state, write down the moment from which
+  that state must be impossible, and test an interruption there.
 - This package ran 74 minutes in the subagent, with the cases, the table of
   disabled rules, a whole suite run and the timings in one brief. That is
   over what one package should take. Split the verification from the

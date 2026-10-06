@@ -357,13 +357,20 @@ read from it. Then it:
 
 1. reads and validates the configuration and checks the toolchain pins, as a
    whole build does;
-2. runs the pipeline of that one unit, with the object cache, and replaces
-   the unit's object, listings and compiler log in the build directory;
-3. runs the object checks of that unit and prints what fails, without
+2. runs the pipeline of that one unit, with the object cache, in a scratch
+   directory inside the build directory;
+3. removes `report.json` and `summary.txt` of the tag: they describe a build
+   whose objects are about to be no longer all in the directory;
+4. replaces the unit's object, listings and compiler log in the build
+   directory with the new ones;
+5. runs the object checks of that unit and prints what fails, without
    stopping, because the diff also works when sizes are wrong;
-4. removes `report.json` and `summary.txt` of the tag: they describe a build
-   whose objects are no longer all in the directory;
-5. links the unit alone and prints the diff, as without `--rebuild`.
+6. links the unit alone and prints the diff, as without `--rebuild`.
+
+The order of steps 3 and 4 is the point. The report goes before the first
+file is replaced, so an interruption or an error between two replacements
+cannot leave an earlier "exact" next to a changed object. If the report
+cannot be removed, nothing is replaced.
 
 No other unit is compiled, no image is linked and no control runs. A fault
 in another unit's source does not stop it. `--reference`, `--cache` and
@@ -381,7 +388,9 @@ and says to run `matchbuild.py` first. An object of another unit that is
 missing there is treated as without `--rebuild`: it contributes nothing, and
 a reference to it fails the link. A failed step of the unit's pipeline or a
 failed pin check ends it with status 1 and leaves the unit's previous object
-and the tag's report in place. A unit that is refused before the compiler,
+and the tag's report in place: nothing has left the scratch directory then.
+A failure while the files are replaced also ends it with status 1; the
+report is already gone and the message says to run `matchbuild.py` again. A unit that is refused before the compiler,
 for a floating-point token or inline assembly, counts as a failed step.
 
 A unit of a module image is refused, with and without `--rebuild`.
@@ -584,6 +593,11 @@ failure and still a diff; no effect of a syntax error in the other unit; a
 cache hit on the second run and "off" with `--no-cache`; exit status 2 for a
 unit that does not exist, for a unit of a module image, and for a cache
 option without `--rebuild`.
+
+Cases on the replacement step alone require: the report and the summary
+gone and both files new after it ran; the report and the summary gone when
+it is interrupted after the first file, and when the first replacement
+fails; and no file replaced when the report cannot be removed.
 
 `test_matchbuild.py` runs the tool against temporary copies of the
 configuration and requires failure for: the `[selftest]` source mutation, a

@@ -25,6 +25,7 @@ import time
 import tomllib
 from pathlib import Path
 
+import fndiff
 import matchbuild
 import structgen
 from test_disc_tools import make_archive, make_executable
@@ -2104,6 +2105,94 @@ TWO_BETA = "int beta(void) { return 9; }\n"
 TWO_BROKEN = "int alpha(void) { return 7 }\n"
 
 
+def make_publish_unit_cases() -> list[CacheCase]:
+    """`fndiff.publish`: the report of the last whole build goes before any file of the unit is replaced."""
+
+    def setup(root: Path) -> tuple[Path, Path]:
+        build, scratch = root / "build", root / "scratch"
+        for folder, word in ((build, b"old"), (scratch, b"new")):
+            folder.mkdir()
+            for ext in (".s", ".o"):
+                (folder / f"unit-u{ext}").write_bytes(word + ext.encode())
+        for name in fndiff.BUILD_RESULTS:
+            (build / name).write_text("exact")
+        return build, scratch
+
+    def state(build: Path) -> dict:
+        found = {name: (build / name).exists() for name in fndiff.BUILD_RESULTS}
+        found.update({ext: (build / f"unit-u{ext}").read_bytes()[:3].decode() for ext in (".s", ".o")})
+        return found
+
+    def failing(after: int, error: BaseException):
+        """A replacement that works `after` times and then raises."""
+        done = []
+
+        def replace(source, dest):
+            if len(done) == after:
+                raise error
+            done.append(dest)
+            os.replace(source, dest)
+
+        return replace
+
+    def whole(root: Path):
+        build, scratch = setup(root)
+        fndiff.publish(scratch, build, "u")
+        want = {"report.json": False, "summary.txt": False, ".s": "new", ".o": "new"}
+        return None if state(build) == want else f"after a publication the directory holds {state(build)}"
+
+    def interrupted(root: Path):
+        """An interruption after the first file is in place: the report must already be gone."""
+        build, scratch = setup(root)
+        try:
+            fndiff.publish(scratch, build, "u", replace=failing(1, KeyboardInterrupt()))
+        except KeyboardInterrupt:
+            pass
+        else:
+            return "the interruption did not reach the caller"
+        found = state(build)
+        if found["report.json"] or found["summary.txt"]:
+            return f"an interrupted publication left the report of the earlier build: {found}"
+        if sorted([found[".s"], found[".o"]]) != ["new", "old"]:
+            return f"the fixture did not stop between the two files: {found}"
+        return None
+
+    def replace_error(root: Path):
+        build, scratch = setup(root)
+        try:
+            fndiff.publish(scratch, build, "u", replace=failing(0, OSError("no space")))
+        except OSError:
+            pass
+        else:
+            return "the error did not reach the caller"
+        want = {"report.json": False, "summary.txt": False, ".s": "old", ".o": "old"}
+        return None if state(build) == want else f"after a failed first replacement the directory holds {state(build)}"
+
+    def report_stays(root: Path):
+        """The report cannot be removed (it is a directory here): no file of the unit may be replaced."""
+        build, scratch = setup(root)
+        (build / "report.json").unlink()
+        (build / "report.json").mkdir()
+        try:
+            fndiff.publish(scratch, build, "u")
+        except OSError:
+            pass
+        else:
+            return "a report that cannot be removed must stop the publication"
+        found = state(build)
+        if found[".s"] != "old" or found[".o"] != "old" or not (scratch / "unit-u.o").exists():
+            return f"a file was replaced although the report could not be removed: {found}"
+        return None
+
+    table = [
+        ("publish-removes-report-and-replaces", whole),
+        ("publish-interrupted-between-files", interrupted),
+        ("publish-replacement-fails", replace_error),
+        ("publish-report-cannot-be-removed", report_stays),
+    ]
+    return [CacheCase(name, body) for name, body in table]
+
+
 def make_fndiff_cases(parsed: dict) -> list[CacheCase]:
     """`fndiff.py --rebuild`: one unit through the pipeline of a whole build, then the object checks and the diff."""
     flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
@@ -2967,7 +3056,7 @@ def main() -> int:
     caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
-        + make_comparison_unit_cases() + make_runner_unit_cases(config_path), args.only
+        + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)
