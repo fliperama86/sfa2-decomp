@@ -18,9 +18,12 @@ directory holds:
 
 - `build.toml`: units and their functions (name, address, size).
 - `types.fields`: field table for shared structs. The build generates
-  `types.gen.h` from it. Never write a shared struct by hand in C.
+  `types.gen.h` from it. Never write a shared struct by hand in C. The one
+  exception is `PrimTag` in `game.h`: it has bit-fields, which the field
+  table cannot express.
 - `symbols.ld`: address of every symbol not defined by a unit.
-- `object.h`, `game.h`: includes, externs and prototypes only.
+- `object.h`, `game.h`: includes, externs and prototypes only, and that
+  one type.
 - one `.c` file per unit.
 
 ## Loop
@@ -118,6 +121,22 @@ operations, or anything whose only purpose is to steer the compiler and that
 a reader could not take for ordinary code. If nothing else works, stop and
 report.
 
+One dummy construct is accepted, and only this one: an unused local array
+that makes the function reserve the stack space that the original reserves
+and never uses. It is the last resort for a function whose only difference
+is the size of its frame, after the ordinary reasons for a larger frame
+have been looked for and not found: a local whose address is taken, a
+struct held on the stack, the argument area of a call with more than four
+arguments. It is named `unused`, and this comment stands above it:
+
+```c
+/* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
+```
+
+The comment means what it says. An exact build with the array shows that
+this source is compatible with the original's bytes, not what the original
+source had there. `grep -rn "unused\[" src` lists the uses.
+
 ## What this compiler does
 
 GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
@@ -156,6 +175,47 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   unsigned 16-bit local, and separate locals for the product and its copy
   did not. One function is thin evidence: try the spellings, do not treat
   this as a mapping.
+- The first word of a drawing primitive and of an ordering-table entry
+  holds the address of the next entry in its low 24 bits and a length in
+  its high 8. Where the listing masks such a word with `0xffffff` and
+  `0xff000000` and ORs the halves together, write a bit-field store through
+  `PrimTag` of `game.h`, not the masks:
+
+  ```c
+  ((PrimTag *)p)->addr = (u32)next;              /* link p to next */
+  ((PrimTag *)p)->addr = ((PrimTag *)ot)->addr;  /* add p to the entry ot: */
+  ((PrimTag *)ot)->addr = (u32)p;                /* two statements, this order */
+  ```
+
+  Masks written by hand gave the same instructions with the two constants
+  in each other's registers, or with a load on the other side of a store,
+  in the functions of the module of slot `0x12` that were tried both ways.
+  The SDK's header, as the reference project has it, declares this word
+  with bit-fields and stores through them in its macros. `PrimTag` is this
+  project's own declaration of the layout; that the original used the
+  SDK's macros is an inference from the code they give.
+- Two variables that hold one pointer are two registers to the compiler
+  while it orders instructions (inferred from what it emits). A store
+  through one and a load through the other stay in source order; through
+  one name the load moves ahead of the store when that fills a load delay.
+  One function was rebuilt only from
+
+  ```c
+  other->sequence = obj->sequence;   /* other is a global: store through it */
+  p = other;                         /* then read it into a local */
+  if (p->side != 0) { ... }
+  f(p, ...);
+  ```
+
+  where `p = other; p->sequence = ...;` and the global at every use both
+  differed. The signs in a listing: a load that stays behind a store to
+  another offset of the same register, with a `nop` before it that it
+  could have filled; the pointer in a register that is not the argument
+  register, passed with a `move` in the delay slot of the call; one load
+  of the pointer where reading the global at every use gives two. The
+  same form through a parameter and a local copy of it, made after the
+  first use, decided one more function. A local copy made before the
+  first use is merged away and changes nothing.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

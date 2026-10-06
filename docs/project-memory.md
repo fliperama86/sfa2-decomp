@@ -3688,6 +3688,131 @@ Lesson:
   comes at the seams: tables and calls between batches. Give the next
   round one named view of the module's objects before it starts.
 
+## Sixty-second group: a third overlay module, the one of slot 0x12
+
+The owner's choice of 2026-10-06, more overlay modules, continued with the
+one content of slot `0x12`: 120,192 bytes at `0x80010000`, 187 functions by
+the sweep, carried by 42 archives. It is the image `slot12` of the build,
+taken from `CONT00.PAC`.
+
+Counts, from the build:
+
+- Module image `slot12`: 177 of the 187 functions are exact, 26,016 of
+  29,928 bytes. One unit owns 24 bytes of read-only data. 94,152 bytes of
+  the chunk are retained raw. 179 comparator controls trip.
+- 10 functions are parked with candidates, 3,912 bytes.
+- The resident image and the other four module images are unchanged:
+  1,747 functions, the same hash; `slot2a` 25, `slot0b` 54, `slot16` 11,
+  `slot17` 11.
+- 104 unit files, 160 symbols and 15 structs with 104 lines of the field
+  table are new.
+
+What ran:
+
+- A first round of fifteen agents, one batch each: 158 of 187 exact by
+  each batch's own module build.
+- The merge of the fifteen batches failed with 12 conflicts in the field
+  table, all of them between views of the module's records: one view of
+  the object with two sizes, one offset with two types, one struct name
+  for records of two sizes, two sets of field names for one record. An
+  agent resolved them by fixed rules (the base's line stays; the object's
+  view has the object's size; a name used for two records keeps the one
+  more units use; the type more units use stays and the other units cast)
+  with every batch's functions still exact, and then aligned the
+  declarations across the merged units.
+- Second attempts on the 29 parked functions, one agent each: 19 more
+  exact. Some got a third message when a new form was found.
+
+Two source forms were found at the top level, each after an agent had
+reported some twenty forms without effect, and each decided more than the
+function it was found on. Both are in the matching guide now:
+
+- The tag word of a primitive is a bit-field store. Masks written by hand
+  gave the right instructions with the two constants in each other's
+  registers. `game.h` declares `PrimTag` for it, the one shared type that
+  is written by hand, because the field table has no bit-fields. Four
+  units of this module use it.
+- A pointer held in two variables keeps a store through one and a load
+  through the other in source order, and decides which register the
+  pointer gets. The explanation is an inference from what the compiler
+  emits.
+
+Neither form has been tried on what was parked before: the 76 game
+functions of the resident image, the 7 of `slot0b`, and the 3 of
+`slot2a`. Some of those candidates mask tag words by hand.
+
+The stand-in for an unused stack frame:
+
+- Seven functions of this module are exact only with it: six from the
+  second attempts and one from the first round, where the array had
+  another name. The tree has 18 now.
+- The sixty-first group says the matching guide allows the stand-in. It
+  did not at that time: the guide forbade dummy constructs without naming
+  an exception, and only the twenty-fifth group of this file recorded
+  that this one is accepted. The guide states the exception now, with the
+  condition (the ordinary reasons for a larger frame looked for first)
+  and the fixed comment. Two older units had the array without the
+  comment; they have it now.
+- Seven of 187 is a lot for one module. The agents looked for a local
+  whose address is taken, a struct on the stack and a call with more than
+  four arguments, and found none. What the original source had there is
+  not known.
+
+The ten that stay parked, by their agents' reports: two keep stores and
+loads in an order that no form reproduced, where the function has only
+its parameter to reach the object; three differ in the registers or the
+place of a few values with the size right; one lacks a register copy
+after an addition;
+one needs a value in a saved register across a call that nothing in the
+candidate keeps alive; one lacks a second load of a global and the early
+zero of an argument; one loads a halfword unsigned and then sign-extends
+it where every form gives one signed load; and the largest, 800 bytes,
+has the right size and frame and about 50 differing slots.
+
+Two control cases of `test_matchbuild.py` had been failing on the main
+branch, and this round found it:
+
+- The suite starts from the real configuration. Two of its cases remove
+  the module images from a copy and expect the build to behave as it did
+  before images existed. The helper that removes them dropped `[[image]]`
+  tables and kept a table inside one. The pilot of slot `0x17` put the
+  first such table, `[image.symbols]`, into the real configuration, and
+  from that commit on both cases failed: what was left was no valid
+  configuration.
+- The suite's last full run on record is from before that commit. None
+  of the twelve pull requests after it changed the tool or its suite,
+  and the suite was not run in full for them. A copy of the main
+  branch's source fails the same two cases, so this change did not cause
+  it.
+- The helper drops the tables inside an image now, and a case of the
+  suite gives it a text with two images, each with a table inside, and
+  requires what is left to parse and to hold no image. The helper as it
+  was leaves a text that does not parse on that input. 234 cases, all as
+  required.
+
+Lessons:
+
+- A suite that starts from the real configuration is a check of the
+  configuration too. Run `test_matchbuild.py` in full when `build.toml`
+  gains a kind of table or key it did not have, not only when the tool
+  changes. A new image is such a change.
+- Naming the module's view of its objects in the brief was not enough.
+  Fifteen batches still gave it two sizes and gave one name to records of
+  different sizes. Before the next module's round, put the view's struct
+  line with its size into the base, and tell the batches to name a new
+  record type after the table it describes, not after what it looks like.
+- A candidate's saved struct lines go stale when the merge renames or
+  retypes what they rely on. The second attempts got a note that listed
+  every change; no agent stopped on it.
+- When an agent reports many spellings without effect, the residual is
+  usually not about spelling. Both forms came from asking what would have
+  to be true of the source for the compiler to behave as the listing
+  shows, with one listing and ten minutes, not from more attempts. Pass
+  the form on at once, to agents that can be resumed and to those not
+  yet started: here it decided four more functions.
+- A count typed into a brief is a claim like any other. The brief for the
+  last pass said 177 before the build had printed it; it did print 177.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
