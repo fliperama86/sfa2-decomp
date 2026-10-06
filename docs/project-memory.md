@@ -2645,6 +2645,35 @@ Lessons:
   over what one package should take. Split the verification from the
   implementation next time, or cut the package in two.
 
+## Forty-fourth group: module images in the diff and merge tools
+
+No function count changes in this group: 1,617 functions exact.
+
+What was open: `fndiff.py` refused a unit of a module image, and the pages
+said that `mergeunits.py` did not know the `image` key.
+
+What ran:
+
+- `fndiff.py` compares a unit of a module image with the payload of its own
+  image, beside the units of that image, with and without `--rebuild`. A
+  failure of such a unit names the image.
+- `mergeunits.py` needed no change. It writes back every key of a new unit
+  table and treats every other table that differs from the base as a
+  conflict. The sentence in the pages was wrong; five cases now show what
+  it does for module images.
+- `test_matchbuild.py`: 176 cases. The refusal case went and five came for
+  module units in the loop. `test_mergeunits.py`: 39 cases, 5 new.
+
+Lessons:
+
+- "The tool does not know this key" was written without reading the tool.
+  It was a guess from the list of keys an older sentence named. Read the
+  code before a page says what a tool cannot do, as before it says what a
+  tool can.
+- The package for `fndiff.py` took the subagent three minutes: one tool,
+  targeted cases only, the whole suite and the real build left to the top
+  level. That is the size to aim for.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

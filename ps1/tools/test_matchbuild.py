@@ -2433,6 +2433,19 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the scratch directory is left: {leftovers(ctx)}"
         return None
 
+    def module_wrong_size(ctx):
+        """A failed object check of a module unit names the image too, and the diff is still printed."""
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        declared = f'name = "mod_fn", address = {FIXTURE_LOAD:#x}, size = '
+        ctx.config.write_text(replace_once(ctx.config.read_text(), declared + "8", declared + "4", "the size of the module function"))
+        proc = rebuild(ctx, "mod")
+        out = proc.stdout
+        if "FAIL: image 'example': unit 'mod': text size mismatch" not in out or "differing instruction slots" not in out:
+            return f"the failed object check must name the image and the diff must still be printed: {say(proc)}"
+        return None
+
     def module_calls_sibling(ctx):
         seeds.prepare()
         images.install(
@@ -2473,6 +2486,7 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-module-unit-baseline", module_baseline),
         CacheCase("fndiff-rebuild-module-unit", module_rebuild),
         CacheCase("fndiff-rebuild-module-syntax-error", module_syntax_error),
+        CacheCase("fndiff-rebuild-module-wrong-size", module_wrong_size),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
     ]

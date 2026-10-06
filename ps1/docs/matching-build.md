@@ -564,7 +564,10 @@ declared data, with coverage, the data record and a tripped data control; data
 that ends short of a word; a unit with declared bss that its code refers to;
 and an assembly unit next to a C unit, whose functions count as assembly and
 not as C and whose control trips. `test_mergeunits.py` requires that `kind`,
-`data` and `bss` of a new unit table survive a merge unchanged.
+`data` and `bss` of a new unit table survive a merge unchanged. For module
+images it requires that the `image` key of a new unit survives with the
+base's image tables unchanged, and a conflict when a unit directory adds,
+changes or drops an `[[image]]` table or changes `[overlays]`.
 
 For symbol ownership it requires failure for: a bss range declared at another
 address while `symbols.ld` assigns the unit's two bss variables their old
@@ -601,9 +604,9 @@ resident unit at the same addresses and other bytes. It requires: an
 identical result for the module unit after a whole build, which a
 comparison with the resident payload could not give; with `--rebuild`, a
 different result after a change of the module unit's source and an
-identical one after it is restored; a failed step that names the image; and
-an identical result for a module unit that calls a function of another unit
-of its image.
+identical one after it is restored; a failed step and a failed object check
+that each name the image; and an identical result for a module unit that
+calls a function of another unit of its image.
 
 Cases on the replacement step alone require: the report and the summary
 gone and both files new after it ran; the report and the summary gone when
