@@ -344,7 +344,7 @@ inventory and 69 not, 416 together, of which the build has 386.
 The table is the state when the functions were sorted. A round on the 133
 game functions that the build did not have followed, and second attempts
 on what it parked. The same command now prints 130 of the 134 as in the
-build, among them all 15 without a counted reference, and 1,360 game
+build, among them all 15 without a counted reference, and 1,367 game
 functions in the build.
 
 What this sorts out:
