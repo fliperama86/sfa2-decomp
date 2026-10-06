@@ -76,18 +76,18 @@ function of the build is a start of it.
 | Family | Library functions | Game functions that call it directly | Game functions that reach it |
 | --- | ---: | ---: | ---: |
 | C library | 9 | 0 | 0 |
-| disc | 44 | 18 | 88 |
+| disc | 46 | 18 | 88 |
 | files | 7 | 0 | 0 |
 | graphics | 97 | 47 | 141 |
 | memory card | 7 | 1 | 4 |
 | pads | 3 | 1 | 3 |
-| sound | 164 | 15 | 180 |
+| sound | 165 | 16 | 184 |
 | system | 47 | 12 | 47 |
 | threads | 3 | 6 | 51 |
-| unidentified | 35 | 11 | 165 |
+| unidentified | 32 | 11 | 161 |
 
-Of the 381 library functions with a family, 39 have it by name, 5 by BIOS
-call, 316 by folder and 21 by place.
+Of the 384 library functions with a family, 31 have it by name, 5 by BIOS
+call, 333 by folder and 15 by place.
 
 - 91 game functions call a library function directly.
 - 1,117 game functions reach no library function. 830 of them are closed:
@@ -117,17 +117,22 @@ Only a reference to the start of a function counts. A reference with an
 offset, such as a call to a name plus four, is to another place and is
 left out, and so is one whose offset the tool cannot establish.
 
-Of the 416 library functions, a unit under `sdk/` declares 327 itself. 28
+Of the 416 library functions, a unit under `sdk/` declares 344 itself. 20
 others are referred to by such units, each under one name, and no function
-under two. 61 have no name. The command lists the 28 with the number of
+under two. 52 have no name. The command lists the 20 with the number of
 units that refer to each.
+
+The names by reference were 28 at first. Eight of those functions have
+since been taken from the reference's source, and each builds exact under
+the very name by which other units referred to it: the two kinds of
+evidence agree where both exist.
 
 What such a name shows: at an exact place, the reference's source refers
 to the function under that name. It does not show that the name is the
 original symbol. A reference that names the wrong function at its only
 place of use would go unnoticed.
 
-The family table lists the 28 names with the family of the reference file
+The family table lists the 20 names with the family of the reference file
 that defines each. One of them, `SpuInitHot`, has no such file in the
 reference; its family is taken from its name.
 
@@ -154,7 +159,7 @@ code that several contents share is counted once in each.
 | graphics | 97 | 597 |
 | memory card | 1 | 13 |
 | pads | 0 | 0 |
-| sound | 0 | 2,595 |
+| sound | 0 | 2,599 |
 | system | 8 | 201 |
 | threads | 0 | 194 |
 | unidentified | 7 | 2,721 |
@@ -170,14 +175,14 @@ code that several contents share is counted once in each.
   resident game code reaches it through them or not at all.
 - The game uses the thread calls of the BIOS: 6 game functions call them
   directly and 51 reach them.
-- 35 library functions have no family. By the rows of `--library-out`,
-  26 are declared by the build outside `sdk/` under a placeholder name and
-  9 are not in the build. 165 game functions reach one of them.
-  They were 116 when the table was first made. 32 of them have since been
+- 32 library functions have no family. By the rows of `--library-out`,
+  24 are declared by the build outside `sdk/` under a placeholder name and
+  8 are not in the build. 161 game functions reach one of them.
+  They were 116 when the table was first made. 49 of them have since been
   replaced by the reference's source for the same function, which builds
-  to the same bytes, and carry its name and its library's family. 28 more
-  have a name by reference. 21 have a family by place and no name: 12
-  graphics, 5 disc and 4 sound.
+  to the same bytes, and carry its name and its library's family: 32 in a
+  first step and 17 in a second. 20 more have a name by reference. 15 have
+  a family by place and no name: 12 graphics and 3 disc.
 - Inferred, not established: an unidentified function probably belongs to
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is

@@ -345,10 +345,12 @@ chose the first on 2026-10-06:
   now come from the reference's source for the same function, with its
   name. 28 more have a name by reference: units built from the
   reference's source call them under it, and `librefs.py` lists that from
-  the build. 21 more have a family by their place between two functions
-  of one reference file, an inference, and no name yet. 35 are left
-  without a family: 26 that the build has under a placeholder name and 9
-  that it does not have.
+  the build. 21 more got a family by their place between two functions
+  of one reference file, an inference. Then 17 more were taken from the
+  reference's source, placed by what they call. Now 384 of the 416 library
+  functions have a family and 364 have a name. 32 are left without a
+  family: 24 that the build has under a placeholder name and 8 that it
+  does not have.
 - Not decided: more overlay modules as images of the build.
 - Not decided: second attempts, in the form that recovered 11 of 15, on
   the 72 older parked game functions.

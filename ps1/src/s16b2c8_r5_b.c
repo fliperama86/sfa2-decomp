@@ -25,7 +25,3 @@ void func_8016d13c(int a) {
         data_80183168 = 1;
     }
 }
-
-int func_8016d168(void) {
-    return data_80183168 == 0;
-}

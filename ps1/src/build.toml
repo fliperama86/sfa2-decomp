@@ -2328,9 +2328,6 @@ name = "s15bfe8_r9"
 source = "s15bfe8_r9.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8015c938", address = 0x8015c938, size = 32 },
-  { name = "func_8015c958", address = 0x8015c958, size = 32 },
-  { name = "func_8015c978", address = 0x8015c978, size = 24 },
   { name = "func_8015c990", address = 0x8015c990, size = 24 },
   { name = "func_8015c9a8", address = 0x8015c9a8, size = 24 },
 ]
@@ -2340,7 +2337,6 @@ name = "s15bfe8_r10"
 source = "s15bfe8_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8015ce04", address = 0x8015ce04, size = 32 },
   { name = "func_8015ce24", address = 0x8015ce24, size = 32 },
   { name = "func_8015ce44", address = 0x8015ce44, size = 128 },
 ]
@@ -3030,19 +3026,7 @@ name = "s15c6b0_r4"
 source = "s15c6b0_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801656ac", address = 0x801656ac, size = 32 },
-  { name = "func_801656cc", address = 0x801656cc, size = 32 },
   { name = "func_801656ec", address = 0x801656ec, size = 164 },
-  { name = "func_80165790", address = 0x80165790, size = 32 },
-]
-
-[[unit]]
-name = "s15c6b0_r4_b"
-source = "s15c6b0_r4_b.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016582c", address = 0x8016582c, size = 20 },
-  { name = "func_80165840", address = 0x80165840, size = 16 },
 ]
 
 
@@ -3050,31 +3034,10 @@ functions = [
 
 
 
-[[unit]]
-name = "s15c6b0_r9_b"
-source = "s15c6b0_r9_b.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_801681dc", address = 0x801681dc, size = 32 },
-  { name = "func_801681fc", address = 0x801681fc, size = 32 },
-]
 
 
-[[unit]]
-name = "s1682d0_r2"
-source = "s1682d0_r2.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_801688f4", address = 0x801688f4, size = 20 },
-]
 
-[[unit]]
-name = "s1682d0_r3"
-source = "s1682d0_r3.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80168a14", address = 0x80168a14, size = 16 },
-]
+
 
 [[unit]]
 name = "s1682d0_r4"
@@ -3086,13 +3049,6 @@ functions = [
 
 
 
-[[unit]]
-name = "s1682d0_r7"
-source = "s1682d0_r7.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80169b24", address = 0x80169b24, size = 44 },
-]
 
 
 
@@ -3107,13 +3063,6 @@ functions = [
 
 
 
-[[unit]]
-name = "s16b2c8_r4"
-source = "s16b2c8_r4.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016cc94", address = 0x8016cc94, size = 32 },
-]
 
 
 [[unit]]
@@ -3123,7 +3072,6 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8016d0dc", address = 0x8016d0dc, size = 96 },
   { name = "func_8016d13c", address = 0x8016d13c, size = 44 },
-  { name = "func_8016d168", address = 0x8016d168, size = 16 },
 ]
 
 
@@ -7864,17 +7812,28 @@ name = "sdk_libcd_sys_p1"
 source = "sdk/libcd/sys_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
+  { name = "CdStatus", address = 0x8015c804, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libcd_sys_p2"
+source = "sdk/libcd/sys_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
   { name = "CdReset", address = 0x8015c824, size = 108 },
   { name = "CdFlush", address = 0x8015c890, size = 32 },
   { name = "CdSetDebug", address = 0x8015c8b0, size = 24 },
   { name = "CdComstr", address = 0x8015c8c8, size = 56 },
   { name = "CdIntstr", address = 0x8015c900, size = 56 },
+  { name = "CdSync", address = 0x8015c938, size = 32 },
+  { name = "CdReady", address = 0x8015c958, size = 32 },
+  { name = "CdSyncCallback", address = 0x8015c978, size = 24 },
 ]
 rodata = { address = 0x8016df0c, size = 8 }
 
 [[unit]]
-name = "sdk_libcd_sys_p2"
-source = "sdk/libcd/sys_p2.c"
+name = "sdk_libcd_sys_p3"
+source = "sdk/libcd/sys_p3.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "CdControl", address = 0x8015c9c0, size = 328 },
@@ -7883,11 +7842,12 @@ functions = [
   { name = "CdMix", address = 0x8015cd98, size = 36 },
   { name = "CdGetSector", address = 0x8015cdbc, size = 36 },
   { name = "CdDataCallback", address = 0x8015cde0, size = 36 },
+  { name = "CdDataSync", address = 0x8015ce04, size = 32 },
 ]
 
 [[unit]]
-name = "sdk_libcd_sys_p3"
-source = "sdk/libcd/sys_p3.c"
+name = "sdk_libcd_sys_p4"
+source = "sdk/libcd/sys_p4.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "CdIntToPos", address = 0x8015cec4, size = 260 },
@@ -7980,6 +7940,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libsnd_play_p1"
+source = "sdk/libsnd/play_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndPlay", address = 0x80169b24, size = 44 },
+]
+
+[[unit]]
 name = "sdk_libsnd_seqread_p1"
 source = "sdk/libsnd/seqread_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -8013,11 +7981,21 @@ functions = [
 rodata = { address = 0x8016e438, size = 140 }
 
 [[unit]]
+name = "sdk_libsnd_ssquit_p1"
+source = "sdk/libsnd/ssquit_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsQuit", address = 0x80165790, size = 32 },
+]
+
+[[unit]]
 name = "sdk_libsnd_ssstart_p1"
 source = "sdk/libsnd/ssstart_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "_SsStart", address = 0x8016541c, size = 656 },
+  { name = "SsStart", address = 0x801656ac, size = 32 },
+  { name = "SsStart2", address = 0x801656cc, size = 32 },
 ]
 
 [[unit]]
@@ -8042,6 +8020,38 @@ source = "sdk/libsnd/ssvol_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "SsSeqSetVol", address = 0x80164ec0, size = 48 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_roff_p1"
+source = "sdk/libsnd/ut_roff_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtReverbOff", address = 0x801681fc, size = 32 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_ron_p1"
+source = "sdk/libsnd/ut_ron_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtReverbOn", address = 0x801681dc, size = 32 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vm_doff_p1"
+source = "sdk/libsnd/vm_doff_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmDamperOff", address = 0x80168a14, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vm_don_p1"
+source = "sdk/libsnd/vm_don_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmDamperOn", address = 0x801688f4, size = 20 },
 ]
 
 [[unit]]
@@ -8104,6 +8114,31 @@ functions = [
   { name = "SsUtAutoVol", address = 0x80164b14, size = 84 },
   { name = "SsUtAutoPan", address = 0x80164b68, size = 84 },
   { name = "SsUtAllKeyOff", address = 0x80164bbc, size = 504 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vs_mono_p1"
+source = "sdk/libsnd/vs_mono_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSetMono", address = 0x8016582c, size = 20 },
+  { name = "SsSetStereo", address = 0x80165840, size = 16 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_i_p1"
+source = "sdk/libspu/s_i_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuInit", address = 0x8016cc94, size = 32 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_it_p1"
+source = "sdk/libspu/s_it_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_getInTransfer", address = 0x8016d168, size = 16 },
 ]
 
 [[unit]]
