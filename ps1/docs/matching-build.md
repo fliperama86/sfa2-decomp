@@ -754,10 +754,9 @@ of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
   raw. That holds for the resident image too when every unit belongs to a
   module image.
 - Its link takes the objects of its own units and its raw ranges, includes
-  `symbols.ld`, and treats undefined symbols as errors. It does not see the
-  units of any other image. The resident link does not see module units.
-  Names across images are a later change; until then a module unit can only
-  refer to itself, to the other units of its image and to `symbols.ld`.
+  `symbols.ld`, and treats undefined symbols as errors. No object of another
+  image takes part in it, and the resident link takes no object of a module
+  unit. What a link knows of the other images is in "Names across images".
 - Every check of the resident image runs for a module image against its own
   payload: the function, text, rodata, data, bss and symbol checks, image
   size and SHA-256 against the chunk, and the comparator controls. No
@@ -767,6 +766,36 @@ of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
   its units, whose own text follows unchanged. A failure of the resident
   image reads as before.
 - The run is exact only if every image it built is exact.
+
+### Names across images
+
+A unit may refer by name to a function that a unit of another image
+declares. That is how module code calls the resident image and how resident
+code calls a module.
+
+- Every link, the resident's and each module image's, is given the declared
+  functions of the units of all other images as absolute addresses. They are
+  written to `others.ld` in the directory of the link, one line
+  `name = 0x...;` per function, and the linker script includes that file
+  after `symbols.ld`. For a configuration without module images the file is
+  not written and the linker script is unchanged.
+- The addresses come from the configuration. No other image has to be built
+  for them, so `--image` builds one image with every such name in reach.
+- Only declared functions cross images. A variable or table of another image
+  is reached through `symbols.ld`, as before.
+- Two names may have one address: module images overlap in memory.
+- A name given this way must not be a global or weak symbol that an object
+  of the same link defines. Function and unit names are unique across
+  images, so this can only be a variable or table of a unit that has the
+  name of another image's function. The assignment would override the
+  unit's definition, which is the fault the `symbols.ld` rule rejects. It is
+  checked with that rule, before the link, and fails the build with a
+  message that names the symbol, the unit and object section that define
+  it, and the image that declares the function.
+- A name that no unit of any image declares and `symbols.ld` does not
+  assign is undefined and fails the link, as before.
+- `fndiff.py` gives the link of one unit alone the declared functions of the
+  other images in the same way.
 
 `--image NAME` builds one image: `resident` or a declared name. Any other
 name is a configuration error with exit status 2, also when the
@@ -839,6 +868,18 @@ exact; a module unit and a resident unit that cover the same addresses;
 archive that holds the same bytes and a third that holds others; and the
 unmodified configuration, whose report has no `images` key.
 
+For names across images it uses a resident unit and a module unit that call
+each other's function, with baselines from seed builds in which the other
+image's function is an assigned address. It requires: the whole build
+exact; each image exact when built alone with `--image`; two module images
+at one address that both call the resident function, both exact; a failure
+before the link, naming the symbol, the unit and the declaring image, for a
+module unit that defines a variable with the name of a resident function; a
+failed link, naming the image, for a call of a function that nothing
+declares; an identical result of `fndiff.py` for the module unit that calls
+the resident function, also with `--rebuild`; and, for the unmodified
+configuration, no `others.ld` and an unchanged linker script.
+
 Cases on the comparison alone, without a build, require of what it reports
 as failures: nothing for an equal image; the line for the whole image, and
 no other, for a changed retained byte; the function and the image for a
@@ -899,8 +940,8 @@ and `--out` does not exist. The merged directory then has to pass
 ## Limits
 
 One range of each data kind per unit, no incremental builds. Module images
-are linked alone: a unit cannot yet refer by name to a unit of another
-image, and the second link of the two sides does not exist yet. The
+are linked alone, and the second link of the two sides does not exist yet.
+The
 [proposal](overlay-build-proposal.md) describes those steps. Compiler
 provenance is unchanged from the pilot: a compatible toolchain, not a
 uniquely identified original.
