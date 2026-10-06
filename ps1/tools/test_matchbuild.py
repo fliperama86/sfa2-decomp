@@ -16,6 +16,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -1237,18 +1238,79 @@ def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
 
 
 # Synthetic module images: table 0 of the loader holds four addresses, the block of table
-# addresses follows a gap in the resident payload, and one archive holds one chunk.
+# addresses follows a gap in the resident payload, and an archive holds a few chunks.
 IMAGE_POINTERS = FIXTURE_LOAD + 0x100
 IMAGE_TABLE0 = [0x80700000, FIXTURE_LOAD, 0x80800000, 0x80900000]
 IMAGE_CHUNK = bytes(range(1, 17))
 IMAGE_SIZE = len(IMAGE_CHUNK)
+IMAGE_BODY = "int {name}_fn(void) {{ return {value}; }}\n"
+
+
+class ModuleSeeds(SeededFixture):
+    """Chunks that the toolchain itself produces, so that a module image can be exact.
+
+    Each chunk is the image of a seed build over a payload of zeros: a
+    function that returns a number, at an offset in a payload of a given size.
+    "A" is the function alone, "B" the same with another number, and "C" the
+    function with four raw bytes before it and three after it.
+    """
+
+    label = "module-image"
+    SEEDS = {"A": (7, 0, 8), "B": (9, 0, 8), "C": (7, 4, 15)}
+
+    def __init__(self, cfg_dir: Path, parsed: dict):
+        self.cfg_dir = cfg_dir
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+        self.toolchain = fixture_toolchain(parsed)
+        self.chunks: dict[str, bytes] = {}
+
+    def _seed(self, key: str, value: int, offset: int, total: int) -> bytes:
+        name = f"{self.label}-{key}"
+        copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
+        build = self.cfg_dir.parent / "build" / f"selftest-{name}"
+        cache = self.cfg_dir.parent / "build" / f".selftest-cache-{name}"
+        for leftover in (copy, build, cache):
+            if leftover.exists():
+                shutil.rmtree(leftover)
+        copy.mkdir()
+        try:
+            (copy / "value.c").write_text(IMAGE_BODY.format(name="value", value=value))
+            (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+            executable = fixture_executable(bytes(total))
+            (copy / "baseline.bin").write_bytes(executable)
+            (copy / "build.toml").write_text(
+                "[baseline]\n"
+                'executable = "baseline.bin"\n'
+                f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+                + toml_table("toolchain", self.toolchain)
+                + "[[unit]]\n"
+                'name = "value"\n'
+                'source = "value.c"\n'
+                f"flags = [{self.flags}]\n"
+                f'functions = [ {{ name = "value_fn", address = {FIXTURE_LOAD + offset:#x}, size = 8 }} ]\n'
+            )
+            proc = run_tool(copy / "build.toml", f"selftest-{name}", cache)
+            image = build / "image.bin"
+            if not image.is_file() or image.stat().st_size != total:
+                raise SystemExit(f"test setup: the module seed build produced no image:\n{proc.stdout}{proc.stderr}")
+            return image.read_bytes()
+        finally:
+            for leftover in (copy, build, cache):
+                if leftover.exists():
+                    shutil.rmtree(leftover, ignore_errors=True)
+
+    def _prepare(self) -> None:
+        if self.chunks:
+            return
+        self.chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
 
 
 class ImageFixture:
-    """A resident executable with the loader's tables, an archive and one module unit.
+    """A resident executable with the loader's tables, archives and module units.
 
-    The resident unit and the module unit cover the same addresses. Nothing is
-    compiled: the controls here fail, or stop, before the first compiler run.
+    The resident unit and the module unit cover the same addresses. The
+    controls that stop at the configuration compile nothing; the others use the
+    chunks of `ModuleSeeds` and the resident bytes `code` at the load address.
     """
 
     def __init__(self, parsed: dict):
@@ -1268,22 +1330,37 @@ class ImageFixture:
         )
 
     @staticmethod
-    def image(**overrides) -> dict:
-        return {"name": "example", "archive": "EXAMPLE.PAC", "slot": 1, "sha256": hashlib.sha256(IMAGE_CHUNK).hexdigest(),
+    def image(chunk: bytes = IMAGE_CHUNK, **overrides) -> dict:
+        return {"name": "example", "archive": "EXAMPLE.PAC", "slot": 1, "sha256": hashlib.sha256(chunk).hexdigest(),
                 "address": FIXTURE_LOAD, **overrides}
 
+    @staticmethod
+    def executable(code: bytes) -> bytes:
+        """The resident executable: `code` at the load address, then the tables and the block of their addresses."""
+        data = bytearray(make_executable(FIXTURE_LOAD + len(code), IMAGE_POINTERS, [IMAGE_TABLE0, [0x80A00000, 0]]))
+        struct.pack_into("<II", data, 0x18, FIXTURE_LOAD, len(data) - 0x800 + len(code))
+        return bytes(data[:0x800]) + code + bytes(data[0x800:])
+
     def install(self, copy: Path, *, overlays: bool = True, pointers: int = IMAGE_POINTERS, images=None,
-                archive=None, units=None) -> None:
-        """Replace the copy with the fixture. `archive` None writes the default archive, False writes none."""
+                archive=None, archives=None, chunk: bytes = IMAGE_CHUNK, units=None, code: bytes = b"",
+                sources=None) -> None:
+        """Replace the copy with the fixture.
+
+        `archive` None writes the default archive, False writes none.
+        `archives` maps further file names to their bytes, `sources` maps unit
+        names to the text of their source, and `code` is the resident prefix.
+        """
         for child in copy.iterdir():
             shutil.rmtree(child) if child.is_dir() else child.unlink()
-        executable = make_executable(FIXTURE_LOAD, IMAGE_POINTERS, [IMAGE_TABLE0, [0x80A00000, 0]])
+        executable = self.executable(code)
         (copy / "baseline.bin").write_bytes(executable)
         (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
         if archive is None:
-            archive = bytes(make_archive([(1, IMAGE_CHUNK), ((1 << 16) | 2, bytes(8))]))
+            archive = bytes(make_archive([(1, chunk), ((1 << 16) | 2, bytes(8))]))
         if archive is not False:
             (copy / "EXAMPLE.PAC").write_bytes(archive)
+        for name, data in (archives or {}).items():
+            (copy / name).write_bytes(data)
         text = (
             "[baseline]\n"
             'executable = "baseline.bin"\n'
@@ -1292,20 +1369,25 @@ class ImageFixture:
         )
         if overlays:
             text += f"[overlays]\ntable_pointers = {pointers:#x}\n\n"
-        for image in [self.image()] if images is None else images:
+        for image in [self.image(chunk)] if images is None else images:
             text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in image.items()) + "\n"
         units = [self.unit("res", FIXTURE_LOAD, image=None), self.unit("mod", FIXTURE_LOAD)] if units is None else units
         for unit in units:
             name = re.search(r'name = "(\w+)"', unit).group(1)
-            (copy / f"{name}.c").write_text("int f(void) { return 1; }\n")
-            text += unit
+            body = (sources or {}).get(name, IMAGE_BODY.format(name=name, value=7))
+            (copy / f"{name}.c").write_text(body)
+            text += unit.replace('source = "', f'flags = [{self.flags}]\nsource = "', 1)
         (copy / "build.toml").write_text(text)
 
 
 def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
-    """Declaration and validation of module images. Every control here is a configuration error."""
+    """Module images: the declaration, then the build and its report."""
     fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
     unit = fx.unit
+    other = "other"
+    build_dir = lambda report: cfg_dir.parent / "build" / report["tag"]
+    resident_keys = ("units", "coverage", "bss_bytes", "image_sha256", "executable_sha256", "baseline_executable_sha256", "controls")
 
     def install(**options):
         return lambda copy: fx.install(copy, **options)
@@ -1318,13 +1400,171 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     def refuses(name, reason, **options):
         return Case(f"image-{name}", False, reason, install(**options), status=2)
 
-    def verify_not_built(report: dict):
-        if report.get("failures") != ["module images are not built yet: this tool only validates their declaration"]:
-            return f"the run must fail only for the missing build of module images: {report.get('failures')}"
-        return None
-
     def wrong_chunk(copy: Path):
         fx.install(copy, images=[fx.image(sha256="0" * 64)])
+
+    # Builds. The resident unit returns 7 and the resident code is the chunk "A".
+    res = lambda: unit("res", FIXTURE_LOAD, 8, image=None)
+    mod = lambda **kw: unit("mod", FIXTURE_LOAD, 8, **kw)
+
+    def built(chunk="A", **options):
+        """A mutate function: the fixture over one of the seeded chunks, with the resident code."""
+        def mutate(copy: Path):
+            seeds.prepare()
+            fx.install(copy, chunk=seeds.chunks[chunk], code=seeds.chunks["A"], **options)
+
+        return mutate
+
+    def two_images(copy: Path, **options):
+        seeds.prepare()
+        fx.install(
+            copy,
+            chunk=seeds.chunks["A"],
+            code=seeds.chunks["A"],
+            images=[fx.image(seeds.chunks["A"]), fx.image(seeds.chunks["B"], name=other, archive="OTHER.PAC")],
+            archives={"OTHER.PAC": bytes(make_archive([(1, seeds.chunks["B"])]))},
+            units=[res(), mod(), unit("mod2", FIXTURE_LOAD, 8, image=other)],
+            sources={"mod2": IMAGE_BODY.format(name="mod2", value=9)},
+            **options,
+        )
+
+    def differences(actual: dict, want: dict) -> list[str]:
+        return [f"{key} is {actual.get(key)!r}, wanted {value!r}" for key, value in want.items() if actual.get(key) != value]
+
+    def record(report: dict, name: str = "example"):
+        return next((r for r in report.get("images", []) if r["name"] == name), None)
+
+    def exact_resident(report: dict) -> list[str]:
+        problems = []
+        if report.get("executable_sha256") != report.get("baseline_executable_sha256"):
+            problems.append("the resident executable is not exact")
+        if not all(f["exact"] for u in report.get("units", []) for f in u["functions"]):
+            problems.append("a resident function is not exact")
+        return problems
+
+    def verify_whole_c(report: dict):
+        sha = hashlib.sha256(seeds.chunks["A"]).hexdigest()
+        rec = record(report)
+        if rec is None or len(report["images"]) != 1:
+            return f"expected one record named 'example': {report.get('images')}"
+        problems = differences(rec, {
+            "slot": 1, "address": FIXTURE_LOAD, "size": 8, "baseline_sha256": sha, "image_sha256": sha,
+            "exact": True, "carriers": 1, "bss_bytes": 0,
+        })
+        problems += differences(rec["coverage"], {
+            "c_bytes": 8, "c_functions": 1, "asm_bytes": 0, "raw_payload_bytes": 0, "raw_ranges": 0,
+        })
+        if "raw_header_bytes" in rec["coverage"]:
+            problems.append("a module image has no header: raw_header_bytes must be absent")
+        if [u["name"] for u in rec["units"]] != ["mod"]:
+            problems.append(f"units of the record: {[u['name'] for u in rec['units']]}")
+        kinds = [(c["kind"], c["applicable"], c["tripped"]) for c in rec["controls"]]
+        if kinds != [("function", True, True), ("raw", False, False)]:
+            problems.append(f"controls: {kinds}")
+        if report["units"] or report["coverage"]["raw_header_bytes"] != HEADER_SIZE:
+            problems.append("the top level must describe the resident image alone, which has no unit here")
+        if report["inputs"]["images"].get("example", {}).get("chunk") != sha:
+            problems.append(f"inputs.images: {report['inputs'].get('images')}")
+        if "selected_image" in report:
+            problems.append("selected_image without --image")
+        problems += exact_resident(report)
+        out = build_dir(report)
+        missing = [n for n in ("payload.bin", "raw.s", "link.ld", "image.elf", "image.bin") if not (out / "image-example" / n).is_file()]
+        if missing or not (out / "unit-mod.o").is_file() or (out / "image-example" / "unit-mod.o").exists():
+            problems.append(f"files of the module image: missing {missing}, objects in the wrong place")
+        return "; ".join(problems) or None
+
+    def verify_raw_around(report: dict):
+        rec = record(report)
+        if rec is None:
+            return "no record"
+        problems = differences(rec, {"size": 15, "exact": True})
+        problems += differences(rec["coverage"], {"c_bytes": 8, "raw_payload_bytes": 7, "raw_ranges": 2})
+        kinds = [(c["kind"], c["applicable"], c["tripped"]) for c in rec["controls"]]
+        if kinds != [("function", True, True), ("raw", True, True)]:
+            problems.append(f"controls: {kinds}")
+        return "; ".join(problems) or None
+
+    def verify_two_images(report: dict):
+        names = [r["name"] for r in report.get("images", [])]
+        if names != ["example", other]:
+            return f"records in declaration order: {names}"
+        a, b = record(report), record(report, other)
+        problems = [] if a["exact"] and b["exact"] else ["both images must be exact"]
+        if a["address"] != b["address"] or a["image_sha256"] == b["image_sha256"]:
+            problems.append("the images must share an address and differ in content")
+        problems += exact_resident(report)
+        if sorted(report["inputs"]["sources"]) != ["mod", "mod2", "res"]:
+            problems.append(f"sources: {sorted(report['inputs']['sources'])}")
+        return "; ".join(problems) or None
+
+    def verify_same_addresses(report: dict):
+        rec = record(report)
+        if rec is None or not rec["exact"] or [u["name"] for u in report["units"]] != ["res"]:
+            return f"record {rec and rec['exact']}, resident units {[u['name'] for u in report['units']]}"
+        if rec["units"][0]["range"] != report["units"][0]["range"]:
+            return "the two units must cover the same addresses"
+        return "; ".join(exact_resident(report)) or None
+
+    def verify_selected_module(report: dict):
+        problems = []
+        if report.get("selected_image") != "example":
+            problems.append(f"selected_image is {report.get('selected_image')!r}")
+        present = [k for k in resident_keys if k in report]
+        if present:
+            problems.append(f"resident keys present: {present}")
+        if [r["name"] for r in report.get("images", [])] != ["example"] or not record(report)["exact"]:
+            problems.append(f"images: {[r['name'] for r in report.get('images', [])]}")
+        if sorted(report["inputs"]["sources"]) != ["mod"] or sorted(report["inputs"]["images"]) != ["example", other]:
+            problems.append(f"inputs: {sorted(report['inputs']['sources'])}, {sorted(report['inputs']['images'])}")
+        out = build_dir(report)
+        if (out / "unit-res.o").exists() or (out / "unit-mod2.o").exists() or (out / "image.bin").exists():
+            problems.append("only the selected image may be compiled and linked")
+        return "; ".join(problems) or None
+
+    def verify_selected_resident(report: dict):
+        problems = []
+        if report.get("selected_image") != "resident":
+            problems.append(f"selected_image is {report.get('selected_image')!r}")
+        if "images" in report:
+            problems.append("images present with the resident image selected")
+        absent = [k for k in resident_keys if k not in report]
+        if absent:
+            problems.append(f"resident keys absent: {absent}")
+        if sorted(report["inputs"]["sources"]) != ["res"] or sorted(report["inputs"]["images"]) != ["example", other]:
+            problems.append(f"inputs: {sorted(report['inputs']['sources'])}, {sorted(report['inputs']['images'])}")
+        out = build_dir(report)
+        if (out / "unit-mod.o").exists() or (out / "image-example").exists():
+            problems.append("module units must not be compiled or linked")
+        return "; ".join(problems) or None
+
+    def verify_changed(report: dict):
+        problems = exact_resident(report)
+        rec = record(report)
+        if rec is None or rec["exact"]:
+            problems.append("the module record must say that the image is not exact")
+        if not report["failures"] or not all(f.startswith("image 'example': ") for f in report["failures"]):
+            problems.append(f"failures must all name the image: {report['failures']}")
+        return "; ".join(problems) or None
+
+    def carriers(copy: Path):
+        seeds.prepare()
+        a, b = seeds.chunks["A"], seeds.chunks["B"]
+        fx.install(
+            copy, chunk=a, code=a, units=[res(), mod()],
+            archives={
+                "SECOND.PAC": bytes(make_archive([(1, a)])),  # the same bytes: counted
+                "THIRD.PAC": bytes(make_archive([(1, b), ((1 << 16) | 1, a), (3, a)])),  # others in the slot, table 1, slot 3
+                "BAD.PAC": bytes(10),  # rejected by the archive reader: ignored
+            },
+        )
+
+    def verify_carriers(report: dict):
+        rec = record(report)
+        return None if rec and rec["carriers"] == 2 else f"carriers: {rec and rec['carriers']}, wanted 2"
+
+    def changed_instruction(copy: Path):
+        built("A", units=[res(), mod()], sources={"mod": IMAGE_BODY.format(name="mod", value=8)})(copy)
 
     return [
         refuses("without-overlays", "needs an [overlays] section", overlays=False),
@@ -1338,6 +1578,8 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
                 archive=bytes(make_archive([((1 << 16) | 1, IMAGE_CHUNK)]))),
         refuses("two-chunks-with-slot", "has 2 chunks with table number 0 and slot 0x1",
                 archive=bytes(make_archive([(1, IMAGE_CHUNK), (1, IMAGE_CHUNK)]))),
+        refuses("chunk-without-bytes", "has no bytes", archive=bytes(make_archive([(1, b"")])),
+                images=[fx.image(b"")]),
         Case("image-wrong-chunk-hash", False, "chunk sha256 mismatch", wrong_chunk, status=2),
         refuses("address-differs-from-table", "differs from entry 0x1 of table 0", images=[fx.image(address=FIXTURE_LOAD + 4)]),
         refuses("address-not-word", "is not a multiple of four", images=[fx.image(address=FIXTURE_LOAD + 2)]),
@@ -1354,12 +1596,22 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
                 units=[unit("res", FIXTURE_LOAD, image=None),
                        unit("mod", FIXTURE_LOAD).replace('name = "mod_fn"', 'name = "res_fn"')]),
         Case("image-selected-unknown", False, "names no declared image", install(), status=2, extra=("--image", "absent")),
-        # The same addresses in two images are not an overlap. The run then stops at the missing build.
-        Case("image-declared-same-addresses", False, "module images are not built yet", install(), verify_not_built, status=1),
-        Case("image-selected-resident", False, "module images are not built yet", install(), verify_not_built, status=1,
-             extra=("--image", "resident")),
-        Case("image-selected-declared", False, "module images are not built yet", install(), verify_not_built, status=1,
-             extra=("--image", "example")),
+        Case("image-selected-unknown-without-images", False, "names no declared image", status=2, extra=("--image", "absent")),
+        # Failures of a module image name it and leave the resident image alone.
+        Case("image-build-changed-instruction", False, "image 'example': function 'mod_fn': bytes differ",
+             changed_instruction, verify_changed, status=1),
+        Case("image-build-wrong-unit-size", False, "image 'example': unit 'mod': text size mismatch",
+             built("A", units=[res(), unit("mod", FIXTURE_LOAD, 4)]), status=1),
+        # Builds that must be exact.
+        Case("image-build-whole-c-function", True, "", built("A", units=[mod()]), verify_whole_c),
+        Case("image-build-raw-bytes-around", True, "",
+             built("C", units=[res(), unit("mod", FIXTURE_LOAD + 4, 8)]), verify_raw_around),
+        Case("image-build-same-addresses-as-resident", True, "", built("A", units=[res(), mod()]), verify_same_addresses,
+             fndiff=("mod", 2, "belongs to module image 'example'")),
+        Case("image-build-two-images-same-address", True, "", two_images, verify_two_images),
+        Case("image-build-selected-module", True, "", two_images, verify_selected_module, extra=("--image", "example")),
+        Case("image-build-selected-resident", True, "", two_images, verify_selected_resident, extra=("--image", "resident")),
+        Case("image-build-carriers", True, "", carriers, verify_carriers),
     ]
 
 

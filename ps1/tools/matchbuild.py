@@ -694,6 +694,9 @@ def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list
             )
             continue
         payload = data[found[0]["offset"] : found[0]["offset"] + found[0]["size"]]
+        if not payload:
+            errors.append(f"{where}: the chunk in {image.archive.name} has no bytes")
+            continue
         if sha256(payload) != image.sha256:
             errors.append(f"{where}: chunk sha256 mismatch: chunk is {sha256(payload)}, configuration pins {image.sha256}")
             continue
@@ -1240,15 +1243,18 @@ def elf_function_checks(elf_path: Path, units: list[UnitDecl]) -> list[str]:
     return errors
 
 
-def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, int]]) -> None:
+def generate_raw_and_linker(
+    cfg: Config, build: Path, load: int, units: list[UnitDecl], ranges: list[tuple[int, int]]
+) -> None:
+    """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image."""
     raw_lines = []
     for index, (address, size) in enumerate(ranges):
         raw_lines.append(f'.section .raw{index},"a",@progbits')
-        raw_lines.append(f'.incbin "payload.bin", {address - cfg.load}, {size}')
+        raw_lines.append(f'.incbin "payload.bin", {address - load}, {size}')
     (build / "raw.s").write_text("\n".join(raw_lines) + "\n")
 
     entries = [(address, f".raw{index}", f"*(.raw{index})", "") for index, (address, _) in enumerate(ranges)]
-    for unit in cfg.units:
+    for unit in units:
         patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS["text"])
         entries.append((unit.start, f".text.{unit.name}", patterns, ""))
         for kind, decl in unit.loaded():
@@ -1513,28 +1519,179 @@ def cache_store(
                 pass
 
 
+def count_carriers(image: ImageDecl) -> int:
+    """The chunks with table number 0, the image's slot and the image's bytes, in the files of the archive's directory.
+
+    The files are the `*.PAC` files below the directory of the declared
+    archive, as `pac.py` finds them, and the declared archive itself. A file
+    that the archive reader rejects takes no part.
+    """
+    files = {p.resolve() for p in image.archive.parent.rglob("*.PAC")} | {image.archive.resolve()}
+    count = 0
+    for path in sorted(files):
+        try:
+            data = path.read_bytes()
+            chunks = pac.chunk_table(data)
+        except (OSError, pac.FormatError):
+            continue
+        count += sum(
+            1
+            for c in chunks
+            if c["table"] == 0 and c["slot"] == image.slot and c["size"] == image.size
+            and data[c["offset"] : c["offset"] + c["size"]] == image.payload
+        )
+    return count
+
+
+def link_image(
+    cfg: Config,
+    build: Path,
+    outdir: Path,
+    load: int,
+    payload: bytes,
+    units: list[UnitDecl],
+    defined: dict[str, list[DefinedSymbol]],
+    cache_units: dict,
+    assembler: str,
+    header: bytes | None = None,
+) -> tuple[dict, list[str]]:
+    """Link one image alone from its unit objects in `build` and check it against its payload.
+
+    The files of the link go to `outdir`, which is `build` for the resident
+    image. With a `header` the executable is rebuilt and compared too. Returns
+    the fields shared by the reports of every image and the failures, which
+    do not name the image.
+    """
+    failures: list[str] = []
+    outdir.mkdir(exist_ok=True)
+    (outdir / "payload.bin").write_bytes(payload)
+    prefix = cfg.binutils_prefix
+    where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
+    ranges = raw_ranges(load, len(payload), units)
+    generate_raw_and_linker(cfg, outdir, load, units, ranges)
+    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
+    objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
+    run(
+        [prefix + "ld", "-EL", "-T", f"{where}link.ld", "-e", f"{load:#x}", "-o", f"{where}image.elf", *objects],
+        cwd=build,
+        step="link",
+    )
+    run([prefix + "objcopy", "-O", "binary", "image.elf", "image.bin"], cwd=outdir, step="objcopy")
+    image = (outdir / "image.bin").read_bytes()
+    executable = b""
+    if header is not None:
+        executable = header + image
+        (outdir / "rebuilt.exe").write_bytes(executable)
+
+    failures += elf_function_checks(outdir / "image.elf", units)
+    failures += elf_symbol_checks(outdir / "image.elf", units, defined)
+    comparison = compare_image(image, payload, load, units)
+    for fn in comparison.functions:
+        if not fn.exact:
+            failures.append(
+                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
+                f"({fn.equal_words}/{fn.total_words} words equal)"
+            )
+    for ro in comparison.rodata + comparison.data:
+        if not ro.exact:
+            failures.append(
+                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
+                f"(range {ro.address:#x}, {ro.size} bytes)"
+            )
+    if not comparison.image_exact:
+        failures.append(
+            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
+            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
+        )
+    exe_sha = sha256(executable)
+    if header is not None and exe_sha != cfg.baseline_sha256:
+        failures.append(f"executable sha256 mismatch: rebuilt {exe_sha}, baseline {cfg.baseline_sha256}")
+
+    # Controls are only meaningful against an image that matches.
+    if comparison.image_exact:
+        controls = run_controls(image, payload, load, units)
+        for control in controls:
+            if control["applicable"] and not control["tripped"]:
+                failures.append(f"comparator control did not trip: {control['kind']} {control['target']}: {control['detail']}")
+    else:
+        controls = []
+
+    c_units = [u for u in units if u.kind == "c"]
+    asm_units = [u for u in units if u.kind == "asm"]
+    c_bytes = sum(u.end - u.start for u in c_units)
+    asm_bytes = sum(u.end - u.start for u in asm_units)
+    rodata_bytes = sum(u.rodata.size for u in units if u.rodata is not None)
+    data_bytes = sum(u.data.size for u in units if u.data is not None)
+    coverage = {
+        "c_bytes": c_bytes,
+        "c_functions": sum(len(u.functions) for u in c_units),
+        "asm_bytes": asm_bytes,
+        "asm_functions": sum(len(u.functions) for u in asm_units),
+        "rodata_bytes": rodata_bytes,
+        "data_bytes": data_bytes,
+        "raw_payload_bytes": len(payload) - c_bytes - asm_bytes - rodata_bytes - data_bytes,
+    }
+    if header is not None:
+        coverage["raw_header_bytes"] = HEADER_SIZE
+    coverage["raw_ranges"] = len(ranges)
+    fields = {
+        "units": [
+            {
+                "name": u.name,
+                "kind": u.kind,
+                "cache": cache_units[u.name]["cache"],
+                "cache_key": cache_units[u.name]["key"],
+                "range": [u.start, u.end],
+                "functions": [dataclasses.asdict(f) for f in comparison.functions if f.unit == u.name],
+                "rodata": next((dataclasses.asdict(r) for r in comparison.rodata if r.unit == u.name), None),
+                "data": next((dataclasses.asdict(r) for r in comparison.data if r.unit == u.name), None),
+                "bss": dataclasses.asdict(u.bss) if u.bss is not None else None,
+            }
+            for u in units
+        ],
+        "coverage": coverage,
+        "bss_bytes": sum(u.bss.size for u in units if u.bss is not None),
+        "image_sha256": comparison.image_sha256,
+        "baseline_sha256": comparison.baseline_sha256,
+        "executable_sha256": exe_sha,
+        "controls": controls,
+    }
+    return fields, failures
+
+
 def build_all(
-    cfg: Config, tag: str, build: Path, cache_dir: Path | None = None, report: dict | None = None
+    cfg: Config,
+    tag: str,
+    build: Path,
+    cache_dir: Path | None = None,
+    report: dict | None = None,
+    selected: str | None = None,
 ) -> tuple[dict, list[str]]:
     """Run the pipeline. Returns the report and the list of failure reasons.
 
     `cache_dir` is the object cache, None to disable it. A caller may pass the
     report so that a step failure still leaves what was recorded so far.
+    `selected` builds one image only: RESIDENT or a declared module image.
     """
     failures: list[str] = []
     if report is None:
         report = {"tag": tag}
     report["tag"] = tag
-    if cfg.images:
-        # Package B builds module images; until it does, a configuration that declares one must not pass.
-        return report, ["module images are not built yet: this tool only validates their declaration"]
+    if selected is not None and cfg.images:
+        report["selected_image"] = selected
+    build_resident = selected in (None, RESIDENT)
+    built_units = cfg.units if selected is None else cfg.units_of(selected)
     report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
         "symbols": file_sha(cfg.symbols_path),
         "baseline": sha256(cfg.baseline),
-        "sources": {u.name: file_sha(_expand(u.source, cfg.directory)) for u in cfg.units},
+        "sources": {u.name: file_sha(_expand(u.source, cfg.directory)) for u in built_units},
     }
+    if cfg.images:
+        report["inputs"]["images"] = {
+            i.name: {"archive": file_sha(i.archive), "chunk": sha256(i.payload)} for i in cfg.images
+        }
 
     include_args: list = []
     if cfg.types_fields is not None:
@@ -1560,19 +1717,20 @@ def build_all(
     maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
 
     payload = cfg.payload
-    (build / "payload.bin").write_bytes(payload)
+    if build_resident:
+        (build / "payload.bin").write_bytes(payload)  # also written by the link; an early failure still leaves it
 
-    prefix = cfg.binutils_prefix
     assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
-    for unit in cfg.units:
+    failures_by_unit: dict[str, list[str]] = {}
+    for unit in built_units:
         source = _expand(unit.source, cfg.directory)
         pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
         if unit.kind == "asm":
             # Assembled as written: no preprocessing, compiler, maspsx or cache.
             run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
             report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
-            failures += check_unit_object(obj, unit)
+            failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
             continue
         run(
             [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
@@ -1583,14 +1741,14 @@ def build_all(
         if cfg.cc1.no_float:
             token = find_float(pre.read_text(errors="replace"))
             if token:
-                failures.append(
+                failures_by_unit.setdefault(unit.name, []).append(
                     f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
                 continue
         token = find_inline_asm(pre.read_text(errors="replace"))
         if token:
-            failures.append(
+            failures_by_unit.setdefault(unit.name, []).append(
                 f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
                 f"code that was assembly goes into an assembly unit (kind = \"asm\")"
             )
@@ -1621,107 +1779,113 @@ def build_all(
                     cache_store(cache_dir, key, inputs, obj, asm, gnu)
                 except OSError:
                     pass  # an unwritable cache must not fail the build
-        failures += check_unit_object(obj, unit)
+        failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
+    failures = [
+        named(unit.image, reason) for unit in built_units for reason in failures_by_unit.get(unit.name, [])
+    ]
     if failures:
         return report, failures
-    defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in cfg.units}
-    failures += symbol_override_errors(cfg.units, defined, cfg.symbol_names)
+    defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in built_units}
+    for image in dict.fromkeys(unit.image for unit in built_units):
+        failures += [
+            named(image, reason)
+            for reason in symbol_override_errors(
+                [u for u in built_units if u.image == image], defined, cfg.symbol_names
+            )
+        ]
     if failures:
         return report, failures
 
-    ranges = raw_ranges(cfg.load, cfg.payload_size, cfg.units)
-    generate_raw_and_linker(cfg, build, ranges)
-    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
-    objects = [f"unit-{u.name}.o" for u in cfg.units] + ["raw.o"]
-    run(
-        [prefix + "ld", "-EL", "-T", "link.ld", "-e", f"{cfg.load:#x}", "-o", "image.elf", *objects],
-        cwd=build,
-        step="link",
-    )
-    run([prefix + "objcopy", "-O", "binary", "image.elf", "image.bin"], cwd=build, step="objcopy")
-    image = (build / "image.bin").read_bytes()
-    executable = cfg.header + image
-    (build / "rebuilt.exe").write_bytes(executable)
-
-    failures += elf_function_checks(build / "image.elf", cfg.units)
-    failures += elf_symbol_checks(build / "image.elf", cfg.units, defined)
-    comparison = compare_image(image, payload, cfg.load, cfg.units)
-    for fn in comparison.functions:
-        if not fn.exact:
-            failures.append(
-                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
-                f"({fn.equal_words}/{fn.total_words} words equal)"
-            )
-    for ro in comparison.rodata + comparison.data:
-        if not ro.exact:
-            failures.append(
-                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
-                f"(range {ro.address:#x}, {ro.size} bytes)"
-            )
-    if not comparison.image_exact:
-        failures.append(
-            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
-            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
+    cache_units = report["cache"]["units"]
+    if build_resident:
+        fields, found = link_image(
+            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header
         )
-    exe_sha = sha256(executable)
-    if exe_sha != cfg.baseline_sha256:
-        failures.append(f"executable sha256 mismatch: rebuilt {exe_sha}, baseline {cfg.baseline_sha256}")
-
-    # Controls are only meaningful against an image that matches.
-    if comparison.image_exact:
-        controls = run_controls(image, payload, cfg.load, cfg.units)
-        for control in controls:
-            if control["applicable"] and not control["tripped"]:
-                failures.append(f"comparator control did not trip: {control['kind']} {control['target']}: {control['detail']}")
-    else:
-        controls = []
-
-    c_units = [u for u in cfg.units if u.kind == "c"]
-    asm_units = [u for u in cfg.units if u.kind == "asm"]
-    c_bytes = sum(u.end - u.start for u in c_units)
-    asm_bytes = sum(u.end - u.start for u in asm_units)
-    rodata_bytes = sum(u.rodata.size for u in cfg.units if u.rodata is not None)
-    data_bytes = sum(u.data.size for u in cfg.units if u.data is not None)
-    bss_bytes = sum(u.bss.size for u in cfg.units if u.bss is not None)
-    report.update(
-        {
-            "units": [
-                {
-                    "name": u.name,
-                    "kind": u.kind,
-                    "cache": report["cache"]["units"][u.name]["cache"],
-                    "cache_key": report["cache"]["units"][u.name]["key"],
-                    "range": [u.start, u.end],
-                    "functions": [
-                        dataclasses.asdict(f) for f in comparison.functions if f.unit == u.name
-                    ],
-                    "rodata": next(
-                        (dataclasses.asdict(r) for r in comparison.rodata if r.unit == u.name), None
-                    ),
-                    "data": next((dataclasses.asdict(r) for r in comparison.data if r.unit == u.name), None),
-                    "bss": dataclasses.asdict(u.bss) if u.bss is not None else None,
-                }
-                for u in cfg.units
-            ],
-            "coverage": {
-                "c_bytes": c_bytes,
-                "c_functions": sum(len(u.functions) for u in c_units),
-                "asm_bytes": asm_bytes,
-                "asm_functions": sum(len(u.functions) for u in asm_units),
-                "rodata_bytes": rodata_bytes,
-                "data_bytes": data_bytes,
-                "raw_payload_bytes": cfg.payload_size - c_bytes - asm_bytes - rodata_bytes - data_bytes,
-                "raw_header_bytes": HEADER_SIZE,
-                "raw_ranges": len(ranges),
-            },
-            "bss_bytes": bss_bytes,
-            "image_sha256": comparison.image_sha256,
-            "executable_sha256": exe_sha,
-            "baseline_executable_sha256": cfg.baseline_sha256,
-            "controls": controls,
-        }
-    )
+        failures += found
+        report.update(
+            {
+                "units": fields["units"],
+                "coverage": fields["coverage"],
+                "bss_bytes": fields["bss_bytes"],
+                "image_sha256": fields["image_sha256"],
+                "executable_sha256": fields["executable_sha256"],
+                "baseline_executable_sha256": cfg.baseline_sha256,
+                "controls": fields["controls"],
+            }
+        )
+    records = []
+    for image in cfg.images:
+        if selected not in (None, image.name):
+            continue
+        try:
+            fields, found = link_image(
+                cfg, build, build / f"image-{image.name}", image.address, image.payload,
+                cfg.units_of(image.name), defined, cache_units, assembler,
+            )
+        except StepError as exc:
+            raise StepError(named(image.name, str(exc))) from exc
+        found = [named(image.name, reason) for reason in found]
+        failures += found
+        fields["coverage"].pop("raw_header_bytes", None)
+        records.append(
+            {
+                "name": image.name,
+                "archive": str(image.archive),
+                "slot": image.slot,
+                "address": image.address,
+                "size": image.size,
+                "baseline_sha256": fields["baseline_sha256"],
+                "image_sha256": fields["image_sha256"],
+                "exact": not found,
+                "carriers": count_carriers(image),
+                "units": fields["units"],
+                "coverage": fields["coverage"],
+                "bss_bytes": fields["bss_bytes"],
+                "controls": fields["controls"],
+            }
+        )
+    if cfg.images and selected != RESIDENT:
+        report["images"] = records
     return report, failures
+
+
+def named(image: str, reason: str) -> str:
+    """A failure reason of a module image starts with the image's name."""
+    return reason if image == RESIDENT else f"image {image!r}: {reason}"
+
+
+def module_summary(record: dict) -> list[str]:
+    """The summary lines of one module image."""
+    lines = []
+    functions = [f for u in record["units"] for f in u["functions"]]
+    for f in functions:
+        state = "exact" if f["exact"] else f"DIFFERENT at offset {f['first_diff']}"
+        lines.append(f"  {f['unit']}.{f['name']}: {f['size']} bytes, {state}")
+    for u in record["units"]:
+        for kind in ("rodata", "data"):
+            ro = u.get(kind)
+            if ro:
+                state = "exact" if ro["exact"] else f"DIFFERENT at offset {ro['first_diff']}"
+                lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
+    cov, name = record["coverage"], f"image {record['name']}"
+    lines.append(f"{name} functions exact: {sum(1 for f in functions if f['exact'])}/{len(functions)}")
+    lines.append(
+        f"{name} coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
+        f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions), "
+        f"rodata {cov['rodata_bytes']:,} bytes, data {cov['data_bytes']:,} bytes, "
+        f"raw payload {cov['raw_payload_bytes']:,} bytes"
+    )
+    lines.append(f"{name} sha256:      {record['image_sha256']}")
+    lines.append(f"{name} baseline sha256: {record['baseline_sha256']}")
+    lines.append(f"{name} carriers: {record['carriers']}")
+    controls = record["controls"]
+    applicable = [c for c in controls if c["applicable"]]
+    if controls:
+        note = "" if len(applicable) == len(controls) else " (raw control not applicable: no raw range)"
+        lines.append(f"{name} comparator controls: {sum(1 for c in applicable if c['tripped'])}/{len(applicable)} tripped{note}")
+    else:
+        lines.append(f"{name} comparator controls: not run")
+    return lines
 
 
 def summary_text(report: dict, failures: list[str]) -> str:
@@ -1769,6 +1933,8 @@ def summary_text(report: dict, failures: list[str]) -> str:
         maspsx = report.get("tools", {}).get("maspsx", {})
         if maspsx.get("checkout_dirty"):
             lines.append("note: the maspsx checkout has local changes; the pinned commit was exported and run instead")
+    for record in report.get("images", []):
+        lines += module_summary(record)
     for reason in failures:
         lines.append(f"FAIL: {reason}")
     lines.append("RESULT: " + ("FAIL" if failures else "PASS"))
@@ -1817,7 +1983,7 @@ def main(argv: list[str] | None = None) -> int:
     build.mkdir(parents=True)
     report: dict = {"tag": args.tag}
     try:
-        report, failures = build_all(cfg, args.tag, build, cache_dir, report)
+        report, failures = build_all(cfg, args.tag, build, cache_dir, report, args.image)
     except StepError as exc:
         failures = [str(exc)]
     except EnvironmentFailure as exc:

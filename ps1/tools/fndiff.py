@@ -28,6 +28,7 @@ from matchbuild import (  # noqa: E402
     BSS_SECTIONS,
     DISCARDED_SECTIONS,
     LOADED_SECTIONS,
+    RESIDENT,
     ConfigError,
     defined_symbols,
     load_config,
@@ -44,10 +45,10 @@ def link_alone(cfg, unit, build: Path) -> Path:
     obj = build / f"unit-{unit.name}.o"
     if not obj.is_file():
         raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
-    others = [fn for other in cfg.units if other.name != unit.name for fn in other.functions]
+    others = [fn for other in cfg.units_of(RESIDENT) if other.name != unit.name for fn in other.functions]
     assigned = {fn.name for fn in others}
     siblings = []
-    for other in cfg.units:
+    for other in cfg.units_of(RESIDENT):
         sibling = build / f"unit-{other.name}.o"
         if other.name == unit.name or not sibling.is_file():
             continue
@@ -118,6 +119,9 @@ def main() -> int:
     unit = next((u for u in cfg.units if u.name == args.unit), None)
     if unit is None:
         print(f"no unit named {args.unit!r}")
+        return 2
+    if unit.image != RESIDENT:
+        print(f"unit {unit.name!r} belongs to module image {unit.image!r}: fndiff compares resident units only")
         return 2
     build = config_path.parent.parent / "build" / args.tag
     text_address, text, built_functions = built_code(link_alone(cfg, unit, build))
