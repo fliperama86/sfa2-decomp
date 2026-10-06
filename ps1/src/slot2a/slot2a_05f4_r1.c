@@ -10,9 +10,9 @@ extern SlotFn table_801e225c_slot2a[];
 extern u8 data_801e25dc_slot2a[];
 extern u16 *data_801e52c8_slot2a;
 void func_801e06a0_slot2a(Object *obj);
-void func_801e08f4_slot2a(Object *obj, int a);
+void func_801e08f4_slot2a(Object *obj, u8 a);
 void func_801e0958_slot2a(Object *obj, u8 *p);
-void func_801e0d94_slot2a(Object *obj, u8 *p, int n);
+void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 n);
 void func_801e0e48_slot2a(Object *obj);
 void func_801e114c_slot2a(Object *obj);
 
@@ -56,7 +56,7 @@ void func_801e074c_slot2a(Object *obj) {
         obj->field_3c = &player_left;
     }
     func_801e08f4_slot2a(obj, obj->field_3c->kind);
-    func_801e0d94_slot2a(obj, data_801e25dc_slot2a + obj->field_03 * 0x500, 0xb);
-    func_801e0d94_slot2a(obj, data_801e25dc_slot2a + 0x280 + obj->field_03 * 0x500, 0xb);
+    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + obj->field_03 * 0x500), 0xb);
+    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + 0x280 + obj->field_03 * 0x500), 0xb);
     data_801e25d8_slot2a[obj->field_03] = 1;
 }

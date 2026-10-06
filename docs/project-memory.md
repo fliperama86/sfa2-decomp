@@ -2930,8 +2930,25 @@ to the second-side block, which lies at another distance than the module
 itself. The second link has to give those two names other addresses for
 that link.
 
+What review of the pull request found: one unit declared a function of
+another unit without a parameter and called it without one, while the
+definition takes the object. The code was exact because the caller happened
+to leave the object in the argument register. A scan of the module sources
+then found four more declarations that differed from their definitions, all
+in the first module: two in the pointer type, two in the width of a
+parameter. All five now agree with the definitions, with a cast at the call
+where the caller has another pointer type, and every unit is still exact.
+
 Lessons:
 
+- Exact bytes do not check a declaration. Two units can disagree about a
+  function and both match. After a merge, compare every declaration of a
+  module function in another unit with its definition; a private helper
+  does it now. Where a caller only matches with another signature, that is
+  a finding to write down. None of these five was such a case.
+- The first round's review of this at the top level saw one of the five and
+  filed it under the known cases where callers need another signature,
+  without trying the definition's. Try it first.
 - The setup of this round followed the two lessons of the first: every
   function of another batch had a symbol, and a stub that calls one was
   linked before the agents started. No agent reported a setup problem.
