@@ -342,9 +342,10 @@ together, of which the build has 1,231. 347 library functions in the
 inventory and 69 not, 416 together, of which the build has 386.
 
 The table is the state when the functions were sorted. A round on the 133
-game functions that the build did not have followed. The same command now
-prints 119 of the 134 as in the build, among them all 15 without a counted
-reference, and 1,349 game functions in the build.
+game functions that the build did not have followed, and second attempts
+on what it parked. The same command now prints 130 of the 134 as in the
+build, among them all 15 without a counted reference, and 1,360 game
+functions in the build.
 
 What this sorts out:
 

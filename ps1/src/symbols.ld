@@ -1757,7 +1757,6 @@ data_801e230c_slot2a = 0x801e230c;
 
 /* Called by the module image slot16. The first is in the resident image and
    in no unit; the other two are in the character block that is loaded. */
-func_80149b80 = 0x80149b80;
 func_801b606c = 0x801b606c;
 func_801b63fc = 0x801b63fc;
 
@@ -1790,21 +1789,12 @@ table_8017193c = 0x8017193c;
 
 /* Added by src.u_n12b8dc. */
 table_8017ab88 = 0x8017ab88;
-func_8013d1a8 = 0x8013d1a8;
-func_8012eaf4 = 0x8012eaf4;
-func_801368c0 = 0x801368c0;
-func_80136abc = 0x80136abc;
 
 /* Added by src.u_n13d520. */
-func_8013d520 = 0x8013d520;
-func_80141e5c = 0x80141e5c;
 
 /* Added by src.u_n145b60. */
 data_80190468 = 0x80190468;
 data_8017cf60 = 0x8017cf60;
-func_80145d20 = 0x80145d20;
-func_80145e70 = 0x80145e70;
-func_80145f98 = 0x80145f98;
 
 /* Added by src.u_n14a648. */
 data_8017ec44 = 0x8017ec44;
@@ -1816,7 +1806,6 @@ data_80181206 = 0x80181206;
 data_8018124a = 0x8018124a;
 func_8014b08c = 0x8014b08c;
 func_801545cc = 0x801545cc;
-func_8014e54c = 0x8014e54c;
 
 /* Added by src.u_n154998. */
 data_801812e4 = 0x801812e4;
