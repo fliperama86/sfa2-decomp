@@ -2980,7 +2980,8 @@ What ran:
 - The contract was written first and grew twice during the work, see
   below. Five packages for one subagent, between five and seven minutes
   each, each checked at the top level before the next.
-- `test_matchbuild.py`: 230 cases, 38 of them new.
+- `test_matchbuild.py`: 233 cases, 41 of them new. The 230 of the first
+  version ran in full; the 3 added in review ran with the second link cases.
 
 What a trial on real data showed before the pull request, in a private copy
 of the configuration:
@@ -2995,8 +2996,21 @@ of the configuration:
 - With both, 11 of 11 functions are exact and all controls trip. For these
   11 the inference of one source and two links has passed its test.
 
+What review of the pull request found: the moved names need the addresses of
+`symbols.ld`, which the build had never read before, only the names. The new
+code read them with Python's rules for an integer, and those reject a
+leading zero. A line that the build accepted and the linker reads as octal
+now ended the tool with a traceback, also in a configuration without any
+second link. The integers are read as the linker reads them now, and one
+that it would not read is a configuration error.
+
 Lessons:
 
+- A file has one owner of its format. `symbols.ld` is the linker's. The
+  first time a tool reads a value from it, read the linker's rules for
+  that value, and test a form that the two languages read differently.
+- New code that runs for every configuration is not covered by cases of
+  the new feature alone. The parser change ran on every load.
 - Try the real case before the tool is declared done. The synthetic
   fixtures had every data symbol owned by a unit, so none of them needed a
   name of `symbols.ld` to move. The real module needed three.

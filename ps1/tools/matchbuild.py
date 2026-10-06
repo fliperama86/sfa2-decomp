@@ -559,6 +559,19 @@ def _expand(value: str, directory: Path) -> Path:
     return Path(os.path.normpath(path))
 
 
+def linker_integer(text: str) -> int | None:
+    """The value of an integer of a symbols.ld statement as the linker reads it, or None when it is none.
+
+    As in C: a leading 0x or 0X is hexadecimal and any other leading 0 is
+    octal. Everything else is decimal. Suffixes are not supported.
+    """
+    if text[:2] in ("0x", "0X"):
+        return int(text[2:], 16)
+    if len(text) > 1 and text[0] == "0":
+        return int(text, 8) if re.fullmatch(r"[0-7]+", text) else None
+    return int(text)
+
+
 def parse_symbols(text: str, errors: list[str], values: dict[str, int] | None = None) -> list[str]:
     """Return names assigned in a symbols.ld file (simple `name = value;` lines); `values` gets their addresses."""
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
@@ -572,8 +585,14 @@ def parse_symbols(text: str, errors: list[str], values: dict[str, int] | None = 
             continue
         if match.group(1) in names:
             errors.append(f"symbols.ld: duplicate assignment of {match.group(1)!r}")
-        if values is not None:
-            values[match.group(1)] = int(match.group(2), 0)
+        value = linker_integer(match.group(2))
+        if value is None:
+            errors.append(
+                f"symbols.ld: {match.group(1)!r} is assigned {match.group(2)!r}, which is no integer as the linker "
+                f"reads it (a leading 0 means octal)"
+            )
+        elif values is not None:
+            values[match.group(1)] = value
         names.append(match.group(1))
     return names
 

@@ -173,7 +173,11 @@ functions = [
 ```
 
 `symbols.ld` sits next to `build.toml`, holds lines of the form
-`name = 0x80000000;` and is included by the generated linker script.
+`name = 0x80000000;` and is included by the generated linker script. The
+build reads the integer as the linker reads it: `0x` or `0X` starts a
+hexadecimal number, any other leading `0` an octal one, and everything else
+is decimal. An integer that the linker would not read, `089` for example, is
+a configuration error.
 
 `expand_div` selects how a division is assembled. The original assembler
 expands a division into the divide instruction plus checks for a zero divisor
@@ -1058,7 +1062,9 @@ image it requires: the second link exact when a unit reads a variable that
 has the read at the moved address, with the name in `moved_symbols`; a
 failure of the second link for a chunk that reads it at the first address;
 no move for a name outside the first image's payload; and the address of
-`[image.symbols]` winning over the moved one. For `fndiff.py --image` it requires an identical
+`[image.symbols]` winning over the moved one; and a name whose address is
+written in octal moving when that address lies inside the first image, where
+a decimal reading of the same digits lies outside. For `fndiff.py --image` it requires an identical
 result for a unit in a second link that is exact, a different one for the
 changed chunk, and exit status 2 for a name that is not a second link like
 the unit's image and for a unit that is left out.

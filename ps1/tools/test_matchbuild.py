@@ -2470,7 +2470,54 @@ def make_second_map_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the resident link is given {names}"
         return None
 
-    return [CacheCase("second-placement-map", placement)]
+    def integers(ctx):
+        """The integers of symbols.ld are read as the linker reads them: a leading 0 is octal."""
+        got = {text: matchbuild.linker_integer(text) for text in ("0", "10", "010", "0x10", "0X1f", "0777", "089", "08")}
+        want = {"0": 0, "10": 10, "010": 8, "0x10": 16, "0X1f": 31, "0777": 511, "089": None, "08": None}
+        if got != want:
+            return f"read as {got}, wanted {want}"
+        errors: list[str] = []
+        values: dict[str, int] = {}
+        names = matchbuild.parse_symbols("eight = 010;\nbad = 089;\nsixteen = 0x10;\n", errors, values)
+        if names != ["eight", "bad", "sixteen"] or values != {"eight": 8, "sixteen": 16}:
+            return f"parsed {names} with {values}"
+        if len(errors) != 1 or "'bad' is assigned '089'" not in errors[0]:
+            return f"an integer the linker does not read must be one configuration error: {errors}"
+        return None
+
+    def octal_moves(ctx):
+        """An address written in octal lies inside the first image and moves. Read as decimal it would lie outside."""
+        install(ctx.copy, second={"like": "example"})
+        inside = FIXTURE_LOAD + 8
+        symbols = ctx.copy / "symbols.ld"
+        symbols.write_text(symbols.read_text() + f"inside_octal = 0{inside:o};\n")
+        if int(f"0{inside:o}".lstrip("0")) in range(FIXTURE_LOAD, FIXTURE_LOAD + 0x10000):
+            return "test setup: the decimal reading must lie outside the first image"
+        cfg = matchbuild.load_config(ctx.config)
+        if cfg.symbol_values.get("inside_octal") != inside:
+            return f"inside_octal is read as {cfg.symbol_values.get('inside_octal')}, wanted {inside}"
+        moved = cfg.local_symbols("second")[1]
+        if moved.get("inside_octal") != inside + SECOND_ADDRESS - FIXTURE_LOAD:
+            return f"the second link must be given the name at its moved address: {moved}"
+        return None
+
+    def not_an_integer(ctx):
+        """Through the tool: a configuration error with exit status 2, no traceback."""
+        install(ctx.copy, second={"like": "example"})
+        symbols = ctx.copy / "symbols.ld"
+        symbols.write_text(symbols.read_text() + "bad_octal = 089;\n")
+        proc, _, _ = ctx.run()
+        output = proc.stdout + proc.stderr
+        if proc.returncode != 2 or "CONFIG ERROR: symbols.ld: 'bad_octal' is assigned '089'" not in output or "Traceback" in output:
+            return f"wanted a configuration error with exit status 2: exit {proc.returncode}\n{output[-600:]}"
+        return None
+
+    return [
+        CacheCase("second-placement-map", placement),
+        CacheCase("symbols-file-integers", integers),
+        CacheCase("second-moved-symbol-octal-address", octal_moves),
+        CacheCase("symbols-file-not-an-integer", not_an_integer),
+    ]
 
 
 def make_comparison_unit_cases() -> list[CacheCase]:
