@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import difflib
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -30,9 +31,14 @@ from matchbuild import (  # noqa: E402
     LOADED_SECTIONS,
     RESIDENT,
     ConfigError,
+    EnvironmentFailure,
+    StepError,
+    cache_directory,
     defined_symbols,
     load_config,
+    prepare_pipeline,
     symbol_address,
+    unit_object,
 )
 
 
@@ -99,6 +105,56 @@ def built_code(elf_path: Path) -> tuple[int, bytes, dict[str, tuple[int, int]]]:
         return text["sh_addr"], text.data(), symbols
 
 
+UNIT_FILES = (".i", ".s", ".gnu.s", ".o", ".compiler.log")
+
+
+def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | None:
+    """Run the pipeline of one unit and put its object and listings into the build directory.
+
+    The pipeline of a whole build runs here for this unit alone, in a scratch
+    directory inside the build directory, so that a failed step leaves the
+    previous object and the report as they were. Prints what fails in the
+    object checks and which way the object came. Returns an exit status when
+    the unit cannot go on, else None.
+    """
+    scratch = build / f".rebuild-{os.getpid()}"
+    report = {
+        "tag": tag,
+        "cache": {"units": {}},
+        "inputs": {"preprocessed": {}},
+    }
+    try:
+        scratch.mkdir()
+        try:
+            pipeline, failures = prepare_pipeline(cfg, tag, scratch, cache_dir, report)
+            if pipeline is not None:
+                failures, built = unit_object(pipeline, unit, scratch, report)
+                if not built:
+                    pipeline = None
+        except StepError as exc:
+            pipeline, failures = None, [str(exc)]
+        except EnvironmentFailure as exc:
+            print(f"ENVIRONMENT ERROR: {exc}")
+            return 3
+        if pipeline is None:
+            for reason in failures:
+                print(f"FAIL: {reason}")
+            print("RESULT: FAIL (the unit's previous object and the report are unchanged)")
+            return 1
+        for ext in UNIT_FILES:
+            if (scratch / f"unit-{unit.name}{ext}").exists():
+                os.replace(scratch / f"unit-{unit.name}{ext}", build / f"unit-{unit.name}{ext}")
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+    # The report and the summary describe a build whose objects are no longer all here.
+    for name in ("report.json", "summary.txt"):
+        (build / name).unlink(missing_ok=True)
+    print(f"object of unit {unit.name!r}: cache {report['cache']['units'][unit.name]['cache']}")
+    for reason in failures:
+        print(f"FAIL: {reason}")
+    return None
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description="Instruction diff of one unit against the baseline")
@@ -107,12 +163,20 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=root / "ps1/src/build.toml")
     parser.add_argument("--tag", default="default")
     parser.add_argument("--all", action="store_true", help="print matching instructions too")
+    parser.add_argument("--rebuild", action="store_true", help="compile this unit again first, with the object cache")
+    parser.add_argument("--reference", action="store_true", help="with --rebuild: use [toolchain.cc1_reference]")
+    parser.add_argument("--cache", type=Path, help="with --rebuild: object cache directory (default as matchbuild.py)")
+    parser.add_argument("--no-cache", action="store_true", help="with --rebuild: do not read or write the object cache")
     parser.add_argument("--context", type=int, default=3, help="matching instructions shown around a difference")
     args = parser.parse_args()
+    if not args.rebuild and (args.reference or args.cache or args.no_cache):
+        parser.error("--reference, --cache and --no-cache need --rebuild")
+    if args.cache and args.no_cache:
+        parser.error("--cache and --no-cache exclude each other")
 
     config_path = Path(os.path.abspath(args.config))
     try:
-        cfg = load_config(config_path)
+        cfg = load_config(config_path, use_reference=args.reference)
     except ConfigError as exc:
         print("\n".join(f"CONFIG ERROR: {e}" for e in exc.errors))
         return 2
@@ -124,6 +188,13 @@ def main() -> int:
         print(f"unit {unit.name!r} belongs to module image {unit.image!r}: fndiff compares resident units only")
         return 2
     build = config_path.parent.parent / "build" / args.tag
+    if args.rebuild:
+        if not build.is_dir():
+            print(f"no build directory {build}: run matchbuild.py with the same --tag first")
+            return 2
+        status = rebuild(cfg, unit, build, args.tag, cache_directory(args.cache, args.no_cache, config_path))
+        if status is not None:
+            return status
     text_address, text, built_functions = built_code(link_alone(cfg, unit, build))
 
     if args.function:
