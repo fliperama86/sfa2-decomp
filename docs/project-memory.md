@@ -2453,6 +2453,51 @@ Lessons:
   a mutation run measures the cases against the code, not the code against
   inputs nobody wrote a case for.
 
+## Forty-first group: the owner's decisions of 2026-10-06
+
+No function count changes in this group. Nothing was built for it.
+
+The decisions, all by the owner on 2026-10-06:
+
+- The design of the [overlay build proposal](../ps1/docs/overlay-build-proposal.md)
+  is accepted as written, and the work goes ahead. Read as its decisions 1
+  to 6: the baseline of a module, one configuration with several images,
+  the second side as a second link, the naming rule, counting per image,
+  and the two pilot targets in their order.
+- The source of overlay modules is published like the resident source.
+- The 202 resident functions that the sweep reports and the inventory does
+  not list are sorted after the overlay pilot.
+- All source that the project writes is published. The owner's stated
+  basis: the project writes this source itself, and the owner holds the
+  rights in it.
+
+What the last decision changes:
+
+- The rule until now was that the decision of 2026-10-05 covered the PS1
+  source and everything else that is game-derived needed its own decision.
+  Source the project writes no longer needs one. `AGENTS.md`, the
+  requirements and the two target pages say so.
+- The Windows reconstruction falls under it. It has not had the review
+  that comes before a first push, the one the thirty-seventh group records
+  for the PS1 source, and stays in its ignored folder until it has.
+
+What it does not change:
+
+- Not source the project writes, and still never committed: game binaries,
+  disc extracts, analysis databases, decompiler output, compiler binaries.
+- Third-party parts keep their own terms. The library part in
+  `ps1/src/sdk/` is adapted from another project under its license and
+  carries that notice. The SDK headers it needs stay unpublished.
+- The repository still has no license file. Holding the rights in the
+  source and granting others a license to it are two things; which
+  license, if any, remains the owner's choice.
+- The note of the thirty-seventh group on the legal position of published
+  reconstructed source stands.
+
+How the source is made, for the record: it is written by the project from
+analysis of the game's machine code and compared with that code byte for
+byte. No original source code is used.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
