@@ -14,8 +14,12 @@ Public tools, free of game data:
 - `tools/test_matchbuild.py`, `test_structgen.py`, `test_mergeunits.py`: controls.
 - `tools/baseline.py`: disc and file manifest: pin, verify, extract.
 - `tools/pac.py`: chunk archives: list, extract, scan for code, compare with
-  the loader's destination tables, compare the two sides' blocks.
+  the loader's destination tables, compare the two sides' blocks, inventory
+  the functions inside the modules.
+- `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,
+  and a comparison of them with an inventory.
 - `tools/test_disc_tools.py`: controls for the two disc tools.
+- `tools/test_funcscan.py`: controls for the sweep.
 - `tools/verify_cc1_golden.py`: compare a compiler against saved reference output.
 - `tools/test_verify_cc1_golden.py`: controls for that checker.
 

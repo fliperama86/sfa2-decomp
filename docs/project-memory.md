@@ -2353,6 +2353,81 @@ Lessons:
   page comes from a command of the published tool, or from an address and
   a count that can be read off the executable.
 
+## Fortieth group: an inventory of the functions inside the overlay modules
+
+No function count changes in this group: 1,617 functions exact. Everything
+here is a static estimate; nothing was rebuilt.
+
+What was open: the overlay map had no function boundaries.
+
+What ran, all static:
+
+- `funcscan.py` (new) finds function boundaries by a linear sweep. Its own
+  text has the rules. `compare` checks a sweep against an inventory.
+- Against the resident inventory of 1,649 functions: every start found,
+  1,643 sizes equal. Five functions are longer in the sweep by the register
+  restores and return that the inventory leaves out. The entry routine
+  takes in the four table words after it. 202 functions are found only by
+  the sweep.
+- `pac.py functions` (new) sweeps each distinct content of a code-bearing
+  slot: 77 contents in 16 slots, 11,220 functions, 1,461,872 bytes; 8,822
+  distinct by bytes; 3,749 distinct with link addresses set aside, 677,624
+  bytes. The [overlay map](../ps1/docs/overlays.md) has the table.
+- Both commands print four counts that a wrong boundary can disturb. For
+  the resident range and for the 77 contents alike: no `jr ra` outside a
+  function, no function with two, no function with two frames, one
+  function without a return at its end.
+- `test_funcscan.py`: 136 control cases. `test_disc_tools.py`: 161, from 62.
+- Mutation runs through `ps1/local/mutate.py`, each run under a time and a
+  memory limit: 162 changes of `funcscan.py` and 99 of the new parts of
+  `pac.py`, all noticed. Three of them only by a limit, because the changed
+  sweep never ends; seven by a crash.
+
+Findings that change the plan for overlays:
+
+- The two sides share nearly all code: 2,127 functions in common between
+  2,211 and 2,129. Characters share little with each other: 1,498 of the
+  2,211 are in one first-side content only, and none is in all 24.
+- The four modules with one content hold 959 functions, 129,348 bytes.
+  The largest, slot `0x28`, has 683 functions that are 319 once link
+  addresses are set aside.
+- The resident inventory is short. The sweep reports 202 functions it does
+  not list. One-off counts, not on the page because no command reproduces
+  them: 19,748 bytes; 14 system call stubs and 22 lone returns; 136 are the
+  target of a `jal` in the executable or the archives or have their address
+  as a word in the executable; 63 are already named in `ps1/src`. Whether
+  they enter the inventory needs the owner's decision.
+- One call in the block of `PL17.PAC` targets a word inside another
+  function of the same block. The sweep reports that function in two
+  parts. The cause is not established.
+
+What interrupted the work: the sessions ended four times on 2026-10-05
+during a mutation run of `funcscan.py`. A changed copy looped while it
+allocated and the machine ran out of memory. The run was repeated from the
+previous transcript each time. A session on the host found the cause and
+wrote the limited harness. The mutation list was then written again from
+the tool's rules, not recovered.
+
+Lessons:
+
+- A change that no case can notice often marks a condition that does
+  nothing. Such conditions were removed instead of excused: four range
+  tests that a set lookup or a `max` already made, a test that a table was
+  empty, a branch clause for a coprocessor the machine does not have, and
+  four branch opcodes that the instruction test rejects first.
+- A description that names a standard is a claim about a table. The text
+  said MIPS I while one set accepted four later branch codes. The accepted
+  sets are now written out by mnemonic in a control case.
+- Counts that do not depend on the method found the one real anomaly: all
+  returns inside functions, one per function, one frame per function. They
+  moved into the tool so that the page can cite a command.
+- The first draft of the page again cited counts from throwaway scripts,
+  the mistake of the thirty-ninth group. They were removed before the pull
+  request. Check each number on a page against the command that prints it
+  before writing the sentence.
+- A result in a handoff note is a lead. The note gave 31 of 39 changes
+  noticed for an earlier list; this group reran everything.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -2415,6 +2490,10 @@ Lessons:
   this for unrelated live caller-stack corruption.
 - Mutation replacements must be unique. A substring for `boxes` also matched
   `wide_boxes`; use complete statements and assert replacement counts.
+- A mutated copy can loop forever while it allocates. Run every mutant with a
+  time limit and a memory limit, and end its whole process group on timeout:
+  `ps1/local/mutate.py` does this. On 2026-10-05 one unbounded `funcscan.py`
+  mutant used all 31 GB of the WSL machine four times and ended every session.
 - Interactive Windows SSH commands need carriage return. PowerShell 5 can
   treat redirected native stderr banners as errors with Stop enabled; redirect
   native logs through `cmd /d /c`, then check the actual exit code.

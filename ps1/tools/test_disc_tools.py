@@ -16,6 +16,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pac
+
 TOOLS = Path(__file__).resolve().parent
 SECTOR_SIZE, PAYLOAD_OFFSET, USER_DATA = 2352, 24, 2048
 
@@ -318,11 +320,237 @@ def pac_cases(root: Path):
     yield "sides-slot-outside-table", sides(exe, maps, "--pointers", hex(pointers), "--second", 9), 1, "table 0 has no such slots"
 
 
+def function_cases(root: Path):
+    """`pac.py functions`: the inventory of functions inside the code-bearing chunks."""
+    OPEN, CLOSE, RETURN, ONE, TWO = 0x27BDFFE8, 0x27BD0018, 0x03E00008, 0x24020001, 0x24020002
+    UPPER, LOAD, STOP = 0x3C028020, 0x8C420000, 0xFFFFFFFF  # lui v0 / lw v0,0(v0) / not an instruction
+    words = lambda *w: struct.pack(f"<{len(w)}I", *w)  # noqa: E731
+    start, pointers, first, second = 0x80100000, 0x80100100, 0x80200000, 0x80218000
+    table0 = [0x80300000, 0x80300000, 0x80300000, 0x80300000, first, second]
+    exe = root / "FUNCTIONS.EXE"
+    exe.write_bytes(make_executable(start, pointers, [table0, [0x80400000], [0x80500000]]))
+    side1, side2 = make_code(first), make_code(second)
+    functions = lambda directory, *a: tool("pac.py", "functions", exe, directory, "--pointers", hex(pointers), *a)  # noqa: E731
+
+    def folder(name: str, **archives: bytes) -> Path:
+        path = root / name
+        path.mkdir()
+        for stem, data in archives.items():
+            (path / f"{stem}.PAC").write_bytes(data)
+        return path
+
+    # Two blocks of ten functions each, the same code linked at two addresses: see make_code.
+    # A function is 20 bytes; the three words after the last one never return and are not counted.
+    twins = folder("twins", PL00=make_archive([(4, side1), (0x10000, b"data" * 8)]), PL00X=make_archive([(5, side2)]))
+    out = root / "made" / "functions.tsv"
+    run = functions(twins, "--out", out)
+    yield "functions-contents", run, 0, "2 archives parsed, 0 rejected; code-bearing chunks with distinct contents: 2"
+    row = "  0x4   0x80200000         1            212         10             200                 10                       1                 0"
+    yield "functions-slot-row", run, 0, row
+    yield "functions-totals", run, 0, "all slots: 20 functions, 400 bytes; distinct by bytes: 20; distinct address-blind: 1 functions, 20 bytes"
+    yield "functions-same-set", run, 0, "slots 0x4 and 0x5: the same 1 address-blind distinct functions"
+    yield "functions-no-symbols-no-line", outcome("symbols" not in run.stdout, "no line"), 0, "no line"
+    lines = out.read_text().splitlines() if out.exists() else []
+    yield "functions-out-lines", outcome(len(lines) == 20 and len({line.split("\t")[4] for line in lines}) == 1, "20 lines, one hash"), 0, "20 lines"
+    yield "functions-out-first", outcome(bool(lines) and lines[0].startswith(f"PL00.PAC\t0x4\t{first:08x}\t20\t"), "first line"), 0, "first line"
+    blind = hashlib.sha256(pac.address_blind(list(struct.unpack("<5I", side1[:20])))).hexdigest()[:16]
+    yield "functions-out-hash", outcome(bool(lines) and lines[0].split("\t")[4] == blind, "sixteen digits"), 0, "sixteen digits"
+    yield "functions-out-second-block", outcome(len(lines) == 20 and lines[10].startswith(f"PL00X.PAC\t0x5\t{second:08x}\t20\t"), "line 11"), 0, "line 11"
+
+    # A second content in slot 4 with one more function, and the first content in two archives.
+    other = words(OPEN, ONE, RETURN, CLOSE)
+    wider = side1 + words(STOP) + other
+    shared = folder(
+        "shared",
+        A=make_archive([(4, side1)]),
+        B=make_archive([(4, side1)]),
+        C=make_archive([(4, wider)]),
+        D=make_archive([(5, side2)]),
+    )
+    out = root / "shared.tsv"
+    run = functions(shared, "--out", out)
+    yield "functions-content-counted-once", run, 0, "4 archives parsed, 0 rejected; code-bearing chunks with distinct contents: 3"
+    row = "  0x4   0x80200000         2            444         21             416                 11                       2                 1"
+    yield "functions-two-contents-row", run, 0, row
+    yield "functions-two-contents-totals", run, 0, "all slots: 31 functions, 616 bytes; distinct by bytes: 21; distinct address-blind: 2 functions, 36 bytes"
+    yield "functions-per-content", run, 0, "slot 0x4: of its 2 address-blind distinct functions, 1 are in one of its 2 contents only and 1 in all of them"
+    yield "functions-one-content-no-line", outcome("slot 0x5: of its" not in run.stdout, "no line"), 0, "no line"
+    yield "functions-common-default", outcome("in common" not in run.stdout and "the same" not in run.stdout, "not reported"), 0, "not reported"
+    yield "functions-common-one", functions(shared, "--common", 1), 0, "slots 0x4 and 0x5: 1 address-blind distinct functions in common"
+    # Three contents in a slot: one function in all of them, two in one content each.
+    third = side1 + words(STOP, OPEN, TWO, RETURN, CLOSE)
+    three = folder("three", A=make_archive([(4, side1)]), B=make_archive([(4, wider)]), C=make_archive([(4, third)]))
+    yield "functions-per-content-of-three", functions(three), 0, (
+        "slot 0x4: of its 3 address-blind distinct functions, 2 are in one of its 3 contents only and 1 in all of them"
+    )
+    # Two slots with as many distinct functions each, but not the same ones.
+    unlike = folder("unlike", A=make_archive([(4, wider)]), B=make_archive([(5, side2 + words(STOP, OPEN, TWO, RETURN, CLOSE))]))
+    yield "functions-unlike-sets", functions(unlike, "--common", 1), 0, "slots 0x4 and 0x5: 1 address-blind distinct functions in common"
+    yield "functions-unlike-sets-not-the-same", outcome("the same" not in functions(unlike).stdout, "not reported"), 0, "not reported"
+    # An address is written with eight digits.
+    low = root / "LOW.EXE"
+    low.write_bytes(make_executable(start, pointers, [[0x00100000], [0x80400000], [0x80500000]]))
+    low_out = root / "low.tsv"
+    tool("pac.py", "functions", low, folder("low", A=make_archive([(0, make_code(0x00100000))])), "--pointers", hex(pointers), "--out", low_out)
+    rows = low_out.read_text().splitlines() if low_out.exists() else []
+    yield "functions-out-low-address", outcome(bool(rows) and rows[0].startswith("A.PAC\t0x0\t00100000\t20\t"), "eight digits"), 0, "eight digits"
+    names = [line.split("\t")[0] for line in out.read_text().splitlines()] if out.exists() else []
+    yield "functions-out-first-archive", outcome(names == ["A.PAC"] * 10 + ["C.PAC"] * 11 + ["D.PAC"] * 10, "A, C, D"), 0, "A, C, D"
+
+    # Symbols. Words 54 and 55 of this block look like instructions and sit before a function that
+    # nothing calls. It starts at word 56 with a load, opens its frame at word 58 and is 24 bytes.
+    glued = side1 + words(STOP, ONE, TWO, UPPER, LOAD, OPEN, ONE, RETURN, CLOSE)
+    entry = folder("entry", E=make_archive([(4, glued)]))
+    yield "functions-glued", functions(entry), 0, "all slots: 11 functions, 232 bytes"
+
+    def symbols(name: str, *addresses: int) -> Path:
+        path = root / f"{name}.ld"
+        path.write_text("".join(f"s{n} = {a:#x};\n" for n, a in enumerate(addresses)))
+        return path
+
+    at_load = functions(entry, "--symbols", symbols("load", first + 4 * 56))
+    yield "functions-symbol-at-load", at_load, 0, "all slots: 11 functions, 224 bytes"
+    yield "functions-symbol-taken", at_load, 0, "symbols whose address lies in a module: 1 cases; taken as a function start there: 1"
+    yield "functions-symbol-at-frame", functions(entry, "--symbols", symbols("frame", first + 4 * 58)), 0, "all slots: 11 functions, 216 bytes"
+    for label, index in (("in-glue", 55), ("after-frame", 59), ("at-return", 60)):
+        ignored = functions(entry, "--symbols", symbols(label, first + 4 * index))
+        yield f"functions-symbol-{label}", ignored, 0, "all slots: 11 functions, 232 bytes"
+        yield f"functions-symbol-{label}-count", ignored, 0, "1 cases; taken as a function start there: 0"
+    # An address that is not a multiple of four, and one where no module is, are not cases.
+    stray = functions(entry, "--symbols", symbols("stray", first + 4 * 56, first + 4 * 56 + 2, 0x80600000))
+    yield "functions-symbol-stray", stray, 0, "1 cases; taken as a function start there: 1"
+    # The same address in two modules: a function start in one, the middle of a function in the other.
+    # The other module keeps its two functions whole.
+    pair = side1 + words(STOP) + other + words(OPEN, TWO, RETURN, CLOSE)
+    two = folder("two", E=make_archive([(4, glued)]), F=make_archive([(4, pair)]))
+    both = functions(two, "--symbols", symbols("two", first + 4 * 56))
+    yield "functions-symbol-per-module", both, 0, "all slots: 23 functions, 456 bytes"
+    yield "functions-symbol-per-module-count", both, 0, "2 cases; taken as a function start there: 1"
+
+    # A symbol below the module is not a case.
+    below = functions(entry, "--symbols", symbols("below", first - 8))
+    yield "functions-symbol-below-the-module", below, 0, "0 cases; taken as a function start there: 0"
+    # A symbol at the first address of a module is a case; one at the address after its last word is not.
+    edge = folder("edge", E=make_archive([(4, side1)]))
+    at_start = functions(edge, "--symbols", symbols("start", first))
+    yield "functions-symbol-at-module-start", at_start, 0, "1 cases; taken as a function start there: 1"
+    at_end = functions(edge, "--symbols", symbols("end", first + len(side1)))
+    yield "functions-symbol-at-module-end", at_end, 0, "0 cases; taken as a function start there: 0"
+    # One content in two slots is inventoried in both.
+    run = functions(folder("twice", A=make_archive([(4, side1), (5, side1)])))
+    yield "functions-content-in-two-slots", run, 0, "code-bearing chunks with distinct contents: 2"
+    yield "functions-content-in-two-slots-totals", run, 0, "all slots: 20 functions, 400 bytes; distinct by bytes: 10; distinct address-blind: 1 functions, 20 bytes"
+    # A jump table inside a module is read: its function goes on past the first return to the two cases.
+    switch = words(OPEN, 0x3C018020, 0x8C220108, 0x00400008, 0, ONE, RETURN, 0, TWO, RETURN, CLOSE)
+    jumping = side1 + words(STOP) + switch + words(STOP, first + 236, first + 248)
+    yield "functions-jump-table", functions(folder("jumping", A=make_archive([(4, jumping)]))), 0, "all slots: 11 functions, 244 bytes"
+    # The four counts of funcscan.py follow the totals, summed over the contents: here two contents,
+    # each with one function that holds two returns.
+    yield "functions-checks", run, 0, (
+        "20 bytes\nchecks: `jr ra` words outside every function: 0; functions with more than one `jr ra`: 0;"
+        " functions that open more than one stack frame: 0; functions that end neither with `jr ra` nor with a stub's `jr t2`: 0\n"
+    )
+    summed = functions(folder("summed", A=make_archive([(4, jumping)]), B=make_archive([(4, jumping + words(STOP))])))
+    yield "functions-checks-summed", summed, 0, "outside every function: 0; functions with more than one `jr ra`: 2; functions that open"
+
+    # What is not inventoried, and what fails.
+    yield "functions-no-code", functions(folder("plain", A=make_archive([(4, b"data" * 8)]))), 1, "no code-bearing chunk found"
+    yield "functions-slot-beyond-table", functions(folder("far", A=make_archive([(9, side1)]))), 1, "no code-bearing chunk found"
+    yield "functions-other-table", functions(folder("table1", A=make_archive([(0x10004, side1)]))), 1, "no code-bearing chunk found"
+    damaged = bytearray(make_archive([(4, side1)]))
+    damaged[USER_DATA] ^= 1
+    rejected = functions(folder("rejected", A=make_archive([(4, side1)]), B=bytes(damaged)))
+    yield "functions-rejected-archive", rejected, 1, "1 archives parsed, 1 rejected"
+    yield "functions-rejected-still-counts", rejected, 1, "all slots: 10 functions, 200 bytes"
+    yield "functions-not-an-executable", tool("pac.py", "functions", twins / "PL00.PAC", twins, "--pointers", hex(pointers)), 1, "not a PS-X executable"
+    single = root / "SINGLE.EXE"
+    single.write_bytes(make_executable(start, pointers, [table0]))
+    yield "functions-no-pointer-block", tool("pac.py", "functions", single, twins, "--pointers", hex(pointers)), 1, "no block of table addresses"
+
+    # starts_function: the forms taken as the start of a function with a frame.
+    other_base = 0x8C620000  # lw v0,0(v1): not through the register the `lui` loaded
+    for label, code, want in (
+        ("frame", [OPEN], True),
+        ("one-load", [UPPER, LOAD, OPEN], True),
+        ("two-loads", [UPPER, LOAD, UPPER, LOAD, OPEN], True),
+        ("three-loads", [UPPER, LOAD, UPPER, LOAD, UPPER, LOAD, OPEN], False),
+        ("load-through-another-register", [UPPER, other_base, OPEN], False),
+        ("load-of-a-byte", [UPPER, 0x80420000, OPEN], True),  # lb, the first kind of load
+        ("load-of-an-unsigned-half", [UPPER, 0x94420000, OPEN], True),  # lhu, the last
+        ("load-of-a-word-part", [UPPER, 0x98420000, OPEN], False),  # lwr
+        ("store-instead-of-load", [UPPER, 0xA0420000, OPEN], False),  # sb
+        ("no-instruction-instead-of-load", [UPPER, 0x7C420000, OPEN], False),
+        ("load-without-frame", [UPPER, LOAD, ONE, OPEN], False),
+        ("other-instruction", [ONE, OPEN], False),
+        ("load-after-another-instruction", [ONE, LOAD, OPEN], False),
+        ("negative-constant", [0x2402FFFF], False),  # li v0,-1
+        ("stack-pointer-from-another-register", [0x245DFFE8], False),  # addiu sp,v0,-24
+        ("another-register-from-the-stack-pointer", [0x27A2FFE8], False),  # addiu v0,sp,-24
+        ("frame-closed", [CLOSE], False),
+        ("upper-half-at-the-end", [UPPER], False),
+        ("load-at-the-end", [UPPER, LOAD], False),
+        ("nothing", [], False),
+    ):
+        yield f"starts-function-{label}", outcome(pac.starts_function(code, 0) is want, "as required"), 0, "as required"
+    yield "starts-function-index", outcome(pac.starts_function([ONE, OPEN], 1) and not pac.starts_function([OPEN, ONE], 1), "as required"), 0, "as required"
+
+    # address_blind: what two functions may differ in and still count as the same.
+    jal, jump, branch = 0x0C000000, 0x08000000, 0x10400003
+    add_at, table_load = 0x00220821, 0x8C220000  # addu at,at,v0 / lw v0,0(at)
+    for label, one, two, want in (
+        ("call-target", [jal | 0x100], [jal | 0x200], True),
+        ("jump-target", [jump | 0x100], [jump | 0x200], True),
+        ("call-is-not-jump", [jal | 0x100], [jump | 0x100], False),
+        ("upper-half", [0x3C020001], [0x3C020002], True),
+        ("upper-half-register", [0x3C020001], [0x3C030001], False),
+        ("load-through-address", [UPPER, LOAD | 0x10], [UPPER, LOAD | 0x20], True),
+        ("store-through-address", [UPPER, 0xAC430010], [UPPER, 0xAC430020], True),
+        ("address-completed", [UPPER, 0x24420010], [UPPER, 0x24420020], True),
+        ("offset-after-address-completed", [UPPER, 0x24420010, 0x8C430004], [UPPER, 0x24420010, 0x8C430008], False),
+        ("offset-after-load", [UPPER, LOAD, 0x8C430004], [UPPER, LOAD, 0x8C430008], False),
+        ("offset-through-other-register", [UPPER, 0x8C830004], [UPPER, 0x8C830008], False),
+        ("constant", [ONE], [TWO], False),
+        ("constant-after-register-reused", [UPPER, ONE], [UPPER, TWO], False),
+        ("indexed-table", [0x3C010001, add_at, table_load | 0x10], [0x3C010002, add_at, table_load | 0x20], True),
+        ("register-computed-anew", [UPPER, 0x00641021, 0x8C430004], [UPPER, 0x00641021, 0x8C430008], False),
+        ("branch-distance", [branch], [branch + 1], False),
+        # The register is overwritten by a load or a sum that does not use it.
+        ("register-loaded-anew", [UPPER, 0x8C820000, 0x8C430004], [UPPER, 0x8C820000, 0x8C430008], False),
+        ("register-summed-anew", [UPPER, 0x24820000, 0x8C430004], [UPPER, 0x24820000, 0x8C430008], False),
+        # A store through the register leaves the address in it, even a store of the register itself.
+        ("store-keeps-the-address", [UPPER, 0xAC420010, 0xAC430014], [UPPER, 0xAC420010, 0xAC430024], True),
+        ("indexed-table-other-order", [0x3C010001, 0x00410821, table_load | 0x10], [0x3C010002, 0x00410821, table_load | 0x20], True),
+        # A call: its delay slot still uses the address, what follows does not, but for a saved register.
+        ("delay-slot-of-a-call", [UPPER, jal, LOAD | 0x10], [UPPER, jal, LOAD | 0x20], True),
+        ("offset-after-a-call", [UPPER, 0xAC430010, jal, 0, 0x8C430004], [UPPER, 0xAC430010, jal, 0, 0x8C430008], False),
+        ("offset-after-a-call-through-a-register", [0x3C030001, 0x0040F809, 0, 0x8C640004], [0x3C030001, 0x0040F809, 0, 0x8C640008], False),
+        ("offset-after-a-jump", [UPPER, 0xAC430010, jump, 0, 0x8C430004], [UPPER, 0xAC430010, jump, 0, 0x8C430008], True),
+        ("offset-after-another-register-jump", [0x3C030001, 0x00400008, 0, 0x8C640004], [0x3C030001, 0x00400008, 0, 0x8C640008], True),
+    ):
+        same = pac.address_blind(one) == pac.address_blind(two)
+        yield f"address-blind-{label}", outcome(same is want, "as required"), 0, "as required"
+    yield "address-blind-length", outcome(len(pac.address_blind([ONE, TWO, RETURN])) == 12, "as required"), 0, "as required"
+    # The kinds of instruction whose 16-bit field is zeroed after a `lui` of their base register (v0 here),
+    # and those that overwrite their target register (v0 again, from a0): by opcode.
+    through = lambda op, low: pac.address_blind([UPPER, op << 26 | 2 << 21 | 3 << 16 | low])  # noqa: E731
+    zeroed = [op for op in range(4, 64) if op != 0x0F and through(op, 0x10) == through(op, 0x20)]
+    sums, loads, stores = list(range(0x08, 0x0F)), list(range(0x20, 0x27)), list(range(0x28, 0x3B))
+    yield "address-blind-zeroed-opcodes", outcome(zeroed == sums + loads + stores, f"as required {zeroed}"), 0, "as required"
+    after = lambda op, low: pac.address_blind([UPPER, op << 26 | 4 << 21 | 2 << 16, 0x8C430000 | low])  # noqa: E731
+    kept = [op for op in range(4, 64) if op != 0x0F and after(op, 0x10) == after(op, 0x20)]
+    others = [op for op in range(4, 64) if op != 0x0F and op not in sums + loads]
+    yield "address-blind-overwriting-opcodes", outcome(kept == others, f"as required {kept}"), 0, "as required"
+    # The registers that keep an address across a call: s0 to s7, gp, sp, fp.
+    across = lambda reg, low: pac.address_blind([0x3C000000 | reg << 16, jal, 0, 0x8C040000 | reg << 21 | low])  # noqa: E731
+    saved = [reg for reg in range(32) if across(reg, 0x10) == across(reg, 0x20)]
+    yield "address-blind-saved-registers", outcome(saved == [*range(16, 24), 28, 29, 30], f"as required {saved}"), 0, "as required"
+
+
 def main() -> int:
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        for name, proc, want_status, want_text in [*baseline_cases(root), *extract_safety_cases(root), *pac_cases(root)]:
+        for name, proc, want_status, want_text in [*baseline_cases(root), *extract_safety_cases(root), *pac_cases(root), *function_cases(root)]:
             output = proc.stdout + proc.stderr
             ok = proc.returncode == want_status and want_text in output
             print(f"{'ok  ' if ok else 'FAIL'} {name}: exit {proc.returncode}, wanted {want_status} with {want_text!r}")
