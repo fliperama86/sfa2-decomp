@@ -117,8 +117,17 @@ address = 0x8008bf00
   the build and names the image. That is the test of the inference, unit by
   unit. It stays an inference for every unit that has not passed it.
 - A unit can be left out of the second link by name, in the configuration.
-  Its range is then raw in the second image and reported as left out. This is
-  for a difference under investigation, not a default.
+  Its range is then raw in the second image and reported as left out. It is
+  not counted as compiled source there. This is for a difference under
+  investigation, not a default.
+- A second link has one placement map: every unit of the image it is like,
+  at its moved ranges, whether the unit is built in this link or left out.
+  The names of a unit that is left out come from that map as absolute
+  addresses: its declared functions at their moved addresses, and its other
+  global symbols at the moved range of their kind plus the offset in the
+  unit's object, which the first image has built. They never come from the
+  first image's addresses. Leaving a callee raw must not make its first-side
+  address the fallback.
 - A second link exports no names. The resident source keeps reaching
   second-side addresses through `symbols.ld`.
 
@@ -175,6 +184,14 @@ bound to the second placement of the callee. The same fixture with the
 callee's name also supplied at its first-side address must fail and name
 the symbol, so that a binding to the first side cannot pass. A third case
 does the same for a data symbol that one unit defines and the other reads.
+
+For a unit left out: the same two units with the callee left out of the
+second link and its bytes retained raw. The second link must be exact, the
+call word of the built caller must hold the callee's second placement, and
+the report must list the callee as left out and raw, not as compiled
+source. A second-side baseline whose call goes to the first-side address
+must fail, so that the first-side address cannot serve as a fallback
+unnoticed.
 
 ## Pilot
 
