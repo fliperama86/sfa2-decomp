@@ -1310,6 +1310,10 @@ class ModuleSeeds(SeededFixture):
     ]
     CROSS_RES_SIZE = 8 + CALLER_SIZE
     CROSS_MOD = [("mod", "int res_fn(void);\nint mod_fn(void) { return res_fn(); }\n", 0, CALLER_SIZE)]
+    # "S1" and "S2" are one function that calls `ext_fn`, a name of symbols.ld, in two seed builds
+    # in which that name has the addresses `SYM_ADDRESSES`.
+    SYM = [("sym", "int ext_fn(void);\nint sym_fn(void) { return ext_fn(); }\n", 0, CALLER_SIZE)]
+    SYM_ADDRESSES = (0x80310000, 0x80320000)
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -1375,6 +1379,8 @@ class ModuleSeeds(SeededFixture):
         self.chunks["M"] = self._seed_units(
             "M", self.CROSS_MOD, CALLER_SIZE, f"res_fn = {FIXTURE_LOAD + 8:#x};\n"
         )
+        for key, address in zip(("S1", "S2"), self.SYM_ADDRESSES):
+            self.chunks[key] = self._seed_units(key, self.SYM, CALLER_SIZE, f"ext_fn = {address:#x};\n")
 
 
 class ImageFixture:
@@ -1415,19 +1421,21 @@ class ImageFixture:
 
     def install(self, copy: Path, *, overlays: bool = True, pointers: int = IMAGE_POINTERS, images=None,
                 archive=None, archives=None, chunk: bytes = IMAGE_CHUNK, units=None, code: bytes = b"",
-                sources=None, head: str = "") -> None:
+                sources=None, head: str = "", symbols: str = "") -> None:
         """Replace the copy with the fixture.
 
         `archive` None writes the default archive, False writes none.
         `archives` maps further file names to their bytes, `sources` maps unit
         names to the text of their source, and `code` is the resident prefix.
         `head` is text for the start of the configuration, before any table.
+        `symbols` is the text of symbols.ld. A table in an image's mapping, such as
+        `symbols`, is written as `[image.<key>]` after the image's own keys.
         """
         for child in copy.iterdir():
             shutil.rmtree(child) if child.is_dir() else child.unlink()
         executable = self.executable(code)
         (copy / "baseline.bin").write_bytes(executable)
-        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        (copy / "symbols.ld").write_text(symbols or "/* The fixture needs no external symbols. */\n")
         if archive is None:
             archive = bytes(make_archive([(1, chunk), ((1 << 16) | 2, bytes(8))]))
         if archive is not False:
@@ -1444,7 +1452,12 @@ class ImageFixture:
         if overlays:
             text += f"[overlays]\ntable_pointers = {pointers:#x}\n\n"
         for image in [self.image(chunk)] if images is None else images:
-            text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in image.items()) + "\n"
+            scalars = {k: v for k, v in image.items() if not isinstance(v, dict)}
+            text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in scalars.items()) + "\n"
+            for key, table in ((k, v) for k, v in image.items() if isinstance(v, dict)):
+                text += f"[image.{key}]\n" + "".join(
+                    f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in table.items()
+                ) + "\n"
         units = [self.unit("res", FIXTURE_LOAD, image=None), self.unit("mod", FIXTURE_LOAD)] if units is None else units
         for unit in units:
             name = re.search(r'name = "(\w+)"', unit).group(1)
@@ -1748,7 +1761,82 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
             return f"the failed link of a module image must name it: {failures}"
         return None
 
+    # Addresses of the symbol file per image: one function that calls `ext_fn`, in two images, whose
+    # baselines have the call going to two addresses.
+    sym_first, sym_second = seeds.SYM_ADDRESSES
+    sym_slot, sym_address = 2, 0x80800000  # the second image: its slot and its entry in table 0
+    ext_text = f"ext_fn = {sym_first:#x};\n"
+
+    def symbols_pair(table=True):
+        def mutate(copy: Path):
+            seeds.prepare()
+            fx.install(
+                copy,
+                chunk=seeds.chunks["S1"],
+                images=[
+                    fx.image(seeds.chunks["S1"]),
+                    fx.image(
+                        seeds.chunks["S2"], name=other, archive="OTHER.PAC", slot=sym_slot, address=sym_address,
+                        **({"symbols": {"ext_fn": sym_second}} if table else {}),
+                    ),
+                ],
+                archives={"OTHER.PAC": bytes(make_archive([(sym_slot, seeds.chunks["S2"])]))},
+                units=[unit("sym", FIXTURE_LOAD, CALLER_SIZE), unit("sym2", sym_address, CALLER_SIZE, image=other)],
+                sources={"sym": seeds.SYM[0][1], "sym2": seeds.SYM[0][1].replace("sym_fn", "sym2_fn")},
+                symbols=ext_text,
+            )
+
+        return mutate
+
+    def verify_symbols_table(report: dict):
+        problems = []
+        first, second = record(report), record(report, other)
+        if first is None or second is None or not (first["exact"] and second["exact"]):
+            return "both module images must be exact"
+        if first.get("symbols") != {} or second.get("symbols") != {"ext_fn": sym_second}:
+            problems.append(f"symbols of the records: {first.get('symbols')!r}, {second.get('symbols')!r}")
+        out = build_dir(report)
+        if (out / "image-example" / "local.ld").exists() or "local.ld" in (out / "image-example" / "link.ld").read_text():
+            problems.append("an image without the table must have no local.ld and no mention of it")
+        local = out / f"image-{other}" / "local.ld"
+        if assigned_lines(local) != [f"ext_fn = {sym_second:#x};"]:
+            problems.append(f"local.ld of image {other}: {assigned_lines(local)}")
+        link = (out / f"image-{other}" / "link.ld").read_text()
+        order = [link.find(f"{n}.ld") for n in ("symbols", "others", "local")]
+        if -1 in order or order != sorted(order):
+            problems.append("link.ld must include symbols.ld, others.ld and local.ld in this order")
+        return "; ".join(problems) or None
+
+    def verify_symbols_missing(report: dict):
+        first, second = record(report), record(report, other)
+        failures = report.get("failures", [])
+        problems = []
+        if first is None or not first["exact"]:
+            problems.append("the first image must be exact")
+        if second is None or second["exact"]:
+            problems.append("the second image must not be exact")
+        if not failures or not all(f.startswith(f"image '{other}': ") for f in failures):
+            problems.append(f"failures must all name the second image: {failures}")
+        return "; ".join(problems) or None
+
+    def symbols_refused(table):
+        def mutate(copy: Path):
+            fx.install(
+                copy, symbols=ext_text,
+                images=[fx.image(), fx.image(name=other, archive="OTHER.PAC", slot=sym_slot, address=sym_address, symbols=table)],
+                archives={"OTHER.PAC": bytes(make_archive([(sym_slot, IMAGE_CHUNK)]))},
+            )
+
+        return mutate
+
     return [
+        Case("symbols-both-images-exact-with-table", True, "", symbols_pair(), verify_symbols_table),
+        Case("symbols-second-image-fails-without-table", False, f"image '{other}': function 'sym2_fn'",
+             symbols_pair(table=False), verify_symbols_missing, status=1),
+        Case("symbols-key-not-in-symbols-file", False, f"image '{other}': symbols names 'absent_fn', which symbols.ld does not assign",
+             symbols_refused({"absent_fn": sym_second}), status=2),
+        Case("symbols-value-is-a-string", False, f"image '{other}': symbols 'ext_fn' must be an integer address",
+             symbols_refused({"ext_fn": "0x80320000"}), status=2),
         refuses("without-overlays", "needs an [overlays] section", overlays=False),
         refuses("pointers-outside-payload", "not a word address inside the resident payload", pointers=FIXTURE_LOAD + 0x10000),
         refuses("pointers-without-block", "no block of table addresses", pointers=FIXTURE_LOAD + 0x4),
@@ -2794,6 +2882,39 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the module unit must be IDENTICAL after --rebuild: {say(proc)}"
         return None
 
+    def symbols_per_image(ctx):
+        """The unit of each of two images that give one name of symbols.ld two addresses links alone as built."""
+        seeds.prepare()
+        first, second = seeds.SYM_ADDRESSES
+        slot, address = 2, 0x80800000
+        source = seeds.SYM[0][1]
+        images.install(
+            ctx.copy,
+            chunk=seeds.chunks["S1"],
+            images=[
+                images.image(seeds.chunks["S1"]),
+                images.image(
+                    seeds.chunks["S2"], name="other", archive="OTHER.PAC", slot=slot, address=address,
+                    symbols={"ext_fn": second},
+                ),
+            ],
+            archives={"OTHER.PAC": bytes(make_archive([(slot, seeds.chunks["S2"])]))},
+            units=[images.unit("sym", FIXTURE_LOAD, CALLER_SIZE), images.unit("sym2", address, CALLER_SIZE, image="other")],
+            sources={"sym": source, "sym2": source.replace("sym_fn", "sym2_fn")},
+            symbols=f"ext_fn = {first:#x};\n",
+        )
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build does not pass: {describe(proc)}"
+        for unit_name in ("sym", "sym2"):
+            proc = plain(ctx, unit_name)
+            if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+                return f"unit {unit_name!r} must be IDENTICAL with the addresses of its image: {say(proc)}"
+        proc = rebuild(ctx, "sym2")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the unit of the second image must be IDENTICAL after --rebuild: {say(proc)}"
+        return None
+
     def options_need_rebuild(ctx):
         fixture(ctx, build=False)
         proc = subprocess.run(
@@ -2826,6 +2947,7 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-module-publication-fails", module_publication_fails),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
+        CacheCase("symbols-fndiff-unit-in-each-image", symbols_per_image),
         CacheCase("names-fndiff-unit-calls-other-image", names_module_calls_resident),
     ]
 

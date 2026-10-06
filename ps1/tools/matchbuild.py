@@ -126,6 +126,7 @@ class ImageDecl:
     sha256: str
     address: int
     payload: bytes = b""  # the chunk's bytes, filled in once the archive has been read
+    symbols: dict = dataclasses.field(default_factory=dict)  # [image.symbols]: addresses of names of symbols.ld in this image
 
     @property
     def size(self) -> int:
@@ -645,8 +646,20 @@ def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[Im
                 errors.append(f"{where}: '{key}' must be an integer")
             else:
                 numbers[key] = value
+        local: dict[str, int] = {}
+        table_symbols = table.get("symbols", {})
+        if not isinstance(table_symbols, dict):
+            errors.append(f"{where}: 'symbols' must be a table")
+        else:
+            for key, value in table_symbols.items():
+                if not isinstance(value, int) or isinstance(value, bool):
+                    errors.append(f"{where}: symbols '{key}' must be an integer address, got {value!r}")
+                else:
+                    local[key] = value
         if name and archive and sha and len(numbers) == 2:
-            images.append(ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"]))
+            images.append(
+                ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"], symbols=local)
+            )
     return images, declared - {RESIDENT}
 
 
@@ -894,6 +907,12 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         symbol_names = parse_symbols(symbols_path.read_text(), errors)
     except OSError as exc:
         errors.append(f"cannot read {symbols_path}: {exc}")
+    for image in images:
+        errors += [
+            f"image {image.name!r}: symbols names {key!r}, which symbols.ld does not assign"
+            for key in image.symbols
+            if key not in symbol_names
+        ]
     for fn_name, unit_name in seen_functions.items():
         if fn_name in symbol_names:
             errors.append(
@@ -1277,11 +1296,13 @@ def generate_raw_and_linker(
     units: list[UnitDecl],
     ranges: list[tuple[int, int]],
     others: list[tuple[str, int, str]] = (),
+    local: dict[str, int] | None = None,
 ) -> None:
     """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image.
 
     With module images declared, `others` (the functions of the other images) goes to others.ld
-    next to the linker script, which includes it after symbols.ld.
+    next to the linker script, which includes it after symbols.ld. The addresses of a module
+    image's own [image.symbols] go to local.ld, included after others.ld; without any, no file.
     """
     raw_lines = []
     for index, (address, size) in enumerate(ranges):
@@ -1307,6 +1328,10 @@ def generate_raw_and_linker(
     if cfg.images:
         (build / "others.ld").write_text("".join(f"{name} = {address:#x};\n" for name, address, _ in others))
         lines.append(f'INCLUDE "{(build / "others.ld").resolve()}"')
+    (build / "local.ld").unlink(missing_ok=True)  # no stale file from an earlier build in this directory
+    if local:
+        (build / "local.ld").write_text("".join(f"{name} = {address:#x};\n" for name, address in local.items()))
+        lines.append(f'INCLUDE "{(build / "local.ld").resolve()}"')
     lines.append("SECTIONS {")
     for address, name, pattern, attrs in entries:
         lines.append(f" {name} {address:#x}{attrs} : SUBALIGN(1) {{ {pattern} }}")
@@ -1622,6 +1647,7 @@ def link_image(
     assembler: str,
     header: bytes | None = None,
     image: str = RESIDENT,
+    local: dict[str, int] | None = None,
 ) -> tuple[dict, list[str]]:
     """Link one image alone from its unit objects in `build` and check it against its payload.
 
@@ -1636,7 +1662,7 @@ def link_image(
     prefix = cfg.binutils_prefix
     where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
     ranges = raw_ranges(load, len(payload), units)
-    generate_raw_and_linker(cfg, outdir, load, units, ranges, cfg.functions_of_others(image))
+    generate_raw_and_linker(cfg, outdir, load, units, ranges, cfg.functions_of_others(image), local)
     run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
     run(
@@ -1915,7 +1941,7 @@ def build_all(
         try:
             fields, found = link_image(
                 cfg, build, build / f"image-{image.name}", image.address, image.payload,
-                cfg.units_of(image.name), defined, cache_units, assembler, None, image.name,
+                cfg.units_of(image.name), defined, cache_units, assembler, None, image.name, image.symbols,
             )
         except StepError as exc:
             raise StepError(named(image.name, str(exc))) from exc
@@ -1937,6 +1963,7 @@ def build_all(
                 "coverage": fields["coverage"],
                 "bss_bytes": fields["bss_bytes"],
                 "controls": fields["controls"],
+                "symbols": dict(image.symbols),
             }
         )
     if cfg.images and selected != RESIDENT:

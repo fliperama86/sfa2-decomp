@@ -84,6 +84,8 @@ def link_alone(cfg, unit, build: Path) -> Path:
     ]
     if errors:
         raise SystemExit("\n".join(named(unit.image, error) for error in errors))
+    # The addresses that the unit's image gives names of symbols.ld take their place: they come last.
+    local = next((i.symbols for i in cfg.images if i.name == unit.image), {})
     script = build / f"unit-{unit.name}.fndiff.ld"
     placed = ""
     for kind, decl in unit.loaded():
@@ -96,6 +98,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
         + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
         + "".join(f"{name} = {address:#x};\n" for name, address, _ in across)
+        + "".join(f"{name} = {address:#x};\n" for name, address in local.items())
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
         + placed
