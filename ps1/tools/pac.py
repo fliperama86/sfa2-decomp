@@ -412,6 +412,9 @@ def cmd_functions(args) -> int:
                 continue
             seen.add(key)
             base = table[c["slot"]]
+            if base % 4:
+                print(f"slot {c['slot']:#x}: the destination {base:#x} is not a multiple of four")
+                return 1
             words = list(struct.unpack_from(f"<{len(body) // 4}I", body))
             # A symbol belongs to one module and its address lies in others too: see starts_function.
             inside = [a for a in symbols if base <= a < base + 4 * len(words)]

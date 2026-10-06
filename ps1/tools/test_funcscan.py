@@ -314,9 +314,21 @@ def command_cases(root: Path):
         ("start-beyond-the-file", ("--start", hex(BASE + 0x1000))),
         ("start-before-the-file", ("--start", hex(BASE - 4))),
         ("end-beyond-the-file", ("--end", hex(end + 4))),
+        ("end-three-bytes-beyond-the-file", ("--end", hex(end + 3))),
+        ("end-one-byte-beyond-the-file", ("--end", hex(end + 1))),
         ("empty-range", ("--start", hex(BASE + 12), "--end", hex(BASE + 12))),
     ):
         yield f"scan-{label}", tool("scan", code, *base, *limits), 1, "not inside the file"
+    # A range inside the file must start and end on a word.
+    for label, limits in (("start", ("--start", hex(BASE + 13))), ("end", ("--end", hex(end - 3)))):
+        yield f"scan-{label}-not-on-a-word", tool("scan", code, *base, *limits), 1, "does not start and end on a word"
+    yield "scan-range-named-in-the-message", tool("scan", code, *base, "--end", hex(end + 3)), 1, (
+        f"the range to sweep, {BASE:#x} to {end + 3:#x}, is not inside the file"
+    )
+    yield "scan-base-not-a-multiple-of-four", tool("scan", code, "--base", hex(BASE + 2), "--offset", 16), 1, (
+        "the base is not a multiple of four"
+    )
+    yield "scan-negative-offset", tool("scan", code, "--base", hex(BASE), "--offset", -16), 1, "the offset is negative"
     # A jump table is read from the file: the function goes on past its first return to the cases.
     switch = [OPEN, 0x3C018020, 0x8C220030, 0x00400008, NOP, ONE, RETURN, NOP, TWO, RETURN, CLOSE, NOP]
     jumping = root / "jumping.bin"
@@ -332,10 +344,11 @@ def command_cases(root: Path):
     yield "compare-checks", tool("compare", jumping, "--base", hex(BASE), "--inventory", whole), 0, (
         "found only here: 0\nchecks: `jr ra` words outside every function: 0; functions with more than one `jr ra`: 1;"
     )
-    # Bytes after the last whole word are not read.
+    # Bytes after the last whole word are not read, and a range cannot reach into them.
     ragged = root / "ragged.bin"
     ragged.write_bytes(code.read_bytes() + b"\x01\x02")
     yield "scan-file-not-a-multiple-of-four", tool("scan", ragged, *base), 0, "2 functions, 32 bytes"
+    yield "scan-end-in-the-bytes-not-read", tool("scan", ragged, *base, "--end", hex(end + 2)), 1, "not inside the file"
 
     glued = root / "glued.bin"
     glued.write_bytes(struct.pack("<6I", ONE, TWO, *plain))
@@ -389,6 +402,39 @@ def command_cases(root: Path):
         "same but for zero padding that the inventory counts: 0; same start, other size: 1;"
     )
     yield "compare-range-beyond-the-file", tool("compare", code, *base, "--inventory", beyond), 1, "not inside the file"
+    # Near the end of a file: one function and one word of zero after it, 20 bytes. A size that claims
+    # bytes the file does not have is not padding, with the range of the inventory or with a given one.
+    last = ("--end", hex(BASE + 20))
+
+    def claim(name: str, data: bytes, size: int, *limits) -> subprocess.CompletedProcess:
+        (root / f"{name}.bin").write_bytes(data)
+        (root / f"{name}.tsv").write_text(f"{BASE:08x}\t{size}\n")
+        return tool("compare", root / f"{name}.bin", "--base", hex(BASE), "--inventory", root / f"{name}.tsv", *limits)
+
+    tail = struct.pack("<5I", *plain, NOP)
+    is_padding = "same but for zero padding that the inventory counts: 1; same start, other size: 0;"
+    not_padding = "same but for zero padding that the inventory counts: 0; same start, other size: 1;"
+    yield "compare-padding-at-the-end-of-the-file", claim("tail20", tail, 20), 0, is_padding
+    yield "compare-three-bytes-beyond-the-file", claim("tail23", tail, 23), 1, "not inside the file"
+    yield "compare-three-bytes-beyond-the-file-range-given", claim("tail23g", tail, 23, *last), 1, not_padding
+    yield "compare-one-byte-beyond-the-file-range-given", claim("tail21g", tail, 21, *last), 1, not_padding
+    # A size that is not a multiple of four: its range is refused, and with a range given every claimed byte counts.
+    yield "compare-size-not-a-multiple-of-four", claim("tail18", tail, 18), 1, "does not start and end on a word"
+    yield "compare-padding-part-of-a-word", claim("tail18g", tail, 18, *last), 0, is_padding
+    mixed = struct.pack("<5I", *plain, 0x00010000)  # two bytes of zero, then a byte that is not
+    yield "compare-padding-up-to-a-byte-that-is-not-zero", claim("mixed18", mixed, 18, *last), 0, is_padding
+    yield "compare-padding-over-a-byte-that-is-not-zero", claim("mixed19", mixed, 19, *last), 1, not_padding
+    # Bytes after the last whole word of the file are not read: padding before them stays padding, a size
+    # that reaches into them does not.
+    yield "compare-padding-before-bytes-not-read", claim("ragged20", tail + bytes(2), 20), 0, is_padding
+    yield "compare-size-into-bytes-not-read", claim("ragged22", tail + bytes(2), 22), 1, "not inside the file"
+    yield "compare-size-into-bytes-not-read-range-given", claim("ragged22g", tail + bytes(2), 22, *last), 1, not_padding
+    # An inventory whose first address is not on a word.
+    odd = root / "odd.tsv"
+    odd.write_text(f"{BASE + 13:08x}\t16\n")
+    yield "compare-inventory-start-not-on-a-word", tool("compare", code, *base, "--inventory", odd, "--end", hex(end)), 1, (
+        "does not start and end on a word"
+    )
     shifted = root / "shifted.tsv"
     shifted.write_text(f"{BASE + 12:08x}\t16\n{BASE + 36:08x}\t12\n")
     proc = tool("compare", code, *base, "--inventory", shifted)

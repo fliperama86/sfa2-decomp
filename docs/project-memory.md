@@ -2377,9 +2377,9 @@ What ran, all static:
   the resident range and for the 77 contents alike: no `jr ra` outside a
   function, no function with two, no function with two frames, one
   function without a return at its end.
-- `test_funcscan.py`: 136 control cases. `test_disc_tools.py`: 161, from 62.
+- `test_funcscan.py`: 156 control cases. `test_disc_tools.py`: 163, from 62.
 - Mutation runs through `ps1/local/mutate.py`, each run under a time and a
-  memory limit: 162 changes of `funcscan.py` and 99 of the new parts of
+  memory limit: 170 changes of `funcscan.py` and 102 of the new parts of
   `pac.py`, all noticed. Three of them only by a limit, because the changed
   sweep never ends; seven by a crash.
 
@@ -2401,12 +2401,30 @@ Findings that change the plan for overlays:
   function of the same block. The sweep reports that function in two
   parts. The cause is not established.
 
-What interrupted the work: the sessions ended four times on 2026-10-05
-during a mutation run of `funcscan.py`. A changed copy looped while it
-allocated and the machine ran out of memory. The run was repeated from the
-previous transcript each time. A session on the host found the cause and
-wrote the limited harness. The mutation list was then written again from
-the tool's rules, not recovered.
+What review of the pull request corrected:
+
+- `compare` turned byte ranges and sizes into words before it checked
+  them. A size that claimed up to three bytes beyond the file counted as
+  zero padding, and a range that ended up to three bytes beyond the file
+  was accepted. A range is now checked in bytes, must start and end on a
+  word, and padding is checked byte by byte. The base must be a multiple
+  of four and the offset not negative. `pac.py functions` refuses a
+  destination that is not a multiple of four. The first counts of this
+  group were 136 and 161 cases, 162 and 99 changes.
+- The lesson about limits gave the host session's report as fact. It is
+  now attributed, with what was and was not confirmed here.
+- `PLAN.md` and the front page still gave 333,804 raw payload bytes, the
+  value before the thirty-eighth group. It is 333,596.
+
+What interrupted the work, as a session on the Windows host reported it:
+the sessions ended four times on 2026-10-05 during a mutation run of
+`funcscan.py`, because a changed copy looped while it allocated and the
+machine ran out of memory, and each new session repeated the run from the
+previous transcript. That session wrote the limited harness. The report
+could not be confirmed from this machine: the kernel log of the earlier
+boots is gone. Confirmed here: under the harness the same change grows
+until it reaches the memory limit. The mutation list was written again
+from the tool's rules, not recovered.
 
 Lessons:
 
@@ -2426,7 +2444,14 @@ Lessons:
   request. Check each number on a page against the command that prints it
   before writing the sentence.
 - A result in a handoff note is a lead. The note gave 31 of 39 changes
-  noticed for an earlier list; this group reran everything.
+  noticed for an earlier list; this group reran everything. The same holds
+  for what the note says happened: write it as that session's report until
+  it is confirmed here.
+- Rounding down is a conversion that discards. Check a byte quantity
+  before dividing it by four. No change of the mutation list could show
+  the fault, because every case and every change used multiples of four:
+  a mutation run measures the cases against the code, not the code against
+  inputs nobody wrote a case for.
 
 ## Windows reference
 
@@ -2492,8 +2517,12 @@ Lessons:
   `wide_boxes`; use complete statements and assert replacement counts.
 - A mutated copy can loop forever while it allocates. Run every mutant with a
   time limit and a memory limit, and end its whole process group on timeout:
-  `ps1/local/mutate.py` does this. On 2026-10-05 one unbounded `funcscan.py`
-  mutant used all 31 GB of the WSL machine four times and ended every session.
+  `ps1/local/mutate.py` does this. Confirmed here: under that harness two
+  changed copies of `funcscan.py` grow until they reach its 4 GB limit.
+  Reported by a session on the Windows host and not confirmed from this
+  machine, because the kernel log of the earlier boots is gone: on
+  2026-10-05 one such copy, run without limits, used all 31 GB of the WSL
+  machine four times and ended every session.
 - Interactive Windows SSH commands need carriage return. PowerShell 5 can
   treat redirected native stderr banners as errors with Stop enabled; redirect
   native logs through `cmd /d /c`, then check the actual exit code.

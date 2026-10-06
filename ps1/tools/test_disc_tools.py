@@ -453,6 +453,17 @@ def function_cases(root: Path):
     summed = functions(folder("summed", A=make_archive([(4, jumping)]), B=make_archive([(4, jumping + words(STOP))])))
     yield "functions-checks-summed", summed, 0, "outside every function: 0; functions with more than one `jr ra`: 2; functions that open"
 
+    # A destination that is not a multiple of four is refused before any address is turned into a word index.
+    askew = root / "ASKEW.EXE"
+    askew.write_bytes(make_executable(start, pointers, [[0x80300002], [0x80400000], [0x80500000]]))
+    yield "functions-destination-not-a-multiple-of-four", tool(
+        "pac.py", "functions", askew, folder("askew", A=make_archive([(0, make_code(0x80300000))])), "--pointers", hex(pointers)
+    ), 1, "slot 0x0: the destination 0x80300002 is not a multiple of four"
+    # Bytes of a chunk after its last whole word are not swept.
+    yield "functions-chunk-not-a-multiple-of-four", functions(folder("ragged", A=make_archive([(4, side1 + b"\x01\x02")]))), 0, (
+        "  0x4   0x80200000         1            214         10             200"
+    )
+
     # What is not inventoried, and what fails.
     yield "functions-no-code", functions(folder("plain", A=make_archive([(4, b"data" * 8)]))), 1, "no code-bearing chunk found"
     yield "functions-slot-beyond-table", functions(folder("far", A=make_archive([(9, side1)]))), 1, "no code-bearing chunk found"

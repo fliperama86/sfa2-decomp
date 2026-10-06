@@ -46,7 +46,10 @@ usage:
   funcscan.py compare FILE --base ADDRESS [--offset N] [--start A] [--end A] [--show N] --inventory TSV
 
 `compare` sweeps from the first address of the inventory to the end of its
-last function unless `--start` or `--end` says otherwise.
+last function unless `--start` or `--end` says otherwise. A range must lie
+inside the file and start and end on a word, whether it is given or comes
+from the inventory. Bytes after the last whole word of the file are not
+read: a range or a size that reaches into them reaches outside the file.
 """
 
 from __future__ import annotations
@@ -237,12 +240,23 @@ def read_entries(path: str | None) -> list[int]:
 
 
 def run_scan(args, counts: dict, data: list | None = None) -> list[tuple[int, int]]:
-    """The functions of the range the arguments name. `counts` receives the census of that range."""
+    """The functions of the range the arguments name. `counts` receives the census of that range.
+
+    The range is checked in bytes before it is turned into words: it must
+    lie inside the whole words of the file and start and end on one.
+    """
+    if args.base % 4:
+        raise SystemExit("the base is not a multiple of four")
+    if args.offset < 0:
+        raise SystemExit("the offset is negative")
     words = load(args.file, args.offset)
-    low = (args.start - args.base) // 4 if args.start is not None else 0
-    high = (args.end - args.base) // 4 if args.end is not None else len(words)
-    if not 0 <= low < high <= len(words):
-        raise SystemExit("the range to sweep is not inside the file")
+    start = args.base if args.start is None else args.start
+    end = args.base + 4 * len(words) if args.end is None else args.end
+    if not args.base <= start < end <= args.base + 4 * len(words):
+        raise SystemExit(f"the range to sweep, {start:#x} to {end:#x}, is not inside the file")
+    if start % 4 or end % 4:
+        raise SystemExit(f"the range to sweep, {start:#x} to {end:#x}, does not start and end on a word")
+    low, high = (start - args.base) // 4, (end - args.base) // 4
     entries = read_entries(getattr(args, "entries", None))
     functions = scan(words, args.base, low, high, reader(words, args.base), entries, data)
     counts.update(census(words, args.base, low, high, functions))
@@ -293,9 +307,12 @@ def cmd_compare(args) -> int:
     words = load(args.file, args.offset)
 
     def padded(address: int) -> bool:
-        """The inventory's size is the found size plus words of zero."""
-        first, last = (address + found[address] - args.base) // 4, (address + wanted[address] - args.base) // 4
-        return first < last <= len(words) and not any(words[first:last])
+        """The inventory's size is the found size plus bytes of zero, every one of them in the words read."""
+        first, last = address + found[address] - args.base, address + wanted[address] - args.base
+        if not first < last <= 4 * len(words):
+            return False
+        claimed = words[first // 4 : (last + 3) // 4]
+        return not any(struct.pack(f"<{len(claimed)}I", *claimed)[: last - first])
 
     same = sorted(a for a in wanted if found.get(a) == wanted[a])
     padding = sorted(a for a in wanted if a in found and found[a] != wanted[a] and padded(a))
