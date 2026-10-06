@@ -10,7 +10,6 @@ extern void (*data_801e230c_slot2a[])(Object *);
 void func_801e12fc_slot2a(Object *obj);
 void func_801e16a8_slot2a(Object *obj);
 
-/* Residual: loop-invariant constants are hoisted as lui 0xff00 first, then lui 0xff / ori 0xffff; the original has them in the other order. */
 void func_801e1244_slot2a(Object *obj) {
     data_801e2300_slot2a[obj->field_04](obj);
 }
