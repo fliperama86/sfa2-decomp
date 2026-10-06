@@ -125,7 +125,8 @@ class Case:
 
 
 def strip_images(text: str) -> str:
-    """A configuration text without `[overlays]`, without `[[image]]` tables and without the units of module images.
+    """A configuration text without `[overlays]`, without `[[image]]` tables, without the tables inside one
+    (`[image.symbols]`) and without the units of module images.
 
     The text is cut into tables at the lines that open one. The comment lines
     directly above a table belong to it.
@@ -143,7 +144,8 @@ def strip_images(text: str) -> str:
 
     def kept(block: list[str]) -> bool:
         header = next((line.strip() for line in block if line.startswith("[")), "")
-        if header in ("[overlays]", "[[image]]"):
+        table = header.strip("[]").strip()
+        if table in ("overlays", "image") or table.startswith("image."):
             return False
         return not (header == "[[unit]]" and any(re.match(r"image\s*=", line) for line in block))
 
@@ -4064,6 +4066,29 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
             return "a filtered run must say that it is not the full control set"
         return None
 
+    def stripped_tables(root: Path):
+        text = (
+            '[baseline]\nexecutable = "x"\n\n'
+            '[overlays]\ntable = 1\n\n'
+            '# about the first image\n[[image]]\nname = "m"\n\n'
+            '[image.symbols]\nf = 4\n\n'
+            '[[unit]]\nname = "res"\n\n'
+            '[[unit]]\nname = "mod"\nimage = "m"\n\n'
+            '[[image]]\nname = "n"\n\n'
+            '[image.symbols]\ng = 8\n'
+        )
+        left = strip_images(text)
+        want = {"baseline": {"executable": "x"}, "unit": [{"name": "res"}]}
+        try:
+            parsed = tomllib.loads(left)
+        except tomllib.TOMLDecodeError as error:
+            return f"what strip_images leaves must be a configuration ({error}):\n{left}"
+        if parsed != want:
+            return f"strip_images must leave no table of an image and no unit of one:\n{left}"
+        if "about the first image" in left:
+            return "the comment directly above a dropped table must go with it"
+        return None
+
     def include_list(root: Path):
         head = '[baseline]\nexecutable = "x"\n\n[toolchain]\n'
         tail = 'cpp = "clang"\n\n[toolchain.cc1]\nkind = "local"\n'
@@ -4202,6 +4227,7 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
         CacheCase("runner-selection-empty-fails", empty_selection),
         CacheCase("runner-selection-nonempty-runs", nonempty_selection),
         CacheCase("runner-include-list-edit", include_list),
+        CacheCase("runner-strip-images-tables", stripped_tables),
     ]
 
 
