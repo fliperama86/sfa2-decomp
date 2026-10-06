@@ -15,8 +15,8 @@ project.
 
 ## What is here
 
-- 50 C files. 32 have the name they have in the reference; 12 of those were
-  adapted to the SDK version of this game, 20 are unchanged. 18 files named
+- 77 C files. 54 have the name they have in the reference; 14 of those were
+  adapted to the SDK version of this game, 40 are unchanged. 23 files named
   `*_pN.c` are parts of reference files, cut out by this project's importer
   for the functions that compile to the exact bytes of this game.
 - 5 internal headers from the same folder of the reference, 3 of them adapted.

@@ -340,8 +340,14 @@ chose the first on 2026-10-06:
 - Done: a round on the 133 game functions of the resident image that the
   inventory did not list, and second attempts on what it parked. 129 are
   exact and 4 parked.
-- Not decided: identifying the 116 library functions without a family.
+- In progress, the owner's choice of 2026-10-06 for the item after that:
+  identifying the library functions without a family. They were 116. 32
+  now come from the reference's source for the same function, with its
+  name. 84 are left: 54 that the build has under a placeholder name and 30
+  that it does not have.
 - Not decided: more overlay modules as images of the build.
+- Not decided: second attempts, in the form that recovered 11 of 15, on
+  the 72 older parked game functions.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a

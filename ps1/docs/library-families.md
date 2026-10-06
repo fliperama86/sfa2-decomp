@@ -65,15 +65,15 @@ function of the build is a start of it.
 | Family | Library functions | Game functions that call it directly | Game functions that reach it |
 | --- | ---: | ---: | ---: |
 | C library | 9 | 0 | 0 |
-| disc | 34 | 17 | 88 |
+| disc | 36 | 18 | 88 |
 | files | 7 | 0 | 0 |
-| graphics | 77 | 47 | 141 |
+| graphics | 78 | 47 | 141 |
 | memory card | 7 | 1 | 4 |
 | pads | 3 | 1 | 3 |
-| sound | 117 | 11 | 167 |
+| sound | 146 | 14 | 179 |
 | system | 43 | 12 | 47 |
 | threads | 3 | 6 | 51 |
-| unidentified | 116 | 31 | 199 |
+| unidentified | 84 | 26 | 194 |
 
 - 91 game functions call a library function directly.
 - 1,117 game functions reach no library function. 830 of them are closed:
@@ -107,7 +107,7 @@ code that several contents share is counted once in each.
 | graphics | 97 | 597 |
 | memory card | 1 | 13 |
 | pads | 0 | 0 |
-| sound | 0 | 2,521 |
+| sound | 0 | 2,593 |
 | system | 8 | 201 |
 | threads | 0 | 194 |
 | unidentified | 7 | 2,723 |
@@ -123,11 +123,14 @@ code that several contents share is counted once in each.
   resident game code reaches it through them or not at all.
 - The game uses the thread calls of the BIOS: 6 game functions call them
   directly and 51 reach them.
-- 116 library functions have no family. By the rows of `--library-out`,
-  86 are declared by the build outside `sdk/` under a placeholder name and
+- 84 library functions have no family. By the rows of `--library-out`,
+  54 are declared by the build outside `sdk/` under a placeholder name and
   30 are not in the build.
-  199 game functions reach one of them, more than reach any family.
+  194 game functions reach one of them, more than reach any family.
   Identifying those library functions is the largest gap of this table.
+  They were 116 when the table was first made. 32 of them have since been
+  replaced by the reference's source for the same function, which builds
+  to the same bytes, and carry its name and its library's family.
 - Inferred, not established: an unidentified function probably belongs to
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is

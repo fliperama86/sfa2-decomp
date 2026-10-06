@@ -4,14 +4,6 @@
 #include "protos.h"
 
 
-void func_80168f18(short a, unsigned char b, short c) {
-    func_80168e18(a, 0, b, c);
-}
-
-void func_80168f50(short a, short b, unsigned char c, short d) {
-    func_80168e18(a, b, c, d);
-}
-
 void func_80168f88(short a, short b, short c) {
     Rec172 *e = &table_801ac628[a][b];
     e->field_90 &= ~0x200;

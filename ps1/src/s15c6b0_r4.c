@@ -35,27 +35,3 @@ void func_801656ec(void) {
 void func_80165790(void) {
     func_8016cef4();
 }
-
-void func_801657b0(void) {
-    if (data_8018daf0 != 0) {
-        data_8018daf0();
-    }
-    func_80169398();
-}
-
-void func_801657e4(void) {
-    if (data_8018312c == 0) {
-        data_8018312c = 1;
-    } else {
-        data_8018312c = 0;
-        func_80169398();
-    }
-}
-
-void func_8016582c(void) {
-    data_80190944 = 1;
-}
-
-void func_80165840(void) {
-    data_80190944 = 0;
-}

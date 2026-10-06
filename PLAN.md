@@ -24,7 +24,7 @@ is required to finish this selected target unless explicitly added.
   assembly (1,040 bytes): stubs and the program entry routine, code that was
   assembly in the original. Units also own 2,332 bytes of
   read-only data in 19 ranges and 5,900 bytes of initialised data in eight.
-  253 of the C functions are Sony SDK library functions built from a public
+  285 of the C functions are Sony SDK library functions built from a public
   reconstruction of the SDK, part of them adapted to this SDK version (seven
   that the reconstruction lacks were written here, and two that it has only
   in a much smaller later form), and
