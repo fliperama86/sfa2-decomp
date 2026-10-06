@@ -8,6 +8,7 @@ extern u16 *data_801e52c8_slot2a;
 extern int data_801e52c4_slot2a;
 extern void (*data_801e2250_slot2a[])(Object *);
 
+int func_80125268(void);
 void func_801e0518_slot2a(void);
 
 void func_801e03d0_slot2a(void) {

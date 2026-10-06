@@ -15,6 +15,7 @@ struct FrameRecord size=0x10
 0x006 u8 field_06
 0x007 u8 field_07
 0x008 u8 field_08
+0x009 u8 field_09
 0x00a u8 field_0a
 0x00b u8 field_0b
 0x00c u8 field_0c
@@ -432,6 +433,7 @@ struct GameState size=0x364
 0x04d u8 field_4d
 0x04e u8 field_4e
 0x04f u8 field_4f
+0x050 s32 field_50
 0x054 u16 field_54
 0x056 s16 field_56
 0x058 s16 field_58
@@ -534,7 +536,11 @@ struct GameState size=0x364
 0x2aa u16 field_2aa
 0x2b8 s16 field_2b8
 0x2ba s16 field_2ba
+0x2bc u8 field_2bc
+0x2bd u8 field_2bd
 0x2bf u8 field_2bf
+0x2c0 u16 field_2c0
+0x2c2 u16 field_2c2
 0x304 u32* cursor
 0x308 Row* field_308
 0x30c Pair* field_30c
@@ -1249,6 +1255,7 @@ struct Unit size=0xc0
 0x001 u8 field_01
 0x002 u8 field_02
 0x008 u8 field_08
+0x009 u8 field_09
 0x012 u16 field_12
 0x065 u8 field_65
 0x066 u8 field_66
@@ -1284,6 +1291,7 @@ struct Slab172 size=0xac
 0x001 u8 field_01
 0x002 u8 field_02
 0x008 u8 field_08
+0x009 u8 field_09
 0x00b u8 field_0b
 0x018 SequenceStep* sequence
 0x026 u16 field_26
@@ -1588,8 +1596,24 @@ struct SlotCell size=0x28
 0x004 u8 field_04
 0x005 u8 field_05
 0x006 u8 field_06
+0x008 s16 field_08
+0x00a s16 field_0a
+0x00c u8 field_0c
+0x00d u8 field_0d
 0x00e s16 field_0e
+0x010 s16 field_10
+0x012 s16 field_12
+0x014 u8 field_14
+0x015 u8 field_15
 0x016 s16 field_16
+0x018 s16 field_18
+0x01a s16 field_1a
+0x01c u8 field_1c
+0x01d u8 field_1d
+0x020 s16 field_20
+0x022 s16 field_22
+0x024 u8 field_24
+0x025 u8 field_25
 
 struct Slot2aSpawn size=0x8
 0x000 u16 key
@@ -1708,3 +1732,114 @@ struct TilePrim size=0x18
 0x014 u8 u
 0x015 u8 v
 0x016 u16 tpage
+
+struct Slot12List size=0x8
+0x000 u16 count
+0x004 s16* entries
+
+struct Slot12Bank size=0x400
+0x000 Cell20 cells[51]
+
+struct Slot12Tiles size=0x8
+0x000 u8 field_00
+0x002 u8 field_02
+0x004 u16 field_04
+0x006 u16 field_06
+
+struct Slot12Obj size=0x394
+0x001 u8 field_01
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x009 u8 field_09
+0x012 u16 field_12
+0x016 u16 field_16
+0x046 u16 field_46
+0x048 u8 field_48
+0x04c s32 field_4c
+0x050 s32 field_50
+0x054 s32 field_54
+0x058 s32 field_58
+0x05c s16 field_5c
+0x078 s16 field_78
+0x0ee s16 field_ee
+0x0f0 u8 field_f0
+0x15e u8 tbl[4]
+0x21e u16 field_21e
+
+struct Slot12Tile size=0x10
+0x000 u32 tag
+0x004 u8 r
+0x005 u8 g
+0x006 u8 b
+0x008 u16 x
+0x00a u16 y
+0x00c u16 w
+0x00e u16 h
+
+struct Slot12Img size=0xc
+0x000 Rect rect
+0x008 u8* src
+
+struct Slot12Sprite size=0x1c
+0x000 u32 tag
+0x004 u32 word_04
+0x014 u16 field_14
+0x016 u16 field_16
+0x018 u8 field_18
+0x019 u8 field_19
+0x01a u16 field_1a
+
+struct Slot12Cell20 size=0x20
+0x000 Prim head
+0x00f u8 field_0f
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+0x013 u8 field_13
+0x01c u16 field_1c
+0x01e u16 field_1e
+
+struct Slot12Pair size=0x8
+0x000 void* first
+0x004 void* second
+
+struct Slot12Cell size=0x10
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x007 u8 field_07
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c u16 field_0c
+0x00e u16 field_0e
+
+struct Slot12Pos size=0x8
+0x000 u16 x
+0x002 u16 y
+
+struct Slot12Quad size=0x40
+0x000 Slot12Cell cells[4]
+
+struct Slot12Rec size=0x40
+0x000 s32 field_00
+0x004 s16 field_04
+0x006 u16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8* field_0c
+
+struct Slot12Prim size=0x20
+0x004 u32 cmd
+0x014 s16 x
+0x016 s16 y
+0x018 u8 u
+0x019 u8 v
+0x01a u16 tpage
+
+struct Slot12Count size=0x8
+0x000 s16 value
+

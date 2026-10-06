@@ -2,10 +2,10 @@
 #include "../game.h"
 #include "../externs.h"
 
-void func_801307e0(Object *object, int index);
+void func_801307e0(Object *object, int arg);
 void func_80141f28(Object *object, short delta);
 void func_801312b8(Object *object);
-void func_80131468(void);
+void func_80131468(Object *obj);
 extern s16 data_8007e878_slot16[];
 void overlay_left_kind(Object *object);
 void select_box_tables(Object *object);
@@ -50,6 +50,6 @@ void func_8007bf98_slot16(Object *object) {
     func_801312b8(object);
 }
 
-void func_8007bfb8_slot16(void) {
-    func_80131468();
+void func_8007bfb8_slot16(Object *obj) {
+    func_80131468(obj);
 }

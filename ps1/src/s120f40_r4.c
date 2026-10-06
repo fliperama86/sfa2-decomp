@@ -4,10 +4,10 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-u8 func_80125268(void);
+int func_80125268(void);
 
 void func_80121a64(Object *object) {
-    if (func_80125268() != 0) {
+    if ((u8)func_80125268() != 0) {
         data_8018f5a0->field_50 += 2;
         object->field_ab = 1;
     } else {
@@ -36,7 +36,7 @@ void func_80121b00(Object *object) {
 
 void func_80121bc0(Object *object) {
     int n;
-    if (func_80125268() != 0 || (n = data_8018f5a0->field_60 - 1, data_8018f5a0->field_60 = n, (s16)n < 0)) {
+    if ((u8)func_80125268() != 0 || (n = data_8018f5a0->field_60 - 1, data_8018f5a0->field_60 = n, (s16)n < 0)) {
         data_8018f5a0->field_50++;
         data_80190a40 = 1;
         func_801373e8();
@@ -60,10 +60,10 @@ void func_80121c88(Object *object) {
 
 void func_80121ce0(Object *object) {
     int n;
-    if (func_80125268() != 0) {
+    if ((u8)func_80125268() != 0) {
         func_8014f4d4(6, 3);
     }
-    if (func_80125268() != 0 || (n = data_8018f5a0->field_60 - 1, data_8018f5a0->field_60 = n, (s16)n < 0)) {
+    if ((u8)func_80125268() != 0 || (n = data_8018f5a0->field_60 - 1, data_8018f5a0->field_60 = n, (s16)n < 0)) {
         data_8018f5a0->field_50++;
         data_8018f5a0->field_60 = 0x1c;
         object->field_ab = 2;

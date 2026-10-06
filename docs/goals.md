@@ -355,7 +355,15 @@ chose the first on 2026-10-06:
   of naming library functions were used up: more overlay modules as images
   of the build. The first of them is the one content of slot `0xb`, a
   module of 61 functions that 24 archives carry: 54 are exact, 5,356 of
-  7,960 bytes, and 7 are parked with candidates after two attempts.
+  7,960 bytes, and 7 are parked with candidates after two attempts. The
+  second is the one content of slot `0x12`, a module of 187 functions that
+  42 archives carry: 177 are exact, 26,016 of 29,928 bytes, and 10 are
+  parked with candidates. 158 were exact after the first attempt and 19
+  of the other 29 after a second. Two source forms were found on the way
+  and are in the matching guide: the tag word of a primitive is written
+  with bit-fields, and a pointer held in two variables keeps a store and
+  a load in source order. Neither has been tried yet on the functions
+  parked before it was known.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -380,7 +388,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b` and `slot16` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot12` and `slot16` that are rebuilt so far
 (`slot17` is linked from the source of `slot16`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final

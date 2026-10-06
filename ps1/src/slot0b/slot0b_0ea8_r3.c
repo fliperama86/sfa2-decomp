@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern u16 data_801e4b40_slot0b[];
-void func_801e1598_slot0b(Slot0bObj *obj, u8 index);
+void func_801e1598_slot0b(Slot0bObj *obj, int arg);
 void func_801e1624_slot0b(Slot0bObj *obj);
 
 void func_801e1144_slot0b(Object *obj) {

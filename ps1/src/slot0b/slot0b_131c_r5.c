@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern void (*data_801e4cec_slot0b[])(Object *);
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 
 void func_801e16d0_slot0b(Slot0bCursor *c) {
     Rect rect;
     Job *job;
-    job = func_8011f4a4();
+    job = (Job *)func_8011f4a4();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1e7;

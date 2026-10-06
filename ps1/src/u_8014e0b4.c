@@ -8,6 +8,7 @@ u8 func_8014e25c(Object *object);
 /* Form found by automatic permutation search. */
 int func_8014e0b4(Object *object)
 {
+  /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[4];
   int flags;
   Object *other;

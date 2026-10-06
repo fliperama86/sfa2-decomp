@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 extern void (*data_8007e870_slot16[])(Object *);
-extern int func_80149b80(Object *obj);
+extern u8 func_80149b80(Object *obj);
 extern void func_8007bf74_slot16(Object *obj);
 extern void func_8007bf98_slot16(Object *obj);
-extern void func_8007bfb8_slot16(void);
+extern void func_8007bfb8_slot16(Object *obj);
 
 void func_8007bd50_slot16(Object *obj) {
     if ((s16)obj->field_3a < 0) {
@@ -33,7 +33,7 @@ void func_8007bdf8_slot16(Object *obj) {
 
 void func_8007be28_slot16(Object *obj) {
     if ((s16)obj->field_3a < 0) {
-        func_8007bfb8_slot16();
+        func_8007bfb8_slot16(obj);
     } else {
         if (func_80149b80(obj) & 0xff) {
             obj->field_07 = 0;

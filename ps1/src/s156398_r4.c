@@ -7,6 +7,7 @@
 
 void func_80156bc8(GameState *state, Object *object) {
     TextBuf *text;
+    /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     int i;
 

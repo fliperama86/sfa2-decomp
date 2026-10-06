@@ -52,7 +52,8 @@ void func_80130768(Object *object, s16 index, SequenceStep **table) {
     }
 }
 
-void func_801307e0(Object *object, u16 index) {
+void func_801307e0(Object *object, int arg) {
+    u16 index = arg;
     if (object->field_cd == 0) {
         if (object->side == 0) object->sequence = sequences_left[index];
         else object->sequence = sequences_right[index];
