@@ -835,7 +835,6 @@ scr_17c_right = 0x1f80017c;
 
 /* Added by src.u_m14dd14. */
 data_8017e9d4 = 0x8017e9d4;
-func_8014f918 = 0x8014f918;
 
 /* Added by src.u_m14ff20. */
 func_80166144 = 0x80166144;
@@ -1770,3 +1769,71 @@ data_8007e870_slot16 = 0x8007e870;
 
 /* Added by src.u_slot16_be8c. */
 data_8007e878_slot16 = 0x8007e878;
+
+/* Added by src.u_n1193fc. */
+func_800100a4 = 0x800100a4;
+func_80010e60 = 0x80010e60;
+data_80185fc8 = 0x80185fc8;
+data_80185fcc = 0x80185fcc;
+data_80185fd0 = 0x80185fd0;
+data_80185fd4 = 0x80185fd4;
+data_8016e9a8 = 0x8016e9a8;
+data_8016ea60 = 0x8016ea60;
+data_8016e9b8 = 0x8016e9b8;
+func_801254f4 = 0x801254f4;
+func_80125684 = 0x80125684;
+
+/* Added by src.u_n125b18. */
+table_8016f520 = 0x8016f520;
+table_80171988 = 0x80171988;
+table_8017193c = 0x8017193c;
+
+/* Added by src.u_n12b8dc. */
+table_8017ab88 = 0x8017ab88;
+func_8013d1a8 = 0x8013d1a8;
+func_8012eaf4 = 0x8012eaf4;
+func_801368c0 = 0x801368c0;
+func_80136abc = 0x80136abc;
+
+/* Added by src.u_n13d520. */
+func_8013d520 = 0x8013d520;
+func_80141e5c = 0x80141e5c;
+
+/* Added by src.u_n145b60. */
+data_80190468 = 0x80190468;
+data_8017cf60 = 0x8017cf60;
+func_80145d20 = 0x80145d20;
+func_80145e70 = 0x80145e70;
+func_80145f98 = 0x80145f98;
+
+/* Added by src.u_n14a648. */
+data_8017ec44 = 0x8017ec44;
+data_8018d260 = 0x8018d260;
+data_80181044 = 0x80181044;
+data_80181060 = 0x80181060;
+data_801811aa = 0x801811aa;
+data_80181206 = 0x80181206;
+data_8018124a = 0x8018124a;
+func_8014b08c = 0x8014b08c;
+func_801545cc = 0x801545cc;
+func_8014e54c = 0x8014e54c;
+
+/* Added by src.u_n154998. */
+data_801812e4 = 0x801812e4;
+data_80181304 = 0x80181304;
+data_80181314 = 0x80181314;
+
+/* Added by src.u_n156220. */
+data_80181668 = 0x80181668;
+data_80181684 = 0x80181684;
+data_801816a0 = 0x801816a0;
+data_801816bc = 0x801816bc;
+data_801816d4 = 0x801816d4;
+data_801816e4 = 0x801816e4;
+data_80181708 = 0x80181708;
+data_8018171c = 0x8018171c;
+data_8018172c = 0x8018172c;
+data_8018173c = 0x8018173c;
+data_80181758 = 0x80181758;
+data_80181774 = 0x80181774;
+data_8018178c = 0x8018178c;

@@ -7214,3 +7214,723 @@ functions = [
   { name = "func_8007bf98_slot16", address = 0x8007bf98, size = 32 },
   { name = "func_8007bfb8_slot16", address = 0x8007bfb8, size = 32 },
 ]
+
+[[unit]]
+name = "n1193fc_r1"
+source = "n1193fc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801193fc", address = 0x801193fc, size = 36 },
+  { name = "func_80119420", address = 0x80119420, size = 36 },
+]
+
+[[unit]]
+name = "n1193fc_r2"
+source = "n1193fc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119d00", address = 0x80119d00, size = 8 },
+]
+
+[[unit]]
+name = "n1193fc_r3"
+source = "n1193fc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011a77c", address = 0x8011a77c, size = 8 },
+]
+
+[[unit]]
+name = "n1193fc_r4"
+source = "n1193fc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ead4", address = 0x8011ead4, size = 8 },
+  { name = "func_8011eadc", address = 0x8011eadc, size = 8 },
+]
+
+[[unit]]
+name = "n1193fc_r5"
+source = "n1193fc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f09c", address = 0x8011f09c, size = 76 },
+  { name = "func_8011f0e8", address = 0x8011f0e8, size = 100 },
+]
+
+[[unit]]
+name = "n1193fc_r6"
+source = "n1193fc_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f32c", address = 0x8011f32c, size = 96 },
+]
+
+[[unit]]
+name = "n1193fc_r7"
+source = "n1193fc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f6b4", address = 0x8011f6b4, size = 44 },
+  { name = "func_8011f6e0", address = 0x8011f6e0, size = 44 },
+]
+
+[[unit]]
+name = "n1193fc_r8"
+source = "n1193fc_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fe40", address = 0x8011fe40, size = 136 },
+]
+
+[[unit]]
+name = "n1193fc_r9"
+source = "n1193fc_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011ffa8", address = 0x8011ffa8, size = 52 },
+]
+
+[[unit]]
+name = "n1193fc_r10"
+source = "n1193fc_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801209bc", address = 0x801209bc, size = 8 },
+]
+
+[[unit]]
+name = "n1193fc_r11"
+source = "n1193fc_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121d80", address = 0x80121d80, size = 68 },
+]
+
+[[unit]]
+name = "n1193fc_r12"
+source = "n1193fc_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80121ef0", address = 0x80121ef0, size = 88 },
+  { name = "func_80121f48", address = 0x80121f48, size = 44 },
+]
+
+[[unit]]
+name = "n1193fc_r13"
+source = "n1193fc_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801223e4", address = 0x801223e4, size = 64 },
+]
+
+[[unit]]
+name = "n1193fc_r14"
+source = "n1193fc_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801225d4", address = 0x801225d4, size = 92 },
+]
+
+[[unit]]
+name = "n1193fc_r15"
+source = "n1193fc_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012322c", address = 0x8012322c, size = 40 },
+]
+
+[[unit]]
+name = "n1193fc_r16"
+source = "n1193fc_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80123804", address = 0x80123804, size = 240 },
+  { name = "func_801238f4", address = 0x801238f4, size = 116 },
+]
+
+[[unit]]
+name = "n1193fc_r17"
+source = "n1193fc_r17.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801252f0", address = 0x801252f0, size = 164 },
+]
+
+[[unit]]
+name = "n1193fc_r18"
+source = "n1193fc_r18.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012572c", address = 0x8012572c, size = 8 },
+  { name = "func_80125734", address = 0x80125734, size = 148 },
+  { name = "func_801257c8", address = 0x801257c8, size = 8 },
+]
+
+[[unit]]
+name = "n125b18_r1"
+source = "n125b18_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125b18", address = 0x80125b18, size = 28 },
+]
+
+[[unit]]
+name = "n125b18_r2"
+source = "n125b18_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80126618", address = 0x80126618, size = 8 },
+]
+
+[[unit]]
+name = "n125b18_r3"
+source = "n125b18_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801280f0", address = 0x801280f0, size = 156 },
+  { name = "func_8012818c", address = 0x8012818c, size = 160 },
+  { name = "func_8012822c", address = 0x8012822c, size = 84 },
+  { name = "func_80128280", address = 0x80128280, size = 84 },
+  { name = "func_801282d4", address = 0x801282d4, size = 156 },
+  { name = "func_80128370", address = 0x80128370, size = 160 },
+  { name = "func_80128410", address = 0x80128410, size = 84 },
+]
+
+[[unit]]
+name = "n125b18_r4"
+source = "n125b18_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801284f0", address = 0x801284f0, size = 156 },
+  { name = "func_8012858c", address = 0x8012858c, size = 84 },
+]
+
+[[unit]]
+name = "n125b18_r5"
+source = "n125b18_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129468", address = 0x80129468, size = 528 },
+]
+
+[[unit]]
+name = "n125b18_r6"
+source = "n125b18_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80129c90", address = 0x80129c90, size = 132 },
+]
+
+[[unit]]
+name = "n125b18_r7"
+source = "n125b18_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b628", address = 0x8012b628, size = 400 },
+]
+
+[[unit]]
+name = "n12b8dc_r1"
+source = "n12b8dc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012b8dc", address = 0x8012b8dc, size = 420 },
+]
+
+[[unit]]
+name = "n12b8dc_r2"
+source = "n12b8dc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012de9c", address = 0x8012de9c, size = 72 },
+]
+
+[[unit]]
+name = "n12b8dc_r4"
+source = "n12b8dc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801311a8", address = 0x801311a8, size = 272 },
+]
+
+[[unit]]
+name = "n12b8dc_r7"
+source = "n12b8dc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136ffc", address = 0x80136ffc, size = 8 },
+]
+
+[[unit]]
+name = "n12b8dc_r8"
+source = "n12b8dc_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137c88", address = 0x80137c88, size = 56 },
+]
+
+[[unit]]
+name = "n12b8dc_r9"
+source = "n12b8dc_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139d4c", address = 0x80139d4c, size = 112 },
+]
+
+[[unit]]
+name = "n12b8dc_r10"
+source = "n12b8dc_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013a204", address = 0x8013a204, size = 88 },
+  { name = "func_8013a25c", address = 0x8013a25c, size = 72 },
+]
+
+[[unit]]
+name = "n12b8dc_r11"
+source = "n12b8dc_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013a320", address = 0x8013a320, size = 48 },
+]
+
+[[unit]]
+name = "n12b8dc_r12"
+source = "n12b8dc_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ada4", address = 0x8013ada4, size = 28 },
+  { name = "func_8013adc0", address = 0x8013adc0, size = 28 },
+  { name = "func_8013addc", address = 0x8013addc, size = 28 },
+  { name = "func_8013adf8", address = 0x8013adf8, size = 8 },
+]
+
+[[unit]]
+name = "n12b8dc_r13"
+source = "n12b8dc_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013bdf4", address = 0x8013bdf4, size = 432 },
+]
+
+[[unit]]
+name = "n12b8dc_r14"
+source = "n12b8dc_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d0c8", address = 0x8013d0c8, size = 52 },
+]
+
+[[unit]]
+name = "n12b8dc_r15"
+source = "n12b8dc_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013d210", address = 0x8013d210, size = 12 },
+]
+
+[[unit]]
+name = "n13d520_r2"
+source = "n13d520_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140f00", address = 0x80140f00, size = 36 },
+  { name = "func_80140f24", address = 0x80140f24, size = 36 },
+  { name = "func_80140f48", address = 0x80140f48, size = 8 },
+  { name = "func_80140f50", address = 0x80140f50, size = 36 },
+  { name = "func_80140f74", address = 0x80140f74, size = 36 },
+]
+
+[[unit]]
+name = "n13d520_r3"
+source = "n13d520_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141248", address = 0x80141248, size = 92 },
+]
+
+[[unit]]
+name = "n13d520_r4"
+source = "n13d520_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141e34", address = 0x80141e34, size = 40 },
+]
+
+[[unit]]
+name = "n13d520_r5"
+source = "n13d520_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801428a8", address = 0x801428a8, size = 60 },
+]
+
+[[unit]]
+name = "n13d520_r6"
+source = "n13d520_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142fbc", address = 0x80142fbc, size = 44 },
+]
+
+[[unit]]
+name = "n13d520_r7"
+source = "n13d520_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801436c8", address = 0x801436c8, size = 20 },
+]
+
+[[unit]]
+name = "n13d520_r8"
+source = "n13d520_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143b3c", address = 0x80143b3c, size = 84 },
+  { name = "func_80143b90", address = 0x80143b90, size = 140 },
+]
+
+[[unit]]
+name = "n13d520_r9"
+source = "n13d520_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143dcc", address = 0x80143dcc, size = 48 },
+  { name = "func_80143dfc", address = 0x80143dfc, size = 52 },
+  { name = "func_80143e30", address = 0x80143e30, size = 48 },
+]
+
+[[unit]]
+name = "n13d520_r10"
+source = "n13d520_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80143f98", address = 0x80143f98, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r11"
+source = "n13d520_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801440e4", address = 0x801440e4, size = 60 },
+]
+
+[[unit]]
+name = "n13d520_r12"
+source = "n13d520_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144320", address = 0x80144320, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r13"
+source = "n13d520_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144500", address = 0x80144500, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r14"
+source = "n13d520_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801446f0", address = 0x801446f0, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r15"
+source = "n13d520_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801449d4", address = 0x801449d4, size = 40 },
+]
+
+[[unit]]
+name = "n13d520_r16"
+source = "n13d520_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144b98", address = 0x80144b98, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r17"
+source = "n13d520_r17.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144d88", address = 0x80144d88, size = 68 },
+]
+
+[[unit]]
+name = "n13d520_r18"
+source = "n13d520_r18.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144e18", address = 0x80144e18, size = 120 },
+]
+
+[[unit]]
+name = "n13d520_r19"
+source = "n13d520_r19.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80144eb0", address = 0x80144eb0, size = 20 },
+]
+
+[[unit]]
+name = "n13d520_r20"
+source = "n13d520_r20.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80145a20", address = 0x80145a20, size = 128 },
+]
+
+[[unit]]
+name = "n145b60_r1"
+source = "n145b60_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80145b60", address = 0x80145b60, size = 128 },
+]
+
+[[unit]]
+name = "n145b60_r3"
+source = "n145b60_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801485c8", address = 0x801485c8, size = 64 },
+]
+
+[[unit]]
+name = "n145b60_r4"
+source = "n145b60_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801486a4", address = 0x801486a4, size = 144 },
+]
+
+[[unit]]
+name = "n145b60_r5"
+source = "n145b60_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014894c", address = 0x8014894c, size = 184 },
+]
+
+[[unit]]
+name = "n145b60_r6"
+source = "n145b60_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801495c4", address = 0x801495c4, size = 20 },
+]
+
+[[unit]]
+name = "n145b60_r7"
+source = "n145b60_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80149920", address = 0x80149920, size = 164 },
+  { name = "func_801499c4", address = 0x801499c4, size = 228 },
+]
+
+[[unit]]
+name = "n14a648_r1"
+source = "n14a648_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a648", address = 0x8014a648, size = 64 },
+]
+
+[[unit]]
+name = "n14a648_r2"
+source = "n14a648_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b0e4", address = 0x8014b0e4, size = 88 },
+]
+
+[[unit]]
+name = "n14a648_r3"
+source = "n14a648_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014bfa8", address = 0x8014bfa8, size = 100 },
+]
+
+[[unit]]
+name = "n14a648_r4"
+source = "n14a648_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014c3ac", address = 0x8014c3ac, size = 96 },
+  { name = "func_8014c40c", address = 0x8014c40c, size = 92 },
+]
+
+[[unit]]
+name = "n14a648_r5"
+source = "n14a648_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e404", address = 0x8014e404, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r6"
+source = "n14a648_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e474", address = 0x8014e474, size = 72 },
+  { name = "func_8014e4bc", address = 0x8014e4bc, size = 72 },
+]
+
+[[unit]]
+name = "n14a648_r8"
+source = "n14a648_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e654", address = 0x8014e654, size = 92 },
+]
+
+[[unit]]
+name = "n14a648_r9"
+source = "n14a648_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014f918", address = 0x8014f918, size = 216 },
+]
+
+[[unit]]
+name = "n14a648_r10"
+source = "n14a648_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801503f0", address = 0x801503f0, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r11"
+source = "n14a648_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801507dc", address = 0x801507dc, size = 12 },
+]
+
+[[unit]]
+name = "n14a648_r12"
+source = "n14a648_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150cc8", address = 0x80150cc8, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r13"
+source = "n14a648_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80150f40", address = 0x80150f40, size = 60 },
+]
+
+[[unit]]
+name = "n14a648_r14"
+source = "n14a648_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151018", address = 0x80151018, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r15"
+source = "n14a648_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152358", address = 0x80152358, size = 76 },
+]
+
+[[unit]]
+name = "n14a648_r16"
+source = "n14a648_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152404", address = 0x80152404, size = 64 },
+]
+
+[[unit]]
+name = "n14a648_r17"
+source = "n14a648_r17.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152700", address = 0x80152700, size = 116 },
+]
+
+[[unit]]
+name = "n14a648_r18"
+source = "n14a648_r18.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153c90", address = 0x80153c90, size = 20 },
+  { name = "func_80153ca4", address = 0x80153ca4, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r19"
+source = "n14a648_r19.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153fb0", address = 0x80153fb0, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r20"
+source = "n14a648_r20.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015405c", address = 0x8015405c, size = 8 },
+  { name = "func_80154064", address = 0x80154064, size = 8 },
+]
+
+[[unit]]
+name = "n14a648_r21"
+source = "n14a648_r21.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80154978", address = 0x80154978, size = 32 },
+]
+
+[[unit]]
+name = "n154998"
+source = "n154998.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80154998", address = 0x80154998, size = 1776 },
+]
+
+[[unit]]
+name = "n156220_r1"
+source = "n156220_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80156220", address = 0x80156220, size = 368 },
+  { name = "func_80156390", address = 0x80156390, size = 8 },
+]
+
+[[unit]]
+name = "n156220_r2"
+source = "n156220_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801565b8", address = 0x801565b8, size = 60 },
+]
+
+[[unit]]
+name = "n156220_r3"
+source = "n156220_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801567e4", address = 0x801567e4, size = 52 },
+]

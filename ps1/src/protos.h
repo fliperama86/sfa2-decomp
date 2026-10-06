@@ -564,7 +564,7 @@ void func_8014f604(u8 a);
 void func_8014f690(Menu *m, int a, int b);
 void func_8014f76c(Ctl *p);
 void func_8014f7f8(Menu *m);
-void func_8014f918(void);
+void func_8014f918(int a);
 void func_8015003c(Stream *stream);
 void func_80150100(Stream *stream);
 void func_80150180(Stream *stream, u8 *p);
