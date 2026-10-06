@@ -375,10 +375,12 @@ whole build, and the removed report makes sure that no earlier result is
 taken for one. A changed header or field table is seen in this one unit
 only; the whole build shows what it does to the others.
 
-Without a build directory of the tag, or without the objects of the other
-units in it, `--rebuild` stops with exit status 2 and says to run
-`matchbuild.py` first. A failed step of the unit's pipeline or a failed pin
-check ends it with status 1 and leaves the unit's previous object in place.
+Without a build directory of the tag `--rebuild` stops with exit status 2
+and says to run `matchbuild.py` first. An object of another unit that is
+missing there is treated as without `--rebuild`: it contributes nothing, and
+a reference to it fails the link. A failed step of the unit's pipeline or a
+failed pin check ends it with status 1 and leaves the unit's previous object
+and the tag's report in place.
 
 A unit of a module image is compared with the payload of its image, and the
 units linked beside it are those of the same image. That holds with and
