@@ -29,13 +29,13 @@ from matchbuild import (  # noqa: E402
     BSS_SECTIONS,
     DISCARDED_SECTIONS,
     LOADED_SECTIONS,
-    RESIDENT,
     ConfigError,
     EnvironmentFailure,
     StepError,
     cache_directory,
     defined_symbols,
     load_config,
+    named,
     prepare_pipeline,
     symbol_address,
     unit_object,
@@ -47,14 +47,15 @@ def words(data: bytes) -> list[bytes]:
 
 
 def link_alone(cfg, unit, build: Path) -> Path:
-    """Link one unit object at its start address with every other symbol as an address."""
+    """Link one unit object at its start address with every other symbol of its image as an address."""
     obj = build / f"unit-{unit.name}.o"
     if not obj.is_file():
         raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
-    others = [fn for other in cfg.units_of(RESIDENT) if other.name != unit.name for fn in other.functions]
+    neighbours = cfg.units_of(unit.image)
+    others = [fn for other in neighbours if other.name != unit.name for fn in other.functions]
     assigned = {fn.name for fn in others}
     siblings = []
-    for other in cfg.units_of(RESIDENT):
+    for other in neighbours:
         sibling = build / f"unit-{other.name}.o"
         if other.name == unit.name or not sibling.is_file():
             continue
@@ -144,14 +145,18 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
     }
     try:
         scratch.mkdir()
+        pipeline = None
         try:
             pipeline, failures = prepare_pipeline(cfg, tag, scratch, cache_dir, report)
             if pipeline is not None:
                 failures, built = unit_object(pipeline, unit, scratch, report)
+                failures = [named(unit.image, reason) for reason in failures]
                 if not built:
                     pipeline = None
         except StepError as exc:
-            pipeline, failures = None, [str(exc)]
+            # A failed step of a module unit names its image, as in a whole build. A failure of the shared setup does not.
+            failed_unit = pipeline is not None
+            pipeline, failures = None, [named(unit.image, str(exc)) if failed_unit else str(exc)]
         except EnvironmentFailure as exc:
             print(f"ENVIRONMENT ERROR: {exc}")
             return 3
@@ -203,9 +208,6 @@ def main() -> int:
     if unit is None:
         print(f"no unit named {args.unit!r}")
         return 2
-    if unit.image != RESIDENT:
-        print(f"unit {unit.name!r} belongs to module image {unit.image!r}: fndiff compares resident units only")
-        return 2
     build = config_path.parent.parent / "build" / args.tag
     if args.rebuild:
         if not build.is_dir():
@@ -226,8 +228,11 @@ def main() -> int:
     else:
         want_address, want_size = unit.start, unit.end - unit.start
         got_address, got_size = text_address, len(text)
-    offset = want_address - cfg.load
-    want = cfg.payload[offset : offset + want_size]
+    # The baseline of a module unit is the payload of its own image.
+    image = next((i for i in cfg.images if i.name == unit.image), None)
+    base, payload = (cfg.load, cfg.payload) if image is None else (image.address, image.payload)
+    offset = want_address - base
+    want = payload[offset : offset + want_size]
     got = text[got_address - text_address : got_address - text_address + got_size]
 
     disassembler = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32 + CS_MODE_LITTLE_ENDIAN)

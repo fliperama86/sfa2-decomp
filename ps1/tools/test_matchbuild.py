@@ -1245,6 +1245,7 @@ IMAGE_TABLE0 = [0x80700000, FIXTURE_LOAD, 0x80800000, 0x80900000]
 IMAGE_CHUNK = bytes(range(1, 17))
 IMAGE_SIZE = len(IMAGE_CHUNK)
 IMAGE_BODY = "int {name}_fn(void) {{ return {value}; }}\n"
+CALLER_SIZE = 32  # a function that calls another: frame, jal and its delay slot, restore, return
 
 
 class ModuleSeeds(SeededFixture):
@@ -1258,6 +1259,12 @@ class ModuleSeeds(SeededFixture):
 
     label = "module-image"
     SEEDS = {"A": (7, 0, 8), "B": (9, 0, 8), "C": (7, 4, 15)}
+    # "D" is two units, the second of which calls the function of the first.
+    CALLS = [
+        ("callee", IMAGE_BODY.format(name="callee", value=7), 0, 8),
+        ("caller", "int callee_fn(void);\nint caller_fn(void) { return callee_fn(); }\n", 8, CALLER_SIZE),
+    ]
+    CALLS_SIZE = 8 + CALLER_SIZE
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -1266,6 +1273,10 @@ class ModuleSeeds(SeededFixture):
         self.chunks: dict[str, bytes] = {}
 
     def _seed(self, key: str, value: int, offset: int, total: int) -> bytes:
+        return self._seed_units(key, [("value", IMAGE_BODY.format(name="value", value=value), offset, 8)], total)
+
+    def _seed_units(self, key: str, units: list[tuple[str, str, int, int]], total: int) -> bytes:
+        """The image of a seed build of units (name, source, offset, size), each with its function `<name>_fn`."""
         name = f"{self.label}-{key}"
         copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
         build = self.cfg_dir.parent / "build" / f"selftest-{name}"
@@ -1275,7 +1286,16 @@ class ModuleSeeds(SeededFixture):
                 shutil.rmtree(leftover)
         copy.mkdir()
         try:
-            (copy / "value.c").write_text(IMAGE_BODY.format(name="value", value=value))
+            text = ""
+            for unit_name, source, offset, size in units:
+                (copy / f"{unit_name}.c").write_text(source)
+                text += (
+                    "[[unit]]\n"
+                    f'name = "{unit_name}"\n'
+                    f'source = "{unit_name}.c"\n'
+                    f"flags = [{self.flags}]\n"
+                    f'functions = [ {{ name = "{unit_name}_fn", address = {FIXTURE_LOAD + offset:#x}, size = {size} }} ]\n\n'
+                )
             (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
             executable = fixture_executable(bytes(total))
             (copy / "baseline.bin").write_bytes(executable)
@@ -1284,11 +1304,7 @@ class ModuleSeeds(SeededFixture):
                 'executable = "baseline.bin"\n'
                 f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
                 + toml_table("toolchain", self.toolchain)
-                + "[[unit]]\n"
-                'name = "value"\n'
-                'source = "value.c"\n'
-                f"flags = [{self.flags}]\n"
-                f'functions = [ {{ name = "value_fn", address = {FIXTURE_LOAD + offset:#x}, size = 8 }} ]\n'
+                + text
             )
             proc = run_tool(copy / "build.toml", f"selftest-{name}", cache)
             image = build / "image.bin"
@@ -1304,6 +1320,7 @@ class ModuleSeeds(SeededFixture):
         if self.chunks:
             return
         self.chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
+        self.chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
 
 
 class ImageFixture:
@@ -1642,8 +1659,7 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("image-build-whole-c-function", True, "", built("A", units=[mod()]), verify_whole_c),
         Case("image-build-raw-bytes-around", True, "",
              built("C", units=[res(), unit("mod", FIXTURE_LOAD + 4, 8)]), verify_raw_around),
-        Case("image-build-same-addresses-as-resident", True, "", built("A", units=[res(), mod()]), verify_same_addresses,
-             fndiff=("mod", 2, "belongs to module image 'example'")),
+        Case("image-build-same-addresses-as-resident", True, "", built("A", units=[res(), mod()]), verify_same_addresses),
         Case("image-build-two-images-same-address", True, "", two_images, verify_two_images),
         Case("image-build-selected-module", True, "", two_images, verify_selected_module, extra=("--image", "example")),
         Case("image-build-selected-resident", True, "", two_images, verify_selected_resident, extra=("--image", "resident")),
@@ -2193,7 +2209,7 @@ def make_publish_unit_cases() -> list[CacheCase]:
     return [CacheCase(name, body) for name, body in table]
 
 
-def make_fndiff_cases(parsed: dict) -> list[CacheCase]:
+def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
     """`fndiff.py --rebuild`: one unit through the pipeline of a whole build, then the object checks and the diff."""
     flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
     toolchain = fixture_toolchain(parsed)
@@ -2358,13 +2374,82 @@ def make_fndiff_cases(parsed: dict) -> list[CacheCase]:
         proc = rebuild(ctx, "absent")
         return None if proc.returncode == 2 and "no unit named" in proc.stdout else say(proc)
 
-    def module_unit(ctx):
-        ImageFixture(parsed).install(ctx.copy)
+    # Module units. The resident unit "res" covers the same addresses as "mod" and has other bytes.
+    seeds = ModuleSeeds(cfg_dir, parsed)
+    images = ImageFixture(parsed)
+
+    def module_fixture(ctx: CacheContext, sources: dict | None = None):
+        """A module image of one unit beside a resident unit at the same addresses, and a whole build that passes."""
+        seeds.prepare()
+        images.install(
+            ctx.copy,
+            chunk=seeds.chunks["A"],
+            code=seeds.chunks["B"],
+            units=[images.unit("res", FIXTURE_LOAD, 8, image=None), images.unit("mod", FIXTURE_LOAD, 8)],
+            sources={"res": IMAGE_BODY.format(name="res", value=9), **(sources or {})},
+        )
+        proc, _, _ = ctx.run()
+        return None if passed(proc) else f"test setup: the whole build does not pass: {describe(proc)}"
+
+    def module_baseline(ctx):
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        for unit_name in ("mod", "res"):
+            proc = subprocess.run(
+                [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, unit_name],
+                capture_output=True, text=True,
+            )
+            if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+                return f"unit {unit_name!r}, after a whole build, must be IDENTICAL with exit 0: {say(proc)}"
+        return None
+
+    def module_rebuild(ctx):
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        (ctx.copy / "mod.c").write_text(IMAGE_BODY.format(name="mod", value=8))
         proc = rebuild(ctx, "mod")
-        if proc.returncode != 2 or "belongs to module image 'example'" not in proc.stdout:
-            return f"a module unit must be refused with exit 2: {say(proc)}"
-        if ctx.build.exists():
-            return "the refusal must not touch the build directory"
+        if proc.returncode != 1 or "DIFFERENT" not in proc.stdout:
+            return f"a changed module source must be DIFFERENT with exit 1: {say(proc)}"
+        (ctx.copy / "mod.c").write_text(IMAGE_BODY.format(name="mod", value=7))
+        proc = rebuild(ctx, "mod")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the restored module source must be IDENTICAL with exit 0: {say(proc)}"
+        return None
+
+    def module_syntax_error(ctx):
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        before = {p.name: p.read_bytes() for p in sorted(ctx.build.glob("unit-mod.*"))}
+        (ctx.copy / "mod.c").write_text("int mod_fn(void) { return }\n")
+        proc = rebuild(ctx, "mod")
+        if proc.returncode != 1 or "RESULT: FAIL" not in proc.stdout or "FAIL: image 'example': compile mod" not in proc.stdout:
+            return f"a failed step of a module unit must exit 1 and name the image: {say(proc)}"
+        if {p.name: p.read_bytes() for p in sorted(ctx.build.glob("unit-mod.*"))} != before:
+            return "the previous object and listings of the module unit changed"
+        if leftovers(ctx):
+            return f"the scratch directory is left: {leftovers(ctx)}"
+        return None
+
+    def module_calls_sibling(ctx):
+        seeds.prepare()
+        images.install(
+            ctx.copy,
+            chunk=seeds.chunks["D"],
+            units=[images.unit("callee", FIXTURE_LOAD, 8), images.unit("caller", FIXTURE_LOAD + 8, CALLER_SIZE)],
+            sources={name: source for name, source, _, _ in seeds.CALLS},
+        )
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build does not pass: {describe(proc)}"
+        proc = subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "caller"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"a module unit that calls a unit of its image must link and be IDENTICAL: {say(proc)}"
         return None
 
     def options_need_rebuild(ctx):
@@ -2385,7 +2470,10 @@ def make_fndiff_cases(parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-other-unit-broken", other_unit_broken),
         CacheCase("fndiff-rebuild-cache-line", cache_line),
         CacheCase("fndiff-rebuild-unknown-unit", unknown_unit),
-        CacheCase("fndiff-rebuild-module-unit-refused", module_unit),
+        CacheCase("fndiff-module-unit-baseline", module_baseline),
+        CacheCase("fndiff-rebuild-module-unit", module_rebuild),
+        CacheCase("fndiff-rebuild-module-syntax-error", module_syntax_error),
+        CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
     ]
 
@@ -3053,7 +3141,7 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
