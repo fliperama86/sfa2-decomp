@@ -286,7 +286,8 @@ things about each:
   working boundary. It is approximate: it lies inside a function that
   starts below it and is counted as game code.
 - Whether the build has it: whether a unit of the resident image declares a
-  function at that address in the build configuration.
+  function at that address in the build configuration. A unit is of the
+  resident image when it has no `image` key or the key says `resident`.
 - One way it is referred to, the first of these that applies:
   1. called by the executable: a `jal` or a `j` to its start inside a
      function that the sweep finds in the executable;
@@ -344,9 +345,12 @@ What this sorts out:
 
 - All 134 in the game area are counted as game functions from here on, and
   all 69 in the library area as library functions. The count of functions
-  to rebuild in the resident image is 1,852, not 1,649. The inventory file
-  itself is not changed; reports that say "of the 1,302 inventoried game
-  functions" mean the inventory.
+  to rebuild in the resident image is 1,852, not 1,649. This is accounting,
+  not proof: each of the 203 is a candidate with a boundary from the sweep,
+  the split by area rests on an approximate address, and none is shown to
+  be a function of the original source. A candidate is established when
+  the build rebuilds it. The inventory file itself is not changed; reports
+  that say "of the 1,302 inventoried game functions" mean the inventory.
 - Inferred, not established: the inventory was made by following calls
   inside the executable. Only 2 of the 203 are called from there. The others
   are called from modules, stand in tables, or have no counted reference.

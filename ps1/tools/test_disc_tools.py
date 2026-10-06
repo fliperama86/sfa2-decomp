@@ -853,6 +853,7 @@ def unlisted_cases(root: Path):
     run = unlisted("--end", hex(image_end), "--out", root / "unl-whole.tsv")
     yield "unlisted-end-at-the-image-end", run, 0, f"swept {START:#x} to {image_end:#x}, {image_end - START} bytes:"
     yield "unlisted-end-past-the-image", unlisted("--end", hex(image_end + 4)), 1, "is not a range of words inside the image"
+    yield "unlisted-end-zero", unlisted("--end", "0"), 1, f"the range to sweep, {START:#x} to 0x0, is not a range of words inside the image"
     yield "unlisted-end-not-on-a-word", unlisted("--end", hex(inventory_end + 2)), 1, "is not a range of words inside the image"
     yield "unlisted-end-at-the-start", unlisted("--end", hex(START)), 1, "is not a range of words inside the image"
     yield "unlisted-end-before-the-start", unlisted("--end", hex(START - 4)), 1, "is not a range of words inside the image"
@@ -922,6 +923,12 @@ def unlisted_cases(root: Path):
         a = addr[name]
         yield f"unlisted-config-row-{name}", verdict(cfg_by.get(f"{a:08x}") == want_cfg["rows"][a], f"{cfg_by.get(f'{a:08x}')!r} not {want_cfg['rows'][a]!r}"), 0, "as required"
     yield "unlisted-config-whole-rows", verdict([cfg_by.get(f"{a:08x}") for a in sorted(want_cfg["rows"])] == [want_cfg["rows"][a] for a in sorted(want_cfg["rows"])], "rows differ"), 0, "as required"
+    # A unit of the resident image may say so: `image = "resident"` and no key are the same.
+    spelled = root / "unl-build-spelled.toml"
+    spelled.write_text(config.read_text().replace('name = "resident"\n', 'name = "resident"\nimage = "resident"\n'))
+    plain_run, spelled_run = unlisted("--config", config), unlisted("--config", spelled)
+    yield "unlisted-config-resident-spelled-out", spelled_run, 0, want_cfg["totals"]["game"] + "\n"
+    yield "unlisted-config-resident-spelled-out-same", verdict('image = "resident"' in spelled.read_text() and spelled_run.stdout == plain_run.stdout, spelled_run.stdout), 0, "as required"
     yield "unlisted-config-show-default", unlisted("--config", config), 0, f"  {outside[0]:#x}\n  {outside[1]:#x}\n  {outside[2]:#x}\n"
     run = unlisted("--config", config, "--end", hex(after_end), "--out", root / "unl-config-end.tsv")
     want_cfg_end = predict(after_end, owned, library, with_config=True)
@@ -975,6 +982,26 @@ def unlisted_cases(root: Path):
     unlisted("--end", "0x00100020", "--out", low_out, program_file=root / "UNL-LOW.EXE", directory=low_mods, pointer=low_pointers, lib=0x00100000, inv=inventory_file("unl-low-inventory", [(0x00100000, 16, "x")]))
     low_rows = low_out.read_text().splitlines() if low_out.exists() else []
     yield "unlisted-out-low-address", verdict(low_rows == [f"00100010\t16\tlibrary\tno\t{NONE}\t0\t0\t0\t0\t0\t0"], str(low_rows)), 0, "as required"
+
+    # The upper four bits of a call's target are those of its delay slot's address. A `jal` in the last
+    # word below 0x90000000 calls a function above; one word earlier it calls a function below.
+    edge = 0x8FFFFFC0
+    near, beyond = edge + 4 * 4, edge + 4 * 20
+    for label, padding, target in (("across", 6, beyond), ("below", 5, near)):
+        caller = [OPEN, *[ONE] * padding, jal(target), 0, RETURN, CLOSE]
+        edge_code = [*plain, *plain, *caller, *[0] * (12 - len(caller)), *plain]
+        assert edge + 4 * edge_code.index(jal(target)) == (0x8FFFFFFC if label == "across" else 0x8FFFFFF8)
+        edge_exe, edge_pointers = make_program(edge, edge_code, [[0x00300000] * 4 + [0x00200000], [0x00400000], [0x00500000]])
+        (root / f"UNL-EDGE-{label}.EXE").write_bytes(edge_exe)
+        edge_out = root / f"unl-edge-{label}.tsv"
+        unlisted(
+            "--end", hex(edge + 4 * len(edge_code)), "--out", edge_out, program_file=root / f"UNL-EDGE-{label}.EXE", directory=low_mods,
+            pointer=edge_pointers, lib=beyond, inv=inventory_file(f"unl-edge-{label}", [(edge, 16, "first"), (edge + 32, 4 * len(caller), "caller")]),
+        )  # fmt: skip
+        edge_rows = edge_out.read_text().splitlines() if edge_out.exists() else []
+        called = lambda a: f"{EXE}\t1" if a == target else f"{NONE}\t0"  # noqa: E731
+        wanted_rows = [f"{near:08x}\t16\tgame\tno\t{called(near)}\t0\t0\t0\t0\t0", f"{beyond:08x}\t16\tlibrary\tno\t{called(beyond)}\t0\t0\t0\t0\t0"]
+        yield f"unlisted-call-{label}-a-region", verdict(edge_rows == wanted_rows, str(edge_rows)), 0, "as required"
 
     # Entries of the modules: a function whose start is a symbol is told from the words before it.
     glue = [addr["symbol_word"], ONE, 0x3C028020, 0x8C420000, OPEN, ONE, RETURN, CLOSE]

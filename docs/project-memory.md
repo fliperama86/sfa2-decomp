@@ -3082,15 +3082,50 @@ What ran:
   347, are the inventory's and stay what older reports mean.
 - The per-chunk sweep of `pac.py functions` became a generator that both
   commands use. Its totals on the real archives are unchanged.
-- `test_disc_tools.py`: 281 cases, 118 of them for the new command. The
-  cases were a package for one subagent, against the rules written in the
-  tool and the overlay map; the expected output is worked out in the test
-  from the layout of a synthetic executable, not read from the tool.
+- `test_disc_tools.py`: 288 cases, 125 of them for the new command, and
+  `test_funcscan.py`: 159 cases, on the head after review. The first cases
+  were a package for one subagent, against the rules written in the tool
+  and the overlay map; the expected output is worked out in the test from
+  the layout of a synthetic executable, not read from the tool.
 - Private mutation tables, each change run under a time and a memory
-  limit: 148 changes to the new code, every one noticed. The table of the
-  `functions` command had 7 entries that no longer matched the moved loop.
-  They were rewritten; they and one new entry are noticed, as the other 95
-  were in the whole run.
+  limit, on the head after review: 152 changes to the new code and 174 to
+  the sweep, every one noticed. The table of the `functions` command had 7
+  entries that no longer matched the moved loop. They were rewritten; they
+  and one new entry are noticed, as the other 95 were in the whole run
+  before review.
+
+What review of the pull request found:
+
+- A unit that says `image = "resident"` was taken for a module unit. The
+  build contract has two spellings of the resident image, no key and that
+  one. The command read the configuration of another tool by one of them
+  and would have reported rebuilt functions as not in the build.
+- `--end 0` was taken for no `--end`: the code read `args.end or` the
+  default. The sweep then ran over another range than the one asked for
+  and reported success.
+- The count of cases in the first version of this entry, 281 and 118, was
+  read before the last case was added. The head had 283 and 120.
+- Not blocking: a `j` or `jal` takes the upper four bits of its target
+  from the address of its delay slot, not from its own. The new code and
+  the sweep both used the jump's own address. No address of this game is
+  affected. Both now call one function for it, with cases on each side of
+  a 256 MB border for the jump's own word and the word before it.
+
+Lessons from the review:
+
+- A tool that reads another tool's file reads that tool's contract for
+  it, defaults and second spellings included. `symbols.ld` in the fiftieth
+  group and `build.toml` here are the same mistake.
+- `value or default` is wrong for an option where zero is a value. Ask
+  whether the option was given.
+- A count goes into a text after the last change to what it counts. This
+  is the fourth time; the rule now is: the count is read off the run that
+  is made after the last edit of the test file, and that run is the last
+  thing before the commit.
+- When a fix adds a shared function, each rule of it needs a case that
+  tells it from its neighbours. The first case for the delay slot told
+  the jump's own address from the next word and not the next word from
+  the one after; a changed copy of the tool showed the gap.
 - The reviewer's note on pull request 56 is in the overlay map: the 8
   unexplained words of the pair of slots `0x16` and `0x17` are calls into
   the character block, which lies at another distance.

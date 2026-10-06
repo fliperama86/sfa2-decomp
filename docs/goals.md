@@ -305,6 +305,8 @@ After the pilot, in this order, by the owner's decisions of 2026-10-06:
    in the game area and 69 in the library area; the build already has 1
    and 62 of them. The resident image has 1,852 functions by the sweep,
    1,436 game and 416 library, and the build has 1,231 and 386 of them.
+   The 203 are counted as candidates: a boundary from the sweep and an
+   approximate split by area, each established only when it is rebuilt.
    See the [overlay map](../ps1/docs/overlays.md).
 2. A tool that labels each game function by the family of Sony library
    functions it calls, directly or through other functions: graphics,

@@ -578,6 +578,7 @@ def cmd_sides(args) -> int:
     return 1 if bad or not compared else 0
 
 
+RESIDENT = "resident"  # the image of a unit without an `image` key in a build configuration
 PAIR_REACH = 8  # words after a `lui` in which the instruction that completes an address is looked for
 REFERENCES = (
     ("called by the executable", ("call", "executable")),
@@ -615,7 +616,7 @@ def code_references(words: list[int], base: int, functions: list[tuple[int, int]
             op = word >> 26
             here = base + 4 * index
             if op in (0x02, 0x03):
-                target = here & 0xF0000000 | (word & 0x03FFFFFF) << 2
+                target = funcscan.jump_target(word, here)
                 if target in wanted and not target <= here < target + wanted[target]:
                     found[target, "call"] += 1
             elif op == 0x0F:
@@ -638,12 +639,15 @@ def code_references(words: list[int], base: int, functions: list[tuple[int, int]
 def build_functions(path: str) -> set[int]:
     """The addresses of the functions that the units of the resident image declare in a build configuration.
 
-    A function without an integer address raises FormatError.
+    A unit belongs to the resident image when it has no `image` key or the
+    key says `resident`, as in the matching build. A function without an
+    integer address raises FormatError.
     """
     with open(path, "rb") as handle:
         units = tomllib.load(handle).get("unit", [])
     try:
-        found = {f["address"] for unit in units if "image" not in unit for f in unit.get("functions", [])}
+        resident = [unit for unit in units if unit.get("image", RESIDENT) == RESIDENT]
+        found = {f["address"] for unit in resident for f in unit.get("functions", [])}
     except (KeyError, TypeError, AttributeError):
         found = {None}
     if not all(type(address) is int for address in found):
@@ -662,7 +666,7 @@ def cmd_unlisted(args) -> int:
     - an area: game code if it starts below `--library`, library code
       otherwise;
     - whether a unit of the resident image declares a function at its start
-      in the build configuration;
+      in the build configuration: see `build_functions`;
     - one way it is referred to, the first that applies of REFERENCES. The
       references come from `code_references`, over the functions that the
       sweep finds in the executable and the words of the image outside
@@ -683,7 +687,8 @@ def cmd_unlisted(args) -> int:
         print(exc)
         return 1
     words = list(struct.unpack_from(f"<{len(image.payload) // 4}I", image.payload))
-    start, end = min(wanted), args.end or max(address + size for address, size in wanted.items())
+    start = min(wanted)
+    end = max(address + size for address, size in wanted.items()) if args.end is None else args.end
     if not image.start <= start < end <= image.start + 4 * len(words) or start % 4 or end % 4:
         print(f"the range to sweep, {start:#x} to {end:#x}, is not a range of words inside the image")
         return 1

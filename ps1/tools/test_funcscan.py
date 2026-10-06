@@ -91,6 +91,22 @@ def sweep_cases():
     )
     # A forward `j` inside a function is a branch too.
     yield "jump-forward-inside", sweep([OPEN, jump(6), NOP, RETURN, NOP, ONE, TWO, RETURN, CLOSE]), ([(0, 9)], [])
+    # The upper four bits of a `j` or `jal` target are those of its delay slot's address. Here the jump is
+    # the last word below 0x90000000 and its target lies above.
+    edge = 0x8FFFFFF0
+    far = lambda op, index: op << 26 | ((edge + 4 * index) >> 2) & 0x03FFFFFF  # noqa: E731
+    over = [OPEN, ONE, NOP, far(2, 8), NOP, RETURN, NOP, ONE, TWO, RETURN, CLOSE]
+    yield "jump-forward-across-a-region", sweep(over, base=edge), ([(0, 11)], [])
+    # The same for a call: the run before the called address is cut there and, holding no call, is data.
+    calling = [OPEN, ONE, NOP, far(3, 8), NOP, RETURN, CLOSE, ONE, OPEN, ONE, RETURN, CLOSE]
+    yield "call-across-a-region", sweep(calling, base=edge), ([(0, 7), (8, 4)], [(7, 1)])
+    # One word earlier the delay slot is still below, and so is the target: the function at word 1 is called.
+    lower = 0x8FFFFFE0
+    back = 0x0C000000 | ((lower + 4) >> 2) & 0x03FFFFFF
+    yield "call-with-its-delay-slot-below-a-region", sweep([ONE, OPEN, ONE, RETURN, CLOSE, OPEN, back, NOP, RETURN, CLOSE], base=lower), (
+        [(1, 4), (5, 5)],
+        [(0, 1)],
+    )
     # A `j` that goes elsewhere does not end a function: nothing in the resident code ends that way.
     yield "jump-away-is-not-an-end", sweep([OPEN, jump(0x4000), NOP, ONE, RETURN, CLOSE]), ([(0, 6)], [])
 
