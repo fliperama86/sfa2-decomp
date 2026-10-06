@@ -132,10 +132,15 @@ code that several contents share is counted once in each.
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is
   for. Names still need the code to be read.
-- The modules reach the library almost only through the executable. No
-  module function calls a sound, disc, pad or thread function itself.
-- Calls from one module into another are rare, 14 functions, so taking
-  each content alone loses little. Calls through a register are not rare:
-  they are in 1,941 module functions, and what those reach is unknown here.
-- No function reaches the pad calls except three of the executable. How
-  the game reads the pads after starting them is not visible in calls.
+- By the direct calls that the tool decodes, the modules reach the library
+  almost only through the executable. No module function has a direct call
+  to a sound, disc, pad or thread function.
+- 14 module functions have a direct call whose target the tool cannot
+  resolve: an address in another module, or one that is no function start.
+  Among direct calls, taking each content alone therefore loses little.
+  That is not a count of all calls between modules. Calls through a
+  register are in 1,941 module functions, and where those go, another
+  module included, is unknown here.
+- By direct calls, no function reaches the pad calls except three of the
+  executable. How the game reads the pads after starting them is not
+  visible in these calls.

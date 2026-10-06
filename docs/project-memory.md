@@ -3211,8 +3211,12 @@ What it shows:
 
 - The modules reach the library almost only through the executable. No
   module function calls a sound, disc, pad or thread function itself.
-- Calls between modules are rare, so taking each content alone loses
-  little. Calls through a register are the real limit of the labels.
+- Among the direct calls that the tool decodes, calls it cannot resolve
+  are rare, so taking each content alone loses little there. Calls
+  through a register are the real limit of the labels. Reworded after the
+  review of the pull request: the 14 count functions with an unresolved
+  direct target, not all calls between modules, since the targets of
+  calls through a register are unknown.
 
 Lessons:
 
