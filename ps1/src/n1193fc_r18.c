@@ -12,9 +12,6 @@ extern s8 data_8016e9a8[];
 extern s16 data_8016ea60[];
 extern u8 data_8016e9b8[];
 
-/* Residual (not exact): the original selects p with a real if/else and a j
-   (gcc here hoists one address before the branch), and keeps the two arms
-   that store 4 apart (gcc merges them). Switch gives a tree: not it. */
 void func_8012572c(void) {
 }
 

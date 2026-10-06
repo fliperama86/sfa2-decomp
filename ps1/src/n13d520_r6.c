@@ -1,6 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
 #include "externs.h"
+#include "protos.h"
 
 void func_80142fbc(Object *object) {
     object->field_158 = object->field_0b;

@@ -1,6 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
 #include "externs.h"
+#include "protos.h"
 
 void func_801446f0(Object *object) {
     if ((u8)object->field_3a != 0) {

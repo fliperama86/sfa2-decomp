@@ -3,10 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-/* Residual (not exact): the original loads the constant 1 into $v1 right after
-   the lhu (hoisted into its delay slot) and stores it later; here 1 lands in
-   $v0 after the store of 3, leaving a nop (+4 bytes). Tried: local for 1,
-   store reorderings, chained assignment. The second function is exact. */
 void func_8014b0e4(Object *object) {
     u16 value = *data_80189460++;
     data_80189464 = value;

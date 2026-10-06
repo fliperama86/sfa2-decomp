@@ -1,6 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
 #include "externs.h"
+#include "protos.h"
 
 void func_80141248(Object *object) {
     if ((ref_other.p->field_134 & 0xfc) == 0) {

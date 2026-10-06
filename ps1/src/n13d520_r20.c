@@ -1,6 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
 #include "externs.h"
+#include "protos.h"
 
 void func_8011f7e8(Object *object);
 void func_8011f83c(Object *object);

@@ -1,6 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
 #include "externs.h"
+#include "protos.h"
 
 void func_80140f00(void) {
     ref_other.p->field_64 = ref_other.p->field_64 - (ref_other.p->field_64 >> 2);

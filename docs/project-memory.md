@@ -3270,17 +3270,42 @@ Findings:
   the batch banked. A check of every batch for lines missing from the
   shared files found no other case.
 - Several new units declare callees or data themselves because the shared
-  headers lack them or disagree. By the agents' reports: two bytes that
-  the code loads with a signed load and `externs.h` declares unsigned, and
-  one function that `protos.h` declares without parameters and whose
-  exact definition takes one. Reconciling those headers is open.
+  headers lack them. Two disagreed with the shared headers when the pull
+  request was opened; see the review below.
 - By the agents' reports, not checked at the top level: parked candidates
   differ mostly in register choice or in the order of two blocks. Two are
   of another kind: one original keeps a load whose value is never used,
   and one keeps an address in a saved register for a single read.
 
+What review of the pull request found, three points of consistency in the
+new source, none of them a byte:
+
+- `func_8014f918` was declared without parameters in `protos.h`, from the
+  days when only a caller knew it, and its exact definition takes one.
+  The unit had left the shared header out to compile. The shared prototype
+  and the callback type of the one caller now say `int`, and both units
+  stay exact.
+- Two units had left `externs.h` out and declared a byte as signed, because
+  the code reads it with a signed load. A second, incompatible declaration
+  is not needed for that: the units keep the shared unsigned declaration
+  and read through a signed pointer, and stay exact.
+- Four units still carried the residual comment of a function that had
+  been parked out of them, above a function it did not describe. The
+  private helper that parks a function left the comment behind; it drops
+  such comments from the kept unit now.
+- Beyond the three points: 22 new units had no shared headers at all,
+  because the stub they start from has only `game.h`. All 86 include both
+  now and the build is exact, so none of them contradicts a shared
+  declaration. The stubs include both from here on.
+
 Lessons:
 
+- A unit that leaves a shared header out to compile has found a
+  disagreement. Resolve it in the pull request that finds it: try the
+  shared declaration changed, or the access cast, before publishing a
+  second declaration.
+- Read the diff of every new file once for comments that no longer
+  describe the code under them. A helper moved the code and not the words.
 - Check the shared files of every batch for deleted lines before banking,
   not after a link fails. One `comm` per file does it.
 - Functions that an inventory missed are also missing from everything
