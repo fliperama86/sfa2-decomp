@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 extern u8 data_801ae02e;
-extern void (*data_801e4d5c_slot0b[])(u8 *);
-extern void (*data_801e4d78_slot0b[])(void);
+extern void (*data_801e4d5c_slot0b[])(Object *);
+extern void (*data_801e4d78_slot0b[])(Object *);
 
-void func_801e1b20_slot0b(void) {
+void func_801e1b20_slot0b(Object *obj) {
     func_8011f240();
 }
 
@@ -19,10 +19,10 @@ void func_801e1b40_slot0b(Object *obj) {
 void func_801e1b64_slot0b(void) {
     u8 *p = &data_801ae02c;
     if (*p != 0) {
-        data_801e4d5c_slot0b[data_801ae02e](p);
+        data_801e4d5c_slot0b[data_801ae02e]((Object *)p);
     }
 }
 
 void func_801e1bc0_slot0b(Object *obj) {
-    data_801e4d78_slot0b[obj->field_04]();
+    data_801e4d78_slot0b[obj->field_04](obj);
 }

@@ -18,11 +18,11 @@ void func_801e14b0_slot0b(Slot0bObj *obj) {
     }
 }
 
-void func_801e1514_slot0b(void) {
+void func_801e1514_slot0b(Object *obj) {
     func_8011f240();
 }
 
-void func_801e1534_slot0b(void) {
+void func_801e1534_slot0b(Object *obj) {
     func_8011f240();
 }
 

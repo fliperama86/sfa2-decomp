@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern Slot2aSlot data_801e5164_slot2a[][2];
-extern Slot2aSel *data_801e52c8_slot2a;
+extern u16 *data_801e52c8_slot2a;
 u16 func_8015bdd4(int a, int b);
 
 void func_801e14cc_slot2a(Object *obj) {
@@ -15,7 +15,7 @@ void func_801e14cc_slot2a(Object *obj) {
 
     a = data_801e5164_slot2a[obj->field_03][0].cells;
     b = data_801e5164_slot2a[obj->field_03][1].cells;
-    y = (3 - data_801e52c8_slot2a->field_04) * 8 - 16;
+    y = (3 - ((Slot2aSel *)data_801e52c8_slot2a)->field_04) * 8 - 16;
     for (i = 0; i < 2; i++) {
         func_8015c100(a);
         a->field_08 = obj->pos_x + (i << 7);

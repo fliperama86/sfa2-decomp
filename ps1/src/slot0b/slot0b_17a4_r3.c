@@ -37,6 +37,6 @@ void func_801e1ab4_slot0b(Object *obj) {
     func_801e1b40_slot0b(obj);
 }
 
-void func_801e1b00_slot0b(void) {
+void func_801e1b00_slot0b(Object *obj) {
     func_8011f240();
 }

@@ -8,5 +8,5 @@ void func_801e09f4_slot0b(Object *obj);
 void func_801e0578_slot0b(Object *obj, u8 a);
 u8 func_80125b18(u8 a);
 
-void func_801e0478_slot0b(void) {
+void func_801e0478_slot0b(Object *obj) {
 }

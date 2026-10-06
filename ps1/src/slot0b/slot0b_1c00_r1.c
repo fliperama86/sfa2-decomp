@@ -32,7 +32,8 @@ void func_801e1c6c_slot0b(Object *obj) {
     func_80131094(obj);
 }
 
-void func_801e1cdc_slot0b(u32 *p) {
+void func_801e1cdc_slot0b(Object *obj) {
+    u32 *p = (u32 *)obj;
     p[0] = 0;
     p[1] = 0;
     p[2] = 0;

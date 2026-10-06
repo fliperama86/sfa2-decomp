@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern u8 data_801e5160_slot2a[];
-extern Slot2aSel *data_801e52c8_slot2a;
+extern u16 *data_801e52c8_slot2a;
 void func_801e14cc_slot2a(Object *obj);
 void func_801e1480_slot2a(Object *obj);
 void func_801e13ac_slot2a(Object *obj);
@@ -23,7 +23,7 @@ void func_801e13ac_slot2a(Object *obj) {
     Slot2aSel *sel;
     unsigned t;
     if (game_state.field_ab) {
-        sel = data_801e52c8_slot2a;
+        sel = (Slot2aSel *)data_801e52c8_slot2a;
         if (sel->field_00 & 0x8000) {
             func_801e1480_slot2a(obj);
         } else {
@@ -57,6 +57,6 @@ void func_801e1480_slot2a(Object *obj) {
     data_801e5160_slot2a[obj->field_03] = 0;
 }
 
-void func_801e14ac_slot2a(void) {
+void func_801e14ac_slot2a(Object *obj) {
     func_8011f240();
 }

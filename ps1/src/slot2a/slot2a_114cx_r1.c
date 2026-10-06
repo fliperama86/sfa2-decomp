@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801e2fdc_slot2a[];
+extern Slot2aBank data_801e2fdc_slot2a[];
 extern u32 data_801e515c_slot2a;
 extern void (*data_801e2300_slot2a[])(Object *);
 extern void (*data_801e230c_slot2a[])(Object *);
@@ -13,7 +13,7 @@ void func_801e16a8_slot2a(Object *obj);
 /* The masked copy of p is taken first in the loop. With it the compiler loads the mask 0xffffff before 0xff000000, as the original does. */
 void func_801e114c_slot2a(Object *obj) {
     u32 i;
-    u32 *p = (u32 *)(data_801e2fdc_slot2a + obj->field_03 * 0x10c0 + data_801a27d0 * 0x860);
+    u32 *p = (u32 *)((u8 *)data_801e2fdc_slot2a + obj->field_03 * 0x10c0 + data_801a27d0 * 0x860);
     u32 *q = (u32 *)((u8 *)data_801987c8 + 8);
     u32 n = data_801e515c_slot2a;
     u32 pa;

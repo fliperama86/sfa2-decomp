@@ -3646,6 +3646,26 @@ What the round shows:
   is exact with the stand-in that the matching guide allows for that, an
   unused local array with a comment that says what it is.
 
+What review of the pull request found, three points of consistency and
+no byte: a dispatch table declared with functions that take no argument
+while its entries point at functions that take the object; one variable of
+the resident image declared as a pointer to the game state in three units
+and as a reference to an object in nine; and one table declared with two
+element types.
+
+The private check that had found the mismatched function declarations
+looked at functions only. It now also compares the type of every data
+symbol across the module units, and it reads each dispatch table from the
+module's bytes and compares the table's parameter list with the
+definitions of the functions its entries point at. Run on the tree, it
+found what the reviewer found and more of the same kind: three data
+symbols of `slot2a` declared in more than one way, from the pilot, and 24
+table entries whose function has another parameter list than the table,
+4 of them in `slot2a`. All are aligned now and every function is still exact: a
+function that takes nothing gets the table's parameter, unused, and a
+function that used another view of the pointer takes the table's type
+and keeps its view in a local.
+
 The seven that stay parked, by their agents' reports: three differ in
 registers or in the order of a few instructions with the size right; two
 differ in size, one because the build merges two branches and one because
@@ -3658,6 +3678,15 @@ Lesson:
 - Run the check for mismatched declarations on the merged tree before
   anything else. It is quick, and every mismatch it finds is a question
   about what the code really is: here one of six was not a mistake.
+- A check covers the kind of thing it was written for. The reviewer found
+  three mismatches of two kinds that the check did not look for; teaching
+  it those kinds found the rest of the class. When a review finds one
+  instance,
+  write the check for the class and run it on everything, the merged
+  modules included.
+- Batches that describe one object each invent a view of it. The cost
+  comes at the seams: tables and calls between batches. Give the next
+  round one named view of the module's objects before it starts.
 
 ## Windows reference
 

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801e2fdc_slot2a[];
+extern Slot2aBank data_801e2fdc_slot2a[];
 extern u32 data_801e515c_slot2a;
 extern void (*data_801e2300_slot2a[])(Object *);
 extern void (*data_801e230c_slot2a[])(Object *);
