@@ -189,6 +189,13 @@ payloads, accurate source coverage, and retained human/AI refinements.
   [matching build](../ps1/docs/matching-build.md) and the
   [matching guide](../ps1/docs/matching-guide.md).
 
+- A round on the game functions that the first inventory had missed, the
+  owner's choice of 2026-10-06 for the next item: 118 of the 133 are
+  exact, 11,784 bytes, and 15 are parked with candidates. 1,735 functions
+  exact: 1,682 from C, 283,316 bytes, and 53 from assembly. By area the
+  build has 1,349 of the 1,436 game functions that the sweep counts. Of
+  the 1,302 inventoried game functions 1,230 are exact, as before.
+
 ## Current checkpoint
 
 This independent repository is the active workspace. Documents, goals, lessons,
@@ -209,7 +216,9 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 72 game functions are parked, each with a candidate.
+2. The parked pool: 87 game functions are parked, each with a candidate:
+   72 of the inventory, to which the rest of this item refers, and 15 from
+   the round on the functions outside it, which have had one attempt.
    One function per agent is the method: 44 of 147 packages so far, and the
    rate is falling: 6 of the last 47. All but seven parked game functions
    have had such a package; six of the seven are above 1,500 bytes. What is
@@ -320,22 +329,22 @@ After the pilot, in this order, by the owner's decisions of 2026-10-06:
    116 library functions have no family yet, and calls through a register
    are not followed.
 
-The list above is done. What comes next is the owner's decision, asked on
-2026-10-06 and not yet made. Three candidates, none started:
+The list above is done. Of three candidates for what comes next the owner
+chose the first on 2026-10-06:
 
-- rounds on the 133 game functions of the resident image that the
-  inventory did not list and nobody has attempted;
-- identifying the 116 library functions without a family;
-- more overlay modules as images of the build.
+- Done: a round on the 133 game functions of the resident image that the
+  inventory did not list. 118 are exact and 15 parked.
+- Not decided: identifying the 116 library functions without a family.
+- Not decided: more overlay modules as images of the build.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
-Open in the resident image: 15 of the functions that the inventory does not
-list start in the game area and have no reference that the sorting counts.
-For them the boundary from the sweep is the only evidence. 133 game
-functions outside the inventory are not rebuilt and have had no round yet.
+Open in the resident image: 87 game functions that the sweep counts are
+not in the build, all of them parked with a candidate. The 15 functions
+outside the inventory that have no reference that the sorting counts are
+all exact now; what reaches them is still unknown.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime

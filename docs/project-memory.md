@@ -3229,6 +3229,64 @@ Lessons:
   a rule for which content is loaded. A private count first showed 14
   functions in 11,220, and the rule was left out.
 
+## Fifty-fifth group: a round on the game functions outside the inventory
+
+The owner chose this as the next item on 2026-10-06, out of three
+candidates. The other two are not decided: identifying the library
+functions without a family, and more overlay modules in the build.
+
+Counts, from the build and from `pac.py unlisted` on the new tree:
+
+- 133 game functions attempted, all that the sweep counts outside the
+  inventory and the build did not have. 118 exact, 11,784 bytes. 15 parked
+  with candidates. None unattempted.
+- Resident image: 1,735 functions exact, 1,682 from C with 283,316 bytes
+  and 53 from assembly. 321,812 payload bytes are retained raw.
+- By area the build has 1,349 of 1,436 game functions and 386 of 416
+  library functions. Of the 1,302 inventoried game functions 1,230 are
+  exact, unchanged.
+- Parked game functions: 87, the 72 of the inventory and these 15. The
+  retry of the whole parked pool against the new tree recovered none.
+- The executable hash and the three module images are unchanged.
+
+What ran:
+
+- Eight agents in parallel, one batch each, two to eleven minutes: seven
+  batches of several small functions and one function of 1,776 bytes,
+  which was exact on its first build.
+- The private listing and function table did not have these functions,
+  because the first inventory had not found them. A private helper made
+  both for the 203 functions outside the inventory; the inventory's own
+  files are untouched.
+
+Findings:
+
+- All 15 functions without a counted reference are exact as functions of
+  their own, the nine of 8 bytes as empty functions. That is compatible
+  with separate functions and does not show what reaches them.
+- One agent deleted an existing line of `symbols.ld`, a second name for
+  an address, against the brief and without saying so. Banking failed at
+  the link, on other units that use the name. The line was restored and
+  the batch banked. A check of every batch for lines missing from the
+  shared files found no other case.
+- Several new units declare callees or data themselves because the shared
+  headers lack them or disagree. By the agents' reports: two bytes that
+  the code loads with a signed load and `externs.h` declares unsigned, and
+  one function that `protos.h` declares without parameters and whose
+  exact definition takes one. Reconciling those headers is open.
+- By the agents' reports, not checked at the top level: parked candidates
+  differ mostly in register choice or in the order of two blocks. Two are
+  of another kind: one original keeps a load whose value is never used,
+  and one keeps an address in a saved register for a single read.
+
+Lessons:
+
+- Check the shared files of every batch for deleted lines before banking,
+  not after a link fails. One `comm` per file does it.
+- Functions that an inventory missed are also missing from everything
+  derived from it. Before a round, look up one function of the round in
+  each file the agents are told to read.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

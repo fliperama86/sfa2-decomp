@@ -341,6 +341,11 @@ By area: 1,302 game functions in the inventory and 134 not, 1,436
 together, of which the build has 1,231. 347 library functions in the
 inventory and 69 not, 416 together, of which the build has 386.
 
+The table is the state when the functions were sorted. A round on the 133
+game functions that the build did not have followed. The same command now
+prints 119 of the 134 as in the build, among them all 15 without a counted
+reference, and 1,349 game functions in the build.
+
 What this sorts out:
 
 - All 134 in the game area are counted as game functions from here on, and
