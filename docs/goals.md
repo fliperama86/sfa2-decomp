@@ -272,7 +272,9 @@ Next, in this order:
 2. Done: a fast loop for one unit, approved by the owner on 2026-10-06.
    `fndiff.py --rebuild` rebuilds a single unit and compares it, so that a
    try no longer pays for the whole build. The whole build stays the gate.
-3. `fndiff.py` and `mergeunits.py` learn module images.
+3. Done: `fndiff.py` compares a unit of a module image with its own
+   image, and control cases show that `mergeunits.py` carries the `image`
+   key and treats the image tables as base.
 4. The other tool steps of the proposal: names across images, then second
    links.
 5. A pilot: one overlay module, or part of one, rebuilt exactly.

@@ -393,7 +393,15 @@ A failure while the files are replaced also ends it with status 1; the
 report is already gone and the message says to run `matchbuild.py` again. A unit that is refused before the compiler,
 for a floating-point token or inline assembly, counts as a failed step.
 
-A unit of a module image is refused, with and without `--rebuild`.
+A unit of a module image is compared with the payload of its own image,
+with and without `--rebuild`. The units linked beside it, as declared
+functions and as the symbols their objects define, are the units of the same
+image. A failure of such a unit names the image, as in a whole build: a
+failed step, a failed object check, a missing object, a function that the
+unit does not have, a link of the unit alone that fails, and a failure
+while its files are replaced. What is not about the unit names no image:
+the configuration, an unknown unit, a missing build directory, the shared
+setup and the environment.
 
 Exit status of `matchbuild.py`: 0 all checks passed, 1 failed check or build
 step, 2 invalid configuration, 3 unusable environment such as a missing SSH
@@ -561,7 +569,10 @@ declared data, with coverage, the data record and a tripped data control; data
 that ends short of a word; a unit with declared bss that its code refers to;
 and an assembly unit next to a C unit, whose functions count as assembly and
 not as C and whose control trips. `test_mergeunits.py` requires that `kind`,
-`data` and `bss` of a new unit table survive a merge unchanged.
+`data` and `bss` of a new unit table survive a merge unchanged. For module
+images it requires that the `image` key of a new unit survives with the
+base's image tables unchanged, and a conflict when a unit directory adds,
+changes or drops an `[[image]]` table or changes `[overlays]`.
 
 For symbol ownership it requires failure for: a bss range declared at another
 address while `symbols.ld` assigns the unit's two bss variables their old
@@ -591,8 +602,19 @@ exit status 1 with the previous object, the report and the summary unchanged
 and no scratch directory left; with a wrong declared size, the object check
 failure and still a diff; no effect of a syntax error in the other unit; a
 cache hit on the second run and "off" with `--no-cache`; exit status 2 for a
-unit that does not exist, for a unit of a module image, and for a cache
-option without `--rebuild`.
+unit that does not exist and for a cache option without `--rebuild`.
+
+For a unit of a module image it uses the synthetic module fixture with a
+resident unit at the same addresses and other bytes. It requires: an
+identical result for the module unit after a whole build, which a
+comparison with the resident payload could not give; with `--rebuild`, a
+different result after a change of the module unit's source and an
+identical one after it is restored; a failed step and a failed object check
+that each name the image; the image's name too on a link of the unit alone
+that fails, without and with `--rebuild`, on a missing object, and on a
+report that cannot be removed, where the same failure of the resident unit
+must read as before; and an identical result for a module unit that calls a
+function of another unit of its image.
 
 Cases on the replacement step alone require: the report and the summary
 gone and both files new after it ran; the report and the summary gone when
@@ -860,9 +882,10 @@ new `type` or a struct with no fields is kept. A unit that drops a base type,
 struct or field is a conflict. `symbols.ld` keeps the base text and appends each unit's new
 statements; the same name with two values is a conflict, and two names for one
 value is a warning. A symbol that a merged unit now defines is dropped. New
-`[[unit]]` tables are appended, including `kind` and the `rodata`, `data` and `bss` keys, which are written back as
+`[[unit]]` tables are appended, including `kind`, `image` and the `rodata`, `data` and `bss` keys, which are written back as
 `rodata = { address = 0x..., size = N }`; a changed base table or a repeated unit name
-is a conflict. New files are copied. A base file that a unit changed is a
+is a conflict. `[overlays]` and the `[[image]]` tables belong to the base: a
+unit directory that adds, drops or changes one is a conflict. New files are copied. A base file that a unit changed is a
 conflict unless named with `--take`. A path that is a file in one place and a
 directory in another (for example a new file `support` in one unit and
 `support/helper.h` in another, or in the base) is a conflict.
@@ -877,9 +900,7 @@ and `--out` does not exist. The merged directory then has to pass
 
 One range of each data kind per unit, no incremental builds. Module images
 are linked alone: a unit cannot yet refer by name to a unit of another
-image, and the second link of the two sides does not exist yet. `fndiff.py`
-refuses a unit of a module image, and `mergeunits.py` does not know the
-`image` key. The
+image, and the second link of the two sides does not exist yet. The
 [proposal](overlay-build-proposal.md) describes those steps. Compiler
 provenance is unchanged from the pilot: a compatible toolchain, not a
 uniquely identified original.

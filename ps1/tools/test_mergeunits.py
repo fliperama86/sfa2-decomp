@@ -297,6 +297,74 @@ def case_duplicate_unit(d: Path):
     return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, "unit 'u_one' is added by both")
 
 
+IMAGE_TABLES = (
+    "\n[overlays]\ntable_pointers = 0x80001000\n"
+    '\n[[image]]\nname = "example"\narchive = "EXAMPLE.PAC"\nslot = 1\n'
+    f'sha256 = "{"0" * 64}"\naddress = 0x80200000\n'
+)
+
+
+def image_base(d: Path) -> Path:
+    """The base with the tables of one module image. The merge does not read archives."""
+    base = make_base(d)
+    write(base, "build.toml", BASE_BUILD + IMAGE_TABLES)
+    return base
+
+
+def case_image_key_round_trip(d: Path):
+    """The image key of a new unit survives a merge, and the base's image tables stay as they are."""
+    base = image_base(d)
+    one = make_unit(d, base, "u_one")
+    module_unit = unit_text("u_one", [("one_fn", 0x80200000, 8)]).replace('name = "u_one"\n', 'name = "u_one"\nimage = "example"\n')
+    write(one, "build.toml", BASE_BUILD + IMAGE_TABLES + "\n" + module_unit)
+    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)])
+    proc = run("--base", base, "--out", d / "out", one, two)
+    if proc.returncode != 0:
+        return out(proc)
+    got = (d / "out" / "build.toml").read_text()
+    if got != BASE_BUILD + IMAGE_TABLES + "\n" + module_unit + "\n" + unit_text("u_two", [("two_fn", 0x80000300, 8)]):
+        return f"build.toml differs:\n{got}"
+    parsed, base_parsed = tomllib.loads(got), tomllib.loads(BASE_BUILD + IMAGE_TABLES)
+    by_name = {u["name"]: u for u in parsed["unit"]}
+    if by_name["u_one"].get("image") != "example":
+        return "the image key did not survive the merge"
+    if any("image" in u for name, u in by_name.items() if name != "u_one"):
+        return "a unit without an image gained one"
+    if parsed["image"] != base_parsed["image"] or parsed["overlays"] != base_parsed["overlays"]:
+        return "the image tables of the base changed"
+    return None
+
+
+def image_tables_case(d: Path, edit, message: str):
+    """A unit directory whose image tables differ from the base's is a conflict."""
+    base = image_base(d)
+    one = make_unit(d, base, "u_one", functions=[("one_fn", 0x80000200, 32)])
+    two = make_unit(d, base, "u_two", functions=[("two_fn", 0x80000300, 8)])
+    text = (two / "build.toml").read_text()
+    changed = edit(text)
+    if changed == text:
+        return "test setup: the edit changed nothing"
+    write(two, "build.toml", changed)
+    return expect_conflict(run("--base", base, "--out", d / "out", one, two), d, message)
+
+
+def case_image_table_added(d: Path):
+    more = '\n[[image]]\nname = "other"\narchive = "OTHER.PAC"\nslot = 2\n' + f'sha256 = "{"1" * 64}"\naddress = 0x80300000\n'
+    return image_tables_case(d, lambda text: text + more, "changes [image]")
+
+
+def case_image_table_changed(d: Path):
+    return image_tables_case(d, lambda text: text.replace("address = 0x80200000", "address = 0x80200004"), "changes [image]")
+
+
+def case_image_table_dropped(d: Path):
+    return image_tables_case(d, lambda text: text.replace(IMAGE_TABLES.split("\n[[image]]")[1], "").replace("\n[[image]]", ""), "changes [image]")
+
+
+def case_overlays_changed(d: Path):
+    return image_tables_case(d, lambda text: text.replace("table_pointers = 0x80001000", "table_pointers = 0x80001004"), "changes [overlays]")
+
+
 def case_base_unit_changed(d: Path):
     base, one, two = setup_two(d)
     text = (two / "build.toml").read_text().replace("size = 64", "size = 68")
@@ -531,6 +599,11 @@ CASES = [
     Case("clean-merge", case_clean),
     Case("rodata-round-trip", case_rodata_round_trip),
     Case("data-bss-round-trip", case_data_bss_round_trip),
+    Case("image-key-round-trip", case_image_key_round_trip),
+    Case("image-table-added-by-a-unit", case_image_table_added),
+    Case("image-table-changed-by-a-unit", case_image_table_changed),
+    Case("image-table-dropped-by-a-unit", case_image_table_dropped),
+    Case("overlays-changed-by-a-unit", case_overlays_changed),
     Case("rodata-same-unit-added-twice", case_rodata_changed_in_base_unit),
     Case("symbol-removed-when-unit-defines-it", case_symbol_removed),
     Case("symbol-conflict-between-units", case_symbol_conflict),
