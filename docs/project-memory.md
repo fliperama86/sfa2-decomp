@@ -2889,6 +2889,56 @@ Lessons:
   large function. The tails differed in the source. When a residual is
   blamed on an optimisation, look for a difference in the code first.
 
+## Forty-ninth group: the first side of the second pilot target
+
+Resident image: no change, 1,617 functions exact. Module image `slot2a`: no
+change, 25 functions. Module image `slot16`, new: 11 functions exact, 984
+bytes, all that the sweep counts in it. Its other 10,406 bytes are retained
+raw.
+
+What ran:
+
+- The image `slot16` is declared: the one content of slot `0x16`, which two
+  character files carry. The build finds it in both.
+- Three agents, one batch each, on its 11 functions. All 11 are exact. The
+  agents took 27, 70 and 78 seconds.
+- The whole build: 1,617 resident, 25 and 11 module functions exact; 1,645,
+  26 and 12 comparator controls tripped; the baseline's executable hash.
+- New: 3 source files, 3 unit tables, 6 symbols. No field.
+
+What the module refers to outside itself, found before the round and given
+names in the symbol file:
+
+- One function in the resident image that the inventory does not list,
+  `func_80149b80`. It is one of the 202 that the sweep reported; a module
+  calls it.
+- Two addresses in the character block, `func_801b606c` and
+  `func_801b63fc`. The second is the address that lies inside a function in
+  the block of another character file, the oddity that the overlay map
+  records. Here a module calls it, so in the blocks of the two characters
+  with this module it is the start of something callable. That is a lead
+  for the oddity, not an explanation.
+
+A finding for the shared prototypes: one unit had to leave `protos.h` out.
+The header gives a resident function a 16-bit parameter, and with it the
+compiler masks the argument before the call, which the original does not.
+The unit declares the parameter as `int`.
+
+What this sets up: the second side of this module, slot `0x17`, has the
+same 11 functions at another address. Its calls into the character block go
+to the second-side block, which lies at another distance than the module
+itself. The second link has to give those two names other addresses for
+that link.
+
+Lessons:
+
+- The setup of this round followed the two lessons of the first: every
+  function of another batch had a symbol, and a stub that calls one was
+  linked before the agents started. No agent reported a setup problem.
+- Listing what a module calls before the round, by kind of target, found
+  the three unnamed targets in a minute. An agent that meets one stops, by
+  the brief.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

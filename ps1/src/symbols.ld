@@ -1755,3 +1755,18 @@ data_801e515c_slot2a = 0x801e515c;
 /* Added by src.u_slot2a_114c. */
 data_801e2300_slot2a = 0x801e2300;
 data_801e230c_slot2a = 0x801e230c;
+
+/* Called by the module image slot16. The first is in the resident image and
+   in no unit; the other two are in the character block that is loaded. */
+func_80149b80 = 0x80149b80;
+func_801b606c = 0x801b606c;
+func_801b63fc = 0x801b63fc;
+
+/* Added by src.u_slot16_bc00. */
+data_8007e868_slot16 = 0x8007e868;
+
+/* Added by src.u_slot16_bd50. */
+data_8007e870_slot16 = 0x8007e870;
+
+/* Added by src.u_slot16_be8c. */
+data_8007e878_slot16 = 0x8007e878;

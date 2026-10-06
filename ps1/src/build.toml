@@ -7033,6 +7033,15 @@ slot = 0x2a
 sha256 = "952ab02df2db28319faf3c349a183a4b293df3a09295ddaa0703e054092791f4"
 address = 0x801e0000
 
+# The one content of slot 0x16, an extra module of two characters. It is in
+# PL11.PAC and PL13.PAC; this is one of them.
+[[image]]
+name = "slot16"
+archive = "../extract/PAC/PL11.PAC"
+slot = 0x16
+sha256 = "f7e738da311429fa671148eb15742fbe8c70bbadc20c23badd85898e55c773f5"
+address = 0x8007bc00
+
 [[unit]]
 name = "slot2a_083c_r1"
 image = "slot2a"
@@ -7152,4 +7161,39 @@ source = "slot2a/slot2a_114cx_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e114c_slot2a", address = 0x801e114c, size = 248 },
+]
+
+[[unit]]
+name = "slot16_bc00_r1"
+image = "slot16"
+source = "slot16/slot16_bc00_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8007bc00_slot16", address = 0x8007bc00, size = 132 },
+  { name = "func_8007bc84_slot16", address = 0x8007bc84, size = 64 },
+  { name = "func_8007bcc4_slot16", address = 0x8007bcc4, size = 140 },
+]
+
+[[unit]]
+name = "slot16_bd50_r1"
+image = "slot16"
+source = "slot16/slot16_bd50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8007bd50_slot16", address = 0x8007bd50, size = 100 },
+  { name = "func_8007bdb4_slot16", address = 0x8007bdb4, size = 68 },
+  { name = "func_8007bdf8_slot16", address = 0x8007bdf8, size = 48 },
+  { name = "func_8007be28_slot16", address = 0x8007be28, size = 100 },
+]
+
+[[unit]]
+name = "slot16_be8c_r1"
+image = "slot16"
+source = "slot16/slot16_be8c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8007be8c_slot16", address = 0x8007be8c, size = 232 },
+  { name = "func_8007bf74_slot16", address = 0x8007bf74, size = 36 },
+  { name = "func_8007bf98_slot16", address = 0x8007bf98, size = 32 },
+  { name = "func_8007bfb8_slot16", address = 0x8007bfb8, size = 32 },
 ]

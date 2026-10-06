@@ -29,7 +29,8 @@ Reconstructed source, published:
   shared headers, and the Sony library part in `src/sdk/` (see its README for
   where that part comes from and its license).
 - The source of overlay modules is published there too, by the owner's
-  decision of 2026-10-06, in one folder per module image: `src/slot2a/`.
+  decision of 2026-10-06, in one folder per module image: `src/slot2a/` and
+  `src/slot16/`.
 
 Needed to build and not in the repository:
 
@@ -37,9 +38,9 @@ Needed to build and not in the repository:
   checks its hash.
 - `toolchain/cc1-psx-26`: a GCC 2.6.3 compiler for the PlayStation target.
   The build checks its hash.
-- `extract/PAC/BOSS00.PAC`: your own copy of that archive from the disc.
-  The build takes the module image of slot `0x2a` from it and checks the
-  chunk's hash.
+- `extract/PAC/BOSS00.PAC` and `extract/PAC/PL11.PAC`: your own copies of
+  those archives from the disc. The build takes the module images of slots
+  `0x2a` and `0x16` from them and checks each chunk's hash.
 - `src/sdk/include/`: the SDK headers of the sotn-decomp project, copied
   unchanged from the commit named in `src/sdk/README.md`.
 - A checkout of `maspsx` at the commit pinned in `src/build.toml`, MIPS
