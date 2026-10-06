@@ -304,6 +304,8 @@ reproduces the same image, and for units the native build must not compile.
 .venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference] [--cache DIR | --no-cache]
 .venv/bin/python ps1/tools/test_matchbuild.py [--config PATH] [--only TEXT] [--jobs N]
 .venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
+.venv/bin/python ps1/tools/fndiff.py --rebuild [--reference] [--cache DIR | --no-cache] \
+    [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
 
 `test_matchbuild.py --only TEXT` runs the cases whose name contains the text
@@ -344,8 +346,48 @@ range of its kind plus offset. This needs no linked image and no entry in
 sibling does not declare, contributes nothing, and a reference to it fails the
 link with the linker's message.
 
-Exit status: 0 all checks passed, 1 failed check or build step, 2 invalid
-configuration, 3 unusable environment such as a missing SSH master.
+### One unit at a time
+
+A whole build pays for every unit on every run: all units are preprocessed
+for their cache keys, the image is linked, everything is compared and the
+controls run. `fndiff.py --rebuild UNIT` is the loop for one unit that does
+not match yet. It needs the build directory that an earlier run of
+`matchbuild.py` with the same tag left, because the other units' objects are
+read from it. Then it:
+
+1. reads and validates the configuration and checks the toolchain pins, as a
+   whole build does;
+2. runs the pipeline of that one unit, with the object cache, and replaces
+   the unit's object and listings in the build directory;
+3. runs the object checks of that unit and prints what fails, without
+   stopping, because the diff also works when sizes are wrong;
+4. removes `report.json` and `summary.txt` of the tag: they describe a build
+   whose objects are no longer all in the directory;
+5. links the unit alone and prints the diff, as without `--rebuild`.
+
+No other unit is compiled, no image is linked and no control runs. A fault
+in another unit's source does not stop it. `--reference`, `--cache` and
+`--no-cache` mean what they mean for `matchbuild.py`. It prints one line that
+says whether the object came from the cache.
+
+It decides nothing. A unit is exact only when `matchbuild.py` says so for the
+whole build, and the removed report makes sure that no earlier result is
+taken for one. A changed header or field table is seen in this one unit
+only; the whole build shows what it does to the others.
+
+Without a build directory of the tag, or without the objects of the other
+units in it, `--rebuild` stops with exit status 2 and says to run
+`matchbuild.py` first. A failed step of the unit's pipeline or a failed pin
+check ends it with status 1 and leaves the unit's previous object in place.
+
+A unit of a module image is compared with the payload of its image, and the
+units linked beside it are those of the same image. That holds with and
+without `--rebuild`.
+
+Exit status of `matchbuild.py`: 0 all checks passed, 1 failed check or build
+step, 2 invalid configuration, 3 unusable environment such as a missing SSH
+master. Of `fndiff.py`: 0 identical, 1 different or a failed step, 2
+unusable input, 3 unusable environment.
 
 ## Pipeline
 
@@ -790,9 +832,10 @@ new `type` or a struct with no fields is kept. A unit that drops a base type,
 struct or field is a conflict. `symbols.ld` keeps the base text and appends each unit's new
 statements; the same name with two values is a conflict, and two names for one
 value is a warning. A symbol that a merged unit now defines is dropped. New
-`[[unit]]` tables are appended, including `kind` and the `rodata`, `data` and `bss` keys, which are written back as
+`[[unit]]` tables are appended, including `kind`, `image` and the `rodata`, `data` and `bss` keys, which are written back as
 `rodata = { address = 0x..., size = N }`; a changed base table or a repeated unit name
-is a conflict. New files are copied. A base file that a unit changed is a
+is a conflict. `[overlays]` and the `[[image]]` tables belong to the base: a
+unit directory that adds, drops or changes one is a conflict. New files are copied. A base file that a unit changed is a
 conflict unless named with `--take`. A path that is a file in one place and a
 directory in another (for example a new file `support` in one unit and
 `support/helper.h` in another, or in the base) is a conflict.
@@ -807,9 +850,7 @@ and `--out` does not exist. The merged directory then has to pass
 
 One range of each data kind per unit, no incremental builds. Module images
 are linked alone: a unit cannot yet refer by name to a unit of another
-image, and the second link of the two sides does not exist yet. `fndiff.py`
-refuses a unit of a module image, and `mergeunits.py` does not know the
-`image` key. The
+image, and the second link of the two sides does not exist yet. The
 [proposal](overlay-build-proposal.md) describes those steps. Compiler
 provenance is unchanged from the pilot: a compatible toolchain, not a
 uniquely identified original.

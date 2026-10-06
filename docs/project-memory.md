@@ -2518,8 +2518,9 @@ What ran:
   unit of a module image until it knows them.
 - The archive and table readers are those of `pac.py`, imported, not
   copied.
-- `test_matchbuild.py`: 43 new cases, 157 in all. 39 use synthetic module
-  images; 4 are cases on the comparison alone.
+- `test_matchbuild.py`: 43 new cases, 157 in all. 38 are named for module
+  images, one checks that a configuration without images reports none, and
+  4 are cases on the comparison alone.
 - The real configuration builds as before: 1,617 of 1,617 functions exact,
   the same report keys in the same order, and no key about images.
 
