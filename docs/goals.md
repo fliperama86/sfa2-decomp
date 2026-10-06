@@ -286,6 +286,9 @@ Next, in this order:
    candidates of the right size that differ in a few instructions. Next:
    the second link, then the second pilot target. The three wait for a
    permutation search with the parked resident functions.
+   Second target, first side: the module of slot `0x16` is declared, and
+   all 11 functions that the sweep counts in it are exact, 984 bytes. Its
+   second side, slot `0x17`, waits for the second link.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 
@@ -312,9 +315,9 @@ observation only when it answers a specific remaining question.
 
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
-beyond the SDK stubs, the source of the overlay modules beyond the part of
-the image `slot2a` that the pilot has rebuilt, every other module as an
-image of the build,
+beyond the SDK stubs, the source of the overlay modules beyond the parts of
+the images `slot2a` and `slot16` that the pilot has rebuilt, every other
+module as an image of the build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
 from a fresh clone.
