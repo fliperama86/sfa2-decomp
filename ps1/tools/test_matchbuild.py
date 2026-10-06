@@ -124,6 +124,32 @@ class Case:
         self.extra = extra  # extra command line arguments for the tool
 
 
+def strip_images(text: str) -> str:
+    """A configuration text without `[overlays]`, without `[[image]]` tables and without the units of module images.
+
+    The text is cut into tables at the lines that open one. The comment lines
+    directly above a table belong to it.
+    """
+    blocks, current = [], []
+    for line in text.splitlines(keepends=True):
+        if line.startswith("["):
+            lead = []
+            while current and current[-1].startswith("#"):
+                lead.insert(0, current.pop())
+            blocks.append(current)
+            current = lead
+        current.append(line)
+    blocks.append(current)
+
+    def kept(block: list[str]) -> bool:
+        header = next((line.strip() for line in block if line.startswith("[")), "")
+        if header in ("[overlays]", "[[image]]"):
+            return False
+        return not (header == "[[unit]]" and any(re.match(r"image\s*=", line) for line in block))
+
+    return "".join(line for block in blocks if kept(block) for line in block)
+
+
 def replace_once(text: str, old: str, new: str, what: str) -> str:
     if text.count(old) != 1:
         raise SystemExit(f"test setup: expected exactly one occurrence of {what}, found {text.count(old)}")
@@ -412,6 +438,11 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("include-dir-missing", False, "include directory not found", lambda c: add_include_dir(c, "selftest_absent")),
     ]
 
+    def without_images(copy: Path):
+        """The configuration as it is, less its module images and their units."""
+        path = copy / "build.toml"
+        path.write_text(strip_images(path.read_text()))
+
     def verify_no_images(report: dict):
         keys = [k for k in ("images", "selected_image") if k in report] + (["inputs.images"] if "images" in report["inputs"] else [])
         if keys:
@@ -441,7 +472,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("unknown-maspsx-commit", False, "maspsx commit", unknown_maspsx_commit),
         Case("dirty-maspsx-checkout", True, "", dirty_maspsx, verify_dirty_reported),
         Case("all-c-payload", True, "", all_c_fixture, verify_all_c),
-        Case("images-absent-unchanged", True, "", verify=verify_no_images),
+        Case("images-absent-unchanged", True, "", without_images, verify_no_images),
     ]
 
 
@@ -1752,7 +1783,9 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
                 units=[unit("res", FIXTURE_LOAD, image=None),
                        unit("mod", FIXTURE_LOAD).replace('name = "mod_fn"', 'name = "res_fn"')]),
         Case("image-selected-unknown", False, "names no declared image", install(), status=2, extra=("--image", "absent")),
-        Case("image-selected-unknown-without-images", False, "names no declared image", status=2, extra=("--image", "absent")),
+        Case("image-selected-unknown-without-images", False, "names no declared image",
+             lambda copy: (copy / "build.toml").write_text(strip_images((copy / "build.toml").read_text())),
+             status=2, extra=("--image", "absent")),
         # Failures of a module image name it and leave the resident image alone.
         Case("image-build-changed-instruction", False, "image 'example': function 'mod_fn': bytes differ",
              changed_instruction, verify_changed, status=1),

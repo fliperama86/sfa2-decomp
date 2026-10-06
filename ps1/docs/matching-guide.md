@@ -77,6 +77,29 @@ exact, and only that shows what a changed header does to other units.
   identical one.
 - Plain C89. Hex for values that are identifiers or masks.
 
+## Units of a module image
+
+Code of an overlay module is matched the same way. What differs:
+
+- The unit carries `image = "<image>"` in `build.toml`, and its source sits
+  in the folder `<image>/` of the config directory.
+- It includes the shared headers with their path: `"../game.h"`,
+  `"../protos.h"`, `"../externs.h"`. Without the `../` the preprocessor finds
+  a file of the same name in the SDK headers and the unit compiles against
+  the wrong declarations.
+- Modules overlap in memory, and names are unique over all images. A module
+  function that is not understood yet is `func_<address>_<image>`, its data
+  `data_<address>_<image>`. A name of the resident image at the same address
+  in `symbols.ld` is another symbol and stays.
+- Functions of the resident image are called by their names. The build gives
+  every link the declared functions of the other images.
+- `matchbuild.py --image <image>` builds the module alone in a few seconds.
+  Use it as the whole build of the loop. The build of every image is still
+  what a merge has to pass.
+- The function table of a module comes from a sweep and is an estimate. A
+  function that clearly ends elsewhere than its row says is a finding to
+  report, not to work around.
+
 ## What is allowed
 
 Reordering statements, changing expression shape, types and signedness,

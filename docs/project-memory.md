@@ -2730,6 +2730,56 @@ Lessons:
   the link of an image and the link of one unit. Each rule for one must be
   asked of the other.
 
+## Forty-sixth group: the pilot module is declared, its first function exact
+
+Resident image: no change, 1,617 functions exact. Module image `slot2a`: 1
+function exact, 20 bytes. The two are counted apart.
+
+What ran:
+
+- The real configuration declares its first module image: the one content
+  of slot `0x2a`, taken from one of its 63 carriers, with the address that
+  the loader's table gives. The build checks the chunk's hash.
+- One unit of that image, the smallest function, 20 bytes: it increments a
+  byte of an object. It is exact in the whole build, and `fndiff.py
+  --rebuild` reports it identical. The module's other 21,176 bytes are
+  retained raw.
+- The whole build: 1,617 of 1,617 resident functions and 1 of 1 module
+  function exact, both images' controls tripped.
+- The control suite no longer assumes that the real configuration has no
+  image. The two cases that need one without images strip them from their
+  copy.
+- The first real module unit showed a fault that no synthetic case had: the
+  cache line of the summary counted resident units only. A case that
+  compares that line with the number of units compiled failed on the real
+  configuration. The line counts every compiled unit now.
+- The archive is found through a local link `ps1/extract`, ignored by Git
+  like the links for the executable and the compiler.
+
+Conventions set here, in the matching guide:
+
+- A module function that is not understood yet is `func_<address>_<image>`.
+  Modules overlap in memory and names are unique over all images, so the
+  address alone cannot name it. `symbols.ld` already has `func_801e0020`
+  for a call of the resident image to that address; two modules have a
+  function there.
+- Module sources live in `ps1/src/<image>/` and include the shared headers
+  as `"../game.h"`.
+
+Lessons:
+
+- A source in a subfolder that included `"game.h"` compiled, against another
+  file: the SDK headers have a `game.h` too, and the include path found it.
+  The first error came two includes later, for a header that the SDK does
+  not have. Adding the config directory to the include path would have
+  turned the trap around, onto the library units. An explicit `../` has no
+  second reading.
+- The sweep's count for this module is 28 functions with the entries that
+  `pac.py functions` takes from the symbol file, 24 without. The listing
+  for matching work has to be made the way the published inventory was.
+- Building one module image alone takes under a second when nothing is
+  compiled. It is the whole build of the loop for module work.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

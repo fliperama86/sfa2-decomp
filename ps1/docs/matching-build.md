@@ -787,8 +787,9 @@ code calls a module.
 - Two names may have one address: module images overlap in memory.
 - A name given this way must not be a global or weak symbol that an object
   of the same link defines. Function and unit names are unique across
-  images, so this can only be a variable or table of a unit that has the
-  name of another image's function. The assignment would override the
+  images, so this is some other symbol of a unit that has the name of
+  another image's function: a variable, a table, or a weak symbol in its
+  code. The assignment would override the
   unit's definition, which is the fault the `symbols.ld` rule rejects. It is
   checked with that rule, before the link, and fails the build with a
   message that names the symbol, the unit and object section that define
@@ -835,7 +836,8 @@ of all declared images are still validated.
 - Without any declared image the report has no `images`, `inputs.images` or
   `selected_image` key.
 
-The summary gains, per module image, after the resident's lines: one line
+The cache line of the summary counts every unit that was compiled, of
+every image. The summary gains, per module image, after the resident's lines: one line
 per function and per rodata or data range as for the resident, then lines
 that start with `image <name>` for the count of exact functions, the
 coverage, the image and baseline hashes, the carriers and the comparator
