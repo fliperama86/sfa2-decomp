@@ -2008,6 +2008,36 @@ def make_second_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
+def install_two_sides(fx, seeds, copy: Path, body: bytes | None = None, leave_out=(), strays: bool = False) -> None:
+    """The fixture of the second-link builds: four units in the first image, and a second link of the same sources.
+
+    `body` is the second link's chunk, the seeded one by default. `strays` adds an ordinary image "other"
+    with one unit "stray", which the second link is not like.
+    """
+    seeds.prepare()
+    body = seeds.chunks["G"] if body is None else body
+    keys = {"like": "example", "leave_out": list(leave_out)} if leave_out else {"like": "example"}
+    images = [
+        fx.image(seeds.chunks["F"]),
+        fx.image(body, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS, **keys),
+    ]
+    archives = {"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, body)]))}
+    units = [
+        fx.unit("callee", FIXTURE_LOAD, 8),
+        fx.unit("owner", FIXTURE_LOAD + 8, 8, extra=f"data = {{ address = {FIXTURE_LOAD + 16:#x}, size = 4 }}\n"),
+        fx.unit("caller", FIXTURE_LOAD + 20, TWO_CALLER_SIZE),
+        fx.unit("lone", FIXTURE_LOAD + 20 + TWO_CALLER_SIZE, 8),
+    ]
+    if strays:
+        images.append(fx.image(bytes(8), name="other", archive="OTHER.PAC", slot=THIRD_SLOT, address=THIRD_ADDRESS))
+        archives["OTHER.PAC"] = bytes(make_archive([(THIRD_SLOT, bytes(8))]))
+        units.append(fx.unit("stray", THIRD_ADDRESS, 8, image="other"))
+    fx.install(
+        copy, chunk=seeds.chunks["F"], code=bytes(0), images=images, archives=archives, units=units,
+        sources={name: source for name, source, *_ in seeds.TWO_SIDES},
+    )
+
+
 def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     """Second links built: a first image of four units and a second link whose chunk is the same sources at its address."""
     fx = ImageFixture(parsed)
@@ -2025,27 +2055,7 @@ def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         return bytes(chunk)
 
     def install(chunk=None, leave_out=()):
-        def mutate(copy: Path):
-            seeds.prepare()
-            body = seeds.chunks["G"] if chunk is None else chunk(seeds)
-            keys = {"like": "example", "leave_out": list(leave_out)} if leave_out else {"like": "example"}
-            fx.install(
-                copy, chunk=seeds.chunks["F"], code=bytes(0),
-                images=[
-                    fx.image(seeds.chunks["F"]),
-                    fx.image(body, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS, **keys),
-                ],
-                archives={"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, body)]))},
-                units=[
-                    fx.unit("callee", FIXTURE_LOAD, 8),
-                    fx.unit("owner", FIXTURE_LOAD + 8, 8, extra=f"data = {{ address = {FIXTURE_LOAD + 16:#x}, size = 4 }}\n"),
-                    fx.unit("caller", FIXTURE_LOAD + 20, TWO_CALLER_SIZE),
-                    fx.unit("lone", FIXTURE_LOAD + first_side["lone"], 8),
-                ],
-                sources={name: source for name, source, *_ in seeds.TWO_SIDES},
-            )
-
-        return mutate
+        return lambda copy: install_two_sides(fx, seeds, copy, None if chunk is None else chunk(seeds), leave_out)
 
     def words_of(chunk, start, size):
         return [(i, int.from_bytes(chunk[i : i + 4], "little")) for i in range(start, start + size, 4)]
@@ -2188,6 +2198,109 @@ def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
              install(chunk=patched_call(None), leave_out=["callee"]), verify_fails, status=1),
         Case("second-link-variable-at-first-address", False, differs.format("caller_fn"),
              install(chunk=patched_variable), verify_fails, status=1),
+    ]
+
+
+def make_second_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    """`fndiff.py --image`: a unit compared as a second link has it."""
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+
+    def diff(ctx, *args: str, rebuild: bool = False) -> subprocess.CompletedProcess:
+        command = [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag]
+        if rebuild:
+            command += ["--rebuild", "--cache", str(ctx.cache)]
+        return subprocess.run([*command, *args], capture_output=True, text=True)
+
+    def say(proc) -> str:
+        return f"exit {proc.returncode}:\n{(proc.stdout + proc.stderr)[-700:]}"
+
+    def expect(proc, status: int, text: str, what: str):
+        output = proc.stdout + proc.stderr
+        return None if proc.returncode == status and text in output else f"{what}: wanted exit {status} with {text!r}, got {say(proc)}"
+
+    def built(ctx, body=None, leave_out=(), passes=True):
+        install_two_sides(fx, seeds, ctx.copy, body, leave_out)
+        proc, _, _ = ctx.run()
+        if passes != passed(proc):
+            return f"test setup: the whole build {'must pass' if passes else 'must fail'}: {describe(proc)}"
+        return None
+
+    def identical(ctx):
+        return (
+            built(ctx)
+            or expect(diff(ctx, "--image", "second", "caller"), 0, "IDENTICAL", "the caller as the second link has it")
+            or expect(diff(ctx, "caller"), 0, "IDENTICAL", "the caller in its own image")
+        )
+
+    def changed_chunk(ctx):
+        seeds.prepare()
+        data = bytearray(seeds.chunks["G"])
+        data[0] ^= 0xFF  # inside callee_fn
+        return (
+            built(ctx, bytes(data), passes=False)
+            or expect(diff(ctx, "--image", "second", "callee"), 1, "DIFFERENT", "the callee as the second link has it")
+            or expect(diff(ctx, "callee"), 0, "IDENTICAL", "the callee in its own image")
+        )
+
+    def callee_left_out(ctx):
+        return (
+            built(ctx, leave_out=["callee"])
+            or expect(diff(ctx, "--image", "second", "caller"), 0, "IDENTICAL", "the caller with the callee left out")
+        )
+
+    def rebuilt(ctx):
+        problem = built(ctx)
+        if problem:
+            return problem
+        source = (ctx.copy / "caller.c").read_text()
+        (ctx.copy / "caller.c").write_text(source.replace("shared_var; }", "shared_var + 1; }"))
+        problem = expect(diff(ctx, "--image", "second", "caller", rebuild=True), 1, "DIFFERENT", "after the change")
+        (ctx.copy / "caller.c").write_text(source)
+        return problem or expect(diff(ctx, "--image", "second", "caller", rebuild=True), 0, "IDENTICAL", "after restoring")
+
+    def refusals(ctx):
+        install_two_sides(fx, seeds, ctx.copy, strays=True)
+        for args, text in (
+            (("--image", "absent", "caller"), "'absent' names no declared image"),
+            (("--image", "resident", "caller"), "--image is for a second link: 'resident'"),
+            (("--image", "example", "caller"), "--image is for a second link: 'example'"),
+            (("--image", "other", "caller"), "--image is for a second link: image 'other' is not one"),
+            (("--image", "second", "stray"), "image 'second': --image: this second link is like image 'example', not like 'other'"),
+        ):
+            problem = expect(diff(ctx, *args), 2, text, " ".join(args))
+            if problem:
+                return problem
+        install_two_sides(fx, seeds, ctx.copy, leave_out=["callee"])
+        return expect(
+            diff(ctx, "--image", "second", "callee"), 2, "image 'second': --image: unit 'callee' is left out", "a unit left out"
+        )
+
+    def overrides(ctx):
+        """The owned-name rule holds in this link, with the second link's names and its prefix."""
+        for leave_out, name, text in (
+            ((), "lone_fn", "image 'second': unit 'caller' defines 'lone_fn' in .data, which unit 'lone' of its image defines too"),
+            (("callee",), "callee_fn", "image 'second': others.ld defines 'callee_fn', which unit 'caller' defines in .data"),
+        ):
+            install_two_sides(fx, seeds, ctx.copy, None, leave_out)
+            (ctx.copy / "caller.c").write_text(f"int {name} = 1;\nint caller_fn(void) {{ return {name}; }}\n")
+            proc, _, _ = ctx.run()
+            if passed(proc):
+                return "test setup: the whole build must reject this fixture"
+            for rebuild in (False, True):
+                got = diff(ctx, "--image", "second", "caller", rebuild=rebuild)
+                problem = expect(got, 1, text, f"{name} {'with' if rebuild else 'without'} --rebuild")
+                if problem or (ctx.build / "unit-caller.second.fndiff.elf").exists():
+                    return problem or "the unit was linked although a name given to the link overrides its symbol"
+        return None
+
+    return [
+        CacheCase("second-fndiff-overrides", overrides),
+        CacheCase("second-fndiff-identical", identical),
+        CacheCase("second-fndiff-changed-chunk", changed_chunk),
+        CacheCase("second-fndiff-callee-left-out", callee_left_out),
+        CacheCase("second-fndiff-rebuild", rebuilt),
+        CacheCase("second-fndiff-refusals", refusals),
     ]
 
 
@@ -3928,7 +4041,7 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed) + make_second_fndiff_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
