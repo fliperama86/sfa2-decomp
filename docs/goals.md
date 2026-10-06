@@ -278,8 +278,9 @@ Next, in this order:
 4. Done: names across images. Every link is given the declared functions
    of the other images, so module code and resident code can call each
    other by name.
-5. The last tool step of the proposal: second links, for the two sides.
-   The first pilot target needs one link only and does not wait for it.
+5. Done: second links, the last tool step of the proposal. A module image
+   may be like another: the same units linked again at its own address and
+   compared with its own chunk.
 6. A pilot: one overlay module, or part of one, rebuilt exactly. First
    target, the module of slot `0x2a`: 25 of the 28 functions that the
    sweep counts are exact, 3,988 of 6,052 bytes. Three are parked with
@@ -288,7 +289,7 @@ Next, in this order:
    permutation search with the parked resident functions.
    Second target, first side: the module of slot `0x16` is declared, and
    all 11 functions that the sweep counts in it are exact, 984 bytes. Its
-   second side, slot `0x17`, waits for the second link.
+   second side, slot `0x17`, is next: declared as a second link.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 

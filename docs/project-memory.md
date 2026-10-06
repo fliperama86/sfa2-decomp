@@ -2956,6 +2956,85 @@ Lessons:
   the three unnamed targets in a minute. An agent that meets one stops, by
   the brief.
 
+## Fiftieth group: second links
+
+No count changes in this group. Resident image 1,617 functions, module
+images `slot2a` 25 and `slot16` 11. This is the last tool step of the
+overlay build proposal.
+
+What ran:
+
+- A module image may be declared as like another. It takes every unit of
+  the first image with each range moved by the difference of the two
+  addresses, links the same objects again and is compared with its own
+  chunk. Nothing is compiled twice. A unit that differs there fails the
+  build and names the second link.
+- One placement map per second link, for the units it links and for those
+  it leaves out. A unit left out is raw there, and its names still come
+  from the map at the moved addresses, never from the first image.
+- A module image may give names of `symbols.ld` its own addresses, for
+  what lies at another distance on the other side.
+- A second link is given the names of `symbols.ld` that lie inside the
+  first image at their moved addresses.
+- `fndiff.py --image` compares a unit as a second link has it.
+- The contract was written first and grew twice during the work, see
+  below. Five packages for one subagent, between five and seven minutes
+  each, each checked at the top level before the next.
+- `test_matchbuild.py`: 233 cases, 41 of them new. The 230 of the first
+  version ran in full; the 3 added in review ran with the second link cases.
+
+What a trial on real data showed before the pull request, in a private copy
+of the configuration:
+
+- The second-side module of the pilot, declared as like the first, had 7 of
+  its 11 functions exact at once. The other four differed in ten words.
+- Three of the names behind those words are tables of the module that
+  `symbols.ld` names and no unit owns. They have to move with the module.
+  That became a rule of the tool: a name inside the first image moves.
+- Three are in the character block, which lies at another distance on the
+  second side. They got addresses in the second link's own table.
+- With both, 11 of 11 functions are exact and all controls trip. For these
+  11 the inference of one source and two links has passed its test.
+
+What review of the pull request found: the moved names need the addresses of
+`symbols.ld`, which the build had never read before, only the names. The new
+code read them with Python's rules for an integer, and those reject a
+leading zero. A line that the build accepted and the linker reads as octal
+now ended the tool with a traceback, also in a configuration without any
+second link. The integers are read as the linker reads them now, and one
+that it would not read is a configuration error.
+
+A second finding of the review, in the controls: four cases with a changed
+second chunk only passed after another case had prepared the seed builds.
+Run alone, each failed with a missing key, before the tool was even
+called. The whole suite hid it, because some earlier case always prepares.
+Reading the seeded chunks now prepares them, for every case at once, and
+each case of the module fixtures was run alone in a fresh process.
+
+Lessons:
+
+- A case must pass alone. A whole run only shows that the cases pass in
+  that order. Run each new case by itself once before a pull request; the
+  filter that selects one case exists.
+- Fix a setup dependency where the shared thing is read, not in the four
+  cases that were caught. The accessor prepares; no case has to remember.
+- A file has one owner of its format. `symbols.ld` is the linker's. The
+  first time a tool reads a value from it, read the linker's rules for
+  that value, and test a form that the two languages read differently.
+- New code that runs for every configuration is not covered by cases of
+  the new feature alone. The parser change ran on every load.
+- Try the real case before the tool is declared done. The synthetic
+  fixtures had every data symbol owned by a unit, so none of them needed a
+  name of `symbols.ld` to move. The real module needed three.
+- Two of the contract's additions came from that trial and from an
+  implementer's question: the moved names, and which image a failed
+  pipeline step names when a unit is compared as a second link has it. A
+  contract written before the code is a first version.
+- Asking the implementer to state, for each rule, that both kinds of link
+  follow it kept the fault of the forty-fifth group from coming back: the
+  moved names, the names of units left out and the per-image addresses
+  each come from one function that both links call.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

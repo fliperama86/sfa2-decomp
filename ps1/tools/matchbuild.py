@@ -126,6 +126,9 @@ class ImageDecl:
     sha256: str
     address: int
     payload: bytes = b""  # the chunk's bytes, filled in once the archive has been read
+    symbols: dict = dataclasses.field(default_factory=dict)  # [image.symbols]: addresses of names of symbols.ld in this image
+    like: str | None = None  # the module image that this one is linked a second time from, None for an ordinary image
+    leave_out: tuple[str, ...] = ()  # units of that image that a second link does not link
 
     @property
     def size(self) -> int:
@@ -440,6 +443,7 @@ class Config:
     units: list[UnitDecl]  # the units of every image
     symbols_path: Path
     symbol_names: list[str]
+    symbol_values: dict[str, int] = dataclasses.field(default_factory=dict)  # the address of each name of symbols.ld
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
     expand_div: bool = False  # run maspsx with --expand-div
@@ -454,9 +458,77 @@ class Config:
         """The units that belong to one image: RESIDENT or the name of a module image."""
         return [u for u in self.units if u.image == image]
 
+    def placed_units(self, image: str) -> tuple[list[UnitDecl], tuple[str, ...]]:
+        """The units that the link of `image` takes, and the names among them that it leaves out.
+
+        An image that is not a second link takes its own units. A second link takes every unit of
+        the image it is like, each range moved by the difference of the two addresses: the placement
+        map. The units keep their names and are marked as units of the second link. It holds the
+        units that are left out too.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        first = None if decl is None or decl.like is None else next((i for i in self.images if i.name == decl.like), None)
+        if first is None:
+            return self.units_of(image), ()
+        shift = decl.address - first.address
+        return [move_unit(u, shift, image) for u in self.units_of(first.name)], decl.leave_out
+
     def functions_of_others(self, image: str) -> list[tuple[str, int, str]]:
-        """The declared functions of the units of every image but `image`: (name, address, declaring image)."""
-        return [(fn.name, fn.address, u.image) for u in self.units if u.image != image for fn in u.functions]
+        """The declared functions of the units of every image but `image`: (name, address, declaring image).
+
+        A second link takes none of the image it is like: its own objects define those names, at the moved ranges.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        skipped = {image} if decl is None or decl.like is None else {image, decl.like}
+        return [(fn.name, fn.address, u.image) for u in self.units if u.image not in skipped for fn in u.functions]
+
+    def local_symbols(self, image: str) -> tuple[dict[str, int], dict[str, int]]:
+        """The assignments of local.ld for the link of `image`, and the moved names among them.
+
+        A second link is given every name of symbols.ld whose address lies inside the payload of the image it
+        is like, at that address plus the shift. Its own [image.symbols] come after and win. The second
+        dictionary holds the moved names that were given: not those that the table replaces.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        if decl is None:
+            return {}, {}
+        first = None if decl.like is None else next((i for i in self.images if i.name == decl.like), None)
+        moved: dict[str, int] = {}
+        if first is not None:
+            shift = decl.address - first.address
+            moved = {
+                name: address + shift
+                for name, address in self.symbol_values.items()
+                if first.address <= address < first.address + first.size and name not in decl.symbols
+            }
+        return {**moved, **decl.symbols}, moved
+
+    def links_second(self, image: str) -> ImageDecl | None:
+        """The declaration of `image` when it is a second link, else None."""
+        return next((i for i in self.images if i.name == image and i.like is not None), None)
+
+    def link_names(self, image: str, defined: dict[str, list[DefinedSymbol]]) -> list[tuple[str, int, str]]:
+        """Every name that the link of `image` is given as an address, for others.ld and for the override check.
+
+        The declared functions of the other images. A second link is also given the names of each unit it
+        leaves out, from the placement map: the unit's functions at their moved addresses, and its other global
+        or weak symbols at the moved range of their kind plus their offset in the unit's object.
+        """
+        names = self.functions_of_others(image)
+        decl = self.links_second(image)
+        if decl is not None:
+            units, left_out = self.placed_units(image)
+            given = {name for name, _, _ in names}
+            for unit in (u for u in units if u.name in left_out):
+                for fn in unit.functions:
+                    names.append((fn.name, fn.address, image))
+                    given.add(fn.name)
+                for sym in defined.get(unit.name, []):
+                    address = symbol_address(unit, sym)
+                    if address is not None and sym.name not in given:
+                        names.append((sym.name, address, image))
+                        given.add(sym.name)
+        return names
 
     @property
     def payload(self) -> bytes:
@@ -467,6 +539,19 @@ class Config:
         return self.baseline[:HEADER_SIZE]
 
 
+def move_unit(unit: UnitDecl, shift: int, image: str) -> UnitDecl:
+    """A copy of `unit` with every function, rodata, data and bss address moved by `shift`, in `image`."""
+    moved = lambda d: None if d is None else dataclasses.replace(d, address=d.address + shift)
+    return dataclasses.replace(
+        unit,
+        functions=tuple(dataclasses.replace(f, address=f.address + shift) for f in unit.functions),
+        rodata=moved(unit.rodata),
+        data=moved(unit.data),
+        bss=moved(unit.bss),
+        image=image,
+    )
+
+
 def _expand(value: str, directory: Path) -> Path:
     path = Path(value).expanduser()
     if not path.is_absolute():
@@ -474,8 +559,21 @@ def _expand(value: str, directory: Path) -> Path:
     return Path(os.path.normpath(path))
 
 
-def parse_symbols(text: str, errors: list[str]) -> list[str]:
-    """Return names assigned in a symbols.ld file (simple `name = value;` lines)."""
+def linker_integer(text: str) -> int | None:
+    """The value of an integer of a symbols.ld statement as the linker reads it, or None when it is none.
+
+    As in C: a leading 0x or 0X is hexadecimal and any other leading 0 is
+    octal. Everything else is decimal. Suffixes are not supported.
+    """
+    if text[:2] in ("0x", "0X"):
+        return int(text[2:], 16)
+    if len(text) > 1 and text[0] == "0":
+        return int(text, 8) if re.fullmatch(r"[0-7]+", text) else None
+    return int(text)
+
+
+def parse_symbols(text: str, errors: list[str], values: dict[str, int] | None = None) -> list[str]:
+    """Return names assigned in a symbols.ld file (simple `name = value;` lines); `values` gets their addresses."""
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     names: list[str] = []
     for stmt in (s.strip() for s in text.split(";")):
@@ -487,6 +585,14 @@ def parse_symbols(text: str, errors: list[str]) -> list[str]:
             continue
         if match.group(1) in names:
             errors.append(f"symbols.ld: duplicate assignment of {match.group(1)!r}")
+        value = linker_integer(match.group(2))
+        if value is None:
+            errors.append(
+                f"symbols.ld: {match.group(1)!r} is assigned {match.group(2)!r}, which is no integer as the linker "
+                f"reads it (a leading 0 means octal)"
+            )
+        elif values is not None:
+            values[match.group(1)] = value
         names.append(match.group(1))
     return names
 
@@ -645,9 +751,82 @@ def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[Im
                 errors.append(f"{where}: '{key}' must be an integer")
             else:
                 numbers[key] = value
+        like = table.get("like")
+        if like is not None and (not isinstance(like, str) or not like):
+            errors.append(f"{where}: 'like' must be a non-empty string")
+            like = None
+        elif like is None and "leave_out" in table:
+            errors.append(f"{where}: 'leave_out' needs 'like': only a second link leaves units out")
+        leave_out = table.get("leave_out")
+        if leave_out is not None and (not isinstance(leave_out, list) or not all(isinstance(n, str) for n in leave_out)):
+            errors.append(f"{where}: 'leave_out' must be a list of unit names")
+            leave_out = None
+        local: dict[str, int] = {}
+        table_symbols = table.get("symbols", {})
+        if not isinstance(table_symbols, dict):
+            errors.append(f"{where}: 'symbols' must be a table")
+        else:
+            for key, value in table_symbols.items():
+                if not isinstance(value, int) or isinstance(value, bool):
+                    errors.append(f"{where}: symbols '{key}' must be an integer address, got {value!r}")
+                else:
+                    local[key] = value
         if name and archive and sha and len(numbers) == 2:
-            images.append(ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"]))
+            images.append(
+                ImageDecl(
+                    name, _expand(archive, directory), numbers["slot"], sha, numbers["address"], symbols=local,
+                    like=like, leave_out=tuple(leave_out or ()),
+                )
+            )
     return images, declared - {RESIDENT}
+
+
+def second_link_errors(images: list[ImageDecl], declared: set[str]) -> list[str]:
+    """The faults of the `like` and `leave_out` keys that need no unit and no baseline.
+
+    A `like` that names an image with other faults is not reported again: that image has its own errors.
+    """
+    errors = []
+    by_name = {i.name: i for i in images}
+    for image in images:
+        where = f"image {image.name!r}"
+        if image.like is not None:
+            first = by_name.get(image.like)
+            if image.like == image.name:
+                errors.append(f"{where}: 'like' names the image itself")
+            elif image.like not in declared:
+                errors.append(f"{where}: 'like' names {image.like!r}, which is not a declared image")
+            elif first is not None and first.like is not None:
+                errors.append(f"{where}: 'like' names {image.like!r}, which is a second link itself")
+        # Whether the names are units of the first image is checked once the units are known.
+    return errors
+
+
+def second_link_unit_errors(images: list[ImageDecl], units: list[UnitDecl]) -> list[str]:
+    """The names in `leave_out`: each must be a unit of the first image, once."""
+    errors = []
+    for image in images:
+        if image.like is None or image.like == image.name:
+            continue
+        where = f"image {image.name!r}"
+        of_first = {u.name for u in units if u.image == image.like}
+        seen: set[str] = set()
+        for name in image.leave_out:
+            if name not in of_first:
+                errors.append(f"{where}: 'leave_out' names {name!r}, which is not a unit of image {image.like!r}")
+            elif name in seen:
+                errors.append(f"{where}: 'leave_out' names {name!r} twice")
+            seen.add(name)
+    return errors
+
+
+def moved_range_errors(config: "Config", image: ImageDecl) -> list[str]:
+    """The range rules against the payload of a second link, for every unit of the image it is like."""
+    first = next((i for i in config.images if i.name == image.like), None)
+    if first is None or first.like is not None:
+        return []
+    units, _ = config.placed_units(image.name)
+    return [f"image {image.name!r}: moved {e}" for e in payload_errors(units, image.address, image.size)]
 
 
 def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list[str]) -> list[ImageDecl]:
@@ -794,6 +973,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         errors.append("[overlays] must be a table")
         overlays = None
     images, declared = parse_images(raw, directory, errors)
+    errors += second_link_errors(images, declared)
+    second_links = {i.name for i in images if i.like is not None}
     if images and overlays is None:
         errors.append("[[image]] needs an [overlays] section with 'table_pointers'")
 
@@ -829,6 +1010,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             image_name = RESIDENT
         elif image_name != RESIDENT and image_name not in declared:
             errors.append(f"{where}: image {image_name!r} is not declared")
+        elif image_name in second_links:
+            errors.append(f"{where}: image {image_name!r} is a second link and has no units of its own")
         flags = table.get("flags", [])
         if not isinstance(flags, list) or not all(isinstance(f, str) and FLAG_RE.match(f) for f in flags):
             errors.append(f"{where}: 'flags' must be a list of plain option strings")
@@ -882,6 +1065,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         if contiguous:
             units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name))
 
+    errors += second_link_unit_errors(images, units)
+
     # Overlap is judged among the units of one image.
     errors += geometry_errors([u for u in units if u.image == RESIDENT])
     for name in dict.fromkeys(u.image for u in units if u.image in declared):
@@ -890,10 +1075,17 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     # symbols.ld
     symbols_path = directory / "symbols.ld"
     symbol_names: list[str] = []
+    symbol_values: dict[str, int] = {}
     try:
-        symbol_names = parse_symbols(symbols_path.read_text(), errors)
+        symbol_names = parse_symbols(symbols_path.read_text(), errors, symbol_values)
     except OSError as exc:
         errors.append(f"cannot read {symbols_path}: {exc}")
+    for image in images:
+        errors += [
+            f"image {image.name!r}: symbols names {key!r}, which symbols.ld does not assign"
+            for key in image.symbols
+            if key not in symbol_names
+        ]
     for fn_name, unit_name in seen_functions.items():
         if fn_name in symbol_names:
             errors.append(
@@ -938,6 +1130,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         units=units,
         symbols_path=symbols_path,
         symbol_names=symbol_names,
+        symbol_values=symbol_values,
         types_fields=types_fields,
         types_header=types_header,
         expand_div=expand_div,
@@ -975,6 +1168,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                             f"image {image.name!r}: {e}"
                             for e in payload_errors(config.units_of(image.name), image.address, image.size)
                         ]
+                        errors += moved_range_errors(config, image)
     if errors:
         raise ConfigError(errors)
     return config
@@ -1277,11 +1471,13 @@ def generate_raw_and_linker(
     units: list[UnitDecl],
     ranges: list[tuple[int, int]],
     others: list[tuple[str, int, str]] = (),
+    local: dict[str, int] | None = None,
 ) -> None:
     """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image.
 
     With module images declared, `others` (the functions of the other images) goes to others.ld
-    next to the linker script, which includes it after symbols.ld.
+    next to the linker script, which includes it after symbols.ld. The addresses of a module
+    image's own [image.symbols] go to local.ld, included after others.ld; without any, no file.
     """
     raw_lines = []
     for index, (address, size) in enumerate(ranges):
@@ -1307,6 +1503,10 @@ def generate_raw_and_linker(
     if cfg.images:
         (build / "others.ld").write_text("".join(f"{name} = {address:#x};\n" for name, address, _ in others))
         lines.append(f'INCLUDE "{(build / "others.ld").resolve()}"')
+    (build / "local.ld").unlink(missing_ok=True)  # no stale file from an earlier build in this directory
+    if local:
+        (build / "local.ld").write_text("".join(f"{name} = {address:#x};\n" for name, address in local.items()))
+        lines.append(f'INCLUDE "{(build / "local.ld").resolve()}"')
     lines.append("SECTIONS {")
     for address, name, pattern, attrs in entries:
         lines.append(f" {name} {address:#x}{attrs} : SUBALIGN(1) {{ {pattern} }}")
@@ -1622,13 +1822,18 @@ def link_image(
     assembler: str,
     header: bytes | None = None,
     image: str = RESIDENT,
+    local: dict[str, int] | None = None,
+    others: list[tuple[str, int, str]] = (),
+    again: bool = False,
 ) -> tuple[dict, list[str]]:
     """Link one image alone from its unit objects in `build` and check it against its payload.
 
     The files of the link go to `outdir`, which is `build` for the resident
     image. With a `header` the executable is rebuilt and compared too. Returns
     the fields shared by the reports of every image and the failures, which
-    do not name the image.
+    do not name the image. `others` is every name that the link is given as an
+    address. With `again` the image is a second link: `units` are the moved
+    units it links, and its coverage counts functions linked again.
     """
     failures: list[str] = []
     outdir.mkdir(exist_ok=True)
@@ -1636,7 +1841,7 @@ def link_image(
     prefix = cfg.binutils_prefix
     where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
     ranges = raw_ranges(load, len(payload), units)
-    generate_raw_and_linker(cfg, outdir, load, units, ranges, cfg.functions_of_others(image))
+    generate_raw_and_linker(cfg, outdir, load, units, ranges, others, local)
     run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
     run(
@@ -1683,6 +1888,15 @@ def link_image(
         "data_bytes": data_bytes,
         "raw_payload_bytes": len(payload) - c_bytes - asm_bytes - rodata_bytes - data_bytes,
     }
+    if again:
+        # The functions of a second link are the first image's source: no count from C or assembly includes them.
+        for key in ("c_bytes", "c_functions", "asm_bytes", "asm_functions"):
+            del coverage[key]
+        coverage = {
+            "linked_again_bytes": c_bytes + asm_bytes,
+            "linked_again_functions": sum(len(u.functions) for u in units),
+            **coverage,
+        }
     if header is not None:
         coverage["raw_header_bytes"] = HEADER_SIZE
     coverage["raw_ranges"] = len(ranges)
@@ -1842,7 +2056,9 @@ def build_all(
     if selected is not None and cfg.images:
         report["selected_image"] = selected
     build_resident = selected in (None, RESIDENT)
-    built_units = cfg.units if selected is None else cfg.units_of(selected)
+    # A second link takes the objects of the units of the image it is like, also those it leaves out.
+    second = cfg.links_second(selected) if selected is not None else None
+    built_units = cfg.units if selected is None else cfg.units_of(selected if second is None else second.like)
     report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
@@ -1878,7 +2094,7 @@ def build_all(
     if failures:
         return report, failures
     defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in built_units}
-    for image in dict.fromkeys(unit.image for unit in built_units):
+    for image in dict.fromkeys(unit.image for unit in built_units if second is None):
         failures += [
             named(image, reason)
             for reason in symbol_override_errors(
@@ -1888,13 +2104,23 @@ def build_all(
                 [u for u in built_units if u.image == image], defined, cfg.functions_of_others(image)
             )
         ]
+    for image in cfg.images:
+        if image.like is None or selected not in (None, image.name):
+            continue
+        linked = [u for u in cfg.placed_units(image.name)[0] if u.name not in image.leave_out]
+        failures += [
+            named(image.name, reason)
+            for reason in symbol_override_errors(linked, defined, cfg.symbol_names)
+            + other_image_override_errors(linked, defined, cfg.link_names(image.name, defined))
+        ]
     if failures:
         return report, failures
 
     cache_units = report["cache"]["units"]
     if build_resident:
         fields, found = link_image(
-            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header, RESIDENT
+            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header, RESIDENT,
+            others=cfg.functions_of_others(RESIDENT),
         )
         failures += found
         report.update(
@@ -1912,10 +2138,13 @@ def build_all(
     for image in cfg.images:
         if selected not in (None, image.name):
             continue
+        placed, left_out = cfg.placed_units(image.name)
+        linked = [u for u in placed if u.name not in left_out]
         try:
             fields, found = link_image(
                 cfg, build, build / f"image-{image.name}", image.address, image.payload,
-                cfg.units_of(image.name), defined, cache_units, assembler, None, image.name,
+                linked, defined, cache_units, assembler, None, image.name, cfg.local_symbols(image.name)[0],
+                others=cfg.link_names(image.name, defined), again=image.like is not None,
             )
         except StepError as exc:
             raise StepError(named(image.name, str(exc))) from exc
@@ -1937,8 +2166,12 @@ def build_all(
                 "coverage": fields["coverage"],
                 "bss_bytes": fields["bss_bytes"],
                 "controls": fields["controls"],
+                "symbols": dict(image.symbols),
             }
         )
+        if image.like is not None:
+            first = next(i for i in cfg.images if i.name == image.like)
+            records[-1].update({"like": image.like, "shift": image.address - first.address, "left_out": list(left_out), "moved_symbols": cfg.local_symbols(image.name)[1]})
     if cfg.images and selected != RESIDENT:
         report["images"] = records
     return report, failures
@@ -1964,12 +2197,21 @@ def module_summary(record: dict) -> list[str]:
                 lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
     cov, name = record["coverage"], f"image {record['name']}"
     lines.append(f"{name} functions exact: {sum(1 for f in functions if f['exact'])}/{len(functions)}")
+    if "like" in record:
+        counted = f"linked again {cov['linked_again_bytes']:,} bytes ({cov['linked_again_functions']} functions)"
+    else:
+        counted = (
+            f"C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
+            f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions)"
+        )
     lines.append(
-        f"{name} coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
-        f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions), "
+        f"{name} coverage: {counted}, "
         f"rodata {cov['rodata_bytes']:,} bytes, data {cov['data_bytes']:,} bytes, "
         f"raw payload {cov['raw_payload_bytes']:,} bytes"
     )
+    if "like" in record:
+        left = ", ".join(record["left_out"]) or "none"
+        lines.append(f"{name} like {record['like']}: shift {record['shift']:+#x}, units left out: {left}")
     lines.append(f"{name} sha256:      {record['image_sha256']}")
     lines.append(f"{name} baseline sha256: {record['baseline_sha256']}")
     lines.append(f"{name} carriers: {record['carriers']}")

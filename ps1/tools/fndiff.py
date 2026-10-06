@@ -29,6 +29,7 @@ from matchbuild import (  # noqa: E402
     BSS_SECTIONS,
     DISCARDED_SECTIONS,
     LOADED_SECTIONS,
+    RESIDENT,
     ConfigError,
     EnvironmentFailure,
     StepError,
@@ -48,14 +49,26 @@ def words(data: bytes) -> list[bytes]:
     return [data[i : i + 4] for i in range(0, len(data) - len(data) % 4, 4)]
 
 
-def link_alone(cfg, unit, build: Path) -> Path:
-    """Link one unit object at its start address with every other symbol of its image as an address."""
+def link_alone(cfg, unit, build: Path, second=None) -> Path:
+    """Link one unit object at its start address with every other symbol of its image as an address.
+
+    With `second`, a second link that is like the unit's image, the unit is linked at its moved ranges, among
+    the units of that link at theirs, and is given the names that the link of `second` is given.
+    """
+    target = unit.image if second is None else second.name  # the image this link stands for
     obj = build / f"unit-{unit.name}.o"
     if not obj.is_file():
-        raise SystemExit(named(unit.image, f"no object {obj}: run matchbuild with the same --tag first"))
-    neighbours = cfg.units_of(unit.image)
+        raise SystemExit(named(target, f"no object {obj}: run matchbuild with the same --tag first"))
+    if second is None:
+        neighbours, defined = cfg.units_of(unit.image), {}
+    else:
+        moved, left_out = cfg.placed_units(second.name)
+        unit = next(u for u in moved if u.name == unit.name)
+        neighbours = [u for u in moved if u.name not in left_out]
+        # The names of a unit that the link leaves out come from its object, at the moved ranges.
+        defined = {u.name: defined_symbols(build / f"unit-{u.name}.o") for u in moved if (build / f"unit-{u.name}.o").is_file()}
     others = [fn for other in neighbours if other.name != unit.name for fn in other.functions]
-    across = cfg.functions_of_others(unit.image)
+    across = cfg.link_names(target, defined)
     assigned = {fn.name for fn in others} | {name for name, _, _ in across}
     owner = {fn.name: other.name for other in neighbours if other.name != unit.name for fn in other.functions}
     siblings = []
@@ -83,8 +96,11 @@ def link_alone(cfg, unit, build: Path) -> Path:
         if sym.name in owner
     ]
     if errors:
-        raise SystemExit("\n".join(named(unit.image, error) for error in errors))
-    script = build / f"unit-{unit.name}.fndiff.ld"
+        raise SystemExit("\n".join(named(target, error) for error in errors))
+    # The addresses that the unit's image gives names of symbols.ld take their place: they come last.
+    local = cfg.local_symbols(target)[0]
+    suffix = "" if second is None else f".{second.name}"
+    script = build / f"unit-{unit.name}{suffix}.fndiff.ld"
     placed = ""
     for kind, decl in unit.loaded():
         # Addresses of tables and variables in the code depend on where they sit.
@@ -96,20 +112,21 @@ def link_alone(cfg, unit, build: Path) -> Path:
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
         + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
         + "".join(f"{name} = {address:#x};\n" for name, address, _ in across)
+        + "".join(f"{name} = {address:#x};\n" for name, address in local.items())
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
         + placed
         + " /DISCARD/ : { " + " ".join(f"*({s})" for s in DISCARDED_SECTIONS) + " *(.note*) }\n"
         + "}\n"
     )
-    elf = build / f"unit-{unit.name}.fndiff.elf"
+    elf = build / f"unit-{unit.name}{suffix}.fndiff.elf"
     proc = subprocess.run(
         [cfg.binutils_prefix + "ld", "-EL", "-T", script, "-e", f"{unit.start:#x}", "-o", elf, obj],
         capture_output=True,
         text=True,
     )
     if proc.returncode != 0:
-        raise SystemExit(named(unit.image, f"cannot link unit {unit.name!r} alone:\n{proc.stderr}{proc.stdout}"))
+        raise SystemExit(named(target, f"cannot link unit {unit.name!r} alone:\n{proc.stderr}{proc.stdout}"))
     return elf
 
 
@@ -156,7 +173,11 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
     succeeded the report is removed before the first file is replaced: see
     `publish`. Prints what fails in the object checks and which way the
     object came. Returns an exit status when the unit cannot go on, else None.
+
+    Its failures name the unit's own image, as a whole build names them: the
+    pipeline makes the unit's one object, whichever link the diff is for.
     """
+    label = unit.image
     scratch = build / f".rebuild-{os.getpid()}"
     report = {
         "tag": tag,
@@ -170,13 +191,13 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
             pipeline, failures = prepare_pipeline(cfg, tag, scratch, cache_dir, report)
             if pipeline is not None:
                 failures, built = unit_object(pipeline, unit, scratch, report)
-                failures = [named(unit.image, reason) for reason in failures]
+                failures = [named(label, reason) for reason in failures]
                 if not built:
                     pipeline = None
         except StepError as exc:
             # A failed step of a module unit names its image, as in a whole build. A failure of the shared setup does not.
             failed_unit = pipeline is not None
-            pipeline, failures = None, [named(unit.image, str(exc)) if failed_unit else str(exc)]
+            pipeline, failures = None, [named(label, str(exc)) if failed_unit else str(exc)]
         except EnvironmentFailure as exc:
             print(f"ENVIRONMENT ERROR: {exc}")
             return 3
@@ -188,7 +209,7 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
         try:
             publish(scratch, build, unit.name)
         except OSError as exc:
-            print("FAIL: " + named(unit.image, f"cannot put the files of unit {unit.name!r} into {build}: {exc}"))
+            print("FAIL: " + named(label, f"cannot put the files of unit {unit.name!r} into {build}: {exc}"))
             print("RESULT: FAIL (run matchbuild.py again: the build directory may hold files of two builds)")
             return 1
     finally:
@@ -197,6 +218,22 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
     for reason in failures:
         print(f"FAIL: {reason}")
     return None
+
+
+def choose_second(cfg, unit, name: str):
+    """The second link that `--image NAME` stands for, or None and the message of what is wrong with NAME."""
+    if name == RESIDENT or name == unit.image:
+        return None, f"--image is for a second link: {name!r} is the image that unit {unit.name!r} belongs to"
+    decl = next((i for i in cfg.images if i.name == name), None)
+    if decl is None:
+        return None, f"--image {name!r} names no declared image"
+    if decl.like is None:
+        return None, f"--image is for a second link: image {name!r} is not one"
+    if decl.like != unit.image:
+        return None, named(name, f"--image: this second link is like image {decl.like!r}, not like {unit.image!r}, the image of unit {unit.name!r}")
+    if unit.name in decl.leave_out:
+        return None, named(name, f"--image: unit {unit.name!r} is left out of this second link")
+    return decl, ""
 
 
 def main() -> int:
@@ -211,6 +248,7 @@ def main() -> int:
     parser.add_argument("--reference", action="store_true", help="with --rebuild: use [toolchain.cc1_reference]")
     parser.add_argument("--cache", type=Path, help="with --rebuild: object cache directory (default as matchbuild.py)")
     parser.add_argument("--no-cache", action="store_true", help="with --rebuild: do not read or write the object cache")
+    parser.add_argument("--image", metavar="NAME", help="a second link that is like the unit's image: compare the unit as that link has it")
     parser.add_argument("--context", type=int, default=3, help="matching instructions shown around a difference")
     args = parser.parse_args()
     if not args.rebuild and (args.reference or args.cache or args.no_cache):
@@ -228,6 +266,13 @@ def main() -> int:
     if unit is None:
         print(f"no unit named {args.unit!r}")
         return 2
+    second = None
+    if args.image is not None:
+        second, message = choose_second(cfg, unit, args.image)
+        if message:
+            print(message)
+            return 2
+    label = unit.image if second is None else second.name
     build = config_path.parent.parent / "build" / args.tag
     if args.rebuild:
         if not build.is_dir():
@@ -236,12 +281,15 @@ def main() -> int:
         status = rebuild(cfg, unit, build, args.tag, cache_directory(args.cache, args.no_cache, config_path))
         if status is not None:
             return status
-    text_address, text, built_functions = built_code(link_alone(cfg, unit, build))
+    text_address, text, built_functions = built_code(link_alone(cfg, unit, build, second))
+    if second is not None:
+        # From here the unit is the one that the second link has: moved ranges, and its payload is the baseline.
+        unit = next(u for u in cfg.placed_units(second.name)[0] if u.name == unit.name)
 
     if args.function:
         declared = next((f for f in unit.functions if f.name == args.function), None)
         if declared is None or args.function not in built_functions:
-            print(named(unit.image, f"function {args.function!r} is not declared in the unit or not present in the object"))
+            print(named(label, f"function {args.function!r} is not declared in the unit or not present in the object"))
             return 2
         want_address, want_size = declared.address, declared.size
         got_address, got_size = built_functions[args.function]
@@ -249,7 +297,7 @@ def main() -> int:
         want_address, want_size = unit.start, unit.end - unit.start
         got_address, got_size = text_address, len(text)
     # The baseline of a module unit is the payload of its own image.
-    image = next((i for i in cfg.images if i.name == unit.image), None)
+    image = second if second is not None else next((i for i in cfg.images if i.name == unit.image), None)
     base, payload = (cfg.load, cfg.payload) if image is None else (image.address, image.payload)
     offset = want_address - base
     want = payload[offset : offset + want_size]

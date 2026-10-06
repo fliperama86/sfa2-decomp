@@ -209,10 +209,10 @@ def add_include_dir(copy: Path, entry: str) -> None:
     path.write_text(text)
 
 
-def fixture_executable(payload: bytes) -> bytes:
+def fixture_executable(payload: bytes, load: int = FIXTURE_LOAD) -> bytes:
     header = bytearray(HEADER_SIZE)
     header[:8] = b"PS-X EXE"
-    header[0x18:0x1C] = FIXTURE_LOAD.to_bytes(4, "little")
+    header[0x18:0x1C] = load.to_bytes(4, "little")
     header[0x1C:0x20] = len(payload).to_bytes(4, "little")
     return bytes(header) + payload
 
@@ -457,7 +457,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_second_cases(cfg_dir, parsed) + make_second_build_cases(cfg_dir, parsed) + make_moved_symbol_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -1281,6 +1281,13 @@ IMAGE_TABLE0 = [0x80700000, FIXTURE_LOAD, 0x80800000, 0x80900000]
 IMAGE_CHUNK = bytes(range(1, 17))
 IMAGE_SIZE = len(IMAGE_CHUNK)
 IMAGE_BODY = "int {name}_fn(void) {{ return {value}; }}\n"
+SECOND_SLOT, SECOND_ADDRESS = 2, 0x80800000  # the second link: its slot and its entry in table 0
+MOVED_READER_SIZE = 24  # a function that reads two variables of symbols.ld
+MOVED_TOTAL = 0x60  # the payload of the images of the moved-names fixture: the reader, then raw bytes
+MOVED_OFFSET = 0x40  # the variable inside the payload that no unit owns
+MOVED_OUTSIDE = 0x80400000  # a name of symbols.ld outside both payloads
+MOVED_ELSEWHERE = 0x80500000  # the address that the table of the second link gives the inside name
+TWO_CALLER_SIZE = 48  # the caller of the second-link fixture: it calls a function and reads a variable
 CALLER_SIZE = 32  # a function that calls another: frame, jal and its delay slot, restore, return
 
 
@@ -1310,20 +1317,55 @@ class ModuleSeeds(SeededFixture):
     ]
     CROSS_RES_SIZE = 8 + CALLER_SIZE
     CROSS_MOD = [("mod", "int res_fn(void);\nint mod_fn(void) { return res_fn(); }\n", 0, CALLER_SIZE)]
+    # "S1" and "S2" are one function that calls `ext_fn`, a name of symbols.ld, in two seed builds
+    # in which that name has the addresses `SYM_ADDRESSES`.
+    SYM = [("sym", "int ext_fn(void);\nint sym_fn(void) { return ext_fn(); }\n", 0, CALLER_SIZE)]
+    SYM_ADDRESSES = (0x80310000, 0x80320000)
+    # "F" is the first image of a second link: a callee, the owner of a variable in declared data, a
+    # caller that calls the callee and reads the variable, and a unit that nobody uses. "G" is the
+    # same sources built at the second address.
+    TWO_SIDES = [
+        ("callee", IMAGE_BODY.format(name="callee", value=7), 0, 8),
+        ("owner", "int shared_var = 5;\nint owner_fn(void) { return 1; }\n", 8, 8,
+         lambda load: f"data = {{ address = {load + 16:#x}, size = 4 }}\n"),
+        ("caller", "int callee_fn(void);\nextern int shared_var;\nint caller_fn(void) { return callee_fn() + shared_var; }\n",
+         20, TWO_CALLER_SIZE),
+        ("lone", IMAGE_BODY.format(name="lone", value=3), 20 + TWO_CALLER_SIZE, 8),
+    ]
+    TWO_SIZE = 28 + TWO_CALLER_SIZE
+    # The unit "reader" reads `inside_var`, which symbols.ld places inside the payload of the first image where no
+    # unit owns the bytes, and `outside_var`, which it places outside. "H" is the first image, "I" the second link
+    # at SECOND_ADDRESS with the inside name moved; "J" reads it at the first address, "K" at MOVED_ELSEWHERE.
+    READER = [("reader", "extern int inside_var;\nextern int outside_var;\n"
+               "int reader_fn(void) { return inside_var + outside_var; }\n", 0, MOVED_READER_SIZE)]
+
+    @staticmethod
+    def reader_symbols(inside: int) -> str:
+        return f"inside_var = {inside:#x};\noutside_var = {MOVED_OUTSIDE:#x};\n"
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
         self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
         self.toolchain = fixture_toolchain(parsed)
-        self.chunks: dict[str, bytes] = {}
+        self._chunks: dict[str, bytes] = {}
+
+    @property
+    def chunks(self) -> dict[str, bytes]:
+        """The seeded chunks. Reading them prepares the seeds, so that no case depends on another having run first."""
+        self.prepare()
+        return self._chunks
 
     def _seed(self, key: str, value: int, offset: int, total: int) -> bytes:
         return self._seed_units(key, [("value", IMAGE_BODY.format(name="value", value=value), offset, 8)], total)
 
-    def _seed_units(self, key: str, units: list[tuple[str, str, int, int]], total: int, symbols: str = "") -> bytes:
+    def _seed_units(
+        self, key: str, units: list[tuple], total: int, symbols: str = "", load: int = FIXTURE_LOAD
+    ) -> bytes:
         """The image of a seed build of units (name, source, offset, size), each with its function `<name>_fn`.
 
         `symbols` is the text of the seed's symbols.ld, which assigns the addresses of functions of other images.
+        A unit may have a fifth item, more keys of its table, with `{load}` for the load address.
+        `load` is where the seed image sits: a second link is seeded at its own address.
         """
         name = f"{self.label}-{key}"
         copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
@@ -1335,17 +1377,19 @@ class ModuleSeeds(SeededFixture):
         copy.mkdir()
         try:
             text = ""
-            for unit_name, source, offset, size in units:
+            for unit_name, source, offset, size, *more in units:
                 (copy / f"{unit_name}.c").write_text(source)
                 text += (
                     "[[unit]]\n"
                     f'name = "{unit_name}"\n'
                     f'source = "{unit_name}.c"\n'
                     f"flags = [{self.flags}]\n"
-                    f'functions = [ {{ name = "{unit_name}_fn", address = {FIXTURE_LOAD + offset:#x}, size = {size} }} ]\n\n'
+                    f'functions = [ {{ name = "{unit_name}_fn", address = {load + offset:#x}, size = {size} }} ]\n'
+                    + "".join(extra(load) for extra in more)
+                    + "\n"
                 )
             (copy / "symbols.ld").write_text(symbols or "/* The fixture needs no external symbols. */\n")
-            executable = fixture_executable(bytes(total))
+            executable = fixture_executable(bytes(total), load)
             (copy / "baseline.bin").write_bytes(executable)
             (copy / "build.toml").write_text(
                 "[baseline]\n"
@@ -1365,16 +1409,29 @@ class ModuleSeeds(SeededFixture):
                     shutil.rmtree(leftover, ignore_errors=True)
 
     def _prepare(self) -> None:
-        if self.chunks:
+        if self._chunks:
             return
-        self.chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
-        self.chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
-        self.chunks["R"] = self._seed_units(
+        # Filled into a local first: the chunks appear whole or not at all.
+        chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
+        chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
+        chunks["R"] = self._seed_units(
             "R", self.CROSS_RES, self.CROSS_RES_SIZE, f"mod_fn = {FIXTURE_LOAD:#x};\n"
         )
-        self.chunks["M"] = self._seed_units(
+        chunks["M"] = self._seed_units(
             "M", self.CROSS_MOD, CALLER_SIZE, f"res_fn = {FIXTURE_LOAD + 8:#x};\n"
         )
+        chunks["F"] = self._seed_units("F", self.TWO_SIDES, self.TWO_SIZE)
+        chunks["G"] = self._seed_units("G", self.TWO_SIDES, self.TWO_SIZE, load=SECOND_ADDRESS)
+        for key, load, inside in (
+            ("H", FIXTURE_LOAD, FIXTURE_LOAD + MOVED_OFFSET),
+            ("I", SECOND_ADDRESS, SECOND_ADDRESS + MOVED_OFFSET),
+            ("J", SECOND_ADDRESS, FIXTURE_LOAD + MOVED_OFFSET),
+            ("K", SECOND_ADDRESS, MOVED_ELSEWHERE),
+        ):
+            chunks[key] = self._seed_units(key, self.READER, MOVED_TOTAL, self.reader_symbols(inside), load)
+        for key, address in zip(("S1", "S2"), self.SYM_ADDRESSES):
+            chunks[key] = self._seed_units(key, self.SYM, CALLER_SIZE, f"ext_fn = {address:#x};\n")
+        self._chunks = chunks
 
 
 class ImageFixture:
@@ -1415,19 +1472,21 @@ class ImageFixture:
 
     def install(self, copy: Path, *, overlays: bool = True, pointers: int = IMAGE_POINTERS, images=None,
                 archive=None, archives=None, chunk: bytes = IMAGE_CHUNK, units=None, code: bytes = b"",
-                sources=None, head: str = "") -> None:
+                sources=None, head: str = "", symbols: str = "") -> None:
         """Replace the copy with the fixture.
 
         `archive` None writes the default archive, False writes none.
         `archives` maps further file names to their bytes, `sources` maps unit
         names to the text of their source, and `code` is the resident prefix.
         `head` is text for the start of the configuration, before any table.
+        `symbols` is the text of symbols.ld. A table in an image's mapping, such as
+        `symbols`, is written as `[image.<key>]` after the image's own keys.
         """
         for child in copy.iterdir():
             shutil.rmtree(child) if child.is_dir() else child.unlink()
         executable = self.executable(code)
         (copy / "baseline.bin").write_bytes(executable)
-        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        (copy / "symbols.ld").write_text(symbols or "/* The fixture needs no external symbols. */\n")
         if archive is None:
             archive = bytes(make_archive([(1, chunk), ((1 << 16) | 2, bytes(8))]))
         if archive is not False:
@@ -1444,7 +1503,14 @@ class ImageFixture:
         if overlays:
             text += f"[overlays]\ntable_pointers = {pointers:#x}\n\n"
         for image in [self.image(chunk)] if images is None else images:
-            text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in image.items()) + "\n"
+            scalars = {k: v for k, v in image.items() if not isinstance(v, dict)}
+            text += "[[image]]\n" + "".join(
+                f"{k} = {json.dumps(v)}\n" if isinstance(v, (str, list)) else f"{k} = {v:#x}\n" for k, v in scalars.items()
+            ) + "\n"
+            for key, table in ((k, v) for k, v in image.items() if isinstance(v, dict)):
+                text += f"[image.{key}]\n" + "".join(
+                    f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in table.items()
+                ) + "\n"
         units = [self.unit("res", FIXTURE_LOAD, image=None), self.unit("mod", FIXTURE_LOAD)] if units is None else units
         for unit in units:
             name = re.search(r'name = "(\w+)"', unit).group(1)
@@ -1748,7 +1814,82 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
             return f"the failed link of a module image must name it: {failures}"
         return None
 
+    # Addresses of the symbol file per image: one function that calls `ext_fn`, in two images, whose
+    # baselines have the call going to two addresses.
+    sym_first, sym_second = seeds.SYM_ADDRESSES
+    sym_slot, sym_address = 2, 0x80800000  # the second image: its slot and its entry in table 0
+    ext_text = f"ext_fn = {sym_first:#x};\n"
+
+    def symbols_pair(table=True):
+        def mutate(copy: Path):
+            seeds.prepare()
+            fx.install(
+                copy,
+                chunk=seeds.chunks["S1"],
+                images=[
+                    fx.image(seeds.chunks["S1"]),
+                    fx.image(
+                        seeds.chunks["S2"], name=other, archive="OTHER.PAC", slot=sym_slot, address=sym_address,
+                        **({"symbols": {"ext_fn": sym_second}} if table else {}),
+                    ),
+                ],
+                archives={"OTHER.PAC": bytes(make_archive([(sym_slot, seeds.chunks["S2"])]))},
+                units=[unit("sym", FIXTURE_LOAD, CALLER_SIZE), unit("sym2", sym_address, CALLER_SIZE, image=other)],
+                sources={"sym": seeds.SYM[0][1], "sym2": seeds.SYM[0][1].replace("sym_fn", "sym2_fn")},
+                symbols=ext_text,
+            )
+
+        return mutate
+
+    def verify_symbols_table(report: dict):
+        problems = []
+        first, second = record(report), record(report, other)
+        if first is None or second is None or not (first["exact"] and second["exact"]):
+            return "both module images must be exact"
+        if first.get("symbols") != {} or second.get("symbols") != {"ext_fn": sym_second}:
+            problems.append(f"symbols of the records: {first.get('symbols')!r}, {second.get('symbols')!r}")
+        out = build_dir(report)
+        if (out / "image-example" / "local.ld").exists() or "local.ld" in (out / "image-example" / "link.ld").read_text():
+            problems.append("an image without the table must have no local.ld and no mention of it")
+        local = out / f"image-{other}" / "local.ld"
+        if assigned_lines(local) != [f"ext_fn = {sym_second:#x};"]:
+            problems.append(f"local.ld of image {other}: {assigned_lines(local)}")
+        link = (out / f"image-{other}" / "link.ld").read_text()
+        order = [link.find(f"{n}.ld") for n in ("symbols", "others", "local")]
+        if -1 in order or order != sorted(order):
+            problems.append("link.ld must include symbols.ld, others.ld and local.ld in this order")
+        return "; ".join(problems) or None
+
+    def verify_symbols_missing(report: dict):
+        first, second = record(report), record(report, other)
+        failures = report.get("failures", [])
+        problems = []
+        if first is None or not first["exact"]:
+            problems.append("the first image must be exact")
+        if second is None or second["exact"]:
+            problems.append("the second image must not be exact")
+        if not failures or not all(f.startswith(f"image '{other}': ") for f in failures):
+            problems.append(f"failures must all name the second image: {failures}")
+        return "; ".join(problems) or None
+
+    def symbols_refused(table):
+        def mutate(copy: Path):
+            fx.install(
+                copy, symbols=ext_text,
+                images=[fx.image(), fx.image(name=other, archive="OTHER.PAC", slot=sym_slot, address=sym_address, symbols=table)],
+                archives={"OTHER.PAC": bytes(make_archive([(sym_slot, IMAGE_CHUNK)]))},
+            )
+
+        return mutate
+
     return [
+        Case("symbols-both-images-exact-with-table", True, "", symbols_pair(), verify_symbols_table),
+        Case("symbols-second-image-fails-without-table", False, f"image '{other}': function 'sym2_fn'",
+             symbols_pair(table=False), verify_symbols_missing, status=1),
+        Case("symbols-key-not-in-symbols-file", False, f"image '{other}': symbols names 'absent_fn', which symbols.ld does not assign",
+             symbols_refused({"absent_fn": sym_second}), status=2),
+        Case("symbols-value-is-a-string", False, f"image '{other}': symbols 'ext_fn' must be an integer address",
+             symbols_refused({"ext_fn": "0x80320000"}), status=2),
         refuses("without-overlays", "needs an [overlays] section", overlays=False),
         refuses("pointers-outside-payload", "not a word address inside the resident payload", pointers=FIXTURE_LOAD + 0x10000),
         refuses("pointers-without-block", "no block of table addresses", pointers=FIXTURE_LOAD + 0x4),
@@ -1827,6 +1968,566 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("names-call-of-undeclared-function", False, "image 'example': link failed",
              crossing(sources={"mod": "int absent_fn(void);\nint mod_fn(void) { return absent_fn(); }\n"}),
              verify_link_names_image, status=1),
+    ]
+
+
+THIRD_SLOT, THIRD_ADDRESS = 3, 0x80900000
+
+
+def second_fixture(parsed: dict):
+    """The fixture of the controls on second links: `install` of a configuration that declares one.
+
+    The first image is "example" with the unit "mod" (8 bytes of text); the second link is "second",
+    like it, with a chunk of `size` bytes. `first` and `unit_extra` change the first image's unit,
+    `second` the keys of the second link, and `more` adds images (name, slot, address, keys).
+    """
+    fx = ImageFixture(parsed)
+
+    def install(copy: Path, *, size: int = 0x200, unit_extra: str = "", second: dict | None = None,
+                more=(), units=None, first: dict | None = None):
+        chunk = bytes(size)
+        images = [
+            fx.image(IMAGE_CHUNK, **(first or {})),
+            fx.image(chunk, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS,
+                     **({"like": "example"} if second is None else second)),
+        ]
+        archives = {"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, chunk)]))}
+        for name, slot, address, keys in more:
+            images.append(fx.image(chunk, name=name, archive=f"{name.upper()}.PAC", slot=slot, address=address, **keys))
+            archives[f"{name.upper()}.PAC"] = bytes(make_archive([(slot, chunk)]))
+        fx.install(
+            copy, images=images, archives=archives,
+            units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=unit_extra)] if units is None else units,
+        )
+
+    return fx, install
+
+
+def make_second_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Second links: the declaration and its validation. Every case stops before the compiler."""
+    fx, install = second_fixture(parsed)
+
+    def refuses(name, reason, **options):
+        return Case(f"second-{name}", False, reason, lambda copy: install(copy, **options), status=2)
+
+    # A moved range lies outside a payload of 8 bytes: the first image's rodata or data sits at +8.
+    beyond = lambda kind: f"{kind} = {{ address = {FIXTURE_LOAD + 8:#x}, size = 8 }}\n"
+    return [
+        refuses("like-names-no-image", "image 'second': 'like' names 'absent', which is not a declared image",
+                second={"like": "absent"}),
+        refuses("like-names-itself", "image 'second': 'like' names the image itself", second={"like": "second"}),
+        refuses("like-names-a-second-link", "image 'third': 'like' names 'second', which is a second link itself",
+                more=[("third", THIRD_SLOT, THIRD_ADDRESS, {"like": "second"})]),
+        refuses("unit-in-a-second-link", "unit 'extra': image 'second' is a second link and has no units of its own",
+                units=[fx.unit("mod", FIXTURE_LOAD, 8), fx.unit("extra", SECOND_ADDRESS, 8, image="second")]),
+        refuses("leave-out-without-like", "image 'second': 'leave_out' needs 'like'", second={"leave_out": ["mod"]}),
+        refuses("leave-out-without-like-empty", "image 'second': 'leave_out' needs 'like'", second={"leave_out": []}),
+        refuses("leave-out-not-a-unit", "image 'second': 'leave_out' names 'absent', which is not a unit of image 'example'",
+                second={"like": "example", "leave_out": ["absent"]}),
+        refuses("leave-out-twice", "image 'second': 'leave_out' names 'mod' twice",
+                second={"like": "example", "leave_out": ["mod", "mod"]}),
+        refuses("moved-text-outside", "image 'second': moved unit 'mod' range", size=4),
+        refuses("moved-rodata-outside", "image 'second': moved unit 'mod' rodata range", size=8,
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=beyond("rodata"))]),
+        refuses("moved-data-outside", "image 'second': moved unit 'mod' data range", size=8,
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=beyond("data"))]),
+        # The bss lies outside the first payload and moves into the second.
+        refuses("moved-bss-touches-payload", "image 'second': moved unit 'mod' bss range",
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=f"bss = {{ address = {FIXTURE_LOAD + 0x100:#x}, size = 4 }}\n")]),
+    ]
+
+
+def install_two_sides(fx, seeds, copy: Path, body: bytes | None = None, leave_out=(), strays: bool = False) -> None:
+    """The fixture of the second-link builds: four units in the first image, and a second link of the same sources.
+
+    `body` is the second link's chunk, the seeded one by default. `strays` adds an ordinary image "other"
+    with one unit "stray", which the second link is not like.
+    """
+    seeds.prepare()
+    body = seeds.chunks["G"] if body is None else body
+    keys = {"like": "example", "leave_out": list(leave_out)} if leave_out else {"like": "example"}
+    images = [
+        fx.image(seeds.chunks["F"]),
+        fx.image(body, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS, **keys),
+    ]
+    archives = {"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, body)]))}
+    units = [
+        fx.unit("callee", FIXTURE_LOAD, 8),
+        fx.unit("owner", FIXTURE_LOAD + 8, 8, extra=f"data = {{ address = {FIXTURE_LOAD + 16:#x}, size = 4 }}\n"),
+        fx.unit("caller", FIXTURE_LOAD + 20, TWO_CALLER_SIZE),
+        fx.unit("lone", FIXTURE_LOAD + 20 + TWO_CALLER_SIZE, 8),
+    ]
+    if strays:
+        images.append(fx.image(bytes(8), name="other", archive="OTHER.PAC", slot=THIRD_SLOT, address=THIRD_ADDRESS))
+        archives["OTHER.PAC"] = bytes(make_archive([(THIRD_SLOT, bytes(8))]))
+        units.append(fx.unit("stray", THIRD_ADDRESS, 8, image="other"))
+    fx.install(
+        copy, chunk=seeds.chunks["F"], code=bytes(0), images=images, archives=archives, units=units,
+        sources={name: source for name, source, *_ in seeds.TWO_SIDES},
+    )
+
+
+def make_second_build_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Second links built: a first image of four units and a second link whose chunk is the same sources at its address."""
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+    shift = SECOND_ADDRESS - FIXTURE_LOAD
+    first_side = {"callee": 0, "owner": 8, "caller": 20, "lone": 20 + TWO_CALLER_SIZE}
+    build_dir = lambda report: cfg_dir.parent / "build" / report["tag"]
+    record = lambda report, name: next((r for r in report.get("images", []) if r["name"] == name), None)
+    resident_keys = ("units", "coverage", "bss_bytes", "image_sha256", "executable_sha256", "controls")
+
+    def second_chunk(patch=None) -> bytes:
+        chunk = bytearray(seeds.chunks["G"])
+        if patch:
+            patch(chunk)
+        return bytes(chunk)
+
+    def install(chunk=None, leave_out=()):
+        return lambda copy: install_two_sides(fx, seeds, copy, None if chunk is None else chunk(seeds), leave_out)
+
+    # `chunk(seeds)` reads a seeded chunk before `install_two_sides` runs. Reading `seeds.chunks` prepares
+    # the seeds, so each of these cases also runs alone.
+
+    def words_of(chunk, start, size):
+        return [(i, int.from_bytes(chunk[i : i + 4], "little")) for i in range(start, start + size, 4)]
+
+    def patched_call(chunk):
+        """The second chunk whose call goes to the callee's first address."""
+        def patch(seeds_):
+            data = bytearray(seeds_.chunks["G"])
+            at = next(i for i, w in words_of(data, first_side["caller"], TWO_CALLER_SIZE) if w >> 26 == 3)
+            data[at : at + 4] = (0x0C000000 | ((FIXTURE_LOAD >> 2) & 0x03FFFFFF)).to_bytes(4, "little")
+            return bytes(data)
+        return patch
+
+    def patched_variable(seeds_):
+        """The second chunk whose read of the variable uses the first address."""
+        data = bytearray(seeds_.chunks["G"])
+        at = next(i for i, w in words_of(data, first_side["caller"], TWO_CALLER_SIZE) if w >> 26 == 0x0F)
+        data[at : at + 2] = ((FIXTURE_LOAD + 16) >> 16).to_bytes(2, "little")
+        return bytes(data)
+
+    def changed_word(seeds_):
+        data = bytearray(seeds_.chunks["G"])
+        data[0] ^= 0xFF
+        return bytes(data)
+
+    def first_exact(report):
+        rec = record(report, "example")
+        problems = []
+        if rec is None or not rec["exact"]:
+            problems.append("the first image must be exact")
+        elif rec["coverage"].get("c_functions") != 4 or "like" in rec:
+            problems.append(f"the first image's record must be unchanged, with its 4 functions counted once: {rec['coverage']}")
+        return problems
+
+    def assigned(path: Path):
+        return path.read_text().splitlines() if path.is_file() else ["<missing>"]
+
+    def verify_exact(report: dict, left_out=(), again_functions=4, again_bytes=72):
+        rec = record(report, "second")
+        problems = first_exact(report)
+        if rec is None or not rec["exact"]:
+            return "; ".join(problems + ["the second link must be exact"])
+        problems += [
+            f"{key} is {rec.get(key)!r}, wanted {want!r}"
+            for key, want in {"like": "example", "shift": shift, "left_out": list(left_out)}.items()
+            if rec.get(key) != want
+        ]
+        cov = rec["coverage"]
+        if cov.get("linked_again_functions") != again_functions or cov.get("linked_again_bytes") != again_bytes:
+            problems.append(f"coverage: {cov}")
+        if any(k in cov for k in ("c_bytes", "c_functions", "asm_bytes", "asm_functions")):
+            problems.append(f"a second link counts no function from C or assembly: {cov}")
+        want_units = [n for n in first_side if n not in left_out]
+        if [u["name"] for u in rec["units"]] != want_units:
+            problems.append(f"units: {[u['name'] for u in rec['units']]}")
+        elif [u["range"][0] for u in rec["units"]] != [SECOND_ADDRESS + first_side[n] for n in want_units]:
+            problems.append("the ranges of the units must be the moved ranges")
+        if not rec["controls"] or not all(c["tripped"] for c in rec["controls"] if c["applicable"]):
+            problems.append(f"controls: {rec['controls']}")
+        return "; ".join(problems) or None
+
+    def verify_all(report: dict):
+        problems = verify_exact(report)
+        out = build_dir(report)
+        first_names = [f"{n}_fn = {FIXTURE_LOAD + a:#x};" for n, a in first_side.items()]
+        if assigned(out / "others.ld") != first_names:
+            problems = (problems or "") + f"; resident others.ld is {assigned(out / 'others.ld')}"
+        if assigned(out / "image-second" / "others.ld") != []:
+            problems = (problems or "") + f"; others.ld of the second link: {assigned(out / 'image-second' / 'others.ld')}"
+        if assigned(out / "image-example" / "others.ld") != []:
+            problems = (problems or "") + f"; others.ld of the first image: {assigned(out / 'image-example' / 'others.ld')}"
+        return problems
+
+    def verify_lone_out(report: dict):
+        problems = verify_exact(report, ("lone",), 3, 64)
+        cov = record(report, "second")["coverage"]
+        if cov["raw_payload_bytes"] != 8:
+            problems = (problems or "") + f"; the unit left out must count as raw: {cov}"
+        lines = assigned(build_dir(report) / "image-second" / "others.ld")
+        if lines != [f"lone_fn = {SECOND_ADDRESS + first_side['lone']:#x};"]:
+            problems = (problems or "") + f"; others.ld of the second link: {lines}"
+        return problems
+
+    def verify_callee_out(report: dict):
+        problems = verify_exact(report, ("callee",), 3, 64)
+        out = build_dir(report) / "image-second"
+        lines = assigned(out / "others.ld")
+        if lines != [f"callee_fn = {SECOND_ADDRESS:#x};"]:
+            problems = (problems or "") + f"; others.ld of the second link: {lines}"
+        image = (out / "image.bin").read_bytes()
+        word = next(w for _, w in words_of(image, first_side["caller"], TWO_CALLER_SIZE) if w >> 26 == 3)
+        if word & 0x03FFFFFF != (SECOND_ADDRESS >> 2) & 0x03FFFFFF:
+            problems = (problems or "") + f"; the call word is {word:#010x}, wanted the callee's second address"
+        return problems
+
+    def verify_owner_out(report: dict):
+        problems = verify_exact(report, ("owner",), 3, 64)
+        lines = assigned(build_dir(report) / "image-second" / "others.ld")
+        want = [f"owner_fn = {SECOND_ADDRESS + 8:#x};", f"shared_var = {SECOND_ADDRESS + 16:#x};"]
+        if lines != want:
+            problems = (problems or "") + f"; others.ld of the second link: {lines}, wanted {want}"
+        return problems
+
+    def verify_selected(report: dict):
+        problems = []
+        if report.get("selected_image") != "second":
+            problems.append(f"selected_image is {report.get('selected_image')!r}")
+        if [r["name"] for r in report.get("images", [])] != ["second"] or not record(report, "second")["exact"]:
+            problems.append("only the second link must be built, and exact")
+        if any(k in report for k in resident_keys):
+            problems.append("resident keys present")
+        out = build_dir(report)
+        if sorted(report["inputs"]["sources"]) != sorted(first_side):
+            problems.append(f"every unit of the first image is compiled: {sorted(report['inputs']['sources'])}")
+        if (out / "image-example").exists() or (out / "image.bin").exists() or not (out / "unit-lone.o").is_file():
+            problems.append("only the second link may be linked, with the objects of the first image's units")
+        return "; ".join(problems) or None
+
+    def verify_fails(report: dict):
+        problems = first_exact(report)
+        rec = record(report, "second")
+        if rec is None or rec["exact"]:
+            problems.append("the second link's record must say that it is not exact")
+        failures = report.get("failures", [])
+        if not failures or not all(f.startswith("image 'second': ") for f in failures):
+            problems.append(f"failures must all name the second link: {failures}")
+        return "; ".join(problems) or None
+
+    differs = "image 'second': function '{}': bytes differ"
+    return [
+        Case("second-link-exact", True, "", install(), verify_all),
+        Case("second-link-unit-left-out", True, "", install(leave_out=["lone"]), verify_lone_out),
+        Case("second-link-callee-left-out", True, "", install(leave_out=["callee"]), verify_callee_out),
+        Case("second-link-variable-owner-left-out", True, "", install(leave_out=["owner"]), verify_owner_out),
+        Case("second-link-built-alone", True, "", install(), verify_selected, extra=("--image", "second")),
+        Case("second-link-changed-word", False, differs.format("callee_fn"), install(chunk=changed_word), verify_fails, status=1),
+        Case("second-link-call-to-first-address", False, differs.format("caller_fn"),
+             install(chunk=patched_call(None)), verify_fails, status=1),
+        Case("second-link-call-to-first-address-callee-left-out", False, differs.format("caller_fn"),
+             install(chunk=patched_call(None), leave_out=["callee"]), verify_fails, status=1),
+        Case("second-link-variable-at-first-address", False, differs.format("caller_fn"),
+             install(chunk=patched_variable), verify_fails, status=1),
+    ]
+
+
+def install_moved_names(fx, seeds, copy: Path, body: str = "I", table: dict | None = None) -> None:
+    """The fixture of the moved names: one unit that reads a name inside the first image and one outside it."""
+    seeds.prepare()
+    chunk = seeds.chunks[body]
+    second = {"like": "example", **({"symbols": table} if table else {})}
+    fx.install(
+        copy, chunk=seeds.chunks["H"], code=bytes(0), symbols=seeds.reader_symbols(FIXTURE_LOAD + MOVED_OFFSET),
+        images=[
+            fx.image(seeds.chunks["H"]),
+            fx.image(chunk, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS, **second),
+        ],
+        archives={"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, chunk)]))},
+        units=[fx.unit("reader", FIXTURE_LOAD, MOVED_READER_SIZE)],
+        sources={"reader": seeds.READER[0][1]},
+    )
+
+
+def make_moved_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Names of symbols.ld inside the first image move with a second link."""
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+    moved = SECOND_ADDRESS + MOVED_OFFSET
+    record = lambda report, name: next((r for r in report.get("images", []) if r["name"] == name), None)
+
+    def install(body="I", table=None):
+        return lambda copy: install_moved_names(fx, seeds, copy, body, table)
+
+    def exact_both(report):
+        first, second = record(report, "example"), record(report, "second")
+        if first is None or second is None or not (first["exact"] and second["exact"]):
+            return None, "both images must be exact"
+        if "moved_symbols" in first:
+            return None, "an image that is not a second link has no moved_symbols"
+        return second, None
+
+    def verify_moved(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if second.get("moved_symbols") != {"inside_var": moved}:
+            return f"moved_symbols is {second.get('moved_symbols')!r}"
+        return None if second.get("symbols") == {} else f"symbols is {second.get('symbols')!r}"
+
+    def verify_outside(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if "outside_var" in second.get("moved_symbols", {}):
+            return "a name outside the first image's payload is not moved"
+        return None
+
+    def verify_table(report: dict):
+        second, problem = exact_both(report)
+        if problem:
+            return problem
+        if second.get("moved_symbols") != {} or second.get("symbols") != {"inside_var": MOVED_ELSEWHERE}:
+            return f"moved_symbols {second.get('moved_symbols')!r}, symbols {second.get('symbols')!r}"
+        return None
+
+    def verify_fails(report: dict):
+        first, second = record(report, "example"), record(report, "second")
+        failures = report.get("failures", [])
+        if first is None or not first["exact"] or second is None or second["exact"]:
+            return "the first image must be exact and the second link not"
+        if not failures or not all(f.startswith("image 'second': ") for f in failures):
+            return f"failures must all name the second link: {failures}"
+        return None
+
+    return [
+        Case("second-moved-symbol-exact", True, "", install(), verify_moved),
+        Case("second-moved-symbol-outside-is-not-moved", True, "", install(), verify_outside),
+        Case("second-moved-symbol-read-at-first-address", False, "image 'second': function 'reader_fn': bytes differ",
+             install("J"), verify_fails, status=1),
+        Case("second-moved-symbol-table-wins", True, "", install("K", {"inside_var": MOVED_ELSEWHERE}), verify_table),
+    ]
+
+
+def make_moved_symbol_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+
+    def identical(ctx):
+        install_moved_names(fx, seeds, ctx.copy)
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build must pass: {describe(proc)}"
+        proc = subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "--image", "second", "reader"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the reader as the second link has it must be IDENTICAL: exit {proc.returncode}\n{(proc.stdout + proc.stderr)[-600:]}"
+        return None
+
+    return [CacheCase("second-moved-symbol-fndiff-identical", identical)]
+
+
+def make_second_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    """`fndiff.py --image`: a unit compared as a second link has it."""
+    fx = ImageFixture(parsed)
+    seeds = ModuleSeeds(cfg_dir, parsed)
+
+    def diff(ctx, *args: str, rebuild: bool = False) -> subprocess.CompletedProcess:
+        command = [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag]
+        if rebuild:
+            command += ["--rebuild", "--cache", str(ctx.cache)]
+        return subprocess.run([*command, *args], capture_output=True, text=True)
+
+    def say(proc) -> str:
+        return f"exit {proc.returncode}:\n{(proc.stdout + proc.stderr)[-700:]}"
+
+    def expect(proc, status: int, text: str, what: str):
+        output = proc.stdout + proc.stderr
+        return None if proc.returncode == status and text in output else f"{what}: wanted exit {status} with {text!r}, got {say(proc)}"
+
+    def built(ctx, body=None, leave_out=(), passes=True):
+        install_two_sides(fx, seeds, ctx.copy, body, leave_out)
+        proc, _, _ = ctx.run()
+        if passes != passed(proc):
+            return f"test setup: the whole build {'must pass' if passes else 'must fail'}: {describe(proc)}"
+        return None
+
+    def identical(ctx):
+        return (
+            built(ctx)
+            or expect(diff(ctx, "--image", "second", "caller"), 0, "IDENTICAL", "the caller as the second link has it")
+            or expect(diff(ctx, "caller"), 0, "IDENTICAL", "the caller in its own image")
+        )
+
+    def changed_chunk(ctx):
+        seeds.prepare()
+        data = bytearray(seeds.chunks["G"])
+        data[0] ^= 0xFF  # inside callee_fn
+        return (
+            built(ctx, bytes(data), passes=False)
+            or expect(diff(ctx, "--image", "second", "callee"), 1, "DIFFERENT", "the callee as the second link has it")
+            or expect(diff(ctx, "callee"), 0, "IDENTICAL", "the callee in its own image")
+        )
+
+    def callee_left_out(ctx):
+        return (
+            built(ctx, leave_out=["callee"])
+            or expect(diff(ctx, "--image", "second", "caller"), 0, "IDENTICAL", "the caller with the callee left out")
+        )
+
+    def rebuilt(ctx):
+        problem = built(ctx)
+        if problem:
+            return problem
+        source = (ctx.copy / "caller.c").read_text()
+        (ctx.copy / "caller.c").write_text(source.replace("shared_var; }", "shared_var + 1; }"))
+        problem = expect(diff(ctx, "--image", "second", "caller", rebuild=True), 1, "DIFFERENT", "after the change")
+        (ctx.copy / "caller.c").write_text(source)
+        problem = problem or expect(diff(ctx, "--image", "second", "caller", rebuild=True), 0, "IDENTICAL", "after restoring")
+        if problem:
+            return problem
+        # A failed step of the unit's pipeline names the unit's own image, as a whole build does: the
+        # pipeline makes the unit's one object, whichever link the diff is for.
+        (ctx.copy / "caller.c").write_text("int caller_fn(void) { return }\n")
+        proc = diff(ctx, "--image", "second", "caller", rebuild=True)
+        (ctx.copy / "caller.c").write_text(source)
+        output = proc.stdout + proc.stderr
+        if proc.returncode != 1 or "FAIL: image 'example': compile caller" not in output or "image 'second': compile" in output:
+            return f"a failed step under --rebuild --image must name the unit's own image: {say(proc)}"
+        return None
+
+    def refusals(ctx):
+        install_two_sides(fx, seeds, ctx.copy, strays=True)
+        for args, text in (
+            (("--image", "absent", "caller"), "'absent' names no declared image"),
+            (("--image", "resident", "caller"), "--image is for a second link: 'resident'"),
+            (("--image", "example", "caller"), "--image is for a second link: 'example'"),
+            (("--image", "other", "caller"), "--image is for a second link: image 'other' is not one"),
+            (("--image", "second", "stray"), "image 'second': --image: this second link is like image 'example', not like 'other'"),
+        ):
+            problem = expect(diff(ctx, *args), 2, text, " ".join(args))
+            if problem:
+                return problem
+        install_two_sides(fx, seeds, ctx.copy, leave_out=["callee"])
+        return expect(
+            diff(ctx, "--image", "second", "callee"), 2, "image 'second': --image: unit 'callee' is left out", "a unit left out"
+        )
+
+    def overrides(ctx):
+        """The owned-name rule holds in this link, with the second link's names and its prefix."""
+        for leave_out, name, text in (
+            ((), "lone_fn", "image 'second': unit 'caller' defines 'lone_fn' in .data, which unit 'lone' of its image defines too"),
+            (("callee",), "callee_fn", "image 'second': others.ld defines 'callee_fn', which unit 'caller' defines in .data"),
+        ):
+            install_two_sides(fx, seeds, ctx.copy, None, leave_out)
+            (ctx.copy / "caller.c").write_text(f"int {name} = 1;\nint caller_fn(void) {{ return {name}; }}\n")
+            proc, _, _ = ctx.run()
+            if passed(proc):
+                return "test setup: the whole build must reject this fixture"
+            for rebuild in (False, True):
+                got = diff(ctx, "--image", "second", "caller", rebuild=rebuild)
+                problem = expect(got, 1, text, f"{name} {'with' if rebuild else 'without'} --rebuild")
+                if problem or (ctx.build / "unit-caller.second.fndiff.elf").exists():
+                    return problem or "the unit was linked although a name given to the link overrides its symbol"
+        return None
+
+    return [
+        CacheCase("second-fndiff-overrides", overrides),
+        CacheCase("second-fndiff-identical", identical),
+        CacheCase("second-fndiff-changed-chunk", changed_chunk),
+        CacheCase("second-fndiff-callee-left-out", callee_left_out),
+        CacheCase("second-fndiff-rebuild", rebuilt),
+        CacheCase("second-fndiff-refusals", refusals),
+    ]
+
+
+def make_second_map_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    """The placement map of a second link, from the configuration alone."""
+    fx, install = second_fixture(parsed)
+
+    def placement(ctx):
+        install(
+            ctx.copy, second={"like": "example", "leave_out": ["mod"]},
+            units=[
+                fx.unit("mod", FIXTURE_LOAD, 4, extra=f"rodata = {{ address = {FIXTURE_LOAD + 4:#x}, size = 4 }}\n"
+                        f"bss = {{ address = {FIXTURE_LOAD + 0x300:#x}, size = 4 }}\n"),
+                fx.unit("other", FIXTURE_LOAD + 8, 8),
+            ],
+        )
+        cfg = matchbuild.load_config(ctx.config)
+        shift = SECOND_ADDRESS - FIXTURE_LOAD
+        units, left_out = cfg.placed_units("second")
+        want = {
+            "mod": (FIXTURE_LOAD + shift, (FIXTURE_LOAD + 4 + shift, 4), (FIXTURE_LOAD + 0x300 + shift, 4)),
+            "other": (FIXTURE_LOAD + 8 + shift, None, None),
+        }
+        got = {u.name: (u.functions[0].address, u.rodata and (u.rodata.address, u.rodata.size), u.bss and (u.bss.address, u.bss.size))
+               for u in units}
+        if got != want or left_out != ("mod",):
+            return f"placement map is {got} with {left_out} left out, wanted {want} with ('mod',)"
+        if [u.image for u in units] != ["second", "second"]:
+            return "the moved units belong to the second link"
+        if cfg.units_of("second") or [u.name for u in cfg.units_of("example")] != ["mod", "other"]:
+            return "the configuration's own units must stay as declared"
+        own, none = cfg.placed_units("example")
+        if own != cfg.units_of("example") or none != ():
+            return "an image that is not a second link takes its own units unchanged"
+        # A second link gives no names to another link: it has no unit of its own.
+        names = [name for name, _, _ in cfg.functions_of_others("resident")]
+        if names != ["mod_fn", "other_fn"] or [i for _, _, i in cfg.functions_of_others("resident")] != ["example"] * 2:
+            return f"the resident link is given {names}"
+        return None
+
+    def integers(ctx):
+        """The integers of symbols.ld are read as the linker reads them: a leading 0 is octal."""
+        got = {text: matchbuild.linker_integer(text) for text in ("0", "10", "010", "0x10", "0X1f", "0777", "089", "08")}
+        want = {"0": 0, "10": 10, "010": 8, "0x10": 16, "0X1f": 31, "0777": 511, "089": None, "08": None}
+        if got != want:
+            return f"read as {got}, wanted {want}"
+        errors: list[str] = []
+        values: dict[str, int] = {}
+        names = matchbuild.parse_symbols("eight = 010;\nbad = 089;\nsixteen = 0x10;\n", errors, values)
+        if names != ["eight", "bad", "sixteen"] or values != {"eight": 8, "sixteen": 16}:
+            return f"parsed {names} with {values}"
+        if len(errors) != 1 or "'bad' is assigned '089'" not in errors[0]:
+            return f"an integer the linker does not read must be one configuration error: {errors}"
+        return None
+
+    def octal_moves(ctx):
+        """An address written in octal lies inside the first image and moves. Read as decimal it would lie outside."""
+        install(ctx.copy, second={"like": "example"})
+        inside = FIXTURE_LOAD + 8
+        symbols = ctx.copy / "symbols.ld"
+        symbols.write_text(symbols.read_text() + f"inside_octal = 0{inside:o};\n")
+        if int(f"0{inside:o}".lstrip("0")) in range(FIXTURE_LOAD, FIXTURE_LOAD + 0x10000):
+            return "test setup: the decimal reading must lie outside the first image"
+        cfg = matchbuild.load_config(ctx.config)
+        if cfg.symbol_values.get("inside_octal") != inside:
+            return f"inside_octal is read as {cfg.symbol_values.get('inside_octal')}, wanted {inside}"
+        moved = cfg.local_symbols("second")[1]
+        if moved.get("inside_octal") != inside + SECOND_ADDRESS - FIXTURE_LOAD:
+            return f"the second link must be given the name at its moved address: {moved}"
+        return None
+
+    def not_an_integer(ctx):
+        """Through the tool: a configuration error with exit status 2, no traceback."""
+        install(ctx.copy, second={"like": "example"})
+        symbols = ctx.copy / "symbols.ld"
+        symbols.write_text(symbols.read_text() + "bad_octal = 089;\n")
+        proc, _, _ = ctx.run()
+        output = proc.stdout + proc.stderr
+        if proc.returncode != 2 or "CONFIG ERROR: symbols.ld: 'bad_octal' is assigned '089'" not in output or "Traceback" in output:
+            return f"wanted a configuration error with exit status 2: exit {proc.returncode}\n{output[-600:]}"
+        return None
+
+    return [
+        CacheCase("second-placement-map", placement),
+        CacheCase("symbols-file-integers", integers),
+        CacheCase("second-moved-symbol-octal-address", octal_moves),
+        CacheCase("symbols-file-not-an-integer", not_an_integer),
     ]
 
 
@@ -2794,6 +3495,39 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the module unit must be IDENTICAL after --rebuild: {say(proc)}"
         return None
 
+    def symbols_per_image(ctx):
+        """The unit of each of two images that give one name of symbols.ld two addresses links alone as built."""
+        seeds.prepare()
+        first, second = seeds.SYM_ADDRESSES
+        slot, address = 2, 0x80800000
+        source = seeds.SYM[0][1]
+        images.install(
+            ctx.copy,
+            chunk=seeds.chunks["S1"],
+            images=[
+                images.image(seeds.chunks["S1"]),
+                images.image(
+                    seeds.chunks["S2"], name="other", archive="OTHER.PAC", slot=slot, address=address,
+                    symbols={"ext_fn": second},
+                ),
+            ],
+            archives={"OTHER.PAC": bytes(make_archive([(slot, seeds.chunks["S2"])]))},
+            units=[images.unit("sym", FIXTURE_LOAD, CALLER_SIZE), images.unit("sym2", address, CALLER_SIZE, image="other")],
+            sources={"sym": source, "sym2": source.replace("sym_fn", "sym2_fn")},
+            symbols=f"ext_fn = {first:#x};\n",
+        )
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build does not pass: {describe(proc)}"
+        for unit_name in ("sym", "sym2"):
+            proc = plain(ctx, unit_name)
+            if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+                return f"unit {unit_name!r} must be IDENTICAL with the addresses of its image: {say(proc)}"
+        proc = rebuild(ctx, "sym2")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the unit of the second image must be IDENTICAL after --rebuild: {say(proc)}"
+        return None
+
     def options_need_rebuild(ctx):
         fixture(ctx, build=False)
         proc = subprocess.run(
@@ -2826,6 +3560,7 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-module-publication-fails", module_publication_fails),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
+        CacheCase("symbols-fndiff-unit-in-each-image", symbols_per_image),
         CacheCase("names-fndiff-unit-calls-other-image", names_module_calls_resident),
     ]
 
@@ -3493,7 +4228,7 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed) + make_second_fndiff_cases(cfg_dir, parsed) + make_moved_symbol_fndiff_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
