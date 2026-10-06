@@ -3957,6 +3957,78 @@ Lessons:
   is not. After a mechanical cleanup, read every form that the pass says
   it had to keep.
 
+## Sixty-fourth group: a fourth module, at two addresses: slots 0x0 and 0x8
+
+The owner's choice of 2026-10-06, more overlay modules, continued with one
+character's extra module. Slot `0x0` of `PL09.PAC` and slot `0x8` of
+`PL09X.PAC` hold the same 112 functions at two addresses, 17,220 bytes
+each. They are the images `slot00` and `slot08`; `slot08` is declared as
+like `slot00`, as `slot17` is like `slot16`.
+
+Counts, from the build:
+
+- `slot00`: 109 of 112 functions exact, 12,240 bytes; one unit owns 16
+  bytes of read-only data; 4,964 bytes are retained raw. `slot08`: the
+  same 109, linked a second time, exact against its own chunk, with no
+  name of `symbols.ld` that needed another address on that side.
+- 3 functions are parked with candidates, 864 bytes.
+- 48 unit files, 52 symbols and 2 structs with 22 lines of the field table
+  are new. The resident image and the other five module images are
+  unchanged.
+
+What ran, and what the changes to the method bought:
+
+- A first round of eight agents on nine batches: 103 of 112 exact. The
+  prompt was the third form: the forms note read before the first
+  attempt, the object view's struct line with its size already in the
+  base, record types named after the table they describe.
+- The merge had 3 conflicts where the module of slot `0x12` had 12, all
+  three the signedness of one 32-bit field, settled by hand in minutes
+  with the two batches still exact.
+- The declaration check on the merged tree printed 12 lines; an agent
+  fixed them in 9 files. Four came from one mistake that the prompt had
+  warned of: a declaration copied from another unit instead of from the
+  definition.
+- Second attempts on the 9 parked, three agents with three functions
+  each and the patterns named in a note: 6 exact.
+
+Findings:
+
+- The sweep's first function of this content is wrong by 16 bytes: the
+  content begins with a table of four words that decode as instructions.
+  An agent stopped and reported it, as the prompt asks. The private table
+  was corrected, the unit that reads the table owns it as read-only data,
+  and the overlay page says that the rows of slots `0x0` and `0x8` are 16
+  bytes too high.
+- Two stores to one field: the compiler drops the first when they stand
+  together and keeps both when another store stands between them, and it
+  then emits the two next to each other. A fixture in the matching guide
+  shows it. It decided one function here on the first try, and the parked
+  function of `slot2a`, which has the same pair, has not had it yet.
+- A function of the resident image that takes no parameter is called
+  with the object by two functions of this module and without it by a
+  resident function, all three exact. The header keeps its one prototype
+  and the two calls go through a cast of the function, with a comment.
+  An agent had given the two units a declaration of their own and taken
+  the header out; that is what the rule in the guide now forbids by name.
+- `protos.h` itself has 29 declarations without a prototype. They are
+  part of the resident backlog that the declaration check counts and does
+  not touch.
+
+Lessons:
+
+- The three changes to the prompt were each one sentence of a lesson of
+  the last module round, and each paid at once: fewer conflicts, no
+  untried forms left for the second attempt to find, record names that
+  did not collide. Turn a lesson into the next prompt before the next
+  round, not after it.
+- Naming the pattern of a parked function in the retry message works when
+  the pattern has a known form: the three with two stores, a missing copy
+  and swapped operands went 3 of 3. The three named as register choice or
+  load order went 1 of 3, and the three with the object copied into the
+  argument register went 2 of 3 by a form that was not the one named: the
+  copy was an argument.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

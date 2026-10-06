@@ -1871,3 +1871,29 @@ struct SpritePrim size=0x28
 struct Rec14 size=0x14
 0x000 u32 field_00
 0x00d u8 field_0d
+
+struct Slot00Obj size=0x394
+0x000 u8 field_00
+0x004 u32 field_04
+0x010 s32 field_10
+0x014 s32 field_14
+0x030 Object* field_30
+0x034 Object* field_34
+0x03a u8 field_3a
+0x050 u8 field_50
+0x054 u8 field_54
+0x0a4 s32 field_a4
+0x0a8 Object* field_a8
+0x0b0 u8 field_b0
+0x0b1 u8 field_b1
+0x0b2 u8 field_b2
+0x0b3 u8 field_b3
+
+struct Slot00Rec7ef0 size=0x10
+0x000 SequenceStep* seq
+0x004 u16 field_04
+0x006 u16 field_06
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c u16 field_0c
+0x00e u16 field_0e

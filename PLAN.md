@@ -40,15 +40,17 @@ is required to finish this selected target unless explicitly added.
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
-- Five overlay modules are in the build as images of their own. `slot2a`:
+- Seven overlay modules are in the build as images of their own. `slot2a`:
   27 C functions, 5,356 bytes, are exact and 15,840 bytes are retained
   raw. `slot0b`: 56 C functions, 5,652 bytes, are exact and 25,784 bytes
   are retained raw. `slot12`: 178 C functions, 26,224 bytes, are exact and
   93,944 bytes are retained raw. `slot16`: 11 C functions, 984 bytes, are exact and 10,406 bytes are
   retained raw. In `slot17` the 11 functions of `slot16` are linked a
   second time, at another address and from the same objects, and are exact
-  against its own chunk; 10,406 bytes are retained raw there as well. The
-  other modules are not in the build.
+  against its own chunk; 10,406 bytes are retained raw there as well.
+  `slot00`: 109 C functions, 12,240 bytes, are exact and 4,964 bytes are
+  retained raw; `slot08` is the same 109 functions linked a second time,
+  exact against its own chunk. The other modules are not in the build.
 - No complete overlay source coverage, whole-program source inventory,
   ownership of game data, rebuilt disc, or live-gameplay observations are
   claimed.
@@ -75,7 +77,7 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables, and an inventory of the functions inside the modules that is an estimate from a static sweep; [library families](ps1/docs/library-families.md) of the game functions in the resident image and the modules, an estimate over the same sweep |
 | Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners. Module images are built and compared the same way, each linked alone; four are declared, one of them as a second link of another: the same units at the other address, compared with its own chunk |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,754 functions (1,367 game, 387 library) of the 1,852 that a sweep of its code counts (1,436 game, 416 library). Module images: `slot2a` 27 functions, `slot0b` 56 functions, `slot12` 178 functions, `slot16` 11 functions, and the same 11 linked again in `slot17`. Expanding |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,754 functions (1,367 game, 387 library) of the 1,852 that a sweep of its code counts (1,436 game, 416 library). Module images: `slot2a` 27 functions, `slot0b` 56 functions, `slot12` 178 functions, `slot16` 11 functions, and the same 11 linked again in `slot17`, `slot00` 109 functions, and the same 109 linked again in `slot08`. Expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 

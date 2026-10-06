@@ -394,6 +394,12 @@ What this sorts out:
 | `0x2b` | `0x80077000` | 1 | 107 | 10,244 | 98 | 73 | 0 |
 | `0x2c` | `0x8008bf00` | 1 | 107 | 10,244 | 98 | 73 | 0 |
 
+The rows of slots `0x0` and `0x8` are 16 bytes too high: the content of
+both begins with a table of four words, which the sweep reads as
+instructions and counts into the first function. That function starts 16
+bytes later and is 64 bytes long, as the matching build has it; the 112
+functions of the content are 13,104 bytes.
+
 "Functions" and "Bytes" add up every content of the slot. "Distinct by
 bytes" counts a function once per slot however many contents hold the same
 bytes. Over all slots 8,822 functions are distinct by bytes.
