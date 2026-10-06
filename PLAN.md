@@ -40,8 +40,12 @@ is required to finish this selected target unless explicitly added.
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
-- No whole-program source inventory, overlay coverage, ownership of game data,
-  rebuilt disc, or live-gameplay observations are claimed.
+- One overlay module is in the build as an image of its own, `slot2a`: one
+  C function of 20 bytes is exact and its other 21,176 bytes are retained
+  raw. The other modules are not in the build.
+- No complete overlay source coverage, whole-program source inventory,
+  ownership of game data, rebuilt disc, or live-gameplay observations are
+  claimed.
 - The repository's public-facing files are documentation, tooling and, since
   2026-10-05, the reconstructed PS1 source in `ps1/src/`. Building it needs
   local inputs that the repository does not contain.
@@ -63,9 +67,9 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Stage | Deliverable | State |
 | --- | --- | --- |
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
-| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables; function boundaries inside overlays open |
-| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners; overlays planned |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | 1,617 functions (1,231 game, 386 library); expanding |
+| Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables, and an inventory of the functions inside the modules that is an estimate from a static sweep |
+| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners. Module images are built and compared the same way, each linked alone; one is declared. The second link for the two sides is not built |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,617 functions (1,231 game, 386 library). Module image `slot2a`: 1 function. Expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 

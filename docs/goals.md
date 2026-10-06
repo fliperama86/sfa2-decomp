@@ -310,7 +310,9 @@ observation only when it answers a specific remaining question.
 
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
-beyond the SDK stubs, overlay images, complete gameplay reconstruction, SDK exception accounting, final
+beyond the SDK stubs, the source of the overlay modules but for one function
+of the image `slot2a`, every other module as an image of the build,
+complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
 from a fresh clone.
 
