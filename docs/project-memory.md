@@ -3312,6 +3312,61 @@ Lessons:
   derived from it. Before a round, look up one function of the round in
   each file the agents are told to read.
 
+## Fifty-sixth group: second attempts on the round's parked functions
+
+Counts, from the build and from `pac.py unlisted` on the new tree:
+
+- 15 functions attempted again, the ones that the round of the
+  fifty-fifth group had parked. 11 exact, 2,156 bytes. 4 stay parked.
+- Of the 133 game functions outside the inventory 129 are exact now.
+- Resident image: 1,746 functions exact, 1,693 from C with 285,472 bytes
+  and 53 from assembly. 319,656 payload bytes are retained raw.
+- By area the build has 1,360 of 1,436 game functions. Parked game
+  functions: 76, the 72 of the inventory and these 4.
+- The executable hash and the three module images are unchanged.
+
+What ran:
+
+- One function per agent, and one agent for three sibling functions with
+  the same residual: 13 agents, each done in under four minutes. Each got the
+  first attempt's candidate, its residual in one sentence, and the list of
+  source forms that decided earlier functions.
+- The private notes that pair a parked function with a similar exact one
+  were made again on a listing in one disassembler's spelling, so that
+  functions from both listings compare.
+
+What decided the eleven, by the agents' reports and the exact files:
+
+- A local reused for a second value, or one local per block where the
+  first attempt reused one: six functions, among them the three siblings.
+- Early returns in the original's order in place of one nested condition.
+- A `goto` to a shared `return 0` where plain returns were kept apart or
+  merged otherwise: two functions.
+- A field updated in three statements in place of a pointer local.
+- A call written with one more argument, because the original has a value
+  in the fourth argument register at the call.
+
+One function of these reads a local that is not set on every path. Making
+it a fourth parameter was tried at the top level and gives other code, so
+the local stays, with a comment that says what it is.
+
+The four that stay parked, by the agents' reports: one differs in where
+one store is scheduled; one in two blocks that the build merges; one is 4
+bytes short around a constant kept in a saved register; and one original
+keeps loads whose value is never used and a branch on a register that is
+always zero, which neither attempt could reproduce.
+
+Lessons:
+
+- A second attempt with the residual named and the list of decisive forms
+  recovered 11 of 15 in minutes. Do it right after the first round,
+  before the candidates go into the long pool.
+- A sentence about the residual that questions the first reading helped:
+  two functions were exact once the agent stopped treating the candidate
+  as nearly right and rewrote the shape from the listing.
+- When a form looks like a trick, try the honest form once and record the
+  result. The unset local looked like one; the parameter form differs.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

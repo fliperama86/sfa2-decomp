@@ -196,6 +196,11 @@ payloads, accurate source coverage, and retained human/AI refinements.
   build has 1,349 of the 1,436 game functions that the sweep counts. Of
   the 1,302 inventoried game functions 1,230 are exact, as before.
 
+- Second attempts on the 15 functions that round had parked, one function
+  per agent: 11 are exact, 2,156 bytes, and 4 stay parked. 1,746 functions
+  exact: 1,693 from C, 285,472 bytes, and 53 from assembly. By area the
+  build has 1,360 of the 1,436 game functions that the sweep counts.
+
 ## Current checkpoint
 
 This independent repository is the active workspace. Documents, goals, lessons,
@@ -216,9 +221,9 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 87 game functions are parked, each with a candidate:
-   72 of the inventory, to which the rest of this item refers, and 15 from
-   the round on the functions outside it, which have had one attempt.
+2. The parked pool: 76 game functions are parked, each with a candidate:
+   72 of the inventory, to which the rest of this item refers, and 4 from
+   the round on the functions outside it, which have had two attempts.
    One function per agent is the method: 44 of 147 packages so far, and the
    rate is falling: 6 of the last 47. All but seven parked game functions
    have had such a package; six of the seven are above 1,500 bytes. What is
@@ -333,7 +338,8 @@ The list above is done. Of three candidates for what comes next the owner
 chose the first on 2026-10-06:
 
 - Done: a round on the 133 game functions of the resident image that the
-  inventory did not list. 118 are exact and 15 parked.
+  inventory did not list, and second attempts on what it parked. 129 are
+  exact and 4 parked.
 - Not decided: identifying the 116 library functions without a family.
 - Not decided: more overlay modules as images of the build.
 
@@ -341,7 +347,7 @@ Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
-Open in the resident image: 87 game functions that the sweep counts are
+Open in the resident image: 76 game functions that the sweep counts are
 not in the build, all of them parked with a candidate. The 15 functions
 outside the inventory that have no reference that the sorting counts are
 all exact now; what reaches them is still unknown.
