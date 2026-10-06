@@ -2257,7 +2257,18 @@ def make_second_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         (ctx.copy / "caller.c").write_text(source.replace("shared_var; }", "shared_var + 1; }"))
         problem = expect(diff(ctx, "--image", "second", "caller", rebuild=True), 1, "DIFFERENT", "after the change")
         (ctx.copy / "caller.c").write_text(source)
-        return problem or expect(diff(ctx, "--image", "second", "caller", rebuild=True), 0, "IDENTICAL", "after restoring")
+        problem = problem or expect(diff(ctx, "--image", "second", "caller", rebuild=True), 0, "IDENTICAL", "after restoring")
+        if problem:
+            return problem
+        # A failed step of the unit's pipeline names the unit's own image, as a whole build does: the
+        # pipeline makes the unit's one object, whichever link the diff is for.
+        (ctx.copy / "caller.c").write_text("int caller_fn(void) { return }\n")
+        proc = diff(ctx, "--image", "second", "caller", rebuild=True)
+        (ctx.copy / "caller.c").write_text(source)
+        output = proc.stdout + proc.stderr
+        if proc.returncode != 1 or "FAIL: image 'example': compile caller" not in output or "image 'second': compile" in output:
+            return f"a failed step under --rebuild --image must name the unit's own image: {say(proc)}"
+        return None
 
     def refusals(ctx):
         install_two_sides(fx, seeds, ctx.copy, strays=True)

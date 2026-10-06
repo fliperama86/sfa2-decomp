@@ -164,7 +164,7 @@ def publish(scratch: Path, build: Path, unit_name: str, replace=os.replace) -> N
             replace(scratch / f"unit-{unit_name}{ext}", build / f"unit-{unit_name}{ext}")
 
 
-def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None, label: str | None = None) -> int | None:
+def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | None:
     """Run the pipeline of one unit and put its object and listings into the build directory.
 
     The pipeline of a whole build runs here for this unit alone, in a scratch
@@ -172,10 +172,12 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None, label: str
     previous object and the report as they were. Once the pipeline has
     succeeded the report is removed before the first file is replaced: see
     `publish`. Prints what fails in the object checks and which way the
-    object came. Returns an exit status when the unit cannot go on, else None. `label` is the image that
-    its failures name: the unit's own, or the second link that the diff is for.
+    object came. Returns an exit status when the unit cannot go on, else None.
+
+    Its failures name the unit's own image, as a whole build names them: the
+    pipeline makes the unit's one object, whichever link the diff is for.
     """
-    label = unit.image if label is None else label
+    label = unit.image
     scratch = build / f".rebuild-{os.getpid()}"
     report = {
         "tag": tag,
@@ -276,7 +278,7 @@ def main() -> int:
         if not build.is_dir():
             print(f"no build directory {build}: run matchbuild.py with the same --tag first")
             return 2
-        status = rebuild(cfg, unit, build, args.tag, cache_directory(args.cache, args.no_cache, config_path), label)
+        status = rebuild(cfg, unit, build, args.tag, cache_directory(args.cache, args.no_cache, config_path))
         if status is not None:
             return status
     text_address, text, built_functions = built_code(link_alone(cfg, unit, build, second))
