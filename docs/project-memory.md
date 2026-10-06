@@ -3144,6 +3144,38 @@ Lessons:
   the size of a chunk whose length is no multiple of four, and a control
   case named it at once.
 
+## Fifty-third group: library families of the resident game functions
+
+No function count of the build changes.
+
+What ran:
+
+- `families.py`, a new tool, and `ps1/src/library-families.toml`, the
+  table it reads. A library function gets a family by its declared name,
+  by the BIOS call of its stub, or by the folder of its unit under `sdk/`.
+  A game function gets the families it calls directly and those it
+  reaches through other game functions. The method, the table and the
+  limits are in `ps1/docs/library-families.md`.
+- On the resident image: 91 of 1,436 game functions call the library
+  directly, 1,117 reach no library function, and 830 of those have no call
+  on the way that the tool cannot follow.
+- `pac.py` has one reader for the functions of resident units,
+  `resident_functions`, which both tools use. The rule for which unit is
+  resident is in one place.
+- The names of five BIOS calls in the table were checked against the
+  public PSX-SPX documentation. The reference project does not name them.
+- `test_families.py`: 60 cases, a package for one subagent against the
+  rules written in the tool and the page. `test_disc_tools.py` still has
+  288. Private mutation tables under the limits: 147 changes to the new
+  tool and 152 to `pac.py unlisted`, every one noticed.
+
+What it found beside the labels:
+
+- The game calls the thread functions of the BIOS.
+- 116 library functions have no family, and more game functions reach one
+  of them than reach any family. Identifying them comes before the labels
+  can be trusted for naming.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
