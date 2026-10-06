@@ -28,6 +28,8 @@ Reconstructed source, published:
 - `src/`: reconstructed C, `build.toml`, `symbols.ld`, `types.fields`, the
   shared headers, and the Sony library part in `src/sdk/` (see its README for
   where that part comes from and its license).
+- The source of overlay modules is published there too once it exists, by
+  the owner's decision of 2026-10-06.
 
 Needed to build and not in the repository:
 

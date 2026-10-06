@@ -46,9 +46,12 @@ full build or decompilation already exists.
 
 - No game binaries, extracted assets, analysis databases, credentials,
   toolchain binaries or third-party files under another license enter Git.
-  The reconstructed PS1 source is published in `ps1/src/` by the owner's
-  decision of 2026-10-05, after a provenance review. Anything else that is
-  game-derived needs its own decision.
+  All source that the project writes is published, by the owner's decisions
+  of 2026-10-05 (the PS1 source in `ps1/src/`, after a provenance review)
+  and 2026-10-06 (all of it, the source of overlay modules and the Windows
+  reconstruction included). Source that enters Git for the first time gets
+  the same review first. Decompiler output and other artifacts derived from
+  the game are not source the project writes and stay private.
 - Private workspaces are ignored by directory, not only extension. Suffixless
   executables and `.c` pseudocode must remain protected too.
 - Review external implementation licenses/provenance before copying. Referencing

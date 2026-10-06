@@ -22,15 +22,24 @@ working repository is this directory, not `../68k-decomp`.
 
 ## Safety and workflow
 
-- The reconstructed PS1 source is published in `ps1/src/` by the owner's
-  decision of 2026-10-05; the project memory records the review. Never commit
-  game binaries, extracted assets, analysis databases, compiler binaries,
-  credentials, or third-party files under a license this repository does not
-  carry (the SDK headers of `ps1/src/sdk/include/` are ignored for that
-  reason). Private artifacts live under `ps1/local/`, `windows/local/`,
-  `research/local/`, or root `local/`. Anything else that is game-derived,
-  the Windows reconstruction included, stays private until the owner decides
-  otherwise.
+- All source that this project writes is published, by the owner's
+  decisions: on 2026-10-05 for the PS1 source in `ps1/src/`, and on
+  2026-10-06 for all of it, the source of overlay modules and the Windows
+  reconstruction included. The owner's stated basis: the project writes
+  this source itself, and the owner holds the rights in it. The project
+  memory records both decisions.
+- Source that enters Git for the first time gets the review recorded there
+  for the PS1 source: no binary, no path, name or credential of a machine
+  or person, no third-party file. The Windows reconstruction has not had
+  that review yet and stays in its ignored folder until it has.
+- Never commit game binaries, extracted assets, analysis databases, compiler
+  binaries, credentials, or third-party files under a license this
+  repository does not carry (the SDK headers of `ps1/src/sdk/include/` are
+  ignored for that reason). Decompiler output is not source the project
+  writes and stays private. Third-party code that is published keeps its
+  own license and notice, as the library part in `ps1/src/sdk/` does.
+  Private artifacts live under `ps1/local/`, `windows/local/`,
+  `research/local/`, or root `local/`.
 - Inspect license, provenance, and user intent before reusing reference code.
   `~/Projects/references` contains external tools/reference repositories.
 - Preserve original inputs and historical evidence; write new reports instead
