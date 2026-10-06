@@ -27,13 +27,16 @@ directory holds:
 
 ```sh
 PY=<python>; T=<tools directory>; C=<config directory>/build.toml; TAG=<tag>
-$PY $T/matchbuild.py --config $C --tag $TAG
-$PY $T/fndiff.py --config $C --tag $TAG <unit> [function]
+$PY $T/matchbuild.py --config $C --tag $TAG                      # once, and again at the end
+$PY $T/fndiff.py --rebuild --config $C --tag $TAG <unit> [function]   # every try
 ```
 
-`fndiff.py` reads the object left by the last build, so build first. It shows
-an aligned instruction diff even when sizes are wrong. `--all` also prints
-matching lines.
+Build the whole image once: the loop reads the other units' objects from
+that build. Then each try is `fndiff.py --rebuild`, which compiles your unit
+alone and shows an aligned instruction diff, even when sizes are wrong.
+`--all` also prints matching lines. It decides nothing and it removes the
+tag's report, so finish with the whole build: only that says the unit is
+exact, and only that shows what a changed header does to other units.
 
 ## Sources of truth
 

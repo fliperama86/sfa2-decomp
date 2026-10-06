@@ -25,6 +25,7 @@ import time
 import tomllib
 from pathlib import Path
 
+import fndiff
 import matchbuild
 import structgen
 from test_disc_tools import make_archive, make_executable
@@ -2096,6 +2097,299 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
 # Object cache publication and lookup, driven directly in a controlled order.
 
 
+# ---------------------------------------------------------------------------
+# fndiff.py --rebuild: the loop for one unit, on a two-unit fixture.
+
+TWO_ALPHA = "int alpha(void) { return 7; }\n"
+TWO_BETA = "int beta(void) { return 9; }\n"
+TWO_BROKEN = "int alpha(void) { return 7 }\n"
+
+
+def make_publish_unit_cases() -> list[CacheCase]:
+    """`fndiff.publish`: the report of the last whole build goes before any file of the unit is replaced."""
+
+    def setup(root: Path) -> tuple[Path, Path]:
+        build, scratch = root / "build", root / "scratch"
+        for folder, word in ((build, b"old"), (scratch, b"new")):
+            folder.mkdir()
+            for ext in (".s", ".o"):
+                (folder / f"unit-u{ext}").write_bytes(word + ext.encode())
+        for name in fndiff.BUILD_RESULTS:
+            (build / name).write_text("exact")
+        return build, scratch
+
+    def state(build: Path) -> dict:
+        found = {name: (build / name).exists() for name in fndiff.BUILD_RESULTS}
+        found.update({ext: (build / f"unit-u{ext}").read_bytes()[:3].decode() for ext in (".s", ".o")})
+        return found
+
+    def failing(after: int, error: BaseException):
+        """A replacement that works `after` times and then raises."""
+        done = []
+
+        def replace(source, dest):
+            if len(done) == after:
+                raise error
+            done.append(dest)
+            os.replace(source, dest)
+
+        return replace
+
+    def whole(root: Path):
+        build, scratch = setup(root)
+        fndiff.publish(scratch, build, "u")
+        want = {"report.json": False, "summary.txt": False, ".s": "new", ".o": "new"}
+        return None if state(build) == want else f"after a publication the directory holds {state(build)}"
+
+    def interrupted(root: Path):
+        """An interruption after the first file is in place: the report must already be gone."""
+        build, scratch = setup(root)
+        try:
+            fndiff.publish(scratch, build, "u", replace=failing(1, KeyboardInterrupt()))
+        except KeyboardInterrupt:
+            pass
+        else:
+            return "the interruption did not reach the caller"
+        found = state(build)
+        if found["report.json"] or found["summary.txt"]:
+            return f"an interrupted publication left the report of the earlier build: {found}"
+        if sorted([found[".s"], found[".o"]]) != ["new", "old"]:
+            return f"the fixture did not stop between the two files: {found}"
+        return None
+
+    def replace_error(root: Path):
+        build, scratch = setup(root)
+        try:
+            fndiff.publish(scratch, build, "u", replace=failing(0, OSError("no space")))
+        except OSError:
+            pass
+        else:
+            return "the error did not reach the caller"
+        want = {"report.json": False, "summary.txt": False, ".s": "old", ".o": "old"}
+        return None if state(build) == want else f"after a failed first replacement the directory holds {state(build)}"
+
+    def report_stays(root: Path):
+        """The report cannot be removed (it is a directory here): no file of the unit may be replaced."""
+        build, scratch = setup(root)
+        (build / "report.json").unlink()
+        (build / "report.json").mkdir()
+        try:
+            fndiff.publish(scratch, build, "u")
+        except OSError:
+            pass
+        else:
+            return "a report that cannot be removed must stop the publication"
+        found = state(build)
+        if found[".s"] != "old" or found[".o"] != "old" or not (scratch / "unit-u.o").exists():
+            return f"a file was replaced although the report could not be removed: {found}"
+        return None
+
+    table = [
+        ("publish-removes-report-and-replaces", whole),
+        ("publish-interrupted-between-files", interrupted),
+        ("publish-replacement-fails", replace_error),
+        ("publish-report-cannot-be-removed", report_stays),
+    ]
+    return [CacheCase(name, body) for name, body in table]
+
+
+def make_fndiff_cases(parsed: dict) -> list[CacheCase]:
+    """`fndiff.py --rebuild`: one unit through the pipeline of a whole build, then the object checks and the diff."""
+    flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+    toolchain = fixture_toolchain(parsed)
+
+    def write(ctx: CacheContext, payload: bytes, beta_size: int = 8) -> None:
+        executable = fixture_executable(payload)
+        (ctx.copy / "baseline.bin").write_bytes(executable)
+        units = ""
+        for name, offset, size in (("alpha", 0, 8), ("beta", 8, beta_size)):
+            units += (
+                f'[[unit]]\nname = "{name}"\nsource = "{name}.c"\nflags = [{flags}]\n'
+                f'functions = [ {{ name = "{name}", address = {FIXTURE_LOAD + offset:#x}, size = {size} }} ]\n\n'
+            )
+        (ctx.copy / "build.toml").write_text(
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", toolchain)
+            + units
+        )
+
+    def fixture(ctx: CacheContext, build: bool = True):
+        """Replace the copy with two units, and with `build` run a whole build that passes."""
+        for child in ctx.copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        (ctx.copy / "alpha.c").write_text(TWO_ALPHA)
+        (ctx.copy / "beta.c").write_text(TWO_BETA)
+        (ctx.copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        write(ctx, bytes(16))
+        if not build:
+            return None
+        proc, _, _ = ctx.run()  # fails its comparison, but leaves the image: that is the baseline
+        image = ctx.build / "image.bin"
+        if not image.is_file() or image.stat().st_size != 16:
+            return f"test setup: the seed build produced no image:\n{describe(proc)}"
+        write(ctx, image.read_bytes())
+        proc, _, _ = ctx.run()
+        return None if passed(proc) else f"test setup: the whole build does not pass: {describe(proc)}"
+
+    def rebuild(ctx: CacheContext, *args: str, cache: bool = True) -> subprocess.CompletedProcess:
+        command = [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "--rebuild"]
+        if cache:
+            command += ["--cache", str(ctx.cache)]
+        return subprocess.run([*command, *args], capture_output=True, text=True)
+
+    def snapshot(ctx: CacheContext) -> dict:
+        return {p.name: p.read_bytes() for p in sorted(ctx.build.glob("unit-alpha.*"))}
+
+    def say(proc) -> str:
+        return f"exit {proc.returncode}:\n{(proc.stdout + proc.stderr)[-700:]}"
+
+    def leftovers(ctx: CacheContext):
+        return [p.name for p in ctx.build.glob(".rebuild-*")]
+
+    def different_then_identical(ctx):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        (ctx.copy / "alpha.c").write_text(TWO_ALPHA.replace("7", "8"))
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 1 or "DIFFERENT" not in proc.stdout:
+            return f"a changed source must be DIFFERENT with exit 1 and no whole build: {say(proc)}"
+        (ctx.copy / "alpha.c").write_text(TWO_ALPHA)
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the restored source must be IDENTICAL with exit 0: {say(proc)}"
+        return None
+
+    def no_build_directory(ctx):
+        problem = fixture(ctx, build=False)
+        if problem:
+            return problem
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 2 or "run matchbuild.py" not in proc.stdout:
+            return f"without a build directory: wanted exit 2 and the advice to run matchbuild.py: {say(proc)}"
+        if ctx.build.exists():
+            return "a missing build directory must not be created"
+        return None
+
+    def removes_report(ctx):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        if not (ctx.build / "report.json").is_file() or not (ctx.build / "summary.txt").is_file():
+            return "test setup: the whole build left no report"
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 0:
+            return say(proc)
+        left = [n for n in ("report.json", "summary.txt") if (ctx.build / n).exists()]
+        return f"after a successful --rebuild these are still there: {left}" if left else None
+
+    def failed_keeps(ctx, damage, label: str, reason: str):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        before = snapshot(ctx)
+        damage(ctx)
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 1 or "RESULT: FAIL" not in proc.stdout or reason not in proc.stdout:
+            return f"{label}: wanted exit 1 and {reason!r}: {say(proc)}"
+        if snapshot(ctx) != before:
+            return f"{label}: the previous object and listings of the unit changed"
+        if not (ctx.build / "report.json").is_file() or not (ctx.build / "summary.txt").is_file():
+            return f"{label}: the report was removed"
+        if leftovers(ctx):
+            return f"{label}: the scratch directory is left: {leftovers(ctx)}"
+        return None
+
+    def wrong_pin(ctx):
+        def damage(ctx):
+            text = ctx.config.read_text()
+            sha = parsed["toolchain"]["cc1"]["sha256"]
+            start = text.index("[toolchain.cc1]")
+            at = text.index(sha, start)
+            flipped = ("0" if sha[0] != "0" else "1") + sha[1:]
+            ctx.config.write_text(text[:at] + flipped + text[at + len(sha):])
+
+        return failed_keeps(ctx, damage, "a wrong cc1 pin", "cc1 sha256 mismatch")
+
+    def syntax_error(ctx):
+        return failed_keeps(ctx, lambda c: (c.copy / "alpha.c").write_text(TWO_BROKEN), "a syntax error", "compile alpha")
+
+    def wrong_size(ctx):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        write(ctx, (ctx.build / "payload.bin").read_bytes(), beta_size=4)
+        proc = rebuild(ctx, "beta")
+        out = proc.stdout
+        if "text size mismatch" not in out or "differing instruction slots" not in out:
+            return f"the failed object check and the diff must both be printed: {say(proc)}"
+        return None
+
+    def other_unit_broken(ctx):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        (ctx.copy / "beta.c").write_text(TWO_BROKEN.replace("alpha", "beta"))
+        proc = rebuild(ctx, "alpha")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"a fault in another unit must not stop the rebuild: {say(proc)}"
+        return None
+
+    def cache_line(ctx):
+        problem = fixture(ctx)
+        if problem:
+            return problem
+        for args, cache, want in (((), True, "cache hit"), (("--no-cache",), False, "cache off")):
+            proc = rebuild(ctx, *args, "alpha", cache=cache)
+            if proc.returncode != 0 or f"object of unit 'alpha': {want}" not in proc.stdout:
+                return f"wanted '{want}': {say(proc)}"
+        (ctx.copy / "alpha.c").write_text(TWO_ALPHA.replace("7", "8"))
+        proc = rebuild(ctx, "alpha")
+        if "object of unit 'alpha': cache miss" not in proc.stdout:
+            return f"a changed source must be a cache miss: {say(proc)}"
+        return None
+
+    def unknown_unit(ctx):
+        problem = fixture(ctx, build=False)
+        if problem:
+            return problem
+        proc = rebuild(ctx, "absent")
+        return None if proc.returncode == 2 and "no unit named" in proc.stdout else say(proc)
+
+    def module_unit(ctx):
+        ImageFixture(parsed).install(ctx.copy)
+        proc = rebuild(ctx, "mod")
+        if proc.returncode != 2 or "belongs to module image 'example'" not in proc.stdout:
+            return f"a module unit must be refused with exit 2: {say(proc)}"
+        if ctx.build.exists():
+            return "the refusal must not touch the build directory"
+        return None
+
+    def options_need_rebuild(ctx):
+        fixture(ctx, build=False)
+        proc = subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "--no-cache", "alpha"],
+            capture_output=True, text=True,
+        )
+        return None if proc.returncode == 2 and "need --rebuild" in proc.stderr else say(proc)
+
+    return [
+        CacheCase("fndiff-rebuild-different-then-identical", different_then_identical),
+        CacheCase("fndiff-rebuild-no-build-directory", no_build_directory),
+        CacheCase("fndiff-rebuild-removes-report", removes_report),
+        CacheCase("fndiff-rebuild-wrong-cc1-pin", wrong_pin),
+        CacheCase("fndiff-rebuild-syntax-error", syntax_error),
+        CacheCase("fndiff-rebuild-wrong-size-still-diffs", wrong_size),
+        CacheCase("fndiff-rebuild-other-unit-broken", other_unit_broken),
+        CacheCase("fndiff-rebuild-cache-line", cache_line),
+        CacheCase("fndiff-rebuild-unknown-unit", unknown_unit),
+        CacheCase("fndiff-rebuild-module-unit-refused", module_unit),
+        CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
+    ]
+
+
 def make_cache_unit_cases() -> list[CacheCase]:
     key = "k" * 64
 
@@ -2759,10 +3053,10 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
-        + make_comparison_unit_cases() + make_runner_unit_cases(config_path), args.only
+        + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

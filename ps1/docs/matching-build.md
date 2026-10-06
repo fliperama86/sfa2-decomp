@@ -304,6 +304,8 @@ reproduces the same image, and for units the native build must not compile.
 .venv/bin/python ps1/tools/matchbuild.py [--config PATH] [--tag NAME] [--reference] [--cache DIR | --no-cache]
 .venv/bin/python ps1/tools/test_matchbuild.py [--config PATH] [--only TEXT] [--jobs N]
 .venv/bin/python ps1/tools/fndiff.py [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
+.venv/bin/python ps1/tools/fndiff.py --rebuild [--reference] [--cache DIR | --no-cache] \
+    [--config PATH] [--tag NAME] [--all] UNIT [FUNCTION]
 ```
 
 `test_matchbuild.py --only TEXT` runs the cases whose name contains the text
@@ -344,8 +346,59 @@ range of its kind plus offset. This needs no linked image and no entry in
 sibling does not declare, contributes nothing, and a reference to it fails the
 link with the linker's message.
 
-Exit status: 0 all checks passed, 1 failed check or build step, 2 invalid
-configuration, 3 unusable environment such as a missing SSH master.
+### One unit at a time
+
+A whole build pays for every unit on every run: all units are preprocessed
+for their cache keys, the image is linked, everything is compared and the
+controls run. `fndiff.py --rebuild UNIT` is the loop for one unit that does
+not match yet. It needs the build directory that an earlier run of
+`matchbuild.py` with the same tag left, because the other units' objects are
+read from it. Then it:
+
+1. reads and validates the configuration and checks the toolchain pins, as a
+   whole build does;
+2. runs the pipeline of that one unit, with the object cache, in a scratch
+   directory inside the build directory;
+3. removes `report.json` and `summary.txt` of the tag: they describe a build
+   whose objects are about to be no longer all in the directory;
+4. replaces the unit's object, listings and compiler log in the build
+   directory with the new ones;
+5. runs the object checks of that unit and prints what fails, without
+   stopping, because the diff also works when sizes are wrong;
+6. links the unit alone and prints the diff, as without `--rebuild`.
+
+The order of steps 3 and 4 is the point. The report goes before the first
+file is replaced, so an interruption or an error between two replacements
+cannot leave an earlier "exact" next to a changed object. If the report
+cannot be removed, nothing is replaced.
+
+No other unit is compiled, no image is linked and no control runs. A fault
+in another unit's source does not stop it. `--reference`, `--cache` and
+`--no-cache` mean what they mean for `matchbuild.py` and are accepted only
+with `--rebuild`. It prints one line that says whether the object came from
+the cache: hit, miss or off.
+
+It decides nothing. A unit is exact only when `matchbuild.py` says so for the
+whole build, and the removed report makes sure that no earlier result is
+taken for one. A changed header or field table is seen in this one unit
+only; the whole build shows what it does to the others.
+
+Without a build directory of the tag `--rebuild` stops with exit status 2
+and says to run `matchbuild.py` first. An object of another unit that is
+missing there is treated as without `--rebuild`: it contributes nothing, and
+a reference to it fails the link. A failed step of the unit's pipeline or a
+failed pin check ends it with status 1 and leaves the unit's previous object
+and the tag's report in place: nothing has left the scratch directory then.
+A failure while the files are replaced also ends it with status 1; the
+report is already gone and the message says to run `matchbuild.py` again. A unit that is refused before the compiler,
+for a floating-point token or inline assembly, counts as a failed step.
+
+A unit of a module image is refused, with and without `--rebuild`.
+
+Exit status of `matchbuild.py`: 0 all checks passed, 1 failed check or build
+step, 2 invalid configuration, 3 unusable environment such as a missing SSH
+master. Of `fndiff.py`: 0 identical, 1 different or a failed step, 2
+unusable input, 3 unusable environment.
 
 ## Pipeline
 
@@ -528,6 +581,23 @@ and a bss variable and the other's function reads the first and updates the
 second. It requires the whole build to pass and the diff of the using unit to
 report identical code, and, with that unit's size declared wrong so that the
 build stops before the link, the diff to still link and report different code.
+
+For `fndiff.py --rebuild` it uses a fixture of two units and a whole build of
+it. It requires: after a source change, a different result with no whole
+build in between, and an identical one after the source is restored; exit
+status 2 without a build directory; no report and no summary after a
+rebuild; with a wrong compiler pin, and with a syntax error in the unit,
+exit status 1 with the previous object, the report and the summary unchanged
+and no scratch directory left; with a wrong declared size, the object check
+failure and still a diff; no effect of a syntax error in the other unit; a
+cache hit on the second run and "off" with `--no-cache`; exit status 2 for a
+unit that does not exist, for a unit of a module image, and for a cache
+option without `--rebuild`.
+
+Cases on the replacement step alone require: the report and the summary
+gone and both files new after it ran; the report and the summary gone when
+it is interrupted after the first file, and when the first replacement
+fails; and no file replaced when the report cannot be removed.
 
 `test_matchbuild.py` runs the tool against temporary copies of the
 configuration and requires failure for: the `[selftest]` source mutation, a

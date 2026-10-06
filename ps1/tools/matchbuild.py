@@ -1676,6 +1676,116 @@ def link_image(
     return fields, failures
 
 
+@dataclasses.dataclass
+class Pipeline:
+    """What the pipeline of a unit needs, prepared once: the compiler, the pins checked, the tools and the include arguments."""
+
+    cfg: Config
+    cache_dir: Path | None
+    include_args: list
+    compiler: Compiler
+    tools: dict
+    maspsx_script: Path
+    maspsx_env: dict
+    assembler: str  # the file that was hashed for the key
+
+
+def prepare_pipeline(
+    cfg: Config, tag: str, build: Path, cache_dir: Path | None, report: dict
+) -> tuple[Pipeline | None, list[str]]:
+    """Generate the shared types, find the include arguments, check the toolchain pins and record the tools.
+
+    Writes the generated header and the maspsx export into `build`. Returns
+    the pipeline, or None and the reasons when the types or a pin fail.
+    """
+    include_args: list = []
+    if cfg.types_fields is not None:
+        report["inputs"]["types_fields"] = file_sha(cfg.types_fields)
+        try:
+            gen = generate_types(cfg, build)
+        except structgen.FieldsError as exc:
+            return None, [f"shared types: {error}" for error in exc.errors]
+        include_args = ["-I", gen]
+    for include_dir in cfg.include_dirs:
+        include_args += ["-I", include_dir]
+    report["inputs"]["include_dirs"] = [str(d) for d in cfg.include_dirs]
+    report["inputs"]["maspsx_flags"] = maspsx_flags(cfg)
+
+    compiler = Compiler(cfg.cc1, tag)
+    compiler.check_master()
+    pin_errors, tools, maspsx_script = check_pins(cfg, compiler, build)
+    report["tools"] = tools
+    if pin_errors:
+        return None, pin_errors
+    collect_versions(cfg, tools)
+    # The exported copy carries no bytecode; keep it that way.
+    maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+    return Pipeline(cfg, cache_dir, include_args, compiler, tools, maspsx_script, maspsx_env, tools["as"]["path"]), []
+
+
+def unit_object(pipeline: Pipeline, unit: UnitDecl, build: Path, report: dict) -> tuple[list[str], bool]:
+    """The pipeline of one unit, up to its object and the checks of that object.
+
+    The files of the unit go to `build`. Returns the failures of the checks
+    and whether the object exists: a unit that is refused before the compiler
+    (a floating-point token, inline assembly) has none.
+    """
+    cfg, assembler, cache_dir = pipeline.cfg, pipeline.assembler, pipeline.cache_dir
+    source = _expand(unit.source, cfg.directory)
+    pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
+    if unit.kind == "asm":
+        # Assembled as written: no preprocessing, compiler, maspsx or cache.
+        run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
+        report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
+        return check_unit_object(obj, unit), True
+    run(
+        [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *pipeline.include_args, source, "-o", pre],
+        step=f"preprocess {unit.name}",
+    )
+    # The preprocessed text covers the source and every header it includes.
+    report["inputs"]["preprocessed"][unit.name] = file_sha(pre)
+    if cfg.cc1.no_float:
+        token = find_float(pre.read_text(errors="replace"))
+        if token:
+            return [
+                f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
+                f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
+            ], False
+    token = find_inline_asm(pre.read_text(errors="replace"))
+    if token:
+        return [
+            f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
+            f"code that was assembly goes into an assembly unit (kind = \"asm\")"
+        ], False
+    inputs = cache_key_inputs(cfg, pipeline.tools, unit, report["inputs"]["preprocessed"][unit.name], pipeline.maspsx_script)
+    key = cache_key(inputs)
+    entry = cache_dir / key if cache_dir is not None else None
+    status = "off"
+    if entry is not None:
+        hit = cache_fetch(entry, key, {"unit.o": obj, "unit.s": asm, "unit.gnu.s": gnu})
+        status = "hit" if hit else "miss"
+    report["cache"]["units"][unit.name] = {"cache": status, "key": key}
+    if status != "hit":
+        pipeline.compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
+        converted = run(
+            [sys.executable, pipeline.maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={cfg.aspsx_version}"],
+            input=asm.read_bytes(),
+            env=pipeline.maspsx_env,
+            step=f"maspsx {unit.name}",
+        )
+        gnu.write_bytes(converted.stdout)
+        run(
+            [assembler, *AS_FLAGS, "-o", obj, gnu],
+            step=f"assemble {unit.name}",
+        )
+        if entry is not None:
+            try:
+                cache_store(cache_dir, key, inputs, obj, asm, gnu)
+            except OSError:
+                pass  # an unwritable cache must not fail the build
+    return check_unit_object(obj, unit), True
+
+
 def build_all(
     cfg: Config,
     tag: str,
@@ -1710,98 +1820,20 @@ def build_all(
             i.name: {"archive": file_sha(i.archive), "chunk": sha256(i.payload)} for i in cfg.images
         }
 
-    include_args: list = []
-    if cfg.types_fields is not None:
-        report["inputs"]["types_fields"] = file_sha(cfg.types_fields)
-        try:
-            gen = generate_types(cfg, build)
-        except structgen.FieldsError as exc:
-            return report, [f"shared types: {error}" for error in exc.errors]
-        include_args = ["-I", gen]
-    for include_dir in cfg.include_dirs:
-        include_args += ["-I", include_dir]
-    report["inputs"]["include_dirs"] = [str(d) for d in cfg.include_dirs]
-    report["inputs"]["maspsx_flags"] = maspsx_flags(cfg)
-
-    compiler = Compiler(cfg.cc1, tag)
-    compiler.check_master()
-    pin_errors, tools, maspsx_script = check_pins(cfg, compiler, build)
-    report["tools"] = tools
-    if pin_errors:
-        return report, pin_errors
-    collect_versions(cfg, tools)
-    # The exported copy carries no bytecode; keep it that way.
-    maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+    pipeline, failures = prepare_pipeline(cfg, tag, build, cache_dir, report)
+    if failures:
+        return report, failures
+    assembler = pipeline.assembler
 
     payload = cfg.payload
     if build_resident:
         (build / "payload.bin").write_bytes(payload)  # also written by the link; an early failure still leaves it
 
-    assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
     failures_by_unit: dict[str, list[str]] = {}
-    def unit_object(unit: UnitDecl) -> None:
-        """The pipeline of one unit, up to its object and the checks of that object."""
-        source = _expand(unit.source, cfg.directory)
-        pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
-        if unit.kind == "asm":
-            # Assembled as written: no preprocessing, compiler, maspsx or cache.
-            run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
-            report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
-            failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
-            return
-        run(
-            [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
-            step=f"preprocess {unit.name}",
-        )
-        # The preprocessed text covers the source and every header it includes.
-        report["inputs"]["preprocessed"][unit.name] = file_sha(pre)
-        if cfg.cc1.no_float:
-            token = find_float(pre.read_text(errors="replace"))
-            if token:
-                failures_by_unit.setdefault(unit.name, []).append(
-                    f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
-                    f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
-                )
-                return
-        token = find_inline_asm(pre.read_text(errors="replace"))
-        if token:
-            failures_by_unit.setdefault(unit.name, []).append(
-                f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
-                f"code that was assembly goes into an assembly unit (kind = \"asm\")"
-            )
-            return
-        inputs = cache_key_inputs(cfg, tools, unit, report["inputs"]["preprocessed"][unit.name], maspsx_script)
-        key = cache_key(inputs)
-        entry = cache_dir / key if cache_dir is not None else None
-        status = "off"
-        if entry is not None:
-            hit = cache_fetch(entry, key, {"unit.o": obj, "unit.s": asm, "unit.gnu.s": gnu})
-            status = "hit" if hit else "miss"
-        report["cache"]["units"][unit.name] = {"cache": status, "key": key}
-        if status != "hit":
-            compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
-            converted = run(
-                [sys.executable, maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={cfg.aspsx_version}"],
-                input=asm.read_bytes(),
-                env=maspsx_env,
-                step=f"maspsx {unit.name}",
-            )
-            gnu.write_bytes(converted.stdout)
-            run(
-                [assembler, *AS_FLAGS, "-o", obj, gnu],
-                step=f"assemble {unit.name}",
-            )
-            if entry is not None:
-                try:
-                    cache_store(cache_dir, key, inputs, obj, asm, gnu)
-                except OSError:
-                    pass  # an unwritable cache must not fail the build
-        failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
-
     for unit in built_units:
         try:
-            unit_object(unit)
+            failures_by_unit[unit.name], _ = unit_object(pipeline, unit, build, report)
         except StepError as exc:
             # A failed step of a module unit names its image, like every other failure of that image.
             raise StepError(named(unit.image, str(exc))) from exc
@@ -1966,6 +1998,13 @@ def summary_text(report: dict, failures: list[str]) -> str:
     return "\n".join(lines)
 
 
+def cache_directory(option: Path | None, no_cache: bool, config_path: Path) -> Path | None:
+    """The object cache of a run: None without one, else the given directory or the default next to the build directories."""
+    if no_cache:
+        return None
+    return Path(os.path.abspath(option)) if option else config_path.parent.parent / "build" / ".objcache"
+
+
 def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description="PS1 matching build")
@@ -1986,9 +2025,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     config_path = Path(os.path.abspath(args.config))
     build = config_path.parent.parent / "build" / args.tag
-    cache_dir = None
-    if not args.no_cache:
-        cache_dir = Path(os.path.abspath(args.cache)) if args.cache else config_path.parent.parent / "build" / ".objcache"
+    cache_dir = cache_directory(args.cache, args.no_cache, config_path)
     if build.exists():
         shutil.rmtree(build)
 
