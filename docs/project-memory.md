@@ -2498,6 +2498,88 @@ How the source is made, for the record: it is written by the project from
 analysis of the game's machine code and compared with that code byte for
 byte. No original source code is used.
 
+## Forty-second group: module images in the matching build
+
+No function count changes in this group: 1,617 functions exact. No module
+unit exists yet; this is the first of the proposal's four tool steps.
+
+What was open: the build knew one image, the resident executable.
+
+What ran:
+
+- The contract first: the section "Module images" of the
+  [matching build](../ps1/docs/matching-build.md) was written before any
+  code, with the control cases to require.
+- `matchbuild.py` reads `[overlays]`, `[[image]]` and the unit key
+  `image`, checks each image against the loader's table and its archive,
+  applies the range rules per image, links each image alone and checks it
+  against its chunk with the checks of the resident image. `--image` builds
+  one. The report has one record per module image. `fndiff.py` refuses a
+  unit of a module image until it knows them.
+- The archive and table readers are those of `pac.py`, imported, not
+  copied.
+- `test_matchbuild.py`: 43 new cases, 157 in all. 39 use synthetic module
+  images; 4 are cases on the comparison alone.
+- The real configuration builds as before: 1,617 of 1,617 functions exact,
+  the same report keys in the same order, and no key about images.
+
+How the work was split. The top level wrote the contract and reviewed. A
+subagent implemented it in two packages against the contract, each with the
+control cases, a table of every new rule disabled in turn against the case
+that must then fail, and a run of the whole suite. It was told to stop and
+report on any gap in the contract instead of choosing.
+
+What that review found:
+
+- The contract said two things about one report key: present whenever
+  `--image` is given, and absent without declared images. The implementer
+  reported it instead of picking silently. The contract now says one thing.
+- Disabling the whole-image comparison failed no case. No build can differ
+  in a retained byte only, because retained bytes are copied from the
+  baseline. The reporting of a comparison became one function, and four
+  cases on it alone now fail when the whole-image line is removed.
+- A chunk without bytes and a `table_pointers` that is not a multiple of
+  four were not in the contract. Both are refused now, in the contract and
+  the tool.
+
+What review of the pull request found, both in error paths:
+
+- An `image` key holding a number crashed the tool with a traceback and
+  exit status 1, where a configuration error with status 2 belongs. The
+  set of declared names was built from the raw value after its type had
+  been rejected. It now comes from the validated list.
+- A failed preprocessing, compilation or assembly of a module unit was
+  reported without the image's name. The contract says every failure of a
+  module image names it. The pipeline of one unit is now one function, and
+  a failed step of a module unit gets the name at that boundary.
+
+The owner's directions of 2026-10-06 that this change writes down:
+
+- A fast loop for one unit is approved and comes next. Timed once on this
+  machine with `date` around the command, not printed by any tool: a whole
+  build with every object cached takes 35 to 40 seconds, and only a changed
+  unit is compiled within it.
+- After the pilot: sort the 202 resident functions outside the inventory,
+  then a tool that labels game functions by the library family they call.
+- For a port, if one is made, the game code stays as close to the original
+  as possible and only Sony's library code is swapped. The requirements
+  carry it. No port is planned.
+
+Lessons:
+
+- Write the contract before the code and hand out the code against it. Two
+  of the three findings above came from the implementer having a text to
+  disagree with.
+- Ask for the table of disabled rules. A list of passing cases would not
+  have shown the check that nothing could fail.
+- A check that only a pure function can exercise needs a case on that
+  function, not an artificial build.
+- The table of disabled rules covered the rules that were written. The two
+  faults the review found were in paths nobody had listed: a value of the
+  wrong type under a known key, and a subprocess that fails. For each new
+  key, try a wrong type; for each new message rule, walk every place that
+  can fail.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

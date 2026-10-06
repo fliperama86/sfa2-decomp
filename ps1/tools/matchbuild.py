@@ -27,9 +27,12 @@ from pathlib import Path
 
 from elftools.elf.elffile import ELFFile
 
+import pac
 import structgen
 
 SHF_ALLOC = 0x2
+# The name of the baseline executable's image, on the command line and in a unit's `image` key.
+RESIDENT = "resident"
 HEADER_SIZE = 2048
 EXE_MAGIC = b"PS-X EXE"
 # Sections that are not loaded on target and are dropped by the linker script.
@@ -114,6 +117,22 @@ class RodataDecl:
 
 
 @dataclasses.dataclass(frozen=True)
+class ImageDecl:
+    """A module image: one chunk of an archive, loaded by the resident loader to a fixed address."""
+
+    name: str
+    archive: Path
+    slot: int
+    sha256: str
+    address: int
+    payload: bytes = b""  # the chunk's bytes, filled in once the archive has been read
+
+    @property
+    def size(self) -> int:
+        return len(self.payload)
+
+
+@dataclasses.dataclass(frozen=True)
 class UnitDecl:
     name: str
     source: str
@@ -123,6 +142,7 @@ class UnitDecl:
     data: RodataDecl | None = None  # the one initialised data range, if declared
     bss: RodataDecl | None = None  # where the uninitialised data lives, if declared
     kind: str = "c"  # "c", or "asm" for a unit written in assembly
+    image: str = RESIDENT  # the image the unit belongs to: RESIDENT or a declared module image
 
     def loaded(self) -> list[tuple[str, RodataDecl]]:
         """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
@@ -417,17 +437,22 @@ class Config:
     aspsx_version: str
     binutils_prefix: str
     cc1: Cc1Config
-    units: list[UnitDecl]
+    units: list[UnitDecl]  # the units of every image
     symbols_path: Path
     symbol_names: list[str]
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
     expand_div: bool = False  # run maspsx with --expand-div
     include_dirs: tuple[Path, ...] = ()  # extra -I directories for the preprocessor
+    images: list[ImageDecl] = dataclasses.field(default_factory=list)  # module images, in declaration order
     # Filled in during validation of the baseline.
     baseline: bytes = b""
     load: int = 0
     payload_size: int = 0
+
+    def units_of(self, image: str) -> list[UnitDecl]:
+        """The units that belong to one image: RESIDENT or the name of a module image."""
+        return [u for u in self.units if u.image == image]
 
     @property
     def payload(self) -> bytes:
@@ -541,6 +566,152 @@ def bss_overlaps(units: list[UnitDecl]) -> list[str]:
     return errors
 
 
+def geometry_errors(units: list[UnitDecl]) -> list[str]:
+    """The range rules that need no payload, for the units of one image."""
+    errors = []
+    ordered = sorted(units, key=lambda u: u.start)
+    for a, b in zip(ordered, ordered[1:]):
+        if a.end > b.start:
+            errors.append(
+                f"units {a.name!r} and {b.name!r} overlap "
+                f"({a.start:#x}-{a.end:#x} and {b.start:#x}-{b.end:#x})"
+            )
+    return errors + rodata_overlaps(units) + bss_overlaps(units)
+
+
+def payload_errors(units: list[UnitDecl], load: int, size: int) -> list[str]:
+    """The range rules against the payload `[load, load + size)` of the image the units belong to."""
+    errors = []
+    for unit in units:
+        if unit.start < load or unit.end > load + size:
+            errors.append(
+                f"unit {unit.name!r} range {unit.start:#x}-{unit.end:#x} is outside the payload "
+                f"{load:#x}-{load + size:#x}"
+            )
+        for kind, decl in unit.loaded():
+            if decl.address < load or decl.end > load + size:
+                errors.append(
+                    f"unit {unit.name!r} {kind} range {decl.address:#x}-{decl.end:#x} "
+                    f"is outside the payload {load:#x}-{load + size:#x}"
+                )
+        if unit.bss is not None and (unit.bss.address < load + size and load < unit.bss.end):
+            errors.append(
+                f"unit {unit.name!r} bss range {unit.bss.address:#x}-{unit.bss.end:#x} "
+                f"touches the payload {load:#x}-{load + size:#x}"
+            )
+    return errors
+
+
+def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[ImageDecl], set[str]]:
+    """The structure of the [[image]] tables: the images that are well formed, and every name a table gives.
+
+    The names include those of tables with other faults, so that a unit of
+    such an image is not reported a second time. The archives are read later.
+    """
+    image_tables = raw.get("image", [])
+    if not isinstance(image_tables, list):
+        errors.append("[[image]] must be an array of tables")
+        return [], set()
+    images: list[ImageDecl] = []
+    seen: set[str] = set()
+    declared: set[str] = set()
+    for index, table in enumerate(image_tables):
+        where = f"[[image]] #{index + 1}"
+        if not isinstance(table, dict):
+            errors.append(f"{where}: must be a table")
+            continue
+        if isinstance(table.get("name"), str):
+            declared.add(table["name"])
+        name = _get_str(table, "name", where, errors, TAG_RE)
+        if name:
+            where = f"image {name!r}"
+            if name == RESIDENT:
+                errors.append(f"{where}: the name is reserved for the resident image")
+                name = ""
+            elif name in seen:
+                errors.append(f"{where}: duplicate image name")
+                name = ""
+            seen.add(name or RESIDENT)
+        archive = _get_str(table, "archive", where, errors)
+        sha = _get_hex(table, "sha256", where, errors)
+        numbers = {}
+        for key in ("slot", "address"):
+            value = table.get(key)
+            if not isinstance(value, int) or isinstance(value, bool):
+                errors.append(f"{where}: '{key}' must be an integer")
+            else:
+                numbers[key] = value
+        if name and archive and sha and len(numbers) == 2:
+            images.append(ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"]))
+    return images, declared - {RESIDENT}
+
+
+def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list[str]) -> list[ImageDecl]:
+    """Check each image against the loader's tables and its archive; return it with its payload.
+
+    `baseline` is a whole executable that has passed its own checks.
+    """
+    resident = pac.Image(baseline)
+    pointers = overlays.get("table_pointers") if isinstance(overlays, dict) else None
+    if not isinstance(pointers, int) or isinstance(pointers, bool):
+        errors.append("[overlays]: 'table_pointers' must be an integer address, and images need it")
+        return []
+    if pointers % 4 or not resident.start <= pointers <= resident.end - 4:
+        errors.append(
+            f"[overlays]: table_pointers {pointers:#x} is not a word address inside the resident payload "
+            f"{resident.start:#x}-{resident.end:#x}"
+        )
+        return []
+    try:
+        table = pac.destination_tables(resident, pointers)[0]
+    except pac.FormatError as exc:
+        errors.append(f"[overlays]: {exc}")
+        return []
+    read: list[ImageDecl] = []
+    for image in images:
+        where = f"image {image.name!r}"
+        ok = True
+        if image.address % 4:
+            errors.append(f"{where}: address {image.address:#x} is not a multiple of four")
+            ok = False
+        if not 0 <= image.slot < len(table):
+            errors.append(f"{where}: slot {image.slot:#x} is beyond table 0 ({len(table)} entries)")
+            ok = False
+        elif ok and table[image.slot] != image.address:
+            errors.append(
+                f"{where}: address {image.address:#x} differs from entry {image.slot:#x} of table 0 "
+                f"({table[image.slot]:#x})"
+            )
+            ok = False
+        try:
+            data = image.archive.read_bytes()
+        except OSError as exc:
+            errors.append(f"{where}: cannot read archive {image.archive}: {exc}")
+            continue
+        try:
+            chunks = pac.chunk_table(data)
+        except pac.FormatError as exc:
+            errors.append(f"{where}: archive {image.archive.name} is rejected by the archive reader: {exc}")
+            continue
+        found = [c for c in chunks if c["table"] == 0 and c["slot"] == image.slot]
+        if len(found) != 1:
+            errors.append(
+                f"{where}: archive {image.archive.name} has {len(found)} chunks with table number 0 and "
+                f"slot {image.slot:#x}, exactly one is required"
+            )
+            continue
+        payload = data[found[0]["offset"] : found[0]["offset"] + found[0]["size"]]
+        if not payload:
+            errors.append(f"{where}: the chunk in {image.archive.name} has no bytes")
+            continue
+        if sha256(payload) != image.sha256:
+            errors.append(f"{where}: chunk sha256 mismatch: chunk is {sha256(payload)}, configuration pins {image.sha256}")
+            continue
+        if ok:
+            read.append(dataclasses.replace(image, payload=payload))
+    return read
+
+
 def load_config(config_path: Path, use_reference: bool = False) -> Config:
     """Read and validate the configuration. Raises ConfigError with every problem found.
 
@@ -613,6 +784,15 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     elif kind:
         errors.append(f"{cc1_where}: kind must be 'remote' or 'local', got {kind!r}")
 
+    # Module images: structure only. The archives are read once the baseline is known.
+    overlays = raw.get("overlays")
+    if overlays is not None and not isinstance(overlays, dict):
+        errors.append("[overlays] must be a table")
+        overlays = None
+    images, declared = parse_images(raw, directory, errors)
+    if images and overlays is None:
+        errors.append("[[image]] needs an [overlays] section with 'table_pointers'")
+
     # Units: structure and geometry that needs no baseline.
     units: list[UnitDecl] = []
     unit_tables = raw.get("unit", [])
@@ -639,6 +819,12 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         if kind not in ("c", "asm"):
             errors.append(f"{where}: kind must be 'c' or 'asm'")
             kind = "c"
+        image_name = table.get("image", RESIDENT)
+        if not isinstance(image_name, str) or not image_name:
+            errors.append(f"{where}: 'image' must be a non-empty string")
+            image_name = RESIDENT
+        elif image_name != RESIDENT and image_name not in declared:
+            errors.append(f"{where}: image {image_name!r} is not declared")
         flags = table.get("flags", [])
         if not isinstance(flags, list) or not all(isinstance(f, str) and FLAG_RE.match(f) for f in flags):
             errors.append(f"{where}: 'flags' must be a list of plain option strings")
@@ -690,19 +876,12 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name))
 
-    # Unit overlap.
-    ordered = sorted(units, key=lambda u: u.start)
-    for a, b in zip(ordered, ordered[1:]):
-        if a.end > b.start:
-            errors.append(
-                f"units {a.name!r} and {b.name!r} overlap "
-                f"({a.start:#x}-{a.end:#x} and {b.start:#x}-{b.end:#x})"
-            )
-
-    errors += rodata_overlaps(units)
-    errors += bss_overlaps(units)
+    # Overlap is judged among the units of one image.
+    errors += geometry_errors([u for u in units if u.image == RESIDENT])
+    for name in dict.fromkeys(u.image for u in units if u.image in declared):
+        errors += [f"image {name!r}: {e}" for e in geometry_errors([u for u in units if u.image == name])]
 
     # symbols.ld
     symbols_path = directory / "symbols.ld"
@@ -784,25 +963,14 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                     f"baseline size {len(config.baseline)} != header {HEADER_SIZE} + payload {config.payload_size}"
                 )
             else:
-                for unit in units:
-                    if unit.start < config.load or unit.end > config.load + config.payload_size:
-                        errors.append(
-                            f"unit {unit.name!r} range {unit.start:#x}-{unit.end:#x} is outside the payload "
-                            f"{config.load:#x}-{config.load + config.payload_size:#x}"
-                        )
-                    for kind, decl in unit.loaded():
-                        if decl.address < config.load or decl.end > config.load + config.payload_size:
-                            errors.append(
-                                f"unit {unit.name!r} {kind} range {decl.address:#x}-{decl.end:#x} "
-                                f"is outside the payload {config.load:#x}-{config.load + config.payload_size:#x}"
-                            )
-                    if unit.bss is not None and (
-                        unit.bss.address < config.load + config.payload_size and config.load < unit.bss.end
-                    ):
-                        errors.append(
-                            f"unit {unit.name!r} bss range {unit.bss.address:#x}-{unit.bss.end:#x} "
-                            f"touches the payload {config.load:#x}-{config.load + config.payload_size:#x}"
-                        )
+                errors += payload_errors(config.units_of(RESIDENT), config.load, config.payload_size)
+                if images and overlays is not None:
+                    config.images = read_images(images, overlays, config.baseline, errors)
+                    for image in config.images:
+                        errors += [
+                            f"image {image.name!r}: {e}"
+                            for e in payload_errors(config.units_of(image.name), image.address, image.size)
+                        ]
     if errors:
         raise ConfigError(errors)
     return config
@@ -1081,15 +1249,18 @@ def elf_function_checks(elf_path: Path, units: list[UnitDecl]) -> list[str]:
     return errors
 
 
-def generate_raw_and_linker(cfg: Config, build: Path, ranges: list[tuple[int, int]]) -> None:
+def generate_raw_and_linker(
+    cfg: Config, build: Path, load: int, units: list[UnitDecl], ranges: list[tuple[int, int]]
+) -> None:
+    """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image."""
     raw_lines = []
     for index, (address, size) in enumerate(ranges):
         raw_lines.append(f'.section .raw{index},"a",@progbits')
-        raw_lines.append(f'.incbin "payload.bin", {address - cfg.load}, {size}')
+        raw_lines.append(f'.incbin "payload.bin", {address - load}, {size}')
     (build / "raw.s").write_text("\n".join(raw_lines) + "\n")
 
     entries = [(address, f".raw{index}", f"*(.raw{index})", "") for index, (address, _) in enumerate(ranges)]
-    for unit in cfg.units:
+    for unit in units:
         patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS["text"])
         entries.append((unit.start, f".text.{unit.name}", patterns, ""))
         for kind, decl in unit.loaded():
@@ -1354,25 +1525,190 @@ def cache_store(
                 pass
 
 
+def count_carriers(image: ImageDecl) -> int:
+    """The chunks with table number 0, the image's slot and the image's bytes, in the files of the archive's directory.
+
+    The files are the `*.PAC` files below the directory of the declared
+    archive, as `pac.py` finds them, and the declared archive itself. A file
+    that the archive reader rejects takes no part.
+    """
+    files = {p.resolve() for p in image.archive.parent.rglob("*.PAC")} | {image.archive.resolve()}
+    count = 0
+    for path in sorted(files):
+        try:
+            data = path.read_bytes()
+            chunks = pac.chunk_table(data)
+        except (OSError, pac.FormatError):
+            continue
+        count += sum(
+            1
+            for c in chunks
+            if c["table"] == 0 and c["slot"] == image.slot and c["size"] == image.size
+            and data[c["offset"] : c["offset"] + c["size"]] == image.payload
+        )
+    return count
+
+
+def comparison_failures(comparison: ImageComparison) -> list[str]:
+    """The failure reasons of one comparison: every range that differs, then the image as a whole.
+
+    A unit's ranges cover only what units own. The line for the image is the
+    one that reports a difference in a retained byte.
+    """
+    failures = []
+    for fn in comparison.functions:
+        if not fn.exact:
+            failures.append(
+                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
+                f"({fn.equal_words}/{fn.total_words} words equal)"
+            )
+    for ro in comparison.rodata + comparison.data:
+        if not ro.exact:
+            failures.append(
+                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
+                f"(range {ro.address:#x}, {ro.size} bytes)"
+            )
+    if not comparison.image_exact:
+        failures.append(
+            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
+            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
+        )
+    return failures
+
+
+def link_image(
+    cfg: Config,
+    build: Path,
+    outdir: Path,
+    load: int,
+    payload: bytes,
+    units: list[UnitDecl],
+    defined: dict[str, list[DefinedSymbol]],
+    cache_units: dict,
+    assembler: str,
+    header: bytes | None = None,
+) -> tuple[dict, list[str]]:
+    """Link one image alone from its unit objects in `build` and check it against its payload.
+
+    The files of the link go to `outdir`, which is `build` for the resident
+    image. With a `header` the executable is rebuilt and compared too. Returns
+    the fields shared by the reports of every image and the failures, which
+    do not name the image.
+    """
+    failures: list[str] = []
+    outdir.mkdir(exist_ok=True)
+    (outdir / "payload.bin").write_bytes(payload)
+    prefix = cfg.binutils_prefix
+    where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
+    ranges = raw_ranges(load, len(payload), units)
+    generate_raw_and_linker(cfg, outdir, load, units, ranges)
+    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
+    objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
+    run(
+        [prefix + "ld", "-EL", "-T", f"{where}link.ld", "-e", f"{load:#x}", "-o", f"{where}image.elf", *objects],
+        cwd=build,
+        step="link",
+    )
+    run([prefix + "objcopy", "-O", "binary", "image.elf", "image.bin"], cwd=outdir, step="objcopy")
+    image = (outdir / "image.bin").read_bytes()
+    executable = b""
+    if header is not None:
+        executable = header + image
+        (outdir / "rebuilt.exe").write_bytes(executable)
+
+    failures += elf_function_checks(outdir / "image.elf", units)
+    failures += elf_symbol_checks(outdir / "image.elf", units, defined)
+    comparison = compare_image(image, payload, load, units)
+    failures += comparison_failures(comparison)
+    exe_sha = sha256(executable)
+    if header is not None and exe_sha != cfg.baseline_sha256:
+        failures.append(f"executable sha256 mismatch: rebuilt {exe_sha}, baseline {cfg.baseline_sha256}")
+
+    # Controls are only meaningful against an image that matches.
+    if comparison.image_exact:
+        controls = run_controls(image, payload, load, units)
+        for control in controls:
+            if control["applicable"] and not control["tripped"]:
+                failures.append(f"comparator control did not trip: {control['kind']} {control['target']}: {control['detail']}")
+    else:
+        controls = []
+
+    c_units = [u for u in units if u.kind == "c"]
+    asm_units = [u for u in units if u.kind == "asm"]
+    c_bytes = sum(u.end - u.start for u in c_units)
+    asm_bytes = sum(u.end - u.start for u in asm_units)
+    rodata_bytes = sum(u.rodata.size for u in units if u.rodata is not None)
+    data_bytes = sum(u.data.size for u in units if u.data is not None)
+    coverage = {
+        "c_bytes": c_bytes,
+        "c_functions": sum(len(u.functions) for u in c_units),
+        "asm_bytes": asm_bytes,
+        "asm_functions": sum(len(u.functions) for u in asm_units),
+        "rodata_bytes": rodata_bytes,
+        "data_bytes": data_bytes,
+        "raw_payload_bytes": len(payload) - c_bytes - asm_bytes - rodata_bytes - data_bytes,
+    }
+    if header is not None:
+        coverage["raw_header_bytes"] = HEADER_SIZE
+    coverage["raw_ranges"] = len(ranges)
+    fields = {
+        "units": [
+            {
+                "name": u.name,
+                "kind": u.kind,
+                "cache": cache_units[u.name]["cache"],
+                "cache_key": cache_units[u.name]["key"],
+                "range": [u.start, u.end],
+                "functions": [dataclasses.asdict(f) for f in comparison.functions if f.unit == u.name],
+                "rodata": next((dataclasses.asdict(r) for r in comparison.rodata if r.unit == u.name), None),
+                "data": next((dataclasses.asdict(r) for r in comparison.data if r.unit == u.name), None),
+                "bss": dataclasses.asdict(u.bss) if u.bss is not None else None,
+            }
+            for u in units
+        ],
+        "coverage": coverage,
+        "bss_bytes": sum(u.bss.size for u in units if u.bss is not None),
+        "image_sha256": comparison.image_sha256,
+        "baseline_sha256": comparison.baseline_sha256,
+        "executable_sha256": exe_sha,
+        "controls": controls,
+    }
+    return fields, failures
+
+
 def build_all(
-    cfg: Config, tag: str, build: Path, cache_dir: Path | None = None, report: dict | None = None
+    cfg: Config,
+    tag: str,
+    build: Path,
+    cache_dir: Path | None = None,
+    report: dict | None = None,
+    selected: str | None = None,
 ) -> tuple[dict, list[str]]:
     """Run the pipeline. Returns the report and the list of failure reasons.
 
     `cache_dir` is the object cache, None to disable it. A caller may pass the
     report so that a step failure still leaves what was recorded so far.
+    `selected` builds one image only: RESIDENT or a declared module image.
     """
     failures: list[str] = []
     if report is None:
         report = {"tag": tag}
     report["tag"] = tag
+    if selected is not None and cfg.images:
+        report["selected_image"] = selected
+    build_resident = selected in (None, RESIDENT)
+    built_units = cfg.units if selected is None else cfg.units_of(selected)
     report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
         "symbols": file_sha(cfg.symbols_path),
         "baseline": sha256(cfg.baseline),
-        "sources": {u.name: file_sha(_expand(u.source, cfg.directory)) for u in cfg.units},
+        "sources": {u.name: file_sha(_expand(u.source, cfg.directory)) for u in built_units},
     }
+    if cfg.images:
+        report["inputs"]["images"] = {
+            i.name: {"archive": file_sha(i.archive), "chunk": sha256(i.payload)} for i in cfg.images
+        }
 
     include_args: list = []
     if cfg.types_fields is not None:
@@ -1398,20 +1734,22 @@ def build_all(
     maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
 
     payload = cfg.payload
-    (build / "payload.bin").write_bytes(payload)
+    if build_resident:
+        (build / "payload.bin").write_bytes(payload)  # also written by the link; an early failure still leaves it
 
-    prefix = cfg.binutils_prefix
     assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
-    for unit in cfg.units:
+    failures_by_unit: dict[str, list[str]] = {}
+    def unit_object(unit: UnitDecl) -> None:
+        """The pipeline of one unit, up to its object and the checks of that object."""
         source = _expand(unit.source, cfg.directory)
         pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
         if unit.kind == "asm":
             # Assembled as written: no preprocessing, compiler, maspsx or cache.
             run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
             report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
-            failures += check_unit_object(obj, unit)
-            continue
+            failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
+            return
         run(
             [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
             step=f"preprocess {unit.name}",
@@ -1421,18 +1759,18 @@ def build_all(
         if cfg.cc1.no_float:
             token = find_float(pre.read_text(errors="replace"))
             if token:
-                failures.append(
+                failures_by_unit.setdefault(unit.name, []).append(
                     f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
-                continue
+                return
         token = find_inline_asm(pre.read_text(errors="replace"))
         if token:
-            failures.append(
+            failures_by_unit.setdefault(unit.name, []).append(
                 f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
                 f"code that was assembly goes into an assembly unit (kind = \"asm\")"
             )
-            continue
+            return
         inputs = cache_key_inputs(cfg, tools, unit, report["inputs"]["preprocessed"][unit.name], maspsx_script)
         key = cache_key(inputs)
         entry = cache_dir / key if cache_dir is not None else None
@@ -1459,107 +1797,120 @@ def build_all(
                     cache_store(cache_dir, key, inputs, obj, asm, gnu)
                 except OSError:
                     pass  # an unwritable cache must not fail the build
-        failures += check_unit_object(obj, unit)
+        failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
+
+    for unit in built_units:
+        try:
+            unit_object(unit)
+        except StepError as exc:
+            # A failed step of a module unit names its image, like every other failure of that image.
+            raise StepError(named(unit.image, str(exc))) from exc
+    failures = [
+        named(unit.image, reason) for unit in built_units for reason in failures_by_unit.get(unit.name, [])
+    ]
     if failures:
         return report, failures
-    defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in cfg.units}
-    failures += symbol_override_errors(cfg.units, defined, cfg.symbol_names)
+    defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in built_units}
+    for image in dict.fromkeys(unit.image for unit in built_units):
+        failures += [
+            named(image, reason)
+            for reason in symbol_override_errors(
+                [u for u in built_units if u.image == image], defined, cfg.symbol_names
+            )
+        ]
     if failures:
         return report, failures
 
-    ranges = raw_ranges(cfg.load, cfg.payload_size, cfg.units)
-    generate_raw_and_linker(cfg, build, ranges)
-    run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=build, step="assemble raw")
-    objects = [f"unit-{u.name}.o" for u in cfg.units] + ["raw.o"]
-    run(
-        [prefix + "ld", "-EL", "-T", "link.ld", "-e", f"{cfg.load:#x}", "-o", "image.elf", *objects],
-        cwd=build,
-        step="link",
-    )
-    run([prefix + "objcopy", "-O", "binary", "image.elf", "image.bin"], cwd=build, step="objcopy")
-    image = (build / "image.bin").read_bytes()
-    executable = cfg.header + image
-    (build / "rebuilt.exe").write_bytes(executable)
-
-    failures += elf_function_checks(build / "image.elf", cfg.units)
-    failures += elf_symbol_checks(build / "image.elf", cfg.units, defined)
-    comparison = compare_image(image, payload, cfg.load, cfg.units)
-    for fn in comparison.functions:
-        if not fn.exact:
-            failures.append(
-                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
-                f"({fn.equal_words}/{fn.total_words} words equal)"
-            )
-    for ro in comparison.rodata + comparison.data:
-        if not ro.exact:
-            failures.append(
-                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
-                f"(range {ro.address:#x}, {ro.size} bytes)"
-            )
-    if not comparison.image_exact:
-        failures.append(
-            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
-            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
+    cache_units = report["cache"]["units"]
+    if build_resident:
+        fields, found = link_image(
+            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header
         )
-    exe_sha = sha256(executable)
-    if exe_sha != cfg.baseline_sha256:
-        failures.append(f"executable sha256 mismatch: rebuilt {exe_sha}, baseline {cfg.baseline_sha256}")
-
-    # Controls are only meaningful against an image that matches.
-    if comparison.image_exact:
-        controls = run_controls(image, payload, cfg.load, cfg.units)
-        for control in controls:
-            if control["applicable"] and not control["tripped"]:
-                failures.append(f"comparator control did not trip: {control['kind']} {control['target']}: {control['detail']}")
-    else:
-        controls = []
-
-    c_units = [u for u in cfg.units if u.kind == "c"]
-    asm_units = [u for u in cfg.units if u.kind == "asm"]
-    c_bytes = sum(u.end - u.start for u in c_units)
-    asm_bytes = sum(u.end - u.start for u in asm_units)
-    rodata_bytes = sum(u.rodata.size for u in cfg.units if u.rodata is not None)
-    data_bytes = sum(u.data.size for u in cfg.units if u.data is not None)
-    bss_bytes = sum(u.bss.size for u in cfg.units if u.bss is not None)
-    report.update(
-        {
-            "units": [
-                {
-                    "name": u.name,
-                    "kind": u.kind,
-                    "cache": report["cache"]["units"][u.name]["cache"],
-                    "cache_key": report["cache"]["units"][u.name]["key"],
-                    "range": [u.start, u.end],
-                    "functions": [
-                        dataclasses.asdict(f) for f in comparison.functions if f.unit == u.name
-                    ],
-                    "rodata": next(
-                        (dataclasses.asdict(r) for r in comparison.rodata if r.unit == u.name), None
-                    ),
-                    "data": next((dataclasses.asdict(r) for r in comparison.data if r.unit == u.name), None),
-                    "bss": dataclasses.asdict(u.bss) if u.bss is not None else None,
-                }
-                for u in cfg.units
-            ],
-            "coverage": {
-                "c_bytes": c_bytes,
-                "c_functions": sum(len(u.functions) for u in c_units),
-                "asm_bytes": asm_bytes,
-                "asm_functions": sum(len(u.functions) for u in asm_units),
-                "rodata_bytes": rodata_bytes,
-                "data_bytes": data_bytes,
-                "raw_payload_bytes": cfg.payload_size - c_bytes - asm_bytes - rodata_bytes - data_bytes,
-                "raw_header_bytes": HEADER_SIZE,
-                "raw_ranges": len(ranges),
-            },
-            "bss_bytes": bss_bytes,
-            "image_sha256": comparison.image_sha256,
-            "executable_sha256": exe_sha,
-            "baseline_executable_sha256": cfg.baseline_sha256,
-            "controls": controls,
-        }
-    )
+        failures += found
+        report.update(
+            {
+                "units": fields["units"],
+                "coverage": fields["coverage"],
+                "bss_bytes": fields["bss_bytes"],
+                "image_sha256": fields["image_sha256"],
+                "executable_sha256": fields["executable_sha256"],
+                "baseline_executable_sha256": cfg.baseline_sha256,
+                "controls": fields["controls"],
+            }
+        )
+    records = []
+    for image in cfg.images:
+        if selected not in (None, image.name):
+            continue
+        try:
+            fields, found = link_image(
+                cfg, build, build / f"image-{image.name}", image.address, image.payload,
+                cfg.units_of(image.name), defined, cache_units, assembler,
+            )
+        except StepError as exc:
+            raise StepError(named(image.name, str(exc))) from exc
+        found = [named(image.name, reason) for reason in found]
+        failures += found
+        fields["coverage"].pop("raw_header_bytes", None)
+        records.append(
+            {
+                "name": image.name,
+                "archive": str(image.archive),
+                "slot": image.slot,
+                "address": image.address,
+                "size": image.size,
+                "baseline_sha256": fields["baseline_sha256"],
+                "image_sha256": fields["image_sha256"],
+                "exact": not found,
+                "carriers": count_carriers(image),
+                "units": fields["units"],
+                "coverage": fields["coverage"],
+                "bss_bytes": fields["bss_bytes"],
+                "controls": fields["controls"],
+            }
+        )
+    if cfg.images and selected != RESIDENT:
+        report["images"] = records
     return report, failures
+
+
+def named(image: str, reason: str) -> str:
+    """A failure reason of a module image starts with the image's name."""
+    return reason if image == RESIDENT else f"image {image!r}: {reason}"
+
+
+def module_summary(record: dict) -> list[str]:
+    """The summary lines of one module image."""
+    lines = []
+    functions = [f for u in record["units"] for f in u["functions"]]
+    for f in functions:
+        state = "exact" if f["exact"] else f"DIFFERENT at offset {f['first_diff']}"
+        lines.append(f"  {f['unit']}.{f['name']}: {f['size']} bytes, {state}")
+    for u in record["units"]:
+        for kind in ("rodata", "data"):
+            ro = u.get(kind)
+            if ro:
+                state = "exact" if ro["exact"] else f"DIFFERENT at offset {ro['first_diff']}"
+                lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
+    cov, name = record["coverage"], f"image {record['name']}"
+    lines.append(f"{name} functions exact: {sum(1 for f in functions if f['exact'])}/{len(functions)}")
+    lines.append(
+        f"{name} coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
+        f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions), "
+        f"rodata {cov['rodata_bytes']:,} bytes, data {cov['data_bytes']:,} bytes, "
+        f"raw payload {cov['raw_payload_bytes']:,} bytes"
+    )
+    lines.append(f"{name} sha256:      {record['image_sha256']}")
+    lines.append(f"{name} baseline sha256: {record['baseline_sha256']}")
+    lines.append(f"{name} carriers: {record['carriers']}")
+    controls = record["controls"]
+    applicable = [c for c in controls if c["applicable"]]
+    if controls:
+        note = "" if len(applicable) == len(controls) else " (raw control not applicable: no raw range)"
+        lines.append(f"{name} comparator controls: {sum(1 for c in applicable if c['tripped'])}/{len(applicable)} tripped{note}")
+    else:
+        lines.append(f"{name} comparator controls: not run")
+    return lines
 
 
 def summary_text(report: dict, failures: list[str]) -> str:
@@ -1607,6 +1958,8 @@ def summary_text(report: dict, failures: list[str]) -> str:
         maspsx = report.get("tools", {}).get("maspsx", {})
         if maspsx.get("checkout_dirty"):
             lines.append("note: the maspsx checkout has local changes; the pinned commit was exported and run instead")
+    for record in report.get("images", []):
+        lines += module_summary(record)
     for reason in failures:
         lines.append(f"FAIL: {reason}")
     lines.append("RESULT: " + ("FAIL" if failures else "PASS"))
@@ -1625,6 +1978,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--cache", type=Path, help="object cache directory (default: <config dir>/../build/.objcache)")
     parser.add_argument("--no-cache", action="store_true", help="do not read or write the object cache")
+    parser.add_argument("--image", help=f"build one image: '{RESIDENT}' or a declared module image")
     args = parser.parse_args(argv)
 
     if not TAG_RE.match(args.tag):
@@ -1646,10 +2000,15 @@ def main(argv: list[str] | None = None) -> int:
         print("RESULT: FAIL")
         return 2
 
+    if args.image is not None and args.image != RESIDENT and args.image not in [i.name for i in cfg.images]:
+        print(f"CONFIG ERROR: --image {args.image!r} names no declared image")
+        print("RESULT: FAIL")
+        return 2
+
     build.mkdir(parents=True)
     report: dict = {"tag": args.tag}
     try:
-        report, failures = build_all(cfg, args.tag, build, cache_dir, report)
+        report, failures = build_all(cfg, args.tag, build, cache_dir, report, args.image)
     except StepError as exc:
         failures = [str(exc)]
     except EnvironmentFailure as exc:

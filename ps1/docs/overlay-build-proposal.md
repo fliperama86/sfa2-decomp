@@ -2,8 +2,13 @@
 
 Parents: [overlay map](overlays.md), [matching build](matching-build.md).
 
-Status: a proposal. Nothing here is built. It asks the owner for the
-decisions listed at the end. Numbers come from the overlay map.
+Status: decided. On 2026-10-06 the owner accepted the design as written,
+which is read as decisions 1 to 6 below, and decided that module source is
+published, which is decision 7. The
+[project memory](../../docs/project-memory.md) records both in its
+forty-first group. The build steps follow in separate changes; the
+[matching build](matching-build.md) says what exists. Numbers come from the
+overlay map.
 
 ## What the design has to respect
 
@@ -208,6 +213,8 @@ Two small targets, in this order:
 The function counts are the sweep's estimates.
 
 ## Decisions asked of the owner
+
+All seven are settled: 1 to 6 as written here, and 7 with yes.
 
 1. A module's baseline is a chunk's content, pinned by hash, with its
    address checked against the loader's table.
