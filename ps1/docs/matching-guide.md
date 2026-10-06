@@ -216,6 +216,27 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   same form through a parameter and a local copy of it, made after the
   first use, decided one more function. A local copy made before the
   first use is merged away and changes nothing.
+- A narrow parameter whose callers pass the argument as it is, without the
+  mask or the extension that a prototype with the narrow type makes them
+  emit, is an `int` parameter copied into a narrow local:
+
+  ```c
+  void func_801307e0(Object *object, int arg) {
+      u16 index = arg;
+      ...
+  ```
+
+  The definition masks once at entry, as with a `u16` parameter, and a
+  caller that has the prototype in scope emits nothing. A caller that does
+  mask casts at the call: `func_801307e0(object, (u16)index);`. The same
+  holds for a result: a function that returns a narrow local as `int` lets
+  the callers that mask the result write `(u8)f()` and the others not.
+  Two functions were given this form for a parameter and one for a result
+  when the declarations of the module units were checked, and with it no
+  unit of a module image declares a function without a prototype. Before
+  it was found, one declaration was left without a prototype with a note
+  that both a narrow and an `int` parameter had been tried; the `int`
+  parameter had been tried without the local.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

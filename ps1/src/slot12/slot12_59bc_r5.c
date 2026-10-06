@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80015fd4_slot12(Object *obj, int a) {
     Object *n;
 
     if (((FrameRecord *)ptr_8019040c)[(s16)obj->field_5c].field_0a != 0) {
-        n = func_8011f1e0();
+        n = (Object *)func_8011f1e0();
         if (n != 0) {
             n->field_00 = 1;
             n->field_02 = 0xa2;

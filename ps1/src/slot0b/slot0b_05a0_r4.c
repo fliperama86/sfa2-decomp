@@ -5,13 +5,13 @@
 
 extern u8 data_801e46b0_slot0b[];
 extern u8 data_801e4728_slot0b[];
-ModObj *func_8011f32c(void);
-ModPool *func_8011f4a4(void);
+Object *func_8011f32c(void);
+Pooled *func_8011f4a4(void);
 void func_801e0970_slot0b(void);
 
 void func_801e08d8_slot0b(ModObj *obj) {
     Object *p = obj->field_3c;
-    ModObj *c = func_8011f32c();
+    ModObj *c = (ModObj *)func_8011f32c();
     u8 side;
     if (c != 0) {
         c->field_00 = 1;
@@ -33,7 +33,7 @@ void func_801e08d8_slot0b(ModObj *obj) {
 }
 
 void func_801e0970_slot0b(void) {
-    ModPool *p = func_8011f4a4();
+    ModPool *p = (ModPool *)func_8011f4a4();
     Rect r;
     if (p != 0) {
         r.x = 0x140;

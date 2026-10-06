@@ -7,7 +7,7 @@ extern void (*data_80028a88_slot12[])(Object *);
 extern Slot12Prim data_8002d528_slot12[];
 extern SequenceStep *data_80028a84_slot12;
 void func_80014434_slot12(Object *obj, Slot12Prim *cells, int a, int b);
-void func_80014300_slot12(Object *obj, Slot12Prim *cells);
+void func_80014300_slot12(Object *obj, void *cell);
 
 void func_80017408_slot12(Object *obj) {
     data_80028a88_slot12[obj->field_04](obj);

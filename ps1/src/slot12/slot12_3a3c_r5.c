@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern Slot12Img data_80024450_slot12[];
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 
 void func_80013e24_slot12(int idx) {
     Rect rect;
     Slot12Img *img = &data_80024450_slot12[idx];
-    Job *job = func_8011f4a4();
+    Job *job = (Job *)func_8011f4a4();
     if (job != 0) {
         rect.x = img->rect.x;
         rect.y = img->rect.y;

@@ -27,7 +27,7 @@ void func_800121a4_slot12(Object *obj) {
 void func_800121c4_slot12(Object *obj) {
 }
 
-void func_800121cc_slot12(void) {
+void func_800121cc_slot12(Object *obj) {
     func_8011f240();
 }
 

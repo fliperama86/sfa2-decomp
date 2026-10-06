@@ -6,7 +6,7 @@
 extern HudState *data_8018f5a0;
 void func_8011abe4(void);
 void func_80128280(void);
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 void func_8001129c_slot12(void);
 void func_80010a94_slot12(void);
 
@@ -20,7 +20,7 @@ void func_8001065c_slot12(void) {
     }
     func_80128280();
     func_80010a94_slot12();
-    o = func_8011f1e0();
+    o = (Object *)func_8011f1e0();
     if (o != 0) {
         o->field_00 = 1;
         o->field_02 = 0x7b;

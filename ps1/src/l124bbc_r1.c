@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80125268(void);
+int func_80125268(void);
 
 void func_80124bbc(Object *object, int b, u16 c) {
     if (*table_8016e820[object->side] & 0x20) {

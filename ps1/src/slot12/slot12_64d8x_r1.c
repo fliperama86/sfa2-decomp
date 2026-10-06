@@ -7,7 +7,7 @@ extern void (*data_800287b4_slot12[])(Object *);
 extern u8 data_8002bfe8_slot12[];
 extern u8 data_8002c128_slot12[];
 extern u8 data_8002c268_slot12[];
-void func_80014300_slot12(Object *obj, u8 *a);
+void func_80014300_slot12(Object *obj, void *cell);
 
 void func_800164d8_slot12(Object *obj) {
     u8 *base;

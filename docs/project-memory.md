@@ -3769,6 +3769,43 @@ zero of an argument; one loads a halfword unsigned and then sign-extends
 it where every form gives one signed load; and the largest, 800 bytes,
 has the right size and frame and about 50 differing slots.
 
+What review of the pull request found, and what the wider check then
+found:
+
+- Three points, all about declarations and none about a byte: a parked
+  function declared with three parameter types in three units; a dispatch
+  table whose third entry was defined with no parameter; and a function
+  of the resident image declared with two return types in the new units
+  and called without any declaration in one.
+- The private check had compared a declaration only with a definition in
+  a module unit, and had read only tables declared with the pointer
+  syntax. The table of the second point was declared through a typedef,
+  and its entry was parked when the check last ran. The check now
+  compares every declaration in a module unit with the definition
+  wherever it is, resident units included; requires one declaration for a
+  function that no unit defines; reports a declaration without a
+  prototype; has a compiler front end report every call of an undeclared
+  function; and reads tables declared through a typedef, whose entries
+  may be defined, parked or resident. Eight planted defects, one per kind
+  of line, are each reported.
+- Run on the tree, it printed 31 lines where the review had three points:
+  19 declarations that differ from a definition, 3 undefined functions
+  declared in more than one way, 8 calls of undeclared functions and 1
+  table entry, in all four module folders. All are fixed and every
+  function is still exact. 269 declarations in resident units also differ
+  from their definitions; that backlog is counted and not touched here.
+- An agent fixed them by fixed rules and left five declarations without a
+  prototype, each with the note that both sides had been tried. None of
+  the five was needed. One callee is exact with an `int` return, with a
+  cast at the resident callers that mask the result. The other two, and
+  the one such declaration that `slot0b` had since the last group, are
+  exact with an `int` parameter copied into a narrow local, which is what
+  "both were tried" had not tried. The tree's module units now have no
+  declaration without a prototype. The form is in the matching guide.
+- The agent's notes also claimed a measurement it had not made (the size
+  of the definition with the caller's type). The measurement, made at the
+  top level, is what showed that the exception was not needed.
+
 Two control cases of `test_matchbuild.py` had been failing on the main
 branch, and this round found it:
 
@@ -3792,6 +3829,16 @@ branch, and this round found it:
 
 Lessons:
 
+- "Both were tried" is a claim about a search, and the search is as wide
+  as the forms someone thought of. Before accepting an exception to a
+  rule, measure each side at the top level and try the form that would
+  make the exception unnecessary. An exception with a note is cheaper to
+  write than to justify.
+- A check that passes says what it looked at. The check for declarations
+  looked at module definitions and at one way of declaring a table, and
+  it passed while 19 declarations in module units differed from a
+  definition. Give a check planted defects of every kind it claims, and
+  count what it reads.
 - A suite that starts from the real configuration is a check of the
   configuration too. Run `test_matchbuild.py` in full when `build.toml`
   gains a kind of table or key it did not have, not only when the tool

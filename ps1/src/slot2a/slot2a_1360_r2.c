@@ -5,7 +5,7 @@
 
 extern Slot2aSlot data_801e5164_slot2a[][2];
 extern u16 *data_801e52c8_slot2a;
-u16 func_8015bdd4(int a, int b);
+int func_8015bdd4(int a, int b);
 
 void func_801e14cc_slot2a(Object *obj) {
     int i;
@@ -27,7 +27,7 @@ void func_801e14cc_slot2a(Object *obj) {
         a->field_04 = 0x80;
         a->field_05 = 0x80;
         a->field_06 = 0x80;
-        a->field_0e = func_8015bdd4(0x2c0, 0x80);
+        a->field_0e = (u16)func_8015bdd4(0x2c0, 0x80);
         a++;
         func_8015c100(b);
         b->field_08 = obj->pos_x + (i << 7);
@@ -39,7 +39,7 @@ void func_801e14cc_slot2a(Object *obj) {
         b->field_04 = 0x80;
         b->field_05 = 0x80;
         b->field_06 = 0x80;
-        b->field_0e = func_8015bdd4(0x2c0, 0x80);
+        b->field_0e = (u16)func_8015bdd4(0x2c0, 0x80);
         b++;
     }
     func_80158a2c((Prim *)a, 0, 0, 0xc, 0);

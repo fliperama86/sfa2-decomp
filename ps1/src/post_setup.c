@@ -99,7 +99,7 @@ void func_80130dc0(Object *object) {
     if (object->field_129 != 0) bonus = 3;
     index = index + half;
     index = index + bonus;
-    func_801307e0(object, index);
+    func_801307e0(object, (u16)index);
     object->field_248 = kind_table_248[object->kind * 16 + index];
     object->field_29b = kind_table_29b[object->kind * 16 + index];
 }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80125268(void);
+int func_80125268(void);
 
 /* Form found by automatic permutation search. */
 void func_80124ecc(void)
@@ -29,7 +29,7 @@ void func_80124ecc(void)
   do
   {
     v = 0x1a;
-    if (func_80125268() != 0)
+    if ((u8)func_80125268() != 0)
     {
       func_8014f4d4(6, 2);
       break;

@@ -6,15 +6,7 @@
 extern ObjectRef data_80190468;
 
 extern Slot0bFrame data_801e4c30_slot0b[];
-/* Declared without a prototype on purpose. The definition takes (Slot0bObj *,
-   u8). With that prototype the call below masks its second argument, one
-   instruction more than the original has; with an int parameter in the
-   definition the definition grows by one instruction instead. Both were
-   tried. Compatible with a caller that saw no prototype; not shown. This
-   is about the code that this compiler emits for the two units. It does
-   not say that the two declarations are compatible in portable C: a port
-   has to give the function one prototype. */
-void func_801e1598_slot0b();
+void func_801e1598_slot0b(Slot0bObj *obj, int arg);
 void func_801e1624_slot0b(Slot0bObj *obj);
 
 void func_801e13bc_slot0b(Slot0bObj *obj) {

@@ -6,7 +6,7 @@
 extern u8 data_801ae02d;
 extern u8 data_801ae02e;
 extern void (*data_80023170_slot12[])(Object *);
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 void func_8001281c_slot12(Object *obj);
 
 int func_80012d90_slot12(u8 arg) {
@@ -19,7 +19,7 @@ int func_80012d90_slot12(u8 arg) {
         *flag = 1;
         data_801ae02e = arg;
         data_801ae02d = 0;
-        v = func_8011f1e0();
+        v = (Object *)func_8011f1e0();
         if (v != 0) {
             v->field_00 = 1;
             r = 1;

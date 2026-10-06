@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern u8 data_80024414_slot12[];
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 void func_80013e24_slot12(int idx);
 
 void func_80013d80_slot12(void) {
     Rect rect;
-    Job *job = func_8011f4a4();
+    Job *job = (Job *)func_8011f4a4();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1ff;
