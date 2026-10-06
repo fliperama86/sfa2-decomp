@@ -81,6 +81,8 @@ struct Object size=0x394
 0x01c u16 field_1c
 0x01e u16 field_1e
 0x020 u16 field_20
+0x022 u16 field_22
+0x024 u16 field_24
 0x026 u16 field_26
 0x028 u32 field_28
 0x02c u8 field_2c
@@ -1253,6 +1255,13 @@ struct Cell20 size=0x14
 0x004 u8 field_04
 0x005 u8 field_05
 0x006 u8 field_06
+0x008 s16 field_08
+0x00a s16 field_0a
+0x00c u8 field_0c
+0x00d u8 field_0d
+0x00e u16 field_0e
+0x010 u16 field_10
+0x012 u16 field_12
 
 struct PtrTbl39 size=0x9c
 0x000 u32* entries[39]
@@ -1552,3 +1561,43 @@ struct GlyphSet size=0x78
 0x072 u16 idx_72
 0x074 u16 idx_74
 0x076 u16 idx_76
+
+struct SlotInput size=0x4
+0x000 u16 buttons
+0x002 u16 field_02
+
+struct SlotList size=0x8
+0x000 s16 count
+0x004 u8* entries
+
+struct SlotCell size=0x28
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x00e s16 field_0e
+0x016 s16 field_16
+
+struct Slot2aSpawn size=0x8
+0x000 u16 key
+0x002 u16 field_02
+0x004 u16 field_04
+0x006 u16 count
+
+struct Slot2aColB size=0x8
+0x000 u8 value
+
+struct Slot2aColH size=0x8
+0x000 u16 value
+
+struct Slot2aBank size=0x10c0
+0x000 Cell20 left[107]
+0x860 Cell20 right[107]
+
+struct Slot2aSel size=0x6
+0x000 u16 field_00
+0x002 u16 field_02
+0x004 u16 field_04
+
+struct Slot2aSlot size=0x58
+0x000 Cell20 cells[2]
+0x028 Prim prim

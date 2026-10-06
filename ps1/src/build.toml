@@ -7041,3 +7041,97 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e083c_slot2a", address = 0x801e083c, size = 20 },
 ]
+
+[[unit]]
+name = "slot2a_0020_r1"
+image = "slot2a"
+source = "slot2a/slot2a_0020_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0020_slot2a", address = 0x801e0020, size = 248 },
+]
+
+[[unit]]
+name = "slot2a_03d0_r1"
+image = "slot2a"
+source = "slot2a/slot2a_03d0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e03d0_slot2a", address = 0x801e03d0, size = 124 },
+  { name = "func_801e044c_slot2a", address = 0x801e044c, size = 80 },
+  { name = "func_801e049c_slot2a", address = 0x801e049c, size = 124 },
+  { name = "func_801e0518_slot2a", address = 0x801e0518, size = 156 },
+  { name = "func_801e05b4_slot2a", address = 0x801e05b4, size = 64 },
+]
+
+[[unit]]
+name = "slot2a_05f4_r1"
+image = "slot2a"
+source = "slot2a/slot2a_05f4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e05f4_slot2a", address = 0x801e05f4, size = 172 },
+  { name = "func_801e06a0_slot2a", address = 0x801e06a0, size = 172 },
+  { name = "func_801e074c_slot2a", address = 0x801e074c, size = 240 },
+]
+
+[[unit]]
+name = "slot2a_0850_r1"
+image = "slot2a"
+source = "slot2a/slot2a_0850_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0850_slot2a", address = 0x801e0850, size = 132 },
+  { name = "func_801e08d4_slot2a", address = 0x801e08d4, size = 32 },
+  { name = "func_801e08f4_slot2a", address = 0x801e08f4, size = 100 },
+]
+
+[[unit]]
+name = "slot2a_0850_r2"
+image = "slot2a"
+source = "slot2a/slot2a_0850_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0d94_slot2a", address = 0x801e0d94, size = 180 },
+]
+
+[[unit]]
+name = "slot2a_0e48_r1"
+image = "slot2a"
+source = "slot2a/slot2a_0e48_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0e48_slot2a", address = 0x801e0e48, size = 772 },
+]
+
+[[unit]]
+name = "slot2a_114c_r1"
+image = "slot2a"
+source = "slot2a/slot2a_114c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e1244_slot2a", address = 0x801e1244, size = 64 },
+  { name = "func_801e1284_slot2a", address = 0x801e1284, size = 120 },
+]
+
+[[unit]]
+name = "slot2a_1360_r1"
+image = "slot2a"
+source = "slot2a/slot2a_1360_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e1360_slot2a", address = 0x801e1360, size = 76 },
+  { name = "func_801e13ac_slot2a", address = 0x801e13ac, size = 144 },
+  { name = "func_801e143c_slot2a", address = 0x801e143c, size = 68 },
+  { name = "func_801e1480_slot2a", address = 0x801e1480, size = 44 },
+  { name = "func_801e14ac_slot2a", address = 0x801e14ac, size = 32 },
+]
+
+[[unit]]
+name = "slot2a_1360_r2"
+image = "slot2a"
+source = "slot2a/slot2a_1360_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e14cc_slot2a", address = 0x801e14cc, size = 476 },
+]

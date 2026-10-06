@@ -2780,6 +2780,71 @@ Lessons:
 - Building one module image alone takes under a second when nothing is
   compiled. It is the whole build of the loop for module work.
 
+## Forty-seventh group: first round on an overlay module
+
+Resident image: no change, 1,617 functions exact. Module image `slot2a`: 23
+functions exact, 3,640 bytes, up from 1. Its other 17,556 bytes are retained
+raw. The two images are counted apart.
+
+What ran:
+
+- Nine agents, one batch each, on the module's other 27 functions, with the
+  method of the resident rounds: a work directory per batch, the module
+  brief, and `fndiff.py --rebuild` as the loop. Each batch was then built
+  again at the top level and only what that build calls exact was kept.
+- 22 of the 27 are exact. With the first function that is 23 of the 28
+  that the sweep counts. Five are parked with their candidates, 2,412
+  bytes: 696, 1,084, 248, 100 and 284 bytes.
+- The merged tree builds 1,617 of 1,617 resident functions and 23 of 23
+  module functions exact; 1,645 and 24 comparator controls trip; the
+  executable hash is the baseline's. `test_matchbuild.py`: 192 cases, all
+  as required.
+- 9 source files, 28 symbols and 49 lines of the field table are new. A
+  struct and a symbol that only parked candidates used were taken out
+  again: a field enters the tree only through code that is exact with it.
+
+What the round shows about the sweep's inventory: every one of the 23 exact
+functions has the start and the size that the sweep gave it. None of the
+five parked candidates suggests another boundary. That is 23 boundaries
+established by a rebuild and five still estimates.
+
+The five that differ, as their agents left them:
+
+- 696 bytes: the original stores to one byte twice in a row, zero and then
+  0xff. The compiler drops the first store, 8 bytes short. The candidate
+  suggests that the 32 bytes at the module's start are a table of this
+  function.
+- 1,084 bytes: the original keeps a separate tail for each of two branches;
+  the compiler merges them, 80 bytes short.
+- 248 bytes: two loop constants are loaded in the other order.
+- 284 bytes: same instructions, other registers.
+- 100 bytes: not judged by its agent, because its link failed for a reason
+  in the setup, see below.
+
+Times: the agents took between one and nine minutes each. The four batches
+of small functions that came out whole took one to three minutes.
+
+Mistakes in the setup, both mine:
+
+- The work directories had no symbol for module functions that another
+  batch owns. The resident rounds have one for every unmatched function.
+  Two agents added the symbols themselves and flagged it; one did not, could
+  not link, and reported nothing as exact although two of its functions
+  were. A helper now adds them, and the base for the next round has them.
+- The brief said that the build gives every unit the functions of the
+  whole module. It gives the declared ones, and a function that no unit
+  declares yet is not declared.
+
+Lessons:
+
+- Before a round, link one stub that calls a function of another batch.
+  The trial before this round built one leaf function, which calls nothing.
+- Two batches extended one struct with the same fields and other types,
+  signed and unsigned. One batch still matched with the other's types, so
+  the merge took those. Try that before deciding which side to believe.
+- The loop is what makes a round cheap now: a try costs under a second, and
+  a batch of five small functions is done in a minute.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
