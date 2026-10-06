@@ -320,6 +320,14 @@ After the pilot, in this order, by the owner's decisions of 2026-10-06:
    116 library functions have no family yet, and calls through a register
    are not followed.
 
+The list above is done. What comes next is the owner's decision, asked on
+2026-10-06 and not yet made. Three candidates, none started:
+
+- rounds on the 133 game functions of the resident image that the
+  inventory did not list and nobody has attempted;
+- identifying the 116 library functions without a family;
+- more overlay modules as images of the build.
+
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
