@@ -6,8 +6,8 @@ disc, pads and so on. It tells code that touches the machine from game logic
 before the functions have proper names.
 
 Everything here is a static estimate over function boundaries from a sweep.
-Nothing was observed in a running game. The overlay modules are not covered
-yet.
+Nothing was observed in a running game. The functions of the overlay
+modules are labelled the same way, each content of a module taken alone.
 
 ## Method
 
@@ -77,9 +77,45 @@ function of the build is a start of it.
 
 - 91 game functions call a library function directly.
 - 1,117 game functions reach no library function. 830 of them are closed:
-  by this measure they are game logic and nothing else. 287 are open.
+  the tool finds no call edge from them that it could not follow. That is
+  not proof that they are free of the machine. A function can read or
+  write a hardware register itself, and control can pass in ways the tool
+  does not decode. 287 are open.
 - 133 game functions have a call through a register and 15 a call
   elsewhere.
+
+## The overlay modules
+
+With `--modules PAC_DIRECTORY --pointers 0x8017eb1c --symbols
+ps1/src/symbols.ld` the tool also sweeps every distinct content of a
+code-bearing chunk, as `pac.py functions` does, and labels its functions.
+A function of a module calls a function of its own content, or a function
+of the executable when the address lies outside its chunk. Any other
+target is a call elsewhere: into another module, whose content at that
+moment is not known, or to no function start. Its reached families add what
+the game functions of the executable that it calls reach, and it is open
+when one of those is.
+
+The 77 contents hold 11,220 functions. The counts are over all contents, so
+code that several contents share is counted once in each.
+
+| Family | Module functions that call it directly | Module functions that reach it |
+| --- | ---: | ---: |
+| C library | 9 | 18 |
+| disc | 0 | 89 |
+| files | 7 | 13 |
+| graphics | 97 | 597 |
+| memory card | 1 | 13 |
+| pads | 0 | 0 |
+| sound | 0 | 2,521 |
+| system | 8 | 201 |
+| threads | 0 | 194 |
+| unidentified | 7 | 2,723 |
+
+- 121 module functions call a library function directly, and 7,008 call a
+  game function of the executable.
+- 8,105 reach no library function: 4,814 closed and 3,291 open.
+- 1,941 have a call through a register and 14 a call elsewhere.
 
 ## What it shows and what it does not
 
@@ -96,5 +132,10 @@ function of the build is a start of it.
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is
   for. Names still need the code to be read.
-- Most game code is in the overlay modules. They call resident functions
-  and the library too, and are the next step for this tool.
+- The modules reach the library almost only through the executable. No
+  module function calls a sound, disc, pad or thread function itself.
+- Calls from one module into another are rare, 14 functions, so taking
+  each content alone loses little. Calls through a register are not rare:
+  they are in 1,941 module functions, and what those reach is unknown here.
+- No function reaches the pad calls except three of the executable. How
+  the game reads the pads after starting them is not visible in calls.

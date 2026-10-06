@@ -33,18 +33,42 @@ function is a lower bound whenever it, or a game function it reaches, has
 one of them: such a function is `open`, any other `closed`. The library is
 not entered: what a library function calls does not count for its caller.
 
+With `--modules`, the functions of the overlay modules are labelled too.
+Every distinct content of a code-bearing chunk of table 0 is swept as
+`pac.py functions` sweeps it, and each is taken alone. A function of a
+module calls:
+
+- a function of its own content: a `jal` or `j` to a start that the sweep
+  finds there;
+- a function of the executable: a `jal` or `j` to a start of the
+  executable's sweep, when the address lies outside the chunk.
+
+Any other target outside the function is a call elsewhere: into another
+module, whose content at that moment is not known, or to no start. The
+direct families of a module function are those of the library functions
+it calls. Its reached families add those of the functions of its content
+that it reaches and what the game functions of the executable that those
+call reach. It is open when it, a function of its content that it reaches,
+or a game function of the executable that one of them calls is open. The
+totals are taken over all contents: code that several contents share is
+counted once in each.
+
 This is a static estimate over the boundaries of a sweep. Nothing here was
 observed in a running game.
 
 usage:
   families.py EXECUTABLE --config BUILD_TOML --families TABLE_TOML --library ADDRESS --end ADDRESS
               [--start ADDRESS] [--out TSV] [--library-out TSV] [--show N]
+              [--modules PAC_DIRECTORY --pointers ADDRESS [--symbols FILE] [--modules-out TSV]]
 
 `--out` gets one line per game function: address, size, name or `-`, direct
 families, reached families (each a list joined by `,`, or `-`), its calls
 through a register, its calls elsewhere, and `open` or `closed`.
 `--library-out` gets one line per library function: address, size, name or
 `-`, family, and the number of game functions that call it.
+`--modules-out` gets one line per function of a module: the first archive
+with that content, slot, address, size, and the last five columns of
+`--out`.
 """
 
 from __future__ import annotations
@@ -221,7 +245,75 @@ def run(args) -> int:
         Path(args.library_out).write_text(
             "".join(f"{a:08x}\t{sizes[a]}\t{named(a)}\t{family[a]}\t{callers[a]}\n" for a in library)
         )
-    return 0
+    if not args.modules:
+        return 0
+
+    try:
+        slots = pac.destination_tables(image, args.pointers)[0]
+        archives, bad = pac.read_archives(args.modules)
+        symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+        chunks = list(pac.swept_chunks(archives, slots, symbols))
+    except (OSError, pac.FormatError) as exc:
+        print(exc)
+        return 1
+    if not chunks:
+        print("no code-bearing chunk found")
+        return 1
+    totals: collections.Counter = collections.Counter()
+    calling = collections.Counter()
+    reaching = collections.Counter()
+    rows = []
+    for archive, slot, base, length, body, functions, _, _ in chunks:
+        own = dict(functions)
+        # An address inside the chunk is the module's: the executable's function there, if any, is not meant.
+        starts = set(own) | {address for address in sizes if not base <= address < base + length}
+        inner: dict[int, set[int]] = {}
+        first: dict[int, set[str]] = {}
+        through: dict[int, int] = {}
+        away: dict[int, int] = {}
+        loose: set[int] = set()
+        seed: dict[int, set[str]] = {}
+        for address, size in functions:
+            inner[address], through[address], away[address] = calls_of(body, base, address, size, starts)
+            outer = inner[address] - set(own)  # what it calls in the executable
+            first[address] = {family[callee] for callee in outer if callee in family}
+            resident = [callee for callee in outer if callee in reached]
+            seed[address] = first[address].union(*(reached[callee] for callee in resident))
+            if through[address] or away[address] or any(callee in opened for callee in resident):
+                loose.add(address)
+            totals["resident"] += bool(resident)
+        got, unsure = reach(list(own), inner, seed, loose)
+        for address, size in functions:
+            totals["functions"] += 1
+            totals["direct"] += bool(first[address])
+            totals["none"] += not got[address]
+            totals["none open"] += not got[address] and address in unsure
+            totals["register"] += bool(through[address])
+            totals["elsewhere"] += bool(away[address])
+            calling.update(first[address])
+            reaching.update(got[address])
+            rows.append(
+                f"{archive}\t{slot:#x}\t{address:08x}\t{size}\t{joined(first[address])}\t{joined(got[address])}"
+                f"\t{through[address]}\t{away[address]}\t{'open' if address in unsure else 'closed'}\n"
+            )
+    print(
+        f"modules: {len(archives)} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {len(chunks)};"
+        f" functions: {totals['functions']}"
+    )
+    print(" family            called directly by  reached by")
+    for name in sorted(members, key=lambda n: (n == UNIDENTIFIED, n)):
+        print(f" {name:17} {calling[name]:18} {reaching[name]:11}")
+    print(f"module functions that call a library function directly: {totals['direct']}")
+    print(f"module functions that call a game function of the executable: {totals['resident']}")
+    print(
+        f"module functions that reach no library function: {totals['none']};"
+        f" closed: {totals['none'] - totals['none open']}, open: {totals['none open']}"
+    )
+    print(f"module functions with a call through a register: {totals['register']}; with a call elsewhere: {totals['elsewhere']}")
+    if args.modules_out:
+        Path(args.modules_out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.modules_out).write_text("".join(rows))
+    return 1 if bad else 0
 
 
 def main() -> int:
@@ -239,7 +331,14 @@ def main() -> int:
     parser.add_argument("--out", help="one line per game function")
     parser.add_argument("--library-out", help="one line per library function")
     parser.add_argument("--show", type=int, default=10, help="addresses to print per finding")
-    return run(parser.parse_args())
+    parser.add_argument("--modules", help="directory holding the archives: label the functions of the modules too")
+    parser.add_argument("--pointers", type=address, help="address of the block of table addresses, needed with --modules")
+    parser.add_argument("--symbols", help="as for `pac.py functions`: entries of the modules")
+    parser.add_argument("--modules-out", help="one line per function of a module")
+    args = parser.parse_args()
+    if args.modules and args.pointers is None:
+        parser.error("--modules needs --pointers")
+    return run(args)
 
 
 if __name__ == "__main__":

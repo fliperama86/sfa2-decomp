@@ -3176,6 +3176,55 @@ What it found beside the labels:
   of them than reach any family. Identifying them comes before the labels
   can be trusted for naming.
 
+## Fifty-fourth group: library families of the module functions
+
+No function count of the build changes.
+
+What ran:
+
+- `families.py --modules` labels the functions of the overlay modules,
+  each distinct content of a chunk taken alone. A module function calls
+  functions of its own content and of the executable; any other target is
+  counted and not followed.
+- On the 77 contents, 11,220 functions: 121 call the library directly,
+  7,008 call a game function of the executable, 8,105 reach no library
+  function. 1,941 have a call through a register and 14 a call elsewhere.
+- `test_families.py`: 75 cases. It had 60 before the modules; the same
+  subagent wrote both parts. Private mutation table under the limits: 227
+  changes to the tool, every one noticed.
+- The review of the last pull request asked for other words about the
+  closed functions: closed means that the tool found no call edge it
+  could not follow, not that the function is free of the machine. The
+  page says so now.
+
+What the control cases found before the pull request: a module function
+that calls a function of its own content at an address where the
+executable has a function too was given what the executable's function
+reaches. The stated rule says that an address inside the chunk is the
+module's. The subagent that wrote the cases built that layout, saw the
+difference, stopped and reported it with a minimal input instead of
+bending the expectation. The line above it had the same fault for library
+functions. No module of the game lies over the executable, so the real
+rows did not change.
+
+What it shows:
+
+- The modules reach the library almost only through the executable. No
+  module function calls a sound, disc, pad or thread function itself.
+- Calls between modules are rare, so taking each content alone loses
+  little. Calls through a register are the real limit of the labels.
+
+Lessons:
+
+- A rule that the real data never exercises is only as good as its
+  synthetic case. The real run was right and the code was wrong.
+- The brief's rule to stop and report at a contradiction between spec and
+  code paid for itself here: the finding came back in four minutes.
+- Before a design gets a harder case built in, measure how often the case
+  occurs. Resolving calls from one module into another would have needed
+  a rule for which content is loaded. A private count first showed 14
+  functions in 11,220, and the rule was left out.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
