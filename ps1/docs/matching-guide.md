@@ -96,6 +96,12 @@ Code of an overlay module is matched the same way. What differs:
 - `matchbuild.py --image <image>` builds the module alone in a few seconds.
   Use it as the whole build of the loop. The build of every image is still
   what a merge has to pass.
+- `slot17` is declared as like `slot16`: every unit of `slot16` is linked a
+  second time at the other address and compared with the chunk of slot
+  `0x17`. A new unit of `slot16` has to be exact there too.
+  `fndiff.py --image slot17 <unit>` shows the unit as the second link has
+  it. A name of `symbols.ld` outside the module that lies elsewhere on the
+  second side gets its address in the table of that image in `build.toml`.
 - The function table of a module comes from a sweep and is an estimate. A
   function that clearly ends elsewhere than its row says is a finding to
   report, not to work around.
