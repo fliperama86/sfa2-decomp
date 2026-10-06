@@ -16,6 +16,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from test_disc_tools import make_archive, make_program
+
 TOOLS = Path(__file__).resolve().parent
 OPEN, CLOSE, RETURN, ONE = 0x27BDFFE8, 0x27BD0018, 0x03E00008, 0x24020001
 STUB_JUMP, JALR_T9, JR_T9 = 0x01400008, 0x0320F809, 0x03200008
@@ -50,16 +52,21 @@ def executable(words: list[int], start: int = START) -> bytes:
     return bytes(header) + body
 
 
-def lay_out(entries: list, start: int = START) -> tuple[bytes, dict[str, int], dict[str, int]]:
+def lay_words(entries: list, start: int = START) -> tuple[list[int], dict[str, int], dict[str, int]]:
     """Place functions one after another. Each entry is (name, body), the body a function of the address book.
 
-    Returns the executable, the address of each function and its size in bytes.
+    Returns the words, the address of each function and its size in bytes.
     """
     sizes = {name: 4 * len(body(collections.defaultdict(int))) for name, body in entries}
     book, cursor = {}, start
     for name, _ in entries:
         book[name], cursor = cursor, cursor + sizes[name]
-    words = [word for _, body in entries for word in body(book)]
+    return [word for _, body in entries for word in body(book)], book, sizes
+
+
+def lay_out(entries: list, start: int = START) -> tuple[bytes, dict[str, int], dict[str, int]]:
+    """The same, as an executable."""
+    words, book, sizes = lay_words(entries, start)
     return executable(words, start), book, sizes
 
 
@@ -427,10 +434,241 @@ def table_cases(root: Path):
         yield f"missing-{label}", verdict(proc.returncode == 2 and "required" in proc.stderr, f"{proc.returncode} {proc.stderr}"), 0, "as required"
 
 
+def modules_cases(root: Path):
+    """`--modules`: overlay modules swept from synthetic archives, each content taken alone."""
+    A, B, C = 0xA0, 0xB0, 0xC0
+    plain = [OPEN, ONE, RETURN, CLOSE]
+    E = lambda direct=(), reached=(), reg=0, away=0, opened=False, resident=False: (set(direct), set(reached), reg, away, opened, resident)  # noqa: E731
+    a, b, u, z = "alpha", "beta", UNIDENTIFIED, "zeta"
+    fill = lambda prefix, n: [(f"{prefix}{k}", lambda m: plain) for k in range(n)]  # noqa: E731
+
+    # The executable: game functions, then library functions. `sh` and `sh2` are where a module is linked.
+    entries = [
+        ("rg_open", lambda m: [OPEN, JALR_T9, 0, RETURN, CLOSE]),
+        ("rg_fam", lambda m: [OPEN, jal(m["lib_a"]), 0, RETURN, CLOSE]),
+        ("rg_chain", lambda m: [OPEN, jal(m["rg_fam"]), 0, RETURN, CLOSE]),
+        ("rg_closed", lambda m: plain),
+        ("sh", lambda m: [OPEN, jal(m["lib_b"]), 0, RETURN, CLOSE]),
+        ("sh2", lambda m: plain),
+        # Under the chunk of module K: `sk` at its first word, functions of 7, 4, 4, 4, 4, 4 and 2 words, and `ske` at its end.
+        ("sk", lambda m: [OPEN, jal(m["lib_a"]), 0, RETURN, CLOSE]),
+        ("kp0", lambda m: [OPEN, ONE, ONE, ONE, ONE, RETURN, CLOSE]),
+        *[(f"kp{k}", lambda m: plain) for k in range(1, 6)],
+        ("kp6", lambda m: [RETURN, CLOSE]),
+        ("ske", lambda m: [OPEN, jal(m["lib_b"]), 0, RETURN, CLOSE]),
+        ("lib_a", lambda m: stub(A, 5)),
+        ("lib_b", lambda m: stub(B, 5)),
+        ("lib_u", lambda m: plain),
+        ("lib_z", lambda m: stub(C, 5)),
+    ]
+    code, ex, ex_size = lay_words(entries)
+    assert ex["ske"] == ex["sk"] + 136
+    assert ex["sh2"] == ex["sh"] + 20
+    end = START + 4 * len(code)
+    game = [
+        E(reg=1, opened=True), E({a}, {a}), E((), {a}), E(), E({b}, {b}), E(),
+        E({a}, {a}), E(), E(), E(), E(), E(), E(), E(), E({b}, {b}),
+    ]  # fmt: skip
+    game = [(d, r, g, w, o) for d, r, g, w, o, _ in game]
+    exe_report = report(START, end, game, [a, b, u, z], [])
+    XB, YB, TB, QB = 0x80200000, 0x00210000, 0x80230000, 0x80240000
+    slots = [XB, YB, ex["sh"], TB, ex["lib_b"], ex["sk"]]
+
+    def content(archive, slot, base, parts, expect):
+        words, book, sizes = lay_words(parts, base)
+        assert list(expect) == [name for name, _ in parts]
+        return {"archive": archive, "slot": slot, "words": words, "book": book, "sizes": sizes, "expect": expect}
+
+    x_parts = [
+        ("x_top", lambda m: [OPEN, jal(m["x_mid"]), 0, RETURN, CLOSE]),
+        ("x_mid", lambda m: [OPEN, jal(ex["lib_b"]), 0, jal(m["x_leaf"]), 0, RETURN, CLOSE]),
+        ("x_leaf", lambda m: [OPEN, jal(ex["lib_a"]), 0, RETURN, CLOSE]),
+        ("x_ping", lambda m: [OPEN, jal(ex["lib_u"]), 0, jal(m["x_pong"]), 0, RETURN, CLOSE]),
+        ("x_pong", lambda m: [OPEN, jal(ex["lib_b"]), 0, jal(m["x_ping"]), 0, RETURN, CLOSE]),
+        ("x_self", lambda m: [OPEN, jal(m["x_self"]), 0, jal(ex["lib_a"]), 0, RETURN, CLOSE]),
+        ("x_game", lambda m: [OPEN, jal(ex["rg_chain"]), 0, RETURN, CLOSE]),
+        # two game functions and two library functions in one function: each counted once
+        ("x_two", lambda m: [OPEN, jal(ex["rg_chain"]), 0, jal(ex["rg_fam"]), 0, jal(ex["lib_a"]), 0, jal(ex["lib_b"]), 0, RETURN, CLOSE]),
+        ("x_gclosed", lambda m: [OPEN, jal(ex["rg_closed"]), 0, RETURN, CLOSE]),
+        ("x_via", lambda m: [OPEN, jal(m["x_gopen"]), 0, RETURN, CLOSE]),  # below the open function it calls
+        ("x_gopen", lambda m: [OPEN, jal(ex["rg_open"]), 0, RETURN, CLOSE]),
+        ("x_regopen", lambda m: [OPEN, JALR_T9, 0, JALR_T9, 0, RETURN, CLOSE]),
+        # another module's range, a `j` to the middle of a function of its own chunk, an address of the executable that starts nothing
+        ("x_far", lambda m: [OPEN, jal(YB + 16), 0, jump(m["x_top"] + 4), 0, jal(ex["rg_fam"] + 4), 0, RETURN, CLOSE]),
+        ("x_open_top", lambda m: [OPEN, jal(m["x_open_mid"]), 0, RETURN, CLOSE]),
+        ("x_open_mid", lambda m: [OPEN, jal(m["x_open_src"]), 0, RETURN, CLOSE]),
+        ("x_open_src", lambda m: [OPEN, JALR_T9, 0, RETURN, CLOSE]),
+        ("x_openfam", lambda m: [OPEN, JALR_T9, 0, jal(ex["lib_a"]), 0, RETURN, CLOSE]),  # open, with a family
+    ]
+    x_expect = {
+        "x_top": E((), {a, b}), "x_mid": E({b}, {a, b}), "x_leaf": E({a}, {a}),
+        "x_ping": E({u}, {u, b}), "x_pong": E({b}, {u, b}), "x_self": E({a}, {a}),
+        "x_game": E((), {a}, resident=True), "x_two": E({a, b}, {a, b}, resident=True), "x_gclosed": E(resident=True),
+        "x_via": E(opened=True), "x_gopen": E(opened=True, resident=True),
+        "x_regopen": E(reg=2, opened=True), "x_far": E(away=3, opened=True),
+        "x_open_top": E(opened=True), "x_open_mid": E(opened=True), "x_open_src": E(reg=1, opened=True), "x_openfam": E({a}, {a}, 1, 0, True),
+    }  # fmt: skip
+    X = content("A1.PAC", 0, XB, x_parts, x_expect)
+    y_parts = [("y_one", lambda m: [OPEN, jal(XB), 0, RETURN, CLOSE]), *fill("y_f", 7)]
+    Y = content("A1.PAC", 1, YB, y_parts, {"y_one": E(away=1, opened=True), **{f"y_f{k}": E() for k in range(7)}})
+    x2_parts = [("x2_a", lambda m: [OPEN, jal(ex["lib_u"]), 0, RETURN, CLOSE]), *fill("x2_f", 7)]
+    X2 = content("A2.PAC", 0, XB, x2_parts, {"x2_a": E({u}, {u}), **{f"x2_f{k}": E() for k in range(7)}})
+    # Linked where the executable has code: it has a start at the first word and one at the sixth that the module does not.
+    s_parts = [
+        ("s0", lambda m: [OPEN, ONE, ONE, ONE, ONE, RETURN, CLOSE]),  # holds the address of `sh2`
+        ("s1", lambda m: [OPEN, jump(ex["sh2"]), 0, RETURN, CLOSE]),  # a call elsewhere: the module has no start there
+        ("s2", lambda m: [OPEN, jal(ex["sh"]), 0, RETURN, CLOSE]),  # a call to s0, not to the function of the executable
+        *fill("s_f", 5),
+    ]
+    S = content(
+        "A2.PAC", 2, ex["sh"], s_parts,
+        {"s0": E(), "s1": E(away=1, opened=True), "s2": E(), **{f"s_f{k}": E() for k in range(5)}},
+    )  # fmt: skip
+    # Linked over a library function of the executable: r1 calls r0, the module's function, not the library function.
+    r_parts = [
+        ("r0", lambda m: plain),
+        ("r1", lambda m: [OPEN, jal(ex["lib_b"]), 0, RETURN, CLOSE]),
+        *fill("r_f", 6),
+    ]
+    R = content("A2.PAC", 4, ex["lib_b"], r_parts, {"r0": E(), "r1": E(), **{f"r_f{k}": E() for k in range(6)}})
+    # Linked over `sk` of the executable with no start of its own at the first word (it is a `nop`): a call to it is a call elsewhere.
+    # `ske` of the executable starts at the end of the chunk: a call to it is a call to the executable.
+    k_parts = [
+        ("k_nop", lambda m: [0]),
+        ("k0", lambda m: [jal(ex["sk"]), 0, RETURN, CLOSE]),
+        ("k1", lambda m: [OPEN, jal(ex["ske"]), 0, RETURN, CLOSE]),
+        *fill("k_f", 6),
+    ]
+    K = content(
+        "A2.PAC", 5, ex["sk"], [(n, f) for n, f in k_parts if n != "k_nop"], {"k0": E(away=1, opened=True), "k1": E((), {b}, resident=True), **{f"k_f{k}": E() for k in range(6)}}
+    )  # fmt: skip
+    K["words"] = [0, *K["words"]]
+    K["book"] = {name: address + 4 for name, address in K["book"].items()}
+    assert 4 * len(K["words"]) == 136
+    # A function that opens a frame in its middle: a symbol there splits it.
+    split = lambda m: [OPEN, jal(0x80500000), 0, ONE, 0x27BDFFE0, ONE, RETURN, CLOSE]  # noqa: E731
+    t_fill = {f"t_f{k}": E() for k in range(7)}
+    T = content("A1.PAC", 3, TB, [("t0", split), *fill("t_f", 7)], {"t0": E(away=1, opened=True), **t_fill})
+    TS = content(
+        "A1.PAC", 3, TB,
+        [("t_a", lambda m: [OPEN, jal(0x80500000), 0, ONE]), ("t_b", lambda m: [0x27BDFFE0, ONE, RETURN, CLOSE]), *fill("t_f", 7)],
+        {"t_a": E(away=1, opened=True), "t_b": E(), **t_fill},
+    )  # fmt: skip
+    assert TS["words"] == T["words"]
+    # Never read: a chunk of table 1 and one in a slot beyond the table, with code that calls a library function.
+    q = lambda n: [("q0", lambda m: [OPEN, jal(ex["lib_z"]), 0, RETURN, CLOSE]), *fill("q_f", n)]  # noqa: E731
+    Q1, Q2 = content("A3.PAC", 0, QB, q(7), {"q0": E(), **{f"q_f{k}": E() for k in range(7)}}), content("A3.PAC", 9, QB, q(8), {"q0": E(), **{f"q_f{k}": E() for k in range(8)}})
+
+    def body(c) -> bytes:
+        return struct.pack(f"<{len(c['words'])}I", *c["words"])
+
+    exe, pointers = make_program(START, code, [slots, [QB]])
+    exe_path = root / "modules.exe"
+    exe_path.write_bytes(exe)
+    config = root / "modules.toml"
+    config.write_text("")
+    table = root / "modules-families.toml"
+    table.write_text('[bios]\n"a0:05" = "alpha"\n"b0:05" = "beta"\n"c0:05" = "zeta"\n')
+    good = root / "pac"
+    (good / "sub").mkdir(parents=True)
+    (good / "A1.PAC").write_bytes(make_archive([(0, body(X)), (1, body(Y)), (3, body(T)), (0, b"data" * 20)]))
+    (good / "A2.PAC").write_bytes(make_archive([(0, body(X)), (0, body(X2)), (2, body(S)), (4, body(R)), (5, body(K))]))
+    (good / "sub" / "A3.PAC").write_bytes(make_archive([(1 << 16, body(Q1)), (9, body(Q2))]))
+
+    def lines(archives, bad, contents):
+        found = [(c, name, exp) for c in contents for name, exp in c["expect"].items()]
+        calling = collections.Counter(name for _, _, e in found for name in e[0])
+        reaching = collections.Counter(name for _, _, e in found for name in e[1])
+        none = [e for _, _, e in found if not e[1]]
+        text = [
+            f"modules: {archives} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {len(contents)};"
+            f" functions: {len(found)}",
+            " family            called directly by  reached by",
+        ]
+        for name in sorted({a, b, u, z}, key=lambda n: (n == UNIDENTIFIED, n)):
+            text.append(f" {name:<17} {calling[name]:>18} {reaching[name]:>11}")
+        text += [
+            f"module functions that call a library function directly: {sum(1 for _, _, e in found if e[0])}",
+            f"module functions that call a game function of the executable: {sum(1 for _, _, e in found if e[5])}",
+            f"module functions that reach no library function: {len(none)};"
+            f" closed: {sum(1 for e in none if not e[4])}, open: {sum(1 for e in none if e[4])}",
+            f"module functions with a call through a register: {sum(1 for _, _, e in found if e[2])};"
+            f" with a call elsewhere: {sum(1 for _, _, e in found if e[3])}",
+        ]
+        rows = "".join(
+            f"{c['archive']}\t{c['slot']:#x}\t{c['book'][name]:08x}\t{c['sizes'][name]}\t{joined(e[0])}\t{joined(e[1])}"
+            f"\t{e[2]}\t{e[3]}\t{'open' if e[4] else 'closed'}\n"
+            for c, name, e in found
+        )
+        return "".join(line + "\n" for line in text), rows
+
+    base = [exe_path, "--config", config, "--families", table, "--library", f"{ex['lib_a']:#x}", "--end", f"{end:#x}"]
+    with_modules = [*base, "--modules", good, "--pointers", f"{pointers:#x}"]
+    contents = [X, Y, T, X2, S, R, K]
+    text, rows = lines(3, 0, contents)
+    out_exe, out_mod = root / "m" / "game.tsv", root / "mm" / "deeper" / "modules.tsv"
+    plain_out = root / "m" / "plain.tsv"
+    proc = tool(*with_modules, "--out", out_exe, "--modules-out", out_mod)
+    yield "modules-exact", exact(proc, exe_report + text), 0, "as required"
+    yield "modules-no-out-file", exact(tool(*with_modules), exe_report + text), 0, "as required"
+    got = out_mod.read_text() if out_mod.exists() else None
+    yield "modules-out-rows", verdict(got == rows, f"{got!r}\n{rows!r}"), 0, "as required"
+    bare = tool(*base, "--out", plain_out)
+    same = out_exe.exists() and plain_out.exists() and out_exe.read_text() == plain_out.read_text()
+    yield "without-modules-exact", exact(bare, exe_report), 0, "as required"
+    yield "modules-leave-game-rows", verdict(same and "modules" not in bare.stdout, "game rows differ"), 0, "as required"
+    # A symbol at the middle of the function splits it in two.
+    symbols = root / "symbols.txt"
+    symbols.write_text(f"t_b = {TB + 16:#x};\n")
+    split_text, split_rows = lines(3, 0, [X, Y, TS, X2, S, R, K])
+    out_sym = root / "m" / "symbols.tsv"
+    proc = tool(*with_modules, "--symbols", symbols, "--modules-out", out_sym)
+    yield "modules-symbols", exact(proc, exe_report + split_text), 0, "as required"
+    got = out_sym.read_text() if out_sym.exists() else None
+    yield "modules-symbols-rows", verdict(got == split_rows, f"{got!r}\n{split_rows!r}"), 0, "as required"
+    # An address that is no multiple of four is not a symbol.
+    odd_symbol = root / "odd-symbols.txt"
+    odd_symbol.write_text(f"{TB + 18:#x}\n")
+    yield "modules-unaligned-symbol", exact(tool(*with_modules, "--symbols", odd_symbol), exe_report + text), 0, "as required"
+    # An archive that is rejected is reported, and the rest is still printed.
+    bad = root / "pac-bad"
+    bad.mkdir()
+    (bad / "A1.PAC").write_bytes((good / "A1.PAC").read_bytes())
+    (bad / "Z.PAC").write_bytes(b"short")
+    bad_text, bad_rows = lines(1, 1, [X, Y, T])
+    out_bad = root / "m" / "bad.tsv"
+    proc = tool(*base, "--modules", bad, "--pointers", f"{pointers:#x}", "--modules-out", out_bad)
+    want = exe_report + "Z.PAC: shorter than one sector\n" + bad_text
+    yield "modules-rejected-archive", verdict(proc.returncode == 1 and proc.stdout == want, f"{proc.returncode}\n{proc.stdout}\n{want}"), 0, "as required"
+    got = out_bad.read_text() if out_bad.exists() else None
+    yield "modules-rejected-rows", verdict(got == bad_rows, f"{got!r}"), 0, "as required"
+
+    def refused(name: str, extra, message: str):
+        proc = quiet(tool(*extra))
+        yield name, verdict(proc.returncode == 1 and proc.stdout == exe_report + message + "\n", f"{proc.returncode}\n{proc.stdout}{proc.stderr}"), 0, "as required"
+
+    yield from refused("modules-no-pointer-block", [*base, "--modules", good, "--pointers", f"{START:#x}"], f"no block of table addresses at {START:#x}")
+    data_only = root / "pac-data"
+    data_only.mkdir()
+    (data_only / "D.PAC").write_bytes(make_archive([(0, b"data" * 20)]))
+    yield from refused("modules-no-code-chunk", [*base, "--modules", data_only, "--pointers", f"{pointers:#x}"], "no code-bearing chunk found")
+    empty = root / "pac-empty"
+    empty.mkdir()
+    yield from refused("modules-no-archive", [*base, "--modules", empty, "--pointers", f"{pointers:#x}"], "no code-bearing chunk found")
+    odd, odd_pointers = make_program(START, code, [[XB + 2, YB, ex["sh"], TB], [QB]])
+    odd_path = root / "odd.exe"
+    odd_path.write_bytes(odd)
+    odd_args = [odd_path, *base[1:], "--modules", good, "--pointers", f"{odd_pointers:#x}"]
+    yield from refused("modules-unaligned-destination", odd_args, f"slot 0x0: the destination {XB + 2:#x} is not a multiple of four")
+    proc = tool(*base, "--modules", good)
+    yield "modules-need-pointers", verdict(proc.returncode == 2 and "--modules needs --pointers" in proc.stderr, proc.stderr), 0, "as required"
+
+
 def cases(root: Path):
     yield from main_cases(root)
     yield from mini_cases(root)
     yield from table_cases(root)
+    yield from modules_cases(root)
 
 
 def main() -> int:
