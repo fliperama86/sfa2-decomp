@@ -7019,3 +7019,25 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801386f0", address = 0x801386f0, size = 208 },
 ]
+
+# Module images: code that the resident loader copies from an archive to a
+# fixed address. Contract: ps1/docs/matching-build.md, "Module images".
+[overlays]
+table_pointers = 0x8017eb1c
+
+# The one content of slot 0x2a. It is in 63 archives; this is one of them.
+[[image]]
+name = "slot2a"
+archive = "../extract/PAC/BOSS00.PAC"
+slot = 0x2a
+sha256 = "952ab02df2db28319faf3c349a183a4b293df3a09295ddaa0703e054092791f4"
+address = 0x801e0000
+
+[[unit]]
+name = "slot2a_083c_r1"
+image = "slot2a"
+source = "slot2a/slot2a_083c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e083c_slot2a", address = 0x801e083c, size = 20 },
+]

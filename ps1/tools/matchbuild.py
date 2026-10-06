@@ -2002,7 +2002,8 @@ def summary_text(report: dict, failures: list[str]) -> str:
                     lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
         cov = report["coverage"]
         lines.append(f"functions exact: {exact}/{len(functions)}")
-        states = [u.get("cache", "off") for u in report["units"]]
+        # Every unit that was compiled, of every image.
+        states = [entry["cache"] for entry in report["cache"]["units"].values()]
         if states and all(state == "off" for state in states):
             lines.append("cache: off")
         else:

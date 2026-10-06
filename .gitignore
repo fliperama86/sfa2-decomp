@@ -5,6 +5,7 @@
 # third-party headers under another license, and local inputs and products.
 /ps1/src/sdk/include/
 /ps1/audit
+/ps1/extract
 /ps1/toolchain
 /ps1/build/
 /ps1/src.selftest-*
