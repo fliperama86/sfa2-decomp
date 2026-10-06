@@ -805,6 +805,125 @@ code calls a module.
   diff cannot stand in for this: the overridden symbol would link, at the
   wrong address, without a word.
 
+### Addresses of the symbol file per image
+
+A name of `symbols.ld` stands for an address that no unit owns. For some
+names the address depends on the image that is linked: a module of the
+second side calls into the second-side character block, which lies at
+another distance than the module does. A module image may give such names
+its own addresses:
+
+```toml
+[[image]]
+name = "example"
+# ... the keys of the image ...
+
+[image.symbols]
+callee_elsewhere = 0x80300000
+```
+
+- The table belongs to the `[[image]]` table above it. Each key must be a
+  name that `symbols.ld` assigns, and each value an address. The value takes
+  the place of the name's address in the link of this image, and in the link
+  of one unit of it that `fndiff.py` makes. No other link sees it.
+- The assignments are written to `local.ld` in the directory of the link,
+  and the linker script includes that file after `symbols.ld` and
+  `others.ld`. A later assignment replaces an earlier one. Without the table
+  no `local.ld` is written and the linker script is unchanged.
+- A value is not checked by itself. A wrong one shows as code that differs
+  from the baseline.
+- The image's record in the report has `symbols`: the table, or an empty one.
+
+Rejected before any compilation, with exit status 2: a key that
+`symbols.ld` does not assign, and a value that is not an integer.
+
+### Second links
+
+A module image may be declared as **like** another module image: the same
+units, linked a second time at its own address, and compared with its own
+chunk. That is how the second side of a module is built. One source for
+both sides is an inference from comparing their bytes. A second link tests
+it unit by unit, and it stays an inference for every unit that has not
+passed.
+
+```toml
+[[image]]
+name = "second"
+like = "first"
+archive = "../extract/SECOND.PAC"
+slot = 0x17
+sha256 = "<hex of the chunk's bytes>"
+address = 0x80210000
+leave_out = ["unit_a"]        # optional
+```
+
+- `like` names a declared module image that is not itself like another. A
+  second link has no units of its own: no unit may name it as its image.
+- It takes every unit of the image it is like. Each range of a unit, text,
+  rodata, data and bss, is moved by the difference of the two addresses.
+  That is the placement map of the second link. It holds every unit of the
+  first image, whether the unit is linked here or left out.
+- `leave_out` lists units of the first image that are not linked here. The
+  moved text, rodata and data ranges of such a unit are raw in the second
+  link. It is for a difference under investigation, not a default.
+- Nothing is compiled a second time. The link takes the same unit objects
+  from `build/<tag>/`, in the directory `build/<tag>/image-<name>/` like
+  any module image.
+
+What the link of a second link is given, besides the objects of the units it
+takes and its raw ranges:
+
+- `symbols.ld`, and its own `[image.symbols]` if it has one;
+- in `others.ld`, the declared functions of every image that is not a second
+  link, except those of the image it is like: its own objects define those
+  names, at the moved ranges;
+- also in `others.ld`, the names of every unit it leaves out, from the
+  placement map: the unit's declared functions at their moved addresses,
+  and its other global or weak symbols at the moved range of their kind
+  plus their offset in the unit's object. They never come from the first
+  image's addresses. Leaving a callee raw does not make its first-side
+  address the fallback.
+
+The rule of names across images holds: no name given to the link is one that
+an object of the link defines, and that is checked before the link. A second
+link gives no names to any other link. The resident image and the other
+module images know only the first image's functions.
+
+Every check of a module image runs for a second link against its own
+payload, with the moved ranges: the function, text, rodata, data, bss and
+symbol checks, the image size and SHA-256, and the comparator controls. A
+unit that is exact in the first image and differs in the second fails the
+build, and the message names the second link.
+
+`--image NAME` with a second link compiles the units it takes and links it
+alone.
+
+Rejected before any compilation, with exit status 2: a `like` that names no
+declared image, the image itself, or a second link; a unit whose `image` is a
+second link; `leave_out` without `like`; a name in `leave_out` that is not a
+unit of the first image, or that is there twice; and a moved text, rodata or
+data range that does not lie inside the second link's payload, or a moved
+bss range that touches it, with the unit and the second link named.
+
+In the report the record of a second link has, besides the keys of a module
+image: `like`, `shift` (the difference of the two addresses) and `left_out`.
+Its `units` are the units it links, with their moved ranges. Its `coverage`
+has `linked_again_bytes` and `linked_again_functions` in place of
+`c_bytes`, `c_functions`, `asm_bytes` and `asm_functions`: the functions of
+a second link are the first image's source, and no count of functions from C
+or from assembly includes them. A unit left out counts as raw there. The
+summary says "linked again" in the coverage line of a second link and has
+one more line for it, with the image it is like, the shift and the units
+left out.
+
+`fndiff.py --image NAME UNIT` compares a unit as a second link has it: NAME
+is a second link that is like the unit's image, the unit is linked alone at
+its moved ranges with the names that link is given, and the baseline is the
+second link's payload. `--rebuild` works with it and replaces the unit's one
+object. Without `--image` a unit is compared in its own image. Any other
+NAME is an error with exit status 2, and so is a unit that the second link
+leaves out.
+
 `--image NAME` builds one image: `resident` or a declared name. Any other
 name is a configuration error with exit status 2, also when the
 configuration declares no image. Only the units of that
@@ -899,6 +1018,34 @@ weak symbol under such a name; a variable under a name that `symbols.ld`
 assigns; and a variable under the name of a function of another unit of the
 same image.
 
+For addresses of the symbol file per image it uses a module unit that calls
+a name of `symbols.ld`, and two images of it whose baselines have the call
+going to two addresses. It requires: both images exact with the table on the
+second; a failure of the second image, and only of it, without the table;
+`symbols` in the record; no `local.ld` for an image without the table; an
+identical result of `fndiff.py` for the unit in each image; and exit status
+2 for a key that `symbols.ld` does not assign.
+
+For second links it uses a first image with a callee, a caller and a unit
+that reads a variable of another, and a second image whose chunk is the same
+source built at the second address. It requires failure before compilation
+for each rejected declaration in the list above. It requires success, with
+the report checked, for: the second link exact, with `like`, `shift`, the
+counts of functions linked again and tripped controls, and the first image's
+functions counted once; a unit left out, exact, listed in `left_out` and
+counted as raw; the callee left out and the caller linked, exact, with the
+call word holding the callee's second address; `--image` with the second
+link, which compiles the units it takes and links it alone; and the names
+given to the resident link, where each function appears once, at its first
+address. It requires failure, naming the second link and leaving the first
+image exact, for: a second chunk with one changed word inside a function; a
+second chunk whose call goes to the callee's first address, with the callee
+linked and with it left out; and a second chunk whose read of the variable
+uses the first address. For `fndiff.py --image` it requires an identical
+result for a unit in a second link that is exact, a different one for the
+changed chunk, and exit status 2 for a name that is not a second link like
+the unit's image and for a unit that is left out.
+
 Cases on the comparison alone, without a build, require of what it reports
 as failures: nothing for an equal image; the line for the whole image, and
 no other, for a changed retained byte; the function and the image for a
@@ -959,8 +1106,9 @@ and `--out` does not exist. The merged directory then has to pass
 ## Limits
 
 One range of each data kind per unit, no incremental builds. Module images
-are linked alone, and the second link of the two sides does not exist yet.
-The
+are linked alone. A second link moves every range of a unit by one distance;
+a pair of modules whose two sides differ in layout cannot be declared that
+way. The
 [proposal](overlay-build-proposal.md) describes those steps. Compiler
 provenance is unchanged from the pilot: a compatible toolchain, not a
 uniquely identified original.
