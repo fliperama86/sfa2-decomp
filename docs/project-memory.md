@@ -3035,6 +3035,31 @@ Lessons:
   moved names, the names of units left out and the per-image addresses
   each come from one function that both links call.
 
+## Fifty-first group: the second side of the second pilot target
+
+Resident image 1,617 functions, unchanged. Module images: `slot2a` 25,
+`slot16` 11, and `slot17` with the same 11 linked again.
+
+What ran:
+
+- `slot17` is declared in `ps1/src/build.toml` as like `slot16`, with the
+  chunk of slot `0x17` from `PL11X.PAC` as its baseline and three addresses
+  of its own for names in the character block. No source was added and no
+  unit was changed.
+- The whole build passes. The second link reports 11 of 11 functions exact,
+  984 bytes linked again, 10,406 bytes retained raw, and its image hash is
+  the hash of the chunk. Its 12 comparator controls trip.
+- The resident image and the other two module images build as before.
+
+What it shows and what it does not: for these 11 functions one source
+gives both sides of the block byte for byte. That is compatibility with
+the two chunks, not knowledge of how the original was built. The rest of
+the block is retained raw on both sides, and no other block has been
+tried.
+
+The pilot ends here. Its three parked functions of `slot2a` go to the
+permutation search with the parked resident functions.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -7042,6 +7042,23 @@ slot = 0x16
 sha256 = "f7e738da311429fa671148eb15742fbe8c70bbadc20c23badd85898e55c773f5"
 address = 0x8007bc00
 
+# The one content of slot 0x17. It is in PL11X.PAC and PL13X.PAC; this is one
+# of them. It is declared as like `slot16`: the units of `slot16` are linked a
+# second time at this address and compared with this chunk. Three names of
+# `symbols.ld` lie outside both images and have another address on this side.
+[[image]]
+name = "slot17"
+like = "slot16"
+archive = "../extract/PAC/PL11X.PAC"
+slot = 0x17
+sha256 = "25c3a665f04b198f2ff6bea63cdbb768249d68dadc0f765d132d49f4b638173e"
+address = 0x8008bf00
+
+[image.symbols]
+func_801b606c = 0x801ce06c
+func_801b63fc = 0x801ce3fc
+overlay_left_kind = 0x801cdab8
+
 [[unit]]
 name = "slot2a_083c_r1"
 image = "slot2a"

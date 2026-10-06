@@ -281,15 +281,21 @@ Next, in this order:
 5. Done: second links, the last tool step of the proposal. A module image
    may be like another: the same units linked again at its own address and
    compared with its own chunk.
-6. A pilot: one overlay module, or part of one, rebuilt exactly. First
-   target, the module of slot `0x2a`: 25 of the 28 functions that the
-   sweep counts are exact, 3,988 of 6,052 bytes. Three are parked with
-   candidates of the right size that differ in a few instructions. Next:
-   the second link, then the second pilot target. The three wait for a
-   permutation search with the parked resident functions.
-   Second target, first side: the module of slot `0x16` is declared, and
-   all 11 functions that the sweep counts in it are exact, 984 bytes. Its
-   second side, slot `0x17`, is next: declared as a second link.
+6. Done, with three functions parked: a pilot, one overlay module, or part
+   of one, rebuilt exactly. First target, the module of slot `0x2a`: 25 of
+   the 28 functions that the sweep counts are exact, 3,988 of 6,052 bytes.
+   Three are parked with candidates of the right size that differ in a few
+   instructions. The three wait for a permutation search with the parked
+   resident functions.
+   Second target: the module of slot `0x16` is declared, and all 11
+   functions that the sweep counts in it are exact, 984 bytes. Its second
+   side, slot `0x17`, is declared as a second link of it. The same 11
+   functions, linked again at the other address, are exact against the
+   second chunk. For these 11 the treatment of one source and two links
+   has passed its test; no other block has been tried.
+   The pilot has shown what it was for: module code rebuilt exactly inside
+   the build, and both sides of a block from one source. It ends here, with
+   the three parked functions carried over to the search.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 
@@ -317,8 +323,9 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a` and `slot16` that the pilot has rebuilt, every other
-module as an image of the build,
+the images `slot2a` and `slot16` that the pilot has rebuilt (`slot17` is
+linked from the source of `slot16`), every other module as an image of the
+build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
 from a fresh clone.

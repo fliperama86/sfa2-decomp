@@ -390,7 +390,11 @@ and `ps1/tools/test_funcscan.py` for the sweep, all on synthetic inputs.
 - Decide which overlay blocks enter the matching build, and how it treats
   the two sides. Proposed, on the strength of the comparison above: one
   source and a second link at the other address. Whether that holds for a
-  block is only shown when both of its links rebuild exactly.
+  block is only shown when both of its links rebuild exactly. It is shown
+  for one part of one block: the 11 functions at the start of slots `0x16`
+  and `0x17`, 984 bytes, are exact on both sides from the same objects. The
+  rest of that block is retained raw on both sides, and no other block has
+  been tried.
 - The inventory of functions is an estimate from a sweep. Names, and which
   functions of different characters are one source, are not established.
 - The 202 functions of the resident executable that the sweep reports and
