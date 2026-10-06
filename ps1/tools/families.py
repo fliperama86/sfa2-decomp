@@ -9,7 +9,8 @@ A library function has one family, the first of these that applies:
 
 1. its name: the family that `[names]` of the family table gives the name
    under which a unit of the resident image declares it in the build
-   configuration;
+   configuration, or, with `--symbols`, another name that the symbol file
+   assigns its start (the first in order of name that the table knows);
 2. its BIOS call: if it starts with a stub (`li t2,0xa0`, `0xb0` or `0xc0`,
    `jr t2`, `li t1,N`), the family that `[bios]` gives the key made of the
    table and the number in hexadecimal, the number in at least two digits,
@@ -58,8 +59,12 @@ observed in a running game.
 
 usage:
   families.py EXECUTABLE --config BUILD_TOML --families TABLE_TOML --library ADDRESS --end ADDRESS
-              [--start ADDRESS] [--out TSV] [--library-out TSV] [--show N]
-              [--modules PAC_DIRECTORY --pointers ADDRESS [--symbols FILE] [--modules-out TSV]]
+              [--start ADDRESS] [--symbols FILE] [--out TSV] [--library-out TSV] [--show N]
+              [--modules PAC_DIRECTORY --pointers ADDRESS [--modules-out TSV]]
+
+`--symbols` is the symbol file of the build. It gives library functions
+their other names, and the sweep of the modules its entries, as for
+`pac.py functions`.
 
 `--out` gets one line per game function: address, size, name or `-`, direct
 families, reached families (each a list joined by `,`, or `-`), its calls
@@ -75,12 +80,14 @@ from __future__ import annotations
 
 import argparse
 import collections
+import re
 import struct
 import sys
 import tomllib
 from pathlib import Path
 
 import funcscan
+import matchbuild
 import pac
 
 UNIDENTIFIED = "unidentified"
@@ -116,11 +123,40 @@ def bios_call(words: list[int], index: int) -> str | None:
     return f"{words[index] & 0xFF:02x}:{words[index + 2] & 0xFFFF:02x}"
 
 
-def family_of(address: int, declared: dict[int, tuple[str, str]], table: dict, words: list[int], base: int) -> str:
+ASSIGNMENT = re.compile(r"(?<![A-Za-z_0-9])([A-Za-z_][A-Za-z_0-9]*)\s*=\s*([^;\s]+)\s*;")
+
+
+def other_names(path: str | None) -> dict[int, list[str]]:
+    """The names that the `name = value;` statements of a symbol file assign each address, in order of name.
+
+    Comments are skipped and anything else in the file carries no name: a
+    name starts with a letter or an underscore, so `9x = 1;` assigns
+    nothing here. A value is read as the linker reads an integer; one that
+    it would not read raises FormatError.
+    """
+    if not path:
+        return {}
+    text = re.sub(r"/\*.*?\*/", "", Path(path).read_text(), flags=re.DOTALL)
+    found: dict[int, list[str]] = collections.defaultdict(list)
+    for name, value in sorted(ASSIGNMENT.findall(text)):
+        try:
+            address = matchbuild.linker_integer(value)
+        except ValueError:
+            address = None
+        if address is None:
+            raise pac.FormatError(f"{path}: `{name}` is assigned `{value}`, which is no integer as the linker reads it")
+        found[address].append(name)
+    return found
+
+
+def family_of(
+    address: int, declared: dict[int, tuple[str, str]], table: dict, words: list[int], base: int, others: dict[int, list[str]]
+) -> str:
     """The family of the library function at `address`: by name, by BIOS call, by folder, or UNIDENTIFIED."""
     name, source = declared.get(address, ("", ""))
-    if name in table["names"]:
-        return table["names"][name]
+    for known in [name, *others.get(address, [])]:
+        if known in table["names"]:
+            return table["names"][known]
     call = bios_call(words, (address - base) // 4)
     if call in table["bios"]:
         return table["bios"][call]
@@ -179,6 +215,7 @@ def run(args) -> int:
         image = pac.Image(Path(args.executable).read_bytes())
         declared = pac.resident_functions(args.config)
         table = read_table(args.families)
+        others = other_names(args.symbols)
     except (OSError, pac.FormatError, tomllib.TOMLDecodeError) as exc:
         print(exc)
         return 1
@@ -193,7 +230,7 @@ def run(args) -> int:
     sizes = dict(swept)
     game = [address for address, _ in swept if address < args.library]
     library = [address for address, _ in swept if address >= args.library]
-    family = {address: family_of(address, declared, table, words, image.start) for address in library}
+    family = {address: family_of(address, declared, table, words, image.start, others) for address in library}
     callees: dict[int, set[int]] = {}
     registers: dict[int, int] = {}
     elsewhere: dict[int, int] = {}
@@ -333,7 +370,7 @@ def main() -> int:
     parser.add_argument("--show", type=int, default=10, help="addresses to print per finding")
     parser.add_argument("--modules", help="directory holding the archives: label the functions of the modules too")
     parser.add_argument("--pointers", type=address, help="address of the block of table addresses, needed with --modules")
-    parser.add_argument("--symbols", help="as for `pac.py functions`: entries of the modules")
+    parser.add_argument("--symbols", help="the symbol file of the build: other names of library functions, and entries of the modules")
     parser.add_argument("--modules-out", help="one line per function of a module")
     args = parser.parse_args()
     if args.modules and args.pointers is None:

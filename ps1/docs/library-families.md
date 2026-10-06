@@ -19,7 +19,10 @@ used, `0x80157000`, is the project's working boundary and approximate.
 A library function has one family, the first of these that applies:
 
 1. Its name. The build configuration declares functions with names;
-   `[names]` of the family table gives some names a family.
+   `[names]` of the family table gives some names a family. With
+   `--symbols`, another name that the symbol file assigns the function's
+   start counts too. That is how a library function gets a family before
+   any unit declares it: see "Names by reference" below.
 2. Its BIOS call. A stub loads a table (`0xa0`, `0xb0` or `0xc0`) and a
    number and jumps into the BIOS. `[bios]` gives a family to a table and
    number, written as in `b0:12`.
@@ -56,7 +59,7 @@ not count for its caller.
 ```sh
 .venv/bin/python ps1/tools/families.py EXECUTABLE --config ps1/src/build.toml \
     --families ps1/src/library-families.toml --library 0x80157000 --end 0x8016d920 \
-    --out GAME_TSV --library-out LIBRARY_TSV
+    --symbols ps1/src/symbols.ld --out GAME_TSV --library-out LIBRARY_TSV
 ```
 
 The sweep has 1,852 functions, 1,436 game and 416 library, and every
@@ -65,15 +68,15 @@ function of the build is a start of it.
 | Family | Library functions | Game functions that call it directly | Game functions that reach it |
 | --- | ---: | ---: | ---: |
 | C library | 9 | 0 | 0 |
-| disc | 36 | 18 | 88 |
+| disc | 39 | 18 | 88 |
 | files | 7 | 0 | 0 |
-| graphics | 78 | 47 | 141 |
+| graphics | 85 | 47 | 141 |
 | memory card | 7 | 1 | 4 |
 | pads | 3 | 1 | 3 |
-| sound | 146 | 14 | 179 |
-| system | 43 | 12 | 47 |
+| sound | 160 | 14 | 179 |
+| system | 47 | 12 | 47 |
 | threads | 3 | 6 | 51 |
-| unidentified | 84 | 26 | 194 |
+| unidentified | 56 | 23 | 193 |
 
 - 91 game functions call a library function directly.
 - 1,117 game functions reach no library function. 830 of them are closed:
@@ -83,6 +86,39 @@ function of the build is a start of it.
   does not decode. 287 are open.
 - 133 game functions have a call through a register and 15 a call
   elsewhere.
+
+## Names by reference
+
+A unit under `sdk/` is built from the reference reconstruction of the
+library. Where its source calls a function, the unit's object refers to
+that function by name, and the link gives the name an address. The build
+is exact, so the original calls the same address at that place.
+`ps1/tools/librefs.py` reads those references from the unit objects of a
+finished build:
+
+```sh
+.venv/bin/python ps1/tools/librefs.py EXECUTABLE --config ps1/src/build.toml \
+    --build ps1/build/default --symbols ps1/src/symbols.ld \
+    --library 0x80157000 --end 0x8016d920
+```
+
+Only a reference to the start of a function counts. A reference with an
+offset, such as a call to a name plus four, is to another place and is
+left out, and so is one whose offset the tool cannot establish.
+
+Of the 416 library functions, a unit under `sdk/` declares 327 itself. 28
+others are referred to by such units, each under one name, and no function
+under two. 61 have no name. The command lists the 28 with the number of
+units that refer to each.
+
+What such a name shows: at an exact place, the reference's source refers
+to the function under that name. It does not show that the name is the
+original symbol. A reference that names the wrong function at its only
+place of use would go unnoticed.
+
+The family table lists the 28 names with the family of the reference file
+that defines each. One of them, `SpuInitHot`, has no such file in the
+reference; its family is taken from its name.
 
 ## The overlay modules
 
@@ -123,14 +159,15 @@ code that several contents share is counted once in each.
   resident game code reaches it through them or not at all.
 - The game uses the thread calls of the BIOS: 6 game functions call them
   directly and 51 reach them.
-- 84 library functions have no family. By the rows of `--library-out`,
-  54 are declared by the build outside `sdk/` under a placeholder name and
-  30 are not in the build.
-  194 game functions reach one of them, more than reach any family.
+- 56 library functions have no family. By the rows of `--library-out`,
+  40 are declared by the build outside `sdk/` under a placeholder name and
+  16 are not in the build.
+  193 game functions reach one of them, more than reach any family.
   Identifying those library functions is the largest gap of this table.
   They were 116 when the table was first made. 32 of them have since been
   replaced by the reference's source for the same function, which builds
-  to the same bytes, and carry its name and its library's family.
+  to the same bytes, and carry its name and its library's family. 28 more
+  have a name by reference.
 - Inferred, not established: an unidentified function probably belongs to
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is

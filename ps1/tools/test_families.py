@@ -630,6 +630,14 @@ def modules_cases(root: Path):
     odd_symbol = root / "odd-symbols.txt"
     odd_symbol.write_text(f"{TB + 18:#x}\n")
     yield "modules-unaligned-symbol", exact(tool(*with_modules, "--symbols", odd_symbol), exe_report + text), 0, "as required"
+    # A line that is a bare address is an entry of the sweep and carries no name: the same split, with a name beside it.
+    bare = root / "bare-symbols.txt"
+    bare.write_text(f"{TB + 16:#x}\nsome_name = {ex['lib_a']:#x};\n")
+    out_bare = root / "m" / "bare.tsv"
+    proc = tool(*with_modules, "--symbols", bare, "--modules-out", out_bare)
+    yield "modules-bare-address-entry", exact(proc, exe_report + split_text), 0, "as required"
+    got = out_bare.read_text() if out_bare.exists() else None
+    yield "modules-bare-address-rows", verdict(got == split_rows, f"{got!r}\n{split_rows!r}"), 0, "as required"
     # An archive that is rejected is reported, and the rest is still printed.
     bad = root / "pac-bad"
     bad.mkdir()
@@ -664,11 +672,145 @@ def modules_cases(root: Path):
     yield "modules-need-pointers", verdict(proc.returncode == 2 and "--modules needs --pointers" in proc.stderr, proc.stderr), 0, "as required"
 
 
+def names_cases(root: Path):
+    """`--symbols`: other names of library functions, from the `name = value;` statements of the symbol file."""
+    plain = [OPEN, ONE, RETURN, CLOSE]
+    entries = [
+        ("l_unk", lambda a: plain),  # declared under a name the table lacks
+        ("l_und", lambda a: plain),  # declared by no unit
+        ("l_both", lambda a: plain),  # declared under a name the table knows
+        ("l_order", lambda a: plain),  # three other names
+        ("l_case", lambda a: plain),  # two other names that differ in case
+        ("l_bios", lambda a: stub(0xA0, 5)),
+        ("l_folder", lambda a: plain),
+        ("l_cold", lambda a: stub(0xA0, 5)),  # an other name that the table lacks: the call decides
+        ("l_fold2", lambda a: plain),  # the same, for the folder
+        ("l_none", lambda a: plain),
+        ("l_oct", lambda a: plain),
+        ("l_dec", lambda a: plain),
+        ("l_hex", lambda a: plain),
+        ("l_comment", lambda a: plain),
+        ("l_bare", lambda a: plain),
+        ("l_tight", lambda a: plain),
+        ("l_lead", lambda a: plain),  # a name that starts with an underscore
+        ("l_digit", lambda a: plain),  # a name with a digit inside
+        ("l_unterm", lambda a: plain),  # a statement without its semicolon
+    ]
+    exe_bytes, a, size = lay_out(entries)
+    end = START + len(exe_bytes) - 0x800
+    exe = root / "names.exe"
+    exe.write_bytes(exe_bytes)
+    config = root / "names.toml"
+    config.write_text(
+        config_text(
+            [
+                ("sdk/gpu/a.c", None, [("unk_name", a["l_unk"]), ("zz_known", a["l_both"]), (None, a["l_folder"]), (None, a["l_fold2"])]),
+                ("sdk/gpu/b.c", None, [(None, a["l_bios"]), (None, a["l_cold"])]),
+            ]
+        )
+    )
+    table = root / "names-families.toml"
+    table.write_text(
+        '[names]\nzz_known = "famC"\naa_other = "famOther"\nalias_a = "famA"\nalias_b = "famB"\nm_name = "famM"\nb_name = "famB2"\n'
+        'Zed = "famZ"\nalpha_n = "famAl"\nali_bios = "famX"\nali_folder = "famF"\noct_name = "famO"\ndec_name = "famD"\n'
+        'hex_name = "famH"\ncm_name = "famCm"\ntight = "famT"\nnever = "famNever"\n_lead = "famLead"\nn9_x = "famNine"\nunterm = "famUnterm"\n\n[bios]\n"a0:05" = "alpha"\n\n[folders]\ngpu = "delta"\n'
+    )
+    octal = f"0{a['l_oct']:o}"
+    symbols = root / "names-symbols.ld"
+    symbols.write_text(
+        "/* a symbol file */\n"
+        f"alias_a = {a['l_unk']:#x};\n"
+        f"alias_b = {a['l_und']:#x};\n"
+        f"aa_other = {a['l_both']:#x};\n"
+        f"zz_known = {a['l_both']:#x};\n"
+        f"m_name = {a['l_order']:#x};\n"
+        f"a_name = {a['l_order']:#x};\n"
+        f"b_name = {a['l_order']:#x};\n"
+        f"alpha_n = {a['l_case']:#x};\n"
+        f"Zed = {a['l_case']:#x};\n"
+        f"ali_bios = {a['l_bios']:#x}; ali_folder = {a['l_folder']:#x};\n"
+        f"nope = {a['l_cold']:#x};\nnope2 = {a['l_fold2']:#x};\n"
+        f"oct_name = {octal};\ndec_name = {a['l_dec']};\nhex_name = 0X{a['l_hex']:X};\n"
+        f"/* a note\n   cm_name = {a['l_comment']:#x};\n   more */\n"
+        f"{a['l_bare']:#x}\n"
+        f"never = {a['l_bare'] + 4:#x};\n"
+        f"tight={a['l_tight']:#x};\n"
+        f"_lead = {a['l_lead']:#x};\nn9_x = {a['l_digit']:#x};\n"
+        f"unterm = {a['l_unterm']:#x}\n"
+    )
+    family = {
+        "l_unk": "famA", "l_und": "famB", "l_both": "famC", "l_order": "famB2", "l_case": "famZ", "l_bios": "famX",
+        "l_folder": "famF", "l_cold": "alpha", "l_fold2": "delta", "l_none": UNIDENTIFIED, "l_oct": "famO", "l_dec": "famD",
+        "l_hex": "famH", "l_comment": UNIDENTIFIED, "l_bare": UNIDENTIFIED, "l_tight": "famT",
+        "l_lead": "famLead", "l_digit": "famNine", "l_unterm": UNIDENTIFIED,
+    }  # fmt: skip
+    declared = {"l_unk": "unk_name", "l_both": "zz_known"}
+    base = [exe, "--config", config, "--families", table, "--library", f"{START:#x}", "--end", f"{end:#x}"]
+
+    def rows(families: dict) -> str:
+        return "".join(f"{a[n]:08x}\t{size[n]}\t{declared.get(n, '-')}\t{families[n]}\t0\n" for n, _ in entries)
+
+    out = root / "names-lib.tsv"
+    proc = tool(*base, "--symbols", symbols, "--library-out", out)
+    got = out.read_text() if out.exists() else None
+    want = rows(family)
+    yield "names-library-rows", verdict(proc.returncode == 0 and got == want, f"{proc.stdout}{proc.stderr}{got!r}\n{want!r}"), 0, "as required"
+    # Without the symbol file a function has its declared name, its call or its folder, as before.
+    plain_family = dict.fromkeys(family, UNIDENTIFIED)
+    plain_family.update({"l_both": "famC", "l_bios": "alpha", "l_cold": "alpha", "l_folder": "delta", "l_fold2": "delta", "l_unk": "delta"})
+    out2 = root / "names-lib-plain.tsv"
+    proc = tool(*base, "--library-out", out2)
+    got = out2.read_text() if out2.exists() else None
+    want = rows(plain_family)
+    yield "names-without-symbols", verdict(proc.returncode == 0 and got == want, f"{proc.stdout}{proc.stderr}{got!r}\n{want!r}"), 0, "as required"
+    # The family table counts what the second names decide.
+    counts = collections.Counter(family.values())
+    text = tool(*base, "--symbols", symbols).stdout
+    wanted = [f" {n:<17} {counts[n]:>17} {0:>19} {0:>11}\n" for n in sorted(counts, key=lambda n: (n == UNIDENTIFIED, n))]
+    yield "names-family-lines", verdict(all(line in text for line in wanted), text), 0, "as required"
+
+    # A value that the linker would not read as an integer ends the run, with the message and without a traceback.
+    for label, value in (
+        ("octal-digit", "09"), ("octal-eight", "0128"), ("hex-letters", "0xZZ"), ("hex-empty", "0x"), ("a-word", "bar"), ("a-fraction", "1.5"),
+    ):  # fmt: skip
+        bad = root / f"names-bad-{label}.ld"
+        bad.write_text(f"alias_a = 0x80010000;\nbroken = {value};\n")
+        proc = quiet(tool(*base, "--symbols", bad))
+        yield f"names-bad-value-{label}", verdict(
+            proc.returncode == 1 and f"{bad}: `broken` is assigned `{value}`, which is no integer as the linker reads it" in proc.stdout and proc.stdout.count("\n") == 1,
+            f"{proc.returncode}\n{proc.stdout}{proc.stderr}",
+        ), 0, "as required"
+    # Zero is an integer, in each form.
+    for label, value in (("zero", "0"), ("hex-zero", "0x0"), ("octal-zero", "00")):
+        zero = root / f"names-zero-{label}.ld"
+        zero.write_text(f"zero_name = {value};\n")
+        yield f"names-value-{label}", quiet(tool(*base, "--symbols", zero)), 0, "swept"
+    missing = quiet(tool(*base, "--symbols", root / "nothing.ld"))
+    yield "names-symbols-missing", missing, 1, "No such file or directory"
+    # Statements are read from comments out only: a value after a comment, and a comment after a statement.
+    mixed = root / "names-mixed.ld"
+    mixed.write_text(f"/* x */ alias_a = {a['l_unk']:#x}; /* y */\n")
+    out3 = root / "names-lib-mixed.tsv"
+    proc = tool(*base, "--symbols", mixed, "--library-out", out3)
+    got = out3.read_text() if out3.exists() else None
+    want = rows({**plain_family, "l_unk": "famA"})
+    yield "names-comment-around-statement", verdict(proc.returncode == 0 and got == want, f"{got!r}\n{want!r}"), 0, "as required"
+    # A name starts with a letter or an underscore: `9alias_a` is no name, and its tail `alias_a` is not taken for one.
+    digit = root / "names-digit-first.ld"
+    digit.write_text(f"9alias_a = {a['l_unk']:#x};\n")
+    out4 = root / "names-lib-digit.tsv"
+    proc = tool(*base, "--symbols", digit, "--library-out", out4)
+    got = out4.read_text() if out4.exists() else None
+    want = rows(plain_family)
+    yield "names-digit-first-is-no-name", verdict(proc.returncode == 0 and got == want, f"{got!r}\n{want!r}"), 0, "as required"
+
+
 def cases(root: Path):
     yield from main_cases(root)
     yield from mini_cases(root)
     yield from table_cases(root)
     yield from modules_cases(root)
+    yield from names_cases(root)
 
 
 def main() -> int:

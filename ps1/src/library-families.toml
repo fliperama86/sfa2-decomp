@@ -17,6 +17,40 @@ firstfile = "files"
 nextfile = "files"
 format = "files"
 
+# Names that no unit declares yet. Units built from the reference's source
+# refer to these functions under these names (ps1/tools/librefs.py lists
+# them), and the symbol file assigns the names. The family is that of the
+# reference file that defines the name. SpuInitHot has no such file in the
+# reference; its family is taken from its name.
+SetRCnt = "system"
+StartRCnt = "system"
+ResetRCnt = "system"
+GetVideoMode = "system"
+get_mode = "graphics"
+get_cs = "graphics"
+get_ce = "graphics"
+get_ofs = "graphics"
+get_alarm = "graphics"
+_addque2 = "graphics"
+_exeque = "graphics"
+CdSyncCallback = "disc"
+CdReadyCallback = "disc"
+CdReadCallback = "disc"
+SpuVmAlloc = "sound"
+SpuVmSetVol = "sound"
+SpuVmDamperOn = "sound"
+SpuVmDamperOff = "sound"
+_SsContDataEntry = "sound"
+_SsSndPlay = "sound"
+SsUtReverbOn = "sound"
+SsUtReverbOff = "sound"
+SpuInit = "sound"
+SpuInitHot = "sound"
+SpuWrite = "sound"
+_spu_init = "sound"
+_spu_setInTransfer = "sound"
+_spu_getInTransfer = "sound"
+
 # By the BIOS call of a stub that the build declares without a library
 # name: table and number. The comments give the names of the calls in the
 # public PSX-SPX documentation of the BIOS.
