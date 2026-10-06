@@ -102,6 +102,10 @@ finished build:
     --library 0x80157000 --end 0x8016d920
 ```
 
+Only a reference to the start of a function counts. A reference with an
+offset, such as a call to a name plus four, is to another place and is
+left out, and so is one whose offset the tool cannot establish.
+
 Of the 416 library functions, a unit under `sdk/` declares 327 itself. 28
 others are referred to by such units, each under one name, and no function
 under two. 61 have no name. The command lists the 28 with the number of

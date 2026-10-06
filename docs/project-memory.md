@@ -3439,9 +3439,9 @@ What ran:
   identification had put them there from the relocations of functions it
   found equal. What is new is a published command that shows the same
   from the build, and the labels that use it.
-- `test_librefs.py`: 66 cases, with unit objects written by hand in the
-  test. `test_families.py`: 92 cases. Both were a package for one
-  subagent against the written rules.
+- `test_librefs.py`: 120 cases on the head after review, 66 before it,
+  with unit objects written by hand in the test. `test_families.py`: 92
+  cases. Both were packages for one subagent against the written rules.
 
 What the control cases found before the pull request: a value in the
 symbol file that is no integer at all, such as a word, ended the label
@@ -3458,8 +3458,29 @@ reference's source refers to the function so at an exact place. It is not
 the original symbol by that alone, and a reference that names the wrong
 function at its only place of use would not be noticed.
 
+What review of the pull request found: the tool read which name a
+relocation is against and not its addend. A call to a name plus four, or a
+data word holding a name plus four, counted as a reference to the start of
+the function. The reviewer showed it with an assembled object. None of the
+28 real names was affected: their relocations all have a zero addend. The
+tool now works the addend out, for a jump target, a whole word and the
+two halves of an address taken as a pair, and counts a reference only
+when it is zero; what it cannot establish it leaves out. An object from
+the real assembler with each form, with and without an offset, gives only
+the three references without one. The subagent that rewrote the cases
+found one more gap in the fix: a relocation that carries its addend
+counted even when it lay outside its section, because nothing read the
+word. It is left out now, like the other kind.
+
 Lessons:
 
+- A relocation is a name and an addend. Reading one without the other
+  reads another fact than the one claimed. The claim was "refers to the
+  start of the function"; the code checked "refers to the name".
+- The hand-written objects of the control cases had only what the first
+  version read. A fixture written from the code under test cannot show
+  what that code does not look at. One object from the real assembler,
+  with the forms an assembler can emit, would have.
 - Evidence that a private helper produced is worth a second look for a
   form that the published build can show. The names came from a private
   compile of the reference; the same fact sits in the relocations of the

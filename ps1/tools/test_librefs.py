@@ -30,34 +30,51 @@ def tool(*args) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(TOOLS / "librefs.py"), *map(str, args)], capture_output=True, text=True)
 
 
-def elf_bytes(sections: list[str], relocs: list[tuple[str, str, list[tuple[str | None, int]]]]) -> bytes:
-    """A 32-bit little-endian MIPS relocatable file.
+def elf_bytes(sections: list[str], relocs: list[tuple[str, str, list[tuple]]], big: bool = False) -> bytes:
+    """A 32-bit MIPS relocatable file, little-endian unless `big`.
 
-    `sections` are the names of the sections of 16 zero bytes. `relocs` are
-    (target section, "rel" or "rela", [(symbol name or None, type)]). A symbol
-    without a name is the section symbol of the first section; any other is
-    an undefined global.
+    `sections` are the names of the sections, each as long as its relocations need, at least 16 bytes. `relocs` are
+    (target section, "rel" or "rela", entries). An entry is (symbol name or None, type, value, offset, word), the last
+    three optional. The offset is 4 times the entry's number unless given. In a "rel" section the value is the word
+    written at the offset, the field that the relocation applies to. In a "rela" section the value is the addend of
+    the relocation, and the word written there is `word` (default 0). A symbol without a name is the section symbol
+    of the first section; any other is an undefined global.
     """
-    names = sorted({name for _, _, entries in relocs for name, _ in entries if name})
+    e = ">" if big else "<"
+    names = sorted({entry[0] for _, _, entries in relocs for entry in entries if entry[0]})
     strtab = b"\0"
     offset_of = {}
     for name in names:
         offset_of[name] = len(strtab)
         strtab += name.encode() + b"\0"
-    symbols = struct.pack("<IIIBBH", 0, 0, 0, 0, 0, 0) + struct.pack("<IIIBBH", 0, 0, 0, 3, 0, 1)
-    symbols += b"".join(struct.pack("<IIIBBH", offset_of[name], 0, 0, 0x10, 0, 0) for name in names)
+    symbols = struct.pack(e + "IIIBBH", 0, 0, 0, 0, 0, 0) + struct.pack(e + "IIIBBH", 0, 0, 0, 3, 0, 1)
+    symbols += b"".join(struct.pack(e + "IIIBBH", offset_of[name], 0, 0, 0x10, 0, 0) for name in names)
     index_of = {name: 2 + n for n, name in enumerate(names)}
     index_of[None] = 1
 
+    def parts(entry, n):
+        name, typ, value, offset, word = (list(entry) + [0, None, 0][len(entry) - 2 :])[:5]
+        return name, typ, value, 4 * n if offset is None else offset, word
+
+    contents = {}
+    for name in sections:
+        need = max([16] + [4 * len(entries) for target, _, entries in relocs if target == name])
+        contents[name] = bytearray(need)
+    for target, kind, entries in relocs:
+        for n, entry in enumerate(entries):
+            _, _, value, offset, word = parts(entry, n)
+            if 0 <= offset <= len(contents[target]) - 4:
+                struct.pack_into(e + "I", contents[target], offset, (value if kind == "rel" else word) & 0xFFFFFFFF)
+
     plan = [("", 0, b"", 0, 0, 0, 0)]  # name, type, body, link, info, align, entsize
     for name in sections:
-        plan.append((name, 1, bytes(16), 0, 0, 4, 0))
+        plan.append((name, 1, bytes(contents[name]), 0, 0, 4, 0))
     symtab = 1 + len(sections) + len(relocs)
     for target, kind, entries in relocs:
         body = b""
-        for n, (name, typ) in enumerate(entries):
-            info = index_of[name] << 8 | typ
-            body += struct.pack("<II", 4 * n, info) + (struct.pack("<i", 0) if kind == "rela" else b"")
+        for n, entry in enumerate(entries):
+            name, typ, value, offset, _ = parts(entry, n)
+            body += struct.pack(e + "II", offset, index_of[name] << 8 | typ) + (struct.pack(e + "i", value) if kind == "rela" else b"")
         plan.append((f".{kind}{target}", 9 if kind == "rel" else 4, body, symtab, 1 + sections.index(target), 4, 8 if kind == "rel" else 12))
     plan.append((".symtab", 2, symbols, symtab + 1, 2, 4, 16))
     plan.append((".strtab", 3, strtab, 0, 0, 1, 0))
@@ -75,11 +92,11 @@ def elf_bytes(sections: list[str], relocs: list[tuple[str, str, list[tuple[str |
         pad = -position % 4
         body += bytes(pad) + content
         position += pad
-        headers += struct.pack("<IIIIIIIIII", shname[name], typ, 0, 0, position if typ else 0, len(content), link, info, align, entsize)
+        headers += struct.pack(e + "IIIIIIIIII", shname[name], typ, 0, 0, position if typ else 0, len(content), link, info, align, entsize)
         position += len(content)
     pad = -position % 4
-    header = b"\x7fELF" + bytes([1, 1, 1, 0]) + bytes(8)
-    header += struct.pack("<HHIIIIIHHHHHH", 1, 8, 1, 0, 0, position + pad, 0, 52, 0, 0, 40, len(plan), len(plan) - 1)
+    header = b"\x7fELF" + bytes([1, 2 if big else 1, 1, 0]) + bytes(8)
+    header += struct.pack(e + "HHIIIIIHHHHHH", 1, 8, 1, 0, 0, position + pad, 0, 52, 0, 0, 40, len(plan), len(plan) - 1)
     return header + body + bytes(pad) + headers
 
 
@@ -102,6 +119,18 @@ def writer_cases(root: Path):
     want = [(".rel.text", ".text", [("fa", 4), ("", 5), ("fb", 6)]), (".rela.data", ".data", [("fa", 2)])]
     yield "writer-sections", verdict(names == ["", ".text", ".data", ".rel.text", ".rela.data", ".symtab", ".strtab", ".shstrtab"], f"{names}"), 0, "as required"
     yield "writer-relocations", verdict(found == want, f"{found}\n{want}"), 0, "as required"
+    # The words and addends that the fixtures rely on, read back, in both byte orders.
+    for big in (False, True):
+        path = root / f"writer-values-{int(big)}.o"
+        path.write_bytes(elf_bytes([".text", ".data"], [(".text", "rel", [("fa", 4, 1), ("fa", 5, 7, 8)]), (".data", "rela", [("fa", 2, -3, 4, 9)])], big))
+        with open(path, "rb") as handle:
+            elf = ELFFile(handle)
+            code, data = elf.get_section_by_name(".text").data(), elf.get_section_by_name(".data").data()
+            rela = [(r["r_offset"], r["r_addend"]) for r in elf.get_section_by_name(".rela.data").iter_relocations()]
+            rel = [r["r_offset"] for r in elf.get_section_by_name(".rel.text").iter_relocations()]
+            order = ">" if big else "<"
+            got = (struct.unpack_from(order + "I", code, 0)[0], struct.unpack_from(order + "I", code, 8)[0], struct.unpack_from(order + "I", data, 4)[0], rela, rel, elf.little_endian)
+        yield f"writer-values-{'big' if big else 'little'}", verdict(got == (1, 7, 9, [(4, -3)], [0, 8], not big), f"{got}"), 0, "as required"
     yield "writer-header", verdict(header == ("EM_MIPS", "ET_REL", True, 32), f"{header}"), 0, "as required"
 
 
@@ -184,8 +213,8 @@ def build(root: Path, start: int = START):
             [".text", ".text.hot"],
             [(".text", "rel", [("sym_ref", CALL), ("sym_ref", CALL), ("two_a", CALL)]), (".text.hot", "rel", [("text_x", CALL)])],
         ),
-        "d": ([".text", ".text.hot"], [(".text", "rel", [("sym_ref", HI16)]), (".text.hot", "rel", [("text_x", HI16)])]),
-        "e": ([".text"], [(".text", "rel", [("sym_ref", LO16)])]),
+        "d": ([".text", ".text.hot"], [(".text", "rel", [("sym_ref", HI16), ("sym_ref", LO16)]), (".text.hot", "rel", [("text_x", HI16), ("text_x", LO16)])]),
+        "e": ([".text"], [(".text", "rel", [("sym_ref", HI16), ("sym_ref", LO16)])]),
         "rela": ([".text", ".data"], [(".text", "rela", [("rela_fn", CALL)]), (".data", "rela", [("rela_fn", R32)])]),
         "res": ([".text"], [(".text", "rel", [("res_name", CALL)])]),
         "q": ([".text"], [(".text", "rel", [("noimg", CALL)])]),
@@ -451,8 +480,111 @@ def trees(root: Path):
         yield f"missing-{label}", verdict(proc.returncode == 2 and "required" in proc.stderr, f"{proc.returncode} {proc.stderr}"), 0, "as required"
 
 
+JAL0, JAL1, LUI0, LUI1 = 0x0C000000, 0x0C000001, 0x3C040000, 0x3C040001  # `jal 0`, `jal 4`, `lui a0,0`, `lui a0,1`
+ADD0, ADD4, ADDM, ADD8 = 0x24840000, 0x24840004, 0x2484FFFF, 0x24848000  # `addiu a0,a0,` 0, 4, -1 and -32768
+T, D = ".text", ".data"
+REPORT = __import__("re").compile(r"^  (0x[0-9a-f]+) (\S+): (\S+), units that call it (\d+), form its address (\d+), hold it in data (\d+)$")
+
+
+def addend_scenarios():
+    """(label, sections, relocation sections, big-endian, wanted): one object that refers to f0 and f1, and what is read of it.
+
+    wanted maps a name to its (calls, code, data) counts; a name that is not there is not found.
+    """
+    C, X, Y = (1, 0, 0), (0, 1, 0), (0, 0, 1)
+    rel = lambda target, *entries: (target, "rel", list(entries))  # noqa: E731
+    rela = lambda target, *entries: (target, "rela", list(entries))  # noqa: E731
+    both = [T, D]
+    return [
+        # REL, zero addend, each type that is read
+        ("rel-zero-jal", [T], [rel(T, ("f0", 4, JAL0))], False, {"f0": C}),
+        ("rel-zero-pair", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-zero-word-data", both, [rel(D, ("f0", 2, 0))], False, {"f0": Y}),
+        ("rel-zero-word-text", [T], [rel(T, ("f0", 2, 0))], False, {"f0": X}),
+        ("rel-zero-pair-data", both, [rel(D, ("f0", 5, LUI0), ("f0", 6, ADD0))], False, {"f0": Y}),
+        # REL, nonzero addend
+        ("rel-jal-target-4", [T], [rel(T, ("f0", 4, JAL1))], False, {}),
+        ("rel-jal-target-high-field", [T], [rel(T, ("f0", 4, 0x0D000000))], False, {}),
+        ("rel-word-high-bits", both, [rel(D, ("f0", 2, 0x10000))], False, {}),
+        ("rel-word-4", both, [rel(T, ("f0", 2, 4)), rel(D, ("f1", 2, 4))], False, {}),
+        ("rel-pair-low-4", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD4))], False, {}),
+        ("rel-pair-high-1", [T], [rel(T, ("f0", 5, LUI1), ("f0", 6, ADD0))], False, {}),
+        ("rel-pair-high-1-low-ffff", [T], [rel(T, ("f0", 5, LUI1), ("f0", 6, ADDM))], False, {}),
+        ("rel-pair-high-100", [T], [rel(T, ("f0", 5, LUI0 | 0x100), ("f0", 6, ADD0))], False, {}),
+        ("rel-pair-low-8000", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD8))], False, {}),
+        # REL, pairing
+        ("rel-pair-skips-others", [T], [rel(T, ("f0", 5, LUI0), ("f1", 4, JAL1), ("f0", 2, 4), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-two-highs-one-low", [T], [rel(T, ("f0", 5, LUI0), ("f0", 5, LUI1), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-high-skips-other-symbol-low", [T], [rel(T, ("f0", 5, LUI0), ("f1", 6, ADD4), ("f0", 5, LUI1), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-high-takes-the-next-low", [T], [rel(T, ("f0", 5, LUI0), ("f0", 5, LUI1), ("f0", 6, ADD0), ("f0", 6, ADD4))], False, {"f0": X}),
+        ("rel-low-takes-its-own-high", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD4), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-low-takes-last-high", [T], [rel(T, ("f0", 5, LUI1), ("f0", 5, LUI0), ("f0", 6, ADD4), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-low-skips-other-symbol-high", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD4), ("f1", 5, LUI1), ("f0", 6, ADD0))], False, {"f0": X}),
+        ("rel-halves-of-two-symbols", [T], [rel(T, ("f0", 5, LUI0), ("f1", 6, ADD0))], False, {}),
+        ("rel-high-alone", [T], [rel(T, ("f0", 5, LUI0))], False, {}),
+        ("rel-low-alone", [T], [rel(T, ("f0", 6, ADD0))], False, {}),
+        ("rel-low-before-high", [T], [rel(T, ("f0", 6, ADD0), ("f0", 5, LUI0))], False, {}),
+        # RELA: the addend is carried, a half counts alone, the word is not read
+        ("rela-zero-jal", [T], [rela(T, ("f0", 4, 0))], False, {"f0": C}),
+        ("rela-zero-word-data", both, [rela(D, ("f0", 2, 0))], False, {"f0": Y}),
+        ("rela-zero-word-text", [T], [rela(T, ("f0", 2, 0))], False, {"f0": X}),
+        ("rela-zero-high", [T], [rela(T, ("f0", 5, 0))], False, {"f0": X}),
+        ("rela-zero-low", [T], [rela(T, ("f0", 6, 0))], False, {"f0": X}),
+        ("rela-nonzero", [T], [rela(T, ("f0", 4, 4), ("f1", 2, 4))], False, {}),
+        ("rela-nonzero-halves", [T], [rela(T, ("f0", 5, 4), ("f1", 6, -4))], False, {}),
+        ("rela-nonzero-negative", [T], [rela(T, ("f0", 4, -4))], False, {}),
+        ("rela-word-not-read", [T], [rela(T, ("f0", 4, 0, None, JAL1), ("f1", 2, 0, None, 7))], False, {"f0": C, "f1": X}),
+        ("rela-pair-word-not-read", [T], [rela(T, ("f0", 5, 0, None, LUI1))], False, {"f0": X}),
+        ("rela-halves-alone", [T], [rela(T, ("f0", 5, 0), ("f0", 6, 4))], False, {"f0": X}),
+        ("rela-low-after-high-alone", [T], [rela(T, ("f0", 5, 4), ("f0", 6, 0))], False, {"f0": X}),
+        # other types
+        ("rel-other-type", [T], [rel(T, ("f0", 7, 0), ("f1", 12, 0))], False, {}),
+        ("rela-other-type", [T], [rela(T, ("f0", 7, 0), ("f1", 12, 0))], False, {}),
+        # the offset
+        ("rel-last-word-in-range", [T], [rel(T, ("f0", 4, JAL0, 12))], False, {"f0": C}),
+        ("rel-offset-past-the-end", [T], [rel(T, ("f0", 4, JAL0, 16))], False, {}),
+        ("rel-offset-unaligned-past-the-end", [T], [rel(T, ("f0", 4, JAL0, 13))], False, {}),
+        ("rel-offset-far", [T], [rel(T, ("f0", 2, 0, 0x80000000))], False, {}),
+        ("rel-high-past-the-end", [T], [rel(T, ("f0", 5, LUI0, 16), ("f0", 6, ADD0, 0))], False, {}),
+        ("rel-low-past-the-end", [T], [rel(T, ("f0", 5, LUI0, 0), ("f0", 6, ADD0, 16))], False, {}),
+        # a carried addend does not excuse an offset outside the section
+        ("rela-last-word-in-range", [T], [rela(T, ("f0", 4, 0, 12))], False, {"f0": C}),
+        ("rela-offset-past-the-end", [T], [rela(T, ("f0", 4, 0, 16))], False, {}),
+        ("rela-offset-unaligned-past-the-end", [T], [rela(T, ("f0", 4, 0, 13))], False, {}),
+        ("rela-half-past-the-end", [T], [rela(T, ("f0", 5, 0, 16))], False, {}),
+        # byte order
+        ("big-endian", [T], [rel(T, ("f0", 4, JAL0), ("f1", 4, JAL1))], True, {"f0": C}),
+        ("big-endian-pair", [T], [rel(T, ("f0", 5, LUI0), ("f0", 6, ADD0), ("f1", 5, LUI0), ("f1", 6, ADD4))], True, {"f0": X}),
+        ("big-endian-word", both, [rel(D, ("f0", 2, 0), ("f1", 2, 1))], True, {"f0": Y}),
+    ]
+
+
+def addend_cases(root: Path):
+    """What the relocations of one object count: each scenario is written as an object and run."""
+    plain = [OPEN, ONE, RETURN, CLOSE]
+    exe_bytes, a, _ = lay_out([("f0", lambda book: plain), ("f1", lambda book: plain), ("f2", lambda book: plain)])
+    end = START + len(exe_bytes) - 0x800
+    exe = root / "addends.exe"
+    exe.write_bytes(exe_bytes)
+    config = root / "addends.toml"
+    config.write_text('[[unit]]\nname = "s"\nsource = "sdk/s.c"\nfunctions = []\n')
+    symbols = root / "addends.ld"
+    symbols.write_text(f"f0 = {a['f0']:#x};\nf1 = {a['f1']:#x};\n")
+    folder = root / "objects"
+    folder.mkdir()
+    for label, sections, relocs, big, want in addend_scenarios():
+        (folder / "unit-s.o").write_bytes(elf_bytes(sections, relocs, big))
+        proc = quiet(tool(exe, "--config", config, "--build", folder, "--symbols", symbols, "--library", f"{START:#x}", "--end", f"{end:#x}"))
+        found = {}
+        for line in proc.stdout.splitlines():
+            match = REPORT.match(line)
+            if match:
+                found[match.group(3)] = tuple(int(match.group(n)) for n in (4, 5, 6))
+        yield label, verdict(proc.returncode == 0 and found == want, f"exit {proc.returncode}\n{found}\n{want}\n{proc.stdout}{proc.stderr}"), 0, "as required"
+
+
 def cases(root: Path):
-    for name, build_cases in (("writer", writer_cases), ("main", main_cases), ("region", region_cases), ("trees", trees)):
+    for name, build_cases in (("writer", writer_cases), ("main", main_cases), ("region", region_cases), ("trees", trees), ("addends", addend_cases)):
         sub = root / name
         sub.mkdir()
         yield from build_cases(sub)
