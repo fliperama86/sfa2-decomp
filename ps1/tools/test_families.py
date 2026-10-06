@@ -98,8 +98,13 @@ def report(start, end, games, libs, outside, show=10) -> str:
     """The summary that a sweep must print.
 
     games: (direct, reached, through a register, elsewhere, open) per game function.
-    libs: the family of each library function. outside: declared addresses that are no start.
+    libs: (family, rule that gave it) of each library function; a bare UNIDENTIFIED stands for (UNIDENTIFIED, "-").
+    outside: declared addresses that are no start.
     """
+    libs = [(f, "-") if f == UNIDENTIFIED else f for f in libs]
+    assert all(isinstance(f, tuple) for f in libs)
+    rules = collections.Counter(rule for _, rule in libs)
+    libs = [family for family, _ in libs]
     lines = [
         f"swept {start:#x} to {end:#x}: {len(games) + len(libs)} functions, {len(games)} game and {len(libs)} library",
         f"functions of the build that are no start of the sweep: {len(outside)}",
@@ -113,6 +118,8 @@ def report(start, end, games, libs, outside, show=10) -> str:
         lines.append(f" {name:<17} {members[name]:>17} {calling[name]:>19} {reaching[name]:>11}")
     none = [game for game in games if not game[1]]
     lines += [
+        f"library functions with a family by name: {rules['name']}, by BIOS call: {rules['bios']},"
+        f" by folder: {rules['folder']}, by place: {rules['place']}",
         f"game functions that call a library function directly: {sum(1 for game in games if game[0])}",
         f"game functions that reach no library function: {len(none)};"
         f" closed: {sum(1 for game in none if not game[4])}, open: {sum(1 for game in none if game[4])}",
@@ -222,6 +229,9 @@ def main_cases(root: Path):
         "lunk": UNIDENTIFIED, "lcalls": UNIDENTIFIED,
     }  # fmt: skip
     # The game functions that call each library function, each counted once however many calls it makes.
+    rule = {
+        "lz": "name", "la1": "bios", "ld": "folder", "lb": "bios", "lg": "bios", "lo": "bios", "lres": "folder",
+    }  # every other function: "-"
     callers = {"la1": 4, "lb": 3, "lg": 2, "ld": 2, "lz": 1, "lo": 1, "lu": 1, "lcalls": 1}
     assert gnames == list(game) and lnames == list(family)
 
@@ -255,7 +265,7 @@ def main_cases(root: Path):
     base = [exe, "--config", config, "--families", table, "--library", f"{library:#x}", "--end", f"{end:#x}"]
 
     rows = [game[n] for n in gnames]
-    libs = [family[n] for n in lnames]
+    libs = [(family[n], rule.get(n, "-")) for n in lnames]
     out, lib_out = root / "deep" / "er" / "game.tsv", root / "other" / "deeper" / "library.tsv"
     proc = tool(*base, "--out", out, "--library-out", lib_out)
     yield "summary-exact", exact(proc, report(START, end, rows, libs, outside)), 0, "as required"
@@ -265,7 +275,7 @@ def main_cases(root: Path):
     )
     got = out.read_text() if out.exists() else None
     yield "out-rows", verdict(got == want_out, f"{got!r}\n{want_out!r}"), 0, "as required"
-    want_lib = "".join(f"{a[n]:08x}\t{size[n]}\t{named_library.get(n, '-')}\t{family[n]}\t{callers.get(n, 0)}\n" for n in lnames)
+    want_lib = "".join(f"{a[n]:08x}\t{size[n]}\t{named_library.get(n, '-')}\t{family[n]}\t{callers.get(n, 0)}\t{rule.get(n, '-')}\n" for n in lnames)
     got = lib_out.read_text() if lib_out.exists() else None
     yield "library-out-rows", verdict(got == want_lib, f"{got!r}\n{want_lib!r}"), 0, "as required"
     only = tool(*base)
@@ -354,7 +364,7 @@ def table_cases(root: Path):
         table.write_text('[bios]\n"a0:05" = "alpha"\n')
         proc = tool(exe, "--config", config, "--families", table, "--library", f"{a['s']:#x}", "--end", f"{end:#x}")
         direct = {family}
-        yield f"stub-at-end-{label}", exact(proc, report(START, end, [(direct, direct, 0, 0, False)], [family], [])), 0, "as required"
+        yield f"stub-at-end-{label}", exact(proc, report(START, end, [(direct, direct, 0, 0, False)], [(family, "bios" if family == "alpha" else "-")], [])), 0, "as required"
 
     exe = root / "plain.exe"
     code = [OPEN, ONE, RETURN, CLOSE, OPEN, ONE, RETURN, CLOSE]
@@ -470,7 +480,7 @@ def modules_cases(root: Path):
         E({a}, {a}), E(), E(), E(), E(), E(), E(), E(), E({b}, {b}),
     ]  # fmt: skip
     game = [(d, r, g, w, o) for d, r, g, w, o, _ in game]
-    exe_report = report(START, end, game, [a, b, u, z], [])
+    exe_report = report(START, end, game, [(a, "bios"), (b, "bios"), u, (z, "bios")], [])
     XB, YB, TB, QB = 0x80200000, 0x00210000, 0x80230000, 0x80240000
     slots = [XB, YB, ex["sh"], TB, ex["lib_b"], ex["sk"]]
 
@@ -745,23 +755,27 @@ def names_cases(root: Path):
         "l_lead": "famLead", "l_digit": "famNine", "l_unterm": UNIDENTIFIED,
     }  # fmt: skip
     declared = {"l_unk": "unk_name", "l_both": "zz_known"}
+    rule = dict.fromkeys(family, "name")
+    rule.update({"l_cold": "bios", "l_fold2": "folder", "l_none": "-", "l_comment": "-", "l_bare": "-", "l_unterm": "-"})
     base = [exe, "--config", config, "--families", table, "--library", f"{START:#x}", "--end", f"{end:#x}"]
 
-    def rows(families: dict) -> str:
-        return "".join(f"{a[n]:08x}\t{size[n]}\t{declared.get(n, '-')}\t{families[n]}\t0\n" for n, _ in entries)
+    def rows(families: dict, rules: dict) -> str:
+        return "".join(f"{a[n]:08x}\t{size[n]}\t{declared.get(n, '-')}\t{families[n]}\t0\t{rules[n]}\n" for n, _ in entries)
 
     out = root / "names-lib.tsv"
     proc = tool(*base, "--symbols", symbols, "--library-out", out)
     got = out.read_text() if out.exists() else None
-    want = rows(family)
+    want = rows(family, rule)
     yield "names-library-rows", verdict(proc.returncode == 0 and got == want, f"{proc.stdout}{proc.stderr}{got!r}\n{want!r}"), 0, "as required"
     # Without the symbol file a function has its declared name, its call or its folder, as before.
     plain_family = dict.fromkeys(family, UNIDENTIFIED)
-    plain_family.update({"l_both": "famC", "l_bios": "alpha", "l_cold": "alpha", "l_folder": "delta", "l_fold2": "delta", "l_unk": "delta"})
+    plain_family.update({"l_both": "famC", "l_bios": "alpha", "l_cold": "alpha", "l_folder": "delta", "l_fold2": "delta", "l_unk": "delta", "l_und": "delta"})
+    plain_rule = dict.fromkeys(family, "-")
+    plain_rule.update({"l_both": "name", "l_bios": "bios", "l_cold": "bios", "l_folder": "folder", "l_fold2": "folder", "l_unk": "folder", "l_und": "place"})
     out2 = root / "names-lib-plain.tsv"
     proc = tool(*base, "--library-out", out2)
     got = out2.read_text() if out2.exists() else None
-    want = rows(plain_family)
+    want = rows(plain_family, plain_rule)
     yield "names-without-symbols", verdict(proc.returncode == 0 and got == want, f"{proc.stdout}{proc.stderr}{got!r}\n{want!r}"), 0, "as required"
     # The family table counts what the second names decide.
     counts = collections.Counter(family.values())
@@ -793,7 +807,7 @@ def names_cases(root: Path):
     out3 = root / "names-lib-mixed.tsv"
     proc = tool(*base, "--symbols", mixed, "--library-out", out3)
     got = out3.read_text() if out3.exists() else None
-    want = rows({**plain_family, "l_unk": "famA"})
+    want = rows({**plain_family, "l_unk": "famA"}, {**plain_rule, "l_unk": "name"})
     yield "names-comment-around-statement", verdict(proc.returncode == 0 and got == want, f"{got!r}\n{want!r}"), 0, "as required"
     # A name starts with a letter or an underscore: `9alias_a` is no name, and its tail `alias_a` is not taken for one.
     digit = root / "names-digit-first.ld"
@@ -801,8 +815,99 @@ def names_cases(root: Path):
     out4 = root / "names-lib-digit.tsv"
     proc = tool(*base, "--symbols", digit, "--library-out", out4)
     got = out4.read_text() if out4.exists() else None
-    want = rows(plain_family)
+    want = rows(plain_family, plain_rule)
     yield "names-digit-first-is-no-name", verdict(proc.returncode == 0 and got == want, f"{got!r}\n{want!r}"), 0, "as required"
+
+
+def place_cases(root: Path):
+    """The family of a library function by its place: between two declared functions of one reference file."""
+    plain = [OPEN, ONE, RETURN, CLOSE]
+    D, U = "delta", UNIDENTIFIED
+    # (name, source of the unit that declares it or None, declared name or None, body, family, rule)
+    lib = [
+        ("q0", None, None, plain, U, "-"),  # no anchor below
+        ("p0", "sdk/gpu/sys_p1.c", None, plain, D, "folder"),
+        ("p1", None, None, plain, D, "place"),  # undeclared, between two parts of one file
+        ("p2", None, None, plain, D, "place"),  # as many as lie between
+        ("p3", "sdk/gpu/sys_p12.c", None, plain, D, "folder"),
+        ("p4", "other/gpu/sys_p2.c", None, plain, D, "place"),  # declared outside sdk/: no anchor
+        ("p5", "sdk/gpu/sys_p2a.c", None, plain, D, "folder"),
+        ("p6", None, None, stub(0xA0, 5), "alpha", "bios"),  # keeps its family
+        ("p7", "sdk/gpu/sys.s", None, plain, D, "folder"),
+        ("p8", "other/x.c", "n_known", plain, "famN", "name"),  # keeps its family
+        ("p9", "sdk/gpu/sys_p3.c", None, plain, D, "folder"),
+        ("p10", None, None, plain, U, "-"),  # `sys` and `sysp1` are two files
+        ("p11", "sdk/gpu/sysp1.c", None, plain, D, "folder"),
+        ("p12", None, None, plain, U, "-"),  # `sysp1` and `sys_px`
+        ("p13", "sdk/gpu/sys_px.c", None, plain, D, "folder"),
+        ("p14", None, None, plain, U, "-"),  # `sys_px` and `sys`
+        ("p15", "sdk/gpu/sys_p9.c", None, plain, D, "folder"),
+        ("r0", "sdk/gpu/sub/x.c", None, plain, D, "folder"),
+        ("r1", None, None, plain, D, "place"),  # a deeper path keeps its folders, the family is that of `gpu`
+        ("r2", "sdk/gpu/sub/x_p2.c", None, plain, D, "folder"),
+        ("r3", None, None, plain, U, "-"),  # `gpu/sub/x` and `gpu/x`
+        ("r4", "sdk/gpu/x.c", None, plain, D, "folder"),
+        ("s0", "sdk/spu/e.c", None, plain, U, "-"),  # a folder that the table lacks
+        ("s1", None, None, plain, U, "-"),
+        ("s2", "sdk/spu/e_p1.c", None, plain, U, "-"),
+        ("t0", "sdk/gpu/ff.c", None, plain, D, "folder"),
+        ("t1", None, None, plain, U, "-"),  # an anchor of another file lies between two of `gpu/ff`
+        ("t2", "sdk/gpu/gg.c", None, plain, D, "folder"),
+        ("t3", None, None, plain, U, "-"),
+        ("t4", "sdk/gpu/ff.c", None, plain, D, "folder"),
+        ("u0", "sdk/gpu/hh.c", None, plain, D, "folder"),
+        ("u1", None, None, plain, U, "-"),  # a file directly in sdk/ is an anchor of its own, here between two of `gpu/hh`
+        ("u2", "sdk/lone.c", None, plain, U, "-"),  # it has no folder and so no family
+        ("u3", None, None, plain, U, "-"),
+        ("u4", "sdk/gpu/hh.c", None, plain, D, "folder"),
+        ("v0", "sdk/gpu.c", None, plain, U, "-"),  # two anchors of one file directly in sdk/: its name is no folder
+        ("v1", None, None, plain, U, "-"),
+        ("v2", "sdk/gpu_p1.c", None, plain, U, "-"),
+        ("z", None, None, plain, U, "-"),  # no anchor above
+    ]
+    entries = [
+        ("g_call", lambda a: [OPEN, jal(a["p1"]), 0, jal(a["p6"]), 0, jal(a["p10"]), 0, RETURN, CLOSE]),
+        ("g_anchor", lambda a: plain),  # declared from sdk/gpu/sys_p0.c, and below the library: no anchor
+        *[(name, lambda a, body=body: body) for name, _, _, body, *_ in lib],
+    ]
+    exe_bytes, a, size = lay_out(entries)
+    end = START + len(exe_bytes) - 0x800
+    exe = root / "place.exe"
+    exe.write_bytes(exe_bytes)
+    units: dict[str, list] = {"sdk/gpu/sys_p0.c": [(None, a["g_anchor"])]}
+    for name, source, declared_name, *_ in lib:
+        if source:
+            units.setdefault(source, []).append((declared_name, a[name]))
+    config = root / "place.toml"
+    config.write_text(config_text([(source, None, functions) for source, functions in units.items()]))
+    table = root / "place-families.toml"
+    table.write_text('[names]\nn_known = "famN"\n\n[bios]\n"a0:05" = "alpha"\n\n[folders]\ngpu = "delta"\n')
+    base = [exe, "--config", config, "--families", table, "--library", f"{a['q0']:#x}", "--end", f"{end:#x}"]
+    libs = [(family, rule) for *_, family, rule in lib]
+    games = [({D, "alpha", U}, {D, "alpha", U}, 0, 0, False), (set(), set(), 0, 0, False)]
+    out = root / "place-lib.tsv"
+    proc = tool(*base, "--library-out", out)
+    yield "place-summary-exact", exact(proc, report(START, end, games, libs, [])), 0, "as required"
+    rules = collections.Counter(rule for _, rule in libs)
+    assert (rules["name"], rules["bios"], rules["folder"], rules["place"]) == (1, 1, 16, 4)
+    callers = {"p1": 1, "p6": 1, "p10": 1}
+    want = "".join(
+        f"{a[name]:08x}\t{size[name]}\t{declared_name or '-'}\t{family}\t{callers.get(name, 0)}\t{rule}\n"
+        for name, _, declared_name, _, family, rule in lib
+    )
+    got = out.read_text() if out.exists() else None
+    yield "place-library-rows", verdict(got == want, f"{got!r}\n{want!r}"), 0, "as required"
+    # Without anchors of the table's folders there is no place: the same layout with no folders.
+    bare = root / "place-no-folders.toml"
+    bare.write_text('[names]\nn_known = "famN"\n\n[bios]\n"a0:05" = "alpha"\n')
+    off = [(family if rule in ("name", "bios") else U, rule if rule in ("name", "bios") else "-") for family, rule in libs]
+    proc = tool(exe, "--config", config, "--families", bare, "--library", f"{a['q0']:#x}", "--end", f"{end:#x}")
+    yield "place-needs-the-folder", exact(proc, report(START, end, [({"alpha", U}, {"alpha", U}, 0, 0, False), (set(), set(), 0, 0, False)], off, [])), 0, "as required"
+    # A table without `[folders]` at all.
+    none = root / "place-no-table.toml"
+    none.write_text("")
+    proc = tool(exe, "--config", config, "--families", none, "--library", f"{a['q0']:#x}", "--end", f"{end:#x}")
+    yield "place-empty-table", exact(proc, report(START, end, [({U}, {U}, 0, 0, False), (set(), set(), 0, 0, False)], [(U, "-")] * len(lib), [])), 0, "as required"
 
 
 def cases(root: Path):
@@ -811,6 +916,7 @@ def cases(root: Path):
     yield from table_cases(root)
     yield from modules_cases(root)
     yield from names_cases(root)
+    yield from place_cases(root)
 
 
 def main() -> int:
