@@ -280,10 +280,11 @@ Next, in this order:
    other by name.
 5. The last tool step of the proposal: second links, for the two sides.
    The first pilot target needs one link only and does not wait for it.
-6. A pilot: one overlay module, or part of one, rebuilt exactly. Started:
-   the module of slot `0x2a` is declared in the build, and its first
-   function is exact, 20 of the 6,052 bytes that the sweep counts as its
-   28 functions. Next: a round on the other 27.
+6. A pilot: one overlay module, or part of one, rebuilt exactly. First
+   target, the module of slot `0x2a`: 23 of the 28 functions that the
+   sweep counts are exact, 3,640 of 6,052 bytes. Five are parked with
+   candidates that still differ. Next: a second attempt on those five,
+   then the second pilot target, which needs the second link.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 
@@ -310,8 +311,9 @@ observation only when it answers a specific remaining question.
 
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
-beyond the SDK stubs, the source of the overlay modules but for one function
-of the image `slot2a`, every other module as an image of the build,
+beyond the SDK stubs, the source of the overlay modules beyond the part of
+the image `slot2a` that the pilot has rebuilt, every other module as an
+image of the build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
 from a fresh clone.
