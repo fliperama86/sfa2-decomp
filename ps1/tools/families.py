@@ -282,7 +282,8 @@ def run(args) -> int:
     for address in library:
         family[address], rule[address] = family_of(address, declared, table, words, image.start, others)
         folder, slash, _ = placed.get(address, "").partition("/")
-        if family[address] == UNIDENTIFIED and slash and folder in table["folders"]:
+        # Only where no rule above applied: a table may name the family `unidentified` itself.
+        if rule[address] == "-" and slash and folder in table["folders"]:
             family[address], rule[address] = table["folders"][folder], "place"
     callees: dict[int, set[int]] = {}
     registers: dict[int, int] = {}

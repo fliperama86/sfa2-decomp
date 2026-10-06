@@ -3505,8 +3505,9 @@ What ran:
   and 4 sound. Without a family: 35, down from 56. Of the 381 with one, 39
   have it by name, 5 by BIOS call, 316 by folder and 21 by place.
 - `--library-out` says in a sixth column which rule gave each family.
-- `test_families.py`: 96 cases. The cases for the new rule were a package
-  for the subagent that wrote the earlier ones.
+- `test_families.py`: 100 cases on the head after review, 96 before it.
+  The cases for the new rule were a package for the subagent that wrote
+  the earlier ones.
 
 A gap that the cases brought up: a reference file directly in `sdk/`, with
 no folder, was not an anchor in the first version, so a function declared
@@ -3515,6 +3516,17 @@ family. The subagent tested what the code did and flagged that the stated
 rule said otherwise. Such a file is an anchor now: it ends the stretch
 between the two, and having no folder it gives no family. The tree has no
 such file.
+
+What review of the pull request found: the place applied wherever the
+family so far was `unidentified`, not wherever no earlier rule had
+applied. The table may give a name or a BIOS call that family in so many
+words, and then the weaker rule overruled the stronger one and the row
+said `place`. The rule is asked now, not the value. Nothing in the real
+table says `unidentified`, so the real output is the same.
+
+Lesson from the review: a value that the input can also contain is no
+sign that nothing happened. The code already kept the rule that applied
+beside the family, and tested the family.
 
 What it rests on: the code of one object file is one piece of the image,
 so what lies between two functions of an object belongs to that object.

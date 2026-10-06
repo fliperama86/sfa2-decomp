@@ -897,6 +897,23 @@ def place_cases(root: Path):
     )
     got = out.read_text() if out.exists() else None
     yield "place-library-rows", verdict(got == want, f"{got!r}\n{want!r}"), 0, "as required"
+    # A name or a BIOS call whose family the table calls `unidentified` is still the rule that applied:
+    # the place does not overrule it. p6 (BIOS) and p8 (name) both lie between two anchors of `gpu/sys`.
+    explicit = root / "place-explicit.toml"
+    explicit.write_text(f'[names]\nn_known = "{U}"\n\n[bios]\n"a0:05" = "{U}"\n\n[folders]\ngpu = "delta"\n')
+    out_explicit = root / "place-explicit.tsv"
+    proc = tool(exe, "--config", config, "--families", explicit, "--library", f"{a['q0']:#x}", "--end", f"{end:#x}", "--library-out", out_explicit)
+    stated = {"p6": (U, "bios"), "p8": (U, "name")}
+    want = "".join(
+        f"{a[name]:08x}\t{size[name]}\t{declared_name or '-'}\t{stated.get(name, (family, rule))[0]}\t{callers.get(name, 0)}\t{stated.get(name, (family, rule))[1]}\n"
+        for name, _, declared_name, _, family, rule in lib
+    )
+    got = out_explicit.read_text() if out_explicit.exists() else None
+    yield "place-does-not-overrule-a-stated-unidentified", verdict(proc.returncode == 0 and got == want, f"{got!r}\n{want!r}"), 0, "as required"
+    for label, wanted_row in (("name", f"\t{U}\t0\tname\n"), ("bios", f"\t{U}\t1\tbios\n")):
+        yield f"place-explicit-{label}-row", verdict(got is not None and wanted_row in got, f"{got!r}"), 0, "as required"
+    rules_explicit = "library functions with a family by name: 1, by BIOS call: 1, by folder: 16, by place: 4\n"
+    yield "place-explicit-summary", verdict(rules_explicit in proc.stdout, proc.stdout), 0, "as required"
     # Without anchors of the table's folders there is no place: the same layout with no folders.
     bare = root / "place-no-folders.toml"
     bare.write_text('[names]\nn_known = "famN"\n\n[bios]\n"a0:05" = "alpha"\n')
