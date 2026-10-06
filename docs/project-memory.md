@@ -2581,6 +2581,56 @@ Lessons:
   key, try a wrong type; for each new message rule, walk every place that
   can fail.
 
+## Forty-third group: a loop for one unit
+
+No function count changes in this group: 1,617 functions exact.
+
+What was open: every try on a unit ran the whole build. With every object
+cached that build still preprocesses each unit for its cache key, links the
+image, compares everything and runs every control. Only the changed unit is
+compiled. The owner asked how efficient the loop is and approved a faster
+one on 2026-10-06.
+
+What ran:
+
+- `fndiff.py --rebuild UNIT` runs the pipeline of that one unit into the
+  build directory of an earlier whole build, prints its object checks,
+  removes the tag's report and summary, and prints the diff. The
+  [matching build](../ps1/docs/matching-build.md) has the contract, the
+  [matching guide](../ps1/docs/matching-guide.md) the new loop.
+- The pipeline of a unit and its preparation are now functions of
+  `matchbuild.py` that a whole build and `fndiff.py` both call. No step is
+  copied.
+- A failed step keeps the previous object and the report: the unit is built
+  in a scratch directory and moved into place only when its object exists.
+- `test_matchbuild.py`: 11 new cases, 168 in all, all as required.
+- The real configuration builds as before: 1,617 of 1,617 functions exact
+  and the same report keys.
+
+Timed on this machine with `date` around the commands, not printed by any
+tool: a whole build with every object cached 33.7 seconds, one
+`fndiff.py --rebuild` of a real unit 0.72 seconds. The implementer measured
+0.75 seconds when the object was not in the cache.
+
+What it does not do: decide. Only a whole build says a unit is exact, and
+the removed report keeps an earlier result from being read as one. A changed
+header is seen in the one unit only. Units of module images are still
+refused; that is the next step.
+
+Lessons:
+
+- The first description of the cost was wrong in one word: "agents compile
+  everything on every edit" was never true. The cache already limited
+  compilation to the changed unit; the fixed cost was everything around it.
+  Measure which part of a loop costs before changing it.
+- A comment added to a source file does not change the cache key, because
+  the preprocessor drops it. A timing meant to show a cache miss was a hit
+  until the change was one the preprocessed text keeps.
+- This package ran 74 minutes in the subagent, with the cases, the table of
+  disabled rules, a whole suite run and the timings in one brief. That is
+  over what one package should take. Split the verification from the
+  implementation next time, or cut the package in two.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

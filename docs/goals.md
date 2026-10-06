@@ -269,13 +269,13 @@ Next, in this order:
    source is published. The tool changes come in four steps; the first,
    module images with a chunk baseline, is in the
    [matching build](../ps1/docs/matching-build.md).
-2. A fast loop for one unit, approved by the owner on 2026-10-06: one
-   command that rebuilds a single unit and compares it, so that a try no
-   longer pays for the whole build. The whole build stays the gate. With
-   it, `fndiff.py` and `mergeunits.py` learn module images.
-3. The other tool steps of the proposal: names across images, then second
+2. Done: a fast loop for one unit, approved by the owner on 2026-10-06.
+   `fndiff.py --rebuild` rebuilds a single unit and compares it, so that a
+   try no longer pays for the whole build. The whole build stays the gate.
+3. `fndiff.py` and `mergeunits.py` learn module images.
+4. The other tool steps of the proposal: names across images, then second
    links.
-4. A pilot: one overlay module, or part of one, rebuilt exactly.
+5. A pilot: one overlay module, or part of one, rebuilt exactly.
 
 After the pilot, in this order, by the owner's decisions of 2026-10-06:
 
