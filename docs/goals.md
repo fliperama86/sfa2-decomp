@@ -340,8 +340,8 @@ chose the first on 2026-10-06:
 - Done: a round on the 133 game functions of the resident image that the
   inventory did not list, and second attempts on what it parked. 129 are
   exact and 4 parked.
-- In progress, the owner's choice of 2026-10-06 for the item after that:
-  identifying the library functions without a family. They were 116. 32
+- Done as far as automatic means go, the owner's choice of 2026-10-06 for
+  the item after that: identifying the library functions without a family. They were 116. 32
   now come from the reference's source for the same function, with its
   name. 28 more have a name by reference: units built from the
   reference's source call them under it, and `librefs.py` lists that from
@@ -351,7 +351,14 @@ chose the first on 2026-10-06:
   functions have a family and 364 have a name. 32 are left without a
   family: 24 that the build has under a placeholder name and 8 that it
   does not have.
-- Not decided: more overlay modules as images of the build.
+- In progress, the owner's choice of 2026-10-06 once the automatic ways
+  of naming library functions were used up: more overlay modules as images
+  of the build. The first of them is the one content of slot `0xb`, a
+  module of 61 functions that 24 archives carry: 54 are exact, 5,356 of
+  7,960 bytes, and 7 are parked with candidates after two attempts.
+- Not decided: finishing the library by hand, which means adapting the
+  reference's files one by one. Some of it waits for rulings on four
+  questions that the project memory lists.
 - Not decided: second attempts, in the form that recovered 11 of 15, on
   the 72 older parked game functions.
 
@@ -373,8 +380,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a` and `slot16` that the pilot has rebuilt (`slot17` is
-linked from the source of `slot16`), every other module as an image of the
+the images `slot2a`, `slot0b` and `slot16` that are rebuilt so far
+(`slot17` is linked from the source of `slot16`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path

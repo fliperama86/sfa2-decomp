@@ -1338,6 +1338,7 @@ struct SndHdr size=0x1ac
 0x1aa u16 field_1aa
 
 struct Strip1c size=0x1c
+0x000 u32 field_00
 0x004 u32 field_04
 0x010 u8 field_10
 0x011 u8 field_11
@@ -1614,3 +1615,96 @@ struct Slot2aSel size=0x6
 struct Slot2aSlot size=0x58
 0x000 Cell20 cells[2]
 0x028 Prim prim
+
+struct Slot0bPair size=0x4
+0x000 s16 a
+0x002 s16 b
+
+struct ModObj size=0x6c
+0x000 u8 field_00
+0x002 u8 field_02
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x00b u8 field_0b
+0x020 u16 field_20
+0x022 u16 field_22
+0x024 u16 field_24
+0x030 ModObj* field_30
+0x03c Object* field_3c
+0x046 u16 field_46
+0x048 u8 field_48
+0x04c s32 field_4c
+0x050 s32 field_50
+0x058 s32 field_58
+0x066 u8 field_66
+
+struct ModPool size=0x10
+0x000 u8 field_00
+0x002 u8 field_02
+0x004 u32 field_04
+0x008 Rect rect
+
+struct Slot0bLayout size=0xc
+0x000 s16 count
+0x004 u8* ids
+0x008 u16* coords
+
+struct Slot0bRot size=0x4
+0x000 u16 c
+0x002 s16 s
+
+struct Slot0bList size=0x8
+0x000 s16 count
+0x004 u8* data
+
+struct Slot0bShape size=0xc
+0x000 s16 count
+0x004 u8* data
+0x008 u16* coords
+
+struct Slot0bFrame size=0x8
+0x000 u16 duration
+0x002 s16 loop
+0x004 u8* src
+
+struct Slot0bCursor size=0x8
+0x000 Slot0bFrame* cur
+0x004 u16 timer
+0x006 s16 loop
+
+struct Slot0bObj size=0x394
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x010 s32 fx
+0x014 s32 fy
+0x046 u16 field_46
+0x04c s32 field_4c
+0x050 s32 field_50
+0x054 s32 field_54
+0x058 s32 field_58
+0x05c u16 field_5c
+0x05e u16 field_5e
+0x06c Slot0bCursor anim
+
+struct HudSlot size=0x10
+0x000 s32 field_00
+0x004 s16 field_04
+0x006 s16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c s32 field_0c
+
+struct TilePrim size=0x18
+0x000 u32 cmd
+0x00c u8 color_r
+0x00d u8 color_g
+0x00e u8 color_b
+0x010 s16 x
+0x012 s16 y
+0x014 u8 u
+0x015 u8 v
+0x016 u16 tpage
