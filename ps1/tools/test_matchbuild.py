@@ -26,6 +26,7 @@ from pathlib import Path
 
 import matchbuild
 import structgen
+from test_disc_tools import make_archive, make_executable
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = Path(__file__).resolve().parent / "matchbuild.py"
@@ -110,13 +111,15 @@ FILLER = 0xA5
 
 
 class Case:
-    def __init__(self, name, expect_pass, reason, mutate=None, verify=None, fndiff=None):
+    def __init__(self, name, expect_pass, reason, mutate=None, verify=None, fndiff=None, status=None, extra=()):
         self.name = name
         self.expect_pass = expect_pass
         self.reason = reason  # substring required in the tool output when it must fail
         self.mutate = mutate
         self.verify = verify  # optional check of report.json, returns an error string or None
         self.fndiff = fndiff  # optional (unit, expected exit status, required text) for fndiff.py
+        self.status = status  # optional exit status that a failing run must have
+        self.extra = extra  # extra command line arguments for the tool
 
 
 def replace_once(text: str, old: str, new: str, what: str) -> str:
@@ -407,12 +410,16 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("include-dir-missing", False, "include directory not found", lambda c: add_include_dir(c, "selftest_absent")),
     ]
 
+    def verify_no_images(report: dict):
+        keys = [k for k in ("images", "selected_image") if k in report] + (["inputs.images"] if "images" in report["inputs"] else [])
+        return f"a configuration without images reports {keys}" if keys else None
+
     mutation_reason = (
         f"function '{target_unit['functions'][0]['name']}': bytes differ"
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -427,6 +434,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("unknown-maspsx-commit", False, "maspsx commit", unknown_maspsx_commit),
         Case("dirty-maspsx-checkout", True, "", dirty_maspsx, verify_dirty_reported),
         Case("all-c-payload", True, "", all_c_fixture, verify_all_c),
+        Case("images-absent-unchanged", True, "", verify=verify_no_images),
     ]
 
 
@@ -1228,6 +1236,133 @@ def make_division_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
+# Synthetic module images: table 0 of the loader holds four addresses, the block of table
+# addresses follows a gap in the resident payload, and one archive holds one chunk.
+IMAGE_POINTERS = FIXTURE_LOAD + 0x100
+IMAGE_TABLE0 = [0x80700000, FIXTURE_LOAD, 0x80800000, 0x80900000]
+IMAGE_CHUNK = bytes(range(1, 17))
+IMAGE_SIZE = len(IMAGE_CHUNK)
+
+
+class ImageFixture:
+    """A resident executable with the loader's tables, an archive and one module unit.
+
+    The resident unit and the module unit cover the same addresses. Nothing is
+    compiled: the controls here fail, or stop, before the first compiler run.
+    """
+
+    def __init__(self, parsed: dict):
+        self.toolchain = fixture_toolchain(parsed)
+        self.flags = ", ".join(json.dumps(f) for f in parsed["unit"][0]["flags"])
+
+    @staticmethod
+    def unit(name: str, address: int, size: int = IMAGE_SIZE, *, image: str | None = "example", extra: str = "") -> str:
+        where = "" if image is None else f'image = "{image}"\n'
+        return (
+            "[[unit]]\n"
+            f'name = "{name}"\n'
+            f"{where}"
+            f'source = "{name}.c"\n'
+            f'functions = [ {{ name = "{name}_fn", address = {address:#x}, size = {size} }} ]\n'
+            f"{extra}\n"
+        )
+
+    @staticmethod
+    def image(**overrides) -> dict:
+        return {"name": "example", "archive": "EXAMPLE.PAC", "slot": 1, "sha256": hashlib.sha256(IMAGE_CHUNK).hexdigest(),
+                "address": FIXTURE_LOAD, **overrides}
+
+    def install(self, copy: Path, *, overlays: bool = True, pointers: int = IMAGE_POINTERS, images=None,
+                archive=None, units=None) -> None:
+        """Replace the copy with the fixture. `archive` None writes the default archive, False writes none."""
+        for child in copy.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+        executable = make_executable(FIXTURE_LOAD, IMAGE_POINTERS, [IMAGE_TABLE0, [0x80A00000, 0]])
+        (copy / "baseline.bin").write_bytes(executable)
+        (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+        if archive is None:
+            archive = bytes(make_archive([(1, IMAGE_CHUNK), ((1 << 16) | 2, bytes(8))]))
+        if archive is not False:
+            (copy / "EXAMPLE.PAC").write_bytes(archive)
+        text = (
+            "[baseline]\n"
+            'executable = "baseline.bin"\n'
+            f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
+            + toml_table("toolchain", self.toolchain)
+        )
+        if overlays:
+            text += f"[overlays]\ntable_pointers = {pointers:#x}\n\n"
+        for image in [self.image()] if images is None else images:
+            text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in image.items()) + "\n"
+        units = [self.unit("res", FIXTURE_LOAD, image=None), self.unit("mod", FIXTURE_LOAD)] if units is None else units
+        for unit in units:
+            name = re.search(r'name = "(\w+)"', unit).group(1)
+            (copy / f"{name}.c").write_text("int f(void) { return 1; }\n")
+            text += unit
+        (copy / "build.toml").write_text(text)
+
+
+def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Declaration and validation of module images. Every control here is a configuration error."""
+    fx = ImageFixture(parsed)
+    unit = fx.unit
+
+    def install(**options):
+        return lambda copy: fx.install(copy, **options)
+
+    def flipped_first_word(copy: Path):
+        data = bytearray(make_archive([(1, IMAGE_CHUNK)]))
+        data[0x28] ^= 0xFF  # the first-word copy in the first entry
+        fx.install(copy, archive=bytes(data))
+
+    def refuses(name, reason, **options):
+        return Case(f"image-{name}", False, reason, install(**options), status=2)
+
+    def verify_not_built(report: dict):
+        if report.get("failures") != ["module images are not built yet: this tool only validates their declaration"]:
+            return f"the run must fail only for the missing build of module images: {report.get('failures')}"
+        return None
+
+    def wrong_chunk(copy: Path):
+        fx.install(copy, images=[fx.image(sha256="0" * 64)])
+
+    return [
+        refuses("without-overlays", "needs an [overlays] section", overlays=False),
+        refuses("pointers-outside-payload", "not a word address inside the resident payload", pointers=FIXTURE_LOAD + 0x10000),
+        refuses("pointers-without-block", "no block of table addresses", pointers=FIXTURE_LOAD + 0x4),
+        refuses("named-resident", "reserved for the resident image", images=[fx.image(name="resident")]),
+        refuses("name-repeated", "duplicate image name", images=[fx.image(), fx.image()]),
+        refuses("archive-missing", "cannot read archive", archive=False),
+        Case("image-archive-first-word-copy", False, "first word does not match", flipped_first_word, status=2),
+        refuses("no-chunk-with-slot", "has 0 chunks with table number 0 and slot 0x1",
+                archive=bytes(make_archive([((1 << 16) | 1, IMAGE_CHUNK)]))),
+        refuses("two-chunks-with-slot", "has 2 chunks with table number 0 and slot 0x1",
+                archive=bytes(make_archive([(1, IMAGE_CHUNK), (1, IMAGE_CHUNK)]))),
+        Case("image-wrong-chunk-hash", False, "chunk sha256 mismatch", wrong_chunk, status=2),
+        refuses("address-differs-from-table", "differs from entry 0x1 of table 0", images=[fx.image(address=FIXTURE_LOAD + 4)]),
+        refuses("address-not-word", "is not a multiple of four", images=[fx.image(address=FIXTURE_LOAD + 2)]),
+        refuses("slot-beyond-table", "is beyond table 0", images=[fx.image(slot=9)]),
+        refuses("unit-unknown-image", "image 'absent' is not declared",
+                units=[unit("res", FIXTURE_LOAD, image=None), unit("mod", FIXTURE_LOAD, image="absent")]),
+        refuses("unit-outside-image", "unit 'mod' range",
+                units=[unit("res", FIXTURE_LOAD, image=None), unit("mod", FIXTURE_LOAD + 0x10)]),
+        refuses("units-overlap-in-image", "image 'example': units 'mod' and 'mod2' overlap",
+                units=[unit("mod", FIXTURE_LOAD, 8), unit("mod2", FIXTURE_LOAD + 4, 8)]),
+        refuses("bss-touches-payload", "unit 'mod' bss range", units=[unit(
+            "mod", FIXTURE_LOAD, extra=f"bss = {{ address = {FIXTURE_LOAD + 8:#x}, size = 8 }}\n")]),
+        refuses("function-name-in-two-images", "duplicate function name 'res_fn'",
+                units=[unit("res", FIXTURE_LOAD, image=None),
+                       unit("mod", FIXTURE_LOAD).replace('name = "mod_fn"', 'name = "res_fn"')]),
+        Case("image-selected-unknown", False, "names no declared image", install(), status=2, extra=("--image", "absent")),
+        # The same addresses in two images are not an overlap. The run then stops at the missing build.
+        Case("image-declared-same-addresses", False, "module images are not built yet", install(), verify_not_built, status=1),
+        Case("image-selected-resident", False, "module images are not built yet", install(), verify_not_built, status=1,
+             extra=("--image", "resident")),
+        Case("image-selected-declared", False, "module images are not built yet", install(), verify_not_built, status=1,
+             extra=("--image", "example")),
+    ]
+
+
 def make_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     """Names that `symbols.ld` assigns although a unit object defines them."""
     bss = BssFixture(cfg_dir, parsed)
@@ -1270,7 +1405,7 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
         shutil.copytree(cfg_dir, copy)
         if case.mutate:
             case.mutate(copy)
-        proc = run_tool(copy / "build.toml", tag, cache)
+        proc = run_tool(copy / "build.toml", tag, cache, case.extra)
         output = proc.stdout + proc.stderr
         if case.expect_pass:
             if proc.returncode != 0 or "RESULT: PASS" not in output:
@@ -1281,6 +1416,8 @@ def run_case(case: Case, cfg_dir: Path) -> tuple[bool, str]:
                 return False, "expected failure but the tool exited 0"
             if case.reason not in output:
                 return False, f"failed for the wrong reason (wanted {case.reason!r}), exit {proc.returncode}:\n{output}"
+            if case.status is not None and proc.returncode != case.status:
+                return False, f"wanted exit status {case.status}, got {proc.returncode}:\n{output}"
             message = f"fails as required ({case.reason})"
         if case.verify:
             problem = case.verify(json.loads((build / "report.json").read_text()))

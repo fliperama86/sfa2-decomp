@@ -27,9 +27,12 @@ from pathlib import Path
 
 from elftools.elf.elffile import ELFFile
 
+import pac
 import structgen
 
 SHF_ALLOC = 0x2
+# The name of the baseline executable's image, on the command line and in a unit's `image` key.
+RESIDENT = "resident"
 HEADER_SIZE = 2048
 EXE_MAGIC = b"PS-X EXE"
 # Sections that are not loaded on target and are dropped by the linker script.
@@ -114,6 +117,22 @@ class RodataDecl:
 
 
 @dataclasses.dataclass(frozen=True)
+class ImageDecl:
+    """A module image: one chunk of an archive, loaded by the resident loader to a fixed address."""
+
+    name: str
+    archive: Path
+    slot: int
+    sha256: str
+    address: int
+    payload: bytes = b""  # the chunk's bytes, filled in once the archive has been read
+
+    @property
+    def size(self) -> int:
+        return len(self.payload)
+
+
+@dataclasses.dataclass(frozen=True)
 class UnitDecl:
     name: str
     source: str
@@ -123,6 +142,7 @@ class UnitDecl:
     data: RodataDecl | None = None  # the one initialised data range, if declared
     bss: RodataDecl | None = None  # where the uninitialised data lives, if declared
     kind: str = "c"  # "c", or "asm" for a unit written in assembly
+    image: str = RESIDENT  # the image the unit belongs to: RESIDENT or a declared module image
 
     def loaded(self) -> list[tuple[str, RodataDecl]]:
         """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
@@ -417,17 +437,22 @@ class Config:
     aspsx_version: str
     binutils_prefix: str
     cc1: Cc1Config
-    units: list[UnitDecl]
+    units: list[UnitDecl]  # the units of every image
     symbols_path: Path
     symbol_names: list[str]
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
     expand_div: bool = False  # run maspsx with --expand-div
     include_dirs: tuple[Path, ...] = ()  # extra -I directories for the preprocessor
+    images: list[ImageDecl] = dataclasses.field(default_factory=list)  # module images, in declaration order
     # Filled in during validation of the baseline.
     baseline: bytes = b""
     load: int = 0
     payload_size: int = 0
+
+    def units_of(self, image: str) -> list[UnitDecl]:
+        """The units that belong to one image: RESIDENT or the name of a module image."""
+        return [u for u in self.units if u.image == image]
 
     @property
     def payload(self) -> bytes:
@@ -541,6 +566,142 @@ def bss_overlaps(units: list[UnitDecl]) -> list[str]:
     return errors
 
 
+def geometry_errors(units: list[UnitDecl]) -> list[str]:
+    """The range rules that need no payload, for the units of one image."""
+    errors = []
+    ordered = sorted(units, key=lambda u: u.start)
+    for a, b in zip(ordered, ordered[1:]):
+        if a.end > b.start:
+            errors.append(
+                f"units {a.name!r} and {b.name!r} overlap "
+                f"({a.start:#x}-{a.end:#x} and {b.start:#x}-{b.end:#x})"
+            )
+    return errors + rodata_overlaps(units) + bss_overlaps(units)
+
+
+def payload_errors(units: list[UnitDecl], load: int, size: int) -> list[str]:
+    """The range rules against the payload `[load, load + size)` of the image the units belong to."""
+    errors = []
+    for unit in units:
+        if unit.start < load or unit.end > load + size:
+            errors.append(
+                f"unit {unit.name!r} range {unit.start:#x}-{unit.end:#x} is outside the payload "
+                f"{load:#x}-{load + size:#x}"
+            )
+        for kind, decl in unit.loaded():
+            if decl.address < load or decl.end > load + size:
+                errors.append(
+                    f"unit {unit.name!r} {kind} range {decl.address:#x}-{decl.end:#x} "
+                    f"is outside the payload {load:#x}-{load + size:#x}"
+                )
+        if unit.bss is not None and (unit.bss.address < load + size and load < unit.bss.end):
+            errors.append(
+                f"unit {unit.name!r} bss range {unit.bss.address:#x}-{unit.bss.end:#x} "
+                f"touches the payload {load:#x}-{load + size:#x}"
+            )
+    return errors
+
+
+def parse_images(raw: dict, directory: Path, errors: list[str]) -> list[ImageDecl]:
+    """The structure of [overlays] and the [[image]] tables. The archives are read later."""
+    image_tables = raw.get("image", [])
+    if not isinstance(image_tables, list):
+        errors.append("[[image]] must be an array of tables")
+        return []
+    images: list[ImageDecl] = []
+    seen: set[str] = set()
+    for index, table in enumerate(image_tables):
+        where = f"[[image]] #{index + 1}"
+        if not isinstance(table, dict):
+            errors.append(f"{where}: must be a table")
+            continue
+        name = _get_str(table, "name", where, errors, TAG_RE)
+        if name:
+            where = f"image {name!r}"
+            if name == RESIDENT:
+                errors.append(f"{where}: the name is reserved for the resident image")
+                name = ""
+            elif name in seen:
+                errors.append(f"{where}: duplicate image name")
+                name = ""
+            seen.add(name or RESIDENT)
+        archive = _get_str(table, "archive", where, errors)
+        sha = _get_hex(table, "sha256", where, errors)
+        numbers = {}
+        for key in ("slot", "address"):
+            value = table.get(key)
+            if not isinstance(value, int) or isinstance(value, bool):
+                errors.append(f"{where}: '{key}' must be an integer")
+            else:
+                numbers[key] = value
+        if name and archive and sha and len(numbers) == 2:
+            images.append(ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"]))
+    return images
+
+
+def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list[str]) -> list[ImageDecl]:
+    """Check each image against the loader's tables and its archive; return it with its payload.
+
+    `baseline` is a whole executable that has passed its own checks.
+    """
+    resident = pac.Image(baseline)
+    pointers = overlays.get("table_pointers") if isinstance(overlays, dict) else None
+    if not isinstance(pointers, int) or isinstance(pointers, bool):
+        errors.append("[overlays]: 'table_pointers' must be an integer address, and images need it")
+        return []
+    if pointers % 4 or not resident.start <= pointers <= resident.end - 4:
+        errors.append(
+            f"[overlays]: table_pointers {pointers:#x} is not a word address inside the resident payload "
+            f"{resident.start:#x}-{resident.end:#x}"
+        )
+        return []
+    try:
+        table = pac.destination_tables(resident, pointers)[0]
+    except pac.FormatError as exc:
+        errors.append(f"[overlays]: {exc}")
+        return []
+    read: list[ImageDecl] = []
+    for image in images:
+        where = f"image {image.name!r}"
+        ok = True
+        if image.address % 4:
+            errors.append(f"{where}: address {image.address:#x} is not a multiple of four")
+            ok = False
+        if not 0 <= image.slot < len(table):
+            errors.append(f"{where}: slot {image.slot:#x} is beyond table 0 ({len(table)} entries)")
+            ok = False
+        elif ok and table[image.slot] != image.address:
+            errors.append(
+                f"{where}: address {image.address:#x} differs from entry {image.slot:#x} of table 0 "
+                f"({table[image.slot]:#x})"
+            )
+            ok = False
+        try:
+            data = image.archive.read_bytes()
+        except OSError as exc:
+            errors.append(f"{where}: cannot read archive {image.archive}: {exc}")
+            continue
+        try:
+            chunks = pac.chunk_table(data)
+        except pac.FormatError as exc:
+            errors.append(f"{where}: archive {image.archive.name} is rejected by the archive reader: {exc}")
+            continue
+        found = [c for c in chunks if c["table"] == 0 and c["slot"] == image.slot]
+        if len(found) != 1:
+            errors.append(
+                f"{where}: archive {image.archive.name} has {len(found)} chunks with table number 0 and "
+                f"slot {image.slot:#x}, exactly one is required"
+            )
+            continue
+        payload = data[found[0]["offset"] : found[0]["offset"] + found[0]["size"]]
+        if sha256(payload) != image.sha256:
+            errors.append(f"{where}: chunk sha256 mismatch: chunk is {sha256(payload)}, configuration pins {image.sha256}")
+            continue
+        if ok:
+            read.append(dataclasses.replace(image, payload=payload))
+    return read
+
+
 def load_config(config_path: Path, use_reference: bool = False) -> Config:
     """Read and validate the configuration. Raises ConfigError with every problem found.
 
@@ -613,6 +774,16 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     elif kind:
         errors.append(f"{cc1_where}: kind must be 'remote' or 'local', got {kind!r}")
 
+    # Module images: structure only. The archives are read once the baseline is known.
+    overlays = raw.get("overlays")
+    if overlays is not None and not isinstance(overlays, dict):
+        errors.append("[overlays] must be a table")
+        overlays = None
+    images = parse_images(raw, directory, errors)
+    declared = {t["name"] for t in raw.get("image", []) if isinstance(t, dict) and isinstance(t.get("name"), str)} - {RESIDENT}
+    if raw.get("image") and overlays is None:
+        errors.append("[[image]] needs an [overlays] section with 'table_pointers'")
+
     # Units: structure and geometry that needs no baseline.
     units: list[UnitDecl] = []
     unit_tables = raw.get("unit", [])
@@ -639,6 +810,12 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         if kind not in ("c", "asm"):
             errors.append(f"{where}: kind must be 'c' or 'asm'")
             kind = "c"
+        image_name = table.get("image", RESIDENT)
+        if not isinstance(image_name, str) or not image_name:
+            errors.append(f"{where}: 'image' must be a non-empty string")
+            image_name = RESIDENT
+        elif image_name != RESIDENT and image_name not in declared:
+            errors.append(f"{where}: image {image_name!r} is not declared")
         flags = table.get("flags", [])
         if not isinstance(flags, list) or not all(isinstance(f, str) and FLAG_RE.match(f) for f in flags):
             errors.append(f"{where}: 'flags' must be a list of plain option strings")
@@ -690,19 +867,12 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name))
 
-    # Unit overlap.
-    ordered = sorted(units, key=lambda u: u.start)
-    for a, b in zip(ordered, ordered[1:]):
-        if a.end > b.start:
-            errors.append(
-                f"units {a.name!r} and {b.name!r} overlap "
-                f"({a.start:#x}-{a.end:#x} and {b.start:#x}-{b.end:#x})"
-            )
-
-    errors += rodata_overlaps(units)
-    errors += bss_overlaps(units)
+    # Overlap is judged among the units of one image.
+    errors += geometry_errors([u for u in units if u.image == RESIDENT])
+    for name in dict.fromkeys(u.image for u in units if u.image in declared):
+        errors += [f"image {name!r}: {e}" for e in geometry_errors([u for u in units if u.image == name])]
 
     # symbols.ld
     symbols_path = directory / "symbols.ld"
@@ -784,25 +954,14 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                     f"baseline size {len(config.baseline)} != header {HEADER_SIZE} + payload {config.payload_size}"
                 )
             else:
-                for unit in units:
-                    if unit.start < config.load or unit.end > config.load + config.payload_size:
-                        errors.append(
-                            f"unit {unit.name!r} range {unit.start:#x}-{unit.end:#x} is outside the payload "
-                            f"{config.load:#x}-{config.load + config.payload_size:#x}"
-                        )
-                    for kind, decl in unit.loaded():
-                        if decl.address < config.load or decl.end > config.load + config.payload_size:
-                            errors.append(
-                                f"unit {unit.name!r} {kind} range {decl.address:#x}-{decl.end:#x} "
-                                f"is outside the payload {config.load:#x}-{config.load + config.payload_size:#x}"
-                            )
-                    if unit.bss is not None and (
-                        unit.bss.address < config.load + config.payload_size and config.load < unit.bss.end
-                    ):
-                        errors.append(
-                            f"unit {unit.name!r} bss range {unit.bss.address:#x}-{unit.bss.end:#x} "
-                            f"touches the payload {config.load:#x}-{config.load + config.payload_size:#x}"
-                        )
+                errors += payload_errors(config.units_of(RESIDENT), config.load, config.payload_size)
+                if images and overlays is not None:
+                    config.images = read_images(images, overlays, config.baseline, errors)
+                    for image in config.images:
+                        errors += [
+                            f"image {image.name!r}: {e}"
+                            for e in payload_errors(config.units_of(image.name), image.address, image.size)
+                        ]
     if errors:
         raise ConfigError(errors)
     return config
@@ -1366,6 +1525,9 @@ def build_all(
     if report is None:
         report = {"tag": tag}
     report["tag"] = tag
+    if cfg.images:
+        # Package B builds module images; until it does, a configuration that declares one must not pass.
+        return report, ["module images are not built yet: this tool only validates their declaration"]
     report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
@@ -1625,6 +1787,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--cache", type=Path, help="object cache directory (default: <config dir>/../build/.objcache)")
     parser.add_argument("--no-cache", action="store_true", help="do not read or write the object cache")
+    parser.add_argument("--image", help=f"build one image: '{RESIDENT}' or a declared module image")
     args = parser.parse_args(argv)
 
     if not TAG_RE.match(args.tag):
@@ -1643,6 +1806,11 @@ def main(argv: list[str] | None = None) -> int:
     except ConfigError as exc:
         for error in exc.errors:
             print(f"CONFIG ERROR: {error}")
+        print("RESULT: FAIL")
+        return 2
+
+    if args.image is not None and args.image != RESIDENT and args.image not in [i.name for i in cfg.images]:
+        print(f"CONFIG ERROR: --image {args.image!r} names no declared image")
         print("RESULT: FAIL")
         return 2
 
