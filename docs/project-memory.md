@@ -3367,6 +3367,56 @@ Lessons:
 - When a form looks like a trick, try the honest form once and record the
   result. The unset local looked like one; the parameter form differs.
 
+## Fifty-seventh group: 32 library functions take their names from the reference
+
+The owner chose identifying the library functions without a family as the
+next item on 2026-10-06. Two other candidates stay undecided: more overlay
+modules, and second attempts on the older parked game functions.
+
+No function count of the build changes: 1,746 functions exact, the same
+bytes from C, the same hash. What changes is where 32 of them come from.
+
+What ran:
+
+- The private identification compiles the reference reconstruction of the
+  SDK with this project's compiler and looks for each function in the
+  image. For 33 of the 116 functions without a family it reports the
+  reference's function as equal in every unmasked bit, 27 as part of a
+  whole reference file and 6 alone. All 33 were in the build already,
+  written by round agents under placeholder names, so the importer had
+  passed them over: it took a file only if the build lacked one of its
+  functions.
+- The importer got a mode that counts a function as owned only when a
+  unit under `sdk/` owns it. With it, 32 of the 33 moved: 22 whole
+  reference files and 5 parts of files. The project's own versions of
+  those functions left the tree. Their callers still use the placeholder
+  names, which `symbols.ld` keeps as second names for the same addresses.
+- One is left out: the importer skipped its file because another
+  identified file overlaps it.
+- `families.py` on the new tree: 84 library functions without a family,
+  down from 116; sound has 146, disc 36, graphics 78.
+- Carried over from the review of the last pull request: the comment on
+  the local that is not set on every path now says that reading it is
+  undefined behaviour in C, and the comment in `symbols.ld` on the callees
+  of `slot16` describes the two entries that are left.
+
+What it shows and what it does not: the reference's source for these 32
+functions compiles to the bytes of this game with this compiler. That
+identifies the function as the same code as the reference's. It does not
+show that the reference's source text is the original's.
+
+Not published by the importer on purpose: it had written two part files
+again with a working note from the private adapted copy, about a function
+that is not in those parts. The published files were kept as they were.
+
+Lesson:
+
+- A helper's rule for what to skip is a decision that ages. "Skip a file
+  whose functions the build already has" was right when only the importer
+  owned library functions and wrong once rounds matched library code
+  under placeholder names. The twenty-eighth group had the same lesson
+  from the other side: read what a tool passes over.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

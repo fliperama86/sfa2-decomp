@@ -2282,13 +2282,6 @@ functions = [
 ]
 
 
-[[unit]]
-name = "s158894_r4"
-source = "s158894_r4.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80158f64", address = 0x80158f64, size = 132 },
-]
 
 [[unit]]
 name = "s158894_r4_b"
@@ -2352,13 +2345,6 @@ functions = [
   { name = "func_8015ce44", address = 0x8015ce44, size = 128 },
 ]
 
-[[unit]]
-name = "s15bfe8_r11"
-source = "s15bfe8_r11.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8015cfc8", address = 0x8015cfc8, size = 128 },
-]
 
 
 
@@ -2389,7 +2375,13 @@ source = "s160fbc_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80164e88", address = 0x80164e88, size = 56 },
-  { name = "func_80164ec0", address = 0x80164ec0, size = 48 },
+]
+
+[[unit]]
+name = "s160fbc_r10_b"
+source = "s160fbc_r10_b.c"
+flags = ["-O2", "-G0"]
+functions = [
   { name = "func_80164ef0", address = 0x80164ef0, size = 56 },
 ]
 
@@ -3042,19 +3034,17 @@ functions = [
   { name = "func_801656cc", address = 0x801656cc, size = 32 },
   { name = "func_801656ec", address = 0x801656ec, size = 164 },
   { name = "func_80165790", address = 0x80165790, size = 32 },
-  { name = "func_801657b0", address = 0x801657b0, size = 52 },
-  { name = "func_801657e4", address = 0x801657e4, size = 72 },
+]
+
+[[unit]]
+name = "s15c6b0_r4_b"
+source = "s15c6b0_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
   { name = "func_8016582c", address = 0x8016582c, size = 20 },
   { name = "func_80165840", address = 0x80165840, size = 16 },
 ]
 
-[[unit]]
-name = "s15c6b0_r5"
-source = "s15c6b0_r5.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80165d34", address = 0x80165d34, size = 80 },
-]
 
 
 
@@ -3069,15 +3059,6 @@ functions = [
   { name = "func_801681fc", address = 0x801681fc, size = 32 },
 ]
 
-[[unit]]
-name = "s1682d0_r1"
-source = "s1682d0_r1.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_801682d0", address = 0x801682d0, size = 152 },
-  { name = "func_80168368", address = 0x80168368, size = 64 },
-  { name = "func_801683a8", address = 0x801683a8, size = 64 },
-]
 
 [[unit]]
 name = "s1682d0_r2"
@@ -3100,18 +3081,9 @@ name = "s1682d0_r4"
 source = "s1682d0_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80168f18", address = 0x80168f18, size = 56 },
-  { name = "func_80168f50", address = 0x80168f50, size = 56 },
   { name = "func_80168f88", address = 0x80168f88, size = 196 },
 ]
 
-[[unit]]
-name = "s1682d0_r5"
-source = "s1682d0_r5.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_801691ac", address = 0x801691ac, size = 44 },
-]
 
 
 [[unit]]
@@ -3119,44 +3091,20 @@ name = "s1682d0_r7"
 source = "s1682d0_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80169abc", address = 0x80169abc, size = 104 },
   { name = "func_80169b24", address = 0x80169b24, size = 44 },
 ]
 
-[[unit]]
-name = "s1682d0_r8"
-source = "s1682d0_r8.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016a0cc", address = 0x8016a0cc, size = 160 },
-]
 
-[[unit]]
-name = "s1682d0_r9"
-source = "s1682d0_r9.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016a3b0", address = 0x8016a3b0, size = 144 },
-  { name = "func_8016a440", address = 0x8016a440, size = 92 },
-]
 
 [[unit]]
 name = "s1682d0_r10"
 source = "s1682d0_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8016a730", address = 0x8016a730, size = 148 },
   { name = "func_8016a7c4", address = 0x8016a7c4, size = 32 },
   { name = "func_8016a7e4", address = 0x8016a7e4, size = 148 },
 ]
 
-[[unit]]
-name = "s16b2c8_r1"
-source = "s16b2c8_r1.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016b340", address = 0x8016b340, size = 36 },
-]
 
 
 [[unit]]
@@ -3164,40 +3112,20 @@ name = "s16b2c8_r4"
 source = "s16b2c8_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8016cc18", address = 0x8016cc18, size = 124 },
   { name = "func_8016cc94", address = 0x8016cc94, size = 32 },
 ]
 
-[[unit]]
-name = "s16b2c8_r5"
-source = "s16b2c8_r5.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016ce4c", address = 0x8016ce4c, size = 132 },
-  { name = "func_8016ced0", address = 0x8016ced0, size = 36 },
-]
 
 [[unit]]
 name = "s16b2c8_r5_b"
 source = "s16b2c8_r5_b.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8016cf70", address = 0x8016cf70, size = 168 },
-  { name = "func_8016d018", address = 0x8016d018, size = 84 },
-  { name = "func_8016d06c", address = 0x8016d06c, size = 52 },
-  { name = "func_8016d0a0", address = 0x8016d0a0, size = 60 },
   { name = "func_8016d0dc", address = 0x8016d0dc, size = 96 },
   { name = "func_8016d13c", address = 0x8016d13c, size = 44 },
   { name = "func_8016d168", address = 0x8016d168, size = 16 },
 ]
 
-[[unit]]
-name = "s16b2c8_r6"
-source = "s16b2c8_r6.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016d440", address = 0x8016d440, size = 140 },
-]
 
 [[unit]]
 name = "m12028c_r1"
@@ -3821,58 +3749,16 @@ functions = [
 
 
 
-[[unit]]
-name = "m15bd0c_r4"
-source = "m15bd0c_r4.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8015cec4", address = 0x8015cec4, size = 260 },
-]
 
 
 
 
 
 
-[[unit]]
-name = "m166638_r3"
-source = "m166638_r3.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_801683e8", address = 0x801683e8, size = 256 },
-]
 
-[[unit]]
-name = "m166638_r4"
-source = "m166638_r4.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80168908", address = 0x80168908, size = 268 },
-]
 
-[[unit]]
-name = "m166638_r5"
-source = "m166638_r5.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80168e18", address = 0x80168e18, size = 256 },
-]
 
-[[unit]]
-name = "m166638_r6"
-source = "m166638_r6.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016a49c", address = 0x8016a49c, size = 208 },
-]
 
-[[unit]]
-name = "m166638_r7"
-source = "m166638_r7.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_8016cd84", address = 0x8016cd84, size = 200 },
-]
 
 [[unit]]
 name = "l121058_r2"
@@ -6259,261 +6145,23 @@ functions = [
   { name = "_SsSndCrescendo", address = 0x80169b50, size = 1404 },
 ]
 
-[[unit]]
-name = "sdk_libapi_counter_p1"
-source = "sdk/libapi/counter_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "GetRCnt", address = 0x801576e8, size = 56 },
-]
 
-[[unit]]
-name = "sdk_libcd_sys_p1"
-source = "sdk/libcd/sys_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "CdReset", address = 0x8015c824, size = 108 },
-  { name = "CdFlush", address = 0x8015c890, size = 32 },
-  { name = "CdSetDebug", address = 0x8015c8b0, size = 24 },
-  { name = "CdComstr", address = 0x8015c8c8, size = 56 },
-  { name = "CdIntstr", address = 0x8015c900, size = 56 },
-]
-rodata = { address = 0x8016df0c, size = 8 }
 
-[[unit]]
-name = "sdk_libcd_sys_p2"
-source = "sdk/libcd/sys_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "CdControl", address = 0x8015c9c0, size = 328 },
-  { name = "CdControlF", address = 0x8015cb08, size = 316 },
-  { name = "CdControlB", address = 0x8015cc44, size = 340 },
-  { name = "CdMix", address = 0x8015cd98, size = 36 },
-  { name = "CdGetSector", address = 0x8015cdbc, size = 36 },
-  { name = "CdDataCallback", address = 0x8015cde0, size = 36 },
-]
 
-[[unit]]
-name = "sdk_libgpu_sys_p1"
-source = "sdk/libgpu/sys_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "ResetGraph", address = 0x801578fc, size = 348 },
-  { name = "SetGraphReverse", address = 0x80157a58, size = 276 },
-  { name = "SetGraphDebug", address = 0x80157b6c, size = 108 },
-  { name = "SetGraphQueue", address = 0x80157bd8, size = 172 },
-  { name = "GetGraphType", address = 0x80157c84, size = 16 },
-  { name = "GetGraphDebug", address = 0x80157c94, size = 16 },
-  { name = "DrawSyncCallback", address = 0x80157ca4, size = 92 },
-  { name = "SetDispMask", address = 0x80157d00, size = 156 },
-  { name = "DrawSync", address = 0x80157d9c, size = 108 },
-  { name = "checkRECT", address = 0x80157e08, size = 296 },
-  { name = "ClearImage", address = 0x80157f30, size = 148 },
-  { name = "LoadImage", address = 0x80157fc4, size = 100 },
-  { name = "StoreImage", address = 0x80158028, size = 100 },
-  { name = "MoveImage", address = 0x8015808c, size = 196 },
-  { name = "ClearOTag", address = 0x80158150, size = 184 },
-  { name = "ClearOTagR", address = 0x80158208, size = 152 },
-  { name = "DrawPrim", address = 0x801582a0, size = 96 },
-  { name = "DrawOTag", address = 0x80158300, size = 116 },
-]
-rodata = { address = 0x8016db08, size = 360 }
 
-[[unit]]
-name = "sdk_libgpu_sys_p2"
-source = "sdk/libgpu/sys_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "GetODE", address = 0x801588cc, size = 52 },
-  { name = "SetTexWindow", address = 0x80158900, size = 60 },
-  { name = "SetDrawArea", address = 0x8015893c, size = 132 },
-  { name = "SetDrawOffset", address = 0x801589c0, size = 68 },
-  { name = "SetPriority", address = 0x80158a04, size = 40 },
-  { name = "SetDrawMode", address = 0x80158a2c, size = 88 },
-]
 
-[[unit]]
-name = "sdk_libgpu_sys_p4"
-source = "sdk/libgpu/sys_p4.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_otc", address = 0x801590bc, size = 232 },
-]
 
-[[unit]]
-name = "sdk_libgpu_sys_p5"
-source = "sdk/libgpu/sys_p5.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_cwb", address = 0x80159900, size = 80 },
-  { name = "_cwc", address = 0x80159950, size = 76 },
-  { name = "_param", address = 0x8015999c, size = 48 },
-  { name = "_addque", address = 0x801599cc, size = 36 },
-]
 
-[[unit]]
-name = "sdk_libgpu_sys_p6"
-source = "sdk/libgpu/sys_p6.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_reset", address = 0x8015a000, size = 316 },
-  { name = "_sync", address = 0x8015a13c, size = 328 },
-  { name = "set_alarm", address = 0x8015a284, size = 52 },
-]
 
-[[unit]]
-name = "sdk_libgpu_sys_p7"
-source = "sdk/libgpu/sys_p7.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "gpu_probe", address = 0x8015a424, size = 224 },
-  { name = "memset2", address = 0x8015a504, size = 44 },
-]
 
-[[unit]]
-name = "sdk_libsnd_seqread_p1"
-source = "sdk/libsnd/seqread_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_SsSeqPlay", address = 0x80166274, size = 276 },
-  { name = "_SsGetSeqData", address = 0x80166388, size = 688 },
-  { name = "_SsNoteOn", address = 0x80166638, size = 280 },
-  { name = "_SsSetProgramChange", address = 0x80166750, size = 124 },
-  { name = "_SsSetControlChange", address = 0x801667cc, size = 924 },
-  { name = "_SsContModulation", address = 0x80166b68, size = 316 },
-  { name = "_SsContPortaTime", address = 0x80166ca4, size = 316 },
-  { name = "_SsContPortamento", address = 0x80166de0, size = 360 },
-  { name = "_SsContResetAll", address = 0x80166f48, size = 204 },
-  { name = "_SsContNrpn1", address = 0x80167014, size = 308 },
-  { name = "_SsContNrpn2", address = 0x80167148, size = 328 },
-  { name = "_SsContRpn1", address = 0x80167290, size = 124 },
-  { name = "_SsContRpn2", address = 0x8016730c, size = 124 },
-]
-rodata = { address = 0x8016e250, size = 488 }
 
-[[unit]]
-name = "sdk_libsnd_seqread_p2"
-source = "sdk/libsnd/seqread_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_SsSndSetVabAttr", address = 0x80167968, size = 716 },
-  { name = "_SsSetPitchBend", address = 0x80167c34, size = 176 },
-  { name = "_SsGetMetaEvent", address = 0x80167ce4, size = 852 },
-  { name = "_SsReadDeltaValue", address = 0x80168038, size = 188 },
-]
-rodata = { address = 0x8016e438, size = 140 }
 
-[[unit]]
-name = "sdk_libsnd_ssstart_p1"
-source = "sdk/libsnd/ssstart_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_SsStart", address = 0x8016541c, size = 656 },
-]
 
-[[unit]]
-name = "sdk_libsnd_vmanager_p1"
-source = "sdk/libsnd/vmanager_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "SpuVmKeyOnNow", address = 0x8016023c, size = 1248 },
-  { name = "SpuVmDoAllocate", address = 0x8016071c, size = 564 },
-  { name = "vmNoiseOn", address = 0x80160950, size = 1220 },
-  { name = "vmNoiseOn2", address = 0x80160e14, size = 424 },
-  { name = "note2pitch", address = 0x80160fbc, size = 188 },
-  { name = "note2pitch2", address = 0x80161078, size = 256 },
-  { name = "SePitchBend", address = 0x80161178, size = 440 },
-  { name = "SsUtVibrateOn", address = 0x80161330, size = 8 },
-  { name = "SsUtVibrateOff", address = 0x80161338, size = 8 },
-  { name = "SeAutoVol", address = 0x80161340, size = 440 },
-  { name = "SetAutoVol", address = 0x801614f8, size = 908 },
-  { name = "SeAutoPan", address = 0x80161884, size = 440 },
-  { name = "SetAutoPan", address = 0x80161a3c, size = 896 },
-  { name = "SpuVmInit", address = 0x80161dbc, size = 1024 },
-  { name = "SpuVmNoiseOnWithAdsr", address = 0x801621bc, size = 152 },
-  { name = "SpuVmNoiseOff", address = 0x80162254, size = 180 },
-  { name = "SpuVmNoiseOn", address = 0x80162308, size = 128 },
-  { name = "SpuVmPBVoice", address = 0x80162388, size = 536 },
-  { name = "SpuVmPitchBend", address = 0x801625a0, size = 240 },
-  { name = "SpuVmFlush", address = 0x80162690, size = 964 },
-  { name = "SpuVmKeyOn", address = 0x80162a54, size = 1216 },
-  { name = "SpuVmKeyOff", address = 0x80162f14, size = 504 },
-  { name = "SpuVmSeKeyOn", address = 0x8016310c, size = 236 },
-  { name = "SpuVmSeKeyOff", address = 0x801631f8, size = 52 },
-  { name = "KeyOnCheck", address = 0x8016322c, size = 8 },
-  { name = "SpuVmSetSeqVol", address = 0x80163234, size = 376 },
-  { name = "SpuVmGetSeqVol", address = 0x801633ac, size = 112 },
-  { name = "SpuVmGetSeqLVol", address = 0x8016341c, size = 84 },
-  { name = "SpuVmGetSeqRVol", address = 0x80163470, size = 84 },
-  { name = "SpuVmSeqKeyOff", address = 0x801634c4, size = 320 },
-  { name = "SpuVmSetProgVol", address = 0x80163604, size = 116 },
-  { name = "SpuVmGetProgVol", address = 0x80163678, size = 84 },
-  { name = "SpuVmSetProgPan", address = 0x801636cc, size = 116 },
-  { name = "SpuVmGetProgPan", address = 0x80163740, size = 84 },
-]
 
-[[unit]]
-name = "sdk_libsnd_vmanager_p2"
-source = "sdk/libsnd/vmanager_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "SsUtKeyOn", address = 0x80163b58, size = 1000 },
-  { name = "SsUtKeyOff", address = 0x80163f40, size = 512 },
-  { name = "SsUtKeyOnV", address = 0x80164140, size = 1004 },
-  { name = "SsUtKeyOffV", address = 0x8016452c, size = 280 },
-  { name = "SsUtPitchBend", address = 0x80164644, size = 144 },
-  { name = "SsUtChangePitch", address = 0x801646d4, size = 344 },
-  { name = "SsUtChangeADSR", address = 0x8016482c, size = 236 },
-  { name = "SsUtGetDetVVol", address = 0x80164918, size = 88 },
-  { name = "SsUtSetDetVVol", address = 0x80164970, size = 124 },
-  { name = "SsUtGetVVol", address = 0x801649ec, size = 140 },
-  { name = "SsUtSetVVol", address = 0x80164a78, size = 156 },
-  { name = "SsUtAutoVol", address = 0x80164b14, size = 84 },
-  { name = "SsUtAutoPan", address = 0x80164b68, size = 84 },
-  { name = "SsUtAllKeyOff", address = 0x80164bbc, size = 504 },
-]
 
-[[unit]]
-name = "sdk_libspu_s_m_m_p1"
-source = "sdk/libspu/s_m_m_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "SpuMalloc", address = 0x8016d178, size = 712 },
-]
 
-[[unit]]
-name = "sdk_libspu_s_m_m_p2"
-source = "sdk/libspu/s_m_m_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_spu_gcSPU", address = 0x8016d4cc, size = 768 },
-]
 
-[[unit]]
-name = "sdk_libspu_spu_p1"
-source = "sdk/libspu/spu_p1.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_spu_reset", address = 0x8016b6f8, size = 144 },
-]
 
-[[unit]]
-name = "sdk_libspu_spu_p2"
-source = "sdk/libspu/spu_p2.c"
-flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
-functions = [
-  { name = "_spu_setVoiceRegs", address = 0x8016bd40, size = 392 },
-  { name = "_spu_writeByIO", address = 0x8016bec8, size = 836 },
-  { name = "_spu_FiDMA", address = 0x8016c20c, size = 428 },
-  { name = "_spu_r_", address = 0x8016c3b8, size = 496 },
-  { name = "_spu_t", address = 0x8016c5a8, size = 680 },
-  { name = "_spu_write", address = 0x8016c850, size = 136 },
-  { name = "_spu_read", address = 0x8016c8d8, size = 104 },
-  { name = "_spu_FsetRXX", address = 0x8016c940, size = 72 },
-  { name = "_spu_FsetRXXa", address = 0x8016c988, size = 164 },
-  { name = "_spu_FgetRXXa", address = 0x8016ca2c, size = 60 },
-]
-rodata = { address = 0x8016e584, size = 40 }
 
 [[unit]]
 name = "v27_r1"
@@ -8022,3 +7670,480 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014e54c", address = 0x8014e54c, size = 168 },
 ]
+
+[[unit]]
+name = "sdk_libsnd_scsmvol"
+source = "sdk/libsnd/scsmvol.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSetMVol", address = 0x80165d34, size = 80 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_rdep"
+source = "sdk/libsnd/ut_rdep.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtSetReverbDepth", address = 0x801682d0, size = 152 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_rfb"
+source = "sdk/libsnd/ut_rfb.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtSetReverbFeedback", address = 0x80168368, size = 64 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_rdel"
+source = "sdk/libsnd/ut_rdel.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtSetReverbDelay", address = 0x801683a8, size = 64 },
+]
+
+[[unit]]
+name = "sdk_libsnd_next"
+source = "sdk/libsnd/next.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndNextSep", address = 0x801683e8, size = 256 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ut_gpa"
+source = "sdk/libsnd/ut_gpa.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtGetProgAtr", address = 0x80168908, size = 268 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssplay"
+source = "sdk/libsnd/ssplay.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "Snd_SetPlayMode", address = 0x80168e18, size = 256 },
+  { name = "SsSeqPlay", address = 0x80168f18, size = 56 },
+  { name = "SsSepPlay", address = 0x80168f50, size = 56 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vs_vtc"
+source = "sdk/libsnd/vs_vtc.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsVabTransCompleted", address = 0x801691ac, size = 44 },
+]
+
+[[unit]]
+name = "sdk_libsnd_replay"
+source = "sdk/libsnd/replay.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndReplay", address = 0x80169abc, size = 104 },
+]
+
+[[unit]]
+name = "sdk_libsnd_pause"
+source = "sdk/libsnd/pause.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndPause", address = 0x8016a0cc, size = 160 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vs_vab"
+source = "sdk/libsnd/vs_vab.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsVabClose", address = 0x8016a3b0, size = 144 },
+  { name = "SsVabOpen", address = 0x8016a440, size = 92 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vs_vtb"
+source = "sdk/libsnd/vs_vtb.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsVabTransBody", address = 0x8016a49c, size = 208 },
+]
+
+[[unit]]
+name = "sdk_libsnd_scssattr"
+source = "sdk/libsnd/scssattr.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSetSerialAttr", address = 0x8016a730, size = 148 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_snv"
+source = "sdk/libspu/s_snv.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetNoiseVoice", address = 0x8016b340, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_f"
+source = "sdk/libspu/s_m_f.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuFree", address = 0x8016cc18, size = 124 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_ini"
+source = "sdk/libspu/s_ini.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SpuInit", address = 0x8016cd84, size = 200 },
+  { name = "SpuStart", address = 0x8016ce4c, size = 132 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_dcb"
+source = "sdk/libspu/s_dcb.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SpuDataCallback", address = 0x8016ced0, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_itc"
+source = "sdk/libspu/s_itc.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuIsTransferCompleted", address = 0x8016cf70, size = 168 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_init"
+source = "sdk/libspu/s_m_init.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuInitMalloc", address = 0x8016d018, size = 84 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_stm"
+source = "sdk/libspu/s_stm.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetTransferMode", address = 0x8016d06c, size = 52 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_stsa"
+source = "sdk/libspu/s_stsa.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuSetTransferStartAddr", address = 0x8016d0a0, size = 60 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_wp"
+source = "sdk/libspu/s_wp.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuWritePartly", address = 0x8016d440, size = 140 },
+]
+
+[[unit]]
+name = "sdk_libapi_counter_p1"
+source = "sdk/libapi/counter_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "GetRCnt", address = 0x801576e8, size = 56 },
+]
+
+[[unit]]
+name = "sdk_libcd_sys_p1"
+source = "sdk/libcd/sys_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdReset", address = 0x8015c824, size = 108 },
+  { name = "CdFlush", address = 0x8015c890, size = 32 },
+  { name = "CdSetDebug", address = 0x8015c8b0, size = 24 },
+  { name = "CdComstr", address = 0x8015c8c8, size = 56 },
+  { name = "CdIntstr", address = 0x8015c900, size = 56 },
+]
+rodata = { address = 0x8016df0c, size = 8 }
+
+[[unit]]
+name = "sdk_libcd_sys_p2"
+source = "sdk/libcd/sys_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdControl", address = 0x8015c9c0, size = 328 },
+  { name = "CdControlF", address = 0x8015cb08, size = 316 },
+  { name = "CdControlB", address = 0x8015cc44, size = 340 },
+  { name = "CdMix", address = 0x8015cd98, size = 36 },
+  { name = "CdGetSector", address = 0x8015cdbc, size = 36 },
+  { name = "CdDataCallback", address = 0x8015cde0, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libcd_sys_p3"
+source = "sdk/libcd/sys_p3.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "CdIntToPos", address = 0x8015cec4, size = 260 },
+  { name = "CdPosToInt", address = 0x8015cfc8, size = 128 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p1"
+source = "sdk/libgpu/sys_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "ResetGraph", address = 0x801578fc, size = 348 },
+  { name = "SetGraphReverse", address = 0x80157a58, size = 276 },
+  { name = "SetGraphDebug", address = 0x80157b6c, size = 108 },
+  { name = "SetGraphQueue", address = 0x80157bd8, size = 172 },
+  { name = "GetGraphType", address = 0x80157c84, size = 16 },
+  { name = "GetGraphDebug", address = 0x80157c94, size = 16 },
+  { name = "DrawSyncCallback", address = 0x80157ca4, size = 92 },
+  { name = "SetDispMask", address = 0x80157d00, size = 156 },
+  { name = "DrawSync", address = 0x80157d9c, size = 108 },
+  { name = "checkRECT", address = 0x80157e08, size = 296 },
+  { name = "ClearImage", address = 0x80157f30, size = 148 },
+  { name = "LoadImage", address = 0x80157fc4, size = 100 },
+  { name = "StoreImage", address = 0x80158028, size = 100 },
+  { name = "MoveImage", address = 0x8015808c, size = 196 },
+  { name = "ClearOTag", address = 0x80158150, size = 184 },
+  { name = "ClearOTagR", address = 0x80158208, size = 152 },
+  { name = "DrawPrim", address = 0x801582a0, size = 96 },
+  { name = "DrawOTag", address = 0x80158300, size = 116 },
+]
+rodata = { address = 0x8016db08, size = 360 }
+
+[[unit]]
+name = "sdk_libgpu_sys_p2"
+source = "sdk/libgpu/sys_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "GetODE", address = 0x801588cc, size = 52 },
+  { name = "SetTexWindow", address = 0x80158900, size = 60 },
+  { name = "SetDrawArea", address = 0x8015893c, size = 132 },
+  { name = "SetDrawOffset", address = 0x801589c0, size = 68 },
+  { name = "SetPriority", address = 0x80158a04, size = 40 },
+  { name = "SetDrawMode", address = 0x80158a2c, size = 88 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p3"
+source = "sdk/libgpu/sys_p3.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "get_tw", address = 0x80158f64, size = 132 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p4"
+source = "sdk/libgpu/sys_p4.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_otc", address = 0x801590bc, size = 232 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p5"
+source = "sdk/libgpu/sys_p5.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_cwb", address = 0x80159900, size = 80 },
+  { name = "_cwc", address = 0x80159950, size = 76 },
+  { name = "_param", address = 0x8015999c, size = 48 },
+  { name = "_addque", address = 0x801599cc, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p6"
+source = "sdk/libgpu/sys_p6.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_reset", address = 0x8015a000, size = 316 },
+  { name = "_sync", address = 0x8015a13c, size = 328 },
+  { name = "set_alarm", address = 0x8015a284, size = 52 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p7"
+source = "sdk/libgpu/sys_p7.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "gpu_probe", address = 0x8015a424, size = 224 },
+  { name = "memset2", address = 0x8015a504, size = 44 },
+]
+
+[[unit]]
+name = "sdk_libsnd_seqread_p1"
+source = "sdk/libsnd/seqread_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSeqPlay", address = 0x80166274, size = 276 },
+  { name = "_SsGetSeqData", address = 0x80166388, size = 688 },
+  { name = "_SsNoteOn", address = 0x80166638, size = 280 },
+  { name = "_SsSetProgramChange", address = 0x80166750, size = 124 },
+  { name = "_SsSetControlChange", address = 0x801667cc, size = 924 },
+  { name = "_SsContModulation", address = 0x80166b68, size = 316 },
+  { name = "_SsContPortaTime", address = 0x80166ca4, size = 316 },
+  { name = "_SsContPortamento", address = 0x80166de0, size = 360 },
+  { name = "_SsContResetAll", address = 0x80166f48, size = 204 },
+  { name = "_SsContNrpn1", address = 0x80167014, size = 308 },
+  { name = "_SsContNrpn2", address = 0x80167148, size = 328 },
+  { name = "_SsContRpn1", address = 0x80167290, size = 124 },
+  { name = "_SsContRpn2", address = 0x8016730c, size = 124 },
+]
+rodata = { address = 0x8016e250, size = 488 }
+
+[[unit]]
+name = "sdk_libsnd_seqread_p2"
+source = "sdk/libsnd/seqread_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSndSetVabAttr", address = 0x80167968, size = 716 },
+  { name = "_SsSetPitchBend", address = 0x80167c34, size = 176 },
+  { name = "_SsGetMetaEvent", address = 0x80167ce4, size = 852 },
+  { name = "_SsReadDeltaValue", address = 0x80168038, size = 188 },
+]
+rodata = { address = 0x8016e438, size = 140 }
+
+[[unit]]
+name = "sdk_libsnd_ssstart_p1"
+source = "sdk/libsnd/ssstart_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsStart", address = 0x8016541c, size = 656 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssstart_p2a"
+source = "sdk/libsnd/ssstart_p2a.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsTrapIntrVSync", address = 0x801657b0, size = 52 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssstart_p2b"
+source = "sdk/libsnd/ssstart_p2b.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsSeqCalledTbyT_1per2", address = 0x801657e4, size = 72 },
+]
+
+[[unit]]
+name = "sdk_libsnd_ssvol_p1"
+source = "sdk/libsnd/ssvol_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsSeqSetVol", address = 0x80164ec0, size = 48 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vmanager_p1"
+source = "sdk/libsnd/vmanager_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmKeyOnNow", address = 0x8016023c, size = 1248 },
+  { name = "SpuVmDoAllocate", address = 0x8016071c, size = 564 },
+  { name = "vmNoiseOn", address = 0x80160950, size = 1220 },
+  { name = "vmNoiseOn2", address = 0x80160e14, size = 424 },
+  { name = "note2pitch", address = 0x80160fbc, size = 188 },
+  { name = "note2pitch2", address = 0x80161078, size = 256 },
+  { name = "SePitchBend", address = 0x80161178, size = 440 },
+  { name = "SsUtVibrateOn", address = 0x80161330, size = 8 },
+  { name = "SsUtVibrateOff", address = 0x80161338, size = 8 },
+  { name = "SeAutoVol", address = 0x80161340, size = 440 },
+  { name = "SetAutoVol", address = 0x801614f8, size = 908 },
+  { name = "SeAutoPan", address = 0x80161884, size = 440 },
+  { name = "SetAutoPan", address = 0x80161a3c, size = 896 },
+  { name = "SpuVmInit", address = 0x80161dbc, size = 1024 },
+  { name = "SpuVmNoiseOnWithAdsr", address = 0x801621bc, size = 152 },
+  { name = "SpuVmNoiseOff", address = 0x80162254, size = 180 },
+  { name = "SpuVmNoiseOn", address = 0x80162308, size = 128 },
+  { name = "SpuVmPBVoice", address = 0x80162388, size = 536 },
+  { name = "SpuVmPitchBend", address = 0x801625a0, size = 240 },
+  { name = "SpuVmFlush", address = 0x80162690, size = 964 },
+  { name = "SpuVmKeyOn", address = 0x80162a54, size = 1216 },
+  { name = "SpuVmKeyOff", address = 0x80162f14, size = 504 },
+  { name = "SpuVmSeKeyOn", address = 0x8016310c, size = 236 },
+  { name = "SpuVmSeKeyOff", address = 0x801631f8, size = 52 },
+  { name = "KeyOnCheck", address = 0x8016322c, size = 8 },
+  { name = "SpuVmSetSeqVol", address = 0x80163234, size = 376 },
+  { name = "SpuVmGetSeqVol", address = 0x801633ac, size = 112 },
+  { name = "SpuVmGetSeqLVol", address = 0x8016341c, size = 84 },
+  { name = "SpuVmGetSeqRVol", address = 0x80163470, size = 84 },
+  { name = "SpuVmSeqKeyOff", address = 0x801634c4, size = 320 },
+  { name = "SpuVmSetProgVol", address = 0x80163604, size = 116 },
+  { name = "SpuVmGetProgVol", address = 0x80163678, size = 84 },
+  { name = "SpuVmSetProgPan", address = 0x801636cc, size = 116 },
+  { name = "SpuVmGetProgPan", address = 0x80163740, size = 84 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vmanager_p2"
+source = "sdk/libsnd/vmanager_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SsUtKeyOn", address = 0x80163b58, size = 1000 },
+  { name = "SsUtKeyOff", address = 0x80163f40, size = 512 },
+  { name = "SsUtKeyOnV", address = 0x80164140, size = 1004 },
+  { name = "SsUtKeyOffV", address = 0x8016452c, size = 280 },
+  { name = "SsUtPitchBend", address = 0x80164644, size = 144 },
+  { name = "SsUtChangePitch", address = 0x801646d4, size = 344 },
+  { name = "SsUtChangeADSR", address = 0x8016482c, size = 236 },
+  { name = "SsUtGetDetVVol", address = 0x80164918, size = 88 },
+  { name = "SsUtSetDetVVol", address = 0x80164970, size = 124 },
+  { name = "SsUtGetVVol", address = 0x801649ec, size = 140 },
+  { name = "SsUtSetVVol", address = 0x80164a78, size = 156 },
+  { name = "SsUtAutoVol", address = 0x80164b14, size = 84 },
+  { name = "SsUtAutoPan", address = 0x80164b68, size = 84 },
+  { name = "SsUtAllKeyOff", address = 0x80164bbc, size = 504 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_m_p1"
+source = "sdk/libspu/s_m_m_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuMalloc", address = 0x8016d178, size = 712 },
+]
+
+[[unit]]
+name = "sdk_libspu_s_m_m_p2"
+source = "sdk/libspu/s_m_m_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_gcSPU", address = 0x8016d4cc, size = 768 },
+]
+
+[[unit]]
+name = "sdk_libspu_spu_p1"
+source = "sdk/libspu/spu_p1.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_reset", address = 0x8016b6f8, size = 144 },
+]
+
+[[unit]]
+name = "sdk_libspu_spu_p2"
+source = "sdk/libspu/spu_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_setVoiceRegs", address = 0x8016bd40, size = 392 },
+  { name = "_spu_writeByIO", address = 0x8016bec8, size = 836 },
+  { name = "_spu_FiDMA", address = 0x8016c20c, size = 428 },
+  { name = "_spu_r_", address = 0x8016c3b8, size = 496 },
+  { name = "_spu_t", address = 0x8016c5a8, size = 680 },
+  { name = "_spu_write", address = 0x8016c850, size = 136 },
+  { name = "_spu_read", address = 0x8016c8d8, size = 104 },
+  { name = "_spu_FsetRXX", address = 0x8016c940, size = 72 },
+  { name = "_spu_FsetRXXa", address = 0x8016c988, size = 164 },
+  { name = "_spu_FgetRXXa", address = 0x8016ca2c, size = 60 },
+]
+rodata = { address = 0x8016e584, size = 40 }

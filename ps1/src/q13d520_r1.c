@@ -9,7 +9,10 @@ void func_8013f2a8(Object *object, u8 index, u8 arg);
 void func_8013f1bc(Object *object, u8 index, u8 arg, u16 entry);
 
 /* buttons is not set on every path: when data_801a6984 is not zero and the
-   second condition does not hold, the code tests the register as it is. A
+   second condition does not hold, the code tests the register as it is.
+   Reading the unset local is undefined behaviour in C. It reproduces the
+   original's instructions with this compiler and is not a defined
+   implementation: a port has to give buttons a value on that path. A
    fourth parameter in place of the local was tried and gives other code. The
    call to func_8013f1bc is written with a fourth argument, entry, because the
    original has that value in the fourth argument register at the call; the

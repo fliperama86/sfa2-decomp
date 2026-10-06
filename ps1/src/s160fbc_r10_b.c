@@ -4,6 +4,6 @@
 #include "protos.h"
 
 
-short func_801691ac(short a) {
-    return func_8016cf70(a);
+void func_80164ef0(int a, int b, unsigned short c, unsigned short d) {
+    func_80163234(a | (b << 8), c, d, 0);
 }
