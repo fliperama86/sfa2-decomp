@@ -127,6 +127,8 @@ class ImageDecl:
     address: int
     payload: bytes = b""  # the chunk's bytes, filled in once the archive has been read
     symbols: dict = dataclasses.field(default_factory=dict)  # [image.symbols]: addresses of names of symbols.ld in this image
+    like: str | None = None  # the module image that this one is linked a second time from, None for an ordinary image
+    leave_out: tuple[str, ...] = ()  # units of that image that a second link does not link
 
     @property
     def size(self) -> int:
@@ -455,6 +457,21 @@ class Config:
         """The units that belong to one image: RESIDENT or the name of a module image."""
         return [u for u in self.units if u.image == image]
 
+    def placed_units(self, image: str) -> tuple[list[UnitDecl], tuple[str, ...]]:
+        """The units that the link of `image` takes, and the names among them that it leaves out.
+
+        An image that is not a second link takes its own units. A second link takes every unit of
+        the image it is like, each range moved by the difference of the two addresses: the placement
+        map. The units keep their names and are marked as units of the second link. It holds the
+        units that are left out too.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        first = None if decl is None or decl.like is None else next((i for i in self.images if i.name == decl.like), None)
+        if first is None:
+            return self.units_of(image), ()
+        shift = decl.address - first.address
+        return [move_unit(u, shift, image) for u in self.units_of(first.name)], decl.leave_out
+
     def functions_of_others(self, image: str) -> list[tuple[str, int, str]]:
         """The declared functions of the units of every image but `image`: (name, address, declaring image)."""
         return [(fn.name, fn.address, u.image) for u in self.units if u.image != image for fn in u.functions]
@@ -466,6 +483,19 @@ class Config:
     @property
     def header(self) -> bytes:
         return self.baseline[:HEADER_SIZE]
+
+
+def move_unit(unit: UnitDecl, shift: int, image: str) -> UnitDecl:
+    """A copy of `unit` with every function, rodata, data and bss address moved by `shift`, in `image`."""
+    moved = lambda d: None if d is None else dataclasses.replace(d, address=d.address + shift)
+    return dataclasses.replace(
+        unit,
+        functions=tuple(dataclasses.replace(f, address=f.address + shift) for f in unit.functions),
+        rodata=moved(unit.rodata),
+        data=moved(unit.data),
+        bss=moved(unit.bss),
+        image=image,
+    )
 
 
 def _expand(value: str, directory: Path) -> Path:
@@ -646,6 +676,16 @@ def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[Im
                 errors.append(f"{where}: '{key}' must be an integer")
             else:
                 numbers[key] = value
+        like = table.get("like")
+        if like is not None and (not isinstance(like, str) or not like):
+            errors.append(f"{where}: 'like' must be a non-empty string")
+            like = None
+        elif like is None and "leave_out" in table:
+            errors.append(f"{where}: 'leave_out' needs 'like': only a second link leaves units out")
+        leave_out = table.get("leave_out")
+        if leave_out is not None and (not isinstance(leave_out, list) or not all(isinstance(n, str) for n in leave_out)):
+            errors.append(f"{where}: 'leave_out' must be a list of unit names")
+            leave_out = None
         local: dict[str, int] = {}
         table_symbols = table.get("symbols", {})
         if not isinstance(table_symbols, dict):
@@ -658,9 +698,60 @@ def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[Im
                     local[key] = value
         if name and archive and sha and len(numbers) == 2:
             images.append(
-                ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"], symbols=local)
+                ImageDecl(
+                    name, _expand(archive, directory), numbers["slot"], sha, numbers["address"], symbols=local,
+                    like=like, leave_out=tuple(leave_out or ()),
+                )
             )
     return images, declared - {RESIDENT}
+
+
+def second_link_errors(images: list[ImageDecl], declared: set[str]) -> list[str]:
+    """The faults of the `like` and `leave_out` keys that need no unit and no baseline.
+
+    A `like` that names an image with other faults is not reported again: that image has its own errors.
+    """
+    errors = []
+    by_name = {i.name: i for i in images}
+    for image in images:
+        where = f"image {image.name!r}"
+        if image.like is not None:
+            first = by_name.get(image.like)
+            if image.like == image.name:
+                errors.append(f"{where}: 'like' names the image itself")
+            elif image.like not in declared:
+                errors.append(f"{where}: 'like' names {image.like!r}, which is not a declared image")
+            elif first is not None and first.like is not None:
+                errors.append(f"{where}: 'like' names {image.like!r}, which is a second link itself")
+        # Whether the names are units of the first image is checked once the units are known.
+    return errors
+
+
+def second_link_unit_errors(images: list[ImageDecl], units: list[UnitDecl]) -> list[str]:
+    """The names in `leave_out`: each must be a unit of the first image, once."""
+    errors = []
+    for image in images:
+        if image.like is None or image.like == image.name:
+            continue
+        where = f"image {image.name!r}"
+        of_first = {u.name for u in units if u.image == image.like}
+        seen: set[str] = set()
+        for name in image.leave_out:
+            if name not in of_first:
+                errors.append(f"{where}: 'leave_out' names {name!r}, which is not a unit of image {image.like!r}")
+            elif name in seen:
+                errors.append(f"{where}: 'leave_out' names {name!r} twice")
+            seen.add(name)
+    return errors
+
+
+def moved_range_errors(config: "Config", image: ImageDecl) -> list[str]:
+    """The range rules against the payload of a second link, for every unit of the image it is like."""
+    first = next((i for i in config.images if i.name == image.like), None)
+    if first is None or first.like is not None:
+        return []
+    units, _ = config.placed_units(image.name)
+    return [f"image {image.name!r}: moved {e}" for e in payload_errors(units, image.address, image.size)]
 
 
 def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list[str]) -> list[ImageDecl]:
@@ -807,6 +898,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         errors.append("[overlays] must be a table")
         overlays = None
     images, declared = parse_images(raw, directory, errors)
+    errors += second_link_errors(images, declared)
+    second_links = {i.name for i in images if i.like is not None}
     if images and overlays is None:
         errors.append("[[image]] needs an [overlays] section with 'table_pointers'")
 
@@ -842,6 +935,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             image_name = RESIDENT
         elif image_name != RESIDENT and image_name not in declared:
             errors.append(f"{where}: image {image_name!r} is not declared")
+        elif image_name in second_links:
+            errors.append(f"{where}: image {image_name!r} is a second link and has no units of its own")
         flags = table.get("flags", [])
         if not isinstance(flags, list) or not all(isinstance(f, str) and FLAG_RE.match(f) for f in flags):
             errors.append(f"{where}: 'flags' must be a list of plain option strings")
@@ -894,6 +989,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 contiguous = False
         if contiguous:
             units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name))
+
+    errors += second_link_unit_errors(images, units)
 
     # Overlap is judged among the units of one image.
     errors += geometry_errors([u for u in units if u.image == RESIDENT])
@@ -994,6 +1091,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                             f"image {image.name!r}: {e}"
                             for e in payload_errors(config.units_of(image.name), image.address, image.size)
                         ]
+                        errors += moved_range_errors(config, image)
     if errors:
         raise ConfigError(errors)
     return config
@@ -1880,6 +1978,11 @@ def build_all(
         report["inputs"]["images"] = {
             i.name: {"archive": file_sha(i.archive), "chunk": sha256(i.payload)} for i in cfg.images
         }
+
+    # Second links are declared and validated, but not built yet: a configuration that has one must not pass.
+    pending = [named(i.name, "second links are not built yet") for i in cfg.images if i.like is not None]
+    if pending:
+        return report, pending
 
     pipeline, failures = prepare_pipeline(cfg, tag, build, cache_dir, report)
     if failures:

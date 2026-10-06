@@ -457,7 +457,7 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         if selftest["unit"] == unit["name"]
         else "bytes differ"
     )
-    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
+    return float_cases + asm_cases + types_cases + include_cases + make_rodata_cases(cfg_dir, parsed) + make_padded_cases(cfg_dir, parsed) + make_data_cases(cfg_dir, parsed) + make_asm_cases(cfg_dir, parsed) + make_bss_cases(cfg_dir, parsed) + make_symbol_cases(cfg_dir, parsed) + make_image_cases(cfg_dir, parsed) + make_second_cases(cfg_dir, parsed) + make_sibling_cases(cfg_dir, parsed) + make_division_cases(cfg_dir, parsed) + [
         Case("clean", True, "", fndiff=(unit["name"], 0, "IDENTICAL")),
         Case(
             "source-mutation", False, mutation_reason, mutate_source,
@@ -1453,7 +1453,9 @@ class ImageFixture:
             text += f"[overlays]\ntable_pointers = {pointers:#x}\n\n"
         for image in [self.image(chunk)] if images is None else images:
             scalars = {k: v for k, v in image.items() if not isinstance(v, dict)}
-            text += "[[image]]\n" + "".join(f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in scalars.items()) + "\n"
+            text += "[[image]]\n" + "".join(
+                f"{k} = {json.dumps(v)}\n" if isinstance(v, (str, list)) else f"{k} = {v:#x}\n" for k, v in scalars.items()
+            ) + "\n"
             for key, table in ((k, v) for k, v in image.items() if isinstance(v, dict)):
                 text += f"[image.{key}]\n" + "".join(
                     f"{k} = {json.dumps(v)}\n" if isinstance(v, str) else f"{k} = {v:#x}\n" for k, v in table.items()
@@ -1916,6 +1918,123 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
              crossing(sources={"mod": "int absent_fn(void);\nint mod_fn(void) { return absent_fn(); }\n"}),
              verify_link_names_image, status=1),
     ]
+
+
+SECOND_SLOT, SECOND_ADDRESS = 2, 0x80800000  # the second link: its slot and its entry in table 0
+THIRD_SLOT, THIRD_ADDRESS = 3, 0x80900000
+
+
+def second_fixture(parsed: dict):
+    """The fixture of the controls on second links: `install` of a configuration that declares one.
+
+    The first image is "example" with the unit "mod" (8 bytes of text); the second link is "second",
+    like it, with a chunk of `size` bytes. `first` and `unit_extra` change the first image's unit,
+    `second` the keys of the second link, and `more` adds images (name, slot, address, keys).
+    """
+    fx = ImageFixture(parsed)
+
+    def install(copy: Path, *, size: int = 0x200, unit_extra: str = "", second: dict | None = None,
+                more=(), units=None, first: dict | None = None):
+        chunk = bytes(size)
+        images = [
+            fx.image(IMAGE_CHUNK, **(first or {})),
+            fx.image(chunk, name="second", archive="SECOND.PAC", slot=SECOND_SLOT, address=SECOND_ADDRESS,
+                     **({"like": "example"} if second is None else second)),
+        ]
+        archives = {"SECOND.PAC": bytes(make_archive([(SECOND_SLOT, chunk)]))}
+        for name, slot, address, keys in more:
+            images.append(fx.image(chunk, name=name, archive=f"{name.upper()}.PAC", slot=slot, address=address, **keys))
+            archives[f"{name.upper()}.PAC"] = bytes(make_archive([(slot, chunk)]))
+        fx.install(
+            copy, images=images, archives=archives,
+            units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=unit_extra)] if units is None else units,
+        )
+
+    return fx, install
+
+
+def make_second_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
+    """Second links: the declaration and its validation. Every case stops before the compiler."""
+    fx, install = second_fixture(parsed)
+
+    def refuses(name, reason, **options):
+        return Case(f"second-{name}", False, reason, lambda copy: install(copy, **options), status=2)
+
+    def verify_not_built(report: dict):
+        failures = report.get("failures", [])
+        if failures != ["image 'second': second links are not built yet"]:
+            return f"the one failure must say that second links are not built yet: {failures}"
+        if report.get("cache", {}).get("units"):
+            return "nothing may be compiled"
+        return None
+
+    # A moved range lies outside a payload of 8 bytes: the first image's rodata or data sits at +8.
+    beyond = lambda kind: f"{kind} = {{ address = {FIXTURE_LOAD + 8:#x}, size = 8 }}\n"
+    return [
+        refuses("like-names-no-image", "image 'second': 'like' names 'absent', which is not a declared image",
+                second={"like": "absent"}),
+        refuses("like-names-itself", "image 'second': 'like' names the image itself", second={"like": "second"}),
+        refuses("like-names-a-second-link", "image 'third': 'like' names 'second', which is a second link itself",
+                more=[("third", THIRD_SLOT, THIRD_ADDRESS, {"like": "second"})]),
+        refuses("unit-in-a-second-link", "unit 'extra': image 'second' is a second link and has no units of its own",
+                units=[fx.unit("mod", FIXTURE_LOAD, 8), fx.unit("extra", SECOND_ADDRESS, 8, image="second")]),
+        refuses("leave-out-without-like", "image 'second': 'leave_out' needs 'like'", second={"leave_out": ["mod"]}),
+        refuses("leave-out-without-like-empty", "image 'second': 'leave_out' needs 'like'", second={"leave_out": []}),
+        refuses("leave-out-not-a-unit", "image 'second': 'leave_out' names 'absent', which is not a unit of image 'example'",
+                second={"like": "example", "leave_out": ["absent"]}),
+        refuses("leave-out-twice", "image 'second': 'leave_out' names 'mod' twice",
+                second={"like": "example", "leave_out": ["mod", "mod"]}),
+        refuses("moved-text-outside", "image 'second': moved unit 'mod' range", size=4),
+        refuses("moved-rodata-outside", "image 'second': moved unit 'mod' rodata range", size=8,
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=beyond("rodata"))]),
+        refuses("moved-data-outside", "image 'second': moved unit 'mod' data range", size=8,
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=beyond("data"))]),
+        # The bss lies outside the first payload and moves into the second.
+        refuses("moved-bss-touches-payload", "image 'second': moved unit 'mod' bss range",
+                units=[fx.unit("mod", FIXTURE_LOAD, 8, extra=f"bss = {{ address = {FIXTURE_LOAD + 0x100:#x}, size = 4 }}\n")]),
+        Case("second-not-built-yet", False, "image 'second': second links are not built yet",
+             lambda copy: install(copy), verify_not_built, status=1),
+    ]
+
+
+def make_second_map_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
+    """The placement map of a second link, from the configuration alone."""
+    fx, install = second_fixture(parsed)
+
+    def placement(ctx):
+        install(
+            ctx.copy, second={"like": "example", "leave_out": ["mod"]},
+            units=[
+                fx.unit("mod", FIXTURE_LOAD, 4, extra=f"rodata = {{ address = {FIXTURE_LOAD + 4:#x}, size = 4 }}\n"
+                        f"bss = {{ address = {FIXTURE_LOAD + 0x300:#x}, size = 4 }}\n"),
+                fx.unit("other", FIXTURE_LOAD + 8, 8),
+            ],
+        )
+        cfg = matchbuild.load_config(ctx.config)
+        shift = SECOND_ADDRESS - FIXTURE_LOAD
+        units, left_out = cfg.placed_units("second")
+        want = {
+            "mod": (FIXTURE_LOAD + shift, (FIXTURE_LOAD + 4 + shift, 4), (FIXTURE_LOAD + 0x300 + shift, 4)),
+            "other": (FIXTURE_LOAD + 8 + shift, None, None),
+        }
+        got = {u.name: (u.functions[0].address, u.rodata and (u.rodata.address, u.rodata.size), u.bss and (u.bss.address, u.bss.size))
+               for u in units}
+        if got != want or left_out != ("mod",):
+            return f"placement map is {got} with {left_out} left out, wanted {want} with ('mod',)"
+        if [u.image for u in units] != ["second", "second"]:
+            return "the moved units belong to the second link"
+        if cfg.units_of("second") or [u.name for u in cfg.units_of("example")] != ["mod", "other"]:
+            return "the configuration's own units must stay as declared"
+        own, none = cfg.placed_units("example")
+        if own != cfg.units_of("example") or none != ():
+            return "an image that is not a second link takes its own units unchanged"
+        # A second link gives no names to another link: it has no unit of its own.
+        names = [name for name, _, _ in cfg.functions_of_others("resident")]
+        if names != ["mod_fn", "other_fn"] or [i for _, _, i in cfg.functions_of_others("resident")] != ["example"] * 2:
+            return f"the resident link is given {names}"
+        return None
+
+    return [CacheCase("second-placement-map", placement)]
 
 
 def make_comparison_unit_cases() -> list[CacheCase]:
@@ -3615,7 +3734,7 @@ def main() -> int:
         return 2
 
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
-    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed), args.only)
+    caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
