@@ -17,7 +17,13 @@ A library function has one family, the first of these that applies:
    as in `b0:12`;
 3. its folder: if the source of the unit that declares it is
    `sdk/FOLDER/...`, the family that `[folders]` gives the folder;
-4. `unidentified`.
+4. its place: if the nearest function below it and the nearest above it
+   that units declare from a source under `sdk/` come from the same
+   reference file, the family that `[folders]` gives that file's folder.
+   The parts `NAME_pN.c` of a file count as the file `NAME.c`. This rests
+   on an assumption: that what the reference has in one file is one object
+   file of this game, whose code is one piece of the image;
+5. `unidentified`.
 
 A game function gets two sets of families:
 
@@ -70,7 +76,8 @@ their other names, and the sweep of the modules its entries, as for
 families, reached families (each a list joined by `,`, or `-`), its calls
 through a register, its calls elsewhere, and `open` or `closed`.
 `--library-out` gets one line per library function: address, size, name or
-`-`, family, and the number of game functions that call it.
+`-`, family, the number of game functions that call it, and the rule that
+gave the family: `name`, `bios`, `folder`, `place` or `-`.
 `--modules-out` gets one line per function of a module: the first archive
 with that content, slot, address, size, and the last five columns of
 `--out`.
@@ -149,21 +156,61 @@ def other_names(path: str | None) -> dict[int, list[str]]:
     return found
 
 
+PART = re.compile(r"_p\d+[a-z]?$")
+
+
 def family_of(
     address: int, declared: dict[int, tuple[str, str]], table: dict, words: list[int], base: int, others: dict[int, list[str]]
-) -> str:
-    """The family of the library function at `address`: by name, by BIOS call, by folder, or UNIDENTIFIED."""
+) -> tuple[str, str]:
+    """The family of the library function at `address` by its name, its BIOS call or its folder, and which of them gave it.
+
+    (UNIDENTIFIED, "-") when none of the three applies.
+    """
     name, source = declared.get(address, ("", ""))
     for known in [name, *others.get(address, [])]:
         if known in table["names"]:
-            return table["names"][known]
+            return table["names"][known], "name"
     call = bios_call(words, (address - base) // 4)
     if call in table["bios"]:
-        return table["bios"][call]
+        return table["bios"][call], "bios"
     path = source.split("/")
     if len(path) >= 3 and path[0] == "sdk" and path[1] in table["folders"]:
-        return table["folders"][path[1]]
-    return UNIDENTIFIED
+        return table["folders"][path[1]], "folder"
+    return UNIDENTIFIED, "-"
+
+
+def reference_file(source: str) -> str | None:
+    """The reference file of a source under `sdk/`: its path below `sdk/` without the ending and without the `_pN` of a part.
+
+    None for a source that is not under `sdk/`. A file directly in `sdk/`
+    is a reference file too; it has no folder.
+    """
+    path = source.split("/")
+    if len(path) < 2 or path[0] != "sdk":
+        return None
+    return "/".join([*path[1:-1], PART.sub("", path[-1].rsplit(".", 1)[0])])
+
+
+def by_place(library: list[int], declared: dict[int, tuple[str, str]]) -> dict[int, str]:
+    """The reference file of each library function that lies between two declared functions of one reference file.
+
+    `library` is in order of address. A function that a unit declares from
+    a source under `sdk/` is an anchor and is not in the result; any other
+    function is, when the nearest anchor below it and the nearest above it
+    have the same reference file.
+    """
+    found: dict[int, str] = {}
+    below: str | None = None
+    between: list[int] = []
+    for address in library:
+        file = reference_file(declared.get(address, ("", ""))[1])
+        if file is None:
+            between.append(address)
+            continue
+        if file == below:
+            found.update(dict.fromkeys(between, file))
+        below, between = file, []
+    return found
 
 
 def calls_of(words: list[int], base: int, address: int, size: int, starts: set[int]) -> tuple[set[int], int, int]:
@@ -230,7 +277,14 @@ def run(args) -> int:
     sizes = dict(swept)
     game = [address for address, _ in swept if address < args.library]
     library = [address for address, _ in swept if address >= args.library]
-    family = {address: family_of(address, declared, table, words, image.start, others) for address in library}
+    family, rule = {}, {}
+    placed = by_place(library, declared)
+    for address in library:
+        family[address], rule[address] = family_of(address, declared, table, words, image.start, others)
+        folder, slash, _ = placed.get(address, "").partition("/")
+        # Only where no rule above applied: a table may name the family `unidentified` itself.
+        if rule[address] == "-" and slash and folder in table["folders"]:
+            family[address], rule[address] = table["folders"][folder], "place"
     callees: dict[int, set[int]] = {}
     registers: dict[int, int] = {}
     elsewhere: dict[int, int] = {}
@@ -251,6 +305,11 @@ def run(args) -> int:
     print(" family            library functions  called directly by  reached by")
     for name in sorted(members, key=lambda n: (n == UNIDENTIFIED, n)):
         print(f" {name:17} {members[name]:17} {calling[name]:19} {reaching[name]:11}")
+    rules = collections.Counter(rule.values())
+    print(
+        f"library functions with a family by name: {rules['name']}, by BIOS call: {rules['bios']},"
+        f" by folder: {rules['folder']}, by place: {rules['place']}"
+    )
     none = [address for address in game if not reached[address]]
     print(f"game functions that call a library function directly: {sum(1 for a in game if direct[a])}")
     print(
@@ -280,7 +339,7 @@ def run(args) -> int:
     if args.library_out:
         Path(args.library_out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.library_out).write_text(
-            "".join(f"{a:08x}\t{sizes[a]}\t{named(a)}\t{family[a]}\t{callers[a]}\n" for a in library)
+            "".join(f"{a:08x}\t{sizes[a]}\t{named(a)}\t{family[a]}\t{callers[a]}\t{rule[a]}\n" for a in library)
         )
     if not args.modules:
         return 0

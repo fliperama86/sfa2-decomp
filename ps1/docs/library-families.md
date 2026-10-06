@@ -28,7 +28,15 @@ A library function has one family, the first of these that applies:
    number, written as in `b0:12`.
 3. Its folder. If the source of the unit that declares it is
    `sdk/FOLDER/...`, `[folders]` gives the folder a family.
-4. `unidentified`: none of the three applies.
+4. Its place. If the nearest function below it and the nearest above it
+   that units declare from a source under `sdk/` come from the same
+   reference file, it gets the family of that file's folder. The parts of
+   a file count as the file. The reason: the code of one object file is
+   one piece of the image, so what lies between two functions of an object
+   belongs to it. This is an inference. It assumes that what the reference
+   has in one file is one object file of this game, which the build does
+   not show.
+5. `unidentified`: none of the four applies.
 
 The family table is [`ps1/src/library-families.toml`](../src/library-families.toml).
 Which family a name, a call or a folder gets is this project's reading of
@@ -68,15 +76,18 @@ function of the build is a start of it.
 | Family | Library functions | Game functions that call it directly | Game functions that reach it |
 | --- | ---: | ---: | ---: |
 | C library | 9 | 0 | 0 |
-| disc | 39 | 18 | 88 |
+| disc | 44 | 18 | 88 |
 | files | 7 | 0 | 0 |
-| graphics | 85 | 47 | 141 |
+| graphics | 97 | 47 | 141 |
 | memory card | 7 | 1 | 4 |
 | pads | 3 | 1 | 3 |
-| sound | 160 | 14 | 179 |
+| sound | 164 | 15 | 180 |
 | system | 47 | 12 | 47 |
 | threads | 3 | 6 | 51 |
-| unidentified | 56 | 23 | 193 |
+| unidentified | 35 | 11 | 165 |
+
+Of the 381 library functions with a family, 39 have it by name, 5 by BIOS
+call, 316 by folder and 21 by place.
 
 - 91 game functions call a library function directly.
 - 1,117 game functions reach no library function. 830 of them are closed:
@@ -143,10 +154,10 @@ code that several contents share is counted once in each.
 | graphics | 97 | 597 |
 | memory card | 1 | 13 |
 | pads | 0 | 0 |
-| sound | 0 | 2,593 |
+| sound | 0 | 2,595 |
 | system | 8 | 201 |
 | threads | 0 | 194 |
-| unidentified | 7 | 2,723 |
+| unidentified | 7 | 2,721 |
 
 - 121 module functions call a library function directly, and 7,008 call a
   game function of the executable.
@@ -159,15 +170,14 @@ code that several contents share is counted once in each.
   resident game code reaches it through them or not at all.
 - The game uses the thread calls of the BIOS: 6 game functions call them
   directly and 51 reach them.
-- 56 library functions have no family. By the rows of `--library-out`,
-  40 are declared by the build outside `sdk/` under a placeholder name and
-  16 are not in the build.
-  193 game functions reach one of them, more than reach any family.
-  Identifying those library functions is the largest gap of this table.
+- 35 library functions have no family. By the rows of `--library-out`,
+  26 are declared by the build outside `sdk/` under a placeholder name and
+  9 are not in the build. 165 game functions reach one of them.
   They were 116 when the table was first made. 32 of them have since been
   replaced by the reference's source for the same function, which builds
   to the same bytes, and carry its name and its library's family. 28 more
-  have a name by reference.
+  have a name by reference. 21 have a family by place and no name: 12
+  graphics, 5 disc and 4 sound.
 - Inferred, not established: an unidentified function probably belongs to
   the library whose functions surround it. The table does not use that.
 - A family says which library a function calls, not what the function is
