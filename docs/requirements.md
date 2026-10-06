@@ -26,6 +26,12 @@ full build or decompilation already exists.
   Do not count all-assembly gameplay as satisfying readable gameplay C.
 - Count matching C, assembly, SDK code, data, and raw retention separately.
   Opaque executable retention is useful scaffolding, not completed source work.
+- A port, if one is made: by the owner's direction of 2026-10-06 the game
+  code stays as close to the original as possible and only Sony's library
+  code is swapped. Differences belong in the library replacement and a thin
+  platform layer. What game code cannot keep on another machine, such as
+  pointer size, fixed addresses and the loading of modules, goes behind
+  build switches and is listed. No port is planned or started.
 
 ## Validation
 

@@ -656,6 +656,9 @@ of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
 
 - The raw ranges of a module image are the complement of its units inside
   its payload.
+- An image may be without units. It is then retained whole and counted as
+  raw. That holds for the resident image too when every unit belongs to a
+  module image.
 - Its link takes the objects of its own units and its raw ranges, includes
   `symbols.ld`, and treats undefined symbols as errors. It does not see the
   units of any other image. The resident link does not see module units.
@@ -684,8 +687,9 @@ of all declared images are still validated.
   `controls` have the form of the resident keys of the same name.
   `coverage` has the resident's keys without `raw_header_bytes`.
 - `carriers` is the number of chunks with table number 0, that slot and the
-  same bytes in the files of the archive's directory that the archive reader
-  accepts. It counts the declared chunk, so it is at least 1.
+  same bytes in the `*.PAC` files below the archive's directory and in the
+  declared archive itself. A file that the archive reader rejects takes no
+  part. It counts the declared chunk, so it is at least 1.
 - The keys `units`, `coverage`, `bss_bytes`, `image_sha256`,
   `executable_sha256`, `baseline_executable_sha256` and `controls` at the top
   of the report describe the resident image and hold only its units. A unit
@@ -693,9 +697,9 @@ of all declared images are still validated.
 - `inputs.sources`, `inputs.preprocessed` and `cache.units` cover every unit
   that was compiled. `inputs.images` maps each declared image to the SHA-256
   of its archive file and of its chunk.
-- `selected_image` is present when `--image` was given. With a module image
-  selected the resident keys listed above are absent; with `resident`
-  selected `images` is absent.
+- `selected_image` is present when `--image` was given and the
+  configuration declares an image. With a module image selected the resident
+  keys listed above are absent; with `resident` selected `images` is absent.
 - Without any declared image the report has no `images`, `inputs.images` or
   `selected_image` key.
 
@@ -720,8 +724,9 @@ lies outside its image; two overlapping units of one module image; a module
 unit whose bss touches its image's payload; a function name used in the
 resident image and in a module image; a module function with one changed
 instruction, whose failure must name the image and leave the resident image
-exact; a wrong declared size in a module unit; and `--image` with an unknown
-name.
+exact; a wrong declared size in a module unit; `--image` with an unknown
+name, with and without declared images; and `fndiff.py` on a unit of a
+module image.
 
 It requires success, with the report checked, for: a module image whose
 whole payload is one C function, with its record, its coverage and a tripped
@@ -733,6 +738,13 @@ exact; a module unit and a resident unit that cover the same addresses;
 `resident`, where `images` is absent; the carriers count with a second
 archive that holds the same bytes and a third that holds others; and the
 unmodified configuration, whose report has no `images` key.
+
+Cases on the comparison alone, without a build, require of what it reports
+as failures: nothing for an equal image; the line for the whole image, and
+no other, for a changed retained byte; the function and the image for a
+changed function byte; and both sizes for a shorter image. No build can
+differ in a retained byte only, because retained bytes are copied from the
+baseline, so these cases are what shows that the whole-image check reports.
 
 ## Baseline manifest
 

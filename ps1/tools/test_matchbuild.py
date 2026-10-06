@@ -1615,6 +1615,47 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     ]
 
 
+def make_comparison_unit_cases() -> list[CacheCase]:
+    """What a comparison reports as failures, for an image made here: 8 bytes of one function, 8 retained."""
+    load = 0x80300000
+    payload = bytes(range(16))
+    unit = matchbuild.UnitDecl("u", "u.c", (), (matchbuild.FunctionDecl("f", load, 8),))
+
+    def reasons(image: bytes) -> list[str]:
+        return matchbuild.comparison_failures(matchbuild.compare_image(image, payload, load, [unit]))
+
+    def equal(root: Path):
+        got = reasons(payload)
+        return f"an equal image must report nothing: {got}" if got else None
+
+    def retained_byte(root: Path):
+        """No range of a unit differs: only the line for the image can report it."""
+        got = reasons(matchbuild.flip_byte(payload, 12))
+        if len(got) != 1 or not got[0].startswith("image differs from baseline payload"):
+            return f"a changed retained byte must be reported by the image line alone: {got}"
+        return None
+
+    def function_byte(root: Path):
+        got = reasons(matchbuild.flip_byte(payload, 2))
+        if len(got) != 2 or not got[0].startswith("function 'f': bytes differ") or not got[1].startswith("image differs"):
+            return f"a changed function byte must be reported for the function and the image: {got}"
+        return None
+
+    def shorter(root: Path):
+        got = reasons(payload[:12])
+        if not any(r.startswith("image differs from baseline payload (size 12 vs 16") for r in got):
+            return f"a shorter image must be reported with both sizes: {got}"
+        return None
+
+    table = [
+        ("comparison-equal-image", equal),
+        ("comparison-retained-byte", retained_byte),
+        ("comparison-function-byte", function_byte),
+        ("comparison-shorter-image", shorter),
+    ]
+    return [CacheCase(name, body) for name, body in table]
+
+
 def make_symbol_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     """Names that `symbols.ld` assigns although a unit object defines them."""
     bss = BssFixture(cfg_dir, parsed)
@@ -2685,7 +2726,8 @@ def main() -> int:
     builds = select_cases(make_cases(cfg_dir, parsed), args.only)
     caches = select_cases(make_cache_cases(parsed), args.only)
     units = select_cases(
-        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed) + make_runner_unit_cases(config_path), args.only
+        make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
+        + make_comparison_unit_cases() + make_runner_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

@@ -269,16 +269,30 @@ Next, in this order:
    source is published. The tool changes come in four steps; the first,
    module images with a chunk baseline, is in the
    [matching build](../ps1/docs/matching-build.md).
-2. A pilot: one overlay module, or part of one, rebuilt exactly.
+2. A fast loop for one unit, approved by the owner on 2026-10-06: one
+   command that rebuilds a single unit and compares it, so that a try no
+   longer pays for the whole build. The whole build stays the gate. With
+   it, `fndiff.py` and `mergeunits.py` learn module images.
+3. The other tool steps of the proposal: names across images, then second
+   links.
+4. A pilot: one overlay module, or part of one, rebuilt exactly.
+
+After the pilot, in this order, by the owner's decisions of 2026-10-06:
+
+1. Sort the 202 resident functions that the sweep found and the inventory
+   does not list.
+2. A tool that labels each game function by the family of Sony library
+   functions it calls, directly or through other functions: graphics,
+   sound, disc, pads. It tells code that touches hardware from game logic
+   before proper names exist, and prepares naming.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
 Open in the resident image, found by the sweep: 202 functions that the
-resident inventory does not list. The owner decided on 2026-10-06 that they
-are sorted after the overlay pilot: which are game functions, and which
-enter the inventory.
+resident inventory does not list. Sorting them means saying which are game
+functions and which enter the inventory.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime

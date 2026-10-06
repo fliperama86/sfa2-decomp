@@ -1543,6 +1543,33 @@ def count_carriers(image: ImageDecl) -> int:
     return count
 
 
+def comparison_failures(comparison: ImageComparison) -> list[str]:
+    """The failure reasons of one comparison: every range that differs, then the image as a whole.
+
+    A unit's ranges cover only what units own. The line for the image is the
+    one that reports a difference in a retained byte.
+    """
+    failures = []
+    for fn in comparison.functions:
+        if not fn.exact:
+            failures.append(
+                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
+                f"({fn.equal_words}/{fn.total_words} words equal)"
+            )
+    for ro in comparison.rodata + comparison.data:
+        if not ro.exact:
+            failures.append(
+                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
+                f"(range {ro.address:#x}, {ro.size} bytes)"
+            )
+    if not comparison.image_exact:
+        failures.append(
+            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
+            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
+        )
+    return failures
+
+
 def link_image(
     cfg: Config,
     build: Path,
@@ -1586,23 +1613,7 @@ def link_image(
     failures += elf_function_checks(outdir / "image.elf", units)
     failures += elf_symbol_checks(outdir / "image.elf", units, defined)
     comparison = compare_image(image, payload, load, units)
-    for fn in comparison.functions:
-        if not fn.exact:
-            failures.append(
-                f"function {fn.name!r}: bytes differ from baseline at offset {fn.first_diff} "
-                f"({fn.equal_words}/{fn.total_words} words equal)"
-            )
-    for ro in comparison.rodata + comparison.data:
-        if not ro.exact:
-            failures.append(
-                f"unit {ro.unit!r} {ro.kind}: bytes differ from baseline at offset {ro.first_diff} "
-                f"(range {ro.address:#x}, {ro.size} bytes)"
-            )
-    if not comparison.image_exact:
-        failures.append(
-            f"image differs from baseline payload (size {comparison.image_size} vs {comparison.baseline_size}, "
-            f"sha256 {comparison.image_sha256} vs {comparison.baseline_sha256})"
-        )
+    failures += comparison_failures(comparison)
     exe_sha = sha256(executable)
     if header is not None and exe_sha != cfg.baseline_sha256:
         failures.append(f"executable sha256 mismatch: rebuilt {exe_sha}, baseline {cfg.baseline_sha256}")
