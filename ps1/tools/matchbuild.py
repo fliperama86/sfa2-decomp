@@ -473,8 +473,40 @@ class Config:
         return [move_unit(u, shift, image) for u in self.units_of(first.name)], decl.leave_out
 
     def functions_of_others(self, image: str) -> list[tuple[str, int, str]]:
-        """The declared functions of the units of every image but `image`: (name, address, declaring image)."""
-        return [(fn.name, fn.address, u.image) for u in self.units if u.image != image for fn in u.functions]
+        """The declared functions of the units of every image but `image`: (name, address, declaring image).
+
+        A second link takes none of the image it is like: its own objects define those names, at the moved ranges.
+        """
+        decl = next((i for i in self.images if i.name == image), None)
+        skipped = {image} if decl is None or decl.like is None else {image, decl.like}
+        return [(fn.name, fn.address, u.image) for u in self.units if u.image not in skipped for fn in u.functions]
+
+    def links_second(self, image: str) -> ImageDecl | None:
+        """The declaration of `image` when it is a second link, else None."""
+        return next((i for i in self.images if i.name == image and i.like is not None), None)
+
+    def link_names(self, image: str, defined: dict[str, list[DefinedSymbol]]) -> list[tuple[str, int, str]]:
+        """Every name that the link of `image` is given as an address, for others.ld and for the override check.
+
+        The declared functions of the other images. A second link is also given the names of each unit it
+        leaves out, from the placement map: the unit's functions at their moved addresses, and its other global
+        or weak symbols at the moved range of their kind plus their offset in the unit's object.
+        """
+        names = self.functions_of_others(image)
+        decl = self.links_second(image)
+        if decl is not None:
+            units, left_out = self.placed_units(image)
+            given = {name for name, _, _ in names}
+            for unit in (u for u in units if u.name in left_out):
+                for fn in unit.functions:
+                    names.append((fn.name, fn.address, image))
+                    given.add(fn.name)
+                for sym in defined.get(unit.name, []):
+                    address = symbol_address(unit, sym)
+                    if address is not None and sym.name not in given:
+                        names.append((sym.name, address, image))
+                        given.add(sym.name)
+        return names
 
     @property
     def payload(self) -> bytes:
@@ -1746,13 +1778,17 @@ def link_image(
     header: bytes | None = None,
     image: str = RESIDENT,
     local: dict[str, int] | None = None,
+    others: list[tuple[str, int, str]] = (),
+    again: bool = False,
 ) -> tuple[dict, list[str]]:
     """Link one image alone from its unit objects in `build` and check it against its payload.
 
     The files of the link go to `outdir`, which is `build` for the resident
     image. With a `header` the executable is rebuilt and compared too. Returns
     the fields shared by the reports of every image and the failures, which
-    do not name the image.
+    do not name the image. `others` is every name that the link is given as an
+    address. With `again` the image is a second link: `units` are the moved
+    units it links, and its coverage counts functions linked again.
     """
     failures: list[str] = []
     outdir.mkdir(exist_ok=True)
@@ -1760,7 +1796,7 @@ def link_image(
     prefix = cfg.binutils_prefix
     where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
     ranges = raw_ranges(load, len(payload), units)
-    generate_raw_and_linker(cfg, outdir, load, units, ranges, cfg.functions_of_others(image), local)
+    generate_raw_and_linker(cfg, outdir, load, units, ranges, others, local)
     run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
     run(
@@ -1807,6 +1843,15 @@ def link_image(
         "data_bytes": data_bytes,
         "raw_payload_bytes": len(payload) - c_bytes - asm_bytes - rodata_bytes - data_bytes,
     }
+    if again:
+        # The functions of a second link are the first image's source: no count from C or assembly includes them.
+        for key in ("c_bytes", "c_functions", "asm_bytes", "asm_functions"):
+            del coverage[key]
+        coverage = {
+            "linked_again_bytes": c_bytes + asm_bytes,
+            "linked_again_functions": sum(len(u.functions) for u in units),
+            **coverage,
+        }
     if header is not None:
         coverage["raw_header_bytes"] = HEADER_SIZE
     coverage["raw_ranges"] = len(ranges)
@@ -1966,7 +2011,9 @@ def build_all(
     if selected is not None and cfg.images:
         report["selected_image"] = selected
     build_resident = selected in (None, RESIDENT)
-    built_units = cfg.units if selected is None else cfg.units_of(selected)
+    # A second link takes the objects of the units of the image it is like, also those it leaves out.
+    second = cfg.links_second(selected) if selected is not None else None
+    built_units = cfg.units if selected is None else cfg.units_of(selected if second is None else second.like)
     report["cache"] = {"mode": "off" if cache_dir is None else "on", "dir": None if cache_dir is None else str(cache_dir), "units": {}}
     report["inputs"] = {
         "configuration": file_sha(cfg.path),
@@ -1978,11 +2025,6 @@ def build_all(
         report["inputs"]["images"] = {
             i.name: {"archive": file_sha(i.archive), "chunk": sha256(i.payload)} for i in cfg.images
         }
-
-    # Second links are declared and validated, but not built yet: a configuration that has one must not pass.
-    pending = [named(i.name, "second links are not built yet") for i in cfg.images if i.like is not None]
-    if pending:
-        return report, pending
 
     pipeline, failures = prepare_pipeline(cfg, tag, build, cache_dir, report)
     if failures:
@@ -2007,7 +2049,7 @@ def build_all(
     if failures:
         return report, failures
     defined = {unit.name: defined_symbols(build / f"unit-{unit.name}.o") for unit in built_units}
-    for image in dict.fromkeys(unit.image for unit in built_units):
+    for image in dict.fromkeys(unit.image for unit in built_units if second is None):
         failures += [
             named(image, reason)
             for reason in symbol_override_errors(
@@ -2017,13 +2059,23 @@ def build_all(
                 [u for u in built_units if u.image == image], defined, cfg.functions_of_others(image)
             )
         ]
+    for image in cfg.images:
+        if image.like is None or selected not in (None, image.name):
+            continue
+        linked = [u for u in cfg.placed_units(image.name)[0] if u.name not in image.leave_out]
+        failures += [
+            named(image.name, reason)
+            for reason in symbol_override_errors(linked, defined, cfg.symbol_names)
+            + other_image_override_errors(linked, defined, cfg.link_names(image.name, defined))
+        ]
     if failures:
         return report, failures
 
     cache_units = report["cache"]["units"]
     if build_resident:
         fields, found = link_image(
-            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header, RESIDENT
+            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header, RESIDENT,
+            others=cfg.functions_of_others(RESIDENT),
         )
         failures += found
         report.update(
@@ -2041,10 +2093,13 @@ def build_all(
     for image in cfg.images:
         if selected not in (None, image.name):
             continue
+        placed, left_out = cfg.placed_units(image.name)
+        linked = [u for u in placed if u.name not in left_out]
         try:
             fields, found = link_image(
                 cfg, build, build / f"image-{image.name}", image.address, image.payload,
-                cfg.units_of(image.name), defined, cache_units, assembler, None, image.name, image.symbols,
+                linked, defined, cache_units, assembler, None, image.name, image.symbols,
+                others=cfg.link_names(image.name, defined), again=image.like is not None,
             )
         except StepError as exc:
             raise StepError(named(image.name, str(exc))) from exc
@@ -2069,6 +2124,9 @@ def build_all(
                 "symbols": dict(image.symbols),
             }
         )
+        if image.like is not None:
+            first = next(i for i in cfg.images if i.name == image.like)
+            records[-1].update({"like": image.like, "shift": image.address - first.address, "left_out": list(left_out)})
     if cfg.images and selected != RESIDENT:
         report["images"] = records
     return report, failures
@@ -2094,12 +2152,21 @@ def module_summary(record: dict) -> list[str]:
                 lines.append(f"  {u['name']} {kind}: {ro['size']} bytes at {ro['address']:#x}, {state}")
     cov, name = record["coverage"], f"image {record['name']}"
     lines.append(f"{name} functions exact: {sum(1 for f in functions if f['exact'])}/{len(functions)}")
+    if "like" in record:
+        counted = f"linked again {cov['linked_again_bytes']:,} bytes ({cov['linked_again_functions']} functions)"
+    else:
+        counted = (
+            f"C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
+            f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions)"
+        )
     lines.append(
-        f"{name} coverage: C {cov['c_bytes']:,} bytes ({cov['c_functions']} functions), "
-        f"assembly {cov['asm_bytes']:,} bytes ({cov['asm_functions']} functions), "
+        f"{name} coverage: {counted}, "
         f"rodata {cov['rodata_bytes']:,} bytes, data {cov['data_bytes']:,} bytes, "
         f"raw payload {cov['raw_payload_bytes']:,} bytes"
     )
+    if "like" in record:
+        left = ", ".join(record["left_out"]) or "none"
+        lines.append(f"{name} like {record['like']}: shift {record['shift']:+#x}, units left out: {left}")
     lines.append(f"{name} sha256:      {record['image_sha256']}")
     lines.append(f"{name} baseline sha256: {record['baseline_sha256']}")
     lines.append(f"{name} carriers: {record['carriers']}")
