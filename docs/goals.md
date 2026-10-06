@@ -343,8 +343,10 @@ chose the first on 2026-10-06:
 - In progress, the owner's choice of 2026-10-06 for the item after that:
   identifying the library functions without a family. They were 116. 32
   now come from the reference's source for the same function, with its
-  name. 84 are left: 54 that the build has under a placeholder name and 30
-  that it does not have.
+  name. 28 more have a name by reference: units built from the
+  reference's source call them under it, and `librefs.py` lists that from
+  the build. 56 are left: 40 that the build has under a placeholder name
+  and 16 that it does not have.
 - Not decided: more overlay modules as images of the build.
 - Not decided: second attempts, in the form that recovered 11 of 15, on
   the 72 older parked game functions.

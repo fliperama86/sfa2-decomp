@@ -3417,6 +3417,58 @@ Lesson:
   under placeholder names. The twenty-eighth group had the same lesson
   from the other side: read what a tool passes over.
 
+## Fifty-eighth group: 28 library functions named by reference
+
+No function count of the build changes and no source of a unit changes.
+
+What ran:
+
+- `librefs.py`, a new tool. It reads the relocations of the units under
+  `sdk/` from the objects of a finished build and reports, for each
+  library function, the names by which those units refer to its start.
+  The build is exact, so where the reference's source calls a name, the
+  original calls the address that the link gave the name.
+- On the real build: of 416 library functions, 327 are declared by a
+  unit under `sdk/`, 28 others are referred to under one name each, none
+  under two, and 61 have no name.
+- `families.py` takes a second name of a function from the symbol file.
+  The family table lists the 28 names, each with the family of the
+  reference file that defines it. Library functions without a family: 56,
+  down from 84.
+- The 28 names were in `symbols.ld` before this group. The private
+  identification had put them there from the relocations of functions it
+  found equal. What is new is a published command that shows the same
+  from the build, and the labels that use it.
+- `test_librefs.py`: 66 cases, with unit objects written by hand in the
+  test. `test_families.py`: 92 cases. Both were a package for one
+  subagent against the written rules.
+
+What the control cases found before the pull request: a value in the
+symbol file that is no integer at all, such as a word, ended the label
+tool with a traceback. The rule said it must print a message. The reader
+of linker integers answers "none" only for a bad octal number and raises
+for the rest, and the build's own parser never lets such a value reach
+it; the new reader of second names did. The subagent reported it with a
+minimal input and left its four cases out; the fix and the cases went in
+at the top level. The same reading showed that a name was taken from the
+tail of a word that starts with a digit; the pattern is anchored now.
+
+What it shows and what it does not: a name by reference says that the
+reference's source refers to the function so at an exact place. It is not
+the original symbol by that alone, and a reference that names the wrong
+function at its only place of use would not be noticed.
+
+Lessons:
+
+- Evidence that a private helper produced is worth a second look for a
+  form that the published build can show. The names came from a private
+  compile of the reference; the same fact sits in the relocations of the
+  published build's own objects.
+- A similarity score is no identification for a small function. The
+  private table offered one reference function as the near match of six
+  different functions of eight instructions. Six functions whose near
+  match scored 1.00 have another name by reference than that match.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
