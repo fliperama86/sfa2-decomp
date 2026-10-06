@@ -628,6 +628,8 @@ Rejected before any compilation, with exit status 2:
 - an `[[image]]` when `[overlays]` or its `table_pointers` is missing; a
   `table_pointers` that is not a multiple of four or not an address inside
   the resident payload, or a block that the table reader rejects;
+- an `image` key that is not an array of tables, or an entry of it that is
+  not a table;
 - an image name that is not a valid tag, is repeated or is `resident`;
 - an archive that is missing or that the archive reader rejects;
 - no chunk, or more than one chunk, with table number 0 and the slot;
@@ -669,7 +671,9 @@ of its declaration, in `build/<tag>/image-<name>/` with its own `payload.bin`,
   size and SHA-256 against the chunk, and the comparator controls. No
   executable is rebuilt for a module image, so there is no executable hash.
 - A failure in a module image names it: the message starts with
-  `image '<name>': `.
+  `image '<name>': `. That includes a failed step of the pipeline of one of
+  its units, whose own text follows unchanged. A failure of the resident
+  image reads as before.
 - The run is exact only if every image it built is exact.
 
 `--image NAME` builds one image: `resident` or a declared name. Any other
@@ -715,7 +719,9 @@ controls. Without any declared image the summary is unchanged.
 whose payload holds the block of table addresses and the tables, and
 archives written by the test. It requires failure, with a message that names
 the fault, for: an image without `[overlays]`; a `table_pointers` outside the
-payload; an image named `resident`; a repeated image name; a missing archive;
+payload; an `image` key that holds a number, one table or an array with a
+number; an image name that is not a string; an image named `resident`; a
+repeated image name; a missing archive;
 an archive with one changed byte in an entry's first-word copy; no chunk with
 the slot; two chunks with the slot; a chunk without bytes; a wrong chunk
 hash; an address that differs from the table; an address that is not a multiple of four; a slot
@@ -724,9 +730,11 @@ lies outside its image; two overlapping units of one module image; a module
 unit whose bss touches its image's payload; a function name used in the
 resident image and in a module image; a module function with one changed
 instruction, whose failure must name the image and leave the resident image
-exact; a wrong declared size in a module unit; `--image` with an unknown
-name, with and without declared images; and `fndiff.py` on a unit of a
-module image.
+exact; a wrong declared size in a module unit; a module unit whose
+preprocessing, compilation or assembly fails, each of which must name the
+image, next to a resident unit whose preprocessing fails and must not;
+`--image` with an unknown name, with and without declared images; and
+`fndiff.py` on a unit of a module image.
 
 It requires success, with the report checked, for: a module image whose
 whole payload is one C function, with its record, its coverage and a tripped

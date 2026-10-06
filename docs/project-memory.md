@@ -2518,7 +2518,7 @@ What ran:
   unit of a module image until it knows them.
 - The archive and table readers are those of `pac.py`, imported, not
   copied.
-- `test_matchbuild.py`: 35 new cases, 149 in all. 31 use synthetic module
+- `test_matchbuild.py`: 43 new cases, 157 in all. 39 use synthetic module
   images; 4 are cases on the comparison alone.
 - The real configuration builds as before: 1,617 of 1,617 functions exact,
   the same report keys in the same order, and no key about images.
@@ -2542,6 +2542,17 @@ What that review found:
   four were not in the contract. Both are refused now, in the contract and
   the tool.
 
+What review of the pull request found, both in error paths:
+
+- An `image` key holding a number crashed the tool with a traceback and
+  exit status 1, where a configuration error with status 2 belongs. The
+  set of declared names was built from the raw value after its type had
+  been rejected. It now comes from the validated list.
+- A failed preprocessing, compilation or assembly of a module unit was
+  reported without the image's name. The contract says every failure of a
+  module image names it. The pipeline of one unit is now one function, and
+  a failed step of a module unit gets the name at that boundary.
+
 The owner's directions of 2026-10-06 that this change writes down:
 
 - A fast loop for one unit is approved and comes next. Timed once on this
@@ -2563,6 +2574,11 @@ Lessons:
   have shown the check that nothing could fail.
 - A check that only a pure function can exercise needs a case on that
   function, not an artificial build.
+- The table of disabled rules covered the rules that were written. The two
+  faults the review found were in paths nobody had listed: a value of the
+  wrong type under a known key, and a subprocess that fails. For each new
+  key, try a wrong type; for each new message rule, walk every place that
+  can fail.
 
 ## Windows reference
 

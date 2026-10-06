@@ -1343,12 +1343,13 @@ class ImageFixture:
 
     def install(self, copy: Path, *, overlays: bool = True, pointers: int = IMAGE_POINTERS, images=None,
                 archive=None, archives=None, chunk: bytes = IMAGE_CHUNK, units=None, code: bytes = b"",
-                sources=None) -> None:
+                sources=None, head: str = "") -> None:
         """Replace the copy with the fixture.
 
         `archive` None writes the default archive, False writes none.
         `archives` maps further file names to their bytes, `sources` maps unit
         names to the text of their source, and `code` is the resident prefix.
+        `head` is text for the start of the configuration, before any table.
         """
         for child in copy.iterdir():
             shutil.rmtree(child) if child.is_dir() else child.unlink()
@@ -1362,7 +1363,8 @@ class ImageFixture:
         for name, data in (archives or {}).items():
             (copy / name).write_bytes(data)
         text = (
-            "[baseline]\n"
+            head
+            + "[baseline]\n"
             'executable = "baseline.bin"\n'
             f'sha256 = "{hashlib.sha256(executable).hexdigest()}"\n\n'
             + toml_table("toolchain", self.toolchain)
@@ -1376,7 +1378,8 @@ class ImageFixture:
             name = re.search(r'name = "(\w+)"', unit).group(1)
             body = (sources or {}).get(name, IMAGE_BODY.format(name=name, value=7))
             (copy / f"{name}.c").write_text(body)
-            text += unit.replace('source = "', f'flags = [{self.flags}]\nsource = "', 1)
+            # An assembly unit takes no flags.
+            text += unit if 'kind = "asm"' in unit else unit.replace('source = "', f'flags = [{self.flags}]\nsource = "', 1)
         (copy / "build.toml").write_text(text)
 
 
@@ -1566,12 +1569,35 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     def changed_instruction(copy: Path):
         built("A", units=[res(), mod()], sources={"mod": IMAGE_BODY.format(name="mod", value=8)})(copy)
 
+    def step_fails(unit_name: str, source: str, **unit_options):
+        """A build in which one step of one unit's pipeline fails: the resident unit's or the module unit's."""
+        return built("A", units=[res(), mod(**unit_options)], sources={unit_name: source})
+
+    def verify_step_names_image(report: dict):
+        failures = report.get("failures", [])
+        if len(failures) != 1 or not failures[0].startswith("image 'example': "):
+            return f"the failed step of a module unit must be the one failure and name its image: {failures}"
+        return None
+
+    def verify_step_resident(report: dict):
+        failures = report.get("failures", [])
+        if len(failures) != 1 or not failures[0].startswith("preprocess res failed"):
+            return f"the failed step of a resident unit must be reported as before, without an image: {failures}"
+        return None
+
+    absent_header = '#include "absent.h"\n'
+
     return [
         refuses("without-overlays", "needs an [overlays] section", overlays=False),
         refuses("pointers-outside-payload", "not a word address inside the resident payload", pointers=FIXTURE_LOAD + 0x10000),
         refuses("pointers-without-block", "no block of table addresses", pointers=FIXTURE_LOAD + 0x4),
         refuses("named-resident", "reserved for the resident image", images=[fx.image(name="resident")]),
         refuses("name-repeated", "duplicate image name", images=[fx.image(), fx.image()]),
+        # A value of the wrong shape under the key is a configuration error, not a crash.
+        refuses("value-is-a-number", "[[image]] must be an array of tables", images=[], head="image = 4\n"),
+        refuses("value-is-one-table", "[[image]] must be an array of tables", images=[], head='image = { name = "example" }\n'),
+        refuses("entry-is-not-a-table", "[[image]] #1: must be a table", images=[], head="image = [4]\n"),
+        refuses("name-is-not-a-string", "'name' must be a non-empty string", images=[fx.image(name=5)]),
         refuses("archive-missing", "cannot read archive", archive=False),
         Case("image-archive-first-word-copy", False, "first word does not match", flipped_first_word, status=2),
         refuses("no-chunk-with-slot", "has 0 chunks with table number 0 and slot 0x1",
@@ -1602,6 +1628,15 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
              changed_instruction, verify_changed, status=1),
         Case("image-build-wrong-unit-size", False, "image 'example': unit 'mod': text size mismatch",
              built("A", units=[res(), unit("mod", FIXTURE_LOAD, 4)]), status=1),
+        # A failed step of a module unit's pipeline names the image too, and keeps the step's own text.
+        Case("image-build-preprocess-fails", False, "image 'example': preprocess mod failed",
+             step_fails("mod", absent_header), verify_step_names_image, status=1),
+        Case("image-build-compile-fails", False, "image 'example': compile mod failed",
+             step_fails("mod", "int mod_fn(void) { return }\n"), verify_step_names_image, status=1),
+        Case("image-build-assemble-fails", False, "image 'example': assemble mod failed",
+             step_fails("mod", "not an instruction\n", extra='kind = "asm"\n'), verify_step_names_image, status=1),
+        Case("image-build-resident-step-fails", False, "preprocess res failed",
+             step_fails("res", absent_header), verify_step_resident, status=1),
         # Builds that must be exact.
         Case("image-build-whole-c-function", True, "", built("A", units=[mod()]), verify_whole_c),
         Case("image-build-raw-bytes-around", True, "",

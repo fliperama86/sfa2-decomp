@@ -602,19 +602,26 @@ def payload_errors(units: list[UnitDecl], load: int, size: int) -> list[str]:
     return errors
 
 
-def parse_images(raw: dict, directory: Path, errors: list[str]) -> list[ImageDecl]:
-    """The structure of [overlays] and the [[image]] tables. The archives are read later."""
+def parse_images(raw: dict, directory: Path, errors: list[str]) -> tuple[list[ImageDecl], set[str]]:
+    """The structure of the [[image]] tables: the images that are well formed, and every name a table gives.
+
+    The names include those of tables with other faults, so that a unit of
+    such an image is not reported a second time. The archives are read later.
+    """
     image_tables = raw.get("image", [])
     if not isinstance(image_tables, list):
         errors.append("[[image]] must be an array of tables")
-        return []
+        return [], set()
     images: list[ImageDecl] = []
     seen: set[str] = set()
+    declared: set[str] = set()
     for index, table in enumerate(image_tables):
         where = f"[[image]] #{index + 1}"
         if not isinstance(table, dict):
             errors.append(f"{where}: must be a table")
             continue
+        if isinstance(table.get("name"), str):
+            declared.add(table["name"])
         name = _get_str(table, "name", where, errors, TAG_RE)
         if name:
             where = f"image {name!r}"
@@ -636,7 +643,7 @@ def parse_images(raw: dict, directory: Path, errors: list[str]) -> list[ImageDec
                 numbers[key] = value
         if name and archive and sha and len(numbers) == 2:
             images.append(ImageDecl(name, _expand(archive, directory), numbers["slot"], sha, numbers["address"]))
-    return images
+    return images, declared - {RESIDENT}
 
 
 def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list[str]) -> list[ImageDecl]:
@@ -782,9 +789,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     if overlays is not None and not isinstance(overlays, dict):
         errors.append("[overlays] must be a table")
         overlays = None
-    images = parse_images(raw, directory, errors)
-    declared = {t["name"] for t in raw.get("image", []) if isinstance(t, dict) and isinstance(t.get("name"), str)} - {RESIDENT}
-    if raw.get("image") and overlays is None:
+    images, declared = parse_images(raw, directory, errors)
+    if images and overlays is None:
         errors.append("[[image]] needs an [overlays] section with 'table_pointers'")
 
     # Units: structure and geometry that needs no baseline.
@@ -1734,7 +1740,8 @@ def build_all(
     assembler = tools["as"]["path"]  # the file that was hashed for the key
     report["inputs"]["preprocessed"] = {}
     failures_by_unit: dict[str, list[str]] = {}
-    for unit in built_units:
+    def unit_object(unit: UnitDecl) -> None:
+        """The pipeline of one unit, up to its object and the checks of that object."""
         source = _expand(unit.source, cfg.directory)
         pre, asm, gnu, obj = (build / f"unit-{unit.name}{ext}" for ext in (".i", ".s", ".gnu.s", ".o"))
         if unit.kind == "asm":
@@ -1742,7 +1749,7 @@ def build_all(
             run([assembler, *AS_FLAGS, "-o", obj, source], step=f"assemble {unit.name}")
             report["cache"]["units"][unit.name] = {"cache": "off", "key": None}
             failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
-            continue
+            return
         run(
             [cfg.cpp, "-E", "-P", "-x", "c", "-target", "mipsel-none-elf", "-nostdinc", *include_args, source, "-o", pre],
             step=f"preprocess {unit.name}",
@@ -1756,14 +1763,14 @@ def build_all(
                     f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
                     f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
                 )
-                continue
+                return
         token = find_inline_asm(pre.read_text(errors="replace"))
         if token:
             failures_by_unit.setdefault(unit.name, []).append(
                 f"unit {unit.name!r}: inline assembly ({token!r}) in a C unit; "
                 f"code that was assembly goes into an assembly unit (kind = \"asm\")"
             )
-            continue
+            return
         inputs = cache_key_inputs(cfg, tools, unit, report["inputs"]["preprocessed"][unit.name], maspsx_script)
         key = cache_key(inputs)
         entry = cache_dir / key if cache_dir is not None else None
@@ -1791,6 +1798,13 @@ def build_all(
                 except OSError:
                     pass  # an unwritable cache must not fail the build
         failures_by_unit.setdefault(unit.name, []).extend(check_unit_object(obj, unit))
+
+    for unit in built_units:
+        try:
+            unit_object(unit)
+        except StepError as exc:
+            # A failed step of a module unit names its image, like every other failure of that image.
+            raise StepError(named(unit.image, str(exc))) from exc
     failures = [
         named(unit.image, reason) for unit in built_units for reason in failures_by_unit.get(unit.name, [])
     ]
