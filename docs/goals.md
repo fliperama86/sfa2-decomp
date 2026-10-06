@@ -263,8 +263,9 @@ Next, in this order:
    that is a chunk of an archive instead of the executable, and, as the
    proposed treatment of the two sides, one source linked at two addresses.
    That treatment is an inference from the comparison until both links of
-   a block rebuild exactly. This needs the owner's decision before it is
-   built.
+   a block rebuild exactly. The
+   [proposal](../ps1/docs/overlay-build-proposal.md) is written and lists
+   seven decisions. Nothing is built before the owner decides them.
 2. A pilot: one overlay module, or part of one, rebuilt exactly.
 
 Still open in the map itself: how the loader treats the entries without a
