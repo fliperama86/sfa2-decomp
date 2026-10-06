@@ -5,10 +5,6 @@
 
 int func_8015f020(int a, int b);
 
-int func_8015ce04(void) {
-    return func_8015eb28();
-}
-
 int func_8015ce24(void) {
     return func_8015e880();
 }

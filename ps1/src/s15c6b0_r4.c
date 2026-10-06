@@ -5,14 +5,6 @@
 
 void func_8015eff0(int a, void (*b)(void));
 
-void func_801656ac(void) {
-    func_8016541c(1);
-}
-
-void func_801656cc(void) {
-    func_8016541c(0);
-}
-
 void func_801656ec(void) {
     if (data_801904d4 == 0) {
         data_8018dae8 = 0;
@@ -30,8 +22,4 @@ void func_801656ec(void) {
         }
         func_8015786c();
     }
-}
-
-void func_80165790(void) {
-    func_8016cef4();
 }

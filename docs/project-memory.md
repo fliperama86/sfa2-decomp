@@ -3544,6 +3544,52 @@ Measured before building: a first private count used the 28 names by
 reference as anchors too and found 22. Using only what units declare
 gives 21 and needs no table from names to files, so the rule uses that.
 
+## Sixtieth group: 17 more library functions from the reference, placed by what they call
+
+Counts, from the build:
+
+- 1,747 functions exact, one more than before: 1,694 from C with 285,488
+  bytes and 53 from assembly. 319,640 payload bytes are retained raw. By
+  area the build has 387 of 416 library functions; game functions are
+  unchanged at 1,360 of 1,436.
+- 17 more library functions come from the reference's source. The units
+  under `sdk/` hold 302 C functions now. 16 of the 17 were in the build
+  under placeholder names, written by round agents; one, 16 bytes, was
+  not in the build.
+- `families.py`: 32 library functions without a family, down from 35.
+  `librefs.py`: 344 named by their own unit, 20 by reference, none two
+  ways, 52 without a name.
+
+What ran:
+
+- The private identification got a third way to place a reference
+  function. Small functions, a wrapper of one call for example, have too
+  few fixed words to be found alone and match in several places. A place
+  counts now when the code matches there in every unmasked bit and every
+  symbol the function refers to is already known and lies where the code
+  at that place points. One such place makes the function exact there.
+- It placed 17. The importer took all 17 as parts of their reference
+  files, and the build is exact with them: a wrong sibling would link
+  another callee and differ.
+- The importer no longer copies a working note about a function that is
+  not exact yet into a part file.
+
+What it shows: eight of the 17 already had a name by reference, from other
+units that call them. Each builds exact under that very name. Two
+independent kinds of evidence agree in all eight cases.
+
+A side effect that the place rule got right: one sound function had a
+family by place, between two functions of one reference file. One of
+those two neighbours turned out to belong to another file. The function
+has no family by place any more. The rule depends on what is known of its
+neighbours, and says so.
+
+Lesson:
+
+- When a matcher refuses a case as ambiguous, ask what else is known at
+  that place. The bytes of two wrappers are the same; what they call is
+  not, and the callee's address was already established.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
