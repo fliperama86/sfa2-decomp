@@ -275,8 +275,9 @@ table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
 Open in the resident image, found by the sweep: 202 functions that the
-resident inventory does not list. Whether they enter the inventory, and
-which of them are game functions, is not decided.
+resident inventory does not list. The owner decided on 2026-10-06 that they
+are sorted after the overlay pilot: which are game functions, and which
+enter the inventory.
 
 Do not make game booting, runtime injection, rebuilt-disc packaging, or a new
 emulator integration a prerequisite for accepting exact code. Use runtime
