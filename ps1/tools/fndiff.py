@@ -53,7 +53,8 @@ def link_alone(cfg, unit, build: Path) -> Path:
         raise SystemExit(named(unit.image, f"no object {obj}: run matchbuild with the same --tag first"))
     neighbours = cfg.units_of(unit.image)
     others = [fn for other in neighbours if other.name != unit.name for fn in other.functions]
-    assigned = {fn.name for fn in others}
+    across = cfg.functions_of_others(unit.image)
+    assigned = {fn.name for fn in others} | {name for name, _, _ in across}
     siblings = []
     for other in neighbours:
         sibling = build / f"unit-{other.name}.o"
@@ -76,6 +77,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
         f'INCLUDE "{cfg.symbols_path}"\n'
         + "".join(f"{fn.name} = {fn.address:#x};\n" for fn in others)
         + "".join(f"{name} = {address:#x};\n" for name, address in siblings)
+        + "".join(f"{name} = {address:#x};\n" for name, address, _ in across)
         + "SECTIONS {\n"
         + f" .text {unit.start:#x} : SUBALIGN(1) {{ *(.text) }}\n"
         + placed

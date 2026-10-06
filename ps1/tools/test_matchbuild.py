@@ -414,7 +414,12 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
 
     def verify_no_images(report: dict):
         keys = [k for k in ("images", "selected_image") if k in report] + (["inputs.images"] if "images" in report["inputs"] else [])
-        return f"a configuration without images reports {keys}" if keys else None
+        if keys:
+            return f"a configuration without images reports {keys}"
+        out = cfg_dir.parent / "build" / report["tag"]
+        if (out / "others.ld").exists() or "others" in (out / "link.ld").read_text():
+            return "a configuration without images must have no others.ld and a linker script that does not mention it"
+        return None
 
     mutation_reason = (
         f"function '{target_unit['functions'][0]['name']}': bytes differ"
@@ -1265,6 +1270,15 @@ class ModuleSeeds(SeededFixture):
         ("caller", "int callee_fn(void);\nint caller_fn(void) { return callee_fn(); }\n", 8, CALLER_SIZE),
     ]
     CALLS_SIZE = 8 + CALLER_SIZE
+    # "R" and "M" call each other across images: the resident image has a function
+    # of 8 bytes and then "res", which calls the module's "mod"; the module image is
+    # "mod", which calls "res". In a seed build the other image's function is an assigned address.
+    CROSS_RES = [
+        ("pad", IMAGE_BODY.format(name="pad", value=7), 0, 8),
+        ("res", "int mod_fn(void);\nint res_fn(void) { return mod_fn(); }\n", 8, CALLER_SIZE),
+    ]
+    CROSS_RES_SIZE = 8 + CALLER_SIZE
+    CROSS_MOD = [("mod", "int res_fn(void);\nint mod_fn(void) { return res_fn(); }\n", 0, CALLER_SIZE)]
 
     def __init__(self, cfg_dir: Path, parsed: dict):
         self.cfg_dir = cfg_dir
@@ -1275,8 +1289,11 @@ class ModuleSeeds(SeededFixture):
     def _seed(self, key: str, value: int, offset: int, total: int) -> bytes:
         return self._seed_units(key, [("value", IMAGE_BODY.format(name="value", value=value), offset, 8)], total)
 
-    def _seed_units(self, key: str, units: list[tuple[str, str, int, int]], total: int) -> bytes:
-        """The image of a seed build of units (name, source, offset, size), each with its function `<name>_fn`."""
+    def _seed_units(self, key: str, units: list[tuple[str, str, int, int]], total: int, symbols: str = "") -> bytes:
+        """The image of a seed build of units (name, source, offset, size), each with its function `<name>_fn`.
+
+        `symbols` is the text of the seed's symbols.ld, which assigns the addresses of functions of other images.
+        """
         name = f"{self.label}-{key}"
         copy = self.cfg_dir.with_name(f"{self.cfg_dir.name}.selftest-{name}")
         build = self.cfg_dir.parent / "build" / f"selftest-{name}"
@@ -1296,7 +1313,7 @@ class ModuleSeeds(SeededFixture):
                     f"flags = [{self.flags}]\n"
                     f'functions = [ {{ name = "{unit_name}_fn", address = {FIXTURE_LOAD + offset:#x}, size = {size} }} ]\n\n'
                 )
-            (copy / "symbols.ld").write_text("/* The fixture needs no external symbols. */\n")
+            (copy / "symbols.ld").write_text(symbols or "/* The fixture needs no external symbols. */\n")
             executable = fixture_executable(bytes(total))
             (copy / "baseline.bin").write_bytes(executable)
             (copy / "build.toml").write_text(
@@ -1321,6 +1338,12 @@ class ModuleSeeds(SeededFixture):
             return
         self.chunks = {key: self._seed(key, *seed) for key, seed in self.SEEDS.items()}
         self.chunks["D"] = self._seed_units("D", self.CALLS, self.CALLS_SIZE)
+        self.chunks["R"] = self._seed_units(
+            "R", self.CROSS_RES, self.CROSS_RES_SIZE, f"mod_fn = {FIXTURE_LOAD:#x};\n"
+        )
+        self.chunks["M"] = self._seed_units(
+            "M", self.CROSS_MOD, CALLER_SIZE, f"res_fn = {FIXTURE_LOAD + 8:#x};\n"
+        )
 
 
 class ImageFixture:
@@ -1605,6 +1628,95 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
 
     absent_header = '#include "absent.h"\n'
 
+    # Names across images. The resident image is "pad" and "res", which calls the
+    # module's "mod"; the module image is "mod", which calls "res".
+    pad = lambda: unit("pad", FIXTURE_LOAD, 8, image=None)
+    res_call = lambda: unit("res", FIXTURE_LOAD + 8, CALLER_SIZE, image=None)
+    mod_call = lambda **kw: unit("mod", FIXTURE_LOAD, CALLER_SIZE, **kw)
+    calls = {name: source for name, source, _, _ in seeds.CROSS_RES + seeds.CROSS_MOD}
+    variable_range = f"bss = {{ address = {BSS_ADDRESS:#x}, size = 4 }}\n"
+
+    def crossing(units=None, sources=None, **options):
+        def mutate(copy: Path):
+            seeds.prepare()
+            fx.install(
+                copy, chunk=seeds.chunks["M"], code=seeds.chunks["R"],
+                units=[pad(), res_call(), mod_call()] if units is None else units,
+                sources={**calls, **(sources or {})}, **options,
+            )
+
+        return mutate
+
+    def crossing_two_images(copy: Path):
+        seeds.prepare()
+        fx.install(
+            copy, chunk=seeds.chunks["M"], code=seeds.chunks["R"],
+            images=[fx.image(seeds.chunks["M"]), fx.image(seeds.chunks["M"], name=other, archive="OTHER.PAC")],
+            archives={"OTHER.PAC": bytes(make_archive([(1, seeds.chunks["M"])]))},
+            units=[pad(), res_call(), mod_call(), unit("mod2", FIXTURE_LOAD, CALLER_SIZE, image=other)],
+            sources={**calls, "mod2": "int res_fn(void);\nint mod2_fn(void) { return res_fn(); }\n"},
+        )
+
+    def assigned_lines(path: Path) -> list[str]:
+        return path.read_text().splitlines() if path.is_file() else ["<missing>"]
+
+    def verify_names(report: dict):
+        problems = exact_resident(report)
+        rec = record(report)
+        if rec is None or not rec["exact"]:
+            problems.append("the module image must be exact")
+        out = build_dir(report)
+        want = {
+            out / "others.ld": [f"mod_fn = {FIXTURE_LOAD:#x};"],
+            out / "image-example" / "others.ld": [f"pad_fn = {FIXTURE_LOAD:#x};", f"res_fn = {FIXTURE_LOAD + 8:#x};"],
+        }
+        for path, lines in want.items():
+            if assigned_lines(path) != lines:
+                problems.append(f"{path.relative_to(out)} is {assigned_lines(path)}, wanted {lines}")
+            if "others.ld" not in (path.parent / "link.ld").read_text():
+                problems.append(f"{path.parent.name} link.ld does not include others.ld")
+        return "; ".join(problems) or None
+
+    def verify_names_resident(report: dict):
+        problems = exact_resident(report)
+        if "images" in report or (build_dir(report) / "image-example").exists():
+            problems.append("only the resident image may be built")
+        return "; ".join(problems) or None
+
+    def verify_names_module(report: dict):
+        rec = record(report)
+        problems = [] if rec and rec["exact"] else ["the module image must be exact"]
+        if any(k in report for k in resident_keys) or (build_dir(report) / "unit-res.o").exists():
+            problems.append("only the module image may be built")
+        return "; ".join(problems) or None
+
+    def verify_names_two(report: dict):
+        problems = exact_resident(report)
+        records = [record(report), record(report, other)]
+        if any(r is None or not r["exact"] for r in records):
+            problems.append("both module images must be exact")
+        for name in ("example", other):
+            lines = assigned_lines(build_dir(report) / f"image-{name}" / "others.ld")
+            twin = f"mod{'2' if name == 'example' else ''}_fn = {FIXTURE_LOAD:#x};"  # the function of the other module
+            if lines != [f"pad_fn = {FIXTURE_LOAD:#x};", f"res_fn = {FIXTURE_LOAD + 8:#x};", twin]:
+                problems.append(f"others.ld of image {name}: {lines}")
+        return "; ".join(problems) or None
+
+    def verify_before_link(report: dict, image: str, declaring: str):
+        failures = report.get("failures", [])
+        out = build_dir(report)
+        linked = (out / "image.elf").exists() or (out / "image-example" / "image.elf").exists()
+        want = (f"image '{image}': " if image != "resident" else "") + "others.ld defines"
+        if len(failures) != 1 or not failures[0].startswith(want) or f"image {declaring!r} declares" not in failures[0]:
+            return f"the one failure must start with {want!r} and name the declaring image {declaring!r}: {failures}"
+        return "a link ran although the check failed" if linked else None
+
+    def verify_link_names_image(report: dict):
+        failures = report.get("failures", [])
+        if len(failures) != 1 or not failures[0].startswith("image 'example': "):
+            return f"the failed link of a module image must name it: {failures}"
+        return None
+
     return [
         refuses("without-overlays", "needs an [overlays] section", overlays=False),
         refuses("pointers-outside-payload", "not a word address inside the resident payload", pointers=FIXTURE_LOAD + 0x10000),
@@ -1664,6 +1776,24 @@ def make_image_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
         Case("image-build-selected-module", True, "", two_images, verify_selected_module, extra=("--image", "example")),
         Case("image-build-selected-resident", True, "", two_images, verify_selected_resident, extra=("--image", "resident")),
         Case("image-build-carriers", True, "", carriers, verify_carriers),
+        # Names across images.
+        Case("names-calls-between-images", True, "", crossing(), verify_names),
+        Case("names-built-alone-resident", True, "", crossing(), verify_names_resident, extra=("--image", "resident")),
+        Case("names-built-alone-module", True, "", crossing(), verify_names_module, extra=("--image", "example")),
+        Case("names-two-modules-call-resident", True, "", crossing_two_images, verify_names_two),
+        Case("names-module-variable-takes-resident-name", False,
+             "image 'example': others.ld defines 'res_fn', which unit 'mod' defines in",
+             crossing(units=[pad(), res_call(), unit("mod", FIXTURE_LOAD, 16, extra=variable_range)],
+                      sources={"mod": "int res_fn;\nint mod_fn(void) { return res_fn; }\n"}),
+             lambda report: verify_before_link(report, "example", "resident"), status=1),
+        Case("names-resident-variable-takes-module-name", False,
+             "others.ld defines 'mod_fn', which unit 'res' defines in",
+             crossing(units=[pad(), unit("res", FIXTURE_LOAD + 8, 16, image=None, extra=variable_range), mod_call()],
+                      sources={"res": "int mod_fn;\nint res_fn(void) { return mod_fn; }\n"}),
+             lambda report: verify_before_link(report, "resident", "example"), status=1),
+        Case("names-call-of-undeclared-function", False, "image 'example': link failed",
+             crossing(sources={"mod": "int absent_fn(void);\nint mod_fn(void) { return absent_fn(); }\n"}),
+             verify_link_names_image, status=1),
     ]
 
 
@@ -2539,6 +2669,33 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"a module unit that calls a unit of its image must link and be IDENTICAL: {say(proc)}"
         return None
 
+    def names_module_calls_resident(ctx):
+        """The module unit that calls the resident function links alone, also after a rebuild."""
+        seeds.prepare()
+        calls = {name: source for name, source, _, _ in seeds.CROSS_RES + seeds.CROSS_MOD}
+        images.install(
+            ctx.copy,
+            chunk=seeds.chunks["M"],
+            code=seeds.chunks["R"],
+            units=[
+                images.unit("pad", FIXTURE_LOAD, 8, image=None),
+                images.unit("res", FIXTURE_LOAD + 8, CALLER_SIZE, image=None),
+                images.unit("mod", FIXTURE_LOAD, CALLER_SIZE),
+            ],
+            sources=calls,
+        )
+        proc, _, _ = ctx.run()
+        if not passed(proc):
+            return f"test setup: the whole build does not pass: {describe(proc)}"
+        for unit_name in ("mod", "res"):
+            proc = plain(ctx, unit_name)
+            if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+                return f"unit {unit_name!r} calls a function of the other image and must be IDENTICAL: {say(proc)}"
+        proc = rebuild(ctx, "mod")
+        if proc.returncode != 0 or "IDENTICAL" not in proc.stdout:
+            return f"the module unit must be IDENTICAL after --rebuild: {say(proc)}"
+        return None
+
     def options_need_rebuild(ctx):
         fixture(ctx, build=False)
         proc = subprocess.run(
@@ -2566,6 +2723,7 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-module-publication-fails", module_publication_fails),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
+        CacheCase("names-fndiff-unit-calls-other-image", names_module_calls_resident),
     ]
 
 

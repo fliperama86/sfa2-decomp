@@ -454,6 +454,10 @@ class Config:
         """The units that belong to one image: RESIDENT or the name of a module image."""
         return [u for u in self.units if u.image == image]
 
+    def functions_of_others(self, image: str) -> list[tuple[str, int, str]]:
+        """The declared functions of the units of every image but `image`: (name, address, declaring image)."""
+        return [(fn.name, fn.address, u.image) for u in self.units if u.image != image for fn in u.functions]
+
     @property
     def payload(self) -> bytes:
         return self.baseline[HEADER_SIZE : HEADER_SIZE + self.payload_size]
@@ -1181,6 +1185,23 @@ def symbol_override_errors(units: list[UnitDecl], defined: dict[str, list[Define
     return errors
 
 
+def other_image_override_errors(
+    units: list[UnitDecl], defined: dict[str, list[DefinedSymbol]], others: list[tuple[str, int, str]]
+) -> list[str]:
+    """Names that `others.ld` assigns although a unit object of the same link defines them."""
+    errors = []
+    declared_by = {name: image for name, _, image in others}
+    for unit in units:
+        for sym in defined.get(unit.name, []):
+            if sym.name in declared_by:
+                errors.append(
+                    f"others.ld defines {sym.name!r}, which unit {unit.name!r} defines in {sym.section} "
+                    f"and image {declared_by[sym.name]!r} declares as a function; "
+                    f"the assignment would override the symbol"
+                )
+    return errors
+
+
 def elf_symbol_checks(elf_path: Path, units: list[UnitDecl], defined: dict[str, list[DefinedSymbol]]) -> list[str]:
     """Each symbol a unit defines is bound in its output section at the declared address plus its offset."""
     errors = []
@@ -1250,9 +1271,18 @@ def elf_function_checks(elf_path: Path, units: list[UnitDecl]) -> list[str]:
 
 
 def generate_raw_and_linker(
-    cfg: Config, build: Path, load: int, units: list[UnitDecl], ranges: list[tuple[int, int]]
+    cfg: Config,
+    build: Path,
+    load: int,
+    units: list[UnitDecl],
+    ranges: list[tuple[int, int]],
+    others: list[tuple[str, int, str]] = (),
 ) -> None:
-    """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image."""
+    """Write raw.s and link.ld of one image into `build`. The unit objects are named relative to its parent for a module image.
+
+    With module images declared, `others` (the functions of the other images) goes to others.ld
+    next to the linker script, which includes it after symbols.ld.
+    """
     raw_lines = []
     for index, (address, size) in enumerate(ranges):
         raw_lines.append(f'.section .raw{index},"a",@progbits')
@@ -1273,7 +1303,11 @@ def generate_raw_and_linker(
             patterns = " ".join(f"unit-{unit.name}.o({s})" for s in OWNED_SECTIONS["bss"])
             entries.append((unit.bss.address, f".bss.{unit.name}", patterns, " (NOLOAD)"))
     entries.sort()
-    lines = ["OUTPUT_ARCH(mips)", f'INCLUDE "{cfg.symbols_path}"', "SECTIONS {"]
+    lines = ["OUTPUT_ARCH(mips)", f'INCLUDE "{cfg.symbols_path}"']
+    if cfg.images:
+        (build / "others.ld").write_text("".join(f"{name} = {address:#x};\n" for name, address, _ in others))
+        lines.append(f'INCLUDE "{(build / "others.ld").resolve()}"')
+    lines.append("SECTIONS {")
     for address, name, pattern, attrs in entries:
         lines.append(f" {name} {address:#x}{attrs} : SUBALIGN(1) {{ {pattern} }}")
     lines.append(" /DISCARD/ : { " + " ".join(f"*({s})" for s in DISCARDED_SECTIONS) + " *(.note*) }")
@@ -1587,6 +1621,7 @@ def link_image(
     cache_units: dict,
     assembler: str,
     header: bytes | None = None,
+    image: str = RESIDENT,
 ) -> tuple[dict, list[str]]:
     """Link one image alone from its unit objects in `build` and check it against its payload.
 
@@ -1601,7 +1636,7 @@ def link_image(
     prefix = cfg.binutils_prefix
     where = "" if outdir == build else f"{outdir.name}/"  # the link runs in `build`
     ranges = raw_ranges(load, len(payload), units)
-    generate_raw_and_linker(cfg, outdir, load, units, ranges)
+    generate_raw_and_linker(cfg, outdir, load, units, ranges, cfg.functions_of_others(image))
     run([assembler, *AS_FLAGS, "-o", "raw.o", "raw.s"], cwd=outdir, step="assemble raw")
     objects = [f"unit-{u.name}.o" for u in units] + [f"{where}raw.o"]
     run(
@@ -1849,6 +1884,9 @@ def build_all(
             for reason in symbol_override_errors(
                 [u for u in built_units if u.image == image], defined, cfg.symbol_names
             )
+            + other_image_override_errors(
+                [u for u in built_units if u.image == image], defined, cfg.functions_of_others(image)
+            )
         ]
     if failures:
         return report, failures
@@ -1856,7 +1894,7 @@ def build_all(
     cache_units = report["cache"]["units"]
     if build_resident:
         fields, found = link_image(
-            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header
+            cfg, build, build, cfg.load, payload, cfg.units_of(RESIDENT), defined, cache_units, assembler, cfg.header, RESIDENT
         )
         failures += found
         report.update(
@@ -1877,7 +1915,7 @@ def build_all(
         try:
             fields, found = link_image(
                 cfg, build, build / f"image-{image.name}", image.address, image.payload,
-                cfg.units_of(image.name), defined, cache_units, assembler,
+                cfg.units_of(image.name), defined, cache_units, assembler, None, image.name,
             )
         except StepError as exc:
             raise StepError(named(image.name, str(exc))) from exc
