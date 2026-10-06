@@ -13,20 +13,20 @@ A clean rebuild, independent byte comparison, bounded execution tests, and
 mutation controls passed.
 
 The [matching build](ps1/docs/matching-build.md) now rebuilds the complete
-resident executable byte-identically from declared owners: 1,747 functions at
+resident executable byte-identically from declared owners: 1,754 functions at
 their original addresses, of the 1,852 that a sweep of its code counts.
-1,694 are compiled from C (285,488 bytes) and 53 are
+1,701 are compiled from C (288,624 bytes) and 53 are
 assembled from assembly source (1,040 bytes): BIOS and system call stubs, a
-few host-debugging stubs and the program entry routine. Units also own 2,332
+few host-debugging stubs and the program entry routine. Units also own 2,352
 bytes of read-only data and 5,900 bytes of initialised data. The
-remaining 319,640 payload bytes are retained from the baseline and counted as
+remaining 316,484 payload bytes are retained from the baseline and counted as
 raw. Retained bytes are scaffolding, not recovered source. This is not a
 full-game decompilation.
 The same build has five overlay modules as images of their own. In `slot2a`
-25 C functions, 3,988 bytes, are exact and 17,208 bytes are retained raw.
-In `slot0b` 54 C functions, 5,356 bytes, are exact and 26,080 bytes are
+27 C functions, 5,356 bytes, are exact and 15,840 bytes are retained raw.
+In `slot0b` 56 C functions, 5,652 bytes, are exact and 25,784 bytes are
 retained raw.
-In `slot12` 177 C functions, 26,016 bytes, are exact and 94,152 bytes are
+In `slot12` 178 C functions, 26,224 bytes, are exact and 93,944 bytes are
 retained raw.
 In `slot16` 11 C functions, 984 bytes, are exact and 10,406 bytes are
 retained raw. In `slot17` the 11 functions of `slot16` are linked a second

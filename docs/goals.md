@@ -221,9 +221,12 @@ functions; they change with every round.
    by another assembler, struct copies that the image does through a call,
    loads that only a volatile field reproduces, and a delay instruction
    that the assembler emulation does not produce.
-2. The parked pool: 76 game functions are parked, each with a candidate:
-   72 of the inventory, to which the rest of this item refers, and 4 from
-   the round on the functions outside it, which have had two attempts.
+2. The parked pool: 69 game functions are parked, each with a candidate:
+   65 of the inventory, to which the rest of this item refers, and 4 from
+   the round on the functions outside it. A round with four source forms
+   found on the overlay modules, the owner's choice of 2026-10-06, made 7
+   of the 76 that were parked then exact; the other 69 kept their
+   candidates, some of them closer.
    One function per agent is the method: 44 of 147 packages so far, and the
    rate is falling: 6 of the last 47. All but seven parked game functions
    have had such a package; six of the seven are above 1,500 bytes. What is
@@ -295,12 +298,12 @@ Next, in this order:
 5. Done: second links, the last tool step of the proposal. A module image
    may be like another: the same units linked again at its own address and
    compared with its own chunk.
-6. Done, with three functions parked: a pilot, one overlay module, or part
-   of one, rebuilt exactly. First target, the module of slot `0x2a`: 25 of
-   the 28 functions that the sweep counts are exact, 3,988 of 6,052 bytes.
-   Three are parked with candidates of the right size that differ in a few
-   instructions. The three wait for a permutation search with the parked
-   resident functions.
+6. Done, with one function parked: a pilot, one overlay module, or part
+   of one, rebuilt exactly. First target, the module of slot `0x2a`: 27 of
+   the 28 functions that the sweep counts are exact, 5,356 of 6,052 bytes.
+   Two of the three that were parked became exact with the bit-field form
+   of the tag word. One is parked with a candidate of the right size
+   that differs in the place of one store.
    Second target: the module of slot `0x16` is declared, and all 11
    functions that the sweep counts in it are exact, 984 bytes. Its second
    side, slot `0x17`, is declared as a second link of it. The same 11
@@ -354,27 +357,31 @@ chose the first on 2026-10-06:
 - In progress, the owner's choice of 2026-10-06 once the automatic ways
   of naming library functions were used up: more overlay modules as images
   of the build. The first of them is the one content of slot `0xb`, a
-  module of 61 functions that 24 archives carry: 54 are exact, 5,356 of
-  7,960 bytes, and 7 are parked with candidates after two attempts. The
+  module of 61 functions that 24 archives carry: 56 are exact, 5,652 of
+  7,960 bytes, and 5 are parked with candidates. The
   second is the one content of slot `0x12`, a module of 187 functions that
-  42 archives carry: 177 are exact, 26,016 of 29,928 bytes, and 10 are
-  parked with candidates. 158 were exact after the first attempt and 19
-  of the other 29 after a second. Two source forms were found on the way
+  42 archives carry: 178 are exact, 26,224 of 29,928 bytes, and 9 are
+  parked with candidates. Four source forms were found on the way
   and are in the matching guide: the tag word of a primitive is written
-  with bit-fields, and a pointer held in two variables keeps a store and
-  a load in source order. Neither has been tried yet on the functions
-  parked before it was known.
+  with bit-fields; a pointer held in two variables keeps a store and
+  a load in source order; the order of statements inside a block is not
+  the listing's; and a narrow parameter that callers do not mask is an
+  `int` copied into a narrow local. Tried on the functions parked before
+  they were known, they made 5 of 12 module functions and 7 of 76 game
+  functions of the resident image exact.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
-- Not decided: second attempts, in the form that recovered 11 of 15, on
-  the 72 older parked game functions.
+- Open, and the model for it is item 2 above: most of the 69 parked game
+  functions differ in which register a value gets, and none of the four
+  forms decides that. A view of the compiler's register allocation per
+  function, built into the tools, is the candidate for the next step.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
-Open in the resident image: 76 game functions that the sweep counts are
+Open in the resident image: 69 game functions that the sweep counts are
 not in the build, all of them parked with a candidate. The 15 functions
 outside the inventory that have no reference that the sorting counts are
 all exact now; what reaches them is still unknown.

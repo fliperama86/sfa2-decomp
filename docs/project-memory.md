@@ -3860,6 +3860,90 @@ Lessons:
 - A count typed into a brief is a claim like any other. The brief for the
   last pass said 177 before the build had printed it; it did print 177.
 
+## Sixty-third group: four source forms tried on what was parked
+
+The owner's choice of 2026-10-06, asked in plain words while the third
+module was in review: try the new source forms on the 76 parked game
+functions of the resident image before the next module.
+
+Counts, from the build and from `pac.py unlisted`:
+
+- Resident image: 1,754 functions exact, 1,701 from C, 288,624 bytes.
+  1,367 of the 1,436 game functions are in the build; 69 are parked.
+- `slot2a` 27 of 28, `slot0b` 56 of 61, `slot12` 178 of 187.
+- 12 unit files are new: 7 of the resident image, 5 of module images.
+
+The forms, all in the matching guide now:
+
+- The tag word of a primitive as a bit-field (the sixty-second group).
+- Two names for one pointer (the sixty-second group).
+- The order of statements inside a block is the compiler's in the
+  listing. Found on a function of `slot0b` that was one instruction off:
+  the decrement whose value the original tests from a register stands
+  directly before the test in the source, though the listing has it three
+  statements earlier.
+- A narrow parameter that callers do not mask is an `int` copied into a
+  narrow local (found while fixing declarations in the last review).
+
+What ran:
+
+- The 12 parked functions of the three modules, one agent each, some
+  twice: 5 exact. Two of `slot2a` by the bit-field form on the first try,
+  two of `slot0b` and one of `slot12` by statement order or its like.
+- The 76 parked game functions in 28 groups of two to four, one agent per
+  group, each told to name the form a residual could be a sign of before
+  trying anything: 7 exact. By the agents' reports: one by a callee's
+  true parameter list and a computation moved behind the call, the only
+  one of the seven in which one of the four forms had a part; one by one
+  scratch local for two values; one by indexing the table at each use in
+  place of a pointer local; one by a modulo in place of a mask and a
+  constant held in a local; one by a spelling of an address; one by two
+  pointer locals per iteration; and the largest, 1,376 bytes with 50
+  slots open, by writing an update once in each arm of a switch after
+  its agent had read the compiler's register allocation dump.
+- So the forms carried over to the modules' parked functions, which had
+  had one or two attempts, and hardly to the resident ones, which had had
+  three or more and a search. What the resident round shows instead is in
+  the reports of the other 69: nearly all are about which register a
+  value gets, and two agents independently wrote themselves a script to
+  read the allocation dump.
+
+Cleaning the new units for publication:
+
+- The seven resident candidates came from the parked pool and carried a
+  first line that said "Private", no shared headers, declarations that the
+  headers have, and leftovers of the permutation search. An agent brought
+  them to the tree's conventions with each unit identical after every
+  edit. Three keep a form that only a search would write and say so in
+  the fixed line above the function.
+- One of them had a local that was written inside an expression and never
+  read. That is a dummy write. The form in which the local is also read
+  for the two heights that have its value is exact as well, and is what
+  the tree has.
+- The declaration check now takes `--also` with resident units, so that
+  units a round adds are checked like module units while the older
+  resident units stay a counted backlog. On the merged tree it printed 14
+  lines for the twelve new units; all are fixed. One callee got an `int`
+  parameter where its one caller passes a signed halfword unmasked.
+- A reviewer's nonblocking point from the last pull request is done: the
+  one path of `func_80012d90_slot12` that passes an unset local says so.
+
+Lessons:
+
+- A form found on fresh functions pays on functions that have had few
+  attempts. On functions that have had many, what is left is what many
+  attempts could not find, and a note with four forms is one more
+  attempt. The estimate given to the owner before the round (a hit rate
+  like the modules') was several times too high: 7 of 76 against 5 of
+  12, and the 12 were functions of another kind.
+- The residual that is left has one name in most reports: register
+  choice. The thirty-eighth group already has a working model from the
+  allocation dump, and agents rebuild a reader for it in their scratch
+  folders each round. Make it a tool.
+- A cleanup pass by rule can turn a variable that is read into one that
+  is not. After a mechanical cleanup, read every form that the pass says
+  it had to keep.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

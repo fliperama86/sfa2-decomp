@@ -216,6 +216,33 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   same form through a parameter and a local copy of it, made after the
   first use, decided one more function. A local copy made before the
   first use is merged away and changes nothing.
+- The order of independent loads and stores inside one block is the
+  compiler's, not the source's. It moves loads up and interleaves the
+  statements of a block to fill load delays, so the listing does not show
+  where a statement stood. What it cannot do is keep a value it read from
+  memory across a later store through a pointer: after such a store it
+  reads the field again. So a value that the original still holds in a
+  register at a test or a store was computed after the last store through
+  a pointer in the source, whatever the listing's order; and a value that
+  the original reads again was read before one. When a candidate reloads
+  what the original keeps, or the reverse, or when two values sit in each
+  other's registers, move a statement before respelling one. Two functions
+  that several attempts had respelled without effect were exact once a
+  statement moved:
+
+  ```c
+  obj->field_24 += 0x10;
+  obj->field_20 += 0xffff;
+  obj->field_22 += 0xffff;
+  obj->field_46 = (s16)obj->field_46 - 1;   /* directly before its test */
+  if ((s16)obj->field_46 < 0) { ... }
+  ```
+
+  The listing of that function has the decrement in the middle, before
+  the two updates, and tests the decremented value from its register. In
+  the other function a constant store moved from the top of a block to
+  directly before an increment, which gave the two values the registers
+  the original has.
 - A narrow parameter whose callers pass the argument as it is, without the
   mask or the extension that a prototype with the narrow type makes them
   emit, is an `int` parameter copied into a narrow local:

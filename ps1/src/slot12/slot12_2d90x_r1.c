@@ -9,6 +9,11 @@ extern void (*data_80023170_slot12[])(Object *);
 Block172 *func_8011f1e0(void);
 void func_8001281c_slot12(Object *obj);
 
+/* v is not set on every path: when the flag at data_801ae02c is already set,
+   the call at the end passes the register as it is. Reading the unset local
+   is undefined behaviour in C. It reproduces the original's instructions
+   with this compiler and is not a defined implementation: a port has to
+   give v a value on that path. */
 int func_80012d90_slot12(u8 arg) {
     Object *v;
     int r;

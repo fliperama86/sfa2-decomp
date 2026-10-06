@@ -11,7 +11,7 @@ extern u8 data_801e25dc_slot2a[];
 extern u16 *data_801e52c8_slot2a;
 void func_801e06a0_slot2a(Object *obj);
 void func_801e08f4_slot2a(Object *obj, u8 a);
-void func_801e0958_slot2a(Object *obj, u8 *p);
+void func_801e0958_slot2a(Object *obj, SpritePrim *p);
 void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 n);
 void func_801e0e48_slot2a(Object *obj);
 void func_801e114c_slot2a(Object *obj);
@@ -43,7 +43,7 @@ void func_801e05f4_slot2a(Object *obj) {
 void func_801e06a0_slot2a(Object *obj) {
     table_801e225c_slot2a[obj->field_05](obj);
     if (data_801e25d8_slot2a[obj->field_03] != 0) {
-        func_801e0958_slot2a(obj, data_801e25dc_slot2a + obj->field_03 * 0x500 + data_801a27d0 * 0x280);
+        func_801e0958_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->field_03 * 0x500 + data_801a27d0 * 0x280));
     }
     func_801e114c_slot2a(obj);
 }

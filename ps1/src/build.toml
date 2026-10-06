@@ -9464,3 +9464,105 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80016ff4_slot12", address = 0x80016ff4, size = 472 },
 ]
+
+[[unit]]
+name = "x02_r2"
+source = "x02_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152ad8", address = 0x80152ad8, size = 104 },
+]
+
+[[unit]]
+name = "x07_r2"
+source = "x07_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014ff20", address = 0x8014ff20, size = 284 },
+]
+
+[[unit]]
+name = "x07_r3"
+source = "x07_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ef28", address = 0x8013ef28, size = 292 },
+]
+
+[[unit]]
+name = "x08_r1"
+source = "x08_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801199ec", address = 0x801199ec, size = 328 },
+]
+
+[[unit]]
+name = "x10_r1"
+source = "x10_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801511c8", address = 0x801511c8, size = 348 },
+]
+
+[[unit]]
+name = "x12_r1"
+source = "x12_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80132cf0", address = 0x80132cf0, size = 404 },
+]
+
+[[unit]]
+name = "x23_r1"
+source = "x23_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151a04", address = 0x80151a04, size = 1376 },
+]
+rodata = { address = 0x8016da24, size = 20 }
+
+[[unit]]
+name = "slot2a_0958x_r1"
+image = "slot2a"
+source = "slot2a/slot2a_0958x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0958_slot2a", address = 0x801e0958, size = 1084 },
+]
+
+[[unit]]
+name = "slot2a_16a8x_r1"
+image = "slot2a"
+source = "slot2a/slot2a_16a8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e16a8_slot2a", address = 0x801e16a8, size = 284 },
+]
+
+[[unit]]
+name = "slot0b_07f0x_r1"
+image = "slot0b"
+source = "slot0b/slot0b_07f0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e07f0_slot0b", address = 0x801e07f0, size = 80 },
+]
+
+[[unit]]
+name = "slot0b_101cx_r1"
+image = "slot0b"
+source = "slot0b/slot0b_101cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e101c_slot0b", address = 0x801e101c, size = 216 },
+]
+
+[[unit]]
+name = "slot12_51e4x_r1"
+image = "slot12"
+source = "slot12/slot12_51e4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800151e4_slot12", address = 0x800151e4, size = 208 },
+]
