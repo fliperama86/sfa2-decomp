@@ -873,7 +873,14 @@ leave_out = ["unit_a"]        # optional
 What the link of a second link is given, besides the objects of the units it
 takes and its raw ranges:
 
-- `symbols.ld`, and its own `[image.symbols]` if it has one;
+- `symbols.ld`;
+- every name of `symbols.ld` whose address lies inside the payload of the
+  first image, at that address moved by the shift. Such a name stands for
+  something inside the first image that no unit owns yet, a table for
+  example, and the second image has it at the same offset. Units of an image
+  refer to nothing else at an address inside their own image: two images
+  that overlap in memory are never loaded together;
+- its own `[image.symbols]` if it has one, which wins over both;
 - in `others.ld`, the declared functions of every image that is not a second
   link, except those of the image it is like: its own objects define those
   names, at the moved ranges;
@@ -906,7 +913,9 @@ data range that does not lie inside the second link's payload, or a moved
 bss range that touches it, with the unit and the second link named.
 
 In the report the record of a second link has, besides the keys of a module
-image: `like`, `shift` (the difference of the two addresses) and `left_out`.
+image: `like`, `shift` (the difference of the two addresses), `left_out`,
+and `moved_symbols`, the names of `symbols.ld` that it was given at a moved
+address, with those addresses.
 Its `units` are the units it links, with their moved ranges. Its `coverage`
 has `linked_again_bytes` and `linked_again_functions` in place of
 `c_bytes`, `c_functions`, `asm_bytes` and `asm_functions`: the functions of
@@ -920,7 +929,9 @@ left out.
 is a second link that is like the unit's image, the unit is linked alone at
 its moved ranges with the names that link is given, and the baseline is the
 second link's payload. `--rebuild` works with it and replaces the unit's one
-object. Without `--image` a unit is compared in its own image. Any other
+object. A failed step of the unit's pipeline names the unit's own image, as
+a whole build names it; what fails in the link or the comparison names the
+second link. Without `--image` a unit is compared in its own image. Any other
 NAME is an error with exit status 2, and so is a unit that the second link
 leaves out.
 
@@ -1041,7 +1052,13 @@ address. It requires failure, naming the second link and leaving the first
 image exact, for: a second chunk with one changed word inside a function; a
 second chunk whose call goes to the callee's first address, with the callee
 linked and with it left out; and a second chunk whose read of the variable
-uses the first address. For `fndiff.py --image` it requires an identical
+uses the first address. For the names of `symbols.ld` inside the first
+image it requires: the second link exact when a unit reads a variable that
+`symbols.ld` places inside the first image's payload and the second chunk
+has the read at the moved address, with the name in `moved_symbols`; a
+failure of the second link for a chunk that reads it at the first address;
+no move for a name outside the first image's payload; and the address of
+`[image.symbols]` winning over the moved one. For `fndiff.py --image` it requires an identical
 result for a unit in a second link that is exact, a different one for the
 changed chunk, and exit status 2 for a name that is not a second link like
 the unit's image and for a unit that is left out.
