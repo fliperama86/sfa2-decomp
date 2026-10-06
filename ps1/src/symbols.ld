@@ -1728,8 +1728,6 @@ data_801e5160_slot2a = 0x801e5160;
 data_801e5164_slot2a = 0x801e5164;
 data_801e52c8_slot2a = 0x801e52c8;
 func_801e0958_slot2a = 0x801e0958;
-func_801e114c_slot2a = 0x801e114c;
-func_801e12fc_slot2a = 0x801e12fc;
 func_801e16a8_slot2a = 0x801e16a8;
 
 /* Added by src.u_slot2a_03d0. */

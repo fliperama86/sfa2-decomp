@@ -7135,3 +7135,21 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e14cc_slot2a", address = 0x801e14cc, size = 476 },
 ]
+
+[[unit]]
+name = "slot2a_12fcx_r1"
+image = "slot2a"
+source = "slot2a/slot2a_12fcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e12fc_slot2a", address = 0x801e12fc, size = 100 },
+]
+
+[[unit]]
+name = "slot2a_114cx_r1"
+image = "slot2a"
+source = "slot2a/slot2a_114cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e114c_slot2a", address = 0x801e114c, size = 248 },
+]
