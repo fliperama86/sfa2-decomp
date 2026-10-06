@@ -3877,11 +3877,11 @@ The forms, all in the matching guide now:
 
 - The tag word of a primitive as a bit-field (the sixty-second group).
 - Two names for one pointer (the sixty-second group).
-- The order of statements inside a block is the compiler's in the
-  listing. Found on a function of `slot0b` that was one instruction off:
-  the decrement whose value the original tests from a register stands
-  directly before the test in the source, though the listing has it three
-  statements earlier.
+- The order of statements inside a block of the listing is not evidence
+  of their order in the source. Found on a function of `slot0b` that was
+  one instruction off: it is exact with the decrement, whose value the
+  original tests from a register, directly before the test, though the
+  listing has it three statements earlier. A heuristic, not a rule.
 - A narrow parameter that callers do not mask is an `int` copied into a
   narrow local (found while fixing declarations in the last review).
 
@@ -3928,8 +3928,21 @@ Cleaning the new units for publication:
 - A reviewer's nonblocking point from the last pull request is done: the
   one path of `func_80012d90_slot12` that passes an unset local says so.
 
+What review of the pull request found: the guide's first wording of the
+third form said that the compiler cannot keep a value read from memory
+across a later store through a pointer, and concluded where a statement
+must have stood in the original. A three-line probe by the reviewer shows
+the compiler keeping a local across such a store. The paragraph now
+reports the two functions as observations and the trying of another order
+as a heuristic.
+
 Lessons:
 
+- A mechanism inferred from two functions is not a property of the
+  compiler. Before writing "the compiler cannot" or "always" into the
+  guide, write the three-line fixture that would show the opposite and
+  compile it. The guide's own section on decrements does that; the new
+  paragraph did not.
 - A form found on fresh functions pays on functions that have had few
   attempts. On functions that have had many, what is left is what many
   attempts could not find, and a note with four forms is one more

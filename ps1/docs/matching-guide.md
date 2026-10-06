@@ -216,33 +216,40 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   same form through a parameter and a local copy of it, made after the
   first use, decided one more function. A local copy made before the
   first use is merged away and changes nothing.
-- The order of independent loads and stores inside one block is the
-  compiler's, not the source's. It moves loads up and interleaves the
-  statements of a block to fill load delays, so the listing does not show
-  where a statement stood. What it cannot do is keep a value it read from
-  memory across a later store through a pointer: after such a store it
-  reads the field again. So a value that the original still holds in a
-  register at a test or a store was computed after the last store through
-  a pointer in the source, whatever the listing's order; and a value that
-  the original reads again was read before one. When a candidate reloads
-  what the original keeps, or the reverse, or when two values sit in each
-  other's registers, move a statement before respelling one. Two functions
-  that several attempts had respelled without effect were exact once a
-  statement moved:
+- The order of independent loads and stores inside one block of the
+  listing is not evidence of the order of the statements in the source:
+  the compiler moves loads up and interleaves the statements of a block
+  to fill load delays. So statement order is something to try, like a
+  spelling, and not something to read off the listing. Two observations,
+  each from one function, neither of them a rule:
 
-  ```c
-  obj->field_24 += 0x10;
-  obj->field_20 += 0xffff;
-  obj->field_22 += 0xffff;
-  obj->field_46 = (s16)obj->field_46 - 1;   /* directly before its test */
-  if ((s16)obj->field_46 < 0) { ... }
-  ```
+  - A candidate loaded a field again (`lh`) where the original tests the
+    value from the register that the decrement left it in. The candidate
+    had the statements in the listing's order, with two updates of other
+    fields between the decrement and the test. With the decrement
+    directly before its test, the function is exact:
 
-  The listing of that function has the decrement in the middle, before
-  the two updates, and tests the decremented value from its register. In
-  the other function a constant store moved from the top of a block to
-  directly before an increment, which gave the two values the registers
-  the original has.
+    ```c
+    obj->field_24 += 0x10;
+    obj->field_20 += 0xffff;
+    obj->field_22 += 0xffff;
+    obj->field_46 = (s16)obj->field_46 - 1;
+    if ((s16)obj->field_46 < 0) { ... }
+    ```
+
+    What this shows is narrow. The source reads the field a second time,
+    and whether the compiler loads it again there depends on whether a
+    store that it takes as able to touch that field stands between the
+    two reads. A value copied into a local is another case: the compiler
+    keeps a local across a store, and in this function a local gave other
+    registers.
+  - In another function a constant store moved from the top of a block
+    to directly before an increment, and the two values got the registers
+    the original has.
+
+  Trying another order is a heuristic that worked twice. An exact build
+  with one order shows that this order is compatible with the original's
+  bytes, not that the original source had it.
 - A narrow parameter whose callers pass the argument as it is, without the
   mask or the extension that a prototype with the narrow type makes them
   emit, is an `int` parameter copied into a narrow local:
