@@ -1,6 +1,7 @@
 # PS1 overlay map
 
-Parent: [delivery plan](../../PLAN.md). Tool: `ps1/tools/pac.py`.
+Parent: [delivery plan](../../PLAN.md). Tools: `ps1/tools/pac.py` and
+`ps1/tools/funcscan.py`.
 
 No game was run for anything on this page. Two kinds of evidence are kept
 apart:
@@ -230,6 +231,132 @@ The first instructions are identical in all three. In the two ordinary
 character files, `0x801b5a34` falls in the middle of another function, so that
 call is only valid when the shared file is loaded.
 
+## Functions inside the modules
+
+`pac.py functions` sweeps every code-bearing chunk of table 0 for function
+boundaries with `funcscan.py`, once per distinct content of a slot, and
+counts what it finds. Everything in this section is a static estimate. A
+function listed here is established only when the matching build rebuilds
+it.
+
+### How a boundary is found
+
+A function starts at the first word that is neither zero nor an impossible
+instruction. It ends with the delay slot of the first `jr ra` that lies at
+or beyond every forward branch target and jump table case seen so far. A run
+is cut where a `jal` in the same chunk calls, or where a symbol of
+`ps1/src/symbols.ld` points at a word at which a function with a stack
+frame can start in that module. A run that never returns is set aside as
+data, unless it was cut at a called address and holds a `jal` itself.
+`funcscan.py` states the rules in full, `pac.py` what it takes as such a
+start.
+
+### The method against the resident executable
+
+The resident executable has an inventory of 1,649 functions made with
+another tool. `funcscan.py compare` sweeps the same range:
+
+- All 1,649 starts are found, 1,643 of them with the same size.
+- Five functions are 20 to 32 bytes longer in the sweep. The words in
+  question are register restores, `jr ra` and its delay slot, which the
+  inventory leaves out.
+- The program entry routine is 16 bytes longer: the sweep takes in the four
+  table words after it. It is the one function that ends without a return.
+- The sweep reports 202 functions that the inventory does not list.
+  `compare --show 202` names them with their sizes. They were not examined
+  one by one. Which of them are game functions is not sorted out, and the
+  counts of inventoried functions elsewhere in this project do not include
+  them.
+
+### Counts
+
+77 distinct contents in 16 slots hold 11,220 functions, 1,461,872 bytes.
+
+| Slot | Destination | Contents | Functions | Bytes | Distinct by bytes | Distinct address-blind | In no other slot |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `0x0` | `0x80075e00` | 1 | 112 | 13,120 | 107 | 91 | 0 |
+| `0x1` | `0x80010000` | 1 | 124 | 20,468 | 108 | 100 | 78 |
+| `0x4` | `0x801b0000` | 24 | 4,540 | 570,636 | 3,794 | 2,211 | 77 |
+| `0x5` | `0x801c8000` | 20 | 3,823 | 464,404 | 3,287 | 2,129 | 2 |
+| `0x6` | `0x801e8000` | 20 | 874 | 159,724 | 770 | 532 | 518 |
+| `0x8` | `0x8008bf00` | 1 | 112 | 13,120 | 107 | 91 | 0 |
+| `0xb` | `0x801e0000` | 1 | 61 | 7,960 | 54 | 51 | 39 |
+| `0xf` | `0x800df000` | 1 | 228 | 36,912 | 215 | 187 | 141 |
+| `0x12` | `0x80010000` | 1 | 187 | 29,928 | 167 | 156 | 106 |
+| `0x16` | `0x8007bc00` | 1 | 11 | 984 | 11 | 9 | 0 |
+| `0x17` | `0x8008bf00` | 1 | 11 | 984 | 11 | 9 | 0 |
+| `0x27` | `0x80010000` | 1 | 212 | 31,684 | 190 | 163 | 143 |
+| `0x28` | `0x80010000` | 1 | 683 | 85,408 | 555 | 319 | 305 |
+| `0x2a` | `0x801e0000` | 1 | 28 | 6,052 | 27 | 26 | 23 |
+| `0x2b` | `0x80077000` | 1 | 107 | 10,244 | 98 | 73 | 0 |
+| `0x2c` | `0x8008bf00` | 1 | 107 | 10,244 | 98 | 73 | 0 |
+
+"Functions" and "Bytes" add up every content of the slot. "Distinct by
+bytes" counts a function once per slot however many contents hold the same
+bytes. Over all slots 8,822 functions are distinct by bytes.
+
+"Address-blind" compares functions after setting to zero what depends on
+where things are linked: the target of every `j` and `jal`, the 16-bit field
+of every `lui`, and the 16-bit field of a later instruction that uses the
+register so loaded as its base. `pac.py` has the exact rule. It is an
+estimate of how much code is shared and nothing more: two functions that
+agree this way may still address different things, and two that disagree
+may be one source with other constants. Over all slots 3,749 functions,
+677,624 bytes, are distinct this way.
+
+### Which modules share code
+
+All counts here are address-blind.
+
+- The first-side and second-side character blocks, slots `0x4` and `0x5`,
+  have 2,127 functions in common. Slot `0x4` has 2,211 and slot `0x5` 2,129.
+- The three pairs of extra modules hold the same functions on both sides:
+  91 in slots `0x0` and `0x8`, 9 in `0x16` and `0x17`, 73 in `0x2b` and
+  `0x2c`.
+- Slots `0x2b` and `0x2c` each have 23 functions in common with each of the
+  two character block slots. Slots `0xf` and `0x12` have 46 in common. No
+  other two slots have 20 or more.
+- Within a slot that has several contents, most functions belong to one
+  content. Of the 2,211 functions of slot `0x4`, 1,498 are in one of its 24
+  contents only and none is in all of them. Of the 2,129 of slot `0x5`,
+  1,781 are in one of its 20 contents only and 4 in all. Of the 532 of slot
+  `0x6`, 481 are in one of its 20 contents only and 3 in all.
+
+The four modules with one content across many files:
+
+| Slot | Functions | Bytes | Distinct address-blind | In no other slot |
+| ---: | ---: | ---: | ---: | ---: |
+| `0xb` | 61 | 7,960 | 51 | 39 |
+| `0x2a` | 28 | 6,052 | 26 | 23 |
+| `0x12` | 187 | 29,928 | 156 | 106 |
+| `0x28` | 683 | 85,408 | 319 | 305 |
+
+Together 959 functions, 129,348 bytes. Slot `0x28` repeats itself: its 683
+functions are 555 by bytes and 319 address-blind.
+
+### What supports the boundaries, and what does not
+
+Both commands end with four counts that a wrong boundary can disturb. For
+the 77 contents, and for the resident range, they are the same:
+
+- no `jr ra` word lies outside the functions found;
+- no function holds more than one `jr ra`;
+- no function opens more than one stack frame;
+- one function ends without a return.
+
+In the resident executable that one is the program entry routine. In the
+archives it is at `0x801b6370` in the block of `PL17.PAC`: a `jal` at
+`0x801b6fd8` in the same block targets `0x801b63fc`, a word inside it, so
+the sweep cut it there and counts the rest as a second function at
+`0x801b6400`. Why that call points there is not established.
+
+These counts do not prove a boundary. A function cut in two, or two taken
+as one, goes unnoticed when neither part opens a frame or holds a second
+return. Where a function starts is weaker than where it ends: instruction
+shaped data directly before a function that nothing calls becomes part of
+it. 557 times a symbol's address lies in a module, and 59 times it was
+taken as a function start there.
+
 ## Reproducing
 
 With the executable and the archives extracted as the
@@ -241,12 +368,22 @@ With the executable and the archives extracted as the
 .venv/bin/python ps1/tools/pac.py sides EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c
 .venv/bin/python ps1/tools/pac.py sides EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \
     --first 0x16 --second 0x17
+.venv/bin/python ps1/tools/pac.py functions EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \
+    --symbols ps1/src/symbols.ld --out FUNCTIONS_TSV
+.venv/bin/python ps1/tools/funcscan.py compare EXECUTABLE --base 0x80118900 --offset 0x800 \
+    --inventory RESIDENT_INVENTORY_TSV
 ```
 
 `0x8017eb1c` is the address of `data_8017eb1c` in `ps1/src/symbols.ld`.
 `loadmap` exits with an error if any estimate differs from the table.
-`ps1/tools/test_disc_tools.py` holds control cases for both commands on
-synthetic inputs.
+`functions --out` writes one line per function: the first archive with that
+content, the slot, the address, the size and the address-blind hash.
+`compare` exits with an error here, because the sweep and the inventory
+differ as described above. `0x80118900` is the executable's load address
+and `0x800` the size of its header.
+
+`ps1/tools/test_disc_tools.py` holds control cases for the `pac.py` commands
+and `ps1/tools/test_funcscan.py` for the sweep, all on synthetic inputs.
 
 ## Open
 
@@ -254,7 +391,11 @@ synthetic inputs.
   the two sides. Proposed, on the strength of the comparison above: one
   source and a second link at the other address. Whether that holds for a
   block is only shown when both of its links rebuild exactly.
-- Function boundaries inside the blocks. Nothing here inventories them.
+- The inventory of functions is an estimate from a sweep. Names, and which
+  functions of different characters are one source, are not established.
+- The 202 functions of the resident executable that the sweep reports and
+  the inventory does not list.
+- The call into the middle of a function in the block of `PL17.PAC`.
 - How the loader treats slot `0xffff` and table 5, and the order in which it
   uses the range at `0x801e0000`.
 - What owns the 11 data symbols above the stage blocks.

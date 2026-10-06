@@ -19,8 +19,11 @@ the most absolute call targets land on function prologues.
 
 `loadmap` reads the destination tables from the resident executable and
 compares them with those estimates. `sides` compares the block of a
-second-side archive with its first-side twin word by word. Nothing here was
-observed in a running game.
+second-side archive with its first-side twin word by word. `functions`
+sweeps every code-bearing chunk for function boundaries with funcscan.py and
+counts how many functions are distinct and which slots have them in common,
+with funcscan.py's four counts that a wrong boundary can disturb.
+Nothing here was observed in a running game.
 """
 
 from __future__ import annotations
@@ -33,6 +36,8 @@ import re
 import struct
 import sys
 from pathlib import Path
+
+import funcscan
 
 SECTOR = 2048
 ENTRY_OFFSET = 0x20
@@ -321,6 +326,164 @@ def report_symbols(text: str, image: Image, rows: list[dict], bodies: dict) -> N
         print(f"  no chunk reaches {len(group)} symbol(s) from {min(group):#x} to {max(group):#x}")
 
 
+SAVED = {16, 17, 18, 19, 20, 21, 22, 23, 28, 29, 30}  # s0 to s7, gp, sp, fp: a call leaves them as they were
+
+
+def address_blind(words: list[int]) -> bytes:
+    """The words of a function with the fields that depend on where things are linked set to zero.
+
+    Zeroed: the target of every `j` and `jal`; the 16-bit field of every
+    `lui`; and the 16-bit field of a later instruction that uses a register
+    loaded by `lui` as its base, until that register is overwritten. A `jal`
+    or `jalr` is taken to overwrite every register but `s0` to `s7`, `gp`,
+    `sp` and `fp`, after its delay slot. The registers are followed in
+    address order, not along the paths of the function. Two functions that
+    agree after this may still differ in what they address; two that
+    disagree may be one source with other constants. It gives an estimate
+    of how much code is shared, nothing more.
+    """
+    out, upper, returned = [], set(), -1
+    for position, word in enumerate(words):
+        if position == returned:
+            upper &= SAVED
+        op, rs, rt = word >> 26, (word >> 21) & 0x1F, (word >> 16) & 0x1F
+        writes = 0x08 <= op <= 0x0E or 0x20 <= op <= 0x26
+        if op == 0x03 or (op == 0 and word & 0x3F == 0x09):
+            returned = position + 2
+        if op in (0x02, 0x03):
+            word &= 0xFC000000
+        elif op == 0x0F:
+            upper.add(rt)
+            word &= 0xFFFF0000
+        elif (writes or 0x28 <= op <= 0x3A) and rs in upper:
+            word &= 0xFFFF0000
+            if writes:
+                upper.discard(rt)  # the full address, a loaded value, or another register's new value
+        elif writes:
+            upper.discard(rt)
+        elif op == 0:
+            rd = (word >> 11) & 0x1F
+            if rs not in upper and rt not in upper:
+                upper.discard(rd)  # `addu at,at,v0` keeps the upper half in `at`
+        out.append(word)
+    return struct.pack(f"<{len(out)}I", *out)
+
+
+def starts_function(words: list[int], index: int) -> bool:
+    """Whether the words from `index` begin the way a compiled function with a stack frame can.
+
+    Either the frame is opened there (`addiu sp,sp,-N`), or one or two pairs
+    of a `lui` and a load through the same register come first and the frame
+    is opened directly after them. A function without a frame, or one whose
+    frame opens later in another way, is not recognised.
+    """
+    for _ in range(3):
+        if index >= len(words):
+            return False
+        if words[index] & 0xFFFF8000 == 0x27BD8000:
+            return True
+        upper, load = words[index], words[index + 1] if index + 1 < len(words) else 0
+        if upper >> 26 != 0x0F or not 0x20 <= load >> 26 <= 0x25 or (load >> 21) & 0x1F != (upper >> 16) & 0x1F:
+            return False
+        index += 2
+    return False
+
+
+def cmd_functions(args) -> int:
+    try:
+        table = load_tables(args)[1][0]  # the last table is the one without a bound, and table 0 is never the last
+    except (OSError, FormatError) as exc:
+        print(f"{args.executable}: {exc}")
+        return 1
+    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+    offered = taken = 0
+    archives, bad = read_archives(args.directory)
+    slots: dict[int, dict] = {}
+    seen: set[tuple[int, bytes]] = set()
+    distinct_bytes: set[bytes] = set()
+    sizes: dict[bytes, int] = {}
+    counts = dict.fromkeys((key for key, _ in funcscan.CHECKS), 0)
+    rows = []
+    for name, data, chunks in archives:
+        for c in chunks:
+            body = data[c["offset"] : c["offset"] + c["size"]]
+            key = (c["slot"], hashlib.sha256(body).digest())
+            if c["table"] != 0 or c["slot"] >= len(table) or key in seen or not code_estimate(body):
+                continue
+            seen.add(key)
+            base = table[c["slot"]]
+            if base % 4:
+                print(f"slot {c['slot']:#x}: the destination {base:#x} is not a multiple of four")
+                return 1
+            words = list(struct.unpack_from(f"<{len(body) // 4}I", body))
+            # A symbol belongs to one module and its address lies in others too: see starts_function.
+            inside = [a for a in symbols if base <= a < base + 4 * len(words)]
+            entries = [a for a in inside if starts_function(words, (a - base) // 4)]
+            offered += len(inside)
+            taken += len(entries)
+            found = funcscan.scan(words, base, 0, len(words), funcscan.reader(words, base), entries)
+            for check, count in funcscan.census(words, base, 0, len(words), found).items():
+                counts[check] += count
+            entry = slots.setdefault(c["slot"], {"contents": [], "size": 0, "functions": 0, "bytes": 0, "exact": set()})
+            entry["size"] += len(body)
+            entry["functions"] += len(found)
+            entry["bytes"] += sum(size for _, size in found)
+            here = set()
+            for address, size in found:
+                part = words[(address - base) // 4 : (address - base + size) // 4]
+                exact = hashlib.sha256(struct.pack(f"<{len(part)}I", *part)).digest()
+                blind = hashlib.sha256(address_blind(part)).digest()
+                entry["exact"].add(exact)
+                here.add(blind)
+                distinct_bytes.add(exact)
+                sizes[blind] = size
+                rows.append(f"{name}\t{c['slot']:#x}\t{address:08x}\t{size}\t{blind.hex()[:16]}")
+            entry["contents"].append(here)
+    if not slots:
+        print("no code-bearing chunk found")
+        return 1
+    blind = {slot: set().union(*entry["contents"]) for slot, entry in slots.items()}
+    print(f"{len(archives)} archives parsed, {bad} rejected; code-bearing chunks with distinct contents: {len(seen)}")
+    print(
+        " slot  destination  contents  content bytes  functions  function bytes"
+        "  distinct by bytes  distinct address-blind  in no other slot"
+    )
+    for slot, entry in sorted(slots.items()):
+        elsewhere = set().union(*(found for other, found in blind.items() if other != slot))
+        print(
+            f"{slot:#5x}   {table[slot]:#010x}  {len(entry['contents']):8}  {entry['size']:13}  {entry['functions']:9}"
+            f"  {entry['bytes']:14}  {len(entry['exact']):17}  {len(blind[slot]):22}  {len(blind[slot] - elsewhere):16}"
+        )
+    print(
+        f"all slots: {sum(e['functions'] for e in slots.values())} functions,"
+        f" {sum(e['bytes'] for e in slots.values())} bytes;"
+        f" distinct by bytes: {len(distinct_bytes)};"
+        f" distinct address-blind: {len(sizes)} functions, {sum(sizes.values())} bytes"
+    )
+    print(funcscan.census_text(counts))
+    for slot, entry in sorted(slots.items()):
+        if len(entry["contents"]) > 1:
+            held = [sum(1 for found in entry["contents"] if h in found) for h in blind[slot]]
+            print(
+                f"slot {slot:#x}: of its {len(held)} address-blind distinct functions, {held.count(1)} are in one of its"
+                f" {len(entry['contents'])} contents only and {held.count(len(entry['contents']))} in all of them"
+            )
+    order = sorted(slots)
+    for index, slot in enumerate(order):
+        for other in order[index + 1 :]:
+            common = len(blind[slot] & blind[other])
+            if blind[slot] == blind[other]:
+                print(f"slots {slot:#x} and {other:#x}: the same {common} address-blind distinct functions")
+            elif common >= args.common:
+                print(f"slots {slot:#x} and {other:#x}: {common} address-blind distinct functions in common")
+    if symbols:
+        print(f"symbols whose address lies in a module: {offered} cases; taken as a function start there: {taken}")
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text("".join(row + "\n" for row in rows))
+    return 1 if bad else 0
+
+
 def classify_shift(first: int, second: int, delta: int, low: int, high: int) -> str:
     """Name the way two differing words relate when the second block sits `delta` above the first.
 
@@ -416,6 +579,7 @@ def main() -> int:
     for name, fn, text in (
         ("loadmap", cmd_loadmap, "compare the loader's destination tables with the code estimates"),
         ("sides", cmd_sides, "compare second-side blocks with their first-side twins"),
+        ("functions", cmd_functions, "sweep the code-bearing chunks for functions and count distinct ones"),
     ):
         p = sub.add_parser(name, help=text)
         p.add_argument("executable", help="the resident PS-X executable")
@@ -424,6 +588,16 @@ def main() -> int:
         if name == "loadmap":
             p.add_argument("--out", help="write the rows as JSON")
             p.add_argument("--symbols", help="a file of `name = 0xADDRESS;` lines: report those outside the image")
+        elif name == "functions":
+            p.add_argument(
+                "--out",
+                help="write one line per function: first archive with that content, slot, address, size, address-blind hash",
+            )
+            p.add_argument("--common", type=int, default=20, help="report two slots that share this many functions (default 20)")
+            p.add_argument(
+                "--symbols",
+                help="a file of `name = 0xADDRESS;` lines: each is an entry of the modules where a function with a frame starts there",
+            )
         else:
             p.add_argument("--first", type=address, default=4, help="slot of the first-side block (default 4)")
             p.add_argument("--second", type=address, default=5, help="slot of the second-side block (default 5)")

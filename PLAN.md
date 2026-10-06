@@ -36,7 +36,7 @@ is required to finish this selected target unless explicitly added.
   scripted enumeration of variants.
 - The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
   executable byte-identically from declared owners. C units link at original
-  addresses; the other 333,804 payload bytes are retained raw and counted
+  addresses; the other 333,596 payload bytes are retained raw and counted
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
