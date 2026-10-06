@@ -2446,6 +2446,80 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
             return f"the failed object check must name the image and the diff must still be printed: {say(proc)}"
         return None
 
+    unresolved = "int absent_fn(void);\nint mod_fn(void) { return absent_fn(); }\n"
+
+    def plain(ctx, unit_name: str) -> subprocess.CompletedProcess:
+        """`fndiff.py` without `--rebuild`."""
+        return subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, unit_name],
+            capture_output=True, text=True,
+        )
+
+    def names_image(proc, text: str, what: str):
+        """The failure of a module unit: not exit 0, and `text` right after the image's name."""
+        output = proc.stdout + proc.stderr
+        if proc.returncode == 0 or f"image 'example': {text}" not in output:
+            return f"{what} must fail and name the image before {text!r}: exit {proc.returncode}\n{output}"
+        return None
+
+    def module_link_fails(ctx):
+        """The unit of a module image cannot be linked alone, without and with `--rebuild`."""
+        seeds.prepare()
+        images.install(
+            ctx.copy, chunk=seeds.chunks["A"], code=seeds.chunks["B"],
+            units=[images.unit("res", FIXTURE_LOAD, 8, image=None), images.unit("mod", FIXTURE_LOAD, 8)],
+            sources={"res": IMAGE_BODY.format(name="res", value=9), "mod": unresolved},
+        )
+        ctx.run()  # it fails, after every unit has its object
+        if not (ctx.build / "unit-mod.o").is_file():
+            return "test setup: the whole build left no object of the module unit"
+        problem = names_image(plain(ctx, "mod"), "cannot link unit 'mod' alone", "a link of the module unit alone that fails")
+        if problem:
+            return problem
+        proc = plain(ctx, "res")
+        if proc.returncode != 0 or "image '" in proc.stdout + proc.stderr:
+            return f"the resident unit beside it must be compared as before: {say(proc)}"
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        (ctx.copy / "mod.c").write_text(unresolved)
+        return names_image(rebuild(ctx, "mod"), "cannot link unit 'mod' alone", "a link after a rebuild that fails")
+
+    def module_object_missing(ctx):
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        proc = subprocess.run(
+            [sys.executable, str(FNDIFF), "--config", str(ctx.config), "--tag", ctx.tag, "mod", "absent_fn"],
+            capture_output=True, text=True,
+        )
+        problem = names_image(proc, "function 'absent_fn' is not declared", "a function that the module unit does not have")
+        if problem:
+            return problem
+        (ctx.build / "unit-mod.o").unlink()
+        return names_image(plain(ctx, "mod"), "no object ", "a module unit without an object")
+
+    def module_publication_fails(ctx):
+        """The report cannot be removed, so nothing is replaced: the failure of a module unit names the image."""
+        problem = module_fixture(ctx)
+        if problem:
+            return problem
+        (ctx.build / "report.json").unlink()
+        (ctx.build / "report.json").mkdir()
+        before = (ctx.build / "unit-mod.o").read_bytes()
+        (ctx.copy / "mod.c").write_text(IMAGE_BODY.format(name="mod", value=8))
+        problem = names_image(rebuild(ctx, "mod"), "cannot put the files of unit 'mod' into", "a publication that fails")
+        if problem:
+            return problem
+        if (ctx.build / "unit-mod.o").read_bytes() != before:
+            return "the object of the module unit was replaced although the report could not be removed"
+        (ctx.copy / "res.c").write_text(IMAGE_BODY.format(name="res", value=8))
+        proc = rebuild(ctx, "res")
+        output = proc.stdout + proc.stderr
+        if proc.returncode != 1 or "FAIL: cannot put the files of unit 'res' into" not in output or "image '" in output:
+            return f"the same failure of the resident unit must read as before, without an image: {say(proc)}"
+        return None
+
     def module_calls_sibling(ctx):
         seeds.prepare()
         images.install(
@@ -2487,6 +2561,9 @@ def make_fndiff_cases(cfg_dir: Path, parsed: dict) -> list[CacheCase]:
         CacheCase("fndiff-rebuild-module-unit", module_rebuild),
         CacheCase("fndiff-rebuild-module-syntax-error", module_syntax_error),
         CacheCase("fndiff-rebuild-module-wrong-size", module_wrong_size),
+        CacheCase("fndiff-module-link-fails", module_link_fails),
+        CacheCase("fndiff-module-object-missing", module_object_missing),
+        CacheCase("fndiff-rebuild-module-publication-fails", module_publication_fails),
         CacheCase("fndiff-module-unit-calls-sibling", module_calls_sibling),
         CacheCase("fndiff-options-need-rebuild", options_need_rebuild),
     ]

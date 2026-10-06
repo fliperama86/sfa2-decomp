@@ -50,7 +50,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
     """Link one unit object at its start address with every other symbol of its image as an address."""
     obj = build / f"unit-{unit.name}.o"
     if not obj.is_file():
-        raise SystemExit(f"no object {obj}: run matchbuild with the same --tag first")
+        raise SystemExit(named(unit.image, f"no object {obj}: run matchbuild with the same --tag first"))
     neighbours = cfg.units_of(unit.image)
     others = [fn for other in neighbours if other.name != unit.name for fn in other.functions]
     assigned = {fn.name for fn in others}
@@ -89,7 +89,7 @@ def link_alone(cfg, unit, build: Path) -> Path:
         text=True,
     )
     if proc.returncode != 0:
-        raise SystemExit(f"cannot link unit {unit.name!r} alone:\n{proc.stderr}{proc.stdout}")
+        raise SystemExit(named(unit.image, f"cannot link unit {unit.name!r} alone:\n{proc.stderr}{proc.stdout}"))
     return elf
 
 
@@ -168,7 +168,7 @@ def rebuild(cfg, unit, build: Path, tag: str, cache_dir: Path | None) -> int | N
         try:
             publish(scratch, build, unit.name)
         except OSError as exc:
-            print(f"FAIL: cannot put the files of unit {unit.name!r} into {build}: {exc}")
+            print("FAIL: " + named(unit.image, f"cannot put the files of unit {unit.name!r} into {build}: {exc}"))
             print("RESULT: FAIL (run matchbuild.py again: the build directory may hold files of two builds)")
             return 1
     finally:
@@ -221,7 +221,7 @@ def main() -> int:
     if args.function:
         declared = next((f for f in unit.functions if f.name == args.function), None)
         if declared is None or args.function not in built_functions:
-            print(f"function {args.function!r} is not declared in the unit or not present in the object")
+            print(named(unit.image, f"function {args.function!r} is not declared in the unit or not present in the object"))
             return 2
         want_address, want_size = declared.address, declared.size
         got_address, got_size = built_functions[args.function]

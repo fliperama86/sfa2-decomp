@@ -396,7 +396,12 @@ for a floating-point token or inline assembly, counts as a failed step.
 A unit of a module image is compared with the payload of its own image,
 with and without `--rebuild`. The units linked beside it, as declared
 functions and as the symbols their objects define, are the units of the same
-image. A failure of such a unit names the image, as in a whole build.
+image. A failure of such a unit names the image, as in a whole build: a
+failed step, a failed object check, a missing object, a function that the
+unit does not have, a link of the unit alone that fails, and a failure
+while its files are replaced. What is not about the unit names no image:
+the configuration, an unknown unit, a missing build directory, the shared
+setup and the environment.
 
 Exit status of `matchbuild.py`: 0 all checks passed, 1 failed check or build
 step, 2 invalid configuration, 3 unusable environment such as a missing SSH
@@ -605,8 +610,11 @@ identical result for the module unit after a whole build, which a
 comparison with the resident payload could not give; with `--rebuild`, a
 different result after a change of the module unit's source and an
 identical one after it is restored; a failed step and a failed object check
-that each name the image; and an identical result for a module unit that
-calls a function of another unit of its image.
+that each name the image; the image's name too on a link of the unit alone
+that fails, without and with `--rebuild`, on a missing object, and on a
+report that cannot be removed, where the same failure of the resident unit
+must read as before; and an identical result for a module unit that calls a
+function of another unit of its image.
 
 Cases on the replacement step alone require: the report and the summary
 gone and both files new after it ran; the report and the summary gone when

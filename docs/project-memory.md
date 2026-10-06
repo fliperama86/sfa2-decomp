@@ -2661,8 +2661,15 @@ What ran:
   table and treats every other table that differs from the base as a
   conflict. The sentence in the pages was wrong; five cases now show what
   it does for module images.
-- `test_matchbuild.py`: 176 cases. The refusal case went and five came for
-  module units in the loop. `test_mergeunits.py`: 39 cases, 5 new.
+- `test_matchbuild.py`: 179 cases. The refusal case went and eight came for
+  module units in the loop, three of them in review. The 176 of the first
+  version ran in full. `test_mergeunits.py`: 39 cases, 5 new.
+
+What review of the pull request found: three failures of a module unit still
+came without the image's name. They were a link of the unit alone that
+fails, a missing object and a failure while the files are replaced. It is
+the fault of the forty-second group again, in another tool: a rule about
+every failure, applied to the failures someone thought of.
 
 Lessons:
 
@@ -2670,6 +2677,10 @@ Lessons:
   It was a guess from the list of keys an older sentence named. Read the
   code before a page says what a tool cannot do, as before it says what a
   tool can.
+- For a rule that says "every failure", list the places that can fail from
+  the code, by searching for every raise, exit and failure print of the
+  tool, and tick each one. Twice now a review found the ones that a list
+  made from memory left out.
 - The package for `fndiff.py` took the subagent three minutes: one tool,
   targeted cases only, the whole suite and the real build left to the top
   level. That is the size to aim for.
