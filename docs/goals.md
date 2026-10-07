@@ -394,6 +394,17 @@ chose the first on 2026-10-06:
   first stage they have not had an agent. The stage files are the work
   of a second session that runs beside the first, by the owner's
   decision of 2026-10-06.
+  The next eleven are first-side character blocks, the contents of slot
+  `0x4` in `PL0C.PAC` to `PL17.PAC` (`PL13.PAC` has the bytes of
+  `PL11.PAC`), 2,333 functions by the sweep: 2,307 are exact, 276,772
+  bytes, and five blocks have every function exact. The second sides,
+  slot `0x5` of the `X` files, are the same units linked a second time
+  and exact against their own chunks; `PL15`, `PL16` and `PL17` have
+  none. Two units of `PL11` stay raw on the second side: they call that
+  character's extra module, which the second side has at another
+  address, and a second link cannot be given another image's moved
+  functions yet. The functions that are not exact are parked with
+  candidates. These blocks are the second session's work too.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -420,8 +431,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot00`, `slot2b` and the 20 stage images `slot06_00` to `slot06_13` that are rebuilt so far
-(`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
+(`slot17`, `slot08`, `slot2c` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path

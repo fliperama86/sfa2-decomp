@@ -50,8 +50,14 @@ time and are exact against its own chunk.
 In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
 retained raw.
 In the 20 stage modules, `slot06_00` to `slot06_13`, 756 C functions,
-75,748 bytes, are exact and 1,284,940 bytes are retained raw. The other
-modules are not in the build.
+75,748 bytes, are exact and 1,284,940 bytes are retained raw.
+In the 11 first-side character blocks of slot `0x4`, `slot04_0c` to
+`slot04_17` (the files `PL0C.PAC` to `PL17.PAC`), 2,307 C functions,
+276,772 bytes, are exact and 733,568 bytes are retained raw. In the eight
+second-side images `slot05_0c` to `slot05_14` the functions of the first
+sides are linked a second time, at another address and from the same
+objects, and are exact against their own chunks; two units of one
+character stay raw there. The other modules are not in the build.
 The [Windows pilot](windows/docs/gameplay-pilot.md) is behaviorally tested but
 not byte-matching. VC5 tools are available; game matching with VC5 is untested.
 

@@ -43,9 +43,13 @@ Reconstructed source, published:
 - The source of overlay modules is published there too, by the owner's
   decision of 2026-10-06, in one folder per module image: `src/slot2a/`,
   `src/slot2b/`, `src/slot00/`, `src/slot0b/`, `src/slot0f/`,
-  `src/slot12/`, `src/slot16/` and the 20 folders `src/slot06_00/` to
-  `src/slot06_13/` of the stage modules. The images `slot17`, `slot08` and `slot2c` are linked
-  from the units of `slot16`, `slot00` and `slot2b` and have no folder.
+  `src/slot12/`, `src/slot16/`, the 20 folders `src/slot06_00/` to
+  `src/slot06_13/` of the stage modules and the 11 folders
+  `src/slot04_0c/` to `src/slot04_17/` of the first-side character
+  blocks. The images `slot17`, `slot08` and `slot2c` are linked
+  from the units of `slot16`, `slot00` and `slot2b` and have no folder;
+  the eight images `slot05_0c` to `slot05_14` are linked from the units of
+  the character blocks in the same way.
 
 Needed to build and not in the repository:
 
@@ -56,11 +60,14 @@ Needed to build and not in the repository:
 - `extract/PAC/BOSS00.PAC`, `extract/PAC/CONT00.PAC`, `extract/PAC/DEMO.PAC`,
   `extract/PAC/PL00X.PAC`, `extract/PAC/PL09.PAC`, `extract/PAC/PL09X.PAC`,
   `extract/PAC/PL0E.PAC`, `extract/PAC/PL0EX.PAC`, `extract/PAC/PL11.PAC`,
-  `extract/PAC/PL11X.PAC` and the 20 files `extract/PAC/STAGE00.PAC` to
-  `extract/PAC/STAGE13.PAC` (the number in hexadecimal): your own copies of
+  `extract/PAC/PL11X.PAC`, the 20 files `extract/PAC/STAGE00.PAC` to
+  `extract/PAC/STAGE13.PAC` (the number in hexadecimal), the character
+  files `extract/PAC/PL0C.PAC` to `extract/PAC/PL17.PAC` but for
+  `PL13.PAC`, and their second-side files `extract/PAC/PL0CX.PAC` to
+  `extract/PAC/PL14X.PAC` but for `PL13X.PAC`: your own copies of
   those archives from the disc. The build takes the module images of slots
-  `0x2a`, `0x12`, `0xb`, `0xf`, `0x0`, `0x8`, `0x2b`, `0x2c`, `0x16`, `0x17`
-  and `0x6` from them and checks each chunk's hash.
+  `0x2a`, `0x12`, `0xb`, `0xf`, `0x0`, `0x8`, `0x2b`, `0x2c`, `0x16`, `0x17`,
+  `0x6`, `0x4` and `0x5` from them and checks each chunk's hash.
 - `src/sdk/include/`: the SDK headers of the sotn-decomp project, copied
   unchanged from the commit named in `src/sdk/README.md`.
 - A checkout of `maspsx` at the commit pinned in `src/build.toml`, MIPS

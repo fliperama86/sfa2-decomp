@@ -4640,6 +4640,184 @@ Lessons:
   as a new file and then stands in every later base. Look at what a
   merge copies besides unit files.
 
+## Sixty-ninth group: eleven character blocks, slot 0x4 of PL0C.PAC to PL17.PAC
+
+The second session's next claim after the stage modules: the first-side
+code blocks of the character files `PL0C.PAC` to `PL17.PAC` (slot `0x4`,
+at `0x801b0000`), images `slot04_0c` to `slot04_17`, and their second
+sides (slot `0x5` of the `X` files, at `0x801c8000`), images `slot05_0c`
+to `slot05_14`.
+
+Counts, from the build and the published inventory:
+
+| Image | File | Functions | Exact | Bytes exact | Raw bytes |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `slot04_0c` | `PL0C.PAC` | 166 | 166 | 18,468 | 39,548 |
+| `slot04_0d` | `PL0D.PAC` | 185 | 185 | 19,884 | 59,732 |
+| `slot04_0e` | `PL0E.PAC` | 239 | 231 | 26,852 | 64,008 |
+| `slot04_0f` | `PL0F.PAC` | 264 | 261 | 27,952 | 63,148 |
+| `slot04_10` | `PL10.PAC` | 203 | 203 | 27,888 | 65,832 |
+| `slot04_11` | `PL11.PAC` | 226 | 221 | 26,916 | 70,700 |
+| `slot04_12` | `PL12.PAC` | 157 | 156 | 19,776 | 66,008 |
+| `slot04_14` | `PL14.PAC` | 267 | 264 | 33,372 | 64,920 |
+| `slot04_15` | `PL15.PAC` | 185 | 185 | 19,900 | 61,380 |
+| `slot04_16` | `PL16.PAC` | 203 | 203 | 27,944 | 80,004 |
+| `slot04_17` | `PL17.PAC` | 238 | 232 | 27,820 | 98,288 |
+| all 11 | | 2,333 | 2,307 | 276,772 | 733,568 |
+
+- "Functions" is the sweep's count in `ps1/inventory/modules.tsv`; the
+  other columns are the build's lines per image, and the last row is
+  their sums. `slot04_10` and `slot04_16` also own 280 bytes of read-only
+  data each.
+- The eight second-side images are the same units linked a second time
+  (`like`), exact against their own chunks: 166, 185, 231, 261, 203,
+  207, 156 and 264 functions. `PL15`, `PL16` and `PL17` have no `X`
+  file. `PL13.PAC` and `PL13X.PAC` carry the bytes of `PL11.PAC` and
+  `PL11X.PAC`: one content with two carriers, so they need no image of
+  their own (the map tool refuses a second image for one content).
+- `slot05_11` leaves two units out (14 functions raw there). Three of
+  their functions call the extra module of that character (`slot16`),
+  which the second side has as `slot17` at another address. The link of
+  a second link gets another image's functions at their first-side
+  addresses, and `[image.symbols]` may only name what `symbols.ld`
+  assigns. A request for a way to say it is with the first session.
+  `slot05_0e` needs one `[image.symbols]` line for a data address of
+  that character's extra module (`slot2b`, on the second side `slot2c`).
+- 26 rows of the sweep are not exact functions. One is not a function:
+  in `PL17.PAC` the sweep cut one function in two at `0x801b63fc`,
+  where `symbols.ld` has a name that belongs to another character's
+  block; the unit declares the whole function, 192 bytes. The other 25
+  are parked with candidates (one-off count from the private folder).
+- In `PL11.PAC` and `PL17.PAC` the first function starts 8 bytes after
+  the sweep's row, which begins with two data words. The units declare
+  it at `0x801b00d0`; the inventory keeps the sweep's row, and the map
+  tool prints the 8 bytes as an overrun.
+- 234 unit files, 757 symbol lines, 12 structs and 88 field lines are
+  new. Eight of the field lines went into structs of the resident image
+  (`Config`, `GameState`, `FrameRecord`); each was tested: without it an
+  exact unit does not compile. The resident image and the other module
+  images are unchanged in their bytes.
+- The coverage map's lines after this group: `modules: 5672/11220
+  function placements exact (50.6%)`, `overall: 3798/5600 distinct
+  functions exact (67.8%); 7426/13072 placements (56.8%)`.
+
+How the blocks relate, from comparing bytes (the private list of likes):
+the block of `PL15.PAC` is the code of `PL0D.PAC` moved by 8 bytes, the
+block of `PL16.PAC` is the code of `PL10.PAC` moved by 0x38, and the
+block of `PL17.PAC` shares 141 functions with `PL11.PAC`. The others
+share a framework of small functions with each other and with the
+resident image and differ in the rest. A function that became exact in
+one of a pair went to its twin at once, in both directions; both pairs
+ended with every function exact, and what the first pass had parked in
+one block the other had often solved.
+
+What ran (one-off counts from the private folders):
+
+- A first pass over every function under 600 bytes, block after block,
+  eight agents at a time, 118 batches, each with the exact blocks before
+  it in its work folder. Then the five functions of 600 bytes and more,
+  one batch each: four are exact. Unlike the drawing functions of the
+  stage modules, the large functions here are ordinary code.
+- 79 second attempts on parked functions, each after a form had been
+  found on one function, by hand or in a sibling block.
+- A declaration pass, one agent per block on its own copy of the tree:
+  the check printed 517 lines for these blocks before it and prints 105
+  after it, with every image still exact. Calls with another number of
+  arguments, undeclared calls, dispatch table entries with another
+  parameter list and declarations without a prototype are at zero.
+- The private promotion helper of the stage modules, adapted: it dropped
+  2,501 unused declaration lines, 21 unused data symbols and 15 unused
+  field lines, and checked that nothing outside the character lines of
+  the three shared files changed.
+
+What the declaration check still prints, and why it stands:
+
+- 46 lines about functions of one resident unit that defines them with
+  a local `typedef unsigned char u8_;`. The check compares type names as
+  text; the declarations say `u8`. Some of these units need an `int`
+  return there and are in the next point too.
+- The rest are declarations of resident functions that differ from the
+  definition where the unit is exact only so: `func_801483a4` and
+  `func_801482e0` with `int` parameters (the listings pass negative
+  constants with `addiu`, the definitions take `u16`), `func_80130678`
+  and `func_80130768` with an `int` index, `func_80125734` with a signed
+  byte, `func_80141788`, `func_801418bc`, `func_80149b80` and
+  `func_8012f898` with another return width, `func_80130470`,
+  `func_8013054c`, `func_80155eac`, and two functions that no unit
+  defines. Each is a question for the definition, not for the caller,
+  and is listed for the first session. Six units leave out `protos.h`
+  to declare one function differently from it, and declare what the
+  header has for the rest.
+- `box_margin` is declared as a scalar by most units and as an array by
+  the units that need the `data_X[0]` form.
+
+Accepted constructs in these units: 9 uses of the unused local array for
+a frame size, and 18 calls through a cast of the callee with the guide's
+comment: 14 pass the object to `func_8011f0e8`, whose definition takes
+nothing; one passes two arguments to `func_80138c78`, which takes
+nothing; two pass a seventh argument to `func_80140598`; one passes
+nothing to `func_80141c4c`, which takes one. The guide's paragraph on
+this construct is in the first session's open pull request, not on
+`main` yet.
+
+Refused: three functions are exact only with a statement that leaves no
+instruction (an assignment to a local that nothing reads, which keeps
+the compiler from turning an `if` into a flag computation, or from
+merging a load). The guide does not allow dummy operations, so
+`func_801b24e0_slot04_17` with its twin in `PL11`,
+`func_801b2e8c_slot04_0e` and `func_801b81f8_slot04_14` stay parked,
+their candidates private. Whether such a statement is ordinary code is
+the owner's call.
+
+Kept, and marked as an inference in a comment at the statement: in
+`func_801b460c_slot04_0c` the listing stores `pos_x` to itself. Written
+as the facing-dependent offset that sibling functions have, with zero in
+both arms, the function is exact; as one self-assignment it is not. The
+reasoning is in the matching guide.
+
+Source forms found here are in the matching guide: stores in field order
+where the listing groups them by register; the call written in each arm
+with the listing's last arm last; the compare of a motion step in the
+operand order of the listing; motion steps that return their last
+update; a type sweep of the locals before other spellings; a zero copied
+per loop; and blocks that are gone in the listing but decided the
+allocation. Most were found on one function and were then exact on
+several others the same hour.
+
+Findings about the game, inferred from the code:
+
+- The block of `PL0F.PAC` calls `0x801e9ed0`, which is a function start
+  in stage `0F` only. The unit calls it by the stage function's own name
+  (`func_801e9ed0_slot06_0f`). That this character's block runs only
+  with that stage loaded is an inference from the call.
+- The blocks of `PL0E.PAC` and `PL11.PAC` reach into the extra modules
+  of their files (`slot2b`, `slot16`), by a data address and by calls.
+- `func_80157380`, a library function that the inventory lists as
+  unidentified, is called by one block with the object in `a0`. It got a
+  plain name in `symbols.ld` and no definition.
+
+Mistakes and lessons of this group:
+
+- Two batches gave a second name to an address that had one (two
+  scratchpad pointers, one pointer inside `game_state`). The note for
+  the agents now says to look every address up first, the scratchpad
+  included. One batch had named a stage function a second time; the
+  rule is to call another image's function by its declared name.
+- An agent wrote a call through a cast of the callee where a
+  declaration without a parameter list would have done, and another
+  gave a function a third parameter to read an uninitialised register,
+  with casts at its callers. Both were undone before banking.
+- A batch stopped on a boundary that was the sweep's and not the
+  code's, twice. Check the first row of a block's function table, and
+  rows next to a name of `symbols.ld` that belongs to another block,
+  before a round starts.
+- The merge helper does not take a tree whose existing unit files were
+  edited (the declaration pass). Late retries were added by hand after
+  it: finish retries first, then run the declaration pass.
+- `pkill -f` in a compound command killed the shell that ran it, once
+  in this session and once in an agent's. It is in the lessons already;
+  it needs to be in the agents' briefs too.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
