@@ -139,6 +139,37 @@ The comment means what it says. An exact build with the array shows that
 this source is compatible with the original's bytes, not what the original
 source had there. `grep -rn "unused\[" src` lists the uses.
 
+One construct is accepted for one case: a call that passes another number
+of arguments than the callee's definition has. Every function of the tree
+is declared with a prototype, so such a call cannot be written plainly. It
+is written through a cast of the callee, and the function that holds it
+has a comment directly above it whose first sentence is fixed and whose
+second gives what was measured:
+
+```c
+/* The call of func_80131094 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+void func_800205b4_slot28(Object *obj) {
+    func_80020608_slot28(obj);
+    if (obj->pos_y >= 0xd0) {
+        obj->field_04++;
+    }
+    ((void (*)(void))func_80131094)();
+}
+```
+
+Two functions of the module of slot `0x28` have it, both at a call of
+`func_80131094`, which uses its parameter: what it receives there is
+whatever the code before the call left in the register. The comment says
+what the original does at that call. It does not say how the original
+source was written; a file that declares the callee without a prototype
+compiles such a call from plain C. Use it only after two checks: the plain
+call was measured (the cast stays only if the function is exact with it
+and not without it), and the callee does not simply take another
+parameter list. In the same module three helpers that their callers pass
+the object to, although they do not use it, got an unused parameter in
+their definition instead, and every caller is written plainly.
+`grep -rn "The call of" src` lists the uses.
+
 ## What this compiler does
 
 GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
@@ -255,9 +286,23 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     the store of a small constant to `field_09`; the other eight leave the
     constant and a loaded byte in each other's registers or change more.
 
-  Trying another order is a heuristic that worked in these three
+  - In `func_8001bd48_slot28`, 908 bytes with five blocks that each set
+    up a new object, one store of the constant 2 (`p->field_03 = 2;`) was
+    moved from directly after the store to `field_02` to directly before
+    the other store of 2 in its block: 107 instruction slots differ, the
+    register of the object pointer in all five blocks among them. Two
+    agents had credited the match of this function and of a like one to
+    narrow locals that held the constants; with literals in their place
+    both functions build the same bytes, and the locals were taken out
+    again.
+
+  Trying another order is a heuristic that worked in these four
   functions; the second attempts on the module of slot `0x27` report it
-  for four more. An exact build
+  for four more, and the batches of the module of slot `0x28` report one
+  order for most blocks that set up a new object: the store of 1 to the
+  first byte first in the block, and the store that the original has in
+  the delay slot of the block's call last before that call. An exact
+  build
   with one order shows that this order is compatible with the original's
   bytes, not that the original source had it.
 - Two stores to one field. One fixture, and what it does and does not
@@ -354,6 +399,36 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   such frame: the eight functions of the module of slot `0x27` that carry
   the stand-in were tried with it, about ten forms each, and none became
   exact without the array. Four of the eight contain no branch at all.
+  In the module of slot `0x28` one function has its frame from such a
+  local and no stand-in: `func_800279d4_slot28` is exact with `s16 h`;
+  with `int h` it builds 304 bytes against 324, with a frame of 0x30
+  against 0x38.
+- One pointer local, assigned again right before each use, against a
+  store written through the global each time. In `func_8001e85c_slot28`
+
+  ```c
+  p = data_80051a98_slot28[0];
+  p->field_48 = 0xff;
+  p = data_80051a98_slot28[1];
+  p->field_48 = 0xff;
+  ```
+
+  is exact, and `data_80051a98_slot28[0]->field_48 = 0xff;` with the
+  second store written alike differs in 10 instruction slots: the pointers
+  and the constant are in each other's registers. By the agents' reports
+  the same form, one local for every pointer of the function, decided
+  eleven second attempts on that module. It is a heuristic for a function
+  whose only difference is which register holds a loaded pointer.
+- A helper that is passed the object although it does not use it. In
+  `func_80018c70_slot28` the first call is `func_80019090_slot28(obj);`
+  and the callee, which reads only globals, has an unused parameter. With
+  the call written without the argument the function differs in 8 slots:
+  the argument register is then free where the original keeps the object
+  in it, and a pointer that the function loads later lands in it. The sign
+  in a listing: a value in the second or third argument register where
+  nothing seems to occupy the first. Three helpers of that module got the
+  parameter for this reason; what their original declarations were is not
+  known.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

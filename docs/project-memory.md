@@ -4564,6 +4564,105 @@ Lessons:
 - Names that a batch adds "in case another batch wants them" are not
   wanted: a name enters the tree with a use.
 
+## Sixty-ninth group: a ninth module, the one of slot 0x28
+
+The one content of slot `0x28`, from `END00.PAC` (it is in 21 archives):
+270,016 bytes at `0x80010000`, 683 functions by the sweep. It is the image
+`slot28`, the largest module so far.
+
+Counts, from the build:
+
+- `slot28`: 677 of 683 functions exact, 83,960 of 85,408 bytes. 186,056
+  bytes of the chunk are retained raw.
+- 6 functions are parked with candidates, 1,448 bytes.
+- 417 unit files, 494 symbols (493 of the module, 6 of them the parked
+  functions; 1 outside it) and 10 structs with 74 lines of the field
+  table are new, and the struct of the hud has two more fields. No unit
+  outside the module's folder changed. The resident image and the other
+  twelve module images are unchanged in their bytes.
+- The tree has 38 unused-array stand-ins, 8 of them in this module, and 2
+  calls through a cast of the callee, both in this module.
+
+The module repeats itself: its 683 functions are 319 apart from addresses
+(most screens of the ending have the same code with other tables and
+other variables). That set the plan.
+
+What ran:
+
+- A first pass on one function of each kind, the one at the lowest
+  address: 319 functions in 41 batches, eight agents at a time. 286 exact.
+  The note that every batch reads was extended several times while the
+  pass ran, with what the batches before had found (how the words of the
+  module's work area are declared, the order of the stores in a block
+  that sets up a new object, the arrays of ten object pointers); the
+  later batches were exact more often.
+- The merge had 8 conflicts, all in the module's view of an object,
+  resolved by hand. The declaration check printed 86 lines; an agent
+  brought them to zero with the decisions given to it.
+- Second attempts on the 33 parked, grouped by the residual they share,
+  with a note of the forms the first pass had found: 25 exact. Third
+  attempts on the 8 left: 3 more.
+- The second pass, on the 363 functions that are a copy of a function
+  that was now exact: a private helper wrote each from its model's
+  source, with the addresses in the names mapped (it reads the two
+  functions side by side: where the model's instruction refers to an
+  address, the copy's instruction at the same place gives the address it
+  maps to). The build then judged: 358 exact as written, in two runs of
+  the helper, the second after it learned to try every exact function
+  with the same words as a model and to let a name change between the
+  module and the resident image. Of the other five, four shared one unit
+  whose models declared one symbol in two ways and were written by hand,
+  and one needed two row numbers exchanged, which an address map cannot
+  see. No agent wrote a copy.
+- The copies brought their models' declarations with them; the
+  declaration check printed 106 lines on the result (one resident
+  function declared with the module's parameter type 21 times, the view
+  of a word that differs between two screens, functions reached through
+  a table), and an agent brought them to zero.
+- A tidy pass by script: 91 declarations that their unit never uses, and
+  the names that then had no use.
+
+What is parked and why: `func_800145f4_slot28` and `func_80016828_slot28`
+(and `func_80024c00_slot28`, a copy of the second) have a constant, a
+pointer and a loaded half in each other's registers at their start, after
+three attempts each and tries of mine; `func_8001389c_slot28` differs in
+3 instructions, the register of one pointer; `func_80022944_slot28` in 4,
+the place where a constant that the compiler hoists out of a loop is
+loaded; `func_8001a69c_slot28` in 1, a load through the parameter's
+register where the original uses the saved copy.
+
+What the original does that the tree had to find a form for:
+
+- Calls that do not agree with the callee in the number of arguments. Two
+  functions call `func_80131094`, which uses its parameter, without
+  setting the argument register; one (parked) passes the object to
+  `func_8011eae4`, which takes nothing. The tree keeps its prototypes and
+  writes such a call through a cast of the callee, with a comment that
+  says what was measured; the private declaration check counts these
+  calls and fails on one without the comment.
+- Helpers that are passed the object and do not use it. Three got an
+  unused parameter, each because a caller is exact only when it passes
+  the object.
+
+Lessons:
+
+- Measure what an agent credits for a match before handing it on. Two
+  agents reported that narrow locals holding constants had decided their
+  functions, and I gave that to five later agents as a finding. With
+  literals in place of the locals both functions build the same bytes:
+  what decided them was the place of one store. The locals are out of the
+  source and the guide has the measured version.
+- A copy needs no agent. The helper is the right first step for every
+  module that repeats itself or another module, which the character
+  modules do on a much larger scale.
+- A note that is extended while the round runs is worth more than a
+  retry afterwards. The form that decided eleven second attempts (one
+  pointer local for every pointer of a function) was found by a batch in
+  the first half of the first pass.
+- Group the parked functions by residual before the second attempts and
+  give a group to one agent: it solves the first and applies the form to
+  the rest in minutes.
+
 ## Two sessions in parallel (2026-10-06)
 
 The owner asked for twice the throughput: two main sessions at the same

@@ -396,6 +396,13 @@ chose the first on 2026-10-06:
   are parked with candidates. 46 of its functions are the same code,
   apart from addresses, as functions that were already exact, 45 of them
   in the resident image.
+  The eighth is the one content of slot `0x28`, from `END00.PAC`, a module
+  of 683 functions: 677 are exact, 83,960 of 85,408 bytes, and 6 are
+  parked with candidates. It repeats itself: its 683 functions are 319
+  apart from addresses. One of each kind was written first, and 363 of
+  the rest were then written by a helper that copies an exact function's
+  source and maps its addresses; the build found 358 of those exact as
+  written.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -422,7 +429,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot00`, `slot2b` and `slot06_00` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot00`, `slot2b` and `slot06_00` that are rebuilt so far
 (`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
