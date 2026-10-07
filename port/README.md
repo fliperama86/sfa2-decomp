@@ -66,7 +66,9 @@ It fetches the submodule and the SDL source that PsyZ builds against, builds
 PsyZ's own test suite and runs it one area at a time. It needs git, a C and
 a C++ compiler, CMake 3.21 or later and Ninja; the last two can come from
 `pip install cmake ninja`. `--headless` is for a Linux machine
-without the development files for windows, graphics and sound.
+without the development files for windows, graphics and sound. `BUILD_DIR`
+is taken from the folder the script is called from; without it the build
+goes to `port/build/psyz-tests`, which Git ignores.
 
 What ran, on 2026-10-07, on one Linux machine of that kind, x86-64, with
 `--headless`: the library and its tests build, and the script printed
@@ -95,8 +97,18 @@ tests of timer events fail too, and why was not looked into.
 What this shows: PsyZ builds from the pin on one Linux machine, and its
 tests of the disc, the sound chip, the memory card and the arithmetic pass
 there. What it does not show: a window, a drawn picture, sound from a
-speaker, macOS, Windows, or anything about the game. The script has not
-been seen to end with status 0 anywhere.
+speaker, macOS, Windows, or anything about the game. With the real suite
+the script has not been seen to end with status 0 anywhere.
+
+```sh
+port/tools/check_psyz_controls.sh
+```
+
+runs the script against stand-ins for git, CMake and the test program, so
+nothing is fetched or compiled: a fresh checkout with the default folder, a
+relative and an absolute folder, `--headless`, and each of the statuses 0,
+1 and 2. Its last line on 2026-10-07 was `controls: 15 of 15 as expected`.
+It says nothing about PsyZ.
 
 ## Not decided
 

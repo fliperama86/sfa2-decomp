@@ -4095,7 +4095,16 @@ Corrections to keep:
 - `lane.sh` takes every checkout that is not the main one for lane B: run
   from the port worktree it would apply lane B's guard and write into lane
   B's scratch folder. The port lane does not run it. Its changes are
-  checked by an empty `git diff` under `ps1/` against `origin/main`.
+  checked by an empty `git diff origin/main...HEAD -- ps1/`, with three
+  dots: with two, what the other lanes merged since shows up as a
+  difference.
+- The first check script was reviewed with three defects of the same
+  kind: it had only been run in the folder it was written in. It was not
+  executable in Git, because this machine's checkout does not record file
+  modes (`git update-index --chmod=+x` sets one); it wrote its log into a
+  folder that a fresh checkout does not have; and it changed folder with a
+  relative build folder still in hand. A script gets its controls, with a
+  fresh tree and stand-ins, before it is published.
 
 What ran is on the port page, with the command.
 

@@ -8,10 +8,14 @@
 # no window, graphics or audio development files. Tests that compare drawn
 # pictures cannot pass that way.
 #
+# BUILD_DIR is taken from where the script is called; the default is
+# port/build/psyz-tests. The logs are written next to it.
+#
 # Needs git, a C and a C++ compiler, CMake 3.21 or later and Ninja.
 # Prints the test program's count for each area of the suite and, last, for
 # the whole suite. Status 0 when every area passes, 1 when one does not,
-# 2 when nothing could be built or listed.
+# 2 when nothing could be built or listed. check_psyz_controls.sh runs this
+# script against stand-ins for git, CMake and the test program.
 set -eu
 
 headless=0
@@ -19,10 +23,15 @@ if [ "${1:-}" = "--headless" ]; then headless=1; shift; fi
 
 port=$(cd "$(dirname "$0")/.." && pwd)
 psyz=$port/external/psyz
+# The script changes folder below, so the build folder is made absolute
+# here. Making it also makes the folder that the logs go to.
 build=${1:-$port/build/psyz-tests}
+mkdir -p "$build" || { echo "cannot make $build"; exit 2; }
+build=$(cd "$build" && pwd)
 
-git -C "$port" submodule update --init external/psyz
-git -C "$psyz" submodule update --init --depth 1 external/SDL
+git -C "$port" submodule update --init external/psyz &&
+    git -C "$psyz" submodule update --init --depth 1 external/SDL ||
+    { echo "cannot fetch the submodule or the SDL source"; exit 2; }
 echo "psyz at $(git -C "$psyz" rev-parse HEAD)"
 
 set -- -GNinja -DGTE_USE_HW_SQRT=ON -DCMAKE_BUILD_TYPE=Debug
@@ -51,7 +60,7 @@ for area in $areas; do
     cat "$build.area.log" >> "$build.test.log"
     echo "$area: $(tail -1 "$build.area.log")"
 done
+"$build/psyz_tests" --output=plain > "$build.area.log" 2>&1 || status=1
+echo "all: $(tail -1 "$build.area.log")"
 rm -f "$build.area.log" expected/*.actual.png
-"$build/psyz_tests" --output=plain 2>/dev/null | tail -1 | sed 's/^/all: /'
-rm -f expected/*.actual.png
 exit $status
