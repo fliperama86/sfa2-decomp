@@ -360,6 +360,7 @@ struct Object size=0x394
 0x2b0 Slot slots[28]
 
 struct Config size=0xaa
+0x001 u8 field_01
 0x004 u8 field_04
 0x012 u8 field_12
 0x032 u8 field_32
@@ -381,6 +382,7 @@ struct Config size=0xaa
 0x0a9 u8 field_a9
 
 struct GameState size=0x364
+0x001 u8 field_01
 0x002 u8 field_02
 0x004 u8 field_04
 0x005 u8 field_05
@@ -399,6 +401,7 @@ struct GameState size=0x364
 0x014 u8 field_14
 0x015 u8 field_15
 0x017 u8 field_17
+0x019 u8 field_19
 0x01a u8 field_1a
 0x01b u8 mode
 0x01c u8 field_1c
@@ -504,6 +507,7 @@ struct GameState size=0x364
 0x0ec s16 field_ec
 0x0ee s16 field_ee
 0x0f0 u8 field_f0
+0x0f1 u8 field_f1
 0x104 s32 field_104
 0x108 s32 field_108
 0x10c u32 field_10c
@@ -524,6 +528,7 @@ struct GameState size=0x364
 0x14e u16 field_14e
 0x150 u16 field_150
 0x154 Object* field_154
+0x158 u16 field_158
 0x15b u8 field_15b
 0x19f u8 ring_a[64]
 0x1df u8 ring_b[64]
@@ -1250,6 +1255,13 @@ struct Triple size=0x3
 struct Chan size=0x90
 0x000 u8 field_00
 0x004 u8 field_04
+0x010 u16 field_10
+0x012 u16 field_12
+0x014 s32 field_14
+0x01e u16 field_1e
+0x050 u16* field_50
+0x058 u32 field_58
+0x05c u32 field_5c
 0x08a u8 field_8a
 
 struct Unit size=0xc0
@@ -1477,6 +1489,7 @@ struct Cell16 size=0x10
 0x004 u8 field_04
 0x005 u8 field_05
 0x006 u8 field_06
+0x00b u8 field_0b
 0x00c u8 field_0c
 0x00d u8 field_0d
 0x00e u16 field_0e
@@ -1914,3 +1927,149 @@ struct Slot2bObj size=0x394
 0x06c BoxTables* box_tables
 0x070 u16 field_70
 0x0a0 s8 field_a0
+
+struct Slot0fObj size=0x394
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 u8 field_02
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x007 u8 field_07
+0x008 s8 field_08
+0x009 u8 field_09
+0x00a s8 field_0a
+0x00b s8 field_0b
+0x00c s8 field_0c
+0x00d s8 field_0d
+0x00e s8 field_0e
+0x00f s8 field_0f
+0x010 u16 field_10
+0x012 s16 pos_x
+0x016 u16 field_16
+0x01b u8 field_1b
+0x02c u8 field_2c
+0x02d u8 field_2d
+0x032 u8 field_32
+0x033 u8 field_33
+0x040 u16 field_40
+0x042 s16 field_42
+0x049 u8 field_49
+0x04a u8 field_4a
+0x04e u8 field_4e
+0x054 s16 field_54
+0x05c s16 field_5c
+0x066 s16 field_66
+0x084 u8 field_84
+0x09c void* field_9c
+0x0a0 void* field_a0
+0x0c6 u16 field_c6
+0x0ee s16 field_ee
+0x0f0 u8 field_f0
+0x12c s16 field_12c
+0x12e s16 field_12e
+0x21e s16 field_21e
+
+struct Slot0fRec8490 size=0x10
+0x00b u8 field_0b
+
+struct Slot0fRec8504 size=0x60
+0x000 s16 field_00
+0x002 u8 field_02
+0x003 u8 field_03
+0x044 u8 field_44
+
+struct Slot0fRec80a4 size=0x28
+0x000 u8 name[40]
+
+struct Slot0fRec11c size=0x10
+0x000 u8 first[8]
+0x008 u8 second[8]
+
+struct Slot0fRece5c4 size=0x10
+0x000 u32 field_00
+0x004 u8 field_04[4]
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8 field_0c
+
+struct Slot0fRece664Row size=0x8
+0x000 u8 b[8]
+
+struct Slot0fRece664 size=0x2d
+0x000 Slot0fRece664Row field_00[2]
+0x010 u8 field_10[8]
+0x018 u8 field_18[8]
+0x020 u8 field_20
+0x021 u8 field_21
+0x022 u8 field_22
+0x023 u8 field_23
+0x024 u8 field_24
+0x025 u8 field_25
+0x026 u8 field_26
+0x027 u8 field_27
+0x028 u8 field_28
+0x029 u8 field_29
+0x02a u8 field_2a
+0x02b u8 field_2b
+0x02c u8 field_2c
+
+struct Slot0fRec8508 size=0x10
+0x00b s8 field_0b
+
+struct Slot0fRec85c8 size=0x10
+0x00b u8 field_0b
+
+struct Slot0fRec8618 size=0x10
+0x00b u8 field_0b
+
+struct Slot0fRecf2f8 size=0x31
+0x000 u8 field_00
+0x030 u8 field_30
+
+struct Slot0fRec9540 size=0x10
+0x007 u8 field_07
+
+struct Slot0fRec94b0 size=0xc
+0x000 u32 field_00
+
+struct Slot0fRec94ec size=0x8
+0x000 u32 field_00
+
+struct Slot0fRecf32c size=0x5
+0x000 u8 b[5]
+
+struct Slot0fOpts size=0x10
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 s8 field_02
+0x003 s8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x007 u8 field_07
+0x00a u8 field_0a
+0x00b u8 field_0b
+
+struct Slot0fRec7d80 size=0x40
+0x000 s32 field_00
+0x004 s16 field_04
+0x006 u16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8* field_0c
+
+struct Slot0fRec7d50 size=0x40
+0x000 s32 field_00
+0x004 s16 field_04
+0x006 s16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8* field_0c

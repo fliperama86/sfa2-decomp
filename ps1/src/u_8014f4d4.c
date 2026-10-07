@@ -4,7 +4,8 @@
 #include "protos.h"
 
 
-void func_8014f4d4(int a, s16 b) {
+void func_8014f4d4(int a, int arg) {
+    s16 b = arg;
     Menu *m = &data_80190948;
     switch (a) {
     case 1:
