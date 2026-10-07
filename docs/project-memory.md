@@ -4108,6 +4108,34 @@ Corrections to keep:
 
 What ran is on the port page, with the command.
 
+The comparison of 2026-10-07, which the owner told the assistant to go on
+with ("proceed"): `port/tools/libgap.py` reads the library inventory and
+PsyZ's source at the pin. Its counts are on the port page. The correction
+above stands as a correction: of the library functions that resident game
+code calls, the scan finds one stub in the sound family, not "largely
+stubs".
+
+Lessons from writing it, each found on the real tree and not by the
+controls written before it:
+
+- A scan of C source that tracks braces must stop when a file's braces do
+  not balance. The first version read both branches of a `#if __psyz`
+  that each opened a brace, lost count, and dropped the 13 functions after
+  it without a word.
+- A source scan of a library says what a program can link only after its
+  headers are read too: PsyZ renames six of the names with `#define`, and
+  the first version called those not built.
+- Every header's text is inside an include guard, which is a condition
+  that a scan must know to be true.
+- What caught all three was a second source of truth: the symbols of the
+  library that had been built from the same commit. A scan gets such a
+  check before its numbers are used.
+- The work was given to a helper agent against a contract written first.
+  It stopped three times at gaps in the contract instead of working
+  around them, as its brief asked; each gap was decided and written into
+  the contract. A review with changed copies of the tool then found two
+  rules that no control pinned.
+
 ## Completion map requested on 2026-10-06
 
 The owner requested a completion map. `docs/completion-map.md` records the
