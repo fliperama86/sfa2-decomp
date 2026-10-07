@@ -22,7 +22,7 @@ void func_801e85b4_slot06_0a(Slot06Layer *layer) {
 void func_801e8610_slot06_0a(Slot06Layer *layer) {
     layer->field_4a ^= 0x800;
     if (layer->field_00 != 0 && game_state.field_4b == 0) {
-        func_801364a0();
+        func_801364a0((Sprite *)layer);
         func_80136744((Sprite *)layer);
     }
 }
