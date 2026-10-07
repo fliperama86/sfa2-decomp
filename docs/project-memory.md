@@ -4115,6 +4115,19 @@ Findings:
   value in another register than the original's, in a block that sets
   up a call. No form moved it.
 
+What review of the pull request found: three of the new units called a
+function without the object that its definition takes, two calls of one
+callee and one of another. The shared header declares those functions
+without a parameter list, so nothing complained, and the three callers
+are exact either way because the object is still in the argument
+register. The private check now counts the arguments of every call in a
+module unit against the definition's parameters. Run on the tree it
+printed 25 lines, in five module folders: 22 calls of one function that
+takes a slab pointer, and the three of the review. All 25 pass the object
+now, each unit with the definition's prototype next to the header's
+line, and every image is still exact. A planted defect of this kind is
+among the check's controls, eleven in all with the unchanged tree.
+
 The completion map: the owner added `docs/completion-map.md` in pull
 request 71, asked on 2026-10-06 that it be updated with each progress,
 and withdrew that a few minutes later: the owner will generate the map
@@ -4122,6 +4135,12 @@ by a tool. Rounds do not edit it by hand.
 
 Lessons:
 
+- A header line without a parameter list is a hole in every check that
+  relies on the compiler. Three reviews in a row found a kind of
+  inconsistency that the declaration check did not look for, and each
+  time the kind had more instances than the review named: 31, then 14,
+  now 25. The check has grown a part each time. The 29 such lines of
+  `protos.h` are the next place to look, before a review does.
 - The second module of a kind is cheap: with the first one's units as
   examples and its lessons in the prompt, the first round gave 99 of 107
   and a merge without conflicts.

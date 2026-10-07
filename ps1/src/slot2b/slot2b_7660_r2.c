@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_80131468(Object *object);
 
 void func_80077908_slot2b(Object *obj);
 
@@ -20,6 +21,6 @@ void func_80077828_slot2b(Object *obj) {
     if ((s16)obj->field_3a >= 0) {
         func_80130efc(obj);
     } else {
-        func_80131468();
+        func_80131468(obj);
     }
 }

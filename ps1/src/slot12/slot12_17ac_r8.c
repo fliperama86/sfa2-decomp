@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_80120028(Object *o);
 
 extern u8 data_800175e0_slot12[];
 extern u8 data_80017630_slot12[];
@@ -42,5 +43,5 @@ void func_80011e58_slot12(Object *obj) {
     if (game_state.field_ab != 0 && obj->field_03 == 0) {
         obj->field_04++;
     }
-    func_80120028();
+    func_80120028(obj);
 }

@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_80131468(Object *object);
 
 u8 func_80149b80(Object *object);
 void func_80130dc0(Object *obj);
@@ -9,7 +10,7 @@ extern ObjectFn data_8007985c_slot2b[];
 
 void func_80077660_slot2b(Object *obj) {
     if ((s16)obj->field_3a < 0) {
-        func_80131468();
+        func_80131468(obj);
     } else {
         if (func_80149b80(obj) & 0xff) {
             obj->field_07 = 0;
