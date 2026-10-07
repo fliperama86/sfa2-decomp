@@ -161,7 +161,7 @@ void func_801b1a90_slot04_0f(Object *obj) {
     data_801ad398 = data_801c5a30_slot04_0f[obj->field_15a](obj);
 }
 
-void func_801b1ad8_slot04_0f(Object *obj) {
+int func_801b1ad8_slot04_0f(Object *obj) {
     u8 t;
 
     t = obj->field_158;
@@ -174,7 +174,7 @@ void func_801b1ad8_slot04_0f(Object *obj) {
     if (obj->field_129 != 0) {
         obj->slots[17].field_00 = obj->slots[17].field_00 + 2;
     }
-    func_801b1c74_slot04_0f(obj);
+    return func_801b1c74_slot04_0f(obj);
 }
 
 int func_801b1b38_slot04_0f(Object *obj) {
