@@ -393,29 +393,70 @@ def starts_function(words: list[int], index: int) -> bool:
     return False
 
 
-def swept_chunks(archives: list, table: list[int], symbols: list[int]):
+def module_entries(symbols: str | None, config: str | None) -> list[tuple[int, tuple[int, str] | None]]:
+    """The addresses of a symbol file that may start a function of a module, each with the content it belongs to.
+
+    A name that ends in `_<image>`, for a module image that the build
+    configuration `config` declares, belongs to that image's content: the
+    chunk of the image's slot that has the image's hash. Its address says
+    nothing about another module that is loaded at the same place, so it is
+    offered to that content alone. Where the names of two images end one
+    name, the longer one is its image. Every other name, and every name when no
+    configuration is given, belongs to nothing (None) and is offered to
+    every module whose range holds its address. Addresses that are not a
+    multiple of four are left out.
+    """
+    if not symbols:
+        return []
+    owners: dict[str, tuple[int, str]] = {}
+    if config:
+        with open(config, "rb") as handle:
+            for image in tomllib.load(handle).get("image", []):
+                if isinstance(image.get("name"), str) and isinstance(image.get("slot"), int) and isinstance(image.get("sha256"), str):
+                    owners[image["name"]] = (image["slot"], image["sha256"].lower())
+    suffixes = sorted(owners, key=len, reverse=True)
+    found: set[tuple[int, tuple[int, str] | None]] = set()
+    for line in Path(symbols).read_text().splitlines():
+        text = line.split("=")[-1].strip().rstrip(";").split()[0] if line.strip() else ""
+        try:
+            address = int(text, 16)
+        except ValueError:
+            continue
+        if address % 4:
+            continue
+        name = line.split("=")[0].strip() if "=" in line else ""
+        owner = next((owners[image] for image in suffixes if name.endswith("_" + image)), None)
+        found.add((address, owner))
+    return sorted(found, key=lambda entry: (entry[0], entry[1] or (-1, "")))
+
+
+def swept_chunks(archives: list, table: list[int], symbols: list[tuple[int, tuple[int, str] | None]]):
     """Every distinct content of a code-bearing chunk of table 0, once per slot, with the functions swept in it.
 
     Yields the first archive with that content, the slot, its destination,
     the size of the chunk in bytes, its whole words, the functions as
-    (address, size), the number of symbols whose address lies in the chunk
-    and how many of those were taken as a function start. A destination that
-    is not a multiple of four raises FormatError.
+    (address, size), the number of symbols offered to the chunk and how many
+    of those were taken as a function start. A symbol is offered to a chunk
+    when its address lies in the chunk and it belongs to that content or to
+    none: see module_entries. A destination that is not a multiple of four
+    raises FormatError.
     """
     seen: set[tuple[int, bytes]] = set()
     for name, data, chunks in archives:
         for c in chunks:
             body = data[c["offset"] : c["offset"] + c["size"]]
-            key = (c["slot"], hashlib.sha256(body).digest())
+            digest = hashlib.sha256(body)
+            key = (c["slot"], digest.digest())
             if c["table"] != 0 or c["slot"] >= len(table) or key in seen or not code_estimate(body):
                 continue
             seen.add(key)
+            content = (c["slot"], digest.hexdigest())
             base = table[c["slot"]]
             if base % 4:
                 raise FormatError(f"slot {c['slot']:#x}: the destination {base:#x} is not a multiple of four")
             words = list(struct.unpack_from(f"<{len(body) // 4}I", body))
-            # A symbol belongs to one module and its address lies in others too: see starts_function.
-            inside = [a for a in symbols if base <= a < base + 4 * len(words)]
+            # A name without an owner may belong to any module at its address: see starts_function.
+            inside = sorted({a for a, owner in symbols if base <= a < base + 4 * len(words) and owner in (None, content)})
             entries = [a for a in inside if starts_function(words, (a - base) // 4)]
             found = funcscan.scan(words, base, 0, len(words), funcscan.reader(words, base), entries)
             yield name, c["slot"], base, len(body), words, found, len(inside), len(entries)
@@ -427,7 +468,7 @@ def cmd_functions(args) -> int:
     except (OSError, FormatError) as exc:
         print(f"{args.executable}: {exc}")
         return 1
-    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+    symbols = module_entries(args.symbols, args.config)
     offered = taken = contents = 0
     archives, bad = read_archives(args.directory)
     slots: dict[int, dict] = {}
@@ -712,7 +753,7 @@ def cmd_unlisted(args) -> int:
     counts: dict[str, collections.Counter] = {"executable": code_references(words, image.start, swept, unlisted)}
     counts["modules"] = collections.Counter()
     archives, bad = read_archives(args.directory)
-    symbols = sorted({a for a in funcscan.read_entries(args.symbols) if a % 4 == 0})
+    symbols = module_entries(args.symbols, args.config)
     contents = 0
     try:
         for _, _, base, _, body, functions, _, _ in swept_chunks(archives, table, symbols):
@@ -811,11 +852,20 @@ def main() -> int:
                 "--symbols",
                 help="a file of `name = 0xADDRESS;` lines: each is an entry of the modules where a function with a frame starts there",
             )
+            p.add_argument(
+                "--config",
+                help="a build configuration: a symbol whose name ends in `_<image>` for one of its module images"
+                " is an entry of that image's content only",
+            )
         elif name == "unlisted":
             p.add_argument("--inventory", required=True, help="address, name and size per line, as funcscan.py compare reads it")
             p.add_argument("--library", type=address, required=True, help="a function that starts at or above this is library code")
             p.add_argument("--end", type=address, help="address after the last word to sweep (default: the end of the inventory)")
-            p.add_argument("--config", help="a build configuration: its resident units say which functions are in the build")
+            p.add_argument(
+                "--config",
+                help="a build configuration: its resident units say which functions are in the build,"
+                " and its module images which content a symbol with their name belongs to",
+            )
             p.add_argument("--symbols", help="as for `functions`: entries of the modules")
             p.add_argument("--show", type=int, default=10, help="addresses to print per finding")
             p.add_argument(

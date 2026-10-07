@@ -373,19 +373,22 @@ What this sorts out:
 
 ### Counts
 
-77 distinct contents in 16 slots hold 11,220 functions, 1,461,872 bytes.
+77 distinct contents in 16 slots hold 11,220 functions, 1,461,836 bytes.
+The numbers of this section are what the command under "Reproducing"
+printed on 2026-10-06, with the names and the configuration of the tree
+of that day.
 
 | Slot | Destination | Contents | Functions | Bytes | Distinct by bytes | Distinct address-blind | In no other slot |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `0x0` | `0x80075e00` | 1 | 112 | 13,120 | 107 | 91 | 0 |
-| `0x1` | `0x80010000` | 1 | 124 | 20,468 | 108 | 100 | 78 |
+| `0x1` | `0x80010000` | 1 | 124 | 20,432 | 108 | 100 | 77 |
 | `0x4` | `0x801b0000` | 24 | 4,540 | 570,636 | 3,794 | 2,211 | 77 |
 | `0x5` | `0x801c8000` | 20 | 3,823 | 464,404 | 3,287 | 2,129 | 2 |
 | `0x6` | `0x801e8000` | 20 | 874 | 159,724 | 770 | 532 | 518 |
 | `0x8` | `0x8008bf00` | 1 | 112 | 13,120 | 107 | 91 | 0 |
 | `0xb` | `0x801e0000` | 1 | 61 | 7,960 | 54 | 51 | 39 |
 | `0xf` | `0x800df000` | 1 | 228 | 36,912 | 215 | 187 | 141 |
-| `0x12` | `0x80010000` | 1 | 187 | 29,928 | 167 | 156 | 106 |
+| `0x12` | `0x80010000` | 1 | 187 | 29,928 | 167 | 156 | 105 |
 | `0x16` | `0x8007bc00` | 1 | 11 | 984 | 11 | 9 | 0 |
 | `0x17` | `0x8008bf00` | 1 | 11 | 984 | 11 | 9 | 0 |
 | `0x27` | `0x80010000` | 1 | 212 | 31,684 | 190 | 163 | 143 |
@@ -410,8 +413,8 @@ of every `lui`, and the 16-bit field of a later instruction that uses the
 register so loaded as its base. `pac.py` has the exact rule. It is an
 estimate of how much code is shared and nothing more: two functions that
 agree this way may still address different things, and two that disagree
-may be one source with other constants. Over all slots 3,749 functions,
-677,624 bytes, are distinct this way.
+may be one source with other constants. Over all slots 3,748 functions,
+677,492 bytes, are distinct this way.
 
 ### Which modules share code
 
@@ -437,7 +440,7 @@ The four modules with one content across many files:
 | ---: | ---: | ---: | ---: | ---: |
 | `0xb` | 61 | 7,960 | 51 | 39 |
 | `0x2a` | 28 | 6,052 | 26 | 23 |
-| `0x12` | 187 | 29,928 | 156 | 106 |
+| `0x12` | 187 | 29,928 | 156 | 105 |
 | `0x28` | 683 | 85,408 | 319 | 305 |
 
 Together 959 functions, 129,348 bytes. Slot `0x28` repeats itself: its 683
@@ -463,8 +466,28 @@ These counts do not prove a boundary. A function cut in two, or two taken
 as one, goes unnoticed when neither part opens a frame or holds a second
 return. Where a function starts is weaker than where it ends: instruction
 shaped data directly before a function that nothing calls becomes part of
-it. 557 times a symbol's address lies in a module, and 59 times it was
-taken as a function start there.
+it.
+
+A name of the symbol file is offered to a module as a place where a
+function may start, and taken where the words there begin like a function
+with a frame. Several modules are loaded at one address, so an address
+alone does not say whose it is. A name that ends in the name of a module
+image of the build configuration (`data_80079158_slot00`) belongs to that
+image's content, the chunk of the image's slot with the image's hash, and
+is offered to it alone. A name without such an ending, for instance one
+that the resident code calls, is offered to every module whose range holds
+its address. With the configuration the command counts 1,116 such offers,
+of which 94 were taken; without it, when every name is offered to every
+module, 1,680 and 98.
+
+Until 2026-10-06 every name was offered to every module. One row of the
+published inventory was wrong for that reason: a data name of the module
+of slot `0x0` lies in the range of the module of slot `0x2b`, at a word
+where a function of that module opens its frame 20 bytes after its start,
+and the sweep cut the function there (176 bytes from `0x80079158`). It
+is 196 bytes from `0x80079144`. The case was found when the names of
+another module, added to a private copy of the tree, moved a boundary of
+a third one in the same way.
 
 ## Reproducing
 
@@ -478,7 +501,7 @@ With the executable and the archives extracted as the
 .venv/bin/python ps1/tools/pac.py sides EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \
     --first 0x16 --second 0x17
 .venv/bin/python ps1/tools/pac.py functions EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \
-    --symbols ps1/src/symbols.ld --out FUNCTIONS_TSV
+    --symbols ps1/src/symbols.ld --config ps1/src/build.toml --out FUNCTIONS_TSV
 .venv/bin/python ps1/tools/funcscan.py compare EXECUTABLE --base 0x80118900 --offset 0x800 \
     --inventory RESIDENT_INVENTORY_TSV
 .venv/bin/python ps1/tools/pac.py unlisted EXECUTABLE PAC_DIRECTORY --pointers 0x8017eb1c \

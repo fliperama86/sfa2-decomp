@@ -750,7 +750,7 @@ def cmd_sweep(args) -> int:
          "--library", f"{args.library:#x}", "--end", f"{args.end:#x}", "--symbols", args.symbols,
          "--out", str(out / "game.tsv"), "--library-out", str(out / "library.tsv")],
         [sys.executable, str(TOOLS / "pac.py"), "functions", args.executable, args.pac_directory, "--pointers", f"{pointers:#x}",
-         "--symbols", args.symbols, "--out", str(out / "modules.tsv")],
+         "--symbols", args.symbols, "--config", args.config, "--out", str(out / "modules.tsv")],
     ]
     for command in commands:
         proc = subprocess.run(command, capture_output=True, text=True)
