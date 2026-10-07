@@ -5,6 +5,9 @@ The current working target is the Japanese PlayStation release, `SLPS_004.15`.
 Windows research is retained as a comparison and semantic reference, not a
 second simultaneous delivery target.
 
+See the [completion map](docs/completion-map.md) for source coverage, retained
+bytes and the remaining route to delivery.
+
 ## Current evidence
 
 The [PS1 pilot](ps1/docs/matching-pilot.md) rebuilds three connected functions
