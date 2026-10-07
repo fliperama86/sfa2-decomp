@@ -594,6 +594,65 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   it is exact. A first candidate was exact with a byte offset from a cast
   pointer, which the rules do not allow; the indexed form names the
   field.
+- Forms found by reading the compiler's pass dumps (see "When stuck"), in
+  third attempts on 73 functions that two rounds had parked; 16 became
+  exact. Each is given by the report of the attempt that found it, on
+  the function named, and was not measured again apart from that
+  attempt's own exact build. What a pass "does" below is what its dump
+  showed for that build, not a rule proved beyond it.
+  - Two saved registers exchanged. Registers that live across several
+    basic blocks are handed out by how often a value is used against how
+    long it lives; a value that lives inside one basic block gets its
+    register before all of those. A local of its own for the constant of
+    the one block that calls (`u = 1;` there, the shared `t` elsewhere)
+    took the first saved register and the object the second
+    (`func_801b04ac_slot04_01`, 36 slots with one local).
+  - Two temporaries exchanged between values that span blocks. One more
+    use changes the order: a second use of a local in a later block
+    (`func_801b0ce4_slot04_0a`), a local reused for the next value
+    (`func_80016828_slot28`), or, where nothing else did it, a mask that
+    changes nothing after a byte load (`t &= 0xff;`,
+    `func_80010840_slot27`), with the comment `/* The mask of t after
+    the load of <field> changes nothing in the value. Written without
+    it, this function differs from the original in N instruction slots.
+    */`.
+  - A value in a temporary where the original has an argument register.
+    The value gets the argument register of the call it is passed to
+    when the value itself, in a local, is the argument: `a = *p++; b =
+    *p++; f(0, 0, a, b);` where the candidate passed `p[0], p[1]`
+    (`func_80014300_slot12`, `func_800e5be4_slot0f`).
+  - A load that the build moves above a store, or stores in another
+    order. The scheduler does not move a load above a store through a
+    pointer, and keeps equals in source order: the order of the store
+    statements decided `func_801b4298_slot04_09`,
+    `func_801b2ae4_slot04_09` and `func_800779a4_slot2b`, where forms of
+    locals had not.
+  - Stores to globals that the build pulls above a store through a
+    pointer. A store to a scalar global passes it; a store to an element
+    of an array does not. Bytes declared `extern u8 x[];` and written
+    `x[0] = ...;` stayed where the original has them
+    (`func_80010eb8_slot01`, 4 bytes short before). One of them,
+    `data_80190562`, is declared in the shared header; it is an array
+    there now, and the one resident unit that stores to it stays exact.
+  - The object in a second register for a second block: two pointer
+    locals initialised from the parameter at their declarations, the
+    first block through one and the second through the other, and one
+    `int` local shared by both blocks (`func_801b5118_slot04_07`).
+  - A third argument and the object in one register, or a flag that the
+    build turns into a compare: the call written once in each arm of the
+    test with its literal argument, no flag local
+    (`func_801b4408_slot04_0a`, `func_800e5a28_slot0f`).
+  - A constant in another temporary: through an `s16` local, with the
+    second of its two stores after a later store
+    (`func_801e0480_slot0b`, 7 slots with the literal).
+  - A sum that the build regroups: two single-use locals for two of its
+    three terms (`func_800e5be4_slot0f`).
+  - Two table lookups in the other order: the first value into an `int`
+    local of its own, used after the second lookup's store
+    (`func_801b6f48_slot04_02`, 16 slots with one local).
+  - Three saved registers in another order: a store written in both arms
+    of a test gave the value more uses, and the order of byte stores and
+    of two assignments did the rest (`func_800124fc_slot12`).
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
@@ -610,6 +669,25 @@ Keep a short log per stubborn block: what was tried and what changed. After
 about eight materially different attempts on the same block, stop and report
 the best candidate with its `fndiff` output and the log. Do not permute
 blindly.
+
+When the instructions are right and a register, the place of a load or
+store, or one instruction more or less is not, ask the compiler which of
+its passes makes the difference before trying more spellings. Run the
+project's compiler on the unit's preprocessed file with its dump flags
+(`-dj -ds -dL -dt -df -dc -dS -dl -dg -dR` next to the unit's own flags).
+It writes one file for each pass: `.cse` (constants propagated, copies
+replaced by the older register), `.flow` (for each instruction the earlier
+ones it may be joined with, and where each register dies), `.combine`
+(after instructions are joined: two join when the first's value has no
+other use, no call stands between them, and nothing the first reads is
+set again in between), `.sched` (the scheduler's order in each block, with
+its log), `.lreg` and `.greg` (which register each value got), `.sched2`.
+Find the instructions of the residual by a constant or an offset near
+them, never read a file whole, and walk back to the first pass in which
+the difference exists. The source change follows from what that pass
+looks at: the number of uses of a value, whether it lives across a call
+or across blocks, the order of statements. "What this compiler does" has
+the forms this found.
 
 Stop at once and report options instead of choosing when: a struct layout
 contradicts an existing field, the evidence points to different compiler flags

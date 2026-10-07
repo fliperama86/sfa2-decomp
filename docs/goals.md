@@ -415,6 +415,12 @@ chose the first on 2026-10-06:
   Then the content of slot `0x4` of `SELECT.PAC`, a module of 91
   functions: 89 are exact, 27,092 of 27,984 bytes, and 2 are parked with
   candidates.
+  Then third attempts on the 73 functions that these rounds had parked
+  in the modules of this session, with the compiler's pass dumps (the
+  matching guide says how they are read): 16 are exact now, one or two
+  in each of `slot0b`, `slot12`, `slot2b`, `slot0f`, `slot27`, `slot28`
+  and `slot01` and seven in the character blocks. The counts of the
+  steps above are those of their day; the README has the current ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.

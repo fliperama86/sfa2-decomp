@@ -8,7 +8,7 @@ extern void (*data_80028a88_slot12[])(Object *);
 extern Slot12Prim data_8002d528_slot12[];
 extern SequenceStep *data_80028a84_slot12;
 void func_80014434_slot12(Object *obj, Slot12Prim *cells, int a, int b);
-void func_80014300_slot12(Object *obj, void *cell);
+void func_80014300_slot12(Object *obj, Slot12Sprite *cell);
 
 void func_80017408_slot12(Object *obj) {
     data_80028a88_slot12[obj->field_04](obj);
@@ -26,7 +26,7 @@ void func_80017448_slot12(Object *o) {
 }
 
 void func_800174bc_slot12(Object *obj) {
-    func_80014300_slot12(obj, &data_8002d528_slot12[data_801a27d0]);
+    func_80014300_slot12(obj, (Slot12Sprite *)(&data_8002d528_slot12[data_801a27d0]));
     if (game_state.field_2bc == 10) {
         obj->field_04++;
     }

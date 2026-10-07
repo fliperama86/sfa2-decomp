@@ -5071,3 +5071,86 @@ Open:
   with the list of spellings, in the private note of the second attempts.
 - The private tidy step should keep a symbol that the declaration check
   uses as the end of a table.
+
+## Seventy-third group: third attempts with the compiler's pass dumps
+
+The select-screen round (the group before) found one form by reading the
+compiler's own dumps of its passes. This group turned that into a method
+and ran it over every function that the module rounds of this session had
+parked.
+
+Counts:
+
+- 73 functions were attempted a third time, one agent each: 8 as a trial
+  (4 exact), then the other 65. 16 are exact: one in `slot0b`, two in
+  `slot12`, one in `slot2b`, two in `slot0f`, one in `slot27`, one in
+  `slot28`, one in `slot01`, seven in the character blocks. All 16 had
+  failed two attempts.
+- From the build: `slot0b` 57 functions, `slot12` 180, `slot2b` 103 (and
+  `slot2c`, linked from the same units), `slot0f` 217, `slot27` 209,
+  `slot28` 678, `slot01` 117, the twelve character blocks 1,569 functions
+  and 199,416 bytes. The second sides have 8 more placements. Over
+  everything the map counts 3,792 of 5,600 distinct functions as exact.
+- One declaration of the shared header changed: `data_80190562` is an
+  array there. The one resident unit that stores to it (`m133df4_r2.c`)
+  writes element 0 and stays exact. Six older units of `slot12` and
+  `slot0f` declare two functions as their new definitions are and cast at
+  the call. The tree has 56 unused-array stand-ins and 14 calls through a
+  cast of the callee.
+
+What ran:
+
+- A private helper that runs the compiler on a unit's preprocessed file
+  with the dump flags, and one that builds up to twelve spellings of a
+  few lines in under a second each. A note for the agents on how to read
+  each dump and what each pass looks at, extended four times with what
+  the attempts found, so that later attempts started from it.
+- The declaration check on the merged tree printed 15 lines; one agent
+  brought it to zero.
+
+What it showed, beyond the single forms that the matching guide lists:
+
+- Most of the residuals that two rounds of spellings had not moved are
+  decisions of the register allocation or of the scheduler, and both look
+  at things that a spelling does not change: how often a value is used,
+  whether it lives inside one basic block, the order of the statements.
+  An agent that had the pass named could change exactly that.
+- The method does not help where the original needs something that no
+  pass input gives: 57 functions stay parked, most with a note on which
+  pass decides and what it would need.
+
+Mistakes and corrections:
+
+- An attempt reported a function exact with two bytes read by a byte
+  offset from a cast pointer; its published siblings name the two fields.
+  The top-level review found it and the named form is exact too. The
+  same lesson as in the group before, and it will come again: review
+  every exact report for the rules, not only for the bytes.
+- An attempt left out the include of the shared header to declare one
+  byte as an array. No module unit had done that before. The declaration
+  in the header changed instead, with the resident image exact.
+- The setup of the attempts gave every folder a symbol for every
+  function of its module that no unit defines; the merge then carried
+  about 500 unused symbol lines into the tree. They were removed before
+  the promotion. The setup should add them to the folder's linker input
+  only.
+- A full suite was started with a plain `&` and gave no notice when it
+  ended. Long commands go through the background mode of the tool.
+
+Open:
+
+- `func_80125f5c` of the resident image: two parked functions of `slot0f`
+  pass a halfword as its third argument and are exact with an `int`
+  parameter in their own declaration. Fifteen forms of that parameter in
+  the resident unit differ in 4 to 10 instruction slots (the copy of the
+  parameter lands two instructions late in the entry).
+- `func_801b3a70_slot04_05` reads a byte where the field table has a
+  16-bit field (`Slot.field_02`); with a byte field it would likely be
+  exact. The field is used as 16 bits by other units, some of them the
+  second session's.
+- `func_80012c34_slot12` keeps all its stores in source order in the
+  original. Only a `volatile` access reproduced that, which the rules do
+  not allow. Whether its unit was built with other scheduling flags was
+  not tried.
+- The 69 parked functions of the resident image have not had this
+  method yet. They are next.

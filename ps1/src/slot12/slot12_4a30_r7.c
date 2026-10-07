@@ -10,7 +10,7 @@ extern u8 data_8002bc8c_slot12[];
 extern Slot12Quad data_8002bc94_slot12[];
 extern Slot12Cell data_8002bdd4_slot12[];
 extern ObjectRef data_80190468;
-void func_80014300_slot12(Object *obj, void *cell);
+void func_80014300_slot12(Object *obj, Slot12Sprite *cell);
 
 void func_8001505c_slot12(Object *obj) {
     int i;
@@ -34,6 +34,6 @@ void func_8001505c_slot12(Object *obj) {
             }
         }
     } else if (data_8002bc8c_slot12[k] == 1) {
-        func_80014300_slot12(obj, data_8002bdd4_slot12 + k * 4 + data_801a27d0 * 2);
+        func_80014300_slot12(obj, (Slot12Sprite *)(data_8002bdd4_slot12 + k * 4 + data_801a27d0 * 2));
     }
 }
