@@ -429,6 +429,64 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   nothing seems to occupy the first. Three helpers of that module got the
   parameter for this reason; what their original declarations were is not
   known.
+- A pointer that is stepped between two calls. In `func_80012668_slot01`
+
+  ```c
+  func_80157fc4(&r, data_80015440_slot01[o->field_d4]);
+  p = data_801a2964;
+  func_80158028(&r, p);
+  p += 0x1400;
+  func_80158028(&r, p);
+  ```
+
+  is exact. With `p = data_801a2964;` before the first call and
+  `p + 0x1400` as the argument of the last, 5 instruction slots differ:
+  the address of the buffer and the address of `r` are loaded at other
+  places. By the agents' reports two neighbours of the same shape,
+  `func_8001257c_slot01` and `func_800125f4_slot01`, became exact the same
+  way. It is a heuristic for a function that passes a buffer and the same
+  buffer at an offset to two calls.
+- The places of a few statements, tried exhaustively. In
+  `func_800121e0_slot01` a run of thirteen statements sets up an object;
+  four of them store constants to `field_4c`, `field_50`, `field_54` and
+  `field_58`. A candidate with three of the four written first differed
+  in 5 slots; with the four written near the end in the order of the
+  fields, in 12. It is exact with the four near the end in the order
+  `field_4c`, `field_54`, `field_50`, `field_58`. That was found by
+  building every order of the four, put before or after a run of eight of
+  the other statements at each of the five ways to split them, at most
+  120 arrangements, and stopping at the first exact one. About a dozen
+  hand-written forms and six minutes of random search had not found it.
+  The search moves statements and writes nothing that the source did not
+  have. It is a heuristic for a function whose instructions are right and
+  whose constants sit in other registers or other places; on three other
+  functions of that module, with 600 to 950 arrangements each, it found
+  nothing.
+- One local for two values that follow each other in one register, and a
+  store that the compiler takes to reach a global. `func_80014b28_slot01`
+  begins
+
+  ```c
+  t = obj->field_3c;
+  data_80033bb0_slot01 = t;
+  t = (void *)0x800767c0;
+  *(u32 *)&obj->field_90 = (u32)t;
+  data_80033bb0_slot01->kind = obj->field_48;
+  ```
+
+  The original builds the constant in the register that held the loaded
+  pointer, after the store to the global, and loads the global again
+  before the store to `kind`. Without the local (`data_80033bb0_slot01 =
+  obj->field_3c;` and the constant stored as a literal) the build loads
+  the constant first and is 4 bytes short. Of 32 spellings of the store
+  of the constant and of the three places that use the global, 5 are
+  exact, all with the global declared as a plain pointer; with the global
+  declared `ObjectRef` and used as `.p` at all three, the build keeps the
+  global's address in a register and 5 slots differ. Inferred from these
+  builds, not known otherwise: this compiler takes a store through a
+  `u32 *` to reach a plain global, and a store to a field of a struct
+  through a pointer not to. The store through the cast is in the form
+  the rules ask for: the field is named and its address is cast.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
