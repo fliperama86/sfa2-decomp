@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_8011f240(Slab172 *s);
 
 void func_80078458_slot00(Object *obj, int arg);
 
@@ -26,7 +27,7 @@ void func_80078b28_slot00(Object *obj) {
 }
 
 void func_80078b30_slot00(Object *obj) {
-    func_8011f240();
+    func_8011f240((Slab172 *)obj);
 }
 
 void func_80078b50_slot00(Object *o) {

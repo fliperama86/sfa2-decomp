@@ -4108,6 +4108,86 @@ form exact when any placement of it is. At that time 2,057 of 5,601, 36.7
 percent, against 17.3 percent of placements and 19.5 percent of code bytes.
 It is the measure of source left to write; the other two stand beside it.
 
+## Sixty-fifth group: a fifth module, at two addresses: slots 0x2b and 0x2c; the pilot module complete
+
+The owner's choice of 2026-10-06, more overlay modules, continued with
+another character's extra module. Slot `0x2b` of `PL0E.PAC` and slot
+`0x2c` of `PL0EX.PAC` hold the same 107 functions at two addresses,
+32,568 bytes each. They are the images `slot2b` and `slot2c`; `slot2c`
+is declared as like `slot2b`.
+
+Counts, from the build:
+
+- `slot2b`: 102 of 107 functions exact, 9,052 bytes; 23,516 bytes are
+  retained raw. `slot2c`: the same 102, linked a second time, exact
+  against its own chunk, with no name that needed another address.
+- 5 functions are parked with candidates, 1,192 bytes.
+- `slot2a`, the pilot module: all 28 functions exact, 6,052 bytes. The
+  last one was parked through three attempts with two stores to one
+  field of which the compiler kept one; with a store to another field
+  between the two it is exact, on the fourth order tried. Its unit owns
+  32 bytes of read-only data.
+- 37 unit files, 48 symbols and 1 struct with 15 lines of the field table
+  are new. The resident image and the other six module images are
+  unchanged.
+
+What ran:
+
+- A first round of six agents on seven batches, with the prompt of the
+  last module and that module's units as examples of the same kind of
+  code: 99 of 107 exact.
+- The merge had no conflict. The declaration check printed 4 lines on the
+  merged tree and 3 more when the second attempts and the pilot's last
+  function came in, all fixed by hand in minutes; no declaration of a
+  function differed from a definition this time.
+- Second attempts on the 8 parked, three agents: 3 exact.
+- The table unified one variable that two units of `slot2a` saw
+  differently: one as four separate pointers, the other as an array of
+  four. Both use the array now and are exact.
+
+Findings:
+
+- The private sweep of slot `0x2b` missed the first five instructions of
+  one function, which opens its frame late; the sweep of slot `0x2c` has
+  the function whole, and the published counts, which come from the
+  public tool, are right for both.
+- Several functions of this pair and one of the last are parked with a
+  value in another register than the original's, in a block that sets
+  up a call. No form moved it.
+
+What review of the pull request found: three of the new units called a
+function without the object that its definition takes, two calls of one
+callee and one of another. The shared header declares those functions
+without a parameter list, so nothing complained, and the three callers
+are exact either way because the object is still in the argument
+register. The private check now counts the arguments of every call in a
+module unit against the definition's parameters. Run on the tree it
+printed 25 lines, in five module folders: 22 calls of one function that
+takes a slab pointer, and the three of the review. All 25 pass the object
+now, each unit with the definition's prototype next to the header's
+line, and every image is still exact. A planted defect of this kind is
+among the check's controls, eleven in all with the unchanged tree.
+
+The completion map: the owner added `docs/completion-map.md` in pull
+request 71, asked on 2026-10-06 that it be updated with each progress,
+and withdrew that a few minutes later: the owner will generate the map
+by a tool. Rounds do not edit it by hand.
+
+Lessons:
+
+- A header line without a parameter list is a hole in every check that
+  relies on the compiler. Twice now a review has named three instances
+  of a kind that the declaration check did not look for, and the widened
+  check then found 31 and 25. The 29 such lines of `protos.h` are the
+  next place to look, before a review does.
+- The second module of a kind is cheap: with the first one's units as
+  examples and its lessons in the prompt, the first round gave 99 of 107
+  and a merge without conflicts.
+- A request that arrives during a round is acted on at the next step, and
+  so is its withdrawal: nothing had been written into the map when it was
+  withdrawn. Record both, so that the next session does not act on the
+  first alone.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
