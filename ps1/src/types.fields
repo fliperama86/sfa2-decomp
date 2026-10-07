@@ -2073,3 +2073,39 @@ struct Slot0fRec7d50 size=0x40
 0x00a u8 field_0a
 0x00b u8 field_0b
 0x00c u8* field_0c
+
+struct Slot06Layer size=0x90
+0x004 u8 field_04
+0x01e u16 field_1e
+0x050 u16* field_50
+0x054 u16* field_54
+0x058 u32 field_58
+0x05c u32 field_5c
+
+struct Slot06Sprt16 size=0x10
+0x004 u8 color_r
+0x005 u8 color_g
+0x006 u8 color_b
+
+struct Slot06Sprt size=0x14
+0x004 u8 color_r
+0x005 u8 color_g
+0x006 u8 color_b
+0x010 s16 w
+0x012 s16 h
+
+struct Slot06Tile size=0x1c
+0x00c Slot06Sprt16 sprt
+
+struct Slot06TileW size=0x20
+0x00c Slot06Sprt sprt
+
+struct Slot06_00Rec3010 size=0x20
+0x000 u32 field_00
+0x004 u32 field_04
+0x008 u32 field_08
+0x00c u32 field_0c
+0x010 u32 field_10
+0x014 u32 field_14
+0x018 SequenceStep* field_18
+0x01c SequenceStep* field_1c
