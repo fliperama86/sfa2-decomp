@@ -368,7 +368,10 @@ chose the first on 2026-10-06:
   the listing's; and a narrow parameter that callers do not mask is an
   `int` copied into a narrow local. Tried on the functions parked before
   they were known, they made 5 of 12 module functions and 7 of 76 game
-  functions of the resident image exact.
+  functions of the resident image exact. The third is the pair of slots
+  `0x0` and `0x8`, one character's extra module at two addresses, 112
+  functions each: 109 are exact, 12,240 bytes, in the first and, linked a
+  second time, in the second; 3 are parked with candidates.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -395,8 +398,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot12` and `slot16` that are rebuilt so far
-(`slot17` is linked from the source of `slot16`), every other module as an image of the
+the images `slot2a`, `slot0b`, `slot12`, `slot16` and `slot00` that are rebuilt so far
+(`slot17` and `slot08` are linked from the source of `slot16` and `slot00`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path

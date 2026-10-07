@@ -250,6 +250,24 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   Trying another order is a heuristic that worked twice. An exact build
   with one order shows that this order is compatible with the original's
   bytes, not that the original source had it.
+- Two stores to one field. One fixture, and what it does and does not
+  show:
+
+  ```c
+  struct S { int a; int b; };
+  void adjacent(struct S *p) { p->a = 0; p->a = 0x20; }              /* one store: the second */
+  void between(struct S *p) { p->a = 0; p->b = 0xfff; p->a = 0x20; }  /* three stores */
+  ```
+
+  In `between` the compiler emits the store to `b` first and the two
+  stores to `a` after it, next to each other. So a pair of stores to one
+  field in a listing is compatible with a source in which another store
+  stood between them. It does not prove that one did: with a `volatile`
+  struct the compiler keeps both stores of `adjacent` as well, and other
+  types or forms may do the same. Moving a store to another field between
+  the two is a heuristic to try when a build has one store where the
+  original has two. It made one function of the module of slot `0x0`
+  exact; what the original source had there is not known.
 - A narrow parameter whose callers pass the argument as it is, without the
   mask or the extension that a prototype with the narrow type makes them
   emit, is an `int` parameter copied into a narrow local:
