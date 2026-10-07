@@ -6,12 +6,11 @@
 extern ObjectFn data_801c2a60_slot04_0d[];
 extern ObjectFn data_801c2a74_slot04_0d[];
 extern u8 data_801c2804_slot04_0d[];
-Object *func_8011f0e8(void);
 void func_80142adc(Object *object);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80145d20(Object *object);
-void func_801483a4(Object *object, u16 a, u16 b);
+void func_801483a4(Object *object, int a, int b);
 
 void func_801b22b8_slot04_0d(Object *obj) {
     if ((s16)obj->field_3a >= 0) {
@@ -72,7 +71,6 @@ void func_801b2440_slot04_0d(Object *obj) {
     }
 }
 
-/* The call of func_8011f0e8 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
 void func_801b24d8_slot04_0d(Object *obj) {
     Object *p;
     s8 t;
@@ -82,7 +80,7 @@ void func_801b24d8_slot04_0d(Object *obj) {
     func_80130efc(obj);
     if (*(u8 *)&obj->field_3a != 0) {
         obj->field_07++;
-        p = ((Object *(*)(Object *))func_8011f0e8)(obj);
+        p = func_8011f0e8(obj);
         if (p != 0) {
             one = 1;
             p->field_00 = one;

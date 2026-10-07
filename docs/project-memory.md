@@ -4772,10 +4772,14 @@ What ran (one-off counts from the private folders):
 - 79 second attempts on parked functions, each after a form had been
   found on one function, by hand or in a sibling block.
 - A declaration pass, one agent per block on its own copy of the tree:
-  the check printed 517 lines for these blocks before it and prints 105
-  after it, with every image still exact. Calls with another number of
+  the check printed 517 lines for these blocks before it and 105 after
+  it, with every image still exact. Calls with another number of
   arguments, undeclared calls, dispatch table entries with another
   parameter list and declarations without a prototype are at zero.
+  Since `main` moved under this work it prints 54: the first session
+  gave three resident functions the parameters their module callers
+  pass, and the check now knows the one resident unit's own name for
+  `unsigned char`, which had made 46 lines that were no difference.
 - The private promotion helper of the stage modules, adapted: it dropped
   2,501 unused declaration lines, 21 unused data symbols and 15 unused
   field lines, and checked that nothing outside the character lines of
@@ -4783,33 +4787,32 @@ What ran (one-off counts from the private folders):
 
 What the declaration check still prints, and why it stands:
 
-- 46 lines about functions of one resident unit that defines them with
-  a local `typedef unsigned char u8_;`. The check compares type names as
-  text; the declarations say `u8`. Some of these units need an `int`
-  return there and are in the next point too.
-- The rest are declarations of resident functions that differ from the
-  definition where the unit is exact only so: `func_801483a4` and
-  `func_801482e0` with `int` parameters (the listings pass negative
-  constants with `addiu`, the definitions take `u16`), `func_80130678`
-  and `func_80130768` with an `int` index, `func_80125734` with a signed
-  byte, `func_80141788`, `func_801418bc`, `func_80149b80` and
-  `func_8012f898` with another return width, `func_80130470`,
-  `func_8013054c`, `func_80155eac`, and two functions that no unit
-  defines. Each is a question for the definition, not for the caller,
-  and is listed for the first session. Six units leave out `protos.h`
-  to declare one function differently from it, and declare what the
-  header has for the rest.
+- Declarations of resident functions that differ from the definition
+  where the unit is exact only so: `func_801482e0` with `int`
+  parameters (the listings pass negative constants with `addiu`, the
+  definition takes `u16`; `func_801483a4` had the same and takes `int`
+  on `main` now), `func_80130678` and `func_80130768` with an `int`
+  index, `func_80125734` with a signed byte, five functions of one
+  resident unit (`func_8013cac8` and its neighbours), `func_80141788`,
+  `func_801418bc`, `func_80149b80` and `func_8012f898` with another
+  return width, `func_80130470`, `func_8013054c`, `func_80155eac`, and
+  two functions that no unit defines. Each is a question for the
+  definition, not for the caller, and is listed for the first session.
+  Six units leave out `protos.h` to declare one function differently
+  from it, and declare what the header has for the rest.
 - `box_margin` is declared as a scalar by most units and as an array by
   the units that need the `data_X[0]` form.
 
 Accepted constructs in these units: 9 uses of the unused local array for
-a frame size, and 18 calls through a cast of the callee with the guide's
-comment: 14 pass the object to `func_8011f0e8`, whose definition takes
-nothing; one passes two arguments to `func_80138c78`, which takes
-nothing; two pass a seventh argument to `func_80140598`; one passes
-nothing to `func_80141c4c`, which takes one. The guide's paragraph on
-this construct is in the first session's open pull request, not on
-`main` yet.
+a frame size, and 10 calls through a cast of the callee with the fixed
+comment: six pass nothing to `func_8011f0e8`, one passes nothing to
+`func_80141c4c`, one passes two arguments to `func_80138c78`, which
+takes none, and two pass a seventh argument to `func_80140598`. Before
+`main` moved there were 18: `func_8011f0e8` took nothing then, and the
+14 calls that pass it the object went through the cast; they are plain
+calls now, and the six that pass nothing took their place. The guide's
+paragraph on this construct is in an open pull request of the first
+session, not on `main` yet.
 
 Refused: three functions are exact only with a statement that leaves no
 instruction (an assignment to a local that nothing reads, which keeps

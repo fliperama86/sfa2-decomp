@@ -10,7 +10,6 @@ extern u16 box_margin[];
 
 void func_80138ae8(GameState *state, Object *object);
 void func_80142adc(Object *object);
-Object *func_8011f0e8(void);
 u8 func_8013f8c4(Object *object, int a, int b);
 int func_80130184(Object *object);
 void func_80145f98(Object *object);
@@ -49,7 +48,6 @@ void func_801b3064_slot04_16(Object *obj) {
     func_801b3258_slot04_16(obj);
 }
 
-/* The call of func_8011f0e8 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
 void func_801b30ec_slot04_16(Object *obj) {
     u8 t;
 
@@ -64,7 +62,7 @@ void func_801b30ec_slot04_16(Object *obj) {
     }
     obj->field_07 = obj->field_07 + 1;
     func_801b3258_slot04_16(obj);
-    game_state.field_358 = ((Object *(*)(Object *))func_8011f0e8)(obj);
+    game_state.field_358 = func_8011f0e8(obj);
     if (game_state.field_358 != 0) {
         game_state.field_358->field_00 = 1;
         game_state.field_358->field_02 = 0x1e;

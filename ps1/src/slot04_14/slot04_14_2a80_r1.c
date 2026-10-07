@@ -9,7 +9,6 @@ extern s32 data_801c6350_slot04_14[];
 extern s32 data_801c6354_slot04_14[];
 extern u8 data_801c6368_slot04_14[];
 extern ObjectFn data_801c636c_slot04_14[];
-Object *func_8011f0e8(void);
 int func_80130184(Object *object);
 void func_80130678(Object *object, u16 index);
 void func_801428e4(Object *object);
@@ -98,6 +97,7 @@ void func_801b2cdc_slot04_14(Object *obj) {
     }
 }
 
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 5 instruction slots. */
 void func_801b2d54_slot04_14(Object *obj) {
     Object *p;
     s16 t;
@@ -108,7 +108,7 @@ void func_801b2d54_slot04_14(Object *obj) {
     if (!(t & 0x8000)) {
         if ((t & 0xff) != 0) {
         obj->field_3a = t & 0xff00;
-        p = func_8011f0e8();
+        p = ((Object *(*)(void))func_8011f0e8)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x14;

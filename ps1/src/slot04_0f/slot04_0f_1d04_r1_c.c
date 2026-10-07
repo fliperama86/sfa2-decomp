@@ -5,11 +5,9 @@
 
 extern ObjectFn data_801c5af8_slot04_0f[];
 
-Object *func_8011f0e8(void);
 void func_80142adc(Object *object);
 void func_801b470c_slot04_0f(Object *obj);
 
-/* The call of func_8011f0e8 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2504_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *p;
@@ -18,7 +16,7 @@ void func_801b2504_slot04_0f(Object *o) {
     func_80130efc(o);
     if (*(u8 *)&o->field_3a != 0) {
         o->field_07 = o->field_07 + 1;
-        p = ((Object *(*)(Object *))func_8011f0e8)(o);
+        p = func_8011f0e8(o);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xf;

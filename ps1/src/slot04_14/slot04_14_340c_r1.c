@@ -8,7 +8,6 @@ extern s16 data_801c6390_slot04_14[];
 extern ObjectFn data_801c6398_slot04_14[];
 extern ObjectFn data_801c63a8_slot04_14[];
 
-Object *func_8011f0e8(void);
 void func_80130678(Object *object, u16 arg);
 void func_8013788c(Object *object);
 void func_80145d20(Object *object);
@@ -142,6 +141,7 @@ void func_801b3730_slot04_14(Object *obj) {
     }
 }
 
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b382c_slot04_14(Object *obj) {
     Object *p;
     u16 y;
@@ -150,7 +150,7 @@ void func_801b382c_slot04_14(Object *obj) {
     if (*(u8 *)&obj->field_3a == 1) {
         obj->field_07 = obj->field_07 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x800;
-        p = func_8011f0e8();
+        p = ((Object *(*)(void))func_8011f0e8)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x14;
@@ -268,6 +268,7 @@ void func_801b3bd0_slot04_14(Object *obj) {
     }
 }
 
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b3c38_slot04_14(Object *obj) {
     Object *p;
     u16 y;
@@ -277,7 +278,7 @@ void func_801b3c38_slot04_14(Object *obj) {
     if (*(u8 *)&obj->field_3a != 0) {
         obj->field_07 = obj->field_07 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x600;
-        p = func_8011f0e8();
+        p = ((Object *(*)(void))func_8011f0e8)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x14;

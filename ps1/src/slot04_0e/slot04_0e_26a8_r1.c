@@ -10,7 +10,6 @@ extern s32 data_801c601c_slot04_0e[];
 extern s32 data_801c6028_slot04_0e[];
 extern ObjectFn data_801c6034_slot04_0e[];
 
-Object *func_8011f0e8(void);
 void func_80142adc(Object *object);
 void func_80138ae8(GameState *state, Object *object);
 void func_801b2c00_slot04_0e(Object *obj);
@@ -129,7 +128,7 @@ void func_801b29e0_slot04_0e(Object *o) {
     s16 y;
 
     if (obj->field_3a == 1) {
-        p = func_8011f0e8();
+        p = func_8011f0e8(o);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xe;

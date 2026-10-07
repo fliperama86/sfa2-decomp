@@ -6,7 +6,7 @@
 extern s32 data_801c74f4_slot04_11[];
 extern u8 data_801c74f8_slot04_11[][4];
 
-void func_801483a4(Object *object, u16 a, u16 b);
+void func_801483a4(Object *object, int a, int b);
 void func_801b329c_slot04_11(Object *obj);
 
 void func_801b3118_slot04_11(Object *obj) {

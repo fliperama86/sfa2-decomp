@@ -7,15 +7,13 @@ extern ObjectFn data_801bd9d0_slot04_0c[];
 extern ObjectFn data_801bda10_slot04_0c[];
 extern ObjectFn data_801bda20_slot04_0c[];
 extern s32 data_801bd9e0_slot04_0c[];
-Object *func_8011f0e8(void);
 void func_80142adc(Object *object);
 void func_80146998(Object *object);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80138ae8(GameState *state, Object *object);
-void func_801483a4(Object *object, u16 a, u16 b);
+void func_801483a4(Object *object, int a, int b);
 
-/* The call of func_8011f0e8 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 3 instruction slots. */
 void func_801b161c_slot04_0c(Object *obj) {
     Object *p;
     s16 y;
@@ -24,7 +22,7 @@ void func_801b161c_slot04_0c(Object *obj) {
     if (*(u8 *)&obj->field_3a != 0) {
         obj->field_46 = 5;
         obj->field_07++;
-        p = ((Object *(*)(Object *))func_8011f0e8)(obj);
+        p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xc;
@@ -199,7 +197,6 @@ void func_801b1be4_slot04_0c(Object *obj) {
     }
 }
 
-/* The call of func_8011f0e8 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 6 instruction slots. */
 void func_801b1c54_slot04_0c(Object *obj) {
     Object *p;
     u16 t;
@@ -213,7 +210,7 @@ void func_801b1c54_slot04_0c(Object *obj) {
         func_801312b8(obj);
     } else if (m == 0 && (t & 0xff) != 0) {
         obj->field_3a = 0;
-        p = ((Object *(*)(Object *))func_8011f0e8)(obj);
+        p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xc;

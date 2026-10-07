@@ -11,7 +11,6 @@ extern s32 data_801c6304_slot04_14[];
 extern ObjectFn data_801c6310_slot04_14[];
 
 void func_80138ae8(GameState *state, Object *object);
-Object *func_8011f0e8(void);
 int func_80130184(Object *object);
 void func_80130678(Object *object, u16 arg);
 void func_801b2b4c_slot04_14(Object *obj);
@@ -204,6 +203,7 @@ void func_801b273c_slot04_14(Object *obj) {
     func_801307e0(obj, 0x26);
 }
 
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2790_slot04_14(Object *obj) {
     Object *p;
     u16 t;
@@ -215,7 +215,7 @@ void func_801b2790_slot04_14(Object *obj) {
         if ((u8)obj->field_3a == 1) {
             obj->field_07++;
             obj->field_3a = obj->field_3a & 0xff00;
-            p = func_8011f0e8();
+            p = ((Object *(*)(void))func_8011f0e8)();
             if (p != 0) {
                 p->field_00 = 1;
                 p->field_02 = 0x1a;
@@ -248,6 +248,7 @@ void func_801b2790_slot04_14(Object *obj) {
     }
 }
 
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2904_slot04_14(Object *obj) {
     Object *p;
     u16 t;
@@ -259,7 +260,7 @@ void func_801b2904_slot04_14(Object *obj) {
         if ((u8)obj->field_3a == 2) {
             obj->field_07++;
             obj->field_3a = obj->field_3a & 0xff00;
-            p = func_8011f0e8();
+            p = ((Object *(*)(void))func_8011f0e8)();
             if (p != 0) {
                 p->field_00 = 1;
                 p->field_02 = 0x14;

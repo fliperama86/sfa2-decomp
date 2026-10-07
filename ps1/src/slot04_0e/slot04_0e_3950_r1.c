@@ -11,7 +11,6 @@ extern u8 data_801c60ac_slot04_0e[];
 extern SequenceStep data_801c0a00_slot04_0e[];
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
 
-Object *func_8011f0e8(void);
 void func_801428e4(Object *object);
 void func_80145d20(Object *object);
 void func_80138b38(GameState *state, Object *object);
@@ -95,7 +94,7 @@ void func_801b3b40_slot04_0e(Object *obj) {
 void func_801b3b80_slot04_0e(Object *obj) {
     Object *p;
 
-    p = func_8011f0e8();
+    p = func_8011f0e8(obj);
     if (p != 0) {
         p->field_00 = 1;
         p->field_02 = 0x18;
