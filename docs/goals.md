@@ -385,11 +385,17 @@ chose the first on 2026-10-06:
   228 functions: 215 are exact, 32,712 of 36,912 bytes, and 13 are parked
   with candidates. 63 of its functions are the same code, apart from
   addresses, as functions that were already exact, 37 of them in the
-  module of slot `0x12`; their source was copied from those. The sixth is
-  the one content of slot `0x27`, from `SELECTA.PAC`, a module of 212
-  functions: 208 are exact, 30,184 of 31,684 bytes, and 4 are parked with
-  candidates. 46 of its functions are the same code, apart from addresses,
-  as functions that were already exact, 45 of them in the resident image.
+  module of slot `0x12`; their source was copied from those.
+  The sixth is the first of the 20 stage modules, the content of slot
+  `0x6` in `STAGE00.PAC`, a module of 28 functions: 19 are exact, 1,392
+  of 5,248 bytes, and 9 are parked with candidates. The stage files are
+  the work of a second session that runs beside the first, by the
+  owner's decision of 2026-10-06; the other 19 follow.
+  The seventh is the one content of slot `0x27`, from `SELECTA.PAC`, a
+  module of 212 functions: 208 are exact, 30,184 of 31,684 bytes, and 4
+  are parked with candidates. 46 of its functions are the same code,
+  apart from addresses, as functions that were already exact, 45 of them
+  in the resident image.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -416,7 +422,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot00` and `slot2b` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot00`, `slot2b` and `slot06_00` that are rebuilt so far
 (`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
