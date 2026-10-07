@@ -4361,6 +4361,57 @@ Lesson: an address in a module is not a name's whole identity where
 several modules share the address. Whoever adds names for a module that
 shares its address with others runs the sweep before publishing and looks
 at every row that moved, in whichever module it lies.
+## Three resident functions take what their module callers pass (2026-10-07)
+
+Asked by the second session: units of its modules call three functions of
+the resident image in ways that the resident declarations did not allow,
+and those units stayed parked or carried a declaration of their own. The
+resident source is the first session's, so the change was made here. Each
+was built in a private copy first; the resident image is exact with all
+three, 1,754 of 1,754 functions.
+
+- `func_801364a0` is not in C yet; `protos.h` declared it without a
+  parameter. Its code reads a halfword at offset 0x22 of the first
+  argument register and does not set that register before. It is declared
+  `(Sprite *sprite)` now, like its neighbours. The one resident caller,
+  `func_801363ac`, was exact as `func_801364a0();` and is exact as
+  `func_801364a0(sprite);` as well: its own parameter is still in the
+  register at the call, and the compiler emits no move for it. Calls in
+  two stage files set the register in the delay slot of the call.
+- `func_801483a4` had two `u16` parameters. Calls in the character files
+  form a negative second argument with `addiu`, which a `u16` parameter
+  does not give. The parameters are `int` now, each copied into a `u16`
+  local, the guide's form for a narrow parameter that callers do not
+  mask. Also measured on the definition: `s16` and `u16` parameters are
+  exact too, plain `int` parameters without the locals differ in 7
+  instruction slots. The `int` form was taken because it also serves a
+  caller that passes a variable without extending it; no such caller has
+  been looked for, so the choice is compatible with the calls seen and
+  not shown to be the original's.
+- `func_8011f0e8` takes no argument that it reads. Calls in character
+  files set the first argument register in the delay slot of the call.
+  The definition has an unused `Object *` parameter with a comment that
+  says so, and `protos.h` has its line.
+
+`test_matchbuild.py`: the case `types-overlapping-field` appended a line
+at the offset of the lowest field of the last struct of the field table,
+and raised an error on a struct without field lines. A module's struct is
+left without lines when no exact unit uses its fields, and the second
+session's tree ended with one. The case gives such a struct a field
+first. Run on a copy of the tree with an empty struct appended: the old
+form raises, the new one fails the build as required; both behave as
+before on the tree as it is.
+
+Lesson: a call with nothing in front of it in the listing does not show
+that the source passed nothing. Where the caller's own first parameter is
+still in the register, a call that passes it compiles to the same bytes.
+Whether a call passes an argument is measured by building both forms.
+
+Open: the session that works on the port asked for a count of the module
+functions that call each library function. `ps1/inventory/library.tsv`
+counts resident callers only, so it cannot say which library functions
+the modules need.
+
 ## Sixty-seventh group: the first stage module, slot 0x6 of STAGE00.PAC
 
 By the owner's decision of 2026-10-06 two sessions work at the same time,
