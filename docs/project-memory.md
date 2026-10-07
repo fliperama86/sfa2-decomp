@@ -4148,6 +4148,74 @@ Lessons:
   withdrawn. Record both, so that the next session does not act on the
   first alone.
 
+## Sixty-sixth group: a sixth module, the one of slot 0xf
+
+The owner's choice of 2026-10-06, more overlay modules, continued with the
+one content of slot `0xf`, from `DEMO.PAC`: 103,888 bytes at `0x800df000`,
+228 functions by the sweep. It is the image `slot0f`.
+
+Counts, from the build:
+
+- `slot0f`: 215 of 228 functions exact, 32,712 of 36,912 bytes. Units own
+  40 bytes of read-only data. 71,136 bytes of the chunk are retained raw.
+- 13 functions are parked with candidates, 4,200 bytes.
+- 107 unit files, 237 symbols and 19 structs with 121 lines of the field
+  table are new. The resident image and the other nine module images are
+  unchanged in their bytes.
+- One function of the resident image changed its source: `func_8014f4d4`
+  takes an `int` and copies it into a 16-bit local. Its fifteen callers
+  are exact without a change, and a function of this module that passes
+  an unsigned halfword unmasked is exact with it.
+
+What ran:
+
+- Before the round, a private helper listed which functions of the module
+  are the same code, apart from addresses, as a function that is already
+  exact: 63 of the 228, 37 of them in the module of slot `0x12` and 24 in
+  the resident image. The agents were told to copy those from their twins
+  and to change only names.
+- A first round of 25 batches, eight agents at a time: 208 of 228 exact.
+  The largest function of the module, 2,656 bytes, was exact on the second
+  attempt of its agent.
+- The merge had 21 conflicts. Eleven were one mistake: a batch's
+  search-and-replace had changed a line in eleven structs of the base. An
+  agent resolved all 21 by the rules of the reconcile brief.
+- The declaration check printed 41 lines on the merged tree and 4 more
+  after the second attempts; an agent fixed the 41 in 28 files, the 4
+  were fixed by hand. Four symbols had been named after a wrong address
+  and were renamed.
+- Second attempts on 15 of the 20 parked, in five groups with the pattern
+  named: 7 exact, one of them by the change to `func_8014f4d4`. Two
+  became exact when a byte that other units reach as a member of the
+  game state was written as that member and not as a separate variable.
+
+What is parked and why, by the agents' reports: two need a resident
+callee to take a wider parameter, and no form of that callee tried so far
+is exact; three have the residuals of three functions that are parked in
+the module of slot `0x12`, and look like the same code; two neighbours
+have a base address in one argument register where the original has
+another, and their parameter lists, read off the callers, did not move
+it; the others differ in a few instructions each, one of them in the size
+of its frame.
+
+Lessons:
+
+- Twins first. 63 functions of this module had a twin to copy from, and
+  the batches that were mostly twins were the fastest of the round. Run
+  the twin listing before every module round.
+- What looks like a parked function is parked too. The three here failed
+  where their likes in the module of slot `0x12` had failed. When a
+  function becomes exact, try its form on its likes at once; when it
+  stays parked, do not spend a second attempt on its like.
+- Agents break shared files with search-and-replace: twice now a batch
+  changed lines of other structs while editing its own. The merge caught
+  both. Tell the next round to edit the field table by hand, line by
+  line, and never with a pattern.
+- A hint in a retry message is a hypothesis. "The first two parameters
+  are still alive" was wrong for the three neighbours and cost one agent
+  its whole time box. Say in the message that the hint is a guess and
+  what would show it wrong, so that the agent drops it early.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -375,6 +375,11 @@ chose the first on 2026-10-06:
   is the pair of slots `0x2b` and `0x2c`, another character's extra
   module, 107 functions each: 102 are exact, 9,052 bytes, in the first
   and, linked a second time, in the second; 5 are parked with candidates.
+  The fifth is the one content of slot `0xf`, from `DEMO.PAC`, a module of
+  228 functions: 215 are exact, 32,712 of 36,912 bytes, and 13 are parked
+  with candidates. 63 of its functions are the same code, apart from
+  addresses, as functions that were already exact, 37 of them in the
+  module of slot `0x12`; their source was copied from those.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -401,7 +406,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot12`, `slot16`, `slot00` and `slot2b` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot00` and `slot2b` that are rebuilt so far
 (`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final

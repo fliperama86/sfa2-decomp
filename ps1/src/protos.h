@@ -557,7 +557,7 @@ int func_8014f0bc(void);
 void func_8014f3b8(int a, int b);
 void func_8014f408(int a, int b);
 int func_8014f4bc(void);
-void func_8014f4d4(int a, s16 b);
+void func_8014f4d4(int a, int arg);
 void func_8014f59c(void);
 void func_8014f5d4(u8 a);
 void func_8014f604(u8 a);
