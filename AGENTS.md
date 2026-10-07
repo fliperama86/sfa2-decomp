@@ -8,6 +8,10 @@ working repository is this directory, not `../68k-decomp`.
 
 - This is an SFA2 game project, currently targeting PS1 Japan `SLPS_004.15`, not
   a general 68000 framework. Windows is retained reference research.
+- A port to macOS on Apple Silicon, Windows and Linux was started on
+  2026-10-06 by the owner's decision. Read `port/README.md` before port
+  work. Port work changes nothing under `ps1/`; the Windows target of the
+  port is not the Windows reference research in `windows/`.
 - Preserve readable gameplay C and explicit assembly exceptions. Neither an
   all-assembly dump nor opaque retained executable bytes complete the project.
 - Distinguish exact C, tested nonmatching C, assembly, raw retention, inferred

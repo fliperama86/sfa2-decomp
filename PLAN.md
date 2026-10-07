@@ -122,3 +122,8 @@ No mandatory game-boot gate is added when full relevant output identity is
 established. Optional disc packaging, ports, modifications, other revisions,
 or arcade-equivalence research are separate scope decisions. See the
 [requirements](docs/requirements.md) for evidence and publication rules.
+
+One such decision was taken on 2026-10-06: the owner started a port to
+macOS on Apple Silicon, Windows and Linux. It runs beside this plan and is
+no part of what complete means here. Its state is on the
+[port page](port/README.md).

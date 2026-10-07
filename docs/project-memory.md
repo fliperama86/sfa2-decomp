@@ -4054,6 +4054,60 @@ Lessons:
   argument register went 2 of 3 by a form that was not the one named: the
   copy was an argument.
 
+## A port is started: the owner's decisions of 2026-10-06
+
+No function count changes here. No game code was compiled for it.
+
+The owner asked whether some of the PC port could be started, and decided
+in the conversation that followed:
+
+- It is for three systems: macOS on Apple Silicon, Windows and Linux.
+- It is worked on in a worktree of its own.
+- The first piece is the replacement of Sony's library, not a host build of
+  game code, which was the assistant's first proposal.
+- The replacement is PsyZ, used as a dependency. The owner asked what its
+  MPL terms mean and was told that its headers carry no license before
+  deciding.
+- Discuss before coding the port itself. What followed is a pinned
+  submodule, a check of it and pages; no source of a port.
+
+Not a ruling: how the game's stored addresses are handled. The assistant
+first recommended a block of memory standing in for the PS1's, then, after
+the owner asked how sotn-decomp does it and it was looked up, recommended
+that project's way (tables as C, when they are C) and that nothing be
+decided before the library work needs it. The owner answered "ok" and went
+on to the library. The [port page](../port/README.md) has both ways.
+
+Corrections to keep:
+
+- "Draw lists link their entries by PS1 address, so the graphics part
+  forces a memory block" was said and was wrong: the reference project
+  widens that link behind a build switch.
+- "Its music player is largely stubs" was said of PsyZ from a comparison of
+  names and was not established: PsyZ also builds decompiled library files
+  for sound, and the comparison counted library functions that only the
+  library calls. Compare what game units call, by address, through the
+  inventory; that tool does not exist yet.
+- The machine of these sessions has no development files for windows,
+  graphics or sound and no CMake. CMake and Ninja were installed with pip
+  into an ignored environment in the port worktree. A window cannot be
+  shown from it as it is.
+- `lane.sh` takes every checkout that is not the main one for lane B: run
+  from the port worktree it would apply lane B's guard and write into lane
+  B's scratch folder. The port lane does not run it. Its changes are
+  checked by an empty `git diff origin/main...HEAD -- ps1/`, with three
+  dots: with two, what the other lanes merged since shows up as a
+  difference.
+- The first check script was reviewed with three defects of the same
+  kind: it had only been run in the folder it was written in. It was not
+  executable in Git, because this machine's checkout does not record file
+  modes (`git update-index --chmod=+x` sets one); it wrote its log into a
+  folder that a fresh checkout does not have; and it changed folder with a
+  relative build folder still in hand. A script gets its controls, with a
+  fresh tree and stand-ins, before it is published.
+
+What ran is on the port page, with the command.
+
 ## Completion map requested on 2026-10-06
 
 The owner requested a completion map. `docs/completion-map.md` records the
