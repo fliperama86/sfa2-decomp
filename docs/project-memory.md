@@ -4054,6 +4054,20 @@ Lessons:
   argument register went 2 of 3 by a form that was not the one named: the
   copy was an argument.
 
+## Completion map requested on 2026-10-06
+
+The owner requested a completion map. `docs/completion-map.md` records the
+post-PR-70 snapshot, linked from the README. It separates exact C, assembly,
+owned data, parked candidates and retained bytes, and maps every analyzed
+overlay slot. Function counts and code-byte coverage have separate static
+denominators; there is no invented whole-game completion percentage. Second
+links count as verified placements, not new source. Windows remains reference
+research, and runtime observation is not a new acceptance gate for exact code.
+
+The map is a current snapshot to update after ownership changes, not a rewrite
+of historical evidence. It was authored in a separate worktree so concurrent
+reconstruction and the 60-second PR watch can continue without interference.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
