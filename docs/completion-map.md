@@ -210,8 +210,13 @@ python3 ps1/tools/coveragemap.py render --svg out/completion-map.svg \
     --json out/completion-map.json --html out/index.html
 ```
 
-`render` refuses an inventory that the build has outgrown: a declared
-function that touches no swept function fails the check, and the sweep must
-run again. It prints the counts of the two panels and every place where the
-sweep took in bytes that no unit owns. `ps1/tools/test_coveragemap.py` holds
-its control cases, on synthetic inputs; the workflow runs them first.
+`render` has one guard on the inventory: a declared function that touches
+no swept row fails the check, and the sweep must run again. That is all it
+establishes. A row stale within its range, shorter or longer than the
+function it holds, passes, and the sweep's boundaries stay estimates beside
+the declared ranges; the JSON gives the declared bytes next to the bytes
+exact within rows, and they differ where the two disagree. `render` prints
+the counts of the two panels and every place where the sweep took in bytes
+that no unit owns. `ps1/tools/test_coveragemap.py` holds its control cases,
+on synthetic inputs, the guard's limit among them; the workflow runs them
+first.

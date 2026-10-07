@@ -4084,8 +4084,13 @@ sweep's two known boundary errors (the table before the first function of
 slot `0x0`, the table after the entry routine) count as exact without a
 special case for either, while the raw bytes stay out of the byte count; a
 swept function owned only as data is set aside and reported; a declared
-function that touches no swept function is an error, so a stale inventory
-cannot draw a map. No address enters the SVG or the JSON. The counts
+function that touches no swept function is an error. That guard, review
+noted, catches a declared function that the inventory does not represent
+at all and nothing more: a row stale within its range, shorter or longer
+than the function, passes (a control records a 16-byte function over an
+8-byte row, exact at 8 of 8 bytes), and the sweep's boundaries stay
+estimates beside the declared ranges, which the JSON gives next to the
+bytes exact within rows. No address enters the SVG or the JSON. The counts
 reproduce the text map's numbers exactly.
 
 Asked why the picture was committed rather than drawn by GitHub Actions, the
@@ -4097,8 +4102,9 @@ every pull request and push, and on a push to `main` publishes the SVG, the
 JSON and a page to GitHub Pages, enabled through the API the same day with
 the workflow build type. The SVG and JSON are not committed; the README and
 the completion map embed the published picture. `sweep` is the one manual
-step left, needed when a boundary moves; `render` fails the check on a stale
-inventory.
+step left, needed when a boundary moves; `render` fails the check only when
+a declared function has no swept row at all, so running `sweep` after a
+change to the symbol file or the configuration remains the round's duty.
 
 Asked how to know the overall completion, the answer was that there was no
 one number by design; the owner chose to add one. The bar above the panels

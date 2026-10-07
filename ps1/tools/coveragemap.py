@@ -29,7 +29,13 @@ bytes early at a table that a unit owns as data. A swept function owned
 only as data is set aside and counted separately: the sweep read data as
 code there. A swept function owned in part is not exact and is counted
 separately too, as a boundary to look at. A declared function that touches
-no swept function of its image is an error: the inventory is stale.
+no swept function of its image is an error. That is the one guard on the
+inventory: it catches a declared function that the inventory does not
+represent at all, not an inventory stale within a row. A row shorter or
+longer than the function it holds passes, and the sweep's boundaries stay
+estimates beside the declared ranges; the JSON gives the declared bytes
+next to the bytes exact within swept rows, and they differ where the two
+disagree.
 
 Two commands. `sweep` runs the two inventory tools with the project's
 settings and writes their tables into a directory, `ps1/inventory/` unless
@@ -56,6 +62,7 @@ import argparse
 import datetime
 import json
 import math
+import os
 import subprocess
 import sys
 import tomllib
@@ -319,7 +326,7 @@ def classify(panel: Panel, owned: dict[str, Owner], image_of: dict[str, str | No
         owner = owned[name]
         missed = [f"{owner.starts[i]:#x}" for i, (kind, touched) in enumerate(zip(owner.kinds, owner.touched)) if kind in EXACT and not touched]
         if missed:
-            raise Problem(f"image {name!r} declares {len(missed)} function(s) that touch no swept function; the inventory is stale: " + ", ".join(missed[:8]))
+            raise Problem(f"image {name!r} declares {len(missed)} function(s) that touch no swept function; the inventory does not represent them, run `sweep` again: " + ", ".join(missed[:8]))
         functions, size = owner.declared()
         panel.declared_functions += functions
         panel.declared_bytes += size
@@ -559,8 +566,11 @@ def summary(panels: list[Panel], date: str, config: Path) -> dict:
     return out
 
 
-def page(panels: list[Panel], date: str) -> str:
-    """A page that shows the map, the counts of every block and where the numbers come from."""
+def page(panels: list[Panel], date: str, svg: str, counts: str) -> str:
+    """A page that shows the map, the counts of every block and where the numbers come from.
+
+    `svg` and `counts` are the links to the picture and the JSON, relative to the page.
+    """
     style = ("body{font-family:sans-serif;max-width:1000px;margin:auto;padding:16px;background:#0d1117;color:#e6edf3}"
              "img{max-width:100%}table{border-collapse:collapse}th,td{border:1px solid #30363d;padding:2px 8px}"
              "td+td,th+th{text-align:right}a{color:#58a6ff}")
@@ -569,12 +579,12 @@ def page(panels: list[Panel], date: str) -> str:
         '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
         "<title>SFA2 PS1 reconstruction: coverage map</title>", f"<style>{style}</style></head><body>",
         "<h1>SFA2 PS1 reconstruction: coverage map</h1>",
-        '<img src="completion-map.svg" alt="one square per function of the static sweep, green where the build owns it">',
+        f'<img src="{escape(svg)}" alt="one square per function of the static sweep, green where the build owns it">',
         f'<p>One square per function of the static sweep, in address order, drawn on {date} by '
         f'<a href="{REPOSITORY}/blob/main/ps1/tools/coveragemap.py">coveragemap.py</a> from '
         f'<a href="{REPOSITORY}/tree/main/ps1/inventory">the inventory</a> and '
         f'<a href="{REPOSITORY}/blob/main/ps1/src/build.toml">the build configuration</a>. '
-        f'Counts: <a href="completion-map.json">completion-map.json</a>. What the measures mean and what remains: '
+        f'Counts: <a href="{escape(counts)}">{escape(counts)}</a>. What the measures mean and what remains: '
         f'<a href="{REPOSITORY}/blob/main/docs/completion-map.md">the completion map</a>.</p>',
     ]
     whole = overall(panels)
@@ -616,8 +626,10 @@ def cmd_render(args) -> int:
     Path(args.json).parent.mkdir(parents=True, exist_ok=True)
     Path(args.json).write_text(json.dumps(summary(panels, date, config_path), indent=1) + "\n")
     if args.html:
-        Path(args.html).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.html).write_text(page(panels, date))
+        html = Path(args.html).resolve()
+        html.parent.mkdir(parents=True, exist_ok=True)
+        links = [os.path.relpath(Path(target).resolve(), html.parent) for target in (args.svg, args.json)]
+        html.write_text(page(panels, date, *links))
     for panel in panels:
         exact, total = panel.count(*EXACT), panel.functions
         line = f"{panel.name}: {exact}/{total} {panel.unit} exact ({percent(exact, total)}%), {panel.count(C)} from C, {panel.count(ASM)} from assembly"

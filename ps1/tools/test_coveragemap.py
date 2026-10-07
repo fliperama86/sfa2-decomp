@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import struct
 import subprocess
 import sys
@@ -187,10 +188,21 @@ def main_cases(root: Path):
         "<tr><td>game code</td><td>3</td><td>5</td><td>60.0</td></tr>",
         "<tr><td>slot 0x13, CONT00X.PAC</td><td>1</td><td>2</td><td>50.0</td><td>slot13, second link</td></tr>",
         "<tr><td>slot 0x4, PL00.PAC</td><td>0</td><td>3</td><td>0.0</td><td>-</td></tr>",
-        "<tr><th>Total</th><th>3</th><th>9</th><th>33.3</th><th></th></tr>", 'src="completion-map.svg"', "drawn on 2026-01-01",
+        "<tr><th>Total</th><th>3</th><th>9</th><th>33.3</th><th></th></tr>", 'src="main-page.svg"', 'href="main-page.json"', "drawn on 2026-01-01",
     ]:
         yield f"page-has {item[:40]!r}", verdict(item in text, text[:3000]), 0, "as required"
     yield "page-no-address", verdict(not [a for a in addresses if f"{a:x}" in text], text[:3000]), 0, "as required"
+    # The page links the picture and the counts wherever they were written, relative to itself.
+    deep = root / "pages" / "site"
+    proc = tool("render", directory, "--config", root / "main.toml", "--svg", root / "pages" / "img" / "map.svg", "--json", deep / "counts.json",
+                "--html", deep / "index.html", "--date", "2026-01-01")
+    text = (deep / "index.html").read_text() if (deep / "index.html").exists() else ""
+    links = re.findall(r'(?:src|href)="([^"]+)"', text)
+    local = [link for link in links if not link.startswith("http")]
+    yield "page-links-relative", verdict(
+        proc.returncode == 0 and sorted(local) == ["../img/map.svg", "counts.json"] and all((deep / link).is_file() for link in local),
+        f"{proc.stderr}{local}",
+    ), 0, "as required"
     # The same inventory with a wider configuration: an image whose archive is not the content's first archive.
     proc, _, _ = render(root, "main-wrong-archive", directory, config + image("pl07", 0x4, "PL07.PAC", 0x801B0000))
     yield "image-fits-no-content", proc, 1, "image 'pl07' (slot 0x4, PL07.PAC) fits no content of the inventory"
@@ -263,7 +275,15 @@ def boundary_cases(root: Path):
 def refusal_cases(root: Path):
     directory = inventory(root, "refuse", game=game_row(START, 32), modules=module_row("A.PAC", 1, 0x80020000, 32))
     proc, _, _ = render(root, "stale", directory, unit("x", [(START, 32), (START + 0x1000, 32)]))
-    yield "stale-inventory", proc, 1, f"error: image 'resident' declares 1 function(s) that touch no swept function; the inventory is stale: {START + 0x1000:#x}\n"
+    yield "stale-inventory", proc, 1, f"error: image 'resident' declares 1 function(s) that touch no swept function; the inventory does not represent them, run `sweep` again: {START + 0x1000:#x}\n"
+    # The limit of that guard, recorded: a row stale within its range passes. A 16-byte function over an 8-byte row
+    # is exact, 8 of 8 bytes, while the declared bytes say 16. The guard finds unrepresented functions, nothing more.
+    short_row = inventory(root, "stale-within", game=game_row(START, 8))
+    proc, data, _ = render(root, "stale-within", short_row, unit("w", [(START, 16)]))
+    yield "stale-within-a-row-passes", proc, 0, "resident: 1/1 functions exact (100.0%), 1 from C, 0 from assembly; 8/8 code bytes (100.0%); the build declares 1 functions, 16 bytes\n"
+    yield "stale-within-a-row-shows-in-declared-bytes", verdict(
+        (data["panels"]["resident"]["bytes_exact"], data["panels"]["resident"]["declared_bytes"]) == (8, 16), json.dumps(data["panels"]["resident"])
+    ), 0, "as required"
     proc, _, _ = render(root, "unknown-image", directory, unit("x", [(START, 32)], image="nowhere"))
     yield "unknown-image", proc, 1, "error: unit 'x' names an image 'nowhere' that the configuration does not declare\n"
     proc, _, _ = render(root, "like-missing", directory, image("s1", 1, "A.PAC", 0x80020000, like="gone"))

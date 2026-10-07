@@ -15,5 +15,8 @@ the matching build rebuilds it.
 
 The repository's workflow draws the [coverage map](https://fliperama86.github.io/sfa2-decomp/)
 from these tables and `src/build.toml` on every push to `main`. Run `sweep`
-again when the symbol file or the configuration moves a boundary;
-`coveragemap.py render` refuses a stale inventory.
+again when the symbol file or the configuration moves a boundary.
+`coveragemap.py render` has one guard: it refuses a declared function that
+no row here touches. A row stale within its range, shorter or longer than
+the function it holds, passes; the tables are not checked against the game
+files by the workflow.
