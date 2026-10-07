@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_8011f240(Slab172 *s);
 
 extern void (*data_800284ac_slot12[])(Object *);
 extern void (*data_800284c4_slot12[])(Object *);
@@ -17,7 +18,7 @@ void func_800153c0_slot12(Object *obj) {
 }
 
 void func_8001542c_slot12(Object *obj) {
-    func_8011f240();
+    func_8011f240((Slab172 *)obj);
 }
 
 void func_8001544c_slot12(Object *obj) {

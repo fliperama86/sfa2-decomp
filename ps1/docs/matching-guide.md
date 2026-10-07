@@ -266,8 +266,9 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   struct the compiler keeps both stores of `adjacent` as well, and other
   types or forms may do the same. Moving a store to another field between
   the two is a heuristic to try when a build has one store where the
-  original has two. It made one function of the module of slot `0x0`
-  exact; what the original source had there is not known.
+  original has two. It made two functions exact, one of the module of
+  slot `0x0` and one of the module of slot `0x2a`; what the original
+  source had there is not known.
 - A narrow parameter whose callers pass the argument as it is, without the
   mask or the extension that a prototype with the narrow type makes them
   emit, is an `int` parameter copied into a narrow local:

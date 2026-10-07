@@ -462,6 +462,7 @@ struct GameState size=0x364
 0x084 u8 field_84
 0x085 u8 field_85
 0x087 u8 field_87
+0x089 u8 field_89
 0x08b u8 field_8b
 0x08f u8 field_8f
 0x092 u16 field_92
@@ -945,6 +946,7 @@ struct Block172 size=0xac
 0x029 u8 field_29
 0x02c u8 field_2c[16]
 0x03c void* field_3c
+0x045 u8 field_45
 0x04c s16 field_4c
 0x066 u8 field_66
 0x06e s16 field_6e
@@ -1897,3 +1899,18 @@ struct Slot00Rec7ef0 size=0x10
 0x00a u16 field_0a
 0x00c u16 field_0c
 0x00e u16 field_0e
+
+struct Slot2bObj size=0x394
+0x000 u8 field_00
+0x010 s32 field_10
+0x014 s32 field_14
+0x02c u32 field_2c
+0x03a u8 field_3a
+0x047 u8 field_47
+0x048 s8 field_48
+0x04e u16 field_4e
+0x050 s32 field_50
+0x058 s32 field_58
+0x06c BoxTables* box_tables
+0x070 u16 field_70
+0x0a0 s8 field_a0

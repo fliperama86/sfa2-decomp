@@ -2,11 +2,12 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
+void func_8011f240(Slab172 *s);
 
 extern ObjectFn table_80022e14_slot12[];
 
 void func_80011ea4_slot12(Object *obj) {
-    func_8011f240();
+    func_8011f240((Slab172 *)obj);
 }
 
 void func_80011ec4_slot12(Object *obj) {

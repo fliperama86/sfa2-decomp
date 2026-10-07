@@ -37,9 +37,9 @@ Reconstructed source, published:
   where that part comes from and its license).
 - The source of overlay modules is published there too, by the owner's
   decision of 2026-10-06, in one folder per module image: `src/slot2a/`,
-  `src/slot00/`, `src/slot0b/`, `src/slot12/` and `src/slot16/`. The
-  images `slot17` and `slot08` are linked from the units of `slot16` and
-  of `slot00` and have no folder.
+  `src/slot2b/`, `src/slot00/`, `src/slot0b/`, `src/slot12/` and
+  `src/slot16/`. The images `slot17`, `slot08` and `slot2c` are linked
+  from the units of `slot16`, `slot00` and `slot2b` and have no folder.
 
 Needed to build and not in the repository:
 
@@ -49,10 +49,11 @@ Needed to build and not in the repository:
   The build checks its hash.
 - `extract/PAC/BOSS00.PAC`, `extract/PAC/CONT00.PAC`,
   `extract/PAC/PL00X.PAC`, `extract/PAC/PL09.PAC`, `extract/PAC/PL09X.PAC`,
-  `extract/PAC/PL11.PAC` and `extract/PAC/PL11X.PAC`: your own copies of
-  those archives from the disc. The build takes the module images of
-  slots `0x2a`, `0x12`, `0xb`, `0x0`, `0x8`, `0x16` and `0x17` from them
-  and checks each chunk's hash.
+  `extract/PAC/PL0E.PAC`, `extract/PAC/PL0EX.PAC`, `extract/PAC/PL11.PAC`
+  and `extract/PAC/PL11X.PAC`: your own copies of those archives from the
+  disc. The build takes the module images of slots `0x2a`, `0x12`, `0xb`,
+  `0x0`, `0x8`, `0x2b`, `0x2c`, `0x16` and `0x17` from them and checks
+  each chunk's hash.
 - `src/sdk/include/`: the SDK headers of the sotn-decomp project, copied
   unchanged from the commit named in `src/sdk/README.md`.
 - A checkout of `maspsx` at the commit pinned in `src/build.toml`, MIPS

@@ -2084,7 +2084,6 @@ data_8002d528_slot12 = 0x8002d528;
 data_8017ff68 = 0x8017ff68;
 
 /* Added by src.u_slot2a_0958x. */
-func_801e0118_slot2a = 0x801e0118;
 
 /* Added by src.u_slot00_5e00. */
 func_80077808_slot00 = 0x80077808;
@@ -2153,3 +2152,67 @@ data_8007a110_slot00 = 0x8007a110;
 data_8007a11c_slot00 = 0x8007a11c;
 data_8007a124_slot00 = 0x8007a124;
 data_8007a12c_slot00 = 0x8007a12c;
+
+/* Added by src.u_slot2b_7000. */
+func_80077868_slot2b = 0x80077868;
+func_800779a4_slot2b = 0x800779a4;
+func_80079144_slot2b = 0x80079144;
+func_800793d4_slot2b = 0x800793d4;
+func_800796e4_slot2b = 0x800796e4;
+data_80079804_slot2b = 0x80079804;
+data_80079810_slot2b = 0x80079810;
+data_8007981c_slot2b = 0x8007981c;
+data_80079828_slot2b = 0x80079828;
+data_80079834_slot2b = 0x80079834;
+data_80079840_slot2b = 0x80079840;
+data_80079848_slot2b = 0x80079848;
+data_80079854_slot2b = 0x80079854;
+
+/* Added by src.u_slot2b_7660. */
+data_8007985c_slot2b = 0x8007985c;
+data_800798f8_slot2b = 0x800798f8;
+data_80079900_slot2b = 0x80079900;
+data_80079910_slot2b = 0x80079910;
+data_8007991c_slot2b = 0x8007991c;
+data_80079920_slot2b = 0x80079920;
+data_80079938_slot2b = 0x80079938;
+data_8007ef24_slot2b = 0x8007ef24;
+
+/* Added by src.u_slot2b_7c38. */
+data_8007994c_slot2b = 0x8007994c;
+data_80079954_slot2b = 0x80079954;
+data_8007995c_slot2b = 0x8007995c;
+data_80079968_slot2b = 0x80079968;
+data_80079a00_slot2b = 0x80079a00;
+data_80079a08_slot2b = 0x80079a08;
+data_80079a18_slot2b = 0x80079a18;
+data_8007ef28_slot2b = 0x8007ef28;
+data_8007ef2c_slot2b = 0x8007ef2c;
+
+/* Added by src.u_slot2b_82c0. */
+data_80079a2c_slot2b = 0x80079a2c;
+data_8007eb48_slot2b = 0x8007eb48;
+data_8007ed88_slot2b = 0x8007ed88;
+data_8007ed98_slot2b = 0x8007ed98;
+data_8007eda8_slot2b = 0x8007eda8;
+data_8007ef30_slot2b = 0x8007ef30;
+data_8007ef34_slot2b = 0x8007ef34;
+
+/* Added by src.u_slot2b_88f0. */
+data_8007edc8_slot2b = 0x8007edc8;
+data_8007ede8_slot2b = 0x8007ede8;
+data_8007edf4_slot2b = 0x8007edf4;
+data_8007ee00_slot2b = 0x8007ee00;
+data_8007ee08_slot2b = 0x8007ee08;
+
+/* Added by src.u_slot2b_8f8c. */
+data_8007ee14_slot2b = 0x8007ee14;
+data_8007ee54_slot2b = 0x8007ee54;
+data_8017c850 = 0x8017c850;
+
+/* Added by src.u_slot2b_95f8x. */
+data_8007ee64_slot2b = 0x8007ee64;
+
+/* Added by src.u_slot2a_0118x. */
+data_801e1bdc_slot2a = 0x801e1bdc;
+data_801e2318_slot2a = 0x801e2318;

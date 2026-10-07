@@ -298,12 +298,12 @@ Next, in this order:
 5. Done: second links, the last tool step of the proposal. A module image
    may be like another: the same units linked again at its own address and
    compared with its own chunk.
-6. Done, with one function parked: a pilot, one overlay module, or part
-   of one, rebuilt exactly. First target, the module of slot `0x2a`: 27 of
-   the 28 functions that the sweep counts are exact, 5,356 of 6,052 bytes.
+6. Done: a pilot, one overlay module, or part
+   of one, rebuilt exactly. First target, the module of slot `0x2a`: all
+   28 functions that the sweep counts are exact, 6,052 bytes.
    Two of the three that were parked became exact with the bit-field form
-   of the tag word. One is parked with a candidate of the right size
-   that differs in the place of one store.
+   of the tag word, and the last with a store to another field between
+   two stores to one field.
    Second target: the module of slot `0x16` is declared, and all 11
    functions that the sweep counts in it are exact, 984 bytes. Its second
    side, slot `0x17`, is declared as a second link of it. The same 11
@@ -371,7 +371,10 @@ chose the first on 2026-10-06:
   functions of the resident image exact. The third is the pair of slots
   `0x0` and `0x8`, one character's extra module at two addresses, 112
   functions each: 109 are exact, 12,240 bytes, in the first and, linked a
-  second time, in the second; 3 are parked with candidates.
+  second time, in the second; 3 are parked with candidates. The fourth
+  is the pair of slots `0x2b` and `0x2c`, another character's extra
+  module, 107 functions each: 102 are exact, 9,052 bytes, in the first
+  and, linked a second time, in the second; 5 are parked with candidates.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -398,8 +401,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot12`, `slot16` and `slot00` that are rebuilt so far
-(`slot17` and `slot08` are linked from the source of `slot16` and `slot00`), every other module as an image of the
+the images `slot2a`, `slot0b`, `slot12`, `slot16`, `slot00` and `slot2b` that are rebuilt so far
+(`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
