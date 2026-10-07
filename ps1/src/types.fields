@@ -456,6 +456,7 @@ struct GameState size=0x364
 0x06d u8 field_6d
 0x06e u16 field_6e
 0x070 u8 field_70
+0x071 u8 field_71
 0x074 u8 field_74
 0x077 u8 field_77
 0x078 Object* field_78
@@ -481,6 +482,7 @@ struct GameState size=0x364
 0x0b0 u8 field_b0
 0x0b1 u8 field_b1
 0x0b2 u8 field_b2
+0x0b3 u8 field_b3
 0x0b6 u8 field_b6
 0x0ba u8 field_ba
 0x0bb u8 field_bb
@@ -2073,3 +2075,62 @@ struct Slot0fRec7d50 size=0x40
 0x00a u8 field_0a
 0x00b u8 field_0b
 0x00c u8* field_0c
+
+struct Slot27Obj size=0x394
+0x000 u8 field_00
+0x001 u8 field_01
+0x005 u8 field_05
+0x012 u16 field_12
+0x014 u32 field_14
+0x018 s16 field_18
+0x028 Object* field_28
+0x02c Object* field_2c
+0x046 u16 field_46
+0x04c u16 field_4c
+0x050 u16 field_50
+0x05e s16 field_5e
+
+struct Slot27Rec9338 size=0x7
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 u8 field_02
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+
+struct Slot27Rec9328 size=0x8
+0x000 u16* cur
+0x004 u16 count
+0x006 u16 field_06
+
+struct Slot27Rec7d14 size=0x6
+0x000 u8 field_00
+0x002 u16 field_02
+0x004 u16 field_04
+
+struct Slot27Rec9348 size=0x800
+0x000 Cell20 cells[27]
+
+struct Slot27Rec851c size=0x4
+0x000 u16 field_00
+0x002 u16 field_02
+
+struct Slot27Recb380 size=0x8
+0x000 u16* ptr
+0x004 s16 count
+0x006 u16 frame
+
+struct Slot27Recb388 size=0x1c
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+
+struct Slot27Recf0c8 size=0x94
+0x010 u32 field_10
+0x01e u16 field_1e
+0x028 u32 field_28
+0x050 u32 field_50
+0x058 u32 field_58
+0x05c u32 field_5c
+0x08a u8 field_8a

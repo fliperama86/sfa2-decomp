@@ -4362,6 +4362,126 @@ several modules share the address. Whoever adds names for a module that
 shares its address with others runs the sweep before publishing and looks
 at every row that moved, in whichever module it lies.
 
+## Sixty-seventh group: a seventh module, the one of slot 0x27
+
+The owner's choice of 2026-10-06, more overlay modules, continued with the
+one content of slot `0x27`, from `SELECTA.PAC`: 127,324 bytes at
+`0x80010000`, 212 functions by the sweep. It is the image `slot27`. Three
+other modules are loaded at that address.
+
+Counts, from the build:
+
+- `slot27`: 208 of 212 functions exact, 30,184 of 31,684 bytes. 97,140
+  bytes of the chunk are retained raw.
+- 4 functions are parked with candidates, 1,500 bytes.
+- 94 unit files, 103 symbols (93 of the module, 10 outside it) and 9
+  structs with 41 lines of the field table are new. The resident image and
+  the other ten module images are unchanged in their bytes.
+- Source that existed changed in four ways, each exact after it:
+  `func_80130768` takes its index as an `int` and copies it into a 16-bit
+  local, and one caller in the module of slot `0x12`, which extends the
+  value, casts at the call; `func_8011ea68` has a parameter that it does
+  not use; `data_8019045c` is declared as an array of `int`, and two
+  resident units and one unit of the module of slot `0x12` cast where they
+  use that word or the words next to it; the struct of the game state has
+  two more byte fields.
+
+What ran:
+
+- The twin listing before the round: 46 of the 212 functions are the same
+  code, apart from addresses, as a function that is already exact, 45 of
+  them in the resident image.
+- A first round of 22 batches, eight agents at a time: 198 of 212 exact.
+- Four decisions were made before the merge and given to the agent that
+  reconciled the batches, and it did not have to stop: one declaration
+  for the four scratch words of the game state that this module reads and
+  writes as words (arrays of `int`), one for the pointer next to them, the
+  unused parameter of `func_8011ea68`, and `func_80130768` left for later.
+  The declaration check printed lines of all four kinds on the merged
+  tree; the agent brought them to zero.
+- By hand afterwards: twelve accesses in five units that the batches or
+  the merge had written as a byte offset from a cast pointer were given
+  the field they mean (`*(u16 *)&o->pos_y`); `func_80130768` got its
+  `int` parameter, and two parked candidates were exact as they stood.
+- Second attempts on the other 12, one agent each, with a note on what
+  the merge changed and on the forms the first round had found: 8 exact,
+  among them the largest function of the module, 1,996 bytes. The check
+  printed three lines for their units, fixed by hand.
+- Eleven names that the batches had added and no source uses were taken
+  out again, nine of them addresses inside another module's range; so was
+  one struct that no unit uses.
+- The sweep before the PR moved a row of another module's inventory. That
+  became its own change, described in the section before this one.
+
+What is parked and why, by the agents' reports: `func_80010840_slot27`
+has two bytes of the game state in each other's registers and one
+comparison with its operands the other way round; `func_8001188c_slot27`
+has the instructions of the original and two index chains in each other's
+registers; `func_80015ca4_slot27` differs in the place of one `ori` of an
+address constant, 2 instructions; `func_8001791c_slot27`, 680 bytes,
+builds 8 bytes too long and walks a table with two registers where the
+original has one.
+
+Measured in this round, and in the matching guide with the fixtures:
+
+- A global word declared as a plain scalar is kept in a register across a
+  store to a member through a pointer; declared as an array, or reached
+  as a member, it is loaded again. In one function the element and a cast
+  of the same array differ: the element is loaded again after a store
+  through an `int *`, the cast is not.
+- A signed 16-bit local that is compared and used again costs 8 bytes of
+  frame that the code never uses. One function of this module has its
+  frame from two such locals. The module also has eight functions with
+  the unused-array stand-in; each was tried with this form and none
+  became exact without the array. The tree has 30 stand-ins now.
+- The place of one store of an address constant among nine other
+  statements: two of ten places give the exact function.
+
+Lessons:
+
+- A form that an agent reports is a claim until it is measured. The agent
+  that found the place of the constant store reported one exact place out
+  of five tried; ten places measured give two. A note for the second
+  attempts said that a cast view of a word keeps it in a register across
+  a store; the fixture showed that this depends on what the store goes
+  through, and the note was corrected before it was reused.
+- Decide the declarations that several batches disagree on before the
+  merge, with the reason, and hand them to the reconcile agent. The four
+  scratch words were declared with five different types across the
+  batches.
+- Search-and-replace on the field table happened again, in one batch and
+  in the reconcile agent's own edit, in spite of the prompt. The first
+  was caught by the check for deleted base lines, the second by that
+  agent's own comparison with the base. Keep the check; the prompt alone
+  does not prevent it.
+- Names that a batch adds "in case another batch wants them" are not
+  wanted: a name enters the tree with a use.
+
+## Two sessions in parallel (2026-10-06)
+
+The owner asked for twice the throughput: two main sessions at the same
+time, each with its own child agents, and set the split so that they do
+not work on the same files: "we could assign half of the overlays for the
+other agent ... there is no need for you both work on the same shared
+spots". One session keeps the resident image, the tools, the modules
+already in the build and the modules of the screens outside the fights;
+the other takes the stage modules of slot `0x6`, in a second worktree.
+The character modules are split by character when either session reaches
+them.
+
+What keeps them apart: each session changes only the folders of its own
+module images, adds lines to `build.toml`, `symbols.ld` and
+`types.fields` and changes no line there that is not its own; a change to
+resident source or to a tool is the first session's, and the second asks
+for it. A private check compares a branch with these rules before every
+PR. Whole builds and the full suites run one at a time across both. When
+`main` moves under an open PR, the PR takes `main` in with a merge, is
+checked again, and needs a new approval of its new head. Git's own merge
+is not used for the three shared files: where both sessions add a block at
+the same place it takes the lines the two blocks have in common once and
+makes one block of two. A private helper merges them and verifies that
+the result holds both sides' lines and nothing else.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

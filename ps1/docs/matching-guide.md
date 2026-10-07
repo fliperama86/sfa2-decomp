@@ -127,7 +127,9 @@ and never uses. It is the last resort for a function whose only difference
 is the size of its frame, after the ordinary reasons for a larger frame
 have been looked for and not found: a local whose address is taken, a
 struct held on the stack, the argument area of a call with more than four
-arguments. It is named `unused`, and this comment stands above it:
+arguments, a signed 16-bit local that is compared and used again (see
+"What this compiler does"). It is named `unused`, and this comment stands
+above it:
 
 ```c
 /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -246,8 +248,16 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   - In another function a constant store moved from the top of a block
     to directly before an increment, and the two values got the registers
     the original has.
+  - In a function of the module of slot `0x27`, `func_80015838_slot27`,
+    one store of an address constant (`b->field_90 = (void *)0x80038000;`)
+    was put at each of the ten places among the nine other statements of
+    its block. Two places give the exact function, the two directly after
+    the store of a small constant to `field_09`; the other eight leave the
+    constant and a loaded byte in each other's registers or change more.
 
-  Trying another order is a heuristic that worked twice. An exact build
+  Trying another order is a heuristic that worked in these three
+  functions; the second attempts on the module of slot `0x27` report it
+  for four more. An exact build
   with one order shows that this order is compatible with the original's
   bytes, not that the original source had it.
 - Two stores to one field. One fixture, and what it does and does not
@@ -289,7 +299,61 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   unit of a module image declares a function without a prototype. Before
   it was found, one declaration was left without a prototype with a note
   that both a narrow and an `int` parameter had been tried; the `int`
-  parameter had been tried without the local.
+  parameter had been tried without the local. A third function,
+  `func_80130768`, got the form for its index in the round of the module
+  of slot `0x27`: two functions of that module pass an `int` without
+  extending it, and their candidates were exact as they stood once the
+  parameter was an `int`. One exact caller in the module of slot `0x12`
+  does extend, and got `(s16)(...)` at the call.
+- A global that the original loads again after a store. Two measurements,
+  neither a rule:
+
+  ```c
+  struct O { short x; short y; };
+  extern int scalar_word;
+  extern int array_word[];
+  void use_scalar(struct O *o) { scalar_word = scalar_word * 2; o->x = scalar_word; o->y = scalar_word; }
+  void use_array(struct O *o)  { array_word[0] = array_word[0] * 2; o->x = array_word[0]; o->y = array_word[0]; }
+  ```
+
+  `use_scalar` loads the word once after its own store and uses the
+  register for both stores to `o`. `use_array` loads it again after the
+  store to `o->x`; so do `*(int *)array_word` in place of `array_word[0]`
+  and a member of a global struct. The second measurement is on
+  `func_80015070_slot27`: after a store through an `int *` local that
+  points to another global word, `data_80190464[0]` is loaded again and
+  the unit is exact, 216 bytes; with `*(int *)data_80190464`, or with the
+  local pointer, at the same two places it is 204 bytes. Four words of the
+  game state that the module of slot `0x27` uses as scratch
+  (`data_8019045c`, `data_80190460`, `data_80190464`, `data_8019046c`) are
+  declared as arrays of `int` for that reason, and each use picks the
+  element or the cast. By the reports of the agents that wrote them, the
+  element decided three second attempts of that module
+  (`func_800139a8_slot27`, `func_8001276c_slot27`,
+  `func_80013198_slot27`). What the original declared there is not known;
+  a member of the game state's struct would behave like the element in
+  the fixture.
+- A signed 16-bit local that is compared and then used again costs 8 bytes
+  of frame that the code never uses, and a second register that holds a
+  copy of the value. Fixture, frames of leaf functions:
+
+  ```c
+  void f_int(struct O *o)   { int x = o->pos_x; if (x < gi + 5) o->pos_x = x + 8; }   /* frame 0 */
+  void e_arith(struct O *o) { s16 x = o->pos_x; if (x < gi + 5) o->pos_x = x + 8; }   /* frame 8 */
+  void c_cmp(struct O *o)   { s16 x = o->pos_x; if (x < 5) g = 1; }                   /* frame 0: not used after the compare */
+  void a_copy(struct O *o)  { s16 x = o->pos_x; g = x; }                              /* frame 0: no compare */
+  void h_u16(struct O *o)   { u16 x = o->w; if (x < gi + 5) o->w = x + 8; }           /* frame 0 */
+  void k_param(struct O *o, s16 x) { if (x < gi + 5) o->pos_x = x + 8; }              /* frame 0: a parameter */
+  ```
+
+  A `u8` local in the place of the `u16` gave frame 0 as well. In the
+  tree, `func_800169c4_slot27` has two such locals and the original's
+  frame of 0x30; with `int` in their place it builds with a frame of 0x20
+  and 12 bytes shorter. This is one ordinary reason for a frame that looks
+  unused, to check before the stand-in. It is not the reason for every
+  such frame: the eight functions of the module of slot `0x27` that carry
+  the stand-in were tried with it, about ten forms each, and none became
+  exact without the array. Four of the eight contain no branch at all.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

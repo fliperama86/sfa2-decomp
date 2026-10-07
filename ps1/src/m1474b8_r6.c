@@ -8,7 +8,7 @@ void func_80148d48(Object *object) {
     if ((s16)object->field_3a < 0) {
         object->field_04 = object->field_04 + 1;
     } else {
-        s32 *wobble = &data_8019045c;
+        s32 *wobble = (s32 *)data_8019045c;
 
         object->field_46 = object->field_46 + 1;
         *(s32 *)&object->field_14 = *(s32 *)&object->field_14 - object->field_50;
