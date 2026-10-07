@@ -118,8 +118,11 @@ python3 port/tools/libgap.py [--all] [--out FILE] [--archive FILE]
 ```
 
 It reads the published [library inventory](../ps1/inventory/README.md) and
-the source of PsyZ at the pin. No game file is read and nothing is built.
-The header of the script says how each status is decided. Its output on
+the source of PsyZ at the pin, which
+`git submodule update --init port/external/psyz` fetches; without it the
+script ends with status 2 and says which file it misses. No game file is
+read and nothing is built. The header of the script says how each status
+is decided. Its output on
 2026-10-07:
 
 ```
