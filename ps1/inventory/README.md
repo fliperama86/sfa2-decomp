@@ -12,6 +12,13 @@ the matching build rebuilds it.
   `families.py --out` and `--library-out`.
 - `modules.tsv`: every distinct content of a slot, in the columns of
   `pac.py functions --out`.
+- `contents.tsv`: for every content of `modules.tsv`, its first archive,
+  slot, number of archives and the archives that carry it. The map names a
+  block from it: the archive family, `END`, `CONT`, `CDEMO`, the stem
+  without its two-digit number; the stems themselves when three archives
+  or fewer carry the content, `PL11+PL13`; the first family and how many
+  others when more than two do, `BOSS+2`. The slot and the archive count
+  are in the block's tooltip.
 
 The repository's workflow draws the [coverage map](https://fliperama86.github.io/sfa2-decomp/)
 from these tables and `src/build.toml` on every push to `main`. Run `sweep`
