@@ -11,7 +11,9 @@ the matching build rebuilds it.
 - `game.tsv`, `library.tsv`: the resident executable, in the columns of
   `families.py --out` and `--library-out`.
 - `modules.tsv`: every distinct content of a slot, in the columns of
-  `pac.py functions --out`.
+  `pac.py functions --out`. `sweep` gives that command the build
+  configuration, so that a name of a module image is taken as a function
+  start in that image's content only.
 - `contents.tsv`: for every content of `modules.tsv`, its first archive,
   slot, number of archives and the archives that carry it. The map names a
   block from it: the archive family, `END`, `CONT`, `CDEMO`, the stem

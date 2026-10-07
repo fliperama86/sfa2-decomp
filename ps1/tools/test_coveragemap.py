@@ -9,6 +9,7 @@ from the tool.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 import re
@@ -441,6 +442,36 @@ def sweep_cases(root: Path):
     ), 0, "as required"
     proc = tool("sweep", exe_path, pac, "--out", root / "sweep-nop", "--config", families, "--families", families, "--symbols", symbols)
     yield "sweep-needs-pointers", proc, 1, "error: no --pointers given and the configuration has no [overlays] table_pointers\n"
+    # The sweep hands the configuration to the module inventory: a name that ends in the name of a
+    # module image is offered to that image's content only. B1 holds another content at the same
+    # address; its first function loads through `lui`/`lw` and opens its frame at the third word,
+    # where a name of the image `m0` (the content of A1) lies. The function stays whole.
+    first = struct.pack("<32I", *(plain * 8))
+    second = struct.pack("<34I", 0x3C028020, 0x8C420000, OPEN, ONE, RETURN, CLOSE, *(plain * 7))
+    owned = root / "pac-owned"
+    owned.mkdir()
+    (owned / "A1.PAC").write_bytes(make_archive([(0, first)]))
+    (owned / "B1.PAC").write_bytes(make_archive([(0, second)]))
+    owned_config = root / "sweep-owned.toml"
+    owned_config.write_text(
+        f"[overlays]\ntable_pointers = {pointers:#x}\n\n" + unit("g", [(START, 16)])
+        + image("m0", 0, "A1.PAC", XB).replace('sha256 = "00"', f'sha256 = "{hashlib.sha256(first).hexdigest()}"')
+        + unit("m", [(XB, 16)], image="m0")
+    )
+    names = root / "sweep-owned.ld"
+    names.write_text(f"data_{XB + 8:08x}_m0 = {XB + 8:#x};\n")
+    owned_out = root / "sweep-owned-out"
+    proc = tool("sweep", exe_path, owned, "--out", owned_out, "--config", owned_config, "--families", families, "--symbols", names,
+                "--library", f"{library:#x}", "--end", f"{end:#x}")
+    yield "sweep-owned-name-runs", proc, 0, f"inventory written to {owned_out}\n"
+    listed = (owned_out / "modules.tsv").read_text() if (owned_out / "modules.tsv").exists() else ""
+    yield "sweep-owned-name-other-content-whole", verdict(f"B1.PAC\t0x0\t{XB:08x}\t24\t" in listed, listed[:400]), 0, "as required"
+    names.write_text(f"data_{XB + 8:08x} = {XB + 8:#x};\n")
+    free_out = root / "sweep-free-out"
+    tool("sweep", exe_path, owned, "--out", free_out, "--config", owned_config, "--families", families, "--symbols", names,
+         "--library", f"{library:#x}", "--end", f"{end:#x}")
+    listed = (free_out / "modules.tsv").read_text() if (free_out / "modules.tsv").exists() else ""
+    yield "sweep-free-name-cuts", verdict(f"B1.PAC\t0x0\t{XB + 8:08x}\t16\t" in listed, listed[:400]), 0, "as required"
 
 
 def cases(root: Path):
