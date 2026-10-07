@@ -4136,11 +4136,10 @@ by a tool. Rounds do not edit it by hand.
 Lessons:
 
 - A header line without a parameter list is a hole in every check that
-  relies on the compiler. Three reviews in a row found a kind of
-  inconsistency that the declaration check did not look for, and each
-  time the kind had more instances than the review named: 31, then 14,
-  now 25. The check has grown a part each time. The 29 such lines of
-  `protos.h` are the next place to look, before a review does.
+  relies on the compiler. Twice now a review has named three instances
+  of a kind that the declaration check did not look for, and the widened
+  check then found 31 and 25. The 29 such lines of `protos.h` are the
+  next place to look, before a review does.
 - The second module of a kind is cheap: with the first one's units as
   examples and its lessons in the prompt, the first round gave 99 of 107
   and a merge without conflicts.
