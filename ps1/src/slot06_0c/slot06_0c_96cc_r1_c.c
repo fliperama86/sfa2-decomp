@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern ObjectFn data_801eab68_slot06_0c[];
-extern void (*data_801eab78_slot06_0c[])(Object *, u16);
+extern void (*data_801eab78_slot06_0c[])(Object *, int);
 extern void (*data_801eab84_slot06_0c[])(Object *, u16);
 extern u16 data_801eab98_slot06_0c[];
 extern SequenceStep *data_801ebc1c_slot06_0c[];
@@ -27,12 +27,12 @@ void func_801e999c_slot06_0c(Object *obj) {
 
 void func_801e99e4_slot06_0c(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        data_801eab78_slot06_0c[obj->field_05](obj, func_801ea234_slot06_0c(obj));
+        data_801eab78_slot06_0c[obj->field_05](obj, (u16)func_801ea234_slot06_0c(obj));
     }
     func_8011ffdc(obj);
 }
 
-void func_801e9a58_slot06_0c(Object *obj, u16 arg) {
+void func_801e9a58_slot06_0c(Object *obj, int arg) {
     u16 a = arg;
     if (a != 0 && ((s16)obj->field_3a & 0x8000)) {
         if (a >= 3) {
