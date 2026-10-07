@@ -34,7 +34,7 @@ void func_80137f70(Object *object) {
     object->field_80 = 1;
     object->field_06++;
     object->field_0b ^= 1;
-    func_801380f0();
+    func_801380f0(object);
     object->field_46 = (u8)object->field_46 | 0x200;
     if ((object->field_a0 & 0x80) == 0) {
         func_80138070(object, object->field_a0);
@@ -69,11 +69,11 @@ void func_80138070(Object *object, u8 index) {
     object->frame = object->frames + object->sequence->frame_index;
 }
 
-void func_801380f0(void) {
+void func_801380f0(Object *object) {
     if (player_left.kind == 9) {
-        func_80078e44();
+        func_80078e44(object);
     } else if (player_right.kind == 9) {
-        func_8008ef44();
+        func_8008ef44(object);
     }
 }
 

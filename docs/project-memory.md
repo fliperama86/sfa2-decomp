@@ -4005,18 +4005,43 @@ Findings:
   then emits the two next to each other. A fixture in the matching guide
   shows it. It decided one function here on the first try, and the parked
   function of `slot2a`, which has the same pair, has not had it yet.
-- A function of the resident image that takes no parameter is called
-  with the object by two functions of this module and without it by a
-  resident function, all three exact. The header keeps its one prototype
-  and the two calls go through a cast of the function, with a comment.
-  An agent had given the two units a declaration of their own and taken
-  the header out; that is what the rule in the guide now forbids by name.
+- A function of the resident image that was declared with no parameter
+  is called with the object by two functions of this module. An agent
+  gave the two units a declaration of their own and took the header out;
+  the first version of this change kept the header and wrote the two
+  calls through a cast, with a comment that a port should call without
+  the argument. Review showed that both were wrong about the code: the
+  function forwards to the module's entry at this address, which the
+  build now owns and which uses the object. The chain has one parameter
+  list now: the function takes the object and passes it on, its resident
+  caller passes it, and the two calls are ordinary calls. Every unit is
+  still exact, the resident caller included, which had been assumed and
+  not measured to need no argument.
 - `protos.h` itself has 29 declarations without a prototype. They are
   part of the resident backlog that the declaration check counts and does
   not touch.
 
+What review of the pull request found, besides the chain above: the
+guide's paragraph on two stores said that such a pair "did not stand
+together in the source". The fixture is right and the conclusion is not
+proven: a `volatile` struct keeps both adjacent stores. The paragraph
+now calls the move a heuristic, as the paragraph on statement order
+does since the review before.
+
 Lessons:
 
+- Before writing that a callee "takes no parameter", read what it does
+  with the argument register, and where it goes from there. Here it
+  jumps on to a function that reads it, and that function had become
+  part of the tree in the same change.
+- "The other caller would need another instruction" was an argument, not
+  a measurement. One rebuild of that caller would have shown that it is
+  exact with the argument. Measure the alternative before building an
+  exception around it.
+- The second time in two reviews that a fixture's result was written up
+  as a statement about the original source. A fixture shows what this
+  compiler does with one input. Write "compatible with" and "a heuristic
+  that worked N times", and never "the source had".
 - The three changes to the prompt were each one sentence of a lesson of
   the last module round, and each paid at once: fewer conflicts, no
   untried forms left for the second attempt to find, record names that

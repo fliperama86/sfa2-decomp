@@ -66,13 +66,6 @@ exact, and only that shows what a changed header does to other units.
   If your code needs another parameter list or return type for a function
   than the header gives, leave `protos.h` out of that unit, declare what the
   unit needs, and say so in the report. The disagreement is a finding.
-- A call that passes an argument to a function whose definition takes
-  none, where another exact caller passes nothing: keep the one prototype
-  and write the call through a cast of the function,
-  `((void (*)(Object *))func_801380f0)(o);`, with a comment that says the
-  callee takes no parameter and that such a call is not defined in
-  portable C. Do not give the unit a declaration of its own that
-  contradicts the header.
 - Data externs that every unit declares the same way come from the shared
   header `externs.h`, included after `game.h` like `protos.h`. Declare in
   your own `.c` file only what it does not have. A symbol that you need
@@ -257,7 +250,8 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   Trying another order is a heuristic that worked twice. An exact build
   with one order shows that this order is compatible with the original's
   bytes, not that the original source had it.
-- Two stores to one field. Confirmed on a small fixture:
+- Two stores to one field. One fixture, and what it does and does not
+  show:
 
   ```c
   struct S { int a; int b; };
@@ -266,11 +260,14 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   ```
 
   In `between` the compiler emits the store to `b` first and the two
-  stores to `a` after it, next to each other. So two stores to one field
-  that stand together in a listing did not stand together in the source:
-  something stood between them. One function of the module of slot `0x0`
-  was 4 bytes short until a store to another field stood between the two
-  in its source.
+  stores to `a` after it, next to each other. So a pair of stores to one
+  field in a listing is compatible with a source in which another store
+  stood between them. It does not prove that one did: with a `volatile`
+  struct the compiler keeps both stores of `adjacent` as well, and other
+  types or forms may do the same. Moving a store to another field between
+  the two is a heuristic to try when a build has one store where the
+  original has two. It made one function of the module of slot `0x0`
+  exact; what the original source had there is not known.
 - A narrow parameter whose callers pass the argument as it is, without the
   mask or the extension that a prototype with the narrow type makes them
   emit, is an `int` parameter copied into a narrow local:
