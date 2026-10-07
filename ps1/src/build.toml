@@ -28443,3 +28443,51 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801b0ce4_slot04_0a", address = 0x801b0ce4, size = 36 },
 ]
+
+[[unit]]
+name = "d4c4a8_r2"
+source = "d4c4a8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153d7c", address = 0x80153d7c, size = 128 },
+]
+
+[[unit]]
+name = "d58f1c_r2"
+source = "d58f1c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b08c", address = 0x8014b08c, size = 88 },
+]
+
+[[unit]]
+name = "d58fe8_r2"
+source = "d58fe8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015fd24", address = 0x8015fd24, size = 192 },
+]
+
+[[unit]]
+name = "d25684_r1"
+source = "d25684_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125684", address = 0x80125684, size = 168 },
+]
+
+[[unit]]
+name = "d25684_r2"
+source = "d25684_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015057c", address = 0x8015057c, size = 188 },
+]
+
+[[unit]]
+name = "d4a94c_r2"
+source = "d4a94c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013172c", address = 0x8013172c, size = 296 },
+]

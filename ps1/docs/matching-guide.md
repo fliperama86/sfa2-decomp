@@ -595,8 +595,9 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   pointer, which the rules do not allow; the indexed form names the
   field.
 - Forms found by reading the compiler's pass dumps (see "When stuck"), in
-  third attempts on 73 functions that two rounds had parked; 16 became
-  exact. Each is given by the report of the attempt that found it, on
+  third attempts on 73 module functions that two rounds had parked, of
+  which 16 became exact, and then on the 78 parked functions of the
+  resident image, of which 6 did. Each is given by the report of the attempt that found it, on
   the function named, and was not measured again apart from that
   attempt's own exact build. What a pass "does" below is what its dump
   showed for that build, not a rule proved beyond it.
@@ -653,6 +654,22 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   - Three saved registers in another order: a store written in both arms
     of a test gave the value more uses, and the order of byte stores and
     of two assignments did the rest (`func_800124fc_slot12`).
+  - Dead loads and a branch on a register that was just set to zero,
+    with the never-reached arm present in the original
+    (`func_80125684`): a test of bits that the local's type cannot have,
+    `u16 w; ... if ((w >> 16) == 0) { ... } else { ... }`. The first
+    passes cannot fold it; the pass that joins instructions does, after
+    the branches and the loads are laid out. The function's comment says
+    what the original does there and that its source is not known. A
+    flag set to the same constant in both arms gives the same bytes and
+    is a dummy: not allowed.
+  - Two values that tie in the allocation order: a `return` of the value
+    inside the loop instead of `break` gave it one more use
+    (`func_8015fd24`). A loop pointer and a table pointer in one
+    register: the loop written with an index (`t->buf[i] = src[i];`)
+    instead of `*src++` (`func_80153d7c`). A value in a temporary where
+    the original has an argument register, again: the callee declared
+    with the parameter it is passed (`func_8015057c`).
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

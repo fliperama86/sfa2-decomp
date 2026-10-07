@@ -5154,3 +5154,63 @@ Open:
   not tried.
 - The 69 parked functions of the resident image have not had this
   method yet. They are next.
+
+## Seventy-fourth group: the pass dumps on the resident image, and one correction by the owner
+
+The method of the group before, on the parked functions of the resident
+image: 78 functions with a candidate, in 39 pairs, one agent for each
+pair, smallest first.
+
+Counts:
+
+- 6 are exact: `func_80125684`, `func_8013172c`, `func_8014b08c`,
+  `func_8015057c` and `func_80153d7c` of the game and `func_8015fd24` of
+  the library. The resident image has 1,760 exact functions, 1,707 from C
+  (289,684 bytes); 315,424 payload bytes are retained raw. 64 game
+  functions are parked. Over everything the map counts 3,798 of 5,600
+  distinct functions as exact.
+- The inventory of the sweep was regenerated with its tool: six rows have
+  a name now (five in `game.tsv`, one in `library.tsv`). No boundary
+  changed.
+
+What the dumps showed here:
+
+- The yield is lower than on the modules (6 of 78 against 16 of 73).
+  These functions had had more attempts, and a search. For most of them
+  the report names the pass and the two values whose order would have to
+  flip, with their use counts, and says that no form flips it.
+- A family in the library, around `0x80158d28` to `0x80158fec`: each
+  reads one global as `lui`, `addiu`, then a load at offset 0, where the
+  build folds the address into the load because the address has one use.
+  Only a `volatile` read gave the original's three instructions. They
+  join the cases that wait for the ruling on `volatile`, which this
+  memory lists under the open questions.
+- Three library functions around `0x8015764c` to `0x80157784` load small
+  constants with `addiu` from `zero` where this toolchain writes `ori`,
+  and one indexes a symbol with another expansion than the assembler
+  emulation produces here. No other function of the image has either.
+  Inferred, not known: those were built by another assembler or compiler
+  setting. Not followed further.
+- `func_80125684` has a test that can never be true in the original's
+  code, with the code of its arm and two loads that nothing uses. An
+  agent reproduced it with a flag set to the same constant in both arms,
+  which is a dummy. The top-level review replaced it by a test of the
+  high half of a 16-bit local, which reads as ordinary code, is exact,
+  and has a comment that says what the original does there and that its
+  source is not known.
+
+A correction by the owner, on the pull request of the module of slot
+0x27 (2026-10-07):
+
+- `func_8011ea68` had been given a parameter named `unused`, with a
+  comment that it is declared because its caller sets the register. But
+  the function calls `func_8015a560`, whose definition takes a pointer
+  and stores it, and the unit declared that callee `void(void)`: the
+  value was passed on through the register all along. The owner asked
+  for the callee's real prototype and an explicit forward of the
+  parameter, with the comment saying that. The unit is exact so.
+- The lesson for every "unused parameter" of this kind: before calling a
+  parameter unused, look at what the function calls before it sets the
+  argument register again. A callee that takes an argument there receives
+  the parameter, and the source should say so. A local declaration that
+  disagrees with the callee's published definition hid it here.

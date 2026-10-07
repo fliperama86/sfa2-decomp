@@ -234,7 +234,7 @@
 80125454	24	func_80125454	-	-	0	0	closed
 8012546c	136	func_8012546c	-	-	1	0	open
 801254f4	400	-	-	-	0	0	closed
-80125684	168	-	-	-	0	0	closed
+80125684	168	func_80125684	-	-	0	0	closed
 8012572c	8	func_8012572c	-	-	0	0	closed
 80125734	148	func_80125734	-	-	0	0	closed
 801257c8	8	func_801257c8	-	-	0	0	closed
@@ -546,7 +546,7 @@
 80131468	180	func_80131468	-	-	0	0	open
 8013151c	284	func_8013151c	-	-	0	0	closed
 80131638	244	func_80131638	-	-	0	0	open
-8013172c	296	-	-	-	0	0	closed
+8013172c	296	func_8013172c	-	-	0	0	closed
 80131854	608	func_80131854	-	-	0	0	closed
 80131ab4	456	-	-	-	0	0	closed
 80131c7c	236	func_80131c7c	-	-	0	0	closed
@@ -1140,7 +1140,7 @@
 8014aecc	132	func_8014aecc	-	-	0	0	open
 8014af50	132	func_8014af50	-	-	0	0	open
 8014afd4	184	func_8014afd4	-	-	0	0	open
-8014b08c	88	-	-	-	0	0	closed
+8014b08c	88	func_8014b08c	-	-	0	0	closed
 8014b0e4	88	func_8014b0e4	-	-	0	0	closed
 8014b13c	160	func_8014b13c	-	-	0	0	open
 8014b1dc	160	func_8014b1dc	-	-	0	0	open
@@ -1297,7 +1297,7 @@
 801503f8	104	func_801503f8	graphics	graphics	0	0	closed
 80150460	92	func_80150460	graphics	graphics	0	0	closed
 801504bc	192	func_801504bc	sound	sound	0	0	closed
-8015057c	188	-	sound	sound	0	0	closed
+8015057c	188	func_8015057c	sound	sound	0	0	closed
 80150638	288	func_80150638	disc	disc	0	0	closed
 80150758	132	func_80150758	-	disc	1	0	open
 801507dc	12	func_801507dc	-	-	0	0	closed
@@ -1383,7 +1383,7 @@
 80153c90	20	func_80153c90	-	-	0	0	closed
 80153ca4	8	func_80153ca4	-	-	0	0	closed
 80153cac	208	func_80153cac	-	-	0	0	closed
-80153d7c	128	-	-	-	0	0	closed
+80153d7c	128	func_80153d7c	-	-	0	0	closed
 80153dfc	220	func_80153dfc	-	-	0	0	closed
 80153ed8	52	func_80153ed8	-	-	0	0	closed
 80153f0c	124	func_80153f0c	-	-	0	0	closed
