@@ -4276,6 +4276,37 @@ Lessons:
   its whole time box. Say in the message that the hint is a guess and
   what would show it wrong, so that the agent drops it early.
 
+## The module sweep offered every name to every module (2026-10-06)
+
+Found while a seventh module was being prepared: the names of that module,
+added to a private copy of the tree, moved a function boundary in the
+inventory of another module that is loaded at the same address.
+`pac.py functions` offered every address of `symbols.ld` to every module
+whose range holds it, and took it as a function start wherever the words
+there begin like a function with a frame. A data name of one module can
+lie on the word where a function of another opens its frame some words
+after its start, and the sweep then cut that function.
+
+One row of the published inventory was wrong for that reason since the
+names of the module of slot `0x0` entered the tree: the function of the
+module of slot `0x2b` at `0x80079144`, 196 bytes, stood there as 176 bytes
+from `0x80079158`. The matching build was not affected: it takes its
+ranges from the configuration, not from the inventory.
+
+The rule now: a name that ends in `_<image>` for a module image of the
+build configuration belongs to that image's content (the chunk of its slot
+with its hash) and is offered to it alone; any other name is offered as
+before. `pac.py functions` and `pac.py unlisted` read the images from
+`--config`, and `coveragemap.py sweep` hands its configuration on.
+Controls: fourteen cases in `test_disc_tools.py` for the rule and three in
+`test_coveragemap.py` for the hand-over. The numbers of the "Counts"
+section of the overlay page were printed again with the rule; two of its
+rows had also gone stale through names added in earlier rounds.
+
+Lesson: an address in a module is not a name's whole identity where
+several modules share the address. Whoever adds names for a module that
+shares its address with others runs the sweep before publishing and looks
+at every row that moved, in whichever module it lies.
 ## Sixty-seventh group: the first stage module, slot 0x6 of STAGE00.PAC
 
 By the owner's decision of 2026-10-06 two sessions work at the same time,

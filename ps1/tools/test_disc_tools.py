@@ -445,6 +445,48 @@ def function_cases(root: Path):
     yield "functions-symbol-per-module", both, 0, "all slots: 23 functions, 456 bytes"
     yield "functions-symbol-per-module-count", both, 0, "2 cases; taken as a function start there: 1"
 
+    # A name that ends in the name of a module image belongs to that image's content and is offered to
+    # no other. Word 58 opens a frame in both contents: in F a function starts there, in E it is the
+    # third word of one, which a symbol there cuts by 8 bytes (see functions-symbol-at-frame).
+    def owned(label: str, name: str, body: bytes, slot: int = 4) -> tuple[Path, Path]:
+        config = root / f"{label}.toml"
+        config.write_text(f'[[image]]\nname = "imgf"\nslot = {slot}\nsha256 = "{hashlib.sha256(body).hexdigest()}"\n')
+        names = root / f"{label}-names.ld"
+        names.write_text(f"{name} = {first + 4 * 58:#x};\n")
+        return names, config
+
+    names, config = owned("owned-f", "data_x_imgf", pair)
+    run = functions(two, "--symbols", names, "--config", config)
+    yield "functions-owned-name-other-content-whole", run, 0, "all slots: 23 functions, 464 bytes"
+    yield "functions-owned-name-count", run, 0, "1 cases; taken as a function start there: 1"
+    run = functions(two, "--symbols", names)
+    yield "functions-owned-name-without-config", run, 0, "all slots: 23 functions, 448 bytes"
+    yield "functions-owned-name-without-config-count", run, 0, "2 cases; taken as a function start there: 2"
+    names, config = owned("owned-e", "data_x_imgf", glued)
+    run = functions(two, "--symbols", names, "--config", config)
+    yield "functions-owned-name-own-content-cut", run, 0, "all slots: 23 functions, 448 bytes"
+    yield "functions-owned-name-own-content-count", run, 0, "1 cases; taken as a function start there: 1"
+    # The suffix is the image's name after an underscore: another suffix, or the name without the
+    # underscore, belongs to nothing and is offered to both contents.
+    for label, name in (("other-suffix", "data_x_imgg"), ("no-underscore", "ximgf")):
+        names, config = owned(f"owned-{label}", name, pair)
+        run = functions(two, "--symbols", names, "--config", config)
+        yield f"functions-owned-{label}", run, 0, "all slots: 23 functions, 448 bytes"
+        yield f"functions-owned-{label}-count", run, 0, "2 cases; taken as a function start there: 2"
+    # The content is the chunk of the image's slot with the image's hash: the same bytes declared for
+    # another slot are another content, and the name is offered to none.
+    names, config = owned("owned-other-slot", "data_x_imgf", pair, slot=5)
+    run = functions(two, "--symbols", names, "--config", config)
+    yield "functions-owned-name-other-slot", run, 0, "all slots: 23 functions, 464 bytes"
+    yield "functions-owned-name-other-slot-count", run, 0, "0 cases; taken as a function start there: 0"
+
+    # Two images whose names both end the symbol's name: the longer name is the image's.
+    names, config = owned("owned-longer", "data_x_imgf", pair)
+    config.write_text(config.read_text() + f'\n[[image]]\nname = "x_imgf"\nslot = 4\nsha256 = "{hashlib.sha256(glued).hexdigest()}"\n')
+    run = functions(two, "--symbols", names, "--config", config)
+    yield "functions-owned-longer-name", run, 0, "all slots: 23 functions, 448 bytes"
+    yield "functions-owned-longer-name-count", run, 0, "1 cases; taken as a function start there: 1"
+
     # A symbol below the module is not a case.
     below = functions(entry, "--symbols", symbols("below", first - 8))
     yield "functions-symbol-below-the-module", below, 0, "0 cases; taken as a function start there: 0"
