@@ -487,6 +487,59 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   `u32 *` to reach a plain global, and a store to a field of a struct
   through a pointer not to. The store through the cast is in the form
   the rules ask for: the field is named and its address is cast.
+- Forms from the first-side blocks of twelve character files, each by
+  the report of the batch that found it and on the function named; none
+  was measured again apart from the batch's own exact build. They are
+  heuristics to try in this order when the instructions are right and a
+  register or the place of a load or store is not:
+  - A constant that is stored in both arms of an `if`/`else` is written
+    as a store in each arm (`if (f != 0) obj->field_165 = 1; else
+    obj->field_165 = 0xff;`), not through a local
+    (`func_801b2db8_slot04_02` and a dozen more).
+  - The operands of a compare stand in the order of the listing's `slt`
+    and of its two loads: `obj->field_70 > obj->pos_y` and
+    `obj->pos_y < obj->field_70` build differently
+    (`func_801b079c_slot04_03`, 11 slots by the report).
+  - A state byte that is advanced is `obj->field_07++;`, and its place
+    among the statements decides the order of the loads around it
+    (`func_801b1ecc_slot04_08`); a byte counter is `field--`.
+  - A half that is decremented where the listing has `addiu` with a
+    negative constant: `obj->field_46 = (s16)obj->field_46 - 0x100;`
+    (`func_801b34fc_slot04_02`); a store of -1 to an unsigned half goes
+    through the signed view, `*(s16 *)&obj->field_46 = -1;`
+    (`func_801b04e8_slot04_03`).
+  - A value that is negated in one arm: load it into a local first and
+    store in each arm (`func_801b1870_slot04_01`).
+  - Tests of one value against several constants as a `switch`
+    (`func_801b2bac_slot04_05` and two neighbours): by the report the
+    switch also gave the 8 bytes of frame that the code does not use, so
+    it is one more ordinary reason to look for before the stand-in.
+  - A function that returns a count is `int` with `r++`; a `u8` local
+    adds a mask (`func_801b0ef8_slot04_00`).
+- A function whose caller tests a result that the function never sets.
+  Seven functions of those blocks end in a call and return nothing
+  themselves, and a dispatcher tests the result register after calling
+  them (`if (check(obj) && handler(obj)) return;`). The callee's last
+  call is declared `void`, so `return call(obj);` cannot be written. They
+  are defined `int` without a `return` statement, each with the comment
+  `/* Declared int although it returns nothing itself: the caller tests
+  the result register as the last call left it. */` directly above. This
+  is about what the original does, not portable C: a port has to decide
+  what these functions return.
+- Tables whose entries read a second argument that the dispatcher does
+  not set. In five dispatch tables of those blocks some entries take
+  `(Object *obj, Object *p)` and read `p`, and the function that calls
+  through the table does not set the second argument register: the
+  entries read what the dispatcher's own caller left there. The table is
+  declared with two parameters, entries that do not read the second take
+  it unused, and the dispatcher takes a second parameter and passes it
+  on, which costs no instruction. Four dispatchers are exact so. The
+  fifth, `func_801b48d8_slot04_08`, differs in 5 instruction slots with
+  the parameter and is written with one parameter and a call through a
+  cast of the table entry, with the comment that the rule for such calls
+  asks for. Where the top of such a chain is reached from outside the
+  module, a comment on the top function says that what its caller passes
+  is not known from the module.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

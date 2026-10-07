@@ -5,7 +5,7 @@
 
 
 u8 func_80130184(Object *object);
-u8 func_8013cac8(Object *object, int a, int b);
+int func_8013cac8(Object *object, int a, int b);
 int func_80141c4c(Object *object);
 
 void func_8012dbd4(Object *object) {
@@ -61,7 +61,7 @@ void func_8012dd00(Object *object) {
 
 void func_8012dd5c(Object *object) {
     if (object->field_260 == 0) {
-        if (func_8013cac8(object, 0xf, 0xd) == 0) {
+        if ((u8)func_8013cac8(object, 0xf, 0xd) == 0) {
             func_8012dde4(object);
         } else if (func_80141c4c(object) != 0) {
             object->field_04 = 1;
@@ -75,7 +75,7 @@ void func_8012dd5c(Object *object) {
 }
 
 void func_8012dde4(Object *object) {
-    if (object->kind == 6 && func_8013cac8(object, 0xe, 8) != 0 && func_80141c4c(object) != 0) {
+    if (object->kind == 6 && (u8)func_8013cac8(object, 0xe, 8) != 0 && func_80141c4c(object) != 0) {
         object->field_04 = 1;
         object->field_05 = 8;
         object->field_06 = 0;

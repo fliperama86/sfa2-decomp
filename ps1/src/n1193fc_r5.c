@@ -15,7 +15,8 @@ void func_8011f09c(void) {
     game_state.field_05 = 0;
 }
 
-Object *func_8011f0e8(void) {
+/* The parameter is unused here. It is declared because calls found so far, in character files of slot 0x4, set the first argument register in the delay slot of the call; that is compatible with a parameter and does not prove one. */
+Object *func_8011f0e8(Object *unused) {
     Object *o;
     Object *result;
     int n = data_801a6960;

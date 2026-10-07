@@ -45,8 +45,9 @@ u8 func_80146864(Object *object) {
     return func_80146e3c(object, 1);
 }
 
-u8 func_80146888(Object *object) {
-    return func_80146e3c(object, 2);
+int func_80146888(Object *object) {
+    u8 r = func_80146e3c(object, 2);
+    return r;
 }
 
 u8 func_801468ac(Object *object) {
@@ -57,16 +58,18 @@ u8 func_801468d0(Object *object) {
     return func_80146e3c(object, 5);
 }
 
-u8 func_801468f4(Object *object) {
-    return func_80146ba0(object, 2);
+int func_801468f4(Object *object) {
+    u8 r = func_80146ba0(object, 2);
+    return r;
 }
 
 u8 func_80146918(Object *object) {
     return func_80146ba0(object, 4);
 }
 
-u8 func_8014693c(Object *object) {
-    return func_80146ba0(object, 5);
+int func_8014693c(Object *object) {
+    u8 r = func_80146ba0(object, 5);
+    return r;
 }
 
 void func_80146960(Object *object) {
