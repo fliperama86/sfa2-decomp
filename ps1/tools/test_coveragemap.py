@@ -43,8 +43,10 @@ def library_row(address: int, size: int, family: str) -> str:
     return f"{address:08x}\t{size}\t-\t{family}\t0\tfolder\n"
 
 
-def module_row(archive: str, slot: int, address: int, size: int) -> str:
-    return f"{archive}\t{slot:#x}\t{address:08x}\t{size}\t0123456789abcdef\n"
+def module_row(archive: str, slot: int, address: int, size: int, form: str | None = None) -> str:
+    """A row of `pac.py functions`. The address-blind form defaults to the low address bits and the size,
+    so that the same code linked at another address shares it, as a second link does."""
+    return f"{archive}\t{slot:#x}\t{address:08x}\t{size}\t{form or f'{address & 0xFFFF:04x}-{size}'}\n"
 
 
 def inventory(root: Path, name: str, game: str = "", library: str = "", modules: str = "") -> Path:
@@ -89,10 +91,11 @@ def main_cases(root: Path):
     """A resident executable of two areas and modules of four contents, one of them a second link."""
     game = "".join(game_row(START + 32 * k, 32) for k in range(5))
     library = library_row(0x80011000, 16, "sound") + library_row(0x80011010, 16, "sound") + library_row(0x80011020, 16, "disc")
-    modules = "".join(module_row("PL00.PAC", 4, 0x801B0000 + 32 * k, 32) for k in range(3))
-    modules += "".join(module_row("PL01.PAC", 4, 0x801B0000 + 32 * k, 32) for k in range(2))
-    modules += module_row("CONT00.PAC", 0x12, 0x80010000, 64) + module_row("CONT00.PAC", 0x12, 0x80010040, 32)
-    modules += module_row("CONT00X.PAC", 0x13, 0x80020000, 64) + module_row("CONT00X.PAC", 0x13, 0x80020040, 32)
+    # Forms: PL01 shares its first function with PL00; the second link shares both of its base's.
+    modules = "".join(module_row("PL00.PAC", 4, 0x801B0000 + 32 * k, 32, form) for k, form in enumerate("abc"))
+    modules += "".join(module_row("PL01.PAC", 4, 0x801B0000 + 32 * k, 32, form) for k, form in enumerate("ad"))
+    modules += module_row("CONT00.PAC", 0x12, 0x80010000, 64, "e") + module_row("CONT00.PAC", 0x12, 0x80010040, 32, "f")
+    modules += module_row("CONT00X.PAC", 0x13, 0x80020000, 64, "e") + module_row("CONT00X.PAC", 0x13, 0x80020040, 32, "f")
     directory = inventory(root, "main", game, library, modules)
     config = (
         unit("a", [(START, 32), (START + 96, 32)])
@@ -112,6 +115,18 @@ def main_cases(root: Path):
         "modules: 3/9 function placements exact (33.3%), 3 from C, 0 from assembly; 160/352 code bytes (45.5%); the build declares 3 functions, 160 bytes\n"
     )
     yield "main-no-overrun", verdict("overrun" not in proc.stdout, proc.stdout), 0, "as required"
+    # Distinct: 8 resident functions once each; module forms a..f, of which d (PL01) and e (0x12 and its second link) are exact.
+    yield "main-overall-line", proc, 0, "overall: 6/14 distinct functions exact (42.9%); 7/17 placements (41.2%); 272/560 code bytes (48.6%)\n"
+    yield "main-json-overall", verdict(
+        data["overall"] == {"distinct_exact": 6, "distinct_total": 14, "percent": 42.9, "placements_exact": 7, "placements_total": 17,
+                            "placements_percent": 41.2, "bytes_exact": 272, "bytes_total": 560, "bytes_percent": 48.6},
+        json.dumps(data["overall"]),
+    ), 0, "as required"
+    yield "main-json-distinct-per-panel", verdict(
+        (data["panels"]["resident"]["distinct_total"], data["panels"]["resident"]["distinct_exact"],
+         data["panels"]["modules"]["distinct_total"], data["panels"]["modules"]["distinct_exact"]) == (8, 4, 6, 2),
+        json.dumps(data["panels"]["modules"]),
+    ), 0, "as required"
     resident, modules_ = data["panels"]["resident"], data["panels"]["modules"]
     yield "main-json-resident", verdict(
         (resident["total"], resident["exact"], resident["exact_c"], resident["exact_asm"], resident["partial"], resident["percent"]) == (8, 4, 3, 1, 0, 50.0)
@@ -139,6 +154,8 @@ def main_cases(root: Path):
         json.dumps(mblocks),
     ), 0, "as required"
     wanted = [
+        "Overall: 42.9% of distinct functions (6/14)",
+        "resident functions once each, module functions once per address-blind form · 41.2% of all placements (7/17) · 48.6% of the code bytes",
         "Resident executable: 50.0% (4/8)", "functions · 3 from C, 1 from assembly · 53.8% of the code bytes",
         "Overlay modules: 33.3% (3/9)", "function placements · 2 from source, 1 linked a second time · 45.5% of the code bytes",
         "<title>game code: 3/5 (60.0%)</title>", "<title>library: sound: 1/2 (50.0%)</title>", "<title>library: disc: 0/1 (0.0%)</title>",
@@ -164,6 +181,8 @@ def main_cases(root: Path):
     text = html.read_text() if html.exists() else ""
     yield "page-written", proc, 0, "resident: 4/8 functions exact"
     for item in [
+        "<h2>Overall: 42.9% of distinct functions (6/14)</h2>", "<tr><td>distinct functions</td><td>6</td><td>14</td><td>42.9</td></tr>",
+        "<tr><td>function placements</td><td>7</td><td>17</td><td>41.2</td></tr>", "<tr><td>code bytes</td><td>272</td><td>560</td><td>48.6</td></tr>",
         "<h2>Resident executable: 50.0% (4/8)</h2>", "<h2>Overlay modules: 33.3% (3/9)</h2>",
         "<tr><td>game code</td><td>3</td><td>5</td><td>60.0</td></tr>",
         "<tr><td>slot 0x13, CONT00X.PAC</td><td>1</td><td>2</td><td>50.0</td><td>slot13, second link</td></tr>",
@@ -237,6 +256,8 @@ def boundary_cases(root: Path):
     proc, data, _ = render(root, "like", directory, config)
     yield "like-shifted", proc, 0, "modules: 2/3 function placements exact (66.7%), 2 from C, 0 from assembly; 32/48 code bytes (66.7%); the build declares 2 functions, 32 bytes\n"
     yield "like-second-links", verdict(data["panels"]["modules"]["second_links"] == 1, json.dumps(data)), 0, "as required"
+    # The second link's placements share their forms with the base: two forms, one of them exact.
+    yield "like-distinct", proc, 0, "overall: 1/2 distinct functions exact (50.0%); 2/3 placements (66.7%); 32/48 code bytes (66.7%)\n"
 
 
 def refusal_cases(root: Path):
@@ -261,6 +282,9 @@ def refusal_cases(root: Path):
     short = inventory(root, "short", game="80010000\t32\n")
     proc, _, _ = render(root, "short", short, "")
     yield "short-row", proc, 1, "game.tsv:1: expected at least 3 columns, found 2\n"
+    short = inventory(root, "short-module", modules="A.PAC\t0x1\t80020000\t32\n")
+    proc, _, _ = render(root, "short-module", short, "")
+    yield "short-module-row", proc, 1, "modules.tsv:1: expected at least 5 columns, found 4\n"
     proc = tool("render", directory, "--config", root / "nothing.toml", "--svg", root / "n.svg", "--json", root / "n.json")
     yield "no-config", proc, 1, "error: cannot read"
     proc = tool("sweep", root / "no.exe", root / "nopac", "--out", root / "sweep-fail", "--config", root / "stale.toml",

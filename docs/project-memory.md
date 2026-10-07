@@ -4100,6 +4100,14 @@ the completion map embed the published picture. `sweep` is the one manual
 step left, needed when a boundary moves; `render` fails the check on a stale
 inventory.
 
+Asked how to know the overall completion, the answer was that there was no
+one number by design; the owner chose to add one. The bar above the panels
+gives the share of distinct functions: resident functions once each, module
+functions once per address-blind form (the hash of `pac.py functions`), a
+form exact when any placement of it is. At that time 2,057 of 5,601, 36.7
+percent, against 17.3 percent of placements and 19.5 percent of code bytes.
+It is the measure of source left to write; the other two stand beside it.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -14,7 +14,13 @@ Target and completion contract: [plan](../PLAN.md), [requirements](requirements.
 
 One square per function that the static sweep lists, in address order: green
 where a C unit of the matching build owns its bytes, blue where an assembly
-unit does, grey where no unit does. The left panel is the resident
+unit does, grey where no unit does. The bar at the top is the one
+whole-program share: distinct functions, each function of the resident
+executable once and each function of the modules once per address-blind
+form, the hash of the [module inventory](../ps1/docs/overlays.md#counts),
+so that code the character modules share is counted once; a form is exact
+when any placement of it is. The share of all placements and of all code
+bytes stand beside it. The left panel is the resident
 executable, the game code in one block and the Sony library by
 [family](../ps1/docs/library-families.md). The right panel is the overlay
 modules, one block per distinct content of a slot, labelled by slot where the
@@ -56,8 +62,9 @@ Windows research: tested nonmatching reference, outside PS1 completion
 Ports, other revisions and rebuilt-disc packaging: separate scope
 ```
 
-These are separate measures, not one whole-game completion percentage.
-Function boundaries and the game/library split are static estimates. Overlay
+These are separate measures. The one whole-program share is the picture's
+bar, distinct functions, and it is a share of the sweep's estimate, not of
+the game. Function boundaries and the game/library split are static estimates. Overlay
 counts include placements of shared code at different addresses, not that
 many unique source functions. See the [inventory method](../ps1/docs/overlays.md)
 and [family analysis](../ps1/docs/library-families.md).

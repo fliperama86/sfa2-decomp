@@ -14,6 +14,12 @@ Two measures, kept apart as the completion map keeps them: the resident
 executable counts functions, the modules count function placements. A
 content that the build declares as a second link of another image, `like`
 in the build configuration, counts its placements again and is marked so.
+Above the two panels one bar gives the overall share of distinct functions:
+each function of the resident executable once, and each function of the
+modules once per address-blind form, the hash that `pac.py functions`
+writes, so that code the character modules share is counted once. A form is
+exact when any placement of it is. The share of all placements and of all
+code bytes stand beside it.
 
 What the sweep lists is an estimate (see the overlay map). The build is the
 authority on bytes: a swept function is exact when every byte of it is
@@ -68,7 +74,7 @@ C, ASM, DATA, NONE, PARTIAL = "c", "asm", "data", "none", "partial"
 EXACT = (C, ASM)
 
 WIDTH, GAP, PANEL_WIDTHS = 1000, 10, (380, 610)
-HEADER, MAP_HEIGHT, LEGEND = 44, 300, 24
+TOP, HEADER, MAP_HEIGHT, LEGEND = 50, 44, 300, 24
 COLORS = {C: "#2ea043", ASM: "#388bfd", NONE: "#6e7681", PARTIAL: "#bb8009"}
 SECOND_COLORS = {C: "#1a6b2f", ASM: "#1f5fb0"}  # exact, but a second link of the same objects
 LEGEND_TEXT = {C: "exact from C", ASM: "exact from assembly", "second": "exact, linked a second time",
@@ -85,6 +91,7 @@ class Problem(Exception):
 class Swept:
     address: int
     size: int
+    form: str = ""  # the address-blind hash of a module function; empty for the resident executable
     state: str = NONE
 
 
@@ -111,6 +118,8 @@ class Panel:
     bytes_exact: int = 0
     declared_functions: int = 0
     declared_bytes: int = 0
+    distinct_total: int = 0
+    distinct_exact: int = 0
     overruns: list[tuple[str, int, int, int]] = field(default_factory=list)  # block key, address, size, overrun bytes
 
     @property
@@ -196,8 +205,8 @@ def read_resident(directory: Path) -> list[Block]:
 def read_modules(directory: Path) -> list[Block]:
     """One block per distinct content of a slot, keyed by slot and first archive."""
     contents: dict[tuple[int, str], list[Swept]] = {}
-    for r in read_rows(directory / "modules.tsv", 4):
-        contents.setdefault((int(r[1], 16), r[0]), []).append(Swept(int(r[2], 16), int(r[3])))
+    for r in read_rows(directory / "modules.tsv", 5):
+        contents.setdefault((int(r[1], 16), r[0]), []).append(Swept(int(r[2], 16), int(r[3]), r[4]))
     per_slot: dict[int, int] = {}
     for slot, _ in contents:
         per_slot[slot] = per_slot.get(slot, 0) + 1
@@ -314,6 +323,32 @@ def classify(panel: Panel, owned: dict[str, Owner], image_of: dict[str, str | No
         functions, size = owner.declared()
         panel.declared_functions += functions
         panel.declared_bytes += size
+    forms: dict[object, bool] = {}
+    for block in panel.blocks:
+        for function in block.functions:
+            key = function.form or (block.key, function.address)
+            forms[key] = forms.get(key, False) or function.state in EXACT
+    panel.distinct_total, panel.distinct_exact = len(forms), sum(forms.values())
+
+
+def overall(panels: list[Panel]) -> dict:
+    """The three whole-program shares: distinct functions, placements, code bytes."""
+    distinct_exact, distinct_total = sum(p.distinct_exact for p in panels), sum(p.distinct_total for p in panels)
+    exact, total = sum(p.count(*EXACT) for p in panels), sum(p.functions for p in panels)
+    bytes_exact, bytes_total = sum(p.bytes_exact for p in panels), sum(p.bytes_total for p in panels)
+    return {
+        "distinct_exact": distinct_exact, "distinct_total": distinct_total, "percent": percent(distinct_exact, distinct_total),
+        "placements_exact": exact, "placements_total": total, "placements_percent": percent(exact, total),
+        "bytes_exact": bytes_exact, "bytes_total": bytes_total, "bytes_percent": percent(bytes_exact, bytes_total),
+    }
+
+
+def overall_lines(whole: dict) -> tuple[str, str]:
+    title = f"Overall: {whole['percent']}% of distinct functions ({whole['distinct_exact']:,}/{whole['distinct_total']:,})"
+    detail = (f"resident functions once each, module functions once per address-blind form · "
+              f"{whole['placements_percent']}% of all placements ({whole['placements_exact']:,}/{whole['placements_total']:,}) · "
+              f"{whole['bytes_percent']}% of the code bytes")
+    return title, detail
 
 
 def build_panels(directory: Path, config: dict) -> list[Panel]:
@@ -432,11 +467,11 @@ def cells_path(cells: list[tuple[float, float, float, float]], fill: str) -> str
     return f'<path fill="{fill}" stroke="{BACKGROUND}" stroke-width="0.5" d="{d}"/>'
 
 
-def draw_panel(panel: Panel, left: float, width: float) -> list[str]:
+def draw_panel(panel: Panel, left: float, width: float, top: float) -> list[str]:
     title, detail = headline(panel)
-    parts = [text(left + 4, 18, title, 16, "bold"), text(left + 4, 36, detail, 11)]
+    parts = [text(left + 4, top + 18, title, 16, "bold"), text(left + 4, top + 36, detail, 11)]
     blocks = sorted((b for b in panel.blocks if b.functions), key=lambda b: (-len(b.functions), b.key))
-    rects = squarify([float(len(b.functions)) for b in blocks], left, HEADER, width, MAP_HEIGHT)
+    rects = squarify([float(len(b.functions)) for b in blocks], left, top + HEADER, width, MAP_HEIGHT)
     for block, (x, y, w, h) in zip(blocks, rects):
         exact, total = block.count(*EXACT), len(block.functions)
         note = " (second link)" if block.second_link else ""
@@ -456,16 +491,25 @@ def draw_panel(panel: Panel, left: float, width: float) -> list[str]:
 
 
 def render(panels: list[Panel], date: str) -> str:
-    height = HEADER + MAP_HEIGHT + LEGEND
+    height = TOP + HEADER + MAP_HEIGHT + LEGEND
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" width="{WIDTH}" height="{height}">',
         rect(0, 0, WIDTH, height, BACKGROUND, 0),
     ]
+    whole = overall(panels)
+    title, detail = overall_lines(whole)
+    bar = WIDTH - 8
+    parts += [
+        text(4, 18, title, 16, "bold"),
+        rect(4, 24, bar, 8, COLORS[NONE], 0),
+        rect(4, 24, bar * whole["distinct_exact"] / whole["distinct_total"] if whole["distinct_total"] else 0, 8, COLORS[C], 0),
+        text(4, 45, detail, 11),
+    ]
     left = 0.0
     for panel, width in zip(panels, PANEL_WIDTHS):
-        parts += draw_panel(panel, left, width)
+        parts += draw_panel(panel, left, width, TOP)
         left += width + GAP
-    y = HEADER + MAP_HEIGHT + 8
+    y = TOP + HEADER + MAP_HEIGHT + 8
     x = 4.0
     present = {f.state for p in panels for b in p.blocks for f in b.functions}
     if any(b.second_link and b.count(*EXACT) for p in panels for b in p.blocks):
@@ -493,11 +537,12 @@ def summary(panels: list[Panel], date: str, config: Path) -> dict:
             "partial": sum(b.count(PARTIAL) for b in blocks),
         }
 
-    out = {"date": date, "config": config.name, "panels": {}}
+    out = {"date": date, "config": config.name, "overall": overall(panels), "panels": {}}
     for panel in panels:
         entry = counts(panel.blocks)
         entry.update(unit=panel.unit, bytes_total=panel.bytes_total, bytes_exact=panel.bytes_exact,
                      bytes_percent=percent(panel.bytes_exact, panel.bytes_total),
+                     distinct_total=panel.distinct_total, distinct_exact=panel.distinct_exact,
                      declared_functions=panel.declared_functions, declared_bytes=panel.declared_bytes,
                      overrun_functions=len(panel.overruns), overrun_bytes=sum(o[3] for o in panel.overruns),
                      swept_as_data=panel.data_rows)
@@ -531,6 +576,16 @@ def page(panels: list[Panel], date: str) -> str:
         f'<a href="{REPOSITORY}/blob/main/ps1/src/build.toml">the build configuration</a>. '
         f'Counts: <a href="completion-map.json">completion-map.json</a>. What the measures mean and what remains: '
         f'<a href="{REPOSITORY}/blob/main/docs/completion-map.md">the completion map</a>.</p>',
+    ]
+    whole = overall(panels)
+    title, detail = overall_lines(whole)
+    lines += [
+        f"<h2>{escape(title)}</h2>", f"<p>{escape(detail)}</p>",
+        "<table><tr><th>Measure</th><th>Exact</th><th>Total</th><th>%</th></tr>",
+        f"<tr><td>distinct functions</td><td>{whole['distinct_exact']}</td><td>{whole['distinct_total']}</td><td>{whole['percent']}</td></tr>",
+        f"<tr><td>function placements</td><td>{whole['placements_exact']}</td><td>{whole['placements_total']}</td><td>{whole['placements_percent']}</td></tr>",
+        f"<tr><td>code bytes</td><td>{whole['bytes_exact']}</td><td>{whole['bytes_total']}</td><td>{whole['bytes_percent']}</td></tr>",
+        "</table>",
     ]
     for panel in panels:
         title, detail = headline(panel)
@@ -575,6 +630,10 @@ def cmd_render(args) -> int:
         print(line)
         for key, address, size, overrun in panel.overruns:
             print(f"  sweep overrun in {key}: the function at {address:#x} is {size} bytes to the sweep, {overrun} of them owned by no unit")
+    whole = overall(panels)
+    print(f"overall: {whole['distinct_exact']}/{whole['distinct_total']} distinct functions exact ({whole['percent']}%);"
+          f" {whole['placements_exact']}/{whole['placements_total']} placements ({whole['placements_percent']}%);"
+          f" {whole['bytes_exact']}/{whole['bytes_total']} code bytes ({whole['bytes_percent']}%)")
     return 0
 
 
