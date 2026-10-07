@@ -3424,7 +3424,6 @@ func_801b0ef8_slot04_01 = 0x801b0ef8;
 func_801b0fb8_slot04_01 = 0x801b0fb8;
 func_801b1138_slot04_01 = 0x801b1138;
 func_801b1540_slot04_01 = 0x801b1540;
-func_801b2108_slot04_01 = 0x801b2108;
 func_801b35ec_slot04_01 = 0x801b35ec;
 func_801b388c_slot04_01 = 0x801b388c;
 func_801b38c4_slot04_01 = 0x801b38c4;
@@ -4168,3 +4167,27 @@ data_801c2f04_slot04_0b = 0x801c2f04;
 
 /* A parked function that an exact unit calls. */
 func_801b3a70_slot04_05 = 0x801b3a70;
+
+/* Added by src.u_slot04_00_1d2cx. */
+data_801c55b4_slot04_06 = 0x801c55b4;
+data_801c55d4_slot04_06 = 0x801c55d4;
+func_801b5118_slot04_07 = 0x801b5118;
+data_801bfe60_slot04_00 = 0x801bfe60;
+
+/* Added by src.u_slot04_01_2108x. */
+data_801befc4_slot04_01 = 0x801befc4;
+data_801beff4_slot04_01 = 0x801beff4;
+data_801beffc_slot04_01 = 0x801beffc;
+
+/* Added by src.u_slot04_03_1eb4x. */
+data_801c0678_slot04_03 = 0x801c0678;
+
+/* Added by src.u_slot04_06_22e4x. */
+
+/* Added by src.u_slot04_06_5b68x. */
+data_801c7b94_slot04_09 = 0x801c7b94;
+data_801c0508_slot04_0a = 0x801c0508;
+data_801c0670_slot04_0a = 0x801c0670;
+
+/* Added by src.u_slot04_07_51dcx. */
+data_801c2134_slot04_07 = 0x801c2134;

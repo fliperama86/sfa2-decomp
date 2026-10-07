@@ -407,10 +407,10 @@ chose the first on 2026-10-06:
   `CDEMO00.PAC`, a module of 124 functions: 116 are exact, 16,100 of
   20,432 bytes, and 8 are parked with candidates.
   Then the first-side blocks of twelve of the 24 character files,
-  `PL00.PAC` to `PL0B.PAC`: 1,537 of their 2,116 functions are exact,
-  191,304 of 257,648 bytes. 534 of the rest are the same code as
+  `PL00.PAC` to `PL0B.PAC`: 1,562 of their 2,116 functions are exact,
+  197,460 of 257,648 bytes. 534 of the rest are the same code as
   functions of the other twelve files, which the second session writes,
-  and wait for that source; 45 are parked. Eleven of the twelve are also
+  and wait for that source; 20 are parked. Eleven of the twelve are also
   linked at the second address and are exact there.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four

@@ -2372,3 +2372,9 @@ struct Slot04_07Rec1ff4 size=0x4
 struct Slot04_08Rec3cb8 size=0x4
 0x000 s16 a
 0x002 s16 b
+
+struct Slot04_03Rec0678 size=0x10
+0x000 s32 field_00
+0x004 s32 field_04
+0x008 s32 field_08
+0x00c s32 field_0c

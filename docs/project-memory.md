@@ -4771,16 +4771,16 @@ the first twelve; the second session has the other twelve. The images are
 
 Counts, from the build and the inventory:
 
-- 1,537 of the 2,116 functions of the twelve blocks are exact, 191,304 of
-  257,648 bytes. 746,908 bytes of the chunks are retained raw.
-- Of the 579 others, 534 are the same code, apart from addresses, as a
+- 1,562 of the 2,116 functions of the twelve blocks are exact, 197,460 of
+  257,648 bytes. 740,752 bytes of the chunks are retained raw.
+- Of the 554 others, 534 are the same code, apart from addresses, as a
   function of one of the second session's twelve files and wait for that
-  source; 45 are parked with candidates or are copies of a parked
+  source; 20 are parked with candidates or are copies of a parked
   function.
 - Eleven of the twelve blocks are on the disc a second time, linked
   0x18000 higher, in slot `0x5` of the `X` file of the character. They
   are the images `slot05_NN`, linked from the units of `slot04_NN`, and
-  all their functions are exact at once: 1,339 more placements, no
+  all their functions are exact at once: 1,360 more placements, no
   source. `PL06X.PAC` is left out: its block is 4 bytes shorter than the
   first side's, so it is not the same code throughout.
 - 1,045 unit files, 589 symbols and 5 structs are new, with 60 new lines
