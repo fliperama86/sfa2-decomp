@@ -4469,6 +4469,177 @@ Lessons:
   another order is not a job for more spellings. An automatic search
   over the order of statements is being set up for those.
 
+## Sixty-eighth group: the 20 stage modules
+
+The second session's work on slot `0x6`, continued from the last group:
+all 20 stage files are images of the build now, `slot06_00` to
+`slot06_13`.
+
+Counts, from the build and the published inventory:
+
+| Image | File | Functions | Exact | Bytes exact | Raw bytes |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `slot06_00` | `STAGE00.PAC` | 28 | 23 | 2,216 | 47,680 |
+| `slot06_01` | `STAGE01.PAC` | 45 | 40 | 4,152 | 77,028 |
+| `slot06_02` | `STAGE02.PAC` | 32 | 25 | 2,536 | 71,084 |
+| `slot06_03` | `STAGE03.PAC` | 45 | 40 | 4,348 | 63,880 |
+| `slot06_04` | `STAGE04.PAC` | 30 | 25 | 2,660 | 75,004 |
+| `slot06_05` | `STAGE05.PAC` | 36 | 32 | 3,416 | 54,732 |
+| `slot06_06` | `STAGE06.PAC` | 30 | 24 | 2,820 | 75,476 |
+| `slot06_07` | `STAGE07.PAC` | 57 | 50 | 4,256 | 62,500 |
+| `slot06_08` | `STAGE08.PAC` | 43 | 35 | 3,496 | 70,940 |
+| `slot06_09` | `STAGE09.PAC` | 33 | 28 | 3,136 | 64,100 |
+| `slot06_0a` | `STAGE0A.PAC` | 44 | 37 | 3,216 | 55,328 |
+| `slot06_0b` | `STAGE0B.PAC` | 20 | 15 | 1,956 | 59,116 |
+| `slot06_0c` | `STAGE0C.PAC` | 57 | 50 | 5,520 | 61,936 |
+| `slot06_0d` | `STAGE0D.PAC` | 40 | 33 | 3,760 | 62,444 |
+| `slot06_0e` | `STAGE0E.PAC` | 71 | 62 | 5,812 | 72,524 |
+| `slot06_0f` | `STAGE0F.PAC` | 66 | 58 | 5,616 | 69,748 |
+| `slot06_10` | `STAGE10.PAC` | 70 | 64 | 5,804 | 64,788 |
+| `slot06_11` | `STAGE11.PAC` | 50 | 46 | 4,824 | 67,380 |
+| `slot06_12` | `STAGE12.PAC` | 56 | 51 | 4,604 | 67,188 |
+| `slot06_13` | `STAGE13.PAC` | 21 | 18 | 1,600 | 42,064 |
+| all 20 | | 874 | 756 | 75,748 | 1,284,940 |
+
+- "Functions" is the sweep's count in `ps1/inventory/modules.tsv`; the
+  other columns are the build's lines per image.
+- 118 functions are not exact. One-off counts from the private tables,
+  not from a published command: 32 of them are parked with candidates,
+  7,956 bytes, and 86 have not been attempted, 76,060 bytes, every one
+  of them 600 bytes or more.
+- 175 unit files, 456 symbols net and 10 structs with 94 lines of the
+  field table are new since the last group. The resident image and the
+  ten other module images are unchanged in their bytes.
+- The coverage map's lines after this group: `modules: 1677/11220
+  function placements exact`, `overall: 2670/5600 distinct functions
+  exact (47.7%)`.
+
+What ran:
+
+- A first pass over every function under 600 bytes, stage after stage,
+  eight agents at a time, 57 batches. Each stage's batches had the exact
+  units of the stages before them in their work folder, and a private
+  list of likes: for every function the exact function that is the same
+  code apart from addresses, or the same instructions with other
+  registers and constants, or the most similar one. By the round's
+  notes, 716 functions were exact after it.
+- Second attempts in groups by pattern, each after a form for the
+  pattern had been found on one function: 40 more.
+- A declaration pass on the merged tree: the check printed 102 lines,
+  an agent brought them to zero in about 90 files with every image
+  still exact. Thirty of them were one mistake: a caller that declared a
+  layer's initialiser with another parameter type than its definition.
+- A private helper made the tree for publication from the merged one:
+  it drops declarations that a unit does not use, data symbols and
+  field lines that no exact unit uses, and checks that nothing outside
+  the stage lines of the three shared files changed.
+
+Source forms, each measured by rebuilds, most of them on one function
+and then exact on its likes in other stages within minutes:
+
+- A narrow local that takes every step in place. The functions that set
+  a layer's position from another layer's were parked in every stage
+  with the right instructions and other registers. They are exact with
+  one `s16` local and one statement per instruction: `d = l2->field_22;
+  d -= l2->field_0a; d -= d / 4; d += layer->field_0a; d +=
+  layer->field_36; layer->field_22 = d;`. An `int`, a local per value,
+  or one expression give other registers. It decided 16 second
+  attempts, and the later stages used it from the first attempt.
+- A byte loaded into a `u8` local at the place where the listing loads
+  it and stored back later, where the compiler otherwise moves the load
+  to the top of the function.
+- The function that fills two tables of tile records in two double
+  loops, one per stage. The operand order of its address sums follows
+  only when the arithmetic goes through `u32` casts: `(Tx *)(i * 0xfc0 +
+  (u32)(t + j))`. Pointer casts and variables for the offsets do not
+  move it.
+- The same function is 8 bytes shorter in about half of the stages:
+  there the listing forms the colour constant inside the inner loop,
+  where the first form moves it into a saved register. It is exact with
+  the two pointer locals assigned inside the inner loop. The dump of
+  the compiler's loop pass shows why for one function: with the
+  assignments outside, the inner loop has 21 instructions and the
+  constant is moved out; with them inside it has 23 and the constant
+  stays. Inferred from that and not proven for the original source:
+  whether this compiler moves a constant out of a loop depends on the
+  size of the loop at that moment. As a heuristic it worked on eight
+  functions: where a build has a constant outside a loop and the
+  listing inside, make the loop larger.
+- The colour written as a literal in three stores against a local that
+  holds it: both occur, by stage.
+
+Three things to know about the published source:
+
+- Three functions are declared `int` and return nothing
+  (`func_801e828c_slot06_09`, `func_801e8170_slot06_0e`,
+  `func_801e9410_slot06_0e`). Declared `void`, the compiler fills a
+  delay slot with a write to the result register and the function is 4
+  bytes short. Each carries a comment that says so. It is the one form
+  found, it is compatible with the bytes, and what the original
+  declared is not known.
+- 12 functions of the stage units have the stand-in for an unused
+  stack frame, with its comment.
+- Three functions start before the row that the published inventory
+  has for them, by 16, 16 and 8 bytes: `func_801e9cf4_slot06_07`,
+  `func_801e9f10_slot06_08` and `func_801e9790_slot06_0f`. A name of
+  the resident image points at the word where each opens its frame,
+  after it has loaded one or two bytes of the game state, and the sweep
+  cuts a function at such a name. The words before the cut end in no
+  return, so the sweep set them aside. The build declares the functions
+  with their first instructions and is exact; the inventory keeps the
+  sweep's rows, as it does for the other known boundaries of this kind.
+
+What the stage units need from outside their folders, all by added
+lines: one field in `GameState` and one in `Config`; five names for
+addresses outside the modules (`data_801904cc`, `data_80190542`,
+`data_80190544` and two in the scratchpad). Two parked functions wait
+for a resident function to change its declaration, which is the other
+session's to decide: `func_801364a0` is called with the layer in the
+argument register and declared without a parameter, and `func_80130768`
+takes a 16-bit parameter that one stage caller passes on unextended.
+
+What is not done:
+
+- The functions of 600 bytes and more: three or four per stage that
+  draw the layers, and one that the resident image calls to draw an
+  object's tiles. The first stage's were attempted. The drawing
+  function there has the right size, every instruction of the listing
+  and exact loops; ten instructions of its first block stand in another
+  order. A permutation search of 57 minutes, 24,000 orders of the
+  block's statements and 6,000 ways of sharing scratch variables did
+  not find the form. Statement order is not it: no order scored better
+  than the first.
+- 32 parked functions, 27 of them under 600 bytes, most with a few
+  instructions in another order or register.
+
+Lessons:
+
+- A kind of code has its own forms, and they pay per kind, not per
+  function. The first stage gave 18 of 28 in its first round. The last
+  stage gave 18 of 18 in 80 seconds, with the same prompt and a note of
+  forms that had grown in between. Write the note during the round and
+  hand it to the next batch at once.
+- One exact function is worth more than twenty close ones. Each of the
+  three forms above came from one function that an agent happened to
+  get exact in one stage while the same function was parked in ten
+  others. Look at every report for a function that solved a parked
+  pattern, and send that form to the parked ones the same hour.
+- When every spelling fails, ask which pass of the compiler makes the
+  decision, state a guess that a dump can refute, and give the agent
+  the dump to read before the diff. The loop pass's count settled in
+  twelve tries what twenty-five spellings had not.
+- A scripted enumeration answers a narrow question quickly: 24,000
+  variants in six minutes showed that statement order is not what the
+  drawing function needs. It does not find a form that nobody put into
+  the enumeration.
+- Agents still retype lines of the field table with one replace over
+  the file. Two batches did, after the prompt had said twice not to.
+  The banking step's comparison with the base caught each. Keep that
+  comparison; a sentence in a prompt does not replace it.
+- A stray helper script that one batch leaves in its folder is merged
+  as a new file and then stands in every later base. Look at what a
+  merge copies besides unit files.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

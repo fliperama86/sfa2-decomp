@@ -290,6 +290,53 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   it was found, one declaration was left without a prototype with a note
   that both a narrow and an `int` parameter had been tried; the `int`
   parameter had been tried without the local.
+- One local that takes every step of a computation in place keeps
+  instructions and registers that one expression, or a fresh local per
+  value, does not. Two cases from the stage modules:
+
+  ```c
+  /* a quotient in the listing's register: `n = (a - b) / 144;` is not */
+  n = layer->field_60;
+  n -= *(s32 *)&other->field_08;
+  layer->field_68 = 0;
+  layer->field_6c = 0;
+  n /= 144;
+
+  /* a sum whose operands land in the listing's registers only this way */
+  s16 d;
+  d = l2->field_22;
+  d -= l2->field_0a;
+  d -= d / 4;
+  d += layer->field_0a;
+  d += layer->field_36;
+  layer->field_22 = d;
+  ```
+
+  In the second the local is narrow where the listing extends the value
+  after computing it (`sll 0x10`, `sra 0x10` after the subtraction). The
+  same holds for a byte: a `u8` local that takes a field where the
+  listing has its `lbu`, and is stored back later, keeps a load in place
+  that the compiler otherwise moves to the top of the function. These are
+  heuristics that worked: the second on 16 second attempts in nine stage
+  modules and on later first attempts, the `u8` local on three functions.
+  What the original source had is not known. A fourth case is measured
+  and not yet part of an exact function: `pos &= 0xffff; pos |= t << 16;
+  y = pos >> 16;` keeps an `or` that the one expression
+  `((x & 0xffff) | (t << 16)) >> 16` loses.
+- Whether a constant or an address is formed inside a loop or kept in a
+  saved register across it depends on the size of the loop when the
+  compiler's loop pass looks at it. Measured on one function with the
+  pass's dump (`cc1 -dL`): two pointer assignments moved from before a
+  loop into it took the loop from 21 instructions to 23, and a constant
+  that had been moved out of the loop stayed inside, as in the listing.
+  As a heuristic: where a build has a constant outside a loop and the
+  listing has it inside, write the loop larger, and the other way round.
+  It made eight functions of the stage modules exact.
+- The operand order of an `addu` that forms an address followed the order
+  of the terms only when the arithmetic went through an integer type:
+  `(Tx *)(i * 0xfc0 + (u32)(t + j))`. With pointer arithmetic, pointer
+  casts or variables for the offsets the order did not move. 19 units of
+  the stage modules have this form.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
