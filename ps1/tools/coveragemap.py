@@ -124,7 +124,7 @@ class Block:
     functions: list[Swept]
     second_link: bool = False
     image: str | None = None
-    archives: int = 1
+    archives: int | None = None  # how many archives carry the content; None when contents.tsv is absent
 
     def count(self, *states: str) -> int:
         return sum(f.state in states for f in self.functions)

@@ -222,6 +222,10 @@ def main_cases(root: Path):
         and "<title>slot 0x12, CONT00.PAC: 1/2 (50.0%)</title>" in svg,
         json.dumps(labels),
     ), 0, "as required"
+    # Without the table the number of archives is not known, and the JSON says so rather than guessing one.
+    yield "archives-unknown-without-contents", verdict(
+        all(b["archives"] is None for b in data["panels"]["modules"]["blocks"]), json.dumps(data["panels"]["modules"]["blocks"])
+    ), 0, "as required"
     # contents.tsv and modules.tsv must name the same contents.
     drift = inventory(root, "main-drift", game, library, modules, contents.replace(contents_row("CONT00X.PAC", 0x13), ""))
     proc, _, _ = render(root, "main-drift", drift, config)
