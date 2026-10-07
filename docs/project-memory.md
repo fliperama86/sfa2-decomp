@@ -4068,6 +4068,52 @@ The map is a current snapshot to update after ownership changes, not a rewrite
 of historical evidence. It was authored in a separate worktree so concurrent
 reconstruction and the 60-second PR watch can continue without interference.
 
+The same day the owner found the text map insufficient and asked for a
+picture in the manner of the AnyPS5 progress treemap: one square per
+function, green or grey, grouped in blocks. `ps1/tools/coveragemap.py` draws
+it from the inventories of `families.py` and `pac.py functions` and from the
+build configuration, as `docs/completion-map.svg` with the counts in
+`docs/completion-map.json`, embedded in the completion map and the README.
+Decisions: the generator is written here, not copied, because AnyPS5 is
+GPL-2.0; squares stand in address order, so the parked functions show where
+they lie; the resident panel counts functions and the module panel function
+placements, second links in a darker green and named in the heading; a
+square is exact when units own all its bytes, data included, or own it
+without a gap from one end with a function among them, which is how the
+sweep's two known boundary errors (the table before the first function of
+slot `0x0`, the table after the entry routine) count as exact without a
+special case for either, while the raw bytes stay out of the byte count; a
+swept function owned only as data is set aside and reported; a declared
+function that touches no swept function is an error. That guard, review
+noted, catches a declared function that the inventory does not represent
+at all and nothing more: a row stale within its range, shorter or longer
+than the function, passes (a control records a 16-byte function over an
+8-byte row, exact at 8 of 8 bytes), and the sweep's boundaries stay
+estimates beside the declared ranges, which the JSON gives next to the
+bytes exact within rows. No address enters the SVG or the JSON. The counts
+reproduce the text map's numbers exactly.
+
+Asked why the picture was committed rather than drawn by GitHub Actions, the
+answer was that the denominators come from the game files, which Actions
+cannot have; the owner then chose to publish the inventory, `ps1/inventory/`
+(addresses and sizes, no bytes), the one analysis table that is published.
+`.github/workflows/coverage-map.yml` runs the control cases and `render` on
+every pull request and push, and on a push to `main` publishes the SVG, the
+JSON and a page to GitHub Pages, enabled through the API the same day with
+the workflow build type. The SVG and JSON are not committed; the README and
+the completion map embed the published picture. `sweep` is the one manual
+step left, needed when a boundary moves; `render` fails the check only when
+a declared function has no swept row at all, so running `sweep` after a
+change to the symbol file or the configuration remains the round's duty.
+
+Asked how to know the overall completion, the answer was that there was no
+one number by design; the owner chose to add one. The bar above the panels
+gives the share of distinct functions: resident functions once each, module
+functions once per address-blind form (the hash of `pac.py functions`), a
+form exact when any placement of it is. At that time 2,057 of 5,601, 36.7
+percent, against 17.3 percent of placements and 19.5 percent of code bytes.
+It is the measure of source left to write; the other two stand beside it.
+
 ## Sixty-fifth group: a fifth module, at two addresses: slots 0x2b and 0x2c; the pilot module complete
 
 The owner's choice of 2026-10-06, more overlay modules, continued with

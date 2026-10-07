@@ -40,6 +40,11 @@ working repository is this directory, not `../68k-decomp`.
   own license and notice, as the library part in `ps1/src/sdk/` does.
   Private artifacts live under `ps1/local/`, `windows/local/`,
   `research/local/`, or root `local/`.
+- One analysis table is published, by the owner's decision of 2026-10-06:
+  the function inventory of the static sweep in `ps1/inventory/`, addresses
+  and sizes without bytes, so that the repository's workflow can draw the
+  coverage map. Regenerate it with `ps1/tools/coveragemap.py sweep` when a
+  boundary moves; do not edit it by hand.
 - Inspect license, provenance, and user intent before reusing reference code.
   `~/Projects/references` contains external tools/reference repositories.
 - Preserve original inputs and historical evidence; write new reports instead
