@@ -500,7 +500,7 @@ extern u8 data_8019032e;
 extern u32 data_8019036c[];
 extern u32 data_801903ac[];
 extern Box32 *ptr_8019040c;
-extern u8 data_8019045c;
+extern int data_8019045c[];
 extern unsigned short data_80190470;
 extern u8 data_80190474;
 extern ObjectRef data_80190478;
