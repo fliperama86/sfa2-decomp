@@ -57,7 +57,10 @@ full build or decompilation already exists.
   and 2026-10-06 (all of it, the source of overlay modules and the Windows
   reconstruction included). Source that enters Git for the first time gets
   the same review first. Decompiler output and other artifacts derived from
-  the game are not source the project writes and stay private.
+  the game are not source the project writes and stay private, with one
+  exception by the owner's decision of 2026-10-06: the function inventory
+  of the static sweep, `ps1/inventory/`, addresses and sizes without bytes,
+  from which the repository's workflow draws the coverage map.
 - Private workspaces are ignored by directory, not only extension. Suffixless
   executables and `.c` pseudocode must remain protected too.
 - Review external implementation licenses/provenance before copying. Referencing

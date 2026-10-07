@@ -8,6 +8,41 @@ Snapshot: 2026-10-06, after [PR 70](https://github.com/fliperama86/sfa2-decomp/p
 at [revision 331e382](https://github.com/fliperama86/sfa2-decomp/commit/331e382f0b32fb22ffa8ca79920928fa1421f051).
 Target and completion contract: [plan](../PLAN.md), [requirements](requirements.md).
 
+## Map
+
+[![Coverage map: one square per function of the static sweep, green where the build owns it](https://fliperama86.github.io/sfa2-decomp/completion-map.svg)](https://fliperama86.github.io/sfa2-decomp/)
+
+One square per function that the static sweep lists, in address order: green
+where a C unit of the matching build owns its bytes, blue where an assembly
+unit does, grey where no unit does. The bar at the top is the one
+whole-program share: distinct functions, each function of the resident
+executable once and each function of the modules once per address-blind
+form, the hash of the [module inventory](../ps1/docs/overlays.md#counts),
+so that code the character modules share is counted once; a form is exact
+when any placement of it is. The share of all placements and of all code
+bytes stand beside it. The left panel is the resident
+executable, the game code in one block and the Sony library by
+[family](../ps1/docs/library-families.md). The right panel is the overlay
+modules, one block per distinct content of a slot, labelled by slot where the
+slot has one content and by archive where it has several. Its unit is the
+function placement: the contents linked a second time, `0x8` and `0x17`,
+count their functions again and are drawn in the darker green. The
+repository's workflow draws the picture from the
+[inventory](../ps1/inventory/README.md) and the build configuration on every
+push to `main`, so it shows the current state, while the counts below are
+the pinned snapshot. [Its page](https://fliperama86.github.io/sfa2-decomp/)
+lists every block and links the counts as JSON; opening the picture itself
+and hovering a block shows its name and counts.
+
+A square is exact when units own all of its bytes, functions and data
+together, or own it without a gap from one of its ends with a function among
+them: the sweep's boundaries are estimates, and `ps1/tools/coveragemap.py`
+states the rule. Two places differ from the sweep. The first function of
+slots `0x0` and `0x8` the sweep begins 16 bytes early, at a table that a unit
+owns as data. The program entry routine the sweep makes 16 bytes longer than
+the assembly unit, because the four table words after it, retained raw,
+follow without a return. Both count as exact; the 16 raw bytes do not.
+
 ## At a glance
 
 ```text
@@ -27,8 +62,9 @@ Windows research: tested nonmatching reference, outside PS1 completion
 Ports, other revisions and rebuilt-disc packaging: separate scope
 ```
 
-These are separate measures, not one whole-game completion percentage.
-Function boundaries and the game/library split are static estimates. Overlay
+These are separate measures. The one whole-program share is the picture's
+bar, distinct functions, and it is a share of the sweep's estimate, not of
+the game. Function boundaries and the game/library split are static estimates. Overlay
 counts include placements of shared code at different addresses, not that
 many unique source functions. See the [inventory method](../ps1/docs/overlays.md)
 and [family analysis](../ps1/docs/library-families.md).
@@ -159,3 +195,28 @@ passing matching-build report, and denominators from the documented inventory.
 Record sweep corrections explicitly. Do not count second links as new source
 or infer subsystem completion from a high function count. Historical pilot
 reports remain historical evidence; update this map rather than rewriting them.
+
+The picture needs no step of its own: the workflow in
+`.github/workflows/coverage-map.yml` draws it from
+[`ps1/inventory/`](../ps1/inventory/README.md) and `build.toml` on every
+push to `main`, publishes it to GitHub Pages, and checks every pull request
+the same way. The inventory is the one thing to regenerate, when the symbol
+file or the configuration moves a boundary; it needs the executable and the
+extracted archives:
+
+```sh
+.venv/bin/python ps1/tools/coveragemap.py sweep EXECUTABLE PAC_DIRECTORY
+python3 ps1/tools/coveragemap.py render --svg out/completion-map.svg \
+    --json out/completion-map.json --html out/index.html
+```
+
+`render` has one guard on the inventory: a declared function that touches
+no swept row fails the check, and the sweep must run again. That is all it
+establishes. A row stale within its range, shorter or longer than the
+function it holds, passes, and the sweep's boundaries stay estimates beside
+the declared ranges; the JSON gives the declared bytes next to the bytes
+exact within rows, and they differ where the two disagree. `render` prints
+the counts of the two panels and every place where the sweep took in bytes
+that no unit owns. `ps1/tools/test_coveragemap.py` holds its control cases,
+on synthetic inputs, the guard's limit among them; the workflow runs them
+first.
