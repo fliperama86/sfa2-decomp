@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Python packages of the tools
+        run: python3 -m pip install --quiet --requirement requirements.txt
       - name: Control cases
         run: python3 ps1/tools/test_coveragemap.py
       - name: Draw the map
