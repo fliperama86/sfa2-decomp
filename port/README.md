@@ -2,8 +2,9 @@
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **Nothing of the game compiles or runs on any of them.** This folder
-holds the decisions taken so far, one pinned dependency and one check of that
-dependency. It changes nothing under `ps1/`.
+holds the decisions taken so far, one pinned dependency, one check of that
+dependency and one comparison of it with what the game calls. It changes
+nothing under `ps1/`.
 
 The rule for a port is in the [requirements](../docs/requirements.md): the
 game code stays as close to the original as possible, only Sony's library
@@ -110,12 +111,109 @@ relative and an absolute folder, `--headless`, and each of the statuses 0,
 1 and 2. Its last line on 2026-10-07 was `controls: 15 of 15 as expected`.
 It says nothing about PsyZ.
 
+## What the game calls and what PsyZ has
+
+```sh
+python3 port/tools/libgap.py [--all] [--out FILE] [--archive FILE]
+```
+
+It reads the published [library inventory](../ps1/inventory/README.md) and
+the source of PsyZ at the pin, which
+`git submodule update --init port/external/psyz` fetches; without it the
+script ends with status 2 and says which file it misses. No game file is
+read and nothing is built. The header of the script says how each status
+is decided. Its output on
+2026-10-07:
+
+```
+compared: 101 of 416 library functions (those with a caller)
+built: 73
+stub: 1
+some-targets: 1
+assembly: 0
+not-built: 3
+absent: 0
+unnamed: 23
+disc: built 11, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 1
+graphics: built 23, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 2
+memory card: built 2, stub 0, some-targets 1, assembly 0, not-built 0, absent 0, unnamed 0
+pads: built 1, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 2
+sound: built 23, stub 1, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 0
+system: built 13, stub 0, some-targets 0, assembly 0, not-built 3, absent 0, unnamed 0
+threads: built 0, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 3
+unidentified: built 0, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 15
+stub: SsSeqOpen
+some-targets: _bu_init
+not-built: Exec FlushCache InitHeap
+unnamed: 80157090 80157174 8015760c 8015762c 801577bc 801577dc 801577ec 8015789c 80158374 80158470 8015a560 8015a570 8015c814 8015f734 8015fd24 8015fde4 8015fe04 8015fe28 80164ef0 801656ec 80166144 8016904c 8016a7e4
+renamed by a header: EnterCriticalSection to PS1_EnterCriticalSection (psyz/include/kernel.h:171)
+renamed by a header: ExitCriticalSection to PS1_ExitCriticalSection (psyz/include/kernel.h:172)
+```
+
+What that says of the 101 library functions that a game function of the
+resident executable calls:
+
+- 73 have a definition that PsyZ builds for every target. Two of them, the
+  pair that enters and leaves a critical section, have it under another
+  name that a header gives them.
+- None is missing from PsyZ's tree altogether.
+- `SsSeqOpen`, which opens a music sequence, is a stub: its body carries
+  PsyZ's own mark for not implemented.
+- `_bu_init`, which sets up the memory card, carries that mark under one
+  compiler only.
+- `Exec`, `FlushCache` and `InitHeap` are in PsyZ only as assembly for the
+  PS1, in files that it does not build. Its headers declare them and the
+  built library does not define them.
+- 23 have no library name in this project yet, 15 of them in no family.
+  They cannot be compared before the matching work names them.
+
+What it does not say:
+
+- Only names are compared. A function without the mark may do less than
+  Sony's did, and PsyZ's version of a function may take other arguments
+  than the version this game was linked with.
+- The count of callers is the inventory's: the resident executable only,
+  and only direct calls. Calls from the overlay modules are in no
+  published table, so a library function that only a module calls is not
+  among the 101.
+- With `--all` every library function of the image is compared, called by
+  the game or not, and the first lines are
+
+```
+compared: 416 of 416 library functions (all)
+built: 235
+stub: 22
+some-targets: 5
+assembly: 2
+not-built: 51
+absent: 49
+unnamed: 52
+```
+
+  Many of the 49 that are absent are sound functions whose names begin
+  with `SpuVm`, where PsyZ has names that begin with `_SsVm`. No resident
+  game function calls one of them. It suggests, and does not show, that
+  the library of this game is another version than the one PsyZ follows.
+
+The scan was checked against the library that `check_psyz.sh --headless`
+built on Linux from the same commit. With `--archive` and that file the
+last line is `archive: 77 names checked, 0 disagree`, and with `--all` as well it is
+`archive: 359 names checked, 0 disagree`: every name that the scan calls
+built or stub is a symbol of that library, and none of the names that it
+calls assembly, not built or absent is.
+
+`python3 port/tools/test_libgap.py` runs the tool on small made-up trees.
+On 2026-10-07 it printed 108 lines that begin `ok` and ended with
+`all cases behaved as required`.
+
 ## Not decided
 
 - How game units reach the library. They call it by address names, such as
   `func_80157fc4`, and PsyZ has the library's own names.
-- Which of the library functions that the game calls PsyZ lacks or only
-  stubs. A comparison by name was made by hand once and is not a published
-  tool; no count from it is given here.
+- What supplies the five functions that PsyZ has as a stub, for one
+  compiler only, or not at all: written into PsyZ and offered to its
+  authors, or kept beside it here.
+- How the 23 unnamed functions get names, and whether the modules call
+  library functions that the resident code does not.
 - The build of the game side for a host, and where it is checked on all
   three systems.

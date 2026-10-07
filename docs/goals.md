@@ -212,7 +212,9 @@ working artifacts remain local and ignored. The 68k/CPS2 implementation stays be
 
 The owner started a port on 2026-10-06. It is a lane of its own beside the
 matching work; its decisions, its state and what is not decided are on the
-[port page](../port/README.md). Its next step waits for the owner.
+[port page](../port/README.md). Done so far: PsyZ is pinned and its own
+tests were run, and a tool compares the library functions that the game
+calls with what PsyZ has. Its next step waits for the owner.
 
 ## Next implementation package
 
