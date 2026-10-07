@@ -4085,9 +4085,20 @@ slot `0x0`, the table after the entry routine) count as exact without a
 special case for either, while the raw bytes stay out of the byte count; a
 swept function owned only as data is set aside and reported; a declared
 function that touches no swept function is an error, so a stale inventory
-cannot draw a map. No address enters the SVG or the JSON; the inventory stays
-under `ps1/local/coverage/sweep/`. The counts reproduce the text map's
-numbers exactly.
+cannot draw a map. No address enters the SVG or the JSON. The counts
+reproduce the text map's numbers exactly.
+
+Asked why the picture was committed rather than drawn by GitHub Actions, the
+answer was that the denominators come from the game files, which Actions
+cannot have; the owner then chose to publish the inventory, `ps1/inventory/`
+(addresses and sizes, no bytes), the one analysis table that is published.
+`.github/workflows/coverage-map.yml` runs the control cases and `render` on
+every pull request and push, and on a push to `main` publishes the SVG, the
+JSON and a page to GitHub Pages, enabled through the API the same day with
+the workflow build type. The SVG and JSON are not committed; the README and
+the completion map embed the published picture. `sweep` is the one manual
+step left, needed when a boundary moves; `render` fails the check on a stale
+inventory.
 
 ## Windows reference
 

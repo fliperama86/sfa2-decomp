@@ -158,6 +158,20 @@ def main_cases(root: Path):
     addresses = [START + 32 * k for k in range(5)] + [0x80011000, 0x80011010, 0x80011020, 0x801B0000, 0x80010040, 0x80020000]
     leaked = [f"{a:x}" for a in addresses if f"{a:x}" in svg or f"{a:x}" in json.dumps(data)]
     yield "main-no-address-in-outputs", verdict(not leaked, str(leaked)), 0, "as required"
+    # The page: the headings, a row per block, a total row, and no address either.
+    html = root / "main.html"
+    proc = tool("render", directory, "--config", root / "main.toml", "--svg", root / "main-page.svg", "--json", root / "main-page.json", "--html", html, "--date", "2026-01-01")
+    text = html.read_text() if html.exists() else ""
+    yield "page-written", proc, 0, "resident: 4/8 functions exact"
+    for item in [
+        "<h2>Resident executable: 50.0% (4/8)</h2>", "<h2>Overlay modules: 33.3% (3/9)</h2>",
+        "<tr><td>game code</td><td>3</td><td>5</td><td>60.0</td></tr>",
+        "<tr><td>slot 0x13, CONT00X.PAC</td><td>1</td><td>2</td><td>50.0</td><td>slot13, second link</td></tr>",
+        "<tr><td>slot 0x4, PL00.PAC</td><td>0</td><td>3</td><td>0.0</td><td>-</td></tr>",
+        "<tr><th>Total</th><th>3</th><th>9</th><th>33.3</th><th></th></tr>", 'src="completion-map.svg"', "drawn on 2026-01-01",
+    ]:
+        yield f"page-has {item[:40]!r}", verdict(item in text, text[:3000]), 0, "as required"
+    yield "page-no-address", verdict(not [a for a in addresses if f"{a:x}" in text], text[:3000]), 0, "as required"
     # The same inventory with a wider configuration: an image whose archive is not the content's first archive.
     proc, _, _ = render(root, "main-wrong-archive", directory, config + image("pl07", 0x4, "PL07.PAC", 0x801B0000))
     yield "image-fits-no-content", proc, 1, "image 'pl07' (slot 0x4, PL07.PAC) fits no content of the inventory"

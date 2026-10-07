@@ -26,16 +26,19 @@ separately too, as a boundary to look at. A declared function that touches
 no swept function of its image is an error: the inventory is stale.
 
 Two commands. `sweep` runs the two inventory tools with the project's
-settings and writes their tables into a directory. It needs the executable
-and the extracted archives, so it runs locally only. `render` reads that
-directory and the build configuration, which hold no game bytes, and
-writes the SVG and a JSON of the counts. Nothing of the game, not an
-address, enters either output.
+settings and writes their tables into a directory, `ps1/inventory/` unless
+another is given. It needs the executable and the extracted archives, so it
+runs locally only; its tables are published, by the owner's decision of
+2026-10-06, and hold addresses and sizes, no bytes. `render` reads that
+directory and the build configuration and writes the SVG, a JSON of the
+counts and, with `--html`, a page that shows them. It needs no game file,
+so the repository's workflow runs it on every push. Nothing of the game, not
+an address, enters any of its outputs.
 
 usage:
-  coveragemap.py sweep EXECUTABLE PAC_DIRECTORY --out DIR [--config FILE] [--families FILE]
+  coveragemap.py sweep EXECUTABLE PAC_DIRECTORY [--out DIR] [--config FILE] [--families FILE]
                  [--symbols FILE] [--library ADDRESS] [--end ADDRESS] [--pointers ADDRESS]
-  coveragemap.py render DIR --config FILE --svg FILE --json FILE [--date YYYY-MM-DD]
+  coveragemap.py render [DIR] [--config FILE] --svg FILE --json FILE [--html FILE] [--date YYYY-MM-DD]
 
 DIR holds `game.tsv` and `library.tsv` from `families.py` and `modules.tsv`
 from `pac.py functions`, in the columns those tools document.
@@ -56,6 +59,8 @@ from html import escape
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
+INVENTORY = TOOLS.parent / "inventory"
+REPOSITORY = "https://github.com/fliperama86/sfa2-decomp"
 LIBRARY_BOUNDARY, CODE_END = 0x80157000, 0x8016D920
 RESIDENT = "resident"
 GAME = "game"
@@ -509,6 +514,41 @@ def summary(panels: list[Panel], date: str, config: Path) -> dict:
     return out
 
 
+def page(panels: list[Panel], date: str) -> str:
+    """A page that shows the map, the counts of every block and where the numbers come from."""
+    style = ("body{font-family:sans-serif;max-width:1000px;margin:auto;padding:16px;background:#0d1117;color:#e6edf3}"
+             "img{max-width:100%}table{border-collapse:collapse}th,td{border:1px solid #30363d;padding:2px 8px}"
+             "td+td,th+th{text-align:right}a{color:#58a6ff}")
+    lines = [
+        "<!DOCTYPE html>",
+        '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
+        "<title>SFA2 PS1 reconstruction: coverage map</title>", f"<style>{style}</style></head><body>",
+        "<h1>SFA2 PS1 reconstruction: coverage map</h1>",
+        '<img src="completion-map.svg" alt="one square per function of the static sweep, green where the build owns it">',
+        f'<p>One square per function of the static sweep, in address order, drawn on {date} by '
+        f'<a href="{REPOSITORY}/blob/main/ps1/tools/coveragemap.py">coveragemap.py</a> from '
+        f'<a href="{REPOSITORY}/tree/main/ps1/inventory">the inventory</a> and '
+        f'<a href="{REPOSITORY}/blob/main/ps1/src/build.toml">the build configuration</a>. '
+        f'Counts: <a href="completion-map.json">completion-map.json</a>. What the measures mean and what remains: '
+        f'<a href="{REPOSITORY}/blob/main/docs/completion-map.md">the completion map</a>.</p>',
+    ]
+    for panel in panels:
+        title, detail = headline(panel)
+        lines += [f"<h2>{escape(title)}</h2>", f"<p>{escape(detail)}</p>", "<table>"]
+        second = panel.name != RESIDENT
+        lines.append("<tr><th>Block</th><th>Exact</th><th>Total</th><th>%</th>" + ("<th>Image</th>" if second else "") + "</tr>")
+        for block in sorted(panel.blocks, key=lambda b: b.key):
+            exact, total = block.count(*EXACT), len(block.functions)
+            image = (escape(block.image or "-") + (", second link" if block.second_link else "")) if second else ""
+            lines.append(f"<tr><td>{escape(block.title)}</td><td>{exact}</td><td>{total}</td><td>{percent(exact, total)}</td>"
+                         + (f"<td>{image}</td>" if second else "") + "</tr>")
+        exact, total = panel.count(*EXACT), panel.functions
+        lines.append(f"<tr><th>Total</th><th>{exact}</th><th>{total}</th><th>{percent(exact, total)}</th>" + ("<th></th>" if second else "") + "</tr>")
+        lines.append("</table>")
+    lines.append("</body></html>")
+    return "\n".join(lines) + "\n"
+
+
 def cmd_render(args) -> int:
     directory, config_path = Path(args.directory), Path(args.config)
     for name in ("game.tsv", "library.tsv", "modules.tsv"):
@@ -520,6 +560,9 @@ def cmd_render(args) -> int:
     Path(args.svg).write_text(render(panels, date))
     Path(args.json).parent.mkdir(parents=True, exist_ok=True)
     Path(args.json).write_text(json.dumps(summary(panels, date, config_path), indent=1) + "\n")
+    if args.html:
+        Path(args.html).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.html).write_text(page(panels, date))
     for panel in panels:
         exact, total = panel.count(*EXACT), panel.functions
         line = f"{panel.name}: {exact}/{total} {panel.unit} exact ({percent(exact, total)}%), {panel.count(C)} from C, {panel.count(ASM)} from assembly"
@@ -570,7 +613,7 @@ def main(argv: list[str] | None = None) -> int:
     sweep = sub.add_parser("sweep", help="run the inventory tools and write their tables into a directory")
     sweep.add_argument("executable")
     sweep.add_argument("pac_directory")
-    sweep.add_argument("--out", required=True, help="directory for game.tsv, library.tsv and modules.tsv")
+    sweep.add_argument("--out", default=str(INVENTORY), help="directory for game.tsv, library.tsv and modules.tsv")
     sweep.add_argument("--config", default=str(root / "src" / "build.toml"))
     sweep.add_argument("--families", default=str(root / "src" / "library-families.toml"))
     sweep.add_argument("--symbols", default=str(root / "src" / "symbols.ld"))
@@ -579,10 +622,11 @@ def main(argv: list[str] | None = None) -> int:
     sweep.add_argument("--pointers", type=number, help="address of the loader's table pointers; default: the configuration's")
     sweep.set_defaults(run=cmd_sweep)
     render_ = sub.add_parser("render", help="draw the map from an inventory directory and the build configuration")
-    render_.add_argument("directory")
+    render_.add_argument("directory", nargs="?", default=str(INVENTORY), help="the inventory directory")
     render_.add_argument("--config", default=str(root / "src" / "build.toml"))
     render_.add_argument("--svg", required=True)
     render_.add_argument("--json", required=True)
+    render_.add_argument("--html", help="also write a page that shows the map and the counts")
     render_.add_argument("--date", help="date written into the map; default: today")
     render_.set_defaults(run=cmd_render)
     args = parser.parse_args(argv)

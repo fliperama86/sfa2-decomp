@@ -8,7 +8,10 @@ second simultaneous delivery target.
 See the [completion map](docs/completion-map.md) for source coverage, retained
 bytes and the remaining route to delivery.
 
-[![Coverage map: one square per function of the static sweep, green where the build owns it](docs/completion-map.svg)](docs/completion-map.md)
+[![Coverage map: one square per function of the static sweep, green where the build owns it](https://fliperama86.github.io/sfa2-decomp/completion-map.svg)](https://fliperama86.github.io/sfa2-decomp/)
+
+The picture is drawn on every push to `main` from the published
+[function inventory](ps1/inventory/README.md) and the build configuration.
 
 ## Current evidence
 

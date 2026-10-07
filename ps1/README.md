@@ -20,8 +20,9 @@ Public tools, free of game data:
 - `tools/families.py`: which game functions of the executable call which
   part of the Sony library, by `src/library-families.toml`.
 - `tools/coveragemap.py`: the picture of the completion map: one square per
-  swept function, coloured by what the build owns, as SVG and JSON, from the
-  inventories of `families.py` and `pac.py functions`.
+  swept function, coloured by what the build owns, as SVG, JSON and a page,
+  from the inventory in `inventory/` that `families.py` and `pac.py
+  functions` write. The repository's workflow runs it on every push.
 - `tools/librefs.py`: the names by which the reference-derived library
   units of a finished build refer to library functions.
 - `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,

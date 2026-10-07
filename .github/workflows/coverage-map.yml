@@ -1,0 +1,49 @@
+# Draws the coverage map from the published inventory and the build
+# configuration, checks it on every pull request, and publishes it to
+# GitHub Pages on every push to main. No game file is involved:
+# docs/completion-map.md, "Keeping the map current".
+name: Coverage map
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Control cases
+        run: python3 ps1/tools/test_coveragemap.py
+      - name: Draw the map
+        run: python3 ps1/tools/coveragemap.py render --svg out/completion-map.svg --json out/completion-map.json --html out/index.html
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-map
+          path: out
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
+        with:
+          path: out
+
+  publish:
+    if: github.event_name != 'pull_request'
+    needs: render
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
