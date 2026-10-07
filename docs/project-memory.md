@@ -4276,6 +4276,113 @@ Lessons:
   its whole time box. Say in the message that the hint is a guess and
   what would show it wrong, so that the agent drops it early.
 
+## Sixty-seventh group: the first stage module, slot 0x6 of STAGE00.PAC
+
+By the owner's decision of 2026-10-06 two sessions work at the same time,
+each on its own modules. The owner's words: "we could assign half of the
+overlays for the other agent ... there is no need for you both work on
+the same shared spots". The second session has the stage files: slot
+`0x6`, which has 20 contents, one per `STAGE*.PAC`, all at `0x801e8000`.
+Their images are named `slot06_NN` after the number in the file name.
+This group is that session's first.
+
+Counts, from the build:
+
+- `slot06_00`, the content of `STAGE00.PAC`: 49,896 bytes at
+  `0x801e8000`, 28 functions by the sweep. 19 are exact, 1,392 of 5,248
+  bytes. 48,504 bytes of the chunk are retained raw.
+- 9 functions are parked with candidates, 3,856 bytes.
+- 10 unit files, 18 symbols and 6 structs with 42 lines of the field table
+  are new. The resident image and the other ten module images are
+  unchanged in their bytes.
+
+What ran:
+
+- A private helper listed which functions of the module are the same
+  code, apart from addresses, as a function that is already exact: 5 of
+  the 28, all in the resident image.
+- A first round of four batches: 18 of 28 exact. The merge had 3
+  conflicts, all of one kind: one batch declared a 32-bit field where
+  another declared its upper half.
+- Second attempts on the 10 parked, four agents with the patterns named:
+  1 exact.
+
+What the code is, as far as the exact part shows it:
+
+- The module begins with three functions. One calls a drawing function
+  per layer under a bit of a flag word, one calls an initialiser per
+  layer, one an update function per layer. The first stands at
+  `0x801e8000`, the address in all 20 entries of the resident table
+  `table_801725a0`; what calls the other two is not read. The three
+  layers are the three records of 0x90 bytes from `0x801aa544` on.
+  Resident units declare the first as `Chan`, and the resident functions
+  that the stage code calls with these records take a `Cam` or a
+  `Sprite`. The stage units use a view of their own, `Slot06Layer`.
+- The tables that the update functions fill hold records of 0x1c or 0x20
+  bytes. The resident functions that initialise one call `SetDrawMode`
+  on the record and `MargePrim` on the record and its part at 0xc, and
+  store a length of 3 or 4 and a code of 0x7c or 0x64 there. Inferred
+  from that: a record is a drawing-mode primitive followed by a sprite
+  primitive, of 16 by 16 pixels or with a width and a height. The shared
+  types `Slot06Tile` and `Slot06TileW` say so, with a nested
+  `Slot06Sprt16` or `Slot06Sprt`. Four batches had given the same record
+  four names; the one type replaced them before anything was published.
+- The words at 0x10 and 0x14 of a layer and of an object are read whole
+  and as halves. The field table holds one of the two. The halves are
+  declared, as `Object` has them, and a whole word is written through a
+  cast.
+
+Source forms, each measured by a rebuild:
+
+- One variable changed in steps keeps what one expression loses. The
+  drawing functions hold `(x & 0xffff) | (t << 16)` in a register and
+  then shift it right by 16. Written as one expression, and with fresh
+  temporaries, the compiler drops the `or` and the function is 4 bytes
+  short. Written as `pos &= 0xffff; pos |= t << 16; y = pos >> 16;` it
+  keeps it and the size is right. A local union of a word and two halves
+  did not give this code in two tries: the frame grew by 8 bytes and the
+  `or` was folded away.
+- A pointer that is passed to a call after two stores is declared as an
+  array and read as element 0. Declared as a scalar, the last store goes
+  into the delay slot of the call and the function is 4 bytes short.
+  This made the one second attempt exact, and a function of the next
+  stage module before it.
+
+What is parked and why, by the agents' reports and the instruction
+diffs:
+
+- The three drawing functions, 636, 628 and 636 bytes: the size is right
+  and the loops are exact; 10 to 12 instruction slots of the first block
+  differ, in the first function by their order alone.
+- The function that the resident image calls to draw an object's tiles,
+  700 bytes: 8 bytes short, with one saved register less than the
+  original.
+- Three functions with one difference of two layer fields each: the
+  size is right and the operands are in other registers.
+- One update function is 8 bytes long, one handler 8 bytes short.
+
+Not claimed: what the stage's flag word, layers and tables mean beyond
+the above, and that the other 19 stage modules are the same kind of code
+throughout. `pac.py functions` counts 532 functions in the 20 contents
+that are distinct apart from addresses, 481 of them in one content only.
+
+Lessons:
+
+- This code does not come as easily as the last modules. 18 of 28 in the
+  first round, where the last two modules gave 99 of 107 and 208 of 228.
+  The parked ones are not the long ones: three are under 220 bytes.
+- When an agent reports many spellings without effect and a size that is
+  4 bytes short, ask which instruction is missing and what would keep
+  the compiler from folding it. The answer here was not a type but a
+  variable assigned more than once, and it took one listing and a few
+  rebuilds at the top level.
+- Give a kind of module its shared types before the second module of
+  the kind starts. Four names for one record after four batches is the
+  cost of one round without them.
+- A second attempt that ends with every instruction right and a few in
+  another order is not a job for more spellings. An automatic search
+  over the order of statements is being set up for those.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

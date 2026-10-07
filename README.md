@@ -30,7 +30,7 @@ bytes of read-only data and 5,900 bytes of initialised data. The
 remaining 316,484 payload bytes are retained from the baseline and counted as
 raw. Retained bytes are scaffolding, not recovered source. This is not a
 full-game decompilation.
-The same build has ten overlay modules as images of their own. In `slot2a`
+The same build has eleven overlay modules as images of their own. In `slot2a`
 all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
 retained raw.
 In `slot0b` 56 C functions, 5,652 bytes, are exact and 25,784 bytes are
@@ -48,7 +48,9 @@ In `slot2b` 102 C functions, 9,052 bytes, are exact and 23,516 bytes are
 retained raw, and in `slot2c` the same 102 functions are linked a second
 time and are exact against its own chunk.
 In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
-retained raw. The other
+retained raw.
+In `slot06_00`, the first of the 20 stage modules, 19 C functions, 1,392
+bytes, are exact and 48,504 bytes are retained raw. The other
 modules are not in the build.
 The [Windows pilot](windows/docs/gameplay-pilot.md) is behaviorally tested but
 not byte-matching. VC5 tools are available; game matching with VC5 is untested.
