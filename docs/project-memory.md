@@ -4068,6 +4068,27 @@ The map is a current snapshot to update after ownership changes, not a rewrite
 of historical evidence. It was authored in a separate worktree so concurrent
 reconstruction and the 60-second PR watch can continue without interference.
 
+The same day the owner found the text map insufficient and asked for a
+picture in the manner of the AnyPS5 progress treemap: one square per
+function, green or grey, grouped in blocks. `ps1/tools/coveragemap.py` draws
+it from the inventories of `families.py` and `pac.py functions` and from the
+build configuration, as `docs/completion-map.svg` with the counts in
+`docs/completion-map.json`, embedded in the completion map and the README.
+Decisions: the generator is written here, not copied, because AnyPS5 is
+GPL-2.0; squares stand in address order, so the parked functions show where
+they lie; the resident panel counts functions and the module panel function
+placements, second links in a darker green and named in the heading; a
+square is exact when units own all its bytes, data included, or own it
+without a gap from one end with a function among them, which is how the
+sweep's two known boundary errors (the table before the first function of
+slot `0x0`, the table after the entry routine) count as exact without a
+special case for either, while the raw bytes stay out of the byte count; a
+swept function owned only as data is set aside and reported; a declared
+function that touches no swept function is an error, so a stale inventory
+cannot draw a map. No address enters the SVG or the JSON; the inventory stays
+under `ps1/local/coverage/sweep/`. The counts reproduce the text map's
+numbers exactly.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

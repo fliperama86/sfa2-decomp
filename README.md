@@ -8,6 +8,8 @@ second simultaneous delivery target.
 See the [completion map](docs/completion-map.md) for source coverage, retained
 bytes and the remaining route to delivery.
 
+[![Coverage map: one square per function of the static sweep, green where the build owns it](docs/completion-map.svg)](docs/completion-map.md)
+
 ## Current evidence
 
 The [PS1 pilot](ps1/docs/matching-pilot.md) rebuilds three connected functions
