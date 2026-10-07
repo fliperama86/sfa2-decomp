@@ -63,6 +63,8 @@ or resolving loading questions. Nonmatching code needs its own validation.
 - [`ps1/`](ps1/README.md): primary target, matching build, overlay map,
   baseline audit and Ghidra project in an ignored local workspace.
 - [`windows/`](windows/README.md): comparison research and private working files.
+- [`port/`](port/README.md): groundwork for a port to macOS, Windows and
+  Linux. Nothing of the game compiles or runs there.
 - [`research/target-investigation.md`](research/target-investigation.md): original
   target-selection evidence, including a historical Saturn comparison.
 - [`tools/ghidra/`](tools/ghidra/): shared analysis scripts written for the project.
