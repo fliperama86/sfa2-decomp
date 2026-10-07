@@ -2212,6 +2212,8 @@ struct Slot06_0fRecb4e4 size=0x2
 0x000 u8 field_00
 0x001 u8 field_01
 
+struct Slot06_12Recf310 size=0x4
+
 struct Slot06_11Rec0028 size=0x8
 0x000 u32 field_00
 0x004 u8 field_04
@@ -2221,5 +2223,3 @@ struct Slot06_11Rec0028 size=0x8
 struct Slot06_11Rece188 size=0x8
 0x000 s32 field_00
 0x004 s32 field_04
-
-struct Slot06_12Recf310 size=0x4
