@@ -4292,7 +4292,7 @@ Counts, from the build:
   `0x801e8000`, 28 functions by the sweep. 19 are exact, 1,392 of 5,248
   bytes. 48,504 bytes of the chunk are retained raw.
 - 9 functions are parked with candidates, 3,856 bytes.
-- 10 unit files, 18 symbols and 6 structs with 42 lines of the field table
+- 10 unit files, 18 symbols and 6 structs with 24 lines of the field table
   are new. The resident image and the other ten module images are
   unchanged in their bytes.
 
@@ -4325,7 +4325,8 @@ What the code is, as far as the exact part shows it:
   from that: a record is a drawing-mode primitive followed by a sprite
   primitive, of 16 by 16 pixels or with a width and a height. The shared
   types `Slot06Tile` and `Slot06TileW` say so, with a nested
-  `Slot06Sprt16` or `Slot06Sprt`. Four batches had given the same record
+  `Slot06Sprt16` or `Slot06Sprt`. They hold only the members that exact
+  units use so far: three colour bytes, and the width and the height. Four batches had given the same record
   four names; the one type replaced them before anything was published.
 - The words at 0x10 and 0x14 of a layer and of an object are read whole
   and as halves. The field table holds one of the two. The halves are
