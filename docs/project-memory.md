@@ -4114,6 +4114,20 @@ form exact when any placement of it is. At that time 2,057 of 5,601, 36.7
 percent, against 17.3 percent of placements and 19.5 percent of code bytes.
 It is the measure of source left to write; the other two stand beside it.
 
+The owner then asked for better names than `0x28` on the blocks of the
+single-content slots, best effort. `sweep` now also writes
+`ps1/inventory/contents.tsv`, the archives that carry each content, and the
+map names a block from them: the archive family (`END`, `CONT`, `CDEMO`,
+`DEMO`, `SELECTA`), the stems where three archives or fewer carry the
+content (`PL09`, `PL11+PL13`), the first family and a count where more than
+two families share one (`BOSS+2`, for BOSS, GDEMO and RDM). The slot and
+the archive count moved to the tooltip. What the modules do is not inferred
+from the names; the archive name is a fact of the disc and nothing more.
+`render` refuses an inventory whose two module tables disagree, and draws
+the old slot labels when the contents table is absent. Labels are never cut
+short and are dropped when they do not fit, so the smallest blocks (slot
+`0x1`, `CDEMO`) have their name in the tooltip only.
+
 ## Sixty-fifth group: a fifth module, at two addresses: slots 0x2b and 0x2c; the pilot module complete
 
 The owner's choice of 2026-10-06, more overlay modules, continued with

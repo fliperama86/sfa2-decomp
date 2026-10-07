@@ -23,8 +23,11 @@ when any placement of it is. The share of all placements and of all code
 bytes stand beside it. The left panel is the resident
 executable, the game code in one block and the Sony library by
 [family](../ps1/docs/library-families.md). The right panel is the overlay
-modules, one block per distinct content of a slot, labelled by slot where the
-slot has one content and by archive where it has several. Its unit is the
+modules, one block per distinct content of a slot, named by the archives
+that carry the content: the archive family where many do (`END`, `CONT`,
+`CDEMO`, `BOSS+2` where three families share one content), the archive
+stems where three or fewer do (`PL09`, `PL11+PL13`); the slot and the
+archive count are in the block's tooltip. Its unit is the
 function placement: the contents linked a second time, `0x8` and `0x17`,
 count their functions again and are drawn in the darker green. The
 repository's workflow draws the picture from the

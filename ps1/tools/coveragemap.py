@@ -53,16 +53,26 @@ usage:
   coveragemap.py render [DIR] [--config FILE] --svg FILE --json FILE [--html FILE] [--date YYYY-MM-DD]
 
 DIR holds `game.tsv` and `library.tsv` from `families.py` and `modules.tsv`
-from `pac.py functions`, in the columns those tools document.
+from `pac.py functions`, in the columns those tools document, and
+`contents.tsv`, which `sweep` writes itself: for every content of
+`modules.tsv`, its first archive, slot, number of archives and the archives
+that carry it. From it a block gets its name: the archive family that
+carries the content, `END`, `CONT`, `CDEMO`, the family being the archive
+stem without its two-digit number; the stems themselves when three
+archives or fewer carry it, `PL11+PL13`; the first family and how many
+others when more than two families do, `BOSS+2`. Without `contents.tsv`
+a content of a slot with one content is named by the slot.
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import math
 import os
+import re
 import subprocess
 import sys
 import tomllib
@@ -72,6 +82,9 @@ from html import escape
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS))
+import pac  # noqa: E402
+
 INVENTORY = TOOLS.parent / "inventory"
 REPOSITORY = "https://github.com/fliperama86/sfa2-decomp"
 LIBRARY_BOUNDARY, CODE_END = 0x80157000, 0x8016D920
@@ -87,7 +100,8 @@ SECOND_COLORS = {C: "#1a6b2f", ASM: "#1f5fb0"}  # exact, but a second link of th
 LEGEND_TEXT = {C: "exact from C", ASM: "exact from assembly", "second": "exact, linked a second time",
                NONE: "not in the build", PARTIAL: "owned in part"}
 BACKGROUND, TEXT = "#0d1117", "#ffffff"
-LABEL_SIZE, LABEL_CHAR = 12, 0.56  # font size, and the width of a character in ems
+LABEL_SIZE, LABEL_CHAR = 12, 0.56  # font size, and the width of a lowercase character in ems
+WIDE_CHAR = 0.74  # capitals and digits, which the archive names are made of
 
 
 class Problem(Exception):
@@ -110,6 +124,7 @@ class Block:
     functions: list[Swept]
     second_link: bool = False
     image: str | None = None
+    archives: int | None = None  # how many archives carry the content; None when contents.tsv is absent
 
     def count(self, *states: str) -> int:
         return sum(f.state in states for f in self.functions)
@@ -209,21 +224,91 @@ def read_resident(directory: Path) -> list[Block]:
     return blocks
 
 
+FAMILY = re.compile(r"^(.*?)(?:[0-9A-F]{2})?X?$")
+
+
+def family(archive: str) -> str:
+    """The archive's family: its stem without a two-digit number and a side mark, `CONT00X` to `CONT`."""
+    stem = archive.rsplit(".", 1)[0]
+    return FAMILY.match(stem).group(1) or stem
+
+
+def content_label(archives: list[str]) -> str:
+    """The name of a content from the archives that carry it, as the module docstring says."""
+    stems = [a.rsplit(".", 1)[0] for a in archives]
+    if len(stems) <= 3:
+        return "+".join(stems)
+    families = list(dict.fromkeys(family(a) for a in archives))
+    if len(families) <= 2:
+        return "+".join(families)
+    return f"{families[0]}+{len(families) - 1}"
+
+
+def content_title(slot: int, archives: list[str]) -> str:
+    if len(archives) <= 3:
+        return f"slot {slot:#x}, " + ", ".join(archives)
+    return f"slot {slot:#x}, {archives[0]} and {len(archives) - 1} more archives"
+
+
+def read_contents(directory: Path) -> dict[tuple[int, str], list[str]] | None:
+    """The archives of every content, by slot and first archive, or None when the table is absent."""
+    path = directory / "contents.tsv"
+    if not path.is_file():
+        return None
+    out = {}
+    for r in read_rows(path, 4):
+        archives = r[3].split(",")
+        if archives[0] != r[0] or len(archives) != int(r[2]):
+            raise Problem(f"{path}: the row of {r[0]} slot {r[1]} does not list its archives as it counts them")
+        out[(int(r[1], 16), r[0])] = archives
+    return out
+
+
 def read_modules(directory: Path) -> list[Block]:
     """One block per distinct content of a slot, keyed by slot and first archive."""
     contents: dict[tuple[int, str], list[Swept]] = {}
     for r in read_rows(directory / "modules.tsv", 5):
         contents.setdefault((int(r[1], 16), r[0]), []).append(Swept(int(r[2], 16), int(r[3]), r[4]))
+    carriers = read_contents(directory)
+    if carriers is not None:
+        missing = sorted(f"{slot:#x}/{archive}" for slot, archive in set(contents) ^ set(carriers))
+        if missing:
+            raise Problem("modules.tsv and contents.tsv disagree about the contents, run `sweep` again: " + ", ".join(missing[:8]))
     per_slot: dict[int, int] = {}
     for slot, _ in contents:
         per_slot[slot] = per_slot.get(slot, 0) + 1
     blocks = []
     for (slot, archive), functions in contents.items():
         functions.sort(key=lambda f: f.address)
-        stem = archive.rsplit(".", 1)[0]
-        label = f"{slot:#x}" if per_slot[slot] == 1 else stem
-        blocks.append(Block(f"{slot:#x}/{archive}", label, f"slot {slot:#x}, {archive}", functions))
+        if carriers is not None:
+            archives = carriers[(slot, archive)]
+            block = Block(f"{slot:#x}/{archive}", content_label(archives), content_title(slot, archives), functions, archives=len(archives))
+        else:
+            stem = archive.rsplit(".", 1)[0]
+            label = f"{slot:#x}" if per_slot[slot] == 1 else stem
+            block = Block(f"{slot:#x}/{archive}", label, f"slot {slot:#x}, {archive}", functions)
+        blocks.append(block)
     return blocks
+
+
+def contents_rows(executable: str, directory: str, pointers: int) -> list[str]:
+    """One row per content of a code-bearing chunk of table 0, as `pac.py functions` takes them: first archive,
+    slot, number of archives, the archives in the order `pac.py` reads them."""
+    image = pac.Image(Path(executable).read_bytes())
+    table = pac.destination_tables(image, pointers)[0]
+    archives, _ = pac.read_archives(directory)
+    placements: dict[tuple[int, bytes], list[str]] = {}
+    for name, data, chunks in archives:
+        for c in chunks:
+            if c["table"] != 0 or c["slot"] >= len(table):
+                continue
+            body = data[c["offset"] : c["offset"] + c["size"]]
+            key = (c["slot"], hashlib.sha256(body).digest())
+            if key in placements:
+                placements[key].append(name)
+            elif pac.code_estimate(body):
+                placements[key] = [name]
+    return [f"{names[0]}\t{slot:#x}\t{len(names)}\t{','.join(names)}" for (slot, _), names in placements.items()]
 
 
 def load_config(path: Path) -> dict:
@@ -460,11 +545,15 @@ def headline(panel: Panel) -> tuple[str, str]:
     return title, detail
 
 
+def label_width(label: str, size: int) -> float:
+    return sum(WIDE_CHAR if c.isupper() or c.isdigit() else LABEL_CHAR for c in label) * size
+
+
 def fit_label(label: str, w: float, h: float) -> int:
     """The font size at which the whole label fits the block, or 0. Labels are never cut short:
     a prefix can read as another block's name, `0x2` for `0x2b`."""
     for size in (LABEL_SIZE, 10, 9):
-        if h >= size + 8 and len(label) * size * LABEL_CHAR + 6 <= w:
+        if h >= size + 8 and label_width(label, size) + 8 <= w:
             return size
     return 0
 
@@ -559,7 +648,7 @@ def summary(panels: list[Panel], date: str, config: Path) -> dict:
         for block in sorted(panel.blocks, key=lambda b: b.key):
             item = {"key": block.key, "label": block.label, **counts([block])}
             if panel.name != RESIDENT:
-                item.update(image=block.image, second_link=block.second_link)
+                item.update(image=block.image, second_link=block.second_link, archives=block.archives)
             blocks.append(item)
         entry["blocks"] = blocks
         out["panels"][panel.name] = entry
@@ -669,6 +758,11 @@ def cmd_sweep(args) -> int:
         sys.stderr.write(proc.stderr)
         if proc.returncode:
             raise Problem(f"{Path(command[1]).name} exited with {proc.returncode}")
+    try:
+        rows = contents_rows(args.executable, args.pac_directory, pointers)
+    except (OSError, pac.FormatError) as exc:
+        raise Problem(f"contents: {exc}") from exc
+    (out / "contents.tsv").write_text("".join(row + "\n" for row in rows))
     print(f"inventory written to {out}")
     return 0
 

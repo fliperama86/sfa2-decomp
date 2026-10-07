@@ -50,13 +50,20 @@ def module_row(archive: str, slot: int, address: int, size: int, form: str | Non
     return f"{archive}\t{slot:#x}\t{address:08x}\t{size}\t{form or f'{address & 0xFFFF:04x}-{size}'}\n"
 
 
-def inventory(root: Path, name: str, game: str = "", library: str = "", modules: str = "") -> Path:
+def inventory(root: Path, name: str, game: str = "", library: str = "", modules: str = "", contents: str | None = None) -> Path:
     directory = root / name
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "game.tsv").write_text(game)
     (directory / "library.tsv").write_text(library)
     (directory / "modules.tsv").write_text(modules)
+    if contents is not None:
+        (directory / "contents.tsv").write_text(contents)
     return directory
+
+
+def contents_row(first: str, slot: int, *others: str) -> str:
+    archives = [first, *others]
+    return f"{first}\t{slot:#x}\t{len(archives)}\t{','.join(archives)}\n"
 
 
 def unit(name: str, functions: list[tuple[int, int]], image: str | None = None, kind: str | None = None, **data) -> str:
@@ -97,7 +104,9 @@ def main_cases(root: Path):
     modules += "".join(module_row("PL01.PAC", 4, 0x801B0000 + 32 * k, 32, form) for k, form in enumerate("ad"))
     modules += module_row("CONT00.PAC", 0x12, 0x80010000, 64, "e") + module_row("CONT00.PAC", 0x12, 0x80010040, 32, "f")
     modules += module_row("CONT00X.PAC", 0x13, 0x80020000, 64, "e") + module_row("CONT00X.PAC", 0x13, 0x80020040, 32, "f")
-    directory = inventory(root, "main", game, library, modules)
+    contents = (contents_row("PL00.PAC", 4) + contents_row("PL01.PAC", 4)
+                + contents_row("CONT00.PAC", 0x12, "CONT00X.PAC", "CONT01.PAC", "CONT01X.PAC", "CONT02.PAC") + contents_row("CONT00X.PAC", 0x13))
+    directory = inventory(root, "main", game, library, modules, contents)
     config = (
         unit("a", [(START, 32), (START + 96, 32)])
         + unit("b", [(START + 64, 32)], kind="asm")
@@ -144,13 +153,13 @@ def main_cases(root: Path):
         and (modules_["declared_functions"], modules_["declared_bytes"], modules_["unit"]) == (3, 160, "function placements"),
         json.dumps(modules_),
     ), 0, "as required"
-    mblocks = {b["key"]: (b["label"], b["total"], b["exact"], b["image"], b["second_link"]) for b in modules_["blocks"]}
+    mblocks = {b["key"]: (b["label"], b["total"], b["exact"], b["image"], b["second_link"], b["archives"]) for b in modules_["blocks"]}
     yield "main-json-module-blocks", verdict(
         mblocks == {
-            "0x4/PL00.PAC": ("PL00", 3, 0, None, False),
-            "0x4/PL01.PAC": ("PL01", 2, 1, "pl01", False),
-            "0x12/CONT00.PAC": ("0x12", 2, 1, "slot12", False),
-            "0x13/CONT00X.PAC": ("0x13", 2, 1, "slot13", True),
+            "0x4/PL00.PAC": ("PL00", 3, 0, None, False, 1),
+            "0x4/PL01.PAC": ("PL01", 2, 1, "pl01", False, 1),
+            "0x12/CONT00.PAC": ("CONT", 2, 1, "slot12", False, 5),
+            "0x13/CONT00X.PAC": ("CONT00X", 2, 1, "slot13", True, 1),
         },
         json.dumps(mblocks),
     ), 0, "as required"
@@ -161,7 +170,8 @@ def main_cases(root: Path):
         "Overlay modules: 33.3% (3/9)", "function placements · 2 from source, 1 linked a second time · 45.5% of the code bytes",
         "<title>game code: 3/5 (60.0%)</title>", "<title>library: sound: 1/2 (50.0%)</title>", "<title>library: disc: 0/1 (0.0%)</title>",
         "<title>slot 0x4, PL00.PAC: 0/3 (0.0%)</title>", "<title>slot 0x13, CONT00X.PAC (second link): 1/2 (50.0%)</title>",
-        ">Game</text>", ">PL00</text>", ">0x12</text>",
+        "<title>slot 0x12, CONT00.PAC and 4 more archives: 1/2 (50.0%)</title>",
+        ">Game</text>", ">PL00</text>", ">CONT</text>",
         "exact from C", "exact from assembly", "exact, linked a second time", "not in the build", "2026-01-01",
     ]
     for item in wanted:
@@ -203,6 +213,26 @@ def main_cases(root: Path):
         proc.returncode == 0 and sorted(local) == ["../img/map.svg", "counts.json"] and all((deep / link).is_file() for link in local),
         f"{proc.stderr}{local}",
     ), 0, "as required"
+    # Without contents.tsv a content of a slot with one content is named by the slot, and the title names its first archive.
+    bare = inventory(root, "main-bare", game, library, modules)
+    proc, data, svg = render(root, "main-bare", bare, config)
+    labels = {b["key"]: b["label"] for b in data["panels"]["modules"]["blocks"]}
+    yield "labels-without-contents", verdict(
+        proc.returncode == 0 and labels == {"0x4/PL00.PAC": "PL00", "0x4/PL01.PAC": "PL01", "0x12/CONT00.PAC": "0x12", "0x13/CONT00X.PAC": "0x13"}
+        and "<title>slot 0x12, CONT00.PAC: 1/2 (50.0%)</title>" in svg,
+        json.dumps(labels),
+    ), 0, "as required"
+    # Without the table the number of archives is not known, and the JSON says so rather than guessing one.
+    yield "archives-unknown-without-contents", verdict(
+        all(b["archives"] is None for b in data["panels"]["modules"]["blocks"]), json.dumps(data["panels"]["modules"]["blocks"])
+    ), 0, "as required"
+    # contents.tsv and modules.tsv must name the same contents.
+    drift = inventory(root, "main-drift", game, library, modules, contents.replace(contents_row("CONT00X.PAC", 0x13), ""))
+    proc, _, _ = render(root, "main-drift", drift, config)
+    yield "contents-drift", proc, 1, "error: modules.tsv and contents.tsv disagree about the contents, run `sweep` again: 0x13/CONT00X.PAC\n"
+    bad = inventory(root, "main-bad-contents", game, library, modules, contents.replace("CONT00.PAC\t0x12\t5\t", "CONT00.PAC\t0x12\t4\t"))
+    proc, _, _ = render(root, "main-bad-contents", bad, config)
+    yield "contents-count-mismatch", proc, 1, "the row of CONT00.PAC slot 0x12 does not list its archives as it counts them\n"
     # The same inventory with a wider configuration: an image whose archive is not the content's first archive.
     proc, _, _ = render(root, "main-wrong-archive", directory, config + image("pl07", 0x4, "PL07.PAC", 0x801B0000))
     yield "image-fits-no-content", proc, 1, "image 'pl07' (slot 0x4, PL07.PAC) fits no content of the inventory"
@@ -340,11 +370,30 @@ def layout_cases(root: Path):
         yield f"grid-{n}-in-{w}x{h}", verdict(ok, str(cells[:5])), 0, "as required"
     yield "grid-none", verdict(coveragemap.grid(0, 0, 0, 10, 10) == [] and coveragemap.grid(3, 0, 0, 0, 10) == [], ""), 0, "as required"
     labels = {
-        ("0x2b", 20, 30): 0, ("Game", 60, 30): 12, ("system", 44, 30): 10, ("system", 38, 30): 9, ("system", 30, 30): 0,
-        ("x", 100, 10): 0, ("PL00", 40, 21): 12, ("PL00", 40, 17): 9,
+        ("0x2b", 20, 30): 0, ("Game", 60, 30): 12, ("system", 44, 30): 10, ("system", 39, 30): 9, ("system", 30, 30): 0,
+        ("x", 100, 10): 0, ("PL00", 44, 21): 12, ("PL00", 40, 21): 10, ("PL00", 40, 17): 9, ("CDEMO", 37, 30): 0,
     }
     got = {key: coveragemap.fit_label(*key) for key in labels}
     yield "fit-label", verdict(got == labels, str(got)), 0, "as required"
+    names = {
+        ("DEMO.PAC",): "DEMO", ("SELECTA.PAC",): "SELECTA", ("PL09.PAC",): "PL09", ("PL0EX.PAC",): "PL0EX", ("A1.PAC",): "A1",
+        ("PL11.PAC", "PL13.PAC"): "PL11+PL13", ("PL11X.PAC", "PL13X.PAC"): "PL11X+PL13X",
+        tuple(f"CDEMO{n:02X}.PAC" for n in range(21)): "CDEMO",
+        tuple(f"END{n:02X}.PAC" for n in range(21)): "END",
+        tuple(f"CONT{n:02X}{x}.PAC" for n in range(21) for x in ("", "X")): "CONT",
+        tuple(f"{f}{n:02X}.PAC" for f in ("BOSS", "GDEMO", "RDM") for n in range(21)): "BOSS+2",
+        tuple(f"PL{n:02X}X.PAC" for n in range(21)) + ("PL12.PAC", "PL13.PAC", "PL14.PAC"): "PL",
+        ("STAGE0E.PAC",): "STAGE0E",
+    }
+    got = {key: coveragemap.content_label(list(key)) for key in names}
+    yield "content-label", verdict(got == names, str({k[:2]: v for k, v in got.items() if names[k] != v})), 0, "as required"
+    titles = {
+        (0xF, ("DEMO.PAC",)): "slot 0xf, DEMO.PAC",
+        (0x16, ("PL11.PAC", "PL13.PAC")): "slot 0x16, PL11.PAC, PL13.PAC",
+        (0x28, tuple(f"END{n:02X}.PAC" for n in range(21))): "slot 0x28, END00.PAC and 20 more archives",
+    }
+    got_titles = {key: coveragemap.content_title(key[0], list(key[1])) for key in titles}
+    yield "content-title", verdict(got_titles == titles, str(got_titles)), 0, "as required"
     pieces = [(0, 16, "data"), (16, 80, "c")]
     yield "anchored-full-from-start", verdict(coveragemap.anchored(pieces, 0, 100) == (pieces, 20), ""), 0, "as required"
     yield "anchored-to-end", verdict(coveragemap.anchored([(60, 100, "c")], 0, 100) == ([(60, 100, "c")], 60), ""), 0, "as required"
@@ -381,9 +430,15 @@ def sweep_cases(root: Path):
     yield "sweep-game-rows", verdict(rows["game.tsv"] is not None and rows["game.tsv"].count("\n") == 2 and rows["game.tsv"].startswith(f"{START:08x}\t16\t"), str(rows)), 0, "as required"
     yield "sweep-library-rows", verdict(rows["library.tsv"] is not None and rows["library.tsv"].count("\n") == 1 and "\talpha\t" in rows["library.tsv"], str(rows)), 0, "as required"
     yield "sweep-module-rows", verdict(rows["modules.tsv"] is not None and rows["modules.tsv"].count("\n") == 8 and rows["modules.tsv"].startswith(f"A1.PAC\t0x0\t{XB:08x}\t16\t"), str(rows)), 0, "as required"
+    contents = (out / "contents.tsv").read_text() if (out / "contents.tsv").exists() else None
+    yield "sweep-contents-rows", verdict(contents == "A1.PAC\t0x0\t1\tA1.PAC\n", repr(contents)), 0, "as required"
     proc = tool("render", out, "--config", config, "--svg", root / "sweep.svg", "--json", root / "sweep.json", "--date", "2026-01-01")
     yield "sweep-then-render-resident", proc, 0, "resident: 1/3 functions exact (33.3%), 1 from C, 0 from assembly; 16/44 code bytes (36.4%); the build declares 1 functions, 16 bytes\n"
     yield "sweep-then-render-modules", proc, 0, "modules: 1/8 function placements exact (12.5%), 1 from C, 0 from assembly; 16/128 code bytes (12.5%); the build declares 1 functions, 16 bytes\n"
+    sweep_json = json.loads((root / "sweep.json").read_text()) if (root / "sweep.json").exists() else {}
+    yield "sweep-then-render-label", verdict(
+        [(b["label"], b["archives"]) for b in sweep_json.get("panels", {}).get("modules", {}).get("blocks", [])] == [("A1", 1)], json.dumps(sweep_json)[:500]
+    ), 0, "as required"
     proc = tool("sweep", exe_path, pac, "--out", root / "sweep-nop", "--config", families, "--families", families, "--symbols", symbols)
     yield "sweep-needs-pointers", proc, 1, "error: no --pointers given and the configuration has no [overlays] table_pointers\n"
 
