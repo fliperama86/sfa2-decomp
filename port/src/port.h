@@ -42,6 +42,18 @@ int  port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigne
 /* Find a file by name in the root directory or one folder below it (version
  * suffix and case ignored). */
 int  port_disc_find(struct port_disc *d, const char *name, unsigned *sector, unsigned *size, char *err, size_t errsize);
+/* One file of the disc's directory: the name without its version suffix, lower
+ * case; the first sector; the length in bytes. */
+struct port_disc_file {
+    char name[32];
+    unsigned sector, size;
+};
+/* Every file of the root directory and of the folders one level below it, in
+ * directory order, into out[0..max); *count says how many. A directory record
+ * that runs past its sector or whose name runs past the record, a directory
+ * larger than the bound, an extent beyond the image and more files than `max`
+ * are each -1 with a line. */
+int port_disc_list(struct port_disc *d, struct port_disc_file *out, unsigned max, unsigned *count, char *err, size_t errsize);
 /* From the text of SYSTEM.CNF: the file name of its BOOT line. -1 if none. */
 int  port_boot_name(const char *text, size_t length, char *out, size_t outsize);
 
@@ -96,10 +108,12 @@ void port_stop_main_returned(void);
 #define PORT_EXIT_NO_C    3     /* a game function without C was reached */
 #define PORT_EXIT_NO_HOST 4     /* a library function without a host routine was reached */
 #define PORT_EXIT_UNKNOWN 5     /* a call into an unknown function */
+#define PORT_EXIT_DISC    6     /* a disc command or state, or a buffer, that the disc layer does not handle */
 #define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
 #define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
 #define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
 #define PORT_EXIT_TARGET  12    /* refused: an address the game handed over is not an installed function */
+#define PORT_EXIT_PROGRAM 13    /* Exec of a program of the disc for which no C exists (--skip-programs continues) */
 #define PORT_EXIT_OTHER   9     /* a library call whose arguments a host routine does not serve */
 
 /* Print `stop: ` and the formatted line, flush, end the program with `status`.
@@ -112,6 +126,7 @@ void port_halt(int status, const char *fmt, ...);
  * address, whatever the build calls it (the names are partly a matcher's guesses). `note` is NULL for a routine that does its
  * job; it is set, saying why that is right on a PC, for a routine that does
  * nothing on purpose. */
+#define PORT_LIBRARY_DECLARED
 struct port_library  { const char *name; void *host; const char *note; };
 /* A host routine that replaces the C of a game function (by its name). */
 struct port_override { const char *name; void *host; const char *note; };
@@ -122,8 +137,8 @@ struct port_domain   { const char *name; const struct port_library *table; };  /
 extern const struct port_domain   port_domains[];   extern const unsigned port_domain_count;
 extern const struct port_override *const port_override_sets[]; extern const unsigned port_override_set_count;  /* each set ends with a null name */
 
-/* The domains' tables (ending with a null name). */
-extern const struct port_library port_kernel_library[], port_sound_library[], port_card_library[],
+/* The domains' tables (ending with a null name). port_cd_library is defined by cd.c. */
+extern const struct port_library port_kernel_library[], port_cd_library[], port_sound_library[], port_card_library[],
                                  port_c_library[], port_thread_library[], port_system_library[];
 extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
 
@@ -142,8 +157,9 @@ int  port_library_list(char *err, size_t errsize);
 
 /* kernel.c */
 /* Called by the host routines in which the game waits or polls (VSync,
- * GetRCnt, TestEvent, ...). Keeps the clock of frames: when 1/60 s has passed
- * it does one vblank (the registered handlers); otherwise it yields the
+ * GetRCnt, TestEvent, CdSync, CdReady, ...), and by the disc layer's own
+ * waits. Keeps the clock of frames: when 1/60 s has passed it does one vblank
+ * (the registered handlers, then port_cd_tick); otherwise it yields the
  * processor briefly. A call made from inside a handler does nothing. */
 void port_tick(void);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
@@ -151,9 +167,11 @@ void port_callbacks_reset(void);
 /* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
  * handler called, or are marked ready for TestEvent. */
 void port_deliver_event(unsigned event_class, unsigned spec);
+/* The port's own seam to the disc layer (cd.c). */
+void port_cd_tick(void);
 
 /* kernel.c / interrupt.c: the vblank as an interrupt of the game's thread */
-extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs */
+extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs; the disc layer raises it around its ready handler */
 int  port_interrupt_allowed(void);
 int  port_interrupt_take(void);
 void port_clock_start(void);
@@ -167,6 +185,10 @@ void port_trace_line(const char *fmt, ...);
 void port_debug_watchdog(unsigned seconds);
 const char *port_function_at(size_t ip);   /* main.c: the game function whose implementation is nearest at or below ip */
 unsigned port_frames(void);                /* kernel.c: vblanks since the start */
+
+/* main.c: the open disc, for the routines that look files up; --skip-programs */
+extern struct port_disc *port_disc_handle;
+extern int port_skip_programs;
 
 /* threads.c */
 /* The gp that the entry code loads (lui/addiu), from the loaded memory. */

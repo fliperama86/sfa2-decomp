@@ -690,15 +690,15 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `bfaf349`:
+it is in commit `4d6aae1`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3731 compiled, 1 of them nonmatching, 0 failed
+units: 3729 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12460
-functions without C: 622, library 382, game and modules 240
-names at PS1 addresses: 45853
+functions with C: 12457
+functions without C: 625, library 385, game and modules 240
+names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -725,8 +725,8 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1404 written for functions with C, 448 for functions without
-library: 73 host routines, 309 left that stop
+jumps: 1401 written for functions with C, 451 for functions without
+library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
@@ -747,10 +747,10 @@ still ends the program with its name. `sfa2.exe --list-library` prints
 the table; for the program built from this tree it ends with
 
 ```
-library: 73 host routines, 309 left that stop
+library: 84 host routines, 301 left that stop
 ```
 
-of which the listing gives 30 as routines that do something and 43 as
+of which the listing gives 39 as routines that do something and 45 as
 routines that do nothing on purpose. What is in this piece:
 
 - Events, critical sections, root counters and the callbacks of the
@@ -811,9 +811,41 @@ routines that do nothing on purpose. What is in this piece:
   not only a function's first instruction, because the build does not
   list the game's static functions.
 - `--trace` and `--trace-file FILE` write one line per library call.
+- The disc. The game reads its files through the CD library: it sets a
+  position, starts a read, and a handler of the game's takes each
+  sector as it arrives. The host routines serve that from the user's
+  image: `CdInit`, `CdSync`, `CdReady`, `CdControl` and its two
+  variants, `CdMix`, `CdGetSector` and the two position conversions,
+  with these commands of the drive: no operation, set position, read
+  (both kinds), pause, set filter, set mode, get position, seek.
+  Sectors are delivered three per frame, from the vertical blank or
+  from the game's own poll, and the game's handler is called once per
+  sector; no vertical blank is delivered inside it. Sectors of
+  compressed audio are taken and dropped: nothing sounds. Any other
+  command, and the mode that asks for whole raw sectors, ends the
+  program with a line that names it. The handler's address is checked
+  at each call like the other addresses the game hands over.
+- What the disc layer does not trust. `CdGetSector` copies a sector to
+  an address and a length that the game gives: both must lie inside the
+  PS1's RAM, or the program ends with a line before a byte is copied.
+  The file table of the image is read record by record inside the
+  bytes that each directory declares as its own: a record that crosses
+  the end of its sector or of its directory is refused, and what stands
+  in the sector behind the declared end is not read. Every file that
+  the reader hands out lies inside the image with its last byte, by
+  arithmetic that cannot wrap; a file that does not is refused with its
+  name and with the sector where the image ends. The first version
+  bounded the directories and not the files in them; the owner's review
+  found that.
+- Programs of the disc. The game starts other programs from the disc
+  with `Exec`. No C exists for any of them, so the port ends there with
+  `stop: no C yet for the program NAME (disc sector N)`, as it does for
+  a function without C. `--skip-programs` goes on instead as if the
+  program had returned at once, and prints a line at each skip; that is
+  not what the game does, and it is off unless asked for.
 
-Not in this piece: the disc's library, the graphics, the pads, the
-modules. Their functions are among the 309 that stop.
+Not in this piece: the graphics, the pads, the modules. Their
+functions are among the 301 that stop.
 
 ### What this does not show
 
@@ -875,8 +907,29 @@ interruptions; and with all eight floating-point registers of the
 interrupted code occupied, a changed rounding mode in both control
 words and the direction flag set, the handler finds the default state,
 computes rightly with both floating-point units, and the interrupted
-code gets its eight values, its control words and its flag back. On
-2026-10-09 each of the three ended with
+code gets its eight values, its control words and its flag back. Its cases for the disc layer in the linked program: the ready handler
+at an address that the program did not install is refused, one that is
+a function without C ends with the named stop, a valid one runs and no
+vertical blank arrives inside it; `Exec` ends with the named stop, and
+with `--skip-programs` prints its line and goes on; a sector copy to an
+address outside the RAM ends the run. `python3 port/tools/test_hostcd.py`
+builds the disc layer with the host's own `cc` and drives it by a
+script on images of invented bytes: sectors in order and a fixed
+number per frame, a sector handed out in pieces, pause and a new
+position in the middle of a read, the end of the image, the position
+conversions at their borders, the poll without a handler, audio
+sectors dropped, the stops for a command that is not served, and each
+way of giving `CdGetSector` a buffer that is not inside the RAM.
+`test_hostrun.py` also reads file tables made to break the reader: a
+record that runs past its sector, a name past its record, a directory
+extent beyond the image, a folder too large; a file that starts beyond
+the image, one of 4,294,967,295 bytes, one whose sectors wrap 32 bits,
+one that is a byte longer than the image holds and one that ends with
+the image's last byte, an image cut inside the last file and one cut
+right behind its last byte; a directory that declares only its own two
+records, and a record that crosses or only begins inside the declared
+end, for the reader that lists and for the one that looks a file up. On
+2026-10-09 each of the four ended with
 `all cases behaved as required`.
 
 ## Not decided

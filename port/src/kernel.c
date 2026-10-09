@@ -447,6 +447,7 @@ static void run_vblank(void)
         vblank_pending = 0;
         deliver_vblank();
     }
+    port_cd_tick();
     vblank_in_progress = 0;
 }
 

@@ -17,17 +17,22 @@
  *   3 a function without C was reached
  *   4 a library function without a host routine was reached
  *   5 an unknown function was reached
+ *   6 a disc command or state the disc layer does not handle, or a buffer the game named for it outside the
+ *     PS1's RAM
  *   8 a thread's function returned (the game never lets one)
  *   9 a library call whose arguments a host routine does not serve
  *  11 the watchdog (--watchdog S) found no vblank for S seconds; the line says where
  *  12 an address the game handed to the runtime to call (a thread's entry, an event handler, an interrupt or
  *     vsync callback) is not a function this program installed: `refused: PATH 0xADDRESS ...`, before the call
+ *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead)
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --no-interrupt turns the timer thread off: the vblank is then taken only by the library routines that tick.
+ * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * See PORT_EXIT_* in port.h. */
 #include "port.h"
 #include "port_tables.h"
+#include "cd.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,6 +70,9 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
 }
 #endif
 
+struct port_disc *port_disc_handle;
+int port_skip_programs;
+
 static int refuse(const char *line)
 {
     printf("refused: %s\n", line);
@@ -91,6 +99,7 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--no-interrupt") == 0) no_interrupt = 1;
+        else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
         else if (strcmp(argv[i], "--watchdog") == 0 && i + 1 < argc) watchdog = (unsigned)atoi(argv[++i]);
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
         else bad = 1;
@@ -124,6 +133,8 @@ int main(int argc, char **argv)
     printf("identity: SHA-256 matches the build's baseline\n");
     fflush(stdout);
 
+    port_disc_handle = &disc;
+    if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
     if (port_jumps_write(ram, &with_c, &without_c, err, sizeof err) != 0) return refuse(err);
     printf("jumps: %u written for functions with C, %u for functions without\n", with_c, without_c);
     fflush(stdout);
