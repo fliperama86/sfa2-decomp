@@ -219,25 +219,26 @@ library with the C compiler of the machine it runs on, each unit alone,
 into `port/build/`. Nothing is linked, nothing is run and no game file is
 read. It also checks the layout of every shared struct with that compiler
 and counts the literals at PS1 addresses in the sources. The header of the
-script says how. On 2026-10-08, on one Linux machine, x86-64:
+script says how. The counts move with every unit that the matching work
+adds: run it for today's. On 2026-10-08, on one Linux machine, x86-64:
 
 ```
 compiler: cc (GCC) 16.2.1 20260810
 language level: gnu89
 pointer size: 8 bytes
-units: 1585 compiled, 129 under sdk/ and 8 not C left out
-passed: 1585
+units: 2002 compiled, 129 under sdk/ and 8 not C left out
+passed: 2002
 failed: 0
-warning -Wpointer-to-int-cast: 199 in 111 units
+warning -Wpointer-to-int-cast: 203 in 114 units
 warning -Wincompatible-pointer-types: 182 in 89 units
-warning -Wint-to-pointer-cast: 154 in 82 units
+warning -Wint-to-pointer-cast: 158 in 85 units
 warning -Wint-conversion: 57 in 27 units
-warning (no option): 10 in 8 units
-structs: 147 of 209 keep their layout
-structs with a pointer: 62, of which 62 lose their layout
-structs without a pointer: 147, of which 0 lose their layout
-fixed addresses: 191 literals in 94 units
-main memory: 133 literals in 67 units
+warning (no option): 12 in 10 units
+structs: 155 of 219 keep their layout
+structs with a pointer: 64, of which 64 lose their layout
+structs without a pointer: 155, of which 0 lose their layout
+fixed addresses: 280 literals in 150 units
+main memory: 222 literals in 123 units
 main memory, uncached: 0 literals in 0 units
 scratchpad: 58 literals in 30 units
 ports: 0 literals in 0 units
@@ -250,13 +251,13 @@ and with `--cc clang`, without its last line, which names the 111 units:
 compiler: clang version 23.1.1
 language level: gnu89
 pointer size: 8 bytes
-units: 1585 compiled, 129 under sdk/ and 8 not C left out
-passed: 1474
+units: 2002 compiled, 129 under sdk/ and 8 not C left out
+passed: 1891
 failed: 111
-warning -Wdeprecated-non-prototype: 549 in 292 units
-warning -Wpointer-to-int-cast: 198 in 111 units
+warning -Wdeprecated-non-prototype: 591 in 334 units
+warning -Wpointer-to-int-cast: 202 in 114 units
 error -Wincompatible-pointer-types: 182 in 89 units
-warning -Wint-to-pointer-cast: 152 in 81 units
+warning -Wint-to-pointer-cast: 156 in 84 units
 error -Wint-conversion: 57 in 27 units
 warning -Wreturn-type: 9 in 9 units
 error -Wreturn-mismatch: 7 in 4 units
@@ -266,11 +267,11 @@ warning -Wpointer-sign: 3 in 2 units
 warning -Wint-to-void-pointer-cast: 2 in 1 units
 warning -Warray-bounds: 1 in 1 units
 warning -Wvoid-pointer-to-int-cast: 1 in 1 units
-structs: 147 of 209 keep their layout
-structs with a pointer: 62, of which 62 lose their layout
-structs without a pointer: 147, of which 0 lose their layout
-fixed addresses: 191 literals in 94 units
-main memory: 133 literals in 67 units
+structs: 155 of 219 keep their layout
+structs with a pointer: 64, of which 64 lose their layout
+structs without a pointer: 155, of which 0 lose their layout
+fixed addresses: 280 literals in 150 units
+main memory: 222 literals in 123 units
 main memory, uncached: 0 literals in 0 units
 scratchpad: 58 literals in 30 units
 ports: 0 literals in 0 units
@@ -280,21 +281,21 @@ BIOS: 0 literals in 0 units
 What that says:
 
 - The source is C that a compiler of today reads: with GCC and the old
-  language level, every one of the 1,585 units compiles for a machine with
+  language level, every one of the 2,002 units compiles for a machine with
   eight-byte pointers.
 - clang refuses 111 of them, for three things: a pointer of one type
   handed over where another is declared and an integer and a pointer mixed
   without a cast, which GCC warns about there, and a `return` that does
   not fit the function's type, which GCC lets pass at this language level.
   This is clang as Linux has it, not Apple's build of it.
-- 62 of the 209 shared structs lose their layout, and they are exactly
-  the 62 that hold a pointer. No struct loses it for another reason. Code
+- 64 of the 219 shared structs lose their layout, and they are exactly
+  the 64 that hold a pointer. No struct loses it for another reason. Code
   and data that count on these offsets cannot use these structs as they
   are.
-- 199 casts turn a pointer into an integer of another size and 154 turn
+- 203 casts turn a pointer into an integer of another size and 158 turn
   such an integer into a pointer. An address does not survive the first
   kind on this host.
-- 191 literals are PS1 addresses by their value: 133 in main memory and
+- 280 literals are PS1 addresses by their value: 222 in main memory and
   58 in the scratchpad.
 
 What it does not say:
@@ -331,5 +332,5 @@ when it has neither. On 2026-10-08 it printed 89 lines that begin
 - What the port's build does about the 111 units that clang refuses:
   compiler options that turn those errors back into warnings, or casts in
   the source, if the matching work finds that they leave the bytes alone.
-- How the 62 structs with a pointer keep the layout that the game's data
+- How the 64 structs with a pointer keep the layout that the game's data
   has. It is the question of stored addresses above, now with a count.
