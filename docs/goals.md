@@ -388,17 +388,31 @@ chose the first on 2026-10-06:
   with candidates. 63 of its functions are the same code, apart from
   addresses, as functions that were already exact, 37 of them in the
   module of slot `0x12`; their source was copied from those.
-  The sixth is the first of the 20 stage modules, the content of slot
-  `0x6` in `STAGE00.PAC`, a module of 28 functions: 19 are exact, 1,392
-  of 5,248 bytes, and 9 are parked with candidates. The stage files are
-  the work of a second session that runs beside the first, by the
-  owner's decision of 2026-10-06; the other 19 follow.
-  The seventh is the one content of slot `0x27`, from `SELECTA.PAC`, a
+  The sixth to the twenty-fifth are the 20 stage modules, the contents
+  of slot `0x6` in `STAGE00.PAC` to `STAGE13.PAC`, 874 functions by the
+  sweep: 756 are exact, 75,748 bytes. Of the 118 that are not, most are
+  the functions of 600 bytes and more, which draw the layers and the
+  tiles of objects: their source form is not found yet, and outside the
+  first stage they have not had an agent. The stage files are the work
+  of a second session that runs beside the first, by the owner's
+  decision of 2026-10-06.
+  The twenty-sixth is the one content of slot `0x27`, from `SELECTA.PAC`, a
   module of 212 functions: 208 are exact, 30,184 of 31,684 bytes, and 4
   are parked with candidates. 46 of its functions are the same code,
   apart from addresses, as functions that were already exact, 45 of them
   in the resident image.
-  The eighth is the one content of slot `0x28`, from `END00.PAC`, a module
+  The next eleven are first-side character blocks, the contents of slot
+  `0x4` in `PL0C.PAC` to `PL17.PAC` (`PL13.PAC` has the bytes of
+  `PL11.PAC`), 2,333 functions by the sweep: 2,307 are exact, 276,772
+  bytes, and five blocks have every function exact. The second sides,
+  slot `0x5` of the `X` files, are the same units linked a second time
+  and exact against their own chunks; `PL15`, `PL16` and `PL17` have
+  none. Two units of `PL11` stay raw on the second side: they call that
+  character's extra module, which the second side has at another
+  address, and a second link cannot be given another image's moved
+  functions yet. The functions that are not exact are parked with
+  candidates. These blocks are the second session's work too.
+  The thirty-eighth is the one content of slot `0x28`, from `END00.PAC`, a module
   of 683 functions: 677 are exact, 83,960 of 85,408 bytes, and 6 are
   parked with candidates. It repeats itself: its 683 functions are 319
   apart from addresses. One of each kind was written first, and 363 of
@@ -431,8 +445,8 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot00`, `slot2b` and `slot06_00` that are rebuilt so far
-(`slot17`, `slot08` and `slot2c` are linked from the source of `slot16`, `slot00` and `slot2b`), every other module as an image of the
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
+(`slot17`, `slot08`, `slot2c` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
 reproducible delivery, a license for the published source, and a build path
