@@ -865,6 +865,10 @@ struct HudBig size=0x54
 0x052 u16 field_52
 
 struct TextBuf size=0x10
+0x004 u16 field_04
+0x006 u16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
 0x00c u8* buf
 
 struct Pad size=0x10
@@ -2633,3 +2637,126 @@ struct Slot04_03Rec0678 size=0x10
 0x004 s32 field_04
 0x008 s32 field_08
 0x00c s32 field_0c
+
+struct Slot04SelRec size=0x19
+0x000 u8 field_00
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00e u8 field_0e
+0x00f u8 field_0f
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+0x013 u8 field_13
+0x014 u8 field_14
+0x015 u8 field_15
+0x016 u8 field_16
+0x017 u8 field_17
+0x018 u8 field_18
+
+struct Slot04SelRec6d8c size=0x4
+0x000 u16 field_00
+0x002 u16 field_02
+
+struct Slot04SelRec7648 size=0x10
+0x004 s16 field_04
+0x006 s16 field_06
+0x009 u8 field_09
+0x00c u8* field_0c
+
+struct Slot04SelRec9d38 size=0x15
+0x000 u8 field_00
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x007 u8 field_07
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8 field_0c
+0x00d u8 field_0d
+0x00e u8 field_0e
+0x00f u8 field_0f
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+0x013 u8 field_13
+0x014 u8 field_14
+
+struct Slot04SelRec9d78 size=0x16
+0x000 u8 field_00
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+0x007 u8 field_07
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u8 field_0c
+0x00d u8 field_0d
+0x00e u8 field_0e
+0x00f u8 field_0f
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+0x013 u8 field_13
+0x014 u8 field_14
+0x015 u8 field_15
+
+struct Slot04SelRec7ff4 size=0x24
+0x00b u8 field_0b
+0x010 u8* field_10
+
+struct Slot04SelRec7fa4 size=0x1c
+0x00b u8 field_0b
+0x00c u8* field_0c
+
+struct Slot04SelRec84a4 size=0x14
+0x004 u16 field_04
+0x006 u16 field_06
+
+struct Slot04SelRec7c70 size=0x4
+0x000 u16 field_00
+0x002 u16 field_02
+
+struct Slot04SelRec8978 size=0x18
+0x004 s16 field_04
+0x006 s16 field_06
+
+struct Slot04SelRec8c00 size=0x18
+0x004 s16 field_04
+0x006 s16 field_06
+
+struct Slot04SelRec8fc8 size=0x14
+0x00b u8 field_0b
+0x010 u8* field_10
+
+struct Slot04SelRec8f78 size=0x10
+0x00b u8 field_0b
+0x00c u8* field_0c
+
+struct Slot04SelRec94c0 size=0x8
+0x004 u16 field_04
+0x006 u16 field_06
+
+struct Slot04SelRec8ccc size=0x4
+0x000 u16 field_00
+0x002 u16 field_02
+
+struct Slot04SelRec8eac size=0x10
+0x00c u8* field_0c
+
+struct Slot04SelRec800c size=0x24
+0x004 s16 field_04
+0x006 s16 field_06
+

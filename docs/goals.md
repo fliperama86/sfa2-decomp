@@ -432,6 +432,9 @@ chose the first on 2026-10-06:
   functions of the other twelve files, which the second session writes,
   and wait for that source; 20 are parked. Eleven of the twelve are also
   linked at the second address and are exact there.
+  Then the content of slot `0x4` of `SELECT.PAC`, a module of 91
+  functions: 89 are exact, 27,092 of 27,984 bytes, and 2 are parked with
+  candidates.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -458,7 +461,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot01`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` , the 12 character images `slot04_00` to `slot04_0b` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot01`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` , the 12 character images `slot04_00` to `slot04_0b` , the 11 character images `slot04_0c` to `slot04_17` and `slot04_sel` that are rebuilt so far
 (`slot17`, `slot08`, `slot2c`, the eleven images `slot05_00` to `slot05_0b` without `slot05_06` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
