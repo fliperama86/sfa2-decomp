@@ -1,7 +1,8 @@
 # Port
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
-Linux. **Nothing of the game links or runs on any of them.** With GCC every
+Linux. **Nothing of the game links or runs on any of them.** The library
+that is to replace Sony's passes its own tests on a runner of each. With GCC every
 one of its C units compiles on Linux and on Windows, and Apple's compiler
 on macOS refuses a few, in a trial that is described below. This folder
 holds the decisions taken so far, one pinned dependency, one check of that
@@ -63,19 +64,74 @@ build switch in the sense of the requirements when it is made.
 ## The check
 
 ```sh
-port/tools/check_psyz.sh [--headless] [BUILD_DIR]
+port/tools/check_psyz.sh [--headless] [--pictures DIR] [BUILD_DIR]
 ```
 
 It fetches the submodule and the SDL source that PsyZ builds against, builds
 PsyZ's own test suite and runs it one area at a time. It needs git, a C and
 a C++ compiler, CMake 3.21 or later and Ninja; the last two can come from
 `pip install cmake ninja`. `--headless` is for a Linux machine
-without the development files for windows, graphics and sound. `BUILD_DIR`
-is taken from the folder the script is called from; without it the build
-goes to `port/build/psyz-tests`, which Git ignores.
+without the development files for windows, graphics and sound.
+`--pictures DIR` keeps the pictures that the suite writes when a
+comparison fails. `BUILD_DIR` and `DIR` are taken from the folder the
+script is called from; without `BUILD_DIR` the build goes to
+`port/build/psyz-tests`, which Git ignores. It ends with status 0 when
+every area passes, 1 when one does not and 2 when the suite cannot be
+built or listed.
 
-What ran, on 2026-10-07, on one Linux machine of that kind, x86-64, with
-`--headless`: the library and its tests build, and the script printed
+### On three systems
+
+The workflow `Port PsyZ tests` runs the script on GitHub's runners for
+Linux, macOS and Windows and puts the output on the page of the run. It
+runs when the pin, the script or the workflow changes, and on request. It
+is a measurement and no gate: a job fails only on status 2.
+
+[Run 37946944473](https://github.com/fliperama86/sfa2-decomp/actions/runs/37946944473) of 2026-10-09, PsyZ at the pin:
+
+| system | compiler, as CMake names it | the whole suite | status |
+| --- | --- | --- | --- |
+| Linux, x86-64 | GNU 13.3.0 | ztest: 342 passed, 0 failed, 1 skipped | 0 |
+| macOS, Apple Silicon | AppleClang 21.0.0.21000101 | ztest: 342 passed, 0 failed, 1 skipped | 0 |
+| Windows, x86-64 | GNU 15.2.0 | ztest: 342 passed, 0 failed, 1 skipped | 0 |
+
+The three jobs printed the same lines:
+
+```
+bu: ztest: 7 passed, 0 failed, 0 skipped
+dither: ztest: 10 passed, 0 failed, 0 skipped
+events: ztest: 76 passed, 0 failed, 1 skipped
+gpu: ztest: 37 passed, 0 failed, 0 skipped
+gte: ztest: 133 passed, 0 failed, 0 skipped
+horizontal_grid: ztest: 4 passed, 0 failed, 0 skipped
+libcd: ztest: 14 passed, 0 failed, 0 skipped
+libcd_playback: ztest: 3 passed, 0 failed, 0 skipped
+path_adjustment: ztest: 7 passed, 0 failed, 0 skipped
+spu: ztest: 45 passed, 0 failed, 0 skipped
+spu_malloc: ztest: 3 passed, 0 failed, 0 skipped
+truncation: ztest: 3 passed, 0 failed, 0 skipped
+all: ztest: 342 passed, 0 failed, 1 skipped
+```
+
+- The whole suite passes on all three, the areas that compare drawn
+  pictures among them: `dither`, `gpu` and `horizontal_grid`. The runners
+  have no screen. On Linux the workflow installs the software drawing
+  driver that PsyZ's own workflow installs; on Windows it tells SDL to
+  draw off screen, as PsyZ's workflow does.
+- On Windows the compiler was GCC, as on the Linux runner. PsyZ's own
+  workflow builds with Microsoft's compilers there; this is the kind of
+  build that a port compiled with GCC would link.
+- One test is skipped by the suite itself, on all three as on the machine
+  below.
+
+What this does not show: a window on a screen, sound from a speaker, a
+game. A test of the suite passing says that PsyZ does what its authors
+check, not that it does what this game needs.
+
+### On a machine that cannot draw
+
+On 2026-10-07, on the Linux machine of these sessions, x86-64, which has
+no development files for windows, graphics and sound, with `--headless`:
+the library and its tests build, and the script printed
 
 ```
 bu: ztest: 7 passed, 0 failed, 0 skipped
@@ -93,16 +149,18 @@ truncation: ztest: 3 passed, 0 failed, 0 skipped
 all: ztest: 287 passed, 55 failed, 1 skipped
 ```
 
-and ended with status 1, as it does when any area fails. The three areas
-that compare drawn pictures mostly fail there: the pictures that were
-looked at came out black, on a machine that has nothing to draw with. Ten
-tests of timer events fail too, and why was not looked into.
+and ended with status 1. The three areas that compare drawn pictures
+mostly fail there: the pictures that were looked at came out black. Ten
+tests of timer events fail too.
 
-What this shows: PsyZ builds from the pin on one Linux machine, and its
-tests of the disc, the sound chip, the memory card and the arithmetic pass
-there. What it does not show: a window, a drawn picture, sound from a
-speaker, macOS, Windows, or anything about the game. With the real suite
-the script has not been seen to end with status 0 anywhere.
+Neither failure was reproduced on the three runners above, which pass the
+picture tests and the timer tests. That is all the runs say. The black
+pictures are consistent with that machine having nothing to draw with.
+Why the timer tests fail there was not looked into: it may be the
+machine, and a fault of the library that shows only in some surroundings
+is not ruled out.
+
+### The script's own controls
 
 ```sh
 port/tools/check_psyz_controls.sh
@@ -110,9 +168,10 @@ port/tools/check_psyz_controls.sh
 
 runs the script against stand-ins for git, CMake and the test program, so
 nothing is fetched or compiled: a fresh checkout with the default folder, a
-relative and an absolute folder, `--headless`, and each of the statuses 0,
-1 and 2. Its last line on 2026-10-07 was `controls: 15 of 15 as expected`.
-It says nothing about PsyZ.
+relative and an absolute folder, `--headless`, `--pictures`, and each of
+the statuses 0, 1 and 2. Its last line on 2026-10-09 was
+`controls: 20 of 20 as expected`, here and in each of the three jobs. It
+says nothing about PsyZ.
 
 ## What the game calls and what PsyZ has
 

@@ -2,14 +2,17 @@
 # Builds the test suite of the pinned PsyZ and runs it. PsyZ is the
 # replacement for Sony's library that the port links (see ../README.md).
 #
-# usage: port/tools/check_psyz.sh [--headless] [BUILD_DIR]
+# usage: port/tools/check_psyz.sh [--headless] [--pictures DIR] [BUILD_DIR]
 #
 # --headless builds SDL without window support, for a Linux machine that has
 # no window, graphics or audio development files. Tests that compare drawn
 # pictures cannot pass that way.
 #
-# BUILD_DIR is taken from where the script is called; the default is
-# port/build/psyz-tests. The logs are written next to it.
+# --pictures DIR keeps the pictures that the suite writes when a comparison
+# fails: they are moved to DIR. Without it they are removed.
+#
+# BUILD_DIR and DIR are taken from where the script is called; the default
+# build folder is port/build/psyz-tests. The logs are written next to it.
 #
 # Needs git, a C and a C++ compiler, CMake 3.21 or later and Ninja.
 # Prints the test program's count for each area of the suite and, last, for
@@ -19,7 +22,18 @@
 set -eu
 
 headless=0
-if [ "${1:-}" = "--headless" ]; then headless=1; shift; fi
+pictures=
+while :; do
+    case ${1:-} in
+    --headless) headless=1; shift ;;
+    --pictures)
+        [ $# -ge 2 ] || { echo "--pictures needs a folder"; exit 2; }
+        mkdir -p "$2" || { echo "cannot make $2"; exit 2; }
+        pictures=$(cd "$2" && pwd)
+        shift 2 ;;
+    *) break ;;
+    esac
+done
 
 port=$(cd "$(dirname "$0")/.." && pwd)
 psyz=$port/external/psyz
@@ -48,7 +62,7 @@ echo "built $build/psyz_tests"
 # One run per area of the suite, so that each area's count is the test
 # program's own. The suite reads its files from its folder and writes a
 # picture next to the expected one when a comparison fails; those are
-# removed afterwards so that the submodule stays clean.
+# moved away or removed afterwards so that the submodule stays clean.
 status=0
 if [ "$(uname)" = "Linux" ]; then export SDL_VIDEODRIVER=offscreen; fi
 cd "$psyz/psyz/tests"
@@ -62,5 +76,10 @@ for area in $areas; do
 done
 "$build/psyz_tests" --output=plain > "$build.area.log" 2>&1 || status=1
 echo "all: $(tail -1 "$build.area.log")"
+if [ -n "$pictures" ]; then
+    for picture in expected/*.actual.png; do
+        [ -f "$picture" ] && mv "$picture" "$pictures/"
+    done
+fi
 rm -f "$build.area.log" expected/*.actual.png
 exit $status

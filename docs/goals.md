@@ -216,9 +216,9 @@ matching work; its decisions, its state and what is not decided are on the
 tests were run, a tool compares the library functions that the game
 calls with what PsyZ has, another compiles the game's C units with a
 PC compiler and counts what does not carry over, and a third lists what
-the compiled units need and none defines. A workflow runs the compile
-trial on runners for Linux, macOS and Windows. Its next step waits for
-the owner.
+the compiled units need and none defines. One workflow runs the compile
+trial and another PsyZ's own tests on runners for Linux, macOS and
+Windows. Its next step waits for the owner.
 
 ## Next implementation package
 
