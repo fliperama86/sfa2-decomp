@@ -7517,6 +7517,31 @@ No function count changes here: none of this is in the build.
   new parts were run against 73 more one-line changes of the tool by a
   worker; all were noticed after one equivalent change was replaced.
 
+## The port reads the disc (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/cd.c` with the CD library's host routines, the
+  file table reader in `disc.c`, `Exec`, and their controls. The page
+  has what is served, what ends the program, and the cases.
+- Three things differ from the state that ran the private trial, all
+  from the reviews of the pieces before this one:
+  - `Exec` of a program of the disc ended nothing there: it printed a
+    line and returned. The disc has three such programs that the game
+    starts (two were seen in the trial, by their place probably the
+    company's logo and the opening film: inferred). No C exists for
+    them. The port's rule is to stop where C is missing, so that is the
+    default now; `--skip-programs` is the trial's behaviour, by option.
+    Whether these programs get C, or the port may skip them for good,
+    is the owner's to decide and has not been asked yet.
+  - `CdGetSector` copied to whatever address the game gave. It now
+    refuses a buffer that is not inside the PS1's RAM. One-off check
+    that the real game stays inside: in three traces of the private
+    trial, 1,102, 1,397 and 2,672 calls, none had a buffer outside.
+  - The ready handler's address is checked at each call.
+- Not shown: the disc layer on the real game from a published commit
+  (the published tree stops at `main`).
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
