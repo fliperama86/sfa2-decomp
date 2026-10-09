@@ -4169,6 +4169,18 @@ file places are nearly all of it. To remember:
   lanes merging, main moved between an approval and the merge twice in
   three days; each time main was merged in and a new approval was asked
   for.
+- The owner's "yes" of 2026-10-09 to running the compile trial on Mac and
+  Windows on GitHub's machines: a workflow, `Port compile trial`. It is a
+  measurement and not a gate, by design: it runs for changes under
+  `port/`, weekly and on request, never for a matching pull request, and
+  a job fails only when the tool cannot run. Do not turn it into a check
+  that a matching change has to pass. Its first run worked on all three
+  systems. Apple's compiler and the clangs of the runners are older than
+  the clang of the machine of these sessions and refuse fewer units: what
+  is a warning in one version of a compiler is an error in the next, so a
+  count of refused units is a count for one version.
+- A draft pull request is how a workflow that only runs for pull requests
+  and main gets its first run before review.
 - For this tool the helper was told to choose its changed copies against
   the sentences of the contract and not against its controls. Several of
   its 38 survived at first and got controls; all 14 of the reviewer's

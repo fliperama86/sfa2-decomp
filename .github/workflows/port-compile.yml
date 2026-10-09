@@ -48,6 +48,8 @@ jobs:
       - name: Control cases
         if: matrix.controls
         run: ${{ matrix.python }} port/tools/test_hostcheck.py
+      - name: A compiler that does not end is stopped
+        run: ${{ matrix.python }} port/tools/test_hostcheck_stop.py
       - name: Compile
         run: ${{ matrix.python }} port/tools/hostcheck.py --cc ${{ matrix.cc }} --build out | tee trial.txt
       - name: The output on the run's page
