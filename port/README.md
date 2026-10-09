@@ -1,10 +1,12 @@
 # Port
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
-Linux. **Nothing of the game compiles or runs on any of them.** This folder
+Linux. **Nothing of the game links or runs on any of them.** Its C units
+compile on one of them, Linux, in a trial that is described below. This folder
 holds the decisions taken so far, one pinned dependency, one check of that
-dependency and one comparison of it with what the game calls. It changes
-nothing under `ps1/`.
+dependency, one comparison of it with what the game calls, and one trial
+that compiles the game's C with a PC compiler. It changes nothing under
+`ps1/`.
 
 The rule for a port is in the [requirements](../docs/requirements.md): the
 game code stays as close to the original as possible, only Sony's library
@@ -206,6 +208,115 @@ calls assembly, not built or absent is.
 On 2026-10-07 it printed 108 lines that begin `ok` and ended with
 `all cases behaved as required`.
 
+## The game's C on a PC compiler
+
+```sh
+python3 port/tools/hostcheck.py [--cc CC] [--std STD] [--build DIR] [--jobs N] [--timeout SECONDS]
+```
+
+It compiles every C unit of the build configuration that is not Sony's
+library with the C compiler of the machine it runs on, each unit alone,
+into `port/build/`. Nothing is linked, nothing is run and no game file is
+read. It also checks the layout of every shared struct with that compiler
+and counts the literals at PS1 addresses in the sources. The header of the
+script says how. On 2026-10-08, on one Linux machine, x86-64:
+
+```
+compiler: cc (GCC) 16.2.1 20260810
+language level: gnu89
+pointer size: 8 bytes
+units: 1585 compiled, 129 under sdk/ and 8 not C left out
+passed: 1585
+failed: 0
+warning -Wpointer-to-int-cast: 199 in 111 units
+warning -Wincompatible-pointer-types: 182 in 89 units
+warning -Wint-to-pointer-cast: 154 in 82 units
+warning -Wint-conversion: 57 in 27 units
+warning (no option): 10 in 8 units
+structs: 147 of 209 keep their layout
+structs with a pointer: 62, of which 62 lose their layout
+structs without a pointer: 147, of which 0 lose their layout
+fixed addresses: 191 literals in 94 units
+main memory: 133 literals in 67 units
+main memory, uncached: 0 literals in 0 units
+scratchpad: 58 literals in 30 units
+ports: 0 literals in 0 units
+BIOS: 0 literals in 0 units
+```
+
+and with `--cc clang`, without its last line, which names the 111 units:
+
+```
+compiler: clang version 23.1.1
+language level: gnu89
+pointer size: 8 bytes
+units: 1585 compiled, 129 under sdk/ and 8 not C left out
+passed: 1474
+failed: 111
+warning -Wdeprecated-non-prototype: 549 in 292 units
+warning -Wpointer-to-int-cast: 198 in 111 units
+error -Wincompatible-pointer-types: 182 in 89 units
+warning -Wint-to-pointer-cast: 152 in 81 units
+error -Wint-conversion: 57 in 27 units
+warning -Wreturn-type: 9 in 9 units
+error -Wreturn-mismatch: 7 in 4 units
+warning -Wunsequenced: 4 in 4 units
+warning -Wparentheses: 3 in 3 units
+warning -Wpointer-sign: 3 in 2 units
+warning -Wint-to-void-pointer-cast: 2 in 1 units
+warning -Warray-bounds: 1 in 1 units
+warning -Wvoid-pointer-to-int-cast: 1 in 1 units
+structs: 147 of 209 keep their layout
+structs with a pointer: 62, of which 62 lose their layout
+structs without a pointer: 147, of which 0 lose their layout
+fixed addresses: 191 literals in 94 units
+main memory: 133 literals in 67 units
+main memory, uncached: 0 literals in 0 units
+scratchpad: 58 literals in 30 units
+ports: 0 literals in 0 units
+BIOS: 0 literals in 0 units
+```
+
+What that says:
+
+- The source is C that a compiler of today reads: with GCC and the old
+  language level, every one of the 1,585 units compiles for a machine with
+  eight-byte pointers.
+- clang refuses 111 of them, for three things: a pointer of one type
+  handed over where another is declared and an integer and a pointer mixed
+  without a cast, which GCC warns about there, and a `return` that does
+  not fit the function's type, which GCC lets pass at this language level.
+  This is clang as Linux has it, not Apple's build of it.
+- 62 of the 209 shared structs lose their layout, and they are exactly
+  the 62 that hold a pointer. No struct loses it for another reason. Code
+  and data that count on these offsets cannot use these structs as they
+  are.
+- 199 casts turn a pointer into an integer of another size and 154 turn
+  such an integer into a pointer. An address does not survive the first
+  kind on this host.
+- 191 literals are PS1 addresses by their value: 133 in main memory and
+  58 in the scratchpad.
+
+What it does not say:
+
+- That code which compiles would work. A unit without a diagnostic can
+  still count on the PS1 in ways no compiler sees.
+- What the units need from each other, from the library and from data
+  that only the symbol file places. Nothing is linked. That is the next
+  measurement.
+- Anything about Microsoft's compiler, which has no such language level,
+  or about macOS and Windows as hosts. One machine ran this.
+- That a literal in a range is an address: `0x80000000` is also the sign
+  bit of a word.
+- The same counts from another version of a compiler: the kinds are the
+  names that this version gives its diagnostics.
+
+`python3 port/tools/test_hostcheck.py` runs the tool on small made-up
+trees, part of them with a stand-in for the compiler and part with the
+real one. It needs `cc` and a host with eight-byte pointers and says so
+when it has neither. On 2026-10-08 it printed 89 lines that begin
+`ok` and ended with `all cases behaved as required`.
+
 ## Not decided
 
 - How game units reach the library. They call it by address names, such as
@@ -217,3 +328,8 @@ On 2026-10-07 it printed 108 lines that begin `ok` and ended with
   library functions that the resident code does not.
 - The build of the game side for a host, and where it is checked on all
   three systems.
+- What the port's build does about the 111 units that clang refuses:
+  compiler options that turn those errors back into warnings, or casts in
+  the source, if the matching work finds that they leave the bytes alone.
+- How the 62 structs with a pointer keep the layout that the game's data
+  has. It is the question of stored addresses above, now with a count.
