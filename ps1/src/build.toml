@@ -23327,3 +23327,165 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80022d38_slot28", address = 0x80022d38, size = 212 },
 ]
+
+[[unit]]
+name = "slot06_0a_9248x_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_9248x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9248_slot06_0a", address = 0x801e9248, size = 60 },
+]
+
+[[unit]]
+name = "slot06_07_a010x_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_a010x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea010_slot06_07", address = 0x801ea010, size = 132 },
+]
+
+[[unit]]
+name = "slot06_10_9da8x_r1"
+image = "slot06_10"
+source = "slot06_10/slot06_10_9da8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9da8_slot06_10", address = 0x801e9da8, size = 64 },
+]
+
+[[unit]]
+name = "slot06_0f_99c8x_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_99c8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e99c8_slot06_0f", address = 0x801e99c8, size = 92 },
+]
+
+[[unit]]
+name = "slot06_0f_9708x_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_9708x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9708_slot06_0f", address = 0x801e9708, size = 136 },
+]
+
+[[unit]]
+name = "slot06_0c_970cx_r1"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_970cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e970c_slot06_0c", address = 0x801e970c, size = 188 },
+]
+
+[[unit]]
+name = "slot06_0a_9720x_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_9720x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9720_slot06_0a", address = 0x801e9720, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0a_97c0x_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_97c0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e97c0_slot06_0a", address = 0x801e97c0, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0d_9b9cx_r1"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_9b9cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9b9c_slot06_0d", address = 0x801e9b9c, size = 116 },
+]
+
+[[unit]]
+name = "slot06_06_9ba4x_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_9ba4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9ba4_slot06_06", address = 0x801e9ba4, size = 180 },
+]
+
+[[unit]]
+name = "slot06_0e_a87cx_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_a87cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea87c_slot06_0e", address = 0x801ea87c, size = 132 },
+]
+
+[[unit]]
+name = "slot06_08_a2f0x_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_a2f0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea2f0_slot06_08", address = 0x801ea2f0, size = 196 },
+]
+
+[[unit]]
+name = "slot06_0e_9af8x_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_9af8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9af8_slot06_0e", address = 0x801e9af8, size = 208 },
+]
+
+[[unit]]
+name = "slot04_11_4660x_r1"
+image = "slot04_11"
+source = "slot04_11/slot04_11_4660x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b4660_slot04_11", address = 0x801b4660, size = 452 },
+]
+
+[[unit]]
+name = "slot04_17_45ecx_r1"
+image = "slot04_17"
+source = "slot04_17/slot04_17_45ecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b45ec_slot04_17", address = 0x801b45ec, size = 452 },
+]
+
+[[unit]]
+name = "slot06_12_869cx_r1"
+image = "slot06_12"
+source = "slot06_12/slot06_12_869cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e869c_slot06_12", address = 0x801e869c, size = 144 },
+]
+
+[[unit]]
+name = "slot06_02_8750x_r1"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8750x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8750_slot06_02", address = 0x801e8750, size = 140 },
+]
+
+[[unit]]
+name = "slot06_0f_a91cx_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_a91cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea91c_slot06_0f", address = 0x801ea91c, size = 80 },
+]

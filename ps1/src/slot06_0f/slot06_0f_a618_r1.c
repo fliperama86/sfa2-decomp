@@ -6,7 +6,7 @@
 void func_801ea6e4_slot06_0f(Object *obj);
 int func_801ea77c_slot06_0f(Object *obj);
 int func_801ea7e4_slot06_0f(Object *obj);
-void func_801ea91c_slot06_0f(Object *obj, s16 idx);
+void func_801ea91c_slot06_0f(Object *obj, int idx);
 void func_801ea96c_slot06_0f(Object *obj);
 
 extern ObjectFn data_801eeffc_slot06_0f[];

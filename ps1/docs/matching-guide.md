@@ -538,6 +538,15 @@ Run the build one last time after your final edit and report from that
 output. A function is exact only if that last build says so. Earlier results
 do not count.
 
+Reduce an exact function before reporting it. Take out, one at a time,
+each thing that the plain source would not have: a local for a constant,
+a field read into a local before the stores, a cast, a statement away
+from its natural place. Build again each time and keep the plainer form
+when it is still exact. At each thing that has to stay, write a comment
+with the measured effect, for example "with the literal two instruction
+slots differ". A form that an earlier attempt needed is often not needed
+by the attempt that is exact.
+
 ## When stuck
 
 Keep a short log per stubborn block: what was tried and what changed. After
