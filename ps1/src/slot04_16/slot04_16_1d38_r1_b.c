@@ -5,7 +5,6 @@
 
 u8 func_801417cc(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-u8 func_8013f8c4(Object *obj, int a, int b);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80146998(Object *object);
 void func_80142fbc(Object *object);
@@ -183,7 +182,7 @@ void func_801b27fc_slot04_16(Object *obj) {
 
 void func_801b2854_slot04_16(Object *obj) {
     if ((u8)obj->field_3a != 0) {
-        if (func_8013f8c4(obj, -0x26, 0x3a) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x26, 0x3a) != 0) {
             obj->field_07++;
             func_80120554(obj, obj->side ^ 1, 0x31a);
         } else {

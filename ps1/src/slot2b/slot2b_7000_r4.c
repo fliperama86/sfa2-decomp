@@ -7,7 +7,6 @@ extern ObjectFn data_80079834_slot2b[];
 extern ObjectFn data_80079840_slot2b[];
 void func_80077484_slot2b(Object *obj);
 void func_800775a4_slot2b(Object *obj);
-u8 func_80149b80(Object *obj);
 
 void func_800773a0_slot2b(Object *obj) {
     if ((s16)obj->field_3a < 0) {

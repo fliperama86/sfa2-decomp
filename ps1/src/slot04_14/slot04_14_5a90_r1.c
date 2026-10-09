@@ -9,14 +9,13 @@ extern ObjectFn data_801c650c_slot04_14[];
 extern u8 data_801c651c_slot04_14[];
 extern u16 data_801c652c_slot04_14[];
 extern ObjectFn data_801c6538_slot04_14[];
-extern u16 box_margin;
+extern u16 box_margin[];
 
 void func_801b5b80_slot04_14(Object *obj);
 u8 func_801b5e44_slot04_14(Object *obj);
 u8 func_801b5e7c_slot04_14(Object *obj);
 void func_80130678(Object *object, int arg);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-u8 func_80125734(Object *object, int a);
 
 void func_801b5a90_slot04_14(Object *obj) {
     data_801c64ec_slot04_14[obj->field_07](obj);
@@ -117,7 +116,7 @@ u8 func_801b5e44_slot04_14(Object *obj) {
 }
 
 u8 func_801b5e7c_slot04_14(Object *obj) {
-    return (s16)(box_margin + 0xc0) < obj->pos_x;
+    return (s16)(box_margin[0] + 0xc0) < obj->pos_x;
 }
 
 void func_801b5e9c_slot04_14(Object *obj) {
@@ -141,7 +140,7 @@ void func_801b5f60_slot04_14(Object *obj) {
     obj->field_06 = obj->field_06 + 1;
     obj->field_46 = 0x3c;
     game_state.field_76 = 0x1e;
-    func_80130678(obj, data_801c652c_slot04_14[func_80125734(obj, data_801c651c_slot04_14[func_80151184() & 0xf])]);
+    func_80130678(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[func_80151184() & 0xf])]);
 }
 
 void func_801b5fe8_slot04_14(Object *obj) {

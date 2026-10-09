@@ -38,7 +38,7 @@ int func_801b171c_slot04_0f(Object *o) {
 
     if (o->field_45 != 0) {
         if (p->field_04 != 0) return 0;
-        ok = func_801418bc(o);
+        ok = (u8)func_801418bc(o);
     } else {
         ok = func_801417cc(o);
     }
@@ -63,7 +63,7 @@ int func_801b17c8_slot04_0f(Object *o) {
 
     if (o->field_45 != 0) {
         if (p->field_04 != 0) return 0;
-        ok = func_801418bc(o);
+        ok = (u8)func_801418bc(o);
     } else {
         ok = func_801417cc(o);
     }

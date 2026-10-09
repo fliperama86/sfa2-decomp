@@ -10,7 +10,6 @@ extern u16 box_margin[];
 
 void func_80138ae8(GameState *state, Object *object);
 void func_80142adc(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 int func_80130184(Object *object);
 void func_80145f98(Object *object);
 void func_801b10b0_slot04_16(Object *obj);
@@ -145,7 +144,7 @@ void func_801b34f8_slot04_16(Object *obj) {
     d = obj->field_249 != 0;
     d <<= 4;
     d += 0x26;
-    if (func_8013f8c4(obj, -0x26, (s16)(x - d)) == 0) {
+    if ((u8)func_8013f8c4(obj, -0x26, (s16)(x - d)) == 0) {
         obj->field_07 = 7;
         func_80130efc(obj);
     } else {

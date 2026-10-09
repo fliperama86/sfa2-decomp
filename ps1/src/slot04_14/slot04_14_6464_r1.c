@@ -12,8 +12,6 @@ extern s32 data_801c6630_slot04_14[];
 extern ObjectFn data_801c663c_slot04_14[];
 
 void func_80130dc0(Object *obj);
-u8 func_80149b80(Object *obj);
-u8 func_8013f8c4(Object *obj, int a, int b);
 void func_801b6840_slot04_14(Object *obj);
 void func_801b6a10_slot04_14(Object *obj);
 void func_801b6bcc_slot04_14(Object *obj);

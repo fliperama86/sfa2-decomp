@@ -6,8 +6,6 @@
 extern s8 data_801c1340_slot04_05[];
 extern ObjectFn data_801c1350_slot04_05[];
 
-u8 func_80125734(Object *object, int a);
-
 void func_801b0224_slot04_05(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u8 r;

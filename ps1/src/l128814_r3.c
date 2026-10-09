@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8012f898(Object *object);
-
 void func_80129da8(Object *object) {
     object->field_157 = 0;
     if (object->field_7e != 0) {

@@ -6,7 +6,6 @@
 u8 func_8013d210(Object *object);
 int func_8013d1a8(Object *object);
 int func_8013cac8(Object *object, u8 a, u8 b);
-u8 func_8013caf0(Object *object, u8 a, u8 b);
 int func_8013cb70(Object *object, u8 a, u8 b);
 int func_8013d0c8(Object *object);
 int func_8013d0fc(Object *object);
@@ -31,7 +30,7 @@ void func_801b1c84_slot04_0e(Object *obj) {
     if (func_8013d210(obj) && (u8)func_801b24a0_slot04_0e(obj)) return;
     if ((u8)func_8013d1a8(obj) && (u8)func_801b253c_slot04_0e(obj)) return;
     if ((u8)func_8013cb70(obj, 1, 0x15) && (u8)func_801b225c_slot04_0e(obj)) return;
-    if (func_8013caf0(obj, 2, 0x19) && (u8)func_801b21d4_slot04_0e(obj)) return;
+    if ((u8)func_8013caf0(obj, 2, 0x19) && (u8)func_801b21d4_slot04_0e(obj)) return;
     if ((u8)func_8013cac8(obj, 3, 9) && (u8)func_801b1ec4_slot04_0e(obj)) return;
     if ((u8)func_8013cac8(obj, 4, 3) && (u8)func_801b1f3c_slot04_0e(obj)) return;
     if ((u8)func_8013cac8(obj, 5, 0) && (u8)func_801b22e4_slot04_0e(obj)) return;
@@ -81,7 +80,7 @@ int func_801b1fa0_slot04_0e(Object *obj) {
 }
 
 int func_801b2008_slot04_0e(Object *obj) {
-    if (!func_801418bc(obj)) return 0;
+    if (!(u8)func_801418bc(obj)) return 0;
     if (obj->field_45 == 0) return 0;
     if (obj->field_50 >= 0) return 0;
     if (obj->pos_y < obj->field_70 - 0x20) return 0;

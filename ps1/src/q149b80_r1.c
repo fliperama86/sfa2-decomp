@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80149b80(Object *object) {
+int func_80149b80(Object *object) {
   if (game_state.field_4d != 0) {
     return 0;
   }

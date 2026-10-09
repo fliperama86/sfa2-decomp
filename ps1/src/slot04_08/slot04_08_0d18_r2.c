@@ -3,11 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
-
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0ea0_slot04_08(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj) != 0) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -38,7 +36,7 @@ int func_801b0ea0_slot04_08(Object *obj) {
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0f80_slot04_08(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj) != 0) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;

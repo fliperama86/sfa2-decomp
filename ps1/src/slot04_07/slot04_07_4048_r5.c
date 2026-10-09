@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013f8c4(Object *object, int a, int b);
-
 void func_801b470c_slot04_07(Object *obj) {
     u8 one = 1;
 

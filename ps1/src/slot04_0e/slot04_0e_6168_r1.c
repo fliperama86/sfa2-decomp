@@ -7,7 +7,7 @@ extern ObjectFn data_801c61ac_slot04_0e[];
 extern ObjectFn data_801c61b8_slot04_0e[];
 extern u16 data_801c5d84_slot04_0e[];
 extern u16 data_801a2804[];
-extern u16 box_margin;
+extern u16 box_margin[];
 
 Block172 *func_8011f1e0(void);
 void func_80141e5c(Object *object);
@@ -15,7 +15,7 @@ void func_80142adc(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_801b4914_slot04_0e(Object *obj);
 u8 func_801b6bd4_slot04_0e(Object *obj);
-Dir func_801b6b64_slot04_0e(Slot04bObj *obj);
+BytePair func_801b6b64_slot04_0e(Slot04bObj *obj);
 void func_801b6374_slot04_0e(Object *obj);
 void func_801b650c_slot04_0e(Object *obj);
 void func_801b6698_slot04_0e(Object *obj, u8 a, int b, int c);
@@ -59,7 +59,7 @@ void func_801b6238_slot04_0e(Object *obj) {
 }
 
 void func_801b628c_slot04_0e(Object *obj) {
-    Dir buf;
+    BytePair buf;
     u16 t;
 
     if (obj->field_cd != 0) {
@@ -104,7 +104,7 @@ void func_801b63b4_slot04_0e(Object *obj) {
     func_80120554(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
-        if ((u16)(box_margin + 0xc0) < obj->pos_x) {
+        if ((u16)(box_margin[0] + 0xc0) < obj->pos_x) {
             goto set;
         }
     } else if (obj->field_c2 & 0x8000) {
@@ -144,7 +144,7 @@ void func_801b654c_slot04_0e(Object *obj) {
     func_80120554(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
-        if ((u16)(box_margin + 0xc0) < obj->pos_x) {
+        if ((u16)(box_margin[0] + 0xc0) < obj->pos_x) {
             goto set;
         }
     } else if (obj->field_c2 & 0x8000) {

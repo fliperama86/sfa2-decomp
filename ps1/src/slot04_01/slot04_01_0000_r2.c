@@ -6,8 +6,6 @@
 extern s8 data_801beeb0_slot04_01[];
 extern s8 data_801beec0_slot04_01[];
 
-u8 func_80125734(Object *object, int a);
-
 void func_801b0220_slot04_01(Object *obj) {
     int v;
 

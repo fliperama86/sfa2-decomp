@@ -7,7 +7,6 @@ void func_801cd718_slot05_06(Object *obj);
 void func_801cd838_slot05_06(Object *obj);
 extern ObjectFn data_801dd580_slot05_06[];
 extern ObjectFn data_801dd58c_slot05_06[];
-u8 func_80149b80(Object *obj);
 
 void func_801cd698_slot05_06(Object *obj) {
     if ((s16)obj->field_3a >= 0) {

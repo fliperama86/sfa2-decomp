@@ -8,7 +8,7 @@ int func_801418bc(Object *object);
 u8 func_8013d210(Object *object);
 int func_8013d1a8(Object *object);
 int func_8013cac8(Object *object, u8 a, u8 b);
-u8 func_8013caf0(Object *object, u8 a, u8 b);
+int func_8013caf0(Object *object, u8 a, u8 b);
 u8 func_8013ccb4(Object *object, u8 a, u8 b);
 u8 func_8013cd5c(Object *object, u8 a, u8 b);
 int func_8013d0c8(Object *object);
@@ -60,7 +60,7 @@ void func_801b1a30_slot04_10(Object *obj) {
     if (func_8013d210(obj) && (u8)func_801b2324_slot04_10(obj)) return;
     if ((u8)func_8013d1a8(obj) && func_801b1c18_slot04_10(obj)) return;
     if (func_8013cd5c(obj, 0, 0x22) && func_801b1d00_slot04_10(obj)) return;
-    if (func_8013caf0(obj, 1, 0x15) && func_801b1d8c_slot04_10(obj)) return;
+    if ((u8)func_8013caf0(obj, 1, 0x15) && func_801b1d8c_slot04_10(obj)) return;
     if (func_8013ccb4(obj, 2, 0x21) && func_801b1e2c_slot04_10(obj)) return;
     if (func_8013ccb4(obj, 3, 0x23) && func_801b1e98_slot04_10(obj)) return;
     if ((u8)func_8013cac8(obj, 4, 4) && func_801b1f8c_slot04_10(obj)) return;

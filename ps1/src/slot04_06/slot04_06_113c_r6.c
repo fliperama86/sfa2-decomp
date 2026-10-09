@@ -6,8 +6,6 @@
 extern u16 data_801c5320_slot04_06[];
 extern s32 data_801c532c_slot04_06[];
 
-u8 func_8013f8c4(Object *object, int a, int b);
-
 void func_801b169c_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int i = o->field_12a >> 1;
@@ -20,7 +18,7 @@ void func_801b169c_slot04_06(Object *o) {
     if (o->field_06 == 8) {
         x = 0x60;
     }
-    if (func_8013f8c4(o, -0x20, x)) {
+    if ((u8)func_8013f8c4(o, -0x20, x)) {
         o->field_159 = 1;
         o->field_07 += 2;
         o->pos_y = obj->field_70;

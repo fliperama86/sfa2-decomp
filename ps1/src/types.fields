@@ -583,10 +583,6 @@ struct Pair size=0x4
 struct Row size=0x68
 0x004 u16 values[46]
 
-struct Dir size=0x2
-0x000 s8 first
-0x001 s8 second
-
 struct InputLog size=0x2008
 0x000 u32 index
 0x004 u16 buf[4096]

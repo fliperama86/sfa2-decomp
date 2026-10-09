@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013caf0(Object *object, u8 a, u8 b);
 int func_801b1000_slot04_08(Object *obj);
 int func_801b11f8_slot04_08(Object *obj);
 int func_801b0f80_slot04_08(Object *obj);
@@ -25,7 +24,7 @@ void func_801b0734_slot04_08(Object *obj) {
     if (func_8013d210(obj) && func_801b1000_slot04_08(obj)) return;
     if ((u8)func_8013d1a8(obj) && func_801b11f8_slot04_08(obj)) return;
     if ((u8)func_8013cdf0(obj, 0xb, 4) && func_801b0f80_slot04_08(obj)) return;
-    if (func_8013caf0(obj, 0xa, 0x1a) && func_801b0ea0_slot04_08(obj)) return;
+    if ((u8)func_8013caf0(obj, 0xa, 0x1a) && func_801b0ea0_slot04_08(obj)) return;
     if (func_8013ccb4(obj, 9, 0x24) && func_801b0e10_slot04_08(obj)) return;
     if ((u8)func_8013cdc8(obj, 0, 2) && func_801b09c4_slot04_08(obj)) return;
     if (func_8013cfb4(obj, 4, 3) && func_801b0a38_slot04_08(obj)) return;

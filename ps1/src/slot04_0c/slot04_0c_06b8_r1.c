@@ -8,7 +8,6 @@ int func_8013d1a8(Object *object);
 int func_8013cb70(Object *object, u8 index, u8 arg);
 int func_8013cbdc(Object *object, u8 index, u8 arg);
 int func_8013cc48(Object *object, u8 index, u8 arg);
-u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 int func_80141e34(Object *object);
 int func_80141b28(Object *object);
@@ -52,7 +51,7 @@ void func_801b06b8_slot04_0c(Object *obj) {
 int func_801b08d4_slot04_0c(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;
@@ -106,7 +105,7 @@ int func_801b0a3c_slot04_0c(Object *obj) {
         if ((s16)obj->field_c6 >= 0x30) {
             if (obj->field_45 == 0) {
                 if ((u8)func_80141e34(obj)) {
-                    if (func_80141788(obj)) {
+                    if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->field_04 = 1;
                         obj->field_05 = 0;
@@ -117,7 +116,7 @@ int func_801b0a3c_slot04_0c(Object *obj) {
                     }
                 }
             } else if (obj->field_7e == 0) {
-                if (func_801418bc(obj)) {
+                if ((u8)func_801418bc(obj)) {
                     r = 1;
                     obj->field_04 = 1;
                     obj->field_05 = 0;
@@ -136,7 +135,7 @@ int func_801b0b30_slot04_0c(Object *obj) {
 
     if (obj->field_45 != 0) {
         if ((obj->field_50 & 0xffff0000) != 0) {
-            if (func_801418bc(obj)) {
+            if ((u8)func_801418bc(obj)) {
                 r = 1;
                 obj->field_04 = 1;
                 obj->field_06 = 7;
@@ -160,7 +159,7 @@ int func_801b0b30_slot04_0c(Object *obj) {
 int func_801b0bf4_slot04_0c(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;
@@ -179,7 +178,7 @@ int func_801b0c80_slot04_0c(Object *obj) {
 
     if ((s16)obj->field_c6 >= 0x30) {
         if (obj->field_240 == 0) {
-            if (func_80141788(obj)) {
+            if ((u8)func_80141788(obj)) {
                 r = 1;
                 obj->field_04 = 1;
                 obj->field_05 = 0;
@@ -198,7 +197,7 @@ int func_801b0c80_slot04_0c(Object *obj) {
 int func_801b0d1c_slot04_0c(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;

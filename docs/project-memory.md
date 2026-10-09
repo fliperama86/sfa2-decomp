@@ -6999,6 +6999,80 @@ shared header, the seven that wait for a unit of the second session
 and the two without a definition whose result module units declare as
 `u8` in some places and as `int` in others.
 
+## The declaration findings on module units, all of them (2026-10-09)
+
+After the groups before, the private declaration check on module units
+still printed 14 declarations that differ from a resident definition,
+of 8 functions, 2 functions without a definition that module units
+declare in more than one way, and the data symbol `box_margin`. This
+group settles all of them.
+
+What the function findings share, but for the last one: a unit that
+takes a result as a byte masks it after the call, and a unit that
+takes it as an `int` does not. For each of these functions some unit
+is exact only without the mask, so a byte result cannot be the one prototype that keeps every
+unit exact. `int` can: a unit whose instructions mask the result
+writes `(u8)` at the call, which is what its own declaration made the
+compiler do before.
+
+- Six resident definitions return `int` now: `func_80125734`,
+  `func_8013caf0`, `func_8013cfdc`, `func_80141788`, `func_801418bc`
+  and `func_80149b80`. Three are exact as they stood. `func_8013caf0`
+  and `func_8013cfdc` hold their value in a byte local and return
+  that, as their neighbours in the unit do, and `func_801418bc` casts
+  the result of the call that it returns. Measured on the final tree:
+  with a plain `return` of the expression the unit differs from the
+  original in 1, 24 and 5 instruction slots.
+- `func_8012f898` returned `int` already; one unit declared a byte.
+- `func_8013f8c4` and `func_80140cd8` have no definition in the tree.
+  Module units declared their result as a byte in most places and as
+  `int` in others. Both are `int` in the shared header.
+- All nine are in the shared header, and the units' own declarations
+  of them are gone. A unit that leaves the header out got the header's
+  line in place of its own.
+- `box_margin` was declared as one 16-bit word in five units and as an
+  array in all others. The five declare the array and read element 0,
+  and are exact.
+
+One-off counts of the script that changed the callers: 268 units, 297
+declarations of their own taken out or replaced, a cast tried at 370
+calls and kept at 234. A cast was kept only where the unit differs
+from the original without it: the script first rebuilt each unit with
+the cast at every call that had taken a byte, then without any, then
+without each one in turn, and kept the plainest text that is exact. No
+unit failed.
+
+The last one, `func_8013054c`, returns a pair of bytes. Its
+definition, one more resident unit and five units of the second
+session held the pair as two signed bytes (`Dir`); one resident unit
+and one unit of the second session declared two unsigned bytes
+(`BytePair`) and pass the pair on to functions that take that type.
+The two sessions had left it as a question between them. Measured:
+all seven units that held the signed pair are exact with the unsigned
+one, so no unit of the tree needs the sign. The function returns
+`BytePair` in the shared header and in its definition, the seven
+units use that type, and the struct `Dir`, which nothing else used,
+is gone from `types.fields`.
+
+280 source files changed: the shared prototype header, the table of
+structs, 17 resident units and 261 module units, 83 of them in folders
+of the second session. Those are changed here because the definitions
+change: the owner's rule from the review of the twelve character
+blocks is that a change of a shared definition brings every caller
+along in the same step.
+
+Evidence: the whole configuration passes with every image identical
+to its baseline. On this group's tree the private declaration check
+on module units prints no line for a function, where it printed 16,
+and none for `box_margin`; its count of resident declarations that
+differ from a definition is 0. The private helper of the
+shared-prototype group finds no function that units declare and the
+header does not have.
+
+Not claimed: that `int` is the original's result type for any of
+these, or that the pair was unsigned in the original. Each is a type
+with which every unit of the tree is exact.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Dir func_8013054c(Object *object);
-
 u16 func_80130470(Object *object) {
     return (u8)object->field_134;
 }
@@ -25,13 +23,13 @@ void func_8013047c(Object *object) {
 }
 
 void func_80130504(Object *object) {
-    Dir d = func_8013054c(object);
+    BytePair d = func_8013054c(object);
     object->field_12a = d.first;
     object->field_129 = d.second;
 }
 
-Dir func_8013054c(Object *object) {
-    Dir d;
+BytePair func_8013054c(Object *object) {
+    BytePair d;
     u16 pad = object->field_134;
     d.second = 0;
     d.first = 0;

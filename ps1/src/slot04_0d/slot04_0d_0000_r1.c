@@ -16,7 +16,6 @@ extern ObjectFn data_801c296c_slot04_0d[];
 Object *func_8011f32c(void);
 void func_80130678(Object *object, int arg);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142a14(Object *object);
 
 void func_801b0308_slot04_0d(Object *obj);
@@ -176,7 +175,7 @@ void func_801b048c_slot04_0d(Object *obj) {
 
 void func_801b04cc_slot04_0d(Object *obj) {
     obj->field_07++;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x11, 0x11) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;
@@ -195,7 +194,7 @@ void func_801b0574_slot04_0d(Object *obj) {
     int one;
 
     obj->field_07 = obj->field_07 + 1;
-    if ((obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x11, 0x11) != 0) {
+    if ((obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;
@@ -240,7 +239,7 @@ void func_801b06d8_slot04_0d(Object *obj) {
 void func_801b0718_slot04_0d(Object *obj) {
     obj->field_07 = obj->field_07 + 1;
     if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x11) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
             obj->field_04 = 1;
             obj->field_05 = 2;
             obj->field_06 = 0;

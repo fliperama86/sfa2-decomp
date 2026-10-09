@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
-
 int func_801c8bfc_slot05_06(Object *obj) {
     if (!func_801417cc(obj)) return 0;
     obj->field_04 = 1;
@@ -19,7 +17,7 @@ int func_801c8bfc_slot05_06(Object *obj) {
 
 int func_801c8c64_slot05_06(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     obj->field_04 = 1;
     obj->field_05 = 0;
     obj->field_06 = 8;

@@ -289,8 +289,13 @@ functions; they change with every round.
    differed from the table's entry type and none does now. The
    prototypes that units still carried at their top then moved into the
    shared header wherever every declaring unit agrees, so that the
-   compiler compares them in every unit; the few functions that stay in
-   units, and why, are in the project memory. Data externs
+   compiler compares them in every unit. Then the functions whose
+   result some units took as a byte and others as an `int` got one
+   prototype, with the conversion written at the calls that need it,
+   and the one function that returns a pair of bytes got one type for
+   the pair; no function that units declare is outside the shared
+   header after that (the project memory has the accounts). Data
+   externs
    are done
    where all units agree: 594 symbols in a shared header. 138 symbols stay
    in units at that step. The callback tables followed: five function
