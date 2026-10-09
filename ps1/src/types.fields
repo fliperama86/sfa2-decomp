@@ -2142,9 +2142,14 @@ struct Slot06Layer size=0x90
 struct Slot06Obj size=0x394
 0x001 u8 field_01
 0x004 u8 field_04
+0x008 s32 field_08
+0x00e u16 field_0e
 0x012 u16 field_12
 0x016 u16 field_16
+0x022 u16 field_22
+0x026 u16 field_26
 0x030 s32 field_30
+0x036 u16 field_36
 0x038 u16 field_38
 0x03a u16 field_3a
 0x03c u8 field_3c

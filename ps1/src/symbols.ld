@@ -2700,7 +2700,6 @@ data_801eb9ac_slot06_01 = 0x801eb9ac;
 
 /* Added by src.u_slot06_02_8000. */
 func_801e8df4_slot06_02 = 0x801e8df4;
-func_801e9530_slot06_02 = 0x801e9530;
 func_801e99c8_slot06_02 = 0x801e99c8;
 data_801e9f18_slot06_02 = 0x801e9f18;
 data_801ef0e8_slot06_02 = 0x801ef0e8;
@@ -2841,10 +2840,8 @@ data_801ee218_slot06_07 = 0x801ee218;
 data_801ee21c_slot06_07 = 0x801ee21c;
 
 /* Added by src.u_slot06_08_8000. */
-func_801e86cc_slot06_08 = 0x801e86cc;
 func_801e8bd8_slot06_08 = 0x801e8bd8;
 func_801e9b54_slot06_08 = 0x801e9b54;
-func_801ea160_slot06_08 = 0x801ea160;
 func_801ea3b4_slot06_08 = 0x801ea3b4;
 data_801ea6d8_slot06_08 = 0x801ea6d8;
 data_801eb6d8_slot06_08 = 0x801eb6d8;
@@ -2973,12 +2970,10 @@ data_801ea558_slot06_0d = 0x801ea558;
 data_801eb1b0_slot06_0d = 0x801eb1b0;
 
 /* Added by src.u_slot06_0e_8000. */
-func_801e882c_slot06_0e = 0x801e882c;
 func_801e8d34_slot06_0e = 0x801e8d34;
 func_801e9738_slot06_0e = 0x801e9738;
 func_801e9c80_slot06_0e = 0x801e9c80;
 func_801e9d14_slot06_0e = 0x801e9d14;
-func_801ea900_slot06_0e = 0x801ea900;
 data_801eb8ec_slot06_0e = 0x801eb8ec;
 data_801ef554_slot06_0e = 0x801ef554;
 data_801f8478_slot06_0e = 0x801f8478;
@@ -3120,7 +3115,6 @@ data_801f6204_slot06_11 = 0x801f6204;
 data_801f6208_slot06_11 = 0x801f6208;
 
 /* Added by src.u_slot06_12_8000. */
-func_801e885c_slot06_12 = 0x801e885c;
 func_801e9114_slot06_12 = 0x801e9114;
 data_801ef340_slot06_12 = 0x801ef340;
 data_801f6070_slot06_12 = 0x801f6070;
@@ -3828,7 +3822,6 @@ func_801b339c_slot04_0e = 0x801b339c;
 func_801b4100_slot04_0e = 0x801b4100;
 func_801b420c_slot04_0e = 0x801b420c;
 func_801b4a3c_slot04_0e = 0x801b4a3c;
-func_801b504c_slot04_0e = 0x801b504c;
 func_801b5e34_slot04_0e = 0x801b5e34;
 data_801b6f60_slot04_0e = 0x801b6f60;
 data_80079a38_slot2b = 0x80079a38;
@@ -5545,6 +5538,9 @@ data_801c0670_slot04_0a = 0x801c0670;
 
 /* Added by src.u_slot04_07_51dcx. */
 data_801c2134_slot04_07 = 0x801c2134;
+data_8019054e = 0x8019054e;
+data_801ef494_slot06_0e = 0x801ef494;
+data_801ef4a4_slot06_0e = 0x801ef4a4;
 
 /* Added by src.u_slot04_sel_0000. */
 data_801b6d50_slot04_sel = 0x801b6d50;
