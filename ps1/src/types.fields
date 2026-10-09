@@ -1027,6 +1027,8 @@ struct HudState size=0x64
 0x050 u16 field_50
 0x052 u16 field_52
 0x054 u16 field_54
+0x056 u16 field_56
+0x05e u16 field_5e
 0x060 u16 field_60
 0x062 u16 field_62
 
@@ -2399,3 +2401,97 @@ struct Slot04_0eRec62b4 size=0x1c
 struct Slot04_0fRec6194 size=0x4
 0x000 s16 a
 0x002 s16 b
+
+struct Slot28Obj size=0x394
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 u8 field_02
+0x003 u8 field_03
+0x004 u8 field_04
+0x005 u8 field_05
+0x009 u8 field_09
+0x00b u8 field_0b
+0x00d u8 field_0d
+0x00e u8 field_0e
+0x010 u32 field_10
+0x014 u32 field_14
+0x019 u8 field_19
+0x01c u8 field_1c
+0x028 Object* field_28
+0x02c u8 field_2c
+0x03a s16 field_3a
+0x046 u8 field_46
+0x047 u8 field_47
+0x048 u8 field_48
+0x04c s32 field_4c
+0x050 s32 field_50
+0x054 s32 field_54
+0x058 s32 field_58
+0x064 u8 field_64
+0x06c SequenceStep** field_6c
+0x070 u8 field_70
+0x07a u16 field_7a
+0x07c u16 field_7c
+0x086 u8 field_86
+0x090 void* field_90
+0x098 void* field_98
+0x09c void* field_9c
+0x0ad u8 field_ad
+0x0f0 u8 field_f0
+0x227 u8 field_227
+
+struct Slot28Rec51844 size=0x10
+0x000 u32 field_00
+0x004 s16 field_04
+0x006 s16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u32 field_0c
+
+struct Slot28Rec42274 size=0x10
+0x000 s32 field_00
+0x004 s32 field_04
+0x008 s32 field_08
+0x00c s32 field_0c
+
+struct Slot28Rec4aac4 size=0x10
+0x000 s32 field_00
+0x004 s32 field_04
+0x008 s32 field_08
+0x00c s32 field_0c
+
+struct Slot28Rec4ab50 size=0x8
+0x000 s32 field_00
+0x004 s32 field_04
+
+struct Slot28Rec50ca4 size=0x8
+0x000 s32 field_00
+0x004 s32 field_04
+
+struct Slot28Rec51cf0 size=0x10
+0x000 s32 field_00
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+
+struct Slot28Rec51e94 size=0x10
+0x000 s32 field_00
+0x004 u16 field_04
+0x006 u16 field_06
+0x008 u8 field_08
+0x009 u8 field_09
+0x00a u8 field_0a
+0x00b u8 field_0b
+0x00c u32 field_0c
+
+struct Slot28Rec50ce4 size=0x8
+0x000 u8 field_00
+0x002 u8 field_02
+0x004 u32 field_04
+
+struct Slot28Rec50ce4Obj size=0x10c
+0x006 s16 field_06
+0x008 Slot28Rec50ce4* field_08
+0x00c Slot28Rec51e94 cells[16]
