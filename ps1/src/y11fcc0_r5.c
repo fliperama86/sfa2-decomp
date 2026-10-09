@@ -6,7 +6,7 @@
 void func_801409d8(Object *object, s16 a, s16 b);
 void func_80155d4c(int idx, int side);
 
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
     ref_other.p = object->other;
     ref_other.p->field_04 = 1;
     ref_other.p->field_05 = 1;
@@ -40,5 +40,4 @@ int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
         func_80155d4c(8, (s8)ref_other.p->side);
     }
     func_801409d8(object, c, d);
-    /* No return statement: the original returns what its last call left in the result register, and that callee is defined without a result. */
 }

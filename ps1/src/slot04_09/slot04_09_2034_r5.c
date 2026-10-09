@@ -6,7 +6,7 @@
 extern s16 data_801c7cb8_slot04_09[];
 void func_801b27f8_slot04_09(Object *obj);
 void func_801b5ba0_slot04_09(Object *obj);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
 void func_801b2548_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);

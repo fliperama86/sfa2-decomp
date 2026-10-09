@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 u8 func_801b5eb8_slot04_02(Object *obj);
-extern u16 box_margin;
+extern u16 box_margin[];
 
 void func_801b5e4c_slot04_02(Object *obj) {
     if (func_801b5eb8_slot04_02(obj)) {
@@ -24,5 +24,5 @@ u8 func_801b5eb8_slot04_02(Object *obj) {
 }
 
 u8 func_801b5ef0_slot04_02(Object *obj) {
-    return (s16)(box_margin + 0xc0) < obj->pos_x;
+    return (s16)(box_margin[0] + 0xc0) < obj->pos_x;
 }

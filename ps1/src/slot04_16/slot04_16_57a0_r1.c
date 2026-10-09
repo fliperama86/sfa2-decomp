@@ -17,7 +17,7 @@ extern ObjectFn data_801ca56c_slot04_16[];
 extern ObjectRef data_80190468;
 
 int func_80130184(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 u8 func_80140cd8(Object *object, int a, int b);
 u8 func_8013f8c4(Object *object, int a, int b);
 void func_801428e4(Object *object);

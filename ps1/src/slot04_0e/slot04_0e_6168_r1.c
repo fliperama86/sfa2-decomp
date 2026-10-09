@@ -12,7 +12,7 @@ extern u16 box_margin;
 Block172 *func_8011f1e0(void);
 void func_80141e5c(Object *object);
 void func_80142adc(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_801b4914_slot04_0e(Object *obj);
 u8 func_801b6bd4_slot04_0e(Object *obj);
 Dir func_801b6b64_slot04_0e(Slot04bObj *obj);
