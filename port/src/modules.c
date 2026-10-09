@@ -9,7 +9,10 @@
  *     gone with the bytes the disc wrote.
  *  2. A call into such a page is an access fault of the kind "execute". The
  *     handler takes the faulting address and asks the disc layer from which
- *     sector the page was last written. That sector is in a file of the disc's
+ *     sector the WORD at that address was written (the disc layer records the
+ *     origin of every word of RAM, not of every page: images begin and end in
+ *     the middle of pages). Bytes that did not come from the disc are never a
+ *     module's: the fault goes on to the crash line. That sector is in a file of the disc's
  *     directory (an archive); the archive's own header (docs/overlays.md:
  *     u32 count, then 32-byte entries of u16 slot, u16 table, u32 size, chunk
  *     data from 0x800, each chunk padded to 2048 bytes) says which chunk holds
@@ -20,10 +23,14 @@
  *     build pins for the image (the build's [[image]] sha256 covers exactly the chunk's bytes, as they lie in the
  *     archive); the bytes in memory at each function start must still be the chunk's. A chunk that is not the
  *     pinned one ends the program with a line that names the image, and no jump of that image is written.
- *  4. The jumps of that image's functions go on the pages of the image that the
+ *  4. A page that is about to become executable and holds the function start of
+ *     another image, written from that image's chunk and not yet placed, is
+ *     refused with a line naming both images and the page (its first call
+ *     would not fault any more).
+ *  5. The jumps of that image's functions go on the pages of the image that the
  *     disc wrote from that chunk (E9 to the C; E8 to the stop call without C),
  *     those pages become executable, one line is printed and the call resumes.
- *  5. A later disc write to those pages (hook) takes the permission away and
+ *  6. A later disc write to those pages (hook) takes the permission away and
  *     forgets the owner; the next call goes through the handler again.
  *
  * Everything read from an archive is bounded before use: the count of chunks, each chunk's length and place
@@ -35,8 +42,8 @@
  * to the C, ends the program with a line (the C stays and the bytes would not).
  *
  * Which faults the handler accepts: an execute fault, on the game's thread, whose address is the instruction
- * pointer, inside the PS1's RAM, on a page that this file made non-executable, whose bytes the disc layer wrote,
- * while no fault of this kind is being handled. Everything else goes on to the program's crash line.
+ * pointer, inside the PS1's RAM, on a page that this file made non-executable, at a word that the disc layer wrote.
+ * Everything else goes on to the program's crash line.
  *
  * The extent of an image is the length of its chunk in the archive (read at run
  * time), not something the tables carry: the tables know functions, not data.
@@ -67,7 +74,6 @@ static short owner_page[NPAGES];           /* image index + 1 that placed its ju
 static struct port_disc_file *files;
 static unsigned file_count;
 static int installed;
-static int handling;                       /* a fault is being handled: a second one is not ours */
 static unsigned game_thread;               /* the id of the thread that called port_modules_init */
 static unsigned text_lo, text_hi;          /* the resident program's text range: [lo, hi) */
 
@@ -328,6 +334,17 @@ static int owned(int index, unsigned page_address)
     return owner_page[(page_address - PORT_RAM_BASE) / PAGE] == index + 1;
 }
 
+/* Did any word of the page come from this chunk? */
+static int page_ours(unsigned page, const struct chunk *c)
+{
+    unsigned a;
+    for (a = page; a < page + PAGE; a += 4) {
+        int src = port_cd_source_at(a);
+        if (src >= 0 && (unsigned)src >= c->first_sector && (unsigned)src < c->first_sector + c->sectors) return 1;
+    }
+    return 0;
+}
+
 static void place(int index, const struct chunk *c, const unsigned char *bytes, unsigned fault, const struct port_disc_file *f)
 {
     const struct port_image *im = &port_images[index];
@@ -338,7 +355,7 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
 
     hi = end > PORT_RAM_BASE + (unsigned long long)PORT_RAM_SIZE ? PORT_RAM_BASE + PORT_RAM_SIZE : (unsigned)end & ~(PAGE - 1);
     if (end >= (1ull << 32)) hi = PORT_RAM_BASE + PORT_RAM_SIZE;
-#define OURS(page) ((src = port_cd_page_source(page)) >= 0 && (unsigned)src >= c->first_sector && (unsigned)src < c->first_sector + c->sectors)
+#define IN_CHUNK(a) ((src = port_cd_source_at(a)) >= 0 && (unsigned)src >= c->first_sector && (unsigned)src < c->first_sector + c->sectors)
 #define NEW(a) (!owned(index, (a) & ~(PAGE - 1)) || !owned(index, ((a) + 4) & ~(PAGE - 1)))
 #define SAME(a) do { \
         unsigned off_ = (a) - im->address, n_ = c->size - off_ < WINDOW ? c->size - off_ : WINDOW; \
@@ -352,17 +369,17 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     for (i = 0; i < port_function_count; i++) {
         unsigned a = port_functions[i].address;
         if (port_functions[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (OURS(a & ~(PAGE - 1)) && OURS((a + 4) & ~(PAGE - 1)) && NEW(a)) SAME(a);
+        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) SAME(a);
     }
     for (i = 0; i < port_absent_count; i++) {
         unsigned a = port_absents[i].address;
         if (port_absents[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (OURS(a & ~(PAGE - 1)) && OURS((a + 4) & ~(PAGE - 1)) && NEW(a)) SAME(a);
+        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) SAME(a);
     }
     for (i = 0; i < port_function_count; i++) {
         unsigned a = port_functions[i].address;
         if (port_functions[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (OURS(a & ~(PAGE - 1)) && OURS((a + 4) & ~(PAGE - 1)) && NEW(a)) {
+        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) {
             jump_site(a, 0xe9, port_functions[i].impl);
             with_c++;
         }
@@ -370,7 +387,7 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     for (i = 0; i < port_absent_count; i++) {
         unsigned a = port_absents[i].address;
         if (port_absents[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (OURS(a & ~(PAGE - 1)) && OURS((a + 4) & ~(PAGE - 1)) && NEW(a)) {
+        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) {
             jump_site(a, 0xe8, (const void *)port_module_stop_entry);
             without_c++;
         }
@@ -380,18 +397,18 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     /* the pages: owner and permission, in runs */
     for (p = lo; p < hi;) {
         unsigned q;
-        if (!OURS(p)) {
+        if (!page_ours(p, c)) {
             p += PAGE;
             continue;
         }
-        for (q = p; q < hi && OURS(q); q += PAGE) owner_page[(q - PORT_RAM_BASE) / PAGE] = (short)(index + 1);
+        for (q = p; q < hi && page_ours(q, c); q += PAGE) owner_page[(q - PORT_RAM_BASE) / PAGE] = (short)(index + 1);
         if (sys_protect(p, q - p, 1) != 0) {
             printf("stop: modules: cannot make 0x%08x..0x%08x executable\n", p, q);
             finish(PORT_EXIT_OTHER);
         }
         for (; p < q; p += PAGE) exec_page[(p - PORT_RAM_BASE) / PAGE] = 1;
     }
-#undef OURS
+#undef IN_CHUNK
     printf("module: %s at 0x%08x, %u C jumps, %u without C\n", im->name, im->address, with_c, without_c);
     fflush(stdout);
     if (!exec_page[(fault - PORT_RAM_BASE) / PAGE]) {
@@ -400,36 +417,90 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     }
 }
 
-/* Place the module that `address` is in, when its page was written by the disc layer and is not executable.
- * 0: placed. -1: not ours (quiet mode: for whatever reason). Out of quiet mode a page of the disc that no module
- * fits ends the program with a line. */
-static int resolve(unsigned address, int quiet)
+/* The image that the bytes at `address` came from, by the word record of the disc layer: the chunk that wrote the
+ * word, its image by slot, archive and range. -1 when the bytes did not come from the disc, no image fits, or two
+ * do. Out of `quiet` mode a failure ends the program with the line. Fills c and f for the image found. */
+static int locate(unsigned address, int quiet, struct chunk *c, const struct port_disc_file **f_out, int *src_out)
 {
     int src, found = -1;
     unsigned i;
     const struct port_disc_file *f;
-    struct chunk c = { 0, 0, 0, 0, 0, 0 };
     const char *why = "";
     char ambiguous[160] = "";
-    unsigned char *bytes;
 
-    src = port_cd_page_source(address);
+    src = port_cd_source_at(address);
     if (src < 0) return -1;
     load_files();
     f = file_of_sector((unsigned)src);
     if (!f) return unplaced(quiet, address, 0, src, NULL, "no file");
-    if (chunk_of(f, (unsigned)src, &c, &why) != 0) return unplaced(quiet, address, 0, src, f, why);
+    if (chunk_of(f, (unsigned)src, c, &why) != 0) return unplaced(quiet, address, 0, src, f, why);
     for (i = 0; i < port_image_count; i++) {
         const struct port_image *im = &port_images[i];
-        if (im->slot != c.slot || c.table != 0 || !carries(im, f->name)) continue;
-        if (address < im->address || address - im->address >= c.size) continue;
+        if (im->slot != c->slot || c->table != 0 || !carries(im, f->name)) continue;
+        if (address < im->address || address - im->address >= c->size) continue;
         if (found >= 0) {
             snprintf(ambiguous, sizeof ambiguous, "images %s and %s both fit", port_images[found].name, im->name);
-            return unplaced(quiet, address, c.size, src, f, ambiguous);
+            return unplaced(quiet, address, c->size, src, f, ambiguous);
         }
         found = (int)i;
     }
-    if (found < 0) return unplaced(quiet, address, c.size, src, f, "no image of the tables has that archive, slot and address");
+    if (found < 0) return unplaced(quiet, address, c->size, src, f, "no image of the tables has that archive, slot and address");
+    *f_out = f;
+    *src_out = src;
+    return found;
+}
+
+/* Before the pages of an image become executable: a page that holds the function start of ANOTHER image, written
+ * from that image's chunk, which is not placed, would no longer fault on its first call (the page is executable
+ * now, and the bytes there are not jumped). Refuse that, naming both images and the page. */
+static void check_shared(int index, const struct chunk *c)
+{
+    const struct port_image *im = &port_images[index];
+    unsigned lo = im->address & ~(PAGE - 1), i, n = 0;
+    unsigned long long end = (unsigned long long)im->address + c->size + PAGE - 1;
+    unsigned hi = end >= PORT_RAM_BASE + (unsigned long long)PORT_RAM_SIZE ? PORT_RAM_BASE + PORT_RAM_SIZE : (unsigned)end & ~(PAGE - 1);
+    static unsigned char becoming[NPAGES];
+    unsigned p;
+
+    memset(becoming, 0, sizeof becoming);
+    for (p = lo; p < hi; p += PAGE)
+        if (!owned(index, p) && page_ours(p, c)) {
+            becoming[(p - PORT_RAM_BASE) / PAGE] = 1;
+            n++;
+        }
+    if (!n) return;
+    for (i = 0; i < port_function_count + port_absent_count; i++) {
+        int other = i < port_function_count ? port_functions[i].image : port_absents[i - port_function_count].image;
+        unsigned a = i < port_function_count ? port_functions[i].address : port_absents[i - port_function_count].address;
+        struct chunk oc = { 0, 0, 0, 0, 0, 0 };
+        const struct port_disc_file *of = NULL;
+        int osrc = 0, found;
+        if (other < 0 || other == index || a < PORT_RAM_BASE || a - PORT_RAM_BASE >= PORT_RAM_SIZE || !becoming[(a - PORT_RAM_BASE) / PAGE]) continue;
+        if (owned(other, a & ~(PAGE - 1))) continue;
+        {
+            int src = port_cd_source_at(a);
+            if (src < 0 || ((unsigned)src >= c->first_sector && (unsigned)src < c->first_sector + c->sectors)) continue;   /* not from the disc, or from this chunk */
+        }
+        found = locate(a, 1, &oc, &of, &osrc);
+        if (found != other) continue;   /* the bytes there are some other content: this start belongs to an image that is not loaded */
+        printf("refused: images %s and %s share the page 0x%08x: the function of %s at 0x%08x lies in it, %s is not placed, and its first call would no longer fault once the page is executable\n",
+               im->name, port_images[other].name, a & ~(PAGE - 1), port_images[other].name, a, port_images[other].name);
+        finish(PORT_EXIT_REFUSED);
+    }
+}
+
+/* Place the module that `address` is in, when its bytes came from the disc layer and its page is not executable.
+ * 0: placed. -1: not ours (quiet mode: for whatever reason). Out of quiet mode a word of the disc that no module
+ * fits ends the program with a line; bytes that did not come from the disc are never a module's: -1. */
+static int resolve(unsigned address, int quiet)
+{
+    int src = 0, found;
+    const struct port_disc_file *f = NULL;
+    struct chunk c = { 0, 0, 0, 0, 0, 0 };
+    unsigned char *bytes;
+
+    found = locate(address, quiet, &c, &f, &src);
+    if (found < 0) return -1;
     if ((unsigned long long)port_images[found].address + c.size > PORT_RAM_BASE + (unsigned long long)PORT_RAM_SIZE)
         return unplaced(quiet, address, c.size, src, f, "the chunk would end outside the PS1's RAM");
     if (port_images[found].like && !has_entries(found)) {   /* a second placement the build has not made */
@@ -443,6 +514,7 @@ static int resolve(unsigned address, int quiet)
         return unplaced(quiet, address, c.size, src, f, name);
     }
     bytes = verified_chunk(found, &c, f);
+    check_shared(found, &c);
     place(found, &c, bytes, address, f);
     free(bytes);
     return 0;
@@ -451,15 +523,10 @@ static int resolve(unsigned address, int quiet)
 /* Handle an execute fault at `address`. 0: resumed. -1: not ours to handle. */
 static int fault(unsigned address, unsigned eip, unsigned thread)
 {
-    int r;
-
-    if (!installed || handling || thread != game_thread || eip != address) return -1;
+    if (!installed || thread != game_thread || eip != address) return -1;
     if (address < PORT_RAM_BASE || address - PORT_RAM_BASE >= PORT_RAM_SIZE) return -1;
     if (exec_page[(address - PORT_RAM_BASE) / PAGE]) return -1;   /* a page this layer did not make non-executable */
-    handling = 1;
-    r = resolve(address, 0);
-    handling = 0;
-    return r;
+    return resolve(address, 0);
 }
 
 /* For the timer thread of interrupt.c: a thread whose instruction pointer is on a page that is not executable is in
@@ -470,19 +537,15 @@ static int blocked(unsigned address)
 }
 
 /* The check of an address that the game handed over (port_target_check): is it the start of a function of a
- * module that is placed, or whose page can be placed now? */
+ * module that is placed, or whose bytes came from the disc and can be placed now? */
 static int known(unsigned address)
 {
     unsigned page;
     int owner;
 
-    if (!installed || handling || address < PORT_RAM_BASE || address - PORT_RAM_BASE >= PORT_RAM_SIZE) return 0;
+    if (!installed || address < PORT_RAM_BASE || address - PORT_RAM_BASE >= PORT_RAM_SIZE) return 0;
     page = (address - PORT_RAM_BASE) / PAGE;
-    if (!owner_page[page] && !exec_page[page]) {
-        handling = 1;
-        resolve(address, 1);
-        handling = 0;
-    }
+    if (!owner_page[page] && !exec_page[page]) resolve(address, 1);
     owner = owner_page[page] - 1;
     return owner >= 0 && is_function_start(owner, address);
 }
@@ -546,6 +609,14 @@ static void written(unsigned address, unsigned bytes)
     }
 }
 
+static int page_has_source(unsigned page)
+{
+    unsigned a;
+    for (a = PORT_RAM_BASE + page * PAGE; a < PORT_RAM_BASE + (page + 1) * PAGE; a += 4)
+        if (port_cd_source_at(a) >= 0) return 1;
+    return 0;
+}
+
 void port_modules_init(unsigned text_address, unsigned text_size)
 {
     unsigned p;
@@ -561,7 +632,7 @@ void port_modules_init(unsigned text_address, unsigned text_size)
     port_module_known = known;
     port_page_blocked = blocked;
     for (p = 0; p < NPAGES; p++)
-        if (port_cd_page_source(PORT_RAM_BASE + p * PAGE) >= 0) written(PORT_RAM_BASE + p * PAGE, 1);
+        if (page_has_source(p)) written(PORT_RAM_BASE + p * PAGE, 1);
 }
 
 /* ---- the system part ----------------------------------------------------- */

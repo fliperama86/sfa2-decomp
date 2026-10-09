@@ -48,9 +48,11 @@ int  port_cd_init(struct port_disc *disc);
  * sectors of a read in progress. Re-entry (from a ready handler) completes
  * commands and delivers nothing. */
 void port_cd_tick(void);
-/* The sector of the image that CdGetSector last wrote into the 4 KB page of
- * RAM containing `address` (a PS1 address); -1 if none or outside RAM. */
-int  port_cd_page_source(unsigned address);
+/* The sector of the image that the word of RAM containing `address` (a PS1
+ * address) came from: the one CdGetSector last wrote all four bytes of it
+ * from; -1 if none, if the word holds bytes of more than one origin, if they
+ * are the zeros of an empty data FIFO, or if the address is outside RAM. */
+int  port_cd_source_at(unsigned address);
 
 /* The host routines (the table points at these). Pointers are host
  * pointers (the PS1's addresses in the port). */

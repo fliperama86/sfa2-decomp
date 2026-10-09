@@ -79,6 +79,10 @@ def content(seed: int, size: int) -> bytes:
 
 KBASE = RAM + 0x180000     # the second placement with a table of its own
 YBASE = RAM + 0x1f8000     # an image whose chunk would end outside the RAM
+PBASE = RAM + 0x1a0800     # two images that share the page 0x801a0000: mq in its first half, mp in its second
+QBASE = RAM + 0x1a0000
+PF, QF = PBASE + 0x10, QBASE + 0x10
+MANY = 2000
 YSIZE = 0x10000
 ATK = RAM + 0x190000       # where the broken archives are loaded
 
@@ -94,6 +98,7 @@ def raw_archive(entries: list[tuple[int, int, int]], data: bytes, count: int | N
 
 FILES = {"MODA.PAC;1": archive(5, SIZE, 3), "MODB.PAC;1": archive(5, SIZE, 5), "MODL.PAC;1": archive(7, 0x800, 7), "MODX.PAC;1": archive(9, 0x800, 11),
          "MODK.PAC;1": archive(8, 0x800, 13), "MODY.PAC;1": archive(11, YSIZE, 17),
+         "MODP.PAC;1": archive(12, 0x800, 19), "MODQ.PAC;1": archive(13, 0x800, 23),
          "MODH1.PAC;1": raw_archive([(5, 0, 0x800)], bytes(0x800), count=64),        # more chunks than a header holds
          "MODH2.PAC;1": raw_archive([(5, 0, 0xFFFFFFFF)], bytes(0x800)),              # a length that wraps 32 bits
          "MODH3.PAC;1": raw_archive([(5, 0, 0x800), (5, 0, 0x100000)], bytes(0x800)),  # a later chunk past the file
@@ -112,7 +117,7 @@ FILE_SECTOR = {n.split(";")[0]: PROBE.sector["PAC/" + n] for n in FILES}   # "MO
 # resident game functions (with C) and the library functions the game code calls (absent, library)
 G = {n: RAM + 0x101800 + 0x10 * i for i, n in enumerate(
     ["g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "g_tamper", "g_thread", "g_cb_ok", "g_cb_bad", "g_second", "g_second_noc", "g_big"]
-    + [f"g_atk{k}" for k in range(len(ATTACKS))] + ["g_resident", "g_trial", "g_edge", "g_inside"])}
+    + [f"g_atk{k}" for k in range(len(ATTACKS))] + ["g_resident", "g_trial", "g_edge", "g_inside", "g_shared", "g_shared_one", "g_shared_data", "g_partial", "g_gap", "g_many"])}
 LIB = {n: RAM + 0x100700 + 0x10 * i for i, n in enumerate(["CdControlB", "CdReady", "CdGetSector", "CdIntToPos", "CdInit", "CdSync", "CdControl", "CdControlF", "CdMix", "CdPosToInt"])}
 FA, GA, FB2 = BASE + 0x10, BASE + 0x20, BASE + 0x1010   # C, without C, C on the second page
 NONSTART = BASE + 0x1018
@@ -233,6 +238,38 @@ void g_inside(void)
 {{
     load({FILE_SECTOR['MODA.PAC'] + 1}, 2, 0x{TRIAL_DEST + 0x400:08x}u); SAY("not reached\\n");
 }}
+void mp_f(void) {{ SAY("P ran\\n"); }}
+void mq_f(void) {{ SAY("Q ran\\n"); }}
+void g_shared(void)
+{{
+    load({FILE_SECTOR['MODP.PAC'] + 1}, 1, 0x{PBASE:08x}u); load({FILE_SECTOR['MODQ.PAC'] + 1}, 1, 0x{QBASE:08x}u);
+    SAY("loaded P and Q\\n"); CALL(0x{PF:08x}u); SAY("not reached\\n");
+}}
+void g_shared_one(void)
+{{
+    load({FILE_SECTOR['MODP.PAC'] + 1}, 1, 0x{PBASE:08x}u); SAY("loaded P\\n"); CALL(0x{PF:08x}u); SAY("after P\\n");
+}}
+void g_shared_data(void)
+{{
+    load({FILE_SECTOR['MODP.PAC'] + 1}, 1, 0x{PBASE:08x}u); load({FILE_SECTOR['MODX.PAC'] + 1}, 1, 0x{QBASE:08x}u);
+    SAY("loaded P and data\\n"); CALL(0x{PF:08x}u); SAY("after P\\n");
+}}
+void g_partial(void)
+{{
+    load({FILE_SECTOR['MODB.PAC'] + 1}, 1, 0x{BASE:08x}u); SAY("loaded the first sector of B\\n");
+    CALL(0x{FA:08x}u); SAY("after B\\n");
+}}
+void g_gap(void)
+{{
+    load({FILE_SECTOR['MODA.PAC'] + 1}, 1, 0x{BASE:08x}u); SAY("loaded the first sector of A\\n");
+    CALL(0x{BASE + 0x900:08x}u); SAY("not reached\\n");
+}}
+void g_many(void)
+{{
+    int k;
+    for (k = 0; k < {MANY}; k++) {{ LOAD_A; CALL(0x{FA:08x}u); }}
+    SAY("many done\\n");
+}}
 void mk_f(void) {{ SAY("K ran\\n"); }}
 void g_data(void)
 {{
@@ -263,7 +300,7 @@ def c_bytes(b: bytes) -> str:
 def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     """The made-up tables. `unpinned` names an image whose hash the build did not give."""
     out = ['#include "port_tables.h"']
-    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "c_main", "c_big") + tuple(G)[8:]
+    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "mp_f", "mq_f", "c_main", "c_big") + tuple(G)[8:]
     for sym in dict.fromkeys(syms):
         out.append(f"extern void {sym}(void);")
     out.append('static const char *const arch_a[] = { "MODA.PAC", "MODA2.PAC", 0 };')
@@ -271,9 +308,12 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     out.append('static const char *const arch_l[] = { "MODL.PAC", 0 };')
     out.append('static const char *const arch_k[] = { "MODK.PAC", 0 };')
     out.append('static const char *const arch_y[] = { "MODY.PAC", 0 };')
+    out.append('static const char *const arch_p[] = { "MODP.PAC", 0 };')
+    out.append('static const char *const arch_q[] = { "MODQ.PAC", 0 };')
     images = [("ma", BASE, "0", 5, "arch_a", pinned(3, SIZE)), ("mb", BASE, "0", 5, "arch_b", pinned(5, SIZE)),
               ("ml", LIKE_BASE, '"ma"', 7, "arch_l", pinned(7, 0x800)), ("mk", KBASE, '"ma"', 8, "arch_k", pinned(13, 0x800)),
-              ("my", YBASE, "0", 11, "arch_y", pinned(17, YSIZE))]
+              ("my", YBASE, "0", 11, "arch_y", pinned(17, YSIZE)),
+              ("mp", PBASE, "0", 12, "arch_p", pinned(19, 0x800)), ("mq", QBASE, "0", 13, "arch_q", pinned(23, 0x800))]
     for n, im in enumerate(images):
         out.append(f"static const unsigned char sha_{n}[32] __attribute__((unused)) = {c_bytes(im[5])};")
     out.append("const struct port_image port_images[] = {")
@@ -283,7 +323,8 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     out.append(f"const unsigned port_image_count = {len(images)};")
     fns = [(tl.ENTRY_C, "c_main", "c_main", -1), (tl.BIG_C, "c_big", "c_big", -1)]
     fns += [(a, n, n, -1) for n, a in G.items()]
-    fns += [(FA, "ma_f", "ma_f", 0), (FA, "mb_f", "mb_f", 1), (FB2, "mb_g", "mb_g", 1), (KF, "mk_f", "mk_f", 3)]
+    fns += [(FA, "ma_f", "ma_f", 0), (FA, "mb_f", "mb_f", 1), (FB2, "mb_g", "mb_g", 1), (KF, "mk_f", "mk_f", 3),
+             (PF, "mp_f", "mp_f", 5), (QF, "mq_f", "mq_f", 6)]
     fns.sort(key=lambda f: (f[3], f[0]))
     out.append("const struct port_function port_functions[] = {")
     for a, name, sym, image in fns:
@@ -379,7 +420,7 @@ def cases(rig: ModRig):
     yield "a-function-without-c-stops-with-its-name", verdict(
         (status, lines), (3, ["loaded A", mline("ma", BASE, 1, 1), f"stop: no C yet for func_80150020_ma (0x{GA:08x})"]))
 
-    sector = FILE_SECTOR["MODA.PAC"] + 4   # the last sector written to the second page
+    sector = FILE_SECTOR["MODA.PAC"] + 1 + (NONSTART - BASE) // 2048   # the sector that wrote the word at that address
     status, lines = rig.go("nonstart", G["g_nonstart"])
     want = ["loaded A", f"stop: call to 0x{NONSTART:08x}, which no module can be placed at: the page was written from sector {sector} of moda.pac "
             f"(image ma is there but 0x{NONSTART:08x} is no function start of it); images the tables have at that address: ma, mb"]
@@ -451,6 +492,26 @@ def cases(rig: ModRig):
     status, lines = rig.go("inside", G["g_inside"])
     want = [f"stop: the game overwrote resident code at 0x{G['g_a']:08x} (g_a): a copy of 2048 bytes to 0x{TRIAL_DEST + 0x400:08x} reaches the jump written there, and the C stays while the bytes would not"]
     yield "a-copy-over-several-resident-functions-names-the-lowest", verdict((status, lines[-1:]), (6, want))
+
+    # ---- where each word came from ----
+    status, lines = rig.go("shared", G["g_shared"])
+    want = ["loaded P and Q", f"refused: images mp and mq share the page 0x{PBASE & ~0xfff:08x}: the function of mq at 0x{QF:08x} lies in it, mq is not placed, and its first call would no longer fault once the page is executable"]
+    yield "two-images-sharing-a-page-the-second-not-placed-is-refused-naming-both-and-the-page", verdict((status, lines), (2, want))
+    status, lines = rig.go("shared-one", G["g_shared_one"])
+    yield "an-image-beginning-in-the-middle-of-a-page-with-nothing-else-of-the-disc-in-it-is-placed", verdict(
+        (status, lines), (0, ["loaded P", mline("mp", PBASE, 1, 0), "P ran", "after P", "stop: main returned"]))
+    status, lines = rig.go("shared-data", G["g_shared_data"])
+    yield "a-page-shared-with-disc-data-that-is-no-image-is-placed-for-the-image-that-is-called", verdict(
+        (status, lines), (0, ["loaded P and data", mline("mp", PBASE, 1, 0), "P ran", "after P", "stop: main returned"]))
+    status, lines = rig.go("partial", G["g_partial"])
+    yield "only-the-functions-whose-bytes-the-chunk-wrote-get-a-jump-the-image-s-second-page-function-is-left-alone", verdict(
+        (status, lines), (0, ["loaded the first sector of B", mline("mb", BASE, 1, 1), "B ran", "after B", "stop: main returned"]))
+    status, lines = rig.go("gap", G["g_gap"])
+    ok = status == 10 and lines[0] == "loaded the first sector of A" and len(lines) == 2 and lines[1].startswith(f"stop: crash: access violation (execute 0x{BASE + 0x900:08x})")
+    yield "a-call-at-an-address-whose-bytes-did-not-come-from-the-disc-is-no-module-call-it-is-the-crash-line", None if ok else f"status {status}, lines {lines!r}"
+    status, lines = rig.go("many", G["g_many"], timeout=60)
+    yield "many-faults-in-a-row-with-the-timer-running-end-without-a-hang", verdict(
+        (status, lines.count("A ran"), [l for l in lines if l not in ("A ran", "loaded A") and not l.startswith("module:")]), (0, MANY, ["many done", "stop: main returned"]))
 
     # ---- a second placement has its own table ----
     status, lines = rig.go("second", G["g_second"])
