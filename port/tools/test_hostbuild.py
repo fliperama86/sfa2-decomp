@@ -184,7 +184,15 @@ def unit(name: str, source: str, functions: list[tuple[str, int]] = (), image: s
     if kind:
         text += f'kind = "{kind}"\n'
     if functions:
-        text += "functions = [\n" + "".join(f'  {{ name = "{n}", address = {a:#x}, size = 8 }},\n' for n, a in functions) + "]\n"
+        items = [(f + (None,))[:3] for f in functions]
+        ordered = sorted(a for _, a, _ in items)
+        rows = []
+        for n, a, size in items:
+            if size is None:
+                later = [b for b in ordered if b > a]
+                size = (later[0] - a) if later and later[0] - a <= 0x40 else 8
+            rows.append(f'  {{ name = "{n}", address = {a:#x}, size = {size} }},\n')
+        text += "functions = [\n" + "".join(rows) + "]\n"
     return text
 
 
@@ -299,6 +307,113 @@ def placement_cases():
         hb.render_redefine({"a": 1, "b": 2, "c": 3}, ["d"], True, moved={"b", "d", "zz"}, suffix="__m"),
         "_a _ps1_a\n_b _ps1_b__m\n_c _ps1_c\n_d _ps1_d__m\n")
     yield "place-redefine-without-moved-is-plain", same(hb.render_redefine({"a": 1}, [], False, suffix="__m"), "a ps1_a\n")
+
+
+# The reviewed table of sweep rows.
+
+
+def entry(**over):
+    base = dict(image="mod", address=0x1000, function="f", function_address=0x1010, data_bytes=16, evidence="two tables", data_symbol=None)
+    base.update(over)
+    return hb.SweepEntry(base["image"], base["address"], base["function"], base["function_address"], base["data_bytes"], base["evidence"], base["data_symbol"])
+
+
+def sweep_table_cases(root: Path):
+    R, F = hb.Row, hb.Function
+    rows = [R(0x1000, "mod", False, 0x30), R(0x2000, "mod", False, 0x40), R(0x3000, "mod", False, 0x10), R(0x1000, "mod2", False, 0x30), R(0x2000, "mod2", False, 0x40)]
+    f = F("f", 0x1010, "mod", "u", 0x20)
+    g = F("g", 0x2000 - 0x40 + 0x40 - 0x40 + 0x40, "mod", "u", 0x40) if False else F("g", 0x2000 - 0x0, "mod", "u", 0x40)
+    f2 = F("f__mod2", 0x1010, "mod2", "u", 0x20)
+    decl = [f, g, f2]
+
+    def check(entries, with_c=(f, g, f2), rows=rows, declared=decl):
+        return hb.verify_sweep_rows(entries, rows, list(with_c), list(declared))
+
+    kept, misses = check([entry()])
+    yield "sweep-listed-data-before-is-dropped", same(([(r.image, r.address) for r in kept if r.address == 0x1000], misses), ([("mod2", 0x1000)], []))
+    kept, misses = check([entry(image="mod2", function="f__mod2")])
+    yield "sweep-second-placement-is-listed-on-its-own", same(([(r.image, r.address) for r in kept if r.address == 0x1000], misses), ([("mod", 0x1000)], []))
+    yield "sweep-not-listed-keeps-every-row", same(check([])[0], rows)
+    # The owner's fixtures: nothing is inferred from what lies near a row.
+    missing_before = [R(0x4000, "mod", False, 0x20)]
+    c_after = F("later", 0x4010, "mod", "u", 8)
+    yield "sweep-missing-function-before-a-later-c-function-keeps-its-stop", same(check([], with_c=[c_after], rows=missing_before, declared=[c_after])[0], missing_before)
+    # Rule 2: a row that begins inside the range of a built unit.
+    S = hb.Span
+    spans = [S("u1", "mod", 0x1000, 0x1100, {0x1000, 0x1040}), S("u2", None, 0x3000, 0x3040, {0x3000}), S("u1", "mod2", 0x4000, 0x4100, {0x4000, 0x4040})]
+    rows2 = [R(0x1000, "mod", False, 0x40), R(0x1020, "mod", False, 0x20), R(0x1040, "mod", False, 0x40), R(0x1100, "mod", False, 0x10),
+             R(0x0fff, "mod", False, 0x10), R(0x3020, None, False, 0x10), R(0x4020, "mod2", False, 0x10), R(0x4040, "mod2", False, 0x10)]
+    kept, dropped = hb.split_span_rows(rows2, spans)
+    yield "span-row-inside-a-unit-is-dropped", same([(r.address, sp.unit, sp.start, sp.end) for r, sp in dropped], [
+        (0x1020, "u1", 0x1000, 0x1100), (0x3020, "u2", 0x3000, 0x3040), (0x4020, "u1", 0x4000, 0x4100)])
+    yield "span-declared-function-address-is-normal", same([r.address for r in kept], [0x1000, 0x1040, 0x1100, 0x0fff, 0x4040])
+    yield "span-other-image-does-not-count", same(hb.split_span_rows([R(0x1020, "mod2", False, 0x10)], [S("u1", "mod", 0x1000, 0x1100, {0x1000})])[1], [])
+    yield "span-no-spans-keeps-the-row", same(hb.split_span_rows([R(0x1020, "mod", False, 0x10)], [])[1], [])
+    yield "span-start-itself-counts", same(len(hb.split_span_rows([R(0x2000, "mod", False, 0x10)], [S("u3", "mod", 0x2000, 0x2100, {0x2040})])[1]), 1)
+    yield "span-contiguous", same((hb.contiguous([F("a", 0x100, "m", "u", 0x10), F("b", 0x110, "m", "u", 8)]), hb.contiguous([F("b", 0x110, "m", "u", 8), F("a", 0x100, "m", "u", 0x10)])), (True, True))
+    yield "span-gap-is-not-contiguous", same(hb.contiguous([F("a", 0x100, "m", "u", 0x10), F("b", 0x118, "m", "u", 8)]), False)
+    yield "span-overlap-is-not-contiguous", same(hb.contiguous([F("a", 0x100, "m", "u", 0x10), F("b", 0x108, "m", "u", 8)]), False)
+    yield "span-one-function-is-contiguous", same(hb.contiguous([F("a", 0x100, "m", "u", 0x10)]), True)
+
+    # The unknown prefix: bytes in front of a later function with C that nothing owns keep their stop.
+    prefix = [R(0x4000, "mod", False, 0x20), R(0x4000, "mod2", False, 0x20)]
+    later = [F("later", 0x4010, "mod", "u", 8), F("later__mod2", 0x4010, "mod2", "u", 8)]
+    yield "sweep-unknown-prefix-keeps-its-stop", same(check([], with_c=later, rows=prefix[:1], declared=later)[0], prefix[:1])
+    yield "sweep-unknown-prefix-keeps-its-stop-second-placement", same(check([], with_c=later, rows=prefix[1:], declared=later)[0], prefix[1:])
+    yield "sweep-an-entry-for-another-row-does-not-drop-the-prefix", same(
+        [(r.image, r.address) for r in check([entry()], with_c=later + [f, f2], rows=prefix + rows, declared=later + decl)[0] if r.address == 0x4000],
+        [("mod", 0x4000), ("mod2", 0x4000)])
+
+    def one(**over):
+        return check([entry(**over)])[1]
+
+    miss = lambda **o: (len(one(**o)), "mod 0x1000" in (one(**o) or [""])[0] or "mod 0x" in (one(**o) or [""])[0])
+    yield "sweep-miss-no-such-row", same(len(one(address=0x1004, function_address=0x1010, data_bytes=12)), 1)
+    yield "sweep-miss-no-such-row-in-this-image", same(len(one(image="mod3")), 1)
+    yield "sweep-miss-function-without-c", same(len(check([entry()], with_c=[g, f2])[1]), 1)
+    yield "sweep-miss-function-of-another-image", same(len(check([entry(function="f__mod2")])[1]), 1)
+    yield "sweep-miss-function-at-another-address", same(len(one(function_address=0x1014, data_bytes=20)), 1)
+    yield "sweep-miss-data-bytes-wrong", same(len(one(data_bytes=12)), 1)
+    yield "sweep-miss-data-bytes-zero", same(len(check([entry(address=0x1010, function_address=0x1010, data_bytes=0)], rows=rows + [R(0x1010, "mod", False, 0x30)])[1]), 1)
+    yield "sweep-miss-function-at-the-row-end", same(len(check([entry(address=0x1000, function="f", function_address=0x1010, data_bytes=16)], rows=[R(0x1000, "mod", False, 0x10)])[1]), 1)
+    yield "sweep-miss-function-before-the-row", same(len(check([entry(address=0x1020, function_address=0x1010, data_bytes=-16)], rows=rows + [R(0x1020, "mod", False, 0x10)])[1]), 1)
+    yield "sweep-miss-a-function-at-the-row-start", same(len(check([entry()], declared=decl + [F("own", 0x1000, "mod", "asm")])[1]), 1)
+    yield "sweep-miss-another-function-between", same(len(check([entry()], declared=decl + [F("mid", 0x1008, "mod", "asm")])[1]), 1)
+    yield "sweep-another-function-in-another-image-is-no-miss", same(check([entry()], declared=decl + [F("mid", 0x1008, "mod3", "asm")])[1], [])
+    symbols = {"data_x": 0x1000, "data_y": 0x1004}
+    yield "sweep-data-symbol-at-the-row-is-fine", same(hb.verify_sweep_rows([entry(data_symbol="data_x")], rows, [f, g, f2], decl, symbols)[1], [])
+    yield "sweep-data-symbol-elsewhere-is-a-miss", same(len(hb.verify_sweep_rows([entry(data_symbol="data_y")], rows, [f, g, f2], decl, symbols)[1]), 1)
+    yield "sweep-data-symbol-unknown-is-a-miss", same(len(hb.verify_sweep_rows([entry(data_symbol="data_z")], rows, [f, g, f2], decl, symbols)[1]), 1)
+    yield "sweep-data-symbol-without-symbols-is-a-miss", same(len(hb.verify_sweep_rows([entry(data_symbol="data_x")], rows, [f, g, f2], decl)[1]), 1)
+    yield "sweep-no-data-symbol-rests-on-the-evidence", same(hb.verify_sweep_rows([entry()], rows, [f, g, f2], decl, {})[1], [])
+    yield "sweep-misses-name-the-entry", same("mod 0x1000" in one(data_bytes=12)[0], True)
+    yield "sweep-every-miss-is-reported", same(len(check([entry(data_bytes=12), entry(address=0x2000, function="g", function_address=0x2000, data_bytes=0)])[1]), 2)
+    yield "sweep-a-missed-entry-drops-nothing", same(check([entry(data_bytes=12)])[0], rows)
+
+    # The file.
+    def table(text, name="t.toml"):
+        return write(root / "sweeptab" / name, text)
+
+    good = (
+        '[[row]]\nimage = "mod"\naddress = 0x1000\nfunction = "f"\nfunction_address = 0x1010\n'
+        'data_bytes = 16\nevidence = "two tables"\n'
+    )
+    got = hb.read_sweep_rows(table(good))
+    yield "sweep-file-read", same([(e.image, e.address, e.function, e.function_address, e.data_bytes, e.evidence) for e in got], [("mod", 0x1000, "f", 0x1010, 16, "two tables")])
+    yield "sweep-file-resident", same(hb.read_sweep_rows(table(good.replace('"mod"', '"resident"')))[0].image, None)
+    yield "sweep-file-missing-drops-nothing", same(hb.read_sweep_rows(root / "sweeptab" / "nowhere.toml"), [])
+    yield "sweep-file-none-drops-nothing", same(hb.read_sweep_rows(None), [])
+    yield "sweep-file-empty-drops-nothing", same(hb.read_sweep_rows(table("# nothing\n", "e.toml")), [])
+    for key in ("image", "address", "function", "function_address", "data_bytes", "evidence"):
+        text = "".join(l + "\n" for l in good.splitlines() if not l.startswith(key + " ") and l != "[[row]]" or l == "[[row]]")
+        yield f"sweep-file-field-missing-{key}", raises(lambda t=text: hb.read_sweep_rows(table(t, f"m{key}.toml")), key)
+    yield "sweep-file-unknown-field", raises(lambda: hb.read_sweep_rows(table(good + 'kind = "data-before"\n', "k.toml")), "kind")
+    yield "sweep-file-data-symbol", same(hb.read_sweep_rows(table(good + 'data_symbol = "data_x"\n', "s.toml"))[0].data_symbol, "data_x")
+    yield "sweep-file-listed-twice", raises(lambda: hb.read_sweep_rows(table(good + "\n" + good, "d.toml")), "twice")
+    yield "sweep-file-empty-evidence", raises(lambda: hb.read_sweep_rows(table(good.replace("two tables", "  "), "ev.toml")), "evidence")
+    yield "sweep-file-bad-type", raises(lambda: hb.read_sweep_rows(table(good.replace("0x1000", '"x"'), "ty.toml")), "type")
+    yield "sweep-file-not-toml", raises(lambda: hb.read_sweep_rows(table("[[row\n", "bad.toml")), "bad.toml")
+
 
 
 # The tables.
@@ -634,7 +749,7 @@ DEFS = {"ua": ["fa", "fb"], "ub": ["fc"], "uc": ["fd"], "um": ["mf"]}
 def run(root: Path, tag: str, config: Path, cc: Path, nm: Path, *more) -> subprocess.CompletedProcess:
     argv = [
         sys.executable, str(SCRIPT), "--config", str(config), "--cc", str(cc), "--nm", str(nm), "--objcopy", str(nm).replace("fakenm", "fakeobjcopy"), "--build", str(root / tag / "build"),
-        "--runtime", str(root / tag / "runtime"), "--jobs", "2", *map(str, more),
+        "--runtime", str(root / tag / "runtime"), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml"), *map(str, more),
     ]
     return subprocess.run(argv, capture_output=True, text=True, timeout=300)
 
@@ -658,6 +773,7 @@ def flow_cases(root: Path):
         "like images built: 1\n"
         "functions with C: 6\n"
         "functions without C: 5, library 2, game and modules 3\n"
+        "sweep rows that are not functions: 0\n"
         "names at PS1 addresses: 11\n"
         "data defined in C, at host addresses: 0\n"
         f"linked: {exe}, verified\n"
@@ -721,7 +837,7 @@ def flow_cases(root: Path):
     cc, nm = fake(root, "flow", defs=DEFS)
     rel = subprocess.run(
         [sys.executable, str(SCRIPT), "--config", "flow/src/build.toml", "--cc", str(cc), "--nm", str(nm),
-         "--objcopy", str(root / "fakeobjcopy-flow"), "--build", "relbuild", "--runtime", "flow/runtime", "--jobs", "2"],
+         "--objcopy", str(root / "fakeobjcopy-flow"), "--build", "relbuild", "--runtime", "flow/runtime", "--jobs", "2", "--sweep-rows", "none.toml"],
         capture_output=True, text=True, cwd=root, timeout=300)
     yield "flow-relative-paths", same((rel.returncode, rel.stdout.splitlines()[-1] if rel.stdout else None), (0, "linked: relbuild/sfa2.exe, verified"))
 
@@ -743,32 +859,32 @@ def flow_cases(root: Path):
     yield "flow-failed-status-1", same(proc.returncode, 1)
     yield "flow-failed-lines", same(out[1:5], [
         "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions without C: 5, library 2, game and modules 3"])
-    yield "flow-failed-names-count", same(out[5], "names at PS1 addresses: 12")
-    yield "flow-failed-link-still-made", same(out[7], f"linked: {exe}, verified")
-    yield "flow-list-failed", same(out[8], "failed: ub: b.c:3:5: error: boom in ub")
-    yield "flow-list-absent-lines", same(out[10:], [
+    yield "flow-failed-names-count", same(out[6], "names at PS1 addresses: 12")
+    yield "flow-failed-link-still-made", same(out[8], f"linked: {exe}, verified")
+    yield "flow-list-failed", same(out[9], "failed: ub: b.c:3:5: error: boom in ub")
+    yield "flow-list-absent-lines", same(out[11:], [
         "absent: fc 0x80100020 -", "absent: asmf 0x80100200 -", "absent: func_801e0010_mod 0x801e0010 mod"])
-    absent = out[10:]
+    absent = out[11:]
     yield "flow-list-absent-count-and-no-library", same((len(absent), any("libf" in x for x in absent)), (3, False))
     yield "flow-failed-table", same(read(root / "flow2" / "build" / "failed.tsv"), "ub\tb.c:3:5: error: boom in ub\n")
     yield "flow-nonmatching-is-function-with-c", same("func_80100040" in read(root / "flow2" / "build" / "gen" / "port_tables.c"), True)
-    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 8)
+    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 9)
 
     # Data defined in C.
     cc, nm = fake(root, "flow3", defs={**DEFS, "ub": ["fc", "hostvar"]})
     config = run_tree(root, "flow3")
     proc = run(root, "flow3", config, cc, nm, "--list")
     out = proc.stdout.splitlines()
-    yield "flow-data-line", same((proc.returncode, out[6], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
+    yield "flow-data-line", same((proc.returncode, out[7], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
     yield "flow-data-listed", same("data: hostvar" in out, True)
     yield "flow-data-alias-line", same("_ps1_hostvar = _impl_hostvar;\n" in read(root / "flow3" / "build" / "gen" / "names.ld"), True)
-    yield "flow-data-names-count-unchanged", same(out[5], "names at PS1 addresses: 11")
+    yield "flow-data-names-count-unchanged", same(out[6], "names at PS1 addresses: 11")
 
     # A data symbol that symbols.ld places is bound there, not aliased.
     cc, nm = fake(root, "flow3b", defs={**DEFS, "ub": ["fc", "sym_a"]})
     config = run_tree(root, "flow3b")
     proc = run(root, "flow3b", config, cc, nm)
-    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[6]), (0, "data defined in C, at host addresses: 0"))
+    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[7]), (0, "data defined in C, at host addresses: 0"))
 
     # Verification misses end the tool with status 1.
     cc, nm = fake(root, "flow4", defs=DEFS, nm_extra=["80100000 A _fa"])
@@ -874,13 +990,76 @@ LIKE_UNITS = (
 LIKE_CALLS = {"um": ["mg", "r1", "sym_in", "sym_out", "sym_own", "hv"]}
 
 
+def sweep_flow_cases(root: Path):
+    units = (unit("ur", "a.c", [("r1", 0x80100000)]) + unit("um", "d.c", [("mg", 0x801e0010), ("mh", 0x801e0018)], image="mod")
+             + unit("uk", "b.c", [("mk", 0x801e0110)], image="mod"))
+    entries = (
+        '[[row]]\nimage = "mod"\naddress = 0x801e0008\nfunction = "mg"\nfunction_address = 0x801e0010\ndata_bytes = 8\nevidence = "a table"\n'
+        '[[row]]\nimage = "mod2"\naddress = 0x801f0008\nfunction = "mg__mod2"\nfunction_address = 0x801f0010\ndata_bytes = 8\nevidence = "a table, second side"\n'
+    )
+    rows = ("{a}\t0x{s}\t{base}0000\t8\taaaa\n{a}\t0x{s}\t{base}0008\t24\tbbbb\n{a}\t0x{s}\t{base}001c\t4\tcccc\n"
+            "{a}\t0x{s}\t{base}0100\t32\tdddd\n{a}\t0x{s}\t{base}0118\t8\teeee\n")
+    modules = rows.format(a="A.PAC", s="5", base="801e") + rows.format(a="B.PAC", s="6", base="801f")
+
+    def setup(tag, table, units=units, modules=modules, defs=None, fail=()):
+        config = run_tree(root, tag, units=units, symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
+        inv = root / tag / "inventory"
+        write(inv / "modules.tsv", modules)
+        write(inv / "game.tsv", "80100000\t16\tx\n80100040\t16\tx\n")
+        write(inv / "library.tsv", "")
+        cc, nm = fake(root, tag, defs=defs or {"ur": ["r1"], "um": ["mg", "mh"], "uk": ["mk"]}, call="r1", calls={"um": ["mg"]}, fail=list(fail))
+        extra = ["--sweep-rows", write(root / tag / "sweep.toml", table)] if table is not None else []
+        return run(root, tag, config, cc, nm, "--list", *extra)
+
+    proc = setup("sweep", entries)
+    out = proc.stdout.splitlines()
+    absent = [l.split()[1] for l in out if l.startswith("absent:")]
+    yield "sweepflow-runs", same((proc.returncode, proc.stderr), (0, ""))
+    yield "sweepflow-count-line", same([l for l in out if l.startswith("sweep")], ["sweep rows that are not functions: 4"])
+    yield "sweepflow-table-and-tail-rows-lose-their-stop", same(sorted(a for a in absent if a.startswith(("func_801e0008", "func_801f0008", "func_801e001c", "func_801f001c"))), [])
+    yield "sweepflow-unlisted-rows-keep-theirs", same(sorted(absent), sorted([
+        "func_80100040", "func_801e0000_mod", "func_801e0100_mod", "func_801e0118_mod", "func_801f0000_mod2", "func_801f0100_mod2", "func_801f0118_mod2"]))
+    yield "sweepflow-list-lines", same([l for l in out if l.startswith("data-row:")], [
+        "data-row: func_801e0008_mod at 0x801e0008, mod, table, function mg at 0x801e0010: a table",
+        "data-row: func_801f0008_mod2 at 0x801f0008, mod2, table, function mg__mod2 at 0x801f0010: a table, second side",
+        "data-row: func_801e001c_mod at 0x801e001c, mod, rule 2: inside the unit um (0x801e0010-0x801e0020)",
+        "data-row: func_801f001c_mod2 at 0x801f001c, mod2, rule 2: inside the unit um (0x801f0010-0x801f0020)"])
+    tables = read(root / "sweep" / "build" / "gen" / "port_tables.c")
+    yield "sweepflow-no-stop-in-the-listed-rows", same(any(a in tables for a in ("0x801e0008u", "0x801f0008u", "0x801e001cu", "0x801f001cu")), False)
+    yield "sweepflow-unknown-prefix-before-a-later-c-function-keeps-its-stop", same(
+        ("func_801e0100_mod" in absent, "func_801f0100_mod2" in absent, "mk" in tables and "0x801e0110u" in tables), (True, True, True))
+    proc = setup("sweep-none", None)
+    out = proc.stdout.splitlines()
+    yield "sweepflow-without-a-table-only-rule-2-applies", same(
+        (proc.returncode, [l for l in out if l.startswith("sweep")], len([l for l in out if l.startswith("absent:")])), (0, ["sweep rows that are not functions: 2"], 9))
+    proc = setup("sweep-bad", entries.replace("data_bytes = 8", "data_bytes = 4", 1))
+    yield "sweepflow-a-miss-ends-the-build-with-status-1", same((proc.returncode, "mod 0x801e0008" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    proc = setup("sweep-bad2", entries.replace("evidence", "proof", 1))
+    yield "sweepflow-a-malformed-table-is-status-2", same((proc.returncode, "evidence" in proc.stderr, proc.stdout), (2, True, ""))
+    # A unit that failed to compile is not built: its rows keep their stop.
+    proc = setup("sweep-failed", None, fail=["um"])
+    yield "sweepflow-failed-unit-rows-keep-their-stop", same(
+        ("func_801e001c_mod" in [l.split()[1] for l in proc.stdout.splitlines() if l.startswith("absent:")], [l for l in proc.stdout.splitlines() if l.startswith("sweep")]),
+        (True, ["sweep rows that are not functions: 0"]))
+    # A unit whose functions are not contiguous gets no rule 2.
+    gappy = unit("ur", "a.c", [("r1", 0x80100000)]) + unit("um", "d.c", [("mg", 0x801e0010, 8), ("mh", 0x801e0028, 8)], image="mod")
+    gap_modules = "A.PAC\t0x5\t801e0000\t8\taaaa\nA.PAC\t0x5\t801e0020\t4\tbbbb\nB.PAC\t0x6\t801f0000\t8\taaaa\nB.PAC\t0x6\t801f0020\t4\tbbbb\n"
+    proc = setup("sweep-gap", None, units=gappy, modules=gap_modules, defs={"ur": ["r1"], "um": ["mg", "mh"]})
+    out = proc.stdout.splitlines()
+    yield "sweepflow-non-contiguous-unit-keeps-the-row-in-its-gap", same(
+        (proc.returncode, "func_801e0020_mod" in [l.split()[1] for l in out if l.startswith("absent:")], "func_801f0020_mod2" in [l.split()[1] for l in out if l.startswith("absent:")]), (0, True, True))
+    yield "sweepflow-non-contiguous-unit-is-named", same(
+        ([l for l in out if l.startswith("not-contiguous:")], "unit um: its functions are not contiguous" in proc.stderr),
+        (["not-contiguous: unit um: its functions are not contiguous; rows inside its range keep their stop"], True))
+
+
 def like_cases(root: Path):
     config = run_tree(root, "like", units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
     cc, nm = fake(root, "like", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls=LIKE_CALLS)
     proc = run(root, "like", config, cc, nm, "--list")
     build = root / "like" / "build"
     out = proc.stdout.splitlines()
-    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[7]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
+    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[8]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
     names = read(build / "gen" / "names.ld").splitlines()
     yield "like-moved-names-in-the-names-file", same([l for l in names if "__mod2" in l], [
         "_ps1_mf__mod2 = 0x801f0000;", "_ps1_mg__mod2 = 0x801f0010;", "_ps1_sym_in__mod2 = 0x801f0100;",
@@ -934,6 +1113,7 @@ def like_cases(root: Path):
 
 def groups(root: Path):
     yield rename_cases()
+    yield sweep_table_cases(root)
     yield placement_cases()
     yield names_cases()
     yield selection_cases(root)
@@ -942,6 +1122,7 @@ def groups(root: Path):
     yield marker_cases()
     yield flow_cases(root)
     yield like_cases(root)
+    yield sweep_flow_cases(root)
     yield marker_flow_cases(root)
     yield psyz_cases(root)
 
