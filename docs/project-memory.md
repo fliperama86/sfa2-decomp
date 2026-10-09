@@ -5555,6 +5555,113 @@ Mistakes and lessons:
   the file did not parse; the whole build said so at once. The private
   helper appends the round's tail to main's file now.
 
+## Seventy-fourth group: the module of slot 0x4 of SELECT.PAC
+
+`SELECT.PAC` carries one content in slot `0x4`, at `0x801b0000`: a chunk
+of 40,380 bytes with 91 functions by the sweep, 27,984 bytes of code. The
+image is `slot04_sel`. By the file's name it is the character select
+screen; nothing here depends on that.
+
+Counts, from the build and the inventory:
+
+- 89 of the 91 functions are exact, 27,092 of 27,984 bytes. 13,288 bytes
+  of the chunk are retained raw. 2 are parked with candidates:
+  `func_801b0ea0_slot04_sel` and `func_801b3f38_slot04_sel`.
+- When the round ended, before the modules of slots `0x28` and `0x1`
+  and the character blocks were merged: 69 unit files new, with 265
+  lines of the symbol file, 17 structs and 92 lines of the field table;
+  the tree had 55 unused-array stand-ins and 14 calls through a cast of
+  the callee.
+- On the head that was merged, against the main branch of that day: 69
+  unit files new, 243 lines of the symbol file (the others had come in
+  with the groups before this one), 17 structs and 92 lines of the field
+  table. The tree has 76 unused-array stand-ins, 6 of them in this
+  image, and 22 calls through a cast of the callee in module units, 3 of
+  them here. The build has 75 other module images.
+- One unit of another module changed: `slot0f_2fcc_r3.c` declares two
+  bytes as arrays and stores to their element 0, as the units of this
+  module need those two symbols declared, and stays exact.
+- Over everything the map counted 3,777 of 5,600 distinct functions as
+  exact when the round ended. On the head that was merged it counts
+  5,377, 50 more than the main branch of that day, and 11,512 of
+  13,072 placements, 89 more.
+
+What ran:
+
+- The copy helper first, with every module image of the tree as a model:
+  23 functions written, 20 exact as written. No agent.
+- The 71 others in 21 batches, eight agents at a time: 65 exact. The note
+  that every batch reads was extended once while the round ran.
+- The declaration check on the merged tree printed 55 lines. One agent
+  with the decisions given to it, and two more passes of the same agent
+  for what it stopped on and for the units of the second attempts,
+  brought it to zero.
+- Second attempts on the six parked functions. All six had one residual
+  (below). One was settled at the top level from the compiler's pass
+  dumps; five agents then got that form and the mechanism: two more were
+  exact with the same form at once, one with another form, two stay
+  parked.
+
+What the original does that the tree had to find a form for:
+
+- Three arrays of two records, one record per side, at `0x801b9cf0`,
+  `0x801b9d38` and `0x801b9d78`, with records of 0x19, 0x15 and 0x16
+  bytes, and two bytes at `0x801b9db8` used the same way. A dispatcher
+  passes the object and its side's record to the entries of a table. The
+  structs are `Slot04SelRec`, `Slot04SelRec9d38` and `Slot04SelRec9d78`;
+  a function's record parameter has the type of the array that reaches
+  it, found from the listing.
+- Three tables hold their own driver: entry 0 calls entries 1 and 2 with
+  the object and a record, and the function that calls the table sets no
+  argument register. The matching guide has it under the tables.
+- The step of the player pointer between the two calls of such a
+  dispatcher. Every plain spelling builds one instruction less than the
+  original. The pass dumps of the compiler (`-dc -dS`) showed which pass
+  joins the step and the argument load and what keeps it from doing so,
+  and the form followed from that: one local that holds the first player and then the second
+  record. The matching guide has the form, the comment each use carries,
+  and the two functions that it does not settle.
+- A read of the second player's field through the pointer to the first,
+  where the name `player_right` at all three reads made the build keep an
+  address in a register.
+
+Mistakes and corrections:
+
+- The note for the batches gave one struct name and one size for "the
+  record that table entries get". There are three kinds with three
+  sizes, and the batches used the one name for all of them; the
+  declaration pass had to sort every function by the array that reaches
+  it. The listing shows the record sizes at each dispatcher (`0x15(s1)`,
+  `0x16(s1)`, `0x19(s1)`): look at them before a shared name goes into a
+  note.
+- A candidate of a second attempt was exact with a byte offset from a
+  cast pointer and was reported as exact. The rule against that form was
+  in the brief; the top-level review replaced it by an indexed form that
+  names the field and is exact too. An agent's "exact" is a statement
+  about bytes, not about the rules.
+- That review read the candidates of the second attempts and not the
+  units of the first round. The owner's review of the pull request found
+  the same form in one of those: two stores `((u8 *)l)[0xcd] = 0;` in
+  `func_801b4ec0_slot04_sel`, where the struct has the field. Written
+  `l->field_cd = 0;` the function is exact as before. A search of the
+  module's units for an index or an offset on a cast pointer finds no
+  other. The search belongs before the pull request, over every new
+  unit, not only over what a retry changed.
+- The private tidy step removed two symbols that no source names. Both
+  mark where a table of a parked function begins, and the declaration
+  check then read the table before one of them past its end and printed
+  a line. They are back. A symbol that marks the start of a table is in
+  use even when no source names it.
+- Three stand-in comments stood above the function instead of above the
+  local. The lane's check counts them and found the three.
+
+Open:
+
+- The two parked functions. What their listing shows, what was tried and
+  why the form of the others cannot give it is in the matching guide and,
+  with the list of spellings, in the private note of the second attempts.
+- The private tidy step should keep a symbol that the declaration check
+  uses as the end of a table.
 ## Seven more functions with the byte oracle (2026-10-09)
 
 After the drawing functions, the second session gave its parked functions
@@ -5569,11 +5676,11 @@ functions and one of the character block of `PL0E.PAC`.
 - Counts, sums of the build's lines per image: the 20 stage modules have
   833 C functions, 122,504 bytes, and 1,238,184 raw bytes; the 11
   character blocks `slot04_0c` to `slot04_17` have 2,310 C functions,
-  277,736 bytes, and 732,604 raw bytes. The coverage map's line:
-  `overall: 5334/5600 distinct functions exact (95.2%); 11431/13072
-  placements (87.4%)`; the same command prints 5327 and 11423 for the
-  tree without this change (the character function is placed a second
-  time on its second side).
+  277,736 bytes, and 732,604 raw bytes. The coverage map's line, with
+  the seventy-fourth group in the tree: `overall: 5384/5600 distinct
+  functions exact (96.1%); 11520/13072 placements (88.1%)`; the same
+  command prints 5377 and 11512 for the tree without this change (the
+  character function is placed a second time on its second side).
 - What decided them, by the agents' reports: in `func_801e86cc_slot06_08`
   the layer's width was held in a local that the exact functions of its
   kind do not have (they read the field at each use); in two small

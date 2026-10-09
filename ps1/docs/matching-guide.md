@@ -540,6 +540,60 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   asks for. Where the top of such a chain is reached from outside the
   module, a comment on the top function says that what its caller passes
   is not known from the module.
+  In three tables of `slot04_sel` entry 0 is itself the function that
+  calls entries 1 and 2, with the object and a record, and the function
+  that calls the table reaches entry 0 without setting an argument
+  register. The table is declared with the two parameters, entry 0 takes
+  them unused, and the caller of the table is written with a call through
+  a cast of the table entry and the comment; with two zero arguments each
+  of the three differs in 2 instruction slots.
+- A pointer step that the build merges into the argument, and one local
+  that holds two things. Six functions of the module `slot04_sel` call
+  through a table once for each side:
+
+  ```c
+  w = &player_left;
+  r = data_801b9d38_slot04_sel;
+  data_801b7c6c_slot04_sel[r->field_00](w, r);
+  second = (Object *)w + 1;
+  w = r + 1;
+  data_801b7c6c_slot04_sel[r[1].field_00](second, w);
+  ```
+
+  The original steps the player pointer in its saved register after the
+  first call and copies it (`addiu s0,s0,0x394`, then `move a0,s0`).
+  Every plain spelling of the step (`p++`, `p += 1`, a second local
+  `p2 = p + 1`, `++p` in the argument, an index variable) builds one
+  `addiu a0,s0,0x394`. With `p++` as the argument of the first call the
+  two instructions stay apart, but the step then stands before the first
+  call. The form above is exact for `func_801b2860_slot04_sel`,
+  `func_801b066c_slot04_sel` and `func_801b5954_slot04_sel`: `w` is a
+  `void *` that holds the first player and is then given the second
+  record, and the stepped pointer has a local of its own. Written with
+  one local for each, the three differ in 3, 3 and 7 instruction slots.
+  Read from the pass dumps of the project's compiler for these builds
+  (`-dc -dS` on the preprocessed unit): the pass that joins two
+  instructions joins the step and the load of the argument when the
+  stepped value has no other use, and does not join them when the local
+  that the step reads is assigned again between the two. Inferred from
+  that, not known otherwise: the original's source used one variable for
+  both. The form shows what is compatible with the original's bytes, not
+  how its source declared anything. Each use carries the comment
+  `/* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in N instruction slots. */`.
+  Two more functions of the module, `func_801b3f38_slot04_sel` and
+  `func_801b0ea0_slot04_sel`, keep the second record in the same saved
+  register after the step (`addiu s0,s0,0x394`, `move a0,s0`, the load of
+  the index, `addiu s0,s1,0x15`). The form does not give that: the
+  stepped pointer and the second record are then alive at the same time
+  and the build puts the sum into `a0` at once. Both are parked.
+- The second of two adjacent objects, read through the pointer to the
+  first. `func_801b3380_slot04_sel` reads `player_right.side` three
+  times. With the name at all three the build keeps that address in a
+  saved register and differs in 4 instruction slots; with the first read
+  written `l[1].side`, `l` being the function's pointer to `player_left`,
+  it is exact. A first candidate was exact with a byte offset from a cast
+  pointer, which the rules do not allow; the indexed form names the
+  field.
 - One local that takes every step of a computation in place keeps
   instructions and registers that one expression, or a fresh local per
   value, does not. Two cases from the stage modules:

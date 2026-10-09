@@ -5541,3 +5541,268 @@ data_801c2134_slot04_07 = 0x801c2134;
 data_8019054e = 0x8019054e;
 data_801ef494_slot06_0e = 0x801ef494;
 data_801ef4a4_slot06_0e = 0x801ef4a4;
+
+/* Added by src.u_slot04_sel_0000. */
+data_801b6d50_slot04_sel = 0x801b6d50;
+data_801b6d60_slot04_sel = 0x801b6d60;
+data_801b6d6c_slot04_sel = 0x801b6d6c;
+data_801b6d78_slot04_sel = 0x801b6d78;
+data_801b6e88_slot04_sel = 0x801b6e88;
+data_801b7c34_slot04_sel = 0x801b7c34;
+data_801b7c44_slot04_sel = 0x801b7c44;
+data_801b7c50_slot04_sel = 0x801b7c50;
+data_801b7c5c_slot04_sel = 0x801b7c5c;
+data_801b7eb8_slot04_sel = 0x801b7eb8;
+data_801b8c98_slot04_sel = 0x801b8c98;
+data_801b8ca8_slot04_sel = 0x801b8ca8;
+data_801b8cb0_slot04_sel = 0x801b8cb0;
+data_801b8cbc_slot04_sel = 0x801b8cbc;
+data_801b8df4_slot04_sel = 0x801b8df4;
+
+/* Added by src.u_slot04_sel_0090. */
+data_801b9cf0_slot04_sel = 0x801b9cf0;
+data_801b9d24_slot04_sel = 0x801b9d24;
+data_801b7570_slot04_sel = 0x801b7570;
+data_801b7618_slot04_sel = 0x801b7618;
+data_801b7654_slot04_sel = 0x801b7654;
+data_801b7348_slot04_sel = 0x801b7348;
+
+/* Added by src.u_slot04_sel_066c. */
+data_801b6d88_slot04_sel = 0x801b6d88;
+data_801b7034_slot04_sel = 0x801b7034;
+data_801b7058_slot04_sel = 0x801b7058;
+data_801b707c_slot04_sel = 0x801b707c;
+data_801b70a0_slot04_sel = 0x801b70a0;
+data_801b70c4_slot04_sel = 0x801b70c4;
+data_801b70e8_slot04_sel = 0x801b70e8;
+data_801b710c_slot04_sel = 0x801b710c;
+data_801b7130_slot04_sel = 0x801b7130;
+data_801b7154_slot04_sel = 0x801b7154;
+data_801b7178_slot04_sel = 0x801b7178;
+data_801b719c_slot04_sel = 0x801b719c;
+data_801b71c0_slot04_sel = 0x801b71c0;
+data_801b71e4_slot04_sel = 0x801b71e4;
+data_801b7208_slot04_sel = 0x801b7208;
+data_801b722c_slot04_sel = 0x801b722c;
+data_801b7250_slot04_sel = 0x801b7250;
+data_801b7274_slot04_sel = 0x801b7274;
+data_801b7298_slot04_sel = 0x801b7298;
+data_801b7364_slot04_sel = 0x801b7364;
+data_801b7978_slot04_sel = 0x801b7978;
+data_801b797c_slot04_sel = 0x801b797c;
+data_801b797e_slot04_sel = 0x801b797e;
+
+/* Added by src.u_slot04_sel_08b0. */
+data_801b9d28_slot04_sel = 0x801b9d28;
+data_801b9cec_slot04_sel = 0x801b9cec;
+data_801b9ce8_slot04_sel = 0x801b9ce8;
+data_801b6d8c_slot04_sel = 0x801b6d8c;
+data_801b6de0_slot04_sel = 0x801b6de0;
+data_801b6e4c_slot04_sel = 0x801b6e4c;
+data_801b6e68_slot04_sel = 0x801b6e68;
+data_801b6e70_slot04_sel = 0x801b6e70;
+data_801b6f1c_slot04_sel = 0x801b6f1c;
+data_801b6fcc_slot04_sel = 0x801b6fcc;
+data_801b701c_slot04_sel = 0x801b701c;
+data_801b72f4_slot04_sel = 0x801b72f4;
+data_801b74cc_slot04_sel = 0x801b74cc;
+data_801b791c_slot04_sel = 0x801b791c;
+
+/* Added by src.u_slot04_sel_0ea0. */
+data_801b9d2c_slot04_sel = 0x801b9d2c;
+data_801b7648_slot04_sel = 0x801b7648;
+data_8016e694 = 0x8016e694;
+data_801b749c_slot04_sel = 0x801b749c;
+data_801b7504_slot04_sel = 0x801b7504;
+data_801b6f64_slot04_sel = 0x801b6f64;
+data_801b6e7c_slot04_sel = 0x801b6e7c;
+data_801b7350_slot04_sel = 0x801b7350;
+
+/* Added by src.u_slot04_sel_13b8. */
+data_801b7ba4_slot04_sel = 0x801b7ba4;
+data_801b6e80_slot04_sel = 0x801b6e80;
+data_801b734c_slot04_sel = 0x801b734c;
+data_8016e696 = 0x8016e696;
+
+/* Added by src.u_slot04_sel_1a8c. */
+data_801b6e94_slot04_sel = 0x801b6e94;
+
+/* Added by src.u_slot04_sel_2008. */
+data_801b9d64_slot04_sel = 0x801b9d64;
+data_8016e698 = 0x8016e698;
+data_801b9d38_slot04_sel = 0x801b9d38;
+data_801b6eb4_slot04_sel = 0x801b6eb4;
+data_801b6ebc_slot04_sel = 0x801b6ebc;
+data_801b6ec4_slot04_sel = 0x801b6ec4;
+
+/* Added by src.u_slot04_sel_2580. */
+data_8016e69a = 0x8016e69a;
+data_801b8320_slot04_sel = 0x801b8320;
+data_801b8540_slot04_sel = 0x801b8540;
+data_801b85e8_slot04_sel = 0x801b85e8;
+data_801b8618_slot04_sel = 0x801b8618;
+data_801b9d3b_slot04_sel = 0x801b9d3b;
+data_801b9d4d_slot04_sel = 0x801b9d4d;
+data_801b7c6c_slot04_sel = 0x801b7c6c;
+data_801b800c_slot04_sel = 0x801b800c;
+data_801b833c_slot04_sel = 0x801b833c;
+data_801b89d4_slot04_sel = 0x801b89d4;
+data_801b9d68_slot04_sel = 0x801b9d68;
+data_801b9d6c_slot04_sel = 0x801b9d6c;
+data_801b8030_slot04_sel = 0x801b8030;
+data_801b8054_slot04_sel = 0x801b8054;
+data_801b8078_slot04_sel = 0x801b8078;
+data_801b809c_slot04_sel = 0x801b809c;
+data_801b80c0_slot04_sel = 0x801b80c0;
+data_801b80e4_slot04_sel = 0x801b80e4;
+data_801b8108_slot04_sel = 0x801b8108;
+data_801b812c_slot04_sel = 0x801b812c;
+data_801b8150_slot04_sel = 0x801b8150;
+data_801b8174_slot04_sel = 0x801b8174;
+data_801b8198_slot04_sel = 0x801b8198;
+data_801b81bc_slot04_sel = 0x801b81bc;
+data_801b81e0_slot04_sel = 0x801b81e0;
+data_801b8204_slot04_sel = 0x801b8204;
+data_801b8228_slot04_sel = 0x801b8228;
+data_801b824c_slot04_sel = 0x801b824c;
+data_801b8270_slot04_sel = 0x801b8270;
+data_801b89d8_slot04_sel = 0x801b89d8;
+data_801b89da_slot04_sel = 0x801b89da;
+
+/* Added by src.u_slot04_sel_2b24. */
+data_801b7f64_slot04_sel = 0x801b7f64;
+data_801b7ff4_slot04_sel = 0x801b7ff4;
+data_801b7fa4_slot04_sel = 0x801b7fa4;
+data_801b84a4_slot04_sel = 0x801b84a4;
+data_801b82cc_slot04_sel = 0x801b82cc;
+data_801b8978_slot04_sel = 0x801b8978;
+data_801b9d30_slot04_sel = 0x801b9d30;
+data_801b9d34_slot04_sel = 0x801b9d34;
+data_801b7cc4_slot04_sel = 0x801b7cc4;
+data_801b7c70_slot04_sel = 0x801b7c70;
+data_801b7d30_slot04_sel = 0x801b7d30;
+
+/* Added by src.u_slot04_sel_310c. */
+data_801b7d4c_slot04_sel = 0x801b7d4c;
+data_801b7d54_slot04_sel = 0x801b7d54;
+data_801b7d5c_slot04_sel = 0x801b7d5c;
+data_801b7d64_slot04_sel = 0x801b7d64;
+
+/* Added by src.u_slot04_sel_3380. */
+data_8016e69c = 0x8016e69c;
+data_8016e69d = 0x8016e69d;
+data_801b7d7c_slot04_sel = 0x801b7d7c;
+data_801b7d88_slot04_sel = 0x801b7d88;
+data_801b7d90_slot04_sel = 0x801b7d90;
+data_801b7ef4_slot04_sel = 0x801b7ef4;
+data_801b84b4_slot04_sel = 0x801b84b4;
+data_801b84cc_slot04_sel = 0x801b84cc;
+data_801b84e8_slot04_sel = 0x801b84e8;
+
+/* Added by src.u_slot04_sel_3828. */
+data_801b7d98_slot04_sel = 0x801b7d98;
+data_801b7d9c_slot04_sel = 0x801b7d9c;
+data_801b7ddc_slot04_sel = 0x801b7ddc;
+data_801b7de4_slot04_sel = 0x801b7de4;
+data_801b7df0_slot04_sel = 0x801b7df0;
+data_801b8328_slot04_sel = 0x801b8328;
+data_801b8570_slot04_sel = 0x801b8570;
+data_801b8474_slot04_sel = 0x801b8474;
+
+/* Added by src.u_slot04_sel_3cec. */
+data_801b7df4_slot04_sel = 0x801b7df4;
+data_801b7e60_slot04_sel = 0x801b7e60;
+data_801b7e8c_slot04_sel = 0x801b7e8c;
+data_801b8324_slot04_sel = 0x801b8324;
+
+/* Added by src.u_slot04_sel_4298. */
+data_801b7ec4_slot04_sel = 0x801b7ec4;
+data_801b7ecc_slot04_sel = 0x801b7ecc;
+data_801b8c00_slot04_sel = 0x801b8c00;
+
+/* Added by src.u_slot04_sel_48f4. */
+data_801b7ed4_slot04_sel = 0x801b7ed4;
+data_801b9c10_slot04_sel = 0x801b9c10;
+data_801b9d78_slot04_sel = 0x801b9d78;
+data_801b9da4_slot04_sel = 0x801b9da4;
+
+/* Added by src.u_slot04_sel_4ec0. */
+data_801b8cc8_slot04_sel = 0x801b8cc8;
+data_801b8f74_slot04_sel = 0x801b8f74;
+data_801b8fc4_slot04_sel = 0x801b8fc4;
+data_801b8fe0_slot04_sel = 0x801b8fe0;
+data_801b9da8_slot04_sel = 0x801b9da8;
+data_801b9dac_slot04_sel = 0x801b9dac;
+data_801b9004_slot04_sel = 0x801b9004;
+data_801b9028_slot04_sel = 0x801b9028;
+data_801b904c_slot04_sel = 0x801b904c;
+data_801b9070_slot04_sel = 0x801b9070;
+data_801b9094_slot04_sel = 0x801b9094;
+data_801b90b8_slot04_sel = 0x801b90b8;
+data_801b90dc_slot04_sel = 0x801b90dc;
+data_801b9100_slot04_sel = 0x801b9100;
+data_801b9124_slot04_sel = 0x801b9124;
+data_801b9148_slot04_sel = 0x801b9148;
+data_801b916c_slot04_sel = 0x801b916c;
+data_801b9190_slot04_sel = 0x801b9190;
+data_801b91b4_slot04_sel = 0x801b91b4;
+data_801b91d8_slot04_sel = 0x801b91d8;
+data_801b91fc_slot04_sel = 0x801b91fc;
+data_801b9220_slot04_sel = 0x801b9220;
+data_801b9244_slot04_sel = 0x801b9244;
+data_801b9310_slot04_sel = 0x801b9310;
+data_801b9330_slot04_sel = 0x801b9330;
+data_801b9358_slot04_sel = 0x801b9358;
+
+/* Added by src.u_slot04_sel_5224. */
+data_801b8da8_slot04_sel = 0x801b8da8;
+data_801b8fc8_slot04_sel = 0x801b8fc8;
+data_801b8f78_slot04_sel = 0x801b8f78;
+data_801b94c0_slot04_sel = 0x801b94c0;
+data_801b9d70_slot04_sel = 0x801b9d70;
+data_801b9d74_slot04_sel = 0x801b9d74;
+data_801b8d20_slot04_sel = 0x801b8d20;
+data_801b8ccc_slot04_sel = 0x801b8ccc;
+data_801b8d8c_slot04_sel = 0x801b8d8c;
+data_801b92a0_slot04_sel = 0x801b92a0;
+data_801b9908_slot04_sel = 0x801b9908;
+
+/* Added by src.u_slot04_sel_57c8. */
+data_801b8db0_slot04_sel = 0x801b8db0;
+data_801b8db8_slot04_sel = 0x801b8db8;
+data_801b8dc0_slot04_sel = 0x801b8dc0;
+data_801b8dd8_slot04_sel = 0x801b8dd8;
+data_801b8eac_slot04_sel = 0x801b8eac;
+data_801b8edc_slot04_sel = 0x801b8edc;
+data_801b8f00_slot04_sel = 0x801b8f00;
+data_801b8f30_slot04_sel = 0x801b8f30;
+data_801b8c91_slot04_sel = 0x801b8c91;
+
+/* Added by src.u_slot04_sel_5b0c. */
+data_801b9964_slot04_sel = 0x801b9964;
+data_801b9b90_slot04_sel = 0x801b9b90;
+data_801b8c92_slot04_sel = 0x801b8c92;
+data_801b8c93_slot04_sel = 0x801b8c93;
+data_801b8c94_slot04_sel = 0x801b8c94;
+data_801b8ddc_slot04_sel = 0x801b8ddc;
+data_801b8de4_slot04_sel = 0x801b8de4;
+data_801b8de8_slot04_sel = 0x801b8de8;
+data_801b8dec_slot04_sel = 0x801b8dec;
+data_801b8df0_slot04_sel = 0x801b8df0;
+
+/* Added by src.u_slot04_sel_61c0. */
+data_801b8e00_slot04_sel = 0x801b8e00;
+data_801b8e08_slot04_sel = 0x801b8e08;
+data_801b8e10_slot04_sel = 0x801b8e10;
+data_801b9c20_slot04_sel = 0x801b9c20;
+data_801b9c24_slot04_sel = 0x801b9c24;
+data_801b9cd8_slot04_sel = 0x801b9cd8;
+data_801b9db8_slot04_sel = 0x801b9db8;
+
+/* Added by src.u_slot04_sel_6738. */
+data_801b9c28_slot04_sel = 0x801b9c28;
+data_801b9c30_slot04_sel = 0x801b9c30;
+data_801b9c38_slot04_sel = 0x801b9c38;
+data_801b9c40_slot04_sel = 0x801b9c40;
+data_801b9db0_slot04_sel = 0x801b9db0;
+data_801b9db4_slot04_sel = 0x801b9db4;
