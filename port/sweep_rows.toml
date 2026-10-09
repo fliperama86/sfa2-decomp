@@ -1,0 +1,80 @@
+# The inventory rows that begin with data.
+#
+# The static sweep (ps1/inventory/) took data in front of a function with C for
+# the start of code. The port's build would write a stop call at such a row's
+# address, into the data. This table lists those rows, and nothing else leaves
+# such a row out. Nothing is inferred: every entry below was read in the listing
+# of the original before it was written here, and the evidence says in words
+# what was read. The build (port/tools/hostbuild.py) verifies each entry
+# against the tree and refuses to build with one it cannot verify; a row that is
+# not listed here always keeps its stop. (The rows that are the tail of a split
+# function are not listed here; the build finds them by the address range of the
+# unit that holds the function.)
+#
+# image: the image's name in ps1/src/build.toml ("resident" for the executable).
+# address: the row's address in the inventory, in that image.
+# function, function_address: the function with C, by the name the build gives it
+#   in that image (a second placement: NAME__IMAGE, at the moved address).
+# data_bytes: how many bytes of data stand in front of the function.
+# data_symbol (optional): the name that ps1/src/symbols.ld gives the data, at
+#   exactly the row's address; the build checks it. An entry without one rests on
+#   its written evidence alone.
+# evidence: what was read, in words.
+
+[[row]]
+image = "slot04_00"
+address = 0x801b0008
+function = "func_801b0020_slot04_00"
+function_address = 0x801b0020
+data_bytes = 24
+evidence = "Two small tables of three words each, then the function's first instruction, a stack frame. Code of the module builds this address as a data address; nothing branches or jumps into it."
+
+[[row]]
+image = "slot05_00"
+address = 0x801c8008
+function = "func_801b0020_slot04_00__slot05_00"
+function_address = 0x801c8020
+data_bytes = 24
+evidence = "The second side of slot04_00, the same two tables of three words each and the same function after them. Code of the module builds this address as a data address; nothing branches or jumps into it."
+
+[[row]]
+image = "slot04_11"
+address = 0x801b00c8
+function = "func_801b00d0_slot04_11"
+function_address = 0x801b00d0
+data_bytes = 8
+evidence = "The last two words of a table of words that runs from 0x801b0000 and has the same shape in the entries before it; a pointer to this address stands in a data table of the module, and nothing branches into it. The function's first instruction, a stack frame, follows."
+
+[[row]]
+image = "slot05_11"
+address = 0x801c80c8
+function = "func_801b00d0_slot04_11__slot05_11"
+function_address = 0x801c80d0
+data_bytes = 8
+evidence = "The second side of slot04_11: the last two words of the same table, then the function. A pointer to this address stands in a data table of the module and nothing branches into it."
+
+[[row]]
+image = "slot04_17"
+address = 0x801b00c8
+function = "func_801b00d0_slot04_17"
+function_address = 0x801b00d0
+data_bytes = 8
+evidence = "The last two words of a table of words that runs from 0x801b0000 and has the same shape in the entries before it; a pointer to this address stands in a data table of the module, and nothing branches into it. The function's first instruction, a stack frame, follows."
+
+[[row]]
+image = "slot00"
+address = 0x80075e00
+function = "func_80075e10_slot00"
+function_address = 0x80075e10
+data_bytes = 16
+data_symbol = "data_80075e00_slot00"
+evidence = "Four words of table data that the symbol file names as data (data_80075e00_slot00); code of the module builds this address as a data address and nothing branches into it. The function's first instruction, a stack frame, follows."
+
+[[row]]
+image = "slot08"
+address = 0x8008bf00
+function = "func_80075e10_slot00__slot08"
+function_address = 0x8008bf10
+data_bytes = 16
+evidence = "The second side of slot00: the same four words of data, then the same function. Code of the module builds this address as a data address and nothing branches into it."
+
