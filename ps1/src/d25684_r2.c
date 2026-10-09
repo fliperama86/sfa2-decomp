@@ -1,10 +1,7 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
+#include "protos.h"
 
-void func_80157fc4(Rect *rect, u8 *p);
-void func_80157d9c(int a);
-void func_801691ac(int a);
-int func_8015fe50(u8 *p, u32 a, int b);
 void func_8016a3b0(int a);
 
 void func_8015057c(Stream *stream) {

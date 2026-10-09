@@ -1,9 +1,10 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
+#include "protos.h"
 
-int func_8015fe38(int a, int b, int c, int d);
+int func_8015fe38(int a, int b, int c, u8 *d);
 
-int func_8015fd24(int a, int b, unsigned int c) {
+int func_8015fd24(int a, u8 *b, unsigned int c) {
     int total;
     int n;
     int r;

@@ -5885,6 +5885,28 @@ Two functions parked again before the pull request (2026-10-09):
   against "What is allowed", and run the search for offsets on cast
   pointers over every new or changed unit.
 
+A correction by the owner, on the pull request of this group
+(2026-10-09), and two more of the same kind found after it:
+
+- The new unit of `func_80153d7c` declared `func_801519b4` with the
+  type of its own local, `TextObj *`, where the resident definition
+  takes `Object *`. The owner asked for the definition's declaration and
+  a cast at the call. The unit includes the shared prototypes now and
+  casts; it is exact.
+- The same look at the other new resident units found two definitions
+  that the shared prototypes contradicted. `func_8015057c` takes a
+  pointer, the header said `(void)`, and its one caller,
+  `func_8014f7f8`, passed nothing: the header has the parameter now and
+  the caller passes its own parameter on, cast to the callee's view of
+  the same object, and is exact. `func_8015fd24` was defined with an
+  `int` where the header and the one caller have a pointer: the
+  definition and the header take `u8 *` now, and both units are exact.
+- Three of the five new resident units did not include the shared
+  prototypes, so the compiler could not see either contradiction, and
+  the private declaration check does not read resident units. A new
+  resident unit includes `protos.h`; a definition that the header
+  contradicts then does not compile.
+
 A correction by the owner, on the pull request of the module of slot
 0x27 (2026-10-07):
 

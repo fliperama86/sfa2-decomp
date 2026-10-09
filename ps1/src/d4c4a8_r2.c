@@ -1,9 +1,9 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
 #include "game.h"
+#include "protos.h"
 
 extern TextObj *table_80180454[];
 extern u8 *table_80180ecc[];
-void func_801519b4(TextObj *t);
 
 void func_80153d7c(Actor *a) {
     TextObj *t;
@@ -15,5 +15,5 @@ void func_80153d7c(Actor *a) {
     for (i = 0; i < 0x30; i++) {
         t->buf[i] = src[i];
     }
-    func_801519b4(t);
+    func_801519b4((Object *)t);
 }

@@ -11,7 +11,7 @@ void func_8014f7f8(Menu *m) {
     int i;
     buf[0] = 0x80;
     if (m->field_1c != 0) {
-        func_8015057c();
+        func_8015057c((Stream *)m);
         m->field_1c = 0;
     }
     func_8015cec4(m->field_28, &m->field_f0);
