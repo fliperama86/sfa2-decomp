@@ -14,7 +14,7 @@ void func_8011b594(void) {
             if (units_2c20[k].field_02 == 0x17) {
                 func_8011cd68(&units_2c20[k]);
             } else {
-                func_8011bc84(&units_2c20[k]);
+                func_8011bc84((Slab172 *)&units_2c20[k]);
             }
         }
     }

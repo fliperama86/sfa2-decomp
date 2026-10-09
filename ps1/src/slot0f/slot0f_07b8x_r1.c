@@ -12,7 +12,7 @@ void func_800e07b8_slot0f(int sel) {
     int i;
     s16 w;
     Slot0fRec8490 *p;
-    func_801519b4((Object *)data_800e8480_slot0f);
+    func_801519b4(data_800e8480_slot0f);
     for (i = 0; i < 6; i++) {
         p = &data_800e8490_slot0f[i];
         p->field_0b = sel == i ? 0x10 : 0x1a;
@@ -23,6 +23,6 @@ void func_800e07b8_slot0f(int sel) {
                 p->field_0b = w;
             }
         }
-        func_801519b4((Object *)p);
+        func_801519b4(p);
     }
 }

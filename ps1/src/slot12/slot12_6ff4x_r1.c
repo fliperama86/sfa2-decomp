@@ -23,7 +23,7 @@ void func_80016ff4_slot12(Object *o) {
         } while (i <= obj->field_5c);
     }
     for (i = 0; i < 4; i++) {
-        func_801519b4((Object *)&data_8002c4c8_slot12[i]);
+        func_801519b4(&data_8002c4c8_slot12[i]);
         ((PrimTag *)((u8 *)data_8002c3c8_slot12 + (data_801a27d0 << 5) + (i << 6)))->addr = ((PrimTag *)data_801987c8)[data_80028a40_slot12[obj->field_09]].addr;
         ((PrimTag *)data_801987c8)[data_80028a40_slot12[obj->field_09]].addr = (u32)((u8 *)data_8002c3c8_slot12 + (i << 6) + (data_801a27d0 << 5));
     }

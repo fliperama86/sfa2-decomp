@@ -10,7 +10,7 @@ void func_800e6dfc_slot0f(Object *obj) {
     s16 i;
 
     for (i = 0; i < 4; i++) {
-        func_801519b4((Object *)&data_800f7c94_slot0f[i]);
+        func_801519b4(&data_800f7c94_slot0f[i]);
         ((PrimTag *)((u8 *)data_800f7b94_slot0f + (data_801a27d0 << 5) + (i << 6)))->addr = ((PrimTag *)data_801987c8)->addr;
         ((PrimTag *)data_801987c8)->addr = (u32)((u8 *)data_800f7b94_slot0f + (i << 6) + (data_801a27d0 << 5));
     }

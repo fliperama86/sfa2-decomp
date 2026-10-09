@@ -33,11 +33,11 @@ void func_800e31d4_slot0f(void) {
         data_800e96e8_slot0f = &data_800e934c_slot0f[sel];
     }
     p = data_800e96dc_slot0f;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     if ((u8)(data_800f855e_slot0f - 2) < 3) {
-        func_801519b4((Object *)(p + 0x10));
+        func_801519b4(p + 0x10);
     } else {
-        func_801519b4((Object *)(p + 0x20));
-        func_801519b4((Object *)(p + 0x30));
+        func_801519b4(p + 0x20);
+        func_801519b4(p + 0x30);
     }
 }

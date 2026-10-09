@@ -15,7 +15,7 @@ void func_80151a04(void)
   data_8018d140 = data_8018ccbc[data_801a27d0];
   for (i = 0; i < data_8018d204; i++)
   {
-    TextItem *item = (TextItem *)table_8018d144[i];
+    TextItem *item = table_8018d144[i];
     u16 y = item->field_06;
     int pal = item->field_0b;
     u16 x0 = item->field_04;

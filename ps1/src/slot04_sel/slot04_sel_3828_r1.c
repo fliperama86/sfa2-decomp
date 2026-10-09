@@ -28,12 +28,12 @@ void func_801b3828_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
         rec->field_07 = data_801b9d34_slot04_sel;
         b->field_04 = data_801b7d98_slot04_sel[obj->side] + a->field_08 * data_801b9d30_slot04_sel;
         b->field_06 = 0x48;
-        func_801519b4((Object *)b);
+        func_801519b4(b);
         for (i = 0; i < 8; i++) {
             a->buf[i + 5] = data_801b7d9c_slot04_sel[data_801b9d30_slot04_sel][i];
         }
-        func_801519b4((Object *)a);
-        func_801519b4((Object *)c);
+        func_801519b4(a);
+        func_801519b4(c);
         if (rec->field_07 != 0) {
             obj->field_cf = data_801b7ddc_slot04_sel[data_801b9d30_slot04_sel];
             data_8016e698[obj->side] = data_801b9d30_slot04_sel;

@@ -21,15 +21,15 @@ void func_800e7064_slot0f(Object *obj) {
     if (k == 5) {
         i = 0;
         if (data_800f7d34_slot0f == 1) {
-            func_801519b4((Object *)data_800f7d38_slot0f);
+            func_801519b4(data_800f7d38_slot0f);
         }
         for (i = 0; i < 5; i++) {
             if (data_800f7d48_slot0f[i] == 1) {
-                func_801519b4((Object *)&data_800f7d50_slot0f[i].cells[0]);
-                func_801519b4((Object *)&data_800f7d50_slot0f[i].cells[1]);
-                func_801519b4((Object *)&data_800f7d50_slot0f[i].cells[2]);
+                func_801519b4(&data_800f7d50_slot0f[i].cells[0]);
+                func_801519b4(&data_800f7d50_slot0f[i].cells[1]);
+                func_801519b4(&data_800f7d50_slot0f[i].cells[2]);
                 if (game_state.field_2bd == 1) {
-                    func_801519b4((Object *)&data_800f7d50_slot0f[i].cells[3]);
+                    func_801519b4(&data_800f7d50_slot0f[i].cells[3]);
                 }
             }
         }

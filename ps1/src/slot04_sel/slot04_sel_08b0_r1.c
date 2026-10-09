@@ -72,21 +72,21 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             }
             s4->field_04 = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_00 + obj->side * 0x18;
             s4->field_06 = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_02;
-            func_801519b4((Object *)s4);
+            func_801519b4(s4);
             s2 = data_801b701c_slot04_sel[obj->side];
             a1 = data_801b72f4_slot04_sel[obj->kind];
             for (i = 0; i < 0x10; i++) {
                 s2->text2[i] = a1->text2[i];
             }
             s2->field_0b = a1->field_0b;
-            func_801519b4((Object *)s2);
+            func_801519b4(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
             s1->field_0b = a1->field_0b;
-            func_801519b4((Object *)s1);
+            func_801519b4(s1);
             if (p->field_04 != 0) {
                 func_801205c4(obj->side, data_801b6e4c_slot04_sel[data_801b9ce8_slot04_sel]);
                 game_state.field_71 = obj->side;
@@ -131,20 +131,20 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                 s2->text2[i] = a1->text2[i];
             }
             s2->field_0b = a1->field_0b;
-            func_801519b4((Object *)s2);
+            func_801519b4(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
             s1->field_0b = a1->field_0b;
-            func_801519b4((Object *)s1);
+            func_801519b4(s1);
         } else {
             func_801519b4(data_801b6f1c_slot04_sel[obj->side]);
         }
     } else {
-        func_801519b4((Object *)s4);
-        func_801519b4((Object *)s2);
-        func_801519b4((Object *)s1);
+        func_801519b4(s4);
+        func_801519b4(s2);
+        func_801519b4(s1);
     }
 }

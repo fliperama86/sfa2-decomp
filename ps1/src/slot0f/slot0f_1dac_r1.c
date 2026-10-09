@@ -41,7 +41,7 @@ void func_800e1e40_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     int i;
 
-    func_801519b4((Object *)&data_800e8508_slot0f);
+    func_801519b4(&data_800e8508_slot0f);
     for (i = 0; i < 3; i++) {
         Slot0fRec8508 *rec = &data_800e8518_slot0f[i];
 
@@ -50,6 +50,6 @@ void func_800e1e40_slot0f(Object *o) {
         } else {
             rec->field_0b = 0x1a;
         }
-        func_801519b4((Object *)rec);
+        func_801519b4(rec);
     }
 }
