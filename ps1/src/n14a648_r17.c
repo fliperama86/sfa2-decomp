@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern void (*table_801802c0[])(Object *);
-
 void func_80152700(Object *object) {
     if (game_state.field_6a != 0) {
         object->field_04++;

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_8016e698[];
-
 void func_801b23a8_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     rec->field_00 = 0;
     rec->field_03 = obj->kind;

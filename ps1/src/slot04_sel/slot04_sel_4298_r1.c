@@ -10,8 +10,6 @@ extern s16 data_801b89d8_slot04_sel;
 extern s16 data_801b89da_slot04_sel;
 extern Slot04SelRec8c00 *data_801b8c00_slot04_sel[];
 extern u16 data_801b9d64_slot04_sel;
-extern u8 data_8016e68f[];
-extern u8 data_8016e690[];
 void func_801b4424_slot04_sel(void);
 
 void func_801b4298_slot04_sel(void) {

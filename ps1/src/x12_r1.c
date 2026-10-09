@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Strip1c strips2[2][2];
-extern Strip1c data_80188e4c[2][2];
-
 void func_80132cf0(void) {
     s32 i;
     s32 j;
