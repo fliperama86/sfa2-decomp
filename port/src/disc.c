@@ -158,6 +158,41 @@ struct subdir {
     unsigned extent, size;
 };
 
+/* How many bytes of the directory's sector that starts at byte `at` belong to
+ * the directory: its declared size ends the last sector early, and what
+ * follows there is not the directory's. */
+static unsigned dir_bytes(unsigned size, unsigned at)
+{
+    return size - at < PORT_DATA ? size - at : PORT_DATA;
+}
+
+/* Does a file of `size` bytes that starts at `sector` lie inside the image?
+ * The same arithmetic as port_disc_read, in 64 bits: the file's last byte,
+ * at its place inside its last sector, must be inside the image file and
+ * below the offset that port_disc_read can seek to. A file of no bytes must
+ * start in a sector that the image has. */
+static int file_in_image(const struct port_disc *d, unsigned sector, unsigned size)
+{
+    unsigned long long last = size ? size - 1ull : 0;
+    unsigned long long at = ((unsigned long long)sector + last / PORT_DATA) * PORT_SECTOR + PORT_DATA_OFFSET;
+    unsigned long long end = at + (size ? last % PORT_DATA + 1 : 0);
+    return at <= 0x7fffffffu && end <= d->length;
+}
+
+/* The first sector whose data the image does not hold whole. */
+static unsigned long long first_missing_sector(const struct port_disc *d)
+{
+    unsigned long long need = PORT_DATA_OFFSET + PORT_DATA;
+    return d->length < need ? 0 : (d->length - need) / PORT_SECTOR + 1;
+}
+
+static int bad_file(const struct port_disc *d, char *err, size_t errsize, const char *name, unsigned sector, unsigned size)
+{
+    snprintf(err, errsize, "disc: file %s lies outside the image (sector %u, %u bytes): the image ends inside sector %llu (truncated)",
+             name, sector, size, first_missing_sector(d));
+    return -1;
+}
+
 /* One pass over a directory. Sets *found (1) with the file's sector and size
  * when `want` (already cleaned) names a file; collects folders when `subs`. */
 static int scan_dir(struct port_disc *d, unsigned extent, unsigned size, const char *want, int *found, unsigned *sector, unsigned *fsize,
@@ -168,12 +203,13 @@ static int scan_dir(struct port_disc *d, unsigned extent, unsigned size, const c
     if (size > DIR_LIMIT) return fail(err, errsize, "disc: directory is too large");
     for (at = 0; at < size; at += PORT_DATA) {
         unsigned pos = 0;
+        unsigned limit = dir_bytes(size, at);
         if (port_disc_read(d, extent + at / PORT_DATA, PORT_DATA, buf, err, errsize) != 0) return -1;
-        while (pos < PORT_DATA) {
+        while (pos < limit) {
             unsigned len = buf[pos], nlen;
             char name[256];
             if (len == 0) break; /* the rest of this sector is padding */
-            if (len < 34 || pos + len > PORT_DATA || 33u + buf[pos + 32] > len) return fail(err, errsize, "disc: corrupt directory record");
+            if (len < 34 || pos + len > limit || 33u + buf[pos + 32] > len) return fail(err, errsize, "disc: corrupt directory record");
             nlen = buf[pos + 32];
             if (!(nlen == 1 && buf[pos + 33] <= 1)) { /* not "." or ".." */
                 clean_name(buf + pos + 33, nlen, name, sizeof name);
@@ -187,6 +223,7 @@ static int scan_dir(struct port_disc *d, unsigned extent, unsigned size, const c
                     *found = 1;
                     *sector = le32(buf + pos + 2);
                     *fsize = le32(buf + pos + 10);
+                    if (!file_in_image(d, *sector, *fsize)) return bad_file(d, err, errsize, name, *sector, *fsize);
                     return 0;
                 }
             }
@@ -216,6 +253,62 @@ int port_disc_find(struct port_disc *d, const char *name, unsigned *sector, unsi
         snprintf(err, errsize, "disc: file %s is not in the root directory or one folder below it", name);
         return -1;
     }
+    return 0;
+}
+
+/* Every file of the root directory and of the folders one level below it.
+ * Only records inside the directory's declared bytes are read, a record that
+ * crosses that end is corrupt, and a file whose bytes do not lie inside the
+ * image is refused: the caller may use every sector and size it is given. */
+static int list_dir(struct port_disc *d, unsigned extent, unsigned size, struct port_disc_file *out, unsigned max, unsigned *count,
+                    struct subdir *subs, unsigned *nsubs, char *err, size_t errsize)
+{
+    unsigned char buf[PORT_DATA];
+    unsigned at;
+    if (size > DIR_LIMIT) return fail(err, errsize, "disc: directory is too large");
+    for (at = 0; at < size; at += PORT_DATA) {
+        unsigned pos = 0;
+        unsigned limit = dir_bytes(size, at);
+        if (port_disc_read(d, extent + at / PORT_DATA, PORT_DATA, buf, err, errsize) != 0) return -1;
+        while (pos < limit) {
+            unsigned len = buf[pos], nlen;
+            if (len == 0) break;
+            if (len < 34 || pos + len > limit || 33u + buf[pos + 32] > len) return fail(err, errsize, "disc: corrupt directory record");
+            nlen = buf[pos + 32];
+            if (!(nlen == 1 && buf[pos + 33] <= 1)) {
+                if (buf[pos + 25] & 2) {
+                    if (subs && *nsubs < SUBDIRS) {
+                        subs[*nsubs].extent = le32(buf + pos + 2);
+                        subs[*nsubs].size = le32(buf + pos + 10);
+                        (*nsubs)++;
+                    }
+                } else {
+                    if (*count >= max) return fail(err, errsize, "disc: more files than the listing holds");
+                    clean_name(buf + pos + 33, nlen, out[*count].name, sizeof out[*count].name);
+                    out[*count].sector = le32(buf + pos + 2);
+                    out[*count].size = le32(buf + pos + 10);
+                    if (!file_in_image(d, out[*count].sector, out[*count].size))
+                        return bad_file(d, err, errsize, out[*count].name, out[*count].sector, out[*count].size);
+                    (*count)++;
+                }
+            }
+            pos += len;
+        }
+    }
+    return 0;
+}
+
+int port_disc_list(struct port_disc *d, struct port_disc_file *out, unsigned max, unsigned *count, char *err, size_t errsize)
+{
+    unsigned char pvd[PORT_DATA];
+    struct subdir subs[SUBDIRS];
+    unsigned nsubs = 0, i;
+    *count = 0;
+    if (port_disc_read(d, 16, PORT_DATA, pvd, err, errsize) != 0) return -1;
+    if (pvd[0] != 1 || memcmp(pvd + 1, "CD001", 5) != 0) return fail(err, errsize, "disc: no ISO 9660 volume descriptor at sector 16");
+    if (list_dir(d, le32(pvd + 156 + 2), le32(pvd + 156 + 10), out, max, count, subs, &nsubs, err, errsize) != 0) return -1;
+    for (i = 0; i < nsubs; i++)
+        if (list_dir(d, subs[i].extent, subs[i].size, out, max, count, NULL, NULL, err, errsize) != 0) return -1;
     return 0;
 }
 

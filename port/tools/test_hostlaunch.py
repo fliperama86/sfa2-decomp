@@ -37,6 +37,13 @@ start. Cases (expected values are worked out here from the fixtures):
   a task whose function returns ends the program with status 8; GetGp returns
   what the entry code loads.
 
+- the disc layer on the linked program: the ready callback that cd.c stores (an
+  address in no table is refused before the call, a function without C ends with
+  its named stop, a handler in the game's own code runs and no vertical blank is
+  delivered inside it); Exec of a program of the disc ends the run with its name
+  and sector, or with --skip-programs prints a line and returns; CdGetSector into
+  an address outside the RAM ends the run before a byte is copied;
+
 PREFIX is a command prefix to start the Windows program (for example a
 compatibility layer); without it the program is started directly (on Windows,
 or from a shell under WSL, where a path is converted with wslpath). When the
@@ -66,7 +73,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "debug", "interrupt"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -325,6 +332,87 @@ void g_valid(void)
 """
 
 
+# The disc layer on the linked program: the ready callback that cd.c stores and calls, Exec, and the buffer of CdGetSector.
+CD_NAMES = ["CdInit", "CdSync", "CdReady", "CdControl", "CdControlF", "CdControlB", "CdMix", "CdGetSector", "CdIntToPos", "CdPosToInt", "Exec", "FlushCache"]
+CD_ADDR = {n: RAM + 0x101600 + 0x10 * i for i, n in enumerate(CD_NAMES)}
+G_CD = {n: RAM + 0x101700 + 0x10 * i for i, n in enumerate(["ready", "exec", "exec_unknown", "getsector"])}
+EXEC_SECTOR = 23     # SLPS_004.15 in every image the rig writes: the directory at 20, SYSTEM.CNF at 22
+
+
+def game_cd(target: str) -> str:
+    return PROLOGUE + f"""
+extern int ps1_CdInit(void), ps1_CdControl(int, unsigned char *, unsigned char *), ps1_CdControlB(int, unsigned char *, unsigned char *);
+extern int ps1_CdReady(int, unsigned char *), ps1_CdGetSector(void *, int), ps1_Exec(void *, int, char **);
+extern unsigned char *ps1_CdIntToPos(int, unsigned char *);
+extern unsigned ps1_OpenEvent(unsigned, unsigned, unsigned, void (*)(void));
+extern int ps1_EnableEvent(unsigned), ps1_VSync(int), ps1_StartRCnt(unsigned);
+extern void *ps1_ResetCallback(void);
+#define READY_CB (*(volatile unsigned *)0x80181b38u)
+static volatile int in_ready, seen_inside, vblanks, ready_calls;
+static void ready_handler(int intr, unsigned char *res)
+{{
+    DWORD t0;
+    (void)res;
+    ready_calls++;
+    in_ready = 1;
+    t0 = GetTickCount();
+    while (GetTickCount() - t0 < 60) {{ }}
+    if (intr == 1) ps1_CdGetSector((void *)0x80140000u, 0x200);
+    in_ready = 0;
+}}
+static void on_vblank(void) {{ vblanks++; if (in_ready) seen_inside++; }}
+static void start_read(int sector)
+{{
+    unsigned char pos[4], res[8];
+    ps1_CdInit();
+    ps1_CdIntToPos(sector, pos);
+    ps1_CdControlB(2, pos, res);
+    ps1_CdControl(6, 0, res);
+}}
+void g_ready(void)
+{{
+    unsigned char res[8];
+    unsigned ev;
+    int i;
+    ps1_ResetCallback();
+    ev = ps1_OpenEvent(0xf2000003u, 2, 0x1000, on_vblank);
+    ps1_EnableEvent(ev);
+    ps1_StartRCnt(3);
+    start_read(16);
+    READY_CB = (unsigned)(size_t)({target});
+    SAY("handler set\\n");
+    ps1_CdReady(0, res);
+    for (i = 0; i < 6; i++) ps1_VSync(0);
+    SAY("after the vblanks\\n");
+    SAY("ready handler ran %d, vblank handlers inside it %d, vblanks %d\\n", ready_calls > 0, seen_inside, vblanks > 3);
+}}
+void g_exec(void)
+{{
+    unsigned char res[8];
+    start_read({EXEC_SECTOR});
+    ps1_CdReady(0, res);
+    ps1_CdGetSector((void *)0x801e0000u, 0x200);
+    SAY("sector read\\n");
+    ps1_Exec((void *)0x801e0000u, 0, 0);
+    SAY("after exec\\n");
+}}
+void g_exec_unknown(void)
+{{
+    ps1_Exec((void *)0x80150000u, 0, 0);
+    SAY("after exec\\n");
+}}
+void g_getsector(void)
+{{
+    unsigned char res[8];
+    start_read(16);
+    ps1_CdReady(0, res);
+    SAY("before\\n");
+    ps1_CdGetSector((void *)0x1000u, 0x200);
+    SAY("after\\n");
+}}
+"""
+
+
 # name, address, library, C symbol (None: no C)
 ABS_BASE = [("func_%08x" % ENTRY_ABSENT, ENTRY_ABSENT, 0), ("memcpy_like", ENTRY_LIBRARY, 1)]
 FUN_BASE = [("c_main", ENTRY_C, "c_main"), ("c_big", BIG_C, "c_big")]
@@ -336,6 +424,8 @@ FUN_KERN = FUN_BASE + [("game_vblank", G_VBLANK, "game_vblank"), ("game_threads"
                        ("t1", T1, "t1"), ("t2", T2, "t2"), ("t3", T3, "t3"), ("thread_returns", RAM + 0x100460, "thread_returns")]
 
 FUN_CRASH = FUN_BASE + [("game_crash", G_CRASH, "game_crash")]
+ABS_CD = ABS_KERN + [(n, a, 1) for n, a in CD_ADDR.items()]
+FUN_CD = FUN_BASE + [(f"g_{n}", a, f"g_{n}") for n, a in G_CD.items()]
 FUN_TARGET = FUN_BASE + [(f"g_{n}", a, f"g_{n}") for n, a in G_TARGET.items()]
 
 CARD_NAMES = ["InitCARD", "StartCARD", "_bu_init", "_card_info", "_card_load", "@card_clear", "open", "read", "write", "close", "firstfile", "nextfile", "format"]
@@ -585,6 +675,21 @@ const unsigned port_override_set_count = 1;
 """
 
 
+def cd_domains() -> str:
+    decls = "".join(f"extern void {h}();\n" for h in HOSTS.values())
+    rows = "".join(f'{{ "{n}", (void *){h}, 0 }}, ' for n, h in HOSTS.items())
+    return f"""
+#include "port.h"
+{decls}
+static const struct port_library t[] = {{ {rows} {{ 0, 0, 0 }} }};
+const struct port_domain port_domains[] = {{ {{ "kernel", t }}, {{ "cd", port_cd_library }}, {{ "system", port_system_library }} }};
+const unsigned port_domain_count = 3;
+static const struct port_override o[] = {{ {{ 0, 0, 0 }} }};
+const struct port_override *const port_override_sets[] = {{ o }};
+const unsigned port_override_set_count = 1;
+"""
+
+
 def tables_c(functions, absents, pin: bytes) -> str:
     out = ['#include "port_tables.h"']
     for _, _, sym in functions:
@@ -636,6 +741,9 @@ VARIANTS = {
                     "static const struct port_override o[] = { { 0, 0, 0 } };\n"
                     "const struct port_override *const port_override_sets[] = { o };\nconst unsigned port_override_set_count = 1;\n"),
     "irq": Variant("irq", GAME_IRQ, FUN_IRQ, ABS_IRQ, IRQ_DOMAINS),
+    "cd-unreg": Variant("cd-unreg", game_cd(f"0x{UNREGISTERED:08x}u"), FUN_CD, ABS_CD, cd_domains()),
+    "cd-absent": Variant("cd-absent", game_cd(f"0x{ENTRY_ABSENT:08x}u"), FUN_CD, ABS_CD, cd_domains()),
+    "cd-valid": Variant("cd-valid", game_cd("ready_handler"), FUN_CD, ABS_CD, cd_domains()),
     "kern": Variant("kern", GAME_VBLANK + GAME_THREADS.replace(PROLOGUE, ""), FUN_KERN, ABS_KERN, kernel_domains()),
 }
 
@@ -834,6 +942,29 @@ def cases(rig: Rig):
     status, lines, img, arg = rig.run("tgt-valid", program(G_TARGET["valid"]), variant="tgt-unreg", timeout=60)
     yield "handlers-and-callbacks-inside-the-games-own-code-are-called", verdict(
         (status, lines[-4:]), (0, ["event handler ran 1", "interrupt callback ran 1", "vsync callback ran 1", "stop: main returned"]))
+
+    # ---- the disc layer on the linked program ----
+    refusal = f"refused: ready callback 0x{UNREGISTERED:08x} is not a function this program installed"
+    status, lines, img, arg = rig.run("cd-unreg", program(G_CD["ready"]), variant="cd-unreg", timeout=60)
+    yield "ready-callback-in-unregistered-ram-is-refused-and-never-run", None if (status, lines[-1]) == (12, refusal) and "handler set" in lines and not any(l.startswith(("after", "ready")) for l in lines) else f"status {status}, lines {lines[-3:]!r}"
+    status, lines, img, arg = rig.run("cd-absent", program(G_CD["ready"]), variant="cd-absent", timeout=60)
+    yield "ready-callback-that-is-a-function-without-c-ends-with-its-named-stop", verdict((status, lines[-1]), (3, f"stop: no C yet for func_{ENTRY_ABSENT:08x} (0x{ENTRY_ABSENT:08x})"))
+    status, lines, img, arg = rig.run("cd-valid", program(G_CD["ready"]), variant="cd-valid", timeout=60)
+    yield "ready-callback-inside-the-games-own-code-is-called-and-no-vblank-is-delivered-inside-it", verdict(
+        (status, lines[-3:]), (0, ["after the vblanks", "ready handler ran 1, vblank handlers inside it 0, vblanks 1", "stop: main returned"]))
+
+    status, lines, img, arg = rig.run("cd-exec", program(G_CD["exec"]), variant="cd-valid", timeout=60)
+    yield "exec-of-a-program-of-the-disc-ends-the-run-by-default-and-names-the-file-and-sector", verdict(
+        (status, lines[-2:]), (13, ["sector read", f"stop: no C yet for the program slps_004.15 (disc sector {EXEC_SECTOR})"]))
+    status, lines, img, arg = rig.run("cd-exec-skip", program(G_CD["exec"]), variant="cd-valid", args=["--skip-programs"], timeout=60)
+    yield "exec-with-skip-programs-prints-a-line-and-returns-at-once", verdict(
+        (status, lines[-4:]), (0, ["sector read", f"skipped: Exec of slps_004.15 (disc sector {EXEC_SECTOR}): a program of its own for which no C exists yet; it returns at once", "after exec", "stop: main returned"]))
+    status, lines, img, arg = rig.run("cd-exec-unknown", program(G_CD["exec_unknown"]), variant="cd-valid", timeout=60)
+    yield "exec-of-a-header-that-did-not-come-from-the-disc-stops-with-an-unknown-name", verdict(
+        (status, lines[-1]), (13, "stop: no C yet for the program ? (disc sector -1)"))
+    status, lines, img, arg = rig.run("cd-getsector", program(G_CD["getsector"]), variant="cd-valid", timeout=60)
+    yield "cdgetsector-into-an-address-outside-the-ram-ends-the-run-before-a-byte-is-copied", verdict(
+        (status, lines[-2:]), (6, ["before", "stop: CdGetSector buffer 0x00001000 (2048 bytes) is outside the PS1's RAM"]))
 
     # ---- the memory card model: empty slots ----
     status, lines, img, arg = rig.run("card", program(G_CARD), variant="card")

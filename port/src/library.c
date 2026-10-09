@@ -4,7 +4,7 @@
  * serve.
  *
  * Nothing here knows a library function by name; the domains' tables do
- * (kernel.c, threads.c, clib.c, sound.c, card.c, overrides.c), registered in domains.c. */
+ * (kernel.c, threads.c, clib.c, sound.c, card.c, cd.c, overrides.c), registered in domains.c. */
 #include "port.h"
 #include "port_tables.h"
 

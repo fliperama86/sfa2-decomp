@@ -10,6 +10,7 @@ const struct port_domain port_domains[] = {
     { "gpu", port_gpu_library },
     { "sound", port_sound_library },
     { "card", port_card_library },
+    { "cd", port_cd_library },
 };
 const unsigned port_domain_count = sizeof port_domains / sizeof port_domains[0];
 
