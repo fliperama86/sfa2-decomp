@@ -13,7 +13,6 @@ extern u32 data_801c4abc_slot04_12[];
 extern ObjectFn data_801c4b3c_slot04_12[];
 extern s32 data_801c4b50_slot04_12[];
 
-u8 func_80141788(Object *object);
 int func_80141e34(Object *object);
 void func_80142adc(Object *object);
 void func_80146998(Object *object);
@@ -51,7 +50,7 @@ int func_801b1414_slot04_12(Object *obj) {
         if ((s16)obj->field_c6 >= 0x30) {
             if (obj->field_45 != 0) {
                 if (obj->field_7e == 0) {
-                    if (func_801418bc(obj)) {
+                    if ((u8)func_801418bc(obj)) {
                         r = 1;
                         obj->field_04 = 1;
                         obj->field_05 = 0;
@@ -62,7 +61,7 @@ int func_801b1414_slot04_12(Object *obj) {
                 }
             } else {
                 if ((u8)func_80141e34(obj)) {
-                    if (func_80141788(obj)) {
+                    if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->field_04 = 1;
                         obj->field_05 = 0;

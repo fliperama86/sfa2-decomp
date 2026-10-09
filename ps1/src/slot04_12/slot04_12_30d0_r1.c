@@ -7,7 +7,7 @@ extern ObjectFn data_801c4c78_slot04_12[];
 extern ObjectFn data_801c4c80_slot04_12[];
 extern ObjectFn data_801c4c90_slot04_12[];
 extern ObjectFn data_801c4c9c_slot04_12[];
-extern u16 box_margin;
+extern u16 box_margin[];
 
 void func_80142fbc(Object *object);
 void func_801428a8(Object *object);
@@ -188,7 +188,7 @@ void func_801b35e0_slot04_12(Object *obj) {
     func_80141f28(obj, 3);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
-        if (!((s16)(box_margin + 0xc0) < obj->pos_x)) {
+        if (!((s16)(box_margin[0] + 0xc0) < obj->pos_x)) {
             obj->field_0b = 1;
         }
     } else if ((obj->field_c2 & 0x8000) == 0) {
@@ -224,7 +224,7 @@ void func_801b3788_slot04_12(Object *obj) {
     func_80141f28(obj, 4);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
-        if (!((s16)(box_margin + 0xc0) < obj->pos_x)) {
+        if (!((s16)(box_margin[0] + 0xc0) < obj->pos_x)) {
             obj->field_0b = 1;
         }
     } else if ((obj->field_c2 & 0x8000) == 0) {

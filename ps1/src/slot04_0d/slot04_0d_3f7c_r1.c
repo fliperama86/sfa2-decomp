@@ -20,8 +20,6 @@ void func_8011f14c(Slab172 *o);
 void func_8011f38c(Object *o);
 void func_8011ffdc(Object *o);
 void func_80130dc0(Object *obj);
-u8 func_80149b80(Object *obj);
-u8 func_8013f8c4(Object *obj, int a, int b);
 void func_801b42a0_slot04_0d(Object *obj);
 void func_801b41ec_slot04_0d(Object *obj);
 void func_801b42f8_slot04_0d(Object *obj, u8 a);
@@ -178,7 +176,7 @@ void func_801b4438_slot04_0d(Object *obj) {
     obj->field_07++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x11, 0x14) != 0) {
             obj->field_04 = 1;
             obj->field_05 = 2;
             obj->field_06 = 0;
@@ -210,7 +208,7 @@ void func_801b456c_slot04_0d(Object *obj) {
 
     obj->field_07++;
     if (obj->field_218 != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x11, 0x14) != 0) {
             obj->field_04 = 1;
             obj->field_05 = 2;
             obj->field_06 = 0;

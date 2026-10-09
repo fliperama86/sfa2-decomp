@@ -3,13 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
 void func_801b0f44_slot04_03(Object *obj);
 
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0da4_slot04_03(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -24,7 +23,7 @@ int func_801b0da4_slot04_03(Object *obj) {
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0e24_slot04_03(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         func_801b0f44_slot04_03(obj);
         obj->field_04 = 1;
         obj->field_05 = 0;
@@ -39,7 +38,7 @@ int func_801b0e24_slot04_03(Object *obj) {
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0eac_slot04_03(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30 && obj->field_240 == 0 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && obj->field_240 == 0 && (u8)func_80141788(obj)) {
         func_801b0f44_slot04_03(obj);
         obj->field_04 = 1;
         obj->field_05 = 0;

@@ -9,12 +9,11 @@ extern u16 data_801c6254_slot04_0e[];
 extern u16 data_801c6294_slot04_0e[];
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
 
-Dir func_8013054c(Object *object);
 void func_801b6e9c_slot04_0e(Slot04bObj *obj);
 void func_801b6f18_slot04_0e(Slot04bObj *obj);
 
-Dir func_801b6b64_slot04_0e(Slot04bObj *obj) {
-    Dir d;
+BytePair func_801b6b64_slot04_0e(Slot04bObj *obj) {
+    BytePair d;
 
     obj->field_1de = 0xff;
     if (obj->field_cd == 0) {

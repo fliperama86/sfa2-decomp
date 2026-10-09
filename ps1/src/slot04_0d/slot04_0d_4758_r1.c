@@ -14,8 +14,6 @@ void func_8011ffdc(Object *o);
 void func_8011f240(Slab172 *s);
 void func_801b4b68_slot04_0d(Object *obj);
 void func_80130dc0(Object *obj);
-u8 func_80149b80(Object *obj);
-u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_801b4758_slot04_0d(Object *obj) {
     u8 one;

@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 void func_8011f38c(Object *o);
-u8 func_8013f8c4(Object *obj, int a, int b);
-u8 func_80149b80(Object *obj);
 
 void func_801b4228_slot04_12(Object *obj);
 void func_801b42d0_slot04_12(Object *obj);
@@ -64,7 +62,7 @@ void func_801b4310_slot04_12(Object *obj) {
 void func_801b4350_slot04_12(Object *obj) {
     obj->field_07++;
     obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && func_8013f8c4(obj, -0x14, 0x14) != 0) {
+    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

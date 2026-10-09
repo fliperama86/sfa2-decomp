@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_801c8670_slot05_06(Object *obj);
 void func_801c8744_slot05_06(Object *obj);
 extern ObjectFn data_801dd258_slot05_06[];
@@ -12,7 +11,7 @@ void func_801c8510_slot05_06(Object *obj) {
     int one;
 
     obj->field_07 = obj->field_07 + 1;
-    if ((obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x18, 0x14) != 0) {
+    if ((obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

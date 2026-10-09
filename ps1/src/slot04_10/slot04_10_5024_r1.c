@@ -10,7 +10,6 @@ void func_801b1078_slot04_10(Object *obj);
 void func_801b1098_slot04_10(Object *obj);
 int func_80130184(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-u8 func_80140cd8(Object *object, int a, int b);
 void func_80146960(Object *object);
 
 void func_801b5024_slot04_10(Object *obj) {
@@ -108,7 +107,7 @@ void func_801b535c_slot04_10(Object *obj) {
         func_80146960(obj);
         func_80130efc(obj);
         func_801204f4(obj, obj->side, 0xa);
-        if (func_80140cd8(obj, 0xd, 0x1b)) {
+        if ((u8)func_80140cd8(obj, 0xd, 0x1b)) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
             func_80147000(obj);
@@ -185,7 +184,7 @@ void func_801b5680_slot04_10(Object *obj) {
         data_80190468.p->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
         func_801307e0(obj, 0x38);
-        if (func_80140cd8(obj, 0xa, 0x1c)) {
+        if ((u8)func_80140cd8(obj, 0xa, 0x1c)) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
             func_80147000(obj);

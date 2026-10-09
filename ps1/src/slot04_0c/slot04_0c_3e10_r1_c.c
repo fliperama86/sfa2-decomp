@@ -15,8 +15,6 @@ void func_801b4190_slot04_0c(Object *obj);
 void func_801b42c8_slot04_0c(Object *obj);
 void func_801b445c_slot04_0c(Object *obj);
 void func_80130dc0(Object *obj);
-u8 func_80149b80(Object *obj);
-u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_801b40c8_slot04_0c(Object *obj, Object *parent) {
     obj->field_04++;
@@ -53,7 +51,7 @@ void func_801b4190_slot04_0c(Object *obj) {
 void func_801b41d0_slot04_0c(Object *obj) {
     obj->field_07++;
     obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && func_8013f8c4(obj, -0x14, 0x14) != 0) {
+    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

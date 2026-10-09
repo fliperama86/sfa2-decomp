@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80149b80(Object *object);
-
 void func_801b45a8_slot04_07(Object *obj) {
     if ((s16)obj->field_3a & 0x8000) {
         func_801312b8(obj);

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80140cd8(Object *object, int a, int b);
-
 void func_801b3408_slot04_01(Object *obj) {
     u16 t = obj->field_3a;
     Object *p = obj->other;

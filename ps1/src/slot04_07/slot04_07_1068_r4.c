@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
-
 void func_801b1600_slot04_07(Object *obj) {
     obj->field_04 = 1;
     obj->field_05 = 0;
@@ -23,7 +21,7 @@ void func_801b1600_slot04_07(Object *obj) {
 int func_801b1668_slot04_07(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;
@@ -40,7 +38,7 @@ int func_801b1668_slot04_07(Object *obj) {
 int func_801b16f4_slot04_07(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;

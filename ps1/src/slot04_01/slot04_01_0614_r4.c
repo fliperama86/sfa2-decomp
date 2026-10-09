@@ -7,7 +7,7 @@ int func_801b0d54_slot04_01(Object *obj) {
     int r = 0;
 
     if (obj->field_45 != 0) {
-        if (!func_801418bc(obj)) return 0;
+        if (!(u8)func_801418bc(obj)) return 0;
         r = 1;
         obj->field_15a = 3;
     } else {

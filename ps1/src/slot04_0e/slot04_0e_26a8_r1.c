@@ -15,7 +15,7 @@ void func_80138ae8(GameState *state, Object *object);
 void func_801b2c00_slot04_0e(Object *obj);
 void func_801b2ca4_slot04_0e(Object *obj);
 void func_801b4914_slot04_0e(Object *obj);
-Dir func_801b6b64_slot04_0e(Slot04bObj *obj);
+BytePair func_801b6b64_slot04_0e(Slot04bObj *obj);
 void func_801b6d7c_slot04_0e(Slot04bObj *obj);
 u8 func_801b6bd4_slot04_0e(Object *obj);
 
@@ -211,7 +211,7 @@ void func_801b2c50_slot04_0e(Object *obj) {
 
 void func_801b2ca4_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
-    Dir buf;
+    BytePair buf;
     int t;
 
     if (o->field_cd != 0) {

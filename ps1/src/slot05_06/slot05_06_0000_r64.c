@@ -5,7 +5,6 @@
 
 extern ObjectFn data_801dd594_slot05_06[];
 extern ObjectFn data_801dd5a0_slot05_06[];
-u8 func_80149b80(Object *obj);
 extern ObjectFn data_801dd5a8_slot05_06[];
 
 void func_801cd838_slot05_06(Object *obj) {

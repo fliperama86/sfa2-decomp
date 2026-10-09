@@ -3,10 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-Dir func_8013054c(Object *object);
-
 int func_80141618(Object *object) {
-    Dir buf;
+    BytePair buf;
     if ((game_state.config->field_4d | game_state.config->field_04) != 0 || (func_8012f56c(object) & 0xff) != 0 ||
         (object->field_134 & 0xfc) == 0) {
         object->field_254 = 0;

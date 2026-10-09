@@ -3,9 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80149b80(Object *obj);
 extern ObjectFn data_801dd574_slot05_06[];
-u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_801cd524_slot05_06(Object *obj) {
     if ((s16)obj->field_3a >= 0) {
@@ -25,7 +23,7 @@ void func_801cd588_slot05_06(Object *obj) {
 void func_801cd5c8_slot05_06(Object *obj) {
     obj->field_07++;
     if (obj->field_218 != 0) {
-        if (func_8013f8c4(obj, -0x18, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
             obj->field_04 = 1;
             obj->field_05 = 2;
             obj->field_06 = 0;

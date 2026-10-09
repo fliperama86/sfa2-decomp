@@ -11,7 +11,6 @@ extern ObjectFn data_801ca100_slot04_16[];
 extern ObjectFn data_801ca108_slot04_16[];
 extern ObjectFn data_801ca110_slot04_16[];
 Object *func_8011f32c(void);
-u8 func_8013f8c4(Object *object, int a, int b);
 int func_80141618(Object *object);
 int func_801412a4(Object *object);
 void func_801b0414_slot04_16(Object *obj);
@@ -28,7 +27,6 @@ void func_80130678(Object *object, int index);
 void func_80130dc0(Object *object);
 void func_80131468(Object *object);
 int func_80130184(Object *object);
-u8 func_80125734(Object *object, int a);
 void func_801b0bdc_slot04_16(Object *obj);
 void func_801b0c38_slot04_16(Object *obj);
 void func_801b0c8c_slot04_16(Object *obj);
@@ -95,7 +93,7 @@ void func_801b0374_slot04_16(Object *obj) {
 
     obj->field_67 = 0;
     obj->field_07 = obj->field_07 + 1;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x25, 0x14) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x25, 0x14) != 0) {
         func_801b0414_slot04_16(obj);
     } else {
         one = 1;
@@ -146,7 +144,7 @@ void func_801b052c_slot04_16(Object *obj) {
         func_80130dc0(obj);
         return;
     }
-    if (obj->field_12a != 0 && func_8013f8c4(obj, -0x25, 0x14) != 0) {
+    if (obj->field_12a != 0 && (u8)func_8013f8c4(obj, -0x25, 0x14) != 0) {
         func_801b0414_slot04_16(obj);
         return;
     }
@@ -189,7 +187,7 @@ void func_801b06c8_slot04_16(Object *obj) {
         return;
     }
     if ((obj->field_130 & 0x8000) != 0) {
-        if (func_8013f8c4(obj, -0x25, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x25, 0x14) != 0) {
             func_801b0414_slot04_16(obj);
             return;
         }

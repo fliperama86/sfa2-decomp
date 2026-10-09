@@ -15,17 +15,12 @@ extern s16 data_801ce258_slot04_17[];
 
 Object *func_8011f32c(void);
 void func_80130678(Object *object, int index);
-u8 func_80125734(Object *object, int a);
 u8 func_80151184(void);
-u8 func_8013f8c4(Object *object, int a, int b);
-int func_8013caf0(Object *object, u8 a, u8 b);
 int func_8013cb70(Object *object, u8 a, u8 b);
 int func_8013cac8(Object *object, u8 a, u8 b);
 int func_8013cdc8(Object *object, u8 a, u8 b);
-int func_8013cfdc(Object *object, u8 a, u8 b);
 int func_8013d1a8(Object *object);
 u8 func_8013d210(Object *object);
-u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 void func_80142718(Object *object);
 void func_80142778(Object *object);
@@ -189,7 +184,7 @@ void func_801b05c0_slot04_17(Object *obj) {
     if (obj->field_12a == 0) {
         func_801b56bc_slot04_17(obj);
     } else if (obj->field_25f != 0 || (obj->field_130 & 0xa000) == 0 ||
-               func_8013f8c4(obj, -0x14, 0xe) == 0) {
+               (u8)func_8013f8c4(obj, -0x14, 0xe) == 0) {
         func_801b56bc_slot04_17(obj);
     } else {
         obj->field_04 = 1;
@@ -325,7 +320,7 @@ int func_801b0b88_slot04_17(Object *obj) {
 int func_801b0c0c_slot04_17(Object *obj) {
     if (obj->kind != 0x11) return 0;
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (func_80141788(obj)) {
+    if ((u8)func_80141788(obj)) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -343,7 +338,7 @@ int func_801b0c0c_slot04_17(Object *obj) {
 int func_801b0ca4_slot04_17(Object *obj) {
     if (obj->kind != 0x11) return 0;
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (func_80141788(obj)) {
+    if ((u8)func_80141788(obj)) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -361,7 +356,7 @@ int func_801b0ca4_slot04_17(Object *obj) {
 int func_801b0d3c_slot04_17(Object *obj) {
     if (obj->kind != 0x13) return 0;
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (func_80141788(obj)) {
+    if ((u8)func_80141788(obj)) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -381,7 +376,7 @@ int func_801b0dd4_slot04_17(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
     if (obj->field_45 == 0) return 0;
     if (!(obj->pos_y < obj->field_70 - 0x18)) return 0;
-    if (func_801418bc(obj)) {
+    if ((u8)func_801418bc(obj)) {
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;

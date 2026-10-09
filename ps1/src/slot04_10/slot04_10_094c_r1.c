@@ -7,7 +7,6 @@ extern ObjectFn data_801c6988_slot04_10[];
 
 void func_80130678(Object *object, int arg);
 int func_80130184(Object *object);
-u8 func_80125734(Object *object, int a);
 
 void func_801b0bdc_slot04_10(Object *obj);
 void func_801b0c38_slot04_10(Object *obj);

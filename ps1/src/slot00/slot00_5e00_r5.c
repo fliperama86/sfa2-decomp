@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80149b80(Object *obj);
-
 void func_8007632c_slot00(Object *obj) {
     obj->field_07++;
     obj->field_159 = 1;
