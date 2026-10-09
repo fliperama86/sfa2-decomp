@@ -5889,3 +5889,7 @@ data_801dd758_slot05_06 = 0x801dd758;
 data_80051c54_slot28 = 0x80051c54;
 
 data_801c25b4_slot04_0b = 0x801c25b4;
+
+/* Data that the nonmatching functions name. */
+data_801e9f48_slot06_00 = 0x801e9f48;
+data_801e9f60_slot06_00 = 0x801e9f60;

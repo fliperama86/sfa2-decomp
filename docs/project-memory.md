@@ -7517,6 +7517,44 @@ No function count changes here: none of this is in the build.
   new parts were run against 73 more one-line changes of the tool by a
   worker; all were noticed after one equivalent change was replaced.
 
+## Nonmatching C for stage functions, first batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: nonmatching C, each with a contract file and a passing
+  differential test, for 14 functions of the stage modules that the
+  build keeps as original bytes (`ps1/src/slot06_nonmatching/`, 15 with
+  the first one). The folder's page holds what the test printed for
+  each: 2,000 cases, the instruction slots of the original that the
+  cases executed, and the negative control. Where slots are not
+  executed, the function's header says which and why no input reaches
+  them. More batches follow from the branch `ps1-nonmatching-batch`.
+- How they were written: one worker per function or family, against a
+  written brief, in a scratch tree of its own; the top level ran every
+  function again on the final tool, with two seeds, before publishing.
+  The goal given to the workers was not bytes but readable C that does
+  what the listing does: several functions came out shorter than the
+  original because a block that the original repeats is a helper, or
+  because a store that is overwritten before anything can read it is
+  left out. Each such choice is in the function's header.
+- The test caught real mistakes in candidates that had been a few
+  instruction slots from exact for days: a divisor read as 176 where the
+  listing has 88, a field written as `field_0c` for `field_0a`, a store
+  made in a branch delay slot that the C had put behind the branch, a
+  candidate that set an argument to 0 on a tie where the listing keeps
+  the old value. "A few slots from exact" had said nothing about
+  meaning. (These are from the whole set of stage and character
+  functions, not only from this batch.)
+- Every function that has a recorder was run again with its objects
+  watched and with one store moved across a call; no function's C had
+  to change, and one setup had: it left the globals that the function
+  writes at zero, so a moved store of zero showed nothing.
+- A nonmatching unit is not in the build, so no check of the matching
+  work notices when it stops compiling after a shared header changes:
+  `difftest.py --all` on each folder is the check, and it is run before
+  each change here. It happened twice on 2026-10-09 with prototypes that
+  moved into the shared header.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
