@@ -56,10 +56,10 @@
 80158208	152	ClearOTagR	graphics	2	folder
 801582a0	96	DrawPrim	graphics	0	folder
 80158300	116	DrawOTag	graphics	1	folder
-80158374	196	func_80158374	graphics	1	place
-80158438	56	func_80158438	graphics	0	place
+80158374	196	PutDrawEnv	graphics	1	folder
+80158438	56	GetDrawEnv	graphics	0	folder
 80158470	1060	-	graphics	1	place
-80158894	56	func_80158894	graphics	0	place
+80158894	56	GetDispEnv	graphics	0	folder
 801588cc	52	GetODE	graphics	0	folder
 80158900	60	SetTexWindow	graphics	0	folder
 8015893c	132	SetDrawArea	graphics	0	folder
