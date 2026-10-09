@@ -5,8 +5,6 @@
 
 
 
-Block172 *func_8011f1e0(void);
-
 void func_801482e0(Object *parent, int x_arg, int y_arg) {
     u16 x = x_arg;
     u16 y = y_arg;

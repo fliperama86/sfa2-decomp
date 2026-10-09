@@ -7,7 +7,6 @@ void func_801b7a4c_slot04_02(Object *obj);
 void func_801b7b10_slot04_02(Object *obj);
 void func_801b7b44_slot04_02(Object *obj);
 void func_801b7b74_slot04_02(Object *obj);
-void func_8011ffdc(Object *obj);
 
 void func_801b79b4_slot04_02(Object *obj) {
     Object *p = obj->field_3c;

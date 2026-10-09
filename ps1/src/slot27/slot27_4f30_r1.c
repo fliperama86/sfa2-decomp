@@ -7,8 +7,6 @@ extern void (*data_80028120_slot27[])(Object *);
 void func_80014dec_slot27(Object *obj);
 void func_80015148_slot27(Object *obj);
 void func_80015070_slot27(Object *obj);
-void func_8011f240(Slab172 *s);
-void func_8011ffdc(Object *o);
 
 void func_80014f30_slot27(Object *obj) {
     data_80028120_slot27[obj->field_05](obj);

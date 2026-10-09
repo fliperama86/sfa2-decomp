@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f32c(void);
-
 void func_801b6068_slot04_09(Object *obj) {
     u8 f;
     Object *c = func_8011f32c();

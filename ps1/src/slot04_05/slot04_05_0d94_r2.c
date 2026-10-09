@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 u8 func_80141788(Object *object);
-void func_80142778(Object *object);
-void func_80142718(Object *object);
 
 int func_801b1098_slot04_05(Object *obj) {
     int r = 0;

@@ -4,11 +4,6 @@
 #include "../externs.h"
 
 extern void (*data_801c0840_slot04_0a[])(Object *);
-void func_80137b64(Object *object);
-void func_80137be0(Object *object);
-void func_80137cc0(Object *object);
-void func_80137dc8(Object *object);
-void func_80137f00(Object *object);
 
 void func_801b4160_slot04_0a(Object *obj) {
     data_801c0840_slot04_0a[obj->field_05](obj);

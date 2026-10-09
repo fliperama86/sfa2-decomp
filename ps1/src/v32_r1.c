@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8012bbac(Object *object)
 {

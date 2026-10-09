@@ -5,7 +5,6 @@
 
 void func_801cc814_slot05_06(Object *obj);
 void func_801cc84c_slot05_06(Object *obj);
-void func_80146960(Object *object);
 
 void func_801ca414_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;

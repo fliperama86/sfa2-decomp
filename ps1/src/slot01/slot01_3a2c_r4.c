@@ -7,7 +7,6 @@ extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern int data_80055f3c_slot01;
 extern s16 data_80055e9a_slot01;
-Block172 *func_8011f1e0(void);
 void func_80012020_slot01(Object *obj);
 
 void func_80013da4_slot01(Object *obj) {

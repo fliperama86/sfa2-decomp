@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8015c938(int a, u8 *p);
-
 void func_801507e8(Menu *menu) {
     int v = func_8015c938(1, &menu->field_0c);
     if (v != 0) {

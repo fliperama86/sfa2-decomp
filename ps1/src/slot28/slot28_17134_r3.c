@@ -12,7 +12,6 @@ void func_80027d08_slot28(void);
 void func_80027adc_slot28(Object *o);
 void func_8002799c_slot28(int *p);
 void func_80027748_slot28(int *p);
-void func_8012818c(void);
 
 void func_800275c4_slot28(Object *obj) {
     obj->pos_x = (u8)func_80151184() + 0x40;

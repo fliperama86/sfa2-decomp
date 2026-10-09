@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-
 void func_801b13e0_slot04_03(Object *obj) {
     if ((u8)obj->field_3a == 0) {
         obj->field_45 = 1;

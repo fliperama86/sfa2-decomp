@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Pooled *func_8011f4a4(void);
-
 void func_801451ac(u8 flag) {
     Rect rect;
     Job *job;

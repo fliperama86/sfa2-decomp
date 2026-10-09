@@ -31,8 +31,6 @@ void func_801b3e68_slot04_0a(Object *obj) {
     func_801379bc(obj, 2);
 }
 
-void func_8013788c(Object *object);
-
 void func_801b3f10_slot04_0a(Object *obj) {
     obj->field_103 = 0;
     func_8013788c(obj);

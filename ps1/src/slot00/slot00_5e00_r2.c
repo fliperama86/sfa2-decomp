@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_80079148_slot00[];
-void func_80130dc0(Object *obj);
 u8 func_80149b80(Object *obj);
 
 void func_80075f60_slot00(Object *obj) {

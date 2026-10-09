@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-void func_80138410(GameState *state);
 
 void func_80122230(GameState *state) {
     Attacker *a = (Attacker *)state;

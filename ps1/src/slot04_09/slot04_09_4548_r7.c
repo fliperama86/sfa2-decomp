@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-
 void func_801b5c6c_slot04_09(Object *obj);
 
 void func_801b4d84_slot04_09(Object *obj) {

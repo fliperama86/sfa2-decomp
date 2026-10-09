@@ -5,7 +5,6 @@
 
 extern u8 data_801e7a2c_slot0b[];
 extern SequenceStep *data_801e4cc0_slot0b[];
-int func_8015bdd4(int a, int b);
 SlotCell *func_801e101c_slot0b(Object *obj, SlotCell *cell, int arg, int base);
 void func_801e1624_slot0b(Slot0bObj *obj);
 void func_801e1644_slot0b(Slot0bCursor *c);

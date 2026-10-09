@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011f14c(Slab172 *o);
-
 void func_801b3e1c_slot04_0b(Object *o, Object *unused) {
     ref_other.p = o->field_3c;
     ref_other.p->field_240--;

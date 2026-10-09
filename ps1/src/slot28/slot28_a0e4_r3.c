@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern ObjectRef data_800519d0_slot28;
-void func_801282d4(void);
 
 void func_8001a644_slot28(Object *obj) {
     if ((s16)data_800519d0_slot28.p->field_3a < 0) {

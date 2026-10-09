@@ -8,7 +8,6 @@ void func_80075e50_slot00(Object *obj);
 void func_80075e90_slot00(Object *obj);
 void func_80075fc8_slot00(Object *obj);
 void func_800760a8_slot00(Object *obj);
-void func_80130dc0(Object *obj);
 u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_80075e10_slot00(Object *obj) {

@@ -6,12 +6,6 @@
 extern Prim *data_8018d140;
 extern u16 data_8018d20c;
 
-void func_80151f64(int a, u8 b, s16 c, s16 d);
-void func_80151fec(int a, int b, s16 c, s16 d);
-void func_80152088(int a, int b, s16 c, s16 d);
-void func_80152124(u8 *a, int b, int c, s16 d, s16 e);
-int func_8015bdd4(int a, int b);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_80151a04(void)
 {

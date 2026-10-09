@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_80152b40(Object *object) {
     u16 i;
     Object *o;

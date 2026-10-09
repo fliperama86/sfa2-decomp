@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern u16 data_801b9d24_slot04_sel;
-void func_801257f4(Select *sel);
 
 void func_801b16b4_slot04_sel(void) {
     Object *r = &player_right;

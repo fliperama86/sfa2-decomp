@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_801dd53c_slot05_06[];
-void func_80130678(Object *object, int arg);
 
 void func_801ccf78_slot05_06(Object *obj) {
     if (((Slot04aObj *)obj)->field_47 != 0) {

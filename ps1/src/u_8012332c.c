@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-int func_80125394(void);
 
 /* Form found by automatic permutation search. */
 void func_8012332c(GameState *state)

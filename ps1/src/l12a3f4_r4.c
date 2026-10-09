@@ -3,12 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u16 func_80130470(Object *object);
-int func_80130258(Object *object);
-int func_8012f7c0(Object *object);
-int func_8012f618(Object *object);
-void func_80130678(Object *object, int index);
-
 void func_8012b184(Object *object) {
     u16 saved;
     if (object->field_cd != 0) {

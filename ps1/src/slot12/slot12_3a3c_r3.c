@@ -5,7 +5,6 @@
 
 extern s16 data_8002b710_slot12[16];
 extern u16 data_8002b9b0_slot12[20][16];
-Pooled *func_8011f4a4(void);
 void func_80013d80_slot12(void);
 
 void func_80013c74_slot12(void) {

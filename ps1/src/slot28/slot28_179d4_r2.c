@@ -7,7 +7,6 @@ extern u8 data_8005146c_slot28[];
 extern u8 data_80051528_slot28[];
 extern BoxTables data_800516dc_slot28;
 extern ObjectRef data_80051df0_slot28;
-Block172 *func_8011f1e0(void);
 
 void func_80027b18_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;

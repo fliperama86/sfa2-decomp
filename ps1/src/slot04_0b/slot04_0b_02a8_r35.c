@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011f240(Slab172 *s);
-
 void func_801b4d98_slot04_0b(Object *obj) {
     func_8011f240((Slab172 *)obj);
 }

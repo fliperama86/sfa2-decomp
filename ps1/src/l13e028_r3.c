@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80138ac8(GameState *state, Object *object);
-
 int func_8013fab4(Object *object) {
     if (ref_other.p->field_7e != 0) {
         ref_other.p->field_c6 -= 0x30;

@@ -3,12 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801312b8(Object *object);
 void func_801b571c_slot04_06(Object *obj);
 void func_801b583c_slot04_06(Object *obj);
 extern ObjectFn data_801c5584_slot04_06[];
 extern ObjectFn data_801c5590_slot04_06[];
-void func_80130dc0(Object *obj);
 
 void func_801b569c_slot04_06(Object *obj) {
     if ((s16)obj->field_3a >= 0) {

@@ -8,8 +8,6 @@ extern u8 data_8016e685;
 extern u8 *data_800517b8_slot28[];
 extern u32 data_800517d8_slot28[];
 extern Slot28Rec51e94 data_80051e94_slot28;
-void func_8011ea68(u8 *unused);
-void func_8012818c(void);
 void func_80028038_slot28(Object *obj);
 void func_800281ec_slot28(Object *obj);
 void func_80027f78_slot28(Object *obj);

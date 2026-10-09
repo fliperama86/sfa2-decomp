@@ -5,7 +5,6 @@
 
 void func_801b61c0_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int n);
 void func_801b6340_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int n);
-void func_801205c4(int a, unsigned c);
 extern u8 data_801b8c91_slot04_sel;
 extern u8 data_801b8c92_slot04_sel;
 extern u8 data_801b8c93_slot04_sel;

@@ -5,7 +5,6 @@
 
 extern u8 data_801e766c_slot0b[];
 void func_801e0ea8_slot0b(Object *obj, u8 *a);
-void func_8011f38c(Object *obj);
 
 void func_801e01dc_slot0b(Object *obj) {
     obj->pos_x = ref_other.p->pos_x + ((u16 *)&obj->field_4c)[1];

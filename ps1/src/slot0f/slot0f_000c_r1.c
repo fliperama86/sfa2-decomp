@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern u8 data_801a89a8[];
-void func_80150cd0(int index);
 
 void func_800e000c_slot0f(GameState *state, Menu *menu) {
     func_801192bc(0x3c);

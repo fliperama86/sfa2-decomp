@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80128370(void);
 extern HudState *data_8018f5a0;
 extern ObjectRef data_8005197c_slot28;
 extern Object *data_80051980_slot28[];
@@ -16,7 +15,6 @@ extern u8 data_80032ec8_slot28[];
 extern SequenceStep *data_80034518_slot28[];
 extern SequenceStep *data_80034520_slot28[];
 extern SequenceStep *data_80034530_slot28[];
-Block172 *func_8011f1e0(void);
 void func_80019190_slot28(void);
 void func_80019130_slot28(Object *obj);
 void func_80019100_slot28(Object *obj, int arg);

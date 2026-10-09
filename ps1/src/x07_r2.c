@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80168d4c(u8 *a, int b);
-int func_80166144(u8 *a, int b, int c);
-
 void func_8014ff20(Ctl *ctl)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

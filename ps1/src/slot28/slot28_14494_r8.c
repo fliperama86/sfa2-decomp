@@ -5,13 +5,11 @@
 
 extern HudState *data_8018f5a0;
 extern ObjectRef data_80051c5c_slot28;
-void func_801280f0(void);
 extern SequenceStep *data_8004bda4_slot28[];
 extern Object *data_80051c50_slot28[];
 extern u8 data_8004ab90_slot28[];
 extern u8 data_8004aed8_slot28[];
 extern Object *data_80051c24_slot28[];
-void func_8011f240(Slab172 *s);
 
 void func_80025058_slot28(Object *obj) {
     if (((Slot28Obj *)data_80051c5c_slot28.p)->field_3a < 0) {

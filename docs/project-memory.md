@@ -6626,6 +6626,78 @@ What the wave showed about the search itself:
   open a function, was run over all 132: it changed the score of 1 of
   the 71 functions it reached, by 2 words, and gave no exact one.
 
+## Prototypes that units carried themselves moved into the shared header (2026-10-09)
+
+After the groups on declarations, a unit's own prototype of a resident
+function says the same as the definition almost everywhere. Such a line
+at the top of a unit is then a second copy that nothing compares with
+the first: the private declaration check compares them, the compiler
+does not. A line in the shared header is compared by the compiler in
+every unit that includes the header, the unit of the definition among
+them.
+
+What was done, with a private helper that reads every unit:
+
+- A function of the resident image moved into `protos.h` when the
+  header did not have it, some unit declared it, and every unit that
+  declares it and includes the header agrees with the resident
+  definition, or, for a function that no unit defines, with one
+  another. The header's line is the definition's parameter list, or
+  the text most units had.
+- Functions at an address of an overlay region, which a unit declares
+  under the bare address because it calls whatever module is loaded
+  there, did not move: no definition carries that name, so the header
+  would give the compiler nothing to compare. The header has lines of
+  that kind from earlier groups; they are as they were.
+- The lines that then repeat the header were taken out of the resident
+  units and of the module units in this session's folders; so were
+  lines that repeated a prototype the header had before. A unit that
+  does not include the header keeps its own declarations.
+- `s13af1c_r5.c` named the byte type through a typedef of its own,
+  `u8_`. It uses `u8` now and is exact; its functions could not have
+  moved otherwise.
+- One comment in a `slot2a` unit said "Not in protos.h" above two
+  declarations that moved; it went with them.
+
+One-off counts of the private helper, not of a published tool: the
+header had 782 prototypes and has 995; 203 of the 213 that moved are
+defined in the tree and 10 are not (seven library functions and three
+game functions that no unit defines yet, each declared alike by all
+its units). 298 lines
+left 196 resident units and 1,665 lines left 1,123 module units. 1,320
+source files changed: the header and those units. The module units of
+the second session's folders were not touched; they keep 901 lines
+that say what the header says.
+
+14 functions that units declare are not in the header:
+
+- Seven need a change in a unit of the second session first, which
+  declares another result or parameter type than the definition:
+  `func_80125734`, `func_8012f898`, `func_8013caf0`, `func_8013cfdc`,
+  `func_80141788`, `func_80149b80`, and `func_8013054c`, whose pair of
+  bytes is signed in the definition and unsigned in one resident unit
+  and one of the second session's.
+- Two have no definition in the tree, and module units declare their
+  result as `u8` in some places and `int` in others: `func_8013f8c4`,
+  `func_80140cd8`.
+- Five are library functions without a definition in the tree that
+  resident units declare in more than one way: `func_8015783c`,
+  `func_8015c958`, `func_8015cec4`, `func_8015f020`, `func_8016a3b0`.
+
+Evidence. The whole configuration passes on the result: every image is
+identical to its baseline, the resident image has all its functions
+exact. That the compiler does compare was seen on the way: the first
+whole build of this change stopped at `conflicting types for
+func_8015f020`, because one unit declares that function with a callback
+parameter in a form the helper did not read, and the helper had moved
+the other unit's form into the header. The helper now leaves a function
+alone when a unit has a declaration of it that it cannot read.
+
+Not claimed: that any prototype in the header is the original's. A
+build that stays exact shows that the declaration is compatible with
+the bytes. The declaration check on module units is unchanged by this
+group; its remaining lines are those of the units named above.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

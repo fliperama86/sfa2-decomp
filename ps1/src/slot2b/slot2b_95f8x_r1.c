@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_800795f8_slot2b(Object *o) {
     Object *p = o->field_3c;
     Object *n = (Object *)func_8011f1e0();

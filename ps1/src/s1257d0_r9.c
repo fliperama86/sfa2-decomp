@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801388a8(GameState *state, Object *object);
-
 void func_80126620(GameState *state, Object *object) {
     if ((*(u32 *)&state->field_44 & 0xff00ff) != 0 || state->field_09 != 0)
         func_801269e0(object);

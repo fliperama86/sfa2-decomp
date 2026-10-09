@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-void func_80123d64(GameState *g);
 
 void func_80123534(Entity *entity) {
     Object *s1;

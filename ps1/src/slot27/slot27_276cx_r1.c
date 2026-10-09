@@ -6,7 +6,6 @@
 extern s16 data_80026a08_slot27[];
 extern int data_80190464[];
 extern int data_8019046c[];
-Block172 *func_8011f1e0(void);
 void func_80013b74_slot27(Object *obj);
 
 void func_8001276c_slot27(Object *obj) {

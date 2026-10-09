@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801409d8(Object *object, s16 a, s16 b);
-void func_80155d4c(int idx, int side);
-
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
     ref_other.p = object->other;
     ref_other.p->field_04 = 1;

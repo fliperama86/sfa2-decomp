@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_801b3d18_slot04_04(Object *obj);
-void func_80138070(Object *object, u8 index);
 
 void func_801b3cb0_slot04_04(Object *obj) {
     if (obj->field_05 != 0) {

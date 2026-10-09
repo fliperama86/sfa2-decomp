@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
-int func_80130184(Object *object);
-
 void func_801b38d0_slot04_02(Object *obj) {
     s16 t = obj->field_46;
     int n;

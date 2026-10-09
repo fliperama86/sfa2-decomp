@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011ffdc(Object *obj);
-
 void func_800139e4_slot01(Object *obj) {
     Object *src = (Object *)obj->field_28;
     int k = obj->field_03 - 1;

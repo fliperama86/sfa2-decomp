@@ -8,8 +8,6 @@ extern ObjectRef data_80051a10_slot28;
 extern Object *data_800519d8_slot28[];
 extern u16 data_80051eb8_slot28[];
 
-void func_80128410(void);
-
 void func_8001b660_slot28(Object *obj) {
     Object *p = data_80051a10_slot28.p;
     if (((Slot28Obj *)p)->field_3a < 0) {

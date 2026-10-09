@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014e25c(Object *object);
-
 /* Form found by automatic permutation search. */
 int func_8014e0b4(Object *object)
 {

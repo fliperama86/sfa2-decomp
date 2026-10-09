@@ -5,7 +5,6 @@
 
 u8 func_801b2584_slot04_02(Object *obj);
 void func_801b252c_slot04_02(Object *obj);
-void func_80130678(Object *object, int arg);
 
 void func_801b2408_slot04_02(Object *obj) {
 

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern HudState *data_8018f5a0;
-void func_80120498(int a);
 void func_800dfa40_slot0f(GameState *state, int flag);
 
 void func_800dfa04_slot0f(GameState *state) {

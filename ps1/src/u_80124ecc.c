@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80125268(void);
-
 /* Form found by automatic permutation search. */
 void func_80124ecc(void)
 {

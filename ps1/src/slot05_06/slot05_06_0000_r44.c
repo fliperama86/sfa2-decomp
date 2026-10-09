@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_801cc84c_slot05_06(Object *object);
-void func_80138ae8(GameState *state, Object *object);
 
 void func_801cbb6c_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;

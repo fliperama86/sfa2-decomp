@@ -6,7 +6,6 @@
 extern ObjectFn data_80029064_slot27[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-void func_8011f38c(Object *o);
 
 void func_80016d90_slot27(Object *obj) {
     func_80131094(obj);

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 int func_80146ba0(Object *object, u8 index) {
     s8 tbl[7] = {0x15, 0x16, 0x30, 0x0c, 0x0d, 0x0a, 0x12};
     ref_other.p = (Object *)func_8011f1e0();

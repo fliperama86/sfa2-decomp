@@ -5,8 +5,6 @@
 
 extern u16 box_margin[];
 
-int func_80130184(Object *object);
-
 void func_801b033c_slot04_05(Object *obj) {
     int e;
     s16 d;

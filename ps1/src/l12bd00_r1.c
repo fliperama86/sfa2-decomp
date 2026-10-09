@@ -3,10 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern int func_8012be70(Object *object);
-extern int func_8012bec0(Object *object);
-extern int func_8012bf00(Object *object);
-
 void func_8012bd00(Object *object) {
     int v;
     object->field_15b = 0;

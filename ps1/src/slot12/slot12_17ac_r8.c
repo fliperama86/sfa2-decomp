@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_80120028(Object *o);
 
 extern u8 data_800175e0_slot12[];
 extern u8 data_80017630_slot12[];

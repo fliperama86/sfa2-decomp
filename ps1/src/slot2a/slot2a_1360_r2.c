@@ -5,7 +5,6 @@
 
 extern Slot2aSlot data_801e5164_slot2a[][2];
 extern u16 *data_801e52c8_slot2a;
-int func_8015bdd4(int a, int b);
 
 void func_801e14cc_slot2a(Object *obj) {
     int i;

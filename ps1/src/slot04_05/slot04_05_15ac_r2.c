@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s32 data_801c1454_slot04_05[];
-int func_80130184(Object *object);
 
 void func_801b1718_slot04_05(Object *obj) {
     if (obj->field_50 < 0) {

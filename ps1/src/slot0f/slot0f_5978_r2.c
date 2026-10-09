@@ -5,7 +5,6 @@
 
 extern Slot12Img data_800ebc94_slot0f[];
 extern HudState *data_8018f5a0;
-Pooled *func_8011f4a4(void);
 
 void func_800e5a9c_slot0f(Slot0fObj *obj, int flag) {
     if (flag == 0) {

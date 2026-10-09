@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
-
 void func_801b2958_slot04_08(Object *obj) {
     *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
     *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 + obj->field_50;

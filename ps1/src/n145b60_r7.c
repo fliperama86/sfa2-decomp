@@ -5,7 +5,6 @@
 
 extern SequenceStep data_8017cf60[];
 extern ObjectRef data_80190468;
-void func_80149aa8(Object *object);
 
 void func_80149920(Object *object) {
   u8 v;

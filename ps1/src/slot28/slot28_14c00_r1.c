@@ -8,7 +8,6 @@ extern Object *data_80051c50_slot28[];
 extern ObjectRef data_80051c54_slot28;
 void func_80025174_slot28(void);
 void func_800250e4_slot28(Object *obj, int arg);
-void func_80128370(void);
 
 /* The local n holds the byte read from the object and then the half counter of the hud. Written with one local for each, this function differs from the original in 6 instruction slots. The local c holds the constant that is stored in the hud; written with the literal at the store, the function differs in 7. */
 void func_80024c00_slot28(Object *obj) {

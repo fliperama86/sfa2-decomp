@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u16 func_80130470(Object *object);
-
 void func_8012e38c(Object *object) {
     func_80155f30(object);
     object->field_69 = 0;

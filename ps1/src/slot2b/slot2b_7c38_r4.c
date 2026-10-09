@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s16 data_8007ef24_slot2b;
-void func_8011f14c(Slab172 *o);
 
 void func_80077fcc_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;

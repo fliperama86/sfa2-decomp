@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern u8 data_801a27e4[];
-Pooled *func_8011f4a4(void);
 
 void func_801379bc(Object *object, u8 mode) {
     Rect rect;

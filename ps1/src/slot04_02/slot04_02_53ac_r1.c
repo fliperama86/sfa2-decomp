@@ -5,7 +5,6 @@
 
 extern u8 data_801c6518_slot04_02[];
 extern u8 data_801c6520_slot04_02[];
-void func_80146960(Object *object);
 int func_80140cd8(Object *object, int a, int b);
 
 void func_801b53ac_slot04_02(Object *obj) {

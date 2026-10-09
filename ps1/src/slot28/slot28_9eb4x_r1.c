@@ -10,7 +10,6 @@ extern u8 data_800357d8_slot28[];
 extern ObjectRef data_8005199c_slot28;
 extern ObjectRef data_800519a0_slot28;
 extern ObjectRef data_800519d0_slot28;
-Block172 *func_8011f1e0(void);
 void func_8001a958_slot28(Object *obj, int arg);
 
 void func_80019eb4_slot28(Object *obj) {

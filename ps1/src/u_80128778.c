@@ -5,7 +5,6 @@
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
-int func_80128814(Object *object);
 /* Form found by automatic permutation search. */
 void func_80128778(Object *object)
 {

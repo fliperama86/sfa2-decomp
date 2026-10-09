@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80125268(void);
-
 void func_80124bbc(Object *object, int b, u16 c) {
     if (*table_8016e820[object->side] & 0x20) {
         data_80185fb8 = 1 << object->side;

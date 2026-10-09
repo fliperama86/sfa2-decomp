@@ -4,8 +4,6 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-void func_80155eac(int idx, int side);
-void func_80155d4c(int idx, int side);
 
 void func_801229b4(Entity *entity) {
     u8 s0;

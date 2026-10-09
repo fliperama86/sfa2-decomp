@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80130678(Object *object, int arg);
-
 void func_8012f4dc(Object *object) {
     object->field_04 = 1;
     object->field_05 = 6;

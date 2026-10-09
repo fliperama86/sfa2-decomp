@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f0e8(Object *unused);
 void func_801b5478_slot04_09(Object *obj) {
     Object *n = func_8011f0e8(obj);
 

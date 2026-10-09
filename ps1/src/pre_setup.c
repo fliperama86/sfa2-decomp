@@ -3,7 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8012f618(Object *object);
 Dir func_8013054c(Object *object);
 
 u16 func_80130470(Object *object) {

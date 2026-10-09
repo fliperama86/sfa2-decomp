@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80130678(Object *o, int a);
-
 int func_8012f408(Object *o) {
     int a;
     u8 side;

@@ -8,7 +8,6 @@ extern SequenceStep *data_80036690_slot28[];
 extern ObjectRef data_8005199c_slot28;
 extern ObjectRef data_800519a4_slot28;
 extern ObjectRef data_800519d0_slot28;
-Block172 *func_8011f1e0(void);
 void func_8001a958_slot28(Object *obj, int arg);
 void func_8001a988_slot28(Object *obj);
 

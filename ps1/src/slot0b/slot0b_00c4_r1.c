@@ -7,7 +7,6 @@ extern void (*data_801e1fdc_slot0b[])(Object *);
 extern u8 data_801e766c_slot0b[];
 void func_801e01dc_slot0b(Object *obj);
 SlotCell *func_801e101c_slot0b(Object *obj, SlotCell *cell, int arg, int base);
-int func_8015bdd4(int a, int b);
 
 void func_801e00c4_slot0b(Object *obj) {
     ref_other.p = obj->field_3c;

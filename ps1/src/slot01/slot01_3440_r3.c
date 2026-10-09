@@ -11,7 +11,6 @@ extern void (*data_80015a64_slot01[])(Object *obj);
 void func_80013a24_slot01(Object *obj);
 void func_80013a2c_slot01(Object *obj);
 void func_80013ac0_slot01(Object *obj);
-void func_8011ffdc(Object *o);
 
 void func_80013734_slot01(Object *obj) {
     obj->field_01 = 1;

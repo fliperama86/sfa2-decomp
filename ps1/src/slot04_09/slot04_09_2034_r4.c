@@ -5,7 +5,6 @@
 
 void func_801b27f8_slot04_09(Object *obj);
 void func_801b5ba0_slot04_09(Object *obj);
-int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
 
 void func_801b23a4_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);

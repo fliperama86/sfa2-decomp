@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s32 data_801c1f10_slot04_07[];
-void func_80138ae8(GameState *state, Object *object);
 
 void func_801b1a50_slot04_07(Object *obj) {
     u8 one = 1;

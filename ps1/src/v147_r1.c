@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80155d4c(int idx, int side);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8012e600(Object *object)
 {

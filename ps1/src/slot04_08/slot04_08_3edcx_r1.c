@@ -4,10 +4,6 @@
 #include "../externs.h"
 
 int func_80140cd8(Object *obj, int a, int b);
-void func_80146478(Object *object, u8 a, int dx, int dy);
-void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80140fe0(Object *object);
-int func_801410c8(Object *object);
 
 void func_801b3edc_slot04_08(Object *obj, Object *unused) {
     int a;

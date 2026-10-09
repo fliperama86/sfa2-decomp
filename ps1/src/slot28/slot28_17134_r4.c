@@ -7,7 +7,6 @@ extern HudState *data_8018f5a0;
 extern ObjectRef data_80051df0_slot28;
 extern u16 data_801a6966;
 void func_800279d4_slot28(Object *o);
-void func_8011abe4(void);
 
 void func_80027748_slot28(int *p) {
     u16 *a = &data_801a6966;

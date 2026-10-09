@@ -5,7 +5,6 @@
 
 extern s8 data_801a6984;
 extern u16 data_801a6966;
-void func_8011f674(Object *object, void *unused);
 
 void func_8011f5a0(void) {
     Object *p;

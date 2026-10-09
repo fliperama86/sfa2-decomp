@@ -3,10 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-
 extern u8 data_801c7c44_slot04_09[];
-void func_80138ae8(GameState *state, Object *object);
 void func_801b536c_slot04_09(Object *obj);
 
 void func_801b1924_slot04_09(Object *obj) {

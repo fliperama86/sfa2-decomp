@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern int func_8015bdd4(int x, int y);
-
 void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
     SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
     int count = set->count;

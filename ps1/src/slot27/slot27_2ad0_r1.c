@@ -5,7 +5,6 @@
 extern ObjectRef ref_other;
 extern int data_80190464[];
 
-void func_801205c4(int a, unsigned c);
 void func_80012e84_slot27(void);
 void func_80012ef8_slot27(Object *obj);
 void func_80012f64_slot27(Object *obj);

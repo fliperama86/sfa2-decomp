@@ -19,9 +19,6 @@ extern Object *data_800518d0_slot28[];
 extern Object *data_800518d4_slot28[];
 extern Object *data_800518d8_slot28[];
 extern Object *data_800518dc_slot28[];
-Block172 *func_8011f1e0(void);
-void func_801280f0(void);
-void func_8012818c(void);
 void func_80016540_slot28(Object *obj);
 void func_80016e58_slot28(void);
 

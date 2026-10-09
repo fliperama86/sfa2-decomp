@@ -3,10 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* Not in protos.h. */
-extern void func_8015c09c(void *prim);
-extern int func_8015bdd4(int a, int b);
-
 void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 value) {
     SlotList *list = (SlotList *)obj->sequence->field_04;
     int n = list->count;

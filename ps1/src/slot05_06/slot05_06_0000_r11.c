@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 u8 func_80141788(Object *object);
-void func_80142718(Object *object);
-int func_80141b28(Object *object);
 
 int func_801c8d60_slot05_06(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;

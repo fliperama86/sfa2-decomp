@@ -3,14 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142fbc(Object *object);
-void func_801428a8(Object *object);
-void func_80138b38(GameState *state, Object *object);
-void func_80130678(Object *object, int index);
-void func_801495f8(Object *object, int x, int y);
-void func_8011fe40(Object *object);
-void func_80149af8(Object *object);
-void func_80143184(Object *object);
 void func_801b3530_slot04_04(Object *obj);
 
 void func_801b3294_slot04_04(Object *obj) {

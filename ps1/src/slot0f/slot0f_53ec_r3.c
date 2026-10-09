@@ -8,8 +8,6 @@ extern u16 data_801903ca;
 extern u8 data_801903c4[];
 extern void (*data_800ebc68_slot0f[])(Object *);
 void func_800e5b30_slot0f(int flag);
-void func_8011abe4(void);
-void func_8012818c(void);
 void func_800e585c_slot0f(Object *obj);
 void func_800e5874_slot0f(Object *obj);
 

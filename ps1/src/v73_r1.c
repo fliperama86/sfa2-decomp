@@ -5,8 +5,6 @@
 
 
 
-Block172 *func_8011f1e0(void);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_80148220(Object *object)
 {

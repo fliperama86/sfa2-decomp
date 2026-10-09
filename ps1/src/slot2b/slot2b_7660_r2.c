@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_80131468(Object *object);
 
 void func_80077908_slot2b(Object *obj);
 

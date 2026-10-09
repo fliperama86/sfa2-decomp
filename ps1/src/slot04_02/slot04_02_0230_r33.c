@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80137cc0(Object *object);
 extern ObjectFn data_801c7800_slot04_02[];
 
 void func_801b72f8_slot04_02(Object *o) {

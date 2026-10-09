@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
-
 extern u8 data_801c3b48_slot04_08[];
 
 u8 func_80125734(Object *object, int a);

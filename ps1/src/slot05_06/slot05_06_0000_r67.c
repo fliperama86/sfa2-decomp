@@ -6,7 +6,6 @@
 extern Object *data_801dd754_slot05_06;
 void func_801cdd64_slot05_06(Object *obj, int a);
 void func_801cdd0c_slot05_06(Object *obj);
-void func_8011f38c(Object *o);
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 extern void (*data_801dd5c0_slot05_06[])(Object *);

@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern u16 data_801a6984;
-void func_801257d0(Attacker *unused);
 
 void func_80122630(GameState *state) {
     Attacker *a = (Attacker *)state;

@@ -9,8 +9,6 @@ extern ObjectRef data_80051960_slot28;
 extern u8 data_80032a64_slot28[];
 extern u8 data_80032ec8_slot28[];
 extern SequenceStep *data_80034530_slot28[];
-Block172 *func_8011f1e0(void);
-void func_80128370(void);
 void func_80019100_slot28(Object *obj, int arg);
 
 void func_80018458_slot28(Object *obj) {

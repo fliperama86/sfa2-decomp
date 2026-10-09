@@ -4,7 +4,6 @@
 #include "protos.h"
 
 void func_8015cec4(int a, u8 *p);
-int func_8015c990(int a);
 int func_8015c958(int a, u8 *p);
 
 Node *func_8014f194(int index) {

@@ -4,9 +4,6 @@
 #include "protos.h"
 
 
-int func_80139f54(Object *a0, Object *a1, Box32 *a2);
-s32 func_80139f84(Object *a, Object *b, Box32 *unused);
-
 void func_80139dbc(Object *a0, Object *a1, Box32 *a2) {
     if (a2->field_0d == 2 && table_80188ed0[4] < table_80188ed0[0] &&
         table_80188ed0[4] < table_80188ed0[2]) {

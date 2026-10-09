@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_801dd264_slot05_06[];
-void func_80130dc0(Object *object);
-void func_80142a14(Object *object);
 extern ObjectFn data_801dd26c_slot05_06[];
 extern ObjectFn data_801dd278_slot05_06[];
 extern ObjectFn data_801dd280_slot05_06[];

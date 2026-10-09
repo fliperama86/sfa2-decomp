@@ -5,7 +5,6 @@
 
 extern u16 data_801c3da8_slot04_08[];
 int func_80140cd8(Object *object, int a, int b);
-void func_80146960(Object *object);
 
 void func_801b3bb8_slot04_08(Object *obj) {
     s16 t = obj->field_3a;

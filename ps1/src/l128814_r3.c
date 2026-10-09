@@ -3,14 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80128778(Object *object);
-void func_80130678(Object *object, int index);
-int func_8012f408(Object *object);
 int func_8012f898(Object *object);
-u16 func_80130470(Object *object);
-int func_8012f618(Object *object);
-int func_80130258(Object *object);
-int func_8012f7c0(Object *object);
 
 void func_80129da8(Object *object) {
     object->field_157 = 0;

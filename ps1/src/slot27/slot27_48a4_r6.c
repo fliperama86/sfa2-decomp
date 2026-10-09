@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectRef data_80190458;
-Object *func_8011f32c(void);
 
 void func_80014dec_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;

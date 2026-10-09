@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
-
 extern HudState *data_8018f5a0;
 extern ObjectRef data_80051a00_slot28;
 extern Object *data_80051a04_slot28[];
@@ -20,8 +18,6 @@ extern SequenceStep *data_8003929c_slot28[];
 
 void func_8001c460_slot28(Object *obj);
 void func_8001c49c_slot28(void);
-void func_801280f0(void);
-void func_8012818c(void);
 
 void func_8001b2b0_slot28(Object *obj) {
     Object *p;

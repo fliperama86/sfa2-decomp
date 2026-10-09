@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_8012867c(void) {
     u16 *p = table_8016f658[game_state.field_40];
     Object *o;

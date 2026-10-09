@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80138ae8(GameState *state, Object *object);
-void func_80157380(Object *object);
 void func_801b359c_slot04_02(Object *obj);
 void func_801b33fc_slot04_02(Object *obj);
 

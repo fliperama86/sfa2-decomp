@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_801441c8(Object *unused);
-
 void func_801449fc(Object *object) {
     object->field_04++;
 }

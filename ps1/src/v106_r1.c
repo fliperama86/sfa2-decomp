@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014de94(Object *object);
-
 /* Written by hand in the form of func_8014d520, whose form the automatic permutation search had found. */
 /* Form of the exact twin func_8014d520. */
 void func_8014d7d4(Object *object)

@@ -10,8 +10,6 @@ extern SequenceStep *data_8002bddc_slot28[];
 
 void func_8001581c_slot28(Object *obj, int arg);
 void func_800150e8_slot28(Object *obj);
-void func_801282d4(void);
-void func_80128370(void);
 
 void func_80014f80_slot28(Object *obj) {
     if (((Slot28Obj *)data_800518c8_slot28.p)->field_3a < 0) {

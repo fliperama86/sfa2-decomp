@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011ffdc(Object *o);
 extern u16 box_margin[];
 extern u16 data_80055eb2_slot01[];
 extern SequenceStep *data_800242a8_slot01[];

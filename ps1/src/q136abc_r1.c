@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80136b34(Cam *cam);
-
 void func_80136abc(void) {
     Cam *cam = (Cam *)data_801904d8;
     int a, b;

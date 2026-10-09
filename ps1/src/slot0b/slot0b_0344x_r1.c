@@ -7,7 +7,6 @@ extern void (*data_801e4704_slot0b[])(Object *);
 extern Slot0bPair data_801e46cc_slot0b[];
 extern Slot0bPair data_801e46d4_slot0b[];
 extern u8 *data_801e46b4_slot0b[];
-int func_8015bdd4(int a, int b);
 void func_801e0ce8_slot0b(Object *obj, u8 *a, int b, int c, int d);
 
 void func_801e0344_slot0b(Object *obj) {
