@@ -146,11 +146,28 @@ The tool reads the patch with a reader of its own and refuses rather
 than guesses: the lines a hunk expects must be in the file at exactly
 one place, a hunk's body must have exactly the line counts of its
 header, and any other line between hunks is refused. So a PsyZ whose
-source differs at the patched place is not built.
-`python3 port/tools/test_psyzbuild.py` checks the reader, the output
-lines and the exit statuses on invented trees and patch texts, and the
-real patch on a file made of the lines it expects; it needs no
-compiler. On 2026-10-09 it ended with `all cases behaved as required`.
+source differs at the patched place is not built. Every file the patch
+names must lie inside the copy: an absolute path, a path with `..`, a
+path that a symbolic link leads out of the copy, and a file named twice
+are refused, and nothing is written until every hunk of every file has
+been found.
+
+The tool writes only under its build folder and only reads the PsyZ
+source. Before it creates or deletes anything it resolves the source,
+the build folder and the patch file, symbolic links followed, and
+refuses a run in which the build folder is the source or lies inside
+it, the source lies inside the build folder, or the patch file lies
+where the tool deletes or writes. Symbolic links inside the folders it
+copies are refused too. The first version checked none of this and
+deleted the source when given a build folder that contained it; the
+owner's review found that.
+
+`python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
+the output lines and the exit statuses on invented trees and patch
+texts, and the real patch on a file made of the lines it expects; every
+case of a refusal also checks that the whole input is unchanged. It
+needs no compiler. On 2026-10-09 it ended with
+`all cases behaved as required`.
 
 Nothing in this tree links the result yet.
 

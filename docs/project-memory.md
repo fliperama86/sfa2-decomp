@@ -7336,6 +7336,25 @@ No function count changes here. Nothing under `ps1/` changed.
   fit only one place. This is the first file here that quotes PsyZ.
   Offering the fix to PsyZ's authors is a step outside this repository
   and waits for the owner's word.
+- The owner's review of the first version (PR 123), in his words: "The
+  promised untouched-source boundary is not enforced: `copy_source`
+  deletes `BUILD/src` before checking its relationship to the input. On
+  an invented tree, `--psyz WORLD/src --build WORLD` deletes the entire
+  source and then exits 2 because it is missing", and "`apply_patch`
+  accepts paths outside its copy. An invented `../outside.c` hunk
+  changes a file outside the supplied root." The header had promised
+  "never writes into the submodule's folder", and no case had tried to
+  make it. Both are closed, with cases that compare the whole input
+  before and after each refusal. The rule I take from it: a tool that
+  deletes or writes gets, before anything else, a list of the places it
+  touches, a check of every path against that list made on resolved
+  paths, and cases that hand it the paths arranged to hurt.
+- A flaw I found myself after opening the pull request: the tool asked
+  git for the commit inside the PsyZ folder, and for a plain folder
+  inside another repository git answers with the outer repository's
+  commit. The tool names a commit only for a folder that is its own
+  work tree now. I found it because a worker's control failed for a
+  reason it had guessed wrongly.
 - The tool had no control file when it was written. The worker who then
   wrote one found that the patch reader accepted a hunk cut off at the
   end of the text, a hunk cut off by the next file's header, and lines
