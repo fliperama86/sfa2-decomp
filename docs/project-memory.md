@@ -5639,6 +5639,14 @@ Mistakes and corrections:
   in the brief; the top-level review replaced it by an indexed form that
   names the field and is exact too. An agent's "exact" is a statement
   about bytes, not about the rules.
+- That review read the candidates of the second attempts and not the
+  units of the first round. The owner's review of the pull request found
+  the same form in one of those: two stores `((u8 *)l)[0xcd] = 0;` in
+  `func_801b4ec0_slot04_sel`, where the struct has the field. Written
+  `l->field_cd = 0;` the function is exact as before. A search of the
+  module's units for an index or an offset on a cast pointer finds no
+  other. The search belongs before the pull request, over every new
+  unit, not only over what a retry changed.
 - The private tidy step removed two symbols that no source names. Both
   mark where a table of a parked function begins, and the declaration
   check then read the table before one of them past its end and printed
