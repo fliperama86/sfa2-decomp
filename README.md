@@ -30,7 +30,7 @@ bytes of read-only data and 5,900 bytes of initialised data. The
 remaining 316,484 payload bytes are retained from the baseline and counted as
 raw. Retained bytes are scaffolding, not recovered source. This is not a
 full-game decompilation.
-The same build has fourteen overlay modules as images of their own. In `slot2a`
+The same build has fifty-two overlay modules as images of their own. In `slot2a`
 all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
 retained raw.
 In `slot0b` 56 C functions, 5,652 bytes, are exact and 25,784 bytes are
@@ -49,15 +49,21 @@ retained raw, and in `slot2c` the same 102 functions are linked a second
 time and are exact against its own chunk.
 In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
 retained raw.
-In `slot06_00`, the first of the 20 stage modules, 19 C functions, 1,392
-bytes, are exact and 48,504 bytes are retained raw.
+In the 20 stage modules, `slot06_00` to `slot06_13`, 756 C functions,
+75,748 bytes, are exact and 1,284,940 bytes are retained raw.
 In `slot27` 208 C functions, 30,184 bytes, are exact and 97,140 bytes are
 retained raw.
 In `slot28` 677 C functions, 83,960 bytes, are exact and 186,056 bytes are
 retained raw.
 In `slot01` 116 C functions, 16,100 bytes, are exact and 270,440 bytes are
-retained raw. The other
-modules are not in the build.
+retained raw.
+In the 11 first-side character blocks of slot `0x4`, `slot04_0c` to
+`slot04_17` (the files `PL0C.PAC` to `PL17.PAC`), 2,307 C functions,
+276,772 bytes, are exact and 733,568 bytes are retained raw. In the eight
+second-side images `slot05_0c` to `slot05_14` the functions of the first
+sides are linked a second time, at another address and from the same
+objects, and are exact against their own chunks; two units of one
+character stay raw there. The other modules are not in the build.
 The [Windows pilot](windows/docs/gameplay-pilot.md) is behaviorally tested but
 not byte-matching. VC5 tools are available; game matching with VC5 is untested.
 
