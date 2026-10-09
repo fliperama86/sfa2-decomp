@@ -11,7 +11,7 @@
  *    of the game runs or between EnterCriticalSection and ExitCriticalSection;
  *  - the interruption: the timer stores the interrupted instruction pointer in a variable and points the
  *    thread at port_interrupt_entry (assembly), which pushes it as a return address, saves the flags, every
- *    register and the FPU/SSE state, calls the vblank work in C on the game's own thread (so the handlers run
+ *    register and the FPU/SSE state, gives C a clean floating-point state and a clear direction flag, calls the vblank work in C on the game's own thread (so the handlers run
  *    there), puts everything back and returns to the interrupted instruction. The stack below the stack
  *    pointer is free on 32-bit x86 (no red zone), and the thread itself grows its stack for the routine.
  * Risk, stated: the game's code can now be interrupted between any two instructions, as on the console. */
@@ -29,6 +29,19 @@ void port_interrupt_entry(void);
 #define PORT_STR2(x) #x
 #define PORT_STR(x) PORT_STR2(x)
 #define PORT_US PORT_STR(__USER_LABEL_PREFIX__)
+/* What the routine gives the C handler: the environment that the C calling convention promises a function at
+ * its entry, all of it. After the interrupted state is saved (flags, general registers, and by fxsave the x87
+ * registers, tag, control and status words, and MXCSR) it sets: an empty x87 stack with the default control word
+ * (fninit: 0x037f, extended precision, round to nearest, exceptions masked); the default MXCSR (0x1f80, the
+ * interrupted code may have changed rounding or unmasked exceptions); the direction flag clear (cld: the
+ * interrupted code may be inside a string operation with DF set); and the stack 16-byte aligned at the call
+ * (esp is rounded down with `andl $-16`, so the call leaves the callee with esp = 12 mod 16, which is what the
+ * i386 ABI of the compiler expects at a function's entry). On return fxrstor puts back the interrupted x87
+ * state and MXCSR and popfl the flags, so the interrupted code gets exactly its own back.
+ * Deliberately not saved: the segment registers (C here never changes them), the upper halves of the AVX
+ * registers (fxsave does not hold them and neither the game's code nor the handler's compiled C uses AVX;
+ * libraries that dispatch to AVX at run time are called from the handler, a risk that is noted, not handled),
+ * and debug registers. */
 __asm__(".text\n"
         ".globl " PORT_US "port_interrupt_entry\n" PORT_US "port_interrupt_entry:\n"
         "\tpushl " PORT_US "interrupted_eip_cell\n"   /* the return address: where the game was */
@@ -38,6 +51,10 @@ __asm__(".text\n"
         "\tsubl $528, %esp\n"
         "\tandl $-16, %esp\n"
         "\tfxsave (%esp)\n"
+        "\tfninit\n"
+        "\tpushl $0x1f80\n"
+        "\tldmxcsr (%esp)\n"
+        "\taddl $4, %esp\n"
         "\tcld\n"
         "\tcall " PORT_US "port_interrupt_work\n"
         "\tfxrstor (%esp)\n"
