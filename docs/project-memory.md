@@ -6613,10 +6613,15 @@ What the wave showed about the search itself:
 - A lower score from the type search is not always a better candidate.
   For `func_80079144_slot2b` it had preferred a 16-bit local for a mask
   whose constant does not fit in 16 bits: closer bytes from a function
-  that does something else. Only a score of zero is safe to take as it
-  is, because then the bytes are the original's. The swept types that
-  had been written into the private candidates were taken back; the
-  agents' own forms are the candidates now.
+  that does something else. A score of zero is a promising candidate
+  and no more: the search masks the fields that the linker fills, so
+  zero says that the unlinked shapes agree, not that the bytes, the
+  calls and the data addresses are the original's at the original's
+  place. The project's build, unmasked and at the original address,
+  is the check of identity, as the matching guide says since the group
+  before. The swept types that had been written into the private
+  candidates were taken back; the agents' own forms are the candidates
+  now.
 - The second stage of the helper, the order of the declarations that
   open a function, was run over all 132: it changed the score of 1 of
   the 71 functions it reached, by 2 words, and gave no exact one.
