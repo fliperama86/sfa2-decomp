@@ -565,7 +565,7 @@
 80132cf0	404	func_80132cf0	-	graphics	0	0	closed
 80132e84	268	func_80132e84	-	sound,unidentified	0	0	closed
 80132f90	376	func_80132f90	-	-	0	0	closed
-80133108	1432	-	-	-	0	0	closed
+80133108	1432	func_80133108	-	-	0	0	closed
 801336a0	424	func_801336a0	-	-	0	0	closed
 80133848	1452	func_80133848	-	-	0	0	closed
 80133df4	220	func_80133df4	-	-	0	0	closed

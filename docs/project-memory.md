@@ -7695,6 +7695,55 @@ No function count changes here. Nothing under `ps1/` changed.
 - Not shown: the disc layer on the real game from a published commit
   (the published tree stops at `main`).
 
+## A second parked function from the same lead, 1,432 bytes (2026-10-09)
+
+`func_80133108` had been parked with four differing instruction slots:
+the value loaded from `data_801a27d0` sat in one register where the
+original has it in the fourth argument register, and the pass dumps
+did not show why the original's allocation had skipped the first
+register.
+
+Two things made it exact.
+
+- The call. The candidate called `func_801336a0` with nothing. The
+  definition takes four parameters, and the original sets no register
+  for the call: the first three argument registers still hold this
+  function's own parameters, and the value of `data_801a27d0` is
+  loaded straight into the fourth. Written
+  `func_801336a0(base, left, right, index)`, the load is in the fourth
+  argument register and there is no argument move, as in the original.
+  What was left were 41 slots, all of them one exchange of two saved
+  registers.
+- The place of one copy. The 16-bit copy of the index that the code
+  after the call uses stood before the call. A bounded run of the
+  permuter on the new candidate found the exact form, and its one
+  change that matters is that this copy stands after the first block
+  that follows the call. Inferred from the allocation dump of the
+  version before: the copy's value and the first parameter are ranked
+  almost alike for the lower saved register, by uses over the length
+  of their lives, and a copy that begins later is the shorter one.
+
+The published source was then reduced, one thing at a time with a
+rebuild each: what stays has its measured figure in the comment above
+the function, each measured again at the top level on the final text.
+The copy before the call: 41 slots. Without the stand-in for the
+stack space the original reserves and never uses: 14. With the index
+used in place of the copy: 6. With four record pointers written in
+the plain order of their operands: 4.
+
+Two declarations followed the definition. The shared header had this
+function with an untyped first parameter; it has the byte pointer of
+the definition, which is what its one caller passes. `data_801a27d0`
+stays an `int` in the shared header, as about 120 uses read it; this
+function loads 16 bits of it, signed, and says so at the read. Four
+functions that this unit calls and no other unit had declared are in
+the shared prototype header now.
+
+The stand-in for unused stack space is the 79th of the tree.
+
+The map after this group, from `coveragemap.py render`: 5,414 of 5,600 distinct functions exact, 12,831 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1761/1761`.
+
 ## Rows of the sweep that are not functions, and what the port's work list really was (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.

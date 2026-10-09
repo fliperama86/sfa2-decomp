@@ -276,6 +276,11 @@ functions; they change with every round.
    allocation dump, before more waves. Started: the closest function
    became exact that way, the second closest did not. The thirty-eighth
    group of the project memory has what the dumps showed.
+   A new lead since 2026-10-09: calls in parked candidates that pass
+   fewer arguments than the callee takes. Writing the arguments made two
+   parked functions exact, one of them 1,432 bytes long, and a private
+   scan lists the other candidates with such calls; they are the next to
+   retry.
 3. Every game function of the resident inventory has been attempted. Four
    of the six largest are parked with candidates that have the right size or
    nearly.
