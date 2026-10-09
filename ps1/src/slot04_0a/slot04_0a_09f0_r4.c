@@ -19,7 +19,7 @@ int func_801b1218_slot04_0a(Object *obj);
 int func_801b129c_slot04_0a(Object *obj);
 int func_801b1320_slot04_0a(Object *obj);
 int func_801b10c4_slot04_0a(Object *obj);
-void func_801b116c_slot04_0a(Object *obj);
+int func_801b116c_slot04_0a(Object *obj);
 
 void func_801b0d44_slot04_0a(Object *obj) {
     if (func_8013d210(obj) && func_801b1030_slot04_0a(obj)) return;

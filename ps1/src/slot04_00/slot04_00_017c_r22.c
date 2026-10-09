@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b36ac_slot04_00(Object *o) {
+void func_801b36ac_slot04_00(Object *o, Object *unused) {
     o->field_04++;
 }

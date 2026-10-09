@@ -1,0 +1,12 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../game.h"
+#include "../protos.h"
+#include "../externs.h"
+
+void func_80130dc0(Object *object);
+
+void func_801b09b8_slot04_05(Object *obj) {
+    obj->field_07 = obj->field_07 + 1;
+    obj->field_159 = 1;
+    func_80130dc0(obj);
+}

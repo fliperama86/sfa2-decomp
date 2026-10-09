@@ -5,7 +5,7 @@
 
 extern void (*data_801c3dc8_slot04_08[])(Object *, Object *);
 
-void func_801b40fc_slot04_08(Object *obj) {
+void func_801b40fc_slot04_08(Object *obj, Object *unused) {
     if ((s16)obj->field_3a & 0x8000) {
         func_801312b8(obj);
     } else {

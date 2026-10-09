@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectFn data_801c3dbc_slot04_08[];
+extern void (*data_801c3dbc_slot04_08[])(Object *, Object *);
 
-void func_801b3e34_slot04_08(Object *obj) {
-    data_801c3dbc_slot04_08[obj->field_07](obj);
+void func_801b3e34_slot04_08(Object *obj, Object *p) {
+    data_801c3dbc_slot04_08[obj->field_07](obj, p);
 }

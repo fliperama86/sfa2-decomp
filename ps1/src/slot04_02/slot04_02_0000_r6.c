@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, int a, int b, int c, int d);
+void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 int func_801b1164_slot04_02(Object *obj) {
     func_801b631c_slot04_02(obj, 1, 0, 7, 0);
