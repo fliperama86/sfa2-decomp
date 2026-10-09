@@ -22,7 +22,7 @@ int func_801ea85c_slot06_0f(Object *obj);
 void func_801ea898_slot06_0f(Object *obj);
 int func_801ea8c8_slot06_0f(Object *obj);
 void func_801ea8e0_slot06_0f(Object *obj);
-void func_801ea91c_slot06_0f(Object *obj, s16 idx);
+void func_801ea91c_slot06_0f(Object *obj, int idx);
 
 void func_801e9ed0_slot06_0f(void) {
     Object *s;
