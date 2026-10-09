@@ -129,7 +129,7 @@ void func_801e96a0_slot06_11(Object *obj) {
     obj->field_0f = 1;
     game_state.field_358 = obj->field_3c;
     obj->pos_x = game_state.field_358->pos_x;
-    func_80130768(obj, obj->field_45 + obj->field_03, data_801ee14c_slot06_11);
+    func_80130768(obj, (s16)(obj->field_45 + obj->field_03), data_801ee14c_slot06_11);
 }
 
 void func_801e9704_slot06_11(Object *obj) {

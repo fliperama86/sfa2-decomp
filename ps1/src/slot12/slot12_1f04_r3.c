@@ -33,6 +33,6 @@ void func_800121cc_slot12(Object *obj) {
 }
 
 void func_800121ec_slot12(Object *obj, int a) {
-    func_80130768(obj, a + data_80029348_slot12 * 3, data_80022c08_slot12);
+    func_80130768(obj, (s16)(a + data_80029348_slot12 * 3), data_80022c08_slot12);
     data_8002d56c_slot12->sequence = obj->sequence;
 }
