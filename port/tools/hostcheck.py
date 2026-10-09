@@ -251,24 +251,40 @@ def read_model(path: Path) -> structgen.Model:
 # Running the compiler.
 
 
+def stop(proc: subprocess.Popen) -> None:
+    """End a compiler and what it started, so that a driver's children do not hold the pipes."""
+    if os.name == "posix":
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except OSError:
+            pass
+    else:
+        # Windows has no process groups of this kind: its own tool ends the tree.
+        try:
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        proc.kill()
+    try:
+        proc.communicate(timeout=30)
+    except subprocess.TimeoutExpired:
+        pass
+
+
 def compile_run(argv: list[str], timeout: int) -> subprocess.CompletedProcess | None:
     """None when the compiler ran out of time."""
     env = dict(os.environ, LC_ALL="C")
     try:
         proc = subprocess.Popen(
-            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors="replace", env=env, start_new_session=True
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors="replace", env=env,
+            start_new_session=os.name == "posix",
         )
     except OSError as err:
         raise Problem(f"cannot run compiler {argv[0]}: {err.strerror}")
     try:
         out, err = proc.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
-        # The whole process group goes, so that a compiler driver's children do not hold the pipes.
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except OSError:
-            pass
-        proc.communicate()
+        stop(proc)
         return None
     return subprocess.CompletedProcess(argv, proc.returncode, out, err)
 
