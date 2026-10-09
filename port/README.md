@@ -588,6 +588,13 @@ cross compiler, the program started from that shell.
 - The link is checked afterwards and the build fails otherwise: every
   `ps1_` name has its address, every implementation lies outside the PS1
   ranges, and no plain game name sits at a PS1 address.
+- The program runs nothing that the disc holds. The build carries the
+  SHA-256 that the build configuration pins for the game's executable,
+  and the runtime refuses a disc whose program has another hash before a
+  byte of it is copied to a PS1 address. The only addresses it calls are
+  ones where it wrote a jump itself: an entry code that points anywhere
+  else is refused. The first version lacked both, and a made-up disc
+  could make it call a byte of the disc; the owner's review found that.
 
 ### Building it
 
@@ -631,6 +638,7 @@ written here as FILE:
 memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
+identity: SHA-256 matches the build's baseline
 jumps: 1404 written for functions with C, 448 for functions without
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
@@ -661,9 +669,17 @@ assembly, tables and symbol lists, without a compiler: the renaming of
 definitions, the names, the tables, the choice of units, and each miss
 of the link check. `python3 port/tools/test_hostrun.py` builds the disc
 reading and program loading of the runtime with the host's own `cc` and
-runs them on disc images that the test makes from invented bytes. On
-2026-10-09 each ended with `all cases behaved as required`. The Windows
-memory mapping and the jumps are exercised by the real run above only.
+runs them on disc images that the test makes from invented bytes, with
+the hash of the program and the gate at the entry among them.
+`python3 port/tools/test_hostlaunch.py --cc CC` needs the cross compiler
+and a way to start a Windows program: it builds the runtime with small
+made-up tables and runs the real start of the program on invented disc
+images. Its cases: the right image stops at a function without C; an
+entry with C runs that C; an image that differs in one byte from the
+pinned one is refused and nothing of it runs; an entry at an address
+that no table holds, inside a function, just before one, or in a module
+is refused. On 2026-10-09 each of the three ended with
+`all cases behaved as required`.
 
 ## Not decided
 

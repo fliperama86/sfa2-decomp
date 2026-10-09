@@ -105,6 +105,9 @@ The tables
 ----------
 
 `BUILD/gen/port_tables.c` defines what `RUNTIME/port_tables.h` declares.
+`port_program_sha256` holds the SHA-256 that `[baseline] sha256` of the
+configuration pins for the game's executable (32 bytes; no game file is read
+for it; a configuration without 64 hex digits there is an error).
 `port_images` holds every image of the configuration in its order.
 `port_functions` holds every function with C: a function that a unit which
 compiled declares and defines, and a nonmatching function that its file
@@ -501,7 +504,16 @@ def c_string(text: str) -> str:
     return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple]) -> str:
+def read_baseline_hash(config: dict, path: Path) -> str:
+    """The SHA-256 that the configuration pins for the game's executable, as 64 lower-case hex digits."""
+    baseline = config.get("baseline")
+    value = baseline.get("sha256") if isinstance(baseline, dict) else None
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value):
+        raise Problem(f"{path}: [baseline] sha256 is missing or is not 64 hex digits")
+    return value.lower()
+
+
+def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str) -> str:
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
         out.append(f"extern void {impl}(void);\n")
@@ -525,6 +537,11 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
+    digest = bytes.fromhex(sha256)
+    out.append("const unsigned char port_program_sha256[32] = {\n")
+    for i in range(0, 32, 8):
+        out.append("    " + ", ".join("0x%02x" % b for b in digest[i:i + 8]) + ",\n")
+    out.append("};\n")
     return "".join(out)
 
 
@@ -691,6 +708,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     config_path: Path = args.config
     config = hostcheck.read_config(config_path)
     fields_path, header = hostcheck.read_types(config, config_path)
+    baseline_hash = read_baseline_hash(config, config_path)
     selection = select_units(config, config_path)
     model = hostcheck.read_model(fields_path)
     symbols = read_symbols(read_text(config_path.parent / "symbols.ld"))
@@ -756,7 +774,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     if broken:
         raise Failure("\n".join(f"{n}: {r}" for n, r in broken[:20]))
     tables_path = build / "gen" / "port_tables.c"
-    write_text(tables_path, render_tables(selection.images, functions, absents))
+    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash))
 
     # The runtime, the tables and the link.
     objects = sorted(o.job.name for o in outcomes if o.ok)

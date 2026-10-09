@@ -54,8 +54,12 @@ struct port_program {
 /* Parse and load a PS-X EXE image of `size` bytes. `ram` points at the memory
  * that stands for PORT_RAM_BASE (the runtime passes the real address). */
 int  port_exe_load(const unsigned char *file, size_t size, unsigned char *ram, struct port_program *p, char *err, size_t errsize);
-/* SYSTEM.CNF, the boot file, and port_exe_load of it. */
-int  port_program_load(struct port_disc *d, unsigned char *ram, struct port_program *p, char *err, size_t errsize);
+/* SHA-256 of `size` bytes (sha256.c). */
+void port_sha256(const unsigned char *data, size_t size, unsigned char out[32]);
+/* SYSTEM.CNF, the boot file, its SHA-256 against `sha256` (the build's pinned
+ * value), and only then port_exe_load of it: a program that differs is refused
+ * before any byte of it is copied to `ram`. */
+int  port_program_load(struct port_disc *d, unsigned char *ram, const unsigned char sha256[32], struct port_program *p, char *err, size_t errsize);
 /* The target of the last jal before the first break (the entry code's halt
  * after main returns) within the first 64 instructions at pc0 of the loaded
  * memory. -1 if there is no break in the window or no jal before it. */
@@ -64,6 +68,12 @@ int  port_entry_scan(const unsigned char *ram, unsigned pc0, unsigned *target);
 /* jumps.c */
 /* Write the 5-byte jumps and calls for the resident functions. Counts go to
  * the two outputs. `ram` as above. */
+/* Validate and sort the addresses of the resident entries (functions with C
+ * and without), and keep the set. port_jumps_write calls this first. */
+int  port_jump_set_build(char *err, size_t errsize);
+/* Is `address` the start of a resident entry of the set (a place where a jump
+ * is written)? The only addresses the runtime ever calls are such places. */
+int  port_jump_known(unsigned address);
 int  port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, char *err, size_t errsize);
 /* The entry of the 5-byte call written for functions without C. */
 void port_stop_entry(void);

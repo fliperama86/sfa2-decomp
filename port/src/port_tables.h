@@ -10,5 +10,6 @@ struct port_absent   { unsigned address; const char *name; int image; int librar
 extern const struct port_image    port_images[];    extern const unsigned port_image_count;
 extern const struct port_function port_functions[]; extern const unsigned port_function_count;
 extern const struct port_absent   port_absents[];   extern const unsigned port_absent_count;
+extern const unsigned char port_program_sha256[32];  /* the executable's SHA-256 pinned by the build configuration */
 
 #endif

@@ -187,6 +187,8 @@ def unit(name: str, source: str, functions: list[tuple[str, int]] = (), image: s
     return text
 
 
+SHA = bytes(range(32)).hex()
+
 IMAGES = """
 [[image]]
 name = "mod"
@@ -297,7 +299,7 @@ def table_cases(root: Path):
     yield "tables-same-address-other-image-is-fine", same(
         len(hb.build_tables(sel.images, [(fa, "impl_fa"), (hb.Function("g", 0x80100000, "mod", "u"), "impl_g")], inv, sel.declared)[0]), 2
     )
-    text = hb.render_tables(sel.images, [(-1, 0x80100000, "impl_fa", "fa"), (0, 0x801e0000, "impl_mf", "mf")], [(-1, 0x80100100, "libf", 1)])
+    text = hb.render_tables(sel.images, [(-1, 0x80100000, "impl_fa", "fa"), (0, 0x801e0000, "impl_mf", "mf")], [(-1, 0x80100100, "libf", 1)], SHA)
     want = (
         '/* Written by hostbuild.py; not to be edited. */\n#include "port_tables.h"\n\n'
         "extern void impl_fa(void);\nextern void impl_mf(void);\n\n"
@@ -312,9 +314,19 @@ def table_cases(root: Path):
         "const struct port_absent port_absents[] = {\n"
         '    { 0x80100100u, "libf", -1, 1 },\n'
         "};\nconst unsigned port_absent_count = 1;\n\n"
+        "const unsigned char port_program_sha256[32] = {\n"
+        "    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,\n"
+        "    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,\n"
+        "    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,\n"
+        "    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,\n"
+        "};\n"
     )
     yield "tables-render-text", same(text, want)
-    empty = hb.render_tables([], [], [])
+    yield "tables-baseline-hash-read-lower-case", same(hb.read_baseline_hash({"baseline": {"sha256": SHA.upper()}}, Path("c")), SHA)
+    for tag, cfg in (("absent", {}), ("no-section", {"baseline": 3}), ("short", {"baseline": {"sha256": SHA[:62]}}), ("not-hex", {"baseline": {"sha256": "g" * 64}}),
+                     ("not-text", {"baseline": {"sha256": 5}})):
+        yield f"tables-baseline-hash-{tag}-is-refused", raises(lambda cfg=cfg: hb.read_baseline_hash(cfg, Path("c.toml")), "c.toml", "sha256")
+    empty = hb.render_tables([], [], [], SHA)
     yield "tables-render-empty-has-count-zero", same(("port_function_count = 0;" in empty, "port_image_count = 0;" in empty, "{ 0, 0, 0, 0 }" in empty), (True, True, True))
     yield "tables-string-escape", same(hb.c_string('a"b\\c'), '"a\\"b\\\\c"')
     bad = root / "inv-bad"
@@ -485,9 +497,9 @@ RUN_UNITS = (
 RUN_TYPES = '[types]\nfields = "t.fields"\nheader = "t.h"\n'
 
 
-def run_tree(root: Path, tag: str, units: str = RUN_UNITS, symbols: str = "sym_a = 0x80190000;\n/* c */\nsym_b = 0x1f800010;\n", nonmatching=None) -> Path:
+def run_tree(root: Path, tag: str, units: str = RUN_UNITS, symbols: str = "sym_a = 0x80190000;\n/* c */\nsym_b = 0x1f800010;\n", nonmatching=None, baseline: bool = True) -> Path:
     base = root / tag / "src"
-    toml = RUN_TYPES + units + IMAGES
+    toml = (f'[baseline]\nsha256 = "{SHA}"\n' if baseline else "") + RUN_TYPES + units + IMAGES
     config = write(base / "build.toml", toml)
     write(base / "t.fields", "struct S size=0x4\n0x000 u32 a\n")
     write(base / "symbols.ld", symbols)
@@ -547,6 +559,13 @@ def flow_cases(root: Path):
         '{ 0x80100000u, (void *)impl_fa, "fa", -1 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1 },',
         '{ 0x80100020u, (void *)impl_fc, "fc", -1 },', '{ 0x80100030u, (void *)impl_fd, "fd", -1 },',
         '{ 0x801e0000u, (void *)impl_mf, "mf", 0 },'])
+    yield "flow-tables-carry-the-configurations-hash", same(
+        [l.strip() for l in tables.split("port_program_sha256[32] = {")[1].splitlines()[1:5]],
+        [", ".join(f"0x{b:02x}" for b in range(i, i + 8)) + "," for i in range(0, 32, 8)])
+    config = run_tree(root, "nobaseline", baseline=False)
+    cc2, nm2 = fake(root, "nobaseline", defs=DEFS)
+    proc = run(root, "nobaseline", config, cc2, nm2)
+    yield "flow-without-baseline-hash-is-refused", same((proc.returncode, proc.stdout, "sha256" in proc.stderr, len(proc.stderr.strip().splitlines())), (2, "", True, 1))
     asm = read(build / "asm" / "ua.s")
     yield "flow-assembly-renamed", same(("_impl_fa:" in asm, "call\t_callee" in asm, "\t_fa:" in asm or "\n_fa:" in asm), (True, True, False))
     rsp = read(build / "link.rsp").splitlines()

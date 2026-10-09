@@ -29,15 +29,16 @@ static void put(unsigned char *ram, unsigned address, unsigned char opcode, cons
     memcpy(site + 1, &rel, 4);
 }
 
-int port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, char *err, size_t errsize)
+static unsigned *jump_set;
+static unsigned jump_count;
+
+int port_jump_set_build(char *err, size_t errsize)
 {
     unsigned i, n = 0, *addresses;
 
-    if (sizeof(void *) != 4) {
-        snprintf(err, errsize, "jumps: the port is a 32-bit program (a 5-byte jump reaches only 32-bit addresses)");
-        return -1;
-    }
-    *with_c = *without_c = 0;
+    free(jump_set);
+    jump_set = NULL;
+    jump_count = 0;
     addresses = malloc(((size_t)port_function_count + port_absent_count + 1) * sizeof *addresses);
     if (!addresses) {
         snprintf(err, errsize, "jumps: out of memory");
@@ -73,7 +74,26 @@ int port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, 
             free(addresses);
             return -1;
         }
-    free(addresses);
+    jump_set = addresses;
+    jump_count = n;
+    return 0;
+}
+
+int port_jump_known(unsigned address)
+{
+    return jump_count && bsearch(&address, jump_set, jump_count, sizeof *jump_set, by_address) != NULL;
+}
+
+int port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, char *err, size_t errsize)
+{
+    unsigned i;
+
+    if (sizeof(void *) != 4) {
+        snprintf(err, errsize, "jumps: the port is a 32-bit program (a 5-byte jump reaches only 32-bit addresses)");
+        return -1;
+    }
+    *with_c = *without_c = 0;
+    if (port_jump_set_build(err, errsize) != 0) return -1;
     for (i = 0; i < port_function_count; i++)
         if (port_functions[i].image == -1) {
             put(ram, port_functions[i].address, 0xe9, port_functions[i].impl);

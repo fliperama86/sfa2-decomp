@@ -6780,6 +6780,22 @@ Lessons of this piece:
   The worker that wrote the runtime ran it on the real image, saw
   another address, and stopped to ask instead of adjusting the test. The
   rule is now "the last call before the entry code's halt".
+- The owner's review of the first version (PR 114) found that the start
+  of the program could run bytes of the disc: "an invented disc still
+  named `SLPS_004.15`, with a JAL/break entry pointing at unregistered
+  `0x80101000` and one harmless x86 RET byte there, prints `start:
+  0x80101000`, executes that disc byte, prints `stop: main returned`, and
+  exits 0." I had written "nothing is interpreted" and had not asked
+  what the program does with a disc that is not the game. Two guards
+  now: the build pins the SHA-256 of the configuration's executable and
+  the runtime refuses any other program before copying it, and the entry
+  must be an address where the runtime wrote a jump. `test_hostlaunch.py`
+  runs the real start on invented images, his case among them. With
+  either guard taken out in a copy, its cases fail; without the entry
+  gate the unregistered entry prints `start:` and `stop: main returned`
+  again. The rule I take from it: a program that calls into memory it
+  filled from a file must say which file it accepts and which addresses
+  it calls, and both must be tested with a file made to break them.
 - One-off figures of the review, from the private folder: a worker ran 20
   one-line changes of the build tool against its controls, 18 were
   noticed at first and all 20 after two cases were added; of 12 changes

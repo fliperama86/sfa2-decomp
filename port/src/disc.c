@@ -271,7 +271,7 @@ int port_exe_load(const unsigned char *file, size_t size, unsigned char *ram, st
     return 0;
 }
 
-int port_program_load(struct port_disc *d, unsigned char *ram, struct port_program *p, char *err, size_t errsize)
+int port_program_load(struct port_disc *d, unsigned char *ram, const unsigned char sha256[32], struct port_program *p, char *err, size_t errsize)
 {
     char cnf[SYSTEM_CNF_LIMIT + 1];
     unsigned sector, size;
@@ -287,6 +287,11 @@ int port_program_load(struct port_disc *d, unsigned char *ram, struct port_progr
     file = malloc(size ? size : 1);
     if (!file) return fail(err, errsize, "program: out of memory");
     status = port_disc_read(d, p->sector, size, file, err, errsize);
+    if (status == 0) {
+        unsigned char got[32];
+        port_sha256(file, size, got);
+        if (memcmp(got, sha256, 32) != 0) status = fail(err, errsize, "the disc's program is not the one this build is for");
+    }
     if (status == 0) status = port_exe_load(file, size, ram, p, err, errsize);
     free(file);
     return status;

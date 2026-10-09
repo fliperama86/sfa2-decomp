@@ -22,6 +22,7 @@ status 2.
 
 from __future__ import annotations
 
+import hashlib
 import shutil
 import struct
 import subprocess
@@ -48,13 +49,29 @@ static unsigned char *fakeram(void)
 int main(int argc, char **argv)
 {
     char err[PORT_ERR];
-    if (argc >= 3 && strcmp(argv[1], "load") == 0) {
+    if (argc >= 3 && strcmp(argv[1], "sha") == 0) {
+        FILE *f = fopen(argv[2], "rb");
+        unsigned char *buf = malloc(1 << 21), out[32];
+        size_t n = f ? fread(buf, 1, 1 << 21, f) : 0, i;
+        port_sha256(buf, n, out);
+        for (i = 0; i < 32; i++) printf("%02x", out[i]);
+        printf("\n");
+        return 0;
+    }
+    if (argc >= 4 && strcmp(argv[1], "load") == 0) {
         struct port_disc d;
+        unsigned char sha[32];
+        unsigned k;
+        for (k = 0; k < 32; k++) { char two[3] = { argv[3][2 * k], argv[3][2 * k + 1], 0 }; sha[k] = (unsigned char)strtoul(two, 0, 16); }
         struct port_program p;
         unsigned char *ram = fakeram();
         if (port_disc_open(&d, argv[2], err, sizeof err) != 0) { printf("refused: %s\n", err); return 2; }
         printf("disc: %s\n", d.path);
-        if (port_program_load(&d, ram, &p, err, sizeof err) != 0) { printf("refused: %s\n", err); return 2; }
+        if (port_program_load(&d, ram, sha, &p, err, sizeof err) != 0) {
+            printf("ram: %02x %02x\n", ram[0x10000], ram[0x10000 + 100]);
+            printf("refused: %s\n", err);
+            return 2;
+        }
         printf("program: %s sector %u t_size %u t_addr %08x pc0 %08x\n", p.name, p.sector, p.t_size, p.t_addr, p.pc0);
         printf("bytes: text0 %02x textlast %02x after %02x bss0 %02x bsslast %02x bssafter %02x\n",
                ram[p.t_addr - PORT_RAM_BASE], ram[p.t_addr - PORT_RAM_BASE + p.t_size - 1], ram[p.t_addr - PORT_RAM_BASE + p.t_size],
@@ -83,6 +100,34 @@ int main(int argc, char **argv)
     return 64;
 }
 '''
+
+
+GATE_MAIN = r"""
+#include "port.h"
+#include "port_tables.h"
+#include <stdlib.h>
+static void fa(void) {}
+const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1 }};
+const unsigned port_image_count = 1;
+const struct port_function port_functions[] = {{ 0x80100000u, (void *)fa, "fa", -1 }, { 0x80100040u, (void *)fa, "fb", -1 }, { 0x80180000u, (void *)fa, "m", 0 }};
+const unsigned port_function_count = 3;
+const struct port_absent port_absents[] = {{ 0x80100020u, "x", -1, 0 }, { 0x801fffb0u, "end", -1, 1 }, { 0x80180100u, "my", 0, 0 }
+#ifdef DUP
+, { 0x80100000u, "dup", -1, 0 }
+#endif
+};
+const unsigned port_absent_count = sizeof port_absents / sizeof port_absents[0];
+const unsigned char port_program_sha256[32] = {0};
+int main(int argc, char **argv)
+{
+    char err[PORT_ERR];
+    int i;
+    if (port_jump_known(0x80100000u)) { printf("known before build\n"); return 1; }
+    if (port_jump_set_build(err, sizeof err) != 0) { printf("build: %s\n", err); return 1; }
+    for (i = 1; i < argc; i++) printf("%s %d\n", argv[i], port_jump_known((unsigned)strtoul(argv[i], 0, 16)));
+    return 0;
+}
+"""
 
 
 # ---- making images -------------------------------------------------------
@@ -211,12 +256,16 @@ def build_test(root: Path, cc: str) -> Path:
     main = root / "test_main.c"
     main.write_text(TEST_MAIN)
     exe_path = root / "testrun"
-    proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-o", str(exe_path), str(main), str(SRC / "disc.c")],
+    proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-o", str(exe_path), str(main), str(SRC / "disc.c"), str(SRC / "sha256.c")],
                           capture_output=True, text=True, timeout=120)
     if proc.returncode != 0:
         print("could not build disc.c with the host compiler:\n" + proc.stderr)
         sys.exit(2)
     return exe_path
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def run(prog: Path, *args) -> tuple[int, list[str]]:
@@ -228,7 +277,7 @@ def expect_load(prog: Path, img: Path, name: str, sector: int, exe_args: dict | 
     """The success lines for an exe made by exe(**exe_args)."""
     a = dict(t_addr=RAM + 0x10000, t_size=3000, b_addr=RAM + 0x20000, b_size=64)
     a.update(exe_args or {})
-    status, lines = run(prog, "load", img)
+    status, lines = run(prog, "load", img, sha(exe(**a)))
     pc0 = a.get("pc0", a["t_addr"])
     want = [f"disc: {img}",
             f"program: {name} sector {sector} t_size {a['t_size']} t_addr {a['t_addr']:08x} pc0 {pc0:08x}",
@@ -238,8 +287,9 @@ def expect_load(prog: Path, img: Path, name: str, sector: int, exe_args: dict | 
     return f"status {status}, lines {lines!r}, wanted {want!r}"
 
 
-def expect_refusal(prog: Path, img: Path, *words: str):
-    status, lines = run(prog, "load", img)
+def expect_refusal(prog: Path, img: Path, *words: str, pin: bytes | None = None):
+    """pin: the program the build pins (default: the made-up exe() every image holds)."""
+    status, lines = run(prog, "load", img, sha(exe() if pin is None else pin))
     refused = [l for l in lines if l.startswith("refused: ")]
     if status != 2 or len(refused) != 1 or lines[-1] != refused[0]:
         return f"status {status}, lines {lines!r}"
@@ -270,13 +320,13 @@ def disc_cases(root: Path, prog: Path):
     (d / "sheets").mkdir()
     cue = d / "sheets" / "game.CUE"
     cue.write_bytes(b'REM made up\r\nFILE "sound.wav" WAVE\r\n  file "../img/x.bin" binary\r\n  TRACK 01 MODE2/2352\r\n    INDEX 01 00:00:00\r\n')
-    status, lines = run(prog, "load", cue)
+    status, lines = run(prog, "load", cue, sha(exe()))
     joined = f"{d / 'sheets'}/../img/x.bin"
     yield "cue-relative-path", None if status == 0 and lines[0] == f"disc: {joined}" and lines[1].startswith("program: SLPS_004.15 sector") else f"status {status}, lines {lines!r}"
     cue2 = d / "game2.cue"
     cue2.write_text('FILE "path with space.bin" BINARY\n')
     shutil.copy(path, d / "path with space.bin")
-    status, lines = run(prog, "load", cue2)
+    status, lines = run(prog, "load", cue2, sha(exe()))
     yield "cue-name-with-space-in-same-folder", None if status == 0 and lines[0] == f"disc: {d}/path with space.bin" else f"status {status}, lines {lines!r}"
     cue3 = d / "none.cue"
     cue3.write_text('REM nothing\nFILE "a.wav" WAVE\nTRACK 01 AUDIO\n')
@@ -324,14 +374,12 @@ def disc_cases(root: Path, prog: Path):
 def exe_cases(root: Path, prog: Path):
     d = root / "exe"
     d.mkdir()
-    n = 0
 
     def refusal(tag, e, *words):
         img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": e})
         path = d / f"{tag}.bin"
         img.write(path)
-        return expect_refusal(prog, path, *words)
-
+        return expect_refusal(prog, path, *words, pin=e)
     yield "bad-magic", refusal("magic", exe(magic=b"PS-X EXF"), "magic")
     yield "file-shorter-than-a-header", refusal("hdr", b"PS-X EXE" + bytes(100), "short")
     yield "text-below-ram", refusal("low", exe(t_addr=RAM - 0x1000), "outside RAM")
@@ -358,7 +406,7 @@ def expect_nobss(d: Path, prog: Path):
     img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": e})
     path = d / "nobss.bin"
     img.write(path)
-    status, lines = run(prog, "load", path)
+    status, lines = run(prog, "load", path, sha(e))
     return None if status == 0 and lines[1].startswith("program: SLPS_004.15 sector") else f"status {status}, lines {lines!r}"
 
 
@@ -419,11 +467,79 @@ def scan_cases(root: Path, prog: Path):
     yield "scan-window-past-the-end-of-ram", None if status == 0 and lines == ["none"] else f"status {status}, lines {lines!r}"
 
 
-def groups(root: Path, prog: Path):
+def sha_cases(root: Path, prog: Path):
+    d = root / "sha"
+    d.mkdir()
+    for n in (0, 1, 3, 55, 56, 57, 63, 64, 65, 119, 120, 127, 128, 129, 1000, 1 << 20):
+        data = bytes((i * 31 + n) & 0xff for i in range(n))
+        f = d / f"s{n}.bin"
+        f.write_bytes(data)
+        status, lines = run(prog, "sha", f)
+        yield f"sha256-of-{n}-bytes-equals-hashlib", None if status == 0 and lines == [sha(data)] else f"status {status}, lines {lines!r}, wanted {sha(data)}"
+
+
+def identity_cases(root: Path, prog: Path):
+    d = root / "identity"
+    d.mkdir()
+    right = exe()
+    img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": right})
+    path = d / "right.bin"
+    img.write(path)
+    yield "identity-matches", expect_load(prog, path, "SLPS_004.15", img.sector["SLPS_004.15;1"])
+    other = bytearray(right)
+    other[0x800 + 1500] ^= 1   # one byte of the text
+    img2 = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": bytes(other)})
+    path2 = d / "off.bin"
+    img2.write(path2)
+    status, lines = run(prog, "load", path2, sha(right))
+    yield "identity-one-byte-off-is-refused-before-any-copy", None if status == 2 and lines[-2:] == [
+        "ram: aa aa", "refused: the disc's program is not the one this build is for"] and not any(l.startswith("program:") for l in lines) else f"status {status}, lines {lines!r}"
+    other = bytearray(right)
+    other[0x10] ^= 1   # one byte of the header (the entry)
+    img3 = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": bytes(other)})
+    path3 = d / "hdr.bin"
+    img3.write(path3)
+    status, lines = run(prog, "load", path3, sha(right))
+    yield "identity-header-byte-off-is-refused", None if status == 2 and lines[-1].endswith("is not the one this build is for") else f"status {status}, lines {lines!r}"
+    status, lines = run(prog, "load", path, "00" * 32)
+    yield "identity-zero-pin-is-refused", None if status == 2 and lines[-1].endswith("is not the one this build is for") else f"status {status}, lines {lines!r}"
+    # the directory record says more bytes than the image holds
+    img.write(path, cut=(img.sector["SLPS_004.15;1"] + 1) * SECTOR + 30)
+    status, lines = run(prog, "load", path, sha(right))
+    yield "identity-file-shorter-than-its-record-is-refused", None if status == 2 and lines[-2] == "ram: aa aa" and "truncated" in lines[-1] else f"status {status}, lines {lines!r}"
+
+
+def gate_cases(root: Path, cc: str):
+    d = root / "gate"
+    d.mkdir()
+    (d / "gate.c").write_text(GATE_MAIN)
+    out = d / "gate"
+    proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-I", str(SRC), "-o", str(out), str(d / "gate.c"), str(SRC / "jumps.c")], capture_output=True, text=True, timeout=120)
+    if proc.returncode != 0:
+        yield "gate-builds", proc.stderr
+        return
+    addresses = ["80100000", "80100020", "80100040", "801fffb0",   # resident, with C and without
+                 "80100001", "8010001f", "80100021", "8010003f", "80100044",   # inside a function or just beside it
+                 "80180000", "80180100",   # module images are not resident
+                 "00000000", "7fffffff", "80200000", "801fffb4", "ffffffff"]
+    status, lines = run(out, *addresses)
+    first = (status, lines)
+    proc = subprocess.run([cc, "-O1", "-DDUP", "-I", str(SRC), "-o", str(out) + "dup", str(d / "gate.c"), str(SRC / "jumps.c")], capture_output=True, text=True, timeout=120)
+    status, lines = run(Path(str(out) + "dup"), "80100000")
+    yield "gate-two-entries-at-one-address-refused-and-nothing-known", None if status == 1 and lines == ["build: jumps: two entries at 0x80100000"] else f"status {status}, lines {lines!r}"
+    resident = {"80100000", "80100020", "80100040", "801fffb0"}
+    want = [f"{a} {int(a in resident)}" for a in addresses]
+    yield "gate-knows-exactly-the-resident-starts", None if first == (0, want) else f"status and lines {first!r}"
+
+
+def groups(root: Path, prog: Path, cc: str):
     yield disc_cases(root, prog)
     yield exe_cases(root, prog)
     yield boot_cases(root, prog)
     yield scan_cases(root, prog)
+    yield sha_cases(root, prog)
+    yield identity_cases(root, prog)
+    yield gate_cases(root, cc)
 
 
 def main() -> int:
@@ -435,7 +551,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="hostrun-test-") as tmp:
         root = Path(tmp)
         prog = build_test(root, cc)
-        for produced in groups(root, prog):
+        for produced in groups(root, prog, cc):
             while True:
                 try:
                     name, detail = next(produced)
