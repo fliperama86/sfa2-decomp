@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80128778(void);
+void func_80128778(Object *object);
 u16 func_80130470(Object *object);
-u8 func_80130258(Object *object);
-u8 func_8012f800(Object *object);
-u8 func_8012f618(Object *object);
+int func_80130258(Object *object);
+int func_8012f800(Object *object);
+int func_8012f618(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012b324(Object *object) {
@@ -16,13 +16,13 @@ void func_8012b324(Object *object) {
         func_8012b2c4(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);
-    } else if (func_80130258(object)) {
+    } else if ((u8)func_80130258(object)) {
         func_80130280(object);
     } else if (func_8012f970(object)) {
         func_8012fe60(object);
-    } else if (func_8012f800(object)) {
+    } else if ((u8)func_8012f800(object)) {
         func_8012f838(object);
-    } else if (!func_8012f618(object)) {
+    } else if (!(u8)func_8012f618(object)) {
         saved = object->field_38;
         object->field_07 = 0;
         func_80130678(object, (u8)object->field_3a + 10);
@@ -37,7 +37,7 @@ void func_8012b324(Object *object) {
 
 void func_8012b45c(Object *object) {
     if (object->field_7e != 0) {
-        func_80128778();
+        func_80128778(object);
     }
     func_80129be0(object);
     if (object->field_cd == 0) {

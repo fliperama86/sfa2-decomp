@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 /* Form found by automatic permutation search. */
 void func_801495f8(Object *object, int x, int y)
@@ -12,7 +12,7 @@ void func_801495f8(Object *object, int x, int y)
   Object *new_var;
   Object *o;
   dx = x;
-  o = func_8011f1e0();
+  o = (Object *)func_8011f1e0();
   if (o != 0)
   {
     o->field_00 = 1;
@@ -40,7 +40,7 @@ void func_801495f8(Object *object, int x, int y)
       x = 0;
       do
       {
-        o = func_8011f1e0();
+        o = (Object *)func_8011f1e0();
         if (o != 0)
         {
           o->field_00 = 1;

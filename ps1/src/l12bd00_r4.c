@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 func_80130184(Object *object);
+extern int func_80130184(Object *object);
 
 void func_8012d4e4(Object *object) {
-    if (func_80130184(object)) {
+    if ((u8)func_80130184(object)) {
         func_801376b8(object);
         if (object->field_61 == 0x13) {
             ref_other.p = object->other;

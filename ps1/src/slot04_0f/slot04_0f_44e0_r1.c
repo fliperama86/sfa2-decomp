@@ -17,7 +17,7 @@ int func_801b4ad8_slot04_0f(Object *obj);
 u16 *func_801b4c64_slot04_0f(Object *obj);
 int func_801b4cac_slot04_0f(Object *obj, u16 *mask, BytePair dir);
 BytePair func_8013054c(Object *object);
-void func_80138c78(void);
+void func_80138c78(GameState *state, Object *object);
 void func_801b4908_slot04_0f(Object *obj);
 
 void func_801b44e0_slot04_0f(Object *obj) {

@@ -9,7 +9,9 @@ u8 func_80149f14(Object *object) {
     return object->field_254 == 0;
 }
 
-int func_80149f20(Object *object, int a1, int a2, int x) {
+/* x is read before it is set: the original reads the fourth argument register as it is at entry, and the one caller passes two arguments. Reading the unset local is undefined behaviour in C. It reproduces the original's instructions with this compiler and is not a defined implementation: a port has to give x a value. */
+int func_80149f20(Object *object, Object *unused) {
+    int x;
     Object *other = object->other;
     s16 *flags = &other->sequence->flags;
     do {

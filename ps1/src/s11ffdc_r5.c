@@ -28,7 +28,7 @@ void func_80120c14(GameState *g) {
     }
 }
 
-void func_80120ca0(void) {
+void func_80120ca0(GameState *unused) {
     unsigned v = data_8018f5a0->field_48;
     if (v == 0) {
         func_80120cf0();

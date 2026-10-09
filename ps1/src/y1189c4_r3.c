@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80158374(void *a);
+unsigned *func_80158374(unsigned *env);
 
 void func_801194f4(void) {
     int idx;
@@ -19,7 +19,7 @@ void func_801194f4(void) {
     data_801a27d0 = idx;
     data_801987c8 = buf;
     func_80158470(buf + 0x78);
-    func_80158374((char *)data_801987c8 + 0x8c);
+    func_80158374((unsigned *)((char *)data_801987c8 + 0x8c));
     for (i = 0; i < 0x100; i++) {
         p = &data_8018e598[i];
         if (p->field_00 != 0) {

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_801409d8(Object *object, s16 a, s16 b);
+void func_801409d8(Object *object, s16 a, s16 b);
 
 /* The seventh parameter is unused here. It is declared because a caller in a character module passes seven arguments; that is compatible with a parameter and does not prove one. */
 int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
@@ -33,5 +33,6 @@ int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
         ref_other.p->field_1a1 = 0;
         ref_other.p->field_1a2 = 0;
     }
-    return func_801409d8(object, c, d);
+    func_801409d8(object, c, d);
+    /* No return statement: the original returns what its last call left in the result register, and that callee is defined without a result. */
 }

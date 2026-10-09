@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8012f898(Object *object);
+int func_8012f898(Object *object);
 u16 func_80130470(Object *object);
-u8 func_80130258(Object *object);
-u8 func_8012f618(Object *object);
-u8 func_8012f7c0(Object *object);
+int func_80130258(Object *object);
+int func_8012f618(Object *object);
+int func_8012f7c0(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012a1e4(Object *object) {
@@ -17,7 +17,7 @@ void func_8012a1e4(Object *object) {
     } else if (func_8012f56c(object)) {
         func_8012f59c(object);
     } else if (object->field_cd != 0) {
-        if (func_8012f898(object)) {
+        if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else if ((s16)object->field_3a < 0) {
             func_80131468(object);
@@ -26,19 +26,19 @@ void func_8012a1e4(Object *object) {
         }
     } else if (func_80130470(object)) {
         func_8013047c(object);
-    } else if (func_80130258(object)) {
+    } else if ((u8)func_80130258(object)) {
         func_80130280(object);
     } else if (func_8012f970(object)) {
         func_8012fe60(object);
-    } else if (func_8012f618(object)) {
-        if (func_8012f898(object)) {
+    } else if ((u8)func_8012f618(object)) {
+        if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else if ((s16)object->field_3a < 0) {
             func_80131468(object);
         } else {
             func_80130efc(object);
         }
-    } else if (func_8012f7c0(object)) {
+    } else if ((u8)func_8012f7c0(object)) {
         func_8012f838(object);
     } else {
         saved = object->field_38;

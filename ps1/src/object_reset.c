@@ -125,7 +125,7 @@ void func_801293d4(Object *object) {
 }
 
 void func_80129428(Object *object) {
-    func_801378d8();
+    func_801378d8(object);
 }
 
 void func_80129448(Object *object) {

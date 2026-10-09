@@ -4,7 +4,6 @@
 #include "protos.h"
 
 
-u8 func_80139f84(Object *a0, Object *a1, Box32 *a2);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 int func_80139f54(Object *a0, Object *a1, Box32 *a2)

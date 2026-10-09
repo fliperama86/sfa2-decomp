@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_801441c8(void);
+int func_801441c8(Object *unused);
 
 void func_801449fc(Object *object) {
     object->field_04++;
@@ -38,7 +38,7 @@ void func_80144ac0(Object *object) {
 
 void func_80144b14(Object *object) {
     if ((s16)object->field_3a < 0) {
-        if (func_801441c8() != 0 || game_state.config->field_a6 == 0) {
+        if ((u8)func_801441c8(object) != 0 || game_state.config->field_a6 == 0) {
             func_801449fc(object);
         } else {
             object->field_06 = 3;

@@ -4,9 +4,9 @@
 #include "protos.h"
 
 u16 func_80130470(Object *object);
-u8 func_8012f898(Object *object);
-u8 func_8012f618(Object *object);
-u8 func_80130184(Object *object);
+int func_8012f898(Object *object);
+int func_8012f618(Object *object);
+int func_80130184(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012abf0(Object *object) {
@@ -17,13 +17,13 @@ void func_8012abf0(Object *object) {
             func_80130efc(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);
-    } else if (func_8012f898(object)) {
+    } else if ((u8)func_8012f898(object)) {
         func_8012f8c4(object);
     } else if (func_8012f970(object)) {
         func_8012fe60(object);
     } else if ((s16)object->field_3a >= 0) {
         func_80130efc(object);
-    } else if (func_8012f618(object)) {
+    } else if ((u8)func_8012f618(object)) {
         func_8012f6a0(object);
     } else {
         func_801312b8(object);
@@ -31,7 +31,7 @@ void func_8012abf0(Object *object) {
 }
 
 void func_8012acf4(Object *object) {
-    if (func_80130184(object)) {
+    if ((u8)func_80130184(object)) {
         if ((s16)object->field_3a < 0 && object->field_7e != 0) {
             object->field_07 = 1;
             object->field_159 = 0;
@@ -60,7 +60,7 @@ void func_8012acf4(Object *object) {
 }
 
 void func_8012ae00(Object *object) {
-    if (func_80130184(object)) {
+    if ((u8)func_80130184(object)) {
         if (object->field_cd != 0) {
             func_8012aef8(object);
         } else if (func_80130470(object)) {

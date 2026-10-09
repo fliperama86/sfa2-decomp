@@ -5,7 +5,7 @@
 
 
 
-void func_8011a55c(void);
+void func_8011a55c(Object *o);
 
 /* Form found by automatic permutation search. */
 void func_801491bc(Object *object)

@@ -74,8 +74,8 @@ void func_80138964(GameState *state) {
     func_8013860c(state);
 }
 
-void func_80138ac8(void) {
-    func_80138ae8();
+void func_80138ac8(GameState *state, Object *object) {
+    func_80138ae8(state, object);
 }
 
 void func_80138ae8(GameState *state, Object *object) {

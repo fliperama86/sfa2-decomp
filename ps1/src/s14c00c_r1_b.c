@@ -19,9 +19,9 @@ void func_8014c1e8(Object *object) {
     u8 v;
     if (object->other->field_240 == 0 || (ref = (Object *)object->other->field_14c) == 0
         || (v = table_8017d0ac[(ref->field_02 << 4) + (ref->field_ac >> 1)]) == 0 || v == 4) {
-        func_8014c914();
+        func_8014c914(object);
     } else {
-        func_8014c528();
+        func_8014c528(object);
     }
 }
 
@@ -29,9 +29,9 @@ void func_8014c278(Object *object) {
     Object *ref;
     if (object->other->field_240 == 0 || (ref = (Object *)object->other->field_14c) == 0
         || table_8017d0ac[(ref->field_02 << 4) + (ref->field_ac >> 1)] < 3) {
-        func_8014c528();
+        func_8014c528(object);
     } else {
-        func_8014c914();
+        func_8014c914(object);
     }
 }
 
@@ -45,7 +45,7 @@ void func_8014c304(Object *object) {
 }
 
 void func_8014c360(Object *object) {
-    if ((func_80151184(object) & 3) == 0) {
+    if ((func_80151184() & 3) == 0) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

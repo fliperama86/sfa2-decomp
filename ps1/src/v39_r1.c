@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern u16 data_801a6984;
-void func_801257d0(Attacker *a);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_801227d4(Attacker *a, int side)

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015c990(void (*f)(int));
+int func_8015c990(int a);
 
 void func_8014f690(Menu *m, int a, int b) {
     s32 v = data_8017e9d4[a][b];
@@ -28,6 +28,6 @@ void func_8014f690(Menu *m, int a, int b) {
         p--;
     }
     func_80150c6c(m, v);
-    func_8015c990(func_8014f918);
+    func_8015c990((int) func_8014f918);
     func_8014f7f8(m);
 }

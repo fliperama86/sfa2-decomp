@@ -5,7 +5,7 @@
 
 
 
-void func_8011a55c(void);
+void func_8011a55c(Object *o);
 
 void func_80149238(Object *object) {
     table_8017cf00[object->field_04](object);

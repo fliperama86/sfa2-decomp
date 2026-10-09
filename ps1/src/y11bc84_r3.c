@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011c568(Slab172 *p) {
+void func_8011c568(Slab172 *p, u16 *unused) {
     u16 i = p->field_94;
     func_8011a6b8(data_80183ffc[i][1], data_801841bc[i][1]);
     data_80183ffc[i][1] = data_80183ffc[i][0];

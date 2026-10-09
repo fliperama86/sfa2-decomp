@@ -5,7 +5,7 @@
 
 
 
-u8 func_8013d0fc(Object *object);
+int func_8013d0fc(Object *object);
 
 void func_80132370(Object *object) {
     if (object->field_cd != 0 && object->field_cf >= 0x1d &&

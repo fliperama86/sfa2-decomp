@@ -4,6 +4,6 @@
 #include "protos.h"
 
 
-void func_8011f674(Object *object) {
+void func_8011f674(Object *object, void *unused) {
     handlers_by_side[object->side](object);
 }

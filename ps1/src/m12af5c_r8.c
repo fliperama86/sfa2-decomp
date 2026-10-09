@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-unsigned char func_80130184(Object *object);
+int func_80130184(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012df44(Object *object) {
-    if (func_80130184(object) == 0) {
+    if ((u8)func_80130184(object) == 0) {
         object->pos_y = (u16)object->field_70;
         object->field_04 = 1;
         object->field_06 = 3;

@@ -15,7 +15,7 @@ void func_801527b4(Object *object) {
     ref_other.p = object->field_3c;
     if (ref_other.p->field_45 == 0) {
         object->field_05++;
-        func_80130768(object, 0x33, table_8017c7f8);
+        func_80130768(object, 0x33, (SequenceStep **)table_8017c7f8);
     }
     func_801528e0(object);
     func_80131094(object);
@@ -29,12 +29,14 @@ void func_8015282c(Object *object) {
     }
 }
 
-void func_80152870(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
+void func_80152870(Slab172 *p) {
+    func_8011f240(p);
 }
 
-void func_80152890(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
+void func_80152890(Slab172 *p) {
+    func_8011f240(p);
 }
 
 u8 func_801528b0(Object *object) {

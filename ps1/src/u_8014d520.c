@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
-u8 func_8014e758(Object *object);
-u8 func_8014e718(Object *object);
+int func_8014de94(Object *object);
+int func_8014e758(Object *object);
+int func_8014e718(Object *object);
 
 /* Form found by automatic permutation search. */
 void func_8014d520(Object *object)
@@ -15,7 +15,7 @@ void func_8014d520(Object *object)
   int lo;
   int hi;
   unsigned int sum;
-  if (func_8014de94(object))
+  if ((u8)func_8014de94(object))
   {
     func_8014e080(object);
   }

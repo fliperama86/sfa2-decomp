@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, u8 index, u8 arg);
-void func_8013f2d8(Object *object, u8 index, u8 arg);
+void func_8013f2a8(Object *object, int index, int unused);
+void func_8013f2d8(Object *object, int index, int unused);
 
 u8 func_8013e3b4(Object *object, u8 index, u8 arg) {
     table_8017abec[object->slots[index].field_00](object, index, arg);
@@ -26,7 +26,7 @@ void func_8013e408(Object *object, u8 index, u8 arg) {
         if (entry & 1) {
             func_8013f2d8(object, index, arg);
         } else {
-            func_8013f0c8(object);
+            func_8013f0c8(object, index, arg);
         }
     }
 }

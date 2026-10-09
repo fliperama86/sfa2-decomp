@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 /* Form found by automatic permutation search. */
 void func_80148774(Object *object)
@@ -13,7 +13,7 @@ void func_80148774(Object *object)
   int offset;
   for (i = 0; i < 2; i++)
   {
-    new_object = func_8011f1e0();
+    new_object = (Object *)func_8011f1e0();
     if (new_object != 0)
     {
       new_object->field_00 = 1;

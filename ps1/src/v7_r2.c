@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int arg);
+void func_8013f2a8(Object *object, int index, int unused);
 
 void func_8013e710(Object *object, int index, int arg) {
     u16 entry = table_8017aaf8[(u8)arg * 7 + 1];

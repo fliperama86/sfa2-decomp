@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011a55c(void);
+void func_8011a55c(Object *o);
 
 void func_80157174(Object *dest, Object *object) {
     int i;
@@ -32,5 +32,5 @@ void func_80157234(Object *object) {
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->field_04++;
-    func_8011a55c();
+    func_8011a55c(object);
 }

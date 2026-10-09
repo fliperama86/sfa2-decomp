@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, u8 index, u8 arg);
+void func_8013f2a8(Object *object, int index, int unused);
 
 void func_8013d270(Object *object, u8 index, u8 arg) {
     u16 entry;

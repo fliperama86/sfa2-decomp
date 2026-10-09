@@ -5,7 +5,7 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int arg);
+void func_8013f2a8(Object *object, int index, int unused);
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: orig keeps arg in place in $a2 and the slot pointer in $a1. */
 void func_8013e634(Object *object, int index, int arg) {

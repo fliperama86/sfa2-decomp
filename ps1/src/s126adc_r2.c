@@ -6,8 +6,8 @@
 
 
 extern HudWide *data_8018f5a0;
-void func_801564b0(void);
-u8 func_80127cd8(u8 a, s8 b, u8 c);
+void func_801564b0(void *a, Object *object);
+int func_80127cd8(u8 a, s16 b, u8 c);
 
 void func_80126cd0(GameState *state, Object *object) {
     if (state->field_09 != 0 || state->field_2c != 0) {
@@ -88,7 +88,7 @@ void func_80126f54(GameState *state, Object *object) {
     if (state->field_2c != 0)
         func_801269e0(object);
     else
-        func_801564b0();
+        func_801564b0(state, object);
 }
 
 void func_80126f94(GameState *state, Object *object) {
@@ -197,7 +197,7 @@ void func_80127390(void) {
 }
 
 void func_801273d8(void) {
-    if (func_80127cd8(0, -1, 0))
+    if ((u8)func_80127cd8(0, -1, 0))
         game_state.field_ec |= 1;
     func_80137220(0, 6);
 }
@@ -210,7 +210,7 @@ void func_8012742c(void) {
 }
 
 void func_80127474(void) {
-    if (func_80127cd8(1, -1, 0))
+    if ((u8)func_80127cd8(1, -1, 0))
         game_state.field_ec |= 2;
     func_80137220(1, 0);
 }
@@ -223,7 +223,7 @@ void func_801274c8(void) {
 }
 
 void func_80127510(void) {
-    if (func_80127cd8(2, -1, 0))
+    if ((u8)func_80127cd8(2, -1, 0))
         game_state.field_ec |= 4;
     func_80137220(2, 1);
 }
@@ -236,7 +236,7 @@ void func_80127564(void) {
 }
 
 void func_801275ac(void) {
-    if (func_80127cd8(3, -1, 0))
+    if ((u8)func_80127cd8(3, -1, 0))
         game_state.field_ec |= 8;
     func_80137220(3, 2);
 }
@@ -249,7 +249,7 @@ void func_80127600(void) {
 }
 
 void func_80127648(void) {
-    if (func_80127cd8(4, -1, 0))
+    if ((u8)func_80127cd8(4, -1, 0))
         game_state.field_ec |= 0x10;
     func_80137220(4, 7);
 }
@@ -273,7 +273,7 @@ void func_80127704(void) {
 }
 
 void func_8012774c(void) {
-    if (func_80127cd8(0, 1, 1))
+    if ((u8)func_80127cd8(0, 1, 1))
         game_state.field_ec |= 1;
     func_80137220(0, 6);
 }
@@ -286,7 +286,7 @@ void func_801277a0(void) {
 }
 
 void func_801277e8(void) {
-    if (func_80127cd8(1, 1, 1))
+    if ((u8)func_80127cd8(1, 1, 1))
         game_state.field_ec |= 2;
     func_80137220(1, 0);
 }
@@ -299,7 +299,7 @@ void func_8012783c(void) {
 }
 
 void func_80127884(void) {
-    if (func_80127cd8(2, 1, 1))
+    if ((u8)func_80127cd8(2, 1, 1))
         game_state.field_ec |= 4;
     func_80137220(2, 1);
 }
@@ -312,7 +312,7 @@ void func_801278d8(void) {
 }
 
 void func_80127920(void) {
-    if (func_80127cd8(3, 1, 1))
+    if ((u8)func_80127cd8(3, 1, 1))
         game_state.field_ec |= 8;
     func_80137220(3, 2);
 }
@@ -325,7 +325,7 @@ void func_80127974(void) {
 }
 
 void func_801279bc(void) {
-    if (func_80127cd8(4, 1, 1))
+    if ((u8)func_80127cd8(4, 1, 1))
         game_state.field_ec |= 0x10;
     func_80137220(4, 7);
 }

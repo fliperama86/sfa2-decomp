@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015c990(int a);
+int func_8015c990(int a);
 
 void func_8015003c(Stream *stream) {
     u32 n = stream->field_30;

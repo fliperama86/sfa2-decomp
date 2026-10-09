@@ -6,7 +6,7 @@
 #include "protos.h"
 
 
-int func_80138838(GameState *state, int arg);
+void func_80138838(GameState *state, int delta);
 
 void func_80138588(void) {
     player_left.field_cf = 0;

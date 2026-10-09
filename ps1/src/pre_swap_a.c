@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_80130678(Object *object, int arg);
-unsigned short func_80130470(Object *object);
-unsigned char func_8012f898(Object *object);
+u16 func_80130470(Object *object);
+int func_8012f898(Object *object);
 
 void func_801312b8(Object *object) {
     func_80131f7c(object);
@@ -148,13 +148,13 @@ void func_80131638(Object *object) {
             func_8013047c(object);
         } else if (func_8012f970(object)) {
             func_8012fe60(object);
-        } else if (func_8012f898(object)) {
+        } else if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else {
             func_80130678(object, 0x11);
         }
     } else {
-        if (func_8012f898(object)) {
+        if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else {
             func_80130678(object, 0x11);

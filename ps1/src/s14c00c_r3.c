@@ -6,14 +6,14 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 void func_8014c994(Object *object) {
     if (object->field_20f == 0) {
         func_8014c9f4();
     } else if (object->field_20f == 2) {
-        func_8014ca7c();
+        func_8014ca7c(object);
     } else if (object->field_20f == 4) {
-        func_8014cba4();
+        func_8014cba4(object);
     }
 }

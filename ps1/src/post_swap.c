@@ -5,7 +5,7 @@
 
 
 
-u8 func_8013d0fc(Object *object);
+int func_8013d0fc(Object *object);
 
 void func_80132070(Object *object) {
     if ((*(u32 *)&object->field_04 & 0xffffff) == 0x70001 &&
@@ -20,7 +20,7 @@ int func_801320e8(Object *object) {
     int result;
     if (object->field_cd != 0) {
         result = 0;
-    } else if (!func_8013d0fc(object)) {
+    } else if (!(u8)func_8013d0fc(object)) {
         result = 0;
     } else {
         result = func_801418bc(object) != 0;

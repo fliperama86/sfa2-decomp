@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 /* Written by hand in the form of func_8014d520, whose form the automatic permutation search had found. */
 /* Form of the exact twin func_8014d520. */
@@ -14,7 +14,7 @@ void func_8014d7d4(Object *object)
   int lo;
   int hi;
   unsigned int sum;
-  if (func_8014de94(object))
+  if ((u8) func_8014de94(object))
   {
     func_8014e080(object);
   }

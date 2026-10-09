@@ -6,7 +6,7 @@
 #include "protos.h"
 
 
-int func_80138838(GameState *state, int arg);
+void func_80138838(GameState *state, int delta);
 
 void func_80138358(GameState *state) {
     int value = table_6cf0[state->field_2d];

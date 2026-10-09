@@ -4,6 +4,7 @@
 #include "protos.h"
 
 
-void func_80157360(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
+void func_80157360(Slab172 *p) {
+    func_8011f240(p);
 }

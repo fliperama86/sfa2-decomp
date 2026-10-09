@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 int func_80144f10(u8 a, u8 b) {
     u16 tbl[3][2] = { { 458, 37 }, { 0xffb6, 37 }, { 458, 112 } };
     u16 (*t)[2] = tbl;
-    ref_other.p = func_8011f1e0();
+    ref_other.p = (Object *) func_8011f1e0();
     if (ref_other.p == 0) return 0;
     ref_other.p->field_00 = 1;
     ref_other.p->field_02 = 0x27;

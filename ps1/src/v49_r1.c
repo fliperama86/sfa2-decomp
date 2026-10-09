@@ -6,9 +6,8 @@
 extern s8 data_801a6984;
 extern u16 data_801a6966;
 
-void func_8013f2a8(Object *object, u8 index, u8 arg);
-void func_8013f1bc(Object *object, u8 index, u8 arg);
-void func_8013dce0(Object *object, u8 index, u8 arg);
+void func_8013f2a8(Object *object, int index, int unused);
+void func_8013f1bc(Object *object, u8 index, u8 unused);
 
 void func_8013d834(Object *object, u8 index, u8 arg) {
     u16 buttons;

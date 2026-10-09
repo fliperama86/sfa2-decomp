@@ -5,12 +5,12 @@
 
 
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_801482e0(Object *parent, int x_arg, int y_arg) {
     u16 x = x_arg;
     u16 y = y_arg;
-    Object *object = func_8011f1e0();
+    Object *object = (Object *)func_8011f1e0();
     if (object != 0) {
         object->field_00 = 1;
         object->field_02 = 7;

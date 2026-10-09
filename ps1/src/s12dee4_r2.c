@@ -5,7 +5,7 @@
 
 
 
-u8 func_80130184(Object *object);
+int func_80130184(Object *object);
 
 void func_8012e00c(Object *object) {
     handlers_1a6c[object->field_07](object);
@@ -15,7 +15,7 @@ void func_8012e04c(Object *object) {
     int value = object->field_50;
     int a1;
 
-    if (func_80130184(object)) {
+    if ((u8)func_80130184(object)) {
         if (value < 0) {
             func_80130efc(object);
         }

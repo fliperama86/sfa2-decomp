@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80123504(void) {
+void func_80123504(GameState *unused) {
     if (game_state.field_45 != 0) {
         func_8014f4d4(6, 2);
     }

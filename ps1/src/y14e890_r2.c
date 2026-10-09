@@ -4,10 +4,11 @@
 #include "protos.h"
 
 void func_8015cec4(int a, u8 *p);
-void func_8015c990(int a);
+int func_8015c990(int a);
 int func_8015c958(int a, u8 *p);
 
-int func_8014f194(s16 arg) {
+Node *func_8014f194(int index) {
+    s16 arg = index;
     Menu *m = &data_80190948;
     u8 buf[4];
     int s2;
@@ -69,5 +70,5 @@ again:
     }
     while (!func_8015cc44(9, 0, 0)) {
     }
-    return (int)(q + 0x10);
+    return (Node *)(q + 0x10);
 }

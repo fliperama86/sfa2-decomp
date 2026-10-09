@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e25c(Object *object);
+int func_8014e25c(Object *object);
 
 /* Form found by automatic permutation search. */
 int func_8014e0b4(Object *object)
@@ -29,7 +29,7 @@ int func_8014e0b4(Object *object)
   data_8018946c = 0;
   if (flags & 1)
   {
-    if (func_8014e25c(object) != 0)
+    if ((u8)func_8014e25c(object) != 0)
     {
       goto done;
     }

@@ -5,7 +5,7 @@
 
 
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80147a4c(Object *object) {
     fns_cbd0[object->field_04](object);
@@ -15,7 +15,7 @@ void func_80147a8c(Object *object) {
     object->field_09 = 0;
     object->field_04++;
     object->field_a0 = bytes_cbe0[object->field_03 + object->field_48];
-    func_80130768(object, 0x13, seqs_c7f8);
+    func_80130768(object, 0x13, (SequenceStep **)seqs_c7f8);
 }
 
 void func_80147ae4(Object *object) {
@@ -39,7 +39,7 @@ void func_80147bb0(Object *object) {
     object->field_46 = v;
     if ((s16)v < 0) {
         object->field_05++;
-        func_80130768(object, 0x14, seqs_c7f8);
+        func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
     } else {
         func_80131094(object);
     }
@@ -116,7 +116,7 @@ void func_80147e18(Object *object) {
         } else {
             object->field_05++;
             func_80148134(object);
-            func_80130768(object, 0x14, seqs_c7f8);
+            func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
         }
     } else {
         func_80148194(object);
@@ -170,7 +170,7 @@ void func_80148004(Object *object) {
             func_80147ef0(object);
         } else {
             object->field_05++;
-            func_80130768(object, 0x14, seqs_c7f8);
+            func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
         }
     } else if (object->field_a0 != 0 || object->field_48 != 0) {
         func_80148220(object);
@@ -188,12 +188,14 @@ void func_801480b0(Object *object) {
     }
 }
 
-void func_801480f4(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
+void func_801480f4(Slab172 *p) {
+    func_8011f240(p);
 }
 
-void func_80148114(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
+void func_80148114(Slab172 *p) {
+    func_8011f240(p);
 }
 
 void func_80148134(Object *object) {

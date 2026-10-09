@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80146478(Object *object, u8 a, int dx, int dy) {
     Object *o;
     s16 x;
 
     x = dx;
-    o = func_8011f1e0();
+    o = (Object *)func_8011f1e0();
     if (o != 0 && data_801a27d4 != 0) {
         o->field_00 = 1;
         o->field_02 = 4;
@@ -41,7 +41,7 @@ void func_801465b0(Object *object, int a, int dx, int dy) {
     Object *o;
     Object *other;
 
-    o = func_8011f1e0();
+    o = (Object *)func_8011f1e0();
     if (o != 0 && data_801a27d4 != 0) {
         other = object->other;
         o->field_00 = 1;
