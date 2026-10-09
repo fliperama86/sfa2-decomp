@@ -7,7 +7,7 @@ extern ObjectFn data_801eb8dc_slot06_0e[];
 
 void func_801e99ec_slot06_0e(Object *obj);
 void func_801e9ab0_slot06_0e(Object *obj);
-void func_801e9af8_slot06_0e(Object *obj);
+int func_801e9af8_slot06_0e(Object *obj);
 void func_801e9bc8_slot06_0e(Object *obj);
 void func_801e9c44_slot06_0e(Slot06Pal *pal);
 
