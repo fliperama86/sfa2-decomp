@@ -586,6 +586,38 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   are separate blocks until the late jump pass merges them. This is an
   inference from the allocation, and the comment at the statement says
   so. `grep -rn "The listing has one store of pos_x" src` lists the uses.
+- Where an instruction stands in its block depends on the type of the
+  local it computes. This is read from the compiler's source (GCC 2.6.3,
+  `sched.c`, `adjust_priority` and `birthing_insn_p`), not inferred from
+  listings: the first scheduling pass moves an instruction as late as its
+  users allow when its destination is a plain register that is assigned
+  exactly once in the function. An instruction whose destination is a
+  16-bit local written from a word operation, or a local assigned twice,
+  is not moved and keeps its place in source order. Priority otherwise is
+  the longest chain of load latencies before the instruction, and ties go
+  by original order. Three consequences decided the stage drawing
+  functions:
+  - A value that the original computes earlier in its block than the
+    build does is a `s16` or `u16` local where the candidate has `int` or
+    `u32`. `func_801e82c8_slot06_00` was exact when the tile mask, the
+    column counter, the pixel offset and the difference of the scroll
+    were 16-bit, with the statements in the listing's order; its comment
+    gives what each costs as a word. With 16-bit locals the listing's
+    order is the source's order, so write statements as the listing has
+    them and do not reorder to steer registers.
+  - A value that the listing sign-extends (`sll 16`, `sra 16`) or masks
+    (`andi 0xffff`) after computing it is a 16-bit local. A local that
+    gets no register has an 8-byte stack slot, and a 16-bit one is
+    stored there with `sh`; slots are handed out in ascending number of
+    the pseudo-registers, which for locals is the order of their
+    declarations (`reload1.c`, `alter_reg` and its caller).
+  - Local allocation takes values in the order of `floor(log2(refs)) *
+    refs / length of life`, the lowest free register first
+    (`local-alloc.c`, `qty_compare`); a destination can share the
+    register of an operand that dies in the instruction, and the
+    operands are tried in order. In the drawing functions a difference
+    written `t = a - t` landed in the register of `t`; written into a
+    local of its own it landed in the register of `a`.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

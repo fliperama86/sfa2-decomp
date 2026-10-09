@@ -393,10 +393,11 @@ chose the first on 2026-10-06:
   module of slot `0x12`; their source was copied from those.
   The sixth to the twenty-fifth are the 20 stage modules, the contents
   of slot `0x6` in `STAGE00.PAC` to `STAGE13.PAC`, 874 functions by the
-  sweep: 772 are exact, 77,936 bytes. Of the 102 that are not, most are
-  the functions of 600 bytes and more, which draw the layers and the
-  tiles of objects: their source form is not found yet, and outside the
-  first stage they have not had an agent. The stage files are the work
+  sweep: 827 are exact, 118,548 bytes. Of the 47 that are not, most are
+  functions of 600 bytes and more of two kinds, a tile layer drawn in
+  perspective and the function that draws the tiles of an object: each
+  has a candidate and none is exact yet. The functions that draw the
+  flat tile layers are exact in all 20 stages. The stage files are the work
   of a second session that runs beside the first, by the owner's
   decision of 2026-10-06.
   The twenty-sixth is the one content of slot `0x27`, from `SELECTA.PAC`, a
