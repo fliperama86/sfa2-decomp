@@ -656,6 +656,313 @@ def status_cases(root):
     yield "status-2-patched-file-missing", two(w.run(), "psyz/src/a.c", "no such file")
 
 
+# The boundary: what the tool may delete and write, and where a patch may land.
+
+
+def snapshot(root: Path) -> dict[str, object]:
+    """Every file with its bytes, every symlink with its target, every folder: nothing is followed."""
+    out: dict[str, object] = {}
+    for here, dirs, files in os.walk(root):
+        for name in dirs + files:
+            full = Path(here) / name
+            rel = str(full.relative_to(root))
+            if full.is_symlink():
+                out[rel] = ("link", os.readlink(full))
+            elif full.is_dir():
+                out[rel] = ("dir",)
+            else:
+                out[rel] = ("file", full.read_bytes())
+    return out
+
+
+def link(path: Path, target) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.symlink_to(target)
+    return path
+
+
+def refused_unchanged(world: World, proc, *needles):
+    """None when the run was refused with status 2, one line, nothing on standard output, naming each needle."""
+    lines = proc.stderr.splitlines()
+    bad = [n for n in needles if n not in proc.stderr]
+    return same((proc.returncode, proc.stdout, len(lines), bad, world.calls()), (2, "", 1, [], []))
+
+
+def boundary_cases(root):
+    def attempt(name, setup, *needles, **over):
+        w = World(root)
+        extra = setup(w) or {}
+        before = snapshot(w.base)
+        proc = w.run(**{**extra, **over})
+        yield f"boundary-{name}-refused", refused_unchanged(w, proc, *needles)
+        yield f"boundary-{name}-input-unchanged", same(snapshot(w.base) == before, True)
+
+    yield from attempt("build-is-the-source", lambda w: {"--build": w.src}, "is the PsyZ source", "psyz-src")
+    yield from attempt("build-inside-the-source", lambda w: {"--build": w.src / "out"}, "lies inside it", "psyz-src")
+    yield from attempt("build-deep-inside-the-source-not-yet-made", lambda w: {"--build": w.src / "psyz" / "x" / "y"}, "lies inside it")
+    yield from attempt("source-inside-the-build-folder", lambda w: {"--build": w.base}, "lies inside the build folder", "psyz-src")
+    yield from attempt("source-is-the-build-folders-child-made-later", lambda w: {"--build": w.base / "psyz-src" / ".."}, "lies inside the build folder")
+
+    def alias_build_equal(w):
+        return {"--build": link(w.base / "alias", w.src)}
+
+    yield from attempt("build-is-a-symlink-to-the-source", alias_build_equal, "is the PsyZ source", "alias")
+
+    def alias_build_inside(w):
+        link(w.base / "alias", w.src)
+        return {"--build": w.base / "alias" / "out"}
+
+    yield from attempt("build-inside-the-source-through-a-symlink", alias_build_inside, "lies inside it")
+
+    def alias_build_inside_unmade(w):
+        link(w.base / "alias", w.src)
+        return {"--build": w.base / "alias" / "a" / "b"}
+
+    yield from attempt("build-not-yet-made-inside-the-source-through-a-symlink", alias_build_inside_unmade, "lies inside it")
+
+    def alias_source(w):
+        link(w.base / "alias", w.src)
+        return {"--psyz": w.base / "alias", "--build": w.base}
+
+    yield from attempt("source-through-a-symlink-inside-the-build-folder", alias_source, "lies inside the build folder")
+
+    def alias_build_folder(w):
+        link(w.base / "alias", w.base)
+        return {"--build": w.base / "alias"}
+
+    yield from attempt("build-folder-through-a-symlink-holds-the-source", alias_build_folder, "lies inside the build folder")
+
+    def alias_outside_source(w):
+        other = w.base.parent / f"{w.base.name}-elsewhere"
+        link(other, w.src)
+        return {"--psyz": other, "--build": w.src / "out"}
+
+    yield from attempt("source-through-a-symlink-elsewhere-and-build-inside", alias_outside_source, "lies inside it")
+
+    def patch_in_src(w):
+        (w.build / "src").mkdir(parents=True)
+        shutil_move(w.patch, w.build / "src" / "p.patch")
+        return {"--patch": w.build / "src" / "p.patch"}
+
+    yield from attempt("patch-file-inside-the-copy", patch_in_src, "patch file", "where the tool deletes or writes")
+
+    def patch_in_obj(w):
+        (w.build / "obj").mkdir(parents=True)
+        shutil_move(w.patch, w.build / "obj" / "p.patch")
+        return {"--patch": w.build / "obj" / "p.patch"}
+
+    yield from attempt("patch-file-inside-obj", patch_in_obj, "patch file")
+
+    for place in ("build.log", "psyz.json", "toolchain.cmake"):
+        def patch_is(w, place=place):
+            w.build.mkdir(parents=True)
+            shutil_move(w.patch, w.build / place)
+            return {"--patch": w.build / place}
+
+        yield from attempt(f"patch-file-is-{place}", patch_is, "patch file", place)
+
+    def src_link(w):
+        (w.build / "src").mkdir(parents=True)
+        (w.build / "src" / "old.txt").write_text("old\n")
+        shutil_move(w.build / "src", w.base / "moved")
+        link(w.build / "src", w.src)
+
+    yield from attempt("copy-place-is-a-symlink-to-the-source", src_link, "is a symbolic link", "src")
+
+    def obj_link(w):
+        w.build.mkdir(parents=True)
+        link(w.build / "obj", w.src)
+
+    yield from attempt("obj-place-is-a-symlink-to-the-source", obj_link, "is a symbolic link", "obj")
+
+    def json_link(w):
+        w.build.mkdir(parents=True)
+        link(w.build / "psyz.json", w.src / "psyz" / "CMakeLists.txt")
+
+    yield from attempt("json-place-is-a-symlink-into-the-source", json_link, "is a symbolic link", "psyz.json")
+
+    def file_link(w):
+        link(w.src / "decomp" / "l.c", "d.c")
+
+    yield from attempt("symlink-to-a-file-inside-the-source", file_link, "symbolic link", "l.c")
+
+    def dir_link(w):
+        (w.src / "psyz" / "sub").mkdir()
+        link(w.src / "psyz" / "dl", "sub")
+
+    yield from attempt("symlink-to-a-folder-inside-the-source", dir_link, "symbolic link", "dl")
+
+    def out_link(w):
+        link(w.src / "external" / "SDL" / "up", w.base)
+
+    yield from attempt("symlink-from-the-source-to-the-build-side", out_link, "symbolic link", "up")
+
+    def dangling(w):
+        link(w.src / "decomp" / "gone", "nothing")
+
+    yield from attempt("dangling-symlink-in-the-source", dangling, "symbolic link", "gone")
+
+    def git_link(w):
+        link(w.src / ".git" / "refs" / "heads" / "l", "main")
+
+    # Links in the folders that are not copied (.git, .github) are not read.
+    w = World(root)
+    git_link(w)
+    link(w.src / "psyz" / ".github" / "k", "w.yml")
+    proc = w.run()
+    yield "boundary-symlinks-in-git-folders-are-not-copied-or-refused", same(proc.returncode, 0)
+
+    # Layouts that must still work.
+    w = World(root)
+    (w.build / "src").mkdir(parents=True)
+    shutil_move(w.patch, w.base / "real.patch")
+    link(w.build / "src" / "p.patch", w.base / "real.patch")
+    kept = (w.base / "real.patch").read_bytes()
+    proc = w.run(**{"--patch": w.build / "src" / "p.patch"})
+    yield "boundary-patch-file-link-inside-the-copy-is-read-and-the-target-survives", same((proc.returncode, (w.base / "real.patch").read_bytes()), (0, kept))
+    w = World(root)
+    proc = w.run(**{"--build": w.base / "psyz-src-out"})
+    yield "boundary-build-folder-named-like-the-source-plus-a-suffix", same((proc.returncode, proc.stderr), (0, ""))
+    w = World(root)
+    proc = w.run(**{"--build": w.base / "a" / "b" / "c"})
+    yield "boundary-build-folder-several-levels-not-yet-made", same((proc.returncode, (w.base / "a" / "b" / "c" / "psyz.json").is_file()), (0, True))
+    w = World(root)
+    link(w.base / "alias", w.base / "elsewhere")
+    (w.base / "elsewhere").mkdir()
+    proc = w.run(**{"--build": w.base / "alias" / "out"})
+    yield "boundary-build-folder-through-a-symlink-to-another-place", same((proc.returncode, (w.base / "elsewhere" / "out" / "psyz.json").is_file()), (0, True))
+    w = World(root)
+    link(w.base / "srcalias", w.src)
+    before = snapshot(w.src)
+    proc = w.run(**{"--psyz": w.base / "srcalias"})
+    yield "boundary-source-through-a-symlink-with-a-separate-build", same((proc.returncode, snapshot(w.src) == before), (0, True))
+    w = World(root)
+    proc = w.run()
+    again = w.run()
+    yield "boundary-second-run-into-the-same-folder", same((proc.returncode, again.returncode), (0, 0))
+    # Direct calls, paths that exist nowhere.
+    ghost = root / "ghost"
+    yield "boundary-check-paths-of-nothing-made", same(pb.check_paths(ghost / "s", ghost / "b", ghost / "p"), pb.real_path(ghost / "b"))
+    yield "boundary-check-paths-build-inside-source-unmade", raises(lambda: pb.check_paths(ghost / "s", ghost / "s" / "x" / "y", ghost / "p"), "ghost", "lies inside it")
+    yield "boundary-check-paths-source-inside-build-unmade", raises(lambda: pb.check_paths(ghost / "b" / "s", ghost / "b", ghost / "p"), "lies inside the build folder")
+    yield "boundary-check-paths-dotdot-spelling", raises(lambda: pb.check_paths(ghost / "s", ghost / "o" / ".." / "s" / "x", ghost / "p"), "lies inside it")
+    yield "boundary-check-paths-names-both-paths", raises(lambda: pb.check_paths(ghost / "s", ghost / "s", ghost / "p"), str(ghost / "s"), "resolved")
+
+
+def shutil_move(a: Path, b: Path) -> None:
+    import shutil
+
+    shutil.move(str(a), str(b))
+
+
+def confine_cases(root):
+    """The patch stays inside the copy. Layout: W/copy is the root, W/outside.c and W/outdir are not."""
+    text = patch(("@NAME@", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]))
+
+    def world():
+        counter[0] += 1
+        w = root / f"confine{counter[0]}"
+        write(w / "copy" / "f.c", "one\ntwo\n")
+        write(w / "copy" / "g.c", "one\nthree\n")
+        write(w / "outside.c", "one\nout\n")
+        write(w / "outdir" / "x.c", "one\nx\n")
+        return w
+
+    def run(w, text):
+        try:
+            return pb.apply_patch(text, w / "copy")
+        except Problem as err:
+            return err
+
+    def refusal(name, make, name_in_patch, *needles):
+        w = world()
+        make(w)
+        before = snapshot(w)
+        shown = name_in_patch(w) if callable(name_in_patch) else name_in_patch
+        got = run(w, text.replace("@NAME@", shown))
+        yield f"confine-{name}-refused", same(isinstance(got, Problem) and all(n in str(got) for n in (shown, *needles)), True)
+        yield f"confine-{name}-whole-input-unchanged", same(snapshot(w) == before, True)
+
+    nothing = lambda w: None  # noqa: E731
+    yield from refusal("dotdot-outside-file", nothing, "../outside.c", "`..` component", "inside the copy")
+    yield from refusal("dotdot-in-the-middle", nothing, "x/../../outside.c", "`..` component")
+    yield from refusal("dotdot-staying-inside", nothing, "d/../f.c", "`..` component")
+    yield from refusal("dotdot-with-backslash", nothing, "..\\outside.c", "`..` component")
+    yield from refusal("absolute-inside-the-copy", nothing, lambda w: str(w / "copy" / "f.c"), "absolute")
+    yield from refusal("absolute-outside-file", nothing, lambda w: str(w / "outside.c"), "absolute")
+    yield from refusal("backslash-absolute", nothing, "\\outside.c", "absolute")
+    yield from refusal("drive-letter", nothing, "C:/x/outside.c", "absolute")
+    yield from refusal("file-symlink-pointing-outside", lambda w: link(w / "copy" / "l.c", "../outside.c"), "l.c", "outside the copy")
+    yield from refusal("file-symlink-pointing-outside-by-absolute-target", lambda w: link(w / "copy" / "l.c", w / "outside.c"), "l.c", "outside the copy")
+    yield from refusal("symlink-to-a-symlink-leaving-the-copy", lambda w: (link(w / "copy" / "m.c", "../outside.c"), link(w / "copy" / "l.c", "m.c")), "l.c", "outside the copy")
+    yield from refusal("folder-symlink-leaving-the-copy", lambda w: link(w / "copy" / "d", "../outdir"), "d/x.c", "outside the copy")
+    yield from refusal("folder-symlink-nested-leaving-the-copy", lambda w: (write(w / "copy" / "a" / "k", ""), link(w / "copy" / "a" / "d", "../../outdir")), "a/d/x.c", "outside the copy")
+    yield from refusal("folder-symlink-with-absolute-target", lambda w: link(w / "copy" / "d", w / "outdir"), "d/x.c", "outside the copy")
+    # Atomicity: a later bad target leaves the earlier file untouched.
+    two = patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("@NAME@", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]))
+    for name, make, bad in (
+        ("dotdot", nothing, "../outside.c"),
+        ("absolute", nothing, "/outside.c"),
+        ("symlink-outside", lambda w: link(w / "copy" / "l.c", "../outside.c"), "l.c"),
+        ("folder-symlink-outside", lambda w: link(w / "copy" / "d", "../outdir"), "d/x.c"),
+        ("missing-file", nothing, "nothing.c"),
+    ):
+        w = world()
+        make(w)
+        before = snapshot(w)
+        got = run(w, two.replace("@NAME@", bad))
+        yield f"confine-atomic-second-target-{name}", same((isinstance(got, Problem), snapshot(w) == before, (w / "copy" / "f.c").read_text()), (True, True, "one\ntwo\n"))
+    w = world()
+    before = snapshot(w)
+    got = run(w, patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("g.c", ["@@ -1,1 +1,1 @@\n-nope\n+x\n"])))
+    yield "confine-atomic-second-file-hunk-does-not-fit", same((isinstance(got, Problem), snapshot(w) == before), (True, True))
+    w = world()
+    before = snapshot(w)
+    got = run(w, patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("g.c", ["@@ -1,1 +1,1 @@\n-one\n+x\n", "@@ -2,1 +2,1 @@\n-gone\n+x\n"])))
+    yield "confine-atomic-second-file-second-hunk-does-not-fit", same((isinstance(got, Problem), snapshot(w) == before), (True, True))
+    w = world()
+    before = snapshot(w)
+    got = run(w, patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("g.c", ["@@ -1,1 +1,1 @@\n-one\n+x\n"]), ("../outside.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"])))
+    yield "confine-atomic-third-target-bad-leaves-two-files", same((isinstance(got, Problem), snapshot(w) == before), (True, True))
+    # The same file twice.
+    w = world()
+    before = snapshot(w)
+    got = run(w, patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("f.c", ["@@ -2,1 +2,1 @@\n-two\n+TWO\n"])))
+    yield "confine-file-named-twice-refused", same((isinstance(got, Problem) and "twice" in str(got), snapshot(w) == before), (True, True))
+    w = world()
+    link(w / "copy" / "alias.c", "f.c")
+    before = snapshot(w)
+    got = run(w, patch(("f.c", ["@@ -1,1 +1,1 @@\n-one\n+ONE\n"]), ("alias.c", ["@@ -2,1 +2,1 @@\n-two\n+TWO\n"])))
+    yield "confine-two-names-for-one-file-refused", same((isinstance(got, Problem) and "twice" in str(got), snapshot(w) == before), (True, True))
+    # What still works.
+    w = world()
+    got = run(w, text.replace("@NAME@", "f.c"))
+    yield "confine-plain-name-applies", same((got, (w / "copy" / "f.c").read_text()), (["f.c line 1"], "ONE\ntwo\n"))
+    w = world()
+    write(w / "copy" / "a" / "b" / "h.c", "one\n")
+    got = run(w, text.replace("@NAME@", "a/b/h.c"))
+    yield "confine-nested-name-applies", same(got, ["a/b/h.c line 1"])
+    w = world()
+    link(w / "copy" / "l.c", "f.c")
+    got = run(w, text.replace("@NAME@", "l.c"))
+    yield "confine-symlink-inside-the-copy-applies-to-its-target", same(
+        (got, os.path.islink(w / "copy" / "l.c"), (w / "copy" / "f.c").read_text(), (w / "outside.c").read_text()), (["l.c line 1"], True, "ONE\ntwo\n", "one\nout\n")
+    )
+    w = world()
+    write(w / "copy" / "real" / "x.c", "one\n")
+    link(w / "copy" / "d", "real")
+    got = run(w, text.replace("@NAME@", "d/x.c"))
+    yield "confine-folder-symlink-inside-the-copy-applies", same((got, (w / "copy" / "real" / "x.c").read_text()), (["d/x.c line 1"], "ONE\n"))
+    # The root may itself be reached through a symlink.
+    w = world()
+    link(w / "rootlink", "copy")
+    try:
+        got = pb.apply_patch(text.replace("@NAME@", "f.c"), w / "rootlink")
+    except Problem as err:
+        got = err
+    yield "confine-root-reached-through-a-symlink", same((got, (w / "copy" / "f.c").read_text()), (["f.c line 1"], "ONE\ntwo\n"))
+
+
 def shutil_rmtree(path: Path) -> None:
     import shutil
 
@@ -672,6 +979,8 @@ def groups(root: Path):
     yield real_cases(root)
     yield program_cases(root)
     yield status_cases(root)
+    yield boundary_cases(root)
+    yield confine_cases(root)
 
 
 def main() -> int:

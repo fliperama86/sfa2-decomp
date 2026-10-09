@@ -29,6 +29,34 @@ only blank lines, the next hunk header, the next file header or the end of
 the text may follow, and a body that ends early or a line beyond the counts is
 a refusal that names the hunk.
 
+Every file the patch names must lie inside the copy: a name that is absolute,
+that has a `..` component, or that resolves (symbolic links followed, the
+file itself too) to a place outside the copy is a refusal that names it.
+All names are checked and all hunks are matched before any file is written, so
+a refused patch changes nothing, in the first file as in the last. A file
+named twice is a refusal.
+
+Paths
+-----
+
+The tool deletes and writes only these, all under the build folder BUILD:
+`BUILD/src` (deleted and made again at each run), `BUILD/obj` (CMake and Ninja
+write it), `BUILD/toolchain.cmake`, `BUILD/psyz.json` and `BUILD/build.log`.
+Nothing outside BUILD is ever written, and the PsyZ source is only read. Before
+anything is created, deleted or written, the PsyZ source, the build folder and
+the patch file are resolved (symbolic links followed; for a path that does not
+exist yet, its nearest existing parent is resolved and the rest appended), and
+the run is refused (status 2, a message naming both paths) when, for the
+resolved paths, the build folder is the source or lies inside it, or the source
+lies inside the build folder, or the patch file is one of the places listed
+above or lies inside `BUILD/src` or `BUILD/obj`, or one of the listed places
+already exists as a symbolic link. A link that aliases one folder to another is
+therefore caught as the overlap it is. Symbolic links inside the three copied
+folders of the source are refused (a link in the copy could lead a write back
+into the source); a source tree that has links needs them replaced by files
+first. The copy is made only after all of this, so a refused run leaves the
+source and the build folder as they were.
+
 The build
 ---------
 
@@ -199,7 +227,22 @@ def apply_patch(text: str, root: Path) -> list[str]:
     description per hunk applied."""
     done: list[str] = []
     staged: dict[Path, str] = {}
-    for fp in parse_patch(text):
+    patches = parse_patch(text)
+    root_real = real_path(root)
+    seen: set[Path] = set()
+    for fp in patches:
+        parts = re.split(r"[/\\]", fp.path)
+        if fp.path.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", fp.path):
+            raise Problem(f"the patch names {fp.path}, an absolute path; names must lie inside the copy")
+        if ".." in parts:
+            raise Problem(f"the patch names {fp.path}, which has a `..` component; names must lie inside the copy")
+        target = real_path(root / fp.path)
+        if not inside(target, root_real):
+            raise Problem(f"the patch names {fp.path}, which resolves outside the copy (to {target})")
+        if target in seen:
+            raise Problem(f"the patch names {fp.path} twice (or two names for one file)")
+        seen.add(target)
+    for fp in patches:
         path = root / fp.path
         if not path.is_file():
             raise Problem(f"the patch names {fp.path} and the PsyZ source has no such file")
@@ -327,18 +370,61 @@ def commit_of(source: Path) -> str:
     return out if proc.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", out) else "unknown"
 
 
+def real_path(path: Path) -> Path:
+    """The path with symbolic links followed; the part that does not exist yet is appended to the nearest existing parent."""
+    return Path(os.path.realpath(path))
+
+
+def inside(path: Path, folder: Path) -> bool:
+    return path == folder or folder in path.parents
+
+
+def written_places(build: Path) -> list[Path]:
+    return [build / "src", build / "obj", build / "toolchain.cmake", build / "psyz.json", build / "build.log"]
+
+
+def check_paths(source: Path, build: Path, patch_file: Path) -> Path:
+    """Refuse a layout in which the run could delete, copy into or write inside the PsyZ source or the
+    patch. Reads nothing but the paths. Returns the build folder, resolved."""
+    src, bld, pat = real_path(source), real_path(build), real_path(patch_file)
+    if inside(bld, src):
+        raise Problem(f"the build folder {build} (resolved: {bld}) is the PsyZ source {source} (resolved: {src}) or lies inside it; the source is never written")
+    if inside(src, bld):
+        raise Problem(f"the PsyZ source {source} (resolved: {src}) lies inside the build folder {build} (resolved: {bld}), where the tool deletes and writes")
+    for place in written_places(bld):
+        if inside(pat, place):
+            raise Problem(f"the patch file {patch_file} (resolved: {pat}) is {place} or lies inside it, where the tool deletes or writes")
+        if place.is_symlink():
+            raise Problem(f"{place} is a symbolic link, and the tool deletes and writes there; remove it or use another build folder")
+    return bld
+
+
+def refuse_links(source: Path) -> None:
+    for rel in COPIED:
+        for here, dirs, files in os.walk(source / rel):
+            dirs[:] = [d for d in dirs if d not in (".git", ".github")]
+            for name in dirs + files:
+                if os.path.islink(os.path.join(here, name)):
+                    raise Problem(f"{os.path.join(here, name)} is a symbolic link; the copy of the PsyZ source holds none, replace it by the file or folder it names")
+
+
+def check_source(source: Path) -> None:
+    """Refuse a source that lacks what the build reads, or holds a symbolic link. Reads only."""
+    for rel in COPIED:
+        if not (source / rel).is_dir():
+            raise Problem(f"{source / rel} is missing; the PsyZ source needs {', '.join(COPIED)} (git submodule update --init, for SDL also inside psyz)")
+    if not (source / "psyz" / "CMakeLists.txt").is_file():
+        raise Problem(f"{source / 'psyz' / 'CMakeLists.txt'} is missing")
+    if not (source / "external" / "SDL" / "CMakeLists.txt").is_file():
+        raise Problem(f"{source / 'external' / 'SDL' / 'CMakeLists.txt'} is missing; the SDL submodule of PsyZ is not checked out")
+    refuse_links(source)
+
+
 def copy_source(source: Path, dest: Path) -> None:
     if dest.exists():
         shutil.rmtree(dest)
     for rel in COPIED:
-        src = source / rel
-        if not src.is_dir():
-            raise Problem(f"{src} is missing; the PsyZ source needs {', '.join(COPIED)} (git submodule update --init, for SDL also inside psyz)")
-        shutil.copytree(src, dest / rel, ignore=shutil.ignore_patterns(".git", ".github"))
-    if not (dest / "psyz" / "CMakeLists.txt").is_file():
-        raise Problem(f"{source / 'psyz' / 'CMakeLists.txt'} is missing")
-    if not (dest / "external" / "SDL" / "CMakeLists.txt").is_file():
-        raise Problem(f"{source / 'external' / 'SDL' / 'CMakeLists.txt'} is missing; the SDL submodule of PsyZ is not checked out")
+        shutil.copytree(source / rel, dest / rel, symlinks=True, ignore=shutil.ignore_patterns(".git", ".github"))
 
 
 def build(args: argparse.Namespace, out: list[str]) -> None:
@@ -355,8 +441,9 @@ def build(args: argparse.Namespace, out: list[str]) -> None:
     cmake = which_tool("cmake", args.cmake)
     ninja = which_tool("ninja", args.ninja)
     build_dir: Path = args.build or PORT / "build" / f"psyz-{triplet_of(args.cc)}"
+    build_dir = check_paths(source, build_dir, patch_path)
+    check_source(source)
     build_dir.mkdir(parents=True, exist_ok=True)
-    build_dir = build_dir.resolve()
     work = build_dir / "src"
     log = build_dir / "build.log"
     log.write_text("")
