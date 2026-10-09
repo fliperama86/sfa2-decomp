@@ -4,7 +4,7 @@ A setup function builds a random valid input state for one function. It is
 given the state to write into (`State` of difftest.py: byte, half and word
 accessors on the RAM and the scratchpad, plus `alloc` for blocks in free
 RAM), a seeded `random.Random`, and `sym`, the addresses of the names of the
-tree's linker symbols. It returns a `Setup`: the argument registers and
+tree's linker symbols and of the functions that the build declares. It returns a `Setup`: the argument registers and
 whether the function returns a value in v0.
 
 A contract keeps every pointer inside memory that the setup allocated and
@@ -15,6 +15,8 @@ when the ORIGINAL code faults or exceeds its budget.
 `CONTRACTS` maps a function name to its `Contract`. `control` of a contract
 names one instruction of the nonmatching build that the setup's inputs make
 the function execute, and says how to alter it for the negative control.
+A contract may also be the value `CONTRACT` of a file `FUNC.py` beside
+`FUNC.c`; such a file imports `Contract`, `Setup` and `CallLog` from here.
 """
 
 from __future__ import annotations
@@ -35,6 +37,82 @@ class Setup:
 class Contract:
     setup: Callable
     control: Callable  # (words) -> (index of the word, altered word, description)
+
+
+# ---------------------------------------------------------------------------
+# Recorders for callees
+#
+# A function under test may call a function that cannot run in the test (it
+# reaches the library and through it the hardware) or whose inner state the
+# contract does not want to set up. `CallLog.replace` puts a recorder in the
+# callee's place, in the state of the case, so the original and the build both
+# call the recorder: it appends the callee's address and its arguments to a
+# log in RAM and returns a value that the setup chose. The log is part of the
+# compared RAM: a call that is missing, out of order or made with another
+# argument is a difference. Only the arguments that the callee is declared to
+# take are recorded; the other argument registers hold leftovers that the two
+# codes need not share.
+
+_T0, _T1, _T2, _V0, _A0, _SP = 8, 9, 10, 2, 4, 29
+
+
+def _lui(rt: int, value: int) -> int:
+    return 0x3C000000 | rt << 16 | (value >> 16) & 0xFFFF
+
+
+def _ori(rt: int, rs: int, value: int) -> int:
+    return 0x34000000 | rs << 21 | rt << 16 | value & 0xFFFF
+
+
+def _lw(rt: int, offset: int, base: int) -> int:
+    return 0x8C000000 | base << 21 | rt << 16 | offset & 0xFFFF
+
+
+def _sw(rt: int, offset: int, base: int) -> int:
+    return 0xAC000000 | base << 21 | rt << 16 | offset & 0xFFFF
+
+
+def _addiu(rt: int, rs: int, value: int) -> int:
+    return 0x24000000 | rs << 21 | rt << 16 | value & 0xFFFF
+
+
+class CallLog:
+    """A log of calls in the RAM of one case.
+
+    `words` is the room for entries; an entry takes one word for the callee's
+    address and one for each recorded argument. The first word of the block
+    points at the next free entry. A run that makes more calls than the room
+    holds writes past the block: give the log room for the longest run.
+    """
+
+    def __init__(self, state, words: int = 1024):
+        self.state = state
+        self.cursor = state.alloc(4 + 4 * words)
+        self.entries = self.cursor + 4
+        state.w32(self.cursor, self.entries)
+
+    def replace(self, address: int, arguments: int, result: int = 0) -> None:
+        """Put a recorder in place of the function at `address`.
+
+        `arguments` is how many arguments the callee takes (the fifth and
+        later ones are read from the caller's stack, as the calling
+        convention places them); `result` is what the recorder returns in v0.
+        """
+        code = [_lui(_T0, self.cursor), _ori(_T0, _T0, self.cursor), _lw(_T1, 0, _T0),
+                _lui(_T2, address), _ori(_T2, _T2, address), _sw(_T2, 0, _T1)]
+        for index in range(arguments):
+            if index < 4:
+                code.append(_sw(_A0 + index, 4 + 4 * index, _T1))
+            else:
+                code += [_lw(_T2, 16 + 4 * (index - 4), _SP), 0, _sw(_T2, 4 + 4 * index, _T1)]
+        code += [_addiu(_T1, _T1, 4 * (1 + arguments)), _sw(_T1, 0, _T0),
+                 _lui(_V0, result), 0x03E00008, _ori(_V0, _V0, result)]  # jr ra; the last one is its delay slot
+        routine = self.state.alloc(4 * len(code))
+        for index, word in enumerate(code):
+            self.state.w32(routine + 4 * index, word)
+        # j routine; nop
+        self.state.w32(address, 0x08000000 | (routine >> 2) & 0x03FFFFFF)
+        self.state.w32(address + 4, 0)
 
 
 def _halfword(rng) -> int:

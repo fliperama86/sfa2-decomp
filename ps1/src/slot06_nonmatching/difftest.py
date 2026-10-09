@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 """Differential test of a nonmatching C function against the original code.
 
-    difftest.py --config ../build.toml [--cases N] [--seed S] [--control] FUNC...
+    difftest.py --config ../build.toml [--folder DIR] [--cases N] [--seed S]
+                [--control] [--uncovered] (FUNC... | --all)
 
-For each FUNC the tool builds `FUNC.c` of this folder with the pinned
+For each FUNC the tool builds `FUNC.c` of the folder (this one, or DIR) with the pinned
 toolchain of the matching build (the preprocessing, compiler, maspsx and
 assembler steps of `ps1/tools/matchbuild.py`), links it alone at a test
 address outside the console's RAM with the tree's `symbols.ld`, and runs the
 original function and the build under the Unicorn emulator on identical
-random inputs (`contracts.py`). The final states are compared: the return
+random inputs. The final states are compared: the return
 register when the contract says there is one, the callee-saved registers,
 and all of RAM and the scratchpad except the stack region.
+
+The contract of FUNC is the entry of `contracts.CONTRACTS`, or the value
+`CONTRACT` of the file `FUNC.py` beside `FUNC.c`. A second line says how
+many instruction slots of the original function the cases executed, and
+`--uncovered` lists the others: cases that never reach a part of the
+function say nothing about it.
 
 The private inputs (the baseline executable and the module archive that
 the build configuration names) are read through the configuration; the
@@ -24,6 +31,8 @@ problem, 3 when the build fails.
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import importlib.util
 import random
 import re
 import struct
@@ -37,8 +46,9 @@ sys.path.insert(0, str(HERE.parents[1] / "tools"))
 sys.path.insert(0, str(HERE))
 
 import matchbuild  # noqa: E402
+from elftools.elf.elffile import ELFFile  # noqa: E402
 import contracts  # noqa: E402
-from unicorn import UC_ARCH_MIPS, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32, Uc, UcError  # noqa: E402
+from unicorn import UC_ARCH_MIPS, UC_HOOK_BLOCK, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32, Uc, UcError  # noqa: E402
 from unicorn import mips_const as reg  # noqa: E402
 
 RAM_BASE = 0x80000000
@@ -109,11 +119,29 @@ class State:
 # Build
 
 
-def build_function(cfg, name: str, directory: Path) -> bytes:
-    """Compile and link `name`.c of this folder at TEST_ADDRESS. Returns the code bytes."""
-    source = HERE / f"{name}.c"
+@dataclasses.dataclass(frozen=True)
+class Build:
+    """A linked nonmatching unit."""
+
+    code: bytes  # what is loaded at TEST_ADDRESS: the unit's code, then its read-only data
+    size: int  # bytes of code
+    entry: int  # offset of the function in the code; a unit may define helpers before it
+
+
+WRITABLE = (".data", ".sdata", ".bss", ".sbss")
+
+
+def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Build:
+    """Compile `name`.c of `folder` and link it at TEST_ADDRESS.
+
+    A unit may hold helper functions and read-only data (a jump table, a
+    constant table). It may not define writable data: the game's data lies
+    in the image, and data of the unit's own would keep its values from one
+    case to the next.
+    """
+    source = folder / f"{name}.c"
     if not source.is_file():
-        raise InputError(f"no source {source.name} in {HERE.name}")
+        raise InputError(f"no source {source.name} in {folder.name}")
     report = {"inputs": {}, "cache": {"units": {}}}
     pipeline, failures = matchbuild.prepare_pipeline(cfg, "difftest", directory, None, report)
     if failures:
@@ -126,11 +154,20 @@ def build_function(cfg, name: str, directory: Path) -> bytes:
         functions=(matchbuild.FunctionDecl(name, TEST_ADDRESS, 0),),
     )
     errors, _ = matchbuild.unit_object(pipeline, unit, directory, report)
-    # The object is checked against a declared size of 0 here; only that check is expected to fail.
-    errors = [e for e in errors if "text size mismatch" not in e]
+    # The object is checked here as a unit of the build that declares no size and no data. Those
+    # findings are expected: the code's size is free, and what data a unit may hold is decided below.
+    errors = [e for e in errors if "text size mismatch" not in e and "must be declared" not in e]
     if errors:
         raise matchbuild.StepError("; ".join(errors))
-    defined = {s.name for s in matchbuild.defined_symbols(directory / f"unit-{name}.o")}
+    symbols = matchbuild.defined_symbols(directory / f"unit-{name}.o")
+    defined = {s.name for s in symbols}
+    entry = next((s.offset for s in symbols if s.name == name and s.kind == "text"), None)
+    if entry is None:
+        raise InputError(f"{source.name} does not define the function {name}")
+    sizes = section_sizes(directory / f"unit-{name}.o")
+    written = [f"{section} ({sizes[section]} bytes)" for section in WRITABLE if sizes.get(section)]
+    if written or any(s.section == "SHN_COMMON" for s in symbols) or sizes.get("COMMON"):
+        raise InputError(f"{source.name} defines writable data: {', '.join(written) or 'a common symbol'}")
     # Declared functions of the build that the code may call resolve to their original addresses.
     known = set(cfg.symbol_values)
     lines = [f"{fn.name} = {fn.address:#x};\n" for u in cfg.units for fn in u.functions
@@ -143,6 +180,7 @@ def build_function(cfg, name: str, directory: Path) -> bytes:
         f'INCLUDE "{(directory / "others.ld").resolve()}"\n'
         "SECTIONS {\n"
         f" .text {TEST_ADDRESS:#x} : SUBALIGN(1) {{ unit-{name}.o(.text) }}\n"
+        f" .rodata : {{ unit-{name}.o(.rodata*) }}\n"
         f" /DISCARD/ : {{ {discard} *(.note*) }}\n"
         "}\n"
     )
@@ -150,7 +188,22 @@ def build_function(cfg, name: str, directory: Path) -> bytes:
     matchbuild.run([prefix + "ld", "-EL", "-T", "link.ld", "-e", f"{TEST_ADDRESS:#x}", "-o", "image.elf", f"unit-{name}.o"],
                    cwd=directory, step="link")
     matchbuild.run([prefix + "objcopy", "-O", "binary", "image.elf", "image.bin"], cwd=directory, step="objcopy")
-    return (directory / "image.bin").read_bytes()
+    code = (directory / "image.bin").read_bytes()
+    if len(code) > STOP_ADDRESS - TEST_ADDRESS:
+        raise InputError(f"{source.name} builds {len(code)} bytes, more than the test area holds")
+    return Build(code, sizes.get(".text", 0), entry)
+
+
+def section_sizes(obj_path: Path) -> dict[str, int]:
+    """The size of each section of an object, and of its common symbols under the name COMMON."""
+    with open(obj_path, "rb") as handle:
+        elf = ELFFile(handle)
+        sizes = {section.name: section["sh_size"] for section in elf.iter_sections()}
+        symtab = elf.get_section_by_name(".symtab")
+        common = sum(sym["st_size"] for sym in symtab.iter_symbols() if sym["st_shndx"] == "SHN_COMMON") if symtab else 0
+    if common:
+        sizes["COMMON"] = common
+    return sizes
 
 
 # ---------------------------------------------------------------------------
@@ -184,10 +237,16 @@ def machine(code: bytes) -> Uc:
     return uc
 
 
-def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup) -> dict | str:
-    """Run one call on `state`. Returns the final state, or a text naming the failure."""
+def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: set | None = None) -> dict | str:
+    """Run one call on `state`. Returns the final state, or a text naming the failure.
+
+    With `blocks`, every block of code that the run enters is added to it as (address, size).
+    """
     uc.mem_write(0, bytes(state.ram))
     uc.mem_write(SCRATCH_BASE, bytes(state.scratch))
+    # A setup may write code (a recorder in a callee's place) that differs from case to case.
+    # Unicorn keeps translated code across a write to memory: without this the first case's code would run again.
+    uc.ctl_flush_tb()
     for number in range(reg.UC_MIPS_REG_0, reg.UC_MIPS_REG_31 + 1):
         uc.reg_write(number, 0)
     for index, number in enumerate(SAVED):
@@ -196,10 +255,16 @@ def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup) -> dict |
         uc.reg_write(number, value)
     uc.reg_write(reg.UC_MIPS_REG_RA, STOP_ADDRESS)
     uc.reg_write(reg.UC_MIPS_REG_SP, STACK_TOP)
+    hook = None
+    if blocks is not None:
+        hook = uc.hook_add(UC_HOOK_BLOCK, lambda _uc, address, size, _data: blocks.add((address & 0xFFFFFFFF, size)))
     try:
         uc.emu_start(entry, STOP_ADDRESS, count=BUDGET)
     except UcError as exc:
         return f"fault ({exc})"
+    finally:
+        if hook is not None:
+            uc.hook_del(hook)
     if uc.reg_read(reg.UC_MIPS_REG_PC) != STOP_ADDRESS:
         return "instruction budget exceeded"
     return {
@@ -266,22 +331,59 @@ def original_function(cfg, name: str) -> tuple[int, int]:
     return address, sizes[0]
 
 
-def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes) -> tuple[int, int, int, list]:
-    """Run the cases. Returns (discarded, equal, different, first difference report)."""
+def slots_in(blocks: set, start: int, size: int) -> set[int]:
+    """The instruction slots of [start, start + size) that lie in one of the entered blocks, as offsets."""
+    slots: set[int] = set()
+    for address, length in blocks:
+        for at in range(max(address, start), min(address + length, start + size), 4):
+            slots.add(at - start)
+    return slots
+
+
+def ranges_text(offsets: list[int]) -> str:
+    """Sorted instruction offsets as text, runs joined: `+0x40..+0x4c, +0x88`."""
+    parts = []
+    for offset in offsets:
+        if parts and parts[-1][1] + 4 == offset:
+            parts[-1][1] = offset
+        else:
+            parts.append([offset, offset])
+    return ", ".join(f"+{a:#x}" if a == b else f"+{a:#x}..+{b:#x}" for a, b in parts)
+
+
+def addresses(cfg) -> dict[str, int]:
+    """What a contract's setup is given as `sym`: the names of the tree's linker symbols
+    and of the functions that the build declares, each with its address."""
+    table = {fn.name: fn.address for unit in getattr(cfg, "units", ()) for fn in unit.functions}
+    table.update(cfg.symbol_values)
+    return table
+
+
+def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes, entry: int = 0) -> tuple[int, int, int, list, set]:
+    """Run the cases. `entry` is the offset of the function in `code`.
+
+    Returns (discarded, equal, different, first difference report, executed): `executed` holds
+    the offsets of the original function's instruction slots that the runs of the original
+    which reached their end have executed.
+    """
     contract = contracts.CONTRACTS[name]
-    original = original_function(cfg, name)[0]
+    original, size = original_function(cfg, name)
     uc = machine(code)
+    sym = addresses(cfg)
     discarded = equal = different = 0
     first: list[str] = []
+    executed: set[int] = set()
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
         state = State(ram, scratch)
-        setup = contract.setup(state, rng, cfg.symbol_values)
-        reference = run_once(uc, state, original, setup)
+        setup = contract.setup(state, rng, sym)
+        blocks: set = set()
+        reference = run_once(uc, state, original, setup, blocks)
         if isinstance(reference, str):
             discarded += 1
             continue
-        built = run_once(uc, state, TEST_ADDRESS, setup)
+        executed |= slots_in(blocks, original, size)
+        built = run_once(uc, state, TEST_ADDRESS + entry, setup)
         if isinstance(built, str):
             lines = [f"build: {built}"]
         else:
@@ -294,18 +396,49 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
                     first.append(f"... and {len(lines) - 24} more")
         else:
             equal += 1
-    return discarded, equal, different, first
+    return discarded, equal, different, first, executed
+
+
+def load_contracts(folder: Path, names: list[str]) -> None:
+    """Take the contract of each name that has a file `NAME.py` in `folder` into `contracts.CONTRACTS`."""
+    for name in names:
+        path = folder / f"{name}.py"
+        if name in contracts.CONTRACTS or not path.is_file():
+            continue
+        spec = importlib.util.spec_from_file_location(f"contract_{name}", path)
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+        except Exception as exc:  # a contract file is input: whatever it raises is reported, not a traceback
+            raise InputError(f"{path.name} cannot be loaded: {type(exc).__name__}: {exc}") from exc
+        if not isinstance(getattr(module, "CONTRACT", None), contracts.Contract):
+            raise InputError(f"{path.name} does not define CONTRACT, a contracts.Contract")
+        contracts.CONTRACTS[name] = module.CONTRACT
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Differential test of nonmatching C against the original code")
     parser.add_argument("--config", type=Path, required=True, help="the build configuration (build.toml)")
+    parser.add_argument("--folder", type=Path, default=HERE,
+                        help="the folder of the sources and of their contract files (default: the tool's own)")
     parser.add_argument("--cases", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--control", action="store_true",
                         help="negative control: alter one instruction of the build and require differences")
-    parser.add_argument("functions", nargs="+", metavar="FUNC")
+    parser.add_argument("--uncovered", action="store_true",
+                        help="list the instruction slots of the original that no case executed")
+    parser.add_argument("--all", action="store_true", help="every function that has a source in the folder")
+    parser.add_argument("functions", nargs="*", metavar="FUNC")
     args = parser.parse_args(argv)
+    folder = args.folder.resolve()
+    if args.all == bool(args.functions):
+        print("INPUT ERROR: name the functions, or give --all and none", file=sys.stderr)
+        return 2
+    if args.all:
+        args.functions = sorted(path.stem for path in folder.glob("func_*.c"))
+        if not args.functions:
+            print(f"INPUT ERROR: no func_*.c in {folder.name}", file=sys.stderr)
+            return 2
 
     try:
         cfg = matchbuild.load_config(args.config.resolve())
@@ -317,6 +450,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"INPUT ERROR: {exc}", file=sys.stderr)
         return 2
     scratch = bytes(SCRATCH_SIZE)
+    try:
+        load_contracts(folder, args.functions)
+    except (InputError, OSError) as exc:
+        print(f"INPUT ERROR: {exc}", file=sys.stderr)
+        return 2
 
     status = 0
     for name in args.functions:
@@ -331,25 +469,34 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         with tempfile.TemporaryDirectory(prefix="difftest-") as directory:
             try:
-                code = build_function(cfg, name, Path(directory))
+                build = build_function(cfg, name, Path(directory), folder)
             except (matchbuild.StepError, matchbuild.EnvironmentFailure, InputError) as exc:
                 print(f"BUILD ERROR: {exc}", file=sys.stderr)
                 return 3
+        code = build.code
         if args.control:
-            words = list(struct.unpack(f"<{len(code) // 4}I", code))
+            # The control sees the unit's code, not its read-only data, and may alter one word of it.
+            words = list(struct.unpack(f"<{build.size // 4}I", code[: build.size]))
             index, word, what = contracts.CONTRACTS[name].control(words)
+            if not 0 <= index < len(words):
+                print(f"INPUT ERROR: the control of {name} names word {index} of {len(words)}", file=sys.stderr)
+                return 2
             code = code[: 4 * index] + struct.pack("<I", word) + code[4 * index + 4 :]
-        discarded, equal, different, first = test_function(cfg, name, code, args.cases, args.seed, ram, scratch)
+        discarded, equal, different, first, executed = test_function(cfg, name, code, args.cases, args.seed, ram, scratch, build.entry)
         if args.control:
             print(f"{name} control: different {different} of {args.cases} (expected more than 0)")
             print(f"  altered: {what}, instruction slot {index}")
             if different == 0:
                 status = 1
             continue
-        print(f"{name}: built {len(code)} bytes, original {original_size} bytes; "
+        print(f"{name}: built {build.size} bytes, original {original_size} bytes; "
               f"cases {args.cases}, discarded {discarded}, equal {equal}, different {different}")
         for line in first:
             print(f"  {line}")
+        slots = original_size // 4
+        print(f"{name} coverage: {len(executed)} of {slots} instruction slots of the original executed")
+        if args.uncovered and len(executed) < slots:
+            print(f"  not executed: {ranges_text([o for o in range(0, original_size, 4) if o not in executed])}")
         if different or not equal:
             status = 1
     return status

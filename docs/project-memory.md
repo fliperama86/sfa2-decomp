@@ -6528,6 +6528,76 @@ scoped differential test, and a passing test is not equivalence.
   functions, with the same instrument. The copies of this function in
   the other stage files have no C yet.
 
+## The differential test gets controls, a coverage line and recorders (2026-10-09)
+
+The owner's note on the first nonmatching function (PR 109, nonblocking):
+"preserve small input-independent comparator and exit-status regression
+controls in the repository. The documented reliance on private matchbuild
+interfaces is easier to maintain with executable controls than with a
+one-off report alone."
+
+- `ps1/src/slot06_nonmatching/test_difftest.py` is that: made-up final
+  states for the comparator, made-up MIPS functions for the emulator
+  path, stand-ins for the build and the run around `main`, and a check
+  that every name the tool takes from `matchbuild.py` exists. It needs no
+  private input and no toolchain. Its last line on 2026-10-09:
+  `all cases behaved as required`.
+- The tool prints a second line now, for example
+  `func_801e9080_slot06_00 coverage: 173 of 175 instruction slots of the original executed`,
+  and `--uncovered` lists the others. For this function they are two
+  adjustments for a negative value that no input reaches; the function's
+  comment says so. A pass on cases that never reach a part of a function
+  says nothing about that part: the figure is what shows it.
+- `--folder` reads sources and contract files (`FUNC.py`) of another
+  folder, so that the functions of other images get folders of their
+  own and many can be written side by side.
+- `CallLog` in `contracts.py` puts a recorder in a callee's place, in the
+  original's run and the build's alike: the callee's address and its
+  declared arguments go to a log in the compared RAM, and the recorder
+  returns a value that the contract chose. It is for callees that reach
+  Sony's library or need a state of their own. What such a callee would
+  have done is then outside the test.
+- A defect that the first real functions exposed, found by two workers
+  independently and reproduced here in six lines: Unicorn keeps
+  translated code across a rewrite of memory, so code that a setup
+  writes for a case (a recorder) ran as the FIRST case had written it. A
+  recorder asked to return three values in three runs returned the first
+  one three times, one arm of a function was never reached, and a
+  changed constant in that arm passed. The tool now drops the translated
+  code before every run (`uc.ctl_flush_tb()`), and three cases of the
+  controls fail without that line. What showed the defect was the
+  coverage line: "all equal" had said nothing.
+- Three more things the first functions needed: the tool enters the
+  function by its name, so a unit may hold a helper before it; a unit's
+  read-only data is linked behind its code and writable data is refused
+  (it would keep its values from one case to the next); `--all` runs
+  every function of a folder. A setup's `sym` holds the declared
+  functions' names beside the linker symbols, so that no contract writes
+  an address as a number.
+- The controls against one-line changes of the tool, one-off figures
+  from the private folder: an agent ran 131 changes of `difftest.py` and
+  `contracts.py`, each under a time and memory limit; 125 were noticed,
+  and it gave a reason for each of the other 6 (a hook that is left
+  installed and adds to a set nobody reads, a set filled after its use,
+  a second encoding of the same return instruction, a delay that the
+  emulator does not model, and two lines of the build step, which no
+  case can reach without the toolchain). 12 more changes of my own were
+  all noticed. One defect came out of the review: a contract file that
+  raised an error ended the tool with a traceback; it is an input error
+  with status 2 now, with two cases.
+- Not covered by the controls, because it needs the pinned toolchain:
+  the refusal of writable data and the code size taken from a real
+  link. The folder's page says so. Tried by hand on 2026-10-09 with the
+  toolchain: a copy of the first function with a helper and a constant
+  table before it builds and passes; one with an initialized variable
+  and one with an uninitialized variable are refused.
+- Why this matters beyond lane B: on 2026-10-09 the owner settled how
+  the port gets the functions that are not C: "No interpreter needed
+  with the unmatched code, right?" The PC program is to consist of the
+  project's C, so every function that is not C needs nonmatching C, in
+  the resident image and in every module. This instrument is the gate
+  for each of them.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
