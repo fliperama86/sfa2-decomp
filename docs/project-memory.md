@@ -7539,6 +7539,24 @@ No function count changes here. Nothing under `ps1/` changed.
     that the real game stays inside: in three traces of the private
     trial, 1,102, 1,397 and 2,672 calls, none had a buffer outside.
   - The ready handler's address is checked at each call.
+- The owner's review of the first version (PR 128), in his words: "The
+  new file-table reader does not enforce the bounds its interface and
+  README promise. In independent native tests on an invented 25-sector
+  image, `port_disc_list` succeeds with a file starting at sector 900,
+  and also with a file claiming 4,294,967,295 bytes", and "It also
+  scans the whole final sector rather than the remaining declared
+  directory bytes." My page had said "every length, extent and name
+  bounded"; the worker had bounded the directories, and I had accepted
+  "no check had to be added" without asking what the reader hands to
+  its caller. Both readers now stop at the directory's declared end and
+  refuse a file that is not inside the image. Ten one-line changes of
+  the new checks were run against the cases at the top level: seven
+  were noticed at once, one was noticed by a compile error and not by
+  a case, and for the rest four cases were added (the other reader's
+  two paths, the last byte of a cut image, one byte of slack). The
+  rule I take from it: a sentence on a page that says "every" is
+  checked word by word against the code before it is written, and a
+  worker's "nothing had to be added" is a claim to test.
 - Not shown: the disc layer on the real game from a published commit
   (the published tree stops at `main`).
 

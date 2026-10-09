@@ -757,8 +757,15 @@ routines that do nothing on purpose. What is in this piece:
 - What the disc layer does not trust. `CdGetSector` copies a sector to
   an address and a length that the game gives: both must lie inside the
   PS1's RAM, or the program ends with a line before a byte is copied.
-  The file table of the image is read with every length, extent and
-  name bounded by the sector, the folder and the image.
+  The file table of the image is read record by record inside the
+  bytes that each directory declares as its own: a record that crosses
+  the end of its sector or of its directory is refused, and what stands
+  in the sector behind the declared end is not read. Every file that
+  the reader hands out lies inside the image with its last byte, by
+  arithmetic that cannot wrap; a file that does not is refused with its
+  name and with the sector where the image ends. The first version
+  bounded the directories and not the files in them; the owner's review
+  found that.
 - Programs of the disc. The game starts other programs from the disc
   with `Exec`. No C exists for any of them, so the port ends there with
   `stop: no C yet for the program NAME (disc sector N)`, as it does for
@@ -843,8 +850,14 @@ conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
 `test_hostrun.py` also reads file tables made to break the reader: a
-record that runs past its sector, a name past its record, an extent
-beyond the image, a folder too large. On
+record that runs past its sector, a name past its record, a directory
+extent beyond the image, a folder too large; a file that starts beyond
+the image, one of 4,294,967,295 bytes, one whose sectors wrap 32 bits,
+one that is a byte longer than the image holds and one that ends with
+the image's last byte, an image cut inside the last file and one cut
+right behind its last byte; a directory that declares only its own two
+records, and a record that crosses or only begins inside the declared
+end, for the reader that lists and for the one that looks a file up. On
 2026-10-09 each of the four ended with
 `all cases behaved as required`.
 
