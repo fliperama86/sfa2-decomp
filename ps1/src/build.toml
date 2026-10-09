@@ -6740,6 +6740,14 @@ slot = 0x27
 sha256 = "2c939e3fa90808c2a441520b7d3cba0d3df7a0f16f9935529d0eec4ce68545a9"
 address = 0x80010000
 
+# The one content of slot 0x28. It is in 21 archives; this is one of them.
+[[image]]
+name = "slot28"
+archive = "../extract/PAC/END00.PAC"
+slot = 0x28
+sha256 = "2c37ef7218accc9b5e4a4c79d424339a9c099d6a946443f91988e999a51232ce"
+address = 0x80010000
+
 
 # The content of STAGE01.PAC, in that file only.
 [[image]]
@@ -19305,4 +19313,4017 @@ source = "slot04_0e/slot04_0e_4390x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801b4390_slot04_0e", address = 0x801b4390, size = 128 },
+]
+
+[[unit]]
+name = "slot28_3834_r1"
+image = "slot28"
+source = "slot28/slot28_3834_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013834_slot28", address = 0x80013834, size = 32 },
+  { name = "func_80013854_slot28", address = 0x80013854, size = 72 },
+]
+
+[[unit]]
+name = "slot28_3834_r1_b"
+image = "slot28"
+source = "slot28/slot28_3834_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001392c_slot28", address = 0x8001392c, size = 68 },
+  { name = "func_80013970_slot28", address = 0x80013970, size = 8 },
+  { name = "func_80013978_slot28", address = 0x80013978, size = 72 },
+]
+
+[[unit]]
+name = "slot28_3834_r2"
+image = "slot28"
+source = "slot28/slot28_3834_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800139c0_slot28", address = 0x800139c0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_3834_r3"
+image = "slot28"
+source = "slot28/slot28_3834_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013a20_slot28", address = 0x80013a20, size = 92 },
+  { name = "func_80013a7c_slot28", address = 0x80013a7c, size = 92 },
+  { name = "func_80013ad8_slot28", address = 0x80013ad8, size = 144 },
+  { name = "func_80013b68_slot28", address = 0x80013b68, size = 52 },
+]
+
+[[unit]]
+name = "slot28_3834_r4"
+image = "slot28"
+source = "slot28/slot28_3834_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013b9c_slot28", address = 0x80013b9c, size = 156 },
+  { name = "func_80013c38_slot28", address = 0x80013c38, size = 136 },
+]
+
+[[unit]]
+name = "slot28_3834_r5"
+image = "slot28"
+source = "slot28/slot28_3834_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013d5c_slot28", address = 0x80013d5c, size = 48 },
+]
+
+[[unit]]
+name = "slot28_3834_r6"
+image = "slot28"
+source = "slot28/slot28_3834_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013e58_slot28", address = 0x80013e58, size = 72 },
+]
+
+[[unit]]
+name = "slot28_3ea0_r2"
+image = "slot28"
+source = "slot28/slot28_3ea0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014138_slot28", address = 0x80014138, size = 212 },
+  { name = "func_8001420c_slot28", address = 0x8001420c, size = 60 },
+  { name = "func_80014248_slot28", address = 0x80014248, size = 88 },
+  { name = "func_800142a0_slot28", address = 0x800142a0, size = 52 },
+]
+
+[[unit]]
+name = "slot28_3ea0_r3"
+image = "slot28"
+source = "slot28/slot28_3ea0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800142d4_slot28", address = 0x800142d4, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3ea0_r3_b"
+image = "slot28"
+source = "slot28/slot28_3ea0_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800143e8_slot28", address = 0x800143e8, size = 100 },
+]
+
+[[unit]]
+name = "slot28_444c_r1"
+image = "slot28"
+source = "slot28/slot28_444c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001444c_slot28", address = 0x8001444c, size = 200 },
+  { name = "func_80014514_slot28", address = 0x80014514, size = 144 },
+]
+
+[[unit]]
+name = "slot28_444c_r3"
+image = "slot28"
+source = "slot28/slot28_444c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800146dc_slot28", address = 0x800146dc, size = 136 },
+  { name = "func_80014764_slot28", address = 0x80014764, size = 80 },
+  { name = "func_800147b4_slot28", address = 0x800147b4, size = 104 },
+  { name = "func_8001481c_slot28", address = 0x8001481c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_444c_r4"
+image = "slot28"
+source = "slot28/slot28_444c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014854_slot28", address = 0x80014854, size = 48 },
+  { name = "func_80014884_slot28", address = 0x80014884, size = 64 },
+  { name = "func_800148c4_slot28", address = 0x800148c4, size = 20 },
+  { name = "func_800148d8_slot28", address = 0x800148d8, size = 120 },
+]
+
+[[unit]]
+name = "slot28_49a0_r1"
+image = "slot28"
+source = "slot28/slot28_49a0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800149a0_slot28", address = 0x800149a0, size = 952 },
+]
+
+[[unit]]
+name = "slot28_49a0_r2"
+image = "slot28"
+source = "slot28/slot28_49a0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014e20_slot28", address = 0x80014e20, size = 64 },
+  { name = "func_80014e60_slot28", address = 0x80014e60, size = 104 },
+  { name = "func_80014ec8_slot28", address = 0x80014ec8, size = 84 },
+  { name = "func_80014f1c_slot28", address = 0x80014f1c, size = 100 },
+]
+
+[[unit]]
+name = "slot28_49a0_r3"
+image = "slot28"
+source = "slot28/slot28_49a0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014f80_slot28", address = 0x80014f80, size = 88 },
+  { name = "func_80014fd8_slot28", address = 0x80014fd8, size = 80 },
+  { name = "func_80015028_slot28", address = 0x80015028, size = 192 },
+]
+
+[[unit]]
+name = "slot28_50e8_r1"
+image = "slot28"
+source = "slot28/slot28_50e8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800150e8_slot28", address = 0x800150e8, size = 88 },
+  { name = "func_80015140_slot28", address = 0x80015140, size = 112 },
+]
+
+[[unit]]
+name = "slot28_50e8_r3"
+image = "slot28"
+source = "slot28/slot28_50e8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015310_slot28", address = 0x80015310, size = 100 },
+]
+
+[[unit]]
+name = "slot28_50e8_r5"
+image = "slot28"
+source = "slot28/slot28_50e8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015640_slot28", address = 0x80015640, size = 56 },
+  { name = "func_80015678_slot28", address = 0x80015678, size = 56 },
+]
+
+[[unit]]
+name = "slot28_50e8_r5_b"
+image = "slot28"
+source = "slot28/slot28_50e8_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015724_slot28", address = 0x80015724, size = 64 },
+]
+
+[[unit]]
+name = "slot28_57cc_r1"
+image = "slot28"
+source = "slot28/slot28_57cc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800157cc_slot28", address = 0x800157cc, size = 80 },
+]
+
+[[unit]]
+name = "slot28_57cc_r2"
+image = "slot28"
+source = "slot28/slot28_57cc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001584c_slot28", address = 0x8001584c, size = 144 },
+]
+
+[[unit]]
+name = "slot28_57cc_r3"
+image = "slot28"
+source = "slot28/slot28_57cc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001591c_slot28", address = 0x8001591c, size = 92 },
+  { name = "func_80015978_slot28", address = 0x80015978, size = 64 },
+  { name = "func_800159b8_slot28", address = 0x800159b8, size = 92 },
+  { name = "func_80015a14_slot28", address = 0x80015a14, size = 84 },
+]
+
+[[unit]]
+name = "slot28_57cc_r4"
+image = "slot28"
+source = "slot28/slot28_57cc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015a70_slot28", address = 0x80015a70, size = 84 },
+  { name = "func_80015ac4_slot28", address = 0x80015ac4, size = 88 },
+  { name = "func_80015b1c_slot28", address = 0x80015b1c, size = 52 },
+]
+
+[[unit]]
+name = "slot28_57cc_r5"
+image = "slot28"
+source = "slot28/slot28_57cc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015b50_slot28", address = 0x80015b50, size = 204 },
+  { name = "func_80015c1c_slot28", address = 0x80015c1c, size = 128 },
+]
+
+[[unit]]
+name = "slot28_57cc_r6"
+image = "slot28"
+source = "slot28/slot28_57cc_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015c9c_slot28", address = 0x80015c9c, size = 92 },
+  { name = "func_80015cf8_slot28", address = 0x80015cf8, size = 60 },
+]
+
+[[unit]]
+name = "slot28_57cc_r7"
+image = "slot28"
+source = "slot28/slot28_57cc_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015d3c_slot28", address = 0x80015d3c, size = 88 },
+  { name = "func_80015d94_slot28", address = 0x80015d94, size = 168 },
+]
+
+[[unit]]
+name = "slot28_57cc_r8"
+image = "slot28"
+source = "slot28/slot28_57cc_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015ea4_slot28", address = 0x80015ea4, size = 56 },
+  { name = "func_80015edc_slot28", address = 0x80015edc, size = 84 },
+]
+
+[[unit]]
+name = "slot28_5f50_r1"
+image = "slot28"
+source = "slot28/slot28_5f50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015f50_slot28", address = 0x80015f50, size = 124 },
+]
+
+[[unit]]
+name = "slot28_5f50_r2"
+image = "slot28"
+source = "slot28/slot28_5f50_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015ffc_slot28", address = 0x80015ffc, size = 32 },
+  { name = "func_8001601c_slot28", address = 0x8001601c, size = 216 },
+]
+
+[[unit]]
+name = "slot28_6658_r1"
+image = "slot28"
+source = "slot28/slot28_6658_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016658_slot28", address = 0x80016658, size = 384 },
+]
+
+[[unit]]
+name = "slot28_6658_r3"
+image = "slot28"
+source = "slot28/slot28_6658_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800168f8_slot28", address = 0x800168f8, size = 372 },
+]
+
+[[unit]]
+name = "slot28_6658_r4"
+image = "slot28"
+source = "slot28/slot28_6658_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016abc_slot28", address = 0x80016abc, size = 516 },
+]
+
+[[unit]]
+name = "slot28_6658_r5"
+image = "slot28"
+source = "slot28/slot28_6658_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016cc0_slot28", address = 0x80016cc0, size = 212 },
+  { name = "func_80016d94_slot28", address = 0x80016d94, size = 92 },
+]
+
+[[unit]]
+name = "slot28_6e58_r1"
+image = "slot28"
+source = "slot28/slot28_6e58_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016e58_slot28", address = 0x80016e58, size = 36 },
+  { name = "func_80016e7c_slot28", address = 0x80016e7c, size = 108 },
+]
+
+[[unit]]
+name = "slot28_6e58_r2"
+image = "slot28"
+source = "slot28/slot28_6e58_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016fb8_slot28", address = 0x80016fb8, size = 32 },
+]
+
+[[unit]]
+name = "slot28_6e58_r3"
+image = "slot28"
+source = "slot28/slot28_6e58_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017018_slot28", address = 0x80017018, size = 120 },
+  { name = "func_80017090_slot28", address = 0x80017090, size = 48 },
+  { name = "func_800170c0_slot28", address = 0x800170c0, size = 92 },
+  { name = "func_8001711c_slot28", address = 0x8001711c, size = 40 },
+]
+
+[[unit]]
+name = "slot28_6e58_r5"
+image = "slot28"
+source = "slot28/slot28_6e58_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017248_slot28", address = 0x80017248, size = 584 },
+]
+
+[[unit]]
+name = "slot28_6e58_r6"
+image = "slot28"
+source = "slot28/slot28_6e58_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017490_slot28", address = 0x80017490, size = 108 },
+]
+
+[[unit]]
+name = "slot28_6e58_r7"
+image = "slot28"
+source = "slot28/slot28_6e58_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017580_slot28", address = 0x80017580, size = 308 },
+]
+
+[[unit]]
+name = "slot28_7704_r1"
+image = "slot28"
+source = "slot28/slot28_7704_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017704_slot28", address = 0x80017704, size = 328 },
+]
+
+[[unit]]
+name = "slot28_7704_r2"
+image = "slot28"
+source = "slot28/slot28_7704_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001788c_slot28", address = 0x8001788c, size = 124 },
+  { name = "func_80017908_slot28", address = 0x80017908, size = 60 },
+]
+
+[[unit]]
+name = "slot28_7704_r3"
+image = "slot28"
+source = "slot28/slot28_7704_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017b54_slot28", address = 0x80017b54, size = 88 },
+  { name = "func_80017bac_slot28", address = 0x80017bac, size = 80 },
+  { name = "func_80017bfc_slot28", address = 0x80017bfc, size = 84 },
+]
+
+[[unit]]
+name = "slot28_7704_r4"
+image = "slot28"
+source = "slot28/slot28_7704_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017c50_slot28", address = 0x80017c50, size = 640 },
+]
+
+[[unit]]
+name = "slot28_7704_r5"
+image = "slot28"
+source = "slot28/slot28_7704_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017ed0_slot28", address = 0x80017ed0, size = 92 },
+]
+
+[[unit]]
+name = "slot28_7704_r6"
+image = "slot28"
+source = "slot28/slot28_7704_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017f34_slot28", address = 0x80017f34, size = 64 },
+  { name = "func_80017f74_slot28", address = 0x80017f74, size = 96 },
+  { name = "func_80017fd4_slot28", address = 0x80017fd4, size = 12 },
+]
+
+[[unit]]
+name = "slot28_8050_r1"
+image = "slot28"
+source = "slot28/slot28_8050_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018050_slot28", address = 0x80018050, size = 828 },
+]
+
+[[unit]]
+name = "slot28_8050_r2"
+image = "slot28"
+source = "slot28/slot28_8050_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018418_slot28", address = 0x80018418, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8050_r3"
+image = "slot28"
+source = "slot28/slot28_8050_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018458_slot28", address = 0x80018458, size = 376 },
+]
+
+[[unit]]
+name = "slot28_8050_r4"
+image = "slot28"
+source = "slot28/slot28_8050_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800185d0_slot28", address = 0x800185d0, size = 396 },
+]
+
+[[unit]]
+name = "slot28_875c_r4"
+image = "slot28"
+source = "slot28/slot28_875c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018dec_slot28", address = 0x80018dec, size = 100 },
+]
+
+[[unit]]
+name = "slot28_8e50_r1"
+image = "slot28"
+source = "slot28/slot28_8e50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018e50_slot28", address = 0x80018e50, size = 352 },
+]
+
+[[unit]]
+name = "slot28_8e50_r2"
+image = "slot28"
+source = "slot28/slot28_8e50_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019090_slot28", address = 0x80019090, size = 112 },
+]
+
+[[unit]]
+name = "slot28_8e50_r3"
+image = "slot28"
+source = "slot28/slot28_8e50_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019310_slot28", address = 0x80019310, size = 100 },
+  { name = "func_80019374_slot28", address = 0x80019374, size = 84 },
+]
+
+[[unit]]
+name = "slot28_8e50_r4"
+image = "slot28"
+source = "slot28/slot28_8e50_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019408_slot28", address = 0x80019408, size = 60 },
+]
+
+[[unit]]
+name = "slot28_8e50_r5"
+image = "slot28"
+source = "slot28/slot28_8e50_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001948c_slot28", address = 0x8001948c, size = 60 },
+]
+
+[[unit]]
+name = "slot28_8e50_r6"
+image = "slot28"
+source = "slot28/slot28_8e50_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019510_slot28", address = 0x80019510, size = 68 },
+  { name = "func_80019554_slot28", address = 0x80019554, size = 60 },
+  { name = "func_80019590_slot28", address = 0x80019590, size = 52 },
+  { name = "func_800195c4_slot28", address = 0x800195c4, size = 52 },
+]
+
+[[unit]]
+name = "slot28_8e50_r7"
+image = "slot28"
+source = "slot28/slot28_8e50_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019640_slot28", address = 0x80019640, size = 68 },
+  { name = "func_80019684_slot28", address = 0x80019684, size = 60 },
+  { name = "func_800196c0_slot28", address = 0x800196c0, size = 52 },
+]
+
+[[unit]]
+name = "slot28_8e50_r8"
+image = "slot28"
+source = "slot28/slot28_8e50_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800196fc_slot28", address = 0x800196fc, size = 80 },
+]
+
+[[unit]]
+name = "slot28_8e50_r9"
+image = "slot28"
+source = "slot28/slot28_8e50_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019774_slot28", address = 0x80019774, size = 20 },
+]
+
+[[unit]]
+name = "slot28_8e50_r10"
+image = "slot28"
+source = "slot28/slot28_8e50_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800197d8_slot28", address = 0x800197d8, size = 40 },
+  { name = "func_80019800_slot28", address = 0x80019800, size = 60 },
+  { name = "func_8001983c_slot28", address = 0x8001983c, size = 64 },
+  { name = "func_8001987c_slot28", address = 0x8001987c, size = 76 },
+]
+
+[[unit]]
+name = "slot28_8e50_r11"
+image = "slot28"
+source = "slot28/slot28_8e50_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800198d0_slot28", address = 0x800198d0, size = 40 },
+]
+
+[[unit]]
+name = "slot28_8e50_r12"
+image = "slot28"
+source = "slot28/slot28_8e50_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019960_slot28", address = 0x80019960, size = 68 },
+]
+
+[[unit]]
+name = "slot28_99dc_r1"
+image = "slot28"
+source = "slot28/slot28_99dc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800199dc_slot28", address = 0x800199dc, size = 152 },
+  { name = "func_80019a74_slot28", address = 0x80019a74, size = 44 },
+]
+
+[[unit]]
+name = "slot28_99dc_r2"
+image = "slot28"
+source = "slot28/slot28_99dc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019ae8_slot28", address = 0x80019ae8, size = 832 },
+]
+
+[[unit]]
+name = "slot28_99dc_r4"
+image = "slot28"
+source = "slot28/slot28_99dc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019fb8_slot28", address = 0x80019fb8, size = 220 },
+]
+
+[[unit]]
+name = "slot28_a0e4_r2"
+image = "slot28"
+source = "slot28/slot28_a0e4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a4e0_slot28", address = 0x8001a4e0, size = 80 },
+  { name = "func_8001a530_slot28", address = 0x8001a530, size = 276 },
+]
+
+[[unit]]
+name = "slot28_a0e4_r3"
+image = "slot28"
+source = "slot28/slot28_a0e4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a644_slot28", address = 0x8001a644, size = 88 },
+]
+
+[[unit]]
+name = "slot28_a69c_r2"
+image = "slot28"
+source = "slot28/slot28_a69c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ab68_slot28", address = 0x8001ab68, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a69c_r3"
+image = "slot28"
+source = "slot28/slot28_a69c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ac50_slot28", address = 0x8001ac50, size = 64 },
+  { name = "func_8001ac90_slot28", address = 0x8001ac90, size = 68 },
+  { name = "func_8001acd4_slot28", address = 0x8001acd4, size = 52 },
+]
+
+[[unit]]
+name = "slot28_a69c_r4"
+image = "slot28"
+source = "slot28/slot28_a69c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ad5c_slot28", address = 0x8001ad5c, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a69c_r5"
+image = "slot28"
+source = "slot28/slot28_a69c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001add0_slot28", address = 0x8001add0, size = 152 },
+]
+
+[[unit]]
+name = "slot28_a69c_r6"
+image = "slot28"
+source = "slot28/slot28_a69c_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001aea8_slot28", address = 0x8001aea8, size = 56 },
+]
+
+[[unit]]
+name = "slot28_a69c_r7"
+image = "slot28"
+source = "slot28/slot28_a69c_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001af40_slot28", address = 0x8001af40, size = 92 },
+  { name = "func_8001af9c_slot28", address = 0x8001af9c, size = 140 },
+  { name = "func_8001b028_slot28", address = 0x8001b028, size = 120 },
+]
+
+[[unit]]
+name = "slot28_a69c_r8"
+image = "slot28"
+source = "slot28/slot28_a69c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b0a0_slot28", address = 0x8001b0a0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_a69c_r9"
+image = "slot28"
+source = "slot28/slot28_a69c_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b184_slot28", address = 0x8001b184, size = 32 },
+]
+
+[[unit]]
+name = "slot28_a69c_r10"
+image = "slot28"
+source = "slot28/slot28_a69c_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b1c4_slot28", address = 0x8001b1c4, size = 100 },
+]
+
+[[unit]]
+name = "slot28_b2b0_r1"
+image = "slot28"
+source = "slot28/slot28_b2b0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b2b0_slot28", address = 0x8001b2b0, size = 804 },
+]
+
+[[unit]]
+name = "slot28_b2b0_r2"
+image = "slot28"
+source = "slot28/slot28_b2b0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b660_slot28", address = 0x8001b660, size = 112 },
+]
+
+[[unit]]
+name = "slot28_b2b0_r3"
+image = "slot28"
+source = "slot28/slot28_b2b0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b6d0_slot28", address = 0x8001b6d0, size = 768 },
+]
+
+[[unit]]
+name = "slot28_b9d0_r1"
+image = "slot28"
+source = "slot28/slot28_b9d0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b9d0_slot28", address = 0x8001b9d0, size = 72 },
+  { name = "func_8001ba18_slot28", address = 0x8001ba18, size = 200 },
+]
+
+[[unit]]
+name = "slot28_b9d0_r2"
+image = "slot28"
+source = "slot28/slot28_b9d0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001bb30_slot28", address = 0x8001bb30, size = 456 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r2"
+image = "slot28"
+source = "slot28/slot28_c0d4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c2b4_slot28", address = 0x8001c2b4, size = 248 },
+  { name = "func_8001c3ac_slot28", address = 0x8001c3ac, size = 132 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r3"
+image = "slot28"
+source = "slot28/slot28_c0d4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c640_slot28", address = 0x8001c640, size = 76 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r4"
+image = "slot28"
+source = "slot28/slot28_c0d4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c720_slot28", address = 0x8001c720, size = 64 },
+  { name = "func_8001c760_slot28", address = 0x8001c760, size = 124 },
+  { name = "func_8001c7dc_slot28", address = 0x8001c7dc, size = 64 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r5"
+image = "slot28"
+source = "slot28/slot28_c0d4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c864_slot28", address = 0x8001c864, size = 60 },
+  { name = "func_8001c8a0_slot28", address = 0x8001c8a0, size = 64 },
+  { name = "func_8001c8e0_slot28", address = 0x8001c8e0, size = 68 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r6"
+image = "slot28"
+source = "slot28/slot28_c0d4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c998_slot28", address = 0x8001c998, size = 112 },
+]
+
+[[unit]]
+name = "slot28_c0d4_r7"
+image = "slot28"
+source = "slot28/slot28_c0d4_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ca7c_slot28", address = 0x8001ca7c, size = 120 },
+]
+
+[[unit]]
+name = "slot28_cb7c_r1"
+image = "slot28"
+source = "slot28/slot28_cb7c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cb7c_slot28", address = 0x8001cb7c, size = 392 },
+]
+
+[[unit]]
+name = "slot28_cb7c_r2"
+image = "slot28"
+source = "slot28/slot28_cb7c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cde0_slot28", address = 0x8001cde0, size = 272 },
+]
+
+[[unit]]
+name = "slot28_cb7c_r3"
+image = "slot28"
+source = "slot28/slot28_cb7c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cf40_slot28", address = 0x8001cf40, size = 112 },
+]
+
+[[unit]]
+name = "slot28_cb7c_r4"
+image = "slot28"
+source = "slot28/slot28_cb7c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d000_slot28", address = 0x8001d000, size = 308 },
+]
+
+[[unit]]
+name = "slot28_d184_r1"
+image = "slot28"
+source = "slot28/slot28_d184_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d184_slot28", address = 0x8001d184, size = 740 },
+]
+
+[[unit]]
+name = "slot28_d184_r2"
+image = "slot28"
+source = "slot28/slot28_d184_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d758_slot28", address = 0x8001d758, size = 128 },
+]
+
+[[unit]]
+name = "slot28_d184_r3"
+image = "slot28"
+source = "slot28/slot28_d184_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d86c_slot28", address = 0x8001d86c, size = 208 },
+]
+
+[[unit]]
+name = "slot28_d184_r4"
+image = "slot28"
+source = "slot28/slot28_d184_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d984_slot28", address = 0x8001d984, size = 60 },
+]
+
+[[unit]]
+name = "slot28_d184_r5"
+image = "slot28"
+source = "slot28/slot28_d184_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d9c8_slot28", address = 0x8001d9c8, size = 64 },
+  { name = "func_8001da08_slot28", address = 0x8001da08, size = 72 },
+  { name = "func_8001da50_slot28", address = 0x8001da50, size = 144 },
+]
+
+[[unit]]
+name = "slot28_db68_r1"
+image = "slot28"
+source = "slot28/slot28_db68_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001db68_slot28", address = 0x8001db68, size = 880 },
+]
+
+[[unit]]
+name = "slot28_db68_r2"
+image = "slot28"
+source = "slot28/slot28_db68_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001df30_slot28", address = 0x8001df30, size = 84 },
+]
+
+[[unit]]
+name = "slot28_db68_r3"
+image = "slot28"
+source = "slot28/slot28_db68_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001dfd4_slot28", address = 0x8001dfd4, size = 116 },
+]
+
+[[unit]]
+name = "slot28_db68_r5"
+image = "slot28"
+source = "slot28/slot28_db68_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e2a0_slot28", address = 0x8001e2a0, size = 76 },
+]
+
+[[unit]]
+name = "slot28_e4c0_r1"
+image = "slot28"
+source = "slot28/slot28_e4c0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e4c0_slot28", address = 0x8001e4c0, size = 784 },
+]
+
+[[unit]]
+name = "slot28_e4c0_r3"
+image = "slot28"
+source = "slot28/slot28_e4c0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e90c_slot28", address = 0x8001e90c, size = 128 },
+  { name = "func_8001e98c_slot28", address = 0x8001e98c, size = 88 },
+  { name = "func_8001e9e4_slot28", address = 0x8001e9e4, size = 88 },
+]
+
+[[unit]]
+name = "slot28_e4c0_r4"
+image = "slot28"
+source = "slot28/slot28_e4c0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ea3c_slot28", address = 0x8001ea3c, size = 300 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r1"
+image = "slot28"
+source = "slot28/slot28_ebb8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ebb8_slot28", address = 0x8001ebb8, size = 396 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r2"
+image = "slot28"
+source = "slot28/slot28_ebb8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ed44_slot28", address = 0x8001ed44, size = 80 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r3"
+image = "slot28"
+source = "slot28/slot28_ebb8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f128_slot28", address = 0x8001f128, size = 60 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r4"
+image = "slot28"
+source = "slot28/slot28_ebb8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f1c0_slot28", address = 0x8001f1c0, size = 60 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r5"
+image = "slot28"
+source = "slot28/slot28_ebb8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f258_slot28", address = 0x8001f258, size = 84 },
+  { name = "func_8001f2ac_slot28", address = 0x8001f2ac, size = 60 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r6"
+image = "slot28"
+source = "slot28/slot28_ebb8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f378_slot28", address = 0x8001f378, size = 580 },
+]
+
+[[unit]]
+name = "slot28_ebb8_r7"
+image = "slot28"
+source = "slot28/slot28_ebb8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f698_slot28", address = 0x8001f698, size = 344 },
+]
+
+[[unit]]
+name = "slot28_f7f0_r1"
+image = "slot28"
+source = "slot28/slot28_f7f0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f7f0_slot28", address = 0x8001f7f0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_f7f0_r2"
+image = "slot28"
+source = "slot28/slot28_f7f0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f840_slot28", address = 0x8001f840, size = 972 },
+]
+
+[[unit]]
+name = "slot28_f7f0_r3"
+image = "slot28"
+source = "slot28/slot28_f7f0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001fc0c_slot28", address = 0x8001fc0c, size = 92 },
+  { name = "func_8001fc68_slot28", address = 0x8001fc68, size = 88 },
+]
+
+[[unit]]
+name = "slot28_f7f0_r4"
+image = "slot28"
+source = "slot28/slot28_f7f0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001fcc0_slot28", address = 0x8001fcc0, size = 440 },
+]
+
+[[unit]]
+name = "slot28_fec8_r1"
+image = "slot28"
+source = "slot28/slot28_fec8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001fec8_slot28", address = 0x8001fec8, size = 180 },
+]
+
+[[unit]]
+name = "slot28_fec8_r2"
+image = "slot28"
+source = "slot28/slot28_fec8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002026c_slot28", address = 0x8002026c, size = 256 },
+]
+
+[[unit]]
+name = "slot28_fec8_r3"
+image = "slot28"
+source = "slot28/slot28_fec8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020408_slot28", address = 0x80020408, size = 84 },
+  { name = "func_8002045c_slot28", address = 0x8002045c, size = 120 },
+  { name = "func_800204d4_slot28", address = 0x800204d4, size = 96 },
+]
+
+[[unit]]
+name = "slot28_fec8_r4"
+image = "slot28"
+source = "slot28/slot28_fec8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020588_slot28", address = 0x80020588, size = 44 },
+]
+
+[[unit]]
+name = "slot28_fec8_r4_b"
+image = "slot28"
+source = "slot28/slot28_fec8_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020608_slot28", address = 0x80020608, size = 68 },
+]
+
+[[unit]]
+name = "slot28_fec8_r5"
+image = "slot28"
+source = "slot28/slot28_fec8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800206d4_slot28", address = 0x800206d4, size = 616 },
+]
+
+[[unit]]
+name = "slot28_109c8_r1"
+image = "slot28"
+source = "slot28/slot28_109c8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800209c8_slot28", address = 0x800209c8, size = 208 },
+]
+
+[[unit]]
+name = "slot28_109c8_r1_b"
+image = "slot28"
+source = "slot28/slot28_109c8_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020afc_slot28", address = 0x80020afc, size = 80 },
+]
+
+[[unit]]
+name = "slot28_109c8_r2"
+image = "slot28"
+source = "slot28/slot28_109c8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020b4c_slot28", address = 0x80020b4c, size = 156 },
+]
+
+[[unit]]
+name = "slot28_109c8_r3"
+image = "slot28"
+source = "slot28/slot28_109c8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020c38_slot28", address = 0x80020c38, size = 308 },
+]
+
+[[unit]]
+name = "slot28_109c8_r4"
+image = "slot28"
+source = "slot28/slot28_109c8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020e1c_slot28", address = 0x80020e1c, size = 168 },
+]
+
+[[unit]]
+name = "slot28_109c8_r5"
+image = "slot28"
+source = "slot28/slot28_109c8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020fa4_slot28", address = 0x80020fa4, size = 188 },
+]
+
+[[unit]]
+name = "slot28_109c8_r6"
+image = "slot28"
+source = "slot28/slot28_109c8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021270_slot28", address = 0x80021270, size = 64 },
+]
+
+[[unit]]
+name = "slot28_109c8_r7"
+image = "slot28"
+source = "slot28/slot28_109c8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021358_slot28", address = 0x80021358, size = 60 },
+]
+
+[[unit]]
+name = "slot28_109c8_r8"
+image = "slot28"
+source = "slot28/slot28_109c8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800213f0_slot28", address = 0x800213f0, size = 60 },
+]
+
+[[unit]]
+name = "slot28_114bc_r1"
+image = "slot28"
+source = "slot28/slot28_114bc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800214bc_slot28", address = 0x800214bc, size = 696 },
+]
+
+[[unit]]
+name = "slot28_114bc_r2"
+image = "slot28"
+source = "slot28/slot28_114bc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021850_slot28", address = 0x80021850, size = 264 },
+]
+
+[[unit]]
+name = "slot28_114bc_r3"
+image = "slot28"
+source = "slot28/slot28_114bc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800219a8_slot28", address = 0x800219a8, size = 260 },
+]
+
+[[unit]]
+name = "slot28_114bc_r4"
+image = "slot28"
+source = "slot28/slot28_114bc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021afc_slot28", address = 0x80021afc, size = 296 },
+  { name = "func_80021c24_slot28", address = 0x80021c24, size = 96 },
+]
+
+[[unit]]
+name = "slot28_114bc_r5"
+image = "slot28"
+source = "slot28/slot28_114bc_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022098_slot28", address = 0x80022098, size = 60 },
+]
+
+[[unit]]
+name = "slot28_12138_r1"
+image = "slot28"
+source = "slot28/slot28_12138_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022138_slot28", address = 0x80022138, size = 80 },
+]
+
+[[unit]]
+name = "slot28_12138_r2"
+image = "slot28"
+source = "slot28/slot28_12138_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022218_slot28", address = 0x80022218, size = 752 },
+]
+
+[[unit]]
+name = "slot28_12138_r3"
+image = "slot28"
+source = "slot28/slot28_12138_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022594_slot28", address = 0x80022594, size = 132 },
+  { name = "func_80022618_slot28", address = 0x80022618, size = 84 },
+  { name = "func_8002266c_slot28", address = 0x8002266c, size = 88 },
+]
+
+[[unit]]
+name = "slot28_12138_r4"
+image = "slot28"
+source = "slot28/slot28_12138_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800226c4_slot28", address = 0x800226c4, size = 268 },
+  { name = "func_800227d0_slot28", address = 0x800227d0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12138_r5"
+image = "slot28"
+source = "slot28/slot28_12138_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022810_slot28", address = 0x80022810, size = 100 },
+  { name = "func_80022874_slot28", address = 0x80022874, size = 128 },
+]
+
+[[unit]]
+name = "slot28_12944_r2"
+image = "slot28"
+source = "slot28/slot28_12944_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022afc_slot28", address = 0x80022afc, size = 84 },
+]
+
+[[unit]]
+name = "slot28_12944_r3"
+image = "slot28"
+source = "slot28/slot28_12944_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022bf0_slot28", address = 0x80022bf0, size = 76 },
+]
+
+[[unit]]
+name = "slot28_12944_r4"
+image = "slot28"
+source = "slot28/slot28_12944_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022e4c_slot28", address = 0x80022e4c, size = 184 },
+  { name = "func_80022f04_slot28", address = 0x80022f04, size = 36 },
+]
+
+[[unit]]
+name = "slot28_12944_r5"
+image = "slot28"
+source = "slot28/slot28_12944_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022f84_slot28", address = 0x80022f84, size = 192 },
+  { name = "func_80023044_slot28", address = 0x80023044, size = 60 },
+]
+
+[[unit]]
+name = "slot28_13110_r1"
+image = "slot28"
+source = "slot28/slot28_13110_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023110_slot28", address = 0x80023110, size = 1036 },
+]
+
+[[unit]]
+name = "slot28_13110_r3"
+image = "slot28"
+source = "slot28/slot28_13110_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023664_slot28", address = 0x80023664, size = 508 },
+]
+
+[[unit]]
+name = "slot28_138b0_r1"
+image = "slot28"
+source = "slot28/slot28_138b0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800238b0_slot28", address = 0x800238b0, size = 464 },
+]
+
+[[unit]]
+name = "slot28_138b0_r2"
+image = "slot28"
+source = "slot28/slot28_138b0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023a80_slot28", address = 0x80023a80, size = 84 },
+]
+
+[[unit]]
+name = "slot28_138b0_r3"
+image = "slot28"
+source = "slot28/slot28_138b0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023b0c_slot28", address = 0x80023b0c, size = 212 },
+]
+
+[[unit]]
+name = "slot28_138b0_r4"
+image = "slot28"
+source = "slot28/slot28_138b0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023dac_slot28", address = 0x80023dac, size = 240 },
+]
+
+[[unit]]
+name = "slot28_138b0_r5"
+image = "slot28"
+source = "slot28/slot28_138b0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023f30_slot28", address = 0x80023f30, size = 112 },
+]
+
+[[unit]]
+name = "slot28_138b0_r6"
+image = "slot28"
+source = "slot28/slot28_138b0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023fe8_slot28", address = 0x80023fe8, size = 72 },
+  { name = "func_80024030_slot28", address = 0x80024030, size = 88 },
+]
+
+[[unit]]
+name = "slot28_140d0_r1"
+image = "slot28"
+source = "slot28/slot28_140d0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800240d0_slot28", address = 0x800240d0, size = 852 },
+]
+
+[[unit]]
+name = "slot28_140d0_r2"
+image = "slot28"
+source = "slot28/slot28_140d0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002445c_slot28", address = 0x8002445c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_140d0_r3"
+image = "slot28"
+source = "slot28/slot28_140d0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800244dc_slot28", address = 0x800244dc, size = 120 },
+]
+
+[[unit]]
+name = "slot28_140d0_r4"
+image = "slot28"
+source = "slot28/slot28_140d0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800245dc_slot28", address = 0x800245dc, size = 176 },
+]
+
+[[unit]]
+name = "slot28_140d0_r5"
+image = "slot28"
+source = "slot28/slot28_140d0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800246e8_slot28", address = 0x800246e8, size = 84 },
+]
+
+[[unit]]
+name = "slot28_147cc_r1"
+image = "slot28"
+source = "slot28/slot28_147cc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800247cc_slot28", address = 0x800247cc, size = 484 },
+]
+
+[[unit]]
+name = "slot28_147cc_r2"
+image = "slot28"
+source = "slot28/slot28_147cc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024a8c_slot28", address = 0x80024a8c, size = 292 },
+]
+
+[[unit]]
+name = "slot28_147cc_r3"
+image = "slot28"
+source = "slot28/slot28_147cc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024cd0_slot28", address = 0x80024cd0, size = 904 },
+]
+
+[[unit]]
+name = "slot28_152b0_r1"
+image = "slot28"
+source = "slot28/slot28_152b0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800252b0_slot28", address = 0x800252b0, size = 76 },
+]
+
+[[unit]]
+name = "slot28_152b0_r3"
+image = "slot28"
+source = "slot28/slot28_152b0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025410_slot28", address = 0x80025410, size = 916 },
+]
+
+[[unit]]
+name = "slot28_15950_r1"
+image = "slot28"
+source = "slot28/slot28_15950_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025950_slot28", address = 0x80025950, size = 664 },
+]
+
+[[unit]]
+name = "slot28_15950_r2"
+image = "slot28"
+source = "slot28/slot28_15950_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025c38_slot28", address = 0x80025c38, size = 276 },
+]
+
+[[unit]]
+name = "slot28_15950_r3"
+image = "slot28"
+source = "slot28/slot28_15950_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002603c_slot28", address = 0x8002603c, size = 136 },
+]
+
+[[unit]]
+name = "slot28_15950_r4"
+image = "slot28"
+source = "slot28/slot28_15950_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002616c_slot28", address = 0x8002616c, size = 232 },
+]
+
+[[unit]]
+name = "slot28_15950_r5"
+image = "slot28"
+source = "slot28/slot28_15950_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002629c_slot28", address = 0x8002629c, size = 60 },
+]
+
+[[unit]]
+name = "slot28_15950_r6"
+image = "slot28"
+source = "slot28/slot28_15950_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026320_slot28", address = 0x80026320, size = 72 },
+  { name = "func_80026368_slot28", address = 0x80026368, size = 144 },
+]
+
+[[unit]]
+name = "slot28_16480_r1"
+image = "slot28"
+source = "slot28/slot28_16480_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026480_slot28", address = 0x80026480, size = 820 },
+]
+
+[[unit]]
+name = "slot28_16480_r2"
+image = "slot28"
+source = "slot28/slot28_16480_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026890_slot28", address = 0x80026890, size = 420 },
+]
+
+[[unit]]
+name = "slot28_16acc_r1"
+image = "slot28"
+source = "slot28/slot28_16acc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026acc_slot28", address = 0x80026acc, size = 648 },
+]
+
+[[unit]]
+name = "slot28_16acc_r2"
+image = "slot28"
+source = "slot28/slot28_16acc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026d54_slot28", address = 0x80026d54, size = 188 },
+]
+
+[[unit]]
+name = "slot28_16acc_r3"
+image = "slot28"
+source = "slot28/slot28_16acc_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026e10_slot28", address = 0x80026e10, size = 264 },
+  { name = "func_80026f18_slot28", address = 0x80026f18, size = 88 },
+]
+
+[[unit]]
+name = "slot28_16acc_r4"
+image = "slot28"
+source = "slot28/slot28_16acc_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026f70_slot28", address = 0x80026f70, size = 452 },
+]
+
+[[unit]]
+name = "slot28_17134_r1"
+image = "slot28"
+source = "slot28/slot28_17134_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027134_slot28", address = 0x80027134, size = 136 },
+]
+
+[[unit]]
+name = "slot28_17134_r2"
+image = "slot28"
+source = "slot28/slot28_17134_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002746c_slot28", address = 0x8002746c, size = 76 },
+  { name = "func_800274b8_slot28", address = 0x800274b8, size = 72 },
+  { name = "func_80027500_slot28", address = 0x80027500, size = 132 },
+]
+
+[[unit]]
+name = "slot28_17134_r3"
+image = "slot28"
+source = "slot28/slot28_17134_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800275c4_slot28", address = 0x800275c4, size = 60 },
+  { name = "func_80027600_slot28", address = 0x80027600, size = 108 },
+  { name = "func_8002766c_slot28", address = 0x8002766c, size = 76 },
+  { name = "func_800276b8_slot28", address = 0x800276b8, size = 144 },
+]
+
+[[unit]]
+name = "slot28_17134_r4"
+image = "slot28"
+source = "slot28/slot28_17134_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027748_slot28", address = 0x80027748, size = 364 },
+]
+
+[[unit]]
+name = "slot28_17134_r5"
+image = "slot28"
+source = "slot28/slot28_17134_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800278b4_slot28", address = 0x800278b4, size = 124 },
+  { name = "func_80027930_slot28", address = 0x80027930, size = 108 },
+  { name = "func_8002799c_slot28", address = 0x8002799c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_179d4_r1"
+image = "slot28"
+source = "slot28/slot28_179d4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800279d4_slot28", address = 0x800279d4, size = 264 },
+  { name = "func_80027adc_slot28", address = 0x80027adc, size = 60 },
+]
+
+[[unit]]
+name = "slot28_179d4_r2"
+image = "slot28"
+source = "slot28/slot28_179d4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027b18_slot28", address = 0x80027b18, size = 496 },
+]
+
+[[unit]]
+name = "slot28_179d4_r3"
+image = "slot28"
+source = "slot28/slot28_179d4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027d08_slot28", address = 0x80027d08, size = 76 },
+]
+
+[[unit]]
+name = "slot28_179d4_r4"
+image = "slot28"
+source = "slot28/slot28_179d4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027d9c_slot28", address = 0x80027d9c, size = 88 },
+  { name = "func_80027df4_slot28", address = 0x80027df4, size = 92 },
+]
+
+[[unit]]
+name = "slot28_179d4_r5"
+image = "slot28"
+source = "slot28/slot28_179d4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027e98_slot28", address = 0x80027e98, size = 116 },
+  { name = "func_80027f0c_slot28", address = 0x80027f0c, size = 108 },
+  { name = "func_80027f78_slot28", address = 0x80027f78, size = 184 },
+]
+
+[[unit]]
+name = "slot28_18038_r1"
+image = "slot28"
+source = "slot28/slot28_18038_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80028038_slot28", address = 0x80028038, size = 436 },
+]
+
+[[unit]]
+name = "slot28_18038_r2"
+image = "slot28"
+source = "slot28/slot28_18038_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800281ec_slot28", address = 0x800281ec, size = 148 },
+]
+
+[[unit]]
+name = "slot28_18038_r3"
+image = "slot28"
+source = "slot28/slot28_18038_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800282c0_slot28", address = 0x800282c0, size = 136 },
+  { name = "func_80028348_slot28", address = 0x80028348, size = 76 },
+]
+
+[[unit]]
+name = "slot28_18038_r4"
+image = "slot28"
+source = "slot28/slot28_18038_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800283f4_slot28", address = 0x800283f4, size = 156 },
+  { name = "func_80028490_slot28", address = 0x80028490, size = 36 },
+]
+
+[[unit]]
+name = "slot28_18038_r5"
+image = "slot28"
+source = "slot28/slot28_18038_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80028514_slot28", address = 0x80028514, size = 72 },
+  { name = "func_8002855c_slot28", address = 0x8002855c, size = 88 },
+]
+
+[[unit]]
+name = "slot28_e85cx_r1"
+image = "slot28"
+source = "slot28/slot28_e85cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e85c_slot28", address = 0x8001e85c, size = 96 },
+]
+
+[[unit]]
+name = "slot28_c0d4x_r1"
+image = "slot28"
+source = "slot28/slot28_c0d4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c0d4_slot28", address = 0x8001c0d4, size = 104 },
+]
+
+[[unit]]
+name = "slot28_c13cx_r1"
+image = "slot28"
+source = "slot28/slot28_c13cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c13c_slot28", address = 0x8001c13c, size = 152 },
+]
+
+[[unit]]
+name = "slot28_875cx_r1"
+image = "slot28"
+source = "slot28/slot28_875cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001875c_slot28", address = 0x8001875c, size = 552 },
+]
+
+[[unit]]
+name = "slot28_89d4x_r1"
+image = "slot28"
+source = "slot28/slot28_89d4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800189d4_slot28", address = 0x800189d4, size = 668 },
+]
+
+[[unit]]
+name = "slot28_8d68x_r1"
+image = "slot28"
+source = "slot28/slot28_8d68x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018d68_slot28", address = 0x80018d68, size = 132 },
+]
+
+[[unit]]
+name = "slot28_05b4x_r1"
+image = "slot28"
+source = "slot28/slot28_05b4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800205b4_slot28", address = 0x800205b4, size = 84 },
+]
+
+[[unit]]
+name = "slot28_714cx_r1"
+image = "slot28"
+source = "slot28/slot28_714cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001714c_slot28", address = 0x8001714c, size = 92 },
+]
+
+[[unit]]
+name = "slot28_0a98x_r1"
+image = "slot28"
+source = "slot28/slot28_0a98x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020a98_slot28", address = 0x80020a98, size = 100 },
+]
+
+[[unit]]
+name = "slot28_0d6cx_r1"
+image = "slot28"
+source = "slot28/slot28_0d6cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020d6c_slot28", address = 0x80020d6c, size = 96 },
+]
+
+[[unit]]
+name = "slot28_35a8x_r1"
+image = "slot28"
+source = "slot28/slot28_35a8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800235a8_slot28", address = 0x800235a8, size = 108 },
+]
+
+[[unit]]
+name = "slot28_3cc0x_r1"
+image = "slot28"
+source = "slot28/slot28_3cc0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013cc0_slot28", address = 0x80013cc0, size = 156 },
+]
+
+[[unit]]
+name = "slot28_3d8cx_r1"
+image = "slot28"
+source = "slot28/slot28_3d8cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013d8c_slot28", address = 0x80013d8c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_3dc4x_r1"
+image = "slot28"
+source = "slot28/slot28_3dc4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013dc4_slot28", address = 0x80013dc4, size = 148 },
+]
+
+[[unit]]
+name = "slot28_3ea0x_r1"
+image = "slot28"
+source = "slot28/slot28_3ea0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013ea0_slot28", address = 0x80013ea0, size = 664 },
+]
+
+[[unit]]
+name = "slot28_51b0x_r1"
+image = "slot28"
+source = "slot28/slot28_51b0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800151b0_slot28", address = 0x800151b0, size = 352 },
+]
+
+[[unit]]
+name = "slot28_e098x_r1"
+image = "slot28"
+source = "slot28/slot28_e098x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e098_slot28", address = 0x8001e098, size = 296 },
+]
+
+[[unit]]
+name = "slot28_56b0x_r1"
+image = "slot28"
+source = "slot28/slot28_56b0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800156b0_slot28", address = 0x800156b0, size = 116 },
+]
+
+[[unit]]
+name = "slot28_9eb4x_r1"
+image = "slot28"
+source = "slot28/slot28_9eb4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019eb4_slot28", address = 0x80019eb4, size = 260 },
+]
+
+[[unit]]
+name = "slot28_6a34x_r1"
+image = "slot28"
+source = "slot28/slot28_6a34x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026a34_slot28", address = 0x80026a34, size = 152 },
+]
+
+[[unit]]
+name = "slot28_533cx_r1"
+image = "slot28"
+source = "slot28/slot28_533cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002533c_slot28", address = 0x8002533c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_613cx_r1"
+image = "slot28"
+source = "slot28/slot28_613cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001613c_slot28", address = 0x8001613c, size = 1028 },
+]
+
+[[unit]]
+name = "slot28_5374x_r1"
+image = "slot28"
+source = "slot28/slot28_5374x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015374_slot28", address = 0x80015374, size = 716 },
+]
+
+[[unit]]
+name = "slot28_4324x_r1"
+image = "slot28"
+source = "slot28/slot28_4324x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014324_slot28", address = 0x80014324, size = 196 },
+]
+
+[[unit]]
+name = "slot28_a0e4x_r1"
+image = "slot28"
+source = "slot28/slot28_a0e4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a0e4_slot28", address = 0x8001a0e4, size = 1020 },
+]
+
+[[unit]]
+name = "slot28_3a00_r1"
+image = "slot28"
+source = "slot28/slot28_3a00_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013a00_slot28", address = 0x80013a00, size = 32 },
+]
+
+[[unit]]
+name = "slot28_3a00_r2"
+image = "slot28"
+source = "slot28/slot28_3a00_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800145a4_slot28", address = 0x800145a4, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3a00_r3"
+image = "slot28"
+source = "slot28/slot28_3a00_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014678_slot28", address = 0x80014678, size = 100 },
+]
+
+[[unit]]
+name = "slot28_3a00_r4"
+image = "slot28"
+source = "slot28/slot28_3a00_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014950_slot28", address = 0x80014950, size = 8 },
+  { name = "func_80014958_slot28", address = 0x80014958, size = 72 },
+]
+
+[[unit]]
+name = "slot28_3a00_r5"
+image = "slot28"
+source = "slot28/slot28_3a00_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014d58_slot28", address = 0x80014d58, size = 60 },
+  { name = "func_80014d94_slot28", address = 0x80014d94, size = 88 },
+  { name = "func_80014dec_slot28", address = 0x80014dec, size = 52 },
+]
+
+[[unit]]
+name = "slot28_3a00_r6"
+image = "slot28"
+source = "slot28/slot28_3a00_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015764_slot28", address = 0x80015764, size = 104 },
+]
+
+[[unit]]
+name = "slot28_3a00_r7"
+image = "slot28"
+source = "slot28/slot28_3a00_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001581c_slot28", address = 0x8001581c, size = 48 },
+]
+
+[[unit]]
+name = "slot28_3a00_r8"
+image = "slot28"
+source = "slot28/slot28_3a00_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800158dc_slot28", address = 0x800158dc, size = 64 },
+]
+
+[[unit]]
+name = "slot28_3a00_r9"
+image = "slot28"
+source = "slot28/slot28_3a00_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015a68_slot28", address = 0x80015a68, size = 8 },
+]
+
+[[unit]]
+name = "slot28_3a00_r10"
+image = "slot28"
+source = "slot28/slot28_3a00_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015d34_slot28", address = 0x80015d34, size = 8 },
+]
+
+[[unit]]
+name = "slot28_3a00_r11"
+image = "slot28"
+source = "slot28/slot28_3a00_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015e3c_slot28", address = 0x80015e3c, size = 8 },
+]
+
+[[unit]]
+name = "slot28_3a00_r11_b"
+image = "slot28"
+source = "slot28/slot28_3a00_r11_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015e64_slot28", address = 0x80015e64, size = 64 },
+]
+
+[[unit]]
+name = "slot28_3a00_r13"
+image = "slot28"
+source = "slot28/slot28_3a00_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015fcc_slot28", address = 0x80015fcc, size = 48 },
+]
+
+[[unit]]
+name = "slot28_3a00_r14"
+image = "slot28"
+source = "slot28/slot28_3a00_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800160f4_slot28", address = 0x800160f4, size = 72 },
+]
+
+[[unit]]
+name = "slot28_3a00_r15"
+image = "slot28"
+source = "slot28/slot28_3a00_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016540_slot28", address = 0x80016540, size = 60 },
+  { name = "func_8001657c_slot28", address = 0x8001657c, size = 88 },
+  { name = "func_800165d4_slot28", address = 0x800165d4, size = 52 },
+  { name = "func_80016608_slot28", address = 0x80016608, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3a00_r16"
+image = "slot28"
+source = "slot28/slot28_3a00_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800167d8_slot28", address = 0x800167d8, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3a00_r17"
+image = "slot28"
+source = "slot28/slot28_3a00_r17.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800168a8_slot28", address = 0x800168a8, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3a00_r18"
+image = "slot28"
+source = "slot28/slot28_3a00_r18.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016a6c_slot28", address = 0x80016a6c, size = 80 },
+]
+
+[[unit]]
+name = "slot28_3a00_r19"
+image = "slot28"
+source = "slot28/slot28_3a00_r19.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016df0_slot28", address = 0x80016df0, size = 56 },
+  { name = "func_80016e28_slot28", address = 0x80016e28, size = 48 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r1"
+image = "slot28"
+source = "slot28/slot28_6ee8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016ee8_slot28", address = 0x80016ee8, size = 144 },
+  { name = "func_80016f78_slot28", address = 0x80016f78, size = 64 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r2"
+image = "slot28"
+source = "slot28/slot28_6ee8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016fd8_slot28", address = 0x80016fd8, size = 64 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r3"
+image = "slot28"
+source = "slot28/slot28_6ee8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017144_slot28", address = 0x80017144, size = 8 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r4"
+image = "slot28"
+source = "slot28/slot28_6ee8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800171a8_slot28", address = 0x800171a8, size = 40 },
+  { name = "func_800171d0_slot28", address = 0x800171d0, size = 8 },
+  { name = "func_800171d8_slot28", address = 0x800171d8, size = 8 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r4_b"
+image = "slot28"
+source = "slot28/slot28_6ee8_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017200_slot28", address = 0x80017200, size = 72 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r5"
+image = "slot28"
+source = "slot28/slot28_6ee8_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800174fc_slot28", address = 0x800174fc, size = 52 },
+  { name = "func_80017530_slot28", address = 0x80017530, size = 80 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r6"
+image = "slot28"
+source = "slot28/slot28_6ee8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800176b4_slot28", address = 0x800176b4, size = 80 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r7"
+image = "slot28"
+source = "slot28/slot28_6ee8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001784c_slot28", address = 0x8001784c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r8"
+image = "slot28"
+source = "slot28/slot28_6ee8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017944_slot28", address = 0x80017944, size = 48 },
+  { name = "func_80017974_slot28", address = 0x80017974, size = 60 },
+  { name = "func_800179b0_slot28", address = 0x800179b0, size = 36 },
+  { name = "func_800179d4_slot28", address = 0x800179d4, size = 108 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r9"
+image = "slot28"
+source = "slot28/slot28_6ee8_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017a40_slot28", address = 0x80017a40, size = 212 },
+  { name = "func_80017b14_slot28", address = 0x80017b14, size = 64 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r10"
+image = "slot28"
+source = "slot28/slot28_6ee8_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017f2c_slot28", address = 0x80017f2c, size = 8 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r11"
+image = "slot28"
+source = "slot28/slot28_6ee8_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017fe0_slot28", address = 0x80017fe0, size = 8 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r11_b"
+image = "slot28"
+source = "slot28/slot28_6ee8_r11_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018008_slot28", address = 0x80018008, size = 72 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r12"
+image = "slot28"
+source = "slot28/slot28_6ee8_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001838c_slot28", address = 0x8001838c, size = 88 },
+  { name = "func_800183e4_slot28", address = 0x800183e4, size = 52 },
+]
+
+[[unit]]
+name = "slot28_6ee8_r13"
+image = "slot28"
+source = "slot28/slot28_6ee8_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018984_slot28", address = 0x80018984, size = 80 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r1"
+image = "slot28"
+source = "slot28/slot28_8fb0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018fb0_slot28", address = 0x80018fb0, size = 64 },
+  { name = "func_80018ff0_slot28", address = 0x80018ff0, size = 104 },
+  { name = "func_80019058_slot28", address = 0x80019058, size = 56 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r2"
+image = "slot28"
+source = "slot28/slot28_8fb0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019100_slot28", address = 0x80019100, size = 48 },
+  { name = "func_80019130_slot28", address = 0x80019130, size = 60 },
+  { name = "func_8001916c_slot28", address = 0x8001916c, size = 36 },
+  { name = "func_80019190_slot28", address = 0x80019190, size = 108 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r3"
+image = "slot28"
+source = "slot28/slot28_8fb0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800191fc_slot28", address = 0x800191fc, size = 212 },
+  { name = "func_800192d0_slot28", address = 0x800192d0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r4"
+image = "slot28"
+source = "slot28/slot28_8fb0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800193c8_slot28", address = 0x800193c8, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r5"
+image = "slot28"
+source = "slot28/slot28_8fb0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019444_slot28", address = 0x80019444, size = 8 },
+  { name = "func_8001944c_slot28", address = 0x8001944c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r6"
+image = "slot28"
+source = "slot28/slot28_8fb0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800194c8_slot28", address = 0x800194c8, size = 8 },
+  { name = "func_800194d0_slot28", address = 0x800194d0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r7"
+image = "slot28"
+source = "slot28/slot28_8fb0_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800195f8_slot28", address = 0x800195f8, size = 8 },
+  { name = "func_80019600_slot28", address = 0x80019600, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r8"
+image = "slot28"
+source = "slot28/slot28_8fb0_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800196f4_slot28", address = 0x800196f4, size = 8 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r9"
+image = "slot28"
+source = "slot28/slot28_8fb0_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001974c_slot28", address = 0x8001974c, size = 40 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r10"
+image = "slot28"
+source = "slot28/slot28_8fb0_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019788_slot28", address = 0x80019788, size = 80 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r11"
+image = "slot28"
+source = "slot28/slot28_8fb0_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800198c8_slot28", address = 0x800198c8, size = 8 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r12"
+image = "slot28"
+source = "slot28/slot28_8fb0_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800198f8_slot28", address = 0x800198f8, size = 40 },
+  { name = "func_80019920_slot28", address = 0x80019920, size = 64 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r13"
+image = "slot28"
+source = "slot28/slot28_8fb0_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800199a4_slot28", address = 0x800199a4, size = 8 },
+  { name = "func_800199ac_slot28", address = 0x800199ac, size = 8 },
+  { name = "func_800199b4_slot28", address = 0x800199b4, size = 8 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r14"
+image = "slot28"
+source = "slot28/slot28_8fb0_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019aa0_slot28", address = 0x80019aa0, size = 72 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r15"
+image = "slot28"
+source = "slot28/slot28_8fb0_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80019e28_slot28", address = 0x80019e28, size = 88 },
+  { name = "func_80019e80_slot28", address = 0x80019e80, size = 52 },
+]
+
+[[unit]]
+name = "slot28_8fb0_r16"
+image = "slot28"
+source = "slot28/slot28_8fb0_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a094_slot28", address = 0x8001a094, size = 80 },
+]
+
+[[unit]]
+name = "slot28_a878_r1"
+image = "slot28"
+source = "slot28/slot28_a878_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a878_slot28", address = 0x8001a878, size = 64 },
+  { name = "func_8001a8b8_slot28", address = 0x8001a8b8, size = 104 },
+  { name = "func_8001a920_slot28", address = 0x8001a920, size = 56 },
+  { name = "func_8001a958_slot28", address = 0x8001a958, size = 48 },
+  { name = "func_8001a988_slot28", address = 0x8001a988, size = 60 },
+  { name = "func_8001a9c4_slot28", address = 0x8001a9c4, size = 36 },
+]
+
+[[unit]]
+name = "slot28_a878_r2"
+image = "slot28"
+source = "slot28/slot28_a878_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a9e8_slot28", address = 0x8001a9e8, size = 108 },
+  { name = "func_8001aa54_slot28", address = 0x8001aa54, size = 212 },
+  { name = "func_8001ab28_slot28", address = 0x8001ab28, size = 64 },
+]
+
+[[unit]]
+name = "slot28_a878_r3"
+image = "slot28"
+source = "slot28/slot28_a878_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001abbc_slot28", address = 0x8001abbc, size = 64 },
+  { name = "func_8001abfc_slot28", address = 0x8001abfc, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a878_r4"
+image = "slot28"
+source = "slot28/slot28_a878_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ad08_slot28", address = 0x8001ad08, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a878_r6"
+image = "slot28"
+source = "slot28/slot28_a878_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ae68_slot28", address = 0x8001ae68, size = 64 },
+]
+
+[[unit]]
+name = "slot28_a878_r7"
+image = "slot28"
+source = "slot28/slot28_a878_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001aee0_slot28", address = 0x8001aee0, size = 12 },
+  { name = "func_8001aeec_slot28", address = 0x8001aeec, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a878_r8"
+image = "slot28"
+source = "slot28/slot28_a878_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b0f0_slot28", address = 0x8001b0f0, size = 8 },
+  { name = "func_8001b0f8_slot28", address = 0x8001b0f8, size = 56 },
+  { name = "func_8001b130_slot28", address = 0x8001b130, size = 84 },
+]
+
+[[unit]]
+name = "slot28_a878_r9"
+image = "slot28"
+source = "slot28/slot28_a878_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b1a4_slot28", address = 0x8001b1a4, size = 32 },
+]
+
+[[unit]]
+name = "slot28_a878_r10"
+image = "slot28"
+source = "slot28/slot28_a878_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b268_slot28", address = 0x8001b268, size = 72 },
+]
+
+[[unit]]
+name = "slot28_a878_r11"
+image = "slot28"
+source = "slot28/slot28_a878_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b5d4_slot28", address = 0x8001b5d4, size = 88 },
+  { name = "func_8001b62c_slot28", address = 0x8001b62c, size = 52 },
+]
+
+[[unit]]
+name = "slot28_bae0_r1"
+image = "slot28"
+source = "slot28/slot28_bae0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001bae0_slot28", address = 0x8001bae0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_bae0_r2"
+image = "slot28"
+source = "slot28/slot28_bae0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001bcf8_slot28", address = 0x8001bcf8, size = 80 },
+]
+
+[[unit]]
+name = "slot28_bae0_r3"
+image = "slot28"
+source = "slot28/slot28_bae0_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c1d4_slot28", address = 0x8001c1d4, size = 64 },
+  { name = "func_8001c214_slot28", address = 0x8001c214, size = 104 },
+  { name = "func_8001c27c_slot28", address = 0x8001c27c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_bae0_r4"
+image = "slot28"
+source = "slot28/slot28_bae0_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c430_slot28", address = 0x8001c430, size = 48 },
+  { name = "func_8001c460_slot28", address = 0x8001c460, size = 60 },
+  { name = "func_8001c49c_slot28", address = 0x8001c49c, size = 36 },
+  { name = "func_8001c4c0_slot28", address = 0x8001c4c0, size = 108 },
+]
+
+[[unit]]
+name = "slot28_bae0_r5"
+image = "slot28"
+source = "slot28/slot28_bae0_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c52c_slot28", address = 0x8001c52c, size = 212 },
+  { name = "func_8001c600_slot28", address = 0x8001c600, size = 64 },
+]
+
+[[unit]]
+name = "slot28_bae0_r6"
+image = "slot28"
+source = "slot28/slot28_bae0_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c68c_slot28", address = 0x8001c68c, size = 64 },
+  { name = "func_8001c6cc_slot28", address = 0x8001c6cc, size = 84 },
+]
+
+[[unit]]
+name = "slot28_bae0_r7"
+image = "slot28"
+source = "slot28/slot28_bae0_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c81c_slot28", address = 0x8001c81c, size = 8 },
+  { name = "func_8001c824_slot28", address = 0x8001c824, size = 64 },
+]
+
+[[unit]]
+name = "slot28_bae0_r8"
+image = "slot28"
+source = "slot28/slot28_bae0_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001c924_slot28", address = 0x8001c924, size = 64 },
+  { name = "func_8001c964_slot28", address = 0x8001c964, size = 52 },
+]
+
+[[unit]]
+name = "slot28_bae0_r9"
+image = "slot28"
+source = "slot28/slot28_bae0_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ca08_slot28", address = 0x8001ca08, size = 64 },
+  { name = "func_8001ca48_slot28", address = 0x8001ca48, size = 52 },
+]
+
+[[unit]]
+name = "slot28_bae0_r10"
+image = "slot28"
+source = "slot28/slot28_bae0_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cb34_slot28", address = 0x8001cb34, size = 72 },
+]
+
+[[unit]]
+name = "slot28_cd04_r1"
+image = "slot28"
+source = "slot28/slot28_cd04_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cd04_slot28", address = 0x8001cd04, size = 88 },
+  { name = "func_8001cd5c_slot28", address = 0x8001cd5c, size = 52 },
+  { name = "func_8001cd90_slot28", address = 0x8001cd90, size = 80 },
+]
+
+[[unit]]
+name = "slot28_cd04_r2"
+image = "slot28"
+source = "slot28/slot28_cd04_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cef0_slot28", address = 0x8001cef0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_cd04_r3"
+image = "slot28"
+source = "slot28/slot28_cd04_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001cfb0_slot28", address = 0x8001cfb0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_cd04_r4"
+image = "slot28"
+source = "slot28/slot28_cd04_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d134_slot28", address = 0x8001d134, size = 80 },
+]
+
+[[unit]]
+name = "slot28_cd04_r5"
+image = "slot28"
+source = "slot28/slot28_cd04_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d468_slot28", address = 0x8001d468, size = 64 },
+  { name = "func_8001d4a8_slot28", address = 0x8001d4a8, size = 104 },
+  { name = "func_8001d510_slot28", address = 0x8001d510, size = 56 },
+  { name = "func_8001d548_slot28", address = 0x8001d548, size = 48 },
+  { name = "func_8001d578_slot28", address = 0x8001d578, size = 60 },
+  { name = "func_8001d5b4_slot28", address = 0x8001d5b4, size = 36 },
+]
+
+[[unit]]
+name = "slot28_cd04_r6"
+image = "slot28"
+source = "slot28/slot28_cd04_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d5d8_slot28", address = 0x8001d5d8, size = 108 },
+  { name = "func_8001d644_slot28", address = 0x8001d644, size = 212 },
+  { name = "func_8001d718_slot28", address = 0x8001d718, size = 64 },
+]
+
+[[unit]]
+name = "slot28_cd04_r7"
+image = "slot28"
+source = "slot28/slot28_cd04_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d7d8_slot28", address = 0x8001d7d8, size = 84 },
+  { name = "func_8001d82c_slot28", address = 0x8001d82c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_cd04_r8"
+image = "slot28"
+source = "slot28/slot28_cd04_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d93c_slot28", address = 0x8001d93c, size = 8 },
+  { name = "func_8001d944_slot28", address = 0x8001d944, size = 64 },
+]
+
+[[unit]]
+name = "slot28_cd04_r9"
+image = "slot28"
+source = "slot28/slot28_cd04_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001d9c0_slot28", address = 0x8001d9c0, size = 8 },
+]
+
+[[unit]]
+name = "slot28_cd04_r10"
+image = "slot28"
+source = "slot28/slot28_cd04_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001db20_slot28", address = 0x8001db20, size = 72 },
+]
+
+[[unit]]
+name = "slot28_cd04_r11"
+image = "slot28"
+source = "slot28/slot28_cd04_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ded8_slot28", address = 0x8001ded8, size = 88 },
+]
+
+[[unit]]
+name = "slot28_df84_r1"
+image = "slot28"
+source = "slot28/slot28_df84_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001df84_slot28", address = 0x8001df84, size = 80 },
+]
+
+[[unit]]
+name = "slot28_df84_r2"
+image = "slot28"
+source = "slot28/slot28_df84_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e048_slot28", address = 0x8001e048, size = 80 },
+]
+
+[[unit]]
+name = "slot28_df84_r3"
+image = "slot28"
+source = "slot28/slot28_df84_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e1c0_slot28", address = 0x8001e1c0, size = 64 },
+  { name = "func_8001e200_slot28", address = 0x8001e200, size = 104 },
+  { name = "func_8001e268_slot28", address = 0x8001e268, size = 56 },
+]
+
+[[unit]]
+name = "slot28_df84_r4"
+image = "slot28"
+source = "slot28/slot28_df84_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e2ec_slot28", address = 0x8001e2ec, size = 48 },
+  { name = "func_8001e31c_slot28", address = 0x8001e31c, size = 60 },
+  { name = "func_8001e358_slot28", address = 0x8001e358, size = 36 },
+  { name = "func_8001e37c_slot28", address = 0x8001e37c, size = 108 },
+  { name = "func_8001e3e8_slot28", address = 0x8001e3e8, size = 144 },
+]
+
+[[unit]]
+name = "slot28_df84_r5"
+image = "slot28"
+source = "slot28/slot28_df84_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e478_slot28", address = 0x8001e478, size = 72 },
+]
+
+[[unit]]
+name = "slot28_df84_r6"
+image = "slot28"
+source = "slot28/slot28_df84_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e7d0_slot28", address = 0x8001e7d0, size = 88 },
+  { name = "func_8001e828_slot28", address = 0x8001e828, size = 52 },
+]
+
+[[unit]]
+name = "slot28_df84_r7"
+image = "slot28"
+source = "slot28/slot28_df84_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001e8bc_slot28", address = 0x8001e8bc, size = 80 },
+]
+
+[[unit]]
+name = "slot28_df84_r8"
+image = "slot28"
+source = "slot28/slot28_df84_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001eb68_slot28", address = 0x8001eb68, size = 80 },
+]
+
+[[unit]]
+name = "slot28_df84_r9"
+image = "slot28"
+source = "slot28/slot28_df84_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ed94_slot28", address = 0x8001ed94, size = 64 },
+  { name = "func_8001edd4_slot28", address = 0x8001edd4, size = 104 },
+  { name = "func_8001ee3c_slot28", address = 0x8001ee3c, size = 56 },
+  { name = "func_8001ee74_slot28", address = 0x8001ee74, size = 48 },
+  { name = "func_8001eea4_slot28", address = 0x8001eea4, size = 60 },
+  { name = "func_8001eee0_slot28", address = 0x8001eee0, size = 36 },
+]
+
+[[unit]]
+name = "slot28_ef04_r1"
+image = "slot28"
+source = "slot28/slot28_ef04_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ef04_slot28", address = 0x8001ef04, size = 108 },
+  { name = "func_8001ef70_slot28", address = 0x8001ef70, size = 144 },
+  { name = "func_8001f000_slot28", address = 0x8001f000, size = 64 },
+  { name = "func_8001f040_slot28", address = 0x8001f040, size = 84 },
+]
+
+[[unit]]
+name = "slot28_ef04_r2"
+image = "slot28"
+source = "slot28/slot28_ef04_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f094_slot28", address = 0x8001f094, size = 64 },
+  { name = "func_8001f0d4_slot28", address = 0x8001f0d4, size = 84 },
+]
+
+[[unit]]
+name = "slot28_ef04_r3"
+image = "slot28"
+source = "slot28/slot28_ef04_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f164_slot28", address = 0x8001f164, size = 8 },
+  { name = "func_8001f16c_slot28", address = 0x8001f16c, size = 84 },
+]
+
+[[unit]]
+name = "slot28_ef04_r4"
+image = "slot28"
+source = "slot28/slot28_ef04_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f1fc_slot28", address = 0x8001f1fc, size = 8 },
+  { name = "func_8001f204_slot28", address = 0x8001f204, size = 84 },
+]
+
+[[unit]]
+name = "slot28_ef04_r5"
+image = "slot28"
+source = "slot28/slot28_ef04_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f2e8_slot28", address = 0x8001f2e8, size = 8 },
+]
+
+[[unit]]
+name = "slot28_ef04_r5_b"
+image = "slot28"
+source = "slot28/slot28_ef04_r5_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f330_slot28", address = 0x8001f330, size = 72 },
+]
+
+[[unit]]
+name = "slot28_ef04_r6"
+image = "slot28"
+source = "slot28/slot28_ef04_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f5bc_slot28", address = 0x8001f5bc, size = 88 },
+  { name = "func_8001f614_slot28", address = 0x8001f614, size = 52 },
+]
+
+[[unit]]
+name = "slot28_ef04_r8"
+image = "slot28"
+source = "slot28/slot28_ef04_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001ff7c_slot28", address = 0x8001ff7c, size = 64 },
+  { name = "func_8001ffbc_slot28", address = 0x8001ffbc, size = 104 },
+  { name = "func_80020024_slot28", address = 0x80020024, size = 56 },
+  { name = "func_8002005c_slot28", address = 0x8002005c, size = 48 },
+  { name = "func_8002008c_slot28", address = 0x8002008c, size = 60 },
+  { name = "func_800200c8_slot28", address = 0x800200c8, size = 36 },
+]
+
+[[unit]]
+name = "slot28_100ec_r1"
+image = "slot28"
+source = "slot28/slot28_100ec_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800200ec_slot28", address = 0x800200ec, size = 108 },
+  { name = "func_80020158_slot28", address = 0x80020158, size = 212 },
+  { name = "func_8002022c_slot28", address = 0x8002022c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_100ec_r2"
+image = "slot28"
+source = "slot28/slot28_100ec_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002036c_slot28", address = 0x8002036c, size = 64 },
+  { name = "func_800203ac_slot28", address = 0x800203ac, size = 92 },
+]
+
+[[unit]]
+name = "slot28_100ec_r3"
+image = "slot28"
+source = "slot28/slot28_100ec_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020534_slot28", address = 0x80020534, size = 84 },
+]
+
+[[unit]]
+name = "slot28_100ec_r4"
+image = "slot28"
+source = "slot28/slot28_100ec_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002068c_slot28", address = 0x8002068c, size = 72 },
+]
+
+[[unit]]
+name = "slot28_100ec_r5"
+image = "slot28"
+source = "slot28/slot28_100ec_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002093c_slot28", address = 0x8002093c, size = 88 },
+  { name = "func_80020994_slot28", address = 0x80020994, size = 52 },
+]
+
+[[unit]]
+name = "slot28_100ec_r6"
+image = "slot28"
+source = "slot28/slot28_100ec_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020be8_slot28", address = 0x80020be8, size = 80 },
+]
+
+[[unit]]
+name = "slot28_100ec_r7"
+image = "slot28"
+source = "slot28/slot28_100ec_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020dcc_slot28", address = 0x80020dcc, size = 80 },
+]
+
+[[unit]]
+name = "slot28_100ec_r8"
+image = "slot28"
+source = "slot28/slot28_100ec_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80020ec4_slot28", address = 0x80020ec4, size = 64 },
+  { name = "func_80020f04_slot28", address = 0x80020f04, size = 104 },
+  { name = "func_80020f6c_slot28", address = 0x80020f6c, size = 56 },
+]
+
+[[unit]]
+name = "slot28_100ec_r9"
+image = "slot28"
+source = "slot28/slot28_100ec_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021060_slot28", address = 0x80021060, size = 48 },
+  { name = "func_80021090_slot28", address = 0x80021090, size = 60 },
+  { name = "func_800210cc_slot28", address = 0x800210cc, size = 36 },
+  { name = "func_800210f0_slot28", address = 0x800210f0, size = 108 },
+]
+
+[[unit]]
+name = "slot28_1115c_r1"
+image = "slot28"
+source = "slot28/slot28_1115c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002115c_slot28", address = 0x8002115c, size = 212 },
+  { name = "func_80021230_slot28", address = 0x80021230, size = 64 },
+]
+
+[[unit]]
+name = "slot28_1115c_r2"
+image = "slot28"
+source = "slot28/slot28_1115c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800212b0_slot28", address = 0x800212b0, size = 84 },
+  { name = "func_80021304_slot28", address = 0x80021304, size = 84 },
+]
+
+[[unit]]
+name = "slot28_1115c_r3"
+image = "slot28"
+source = "slot28/slot28_1115c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021394_slot28", address = 0x80021394, size = 8 },
+  { name = "func_8002139c_slot28", address = 0x8002139c, size = 84 },
+]
+
+[[unit]]
+name = "slot28_1115c_r4"
+image = "slot28"
+source = "slot28/slot28_1115c_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002146c_slot28", address = 0x8002146c, size = 8 },
+  { name = "func_80021474_slot28", address = 0x80021474, size = 72 },
+]
+
+[[unit]]
+name = "slot28_1115c_r5"
+image = "slot28"
+source = "slot28/slot28_1115c_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021774_slot28", address = 0x80021774, size = 88 },
+  { name = "func_800217cc_slot28", address = 0x800217cc, size = 52 },
+]
+
+[[unit]]
+name = "slot28_1115c_r6"
+image = "slot28"
+source = "slot28/slot28_1115c_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021958_slot28", address = 0x80021958, size = 80 },
+]
+
+[[unit]]
+name = "slot28_1115c_r7"
+image = "slot28"
+source = "slot28/slot28_1115c_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021aac_slot28", address = 0x80021aac, size = 80 },
+]
+
+[[unit]]
+name = "slot28_1115c_r8"
+image = "slot28"
+source = "slot28/slot28_1115c_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021c84_slot28", address = 0x80021c84, size = 64 },
+  { name = "func_80021cc4_slot28", address = 0x80021cc4, size = 104 },
+  { name = "func_80021d2c_slot28", address = 0x80021d2c, size = 56 },
+  { name = "func_80021d64_slot28", address = 0x80021d64, size = 48 },
+  { name = "func_80021d94_slot28", address = 0x80021d94, size = 60 },
+  { name = "func_80021dd0_slot28", address = 0x80021dd0, size = 36 },
+]
+
+[[unit]]
+name = "slot28_11df4_r1"
+image = "slot28"
+source = "slot28/slot28_11df4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021df4_slot28", address = 0x80021df4, size = 108 },
+  { name = "func_80021e60_slot28", address = 0x80021e60, size = 212 },
+  { name = "func_80021f34_slot28", address = 0x80021f34, size = 64 },
+]
+
+[[unit]]
+name = "slot28_11df4_r2"
+image = "slot28"
+source = "slot28/slot28_11df4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021f74_slot28", address = 0x80021f74, size = 84 },
+  { name = "func_80021fc8_slot28", address = 0x80021fc8, size = 84 },
+  { name = "func_8002201c_slot28", address = 0x8002201c, size = 84 },
+  { name = "func_80022070_slot28", address = 0x80022070, size = 40 },
+]
+
+[[unit]]
+name = "slot28_11df4_r3"
+image = "slot28"
+source = "slot28/slot28_11df4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800220d4_slot28", address = 0x800220d4, size = 8 },
+  { name = "func_800220dc_slot28", address = 0x800220dc, size = 92 },
+]
+
+[[unit]]
+name = "slot28_11df4_r4"
+image = "slot28"
+source = "slot28/slot28_11df4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022188_slot28", address = 0x80022188, size = 8 },
+]
+
+[[unit]]
+name = "slot28_11df4_r4_b"
+image = "slot28"
+source = "slot28/slot28_11df4_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800221d0_slot28", address = 0x800221d0, size = 72 },
+]
+
+[[unit]]
+name = "slot28_11df4_r5"
+image = "slot28"
+source = "slot28/slot28_11df4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022508_slot28", address = 0x80022508, size = 88 },
+  { name = "func_80022560_slot28", address = 0x80022560, size = 52 },
+]
+
+[[unit]]
+name = "slot28_11df4_r6"
+image = "slot28"
+source = "slot28/slot28_11df4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800228f4_slot28", address = 0x800228f4, size = 80 },
+]
+
+[[unit]]
+name = "slot28_11df4_r7"
+image = "slot28"
+source = "slot28/slot28_11df4_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022b50_slot28", address = 0x80022b50, size = 104 },
+  { name = "func_80022bb8_slot28", address = 0x80022bb8, size = 56 },
+]
+
+[[unit]]
+name = "slot28_11df4_r8"
+image = "slot28"
+source = "slot28/slot28_11df4_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022c3c_slot28", address = 0x80022c3c, size = 48 },
+  { name = "func_80022c6c_slot28", address = 0x80022c6c, size = 60 },
+  { name = "func_80022ca8_slot28", address = 0x80022ca8, size = 36 },
+  { name = "func_80022ccc_slot28", address = 0x80022ccc, size = 108 },
+]
+
+[[unit]]
+name = "slot28_12d38_r1"
+image = "slot28"
+source = "slot28/slot28_12d38_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022e0c_slot28", address = 0x80022e0c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12d38_r2"
+image = "slot28"
+source = "slot28/slot28_12d38_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022f28_slot28", address = 0x80022f28, size = 92 },
+]
+
+[[unit]]
+name = "slot28_12d38_r3"
+image = "slot28"
+source = "slot28/slot28_12d38_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023080_slot28", address = 0x80023080, size = 8 },
+]
+
+[[unit]]
+name = "slot28_12d38_r3_b"
+image = "slot28"
+source = "slot28/slot28_12d38_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800230c8_slot28", address = 0x800230c8, size = 72 },
+]
+
+[[unit]]
+name = "slot28_12d38_r4"
+image = "slot28"
+source = "slot28/slot28_12d38_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002351c_slot28", address = 0x8002351c, size = 88 },
+  { name = "func_80023574_slot28", address = 0x80023574, size = 52 },
+]
+
+[[unit]]
+name = "slot28_12d38_r5"
+image = "slot28"
+source = "slot28/slot28_12d38_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023614_slot28", address = 0x80023614, size = 80 },
+]
+
+[[unit]]
+name = "slot28_12d38_r6"
+image = "slot28"
+source = "slot28/slot28_12d38_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023860_slot28", address = 0x80023860, size = 80 },
+]
+
+[[unit]]
+name = "slot28_12d38_r7"
+image = "slot28"
+source = "slot28/slot28_12d38_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023ad4_slot28", address = 0x80023ad4, size = 56 },
+]
+
+[[unit]]
+name = "slot28_12d38_r8"
+image = "slot28"
+source = "slot28/slot28_12d38_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023be0_slot28", address = 0x80023be0, size = 48 },
+  { name = "func_80023c10_slot28", address = 0x80023c10, size = 60 },
+  { name = "func_80023c4c_slot28", address = 0x80023c4c, size = 36 },
+  { name = "func_80023c70_slot28", address = 0x80023c70, size = 108 },
+  { name = "func_80023cdc_slot28", address = 0x80023cdc, size = 144 },
+]
+
+[[unit]]
+name = "slot28_12d38_r9"
+image = "slot28"
+source = "slot28/slot28_12d38_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023d6c_slot28", address = 0x80023d6c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12d38_r10"
+image = "slot28"
+source = "slot28/slot28_12d38_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023e9c_slot28", address = 0x80023e9c, size = 84 },
+  { name = "func_80023ef0_slot28", address = 0x80023ef0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12d38_r11"
+image = "slot28"
+source = "slot28/slot28_12d38_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023fa0_slot28", address = 0x80023fa0, size = 8 },
+  { name = "func_80023fa8_slot28", address = 0x80023fa8, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12d38_r12"
+image = "slot28"
+source = "slot28/slot28_12d38_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024088_slot28", address = 0x80024088, size = 8 },
+  { name = "func_80024090_slot28", address = 0x80024090, size = 64 },
+]
+
+[[unit]]
+name = "slot28_12d38_r13"
+image = "slot28"
+source = "slot28/slot28_12d38_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024424_slot28", address = 0x80024424, size = 56 },
+]
+
+[[unit]]
+name = "slot28_14494_r1"
+image = "slot28"
+source = "slot28/slot28_14494_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024494_slot28", address = 0x80024494, size = 8 },
+  { name = "func_8002449c_slot28", address = 0x8002449c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_14494_r2"
+image = "slot28"
+source = "slot28/slot28_14494_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024554_slot28", address = 0x80024554, size = 8 },
+]
+
+[[unit]]
+name = "slot28_14494_r2_b"
+image = "slot28"
+source = "slot28/slot28_14494_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002459c_slot28", address = 0x8002459c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_14494_r3"
+image = "slot28"
+source = "slot28/slot28_14494_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002468c_slot28", address = 0x8002468c, size = 92 },
+]
+
+[[unit]]
+name = "slot28_14494_r4"
+image = "slot28"
+source = "slot28/slot28_14494_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002473c_slot28", address = 0x8002473c, size = 8 },
+]
+
+[[unit]]
+name = "slot28_14494_r4_b"
+image = "slot28"
+source = "slot28/slot28_14494_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024784_slot28", address = 0x80024784, size = 72 },
+]
+
+[[unit]]
+name = "slot28_14494_r5"
+image = "slot28"
+source = "slot28/slot28_14494_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800249b0_slot28", address = 0x800249b0, size = 88 },
+  { name = "func_80024a08_slot28", address = 0x80024a08, size = 52 },
+  { name = "func_80024a3c_slot28", address = 0x80024a3c, size = 80 },
+]
+
+[[unit]]
+name = "slot28_14494_r6"
+image = "slot28"
+source = "slot28/slot28_14494_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024bb0_slot28", address = 0x80024bb0, size = 80 },
+]
+
+[[unit]]
+name = "slot28_14494_r7"
+image = "slot28"
+source = "slot28/slot28_14494_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024c80_slot28", address = 0x80024c80, size = 80 },
+]
+
+[[unit]]
+name = "slot28_14494_r8"
+image = "slot28"
+source = "slot28/slot28_14494_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025058_slot28", address = 0x80025058, size = 84 },
+  { name = "func_800250ac_slot28", address = 0x800250ac, size = 56 },
+  { name = "func_800250e4_slot28", address = 0x800250e4, size = 48 },
+  { name = "func_80025114_slot28", address = 0x80025114, size = 60 },
+  { name = "func_80025150_slot28", address = 0x80025150, size = 36 },
+  { name = "func_80025174_slot28", address = 0x80025174, size = 108 },
+]
+
+[[unit]]
+name = "slot28_14494_r9"
+image = "slot28"
+source = "slot28/slot28_14494_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800251e0_slot28", address = 0x800251e0, size = 144 },
+  { name = "func_80025270_slot28", address = 0x80025270, size = 64 },
+]
+
+[[unit]]
+name = "slot28_14494_r10"
+image = "slot28"
+source = "slot28/slot28_14494_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800252fc_slot28", address = 0x800252fc, size = 64 },
+]
+
+[[unit]]
+name = "slot28_14494_r11"
+image = "slot28"
+source = "slot28/slot28_14494_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002537c_slot28", address = 0x8002537c, size = 12 },
+]
+
+[[unit]]
+name = "slot28_14494_r11_b"
+image = "slot28"
+source = "slot28/slot28_14494_r11_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800253c8_slot28", address = 0x800253c8, size = 72 },
+]
+
+[[unit]]
+name = "slot28_157a4_r2"
+image = "slot28"
+source = "slot28/slot28_157a4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025900_slot28", address = 0x80025900, size = 80 },
+]
+
+[[unit]]
+name = "slot28_157a4_r3"
+image = "slot28"
+source = "slot28/slot28_157a4_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025be8_slot28", address = 0x80025be8, size = 80 },
+]
+
+[[unit]]
+name = "slot28_157a4_r4"
+image = "slot28"
+source = "slot28/slot28_157a4_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025d4c_slot28", address = 0x80025d4c, size = 64 },
+  { name = "func_80025d8c_slot28", address = 0x80025d8c, size = 104 },
+  { name = "func_80025df4_slot28", address = 0x80025df4, size = 56 },
+  { name = "func_80025e2c_slot28", address = 0x80025e2c, size = 48 },
+  { name = "func_80025e5c_slot28", address = 0x80025e5c, size = 60 },
+  { name = "func_80025e98_slot28", address = 0x80025e98, size = 36 },
+]
+
+[[unit]]
+name = "slot28_157a4_r5"
+image = "slot28"
+source = "slot28/slot28_157a4_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025ebc_slot28", address = 0x80025ebc, size = 108 },
+  { name = "func_80025f28_slot28", address = 0x80025f28, size = 212 },
+  { name = "func_80025ffc_slot28", address = 0x80025ffc, size = 64 },
+]
+
+[[unit]]
+name = "slot28_157a4_r6"
+image = "slot28"
+source = "slot28/slot28_157a4_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800260c4_slot28", address = 0x800260c4, size = 84 },
+  { name = "func_80026118_slot28", address = 0x80026118, size = 84 },
+]
+
+[[unit]]
+name = "slot28_157a4_r7"
+image = "slot28"
+source = "slot28/slot28_157a4_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026254_slot28", address = 0x80026254, size = 8 },
+  { name = "func_8002625c_slot28", address = 0x8002625c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_157a4_r8"
+image = "slot28"
+source = "slot28/slot28_157a4_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800262d8_slot28", address = 0x800262d8, size = 8 },
+  { name = "func_800262e0_slot28", address = 0x800262e0, size = 64 },
+]
+
+[[unit]]
+name = "slot28_163f8_r1"
+image = "slot28"
+source = "slot28/slot28_163f8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026438_slot28", address = 0x80026438, size = 72 },
+]
+
+[[unit]]
+name = "slot28_163f8_r2"
+image = "slot28"
+source = "slot28/slot28_163f8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800267b4_slot28", address = 0x800267b4, size = 88 },
+  { name = "func_8002680c_slot28", address = 0x8002680c, size = 52 },
+]
+
+[[unit]]
+name = "slot28_163f8_r3"
+image = "slot28"
+source = "slot28/slot28_163f8_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800271bc_slot28", address = 0x800271bc, size = 104 },
+  { name = "func_80027224_slot28", address = 0x80027224, size = 56 },
+  { name = "func_8002725c_slot28", address = 0x8002725c, size = 48 },
+  { name = "func_8002728c_slot28", address = 0x8002728c, size = 60 },
+  { name = "func_800272c8_slot28", address = 0x800272c8, size = 36 },
+  { name = "func_800272ec_slot28", address = 0x800272ec, size = 108 },
+]
+
+[[unit]]
+name = "slot28_163f8_r4"
+image = "slot28"
+source = "slot28/slot28_163f8_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027358_slot28", address = 0x80027358, size = 212 },
+  { name = "func_8002742c_slot28", address = 0x8002742c, size = 64 },
+]
+
+[[unit]]
+name = "slot28_163f8_r6"
+image = "slot28"
+source = "slot28/slot28_163f8_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027d54_slot28", address = 0x80027d54, size = 72 },
+]
+
+[[unit]]
+name = "slot28_163f8_r7"
+image = "slot28"
+source = "slot28/slot28_163f8_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027e50_slot28", address = 0x80027e50, size = 72 },
+]
+
+[[unit]]
+name = "slot28_163f8_r8"
+image = "slot28"
+source = "slot28/slot28_163f8_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80028030_slot28", address = 0x80028030, size = 8 },
+]
+
+[[unit]]
+name = "slot28_163f8_r9"
+image = "slot28"
+source = "slot28/slot28_163f8_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80028280_slot28", address = 0x80028280, size = 64 },
+]
+
+[[unit]]
+name = "slot28_163f8_r10"
+image = "slot28"
+source = "slot28/slot28_163f8_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800283b4_slot28", address = 0x800283b4, size = 64 },
+]
+
+[[unit]]
+name = "slot28_163f8_r11"
+image = "slot28"
+source = "slot28/slot28_163f8_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800284d4_slot28", address = 0x800284d4, size = 64 },
+]
+
+[[unit]]
+name = "slot28_5e44_r1"
+image = "slot28"
+source = "slot28/slot28_5e44_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015e44_slot28", address = 0x80015e44, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r2"
+image = "slot28"
+source = "slot28/slot28_5e44_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015f30_slot28", address = 0x80015f30, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r3"
+image = "slot28"
+source = "slot28/slot28_5e44_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800171e0_slot28", address = 0x800171e0, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r4"
+image = "slot28"
+source = "slot28/slot28_5e44_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80017fe8_slot28", address = 0x80017fe8, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r5"
+image = "slot28"
+source = "slot28/slot28_5e44_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800199bc_slot28", address = 0x800199bc, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r6"
+image = "slot28"
+source = "slot28/slot28_5e44_r6.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001adb0_slot28", address = 0x8001adb0, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r7"
+image = "slot28"
+source = "slot28/slot28_5e44_r7.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001b228_slot28", address = 0x8001b228, size = 32 },
+  { name = "func_8001b248_slot28", address = 0x8001b248, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r8"
+image = "slot28"
+source = "slot28/slot28_5e44_r8.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001caf4_slot28", address = 0x8001caf4, size = 32 },
+  { name = "func_8001cb14_slot28", address = 0x8001cb14, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r9"
+image = "slot28"
+source = "slot28/slot28_5e44_r9.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001dae0_slot28", address = 0x8001dae0, size = 32 },
+  { name = "func_8001db00_slot28", address = 0x8001db00, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r10"
+image = "slot28"
+source = "slot28/slot28_5e44_r10.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f2f0_slot28", address = 0x8001f2f0, size = 32 },
+  { name = "func_8001f310_slot28", address = 0x8001f310, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r11"
+image = "slot28"
+source = "slot28/slot28_5e44_r11.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001f648_slot28", address = 0x8001f648, size = 80 },
+]
+
+[[unit]]
+name = "slot28_5e44_r12"
+image = "slot28"
+source = "slot28/slot28_5e44_r12.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001fe78_slot28", address = 0x8001fe78, size = 80 },
+]
+
+[[unit]]
+name = "slot28_5e44_r13"
+image = "slot28"
+source = "slot28/slot28_5e44_r13.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002064c_slot28", address = 0x8002064c, size = 32 },
+  { name = "func_8002066c_slot28", address = 0x8002066c, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r14"
+image = "slot28"
+source = "slot28/slot28_5e44_r14.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002142c_slot28", address = 0x8002142c, size = 32 },
+  { name = "func_8002144c_slot28", address = 0x8002144c, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r15"
+image = "slot28"
+source = "slot28/slot28_5e44_r15.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80021800_slot28", address = 0x80021800, size = 80 },
+]
+
+[[unit]]
+name = "slot28_5e44_r16"
+image = "slot28"
+source = "slot28/slot28_5e44_r16.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022190_slot28", address = 0x80022190, size = 32 },
+  { name = "func_800221b0_slot28", address = 0x800221b0, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r18"
+image = "slot28"
+source = "slot28/slot28_5e44_r18.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80023088_slot28", address = 0x80023088, size = 32 },
+  { name = "func_800230a8_slot28", address = 0x800230a8, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r19"
+image = "slot28"
+source = "slot28/slot28_5e44_r19.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8002455c_slot28", address = 0x8002455c, size = 32 },
+  { name = "func_8002457c_slot28", address = 0x8002457c, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r20"
+image = "slot28"
+source = "slot28/slot28_5e44_r20.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024744_slot28", address = 0x80024744, size = 32 },
+  { name = "func_80024764_slot28", address = 0x80024764, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r21"
+image = "slot28"
+source = "slot28/slot28_5e44_r21.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025388_slot28", address = 0x80025388, size = 32 },
+  { name = "func_800253a8_slot28", address = 0x800253a8, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r23"
+image = "slot28"
+source = "slot28/slot28_5e44_r23.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800263f8_slot28", address = 0x800263f8, size = 32 },
+  { name = "func_80026418_slot28", address = 0x80026418, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r24"
+image = "slot28"
+source = "slot28/slot28_5e44_r24.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80026840_slot28", address = 0x80026840, size = 80 },
+]
+
+[[unit]]
+name = "slot28_5e44_r25"
+image = "slot28"
+source = "slot28/slot28_5e44_r25.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80027584_slot28", address = 0x80027584, size = 32 },
+  { name = "func_800275a4_slot28", address = 0x800275a4, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r26"
+image = "slot28"
+source = "slot28/slot28_5e44_r26.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80028394_slot28", address = 0x80028394, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r27"
+image = "slot28"
+source = "slot28/slot28_5e44_r27.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800284b4_slot28", address = 0x800284b4, size = 32 },
+]
+
+[[unit]]
+name = "slot28_5e44_r28"
+image = "slot28"
+source = "slot28/slot28_5e44_r28.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800285b4_slot28", address = 0x800285b4, size = 32 },
+]
+
+[[unit]]
+name = "slot28_57a4x_r1"
+image = "slot28"
+source = "slot28/slot28_57a4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800257a4_slot28", address = 0x800257a4, size = 88 },
+]
+
+[[unit]]
+name = "slot28_57fcx_r1"
+image = "slot28"
+source = "slot28/slot28_57fcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800257fc_slot28", address = 0x800257fc, size = 52 },
+]
+
+[[unit]]
+name = "slot28_5830x_r1"
+image = "slot28"
+source = "slot28/slot28_5830x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025830_slot28", address = 0x80025830, size = 80 },
+]
+
+[[unit]]
+name = "slot28_5880x_r1"
+image = "slot28"
+source = "slot28/slot28_5880x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80025880_slot28", address = 0x80025880, size = 128 },
+]
+
+[[unit]]
+name = "slot28_8c70x_r1"
+image = "slot28"
+source = "slot28/slot28_8c70x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018c70_slot28", address = 0x80018c70, size = 124 },
+]
+
+[[unit]]
+name = "slot28_8cecx_r1"
+image = "slot28"
+source = "slot28/slot28_8cecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80018cec_slot28", address = 0x80018cec, size = 124 },
+]
+
+[[unit]]
+name = "slot28_bd48x_r1"
+image = "slot28"
+source = "slot28/slot28_bd48x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001bd48_slot28", address = 0x8001bd48, size = 908 },
+]
+
+[[unit]]
+name = "slot28_2d38x_r1"
+image = "slot28"
+source = "slot28/slot28_2d38x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80022d38_slot28", address = 0x80022d38, size = 212 },
 ]
