@@ -32,7 +32,7 @@ void func_801b51e0_slot04_09(Object *o) {
     func_801307e0(o, 0x1a);
 }
 
-void func_801b5288_slot04_09(Object *o) {
+void func_801b5288_slot04_09(Object *o, Object *unused) {
     func_801b2858_slot04_09(o);
     if (o->pos_y < o->field_70) {
         func_80130efc(o);
@@ -44,7 +44,7 @@ void func_801b5288_slot04_09(Object *o) {
     }
 }
 
-void func_801b52f8_slot04_09(Object *obj) {
+void func_801b52f8_slot04_09(Object *obj, Object *unused) {
     if ((s16)obj->field_3a & 0x8000) {
         obj->field_0b = obj->field_0b ^ 1;
         obj->field_73 = 0;

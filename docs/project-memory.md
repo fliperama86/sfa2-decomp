@@ -5214,3 +5214,24 @@ A correction by the owner, on the pull request of the module of slot
   argument register again. A callee that takes an argument there receives
   the parameter, and the source should say so. A local declaration that
   disagrees with the callee's published definition hid it here.
+
+A gap in the private declaration check, found through the owner's review
+of the second session's stage modules (2026-10-07):
+
+- The check reads a dispatch table up to the next address that carries a
+  name. Overlay images share addresses, and it took a name of ANY image
+  as the end: a table was cut after its first entry where another
+  image's symbol stood four bytes on. The owner found a table whose
+  later entries take another parameter list than the table declares; the
+  check had printed nothing.
+- A table now ends only at a name of its own image or of the resident
+  program. On the tree of this group the corrected check read 109 more
+  entries and found one table of `slot04_09` in the same state: three of
+  its nine entries read a second parameter that the dispatcher does not
+  set. It has the form the matching guide gives for that (the table and
+  every entry with two parameters, the dispatcher passing its own second
+  parameter on, with the comment for a function reached from outside).
+  Both images of that block are exact as before.
+- The check has a planted defect for this now. A count of zero from a
+  check says only as much as the check reads: when a reviewer finds what
+  a check should have found, the first question is what it did not read.
