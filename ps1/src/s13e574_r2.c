@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013f2a8(Object *object, int index, int arg);
+void func_8013f2a8(Object *object, int index, int unused);
 
 void func_8013e7f0(Object *object, int index, u8 arg) {
     object->slots[(u8)index].field_04--;

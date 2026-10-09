@@ -262,7 +262,11 @@ functions; they change with every round.
    such change must rebuild exact. Prototypes are done: one shared header
    for 781 functions. 85 functions keep prototypes in their units, 66 of
    them because the callers need one signature and the definition has
-   another; the list is a work item of its own. Data externs are done
+   another; the list is a work item of its own, and was worked through
+   on 2026-10-09: 222 declarations in resident units differed from a
+   definition and 2 still do, and the 22 functions that the shared
+   header declared without a prototype have one (the project memory
+   has the account). Data externs are done
    where all units agree: 594 symbols in a shared header. 138 symbols stay
    in units at that step. The callback tables followed: five function
    pointer typedefs have one shared definition and 154 callback symbols

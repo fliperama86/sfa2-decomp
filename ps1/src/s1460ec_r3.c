@@ -15,9 +15,10 @@ void func_8014672c(Object *object) {
     object->field_98 = data_80172a48;
     object->field_9c = data_80173c9c;
     object->field_04 = object->field_04 + 1;
-    func_80130768(object, object->field_48, table_8017c7f8);
+    func_80130768(object, object->field_48, (SequenceStep **)table_8017c7f8);
 }
 
+/* The call of func_80120028 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 15 instruction slots. */
 void func_80146794(Object *object) {
     if (object->field_03 >= 0x10) {
         if (object->field_03 == 0x10) {
@@ -30,11 +31,12 @@ void func_80146794(Object *object) {
         object->field_04 = object->field_04 + 1;
     }
     func_80131094(object);
-    func_80120028();
+    ((void (*)(void))func_80120028)();
 }
 
-void func_80146820(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table fn_table_8017ca28 holds this function and is declared with this parameter. */
+void func_80146820(Object *p) {
+    func_8011f240((Slab172 *)p);
 }
 
 u8 func_80146840(Object *object) {

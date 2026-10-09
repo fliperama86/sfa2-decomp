@@ -5,7 +5,7 @@
 
 extern HudState *data_8018f5a0;
 
-u8 func_80125394(void);
+int func_80125394(void);
 
 /* Form found by automatic permutation search. */
 void func_80123254(GameState *g)
@@ -14,7 +14,7 @@ void func_80123254(GameState *g)
   Object *o;
   s16 v;
   u16 n;
-  if (func_80125394() == 0)
+  if ((u8)func_80125394() == 0)
   {
     v = g->field_ca;
     v--;

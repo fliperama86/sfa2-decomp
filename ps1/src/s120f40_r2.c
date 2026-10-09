@@ -4,13 +4,13 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-Object *func_80125060(void);
+Object *func_80125060(Object *object);
 
 void func_801211dc(GameState *state) {
     if (data_8018f5a0->field_52 == 0) {
         Object *object;
         data_8018f5a0->field_52++;
-        object = func_80125060();
+        object = func_80125060((Object *)state);
         state->field_154 = object;
         func_8014eef8(object->kind, object->side);
     } else {

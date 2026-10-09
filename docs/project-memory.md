@@ -6196,6 +6196,115 @@ The lesson:
   variant before it is published, measure it again on a copy, and try
   the plain form of every special local: twice here it was exact.
 
+## Declarations in resident units agree with the definitions (2026-10-09)
+
+The owner's review of the pull request of the seventy-sixth group found
+a new resident unit that declared a callee otherwise than it is defined,
+and called that "another instance of an existing resident mismatch". The
+goals list those mismatches as a work item of their own. This is that
+item.
+
+Counts, from the private declaration check, which now lists what it
+used to count only:
+
+- 222 declarations in 147 resident units differed from the definition
+  of the function: 152 in the result type only, 60 in the parameters
+  only, 9 in both, 1 without a prototype. 2 are left.
+- The shared header declared 22 functions without a prototype. All 22
+  have the prototype of their definition now. 45 resident units did not
+  compile against those prototypes, and all do again.
+- 183 files changed: 177 resident units, the two shared headers, and four
+  module units whose declarations followed two changed definitions (two
+  of them in the second session's folder `slot04_0f`). Every function of
+  the tree is exact as before; the whole configuration passes.
+- The check on module units prints 17 findings where it printed 19:
+  `func_80130470` agrees with the two module units that declared it.
+
+How it was decided:
+
+- The definition decides. A unit's declaration became the definition's,
+  and what the old declaration had converted silently is written at the
+  call: 110 added lines cast a result to a narrow type where the
+  listing masks it, 53 carry a pointer cast.
+- A call that passed fewer arguments than the definition takes: where
+  the original sets no register and the missing argument is the calling
+  function's own parameter, still in its register, the parameter is
+  passed explicitly. This is the form the owner asked for on the pull
+  request of slot `0x27`.
+- 15 functions that no unit calls by name were defined without a
+  parameter and called `func_8011f240`, which takes one, without an
+  argument. They take the parameter and pass it on, with a comment that
+  says so, and all 15 are exact. 14 of them stand in dispatch tables
+  that the tree declares, and take the entry type of their table, with
+  the cast to the callee's type at the call (the owner's correction,
+  below). The fifteenth, `func_80144ec4`, is in no table of the image
+  and takes the callee's type.
+- A call that passed more arguments than the definition takes: where the
+  original sets the register, the definition got the parameter, named
+  `unused` (13 functions; every caller of `func_8013f2a8` and of
+  `func_8013f2d8` passed it already).
+  `func_80138ac8` and `func_80138c78` call `func_80138ae8` and pass both
+  parameters on; they are written so.
+- A result type that no cast at the call can give: `func_80130470`
+  returns the low byte of a field and all 20 callers treat the result as
+  16 bits. The definition returns `u16` with the byte cast in its
+  `return`, and is exact. `func_80141c4c` returns `int`, and the two
+  module callers that mask the result cast it.
+- Two functions return the result of `func_801409d8`, which has none.
+  They call it as a statement now and carry a comment; their own result
+  type stays, because 80 module units declare it and none uses it.
+- `func_8014f194` took a 16-bit parameter and returned an `int`, and
+  its one caller passed it an entry of a table declared as pointers and
+  used the result as a pointer, without the narrowing that the
+  prototype would ask for. The entries are passed on as a 16-bit index:
+  the table is declared as integers, the function takes an `int`, copies
+  it into a 16-bit local and returns a pointer. All exact.
+- Two calls go through a cast of the callee, each with the comment and a
+  measured figure: one passes a fourth argument that the original has in
+  its register (7 slots without it), one passes none although the callee
+  takes one (15 slots with it).
+- `func_80149f20` was defined with four parameters to read the fourth
+  argument register, which its one caller does not set. It has two now
+  and reads an unset local, with a comment that this is undefined
+  behaviour in C and what a port has to do.
+
+A correction by the owner, on the pull request:
+
+- I had given the 15 forwarding functions the parameter type of the
+  function they call, and written that no unit calls them by name. The
+  owner pointed out that 14 of them are entries of dispatch tables that
+  the tree declares with an entry type, `Object *` for 13 and
+  `Block172 *` for one, and that a function which no unit calls by
+  name has a callback contract all the same. They have their table's
+  type now and cast inside; the 11 units are exact.
+- What I had not looked at: a function can be reached through a table
+  whose declaration gives its type. A private helper now finds, for
+  every resident function, the words of the image's data that hold its
+  address, the declared table each word belongs to, and compares the
+  entry type with the definition. On this head no definition that this
+  group changed differs from a table that holds it. Over the whole
+  resident image the helper prints 150 older differences, most of them
+  tables declared with entries that take nothing; they are not touched
+  here.
+
+Left:
+
+- `func_8013054c` returns a pair of signed bytes in its definition and
+  a pair of unsigned bytes in one resident caller, and the unsigned type
+  runs through three more functions that the caller passes the pair to.
+- `func_8014e40c` calls an entry of a table of 64 script functions and
+  one caller passes it the object; most entries are defined without a
+  parameter and one with.
+
+How it ran:
+
+- Six agents on 147 units, each with a list of units and the rule to
+  stop where a definition would have to change; then the stops, 58
+  declarations of 20 functions, decided at the top level with a helper
+  that keeps a change of a definition and its callers only if every
+  unit stays exact; then three agents on the 45 units of the header
+  step, and their stops the same way.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

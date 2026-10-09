@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 func_8012be70(Object *object);
-extern u8 func_8012bec0(Object *object);
-extern u8 func_8012bf00(Object *object);
+extern int func_8012be70(Object *object);
+extern int func_8012bec0(Object *object);
+extern int func_8012bf00(Object *object);
 
 void func_8012bd00(Object *object) {
     int v;
@@ -18,19 +18,19 @@ void func_8012bd00(Object *object) {
         v = object->field_46 - 1;
         object->field_46 = v;
         if ((s16)v != -1) {
-            if (func_8012be70(object)) {
+            if ((u8)func_8012be70(object)) {
                 func_80130efc(object);
                 v = object->field_46 - 1;
                 object->field_46 = v;
                 if ((s16)v == -1) goto tail;
-                if (func_8012bec0(object)) {
+                if ((u8)func_8012bec0(object)) {
                     func_80130efc(object);
                     v = object->field_46 - 1;
                     object->field_46 = v;
                     if ((s16)v == -1) goto tail;
                 }
             }
-            if (func_8012bf00(object)) {
+            if ((u8)func_8012bf00(object)) {
                 func_80130efc(object);
                 v = object->field_46 - 1;
                 object->field_46 = v;

@@ -5,14 +5,14 @@
 
 
 
-void func_8014cbf8(void);
+void func_8014cbf8(Object *object);
 
 void func_8012e4c4(Object *object) {
     object->field_207 = 0;
     object->field_208 = 0;
     object->field_209 = 0;
     if (object->field_20c != 0) {
-        func_8014cbf8();
+        func_8014cbf8(object);
     }
     if (func_80149d48(object)) {
         func_80149fc4(object);

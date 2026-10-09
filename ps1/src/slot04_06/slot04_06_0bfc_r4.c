@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 u8 func_801417cc(Object *object);
-u8 func_80141c4c(Object *object);
+int func_80141c4c(Object *object);
 
 int func_801b104c_slot04_06(Object *obj) {
-    if (!func_80141c4c(obj)) return 0;
+    if (!(u8)func_80141c4c(obj)) return 0;
     obj->field_04 = 1;
     obj->field_05 = 0;
     obj->field_06 = 7;

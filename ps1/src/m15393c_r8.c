@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80156898(Actor *a);
+void func_80156898(void *a, Object *object);
 
 void func_801564f0(Actor *a, Object *o) {
     u8 x, y;
@@ -16,7 +16,7 @@ void func_801564f0(Actor *a, Object *o) {
     o->field_123 = 0;
     o->field_b0 = 0x3c;
     o->field_aa++;
-    func_80156898(a);
+    func_80156898(a, o);
     func_80156a20(a, o);
     x = o->field_120;
     y = o->field_121;

@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 int func_80146ba0(Object *object, u8 index) {
     s8 tbl[7] = {0x15, 0x16, 0x30, 0x0c, 0x0d, 0x0a, 0x12};
-    ref_other.p = func_8011f1e0();
+    ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
     ref_other.p->field_00 = 1;
     ref_other.p->field_02 = 5;
@@ -29,7 +29,7 @@ int func_80146cf8(Object *object, u8 index) {
     s8 tbl[2] = {0x10, 0x11};
     Object *other;
     other = object->other;
-    ref_other.p = func_8011f1e0();
+    ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
     ref_other.p->field_00 = 1;
     ref_other.p->field_02 = 5;
@@ -49,7 +49,7 @@ int func_80146cf8(Object *object, u8 index) {
 
 int func_80146e3c(Object *object, u8 index) {
     s8 tbl[10] = {0x10, 0x11, 0x0f, 0x0b, 0x0c, 0x0d, 0x0e, 0x20, 0x21, 0x22};
-    ref_other.p = func_8011f1e0();
+    ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
     ref_other.p->field_00 = 1;
     ref_other.p->field_02 = 5;
@@ -77,7 +77,7 @@ int func_80147000(Object *object) {
 
     if (game_state.field_ae == 0) {
         game_state.field_ae = 0xff;
-        o = func_8011f1e0();
+        o = (Object *)func_8011f1e0();
         if (o == 0) {
             return 0;
         }

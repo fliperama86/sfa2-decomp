@@ -3,10 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011a55c(void);
+void func_8011a55c(Object *o);
 
-void func_80145be0(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c9c0 holds this function and is declared with this parameter. */
+void func_80145be0(Object *p) {
+    func_8011f240((Slab172 *)p);
 }
 
 void func_80145c00(Object *object) {
@@ -18,7 +19,7 @@ void func_80145c40(Object *object) {
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->field_04++;
-    func_8011a55c();
+    func_8011a55c(object);
 }
 
 void func_80145c7c(Object *object) {
@@ -35,6 +36,7 @@ void func_80145c7c(Object *object) {
     }
 }
 
-void func_80145d00(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c9d0 holds this function and is declared with this parameter. */
+void func_80145d00(Object *p) {
+    func_8011f240((Slab172 *)p);
 }

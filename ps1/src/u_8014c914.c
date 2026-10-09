@@ -7,7 +7,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 /* Form found by automatic permutation search. */
 void func_8014c914(Object *object)

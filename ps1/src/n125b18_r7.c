@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8012f6d8(Object *object);
+int func_8012f6d8(Object *object);
 u16 func_80130470(Object *object);
-u8 func_80130258(Object *object);
+int func_80130258(Object *object);
 void func_80130678(Object *object, int a);
 
 void func_8012b628(Object *object) {
@@ -34,7 +34,7 @@ void func_8012b628(Object *object) {
             func_8013047c(object);
             return;
         }
-        if (func_80130258(object)) {
+        if ((u8)func_80130258(object)) {
             func_80130280(object);
             return;
         }
@@ -44,7 +44,7 @@ void func_8012b628(Object *object) {
             func_80130678(object, 0x17);
             return;
         }
-        t = func_8012f6d8(object);
+        t = (u8)func_8012f6d8(object);
 test:
         if (t) {
             object->field_07 = 2;

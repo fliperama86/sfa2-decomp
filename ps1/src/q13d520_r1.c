@@ -5,18 +5,16 @@
 
 extern s8 data_801a6984;
 extern u16 data_801a6966;
-void func_8013f2a8(Object *object, u8 index, u8 arg);
-void func_8013f1bc(Object *object, u8 index, u8 arg, u16 entry);
+void func_8013f2a8(Object *object, int index, int unused);
+void func_8013f1bc(Object *object, u8 index, u8 unused);
 
 /* buttons is not set on every path: when data_801a6984 is not zero and the
    second condition does not hold, the code tests the register as it is.
    Reading the unset local is undefined behaviour in C. It reproduces the
    original's instructions with this compiler and is not a defined
    implementation: a port has to give buttons a value on that path. A
-   fourth parameter in place of the local was tried and gives other code. The
-   call to func_8013f1bc is written with a fourth argument, entry, because the
-   original has that value in the fourth argument register at the call; the
-   definition of func_8013f1bc in this tree takes two parameters. */
+   fourth parameter in place of the local was tried and gives other code. */
+/* The call of func_8013f1bc passes a fourth argument although the callee takes three: the original has entry in the fourth argument register at the call. Written with three arguments, this function differs from the original in 7 instruction slots. */
 void func_8013d520(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 t0;
@@ -50,6 +48,6 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
         entry = table_8017a8cc[(u8)arg * 7];
         object->slots[(u8)index].field_01 = t0;
         *(u8 *)&object->slots[(u8)index].field_02 = entry;
-        func_8013f1bc(object, (u8)index, (u8)arg, entry);
+        ((void (*)(Object *, u8, u8, u16))func_8013f1bc)(object, (u8)index, (u8)arg, entry);
     }
 }

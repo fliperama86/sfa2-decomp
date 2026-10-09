@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8012f618(Object *object);
+int func_8012f618(Object *object);
 Dir func_8013054c(Object *object);
 
-u8 func_80130470(Object *object) {
-    return object->field_134;
+u16 func_80130470(Object *object) {
+    return (u8)object->field_134;
 }
 
 
@@ -20,7 +20,7 @@ void func_8013047c(Object *object) {
     func_80142c04(object);
     object->field_67 = 0;
     func_80130504(object);
-    object->field_157 = (func_8012f618(object) != 0) << 1;
+    object->field_157 = ((u8)func_8012f618(object) != 0) << 1;
     object->field_128 = object->field_157;
     func_8012b45c(object);
 }

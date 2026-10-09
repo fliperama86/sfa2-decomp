@@ -6,7 +6,7 @@
 
 
 
-u8 func_80130184(Object *object);
+int func_80130184(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012b0e4(Object *object) {

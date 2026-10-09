@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 func_80130184(Object *object);
+extern int func_80130184(Object *object);
 
 /* Exact. The cd == 0 arm carries its own copy of the call (the compiler merged only the jal). */
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: not exact, same size, 7 slots. The constant 1 now matches (field_159 = 1

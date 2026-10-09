@@ -4,16 +4,16 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index) {
+void func_8013f2a8(Object *object, int index, int unused) {
     object->slots[(u8)index].field_00 = 0;
     data_80188f44 = 0;
 }
 
-void func_8013f2c8(void) {
+void func_8013f2c8(Object *unused) {
     data_80188f44 = 0;
 }
 
-void func_8013f2d8(Object *object, int index) {
+void func_8013f2d8(Object *object, int index, int unused) {
     object->slots[(u8)index].field_00 = 0;
     data_80188f44 = 1;
 }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80148b60(Object *object) {
     int side;
@@ -14,7 +14,7 @@ void func_80148b60(Object *object) {
         else side = func_80151184() & 1;
         i = 0;
         do {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 9;

@@ -8,7 +8,7 @@
 
 
 void func_8014b940(Object *object) {
-    if (!(func_80151184(object) & 1)) {
+    if (!(func_80151184() & 1)) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

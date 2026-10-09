@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e758(Object *object);
+int func_8014e758(Object *object);
 
 void func_8014bcd8(Object *object) {
     if (func_80149d48(object)) {
@@ -41,7 +41,7 @@ void func_8014bdd4(Object *object) {
 }
 
 void func_8014be2c(Object *object) {
-    if (func_8014e758(object)) {
+    if ((u8)func_8014e758(object)) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

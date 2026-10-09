@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-u8 func_80139f54(Object *a0, Object *a1, Box32 *a2);
-u8 func_80139f84(Object *a0, Object *a1, Box32 *a2);
+int func_80139f54(Object *a0, Object *a1, Box32 *a2);
+s32 func_80139f84(Object *a, Object *b, Box32 *unused);
 
 void func_80139dbc(Object *a0, Object *a1, Box32 *a2) {
     if (a2->field_0d == 2 && table_80188ed0[4] < table_80188ed0[0] &&
@@ -29,7 +29,7 @@ void func_80139e5c(Object *a0, Object *a1) {
 void func_80139eb4(Object *a0, Object *a1, Box32 *a2) {
     if (a0->field_0b == a1->field_0b) {
         func_8013a154(a0, a1, a2);
-    } else if (func_80139f54(a0, a1, a2) != 0 || func_80139f84(a0, a1, a2) != 0) {
+    } else if ((u8)func_80139f54(a0, a1, a2) != 0 || (u8)func_80139f84(a0, a1, a2) != 0) {
         func_8013ca3c(a0, a1);
     } else {
         func_8013a154(a0, a1, a2);

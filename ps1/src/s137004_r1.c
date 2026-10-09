@@ -5,13 +5,13 @@
 
 extern u8 data_801a27e4[];
 extern s16 data_801aa4dc[];
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 
 void func_80137220(u8 a, u8 b) {
     Rect r;
     Job *job;
 
-    job = func_8011f4a4();
+    job = (Job *)func_8011f4a4();
     if (job) {
         r.x = b << 4;
         r.y = 0x1e0;
@@ -28,7 +28,7 @@ void func_801372c8(Object *object) {
     Rect r;
     Job *job;
 
-    job = func_8011f4a4();
+    job = (Job *)func_8011f4a4();
     if (job) {
         r.x = 0x60;
         r.y = object->field_0d + 0x1e0;

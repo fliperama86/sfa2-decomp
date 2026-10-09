@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_8012867c(void) {
     u16 *p = table_8016f658[game_state.field_40];
@@ -12,7 +12,7 @@ void func_8012867c(void) {
     while ((h = *p++) >= 0) {
         if (h != 0)
             break;
-        o = func_8011f1e0();
+        o = (Object *)func_8011f1e0();
         if (o == 0)
             break;
         o->field_00++;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801388a8(void);
+void func_801388a8(GameState *state, Object *object);
 
 void func_80126620(GameState *state, Object *object) {
     if ((*(u32 *)&state->field_44 & 0xff00ff) != 0 || state->field_09 != 0)
@@ -71,7 +71,7 @@ void func_801267d8(GameState *state, Object *object) {
 }
 
 void func_80126898(GameState *state, Object *object) {
-    if (state->field_17 != 3) func_801388a8();
+    if (state->field_17 != 3) func_801388a8(state, object);
     state->field_27 = 0xff;
     if (state->field_80 == 0) state->field_2c = 0;
     func_801268fc(state, object);

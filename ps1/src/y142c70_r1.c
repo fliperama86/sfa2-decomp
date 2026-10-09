@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_801433ac(Object *object);
+int func_801433ac(Object *object);
 
 void func_80142c70(Object *object) {
     Object *p[3];
@@ -16,7 +16,7 @@ void func_80142c70(Object *object) {
     u8 t;
     ref_other.p = object->other;
     object->field_165 = 0;
-    hit = func_801433ac(object) != 0;
+    hit = (u8) func_801433ac(object) != 0;
     x = 0;
     y = 0xf;
     if ((ref_other.p->field_45 | object->field_45) == 0) {

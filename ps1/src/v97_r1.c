@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int arg);
-void func_8013f2d8(Object *object, int index, int arg);
+void func_8013f2a8(Object *object, int index, int unused);
+void func_8013f2d8(Object *object, int index, int unused);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 /* Exact. Decided by: params taken as int and masked in place (index at the top,
@@ -42,7 +42,7 @@ void func_8013e2b0(Object *object, int index, int arg)
   if (!(mask & entry))
   {
   call_c8:
-    func_8013f2c8(object, index, arg);
+    func_8013f2c8(object);
     return;
   }
   if (entry & 1)

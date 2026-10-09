@@ -9,7 +9,7 @@ int func_8013cac8(Object *object, u8 a, u8 b);
 int func_8013caf0(Object *object, u8 a, u8 b);
 int func_8013cb70(Object *object, u8 a, u8 b);
 u8 func_801417cc(Object *object);
-u8 func_80141c4c(Object *object);
+int func_80141c4c(Object *object);
 
 /* functions of other units of this module */
 int func_801b132c_slot04_0f(Object *obj);

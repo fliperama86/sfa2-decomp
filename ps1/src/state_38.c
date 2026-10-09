@@ -5,8 +5,8 @@
 
 
 
-void func_80138c78(void) {
-    func_80138ae8();
+void func_80138c78(GameState *state, Object *object) {
+    func_80138ae8(state, object);
 }
 
 void func_80138c98(Object *object) {

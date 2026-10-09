@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-s32 func_80139f84(Object *a, Object *b) {
+s32 func_80139f84(Object *a, Object *b, Box32 *unused) {
     s16 x0;
     s16 x1;
     s16 d;

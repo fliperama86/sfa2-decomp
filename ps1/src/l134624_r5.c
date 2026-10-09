@@ -4,7 +4,7 @@
 #include "protos.h"
 
 extern u8 data_801a27e4[];
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 
 void func_801376b8(Object *object) {
     u8 *src;
@@ -38,7 +38,7 @@ void func_801376b8(Object *object) {
         rect.w = 0x10;
         rect.h = 1;
         func_80158028(&rect, src);
-        job = func_8011f4a4();
+        job = (Job *)func_8011f4a4();
         if (job == 0) {
             return;
         }

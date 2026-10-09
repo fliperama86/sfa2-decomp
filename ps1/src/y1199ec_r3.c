@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Job *func_8011f430(void);
+Pooled *func_8011f430(void);
 
 void func_80119e74(AnimObj *obj, u16 n) {
     void *p90 = obj->field_90;
@@ -19,7 +19,7 @@ void func_80119e74(AnimObj *obj, u16 n) {
     r.w = 4;
     r.h = 0x10;
     for (i = 0; i < n; i++) {
-        job = func_8011f430();
+        job = (Job *) func_8011f430();
         if (job == 0) {
             break;
         }

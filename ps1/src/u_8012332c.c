@@ -4,7 +4,7 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-u8 func_80125394(void);
+int func_80125394(void);
 
 /* Form found by automatic permutation search. */
 void func_8012332c(Entity *entity)
@@ -12,7 +12,7 @@ void func_8012332c(Entity *entity)
   int s0;
   int t;
   u8 v;
-  if (func_80125394() == 0)
+  if ((u8)func_80125394() == 0)
   {
     t = entity->field_ca;
     t--;

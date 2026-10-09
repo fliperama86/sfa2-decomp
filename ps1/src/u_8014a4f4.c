@@ -23,7 +23,7 @@ int func_8014a4f4(Object *object)
   w = object->field_20e;
   if (w == 0xff)
   {
-    func_8014c994();
+    func_8014c994(object);
   }
   func_8014a5c0(object);
   object->field_238 = (s32) data_80189460;

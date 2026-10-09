@@ -7,7 +7,7 @@
    is unsigned, so each read says so. */
 extern void (*table_8017193c[])(Object *);
 
-u8 func_8014e0b4(Object *object);
+int func_8014e0b4(Object *object);
 void func_8014e3d0(Object *object);
 void func_8013060c(Object *object);
 void func_8012dd5c(Object *object);
@@ -27,7 +27,7 @@ void func_80129468(Object *object) {
         }
     }
     if (object->field_cd != 0) {
-        if (func_8014e0b4(object)) {
+        if ((u8)func_8014e0b4(object)) {
             func_8014e3d0(object);
         }
     } else if (game_state.field_30 == 0 || game_state.mode == object->side + 1) {

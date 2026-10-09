@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011c568(Slab172 *p, u16 *q);
+void func_8011c568(Slab172 *p, u16 *unused);
 
 void func_8011bc84(Slab172 *p) {
     u16 *cur = (u16 *)(((p->sequence->field_04 >> 1) << 1) + p->field_9c);

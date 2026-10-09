@@ -7,7 +7,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 /* Form found by automatic permutation search. */
 void func_8014ca7c(Object *object)
@@ -16,7 +16,7 @@ void func_8014ca7c(Object *object)
   u16 t;
   if (object->field_20a != 0)
   {
-    func_8014cb1c();
+    func_8014cb1c(object);
   }
   else
   {

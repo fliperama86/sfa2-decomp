@@ -4,11 +4,11 @@
 #include "protos.h"
 
 
-u8 func_80130184(Object *object);
+int func_80130184(Object *object);
 void func_80130678(Object *object, int arg);
 
 void func_8012ec50(Object *object) {
-    if (func_80130184(object) == 0) {
+    if ((u8)func_80130184(object) == 0) {
         s32 speed;
         int arg;
 

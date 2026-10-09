@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Job *func_8011f4a4(void);
+Pooled *func_8011f4a4(void);
 
 void func_801451ac(u8 flag) {
     Rect rect;
@@ -26,7 +26,7 @@ void func_801451ac(u8 flag) {
                 data_80189434[i] &= 0x7fff;
             }
         }
-        job = func_8011f4a4();
+        job = (Job *)func_8011f4a4();
         if (job != 0) {
             rect.x = 0xb0;
             rect.y = 0x1fc;

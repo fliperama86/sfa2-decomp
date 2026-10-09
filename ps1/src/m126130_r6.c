@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-u8 func_8012f898(Object *object);
+int func_8012f898(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012a804(Object *object) {
     int index;
     s32 speed;
-    if (func_8012f898(object) == 0) {
+    if ((u8)func_8012f898(object) == 0) {
         if (object->field_21a == object->field_48) {
             *(s32 *)&object->field_10 += object->field_4c;
             func_80130efc(object);

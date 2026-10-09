@@ -6,10 +6,10 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 void func_8014cba4(Object *object) {
-    if (func_8014a170(object, table_8017d450) != 0) {
+    if (func_8014a170(object, (u32 *)table_8017d450) != 0) {
         func_8014ca7c(object);
     } else {
         func_8014c9f4(object);
@@ -18,11 +18,11 @@ void func_8014cba4(Object *object) {
 
 void func_8014cbf8(Object *object) {
     if (object->field_20c == 0) {
-        func_8014d99c();
+        func_8014d99c(object);
     } else if (object->field_20c == 2) {
         func_8014cc80(object);
     } else if (object->field_20c == 4) {
-        if (func_8014a170(object, table_8017d450) != 0) {
+        if (func_8014a170(object, (u32 *)table_8017d450) != 0) {
             func_8014d99c(object);
         } else {
             func_8014cc80(object);
@@ -47,7 +47,7 @@ void func_8014ccf0(Object *object) {
 }
 
 void func_8014cd30(Object *object) {
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else if (object->field_21c == 0 || --object->field_21c == 0) {
         func_8014d99c(object);
@@ -55,7 +55,7 @@ void func_8014cd30(Object *object) {
 }
 
 void func_8014cda0(Object *object) {
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else if (object->field_06 == 0 || object->field_157 != 0) {
         func_8014d99c(object);
@@ -63,7 +63,7 @@ void func_8014cda0(Object *object) {
 }
 
 void func_8014ce0c(Object *object) {
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else if (object->field_06 == 0 || object->field_157 == 0) {
         func_8014d99c(object);
@@ -71,7 +71,7 @@ void func_8014ce0c(Object *object) {
 }
 
 void func_8014ce78(Object *object) {
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else if (object->other->field_45 != 1) {
         func_8014d99c(object);
@@ -80,7 +80,7 @@ void func_8014ce78(Object *object) {
 
 void func_8014cedc(Object *object) {
     Object *other;
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else {
         other = object->other;
@@ -93,7 +93,7 @@ void func_8014cedc(Object *object) {
 }
 
 void func_8014cf80(Object *object) {
-    if (func_8014de94(object) != 0) {
+    if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
     } else if (object->field_21c == 0 || --object->field_21c == 0) {
         func_8014d99c(object);

@@ -4,11 +4,11 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-u8 func_80125394(void);
+int func_80125394(void);
 
 void func_8012318c(Entity *entity) {
     if (entity->field_a9 == 0) {
-        if (func_80125394() == 0) {
+        if ((u8)func_80125394() == 0) {
             int v = entity->field_ca - 1;
             entity->field_ca = v;
             if ((s16)v >= 0) {

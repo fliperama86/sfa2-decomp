@@ -4,13 +4,13 @@
 #include "protos.h"
 
 extern HudBig *data_8018f5a0;
-void func_80123d64(void);
+void func_80123d64(GameState *g);
 
 void func_80123534(Entity *entity) {
     Object *s1;
     Object *s2;
     if (entity->field_2f == 0) {
-        func_80123d64();
+        func_80123d64((GameState *)entity);
         data_8018f5a0->field_4c++;
         entity->field_4f = 1;
         player_left.field_a5 = 0;

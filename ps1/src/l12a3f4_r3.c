@@ -3,20 +3,20 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80130184(Object *object);
+int func_80130184(Object *object);
 u16 func_80130470(Object *object);
-u8 func_8012f2b8(Object *object);
-u8 func_801320e8(Object *object);
-u8 func_8012f898(Object *object);
+int func_8012f2b8(Object *object);
+int func_801320e8(Object *object);
+int func_8012f898(Object *object);
 void func_80130678(Object *object, int index);
 
 void func_8012a9a0(Object *object) {
-    if (func_80130184(object)) {
+    if ((u8)func_80130184(object)) {
         if (object->field_cd != 0) {
             func_8012ab5c(object);
         } else if (func_80130470(object)) {
             func_80130304(object);
-        } else if (func_8012f2b8(object)) {
+        } else if ((u8)func_8012f2b8(object)) {
             func_8012f384(object);
         } else if (func_8012f970(object)) {
             func_8012f3e0(object);
@@ -30,13 +30,13 @@ void func_8012a9a0(Object *object) {
         *(u32 *)&object->field_14 &= 0xffff0000;
         func_801209c4(object);
         if (object->field_cd == 0) {
-            if (object->kind == 0xe && func_801320e8(object)) {
+            if (object->kind == 0xe && (u8)func_801320e8(object)) {
                 func_80132140(object);
             } else if (func_80130470(object)) {
                 func_8013047c(object);
             } else if (func_8012f970(object)) {
                 func_8012fe60(object);
-            } else if (func_8012f898(object)) {
+            } else if ((u8)func_8012f898(object)) {
                 func_8012f8c4(object);
             } else {
                 object->field_07 = object->field_07 + 1;

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-void func_80138410(void);
+void func_80138410(GameState *state);
 
 void func_80122230(Attacker *a) {
     data_8018f5a0->field_50++;
@@ -60,5 +60,5 @@ void func_80122230(Attacker *a) {
             a->field_8b = player_right.kind;
         }
     }
-    func_80138410();
+    func_80138410((GameState *)a);
 }

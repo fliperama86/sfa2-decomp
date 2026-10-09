@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80146998(Object *object) {
     Object *spawned = func_80146a98(object, 6);
@@ -22,7 +22,7 @@ void func_80146998(Object *object) {
 }
 
 Object *func_80146a98(Object *object, int unused) {
-    ref_other.p = func_8011f1e0();
+    ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
         ref_other.p->field_00 = 1;
         ref_other.p->field_02 = 5;

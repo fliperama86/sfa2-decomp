@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013dce0(Object *object, u8 index) {
+void func_8013dce0(Object *object, u8 index, u8 unused) {
     Quad order = data_8016d9a4;
     int step = object->slots[index].field_01;
 

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80136898(Cam *cam, short delta);
+void func_80136898(Cam *cam, int delta);
 
 /* Written by hand in the form of func_80136668, which was finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_801366d4(Cam *cam, short step)
@@ -18,5 +18,5 @@ void func_801366d4(Cam *cam, short step)
   }
   m = cam->field_44;
   cam->field_22 -= step;
-  func_80136898(cam, (short) cam->field_22 > m ? cam->field_22 : m);
+  func_80136898(cam, (short) ((short) cam->field_22 > m ? cam->field_22 : m));
 }

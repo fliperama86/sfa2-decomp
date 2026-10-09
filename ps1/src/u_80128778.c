@@ -5,7 +5,7 @@
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
-int func_80128814(void);
+int func_80128814(Object *object);
 /* Form found by automatic permutation search. */
 void func_80128778(Object *object)
 {
@@ -18,7 +18,7 @@ void func_80128778(Object *object)
     x |= player_right.field_73;
     if ((x == 0) && (object->field_7e != 0))
     {
-      d = func_80128814();
+      d = func_80128814(object);
       if (object->field_0b == 0)
       {
         d = -d;

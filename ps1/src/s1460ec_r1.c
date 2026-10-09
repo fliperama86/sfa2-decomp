@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-u32 func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_801460ec(u32 *p) {
-    p[0] = func_8011f1e0();
-    p[1] = func_8011f1e0();
-    p[2] = func_8011f1e0();
+    p[0] = (u32)func_8011f1e0();
+    p[1] = (u32)func_8011f1e0();
+    p[2] = (u32)func_8011f1e0();
     if (p[0] > p[1]) {
         u32 t = p[0];
         p[0] = p[1];

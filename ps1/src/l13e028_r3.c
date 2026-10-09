@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80138ac8(Config *config, Object *object);
+void func_80138ac8(GameState *state, Object *object);
 
 int func_8013fab4(Object *object) {
     if (ref_other.p->field_7e != 0) {
@@ -22,7 +22,7 @@ int func_8013fab4(Object *object) {
     object->field_28d = 0;
     object->field_297 = 0;
     ref_other.p->other = object;
-    func_80138ac8(game_state.config, object);
+    func_80138ac8((GameState *)game_state.config, object);
     object->field_159 = 0;
     ref_other.p->field_159 = 0;
     object->field_225 = 0;

@@ -5,13 +5,13 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014de94(Object *object);
+int func_8014de94(Object *object);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8014d03c(Object *object)
 {
   Object *new_var;
-  if (func_8014de94(object))
+  if ((u8) func_8014de94(object))
   {
     func_8014e080(object);
   }

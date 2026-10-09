@@ -45,7 +45,7 @@ void func_8014a72c(Object *object) {
 
 void func_8014a788(Object *object) {
     Object *other = object->other;
-    func_8014e7ec();
+    func_8014e7ec(object);
     if (other->field_45 != 1) {
         func_8014c914(object);
     } else {

@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_80152b40(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 10;
@@ -37,7 +37,7 @@ void func_80152c34(Object *object) {
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 10;
@@ -63,7 +63,7 @@ void func_80152d28(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 3; i++) {
-        o = func_8011f1e0();
+        o = (Object *)func_8011f1e0();
         if (o != 0) {
             o->field_00 = 1;
             o->field_02 = 10;
@@ -88,7 +88,7 @@ void func_80152df4(Object *object) {
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 10;

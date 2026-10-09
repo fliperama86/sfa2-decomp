@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137640(URect r, u8 a, u8 b);
+void func_80137640(Rect r, u8 b, u8 a);
 
 /* Form found by automatic permutation search. */
 void func_8011fcc0(SeqRec *rec)
@@ -13,7 +13,7 @@ void func_8011fcc0(SeqRec *rec)
   u8 f2;
   u8 f3;
   u16 *p;
-  URect r;
+  Rect r;
   u16 a;
   short v;
   short kind;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_801441c8(void);
+int func_801441c8(Object *unused);
 
 void func_80143fdc(Object *object) {
     func_80144244(object);
@@ -13,7 +13,7 @@ void func_80143fdc(Object *object) {
 
 void func_80144030(Object *object) {
     if ((s16)object->field_3a < 0) {
-        if (func_801441c8() == 0) func_80144e90(object);
+        if ((u8)func_801441c8(object) == 0) func_80144e90(object);
         else func_80144090(object);
     }
 }

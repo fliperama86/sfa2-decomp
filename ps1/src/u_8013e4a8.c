@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, u8 index, u8 arg);
-void func_8013f2d8(Object *object, u8 index, u8 arg);
+void func_8013f2a8(Object *object, int index, int unused);
+void func_8013f2d8(Object *object, int index, int unused);
 
 /* Form found by automatic permutation search. */
 void func_8013e4a8(Object *object, u8 index, u8 arg)
@@ -28,7 +28,7 @@ void func_8013e4a8(Object *object, u8 index, u8 arg)
     mask = object->field_134 & mask;
     if ((mask == new_var) || ((mask & new_var2) == new_var))
     {
-      func_8013f2c8(object, index, arg);
+      func_8013f2c8(object);
     }
     else
       if (entry & 1)

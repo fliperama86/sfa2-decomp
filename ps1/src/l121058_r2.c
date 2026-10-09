@@ -4,7 +4,7 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-Object *func_8011f1e0(void);
+Block172 *func_8011f1e0(void);
 
 void func_801218fc(Object *object) {
     int i;
@@ -16,7 +16,7 @@ void func_801218fc(Object *object) {
         object->field_2c = 0;
         object->field_ab = 0;
         for (i = 0; i < 2; i++) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 0x31;
@@ -24,7 +24,7 @@ void func_801218fc(Object *object) {
             }
         }
         for (i = 0; i < 2; i++) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 0x32;
@@ -38,7 +38,7 @@ void func_801218fc(Object *object) {
             }
         }
         for (i = 0; i < 2; i++) {
-            o = func_8011f1e0();
+            o = (Object *)func_8011f1e0();
             if (o != 0) {
                 o->field_00 = 1;
                 o->field_02 = 0x17;

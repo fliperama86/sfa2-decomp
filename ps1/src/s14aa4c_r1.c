@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-unsigned char func_8014e758(Object *object);
-unsigned char func_8014e718(Object *object);
+int func_8014e758(Object *object);
+int func_8014e718(Object *object);
 
 void func_8014aa4c(Object *object) {
     if ((*(unsigned *)&object->field_208 & 0xffff0000) == 0) {
@@ -32,7 +32,7 @@ void func_8014aacc(Object *object) {
 }
 
 void func_8014ab20(Object *object) {
-    if (func_8014e758(object)) {
+    if ((u8)func_8014e758(object)) {
         func_8014c914(object);
     } else {
         object->field_208 = 0;
@@ -100,7 +100,7 @@ void func_8014acd0(Object *object) {
 }
 
 void func_8014ad64(Object *object) {
-    if (func_8014e718(object)) {
+    if ((u8)func_8014e718(object)) {
         func_8014c914(object);
     } else {
         object->field_208 = 0;

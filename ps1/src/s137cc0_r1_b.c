@@ -77,6 +77,7 @@ void func_801380f0(Object *object) {
     }
 }
 
-void func_80138144(void) {
-    func_8011f240();
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The tables table_801726bc, table_80172980 and table_801729e4 hold this function and are declared with this parameter. */
+void func_80138144(Block172 *p) {
+    func_8011f240((Slab172 *)p);
 }

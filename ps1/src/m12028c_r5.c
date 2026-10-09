@@ -5,14 +5,14 @@
 
 extern HudState *data_8018f5a0;
 
-u8 func_80125394(void);
-void func_80123504(GameState *g);
+int func_80125394(void);
+void func_80123504(GameState *unused);
 
 void func_8012306c(GameState *g) {
     Object *o = g->field_78;
     if (o->field_cd == 0) {
-        func_8012304c();
-        if (func_80125394() != 0 || g->field_108 > g->field_104) {
+        func_8012304c((Entity *)g);
+        if ((u8)func_80125394() != 0 || g->field_108 > g->field_104) {
             data_8018f5a0->field_50++;
             g->field_ca = 0x5a;
             o->field_b8 = func_80155f98(o->field_b8, g->field_104 << 8);

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80138ac8(Config *config, Object *object);
+void func_80138ac8(GameState *state, Object *object);
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual (52 slots, 704 vs 716 bytes): the original keeps copies of a and b
    in t0 and t2 (move at entry) and the pointer ref_other.p in t1, and reuses a1
@@ -102,7 +102,7 @@ int func_8013f5f8(Object *object, int a, int b)
   object->field_28d = 0;
   object->field_297 = 0;
   ref_other.p->other = object;
-  func_80138ac8(game_state.config, object);
+  func_80138ac8((GameState *)game_state.config, object);
   object->field_159 = 0;
   ref_other.p->field_159 = 0;
   object->field_225 = 0;

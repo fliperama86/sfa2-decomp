@@ -7,7 +7,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_801441c8(void)
+int func_801441c8(Object *unused)
 {
   Object *p = ((ConfigHead *) game_state.config)->field_78;
   int result = 0;

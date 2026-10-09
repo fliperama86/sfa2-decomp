@@ -5,13 +5,13 @@
 
 
 
-u8 func_80130184(Object *object);
+int func_80130184(Object *object);
 void func_80130678(Object *object, int index);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8012b024(Object *object)
 {
-  if (func_80130184(object))
+  if ((u8) func_80130184(object))
   {
     if ((s16) object->field_3a >= 0)
     {

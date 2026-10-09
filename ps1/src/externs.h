@@ -269,7 +269,7 @@ extern s16 data_8017eb34[];
 extern s32 data_8017eb44[];
 extern void (*data_8017ec60[])(Stream *stream, StreamEntry *entry);
 extern void (*data_8017ec7c[])(void);
-extern Node *table_8017ec9c[];
+extern int table_8017ec9c[];
 extern void (*table_8017f2d8[])(GameState *);
 extern TextBuf data_8017f2ec;
 extern void (*table_8017f2fc[])(Block172 *);
