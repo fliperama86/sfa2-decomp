@@ -58,8 +58,8 @@ retained raw.
 In `slot01` 117 C functions, 16,372 bytes, are exact and 270,168 bytes are
 retained raw.
 In `slot04_00` to `slot04_0b`, the first-side blocks of the twelve character
-files `PL00.PAC` to `PL0B.PAC`, 2,099 C functions, 253,100 bytes, are exact
-and 685,112 bytes are retained raw; in `slot05_00` to `slot05_0b` without
+files `PL00.PAC` to `PL0B.PAC`, 2,100 C functions, 253,332 bytes, are exact
+and 684,880 bytes are retained raw; in `slot05_00` to `slot05_0b` without
 `slot05_06` the functions of eleven of them are linked a second time, at a
 second address, and are exact against the chunks of the `X` files.
 The second side of the twelfth, `slot05_06` from `PL06X.PAC`, is four bytes
