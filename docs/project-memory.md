@@ -4154,6 +4154,26 @@ port page. What to remember beside them:
 - A page that says "nothing compiles" has to be changed in the change
   that makes something compile. Three pages said it.
 
+The list of needs of 2026-10-09 closes that trial:
+`port/tools/hostneeds.py` reads the objects and sorts what they need and
+none defines. Its counts are on the port page. What they changed in the
+picture: the library and the functions that are not C yet are small
+parts of what a link would ask for; names of data that only the symbol
+file places are nearly all of it. To remember:
+
+- Main gained modules three times while the trial was open, and every
+  count moved each time. The page names the commit of the tree its counts
+  are for and gives the commands that hand the tools that tree. A page
+  whose counts depend on `ps1/` does that from the start.
+- An approval holds for a head that contains main. With two matching
+  lanes merging, main moved between an approval and the merge twice in
+  three days; each time main was merged in and a new approval was asked
+  for.
+- For this tool the helper was told to choose its changed copies against
+  the sentences of the contract and not against its controls. Several of
+  its 38 survived at first and got controls; all 14 of the reviewer's
+  were then caught.
+
 ## Completion map requested on 2026-10-06
 
 The owner requested a completion map. `docs/completion-map.md` records the
