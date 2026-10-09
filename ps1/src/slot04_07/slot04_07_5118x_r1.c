@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_801b5118_slot04_07(Object *o) {
-    Slot04aObj *q = (Slot04aObj *)o;
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
     if ((obj->field_45 & 1) == 0) {
@@ -17,14 +16,14 @@ void func_801b5118_slot04_07(Object *o) {
         t <<= 8;
         obj->field_60 -= t;
     }
-    if ((q->field_45 & 2) == 0) {
-        t = q->field_4e;
+    if ((obj->field_45 & 2) == 0) {
+        t = obj->field_4e;
         t <<= 8;
-        *(s32 *)&q->field_6c += t;
-        t = q->field_52;
-        q->field_4e += q->field_56;
-        q->field_52 += q->field_5a;
+        *(s32 *)&obj->field_6c += t;
+        t = obj->field_52;
+        obj->field_4e += obj->field_56;
+        obj->field_52 += obj->field_5a;
         t <<= 8;
-        *(s32 *)&q->field_70 -= t;
+        *(s32 *)&obj->field_70 -= t;
     }
 }

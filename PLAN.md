@@ -20,7 +20,7 @@ is required to finish this selected target unless explicitly added.
 
 - Static baseline audit and resident-code load mapping exist. All 260 disc
   files are pinned by hash in a private manifest derived from the disc image.
-- 1,760 functions match exactly: 1,707 from C (289,684 bytes) and 53 from
+- 1,759 functions match exactly: 1,706 from C (289,388 bytes) and 53 from
   assembly (1,040 bytes): stubs and the program entry routine, code that was
   assembly in the original. Units also own 2,352 bytes of
   read-only data in 20 ranges and 5,900 bytes of initialised data in eight.
@@ -36,11 +36,11 @@ is required to finish this selected target unless explicitly added.
   scripted enumeration of variants.
 - The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
   executable byte-identically from declared owners. C units link at original
-  addresses; the other 315,424 payload bytes are retained raw and counted
+  addresses; the other 315,720 payload bytes are retained raw and counted
   separately. Checks fail closed and carry their own negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
-- Thirty-eight overlay modules are in the build as images of their own. `slot2a`:
+- Seventy-six overlay modules are in the build as images of their own. `slot2a`:
   all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
   retained raw. `slot0b`: 57 C functions, 5,892 bytes, are exact and 25,544 bytes
   are retained raw. `slot12`: 180 C functions, 27,332 bytes, are exact and
@@ -54,16 +54,23 @@ is required to finish this selected target unless explicitly added.
   are exact and 23,172 bytes are retained raw; `slot2c` is the same 103
   functions linked a second time, exact against its own chunk. `slot0f`:
   217 C functions, 33,136 bytes, are exact and 70,712 bytes are retained
-  raw. `slot06_00`, the first of the 20 stage modules: 19 C functions,
-  1,392 bytes, are exact and 48,504 bytes are retained raw. `slot27`: 209
-  C functions, 30,484 bytes, are exact and 96,840 bytes are retained raw.
-  `slot28`: 678 C functions, 84,088 bytes, are exact and 185,928 bytes are
-  retained raw. `slot01`: 117 C functions, 16,372 bytes, are exact and
-  270,168 bytes are retained raw. `slot04_00` to `slot04_0b`, the
-  first-side blocks of twelve character files: 1,569 C functions,
-  199,416 bytes, are exact and 738,796 bytes are retained raw; eleven of
-  them are linked a second time as `slot05_NN` and are exact against the
-  chunks of the `X` files. `slot04_sel`, the content of slot `0x4` of
+  raw. The 20 stage modules, `slot06_00` to `slot06_13`: 833 C
+  functions, 122,504 bytes, are exact and 1,238,184 bytes are retained
+  raw. `slot27`: 208 C functions, 30,184 bytes, are exact and 97,140
+  bytes are retained raw. `slot28`: 678 C functions, 84,088 bytes, are
+  exact and 185,928 bytes are retained raw. `slot01`: 117 C functions,
+  16,372 bytes, are exact and 270,168 bytes are retained raw.
+  `slot04_00` to `slot04_0b`, the first-side blocks of twelve character
+  files: 1,569 C functions, 199,416 bytes, are exact and 738,796 bytes
+  are retained raw; eleven of them are linked a second time as
+  `slot05_00` to `slot05_0b` without `slot05_06` and are exact against
+  the chunks of the `X` files. The 11
+  first-side character blocks of slot
+  `0x4`, `slot04_0c` to `slot04_17`: 2,310 C functions, 277,736 bytes,
+  are exact and 732,604 bytes are retained raw; the eight second-side
+  images `slot05_0c` to `slot05_14` are the same functions linked a
+  second time, exact against their own chunks, with two units of one
+  character raw there. `slot04_sel`, the content of slot `0x4` of
   `SELECT.PAC`: 89 C functions, 27,092 bytes, are exact and 13,288 bytes
   are retained raw. The other modules are not in the build.
 - No complete overlay source coverage, whole-program source inventory,
@@ -92,7 +99,7 @@ C or intentional changes require separate behavioral tests and clear labels.
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables, and an inventory of the functions inside the modules that is an estimate from a static sweep; [library families](ps1/docs/library-families.md) of the game functions in the resident image and the modules, an estimate over the same sweep |
 | Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners. Module images are built and compared the same way, each linked alone; four are declared, one of them as a second link of another: the same units at the other address, compared with its own chunk |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,760 functions (1,372 game, 388 library) of the 1,852 that a sweep of its code counts (1,436 game, 416 library). Module images: `slot2a` 28 functions, `slot0b` 57 functions, `slot12` 180 functions, `slot16` 11 functions, and the same 11 linked again in `slot17`, `slot00` 109 functions, and the same 109 linked again in `slot08`, `slot2b` 103 functions, and the same 102 linked again in `slot2c`, `slot0f` 217 functions, `slot06_00` 19 functions, `slot27` 209 functions, `slot28` 678 functions, `slot01` 117 functions, the twelve character blocks `slot04_00` to `slot04_0b` 1,569 functions, `slot04_sel` 89 functions. Expanding |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,759 functions (1,371 game, 388 library) of the 1,852 that a sweep of its code counts (1,436 game, 416 library). Module images: `slot2a` 28 functions, `slot0b` 57 functions, `slot12` 180 functions, `slot16` 11 functions, and the same 11 linked again in `slot17`, `slot00` 109 functions, and the same 109 linked again in `slot08`, `slot2b` 103 functions, and the same 103 linked again in `slot2c`, `slot0f` 217 functions, the 20 stage modules `slot06_00` to `slot06_13` 833 functions, `slot27` 208 functions, `slot28` 678 functions, `slot01` 117 functions, the twelve character blocks `slot04_00` to `slot04_0b` 1,569 functions, linked again in eleven images `slot05_00` to `slot05_0b`, the 11 character blocks `slot04_0c` to `slot04_17` 2,310 functions, linked again in the eight images `slot05_0c` to `slot05_14`, `slot04_sel` 89 functions. Expanding |
 | Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 

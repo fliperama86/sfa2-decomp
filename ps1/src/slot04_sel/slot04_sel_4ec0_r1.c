@@ -83,8 +83,8 @@ void func_801b4ec0_slot04_sel(void) {
         if (game_state.field_07 == (a->field_04 | b->field_04)) {
             a->field_00 = 0;
             b->field_00 = 0;
-            ((u8 *)l)[0xcd] = 0;
-            ((u8 *)r)[0xcd] = 0;
+            l->field_cd = 0;
+            r->field_cd = 0;
             data_8018f5a0->field_4e = data_8018f5a0->field_4e + 1;
             data_8018f5a0->field_50 = 0;
             game_state.field_40 = (u8)func_80125afc(game_state.field_b1);

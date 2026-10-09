@@ -20,6 +20,7 @@ struct FrameRecord size=0x10
 0x00b u8 field_0b
 0x00c u8 field_0c
 0x00d u8 field_0d
+0x00f u8 field_0f
 
 struct Box6 size=0x6
 0x000 s16 origin
@@ -364,14 +365,19 @@ struct Config size=0xaa
 0x004 u8 field_04
 0x012 u8 field_12
 0x032 u8 field_32
+0x033 u8 field_33
+0x040 u16 field_40
 0x042 u16 field_42
+0x047 u8 field_47
 0x04b u8 field_4b
 0x04c u8 field_4c
 0x04d u8 field_4d
 0x04e u8 field_4e
 0x05c u8 field_5c
+0x063 u8 field_63
 0x064 u8 field_64
 0x065 u8 field_65
+0x06b u8 field_6b
 0x06c u8 field_6c
 0x075 u8 field_75
 0x076 u8 field_76
@@ -468,12 +474,15 @@ struct GameState size=0x364
 0x085 u8 field_85
 0x087 u8 field_87
 0x089 u8 field_89
+0x08a u8 field_8a
 0x08b u8 field_8b
 0x08f u8 field_8f
+0x090 u8 field_90
 0x092 u16 field_92
 0x09c Object* field_9c
 0x0a0 Object* field_a0
 0x0a4 u16 field_a4
+0x0a6 u8 field_a6
 0x0a8 u8 field_a8
 0x0a9 u8 field_a9
 0x0ab u8 field_ab
@@ -1268,6 +1277,8 @@ struct Chan size=0x90
 0x012 u16 field_12
 0x014 s32 field_14
 0x01e u16 field_1e
+0x03c s32 field_3c
+0x04c s16 field_4c
 0x050 u16* field_50
 0x058 u32 field_58
 0x05c u32 field_5c
@@ -2084,29 +2095,109 @@ struct Slot0fRec7d50 size=0x40
 0x00c u8* field_0c
 
 struct Slot06Layer size=0x90
+0x000 u8 field_00
+0x001 u8 field_01
+0x003 u8 field_03
 0x004 u8 field_04
+0x005 u8 field_05
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c u16 field_0c
+0x00e u16 field_0e
+0x010 u16 field_10
+0x012 u16 field_12
+0x014 u16 field_14
+0x016 u16 field_16
+0x01c u16 field_1c
 0x01e u16 field_1e
+0x020 u16 field_20
+0x022 u16 field_22
+0x024 u16 field_24
+0x026 u16 field_26
+0x030 s32 field_30
+0x034 u16 field_34
+0x036 u16 field_36
+0x038 u16 field_38
+0x03a u16 field_3a
+0x04a u16 field_4a
+0x04c u16 field_4c
+0x04e u16 field_4e
 0x050 u16* field_50
 0x054 u16* field_54
 0x058 u32 field_58
 0x05c u32 field_5c
+0x060 s32 field_60
+0x068 s32 field_68
+0x06c s32 field_6c
+0x070 s32 field_70
+0x074 s32 field_74
+0x078 s32 field_78
+0x07c s32 field_7c
+0x080 s32 field_80
+0x084 s32 field_84
+0x088 s16 field_88
+0x08b u8 field_8b
+0x08c u8 field_8c
+
+struct Slot06Obj size=0x394
+0x001 u8 field_01
+0x004 u8 field_04
+0x008 s32 field_08
+0x00e u16 field_0e
+0x012 u16 field_12
+0x016 u16 field_16
+0x022 u16 field_22
+0x026 u16 field_26
+0x030 s32 field_30
+0x036 u16 field_36
+0x038 u16 field_38
+0x03a u16 field_3a
+0x03c u8 field_3c
+0x046 u8 field_46
+0x048 u16 field_48
+0x04a u16 field_4a
+0x04c u8 field_4c
+0x054 u16 field_54
+0x056 u8 field_56
+0x058 u16 field_58
+0x05a u16 field_5a
+0x05c u8 field_5c
+0x064 u16 field_64
+0x066 u16 field_66
+0x06c SequenceStep** field_6c
+0x074 u16 field_74
+0x076 u16 field_76
+0x078 u8 field_78
+0x088 s16 field_88
 
 struct Slot06Sprt16 size=0x10
 0x004 u8 color_r
 0x005 u8 color_g
 0x006 u8 color_b
+0x008 s16 x
+0x00a s16 y
+0x00c u8 u
+0x00d u8 v
+0x00e u16 clut
 
 struct Slot06Sprt size=0x14
 0x004 u8 color_r
 0x005 u8 color_g
 0x006 u8 color_b
+0x008 s16 x
+0x00a s16 y
+0x00c u8 u
+0x00d u8 v
+0x00e u16 clut
 0x010 s16 w
 0x012 s16 h
 
 struct Slot06Tile size=0x1c
+0x004 u32 mode[2]
 0x00c Slot06Sprt16 sprt
 
 struct Slot06TileW size=0x20
+0x004 u32 mode[2]
 0x00c Slot06Sprt sprt
 
 struct Slot06_00Rec3010 size=0x20
@@ -2177,6 +2268,162 @@ struct Slot27Recf0c8 size=0x94
 0x058 u32 field_58
 0x05c u32 field_5c
 0x08a u8 field_8a
+
+struct Slot06Cursor size=0x8
+0x000 SeqRec* rec
+0x004 u16 field_04
+0x006 u16 field_06
+
+struct Slot06_06Rece1d8 size=0x14
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 u16 field_02
+0x004 u16 field_04
+0x007 u8 field_07
+0x008 u16 field_08
+0x00a u16 field_0a
+0x010 s16 field_10
+
+struct Slot06_06Rec83d8 size=0x10
+0x000 u8 field_00
+0x002 u16 field_02
+0x004 u16 field_04
+0x006 u8 field_06
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c SequenceStep* field_0c
+
+struct Slot06Pal size=0x10
+0x000 SeqRec* rec
+0x004 u16 field_04
+0x006 u16 field_06
+0x008 s16 field_08
+0x00a s16 field_0a
+0x00c u8 field_0c
+
+struct Slot06_07Rece218 size=0x2
+0x000 u8 field_00
+0x001 u8 field_01
+
+struct Slot06_0fRecb4e4 size=0x2
+0x000 u8 field_00
+0x001 u8 field_01
+
+struct Slot06_12Recf310 size=0x4
+
+struct Slot06_11Rec0028 size=0x8
+0x000 u32 field_00
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+
+struct Slot06_11Rece188 size=0x8
+0x000 s32 field_00
+0x004 s32 field_04
+
+struct Slot04bObj size=0x394
+0x02c u32 field_2c
+0x03a u8 field_3a
+0x03b u8 field_3b
+0x046 u8 field_46
+0x047 u8 field_47
+0x052 s16 field_52
+0x056 s16 field_56
+0x05c s16 field_5c
+0x06c void* field_6c
+0x070 u16 field_70
+0x08c s32 field_8c
+0x0a6 u8 field_a6
+0x0a7 u8 field_a7
+0x0b0 u8 field_b0
+0x0c6 u8 field_c6
+0x0cd u8 field_cd
+0x0cf u8 field_cf
+0x12a u8 field_12a
+0x134 u8 field_134
+0x1a4 u8 field_1a4
+0x1a8 u8 field_1a8
+0x1a9 u8 field_1a9
+0x1aa u8 field_1aa
+0x1ab u8 field_1ab
+0x1c0 u8 field_1c0
+0x1cd u8 field_1cd
+0x1ce u8 field_1ce
+0x1cf u8 field_1cf
+0x1da u8 field_1da
+0x1dc u8 field_1dc
+0x1dd u8 field_1dd
+0x1de u8 field_1de
+0x210 u8 field_210
+0x21e s16 field_21e
+0x278 u8 field_278
+0x27b u8 field_27b
+0x27c u8 field_27c
+0x27d u8 field_27d
+0x298 u8 field_298
+0x330 u8 field_330
+0x334 u8 field_334
+0x335 u8 field_335
+0x336 u8 field_336
+0x337 u8 field_337
+0x339 u8 field_339
+
+struct Slot04_10Rec6cb0 size=0x10
+0x000 s32 a
+0x004 s32 b
+0x008 s32 c
+
+struct Slot04_16Reca444 size=0x10
+0x000 s32 a
+0x004 s32 b
+0x008 s32 c
+
+struct Slot04_11Rec785c size=0xc
+0x000 s32 a
+
+struct Slot04_11Rec7bfc size=0x4
+0x002 s16 b
+
+struct Slot04_11Rec7cf0 size=0x10
+0x000 s32 a
+0x004 s16 x
+0x006 s16 y
+0x008 u8 b8
+0x009 u8 b9
+0x00a u8 ba
+0x00b u8 bb
+0x00c void* c
+
+struct Slot04_17Rece790 size=0xc
+0x000 s32 a
+
+struct Slot04_17Recec3c size=0x10
+0x000 s32 a
+0x004 s16 x
+0x006 s16 y
+0x008 u8 b8
+0x009 u8 b9
+0x00a u8 ba
+0x00b u8 bb
+0x00c void* c
+
+struct Slot04_17Rece90c size=0x4
+0x002 s16 b
+
+struct Slot04_0eRec5eb0 size=0x4
+
+struct Slot04_0eRec62b4 size=0x1c
+0x000 s32 field_00
+0x004 s32 field_04
+0x008 s32 field_08
+0x00c s32 field_0c
+0x010 s32 field_10
+0x014 Object* field_14
+0x018 u16 field_18
+
+struct Slot04_0fRec6194 size=0x4
+0x000 s16 a
+0x002 s16 b
 
 struct Slot28Obj size=0x394
 0x000 u8 field_00
@@ -2307,6 +2554,19 @@ struct Slot01Rec33bb4 size=0x1c
 0x018 u8 u
 0x019 u8 v
 0x01a u16 tpage
+struct Slot06Draw size=0x90
+0x008 s32 field_08
+0x010 s32 field_10
+0x014 s32 field_14
+0x01c s16 field_1c
+0x01e u16 field_1e
+0x03c s32 field_3c
+0x04c s16 field_4c
+0x04e s16 field_4e
+0x050 u16* field_50
+0x058 u32 field_58
+0x05c u32 field_5c
+0x08a u8 field_8a
 
 struct Slot04aObj size=0x394
 0x016 u16 field_16

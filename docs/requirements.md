@@ -34,7 +34,7 @@ full build or decompilation already exists.
   build switches and is listed. The owner decided on 2026-10-06 to start
   one, for macOS on Apple Silicon, Windows and Linux: its decisions and
   state are on the [port page](../port/README.md). Nothing of the game
-  compiles or runs there yet.
+  links or runs there yet.
 
 ## Validation
 
