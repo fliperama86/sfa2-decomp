@@ -35769,3 +35769,12 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e8df4_slot06_02", address = 0x801e8df4, size = 1488 },
 ]
+
+[[unit]]
+name = "slot06_03_8d10x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_8d10x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d10_slot06_03", address = 0x801e8d10, size = 1044 },
+]
