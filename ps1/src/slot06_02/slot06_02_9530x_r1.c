@@ -7,9 +7,8 @@ extern s32 data_80190544;
 
 void func_801e9604_slot06_02(Object *obj);
 
-/* e is a 16-bit local: with `int` or without it (a direct store of
-   field_36 + (d >> 16)) the load of field_08 and the first load of e move
-   one slot early. */
+/* e is a 16-bit local: as an int ten instruction slots differ, and with
+   the first sum stored without it the function is 4 bytes shorter. */
 void func_801e9530_slot06_02(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     s32 d;

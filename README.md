@@ -49,8 +49,8 @@ retained raw, and in `slot2c` the same 102 functions are linked a second
 time and are exact against its own chunk.
 In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
 retained raw.
-In the 20 stage modules, `slot06_00` to `slot06_13`, 833 C functions,
-122,504 bytes, are exact and 1,238,184 bytes are retained raw.
+In the 20 stage modules, `slot06_00` to `slot06_13`, 844 C functions,
+138,864 bytes, are exact and 1,221,824 bytes are retained raw.
 In `slot27` 208 C functions, 30,184 bytes, are exact and 97,140 bytes are
 retained raw.
 In `slot28` 677 C functions, 83,960 bytes, are exact and 186,056 bytes are
@@ -63,8 +63,8 @@ and 740,752 bytes are retained raw; in `slot05_00` to `slot05_0b` without
 `slot05_06` the functions of eleven of them are linked a second time, at a
 second address, and are exact against the chunks of the `X` files.
 In the 11 first-side character blocks of slot `0x4`, `slot04_0c` to
-`slot04_17` (the files `PL0C.PAC` to `PL17.PAC`), 2,310 C functions,
-277,736 bytes, are exact and 732,604 bytes are retained raw. In the eight
+`slot04_17` (the files `PL0C.PAC` to `PL17.PAC`), 2,311 C functions,
+277,928 bytes, are exact and 732,412 bytes are retained raw. In the eight
 second-side images `slot05_0c` to `slot05_14` the functions of the first
 sides are linked a second time, at another address and from the same
 objects, and are exact against their own chunks; two units of one
