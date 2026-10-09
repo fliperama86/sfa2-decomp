@@ -7565,6 +7565,59 @@ remain open as before: the object that looks assembled by another
 assembler, the loads that only a volatile field reproduces, and the
 delay instruction that the assembler emulation does not produce.
 
+## The port builds PsyZ from a patched copy (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/tools/psyzbuild.py`, `port/psyz.patch` and the
+  controls of the tool. The page has the command, its output and what
+  the patch does. Nothing links the result yet; the graphics layer does,
+  in a later pull request.
+- The patch quotes three lines of a PsyZ file that is under the Mozilla
+  Public License 2.0. It carries that notice and is offered under the
+  same license; the hunk was cut down to the fewest lines that still
+  fit only one place. This is the first file here that quotes PsyZ.
+  Offering the fix to PsyZ's authors is a step outside this repository
+  and waits for the owner's word.
+- The owner's review of the first version (PR 123), in his words: "The
+  promised untouched-source boundary is not enforced: `copy_source`
+  deletes `BUILD/src` before checking its relationship to the input. On
+  an invented tree, `--psyz WORLD/src --build WORLD` deletes the entire
+  source and then exits 2 because it is missing", and "`apply_patch`
+  accepts paths outside its copy. An invented `../outside.c` hunk
+  changes a file outside the supplied root." The header had promised
+  "never writes into the submodule's folder", and no case had tried to
+  make it. Both are closed, with cases that compare the whole input
+  before and after each refusal. The rule I take from it: a tool that
+  deletes or writes gets, before anything else, a list of the places it
+  touches, a check of every path against that list made on resolved
+  paths, and cases that hand it the paths arranged to hurt.
+- His second review found the same boundary one level down: the tool
+  checked whether its object folder is a link and not what lies below
+  it, and a link left there from before led the build's write into the
+  source ("a pre-existing `BUILD/obj/libpsyz.a` link to
+  `SOURCE/decomp/d.c` causes that source file to be overwritten"). The
+  tool now walks the tree it is about to build in. I had asked the
+  worker for the paths the tool itself writes and had not asked what
+  the build writes through names that already exist. When closing a
+  boundary after a review, the next question is where else the same
+  thing can happen one step further on, and the worker is told to look
+  there; this time it found five more such places by being asked.
+- A flaw I found myself after opening the pull request: the tool asked
+  git for the commit inside the PsyZ folder, and for a plain folder
+  inside another repository git answers with the outer repository's
+  commit. The tool names a commit only for a folder that is its own
+  work tree now. I found it because a worker's control failed for a
+  reason it had guessed wrongly.
+- The tool had no control file when it was written. The worker who then
+  wrote one found that the patch reader accepted a hunk cut off at the
+  end of the text, a hunk cut off by the next file's header, and lines
+  beyond the header's counts. The reader is strict now and each is a
+  case. One-off figures of the worker: 17 one-line changes of the
+  reader, of which 2 were not noticed until a case was added for each
+  (the last position of a file without a final newline, and the
+  no-newline marker between lines).
+
 ## A parked function exact: the call passes the object (2026-10-09)
 
 `func_80137e38`, 92 bytes, was parked with one differing instruction

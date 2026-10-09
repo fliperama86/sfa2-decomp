@@ -843,7 +843,7 @@ def psyz_cases(root: Path):
     calls = [x.split() for x in read(root / "ps2.log").splitlines()]
     rt = {Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]}
     link = [c for c in calls if c and c[0].startswith("@")]
-    yield "psyz-without-the-option-nothing-changes", same((proc.returncode, "psyz" in proc.stdout, "PORT_HAVE_PSYZ" in " ".join(rt["gpu.c"]), link[0][1:] if link else None),
+    yield "psyz-without-the-option-nothing-changes", same((proc.returncode, any(line.startswith("psyz:") for line in proc.stdout.splitlines()), "PORT_HAVE_PSYZ" in " ".join(rt["gpu.c"]), link[0][1:] if link else None),
                                                           (0, False, False, [*hb.LINK_FLAGS, "-o", str(root / "ps2" / "build" / "sfa2.exe")]))
 
     config, folder, libs = tree("ps3")
