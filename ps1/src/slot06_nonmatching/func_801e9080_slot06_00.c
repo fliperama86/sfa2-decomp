@@ -45,26 +45,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* A record of the table: 0x1c bytes, a list link word, a command word, and
-   the position, texture coordinates and texture page at 0x14. Inferred from
+/* A record of the table is 0x1c bytes, the tree's type Slot06Tile: a list
+   link word, a command word (mode[0]), and in its sprite part the position,
+   texture coordinates and texture page (the clut halfword). Inferred from
    the code; not an original declaration. */
-typedef struct {
-    u32 link;
-    u32 cmd;
-    u8 pad[0xc];
-    s16 x;
-    s16 y;
-    u8 u;
-    u8 v;
-    u16 tpage;
-} Slot06Prim;
-
-extern Slot06Prim data_801f3050_slot06_00[2][85];
+extern Slot06Tile data_801f3050_slot06_00[2][85];
 
 void func_801e9080_slot06_00(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
-    Slot06Prim *prim;
+    Slot06Tile *prim;
     u32 *ot;
     s16 cnt;
     int row;
@@ -122,14 +112,14 @@ void func_801e9080_slot06_00(Object *object) {
                 hi = cell / 256;
                 tu = (nib & 0xff) << 4;
                 tv = (nib2 & 0xff) << 4;
-                prim->x = x + col * 16 - ox;
-                prim->u = tu;
-                prim->tpage = tpage;
-                prim->y = y + row * 16 - oy;
-                prim->v = tv;
+                prim->sprt.x = x + col * 16 - ox;
+                prim->sprt.u = tu;
+                prim->sprt.clut = tpage;
+                prim->sprt.y = y + row * 16 - oy;
+                prim->sprt.v = tv;
                 cw = hi + 0xe100001a;
                 cnt++;
-                prim->cmd = cw;
+                prim->mode[0] = cw;
                 ((PrimTag *)prim)->addr = ((PrimTag *)ot)->addr;
                 ((PrimTag *)ot)->addr = (u32)prim;
             }
