@@ -98,5 +98,5 @@ void func_80128fc4(Object *object) {
     func_801321e8(object);
 }
 
-void func_80129018(void) {
+void func_80129018(Object *unused) {
 }

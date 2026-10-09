@@ -5,7 +5,7 @@
 
 extern HudState *data_8018f5a0;
 
-void func_801507dc(Object *object) {
-    object->field_03 = 0;
-    object->field_01 = 0;
+void func_801507dc(Menu *menu) {
+    menu->field_03 = 0;
+    menu->field_01 = 0;
 }

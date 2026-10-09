@@ -5,6 +5,7 @@
 
 
 
-void func_80148588(Object *object) {
+void func_80148588(Block172 *block) {
+    Object *object = (Object *)block;
     table_8017cd28[object->field_04](object);
 }

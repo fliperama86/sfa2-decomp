@@ -5,7 +5,8 @@
 
 extern HudState *data_8018f5a0;
 
-void func_80121dc4(Entity *entity) {
+void func_80121dc4(Object *object) {
+    Entity *entity = (Entity *)object;
     int v;
     switch (data_8018f5a0->field_52) {
     case 0:

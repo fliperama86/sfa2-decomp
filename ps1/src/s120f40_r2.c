@@ -18,7 +18,7 @@ void func_801211dc(GameState *state) {
     }
 }
 
-void func_8012124c(void) {
+void func_8012124c(GameState *unused) {
     func_80010b2c();
 }
 
@@ -31,11 +31,11 @@ void func_8012126c(GameState *state) {
     }
 }
 
-void func_801212c8(void) {
+void func_801212c8(GameState *unused) {
     func_8001365c();
 }
 
-void func_801212e8(void) {
+void func_801212e8(GameState *unused) {
     func_800136b0();
 }
 
@@ -49,6 +49,6 @@ void func_80121308(GameState *state) {
     }
 }
 
-void func_80121378(void) {
-    table_8016e760[data_8018f5a0->field_4c]();
+void func_80121378(GameState *state) {
+    table_8016e760[data_8018f5a0->field_4c](state);
 }

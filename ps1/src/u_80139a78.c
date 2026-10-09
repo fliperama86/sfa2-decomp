@@ -102,6 +102,6 @@ void func_80139a78(Object *a, Object *b)
   }
   else
   {
-    func_80139d04(a, b);
+    func_80139d04(a, b, box);
   }
 }

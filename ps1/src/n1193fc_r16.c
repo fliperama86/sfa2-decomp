@@ -8,7 +8,7 @@ void func_8014ee5c(int a);
 void func_800100a4(void);
 void func_80010e60(void);
 
-void func_80123804(Entity *e) {
+void func_80123804(GameState *state) {
     HudState *h;
     if (data_8016e68b == 0) {
         h = data_8018f5a0;
@@ -18,38 +18,38 @@ void func_80123804(Entity *e) {
         } else {
             func_800100a4();
         }
-    } else if (e->field_27 == 0) {
+    } else if (((Entity *)state)->field_27 == 0) {
         h = data_8018f5a0;
         h->field_4c++;
-        e->field_65 = 0;
+        ((Entity *)state)->field_65 = 0;
     } else {
         data_8018f5a0->field_4a = 3;
         data_8018f5a0->field_4c = 0;
-        e->field_c6 = 0;
+        ((Entity *)state)->field_c6 = 0;
         data_8018f5a0->field_4e = 0;
-        e->field_c8 = 0;
+        ((Entity *)state)->field_c8 = 0;
         data_8018f5a0->field_52 = 0;
-        e->field_cc = 0;
-        e->field_ab = 0;
-        e->field_80 = 0;
-        e->field_09 = 1;
+        ((Entity *)state)->field_cc = 0;
+        ((Entity *)state)->field_ab = 0;
+        ((Entity *)state)->field_80 = 0;
+        ((Entity *)state)->field_09 = 1;
         func_8011eb4c();
     }
 }
 
-void func_801238f4(Entity *e) {
+void func_801238f4(GameState *state) {
     HudState *h;
     if (data_8016e68b == 0) {
         func_80010e60();
     } else {
         h = data_8018f5a0;
         h->field_4c = 0;
-        e->field_c6 = 0;
+        ((Entity *)state)->field_c6 = 0;
         h->field_4e = 0;
-        e->field_09 = 1;
-        e->field_c8 = 0;
-        e->field_80 = 0;
-        e->field_2c = 0xff;
+        ((Entity *)state)->field_09 = 1;
+        ((Entity *)state)->field_c8 = 0;
+        ((Entity *)state)->field_80 = 0;
+        ((Entity *)state)->field_2c = 0xff;
         player_left.field_01 = 0;
         player_right.field_01 = 0;
     }

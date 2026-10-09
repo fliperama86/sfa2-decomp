@@ -24,6 +24,7 @@ u16 func_80147158(Object *object) {
     return result;
 }
 
-void func_801471f8(Object *object) {
+void func_801471f8(Block172 *block) {
+    Object *object = (Object *)block;
     fn_table_8017cb00[object->field_04](object);
 }

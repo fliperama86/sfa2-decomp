@@ -21,5 +21,5 @@ void func_8013addc(Object *object) {
     object->field_15b = 1;
 }
 
-void func_8013adf8(void) {
+void func_8013adf8(Object *unused) {
 }

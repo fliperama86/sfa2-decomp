@@ -95,7 +95,7 @@ void func_80126f94(GameState *state, Object *object) {
     if (state->field_46 != 0)
         func_801269e0(object);
     else
-        table_8016f5bc[object->field_aa]();
+        table_8016f5bc[object->field_aa](state, object);
 }
 
 void func_80126ff4(GameState *state, Object *object) {

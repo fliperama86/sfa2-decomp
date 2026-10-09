@@ -26,11 +26,11 @@ void func_80121680(GameState *state, Object *a1, Object *a2) {
     }
 }
 
-void func_80121730(Object *object) {
+void func_80121730(GameState *state) {
     if (data_8018f5a0->field_4e == 0) {
-        func_80121780(object);
+        func_80121780((Object *)state);
     } else if (data_8018f5a0->field_4e == 1) {
-        func_801217d4(object);
+        func_801217d4((Object *)state);
     }
 }
 

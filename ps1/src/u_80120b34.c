@@ -5,7 +5,7 @@
 
 extern HudState *data_8018f5a0;
 
-void func_80120ca0(GameState *unused);
+void func_80120ca0(GameState *state);
 
 void func_80120b34(void) {
     GameState *g = &game_state;

@@ -27,9 +27,9 @@ void func_80120f40(Object *object, u8 a1, u16 a2) {
     object->field_c2 = a2;
 }
 
-void func_80120f98(void) {
+void func_80120f98(GameState *state) {
     if (data_801ac61c == 0 || data_801a89f0 == 0) {
-        table_8016e738[data_8018f5a0->field_4a]();
+        table_8016e738[data_8018f5a0->field_4a](state);
     }
 }
 

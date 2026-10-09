@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80139d4c(Object *a0, Object *a1) {
+void func_80139d4c(Object *a0, Object *a1, Box32 *unused) {
     if (game_state.field_30) {
         if (a1->field_1a0) {
 call:

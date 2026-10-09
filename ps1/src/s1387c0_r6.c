@@ -37,9 +37,9 @@ void func_8013a154(Object *a0, Object *a1, Box32 *a2) {
             a1->field_61 = 0x12;
         }
         if (a1->field_45 != 0) {
-            handlers_70a4[a2->field_0d]();
+            handlers_70a4[a2->field_0d](a0, a1, a2);
         } else {
-            handlers_702c[a2->field_0d]();
+            handlers_702c[a2->field_0d](a0, a1, a2);
         }
     }
 }

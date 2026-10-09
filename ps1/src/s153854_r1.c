@@ -4,20 +4,20 @@
 #include "protos.h"
 
 
-void func_80153854(Actor *a) {
+void func_80153854(Effect *effect) {
     int t;
-    if (a->field_1c->field_6a >= 2) {
-        func_80153514(a);
+    if (((Actor *)effect)->field_1c->field_6a >= 2) {
+        func_80153514((Actor *)effect);
     } else {
-        func_80153d7c(a);
-        if (a->field_18->field_cd == 0) {
-            func_80153dfc(a);
+        func_80153d7c((Actor *)effect);
+        if (((Actor *)effect)->field_18->field_cd == 0) {
+            func_80153dfc((Actor *)effect);
         }
-        t = a->field_0c - 1;
-        a->field_0c = t;
+        t = ((Actor *)effect)->field_0c - 1;
+        ((Actor *)effect)->field_0c = t;
         if (t & 0x8000) {
-            a->field_02 = 0;
-            a->field_05 = 0;
+            ((Actor *)effect)->field_02 = 0;
+            ((Actor *)effect)->field_05 = 0;
         }
     }
 }

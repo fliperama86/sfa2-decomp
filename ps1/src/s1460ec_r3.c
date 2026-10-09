@@ -4,7 +4,8 @@
 #include "protos.h"
 
 
-void func_801466ec(Object *object) {
+void func_801466ec(Block172 *block) {
+    Object *object = (Object *)block;
     fn_table_8017ca28[object->field_04](object);
 }
 
