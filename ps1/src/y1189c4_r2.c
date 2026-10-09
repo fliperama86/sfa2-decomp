@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-
-void *func_8015783c(int a, int b, int c, void (*d)(void));
-
 void func_80118d10(short a, short b) {
     int v;
     int *p;
@@ -38,8 +35,6 @@ void func_80118d10(short a, short b) {
     func_8015764c(0xf2000003, 1, 0x1000);
     func_80157720(0xf2000003);
 }
-
-
 
 void func_80118e58(int a, int b, int c, int d) {
     Rect rect;

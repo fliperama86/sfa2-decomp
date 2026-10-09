@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8015783c(int a, int b, int c, int d);
-
 void func_80154364(int *p) {
     func_801575dc(p);
     p[0] = func_8015783c(0xf4000001, 4, 0x2000, 0);

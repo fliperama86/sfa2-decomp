@@ -6947,6 +6947,58 @@ Not claimed: that `void *` or any other type here is the original's.
 The name `DrawSync` is the inventory's identification of that library
 function, not a symbol of the image.
 
+## Five library functions that units declared in more than one way (2026-10-09)
+
+The group on shared prototypes left five library functions out of the
+shared header, because resident units declared each in more than one
+way. None has a definition in the tree. The names in brackets are the
+inventory's identifications, not symbols of the image. Each parameter
+list below is what the calling units pass; none is copied from a
+library header.
+
+- `func_8015783c` (`OpenEvent`). Three units declared it: with an
+  `int` or a pointer as result, and an `int` or a function as fourth
+  parameter. Two of them call it. One passes 0 as fourth argument and
+  stores the results in an array of `int`. The other passes a function
+  and keeps the result in `data_801900fc`, which it hands to
+  `func_8015761c`, declared with an `int`. One prototype now:
+  `int func_8015783c(unsigned a, int b, int c, void (*d)(void))`. With
+  it `data_801900fc`, declared a `void *`, is an `int`, and so is the
+  parameter of `func_801575cc`, to which one unit passes that word and
+  another the entries of the array. That array, `data_8018fef8`, was
+  declared as bytes, filled by `func_80154364` through an `int *`,
+  passed to `func_801544a8` as a `void **`, and read in a module unit
+  through a cast to `int *`. It is an array of `int` now,
+  `func_801544a8` takes an `int *` like the function that fills it,
+  and the module unit's cast is gone. The
+  third unit declared `func_8015783c` and does not call it; that line
+  is gone.
+- `func_8015c958` (`CdReady`): `int func_8015c958(int a, u8 *p)`. One
+  of its two units had the second parameter as an `int` and passes 0.
+- `func_8015cec4` (`CdIntToPos`): `void func_8015cec4(int a, u8 *p)`.
+  Four units declared it, one of them with an `int` result and one
+  with an unsigned first parameter; none uses a result.
+- `func_8016a3b0` (`SsVabClose`): `void func_8016a3b0(int a)`. Three
+  units call it with one argument; a fourth declared it without a
+  parameter and does not call it, and that line is gone.
+- `func_8015f020` (`DMACallback`): two units declared it, in two ways,
+  and neither calls it. Both lines are gone and the function is in no
+  header.
+
+One more declaration that its unit does not use went with these, of
+`func_8016ced0` in the unit that had two of the lines above.
+
+The 16 units that these changes reach are exact, each rebuilt and
+compared: the twelve that lost a line, and four that use
+`data_801900fc`, `func_801575cc` or the array. The whole configuration
+passes.
+
+After this group, by the private helper of the shared-prototype group
+(a one-off count): 9 functions that units declare are not in the
+shared header, the seven that wait for a unit of the second session
+and the two without a definition whose result module units declare as
+`u8` in some places and as `int` in others.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
