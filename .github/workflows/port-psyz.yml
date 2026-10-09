@@ -1,0 +1,77 @@
+# Builds the test suite of the pinned PsyZ on Linux, macOS and Windows
+# runners and runs it there: port/README.md, "The check". A measurement,
+# not a gate: a job ends well whatever the suite counts and fails only
+# when the suite cannot be built or listed. It checks nothing of the
+# matching build and no game file is involved.
+name: Port PsyZ tests
+
+on:
+  push:
+    branches: [main]
+    paths: ['port/external/**', '.gitmodules', 'port/tools/check_psyz*', '.github/workflows/port-psyz.yml']
+  pull_request:
+    paths: ['port/external/**', '.gitmodules', 'port/tools/check_psyz*', '.github/workflows/port-psyz.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Line ends as Git has them
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+      - name: What Linux needs to draw without a screen
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ninja-build libsdl2-dev libxtst-dev mesa-vulkan-drivers
+      - name: What macOS needs
+        if: runner.os == 'macOS'
+        run: brew install ninja
+      - name: What Windows needs
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install --quiet ninja
+          echo "SDL_VIDEODRIVER=offscreen" >> "$GITHUB_ENV"
+      - name: What runs here
+        run: |
+          uname -a
+          cmake --version | head -1
+          ninja --version
+          cc --version | head -1
+      - name: Control cases of the script
+        run: port/tools/check_psyz_controls.sh
+      - name: The suite
+        run: |
+          status=0
+          port/tools/check_psyz.sh --pictures pictures > psyz.txt 2>&1 || status=$?
+          cat psyz.txt
+          echo "status $status" | tee -a psyz.txt
+          [ "$status" -le 1 ]
+      - name: The output on the run's page
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat psyz.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: psyz-${{ matrix.os }}
+          path: |
+            psyz.txt
+            pictures
+            port/build/psyz-tests.*.log
