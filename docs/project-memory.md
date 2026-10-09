@@ -7178,6 +7178,51 @@ Mistakes of mine in this stretch:
   rerun those controls after it; seven of them failed when I did. Every
   control file is rerun after any change to a file it reads.
 
+## The last header lines without a parameter list (2026-10-09)
+
+Seven lines of the shared prototype header declared a function without
+saying what it takes (`void f();`), so the compiler compared nothing at
+their calls. Each now has a parameter list, from the original
+instructions and from the calls.
+
+- `func_801575dc`, a library function without a definition in the tree
+  (the inventory names it `EnterCriticalSection`), sets its own first
+  argument register before anything else (`addiu a0,zero,1` at
+  `0x801575dc`). It takes nothing. Ten places call it; one passed its
+  caller's parameter, and that unit is exact without the argument.
+- `func_8015efc0`, a library function without a definition in the tree
+  (`ResetCallback` in the inventory), is called once, with nothing. It
+  is declared `(void)`.
+- `func_8014c9f4` is not C yet. It copies the first argument register
+  into a saved register (`move s0,a0` at `0x8014c9fc`) and reads a byte
+  through it. Of its two callers one passed the object and one passed
+  nothing, with the object still in the register. It takes the object,
+  and the second caller passes it; both units are exact.
+- `func_8013afa4`, `func_8013b004`, `func_8013b064` and `func_8013b0c4`
+  are a chain: `func_8013af1c` calls one of the first three, and each
+  of those calls the fourth, all with the three argument registers as
+  they came in. `func_8013af1c` was in the header with the parameters
+  that its one caller passes, two objects and a box. The unit that
+  defines it and the three after it had them as old-style definitions
+  with three `int`s, and left the header out because its first
+  definition contradicted the header's line. The four definitions take
+  the header's parameters now, the unit includes the header, and it is
+  exact. `func_8013b0c4` is not C yet; it is declared with the same
+  three parameters. That is inferred from the chain; its first
+  instructions copy all three registers and read bytes through the
+  first two.
+
+After this group no line of the shared prototype header is without a
+parameter list, and the resident units that leave the header out are
+the two that include only the object header.
+
+Evidence: the three units that change and the two others that call
+the lines that changed are exact, each rebuilt and compared, and the
+whole configuration passes.
+
+Not claimed: that these parameter lists are the original's or the
+library's.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
