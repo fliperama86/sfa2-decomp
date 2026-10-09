@@ -7223,6 +7223,58 @@ whole configuration passes.
 Not claimed: that these parameter lists are the original's or the
 library's.
 
+## Data symbols that units declared themselves moved into the shared header (2026-10-09)
+
+The counterpart, for data, of the group that moved prototypes: a data
+symbol that several units declare at their top is compared by nothing
+but the private declaration check. One line in the shared data header
+is compared by the compiler in every unit that includes it.
+
+What was done, with a private helper that reads every `extern`
+statement of every unit:
+
+- A data symbol moved into `externs.h` when the header did not have
+  it, some unit declared it, and every unit that declares it and
+  includes the header declares it in the same form: the same type, the
+  same pointer depth, an array or not. The new lines stand where their
+  address puts them among the header's lines.
+- Only symbols of the resident image's own memory and of the
+  scratchpad. A bare name at an address of an overlay region is
+  whatever module is loaded there, and was left in its units, as the
+  prototype group left such functions.
+- The declarations that then repeat the header were taken out of the
+  resident units and of the module units in this session's folders.
+  No statement had to be rewritten: every `extern` statement that lost
+  a symbol lost all of its symbols.
+
+One-off counts of the private helper: the header had 785 lines for
+symbols and has 895. 58 declarations left 20 resident units and 224
+left 152 module units. The module units of the second session's
+folders were not touched and keep 82 declarations that say what the
+header says. 4 symbols at addresses of an overlay region were left
+alone.
+
+18 data symbols that units declare are not in the header:
+
+- 12 are declared in more than one form: `box_margin`, `data_8018f5a0`,
+  `data_80190464`, `data_8019046c`, `data_801a27e4`, `data_801a6966`,
+  `data_801a6984`, `data_801aa4dc`, `data_801ac6a8`, `ref_third`,
+  `table_801803c4` and `table_8018049c`. The goals name them as worth
+  reading one by one. For most the forms are one word against an
+  array, which compile differently.
+- 6 are tables declared through a function pointer type of the name
+  `ScriptFn`, which four units define for themselves, in three ways,
+  and the shared headers do not have. The helper compares the name
+  only, so these would need reading before any of them moves.
+
+Evidence: the whole configuration passes on the result, every image
+identical to its baseline. That the compiler compares was shown by a
+control: a second declaration of one moved symbol with another type,
+added to one unit, stops that unit's build with `conflicting types`;
+without it the unit is exact again.
+
+Not claimed: that any type in the header is the original's.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

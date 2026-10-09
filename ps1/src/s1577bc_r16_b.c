@@ -3,7 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern int (**gpu_ops)();
 extern unsigned data_80181a50[];
 
 unsigned *func_80158374(unsigned *env) {

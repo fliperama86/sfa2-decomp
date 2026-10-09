@@ -13,13 +13,6 @@ extern u8 data_800f8559_slot0f;
 extern u8 data_800f855a_slot0f;
 extern u8 data_800f855b_slot0f;
 extern u8 data_800f8564_slot0f[2][8];
-extern u8 data_8016e685;
-extern u8 data_8016e687;
-extern u8 data_8016e688;
-extern u8 data_8016e68a;
-extern u8 data_8016e68c;
-extern u8 data_8016e68f[];
-extern u8 data_8016e690[];
 
 void func_800e32dc_slot0f(void) {
     Slot0fRecf32c buf = data_800df32c_slot0f;

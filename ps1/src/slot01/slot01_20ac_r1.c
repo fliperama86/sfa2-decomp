@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190468;
 extern ObjectFn data_80015408_slot01[];
 extern s16 data_80015418_slot01[];
 extern u8 data_8002ceb8_slot01[];

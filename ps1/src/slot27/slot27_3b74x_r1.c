@@ -5,7 +5,6 @@
 
 extern u16 *data_80026c30_slot27[];
 extern Slot27Rec9328 data_80029328_slot27[];
-extern u16 data_801a2b84[];
 
 void func_80013b74_slot27(Object *obj) {
     u16 *src;

@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801ae02d;
-extern u8 data_801ae02e;
-
 int func_8001336c_slot01(u8 arg) {
     int ret = 0;
     Object *p;

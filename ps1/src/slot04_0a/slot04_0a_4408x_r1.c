@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
-
 /* The cast of t to s16 in the call of func_80130768: without it this function differs from the original in 9 instruction slots. The local x is decremented in a statement of its own: written x = parent->field_46 - 1, 2 instruction slots differ. The local t is reused for the sum with field_0d: with a local of its own, 21 instruction slots differ. The sum is formed as t += v, then stored: written as t + v in the store, 12 instruction slots differ. */
 void func_801b4408_slot04_0a(Object *obj, Object *parent) {
     int t;

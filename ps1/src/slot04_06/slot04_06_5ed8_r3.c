@@ -5,8 +5,6 @@
 
 extern u8 data_801c5604_slot04_06[];
 extern s32 data_801c5624_slot04_06[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 void func_801b62c4_slot04_06(Object *obj);
 
 void func_801b61e0_slot04_06(Object *obj) {

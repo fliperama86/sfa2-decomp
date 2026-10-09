@@ -6,7 +6,6 @@
 extern u8 data_800f855c_slot0f;
 extern Slot0fRec94ec data_800e952c_slot0f[];
 extern Slot0fRec94ec *data_800e96d8_slot0f;
-extern u8 data_8016e686;
 
 void func_800e2f34_slot0f(void) {
     u8 *p;

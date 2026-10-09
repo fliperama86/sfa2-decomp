@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef ref_first;
-extern ObjectRef ref_second;
-extern ObjectRef ref_other;
 extern int data_80190464[];
 extern int data_8019046c[];
 extern s16 data_80026a58_slot27[];

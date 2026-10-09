@@ -5,7 +5,6 @@
 
 /* The original loads data_801a6989 with a signed load; the shared declaration
    is unsigned, so each read says so. */
-extern void (*table_8017193c[])(Object *);
 
 void func_80129468(Object *object) {
     if (game_state.field_30 != 0 && game_state.mode == object->side + 1) {

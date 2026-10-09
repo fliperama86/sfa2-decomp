@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190468;
-
 extern Slot0bFrame data_801e4c30_slot0b[];
 void func_801e1598_slot0b(Slot0bObj *obj, int arg);
 void func_801e1624_slot0b(Slot0bObj *obj);
