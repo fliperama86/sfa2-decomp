@@ -540,6 +540,105 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   asks for. Where the top of such a chain is reached from outside the
   module, a comment on the top function says that what its caller passes
   is not known from the module.
+- One local that takes every step of a computation in place keeps
+  instructions and registers that one expression, or a fresh local per
+  value, does not. Two cases from the stage modules:
+
+  ```c
+  /* a quotient in the listing's register: `n = (a - b) / 144;` is not */
+  n = layer->field_60;
+  n -= *(s32 *)&other->field_08;
+  layer->field_68 = 0;
+  layer->field_6c = 0;
+  n /= 144;
+
+  /* a sum whose operands land in the listing's registers only this way */
+  s16 d;
+  d = l2->field_22;
+  d -= l2->field_0a;
+  d -= d / 4;
+  d += layer->field_0a;
+  d += layer->field_36;
+  layer->field_22 = d;
+  ```
+
+  In the second the local is narrow where the listing extends the value
+  after computing it (`sll 0x10`, `sra 0x10` after the subtraction). The
+  same holds for a byte: a `u8` local that takes a field where the
+  listing has its `lbu`, and is stored back later, keeps a load in place
+  that the compiler otherwise moves to the top of the function. These are
+  heuristics that worked: the second on 16 second attempts in nine stage
+  modules and on later first attempts, the `u8` local on three functions.
+  What the original source had is not known. A fourth case is measured
+  and not yet part of an exact function: `pos &= 0xffff; pos |= t << 16;
+  y = pos >> 16;` keeps an `or` that the one expression
+  `((x & 0xffff) | (t << 16)) >> 16` loses.
+- Whether a constant or an address is formed inside a loop or kept in a
+  saved register across it depends on the size of the loop when the
+  compiler's loop pass looks at it. Measured on one function with the
+  pass's dump (`cc1 -dL`): two pointer assignments moved from before a
+  loop into it took the loop from 21 instructions to 23, and a constant
+  that had been moved out of the loop stayed inside, as in the listing.
+  As a heuristic: where a build has a constant outside a loop and the
+  listing has it inside, write the loop larger, and the other way round.
+  It made eight functions of the stage modules exact.
+- The operand order of an `addu` that forms an address followed the order
+  of the terms only when the arithmetic went through an integer type:
+  `(Tx *)(i * 0xfc0 + (u32)(t + j))`. With pointer arithmetic, pointer
+  casts or variables for the offsets the order did not move. 19 units of
+  the stage modules have this form.
+- The order of stores in a listing is the scheduler's, not the source's.
+  A function that sets many byte fields shows the stores grouped by
+  register: the stores of one repeated constant first, then loads, then
+  the other constants, then the zero stores. Written in that order, with
+  or without a local for the repeated constant, the registers of the
+  character blocks' state setters came out swapped. Written as plain
+  statements with literal constants in ascending field order, as the
+  sibling functions set a state (`field_04 = 1; field_05 = 0; field_06 =
+  7; field_07 = 0; ...`), they were exact: the repeated constant then
+  lives across the others and takes the second register. Where that
+  order is still off, the zero stores are the ones to move: they bind
+  no register, so only their place among the others matters. Measured
+  first on `func_801b217c_slot04_10`.
+- When every path of a function ends in the same call, the call is
+  written in each arm, and the arm that the listing has last, the one
+  that falls into the `jal`, is the last arm in the source. A listing
+  that seems to keep a second pointer to the object in `a0` through the
+  last block (`move a0,s0` in a delay slot, then loads through `a0`) had
+  no second pointer in `func_801b0ef4_slot04_10`: the copy is the
+  argument of the last arm's call, moved up. A shared call after the
+  `if`, a pointer copy, or the arms the other way round give the right
+  size with other registers or another block order.
+- In the small functions that add speeds to a position, a field that the
+  listing loads again before a store was the compare written the other
+  way round: `if (obj->field_70 <= obj->pos_y)` was exact where `pos_y >=
+  field_70` was not. Try the operand order of the listing's `slt` before
+  anything else. Some of these functions are exact only when they return
+  their last update, `return obj->field_50 += obj->field_58;`, and their
+  callers test the result.
+- The types of the locals come before the statements. Where the
+  instructions are right and a register or the order of two of them is
+  not, sweep each local over `int`, `u16`, `s16` and `u8` in both
+  declaration orders before trying other spellings. An `s16` local that
+  takes every step in place, a `u8` local for a byte used four ways, and
+  two `u16` locals each made a function exact that other
+  spellings had not moved.
+- A zero that the listing keeps in a register over two clearing loops
+  (`move a2,zero` at entry, `move a0,a2` before the second loop) needs a
+  local for the zero and a copy of it taken in each loop's
+  initialisation: `int z = 0; u8 c; u8 d; for (c = z, i = 0x3f; i >= 0;
+  i--) *p++ = c; ... for (d = z, i = 0x17; ...) *p++ = d;`. A literal
+  zero in either loop folds the copy away.
+- Blocks that exist when registers are allocated and are gone in the
+  listing leave a trace in the allocation. `func_801b460c_slot04_0c` has
+  one store of `pos_x` to itself, keeps the parent pointer in `a1` and
+  every temporary in `v0` and `v1`. As one statement `obj->pos_x =
+  obj->pos_x;` the pointer is a one-block value and the temporaries
+  spread over `a0` and `a1`. As the facing-dependent offset that the
+  sibling functions have, with zero in both arms, it is exact: the arms
+  are separate blocks until the late jump pass merges them. This is an
+  inference from the allocation, and the comment at the statement says
+  so. `grep -rn "The listing has one store of pos_x" src` lists the uses.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
@@ -549,6 +648,15 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
 Run the build one last time after your final edit and report from that
 output. A function is exact only if that last build says so. Earlier results
 do not count.
+
+Reduce an exact function before reporting it. Take out, one at a time,
+each thing that the plain source would not have: a local for a constant,
+a field read into a local before the stores, a cast, a statement away
+from its natural place. Build again each time and keep the plainer form
+when it is still exact. At each thing that has to stay, write a comment
+with the measured effect, for example "with the literal two instruction
+slots differ". A form that an earlier attempt needed is often not needed
+by the attempt that is exact.
 
 ## When stuck
 

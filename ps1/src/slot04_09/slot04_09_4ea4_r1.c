@@ -7,7 +7,7 @@ void func_80141e5c(Object *object);
 
 Block172 *func_8011f1e0(void);
 
-void func_801b4ea4_slot04_09(Object *o) {
+void func_801b4ea4_slot04_09(Object *o, Object *unused) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;
     Object *q;
