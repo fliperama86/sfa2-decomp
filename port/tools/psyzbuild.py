@@ -57,6 +57,28 @@ into the source); a source tree that has links needs them replaced by files
 first. The copy is made only after all of this, so a refused run leaves the
 source and the build folder as they were.
 
+The incremental build keeps `BUILD/obj` between runs, so before anything is
+written the tool also walks what already exists of it, without following
+links, and refuses (status 2, naming the entry) any entry below it, at any
+depth, that is a symbolic link (file or folder, dangling or not: a real build
+leaves none, so all are refused, not only those that point out of BUILD), a
+regular file with more than one name (a second name is an alias by another
+means; a real build leaves none), or anything that is neither a regular file
+nor a folder (a FIFO or device would stop or redirect a write). `BUILD/src` must
+be a real folder if it exists: it is deleted with `shutil.rmtree`, which
+removes a link, a FIFO or a file below it without following or opening it (and
+refuses a link at its top, which is refused earlier here as well), then made
+again; the walk does not descend into it. `BUILD/toolchain.cmake`,
+`BUILD/psyz.json` and `BUILD/build.log`, if they exist, must be regular files
+with one name each (a link, folder, FIFO or second name there is refused). The
+build folder itself must be a folder. A FIFO or device in the copied source
+folders is refused too, since copying it would wait on it. What the tool does
+not promise: the checks and the build are not atomic, so a program that
+changes the tree while the tool runs (puts a link where a file was after the
+walk) is outside what it guards; the contents of files already in `BUILD/obj`
+(a changed `build.ninja` can name any command) are not examined, and neither
+are the compiler, CMake and Ninja programs it is given.
+
 The build
 ---------
 
@@ -396,7 +418,66 @@ def check_paths(source: Path, build: Path, patch_file: Path) -> Path:
             raise Problem(f"the patch file {patch_file} (resolved: {pat}) is {place} or lies inside it, where the tool deletes or writes")
         if place.is_symlink():
             raise Problem(f"{place} is a symbolic link, and the tool deletes and writes there; remove it or use another build folder")
+    check_written_tree(bld)
     return bld
+
+
+def check_written_tree(bld: Path) -> None:
+    """Walk what already exists of the places the tool and the build write, without following links.
+    (A link at one of the places themselves was refused by check_paths before this runs.)"""
+    import stat
+
+    def fail(path, what):
+        raise Problem(f"{path} {what}; the build writes there, so it would lead a write elsewhere. Remove it, or use another build folder")
+
+    def look(path: Path):
+        try:
+            return os.lstat(path)
+        except FileNotFoundError:
+            return None
+        except OSError as err:
+            raise Problem(f"cannot read {path}: {err}")
+
+    top = look(bld)
+    if top is not None and not stat.S_ISDIR(top.st_mode):
+        fail(bld, "exists and is not a folder")
+    for name in ("toolchain.cmake", "psyz.json", "build.log"):
+        path = bld / name
+        st = look(path)
+        if st is None:
+            continue
+        if not stat.S_ISREG(st.st_mode):
+            fail(path, "is not a regular file")
+        if st.st_nlink > 1:
+            fail(path, f"has {st.st_nlink} names")
+    st = look(bld / "src")
+    if st is not None and not stat.S_ISDIR(st.st_mode):
+        fail(bld / "src", "is not a folder")
+    st = look(bld / "obj")
+    if st is None:
+        return
+    if not stat.S_ISDIR(st.st_mode):
+        fail(bld / "obj", "is not a folder")
+    pending = [bld / "obj"]
+    while pending:
+        folder = pending.pop()
+        try:
+            entries = sorted(os.scandir(folder), key=lambda e: e.name)
+        except OSError as err:
+            raise Problem(f"cannot read {folder}: {err}")
+        for entry in entries:
+            path = Path(entry.path)
+            st = look(path)
+            if st is None:
+                continue
+            if stat.S_ISLNK(st.st_mode):
+                fail(path, f"is a symbolic link to {os.readlink(path)}")
+            if stat.S_ISDIR(st.st_mode):
+                pending.append(path)
+            elif not stat.S_ISREG(st.st_mode):
+                fail(path, "is neither a regular file nor a folder")
+            elif st.st_nlink > 1:
+                fail(path, f"has {st.st_nlink} names")
 
 
 def refuse_links(source: Path) -> None:
@@ -404,8 +485,11 @@ def refuse_links(source: Path) -> None:
         for here, dirs, files in os.walk(source / rel):
             dirs[:] = [d for d in dirs if d not in (".git", ".github")]
             for name in dirs + files:
-                if os.path.islink(os.path.join(here, name)):
-                    raise Problem(f"{os.path.join(here, name)} is a symbolic link; the copy of the PsyZ source holds none, replace it by the file or folder it names")
+                full = os.path.join(here, name)
+                if os.path.islink(full):
+                    raise Problem(f"{full} is a symbolic link; the copy of the PsyZ source holds none, replace it by the file or folder it names")
+                if not os.path.isdir(full) and not os.path.isfile(full):
+                    raise Problem(f"{full} is neither a regular file nor a folder; copying it would wait on it")
 
 
 def check_source(source: Path) -> None:

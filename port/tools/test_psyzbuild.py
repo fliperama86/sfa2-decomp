@@ -670,6 +670,8 @@ def snapshot(root: Path) -> dict[str, object]:
                 out[rel] = ("link", os.readlink(full))
             elif full.is_dir():
                 out[rel] = ("dir",)
+            elif not full.is_file():
+                out[rel] = ("special", os.lstat(full).st_mode)
             else:
                 out[rel] = ("file", full.read_bytes())
     return out
@@ -805,6 +807,148 @@ def boundary_cases(root):
     def git_link(w):
         link(w.src / ".git" / "refs" / "heads" / "l", "main")
 
+    # Links and other aliases below the places the build writes (a previous run's folder).
+    def obj_file(w, rel="libpsyz.a", body="old\n"):
+        return write(w.build / "obj" / rel, body)
+
+    def obj_link_lib(w):
+        obj_file(w, "keep.o")
+        link(w.build / "obj" / "libpsyz.a", w.src / "decomp" / "d.c")
+
+    yield from attempt("obj-library-is-a-symlink-to-a-source-file", obj_link_lib, "is a symbolic link", "libpsyz.a", "d.c")
+
+    def obj_deep(w):
+        link(w.build / "obj" / "a" / "b" / "c" / "d" / "lib.a", w.src / "decomp" / "d.c")
+
+    yield from attempt("obj-link-several-levels-down", obj_deep, "is a symbolic link", "lib.a")
+
+    def obj_dir_link(w):
+        obj_file(w, "keep.o")
+        link(w.build / "obj" / "sub", w.src / "psyz")
+
+    yield from attempt("obj-folder-symlink-to-a-source-folder", obj_dir_link, "is a symbolic link", "sub")
+
+    def obj_patch_link(w):
+        link(w.build / "obj" / "x" / "p", w.patch)
+
+    yield from attempt("obj-symlink-to-the-patch-file", obj_patch_link, "is a symbolic link", "p.patch")
+
+    def obj_outside_link(w):
+        write(w.base / "outside" / "f.txt", "o\n")
+        link(w.build / "obj" / "out", w.base / "outside" / "f.txt")
+
+    yield from attempt("obj-symlink-to-a-file-outside-both", obj_outside_link, "is a symbolic link", "out")
+
+    def obj_outside_dir_link(w):
+        write(w.base / "outside" / "f.txt", "o\n")
+        link(w.build / "obj" / "x" / "outdir", w.base / "outside")
+
+    yield from attempt("obj-symlink-to-a-folder-outside-both", obj_outside_dir_link, "is a symbolic link", "outdir")
+
+    def obj_dangling(w):
+        link(w.build / "obj" / "gone", "nothing-here")
+
+    yield from attempt("obj-dangling-symlink", obj_dangling, "is a symbolic link", "gone")
+
+    def obj_inside_link(w):
+        obj_file(w, "real.o")
+        link(w.build / "obj" / "alias.o", "real.o")
+
+    yield from attempt("obj-symlink-that-stays-inside-the-build-folder", obj_inside_link, "is a symbolic link", "alias.o")
+
+    def obj_hard_source(w):
+        obj_file(w, "keep.o")
+        (w.build / "obj" / "deep").mkdir()
+        os.link(w.src / "decomp" / "d.c", w.build / "obj" / "deep" / "h.o")
+
+    yield from attempt("obj-hard-link-to-a-source-file", obj_hard_source, "has 2 names", "h.o")
+
+    def obj_hard_patch(w):
+        obj_file(w, "keep.o")
+        os.link(w.patch, w.build / "obj" / "p.o")
+
+    yield from attempt("obj-hard-link-to-the-patch-file", obj_hard_patch, "has 2 names", "p.o")
+
+    def obj_hard_inside(w):
+        obj_file(w, "one.o")
+        os.link(w.build / "obj" / "one.o", w.build / "obj" / "two.o")
+
+    yield from attempt("obj-two-names-for-one-file-inside-the-build-folder", obj_hard_inside, "has 2 names")
+
+    def obj_fifo(w):
+        (w.build / "obj" / "f").mkdir(parents=True)
+        os.mkfifo(w.build / "obj" / "f" / "pipe")
+
+    yield from attempt("obj-fifo", obj_fifo, "neither a regular file nor a folder", "pipe")
+
+    for name in ("build.log", "psyz.json", "toolchain.cmake"):
+        def hard(w, name=name):
+            w.build.mkdir(parents=True)
+            os.link(w.src / "decomp" / "d.c", w.build / name)
+
+        yield from attempt(f"{name}-hard-link-to-a-source-file", hard, "has 2 names", name)
+
+        def dangling_place(w, name=name):
+            w.build.mkdir(parents=True)
+            link(w.build / name, w.base / "nowhere")
+
+        yield from attempt(f"{name}-dangling-symlink", dangling_place, "is a symbolic link", name)
+
+        def dir_place(w, name=name):
+            (w.build / name).mkdir(parents=True)
+
+        yield from attempt(f"{name}-is-a-folder", dir_place, "is not a regular file", name)
+
+        def fifo_place(w, name=name):
+            w.build.mkdir(parents=True)
+            os.mkfifo(w.build / name)
+
+        yield from attempt(f"{name}-is-a-fifo", fifo_place, "is not a regular file", name)
+
+    def build_is_a_file(w):
+        write(w.base / "afile", "x\n")
+        return {"--build": w.base / "afile"}
+
+    yield from attempt("build-folder-is-a-file", build_is_a_file, "is not a folder", "afile")
+
+    def src_is_a_file(w):
+        w.build.mkdir(parents=True)
+        write(w.build / "src", "x\n")
+
+    yield from attempt("copy-place-is-a-file", src_is_a_file, "is not a folder", "src")
+
+    def obj_is_a_file(w):
+        w.build.mkdir(parents=True)
+        write(w.build / "obj", "x\n")
+
+    yield from attempt("obj-place-is-a-file", obj_is_a_file, "is not a folder", "obj")
+
+    def source_fifo(w):
+        os.mkfifo(w.src / "decomp" / "pipe")
+
+    yield from attempt("fifo-in-the-source", source_fifo, "neither a regular file nor a folder", "pipe")
+
+    # Links below the copy's place are deleted, never followed.
+    w = World(root)
+    link(w.build / "src" / "l", w.src / "decomp" / "d.c")
+    link(w.build / "src" / "dl", w.src / "psyz")
+    os.mkfifo(w.build / "src" / "pipe")
+    before = snapshot(w.src)
+    proc = w.run()
+    yield "boundary-old-copy-holding-links-is-replaced-and-the-targets-survive", same(
+        (proc.returncode, snapshot(w.src) == before, (w.build / "src" / "l").exists(), (w.build / "src" / "decomp" / "d.c").is_file()), (0, True, False, True)
+    )
+    # A clean object tree from a previous run: the next run keeps it and builds on it.
+    w = World(root)
+    first = w.run()
+    write(w.build / "obj" / "deep" / "keep.o", "kept\n")
+    objs = snapshot(w.build / "obj")
+    again = w.run()
+    yield "boundary-clean-object-tree-builds-incrementally", same(
+        (first.returncode, again.returncode, stdout_lines(again), (w.build / "obj" / "deep" / "keep.o").read_text(), len(w.calls())),
+        (0, 0, stdout_lines(first), "kept\n", 4),
+    )
+    yield "boundary-clean-object-tree-keeps-its-files", same(all(snapshot(w.build / "obj").get(k) == v for k, v in objs.items() if not k.endswith("build.ninja")), True)
     # Links in the folders that are not copied (.git, .github) are not read.
     w = World(root)
     git_link(w)
