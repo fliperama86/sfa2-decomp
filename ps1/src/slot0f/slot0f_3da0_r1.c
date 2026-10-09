@@ -34,13 +34,13 @@ void func_800e3da0_slot0f(void) {
     u8 i;
     u8 j;
 
-    func_801519b4((Object *)&data_800e9750_slot0f);
-    func_801519b4((Object *)&data_800e9938_slot0f);
-    func_801519b4((Object *)&data_800e9948_slot0f);
-    func_801519b4((Object *)&data_800e9958_slot0f);
-    func_801519b4((Object *)&data_800e9968_slot0f);
-    func_801519b4((Object *)&data_800e9978_slot0f);
-    func_801519b4((Object *)&data_800e9988_slot0f);
+    func_801519b4(&data_800e9750_slot0f);
+    func_801519b4(&data_800e9938_slot0f);
+    func_801519b4(&data_800e9948_slot0f);
+    func_801519b4(&data_800e9958_slot0f);
+    func_801519b4(&data_800e9968_slot0f);
+    func_801519b4(&data_800e9978_slot0f);
+    func_801519b4(&data_800e9988_slot0f);
     pad = &data_801a696a;
     if (*pad & 0x800) {
         data_8018f5a0->field_52 = 3;

@@ -18,7 +18,7 @@ void func_801b1780_slot04_sel(void) {
     p = data_801b791c_slot04_sel[player_left.kind];
     p->field_04 = 0x30;
     p->field_06 = 0x50;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     q = (Object *)&data_801b7978_slot04_sel;
     data_801b7978_slot04_sel.field_04 = 0xa0;
     data_801b7978_slot04_sel.field_06 = 0x68;
@@ -26,7 +26,7 @@ void func_801b1780_slot04_sel(void) {
     p = data_801b7ba4_slot04_sel[player_right.kind];
     p->field_04 = 0xc0;
     p->field_06 = 0x80;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     t = data_801b9d24_slot04_sel - 1;
     data_801b9d24_slot04_sel = t;
     if (t == 0) {

@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8015c958(int a, int b);
-int func_8015cec4(int a, u8 *p);
-
 void func_8014f7f8(Menu *m) {
     u8 buf[4];
     int i;

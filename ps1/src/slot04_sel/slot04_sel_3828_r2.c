@@ -27,9 +27,9 @@ void func_801b3a7c_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
         rec->field_09 = data_801b9d34_slot04_sel;
         c->field_04 = data_801b7de4_slot04_sel[obj->side];
         c->field_06 = b->field_09 * (data_801b9d30_slot04_sel + 1) + 0x60;
-        func_801519b4((Object *)a);
-        func_801519b4((Object *)b);
-        func_801519b4((Object *)c);
+        func_801519b4(a);
+        func_801519b4(b);
+        func_801519b4(c);
         if (rec->field_09 != 0) {
             data_8016e69a[obj->side] = data_801b9d30_slot04_sel;
             func_801205c4(obj->side, 1);

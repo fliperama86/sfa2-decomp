@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8016a3b0(s32 a);
-
 void func_8012028c(void) {
     func_8016a3b0(data_80190a44[0]);
     func_8016a3b0(data_80190a44[1]);

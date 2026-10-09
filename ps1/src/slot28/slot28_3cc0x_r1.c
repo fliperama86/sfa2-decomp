@@ -21,8 +21,8 @@ void func_80013cc0_slot28(Object *obj) {
             func_80013d8c_slot28(o, rec);
         }
     }
-    func_801519b4((Object *)data_80051844_slot28);
+    func_801519b4(data_80051844_slot28);
     if ((obj->field_3a & 1) == 0) {
-        func_801519b4((Object *)(data_80051844_slot28 + 1));
+        func_801519b4(data_80051844_slot28 + 1);
     }
 }

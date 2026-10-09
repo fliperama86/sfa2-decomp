@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015cec4(u32 a, u8 *p);
-
 void func_80150b80(Menu *menu, int a) {
     int lo = a & 0xff;
     int hi = (a & 0xff00) >> 8;

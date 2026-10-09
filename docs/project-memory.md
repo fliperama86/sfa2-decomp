@@ -6803,6 +6803,202 @@ same findings on this group's tree as on the tree before it, line for
 line; only its count of declarations read in module units falls, by
 the 1,665 lines taken out.
 
+## The port's first piece: a program that stops where C is missing (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+Decisions of the owner on 2026-10-09, in his words:
+
+- "I need you to take over." The session that had done the stage and
+  character modules took over the port from the session that had started
+  it.
+- On how the port gets what is not C: I had asked whether the PC program
+  may run those functions from the original code on the disc through a
+  small interpreter until their C exists, and recommended it. Answer: "No
+  interpreter needed with the unmatched code, right?" I confirmed that
+  with C for every function no interpreter is needed. My reading, not
+  his words: the port is to consist of the project's C. The page and
+  `AGENTS.md` say so now.
+- On writing the PC program itself, after the first piece had been
+  described to him in plain terms: "sure go ahead".
+
+What was built: `port/tools/hostbuild.py` and the runtime in `port/src/`.
+The page has the mechanism, the commands and their output. In short:
+every name of the game is linked as its PS1 address, the memory is
+mapped there, and a 5-byte jump at each function's PS1 address leads to
+its C; a function without C leads to a routine that names it and ends
+the program. On the disc of `SLPS_004.15` the program of the published
+tree ended with `stop: no C yet for func_801189c4 (0x801189c4)`: the
+game's `main` has no C there.
+
+Lessons of this piece:
+
+- Probe a mechanism at toy size before specifying it. Three programs of
+  twenty lines settled, in minutes: that a 32-bit Windows program built
+  on this Linux machine gets memory at `0x80000000` and `0x1f800000`;
+  that a jump written at a PS1 address reaches host code; and that the
+  link needs a fixed image base, because with a movable image a relative
+  call to an absolute address lands elsewhere (the probe ended with an
+  access violation until `--disable-dynamicbase` was added).
+- The game has functions named `memcpy`, `memset`, `printf`, `puts`,
+  `rand`, `strcmp`, `strcpy` and `strcat`. The first full link placed
+  those names at PS1 addresses, the host's own C library bound to them,
+  and the program ended before its first line. The tool's link check had
+  passed: it asked whether game names sit at their addresses, not who
+  else uses them. Every game name is `ps1_NAME` in the linked program
+  now, by one rename of all references and not by a list of clashing
+  names, and the check refuses a plain game name at a PS1 address.
+- My specification said the game's `main` is "the target of the last
+  call among the first 64 instructions of the entry code". The entry
+  code is shorter than that, and the rule read on into `main` itself.
+  The worker that wrote the runtime ran it on the real image, saw
+  another address, and stopped to ask instead of adjusting the test. The
+  rule is now "the last call before the entry code's halt".
+- The owner's review of the first version (PR 114) found that the start
+  of the program could run bytes of the disc: "an invented disc still
+  named `SLPS_004.15`, with a JAL/break entry pointing at unregistered
+  `0x80101000` and one harmless x86 RET byte there, prints `start:
+  0x80101000`, executes that disc byte, prints `stop: main returned`, and
+  exits 0." I had written "nothing is interpreted" and had not asked
+  what the program does with a disc that is not the game. Two guards
+  now: the build pins the SHA-256 of the configuration's executable and
+  the runtime refuses any other program before copying it, and the entry
+  must be an address where the runtime wrote a jump. `test_hostlaunch.py`
+  runs the real start on invented images, his case among them. With
+  either guard taken out in a copy, its cases fail; without the entry
+  gate the unregistered entry prints `start:` and `stop: main returned`
+  again. The rule I take from it: a program that calls into memory it
+  filled from a file must say which file it accepts and which addresses
+  it calls, and both must be tested with a file made to break them.
+- One-off figures of the review, from the private folder: a worker ran 20
+  one-line changes of the build tool against its controls, 18 were
+  noticed at first and all 20 after two cases were added; of 12 changes
+  of my own, 8 were noticed, 1 changes nothing, and 3 were not noticed
+  until a case was added for each (code after a label on one line, a
+  name listed at two addresses of which one is right, an implementation
+  listed twice of which one is at a PS1 address).
+- A private trial, not published and not on the page: with the
+  nonmatching C that waits in scratch trees on that day (128 units, the
+  game's `main` among them) the same tool compiled every unit for the PC
+  without a change, and the program ran `main` up to its first call into
+  Sony's library: `stop: library function ResetCallback (0x8015efc0) has
+  no host routine yet`. The library is the next piece.
+
+Known and not done: the modules' jumps, the 22 images that are a second
+placement of another image's units, the library, Linux and macOS, and a
+runner that builds the program.
+
+## Four declarations that the original instructions contradict (2026-10-09)
+
+The second session writes nonmatching C for the functions that are not
+C yet, reads their instructions again for that, and listed declarations
+of the shared headers that those instructions contradict. Each was
+looked up in the original instructions here before anything changed.
+
+- `func_80120cf0` is not C yet. Before anything writes the first
+  argument register it copies it into a saved register (`move s0,a0`
+  at `0x80120d18`) and stores through that. The shared header declared
+  it without a parameter. It takes one now, and its one caller,
+  `func_80120ca0`, passes its own parameter on, as it does to the other
+  function it calls. The parameter's type, a pointer to the game state,
+  is the caller's; that is inferred. The caller is exact as before:
+  the original sets no register for this call.
+- `func_80157d9c` is a library function without a definition in the
+  tree; the inventory names it `DrawSync`. The header declared it
+  without a result. The program's main function, which is not C yet,
+  branches on its result (`blez v0` at `0x80118c38`, after the call at
+  `0x80118c30`). It returns `int` now. 4 resident units and 19 module
+  units call it, each as a statement, and all are exact.
+- `data_801abef8` was declared as a signed 16-bit word. The main
+  function loads it with `lhu` at `0x80118c60` and compares it
+  unsigned. It is `u16` now; the one unit that uses it stores to it
+  and is exact.
+- `func_801519b4` appends its argument to the queue `table_8018d144`
+  and does not look at what it points to. It was declared with a
+  pointer to an object, and so was the queue. The callers pass records
+  that they hold under several struct names, and the one function of
+  the tree that reads the queue reads each entry as another struct
+  again. The parameter and the queue's entries are `void *` now. The
+  casts to the object type that the old declaration had made necessary
+  are gone: one in a resident unit and 185 in 39 module units of this
+  session's folders (a one-off count of the script that took them
+  out), and so is the cast in the function that reads the queue. Two
+  calls in units of the second session keep their cast, which still
+  compiles.
+
+Looked at and not changed:
+
+- `func_8011bc84` takes a record that the tree names `Slab172`, while
+  the fighter's parts are declared under the name `Block172`. Both
+  names describe 172-byte records, and their declared fields overlap
+  with different types in four places (from `0x28`, `0x2c`, `0x74` and
+  `0x80`), so they are not merged here. Two of its three callers pass
+  a record they hold under another name, and did so without a cast;
+  the cast is written at both calls now, and both units are exact.
+- Four more entries of the list were about private candidates of
+  parked functions. The definitions in the tree already take the
+  parameters that the instructions show.
+
+Evidence: the whole configuration passes with every image identical to
+its baseline; the private declaration check and the private table check
+print what they printed before this group.
+
+Not claimed: that `void *` or any other type here is the original's.
+The name `DrawSync` is the inventory's identification of that library
+function, not a symbol of the image.
+
+## Five library functions that units declared in more than one way (2026-10-09)
+
+The group on shared prototypes left five library functions out of the
+shared header, because resident units declared each in more than one
+way. None has a definition in the tree. The names in brackets are the
+inventory's identifications, not symbols of the image. Each parameter
+list below is what the calling units pass; none is copied from a
+library header.
+
+- `func_8015783c` (`OpenEvent`). Three units declared it: with an
+  `int` or a pointer as result, and an `int` or a function as fourth
+  parameter. Two of them call it. One passes 0 as fourth argument and
+  stores the results in an array of `int`. The other passes a function
+  and keeps the result in `data_801900fc`, which it hands to
+  `func_8015761c`, declared with an `int`. One prototype now:
+  `int func_8015783c(unsigned a, int b, int c, void (*d)(void))`. With
+  it `data_801900fc`, declared a `void *`, is an `int`, and so is the
+  parameter of `func_801575cc`, to which one unit passes that word and
+  another the entries of the array. That array, `data_8018fef8`, was
+  declared as bytes, filled by `func_80154364` through an `int *`,
+  passed to `func_801544a8` as a `void **`, and read in a module unit
+  through a cast to `int *`. It is an array of `int` now,
+  `func_801544a8` takes an `int *` like the function that fills it,
+  and the module unit's cast is gone. The
+  third unit declared `func_8015783c` and does not call it; that line
+  is gone.
+- `func_8015c958` (`CdReady`): `int func_8015c958(int a, u8 *p)`. One
+  of its two units had the second parameter as an `int` and passes 0.
+- `func_8015cec4` (`CdIntToPos`): `void func_8015cec4(int a, u8 *p)`.
+  Four units declared it, one of them with an `int` result and one
+  with an unsigned first parameter; none uses a result.
+- `func_8016a3b0` (`SsVabClose`): `void func_8016a3b0(int a)`. Three
+  units call it with one argument; a fourth declared it without a
+  parameter and does not call it, and that line is gone.
+- `func_8015f020` (`DMACallback`): two units declared it, in two ways,
+  and neither calls it. Both lines are gone and the function is in no
+  header.
+
+One more declaration that its unit does not use went with these, of
+`func_8016ced0` in the unit that had two of the lines above.
+
+The 16 units that these changes reach are exact, each rebuilt and
+compared: the twelve that lost a line, and four that use
+`data_801900fc`, `func_801575cc` or the array. The whole configuration
+passes.
+
+After this group, by the private helper of the shared-prototype group
+(a one-off count): 9 functions that units declare are not in the
+shared header, the seven that wait for a unit of the second session
+and the two without a definition whose result module units declare as
+`u8` in some places and as `int` in others.
+
 ## Nonmatching C for the stage and character functions that stayed short of exact (2026-10-09)
 
 No function count changes here: none of this is in the build.

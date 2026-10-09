@@ -13,9 +13,9 @@ void func_800e2498_slot0f(Object *o) {
     int c;
     Slot0fRec85c8 *r;
     if ((s8)obj->field_00 == 2) {
-        func_801519b4((Object *)data_800e8548_slot0f);
+        func_801519b4(data_800e8548_slot0f);
     } else {
-        func_801519b4((Object *)data_800e8578_slot0f);
+        func_801519b4(data_800e8578_slot0f);
     }
     for (i = 0; i < 3; i++) {
         r = &data_800e85c8_slot0f[i];
@@ -29,7 +29,7 @@ void func_800e2498_slot0f(Object *o) {
             c = 0x10;
         }
         r->field_0b = c;
-        func_801519b4((Object *)r);
+        func_801519b4(r);
     }
 }
 

@@ -59,12 +59,12 @@ void func_800e2fcc_slot0f(void) {
     }
 skip:
     p = data_800e9008_slot0f;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     if (data_800f855d_slot0f == 0x32) {
-        func_801519b4((Object *)(p + 0x10));
+        func_801519b4(p + 0x10);
     }
     p = data_800e9044_slot0f;
-    func_801519b4((Object *)p);
-    func_801519b4((Object *)(p + 0x10));
-    func_801519b4((Object *)(p + 0x20));
+    func_801519b4(p);
+    func_801519b4(p + 0x10);
+    func_801519b4(p + 0x20);
 }

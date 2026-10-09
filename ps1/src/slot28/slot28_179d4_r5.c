@@ -53,6 +53,6 @@ void func_80027f78_slot28(Object *obj) {
         data_80051e94_slot28.field_04 = 0x60;
         data_80051e94_slot28.field_06 = 0x20;
         data_80051e94_slot28.field_0c = data_800517d8_slot28[idx];
-        func_801519b4((Object *)&data_80051e94_slot28);
+        func_801519b4(&data_80051e94_slot28);
     }
 }

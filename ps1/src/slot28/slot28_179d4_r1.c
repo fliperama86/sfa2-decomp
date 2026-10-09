@@ -28,7 +28,7 @@ void func_800279d4_slot28(Object *o) {
             c->field_0b = e->field_02;
             c->field_0c = e->field_04;
             e++;
-            func_801519b4((Object *)c);
+            func_801519b4(c);
         }
         x += 0x10;
         i++;

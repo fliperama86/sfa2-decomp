@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern s16 box_margin;
-void func_8016a3b0(int a);
 
 void func_80120374(int a) {
     int x;

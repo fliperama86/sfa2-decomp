@@ -31,7 +31,7 @@ void func_80120c14(GameState *g) {
 void func_80120ca0(GameState *state) {
     unsigned v = data_8018f5a0->field_48;
     if (v == 0) {
-        func_80120cf0();
+        func_80120cf0(state);
     } else if (v == 1) {
         func_80120f98(state);
     }

@@ -22,15 +22,15 @@ void func_801b5f98_slot04_sel(void) {
     p = data_801b9908_slot04_sel[player_left.kind];
     p->field_04 = 0x30;
     p->field_06 = 0x50;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     p = data_801b9964_slot04_sel;
     data_801b9964_slot04_sel[0].field_04 = 0xa0;
     data_801b9964_slot04_sel[0].field_06 = 0x68;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     p = data_801b9b90_slot04_sel[player_right.kind];
     p->field_04 = 0xc0;
     p->field_06 = 0x80;
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     t = data_801b9da4_slot04_sel - 1;
     data_801b9da4_slot04_sel = t;
     if ((u16)t == 0) {

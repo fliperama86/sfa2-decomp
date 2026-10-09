@@ -26,5 +26,5 @@ void func_801b6674_slot04_sel(void) {
             data_8018f5a0->field_4a = 1;
         }
     }
-    func_801519b4((Object *)data_801b9cd8_slot04_sel);
+    func_801519b4(data_801b9cd8_slot04_sel);
 }

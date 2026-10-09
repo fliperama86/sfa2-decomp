@@ -18,10 +18,10 @@ void func_801b5954_slot04_sel(void) {
     Object *second;
     void *w;
 
-    func_801519b4((Object *)&data_801b8eac_slot04_sel);
-    func_801519b4((Object *)&data_801b8edc_slot04_sel);
-    func_801519b4((Object *)&data_801b8f00_slot04_sel);
-    func_801519b4((Object *)&data_801b8f30_slot04_sel);
+    func_801519b4(&data_801b8eac_slot04_sel);
+    func_801519b4(&data_801b8edc_slot04_sel);
+    func_801519b4(&data_801b8f00_slot04_sel);
+    func_801519b4(&data_801b8f30_slot04_sel);
     w = &player_left;
     r = data_801b9d78_slot04_sel;
     data_801b8dd8_slot04_sel[r->field_00](w, r);

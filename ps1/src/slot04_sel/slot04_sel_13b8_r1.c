@@ -30,8 +30,8 @@ void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
             r->field_0b = data_801b9cec_slot04_sel;
             s2->field_04 = data_801b6e80_slot04_sel[obj->side];
             s2->field_06 = data_801b7648_slot04_sel.field_09 * (data_801b9ce8_slot04_sel + 1) + 0x90;
-            func_801519b4((Object *)s3);
-            func_801519b4((Object *)s2);
+            func_801519b4(s3);
+            func_801519b4(s2);
             func_801519b4(data_801b7504_slot04_sel[obj->side]);
             if (r->field_0b != 0) {
                 data_8016e696 = data_801b9ce8_slot04_sel;
@@ -52,7 +52,7 @@ void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
         }
     } else {
 both:
-        func_801519b4((Object *)s3);
+        func_801519b4(s3);
         func_801519b4(data_801b7504_slot04_sel[obj->side]);
     }
 }

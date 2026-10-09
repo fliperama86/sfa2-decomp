@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801544a8(void **p) {
+void func_801544a8(int *p) {
     func_801577cc(p[0]);
     func_801577cc(p[1]);
     func_801577cc(p[2]);

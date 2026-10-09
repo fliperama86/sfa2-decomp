@@ -15,7 +15,11 @@ working repository is this directory, not `../68k-decomp`.
   owner's rule of 2026-10-09, nothing of the game's source is changed for
   the port until the port is shown running, it stays as close to the
   PS1's original as possible, and its data comes from a disc image that
-  the user supplies.
+  the user supplies. By the owner's word of the same day the port runs no
+  original code: a function that is not C gets C first (nonmatching,
+  with a contract and a differential test, where it cannot be exact),
+  and the PC program stops with the function's name where C is missing.
+  No interpreter or emulator of the original code is built into it.
 - Preserve readable gameplay C and explicit assembly exceptions. Neither an
   all-assembly dump nor opaque retained executable bytes complete the project.
 - Distinguish exact C, tested nonmatching C, assembly, raw retention, inferred

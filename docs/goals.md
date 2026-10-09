@@ -233,8 +233,15 @@ the compiled units need and none defines. One workflow runs the compile
 trial and another PsyZ's own tests on runners for Linux, macOS and
 Windows. The owner's rule of 2026-10-09: no change to the game's source
 until the port runs, data from the user's disc image, the proof on Linux
-or Windows first. Its next step waits for the owner: how it runs before
-every function is C.
+or Windows first. On the same day the owner settled how it runs before
+every function is C: it does not; a function without C gets nonmatching
+C first, and the PC program stops with the function's name where C is
+missing. The first piece of the PC program exists since then: a tool
+links the game's unchanged C for 32-bit Windows with every name at its
+PS1 address, and the program loads the game's program from a disc image
+and stops at the first function without C, the game's `main` in the
+published tree. Next: the library, the modules, and C for the functions
+that have none.
 
 ## Next implementation package
 

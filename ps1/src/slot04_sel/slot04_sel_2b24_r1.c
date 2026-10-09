@@ -53,7 +53,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     }
     func_801b2aa4_slot04_sel(p, n);
     func_801b2aa4_slot04_sel(s2->buf + 0x18, table_801aa4e8[2][0][obj->side]);
-    func_801519b4((Object *)s2);
+    func_801519b4(s2);
     if (rec->field_04 == 0) {
         if (((game_state.field_07 >> obj->side) & 1) == 0) {
             return;
@@ -80,7 +80,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
         }
         s5->field_04 = data_801b7c70_slot04_sel[data_801b9d30_slot04_sel].field_00 + obj->side * 0x18;
         s5->field_06 = data_801b7c70_slot04_sel[data_801b9d30_slot04_sel].field_02;
-        func_801519b4((Object *)s5);
+        func_801519b4(s5);
 
         i = 0;
         s3 = data_801b7ff4_slot04_sel[obj->side];
@@ -90,7 +90,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             i++;
         } while (i < 0x10);
         s3->field_0b = a1->field_0b;
-        func_801519b4((Object *)s3);
+        func_801519b4(s3);
 
         i = 0;
         s4 = data_801b7fa4_slot04_sel[obj->side];
@@ -100,7 +100,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             i++;
         } while (i < 10);
         s4->field_0b = b1->field_0b;
-        func_801519b4((Object *)s4);
+        func_801519b4(s4);
 
         if (rec->field_04 == 0) {
             return;
@@ -142,8 +142,8 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             obj->field_d4 = data_8019045c[0];
         }
     } else {
-        func_801519b4((Object *)s5);
-        func_801519b4((Object *)s3);
-        func_801519b4((Object *)s4);
+        func_801519b4(s5);
+        func_801519b4(s3);
+        func_801519b4(s4);
     }
 }
