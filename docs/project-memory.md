@@ -6578,6 +6578,54 @@ What it showed:
   a function, and a second run over the 132 with it is not read yet.
 
 
+## After the type search: seven second looks, and a question about three bytes (2026-10-09)
+
+The group before left 42 candidates closer than they had been. The
+seven closest went to one agent each, with the type search as an
+instrument that the agent could run on its own structures, and the pass
+dumps.
+
+- One is exact: `func_801b1ed8_slot04_0b` (232 bytes). The search had
+  it at 7 words with a 16-bit local; the agent found that the local is
+  an `int` and that the store has to be written in each arm of the test,
+  and the unit reads plainly, with no comment needed. The twelve
+  character blocks have 2,100 functions; the map counts 5,412 of 5,600
+  distinct functions and 12,829 of 13,072 placements.
+- Five are closer and stay parked, 3 to 16 instruction slots off:
+  `func_801b2f1c_slot04_0a`, `func_8011d74c`, `func_80133108`,
+  `func_80141534`, `func_80079144_slot2b`. Their candidates lost what
+  the rules exclude on the way (an assignment that nothing read, a local
+  that nothing read).
+- One has exact code and cannot be put into the build:
+  `func_80013224_slot12` (556 bytes, 0 differing instruction slots). It
+  copies a table of 9 bytes from read-only data at `0x80010018`. The
+  build rounds a unit's read-only range to a word, fills the rest with
+  zero bytes and compares them; the original has `00 01 00` in those
+  three bytes, the next object starts in the word after, and no
+  instruction of the module reads them. No source gives those bytes
+  without an object that nothing uses. The function stays parked with
+  that note. Whether a unit may leave the last one to three bytes of
+  such a range unowned is a question for the owner; it is a change of
+  the build's contract.
+
+What the wave showed about the search itself:
+
+- A lower score from the type search is not always a better candidate.
+  For `func_80079144_slot2b` it had preferred a 16-bit local for a mask
+  whose constant does not fit in 16 bits: closer bytes from a function
+  that does something else. A score of zero is a promising candidate
+  and no more: the search masks the fields that the linker fills, so
+  zero says that the unlinked shapes agree, not that the bytes, the
+  calls and the data addresses are the original's at the original's
+  place. The project's build, unmasked and at the original address,
+  is the check of identity, as the matching guide says since the group
+  before. The swept types that had been written into the private
+  candidates were taken back; the agents' own forms are the candidates
+  now.
+- The second stage of the helper, the order of the declarations that
+  open a function, was run over all 132: it changed the score of 1 of
+  the 71 functions it reached, by 2 words, and gave no exact one.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
