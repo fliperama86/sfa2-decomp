@@ -133,6 +133,28 @@ no_switch() { [ -s "$root/log.cmake" ] && ! grep -q SDL_UNIX_CONSOLE_BUILD "$roo
 expect "without --headless SDL is built with window support" no_switch
 
 tree
+mkdir "$root/work"
+run fine "$root/work" --pictures kept/here
+kept_ok() { passes && [ -f "$root/work/kept/here/stand-in.actual.png" ] && [ -d "$tests/expected" ] && [ -z "$(ls "$tests/expected")" ]; }
+expect "--pictures moves the pictures to a relative folder that does not exist yet" kept_ok
+kept_default() { [ -x "$root/port/build/psyz-tests/psyz_tests" ]; }
+expect "--pictures leaves the build folder at its default" kept_default
+
+tree
+run fine "$root" --pictures "$root/pics" --headless "$root/b2"
+both_ok() { passes && [ -f "$root/pics/stand-in.actual.png" ] && [ -x "$root/b2/psyz_tests" ] && grep -q -e '-DSDL_UNIX_CONSOLE_BUILD=ON' "$root/log.cmake" 2>/dev/null; }
+expect "--pictures, --headless and a build folder together, in that order" both_ok
+
+tree
+run fine "$root" --headless --pictures "$root/pics"
+other_order() { passes && [ -f "$root/pics/stand-in.actual.png" ] && grep -q -e '-DSDL_UNIX_CONSOLE_BUILD=ON' "$root/log.cmake" 2>/dev/null; }
+expect "the two options in the other order" other_order
+
+tree
+run fine "$root" --pictures
+expect "--pictures without a folder gives status 2" status_is 2
+
+tree
 run fine "$root" "$root/abs"
 absolute_ok() { passes && [ -x "$root/abs/psyz_tests" ]; }
 expect "absolute folder" absolute_ok
