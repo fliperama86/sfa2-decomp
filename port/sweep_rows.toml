@@ -4,8 +4,8 @@
 # the start of code. The port's build would write a stop call at such a row's
 # address, into the data. This table lists those rows, and nothing else leaves
 # such a row out. Nothing is inferred: every entry below was read in the listing
-# of the original by a person or a worker of the project, and the evidence says
-# in words what was read. The build (port/tools/hostbuild.py) verifies each entry
+# of the original before it was written here, and the evidence says in words
+# what was read. The build (port/tools/hostbuild.py) verifies each entry
 # against the tree and refuses to build with one it cannot verify; a row that is
 # not listed here always keeps its stop. (The rows that are the tail of a split
 # function are not listed here; the build finds them by the address range of the

@@ -7709,12 +7709,27 @@ No function count changes here. Nothing under `ps1/` changed.
   data). None of the eleven is a function without C. The port wrote a
   5-byte stop call at each of them when the module was placed: into the
   table, for the first seven.
-- Published: `port/tools/hostbuild.py` leaves such rows out by two
-  rules, counts them (`sweep rows that are not functions: 11`) and names
-  them with `--list`. The rule for the split functions uses the units'
-  address ranges of the build configuration; unit ranges overlap
-  nowhere in the tree of that day (one-off check by the worker, over
-  3,730 units).
+- Published: `port/tools/hostbuild.py` leaves such rows out, counts
+  them (`sweep rows that are not functions: 11`) and names them with
+  `--list`. The seven that begin with data are left out only by a
+  reviewed table, `port/sweep_rows.toml`, whose entries the tool
+  verifies against the tree; the four tails are found by the address
+  range of the unit that holds the function.
+- The first version had two rules and no table, and the owner's review
+  (PR 129) turned the first rule down: "The new exclusions infer
+  ownership from proximity rather than prove it. Rule 1 drops any
+  inventory row that overruns into a later C function, even when its
+  prefix has no data owner. An imprecise sweep can also combine a
+  genuinely missing function with the following known one; proximity
+  alone does not prove that the first entry is data." He first objected
+  to the second rule too, with a unit whose functions have a gap
+  between them, then withdrew that after reading the matching build's
+  validator, which requires a unit's functions to be contiguous. What I
+  had done: turned eleven observations into two general rules, and a
+  general rule drops rows that nobody has looked at. The port's own
+  principle is that a function without C stops; a rule that removes
+  stops by inference works against it. The rows that begin with data
+  are now a list, each with what was read.
 - What the work list comes to after that: of the 26, eleven are these
   rows; one was a real function without C (`func_80010840_slot27`, now
   written and tested, waiting in a scratch tree for its pull request);

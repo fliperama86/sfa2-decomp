@@ -669,16 +669,28 @@ cross compiler, the program started from that shell.
   bound that is looser here because it would need the game's archive.
 - Which functions have no C is read from the function inventory, a
   table that a static sweep of the original code made. A few of its
-  rows are not functions: the sweep took a data table in front of a
-  function for code, or cut a function in two at a word of zeros. The
-  runtime writes a stop at every function without C, and a stop written
-  into such a row would land in the game's data. So the tool leaves out
-  a row when a function with C begins strictly inside it, and a row that
-  begins inside the address range of a unit that is built without being
-  one of that unit's functions; it counts them and `--list` names each
-  with the rule that caught it. A row that is all data, or data in
-  front of a function that itself has no C, is not caught and still
-  gets a stop: a known limit.
+  rows are not functions, and the runtime writes a stop at every
+  function without C: a stop written at such a row would land in the
+  game's data. Two kinds are left out, and nothing else is.
+  A row that begins with data in front of a function with C is left
+  out only if `port/sweep_rows.toml` lists it. Each entry of that table
+  names the row, the function behind the data and the number of data
+  bytes, and says in words what was read in the original's listing that
+  shows the bytes are data. The tool verifies every entry against the
+  tree (the row exists, the function has C at that address and lies
+  inside the row at the stated distance, a named data symbol stands at
+  the row's address) and refuses to build with an entry it cannot
+  verify. A row in front of a function that the table does not list
+  keeps its stop, whatever lies next to it: nothing is inferred from
+  what stands near a row.
+  A row that begins inside the address range of a unit that is built,
+  without being one of that unit's functions, is the tail of a function
+  that the sweep split. That range is the unit's own code because the
+  matching build requires the functions of a unit to follow one another
+  without a gap; the tool checks that itself, and a unit for which it
+  does not hold gets no such treatment.
+  The tool counts the rows left out and `--list` names each with its
+  reason.
 - The link places one marker before and one after the code of all game
   objects and checks that every implementation lies between them and that
   nothing of the runtime does. A later piece of the runtime uses them to
@@ -702,14 +714,15 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `4d6aae1`:
+it is in commit `c895976`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3729 compiled, 1 of them nonmatching, 0 failed
+units: 3730 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12457
-functions without C: 625, library 385, game and modules 240
+functions with C: 12458
+functions without C: 613, library 385, game and modules 228
+sweep rows that are not functions: 11
 names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
@@ -737,7 +750,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1401 written for functions with C, 451 for functions without
+jumps: 1402 written for functions with C, 450 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
