@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern TextObj *table_801803c4[];
-extern TextObj *table_8018049c[];
-
 void func_80153b74(Actor *a) {
     if (a->field_1c->field_6a < 2) {
         a->field_08 = 0x17;

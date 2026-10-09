@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 void func_80010dcc_slot01(GameState *g);
 
 void func_80011634_slot01(void) {

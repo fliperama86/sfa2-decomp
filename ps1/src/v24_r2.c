@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Block172 *ref_third;
-
 /* Exact. The stores at offsets 0x2c and 0x30 are 32-bit in the original, but
    Object has field_2c as u8 and field_32 at 0x32, so a u32 field cannot be
    added there; both are written through a u32 cast. Needs a decision on the

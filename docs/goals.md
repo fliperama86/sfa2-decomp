@@ -245,11 +245,15 @@ functions; they change with every round.
 
 1. The rest of the library. A first pass of adaptation is done. Open there:
    23 inventoried functions, 9 of them parked, each with a candidate that
-   still differs, and four questions that need a
+   still differs, and three questions that need a
    decision, listed in the project memory: an object that looks assembled
-   by another assembler, struct copies that the image does through a call,
-   loads that only a volatile field reproduces, and a delay instruction
-   that the assembler emulation does not produce.
+   by another assembler, loads that only a volatile field reproduces, and
+   a delay instruction that the assembler emulation does not produce. A
+   fourth, struct copies that the image does through a call, was answered
+   on 2026-10-09 without a decision: the copy routine is called, not
+   expanded in place, when the source declares it with other parameter
+   types than the compiler's built-in ones. Three functions of the
+   graphics library come from the reference's source since then.
 2. The parked pool: 69 game functions are parked, each with a candidate:
    65 of the inventory, to which the rest of this item refers, and 4 from
    the round on the functions outside it. A round with four source forms
@@ -309,7 +313,10 @@ functions; they change with every round.
    On 2026-10-09 the data symbols that the units written since then
    declared alike moved into the shared header as well; those that
    stay in units, most of them declared in more than one form, are
-   listed in the project memory.
+   listed in the project memory. Those in more than one form were then
+   read one by one: all but one have one form with which every unit is
+   exact and are in the header; a unit that reads a symbol otherwise
+   says so at the access.
    Turning wrapper structs into proper members is a separate step that
    these counts say nothing about; names are untouched.
 5. Data is owned per unit. Game data tables still have no owner. The four

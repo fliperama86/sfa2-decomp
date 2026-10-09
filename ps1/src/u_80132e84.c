@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 data_801ac6a8[];
-
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: the original keeps the stores in source order between the table
    loads; the compiler here hoists the flag loads above them (19 slots). */
 /* Form found by automatic permutation search. */

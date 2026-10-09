@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s16 box_margin;
-
 void func_80120374(int a) {
     int x;
     if (a == 0) {
@@ -41,7 +39,7 @@ void func_80120498(int a) {
 }
 
 void func_801204f4(Object *o, int b, int c) {
-    int d = o->pos_x - box_margin;
+    int d = o->pos_x - (s16)box_margin[0];
     if (d < -192) {
         d = -192;
     } else if (d >= 576) {
@@ -53,7 +51,7 @@ void func_801204f4(Object *o, int b, int c) {
 void func_80120554(Object *o, int b, unsigned c) {
     int d;
     if (o != 0) {
-        d = o->pos_x - box_margin;
+        d = o->pos_x - (s16)box_margin[0];
         if (d < -192) {
             d = -192;
         } else if (d >= 576) {

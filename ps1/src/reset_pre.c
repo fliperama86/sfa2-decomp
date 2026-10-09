@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-extern s8 data_801a6984;
-
 
 void func_80128c48(void) {
     func_80128c80(&player_left);
@@ -80,7 +78,7 @@ void func_80128eb4(void) {
 void func_80128edc(Object *object) {
     if (object->field_249) object->field_249--;
     if (object->field_cd == 0) {
-        if (game_state.field_30 != 0 && data_801a6984 != 0 &&
+        if (game_state.field_30 != 0 && data_801a6984[0] != 0 &&
             game_state.mode == object->side + 1)
             func_80131c7c(object);
         func_80131854(object);

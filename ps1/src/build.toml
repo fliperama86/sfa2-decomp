@@ -2265,25 +2265,6 @@ functions = [
 
 
 [[unit]]
-name = "s1577bc_r16_b"
-source = "s1577bc_r16_b.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80158374", address = 0x80158374, size = 196 },
-  { name = "func_80158438", address = 0x80158438, size = 56 },
-]
-
-[[unit]]
-name = "s158894_r1"
-source = "s158894_r1.c"
-flags = ["-O2", "-G0"]
-functions = [
-  { name = "func_80158894", address = 0x80158894, size = 56 },
-]
-
-
-
-[[unit]]
 name = "s158894_r4_b"
 source = "s158894_r4_b.c"
 flags = ["-O2", "-G0"]
@@ -8489,14 +8470,17 @@ functions = [
   { name = "ClearOTagR", address = 0x80158208, size = 152 },
   { name = "DrawPrim", address = 0x801582a0, size = 96 },
   { name = "DrawOTag", address = 0x80158300, size = 116 },
+  { name = "PutDrawEnv", address = 0x80158374, size = 196 },
+  { name = "GetDrawEnv", address = 0x80158438, size = 56 },
 ]
-rodata = { address = 0x8016db08, size = 360 }
+rodata = { address = 0x8016db08, size = 384 }
 
 [[unit]]
 name = "sdk_libgpu_sys_p2"
 source = "sdk/libgpu/sys_p2.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
+  { name = "GetDispEnv", address = 0x80158894, size = 56 },
   { name = "GetODE", address = 0x801588cc, size = 52 },
   { name = "SetTexWindow", address = 0x80158900, size = 60 },
   { name = "SetDrawArea", address = 0x8015893c, size = 132 },

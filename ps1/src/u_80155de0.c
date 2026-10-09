@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern ObjectRef ref_third;
-
 /* Form found by automatic permutation search. */
 void func_80155de0(Actor *a, Object *b)
 {

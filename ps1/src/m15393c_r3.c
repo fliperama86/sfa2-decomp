@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern TextObj *table_801803c4[];
-
 void func_80153cac(Actor *a) {
     u8 d[2];
     int i;

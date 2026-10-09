@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s16 box_margin;
-
 void func_8011fec8(int n) {
     GameState *g = &game_state;
     int i;
@@ -24,7 +22,7 @@ void func_8011ff24(void) {
 }
 
 void func_8011ff74(Object *object) {
-    int margin = (u16)box_margin;
+    int margin = box_margin[0];
     if ((u16)((u16)object->pos_x - margin + 0x40) > 0x200) {
         object->field_04 = 3;
     }

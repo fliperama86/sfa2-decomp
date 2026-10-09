@@ -7356,6 +7356,215 @@ No function count changes here. Nothing under `ps1/` changed.
 - Not shown: anything on the real game from a published commit (the
   published tree stops at `main`). The cases run on made-up game code.
 
+## Twelve data symbols in more than one form: eleven get one (2026-10-09)
+
+The group before left 12 data symbols in their units because units
+declared them in more than one form. Each was read here. For eleven
+there is one declaration with which every unit is exact; they are in
+the shared data header now. Where a unit reads a symbol otherwise than
+the declaration says, it says so at the access.
+
+- `box_margin`: an array of 16-bit words in 27 units, one signed word
+  in 6. Four of the six read it: a signed read is written
+  `(s16)box_margin[0]`, and a read that had cast the word to unsigned
+  loses the cast. The other two declared it and did not use it. The
+  array form is the one that all units accept: declared as one word,
+  the unit of `func_80144830` differs from the original in 22
+  instruction slots (measured).
+- `data_801aa4dc` and `data_801ac6a8`: one word in 2 units and in 1,
+  an array in the others. The array, read as element 0.
+- `data_801a27e4`: bytes in 12 units, 16-bit words in 1. Bytes. The one
+  unit copies rows of 16-bit words, and uses the name that the header
+  already has for that view of the buffer (`data_801a27e4_rows`); it no
+  longer needs the byte name at all.
+- `data_801a6984`: one signed byte in 9 units, an array of bytes in 1
+  (which reads elements 0 and 1), one 16-bit word in 6. An array of
+  bytes; a unit that tests both bytes at once reads
+  `*(u16 *)data_801a6984`.
+- `data_80190464` and `data_8019046c`: arrays of `int` in 14 and 6
+  units; 8-bit, 16-bit and 32-bit words in the others. Arrays of `int`;
+  a narrower access is written with a cast (`*(u16 *)data_80190464 =
+  0xc01`). A comment that one unit had, on these two being addressed as
+  separate globals though they sit at the edge of the game state, moved
+  to the header's lines.
+- `ref_third`: the wrapper struct of a pointer in 9 units, a plain
+  pointer to another record in 5. One of the five used it and takes
+  the wrapper with casts; four declared it without using it.
+- `table_801803c4` and `table_8018049c`: tables of pointers to text
+  records in 4 units each, tables of pointers to rectangles in 2 and 3
+  units. Those wrote the 16-bit fields at offsets 4 and 6 through the
+  rectangle; they write the text record's fields at 4 and 6.
+- `data_8018f5a0`: a pointer to one record type in 371 units, to five
+  other record types in 24. The type of the 371; in 22 of the others
+  each use carries a cast to the unit's view, one casts where it copies
+  the pointer into a local, and one declared it without using it. One
+  unit steps this pointer through a table of 0x80-byte records; its
+  step is written with casts.
+
+One stays: `data_801a6966`, the first of the pad words. 15 units
+declare one word. One unit reads elements 0 and 2 of an array, and as
+two words (`data_801a6966` and `data_801a696a`) it differs from the
+original in 11 instruction slots. With the first pad word declared
+as an array and read and written as element 0, the other pad words
+left as they are, the unit that updates the pad words differs in 25.
+Both measured. (This page first said 5 for the second figure: the
+script that printed the measurement cut the line to a fixed width and
+with it the first digit. The owner's review measured 25.) Four more
+units declared the array without using it; those lines are gone.
+
+Also still in units: six tables declared through a function pointer
+type of the name `ScriptFn`, which four units define for themselves
+in three ways.
+
+One-off counts of the private helper: the header had 895 lines for
+symbols and has 906. 138 declarations left 116 resident units and 375
+left 366 module units, most of them the declaration of the pointer
+that 395 units share. The module units of the second session's folders
+were not touched and keep 90 declarations that say what the header
+says. 494 source files changed: the header, 127 resident units and
+366 module units.
+
+Evidence: every unit whose text changed beyond a removed declaration
+was rebuilt and compared on its own, and the whole configuration
+passes with every image identical to its baseline. The private scan
+for an offset on a cast pointer finds one place fewer in the resident
+units than before and no new one.
+
+Not claimed: that any of these forms is the original's. The pointer
+that 395 units share is typed as most units read it; that it points to
+several kinds of record is what the casts say, not a finding about
+what it is.
+
+## The script tables get their types in the shared header (2026-10-09)
+
+Six data symbols stayed in their units after the two groups before,
+because they were declared through a function pointer type of the name
+`ScriptFn` that four units defined for themselves, in three ways. The
+private helper compares names, so each was read.
+
+- `data_8017d340` is the table that the script dispatcher indexes.
+  Its entries take the object and return a byte. That type is in the
+  shared data header now under the name `ScriptFn`, with the table's
+  line. An earlier group called this a table of 64 functions, from the
+  width of the dispatcher's index. The image has ten words from
+  `0x8017d340` to the next table at `0x8017d368`, each the address of
+  such a function; the 58 words after them, up to `0x8017d450`, are
+  the three tables of the next entry.
+- `data_8017d368`, `data_8017d3b4` and `data_8017d3d4` are tables of
+  functions that take nothing and return nothing. The header already
+  had that type as `HandlerFn`; the three lines use it.
+- `scr_d4_left` and `scr_184_right` are two pointers in the scratchpad
+  that one unit calls. It declared them as functions that take nothing
+  and return a byte. That form is written out in the header's lines.
+  What the functions behind them take is not known: no unit of the
+  tree stores to these pointers, and the one call passes nothing while
+  the caller's object is still in its register.
+- The four units lose their own type definition and their own lines.
+
+After this group one data symbol of the resident image's memory is
+declared in units and not in the header: `data_801a6966`, for the
+measured reason of the group before.
+
+Evidence: the whole configuration passes with every image identical to
+its baseline. The private table check compares 539 functions that
+stand in a declared table with the table's entry type, results
+included: none differs.
+
+Not claimed: that any of these types is the original's.
+
+## The test for nonmatching C records what a callee would see (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: additions to the differential test of
+  `ps1/src/slot06_nonmatching/`, with controls for each, and no new
+  function. The functions that needed them follow in pull requests of
+  about fifteen each (the owner's word of that day: "do not let code to
+  pileup too much, do more incremental PRs"); they are on the branches
+  `ps1-nonmatching-batch` and `ps1-nonmatching-rest` until then.
+- The additions came from workers who stopped and reported instead of
+  working around a limit, each with a change of their own that the test
+  had let pass:
+  - memory behind a pointer argument that the function fills for a call
+    was not recorded, only the pointer (`pointees`);
+  - a recorder returns at once, so C that stores a field after a call
+    which the original stores before it ended in the same state and
+    passed; every recorder now copies the blocks the log watches
+    (`watch`). Shown at the top level with two made-up callers that
+    differ only in that order: same log and same final state without the
+    watch, a difference with it;
+  - a function that waits for an interrupt or never returns could not be
+    tested at all (`results`, `stores`, `counts`, `ends_run_at`, and a
+    setup that says the run does not return);
+  - a callee that reads one byte of an argument which the two codes
+    extend differently, and a callee that is handed the address of a
+    local, which the two codes place differently (`masks`, with 0 for
+    "log nothing of the value");
+  - a callee that fills a buffer the caller hands it and returns that
+    buffer's address (`tail`: a few instructions of the contract's own;
+    a model, and the function's header must say from what it is known).
+- The one function already published, `func_801e9080_slot06_00`, now
+  uses the tree's type for its records in place of a struct of its own:
+  the check of declarations had counted the two as one name declared in
+  two ways.
+- A mistake of mine: that cleanup removed the line which the tool's
+  toolchain controls (`test_difftest_build.py`) use as the place of
+  their edits, and I did not run them again after it. Seven of their
+  cases failed when I did, each with "edit applies 0 times". The anchor
+  is the new line now. Every control file is run again after a change
+  to any file it reads, not only after a change to the tool.
+- One-off figures from the private folder: the controls of the tool's
+  new parts were run against 73 more one-line changes of the tool by a
+  worker; all were noticed after one equivalent change was replaced.
+
+## Three graphics library functions from the reference's source: how the copy routine is declared (2026-10-09)
+
+One of the open questions of the library was "struct copies through a
+call": `PutDrawEnv`, `GetDrawEnv`, `PutDispEnv` and `GetDispEnv` copy a
+struct by calling the BIOS copy routine with a constant size, while
+this compiler, given the reference's `memcpy` of a constant size,
+copies in place. A compiler flag for those units had been considered
+and was waiting for a decision. No flag is needed.
+
+- The compiler copies in place because `memcpy` is one of its built-in
+  functions. It gives the built-in up when the source declares
+  `memcpy` with other parameter types than its own. A control on the
+  compiler alone, two small files that differ in one declaration: with
+  `void *memcpy(unsigned char *dst, unsigned char *src, int n);` in
+  front, the compiler warns of conflicting types for the built-in
+  function and emits a call; without it there is no call in the
+  output.
+- Tried first, and no way out: a plain struct assignment is copied in
+  place like the constant-size call. `GetDrawEnv` is 24 instruction
+  words either way where the image has 14.
+- With that one declaration at the top of the adapted graphics system
+  file, the reference's source of `PutDrawEnv`, `GetDrawEnv` and
+  `GetDispEnv` is exact. `PutDispEnv` goes from 80 differing
+  instruction slots to 58 and stays out.
+
+What changes in the build. The three functions were in it already,
+exact, as reconstructions under address names that an earlier round
+had written with types of its own, calling the copy routine under its
+address name, which the compiler does not know. They are owned by the
+library's parts now, under their library names and with the
+reference's structs. The two units that held them are gone. The
+message that `PutDrawEnv` prints, 24 bytes of read-only data, was
+referred to by address and is owned by a unit now: the build's
+coverage line goes from 2,352 to 2,376 bytes of read-only data, and
+the raw payload falls by the same 24. The count of exact functions is
+the same.
+
+Inferred, not known: that the library's own header declared the copy
+routine with byte pointers. The reference's calls cast their arguments
+to byte pointers, which fits such a declaration; the header's text was
+not seen. The declaration is this project's line in the adapted file
+and says so in a comment.
+
+The question about a flag is closed. Three questions of the library
+remain open as before: the object that looks assembled by another
+assembler, the loads that only a volatile field reproduces, and the
+delay instruction that the assembler emulation does not produce.
+
 ## The port builds PsyZ from a patched copy (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.
@@ -7488,3 +7697,11 @@ No function count changes here. Nothing under `ps1/` changed.
   fixture share throwaway seed builds under fixed names. The first parallel
   run failed 29 of 112 cases for that reason alone. Seed builds are now
   serialized per fixture, and a control case checks every fixture class.
+- A measured figure is read from the whole line that the tool printed,
+  and the number is parsed out of it. A helper of this session printed
+  the last 40 characters of the line; "25 differing instruction slots"
+  lost its first digit, and a 5 went into a page and a pull request,
+  where the owner's own measurement found it. Before a figure is
+  written, measure the exact variant once more on the final tree, and
+  name the variant in the sentence: which symbol, which form, what
+  stays as it is.
