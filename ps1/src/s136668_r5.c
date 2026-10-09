@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s16 data_801aa4dc;
-
 
 void func_80136c8c(void) {
     table_80172500[game_state.field_40]();
@@ -70,5 +68,5 @@ void func_80136f10(Object *object, short index, int w, int h) {
     rect.h = 5;
     func_80158028(&rect, table_801a27e4 + (index << 5));
     func_80158028(&rect, table_801a27e4 + 0x1400 + (index << 5));
-    data_801aa4dc = 0x1f;
+    data_801aa4dc[0] = 0x1f;
 }

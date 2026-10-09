@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern TextObj *table_801803c4[];
-extern TextObj *table_8018049c[];
-
 void func_80153a38(Actor *a) {
     if (a->field_18->field_bc == 8) {
         func_80153b74(a);

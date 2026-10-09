@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-
 void func_8012318c(GameState *state) {
     Entity *entity = (Entity *)state;
     if (entity->field_a9 == 0) {
@@ -16,8 +14,8 @@ void func_8012318c(GameState *state) {
                 return;
             }
         }
-        data_8018f5a0->field_50 = 5;
+        ((HudBig *)data_8018f5a0)->field_50 = 5;
     } else {
-        data_8018f5a0->field_50++;
+        ((HudBig *)data_8018f5a0)->field_50++;
     }
 }

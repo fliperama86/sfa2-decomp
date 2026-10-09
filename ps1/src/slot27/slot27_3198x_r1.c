@@ -3,10 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
-extern u8 data_8016e68c;
-extern int data_80190464[];
-extern int data_8019046c[];
 extern u8 data_80026a94_slot27[];
 extern s16 data_80026a9c_slot27[];
 extern s16 data_80026a9e_slot27[];

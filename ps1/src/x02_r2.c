@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 table_801802cc[];
-
 void func_80152ad8(Object *object, int a) {
     int base = func_80151184() & 0xf;
     int off = a * 2 + 0x30;

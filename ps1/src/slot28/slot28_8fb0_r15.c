@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern void (*data_800373fc_slot28[])(Object *);
-extern HudState *data_8018f5a0;
 void func_8001a958_slot28(Object *obj, int arg);
 
 void func_80019e28_slot28(Object *obj) {

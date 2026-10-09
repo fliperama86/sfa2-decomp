@@ -3,10 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin[];
-extern u16 data_801aa5ea[];
 extern SequenceStep *data_801e7630_slot0b[];
-extern ObjectRef data_80190468;
 
 void func_801e1c00_slot0b(Object *obj) {
     obj->field_01 = 1;

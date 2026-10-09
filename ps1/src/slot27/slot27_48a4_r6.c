@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190458;
-
 void func_80014dec_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     o->field_45 = 0xff;

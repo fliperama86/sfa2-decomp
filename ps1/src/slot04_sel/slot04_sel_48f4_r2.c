@@ -3,10 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern void (*data_801b8ca8_slot04_sel[])(Object *, Slot04SelRec9d78 *);
 extern Slot04SelRec9d78 data_801b9d78_slot04_sel[];
-extern u8 data_801ae028;
 
 void func_801b4b18_slot04_sel(Object *unused_obj, Slot04SelRec9d78 *unused_rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

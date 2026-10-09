@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern TextBuf data_800e9750_slot0f;
 extern TextBuf data_800e9938_slot0f;
 extern TextBuf data_800e9948_slot0f;
@@ -24,8 +23,6 @@ extern u8 data_800f024c_slot0f;
 extern u8 data_800f0250_slot0f;
 extern u8 data_800f0254_slot0f;
 extern u8 data_800f0258_slot0f;
-extern u8 data_8016e674[];
-extern u8 data_8016e67c[];
 
 void func_800e3da0_slot0f(void) {
     u16 *pad;

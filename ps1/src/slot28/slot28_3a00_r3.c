@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Object *data_8005187c_slot28[];
-extern HudState *data_8018f5a0;
 
 void func_80014678_slot28(Object *obj) {
     if (obj->field_f0 == 0) {

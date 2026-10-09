@@ -3,10 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-
-extern s16 box_margin;
-
-
 void func_801448c4(Object *object) {
     if ((s16)object->field_3a < 0) {
         object->pos_x = 0xc0;

@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern int data_80190464[];
-extern int data_8019046c[];
-
 void func_80011740_slot01(void) {
     Object *p = (Object *)func_8011f1e0();
     if (p != 0) {

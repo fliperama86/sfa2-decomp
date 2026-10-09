@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern int data_80190464[];
-extern int data_8019046c[];
-
 void func_80011358_slot12(void) {
     while (game_state.field_ee == 0) {
         game_state.field_f0 = 0x1f;

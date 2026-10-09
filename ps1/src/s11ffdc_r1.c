@@ -3,11 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s16 box_margin;
-
 
 void func_8011ffdc(Object *o) {
-    int m = box_margin;
+    int m = (s16)box_margin[0];
     if (o->pos_x - m + 64 > 512) {
         o->field_01 = 0;
     } else {

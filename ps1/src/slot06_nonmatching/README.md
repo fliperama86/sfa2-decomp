@@ -60,6 +60,35 @@ difference. What the callee itself would have done is then outside the
 test, and the header comment of the `.c` file says which callees are
 replaced.
 
+A recorder returns at once, so by itself it shows only that a call was made
+and with which arguments. Two things it then misses, and each let wrong C
+pass here before it was closed. One is memory behind a pointer argument
+that the function fills for that call: a recorder can copy those words into
+its entry (`pointees`). The other is the order of a store against a call: C
+that stores a field after a call which the original stores before it ends
+in the same state. So every recorder also copies the blocks that the log
+watches (`watch`), which is what the function has written there by the time
+of the call. A header says what is watched. What a real callee would have
+changed in memory, and what the function does with that, stays outside the
+test unless the header says that a recorder stands for it.
+
+For a function that waits or never returns, a recorder can give its results
+in turn (`results`), store a word at its N-th call or count a word up at
+every call (`stores`, `counts`: what an interrupt does to memory while the
+function runs), and end the run at its N-th call (`ends_run_at`). A run
+that was ended is cut inside the function: its registers are then not
+compared, its log and memory are.
+
+Two more things a contract can say about a callee. An argument can be
+logged under a mask (`masks`), for a callee that reads only a byte or a
+halfword of it while the two codes extend it differently; a mask of 0 logs
+nothing of its value, for the address of a local, which the two codes place
+differently. And a contract can give a recorder a few instructions of its
+own to run in place of its return (`tail`), for a callee that fills a
+buffer the caller hands it or returns that buffer's address: that is a
+model written by the contract's author, and the function's header says
+what it models and from what that is known.
+
 ## What a pass does not show
 
 A pass is evidence for the tested inputs only. It is not a proof of
@@ -97,7 +126,27 @@ and the helper functions that cut and print the offsets). Group F checks the
 coverage line, `--uncovered`, `--folder` and contract files through `main`. Group G
 checks `contracts.CallLog`: what a recorder logs for zero to six arguments,
 the value it returns, that the callee's own code does not run, and that calls
-missing, out of order or with another value are differences. Group H checks that
+missing, out of order or with another value are differences. Group N checks
+pointees: the words behind a pointer argument (in a register or on the stack)
+are logged after the arguments, so that a call made with other contents behind
+the pointer is a difference. Group O checks watched blocks: they are copied
+into every entry, so that a store made after a call instead of before it is a
+difference. Group P checks the recorder's own footprint (which registers it
+leaves alone; not a calling convention). Group Q checks masks: an argument is
+logged under its mask. Group R checks results in turn: each call gets the next
+result and the last one repeats. Group S checks a run that a recorder ends at
+its N-th call: the call is logged, the store after it is not made, the run
+counts as completed, and with `returns=False` registers are not compared while
+the log and memory still are. Group T checks `differences` with `returns`
+false. Group U checks `stores` and `counts`, which stand for what an interrupt
+does: a word stored at the N-th call or counted up at every call, after the
+entry is written. Group V checks a tail: it runs after the entry is written,
+`result` and `results` have no effect with it, `stores`, `counts` and
+`ends_run_at` act before it, an argument masked to 0 with its contents as a
+pointee makes two builds equal that keep a local at different places of
+their frames, and the encoders that the module exports match the test's own.
+Group W checks that a mask of 0 logs 0 for the argument while other bad
+masks are still refused. Group H checks that
 code a setup writes into RAM runs as written in every case, not as the first
 case wrote it (recorder results that change from case to case, and both arms of
 a branch on one). Group I checks the build result: its size and entry reach the
@@ -148,12 +197,22 @@ that did not trip.
 
 ## Functions
 
-The figures are the two lines that `difftest.py` prints for the command above.
+The functions of this folder.
+What these commands printed on 2026-10-09:
 
-| Function | Built bytes | Original bytes | Cases | Discarded | Equal | Different | Slots executed |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `func_801e9080_slot06_00` | 700 | 700 | 2000 | 0 | 2000 | 0 | 173 of 175 |
+    python difftest.py --config ../build.toml --cases 2000 --all
 
-With `--control`, the same function prints
-`func_801e9080_slot06_00 control: different 1797 of 2000` (more than 0, as
-required).
+```
+func_801e9080_slot06_00: built 700 bytes, original 700 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9080_slot06_00 coverage: 173 of 175 instruction slots of the original executed
+```
+
+    python difftest.py --config ../build.toml --cases 2000 --control --all
+
+```
+func_801e9080_slot06_00 control: different 1797 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 164
+```
+
+A function with fewer slots executed than it has names the others in its
+header comment, with the reason why no input reaches them.

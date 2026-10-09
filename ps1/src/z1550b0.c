@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-
 void func_801550b0(void) {
     u8 *tab;
     u16 *pad, *pad2;
@@ -18,7 +16,7 @@ void func_801550b0(void) {
     func_801519b4(&data_80181334);
     if (game_state.field_31 != 0) {
         if ((data_801a696a & 0x800) || (data_801a6976 & 0x800)) {
-            data_8018f5a0->field_52 = 0;
+            ((HudBig *)data_8018f5a0)->field_52 = 0;
         }
     }
 

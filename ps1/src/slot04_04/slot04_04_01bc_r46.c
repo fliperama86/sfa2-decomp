@@ -4,10 +4,6 @@
 #include "../externs.h"
 
 extern SequenceStep **data_801c4670_slot04_04[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
-extern SequenceStep **data_1f8000f0;
-extern SequenceStep **data_1f8001a0;
 void func_801b4080_slot04_04(Object *obj);
 void func_801b40ec_slot04_04(Object *obj, Object *p);
 void func_801b4198_slot04_04(Object *obj, Object *p);

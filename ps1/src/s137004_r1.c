@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 data_801a27e4[];
-extern s16 data_801aa4dc[];
-
 void func_80137220(u8 a, u8 b) {
     Rect r;
     Job *job;

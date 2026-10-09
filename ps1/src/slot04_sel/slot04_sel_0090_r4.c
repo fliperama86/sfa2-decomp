@@ -3,14 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern Slot04SelRec data_801b9cf0_slot04_sel[];
 extern TextBuf *data_801b7570_slot04_sel[];
 extern TextBuf *data_801b7618_slot04_sel[];
 extern u8 *data_801b7654_slot04_sel;
 extern u8 data_801b7348_slot04_sel[];
-extern u8 data_8016e694[];
-extern u8 data_8016e696;
 
 void func_801b038c_slot04_sel(void) {
     Object *l = &player_left;

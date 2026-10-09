@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 table_8017ab88[];
-
 int func_8013d1a8(Object *object) {
     u16 v = object->field_134;
     u16 i;

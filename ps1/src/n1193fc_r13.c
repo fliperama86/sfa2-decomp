@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_801223e4(GameState *state) {
     Entity *e = (Entity *)state;
     e->field_83 = 0;

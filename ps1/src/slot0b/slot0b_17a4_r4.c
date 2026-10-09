@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801ae02e;
 extern void (*data_801e4d5c_slot0b[])(Object *);
 extern void (*data_801e4d78_slot0b[])(Object *);
 

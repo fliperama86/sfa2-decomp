@@ -3,10 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Hud *data_8018f5a0;
-
 void func_80150e4c(GameState *state) {
-    data_8018f5a0->field_48++;
+    ((Hud *)data_8018f5a0)->field_48++;
     state->field_c4 = 1;
     state->field_c2 = 0;
     state->field_f0 = 1;
@@ -22,7 +20,7 @@ void func_80150e94(GameState *state) {
         func_80137220(4, 7);
         state->field_c2++;
         if ((s16)state->field_c2 >= 0x20) {
-            data_8018f5a0->field_48++;
+            ((Hud *)data_8018f5a0)->field_48++;
             state->field_f0 = 0x80;
         }
     }

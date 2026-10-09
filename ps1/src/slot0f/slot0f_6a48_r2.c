@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Slot12Count data_800f7b74_slot0f[4];
-extern ObjectRef data_80190468;
 void func_800e6c18_slot0f(Object *obj);
 void func_800e6c74_slot0f(Object *obj);
 void func_800e6ce4_slot0f(Object *obj);

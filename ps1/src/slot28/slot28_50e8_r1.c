@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern ObjectRef data_80051890_slot28;
 extern ObjectRef data_80051894_slot28;
 extern ObjectRef data_80051898_slot28;

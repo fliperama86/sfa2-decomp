@@ -5,8 +5,6 @@
 
 extern Slot12Tiles *data_80018d80_slot12[];
 extern SlotCell data_80029350_slot12[];
-extern u16 box_margin[];
-extern u16 data_801aa5ea[];
 
 /* The read of field_05 into t stands before the test of field_64: written after that test, this function differs from the original in 13 instruction slots. */
 void func_800124fc_slot12(Object *obj, FrameRecord *frames) {

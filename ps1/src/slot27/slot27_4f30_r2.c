@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190458;
-extern int data_80190464[];
-extern ObjectRef ref_other;
 extern s16 data_80028128_slot27[];
 
 void func_80015070_slot27(Object *obj) {

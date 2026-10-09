@@ -7,7 +7,6 @@ extern u8 data_801b9db8_slot04_sel[];
 extern u8 data_801b9c20_slot04_sel;
 extern void (*data_801b9c24_slot04_sel[])(Object *, u8 *);
 extern u8 *data_801b9cd8_slot04_sel[];
-extern HudState *data_8018f5a0;
 
 void func_801b6654_slot04_sel(void) {
     data_801b9db8_slot04_sel[0] = 0;

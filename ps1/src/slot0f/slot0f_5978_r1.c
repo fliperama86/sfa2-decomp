@@ -10,8 +10,6 @@ void func_800e5364_slot0f(void);
 void func_800e52e0_slot0f(void);
 void func_800e5ae4_slot0f(Slot0fObj *obj);
 void func_800e5a9c_slot0f(Slot0fObj *obj, int flag);
-extern HudState *data_8018f5a0;
-extern u8 data_801903c5;
 
 u8 func_800e5978_slot0f(void) {
     u16 *dst;

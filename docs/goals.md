@@ -306,6 +306,13 @@ functions; they change with every round.
    have no common declaration: for 7 the compiler rejects some unit with
    every candidate, for 3 every candidate gives nonmatching code in some
    unit, 2 show both. These 12 are worth reading one by one.
+   On 2026-10-09 the data symbols that the units written since then
+   declared alike moved into the shared header as well; those that
+   stay in units, most of them declared in more than one form, are
+   listed in the project memory. Those in more than one form were then
+   read one by one: all but one have one form with which every unit is
+   exact and are in the header; a unit that reads a symbol otherwise
+   says so at the access.
    Turning wrapper structs into proper members is a separate step that
    these counts say nothing about; names are untouched.
 5. Data is owned per unit. Game data tables still have no owner. The four

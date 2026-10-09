@@ -5,7 +5,6 @@
 
 extern SequenceStep *data_80027bc4_slot27[];
 extern SequenceStep *data_80027c18_slot27[];
-extern int data_80190464[];
 extern void (*data_80026ee8_slot27[])(Object *);
 
 void func_80014010_slot27(Object *obj) {

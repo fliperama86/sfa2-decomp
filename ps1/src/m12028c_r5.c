@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_8012306c(GameState *g) {
     Object *o = g->field_78;
     if (o->field_cd == 0) {

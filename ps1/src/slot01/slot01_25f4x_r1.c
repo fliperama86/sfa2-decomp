@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801a2964[];
-
 void func_800125f4_slot01(u8 *src, u8 unused) {
     Rect r;
     u8 *p;

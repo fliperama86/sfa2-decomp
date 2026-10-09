@@ -15,15 +15,9 @@ extern TextBuf data_801b8618_slot04_sel;
 extern void (*data_801b7d7c_slot04_sel[])(Object *, Slot04SelRec9d38 *);
 extern u16 *data_801b7d88_slot04_sel[];
 extern u8 data_801b7d90_slot04_sel[];
-extern u8 data_8016e698[];
-extern u8 data_8016e69a[];
-extern u8 data_8016e69c;
-extern u8 data_8016e69d[];
-extern u8 data_8016e68c;
 extern Slot04SelRec9d38 data_801b9d38_slot04_sel[];
 extern u8 data_801b9d68_slot04_sel;
 extern u8 data_801b9d6c_slot04_sel;
-extern HudState *data_8018f5a0;
 void func_801b44ec_slot04_sel(void);
 
 /* The first read of the second player's side goes through the pointer to the first player. Written player_right.side, as the two later reads are, this function differs from the original in 20 instruction slots. */

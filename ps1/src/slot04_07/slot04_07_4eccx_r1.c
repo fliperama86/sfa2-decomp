@@ -4,9 +4,6 @@
 #include "../externs.h"
 
 void func_801b51dc_slot04_07(Object *obj);
-extern u16 box_margin[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 
 void func_801b4ecc_slot04_07(Object *obj) {
     Object *o;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 data_801a6966[];
-
 void func_8014e6b0(void) {
     data_80189460 += 3;
 }

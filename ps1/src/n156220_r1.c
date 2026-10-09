@@ -3,11 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern TextBuf data_80181668, data_80181684, data_801816a0, data_801816bc;
-extern TextBuf data_801816d4, data_801816e4, data_80181708, data_8018171c;
-extern TextBuf data_8018172c, data_8018173c, data_80181758, data_80181774;
-extern TextBuf data_8018178c;
-
 void func_80156220(void) {
     u32 *p = &data_8018d270;
     *p = game_state.field_104;

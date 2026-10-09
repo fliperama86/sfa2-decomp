@@ -3,7 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s8 data_801a6984;
 extern u16 data_801a6966;
 
 

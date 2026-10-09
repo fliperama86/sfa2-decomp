@@ -3,10 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-
-extern s16 box_margin;
-
-
 void func_80144734(Object *object) {
     func_80144220(object);
     object->field_46 = (s16)object->field_46 - 1;
