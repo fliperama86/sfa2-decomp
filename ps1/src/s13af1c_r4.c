@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern ObjectRef ref_third;
-
 void func_8013bbc4(void) {
     Object *tmp;
     if (ref_second.p->field_ad == 0 && ref_third.p->field_ad != 0) {

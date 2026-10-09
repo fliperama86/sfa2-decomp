@@ -3,15 +3,13 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: same code, but the original keeps the second 16-bit read in $a1 and the kind in $v1 (registers swapped). */
 void func_801239cc(ObjectView *entity, Object *other) {
     HudBig *hud;
     entity->field_70 = table_8016f4f0[other->kind];
     entity->field_62 = other->field_d4;
     entity->field_227 = other->side;
-    hud = data_8018f5a0;
+    hud = (HudBig *)data_8018f5a0;
     hud->field_4a = 5;
     hud->field_4c = 0;
     entity->field_c6 = 0;
@@ -33,7 +31,7 @@ void func_801239cc(ObjectView *entity, Object *other) {
 
 void func_80123a64(GameState *state) {
     ObjectView *entity = (ObjectView *)state;
-    HudBig *hud = data_8018f5a0;
+    HudBig *hud = (HudBig *)data_8018f5a0;
     hud->field_48 = 0;
     entity->field_c2 = 0;
     hud->field_4a = 0;

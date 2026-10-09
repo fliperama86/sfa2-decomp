@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-extern HudBig *data_8018f5a0;
-
 void func_80124a7c(u8 index) {
     data_801a6986 = 0;
     data_801a6987 = 0;
@@ -25,7 +23,7 @@ void func_80124ae8(u8 index) {
 
 void func_80124b10(void) {
     data_80197f1c = 0;
-    data_8018f5a0->field_52 = 0;
+    ((HudBig *)data_8018f5a0)->field_52 = 0;
     game_state.field_65 = 0;
     func_8011eae4();
     func_80136c8c();

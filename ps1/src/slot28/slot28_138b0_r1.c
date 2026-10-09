@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern SequenceStep *data_8004a088_slot28[];
 extern SequenceStep *data_8004a094_slot28[];
 extern SequenceStep *data_8004a09c_slot28[];

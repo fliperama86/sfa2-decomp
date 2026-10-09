@@ -6,7 +6,6 @@
 extern Pair data_80015ddc_slot01[];
 extern u8 data_80055ea0_slot01[];
 extern u8 data_80055ea4_slot01;
-extern u16 box_margin[];
 void func_80014c8c_slot01(Object *o);
 void func_80014e24_slot01(Object *o);
 

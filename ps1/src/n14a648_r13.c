@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_80150f40(GameState *state) {
     if (state->field_225 == 0) {
         data_8018f5a0->field_48++;

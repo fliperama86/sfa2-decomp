@@ -7,7 +7,6 @@ extern TextItem *data_801b791c_slot04_sel[];
 extern TextItem data_801b7978_slot04_sel;
 extern TextItem *data_801b7ba4_slot04_sel[];
 extern u16 data_801b9d24_slot04_sel;
-extern HudState *data_8018f5a0;
 void func_801b18bc_slot04_sel(void);
 
 void func_801b1780_slot04_sel(void) {

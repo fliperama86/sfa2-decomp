@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern ObjectRef ref_third;
-
 void func_8013bdf4(void) {
     Object *o;
     u32 hi;

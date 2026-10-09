@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_80121680(GameState *state, Object *a1, Object *a2) {
     a1->other = &player_left + 1;
     a2->other = &player_left;

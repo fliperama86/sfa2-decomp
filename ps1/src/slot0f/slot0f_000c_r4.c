@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 void func_800e05a0_slot0f(int a, int b);
 void func_800e0640_slot0f(GameState *g);
 

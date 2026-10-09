@@ -7,7 +7,6 @@ extern Block172 data_801e2318_slot2a[4];
 extern Block172 *data_801e25c8_slot2a[4];
 extern u32 data_801e1bdc_slot2a[];
 extern u16 *data_801e52c8_slot2a;
-extern HudState *data_8018f5a0;
 
 void func_801e0118_slot2a(void) {
     Rect rect;

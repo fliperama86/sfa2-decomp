@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern void (*data_801b6d60_slot04_sel[])(Object *, Slot04SelRec *);
 extern Slot04SelRec data_801b9cf0_slot04_sel[];
 

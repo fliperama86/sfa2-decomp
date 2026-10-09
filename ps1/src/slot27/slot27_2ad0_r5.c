@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern int data_80190464[];
-extern int data_8019046c[];
 extern s16 data_80026a58_slot27[];
 
 void func_80012fd4_slot27(Object *obj) {

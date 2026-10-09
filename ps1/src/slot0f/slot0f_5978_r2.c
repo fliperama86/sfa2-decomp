@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Slot12Img data_800ebc94_slot0f[];
-extern HudState *data_8018f5a0;
 
 void func_800e5a9c_slot0f(Slot0fObj *obj, int flag) {
     if (flag == 0) {

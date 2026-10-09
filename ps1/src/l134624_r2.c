@@ -3,10 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 data_801a6984;
-
 void func_80135858(void) {
-    if ((game_state.field_30 != 0 && data_801a6984 == 0) || (game_state.field_49 & 0x80) != 0) {
+    if ((game_state.field_30 != 0 && *(u16 *)data_801a6984 == 0) || (game_state.field_49 & 0x80) != 0) {
         Cell56 *base = data_80188d6c;
         Cell56 *e = &base[data_801a27d0];
         e->field_19 = 0xe0;

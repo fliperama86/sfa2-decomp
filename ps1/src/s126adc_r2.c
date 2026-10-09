@@ -5,8 +5,6 @@
 /* field_b0 / field_b2 are used as signed 16-bit counters here (hence the s16 views); field_b2 also as a byte at 0xb2. */
 
 
-extern HudWide *data_8018f5a0;
-
 void func_80126cd0(GameState *state, Object *object) {
     if (state->field_09 != 0 || state->field_2c != 0) {
         func_801269e0(object);
@@ -142,9 +140,9 @@ void func_80127140(GameState *state, Object *object) {
 void func_80127188(void) {
     game_state.field_ee = 0x1f;
     do {
-        data_8018f5a0->field_48 = 0;
-        table_8016f5fc[data_8018f5a0->field_68 >> 1]();
-        func_801192bc(data_8018f5a0->field_69);
+        ((HudWide *)data_8018f5a0)->field_48 = 0;
+        table_8016f5fc[((HudWide *)data_8018f5a0)->field_68 >> 1]();
+        func_801192bc(((HudWide *)data_8018f5a0)->field_69);
     } while (game_state.field_ee != 0);
     game_state.field_f0 = 0;
     func_801192f0();
@@ -329,8 +327,8 @@ void func_801279bc(void) {
 }
 
 void func_80127a10(void) {
-    data_8018f5a0->field_6a--;
-    if (data_8018f5a0->field_6a & 0x80) {
+    ((HudWide *)data_8018f5a0)->field_6a--;
+    if (((HudWide *)data_8018f5a0)->field_6a & 0x80) {
         game_state.field_ee = 0;
     } else {
         func_80127cd8(0, 1, 2);
@@ -343,8 +341,8 @@ void func_80127a10(void) {
 }
 
 void func_80127ac4(void) {
-    data_8018f5a0->field_6a--;
-    if (data_8018f5a0->field_6a & 0x80) {
+    ((HudWide *)data_8018f5a0)->field_6a--;
+    if (((HudWide *)data_8018f5a0)->field_6a & 0x80) {
         game_state.field_ee = 0;
     } else {
         func_80127cd8(0, -1, 3);
@@ -357,8 +355,8 @@ void func_80127ac4(void) {
 }
 
 void func_80127b78(void) {
-    data_8018f5a0->field_6a--;
-    if (data_8018f5a0->field_6a & 0x80) {
+    ((HudWide *)data_8018f5a0)->field_6a--;
+    if (((HudWide *)data_8018f5a0)->field_6a & 0x80) {
         game_state.field_ee = 0;
     } else {
         func_80127cd8(0, 1, 2);
@@ -371,8 +369,8 @@ void func_80127b78(void) {
 }
 
 void func_80127c28(void) {
-    data_8018f5a0->field_6a--;
-    if (data_8018f5a0->field_6a & 0x80) {
+    ((HudWide *)data_8018f5a0)->field_6a--;
+    if (((HudWide *)data_8018f5a0)->field_6a & 0x80) {
         game_state.field_ee = 0;
     } else {
         func_80127cd8(0, -1, 3);
