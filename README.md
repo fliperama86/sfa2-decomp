@@ -53,13 +53,13 @@ In the 20 stage modules, `slot06_00` to `slot06_13`, 845 C functions,
 139,908 bytes, are exact and 1,220,780 bytes are retained raw.
 In `slot27` 208 C functions, 30,184 bytes, are exact and 97,140 bytes are
 retained raw.
-In `slot28` 678 C functions, 84,088 bytes, are exact and 185,928 bytes are
+In `slot28` 679 C functions, 84,216 bytes, are exact and 185,800 bytes are
 retained raw.
 In `slot01` 117 C functions, 16,372 bytes, are exact and 270,168 bytes are
 retained raw.
 In `slot04_00` to `slot04_0b`, the first-side blocks of the twelve character
-files `PL00.PAC` to `PL0B.PAC`, 2,098 C functions, 252,908 bytes, are exact
-and 685,304 bytes are retained raw; in `slot05_00` to `slot05_0b` without
+files `PL00.PAC` to `PL0B.PAC`, 2,099 C functions, 253,100 bytes, are exact
+and 685,112 bytes are retained raw; in `slot05_00` to `slot05_0b` without
 `slot05_06` the functions of eleven of them are linked a second time, at a
 second address, and are exact against the chunks of the `X` files.
 The second side of the twelfth, `slot05_06` from `PL06X.PAC`, is four bytes

@@ -570,7 +570,10 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   `func_801b066c_slot04_sel` and `func_801b5954_slot04_sel`: `w` is a
   `void *` that holds the first player and is then given the second
   record, and the stepped pointer has a local of its own. Written with
-  one local for each, the three differ in 3, 3 and 7 instruction slots.
+  one local for each, the three differ in 2, 2 and 4 instruction slots
+  and are one instruction shorter; with the plainest spelling, the two
+  sums as the arguments of the second call, the first of them has the
+  original's size and differs in 3.
   Read from the pass dumps of the project's compiler for these builds
   (`-dc -dS` on the preprocessed unit): the pass that joins two
   instructions joins the step and the load of the argument when the
@@ -589,7 +592,8 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
 - The second of two adjacent objects, read through the pointer to the
   first. `func_801b3380_slot04_sel` reads `player_right.side` three
   times. With the name at all three the build keeps that address in a
-  saved register and differs in 4 instruction slots; with the first read
+  saved register, is one instruction longer and differs in 20
+  instruction slots; with the first read
   written `l[1].side`, `l` being the function's pointer to `player_left`,
   it is exact. A first candidate was exact with a byte offset from a cast
   pointer, which the rules do not allow; the indexed form names the
@@ -604,10 +608,11 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   - Two saved registers exchanged. Registers that live across several
     basic blocks are handed out by how often a value is used against how
     long it lives; a value that lives inside one basic block gets its
-    register before all of those. A local of its own for the constant of
-    the one block that calls (`u = 1;` there, the shared `t` elsewhere)
-    took the first saved register and the object the second
-    (`func_801b04ac_slot04_01`, 36 slots with one local).
+    register before all of those. In `func_801b04ac_slot04_01` the
+    constant of the one block that calls must not be the local that the
+    other blocks share: with the shared `t` set to 1 there, the function
+    differs in 36 slots. The literal at the three stores is exact; the
+    attempt's local of its own for it was not needed and is gone.
   - Two temporaries exchanged between values that span blocks. One more
     use changes the order: a second use of a local in a later block
     (`func_801b0ce4_slot04_0a`) or a local reused for the next value
@@ -642,9 +647,11 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
     (`func_801b4408_slot04_0a`, `func_800e5a28_slot0f`).
-  - A constant in another temporary: through an `s16` local, with the
-    second of its two stores after a later store
-    (`func_801e0480_slot0b`, 7 slots with the literal).
+  - A constant in another temporary: the second of its two stores
+    written after a later store, as the original has them
+    (`func_801e0480_slot0b`, 7 slots with the two stores together). The
+    attempt's `s16` local for the constant was not needed: the literal
+    at both stores is exact.
   - A sum that the build regroups: two single-use locals for two of its
     three terms (`func_800e5be4_slot0f`).
   - Two table lookups in the other order: the first value into an `int`

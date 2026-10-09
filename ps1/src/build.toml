@@ -39942,3 +39942,21 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e8d10_slot06_03", address = 0x801e8d10, size = 1044 },
 ]
+
+[[unit]]
+name = "slot28_14c00_r1"
+image = "slot28"
+source = "slot28/slot28_14c00_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80024c00_slot28", address = 0x80024c00, size = 128 },
+]
+
+[[unit]]
+name = "slot04_02_625c_r1"
+image = "slot04_02"
+source = "slot04_02/slot04_02_625c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b625c_slot04_02", address = 0x801b625c, size = 192 },
+]

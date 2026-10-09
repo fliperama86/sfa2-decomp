@@ -8,8 +8,7 @@ int func_801b0ce4_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int a = o->field_21a;
     int b = o->field_129;
-    a = a != 0;
-    a = a << 2;
+    a = (a != 0) << 2;
     if (b != 0) a += 2;
     b = a;
     obj->field_102 = b;

@@ -9,7 +9,6 @@ void func_801b58dc_slot04_09(Object *obj);
 void func_801b4298_slot04_09(Object *obj) {
     u16 t;
     Object *p;
-    int m;
     func_80130efc(obj);
     t = obj->field_3a;
     if (t & 0x80) {
@@ -24,8 +23,7 @@ void func_801b4298_slot04_09(Object *obj) {
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x16;
-            m = obj->field_66;
-            p->field_66 = m;
+            p->field_66 = obj->field_66;
             p->field_65 = obj->field_65;
             p->field_ac = 2;
             p->field_ad = 1;

@@ -12,7 +12,7 @@ extern u8 data_801b8c91_slot04_sel;
 extern Slot04SelRec9d78 data_801b9d78_slot04_sel[];
 extern HudState *data_8018f5a0;
 
-/* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in 7 instruction slots. */
+/* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in 4 instruction slots. */
 void func_801b5954_slot04_sel(void) {
     Slot04SelRec9d78 *r;
     Object *second;

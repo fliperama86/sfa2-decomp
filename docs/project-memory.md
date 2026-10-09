@@ -6123,6 +6123,79 @@ A mistake on the way:
   copies were not exact. Run with the first side as the only model, all
   228 are. For a second side, the first side is the model.
 
+## Comment figures measured again, and two more copies (2026-10-09)
+
+Some functions of this session's units carry a comment that ends with a
+measurement: what the function differs by when it is written plainly.
+Earlier attempts wrote those figures. A copy of one such function made
+me measure its figure, and it did not come out. All 21 comments with a
+figure in this session's folders were then measured: one agent built the
+plain form that each sentence names and counted, and the figures that
+differed were measured a second time at the top level.
+
+What came out:
+
+- Fourteen figures hold.
+- The three work-pointer comments of the select module said 3, 3 and 7.
+  With one local for each value, which is what their sentence names,
+  the functions differ in 2, 2 and 4 instruction slots and are one
+  instruction shorter. The old figures were those of the plainest
+  spelling, measured before the form was found.
+- `func_801b3380_slot04_sel`: 20 slots with the second player's name at
+  the first read, not 4. `func_801b3b74_slot04_02`: 1 slot with the
+  argument, not 3.
+- `func_80016828_slot28`: the comment said "one local for both" and 6.
+  The 6 is the figure for one local for each of the two values that
+  `n` holds; the literal in place of the local `c` gives 7. The comment
+  says both now.
+- Two special forms were not needed at all. `func_801b04ac_slot04_01`
+  had a local of its own for the constant 1 of one block; the literal
+  at the three stores is exact. `func_801e0480_slot0b` had an `s16`
+  local for a constant stored twice; the literal at both stores is
+  exact, and what the function needs is the order of the stores. Both
+  are written plainly now, without the comment.
+- The matching guide quoted four of these figures and is corrected.
+
+Two more copies:
+
+- The copy helper, asked again for every image, found a twin that had
+  become exact meanwhile for two unwritten functions:
+  `func_80024c00_slot28`, the same code as `func_80016828_slot28`, and
+  `func_801b625c_slot04_02`. Both are exact as written. `slot28` has 679
+  functions, the twelve character blocks 2,099. The first of the two
+  carries its twin's comment, and its two figures were measured on the
+  copy itself: 6 and 7.
+
+The units of the seventy-fifth and seventy-sixth groups, reduced:
+
+- The matching guide asks that an exact function be reduced before it
+  is reported: each thing that plain source would not have is taken out,
+  one at a time, and kept out when the function is still exact. The
+  units of those two groups had not had that as a whole. One agent did
+  it on the 17 that were left, and a second agent, which did not see the
+  first one's variants, measured every figure of the new comments again.
+- 13 units are plainer and exact: locals that held a value used once
+  are gone, statements split over several lines are one, a `do` inside
+  an `if` is a `while`, two literal scratchpad addresses are the two
+  symbols that the tree has for them. 4 units were plain already.
+- What has to stay has a comment with its figure in 10 units. Of the 20
+  figures the second agent measured, 18 came out as stated; the other
+  two belonged to sentences that could be read in two ways with two
+  results, and those name their variant now. Four more figures were
+  measured at the top level. Three came out. The fourth, in
+  `func_800124fc_slot12`, did not (13 slots, not 49) and is the
+  measured one now; that comment also listed twelve ordinary locals
+  with a figure each, which is not what the guide asks for, and they
+  are gone from it.
+
+The lesson:
+
+- A figure in a comment is a claim like a number on a page. An attempt
+  writes the residual it saw last, which may belong to another spelling
+  than the one the sentence names. Measure it with the sentence's own
+  variant before it is published, measure it again on a copy, and try
+  the plain form of every special local: twice here it was exact.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

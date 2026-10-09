@@ -11,6 +11,7 @@ extern u8 data_8007991c_slot2b[];
 extern u8 data_800798f8_slot2b[];
 void func_80077afc_slot2b(Object *obj);
 
+/* The local k holds the byte field_ac, then the half index idx that is passed to func_80138070: written with a local for each, this function differs from the original in 30 instruction slots. The store of 0 to field_50 before the store of speed_y stays: without it 2 instruction slots differ. The locals dy and speed_y hold the table values before the stores: written in place, 24 and 28 instruction slots differ. */
 void func_800779a4_slot2b(Object *obj) {
     Object *p;
     u8 k = obj->field_ac;
@@ -21,7 +22,7 @@ void func_800779a4_slot2b(Object *obj) {
     int dx;
     int dy;
     obj->field_09 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->field_04++;
     p = obj->field_3c;
     obj->field_1c = p->field_1c;
     obj->field_1e = p->field_1e;
@@ -41,7 +42,7 @@ void func_800779a4_slot2b(Object *obj) {
     obj->field_4c = speed_x;
     obj->field_50 = speed_y;
     obj->pos_x = dx + obj->pos_x;
-    obj->pos_y = obj->pos_y - dy;
+    obj->pos_y -= dy;
     idx = obj->field_ac >> 1;
     obj->field_a0 = data_8007991c_slot2b[idx];
     k = idx;
