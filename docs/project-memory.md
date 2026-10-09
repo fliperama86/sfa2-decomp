@@ -7282,7 +7282,7 @@ No function count changes here. Nothing under `ps1/` changed.
 - Published: the table of host routines for Sony's library and the BIOS
   with its install over the stop calls, the events, critical sections,
   counters and callbacks with a frame clock, the BIOS's threads as
-  fibers, two overrides of game functions, stand-ins for the memory card
+  fibers, one override of a game function, stand-ins for the memory card
   (no card) and the sound (silent), a trace, and a watchdog. The page
   has what each does and what the program prints. Third of the port's
   small pull requests; the vertical-blank interrupt, the disc, the
@@ -7292,14 +7292,32 @@ No function count changes here. Nothing under `ps1/` changed.
   removed what belongs to later layers, by a written list, and ran every
   control on the cut tree. A library function whose host routine lives in
   a later layer is, in this tree, one of the functions that stop.
-- One change against the finished state came out of the cut. An override
-  was refused when the function it replaces had no C. The published tree
-  has no C yet for one of the two overridden functions, so the program
-  ended with a refusal instead of its stop at `main`. An override
-  supplies the function and must not depend on the C it replaces: it is
-  now accepted for any function the build knows, with or without C, and
-  refused for a name the build does not know. Two one-line changes of
-  that check were each noticed by a case (one-off run of the worker).
+- The owner's review of the first version (PR 121) asked for two
+  changes, in his words: "The new thread and callback paths bypass the
+  installed-code boundary. `fiber_main` calls its supplied address
+  directly; event, IRQ and VSync delivery likewise call unchecked
+  pointers", shown by him with invented images that reached an
+  unregistered RAM address through a thread and through an event
+  handler; and "`func_80119694` has no published C, yet this head
+  enables its game override. The compaction control compares the host
+  routine with a second implementation of the same walk, not the pinned
+  original. The project's C-first rule requires a contract and scoped
+  original-code differential evidence for nonmatching game C."
+- What I had got wrong, twice over. PR 114's review had already taught
+  that the program may call only addresses where it wrote a jump; I
+  applied that to the program's entry and not to the four other places
+  where the runtime calls an address that the game hands it. And when
+  the cut tree refused an override for a function without C, I decided
+  that an override may supply such a function: that made a host routine
+  stand for game C with no evidence against the original. Both are
+  undone: every such call is checked at the moment of the call, and an
+  override is accepted only for a function that has C. The override of
+  `func_80119694` is out of this piece and returns with a differential
+  test against the original.
+- The rule I take from it: a host routine that replaces game code is
+  game C by another name and needs the same evidence; and a boundary
+  that a review established is searched for in every new call path
+  before a pull request, not only in the path the review named.
 - The published tree still stops at `main`: none of this has run on the
   real game from a published commit. The controls run it on made-up game
   code.
