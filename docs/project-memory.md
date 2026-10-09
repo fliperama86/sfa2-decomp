@@ -6662,6 +6662,18 @@ one-off report alone."
   does not define must keep its original address. The functions
   published before this change define nothing but themselves and call
   themselves nowhere, so their results stand; they were run again.
+- A second point of the same review, on the new toolchain controls:
+  they wrote their throwaway sources into a folder beside the sources
+  and, when starting, removed every folder of that kind, another run's
+  included; the folders were not ignored by Git either. Each run now
+  makes a folder of its own under `ps1/build/`, which the repository
+  ignores, and removes that folder only. Two cases hold it: a second run
+  that starts and ends leaves the first one's files alone, and Git
+  ignores the folder. With the old sweep put back in a copy, the first
+  of the two fails. I had not seen this review when I pushed the merge
+  of main: my watcher woke on my own comment and I read only the last
+  comment of the thread. A wake-up means reading every comment since
+  the last one I had read.
 - Why this matters beyond lane B: on 2026-10-09 the owner settled how
   the port gets the functions that are not C: "No interpreter needed
   with the unmatched code, right?" The PC program is to consist of the

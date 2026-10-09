@@ -118,7 +118,10 @@ unit is reported with the name and the address.
     python test_difftest_build.py --config ../build.toml
 
 These controls build small units made from `func_801e9080_slot06_00.c` by text
-edits, in a temporary folder beside this one that is removed afterwards. They need
+edits, in a folder of the run's own under `ps1/build/`, which the repository
+ignores. A run removes its own folder and no other, so two runs side by side
+do not disturb each other; two cases check that, and that Git ignores the
+folder. They need
 the pinned toolchain and the private inputs of the matching build; with either
 missing they print one line and exit with status 2. They check that a helper
 named like a linker symbol of the tree runs (and is not replaced by the original
