@@ -7517,6 +7517,54 @@ No function count changes here: none of this is in the build.
   new parts were run against 73 more one-line changes of the tool by a
   worker; all were noticed after one equivalent change was replaced.
 
+## Three graphics library functions from the reference's source: how the copy routine is declared (2026-10-09)
+
+One of the open questions of the library was "struct copies through a
+call": `PutDrawEnv`, `GetDrawEnv`, `PutDispEnv` and `GetDispEnv` copy a
+struct by calling the BIOS copy routine with a constant size, while
+this compiler, given the reference's `memcpy` of a constant size,
+copies in place. A compiler flag for those units had been considered
+and was waiting for a decision. No flag is needed.
+
+- The compiler copies in place because `memcpy` is one of its built-in
+  functions. It gives the built-in up when the source declares
+  `memcpy` with other parameter types than its own. A control on the
+  compiler alone, two small files that differ in one declaration: with
+  `void *memcpy(unsigned char *dst, unsigned char *src, int n);` in
+  front, the compiler warns of conflicting types for the built-in
+  function and emits a call; without it there is no call in the
+  output.
+- Tried first, and no way out: a plain struct assignment is copied in
+  place like the constant-size call. `GetDrawEnv` is 24 instruction
+  words either way where the image has 14.
+- With that one declaration at the top of the adapted graphics system
+  file, the reference's source of `PutDrawEnv`, `GetDrawEnv` and
+  `GetDispEnv` is exact. `PutDispEnv` goes from 80 differing
+  instruction slots to 58 and stays out.
+
+What changes in the build. The three functions were in it already,
+exact, as reconstructions under address names that an earlier round
+had written with types of its own, calling the copy routine under its
+address name, which the compiler does not know. They are owned by the
+library's parts now, under their library names and with the
+reference's structs. The two units that held them are gone. The
+message that `PutDrawEnv` prints, 24 bytes of read-only data, was
+referred to by address and is owned by a unit now: the build's
+coverage line goes from 2,352 to 2,376 bytes of read-only data, and
+the raw payload falls by the same 24. The count of exact functions is
+the same.
+
+Inferred, not known: that the library's own header declared the copy
+routine with byte pointers. The reference's calls cast their arguments
+to byte pointers, which fits such a declaration; the header's text was
+not seen. The declaration is this project's line in the adapted file
+and says so in a comment.
+
+The question about a flag is closed. Three questions of the library
+remain open as before: the object that looks assembled by another
+assembler, the loads that only a volatile field reproduces, and the
+delay instruction that the assembler emulation does not produce.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
