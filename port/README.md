@@ -619,7 +619,7 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `e9ca7a9`:
+it is in commit `bfaf349`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
@@ -655,6 +655,8 @@ disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
 jumps: 1404 written for functions with C, 448 for functions without
+library: 73 host routines, 309 left that stop
+overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
 ```
@@ -663,6 +665,63 @@ and ended with status 3. The game's `main` is the first function it
 calls, and `main` has no C in that tree. The original's entry code is
 hand-written assembly and is not run: the program finds `main` as the
 target of the last call before the entry code's halt.
+
+### What stands in for the library
+
+The game calls Sony's library and the console's BIOS at fixed addresses
+of its own program. The runtime has a table of host routines for them,
+by name or by address, and writes a jump to each over the stop call at
+the routine's PS1 address. A library function without a host routine
+still ends the program with its name. `sfa2.exe --list-library` prints
+the table; for the program built from this tree it ends with
+
+```
+library: 73 host routines, 309 left that stop
+```
+
+of which the listing gives 30 as routines that do something and 43 as
+routines that do nothing on purpose. What is in this piece:
+
+- Events, critical sections, root counters and the callbacks of the
+  BIOS and the interrupt library, with a frame clock: every wait or poll
+  of the game that reaches one of these routines lets one vertical blank
+  happen when 1/60 s has passed since the last, and the game's own
+  handlers run then, on the game's thread. Nothing interrupts the game
+  in this piece: a loop of the game that calls no library routine and
+  waits for a handler would wait for ever. `--watchdog S` ends such a
+  run after S seconds without a vertical blank and says where it was.
+- The BIOS's threads as fibers. The game uses them as tasks that switch
+  only where the game says so.
+- The few functions of the C library that the game takes from the BIOS.
+- The memory card answers as if no card were inserted. The sound
+  library's functions are accepted and do nothing: the port is silent.
+  Both are stand-ins and listed as such.
+- Overrides: host routines that run in place of a game function's C,
+  for what cannot run on a PC as written. There is one, with its reason
+  in the listing: it sets up the game's task slots as the function's C
+  does, without the stores into the BIOS's thread table, which is at an
+  address the program does not have. An override is accepted only for a
+  function that has C: it is not a way to supply a function. A second
+  one is needed and is not in this piece: one function walks an
+  ordering table through the copy of RAM that the PS1 shows from
+  address 0, a range that a Windows program cannot have. Its host
+  routine waits for differential evidence against the original code;
+  until then that function is one that stops.
+- The runtime calls only what it installed. The game hands the library
+  addresses to call later: a thread's entry, an event's handler, the
+  interrupt and vertical-blank callbacks. Each is checked at the moment
+  of the call: it must be an address where the runtime itself wrote a
+  jump or a stop, or lie inside the game's own compiled code, between
+  the build's two markers. Anything else ends the program with a line
+  that names the path and the address, before the call. A function
+  without C as a target still ends with its named stop. The limit of
+  the second test: any address inside the game's compiled code passes,
+  not only a function's first instruction, because the build does not
+  list the game's static functions.
+- `--trace` and `--trace-file FILE` write one line per library call.
+
+Not in this piece: the disc's library, the graphics, the pads, the
+modules. Their functions are among the 309 that stop.
 
 ### What this does not show
 
@@ -673,11 +732,13 @@ target of the last call before the entry code's halt.
 - Anything about the modules: their jumps are not written. The 22
   images that are a second placement of another image's units are built
   and linked, and nothing of them has run.
-- Anything about the library: a call into it ends the program with the
-  library function's name. PsyZ is not linked. The tool takes a build of
-  PsyZ (`--psyz`) and writes each image's archive names into its tables,
-  and its header names `gpu.c`, `modules.c` and `psyzbuild.py` for them:
-  those files are not in this tree yet.
+- Anything about the library on the real game: its host routines have
+  run only on the made-up game code of the controls, because the
+  published tree stops at `main` before any of them. PsyZ is not linked.
+  The build tool takes a build of PsyZ (`--psyz`) and writes each
+  image's archive names into its tables, and its header names `gpu.c`,
+  `modules.c` and `psyzbuild.py` for them: those files are not in this
+  tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
 
 ### Controls
@@ -696,7 +757,23 @@ images. Its cases: the right image stops at a function without C; an
 entry with C runs that C; an image that differs in one byte from the
 pinned one is refused and nothing of it runs; an entry at an address
 that no table holds, inside a function, just before one, or in a module
-is refused. On 2026-10-09 each of the three ended with
+is refused. Its cases for the library, all on made-up game code: a
+library function with a host routine is reached and one without still
+stops; an override replaces a function's C; a table that names a
+function twice, an unknown one or an unknown address is refused, and so
+is an override of a function without C; the trace has each library
+call; a read of the PS1's low copy of RAM ends the program with a line
+that says so; a thread entry, an event handler, an interrupt callback
+and a vertical-blank callback at an address that the program did not
+install are each refused before the call, and the byte there does not
+run, while the same four paths with a function without C as the target
+end with its named stop and with a handler inside the game's own code
+run it; a handler runs once per vertical
+blank, is held back inside a critical section and delivered once after
+it; an event that was closed is not called; three tasks run in the
+order the game switches them, and a task function that returns ends
+the program; the card routines answer with the time-out event. On
+2026-10-09 each of the three ended with
 `all cases behaved as required`.
 
 ## Not decided

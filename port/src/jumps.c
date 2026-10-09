@@ -84,6 +84,20 @@ int port_jump_known(unsigned address)
     return jump_count && bsearch(&address, jump_set, jump_count, sizeof *jump_set, by_address) != NULL;
 }
 
+/* The build's two markers around the game's own compiled code (hostbuild.py places them). */
+extern char port_game_text_begin, port_game_text_end;
+
+void port_target_check(const char *path, const void *target)
+{
+    size_t address = (size_t)target;
+
+    if ((size_t)(unsigned)address == address && port_jump_known((unsigned)address)) return;
+    if (address >= (size_t)&port_game_text_begin && address < (size_t)&port_game_text_end) return;
+    printf("refused: %s 0x%08x is not a function this program installed\n", path, (unsigned)address);
+    fflush(stdout);
+    exit(PORT_EXIT_TARGET);
+}
+
 int port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, char *err, size_t errsize)
 {
     unsigned i;
