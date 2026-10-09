@@ -33,8 +33,9 @@ full build or decompilation already exists.
   pointer size, fixed addresses and the loading of modules, goes behind
   build switches and is listed. The owner decided on 2026-10-06 to start
   one, for macOS on Apple Silicon, Windows and Linux: its decisions and
-  state are on the [port page](../port/README.md). Nothing of the game
-  links or runs there yet. By the owner's rule of 2026-10-09, until the
+  state are on the [port page](../port/README.md). The game does not run
+  there yet; a program linked from its C runs up to the first function
+  without C. By the owner's rule of 2026-10-09, until the
   port is shown running nothing of the game's source is changed for it,
   build switches included, and the port takes its data from a disc image
   that the user supplies.
