@@ -24,9 +24,12 @@ from `[types] header` of the configuration and the text that
 
 Each unit is compiled alone:
 
-    CC -std=STD -c -I BUILD/gen -o BUILD/obj/UNIT.o SOURCE
+    CC -std=STD FLAGS -c -I BUILD/gen -o BUILD/obj/UNIT.o SOURCE
 
-with UNIT the unit's `name`. A unit passes when the compiler ends with
+with UNIT the unit's `name` and FLAGS what `--flag` gave, in its order.
+A flag can make the compiler build for another kind of machine than its
+default, as `-m32` does for one with four-byte pointers; everything the
+tool reports is then about that kind of machine. A unit passes when the compiler ends with
 status 0. A compiler that has not ended after `--timeout` seconds is
 stopped and the unit fails, without diagnostics. The same limit holds
 for every other run of the compiler: a struct whose check is stopped
@@ -78,6 +81,7 @@ Standard output, in this order, with nothing else:
 
     compiler: FIRST LINE OF `CC --version`
     language level: STD
+    flags: FLAG FLAG ...
     pointer size: N bytes
     units: N compiled, N under sdk/ and N not C left out
     passed: N
@@ -92,7 +96,8 @@ Standard output, in this order, with nothing else:
     ...
     failed: UNIT UNIT ...
 
-The pointer size is found by compiling: no program is run for it. One
+The `flags` line is left out when no `--flag` was given. The pointer size
+is found by compiling: no program is run for it. One
 `LEVEL OPTION` line per kind of diagnostic, with the number of
 diagnostics and of units that have one, in order of the number of
 diagnostics, largest first, then of the text of the whole line. One RANGE line
@@ -112,13 +117,14 @@ is missing or malformed or the compiler cannot be run, with one line on
 standard error that names it.
 
 usage:
-  hostcheck.py [--config BUILD_TOML] [--cc CC] [--std STD] [--build DIR] [--jobs N]
-               [--timeout SECONDS]
+  hostcheck.py [--config BUILD_TOML] [--cc CC] [--std STD] [--flag=FLAG ...]
+               [--build DIR] [--jobs N] [--timeout SECONDS]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
 `cc`; `gnu89`; `port/build/hostcheck`; as many jobs as the machine has
-processors; 120 seconds. `-std=STD` is given to every run of the
-compiler but the one for its version. The field table is the one that `[types] fields` of the
+processors; 120 seconds. `-std=STD` and the flags are given to every run
+of the compiler but the one for its version. A flag that begins with `-`
+is written with `=`, as in `--flag=-m32`. The field table is the one that `[types] fields` of the
 configuration names, relative to the configuration. Sources are relative
 to the configuration too. The numbers do not depend on the number of jobs.
 """
@@ -301,14 +307,15 @@ def compiler_version(cc: str, timeout: int) -> str:
     return lines[0]
 
 
-def pointer_size(cc: str, std: str, probe_dir: Path, timeout: int) -> int:
+def pointer_size(front: list[str], probe_dir: Path, timeout: int) -> int:
+    """front is the compiler, the language level and the flags, as every run begins."""
     for size in (2, 4, 8):
         source = probe_dir / f"pointer{size}.c"
         source.write_text(f"typedef char probe[(sizeof(void *) == {size}) ? 1 : -1];\n")
-        proc = compile_run([cc, f"-std={std}", "-fsyntax-only", str(source)], timeout)
+        proc = compile_run([*front, "-fsyntax-only", str(source)], timeout)
         if proc is not None and proc.returncode == 0:
             return size
-    raise Problem(f"cannot find the pointer size with compiler {cc} and -std={std}")
+    raise Problem(f"cannot find the pointer size with compiler {front[0]} and {' '.join(front[1:])}")
 
 
 # Units.
@@ -346,7 +353,7 @@ def scan_literals(text: str) -> Counter:
     return counts
 
 
-def check_unit(unit: Unit, cc: str, std: str, build: Path, timeout: int) -> UnitResult:
+def check_unit(unit: Unit, front: list[str], build: Path, timeout: int) -> UnitResult:
     result = UnitResult(unit)
     try:
         text = unit.path.read_text(errors="replace")
@@ -356,7 +363,7 @@ def check_unit(unit: Unit, cc: str, std: str, build: Path, timeout: int) -> Unit
     obj = build / "obj" / f"{unit.name}.o"
     obj.parent.mkdir(parents=True, exist_ok=True)
     obj.unlink(missing_ok=True)
-    argv = [cc, f"-std={std}", "-c", "-I", str(build / "gen"), "-o", str(obj), str(unit.path)]
+    argv = [*front, "-c", "-I", str(build / "gen"), "-o", str(obj), str(unit.path)]
     proc = compile_run(argv, timeout)
     if proc is not None:
         result.passed = proc.returncode == 0
@@ -401,17 +408,17 @@ def layout_source(model: structgen.Model, struct: structgen.StructDecl, header: 
     return "\n".join(lines) + "\n"
 
 
-def check_struct(model: structgen.Model, struct: structgen.StructDecl, pointer: bool, header: str, cc: str, std: str, build: Path, timeout: int) -> StructResult:
+def check_struct(model: structgen.Model, struct: structgen.StructDecl, pointer: bool, header: str, front: list[str], build: Path, timeout: int) -> StructResult:
     source = build / "probe" / f"layout_{struct.name}.c"
     source.write_text(layout_source(model, struct, header))
-    proc = compile_run([cc, f"-std={std}", "-fsyntax-only", "-I", str(build / "gen"), str(source)], timeout)
+    proc = compile_run([*front, "-fsyntax-only", "-I", str(build / "gen"), str(source)], timeout)
     return StructResult(struct.name, struct.size, proc is not None and proc.returncode == 0, pointer)
 
 
 # Output.
 
 
-def render(version: str, std: str, psize: int, counts: tuple[int, int, int], units: list[UnitResult], structs: list[StructResult]) -> tuple[str, str, str]:
+def render(version: str, std: str, flags: list[str], psize: int, counts: tuple[int, int, int], units: list[UnitResult], structs: list[StructResult]) -> tuple[str, str, str]:
     compiled, sdk, other = counts
     failed = [u.unit.name for u in units if not u.passed]
     kinds: dict[str, list[str]] = {}
@@ -425,6 +432,7 @@ def render(version: str, std: str, psize: int, counts: tuple[int, int, int], uni
     out = [
         f"compiler: {version}",
         f"language level: {std}",
+        *([f"flags: {' '.join(flags)}"] if flags else []),
         f"pointer size: {psize} bytes",
         f"units: {compiled} compiled, {sdk} under sdk/ and {other} not C left out",
         f"passed: {compiled - len(failed)}",
@@ -474,17 +482,18 @@ def run(args: argparse.Namespace) -> str:
     except OSError as err:
         raise Problem(f"cannot write {build / 'gen' / header}: {err.strerror}")
 
-    psize = pointer_size(args.cc, args.std, build / "probe", args.timeout)
+    front = [args.cc, f"-std={args.std}", *args.flag]
+    psize = pointer_size(front, build / "probe", args.timeout)
     pointers = has_pointer(model)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        unit_jobs = [pool.submit(check_unit, u, args.cc, args.std, build, args.timeout) for u in units]
+        unit_jobs = [pool.submit(check_unit, u, front, build, args.timeout) for u in units]
         struct_jobs = [
-            pool.submit(check_struct, model, s, pointers[s.name], header, args.cc, args.std, build, args.timeout) for s in model.structs
+            pool.submit(check_struct, model, s, pointers[s.name], header, front, build, args.timeout) for s in model.structs
         ]
         unit_results = sorted((j.result() for j in unit_jobs), key=lambda r: r.unit.name)
         struct_results = sorted((j.result() for j in struct_jobs), key=lambda r: r.name)
 
-    text, unit_table, struct_table = render(version, args.std, psize, (len(units), sdk, other), unit_results, struct_results)
+    text, unit_table, struct_table = render(version, args.std, args.flag, psize, (len(units), sdk, other), unit_results, struct_results)
     try:
         (build / "units.tsv").write_text(unit_table)
         (build / "structs.tsv").write_text(struct_table)
@@ -505,6 +514,7 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=REPO / "ps1/src/build.toml")
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--std", default="gnu89")
+    parser.add_argument("--flag", action="append", default=[])
     parser.add_argument("--build", type=Path, default=REPO / "port/build/hostcheck")
     parser.add_argument("--timeout", type=positive, default=120)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)

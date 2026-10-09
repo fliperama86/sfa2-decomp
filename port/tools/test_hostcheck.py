@@ -462,6 +462,25 @@ def std_cases(root: Path):
         yield f"std-{std}-version-call-has-none", same([c for c in got if c == ["--version"]], [])
 
 
+def flag_cases(root: Path):
+    config = tree(root, "flag", {"ua": ("ua.c", "int a;\n"), "ub": ("ub.c", "int b;\n")})
+    log = root / "flag.log"
+    cc = fake_cc(root, "flag", record=str(log))
+    proc = run(config, root / "flag-build", cc, "--flag=-m32", "--flag=-DX=1")
+    got = calls(log)
+    units = [c for c in got if "-c" in c]
+    probes = [c for c in got if "-fsyntax-only" in c]
+    err = need(proc)
+    # The stand-in is the first word of no recorded call: a call begins with the language level.
+    front = ["-std=gnu89", "-m32", "-DX=1"]
+    yield "flag-every-unit-call-in-order", err or same((len(units), all(c[:3] == front for c in units)), (2, True))
+    yield "flag-every-probe-in-order", err or same((len(probes) >= 3, all(c[:3] == front for c in probes)), (True, True))
+    yield "flag-version-call-has-none", same([c for c in got if c == ["--version"]], [])
+    yield "flag-line-after-the-language-level", err or same(lines(proc)[1:4], ["language level: gnu89", "flags: -m32 -DX=1", "pointer size: 8 bytes"])
+    plain = run(config, root / "flag-none-build", fake_cc(root, "flag-none"))
+    yield "flag-line-left-out-without-flags", need(plain) or same(lines(plain)[1:3], ["language level: gnu89", "pointer size: 8 bytes"])
+
+
 OFFSET_FIELDS = """struct Plain size=0x4
 0x000 u8 a
 0x002 u8 b
@@ -553,6 +572,7 @@ def groups(root: Path, cc):
     yield literal_cases(root)
     yield refusal_cases(root)
     yield std_cases(root)
+    yield flag_cases(root)
     yield offset_cases(root)
     yield selection_cases(root)
     yield duplicate_cases(root)
