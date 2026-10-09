@@ -237,7 +237,10 @@ functions; they change with every round.
    the round on the functions outside it. A round with four source forms
    found on the overlay modules, the owner's choice of 2026-10-06, made 7
    of the 76 that were parked then exact; the other 69 kept their
-   candidates, some of them closer.
+   candidates, some of them closer. A round on all of them with the
+   compiler's pass dumps (2026-10-07, see the matching guide) made 4 more
+   exact, and one parked library function: 65 game functions are parked
+   now.
    One function per agent is the method: 44 of 147 packages so far, and the
    rate is falling: 6 of the last 47. All but seven parked game functions
    have had such a package; six of the seven are above 1,500 bytes. What is
@@ -435,19 +438,27 @@ chose the first on 2026-10-06:
   Then the content of slot `0x4` of `SELECT.PAC`, a module of 91
   functions: 89 are exact, 27,092 of 27,984 bytes, and 2 are parked with
   candidates.
+  Then third attempts on the 73 functions that these rounds had parked
+  in the modules of this session, with the compiler's pass dumps (the
+  matching guide says how they are read): 15 are exact now, one or two
+  in each of `slot0b`, `slot12`, `slot2b`, `slot0f`, `slot28` and
+  `slot01` and seven in the character blocks. The counts of the
+  steps above are those of their day; the README has the current ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
-- Open, and the model for it is item 2 above: most of the 69 parked game
-  functions differ in which register a value gets, and none of the four
-  forms decides that. A view of the compiler's register allocation per
-  function, built into the tools, is the candidate for the next step.
+- Open, and the model for it is item 2 above: most of the 65 parked game
+  functions differ in which register a value gets. The compiler's pass
+  dumps now show, for each, which pass decides and what it ranks by. For
+  4 functions that was enough to find a form; for the others the
+  candidates carry what the allocation or the scheduler would need, and
+  no source form gives it yet.
 
 Still open in the map itself: how the loader treats the entries without a
 table destination, what owns 11 data symbols above the stage blocks, and a
 call into the middle of a function in one character block.
 
-Open in the resident image: 69 game functions that the sweep counts are
+Open in the resident image: 65 game functions that the sweep counts are
 not in the build, all of them parked with a candidate. The 15 functions
 outside the inventory that have no reference that the sorting counts are
 all exact now; what reaches them is still unknown.

@@ -5756,6 +5756,245 @@ figure describes the file the agent had when it measured. Measure every
 figure again on the file that is published, with the tool that the
 reader has.
 
+## Seventy-fifth group: third attempts with the compiler's pass dumps
+
+The select-screen round (the seventy-fourth group) found one form by
+reading the compiler's own dumps of its passes. This group turned that into a method
+and ran it over every function that the module rounds of this session had
+parked.
+
+Counts:
+
+- 73 functions were attempted a third time, one agent each: 8 as a trial
+  (4 exact), then the other 65. 16 were reported exact and 15 are in the
+  tree: one in `slot0b`, two in `slot12`, one in `slot2b`, two in
+  `slot0f`, one in `slot28`, one in `slot01`, seven in the character
+  blocks. All had failed two attempts. The sixteenth, in `slot27`, is
+  parked again (see the group after this one).
+- From the build when the round ended, with the sixteenth: `slot0b` 57
+  functions, `slot12` 180, `slot2b` 103 (and `slot2c`, linked from the
+  same units), `slot0f` 217, `slot27` 209, `slot28` 678, `slot01` 117,
+  the twelve character blocks 1,569 functions and 199,416 bytes. The
+  second sides had 8 more placements. Over everything the map counted
+  3,792 of 5,600 distinct functions as exact.
+- On the head that was merged, without the sixteenth: `slot0b` 57
+  functions, `slot12` 180, `slot2b` 103, `slot0f` 217, `slot27` 208,
+  `slot28` 678, `slot01` 117, the twelve character blocks 1,569
+  functions and 199,416 bytes; 23 more module placements than the main
+  branch of that day, 8 of them on the second sides. The tree has 77
+  unused-array stand-ins and 22 calls through a cast of the callee in
+  module units. With the group after this one the map counts 5,408 of
+  5,600 distinct functions as exact, 19 more than that main branch.
+- One declaration of the shared header changed: `data_80190562` is an
+  array there. The one resident unit that stores to it (`m133df4_r2.c`)
+  writes element 0 and stays exact. Six older units of `slot12` and
+  `slot0f` declare two functions as their new definitions are and cast at
+  the call. When the round ended the tree had 56 unused-array stand-ins
+  and 14 calls through a cast of the callee.
+
+What ran:
+
+- A private helper that runs the compiler on a unit's preprocessed file
+  with the dump flags, and one that builds up to twelve spellings of a
+  few lines in under a second each. A note for the agents on how to read
+  each dump and what each pass looks at, extended four times with what
+  the attempts found, so that later attempts started from it.
+- The declaration check on the merged tree printed 15 lines; one agent
+  brought it to zero.
+
+What it showed, beyond the single forms that the matching guide lists:
+
+- Most of the residuals that two rounds of spellings had not moved are
+  decisions of the register allocation or of the scheduler, and both look
+  at things that a spelling does not change: how often a value is used,
+  whether it lives inside one basic block, the order of the statements.
+  An agent that had the pass named could change exactly that.
+- The method does not help where the original needs something that no
+  pass input gives: 57 functions stay parked, most with a note on which
+  pass decides and what it would need.
+
+Mistakes and corrections:
+
+- An attempt reported a function exact with two bytes read by a byte
+  offset from a cast pointer; its published siblings name the two fields.
+  The top-level review found it and the named form is exact too. The
+  same lesson as in the group before, and it will come again: review
+  every exact report for the rules, not only for the bytes.
+- An attempt left out the include of the shared header to declare one
+  byte as an array. No module unit had done that before. The declaration
+  in the header changed instead, with the resident image exact.
+- The setup of the attempts gave every folder a symbol for every
+  function of its module that no unit defines; the merge then carried
+  about 500 unused symbol lines into the tree. They were removed before
+  the promotion. The setup should add them to the folder's linker input
+  only.
+- A full suite was started with a plain `&` and gave no notice when it
+  ended. Long commands go through the background mode of the tool.
+
+Open:
+
+- `func_80125f5c` of the resident image: two parked functions of `slot0f`
+  pass a halfword as its third argument and are exact with an `int`
+  parameter in their own declaration. Fifteen forms of that parameter in
+  the resident unit differ in 4 to 10 instruction slots (the copy of the
+  parameter lands two instructions late in the entry).
+- `func_801b3a70_slot04_05` reads a byte where the field table has a
+  16-bit field (`Slot.field_02`); with a byte field it would likely be
+  exact. The field is used as 16 bits by other units, some of them the
+  second session's.
+- `func_80012c34_slot12` keeps all its stores in source order in the
+  original. Only a `volatile` access reproduced that, which the rules do
+  not allow. Whether its unit was built with other scheduling flags was
+  not tried.
+- The 69 parked functions of the resident image have not had this
+  method yet. They are next.
+
+## Seventy-sixth group: the pass dumps on the resident image, and one correction by the owner
+
+The method of the group before, on the parked functions of the resident
+image: 78 functions with a candidate, in 39 pairs, one agent for each
+pair, smallest first.
+
+Counts:
+
+- 6 were reported exact and 5 are in the tree: `func_80125684`,
+  `func_8014b08c`, `func_8015057c` and `func_80153d7c` of the game and
+  `func_8015fd24` of the library. `func_8013172c` is parked again
+  (below).
+- When the round ended, with the sixth: the resident image had 1,760
+  exact functions, 1,707 from C (289,684 bytes), and 315,424 payload
+  bytes retained raw; 64 game functions were parked; the map counted
+  3,798 of 5,600 distinct functions as exact.
+- On the head that was merged, without the sixth: the resident image
+  has 1,759 exact functions, 1,706 from C (289,388 bytes), and 315,720
+  payload bytes are retained raw; 65 game functions are parked.
+- The inventory of the sweep was regenerated with its tool: five rows
+  have a name now (four in `game.tsv`, one in `library.tsv`). No
+  boundary changed.
+
+What the dumps showed here:
+
+- The yield is lower than on the modules (5 of 78 against 15 of 73).
+  These functions had had more attempts, and a search. For most of them
+  the report names the pass and the two values whose order would have to
+  flip, with their use counts, and says that no form flips it.
+- A family in the library, around `0x80158d28` to `0x80158fec`: each
+  reads one global as `lui`, `addiu`, then a load at offset 0, where the
+  build folds the address into the load because the address has one use.
+  Only a `volatile` read gave the original's three instructions. They
+  join the cases that wait for the ruling on `volatile`, which this
+  memory lists under the open questions.
+- Three library functions around `0x8015764c` to `0x80157784` load small
+  constants with `addiu` from `zero` where this toolchain writes `ori`,
+  and one indexes a symbol with another expansion than the assembler
+  emulation produces here. No other function of the image has either.
+  Inferred, not known: those were built by another assembler or compiler
+  setting. Not followed further.
+- `func_80125684` has a test that can never be true in the original's
+  code, with the code of its arm and two loads that nothing uses. An
+  agent reproduced it with a flag set to the same constant in both arms,
+  which is a dummy. The top-level review replaced it by a test of the
+  high half of a 16-bit local, which reads as ordinary code, is exact,
+  and has a comment that says what the original does there and that its
+  source is not known.
+
+Two functions parked again before the pull request (2026-10-09):
+
+- The owner's review of the pull request of the select module found two
+  stores by a byte offset from a cast pointer in a unit that no review
+  of mine had read. Every unit of this group and of the one before was
+  then read against "What is allowed" of the matching guide, and
+  searched for an index or an offset on a cast pointer.
+- `func_8013172c` of the resident image was exact only with two things
+  the rules exclude: a local that holds the constant `0x15` and indexes
+  backwards from a pointer to one field of `game_state` to reach
+  another, and three stores written by a byte offset from a cast
+  pointer. With the fields named, the function differs in 24
+  instruction slots. One part has an allowed form: with the bytes at
+  `0x801a6984` declared as one array, the three stores stay before the
+  load that follows them, as in the original (17 slots left). The other
+  part has none so far: the original keeps the address of
+  `game_state.field_30` in a register and reads `game_state.mode` at
+  `-0x15` from it, and neither a pointer to each field nor an index by
+  the literal keeps that register. The function is parked with that
+  note.
+- `func_80010840_slot27` was exact only with the statement `t &= 0xff;`
+  after the load of a byte, under a comment that said the mask changes
+  nothing. The original has no instruction for the mask: the statement
+  is a dummy operation, and the guide accepts one dummy construct only,
+  the unused array. Six typed spellings of the local and of the load all
+  differ in 11 instruction slots. The function is parked again.
+- `func_801b5118_slot04_07` had two pointer locals for the one object.
+  With one it is exact too, and has one now.
+- `func_80014300_slot12` read two bytes by a byte offset from a cast
+  pointer. It reads them through a typed pointer now, as two units of
+  the main branch read the same two bytes, and is exact.
+- The group before says "review every exact report for the rules". That
+  was done on the reports and on the candidates that looked odd, not on
+  every file. A comment that names a construct honestly does not make
+  the construct allowed. Before a pull request: read every new unit
+  against "What is allowed", and run the search for offsets on cast
+  pointers over every new or changed unit.
+
+A correction by the owner, on the pull request of this group
+(2026-10-09), and two more of the same kind found after it:
+
+- The new unit of `func_80153d7c` declared `func_801519b4` with the
+  type of its own local, `TextObj *`, where the resident definition
+  takes `Object *`. The owner asked for the definition's declaration and
+  a cast at the call. The unit includes the shared prototypes now and
+  casts; it is exact.
+- The same look at the other new resident units found two definitions
+  that the shared prototypes contradicted. `func_8015057c` takes a
+  pointer, the header said `(void)`, and its one caller,
+  `func_8014f7f8`, passed nothing: the header has the parameter now and
+  the caller passes its own parameter on, cast to the callee's view of
+  the same object, and is exact. `func_8015fd24` was defined with an
+  `int` where the header and the one caller have a pointer: the
+  definition and the header take `u8 *` now, and both units are exact.
+- Three of the five new resident units did not include the shared
+  prototypes, so the compiler could not see either contradiction, and
+  the private declaration check does not read resident units. A new
+  resident unit includes `protos.h`; a definition that the header
+  contradicts then does not compile.
+
+A correction by the owner, on the pull request of the module of slot
+0x27 (2026-10-07):
+
+- `func_8011ea68` had been given a parameter named `unused`, with a
+  comment that it is declared because its caller sets the register. But
+  the function calls `func_8015a560`, whose definition takes a pointer
+  and stores it, and the unit declared that callee `void(void)`: the
+  value was passed on through the register all along. The owner asked
+  for the callee's real prototype and an explicit forward of the
+  parameter, with the comment saying that. The unit is exact so.
+- The lesson for every "unused parameter" of this kind: before calling a
+  parameter unused, look at what the function calls before it sets the
+  argument register again. A callee that takes an argument there receives
+  the parameter, and the source should say so. A local declaration that
+  disagrees with the callee's published definition hid it here.
+
+A gap in the private declaration check, found through the owner's review
+of the second session's stage modules (2026-10-07):
+
+- The check reads a dispatch table up to the next address that carries a
+  name. Overlay images share addresses, and it took a name of ANY image
+  as the end: a table was cut after its first entry where another
+  image's symbol stood four bytes on. The owner found a table whose
+  later entries take another parameter list than the table declares; the
+  check had printed nothing.
+- A table now ends only at a name of its own image or of the resident
+  program. On the tree of this group the corrected check read 109 more
+  entries and found one table of `slot04_09` in the same state: three of
+  its nine entries read a second parameter that the dispatcher does not
+  set. It has the form the matching guide gives for that (the table and
+  every entry with two parameters, the dispatcher passing its own second
+  parameter on, with the comment for a function reached from outside).
+  Both images of that block are exact as before.
+- The check has a planted defect for this now. A count of zero from a
+  check says only as much as the check reads: when a reviewer finds what
+  a check should have found, the first question is what it did not read.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

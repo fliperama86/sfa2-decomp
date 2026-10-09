@@ -21,21 +21,21 @@ A clean rebuild, independent byte comparison, bounded execution tests, and
 mutation controls passed.
 
 The [matching build](ps1/docs/matching-build.md) now rebuilds the complete
-resident executable byte-identically from declared owners: 1,754 functions at
+resident executable byte-identically from declared owners: 1,759 functions at
 their original addresses, of the 1,852 that a sweep of its code counts.
-1,701 are compiled from C (288,624 bytes) and 53 are
+1,706 are compiled from C (289,388 bytes) and 53 are
 assembled from assembly source (1,040 bytes): BIOS and system call stubs, a
 few host-debugging stubs and the program entry routine. Units also own 2,352
 bytes of read-only data and 5,900 bytes of initialised data. The
-remaining 316,484 payload bytes are retained from the baseline and counted as
+remaining 315,720 payload bytes are retained from the baseline and counted as
 raw. Retained bytes are scaffolding, not recovered source. This is not a
 full-game decompilation.
 The same build has seventy-six overlay modules as images of their own. In `slot2a`
 all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
 retained raw.
-In `slot0b` 56 C functions, 5,652 bytes, are exact and 25,784 bytes are
+In `slot0b` 57 C functions, 5,892 bytes, are exact and 25,544 bytes are
 retained raw.
-In `slot12` 178 C functions, 26,224 bytes, are exact and 93,944 bytes are
+In `slot12` 180 C functions, 27,332 bytes, are exact and 92,836 bytes are
 retained raw.
 In `slot16` 11 C functions, 984 bytes, are exact and 10,406 bytes are
 retained raw. In `slot17` the 11 functions of `slot16` are linked a second
@@ -44,22 +44,22 @@ its own chunk; 10,406 bytes are retained raw there as well.
 In `slot00` 109 C functions, 12,240 bytes, are exact and 4,964 bytes are
 retained raw, and in `slot08` the same 109 functions are linked a second
 time and are exact against its own chunk.
-In `slot2b` 102 C functions, 9,052 bytes, are exact and 23,516 bytes are
-retained raw, and in `slot2c` the same 102 functions are linked a second
+In `slot2b` 103 C functions, 9,396 bytes, are exact and 23,172 bytes are
+retained raw, and in `slot2c` the same 103 functions are linked a second
 time and are exact against its own chunk.
-In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
+In `slot0f` 217 C functions, 33,136 bytes, are exact and 70,712 bytes are
 retained raw.
 In the 20 stage modules, `slot06_00` to `slot06_13`, 844 C functions,
 138,864 bytes, are exact and 1,221,824 bytes are retained raw.
 In `slot27` 208 C functions, 30,184 bytes, are exact and 97,140 bytes are
 retained raw.
-In `slot28` 677 C functions, 83,960 bytes, are exact and 186,056 bytes are
+In `slot28` 678 C functions, 84,088 bytes, are exact and 185,928 bytes are
 retained raw.
-In `slot01` 116 C functions, 16,100 bytes, are exact and 270,440 bytes are
+In `slot01` 117 C functions, 16,372 bytes, are exact and 270,168 bytes are
 retained raw.
 In `slot04_00` to `slot04_0b`, the first-side blocks of the twelve character
-files `PL00.PAC` to `PL0B.PAC`, 1,562 C functions, 197,460 bytes, are exact
-and 740,752 bytes are retained raw; in `slot05_00` to `slot05_0b` without
+files `PL00.PAC` to `PL0B.PAC`, 1,569 C functions, 199,416 bytes, are exact
+and 738,796 bytes are retained raw; in `slot05_00` to `slot05_0b` without
 `slot05_06` the functions of eleven of them are linked a second time, at a
 second address, and are exact against the chunks of the `X` files.
 In the 11 first-side character blocks of slot `0x4`, `slot04_0c` to

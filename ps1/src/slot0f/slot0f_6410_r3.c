@@ -8,7 +8,7 @@ extern Slot12Prim data_800f78f4_slot0f[];
 extern Slot12Prim data_800f7a34_slot0f[];
 extern void (*data_800eff4c_slot0f[])(Object *);
 extern ObjectRef data_80190468;
-void func_800e5be4_slot0f(Object *obj, void *cell);
+void func_800e5be4_slot0f(Object *obj, Slot12Sprite *cell);
 void func_8011f240(Slab172 *s);
 
 void func_800e6620_slot0f(Object *obj) {
@@ -27,7 +27,7 @@ void func_800e6620_slot0f(Object *obj) {
     default:
         goto skip;
     }
-    func_800e5be4_slot0f(obj, (Slot12Prim *)(obj->field_03 * 64 + (data_801a27d0 * 32 + (u32)t)));
+    func_800e5be4_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->field_03 * 64 + (data_801a27d0 * 32 + (u32)t))));
 skip:
     if (game_state.field_2bc == 10) {
         obj->field_04++;

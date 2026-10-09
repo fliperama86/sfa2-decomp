@@ -7,7 +7,7 @@ extern void (*data_800eff9c_slot0f[])(Object *);
 extern Slot12Prim data_800f7cf4_slot0f[];
 extern SequenceStep *data_800eff98_slot0f;
 void func_800e5d18_slot0f(Object *obj, Slot12Prim *c, int x, int y);
-void func_800e5be4_slot0f(Object *obj, void *cell);
+void func_800e5be4_slot0f(Object *obj, Slot12Sprite *cell);
 void func_8011f240(Slab172 *s);
 
 void func_800e6f2c_slot0f(Object *obj) {
@@ -26,7 +26,7 @@ void func_800e6f6c_slot0f(Object *o) {
 }
 
 void func_800e6fe0_slot0f(Object *obj) {
-    func_800e5be4_slot0f(obj, &data_800f7cf4_slot0f[data_801a27d0]);
+    func_800e5be4_slot0f(obj, (Slot12Sprite *)(&data_800f7cf4_slot0f[data_801a27d0]));
     if (game_state.field_2bc == 10) {
         obj->field_04++;
     }
