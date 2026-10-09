@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 extern Slot27Rec9338 data_80029338_slot27[];
-extern int data_8019046c[];
-extern int data_80190464[];
 void func_800125f4_slot27(void);
 void func_80011ea4_slot27(void);
 void func_80011d90_slot27(void);

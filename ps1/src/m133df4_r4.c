@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 data_801a27e4[];
-
 void func_801373e8(void) {
     s16 i, j, k;
     u16 *p;

@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Rect *table_8018049c[];
-extern Rect *table_801803c4[];
-
 
 void func_801535a4(Effect *effect) {
     func_80153d7c(effect);
@@ -21,10 +18,10 @@ void func_801535a4(Effect *effect) {
         effect->field_05++;
         func_80153d7c(effect);
         effect->field_09 = effect->field_06;
-        table_801803c4[effect->side]->w = table_80180338[effect->side];
+        table_801803c4[effect->side]->field_04 = table_80180338[effect->side];
         func_80153cac(effect);
         if (effect->owner->field_cd == 0) {
-            table_8018049c[effect->side]->h = 0x50;
+            table_8018049c[effect->side]->field_06 = 0x50;
             func_80153dfc(effect);
         }
     }

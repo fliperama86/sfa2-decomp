@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 data_80190464;
-extern s16 data_8019046c;
-
 int func_80141908(Object *object) {
     if (*(u16 *)&object->field_04 != 1) return 0;
     if (object->field_7e != 0) {
@@ -16,7 +13,7 @@ int func_80141908(Object *object) {
     if (object->field_06 == 8) return 0;
     if (object->field_06 == 9) return 0;
     if (object->field_06 == 5) {
-        if (data_8019046c != 0) {
+        if (*(s16 *)data_8019046c != 0) {
             if (object->field_d8 != 0) return 0;
             if (object->field_29b != 0) goto go;
         }
@@ -42,7 +39,7 @@ int func_80141a00(Object *object) {
         if (*(u8 *)&game_state.field_354 != 0) return 0;
         if ((func_8012f56c(object) & 0xff) != 0) return 0;
     }
-    if (data_80190464 == 0) {
+    if (*(u8 *)data_80190464 == 0) {
         object->field_bd = 2;
         if (object->field_cd == 0) func_80155d4c(0xd, (s8)object->side);
     }

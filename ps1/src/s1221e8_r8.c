@@ -3,11 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-
 void func_8012370c(Object *a, Entity *b) {
     a->field_cd = 1;
-    data_8018f5a0->field_4c = 3;
+    ((HudBig *)data_8018f5a0)->field_4c = 3;
     b->field_27 = 1;
     b->field_4f = 1;
     b->field_1b = 0;
@@ -17,14 +15,14 @@ void func_8012370c(Object *a, Entity *b) {
 
 void func_80123748(Entity *entity) {
     func_80123bd4(entity, &player_left, &player_left + 1);
-    data_8018f5a0->field_4a++;
-    data_8018f5a0->field_4c = 0;
+    ((HudBig *)data_8018f5a0)->field_4a++;
+    ((HudBig *)data_8018f5a0)->field_4c = 0;
     entity->field_c6 = 0;
-    data_8018f5a0->field_4e = 0;
+    ((HudBig *)data_8018f5a0)->field_4e = 0;
     entity->field_c8 = 0;
-    data_8018f5a0->field_50 = 0;
+    ((HudBig *)data_8018f5a0)->field_50 = 0;
     entity->field_ca = 0;
-    data_8018f5a0->field_52 = 0;
+    ((HudBig *)data_8018f5a0)->field_52 = 0;
     entity->field_cc = 0;
     entity->field_77 = 0;
     entity->field_80 = 0;

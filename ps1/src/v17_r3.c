@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Block172 *ref_third;
-
 void func_8011f010(void) {
     u8 *a = data_801aa544;
     u8 *b = data_801aa5d4;

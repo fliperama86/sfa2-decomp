@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s16 box_margin;
-
 
 void func_80130b10(Object *object) {
     int limit;
@@ -21,7 +19,7 @@ void func_80130b10(Object *object) {
     dist = ref_other.p->pos_x - x;
     if (dist < 0) dist = -dist;
     span = (s16)object->field_154;
-    d = x - span - box_margin;
+    d = x - span - (s16)box_margin[0];
     if (d <= 0) {
         object->pos_x = x - d;
         object->field_164 = 1;
@@ -57,7 +55,7 @@ void func_80130c80(Object *object) {
     }
     span = ref_first.p->field_154;
     x = ref_first.p->pos_x;
-    d = x - span - (u16)box_margin;
+    d = x - span - box_margin[0];
     if (d < 0) {
         object->pos_x = object->pos_x - d;
         ref_other.p->pos_x = ref_other.p->pos_x - d;
@@ -65,7 +63,7 @@ void func_80130c80(Object *object) {
     } else {
         x = ref_second.p->pos_x;
         span = ref_second.p->field_154;
-        d = x - (u16)box_margin + span - 0x180;
+        d = x - box_margin[0] + span - 0x180;
         if (d >= 0) {
             object->pos_x = object->pos_x - d;
             ref_other.p->pos_x = ref_other.p->pos_x - d;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u8 data_801ac6a8[];
-
 void func_80134624(Object *object) {
     s16 index = data_801a27d0;
     u8 *base = data_801ac6a8;

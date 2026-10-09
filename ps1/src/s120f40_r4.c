@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_80121a64(Object *object) {
     if ((u8)func_80125268() != 0) {
         data_8018f5a0->field_50 += 2;

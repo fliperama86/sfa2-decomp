@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin[];
-
 void func_801b033c_slot04_05(Object *obj) {
     int e;
     s16 d;

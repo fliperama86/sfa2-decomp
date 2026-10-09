@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 data_801a6966[];
-
 /* Form found by automatic permutation search. */
 void func_8014e7ec(Object *object)
 {

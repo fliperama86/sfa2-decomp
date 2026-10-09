@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern Object *data_80051b04_slot28[];
 extern ObjectRef data_80051b08_slot28;
 void func_8002005c_slot28(Object *obj, int arg);

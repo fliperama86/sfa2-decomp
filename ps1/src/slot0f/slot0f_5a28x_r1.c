@@ -10,7 +10,6 @@ void func_800e5364_slot0f(void);
 void func_800e52e0_slot0f(void);
 void func_800e5ae4_slot0f(Slot0fObj *obj);
 void func_800e5a9c_slot0f(Slot0fObj *obj, int flag);
-extern HudState *data_8018f5a0;
 
 /* The call is written once with 1 and once with 0 in the two branches of the test: written as one call with the test as its argument, this function differs from the original in 8 instruction slots. */
 void func_800e5a28_slot0f(Object *obj) {

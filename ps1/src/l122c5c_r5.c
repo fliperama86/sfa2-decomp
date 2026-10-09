@@ -3,22 +3,19 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-extern u8 data_801ac6a8[];
-
 void func_80123e34(void) {
     unsigned char v;
     if (game_state.field_74 == 0) {
-        if (data_8018f5a0->field_4e == 1 && game_state.field_04 == 0) {
+        if (((HudBig *)data_8018f5a0)->field_4e == 1 && game_state.field_04 == 0) {
             if ((game_state.mode & 1) && (data_801a696a & 0x800) && game_state.field_31 < 2) {
-                if (data_8018f5a0->field_52 == 0) {
+                if (((HudBig *)data_8018f5a0)->field_52 == 0) {
                     game_state.field_31 = game_state.field_31 ^ 1;
                 }
                 func_80123f78(0);
             }
             if ((game_state.mode & 2) && (data_801a6976 & 0x800)
                 && (game_state.field_31 == 0 || game_state.field_31 == 2)) {
-                if (data_8018f5a0->field_52 == 0) {
+                if (((HudBig *)data_8018f5a0)->field_52 == 0) {
                     game_state.field_31 = game_state.field_31 ^ 2;
                 }
                 func_80123f78(1);
@@ -61,7 +58,7 @@ void func_80123f78(int a) {
         func_801260ac(3, 0x20, 0);
         func_801260ac(4, 0x20, 0);
         func_80137b10();
-        data_8018f5a0->field_52 = 0;
+        ((HudBig *)data_8018f5a0)->field_52 = 0;
         for (i = 0; i < 2; i++) {
             base[(i << 4) + 0x188] = 0x49;
             base[(i << 4) + 0x189] = 0xc9;
