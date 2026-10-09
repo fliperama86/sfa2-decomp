@@ -7618,6 +7618,40 @@ No function count changes here. Nothing under `ps1/` changed.
   (the last position of a file without a final newline, and the
   no-newline marker between lines).
 
+## A parked function exact: the call passes the object (2026-10-09)
+
+`func_80137e38`, 92 bytes, was parked with one differing instruction
+slot after about 35 forms: the store that follows the second call's
+argument move went through the saved register where the original goes
+through the argument register. The pass dumps had shown where the
+scheduler put the store and not why.
+
+The cause was a call written with too few arguments. The second
+session, reading the instructions of functions that are not C yet,
+listed calls in parked candidates that pass fewer arguments than the
+instructions have in the registers. This candidate called
+`func_801380f0` with nothing; the function takes the object, and the
+original has it in the argument register there without setting it.
+With `func_801380f0(object)` the function is exact, with no other
+change. It is an entry of the table `handlers_268c`, whose declared
+entry type is the function's.
+
+Inferred, not shown: why the argument changes the store's base
+register. The compiler now has the object in the argument register as
+a value of the call, and that seems to be what lets it use the
+register again after the second argument move.
+
+The same lead on other parked candidates, by a private scan that
+compares every call a candidate declares with the definition in the
+tree: more candidates declare a callee with another number of
+parameters than the callee has. One of them, a function of 1,432
+bytes, lost its long-standing residual the same way and is being
+finished; the others are leads for retries.
+
+The map after this group, from `coveragemap.py render`: 5,413 of
+5,600 distinct functions exact, 12,830 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1760/1760`.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
