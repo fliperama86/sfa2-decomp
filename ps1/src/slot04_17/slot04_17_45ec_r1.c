@@ -16,7 +16,7 @@ void func_80141f28(Object *object, short delta);
 void func_80130678(Object *object, int arg);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 int func_80140cd8(Object *object, int a, int b);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_801b48fc_slot04_17(Object *obj);
 u8 func_801b4974_slot04_17(Object *obj);
 void func_801b4b18_slot04_17(Object *obj);

@@ -6461,6 +6461,29 @@ without a parameter while its one caller passes the object.
   lines for a second table. A unit's own meaning of a name comes first
   now.
 
+## Two functions without a result are declared so, and one data symbol (2026-10-09)
+
+Two loose ends of the declaration groups before, both in the units of
+this session's folders and, for the first, in the other session's too.
+
+- `func_80140598` and `func_80140770` call `func_801409d8`, which has
+  no result, as their last statement, and were declared `int` in their
+  definitions and in 80 module units. The group on resident
+  declarations left that type and gave the two a comment about the
+  missing return. Measured since: defined `void`, both are exact. No
+  unit uses a result of either. They are `void` in their definitions
+  and in every declaration, 46 units of this session's folders and 34
+  of the other session's, and the comment is gone. Every image is
+  exact. `func_801386a4`, the third function of that kind, is one
+  instruction shorter when it is defined `void`, and keeps its type and
+  its comment.
+- `box_margin` is declared as an array of 16-bit words in most units
+  and as one 16-bit word in some. Three units of this session's folders
+  had the second form, all three written by the copy helper from a
+  model of the other session. They declare the array and read element
+  0, and are exact. Four units of the other session still declare the
+  word; the check keeps its line for those.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -5,7 +5,7 @@
 
 void func_80130678(Object *object, int arg);
 
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
 void func_801b20e0_slot04_08(Object *obj) {
     Object *p;

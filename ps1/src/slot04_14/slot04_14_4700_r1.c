@@ -11,7 +11,7 @@ extern u8 data_801c64bc_slot04_14[];
 
 int func_8014025c(Object *object, s16 a, s16 b, s16 c, u16 d);
 void func_80141e5c(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_801b4848_slot04_14(Object *obj);
 void func_801b4968_slot04_14(Object *obj);

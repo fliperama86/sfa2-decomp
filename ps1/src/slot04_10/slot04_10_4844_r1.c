@@ -9,7 +9,7 @@ extern ObjectFn data_801c6bf0_slot04_10[];
 extern s32 data_801c6c38_slot04_10[];
 
 int func_80130184(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80142adc(Object *object);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);

@@ -15,7 +15,7 @@ extern ObjectFn data_801ce8f0_slot04_17[];
 extern ObjectFn data_801ce900_slot04_17[];
 extern Slot04_17Recec3c data_801cec3c_slot04_17[];
 
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80141e5c(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80130dc0(Object *object);

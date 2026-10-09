@@ -8,7 +8,7 @@ extern ObjectFn data_801c5bf0_slot04_0f[];
 extern s8 data_801c5c0c_slot04_0f[];
 extern u8 data_801c5c1c_slot04_0f[];
 
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80130678(Object *object, int arg);
 void func_80131468(Object *object);
 int func_80125734(Object *object, s8 a);

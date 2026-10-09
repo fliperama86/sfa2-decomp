@@ -13,7 +13,7 @@ u8 func_8013ccb4(Object *object, u8 a, u8 b);
 u8 func_8013cd5c(Object *object, u8 a, u8 b);
 int func_8013d0c8(Object *object);
 int func_8013d0fc(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 int func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 int func_80141e34(Object *object);

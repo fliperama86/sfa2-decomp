@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int g);
+void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int g);
 
 void func_801b4180_slot04_02(Object *obj) {
     Object *p = obj->other;

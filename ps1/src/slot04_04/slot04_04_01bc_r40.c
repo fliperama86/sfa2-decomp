@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+extern u16 box_margin[];
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
 void func_801b35d4_slot04_04(Object *obj) {
     obj->field_07++;
@@ -12,7 +12,7 @@ void func_801b35d4_slot04_04(Object *obj) {
     func_80141f28(obj, 3);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
-        if (!((s16)(box_margin + 0xc0) < obj->pos_x)) {
+        if (!((s16)(box_margin[0] + 0xc0) < obj->pos_x)) {
             obj->field_0b = 1;
         }
     } else if ((obj->field_c2 & 0x8000) == 0) {

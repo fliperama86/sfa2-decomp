@@ -9,7 +9,7 @@ void func_801b4ec0_slot04_10(Object *obj);
 void func_801b1078_slot04_10(Object *obj);
 void func_801b1098_slot04_10(Object *obj);
 int func_80130184(Object *object);
-int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 u8 func_80140cd8(Object *object, int a, int b);
 void func_80146960(Object *object);
 

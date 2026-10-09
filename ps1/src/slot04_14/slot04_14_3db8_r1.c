@@ -18,7 +18,7 @@ void func_80126130(void);
 void func_80126244(void);
 void func_80155d4c(int idx, int side);
 void func_80155eac(int idx, int side);
-int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused);
+void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused);
 void func_80131468(Object *object);
 u8 func_801b61e8_slot04_14(Object *obj);
 void func_801b3fec_slot04_14(Object *obj);
