@@ -6803,6 +6803,91 @@ same findings on this group's tree as on the tree before it, line for
 line; only its count of declarations read in module units falls, by
 the 1,665 lines taken out.
 
+## The port's first piece: a program that stops where C is missing (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+Decisions of the owner on 2026-10-09, in his words:
+
+- "I need you to take over." The session that had done the stage and
+  character modules took over the port from the session that had started
+  it.
+- On how the port gets what is not C: I had asked whether the PC program
+  may run those functions from the original code on the disc through a
+  small interpreter until their C exists, and recommended it. Answer: "No
+  interpreter needed with the unmatched code, right?" I confirmed that
+  with C for every function no interpreter is needed. My reading, not
+  his words: the port is to consist of the project's C. The page and
+  `AGENTS.md` say so now.
+- On writing the PC program itself, after the first piece had been
+  described to him in plain terms: "sure go ahead".
+
+What was built: `port/tools/hostbuild.py` and the runtime in `port/src/`.
+The page has the mechanism, the commands and their output. In short:
+every name of the game is linked as its PS1 address, the memory is
+mapped there, and a 5-byte jump at each function's PS1 address leads to
+its C; a function without C leads to a routine that names it and ends
+the program. On the disc of `SLPS_004.15` the program of the published
+tree ended with `stop: no C yet for func_801189c4 (0x801189c4)`: the
+game's `main` has no C there.
+
+Lessons of this piece:
+
+- Probe a mechanism at toy size before specifying it. Three programs of
+  twenty lines settled, in minutes: that a 32-bit Windows program built
+  on this Linux machine gets memory at `0x80000000` and `0x1f800000`;
+  that a jump written at a PS1 address reaches host code; and that the
+  link needs a fixed image base, because with a movable image a relative
+  call to an absolute address lands elsewhere (the probe ended with an
+  access violation until `--disable-dynamicbase` was added).
+- The game has functions named `memcpy`, `memset`, `printf`, `puts`,
+  `rand`, `strcmp`, `strcpy` and `strcat`. The first full link placed
+  those names at PS1 addresses, the host's own C library bound to them,
+  and the program ended before its first line. The tool's link check had
+  passed: it asked whether game names sit at their addresses, not who
+  else uses them. Every game name is `ps1_NAME` in the linked program
+  now, by one rename of all references and not by a list of clashing
+  names, and the check refuses a plain game name at a PS1 address.
+- My specification said the game's `main` is "the target of the last
+  call among the first 64 instructions of the entry code". The entry
+  code is shorter than that, and the rule read on into `main` itself.
+  The worker that wrote the runtime ran it on the real image, saw
+  another address, and stopped to ask instead of adjusting the test. The
+  rule is now "the last call before the entry code's halt".
+- The owner's review of the first version (PR 114) found that the start
+  of the program could run bytes of the disc: "an invented disc still
+  named `SLPS_004.15`, with a JAL/break entry pointing at unregistered
+  `0x80101000` and one harmless x86 RET byte there, prints `start:
+  0x80101000`, executes that disc byte, prints `stop: main returned`, and
+  exits 0." I had written "nothing is interpreted" and had not asked
+  what the program does with a disc that is not the game. Two guards
+  now: the build pins the SHA-256 of the configuration's executable and
+  the runtime refuses any other program before copying it, and the entry
+  must be an address where the runtime wrote a jump. `test_hostlaunch.py`
+  runs the real start on invented images, his case among them. With
+  either guard taken out in a copy, its cases fail; without the entry
+  gate the unregistered entry prints `start:` and `stop: main returned`
+  again. The rule I take from it: a program that calls into memory it
+  filled from a file must say which file it accepts and which addresses
+  it calls, and both must be tested with a file made to break them.
+- One-off figures of the review, from the private folder: a worker ran 20
+  one-line changes of the build tool against its controls, 18 were
+  noticed at first and all 20 after two cases were added; of 12 changes
+  of my own, 8 were noticed, 1 changes nothing, and 3 were not noticed
+  until a case was added for each (code after a label on one line, a
+  name listed at two addresses of which one is right, an implementation
+  listed twice of which one is at a PS1 address).
+- A private trial, not published and not on the page: with the
+  nonmatching C that waits in scratch trees on that day (128 units, the
+  game's `main` among them) the same tool compiled every unit for the PC
+  without a change, and the program ran `main` up to its first call into
+  Sony's library: `stop: library function ResetCallback (0x8015efc0) has
+  no host routine yet`. The library is the next piece.
+
+Known and not done: the modules' jumps, the 22 images that are a second
+placement of another image's units, the library, Linux and macOS, and a
+runner that builds the program.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
