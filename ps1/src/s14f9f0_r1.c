@@ -4,7 +4,8 @@
 #include "protos.h"
 
 
-void func_8014f9f0(Stream *stream) {
+void func_8014f9f0(Ctl *ctl) {
+    Stream *stream = (Stream *)ctl;
     u32 *p = (u32 *)0x801e0000;
     stream->field_30 = 0;
     stream->field_24 = 1;

@@ -6,8 +6,9 @@
 extern HudState *data_8018f5a0;
 
 /* Form found by automatic permutation search. */
-void func_80121058(Entity *entity)
+void func_80121058(GameState *state)
 {
+  Entity *entity = (Entity *)state;
   char new_var;
   if (data_8018f5a0->field_4c == 0)
   {

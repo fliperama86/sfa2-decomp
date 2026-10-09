@@ -9,7 +9,8 @@ void func_80145aa0(Object *p) {
     func_8011f240((Slab172 *)p);
 }
 
-void func_80145ac0(Object *object) {
+void func_80145ac0(Block172 *block) {
+    Object *object = (Object *)block;
     table_8017c9c0[object->field_04](object);
 }
 

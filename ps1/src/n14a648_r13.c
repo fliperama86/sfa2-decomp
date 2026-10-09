@@ -5,9 +5,9 @@
 
 extern HudState *data_8018f5a0;
 
-void func_80150f40(Object *object) {
-    if (object->field_225 == 0) {
+void func_80150f40(GameState *state) {
+    if (state->field_225 == 0) {
         data_8018f5a0->field_48++;
-        object->field_c2 = 0x1f;
+        state->field_c2 = 0x1f;
     }
 }

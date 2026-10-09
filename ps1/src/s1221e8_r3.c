@@ -19,52 +19,52 @@ void func_801229b4(Entity *entity) {
     }
 }
 
-void func_80122a44(void) {
-    table_8016e7d0[data_8018f5a0->field_50]();
+void func_80122a44(GameState *state) {
+    table_8016e7d0[data_8018f5a0->field_50](state);
     func_8012546c();
 }
 
-void func_80122a94(Entity *entity) {
+void func_80122a94(GameState *state) {
     data_8018f5a0->field_50++;
-    entity->field_116 = 0;
-    entity->field_117 = 0x32;
-    if (entity->field_64 != 0) {
-        func_80123b20(entity->field_7c, entity);
-    } else if (entity->field_4d == 0 && entity->field_a6 != 0) {
-        entity->field_117 = 0x14;
+    ((Entity *)state)->field_116 = 0;
+    ((Entity *)state)->field_117 = 0x32;
+    if (((Entity *)state)->field_64 != 0) {
+        func_80123b20(((Entity *)state)->field_7c, (Entity *)state);
+    } else if (((Entity *)state)->field_4d == 0 && ((Entity *)state)->field_a6 != 0) {
+        ((Entity *)state)->field_117 = 0x14;
     }
-    if (entity->field_78 != 0) {
-        entity->field_88 = entity->field_78->field_65;
+    if (((Entity *)state)->field_78 != 0) {
+        ((Entity *)state)->field_88 = ((Entity *)state)->field_78->field_65;
     }
-    func_80122b3c(entity);
+    func_80122b3c(state);
 }
 
-void func_80122b3c(Entity *entity) {
-    if (entity->field_64 != 0) {
-        entity->field_11a = 0xff;
-        entity->field_64--;
+void func_80122b3c(GameState *state) {
+    if (((Entity *)state)->field_64 != 0) {
+        ((Entity *)state)->field_11a = 0xff;
+        ((Entity *)state)->field_64--;
     } else {
         data_8018f5a0->field_50++;
-        entity->field_6c = 5;
-        if (entity->field_11a != 0) {
+        ((Entity *)state)->field_6c = 5;
+        if (((Entity *)state)->field_11a != 0) {
             func_8014f4d4(5, 1);
         }
     }
 }
 
-void func_80122bb0(Entity *entity) {
+void func_80122bb0(GameState *state) {
     u16 v;
-    if (entity->field_4b != table_8016e7e0[entity->field_80]) {
-        func_80122c5c(entity);
+    if (((Entity *)state)->field_4b != table_8016e7e0[((Entity *)state)->field_80]) {
+        func_80122c5c((Entity *)state);
     } else {
         data_8018f5a0->field_50++;
-        if (entity->field_30 != 0) {
-            entity->field_ca = 0xa0;
+        if (((Entity *)state)->field_30 != 0) {
+            ((Entity *)state)->field_ca = 0xa0;
         } else {
-            entity->field_ca = 0x5a;
+            ((Entity *)state)->field_ca = 0x5a;
         }
-        if (entity->field_4d == 0 && entity->field_a6 == 0) {
-            func_80155f30(entity->field_7c);
+        if (((Entity *)state)->field_4d == 0 && ((Entity *)state)->field_a6 == 0) {
+            func_80155f30(((Entity *)state)->field_7c);
         }
     }
 }

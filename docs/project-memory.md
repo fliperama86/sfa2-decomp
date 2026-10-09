@@ -6328,6 +6328,76 @@ How it ran:
   unit stays exact; then three agents on the 45 units of the header
   step, and their stops the same way.
 
+## Resident dispatch tables agree with their entries (2026-10-09)
+
+The owner's review of the declaration cleanup showed that a resident
+function can have a contract that no call by name shows: it stands in a
+dispatch table, and the table's declaration gives its entry type. He
+called the rest of it "the unrelated inherited callback backlog". This
+is that backlog.
+
+Counts, from a private helper that takes every function a resident unit
+defines, finds the words of the image's data that hold its address and
+the declared table each word belongs to, and compares the table's entry
+type with the definition:
+
+- 539 functions stand in a declared table. 150 differed from its entry
+  type: for 101 the table was declared with entries that take nothing
+  while the entry takes parameters, 38 took another pointer type than
+  the table says, 11 took nothing while the table passes something.
+  They were in 30 tables. 1 is left.
+- 76 files changed: 74 resident units and the two shared headers. Every
+  function of the tree is exact as before, and the declaration checks
+  print what they printed before.
+
+How a table was decided:
+
+- A table's entry type is what its dispatcher passes. The dispatcher's
+  listing shows which argument registers it sets before the call
+  through the table, or which of its own parameters are still in their
+  registers there. Where a table was declared with entries that take
+  nothing and the dispatcher holds its parameters at the call, the
+  declaration got those parameters and the call is written with them.
+  For the two largest tables that was all: their 28 entries took the
+  object already.
+- An entry takes exactly the table's parameters. An entry of another
+  pointer type takes the table's type and converts inside, with one
+  local of its own type or, where the local is not exact, a cast at
+  each use (ten functions). An entry that reads nothing has the
+  parameters, named `unused`.
+- Six dispatchers were defined with fewer parameters than their entries
+  read, and are themselves entries or called by name: `func_801221e8`,
+  `func_80122a44`, `func_80122f6c`, `func_80121378`, `func_80120f98`
+  and `func_80139d04`. Each takes the parameter and passes it on, and
+  its caller passes its own. For `func_80120f98` that caller is
+  `func_80120ca0`, whose parameter the group before had named `unused`:
+  it is passed on, and is named `state` now. That group's text said the
+  register had not been followed further down; this is where it went.
+- One entry, `func_8013e2b0`, was written with `int` parameters that it
+  masks in two places, and its table passes bytes. It takes the table's
+  bytes and copies them into `int` locals that it masks where the
+  original does.
+
+Left:
+
+- `func_8014e54c` takes the object and stands in the table of 64 script
+  functions whose declaration says that entries take nothing. Most of
+  its entries are defined so, one caller of the dispatcher passes the
+  object, and the dispatcher, `func_8014e40c`, is one of the two
+  resident declarations that are still open. One question, not settled
+  here.
+
+How it ran:
+
+- The 150 differences fall into 24 groups that share no table and no
+  unit. Five agents took them, each in a copy of the tree of its own,
+  so that all could edit the two shared headers; the five trees were
+  then merged file by file against their base (only the two headers
+  were changed by more than one, without a conflict) and the merged
+  tree was built and checked as a whole. One agent stopped on two
+  tables whose dispatcher took nothing; the decision was the same as
+  for the others, and it finished them.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

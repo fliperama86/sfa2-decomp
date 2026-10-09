@@ -44,7 +44,7 @@ void func_80121bc0(Object *object) {
     }
 }
 
-void func_80121c4c(void) {
+void func_80121c4c(Object *unused) {
     data_8018f5a0->field_50++;
     func_801374c0();
     func_80137564();

@@ -5,7 +5,8 @@
 
 extern HudState *data_8018f5a0;
 
-void func_801223e4(Entity *e) {
+void func_801223e4(GameState *state) {
+    Entity *e = (Entity *)state;
     e->field_83 = 0;
     data_8018f5a0->field_50++;
     e->field_4f = 0;

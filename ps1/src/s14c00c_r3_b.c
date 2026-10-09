@@ -39,11 +39,11 @@ void func_8014cc80(Object *object) {
 }
 
 void func_8014ccb0(Object *object) {
-    table_8017d28c[object->field_208]();
+    table_8017d28c[object->field_208](object);
 }
 
 void func_8014ccf0(Object *object) {
-    table_8017d2a8[object->field_209]();
+    table_8017d2a8[object->field_209](object);
 }
 
 void func_8014cd30(Object *object) {

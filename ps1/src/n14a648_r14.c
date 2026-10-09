@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80151018(Object *object) {
-    object->field_f0 = 0;
+void func_80151018(GameState *state) {
+    state->field_f0 = 0;
 }
