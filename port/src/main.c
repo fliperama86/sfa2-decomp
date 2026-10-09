@@ -20,6 +20,8 @@
  *   8 a thread's function returned (the game never lets one)
  *   9 a library call whose arguments a host routine does not serve
  *  11 the watchdog (--watchdog S) found no vblank for S seconds; the line says where
+ *  12 an address the game handed to the runtime to call (a thread's entry, an event handler, an interrupt or
+ *     vsync callback) is not a function this program installed: `refused: PATH 0xADDRESS ...`, before the call
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * See PORT_EXIT_* in port.h. */

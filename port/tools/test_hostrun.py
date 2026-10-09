@@ -107,6 +107,7 @@ GATE_MAIN = r"""
 #include "port_tables.h"
 #include <stdlib.h>
 static void fa(void) {}
+char port_game_text_begin, port_game_text_end;   /* jumps.c checks call targets against these; this test does not call it */
 const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1 }};
 const unsigned port_image_count = 1;
 const struct port_function port_functions[] = {{ 0x80100000u, (void *)fa, "fa", -1 }, { 0x80100040u, (void *)fa, "fb", -1 }, { 0x80180000u, (void *)fa, "m", 0 }};

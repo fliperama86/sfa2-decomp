@@ -178,6 +178,7 @@ void port_deliver_event(unsigned event_class, unsigned spec)
         struct event *e = &events[i];
         if (e->status != EV_ENABLED || e->event_class != event_class || e->spec != spec) continue;
         if (e->mode == EV_MD_CALL && e->handler) {
+            port_target_check("event handler", (const void *)e->handler);
             port_handler_depth++;
             e->handler();
             port_handler_depth--;
@@ -393,8 +394,13 @@ static void deliver_vblank(void)
     port_handler_depth++;
     if (irq0_enabled) port_deliver_event(0xf2000003u, 2);
     if (callbacks_active) {
-        if (irq_handler[0]) irq_handler[0]();
-        else if (vsync_handler) vsync_handler();
+        if (irq_handler[0]) {
+            port_target_check("interrupt callback", (const void *)irq_handler[0]);
+            irq_handler[0]();
+        } else if (vsync_handler) {
+            port_target_check("vsync callback", (const void *)vsync_handler);
+            vsync_handler();
+        }
     }
     port_handler_depth--;
 }
