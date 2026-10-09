@@ -108,6 +108,77 @@ ordering tables and for the first word of a primitive, no fixed addresses,
 no symbols that overlap, and no address kept in a 32-bit integer. Each is a
 build switch in the sense of the requirements when it is made.
 
+### Building it for the port
+
+```sh
+python3 port/tools/psyzbuild.py [--psyz DIR] [--patch FILE] [--cc CC] [--build DIR]
+```
+
+The tool builds PsyZ and the SDL it carries as static libraries for the
+machine the port runs on, by default with `i686-w64-mingw32-gcc` for
+32-bit Windows, and prints what a program that links them needs. It
+needs CMake and Ninja. It never writes into the submodule: it copies the
+folders that the build reads and builds the copy. Its header is its
+contract. On 2026-10-09, with PsyZ at its pin, it printed, with the
+build folder written here as BUILD and the system libraries of the last
+line left out:
+
+```
+psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+patch: psyz.patch applied at 1 place
+library: BUILD/obj/psyz/libpsyz.a
+include: BUILD/src/psyz/include
+link: BUILD/obj/psyz/libpsyz.a BUILD/obj/psyz/sdl/libSDL3.a -lm ...
+```
+
+The copy is patched first, with `port/psyz.patch`: two lines removed.
+PsyZ has one path for machines whose `unsigned long` has 4 bytes, and on
+that path it draws into its batch of vertices and sends the batch to the
+picture only when built for the browser. A 32-bit native program then
+sees nothing of what it draws. The patch makes that path send the batch
+always. The file says what was observed with and without it. The three
+lines of PsyZ that the patch quotes are PsyZ's, under the Mozilla Public
+License 2.0, and the patch says so and is offered under the same
+license. Offering the fix to PsyZ's authors has not been done: that is
+the owner's to decide.
+
+The tool reads the patch with a reader of its own and refuses rather
+than guesses: the lines a hunk expects must be in the file at exactly
+one place, a hunk's body must have exactly the line counts of its
+header, and any other line between hunks is refused. So a PsyZ whose
+source differs at the patched place is not built. Every file the patch
+names must lie inside the copy: an absolute path, a path with `..`, a
+path that a symbolic link leads out of the copy, and a file named twice
+are refused, and nothing is written until every hunk of every file has
+been found.
+
+The tool writes only under its build folder and only reads the PsyZ
+source. Before it creates or deletes anything it resolves the source,
+the build folder and the patch file, symbolic links followed, and
+refuses a run in which the build folder is the source or lies inside
+it, the source lies inside the build folder, or the patch file lies
+where the tool deletes or writes. Symbolic links inside the folders it
+copies are refused too. And because the tool builds again in an object
+tree that it finds, it walks that tree first, without following links,
+and refuses any symbolic link in it, any file with a second name, and
+anything that is neither a file nor a folder: a link left in the object
+tree could lead the build's own writes back into the source. The first
+version checked none of this and deleted the source when given a build
+folder that contained it; the owner's review found that, and then the
+link in the object tree. What the tool does not guard is stated in its
+header: a program that changes the tree while it runs, the contents of
+the files it finds in the object tree, and the compiler, CMake and
+Ninja it is given.
+
+`python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
+the output lines and the exit statuses on invented trees and patch
+texts, and the real patch on a file made of the lines it expects; every
+case of a refusal also checks that the whole input is unchanged. It
+needs no compiler. On 2026-10-09 it ended with
+`all cases behaved as required`.
+
+Nothing in this tree links the result yet.
+
 ## The check
 
 ```sh
@@ -619,15 +690,15 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `5ef3bb9`:
+it is in commit `4d6aae1`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3731 compiled, 1 of them nonmatching, 0 failed
+units: 3729 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12460
-functions without C: 622, library 382, game and modules 240
-names at PS1 addresses: 45853
+functions with C: 12457
+functions without C: 625, library 385, game and modules 240
+names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -654,8 +725,8 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1404 written for functions with C, 448 for functions without
-library: 84 host routines, 298 left that stop
+jumps: 1401 written for functions with C, 451 for functions without
+library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
@@ -676,7 +747,7 @@ still ends the program with its name. `sfa2.exe --list-library` prints
 the table; for the program built from this tree it ends with
 
 ```
-library: 84 host routines, 298 left that stop
+library: 84 host routines, 301 left that stop
 ```
 
 of which the listing gives 39 as routines that do something and 45 as
@@ -757,8 +828,15 @@ routines that do nothing on purpose. What is in this piece:
 - What the disc layer does not trust. `CdGetSector` copies a sector to
   an address and a length that the game gives: both must lie inside the
   PS1's RAM, or the program ends with a line before a byte is copied.
-  The file table of the image is read with every length, extent and
-  name bounded by the sector, the folder and the image.
+  The file table of the image is read record by record inside the
+  bytes that each directory declares as its own: a record that crosses
+  the end of its sector or of its directory is refused, and what stands
+  in the sector behind the declared end is not read. Every file that
+  the reader hands out lies inside the image with its last byte, by
+  arithmetic that cannot wrap; a file that does not is refused with its
+  name and with the sector where the image ends. The first version
+  bounded the directories and not the files in them; the owner's review
+  found that.
 - Programs of the disc. The game starts other programs from the disc
   with `Exec`. No C exists for any of them, so the port ends there with
   `stop: no C yet for the program NAME (disc sector N)`, as it does for
@@ -767,7 +845,7 @@ routines that do nothing on purpose. What is in this piece:
   not what the game does, and it is off unless asked for.
 
 Not in this piece: the graphics, the pads, the modules. Their
-functions are among the 298 that stop.
+functions are among the 301 that stop.
 
 ### What this does not show
 
@@ -843,8 +921,14 @@ conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
 `test_hostrun.py` also reads file tables made to break the reader: a
-record that runs past its sector, a name past its record, an extent
-beyond the image, a folder too large. On
+record that runs past its sector, a name past its record, a directory
+extent beyond the image, a folder too large; a file that starts beyond
+the image, one of 4,294,967,295 bytes, one whose sectors wrap 32 bits,
+one that is a byte longer than the image holds and one that ends with
+the image's last byte, an image cut inside the last file and one cut
+right behind its last byte; a directory that declares only its own two
+records, and a record that crosses or only begins inside the declared
+end, for the reader that lists and for the one that looks a file up. On
 2026-10-09 each of the four ended with
 `all cases behaved as required`.
 
