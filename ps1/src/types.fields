@@ -365,6 +365,7 @@ struct Config size=0xaa
 0x012 u8 field_12
 0x032 u8 field_32
 0x042 u16 field_42
+0x047 u8 field_47
 0x04b u8 field_4b
 0x04c u8 field_4c
 0x04d u8 field_4d
@@ -467,6 +468,7 @@ struct GameState size=0x364
 0x085 u8 field_85
 0x087 u8 field_87
 0x089 u8 field_89
+0x08a u8 field_8a
 0x08b u8 field_8b
 0x08f u8 field_8f
 0x092 u16 field_92
@@ -2077,12 +2079,75 @@ struct Slot0fRec7d50 size=0x40
 0x00c u8* field_0c
 
 struct Slot06Layer size=0x90
+0x000 u8 field_00
+0x001 u8 field_01
+0x003 u8 field_03
 0x004 u8 field_04
+0x005 u8 field_05
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c u16 field_0c
+0x00e u16 field_0e
+0x010 u16 field_10
+0x012 u16 field_12
+0x014 u16 field_14
+0x016 u16 field_16
+0x01c u16 field_1c
 0x01e u16 field_1e
+0x020 u16 field_20
+0x022 u16 field_22
+0x024 u16 field_24
+0x026 u16 field_26
+0x030 s32 field_30
+0x034 u16 field_34
+0x036 u16 field_36
+0x038 u16 field_38
+0x03a u16 field_3a
+0x04a u16 field_4a
+0x04c u16 field_4c
+0x04e u16 field_4e
 0x050 u16* field_50
 0x054 u16* field_54
 0x058 u32 field_58
 0x05c u32 field_5c
+0x060 s32 field_60
+0x068 s32 field_68
+0x06c s32 field_6c
+0x070 s32 field_70
+0x074 s32 field_74
+0x078 s32 field_78
+0x07c s32 field_7c
+0x080 s32 field_80
+0x084 s32 field_84
+0x088 s16 field_88
+0x08b u8 field_8b
+0x08c u8 field_8c
+
+struct Slot06Obj size=0x394
+0x001 u8 field_01
+0x004 u8 field_04
+0x012 u16 field_12
+0x016 u16 field_16
+0x030 s32 field_30
+0x038 u16 field_38
+0x03a u16 field_3a
+0x03c u8 field_3c
+0x046 u8 field_46
+0x048 u16 field_48
+0x04a u16 field_4a
+0x04c u8 field_4c
+0x054 u16 field_54
+0x056 u8 field_56
+0x058 u16 field_58
+0x05a u16 field_5a
+0x05c u8 field_5c
+0x064 u16 field_64
+0x066 u16 field_66
+0x06c SequenceStep** field_6c
+0x074 u16 field_74
+0x076 u16 field_76
+0x078 u8 field_78
+0x088 s16 field_88
 
 struct Slot06Sprt16 size=0x10
 0x004 u8 color_r
@@ -2170,3 +2235,52 @@ struct Slot27Recf0c8 size=0x94
 0x058 u32 field_58
 0x05c u32 field_5c
 0x08a u8 field_8a
+
+struct Slot06Cursor size=0x8
+0x000 SeqRec* rec
+0x004 u16 field_04
+0x006 u16 field_06
+
+struct Slot06_06Rece1d8 size=0x14
+0x000 u8 field_00
+0x001 u8 field_01
+0x002 u16 field_02
+0x004 u16 field_04
+0x007 u8 field_07
+0x008 u16 field_08
+0x00a u16 field_0a
+
+struct Slot06_06Rec83d8 size=0x10
+0x000 u8 field_00
+0x002 u16 field_02
+0x004 u16 field_04
+0x006 u8 field_06
+0x008 u16 field_08
+0x00a u16 field_0a
+0x00c SequenceStep* field_0c
+
+struct Slot06Pal size=0x10
+0x000 SeqRec* rec
+0x004 u16 field_04
+0x006 u16 field_06
+0x00c u8 field_0c
+
+struct Slot06_07Rece218 size=0x2
+0x000 u8 field_00
+0x001 u8 field_01
+
+struct Slot06_0fRecb4e4 size=0x2
+0x000 u8 field_00
+0x001 u8 field_01
+
+struct Slot06_12Recf310 size=0x4
+
+struct Slot06_11Rec0028 size=0x8
+0x000 u32 field_00
+0x004 u8 field_04
+0x005 u8 field_05
+0x006 u8 field_06
+
+struct Slot06_11Rece188 size=0x8
+0x000 s32 field_00
+0x004 s32 field_04

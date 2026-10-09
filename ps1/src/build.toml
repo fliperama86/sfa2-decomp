@@ -6741,6 +6741,158 @@ sha256 = "2c939e3fa90808c2a441520b7d3cba0d3df7a0f16f9935529d0eec4ce68545a9"
 address = 0x80010000
 
 
+# The content of STAGE01.PAC, in that file only.
+[[image]]
+name = "slot06_01"
+archive = "../extract/PAC/STAGE01.PAC"
+slot = 0x6
+sha256 = "8eb0f454f91d6a2be33c0de4e13d516249a58a5ac32dfc8fa5e33225b21ed19f"
+address = 0x801e8000
+
+# The content of STAGE02.PAC, in that file only.
+[[image]]
+name = "slot06_02"
+archive = "../extract/PAC/STAGE02.PAC"
+slot = 0x6
+sha256 = "99f115897503710d4bed074605bef1e6d98d3585e426d6fa25c33ff3cb6700c2"
+address = 0x801e8000
+
+# The content of STAGE03.PAC, in that file only.
+[[image]]
+name = "slot06_03"
+archive = "../extract/PAC/STAGE03.PAC"
+slot = 0x6
+sha256 = "72e961f89a6ac5810f2c86fd51052b265267660e65cac4669973730473b90846"
+address = 0x801e8000
+
+# The content of STAGE04.PAC, in that file only.
+[[image]]
+name = "slot06_04"
+archive = "../extract/PAC/STAGE04.PAC"
+slot = 0x6
+sha256 = "ed2c5d1ad02d5ed436c734d5fe6d941628a7057ad851654d132a8f7df1b6f6f6"
+address = 0x801e8000
+
+# The content of STAGE05.PAC, in that file only.
+[[image]]
+name = "slot06_05"
+archive = "../extract/PAC/STAGE05.PAC"
+slot = 0x6
+sha256 = "eb041ffac5359c7bf2d68a22140bac46d46eac55a28a57b52599c93f7af9a99b"
+address = 0x801e8000
+
+# The content of STAGE06.PAC, in that file only.
+[[image]]
+name = "slot06_06"
+archive = "../extract/PAC/STAGE06.PAC"
+slot = 0x6
+sha256 = "db0a794d2db01b65d0c4c6bbbb2783497cfdfad84f7b20ca3c8af80d66d2352f"
+address = 0x801e8000
+
+# The content of STAGE07.PAC, in that file only.
+[[image]]
+name = "slot06_07"
+archive = "../extract/PAC/STAGE07.PAC"
+slot = 0x6
+sha256 = "ef624e5ba13bce70695837a6814973483006f72a27ac4e07d48dbe769deba2ae"
+address = 0x801e8000
+
+# The content of STAGE08.PAC, in that file only.
+[[image]]
+name = "slot06_08"
+archive = "../extract/PAC/STAGE08.PAC"
+slot = 0x6
+sha256 = "6e6615390c1cc258eb609d0bd3a4b18473f4ffe4482cdbc050ff2a7d6164f795"
+address = 0x801e8000
+
+# The content of STAGE09.PAC, in that file only.
+[[image]]
+name = "slot06_09"
+archive = "../extract/PAC/STAGE09.PAC"
+slot = 0x6
+sha256 = "8c9e290ee44c8291a6b9076754063a3c54209853daa42e311384db929b791949"
+address = 0x801e8000
+
+# The content of STAGE0A.PAC, in that file only.
+[[image]]
+name = "slot06_0a"
+archive = "../extract/PAC/STAGE0A.PAC"
+slot = 0x6
+sha256 = "98ccbcf1e5c37b0fee7173164448da502ddff7c2d130a0e38529d882bfda5a4c"
+address = 0x801e8000
+
+# The content of STAGE0B.PAC, in that file only.
+[[image]]
+name = "slot06_0b"
+archive = "../extract/PAC/STAGE0B.PAC"
+slot = 0x6
+sha256 = "223e2f9cd3e759cd382567d8560d89dfbde82b965f65bc213d56463cb923a980"
+address = 0x801e8000
+
+# The content of STAGE0C.PAC, in that file only.
+[[image]]
+name = "slot06_0c"
+archive = "../extract/PAC/STAGE0C.PAC"
+slot = 0x6
+sha256 = "cdc9db42163522f2a5b1357a4051ede44f37cd1b40960936d883ebfbda890455"
+address = 0x801e8000
+
+# The content of STAGE0D.PAC, in that file only.
+[[image]]
+name = "slot06_0d"
+archive = "../extract/PAC/STAGE0D.PAC"
+slot = 0x6
+sha256 = "54d4fdd1c6f6de40a1c408e74d1549399453ac8ab6f15fdcd5834619342eda6d"
+address = 0x801e8000
+
+# The content of STAGE0E.PAC, in that file only.
+[[image]]
+name = "slot06_0e"
+archive = "../extract/PAC/STAGE0E.PAC"
+slot = 0x6
+sha256 = "31c866ad1953dc758ba81bbafe28afb196795430703e328c5b8b333c6f6edfce"
+address = 0x801e8000
+
+# The content of STAGE0F.PAC, in that file only.
+[[image]]
+name = "slot06_0f"
+archive = "../extract/PAC/STAGE0F.PAC"
+slot = 0x6
+sha256 = "9518e15d38ca8309c0717530436a3cb845f1c70744efcdab3a133a944a17aa03"
+address = 0x801e8000
+
+# The content of STAGE10.PAC, in that file only.
+[[image]]
+name = "slot06_10"
+archive = "../extract/PAC/STAGE10.PAC"
+slot = 0x6
+sha256 = "ee041abaf90b3161a9a9b6f437a395ce1bf0e127279367efd521c0fde34b972b"
+address = 0x801e8000
+
+# The content of STAGE11.PAC, in that file only.
+[[image]]
+name = "slot06_11"
+archive = "../extract/PAC/STAGE11.PAC"
+slot = 0x6
+sha256 = "6304bb166b5893e4af8e7de490c20940754bfca1cea5ad57a42f73165c9380be"
+address = 0x801e8000
+
+# The content of STAGE12.PAC, in that file only.
+[[image]]
+name = "slot06_12"
+archive = "../extract/PAC/STAGE12.PAC"
+slot = 0x6
+sha256 = "4d8a726d9cfd29df778d4f4bebca268d553f2ef2db990b15806d0d9b255774f8"
+address = 0x801e8000
+
+# The content of STAGE13.PAC, in that file only.
+[[image]]
+name = "slot06_13"
+archive = "../extract/PAC/STAGE13.PAC"
+slot = 0x6
+sha256 = "715c23c0ff6497b3102524ee6b63d728d85e344fcb3b22ffc755e8a177ddf6dd"
+address = 0x801e8000
+
 
 
 
@@ -11697,6 +11849,1792 @@ functions = [
 ]
 
 [[unit]]
+name = "slot06_01_8000_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_01", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_01", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_01", address = 0x801e80f0, size = 56 },
+]
+
+[[unit]]
+name = "slot06_01_8000_r1_b"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e821c_slot06_01", address = 0x801e821c, size = 44 },
+  { name = "func_801e8248_slot06_01", address = 0x801e8248, size = 160 },
+]
+
+[[unit]]
+name = "slot06_01_8000_r2"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8564_slot06_01", address = 0x801e8564, size = 100 },
+  { name = "func_801e85c8_slot06_01", address = 0x801e85c8, size = 68 },
+]
+
+[[unit]]
+name = "slot06_01_8000_r4"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91e0_slot06_01", address = 0x801e91e0, size = 44 },
+  { name = "func_801e920c_slot06_01", address = 0x801e920c, size = 160 },
+]
+
+[[unit]]
+name = "slot06_01_8000_r4_b"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8000_r4_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e934c_slot06_01", address = 0x801e934c, size = 44 },
+  { name = "func_801e9378_slot06_01", address = 0x801e9378, size = 160 },
+]
+
+[[unit]]
+name = "slot06_01_9694_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9694_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9694_slot06_01", address = 0x801e9694, size = 64 },
+]
+
+[[unit]]
+name = "slot06_01_9694_r1_b"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9694_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9758_slot06_01", address = 0x801e9758, size = 108 },
+  { name = "func_801e97c4_slot06_01", address = 0x801e97c4, size = 48 },
+  { name = "func_801e97f4_slot06_01", address = 0x801e97f4, size = 56 },
+  { name = "func_801e982c_slot06_01", address = 0x801e982c, size = 104 },
+  { name = "func_801e9894_slot06_01", address = 0x801e9894, size = 76 },
+  { name = "func_801e98e0_slot06_01", address = 0x801e98e0, size = 72 },
+  { name = "func_801e9928_slot06_01", address = 0x801e9928, size = 32 },
+  { name = "func_801e9948_slot06_01", address = 0x801e9948, size = 64 },
+]
+
+[[unit]]
+name = "slot06_01_9694_r1_c"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9694_r1_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9a84_slot06_01", address = 0x801e9a84, size = 60 },
+]
+
+[[unit]]
+name = "slot06_01_9ac0_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9ac0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9ac0_slot06_01", address = 0x801e9ac0, size = 140 },
+  { name = "func_801e9b4c_slot06_01", address = 0x801e9b4c, size = 124 },
+  { name = "func_801e9bc8_slot06_01", address = 0x801e9bc8, size = 144 },
+  { name = "func_801e9c58_slot06_01", address = 0x801e9c58, size = 84 },
+  { name = "func_801e9cac_slot06_01", address = 0x801e9cac, size = 68 },
+]
+
+[[unit]]
+name = "slot06_01_9ac0_r1_b"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9ac0_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9d78_slot06_01", address = 0x801e9d78, size = 132 },
+  { name = "func_801e9dfc_slot06_01", address = 0x801e9dfc, size = 56 },
+  { name = "func_801e9e34_slot06_01", address = 0x801e9e34, size = 32 },
+  { name = "func_801e9e54_slot06_01", address = 0x801e9e54, size = 64 },
+  { name = "func_801e9e94_slot06_01", address = 0x801e9e94, size = 144 },
+  { name = "func_801e9f24_slot06_01", address = 0x801e9f24, size = 76 },
+  { name = "func_801e9f70_slot06_01", address = 0x801e9f70, size = 32 },
+]
+
+[[unit]]
+name = "slot06_02_8000_r1"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_02", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_02", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_02", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_02", address = 0x801e8128, size = 72 },
+  { name = "func_801e8170_slot06_02", address = 0x801e8170, size = 84 },
+]
+
+[[unit]]
+name = "slot06_02_8000_r1_b"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8294_slot06_02", address = 0x801e8294, size = 44 },
+]
+
+[[unit]]
+name = "slot06_02_8000_r2"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8694_slot06_02", address = 0x801e8694, size = 100 },
+  { name = "func_801e86f8_slot06_02", address = 0x801e86f8, size = 88 },
+]
+
+[[unit]]
+name = "slot06_02_8000_r2_b"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8000_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e87dc_slot06_02", address = 0x801e87dc, size = 36 },
+  { name = "func_801e8800_slot06_02", address = 0x801e8800, size = 68 },
+  { name = "func_801e8844_slot06_02", address = 0x801e8844, size = 160 },
+]
+
+[[unit]]
+name = "slot06_02_8000_r3"
+image = "slot06_02"
+source = "slot06_02/slot06_02_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d74_slot06_02", address = 0x801e8d74, size = 128 },
+]
+
+[[unit]]
+name = "slot06_02_93c4_r1"
+image = "slot06_02"
+source = "slot06_02/slot06_02_93c4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e93c4_slot06_02", address = 0x801e93c4, size = 44 },
+  { name = "func_801e93f0_slot06_02", address = 0x801e93f0, size = 160 },
+  { name = "func_801e9490_slot06_02", address = 0x801e9490, size = 72 },
+  { name = "func_801e94d8_slot06_02", address = 0x801e94d8, size = 88 },
+]
+
+[[unit]]
+name = "slot06_02_93c4_r1_b"
+image = "slot06_02"
+source = "slot06_02/slot06_02_93c4_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9604_slot06_02", address = 0x801e9604, size = 80 },
+  { name = "func_801e9654_slot06_02", address = 0x801e9654, size = 44 },
+  { name = "func_801e9680_slot06_02", address = 0x801e9680, size = 160 },
+]
+
+[[unit]]
+name = "slot06_02_93c4_r2"
+image = "slot06_02"
+source = "slot06_02/slot06_02_93c4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9d24_slot06_02", address = 0x801e9d24, size = 64 },
+  { name = "func_801e9d64_slot06_02", address = 0x801e9d64, size = 116 },
+  { name = "func_801e9dd8_slot06_02", address = 0x801e9dd8, size = 124 },
+  { name = "func_801e9e54_slot06_02", address = 0x801e9e54, size = 32 },
+]
+
+[[unit]]
+name = "slot06_03_8000_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_03", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_03", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_03", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_03", address = 0x801e8128, size = 76 },
+]
+
+[[unit]]
+name = "slot06_03_8000_r1_b"
+image = "slot06_03"
+source = "slot06_03/slot06_03_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8230_slot06_03", address = 0x801e8230, size = 56 },
+  { name = "func_801e8268_slot06_03", address = 0x801e8268, size = 164 },
+  { name = "func_801e830c_slot06_03", address = 0x801e830c, size = 140 },
+  { name = "func_801e8398_slot06_03", address = 0x801e8398, size = 160 },
+  { name = "func_801e8438_slot06_03", address = 0x801e8438, size = 160 },
+  { name = "func_801e84d8_slot06_03", address = 0x801e84d8, size = 44 },
+  { name = "func_801e8504_slot06_03", address = 0x801e8504, size = 160 },
+]
+
+[[unit]]
+name = "slot06_03_886c_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_886c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e886c_slot06_03", address = 0x801e886c, size = 92 },
+]
+
+[[unit]]
+name = "slot06_03_886c_r2"
+image = "slot06_03"
+source = "slot06_03/slot06_03_886c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d08_slot06_03", address = 0x801e8d08, size = 8 },
+]
+
+[[unit]]
+name = "slot06_03_886c_r3"
+image = "slot06_03"
+source = "slot06_03/slot06_03_886c_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9124_slot06_03", address = 0x801e9124, size = 44 },
+  { name = "func_801e9150_slot06_03", address = 0x801e9150, size = 160 },
+]
+
+[[unit]]
+name = "slot06_03_886c_r3_b"
+image = "slot06_03"
+source = "slot06_03/slot06_03_886c_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e92b4_slot06_03", address = 0x801e92b4, size = 44 },
+  { name = "func_801e92e0_slot06_03", address = 0x801e92e0, size = 168 },
+]
+
+[[unit]]
+name = "slot06_03_960c_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_960c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e960c_slot06_03", address = 0x801e960c, size = 64 },
+  { name = "func_801e964c_slot06_03", address = 0x801e964c, size = 128 },
+  { name = "func_801e96cc_slot06_03", address = 0x801e96cc, size = 164 },
+  { name = "func_801e9770_slot06_03", address = 0x801e9770, size = 32 },
+  { name = "func_801e9790_slot06_03", address = 0x801e9790, size = 128 },
+  { name = "func_801e9810_slot06_03", address = 0x801e9810, size = 96 },
+  { name = "func_801e9870_slot06_03", address = 0x801e9870, size = 112 },
+  { name = "func_801e98e0_slot06_03", address = 0x801e98e0, size = 88 },
+  { name = "func_801e9938_slot06_03", address = 0x801e9938, size = 64 },
+  { name = "func_801e9978_slot06_03", address = 0x801e9978, size = 180 },
+  { name = "func_801e9a2c_slot06_03", address = 0x801e9a2c, size = 32 },
+  { name = "func_801e9a4c_slot06_03", address = 0x801e9a4c, size = 132 },
+  { name = "func_801e9ad0_slot06_03", address = 0x801e9ad0, size = 32 },
+  { name = "func_801e9af0_slot06_03", address = 0x801e9af0, size = 84 },
+  { name = "func_801e9b44_slot06_03", address = 0x801e9b44, size = 60 },
+  { name = "func_801e9b80_slot06_03", address = 0x801e9b80, size = 64 },
+  { name = "func_801e9bc0_slot06_03", address = 0x801e9bc0, size = 128 },
+  { name = "func_801e9c40_slot06_03", address = 0x801e9c40, size = 164 },
+  { name = "func_801e9ce4_slot06_03", address = 0x801e9ce4, size = 32 },
+]
+
+[[unit]]
+name = "slot06_04_8000_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_04", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_04", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_04", address = 0x801e80f0, size = 56 },
+]
+
+[[unit]]
+name = "slot06_04_8000_r1_b"
+image = "slot06_04"
+source = "slot06_04/slot06_04_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e81c8_slot06_04", address = 0x801e81c8, size = 44 },
+  { name = "func_801e81f4_slot06_04", address = 0x801e81f4, size = 160 },
+]
+
+[[unit]]
+name = "slot06_04_8000_r2"
+image = "slot06_04"
+source = "slot06_04/slot06_04_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8508_slot06_04", address = 0x801e8508, size = 100 },
+  { name = "func_801e856c_slot06_04", address = 0x801e856c, size = 68 },
+]
+
+[[unit]]
+name = "slot06_04_9194_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_9194_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9194_slot06_04", address = 0x801e9194, size = 44 },
+  { name = "func_801e91c0_slot06_04", address = 0x801e91c0, size = 160 },
+  { name = "func_801e9260_slot06_04", address = 0x801e9260, size = 72 },
+  { name = "func_801e92a8_slot06_04", address = 0x801e92a8, size = 88 },
+]
+
+[[unit]]
+name = "slot06_04_9194_r1_b"
+image = "slot06_04"
+source = "slot06_04/slot06_04_9194_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e93c8_slot06_04", address = 0x801e93c8, size = 80 },
+  { name = "func_801e9418_slot06_04", address = 0x801e9418, size = 44 },
+  { name = "func_801e9444_slot06_04", address = 0x801e9444, size = 160 },
+]
+
+[[unit]]
+name = "slot06_04_9194_r2"
+image = "slot06_04"
+source = "slot06_04/slot06_04_9194_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9760_slot06_04", address = 0x801e9760, size = 64 },
+  { name = "func_801e97a0_slot06_04", address = 0x801e97a0, size = 184 },
+  { name = "func_801e9858_slot06_04", address = 0x801e9858, size = 124 },
+  { name = "func_801e98d4_slot06_04", address = 0x801e98d4, size = 32 },
+  { name = "func_801e98f4_slot06_04", address = 0x801e98f4, size = 36 },
+  { name = "func_801e9918_slot06_04", address = 0x801e9918, size = 76 },
+  { name = "func_801e9964_slot06_04", address = 0x801e9964, size = 80 },
+]
+
+[[unit]]
+name = "slot06_05_8000_r1"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_05", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_05", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_05", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_05", address = 0x801e8128, size = 76 },
+]
+
+[[unit]]
+name = "slot06_05_8000_r1_b"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e822c_slot06_05", address = 0x801e822c, size = 44 },
+]
+
+[[unit]]
+name = "slot06_05_8000_r2"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85e0_slot06_05", address = 0x801e85e0, size = 92 },
+  { name = "func_801e863c_slot06_05", address = 0x801e863c, size = 44 },
+  { name = "func_801e8668_slot06_05", address = 0x801e8668, size = 160 },
+]
+
+[[unit]]
+name = "slot06_05_8000_r3"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e898c_slot06_05", address = 0x801e898c, size = 8 },
+  { name = "func_801e8994_slot06_05", address = 0x801e8994, size = 8 },
+  { name = "func_801e899c_slot06_05", address = 0x801e899c, size = 8 },
+  { name = "func_801e89a4_slot06_05", address = 0x801e89a4, size = 8 },
+]
+
+[[unit]]
+name = "slot06_05_8000_r3_b"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8000_r3_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8a80_slot06_05", address = 0x801e8a80, size = 44 },
+  { name = "func_801e8aac_slot06_05", address = 0x801e8aac, size = 160 },
+]
+
+[[unit]]
+name = "slot06_05_9110_r1"
+image = "slot06_05"
+source = "slot06_05/slot06_05_9110_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9110_slot06_05", address = 0x801e9110, size = 64 },
+  { name = "func_801e9150_slot06_05", address = 0x801e9150, size = 188 },
+  { name = "func_801e920c_slot06_05", address = 0x801e920c, size = 204 },
+  { name = "func_801e92d8_slot06_05", address = 0x801e92d8, size = 32 },
+  { name = "func_801e92f8_slot06_05", address = 0x801e92f8, size = 64 },
+  { name = "func_801e9338_slot06_05", address = 0x801e9338, size = 120 },
+  { name = "func_801e93b0_slot06_05", address = 0x801e93b0, size = 96 },
+  { name = "func_801e9410_slot06_05", address = 0x801e9410, size = 32 },
+  { name = "func_801e9430_slot06_05", address = 0x801e9430, size = 64 },
+  { name = "func_801e9470_slot06_05", address = 0x801e9470, size = 136 },
+  { name = "func_801e94f8_slot06_05", address = 0x801e94f8, size = 288 },
+  { name = "func_801e9618_slot06_05", address = 0x801e9618, size = 168 },
+  { name = "func_801e96c0_slot06_05", address = 0x801e96c0, size = 108 },
+  { name = "func_801e972c_slot06_05", address = 0x801e972c, size = 108 },
+  { name = "func_801e9798_slot06_05", address = 0x801e9798, size = 132 },
+]
+
+[[unit]]
+name = "slot06_06_8000_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_06", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_06", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_06", address = 0x801e80f0, size = 56 },
+]
+
+[[unit]]
+name = "slot06_06_8000_r1_b"
+image = "slot06_06"
+source = "slot06_06/slot06_06_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e822c_slot06_06", address = 0x801e822c, size = 80 },
+  { name = "func_801e827c_slot06_06", address = 0x801e827c, size = 92 },
+]
+
+[[unit]]
+name = "slot06_06_8000_r2"
+image = "slot06_06"
+source = "slot06_06/slot06_06_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8668_slot06_06", address = 0x801e8668, size = 100 },
+  { name = "func_801e86cc_slot06_06", address = 0x801e86cc, size = 68 },
+  { name = "func_801e8710_slot06_06", address = 0x801e8710, size = 160 },
+]
+
+[[unit]]
+name = "slot06_06_8000_r3"
+image = "slot06_06"
+source = "slot06_06/slot06_06_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8c60_slot06_06", address = 0x801e8c60, size = 128 },
+]
+
+[[unit]]
+name = "slot06_06_92b0_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_92b0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e92b0_slot06_06", address = 0x801e92b0, size = 44 },
+  { name = "func_801e92dc_slot06_06", address = 0x801e92dc, size = 160 },
+]
+
+[[unit]]
+name = "slot06_06_92b0_r1_b"
+image = "slot06_06"
+source = "slot06_06/slot06_06_92b0_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9440_slot06_06", address = 0x801e9440, size = 44 },
+  { name = "func_801e946c_slot06_06", address = 0x801e946c, size = 168 },
+]
+
+[[unit]]
+name = "slot06_06_92b0_r2"
+image = "slot06_06"
+source = "slot06_06/slot06_06_92b0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9b64_slot06_06", address = 0x801e9b64, size = 64 },
+]
+
+[[unit]]
+name = "slot06_06_92b0_r2_b"
+image = "slot06_06"
+source = "slot06_06/slot06_06_92b0_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9c58_slot06_06", address = 0x801e9c58, size = 160 },
+  { name = "func_801e9cf8_slot06_06", address = 0x801e9cf8, size = 184 },
+  { name = "func_801e9db0_slot06_06", address = 0x801e9db0, size = 32 },
+  { name = "func_801e9dd0_slot06_06", address = 0x801e9dd0, size = 64 },
+  { name = "func_801e9e10_slot06_06", address = 0x801e9e10, size = 144 },
+  { name = "func_801e9ea0_slot06_06", address = 0x801e9ea0, size = 76 },
+  { name = "func_801e9eec_slot06_06", address = 0x801e9eec, size = 32 },
+]
+
+[[unit]]
+name = "slot06_07_8000_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_07", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_07", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_07", address = 0x801e80f0, size = 56 },
+]
+
+[[unit]]
+name = "slot06_07_8000_r1_b"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8200_slot06_07", address = 0x801e8200, size = 44 },
+]
+
+[[unit]]
+name = "slot06_07_8000_r2"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85ac_slot06_07", address = 0x801e85ac, size = 100 },
+  { name = "func_801e8610_slot06_07", address = 0x801e8610, size = 68 },
+  { name = "func_801e8654_slot06_07", address = 0x801e8654, size = 160 },
+]
+
+[[unit]]
+name = "slot06_07_8000_r3"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b8c_slot06_07", address = 0x801e8b8c, size = 128 },
+]
+
+[[unit]]
+name = "slot06_07_8000_r4"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91dc_slot06_07", address = 0x801e91dc, size = 44 },
+  { name = "func_801e9208_slot06_07", address = 0x801e9208, size = 160 },
+  { name = "func_801e92a8_slot06_07", address = 0x801e92a8, size = 208 },
+  { name = "func_801e9378_slot06_07", address = 0x801e9378, size = 44 },
+  { name = "func_801e93a4_slot06_07", address = 0x801e93a4, size = 160 },
+]
+
+[[unit]]
+name = "slot06_07_96c0_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_96c0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96c0_slot06_07", address = 0x801e96c0, size = 64 },
+  { name = "func_801e9700_slot06_07", address = 0x801e9700, size = 200 },
+  { name = "func_801e97c8_slot06_07", address = 0x801e97c8, size = 100 },
+  { name = "func_801e982c_slot06_07", address = 0x801e982c, size = 32 },
+  { name = "func_801e984c_slot06_07", address = 0x801e984c, size = 84 },
+  { name = "func_801e98a0_slot06_07", address = 0x801e98a0, size = 60 },
+]
+
+[[unit]]
+name = "slot06_07_96c0_r2"
+image = "slot06_07"
+source = "slot06_07/slot06_07_96c0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9c70_slot06_07", address = 0x801e9c70, size = 64 },
+  { name = "func_801e9cb0_slot06_07", address = 0x801e9cb0, size = 68 },
+]
+
+[[unit]]
+name = "slot06_07_9d04_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_9d04_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9cf4_slot06_07", address = 0x801e9cf4, size = 76 },
+  { name = "func_801e9d40_slot06_07", address = 0x801e9d40, size = 68 },
+  { name = "func_801e9d84_slot06_07", address = 0x801e9d84, size = 92 },
+  { name = "func_801e9de0_slot06_07", address = 0x801e9de0, size = 32 },
+  { name = "func_801e9e00_slot06_07", address = 0x801e9e00, size = 64 },
+  { name = "func_801e9e40_slot06_07", address = 0x801e9e40, size = 80 },
+  { name = "func_801e9e90_slot06_07", address = 0x801e9e90, size = 116 },
+  { name = "func_801e9f04_slot06_07", address = 0x801e9f04, size = 112 },
+  { name = "func_801e9f74_slot06_07", address = 0x801e9f74, size = 84 },
+  { name = "func_801e9fc8_slot06_07", address = 0x801e9fc8, size = 40 },
+  { name = "func_801e9ff0_slot06_07", address = 0x801e9ff0, size = 32 },
+]
+
+[[unit]]
+name = "slot06_07_9d04_r1_b"
+image = "slot06_07"
+source = "slot06_07/slot06_07_9d04_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea094_slot06_07", address = 0x801ea094, size = 64 },
+  { name = "func_801ea0d4_slot06_07", address = 0x801ea0d4, size = 8 },
+  { name = "func_801ea0dc_slot06_07", address = 0x801ea0dc, size = 16 },
+  { name = "func_801ea0ec_slot06_07", address = 0x801ea0ec, size = 16 },
+  { name = "func_801ea0fc_slot06_07", address = 0x801ea0fc, size = 48 },
+  { name = "func_801ea12c_slot06_07", address = 0x801ea12c, size = 64 },
+  { name = "func_801ea16c_slot06_07", address = 0x801ea16c, size = 80 },
+  { name = "func_801ea1bc_slot06_07", address = 0x801ea1bc, size = 116 },
+  { name = "func_801ea230_slot06_07", address = 0x801ea230, size = 100 },
+  { name = "func_801ea294_slot06_07", address = 0x801ea294, size = 8 },
+  { name = "func_801ea29c_slot06_07", address = 0x801ea29c, size = 32 },
+  { name = "func_801ea2bc_slot06_07", address = 0x801ea2bc, size = 140 },
+  { name = "func_801ea348_slot06_07", address = 0x801ea348, size = 64 },
+  { name = "func_801ea388_slot06_07", address = 0x801ea388, size = 72 },
+  { name = "func_801ea3d0_slot06_07", address = 0x801ea3d0, size = 32 },
+  { name = "func_801ea3f0_slot06_07", address = 0x801ea3f0, size = 32 },
+]
+
+[[unit]]
+name = "slot06_08_8000_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_08", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_08", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_08", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_08", address = 0x801e8128, size = 160 },
+  { name = "func_801e81c8_slot06_08", address = 0x801e81c8, size = 44 },
+]
+
+[[unit]]
+name = "slot06_08_8000_r2"
+image = "slot06_08"
+source = "slot06_08/slot06_08_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8584_slot06_08", address = 0x801e8584, size = 100 },
+  { name = "func_801e85e8_slot06_08", address = 0x801e85e8, size = 68 },
+  { name = "func_801e862c_slot06_08", address = 0x801e862c, size = 160 },
+]
+
+[[unit]]
+name = "slot06_08_8000_r3"
+image = "slot06_08"
+source = "slot06_08/slot06_08_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b58_slot06_08", address = 0x801e8b58, size = 128 },
+]
+
+[[unit]]
+name = "slot06_08_8000_r4"
+image = "slot06_08"
+source = "slot06_08/slot06_08_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9424_slot06_08", address = 0x801e9424, size = 44 },
+  { name = "func_801e9450_slot06_08", address = 0x801e9450, size = 160 },
+  { name = "func_801e94f0_slot06_08", address = 0x801e94f0, size = 160 },
+  { name = "func_801e9590_slot06_08", address = 0x801e9590, size = 44 },
+  { name = "func_801e95bc_slot06_08", address = 0x801e95bc, size = 160 },
+]
+
+[[unit]]
+name = "slot06_08_98d8_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_98d8_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e98d8_slot06_08", address = 0x801e98d8, size = 64 },
+  { name = "func_801e9918_slot06_08", address = 0x801e9918, size = 68 },
+  { name = "func_801e995c_slot06_08", address = 0x801e995c, size = 96 },
+  { name = "func_801e99bc_slot06_08", address = 0x801e99bc, size = 132 },
+  { name = "func_801e9a40_slot06_08", address = 0x801e9a40, size = 116 },
+  { name = "func_801e9ab4_slot06_08", address = 0x801e9ab4, size = 32 },
+  { name = "func_801e9ad4_slot06_08", address = 0x801e9ad4, size = 84 },
+  { name = "func_801e9b28_slot06_08", address = 0x801e9b28, size = 44 },
+]
+
+[[unit]]
+name = "slot06_08_98d8_r2"
+image = "slot06_08"
+source = "slot06_08/slot06_08_98d8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9e3c_slot06_08", address = 0x801e9e3c, size = 64 },
+]
+
+[[unit]]
+name = "slot06_08_9f10_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_9f10_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9f10_slot06_08", address = 0x801e9f10, size = 108 },
+  { name = "func_801e9f7c_slot06_08", address = 0x801e9f7c, size = 108 },
+  { name = "func_801e9fe8_slot06_08", address = 0x801e9fe8, size = 132 },
+  { name = "func_801ea06c_slot06_08", address = 0x801ea06c, size = 32 },
+  { name = "func_801ea08c_slot06_08", address = 0x801ea08c, size = 64 },
+  { name = "func_801ea0cc_slot06_08", address = 0x801ea0cc, size = 148 },
+]
+
+[[unit]]
+name = "slot06_08_9f10_r1_c"
+image = "slot06_08"
+source = "slot06_08/slot06_08_9f10_r1_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea210_slot06_08", address = 0x801ea210, size = 32 },
+  { name = "func_801ea230_slot06_08", address = 0x801ea230, size = 128 },
+  { name = "func_801ea2b0_slot06_08", address = 0x801ea2b0, size = 64 },
+]
+
+[[unit]]
+name = "slot06_08_9f10_r1_b"
+image = "slot06_08"
+source = "slot06_08/slot06_08_9f10_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea468_slot06_08", address = 0x801ea468, size = 32 },
+]
+
+[[unit]]
+name = "slot06_09_8000_r1"
+image = "slot06_09"
+source = "slot06_09/slot06_09_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_09", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_09", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_09", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_09", address = 0x801e8128, size = 72 },
+  { name = "func_801e8170_slot06_09", address = 0x801e8170, size = 88 },
+  { name = "func_801e81c8_slot06_09", address = 0x801e81c8, size = 196 },
+  { name = "func_801e828c_slot06_09", address = 0x801e828c, size = 144 },
+  { name = "func_801e831c_slot06_09", address = 0x801e831c, size = 80 },
+  { name = "func_801e836c_slot06_09", address = 0x801e836c, size = 44 },
+]
+
+[[unit]]
+name = "slot06_09_8000_r2"
+image = "slot06_09"
+source = "slot06_09/slot06_09_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8728_slot06_09", address = 0x801e8728, size = 100 },
+  { name = "func_801e878c_slot06_09", address = 0x801e878c, size = 68 },
+  { name = "func_801e87d0_slot06_09", address = 0x801e87d0, size = 160 },
+]
+
+[[unit]]
+name = "slot06_09_8000_r3"
+image = "slot06_09"
+source = "slot06_09/slot06_09_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d00_slot06_09", address = 0x801e8d00, size = 128 },
+]
+
+[[unit]]
+name = "slot06_09_9350_r1"
+image = "slot06_09"
+source = "slot06_09/slot06_09_9350_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9350_slot06_09", address = 0x801e9350, size = 44 },
+  { name = "func_801e937c_slot06_09", address = 0x801e937c, size = 160 },
+  { name = "func_801e941c_slot06_09", address = 0x801e941c, size = 204 },
+  { name = "func_801e94e8_slot06_09", address = 0x801e94e8, size = 44 },
+  { name = "func_801e9514_slot06_09", address = 0x801e9514, size = 168 },
+]
+
+[[unit]]
+name = "slot06_09_9350_r2"
+image = "slot06_09"
+source = "slot06_09/slot06_09_9350_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9b18_slot06_09", address = 0x801e9b18, size = 64 },
+  { name = "func_801e9b58_slot06_09", address = 0x801e9b58, size = 120 },
+]
+
+[[unit]]
+name = "slot06_09_9350_r2_b"
+image = "slot06_09"
+source = "slot06_09/slot06_09_9350_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9ca0_slot06_09", address = 0x801e9ca0, size = 32 },
+  { name = "func_801e9cc0_slot06_09", address = 0x801e9cc0, size = 108 },
+  { name = "func_801e9d2c_slot06_09", address = 0x801e9d2c, size = 64 },
+  { name = "func_801e9d6c_slot06_09", address = 0x801e9d6c, size = 104 },
+  { name = "func_801e9dd4_slot06_09", address = 0x801e9dd4, size = 132 },
+  { name = "func_801e9e58_slot06_09", address = 0x801e9e58, size = 32 },
+]
+
+[[unit]]
+name = "slot06_0a_8000_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0a", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0a", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0a", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0a", address = 0x801e8128, size = 208 },
+  { name = "func_801e81f8_slot06_0a", address = 0x801e81f8, size = 44 },
+]
+
+[[unit]]
+name = "slot06_0a_8000_r2"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85b4_slot06_0a", address = 0x801e85b4, size = 92 },
+  { name = "func_801e8610_slot06_0a", address = 0x801e8610, size = 92 },
+  { name = "func_801e866c_slot06_0a", address = 0x801e866c, size = 44 },
+  { name = "func_801e8698_slot06_0a", address = 0x801e8698, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0a_8000_r3"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e89a4_slot06_0a", address = 0x801e89a4, size = 8 },
+  { name = "func_801e89ac_slot06_0a", address = 0x801e89ac, size = 8 },
+  { name = "func_801e89b4_slot06_0a", address = 0x801e89b4, size = 8 },
+  { name = "func_801e89bc_slot06_0a", address = 0x801e89bc, size = 8 },
+  { name = "func_801e89c4_slot06_0a", address = 0x801e89c4, size = 72 },
+  { name = "func_801e8a0c_slot06_0a", address = 0x801e8a0c, size = 148 },
+  { name = "func_801e8aa0_slot06_0a", address = 0x801e8aa0, size = 44 },
+  { name = "func_801e8acc_slot06_0a", address = 0x801e8acc, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0a_90f0_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_90f0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e90f0_slot06_0a", address = 0x801e90f0, size = 64 },
+  { name = "func_801e9130_slot06_0a", address = 0x801e9130, size = 120 },
+  { name = "func_801e91a8_slot06_0a", address = 0x801e91a8, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0a_90f0_r1_b"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_90f0_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9284_slot06_0a", address = 0x801e9284, size = 60 },
+  { name = "func_801e92c0_slot06_0a", address = 0x801e92c0, size = 44 },
+  { name = "func_801e92ec_slot06_0a", address = 0x801e92ec, size = 32 },
+  { name = "func_801e930c_slot06_0a", address = 0x801e930c, size = 64 },
+  { name = "func_801e934c_slot06_0a", address = 0x801e934c, size = 176 },
+  { name = "func_801e93fc_slot06_0a", address = 0x801e93fc, size = 140 },
+  { name = "func_801e9488_slot06_0a", address = 0x801e9488, size = 56 },
+  { name = "func_801e94c0_slot06_0a", address = 0x801e94c0, size = 80 },
+  { name = "func_801e9510_slot06_0a", address = 0x801e9510, size = 72 },
+  { name = "func_801e9558_slot06_0a", address = 0x801e9558, size = 80 },
+  { name = "func_801e95a8_slot06_0a", address = 0x801e95a8, size = 84 },
+  { name = "func_801e95fc_slot06_0a", address = 0x801e95fc, size = 48 },
+  { name = "func_801e962c_slot06_0a", address = 0x801e962c, size = 80 },
+  { name = "func_801e967c_slot06_0a", address = 0x801e967c, size = 80 },
+  { name = "func_801e96cc_slot06_0a", address = 0x801e96cc, size = 84 },
+]
+
+[[unit]]
+name = "slot06_0a_90f0_r1_c"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_90f0_r1_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9860_slot06_0a", address = 0x801e9860, size = 32 },
+]
+
+[[unit]]
+name = "slot06_0b_8000_r1"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0b", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0b", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0b", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0b", address = 0x801e8128, size = 260 },
+  { name = "func_801e822c_slot06_0b", address = 0x801e822c, size = 44 },
+]
+
+[[unit]]
+name = "slot06_0b_8000_r2"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85e8_slot06_0b", address = 0x801e85e8, size = 100 },
+  { name = "func_801e864c_slot06_0b", address = 0x801e864c, size = 68 },
+  { name = "func_801e8690_slot06_0b", address = 0x801e8690, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0b_8000_r3"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8bb8_slot06_0b", address = 0x801e8bb8, size = 128 },
+]
+
+[[unit]]
+name = "slot06_0b_8000_r4"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9208_slot06_0b", address = 0x801e9208, size = 44 },
+  { name = "func_801e9234_slot06_0b", address = 0x801e9234, size = 160 },
+  { name = "func_801e92d4_slot06_0b", address = 0x801e92d4, size = 208 },
+  { name = "func_801e93a4_slot06_0b", address = 0x801e93a4, size = 44 },
+  { name = "func_801e93d0_slot06_0b", address = 0x801e93d0, size = 168 },
+]
+
+[[unit]]
+name = "slot06_0c_8000_r1"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0c", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0c", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0c", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0c", address = 0x801e8128, size = 220 },
+  { name = "func_801e8204_slot06_0c", address = 0x801e8204, size = 44 },
+  { name = "func_801e8230_slot06_0c", address = 0x801e8230, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0c_8000_r2"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e854c_slot06_0c", address = 0x801e854c, size = 100 },
+  { name = "func_801e85b0_slot06_0c", address = 0x801e85b0, size = 68 },
+]
+
+[[unit]]
+name = "slot06_0c_8000_r3"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b9c_slot06_0c", address = 0x801e8b9c, size = 128 },
+]
+
+[[unit]]
+name = "slot06_0c_8000_r4"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91ec_slot06_0c", address = 0x801e91ec, size = 44 },
+  { name = "func_801e9218_slot06_0c", address = 0x801e9218, size = 160 },
+  { name = "func_801e92b8_slot06_0c", address = 0x801e92b8, size = 188 },
+  { name = "func_801e9374_slot06_0c", address = 0x801e9374, size = 44 },
+  { name = "func_801e93a0_slot06_0c", address = 0x801e93a0, size = 168 },
+]
+
+[[unit]]
+name = "slot06_0c_96cc_r1"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_96cc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96cc_slot06_0c", address = 0x801e96cc, size = 64 },
+]
+
+[[unit]]
+name = "slot06_0c_96cc_r1_b"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_96cc_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e97c8_slot06_0c", address = 0x801e97c8, size = 80 },
+  { name = "func_801e9818_slot06_0c", address = 0x801e9818, size = 32 },
+  { name = "func_801e9838_slot06_0c", address = 0x801e9838, size = 84 },
+  { name = "func_801e988c_slot06_0c", address = 0x801e988c, size = 60 },
+]
+
+[[unit]]
+name = "slot06_0c_96cc_r1_c"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_96cc_r1_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e995c_slot06_0c", address = 0x801e995c, size = 64 },
+  { name = "func_801e999c_slot06_0c", address = 0x801e999c, size = 72 },
+  { name = "func_801e99e4_slot06_0c", address = 0x801e99e4, size = 116 },
+  { name = "func_801e9a58_slot06_0c", address = 0x801e9a58, size = 192 },
+  { name = "func_801e9b18_slot06_0c", address = 0x801e9b18, size = 64 },
+  { name = "func_801e9b58_slot06_0c", address = 0x801e9b58, size = 152 },
+  { name = "func_801e9bf0_slot06_0c", address = 0x801e9bf0, size = 124 },
+  { name = "func_801e9c6c_slot06_0c", address = 0x801e9c6c, size = 124 },
+  { name = "func_801e9ce8_slot06_0c", address = 0x801e9ce8, size = 140 },
+]
+
+[[unit]]
+name = "slot06_0c_9d74_r1"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_9d74_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9d74_slot06_0c", address = 0x801e9d74, size = 232 },
+  { name = "func_801e9e5c_slot06_0c", address = 0x801e9e5c, size = 64 },
+  { name = "func_801e9e9c_slot06_0c", address = 0x801e9e9c, size = 152 },
+  { name = "func_801e9f34_slot06_0c", address = 0x801e9f34, size = 116 },
+  { name = "func_801e9fa8_slot06_0c", address = 0x801e9fa8, size = 120 },
+  { name = "func_801ea020_slot06_0c", address = 0x801ea020, size = 140 },
+  { name = "func_801ea0ac_slot06_0c", address = 0x801ea0ac, size = 224 },
+  { name = "func_801ea18c_slot06_0c", address = 0x801ea18c, size = 84 },
+  { name = "func_801ea1e0_slot06_0c", address = 0x801ea1e0, size = 84 },
+  { name = "func_801ea234_slot06_0c", address = 0x801ea234, size = 148 },
+  { name = "func_801ea2c8_slot06_0c", address = 0x801ea2c8, size = 32 },
+  { name = "func_801ea2e8_slot06_0c", address = 0x801ea2e8, size = 64 },
+  { name = "func_801ea328_slot06_0c", address = 0x801ea328, size = 108 },
+  { name = "func_801ea394_slot06_0c", address = 0x801ea394, size = 168 },
+  { name = "func_801ea43c_slot06_0c", address = 0x801ea43c, size = 84 },
+  { name = "func_801ea490_slot06_0c", address = 0x801ea490, size = 88 },
+  { name = "func_801ea4e8_slot06_0c", address = 0x801ea4e8, size = 32 },
+  { name = "func_801ea508_slot06_0c", address = 0x801ea508, size = 64 },
+  { name = "func_801ea548_slot06_0c", address = 0x801ea548, size = 104 },
+  { name = "func_801ea5b0_slot06_0c", address = 0x801ea5b0, size = 112 },
+  { name = "func_801ea620_slot06_0c", address = 0x801ea620, size = 32 },
+]
+
+[[unit]]
+name = "slot06_0d_8000_r1"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0d", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0d", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0d", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0d", address = 0x801e8128, size = 204 },
+  { name = "func_801e81f4_slot06_0d", address = 0x801e81f4, size = 44 },
+  { name = "func_801e8220_slot06_0d", address = 0x801e8220, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0d_8000_r2"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8544_slot06_0d", address = 0x801e8544, size = 100 },
+  { name = "func_801e85a8_slot06_0d", address = 0x801e85a8, size = 68 },
+]
+
+[[unit]]
+name = "slot06_0d_8000_r3"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b94_slot06_0d", address = 0x801e8b94, size = 104 },
+]
+
+[[unit]]
+name = "slot06_0d_8000_r4"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_8000_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91cc_slot06_0d", address = 0x801e91cc, size = 44 },
+  { name = "func_801e91f8_slot06_0d", address = 0x801e91f8, size = 160 },
+  { name = "func_801e9298_slot06_0d", address = 0x801e9298, size = 212 },
+  { name = "func_801e936c_slot06_0d", address = 0x801e936c, size = 44 },
+  { name = "func_801e9398_slot06_0d", address = 0x801e9398, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0d_96bc_r1"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_96bc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96bc_slot06_0d", address = 0x801e96bc, size = 64 },
+  { name = "func_801e96fc_slot06_0d", address = 0x801e96fc, size = 168 },
+  { name = "func_801e97a4_slot06_0d", address = 0x801e97a4, size = 132 },
+  { name = "func_801e9828_slot06_0d", address = 0x801e9828, size = 148 },
+  { name = "func_801e98bc_slot06_0d", address = 0x801e98bc, size = 32 },
+  { name = "func_801e98dc_slot06_0d", address = 0x801e98dc, size = 32 },
+  { name = "func_801e98fc_slot06_0d", address = 0x801e98fc, size = 84 },
+  { name = "func_801e9950_slot06_0d", address = 0x801e9950, size = 60 },
+]
+
+[[unit]]
+name = "slot06_0d_96bc_r1_b"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_96bc_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9a20_slot06_0d", address = 0x801e9a20, size = 64 },
+  { name = "func_801e9a60_slot06_0d", address = 0x801e9a60, size = 316 },
+]
+
+[[unit]]
+name = "slot06_0d_96bc_r1_c"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_96bc_r1_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9c10_slot06_0d", address = 0x801e9c10, size = 32 },
+  { name = "func_801e9c30_slot06_0d", address = 0x801e9c30, size = 64 },
+  { name = "func_801e9c70_slot06_0d", address = 0x801e9c70, size = 128 },
+  { name = "func_801e9cf0_slot06_0d", address = 0x801e9cf0, size = 128 },
+  { name = "func_801e9d70_slot06_0d", address = 0x801e9d70, size = 116 },
+  { name = "func_801e9de4_slot06_0d", address = 0x801e9de4, size = 76 },
+  { name = "func_801e9e30_slot06_0d", address = 0x801e9e30, size = 108 },
+  { name = "func_801e9e9c_slot06_0d", address = 0x801e9e9c, size = 132 },
+]
+
+[[unit]]
+name = "slot06_0e_8000_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0e", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0e", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0e", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0e", address = 0x801e8128, size = 72 },
+  { name = "func_801e8170_slot06_0e", address = 0x801e8170, size = 112 },
+  { name = "func_801e81e0_slot06_0e", address = 0x801e81e0, size = 228 },
+  { name = "func_801e82c4_slot06_0e", address = 0x801e82c4, size = 136 },
+  { name = "func_801e834c_slot06_0e", address = 0x801e834c, size = 72 },
+  { name = "func_801e8394_slot06_0e", address = 0x801e8394, size = 44 },
+]
+
+[[unit]]
+name = "slot06_0e_8000_r1_b"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_8000_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e86e4_slot06_0e", address = 0x801e86e4, size = 100 },
+]
+
+[[unit]]
+name = "slot06_0e_8748_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_8748_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8748_slot06_0e", address = 0x801e8748, size = 68 },
+  { name = "func_801e878c_slot06_0e", address = 0x801e878c, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0e_8748_r2"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_8748_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8cb4_slot06_0e", address = 0x801e8cb4, size = 128 },
+]
+
+[[unit]]
+name = "slot06_0e_8748_r3"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_8748_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e92fc_slot06_0e", address = 0x801e92fc, size = 44 },
+  { name = "func_801e9328_slot06_0e", address = 0x801e9328, size = 160 },
+  { name = "func_801e93c8_slot06_0e", address = 0x801e93c8, size = 72 },
+  { name = "func_801e9410_slot06_0e", address = 0x801e9410, size = 112 },
+  { name = "func_801e9480_slot06_0e", address = 0x801e9480, size = 212 },
+  { name = "func_801e9554_slot06_0e", address = 0x801e9554, size = 96 },
+  { name = "func_801e95b4_slot06_0e", address = 0x801e95b4, size = 80 },
+  { name = "func_801e9604_slot06_0e", address = 0x801e9604, size = 64 },
+  { name = "func_801e9644_slot06_0e", address = 0x801e9644, size = 20 },
+  { name = "func_801e9658_slot06_0e", address = 0x801e9658, size = 12 },
+  { name = "func_801e9664_slot06_0e", address = 0x801e9664, size = 44 },
+  { name = "func_801e9690_slot06_0e", address = 0x801e9690, size = 168 },
+]
+
+[[unit]]
+name = "slot06_0e_99ac_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_99ac_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e99ac_slot06_0e", address = 0x801e99ac, size = 64 },
+  { name = "func_801e99ec_slot06_0e", address = 0x801e99ec, size = 196 },
+  { name = "func_801e9ab0_slot06_0e", address = 0x801e9ab0, size = 72 },
+]
+
+[[unit]]
+name = "slot06_0e_99ac_r1_b"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_99ac_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9bc8_slot06_0e", address = 0x801e9bc8, size = 8 },
+  { name = "func_801e9bd0_slot06_0e", address = 0x801e9bd0, size = 32 },
+  { name = "func_801e9bf0_slot06_0e", address = 0x801e9bf0, size = 84 },
+  { name = "func_801e9c44_slot06_0e", address = 0x801e9c44, size = 60 },
+]
+
+[[unit]]
+name = "slot06_0e_a138_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_a138_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea138_slot06_0e", address = 0x801ea138, size = 64 },
+  { name = "func_801ea178_slot06_0e", address = 0x801ea178, size = 76 },
+  { name = "func_801ea1c4_slot06_0e", address = 0x801ea1c4, size = 216 },
+  { name = "func_801ea29c_slot06_0e", address = 0x801ea29c, size = 156 },
+  { name = "func_801ea338_slot06_0e", address = 0x801ea338, size = 8 },
+  { name = "func_801ea340_slot06_0e", address = 0x801ea340, size = 32 },
+  { name = "func_801ea360_slot06_0e", address = 0x801ea360, size = 64 },
+  { name = "func_801ea3a0_slot06_0e", address = 0x801ea3a0, size = 208 },
+  { name = "func_801ea470_slot06_0e", address = 0x801ea470, size = 84 },
+  { name = "func_801ea4c4_slot06_0e", address = 0x801ea4c4, size = 128 },
+  { name = "func_801ea544_slot06_0e", address = 0x801ea544, size = 8 },
+  { name = "func_801ea54c_slot06_0e", address = 0x801ea54c, size = 32 },
+  { name = "func_801ea56c_slot06_0e", address = 0x801ea56c, size = 64 },
+  { name = "func_801ea5ac_slot06_0e", address = 0x801ea5ac, size = 72 },
+  { name = "func_801ea5f4_slot06_0e", address = 0x801ea5f4, size = 152 },
+  { name = "func_801ea68c_slot06_0e", address = 0x801ea68c, size = 32 },
+  { name = "func_801ea6ac_slot06_0e", address = 0x801ea6ac, size = 64 },
+  { name = "func_801ea6ec_slot06_0e", address = 0x801ea6ec, size = 140 },
+  { name = "func_801ea778_slot06_0e", address = 0x801ea778, size = 64 },
+  { name = "func_801ea7b8_slot06_0e", address = 0x801ea7b8, size = 132 },
+  { name = "func_801ea83c_slot06_0e", address = 0x801ea83c, size = 64 },
+]
+
+[[unit]]
+name = "slot06_0e_a87c_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_a87c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea9f4_slot06_0e", address = 0x801ea9f4, size = 20 },
+  { name = "func_801eaa08_slot06_0e", address = 0x801eaa08, size = 32 },
+  { name = "func_801eaa28_slot06_0e", address = 0x801eaa28, size = 212 },
+  { name = "func_801eaafc_slot06_0e", address = 0x801eaafc, size = 64 },
+  { name = "func_801eab3c_slot06_0e", address = 0x801eab3c, size = 152 },
+  { name = "func_801eabd4_slot06_0e", address = 0x801eabd4, size = 136 },
+  { name = "func_801eac5c_slot06_0e", address = 0x801eac5c, size = 20 },
+  { name = "func_801eac70_slot06_0e", address = 0x801eac70, size = 32 },
+]
+
+[[unit]]
+name = "slot06_0f_8000_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_0f", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_0f", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_0f", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_0f", address = 0x801e8128, size = 204 },
+  { name = "func_801e81f4_slot06_0f", address = 0x801e81f4, size = 44 },
+  { name = "func_801e8220_slot06_0f", address = 0x801e8220, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0f_8000_r2"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e853c_slot06_0f", address = 0x801e853c, size = 100 },
+  { name = "func_801e85a0_slot06_0f", address = 0x801e85a0, size = 68 },
+]
+
+[[unit]]
+name = "slot06_0f_8000_r3"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b8c_slot06_0f", address = 0x801e8b8c, size = 128 },
+]
+
+[[unit]]
+name = "slot06_0f_91dc_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_91dc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91dc_slot06_0f", address = 0x801e91dc, size = 44 },
+  { name = "func_801e9208_slot06_0f", address = 0x801e9208, size = 160 },
+  { name = "func_801e92a8_slot06_0f", address = 0x801e92a8, size = 216 },
+  { name = "func_801e9380_slot06_0f", address = 0x801e9380, size = 44 },
+  { name = "func_801e93ac_slot06_0f", address = 0x801e93ac, size = 160 },
+]
+
+[[unit]]
+name = "slot06_0f_91dc_r2"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_91dc_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96c8_slot06_0f", address = 0x801e96c8, size = 64 },
+]
+
+[[unit]]
+name = "slot06_0f_91dc_r2_b"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_91dc_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9790_slot06_0f", address = 0x801e9790, size = 116 },
+  { name = "func_801e9804_slot06_0f", address = 0x801e9804, size = 64 },
+  { name = "func_801e9844_slot06_0f", address = 0x801e9844, size = 84 },
+  { name = "func_801e9898_slot06_0f", address = 0x801e9898, size = 28 },
+  { name = "func_801e98b4_slot06_0f", address = 0x801e98b4, size = 64 },
+  { name = "func_801e98f4_slot06_0f", address = 0x801e98f4, size = 56 },
+  { name = "func_801e992c_slot06_0f", address = 0x801e992c, size = 60 },
+  { name = "func_801e9968_slot06_0f", address = 0x801e9968, size = 32 },
+  { name = "func_801e9988_slot06_0f", address = 0x801e9988, size = 64 },
+]
+
+[[unit]]
+name = "slot06_0f_91dc_r2_c"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_91dc_r2_c.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9a24_slot06_0f", address = 0x801e9a24, size = 116 },
+  { name = "func_801e9a98_slot06_0f", address = 0x801e9a98, size = 100 },
+  { name = "func_801e9afc_slot06_0f", address = 0x801e9afc, size = 8 },
+  { name = "func_801e9b04_slot06_0f", address = 0x801e9b04, size = 32 },
+  { name = "func_801e9b24_slot06_0f", address = 0x801e9b24, size = 140 },
+]
+
+[[unit]]
+name = "slot06_0f_9ed0_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_9ed0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9ed0_slot06_0f", address = 0x801e9ed0, size = 320 },
+  { name = "func_801ea010_slot06_0f", address = 0x801ea010, size = 80 },
+  { name = "func_801ea060_slot06_0f", address = 0x801ea060, size = 328 },
+  { name = "func_801ea1a8_slot06_0f", address = 0x801ea1a8, size = 208 },
+  { name = "func_801ea278_slot06_0f", address = 0x801ea278, size = 64 },
+  { name = "func_801ea2b8_slot06_0f", address = 0x801ea2b8, size = 44 },
+  { name = "func_801ea2e4_slot06_0f", address = 0x801ea2e4, size = 176 },
+  { name = "func_801ea394_slot06_0f", address = 0x801ea394, size = 64 },
+  { name = "func_801ea3d4_slot06_0f", address = 0x801ea3d4, size = 88 },
+  { name = "func_801ea42c_slot06_0f", address = 0x801ea42c, size = 164 },
+  { name = "func_801ea4d0_slot06_0f", address = 0x801ea4d0, size = 64 },
+  { name = "func_801ea510_slot06_0f", address = 0x801ea510, size = 92 },
+  { name = "func_801ea56c_slot06_0f", address = 0x801ea56c, size = 172 },
+]
+
+[[unit]]
+name = "slot06_0f_a618_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_a618_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea618_slot06_0f", address = 0x801ea618, size = 64 },
+  { name = "func_801ea658_slot06_0f", address = 0x801ea658, size = 140 },
+  { name = "func_801ea6e4_slot06_0f", address = 0x801ea6e4, size = 32 },
+  { name = "func_801ea704_slot06_0f", address = 0x801ea704, size = 48 },
+  { name = "func_801ea734_slot06_0f", address = 0x801ea734, size = 72 },
+  { name = "func_801ea77c_slot06_0f", address = 0x801ea77c, size = 56 },
+  { name = "func_801ea7b4_slot06_0f", address = 0x801ea7b4, size = 48 },
+  { name = "func_801ea7e4_slot06_0f", address = 0x801ea7e4, size = 68 },
+  { name = "func_801ea828_slot06_0f", address = 0x801ea828, size = 52 },
+  { name = "func_801ea85c_slot06_0f", address = 0x801ea85c, size = 60 },
+  { name = "func_801ea898_slot06_0f", address = 0x801ea898, size = 48 },
+  { name = "func_801ea8c8_slot06_0f", address = 0x801ea8c8, size = 24 },
+  { name = "func_801ea8e0_slot06_0f", address = 0x801ea8e0, size = 28 },
+  { name = "func_801ea8fc_slot06_0f", address = 0x801ea8fc, size = 32 },
+]
+
+[[unit]]
+name = "slot06_0f_a618_r1_b"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_a618_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801ea96c_slot06_0f", address = 0x801ea96c, size = 48 },
+]
+
+[[unit]]
+name = "slot06_10_8000_r1"
+image = "slot06_10"
+source = "slot06_10/slot06_10_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_10", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_10", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_10", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_10", address = 0x801e8128, size = 212 },
+  { name = "func_801e81fc_slot06_10", address = 0x801e81fc, size = 44 },
+  { name = "func_801e8228_slot06_10", address = 0x801e8228, size = 160 },
+]
+
+[[unit]]
+name = "slot06_10_8000_r2"
+image = "slot06_10"
+source = "slot06_10/slot06_10_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8544_slot06_10", address = 0x801e8544, size = 92 },
+  { name = "func_801e85a0_slot06_10", address = 0x801e85a0, size = 44 },
+  { name = "func_801e85cc_slot06_10", address = 0x801e85cc, size = 280 },
+]
+
+[[unit]]
+name = "slot06_10_8000_r3"
+image = "slot06_10"
+source = "slot06_10/slot06_10_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8960_slot06_10", address = 0x801e8960, size = 8 },
+  { name = "func_801e8968_slot06_10", address = 0x801e8968, size = 8 },
+  { name = "func_801e8970_slot06_10", address = 0x801e8970, size = 8 },
+  { name = "func_801e8978_slot06_10", address = 0x801e8978, size = 8 },
+  { name = "func_801e8980_slot06_10", address = 0x801e8980, size = 72 },
+  { name = "func_801e89c8_slot06_10", address = 0x801e89c8, size = 84 },
+  { name = "func_801e8a1c_slot06_10", address = 0x801e8a1c, size = 180 },
+  { name = "func_801e8ad0_slot06_10", address = 0x801e8ad0, size = 44 },
+  { name = "func_801e8afc_slot06_10", address = 0x801e8afc, size = 160 },
+]
+
+[[unit]]
+name = "slot06_10_8e18_r1"
+image = "slot06_10"
+source = "slot06_10/slot06_10_8e18_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8e18_slot06_10", address = 0x801e8e18, size = 64 },
+  { name = "func_801e8e58_slot06_10", address = 0x801e8e58, size = 188 },
+  { name = "func_801e8f14_slot06_10", address = 0x801e8f14, size = 32 },
+  { name = "func_801e8f34_slot06_10", address = 0x801e8f34, size = 196 },
+  { name = "func_801e8ff8_slot06_10", address = 0x801e8ff8, size = 32 },
+  { name = "func_801e9018_slot06_10", address = 0x801e9018, size = 84 },
+  { name = "func_801e906c_slot06_10", address = 0x801e906c, size = 60 },
+]
+
+[[unit]]
+name = "slot06_10_8e18_r1_b"
+image = "slot06_10"
+source = "slot06_10/slot06_10_8e18_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e913c_slot06_10", address = 0x801e913c, size = 84 },
+  { name = "func_801e9190_slot06_10", address = 0x801e9190, size = 60 },
+  { name = "func_801e91cc_slot06_10", address = 0x801e91cc, size = 64 },
+  { name = "func_801e920c_slot06_10", address = 0x801e920c, size = 60 },
+  { name = "func_801e9248_slot06_10", address = 0x801e9248, size = 32 },
+  { name = "func_801e9268_slot06_10", address = 0x801e9268, size = 64 },
+  { name = "func_801e92a8_slot06_10", address = 0x801e92a8, size = 32 },
+  { name = "func_801e92c8_slot06_10", address = 0x801e92c8, size = 84 },
+  { name = "func_801e931c_slot06_10", address = 0x801e931c, size = 60 },
+  { name = "func_801e9358_slot06_10", address = 0x801e9358, size = 64 },
+  { name = "func_801e9398_slot06_10", address = 0x801e9398, size = 116 },
+  { name = "func_801e940c_slot06_10", address = 0x801e940c, size = 132 },
+  { name = "func_801e9490_slot06_10", address = 0x801e9490, size = 100 },
+  { name = "func_801e94f4_slot06_10", address = 0x801e94f4, size = 112 },
+]
+
+[[unit]]
+name = "slot06_10_9564_r1"
+image = "slot06_10"
+source = "slot06_10/slot06_10_9564_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9564_slot06_10", address = 0x801e9564, size = 60 },
+  { name = "func_801e95a0_slot06_10", address = 0x801e95a0, size = 32 },
+  { name = "func_801e95c0_slot06_10", address = 0x801e95c0, size = 76 },
+  { name = "func_801e960c_slot06_10", address = 0x801e960c, size = 108 },
+  { name = "func_801e9678_slot06_10", address = 0x801e9678, size = 112 },
+  { name = "func_801e96e8_slot06_10", address = 0x801e96e8, size = 84 },
+  { name = "func_801e973c_slot06_10", address = 0x801e973c, size = 32 },
+  { name = "func_801e975c_slot06_10", address = 0x801e975c, size = 64 },
+  { name = "func_801e979c_slot06_10", address = 0x801e979c, size = 112 },
+  { name = "func_801e980c_slot06_10", address = 0x801e980c, size = 132 },
+  { name = "func_801e9890_slot06_10", address = 0x801e9890, size = 136 },
+  { name = "func_801e9918_slot06_10", address = 0x801e9918, size = 200 },
+  { name = "func_801e99e0_slot06_10", address = 0x801e99e0, size = 144 },
+  { name = "func_801e9a70_slot06_10", address = 0x801e9a70, size = 32 },
+  { name = "func_801e9a90_slot06_10", address = 0x801e9a90, size = 64 },
+  { name = "func_801e9ad0_slot06_10", address = 0x801e9ad0, size = 108 },
+  { name = "func_801e9b3c_slot06_10", address = 0x801e9b3c, size = 132 },
+  { name = "func_801e9bc0_slot06_10", address = 0x801e9bc0, size = 144 },
+]
+
+[[unit]]
+name = "slot06_10_9c50_r1"
+image = "slot06_10"
+source = "slot06_10/slot06_10_9c50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9c50_slot06_10", address = 0x801e9c50, size = 212 },
+  { name = "func_801e9d24_slot06_10", address = 0x801e9d24, size = 132 },
+]
+
+[[unit]]
+name = "slot06_10_9c50_r1_b"
+image = "slot06_10"
+source = "slot06_10/slot06_10_9c50_r1_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9de8_slot06_10", address = 0x801e9de8, size = 32 },
+  { name = "func_801e9e08_slot06_10", address = 0x801e9e08, size = 64 },
+  { name = "func_801e9e48_slot06_10", address = 0x801e9e48, size = 108 },
+  { name = "func_801e9eb4_slot06_10", address = 0x801e9eb4, size = 32 },
+  { name = "func_801e9ed4_slot06_10", address = 0x801e9ed4, size = 32 },
+]
+
+[[unit]]
+name = "slot06_11_8000_r1"
+image = "slot06_11"
+source = "slot06_11/slot06_11_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_11", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_11", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_11", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_11", address = 0x801e8128, size = 148 },
+  { name = "func_801e81bc_slot06_11", address = 0x801e81bc, size = 44 },
+  { name = "func_801e81e8_slot06_11", address = 0x801e81e8, size = 160 },
+]
+
+[[unit]]
+name = "slot06_11_8000_r2"
+image = "slot06_11"
+source = "slot06_11/slot06_11_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8504_slot06_11", address = 0x801e8504, size = 100 },
+  { name = "func_801e8568_slot06_11", address = 0x801e8568, size = 44 },
+  { name = "func_801e8594_slot06_11", address = 0x801e8594, size = 276 },
+]
+
+[[unit]]
+name = "slot06_11_8000_r3"
+image = "slot06_11"
+source = "slot06_11/slot06_11_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8924_slot06_11", address = 0x801e8924, size = 8 },
+  { name = "func_801e892c_slot06_11", address = 0x801e892c, size = 8 },
+  { name = "func_801e8934_slot06_11", address = 0x801e8934, size = 8 },
+  { name = "func_801e893c_slot06_11", address = 0x801e893c, size = 8 },
+  { name = "func_801e8944_slot06_11", address = 0x801e8944, size = 152 },
+  { name = "func_801e89dc_slot06_11", address = 0x801e89dc, size = 44 },
+  { name = "func_801e8a08_slot06_11", address = 0x801e8a08, size = 168 },
+]
+
+[[unit]]
+name = "slot06_11_8d24_r1"
+image = "slot06_11"
+source = "slot06_11/slot06_11_8d24_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d24_slot06_11", address = 0x801e8d24, size = 64 },
+  { name = "func_801e8d64_slot06_11", address = 0x801e8d64, size = 20 },
+  { name = "func_801e8d78_slot06_11", address = 0x801e8d78, size = 76 },
+  { name = "func_801e8dc4_slot06_11", address = 0x801e8dc4, size = 104 },
+  { name = "func_801e8e2c_slot06_11", address = 0x801e8e2c, size = 124 },
+  { name = "func_801e8ea8_slot06_11", address = 0x801e8ea8, size = 104 },
+  { name = "func_801e8f10_slot06_11", address = 0x801e8f10, size = 112 },
+  { name = "func_801e8f80_slot06_11", address = 0x801e8f80, size = 32 },
+  { name = "func_801e8fa0_slot06_11", address = 0x801e8fa0, size = 76 },
+]
+
+[[unit]]
+name = "slot06_11_92c4_r1"
+image = "slot06_11"
+source = "slot06_11/slot06_11_92c4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e92c4_slot06_11", address = 0x801e92c4, size = 64 },
+  { name = "func_801e9304_slot06_11", address = 0x801e9304, size = 96 },
+  { name = "func_801e9364_slot06_11", address = 0x801e9364, size = 64 },
+  { name = "func_801e93a4_slot06_11", address = 0x801e93a4, size = 76 },
+  { name = "func_801e93f0_slot06_11", address = 0x801e93f0, size = 236 },
+  { name = "func_801e94dc_slot06_11", address = 0x801e94dc, size = 32 },
+  { name = "func_801e94fc_slot06_11", address = 0x801e94fc, size = 64 },
+  { name = "func_801e953c_slot06_11", address = 0x801e953c, size = 84 },
+  { name = "func_801e9590_slot06_11", address = 0x801e9590, size = 204 },
+  { name = "func_801e965c_slot06_11", address = 0x801e965c, size = 68 },
+  { name = "func_801e96a0_slot06_11", address = 0x801e96a0, size = 100 },
+  { name = "func_801e9704_slot06_11", address = 0x801e9704, size = 64 },
+  { name = "func_801e9744_slot06_11", address = 0x801e9744, size = 164 },
+  { name = "func_801e97e8_slot06_11", address = 0x801e97e8, size = 452 },
+]
+
+[[unit]]
+name = "slot06_11_99ac_r1"
+image = "slot06_11"
+source = "slot06_11/slot06_11_99ac_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e99ac_slot06_11", address = 0x801e99ac, size = 184 },
+  { name = "func_801e9a64_slot06_11", address = 0x801e9a64, size = 232 },
+  { name = "func_801e9b4c_slot06_11", address = 0x801e9b4c, size = 84 },
+  { name = "func_801e9ba0_slot06_11", address = 0x801e9ba0, size = 124 },
+  { name = "func_801e9c1c_slot06_11", address = 0x801e9c1c, size = 96 },
+  { name = "func_801e9c7c_slot06_11", address = 0x801e9c7c, size = 128 },
+  { name = "func_801e9cfc_slot06_11", address = 0x801e9cfc, size = 32 },
+]
+
+[[unit]]
+name = "slot06_12_8000_r1"
+image = "slot06_12"
+source = "slot06_12/slot06_12_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_12", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_12", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_12", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_12", address = 0x801e8128, size = 76 },
+  { name = "func_801e8174_slot06_12", address = 0x801e8174, size = 176 },
+  { name = "func_801e8224_slot06_12", address = 0x801e8224, size = 44 },
+  { name = "func_801e8250_slot06_12", address = 0x801e8250, size = 276 },
+]
+
+[[unit]]
+name = "slot06_12_8000_r2"
+image = "slot06_12"
+source = "slot06_12/slot06_12_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85e0_slot06_12", address = 0x801e85e0, size = 100 },
+  { name = "func_801e8644_slot06_12", address = 0x801e8644, size = 88 },
+]
+
+[[unit]]
+name = "slot06_12_8000_r2_b"
+image = "slot06_12"
+source = "slot06_12/slot06_12_8000_r2_b.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e872c_slot06_12", address = 0x801e872c, size = 76 },
+  { name = "func_801e8778_slot06_12", address = 0x801e8778, size = 68 },
+  { name = "func_801e87bc_slot06_12", address = 0x801e87bc, size = 160 },
+]
+
+[[unit]]
+name = "slot06_12_8c44_r1"
+image = "slot06_12"
+source = "slot06_12/slot06_12_8c44_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8c44_slot06_12", address = 0x801e8c44, size = 120 },
+  { name = "func_801e8cbc_slot06_12", address = 0x801e8cbc, size = 8 },
+  { name = "func_801e8cc4_slot06_12", address = 0x801e8cc4, size = 8 },
+  { name = "func_801e8ccc_slot06_12", address = 0x801e8ccc, size = 8 },
+  { name = "func_801e8cd4_slot06_12", address = 0x801e8cd4, size = 76 },
+  { name = "func_801e8d20_slot06_12", address = 0x801e8d20, size = 172 },
+  { name = "func_801e8dcc_slot06_12", address = 0x801e8dcc, size = 44 },
+  { name = "func_801e8df8_slot06_12", address = 0x801e8df8, size = 160 },
+]
+
+[[unit]]
+name = "slot06_12_9450_r1"
+image = "slot06_12"
+source = "slot06_12/slot06_12_9450_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9450_slot06_12", address = 0x801e9450, size = 64 },
+  { name = "func_801e9490_slot06_12", address = 0x801e9490, size = 84 },
+  { name = "func_801e94e4_slot06_12", address = 0x801e94e4, size = 144 },
+  { name = "func_801e9574_slot06_12", address = 0x801e9574, size = 72 },
+  { name = "func_801e95bc_slot06_12", address = 0x801e95bc, size = 64 },
+  { name = "func_801e95fc_slot06_12", address = 0x801e95fc, size = 76 },
+  { name = "func_801e9648_slot06_12", address = 0x801e9648, size = 104 },
+  { name = "func_801e96b0_slot06_12", address = 0x801e96b0, size = 176 },
+  { name = "func_801e9760_slot06_12", address = 0x801e9760, size = 84 },
+  { name = "func_801e97b4_slot06_12", address = 0x801e97b4, size = 32 },
+  { name = "func_801e97d4_slot06_12", address = 0x801e97d4, size = 64 },
+  { name = "func_801e9814_slot06_12", address = 0x801e9814, size = 80 },
+  { name = "func_801e9864_slot06_12", address = 0x801e9864, size = 132 },
+  { name = "func_801e98e8_slot06_12", address = 0x801e98e8, size = 32 },
+  { name = "func_801e9908_slot06_12", address = 0x801e9908, size = 64 },
+  { name = "func_801e9948_slot06_12", address = 0x801e9948, size = 76 },
+  { name = "func_801e9994_slot06_12", address = 0x801e9994, size = 72 },
+  { name = "func_801e99dc_slot06_12", address = 0x801e99dc, size = 136 },
+  { name = "func_801e9a64_slot06_12", address = 0x801e9a64, size = 32 },
+  { name = "func_801e9a84_slot06_12", address = 0x801e9a84, size = 64 },
+  { name = "func_801e9ac4_slot06_12", address = 0x801e9ac4, size = 88 },
+]
+
+[[unit]]
+name = "slot06_12_9b1c_r1"
+image = "slot06_12"
+source = "slot06_12/slot06_12_9b1c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9b1c_slot06_12", address = 0x801e9b1c, size = 204 },
+  { name = "func_801e9be8_slot06_12", address = 0x801e9be8, size = 44 },
+  { name = "func_801e9c14_slot06_12", address = 0x801e9c14, size = 108 },
+  { name = "func_801e9c80_slot06_12", address = 0x801e9c80, size = 76 },
+  { name = "func_801e9ccc_slot06_12", address = 0x801e9ccc, size = 116 },
+  { name = "func_801e9d40_slot06_12", address = 0x801e9d40, size = 84 },
+  { name = "func_801e9d94_slot06_12", address = 0x801e9d94, size = 32 },
+  { name = "func_801e9db4_slot06_12", address = 0x801e9db4, size = 88 },
+  { name = "func_801e9e0c_slot06_12", address = 0x801e9e0c, size = 92 },
+  { name = "func_801e9e68_slot06_12", address = 0x801e9e68, size = 64 },
+]
+
+[[unit]]
+name = "slot06_13_8000_r1"
+image = "slot06_13"
+source = "slot06_13/slot06_13_8000_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8000_slot06_13", address = 0x801e8000, size = 152 },
+  { name = "func_801e8098_slot06_13", address = 0x801e8098, size = 88 },
+  { name = "func_801e80f0_slot06_13", address = 0x801e80f0, size = 56 },
+  { name = "func_801e8128_slot06_13", address = 0x801e8128, size = 208 },
+  { name = "func_801e81f8_slot06_13", address = 0x801e81f8, size = 44 },
+  { name = "func_801e8224_slot06_13", address = 0x801e8224, size = 160 },
+]
+
+[[unit]]
+name = "slot06_13_8000_r2"
+image = "slot06_13"
+source = "slot06_13/slot06_13_8000_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8540_slot06_13", address = 0x801e8540, size = 92 },
+  { name = "func_801e859c_slot06_13", address = 0x801e859c, size = 44 },
+  { name = "func_801e85c8_slot06_13", address = 0x801e85c8, size = 160 },
+]
+
+[[unit]]
+name = "slot06_13_8000_r3"
+image = "slot06_13"
+source = "slot06_13/slot06_13_8000_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e88e4_slot06_13", address = 0x801e88e4, size = 8 },
+  { name = "func_801e88ec_slot06_13", address = 0x801e88ec, size = 8 },
+  { name = "func_801e88f4_slot06_13", address = 0x801e88f4, size = 8 },
+  { name = "func_801e88fc_slot06_13", address = 0x801e88fc, size = 8 },
+  { name = "func_801e8904_slot06_13", address = 0x801e8904, size = 72 },
+  { name = "func_801e894c_slot06_13", address = 0x801e894c, size = 84 },
+  { name = "func_801e89a0_slot06_13", address = 0x801e89a0, size = 204 },
+  { name = "func_801e8a6c_slot06_13", address = 0x801e8a6c, size = 44 },
+  { name = "func_801e8a98_slot06_13", address = 0x801e8a98, size = 160 },
+]
+
+[[unit]]
 name = "slot06_00_937cx_r1"
 image = "slot06_00"
 source = "slot06_00/slot06_00_937cx_r1.c"
@@ -12663,4 +14601,355 @@ source = "slot27/slot27_5e68x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80015e68_slot27", address = 0x80015e68, size = 1996 },
+]
+
+[[unit]]
+name = "slot06_00_8128x_r1"
+image = "slot06_00"
+source = "slot06_00/slot06_00_8128x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8128_slot06_00", address = 0x801e8128, size = 212 },
+]
+
+[[unit]]
+name = "slot06_00_896cx_r1"
+image = "slot06_00"
+source = "slot06_00/slot06_00_896cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e896c_slot06_00", address = 0x801e896c, size = 208 },
+]
+
+[[unit]]
+name = "slot06_00_93d8x_r1"
+image = "slot06_00"
+source = "slot06_00/slot06_00_93d8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e93d8_slot06_00", address = 0x801e93d8, size = 136 },
+]
+
+[[unit]]
+name = "slot06_01_8128x_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8128x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8128_slot06_01", address = 0x801e8128, size = 244 },
+]
+
+[[unit]]
+name = "slot06_01_92acx_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_92acx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e92ac_slot06_01", address = 0x801e92ac, size = 160 },
+]
+
+[[unit]]
+name = "slot06_01_8ba8x_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_8ba8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8ba8_slot06_01", address = 0x801e8ba8, size = 104 },
+]
+
+[[unit]]
+name = "slot06_01_9cf0x_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9cf0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9cf0_slot06_01", address = 0x801e9cf0, size = 136 },
+]
+
+[[unit]]
+name = "slot06_01_96d4x_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_96d4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96d4_slot06_01", address = 0x801e96d4, size = 132 },
+]
+
+[[unit]]
+name = "slot06_01_9988x_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_9988x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9988_slot06_01", address = 0x801e9988, size = 252 },
+]
+
+[[unit]]
+name = "slot06_02_81c4x_r1"
+image = "slot06_02"
+source = "slot06_02/slot06_02_81c4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e81c4_slot06_02", address = 0x801e81c4, size = 208 },
+]
+
+[[unit]]
+name = "slot06_03_8174x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_8174x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8174_slot06_03", address = 0x801e8174, size = 188 },
+]
+
+[[unit]]
+name = "slot06_03_91f0x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_91f0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e91f0_slot06_03", address = 0x801e91f0, size = 196 },
+]
+
+[[unit]]
+name = "slot06_03_88c8x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_88c8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e88c8_slot06_03", address = 0x801e88c8, size = 248 },
+]
+
+[[unit]]
+name = "slot06_03_89c0x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_89c0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e89c0_slot06_03", address = 0x801e89c0, size = 160 },
+]
+
+[[unit]]
+name = "slot06_04_8128x_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_8128x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8128_slot06_04", address = 0x801e8128, size = 160 },
+]
+
+[[unit]]
+name = "slot06_04_9300x_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_9300x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9300_slot06_04", address = 0x801e9300, size = 200 },
+]
+
+[[unit]]
+name = "slot06_04_8b4cx_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_8b4cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8b4c_slot06_04", address = 0x801e8b4c, size = 120 },
+]
+
+[[unit]]
+name = "slot06_05_8174x_r1"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8174x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8174_slot06_05", address = 0x801e8174, size = 184 },
+]
+
+[[unit]]
+name = "slot06_05_89acx_r1"
+image = "slot06_05"
+source = "slot06_05/slot06_05_89acx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e89ac_slot06_05", address = 0x801e89ac, size = 212 },
+]
+
+[[unit]]
+name = "slot06_06_8128x_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_8128x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8128_slot06_06", address = 0x801e8128, size = 260 },
+]
+
+[[unit]]
+name = "slot06_06_937cx_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_937cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e937c_slot06_06", address = 0x801e937c, size = 196 },
+]
+
+[[unit]]
+name = "slot06_07_8128x_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_8128x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8128_slot06_07", address = 0x801e8128, size = 216 },
+]
+
+[[unit]]
+name = "slot06_08_9e7cx_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_9e7cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9e7c_slot06_08", address = 0x801e9e7c, size = 148 },
+]
+
+[[unit]]
+name = "slot06_08_81f4x_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_81f4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e81f4_slot06_08", address = 0x801e81f4, size = 276 },
+]
+
+[[unit]]
+name = "slot06_09_9bd0x_r1"
+image = "slot06_09"
+source = "slot06_09/slot06_09_9bd0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e9bd0_slot06_09", address = 0x801e9bd0, size = 208 },
+]
+
+[[unit]]
+name = "slot06_09_8398x_r1"
+image = "slot06_09"
+source = "slot06_09/slot06_09_8398x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8398_slot06_09", address = 0x801e8398, size = 276 },
+]
+
+[[unit]]
+name = "slot06_0b_8258x_r1"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_8258x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8258_slot06_0b", address = 0x801e8258, size = 276 },
+]
+
+[[unit]]
+name = "slot06_00_85ccx_r1"
+image = "slot06_00"
+source = "slot06_00/slot06_00_85ccx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85cc_slot06_00", address = 0x801e85cc, size = 268 },
+]
+
+[[unit]]
+name = "slot06_01_860cx_r1"
+image = "slot06_01"
+source = "slot06_01/slot06_01_860cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e860c_slot06_01", address = 0x801e860c, size = 268 },
+]
+
+[[unit]]
+name = "slot06_02_82c0x_r1"
+image = "slot06_02"
+source = "slot06_02/slot06_02_82c0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e82c0_slot06_02", address = 0x801e82c0, size = 268 },
+]
+
+[[unit]]
+name = "slot06_04_85b0x_r1"
+image = "slot06_04"
+source = "slot06_04/slot06_04_85b0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85b0_slot06_04", address = 0x801e85b0, size = 268 },
+]
+
+[[unit]]
+name = "slot06_05_8258x_r1"
+image = "slot06_05"
+source = "slot06_05/slot06_05_8258x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8258_slot06_05", address = 0x801e8258, size = 268 },
+]
+
+[[unit]]
+name = "slot06_06_82d8x_r1"
+image = "slot06_06"
+source = "slot06_06/slot06_06_82d8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e82d8_slot06_06", address = 0x801e82d8, size = 268 },
+]
+
+[[unit]]
+name = "slot06_07_822cx_r1"
+image = "slot06_07"
+source = "slot06_07/slot06_07_822cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e822c_slot06_07", address = 0x801e822c, size = 268 },
+]
+
+[[unit]]
+name = "slot06_0a_8224x_r1"
+image = "slot06_0a"
+source = "slot06_0a/slot06_0a_8224x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8224_slot06_0a", address = 0x801e8224, size = 268 },
+]
+
+[[unit]]
+name = "slot06_0e_83c0x_r1"
+image = "slot06_0e"
+source = "slot06_0e/slot06_0e_83c0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e83c0_slot06_0e", address = 0x801e83c0, size = 268 },
+]
+
+[[unit]]
+name = "slot06_0c_85f4x_r1"
+image = "slot06_0c"
+source = "slot06_0c/slot06_0c_85f4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85f4_slot06_0c", address = 0x801e85f4, size = 280 },
+]
+
+[[unit]]
+name = "slot06_0d_85ecx_r1"
+image = "slot06_0d"
+source = "slot06_0d/slot06_0d_85ecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85ec_slot06_0d", address = 0x801e85ec, size = 280 },
+]
+
+[[unit]]
+name = "slot06_0f_85e4x_r1"
+image = "slot06_0f"
+source = "slot06_0f/slot06_0f_85e4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e85e4_slot06_0f", address = 0x801e85e4, size = 280 },
 ]
