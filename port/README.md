@@ -108,6 +108,77 @@ ordering tables and for the first word of a primitive, no fixed addresses,
 no symbols that overlap, and no address kept in a 32-bit integer. Each is a
 build switch in the sense of the requirements when it is made.
 
+### Building it for the port
+
+```sh
+python3 port/tools/psyzbuild.py [--psyz DIR] [--patch FILE] [--cc CC] [--build DIR]
+```
+
+The tool builds PsyZ and the SDL it carries as static libraries for the
+machine the port runs on, by default with `i686-w64-mingw32-gcc` for
+32-bit Windows, and prints what a program that links them needs. It
+needs CMake and Ninja. It never writes into the submodule: it copies the
+folders that the build reads and builds the copy. Its header is its
+contract. On 2026-10-09, with PsyZ at its pin, it printed, with the
+build folder written here as BUILD and the system libraries of the last
+line left out:
+
+```
+psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+patch: psyz.patch applied at 1 place
+library: BUILD/obj/psyz/libpsyz.a
+include: BUILD/src/psyz/include
+link: BUILD/obj/psyz/libpsyz.a BUILD/obj/psyz/sdl/libSDL3.a -lm ...
+```
+
+The copy is patched first, with `port/psyz.patch`: two lines removed.
+PsyZ has one path for machines whose `unsigned long` has 4 bytes, and on
+that path it draws into its batch of vertices and sends the batch to the
+picture only when built for the browser. A 32-bit native program then
+sees nothing of what it draws. The patch makes that path send the batch
+always. The file says what was observed with and without it. The three
+lines of PsyZ that the patch quotes are PsyZ's, under the Mozilla Public
+License 2.0, and the patch says so and is offered under the same
+license. Offering the fix to PsyZ's authors has not been done: that is
+the owner's to decide.
+
+The tool reads the patch with a reader of its own and refuses rather
+than guesses: the lines a hunk expects must be in the file at exactly
+one place, a hunk's body must have exactly the line counts of its
+header, and any other line between hunks is refused. So a PsyZ whose
+source differs at the patched place is not built. Every file the patch
+names must lie inside the copy: an absolute path, a path with `..`, a
+path that a symbolic link leads out of the copy, and a file named twice
+are refused, and nothing is written until every hunk of every file has
+been found.
+
+The tool writes only under its build folder and only reads the PsyZ
+source. Before it creates or deletes anything it resolves the source,
+the build folder and the patch file, symbolic links followed, and
+refuses a run in which the build folder is the source or lies inside
+it, the source lies inside the build folder, or the patch file lies
+where the tool deletes or writes. Symbolic links inside the folders it
+copies are refused too. And because the tool builds again in an object
+tree that it finds, it walks that tree first, without following links,
+and refuses any symbolic link in it, any file with a second name, and
+anything that is neither a file nor a folder: a link left in the object
+tree could lead the build's own writes back into the source. The first
+version checked none of this and deleted the source when given a build
+folder that contained it; the owner's review found that, and then the
+link in the object tree. What the tool does not guard is stated in its
+header: a program that changes the tree while it runs, the contents of
+the files it finds in the object tree, and the compiler, CMake and
+Ninja it is given.
+
+`python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
+the output lines and the exit statuses on invented trees and patch
+texts, and the real patch on a file made of the lines it expects; every
+case of a refusal also checks that the whole input is unchanged. It
+needs no compiler. On 2026-10-09 it ended with
+`all cases behaved as required`.
+
+Nothing in this tree links the result yet.
+
 ## The check
 
 ```sh

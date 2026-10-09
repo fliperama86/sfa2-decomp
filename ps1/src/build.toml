@@ -39971,3 +39971,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801b1ed8_slot04_0b", address = 0x801b1ed8, size = 232 },
 ]
+
+[[unit]]
+name = "e37e38x_r1"
+source = "e37e38x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80137e38", address = 0x80137e38, size = 92 },
+]
