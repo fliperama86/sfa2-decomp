@@ -25,11 +25,12 @@ jobs:
       matrix:
         include:
           - { os: ubuntu-latest, cc: gcc, python: python3, controls: true }
+          - { os: ubuntu-latest, cc: gcc, python: python3, controls: false, flag: '--flag=-m32', tag: '-m32' }
           - { os: ubuntu-latest, cc: clang, python: python3, controls: false }
           - { os: macos-latest, cc: cc, python: python3, controls: true }
           - { os: windows-latest, cc: gcc, python: python, controls: false }
           - { os: windows-latest, cc: clang, python: python, controls: false }
-    name: ${{ matrix.os }}, ${{ matrix.cc }}
+    name: ${{ matrix.os }}, ${{ matrix.cc }}${{ matrix.tag }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -51,7 +52,7 @@ jobs:
       - name: A compiler that does not end is stopped
         run: ${{ matrix.python }} port/tools/test_hostcheck_stop.py
       - name: Compile
-        run: ${{ matrix.python }} port/tools/hostcheck.py --cc ${{ matrix.cc }} --build out | tee trial.txt
+        run: ${{ matrix.python }} port/tools/hostcheck.py --cc ${{ matrix.cc }} ${{ matrix.flag }} --build out | tee trial.txt
       - name: The output on the run's page
         run: |
           {
@@ -62,7 +63,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         with:
-          name: trial-${{ matrix.os }}-${{ matrix.cc }}
+          name: trial-${{ matrix.os }}-${{ matrix.cc }}${{ matrix.tag }}
           path: |
             trial.txt
             out/units.tsv

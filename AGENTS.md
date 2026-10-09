@@ -11,7 +11,11 @@ working repository is this directory, not `../68k-decomp`.
 - A port to macOS on Apple Silicon, Windows and Linux was started on
   2026-10-06 by the owner's decision. Read `port/README.md` before port
   work. Port work changes nothing under `ps1/`; the Windows target of the
-  port is not the Windows reference research in `windows/`.
+  port is not the Windows reference research in `windows/`. By the
+  owner's rule of 2026-10-09, nothing of the game's source is changed for
+  the port until the port is shown running, it stays as close to the
+  PS1's original as possible, and its data comes from a disc image that
+  the user supplies.
 - Preserve readable gameplay C and explicit assembly exceptions. Neither an
   all-assembly dump nor opaque retained executable bytes complete the project.
 - Distinguish exact C, tested nonmatching C, assembly, raw retention, inferred
