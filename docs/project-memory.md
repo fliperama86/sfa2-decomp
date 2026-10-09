@@ -7178,6 +7178,29 @@ Mistakes of mine in this stretch:
   rerun those controls after it; seven of them failed when I did. Every
   control file is rerun after any change to a file it reads.
 
+## The port builds PsyZ from a patched copy (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/tools/psyzbuild.py`, `port/psyz.patch` and the
+  controls of the tool. The page has the command, its output and what
+  the patch does. Nothing links the result yet; the graphics layer does,
+  in a later pull request.
+- The patch quotes three lines of a PsyZ file that is under the Mozilla
+  Public License 2.0. It carries that notice and is offered under the
+  same license; the hunk was cut down to the fewest lines that still
+  fit only one place. This is the first file here that quotes PsyZ.
+  Offering the fix to PsyZ's authors is a step outside this repository
+  and waits for the owner's word.
+- The tool had no control file when it was written. The worker who then
+  wrote one found that the patch reader accepted a hunk cut off at the
+  end of the text, a hunk cut off by the next file's header, and lines
+  beyond the header's counts. The reader is strict now and each is a
+  case. One-off figures of the worker: 17 one-line changes of the
+  reader, of which 2 were not noticed until a case was added for each
+  (the last position of a file without a final newline, and the
+  no-newline marker between lines).
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

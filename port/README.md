@@ -108,6 +108,52 @@ ordering tables and for the first word of a primitive, no fixed addresses,
 no symbols that overlap, and no address kept in a 32-bit integer. Each is a
 build switch in the sense of the requirements when it is made.
 
+### Building it for the port
+
+```sh
+python3 port/tools/psyzbuild.py [--psyz DIR] [--patch FILE] [--cc CC] [--build DIR]
+```
+
+The tool builds PsyZ and the SDL it carries as static libraries for the
+machine the port runs on, by default with `i686-w64-mingw32-gcc` for
+32-bit Windows, and prints what a program that links them needs. It
+needs CMake and Ninja. It never writes into the submodule: it copies the
+folders that the build reads and builds the copy. Its header is its
+contract. On 2026-10-09, with PsyZ at its pin, it printed, with the
+build folder written here as BUILD and the system libraries of the last
+line left out:
+
+```
+psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+patch: psyz.patch applied at 1 place
+library: BUILD/obj/psyz/libpsyz.a
+include: BUILD/src/psyz/include
+link: BUILD/obj/psyz/libpsyz.a BUILD/obj/psyz/sdl/libSDL3.a -lm ...
+```
+
+The copy is patched first, with `port/psyz.patch`: two lines removed.
+PsyZ has one path for machines whose `unsigned long` has 4 bytes, and on
+that path it draws into its batch of vertices and sends the batch to the
+picture only when built for the browser. A 32-bit native program then
+sees nothing of what it draws. The patch makes that path send the batch
+always. The file says what was observed with and without it. The three
+lines of PsyZ that the patch quotes are PsyZ's, under the Mozilla Public
+License 2.0, and the patch says so and is offered under the same
+license. Offering the fix to PsyZ's authors has not been done: that is
+the owner's to decide.
+
+The tool reads the patch with a reader of its own and refuses rather
+than guesses: the lines a hunk expects must be in the file at exactly
+one place, a hunk's body must have exactly the line counts of its
+header, and any other line between hunks is refused. So a PsyZ whose
+source differs at the patched place is not built.
+`python3 port/tools/test_psyzbuild.py` checks the reader, the output
+lines and the exit statuses on invented trees and patch texts, and the
+real patch on a file made of the lines it expects; it needs no
+compiler. On 2026-10-09 it ended with `all cases behaved as required`.
+
+Nothing in this tree links the result yet.
+
 ## The check
 
 ```sh
