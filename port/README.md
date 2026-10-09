@@ -619,15 +619,15 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `5ef3bb9`:
+it is in commit `4d6aae1`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3731 compiled, 1 of them nonmatching, 0 failed
+units: 3729 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12460
-functions without C: 622, library 382, game and modules 240
-names at PS1 addresses: 45853
+functions with C: 12457
+functions without C: 625, library 385, game and modules 240
+names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -654,8 +654,8 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1404 written for functions with C, 448 for functions without
-library: 84 host routines, 298 left that stop
+jumps: 1401 written for functions with C, 451 for functions without
+library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
@@ -676,7 +676,7 @@ still ends the program with its name. `sfa2.exe --list-library` prints
 the table; for the program built from this tree it ends with
 
 ```
-library: 84 host routines, 298 left that stop
+library: 84 host routines, 301 left that stop
 ```
 
 of which the listing gives 39 as routines that do something and 45 as
@@ -774,7 +774,7 @@ routines that do nothing on purpose. What is in this piece:
   not what the game does, and it is off unless asked for.
 
 Not in this piece: the graphics, the pads, the modules. Their
-functions are among the 298 that stop.
+functions are among the 301 that stop.
 
 ### What this does not show
 
