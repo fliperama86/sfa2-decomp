@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-typedef u8 (*ScriptFn)(void);
-extern ScriptFn scr_d4_left, scr_184_right;
-
 void func_8014dbc8(Object *object) {
     u16 **table;
     u16 *p;
