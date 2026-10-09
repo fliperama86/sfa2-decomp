@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801903c5;
 void func_800e585c_slot0f(Object *obj);
 
 void func_800e5470_slot0f(Object *obj) {

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 int func_801b66fc_slot04_06(Object *obj);
 
 void func_801b64c4_slot04_06(Object *obj) {

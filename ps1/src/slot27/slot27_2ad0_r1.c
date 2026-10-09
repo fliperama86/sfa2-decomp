@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-extern ObjectRef ref_other;
 extern int data_80190464[];
 
 void func_80012e84_slot27(void);

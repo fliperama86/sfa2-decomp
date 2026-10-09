@@ -16,7 +16,6 @@ extern TextItem *data_801b791c_slot04_sel[];
 extern u8 data_801b9d28_slot04_sel;
 extern u8 data_801b9cec_slot04_sel;
 extern u8 data_801b9ce8_slot04_sel;
-extern s8 data_8016e68e;
 
 void func_801b1984_slot04_sel(void);
 void func_801b1d8c_slot04_sel(Object *obj, Slot04SelRec *p, int n);

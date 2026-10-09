@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Prim *data_8018d140;
-extern u16 data_8018d20c;
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_80151a04(void)
 {

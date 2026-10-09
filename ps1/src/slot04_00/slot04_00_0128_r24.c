@@ -5,8 +5,6 @@
 
 extern void (*data_801c0574_slot04_00[])(Object *, Object *);
 void func_801b35d4_slot04_00(Object *obj, Object *parent);
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 
 void func_801b3538_slot04_00(Object *obj) {
     data_801c0574_slot04_00[obj->field_04](obj, obj->field_3c);

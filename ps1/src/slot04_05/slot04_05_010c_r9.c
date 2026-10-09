@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFnInt data_801c139c_slot04_05[];
-extern u8 data_801ad398;
 extern ObjectFn data_801c13c4_slot04_05[];
 extern ObjectFn data_801c13ec_slot04_05[];
 
