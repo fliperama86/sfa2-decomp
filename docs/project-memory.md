@@ -4898,9 +4898,12 @@ Counts, from the build and the published inventory:
   (`Config`, `GameState`, `FrameRecord`); each was tested: without it an
   exact unit does not compile. The resident image and the other module
   images are unchanged in their bytes.
-- The coverage map's lines after this group: `modules: 5672/11220
-  function placements exact (50.6%)`, `overall: 3798/5600 distinct
-  functions exact (67.8%); 7426/13072 placements (56.8%)`.
+- The coverage map's lines with this group and the two before it:
+  `modules: 5880/11220 function placements exact (52.4%)`, `overall:
+  3948/5600 distinct functions exact (70.5%); 7634/13072 placements
+  (58.4%)`. Without the module of slot `0x27`, which was merged on
+  `main` while this group waited, they were `5672/11220` and `3798/5600
+  (67.8%)`.
 
 How the blocks relate, from comparing bytes (the private list of likes):
 the block of `PL15.PAC` is the code of `PL0D.PAC` moved by 8 bytes, the
@@ -4926,10 +4929,11 @@ What ran (one-off counts from the private folders):
   it, with every image still exact. Calls with another number of
   arguments, undeclared calls, dispatch table entries with another
   parameter list and declarations without a prototype are at zero.
-  Since `main` moved under this work it prints 54: the first session
-  gave three resident functions the parameters their module callers
-  pass, and the check now knows the one resident unit's own name for
-  `unsigned char`, which had made 46 lines that were no difference.
+  Since `main` moved under this work it prints 52: the first session
+  gave four resident functions the parameters their module callers
+  pass (`func_801483a4` and `func_80130768` among them), and the check
+  now knows the one resident unit's own name for `unsigned char`, which
+  had made 46 lines that were no difference.
 - The private promotion helper of the stage modules, adapted: it dropped
   2,501 unused declaration lines, 21 unused data symbols and 15 unused
   field lines, and checked that nothing outside the character lines of
@@ -4941,8 +4945,9 @@ What the declaration check still prints, and why it stands:
   where the unit is exact only so: `func_801482e0` with `int`
   parameters (the listings pass negative constants with `addiu`, the
   definition takes `u16`; `func_801483a4` had the same and takes `int`
-  on `main` now), `func_80130678` and `func_80130768` with an `int`
-  index, `func_80125734` with a signed byte, five functions of one
+  on `main` now), `func_80130678` with an `int` index (`func_80130768`
+  had the same and takes `int` on `main` now), `func_80125734` with a
+  signed byte, five functions of one
   resident unit (`func_8013cac8` and its neighbours), `func_80141788`,
   `func_801418bc`, `func_80149b80` and `func_8012f898` with another
   return width, `func_80130470`, `func_8013054c`, `func_80155eac`, and
