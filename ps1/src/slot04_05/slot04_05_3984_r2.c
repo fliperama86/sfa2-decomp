@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3c0c_slot04_05(Object *obj);
+void func_801b3c0c_slot04_05(Object *obj, Object *parent);
 
 void func_801b3b78_slot04_05(Object *obj, Object *p) {
     obj->field_04++;
@@ -18,5 +18,5 @@ void func_801b3b78_slot04_05(Object *obj, Object *p) {
     obj->field_90 = p->field_90;
     obj->field_98 = p->field_98;
     obj->field_9c = p->field_9c;
-    func_801b3c0c_slot04_05(obj);
+    func_801b3c0c_slot04_05(obj, p);
 }

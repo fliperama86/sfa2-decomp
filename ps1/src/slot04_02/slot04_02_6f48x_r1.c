@@ -12,7 +12,7 @@ extern FrameRecord *data_1f8000a8;
 extern FrameRecord *data_1f800158;
 
 int func_801b772c_slot04_02(Object *object, Object *parent);
-void func_801b7920_slot04_02(Object *object, int a_arg);
+void func_801b7920_slot04_02(Object *object, u8 a_arg);
 
 /* The local t holds the 0x7754 table value for the y offset; d holds the later x offsets. Written with one local for both, this function differs from the original in 16 instruction slots. */
 void func_801b6f48_slot04_02(Object *object) {

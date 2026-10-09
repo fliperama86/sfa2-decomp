@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e74_slot04_08(Object *obj) {
+void func_801b3e74_slot04_08(Object *obj, Object *unused) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
     obj->field_07 = obj->field_07 + 1;
