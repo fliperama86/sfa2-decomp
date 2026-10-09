@@ -7592,6 +7592,17 @@ No function count changes here. Nothing under `ps1/` changed.
   deletes or writes gets, before anything else, a list of the places it
   touches, a check of every path against that list made on resolved
   paths, and cases that hand it the paths arranged to hurt.
+- His second review found the same boundary one level down: the tool
+  checked whether its object folder is a link and not what lies below
+  it, and a link left there from before led the build's write into the
+  source ("a pre-existing `BUILD/obj/libpsyz.a` link to
+  `SOURCE/decomp/d.c` causes that source file to be overwritten"). The
+  tool now walks the tree it is about to build in. I had asked the
+  worker for the paths the tool itself writes and had not asked what
+  the build writes through names that already exist. When closing a
+  boundary after a review, the next question is where else the same
+  thing can happen one step further on, and the worker is told to look
+  there; this time it found five more such places by being asked.
 - A flaw I found myself after opening the pull request: the tool asked
   git for the commit inside the PsyZ folder, and for a plain folder
   inside another repository git answers with the outer repository's

@@ -158,9 +158,17 @@ the build folder and the patch file, symbolic links followed, and
 refuses a run in which the build folder is the source or lies inside
 it, the source lies inside the build folder, or the patch file lies
 where the tool deletes or writes. Symbolic links inside the folders it
-copies are refused too. The first version checked none of this and
-deleted the source when given a build folder that contained it; the
-owner's review found that.
+copies are refused too. And because the tool builds again in an object
+tree that it finds, it walks that tree first, without following links,
+and refuses any symbolic link in it, any file with a second name, and
+anything that is neither a file nor a folder: a link left in the object
+tree could lead the build's own writes back into the source. The first
+version checked none of this and deleted the source when given a build
+folder that contained it; the owner's review found that, and then the
+link in the object tree. What the tool does not guard is stated in its
+header: a program that changes the tree while it runs, the contents of
+the files it finds in the object tree, and the compiler, CMake and
+Ninja it is given.
 
 `python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
 the output lines and the exit statuses on invented trees and patch
