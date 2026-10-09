@@ -7517,6 +7517,184 @@ No function count changes here: none of this is in the build.
   new parts were run against 73 more one-line changes of the tool by a
   worker; all were noticed after one equivalent change was replaced.
 
+## Three graphics library functions from the reference's source: how the copy routine is declared (2026-10-09)
+
+One of the open questions of the library was "struct copies through a
+call": `PutDrawEnv`, `GetDrawEnv`, `PutDispEnv` and `GetDispEnv` copy a
+struct by calling the BIOS copy routine with a constant size, while
+this compiler, given the reference's `memcpy` of a constant size,
+copies in place. A compiler flag for those units had been considered
+and was waiting for a decision. No flag is needed.
+
+- The compiler copies in place because `memcpy` is one of its built-in
+  functions. It gives the built-in up when the source declares
+  `memcpy` with other parameter types than its own. A control on the
+  compiler alone, two small files that differ in one declaration: with
+  `void *memcpy(unsigned char *dst, unsigned char *src, int n);` in
+  front, the compiler warns of conflicting types for the built-in
+  function and emits a call; without it there is no call in the
+  output.
+- Tried first, and no way out: a plain struct assignment is copied in
+  place like the constant-size call. `GetDrawEnv` is 24 instruction
+  words either way where the image has 14.
+- With that one declaration at the top of the adapted graphics system
+  file, the reference's source of `PutDrawEnv`, `GetDrawEnv` and
+  `GetDispEnv` is exact. `PutDispEnv` goes from 80 differing
+  instruction slots to 58 and stays out.
+
+What changes in the build. The three functions were in it already,
+exact, as reconstructions under address names that an earlier round
+had written with types of its own, calling the copy routine under its
+address name, which the compiler does not know. They are owned by the
+library's parts now, under their library names and with the
+reference's structs. The two units that held them are gone. The
+message that `PutDrawEnv` prints, 24 bytes of read-only data, was
+referred to by address and is owned by a unit now: the build's
+coverage line goes from 2,352 to 2,376 bytes of read-only data, and
+the raw payload falls by the same 24. The count of exact functions is
+the same.
+
+Inferred, not known: that the library's own header declared the copy
+routine with byte pointers. The reference's calls cast their arguments
+to byte pointers, which fits such a declaration; the header's text was
+not seen. The declaration is this project's line in the adapted file
+and says so in a comment.
+
+The question about a flag is closed. Three questions of the library
+remain open as before: the object that looks assembled by another
+assembler, the loads that only a volatile field reproduces, and the
+delay instruction that the assembler emulation does not produce.
+
+## The port builds PsyZ from a patched copy (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/tools/psyzbuild.py`, `port/psyz.patch` and the
+  controls of the tool. The page has the command, its output and what
+  the patch does. Nothing links the result yet; the graphics layer does,
+  in a later pull request.
+- The patch quotes three lines of a PsyZ file that is under the Mozilla
+  Public License 2.0. It carries that notice and is offered under the
+  same license; the hunk was cut down to the fewest lines that still
+  fit only one place. This is the first file here that quotes PsyZ.
+  Offering the fix to PsyZ's authors is a step outside this repository
+  and waits for the owner's word.
+- The owner's review of the first version (PR 123), in his words: "The
+  promised untouched-source boundary is not enforced: `copy_source`
+  deletes `BUILD/src` before checking its relationship to the input. On
+  an invented tree, `--psyz WORLD/src --build WORLD` deletes the entire
+  source and then exits 2 because it is missing", and "`apply_patch`
+  accepts paths outside its copy. An invented `../outside.c` hunk
+  changes a file outside the supplied root." The header had promised
+  "never writes into the submodule's folder", and no case had tried to
+  make it. Both are closed, with cases that compare the whole input
+  before and after each refusal. The rule I take from it: a tool that
+  deletes or writes gets, before anything else, a list of the places it
+  touches, a check of every path against that list made on resolved
+  paths, and cases that hand it the paths arranged to hurt.
+- His second review found the same boundary one level down: the tool
+  checked whether its object folder is a link and not what lies below
+  it, and a link left there from before led the build's write into the
+  source ("a pre-existing `BUILD/obj/libpsyz.a` link to
+  `SOURCE/decomp/d.c` causes that source file to be overwritten"). The
+  tool now walks the tree it is about to build in. I had asked the
+  worker for the paths the tool itself writes and had not asked what
+  the build writes through names that already exist. When closing a
+  boundary after a review, the next question is where else the same
+  thing can happen one step further on, and the worker is told to look
+  there; this time it found five more such places by being asked.
+- A flaw I found myself after opening the pull request: the tool asked
+  git for the commit inside the PsyZ folder, and for a plain folder
+  inside another repository git answers with the outer repository's
+  commit. The tool names a commit only for a folder that is its own
+  work tree now. I found it because a worker's control failed for a
+  reason it had guessed wrongly.
+- The tool had no control file when it was written. The worker who then
+  wrote one found that the patch reader accepted a hunk cut off at the
+  end of the text, a hunk cut off by the next file's header, and lines
+  beyond the header's counts. The reader is strict now and each is a
+  case. One-off figures of the worker: 17 one-line changes of the
+  reader, of which 2 were not noticed until a case was added for each
+  (the last position of a file without a final newline, and the
+  no-newline marker between lines).
+
+## A parked function exact: the call passes the object (2026-10-09)
+
+`func_80137e38`, 92 bytes, was parked with one differing instruction
+slot after about 35 forms: the store that follows the second call's
+argument move went through the saved register where the original goes
+through the argument register. The pass dumps had shown where the
+scheduler put the store and not why.
+
+The cause was a call written with too few arguments. The second
+session, reading the instructions of functions that are not C yet,
+listed calls in parked candidates that pass fewer arguments than the
+instructions have in the registers. This candidate called
+`func_801380f0` with nothing; the function takes the object, and the
+original has it in the argument register there without setting it.
+With `func_801380f0(object)` the function is exact, with no other
+change. It is an entry of the table `handlers_268c`, whose declared
+entry type is the function's.
+
+Inferred, not shown: why the argument changes the store's base
+register. The compiler now has the object in the argument register as
+a value of the call, and that seems to be what lets it use the
+register again after the second argument move.
+
+The same lead on other parked candidates, by a private scan that
+compares every call a candidate declares with the definition in the
+tree: more candidates declare a callee with another number of
+parameters than the callee has. One of them, a function of 1,432
+bytes, lost its long-standing residual the same way and is being
+finished; the others are leads for retries.
+
+The map after this group, from `coveragemap.py render`: 5,413 of
+5,600 distinct functions exact, 12,830 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1760/1760`.
+
+## The port reads the disc (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/cd.c` with the CD library's host routines, the
+  file table reader in `disc.c`, `Exec`, and their controls. The page
+  has what is served, what ends the program, and the cases.
+- Three things differ from the state that ran the private trial, all
+  from the reviews of the pieces before this one:
+  - `Exec` of a program of the disc ended nothing there: it printed a
+    line and returned. The disc has three such programs that the game
+    starts (two were seen in the trial, by their place probably the
+    company's logo and the opening film: inferred). No C exists for
+    them. The port's rule is to stop where C is missing, so that is the
+    default now; `--skip-programs` is the trial's behaviour, by option.
+    Whether these programs get C, or the port may skip them for good,
+    is the owner's to decide and has not been asked yet.
+  - `CdGetSector` copied to whatever address the game gave. It now
+    refuses a buffer that is not inside the PS1's RAM. One-off check
+    that the real game stays inside: in three traces of the private
+    trial, 1,102, 1,397 and 2,672 calls, none had a buffer outside.
+  - The ready handler's address is checked at each call.
+- The owner's review of the first version (PR 128), in his words: "The
+  new file-table reader does not enforce the bounds its interface and
+  README promise. In independent native tests on an invented 25-sector
+  image, `port_disc_list` succeeds with a file starting at sector 900,
+  and also with a file claiming 4,294,967,295 bytes", and "It also
+  scans the whole final sector rather than the remaining declared
+  directory bytes." My page had said "every length, extent and name
+  bounded"; the worker had bounded the directories, and I had accepted
+  "no check had to be added" without asking what the reader hands to
+  its caller. Both readers now stop at the directory's declared end and
+  refuse a file that is not inside the image. Ten one-line changes of
+  the new checks were run against the cases at the top level: seven
+  were noticed at once, one was noticed by a compile error and not by
+  a case, and for the rest four cases were added (the other reader's
+  two paths, the last byte of a cut image, one byte of slack). The
+  rule I take from it: a sentence on a page that says "every" is
+  checked word by word against the code before it is written, and a
+  worker's "nothing had to be added" is a claim to test.
+- Not shown: the disc layer on the real game from a published commit
+  (the published tree stops at `main`).
+
 ## Rows of the sweep that are not functions, and what the port's work list really was (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.
