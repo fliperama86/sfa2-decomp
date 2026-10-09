@@ -695,8 +695,13 @@ routines that do nothing on purpose. What is in this piece:
   the game's thread when a vertical blank is due and no library routine
   has taken it: it suspends the thread and points it at a small routine
   that saves the flags, every register and the floating-point state,
-  runs the vertical-blank work on the game's own thread, and returns to
-  the interrupted instruction. Its bounds: the timer never calls game
+  gives the handler the state that compiled C expects at a call (an
+  empty floating-point stack, the default control words of both
+  floating-point units, a clear direction flag, an aligned stack), runs
+  the vertical-blank work on the game's own thread, puts the saved
+  state back and returns to the interrupted instruction. It does not
+  save the upper halves of the AVX registers: only the game's own code
+  is interrupted, and the build compiles it without AVX. Its bounds: the timer never calls game
   code or any library; a vertical blank is taken exactly once, by the
   timer or by the clock; the thread is interrupted only while it is in
   the game's own code, between the build's two markers, or at a jump in
@@ -793,9 +798,13 @@ cases for the interruption: made-up game code that spins on a counter
 which only its handler raises ends by itself, and the handler ran on the
 game's thread; the same code with `--no-interrupt` is ended by the
 watchdog; a loop inside a host routine is not interrupted; a handler is
-not interrupted by a second vertical blank; and values kept in every
+not interrupted by a second vertical blank; values kept in every
 register, in the flags and in the floating-point registers survive many
-interruptions. On
+interruptions; and with all eight floating-point registers of the
+interrupted code occupied, a changed rounding mode in both control
+words and the direction flag set, the handler finds the default state,
+computes rightly with both floating-point units, and the interrupted
+code gets its eight values, its control words and its flag back. On
 2026-10-09 each of the three ended with
 `all cases behaved as required`.
 

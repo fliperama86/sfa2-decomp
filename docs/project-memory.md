@@ -7338,9 +7338,23 @@ No function count changes here. Nothing under `ps1/` changed.
   game's thread, so that the handlers still run on the game's own
   thread, and only while that thread is in the game's own code. The
   alternative of a guarded data page was not built or measured.
+- The owner's review of the first version (PR 124), in his words:
+  "`FXSAVE` preserves the interrupted floating-point state but does not
+  give the C interrupt handler a clean x87 stack. The handler currently
+  executes on the interrupted function's live stack and control
+  environment", shown by him with a game loop that keeps all eight x87
+  slots occupied: the handler's `3.25 * count` came out as NaN while
+  the program ended with status 0. My contract for the routine had said
+  "save every register and the flags, and the FPU/SSE state" and
+  nothing about the state the handler is entered with; the control kept
+  two values and passed. The routine now enters the handler as the
+  calling convention promises a function: `fninit`, the default MXCSR,
+  the direction flag clear, the stack aligned. The rule I take from it:
+  an interruption has two contracts, what the interrupted code gets
+  back and what the handler starts with, and each needs a case that
+  fills the state to its limit.
 - Not shown: anything on the real game from a published commit (the
-  published tree stops at `main`). The five cases run on made-up game
-  code.
+  published tree stops at `main`). The cases run on made-up game code.
 
 ## Windows reference
 
