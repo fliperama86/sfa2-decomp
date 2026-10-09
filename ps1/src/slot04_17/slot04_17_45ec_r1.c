@@ -13,7 +13,7 @@ void func_80142fe8(Object *object);
 void func_80142c70(Object *object);
 void func_801495f8(Object *object, int x, int y);
 void func_80141f28(Object *object, short delta);
-void func_80130678(Object *object, u16 arg);
+void func_80130678(Object *object, int arg);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 int func_80140cd8(Object *object, int a, int b);
 int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);

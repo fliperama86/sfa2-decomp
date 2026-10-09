@@ -26,24 +26,28 @@ void func_8013ca3c(Object *a, Object *b) {
     func_801465b0(a, 2, -0x40, 0x51);
 }
 
-u8_ func_8013cac8(Object *object, u8_ a, u8_ b) {
-    return func_8013de2c(object, a, b);
+int func_8013cac8(Object *object, u8_ a, u8_ b) {
+    u8_ r = func_8013de2c(object, a, b);
+    return r;
 }
 
 u8_ func_8013caf0(Object *object, u8_ a, u8_ b) {
     return (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
 }
 
-u8_ func_8013cb70(Object *object, u8_ a, u8_ b) {
-    return (func_8013d004(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+int func_8013cb70(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d004(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
-u8_ func_8013cbdc(Object *object, u8_ a, u8_ b) {
-    return (func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+int func_8013cbdc(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
-u8_ func_8013cc48(Object *object, u8_ a, u8_ b) {
-    return (func_8013d06c(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+int func_8013cc48(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d06c(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
 u8_ func_8013ccb4(Object *object, u8_ a, u8_ b) {
@@ -58,20 +62,24 @@ u8_ func_8013cd5c(Object *object, u8_ a, u8_ b) {
     return (func_8013d004(object)) ? func_8013d4cc(object, a, b) : func_8013d0a0(object, a);
 }
 
-u8_ func_8013cdc8(Object *object, u8_ a, u8_ b) {
-    return func_8013e574(object, a, b);
+int func_8013cdc8(Object *object, u8_ a, u8_ b) {
+    u8_ r = func_8013e574(object, a, b);
+    return r;
 }
 
-u8_ func_8013cdf0(Object *object, u8_ a, u8_ b) {
-    return (func_8013d004(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+int func_8013cdf0(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d004(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
-u8_ func_8013ce5c(Object *object, u8_ a, u8_ b) {
-    return (func_8013d038(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+int func_8013ce5c(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d038(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
-u8_ func_8013cec8(Object *object, u8_ a, u8_ b) {
-    return (func_8013d06c(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+int func_8013cec8(Object *object, u8_ a, u8_ b) {
+    u8_ r = (func_8013d06c(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
 u8_ func_8013cf34(Object *object, u8_ a, u8_ b) {

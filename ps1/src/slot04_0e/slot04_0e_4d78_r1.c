@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_80142adc(Object *object);
-u8 func_8013cac8(Object *object, u8 a, u8 b);
+int func_8013cac8(Object *object, u8 a, u8 b);
 
 void func_801b4f44_slot04_0e(Object *obj, int a);
 void func_801b4fe4_slot04_0e(Object *obj);

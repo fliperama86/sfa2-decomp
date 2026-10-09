@@ -413,7 +413,7 @@ void func_8013ca3c(Object *a0, Object *a1);
 u8 func_8013d21c(Object *object, u8 index, u8 arg);
 void func_8013d418(Object *object, u8 index, u8 arg);
 u8 func_8013d4cc(Object *object, u8 index, u8 arg);
-u8 func_8013de2c(Object *object, u8 index, u8 arg);
+int func_8013de2c(Object *object, u8 index, u8 arg);
 void func_8013e028(Object *object, u8 index, u8 arg);
 u8 func_8013e190(Object *object, u8 index, u8 arg);
 u8 func_8013e3b4(Object *object, u8 index, u8 arg);

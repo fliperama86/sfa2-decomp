@@ -1,0 +1,45 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../game.h"
+#include "../protos.h"
+#include "../externs.h"
+
+Object *func_8011f32c(void);
+
+extern u8 data_801b3df0_slot04_00[];
+extern u8 data_801b5db8_slot04_00[];
+extern u32 data_801bfc8c_slot04_00[];
+
+void func_801b0020_slot04_00(Object *obj) {
+    u32 *dst;
+    u32 i;
+    Object *c;
+    u8 s;
+
+    dst = (u32 *)0x1f800100;
+    obj->field_98 = data_801b3df0_slot04_00;
+    obj->field_9c = data_801b5db8_slot04_00;
+    if (obj->side == 0) {
+        dst = (u32 *)0x1f800050;
+    }
+    i = 0;
+    for (; i < 0x28; i++) {
+        dst[i] = data_801bfc8c_slot04_00[i];
+    }
+    c = func_8011f32c();
+    if (c != 0) {
+        c->field_00 = 1;
+        c->field_02 = 0;
+        c->field_3c = obj;
+        c->field_0c = obj->field_0c;
+        c->field_0e = obj->field_0e;
+        s = obj->side;
+        obj->field_28 = (u32)c;
+        c->field_66 = s;
+        c->field_0d = obj->field_0d;
+        c->field_7a = obj->field_7a;
+        c->field_7c = obj->field_7c;
+        c->field_90 = obj->field_90;
+        c->field_98 = obj->field_98;
+        c->field_9c = obj->field_9c;
+    }
+}

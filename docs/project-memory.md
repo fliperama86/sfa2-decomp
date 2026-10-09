@@ -5331,6 +5331,159 @@ Lessons:
   one base: merge every exact batch of that base, run the copy pass on
   the result. It took five minutes.
 
+## Seventy-third group: the first-side blocks of twelve character files
+
+The 24 character files `PL00.PAC` to `PL17.PAC` each carry, in slot `0x4`,
+a block of one character's code and data at `0x801b0000`. This session has
+the first twelve; the second session has the other twelve. The images are
+`slot04_00` to `slot04_0b`, named after the number of the file.
+
+Counts, from the build and the inventory:
+
+- 1,562 of the 2,116 functions of the twelve blocks are exact, 197,460 of
+  257,648 bytes. 740,752 bytes of the chunks are retained raw.
+- Of the 554 others, 534 are the same code, apart from addresses, as a
+  function of one of the second session's twelve files and wait for that
+  source; 20 are parked with candidates or are copies of a parked
+  function.
+- Eleven of the twelve blocks are on the disc a second time, linked
+  0x18000 higher, in slot `0x5` of the `X` file of the character. They
+  are the images `slot05_NN`, linked from the units of `slot04_NN`, and
+  all their functions are exact at once: 1,360 more placements, no
+  source. `PL06X.PAC` is left out: its block is 4 bytes shorter than the
+  first side's, so it is not the same code throughout.
+- After the round's first commit, on the main of that day: 1,045 unit
+  files, 589 symbols and 5 structs were new, with 60 new lines of the
+  field table (one of them in the game state); the tree had 47
+  unused-array stand-ins, 5 of them in these images, and 10 calls through
+  a cast of the callee, 7 of them here.
+- On the head that was merged, after the second attempts of this group
+  and after the second session's blocks had come into main: 1,070 unit
+  files in the twelve folders; against main 597 names in the symbol file,
+  6 structs and 63 lines of the field table; 7 unused-array stand-ins and
+  8 calls through a cast of the callee in these images, 70 and 21 in the
+  tree; 75 module images in the build.
+- 19 resident functions changed their declaration, three resident
+  callers were adjusted, and all stayed exact (see below). No unit of
+  another module changed.
+
+What ran:
+
+- The copy helper first, with every module image of the tree as a model:
+  540 functions of the twelve blocks are the same code as a function that
+  was already exact, and 537 were exact as written. No agent.
+- A plan over the whole family: of every kind of function (equal apart
+  from addresses) that no unit defined, the one occurrence in the first
+  file that has it. 961 functions in 108 batches, eight agents at a time,
+  each with a file of the exact functions that its own most resemble
+  (the second session's helper, run against both sessions' trees). 919
+  exact. The note that every batch reads was extended nine times while
+  the round ran.
+- The copy helper again for the functions that repeat one of those: 83
+  written, 81 exact.
+- The declaration check on the merged tree printed 252 lines. Four
+  agents, by groups of images, with the decisions given to them, and two
+  more for what they stopped on, brought it to zero.
+
+What the original does that the tree had to find a form for:
+
+- Resident functions that the blocks call otherwise than the resident
+  source declared them. Results that callers use unmasked: twelve
+  functions return `int` through a narrow local now. Arguments that
+  callers pass unmasked: six functions take `int` and copy it into a
+  narrow local. One function has a seventh parameter that a caller
+  passes and it does not read. Each was kept only with the resident
+  image exact; all were. Together with the three of the group before
+  this makes the list long enough to say it plainly: the resident
+  declarations were written from the resident callers alone, and the
+  modules are callers too.
+- Tables whose entries read a second argument that the dispatcher does
+  not set, and functions whose caller tests a result that they never
+  set. Both have an entry in the matching guide.
+- A block that begins with data: in `PL00.PAC` the first 0x20 bytes are a
+  table, and the sweep had taken 24 of them as the start of the first
+  function. The unit declares the function where its code begins.
+
+Faults of this round, all found before anything was published:
+
+- The work folders could not build at first: the base tree carried a
+  symbol line for every function not yet written, and the setup helper
+  left a batch's own lines in. Eight agents had started; one stopped and
+  reported, as its brief says. The helper removes those lines now.
+- One batch was banked before its agent had finished, and its eight
+  unwritten functions were parked as empty candidates. The check that
+  should have caught it used an option that the installed `find` does
+  not take, and its error output was thrown away. The eight ran again.
+- An agent left a copy of the private tree inside the checkout, outside
+  the ignored folders. `git status` showed it before the promotion.
+- One function was exact only with an access written as a byte offset
+  from a cast pointer. With the field named, one addition has its
+  operands exchanged. It is parked; the rule stays.
+
+Lessons:
+
+- The order of a round on a family of modules: copies from everything
+  that is exact, then one function of each kind over the whole family,
+  then copies again. More than a third of the functions of this round
+  needed no agent.
+- A batch is banked when its agent has said it is done, not when its
+  folder looks quiet.
+- A check whose error output is discarded is not a check. The line that
+  reported "checked" had tested nothing.
+- A list of the field lines that earlier batches added, kept in the note
+  that later batches read, held the merge to two conflicts in 108
+  batches.
+- Look at `git status` before every promotion, and tell agents where
+  backups may go.
+
+Open: the second side of `PL06`; the 45 parked functions (hints from the
+reports are kept privately); the 534 that wait for the second session's
+source; one name for the object view that the two sessions' character
+units now call by two names.
+
+What the merge with the second session's blocks showed (2026-10-08):
+
+- The whole build of both sessions' blocks is exact together. The
+  resident definitions that this group changed did not break a unit of
+  the other blocks.
+- The declaration check, corrected the day before (it had ended a
+  dispatch table at a name of another image), found one table of
+  `slot04_09` whose entries disagree: three of nine read a second
+  parameter that the dispatcher does not set. The table, its entries and
+  the dispatcher have the form that the matching guide gives for that,
+  and both images of the block are exact as before.
+- A correction by the owner on this pull request (2026-10-08). Its first
+  head left 92 declarations of resident functions in units of the second
+  session's eleven blocks in disagreement with the resident definitions:
+  42 had been there on main, and 50 were new, because those units
+  declared the forms that the definitions had before this group changed
+  them. The description called them the other session's units to change.
+  The owner: "Leaving the corrections to another session means merging a
+  new cross-translation-unit inconsistency, not merely retaining the
+  existing backlog", and asked for the callers to be updated here, with
+  their narrowing kept and their whole ranges verified.
+- Done in the same pull request: 53 units of `slot04_0c` to `slot04_17`
+  declare the nineteen changed functions as their definitions are, with
+  a cast at the call where the listing narrows a result or an argument
+  (`(u8)` at the tests of the `func_8013c...` family, `(s8)` at the
+  argument and the result of `func_80125734`), and two calls of
+  `func_80140598` that were written through a cast of the callee are
+  plain calls with seven arguments now. Every function of the 53 units is
+  identical, all 75 module images and the resident image build to their
+  baselines, and the tree has 19 calls through a cast of the callee where
+  the first head had 21.
+- The check prints 19 findings on the head with those changes, where main
+  has 45: 16 declarations of resident functions that this group did not
+  change (they were on main), the two resident functions that no unit
+  defines (`func_80140cd8`, `func_8013f8c4`) and `box_margin`. One of the
+  16 is a unit that declares `func_80125734` with an `int` result where
+  the definition returns a byte; the definition's form leaves it 4 bytes
+  short, as before this group.
+- The lesson, which is the owner's: a change of a shared definition
+  brings its callers with it in the same pull request, in whatever folder
+  they are. The split of the folders between the sessions is about new
+  work; it does not make a new inconsistency somebody else's.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

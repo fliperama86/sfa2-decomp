@@ -28,7 +28,9 @@ void func_8013dd8c(Object *object, u8 index) {
     data_80188f4c = order.v[game_state.field_35c &= 3];
 }
 
-u8 func_8013de2c(Object *object, u8 index, u8 arg) {
+int func_8013de2c(Object *object, u8 index, u8 arg) {
+    u8 r;
     table_8017abd8[object->slots[index].field_00](object, index, arg);
-    return data_80188f44;
+    r = data_80188f44;
+    return r;
 }

@@ -26,7 +26,7 @@ extern u8 data_801c59dc_slot04_0f[];
 extern ObjectFn data_801c59e0_slot04_0f[];
 
 Block172 *func_8011f1e0(void);
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 void func_80130dc0(Object *object);
 u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142a14(Object *object);

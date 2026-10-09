@@ -5,10 +5,10 @@
 
 u8 func_8013d210(Object *object);
 int func_8013d1a8(Object *object);
-u8 func_8013cb70(Object *object, u8 index, u8 arg);
-u8 func_8013cbdc(Object *object, u8 index, u8 arg);
-u8 func_8013cc48(Object *object, u8 index, u8 arg);
-u8 func_8013cac8(Object *object, u8 index, u8 arg);
+int func_8013cb70(Object *object, u8 index, u8 arg);
+int func_8013cbdc(Object *object, u8 index, u8 arg);
+int func_8013cc48(Object *object, u8 index, u8 arg);
+int func_8013cac8(Object *object, u8 index, u8 arg);
 u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 int func_80141e34(Object *object);
@@ -41,14 +41,14 @@ void func_801b1368_slot04_15(Object *obj);
 void func_801b09e0_slot04_15(Object *obj) {
     if (func_8013d210(obj) && (u8)func_801b10d4_slot04_15(obj)) return;
     if ((u8)func_8013d1a8(obj) && (u8)func_801b0c24_slot04_15(obj)) return;
-    if (func_8013cb70(obj, 0, 0x18) && (u8)func_801b0f40_slot04_15(obj)) return;
-    if (func_8013cbdc(obj, 1, 0x15) && (u8)func_801b0fc8_slot04_15(obj)) return;
-    if (func_8013cc48(obj, 2, 0x17) && (u8)func_801b1050_slot04_15(obj)) return;
-    if (func_8013cac8(obj, 3, 4) && (u8)func_801b0e60_slot04_15(obj)) return;
-    if (func_8013cac8(obj, 4, 0) && (u8)func_801b0ba4_slot04_15(obj)) return;
-    if (func_8013cac8(obj, 5, 3) && (u8)func_801b0ed0_slot04_15(obj)) return;
-    if (func_8013cac8(obj, 6, 0xd) && (u8)func_801b0d10_slot04_15(obj)) return;
-    if (func_8013cac8(obj, 7, 0xe)) func_801b0db8_slot04_15(obj);
+    if ((u8)func_8013cb70(obj, 0, 0x18) && (u8)func_801b0f40_slot04_15(obj)) return;
+    if ((u8)func_8013cbdc(obj, 1, 0x15) && (u8)func_801b0fc8_slot04_15(obj)) return;
+    if ((u8)func_8013cc48(obj, 2, 0x17) && (u8)func_801b1050_slot04_15(obj)) return;
+    if ((u8)func_8013cac8(obj, 3, 4) && (u8)func_801b0e60_slot04_15(obj)) return;
+    if ((u8)func_8013cac8(obj, 4, 0) && (u8)func_801b0ba4_slot04_15(obj)) return;
+    if ((u8)func_8013cac8(obj, 5, 3) && (u8)func_801b0ed0_slot04_15(obj)) return;
+    if ((u8)func_8013cac8(obj, 6, 0xd) && (u8)func_801b0d10_slot04_15(obj)) return;
+    if ((u8)func_8013cac8(obj, 7, 0xe)) func_801b0db8_slot04_15(obj);
 }
 
 int func_801b0ba4_slot04_15(Object *obj) {

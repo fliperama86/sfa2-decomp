@@ -6,8 +6,10 @@
 Object *func_8011f1e0(void);
 
 /* Form found by automatic permutation search. */
-void func_80148494(Object *object, u16 a, u16 b)
+void func_80148494(Object *object, int a_arg, int b_arg)
 {
+  u16 a = a_arg;
+  u16 b = b_arg;
   u8 i;
   Object *new_object;
   u16 side;

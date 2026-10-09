@@ -16,7 +16,8 @@ void func_8013060c(Object *object) {
     }
 }
 
-void func_80130678(Object *object, u16 index) {
+void func_80130678(Object *object, int arg) {
+    u16 index = arg;
     if (object->side == 0) object->sequence = seqs_60_left[index];
     else object->sequence = seqs_110_right[index];
     object->field_38 = object->sequence->duration;

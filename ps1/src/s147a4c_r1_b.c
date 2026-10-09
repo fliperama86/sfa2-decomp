@@ -7,7 +7,9 @@
 
 Object *func_8011f1e0(void);
 
-void func_801482e0(Object *parent, u16 x, u16 y) {
+void func_801482e0(Object *parent, int x_arg, int y_arg) {
+    u16 x = x_arg;
+    u16 y = y_arg;
     Object *object = func_8011f1e0();
     if (object != 0) {
         object->field_00 = 1;
