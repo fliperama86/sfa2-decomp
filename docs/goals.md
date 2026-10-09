@@ -447,8 +447,12 @@ chose the first on 2026-10-06:
   code as functions of the other twelve files, once that source was in
   the tree: a helper wrote 530 of them from it and 529 are exact as
   written. The twelve blocks have 2,098 of their 2,116 functions now,
-  252,908 of 257,648 bytes. The counts of the steps above are those of
-  their day; the README has the current ones.
+  252,908 of 257,648 bytes.
+  Then the second side of `PL06.PAC`, which the second links had left
+  out: it is four bytes shorter than the first side, and is built as an
+  image of its own from copies of the first side's units, 228 of 231
+  functions exact. The counts of the steps above are those of their
+  day; the README has the current ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -477,7 +481,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot01`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` , the 12 character images `slot04_00` to `slot04_0b` , the 11 character images `slot04_0c` to `slot04_17` and `slot04_sel` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot01`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` , the 12 character images `slot04_00` to `slot04_0b` , the 11 character images `slot04_0c` to `slot04_17`, `slot04_sel` and `slot05_06` that are rebuilt so far
 (`slot17`, `slot08`, `slot2c`, the eleven images `slot05_00` to `slot05_0b` without `slot05_06` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
