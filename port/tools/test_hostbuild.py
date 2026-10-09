@@ -301,6 +301,48 @@ def placement_cases():
     yield "place-redefine-without-moved-is-plain", same(hb.render_redefine({"a": 1}, [], False, suffix="__m"), "a ps1_a\n")
 
 
+# The rows that begin with data.
+
+
+def data_row_cases():
+    R = hb.Row
+    F = hb.Function
+    rows = [R(0x1000, "mod", False, 0x20), R(0x2000, "mod", False, 0x10), R(0x3000, None, False, 0x40), R(0x4000, "mod2", False, 0x20)]
+    inner = F("inner", 0x1018, "mod", "u")
+    kept, dropped = hb.split_data_rows(rows, [inner])
+    yield "datarow-dropped-and-paired", same(([r.address for r in kept], [(d.row.address, d.name) for d in dropped]), ([0x2000, 0x3000, 0x4000], [(0x1000, "inner")]))
+    yield "datarow-inner-function-without-c-stays", same(hb.split_data_rows(rows, [])[1], [])
+    yield "datarow-function-at-row-start-is-normal", same(hb.split_data_rows(rows, [F("at", 0x1000, "mod", "u")])[1], [])
+    yield "datarow-function-at-row-end-is-outside", same(hb.split_data_rows(rows, [F("end", 0x1020, "mod", "u")])[1], [])
+    yield "datarow-function-just-inside-end", same(len(hb.split_data_rows(rows, [F("last", 0x101f, "mod", "u")])[1]), 1)
+    yield "datarow-function-just-after-start", same(len(hb.split_data_rows(rows, [F("first", 0x1001, "mod", "u")])[1]), 1)
+    yield "datarow-other-image-does-not-count", same(hb.split_data_rows(rows, [F("other", 0x1018, "mod2", "u")])[1], [])
+    yield "datarow-resident-does-not-count-for-an-image", same(hb.split_data_rows(rows, [F("res", 0x1018, None, "u")])[1], [])
+    yield "datarow-resident-row", same([(d.row.address, d.name) for d in hb.split_data_rows(rows, [F("res", 0x3004, None, "u")])[1]], [(0x3000, "res")])
+    yield "datarow-second-placement", same([(d.row.address, d.name) for d in hb.split_data_rows(rows, [F("inner__mod2", 0x4010, "mod2", "u")])[1]], [(0x4000, "inner__mod2")])
+    yield "datarow-zero-size-row-never", same(hb.split_data_rows([R(0x5000, None, False)], [F("x", 0x5000, None, "u")])[1], [])
+    yield "datarow-two-rows-one-function-each", same(len(hb.split_data_rows(rows, [F("a", 0x1004, "mod", "u"), F("b", 0x2008, "mod", "u")])[1]), 2)
+
+    # Rule 2: a row that begins inside the range of a built unit.
+    S = hb.Span
+    spans = [S("u1", "mod", 0x1000, 0x1100, {0x1000, 0x1040}), S("u2", None, 0x3000, 0x3040, {0x3000}), S("u1", "mod2", 0x4000, 0x4100, {0x4000, 0x4040})]
+    rows2 = [R(0x1000, "mod", False, 0x40), R(0x1020, "mod", False, 0x20), R(0x1040, "mod", False, 0x40), R(0x1100, "mod", False, 0x10),
+             R(0x0fff, "mod", False, 0x10), R(0x3020, None, False, 0x10), R(0x4020, "mod2", False, 0x10), R(0x4040, "mod2", False, 0x10)]
+    kept, dropped = hb.split_data_rows(rows2, [], spans)
+    yield "span-row-inside-a-unit-is-dropped", same([(d.row.address, d.rule, d.name, d.address, d.end) for d in dropped], [
+        (0x1020, 2, "u1", 0x1000, 0x1100), (0x3020, 2, "u2", 0x3000, 0x3040), (0x4020, 2, "u1", 0x4000, 0x4100)])
+    yield "span-declared-function-address-is-normal", same([r.address for r in kept], [0x1000, 0x1040, 0x1100, 0x0fff, 0x4040])
+    yield "span-end-is-outside", same(0x1100 in [r.address for r in kept], True)
+    yield "span-start-below-is-outside", same(0x0fff in [r.address for r in kept], True)
+    yield "span-other-image-does-not-count", same(hb.split_data_rows([R(0x1020, "mod2", False, 0x10)], [], [S("u1", "mod", 0x1000, 0x1100, {0x1000})])[1], [])
+    yield "span-start-itself-counts", same([d.rule for d in hb.split_data_rows([R(0x2000, "mod", False, 0x10)], [], [S("u3", "mod", 0x2000, 0x2100, {0x2040})])[1]], [2])
+    yield "span-no-spans-keeps-the-row", same(hb.split_data_rows([R(0x1020, "mod", False, 0x10)], [])[1], [])
+    both = hb.split_data_rows([R(0x1008, "mod", False, 0x20)], [hb.Function("in", 0x1010, "mod", "u")], [S("u1", "mod", 0x1000, 0x1100, {0x1000})])[1]
+    yield "span-rule-2-is-named-when-both-hold", same([d.rule for d in both], [2])
+    only1 = hb.split_data_rows([R(0x0ff0, "mod", False, 0x20)], [hb.Function("in", 0x1000, "mod", "u")], [S("u1", "mod", 0x1000, 0x1100, {0x1000})])[1]
+    yield "span-rule-1-stays-for-rows-no-unit-owns", same([(d.rule, d.name) for d in only1], [(1, "in")])
+
+
 # The tables.
 
 
@@ -658,6 +700,7 @@ def flow_cases(root: Path):
         "like images built: 1\n"
         "functions with C: 6\n"
         "functions without C: 5, library 2, game and modules 3\n"
+        "sweep rows that are not functions: 0\n"
         "names at PS1 addresses: 11\n"
         "data defined in C, at host addresses: 0\n"
         f"linked: {exe}, verified\n"
@@ -743,32 +786,32 @@ def flow_cases(root: Path):
     yield "flow-failed-status-1", same(proc.returncode, 1)
     yield "flow-failed-lines", same(out[1:5], [
         "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions without C: 5, library 2, game and modules 3"])
-    yield "flow-failed-names-count", same(out[5], "names at PS1 addresses: 12")
-    yield "flow-failed-link-still-made", same(out[7], f"linked: {exe}, verified")
-    yield "flow-list-failed", same(out[8], "failed: ub: b.c:3:5: error: boom in ub")
-    yield "flow-list-absent-lines", same(out[10:], [
+    yield "flow-failed-names-count", same(out[6], "names at PS1 addresses: 12")
+    yield "flow-failed-link-still-made", same(out[8], f"linked: {exe}, verified")
+    yield "flow-list-failed", same(out[9], "failed: ub: b.c:3:5: error: boom in ub")
+    yield "flow-list-absent-lines", same(out[11:], [
         "absent: fc 0x80100020 -", "absent: asmf 0x80100200 -", "absent: func_801e0010_mod 0x801e0010 mod"])
-    absent = out[10:]
+    absent = out[11:]
     yield "flow-list-absent-count-and-no-library", same((len(absent), any("libf" in x for x in absent)), (3, False))
     yield "flow-failed-table", same(read(root / "flow2" / "build" / "failed.tsv"), "ub\tb.c:3:5: error: boom in ub\n")
     yield "flow-nonmatching-is-function-with-c", same("func_80100040" in read(root / "flow2" / "build" / "gen" / "port_tables.c"), True)
-    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 8)
+    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 9)
 
     # Data defined in C.
     cc, nm = fake(root, "flow3", defs={**DEFS, "ub": ["fc", "hostvar"]})
     config = run_tree(root, "flow3")
     proc = run(root, "flow3", config, cc, nm, "--list")
     out = proc.stdout.splitlines()
-    yield "flow-data-line", same((proc.returncode, out[6], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
+    yield "flow-data-line", same((proc.returncode, out[7], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
     yield "flow-data-listed", same("data: hostvar" in out, True)
     yield "flow-data-alias-line", same("_ps1_hostvar = _impl_hostvar;\n" in read(root / "flow3" / "build" / "gen" / "names.ld"), True)
-    yield "flow-data-names-count-unchanged", same(out[5], "names at PS1 addresses: 11")
+    yield "flow-data-names-count-unchanged", same(out[6], "names at PS1 addresses: 11")
 
     # A data symbol that symbols.ld places is bound there, not aliased.
     cc, nm = fake(root, "flow3b", defs={**DEFS, "ub": ["fc", "sym_a"]})
     config = run_tree(root, "flow3b")
     proc = run(root, "flow3b", config, cc, nm)
-    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[6]), (0, "data defined in C, at host addresses: 0"))
+    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[7]), (0, "data defined in C, at host addresses: 0"))
 
     # Verification misses end the tool with status 1.
     cc, nm = fake(root, "flow4", defs=DEFS, nm_extra=["80100000 A _fa"])
@@ -874,13 +917,69 @@ LIKE_UNITS = (
 LIKE_CALLS = {"um": ["mg", "r1", "sym_in", "sym_out", "sym_own", "hv"]}
 
 
+def datarow_flow_cases(root: Path):
+    only_mg = unit("ur", "a.c", [("r1", 0x80100000)]) + unit("um", "d.c", [("mg", 0x801e0010)], image="mod")
+    config = run_tree(root, "drow", units=only_mg, symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
+    inv = root / "drow" / "inventory"
+    write(inv / "modules.tsv",
+          "A.PAC\t0x5\t801e0000\t8\taaaa\nA.PAC\t0x5\t801e0008\t24\tbbbb\nA.PAC\t0x5\t801e0100\t64\tcccc\n"
+          "B.PAC\t0x6\t801f0000\t8\taaaa\nB.PAC\t0x6\t801f0008\t24\tbbbb\n")
+    write(inv / "game.tsv", "80100000\t16\tx\n80100040\t16\tx\n")
+    write(inv / "library.tsv", "80100100\t16\tfunc_80100100\tfam\t1\t-\n")
+    cc, nm = fake(root, "drow", defs={"ur": ["r1"], "um": ["mg"]}, call="r1", calls={"um": ["mg"]})
+    proc = run(root, "drow", config, cc, nm, "--list")
+    out = proc.stdout.splitlines()
+    yield "datarow-flow-runs", same((proc.returncode, proc.stderr), (0, ""))
+    yield "datarow-flow-lines", same(out[3:6], [
+        "functions with C: 3", "functions without C: 5, library 1, game and modules 4", "sweep rows that are not functions: 2"])
+    yield "datarow-flow-list", same([l for l in out if l.startswith("data-row:")], [
+        "data-row: func_801e0008_mod at 0x801e0008, mod, rule 1: the function with C inside is mg at 0x801e0010",
+        "data-row: func_801f0008_mod2 at 0x801f0008, mod2, rule 1: the function with C inside is mg__mod2 at 0x801f0010"])
+    yield "datarow-flow-absent-rows-stay", same([l for l in out if l.startswith("absent:")], [
+        "absent: func_80100040 0x80100040 -", "absent: func_801e0000_mod 0x801e0000 mod", "absent: func_801e0100_mod 0x801e0100 mod",
+        "absent: func_801f0000_mod2 0x801f0000 mod2"])
+    tables = read(root / "drow" / "build" / "gen" / "port_tables.c")
+    yield "datarow-flow-no-stop-in-the-table", same(("0x801e0008u" in tables, "0x801f0008u" in tables), (False, False))
+    yield "datarow-flow-without-list-no-listing", same("data-row" in run(root, "drow", config, cc, nm).stdout, False)
+
+
+def span_flow_cases(root: Path):
+    units = (unit("ur", "a.c", [("r1", 0x80100000)]) + unit("um", "d.c", [("mf", 0x801e0000), ("mg", 0x801e0040)], image="mod")
+             + unit("ub", "b.c", [("bf", 0x80100200)]))
+    for tag, left, fail in (("span", "", []), ("span-left", 'leave_out = ["um"]', []), ("span-failed", "", ["um"])):
+        images = IMAGES_SYM.replace('archive = "../x/B.PAC"', 'archive = "../x/B.PAC"\n' + left)
+        config = run_tree(root, tag, units=units, symbols=LIKE_SYMBOLS, images=images)
+        inv = root / tag / "inventory"
+        write(inv / "modules.tsv",
+              "A.PAC\t0x5\t801e0000\t32\taaaa\nA.PAC\t0x5\t801e0020\t32\tbbbb\nA.PAC\t0x5\t801e0040\t16\tcccc\n"
+              "B.PAC\t0x6\t801f0000\t32\taaaa\nB.PAC\t0x6\t801f0020\t32\tbbbb\nB.PAC\t0x6\t801f0040\t16\tcccc\n")
+        write(inv / "game.tsv", "80100000\t16\tx\n80100040\t16\tx\n")
+        write(inv / "library.tsv", "")
+        cc, nm = fake(root, tag, defs={"ur": ["r1"], "um": ["mf", "mg"], "ub": ["bf"]}, call="r1", calls={"um": ["mg"]}, fail=fail)
+        proc = run(root, tag, config, cc, nm, "--list")
+        out = proc.stdout.splitlines()
+        rows = [l for l in out if l.startswith("data-row:")]
+        absent = [l for l in out if l.startswith("absent:")]
+        if tag == "span":
+            yield "span-flow-first-and-second-placement", same(rows, [
+                "data-row: func_801e0020_mod at 0x801e0020, mod, rule 2: inside the unit um (0x801e0000-0x801e0048)",
+                "data-row: func_801f0020_mod2 at 0x801f0020, mod2, rule 2: inside the unit um (0x801f0000-0x801f0048)"])
+            yield "span-flow-count-line", same([l for l in out if l.startswith("sweep")], ["sweep rows that are not functions: 2"])
+            yield "span-flow-only-unit-less-rows-stay", same(absent, ["absent: func_80100040 0x80100040 -"])
+        elif tag == "span-left":
+            yield "span-flow-left-out-unit-keeps-second-row", same(
+                (rows, "absent: func_801f0020_mod2 0x801f0020 mod2" in absent), (["data-row: func_801e0020_mod at 0x801e0020, mod, rule 2: inside the unit um (0x801e0000-0x801e0048)"], True))
+        else:
+            yield "span-flow-failed-unit-rows-stay-absent", same((rows, "absent: func_801e0020_mod 0x801e0020 mod" in absent, "absent: func_801f0020_mod2 0x801f0020 mod2" in absent), ([], True, True))
+
+
 def like_cases(root: Path):
     config = run_tree(root, "like", units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
     cc, nm = fake(root, "like", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls=LIKE_CALLS)
     proc = run(root, "like", config, cc, nm, "--list")
     build = root / "like" / "build"
     out = proc.stdout.splitlines()
-    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[7]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
+    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[8]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
     names = read(build / "gen" / "names.ld").splitlines()
     yield "like-moved-names-in-the-names-file", same([l for l in names if "__mod2" in l], [
         "_ps1_mf__mod2 = 0x801f0000;", "_ps1_mg__mod2 = 0x801f0010;", "_ps1_sym_in__mod2 = 0x801f0100;",
@@ -934,6 +1033,7 @@ def like_cases(root: Path):
 
 def groups(root: Path):
     yield rename_cases()
+    yield data_row_cases()
     yield placement_cases()
     yield names_cases()
     yield selection_cases(root)
@@ -942,6 +1042,8 @@ def groups(root: Path):
     yield marker_cases()
     yield flow_cases(root)
     yield like_cases(root)
+    yield datarow_flow_cases(root)
+    yield span_flow_cases(root)
     yield marker_flow_cases(root)
     yield psyz_cases(root)
 

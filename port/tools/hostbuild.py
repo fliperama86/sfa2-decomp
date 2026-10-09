@@ -161,6 +161,17 @@ for a row of `library.tsv`, the name is the one that a unit of the
 configuration declares for that address in that image, else
 `func_<address>` with `_<image>` for a module image. Sorted as above.
 
+One kind of row is left out of `port_absents`: a row of the inventory that a
+function with C begins strictly inside (row start below the function's
+address, below the row's end), in the same image (for a second placement, at
+the moved addresses). The static sweep took a data table in front of that
+function for the start of code, and the runtime would write its stop call at
+the row's address, into the table. Such a row gets nothing written, is counted
+(`sweep rows that begin with data`) and with `--list` named, with the function
+inside. The rule does not cover a row that is all data, nor data in front of a
+function that itself has no C: those rows still get a stop call, which is a
+known limit.
+
 The link
 --------
 
@@ -209,6 +220,7 @@ Standard output, in this order, with nothing else:
     like images built: L
     functions with C: C
     functions without C: A, library L2, game and modules G
+    sweep rows that are not functions: N
     names at PS1 addresses: P
     data defined in C, at host addresses: D
     linked: PATH, verified
@@ -217,13 +229,15 @@ With `--psyz` the line `psyz: COMMIT` follows `compiler:`. PATH is relative to t
 
 U counts the units tried, nonmatching ones included. A is the number of
 rows of `port_absents`, L2 those of the library and G the others (the
-resident game and the module images), so that A = L2 + G. L is the number of
+resident game and the module images, without the rows that begin with data), so that A = L2 + G. L is the number of
 `like` images placed a second time. The last line is
 printed only for a link that was verified. With `--list` the names behind
 F, D, the `like` images and the game rows of A follow, one per line:
 
     failed: UNIT: FIRST ERROR LINE
     data: NAME
+    data-row: NAME at 0xADDRESS, IMAGE, rule 1: the function with C inside is NAME2 at 0xADDRESS2
+    data-row: NAME at 0xADDRESS, IMAGE, rule 2: inside the unit UNIT (0xSTART-0xEND)
     like: IMAGE of FIRST, shift +0xSHIFT, N names move, units left out: UNIT ...
     absent: NAME 0xADDRESS IMAGE
 
@@ -375,6 +389,7 @@ class Function:
     address: int
     image: str | None  # None: the resident executable
     unit: str
+    size: int = 0
 
 
 @dataclass
@@ -419,7 +434,7 @@ def read_functions(entry: dict, path: Path) -> list[Function]:
     for item in entry.get("functions", []):
         if not isinstance(item, dict) or not isinstance(item.get("name"), str) or not isinstance(item.get("address"), int):
             raise Problem(f"{path}: unit {entry.get('name')} has a function without a name and an address")
-        out.append(Function(item["name"], item["address"], image, entry["name"]))
+        out.append(Function(item["name"], item["address"], image, entry["name"], item.get("size", 0) if isinstance(item.get("size", 0), int) else 0))
     return out
 
 
@@ -582,6 +597,7 @@ class Row:
     address: int
     image: str | None
     library: bool
+    size: int = 0
 
 
 def read_inventory(directory: Path, config: dict) -> list[Row]:
@@ -589,7 +605,7 @@ def read_inventory(directory: Path, config: dict) -> list[Row]:
     try:
         rows = []
         for block in coveragemap.read_resident(directory):
-            rows += [Row(f.address, None, block.key != coveragemap.GAME) for f in block.functions]
+            rows += [Row(f.address, None, block.key != coveragemap.GAME, f.size) for f in block.functions]
         modules = coveragemap.read_modules(directory)
         coveragemap.assign_images(modules, config)
     except coveragemap.Problem as err:
@@ -598,7 +614,7 @@ def read_inventory(directory: Path, config: dict) -> list[Row]:
         raise Problem(f"cannot read the inventory in {directory}: {err.strerror}")
     for block in modules:
         if block.image:
-            rows += [Row(f.address, block.image, False) for f in block.functions]
+            rows += [Row(f.address, block.image, False, f.size) for f in block.functions]
     return rows
 
 
@@ -628,6 +644,55 @@ def default_name(address: int, image: str | None) -> str:
 
 def order_key(image: str | None, address: int, index: dict[str | None, int]):
     return index[image], address
+
+
+@dataclass
+class Span:
+    """The text range of a unit that is built, in the image it is placed in (moved for a second placement)."""
+
+    unit: str
+    image: str | None
+    start: int
+    end: int
+    declared: set[int]  # the addresses of the functions the unit declares
+
+
+@dataclass
+class Dropped:
+    row: Row
+    rule: int  # 1: a function with C begins inside the row; 2: the row begins inside a built unit
+    name: str  # rule 1: the function with C inside; rule 2: the unit
+    address: int  # rule 1: that function's address; rule 2: the unit's start
+    end: int = 0  # rule 2: the unit's end
+
+
+def split_data_rows(rows: list[Row], with_c: list[Function], spans: list[Span] = ()) -> tuple[list[Row], list[Dropped]]:
+    """(the rows to keep, the rows left out and why).
+
+    Rule 2 (tried first): a row that begins inside the text range of a unit that is built, in the same image,
+    and is not the address of a function that the unit declares, is a part of that unit (data or the tail of a
+    function that the sweep split); it is no function without C.
+    Rule 1: a row that a function with C of the same image begins strictly inside (row start below the function's
+    address, which is below the row's end): the sweep took data in front of that function for code."""
+    starts: dict[str | None, list[Function]] = {}
+    for fn in with_c:
+        starts.setdefault(fn.image, []).append(fn)
+    for found in starts.values():
+        found.sort(key=lambda f: f.address)
+    inside: dict[str | None, list[Span]] = {}
+    for span in spans:
+        inside.setdefault(span.image, []).append(span)
+    kept, dropped = [], []
+    for row in rows:
+        owner = next((sp for sp in inside.get(row.image, []) if sp.start <= row.address < sp.end and row.address not in sp.declared), None)
+        inner = next((f for f in starts.get(row.image, []) if row.address < f.address < row.address + row.size), None)
+        if owner is not None:
+            dropped.append(Dropped(row, 2, owner.unit, owner.start, owner.end))
+        elif inner is not None:
+            dropped.append(Dropped(row, 1, inner.name, inner.address))
+        else:
+            kept.append(row)
+    return kept, dropped
 
 
 def build_tables(images: list[dict], with_c: list[tuple[Function, str]], rows: list[Row], declared: list[Function]):
@@ -1034,13 +1099,32 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
                 with_c.append((fn, "impl_" + fn.name))
                 for pl in o.seconds:
                     with_c.append((Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit), "impl_" + fn.name + pl.suffix))
-    functions, absents = build_tables(selection.images, with_c, inventory, selection.declared + moved_functions)
+    spans: list[Span] = []
+    for o in outcomes:
+        if not o.ok or o.job.nonmatching or not o.job.functions:
+            continue
+        fns = o.job.functions
+        start, end = min(f.address for f in fns), max(f.address + f.size for f in fns)
+        spans.append(Span(o.job.name, o.job.image, start, end, {f.address for f in fns}))
+        for pl in o.seconds:
+            spans.append(Span(o.job.name, pl.image, start + pl.shift, end + pl.shift, {pl.moved[f.name] for f in fns}))
+    kept_rows, data_rows = split_data_rows(inventory, [fn for fn, _ in with_c], spans)
+    functions, absents = build_tables(selection.images, with_c, kept_rows, selection.declared + moved_functions)
     out.append(f"functions with C: {len(functions)}")
     library = sum(1 for a in absents if a[3])
     out.append(f"functions without C: {len(absents)}, library {library}, game and modules {len(absents) - library}")
+    out.append(f"sweep rows that are not functions: {len(data_rows)}")
     images_by_index = [i["name"] for i in selection.images]
     listing.extend(
         f"absent: {a[2]} {a[1]:#x} {images_by_index[a[0]] if a[0] >= 0 else '-'}" for a in absents if not a[3]
+    )
+    declared_names = {(f.image, f.address): f.name for f in reversed(selection.declared + moved_functions)}
+    listing.extend(
+        f"data-row: {declared_names.get((d.row.image, d.row.address)) or default_name(d.row.address, d.row.image)} at {d.row.address:#x}, "
+        f"{d.row.image or '-'}, " + (
+            f"rule 1: the function with C inside is {d.name} at {d.address:#x}" if d.rule == 1
+            else f"rule 2: inside the unit {d.name} ({d.address:#x}-{d.end:#x})")
+        for d in data_rows
     )
 
     symbol_names = {s[0] for s in symbols}
