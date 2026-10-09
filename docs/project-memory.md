@@ -5555,6 +5555,49 @@ Mistakes and lessons:
   the file did not parse; the whole build said so at once. The private
   helper appends the round's tail to main's file now.
 
+## Seven more functions with the byte oracle (2026-10-09)
+
+After the drawing functions, the second session gave its parked functions
+to agents with a private instrument that scores one variant of a function
+against the original's bytes in about 60 ms (the compiler proper, the
+assembler front end and the assembler, without the project build; fields
+that the linker fills are masked). Seven functions are exact from it:
+three stage functions of 1,000 bytes and more (`func_801e885c_slot06_12`,
+`func_801e86cc_slot06_08`, `func_801e882c_slot06_0e`), three small stage
+functions and one of the character block of `PL0E.PAC`.
+
+- Counts, sums of the build's lines per image: the 20 stage modules have
+  833 C functions, 122,504 bytes, and 1,238,184 raw bytes; the 11
+  character blocks `slot04_0c` to `slot04_17` have 2,310 C functions,
+  277,736 bytes, and 732,604 raw bytes. The coverage map's line:
+  `overall: 5334/5600 distinct functions exact (95.2%); 11431/13072
+  placements (87.4%)`; the same command prints 5327 and 11423 for the
+  tree without this change (the character function is placed a second
+  time on its second side).
+- What decided them, by the agents' reports: in `func_801e86cc_slot06_08`
+  the layer's width was held in a local that the exact functions of its
+  kind do not have (they read the field at each use); in two small
+  functions one local holds two values in turn; in the others 16-bit
+  locals as in the drawing functions. Each form that has to stay has a
+  comment with the measured effect.
+- Shared files: 7 function lines of this session in `symbols.ld` are
+  gone and 3 data symbols are new; 5 field lines are new in the struct
+  `Slot06Obj`.
+- Not exact yet, one-off counts from the private folder: 41 stage rows
+  of the sweep and 23 character rows of this session's blocks (22 parked
+  functions and the row that is not a function). The two kinds of large
+  stage function that remain have candidates at 60 differing slots (the
+  perspective layer) and at 33 (the object's tiles, at the right size).
+  Tried and measured as not the cause for the second: its constants in
+  locals assigned once.
+- The first session's units: the private table check prints one line
+  for a table of `slot04_06` whose entry returns another type than the
+  table's declaration says; it is on main and was told to that session.
+
+Lesson: a helper that tidies declarations removed a prototype that its
+unit uses; the declaration check printed the missing prototype at once.
+Run that check after the tidy step, not before.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
