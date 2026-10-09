@@ -138,7 +138,7 @@ def apply_cases(root):
     got, after = apply(root, {"f.c": A}, text.rstrip("\n"))
     yield "apply-patch-without-final-newline", same(after["f.c"], "ONE\ntwo\nthree\nfour\nfive\nsix\n")
     got, after = apply(root, {"f.c": A}, "intro\n\n" + text.split("\n", 3)[3] + "\n\n\n")
-    yield "apply-text-after-the-last-hunk-is-ignored", same(after["f.c"], "ONE\ntwo\nthree\nfour\nfive\nsix\n")
+    yield "apply-blank-lines-after-the-last-hunk", same(after["f.c"], "ONE\ntwo\nthree\nfour\nfive\nsix\n")
 
 
 # The reader: what it refuses, and then leaves alone.
@@ -184,6 +184,33 @@ def refuse_cases(root):
     got, after = apply(root, {"f.c": A}, patch(("f.c", ["@@ -1,2 +1,2 @@\n one\n-two\nfour\n+TWO\n"])))
     yield "refuse-hunk-cut-by-a-line-without-a-tag", same(isinstance(got, Problem) and "2 old and 1 new lines, not 2 and 2" in str(got), True)
     yield "refuse-count-check-comes-before-any-place", raises(lambda: pb.parse_patch(patch(("f.c", ["@@ -1,4 +1,1 @@\n-a\n", "@@ -9,1 +9,1 @@\n-z\n+y\n"]))), "1 old and 0 new lines, not 4 and 1")
+    # A body must have exactly the counts of its header.
+    cut = "@@ -1,3 +1,3 @@\n one\n-two\n+TWO\n"
+    got, after = apply(root, {"f.c": A}, patch(("f.c", [cut])))
+    yield "refuse-truncated-last-hunk-at-the-end-of-the-text", same(
+        isinstance(got, Problem) and all(n in str(got) for n in ("@@ -1,3 +1,3 @@", "2 old and 2 new lines, not 3 and 3")), True
+    )
+    yield "refuse-truncated-last-hunk-leaves-the-file", same(after, {"f.c": A})
+    yield "refuse-truncated-last-hunk-without-final-newline", raises(lambda: pb.parse_patch(patch(("f.c", [cut])).rstrip("\n")), "2 old and 2 new lines, not 3 and 3")
+    yield "refuse-truncated-hunk-before-the-next-file-header", raises(
+        lambda: pb.parse_patch(patch(("f.c", [cut]), ("g.c", ["@@ -1,1 +1,1 @@\n-x\n+y\n"]))), "@@ -1,3 +1,3 @@", "2 old and 2 new lines, not 3 and 3"
+    )
+    yield "refuse-truncated-hunk-before-the-next-hunk-header", raises(
+        lambda: pb.parse_patch(patch(("f.c", [cut, "@@ -9,1 +9,1 @@\n-z\n+y\n"]))), "@@ -1,3 +1,3 @@", "2 old and 2 new lines, not 3 and 3"
+    )
+    full = "@@ -1,1 +1,1 @@\n-one\n+ONE\n"
+    for what, extra in (("added-line", "+EXTRA\n"), ("removed-line", "-EXTRA\n"), ("context-line", " EXTRA\n"), ("untagged-line", "EXTRA\n")):
+        got, after = apply(root, {"f.c": A}, patch(("f.c", [full + extra])))
+        yield f"refuse-surplus-{what}", same(isinstance(got, Problem) and all(n in str(got) for n in ("surplus line", "@@ -1,1 +1,1 @@", "EXTRA")), True)
+        yield f"refuse-surplus-{what}-leaves-the-file", same(after, {"f.c": A})
+    yield "refuse-surplus-line-after-the-first-of-two-hunks", raises(
+        lambda: pb.parse_patch(patch(("f.c", [full + "+EXTRA\n", "@@ -3,1 +3,1 @@\n-three\n+x\n"]))), "surplus line", "@@ -1,1 +1,1 @@"
+    )
+    yield "refuse-surplus-line-after-the-last-file", raises(lambda: pb.parse_patch(patch(("f.c", [full])) + "stray\n"), "surplus line", "stray")
+    got, after = apply(root, {"f.c": A, "g.c": "x\n"}, patch(("f.c", [full + "\n\n"]), ("g.c", ["@@ -1,1 +1,1 @@\n-x\n+y\n\n"])))
+    yield "apply-blank-lines-between-hunks-and-files-and-at-the-end", same((got, after["g.c"]), (["f.c line 1", "g.c line 1"], "y\n"))
+    got, after = apply(root, {"f.c": A}, patch(("f.c", [full + "\\ No newline at end of file\n\n"])))
+    yield "apply-marker-after-the-counts-is-kept-allowed", same(after["f.c"], "ONE\ntwo\nthree\nfour\nfive\nsix\n")
     # The patch itself.
     yield "refuse-empty-patch", raises(lambda: pb.parse_patch(""), "no hunk")
     yield "refuse-text-without-a-diff", raises(lambda: pb.parse_patch("only a header\nand another line\n"), "no hunk")

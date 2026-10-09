@@ -23,7 +23,11 @@ the file at exactly ONE place. No place, or more than one, is a refusal that
 names the file and the hunk; the copy is then left unpatched and nothing is
 built. So a PsyZ whose source differs at the patched place is refused, and a
 patch can never land somewhere other than where it was written for. A file
-that the patch names and the copy lacks is a refusal too.
+that the patch names and the copy lacks is a refusal too. A hunk's body has
+exactly the old and new line counts of its header: after the counts are met
+only blank lines, the next hunk header, the next file header or the end of
+the text may follow, and a body that ends early or a line beyond the counts is
+a refusal that names the hunk.
 
 The build
 ---------
@@ -125,7 +129,8 @@ HUNK = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
 
 
 def parse_patch(text: str) -> list[FilePatch]:
-    """The files and hunks of a unified diff; text before the first `---` line is ignored."""
+    """The files and hunks of a unified diff; text before the first `---` line is ignored.
+    A hunk body has exactly the counts of its header; anything else after it is refused."""
     lines = text.split("\n")
     files: list[FilePatch] = []
     i = 0
@@ -154,6 +159,10 @@ def parse_patch(text: str) -> list[FilePatch]:
                 if line.startswith("\\"):
                     i += 1
                     continue
+                if line == "" and i == len(lines) - 1:
+                    break  # the terminating empty string of the text, not a context line
+                if line.startswith("--- ") and i + 2 < len(lines) and lines[i + 1].startswith("+++ ") and HUNK.match(lines[i + 2]):
+                    break  # the next file's header arrives before the counts are met
                 tag, body = line[:1], line[1:]
                 if tag == " " or (tag == "" and line == ""):
                     old.append(body)
@@ -169,7 +178,10 @@ def parse_patch(text: str) -> list[FilePatch]:
                 raise Problem(f"the patch hunk {header} has {len(old)} old and {len(new)} new lines, not {old_n} and {new_n}")
             files[-1].hunks.append(Hunk(old, new, header))
             continue
-        i += 1
+        if lines[i] == "" or lines[i].startswith("\\"):
+            i += 1
+            continue
+        raise Problem(f"the patch has a surplus line after the hunk {files[-1].hunks[-1].header if files[-1].hunks else files[-1].path}: {lines[i]!r}")
     if not files or not all(f.hunks for f in files):
         raise Problem("the patch has no hunk")
     return files
