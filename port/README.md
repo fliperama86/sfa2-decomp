@@ -690,14 +690,14 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `4d6aae1`:
+it is in commit `8b51d04`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3729 compiled, 1 of them nonmatching, 0 failed
+units: 3731 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12457
-functions without C: 625, library 385, game and modules 240
+functions with C: 12459
+functions without C: 623, library 385, game and modules 238
 names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
@@ -725,7 +725,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1401 written for functions with C, 451 for functions without
+jumps: 1403 written for functions with C, 449 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
@@ -844,8 +844,43 @@ routines that do nothing on purpose. What is in this piece:
   program had returned at once, and prints a line at each skip; that is
   not what the game does, and it is off unless asked for.
 
-Not in this piece: the graphics, the pads, the modules. Their
-functions are among the 301 that stop.
+- The modules. The game loads its modules from the disc into RAM and
+  calls into them. The runtime cannot know at start which module will
+  lie where, so it writes a module's jumps when the game first runs it.
+  The disc layer remembers for every word of RAM which sector it came
+  from, and a page that it wrote loses the right to execute. The game's
+  first call into such a page faults. The fault handler looks at the
+  word at the called address: its sector names a file of the disc and,
+  with the archive's header, a chunk; the image is the one that the
+  build's tables give for that archive, slot and address, and the
+  address must be the start of one of its functions. Before a jump is
+  written, the chunk is read again from the user's image and its
+  SHA-256 is compared with the hash that the build configuration pins
+  for the image, and the bytes in RAM at each function's start must
+  still be the chunk's. Then the jumps to the C, and the stops for the
+  functions without C, are written over the functions that the chunk
+  wrote, the pages may execute again, the program prints
+  `module: NAME at ADDRESS, N C jumps, M without C`, and the call goes
+  on. A later write from the disc takes the right away again.
+  What ends the program instead, each with its line: a chunk that is
+  not the pinned content, an image without a pin, memory that changed
+  after the disc wrote it, an archive header whose counts, offsets or
+  lengths do not fit the file or the RAM, a call that no image fits, a
+  call at bytes that did not come from the disc, a copy from the disc
+  that reaches the jump of a resident function, and a page that would
+  become executable while it holds the start of a function of another
+  image that is not yet placed. By the build's tables no two images
+  that can be in memory together share a page with their code, so that
+  last refusal is not expected on the real game; a module's data can
+  share a page with anything, and a page that holds resident code never
+  loses the right to execute.
+  A module's functions count as installed for the checks of addresses
+  that the game hands over, once the module is placed; a second
+  placement gets the jumps of its own table, and the units left out for
+  it are functions without C there.
+
+Not in this piece: the graphics and the pads. Their functions are
+among the 301 that stop.
 
 ### What this does not show
 
@@ -853,9 +888,9 @@ functions are among the 301 that stop.
   executed on a PC by the published tree: the program stops before the
   first one.
 - That C which compiles and links behaves on a PC as it does on the PS1.
-- Anything about the modules: their jumps are not written. The 22
-  images that are a second placement of another image's units are built
-  and linked, and nothing of them has run.
+- Anything about the modules on the real game: the published tree
+  stops at `main` before one is loaded. The placing of a module has run
+  only on the made-up archives and game code of the controls.
 - Anything about the library on the real game: its host routines have
   run only on the made-up game code of the controls, because the
   published tree stops at `main` before any of them. PsyZ is not linked.
@@ -920,6 +955,22 @@ position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
+`python3 port/tools/test_hostmodules.py --cc CC` builds the runtime
+with made-up tables and runs it on invented discs whose archives hold
+made-up modules: a module is placed at its first call and its C runs; a
+second module loaded over it is placed in its turn; a chunk whose
+content is not the pinned one, an image without a pin and memory
+changed after the load are refused; archives with too many chunks, a
+length that wraps, a chunk past the file, no chunk, or less than a
+header end with their line; a module that begins in the middle of a
+page is placed; of two modules that share a page the second one's call
+is refused; a call at bytes that the disc did not write ends with the
+crash line; the disc's data in the page where resident code begins
+leaves that code running, and a copy over a resident function's start
+ends the program; a module function handed over as a handler is placed
+and runs, and an address inside a module that is no function start is
+refused; a second placement runs its own C; and two thousand loads and
+first calls in a row with the timer running end without a hang.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond
@@ -929,7 +980,7 @@ the image's last byte, an image cut inside the last file and one cut
 right behind its last byte; a directory that declares only its own two
 records, and a record that crosses or only begins inside the declared
 end, for the reader that lists and for the one that looks a file up. On
-2026-10-09 each of the four ended with
+2026-10-09 each of the five ended with
 `all cases behaved as required`.
 
 ## Not decided
@@ -948,7 +999,6 @@ end, for the reader that lists and for the one that looks a file up. On
   library functions that the resident code does not.
 - Where the build of the host program is checked on a runner, and the
   same build for Linux and for macOS.
-- How the modules' jumps are written when the game loads a module.
 - What the port's build does about the units that a clang refuses, 35 to 115 by its version:
   compiler options that turn those errors back into warnings, or casts in
   the source, if the matching work finds that they leave the bytes alone.

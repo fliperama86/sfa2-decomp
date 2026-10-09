@@ -7744,6 +7744,41 @@ The stand-in for unused stack space is the 79th of the tree.
 The map after this group, from `coveragemap.py render`: 5,414 of 5,600 distinct functions exact, 12,831 of 13,072 placements. The
 build's line for the resident image: `functions exact: 1761/1761`.
 
+## The port places a module's jumps when the game first runs it (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/modules.c`, the record in the disc layer of
+  where each word of RAM came from, the hashes of the images' chunks in
+  the build's tables, and `test_hostmodules.py`. The page has the
+  mechanism, what ends the program, and the cases.
+- What differs from the state that ran the private trial, each from a
+  lesson of the earlier reviews or from the trial itself:
+  - A module's jumps are written only for content that the build
+    configuration pins: the chunk is read from the user's image and
+    hashed before the first jump. The trial's state placed whatever the
+    archive held. (The lesson of the port's first piece, applied to the
+    modules before a review had to ask.)
+  - The archive's header is read as the user's file: lengths in 64
+    bits, every chunk against the file and the RAM. The trial's state
+    could wrap a 32-bit length.
+  - The trial stopped while loading the first fight: a stage's data
+    ends in the 4 KB page where the resident program begins, the layer
+    took the right to execute from the whole page, and the game's next
+    call into resident code there was taken for a call into a module.
+    The record is per word now and a page with resident code never
+    loses the right. Before choosing between that and a refusal of
+    shared pages, a worker asked the build's tables: of the 77 images
+    with functions, no two that can be in memory together share a page
+    with their code (one-off count of a script over the inventory and
+    the configuration); 19 begin in the middle of a page.
+  - The timer thread could suspend the game's thread inside the fault
+    and rewrite its context: a hang in 2 of 9 runs of the controls
+    (one-off). It now leaves a thread alone whose instruction pointer
+    is on such a page. A case of two thousand loads in a row failed in
+    3 of 3 runs without that.
+- Not shown: any of this on the real game from a published commit.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
