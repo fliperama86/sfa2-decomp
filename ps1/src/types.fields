@@ -2259,6 +2259,7 @@ struct Slot06_06Rece1d8 size=0x14
 0x007 u8 field_07
 0x008 u16 field_08
 0x00a u16 field_0a
+0x010 s16 field_10
 
 struct Slot06_06Rec83d8 size=0x10
 0x000 u8 field_00
@@ -2273,6 +2274,8 @@ struct Slot06Pal size=0x10
 0x000 SeqRec* rec
 0x004 u16 field_04
 0x006 u16 field_06
+0x008 s16 field_08
+0x00a s16 field_0a
 0x00c u8 field_0c
 
 struct Slot06_07Rece218 size=0x2

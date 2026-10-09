@@ -5125,6 +5125,68 @@ Lessons:
 - Group the parked functions by residual before the second attempts and
   give a group to one agent: it solves the first and applies the form to
   the rest in minutes.
+## Third attempts at the stage and character leftovers (2026-10-08)
+
+After the sixty-ninth and the seventieth group were merged, the second
+session gave the
+parked functions under 600 bytes of its 31 images another attempt, by
+agents with the note of source forms. 18 more functions are exact: 16
+in eleven stage modules and 2 in the character blocks of `PL11.PAC` and
+`PL17.PAC`, which are one function in two blocks.
+
+- Counts, sums of the build's lines per image: the 20 stage modules have
+  772 C functions, 77,936 bytes, and 1,282,752 raw bytes; the 11
+  character blocks have 2,309 C functions, 277,676 bytes, and 732,664
+  raw bytes. The second side `slot05_11` has 208 functions.
+- The coverage map's line, with the seventy-first group in the tree:
+  `overall: 4267/5600 distinct functions exact (76.2%); 8330/13072
+  placements (63.7%)`. That is 17 distinct functions and 19 placements
+  more than the same command prints for the tree without this change:
+  the function of `PL11.PAC` and `PL17.PAC` has one form in the
+  inventory, and `PL11X.PAC` places it a second time.
+- Every one of the 18 units was reduced by hand after it was exact: each
+  thing that plain source would not have was taken out, one at a time,
+  and the unit built again. Four units were exact in a plainer form than
+  the one their agent reported (three state setters without a local for
+  the constant and without the state byte read into a local first, one
+  function with one local instead of two). In eight units the extra
+  locals have to stay; each has a comment with the measured number of
+  differing instruction slots. These are one-off counts of this session.
+  The matching guide's "Before reporting" has the rule now, and so has
+  the private brief for retries.
+- `func_801e9af8_slot06_0e` is declared `int` and returns nothing. With
+  `void` two instruction slots differ: the compiler then moves a load of
+  a constant into `v0` up into the delay slot of a branch to the exit. It carries the
+  same kind of comment as the earlier functions of this form.
+- `func_801e9ba4_slot06_06` writes one index in words, as `x * 8 + x *
+  2` with the second product in a local. With the plain array index the
+  function is 4 bytes short. The comment says that the form is
+  compatible with the bytes and nothing more.
+- `func_801e970c_slot06_0c` stores one field twice, incremented and then
+  as 1. The listing has both stores, so both are written.
+- `func_801ea91c_slot06_0f` takes `int idx`. Two declarations of it in
+  units that were already exact said `s16` and say `int` now; both
+  images are exact as before.
+- Shared files: 18 function lines of this session in `symbols.ld` are
+  gone, because units define those functions now; 7 data symbols and 3
+  field lines (in two stage structs) are new.
+- `slot04_0c_06b8_r1.c` has five `(u8)` casts at its calls of
+  `func_8013de2c`. The first session asked for them: a branch of its
+  stack declares that function `int`, and without the casts this unit
+  is then 20 bytes short (its measurement). The listing masks the
+  result at each of the five calls. With `protos.h` as it is today the
+  unit is exact with and without them.
+- Still not exact, one-off counts from the private folder: in the stage
+  modules 102 rows of the sweep, 91 of them functions of 600 bytes and
+  more and 11 smaller ones; in the character blocks 24 rows, 23 parked
+  functions and the one row that is not a function. Three of the 23 are
+  exact only with an assignment to a local that nothing reads; they
+  stay parked by the owner's decision of 2026-10-07.
+
+Mistake and lesson: the 18 units first went into the tree as the agents
+reported them, with their declarations checked and their forms not. A
+form that an agent reports is what its last attempt contained, not what
+the match needs. Reduce before publishing.
 
 ## Seventy-second group: the module of slot 0x1
 
@@ -5138,13 +5200,19 @@ Counts, from the build:
 - `slot01`: 116 of 124 functions exact, 16,100 of 20,432 bytes. 270,440
   bytes of the chunk are retained raw.
 - 8 functions are parked with candidates, 4,332 bytes.
-- 68 unit files, 79 symbols (76 of the module, 4 of them parked functions
-  that exact units call; 3 outside it) and 6 structs with 24 lines of the
-  field table are new. No unit outside the module's folder changed. The
-  resident image and the other thirteen module images are unchanged in
-  their bytes.
-- The tree has 42 unused-array stand-ins, 4 of them in this module, and 3
-  calls through a cast of the callee, 1 of them in this module.
+- When the round ended, on the main of that day: 68 unit files, 79
+  symbols (76 of the module, 4 of them parked functions that exact units
+  call; 3 outside it) and 6 structs with 24 lines of the field table
+  were new, and the build had thirteen other module images. No unit
+  outside the module's folder changed.
+- On the head that was merged, after the second session's modules had
+  come into main: the difference to main is 78 names in the symbol file
+  (one of the 79 is a name that both sessions had added, and one line
+  stands for both), and the build has 51 other module images. The
+  resident image and all of them are unchanged in their bytes.
+- The module has 4 unused-array stand-ins (three of 8 bytes and one of
+  16) and 1 call through a cast of the callee. The tree had 42 and 3
+  when the round ended; the merged head has 63 and 13.
 
 The module's 124 functions are 100 apart from addresses.
 
