@@ -8,7 +8,7 @@
 
 void func_8014c994(Object *object) {
     if (object->field_20f == 0) {
-        func_8014c9f4();
+        func_8014c9f4(object);
     } else if (object->field_20f == 2) {
         func_8014ca7c(object);
     } else if (object->field_20f == 4) {
