@@ -8,8 +8,8 @@ void func_801ea230_slot06_08(Object *obj);
 extern SequenceStep *data_801ed480_slot06_08[];
 
 /* One local holds the OR of the two flags and later the table index.
-   Written as one expression, or with an index local of its own, this
-   function differs from the original in two instruction slots. */
+   Written as one expression for the OR, or with an index local of its own,
+   this function differs from the original in seven instruction slots. */
 void func_801ea160_slot06_08(Object *obj) {
     int v = game_state.field_65;
     v |= game_state.field_74;

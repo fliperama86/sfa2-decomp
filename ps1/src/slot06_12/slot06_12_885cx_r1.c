@@ -10,12 +10,12 @@ extern s16 data_8019054e;
    the first 8 rows with the horizontal scroll from data_8019054e and the
    last 8 with the layer's own offset (inferred).
    The row count nr is an s16 local and the blank tile braw a word; rows and
-   blank are s16 copies of them: with a 32-bit nr the function is 12 bytes
-   long and 137 instruction slots differ. yy, the row's screen offset, is an
-   s16 local: as an int the function is 28 bytes long. h is a local apart
-   from g: with one local for both, 37 slots differ. The second half starts
-   at i = 8 explicitly: with i continuing, its entry test stays and the
-   function is 20 bytes long. The offset at 0x12 is read as the high half of
+   blank are s16 copies of them: with nr as an int the function is 4 bytes
+   shorter and 153 instruction slots differ. yy, the row's screen offset, is
+   an s16 local: as an int the function is 28 bytes longer. h is a local
+   apart from g: with one local for both, 17 instruction slots differ. The
+   second half starts at i = 8 explicitly: with i continuing, the function is
+   8 bytes longer. The offset at 0x12 is read as the high half of
    field_10, which the layout has as 32 bits. */
 void func_801e885c_slot06_12(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
