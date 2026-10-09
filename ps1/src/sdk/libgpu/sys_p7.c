@@ -5,6 +5,12 @@
 #include "common.h"
 #include <psxsdk/libgpu.h>
 
+/* A declaration of the copy routine whose parameter types are not the
+   compiler's built-in ones. With it the compiler calls the routine instead
+   of copying in place, as the image does. Whether the library's own header
+   read like this is not known. */
+void *memcpy(unsigned char *dst, unsigned char *src, int n);
+
 typedef struct {
     /* 0x00 */ const char* rcsid; // aIdSysCV1831995
     /* 0x04 */ void (*addque)(void (*)(int*, int), int*, int);      // _addque
