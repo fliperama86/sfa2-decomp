@@ -411,7 +411,8 @@ unsigned port_frames(void)
 }
 
 /* The one clock. A vblank is due when 1/60 s has passed since the previous one's slot; it is taken exactly once,
- * by a library routine that ticks (port_tick). Far behind (the host was stopped): the lag is one vblank,
+ * by whichever comes first: a library routine that ticks (port_tick) or the timer thread interrupting the game
+ * (interrupt.c). Both take it with this same step. Far behind (the host was stopped): the lag is one vblank,
  * not a storm of them. */
 static long vblanks_due(unsigned long long now)
 {
@@ -433,7 +434,8 @@ static int take_vblank(unsigned long long now)
     }
 }
 
-/* What one vblank does, after it was taken. Called on the game's thread from port_tick. */
+/* What one vblank does, after it was taken. Called on the game's thread: from port_tick, or from the
+ * interruption routine of interrupt.c. */
 static void run_vblank(void)
 {
     vcount++;
@@ -446,6 +448,27 @@ static void run_vblank(void)
         deliver_vblank();
     }
     vblank_in_progress = 0;
+}
+
+/* The timer thread's view (interrupt.c), read while the game's thread is suspended: may a vblank interrupt it now?
+ * Not inside a handler, not with interrupts disabled (EnterCriticalSection), not while a vblank is being done. */
+int port_interrupt_allowed(void)
+{
+    return port_handler_depth == 0 && interrupts_enabled && !vblank_in_progress;
+}
+
+/* The timer thread's step: with the game's thread suspended at a place where an interruption is allowed, take
+ * the vblank if one is due. 1: taken (the caller redirects the thread to the interruption routine). */
+int port_interrupt_take(void)
+{
+    return take_vblank(now_us());
+}
+
+/* The interruption routine's C part (interrupt.c's assembly calls it on the game's thread). */
+void port_interrupt_work(void);
+void port_interrupt_work(void)
+{
+    run_vblank();
 }
 
 void port_clock_start(void)

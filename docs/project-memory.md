@@ -7322,6 +7322,40 @@ No function count changes here. Nothing under `ps1/` changed.
   real game from a published commit. The controls run it on made-up game
   code.
 
+## The port delivers the vertical blank as an interruption (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/interrupt.c` and its hooks, `--no-interrupt`, and
+  five cases of the launch controls. The page has the mechanism, its
+  bounds and its cost.
+- Why it exists: the first runtime ran the game's vertical-blank handler
+  only inside library calls. In the private trial the program drew the
+  opening screen and the title and then hung about half a minute in, in
+  a wait of the game's `main` that calls nothing. My design had said to
+  report such a case and not to add a thread; the worker reported it
+  with three options. Chosen: a timer thread that only redirects the
+  game's thread, so that the handlers still run on the game's own
+  thread, and only while that thread is in the game's own code. The
+  alternative of a guarded data page was not built or measured.
+- The owner's review of the first version (PR 124), in his words:
+  "`FXSAVE` preserves the interrupted floating-point state but does not
+  give the C interrupt handler a clean x87 stack. The handler currently
+  executes on the interrupted function's live stack and control
+  environment", shown by him with a game loop that keeps all eight x87
+  slots occupied: the handler's `3.25 * count` came out as NaN while
+  the program ended with status 0. My contract for the routine had said
+  "save every register and the flags, and the FPU/SSE state" and
+  nothing about the state the handler is entered with; the control kept
+  two values and passed. The routine now enters the handler as the
+  calling convention promises a function: `fninit`, the default MXCSR,
+  the direction flag clear, the stack aligned. The rule I take from it:
+  an interruption has two contracts, what the interrupted code gets
+  back and what the handler starts with, and each needs a case that
+  fills the state to its limit.
+- Not shown: anything on the real game from a published commit (the
+  published tree stops at `main`). The cases run on made-up game code.
+
 ## The port builds PsyZ from a patched copy (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.

@@ -66,7 +66,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "debug"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "debug", "interrupt"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -364,6 +364,173 @@ void game_card(void)
 }
 """
 
+IRQ_NAMES = ["OpenEvent", "EnableEvent", "StartRCnt", "ResetCallback", "busy"]
+IRQ_ADDR = {n: RAM + 0x101200 + 0x10 * i for i, n in enumerate(IRQ_NAMES)}
+G_SPIN, G_HOST, G_NEST, G_REGS, G_FPU = (RAM + 0x101300 + 0x10 * i for i in range(5))
+ABS_IRQ = ABS_BASE + [(n, a, 1) for n, a in IRQ_ADDR.items()]
+FUN_IRQ = FUN_BASE + [("g_spin", G_SPIN, "g_spin"), ("g_host", G_HOST, "g_host"), ("g_nest", G_NEST, "g_nest"), ("g_regs", G_REGS, "g_regs"), ("g_fpu", G_FPU, "g_fpu")]
+GAME_IRQ = PROLOGUE + r"""
+extern unsigned ps1_OpenEvent(unsigned, unsigned, unsigned, void (*)(void));
+extern int ps1_EnableEvent(unsigned), ps1_StartRCnt(unsigned);
+extern void *ps1_ResetCallback(void);
+extern void ps1_busy(void);
+static volatile int count, depth, maxdepth, slow;
+static volatile DWORD handler_thread;
+static void handler(void)
+{
+    DWORD t;
+    handler_thread = GetCurrentThreadId();
+    depth++;
+    if (depth > maxdepth) maxdepth = depth;
+    if (slow) { t = GetTickCount(); while (GetTickCount() - t < 45) { } }
+    { volatile double d = 3.25 * (double)count; (void)d; }   /* x87 work inside the handler */
+    depth--;
+    count++;
+}
+static void setup_with(void (*h)(void))
+{
+    unsigned ev;
+    ps1_ResetCallback();
+    ev = ps1_OpenEvent(0xf2000003u, 2, 0x1000, h);
+    ps1_EnableEvent(ev);
+    ps1_StartRCnt(3);
+}
+static void setup(void) { setup_with(handler); }
+void g_spin(void)
+{
+    DWORD me = GetCurrentThreadId();
+    setup();
+    while (count < 5) { }
+    SAY("spin ended; the handler ran on the game's thread: %d\n", handler_thread == me);
+}
+void g_host(void)
+{
+    int before, during;
+    setup();
+    while (count < 2) { }
+    before = count;
+    ps1_busy();
+    during = count - before;
+    SAY("count moved %d during the host routine's 200 ms spin\n", during);
+    while (count < before + 2) { }
+    SAY("and moved after it: %d\n", count > before);
+}
+void g_nest(void)
+{
+    setup();
+    slow = 1;
+    while (count < 4) { }
+    SAY("handler runs %d, deepest nesting %d\n", count >= 4, maxdepth);
+}
+static volatile int iterations_left, failed;
+void g_regs(void)
+{
+    int round, start;
+    double a = 0, b = 0;
+    setup();
+    start = count;
+    for (round = 0; round < 12; round++) {
+        iterations_left = 3000000;
+        __asm__ volatile(
+            "fld1\n\tfldpi\n\t"
+            "movl $0x11111111, %%eax\n\tmovl $0x22222222, %%ebx\n\tmovl $0x33333333, %%ecx\n"
+            "\tmovl $0x44444444, %%edx\n\tmovl $0x55555555, %%esi\n\tmovl $0x66666666, %%edi\n"
+            "1:\n\tstc\n\tnop\n\tnop\n\tnop\n\tjnc 9f\n"
+            "\tcmpl $0x11111111, %%eax\n\tjne 9f\n\tcmpl $0x22222222, %%ebx\n\tjne 9f\n\tcmpl $0x33333333, %%ecx\n\tjne 9f\n"
+            "\tcmpl $0x44444444, %%edx\n\tjne 9f\n\tcmpl $0x55555555, %%esi\n\tjne 9f\n\tcmpl $0x66666666, %%edi\n\tjne 9f\n"
+            "\tstd\n\tnop\n\tnop\n\tcld\n"
+            "\tdecl %0\n\tjnz 1b\n\tjmp 8f\n"
+            "9:\n\tmovl $1, %1\n"
+            "8:\n\tfstpl %2\n\tfstpl %3\n"
+            : "+m"(iterations_left), "=m"(failed), "=m"(a), "=m"(b)
+            :
+            : "eax", "ebx", "ecx", "edx", "esi", "edi", "cc", "memory");
+        if (a != 3.14159265358979323846 || b != 1.0) failed = 1;
+        if (failed) break;
+    }
+    SAY("registers, flags and x87 survived: %d; handler ran %d times meanwhile: %d\n", !failed, count - start, count - start >= 10);
+}
+
+#include <emmintrin.h>
+/* ---- the floating-point environment of the handler, and of the interrupted code ---- */
+static volatile int fcount, f_cw_bad, f_tag_bad, f_mx_bad, f_df_bad, f_x87_bad, f_sse_bad;
+__attribute__((target("sse2"))) static double sse_mul(double a, double b) { return _mm_cvtsd_f64(_mm_mul_sd(_mm_set_sd(a), _mm_set_sd(b))); }
+static void fhandler(void)
+{
+    unsigned char env[28];
+    unsigned short cw, tag;
+    unsigned mx, fl;
+    int n = fcount;
+    double d, s;
+    __asm__ volatile("fnstenv %0" : "=m"(env));
+    __asm__ volatile("stmxcsr %0" : "=m"(mx));
+    __asm__ volatile("pushfl\n\tpopl %0" : "=r"(fl));
+    cw = *(unsigned short *)env;
+    tag = *(unsigned short *)(env + 8);
+    if (cw != 0x037f) f_cw_bad++;
+    if (tag != 0xffff) f_tag_bad++;
+    if (mx != 0x1f80) f_mx_bad++;
+    if (fl & 0x400) f_df_bad++;
+    d = 3.25 * (double)n;
+    s = sse_mul(3.25, (double)n);
+    if ((int)(d * 4.0) != 13 * n) f_x87_bad++;
+    if ((int)(s * 4.0) != 13 * n) f_sse_bad++;
+    fcount++;
+}
+static const double fvals[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+static double fout[8];
+static volatile unsigned f_out_cw, f_out_mx, f_out_df;
+void g_fpu(void)
+{
+    static const unsigned short cw_set = 0x0c7f, cw_def = 0x037f;
+    static const unsigned mx_set = 0x7f80, mx_def = 0x1f80;
+    int round, i, values_ok = 1, cw_ok = 1, mx_ok = 1, df_ok = 1, start;
+    unsigned n;
+    setup_with(fhandler);
+    start = fcount;
+    for (round = 0; round < 8; round++) {
+        n = 600000000u;
+        __asm__ volatile(
+            "fldcw %[cws]\n\tldmxcsr %[mxs]\n\t"
+            "fldl 0(%[v])\n\tfldl 8(%[v])\n\tfldl 16(%[v])\n\tfldl 24(%[v])\n\tfldl 32(%[v])\n\tfldl 40(%[v])\n\tfldl 48(%[v])\n\tfldl 56(%[v])\n\t"
+            "std\n"
+            "1:\n\tnop\n\tnop\n\tdecl %[n]\n\tjnz 1b\n\t"
+            "pushfl\n\tpopl %%eax\n\tshrl $10, %%eax\n\tandl $1, %%eax\n\tmovl %%eax, %[df]\n\t"
+            "cld\n\t"
+            "stmxcsr %[omx]\n\tfnstcw %[ocw]\n\t"
+            "fstpl 0(%[o])\n\tfstpl 8(%[o])\n\tfstpl 16(%[o])\n\tfstpl 24(%[o])\n\tfstpl 32(%[o])\n\tfstpl 40(%[o])\n\tfstpl 48(%[o])\n\tfstpl 56(%[o])\n\t"
+            "fldcw %[cwd]\n\tldmxcsr %[mxd]\n"
+            : [n] "+c"(n), [df] "=m"(f_out_df), [omx] "=m"(f_out_mx), [ocw] "=m"(f_out_cw)
+            : [v] "r"(fvals), [o] "r"(fout), [cws] "m"(cw_set), [mxs] "m"(mx_set), [cwd] "m"(cw_def), [mxd] "m"(mx_def)
+            : "eax", "cc", "memory", "st", "st(1)", "st(2)", "st(3)", "st(4)", "st(5)", "st(6)", "st(7)");
+        for (i = 0; i < 8; i++)
+            if (fout[i] != fvals[7 - i]) values_ok = 0;
+        if (f_out_cw != 0x0c7f) cw_ok = 0;
+        if (f_out_mx != 0x7f80) mx_ok = 0;
+        if (f_out_df != 1) df_ok = 0;
+    }
+    SAY("interrupted state back: values %d control word %d mxcsr %d direction flag %d\n", values_ok, cw_ok, mx_ok, df_ok);
+    SAY("handler saw: default control word %d empty x87 stack %d default mxcsr %d direction flag clear %d\n", !f_cw_bad, !f_tag_bad, !f_mx_bad, !f_df_bad);
+    SAY("handler arithmetic: x87 %d sse %d; handler ran %d times: %d\n", !f_x87_bad, !f_sse_bad, fcount - start, fcount - start >= 10);
+}
+"""
+
+IRQ_DOMAINS = r"""
+#include "port.h"
+#include <windows.h>
+extern void port_h_OpenEvent(), port_h_EnableEvent(), port_h_StartRCnt(), port_h_ResetCallback();
+void host_busy(void) { DWORD t = GetTickCount(); while (GetTickCount() - t < 200) { } }
+static const struct port_library t[] = {
+    { "OpenEvent", (void *)port_h_OpenEvent, 0 }, { "EnableEvent", (void *)port_h_EnableEvent, 0 },
+    { "StartRCnt", (void *)port_h_StartRCnt, 0 }, { "ResetCallback", (void *)port_h_ResetCallback, 0 },
+    { "busy", (void *)host_busy, 0 }, { 0, 0, 0 } };
+const struct port_domain port_domains[] = { { "irq", t } };
+const unsigned port_domain_count = 1;
+static const struct port_override o[] = { { 0, 0, 0 } };
+const struct port_override *const port_override_sets[] = { o };
+const unsigned port_override_set_count = 1;
+"""
+
 DOMAINS_NONE = r"""
 #include "port.h"
 static const struct port_library none[] = { { 0, 0, 0 } };
@@ -466,6 +633,7 @@ VARIANTS = {
                     "const struct port_domain port_domains[] = { { \"kernel\", k }, { \"card\", port_card_library } };\nconst unsigned port_domain_count = 2;\n"
                     "static const struct port_override o[] = { { 0, 0, 0 } };\n"
                     "const struct port_override *const port_override_sets[] = { o };\nconst unsigned port_override_set_count = 1;\n"),
+    "irq": Variant("irq", GAME_IRQ, FUN_IRQ, ABS_IRQ, IRQ_DOMAINS),
     "kern": Variant("kern", GAME_VBLANK + GAME_THREADS.replace(PROLOGUE, ""), FUN_KERN, ABS_KERN, kernel_domains()),
 }
 
@@ -666,6 +834,28 @@ def cases(rig: Rig):
     out = proc.stdout.replace("\r\n", "\n")
     ok = proc.returncode == 0 and "routines that do nothing on purpose (13):" in out and out.count("no memory card in this port yet") == 13
     yield "card-routines-are-listed-as-doing-nothing-on-purpose-with-the-note", None if ok else out[:400]
+
+    # ---- the vblank as an interrupt of the game's thread ----
+    status, lines, img, arg = rig.run("irq-spin", program(G_SPIN), variant="irq", timeout=60)
+    yield "a-spin-on-a-counter-only-the-handler-raises-ends-by-itself-and-the-handler-ran-on-the-games-thread", verdict(
+        (status, lines[-2:]), (0, ["spin ended; the handler ran on the game's thread: 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-off", program(G_SPIN), variant="irq", args=["--no-interrupt", "--watchdog", "3"], timeout=60)
+    yield "the-same-spin-with-no-interrupt-is-ended-by-the-watchdog", None if status == 11 and lines[-1].startswith("stop: hang: no vblank for 3 s; the program is at") else f"status {status}, lines {lines[-2:]!r}"
+    status, lines, img, arg = rig.run("irq-host", program(G_HOST), variant="irq", timeout=60)
+    yield "a-spin-inside-a-host-routine-is-not-interrupted", verdict((status, lines[-3:]), (0, ["count moved 0 during the host routine's 200 ms spin", "and moved after it: 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-nest", program(G_NEST), variant="irq", timeout=60)
+    yield "a-handler-is-not-interrupted-by-a-second-vblank", verdict((status, lines[-2:]), (0, ["handler runs 1, deepest nesting 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-regs", program(G_REGS), variant="irq", timeout=120)
+    yield "registers-flags-and-x87-survive-many-interruptions", verdict((status, lines[-2:]), (0, ["registers, flags and x87 survived: 1; handler ran %s times meanwhile: 1" % (lines[-2].split("ran ")[1].split(" ")[0] if "ran " in lines[-2] else "?"), "stop: main returned"]))
+
+    status, lines, img, arg = rig.run("irq-fpu", program(G_FPU), variant="irq", timeout=180)
+    body = [l for l in lines if l.startswith(("interrupted state", "handler saw", "handler arithmetic"))]
+    yield "the-interrupted-x87-values-control-word-mxcsr-and-direction-flag-come-back", verdict(
+        (status, body[:1]), (0, ["interrupted state back: values 1 control word 1 mxcsr 1 direction flag 1"]))
+    yield "the-handler-sees-an-empty-x87-stack-the-default-control-word-the-default-mxcsr-and-a-clear-direction-flag", verdict(
+        body[1:2], ["handler saw: default control word 1 empty x87 stack 1 default mxcsr 1 direction flag clear 1"])
+    yield "the-handler-computes-right-with-all-eight-x87-slots-occupied-by-the-interrupted-code", verdict(
+        body[2:3], ["handler arithmetic: x87 1 sse 1; handler ran %s times: 1" % (body[2].split("ran ")[1].split(" ")[0] if len(body) > 2 and "ran " in body[2] else "?")])
 
     # ---- the kernel ----
     status, lines, img, arg = rig.run("vblank", program(G_VBLANK), variant="kern", timeout=60)

@@ -152,9 +152,13 @@ void port_callbacks_reset(void);
  * handler called, or are marked ready for TestEvent. */
 void port_deliver_event(unsigned event_class, unsigned spec);
 
-/* kernel.c: the frame clock */
+/* kernel.c / interrupt.c: the vblank as an interrupt of the game's thread */
 extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs */
+int  port_interrupt_allowed(void);
+int  port_interrupt_take(void);
 void port_clock_start(void);
+/* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
+void port_interrupt_start(void);
 
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);
