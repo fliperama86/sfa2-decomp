@@ -16,7 +16,6 @@ Object *func_8011f32c(void);
 Block172 *func_8011f1e0(void);
 void func_80130678(Object *object, int index);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142a14(Object *object);
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
@@ -117,7 +116,7 @@ void func_801b0354_slot04_14(Object *obj) {
 
     obj->field_07 = obj->field_07 + 1;
     if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
-        if (func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b62a8_slot04_14(obj, 1, 2, 0, 0);
             return;
         }
@@ -168,7 +167,7 @@ void func_801b0540_slot04_14(Object *obj) {
 
     obj->field_07 = obj->field_07 + 1;
     if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
-        if (func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b62a8_slot04_14(obj, 1, 2, 0, 0);
             return;
         }

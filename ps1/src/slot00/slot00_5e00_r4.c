@@ -5,7 +5,6 @@
 
 extern ObjectFn data_80079164_slot00[];
 extern ObjectFn data_8007916c_slot00[];
-u8 func_80149b80(Object *obj);
 
 void func_8007620c_slot00(Object *obj) {
     data_80079164_slot00[obj->field_07](obj);

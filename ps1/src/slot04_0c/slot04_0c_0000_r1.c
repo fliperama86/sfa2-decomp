@@ -16,7 +16,6 @@ extern ObjectFn data_801bd8f0_slot04_0c[];
 Object *func_8011f32c(void);
 void func_80130678(Object *object, int arg);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142a14(Object *object);
 
 void func_801b01ac_slot04_0c(Object *obj);
@@ -129,7 +128,7 @@ void func_801b0340_slot04_0c(Object *obj) {
 }
 
 void func_801b0380_slot04_0c(Object *obj) {
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x14, 0x14) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

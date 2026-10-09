@@ -10,8 +10,6 @@ extern Slot04_10Rec6cb0 data_801c6cb0_slot04_10[];
 
 int func_80130184(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-u8 func_80140cd8(Object *object, int a, int b);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80145d20(Object *object);
@@ -106,7 +104,7 @@ void func_801b5a18_slot04_10(Object *obj) {
 void func_801b5abc_slot04_10(Object *obj) {
     s16 t = *(u16 *)(data_801c6c9c_slot04_10 + (obj->field_12a & 0xfe));
 
-    if (func_8013f8c4(obj, -0x26, (s16)(t - 0x26)) == 0) {
+    if ((u8)func_8013f8c4(obj, -0x26, (s16)(t - 0x26)) == 0) {
         obj->field_07 = 0xa;
         func_80130efc(obj);
     } else {

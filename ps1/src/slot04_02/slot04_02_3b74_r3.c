@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013f8c4(Object *obj, int a, int b);
-
 void func_801b3ef8_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p = o->other;
@@ -13,7 +11,7 @@ void func_801b3ef8_slot04_02(Object *o) {
     if ((o->field_46 & 0xff) != 0) {
         *(s32 *)&o->field_10 += o->field_4c;
         if (((o->field_164 >> o->field_48) & 1) == 0) {
-            if (func_8013f8c4(o, -0x10, 0x10) == 0) {
+            if ((u8)func_8013f8c4(o, -0x10, 0x10) == 0) {
                 func_80130efc(o);
             } else {
                 o->field_07++;

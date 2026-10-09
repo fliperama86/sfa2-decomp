@@ -23,8 +23,6 @@ void func_80131468(Object *object);
 void func_80131638(Object *object);
 void func_80130678(Object *object, int arg);
 unsigned short func_80130470(Object *object);
-u8 func_8012f898(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142a14(Object *object);
 void select_box_tables(Object *object);
 void build_metrics(Object *object);
@@ -197,7 +195,7 @@ void func_801b596c_slot04_17(Object *obj) {
             return;
         }
     }
-    if (func_8012f898(obj)) {
+    if ((u8)func_8012f898(obj)) {
         func_8012f8c4(obj);
     } else {
         func_80130efc(obj);

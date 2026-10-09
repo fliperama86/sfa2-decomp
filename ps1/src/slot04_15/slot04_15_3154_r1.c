@@ -10,7 +10,6 @@ extern ObjectFn data_801c3160_slot04_15[];
 extern ObjectFn data_801c3170_slot04_15[];
 
 Block172 *func_8011f1e0(void);
-u8 func_80125734(Object *object, int a);
 void func_80130678(Object *object, int arg);
 void func_80141e5c(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);

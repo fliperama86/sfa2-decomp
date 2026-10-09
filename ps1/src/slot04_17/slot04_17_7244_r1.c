@@ -9,7 +9,6 @@ extern u8 data_801cea34_slot04_17[];
 void func_80130dc0(Object *obj);
 void func_80131468(Object *obj);
 void func_80131638(Object *obj);
-u8 func_80149b80(Object *obj);
 void func_801b1448_slot04_17(Object *obj);
 void func_801b5a34_slot04_17(Object *obj);
 void func_801b6fa0_slot04_17(Object *obj);

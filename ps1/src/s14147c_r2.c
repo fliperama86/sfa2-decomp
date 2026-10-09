@@ -15,7 +15,7 @@ u8 func_801416ec(Object *object) {
     return 0;
 }
 
-u8 func_80141788(Object *object) {
+int func_80141788(Object *object) {
     if (object->field_7e != 0) return 0;
     data_8019046c = 1;
     return func_80141848(object);
@@ -40,10 +40,10 @@ u8 func_80141848(Object *object) {
     return func_80141908(object);
 }
 
-u8 func_801418bc(Object *object) {
+int func_801418bc(Object *object) {
     game_state.field_35c = 1;
     if (*(u32 *)&object->field_04 == 0x3030001) {
         return 0;
     }
-    return func_80141908(object);
+    return (u8)func_80141908(object);
 }

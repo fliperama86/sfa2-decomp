@@ -7,7 +7,6 @@ extern s16 data_801c535c_slot04_06[];
 extern u8 data_801c5368_slot04_06[];
 void func_801b4818_slot04_06(Object *obj);
 void func_801b4850_slot04_06(Object *obj);
-int func_80140cd8(Object *object, int a, int b);
 
 void func_801b1944_slot04_06(Object *o) {
     u8 t;

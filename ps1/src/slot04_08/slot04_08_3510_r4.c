@@ -5,7 +5,6 @@
 
 extern s16 data_801c3d9c_slot04_08[];
 extern u16 data_801c3d8c_slot04_08[];
-u8 func_8013f8c4(Object *object, int a, int b);
 
 void func_801b3a4c_slot04_08(Object *obj) {
     obj->field_07++;
@@ -23,7 +22,7 @@ void func_801b3abc_slot04_08(Object *obj) {
 
     if (t & 0x8000) {
         func_801312b8(obj);
-    } else if ((t & 0xff) && func_8013f8c4(obj, -0x30, data_801c3d9c_slot04_08[(obj->field_12a >> 1) * 2]) != 0) {
+    } else if ((t & 0xff) && (u8)func_8013f8c4(obj, -0x30, data_801c3d9c_slot04_08[(obj->field_12a >> 1) * 2]) != 0) {
         obj->field_07++;
         obj->field_46 = data_801c3d8c_slot04_08[(obj->field_12a >> 1) * 2];
         func_80141f28(obj, 0x15);

@@ -6,7 +6,6 @@
 u8 func_8013d210(Object *object);
 int func_8013d1a8(Object *object);
 int func_8013cac8(Object *object, u8 a, u8 b);
-int func_8013caf0(Object *object, u8 a, u8 b);
 int func_8013cb70(Object *object, u8 a, u8 b);
 u8 func_801417cc(Object *object);
 int func_80141c4c(Object *object);
@@ -74,7 +73,7 @@ int func_801b11e4_slot04_0f(Object *obj) {
     if (obj->field_50 < 0) {
         return 0;
     }
-    if (func_801418bc(obj)) {
+    if ((u8)func_801418bc(obj)) {
         obj->field_04 = 1;
         obj->field_06 = 7;
         obj->field_05 = 0;

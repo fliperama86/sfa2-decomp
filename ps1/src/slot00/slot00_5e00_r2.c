@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_80079148_slot00[];
-u8 func_80149b80(Object *obj);
 
 void func_80075f60_slot00(Object *obj) {
     if ((s16)obj->field_3a & 0x8000) {

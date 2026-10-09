@@ -4,14 +4,12 @@
 #include "../externs.h"
 
 void func_801b6cb0_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
-u8 func_8013f8c4(Object *obj, int a, int b);
-u8 func_80149b80(Object *obj);
 
 void func_801b63f8_slot04_02(Object *obj) {
     obj->field_07 = obj->field_07 + 1;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
-        if (func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b6cb0_slot04_02(obj, 1, 2, 0, 0);
             return;
         }

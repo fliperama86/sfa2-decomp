@@ -21,7 +21,7 @@ int func_801320e8(Object *object) {
     } else if (!(u8)func_8013d0fc(object)) {
         result = 0;
     } else {
-        result = func_801418bc(object) != 0;
+        result = (u8)func_801418bc(object) != 0;
     }
     return result;
 }

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8012f898(Object *object);
-
 void func_8012a684(Object *object) {
     if (game_state.field_4d != 0) {
         func_8012ff80(object);

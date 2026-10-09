@@ -3,12 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
-
 int func_801b1084_slot04_00(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->field_04 = 1;
         obj->field_05 = 0;
@@ -26,7 +24,7 @@ int func_801b1110_slot04_00(Object *obj) {
     int r = 0;
 
     if (obj->field_45 != 0) {
-        if (!func_801418bc(obj)) return 0;
+        if (!(u8)func_801418bc(obj)) return 0;
         r = 1;
         obj->field_15a = 3;
     } else {

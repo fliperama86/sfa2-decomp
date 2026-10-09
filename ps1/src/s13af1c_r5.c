@@ -25,8 +25,9 @@ int func_8013cac8(Object *object, u8 a, u8 b) {
     return r;
 }
 
-u8 func_8013caf0(Object *object, u8 a, u8 b) {
-    return (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+int func_8013caf0(Object *object, u8 a, u8 b) {
+    u8 r = (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    return r;
 }
 
 int func_8013cb70(Object *object, u8 a, u8 b) {
@@ -84,8 +85,9 @@ u8 func_8013cfb4(Object *object, u8 a, u8 b) {
     return func_8013ead4(object, a, b);
 }
 
-u8 func_8013cfdc(Object *object, u8 a, u8 b) {
-    return func_8013ee80(object, a, b);
+int func_8013cfdc(Object *object, u8 a, u8 b) {
+    u8 r = func_8013ee80(object, a, b);
+    return r;
 }
 
 u8 func_8013d004(Object *object) {

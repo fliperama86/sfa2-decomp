@@ -9,7 +9,6 @@ extern ObjectFn data_801c6170_slot04_0e[];
 
 void func_80142fe8(Object *object);
 void func_80138ae8(GameState *state, Object *object);
-Dir func_8013054c(Object *object);
 void func_80131468(Object *object);
 void func_80142adc(Object *object);
 
@@ -67,7 +66,7 @@ void func_801b5828_slot04_0e(Object *o) {
 
 void func_801b58d8_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
-    Dir t;
+    BytePair t;
     u16 a;
 
     if (obj->field_3a == 0 && func_801b5b44_slot04_0e(o)) {

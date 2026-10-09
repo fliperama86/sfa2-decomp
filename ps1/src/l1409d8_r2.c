@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-BytePair func_8013054c(Object *object);
-
 int func_801412a4(Object *object) {
     BytePair dir;
     int a;

@@ -5,7 +5,6 @@
 
 extern ObjectFn data_801dd224_slot05_06[];
 extern ObjectFn data_801dd230_slot05_06[];
-u8 func_8013f8c4(Object *object, int a, int b);
 extern ObjectFn data_801dd238_slot05_06[];
 
 void func_801c8278_slot05_06(Object *obj) {
@@ -18,7 +17,7 @@ void func_801c82bc_slot05_06(Object *obj) {
 
 void func_801c82fc_slot05_06(Object *obj) {
     obj->field_07++;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x18, 0x16) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x16) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

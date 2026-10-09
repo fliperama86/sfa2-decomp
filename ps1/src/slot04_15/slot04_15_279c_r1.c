@@ -17,7 +17,6 @@ void func_80145d20(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80140fe0(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
-u8 func_80140cd8(Object *object, int a, int b);
 int func_801410c8(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80130678(Object *object, int index);
@@ -279,7 +278,7 @@ void func_801b2f54_slot04_15(Object *obj) {
             o->field_1cd = 0xff;
             k = 6;
         }
-        if (func_80140cd8(obj, k, 0) != 0) {
+        if ((u8)func_80140cd8(obj, k, 0) != 0) {
             func_801204f4(obj, obj->side, 0x16);
             func_801b30c8_slot04_15(obj, -0x200);
         } else {

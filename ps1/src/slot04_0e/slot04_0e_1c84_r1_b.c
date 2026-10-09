@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 int func_80141b28(Object *object);
 void func_80142718(Object *object);
@@ -21,7 +20,7 @@ int func_801b2428_slot04_0e(Object *obj);
 
 int func_801b213c_slot04_0e(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     if (((Slot04bObj *)obj)->field_1da != 0) return 0;
     obj->field_15a = 4;
     obj->field_04 = 1;
@@ -36,7 +35,7 @@ int func_801b213c_slot04_0e(Object *obj) {
 
 int func_801b21d4_slot04_0e(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     obj->field_15a = 5;
     obj->field_159 = 1;
     obj->field_04 = 1;
@@ -50,7 +49,7 @@ int func_801b21d4_slot04_0e(Object *obj) {
 
 int func_801b225c_slot04_0e(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     obj->field_15a = 6;
     obj->field_159 = 1;
     obj->field_04 = 1;
@@ -140,7 +139,7 @@ int func_801b253c_slot04_0e(Object *obj) {
     if (obj->field_45 != 0) {
         return (u8)func_801b25e8_slot04_0e(obj);
     }
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     obj->field_15a = 0xb;
     obj->field_04 = 1;
     obj->field_05 = 0;
@@ -152,7 +151,7 @@ int func_801b253c_slot04_0e(Object *obj) {
 
 int func_801b25e8_slot04_0e(Object *obj) {
     if (obj->field_7e != 0) return 0;
-    if (!func_801418bc(obj)) return 0;
+    if (!(u8)func_801418bc(obj)) return 0;
     obj->field_04 = 1;
     obj->field_06 = 8;
     obj->field_05 = 0;

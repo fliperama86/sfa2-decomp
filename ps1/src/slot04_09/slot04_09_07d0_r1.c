@@ -3,11 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013f8c4(Object *object, int a, int b);
-
 void func_801b07d0_slot04_09(Object *obj) {
     obj->field_07++;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x15, 0x13) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x15, 0x13) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

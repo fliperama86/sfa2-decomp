@@ -14,8 +14,6 @@ extern SequenceStep *data_801c0fc4_slot04_15[];
 
 void func_80131468(Object *object);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
-u8 func_80149b80(Object *object);
 void func_8011f240(Slab172 *s);
 void func_801b4c10_slot04_15(Object *obj);
 void func_801b4678_slot04_15(Object *obj);

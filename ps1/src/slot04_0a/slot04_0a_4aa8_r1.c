@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80149b80(Object *object);
-
 void func_801b4aa8_slot04_0a(Object *obj) {
     obj->field_159 = 1;
     obj->field_67 = 0;
@@ -32,7 +30,7 @@ void func_801b4b68_slot04_0a(Object *obj) {
     SequenceStep *s;
     FrameRecord *f;
     if (obj->field_67 != 0) {
-        if (func_80149b80(obj)) {
+        if ((u8)func_80149b80(obj)) {
             obj->field_07 = 0;
         }
     }
