@@ -82,6 +82,10 @@ not byte-matching. VC5 tools are available; game matching with VC5 is untested.
 Running a game is not another mandatory correctness gate for byte-identical
 output. Runtime observation is optional when useful for understanding behavior
 or resolving loading questions. Nonmatching code needs its own validation.
+The first such code is in
+[`ps1/src/slot06_nonmatching/`](ps1/src/slot06_nonmatching/README.md): one
+function, outside the build and outside every count here, with a
+differential test against the original code.
 
 ## Layout
 
