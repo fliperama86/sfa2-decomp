@@ -639,6 +639,43 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   are separate blocks until the late jump pass merges them. This is an
   inference from the allocation, and the comment at the statement says
   so. `grep -rn "The listing has one store of pos_x" src` lists the uses.
+- Where an instruction stands in its block can depend on the type of the
+  local it computes. The mechanism is in the compiler's source (GCC 2.6.3,
+  `sched.c`), read there and not inferred from listings: when an
+  instruction becomes ready in the first scheduling pass,
+  `adjust_priority` raises its priority if `birthing_insn_p` holds for
+  it, that is, if its destination is a plain register that is live at
+  that point and is assigned exactly once in the function. The pass
+  works backwards, so a raised instruction is taken early and tends to
+  land late in its block. An instruction whose destination is a 16-bit
+  local written from a word operation is not a plain register there, and
+  a local assigned twice is not assigned once: neither is raised. Other
+  instructions move as well: priority also follows the load latencies
+  before an instruction, and ties go by class and then by original
+  order. What follows is the effect observed in the stage drawing
+  functions of this MIPS build, not a rule that holds in every case:
+  - A value that the original computes earlier in its block than the
+    build does is a `s16` or `u16` local where the candidate has `int` or
+    `u32`. `func_801e82c8_slot06_00` was exact when the tile mask, the
+    column counter, the pixel offset and the difference of the scroll
+    were 16-bit, with the statements in the listing's order; its comment
+    gives what each costs as a word. With 16-bit locals the listing's
+    order is the source's order, so write statements as the listing has
+    them and do not reorder to steer registers.
+  - A value that the listing sign-extends (`sll 16`, `sra 16`) or masks
+    (`andi 0xffff`) after computing it is a 16-bit local. A local that
+    gets no register has an 8-byte stack slot, and a 16-bit one is
+    stored there with `sh`; slots are handed out in ascending number of
+    the pseudo-registers, which for locals is the order of their
+    declarations (`reload1.c`, `alter_reg` and its caller).
+  - Local allocation takes values in the order of `floor(log2(refs)) *
+    refs * size / length of life`, the lowest free register first
+    (`local-alloc.c`, `qty_compare`; the size is in words, one for the
+    values met here); a destination can share the
+    register of an operand that dies in the instruction, and the
+    operands are tried in order. In the drawing functions a difference
+    written `t = a - t` landed in the register of `t`; written into a
+    local of its own it landed in the register of `a`.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

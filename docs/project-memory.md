@@ -5483,6 +5483,77 @@ What the merge with the second session's blocks showed (2026-10-08):
   brings its callers with it in the same pull request, in whatever folder
   they are. The split of the folders between the sessions is about new
   work; it does not make a new inconsistency somebody else's.
+## The stage drawing functions: a rule from the compiler's source (2026-10-08)
+
+The functions of 600 bytes and more in the stage modules had stood since
+the sixty-ninth group. One of them, `func_801e82c8_slot06_00`, had taken
+dozens of hand attempts and three scripted searches and stayed at five
+differing instruction slots. 55 of them are exact now, in all 20 stage
+modules: the functions that draw the flat tile layers.
+
+- What decided it was read in the source of the compiler (GCC 2.6.3,
+  fetched from the GNU archive of old releases as a reference; nothing of
+  it is in this repository). In `sched.c`, `adjust_priority` and
+  `birthing_insn_p`: the first scheduling pass raises the priority of an
+  instruction whose destination is a plain register that is live and is
+  assigned exactly once, which in these functions put it as late as its
+  users allow. A 16-bit local written from a word operation has another
+  kind of destination and is not raised. The candidates
+  had `int` and `u32` locals; with the tile mask, the column counter, a
+  pixel offset and one difference declared 16-bit, and the statements in
+  the listing's order, the function was exact. The model that the earlier
+  note had inferred from compiler dumps was close and wrong in this
+  point: it had no place for the type of a local.
+- Four model functions were made exact by hand (three layers of the
+  first stage and one function of stage `04`), each then reduced, with
+  comments that give what each 16-bit local costs as a word. Agents
+  adapted the models to the other stages: in most only the record table
+  and a loop bound differ; nine, by the agents' reports, have real
+  differences (a second blank value, a count of records that ends the
+  drawing, a halved scroll value, a row count from the layer, a list
+  head written at its uses). Their comments refer to the model
+  where a model's measurement was not repeated.
+- Counts, sums of the build's lines per image: the 20 stage modules have
+  827 C functions, 118,548 bytes, and 1,242,140 raw bytes. The coverage
+  map's line, with the seventy-third group in the tree: `overall:
+  5327/5600 distinct functions exact (95.1%); 11423/13072 placements
+  (87.4%)`; the same command prints 5279 and 11368 for the tree without
+  this change, so 48 distinct functions and 55 placements are new.
+- Shared files: 55 function lines of this session in `symbols.ld` are
+  gone, because units define those functions now, and 2 data symbols are
+  new (two counters, named by their addresses). `types.fields`: 12 field
+  lines in the four tile structs, 2 in `Chan` (each tested: without it an
+  exact unit does not compile), and one struct, `Slot06Draw`, which
+  reads the layer's 16.16 values as words where `Chan` and `Slot06Layer`
+  have their halves.
+- A private instrument made the search cheap: the unit's preprocessed
+  file with a generated function body spliced in, compiled by the
+  compiler proper alone, and the assembly text compared with a target
+  text. About 700 variants a second; 276,480 variants of the first
+  model's types and statement orders were enumerated, and 1,152 of them
+  are exact (one-off counts). It is described in the private runbook;
+  the published build decided every result.
+- The matching guide has the mechanism and what was observed under
+  "What this compiler does". The owner's review of the first version
+  asked for three corrections, which are in: the description is the
+  effect observed in these cases and not an unconditional rule,
+  `birthing_insn_p` also looks at the set of live registers, and the
+  allocation formula of `qty_compare` has the size of the value in it.
+- Not exact yet in the stage modules, one-off counts from the private
+  folder: 47 rows of the sweep, 36 of them functions of 600 bytes and
+  more. The two kinds that remain keep several 16-bit locals on the
+  stack, and which local loses its register is not reproduced yet.
+
+Mistakes and lessons:
+
+- The inferred model of the scheduler cost a day of attempts. The
+  compiler's source was one download away. When a residual is about
+  order or registers and a model built from dumps does not predict it,
+  read the source of the pass before trying more spellings.
+- A text merge of `build.toml` interleaved two appended tails (this
+  session's units and the first session's, added to main meanwhile) and
+  the file did not parse; the whole build said so at once. The private
+  helper appends the round's tail to main's file now.
 
 ## Windows reference
 

@@ -1273,6 +1273,8 @@ struct Chan size=0x90
 0x012 u16 field_12
 0x014 s32 field_14
 0x01e u16 field_1e
+0x03c s32 field_3c
+0x04c s16 field_4c
 0x050 u16* field_50
 0x058 u32 field_58
 0x05c u32 field_5c
@@ -2163,18 +2165,30 @@ struct Slot06Sprt16 size=0x10
 0x004 u8 color_r
 0x005 u8 color_g
 0x006 u8 color_b
+0x008 s16 x
+0x00a s16 y
+0x00c u8 u
+0x00d u8 v
+0x00e u16 clut
 
 struct Slot06Sprt size=0x14
 0x004 u8 color_r
 0x005 u8 color_g
 0x006 u8 color_b
+0x008 s16 x
+0x00a s16 y
+0x00c u8 u
+0x00d u8 v
+0x00e u16 clut
 0x010 s16 w
 0x012 s16 h
 
 struct Slot06Tile size=0x1c
+0x004 u32 mode[2]
 0x00c Slot06Sprt16 sprt
 
 struct Slot06TileW size=0x20
+0x004 u32 mode[2]
 0x00c Slot06Sprt sprt
 
 struct Slot06_00Rec3010 size=0x20
@@ -2531,6 +2545,19 @@ struct Slot01Rec33bb4 size=0x1c
 0x018 u8 u
 0x019 u8 v
 0x01a u16 tpage
+struct Slot06Draw size=0x90
+0x008 s32 field_08
+0x010 s32 field_10
+0x014 s32 field_14
+0x01c s16 field_1c
+0x01e u16 field_1e
+0x03c s32 field_3c
+0x04c s16 field_4c
+0x04e s16 field_4e
+0x050 u16* field_50
+0x058 u32 field_58
+0x05c u32 field_5c
+0x08a u8 field_8a
 
 struct Slot04aObj size=0x394
 0x016 u16 field_16
