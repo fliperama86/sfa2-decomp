@@ -35,8 +35,8 @@ the image the function is in and must be an image of the configuration
 configuration declares and a nonmatching file defines is an error naming
 both, and so is a nonmatching stem that is also the name of a compiled
 unit. A unit whose `image` is declared `like` another image is an error; the
-second placement of a `like` image is not built in this step, and the
-images that are `like` another are counted.
+units of the image that a `like` image is like are placed a second time (see
+"The second placements").
 
 Each unit is compiled alone to assembly,
 
@@ -73,6 +73,41 @@ a label; a miss is an error. The renamed assembly replaces
 `BUILD/asm/UNIT.s` and is assembled to `BUILD/obj/UNIT.o`. Whether the
 target uses the underscore is found by compiling a one-line probe.
 
+The second placements
+----------------------
+
+An `[[image]]` with `like = "Y"` is image Y linked a second time at its own
+address X (the second side of a character). The matching build links every
+unit of Y again, each of its ranges moved by the shift, X's address minus
+Y's, except the units that X's `leave_out` names; it gives that link every
+other name at the address it has, and these names at a moved address: the
+functions that the units of Y declare (the left-out units' too), and every
+name of `symbols.ld` that lies inside Y's payload, unless X's
+`[image.symbols]` table gives it. That table's names win over a moved
+address, and it adds names. Everything else (the resident executable, the
+other images, names outside the payload) keeps its address.
+
+So here, for each unit of Y that is built (the nonmatching ones too) and
+each such X: the second object is made from the same assembly as the first
+(no second compile). Its definitions are `impl_NAME__X` (a data name that the
+unit defines too), and its references are renamed by `redefine__X.txt` to
+`ps1_NAME__X` for the names that move and to `ps1_NAME` for all others. The
+names file gives `ps1_NAME__X` its moved address (or
+`ps1_NAME__X = impl_NAME__X;` for a data copy). `port_functions` and
+`port_absents` get X's functions as `NAME__X` at the moved addresses (the
+inventory rows of X are read like the others'). A left-out unit has no second
+object; its functions are absent in X and its names are still given; a
+left-out unit that defines data is an error. A unit named like
+`<other unit>__X` is an error. A second image must lie above its first.
+
+The matching build bounds Y's payload by the length of the image's chunk,
+which only the game's archive gives. The bound used here is the shift: a
+second link must not overlap the first, so the payload is shorter than the
+shift. The two bounds give the same moved names for every `symbols.ld` name
+that a unit of any of the 22 `like` images refers to (checked with the chunk
+lengths of the private archives). The other names that lie between the
+payload and the shift get a moved address that no unit uses.
+
 The namespace
 -------------
 
@@ -108,13 +143,16 @@ The tables
 `port_program_sha256` holds the SHA-256 that `[baseline] sha256` of the
 configuration pins for the game's executable (32 bytes; no game file is read
 for it; a configuration without 64 hex digits there is an error).
-`port_images` holds every image of the configuration in its order.
+`port_images` holds every image of the configuration in its order, with
+the names of all the archives that carry its content (`contents.tsv`; the
+configuration's own archive when that table is absent), which the runtime's
+placing of modules (`modules.c`) matches against the disc's files.
 `port_functions` holds every function with C: a function that a unit which
 compiled declares and defines, and a nonmatching function that its file
 defines; sorted by image (the resident executable first, as -1) and
 address. Two at one address of one image is an error. `port_absents` holds
 every function of the inventory (`ps1/inventory/game.tsv`, `library.tsv`
-and, for the images of the configuration that are not `like` another,
+and, for every image of the configuration (the second placements too),
 `modules.tsv`; a row of `modules.tsv` belongs to an image as
 `coveragemap.py` assigns it) that no function with C is at: `library` is 1
 for a row of `library.tsv`, the name is the one that a unit of the
@@ -124,17 +162,40 @@ configuration declares for that address in that image, else
 The link
 --------
 
+The link places two marker symbols, `port_game_text_begin` before and
+`port_game_text_end` after the text of all the game's objects (the units'
+objects, second placements and nonmatching ones included; not the runtime's,
+`port_tables.o`, PsyZ or any library): two one-line assembly objects of the
+tool, first and last among the game objects of the response file. The reason:
+the port delivers the vertical-blank interrupt by interrupting the game's
+thread, and may do so only inside the game's own code, which the runtime
+tells by whether an instruction pointer lies between the markers. The check
+below covers them.
+
 All objects of the units, every `RUNTIME/*.c` compiled with
 `CC -O1 -Wall -Wextra -c`, `port_tables.o` and `names.ld` go to one run of
 the compiler by a response file, with `-static -Wl,--large-address-aware
 -Wl,--disable-dynamicbase`, to `BUILD/NAME`. The link is then verified, and
-a miss ends the tool with status 1 naming the symbols: with `nm` on the
+a miss ends the tool with status 1 naming the symbols: both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
 linked file, every `ps1_` name of `names.ld` has exactly its address, no plain game name is
 at a PS1 address, every
 `impl_` function of `port_functions` exists outside the PS1's ranges
 (`0x80000000` to `0x801fffff`, `0x1f800000` to `0x1f8003ff`), every host
 data alias `ps1_NAME` has the address of its `impl_` copy outside those
 ranges. The plain name may exist (the host's own function of that name).
+
+The graphics library
+--------------------
+
+With `--psyz DIR` (DIR is a build folder of `psyzbuild.py`, which holds
+`psyz.json`) the runtime's `gpu.c` is compiled with `-DPORT_HAVE_PSYZ`,
+PsyZ's defines and `-isystem` its include folder, and the link line gets
+PsyZ's libraries (its static library, SDL's and the system libraries, in the
+order the file lists them) after the objects. No other runtime file sees
+PsyZ's headers. Without the option `gpu.c` compiles to empty tables and the
+program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
+is not valid or names a file that is missing, is an error (status 2). With the
+option the line `psyz: COMMIT` follows the `compiler:` line.
 
 Output
 ------
@@ -143,23 +204,25 @@ Standard output, in this order, with nothing else:
 
     compiler: FIRST LINE OF `CC --version`
     units: U compiled, N of them nonmatching, F failed
-    like images not built: L
+    like images built: L
     functions with C: C
     functions without C: A, library L2, game and modules G
     names at PS1 addresses: P
     data defined in C, at host addresses: D
     linked: PATH, verified
 
-PATH is relative to the current folder when the linked file lies under it.
+With `--psyz` the line `psyz: COMMIT` follows `compiler:`. PATH is relative to the current folder when the linked file lies under it.
 
 U counts the units tried, nonmatching ones included. A is the number of
 rows of `port_absents`, L2 those of the library and G the others (the
-resident game and the module images), so that A = L2 + G. The last line is
+resident game and the module images), so that A = L2 + G. L is the number of
+`like` images placed a second time. The last line is
 printed only for a link that was verified. With `--list` the names behind
-F, D and the game rows of A follow, one per line:
+F, D, the `like` images and the game rows of A follow, one per line:
 
     failed: UNIT: FIRST ERROR LINE
     data: NAME
+    like: IMAGE of FIRST, shift +0xSHIFT, N names move, units left out: UNIT ...
     absent: NAME 0xADDRESS IMAGE
 
 (IMAGE is `-` for the resident executable). Objects are always rebuilt.
@@ -171,8 +234,8 @@ compiler cannot be run, with one line on standard error that names it.
 
 usage:
   hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
-               [--out NAME] [--runtime DIR] [--jobs N] [--timeout SECONDS]
-               [--list]
+               [--out NAME] [--runtime DIR] [--psyz DIR] [--jobs N]
+               [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
 `i686-w64-mingw32-gcc`; the `nm` next to CC with the same prefix (`gcc` at
@@ -183,6 +246,7 @@ its end replaced by `nm`, else `nm`); `port/build/host`; `sfa2.exe`;
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -223,14 +287,16 @@ SYMBOL = re.compile(r"[A-Za-z_.$][\w.$]*")
 # The rename.
 
 
-def renamed(name: str, underscore: bool) -> str:
+def renamed(name: str, underscore: bool, suffix: str = "") -> str:
     if underscore and name.startswith("_"):
-        return "_impl_" + name[1:]
-    return "impl_" + name
+        return "_impl_" + name[1:] + suffix
+    return "impl_" + name + suffix
 
 
-def rename_definitions(text: str, underscore: bool) -> tuple[str, set[str]]:
-    """The assembly with the definitions of its global symbols renamed, and the symbols defined."""
+def rename_definitions(text: str, underscore: bool, suffix: str = "") -> tuple[str, set[str]]:
+    """The assembly with the definitions of its global symbols renamed, and the symbols defined.
+
+    `suffix` is added to the new names (`impl_NAME` + suffix), for the second placement of a unit."""
     lines = text.split("\n")
     stripped = [x[:-1] if x.endswith("\r") else x for x in lines]
     named: set[str] = set()
@@ -249,7 +315,7 @@ def rename_definitions(text: str, underscore: bool) -> tuple[str, set[str]]:
         if match:
             placed.add(match.group(2))
     defined = named & placed
-    new = {name: renamed(name, underscore) for name in defined}
+    new = {name: renamed(name, underscore, suffix) for name in defined}
     out = []
     for raw, line in zip(lines, stripped):
         tail = raw[len(line):]
@@ -315,6 +381,7 @@ class Job:
     source: Path
     nonmatching: bool
     functions: list[Function]
+    image: str | None = None  # the image the unit belongs to; None: the resident executable
 
 
 @dataclass
@@ -323,6 +390,7 @@ class Selection:
     declared: list[Function]  # every function any unit of the configuration declares, nonmatching included
     like_images: int
     images: list[dict]
+    unit_names: dict[str | None, list[str]] = field(default_factory=dict)  # every unit of the configuration, by image
 
 
 def read_images(config: dict, path: Path) -> list[dict]:
@@ -361,8 +429,10 @@ def select_units(config: dict, path: Path) -> Selection:
     compiled = {u.name for u in units}
     jobs: list[Job] = []
     declared: list[Function] = []
+    unit_names: dict[str | None, list[str]] = {}
     for entry in config.get("unit", []):
         image = entry.get("image")
+        unit_names.setdefault(image, []).append(entry["name"])
         if image is not None and image not in by_name:
             raise Problem(f"{path}: unit {entry['name']} is in image {image}, which is not declared")
         if image is not None and "like" in by_name[image]:
@@ -373,7 +443,7 @@ def select_units(config: dict, path: Path) -> Selection:
         owner.setdefault(fn.name, fn.unit)
     for u in units:
         entry = next(e for e in config["unit"] if e["name"] == u.name)
-        jobs.append(Job(u.name, u.path, False, read_functions(entry, path)))
+        jobs.append(Job(u.name, u.path, False, read_functions(entry, path), entry.get("image")))
     seen_files: dict[str, Path] = {}
     for folder in sorted(path.parent.glob("*_nonmatching")):
         if not folder.is_dir():
@@ -395,8 +465,8 @@ def select_units(config: dict, path: Path) -> Selection:
             seen_files[stem] = file
             fn = Function(stem, int(match.group(1), 16), image, stem)
             declared.append(fn)
-            jobs.append(Job(stem, file, True, [fn]))
-    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images)
+            jobs.append(Job(stem, file, True, [fn], image))
+    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names)
 
 
 # The names.
@@ -423,6 +493,68 @@ def merge_names(entries: list[tuple[str, int, str]]) -> dict[str, int]:
     return names
 
 
+# The second placements of `like` images.
+
+
+@dataclass
+class Placement:
+    """The second link of the units of image `first` at the address of image `image`."""
+
+    image: str
+    first: str
+    shift: int
+    left_out: set[str]
+    moved: dict[str, int]  # the names that move with the image (base names) and their addresses in it
+    data: set[str] = field(default_factory=set)  # data that the units of `first` define: moves too, as a host copy
+
+    @property
+    def suffix(self) -> str:
+        return "__" + self.image
+
+
+def plan_placements(images: list[dict], declared: list[Function], symbols: list[tuple[str, int, str]],
+                    unit_names: dict[str | None, list[str]]) -> list[Placement]:
+    """One Placement for every image that is `like` another, in the order of the configuration.
+
+    The names that move are the ones the matching build moves for a second link: every function that a unit of
+    the first image declares (at its address plus the shift, the units that are left out among them), and every
+    name of the symbol file whose address lies in the first image's payload (at its address plus the shift); the
+    image's own `symbols` table then adds names and wins over a moved address. Every other name keeps its address.
+    The matching build bounds the payload by the length of the image's chunk, which only the game's archive gives;
+    here the bound is the shift (the second image's address minus the first's), which is at least as large as the
+    payload, since a second link must not overlap the first. The two bounds give the same moved names for every
+    name that the units of the 22 `like` images of the configuration refer to; see the controls and the report."""
+    by_name = {i["name"]: i for i in images}
+    out = []
+    for image in images:
+        if "like" not in image:
+            continue
+        first = by_name[image["like"]]
+        if first.get("like") is not None or image["like"] == image["name"]:
+            raise Problem(f"image {image['name']} is like {image['like']}, which is itself a second link or the image itself")
+        shift = image["address"] - first["address"]
+        if shift <= 0:
+            raise Problem(f"image {image['name']} is like {first['name']} but lies at or below it; only a second link above the first is supported")
+        own = image.get("symbols", {})
+        if not isinstance(own, dict) or not all(isinstance(k, str) and isinstance(v, int) for k, v in own.items()):
+            raise Problem(f"image {image['name']}: [image.symbols] needs names and integer addresses")
+        left = image.get("leave_out", [])
+        known = set(unit_names.get(first["name"], []))
+        for name in left:
+            if name not in known:
+                raise Problem(f"image {image['name']}: leave_out names {name}, which is not a unit of image {first['name']}")
+        moved: dict[str, int] = {}
+        for fn in declared:
+            if fn.image == first["name"]:
+                moved[fn.name] = fn.address + shift
+        for name, address, _ in symbols:
+            if first["address"] <= address < first["address"] + shift:
+                moved[name] = address + shift
+        moved.update(own)
+        out.append(Placement(image["name"], first["name"], shift, set(left), moved))
+    return out
+
+
 def render_names(names: dict[str, int], aliases: list[str], underscore: bool) -> str:
     """The names file: it defines `ps1_NAME`, never the plain name."""
     us = "_" if underscore else ""
@@ -431,10 +563,13 @@ def render_names(names: dict[str, int], aliases: list[str], underscore: bool) ->
     return "".join(lines)
 
 
-def render_redefine(names, aliases: list[str], underscore: bool) -> str:
-    """The file for `objcopy --redefine-syms`: `NAME ps1_NAME` once for every name of the names file."""
+def render_redefine(names, aliases: list[str], underscore: bool, moved=(), suffix: str = "") -> str:
+    """The file for `objcopy --redefine-syms`: `NAME ps1_NAME` once for every name of the names file.
+
+    For a second placement `moved` holds the names that move with the image: their line is `NAME ps1_NAME` + suffix."""
     us = "_" if underscore else ""
-    return "".join(f"{us}{n} {us}ps1_{n}\n" for n in sorted(set(names) | set(aliases)))
+    moved = set(moved)
+    return "".join(f"{us}{n} {us}ps1_{n}{suffix if n in moved else ''}\n" for n in sorted(set(names) | set(aliases)))
 
 
 # The tables.
@@ -448,7 +583,7 @@ class Row:
 
 
 def read_inventory(directory: Path, config: dict) -> list[Row]:
-    """The rows of the inventory that the build is about: game, library and the images that are not like another."""
+    """The rows of the inventory that the build is about: game, library and every image, the second placements too."""
     try:
         rows = []
         for block in coveragemap.read_resident(directory):
@@ -460,9 +595,29 @@ def read_inventory(directory: Path, config: dict) -> list[Row]:
     except OSError as err:
         raise Problem(f"cannot read the inventory in {directory}: {err.strerror}")
     for block in modules:
-        if block.image and not block.second_link:
+        if block.image:
             rows += [Row(f.address, block.image, False) for f in block.functions]
     return rows
+
+
+def read_image_archives(directory: Path, config: dict) -> dict[str, list[str]]:
+    """Per image of the configuration, the names of all the archives that carry its content (`contents.tsv`;
+    without that table, the archive the configuration names), for the runtime's placing of modules."""
+    try:
+        modules = coveragemap.read_modules(directory)
+        coveragemap.assign_images(modules, config)
+        carriers = coveragemap.read_contents(directory)
+    except coveragemap.Problem as err:
+        raise Problem(str(err))
+    except OSError as err:
+        raise Problem(f"cannot read the inventory in {directory}: {err.strerror}")
+    out: dict[str, list[str]] = {}
+    for block in modules:
+        if not block.image:
+            continue
+        slot_text, first = block.key.split("/", 1)
+        out[block.image] = list(carriers[(int(slot_text, 16), first)]) if carriers is not None else [first]
+    return out
 
 
 def default_name(address: int, image: str | None) -> str:
@@ -513,11 +668,18 @@ def read_baseline_hash(config: dict, path: Path) -> str:
     return value.lower()
 
 
-def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str) -> str:
+def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None) -> str:
+    """`archives` (image name to archive names) adds the archive list of each image that has one."""
+    archives = archives or {}
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
+    for n, i in enumerate(images):
+        if i["name"] in archives:
+            out.append(f"static const char *const port_archives_{n}[] = {{ " + "".join(c_string(a) + ", " for a in archives[i["name"]]) + "0 };\n")
+    if archives:
+        out.append("\n")
 
     def table(kind: str, name: str, rows: list[str], zero: str):
         out.append(f"const struct {kind} {name}[] = {{\n")
@@ -528,8 +690,9 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         out.append(f"const unsigned {kind}_count = {len(rows)};\n\n")
 
     table("port_image", "port_images", [
-        "{ %s, 0x%08xu, %s, 0x%xu }" % (c_string(i["name"]), i["address"], c_string(i["like"]) if "like" in i else "0", i["slot"])
-        for i in images
+        "{ %s, 0x%08xu, %s, 0x%xu%s }" % (c_string(i["name"]), i["address"], c_string(i["like"]) if "like" in i else "0", i["slot"],
+                                          f", port_archives_{n}" if i["name"] in archives else "")
+        for n, i in enumerate(images)
     ], "{ 0, 0, 0, 0 }")
     table("port_function", "port_functions", [
         "{ 0x%08xu, (void *)%s, %s, %d }" % (f[1], f[2], c_string(f[3]), f[0]) for f in functions
@@ -588,6 +751,59 @@ def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: 
     return misses
 
 
+MARKERS = ("port_game_text_begin", "port_game_text_end")
+
+
+def marker_source(name: str, underscore: bool) -> str:
+    """The assembly of one marker: a global label in the text section."""
+    sym = ("_" if underscore else "") + name
+    return f"\t.text\n\t.globl\t{sym}\n{sym}:\n"
+
+
+def text_symbols(nm_text: str) -> list[str]:
+    """The names of the text symbols (type T or t) in the text of `nm` for one object; the section symbols (`.text`) are no function."""
+    out = []
+    for line in nm_text.splitlines():
+        parts = line.split()
+        if len(parts) == 3 and parts[1] in ("T", "t") and not parts[2].startswith("."):
+            out.append(parts[2])
+    return out
+
+
+def verify_markers(nm_text: str, impls: list[str], runtime_symbols: list[str], underscore: bool) -> list[str]:
+    """The misses of the game-code markers in the linked file; empty when none.
+
+    Both markers exist, begin lies below end, every `impl_` function lies between them, and no text symbol
+    of the runtime's own objects does."""
+    us = "_" if underscore else ""
+    seen: dict[str, list[int]] = {}
+    for line in nm_text.splitlines():
+        match = NM_LINE.match(line.strip())
+        if match:
+            seen.setdefault(match.group(3), []).append(int(match.group(1), 16))
+    begin, end = (seen.get(us + m) for m in MARKERS)
+    misses = []
+    for marker, found in zip(MARKERS, (begin, end)):
+        if not found:
+            misses.append(f"{marker}: not in the linked file")
+    if misses:
+        return misses
+    low, high = begin[0], end[0]
+    if len(begin) > 1 or len(end) > 1:
+        misses.append("a marker is defined twice")
+    if not low < high:
+        return misses + [f"port_game_text_begin ({low:#x}) is not below port_game_text_end ({high:#x})"]
+    for name in sorted(impls):
+        for a in seen.get(us + "impl_" + name, []):
+            if not low <= a < high:
+                misses.append(f"impl_{name}: at {a:#x}, outside the game's code {low:#x}-{high:#x}")
+    for name in sorted(set(runtime_symbols)):
+        for a in seen.get(name, []):
+            if low <= a < high:
+                misses.append(f"{name}: a runtime symbol at {a:#x}, inside the game's code {low:#x}-{high:#x}")
+    return misses
+
+
 # Running the compiler.
 
 
@@ -605,9 +821,10 @@ class Outcome:
     ok: bool = False
     reason: str = ""
     defined: set[str] = field(default_factory=set)  # C names
+    seconds: list[Placement] = field(default_factory=list)  # the second placements that were assembled, as `<unit>__<image>.o`
 
 
-def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int) -> Outcome:
+def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, placements: list[Placement] = ()) -> Outcome:
     out = Outcome(job)
     asm, obj = build / "asm" / f"{job.name}.s", build / "obj" / f"{job.name}.o"
     asm.unlink(missing_ok=True)
@@ -636,6 +853,28 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int) -
         return out
     out.ok = True
     out.defined = {c_name(s, underscore) for s in defined}
+    # The second placements are made from the same assembly: its definitions get another suffix.
+    for place in placements:
+        if place.first != job.image or job.name in place.left_out:
+            continue
+        second, again = rename_definitions(text, underscore, place.suffix)
+        left = labels_left(second, again)
+        if left:
+            raise Problem(f"the rename of {job.name} for {place.image} left these defined names as labels: {' '.join(left)}")
+        name = f"{job.name}{place.suffix}"
+        asm2, obj2 = build / "asm" / f"{name}.s", build / "obj" / f"{name}.o"
+        obj2.unlink(missing_ok=True)
+        try:
+            with open(asm2, "w", encoding="utf-8", errors="surrogateescape", newline="") as handle:
+                handle.write(second)
+        except OSError as err:
+            raise Problem(f"cannot write {asm2}: {err.strerror}")
+        proc = hostcheck.compile_run([cc, "-c", "-o", str(obj2), str(asm2)], timeout)
+        if proc is None or proc.returncode != 0:
+            out.ok = False
+            out.reason = f"assembler for {place.image}: " + (first_error(proc.stderr) if proc else f"no end after {timeout} seconds")
+            return out
+        out.seconds.append(place)
     return out
 
 
@@ -669,10 +908,10 @@ def default_objcopy(cc: str) -> str:
     return cc[:-3] + "objcopy" if cc.endswith("gcc") else "objcopy"
 
 
-def redefine(job: str, objcopy: str, build: Path, timeout: int) -> str:
+def redefine(job: str, objcopy: str, build: Path, timeout: int, table: str = "redefine.txt") -> str:
     """Rename the references of one object into the `ps1_` namespace; empty when it worked, else the reason."""
     obj = build / "obj" / f"{job}.o"
-    proc = hostcheck.compile_run([objcopy, f"--redefine-syms={build / 'gen' / 'redefine.txt'}", str(obj)], timeout)
+    proc = hostcheck.compile_run([objcopy, f"--redefine-syms={build / 'gen' / table}", str(obj)], timeout)
     if proc is None or proc.returncode != 0:
         return "objcopy: " + (first_error(proc.stderr) if proc else f"no end after {timeout} seconds")
     return ""
@@ -704,6 +943,27 @@ class Failure(Exception):
     """The build ran and did not produce a verified program."""
 
 
+def read_psyz(folder: Path) -> tuple[dict, str]:
+    """The description of a psyzbuild.py build folder: (the parsed psyz.json, its commit)."""
+    path = folder / "psyz.json"
+    if not path.is_file():
+        raise Problem(f"{path} does not exist; build PsyZ first with port/tools/psyzbuild.py")
+    try:
+        info = json.loads(path.read_text())
+        include, defines, link = info["include"], info["define"], info["link"]
+        ok = isinstance(include, str) and isinstance(defines, list) and isinstance(link, list)
+    except (OSError, ValueError, KeyError, TypeError):
+        ok = False
+    if not ok:
+        raise Problem(f"{path} is not a psyz.json (it needs include, define and link)")
+    if not Path(include).is_dir():
+        raise Problem(f"{path} names the include folder {include}, which does not exist")
+    for item in link:
+        if not str(item).startswith("-") and not Path(item).is_file():
+            raise Problem(f"{path} names the library {item}, which does not exist")
+    return info, str(info.get("commit", "unknown"))
+
+
 def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     config_path: Path = args.config
     config = hostcheck.read_config(config_path)
@@ -717,14 +977,30 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         raise Problem(f"{runtime / 'port_tables.h'} does not exist")
     runtime_sources = sorted(runtime.glob("*.c"))
     inventory = read_inventory(config_path.parent.parent / "inventory", config)
+    image_archives = read_image_archives(config_path.parent.parent / "inventory", config)
 
     # Names that can be worked out before any compiler runs.
     entries = list(symbols) + [(fn.name, fn.address, f"unit {fn.unit}") for fn in selection.declared]
     function_names = {fn.name for fn in selection.declared}
-    names = merge_names(entries)
+    plain = merge_names(entries)
+    placements = plan_placements(selection.images, selection.declared, symbols, selection.unit_names)
+    for job in selection.jobs:
+        for place in placements:
+            if job.name.endswith(place.suffix):
+                raise Problem(f"unit {job.name} has a name that ends like the second placement {place.suffix}")
+    # The functions of the second placements: the names of the first image's functions, at their moved addresses.
+    moved_functions = [
+        Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit)
+        for pl in placements for fn in selection.declared if fn.image == pl.first
+    ]
+    names = merge_names(entries + [(f.name, f.address, f"unit {f.unit} placed in {f.image}") for f in moved_functions]
+                        + [(n + pl.suffix, a, f"{pl.image} placed") for pl in placements for n, a in pl.moved.items()])
 
+    psyz = read_psyz(args.psyz) if args.psyz else None
     version = hostcheck.compiler_version(args.cc, args.timeout)
     out.append(f"compiler: {version}")
+    if psyz:
+        out.append(f"psyz: {psyz[1]}")
     build: Path = args.build
     for sub in ("gen", "asm", "obj", "rt", "probe"):
         (build / sub).mkdir(parents=True, exist_ok=True)
@@ -732,13 +1008,17 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     underscore = detect_underscore(args.cc, build / "probe", args.timeout)
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout) for j in selection.jobs]
+        futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout, placements) for j in selection.jobs]
         outcomes = sorted((f.result() for f in futures), key=lambda o: o.job.name)
     failed = [o for o in outcomes if not o.ok]
     write_text(build / "failed.tsv", "".join(f"{o.job.name}\t{o.reason}\n" for o in failed))
     listing.extend(f"failed: {o.job.name}: {o.reason}" for o in failed)
     out.append(f"units: {len(outcomes)} compiled, {sum(1 for o in outcomes if o.job.nonmatching)} of them nonmatching, {len(failed)} failed")
-    out.append(f"like images not built: {selection.like_images}")
+    out.append(f"like images built: {len(placements)}")
+    listing.extend(
+        f"like: {pl.image} of {pl.first}, shift {pl.shift:+#x}, {len(pl.moved)} names move, units left out: {' '.join(sorted(pl.left_out)) or '-'}"
+        for pl in placements
+    )
 
     # Functions with C.
     with_c: list[tuple[Function, str]] = []
@@ -750,7 +1030,9 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         for fn in o.job.functions:
             if fn.name in o.defined:
                 with_c.append((fn, "impl_" + fn.name))
-    functions, absents = build_tables(selection.images, with_c, inventory, selection.declared)
+                for pl in o.seconds:
+                    with_c.append((Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit), "impl_" + fn.name + pl.suffix))
+    functions, absents = build_tables(selection.images, with_c, inventory, selection.declared + moved_functions)
     out.append(f"functions with C: {len(functions)}")
     library = sum(1 for a in absents if a[3])
     out.append(f"functions without C: {len(absents)}, library {library}, game and modules {len(absents) - library}")
@@ -761,42 +1043,80 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
 
     symbol_names = {s[0] for s in symbols}
     aliases = sorted(n for n in defined_all if n not in function_names and n not in symbol_names)
+    second_aliases: list[str] = []
+    for o in outcomes:
+        data = {n for n in o.defined if n not in function_names and n not in symbol_names}
+        for pl in placements:
+            if pl.first != o.job.image:
+                continue
+            if o.job.name in pl.left_out:
+                if data:
+                    raise Problem(f"unit {o.job.name} defines data ({' '.join(sorted(data))}) and is left out of image {pl.image}; not supported")
+            elif o.ok:
+                pl.data |= data
+                second_aliases.extend(n + pl.suffix for n in sorted(data))
     out.append(f"names at PS1 addresses: {len(names)}")
     out.append(f"data defined in C, at host addresses: {len(aliases)}")
     listing.extend(f"data: {n}" for n in aliases)
     names_path = build / "gen" / "names.ld"
-    write_text(names_path, render_names(names, aliases, underscore))
-    write_text(build / "gen" / "redefine.txt", render_redefine(names, aliases, underscore))
+    all_aliases = aliases + second_aliases
+    write_text(names_path, render_names(names, all_aliases, underscore))
+    write_text(build / "gen" / "redefine.txt", render_redefine(plain, aliases, underscore))
+    for pl in placements:
+        write_text(build / "gen" / f"redefine{pl.suffix}.txt",
+                   render_redefine(plain, aliases, underscore, moved=set(pl.moved) | pl.data, suffix=pl.suffix))
     objcopy = args.objcopy or default_objcopy(args.cc)
+    todo = [(o.job.name, "redefine.txt") for o in outcomes if o.ok]
+    todo += [(f"{o.job.name}{pl.suffix}", f"redefine{pl.suffix}.txt") for o in outcomes if o.ok for pl in o.seconds]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        reasons = list(pool.map(lambda o: redefine(o.job.name, objcopy, build, args.timeout), [o for o in outcomes if o.ok]))
-    broken = [(o.job.name, r) for o, r in zip([o for o in outcomes if o.ok], reasons) if r]
+        reasons = list(pool.map(lambda t: redefine(t[0], objcopy, build, args.timeout, t[1]), todo))
+    broken = [(t[0], r) for t, r in zip(todo, reasons) if r]
     if broken:
         raise Failure("\n".join(f"{n}: {r}" for n, r in broken[:20]))
     tables_path = build / "gen" / "port_tables.c"
-    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash))
+    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives))
 
     # The runtime, the tables and the link.
-    objects = sorted(o.job.name for o in outcomes if o.ok)
+    objects = sorted([o.job.name for o in outcomes if o.ok] + [f"{o.job.name}{pl.suffix}" for o in outcomes if o.ok for pl in o.seconds])
     rt_objects: list[Path] = []
     for source in [*runtime_sources, tables_path]:
         obj = build / "rt" / f"{source.stem}.o"
         obj.unlink(missing_ok=True)
-        proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
+        extra: list[str] = []
+        if psyz and source.name == "gpu.c":
+            extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
+        proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
         if proc is None or proc.returncode != 0:
             raise Failure(f"{source}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
         rt_objects.append(obj)
+    marks = []
+    for marker in MARKERS:
+        asm, obj = build / "gen" / f"{marker}.s", build / "rt" / f"{marker}.o"
+        write_text(asm, marker_source(marker, underscore))
+        obj.unlink(missing_ok=True)
+        proc = hostcheck.compile_run([args.cc, "-c", "-o", str(obj), str(asm)], args.timeout)
+        if proc is None or proc.returncode != 0:
+            raise Failure(f"{asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
+        marks.append(obj)
     response = build / "link.rsp"
-    write_text(response, "".join(quote(p) + "\n" for p in [*(build / "obj" / f"{n}.o" for n in objects), *rt_objects, names_path]))
+    write_text(response, "".join(quote(p) + "\n" for p in [marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
     exe = build / args.out
     exe.unlink(missing_ok=True)
-    proc = hostcheck.compile_run([args.cc, f"@{response}", *LINK_FLAGS, "-o", str(exe)], args.timeout)
+    libraries = [str(x) for x in psyz[0]["link"]] if psyz else []
+    proc = hostcheck.compile_run([args.cc, f"@{response}", *LINK_FLAGS, *libraries, "-o", str(exe)], args.timeout)
     if proc is None or proc.returncode != 0 or not exe.is_file():
         raise Failure("link: " + (link_errors(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
     nm = hostcheck.compile_run([args.nm or default_nm(args.cc), str(exe)], args.timeout)
     if nm is None or nm.returncode != 0:
         raise Failure("nm did not run on the linked file")
-    misses = verify_link(nm.stdout, names, aliases, [f[3] for f in functions], underscore)
+    runtime_symbols: list[str] = []
+    for obj in rt_objects[:-1]:  # the runtime's objects, not port_tables.o (the last)
+        listing_nm = hostcheck.compile_run([args.nm or default_nm(args.cc), str(obj)], args.timeout)
+        if listing_nm is None or listing_nm.returncode != 0:
+            raise Failure(f"nm did not run on {obj}")
+        runtime_symbols += text_symbols(listing_nm.stdout)
+    misses = verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
+    misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
     out.append(f"linked: {shown(exe)}, verified")
@@ -827,6 +1147,7 @@ def main() -> int:
     parser.add_argument("--build", type=Path, default=REPO / "port/build/host")
     parser.add_argument("--out", default="sfa2.exe")
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
+    parser.add_argument("--psyz", type=Path, default=None)
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)
     parser.add_argument("--list", action="store_true")

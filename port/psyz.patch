@@ -1,0 +1,27 @@
+PsyZ patch for the port. Written by this project; applies to PsyZ commit
+4e4b3e8dc7ae740c085fd190d635f54142d2d552 (port/external/psyz at its pin).
+Applied by port/tools/psyzbuild.py to a copy of PsyZ, never to the submodule.
+
+License: the file that this patch changes is PsyZ's and is under the
+Mozilla Public License 2.0 by PsyZ's LICENSE file at that commit. The three
+lines of it that the hunk below quotes stay under that license, and this
+change to them is offered under the same one: this Source Code Form is
+subject to the terms of the Mozilla Public License, v. 2.0. A copy of it is
+at https://mozilla.org/MPL/2.0/.
+
+What it fixes: in GPU_Enqueue (psyz/src/psyz/libgpu.c), the path for hosts
+whose unsigned long is 4 bytes draws the packets into PsyZ's vertex batch
+but flushes the batch only when compiled for the browser (__EMSCRIPTEN__).
+On a 32-bit native build nothing that a program draws reaches the picture
+until something else flushes, and the readback of a drawn primitive shows
+the clear colour only. PsyZ's own picture tests failed 25 of 37 in the gpu
+area on i686 for this reason and pass 37 of 37 with the flush made
+unconditional. The 64-bit path does flush (through Psyz_GpuExeque), so only
+the 32-bit path needs this.
+
+--- a/psyz/src/psyz/libgpu.c
++++ b/psyz/src/psyz/libgpu.c
+@@ -161,3 +161,1 @@
+-#ifdef __EMSCRIPTEN__
+         Draw_FlushBuffer();
+-#endif

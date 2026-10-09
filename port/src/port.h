@@ -80,4 +80,111 @@ void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */
 void port_stop_main_returned(void);
 
+/* ---- the library layer (library.c, kernel.c, threads.c, overrides.c) ---- */
+
+/* Exit statuses. 0: main returned, or the window was closed. 2: a refusal at
+ * start (one line says why). The others end a run with one `stop:` line that
+ * names what is missing; a distinct status per kind. */
+#define PORT_EXIT_REFUSED 2     /* refused: ... (before the game starts) */
+#define PORT_EXIT_NO_C    3     /* a game function without C was reached */
+#define PORT_EXIT_NO_HOST 4     /* a library function without a host routine was reached */
+#define PORT_EXIT_UNKNOWN 5     /* a call into an unknown function */
+#define PORT_EXIT_DISC    6     /* a disc command or state the disc layer does not handle */
+#define PORT_EXIT_GRAPHICS 7    /* a graphics call or state the graphics layer does not handle */
+#define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
+#define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
+#define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
+#define PORT_EXIT_OTHER   9     /* a library call whose arguments a host routine does not serve */
+
+/* Print `stop: ` and the formatted line, flush, end the program with `status`.
+ * Never returns. For every host routine that meets something it cannot serve. */
+void port_halt(int status, const char *fmt, ...);
+
+/* One entry of a domain's table of host routines. `name` is the name the
+ * build's tables give the library function (`ResetCallback`, or `func_8015760c`
+ * where the project has no name), or `@0xADDRESS`: the library function at that
+ * address, whatever the build calls it (the names are partly a matcher's guesses). `note` is NULL for a routine that does its
+ * job; it is set, saying why that is right on a PC, for a routine that does
+ * nothing on purpose. */
+#define PORT_LIBRARY_DECLARED
+struct port_library  { const char *name; void *host; const char *note; };
+/* A host routine that replaces the C of a game function (by its name). */
+struct port_override { const char *name; void *host; const char *note; };
+struct port_domain   { const char *name; const struct port_library *table; };  /* table ends with a null name */
+
+/* domains.c: the registry. The runtime's real one lists the six domains and the
+ * overrides; a test supplies its own file with these definitions instead. */
+extern const struct port_domain   port_domains[];   extern const unsigned port_domain_count;
+extern const struct port_override *const port_override_sets[]; extern const unsigned port_override_set_count;  /* each set ends with a null name */
+
+/* The domains' tables (ending with a null name). port_cd_library is defined by
+ * cd.c and port_gpu_library by gpu.c. */
+extern const struct port_library port_kernel_library[], port_cd_library[], port_gpu_library[],
+                                 port_sound_library[], port_card_library[], port_c_library[],
+                                 port_thread_library[], port_system_library[];
+extern const struct port_override port_game_overrides[], port_gpu_overrides[];  /* overrides.c; ends with a null name */
+
+struct port_install { unsigned host, noop, stops, overrides; };
+
+/* Start writing trace lines (one per library call: name and the first four
+ * argument words) to `f`; call before port_library_install. NULL: no trace. */
+void port_trace_set(FILE *f);
+/* After port_jumps_write: write the jumps of the host routines over the
+ * stop calls of the library functions, and of the overrides over the game
+ * functions' C. A refusal (a name listed twice, a listed name that no
+ * absent library function or function with C has) is -1 with a line. */
+int  port_library_install(unsigned char *ram, struct port_install *out, char *err, size_t errsize);
+/* --list-library: print the groups (needs no memory and no disc). -1 with a line on a refusal. */
+int  port_library_list(char *err, size_t errsize);
+
+/* kernel.c */
+/* Called by the host routines in which the game waits or polls (DrawSync,
+ * VSync, GetRCnt, TestEvent, CdSync, CdReady, ...), and by the disc and
+ * graphics layers' own waits. Keeps the clock of frames: when 1/60 s has passed
+ * it does one vblank (the registered handlers, then port_cd_tick, then
+ * port_gpu_present); otherwise it yields the processor briefly. A call made
+ * from inside a handler does nothing. */
+void port_tick(void);
+/* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
+void port_callbacks_reset(void);
+/* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
+ * handler called, or are marked ready for TestEvent. */
+void port_deliver_event(unsigned event_class, unsigned spec);
+/* The port's own seams to the other layers (cd.c: port_cd_tick; gpu.c:
+ * port_gpu_present). */
+void port_cd_tick(void);
+void port_gpu_present(void);
+
+/* kernel.c / interrupt.c: the vblank as an interrupt of the game's thread */
+extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs; the disc layer raises it around its ready handler */
+int  port_interrupt_allowed(void);
+int  port_interrupt_take(void);
+void port_clock_start(void);
+/* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
+void port_interrupt_start(void);
+
+/* input.c: the input script (--input FILE) */
+int  port_input_load(const char *path, char *err, size_t errsize);
+void port_input_apply(unsigned char *raw, unsigned frame);
+/* library.c: one line into the trace file, if tracing */
+void port_trace_line(const char *fmt, ...);
+
+/* debug.c: run options for looking at a run (see the file) */
+void port_debug_set(const char *dump_prefix, unsigned dump_every);
+void port_debug_end(void);
+void port_debug_tick(unsigned frame);
+void port_debug_watchdog(unsigned seconds);
+const char *port_function_at(size_t ip);   /* main.c: the game function whose implementation is nearest at or below ip */
+unsigned port_frames(void);                /* kernel.c: vblanks since the start */
+/* kernel.c: the key map line printed once at start */
+void port_pad_print_keys(void);
+
+/* main.c: the open disc, for the routines that look files up */
+extern struct port_disc *port_disc_handle;
+
+/* threads.c */
+/* The gp that the entry code loads (lui/addiu), from the loaded memory. */
+int  port_entry_gp(const unsigned char *ram, unsigned pc0, unsigned *gp);
+void port_set_gp(unsigned gp);
+
 #endif
