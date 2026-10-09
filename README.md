@@ -35,7 +35,7 @@ all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
 retained raw.
 In `slot0b` 57 C functions, 5,892 bytes, are exact and 25,544 bytes are
 retained raw.
-In `slot12` 180 C functions, 27,332 bytes, are exact and 92,836 bytes are
+In `slot12` 181 C functions, 27,872 bytes, are exact and 92,296 bytes are
 retained raw.
 In `slot16` 11 C functions, 984 bytes, are exact and 10,406 bytes are
 retained raw. In `slot17` the 11 functions of `slot16` are linked a second
@@ -47,7 +47,7 @@ time and are exact against its own chunk.
 In `slot2b` 103 C functions, 9,396 bytes, are exact and 23,172 bytes are
 retained raw, and in `slot2c` the same 103 functions are linked a second
 time and are exact against its own chunk.
-In `slot0f` 217 C functions, 33,136 bytes, are exact and 70,712 bytes are
+In `slot0f` 218 C functions, 33,288 bytes, are exact and 70,560 bytes are
 retained raw.
 In the 20 stage modules, `slot06_00` to `slot06_13`, 845 C functions,
 139,908 bytes, are exact and 1,220,780 bytes are retained raw.

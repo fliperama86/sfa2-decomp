@@ -6528,6 +6528,56 @@ scoped differential test, and a passing test is not equivalence.
   functions, with the same instrument. The copies of this function in
   the other stage files have no C yet.
 
+## Seventy-ninth group: a search over the types of locals
+
+The other session found, on the stage modules, that this compiler treats
+a 16-bit local otherwise than an `int` in its scheduling, and built a
+way to score a variant of one function by its bytes without the
+project's build. This group runs that idea as a whole search over what
+this session had parked.
+
+Counts:
+
+- 132 candidates of this session's images and of the resident image had
+  no unit. A private helper took each from the private store, laid the
+  candidate's own fields over the tree's table, preprocessed it, and
+  compiled it with every combination of `int`, `u32`, `s16`, `u16`,
+  `u8` and `s8` for its integer locals (all combinations where that is
+  at most 2,500 variants, else one local and then two at a time from
+  the best found), scoring each by the function's words against the
+  original's with the linker's fields masked.
+- 113 of the 132 have integer locals. 44 came out closer than their
+  candidate, 23 of them with the original's size for the first time. 2
+  came out with every word right, and both are exact in the project's
+  build: `func_80012f64_slot12` (540 bytes; `fp` and `y` as `s16`) and
+  `func_800e07b8_slot0f` (152 bytes; `w` as `s16`).
+- `slot12` has 181 functions and `slot0f` 218. The map counts 5,411 of
+  5,600 distinct functions and 12,827 of 13,072 placements as exact.
+
+What was done to the two before they went into the tree:
+
+- Each was reduced as the guide asks, by an agent: stale comments about
+  a residual gone, a local for a compared constant gone, a second local
+  for a sum gone, statements joined. What has to stay has a comment with
+  figures, and I measured each figure again with its own variant. One
+  did not come out as the agent wrote it (11 slots, not 13) and carries
+  the measured one; a list of ordinary 16-bit locals with a figure each
+  was cut down to what plain source would not have.
+- The declaration check found that the one caller of
+  `func_80012f64_slot12` declared it without a parameter and called it
+  with nothing. The definition takes the object; the caller passes its
+  own, and is exact.
+
+What it showed:
+
+- Both functions had stayed parked through this session's earlier
+  attempts. The second one's candidate carried a comment that named the residual as a
+  constant in the wrong temporary; the answer was the type of the local
+  that holds it. Types are cheap to search whole and expensive to guess.
+- The helper has a second stage, the order of the declarations that open
+  a function, and a second run over the 132 with it is not read yet.
+
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
