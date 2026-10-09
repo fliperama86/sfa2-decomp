@@ -30,7 +30,7 @@ bytes of read-only data and 5,900 bytes of initialised data. The
 remaining 316,484 payload bytes are retained from the baseline and counted as
 raw. Retained bytes are scaffolding, not recovered source. This is not a
 full-game decompilation.
-The same build has thirty overlay modules as images of their own. In `slot2a`
+The same build has fifty overlay modules as images of their own. In `slot2a`
 all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
 retained raw.
 In `slot0b` 56 C functions, 5,652 bytes, are exact and 25,784 bytes are
@@ -51,6 +51,8 @@ In `slot0f` 215 C functions, 32,712 bytes, are exact and 71,136 bytes are
 retained raw.
 In the 20 stage modules, `slot06_00` to `slot06_13`, 756 C functions,
 75,748 bytes, are exact and 1,284,940 bytes are retained raw.
+In `slot27` 208 C functions, 30,184 bytes, are exact and 97,140 bytes are
+retained raw.
 In the 11 first-side character blocks of slot `0x4`, `slot04_0c` to
 `slot04_17` (the files `PL0C.PAC` to `PL17.PAC`), 2,307 C functions,
 276,772 bytes, are exact and 733,568 bytes are retained raw. In the eight

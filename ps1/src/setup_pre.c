@@ -39,7 +39,8 @@ void func_80130700(Object *object, SequenceStep *entry) {
     }
 }
 
-void func_80130768(Object *object, s16 index, SequenceStep **table) {
+void func_80130768(Object *object, int arg, SequenceStep **table) {
+    s16 index = arg;
     object->sequence = table[index];
     object->field_38 = object->sequence->duration;
     object->field_3a = object->sequence->flags;

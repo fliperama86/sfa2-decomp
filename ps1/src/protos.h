@@ -280,7 +280,7 @@ void func_801303a0(Object *object);
 void func_8013047c(Object *object);
 void func_80130504(Object *object);
 void func_80130700(Object *object, SequenceStep *entry);
-void func_80130768(Object *object, s16 index, SequenceStep **table);
+void func_80130768(Object *object, int arg, SequenceStep **table);
 void func_801307e0(Object *object, int arg);
 void func_801308c4(Object *object, u16 index);
 void func_80130af0(Object *object);

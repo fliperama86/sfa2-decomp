@@ -396,6 +396,11 @@ chose the first on 2026-10-06:
   first stage they have not had an agent. The stage files are the work
   of a second session that runs beside the first, by the owner's
   decision of 2026-10-06.
+  The twenty-sixth is the one content of slot `0x27`, from `SELECTA.PAC`, a
+  module of 212 functions: 208 are exact, 30,184 of 31,684 bytes, and 4
+  are parked with candidates. 46 of its functions are the same code,
+  apart from addresses, as functions that were already exact, 45 of them
+  in the resident image.
   The next eleven are first-side character blocks, the contents of slot
   `0x4` in `PL0C.PAC` to `PL17.PAC` (`PL13.PAC` has the bytes of
   `PL11.PAC`), 2,333 functions by the sweep: 2,307 are exact, 276,772
@@ -433,7 +438,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
 (`slot17`, `slot08`, `slot2c` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final
