@@ -219,6 +219,56 @@ int port_disc_find(struct port_disc *d, const char *name, unsigned *sector, unsi
     return 0;
 }
 
+/* Every file of the root directory and of the folders one level below it. */
+static int list_dir(struct port_disc *d, unsigned extent, unsigned size, struct port_disc_file *out, unsigned max, unsigned *count,
+                    struct subdir *subs, unsigned *nsubs, char *err, size_t errsize)
+{
+    unsigned char buf[PORT_DATA];
+    unsigned at;
+    if (size > DIR_LIMIT) return fail(err, errsize, "disc: directory is too large");
+    for (at = 0; at < size; at += PORT_DATA) {
+        unsigned pos = 0;
+        if (port_disc_read(d, extent + at / PORT_DATA, PORT_DATA, buf, err, errsize) != 0) return -1;
+        while (pos < PORT_DATA) {
+            unsigned len = buf[pos], nlen;
+            if (len == 0) break;
+            if (len < 34 || pos + len > PORT_DATA || 33u + buf[pos + 32] > len) return fail(err, errsize, "disc: corrupt directory record");
+            nlen = buf[pos + 32];
+            if (!(nlen == 1 && buf[pos + 33] <= 1)) {
+                if (buf[pos + 25] & 2) {
+                    if (subs && *nsubs < SUBDIRS) {
+                        subs[*nsubs].extent = le32(buf + pos + 2);
+                        subs[*nsubs].size = le32(buf + pos + 10);
+                        (*nsubs)++;
+                    }
+                } else {
+                    if (*count >= max) return fail(err, errsize, "disc: more files than the listing holds");
+                    clean_name(buf + pos + 33, nlen, out[*count].name, sizeof out[*count].name);
+                    out[*count].sector = le32(buf + pos + 2);
+                    out[*count].size = le32(buf + pos + 10);
+                    (*count)++;
+                }
+            }
+            pos += len;
+        }
+    }
+    return 0;
+}
+
+int port_disc_list(struct port_disc *d, struct port_disc_file *out, unsigned max, unsigned *count, char *err, size_t errsize)
+{
+    unsigned char pvd[PORT_DATA];
+    struct subdir subs[SUBDIRS];
+    unsigned nsubs = 0, i;
+    *count = 0;
+    if (port_disc_read(d, 16, PORT_DATA, pvd, err, errsize) != 0) return -1;
+    if (pvd[0] != 1 || memcmp(pvd + 1, "CD001", 5) != 0) return fail(err, errsize, "disc: no ISO 9660 volume descriptor at sector 16");
+    if (list_dir(d, le32(pvd + 156 + 2), le32(pvd + 156 + 10), out, max, count, subs, &nsubs, err, errsize) != 0) return -1;
+    for (i = 0; i < nsubs; i++)
+        if (list_dir(d, subs[i].extent, subs[i].size, out, max, count, NULL, NULL, err, errsize) != 0) return -1;
+    return 0;
+}
+
 int port_boot_name(const char *text, size_t length, char *out, size_t outsize)
 {
     size_t i = 0;
