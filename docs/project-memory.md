@@ -4198,6 +4198,32 @@ file places are nearly all of it. To remember:
 - The runners made the owner's password unnecessary: what this machine
   cannot install, a runner already has. Ask what a runner can show before
   asking the owner for access.
+
+The owner's rule of 2026-10-09, in the owner's words: "until we proved it
+runs, we are not changing anything and we need to keep it as close to
+PS1's original as possible. Our port can just require the path to the ISO
+(provided by the user)". It answered the assistant's recommendation of a
+block of memory with a build switch in game code wherever a stored
+address is followed, and it refuses the second half of that: no build
+switch, no change at all, until something runs.
+
+- What it costs was put to the owner and accepted with "yes": without a
+  change, the game's C holds only where a pointer has four bytes, so the
+  proof comes on Linux or Windows in a 32-bit program, and macOS on Apple
+  Silicon after it runs.
+  The assistant's words to the owner were that Apple Silicon "cannot" run
+  32-bit programs. What is known is narrower: macOS runs no native 32-bit
+  application since 10.15, by Apple's own note. Emulation was not looked
+  into. The owner's "yes" was to the order of the proof, which does not
+  need the stronger claim.
+- The count behind it is on the port page: compiled with `-m32`, every
+  shared struct keeps its layout and no cast between a pointer and an
+  integer of another size is left.
+- The requirement of 2026-10-06 allowed build switches for what game code
+  cannot keep on another machine. Until the port runs, this rule is
+  stricter and goes first.
+- Still open, and the next thing to put to the owner: functions that are
+  not C yet are PS1 machine code, which a PC does not run.
 - For this tool the helper was told to choose its changed copies against
   the sentences of the contract and not against its controls. Several of
   its 38 survived at first and got controls; all 14 of the reviewer's

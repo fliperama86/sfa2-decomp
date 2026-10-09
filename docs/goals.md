@@ -218,7 +218,10 @@ calls with what PsyZ has, another compiles the game's C units with a
 PC compiler and counts what does not carry over, and a third lists what
 the compiled units need and none defines. One workflow runs the compile
 trial and another PsyZ's own tests on runners for Linux, macOS and
-Windows. Its next step waits for the owner.
+Windows. The owner's rule of 2026-10-09: no change to the game's source
+until the port runs, data from the user's disc image, the proof on Linux
+or Windows first. Its next step waits for the owner: how it runs before
+every function is C.
 
 ## Next implementation package
 

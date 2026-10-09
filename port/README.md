@@ -25,7 +25,32 @@ By the owner, on 2026-10-06:
 - That replacement is [PsyZ](https://github.com/Xeeynamo/psyz), used as a
   dependency. It is not written here and not copied here.
 
-A direction, not a ruling. Nothing is built on it:
+By the owner, on 2026-10-09, when the measurements below were in and the
+choice between the two ways that follow was put:
+
+- "Until we proved it runs, we are not changing anything and we need to
+  keep it as close to PS1's original as possible." Nothing of the game's
+  source is changed for the port before the port is shown running.
+- "Our port can just require the path to the ISO (provided by the user)."
+  The game's data comes from a disc image that the user points to. The
+  port holds and ships none.
+- The proof comes on Linux or on Windows first, and macOS on Apple Silicon
+  after it runs. This was put to the owner as what the first decision
+  costs, and accepted: with no change to the source, the game's C holds
+  only where a pointer has four bytes, as on the PS1, and macOS runs no
+  native 32-bit application since version 10.15, by
+  [Apple's note](https://support.apple.com/en-us/103076); the macOS of an
+  Apple Silicon Mac is later than that. Whether such a program could be
+  run there through emulation was not looked into, and the order of the
+  proof does not rest on it. None of this was tried here. "With four-byte
+  pointers" below has the count behind the first half.
+
+What follows from these and is not built or tried: the port's memory at
+the PS1's own addresses, filled from the disc, in a 32-bit program, so
+that the addresses in the game's data and source mean what they meant.
+
+Before that rule, a direction that was not a ruling. Nothing was built on
+it, and the rule above replaces it for the time until the port runs:
 
 - The game's tables hold PS1 addresses, four bytes each, and all three
   targets have eight-byte addresses. The sotn-decomp project, which uses
@@ -274,7 +299,7 @@ Two scripts. Neither links or runs anything, and neither reads a game
 file. The header of each says how it works.
 
 ```sh
-python3 port/tools/hostcheck.py [--cc CC] [--std STD] [--build DIR] [--jobs N] [--timeout SECONDS]
+python3 port/tools/hostcheck.py [--cc CC] [--std STD] [--flag=FLAG ...] [--build DIR] [--jobs N] [--timeout SECONDS]
 python3 port/tools/hostneeds.py [--build DIR] [--out FILE]
 ```
 
@@ -403,6 +428,42 @@ of the matching build.
   size and the count of literals: 75 of 249 lose their layout, on Windows
   too, where a `long` has four bytes.
 
+### With four-byte pointers
+
+`--flag=-m32` makes GCC compile for a machine whose pointers have four
+bytes, as the PS1's have. The same tree, the Linux machine, 2026-10-09:
+
+```
+compiler: cc (GCC) 16.2.1 20260810
+language level: gnu89
+flags: -m32
+pointer size: 4 bytes
+units: 3727 compiled, 129 under sdk/ and 8 not C left out
+passed: 3727
+failed: 0
+warning -Wincompatible-pointer-types: 184 in 89 units
+warning -Wint-conversion: 57 in 27 units
+warning (no option): 20 in 18 units
+structs: 249 of 249 keep their layout
+structs with a pointer: 75, of which 0 lose their layout
+structs without a pointer: 174, of which 0 lose their layout
+fixed addresses: 349 literals in 184 units
+main memory: 253 literals in 138 units
+main memory, uncached: 0 literals in 0 units
+scratchpad: 96 literals in 49 units
+ports: 0 literals in 0 units
+BIOS: 0 literals in 0 units
+```
+
+- All 249 shared structs keep their layout, the ones with a pointer
+  too, and every one of the 3,727 units compiles.
+- The two kinds of cast between a pointer and an integer of another size
+  are gone: no such warning is left.
+- The literals at PS1 addresses stay. In such a program they can be the
+  addresses they were, if its memory is put there.
+- That machine compiles such a unit and cannot link such a program: it
+  lacks the 32-bit libraries. Nothing was linked.
+
 ### What the objects need
 
 From the objects of the GCC run on the Linux machine:
@@ -467,7 +528,7 @@ unknown: _GLOBAL_OFFSET_TABLE_ __stack_chk_fail
 `python3 port/tools/test_hostneeds.py` run the two scripts on small
 made-up trees. The first needs `cc` and a host with eight-byte pointers
 and says so when it has neither; the second uses a stand-in for `nm` and
-needs neither. On 2026-10-09 they printed 90 and 142 lines that begin
+needs neither. On 2026-10-09 they printed 95 and 142 lines that begin
 `ok` and each ended with `all cases behaved as required`. The workflow
 runs the first of them on Linux and on macOS.
 
@@ -491,6 +552,11 @@ start, so the workflow runs this one in all five jobs.
   library functions that the resident code does not.
 - The build of the game side for a host, and where it is checked on all
   three systems.
+- How the port runs before every function is C. What is not C yet exists
+  only as PS1 machine code on the disc, and a PC cannot run that as it
+  is.
+- Where a 32-bit program is linked and run. The machine of these sessions
+  compiles one and cannot link it.
 - What the port's build does about the units that a clang refuses, 35 to 115 by its version:
   compiler options that turn those errors back into warnings, or casts in
   the source, if the matching work finds that they leave the bytes alone.
