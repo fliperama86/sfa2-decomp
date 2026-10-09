@@ -377,7 +377,7 @@ unknown: _GLOBAL_OFFSET_TABLE_ __stack_chk_fail
 `python3 port/tools/test_hostneeds.py` run the two scripts on small
 made-up trees. The first needs `cc` and a host with eight-byte pointers
 and says so when it has neither; the second uses a stand-in for `nm` and
-needs neither. On 2026-10-09 they printed 90 and 125 lines that begin
+needs neither. On 2026-10-09 they printed 90 and 142 lines that begin
 `ok` and each ended with `all cases behaved as required`.
 
 ## Not decided

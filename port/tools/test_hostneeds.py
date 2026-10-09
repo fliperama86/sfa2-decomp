@@ -539,6 +539,29 @@ def refusal_cases(root: Path):
     t = fresh("r5")
     put(t.config, "[[unit]\nname = ")
     yield from refusal("invalid TOML", run(t), "build.toml")
+    head = '[[unit]]\nname = "a"\nsource = "a.c"\n'
+    for label, text in (
+        ("functions that are a number", head + "functions = 4\n"),
+        ("functions that are a string", head + 'functions = "f"\n'),
+        ("a function that is a number", head + "functions = [4]\n"),
+        ("a function without an address", head + 'functions = [{ name = "f" }]\n'),
+        ("a function whose address is a string", head + 'functions = [{ name = "f", address = "0x80100000" }]\n'),
+        ("a function whose address is true", head + 'functions = [{ name = "f", address = true }]\n'),
+        ("an image of a unit that is a number", head + "image = 4\n"),
+        ("units that are a table", '[unit]\nname = "a"\nsource = "a.c"\n'),
+        ("units that are a number", "unit = 4\n"),
+        ("a unit that is a number", "unit = [4]\n"),
+        ("a unit whose name is a number", '[[unit]]\nname = 4\nsource = "a.c"\n'),
+        ("a unit whose source is a number", '[[unit]]\nname = "a"\nsource = 4\n'),
+        ("images that are a table", head + '[image]\nname = "slot04"\n'),
+        ("images that are a number", "image = 4\n" + head),
+        ("images that are a string", 'image = "slot04"\n' + head),
+        ("an image that is a number", "image = [4]\n" + head),
+        ("an image whose name is a number", head + "[[image]]\nname = 4\n"),
+    ):
+        t = fresh("r5s")
+        put(t.config, text)
+        yield from refusal(f"configuration with {label}", run(t), "build.toml")
     t = fresh("r6")
     t.symbols.unlink()
     yield from refusal("missing symbol file", run(t), "symbols.ld")
