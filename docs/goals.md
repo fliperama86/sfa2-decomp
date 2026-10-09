@@ -421,6 +421,9 @@ chose the first on 2026-10-06:
   the rest were then written by a helper that copies an exact function's
   source and maps its addresses; the build found 358 of those exact as
   written.
+  The thirty-ninth is the one code-bearing content of slot `0x1`, from
+  `CDEMO00.PAC`, a module of 124 functions: 116 are exact, 16,100 of
+  20,432 bytes, and 8 are parked with candidates.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
@@ -447,7 +450,7 @@ observation only when it answers a specific remaining question.
 Whole executable/overlay source inventory, a whole image built from source
 rather than mostly retained bytes, ownership of game data, assembly owners
 beyond the SDK stubs, the source of the overlay modules beyond the parts of
-the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
+the images `slot2a`, `slot0b`, `slot0f`, `slot12`, `slot16`, `slot27`, `slot28`, `slot01`, `slot00`, `slot2b`, the 20 stage images `slot06_00` to `slot06_13` and the 11 character images `slot04_0c` to `slot04_17` that are rebuilt so far
 (`slot17`, `slot08`, `slot2c` and the eight images `slot05_0c` to `slot05_14` are linked from the source of `slot16`, `slot00`, `slot2b` and the character images), every other module as an image of the
 build,
 complete gameplay reconstruction, SDK exception accounting, final

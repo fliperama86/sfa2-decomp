@@ -2495,3 +2495,39 @@ struct Slot28Rec50ce4Obj size=0x10c
 0x006 s16 field_06
 0x008 Slot28Rec50ce4* field_08
 0x00c Slot28Rec51e94 cells[16]
+
+struct Slot01Obj size=0x394
+0x000 u8 field_00
+0x010 s32 field_10
+0x014 s32 field_14
+0x030 Object* field_30
+0x058 u32 field_58
+0x05e s16 field_5e
+0x08a u8 field_8a
+
+struct Slot01Rec152ec size=0x4
+0x000 u16 value
+0x002 s16 count
+
+struct Slot01State55e94 size=0x8
+0x000 Slot01Rec152ec* cursor
+0x004 s16 count
+0x006 s16 value
+
+struct Slot01Rec31b98 size=0x800
+0x000 Cell20 cells[27]
+
+struct Slot01Rec2b484 size=0x8
+0x000 void* field_00
+0x004 void* field_04
+
+struct Slot01Rec33bb4 size=0x1c
+0x004 u32 cmd
+0x010 u8 field_10
+0x011 u8 field_11
+0x012 u8 field_12
+0x014 s16 x
+0x016 s16 y
+0x018 u8 u
+0x019 u8 v
+0x01a u16 tpage

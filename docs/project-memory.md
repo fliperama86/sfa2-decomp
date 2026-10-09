@@ -5206,6 +5206,111 @@ reported them, with their declarations checked and their forms not. A
 form that an agent reports is what its last attempt contained, not what
 the match needs. Reduce before publishing.
 
+## Seventy-second group: the module of slot 0x1
+
+The one content of slot `0x1` that has code, from `CDEMO00.PAC` (it is in
+21 archives): 286,540 bytes at `0x80010000`, 124 functions by the sweep,
+20,432 bytes of them. It is the image `slot01`. The module begins with
+data; its code is a small part of it.
+
+Counts, from the build:
+
+- `slot01`: 116 of 124 functions exact, 16,100 of 20,432 bytes. 270,440
+  bytes of the chunk are retained raw.
+- 8 functions are parked with candidates, 4,332 bytes.
+- When the round ended, on the main of that day: 68 unit files, 79
+  symbols (76 of the module, 4 of them parked functions that exact units
+  call; 3 outside it) and 6 structs with 24 lines of the field table
+  were new, and the build had thirteen other module images. No unit
+  outside the module's folder changed.
+- On the head that was merged, after the second session's modules had
+  come into main: the difference to main is 78 names in the symbol file
+  (one of the 79 is a name that both sessions had added, and one line
+  stands for both), and the build has 51 other module images. The
+  resident image and all of them are unchanged in their bytes.
+- The module has 4 unused-array stand-ins (three of 8 bytes and one of
+  16) and 1 call through a cast of the callee. The tree had 42 and 3
+  when the round ended; the merged head has 63 and 13.
+
+The module's 124 functions are 100 apart from addresses.
+
+What ran:
+
+- A first pass on one function of each kind: 100 functions in 13 batches.
+  86 exact. Where a function was the same code as one already exact in
+  another module, the batch had the name of that function and started
+  from its source.
+- The merge had 2 conflicts, both in the module's view of an object,
+  resolved by hand. The declaration check printed 20 lines; an agent
+  brought them to zero with the decisions given to it. One of them is a
+  third call through a cast of the callee: `func_8001385c_slot01` calls
+  `func_8011ffdc`, which takes the object, without setting the argument
+  register; written with the argument it differs in 7 instruction slots.
+- Two words at `0x80055f30` and `0x80055f34` have two names now. The
+  module of slot `0x27` uses these addresses, which lie outside its
+  image, under names without a suffix; in this module they lie inside the
+  image and carry its suffix. The rule that a name inside a module's
+  range carries the module's suffix decided it.
+- Second attempts on the 14 parked, one agent each: 2 exact, two
+  neighbours of one shape. Then, without agents: a third function of that
+  shape with the neighbours' form at the first build; one by the other
+  session's driver for random search, which moved one statement to the
+  front; one by building every order of four constant stores; one by a
+  local used for two values and 32 spellings of how a global is read.
+  6 of the 14 in all.
+- The second pass, on the 24 functions that are a copy of a function
+  that was now exact: the helper wrote all 24 and the build found all 24
+  exact as written. Nine of them call a resident function where their
+  model called another one and carried the model's declaration under the
+  new name; the declaration check listed them.
+- A tidy pass by a private check that now also removes what needs no
+  judgment: 18 declarations that their unit never uses, 23 names and one
+  struct without a use.
+
+What is parked and why. Two functions, `func_80013ee8_slot01` and
+`func_80012990_slot01`, differ in 2 and 3 instruction slots: in the first
+the constant 1 is loaded third where the original loads it first, after
+950 arrangements of its statements and about thirty other forms; in the
+second one addition stands one place early and the build folds two
+additions that the original keeps apart. `func_80011a14_slot01` differs
+in 3 slots, the register and the place of one constant, after 600
+arrangements. `func_80010104_slot01` and `func_800108d4_slot01` differ in
+10: a store that the build moves ahead of two others, and two registers
+exchanged in a loop. `func_80010eb8_slot01` and `func_80012714_slot01`
+are 4 bytes short and 4 bytes long, `func_80012dec_slot01` is 4 bytes
+long with a shift that the build moves out of a loop.
+
+The helper that copies a function now takes its model from another
+module image as well. Tried on this module from the tree as it was
+before the round: 45 of the 124 functions are a copy of a function that
+is exact in another module image, and the helper wrote all 45 exact at
+the first build. It was not used for them in this round, which had begun;
+it is the first step of the next one.
+
+Lessons:
+
+- When parked functions share a shape, a finding on one goes to the
+  others at once. Two neighbours fell in the first minute to a pointer
+  stepped between two calls. The third of that shape ran about 25 forms
+  with another agent that did not have the form, and was exact at the
+  first build with it afterwards. The note for the second attempts named
+  the first two as a pair and not the third.
+- Trying every place of a few chosen statements is cheap, and it finds
+  what hand-written forms and random search miss, because it leaves
+  everything else alone. Choose the statements from the residual: the
+  stores of the constants that sit in the wrong registers. It is one
+  tool: it found one function of four.
+- Read which values share a register in the listing before writing
+  locals. A pointer and a constant that follow each other in one register
+  were one local here, and with two the constant was built too early.
+- The other session's driver for random search writes its best variant
+  into the unit when it finds no exact one. Put the hand-written
+  candidate back before parking: the variant is not a form anyone chose.
+- Batches made from different trees do not merge into one tree. When a
+  function falls after the copy pass has run, build the chain again from
+  one base: merge every exact batch of that base, run the copy pass on
+  the result. It took five minutes.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
