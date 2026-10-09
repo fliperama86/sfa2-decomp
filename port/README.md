@@ -1,8 +1,9 @@
 # Port
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
-Linux. **Nothing of the game links or runs on any of them.** Its C units
-compile on one of them, Linux, in a trial that is described below. This folder
+Linux. **Nothing of the game links or runs on any of them.** With GCC every
+one of its C units compiles on Linux and on Windows, and Apple's compiler
+on macOS refuses a few, in a trial that is described below. This folder
 holds the decisions taken so far, one pinned dependency, one check of that
 dependency, one comparison of it with what the game calls, and one trial
 that compiles the game's C with a PC compiler and lists what the objects
@@ -226,128 +227,157 @@ sources. The second reads the objects that the first left and sorts every
 name that some object needs and none defines: what a linker would ask for.
 
 The counts move with every unit that the matching work adds, so the ones
-here are for one tree: `ps1/` as it is in commit `a4b6481`. For today's, run
+here are for one tree: `ps1/` as it is in commit `8d0bb0d`. For today's, run
 the scripts as they are. For these, give them that tree:
 
 ```sh
-mkdir /tmp/tree && git archive a4b6481 ps1/src ps1/inventory | tar -x -C /tmp/tree
+mkdir /tmp/tree && git archive 8d0bb0d ps1/src ps1/inventory | tar -x -C /tmp/tree
 python3 port/tools/hostcheck.py --config /tmp/tree/ps1/src/build.toml
 python3 port/tools/hostneeds.py --config /tmp/tree/ps1/src/build.toml \
     --symbols /tmp/tree/ps1/src/symbols.ld --inventory /tmp/tree/ps1/inventory
 ```
 
-All of it ran on 2026-10-09 on one Linux machine, x86-64.
+### What compiles, on one Linux machine
 
-### What compiles
+On 2026-10-09, x86-64:
 
 ```
 compiler: cc (GCC) 16.2.1 20260810
 language level: gnu89
 pointer size: 8 bytes
-units: 2088 compiled, 129 under sdk/ and 8 not C left out
-passed: 2088
+units: 3727 compiled, 129 under sdk/ and 8 not C left out
+passed: 3727
 failed: 0
-warning -Wpointer-to-int-cast: 213 in 121 units
-warning -Wincompatible-pointer-types: 182 in 89 units
-warning -Wint-to-pointer-cast: 170 in 95 units
+warning -Wpointer-to-int-cast: 363 in 242 units
+warning -Wincompatible-pointer-types: 184 in 89 units
+warning -Wint-to-pointer-cast: 177 in 102 units
 warning -Wint-conversion: 57 in 27 units
-warning (no option): 13 in 11 units
-structs: 158 of 225 keep their layout
-structs with a pointer: 67, of which 67 lose their layout
-structs without a pointer: 158, of which 0 lose their layout
-fixed addresses: 304 literals in 160 units
-main memory: 246 literals in 133 units
+warning (no option): 20 in 18 units
+structs: 174 of 249 keep their layout
+structs with a pointer: 75, of which 75 lose their layout
+structs without a pointer: 174, of which 0 lose their layout
+fixed addresses: 349 literals in 184 units
+main memory: 253 literals in 138 units
 main memory, uncached: 0 literals in 0 units
-scratchpad: 58 literals in 30 units
+scratchpad: 96 literals in 49 units
 ports: 0 literals in 0 units
 BIOS: 0 literals in 0 units
 ```
 
-and with `--cc clang`, without its last line, which names the 112 units:
+and with `--cc clang`, without its last line, which names the 115 units:
 
 ```
 compiler: clang version 23.1.1
 language level: gnu89
 pointer size: 8 bytes
-units: 2088 compiled, 129 under sdk/ and 8 not C left out
-passed: 1976
-failed: 112
-warning -Wdeprecated-non-prototype: 612 in 353 units
-warning -Wpointer-to-int-cast: 211 in 120 units
-error -Wincompatible-pointer-types: 182 in 89 units
-warning -Wint-to-pointer-cast: 168 in 94 units
+units: 3727 compiled, 129 under sdk/ and 8 not C left out
+passed: 3612
+failed: 115
+warning -Wpointer-to-int-cast: 360 in 240 units
+error -Wincompatible-pointer-types: 184 in 89 units
+warning -Wint-to-pointer-cast: 175 in 101 units
 error -Wint-conversion: 57 in 27 units
-warning -Wreturn-type: 9 in 9 units
-error -Wreturn-mismatch: 8 in 5 units
+warning -Wdeprecated-non-prototype: 18 in 4 units
+warning -Wreturn-type: 18 in 15 units
+error -Wreturn-mismatch: 12 in 8 units
 warning -Wunsequenced: 4 in 4 units
 warning -Wparentheses: 3 in 3 units
 warning -Wpointer-sign: 3 in 2 units
+warning -Wvoid-pointer-to-int-cast: 3 in 3 units
 warning -Wint-to-void-pointer-cast: 2 in 1 units
-warning -Wvoid-pointer-to-int-cast: 2 in 2 units
 warning -Warray-bounds: 1 in 1 units
-structs: 158 of 225 keep their layout
-structs with a pointer: 67, of which 67 lose their layout
-structs without a pointer: 158, of which 0 lose their layout
-fixed addresses: 304 literals in 160 units
-main memory: 246 literals in 133 units
+structs: 174 of 249 keep their layout
+structs with a pointer: 75, of which 75 lose their layout
+structs without a pointer: 174, of which 0 lose their layout
+fixed addresses: 349 literals in 184 units
+main memory: 253 literals in 138 units
 main memory, uncached: 0 literals in 0 units
-scratchpad: 58 literals in 30 units
+scratchpad: 96 literals in 49 units
 ports: 0 literals in 0 units
 BIOS: 0 literals in 0 units
 ```
 
 - The source is C that a compiler of today reads: with GCC and the old
-  language level, every one of the 2,088 units compiles for a machine with
+  language level, every one of the 3,727 units compiles for a machine with
   eight-byte pointers.
-- clang refuses 112 of them, for three things: a pointer of one type
+- This clang refuses 115 of them, for three things: a pointer of one type
   handed over where another is declared and an integer and a pointer mixed
   without a cast, which GCC warns about there, and a `return` that does
   not fit the function's type, which GCC lets pass at this language level.
-  This is clang as Linux has it, not Apple's build of it.
-- 67 of the 225 shared structs lose their layout, and they are exactly
-  the 67 that hold a pointer. No struct loses it for another reason. Code
+- 75 of the 249 shared structs lose their layout, and they are exactly
+  the 75 that hold a pointer. No struct loses it for another reason. Code
   and data that count on these offsets cannot use these structs as they
   are.
-- 213 casts turn a pointer into an integer of another size and 170 turn
+- 363 casts turn a pointer into an integer of another size and 177 turn
   such an integer into a pointer. An address does not survive the first
   kind on this host.
-- 304 literals are PS1 addresses by their value: 246 in main memory and
-  58 in the scratchpad.
+- 349 literals are PS1 addresses by their value: 253 in main memory and
+  96 in the scratchpad.
+
+### What compiles, on three systems
+
+The workflow `Port compile trial` runs the first script on GitHub's
+runners for Linux, macOS and Windows, with the compilers that those have,
+and puts each output on the page of the run. It runs when something under
+`port/` changes, once a week, and on request. It is a measurement and no
+gate: a job fails only when the script cannot run, and it checks nothing
+of the matching build.
+
+[Run 37943006240](https://github.com/fliperama86/sfa2-decomp/actions/runs/37943006240) of 2026-10-09, the same tree:
+
+| system | compiler | passed | failed | errors, by the compiler's name for them |
+| --- | --- | --- | --- | --- |
+| Linux, x86-64 | gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0 | 3,727 | 0 | none |
+| Linux, x86-64 | Ubuntu clang version 18.1.3 (1ubuntu1) | 3,692 | 35 | `-Wint-conversion` 57, `-Wreturn-type` 12 |
+| macOS, Apple Silicon | Apple clang version 21.0.0 (clang-2100.1.1.101) | 3,688 | 39 | `-Wint-conversion` 57, `-Wreturn-mismatch` 12, `-Werror,-Wimplicit-function-declaration` 7 |
+| Windows, x86-64 | gcc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0 | 3,727 | 0 | none |
+| Windows, x86-64 | clang version 20.1.8 | 3,692 | 35 | `-Wint-conversion` 57, `-Wreturn-mismatch` 12 |
+
+- GCC compiles every unit on Linux and on Windows.
+- The clang of each system refuses 35 to 39 units. All three refuse an
+  integer and a pointer mixed without a cast and a `return` that does not
+  fit. None of the three refuses a pointer of the wrong type, which they
+  warn about: that error is the newer clang's of the machine above.
+- Apple's clang, on Apple Silicon, refuses 4 units more than the other
+  two, for calls of functions that nothing declares.
+- The structs come out the same in all five jobs, and so do the pointer
+  size and the count of literals: 75 of 249 lose their layout, on Windows
+  too, where a `long` has four bytes.
 
 ### What the objects need
 
-From the objects of the GCC run:
+From the objects of the GCC run on the Linux machine:
 
 ```
-objects: 2088 of 2088 units
-defined: 6180 names
-needed: 3334 names
+objects: 3727 of 3727 units
+defined: 8685 names
+needed: 4193 names
 library by name: 10 names, needed by 11 units
-assembly: 9 names, needed by 6 units
+assembly: 10 names, needed by 7 units
 unit not compiled: 0 names, needed by 0 units
-unknown: 2 names, needed by 150 units
-C under another name: 2 names, needed by 2 units
-library by address: 83 names, needed by 134 units
-game function: 53 names, needed by 122 units
-module function: 121 names, needed by 79 units
+unknown: 2 names, needed by 174 units
+C under another name: 2 names, needed by 4 units
+library by address: 82 names, needed by 142 units
+game function: 51 names, needed by 190 units
+module function: 47 names, needed by 51 units
 function elsewhere: 38 names, needed by 10 units
-scratchpad data: 71 names, needed by 45 units
-module data: 2172 names, needed by 956 units
-resident data: 773 names, needed by 1359 units
-library by address: 76 named, 7 unnamed
+scratchpad data: 71 names, needed by 72 units
+module data: 3094 names, needed by 1638 units
+resident data: 786 names, needed by 1768 units
+library by address: 76 named, 6 unnamed
 unknown: _GLOBAL_OFFSET_TABLE_ __stack_chk_fail
 ```
 
-- Data is nearly all of it: 2,172 names in the modules, 773 in the
+- Data is nearly all of it: 3,094 names in the modules, 786 in the
   resident executable and 71 in the scratchpad that only the symbol file
   places. No C defines them. On the PS1 they are addresses that the
   linker is told; on another machine each needs something behind it.
-- The library is asked for by address far more often than by name: 83
-  names against 10. For 76 of the 83 the project knows the library's
-  own name, which is the list a port needs to call PsyZ; 7 have none
-  yet. `--out` writes the pairs. 9 more names are functions that the
+- The library is asked for by address far more often than by name: 82
+  names against 10. For 76 of the 82 the project knows the library's
+  own name, which is the list a port needs to call PsyZ; 6 have none
+  yet. `--out` writes the pairs. 10 more names are functions that the
   build has as assembly, stubs for calls into the BIOS among them.
-- 53 functions of the resident executable and 121 of the modules are
+- 51 functions of the resident executable and 47 of the modules are
   needed by the C and are not C yet. 38 more names are functions at
   addresses where the resident executable has none: another block that
   is loaded at that moment.
@@ -363,22 +393,29 @@ unknown: _GLOBAL_OFFSET_TABLE_ __stack_chk_fail
   stand behind them or what they hold.
 - That a need which has a name is met: the comparison above says what
   PsyZ has for a library name, not this list.
-- The needs of the units that clang refuses: from clang's objects the
+- The needs of the units that a clang refuses: from clang's objects the
   list is another, with a class of its own for what those units would
-  have defined.
-- Anything about Microsoft's compiler, which has no such language level,
-  or about macOS and Windows as hosts. One machine ran this.
+  have defined. The list was made on Linux only.
+- Anything about Microsoft's own compiler, which has no such language
+  level and was not tried. On Windows the compilers were GCC and clang.
 - That a literal in a range is an address: `0x80000000` is also the sign
   bit of a word.
 - The same counts from another version of a compiler: the kinds are the
-  names that this version gives its diagnostics.
+  names that a version gives its diagnostics, and what is a warning in
+  one is an error in the next, as the table shows.
 
 `python3 port/tools/test_hostcheck.py` and
 `python3 port/tools/test_hostneeds.py` run the two scripts on small
 made-up trees. The first needs `cc` and a host with eight-byte pointers
 and says so when it has neither; the second uses a stand-in for `nm` and
 needs neither. On 2026-10-09 they printed 90 and 142 lines that begin
-`ok` and each ended with `all cases behaved as required`.
+`ok` and each ended with `all cases behaved as required`. The workflow
+runs the first of them on Linux and on macOS.
+
+`python3 port/tools/test_hostcheck_stop.py` is one more control, for every
+system: a stand-in compiler that does not end must be stopped, with what
+it started. The others build their stand-ins in a way that Windows cannot
+start, so the workflow runs this one in all five jobs.
 
 ## Not decided
 
@@ -395,8 +432,8 @@ needs neither. On 2026-10-09 they printed 90 and 142 lines that begin
   library functions that the resident code does not.
 - The build of the game side for a host, and where it is checked on all
   three systems.
-- What the port's build does about the 112 units that clang refuses:
+- What the port's build does about the units that a clang refuses, 35 to 115 by its version:
   compiler options that turn those errors back into warnings, or casts in
   the source, if the matching work finds that they leave the bytes alone.
-- How the 67 structs with a pointer keep the layout that the game's data
+- How the 75 structs with a pointer keep the layout that the game's data
   has. It is the question of stored addresses above, now with a count.

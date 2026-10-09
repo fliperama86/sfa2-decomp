@@ -1,0 +1,69 @@
+# Compiles the game's C units with the C compilers of Linux, macOS and
+# Windows and prints what does not carry over: port/README.md, "The
+# game's C on a PC compiler". A measurement, not a gate: a job ends well
+# whatever it counts and fails only when a tool cannot run. It checks
+# nothing of the matching build and no game file is involved.
+name: Port compile trial
+
+on:
+  push:
+    branches: [main]
+    paths: ['port/**', '.github/workflows/port-compile.yml']
+  pull_request:
+    paths: ['port/**', '.github/workflows/port-compile.yml']
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trial:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, cc: gcc, python: python3, controls: true }
+          - { os: ubuntu-latest, cc: clang, python: python3, controls: false }
+          - { os: macos-latest, cc: cc, python: python3, controls: true }
+          - { os: windows-latest, cc: gcc, python: python, controls: false }
+          - { os: windows-latest, cc: clang, python: python, controls: false }
+    name: ${{ matrix.os }}, ${{ matrix.cc }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Line ends as Git has them
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+      - name: What runs here
+        run: |
+          uname -a
+          ${{ matrix.python }} --version
+          ${{ matrix.cc }} --version
+          echo "commit $(git rev-parse HEAD)"
+          echo "tree of ps1/src $(git rev-parse HEAD:ps1/src)"
+      - name: Control cases
+        if: matrix.controls
+        run: ${{ matrix.python }} port/tools/test_hostcheck.py
+      - name: A compiler that does not end is stopped
+        run: ${{ matrix.python }} port/tools/test_hostcheck_stop.py
+      - name: Compile
+        run: ${{ matrix.python }} port/tools/hostcheck.py --cc ${{ matrix.cc }} --build out | tee trial.txt
+      - name: The output on the run's page
+        run: |
+          {
+            echo "tree of ps1/src: $(git rev-parse HEAD:ps1/src)"
+            echo '```'
+            cat trial.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: trial-${{ matrix.os }}-${{ matrix.cc }}
+          path: |
+            trial.txt
+            out/units.tsv
+            out/structs.tsv
