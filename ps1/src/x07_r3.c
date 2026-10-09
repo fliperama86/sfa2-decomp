@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 table_8017ab6c[];
-
 void func_8013ef28(Object *object, int index, int arg) {
     Slot *slot = &object->slots[(u8)index];
     if ((u8)func_8013f04c(&slot->field_01, table_8017ab6c[(u8)arg * 7] & 0xc0, ((s16 *)table_8017ab6c)[(u8)arg * 7 + 1], ((s16 *)table_8017ab6c)[(u8)arg * 7 + 2], object->field_134) == 0

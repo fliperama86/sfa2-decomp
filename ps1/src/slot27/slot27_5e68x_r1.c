@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 data_801a2824[];
-extern u16 data_801a3c24[];
 extern SequenceStep *data_80028864_slot27[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];

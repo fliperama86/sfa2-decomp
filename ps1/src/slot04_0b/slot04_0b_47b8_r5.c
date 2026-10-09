@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
-
 void func_801b4db8_slot04_0b(Object *obj, int index) {
     SequenceStep **table;
     if (((Slot04aObj *)ref_other.p)->field_a6 == 0) {

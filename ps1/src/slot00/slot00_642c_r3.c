@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern FrameRecord *data_1f8000a8;
-extern FrameRecord *data_1f800158;
 void func_80077050_slot00(Object *obj);
 void func_800770b8_slot00(Object *obj);
 

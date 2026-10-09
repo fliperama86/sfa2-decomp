@@ -6,8 +6,6 @@
 extern HudState *data_8018f5a0;
 extern void (*data_801b6d60_slot04_sel[])(Object *, Slot04SelRec *);
 extern Slot04SelRec data_801b9cf0_slot04_sel[];
-extern u8 data_8016e694[];
-extern u8 data_8016e696;
 
 void func_801b0090_slot04_sel(Object *unused_obj, Slot04SelRec *unused_rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

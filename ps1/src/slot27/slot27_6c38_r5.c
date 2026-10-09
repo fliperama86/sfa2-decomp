@@ -6,7 +6,6 @@
 extern Slot27Recb388 data_8002b388_slot27[2][0x118];
 extern Slot27Recf0c8 data_8002f0c8_slot27;
 extern ObjectFn data_800292d4_slot27[];
-extern u8 data_801a3fe4[];
 void func_800178c8_slot27(Tx *tx);
 
 void func_80017064_slot27(Object *unused) {

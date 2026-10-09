@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 extern u16 data_80028484_slot12[][4];
-extern u16 data_801903c0;
-extern u16 data_801903c2;
 
 void func_800152b4_slot12(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

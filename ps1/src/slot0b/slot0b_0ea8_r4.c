@@ -5,7 +5,6 @@
 
 typedef void (*SlotFn)(Slot0bObj *);
 
-extern ObjectRef data_80190468;
 extern SlotFn table_801e4ce0_slot0b[];
 extern u8 data_801e7a2c_slot0b[];
 void func_801e0ea8_slot0b(Object *obj, u8 *p);

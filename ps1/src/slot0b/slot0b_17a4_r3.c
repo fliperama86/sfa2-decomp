@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190468;
 void func_801e1b40_slot0b(Object *obj);
 
 void func_801e19ec_slot0b(Object *obj) {

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern HudState *data_8018f5a0;
-extern u8 data_8016e69a[];
 extern u8 data_801b8320_slot04_sel[];
 extern TextBuf *data_801b8540_slot04_sel[];
 extern TextBuf *data_801b85e8_slot04_sel[];

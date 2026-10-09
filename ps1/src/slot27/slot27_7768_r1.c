@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801a3fe4[];
-
 void func_80017768_slot27(Object *obj) {
     Rect r;
 

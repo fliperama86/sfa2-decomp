@@ -32,7 +32,6 @@ void func_80016660_slot12(Object *obj) {
     func_8011f240((Slab172 *)obj);
 }
 
-extern ObjectRef data_80190468;
 extern void (*data_80028a04_slot12[])(Object *);
 
 void func_80016680_slot12(Object *obj) {

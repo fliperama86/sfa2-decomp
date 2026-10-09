@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 void func_801ce2c0_slot05_06(Object *obj);
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 extern u8 data_801dd600_slot05_06[];
 extern s32 data_801dd620_slot05_06[];
 
