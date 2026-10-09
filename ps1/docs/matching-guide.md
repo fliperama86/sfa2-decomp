@@ -857,6 +857,22 @@ looks at: the number of uses of a value, whether it lives across a call
 or across blocks, the order of statements. "What this compiler does" has
 the forms this found.
 
+Try the types of the locals as a whole, not one at a time by hand. A first
+draft gives most locals `int`, and a residual in the registers or in the
+order of two instructions is often a local that the original's source had
+as 16 or 8 bits ("What this compiler does" has one mechanism for 16-bit
+locals). The search is small: every combination of `int`, `u32`, `s16`,
+`u16`, `u8` and `s8` for the integer locals of one function, each variant
+compiled alone from the unit's preprocessed file (the compiler, the
+assembler emulation, the assembler; no project build) and scored by the
+function's words against the original's, with the fields that the linker
+fills masked on both sides. On the 132 candidates that one session had
+parked, 113 of which have integer locals, it made 44 closer and 2 exact:
+`func_80012f64_slot12` with two locals of 16 bits and
+`func_800e07b8_slot0f` with one. A score of zero from such a search says
+that the shapes agree; the project's build decides, and the function is
+reduced and read against "What is allowed" afterwards like any other.
+
 Stop at once and report options instead of choosing when: a struct layout
 contradicts an existing field, the evidence points to different compiler flags
 or version, the build tool would need a change, or matching seems to need a
