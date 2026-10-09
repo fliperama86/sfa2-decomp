@@ -6063,7 +6063,7 @@ corrected before publication.
 
 - Counts, sums of the build's lines per image: the 20 stage modules have
   845 C functions, 139,908 bytes, and 1,220,780 raw bytes. The coverage
-  map's line, with what main had on 2026-10-10 in the tree: `overall:
+  map's line, with what main had on 2026-10-09 in the tree: `overall:
   5409/5600 distinct functions exact (96.6%); 12822/13072 placements
   (98.1%)`; the same command prints 5408 and 12821 for the tree without
   this change.
