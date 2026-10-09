@@ -401,6 +401,58 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   `(Tx *)(i * 0xfc0 + (u32)(t + j))`. With pointer arithmetic, pointer
   casts or variables for the offsets the order did not move. 19 units of
   the stage modules have this form.
+- The order of stores in a listing is the scheduler's, not the source's.
+  A function that sets many byte fields shows the stores grouped by
+  register: the stores of one repeated constant first, then loads, then
+  the other constants, then the zero stores. Written in that order, with
+  or without a local for the repeated constant, the registers of the
+  character blocks' state setters came out swapped. Written as plain
+  statements with literal constants in ascending field order, as the
+  sibling functions set a state (`field_04 = 1; field_05 = 0; field_06 =
+  7; field_07 = 0; ...`), they were exact: the repeated constant then
+  lives across the others and takes the second register. Where that
+  order is still off, the zero stores are the ones to move: they bind
+  no register, so only their place among the others matters. Measured
+  first on `func_801b217c_slot04_10`.
+- When every path of a function ends in the same call, the call is
+  written in each arm, and the arm that the listing has last, the one
+  that falls into the `jal`, is the last arm in the source. A listing
+  that seems to keep a second pointer to the object in `a0` through the
+  last block (`move a0,s0` in a delay slot, then loads through `a0`) had
+  no second pointer in `func_801b0ef4_slot04_10`: the copy is the
+  argument of the last arm's call, moved up. A shared call after the
+  `if`, a pointer copy, or the arms the other way round give the right
+  size with other registers or another block order.
+- In the small functions that add speeds to a position, a field that the
+  listing loads again before a store was the compare written the other
+  way round: `if (obj->field_70 <= obj->pos_y)` was exact where `pos_y >=
+  field_70` was not. Try the operand order of the listing's `slt` before
+  anything else. Some of these functions are exact only when they return
+  their last update, `return obj->field_50 += obj->field_58;`, and their
+  callers test the result.
+- The types of the locals come before the statements. Where the
+  instructions are right and a register or the order of two of them is
+  not, sweep each local over `int`, `u16`, `s16` and `u8` in both
+  declaration orders before trying other spellings. An `s16` local that
+  takes every step in place, a `u8` local for a byte used four ways, and
+  two `u16` locals each made a function exact that other
+  spellings had not moved.
+- A zero that the listing keeps in a register over two clearing loops
+  (`move a2,zero` at entry, `move a0,a2` before the second loop) needs a
+  local for the zero and a copy of it taken in each loop's
+  initialisation: `int z = 0; u8 c; u8 d; for (c = z, i = 0x3f; i >= 0;
+  i--) *p++ = c; ... for (d = z, i = 0x17; ...) *p++ = d;`. A literal
+  zero in either loop folds the copy away.
+- Blocks that exist when registers are allocated and are gone in the
+  listing leave a trace in the allocation. `func_801b460c_slot04_0c` has
+  one store of `pos_x` to itself, keeps the parent pointer in `a1` and
+  every temporary in `v0` and `v1`. As one statement `obj->pos_x =
+  obj->pos_x;` the pointer is a one-block value and the temporaries
+  spread over `a0` and `a1`. As the facing-dependent offset that the
+  sibling functions have, with zero in both arms, it is exact: the arms
+  are separate blocks until the late jump pass merges them. This is an
+  inference from the allocation, and the comment at the statement says
+  so. `grep -rn "The listing has one store of pos_x" src` lists the uses.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
