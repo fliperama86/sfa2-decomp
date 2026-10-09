@@ -141,26 +141,32 @@ static void *ram_span(const char *what, const void *p, unsigned long long length
     return (void *)(uintptr_t)(PORT_RAM_BASE + physical);
 }
 
-/* A rectangle of the frame buffer (1024 x 512 halfwords) the image routines accept: no negative field and
- * nothing past the edges (sums in int, the fields are 16 bits). Anything else is not drawn or copied: the
- * routine says so once and returns -1. */
-#define FRAME_W 1024
-#define FRAME_H 512
+/* The rectangle rules of the image routines.
+ * The frame buffer is PORT_GPU_FRAME_W x PORT_GPU_FRAME_H halfwords. The library's own code (ClearImage, LoadImage and
+ * StoreImage share it, at 0x801591a4 and 0x801593c4) first fits the width and height into the rectangle in place: a
+ * value of zero or less becomes 1, a value above the frame buffer's size less one becomes that (1023 and 511); it does
+ * not look at x and y, and the GPU wraps them. This port does what the library does with the width and height
+ * (clamp_size) and then stops at a rectangle that is not wholly inside the frame buffer, because it does not
+ * reproduce the GPU's wrapping: the line names the routine and the rectangle as the game gave it. MoveImage's
+ * library code returns -1 for a width or height of zero and passes anything else to the GPU, so a negative one,
+ * like any rectangle or destination outside the frame buffer, stops. Sums are made in 64 bits. */
+#define FRAME_W PORT_GPU_FRAME_W
+#define FRAME_H PORT_GPU_FRAME_H
 
-static int rect_fits(int x, int y, int w, int h)
+static int rect_fits(long long x, long long y, long long w, long long h)
 {
     return x >= 0 && y >= 0 && w >= 0 && h >= 0 && x + w <= FRAME_W && y + h <= FRAME_H;
 }
 
-static int rect_refused(unsigned routine, const char *what, const RECT *r)
+static void clamp_size(RECT *r)
 {
-    static unsigned reported;
-    if (!(reported & (1u << routine))) {
-        reported |= 1u << routine;
-        printf("gpu: %s: the rectangle (%d,%d %dx%d) is not inside the %dx%d frame buffer; not done (once per routine)\n", what, r->x, r->y, r->w, r->h, FRAME_W, FRAME_H);
-        fflush(stdout);
-    }
-    return -1;
+    r->w = r->w <= 0 ? 1 : (r->w > FRAME_W - 1 ? FRAME_W - 1 : r->w);
+    r->h = r->h <= 0 ? 1 : (r->h > FRAME_H - 1 ? FRAME_H - 1 : r->h);
+}
+
+static void rect_stop(const char *what, short x, short y, short w, short h)
+{
+    stop("gpu: %s: the rectangle (%d,%d %dx%d) is not inside the %dx%d frame buffer", what, x, y, w, h, FRAME_W, FRAME_H);
 }
 
 /* ---- the first use: PsyZ's window rules ---- */
@@ -182,29 +188,34 @@ static void window_closed(void)
  * does one vblank every 1/60 s), so PsyZ's own frame limiter is switched off
  * before it can start. PsyZ ends the program with exit(0) from inside the
  * event pump when the window is closed; the exit handler says why. The window
- * opens at the game's first image routine or list (never full screen). */
+ * opens in the warm-up below (windowed, never full screen). */
 static void begin(void)
 {
+    PsyzSize size;
     if (started) return;
     started = 1;
     Psyz_VideoSetVsyncMode(PSYZ_VSYNC_LIMITLESS);
     atexit(window_closed);
+    /* Warm-up, once, when the layer starts (the game's first graphics routine). PsyZ's vertex buffer does not exist
+     * before its first image routine or sync, and its window not before its first display command or image routine,
+     * and a primitive list drawn first would find neither. These two calls create them without drawing and without
+     * touching the frame buffer: the display start (GP1 05) at (0,0), which opens the window and leaves the display off
+     * as it is after a reset, and the sync that sets the vertex buffer up. If PsyZ could not open a window (no display,
+     * no GPU) the program ends here with a line. */
+    Psyz_GpuDisplayCommand(0x05000000u);
+    Psyz_GpuExeque();
+    size = Psyz_VideoGetDisplaySize();
+    if (size.w <= 0 || size.h <= 0) port_halt(PORT_EXIT_GRAPHICS, "gpu: PsyZ could not open its window or its GPU device (no display or no usable GPU; its own lines above say why)");
 }
 
-/* PsyZ's primitive path does not open its window or set up its vertex buffer by itself: the window opens in
- * its image routines, the buffer on the first sync, and a present before the display is switched on never
- * returns. A game may draw a list before any image routine ran, so before the first list the layer clears
- * one pixel of the frame buffer's last corner to black (a fill opens the window) and syncs. It needs
- * PsyZ's ResetGraph to have run, as the game's own first call is. */
-static int warmed;
+/* PsyZ's routines reach its GPU through a table that only its ResetGraph(0) sets; before that they would
+ * call through a null pointer. The game's first graphics call is ResetGraph (on the console too), so a routine that
+ * needs the table and finds it unset is the game's error and ends with a line. */
+static int reset_done;
 
-static void warm_up(void)
+static void need_reset(const char *what)
 {
-    RECT corner = { FRAME_W - 1, FRAME_H - 1, 1, 1 };
-    if (warmed) return;
-    warmed = 1;
-    ClearImage(&corner, 0, 0, 0);
-    DrawSync(0);
+    if (!reset_done) stop("gpu: %s was called before ResetGraph(0), which sets up the GPU's routines", what);
 }
 
 void port_gpu_present(void)
@@ -242,6 +253,25 @@ int port_gpu_read_frame(unsigned short *pixels)
 static int kind_known(unsigned code)
 {
     return code <= 0x02 || (code >= 0x20 && code <= 0x80) || (code >= 0xe1 && code <= 0xe6);
+}
+
+/* How many words after the tag a command of this kind needs: polygons 1 + vertices (+ one texture word per vertex)
+ * (+ a colour word per vertex after the first), lines the two-vertex form, rectangles 1 + position (+ texture)
+ * (+ size when free), the fill 3, the VRAM copy 4, the others 1. A packet shorter than that is a stop: on the console
+ * the GPU would take the missing words from the packet after it, which this conversion does not reproduce; a longer
+ * packet is fine (the GPU reads the extra words as further commands, and so does PsyZ). */
+static unsigned min_words(unsigned code)
+{
+    unsigned textured = (code & 0x04) != 0, gouraud = (code & 0x10) != 0;
+    if (code == 0x02) return 3;
+    if (code == 0x80) return 4;
+    if (code >= 0x20 && code <= 0x3f) {
+        unsigned verts = (code & 0x08) ? 4 : 3;
+        return 1 + verts + (textured ? verts : 0) + (gouraud ? verts - 1 : 0);
+    }
+    if (code >= 0x40 && code <= 0x5f) return gouraud ? 4 : 3;
+    if (code >= 0x60 && code <= 0x7f) return 2 + textured + (((code >> 3) & 3) == 0);
+    return 1;
 }
 
 static const char *kind_name(unsigned code)
@@ -293,7 +323,6 @@ static uint32_t *ram_at(uint32_t physical, uint32_t from)
 
 static void send_list(uint32_t *first)
 {
-    warm_up();
     static unsigned char seen[256];
     uint32_t *node;
     uint32_t start = (uint32_t)(uintptr_t)first;
@@ -312,6 +341,8 @@ static void send_list(uint32_t *first)
         if (len) {
             unsigned code = node[1] >> 24;
             if (kind_known(code)) {
+                if (len < min_words(code))
+                    stop("gpu: the packet at 0x%08x is kind 0x%02X with %u words; that kind needs %u", here, code, len, min_words(code));
                 chunk_add(node + 1, len);
             } else if (!seen[code]) {
                 seen[code] = 1;
@@ -338,8 +369,10 @@ static int host_ResetGraph(int mode)
     begin();
     if ((mode & 7) == 0) {
         port_callbacks_reset();
+        reset_done = 1;
         return ResetGraph(0);
     }
+    need_reset("ResetGraph with a mode other than 0");
     return ResetGraph(1);
 }
 
@@ -355,6 +388,7 @@ static int host_GetGraphDebug(void)
 static void host_SetDispMask(int mask)
 {
     begin();
+    need_reset("SetDispMask");
     SetDispMask(mask);
 }
 
@@ -365,25 +399,30 @@ static void host_SetDispMask(int mask)
 static int host_DrawSync(int mode)
 {
     begin();
+    need_reset("DrawSync");
     port_tick();
     return DrawSync(mode);
 }
 
-/* library code at 0x80157f30 (checks the RECT, queues the fill, returns the queue
- * result); PsyZ fills synchronously. The RECT's w and h are clamped in place,
- * in both. The RECT must lie in RAM, and inside the frame buffer (rect_fits). */
+/* library code at 0x80157f30 (fits the width and height, queues the fill, returns the queue result); PsyZ
+ * fills synchronously. The RECT must lie in RAM; its width and height are fitted in place as the library does
+ * (clamp_size) and the rectangle must then lie inside the frame buffer, else the program stops. */
 static int host_ClearImage(RECT *rect, int r, int g, int b)
 {
+    RECT given;
     begin();
+    need_reset("ClearImage");
     rect = ram_span("ClearImage", rect, sizeof *rect);
-    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) return rect_refused(0, "ClearImage", rect);
+    given = *rect;
+    clamp_size(rect);
+    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("ClearImage", given.x, given.y, given.w, given.h);
     return ClearImage(rect, (unsigned char)r, (unsigned char)g, (unsigned char)b);
 }
 
 /* library code at 0x80157fc4 and 0x80158028: queue the transfer, return the queue
  * result. The pixels are 16-bit words packed in u32s at the PS1 address; the
- * whole transfer (width x height halfwords, rounded up to a word) must lie in RAM.
- * The size is computed in 64 bits from fields the rectangle check has bounded. */
+ * whole transfer (width x height halfwords after the fit, rounded up to a word) must lie
+ * in RAM. The size is computed in 64 bits from fields the fit has bounded. */
 static unsigned long long transfer_bytes(const RECT *r)
 {
     return ((unsigned long long)r->w * (unsigned long long)r->h * 2ull + 3ull) & ~3ull;
@@ -391,29 +430,41 @@ static unsigned long long transfer_bytes(const RECT *r)
 
 static int host_LoadImage(RECT *rect, void *pixels)
 {
+    RECT given;
     begin();
+    need_reset("LoadImage");
     rect = ram_span("LoadImage", rect, sizeof *rect);
-    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) return rect_refused(1, "LoadImage", rect);
+    given = *rect;
+    clamp_size(rect);
+    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("LoadImage", given.x, given.y, given.w, given.h);
     pixels = ram_span("LoadImage", pixels, transfer_bytes(rect));
     return LoadImage(rect, (u_long *)pixels);
 }
 
 static int host_StoreImage(RECT *rect, void *pixels)
 {
+    RECT given;
     begin();
+    need_reset("StoreImage");
     rect = ram_span("StoreImage", rect, sizeof *rect);
-    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) return rect_refused(2, "StoreImage", rect);
+    given = *rect;
+    clamp_size(rect);
+    if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("StoreImage", given.x, given.y, given.w, given.h);
     pixels = ram_span("StoreImage", pixels, transfer_bytes(rect));
     return StoreImage(rect, (u_long *)pixels);
 }
 
-/* library code at 0x8015808c returns -1 for an empty rectangle, else the queue result. Both the source
- * rectangle and its destination (x, y) with the same width and height must lie inside the frame buffer. */
+/* library code at 0x8015808c returns -1 for a width or height of zero and passes anything else to the GPU
+ * (no fit). Both the source rectangle and its destination (x, y) with the same width and height must lie inside
+ * the frame buffer, else the program stops. */
 static int host_MoveImage(RECT *rect, int x, int y)
 {
     begin();
+    need_reset("MoveImage");
     rect = ram_span("MoveImage", rect, sizeof *rect);
-    if (!rect_fits(rect->x, rect->y, rect->w, rect->h) || !rect_fits(x, y, rect->w, rect->h)) return rect_refused(3, "MoveImage", rect);
+    if (rect->w == 0 || rect->h == 0) return -1;
+    if (!rect_fits(rect->x, rect->y, rect->w, rect->h) || !rect_fits(x, y, rect->w, rect->h))
+        stop("gpu: MoveImage: the rectangle (%d,%d %dx%d) moved to (%d,%d) is not inside the %dx%d frame buffer", rect->x, rect->y, rect->w, rect->h, x, y, FRAME_W, FRAME_H);
     return MoveImage(rect, x, y);
 }
 
@@ -422,6 +473,7 @@ static int host_MoveImage(RECT *rect, int x, int y)
 static DISPENV *host_PutDispEnv(DISPENV *env)
 {
     begin();
+    need_reset("PutDispEnv");
     return PutDispEnv(env);
 }
 
@@ -430,6 +482,7 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
 static void host_DrawOTag(uint32_t *list)
 {
     begin();
+    need_reset("DrawOTag");
     send_list(list);
 }
 
@@ -642,6 +695,7 @@ static void host_SetDrawEnv(struct sony_dr_env *dr_env, struct sony_drawenv *env
 static struct sony_drawenv *host_PutDrawEnv(struct sony_drawenv *env)
 {
     begin();
+    need_reset("PutDrawEnv");
     host_SetDrawEnv(&env->dr_env, env);
     env->dr_env.tag |= LINK_END;
     send_list((uint32_t *)&env->dr_env);

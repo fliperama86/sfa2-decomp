@@ -905,6 +905,10 @@ def cases(rig: Rig):
     status, lines, img, arg = rig.run("dump-nofolder", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(missing)])
     yield "dump-vram-into-a-missing-folder-says-so-and-makes-nothing", verdict(
         (status, lines[-1], (folder / "no-such-folder").exists()), (0, "dump: cannot write " + rig.native(missing) + "_end.ppm", False))
+    (folder / "isdir_end.ppm").mkdir()
+    status, lines, img, arg = rig.run("dump-isdir", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(folder / "isdir")])
+    yield "dump-vram-onto-a-path-that-is-a-folder-says-so-and-leaves-the-folder", verdict(
+        (status, lines[-1], (folder / "isdir_end.ppm").is_dir(), list((folder / "isdir_end.ppm").iterdir())), (0, "dump: cannot write " + rig.native(folder / "isdir") + "_end.ppm", True, []))
     before = set(x.name for x in HERE.iterdir())
     status, lines, img, arg = rig.run("dump-long", program(G_VBLANK), variant="kern", args=["--dump-vram", "x" * 1100])
     yield "dump-vram-with-a-path-too-long-for-the-buffer-writes-no-truncated-path", verdict(

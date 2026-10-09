@@ -91,6 +91,7 @@ TRIAL_C = r'''
  *   closed        the window is told to close during a present
  *   presents      300 presents in a row, timed
  *   names         print the names in the table
+ *   nodisplay     PsyZ cannot start: the first call ends the program with a line
  *   script OP...  operations given as arguments (see script())
  */
 #include "port.h"
@@ -449,7 +450,11 @@ static void closed(void)
  * tiles:ADDR:COUNT        COUNT TILE packets, white 1x1, tile k at (k%64, k/64), chained, the last ending the list
  * extremes:ADDR           every primitive type the game uses at extreme values, then a white 64x48 TILE, chained
  * senv:ADDR:ISBG          SetDrawEnv on a default environment at ADDR with a canary word after it
- * pixel:X:Y               DrawSync(0), then print the pixel (StoreImage of 1x1 into RAM) */
+ * list0:ADDR              a packet of drawing-area commands and a white 4x4 TILE at (5,5), chained
+ * prim:ADDR:CODE:LEN      one packet of LEN words, the first with the command code CODE in its top byte, the rest zero
+ * frame                   read the whole frame buffer with port_gpu_read_frame, print how many halfwords are not 0
+ * pixel:X:Y               DrawSync(0), then print the pixel (StoreImage of 1x1 into RAM)
+ * A first argument `noreset` leaves out the ResetGraph that starts every script. */
 static long long num(const char *s) { return strtoll(s, NULL, 0); }
 
 static void set_tile(uint32_t at, unsigned r, unsigned g, unsigned b, int x, int y, int w, int h)
@@ -464,9 +469,10 @@ static void link_to(uint32_t at, uint32_t next) { W(at)[0] = (W(at)[0] & 0xff000
 
 static void script(int argc, char **argv)
 {
-    int i;
-    ((f_ii)lib("ResetGraph"))(0);
-    for (i = 2; i < argc; i++) {
+    int i = 2;
+    if (argc > 2 && !strcmp(argv[2], "noreset")) i++;    /* the first graphics call is then the script's own */
+    else ((f_ii)lib("ResetGraph"))(0);
+    for (; i < argc; i++) {
         char buf[200];
         char *a[10];
         int n = 0;
@@ -529,6 +535,24 @@ static void script(int argc, char **argv)
             set_tile(node[5], 0, 0, 255, 0, 0, 1023, 511);
             set_tile(node[6], 255, 255, 255, 0, 0, 64, 48);
             for (j = 0; j < 7; j++) link_to(node[j], j + 1 < 7 ? node[j + 1] : 0xffffffu);
+        } else if (!strcmp(a[0], "list0")) {
+            uint32_t at = (uint32_t)num(a[1]);
+            W(at)[1] = 0xe3000000u; W(at)[2] = 0xe4000000u | (239u << 10) | 319u; W(at)[3] = 0xe5000000u; W(at)[4] = 0xe6000000u;
+            W(at)[0] = (4u << 24) | ((at + 0x40u) & 0xffffffu);
+            set_tile(at + 0x40u, 255, 255, 255, 5, 5, 4, 4);
+            link_to(at + 0x40u, 0xffffffu);
+        } else if (!strcmp(a[0], "prim")) {
+            uint32_t at = (uint32_t)num(a[1]);
+            unsigned len = (unsigned)num(a[3]);
+            memset(B(at + 4), 0, 4u * len);
+            W(at)[0] = (len << 24) | 0xffffffu;
+            if (len) W(at)[1] = (unsigned)num(a[2]) << 24;
+        } else if (!strcmp(a[0], "frame")) {
+            static unsigned short frame[1024 * 512];
+            unsigned long nonzero = 0, j;
+            int rc = port_gpu_read_frame(frame);
+            for (j = 0; j < 1024ul * 512ul; j++) if (frame[j]) nonzero++;
+            printf("t: frame rc %d nonzero %lu\n", rc, nonzero);
         } else if (!strcmp(a[0], "senv")) {
             uint32_t at = (uint32_t)num(a[1]);
             ((f_ppiiii)lib("SetDefDrawEnv"))(W(at), 0, 240, 320, 240);
@@ -546,6 +570,14 @@ static void script(int argc, char **argv)
         }
         fflush(stdout);
     }
+}
+
+static void nodisplay(void)
+{
+    SetEnvironmentVariableA("SDL_VIDEODRIVER", "no-such-driver");
+    _putenv("SDL_VIDEODRIVER=no-such-driver");
+    ((f_rv)lib("GetGraphDebug"))();
+    printf("t: not reached\n");
 }
 
 static void names(void)
@@ -593,6 +625,7 @@ int main(int argc, char **argv)
     else if (!strcmp(mode, "closed")) closed();
     else if (!strcmp(mode, "presents")) presents();
     else if (!strcmp(mode, "names")) names();
+    else if (!strcmp(mode, "nodisplay")) nodisplay();
     else if (!strcmp(mode, "script")) script(argc, argv);
     else { printf("t: bad usage\n"); return 93; }
     printf("t: done\n");
@@ -843,33 +876,44 @@ def program_cases(rig: Rig, work: Path):
 
     # ---- the game's data read as an attacker would ----
     RAM_END = 0x80200000
-    # image routines: rectangles against the frame buffer, skipped with one line per routine
-    ops = ["env", "rect:0x80100000:0:0:1024:512", "rect:0x80100010:1:0:1024:512", "rect:0x80100020:0:1:1:512", "rect:0x80100030:-1:0:4:4",
-           "rect:0x80100040:0:0:-1:4", "rect:0x80100050:32767:32767:32767:32767", "rect:0x80100060:0:0:0:0", "rect:0x80100070:1023:511:1:1",
-           "rect:0x80100080:0:0:512:512"]
-    ops += ["load:0x80100000:0x80000800", "load:0x80100010:0x80000800", "load:0x80100020:0x80000800", "load:0x80100030:0x80000800",
-            "load:0x80100040:0x80000800", "load:0x80100050:0x80000800", "load:0x80100060:0x80000800", "load:0x80100070:0x80000800"]
-    ops += ["store:0x80100000:0x80000800", "store:0x80100010:0x80000800", "store:0x80100050:0x80000800", "store:0x80100070:0x80000800"]
-    ops += ["move:0x80100080:512:0", "move:0x80100080:513:0", "move:0x80100080:0:1", "move:0x80100080:-1:0", "move:0x80100010:0:0", "move:0x80100060:0:0"]
-    ops += ["clear:0x80100000", "clear:0x80100010", "clear:0x80100050", "clear:0x80100070"]
-    status, lines, _ = rig.run("script", *ops)
-    def refused(name, x, y, w, h):
-        return f"gpu: {name}: the rectangle ({x},{y} {w}x{h}) is not inside the 1024x512 frame buffer; not done (once per routine)"
-    got_gpu = [l for l in lines if l.startswith("gpu:")]
-    yield "image-routines-refuse-rectangles-past-the-frame-buffer-with-one-line-per-routine", same(
-        (status, got_gpu), (0, [refused("LoadImage", 1, 0, 1024, 512), refused("StoreImage", 1, 0, 1024, 512), refused("MoveImage", 0, 0, 512, 512), refused("ClearImage", 1, 0, 1024, 512)]))
-    results = [l for l in lines if l.startswith("t: LoadImage ")]
-    # (0,0,1024,512) ok; (1,0,..) no; (0,1,1,512) no; (-1,0,4,4) no; w -1 no; 32767s no; empty rect ok (nothing to do: 0); (1023,511,1,1) ok
-    yield "load-image-edges-the-last-valid-rectangle-and-the-first-invalid-ones", same(results, ["t: LoadImage 0", "t: LoadImage -1", "t: LoadImage -1", "t: LoadImage -1", "t: LoadImage -1", "t: LoadImage -1", "t: LoadImage 0", "t: LoadImage 0"])
-    yield "store-image-edges", same([l for l in lines if l.startswith("t: StoreImage ")], ["t: StoreImage 0", "t: StoreImage -1", "t: StoreImage -1", "t: StoreImage 0"])
-    yield "move-image-destination-edges", same([l for l in lines if l.startswith("t: MoveImage ")], ["t: MoveImage 0", "t: MoveImage -1", "t: MoveImage -1", "t: MoveImage -1", "t: MoveImage -1", "t: MoveImage -1"])
-    yield "clear-image-edges", same([l for l in lines if l.startswith("t: ClearImage ")], ["t: ClearImage 0", "t: ClearImage -1", "t: ClearImage -1", "t: ClearImage 0"])
-    yield "the-script-ends-by-itself", same(lines[-1], "t: done")
-
-    # buffers and rectangles against the end of RAM: a stop with the graphics status
+    # image routines: the library fits the width and height (zero or less -> 1, above the buffer -> 1023 and 511), then the
+    # rectangle must be wholly inside the frame buffer
     def stops(ops_, line):
         st, ls, secs = rig.run("script", *ops_)
         return same((st, ls[-1] if ls else None, secs < 60), (EXIT_GRAPHICS, "stop: " + line, True))
+
+    def outside(name, x, y, w, h):
+        return f"gpu: {name}: the rectangle ({x},{y} {w}x{h}) is not inside the 1024x512 frame buffer"
+
+    fitted = rig.run("script", "env", "rect:0x80100000:0:0:1024:512", "rect:0x80100010:0:0:0:0", "rect:0x80100020:0:0:-5:-5", "rect:0x80100030:0:0:32767:32767",
+                     "load:0x80100000:0x80000800", "load:0x80100010:0x80000800", "load:0x80100020:0x80000800", "load:0x80100030:0x80000800",
+                     "peek:0x80100004", "peek:0x80100014", "peek:0x80100024", "peek:0x80100034")
+    yield "load-image-fits-width-and-height-in-place-as-the-library-does", same([l for l in fitted[1] if l != "t: done"][-8:], [
+        "t: LoadImage 0", "t: LoadImage 0", "t: LoadImage 0", "t: LoadImage 0",
+        "t: peek 80100004: 01ff03ff", "t: peek 80100014: 00010001", "t: peek 80100024: 00010001", "t: peek 80100034: 01ff03ff"])
+    for routine, op in (("LoadImage", "load:0x80100000:0x80000800"), ("StoreImage", "store:0x80100000:0x80000800"), ("ClearImage", "clear:0x80100000")):
+        edge = rig.run("script", "env", "rect:0x80100000:1:0:1023:511", op, "rect:0x80100000:0:1:1023:511", op, "rect:0x80100000:1023:511:1:1", op, "rect:0x80100000:0:0:1:1", op)
+        yield f"{routine.lower()}-accepts-rectangles-ending-exactly-at-the-right-and-bottom-edge", same([l for l in edge[1] if l.startswith("t: " + routine)], [f"t: {routine} 0"] * 4)
+        for tag, rect in (("one-pixel-past-the-right-edge", (2, 0, 1023, 511)), ("one-pixel-past-the-bottom-edge", (0, 2, 1023, 511)), ("x-1024", (1024, 0, 1, 1)), ("y-512", (0, 512, 1, 1)),
+                          ("x-negative", (-1, 0, 4, 4)), ("y-negative", (0, -1, 4, 4)), ("x-lowest-halfword", (-32768, 0, 4, 4)), ("x-highest-halfword", (32767, 0, 4, 4)),
+                          ("width-and-position-both-highest", (32767, 32767, 32767, 32767))):
+            yield f"{routine.lower()}-rectangle-{tag}-stops", stops(["rect:0x80100000:%d:%d:%d:%d" % rect, op], outside(routine, rect[0], rect[1], rect[2], rect[3]))
+    move = rig.run("script", "env", "rect:0x80100000:0:0:512:512", "move:0x80100000:512:0", "rect:0x80100010:0:0:0:5", "move:0x80100010:0:0", "rect:0x80100020:0:0:5:0", "move:0x80100020:3000:3000",
+                   "rect:0x80100030:1023:511:1:1", "move:0x80100030:1023:511")
+    yield "move-image-edges-and-the-empty-rectangle-the-library-returns-minus-one-for", same([l for l in move[1] if l != "t: done"][-4:], ["t: MoveImage 0", "t: MoveImage -1", "t: MoveImage -1", "t: MoveImage 0"])
+    for tag, ops_, line in (
+        ("destination-one-pixel-past-the-right-edge", ["rect:0x80100000:0:0:512:512", "move:0x80100000:513:0"], "gpu: MoveImage: the rectangle (0,0 512x512) moved to (513,0) is not inside the 1024x512 frame buffer"),
+        ("destination-one-pixel-past-the-bottom-edge", ["rect:0x80100000:0:0:512:512", "move:0x80100000:0:1"], "gpu: MoveImage: the rectangle (0,0 512x512) moved to (0,1) is not inside the 1024x512 frame buffer"),
+        ("destination-negative", ["rect:0x80100000:0:0:4:4", "move:0x80100000:-1:0"], "gpu: MoveImage: the rectangle (0,0 4x4) moved to (-1,0) is not inside the 1024x512 frame buffer"),
+        ("destination-the-highest-int", ["rect:0x80100000:0:0:4:4", "move:0x80100000:2147483647:0"], "gpu: MoveImage: the rectangle (0,0 4x4) moved to (2147483647,0) is not inside the 1024x512 frame buffer"),
+        ("destination-the-lowest-int", ["rect:0x80100000:0:0:4:4", "move:0x80100000:0:-2147483648"], "gpu: MoveImage: the rectangle (0,0 4x4) moved to (0,-2147483648) is not inside the 1024x512 frame buffer"),
+        ("source-past-the-edge", ["rect:0x80100000:1:0:1024:4", "move:0x80100000:0:0"], "gpu: MoveImage: the rectangle (1,0 1024x4) moved to (0,0) is not inside the 1024x512 frame buffer"),
+        ("negative-width", ["rect:0x80100000:0:0:-1:4", "move:0x80100000:0:0"], "gpu: MoveImage: the rectangle (0,0 -1x4) moved to (0,0) is not inside the 1024x512 frame buffer"),
+        ("highest-halfwords", ["rect:0x80100000:32767:32767:32767:32767", "move:0x80100000:32767:32767"], "gpu: MoveImage: the rectangle (32767,32767 32767x32767) moved to (32767,32767) is not inside the 1024x512 frame buffer"),
+    ):
+        yield f"move-image-{tag}-stops", stops(ops_, line)
+
+    # buffers and rectangles against the end of RAM: a stop with the graphics status
     yield "load-image-pixels-ending-exactly-at-the-end-of-ram-are-accepted", same(rig.run("script", "rect:0x80100000:0:0:16:16", "load:0x80100000:0x801ffe00")[1][-2:], ["t: LoadImage 0", "t: done"])
     yield "load-image-pixels-one-word-later-stop", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0x801ffe04"], "gpu: LoadImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM")
     yield "load-image-odd-size-rounds-up-to-a-word-last-valid", same(rig.run("script", "rect:0x80100000:0:0:3:1", "load:0x80100000:0x801ffff8")[1][-2:], ["t: LoadImage 0", "t: done"])
@@ -877,7 +921,8 @@ def program_cases(rig: Rig, work: Path):
     yield "store-image-pixels-first-invalid", stops(["rect:0x80100000:0:0:16:16", "store:0x80100000:0x801ffe04"], "gpu: StoreImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM")
     yield "store-image-into-the-scratchpad-stops", stops(["rect:0x80100000:0:0:16:16", "store:0x80100000:0x1f800000"], "gpu: StoreImage: 512 bytes at 0x1f800000 are not inside the PS1's RAM")
     yield "load-image-from-an-unmapped-segment-stops", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0xc0000000"], "gpu: LoadImage: 512 bytes at 0xc0000000 are not inside the PS1's RAM")
-    yield "load-image-whole-frame-buffer-does-not-fit-above-1-mb", stops(["rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100800"], "gpu: LoadImage: 1048576 bytes at 0x80100800 are not inside the PS1's RAM")
+    yield "load-image-whole-frame-buffer-last-valid-place-ends-at-the-end-of-ram", same(rig.run("script", "rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100bfc")[1][-2:], ["t: LoadImage 0", "t: done"])
+    yield "load-image-whole-frame-buffer-one-word-later-stops", stops(["rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100c00"], "gpu: LoadImage: 1045508 bytes at 0x80100c00 are not inside the PS1's RAM")
     yield "rectangle-pointer-at-the-last-valid-place", same(rig.run("script", "rect:0x801ffff8:0:0:1:1", "load:0x801ffff8:0x80000800")[1][-2:], ["t: LoadImage 0", "t: done"])
     yield "rectangle-pointer-first-invalid-stops", stops(["load:0x801ffffc:0x80000800"], "gpu: LoadImage: 8 bytes at 0x801ffffc are not inside the PS1's RAM")
     yield "move-image-rectangle-pointer-outside-ram-stops", stops(["move:0x1f800000:0:0"], "gpu: MoveImage: 8 bytes at 0x1f800000 are not inside the PS1's RAM")
@@ -927,6 +972,38 @@ def program_cases(rig: Rig, work: Path):
     yield "every-primitive-type-at-extreme-values-then-a-white-tile-covers-the-corner", same((status, px, lines[-1]), (0, [0x7FFF, 0x7FFF], "t: done"))
     status, lines, _ = rig.run("script", "senv:0x80100000:1", "senv:0x80101000:0")
     yield "setdrawenv-writes-nine-words-at-most-and-nothing-past-its-packet", same((status, lines[-3:]), (0, ["t: senv words 9 canary cafecafe", "t: senv words 6 canary cafecafe", "t: done"]))
+
+
+    # the warm-up: at the layer's start, changes no pixel, and a list drawn first works
+    frame = rig.run("script", "frame")
+    yield "warm-up-leaves-the-whole-frame-buffer-as-it-was-all-zero", same([l for l in frame[1] if l != "t: done"][-1:], ["t: frame rc 0 nonzero 0"])
+    kept = rig.run("script", "rect:0x80100000:1023:511:1:1", "w:0x80100100:0x12345678", "load:0x80100000:0x80100100", "frame")
+    yield "a-pixel-loaded-right-after-resetgraph-is-the-only-one-set", same([l for l in kept[1] if l != "t: done"][-2:], ["t: LoadImage 0", "t: frame rc 0 nonzero 1"])
+    for routine, ops_ in (("LoadImage", ["rect:0x80100000:0:0:4:4", "load:0x80100000:0x80100100"]), ("DrawOTag", ["list0:0x80100000", "draw:0x80100000"]),
+                          ("StoreImage", ["rect:0x80100000:0:0:4:4", "store:0x80100000:0x80100100"]), ("ClearImage", ["rect:0x80100000:0:0:4:4", "clear:0x80100000"]),
+                          ("MoveImage", ["rect:0x80100000:0:0:4:4", "move:0x80100000:8:8"]), ("PutDrawEnv", ["env"])):
+        yield f"{routine}-before-resetgraph-stops-with-a-line", stops(["noreset", *ops_], f"gpu: {routine} was called before ResetGraph(0), which sets up the GPU's routines")
+    status, lines, _ = rig.run("script", "list0:0x80100000", "draw:0x80100000", "pixel:5:5", "pixel:8:8", "pixel:9:9", "pixel:4:5")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    yield "a-list-drawn-as-the-first-graphics-call-after-resetgraph-gives-the-right-picture", same((status, px), (0, [0x7FFF, 0x7FFF, 0, 0]))
+    status, lines, secs = rig.run("nodisplay")
+    yield "psyz-that-cannot-start-ends-with-a-line-and-the-graphics-status", same((status, lines[-1:], secs < 60), (EXIT_GRAPHICS, [
+        "stop: gpu: PsyZ could not open its window or its GPU device (no display or no usable GPU; its own lines above say why)"], True))
+
+    # each primitive type the game uses and a few more: the packet that is as long as the kind needs, one of 255 words
+    # (the rest are no-operation words), and one word too short
+    for name, code, need in (("POLY_FT4", 0x2C, 9), ("POLY_GT4", 0x3C, 12), ("POLY_F3", 0x20, 4), ("POLY_FT3", 0x24, 7), ("POLY_G3", 0x30, 6), ("POLY_GT3", 0x34, 9),
+                              ("POLY_F4", 0x28, 5), ("POLY_G4", 0x38, 8), ("TILE", 0x60, 3), ("TILE_16", 0x78, 2), ("SPRT", 0x64, 4), ("SPRT_16", 0x7C, 3),
+                              ("SPRT_8", 0x74, 3), ("LINE_F2", 0x40, 3), ("LINE_G2", 0x50, 4), ("fill", 0x02, 3), ("copy", 0x80, 4)):
+        for length in (need, 255):
+            status, lines, _ = rig.run("script", "env", f"prim:0x80100000:0x{code:02x}:{length}", "draw:0x80100000", "pixel:0:0")
+            yield f"{name}-packet-of-{length}-words-is-converted", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
+        yield f"{name}-packet-one-word-too-short-stops", stops(["env", f"prim:0x80100000:0x{code:02x}:{need - 1}", "draw:0x80100000"] if need > 1 else ["env"],
+                                                            f"gpu: the packet at 0x80100000 is kind 0x{code:02X} with {need - 1} words; that kind needs {need}")
+    for name, code in (("GP0 drawing mode", 0xE1), ("GP0 texture window", 0xE2), ("GP0 area start", 0xE3), ("GP0 area end", 0xE4), ("GP0 offset", 0xE5), ("GP0 mask", 0xE6)):
+        for length in (1, 2, 255):
+            status, lines, _ = rig.run("script", "env", f"prim:0x80100000:0x{code:02x}:{length}", "draw:0x80100000")
+            yield f"{name}-packet-of-{length}-words-is-converted", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
 
     status, lines, _ = rig.run("closed")
     yield "closed-window-ends-the-program-with-status-0-and-the-line", same((status, lines), (0, ["t: before", "stop: window closed"]))

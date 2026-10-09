@@ -23,10 +23,11 @@ void port_debug_set(const char *dump_prefix, unsigned dump_every)
  * written (a truncated name would be a different path). */
 static void dump(const char *tag)
 {
-    unsigned j;
+    unsigned x, y;
     unsigned short *px;
+    unsigned char row[PORT_GPU_FRAME_W * 3];
     char path[1100];
-    int n;
+    int n, failed = 0;
     FILE *f;
 
     n = snprintf(path, sizeof path, "%s_%s.ppm", prefix, tag);
@@ -35,8 +36,12 @@ static void dump(const char *tag)
         fflush(stdout);
         return;
     }
-    px = malloc(1024 * 512 * 2);
-    if (!px) return;
+    px = malloc((size_t)PORT_GPU_FRAME_W * PORT_GPU_FRAME_H * sizeof *px);
+    if (!px) {
+        printf("dump: no memory for the picture; %s not written\n", path);
+        fflush(stdout);
+        return;
+    }
     if (port_gpu_read_frame(px) != 0) {
         printf("dump: the game has drawn nothing, or the window is gone; %s not written\n", path);
         fflush(stdout);
@@ -49,14 +54,21 @@ static void dump(const char *tag)
         free(px);
         return;
     }
-    fprintf(f, "P6\n1024 512\n255\n");
-    for (j = 0; j < 1024 * 512; j++) {
-        unsigned v = px[j];
-        fputc((int)(((v & 31) * 255) / 31), f);
-        fputc((int)((((v >> 5) & 31) * 255) / 31), f);
-        fputc((int)((((v >> 10) & 31) * 255) / 31), f);
+    if (fprintf(f, "P6\n%d %d\n255\n", PORT_GPU_FRAME_W, PORT_GPU_FRAME_H) < 0) failed = 1;
+    for (y = 0; y < PORT_GPU_FRAME_H && !failed; y++) {
+        for (x = 0; x < PORT_GPU_FRAME_W; x++) {
+            unsigned v = px[y * PORT_GPU_FRAME_W + x];
+            row[3 * x] = (unsigned char)(((v & 31) * 255) / 31);
+            row[3 * x + 1] = (unsigned char)((((v >> 5) & 31) * 255) / 31);
+            row[3 * x + 2] = (unsigned char)((((v >> 10) & 31) * 255) / 31);
+        }
+        if (fwrite(row, 1, sizeof row, f) != sizeof row) failed = 1;
     }
-    fclose(f);
+    if (fclose(f) != 0) failed = 1;
+    if (failed) {
+        printf("dump: writing %s failed; the file is incomplete\n", path);
+        fflush(stdout);
+    }
     free(px);
 }
 

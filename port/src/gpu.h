@@ -36,6 +36,10 @@ void port_gpu_present(void);
  * or the window is gone. */
 int port_gpu_read_frame(unsigned short *pixels);
 
+/* The frame buffer, in halfwords. */
+#define PORT_GPU_FRAME_W 1024
+#define PORT_GPU_FRAME_H 512
+
 /* The most packets one DrawOTag follows. A chain of distinct packets cannot be
  * longer than the RAM has words (2 MB / 4), so a longer one is a cycle. */
 #define PORT_GPU_MAX_PACKETS 0x80000u
