@@ -7435,6 +7435,43 @@ that 395 units share is typed as most units read it; that it points to
 several kinds of record is what the casts say, not a finding about
 what it is.
 
+## The script tables get their types in the shared header (2026-10-09)
+
+Six data symbols stayed in their units after the two groups before,
+because they were declared through a function pointer type of the name
+`ScriptFn` that four units defined for themselves, in three ways. The
+private helper compares names, so each was read.
+
+- `data_8017d340` is the table that the script dispatcher indexes.
+  Its entries take the object and return a byte. That type is in the
+  shared data header now under the name `ScriptFn`, with the table's
+  line. An earlier group called this a table of 64 functions, from the
+  width of the dispatcher's index. The image has ten words from
+  `0x8017d340` to the next table at `0x8017d368`, each the address of
+  such a function; the 58 words after them, up to `0x8017d450`, are
+  the three tables of the next entry.
+- `data_8017d368`, `data_8017d3b4` and `data_8017d3d4` are tables of
+  functions that take nothing and return nothing. The header already
+  had that type as `HandlerFn`; the three lines use it.
+- `scr_d4_left` and `scr_184_right` are two pointers in the scratchpad
+  that one unit calls. It declared them as functions that take nothing
+  and return a byte. That form is written out in the header's lines.
+  What the functions behind them take is not known: no unit of the
+  tree stores to these pointers, and the one call passes nothing while
+  the caller's object is still in its register.
+- The four units lose their own type definition and their own lines.
+
+After this group one data symbol of the resident image's memory is
+declared in units and not in the header: `data_801a6966`, for the
+measured reason of the group before.
+
+Evidence: the whole configuration passes with every image identical to
+its baseline. The private table check compares 539 functions that
+stand in a declared table with the table's entry type, results
+included: none differs.
+
+Not claimed: that any of these types is the original's.
+
 ## The test for nonmatching C records what a callee would see (2026-10-09)
 
 No function count changes here: none of this is in the build.
@@ -7570,3 +7607,11 @@ No function count changes here: none of this is in the build.
   fixture share throwaway seed builds under fixed names. The first parallel
   run failed 29 of 112 cases for that reason alone. Seed builds are now
   serialized per fixture, and a control case checks every fixture class.
+- A measured figure is read from the whole line that the tool printed,
+  and the number is parsed out of it. A helper of this session printed
+  the last 40 characters of the line; "25 differing instruction slots"
+  lost its first digit, and a 5 went into a page and a pull request,
+  where the owner's own measurement found it. Before a figure is
+  written, measure the exact variant once more on the final tree, and
+  name the variant in the sentence: which symbol, which form, what
+  stays as it is.
