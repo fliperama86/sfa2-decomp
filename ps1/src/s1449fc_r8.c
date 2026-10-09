@@ -5,9 +5,9 @@
 
 void func_8011a55c(Object *o);
 
-/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
-void func_80145be0(Slab172 *p) {
-    func_8011f240(p);
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c9c0 holds this function and is declared with this parameter. */
+void func_80145be0(Object *p) {
+    func_8011f240((Slab172 *)p);
 }
 
 void func_80145c00(Object *object) {
@@ -36,7 +36,7 @@ void func_80145c7c(Object *object) {
     }
 }
 
-/* The parameter is passed on to func_8011f240, which takes it: the original sets no argument register before that call, so the callee receives what this function's caller passed. No unit of the tree calls this function by name. */
-void func_80145d00(Slab172 *p) {
-    func_8011f240(p);
+/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c9d0 holds this function and is declared with this parameter. */
+void func_80145d00(Object *p) {
+    func_8011f240((Slab172 *)p);
 }

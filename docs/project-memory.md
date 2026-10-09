@@ -6234,7 +6234,11 @@ How it was decided:
 - 15 functions that no unit calls by name were defined without a
   parameter and called `func_8011f240`, which takes one, without an
   argument. They take the parameter and pass it on, with a comment that
-  says so, and all 15 are exact.
+  says so, and all 15 are exact. 14 of them stand in dispatch tables
+  that the tree declares, and take the entry type of their table, with
+  the cast to the callee's type at the call (the owner's correction,
+  below). The fifteenth, `func_80144ec4`, is in no table of the image
+  and takes the callee's type.
 - A call that passed more arguments than the definition takes: where the
   original sets the register, the definition got the parameter, named
   `unused` (13 functions; every caller of `func_8013f2a8` and of
@@ -6263,6 +6267,25 @@ How it was decided:
   argument register, which its one caller does not set. It has two now
   and reads an unset local, with a comment that this is undefined
   behaviour in C and what a port has to do.
+
+A correction by the owner, on the pull request:
+
+- I had given the 15 forwarding functions the parameter type of the
+  function they call, and written that no unit calls them by name. The
+  owner pointed out that 14 of them are entries of dispatch tables that
+  the tree declares with an entry type, `Object *` for 13 and
+  `Block172 *` for one, and that a function which no unit calls by
+  name has a callback contract all the same. They have their table's
+  type now and cast inside; the 11 units are exact.
+- What I had not looked at: a function can be reached through a table
+  whose declaration gives its type. A private helper now finds, for
+  every resident function, the words of the image's data that hold its
+  address, the declared table each word belongs to, and compares the
+  entry type with the definition. On this head no definition that this
+  group changed differs from a table that holds it. Over the whole
+  resident image the helper prints 150 older differences, most of them
+  tables declared with entries that take nothing; they are not touched
+  here.
 
 Left:
 
