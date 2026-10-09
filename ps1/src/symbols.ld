@@ -5888,3 +5888,4 @@ data_801dd758_slot05_06 = 0x801dd758;
 
 data_80051c54_slot28 = 0x80051c54;
 
+data_801c25b4_slot04_0b = 0x801c25b4;

@@ -39978,3 +39978,12 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800e07b8_slot0f", address = 0x800e07b8, size = 152 },
 ]
+
+[[unit]]
+name = "slot04_0b_1ed8x_r1"
+image = "slot04_0b"
+source = "slot04_0b/slot04_0b_1ed8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b1ed8_slot04_0b", address = 0x801b1ed8, size = 232 },
+]
