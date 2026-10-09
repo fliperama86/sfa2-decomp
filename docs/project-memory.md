@@ -4136,6 +4136,24 @@ controls written before it:
   the contract. A review with changed copies of the tool then found two
   rules that no control pinned.
 
+The compile trial of 2026-10-08, again on the owner's "proceed":
+`port/tools/hostcheck.py` compiles every game unit with the host's C
+compiler and checks the shared structs with it. Its counts are on the
+port page. What to remember beside them:
+
+- The first proposal for the port, a host build of the matched C, is
+  what this trial is. It came third, after the owner chose the library
+  as the first piece.
+- Nothing had to change under `ps1/` to compile it: the shared header
+  comes from the published struct generator, used as a module.
+- The helper's own changed copies of the tool, 29 of them, were all
+  caught by its controls; 7 of the reviewer's 14 were not. The two sets
+  differed in kind: the helper changed rules that its controls had been
+  written for. Changed copies for a review are chosen by someone who did
+  not write the controls.
+- A page that says "nothing compiles" has to be changed in the change
+  that makes something compile. Three pages said it.
+
 ## Completion map requested on 2026-10-06
 
 The owner requested a completion map. `docs/completion-map.md` records the
