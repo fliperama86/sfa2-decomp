@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 data_801a6966[];
-
 int func_8014e718(Object *object)
 {
   object = object->other;

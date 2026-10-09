@@ -3,7 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s8 data_801a6984;
 extern u16 data_801a6966;
 
 void func_8013d9d0(Object *object, u8 index, u8 arg) {
@@ -14,14 +13,14 @@ void func_8013d9d0(Object *object, u8 index, u8 arg) {
         func_8013f2a8(object, index, arg);
         return;
     }
-    if (data_801a6984 == 0) {
+    if (data_801a6984[0] == 0) {
         if (object->side == 0) {
             buttons = data_801a6966 & 0xf000;
         } else {
             buttons = data_801a6972 & 0xf000;
         }
     }
-    if (game_state.field_30 != 0 && data_801a6984 != 0 &&
+    if (game_state.field_30 != 0 && data_801a6984[0] != 0 &&
         game_state.mode == object->field_02 + 1) {
         buttons = object->field_c2 & 0xf000;
     }

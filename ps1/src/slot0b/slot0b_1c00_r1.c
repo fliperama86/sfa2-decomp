@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin[];
 extern SequenceStep *data_801e7630_slot0b[];
 
 void func_801e1c00_slot0b(Object *obj) {

@@ -7275,6 +7275,81 @@ without it the unit is exact again.
 
 Not claimed: that any type in the header is the original's.
 
+## Twelve data symbols in more than one form: eleven get one (2026-10-09)
+
+The group before left 12 data symbols in their units because units
+declared them in more than one form. Each was read here. For eleven
+there is one declaration with which every unit is exact; they are in
+the shared data header now. Where a unit reads a symbol otherwise than
+the declaration says, it says so at the access.
+
+- `box_margin`: an array of 16-bit words in 27 units, one signed word
+  in 6. Four of the six read it: a signed read is written
+  `(s16)box_margin[0]`, and a read that had cast the word to unsigned
+  loses the cast. The other two declared it and did not use it. The
+  array form is the one that all units accept: declared as one word,
+  the unit of `func_80144830` differs from the original in 22
+  instruction slots (measured).
+- `data_801aa4dc` and `data_801ac6a8`: one word in 2 units and in 1,
+  an array in the others. The array, read as element 0.
+- `data_801a27e4`: bytes in 12 units, 16-bit words in 1. Bytes. The one
+  unit copies rows of 16-bit words, and uses the name that the header
+  already has for that view of the buffer (`data_801a27e4_rows`); it no
+  longer needs the byte name at all.
+- `data_801a6984`: one signed byte in 9 units, an array of bytes in 1
+  (which reads elements 0 and 1), one 16-bit word in 6. An array of
+  bytes; a unit that tests both bytes at once reads
+  `*(u16 *)data_801a6984`.
+- `data_80190464` and `data_8019046c`: arrays of `int` in 14 and 6
+  units; 8-bit, 16-bit and 32-bit words in the others. Arrays of `int`;
+  a narrower access is written with a cast (`*(u16 *)data_80190464 =
+  0xc01`). A comment that one unit had, on these two being addressed as
+  separate globals though they sit at the edge of the game state, moved
+  to the header's lines.
+- `ref_third`: the wrapper struct of a pointer in 9 units, a plain
+  pointer to another record in 5. One of the five used it and takes
+  the wrapper with casts; four declared it without using it.
+- `table_801803c4` and `table_8018049c`: tables of pointers to text
+  records in 4 units each, tables of pointers to rectangles in 2 and 3
+  units. Those wrote the 16-bit fields at offsets 4 and 6 through the
+  rectangle; they write the text record's fields at 4 and 6.
+- `data_8018f5a0`: a pointer to one record type in 371 units, to five
+  other record types in 24. The type of the 371; in 22 of the others
+  each use carries a cast to the unit's view, one casts where it copies
+  the pointer into a local, and one declared it without using it. One
+  unit steps this pointer through a table of 0x80-byte records; its
+  step is written with casts.
+
+One stays: `data_801a6966`, the first of the pad words. 15 units
+declare one word. One unit reads elements 0 and 2 of an array, and as
+two words (`data_801a6966` and `data_801a696a`) it differs from the
+original in 11 instruction slots. With the array, the unit that
+updates the pad words differs in 5. Both measured. Four more units
+declared the array without using it; those lines are gone.
+
+Also still in units: six tables declared through a function pointer
+type of the name `ScriptFn`, which four units define for themselves
+in three ways.
+
+One-off counts of the private helper: the header had 895 lines for
+symbols and has 906. 138 declarations left 116 resident units and 375
+left 366 module units, most of them the declaration of the pointer
+that 395 units share. The module units of the second session's folders
+were not touched and keep 90 declarations that say what the header
+says. 494 source files changed: the header, 127 resident units and
+366 module units.
+
+Evidence: every unit whose text changed beyond a removed declaration
+was rebuilt and compared on its own, and the whole configuration
+passes with every image identical to its baseline. The private scan
+for an offset on a cast pointer finds one place fewer in the resident
+units than before and no new one.
+
+Not claimed: that any of these forms is the original's. The pointer
+that 395 units share is typed as most units read it; that it points to
+several kinds of record is what the casts say, not a finding about
+what it is.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

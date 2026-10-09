@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern ObjectRef ref_third;
-
 void func_8013b824(void) {
     ref_third.p->field_00++;
     ref_third.p->field_04 = 1;

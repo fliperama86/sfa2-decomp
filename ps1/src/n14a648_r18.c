@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_80153c90(Effect *effect) {
     Object *object = (Object *)effect;
     object->field_00++;

@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-extern u16 data_801a6984;
-
 
 void func_80122e54(GameState *g) {
     data_8018f5a0->field_4e = 0;
@@ -40,7 +37,7 @@ void func_80122e54(GameState *g) {
     func_8013245c();
     func_801285e0();
     func_80120408();
-    if (data_801a6984 != 0) {
+    if (*(u16 *)data_801a6984 != 0) {
         data_80197f1c = 0xff;
     }
 }

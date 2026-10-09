@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern ObjectRef ref_third;
-
 /* Exact. The s16 local yi is assigned in both arms and again as the level
    in the later block, so the masked value stays alive next to the u8 copy yb. */
 void func_80139304(Object *a, Object *b) {

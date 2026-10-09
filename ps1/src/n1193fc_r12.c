@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_80121ef0(Object *unused) {
     if (game_state.field_06 == 0) {
         game_state.field_ca = (s16)game_state.field_ca - 1;

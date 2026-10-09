@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-extern int data_80190464[];
 
 void func_80012e84_slot27(void);
 void func_80012ef8_slot27(Object *obj);

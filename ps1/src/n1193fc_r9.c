@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern u16 box_margin[];
-
 void func_8011ffa8(Object *object) {
     int m = box_margin[0];
     if ((u16)(object->pos_x - m + 0x80) > 0x280) {

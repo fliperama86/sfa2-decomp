@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern TextItem *data_801b9908_slot04_sel[];
 extern TextItem *data_801b9b90_slot04_sel[];
 extern TextItem data_801b9964_slot04_sel[];
