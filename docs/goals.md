@@ -396,7 +396,7 @@ chose the first on 2026-10-06:
   module of slot `0x12`; their source was copied from those.
   The sixth to the twenty-fifth are the 20 stage modules, the contents
   of slot `0x6` in `STAGE00.PAC` to `STAGE13.PAC`, 874 functions by the
-  sweep: 844 are exact, 138,864 bytes. Of the 30 that are not, most are
+  sweep: 845 are exact, 139,908 bytes. Of the 29 that are not, most are
   the function that draws the tiles of an object, one per stage: it has
   a candidate and is not exact yet. The functions that draw the tile
   layers, flat and in perspective, are exact in every stage that has
