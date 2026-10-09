@@ -6063,9 +6063,9 @@ corrected before publication.
 
 - Counts, sums of the build's lines per image: the 20 stage modules have
   845 C functions, 139,908 bytes, and 1,220,780 raw bytes. The coverage
-  map's line, with the seventy-seventh group in the tree: `overall:
-  5409/5600 distinct functions exact (96.6%); 12594/13072 placements
-  (96.3%)`; the same command prints 5408 and 12593 for the tree without
+  map's line, with what main had on 2026-10-10 in the tree: `overall:
+  5409/5600 distinct functions exact (96.6%); 12822/13072 placements
+  (98.1%)`; the same command prints 5408 and 12821 for the tree without
   this change.
 - Candidates that are close, one-off figures from the private folder:
   `func_801e8bd8_slot06_08` (2,124 bytes) at 14 differing slots and the
@@ -6076,6 +6076,52 @@ corrected before publication.
   functions at 10 words each, all register choices.
 - Not exact yet, one-off counts: 29 stage rows of the sweep and 22
   character rows of this session's blocks.
+
+## Seventy-eighth group: the second side of PL06, an image of its own
+
+Eleven of the twelve character blocks of this session are linked a
+second time as `slot05_NN`. `PL06X.PAC` was left out because its block
+is four bytes shorter than the first side's. This group finds the four
+bytes and puts the block into the build.
+
+What the bytes show:
+
+- The two blocks were compared word by word, a word of the second side
+  counting as the same when it is the first side's word moved by the
+  distance of the two addresses or by that distance less four. With one
+  word of the first side left out, at `0x801b3690`, every other word
+  agrees. That word is `andi v0,v0,0xff`, after a call of the function
+  at `0x801b5ed8`, inside the function at `0x801b3564`: 876 bytes on the
+  first side, 872 on the second. Everything behind it lies four bytes
+  lower on the second side than the distance of `0x18000` would put it.
+- Inferred, not known: the two sides were compiled from sources that
+  differ in the declared result of that callee, or in a cast at that
+  call. The function is parked on the first side, so neither form is in
+  the tree yet.
+
+What the build has:
+
+- A second link moves every range of the first image by one distance,
+  and no one distance fits this block. The image `slot05_06` is
+  therefore declared with units of its own. The copy helper wrote them
+  from the units of `slot04_06`, with the names of this image: 228 of
+  the 231 functions, 25,276 bytes, all exact as written; 62,624 bytes
+  are retained raw. 74 unit files are new.
+- The three functions that are missing are the three that are parked on
+  the first side, the one with the four bytes among them.
+- The cost: the source of 228 functions stands in the tree twice. A
+  second link that takes a place where the distance changes would
+  remove the copies; that is a change of the build tool and its
+  contract, and was not made here.
+
+A mistake on the way:
+
+- The helper was first run with every module image as a model. For two
+  functions it then took a model from another character's block, whose
+  code is the same apart from addresses but stores to a global of the
+  resident program where this block stores to a word of its own. Both
+  copies were not exact. Run with the first side as the only model, all
+  228 are. For a second side, the first side is the model.
 
 ## Windows reference
 
