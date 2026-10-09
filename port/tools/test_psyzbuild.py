@@ -454,7 +454,9 @@ class World:
         self.build = self.base / "out"
         self.log = self.base / "cmake.log"
 
-    def run(self, fail: str | None = None, **over):
+    def run(self, fail: str | None = None, ceiling: bool = True, **over):
+        """Run the tool. With `ceiling`, git is told not to look above this world's folder, so that a world
+        without a repository is one whatever the test's own folder lies in."""
         args = {"--psyz": self.src, "--patch": self.patch, "--cc": self.mingw, "--build": self.build, "--cmake": self.cmake, "--ninja": self.ninja}
         args.update(over)
         argv = [sys.executable, str(SCRIPT)]
@@ -465,7 +467,10 @@ class World:
         env.pop("STANDIN_FAIL", None)
         if fail:
             env["STANDIN_FAIL"] = fail
-        env["GIT_CEILING_DIRECTORIES"] = str(self.base)
+        if ceiling:
+            env["GIT_CEILING_DIRECTORIES"] = str(self.base)
+        else:
+            env.pop("GIT_CEILING_DIRECTORIES", None)
         return subprocess.run(argv, capture_output=True, text=True, env=env, timeout=120)
 
     def calls(self):
@@ -541,6 +546,19 @@ def program_cases(root):
     yield "run-without-git-the-commit-is-unknown", same((proc.returncode, stdout_lines(proc)[:2]), (0, ["psyz: unknown", "patch: p.patch applied at 1 place"]))
     yield "run-without-git-no-note", same(any(x.startswith("note:") for x in stdout_lines(proc)), False)
     yield "run-without-git-json-commit", same(json.loads((w3.build / "psyz.json").read_text())["commit"], "unknown")
+    # A plain folder inside another repository: git would answer with that repository's commit; the tool says unknown.
+    outer = root / "outer"
+    write(outer / "readme", "x\n")
+    git_cmd = ["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(outer)]
+    for step in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "x"]):
+        subprocess.run(git_cmd + step, check=True, capture_output=True, timeout=60)
+    outer_commit = subprocess.run(git_cmd + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True, timeout=60).stdout.strip()
+    w3b = World(outer, git=False)
+    proc = w3b.run(ceiling=False)
+    yield "run-inside-another-repository-the-commit-is-unknown", same(
+        (proc.returncode, stdout_lines(proc)[:2], len(outer_commit)), (0, ["psyz: unknown", "patch: p.patch applied at 1 place"], 40))
+    yield "run-inside-another-repository-fixture-git-names-the-outer-commit", same(
+        subprocess.run(["git", "-C", str(w3b.src), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=60).stdout.strip(), outer_commit)
     # A patch with two hunks says "places".
     w4 = World(root)
     write(w4.src / "psyz/src/b.c", "p\nq\n")

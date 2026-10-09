@@ -52,7 +52,8 @@ Output
 
 Standard output, in this order, nothing else:
 
-    psyz: COMMIT              the submodule's commit (or `unknown` without git)
+    psyz: COMMIT              the commit of the PsyZ source (`unknown` without git, and when
+                              the folder is not the top of a git work tree of its own)
     patch: NAME applied at N place(s)
     library: PATH             libpsyz.a
     include: DIR              the copy's psyz/include (use with -D__psyz)
@@ -311,7 +312,14 @@ def run_logged(argv: list[str], log: Path, env: dict[str, str], timeout: int, wh
 
 
 def commit_of(source: Path) -> str:
+    """The commit of the PsyZ source, when the folder is the top of a git work tree of its own.
+
+    A folder that lies inside another repository (a plain copy, a submodule that was never fetched) is
+    `unknown`: git would answer there with the commit of the repository around it."""
     try:
+        top = subprocess.run(["git", "-C", str(source), "rev-parse", "--show-toplevel"], capture_output=True, text=True, timeout=30)
+        if top.returncode != 0 or not top.stdout.strip() or Path(top.stdout.strip()).resolve() != source.resolve():
+            return "unknown"
         proc = subprocess.run(["git", "-C", str(source), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.TimeoutExpired):
         return "unknown"
