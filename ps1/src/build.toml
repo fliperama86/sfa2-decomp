@@ -39933,3 +39933,12 @@ functions = [
   { name = "func_801ce750_slot05_06", address = 0x801ce750, size = 32 },
   { name = "func_801ce770_slot05_06", address = 0x801ce770, size = 32 },
 ]
+
+[[unit]]
+name = "slot06_03_8d10x_r1"
+image = "slot06_03"
+source = "slot06_03/slot06_03_8d10x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8d10_slot06_03", address = 0x801e8d10, size = 1044 },
+]

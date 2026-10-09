@@ -6052,6 +6052,30 @@ Open:
 
 - 18 functions of the twelve blocks are not in the build, the one copy
   that is not exact among them.
+## One more quad layer, and where the last large stage functions stand (2026-10-09)
+
+`func_801e8d10_slot06_03`, 1,044 bytes, a relative of the perspective
+tile layer that draws 24-cell rows of quads, is exact. An agent wrote it
+from the model `func_801e8bc4_slot06_04` and the two listings; its
+comment has eleven measured statements, each built again here on the
+final source, one change at a time: ten reproduced and one figure was
+corrected before publication.
+
+- Counts, sums of the build's lines per image: the 20 stage modules have
+  845 C functions, 139,908 bytes, and 1,220,780 raw bytes. The coverage
+  map's line, with what main had on 2026-10-10 in the tree: `overall:
+  5409/5600 distinct functions exact (96.6%); 12822/13072 placements
+  (98.1%)`; the same command prints 5408 and 12821 for the tree without
+  this change.
+- Candidates that are close, one-off figures from the private folder:
+  `func_801e8bd8_slot06_08` (2,124 bytes) at 14 differing slots and the
+  right size, all in the computation of one row number; the function
+  that draws an object's tiles, in its first stage's form, at 14 slots
+  and the right size, where the original forms one constant right at
+  its use; `func_801e9738_slot06_0e` at 29 slots; a family of five small
+  functions at 10 words each, all register choices.
+- Not exact yet, one-off counts: 29 stage rows of the sweep and 22
+  character rows of this session's blocks.
 
 ## Seventy-eighth group: the second side of PL06, an image of its own
 
