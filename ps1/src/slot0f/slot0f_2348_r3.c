@@ -20,7 +20,7 @@ void func_800e25e0_slot0f(Object *o) {
     } else {
         p = (u8 *)&data_800e8608_slot0f;
     }
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     if ((s8)obj->field_00 == 2) {
         p = data_800e8558_slot0f;
     } else {
@@ -29,7 +29,7 @@ void func_800e25e0_slot0f(Object *o) {
             p = data_800e8588_slot0f;
         }
     }
-    func_801519b4((Object *)p);
+    func_801519b4(p);
     for (i = 0; i < 2; i++) {
         r = &data_800e8618_slot0f[i];
         if (obj->field_0c == i) {
@@ -37,6 +37,6 @@ void func_800e25e0_slot0f(Object *o) {
         } else {
             r->field_0b = 0x1a;
         }
-        func_801519b4((Object *)r);
+        func_801519b4(r);
     }
 }

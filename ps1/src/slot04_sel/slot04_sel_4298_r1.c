@@ -28,14 +28,14 @@ void func_801b42c8_slot04_sel(void) {
     r = data_801b8978_slot04_sel[data_801a8067];
     r->field_04 = 0x30;
     r->field_06 = 0x50;
-    func_801519b4((Object *)r);
+    func_801519b4(r);
     data_801b89d8_slot04_sel = 0xa0;
     data_801b89da_slot04_sel = 0x68;
-    func_801519b4((Object *)data_801b89d4_slot04_sel);
+    func_801519b4(data_801b89d4_slot04_sel);
     s = data_801b8c00_slot04_sel[data_801a83fb];
     s->field_04 = 0xc0;
     s->field_06 = 0x80;
-    func_801519b4((Object *)s);
+    func_801519b4(s);
     t = data_801b9d64_slot04_sel - 1;
     data_801b9d64_slot04_sel = t;
     if (t == 0) {

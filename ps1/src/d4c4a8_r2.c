@@ -16,5 +16,5 @@ void func_80153d7c(Actor *a) {
     for (i = 0; i < 0x30; i++) {
         t->buf[i] = src[i];
     }
-    func_801519b4((Object *)t);
+    func_801519b4(t);
 }

@@ -36,16 +36,16 @@ void func_801b3380_slot04_sel(void) {
     int t;
     int m;
 
-    func_801519b4((Object *)&data_801b7ef4_slot04_sel);
-    func_801519b4((Object *)data_801b7ff4_slot04_sel[player_left.side]);
-    func_801519b4((Object *)data_801b7ff4_slot04_sel[l[1].side]);
-    func_801519b4((Object *)&data_801b84b4_slot04_sel);
-    func_801519b4((Object *)&data_801b84cc_slot04_sel);
+    func_801519b4(&data_801b7ef4_slot04_sel);
+    func_801519b4(data_801b7ff4_slot04_sel[player_left.side]);
+    func_801519b4(data_801b7ff4_slot04_sel[l[1].side]);
+    func_801519b4(&data_801b84b4_slot04_sel);
+    func_801519b4(&data_801b84cc_slot04_sel);
     data_801b89d8_slot04_sel = 0xa8;
     data_801b89da_slot04_sel = 0x30;
-    func_801519b4((Object *)data_801b89d4_slot04_sel);
-    func_801519b4((Object *)&data_801b84e8_slot04_sel);
-    func_801519b4((Object *)&data_801b8618_slot04_sel);
+    func_801519b4(data_801b89d4_slot04_sel);
+    func_801519b4(&data_801b84e8_slot04_sel);
+    func_801519b4(&data_801b8618_slot04_sel);
     data_801b7d7c_slot04_sel[a->field_00](l, a);
     r = l + 1;
     b = a + 1;

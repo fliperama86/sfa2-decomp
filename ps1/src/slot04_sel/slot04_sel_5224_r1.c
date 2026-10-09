@@ -70,7 +70,7 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
         }
         s5->field_04 = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].field_00 + side * 0x18;
         s5->field_06 = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].field_02;
-        func_801519b4((Object *)s5);
+        func_801519b4(s5);
 
         i = 0;
         s0 = data_801b8fc8_slot04_sel[side];
@@ -80,7 +80,7 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             i++;
         } while (i < 0x10);
         s0->field_0b = a1->field_0b;
-        func_801519b4((Object *)s0);
+        func_801519b4(s0);
 
         i = 0;
         s2 = data_801b8f78_slot04_sel[side];
@@ -90,7 +90,7 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             i++;
         } while (i < 10);
         s2->field_0b = b1->field_0b;
-        func_801519b4((Object *)s2);
+        func_801519b4(s2);
 
         if (rec->field_04 == 0) {
             return;
@@ -132,8 +132,8 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             p->field_d4 = data_8019045c[0];
         }
     } else {
-        func_801519b4((Object *)s5);
-        func_801519b4((Object *)s0);
-        func_801519b4((Object *)s2);
+        func_801519b4(s5);
+        func_801519b4(s0);
+        func_801519b4(s2);
     }
 }

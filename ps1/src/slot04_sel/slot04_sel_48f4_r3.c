@@ -19,7 +19,7 @@ void func_801b4cb4_slot04_sel(void) {
 
 void func_801b4d00_slot04_sel(void) {
     u16 t;
-    func_801519b4((Object *)data_801b9c10_slot04_sel);
+    func_801519b4(data_801b9c10_slot04_sel);
     t = data_801b9da4_slot04_sel - 1;
     data_801b9da4_slot04_sel = t;
     if (t == 0) {

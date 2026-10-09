@@ -6888,6 +6888,65 @@ Known and not done: the modules' jumps, the 22 images that are a second
 placement of another image's units, the library, Linux and macOS, and a
 runner that builds the program.
 
+## Four declarations that the original instructions contradict (2026-10-09)
+
+The second session writes nonmatching C for the functions that are not
+C yet, reads their instructions again for that, and listed declarations
+of the shared headers that those instructions contradict. Each was
+looked up in the original instructions here before anything changed.
+
+- `func_80120cf0` is not C yet. Before anything writes the first
+  argument register it copies it into a saved register (`move s0,a0`
+  at `0x80120d18`) and stores through that. The shared header declared
+  it without a parameter. It takes one now, and its one caller,
+  `func_80120ca0`, passes its own parameter on, as it does to the other
+  function it calls. The parameter's type, a pointer to the game state,
+  is the caller's; that is inferred. The caller is exact as before:
+  the original sets no register for this call.
+- `func_80157d9c` is a library function without a definition in the
+  tree; the inventory names it `DrawSync`. The header declared it
+  without a result. The program's main function, which is not C yet,
+  branches on its result (`blez v0` at `0x80118c38`, after the call at
+  `0x80118c30`). It returns `int` now. 4 resident units and 19 module
+  units call it, each as a statement, and all are exact.
+- `data_801abef8` was declared as a signed 16-bit word. The main
+  function loads it with `lhu` at `0x80118c60` and compares it
+  unsigned. It is `u16` now; the one unit that uses it stores to it
+  and is exact.
+- `func_801519b4` appends its argument to the queue `table_8018d144`
+  and does not look at what it points to. It was declared with a
+  pointer to an object, and so was the queue. The callers pass records
+  that they hold under several struct names, and the one function of
+  the tree that reads the queue reads each entry as another struct
+  again. The parameter and the queue's entries are `void *` now. The
+  casts to the object type that the old declaration had made necessary
+  are gone: one in a resident unit and 185 in 39 module units of this
+  session's folders (a one-off count of the script that took them
+  out), and so is the cast in the function that reads the queue. Two
+  calls in units of the second session keep their cast, which still
+  compiles.
+
+Looked at and not changed:
+
+- `func_8011bc84` takes a record that the tree names `Slab172`, while
+  the fighter's parts are declared under the name `Block172`. Both
+  names describe 172-byte records, and their declared fields overlap
+  with different types in four places (from `0x28`, `0x2c`, `0x74` and
+  `0x80`), so they are not merged here. Two of its three callers pass
+  a record they hold under another name, and did so without a cast;
+  the cast is written at both calls now, and both units are exact.
+- Four more entries of the list were about private candidates of
+  parked functions. The definitions in the tree already take the
+  parameters that the instructions show.
+
+Evidence: the whole configuration passes with every image identical to
+its baseline; the private declaration check and the private table check
+print what they printed before this group.
+
+Not claimed: that `void *` or any other type here is the original's.
+The name `DrawSync` is the inventory's identification of that library
+function, not a symbol of the image.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
