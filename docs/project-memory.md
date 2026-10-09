@@ -5432,18 +5432,37 @@ What the merge with the second session's blocks showed (2026-10-08):
   parameter that the dispatcher does not set. The table, its entries and
   the dispatcher have the form that the matching guide gives for that,
   and both images of the block are exact as before.
-- The check prints 95 findings on the merged head. 92 are declarations of
-  resident functions in units of the second session's eleven blocks that
-  differ from the resident definitions: 42 were there on main, and the
-  definitions that this group changed for its own callers (and that the
-  second session had asked for in some units) are now the other way round
-  for the units that had declared the old forms. Two are resident
-  functions that no unit defines and that units declare in two ways
-  (`func_80140cd8`: `int` in this group's units, `u8` in eight of the
-  other session's; `func_8013f8c4`: `int` in one unit of the other
-  session). One is `box_margin`, a scalar in some units and an array in
-  others. None is in a unit of this group. They are the other session's
-  units to change, with the list of the definitions given to it.
+- A correction by the owner on this pull request (2026-10-08). Its first
+  head left 92 declarations of resident functions in units of the second
+  session's eleven blocks in disagreement with the resident definitions:
+  42 had been there on main, and 50 were new, because those units
+  declared the forms that the definitions had before this group changed
+  them. The description called them the other session's units to change.
+  The owner: "Leaving the corrections to another session means merging a
+  new cross-translation-unit inconsistency, not merely retaining the
+  existing backlog", and asked for the callers to be updated here, with
+  their narrowing kept and their whole ranges verified.
+- Done in the same pull request: 53 units of `slot04_0c` to `slot04_17`
+  declare the nineteen changed functions as their definitions are, with
+  a cast at the call where the listing narrows a result or an argument
+  (`(u8)` at the tests of the `func_8013c...` family, `(s8)` at the
+  argument and the result of `func_80125734`), and two calls of
+  `func_80140598` that were written through a cast of the callee are
+  plain calls with seven arguments now. Every function of the 53 units is
+  identical, all 75 module images and the resident image build to their
+  baselines, and the tree has 19 calls through a cast of the callee where
+  the first head had 21.
+- The check prints 19 findings on the head with those changes, where main
+  has 45: 16 declarations of resident functions that this group did not
+  change (they were on main), the two resident functions that no unit
+  defines (`func_80140cd8`, `func_8013f8c4`) and `box_margin`. One of the
+  16 is a unit that declares `func_80125734` with an `int` result where
+  the definition returns a byte; the definition's form leaves it 4 bytes
+  short, as before this group.
+- The lesson, which is the owner's: a change of a shared definition
+  brings its callers with it in the same pull request, in whatever folder
+  they are. The split of the folders between the sessions is about new
+  work; it does not make a new inconsistency somebody else's.
 
 ## Windows reference
 

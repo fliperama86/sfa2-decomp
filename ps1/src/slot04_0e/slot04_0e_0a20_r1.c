@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int arg);
 void func_80152df4(Object *object);
 void func_80130dc0(Object *object);
 u8 func_8013f8c4(Object *object, int a, int b);

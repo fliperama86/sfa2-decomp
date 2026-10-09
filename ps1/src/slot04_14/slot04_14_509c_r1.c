@@ -14,7 +14,7 @@ void func_80142fbc(Object *object);
 void func_801428a8(Object *object);
 void func_80138b38(GameState *state, Object *object);
 Block172 *func_8011f1e0(void);
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 void func_801495f8(Object *object, int x, int y);
 void func_8011fe40(Object *object);
 void func_80149af8(Object *object);

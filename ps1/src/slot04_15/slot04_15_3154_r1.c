@@ -10,7 +10,7 @@ extern ObjectFn data_801c3160_slot04_15[];
 extern ObjectFn data_801c3170_slot04_15[];
 
 Block172 *func_8011f1e0(void);
-s8 func_80125734(Object *object, s8 a);
+u8 func_80125734(Object *object, int a);
 void func_80130678(Object *object, int arg);
 void func_80141e5c(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
@@ -215,7 +215,7 @@ void func_801b37f0_slot04_15(Object *object) {
             a = data_801c2ecc_slot04_15[a];
         }
     }
-    a = func_80125734(object, a); object->field_12c = a; a += 0x23; func_80130678(object, (s16)a);
+    a = (s8)func_80125734(object, (s8)a); object->field_12c = a; a += 0x23; func_80130678(object, (s16)a);
 }
 
 void func_801b38e8_slot04_15(Object *object) {

@@ -6,7 +6,7 @@
 extern u8 data_801c2828_slot04_0d[];
 extern u8 data_801c2848_slot04_0d[];
 
-s8 func_80125734(Object *object, s8 a);
+u8 func_80125734(Object *object, int a);
 void func_80130678(Object *object, int arg);
 
 void func_801b37e8_slot04_0d(Object *object) {
@@ -28,5 +28,5 @@ void func_801b37e8_slot04_0d(Object *object) {
             a = data_801c2848_slot04_0d[a];
         }
     }
-    a = func_80125734(object, a); object->field_12c = a; a += 0x23; func_80130678(object, (s16)a);
+    a = (s8)func_80125734(object, (s8)a); object->field_12c = a; a += 0x23; func_80130678(object, (s16)a);
 }

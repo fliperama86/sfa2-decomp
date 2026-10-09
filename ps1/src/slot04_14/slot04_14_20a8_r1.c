@@ -12,7 +12,7 @@ extern ObjectFn data_801c6310_slot04_14[];
 
 void func_80138ae8(GameState *state, Object *object);
 int func_80130184(Object *object);
-void func_80130678(Object *object, u16 arg);
+void func_80130678(Object *object, int arg);
 void func_801b2b4c_slot04_14(Object *obj);
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 u8 func_801b26bc_slot04_14(Object *obj);

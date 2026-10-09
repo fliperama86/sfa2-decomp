@@ -7,7 +7,7 @@ void func_80142adc(Object *object);
 void func_80142fbc(Object *object);
 void func_801428a8(Object *object);
 void func_80138b38(GameState *state, Object *object);
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 void func_80146998(Object *object);
 void func_80142fe8(Object *object);
 void func_80142c70(Object *object);

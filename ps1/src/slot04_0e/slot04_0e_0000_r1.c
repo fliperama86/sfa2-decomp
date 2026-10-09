@@ -17,8 +17,8 @@ extern ObjectFn data_801c5ee0_slot04_0e[];
 Block172 *func_8011f1e0(void);
 Object *func_8011f32c(void);
 void func_80152df4(Object *object);
-s8 func_80125734(Object *object, s8 a);
-void func_80130678(Object *object, u16 index);
+u8 func_80125734(Object *object, int a);
+void func_80130678(Object *object, int arg);
 
 int func_801b0a68_slot04_0e(Object *obj, Object *other);
 void func_801b0a94_slot04_0e(Object *obj, int a);
@@ -133,7 +133,7 @@ void func_801b0348_slot04_0e(Object *obj) {
         obj->field_07 = 0;
         ((Slot04bObj *)obj)->field_47 = 0x3c;
         game_state.field_76 = 0x1e;
-        a = func_80125734(obj, data_801c5e7c_slot04_0e[func_80151184() & 0xf]);
+        a = (s8)func_80125734(obj, (s8)data_801c5e7c_slot04_0e[func_80151184() & 0xf]);
         if ((game_state.field_4d | game_state.field_04) != 0) {
             if (a == 1) {
                 a = 5;

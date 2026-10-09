@@ -14,7 +14,7 @@ Object *func_8011f32c(void);
 u8 func_8013f8c4(Object *object, int a, int b);
 int func_8013ffe4(Object *object, s16 a, s16 b, s16 c, u16 d);
 void func_80142a14(Object *object);
-u8 func_80125734(Object *object, s8 a);
+u8 func_80125734(Object *object, int a);
 void func_80130678(Object *object, int index);
 void func_80130dc0(Object *object);
 
