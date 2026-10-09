@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015cec4(int a, u8 *p);
-
 int func_8014f0bc(void) {
     Menu *m = &data_80190948;
     u8 buf[4];

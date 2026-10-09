@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8016a3b0(void);
-
 void func_801503f8(Stream *stream, StreamEntry *entry) {
     Rect rect;
     rect.x = entry->field_0c;

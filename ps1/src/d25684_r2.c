@@ -2,8 +2,6 @@
 #include "game.h"
 #include "protos.h"
 
-void func_8016a3b0(int a);
-
 /* The local r is 16 bits wide: as an int, this function differs from the original in 7 instruction slots. */
 void func_8015057c(Stream *stream) {
     s16 r;

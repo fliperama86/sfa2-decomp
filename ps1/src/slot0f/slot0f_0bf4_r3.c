@@ -12,7 +12,7 @@ void func_800e1148_slot0f(int *p);
 void func_800e119c_slot0f(int *p);
 
 int func_800e0da8_slot0f(int chan) {
-    int *p = (int *)data_8018fef8;
+    int *p = data_8018fef8;
     int tries = 0x14;
     int r;
     int i;
