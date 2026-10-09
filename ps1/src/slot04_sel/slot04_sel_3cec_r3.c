@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_8016e69d[];
 extern u16 data_801b7e60_slot04_sel[];
 extern u16 data_801b7e8c_slot04_sel[];
 extern u8 data_801b7df4_slot04_sel[];

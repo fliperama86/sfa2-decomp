@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFnInt data_801c3b70_slot04_08[];
-extern u8 data_801ad398;
 
 int func_801b11f8_slot04_08(Object *obj) {
     int r = 0;

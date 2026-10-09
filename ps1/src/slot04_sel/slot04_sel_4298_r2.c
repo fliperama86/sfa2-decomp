@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190458;
-
 #define SEL (*(int *)&game_state.field_354)
 
 void func_801b44ec_slot04_sel(void) {

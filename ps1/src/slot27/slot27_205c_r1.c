@@ -6,8 +6,6 @@
 extern Slot27Rec9338 data_80029338_slot27[];
 extern int data_8019046c[];
 extern int data_80190464[];
-extern u16 data_801901ba;
-extern s8 data_8016e68e;
 void func_800125f4_slot27(void);
 void func_80011ea4_slot27(void);
 void func_80011d90_slot27(void);

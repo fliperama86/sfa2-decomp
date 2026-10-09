@@ -13,7 +13,6 @@ extern SequenceStep *data_800289b4_slot27[];
 extern u16 data_80028a74_slot27[];
 extern u16 data_80055f30;
 extern u16 data_80055f34;
-extern u16 data_801a2b84[];
 void func_800167d0_slot27(Object *obj, s16 *p);
 
 void func_80015ab4_slot27(Object *obj) {

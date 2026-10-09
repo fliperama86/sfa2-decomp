@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern FrameRecord *data_1f8000a8;
-extern FrameRecord *data_1f800158;
 extern u16 data_80079910_slot2b[];
 extern s32 data_80079920_slot2b[];
 extern u8 data_8007991c_slot2b[];

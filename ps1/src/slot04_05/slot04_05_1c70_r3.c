@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern s32 data_801aa5e4[];
 extern s32 data_801c14c0_slot04_05[];
 extern s32 data_801c14d8_slot04_05[];
 

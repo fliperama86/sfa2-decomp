@@ -8,8 +8,6 @@ extern u16 data_801c7748_slot04_02[];
 extern u16 data_801c7754_slot04_02[];
 extern s32 data_801c7760_slot04_02[];
 extern s32 data_801c779c_slot04_02[];
-extern FrameRecord *data_1f8000a8;
-extern FrameRecord *data_1f800158;
 
 int func_801b772c_slot04_02(Object *object, Object *parent);
 void func_801b7920_slot04_02(Object *object, u8 a_arg);

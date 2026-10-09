@@ -8,7 +8,6 @@ extern SequenceStep *data_80027fa8_slot27[];
 extern ObjectFn data_80028110_slot27[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-extern ObjectRef data_80190458;
 
 void func_80014c1c_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;

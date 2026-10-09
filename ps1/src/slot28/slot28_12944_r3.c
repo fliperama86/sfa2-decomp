@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u8 data_801a2fe4[];
 extern u16 data_8004897c_slot28[];
 
 void func_80022bf0_slot28(void) {

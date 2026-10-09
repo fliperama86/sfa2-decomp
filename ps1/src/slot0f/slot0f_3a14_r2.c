@@ -10,8 +10,6 @@ extern u8 data_800f0254_slot0f;
 extern u8 data_800f0258_slot0f;
 extern u8 data_800f025c_slot0f;
 extern u8 data_800f0260_slot0f;
-extern u8 data_8016e674[];
-extern u8 data_8016e67c[];
 extern u8 data_800e98e3_slot0f[];
 extern u8 data_800e990f_slot0f[];
 extern u8 data_800e9783_slot0f[];

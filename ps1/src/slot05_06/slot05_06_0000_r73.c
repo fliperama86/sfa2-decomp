@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
 int func_801ce6f8_slot05_06(Object *obj);
 extern ObjectFn data_801dd6cc_slot05_06[];
 

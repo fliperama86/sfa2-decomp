@@ -4,7 +4,6 @@
 #include "../externs.h"
 extern u16 box_margin[];
 extern s16 data_80055eb2;
-extern ObjectRef data_80190458;
 extern ObjectFn data_80028e74_slot27[];
 
 void func_800169c4_slot27(Object *obj) {
