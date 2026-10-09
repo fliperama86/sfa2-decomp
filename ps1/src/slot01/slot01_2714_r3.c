@@ -7,7 +7,6 @@ extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern u8 data_800319b8_slot01[];
 extern SequenceStep *data_800212ac_slot01[];
-int func_8015bdd4(int a, int b);
 Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3);
 void func_80012d08_slot01(Object *obj);
 

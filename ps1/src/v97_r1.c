@@ -4,9 +4,6 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int unused);
-void func_8013f2d8(Object *object, int index, int unused);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 /* Exact. Decided by: params taken as u8 (the table's type) and copied to int locals that are masked (index at the top,
    arg in each path before the shared f2a8 label), the mask == 0 early goto to

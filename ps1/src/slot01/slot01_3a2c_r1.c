@@ -8,7 +8,6 @@ extern u16 data_80055f34_slot01;
 extern int data_80055f3c_slot01;
 extern Pair data_80015a70_slot01[];
 extern u16 data_80015ac0_slot01[];
-Block172 *func_8011f1e0(void);
 
 void func_80013a2c_slot01(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

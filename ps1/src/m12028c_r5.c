@@ -5,9 +5,6 @@
 
 extern HudState *data_8018f5a0;
 
-int func_80125394(void);
-void func_80123504(GameState *unused);
-
 void func_8012306c(GameState *g) {
     Object *o = g->field_78;
     if (o->field_cd == 0) {

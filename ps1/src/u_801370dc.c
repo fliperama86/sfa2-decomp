@@ -5,7 +5,6 @@
 
 extern u8 data_801a27e4[];
 extern s16 data_801aa4dc[];
-Pooled *func_8011f4a4(void);
 
 /* Form found by automatic permutation search. */
 void func_801370dc(void)

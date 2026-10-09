@@ -4,10 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_801c0708_slot04_03[];
-void func_801428e4(Object *object);
-void func_80145d20(Object *object);
-void func_80138b38(GameState *state, Object *object);
-void func_801483a4(Object *object, int a_arg, int b_arg);
 
 void func_801b232c_slot04_03(Object *obj) {
     obj->field_46 = 0x300;

@@ -3,10 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801482e0(Object *parent, int x_arg, int y_arg);
-
-void func_801483a4(Object *object, int a_arg, int b_arg);
-
 void func_801b2a20_slot04_02(Object *obj) {
     obj->field_46 -= 0x100;
     if (*(u8 *)&obj->field_3a != 0) {

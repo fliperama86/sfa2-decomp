@@ -4,8 +4,6 @@
 #include "protos.h"
 
 extern PolyBuf data_8018947c[2];
-void func_8015c09c(void *prim);
-int func_8015bdd4(int a, int b);
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_801511c8(void)

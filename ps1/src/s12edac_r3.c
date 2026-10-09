@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80130678(Object *object, int arg);
-
 void func_8012f384(Object *object) {
     u8 flag;
 

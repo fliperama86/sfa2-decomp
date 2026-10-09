@@ -5,8 +5,6 @@
 
 extern SlotCell data_80029350_slot12[];
 extern SlotCell data_80029b70_slot12[];
-int func_8015bdd4(int a, int b);
-void func_8015c09c(void *prim);
 
 void func_800123e0_slot12(void) {
     int i;

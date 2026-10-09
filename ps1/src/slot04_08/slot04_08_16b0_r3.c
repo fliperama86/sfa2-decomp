@@ -7,7 +7,6 @@ extern u16 data_801c3e98_slot04_08;
 extern u8 data_801c3c24_slot04_08[];
 
 void func_801b4298_slot04_08(Object *obj);
-void func_80138ae8(GameState *state, Object *obj);
 
 void func_801b19d0_slot04_08(Object *obj) {
     u16 a;

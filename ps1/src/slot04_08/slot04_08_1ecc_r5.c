@@ -4,10 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_801c3c90_slot04_08[];
-void func_80145d20(Object *object);
-void func_801428e4(Object *object);
-void func_80138b38(GameState *state, Object *object);
-void func_801483a4(Object *object, int a_arg, int b_arg);
 
 void func_801b22fc_slot04_08(Object *obj) {
     obj->field_07 = obj->field_07 + 1;

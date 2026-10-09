@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8015c938(int a, u8 *p);
-
 void func_80150638(void) {
     int code;
     int h;

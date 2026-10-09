@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern u32 data_800282dc_slot12[];
 extern Slot12Cell data_8002bc38_slot12[];

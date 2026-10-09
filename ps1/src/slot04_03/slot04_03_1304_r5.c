@@ -5,9 +5,6 @@
 
 void func_801b17d0_slot04_03(Object *obj);
 void func_801b1834_slot04_03(Object *obj);
-void func_80138b38(GameState *state, Object *object);
-void func_80145d20(Object *object);
-void func_801428e4(Object *object);
 
 void func_801b1790_slot04_03(Object *obj) {
     if (obj->field_12c == 0) {

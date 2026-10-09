@@ -3,11 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141e34(Object *object);
 u8 func_80141788(Object *object);
 int func_801c91fc_slot05_06(Object *obj);
-u8 func_801417cc(Object *object);
-void func_80142ba0(Object *object);
 
 int func_801c913c_slot05_06(Object *obj) {
     if (obj->field_292 != 0) return 0;

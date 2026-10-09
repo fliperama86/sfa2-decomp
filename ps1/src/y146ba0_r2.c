@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 int func_80148ecc(Object *object, int n) {
     ref_other.p = (Object *) func_8011f1e0();
     if (ref_other.p != 0) {

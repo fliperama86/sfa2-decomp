@@ -6,8 +6,6 @@
 extern HudState *data_8018f5a0;
 extern SequenceStep *data_80031c98_slot28[];
 extern Object *data_80051910_slot28[];
-Block172 *func_8011f1e0(void);
-void func_80128370(void);
 void func_80017944_slot28(Object *obj, int arg);
 void func_80017974_slot28(Object *obj);
 void func_800179d4_slot28(void);

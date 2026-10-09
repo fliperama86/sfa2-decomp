@@ -4,9 +4,7 @@
 #include "../externs.h"
 
 void func_801cc814_slot05_06(Object *obj);
-void func_801312b8(Object *object);
 extern ObjectFn data_801dd428_slot05_06[];
-void func_80138ae8(GameState *state, Object *object);
 
 void func_801cafa8_slot05_06(Object *obj) {
     if (obj->field_4c >= 0) {

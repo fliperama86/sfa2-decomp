@@ -10,7 +10,6 @@ extern Slot2aColH data_801e2272_slot2a[];
 extern Slot2aSpawn data_801e22b4_slot2a[];
 extern Slot2aBank data_801e2fdc_slot2a[];
 extern u32 data_801e515c_slot2a;
-int func_8015bdd4(int a, int b);
 
 void func_801e0e48_slot2a(Object *obj) {
     Slot2aSpawn *e;

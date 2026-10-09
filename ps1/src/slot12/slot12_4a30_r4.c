@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern u32 data_80024488_slot12[];
 extern SequenceStep *data_800280a0_slot12[];

@@ -5,8 +5,6 @@
 
 extern HudState *data_8018f5a0;
 
-int func_80125394(void);
-
 /* Form found by automatic permutation search. */
 void func_80123254(GameState *g)
 {

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern HalfPair data_80026ef0_slot27[];
-void func_8011f240(Slab172 *s);
 
 void func_80014270_slot27(Object *obj) {
     func_8011f240((Slab172 *)obj);

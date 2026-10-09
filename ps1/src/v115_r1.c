@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80136898(Cam *cam, int delta);
-
 /* Written by hand in the form of func_80136668, which was finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_801366d4(Cam *cam, short step)
 {

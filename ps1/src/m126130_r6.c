@@ -5,7 +5,6 @@
 
 
 int func_8012f898(Object *object);
-void func_80130678(Object *object, int index);
 
 void func_8012a804(Object *object) {
     int index;

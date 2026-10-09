@@ -7,8 +7,6 @@ extern u16 *data_801b6e94_slot04_sel[];
 extern u8 data_801b9ce8_slot04_sel;
 extern u8 data_801b9cec_slot04_sel;
 
-void func_801205c4(int a, unsigned c);
-
 void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *b, int arg) {
     if ((*data_801b6e94_slot04_sel[obj->side] & 0xf0) != 0) {
         data_801b9cec_slot04_sel = 1 << obj->side;

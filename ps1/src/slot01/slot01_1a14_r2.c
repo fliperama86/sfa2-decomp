@@ -7,7 +7,6 @@ extern SequenceStep *data_800212ac_slot01[];
 extern void (*data_80015320_slot01[])(Object *);
 void func_80011f74_slot01(Object *obj);
 void func_80012020_slot01(Object *obj);
-void func_8011ffdc(Object *obj);
 
 void func_80011d00_slot01(Object *obj, u8 a) {
     func_80130768(obj, a, data_800212ac_slot01);

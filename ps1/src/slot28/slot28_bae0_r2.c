@@ -5,7 +5,6 @@
 
 extern Object *data_80051a04_slot28[];
 extern HudState *data_8018f5a0;
-void func_801282d4(void);
 
 void func_8001bcf8_slot28(Object *obj) {
     if (*(s16 *)&data_80051a04_slot28[3]->field_3a < 0) {

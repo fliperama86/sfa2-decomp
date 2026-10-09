@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern u16 table_8017ab6c[];
-int func_8013f04c(u8 *p, s16 mask, int value, s16 limit, u16 bits);
 
 void func_8013ef28(Object *object, int index, int arg) {
     Slot *slot = &object->slots[(u8)index];

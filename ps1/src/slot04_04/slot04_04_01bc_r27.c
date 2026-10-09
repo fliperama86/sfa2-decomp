@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 s32 func_801b3a84_slot04_04(Object *object);
-void func_80142adc(Object *object);
 
 void func_801b230c_slot04_04(Object *obj) {
     if (func_801b3a84_slot04_04(obj) >= 0) {

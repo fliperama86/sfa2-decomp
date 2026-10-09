@@ -5,7 +5,6 @@
 
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-Block172 *func_8011f1e0(void);
 
 void func_80015838_slot27(Object *obj) {
     Object *p = (Object *)func_8011f1e0();

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
-
 void func_801b1fb8_slot04_00(Object *obj) {
     if (obj->field_45 != 0) {
         func_801209c4(obj);

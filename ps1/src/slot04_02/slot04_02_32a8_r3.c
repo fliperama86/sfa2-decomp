@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s16 data_801c63d4_slot04_02[];
-void func_801482e0(Object *parent, int x, int y);
 
 void func_801b3678_slot04_02(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Object *data_80051998_slot28[];
-void func_8011f240(Slab172 *s);
 extern u16 data_80036ff4_slot28[];
 extern u16 data_800367f4_slot28[];
 extern u16 data_80036bf4_slot28[];

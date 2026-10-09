@@ -3,11 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u16 func_80130470(Object *object);
 int func_8012f898(Object *object);
-int func_8012f618(Object *object);
-int func_80130184(Object *object);
-void func_80130678(Object *object, int index);
 
 void func_8012abf0(Object *object) {
     if (object->field_cd != 0) {

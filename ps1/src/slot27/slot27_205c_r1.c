@@ -15,7 +15,6 @@ void func_800139a8_slot27(Object *obj);
 void func_80013a6c_slot27(void);
 void func_80013b74_slot27(Object *obj);
 void func_80013cc4_slot27(Object *obj);
-void func_801205c4(int a, unsigned c);
 
 void func_8001205c_slot27(Object *obj) {
     u8 *e;

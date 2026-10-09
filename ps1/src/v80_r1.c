@@ -6,8 +6,6 @@
 #include "protos.h"
 
 
-void func_80138838(GameState *state, int arg);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 int func_801384c4(GameState *state)
 {

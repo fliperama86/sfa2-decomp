@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern int data_80190464[];
-void func_8011f240(Slab172 *s);
 void func_80013cc4_slot27(Object *obj);
 
 void func_80013874_slot27(Object *obj) {

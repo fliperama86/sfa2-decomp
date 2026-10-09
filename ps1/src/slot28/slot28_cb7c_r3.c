@@ -7,7 +7,6 @@ extern HudState *data_8018f5a0;
 extern Object *data_80051a44_slot28[];
 void func_8001d548_slot28(Object *obj, int arg);
 void func_8001d5d8_slot28(void);
-void func_80128370(void);
 
 void func_8001cf40_slot28(Object *obj) {
     if (obj->field_f0 == 0) {

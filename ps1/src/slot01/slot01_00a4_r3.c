@@ -6,8 +6,6 @@
 extern HudState *data_8018f5a0;
 extern Object *data_8002ceb0_slot01;
 extern Object *data_80055f40_slot01;
-int func_801252f0(void);
-Block172 *func_8011f1e0(void);
 
 void func_80010498_slot01(void) {
     int t = game_state.field_c8 - 1;

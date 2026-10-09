@@ -5,7 +5,6 @@
 
 void func_801b4ff0_slot04_0a(Object *obj);
 void func_801b4ff8_slot04_0a(Object *obj);
-void func_80120028(Object *o);
 
 void func_801b4d2c_slot04_0a(Object *obj) {
     obj->field_09 = 4;

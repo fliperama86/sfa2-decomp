@@ -8,7 +8,6 @@ extern u16 data_801a3c24[];
 extern SequenceStep *data_80028864_slot27[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-Block172 *func_8011f1e0(void);
 
 void func_80015e68_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

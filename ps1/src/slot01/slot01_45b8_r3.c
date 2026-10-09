@@ -26,7 +26,6 @@ void func_800148a4_slot01(Object *obj) {
     }
 }
 
-void func_80120028(Object *o);
 extern ObjectFn data_80015dd4_slot01[];
 void func_8001496c_slot01(Object *obj) {
     data_80015dd4_slot01[obj->field_05](obj);

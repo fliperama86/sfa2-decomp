@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-void func_8014ee5c(int a);
 void func_800100a4(void);
 void func_80010e60(void);
 

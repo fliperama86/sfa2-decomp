@@ -6,8 +6,6 @@
 #include "protos.h"
 
 
-void func_80138838(GameState *state, int delta);
-
 int func_801386a4(GameState *state) {
     s16 value = counter_a;
 

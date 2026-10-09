@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_8002c7b8_slot28[];
-Pooled *func_8011f4a4(void);
 void func_80015d94_slot28(Object *obj, int idx);
 
 void func_80015d3c_slot28(Object *obj) {

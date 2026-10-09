@@ -7,7 +7,6 @@ extern ObjectFn data_80079150_slot00[];
 extern ObjectFn data_80079158_slot00[];
 void func_800760e8_slot00(Object *obj);
 void func_800761c8_slot00(Object *obj);
-void func_80130dc0(Object *obj);
 u8 func_80149b80(Object *obj);
 
 void func_800760a8_slot00(Object *obj) {

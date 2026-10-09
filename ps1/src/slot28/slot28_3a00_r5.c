@@ -7,7 +7,6 @@ extern u8 data_8002acc4_slot28[];
 extern u8 data_8002b024_slot28[];
 extern void (*data_8002c730_slot28[])(Object *);
 extern HudState *data_8018f5a0;
-void func_8011abe4(void);
 void func_8001581c_slot28(Object *obj, int arg);
 
 void func_80014d58_slot28(Object *obj) {

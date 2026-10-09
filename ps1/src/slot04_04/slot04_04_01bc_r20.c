@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u32 data_801c4224_slot04_04[];
-void func_80138ae8(GameState *state, Object *object);
 
 void func_801b1a54_slot04_04(Object *obj) {
     u32 *w = (u32 *)&game_state.field_4c;

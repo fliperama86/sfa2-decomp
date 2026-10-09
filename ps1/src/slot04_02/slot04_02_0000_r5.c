@@ -5,8 +5,6 @@
 
 void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_80141cec(Object *object);
-
 u8 func_801b0e68_slot04_02(Object *obj) {
     u8 r = 0;
 

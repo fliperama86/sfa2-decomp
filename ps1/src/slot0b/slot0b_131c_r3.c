@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern ObjectRef data_80190468;
 void func_801e1554_slot0b(Slot0bObj *obj);

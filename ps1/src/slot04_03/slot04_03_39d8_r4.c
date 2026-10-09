@@ -5,9 +5,6 @@
 
 extern void (*data_801c09d0_slot04_03[])(Object *, Object *);
 
-void func_8011ffdc(Object *o);
-void func_8011f14c(Slab172 *o);
-
 void func_801b3d44_slot04_03(Object *obj, Object *p) {
     data_801c09d0_slot04_03[obj->field_06](obj, p);
     func_8011ffdc(obj);

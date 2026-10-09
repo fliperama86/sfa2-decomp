@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern ObjectRef data_80051a50_slot28;
-void func_801280f0(void);
 extern SequenceStep *data_8003b530_slot28[];
 extern Object *data_80051a44_slot28[];
 extern u8 data_8003a1a0_slot28[];

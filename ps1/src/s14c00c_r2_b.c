@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e40c(Object *object);
-
 void func_8014c528(Object *object) {
     data_8018946c = object->field_224;
     while (func_8014e40c(object) != 0) {

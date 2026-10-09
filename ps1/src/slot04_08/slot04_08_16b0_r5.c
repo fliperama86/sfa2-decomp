@@ -6,7 +6,6 @@
 extern u8 data_801c3c4c_slot04_08[];
 
 u8 func_8013f8c4(Object *obj, int a, int b);
-void func_80138ae8(GameState *state, Object *obj);
 
 void func_801b1d74_slot04_08(Object *obj) {
     obj->field_17b = 1;

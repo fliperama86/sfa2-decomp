@@ -6,8 +6,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 void func_8012bc24(Object *object) {
     ObjectFn fn;
     func_80129be0(object);

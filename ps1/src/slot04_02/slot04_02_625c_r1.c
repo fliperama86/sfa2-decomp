@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80146478(Object *object, u8 a, int dx, int dy);
-
 u8 func_801b625c_slot04_02(Object *obj) {
     Object *o = obj->other;
     u8 r = 0;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011a55c(Object *o);
-
 void func_80157174(Object *dest, Object *object) {
     int i;
 

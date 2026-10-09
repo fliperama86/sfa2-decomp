@@ -7,8 +7,6 @@ extern u32 data_801c0168_slot04_00[];
 extern u32 data_801c0314_slot04_00[];
 extern u32 data_801c052c_slot04_00[];
 
-void func_8011f14c(Slab172 *o);
-
 void func_801b3454_slot04_00(Object *obj) {
     ref_other.p = obj->field_3c;
     ref_other.p->field_240--;

@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
 void func_800776a8_slot00(Object *obj, short delta);
 
 void func_800774f0_slot00(Object *obj) {

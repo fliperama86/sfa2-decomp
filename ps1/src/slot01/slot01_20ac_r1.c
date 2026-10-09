@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_8015bdd4(int a, int b);
 extern ObjectRef data_80190468;
 extern ObjectFn data_80015408_slot01[];
 extern s16 data_80015418_slot01[];

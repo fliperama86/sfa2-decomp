@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 void func_80130280(Object *object) {
     object->field_04 = 1;
     object->field_05 = 0;

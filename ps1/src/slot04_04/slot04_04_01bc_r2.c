@@ -3,10 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
 extern u8 data_801c4164_slot04_04[];
 u8 func_80125734(Object *object, int a);
-void func_80130678(Object *object, int index);
 
 void func_801b0250_slot04_04(Object *obj) {
     obj->field_06 = obj->field_06 + 1;

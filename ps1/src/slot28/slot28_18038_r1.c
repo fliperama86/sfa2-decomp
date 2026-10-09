@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 extern Poly28 data_80051df4_slot28[];
-int func_8015bdd4(int a, int b);
-void func_8015c09c(void *prim);
 
 void func_80028038_slot28(Object *obj) {
     int i;

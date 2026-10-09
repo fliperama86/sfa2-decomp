@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f32c(void);
-
 extern u8 data_801b3df0_slot04_00[];
 extern u8 data_801b5db8_slot04_00[];
 extern u32 data_801bfc8c_slot04_00[];

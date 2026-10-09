@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 u8 func_80141788(Object *object);
-u8 func_801417cc(Object *object);
-void func_80142718(Object *object);
 
 int func_801b0bfc_slot04_06(Object *obj) {
     if (!func_801417cc(obj)) return 0;

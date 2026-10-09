@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80130184(Object *object);
-void func_80130678(Object *object, int arg);
 void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 /* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */

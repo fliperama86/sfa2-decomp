@@ -16,7 +16,6 @@ extern u8 data_801b9cec_slot04_sel;
 extern u8 data_8016e68c;
 extern u8 data_8016e696;
 void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *r, int c);
-void func_801205c4(int a, unsigned c);
 
 void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
     TextBuf *s3 = data_801b7618_slot04_sel[obj->side];

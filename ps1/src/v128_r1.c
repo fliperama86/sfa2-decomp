@@ -5,8 +5,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014de94(Object *object);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8014d03c(Object *object)
 {

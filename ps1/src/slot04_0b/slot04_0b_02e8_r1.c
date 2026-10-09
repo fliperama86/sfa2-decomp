@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int index);
-
 void func_801b02e8_slot04_0b(Object *obj) {
     if (((s16)obj->field_3a & 0x8000) != 0) {
         obj->field_04 = 1;

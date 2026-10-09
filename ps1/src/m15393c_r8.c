@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80156898(void *a, Object *object);
-
 void func_801564f0(void *a, Object *o) {
     u8 x, y;
     o->field_11c = 0x41;

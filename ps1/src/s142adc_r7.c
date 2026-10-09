@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_801441c8(Object *unused);
-
 void func_80143fdc(Object *object) {
     func_80144244(object);
     object->field_46 = (s16)object->field_46 - 1;

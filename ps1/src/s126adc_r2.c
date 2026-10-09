@@ -6,8 +6,6 @@
 
 
 extern HudWide *data_8018f5a0;
-void func_801564b0(void *a, Object *object);
-int func_80127cd8(u8 a, s16 b, u8 c);
 
 void func_80126cd0(GameState *state, Object *object) {
     if (state->field_09 != 0 || state->field_2c != 0) {

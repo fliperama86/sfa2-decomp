@@ -5,8 +5,6 @@
 
 extern s16 *data_801c2060_slot04_07[];
 
-void func_80130678(Object *object, int index);
-void func_80131468(Object *object);
 void func_801b3120_slot04_07(Object *obj);
 
 void func_801b3054_slot04_07(Object *obj) {

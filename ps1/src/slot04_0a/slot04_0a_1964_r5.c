@@ -6,8 +6,6 @@
 u16 func_801b1e04_slot04_0a(Object *obj);
 void func_801b1c00_slot04_0a(Object *obj);
 void func_801b2048_slot04_0a(Object *obj);
-void func_80138ae8(GameState *state, Object *object);
-void func_80141f28(Object *object, short delta);
 
 void func_801b1e6c_slot04_0a(Object *obj) {
     int k;

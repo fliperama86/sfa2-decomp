@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_80146998(Object *object) {
     Object *spawned = func_80146a98(object, 6);
     if (spawned) {

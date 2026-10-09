@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_801b4818_slot04_06(Object *obj);
-void func_80142adc(Object *object);
 
 void func_801b2168_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;

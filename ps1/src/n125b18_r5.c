@@ -7,13 +7,6 @@
    is unsigned, so each read says so. */
 extern void (*table_8017193c[])(Object *);
 
-int func_8014e0b4(Object *object);
-void func_8014e3d0(Object *object);
-void func_8013060c(Object *object);
-void func_8012dd5c(Object *object);
-void func_80129678(Object *object);
-void func_801299d0(Object *object);
-
 void func_80129468(Object *object) {
     if (game_state.field_30 != 0 && game_state.mode == object->side + 1) {
         if (*(s8 *)&data_801a6989 == 0 && object->field_165 == 0 && object->field_06 != 8 && object->field_7e == 0 && (s16)object->field_c6 < 0x30) {

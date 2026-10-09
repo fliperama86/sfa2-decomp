@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern u8 data_80022de8_slot12[];
 

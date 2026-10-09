@@ -5,8 +5,6 @@
 
 extern s8 data_801a6984;
 extern u16 data_801a6966;
-void func_8013f2a8(Object *object, int index, int unused);
-void func_8013f1bc(Object *object, u8 index, u8 unused);
 
 /* buttons is not set on every path: when data_801a6984 is not zero and the
    second condition does not hold, the code tests the register as it is.

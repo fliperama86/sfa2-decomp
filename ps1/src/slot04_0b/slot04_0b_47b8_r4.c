@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011ffdc(Object *object);
-
 void func_801b4c28_slot04_0b(Object *obj) {
     int lim;
     u8 a;

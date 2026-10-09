@@ -2,12 +2,10 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern u8 data_801ae02d;
 extern u8 data_801ae02e;
 extern void (*data_80023170_slot12[])(Object *);
-Block172 *func_8011f1e0(void);
 void func_8001281c_slot12(Object *obj);
 
 void func_80012d70_slot12(Object *obj) {

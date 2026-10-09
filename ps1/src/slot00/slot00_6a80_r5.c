@@ -5,7 +5,6 @@
 
 extern SequenceStep **data_1f8000ac;
 extern SequenceStep **data_1f80015c;
-void func_8011f14c(Slab172 *o);
 
 void func_80076f44_slot00(Object *o) {
     SequenceStep **t;

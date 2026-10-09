@@ -5,7 +5,6 @@
 
 extern u16 data_801903c0;
 extern u16 data_801903c2;
-void func_8011f240(Slab172 *s);
 extern void (*data_800f018c_slot0f[])(Object *);
 extern void (*data_800f01a4_slot0f[])(Object *);
 

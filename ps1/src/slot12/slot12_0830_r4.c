@@ -9,10 +9,6 @@ extern Object *data_8002d56c_slot12;
 extern int data_8002d578_slot12;
 extern unsigned data_80028a98_slot12;
 extern u16 box_margin[];
-Block172 *func_8011f1e0(void);
-void func_8011abe4(void);
-void func_80135c88(void);
-void func_8012818c(void);
 void func_800113e4_slot12(void);
 void func_80010a94_slot12(void);
 

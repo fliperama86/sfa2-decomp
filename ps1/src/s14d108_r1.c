@@ -3,10 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014de94(Object *object);
-int func_8014e758(Object *object);
-int func_8014e718(Object *object);
-
 void func_8014d108(Object *object) {
     if (object->field_21c == 0 || --object->field_21c == 0) {
         func_8014d99c(object);

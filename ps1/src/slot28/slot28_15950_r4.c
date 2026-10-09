@@ -3,10 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
-
-Block172 *func_8011f1e0(void);
-
 void func_8002616c_slot28(Object *obj) {
     Object *b;
     *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + 0x60000;

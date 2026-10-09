@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern void (*data_801e4cec_slot0b[])(Object *);
-Pooled *func_8011f4a4(void);
 
 void func_801e16d0_slot0b(Slot0bCursor *c) {
     Rect rect;

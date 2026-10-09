@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 u8 func_80149b80(Object *obj);
-void func_80130dc0(Object *obj);
 
 void func_801b4280_slot04_05(Object *obj) {
     obj->field_0b = obj->field_158;

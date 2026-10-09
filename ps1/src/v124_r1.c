@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80130678(Object *o, int a);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8012eb18(Object *o)
 {

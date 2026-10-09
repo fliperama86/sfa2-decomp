@@ -4,11 +4,7 @@
 #include "../externs.h"
 
 void func_801cc814_slot05_06(Object *obj);
-void func_80142adc(Object *object);
 extern ObjectFn data_801dd3ac_slot05_06[];
-void func_80145d20(Object *object);
-void func_801428e4(Object *object);
-void func_80138b38(GameState *state, Object *object);
 
 void func_801ca168_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;

@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern void (*data_8017ec44[])(Ctl *ctl);
-void func_80150244(Stream *stream);
 
 void func_8014f918(int a) {
     Ctl *ctl = &ctl_80190948;

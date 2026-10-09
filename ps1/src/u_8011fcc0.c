@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137640(Rect r, u8 b, u8 a);
-
 /* Form found by automatic permutation search. */
 void func_8011fcc0(SeqRec *rec)
 {

@@ -10,8 +10,6 @@ extern Object *data_80051c24_slot28[];
 extern ObjectRef data_80051c28_slot28;
 extern SequenceStep *data_8004bd74_slot28[];
 extern SequenceStep *data_8004bd84_slot28[];
-Block172 *func_8011f1e0(void);
-void func_80128370(void);
 void func_80025114_slot28(Object *o);
 void func_800250e4_slot28(Object *o, int arg);
 

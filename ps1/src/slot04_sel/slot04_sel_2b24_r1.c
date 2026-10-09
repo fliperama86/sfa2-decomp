@@ -21,7 +21,6 @@ void func_801b310c_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
 void func_801b31f4_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
 void func_801b48f4_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, int a);
 void func_801b44ec_slot04_sel(void);
-void func_801205c4(int a, unsigned c);
 
 void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     TextBuf *s2 = data_801b7f64_slot04_sel[obj->side];

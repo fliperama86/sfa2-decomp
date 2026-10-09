@@ -6,7 +6,6 @@
 extern HudState *data_8018f5a0;
 extern u8 data_801a89f0;
 extern u8 data_801ac61c;
-void func_80138358(GameState *state);
 void func_800df520_slot0f(GameState *state);
 void func_800df858_slot0f(GameState *state);
 void func_800dfa40_slot0f(GameState *state, int a);

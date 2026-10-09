@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_801c4220_slot04_04[];
-void func_80138ae8(GameState *state, Object *object);
 void func_801b19bc_slot04_04(Object *obj);
 void func_801b1a08_slot04_04(Object *obj);
 void func_801b1a54_slot04_04(Object *obj);

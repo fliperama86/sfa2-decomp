@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80138ac8(GameState *state, Object *object);
-
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual (52 slots, 704 vs 716 bytes): the original keeps copies of a and b
    in t0 and t2 (move at entry) and the pointer ref_other.p in t1, and reuses a1
    for delta; this build coalesces x/bb with the parameters, so registers differ

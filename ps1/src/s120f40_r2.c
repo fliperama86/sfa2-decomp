@@ -4,7 +4,6 @@
 #include "protos.h"
 
 extern HudState *data_8018f5a0;
-Object *func_80125060(Object *object);
 
 void func_801211dc(GameState *state) {
     if (data_8018f5a0->field_52 == 0) {

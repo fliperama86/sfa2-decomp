@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014448c(Object *object);
-int func_801441c8(Object *unused);
-
 void func_801443b0(Object *object) {
     Config *config;
     if ((s16)object->field_3a < 0) {

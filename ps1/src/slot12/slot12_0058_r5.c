@@ -5,7 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern Object *data_8002d574_slot12;
-Block172 *func_8011f1e0(void);
 
 void func_8001047c_slot12(void) {
     Object *o = (Object *)func_8011f1e0();

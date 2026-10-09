@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 void func_8012a8dc(Object *object) {
     handler_table_19b0[object->field_07](object);
 }

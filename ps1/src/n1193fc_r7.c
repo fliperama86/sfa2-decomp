@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011f70c(Object *object);
-
 void func_8011f6b4(Object *object) {
     if (player_right.field_165 == 0) {
         func_8011f70c(object);

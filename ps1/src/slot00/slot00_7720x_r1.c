@@ -5,7 +5,6 @@
 
 extern u8 data_80079fec_slot00[];
 extern u8 data_8007a008_slot00[];
-void func_8011a55c(Object *obj);
 
 void func_80077720_slot00(Object *obj) {
     Object *p;

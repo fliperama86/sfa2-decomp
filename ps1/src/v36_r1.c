@@ -5,8 +5,6 @@
 
 
 
-int func_8013d0fc(Object *object);
-
 void func_801321e8(Object *object) {
     s16 index;
     s16 *table;

@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142fe8(Object *object);
-void func_80142c70(Object *object);
-
 void func_801b4968_slot04_09(Object *obj) {
     int a;
     obj->field_46 = (s16)obj->field_46 - 0x100;

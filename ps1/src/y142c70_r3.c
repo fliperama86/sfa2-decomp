@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 int func_80144f10(u8 a, u8 b) {
     u16 tbl[3][2] = { { 458, 37 }, { 0xffb6, 37 }, { 458, 112 } };
     u16 (*t)[2] = tbl;

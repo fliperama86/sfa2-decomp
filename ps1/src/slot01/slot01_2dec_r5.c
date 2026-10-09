@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
 extern u8 data_801ae02d;
 extern u8 data_801ae02e;
 

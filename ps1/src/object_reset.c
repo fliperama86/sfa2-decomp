@@ -8,8 +8,6 @@
 /* Second name for shared_handler_17. The original loads that address in two
    separate blocks; with a single name this compiler merges them. */
 
-void func_80130678(Object *object, int arg);
-
 void reset_object(Object *object) {
     ObjectFn handler;
     int i;

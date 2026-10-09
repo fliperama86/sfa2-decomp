@@ -5,8 +5,6 @@
 
 extern u8 data_801e46b0_slot0b[];
 extern u8 data_801e4728_slot0b[];
-Object *func_8011f32c(void);
-Pooled *func_8011f4a4(void);
 void func_801e0970_slot0b(void);
 
 void func_801e08d8_slot0b(ModObj *obj) {

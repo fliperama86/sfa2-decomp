@@ -5,8 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern void (*data_800e83c8_slot0f[])(GameState *state);
-void func_80125f5c(u8 bank, u8 count, u8 scale, u8 row);
-void func_80150cd0(int index);
 void func_800dfa04_slot0f(GameState *state);
 
 void func_800df7ec_slot0f(GameState *state) {

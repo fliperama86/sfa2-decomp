@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_800e78e0_slot0f(Object *obj);
-Block172 *func_8011f1e0(void);
 
 void func_800e7748_slot0f(Object *obj) {
     Object *p;

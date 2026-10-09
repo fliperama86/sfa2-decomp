@@ -6,8 +6,6 @@
 #include "protos.h"
 
 
-void func_80138838(GameState *state, int delta);
-
 /* Form found by automatic permutation search. */
 void func_80138628(GameState *state)
 {

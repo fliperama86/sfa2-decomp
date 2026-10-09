@@ -6,8 +6,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014de94(Object *object);
-
 void func_8014c994(Object *object) {
     if (object->field_20f == 0) {
         func_8014c9f4();

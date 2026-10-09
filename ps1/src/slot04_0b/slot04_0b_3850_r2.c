@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011ffa8(Object *object);
-void func_8011ffdc(Object *o);
-
 void func_801b3a30_slot04_0b(Object *o) {
     Config *config = game_state.config;
 

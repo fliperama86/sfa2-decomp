@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
 extern HudState *data_8018f5a0;
 
 void func_80011048_slot01(void) {

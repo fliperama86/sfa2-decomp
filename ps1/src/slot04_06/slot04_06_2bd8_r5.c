@@ -5,7 +5,6 @@
 
 void func_801b4874_slot04_06(Object *obj, u16 *out);
 extern s32 data_801c5460_slot04_06[];
-int func_80146888(Object *object);
 
 void func_801b320c_slot04_06(Object *obj) {
     s16 d;

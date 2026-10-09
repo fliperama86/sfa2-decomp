@@ -5,8 +5,6 @@
 
 extern u16 data_801c3e98_slot04_08;
 
-Block172 *func_8011f1e0(void);
-
 void func_801b16b0_slot04_08(Object *obj) {
     u16 t;
     s16 a;

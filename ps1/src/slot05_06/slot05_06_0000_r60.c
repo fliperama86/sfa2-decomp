@@ -8,7 +8,6 @@ void func_801cd410_slot05_06(Object *obj);
 extern ObjectFn data_801dd54c_slot05_06[];
 extern ObjectFn data_801dd558_slot05_06[];
 u8 func_8013f8c4(Object *obj, int a, int b);
-void func_80130dc0(Object *obj);
 
 void func_801cd258_slot05_06(Object *obj) {
     obj->field_157 = 0;

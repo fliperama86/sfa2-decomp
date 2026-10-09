@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Slot01State55e94 data_80055e94_slot01;
-Block172 *func_8011f1e0(void);
 
 void func_80011f74_slot01(Object *obj) {
     Object *p = (Object *)func_8011f1e0();

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern void (*data_801c3df4_slot04_08[])(Object *, Object *);
-void func_80130dc0(Object *obj);
 u8 func_80149b80(Object *obj);
 
 /* The call of data_801c3df4_slot04_08 passes one argument although its entries take two: the original does not set the second argument register before it. Written with a second parameter passed on, this function differs from the original in 5 instruction slots. */

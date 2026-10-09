@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014e6d0(void);
-void func_8014e710(void);
-
 u8 func_8014e654(Object *unused) {
     if (data_80189468 == 0 || data_80189468 == 2) {
         func_8014e6d0();

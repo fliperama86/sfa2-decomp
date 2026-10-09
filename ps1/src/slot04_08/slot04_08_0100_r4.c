@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-
 void func_801b1cb8_slot04_08(Object *obj) {
     ((Slot04aObj *)obj)->field_1c8--;
     if (((Slot04aObj *)obj)->field_1c8 == 0) {

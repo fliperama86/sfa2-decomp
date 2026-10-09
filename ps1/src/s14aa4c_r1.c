@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014e758(Object *object);
-int func_8014e718(Object *object);
-
 void func_8014aa4c(Object *object) {
     if ((*(unsigned *)&object->field_208 & 0xffff0000) == 0) {
         func_8014ab74(object);

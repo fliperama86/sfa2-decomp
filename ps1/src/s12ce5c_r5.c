@@ -4,10 +4,6 @@
 #include "protos.h"
 
 
-int func_80130184(Object *object);
-int func_8013cac8(Object *object, u8 a, u8 b);
-int func_80141c4c(Object *object);
-
 void func_8012dbd4(Object *object) {
     if ((u8)func_80130184(object) != 0) {
         func_80130efc(object);
