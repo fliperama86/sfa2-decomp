@@ -7472,6 +7472,51 @@ included: none differs.
 
 Not claimed: that any of these types is the original's.
 
+## The test for nonmatching C records what a callee would see (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: additions to the differential test of
+  `ps1/src/slot06_nonmatching/`, with controls for each, and no new
+  function. The functions that needed them follow in pull requests of
+  about fifteen each (the owner's word of that day: "do not let code to
+  pileup too much, do more incremental PRs"); they are on the branches
+  `ps1-nonmatching-batch` and `ps1-nonmatching-rest` until then.
+- The additions came from workers who stopped and reported instead of
+  working around a limit, each with a change of their own that the test
+  had let pass:
+  - memory behind a pointer argument that the function fills for a call
+    was not recorded, only the pointer (`pointees`);
+  - a recorder returns at once, so C that stores a field after a call
+    which the original stores before it ended in the same state and
+    passed; every recorder now copies the blocks the log watches
+    (`watch`). Shown at the top level with two made-up callers that
+    differ only in that order: same log and same final state without the
+    watch, a difference with it;
+  - a function that waits for an interrupt or never returns could not be
+    tested at all (`results`, `stores`, `counts`, `ends_run_at`, and a
+    setup that says the run does not return);
+  - a callee that reads one byte of an argument which the two codes
+    extend differently, and a callee that is handed the address of a
+    local, which the two codes place differently (`masks`, with 0 for
+    "log nothing of the value");
+  - a callee that fills a buffer the caller hands it and returns that
+    buffer's address (`tail`: a few instructions of the contract's own;
+    a model, and the function's header must say from what it is known).
+- The one function already published, `func_801e9080_slot06_00`, now
+  uses the tree's type for its records in place of a struct of its own:
+  the check of declarations had counted the two as one name declared in
+  two ways.
+- A mistake of mine: that cleanup removed the line which the tool's
+  toolchain controls (`test_difftest_build.py`) use as the place of
+  their edits, and I did not run them again after it. Seven of their
+  cases failed when I did, each with "edit applies 0 times". The anchor
+  is the new line now. Every control file is run again after a change
+  to any file it reads, not only after a change to the tool.
+- One-off figures from the private folder: the controls of the tool's
+  new parts were run against 73 more one-line changes of the tool by a
+  worker; all were noticed after one equivalent change was replaced.
+
 ## Three graphics library functions from the reference's source: how the copy routine is declared (2026-10-09)
 
 One of the open questions of the library was "struct copies through a
