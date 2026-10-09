@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014e404(void) {
+u8 func_8014e404(Object *unused) {
     return 1;
 }

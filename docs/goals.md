@@ -265,11 +265,11 @@ functions; they change with every round.
    them because the callers need one signature and the definition has
    another; the list is a work item of its own, and was worked through
    on 2026-10-09: 222 declarations in resident units differed from a
-   definition and 2 still do, and the 22 functions that the shared
+   definition and 1 still does, and the 22 functions that the shared
    header declared without a prototype have one (the project memory
    has the account). The dispatch tables of the resident image followed
    the same day: of 539 functions that stand in a declared table, 150
-   differed from the table's entry type and 1 still does. Data externs
+   differed from the table's entry type and none does now. Data externs
    are done
    where all units agree: 594 symbols in a shared header. 138 symbols stay
    in units at that step. The callback tables followed: five function
