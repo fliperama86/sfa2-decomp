@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-u8 func_8014e504(void) {
+u8 func_8014e504(Object *unused) {
     func_8014e6b0();
     return 1;
 }
 
-u8 func_8014e528(void) {
+u8 func_8014e528(Object *unused) {
     func_8014e6f0();
     return 1;
 }

@@ -6387,6 +6387,37 @@ How it ran:
   tables whose dispatcher took nothing; the decision was the same as
   for the others, and it finished them.
 
+## The script table, the last table difference (2026-10-09)
+
+The two groups before left one question open from both sides: the table
+of script functions at `0x8017d340`, declared with entries that take
+nothing and return a byte, and its dispatcher `func_8014e40c`, declared
+without a parameter while its one caller passes the object.
+
+- The table has 10 entries, 7 functions. One of them,
+  `func_8014e54c`, reads the object. The dispatcher's caller sets the
+  first argument register for the call, and the dispatcher does not set
+  it again before the call through the table: the object goes through.
+  The table's entry type is `u8 (*)(Object *)`, the dispatcher takes
+  the object and passes it on, and the six entries that do not read it
+  take it unused.
+- Two entries were defined with an `int` result, `func_8014e404` and
+  `func_8014e54c`. Both return only the constants 0 and 1; with the
+  table's `u8` they are exact.
+- All seven units are exact. The helper for tables finds no difference
+  in parameters and none in result types among the 539 functions that
+  stand in a declared table. One resident declaration is left of the
+  222: `func_8013054c`, whose pair of bytes is signed in its definition
+  and in five units of one character block, and unsigned in one
+  resident caller, the three functions that caller passes it to, and
+  two units of another block. One type for it is a change in both
+  sessions' folders and has not been made.
+- The helper had a fault of its own that this work showed: two units
+  give two different function pointer types the same local name, and
+  the helper kept one meaning for the name. It printed three false
+  lines for a second table. A unit's own meaning of a name comes first
+  now.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
