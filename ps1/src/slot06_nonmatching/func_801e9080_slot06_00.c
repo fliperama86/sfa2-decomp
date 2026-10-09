@@ -36,6 +36,10 @@
  *     the list head word, and the record counter.
  *   Aliasing: the object, header, sequence step, list array and record
  *     table are distinct blocks; nothing else is written.
+ *   Not reached by any input: two instruction slots of the original, at
+ *     offsets 0x1ac and 0x1cc, which adjust the remainder by 256 and the
+ *     division by 16 for a negative value; a cell is masked to 14 bits and
+ *     is never negative.
  */
 #include "../game.h"
 #include "../protos.h"
