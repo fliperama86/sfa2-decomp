@@ -7795,6 +7795,39 @@ No function count changes here. Nothing under `ps1/` changed.
   made from a derived table is checked against the listing for a few of
   its rows before it is handed out.
 
+## The port draws through PsyZ (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/gpu.c` with the graphics library's host
+  routines, the picture dump, and `test_hostgpu.py`. It exists only in
+  a program built with `hostbuild.py --psyz`. The page has what is
+  served by PsyZ and what by the port, what ends the program, and
+  where the picture is known to differ from the console's.
+- What differs from the state that drew the private trial's pictures,
+  from the lessons of the earlier reviews:
+  - The lists and rectangles are checked as the game's data against
+    the RAM and the frame buffer; the trial's state followed whatever
+    it was given.
+  - A rectangle outside the frame buffer ends the program. The worker
+    had made it a skip that returns -1, with a line; I turned that
+    down: it is behaviour that neither the console nor the game has.
+    The console wraps; until the port does the same, it stops.
+  - The layer had an "override" of `PutDrawEnv`. That function is the
+    library's and has no C in the build, so it is an ordinary library
+    row; the override mechanism is for game functions with C only.
+  - PsyZ crashed when a list was the first thing drawn (its vertex
+    buffer did not exist yet). The layer now makes PsyZ create it when
+    the layer starts, without drawing a pixel; the worker's first fix
+    cleared one pixel, which I turned down for the same reason as the
+    skip.
+- Width and height of zero or less: what the library does with them was
+  read from its code in the original (no C for those two routines is
+  in the tree), and PsyZ's own decompiled copy does something else.
+  The port follows the original's.
+- Not shown: any picture of the real game from a published commit; and
+  no comparison of a picture with the console's.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

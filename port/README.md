@@ -177,7 +177,8 @@ case of a refusal also checks that the whole input is unchanged. It
 needs no compiler. On 2026-10-09 it ended with
 `all cases behaved as required`.
 
-Nothing in this tree links the result yet.
+The graphics layer of the host program links the result when the host
+build is given `--psyz` (below).
 
 ## The check
 
@@ -714,14 +715,14 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `c895976`:
+it is in commit `f6079ca`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3730 compiled, 1 of them nonmatching, 0 failed
+units: 3731 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12458
-functions without C: 613, library 385, game and modules 228
+functions with C: 12459
+functions without C: 612, library 385, game and modules 227
 sweep rows that are not functions: 11
 names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
@@ -750,7 +751,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1402 written for functions with C, 450 for functions without
+jumps: 1403 written for functions with C, 449 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
@@ -869,8 +870,49 @@ routines that do nothing on purpose. What is in this piece:
   program had returned at once, and prints a line at each skip; that is
   not what the game does, and it is off unless asked for.
 
-Not in this piece: the graphics, the pads, the modules. Their
-functions are among the 301 that stop.
+- The graphics, through PsyZ. This part exists only in a program built
+  with `hostbuild.py --psyz DIR`, DIR being a build folder of
+  `psyzbuild.py`; without the option the graphics functions stay among
+  those that stop and the program links nothing of PsyZ. With it the
+  program built from this tree prints
+  `library: 111 host routines, 274 left that stop`. The layer serves 27
+  functions of the graphics library. The drawing goes through PsyZ:
+  every list that the game hands to `DrawOTag`, and the packet of
+  `PutDrawEnv`, is walked by the port and each packet is handed on
+  behind the two-word tag that PsyZ uses, because the game's lists are
+  linked by 24-bit addresses of the PS1's RAM. `ClearImage`,
+  `LoadImage`, `StoreImage`, `MoveImage`, `DrawSync`, `SetDispMask`,
+  `PutDispEnv`, `ResetGraph` and the window are PsyZ's as well. The
+  port itself does what only touches the game's own structures: the
+  ordering-table setters, `AddPrim` and its relatives, the setters of
+  primitives, `GetTPage`, `GetClut`, `SetDrawMode`, the default
+  environments, and the words of a drawing environment, after the
+  library's own code. A picture is presented once per vertical blank.
+  The window opens windowed; closing it ends the program.
+- What the graphics layer does not trust. The lists are the game's data:
+  every link must point into the RAM, a packet must have the words its
+  kind needs and end inside the RAM, and a list that does not end is cut
+  off by a count; each ends the program with a line. A rectangle of an
+  image routine must lie inside the frame buffer of 1024 by 512, and
+  the pixels it names inside the RAM; a width or height of zero or less
+  becomes 1 and one above 1023 or 511 becomes that, as the library's
+  code does, before the test. The console's hardware wraps a rectangle
+  that leaves the frame buffer; the port does not do that yet and ends
+  with a line instead. A drawing or image routine before
+  `ResetGraph(0)` ends the program too: PsyZ would hang.
+- Where the picture differs from the console's, known so far: a drawn
+  pixel reads back with its top bit set, where PsyZ keeps opacity; PsyZ
+  rounds a flat colour's 8 bits to 5 in its own way (248 gives 30, the
+  console's shift gives 31); `ClearOTag` ends a table with the
+  library's end mark itself; a present waits for the display's refresh
+  on a window that cannot tear. None of this has been compared with the
+  console's picture: the list is what the worker saw in PsyZ's code and
+  in the controls.
+- `--dump-vram PREFIX` writes the frame buffer as a picture file when
+  the program ends, and `--dump-every N` every N seconds.
+
+Not in this piece: the pads and the modules. Their functions are
+among those that stop.
 
 ### What this does not show
 
@@ -945,6 +987,17 @@ position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
+`python3 port/tools/test_hostgpu.py --cc CC --psyz-build DIR` needs a
+built PsyZ and a way to open a window: it links the graphics layer
+with a small program of its own and reads the frame buffer back. Its
+cases: each routine's value; a picture checked pixel by pixel; the
+first list of a program drawn right; every primitive kind the walker
+knows at the length it needs, at 255 words and one word short; lists
+that leave the RAM, loop or run past its end; ordering tables from 30
+entries to all of RAM; rectangles at the frame buffer's edges and one
+pixel past each; pixel buffers at the end of the RAM; a call before
+`ResetGraph(0)`; a display that cannot be opened; the dump onto a
+folder and onto a path that cannot be made.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond
@@ -954,7 +1007,7 @@ the image's last byte, an image cut inside the last file and one cut
 right behind its last byte; a directory that declares only its own two
 records, and a record that crosses or only begins inside the declared
 end, for the reader that lists and for the one that looks a file up. On
-2026-10-09 each of the four ended with
+2026-10-09 each of the five ended with
 `all cases behaved as required`.
 
 ## Not decided
