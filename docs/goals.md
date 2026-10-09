@@ -465,9 +465,12 @@ chose the first on 2026-10-06:
   functions exact.
   Then two more functions copied from twins that had become exact
   meanwhile, one in `slot28` and one in `slot04_02`, and the figures in
-  the comments of this session's units measured again. The counts of
-  the steps above are those of their day; the README has the current
-  ones.
+  the comments of this session's units measured again.
+  Then a search over the integer types of the locals of every parked
+  candidate of this session, each variant compiled alone and scored by
+  its bytes: 2 of 132 are exact, one in `slot12` and one in `slot0f`,
+  and 42 more are closer than they were. The counts of the steps above
+  are those of their day; the README has the current ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.
