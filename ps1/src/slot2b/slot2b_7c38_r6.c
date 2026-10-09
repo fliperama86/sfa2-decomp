@@ -6,8 +6,6 @@
 extern ObjectFn data_80079a18_slot2b[];
 extern u8 data_80079a00_slot2b[];
 extern Object *data_8007ef28_slot2b;
-extern FrameRecord *data_1f8000a8;
-extern FrameRecord *data_1f800158;
 void func_80078280_slot2b(Object *o);
 
 void func_80078168_slot2b(Object *o) {

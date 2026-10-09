@@ -14,7 +14,6 @@ extern u8 data_801b8d20_slot04_sel[];
 extern u8 data_801b8d8c_slot04_sel[];
 extern u8 data_801b9d70_slot04_sel;
 extern u8 data_801b9d74_slot04_sel;
-extern s8 data_8016e68e;
 
 void func_801b64c0_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int a);
 void func_801b56e0_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);

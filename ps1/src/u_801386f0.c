@@ -3,8 +3,6 @@
 #include "protos.h"
 #include "externs.h"
 
-extern u8 table_6d30[];
-
 void func_801386f0(GameState *state)
 {
   s16 t;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern void (*data_8017ec44[])(Ctl *ctl);
-
 void func_8014f918(int a) {
     Ctl *ctl = &ctl_80190948;
     if (ctl_80190948.field_0a != 0) {

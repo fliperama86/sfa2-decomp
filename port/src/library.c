@@ -139,23 +139,6 @@ static const struct port_function *find_function(const char *name)
     return NULL;
 }
 
-/* The PS1 address of a resident function the build knows, with C or without (a library function included). */
-static int find_known_address(const char *name, unsigned *address)
-{
-    unsigned i;
-    const struct port_function *f = find_function(name);
-    if (f) {
-        *address = f->address;
-        return 1;
-    }
-    for (i = 0; i < port_absent_count; i++)
-        if (port_absents[i].image == -1 && strcmp(port_absents[i].name, name) == 0) {
-            *address = port_absents[i].address;
-            return 1;
-        }
-    return 0;
-}
-
 static unsigned override_total(void)
 {
     unsigned s, n = 0;
@@ -178,7 +161,7 @@ static const struct port_override *override_at(unsigned k)
 /* Check every table against itself and the build's tables. */
 static int check(char *err, size_t errsize)
 {
-    unsigned d, d2, j, j2, k, known;
+    unsigned d, d2, j, j2, k;
 
     for (d = 0; d < port_domain_count; d++)
         for (j = 0; port_domains[d].table[j].name; j++) {
@@ -209,8 +192,8 @@ static int check(char *err, size_t errsize)
                 snprintf(err, errsize, "overrides: %s is listed twice", o->name);
                 return -1;
             }
-        if (!find_known_address(o->name, &known)) {
-            snprintf(err, errsize, "overrides: %s is listed but this build knows no function of that name", o->name);
+        if (!find_function(o->name)) {
+            snprintf(err, errsize, "overrides: %s is listed but this build has no function of that name with C", o->name);
             return -1;
         }
     }
@@ -261,9 +244,7 @@ int port_library_install(unsigned char *ram, struct port_install *out, char *err
             put(ram, a->address, 0xe9, e->host);
     }
     for (k = 0; k < override_total(); k++) {
-        unsigned address = 0;
-        find_known_address(override_at(k)->name, &address);
-        put(ram, address, 0xe9, override_at(k)->host);
+        put(ram, find_function(override_at(k)->name)->address, 0xe9, override_at(k)->host);
         out->overrides++;
     }
     return 0;

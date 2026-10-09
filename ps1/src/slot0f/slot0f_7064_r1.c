@@ -9,7 +9,6 @@ extern u8 data_800f7d38_slot0f[];
 extern u8 data_800f7d48_slot0f[];
 extern Slot12Quad data_800f7d50_slot0f[];
 extern Slot12Cell data_800f7e90_slot0f[];
-extern ObjectRef data_80190468;
 void func_800e5be4_slot0f(Object *obj, Slot12Sprite *cell);
 
 void func_800e7064_slot0f(Object *obj) {

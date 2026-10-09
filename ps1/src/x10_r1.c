@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern PolyBuf data_8018947c[2];
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_801511c8(void)
 {

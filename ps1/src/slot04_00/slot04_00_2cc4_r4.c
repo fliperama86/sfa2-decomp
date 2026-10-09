@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern FrameRecord *data_1f8000a8;
-extern FrameRecord *data_1f800158;
 extern BoxTables data_801c0148_slot04_00[];
 
 void func_801b34c4_slot04_00(Object *obj);

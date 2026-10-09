@@ -5,7 +5,6 @@
 
 extern u16 data_800f013c_slot0f[];
 extern u16 data_800f0164_slot0f[];
-extern ObjectRef data_80190468;
 
 void func_800e72bc_slot0f(Object *obj) {
     int i = obj->field_03;

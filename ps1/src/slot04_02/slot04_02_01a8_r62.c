@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
-
 void func_801b6e2c_slot04_02(Object *o) {
     Object *p = o->field_3c;
     if (p->field_28 == (u32)o) {

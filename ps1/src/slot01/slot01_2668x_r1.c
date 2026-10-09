@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_80015440_slot01[][0x60];
-extern u8 data_801a2964[];
 
 void func_80012668_slot01(Object *obj) {
     Rect r;

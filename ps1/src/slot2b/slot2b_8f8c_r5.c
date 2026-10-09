@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Object *data_8007ef34_slot2b;
-extern SequenceStep *data_8017c850;
 
 void func_800795b4_slot2b(Object *obj);
 

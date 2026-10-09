@@ -619,7 +619,7 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `57baa57`:
+it is in commit `bfaf349`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
@@ -656,7 +656,7 @@ program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118
 identity: SHA-256 matches the build's baseline
 jumps: 1404 written for functions with C, 448 for functions without
 library: 73 host routines, 309 left that stop
-overrides: 2
+overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
 ```
@@ -713,14 +713,27 @@ routines that do nothing on purpose. What is in this piece:
   library's functions are accepted and do nothing: the port is silent.
   Both are stand-ins and listed as such.
 - Overrides: host routines that run in place of a game function's C,
-  for what cannot run on a PC as written. There are two, each with its
-  reason in the listing. One sets up the game's task slots without the
-  stores into the BIOS's thread table, which is at an address the
-  program does not have. The other walks an ordering table: the
-  original reads it through the copy of RAM that the PS1 shows from
-  address 0, a range that a Windows program cannot have, so the host
-  routine does the same walk on the real addresses. An override may
-  name a function that has no C yet, since it supplies the function.
+  for what cannot run on a PC as written. There is one, with its reason
+  in the listing: it sets up the game's task slots as the function's C
+  does, without the stores into the BIOS's thread table, which is at an
+  address the program does not have. An override is accepted only for a
+  function that has C: it is not a way to supply a function. A second
+  one is needed and is not in this piece: one function walks an
+  ordering table through the copy of RAM that the PS1 shows from
+  address 0, a range that a Windows program cannot have. Its host
+  routine waits for differential evidence against the original code;
+  until then that function is one that stops.
+- The runtime calls only what it installed. The game hands the library
+  addresses to call later: a thread's entry, an event's handler, the
+  interrupt and vertical-blank callbacks. Each is checked at the moment
+  of the call: it must be an address where the runtime itself wrote a
+  jump or a stop, or lie inside the game's own compiled code, between
+  the build's two markers. Anything else ends the program with a line
+  that names the path and the address, before the call. A function
+  without C as a target still ends with its named stop. The limit of
+  the second test: any address inside the game's compiled code passes,
+  not only a function's first instruction, because the build does not
+  list the game's static functions.
 - `--trace` and `--trace-file FILE` write one line per library call.
 
 Not in this piece: the disc's library, the graphics, the pads, the
@@ -762,12 +775,16 @@ pinned one is refused and nothing of it runs; an entry at an address
 that no table holds, inside a function, just before one, or in a module
 is refused. Its cases for the library, all on made-up game code: a
 library function with a host routine is reached and one without still
-stops; an override replaces a function's C, and one for a function
-without C runs in place of the stop; a table that names a function
-twice, an unknown one or an unknown address is refused; the trace has
-each library call; the walk of an ordering table gives what the test's
-own walk gives, and a read of the PS1's low copy of RAM ends the
-program with a line that says so; a handler runs once per vertical
+stops; an override replaces a function's C; a table that names a
+function twice, an unknown one or an unknown address is refused, and so
+is an override of a function without C; the trace has each library
+call; a read of the PS1's low copy of RAM ends the program with a line
+that says so; a thread entry, an event handler, an interrupt callback
+and a vertical-blank callback at an address that the program did not
+install are each refused before the call, and the byte there does not
+run, while the same four paths with a function without C as the target
+end with its named stop and with a handler inside the game's own code
+run it; a handler runs once per vertical
 blank, is held back inside a critical section and delivered once after
 it; an event that was closed is not called; three tasks run in the
 order the game switches them, and a task function that returns ends

@@ -75,6 +75,13 @@ int  port_jump_set_build(char *err, size_t errsize);
  * is written)? The only addresses the runtime ever calls are such places. */
 int  port_jump_known(unsigned address);
 int  port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, char *err, size_t errsize);
+/* Before the runtime calls an address that the game handed it (a thread's entry, an event handler, an
+ * interrupt or vsync callback): accept it when it is the start of a resident entry the runtime wrote a jump or
+ * a call at (a function with C, one without, a library function, an override), or a host address inside the
+ * game's own compiled code (between the build's markers port_game_text_begin and port_game_text_end).
+ * Anything else ends the program with `refused: PATH 0xADDRESS is not a function this program installed`
+ * and status PORT_EXIT_TARGET; PATH names the call site. Called at the moment of the call. */
+void port_target_check(const char *path, const void *target);
 /* The entry of the 5-byte call written for functions without C. */
 void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */
@@ -92,6 +99,7 @@ void port_stop_main_returned(void);
 #define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
 #define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
 #define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
+#define PORT_EXIT_TARGET  12    /* refused: an address the game handed over is not an installed function */
 #define PORT_EXIT_OTHER   9     /* a library call whose arguments a host routine does not serve */
 
 /* Print `stop: ` and the formatted line, flush, end the program with `status`.
@@ -126,10 +134,8 @@ struct port_install { unsigned host, noop, stops, overrides; };
 void port_trace_set(FILE *f);
 /* After port_jumps_write: write the jumps of the host routines over the
  * stop calls of the library functions, and of the overrides over the game
- * functions' C or, for a function without C, over its stop call. A refusal
- * (a name listed twice, a library name that no absent library function has,
- * an override name that is in neither the functions nor the absents) is -1
- * with a line. */
+ * functions' C. A refusal (a name listed twice, a listed name that no
+ * absent library function or function with C has) is -1 with a line. */
 int  port_library_install(unsigned char *ram, struct port_install *out, char *err, size_t errsize);
 /* --list-library: print the groups (needs no memory and no disc). -1 with a line on a refusal. */
 int  port_library_list(char *err, size_t errsize);

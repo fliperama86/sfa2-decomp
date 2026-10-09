@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern ObjectRef data_80190458;
 extern SequenceStep **data_800282e8_slot27[];
 extern void (*data_800283c8_slot27[])(Object *);
 

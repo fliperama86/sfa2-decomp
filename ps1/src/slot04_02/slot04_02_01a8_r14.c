@@ -5,7 +5,6 @@
 
 void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 extern ObjectFnInt data_801c61d8_slot04_02[];
-extern u8 data_801ad398;
 
 u8 func_801b15e8_slot04_02(Object *obj) {
     u8 r = 0;

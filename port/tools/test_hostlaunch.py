@@ -84,10 +84,8 @@ LIB_A, LIB_B, LIB_C = RAM + 0x100200, RAM + 0x100210, RAM + 0x100220
 G_OVER, G_MECH = RAM + 0x100230, RAM + 0x100240
 K = {name: RAM + 0x100300 + 0x10 * i for i, name in enumerate(
     ["OpenEvent", "EnableEvent", "TestEvent", "VSync", "ResetCallback", "StartRCnt", "EnterCriticalSection",
-     "ExitCriticalSection", "OpenTh", "ChangeTh", "CloseTh", "GetGp", "CloseEvent"])}
-G_COMPACT, F_COMPACT, G_CRASH = RAM + 0x100500, RAM + 0x100510, RAM + 0x100520
-TABLE = RAM + 0x104000
-LINKS = [0,1,1,1,0,0,1,1,0,1,1,1,1,0,0,0,1,0,1,1,0,0,0,1,1,1,1,0,0,1,0,0,0,1,1,0,1,1,1,1]
+     "ExitCriticalSection", "OpenTh", "ChangeTh", "CloseTh", "GetGp", "CloseEvent", "InterruptCallback", "VSyncCallback"])}
+G_CRASH = RAM + 0x100520
 G_VBLANK, G_THREADS, G_THREAD_RET, T1, T2, T3 = (RAM + 0x100400 + 0x10 * i for i in range(6))
 
 
@@ -247,25 +245,80 @@ void game_thread_ret(void)
 }
 """
 
-def game_compact() -> str:
-    links = ", ".join(map(str, LINKS))
-    return PROLOGUE + f"""
-extern void ps1_func_80119694(void *);
-void func_80119694(void *a) {{ (void)a; SAY("original C ran\\n"); }}
-void game_compact(void)
-{{
-    static const int links[40] = {{ {links} }};
-    unsigned *t = (unsigned *)0x{TABLE:08x}u;
-    int i;
-    for (i = 0; i < 40; i++) t[i] = links[i] ? ((0x{TABLE:08x}u + 4u * (unsigned)(i - 1)) & 0xffffffu) : 0x12345678u;
-    ps1_func_80119694(t + 39);
-    for (i = 0; i < 40; i++) SAY("w%d %08x\\n", i, t[i]);
-}}
+GAME_CRASH = PROLOGUE + r"""
 void game_crash(void)
-{{
+{
     volatile unsigned *p = (volatile unsigned *)0x1000;
-    SAY("about to read the mirror\\n");
-    SAY("read %u\\n", *p);
+    SAY("about to read the mirror\n");
+    SAY("read %u\n", *p);
+}
+"""
+
+# The addresses that the game hands to the runtime to call: an unregistered one in the program's text (an x86
+# ret lies there) and a registered function without C. One game function for each path that calls an address.
+G_TARGET = {name: RAM + 0x101500 + 0x10 * i for i, name in enumerate(["thread", "event", "irq", "vsync", "valid"])}
+
+
+def game_targets(target: int) -> str:
+    return PROLOGUE + f"""
+extern unsigned ps1_OpenTh(unsigned, unsigned, unsigned), ps1_OpenEvent(unsigned, unsigned, unsigned, void (*)(void));
+extern int ps1_ChangeTh(unsigned), ps1_EnableEvent(unsigned), ps1_VSync(int), ps1_StartRCnt(unsigned);
+extern void *ps1_ResetCallback(void), *ps1_InterruptCallback(int, void (*)(void));
+extern void ps1_VSyncCallback(void (*)(void));
+static volatile int count;
+static void handler(void) {{ count++; }}
+void g_thread(void)
+{{
+    unsigned h = ps1_OpenTh(0x{target:08x}u, 0, 0);
+    SAY("thread opened\\n");
+    ps1_ChangeTh(h);
+    SAY("after the switch\\n");
+}}
+void g_event(void)
+{{
+    unsigned ev;
+    ps1_ResetCallback();
+    ev = ps1_OpenEvent(0xf2000003u, 2, 0x1000, (void (*)(void))0x{target:08x}u);
+    ps1_EnableEvent(ev);
+    ps1_StartRCnt(3);
+    SAY("event armed\\n");
+    ps1_VSync(0);
+    SAY("after the vblank\\n");
+}}
+void g_irq(void)
+{{
+    ps1_ResetCallback();
+    ps1_InterruptCallback(0, (void (*)(void))0x{target:08x}u);
+    SAY("interrupt callback set\\n");
+    ps1_VSync(0);
+    SAY("after the vblank\\n");
+}}
+void g_vsync(void)
+{{
+    ps1_ResetCallback();
+    ps1_VSyncCallback((void (*)(void))0x{target:08x}u);
+    SAY("vsync callback set\\n");
+    ps1_VSync(0);
+    SAY("after the vblank\\n");
+}}
+void g_valid(void)
+{{
+    unsigned ev;
+    ps1_ResetCallback();
+    ev = ps1_OpenEvent(0xf2000003u, 2, 0x1000, handler);
+    ps1_EnableEvent(ev);
+    ps1_StartRCnt(3);
+    ps1_VSync(0);
+    SAY("event handler ran %d\\n", count > 0);
+    count = 0;
+    ps1_InterruptCallback(0, handler);
+    ps1_VSync(0);
+    SAY("interrupt callback ran %d\\n", count > 0);
+    ps1_InterruptCallback(0, 0);
+    count = 0;
+    ps1_VSyncCallback(handler);
+    ps1_VSync(0);
+    SAY("vsync callback ran %d\\n", count > 0);
 }}
 """
 
@@ -280,7 +333,8 @@ FUN_KERN = FUN_BASE + [("game_vblank", G_VBLANK, "game_vblank"), ("game_threads"
                        ("game_thread_ret", G_THREAD_RET, "game_thread_ret"),
                        ("t1", T1, "t1"), ("t2", T2, "t2"), ("t3", T3, "t3"), ("thread_returns", RAM + 0x100460, "thread_returns")]
 
-FUN_COMPACT = FUN_BASE + [("game_compact", G_COMPACT, "game_compact"), ("func_80119694", F_COMPACT, "func_80119694"), ("game_crash", G_CRASH, "game_crash")]
+FUN_CRASH = FUN_BASE + [("game_crash", G_CRASH, "game_crash")]
+FUN_TARGET = FUN_BASE + [(f"g_{n}", a, f"g_{n}") for n, a in G_TARGET.items()]
 
 CARD_NAMES = ["InitCARD", "StartCARD", "_bu_init", "_card_info", "_card_load", "@card_clear", "open", "read", "write", "close", "firstfile", "nextfile", "format"]
 CARD_ADDR = {n: RAM + 0x100600 + 0x10 * i for i, n in enumerate(CARD_NAMES + ["OpenEvent", "EnableEvent", "TestEvent"])}
@@ -511,7 +565,7 @@ HOSTS = {"OpenEvent": "port_h_OpenEvent", "EnableEvent": "port_h_EnableEvent", "
          "VSync": "port_h_VSync", "ResetCallback": "port_h_ResetCallback", "StartRCnt": "port_h_StartRCnt",
          "EnterCriticalSection": "port_h_EnterCriticalSection", "ExitCriticalSection": "port_h_ExitCriticalSection",
          "OpenTh": "port_h_OpenTh", "ChangeTh": "port_h_ChangeTh", "CloseTh": "port_h_CloseTh", "GetGp": "port_h_GetGp",
-         "CloseEvent": "port_h_CloseEvent"}
+         "CloseEvent": "port_h_CloseEvent", "InterruptCallback": "port_h_InterruptCallback", "VSyncCallback": "port_h_VSyncCallback"}
 
 
 def kernel_domains() -> str:
@@ -569,14 +623,10 @@ VARIANTS = {
                            domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_A)),
     "unknown": Variant("unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "no_such_function", (void *)host_c, 0 },')),
     "unknown-address": Variant("unknown-address", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "@0x80100999", (void *)host_c, 0 },')),
-    "over-unknown": Variant("over-unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains("", '{ "no_such_function", (void *)over_host, "no function of that name" },')),
-    "over-absent": Variant("over-absent", GAME_MECH, FUN_MECH, ABS_MECH,
-                           domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "lib_b", (void *)over_host, "the test replaces a library function that has no host routine" },')),
-    "compact": Variant("compact", game_compact(), FUN_COMPACT, ABS_BASE,
-                       "#include \"port.h\"\nextern void port_o_func_80119694(void *);\nstatic const struct port_library t[] = { { 0, 0, 0 } };\n"
-                       "const struct port_domain port_domains[] = { { \"none\", t } };\nconst unsigned port_domain_count = 1;\n"
-                       "static const struct port_override o[] = { { \"func_80119694\", (void *)port_o_func_80119694, \"test\" }, { 0, 0, 0 } };\n"
-                       "const struct port_override *const port_override_sets[] = { o };\nconst unsigned port_override_set_count = 1;\n"),
+    "over-unknown": Variant("over-unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains("", '{ "lib_a", (void *)over_host, "a library function has no C to replace" },')),
+    "crash": Variant("crash", GAME_CRASH, FUN_CRASH, ABS_BASE, DOMAINS_NONE),
+    "tgt-unreg": Variant("tgt-unreg", game_targets(UNREGISTERED), FUN_TARGET, ABS_KERN, kernel_domains()),
+    "tgt-absent": Variant("tgt-absent", game_targets(ENTRY_ABSENT), FUN_TARGET, ABS_KERN, kernel_domains()),
     "card": Variant("card", GAME_CARD, FUN_CARD, ABS_CARD,
                     "#include \"port.h\"\nextern void port_h_OpenEvent(), port_h_EnableEvent(), port_h_TestEvent();\n"
                     "static const struct port_library k[] = { { \"OpenEvent\", (void *)port_h_OpenEvent, 0 }, { \"EnableEvent\", (void *)port_h_EnableEvent, 0 }, { \"TestEvent\", (void *)port_h_TestEvent, 0 }, { 0, 0, 0 } };\n"
@@ -726,16 +776,11 @@ def cases(rig: Rig):
     status, lines, img, arg = rig.run("mech-noover", program(G_MECH), variant="mech-noover")
     yield "without-the-override-the-games-own-c-runs", verdict((status, "original C ran" in lines, "override ran" in lines), (4, True, False))
 
-    status, lines, img, arg = rig.run("over-absent", program(G_MECH), variant="over-absent")
-    want = head(img, arg, host=2, stops=2, overrides=1, with_c=4, without_c=5) + [
-        f"start: 0x{G_MECH:08x}", "host a ran 5", "a returned 6", "host c ran 7", "c returned 9", "original C ran", "override ran", "not reached", "stop: main returned"]
-    yield "an-override-of-a-function-without-c-is-installed-in-place-of-its-stop-and-runs", verdict((status, lines), (0, want))
-
     for tag, text in (("dup", "library: lib_a is listed twice (test and test, as lib_a)"),
                       ("dup-address", f"library: lib_a is listed twice (test and test, as @0x{LIB_A:08x})"),
                       ("unknown", "library: no_such_function (test) is listed but this build has no library function of that name without C"),
                       ("unknown-address", "library: @0x80100999 (test) is listed but this build has no library function of that name without C"),
-                      ("over-unknown", "overrides: no_such_function is listed but this build knows no function of that name")):
+                      ("over-unknown", "overrides: lib_a is listed but this build has no function of that name with C")):
         status, lines, img, arg = rig.run(tag, program(G_MECH), variant=tag)
         bad = [l for l in lines if l.startswith(("library:", "start:", "stop:")) or l.endswith("ran")]
         yield f"table-{tag}-is-refused", None if status == 2 and lines[-1] == "refused: " + text and not bad else f"status {status}, lines {lines!r}"
@@ -759,40 +804,24 @@ def cases(rig: Rig):
             "  game_over: the test replaces it", "library: 2 host routines, 2 left that stop"]
     yield "list-library-needs-no-disc-and-prints-the-groups-with-addresses", verdict((proc.returncode, out), (0, want))
 
-    # the override of the ordering-table compaction, on a table of the test's own
-    def oracle(links):
-        t = [((TABLE + 4 * (i - 1)) & 0xFFFFFF) if links[i] else 0x12345678 for i in range(40)]
-        def link(i):
-            return t[i] == ((TABLE + 4 * (i - 1)) & 0xFFFFFF)
-        budget, i = 29, 39
-        while True:
-            if not link(i):
-                budget -= 1
-                if budget == 0: return t
-                i -= 1
-                continue
-            budget -= 1
-            if budget == 0: return t
-            last = i
-            i -= 1
-            while link(i):
-                budget -= 1
-                if budget == 0: return t
-                i -= 1
-            t[last] = (TABLE + 4 * i) & 0xFFFFFF
-            budget -= 1
-            if budget == 0: return t
-            i -= 1
-    status, lines, img, arg = rig.run("compact", program(G_COMPACT), variant="compact")
-    want_words = [f"w{i} {w:08x}" for i, w in enumerate(oracle(LINKS))]
-    start_at = lines.index(f"start: 0x{G_COMPACT:08x}") if f"start: 0x{G_COMPACT:08x}" in lines else -1
-    body = lines[start_at + 1:]
-    yield "override-of-the-ordering-table-compaction-matches-the-test-s-own-walk", verdict((status, body), (0, want_words + ["stop: main returned"]))
-    yield "compaction-fixture-has-links-that-change-something", None if oracle(LINKS) != [((TABLE + 4 * (i - 1)) & 0xFFFFFF) if LINKS[i] else 0x12345678 for i in range(40)] else "the walk changes nothing"
-
-    status, lines, img, arg = rig.run("crash", program(G_CRASH), variant="compact")
+    status, lines, img, arg = rig.run("crash", program(G_CRASH), variant="crash")
     ok = status == 10 and lines[-2] == "about to read the mirror" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00001000 \(read\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
     yield "a-read-of-the-ram-mirror-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
+
+    # ---- addresses that the game hands to the runtime to call ----
+    for path, name, after in (("thread entry", "thread", "after the switch"), ("event handler", "event", "after the vblank"),
+                              ("interrupt callback", "irq", "after the vblank"), ("vsync callback", "vsync", "after the vblank")):
+        entry = G_TARGET[name]
+        status, lines, img, arg = rig.run(f"tgt-{name}", program(entry), variant="tgt-unreg", timeout=60)
+        ran = [l for l in lines if l.startswith(("after", "returned")) or "returned" in l]
+        refusal = f"refused: {path} 0x{UNREGISTERED:08x} is not a function this program installed"
+        yield f"{name}-target-in-unregistered-ram-is-refused-and-never-run", None if (status, lines[-1]) == (12, refusal) and not ran and not any(l.startswith("stop:") for l in lines) else f"status {status}, lines {lines[-3:]!r}"
+        status, lines, img, arg = rig.run(f"tgt-{name}-absent", program(entry), variant="tgt-absent", timeout=60)
+        yield f"{name}-target-that-is-a-function-without-c-ends-with-its-named-stop", verdict(
+            (status, lines[-1]), (3, f"stop: no C yet for func_{ENTRY_ABSENT:08x} (0x{ENTRY_ABSENT:08x})"))
+    status, lines, img, arg = rig.run("tgt-valid", program(G_TARGET["valid"]), variant="tgt-unreg", timeout=60)
+    yield "handlers-and-callbacks-inside-the-games-own-code-are-called", verdict(
+        (status, lines[-4:]), (0, ["event handler ran 1", "interrupt callback ran 1", "vsync callback ran 1", "stop: main returned"]))
 
     # ---- the memory card model: empty slots ----
     status, lines, img, arg = rig.run("card", program(G_CARD), variant="card")

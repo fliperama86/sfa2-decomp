@@ -91,6 +91,7 @@ static VOID CALLBACK fiber_main(void *param)
 {
     unsigned entry = (unsigned)(size_t)param;
     reap();
+    port_target_check("thread entry", (const void *)(size_t)entry);
     ((void (*)(void))(size_t)entry)();
     port_halt(PORT_EXIT_THREAD, "the function of a thread (0x%08x) returned; the game never lets one", entry);
 }

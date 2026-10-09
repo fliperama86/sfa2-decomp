@@ -4,13 +4,6 @@
 #include "protos.h"
 
 extern u16 data_801a6966;
-extern u16 data_80185fc8;
-extern u16 data_80185fcc;
-extern int data_80185fd0;
-extern int data_80185fd4;
-extern s8 data_8016e9a8[];
-extern s16 data_8016ea60[];
-extern u8 data_8016e9b8[];
 
 /* The original loads one of two halfwords, then tests a register that it has just set to zero, and keeps the code of the arm that this test never reaches. The test of the high half of the 16-bit local gives that; what the original's source tested there is not known. Written as w == 0 instead, this function differs from the original in 7 instruction slots. The local o2 holds the pointer read at the top: with the read at its use, 8 instruction slots differ. */
 void func_80125684(void) {
