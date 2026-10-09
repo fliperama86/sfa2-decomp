@@ -4181,6 +4181,17 @@ file places are nearly all of it. To remember:
   count of refused units is a count for one version.
 - A draft pull request is how a workflow that only runs for pull requests
   and main gets its first run before review.
+- The owner's second "yes" of 2026-10-09: PsyZ's own tests on the three
+  systems, the workflow `Port PsyZ tests`. The whole suite passes on all
+  three runners, the picture comparisons included, on Windows built with
+  GCC. That answers what the machine of these sessions could not: its 55
+  failures of 2026-10-07 were its own, for want of anything to draw with,
+  and the 10 timer failures among them too. A result from one machine
+  that lacks something is a result about that machine until another
+  machine agrees.
+- The runners made the owner's password unnecessary: what this machine
+  cannot install, a runner already has. Ask what a runner can show before
+  asking the owner for access.
 - For this tool the helper was told to choose its changed copies against
   the sentences of the contract and not against its controls. Several of
   its 38 survived at first and got controls; all 14 of the reviewer's
