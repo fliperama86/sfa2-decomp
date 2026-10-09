@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 /* function of another unit of this module */
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);

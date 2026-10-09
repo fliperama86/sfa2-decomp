@@ -10,8 +10,6 @@ extern u8 data_801c7a50_slot04_11[];
 
 void func_80131468(Object *obj);
 void func_80131638(Object *obj);
-u8 func_80149b80(Object *obj);
-u8 func_8013f8c4(Object *obj, int a, int b);
 void func_8007bc00_slot16(Object *obj);
 void func_8007be8c_slot16(Object *obj);
 void func_801b5ab8_slot04_11(Object *obj);
@@ -63,7 +61,7 @@ void func_801b60f4_slot04_11(Object *obj) {
 void func_801b6134_slot04_11(Object *obj) {
     obj->field_07++;
     obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && func_8013f8c4(obj, -0x17, 0x14) != 0) {
+    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

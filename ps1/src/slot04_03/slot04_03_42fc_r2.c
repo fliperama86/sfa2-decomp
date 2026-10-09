@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s32 data_801c0a08_slot04_03[];
-u8 func_80149b80(Object *obj);
 
 void func_801b445c_slot04_03(Object *obj) {
     s16 t = obj->field_3a;

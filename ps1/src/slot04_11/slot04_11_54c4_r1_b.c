@@ -12,7 +12,6 @@ void func_80131468(Object *object);
 void func_80131638(Object *object);
 void func_80130678(Object *object, int arg);
 unsigned short func_80130470(Object *object);
-int func_8012f898(Object *object);
 
 void func_801b5874_slot04_11(Object *obj);
 Object *func_801b5914_slot04_11(Object *obj);

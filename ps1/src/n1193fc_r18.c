@@ -15,7 +15,7 @@ extern u8 data_8016e9b8[];
 void func_8012572c(void) {
 }
 
-u8 func_80125734(Object *object, int arg) {
+int func_80125734(Object *object, int arg) {
     u8 a = arg;
     u8 i;
     if (object->field_cd == 0) {

@@ -3,12 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
 void func_80142778(Object *object);
 
 int func_801b1048_slot04_0d(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) goto z;
-    if (func_80141788(obj)) goto b;
+    if ((u8)func_80141788(obj)) goto b;
 z:
     return 0;
 b:

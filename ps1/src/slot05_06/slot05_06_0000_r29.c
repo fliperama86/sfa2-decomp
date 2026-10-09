@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_801dd404_slot05_06[];
-int func_80140cd8(Object *object, int a, int b);
 
 void func_801ca568_slot05_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;

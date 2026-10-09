@@ -19,7 +19,6 @@ void func_80146960(Object *object);
 void func_80141e5c(Object *object);
 int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
 void func_801483a4(Object *object, int a, int b);
-int func_80140cd8(Object *object, int a, int b);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_801b5874_slot04_11(Object *obj);
 int func_801b57a8_slot04_11(Object *obj);

@@ -4,11 +4,9 @@
 #include "../externs.h"
 
 int func_80130184(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146960(Object *object);
 void func_80142adc(Object *object);
-u8 func_80140cd8(Object *object, int a, int b);
 void func_801b10b0_slot04_16(Object *obj);
 void func_801b447c_slot04_16(Object *obj);
 void func_801b3d78_slot04_16(Object *obj);
@@ -74,7 +72,7 @@ void func_801b3cd4_slot04_16(Object *obj) {
 void func_801b3d78_slot04_16(Object *obj) {
     s16 t = *(u16 *)((u8 *)data_801ca23c_slot04_16 + (obj->field_12a & 0xfe));
     t -= 0x26;
-    if (func_8013f8c4(obj, -0x26, t) == 0) {
+    if ((u8)func_8013f8c4(obj, -0x26, t) == 0) {
         obj->field_15a = 9;
         func_801b447c_slot04_16(obj);
     } else {
@@ -166,7 +164,7 @@ void func_801b40ec_slot04_16(Object *obj) {
     func_801307e0(obj, 0x24);
     i = obj->field_12a >> 1;
     k = obj->field_49 != 0;
-    if (func_80140cd8(obj, data_801ca250_slot04_16[i + (k << 2)], 0xf) != 0) {
+    if ((u8)func_80140cd8(obj, data_801ca250_slot04_16[i + (k << 2)], 0xf) != 0) {
         obj->field_167 = 2;
         if (obj->field_49 == 0) {
             return;
@@ -259,7 +257,7 @@ void func_801b44d0_slot04_16(Object *obj) {
 
 void func_801b4560_slot04_16(Object *obj) {
     func_801b4b08_slot04_16(obj);
-    if (func_8013f8c4(obj, -0x26, 0x1a) == 0) {
+    if ((u8)func_8013f8c4(obj, -0x26, 0x1a) == 0) {
         obj->field_46 = (s16)obj->field_46 - 1;
         if ((s16)obj->field_46 == 0) {
             obj->field_07 = 9;
@@ -325,7 +323,7 @@ void func_801b4760_slot04_16(Object *obj) {
     func_801307e0(obj, 0x27);
     i = obj->field_12a >> 1;
     k = obj->field_49 != 0;
-    if (func_80140cd8(obj, data_801ca33c_slot04_16[i + (k << 2)], 0xf) != 0) {
+    if ((u8)func_80140cd8(obj, data_801ca33c_slot04_16[i + (k << 2)], 0xf) != 0) {
         obj->field_167 = 2;
         if (obj->field_49 != 0) {
             obj->field_167 = 0x20;

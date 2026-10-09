@@ -3,13 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013f8c4(Object *object, int a, int b);
-
 void func_801b0510_slot04_06(Object *obj) {
     int one;
 
     obj->field_07 = obj->field_07 + 1;
-    if ((obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x18, 0x14) != 0) {
+    if ((obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;

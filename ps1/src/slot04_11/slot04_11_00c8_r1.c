@@ -15,14 +15,10 @@ extern s16 data_801c7324_slot04_11[];
 
 Object *func_8011f32c(void);
 void func_80130678(Object *object, int index);
-u8 func_80125734(Object *object, int a);
 u8 func_80151184(void);
-u8 func_8013f8c4(Object *object, int a, int b);
-int func_8013caf0(Object *object, u8 a, u8 b);
 int func_8013cb70(Object *object, u8 a, u8 b);
 int func_8013cac8(Object *object, u8 a, u8 b);
 int func_8013cdc8(Object *object, u8 a, u8 b);
-int func_8013cfdc(Object *object, u8 a, u8 b);
 int func_8013d1a8(Object *object);
 u8 func_8013d210(Object *object);
 void func_80142a14(Object *object);
@@ -183,7 +179,7 @@ void func_801b05c0_slot04_11(Object *obj) {
     if (obj->field_12a == 0) {
         func_801b5740_slot04_11(obj);
     } else if (obj->field_25f != 0 || (obj->field_130 & 0xa000) == 0 ||
-               func_8013f8c4(obj, -0x14, 0xe) == 0) {
+               (u8)func_8013f8c4(obj, -0x14, 0xe) == 0) {
         func_801b5740_slot04_11(obj);
     } else {
         obj->field_04 = 1;

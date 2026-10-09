@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_80141788(Object *object);
 int func_801b11fc_slot04_06(Object *obj);
 
 int func_801b113c_slot04_06(Object *obj) {
@@ -13,7 +12,7 @@ int func_801b113c_slot04_06(Object *obj) {
         return (u8)func_801b11fc_slot04_06(obj);
     }
     if (!(u8)func_80141e34(obj)) return 0;
-    if (!func_80141788(obj)) return 0;
+    if (!(u8)func_80141788(obj)) return 0;
     obj->field_04 = 1;
     obj->field_06 = 8;
     obj->field_05 = 0;
@@ -25,7 +24,7 @@ int func_801b113c_slot04_06(Object *obj) {
 
 int func_801b11fc_slot04_06(Object *obj) {
     if (obj->field_7e != 0) return 0;
-    if (!func_801418bc(obj)) return 0;
+    if (!(u8)func_801418bc(obj)) return 0;
     obj->field_04 = 1;
     obj->field_06 = 8;
     obj->field_05 = 0;

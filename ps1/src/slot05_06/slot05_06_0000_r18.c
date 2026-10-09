@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u16 data_801dd31c_slot05_06[];
-u8 func_8013f8c4(Object *object, int a, int b);
 extern s32 data_801dd328_slot05_06[];
 
 void func_801c969c_slot05_06(Object *o) {
@@ -19,7 +18,7 @@ void func_801c969c_slot05_06(Object *o) {
     if (o->field_06 == 8) {
         x = 0x60;
     }
-    if (func_8013f8c4(o, -0x20, x)) {
+    if ((u8)func_8013f8c4(o, -0x20, x)) {
         o->field_159 = 1;
         o->field_07 += 2;
         o->pos_y = obj->field_70;

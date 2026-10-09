@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern void (*data_801c05a0_slot04_00[])(Object *);
-u8 func_80149b80(Object *obj);
 
 void func_801b3bf4_slot04_00(Object *obj) {
     if ((s16)obj->field_3a & 0x8000) {

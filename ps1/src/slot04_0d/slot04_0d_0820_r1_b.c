@@ -9,7 +9,6 @@ int func_8013cb70(Object *object, u8 index, u8 arg);
 int func_8013cbdc(Object *object, u8 index, u8 arg);
 int func_8013cc48(Object *object, u8 index, u8 arg);
 int func_8013cac8(Object *object, u8 index, u8 arg);
-u8 func_80141788(Object *object);
 u8 func_801417cc(Object *object);
 int func_80141e34(Object *object);
 int func_80141b28(Object *object);
@@ -64,7 +63,7 @@ int func_801b0c1c_slot04_0d(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) return 0;
     if (obj->field_45 != 0) {
         if (obj->field_7e != 0) return 0;
-        if (!func_801418bc(obj)) return 0;
+        if (!(u8)func_801418bc(obj)) return 0;
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -72,7 +71,7 @@ int func_801b0c1c_slot04_0d(Object *obj) {
         obj->field_15a = 1;
     } else {
         if (!(u8)func_80141e34(obj)) return 0;
-        if (!func_80141788(obj)) return 0;
+        if (!(u8)func_80141788(obj)) return 0;
         obj->field_04 = 1;
         obj->field_05 = 0;
         obj->field_06 = 8;
@@ -179,7 +178,7 @@ int func_801b0ec8_slot04_0d(Object *obj) {
 
 int func_801b0f38_slot04_0d(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) goto z;
-    if (func_80141788(obj)) goto b;
+    if ((u8)func_80141788(obj)) goto b;
 z:
     return 0;
 b:
@@ -196,7 +195,7 @@ b:
 
 int func_801b0fc0_slot04_0d(Object *obj) {
     if ((s16)obj->field_c6 < 0x30) goto z;
-    if (func_80141788(obj)) goto b;
+    if ((u8)func_80141788(obj)) goto b;
 z:
     return 0;
 b:

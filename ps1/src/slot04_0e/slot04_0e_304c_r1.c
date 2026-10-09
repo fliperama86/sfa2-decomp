@@ -12,7 +12,7 @@ void func_801b2f58_slot04_0e(Object *obj);
 void func_801b4914_slot04_0e(Object *obj);
 u8 func_801b6a7c_slot04_0e(Object *obj);
 void func_801b6afc_slot04_0e(Object *obj);
-Dir func_801b6b64_slot04_0e(Slot04bObj *obj);
+BytePair func_801b6b64_slot04_0e(Slot04bObj *obj);
 u8 func_801b6bd4_slot04_0e(Object *obj);
 
 void func_801b3284_slot04_0e(Object *obj);
@@ -89,7 +89,7 @@ void func_801b3200_slot04_0e(Object *obj) {
 
 void func_801b3284_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
-    Dir buf;
+    BytePair buf;
     int k;
 
     if (o->field_cd != 0) {

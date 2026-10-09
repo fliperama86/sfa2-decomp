@@ -13,7 +13,6 @@ void func_80145e70(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80138ae8(GameState *state, Object *object);
 void func_801483a4(Object *object, int a, int b);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80126130(void);
 void func_80126244(void);
 void func_80155d4c(int idx, int side);
@@ -71,7 +70,7 @@ void func_801b3f44_slot04_14(Object *obj) {
     if ((obj->field_46 & 0xff) != 0) {
         *(s32 *)&obj->field_10 += obj->field_4c;
         if (((obj->field_164 >> obj->field_48) & 1) == 0) {
-            if (func_8013f8c4(obj, -0x14, 0x14) != 0) {
+            if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
                 func_801b3fec_slot04_14(obj);
             } else {
                 func_80130efc(obj);

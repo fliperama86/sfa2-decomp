@@ -5,7 +5,6 @@
 
 extern u8 data_801c6568_slot04_02[];
 extern u16 data_801c6578_slot04_02[];
-u8 func_80125734(Object *object, int a);
 
 void func_801b5f50_slot04_02(Object *obj) {
     obj->field_06 = obj->field_06 + 1;
@@ -24,5 +23,5 @@ void func_801b5fd4_slot04_02(Object *obj) {
     obj->field_06 = obj->field_06 + 1;
     obj->field_46 = 0x3c;
     game_state.field_76 = 0x1e;
-    func_80130678(obj, data_801c6578_slot04_02[func_80125734(obj, data_801c6568_slot04_02[func_80151184() & 0xf])]);
+    func_80130678(obj, data_801c6578_slot04_02[(u8)func_80125734(obj, data_801c6568_slot04_02[func_80151184() & 0xf])]);
 }

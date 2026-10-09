@@ -14,8 +14,6 @@ extern s32 data_801c6b9c_slot04_10[];
 extern s16 data_801c6ba8_slot04_10[];
 
 int func_80130184(Object *object);
-u8 func_80140cd8(Object *object, int a, int b);
-u8 func_8013f8c4(Object *object, int a, int b);
 void func_80142adc(Object *object);
 void func_80146960(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
@@ -50,7 +48,7 @@ void func_801b40b4_slot04_10(Object *obj) {
     func_801307e0(obj, 0x24);
     i = obj->field_12a >> 1;
     k = obj->field_49 != 0;
-    if (func_80140cd8(obj, data_801c6abc_slot04_10[i + (k << 2)], 0xf) != 0) {
+    if ((u8)func_80140cd8(obj, data_801c6abc_slot04_10[i + (k << 2)], 0xf) != 0) {
         obj->field_167 = 2;
         if (obj->field_49 == 0) {
             return;
@@ -143,7 +141,7 @@ void func_801b4498_slot04_10(Object *obj) {
 
 void func_801b4528_slot04_10(Object *obj) {
     func_801b4ad0_slot04_10(obj);
-    if (func_8013f8c4(obj, -0x26, 0x1a) == 0) {
+    if ((u8)func_8013f8c4(obj, -0x26, 0x1a) == 0) {
         obj->field_46 = (s16)obj->field_46 - 1;
         if ((s16)obj->field_46 == 0) {
             obj->field_07 = 9;
@@ -209,7 +207,7 @@ void func_801b4728_slot04_10(Object *obj) {
     func_801307e0(obj, 0x27);
     i = obj->field_12a >> 1;
     k = obj->field_49 != 0;
-    if (func_80140cd8(obj, data_801c6ba8_slot04_10[i + (k << 2)], 0xf) != 0) {
+    if ((u8)func_80140cd8(obj, data_801c6ba8_slot04_10[i + (k << 2)], 0xf) != 0) {
         obj->field_167 = 2;
         if (obj->field_49 != 0) {
             obj->field_167 = 0x20;

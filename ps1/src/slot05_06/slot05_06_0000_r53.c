@@ -5,7 +5,6 @@
 
 extern u16 data_801dd50c_slot05_06[];
 extern u16 data_801dd51c_slot05_06[];
-u8 func_80125734(Object *object, int a);
 extern ObjectFn data_801dd528_slot05_06[];
 
 void func_801cc8d8_slot05_06(Object *obj) {

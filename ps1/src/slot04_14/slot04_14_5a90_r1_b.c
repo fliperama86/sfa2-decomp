@@ -10,7 +10,6 @@ void func_801b6344_slot04_14(Object *obj);
 void func_801b657c_slot04_14(Object *obj);
 void func_801b6c3c_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d) {
     obj->field_04 = a;
@@ -40,7 +39,7 @@ void func_801b6384_slot04_14(Object *obj) {
     obj->field_07 = obj->field_07 + 1;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
-        if (func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b6c3c_slot04_14(obj, 1, 2, 0, 0);
             return;
         }

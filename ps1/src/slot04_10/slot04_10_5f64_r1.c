@@ -14,7 +14,6 @@ extern ObjectFn data_801c6e9c_slot04_10[];
 extern ObjectRef data_80190468;
 
 int func_80130184(Object *object);
-u8 func_80140cd8(Object *object, int a, int b);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146960(Object *object);
 void func_8011ffdc(Object *o);
@@ -34,7 +33,7 @@ void func_801b5f64_slot04_10(Object *obj) {
         func_80146960(obj);
         func_80130efc(obj);
         func_801204f4(obj, obj->side, 6);
-        if (func_80140cd8(obj, *(s16 *)((u8 *)data_801c6ce0_slot04_10 + (obj->field_12a & 0xfe)), 0) != 0) {
+        if ((u8)func_80140cd8(obj, *(s16 *)((u8 *)data_801c6ce0_slot04_10 + (obj->field_12a & 0xfe)), 0) != 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
             func_80147000(obj);

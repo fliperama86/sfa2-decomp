@@ -619,7 +619,7 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `0296f4d`:
+it is in commit `e9ca7a9`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0

@@ -9,7 +9,6 @@ extern ObjectFn data_801c69ac_slot04_10[];
 extern ObjectFn data_801c69c0_slot04_10[];
 
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-u8 func_80140cd8(Object *object, int a, int b);
 void func_80140fe0(Object *object);
 int func_801410c8(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
@@ -98,7 +97,7 @@ void func_801b13b0_slot04_10(Object *obj) {
             i = 0xa;
             ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
         }
-        if (func_80140cd8(obj, (s16)i, 0) != 0) {
+        if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
             func_801204f4(obj, obj->side, 0x15);
             obj->field_07 = 3;
             func_801307e0(obj, 0x19);
@@ -187,7 +186,7 @@ void func_801b1770_slot04_10(Object *obj) {
             i = 0xb;
             ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
         }
-        if (func_80140cd8(obj, (s16)i, 0) != 0) {
+        if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
             func_801204f4(obj, obj->side, 0x16);
             obj->field_07 = 3;
             func_801307e0(obj, 0x1b);

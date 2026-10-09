@@ -6,7 +6,6 @@
 void func_80130678(Object *object, int arg);
 void func_80152df4(Object *object);
 void func_80130dc0(Object *object);
-u8 func_8013f8c4(Object *object, int a, int b);
 Block172 *func_8011f1e0(void);
 Pooled *func_8011f4a4(void);
 int func_80141618(Object *object);
@@ -303,7 +302,7 @@ void func_801b12f4_slot04_0e(Object *obj) {
 
 void func_801b1334_slot04_0e(Object *obj) {
     obj->field_07++;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && func_8013f8c4(obj, -0x21, 7) != 0) {
+    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x21, 7) != 0) {
         obj->field_04 = 1;
         obj->field_05 = 2;
         obj->field_06 = 0;
