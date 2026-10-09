@@ -1,12 +1,12 @@
 /* The BIOS threads (OpenTh, CloseTh, ChangeTh) and GetGp.
  *
- * The game uses them as cooperative tasks (survey: three task slots, at most
- * three live threads besides the main one, a switch only at an explicit
- * ChangeTh). On Windows each is a fiber: the start-up thread becomes a fiber
+ * The game uses them as cooperative tasks (read from its C: three task slots,
+ * at most three live threads besides the main one, a switch only at an
+ * explicit ChangeTh). On Windows each is a fiber: the start-up thread becomes a fiber
  * and is handle 0xff000000; OpenTh makes a fiber that calls the entry
  * and returns 0xff000001 and up, the lowest free slot as the BIOS hands
  * them out; ChangeTh switches. There are four slots, the BIOS's default
- * (the main thread and three more): the game writes the control blocks 1 to 3 (survey, C).
+ * (the main thread and three more): the game's C writes the control blocks 1 to 3.
  * The thread's stack pointer and gp are not used: the fiber has its own stack and
  * the game's C does not read gp (all its units are built with -G0). */
 #include "port.h"

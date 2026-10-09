@@ -7178,6 +7178,35 @@ Mistakes of mine in this stretch:
   rerun those controls after it; seven of them failed when I did. Every
   control file is rerun after any change to a file it reads.
 
+## The port's runtime gets its core (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: the table of host routines for Sony's library and the BIOS
+  with its install over the stop calls, the events, critical sections,
+  counters and callbacks with a frame clock, the BIOS's threads as
+  fibers, two overrides of game functions, stand-ins for the memory card
+  (no card) and the sound (silent), a trace, and a watchdog. The page
+  has what each does and what the program prints. Third of the port's
+  small pull requests; the vertical-blank interrupt, the disc, the
+  graphics, the modules and the pads follow, cut from the branch
+  `port-library`.
+- How it was cut: a worker took the files of the finished state and
+  removed what belongs to later layers, by a written list, and ran every
+  control on the cut tree. A library function whose host routine lives in
+  a later layer is, in this tree, one of the functions that stop.
+- One change against the finished state came out of the cut. An override
+  was refused when the function it replaces had no C. The published tree
+  has no C yet for one of the two overridden functions, so the program
+  ended with a refusal instead of its stop at `main`. An override
+  supplies the function and must not depend on the C it replaces: it is
+  now accepted for any function the build knows, with or without C, and
+  refused for a name the build does not know. Two one-line changes of
+  that check were each noticed by a case (one-off run of the worker).
+- The published tree still stops at `main`: none of this has run on the
+  real game from a published commit. The controls run it on made-up game
+  code.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

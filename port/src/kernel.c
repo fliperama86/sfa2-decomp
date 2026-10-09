@@ -20,7 +20,7 @@
 
 /* ---- time ---- */
 
-#define FRAME_US       16667ull    /* one frame: 1/60 s (NTSC, as the specification says) */
+#define FRAME_US       16667ull    /* one frame: 1/60 s (NTSC) */
 #define LINES_PER_SEC  15750ull    /* horizontal retraces a second at 60 frames of 262.5 lines */
 #define SYSCLK8_HZ     4233600ull  /* the system clock (33.8688 MHz) divided by 8: root counter 2 */
 
