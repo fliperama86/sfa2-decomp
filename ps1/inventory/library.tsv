@@ -226,7 +226,7 @@
 8015fb30	328	VSync	system	1	folder
 8015fc78	156	v_wait	system	0	folder
 8015fd14	12	puts	C library	0	folder
-8015fd24	192	-	unidentified	1	-
+8015fd24	192	func_8015fd24	unidentified	1	-
 8015fde4	32	func_8015fde4	unidentified	1	-
 8015fe04	36	func_8015fe04	unidentified	1	-
 8015fe28	16	func_8015fe28	unidentified	1	-

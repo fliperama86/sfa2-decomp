@@ -35771,6 +35771,182 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_07_5118x_r1"
+image = "slot04_07"
+source = "slot04_07/slot04_07_5118x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b5118_slot04_07", address = 0x801b5118, size = 196 },
+]
+
+[[unit]]
+name = "slot04_09_4298x_r1"
+image = "slot04_09"
+source = "slot04_09/slot04_09_4298x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b4298_slot04_09", address = 0x801b4298, size = 344 },
+]
+
+[[unit]]
+name = "slot04_01_04acx_r1"
+image = "slot04_01"
+source = "slot04_01/slot04_01_04acx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b04ac_slot04_01", address = 0x801b04ac, size = 328 },
+]
+
+[[unit]]
+name = "slot04_0a_4408x_r1"
+image = "slot04_0a"
+source = "slot04_0a/slot04_0a_4408x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b4408_slot04_0a", address = 0x801b4408, size = 328 },
+]
+
+[[unit]]
+name = "slot0b_0480x_r1"
+image = "slot0b"
+source = "slot0b/slot0b_0480x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0480_slot0b", address = 0x801e0480, size = 240 },
+]
+
+[[unit]]
+name = "slot12_4300x_r1"
+image = "slot12"
+source = "slot12/slot12_4300x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80014300_slot12", address = 0x80014300, size = 308 },
+]
+
+[[unit]]
+name = "slot12_24fcx_r1"
+image = "slot12"
+source = "slot12/slot12_24fcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800124fc_slot12", address = 0x800124fc, size = 800 },
+]
+
+[[unit]]
+name = "slot2b_79a4x_r1"
+image = "slot2b"
+source = "slot2b/slot2b_79a4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800779a4_slot2b", address = 0x800779a4, size = 344 },
+]
+
+[[unit]]
+name = "slot0f_5a28x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_5a28x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e5a28_slot0f", address = 0x800e5a28, size = 116 },
+]
+
+[[unit]]
+name = "slot0f_5be4x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_5be4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e5be4_slot0f", address = 0x800e5be4, size = 308 },
+]
+
+[[unit]]
+name = "slot28_6828x_r1"
+image = "slot28"
+source = "slot28/slot28_6828x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80016828_slot28", address = 0x80016828, size = 128 },
+]
+
+[[unit]]
+name = "slot01_0eb8x_r1"
+image = "slot01"
+source = "slot01/slot01_0eb8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80010eb8_slot01", address = 0x80010eb8, size = 272 },
+]
+
+[[unit]]
+name = "slot04_02_6f48x_r1"
+image = "slot04_02"
+source = "slot04_02/slot04_02_6f48x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b6f48_slot04_02", address = 0x801b6f48, size = 456 },
+]
+
+[[unit]]
+name = "slot04_09_2ae4x_r1"
+image = "slot04_09"
+source = "slot04_09/slot04_09_2ae4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b2ae4_slot04_09", address = 0x801b2ae4, size = 268 },
+]
+
+[[unit]]
+name = "slot04_0a_0ce4x_r1"
+image = "slot04_0a"
+source = "slot04_0a/slot04_0a_0ce4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b0ce4_slot04_0a", address = 0x801b0ce4, size = 36 },
+]
+
+[[unit]]
+name = "d4c4a8_r2"
+source = "d4c4a8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80153d7c", address = 0x80153d7c, size = 128 },
+]
+
+[[unit]]
+name = "d58f1c_r2"
+source = "d58f1c_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014b08c", address = 0x8014b08c, size = 88 },
+]
+
+[[unit]]
+name = "d58fe8_r2"
+source = "d58fe8_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015fd24", address = 0x8015fd24, size = 192 },
+]
+
+[[unit]]
+name = "d25684_r1"
+source = "d25684_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80125684", address = 0x80125684, size = 168 },
+]
+
+[[unit]]
+name = "d25684_r2"
+source = "d25684_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8015057c", address = 0x8015057c, size = 188 },
+]
+
+
+[[unit]]
 name = "slot06_03_8d10x_r1"
 image = "slot06_03"
 source = "slot06_03/slot06_03_8d10x_r1.c"

@@ -1,0 +1,39 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "game.h"
+#include "externs.h"
+#include "protos.h"
+
+extern u16 data_801a6966;
+extern u16 data_80185fc8;
+extern u16 data_80185fcc;
+extern int data_80185fd0;
+extern int data_80185fd4;
+extern s8 data_8016e9a8[];
+extern s16 data_8016ea60[];
+extern u8 data_8016e9b8[];
+
+/* The original loads one of two halfwords, then tests a register that it has just set to zero, and keeps the code of the arm that this test never reaches. The test of the high half of the 16-bit local gives that; what the original's source tested there is not known. */
+void func_80125684(void) {
+    Object *o = game_state.field_78;
+    Object *o2 = game_state.field_7c;
+    u8 *c;
+    u16 w;
+    if (o->side != 0) {
+        w = data_801a6972;
+    } else {
+        w = data_801a6966;
+    }
+    if ((w >> 16) == 0) {
+        c = &game_state.field_139;
+        *c = *c - 1;
+        if (*c & 0x80) {
+            game_state.field_138++;
+            o->field_2ac = o2->kind;
+        }
+    } else {
+        game_state.field_138 = 0;
+        game_state.field_139 = 0x3c;
+        game_state.field_13a = 0;
+    }
+}
+

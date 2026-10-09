@@ -2575,10 +2575,20 @@ struct Slot04aObj size=0x394
 0x034 u32 field_34
 0x03a u8 field_3a
 0x03b u8 field_3b
+0x045 u8 field_45
 0x046 u8 field_46
 0x047 u8 field_47
 0x048 s8 field_48
+0x04c s16 field_4c
+0x04e s16 field_4e
+0x050 s16 field_50
+0x052 s16 field_52
+0x054 s16 field_54
+0x056 s16 field_56
+0x058 s16 field_58
+0x05a s16 field_5a
 0x05c s16 field_5c
+0x060 s32 field_60
 0x06c u8* field_6c
 0x070 u16 field_70
 0x08c s32 field_8c
@@ -2765,4 +2775,3 @@ struct Slot04SelRec8eac size=0x10
 struct Slot04SelRec800c size=0x24
 0x004 s16 field_04
 0x006 s16 field_06
-

@@ -7,7 +7,7 @@ extern void (*data_800287b4_slot12[])(Object *);
 extern u8 data_8002bfe8_slot12[];
 extern u8 data_8002c128_slot12[];
 extern u8 data_8002c268_slot12[];
-void func_80014300_slot12(Object *obj, void *cell);
+void func_80014300_slot12(Object *obj, Slot12Sprite *cell);
 
 void func_800164d8_slot12(Object *obj) {
     u8 *base;
@@ -30,5 +30,5 @@ void func_800164d8_slot12(Object *obj) {
     }
     o = obj;
     t = o->field_03 * 64;
-    func_80014300_slot12(o, (u8 *)t + (data_801a27d0 * 32 + (int)base));
+    func_80014300_slot12(o, (Slot12Sprite *)((u8 *)t + (data_801a27d0 * 32 + (int)base)));
 }

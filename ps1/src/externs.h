@@ -508,7 +508,7 @@ extern u8 data_8019047c;
 extern int data_801904d4;
 extern u8 data_801904d8[];
 extern u8 data_801904dc[4];
-extern u8 data_80190562;
+extern u8 data_80190562[];
 extern u8 data_80190568;
 extern u8 data_8019056c[];
 extern int data_801906e4;

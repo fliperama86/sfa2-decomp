@@ -20,5 +20,5 @@ void func_80135ef0(ObjectView *object) {
     data_801aa544[0].field_8a = data_801725f0[object->field_40 * 3 + 0];
     data_801aa544[1].field_8a = data_801725f0[object->field_40 * 3 + 1];
     data_801aa544[2].field_8a = data_801725f0[object->field_40 * 3 + 2];
-    data_80190562 = data_801725f0[object->field_40 * 3 + 1];
+    data_80190562[0] = data_801725f0[object->field_40 * 3 + 1];
 }
