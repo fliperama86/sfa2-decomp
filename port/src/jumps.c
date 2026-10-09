@@ -87,12 +87,15 @@ int port_jump_known(unsigned address)
 /* The build's two markers around the game's own compiled code (hostbuild.py places them). */
 extern char port_game_text_begin, port_game_text_end;
 
+int (*port_module_known)(unsigned address);
+
 void port_target_check(const char *path, const void *target)
 {
     size_t address = (size_t)target;
 
     if ((size_t)(unsigned)address == address && port_jump_known((unsigned)address)) return;
     if (address >= (size_t)&port_game_text_begin && address < (size_t)&port_game_text_end) return;
+    if ((size_t)(unsigned)address == address && port_module_known && port_module_known((unsigned)address)) return;
     printf("refused: %s 0x%08x is not a function this program installed\n", path, (unsigned)address);
     fflush(stdout);
     exit(PORT_EXIT_TARGET);

@@ -94,6 +94,13 @@ int  port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c,
  * Anything else ends the program with `refused: PATH 0xADDRESS is not a function this program installed`
  * and status PORT_EXIT_TARGET; PATH names the call site. Called at the moment of the call. */
 void port_target_check(const char *path, const void *target);
+/* Set by the modules layer: is `address` the start of a function of a module that is placed (or can be placed now,
+ * its page having come from a pinned chunk of the disc)? Null until the layer starts. port_target_check asks it for
+ * an address that is not a resident entry. */
+extern int (*port_module_known)(unsigned address);
+/* Set by the modules layer, read by the timer thread of interrupt.c: is the page at `address` non-executable
+ * because the disc wrote it? */
+extern int (*port_page_blocked)(unsigned address);
 /* The entry of the 5-byte call written for functions without C. */
 void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */

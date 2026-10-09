@@ -73,7 +73,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -692,7 +692,7 @@ def tables_c(functions, absents, pin: bytes) -> str:
     out = ['#include "port_tables.h"']
     for _, _, sym in functions:
         out.append(f"extern void {sym}(void);")
-    out.append('const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0 }};')
+    out.append('const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0, 0 }};')
     out.append("const unsigned port_image_count = 1;")
     out.append("const struct port_function port_functions[] = {")
     for name, addr, sym in functions:

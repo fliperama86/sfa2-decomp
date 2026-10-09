@@ -190,12 +190,19 @@ def unit(name: str, source: str, functions: list[tuple[str, int]] = (), image: s
 
 SHA = bytes(range(32)).hex()
 
-IMAGES = """
+IMG_SHA = ["%02x" % (0x10 + k) * 32 for k in range(3)]   # an invented pinned hash for each image: 32 equal bytes
+
+def sha_line(k: int) -> str:
+    return f"static const unsigned char port_sha256_{k}[32] = {{ " + ", ".join(["0x%02x" % (0x10 + k)] * 32) + " };\n"
+
+
+IMAGES = f"""
 [[image]]
 name = "mod"
 slot = 5
 address = 0x801e0000
 archive = "../x/A.PAC"
+sha256 = "{IMG_SHA[0]}"
 
 [[image]]
 name = "mod2"
@@ -203,15 +210,17 @@ like = "mod"
 slot = 6
 address = 0x801f0000
 archive = "../x/B.PAC"
+sha256 = "{IMG_SHA[1]}"
 """
 
 
-IMAGES_3 = IMAGES + """
+IMAGES_3 = IMAGES + f"""
 [[image]]
 name = "mod3"
 slot = 7
 address = 0x80200000
 archive = "../x/C.PAC"
+sha256 = "{IMG_SHA[2]}"
 """
 
 
@@ -356,9 +365,10 @@ def table_cases(root: Path):
     want = (
         '/* Written by hostbuild.py; not to be edited. */\n#include "port_tables.h"\n\n'
         "extern void impl_fa(void);\nextern void impl_mf(void);\n\n"
+        + sha_line(0) + sha_line(1) + "\n"
         "const struct port_image port_images[] = {\n"
-        '    { "mod", 0x801e0000u, 0, 0x5u },\n'
-        '    { "mod2", 0x801f0000u, "mod", 0x6u },\n'
+        '    { "mod", 0x801e0000u, 0, 0x5u, 0, port_sha256_0 },\n'
+        '    { "mod2", 0x801f0000u, "mod", 0x6u, 0, port_sha256_1 },\n'
         "};\nconst unsigned port_image_count = 2;\n\n"
         "const struct port_function port_functions[] = {\n"
         '    { 0x80100000u, (void *)impl_fa, "fa", -1 },\n'
@@ -389,15 +399,20 @@ def table_cases(root: Path):
     text2 = hb.render_tables(sel.images, [], [], SHA, {"mod": ["A.PAC", "A2.PAC"], "mod2": ["B.PAC"]})
     yield "tables-render-archives", same(
         ('static const char *const port_archives_0[] = { "A.PAC", "A2.PAC", 0 };\n' in text2,
-         '    { "mod", 0x801e0000u, 0, 0x5u, port_archives_0 },\n' in text2,
-         '    { "mod2", 0x801f0000u, "mod", 0x6u, port_archives_1 },\n' in text2,
+         '    { "mod", 0x801e0000u, 0, 0x5u, port_archives_0, port_sha256_0 },\n' in text2,
+         '    { "mod2", 0x801f0000u, "mod", 0x6u, port_archives_1, port_sha256_1 },\n' in text2,
          text2.index("port_archives_1[]") < text2.index("const struct port_image port_images")), (True, True, True, True))
+    yield "tables-the-image-table-carries-each-pinned-hash-as-32-bytes", same(
+        [text.count(sha_line(k)) for k in range(2)] + ["port_sha256_2" in text], [1, 1, False])
+    for tag, bad in (("missing", None), ("short", IMG_SHA[0][:62]), ("not-hex", "g" * 64), ("not-text", 5)):
+        broken = {**config, "image": [{k: v for k, v in config["image"][0].items() if k != "sha256"} | ({} if bad is None else {"sha256": bad}), config["image"][1]]}
+        yield f"tables-an-image-with-a-{tag}-pinned-hash-is-refused", raises(lambda b=broken: hb.read_images(b, Path("c.toml")), "c.toml", "mod", "sha256")
     yield "tables-baseline-hash-read-lower-case", same(hb.read_baseline_hash({"baseline": {"sha256": SHA.upper()}}, Path("c")), SHA)
     for tag, cfg in (("absent", {}), ("no-section", {"baseline": 3}), ("short", {"baseline": {"sha256": SHA[:62]}}), ("not-hex", {"baseline": {"sha256": "g" * 64}}),
                      ("not-text", {"baseline": {"sha256": 5}})):
         yield f"tables-baseline-hash-{tag}-is-refused", raises(lambda cfg=cfg: hb.read_baseline_hash(cfg, Path("c.toml")), "c.toml", "sha256")
     empty = hb.render_tables([], [], [], SHA)
-    yield "tables-render-empty-has-count-zero", same(("port_function_count = 0;" in empty, "port_image_count = 0;" in empty, "{ 0, 0, 0, 0 }" in empty), (True, True, True))
+    yield "tables-render-empty-has-count-zero", same(("port_function_count = 0;" in empty, "port_image_count = 0;" in empty, "{ 0, 0, 0, 0, 0, 0 }" in empty), (True, True, True))
     yield "tables-string-escape", same(hb.c_string('a"b\\c'), '"a\\"b\\\\c"')
     bad = root / "inv-bad"
     write(bad / "game.tsv", "80100000\t16\tx\n")
