@@ -27,6 +27,9 @@ from pathlib import Path
 spec = json.loads({spec!r})
 args = sys.argv[1:]
 if args == ["--version"]:
+    if "version" in spec.get("sleep", []):
+        import time
+        time.sleep(5)
     print(spec.get("version", "fakecc 1.0"))
     print("second line")
     sys.exit(spec.get("version_status", 0))
@@ -536,6 +539,10 @@ def timeout_cases(root: Path):
     proc = run(config, root / "slow-pointer-build", fake, "--timeout", 1)
     err = proc.stderr.strip()
     yield "timeout-pointer-size-is-an-error", None if proc.returncode == 2 and str(fake) in err and len(err.splitlines()) == 1 and proc.stdout == "" else f"exit {proc.returncode}, stderr {err!r}"
+    fake = fake_cc(root, "slow-version", sleep=["version"])
+    proc = run(config, root / "slow-version-build", fake, "--timeout", 1)
+    err = proc.stderr.strip()
+    yield "timeout-version-is-an-error", None if proc.returncode == 2 and str(fake) in err and len(err.splitlines()) == 1 and proc.stdout == "" else f"exit {proc.returncode}, stderr {err!r}"
     proc = run(config, root / "slow-zero-build", fake_cc(root, "fast"), "--timeout", 0)
     yield "timeout-zero-refused", None if proc.returncode == 2 and proc.stderr.strip() else f"exit {proc.returncode}, stderr {proc.stderr!r}"
 

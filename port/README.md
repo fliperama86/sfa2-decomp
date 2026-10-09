@@ -219,8 +219,18 @@ library with the C compiler of the machine it runs on, each unit alone,
 into `port/build/`. Nothing is linked, nothing is run and no game file is
 read. It also checks the layout of every shared struct with that compiler
 and counts the literals at PS1 addresses in the sources. The header of the
-script says how. The counts move with every unit that the matching work
-adds: run it for today's. On 2026-10-08, on one Linux machine, x86-64:
+script says how.
+
+The counts move with every unit that the matching work adds, so the ones
+here are for one tree: `ps1/src` as it is in commit `554f1c0`. For
+today's, run the script as it is. For these, give it that tree:
+
+```sh
+mkdir /tmp/tree && git archive 554f1c0 ps1/src | tar -x -C /tmp/tree
+python3 port/tools/hostcheck.py --config /tmp/tree/ps1/src/build.toml
+```
+
+On 2026-10-08, on one Linux machine, x86-64:
 
 ```
 compiler: cc (GCC) 16.2.1 20260810
@@ -315,7 +325,7 @@ What it does not say:
 `python3 port/tools/test_hostcheck.py` runs the tool on small made-up
 trees, part of them with a stand-in for the compiler and part with the
 real one. It needs `cc` and a host with eight-byte pointers and says so
-when it has neither. On 2026-10-08 it printed 89 lines that begin
+when it has neither. On 2026-10-08 it printed 90 lines that begin
 `ok` and ended with `all cases behaved as required`.
 
 ## Not decided

@@ -30,7 +30,8 @@ with UNIT the unit's `name`. A unit passes when the compiler ends with
 status 0. A compiler that has not ended after `--timeout` seconds is
 stopped and the unit fails, without diagnostics. The same limit holds
 for every other run of the compiler: a struct whose check is stopped
-loses its layout, and a pointer size that cannot be found is an error.
+loses its layout, a pointer size that cannot be found is an error, and so
+is a compiler that does not give its version in that time.
 
 A diagnostic is a line of the compiler's standard error of the form
 `WHERE: warning: TEXT` or `WHERE: error: TEXT`. Its kind is the level and
@@ -143,7 +144,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import structgen  # noqa: E402
 from libgap import blank_literals  # noqa: E402
 
-VERSION_TIMEOUT = 30
 RANGES = (
     ("main memory", 0x80000000, 0x801FFFFF),
     ("main memory, uncached", 0xA0000000, 0xA01FFFFF),
@@ -273,13 +273,10 @@ def compile_run(argv: list[str], timeout: int) -> subprocess.CompletedProcess | 
     return subprocess.CompletedProcess(argv, proc.returncode, out, err)
 
 
-def compiler_version(cc: str) -> str:
-    try:
-        proc = subprocess.run([cc, "--version"], capture_output=True, text=True, errors="replace", timeout=VERSION_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        raise Problem(f"compiler {cc} did not answer --version in time")
-    except OSError as err:
-        raise Problem(f"cannot run compiler {cc}: {err.strerror}")
+def compiler_version(cc: str, timeout: int) -> str:
+    proc = compile_run([cc, "--version"], timeout)
+    if proc is None:
+        raise Problem(f"compiler {cc} did not answer --version in {timeout} seconds")
     if proc.returncode != 0:
         raise Problem(f"compiler {cc} --version ended with status {proc.returncode}")
     lines = (proc.stdout or proc.stderr).splitlines()
@@ -449,7 +446,7 @@ def run(args: argparse.Namespace) -> str:
     fields_path, header = read_types(config, config_path)
     units, sdk, other = read_units(config, config_path)
     model = read_model(fields_path)
-    version = compiler_version(args.cc)
+    version = compiler_version(args.cc, args.timeout)
 
     build: Path = args.build
     for sub in ("gen", "obj", "probe"):
