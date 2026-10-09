@@ -66,7 +66,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "debug"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "debug", "interrupt"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -310,6 +310,109 @@ void game_card(void)
 }
 """
 
+IRQ_NAMES = ["OpenEvent", "EnableEvent", "StartRCnt", "ResetCallback", "busy"]
+IRQ_ADDR = {n: RAM + 0x101200 + 0x10 * i for i, n in enumerate(IRQ_NAMES)}
+G_SPIN, G_HOST, G_NEST, G_REGS = (RAM + 0x101300 + 0x10 * i for i in range(4))
+ABS_IRQ = ABS_BASE + [(n, a, 1) for n, a in IRQ_ADDR.items()]
+FUN_IRQ = FUN_BASE + [("g_spin", G_SPIN, "g_spin"), ("g_host", G_HOST, "g_host"), ("g_nest", G_NEST, "g_nest"), ("g_regs", G_REGS, "g_regs")]
+GAME_IRQ = PROLOGUE + r"""
+extern unsigned ps1_OpenEvent(unsigned, unsigned, unsigned, void (*)(void));
+extern int ps1_EnableEvent(unsigned), ps1_StartRCnt(unsigned);
+extern void *ps1_ResetCallback(void);
+extern void ps1_busy(void);
+static volatile int count, depth, maxdepth, slow;
+static volatile DWORD handler_thread;
+static void handler(void)
+{
+    DWORD t;
+    handler_thread = GetCurrentThreadId();
+    depth++;
+    if (depth > maxdepth) maxdepth = depth;
+    if (slow) { t = GetTickCount(); while (GetTickCount() - t < 45) { } }
+    { volatile double d = 3.25 * (double)count; (void)d; }   /* x87 work inside the handler */
+    depth--;
+    count++;
+}
+static void setup(void)
+{
+    unsigned ev;
+    ps1_ResetCallback();
+    ev = ps1_OpenEvent(0xf2000003u, 2, 0x1000, handler);
+    ps1_EnableEvent(ev);
+    ps1_StartRCnt(3);
+}
+void g_spin(void)
+{
+    DWORD me = GetCurrentThreadId();
+    setup();
+    while (count < 5) { }
+    SAY("spin ended; the handler ran on the game's thread: %d\n", handler_thread == me);
+}
+void g_host(void)
+{
+    int before, during;
+    setup();
+    while (count < 2) { }
+    before = count;
+    ps1_busy();
+    during = count - before;
+    SAY("count moved %d during the host routine's 200 ms spin\n", during);
+    while (count < before + 2) { }
+    SAY("and moved after it: %d\n", count > before);
+}
+void g_nest(void)
+{
+    setup();
+    slow = 1;
+    while (count < 4) { }
+    SAY("handler runs %d, deepest nesting %d\n", count >= 4, maxdepth);
+}
+static volatile int iterations_left, failed;
+void g_regs(void)
+{
+    int round, start;
+    double a = 0, b = 0;
+    setup();
+    start = count;
+    for (round = 0; round < 12; round++) {
+        iterations_left = 3000000;
+        __asm__ volatile(
+            "fld1\n\tfldpi\n\t"
+            "movl $0x11111111, %%eax\n\tmovl $0x22222222, %%ebx\n\tmovl $0x33333333, %%ecx\n"
+            "\tmovl $0x44444444, %%edx\n\tmovl $0x55555555, %%esi\n\tmovl $0x66666666, %%edi\n"
+            "1:\n\tstc\n\tnop\n\tnop\n\tnop\n\tjnc 9f\n"
+            "\tcmpl $0x11111111, %%eax\n\tjne 9f\n\tcmpl $0x22222222, %%ebx\n\tjne 9f\n\tcmpl $0x33333333, %%ecx\n\tjne 9f\n"
+            "\tcmpl $0x44444444, %%edx\n\tjne 9f\n\tcmpl $0x55555555, %%esi\n\tjne 9f\n\tcmpl $0x66666666, %%edi\n\tjne 9f\n"
+            "\tstd\n\tnop\n\tnop\n\tcld\n"
+            "\tdecl %0\n\tjnz 1b\n\tjmp 8f\n"
+            "9:\n\tmovl $1, %1\n"
+            "8:\n\tfstpl %2\n\tfstpl %3\n"
+            : "+m"(iterations_left), "=m"(failed), "=m"(a), "=m"(b)
+            :
+            : "eax", "ebx", "ecx", "edx", "esi", "edi", "cc", "memory");
+        if (a != 3.14159265358979323846 || b != 1.0) failed = 1;
+        if (failed) break;
+    }
+    SAY("registers, flags and x87 survived: %d; handler ran %d times meanwhile: %d\n", !failed, count - start, count - start >= 10);
+}
+"""
+
+IRQ_DOMAINS = r"""
+#include "port.h"
+#include <windows.h>
+extern void port_h_OpenEvent(), port_h_EnableEvent(), port_h_StartRCnt(), port_h_ResetCallback();
+void host_busy(void) { DWORD t = GetTickCount(); while (GetTickCount() - t < 200) { } }
+static const struct port_library t[] = {
+    { "OpenEvent", (void *)port_h_OpenEvent, 0 }, { "EnableEvent", (void *)port_h_EnableEvent, 0 },
+    { "StartRCnt", (void *)port_h_StartRCnt, 0 }, { "ResetCallback", (void *)port_h_ResetCallback, 0 },
+    { "busy", (void *)host_busy, 0 }, { 0, 0, 0 } };
+const struct port_domain port_domains[] = { { "irq", t } };
+const unsigned port_domain_count = 1;
+static const struct port_override o[] = { { 0, 0, 0 } };
+const struct port_override *const port_override_sets[] = { o };
+const unsigned port_override_set_count = 1;
+"""
+
 DOMAINS_NONE = r"""
 #include "port.h"
 static const struct port_library none[] = { { 0, 0, 0 } };
@@ -416,6 +519,7 @@ VARIANTS = {
                     "const struct port_domain port_domains[] = { { \"kernel\", k }, { \"card\", port_card_library } };\nconst unsigned port_domain_count = 2;\n"
                     "static const struct port_override o[] = { { 0, 0, 0 } };\n"
                     "const struct port_override *const port_override_sets[] = { o };\nconst unsigned port_override_set_count = 1;\n"),
+    "irq": Variant("irq", GAME_IRQ, FUN_IRQ, ABS_IRQ, IRQ_DOMAINS),
     "kern": Variant("kern", GAME_VBLANK + GAME_THREADS.replace(PROLOGUE, ""), FUN_KERN, ABS_KERN, kernel_domains()),
 }
 
@@ -637,6 +741,19 @@ def cases(rig: Rig):
     out = proc.stdout.replace("\r\n", "\n")
     ok = proc.returncode == 0 and "routines that do nothing on purpose (13):" in out and out.count("no memory card in this port yet") == 13
     yield "card-routines-are-listed-as-doing-nothing-on-purpose-with-the-note", None if ok else out[:400]
+
+    # ---- the vblank as an interrupt of the game's thread ----
+    status, lines, img, arg = rig.run("irq-spin", program(G_SPIN), variant="irq", timeout=60)
+    yield "a-spin-on-a-counter-only-the-handler-raises-ends-by-itself-and-the-handler-ran-on-the-games-thread", verdict(
+        (status, lines[-2:]), (0, ["spin ended; the handler ran on the game's thread: 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-off", program(G_SPIN), variant="irq", args=["--no-interrupt", "--watchdog", "3"], timeout=60)
+    yield "the-same-spin-with-no-interrupt-is-ended-by-the-watchdog", None if status == 11 and lines[-1].startswith("stop: hang: no vblank for 3 s; the program is at") else f"status {status}, lines {lines[-2:]!r}"
+    status, lines, img, arg = rig.run("irq-host", program(G_HOST), variant="irq", timeout=60)
+    yield "a-spin-inside-a-host-routine-is-not-interrupted", verdict((status, lines[-3:]), (0, ["count moved 0 during the host routine's 200 ms spin", "and moved after it: 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-nest", program(G_NEST), variant="irq", timeout=60)
+    yield "a-handler-is-not-interrupted-by-a-second-vblank", verdict((status, lines[-2:]), (0, ["handler runs 1, deepest nesting 1", "stop: main returned"]))
+    status, lines, img, arg = rig.run("irq-regs", program(G_REGS), variant="irq", timeout=120)
+    yield "registers-flags-and-x87-survive-many-interruptions", verdict((status, lines[-2:]), (0, ["registers, flags and x87 survived: 1; handler ran %s times meanwhile: 1" % (lines[-2].split("ran ")[1].split(" ")[0] if "ran " in lines[-2] else "?"), "stop: main returned"]))
 
     # ---- the kernel ----
     status, lines, img, arg = rig.run("vblank", program(G_VBLANK), variant="kern", timeout=60)
