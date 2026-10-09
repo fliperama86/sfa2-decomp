@@ -6695,8 +6695,10 @@ alone when a unit has a declaration of it that it cannot read.
 
 Not claimed: that any prototype in the header is the original's. A
 build that stays exact shows that the declaration is compatible with
-the bytes. The declaration check on module units is unchanged by this
-group; its remaining lines are those of the units named above.
+the bytes. The private declaration check on module units prints the
+same findings on this group's tree as on the tree before it, line for
+line; only its count of declarations read in module units falls, by
+the 1,665 lines taken out.
 
 ## Windows reference
 
