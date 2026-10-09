@@ -44,11 +44,12 @@ Reconstructed source, published:
   decision of 2026-10-06, in one folder per module image: `src/slot2a/`,
   `src/slot2b/`, `src/slot00/`, `src/slot0b/`, `src/slot0f/`,
   `src/slot12/`, `src/slot16/`, `src/slot27/`, `src/slot28/`, `src/slot01/`, the 20 folders `src/slot06_00/` to
-  `src/slot06_13/` of the stage modules and the 11 folders
-  `src/slot04_0c/` to `src/slot04_17/` of the first-side character
-  blocks. The images `slot17`, `slot08` and `slot2c` are linked
+  `src/slot06_13/` of the stage modules and the 23 folders
+  `src/slot04_00/` to `src/slot04_17/` (there is no `src/slot04_13/`) of
+  the first-side character blocks. The images `slot17`, `slot08` and `slot2c` are linked
   from the units of `slot16`, `slot00` and `slot2b` and have no folder;
-  the eight images `slot05_0c` to `slot05_14` are linked from the units of
+  the eleven images `slot05_00` to `slot05_0b` without `slot05_06` and the
+  eight images `slot05_0c` to `slot05_14` are linked from the units of
   the character blocks in the same way.
 
 Needed to build and not in the repository:
@@ -59,7 +60,8 @@ Needed to build and not in the repository:
   The build checks its hash.
 - `extract/PAC/BOSS00.PAC`, `extract/PAC/CDEMO00.PAC`, `extract/PAC/CONT00.PAC`,
   `extract/PAC/DEMO.PAC`, `extract/PAC/END00.PAC`,
-  `extract/PAC/PL00X.PAC`, `extract/PAC/PL09.PAC`, `extract/PAC/PL09X.PAC`,
+  `extract/PAC/PL00.PAC` to `extract/PAC/PL0B.PAC`, their `X` files
+  `extract/PAC/PL00X.PAC` to `extract/PAC/PL0BX.PAC` without `PL06X.PAC`,
   `extract/PAC/PL0E.PAC`, `extract/PAC/PL0EX.PAC`, `extract/PAC/PL11.PAC`,
   `extract/PAC/PL11X.PAC`, `extract/PAC/SELECTA.PAC`, the 20 files
   `extract/PAC/STAGE00.PAC` to `extract/PAC/STAGE13.PAC` (the number in

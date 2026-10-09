@@ -14,7 +14,7 @@ void func_80138ae8(GameState *state, Object *object);
 void func_80131468(Object *object);
 void func_801483a4(Object *object, int a, int b);
 int func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80130678(Object *object, u16 arg);
+void func_80130678(Object *object, int arg);
 void func_801b337c_slot04_0c(Object *obj);
 
 void func_801b2e34_slot04_0c(Object *obj) {

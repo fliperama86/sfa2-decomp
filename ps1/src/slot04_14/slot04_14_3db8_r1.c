@@ -16,9 +16,9 @@ void func_801483a4(Object *object, int a, int b);
 u8 func_8013f8c4(Object *object, int a, int b);
 void func_80126130(void);
 void func_80126244(void);
-void func_80155d4c(u8 idx, s8 side);
+void func_80155d4c(int idx, int side);
 void func_80155eac(int idx, int side);
-int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e);
+int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused);
 void func_80131468(Object *object);
 u8 func_801b61e8_slot04_14(Object *obj);
 void func_801b3fec_slot04_14(Object *obj);
@@ -127,12 +127,11 @@ void func_801b4178_slot04_14(Object *obj) {
     }
 }
 
-/* The call of func_80140598 passes a seventh argument although the callee takes six: the original stores a zero in the third stack slot before it. Written with six arguments, this function differs from the original in 14 instruction slots. */
 void func_801b41bc_slot04_14(Object *obj) {
     Object *p = obj->other;
 
     p->field_15b = 1;
-    ((int (*)(Object *, u8, u8, s16, u16, u32, u32))func_80140598)(obj, 0, 3, 0x1f, 0x1c, 0, 0);
+    func_80140598(obj, 0, 3, 0x1f, 0x1c, 0, 0);
     if ((s16)p->field_5c < 0) {
         obj->field_167 = 0xf;
         game_state.field_6b = 6;

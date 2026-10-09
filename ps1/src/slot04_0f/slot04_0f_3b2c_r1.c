@@ -10,9 +10,9 @@ extern ObjectFn data_801c5bbc_slot04_0f[];
 extern ObjectFn data_801c5bc4_slot04_0f[];
 extern ObjectFn data_801c5bd4_slot04_0f[];
 
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 void func_80131468(Object *object);
-int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e);
+int func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused);
 void func_80146960(Object *object);
 void func_80146998(Object *object);
 int func_80140cd8(Object *object, int a, int b);
@@ -51,7 +51,6 @@ void func_801b3b2c_slot04_0f(Object *obj) {
     }
 }
 
-/* The call of func_80140598 passes a seventh argument although the callee takes six: the original stores a zero in the third stack slot before it. Written with six arguments, this function differs from the original in 14 instruction slots. */
 void func_801b3c14_slot04_0f(Object *obj) {
     Object *o;
     int one;
@@ -61,7 +60,7 @@ void func_801b3c14_slot04_0f(Object *obj) {
     one = 1;
     o = obj->other;
     o->field_15b = one;
-    ((int (*)(Object *, u8, u8, s16, u16, u32, u32))func_80140598)(obj, 0, 5, 0x1f, 0, 0, 0);
+    func_80140598(obj, 0, 5, 0x1f, 0, 0, 0);
     obj->field_4c = 0x24000;
     obj->field_50 = -0x60000;
     obj->field_54 = -0x500;

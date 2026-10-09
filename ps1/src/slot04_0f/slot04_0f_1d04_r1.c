@@ -6,7 +6,7 @@
 extern ObjectFn data_801c5ac0_slot04_0f[];
 extern ObjectFn data_801c5ad4_slot04_0f[];
 
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 
 void func_801b1fd8_slot04_0f(Object *obj);
 void func_801b1ddc_slot04_0f(Object *obj);

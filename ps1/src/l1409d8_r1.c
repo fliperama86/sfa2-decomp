@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80155d4c(u8 a, s8 b);
+void func_80155d4c(int a, int b);
 
 void func_801409d8(Object *object, s16 a, s16 b) {
     s8 hi;

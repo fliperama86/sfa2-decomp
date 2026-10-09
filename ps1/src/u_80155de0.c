@@ -4,8 +4,8 @@
 #include "protos.h"
 
 extern ObjectRef ref_third;
-void func_80155d4c(u8 idx, s8 side);
-void func_80155eac(u8 idx, s8 side);
+void func_80155d4c(int idx, int side);
+void func_80155eac(int idx, int side);
 
 /* Form found by automatic permutation search. */
 void func_80155de0(Actor *a, Object *b)

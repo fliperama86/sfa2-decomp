@@ -12,7 +12,7 @@ void func_80143184(Object *object);
 void func_80142fe8(Object *object);
 void func_80142c70(Object *object);
 void func_801495f8(Object *object, int x, int y);
-void func_80130678(Object *object, u16 index);
+void func_80130678(Object *object, int index);
 void func_801b4b8c_slot04_11(Object *obj);
 void func_801b511c_slot04_11(Object *obj);
 void func_801b5174_slot04_11(Object *obj);

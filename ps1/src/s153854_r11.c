@@ -4,7 +4,9 @@
 #include "protos.h"
 
 
-void func_80155eac(u8 idx, s8 side) {
+void func_80155eac(int idx_arg, int side_arg) {
+    u8 idx = idx_arg;
+    s8 side = side_arg;
     Object *o;
     if (!(side & 0x80)) {
         o = &player_right;

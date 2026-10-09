@@ -10,7 +10,7 @@ void select_box_tables(Object *object);
 void build_metrics(Object *object);
 void func_80131468(Object *object);
 void func_80131638(Object *object);
-void func_80130678(Object *object, u16 arg);
+void func_80130678(Object *object, int arg);
 unsigned short func_80130470(Object *object);
 int func_8012f898(Object *object);
 

@@ -14,7 +14,7 @@ extern ObjectFn data_801be1d8_slot04_0c[];
 
 Block172 *func_8011f1e0(void);
 void func_8011ffdc(Object *object);
-void func_80130678(Object *object, u16 arg);
+void func_80130678(Object *object, int arg);
 void func_80137b64(Object *object);
 void func_80137cc0(Object *object);
 void func_80137dc8(Object *object);
