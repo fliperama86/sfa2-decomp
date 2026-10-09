@@ -89,7 +89,7 @@ TABLES = r"""
 #include <stdio.h>
 static void c_main(void) { puts("C main ran"); fflush(stdout); }
 static void c_big(void) { puts("C big ran"); fflush(stdout); }
-const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1 }};
+const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0 }};
 const unsigned port_image_count = 1;
 const struct port_function port_functions[] = {
     { 0x%(c)08xu, (void *)c_main, "c_main", -1 },

@@ -6999,6 +6999,111 @@ shared header, the seven that wait for a unit of the second session
 and the two without a definition whose result module units declare as
 `u8` in some places and as `int` in others.
 
+## The port after its first piece: what exists, where it is, and how it is published (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+Words of the owner on 2026-10-09 that this section follows:
+
+- "ok, lmk when I can run the game". Taken as: work toward a program that
+  he can start and play without asking for a go-ahead per piece, tell him
+  when that is so, and bring him only decisions that are his.
+- After a power failure on that day ended the machine in the middle of
+  the work: "let's document all and push", and then "do not let code to
+  pileup too much, do more incremental PRs". At that moment about 7,000
+  lines of the port's runtime and tools, in 29 files, and nonmatching C
+  for 176 functions were in working trees and private folders of one
+  machine and in no branch (one-off counts of that moment). Nothing was
+  lost. The rule taken from it: each work package ends in a pull request
+  of its own, and work is pushed to a branch as soon as it exists.
+
+Where the work is, so that a later session finds it:
+
+- Three branches hold everything as it stood, marked as work in progress
+  and not for review: `port-library` (the port's library layer),
+  `ps1-nonmatching-batch` (the test tool's additions and 49 functions of
+  the stage and character modules) and `ps1-nonmatching-rest` (65
+  functions of the resident image and 62 of other modules).
+- They are cut into small pull requests in this order. For the port: the
+  build tool's second placements (this one), the build of PsyZ, the
+  runtime's core with the library table, the vertical-blank interrupt,
+  the disc, the graphics through PsyZ, the modules' jumps, the pads. For
+  the functions: the test tool's additions first, then batches of about
+  twenty functions.
+
+This pull request is the first of the port's: `port/tools/hostbuild.py`
+places the 22 images that the build configuration marks as `like` another
+a second time, puts a marker before and after the game's code, and takes
+a build of PsyZ and the names of each image's archives for runtime parts
+that come with later pull requests. The page has the mechanism and the
+tool's output.
+
+What a private trial showed, not published and not on the page, with all
+the C named above and the runtime of the `port-library` branch, on the
+disc of `SLPS_004.15`, built on Linux under WSL 2 and run as a 32-bit
+Windows program on the same machine. These are observations of single
+runs, read from dumps of the picture:
+
+- The program draws the game's copyright screen and its title with
+  "PRESS START BUTTON", by itself, and repeats the title's cycle about
+  every 25 seconds.
+- The cycle lacks two things that the game starts as programs of their
+  own through `Exec`: `logo.exe` from `main`, and `z2o.exe` from the
+  title's thread (by their place in the code probably the company's logo
+  and the opening film: inferred). No C exists for them, the port prints
+  that it skips them, and the game goes on as if they had returned.
+- With the Start button pressed through a script of pad input, the mode
+  selection screen appeared (Arcade, Versus, Training, Option, Backup,
+  Game Information). Choosing Arcade ended the program with `stop: no C
+  yet for func_80010840_slot27`.
+- No sound: the sound library's functions are accepted and do nothing.
+  No memory card: the card functions answer as if none were inserted.
+  Only the first pad port is connected.
+
+Findings on the way that a later session needs:
+
+- The PS1 shows its RAM a second time from address 0. A 32-bit Windows
+  program cannot have that range (the system's own tables are there;
+  two probes showed it). One function of the game, `func_80119694`,
+  reads through pointers with the top byte cut off, as the hardware's
+  list walker does, and is the one function the port replaces by its own
+  for that reason. The page of that pull request will list it.
+- The game's `main` waits in a loop that calls nothing, for a counter
+  that only its vertical-blank handler raises. The first runtime ran the
+  handler only inside library calls and the program hung there about
+  half a minute in. The handler is now run as a real interruption of
+  the game's thread: a second thread only measures time and redirects
+  the game's thread to a small routine, and only while that thread is in
+  the game's own code. That is why the build places the two markers.
+  Its cost, stated: the game's code can be interrupted between any two
+  instructions, as on the console, and a run is no longer repeatable to
+  the instruction.
+- PsyZ at its pin does not flush what a 32-bit native program draws: one
+  path flushes only when built for the browser. The port builds PsyZ
+  from a copy with a patch of two removed lines. Offering that fix to
+  PsyZ's authors is a step outside this repository and waits for the
+  owner's word.
+- One-off count from the trial's build table on that day: 46 game
+  functions had no C in the trial tree. 15 of them were units that had
+  not compiled against prototypes that moved on main and have since been
+  repaired; the entry stub is hand-written assembly that the port does
+  not run; about 30 are functions without C still, most of them the
+  copies of a function in another image of the same kind. They are the
+  next work list.
+
+Mistakes of mine in this stretch:
+
+- I let four workers' output accumulate in one uncommitted checkout for
+  a day. A power failure would have cost it all had the disk not
+  survived.
+- I told the owner the program "runs" at a time when it drew nothing,
+  because the graphics library was not yet connected, and he had to ask
+  "what? and the PsyZ?". What is and is not connected is said first.
+- A type cleanup of the first nonmatching function removed a line that
+  the test tool's toolchain controls use as an anchor, and I did not
+  rerun those controls after it; seven of them failed when I did. Every
+  control file is rerun after any change to a file it reads.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

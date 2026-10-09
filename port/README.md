@@ -588,6 +588,18 @@ cross compiler, the program started from that shell.
 - The link is checked afterwards and the build fails otherwise: every
   `ps1_` name has its address, every implementation lies outside the PS1
   ranges, and no plain game name sits at a PS1 address.
+- An image that the build configuration marks as `like` another is that
+  image's units linked a second time at another address: the second side
+  of each character is one. The tool makes a second object from the same
+  assembly, with the names that move with the image renamed
+  (`impl_NAME__X`, `ps1_NAME__X` for image X) and placed at the moved
+  addresses, and every other name where it was. Which names move is taken
+  from the matching build's rule; the tool's header gives it, with the one
+  bound that is looser here because it would need the game's archive.
+- The link places one marker before and one after the code of all game
+  objects and checks that every implementation lies between them and that
+  nothing of the runtime does. A later piece of the runtime uses them to
+  tell the game's code from its own.
 - The program runs nothing that the disc holds. The build carries the
   SHA-256 that the build configuration pins for the game's executable,
   and the runtime refuses a disc whose program has another hash before a
@@ -607,18 +619,21 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `de2dca2`:
+it is in commit `0296f4d`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
 units: 3731 compiled, 1 of them nonmatching, 0 failed
-like images not built: 22
-functions with C: 8689
-functions without C: 568, library 382, game and modules 186
-names at PS1 addresses: 13864
+like images built: 22
+functions with C: 12460
+functions without C: 622, library 382, game and modules 240
+names at PS1 addresses: 45853
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
+
+The functions and names of the second placements are in these counts,
+each under its own name.
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
 as the scripts above take it.
@@ -655,19 +670,22 @@ target of the last call before the entry code's halt.
   executed on a PC by the published tree: the program stops before the
   first one.
 - That C which compiles and links behaves on a PC as it does on the PS1.
-- Anything about the modules: their jumps are not written, and the 22
-  images that are a second placement of another image's units (the
-  second sides of the characters among them) are not built yet.
+- Anything about the modules: their jumps are not written. The 22
+  images that are a second placement of another image's units are built
+  and linked, and nothing of them has run.
 - Anything about the library: a call into it ends the program with the
-  library function's name. PsyZ is not linked.
+  library function's name. PsyZ is not linked. The tool takes a build of
+  PsyZ (`--psyz`) and writes each image's archive names into its tables,
+  and its header names `gpu.c`, `modules.c` and `psyzbuild.py` for them:
+  those files are not in this tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
 
 ### Controls
 
 `python3 port/tools/test_hostbuild.py` checks the tool on made-up
 assembly, tables and symbol lists, without a compiler: the renaming of
-definitions, the names, the tables, the choice of units, and each miss
-of the link check. `python3 port/tools/test_hostrun.py` builds the disc
+definitions, the names, the tables, the choice of units, the second
+placements, the markers, and each miss of the link check. `python3 port/tools/test_hostrun.py` builds the disc
 reading and program loading of the runtime with the host's own `cc` and
 runs them on disc images that the test makes from invented bytes, with
 the hash of the program and the gate at the entry among them.
@@ -697,8 +715,7 @@ is refused. On 2026-10-09 each of the three ended with
   library functions that the resident code does not.
 - Where the build of the host program is checked on a runner, and the
   same build for Linux and for macOS.
-- How the modules' jumps are written when the game loads a module, and
-  how the 22 second placements are built.
+- How the modules' jumps are written when the game loads a module.
 - What the port's build does about the units that a clang refuses, 35 to 115 by its version:
   compiler options that turn those errors back into warnings, or casts in
   the source, if the matching work finds that they leave the bytes alone.
