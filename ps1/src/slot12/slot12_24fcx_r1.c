@@ -8,18 +8,17 @@ extern SlotCell data_80029350_slot12[];
 extern u16 box_margin[];
 extern u16 data_801aa5ea[];
 
+/* The read of field_05 into t stands before the test of field_64: written after that test, this function differs from the original in 13 instruction slots. */
 void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
     FrameRecord *f = &frames[obj->sequence->frame_index];
     int t;
     u16 cx;
     int d;
-    int g;
     int y;
     int ytop0;
     int ybot0;
     Slot12Tiles *tile;
     SlotCell *fp;
-    SlotCell *c;
     u16 idx;
     int w;
     int row;
@@ -40,7 +39,7 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
     if (game_state.field_64 != 0) {
         return;
     }
-    t = t - 1;
+    t--;
     if (t == -1) {
         return;
     }
@@ -51,13 +50,12 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
         return;
     }
     idx = 0;
-    g = data_801a27d0;
-    cx = (u16)obj->pos_x - box_margin[0];
+    cx = obj->pos_x - box_margin[0];
     xmin = cx - tile->field_04;
     xmax = cx + tile->field_04;
     xb = xmax - 0x10;
     xa = xmin + 0x10;
-    fp = data_80029350_slot12 + g * 0x34 + obj->field_02 * 26;
+    fp = data_80029350_slot12 + data_801a27d0 * 0x34 + obj->field_02 * 26;
     d = tile->field_06 - 0xc8;
     y = data_801aa5ea[0] - d;
     list = (u16 *)(tile + 1);

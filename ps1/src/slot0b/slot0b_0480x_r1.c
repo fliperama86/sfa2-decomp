@@ -8,16 +8,13 @@ void func_801e09f4_slot0b(Object *obj);
 void func_801e0578_slot0b(Object *obj, u8 a);
 u8 func_80125b18(u8 a);
 
-/* The local x holds the position 0x48 that two fields receive; the second store comes after the store of field_46. Written with the literal at both stores, this function differs from the original in 7 instruction slots. */
 void func_801e0480_slot0b(Object *obj) {
     u8 k;
-    s16 x;
 
     ref_other.p = obj->field_3c;
-    x = 0x48;
-    obj->pos_x = x;
+    obj->pos_x = 0x48;
     obj->field_46 = 0xf;
-    obj->field_5c = x;
+    obj->field_5c = 0x48;
     obj->pos_y = 0x68;
     obj->field_5e = 0x88;
     obj->field_4c = 0;

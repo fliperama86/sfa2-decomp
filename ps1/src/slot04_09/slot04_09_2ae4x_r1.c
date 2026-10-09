@@ -6,6 +6,7 @@
 void func_801b2858_slot04_09(Object *o);
 void func_801b2d6c_slot04_09(Object *o);
 
+/* The local t holds the field_0b read for the later p->field_72 store: written with the field read in place, this function differs from the original in 25 instruction slots. */
 void func_801b2ae4_slot04_09(Object *obj) {
     Object *p;
     int t;
@@ -24,8 +25,8 @@ void func_801b2ae4_slot04_09(Object *obj) {
         p->field_61 = 1;
         p->field_62 = 3;
         p->field_73 = 0;
-        t = obj->field_0b;
         obj->field_73 = 0;
+        t = obj->field_0b;
         p->field_15b = 1;
         p->field_260 = 1;
         p->field_6b = 0;
@@ -37,9 +38,9 @@ void func_801b2ae4_slot04_09(Object *obj) {
         p->field_27a = 0;
         obj->field_292 = 0x1e;
         p->field_292 = 0x1e;
-        obj->field_50 = obj->field_50 + 0x3c000;
-        obj->field_4c = obj->field_4c << 1;
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->field_50 += 0x3c000;
+        obj->field_4c <<= 1;
+        obj->field_0b ^= 1;
         p->field_0b = obj->field_0b;
         func_801307e0(obj, 0x23);
     } else {

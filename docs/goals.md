@@ -451,8 +451,12 @@ chose the first on 2026-10-06:
   Then the second side of `PL06.PAC`, which the second links had left
   out: it is four bytes shorter than the first side, and is built as an
   image of its own from copies of the first side's units, 228 of 231
-  functions exact. The counts of the steps above are those of their
-  day; the README has the current ones.
+  functions exact.
+  Then two more functions copied from twins that had become exact
+  meanwhile, one in `slot28` and one in `slot04_02`, and the figures in
+  the comments of this session's units measured again. The counts of
+  the steps above are those of their day; the README has the current
+  ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.

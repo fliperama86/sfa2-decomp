@@ -31,7 +31,7 @@ extern Slot04SelRec data_801b9cf0_slot04_sel[];
 extern u8 data_801b9d28_slot04_sel;
 extern u8 data_801b9d2c_slot04_sel;
 
-/* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in 3 instruction slots. */
+/* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in 2 instruction slots. */
 void func_801b066c_slot04_sel(void) {
     Slot04SelRec *r;
     Object *second;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 3 instruction slots. */
+/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b3b74_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;

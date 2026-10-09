@@ -26,7 +26,7 @@ extern u8 data_801b9d6c_slot04_sel;
 extern HudState *data_8018f5a0;
 void func_801b44ec_slot04_sel(void);
 
-/* The first read of the second player's side goes through the pointer to the first player. Written player_right.side, as the two later reads are, this function differs from the original in 4 instruction slots. */
+/* The first read of the second player's side goes through the pointer to the first player. Written player_right.side, as the two later reads are, this function differs from the original in 20 instruction slots. */
 void func_801b3380_slot04_sel(void) {
     Object *l = &player_left;
     Object *r;
