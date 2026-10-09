@@ -3,7 +3,9 @@
 #ifndef PORT_TABLES_H
 #define PORT_TABLES_H
 
-struct port_image    { const char *name; unsigned address; const char *like; unsigned slot; };
+/* archives: the names (upper case, as the inventory writes them) of all the archives that carry the image's content,
+ * ending with a null pointer; null where the build gave none. */
+struct port_image    { const char *name; unsigned address; const char *like; unsigned slot; const char *const *archives; };
 struct port_function { unsigned address; void *impl; const char *name; int image; };  /* image: index, -1 = resident */
 struct port_absent   { unsigned address; const char *name; int image; int library; };
 

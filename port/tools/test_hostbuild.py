@@ -14,6 +14,7 @@ fixture, never read back from the tool.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -254,6 +255,52 @@ def selection_cases(root: Path):
     yield "select-stem-is-unit-name", raises(lambda: hb.select_units(config, path), "func_80100300")
 
 
+# The second placements.
+
+PLACE_IMAGES = [
+    {"name": "mod", "address": 0x1000, "slot": 5},
+    {"name": "mod2", "address": 0x3000, "slot": 6, "like": "mod", "symbols": {"own": 0x3800, "far": 0x9000}},
+]
+PLACE_DECLARED = [
+    hb.Function("f", 0x1000, "mod", "u"), hb.Function("g", 0x1100, "mod", "u"), hb.Function("r", 0x500, None, "ur"),
+    hb.Function("h", 0x1800, "mod", "left"),
+]
+PLACE_SYMBOLS = [("data_in", 0x1400, "s"), ("data_low", 0xfff, "s"), ("data_edge", 0x2fff, "s"), ("data_end", 0x3000, "s"), ("own", 0x1500, "s")]
+PLACE_UNITS = {"mod": ["u", "left", "asm_in_mod"], None: ["ur"]}
+
+
+def placement_cases():
+    got = hb.plan_placements(PLACE_IMAGES, PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS)
+    yield "place-one-for-the-like-image", same([(p.image, p.first, p.shift, p.suffix) for p in got], [("mod2", "mod", 0x2000, "__mod2")])
+    moved = got[0].moved
+    yield "place-functions-of-the-first-image-move", same((moved.get("f"), moved.get("g"), moved.get("h")), (0x3000, 0x3100, 0x3800))
+    yield "place-resident-function-stays", same("r" in moved, False)
+    yield "place-symbols-in-the-range-move", same(moved.get("data_in"), 0x3400)
+    yield "place-range-edges", same(("data_low" in moved, moved.get("data_edge"), "data_end" in moved), (False, 0x4fff, False))
+    yield "place-own-symbols-win-and-add", same((moved.get("own"), moved.get("far")), (0x3800, 0x9000))
+    yield "place-moved-names-are-exactly", same(sorted(moved), ["data_edge", "data_in", "f", "far", "g", "h", "own"])
+    left = [dict(PLACE_IMAGES[0]), {**PLACE_IMAGES[1], "leave_out": ["left"]}]
+    yield "place-left-out-unit-still-gives-names", same(
+        (hb.plan_placements(left, PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS)[0].left_out, hb.plan_placements(left, PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS)[0].moved.get("h")),
+        ({"left"}, 0x3800))
+    yield "place-left-out-asm-unit-is-known", same(
+        hb.plan_placements([PLACE_IMAGES[0], {**PLACE_IMAGES[1], "leave_out": ["asm_in_mod"]}], PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS)[0].left_out, {"asm_in_mod"})
+    yield "place-left-out-unknown-unit", raises(lambda: hb.plan_placements([PLACE_IMAGES[0], {**PLACE_IMAGES[1], "leave_out": ["nope"]}], PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS), "nope", "mod2")
+    yield "place-below-the-first-is-refused", raises(lambda: hb.plan_placements([PLACE_IMAGES[0], {**PLACE_IMAGES[1], "address": 0x1000}], [], [], PLACE_UNITS), "mod2")
+    yield "place-bad-own-symbols", raises(lambda: hb.plan_placements([PLACE_IMAGES[0], {**PLACE_IMAGES[1], "symbols": {"x": "y"}}], [], [], PLACE_UNITS), "image.symbols")
+    yield "place-like-of-a-like", raises(lambda: hb.plan_placements([PLACE_IMAGES[0], PLACE_IMAGES[1], {"name": "m3", "address": 0x5000, "slot": 7, "like": "mod2"}], [], [], PLACE_UNITS), "m3")
+    yield "place-none-without-like", same(hb.plan_placements([PLACE_IMAGES[0]], PLACE_DECLARED, PLACE_SYMBOLS, PLACE_UNITS), [])
+    text, defined = hb.rename_definitions(COFF_F, True, "__mod2")
+    yield "place-rename-with-suffix", same((text, defined), (COFF_F.replace("_f", "_impl_f__mod2"), {"_f"}))
+    text, _ = hb.rename_definitions("\t.globl\tf\nf:\n\tcall\tf\n", False, "__x")
+    yield "place-rename-with-suffix-keeps-calls", same(text, "\t.globl\timpl_f__x\nimpl_f__x:\n\tcall\tf\n")
+    yield "place-labels-left-with-suffix", same(hb.labels_left(hb.rename_definitions(COFF_F, True, "__mod2")[0], {"_f"}), [])
+    yield "place-redefine-moved", same(
+        hb.render_redefine({"a": 1, "b": 2, "c": 3}, ["d"], True, moved={"b", "d", "zz"}, suffix="__m"),
+        "_a _ps1_a\n_b _ps1_b__m\n_c _ps1_c\n_d _ps1_d__m\n")
+    yield "place-redefine-without-moved-is-plain", same(hb.render_redefine({"a": 1}, [], False, suffix="__m"), "a ps1_a\n")
+
+
 # The tables.
 
 
@@ -275,7 +322,7 @@ def table_cases(root: Path):
     yield "tables-inventory-rows", same(
         sorted((r.address, r.image, r.library) for r in inv),
         sorted([(0x80100000, None, False), (0x80100010, None, False), (0x80100200, None, False), (0x80100100, None, True), (0x80100110, None, True),
-                (0x801e0000, "mod", False), (0x801e0010, "mod", False)]),
+                (0x801e0000, "mod", False), (0x801e0010, "mod", False), (0x801f0000, "mod2", False)]),
     )
     fa = next(f for f in sel.declared if f.name == "fa")
     mf = next(f for f in sel.declared if f.name == "mf")
@@ -287,13 +334,19 @@ def table_cases(root: Path):
         (-1, 0x80100110, "func_80100110", 1),
         (-1, 0x80100200, "asmf", 0),
         (0, 0x801e0010, "func_801e0010_mod", 0),
+        (1, 0x801f0000, "func_801f0000_mod2", 0),
     ])
     lo = hb.Function("lo", 0x80000100, "mod", "u")
     yield "tables-image-sorts-before-address", same(
         [f[3] for f in hb.build_tables(sel.images, [(lo, "impl_lo"), (fa, "impl_fa")], inv, sel.declared)[0]], ["fa", "lo"])
-    yield "tables-second-link-image-not-listed", same(any(a[0] == 1 for a in absents), False)
+    yield "tables-second-placement-rows-are-listed", same([a for a in absents if a[0] == 1], [(1, 0x801f0000, "func_801f0000_mod2", 0)])
+    moved = hb.Function("mf__mod2", 0x801f0000, "mod2", "um")
+    yield "tables-second-placement-name-from-moved-function", same(
+        [a for a in hb.build_tables(sel.images, [], inv, sel.declared + [moved])[1] if a[0] == 1], [(1, 0x801f0000, "mf__mod2", 0)])
+    yield "tables-second-placement-function-leaves-no-absent", same(
+        [a for a in hb.build_tables(sel.images, [(moved, "impl_mf__mod2")], inv, sel.declared + [moved])[1] if a[0] == 1], [])
     functions, absents = hb.build_tables(sel.images, [], inv, sel.declared)
-    yield "tables-all-absent-without-c", same(len(absents), 7)
+    yield "tables-all-absent-without-c", same(len(absents), 8)
     other = hb.Function("again", 0x80100000, None, "uz")
     yield "tables-two-at-one-address", raises(lambda: hb.build_tables(sel.images, [(fa, "impl_fa"), (other, "impl_again")], inv, sel.declared), "fa", "again", "0x80100000")
     yield "tables-same-address-other-image-is-fine", same(
@@ -322,6 +375,23 @@ def table_cases(root: Path):
         "};\n"
     )
     yield "tables-render-text", same(text, want)
+    archives = hb.read_image_archives(inventory_dir(root, "inv"), config)
+    yield "tables-image-archives-read-from-contents", same(archives, {"mod": ["A.PAC"], "mod2": ["B.PAC"]})
+    many = root / "inv-many"
+    write(many / "game.tsv", "")
+    write(many / "library.tsv", "")
+    write(many / "modules.tsv", "A.PAC\t0x5\t801e0000\t16\taaaa\nB.PAC\t0x6\t801f0000\t16\taaaa\n")
+    write(many / "contents.tsv", "A.PAC\t0x5\t3\tA.PAC,A2.PAC,A3.PAC\nB.PAC\t0x6\t1\tB.PAC\n")
+    yield "tables-image-archives-lists-every-carrier", same(hb.read_image_archives(many, config)["mod"], ["A.PAC", "A2.PAC", "A3.PAC"])
+    write(many / "contents.tsv", "")
+    os.remove(many / "contents.tsv")
+    yield "tables-image-archives-without-contents-names-the-first", same(hb.read_image_archives(many, config), {"mod": ["A.PAC"], "mod2": ["B.PAC"]})
+    text2 = hb.render_tables(sel.images, [], [], SHA, {"mod": ["A.PAC", "A2.PAC"], "mod2": ["B.PAC"]})
+    yield "tables-render-archives", same(
+        ('static const char *const port_archives_0[] = { "A.PAC", "A2.PAC", 0 };\n' in text2,
+         '    { "mod", 0x801e0000u, 0, 0x5u, port_archives_0 },\n' in text2,
+         '    { "mod2", 0x801f0000u, "mod", 0x6u, port_archives_1 },\n' in text2,
+         text2.index("port_archives_1[]") < text2.index("const struct port_image port_images")), (True, True, True, True))
     yield "tables-baseline-hash-read-lower-case", same(hb.read_baseline_hash({"baseline": {"sha256": SHA.upper()}}, Path("c")), SHA)
     for tag, cfg in (("absent", {}), ("no-section", {"baseline": 3}), ("short", {"baseline": {"sha256": SHA[:62]}}), ("not-hex", {"baseline": {"sha256": "g" * 64}}),
                      ("not-text", {"baseline": {"sha256": 5}})):
@@ -385,6 +455,47 @@ def verify_cases():
     yield "verify-ignores-lines-it-cannot-read", same(check(GOOD_NM + "                 U _printf\nwarning: junk\n"), [])
 
 
+# The game-code markers.
+
+MARK_NM = "00401000 T _port_game_text_begin\n00401100 T _port_game_text_end\n00401010 T _impl_fa\n00401020 t _impl_fb\n00500000 T _main\n"
+
+
+def marker_cases():
+    def check(nm, impls=("fa", "fb"), runtime=("_main",), underscore=True):
+        return hb.verify_markers(nm, list(impls), list(runtime), underscore)
+
+    yield "markers-all-good", same(check(MARK_NM), [])
+    yield "markers-begin-missing", same(check(MARK_NM.replace("00401000 T _port_game_text_begin\n", "")), ["port_game_text_begin: not in the linked file"])
+    yield "markers-end-missing", same(check(MARK_NM.replace("00401100 T _port_game_text_end\n", "")), ["port_game_text_end: not in the linked file"])
+    yield "markers-begin-not-below-end", same(len(check(MARK_NM.replace("00401100 T _port_game_text_end", "00401000 T _port_game_text_end"))), 1)
+    yield "markers-reversed", same(len(check(MARK_NM.replace("00401000 T _port_game_text_begin", "00402000 T _port_game_text_begin"))), 1)
+    yield "markers-impl-below-begin", same(check(MARK_NM.replace("00401010 T _impl_fa", "00400ff0 T _impl_fa")), ["impl_fa: at 0x400ff0, outside the game's code 0x401000-0x401100"])
+    yield "markers-impl-at-end", same(check(MARK_NM.replace("00401010 T _impl_fa", "00401100 T _impl_fa")), ["impl_fa: at 0x401100, outside the game's code 0x401000-0x401100"])
+    yield "markers-impl-above-end", same(len(check(MARK_NM.replace("00401020 t _impl_fb", "00402020 t _impl_fb"))), 1)
+    yield "markers-runtime-symbol-inside", same(check(MARK_NM + "00401050 T _rt\n", runtime=("_main", "_rt")), ["_rt: a runtime symbol at 0x401050, inside the game's code 0x401000-0x401100"])
+    yield "markers-runtime-symbol-at-begin", same(len(check(MARK_NM + "00401000 t _rt\n", runtime=("_rt",))), 1)
+    yield "markers-runtime-symbol-outside-is-fine", same(check(MARK_NM + "00402000 t _rt\n", runtime=("_rt",)), [])
+    yield "markers-defined-twice", same(len(check(MARK_NM + "00401200 T _port_game_text_end\n")), 1)
+    yield "markers-no-underscore", same(check(MARK_NM.replace(" _", " "), runtime=("main",), underscore=False), [])
+    yield "markers-source", same(hb.marker_source("port_game_text_end", True), "\t.text\n\t.globl\t_port_game_text_end\n_port_game_text_end:\n")
+    yield "markers-source-no-underscore", same(hb.marker_source("port_game_text_begin", False), "\t.text\n\t.globl\tport_game_text_begin\nport_game_text_begin:\n")
+    yield "markers-text-symbols", same(hb.text_symbols("00000000 T _a\n00000010 t _b\n00000000 D _c\n         U _d\n00000020 b _e\n00000000 t .text\n"), ["_a", "_b"])
+
+
+def marker_flow_cases(root: Path):
+    config = run_tree(root, "mark")
+    cc, nm = fake(root, "mark", defs=DEFS, rt_defs=["rtfunc"])
+    proc = run(root, "mark", config, cc, nm)
+    names = [Path(json.loads(x)).name for x in read(root / "mark" / "build" / "link.rsp").splitlines()]
+    yield "mark-run-verifies", same((proc.returncode, proc.stderr), (0, ""))
+    yield "mark-first-and-last-among-game-objects", same((names[0], names[names.index("um__mod2.o") + 1], names[-3:]), ("port_game_text_begin.o", "port_game_text_end.o", ["main.o", "port_tables.o", "names.ld"]))
+    yield "mark-assembly", same(read(root / "mark" / "build" / "gen" / "port_game_text_end.s"), "\t.text\n\t.globl\t_port_game_text_end\n_port_game_text_end:\n")
+    cc, nm = fake(root, "mark2", defs=DEFS, rt_defs=["rtfunc"], nm_extra=["00401020 T _rtfunc"])
+    config = run_tree(root, "mark2")
+    proc = run(root, "mark2", config, cc, nm)
+    yield "mark-runtime-symbol-inside-fails-the-link-check", same((proc.returncode, "_rtfunc: a runtime symbol" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+
 # The whole run, with a stand-in compiler.
 
 FAKE = """#!{python}
@@ -440,6 +551,8 @@ if "-S" in args:
     for n in spec["defs"].get(unit, []):
         sym = ("_" if us else "") + n
         text += "\\t.globl\\t%s\\n\\t.def\\t%s;\\t.scl\\t2;\\t.type\\t32;\\t.endef\\n%s:\\n\\tcall\\t%s\\n\\tret\\n" % (sym, sym, sym, ("_" if us else "") + spec.get("call", "callee"))
+    for c in spec.get("calls", {{}}).get(unit, []):
+        text += "\\tcall\\t%s\\n" % (("_" if us else "") + c)
     out.write_text(text)
     sys.exit(0)
 if "-c" in args:
@@ -454,7 +567,7 @@ if "-c" in args:
         if source.stem in spec.get("rt_fail", []):
             sys.stderr.write("%s:1:1: error: nope\\n" % source.name)
             sys.exit(1)
-        out.write_text("")
+        out.write_text("".join("def %s\\n" % d for d in spec.get("rt_defs", [])))
     sys.exit(0)
 rsp = Path(args[0][1:]).read_text().splitlines()
 text = "".join("def %s\\n" % h for h in spec.get("host", []))
@@ -497,9 +610,9 @@ RUN_UNITS = (
 RUN_TYPES = '[types]\nfields = "t.fields"\nheader = "t.h"\n'
 
 
-def run_tree(root: Path, tag: str, units: str = RUN_UNITS, symbols: str = "sym_a = 0x80190000;\n/* c */\nsym_b = 0x1f800010;\n", nonmatching=None, baseline: bool = True) -> Path:
+def run_tree(root: Path, tag: str, units: str = RUN_UNITS, symbols: str = "sym_a = 0x80190000;\n/* c */\nsym_b = 0x1f800010;\n", nonmatching=None, baseline: bool = True, images: str = IMAGES) -> Path:
     base = root / tag / "src"
-    toml = (f'[baseline]\nsha256 = "{SHA}"\n' if baseline else "") + RUN_TYPES + units + IMAGES
+    toml = (f'[baseline]\nsha256 = "{SHA}"\n' if baseline else "") + RUN_TYPES + units + images
     config = write(base / "build.toml", toml)
     write(base / "t.fields", "struct S size=0x4\n0x000 u32 a\n")
     write(base / "symbols.ld", symbols)
@@ -542,10 +655,10 @@ def flow_cases(root: Path):
     want = (
         "compiler: fakecc 1.0\n"
         "units: 4 compiled, 0 of them nonmatching, 0 failed\n"
-        "like images not built: 1\n"
-        "functions with C: 5\n"
+        "like images built: 1\n"
+        "functions with C: 6\n"
         "functions without C: 5, library 2, game and modules 3\n"
-        "names at PS1 addresses: 10\n"
+        "names at PS1 addresses: 11\n"
         "data defined in C, at host addresses: 0\n"
         f"linked: {exe}, verified\n"
     )
@@ -553,12 +666,12 @@ def flow_cases(root: Path):
     yield "flow-names-file", same(read(build / "gen" / "names.ld"), "".join(
         f"_ps1_{n} = 0x{a:08x};\n" for n, a in sorted({
             "sym_a": 0x80190000, "sym_b": 0x1F800010, "fa": 0x80100000, "fb": 0x80100010, "fc": 0x80100020, "fd": 0x80100030,
-            "mf": 0x801E0000, "libf": 0x80100100, "asmf": 0x80100200, "callee": 0x80100210}.items())))
+            "mf": 0x801E0000, "mf__mod2": 0x801F0000, "libf": 0x80100100, "asmf": 0x80100200, "callee": 0x80100210}.items())))
     tables = read(build / "gen" / "port_tables.c")
     yield "flow-tables-functions", same([l.strip() for l in tables.splitlines() if l.strip().startswith("{ 0x") and "impl" in l], [
         '{ 0x80100000u, (void *)impl_fa, "fa", -1 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1 },',
         '{ 0x80100020u, (void *)impl_fc, "fc", -1 },', '{ 0x80100030u, (void *)impl_fd, "fd", -1 },',
-        '{ 0x801e0000u, (void *)impl_mf, "mf", 0 },'])
+        '{ 0x801e0000u, (void *)impl_mf, "mf", 0 },', '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1 },'])
     yield "flow-tables-carry-the-configurations-hash", same(
         [l.strip() for l in tables.split("port_program_sha256[32] = {")[1].splitlines()[1:5]],
         [", ".join(f"0x{b:02x}" for b in range(i, i + 8)) + "," for i in range(0, 32, 8)])
@@ -571,7 +684,7 @@ def flow_cases(root: Path):
     rsp = read(build / "link.rsp").splitlines()
     yield "flow-response-file", same(
         [Path(json.loads(x)).name for x in rsp],
-        ["ua.o", "ub.o", "uc.o", "um.o", "main.o", "port_tables.o", "names.ld"],
+        ["port_game_text_begin.o", "ua.o", "ub.o", "uc.o", "um.o", "um__mod2.o", "port_game_text_end.o", "main.o", "port_tables.o", "names.ld"],
     )
     calls = [x.split() for x in read(root / "flow.log").splitlines()]
     units = [c for c in calls if "-S" in c and c[-1].endswith((".c",)) and not c[-1].endswith("underscore.c")]
@@ -629,13 +742,13 @@ def flow_cases(root: Path):
     out = proc.stdout.splitlines()
     yield "flow-failed-status-1", same(proc.returncode, 1)
     yield "flow-failed-lines", same(out[1:5], [
-        "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images not built: 1", "functions with C: 5", "functions without C: 5, library 2, game and modules 3"])
-    yield "flow-failed-names-count", same(out[5], "names at PS1 addresses: 11")
+        "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions without C: 5, library 2, game and modules 3"])
+    yield "flow-failed-names-count", same(out[5], "names at PS1 addresses: 12")
     yield "flow-failed-link-still-made", same(out[7], f"linked: {exe}, verified")
     yield "flow-list-failed", same(out[8], "failed: ub: b.c:3:5: error: boom in ub")
-    yield "flow-list-absent-lines", same(out[9:], [
+    yield "flow-list-absent-lines", same(out[10:], [
         "absent: fc 0x80100020 -", "absent: asmf 0x80100200 -", "absent: func_801e0010_mod 0x801e0010 mod"])
-    absent = out[9:]
+    absent = out[10:]
     yield "flow-list-absent-count-and-no-library", same((len(absent), any("libf" in x for x in absent)), (3, False))
     yield "flow-failed-table", same(read(root / "flow2" / "build" / "failed.tsv"), "ub\tb.c:3:5: error: boom in ub\n")
     yield "flow-nonmatching-is-function-with-c", same("func_80100040" in read(root / "flow2" / "build" / "gen" / "port_tables.c"), True)
@@ -649,7 +762,7 @@ def flow_cases(root: Path):
     yield "flow-data-line", same((proc.returncode, out[6], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
     yield "flow-data-listed", same("data: hostvar" in out, True)
     yield "flow-data-alias-line", same("_ps1_hostvar = _impl_hostvar;\n" in read(root / "flow3" / "build" / "gen" / "names.ld"), True)
-    yield "flow-data-names-count-unchanged", same(out[5], "names at PS1 addresses: 10")
+    yield "flow-data-names-count-unchanged", same(out[5], "names at PS1 addresses: 11")
 
     # A data symbol that symbols.ld places is bound there, not aliased.
     cc, nm = fake(root, "flow3b", defs={**DEFS, "ub": ["fc", "sym_a"]})
@@ -700,13 +813,137 @@ def flow_cases(root: Path):
     yield "flow-two-at-one-address-refused", same((proc.returncode, "0x80100000" in proc.stderr), (2, True))
 
 
+def psyz_cases(root: Path):
+    """--psyz: gpu.c alone sees PsyZ's headers, the link line gets its libraries, and a bad folder is refused."""
+    def tree(tag: str):
+        config = run_tree(root, tag)
+        write(root / tag / "runtime" / "gpu.c", "int gpu;\n")
+        folder = root / tag / "psyzdir"
+        (folder / "inc").mkdir(parents=True)
+        libs = [write(folder / "libpsyz.a", ""), write(folder / "libSDL3.a", "")]
+        write(folder / "psyz.json", json.dumps({"include": str(folder / "inc"), "define": ["__psyz", "EXTRA=1"], "link": [str(libs[0]), str(libs[1]), "-lm"], "commit": "abc123"}))
+        return config, folder, libs
+
+    config, folder, libs = tree("ps")
+    cc, nm = fake(root, "ps", defs=DEFS)
+    proc = run(root, "ps", config, cc, nm, "--psyz", folder)
+    out = proc.stdout.splitlines()
+    yield "psyz-run-ok-and-psyz-line-after-compiler", same((proc.returncode, out[:2], proc.stderr), (0, ["compiler: fakecc 1.0", "psyz: abc123"], ""))
+    calls = [x.split() for x in read(root / "ps.log").splitlines()]
+    rt = {Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]}
+    inc = str(folder / "inc")
+    yield "psyz-gpu-c-gets-the-flags", same(rt["gpu.c"][4:10], ["-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, "-I"])
+    yield "psyz-other-runtime-files-do-not", same(["PORT_HAVE_PSYZ" in " ".join(rt["main.c"]), inc in rt["main.c"]], [False, False])
+    link = [c for c in calls if c and c[0].startswith("@")]
+    yield "psyz-link-line-has-the-libraries-after-the-flags", same(link[0][1:] if link else None, [*hb.LINK_FLAGS, str(libs[0]), str(libs[1]), "-lm", "-o", str(root / "ps" / "build" / "sfa2.exe")])
+
+    config, folder, libs = tree("ps2")
+    cc, nm = fake(root, "ps2", defs=DEFS)
+    proc = run(root, "ps2", config, cc, nm)
+    calls = [x.split() for x in read(root / "ps2.log").splitlines()]
+    rt = {Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]}
+    link = [c for c in calls if c and c[0].startswith("@")]
+    yield "psyz-without-the-option-nothing-changes", same((proc.returncode, "psyz" in proc.stdout, "PORT_HAVE_PSYZ" in " ".join(rt["gpu.c"]), link[0][1:] if link else None),
+                                                          (0, False, False, [*hb.LINK_FLAGS, "-o", str(root / "ps2" / "build" / "sfa2.exe")]))
+
+    config, folder, libs = tree("ps3")
+    cc, nm = fake(root, "ps3", defs=DEFS)
+    (folder / "psyz.json").unlink()
+    proc = run(root, "ps3", config, cc, nm, "--psyz", folder)
+    yield "psyz-folder-without-psyz-json-is-refused", same((proc.returncode, proc.stdout, "psyz.json" in proc.stderr and "psyzbuild.py" in proc.stderr, len(proc.stderr.strip().splitlines())), (2, "", True, 1))
+
+    config, folder, libs = tree("ps4")
+    cc, nm = fake(root, "ps4", defs=DEFS)
+    libs[1].unlink()
+    proc = run(root, "ps4", config, cc, nm, "--psyz", folder)
+    yield "psyz-missing-library-is-refused", same((proc.returncode, proc.stdout, str(libs[1]) in proc.stderr), (2, "", True))
+
+    config, folder, libs = tree("ps5")
+    cc, nm = fake(root, "ps5", defs=DEFS)
+    (folder / "psyz.json").write_text('{"include": 3}')
+    proc = run(root, "ps5", config, cc, nm, "--psyz", folder)
+    yield "psyz-malformed-psyz-json-is-refused", same((proc.returncode, proc.stdout, "psyz.json" in proc.stderr), (2, "", True))
+
+
+IMAGES_SYM = IMAGES + "\n[image.symbols]\nsym_own = 0x801f0200\n"
+LIKE_SYMBOLS = "sym_out = 0x80190000;\nsym_own = 0x80190010;\nsym_in = 0x801e0100;\n"
+LIKE_UNITS = (
+    unit("ur", "a.c", [("r1", 0x80100000)])
+    + unit("um", "d.c", [("mf", 0x801e0000), ("mg", 0x801e0010)], image="mod")
+)
+LIKE_CALLS = {"um": ["mg", "r1", "sym_in", "sym_out", "sym_own", "hv"]}
+
+
+def like_cases(root: Path):
+    config = run_tree(root, "like", units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
+    cc, nm = fake(root, "like", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls=LIKE_CALLS)
+    proc = run(root, "like", config, cc, nm, "--list")
+    build = root / "like" / "build"
+    out = proc.stdout.splitlines()
+    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[7]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
+    names = read(build / "gen" / "names.ld").splitlines()
+    yield "like-moved-names-in-the-names-file", same([l for l in names if "__mod2" in l], [
+        "_ps1_mf__mod2 = 0x801f0000;", "_ps1_mg__mod2 = 0x801f0010;", "_ps1_sym_in__mod2 = 0x801f0100;",
+        "_ps1_sym_own__mod2 = 0x801f0200;", "_ps1_hv__mod2 = _impl_hv__mod2;"])
+    yield "like-plain-names-unchanged", same(
+        [l for l in names if l.startswith(("_ps1_sym_out ", "_ps1_sym_own ", "_ps1_sym_in ", "_ps1_mg "))],
+        ["_ps1_mg = 0x801e0010;", "_ps1_sym_in = 0x801e0100;", "_ps1_sym_out = 0x80190000;", "_ps1_sym_own = 0x80190010;"])
+    yield "like-names-outside-the-image-do-not-move", same([l for l in names if l.startswith(("_ps1_sym_out__", "_ps1_r1__"))], [])
+    first, second = read(build / "obj" / "um.o"), read(build / "obj" / "um__mod2.o")
+    yield "like-first-object-references", same(sorted(l for l in first.splitlines() if l.startswith("ref ")), sorted(
+        ["ref _ps1_r1", "ref _ps1_r1", "ref _ps1_r1", "ref _ps1_r1", "ref _ps1_mg", "ref _ps1_sym_in", "ref _ps1_sym_out", "ref _ps1_sym_own", "ref _ps1_hv"]))
+    yield "like-second-object-references", same(sorted(l for l in second.splitlines() if l.startswith("ref ")), sorted(
+        ["ref _ps1_r1", "ref _ps1_r1", "ref _ps1_r1", "ref _ps1_r1", "ref _ps1_mg__mod2", "ref _ps1_sym_in__mod2", "ref _ps1_sym_out", "ref _ps1_sym_own__mod2", "ref _ps1_hv__mod2"]))
+    yield "like-second-object-definitions", same(sorted(l for l in second.splitlines() if l.startswith("def ")), ["def _impl_hv__mod2", "def _impl_mf__mod2", "def _impl_mg__mod2"])
+    yield "like-first-object-definitions", same(sorted(l for l in first.splitlines() if l.startswith("def ")), ["def _impl_hv", "def _impl_mf", "def _impl_mg"])
+    yield "like-second-assembly-from-the-same-compile", same(
+        len([x for x in read(root / "like.log").splitlines() if " -S " in f" {x} " and x.endswith("d.c")]), 1)
+    tables = read(build / "gen" / "port_tables.c")
+    yield "like-tables-second-functions", same([l.strip() for l in tables.splitlines() if "__mod2" in l and l.strip().startswith("{ 0x")], [
+        '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1 },', '{ 0x801f0010u, (void *)impl_mg__mod2, "mg__mod2", 1 },'])
+    yield "like-redefine-file-moves-only-moved", same(
+        sorted(l.split()[0] for l in read(build / "gen" / "redefine__mod2.txt").splitlines() if "__mod2" in l),
+        ["_hv", "_mf", "_mg", "_sym_in", "_sym_own"])
+    yield "like-listing-names-the-image", same([l for l in out if l.startswith("like:")], ["like: mod2 of mod, shift +0x10000, 4 names move, units left out: -"])
+    yield "like-response-file-has-both-objects", same(
+        [Path(json.loads(x)).name for x in read(build / "link.rsp").splitlines()][:3], ["port_game_text_begin.o", "um.o", "um__mod2.o"])
+    yield "like-verification-covers-the-new-names", same(
+        run(root, "like", config, *fake(root, "like-bad", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls=LIKE_CALLS,
+                                        nm_extra=["801f0004 A _ps1_mf__mod2"])).returncode, 1)
+
+    # A unit left out is not linked a second time; its names are still given.
+    left = IMAGES_SYM.replace('archive = "../x/B.PAC"', 'archive = "../x/B.PAC"\nleave_out = ["um"]')
+    config = run_tree(root, "like2", units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=left)
+    cc, nm = fake(root, "like2", defs={"ur": ["r1"], "um": ["mf", "mg"]}, call="r1", calls={"um": ["mg"]})
+    proc = run(root, "like2", config, cc, nm, "--list")
+    b2 = root / "like2" / "build"
+    yield "like-left-out-runs", same((proc.returncode, proc.stderr), (0, ""))
+    yield "like-left-out-no-second-object", same((b2 / "obj" / "um__mod2.o").exists(), False)
+    yield "like-left-out-names-and-absents", same(
+        ("_ps1_mf__mod2 = 0x801f0000;" in read(b2 / "gen" / "names.ld"), "absent: mf__mod2 0x801f0000 mod2" in proc.stdout, "units left out: um" in proc.stdout), (True, True, True))
+    yield "like-left-out-not-in-tables", same("impl_mf__mod2" in read(b2 / "gen" / "port_tables.c"), False)
+    cc, nm = fake(root, "like3", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls={"um": ["mg"]})
+    config = run_tree(root, "like3", units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=left)
+    proc = run(root, "like3", config, cc, nm)
+    yield "like-left-out-unit-with-data-is-refused", same((proc.returncode, "hv" in proc.stderr and "um" in proc.stderr), (2, True))
+    config = run_tree(root, "like4", units=LIKE_UNITS.replace('name = "um"', 'name = "um__mod2"'), symbols=LIKE_SYMBOLS, images=IMAGES_SYM)
+    cc, nm = fake(root, "like4", defs={"ur": ["r1"]}, call="r1")
+    proc = run(root, "like4", config, cc, nm)
+    yield "like-unit-named-like-a-second-object-is-refused", same((proc.returncode, "um__mod2" in proc.stderr), (2, True))
+
+
 def groups(root: Path):
     yield rename_cases()
+    yield placement_cases()
     yield names_cases()
     yield selection_cases(root)
     yield table_cases(root)
     yield verify_cases()
+    yield marker_cases()
     yield flow_cases(root)
+    yield like_cases(root)
+    yield marker_flow_cases(root)
+    yield psyz_cases(root)
 
 
 def main() -> int:

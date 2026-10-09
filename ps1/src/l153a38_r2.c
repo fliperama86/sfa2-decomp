@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_80154364(int *p) {
-    func_801575dc(p);
+    func_801575dc();
     p[0] = func_8015783c(0xf4000001, 4, 0x2000, 0);
     p[1] = func_8015783c(0xf4000001, 0x8000, 0x2000, 0);
     p[2] = func_8015783c(0xf4000001, 0x100, 0x2000, 0);
