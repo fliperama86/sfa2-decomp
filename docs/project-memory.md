@@ -6484,6 +6484,50 @@ this session's folders and, for the first, in the other session's too.
   0, and are exact. Four units of the other session still declare the
   word; the check keeps its line for those.
 
+## Nonmatching C with a differential test: the first function (2026-10-09)
+
+The owner's decision of 2026-10-09, on the stage functions that stayed a
+few instruction slots short of exact: "publish the nonmatching C". The
+rules for it were in the requirements and the plan already: a nonmatching
+candidate is kept apart from the exact owner, it needs a contract and a
+scoped differential test, and a passing test is not equivalence.
+
+- Where: `ps1/src/slot06_nonmatching/`, a folder of its own. Nothing in
+  `build.toml`, `symbols.ld` or `types.fields` names it. The PS1 build
+  keeps the original bytes of these functions, and no count on any page
+  changes.
+- The first function is `func_801e9080_slot06_00`, which draws an
+  object's tiles (inferred). Its build has the original's size and
+  differs from the original's bytes.
+- The instrument, `difftest.py`: it builds the C with the matching
+  build's steps, links it alone at an address outside the console's RAM,
+  and runs it and the original code under Unicorn from identical random
+  states that `contracts.py` writes. It compares the callee-saved
+  registers, the stack pointer, and all of RAM and the scratchpad except
+  the stack region. Its lines on 2026-10-09:
+  `func_801e9080_slot06_00: built 700 bytes, original 700 bytes; cases 2000, discarded 0, equal 2000, different 0`
+  and, with `--control`, which moves one store of the build,
+  `func_801e9080_slot06_00 control: different 1797 of 2000 (expected more than 0)`.
+- A check of the test itself, one-off figures from the private folder:
+  20 one-line changes of the C, each run on 1,000 cases. 17 were reported
+  as different. The other 3 cannot show inside the contract: an index
+  read as signed where the counter stays within 85, a selector masked to
+  one bit where the contract allows 0 and 1 only, and a mask of a value
+  that is below 16 already.
+- A defect that this check found, fixed before publication: for every
+  differing case the comparison walked all of RAM byte by byte in
+  Python, minutes for a run with many differences. It compares pages
+  first now.
+- What a pass says: for the tested inputs of the contract the build and
+  the original leave the same final state. It says nothing of inputs
+  outside the contract, of the order of stores, or of timing.
+- The tool uses `matchbuild.py`'s steps by name (its pipeline, its unit
+  build, its configuration loader). A change of those needs a run of this
+  test; no suite runs it.
+- Next: the other parked stage functions and the parked character
+  functions, with the same instrument. The copies of this function in
+  the other stage files have no C yet.
+
 ## Seventy-ninth group: a search over the types of locals
 
 The other session found, on the stage modules, that this compiler treats
@@ -6532,6 +6576,7 @@ What it showed:
   that holds it. Types are cheap to search whole and expensive to guess.
 - The helper has a second stage, the order of the declarations that open
   a function, and a second run over the 132 with it is not read yet.
+
 
 ## Windows reference
 

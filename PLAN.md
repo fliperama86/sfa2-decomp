@@ -125,6 +125,7 @@ not evidence that those retained instructions are understood.
    and compare every claimed byte with no masks or baseline substitution.
 4. Keep any nonmatching candidate separate from the exact owner. Validate it
    with an explicit input/output contract if retaining it as behavioral C.
+   The folder `ps1/src/slot06_nonmatching/` holds the first one and its test.
 5. Preserve source refinements, failed hypotheses, current ownership, tool
    provenance, and verification results independently of generated analysis.
 6. Expand the connected caller/callee context and aggregate coverage honestly.
