@@ -5,9 +5,10 @@
 
 extern HudState *data_8018f5a0;
 
-void func_80153c90(Object *object) {
+void func_80153c90(Effect *effect) {
+    Object *object = (Object *)effect;
     object->field_00++;
 }
 
-void func_80153ca4(void) {
+void func_80153ca4(Effect *unused) {
 }

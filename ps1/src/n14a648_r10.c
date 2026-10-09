@@ -3,5 +3,5 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801503f0(void) {
+void func_801503f0(Stream *unused, StreamEntry *unused2) {
 }

@@ -23,7 +23,8 @@ void func_80157174(Object *dest, Object *object) {
     }
 }
 
-void func_801571f4(Object *object) {
+void func_801571f4(Block172 *block) {
+    Object *object = (Object *)block;
     table_8018191c[object->field_04](object);
 }
 

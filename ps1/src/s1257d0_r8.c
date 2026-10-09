@@ -5,7 +5,7 @@
 
 
 void func_8012655c(GameState *state, Object *object) {
-    if (object->field_a5 == 0) data_8016f5a4[object->field_a9]();
+    if (object->field_a5 == 0) data_8016f5a4[object->field_a9](state, object);
 }
 
 void func_801265ac(GameState *state, Object *object) {

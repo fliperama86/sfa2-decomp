@@ -18,7 +18,7 @@ void func_80139dbc(Object *a0, Object *a1, Box32 *a2) {
     }
 }
 
-void func_80139e5c(Object *a0, Object *a1) {
+void func_80139e5c(Object *a0, Object *a1, Box32 *unused) {
     if ((a0->field_75 & 2) == 0) {
         func_8013a2a4(a0, a1, &a0->wide_boxes[a0->frame->active]);
     } else {

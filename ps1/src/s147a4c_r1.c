@@ -7,7 +7,8 @@
 
 Block172 *func_8011f1e0(void);
 
-void func_80147a4c(Object *object) {
+void func_80147a4c(Block172 *block) {
+    Object *object = (Object *)block;
     fns_cbd0[object->field_04](object);
 }
 

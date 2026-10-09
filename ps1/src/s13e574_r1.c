@@ -9,12 +9,12 @@ int func_8013e574(Object *object, int index, u8 arg) {
     return data_80188f44;
 }
 
-void func_8013e5c8(Object *object, int index, u8 arg) {
+void func_8013e5c8(Object *object, int index, int arg) {
     int v;
     object->slots[(u8)index].field_01 = 0;
     object->slots[(u8)index].field_00 = object->slots[(u8)index].field_00 + 1;
-    v = table_8017aaf8[arg * 7];
+    v = table_8017aaf8[(u8)arg * 7];
     if (object->field_7e != 0) v = 5;
     object->slots[(u8)index].field_04 = v;
-    func_8013e634(object, (u8)index, arg);
+    func_8013e634(object, (u8)index, (u8)arg);
 }

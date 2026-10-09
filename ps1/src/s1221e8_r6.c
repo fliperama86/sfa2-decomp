@@ -6,7 +6,8 @@
 extern HudBig *data_8018f5a0;
 int func_80125394(void);
 
-void func_8012318c(Entity *entity) {
+void func_8012318c(GameState *state) {
+    Entity *entity = (Entity *)state;
     if (entity->field_a9 == 0) {
         if ((u8)func_80125394() == 0) {
             int v = entity->field_ca - 1;

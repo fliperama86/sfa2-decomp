@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013a204(Object *a0, Object *a1, Object *a2) {
+void func_8013a204(Object *a0, Object *a1, Box32 *a2) {
     a1->field_61 = 3;
     if (a2->field_0d != 0x10) {
         if ((a2->field_08 & 0x80) || a2->field_0d == 7 || a2->field_0d == 4 || a2->field_0d == 0x1c) {

@@ -4,7 +4,8 @@
 #include "protos.h"
 
 
-void func_8014fd9c(Stream *stream) {
+void func_8014fd9c(Ctl *ctl) {
+    Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     int t;
     e = &stream->entries[stream->field_16];

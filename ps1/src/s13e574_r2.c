@@ -5,8 +5,8 @@
 
 void func_8013f2a8(Object *object, int index, int unused);
 
-void func_8013e7f0(Object *object, int index, u8 arg) {
+void func_8013e7f0(Object *object, int index, int arg) {
     object->slots[(u8)index].field_04--;
-    if (object->slots[(u8)index].field_04 == 0) func_8013f2a8(object, (u8)index, arg);
-    else func_8013e84c(object, (u8)index, arg);
+    if (object->slots[(u8)index].field_04 == 0) func_8013f2a8(object, (u8)index, (u8)arg);
+    else func_8013e84c(object, (u8)index, (u8)arg);
 }

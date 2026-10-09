@@ -4,7 +4,8 @@
 #include "protos.h"
 
 
-void func_8014fa60(Stream *stream) {
+void func_8014fa60(Ctl *ctl) {
+    Stream *stream = (Stream *)ctl;
     int v = (u16)stream->field_40->field_00;
     u32 n;
     if (v != 0xffff) {
@@ -32,7 +33,8 @@ void func_8014fa60(Stream *stream) {
     stream->field_24++;
 }
 
-void func_8014fb54(Stream *stream) {
+void func_8014fb54(Ctl *ctl) {
+    Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     int a;
     func_80150100(stream);
@@ -57,7 +59,8 @@ void func_8014fb54(Stream *stream) {
     }
 }
 
-void func_8014fc4c(Stream *stream) {
+void func_8014fc4c(Ctl *ctl) {
+    Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     u32 v;
     int a, b;

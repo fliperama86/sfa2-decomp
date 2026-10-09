@@ -31,7 +31,8 @@ void func_801239cc(ObjectView *entity, Object *other) {
     entity->field_8e = 0;
 }
 
-void func_80123a64(ObjectView *entity) {
+void func_80123a64(GameState *state) {
+    ObjectView *entity = (ObjectView *)state;
     HudBig *hud = data_8018f5a0;
     hud->field_48 = 0;
     entity->field_c2 = 0;

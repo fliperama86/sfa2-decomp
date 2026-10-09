@@ -26,6 +26,7 @@ void func_801460ec(u32 *p) {
     }
 }
 
-void func_80146184(Object *object) {
+void func_80146184(Block172 *block) {
+    Object *object = (Object *)block;
     fn_table_8017c9e0[object->field_04](object);
 }

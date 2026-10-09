@@ -5,7 +5,7 @@
 
 extern HudState *data_8018f5a0;
 
-void func_80121d80(void) {
+void func_80121d80(Object *unused) {
     HudState *h = data_8018f5a0;
     h->field_60 = (s16)h->field_60 - 1;
     if ((s16)h->field_60 < 0) {
