@@ -96,6 +96,7 @@ void port_stop_main_returned(void);
 #define PORT_EXIT_NO_C    3     /* a game function without C was reached */
 #define PORT_EXIT_NO_HOST 4     /* a library function without a host routine was reached */
 #define PORT_EXIT_UNKNOWN 5     /* a call into an unknown function */
+#define PORT_EXIT_GRAPHICS 7    /* a graphics call or state the graphics layer does not handle */
 #define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
 #define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
 #define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
@@ -123,7 +124,7 @@ extern const struct port_domain   port_domains[];   extern const unsigned port_d
 extern const struct port_override *const port_override_sets[]; extern const unsigned port_override_set_count;  /* each set ends with a null name */
 
 /* The domains' tables (ending with a null name). */
-extern const struct port_library port_kernel_library[], port_sound_library[], port_card_library[],
+extern const struct port_library port_kernel_library[], port_gpu_library[], port_sound_library[], port_card_library[],
                                  port_c_library[], port_thread_library[], port_system_library[];
 extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
 
@@ -141,9 +142,9 @@ int  port_library_install(unsigned char *ram, struct port_install *out, char *er
 int  port_library_list(char *err, size_t errsize);
 
 /* kernel.c */
-/* Called by the host routines in which the game waits or polls (VSync,
- * GetRCnt, TestEvent, ...). Keeps the clock of frames: when 1/60 s has passed
- * it does one vblank (the registered handlers); otherwise it yields the
+/* Called by the host routines in which the game waits or polls (DrawSync,
+ * VSync, GetRCnt, TestEvent, ...). Keeps the clock of frames: when 1/60 s has passed
+ * it does one vblank (the registered handlers, then port_gpu_present); otherwise it yields the
  * processor briefly. A call made from inside a handler does nothing. */
 void port_tick(void);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
@@ -151,6 +152,9 @@ void port_callbacks_reset(void);
 /* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
  * handler called, or are marked ready for TestEvent. */
 void port_deliver_event(unsigned event_class, unsigned spec);
+
+/* gpu.c: show the picture and pump the window's events; kernel.c calls it once per vblank. */
+void port_gpu_present(void);
 
 /* kernel.c / interrupt.c: the vblank as an interrupt of the game's thread */
 extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs */
@@ -163,7 +167,10 @@ void port_interrupt_start(void);
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);
 
-/* debug.c: the watchdog (see the file) */
+/* debug.c: run options for looking at a run (see the file) */
+void port_debug_set(const char *dump_prefix, unsigned dump_every);
+void port_debug_end(void);
+void port_debug_tick(unsigned frame);
 void port_debug_watchdog(unsigned seconds);
 const char *port_function_at(size_t ip);   /* main.c: the game function whose implementation is nearest at or below ip */
 unsigned port_frames(void);                /* kernel.c: vblanks since the start */

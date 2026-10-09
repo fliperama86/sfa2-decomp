@@ -7,6 +7,7 @@ const struct port_domain port_domains[] = {
     { "threads", port_thread_library },
     { "system", port_system_library },
     { "c", port_c_library },
+    { "gpu", port_gpu_library },
     { "sound", port_sound_library },
     { "card", port_card_library },
 };
