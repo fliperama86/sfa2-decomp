@@ -80,4 +80,87 @@ void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */
 void port_stop_main_returned(void);
 
+/* ---- the library layer (library.c, kernel.c, threads.c, overrides.c) ---- */
+
+/* Exit statuses. 0: main returned, or the window was closed. 2: a refusal at
+ * start (one line says why). The others end a run with one `stop:` line that
+ * names what is missing; a distinct status per kind. */
+#define PORT_EXIT_REFUSED 2     /* refused: ... (before the game starts) */
+#define PORT_EXIT_NO_C    3     /* a game function without C was reached */
+#define PORT_EXIT_NO_HOST 4     /* a library function without a host routine was reached */
+#define PORT_EXIT_UNKNOWN 5     /* a call into an unknown function */
+#define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
+#define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
+#define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
+#define PORT_EXIT_OTHER   9     /* a library call whose arguments a host routine does not serve */
+
+/* Print `stop: ` and the formatted line, flush, end the program with `status`.
+ * Never returns. For every host routine that meets something it cannot serve. */
+void port_halt(int status, const char *fmt, ...);
+
+/* One entry of a domain's table of host routines. `name` is the name the
+ * build's tables give the library function (`ResetCallback`, or `func_8015760c`
+ * where the project has no name), or `@0xADDRESS`: the library function at that
+ * address, whatever the build calls it (the names are partly a matcher's guesses). `note` is NULL for a routine that does its
+ * job; it is set, saying why that is right on a PC, for a routine that does
+ * nothing on purpose. */
+struct port_library  { const char *name; void *host; const char *note; };
+/* A host routine that replaces the C of a game function (by its name). */
+struct port_override { const char *name; void *host; const char *note; };
+struct port_domain   { const char *name; const struct port_library *table; };  /* table ends with a null name */
+
+/* domains.c: the registry. The runtime's real one lists the six domains and the
+ * overrides; a test supplies its own file with these definitions instead. */
+extern const struct port_domain   port_domains[];   extern const unsigned port_domain_count;
+extern const struct port_override *const port_override_sets[]; extern const unsigned port_override_set_count;  /* each set ends with a null name */
+
+/* The domains' tables (ending with a null name). */
+extern const struct port_library port_kernel_library[], port_sound_library[], port_card_library[],
+                                 port_c_library[], port_thread_library[], port_system_library[];
+extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
+
+struct port_install { unsigned host, noop, stops, overrides; };
+
+/* Start writing trace lines (one per library call: name and the first four
+ * argument words) to `f`; call before port_library_install. NULL: no trace. */
+void port_trace_set(FILE *f);
+/* After port_jumps_write: write the jumps of the host routines over the
+ * stop calls of the library functions, and of the overrides over the game
+ * functions' C or, for a function without C, over its stop call. A refusal
+ * (a name listed twice, a library name that no absent library function has,
+ * an override name that is in neither the functions nor the absents) is -1
+ * with a line. */
+int  port_library_install(unsigned char *ram, struct port_install *out, char *err, size_t errsize);
+/* --list-library: print the groups (needs no memory and no disc). -1 with a line on a refusal. */
+int  port_library_list(char *err, size_t errsize);
+
+/* kernel.c */
+/* Called by the host routines in which the game waits or polls (VSync,
+ * GetRCnt, TestEvent, ...). Keeps the clock of frames: when 1/60 s has passed
+ * it does one vblank (the registered handlers); otherwise it yields the
+ * processor briefly. A call made from inside a handler does nothing. */
+void port_tick(void);
+/* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
+void port_callbacks_reset(void);
+/* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
+ * handler called, or are marked ready for TestEvent. */
+void port_deliver_event(unsigned event_class, unsigned spec);
+
+/* kernel.c: the frame clock */
+extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs */
+void port_clock_start(void);
+
+/* library.c: one line into the trace file, if tracing */
+void port_trace_line(const char *fmt, ...);
+
+/* debug.c: the watchdog (see the file) */
+void port_debug_watchdog(unsigned seconds);
+const char *port_function_at(size_t ip);   /* main.c: the game function whose implementation is nearest at or below ip */
+unsigned port_frames(void);                /* kernel.c: vblanks since the start */
+
+/* threads.c */
+/* The gp that the entry code loads (lui/addiu), from the loaded memory. */
+int  port_entry_gp(const unsigned char *ram, unsigned pc0, unsigned *gp);
+void port_set_gp(unsigned gp);
+
 #endif
