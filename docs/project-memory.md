@@ -6640,6 +6640,28 @@ one-off report alone."
   toolchain: a copy of the first function with a helper and a constant
   table before it builds and passes; one with an initialized variable
   and one with an uninitialized variable are refused.
+- A false pass that the owner's review of this change found
+  (2026-10-09), in its own words: "The new helper support can silently
+  execute the original implementation instead of a helper supplied by
+  the C unit. `build_function` excludes defined names from `others.ld`,
+  but still includes the unfiltered `cfg.symbols_path`. Linker
+  assignments there override the object's definitions." A unit whose
+  helper bore the name of a symbol of `symbols.ld` passed all its cases
+  while its caller held a call to the original address. Reproduced here:
+  the tool as it was printed `equal 300, different 0` for such a unit,
+  the fixed one `equal 35, different 265`. The lesson was on this page
+  already ("A linker-script assignment silently overrides a symbol
+  defined by an object"), and the matching build guards against it; the
+  second link path, one unit alone for the test, was written without
+  that guard. Now every name the unit defines is taken out of the symbol
+  file of that link, and after the link a name of the unit that does not
+  lie in the unit refuses the build. `test_difftest_build.py` holds the
+  cases that need the toolchain: the colliding helper must run, the
+  build must be refused when the filter is bypassed, a call of the
+  function to its own name must stay in the unit, and a callee the unit
+  does not define must keep its original address. The functions
+  published before this change define nothing but themselves and call
+  themselves nowhere, so their results stand; they were run again.
 - Why this matters beyond lane B: on 2026-10-09 the owner settled how
   the port gets the functions that are not C: "No interpreter needed
   with the unmatched code, right?" The PC program is to consist of the

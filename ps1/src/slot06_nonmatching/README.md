@@ -108,6 +108,26 @@ from a real link, which need the toolchain. Group J checks the table of
 addresses that a setup is given (linker symbols win over declared functions).
 Group K checks `--all` (each `func_*.c` once in sorted order, and status 2 for
 names with it, for neither, or for no source).
+Group L checks the symbol file of the standalone link: the lines that assign a
+name the unit defines are removed (plain, spaced and inside `PROVIDE`), names
+that only begin alike stay, and a link that puts a defined name outside the
+unit is reported with the name and the address.
+
+## Controls that need the toolchain
+
+    python test_difftest_build.py --config ../build.toml
+
+These controls build small units made from `func_801e9080_slot06_00.c` by text
+edits, in a temporary folder beside this one that is removed afterwards. They need
+the pinned toolchain and the private inputs of the matching build; with either
+missing they print one line and exit with status 2. They check that a helper
+named like a linker symbol of the tree runs (and is not replaced by the original
+code), that the build is refused if the filter of the symbol file is bypassed,
+that a call of the function to its own name stays in the unit, that a helper
+before the entry and a constant table build with the right entry and size, that
+initialized, uninitialized and own-section data are each refused, and that a
+callee the unit does not define keeps its original address. Last line printed:
+`all cases behaved as required`.
 
 ## Running
 

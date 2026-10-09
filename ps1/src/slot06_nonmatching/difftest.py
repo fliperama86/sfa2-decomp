@@ -129,6 +129,8 @@ class Build:
 
 
 WRITABLE = (".data", ".sdata", ".bss", ".sbss")
+# A line of a linker symbol file that gives a name a value, plain or inside PROVIDE().
+ASSIGNMENT = re.compile(r"\s*(?:PROVIDE\s*\(\s*)?([A-Za-z_.$][\w.$]*)\s*=[^=]")
 
 
 def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Build:
@@ -173,10 +175,14 @@ def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Buil
     lines = [f"{fn.name} = {fn.address:#x};\n" for u in cfg.units for fn in u.functions
              if fn.name not in defined and fn.name not in known]
     (directory / "others.ld").write_text("".join(lines))
+    # The tree's symbol file places names at their original addresses, the parked function's
+    # own name among them. An assignment there would win over a definition of the unit, and a
+    # call by that name would run the ORIGINAL code: every name the unit defines is taken out.
+    (directory / "symbols.ld").write_text(without_assignments(Path(cfg.symbols_path).read_text(), defined))
     discard = " ".join(f"*({s})" for s in matchbuild.DISCARDED_SECTIONS)
     (directory / "link.ld").write_text(
         "OUTPUT_ARCH(mips)\n"
-        f'INCLUDE "{cfg.symbols_path}"\n'
+        f'INCLUDE "{(directory / "symbols.ld").resolve()}"\n'
         f'INCLUDE "{(directory / "others.ld").resolve()}"\n'
         "SECTIONS {\n"
         f" .text {TEST_ADDRESS:#x} : SUBALIGN(1) {{ unit-{name}.o(.text) }}\n"
@@ -191,7 +197,34 @@ def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Buil
     code = (directory / "image.bin").read_bytes()
     if len(code) > STOP_ADDRESS - TEST_ADDRESS:
         raise InputError(f"{source.name} builds {len(code)} bytes, more than the test area holds")
+    # Fail closed: whatever the link did, a name the unit defines must lie in the unit.
+    astray = misplaced(linked_addresses(directory / "image.elf"), defined, TEST_ADDRESS, TEST_ADDRESS + len(code))
+    if astray:
+        raise InputError(f"{source.name}: the link placed outside the unit what the unit defines: {', '.join(astray)}")
     return Build(code, sizes.get(".text", 0), entry)
+
+
+def without_assignments(text: str, names: set[str]) -> str:
+    """A linker symbol file without the lines that assign one of `names`."""
+    kept = []
+    for line in text.splitlines(keepends=True):
+        match = ASSIGNMENT.match(line)
+        if match is None or match.group(1) not in names:
+            kept.append(line)
+    return "".join(kept)
+
+
+def linked_addresses(elf_path: Path) -> dict[str, int]:
+    """The address of every named symbol of a linked file."""
+    with open(elf_path, "rb") as handle:
+        symtab = ELFFile(handle).get_section_by_name(".symtab")
+        return {sym.name: sym["st_value"] for sym in symtab.iter_symbols() if sym.name} if symtab else {}
+
+
+def misplaced(linked: dict[str, int], names: set[str], low: int, high: int) -> list[str]:
+    """The names of `names` that the link did not place in [low, high), with where it put them."""
+    return [f"{name} at {linked[name]:#x}" if name in linked else f"{name} nowhere"
+            for name in sorted(names) if not low <= linked.get(name, -1) < high]
 
 
 def section_sizes(obj_path: Path) -> dict[str, int]:

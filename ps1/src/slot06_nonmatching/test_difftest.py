@@ -1319,6 +1319,127 @@ def case_k_all_with_control():
     return None if ok else f"status {status}, controls {len(seen)}, ran {[c[0] for c in calls]}"
 
 
+# ---------------------------------------------------------------------------
+# Group L: the symbol file of the standalone link, and where the link put what the unit defines
+
+
+SYMBOL_TEXT = (
+    "/* header: func_801e9080 = 0x1; */\n"
+    "func_801e9080 = 0x801e9080;\n"
+    "other_name=0x80010000;\n"
+    "   spaced   =   0x1;\n"
+    "\n"
+    "PROVIDE(provided = 0x2);\n"
+    "PROVIDE ( prov2 = 0x3 );\n"
+    "func_801e9080_slot06_00 = 0x801e9080;\n"
+    "func_801e9 = 0x4;\n"
+    "tabbed\\t=\\t0x5;\n"
+    "# not an assignment: nothing = here\n"
+).replace("\\t", "\t")
+
+
+def lines_of(text: str) -> list[str]:
+    return text.splitlines()
+
+
+def case_l_drops_defined_names_in_all_forms():
+    got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080", "spaced", "provided", "prov2", "tabbed"}))
+    want = ["/* header: func_801e9080 = 0x1; */", "other_name=0x80010000;", "",
+            "func_801e9080_slot06_00 = 0x801e9080;", "func_801e9 = 0x4;", "# not an assignment: nothing = here"]
+    return None if got == want else f"kept {got}"
+
+
+def case_l_keeps_names_that_only_begin_alike():
+    got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080_slot06_00"}))
+    if "func_801e9080 = 0x801e9080;" not in got or "func_801e9080_slot06_00 = 0x801e9080;" in got:
+        return f"the longer name was not the one dropped: {got}"
+    got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080"}))
+    if "func_801e9080_slot06_00 = 0x801e9080;" not in got or "func_801e9080 = 0x801e9080;" in got:
+        return f"the shorter name was not the one dropped: {got}"
+    return None if len(got) == len(lines_of(SYMBOL_TEXT)) - 1 else f"{len(got)} lines kept"
+
+
+def case_l_keeps_names_that_end_alike():
+    got = D.without_assignments("xslab = 1;\nslab = 2;\nslabx = 3;\n", {"slab"})
+    return None if got == "xslab = 1;\nslabx = 3;\n" else f"kept {got!r}"
+
+
+def case_l_keeps_comments_blanks_and_the_rest():
+    got = D.without_assignments(SYMBOL_TEXT, {"nothing", "func_801e9"})
+    want = SYMBOL_TEXT.replace("func_801e9 = 0x4;\n", "")
+    return None if got == want else f"kept {got!r}"
+
+
+def case_l_no_names_no_change():
+    for text in (SYMBOL_TEXT, SYMBOL_TEXT.replace("\n", "\r\n"), SYMBOL_TEXT.rstrip("\n"), ""):
+        for names in (set(), {"absent"}):
+            if D.without_assignments(text, names) != text:
+                return f"text of {len(text)} characters changed for {names}"
+    return None
+
+
+def case_l_keeps_line_endings():
+    text = "a = 1;\r\nb = 2;\r\nc = 3;"
+    got = D.without_assignments(text, {"b"})
+    return None if got == "a = 1;\r\nc = 3;" else f"got {got!r}"
+
+
+def case_l_misplaced_borders():
+    low, high = 0x80400000, 0x80400100
+    linked = {"inside": low + 0x10, "first": low, "last": high - 4, "end": high, "below": low - 4, "far": 0x801E9080}
+    got = D.misplaced(linked, {"inside", "first", "last", "end", "below", "far", "unknown"}, low, high)
+    want = ["below at 0x803ffffc", "end at 0x80400100", "far at 0x801e9080", "unknown nowhere"]
+    return None if got == want else f"got {got}"
+
+
+def case_l_misplaced_nothing_to_report():
+    low, high = 0x80400000, 0x80400100
+    ok = D.misplaced({"a": low, "b": high - 1, "other": 5}, {"a", "b"}, low, high) == [] and D.misplaced({}, set(), low, high) == []
+    return None if ok else "a name inside the range, or no name, was reported"
+
+
+def case_l_misplaced_only_the_unit_names():
+    # A name that the unit does not define may lie anywhere.
+    return None if D.misplaced({"mine": 0x80400004, "theirs": 0x801E9080}, {"mine"}, 0x80400000, 0x80400100) == [] else "reported a foreign name"
+
+
+def elf_with_symbols(symbols: list[tuple[str, int]] | None) -> bytes:
+    """A linked-looking ELF (type EXEC) with .text, and a symbol table when `symbols` is given (None: no table).
+    A symbol with an empty name stands for the unnamed entries."""
+    shstr = b"\0.text\0.symtab\0.strtab\0.shstrtab\0"
+    text = bytes(8)
+    strtab, entries = b"\0", bytes(16)
+    for name, value in symbols or []:
+        at = len(strtab) if name else 0
+        strtab += name.encode() + b"\0" if name else b""
+        entries += struct.pack("<IIIBBH", at, value, 4, 0x12, 0, 1)
+    bodies = [(text, 1, 0, 0, 1), (entries, 2, 3, 16, 7), (strtab, 3, 0, 0, 15), (shstr, 3, 0, 0, 23)]
+    if symbols is None:
+        shstr = b"\0.text\0.shstrtab\0"
+        bodies = [bodies[0], (shstr, 3, 0, 0, 7)]
+        shstr_index = 2
+    else:
+        shstr_index = 4
+    offset, parts, headers = 52, [], [bytes(40)]
+    for body, kind, link, entsize, name_at in bodies:
+        headers.append(struct.pack("<IIIIIIIIII", name_at, kind, 0, 0, offset, len(body), link, 0, 4, entsize))
+        parts.append(body)
+        offset += len(body)
+    header = b"\x7fELF" + bytes([1, 1, 1, 0]) + bytes(8) + struct.pack("<HHIIIIIHHHHHH", 2, 8, 1, 0, 0, offset, 0, 52, 0, 0, 40, len(headers), shstr_index)
+    return header + b"".join(parts) + b"".join(headers)
+
+
+def case_l_linked_addresses():
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "image.elf"
+        path.write_bytes(elf_with_symbols([("alpha", 0x80400000), ("", 0x1234), ("beta_gamma", 0x801E9080)]))
+        got = D.linked_addresses(path)
+        if got != {"alpha": 0x80400000, "beta_gamma": 0x801E9080}:
+            return f"got {got}"
+        path.write_bytes(elf_with_symbols(None))
+        return None if D.linked_addresses(path) == {} else f"without a table: {D.linked_addresses(path)}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -1430,6 +1551,16 @@ CASES = [
     ("k-neither-all-nor-name-status-2", case_k_neither_all_nor_name),
     ("k-all-without-sources-status-2", case_k_all_without_sources),
     ("k-all-with-control-runs-each-control", case_k_all_with_control),
+    ("l-drops-defined-names-in-all-forms", case_l_drops_defined_names_in_all_forms),
+    ("l-keeps-names-that-only-begin-alike", case_l_keeps_names_that_only_begin_alike),
+    ("l-keeps-names-that-end-alike", case_l_keeps_names_that_end_alike),
+    ("l-keeps-comments-blanks-and-the-rest", case_l_keeps_comments_blanks_and_the_rest),
+    ("l-no-names-no-change", case_l_no_names_no_change),
+    ("l-keeps-line-endings", case_l_keeps_line_endings),
+    ("l-misplaced-borders-and-unknown-names", case_l_misplaced_borders),
+    ("l-misplaced-nothing-to-report", case_l_misplaced_nothing_to_report),
+    ("l-misplaced-only-the-unit-names", case_l_misplaced_only_the_unit_names),
+    ("l-linked-addresses", case_l_linked_addresses),
 ]
 
 
