@@ -596,6 +596,18 @@ cross compiler, the program started from that shell.
   addresses, and every other name where it was. Which names move is taken
   from the matching build's rule; the tool's header gives it, with the one
   bound that is looser here because it would need the game's archive.
+- Which functions have no C is read from the function inventory, a
+  table that a static sweep of the original code made. A few of its
+  rows are not functions: the sweep took a data table in front of a
+  function for code, or cut a function in two at a word of zeros. The
+  runtime writes a stop at every function without C, and a stop written
+  into such a row would land in the game's data. So the tool leaves out
+  a row when a function with C begins strictly inside it, and a row that
+  begins inside the address range of a unit that is built without being
+  one of that unit's functions; it counts them and `--list` names each
+  with the rule that caught it. A row that is all data, or data in
+  front of a function that itself has no C, is not caught and still
+  gets a stop: a known limit.
 - The link places one marker before and one after the code of all game
   objects and checks that every implementation lies between them and that
   nothing of the runtime does. A later piece of the runtime uses them to
@@ -619,14 +631,15 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `bfaf349`:
+it is in commit `5ef3bb9`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
 units: 3731 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
 functions with C: 12460
-functions without C: 622, library 382, game and modules 240
+functions without C: 611, library 382, game and modules 229
+sweep rows that are not functions: 11
 names at PS1 addresses: 45853
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
