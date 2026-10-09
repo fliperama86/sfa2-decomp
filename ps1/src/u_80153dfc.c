@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern TextObj *table_8018049c[];
-
 /* Form found by automatic permutation search. */
 void func_80153dfc(Actor *a)
 {

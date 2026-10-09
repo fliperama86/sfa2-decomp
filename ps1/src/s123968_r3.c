@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-extern HudBig *data_8018f5a0;
-
 void func_8012411c(void) {
     func_80125dc0(0, 0x20, 8, 0);
     func_80125dc0(1, 0x20, 8, 0);
@@ -19,5 +17,5 @@ void func_8012411c(void) {
 }
 
 void func_801241d8(void) {
-    table_8016e804[data_8018f5a0->field_52]();
+    table_8016e804[((HudBig *)data_8018f5a0)->field_52]();
 }

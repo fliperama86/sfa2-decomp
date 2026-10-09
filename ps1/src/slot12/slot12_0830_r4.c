@@ -3,12 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern Object *data_8002d568_slot12;
 extern Object *data_8002d56c_slot12;
 extern int data_8002d578_slot12;
 extern unsigned data_80028a98_slot12;
-extern u16 box_margin[];
 void func_800113e4_slot12(void);
 void func_80010a94_slot12(void);
 

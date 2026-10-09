@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 /* Form found by automatic permutation search. */
 void func_80123254(GameState *g)
 {

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudBig *data_8018f5a0;
-
 /* Form found by automatic permutation search. */
 void func_8012332c(GameState *state)
 {
@@ -23,11 +21,11 @@ void func_8012332c(GameState *state)
       return;
     }
   }
-  data_8018f5a0->field_4e = 0;
+  ((HudBig *)data_8018f5a0)->field_4e = 0;
   entity->field_c8 = 0;
-  data_8018f5a0->field_50 = 0;
+  ((HudBig *)data_8018f5a0)->field_50 = 0;
   entity->field_ca = 0;
-  data_8018f5a0->field_52 = 0;
+  ((HudBig *)data_8018f5a0)->field_52 = 0;
   entity->field_cc = 0;
   entity->field_4d = 0;
   entity->field_4e = 0;

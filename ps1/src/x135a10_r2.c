@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s8 data_801a6984[];
-
 void func_80135c88(void) {
     GameState *g = &game_state;
     Object *o;

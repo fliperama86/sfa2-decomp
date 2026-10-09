@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudState *data_8018f5a0;
 extern TextBuf data_800e9750_slot0f;
 extern TextBuf data_800e9938_slot0f;
 extern TextBuf data_800e9948_slot0f;

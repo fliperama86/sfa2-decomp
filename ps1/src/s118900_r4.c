@@ -3,18 +3,16 @@
 #include "externs.h"
 #include "protos.h"
 
-extern SndCtl *data_8018f5a0;
-
 void func_801192bc(int a) {
-    data_8018f5a0->field_02 = a;
-    data_8018f5a0->field_00 = 1;
+    ((SndCtl *)data_8018f5a0)->field_02 = a;
+    ((SndCtl *)data_8018f5a0)->field_00 = 1;
     func_801577ec(0xff000000);
 }
 
 void func_801192f0(void) {
-    data_8018f5a0->field_00 = 0;
+    ((SndCtl *)data_8018f5a0)->field_00 = 0;
     func_801575dc();
-    func_801577bc(data_8018f5a0->field_04);
+    func_801577bc(((SndCtl *)data_8018f5a0)->field_04);
     func_8015786c();
     func_801577ec(0xff000000);
 }
@@ -30,10 +28,10 @@ void func_80119340(int a) {
 }
 
 void func_801193a4(u32 a) {
-    data_8018f5a0->field_00 = 3;
-    data_8018f5a0->field_0c = a;
+    ((SndCtl *)data_8018f5a0)->field_00 = 3;
+    ((SndCtl *)data_8018f5a0)->field_0c = a;
     func_801575dc();
-    func_801577bc(data_8018f5a0->field_04);
+    func_801577bc(((SndCtl *)data_8018f5a0)->field_04);
     func_8015786c();
     func_801577ec(0xff000000);
 }

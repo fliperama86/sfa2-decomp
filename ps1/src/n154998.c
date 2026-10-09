@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-extern u16 data_801a6984;
-
 #define PRESSED(m) ((g->field_31 == 1 && (data_801a696a & (m))) || \
                     (g->field_31 == 2 && (data_801a6976 & (m))))
 
@@ -41,7 +38,7 @@ void func_80154998(void) {
             data_801811aa[data_8018d260 * 16] = 0x14;
             func_80120554(0, 0, 0x34d);
         }
-    } else if (data_801a6984 == 0) {
+    } else if (*(u16 *)data_801a6984 == 0) {
         func_801519b4(&data_80181304);
         if (PRESSED(0x40)) {
             func_80155088();

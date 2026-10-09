@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 u8 func_801b5eb8_slot04_02(Object *obj);
-extern u16 box_margin[];
 
 void func_801b5e4c_slot04_02(Object *obj) {
     if (func_801b5eb8_slot04_02(obj)) {

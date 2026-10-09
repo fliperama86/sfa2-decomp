@@ -3,7 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern s8 data_801a6984;
 extern u16 data_801a6966;
 
 /* buttons is not set on every path: when data_801a6984 is not zero and the
@@ -17,14 +16,14 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 t0;
     int buttons;
-    if (data_801a6984 == 0) {
+    if (data_801a6984[0] == 0) {
         if (object->side == 0) {
             buttons = data_801a6966 & 0xf000;
         } else {
             buttons = data_801a6972 & 0xf000;
         }
     }
-    if (game_state.field_30 != 0 && data_801a6984 != 0 && game_state.mode == object->field_02 + 1) {
+    if (game_state.field_30 != 0 && data_801a6984[0] != 0 && game_state.mode == object->field_02 + 1) {
         buttons = object->field_c2 & 0xf000;
     }
     if ((u16)buttons == 0) {

@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-typedef void (*ScriptFn)(void);
-extern ScriptFn data_8017d3d4[];
-
 u8 func_8014e5f4(void) {
     u16 *p = data_80189460;
     data_80189460 = p + 1;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern HudState *data_8018f5a0;
-
 void func_801225d4(GameState *state) {
     Entity *e = (Entity *)state;
     if (e->field_6c == 4) {

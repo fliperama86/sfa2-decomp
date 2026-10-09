@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern Rect *table_8018049c[];
-
 
 void func_801536b8(Effect *effect) {
     u8 t;
@@ -42,7 +40,7 @@ void func_801536b8(Effect *effect) {
             }
             if (effect->owner->field_cd == 0) {
                 effect->field_10 = table_80181380[effect->field_09];
-                table_8018049c[effect->side]->h = 0x50;
+                table_8018049c[effect->side]->field_06 = 0x50;
                 func_80153dfc(effect);
             }
         }

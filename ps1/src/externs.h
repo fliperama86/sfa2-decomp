@@ -10,17 +10,20 @@ typedef void (*FrameFn)(void);
 typedef void (*HandlerFn)(void);
 typedef void (*ObjectFn)(Object *);
 typedef int (*ObjectFnInt)(Object *);
+typedef u8 (*ScriptFn)(Object *);
 typedef void (*UnitFn)(Unit *);
 
 extern FrameRecord *data_1f8000a8;
 extern SequenceStep **data_1f8000ac;
 extern SequenceStep **data_1f8000b0;
 extern SequenceStep **data_1f8000b4;
+extern u8 (*scr_d4_left)(void);
 extern SequenceStep **data_1f8000f0;
 extern FrameRecord *data_1f800158;
 extern SequenceStep **data_1f80015c;
 extern SequenceStep **data_1f800160;
 extern SequenceStep **data_1f800164;
+extern u8 (*scr_184_right)(void);
 extern SequenceStep **data_1f8001a0;
 extern u8 data_800fb100;
 extern Quad data_8016d9a4;
@@ -284,6 +287,10 @@ extern void (*table_8017d2a8[])(Object *object);
 extern void (*data_8017d2e0[])(Object *object);
 extern u8 data_8017d300[];
 extern u8 data_8017d320[];
+extern ScriptFn data_8017d340[];
+extern HandlerFn data_8017d368[];
+extern HandlerFn data_8017d3b4[];
+extern HandlerFn data_8017d3d4[];
 extern u8 table_8017d450[];
 extern u32 *data_8017d4d0[];
 extern u32 *table_8017d4d0[];
@@ -335,6 +342,8 @@ extern u16 table_80180340[];
 extern u16 table_80180344[];
 extern u8 table_80180348[];
 extern TextObj *table_80180384[];
+extern TextObj *table_801803c4[];
+extern TextObj *table_8018049c[];
 extern void (*data_80180ed8)(void);
 extern TextObj *table_80180f1c[];
 extern TextObj *table_80180f5c[];
@@ -551,6 +560,9 @@ extern Pooled data_8018e598[];
 extern u8 data_8018f598;
 extern u16 count_8018f59c;
 extern u16 data_8018f59c;
+/* One pointer that units read as several record types. A unit that reads
+   it as another type than this one says so with a cast at the use. */
+extern HudState *data_8018f5a0;
 extern u32 data_8018f5e0[];
 extern Pooled data_8018f5e4[];
 extern SndMsg data_8018f6e4;
@@ -584,10 +596,17 @@ extern Box32 *ptr_8019040c;
 extern ObjectRef data_80190414;
 extern ObjectRef data_80190458;
 extern int data_8019045c[];
+/* data_80190464 and data_8019046c sit inside or at the edge of game_state,
+   but the original addresses them as separate globals (own lui each), not
+   through the struct base, so members do not match. Some units read or
+   write them as 8 or 16 bits and say so with a cast at the access. */
+extern int data_80190464[];
 extern ObjectRef data_80190468;
+extern int data_8019046c[];
 extern unsigned short data_80190470;
 extern u8 data_80190474;
 extern ObjectRef data_80190478;
+extern ObjectRef ref_third;
 extern u8 data_8019047c;
 extern s16 data_801904cc;
 extern int data_801904d4;
@@ -638,6 +657,7 @@ extern int data_801a27d8;
 extern int data_801a27dc;
 extern u16 data_801a27e4_rows[][0x200];
 extern u8 table_801a27e4[];
+extern u8 data_801a27e4[];
 extern u16 data_801a2804[];
 extern u16 data_801a2824[];
 extern u16 data_801a2944[];
@@ -670,6 +690,9 @@ extern u16 data_801a6976;
 extern u16 data_801a6978;
 extern u8 *data_801a697c;
 extern Pooled **data_801a6980;
+/* Two bytes. Some units read both as one 16-bit word and say so with a
+   cast at the read. */
+extern s8 data_801a6984[];
 extern s8 data_801a6985;
 extern u8 data_801a6986;
 extern s8 data_801a6987;
@@ -684,6 +707,7 @@ extern Object *data_801a89b0[];
 extern u8 data_801a89f0;
 extern Block172 data_801a89f4[];
 extern u16 table_801aa4d8[];
+extern s16 data_801aa4dc[];
 extern u8 table_801aa4e8[][2][21];
 extern u8 data_801aa53c[];
 extern u8 data_801aa540;
@@ -703,6 +727,10 @@ extern u8 data_801aa5ce[];
 extern u8 data_801aa5d4[];
 extern u8 data_801aa5d8[4];
 extern s32 data_801aa5e4[];
+/* An array of which units read element 0. Declared as one word, the unit
+   of func_80144830 differs from the original in 22 instruction slots; the
+   comment there says what the array form does. */
+extern u16 box_margin[];
 extern u16 data_801aa5ea[];
 extern u16 data_801aa5f6;
 extern u16 data_801aa5fa;
@@ -723,6 +751,7 @@ extern u8 data_801ac61c;
 extern u16 data_801ac620;
 extern u32 data_801ac624;
 extern Rec172 *table_801ac628[];
+extern u8 data_801ac6a8[];
 extern u32 data_801ac870;
 extern u32 data_801ac878;
 extern Slab172 data_801ac888[];

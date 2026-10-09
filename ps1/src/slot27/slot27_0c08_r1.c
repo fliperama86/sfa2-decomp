@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_80029324_slot27;
-extern HudState *data_8018f5a0;
 void func_800111c8_slot27(void);
 void func_800113d8_slot27(void);
 void func_80011118_slot27(void);

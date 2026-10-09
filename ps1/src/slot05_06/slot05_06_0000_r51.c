@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_801dd4ec_slot05_06[];
-extern u16 box_margin[];
 
 void func_801cc61c_slot05_06(Object *obj) {
     if ((s16)obj->field_3a >= 0) {
