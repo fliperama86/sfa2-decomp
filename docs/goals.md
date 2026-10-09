@@ -442,8 +442,13 @@ chose the first on 2026-10-06:
   in the modules of this session, with the compiler's pass dumps (the
   matching guide says how they are read): 15 are exact now, one or two
   in each of `slot0b`, `slot12`, `slot2b`, `slot0f`, `slot28` and
-  `slot01` and seven in the character blocks. The counts of the
-  steps above are those of their day; the README has the current ones.
+  `slot01` and seven in the character blocks.
+  Then the functions of the twelve character blocks that are the same
+  code as functions of the other twelve files, once that source was in
+  the tree: a helper wrote 530 of them from it and 529 are exact as
+  written. The twelve blocks have 2,098 of their 2,116 functions now,
+  252,908 of 257,648 bytes. The counts of the steps above are those of
+  their day; the README has the current ones.
 - Not decided: finishing the library by hand, which means adapting the
   reference's files one by one. Some of it waits for rulings on four
   questions that the project memory lists.

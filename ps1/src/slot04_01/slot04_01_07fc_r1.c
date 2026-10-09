@@ -13,7 +13,7 @@ int func_801b0c4c_slot04_01(Object *obj);
 int func_801b0ce0_slot04_01(Object *obj);
 int func_801b0d54_slot04_01(Object *obj);
 int func_801b0ef8_slot04_01(Object *obj);
-void func_801b0fb8_slot04_01(Object *obj);
+int func_801b0fb8_slot04_01(Object *obj);
 u8 func_8013d210(Object *object);
 int func_8013d1a8(Object *object);
 u8 func_8013d180(Object *object, u8 index, u8 arg);

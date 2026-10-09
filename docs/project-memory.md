@@ -5995,6 +5995,63 @@ of the second session's stage modules (2026-10-07):
   check says only as much as the check reads: when a reviewer finds what
   a check should have found, the first question is what it did not read.
 
+## Seventy-seventh group: the shared functions of twelve character blocks, copied
+
+The group of the twelve character blocks (the seventy-third) left 534
+functions unwritten because they are the same code as functions of the
+other twelve character files, which the second session wrote. That
+source is in the tree now. This group writes them from it.
+
+Counts, from the build and the tools:
+
+- The copy helper compares the words of every function that no unit
+  defines with those of every exact function of every other module
+  image, apart from addresses. On the twelve blocks it found a model for
+  530 functions (38, 42, 143, 20, 110, 28, 26, 32, 18, 15, 25 and 33,
+  in the order `slot04_00` to `slot04_0b`) and wrote them. 529 are exact
+  as written. One, `func_801b33e8_slot04_05`, is not and is parked.
+- The twelve blocks have 2,098 of their 2,116 functions, 252,908 of
+  257,648 bytes; 685,304 bytes of their chunks are retained raw. The
+  eleven second sides link the same units and are exact: 1,870
+  functions there. The map counts 12,593 of 13,072 placements as exact;
+  the count of distinct functions does not move, because each copied
+  function was counted with its model already.
+- 329 unit files are new. 22 older units changed, all in declarations
+  or in the parameter list of a table entry.
+
+What ran:
+
+- The helper, one command for each block, and the bank step that builds
+  each batch and keeps what is exact. No agent wrote a function.
+- The declaration check on the merged tree printed 47 new lines: 20
+  calls without a declaration, 18 declarations of older units that
+  differ from a copied definition, one call with another number of
+  arguments, and 8 table entries with another parameter list than their
+  table. Three agents, each with a set of folders, brought them to zero
+  with every function exact. For a declaration that differed, the
+  definition decided where the older unit stayed exact with it; in two
+  cases the older unit did not, and the copied definition took the
+  callers' result type instead and stayed exact. One more line appeared
+  when this tree met the tree of the group before, and was settled the
+  same way.
+- One table of `slot04_08` needed its chain walked upward: the
+  dispatcher and the function above it take the second parameter and
+  pass it on, the entries that do not read it take it unused, and the
+  top, which is reached through a block of pointers that a function
+  copies into an object, has the comment for a function reached from
+  outside.
+- A search of the 329 new units for an offset on a cast pointer found
+  eight lines in seven units: the address of the object's array of
+  slots written as the object's address plus `0x2b0`, `0x2c0` or
+  `0x2c8`. They name the array now (`(u8 *)object->slots`,
+  `(u8 *)&obj->slots[2]`) and every unit is exact. The model units of
+  the other twelve blocks have the same lines; they are not changed
+  here.
+
+Open:
+
+- 18 functions of the twelve blocks are not in the build, the one copy
+  that is not exact among them.
 ## One more quad layer, and where the last large stage functions stand (2026-10-09)
 
 `func_801e8d10_slot06_03`, 1,044 bytes, a relative of the perspective
@@ -6006,9 +6063,10 @@ corrected before publication.
 
 - Counts, sums of the build's lines per image: the 20 stage modules have
   845 C functions, 139,908 bytes, and 1,220,780 raw bytes. The coverage
-  map's line: `overall: 5409/5600 distinct functions exact (96.6%);
-  11562/13072 placements (88.4%)`; the same command prints 5408 and
-  11561 for the tree without this change.
+  map's line, with the seventy-seventh group in the tree: `overall:
+  5409/5600 distinct functions exact (96.6%); 12594/13072 placements
+  (96.3%)`; the same command prints 5408 and 12593 for the tree without
+  this change.
 - Candidates that are close, one-off figures from the private folder:
   `func_801e8bd8_slot06_08` (2,124 bytes) at 14 differing slots and the
   right size, all in the computation of one row number; the function
