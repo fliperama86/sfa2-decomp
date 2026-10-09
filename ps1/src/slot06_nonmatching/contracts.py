@@ -87,6 +87,12 @@ _COPY = [_lw(_T2, 0, _T3), _addiu(_T3, _T3, 4), _sw(_T2, 0, _T5),
          0x14000000 | _T3 << 21 | _T4 << 16 | (-4 & 0xFFFF), _addiu(_T5, _T5, 4)]
 
 
+# The encoders and register numbers, for a contract that writes a tail (see `CallLog.replace`).
+lui, ori, lw, sw, addiu = _lui, _ori, _lw, _sw, _addiu
+JR_RA = 0x03E00008
+AT, V0, A0, A1, A2, A3, T0, T1, T2, T3, T4, T5, SP = 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 29
+
+
 class CallLog:
     """A log of calls in the RAM of one case.
 
@@ -118,7 +124,8 @@ class CallLog:
 
     def replace(self, address: int, arguments: int, result: int = 0, pointees: dict[int, int] | None = None,
                 masks: dict[int, int] | None = None, results: tuple[int, ...] = (), ends_run_at: int = 0,
-                stores: tuple[tuple[int, int, int], ...] = (), counts: tuple[int, ...] = ()) -> None:
+                stores: tuple[tuple[int, int, int], ...] = (), counts: tuple[int, ...] = (),
+                tail: tuple[int, ...] | None = None) -> None:
         """Put a recorder in place of the function at `address`.
 
         `arguments` is how many arguments the callee takes (the fifth and
@@ -127,7 +134,10 @@ class CallLog:
 
         `masks` names arguments of which the callee uses only some low bits,
         as {argument index: mask} with a mask of at most 16 bits: the
-        recorder logs the argument under the mask. Use it where the callee
+        recorder logs the argument under the mask. A mask of 0 logs nothing
+        of the argument's value: for the address of a local of the function
+        under test, which the two codes place differently (give such an
+        argument a pointee when what it points at matters). Use it where the callee
         takes a byte or a halfword and the two codes extend it differently
         in the bits the callee does not read.
 
@@ -139,6 +149,19 @@ class CallLog:
         `ends_run_at` N ends the run at the N-th call of this recorder, after
         it is logged: for a function that never returns. The contract's
         setup then returns `Setup(..., returns=False)`.
+
+        `tail` is machine code of the contract's own that stands for what
+        the callee does to the caller's memory and to `v0`, for a callee
+        that the fixed recorder cannot stand for (one that fills a buffer
+        the caller hands it and returns that buffer's address, say). It
+        runs after the entry is written, in place of the recorder's own
+        return, with the argument registers and `sp` as the caller left
+        them, and must end the call itself (`jr ra` and its delay slot).
+        Build it with the encoders of this module (`lui`, `ori`, `lw`,
+        `sw`, `addiu`, `JR_RA`) and keep to the registers `t0` to `t5`,
+        `at` and `v0`. A tail is a model written by the contract's author:
+        the header of the `.c` says what it models and from what that is
+        known. With a tail, `result` and `results` are not used.
 
         `stores` and `counts` stand for what an interrupt does to memory
         while the function runs, which nothing else in a test can do:
@@ -158,7 +181,7 @@ class CallLog:
                 raise ValueError(f"argument {index} of {arguments} cannot have a pointee of {count} words")
         masks = masks or {}
         for index, mask in masks.items():
-            if not 0 <= index < arguments or not 0 < mask <= 0xFFFF:
+            if not 0 <= index < arguments or not 0 <= mask <= 0xFFFF:
                 raise ValueError(f"argument {index} of {arguments} cannot have the mask {mask:#x}")
         if ends_run_at < 0:
             raise ValueError("ends_run_at counts calls from 1")
@@ -201,7 +224,9 @@ class CallLog:
                 code += [_addiu(_T4, 0, ends_run_at),
                          0x14000000 | _T2 << 21 | _T4 << 16 | 2,  # bne t2, t4, past the jump
                          0, 0x08000000 | (self.state.stop >> 2) & 0x03FFFFFF, 0]  # nop; j stop; nop
-        if results:
+        if tail is not None:
+            code += list(tail)
+        elif results:
             # A block holds the index of the next result, the last index, and the results.
             table = self.state.alloc(8 + 4 * len(results))
             self.state.w32(table + 4, len(results) - 1)

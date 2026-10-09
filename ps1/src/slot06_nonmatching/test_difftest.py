@@ -1701,14 +1701,14 @@ def case_q_masked_out_bits_are_no_difference():
 def case_q_bad_masks_refused():
     state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
     log = contracts.CallLog(state)
-    for arguments, masks in ((2, {0: 0}), (2, {0: 0x10000}), (2, {0: 0x1FFFF}), (2, {0: -1}), (2, {2: 0xFF}), (2, {-1: 0xFF}), (0, {0: 1})):
+    for arguments, masks in ((2, {0: 0x10000}), (2, {0: 0x1FFFF}), (2, {0: -1}), (2, {2: 0xFF}), (2, {-1: 0xFF}), (0, {0: 1})):
         try:
             log.replace(CALLEE, arguments, 0, masks=masks)
         except ValueError:
             continue
         return f"{arguments} arguments with masks {masks} was accepted"
     log.replace(CALLEE, 2, 0, masks={0: 1, 1: 0xFFFF})
-    return None
+    return None  # a mask of 0 is allowed: see group W
 
 
 # R: results in turn
@@ -1949,6 +1949,126 @@ def case_u_footprint_with_every_option():
                      watch=((WATCHED, 1),), v0=0x66)
 
 
+# ---------------------------------------------------------------------------
+# Groups V and W: a tail of the contract's own, and a mask of 0
+
+C = contracts  # the exported encoders and register numbers are C.lui, C.ori, C.lw, C.sw, C.addiu, C.JR_RA, C.AT ...
+MARK = 0x80030300
+
+
+def rtype(rs, rt, rd, funct):
+    return rs << 21 | rt << 16 | rd << 11 | funct
+
+
+def fill_tail(value=0xCAFE0001):
+    """A model of a callee that stores `value` through its first argument and returns that argument."""
+    return [C.lui(C.T2, value), C.ori(C.T2, C.T2, value), C.sw(C.T2, 0, C.A0), C.addiu(C.V0, C.A0, 0), C.JR_RA, NOP]
+
+
+def copy_to_mark_tail(source=WATCHED):
+    """A model that copies the word at `source` to MARK and returns 0."""
+    return [C.lui(C.T0, source), C.ori(C.T0, C.T0, source), C.lw(C.T1, 0, C.T0), NOP,
+            C.lui(C.T0, MARK), C.ori(C.T0, C.T0, MARK), C.sw(C.T1, 0, C.T0), C.JR_RA, C.addiu(C.V0, 0, 0)]
+
+
+def case_v_tail_stores_through_the_argument_and_returns_it():
+    words = program_v0(("st", BUF, 0), ("call", CALLEE, [BUF], []), ("sv0", RESULTS))
+    for option in ({}, {"results": (1, 2)}):
+        entries, result, read = logged(words, [R(CALLEE, 1, 0x55, tail=fill_tail(), **option)], watch=((BUF, 1),))
+        if entries != [CALLEE, BUF, 0]:
+            return f"{option}: entry {hexes(entries)}: it must show the word as it was before the tail"
+        if read(RESULTS) != BUF or read(BUF) != 0xCAFE0001:
+            return f"{option}: v0 {read(RESULTS):#x}, word {read(BUF):#x}"
+    return None
+
+
+def case_v_tail_with_a_counter_of_its_own():
+    cell_holder = []
+
+    def replace(log):
+        cell = log.state.alloc(4)
+        cell_holder.append(cell)
+        tail = [C.lui(C.T0, cell), C.ori(C.T0, C.T0, cell), C.lw(C.T1, 0, C.T0), NOP, C.addiu(C.T2, 0, 2),
+                rtype(C.T1, C.T2, C.AT, 0x2B),  # sltu at, t1, t2
+                C.addiu(C.T1, C.T1, 1), C.sw(C.T1, 0, C.T0),
+                rtype(0, C.AT, C.AT, 0x23),  # subu at, zero, at
+                rtype(C.A0, C.AT, C.V0, 0x24),  # and v0, a0, at
+                C.JR_RA, NOP]
+        log.replace(CALLEE, 1, 0, tail=tail)
+
+    # loop: a0 = BUF; call; bne v0, 0, loop
+    words = [addiu(SP, SP, -32), sw(RA, SP, 28), *setreg(4, BUF), jal(CALLEE), NOP, beq(V0, ZERO, 8 + 4 * 4, 8) | 0x04000000, NOP,
+             lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+    entries = logged(words, [replace])[0]
+    return None if entries == [CALLEE, BUF] * 3 else f"log {hexes(entries)}"
+
+
+def case_v_stores_counts_and_end_act_before_the_tail():
+    mark_tail = copy_to_mark_tail()
+    # Ended at the first call: the store is made, the tail does not run.
+    entries, _, read = logged(endless(), [R(CALLEE, 0, ends_run_at=1, stores=((1, WATCHED, 5),), counts=(WATCHED2,), tail=mark_tail)])
+    if (read(WATCHED), read(WATCHED2), read(MARK)) != (5, 1, 0):
+        return f"ended at call 1: store {read(WATCHED):#x}, count {read(WATCHED2)}, mark {read(MARK):#x}"
+    # Ended at the second call: the tail ran the first time, and saw the store of that call.
+    entries, _, read = logged(endless(), [R(CALLEE, 0, ends_run_at=2, stores=((1, WATCHED, 5),), counts=(WATCHED2,), tail=mark_tail)])
+    if (read(WATCHED), read(WATCHED2), read(MARK), read(FLAG)) != (5, 2, 5, 1):
+        return f"ended at call 2: store {read(WATCHED):#x}, count {read(WATCHED2)}, mark {read(MARK):#x}, FLAG {read(FLAG)}"
+    return None
+
+
+def case_v_masked_local_at_different_places_of_two_frames():
+    def caller_with_local_at(offset):
+        return [addiu(SP, SP, -32), sw(RA, SP, 28), *setreg(T1, 0x1234), sw(T1, SP, offset), addiu(4, SP, offset), jal(CALLEE), NOP,
+                lw(T1, SP, offset), *setreg(T0, FLAG), sw(T1, T0, 0), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+    original, build = caller_with_local_at(16), caller_with_local_at(20)
+    masked = pair_logged(original, build, [R(CALLEE, 1, 0, masks={0: 0}, pointees={0: 1}, tail=fill_tail())])
+    unmasked = pair_logged(original, build, [R(CALLEE, 1, 0, pointees={0: 1}, tail=fill_tail())])
+    if masked != (0, 3, 0):
+        return f"masked to 0: {masked}"
+    return None if unmasked == (0, 0, 3) else f"unmasked (why the mask exists): {unmasked}"
+
+
+def case_v_exported_encoders_and_registers():
+    for rt, imm in ((1, 0), (8, 0x1234), (29, 0xFFFF)):
+        if C.lui(rt, imm << 16) != lui(rt, imm) or C.ori(rt, 9, imm) != ori(rt, 9, imm):
+            return f"lui/ori({rt}, {imm:#x})"
+    for rt, off, base in ((2, 0, 4), (8, 4, 29), (13, -4, 29), (9, 0x7FFC, 1)):
+        if C.lw(rt, off, base) != lw(rt, base, off) or C.sw(rt, off, base) != sw(rt, base, off):
+            return f"lw/sw({rt}, {off}, {base})"
+    for rt, rs, imm in ((2, 4, 0), (8, 0, 2), (29, 29, -32), (10, 11, 0x7FFF)):
+        if C.addiu(rt, rs, imm) != addiu(rt, rs, imm):
+            return f"addiu({rt}, {rs}, {imm})"
+    if C.JR_RA != JR_RA:
+        return f"JR_RA {C.JR_RA:#x}"
+    got = [C.AT, C.V0, C.A0, C.A1, C.A2, C.A3, C.T0, C.T1, C.T2, C.T3, C.T4, C.T5, C.SP]
+    want = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 29]
+    return None if got == want else f"registers {got}"
+
+
+def case_w_mask_zero_logs_zero():
+    words = program(("call", CALLEE, [0x1234, 0xFFFFFFFF], []), ("call", CALLEE, [0xFFFF, 0xFFFFFFFF], []))
+    entries = logged(words, [R(CALLEE, 2, masks={0: 0})])[0]
+    if entries != [CALLEE, 0, 0xFFFFFFFF] * 2:
+        return f"log {hexes(entries)}"
+    same = pair_logged(program(("call", CALLEE, [0x1234], [])), program(("call", CALLEE, [0x5678], [])), [R(CALLEE, 1, masks={0: 0})])
+    other = pair_logged(program(("call", CALLEE, [0x1234], [])), program(("call", CALLEE, [0x5678], [])), [R(CALLEE, 1)])
+    return None if same == (0, 3, 0) and other == (0, 0, 3) else f"masked {same}, unmasked {other}"
+
+
+def case_w_still_refused_masks():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    for arguments, masks in ((2, {0: 0x10000}), (2, {0: 0x1FFFF}), (2, {0: -1}), (2, {2: 0}), (2, {-1: 0}), (0, {0: 0})):
+        try:
+            log.replace(CALLEE, arguments, 0, masks=masks)
+        except ValueError:
+            continue
+        return f"{arguments} arguments with masks {masks} was accepted"
+    log.replace(CALLEE, 2, 0, masks={0: 0, 1: 0xFFFF})
+    return None
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -2110,6 +2230,13 @@ CASES = [
     ("u-two-counted-words", case_u_two_counted_words),
     ("u-wait-loop-ends-by-itself", case_u_wait_loop_ends_by_itself),
     ("u-footprint-with-every-option", case_u_footprint_with_every_option),
+    ("v-tail-stores-through-the-argument-and-returns-it", case_v_tail_stores_through_the_argument_and_returns_it),
+    ("v-tail-with-a-counter-of-its-own", case_v_tail_with_a_counter_of_its_own),
+    ("v-stores-counts-and-end-act-before-the-tail", case_v_stores_counts_and_end_act_before_the_tail),
+    ("v-masked-local-at-two-places-equal-unmasked-different", case_v_masked_local_at_different_places_of_two_frames),
+    ("v-exported-encoders-and-registers", case_v_exported_encoders_and_registers),
+    ("w-mask-zero-logs-zero", case_w_mask_zero_logs_zero),
+    ("w-other-bad-masks-still-refused", case_w_still_refused_masks),
 ]
 
 
