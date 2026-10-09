@@ -7252,6 +7252,26 @@ No function count changes here. Nothing under `ps1/` changed.
   real game from a published commit. The controls run it on made-up game
   code.
 
+## The port delivers the vertical blank as an interruption (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/interrupt.c` and its hooks, `--no-interrupt`, and
+  five cases of the launch controls. The page has the mechanism, its
+  bounds and its cost.
+- Why it exists: the first runtime ran the game's vertical-blank handler
+  only inside library calls. In the private trial the program drew the
+  opening screen and the title and then hung about half a minute in, in
+  a wait of the game's `main` that calls nothing. My design had said to
+  report such a case and not to add a thread; the worker reported it
+  with three options. Chosen: a timer thread that only redirects the
+  game's thread, so that the handlers still run on the game's own
+  thread, and only while that thread is in the game's own code. The
+  alternative of a guarded data page was not built or measured.
+- Not shown: anything on the real game from a published commit (the
+  published tree stops at `main`). The five cases run on made-up game
+  code.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

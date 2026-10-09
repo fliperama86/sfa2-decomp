@@ -686,10 +686,26 @@ routines that do nothing on purpose. What is in this piece:
   BIOS and the interrupt library, with a frame clock: every wait or poll
   of the game that reaches one of these routines lets one vertical blank
   happen when 1/60 s has passed since the last, and the game's own
-  handlers run then, on the game's thread. Nothing interrupts the game
-  in this piece: a loop of the game that calls no library routine and
-  waits for a handler would wait for ever. `--watchdog S` ends such a
-  run after S seconds without a vertical blank and says where it was.
+  handlers run then, on the game's thread. `--watchdog S` ends a run
+  after S seconds without a vertical blank and says where it was.
+- The vertical blank as an interruption. The game's `main` has a wait
+  that calls nothing and loops until a counter moves which only its
+  vertical-blank handler raises; with the frame clock alone the program
+  would wait there for ever. So a second thread, the timer, interrupts
+  the game's thread when a vertical blank is due and no library routine
+  has taken it: it suspends the thread and points it at a small routine
+  that saves the flags, every register and the floating-point state,
+  runs the vertical-blank work on the game's own thread, and returns to
+  the interrupted instruction. Its bounds: the timer never calls game
+  code or any library; a vertical blank is taken exactly once, by the
+  timer or by the clock; the thread is interrupted only while it is in
+  the game's own code, between the build's two markers, or at a jump in
+  the PS1's RAM, never while a handler of the game runs and never inside
+  a critical section. `--no-interrupt` turns the timer off. The cost,
+  stated: the game's code can be interrupted between any two
+  instructions, as on the console, C that a PC compiler orders
+  differently may be interrupted in a state the console never showed,
+  and a run is not repeatable to the instruction.
 - The BIOS's threads as fibers. The game uses them as tasks that switch
   only where the game says so.
 - The few functions of the C library that the game takes from the BIOS.
@@ -755,7 +771,14 @@ program with a line that says so; a handler runs once per vertical
 blank, is held back inside a critical section and delivered once after
 it; an event that was closed is not called; three tasks run in the
 order the game switches them, and a task function that returns ends
-the program; the card routines answer with the time-out event. On
+the program; the card routines answer with the time-out event. Its
+cases for the interruption: made-up game code that spins on a counter
+which only its handler raises ends by itself, and the handler ran on the
+game's thread; the same code with `--no-interrupt` is ended by the
+watchdog; a loop inside a host routine is not interrupted; a handler is
+not interrupted by a second vertical blank; and values kept in every
+register, in the flags and in the floating-point registers survive many
+interruptions. On
 2026-10-09 each of the three ended with
 `all cases behaved as required`.
 
