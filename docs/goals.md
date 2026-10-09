@@ -396,11 +396,11 @@ chose the first on 2026-10-06:
   module of slot `0x12`; their source was copied from those.
   The sixth to the twenty-fifth are the 20 stage modules, the contents
   of slot `0x6` in `STAGE00.PAC` to `STAGE13.PAC`, 874 functions by the
-  sweep: 833 are exact, 122,504 bytes. Of the 41 that are not, most are
-  functions of 600 bytes and more of two kinds, a tile layer drawn in
-  perspective and the function that draws the tiles of an object: each
-  has a candidate and none is exact yet. The functions that draw the
-  flat tile layers are exact in all 20 stages. The stage files are the work
+  sweep: 844 are exact, 138,864 bytes. Of the 30 that are not, most are
+  the function that draws the tiles of an object, one per stage: it has
+  a candidate and is not exact yet. The functions that draw the tile
+  layers, flat and in perspective, are exact in every stage that has
+  them. The stage files are the work
   of a second session that runs beside the first, by the owner's
   decision of 2026-10-06.
   The twenty-sixth is the one content of slot `0x27`, from `SELECTA.PAC`, a
@@ -410,7 +410,7 @@ chose the first on 2026-10-06:
   in the resident image.
   The next eleven are first-side character blocks, the contents of slot
   `0x4` in `PL0C.PAC` to `PL17.PAC` (`PL13.PAC` has the bytes of
-  `PL11.PAC`), 2,333 functions by the sweep: 2,310 are exact, 277,736
+  `PL11.PAC`), 2,333 functions by the sweep: 2,311 are exact, 277,928
   bytes, and five blocks have every function exact. The second sides,
   slot `0x5` of the `X` files, are the same units linked a second time
   and exact against their own chunks; `PL15`, `PL16` and `PL17` have

@@ -3,7 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* t and a are 16-bit and t is assigned twice: with int locals the move is gone and the registers differ (3 slots). */
+/* t and a are 16-bit locals: with int locals this function differs from the
+   original in three instruction slots. */
 void func_801b504c_slot04_0e(Object *obj) {
     s16 t;
     s16 a;

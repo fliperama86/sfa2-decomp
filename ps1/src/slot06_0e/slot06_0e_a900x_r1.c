@@ -9,8 +9,8 @@ extern u16 data_801ef4a4_slot06_0e[];
 void func_801eaa28_slot06_0e(Object *obj);
 
 /* One local holds the OR of the two flags and later the table index.
-   Written with a local for each, this function differs from the original
-   in six instruction slots. */
+   Written as one expression for the OR, or with a local for each, this
+   function differs from the original in eleven instruction slots. */
 void func_801ea900_slot06_0e(Object *obj) {
     Object *c = (Object *)obj->field_34;
     int v = game_state.field_65;

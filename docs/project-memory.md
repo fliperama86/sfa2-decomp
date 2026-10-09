@@ -5705,6 +5705,57 @@ Lesson: a helper that tidies declarations removed a prototype that its
 unit uses; the declaration check printed the missing prototype at once.
 Run that check after the tidy step, not before.
 
+## The perspective tile layer of eleven stages (2026-10-09)
+
+`func_801e8bc4_slot06_04`, 1,488 bytes, draws a tile layer in
+perspective, and ten other stages have the same function with another
+record table (one of them also steps the record pointer for blank cells).
+All eleven are exact, and so is one more function of the character block
+of `PL14.PAC`.
+
+- The model took seven agent runs, each with a narrower task from the top
+  level, from 215 differing instruction slots to none. What decided the
+  steps, in the order they were found: the function's first block
+  written in the listing's order with 16-bit locals; the first column
+  held in a local that is assigned once before the row loop, which keeps
+  the two inner loops' entry tests; a table of where every long-lived
+  value lives, register or stack slot, from the listing and from the
+  compiler's allocation dump, repaired value by value by changing how
+  the source reads each value; expressions that the listing has between
+  an inner loop's entry test and its first instruction written inside
+  the loop at their uses, since that is where the compiler puts what it
+  moves out of a loop. The model's comment gives the measured effect of
+  each form that has to stay.
+- Counts, sums of the build's lines per image: the 20 stage modules have
+  844 C functions, 138,864 bytes, and 1,221,824 raw bytes; the 11
+  character blocks `slot04_0c` to `slot04_17` have 2,311 C functions,
+  277,928 bytes, and 732,412 raw bytes. The coverage map's line:
+  `overall: 5389/5600 distinct functions exact (96.2%); 11533/13072
+  placements (88.2%)`; the same command prints 5384 and 11520 for the
+  tree without this change (the eleven functions are four distinct
+  forms; the character function is placed twice).
+- Shared files: 12 function lines of this session in `symbols.ld` are
+  gone; one field line is new in `Slot06Layer`.
+- The owner's review of the change before this one rebuilt the variants
+  that one unit's comment described and found three figures that did
+  not reproduce. Measured again here on the final sources, one change at
+  a time with the published diff tool: three of that comment's four
+  figures were stale (an agent had measured them on an earlier state of
+  its file) and the fourth was worded wrongly; the figures of three
+  other comments of that change were stale too, and a fourth named a
+  form that is not needed. Six comments are corrected in this change
+  (the sixth gets figures it did not have), one unneeded cast is
+  gone from the new character function, and every figure in the new
+  units' comments is from such a run.
+- Not exact yet, one-off counts from the private folder: 30 stage rows
+  of the sweep and 22 character rows of this session's blocks (21
+  parked functions and the row that is not a function).
+
+Lesson: a figure in a comment is a claim like any other. An agent's
+figure describes the file the agent had when it measured. Measure every
+figure again on the file that is published, with the tool that the
+reader has.
+
 ## Seventy-fifth group: third attempts with the compiler's pass dumps
 
 The select-screen round (the seventy-fourth group) found one form by
@@ -5732,7 +5783,7 @@ Counts:
   functions and 199,416 bytes; 23 more module placements than the main
   branch of that day, 8 of them on the second sides. The tree has 77
   unused-array stand-ins and 22 calls through a cast of the callee in
-  module units. With the group after this one the map counts 5,403 of
+  module units. With the group after this one the map counts 5,408 of
   5,600 distinct functions as exact, 19 more than that main branch.
 - One declaration of the shared header changed: `data_80190562` is an
   array there. The one resident unit that stores to it (`m133df4_r2.c`)
