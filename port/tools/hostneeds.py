@@ -98,7 +98,10 @@ order of name.
 
 Exit status: 0 when the list was made; 2 when an input is missing or
 malformed or `nm` cannot be run or fails, with one line on standard error
-that names it.
+that names it. A configuration is malformed also when it is valid TOML of
+another shape: units, images or the functions of a unit that are not
+arrays of tables, a function without a name and a whole-number address,
+an image of a unit that is not a string.
 
 usage:
   hostneeds.py [--build DIR] [--config BUILD_TOML] [--symbols FILE]
@@ -192,6 +195,9 @@ def read_config(path: Path) -> tuple[list[Unit], list[str]]:
     entries = config.get("unit", [])
     if not isinstance(entries, list):
         raise Problem(f"{path}: `unit` is not an array of tables")
+    image_entries = config.get("image", [])
+    if not isinstance(image_entries, list):
+        raise Problem(f"{path}: `image` is not an array of tables")
     units: list[Unit] = []
     for index, entry in enumerate(entries, 1):
         name = entry.get("name") if isinstance(entry, dict) else None
@@ -202,16 +208,21 @@ def read_config(path: Path) -> tuple[list[Unit], list[str]]:
             raise Problem(f"{path}: unit {name} has no source")
         kind = "sdk" if source.startswith("sdk/") else "c" if source.endswith(".c") else "assembly"
         image = entry.get("image")
+        if image is not None and not isinstance(image, str):
+            raise Problem(f"{path}: the image of unit {name} is not a string")
+        declared = entry.get("functions", [])
+        if not isinstance(declared, list):
+            raise Problem(f"{path}: the functions of unit {name} are not an array")
         functions: list[tuple[str, int]] = []
-        for item in entry.get("functions", []):
+        for item in declared:
             fname = item.get("name") if isinstance(item, dict) else None
             address = item.get("address") if isinstance(item, dict) else None
             if not isinstance(fname, str) or not isinstance(address, int) or isinstance(address, bool):
                 raise Problem(f"{path}: unit {name} has a function without a name and an address")
             functions.append((fname, address))
-        units.append(Unit(name, kind, image if isinstance(image, str) else None, functions))
+        units.append(Unit(name, kind, image, functions))
     images = []
-    for index, entry in enumerate(config.get("image", []), 1):
+    for index, entry in enumerate(image_entries, 1):
         if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
             raise Problem(f"{path}: image {index} has no name")
         images.append(entry["name"])
