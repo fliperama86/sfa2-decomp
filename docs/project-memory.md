@@ -7795,6 +7795,40 @@ No function count changes here. Nothing under `ps1/` changed.
   made from a derived table is checked against the listing for a few of
   its rows before it is handed out.
 
+## A third parked function exact: one local for two values (2026-10-09)
+
+`func_8014c9f4`, 136 bytes, was parked with one differing instruction
+slot: the shift of a halfword read the register of the load where the
+original shifts the copy. The pass dumps had shown that the common
+subexpression pass replaces the copy by the older register, and no
+order of declarations changed which register it keeps.
+
+A bounded run of the permuter found a variant with the original's
+bytes and flagged it as meaningless, because it assigned a local to
+itself. Without that statement the same bytes come out, and what is
+left of the variant is this: the shifted value is held in a local that
+was assigned once before, the result of the function's first test. The
+working model of the goals has a rule that may be at work here: a
+local that is assigned more than once loses what the compiler knew
+about it. Whether that is the reason in this function was not shown.
+
+The published source was reduced from there, one thing at a time with
+a rebuild each. Four things stay, each with the figure in the comment
+above the function, measured on the final text: the test written in
+the `if` with the local used for the shift only, 6 instruction slots;
+the halfword read straight into its second local, 5; the shifted value
+stored without passing through a local, 5; the pointer taken from the
+object's field and not read back from the global, 5. One of the four
+had measured 4 during the reduction, on a text that still had another
+form in it; the comment has the figure of the final text.
+
+Not claimed: that the original source used one local for both values.
+It is a form with which this compiler gives the original's bytes.
+
+The map after this group, from `coveragemap.py render`: 5,415 of 5,600
+distinct functions exact, 12,832 of 13,072 placements. The build's
+line for the resident image: `functions exact: 1762/1762`.
+
 ## The port draws through PsyZ (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.
