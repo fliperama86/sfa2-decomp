@@ -404,10 +404,14 @@ def make_cases(cfg_dir: Path, parsed: dict) -> list[Case]:
     def overlapping_field(copy: Path):
         path = copy / parsed["types"]["fields"]
         model = structgen.parse(path.read_text(), str(path))
-        # The appended line joins the last struct in the file.
-        first = min(model.structs[-1].fields, key=lambda f: f.offset)
+        # The appended lines join the last struct in the file. A struct may have no field line
+        # (a module's view of an object whose fields no exact unit uses): then the case gives
+        # it one first, so that the last line still overlaps a field.
+        fields = model.structs[-1].fields
+        offset = min(fields, key=lambda f: f.offset).offset if fields else 0
         text = path.read_text()
-        path.write_text(text + ("" if text.endswith("\n") else "\n") + f"{first.offset:#x} u8 selftest_overlap\n")
+        lines = ("" if fields else f"{offset:#x} u8 selftest_first\n") + f"{offset:#x} u8 selftest_overlap\n"
+        path.write_text(text + ("" if text.endswith("\n") else "\n") + lines)
 
     types_cases = (
         [
