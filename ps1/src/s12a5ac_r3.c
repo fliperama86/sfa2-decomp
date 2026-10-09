@@ -4,9 +4,6 @@
 #include "protos.h"
 
 
-int func_8014a058(Object *object);
-int func_8014a0fc(Object *object);
-
 void func_8012ab5c(Object *object) {
     if (func_80149c30(object)) {
         func_80130304(object);

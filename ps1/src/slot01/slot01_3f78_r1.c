@@ -6,7 +6,6 @@
 extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern SequenceStep *data_800240f8_slot01[];
-Block172 *func_8011f1e0(void);
 
 void func_80013f78_slot01(Object *obj) {
     Rect rect;

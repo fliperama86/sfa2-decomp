@@ -37,8 +37,6 @@ void func_801b2c84_slot04_05(Object *obj) {
     }
 }
 
-int func_80130184(Object *object);
-
 void func_801b2d58_slot04_05(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
         if ((u8)obj->field_3a != 1) {

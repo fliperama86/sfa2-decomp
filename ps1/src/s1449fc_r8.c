@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011a55c(Object *o);
-
 /* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c9c0 holds this function and is declared with this parameter. */
 void func_80145be0(Object *p) {
     func_8011f240((Slab172 *)p);

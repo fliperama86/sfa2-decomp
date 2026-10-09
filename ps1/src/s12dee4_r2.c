@@ -5,8 +5,6 @@
 
 
 
-int func_80130184(Object *object);
-
 void func_8012e00c(Object *object) {
     handlers_1a6c[object->field_07](object);
 }

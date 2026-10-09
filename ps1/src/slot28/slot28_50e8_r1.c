@@ -8,8 +8,6 @@ extern ObjectRef data_80051890_slot28;
 extern ObjectRef data_80051894_slot28;
 extern ObjectRef data_80051898_slot28;
 extern ObjectRef data_8005189c_slot28;
-void func_8011f240(Slab172 *s);
-void func_801282d4(void);
 
 void func_800150e8_slot28(Object *obj) {
     func_8011f240((Slab172 *)data_80051890_slot28.p);

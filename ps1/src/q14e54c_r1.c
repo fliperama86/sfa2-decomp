@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e5f4(void);
-
 u8 func_8014e54c(Object *object) {
     u8 t;
     if (data_80189468 == 0) {

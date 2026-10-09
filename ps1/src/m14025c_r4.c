@@ -6,8 +6,6 @@
 extern u8 data_80190464;
 extern s16 data_8019046c;
 
-void func_80155d4c(int idx, int side);
-
 int func_80141908(Object *object) {
     if (*(u16 *)&object->field_04 != 1) return 0;
     if (object->field_7e != 0) {

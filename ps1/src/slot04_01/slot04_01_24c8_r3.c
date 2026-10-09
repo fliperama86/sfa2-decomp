@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80131468(Object *object);
-void func_80138ae8(GameState *state, Object *object);
-
 void func_801b2898_slot04_01(Object *obj) {
     u8 t = obj->field_07;
 

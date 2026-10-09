@@ -4,9 +4,6 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int unused);
-void func_8013f2d8(Object *object, int index, int unused);
-
 u8 func_8013e3b4(Object *object, u8 index, u8 arg) {
     table_8017abec[object->slots[index].field_00](object, index, arg);
     return data_80188f44;

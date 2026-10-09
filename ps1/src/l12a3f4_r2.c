@@ -3,11 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8012f408(Object *object);
-u16 func_80130470(Object *object);
-int func_80130258(Object *object);
-int func_8012f618(Object *object);
-int func_8012efe4(Object *object);
 int func_8012f898(Object *object);
 
 void func_8012a684(Object *object) {

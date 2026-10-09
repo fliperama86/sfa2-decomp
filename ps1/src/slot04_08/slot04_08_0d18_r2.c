@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 u8 func_80141788(Object *object);
-void func_80142718(Object *object);
-void func_80142778(Object *object);
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0ea0_slot04_08(Object *obj) {

@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141c4c(Object *object);
-u8 func_801417cc(Object *object);
-
 int func_801c904c_slot05_06(Object *obj) {
     if (!(u8)func_80141c4c(obj)) return 0;
     obj->field_04 = 1;

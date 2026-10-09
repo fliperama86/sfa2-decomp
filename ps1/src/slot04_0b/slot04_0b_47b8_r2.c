@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011ffdc(Object *object);
 void func_801b4db8_slot04_0b(Object *obj, int index);
 void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
 

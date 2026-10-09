@@ -6,8 +6,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014de94(Object *object);
-
 void func_8014cba4(Object *object) {
     if (func_8014a170(object, (u32 *)table_8017d450) != 0) {
         func_8014ca7c(object);

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_801b5ab4_slot04_09(Object *o) {
     Object *obj = o;
     Object *p = (Object *)func_8011f1e0();

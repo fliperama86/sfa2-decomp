@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-
 void func_801b1b88_slot04_04(Object *obj) {
     if ((s16)obj->field_3a & 0x8000) {
         ref_other.p = obj->other;

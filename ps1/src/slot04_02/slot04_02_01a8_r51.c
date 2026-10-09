@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
-
 void func_801b6140_slot04_02(Object *object) {
     if (game_state.field_5c == 0) {
         object->field_06 = object->field_06 + 1;

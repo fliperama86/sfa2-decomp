@@ -4,9 +4,6 @@
 #include "protos.h"
 
 
-void func_8013f2a8(Object *object, int index, int unused);
-void func_8013f2d8(Object *object, int index, int unused);
-
 /* Form found by automatic permutation search. */
 void func_8013e4a8(Object *object, u8 index, u8 arg)
 {

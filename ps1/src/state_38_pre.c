@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80138838(GameState *state, int delta);
-
 void func_80138838(GameState *state, int delta) {
     data_80188ec4 += delta;
     func_8013886c(state);

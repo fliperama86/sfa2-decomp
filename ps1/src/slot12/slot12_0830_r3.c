@@ -5,9 +5,6 @@
 
 extern HudState *data_8018f5a0;
 extern void (*data_800175b4_slot12[])(void);
-Block172 *func_8011f1e0(void);
-void func_8011abe4(void);
-void func_80135c88(void);
 void func_800109dc_slot12(void);
 
 void func_80010a94_slot12(void) {

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80149f20(Object *object, Object *unused);
-
 u8 func_80149e3c(Object *a, Object *b) {
     if (a->field_45 != 0 && b->field_45 == 0) return 0;
     if (b->field_225 != 0) return 1;

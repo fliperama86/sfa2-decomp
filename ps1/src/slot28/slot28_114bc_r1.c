@@ -17,9 +17,6 @@ extern SequenceStep *data_80045c6c_slot28[];
 extern u8 data_80044620_slot28[];
 extern u8 data_800449d0_slot28[];
 extern SequenceStep *data_80045c58_slot28[];
-Block172 *func_8011f1e0(void);
-void func_801280f0(void);
-void func_8012818c(void);
 void func_80021d94_slot28(Object *obj);
 void func_80021dd0_slot28(void);
 

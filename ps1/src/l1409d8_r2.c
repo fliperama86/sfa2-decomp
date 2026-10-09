@@ -3,9 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u16 *func_801414dc(Object *object);
 BytePair func_8013054c(Object *object);
-void func_80138c78(GameState *state, Object *object);
 
 int func_801412a4(Object *object) {
     BytePair dir;

@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int arg);
-
 void func_8012e888(Object *object) {
     if (object->side == 0) {
         scratch_call_5c(object);

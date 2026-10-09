@@ -5,8 +5,6 @@
 
 extern s32 data_801c6334_slot04_02[];
 
-void func_80138ae8(GameState *state, Object *object);
-
 void func_801b2310_slot04_02(Object *o) {
     s32 t;
     u16 a;

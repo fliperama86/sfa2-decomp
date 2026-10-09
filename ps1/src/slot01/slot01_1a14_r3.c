@@ -7,7 +7,6 @@ extern u16 box_margin[];
 extern Slot01State55e94 data_80055e94_slot01;
 extern Slot01Rec152ec data_800152e4_slot01;
 void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1);
-void func_80120028(Object *obj);
 
 void func_80011e28_slot01(Object *obj) {
     Object *o = obj;

@@ -4,13 +4,11 @@
 #include "../externs.h"
 
 extern HudState *data_8018f5a0;
-void func_801280f0(void);
 extern SequenceStep *data_80050304_slot28[];
 extern Object *data_80051cd0_slot28[];
 extern u8 data_8004ead4_slot28[];
 extern u8 data_8004ef00_slot28[];
 extern Object *data_80051ca4_slot28[];
-void func_8011f240(Slab172 *s);
 
 void func_800271bc_slot28(Object *obj) {
     HudState *h = data_8018f5a0;

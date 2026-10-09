@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s32 data_801aa5e4[];
-int func_80130184(Object *object);
 
 void func_801b1d94_slot04_05(Object *o) {
     *(s32 *)&o->field_10 = data_801aa5e4[0] - ((Slot04aObj *)o)->field_a0 + *(s32 *)&o->field_10;

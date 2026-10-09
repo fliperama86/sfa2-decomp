@@ -8,7 +8,6 @@ extern SequenceStep *data_80043864_slot28[];
 extern u8 data_8004231c_slot28[];
 extern u8 data_800426b8_slot28[];
 extern Object *data_80051b18_slot28[];
-Block172 *func_8011f1e0(void);
 
 void func_800209c8_slot28(Object *obj) {
     HudState *h = data_8018f5a0;

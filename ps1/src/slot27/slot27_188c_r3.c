@@ -6,7 +6,6 @@
 extern int data_80190464[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-Object *func_8011f32c(void);
 void func_80011a18_slot27(Object *obj);
 void func_80011a64_slot27(void);
 void func_800139a8_slot27(Object *obj);

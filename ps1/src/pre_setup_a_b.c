@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 int func_80130184(Object *object) {
     *(s32 *)&object->field_10 += object->field_4c;
     object->field_4c += object->field_54;

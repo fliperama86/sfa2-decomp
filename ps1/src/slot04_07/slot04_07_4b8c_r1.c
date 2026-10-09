@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80131468(Object *object);
-
 void func_801b4b8c_slot04_07(Object *obj) {
     s16 t = obj->field_3a;
     SequenceStep *s;

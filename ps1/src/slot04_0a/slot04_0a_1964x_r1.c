@@ -5,9 +5,6 @@
 
 extern s8 data_801c0424_slot04_0a[][21];
 
-void func_80138ae8(GameState *state, Object *object);
-void func_80141f28(Object *object, short delta);
-
 void func_801b1964_slot04_0a(Object *obj) {
     Object *o;
     int t;

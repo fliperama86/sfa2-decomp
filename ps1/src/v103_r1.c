@@ -3,9 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_801412a4(Object *object);
-int func_80141618(Object *object);
-
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual (196 bytes vs 200): the original puts `move a0,s0` in the delay slots
  * of the branches before the shared tail and stores through a0; this form

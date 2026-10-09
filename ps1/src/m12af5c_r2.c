@@ -3,11 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-unsigned short func_80130470(Object *object);
-int func_80130258(Object *object);
-int func_8012f800(Object *object);
-void func_80130678(Object *object, int index);
-
 void func_8012b7b8(Object *object) {
     if (object->field_cd != 0) {
         if ((s16)object->field_3a < 0) {

@@ -3,11 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130504(Object *object);
-void func_80130dc0(Object *object);
-void func_80142a14(Object *object);
-int func_8013ffe4(Object *object, s16 a, s16 b, s16 c, u16 d);
-
 void func_801b0690_slot04_01(Object *obj) {
     obj->field_157 = 1;
     if (obj->field_07 == 0) {

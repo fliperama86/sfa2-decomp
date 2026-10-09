@@ -4,8 +4,6 @@
 #include "../externs.h"
 
 extern HudState *data_8018f5a0;
-void func_8011ffdc(Object *o);
-void func_8011f240(Slab172 *s);
 extern SequenceStep *data_800280bc_slot27[];
 
 void func_80014b1c_slot27(Object *o) {

@@ -6,7 +6,6 @@
 extern HudState *data_8018f5a0;
 extern void (*data_80017bf0_slot27[])(void);
 extern u8 data_80029324_slot27;
-Block172 *func_8011f1e0(void);
 void func_80010ed0_slot27(void);
 
 void func_800105ec_slot27(void) {

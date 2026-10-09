@@ -5,7 +5,6 @@
 
 void func_801b7920_slot04_02(Object *obj, u8 a);
 void func_801b7908_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
-void func_8011f14c(Slab172 *o);
 void func_801b77ac_slot04_02(Object *obj, u8 a);
 void func_801b77fc_slot04_02(Object *obj, u8 a);
 void func_801b784c_slot04_02(Object *obj, u8 a);

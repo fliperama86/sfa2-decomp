@@ -8,7 +8,6 @@ extern Object *data_8005193c_slot28[];
 extern u8 data_800306d4_slot28[];
 extern u8 data_80030a4c_slot28[];
 extern Object *data_80051910_slot28[];
-void func_8011f240(Slab172 *s);
 
 void func_80017944_slot28(Object *obj, int arg) {
     func_80130768(data_8005193c_slot28[3], arg, data_80031cc0_slot28);

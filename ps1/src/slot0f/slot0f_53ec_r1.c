@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u8 data_800ebc48_slot0f[];
-Pooled *func_8011f4a4(void);
 
 void func_800e53ec_slot0f(void) {
     Rect rect;

@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
-
 extern HudState *data_8018f5a0;
 extern ObjectRef data_80051ac0_slot28;
 extern Object *data_80051ac4_slot28[];
@@ -17,7 +15,6 @@ extern u8 data_8003e230_slot28[];
 void func_8001ee74_slot28(Object *obj, int arg);
 void func_8001eea4_slot28(Object *obj);
 void func_8001ef04_slot28(void);
-void func_80128370(void);
 
 void func_8001ebb8_slot28(Object *obj) {
     HudState *h;

@@ -7,7 +7,6 @@ extern u16 data_801c5320_slot04_06[];
 extern s32 data_801c532c_slot04_06[];
 
 u8 func_8013f8c4(Object *object, int a, int b);
-void func_80145f98(Object *object);
 
 void func_801b169c_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;

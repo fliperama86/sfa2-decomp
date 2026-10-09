@@ -286,7 +286,11 @@ functions; they change with every round.
    header declared without a prototype have one (the project memory
    has the account). The dispatch tables of the resident image followed
    the same day: of 539 functions that stand in a declared table, 150
-   differed from the table's entry type and none does now. Data externs
+   differed from the table's entry type and none does now. The
+   prototypes that units still carried at their top then moved into the
+   shared header wherever every declaring unit agrees, so that the
+   compiler compares them in every unit; the few functions that stay in
+   units, and why, are in the project memory. Data externs
    are done
    where all units agree: 594 symbols in a shared header. 138 symbols stay
    in units at that step. The callback tables followed: five function

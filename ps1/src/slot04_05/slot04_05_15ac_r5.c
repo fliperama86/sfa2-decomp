@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_80146998(Object *object);
 
 void func_801b1b44_slot04_05(Object *obj) {
     s16 t = obj->field_3a;

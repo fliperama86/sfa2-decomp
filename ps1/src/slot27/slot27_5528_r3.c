@@ -5,7 +5,6 @@
 
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-Block172 *func_8011f1e0(void);
 
 void func_8001578c_slot27(Object *obj) {
     if (*(u16 *)&obj->field_3c->field_04 == 0x101) {

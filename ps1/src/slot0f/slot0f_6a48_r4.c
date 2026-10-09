@@ -5,7 +5,6 @@
 
 extern Slot12Prim data_800f7b94_slot0f[];
 extern HudSlot data_800f7c94_slot0f[4];
-void func_8011f240(Slab172 *s);
 
 void func_800e6dfc_slot0f(Object *obj) {
     s16 i;

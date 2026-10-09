@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern Slot12Bank data_80028b48_slot12[];
-int func_8015bdd4(int a, int b);
 
 void func_80011a78_slot12(Object *obj, Slot12List *list) {
     Cell20 *a = data_80028b48_slot12[0].cells;

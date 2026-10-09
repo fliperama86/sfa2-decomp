@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern s16 data_801c4180_slot04_04[];
-void func_80131638(Object *object);
 int func_801b3a40_slot04_04(Object *obj);
 void func_801b0adc_slot04_04(Object *obj);
 

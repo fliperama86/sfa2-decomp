@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern ObjectFn data_80027cbc_slot27[];
-void func_8011f240(Slab172 *s);
 
 void func_80014500_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;

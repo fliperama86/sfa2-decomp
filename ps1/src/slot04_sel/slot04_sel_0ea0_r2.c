@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801205c4(int a, unsigned c);
 void func_801b1984_slot04_sel(void);
 void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *rec, int a);
 

@@ -5,7 +5,6 @@
 
 extern s32 data_801c05e0_slot04_03[];
 void func_801b1304_slot04_03(Object *obj);
-void func_80138ae8(GameState *state, Object *object);
 
 void func_801b1304_slot04_03(Object *obj) {
     int a;

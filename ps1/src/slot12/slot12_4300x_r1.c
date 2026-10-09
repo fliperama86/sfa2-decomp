@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u32 data_80024470_slot12[];
-int func_8015bdd4(int a, int b);
 
 /* The locals v, w and t hold the call result and the two shifted bytes of the tag before the sum, and idx holds the table entry: with v in the sum 52 instruction slots differ, with w 4, with t 2, with idx in place 37. The read of idx stays first: moved after the first store to s, 10 instruction slots differ. */
 void func_80014300_slot12(Object *obj, Slot12Sprite *s) {

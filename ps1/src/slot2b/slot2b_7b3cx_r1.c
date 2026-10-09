@@ -6,7 +6,6 @@
 extern ObjectFn data_80079938_slot2b[];
 extern s16 data_8007ef24_slot2b;
 
-int func_8013c970(Object *object);
 void func_80077b3c_slot2b(Object *obj) {
     if ((game_state.field_65 | game_state.field_a8) != 0) {
         func_8011ffdc(obj);

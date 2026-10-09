@@ -4,10 +4,6 @@
 #include "../externs.h"
 
 extern HudState *data_8018f5a0;
-Block172 *func_8011f1e0(void);
-void func_8011abe4(void);
-void func_801280f0(void);
-void func_80135c88(void);
 void func_8001129c_slot12(void);
 
 void func_80010830_slot12(void) {

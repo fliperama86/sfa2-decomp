@@ -6,7 +6,6 @@
 extern ObjectFn data_8007ed88_slot2b[];
 extern Object *data_8007ef28_slot2b;
 extern Object *data_8007ef30_slot2b;
-void func_8011f14c(Slab172 *o);
 void func_80078654_slot2b(Object *o);
 
 void func_80078518_slot2b(Object *o) {

@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 void func_801cdeb4_slot05_06(Object *obj);
-void func_8011f240(Slab172 *s);
 
 void func_801cddec_slot05_06(Object *obj) {
     obj->field_44 = 1;

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-extern int func_80130184(Object *object);
-
 void func_8012d4e4(Object *object) {
     if ((u8)func_80130184(object)) {
         func_801376b8(object);

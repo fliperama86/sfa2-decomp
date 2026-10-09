@@ -7,7 +7,6 @@ extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
 extern SequenceStep *data_800284e0_slot27[];
 extern GameState *data_800284f8_slot27;
-Block172 *func_8011f1e0(void);
 void func_80015838_slot27(Object *obj);
 void func_800158c0_slot27(Object *obj);
 void func_80015950_slot27(Object *obj);

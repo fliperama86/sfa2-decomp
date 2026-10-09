@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80130678(Object *object, int arg);
-
 /* Same form as func_8012a194: the early return has its own call of
    func_8012a3f4, and the compiler merges only the call instruction. */
 void func_8012a3a4(Object *object) {

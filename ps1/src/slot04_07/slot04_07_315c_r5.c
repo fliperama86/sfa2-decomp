@@ -6,7 +6,6 @@
 extern int data_801c2090_slot04_07[];
 extern int data_801c209c_slot04_07[];
 
-void func_80142adc(Object *object);
 void func_801b3874_slot04_07(Object *obj);
 
 void func_801b36d4_slot04_07(Object *obj) {

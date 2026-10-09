@@ -10,7 +10,6 @@ extern ObjectRef data_80051b40_slot28;
 extern Object *data_80051b44_slot28[];
 void func_800210f0_slot28(void);
 void func_80021060_slot28(Object *obj, int arg);
-void func_80128370(void);
 
 void func_80020e1c_slot28(Object *obj) {
     Object *p;

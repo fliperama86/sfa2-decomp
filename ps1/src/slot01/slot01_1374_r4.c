@@ -5,7 +5,6 @@
 
 extern int data_80190464[];
 extern int data_8019046c[];
-Block172 *func_8011f1e0(void);
 
 void func_80011740_slot01(void) {
     Object *p = (Object *)func_8011f1e0();

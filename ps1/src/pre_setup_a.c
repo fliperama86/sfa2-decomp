@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 void func_8012fe60(Object *object) {
     object->field_0b = object->field_158;
     if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {

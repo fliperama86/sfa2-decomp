@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Pooled *func_8011f430(void);
-
 void func_80119e74(AnimObj *obj, u16 n) {
     void *p90 = obj->field_90;
     u16 idx = obj->field_94;

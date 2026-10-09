@@ -5,7 +5,6 @@
 
 extern u8 data_801a27e4[];
 extern s16 data_801aa4dc[];
-Pooled *func_8011f4a4(void);
 
 void func_80137220(u8 a, u8 b) {
     Rect r;

@@ -3,11 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801428e4(Object *object);
-void func_80145d20(Object *object);
-void func_80138ae8(GameState *state, Object *object);
-void func_801483a4(Object *object, int a_arg, int b_arg);
-
 void func_801b21d0_slot04_0b(Object *o) {
     o->field_07++;
     o->field_54 = 0;

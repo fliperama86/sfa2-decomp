@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80125268(void);
-
 int func_801252f0(void) {
     u8 r = 0;
     if (game_state.mode != 0) {

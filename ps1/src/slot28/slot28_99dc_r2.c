@@ -14,9 +14,6 @@ extern Object *data_800519c4_slot28[];
 extern ObjectRef data_800519c8_slot28;
 extern ObjectRef data_800519d0_slot28;
 extern ObjectRef data_800519d4_slot28;
-Block172 *func_8011f1e0(void);
-void func_801280f0(void);
-void func_8012818c(void);
 void func_8001a988_slot28(Object *obj);
 void func_8001a9c4_slot28(void);
 

@@ -8,7 +8,6 @@ extern Object *data_800518d0_slot28[];
 extern ObjectRef data_80051908_slot28;
 extern SequenceStep *data_8002fca8_slot28[];
 void func_80016e28_slot28(Object *obj, int arg);
-void func_801280f0(void);
 
 void func_80016cc0_slot28(Object *o) {
     Object *p = data_80051908_slot28.p;

@@ -3,12 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013d210(Object *object);
-int func_8013d1a8(Object *object);
-int func_8013cb70(Object *object, u8 index, u8 arg);
-int func_8013cbdc(Object *object, u8 index, u8 arg);
-int func_8013cc48(Object *object, u8 index, u8 arg);
-int func_8013cac8(Object *object, u8 index, u8 arg);
 int func_801b0da4_slot04_0b(Object *obj);
 int func_801b1380_slot04_0b(Object *obj);
 int func_801b12f4_slot04_0b(Object *obj);

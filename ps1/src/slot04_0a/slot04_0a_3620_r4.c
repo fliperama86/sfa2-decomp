@@ -4,7 +4,6 @@
 #include "../externs.h"
 
 extern u16 box_margin[];
-void func_80120554(Object *o, int b, unsigned c);
 
 void func_801b3a90_slot04_0a(Object *obj) {
     obj->field_07++;

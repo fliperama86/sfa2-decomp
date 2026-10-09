@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 void func_80012f64_slot12(Object *obj);
 void func_80013608_slot12(Object *obj);

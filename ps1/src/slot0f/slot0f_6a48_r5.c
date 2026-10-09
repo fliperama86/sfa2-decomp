@@ -8,7 +8,6 @@ extern Slot12Prim data_800f7cf4_slot0f[];
 extern SequenceStep *data_800eff98_slot0f;
 void func_800e5d18_slot0f(Object *obj, Slot12Prim *c, int x, int y);
 void func_800e5be4_slot0f(Object *obj, Slot12Sprite *cell);
-void func_8011f240(Slab172 *s);
 
 void func_800e6f2c_slot0f(Object *obj) {
     data_800eff9c_slot0f[obj->field_04](obj);

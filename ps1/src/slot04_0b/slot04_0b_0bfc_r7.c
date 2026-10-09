@@ -3,9 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80138ae8(GameState *state, Object *object);
-void func_801204f4(Object *o, int b, int c);
-
 extern s32 data_801c2568_slot04_0b[];
 
 void func_801b15d0_slot04_0b(Object *obj) {

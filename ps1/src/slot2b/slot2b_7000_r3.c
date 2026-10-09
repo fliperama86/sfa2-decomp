@@ -5,7 +5,6 @@
 
 extern ObjectFn data_8007981c_slot2b[];
 extern ObjectFn data_80079828_slot2b[];
-void func_80130dc0(Object *obj);
 u8 func_8013f8c4(Object *obj, int a, int b);
 
 void func_80077238_slot2b(Object *obj) {

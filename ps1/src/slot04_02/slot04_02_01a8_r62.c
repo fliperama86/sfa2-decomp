@@ -3,7 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011f38c(Object *o);
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 

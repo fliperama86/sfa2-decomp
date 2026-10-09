@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80155d4c(int idx, int side);
-
 /* Exact. k is an s16 copy of the loaded byte m: the copy keeps the compare register apart from the index register. */
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 void func_8012c100(Object *object)

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80130678(Object *object, int arg);
-
 void func_8012a108(Object *object) {
     if (object->kind != 6 || *(u8 *)&object->field_3a == 0) {
         func_80130efc(object);

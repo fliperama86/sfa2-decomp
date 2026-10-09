@@ -9,8 +9,6 @@ extern ObjectRef data_80051ac8_slot28;
 extern ObjectRef data_80051ad0_slot28;
 void func_8001ef04_slot28(void);
 void func_8001ee74_slot28(Object *obj, int arg);
-void func_801282d4(void);
-void func_80128370(void);
 
 void func_8001e90c_slot28(Object *obj) {
     if (obj->field_f0 == 0) {

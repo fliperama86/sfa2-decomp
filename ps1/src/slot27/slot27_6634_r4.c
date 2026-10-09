@@ -2,8 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011ffdc(Object *o);
-void func_8011f240(Slab172 *s);
 extern u16 box_margin[];
 extern s16 data_80055eb2;
 extern ObjectRef data_80190458;

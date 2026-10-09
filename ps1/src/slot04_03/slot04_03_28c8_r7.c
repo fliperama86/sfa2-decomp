@@ -5,9 +5,6 @@
 
 extern ObjectFn data_801c0744_slot04_03[];
 
-void func_80142c70(Object *object);
-void func_80142fe8(Object *object);
-
 void func_801b3130_slot04_03(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;

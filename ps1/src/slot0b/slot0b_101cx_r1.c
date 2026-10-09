@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8015c09c(void *prim);
-
 SlotCell *func_801e101c_slot0b(Object *obj, SlotCell *cell, int arg, int base) {
     Slot0bList *list = (Slot0bList *)obj->sequence->field_04;
     u8 *p;

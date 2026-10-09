@@ -5,8 +5,6 @@
 
 
 
-void func_80130678(Object *object, int index);
-
 /* Form found by automatic permutation search. */
 int func_80130258(Object *object)
 {

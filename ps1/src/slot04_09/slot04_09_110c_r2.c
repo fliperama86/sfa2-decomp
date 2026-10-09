@@ -16,8 +16,6 @@ void func_801b1280_slot04_09(Object *obj) {
     obj->field_0b = obj->field_158;
 }
 
-u8 func_801417cc(Object *object);
-
 int func_801b12c4_slot04_09(Object *obj) {
     int r = 0;
 

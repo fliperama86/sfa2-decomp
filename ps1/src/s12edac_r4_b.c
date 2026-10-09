@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-void func_80130678(Object *object, int arg);
-
 void func_8012f8c4(Object *object) {
     int arg;
 

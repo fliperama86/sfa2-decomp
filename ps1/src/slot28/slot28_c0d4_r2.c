@@ -7,8 +7,6 @@ extern u8 data_8003a068_slot28[];
 extern u8 data_8003a128_slot28[];
 extern u16 data_8003940c_slot28[];
 
-Pooled *func_8011f4a4(void);
-
 void func_8001c2b4_slot28(Object *o) {
     Rect rect;
     Job *job = (Job *)func_8011f4a4();

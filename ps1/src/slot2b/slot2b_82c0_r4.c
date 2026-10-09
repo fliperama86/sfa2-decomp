@@ -5,7 +5,6 @@
 
 extern Object *data_8007ef30_slot2b;
 void func_80078734_slot2b(Object *o);
-void func_8011f38c(Object *o);
 void func_8007878c_slot2b(Object *o, u8 a);
 
 void func_80078654_slot2b(Object *o) {

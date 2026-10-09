@@ -5,7 +5,6 @@
 
 extern Slot27Rec9348 data_80029348_slot27[];
 extern void (*data_800284fc_slot27[])(Object *);
-void func_8011f240(Slab172 *s);
 
 void func_800153c0_slot27(Object *obj) {
     Cell20 *c = data_80029348_slot27[data_801a27d0].cells;

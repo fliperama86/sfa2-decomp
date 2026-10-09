@@ -20,7 +20,6 @@ void func_801b64c0_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int a);
 void func_801b56e0_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
 void func_801b57c8_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
 void func_801b60b8_slot04_sel(void);
-void func_801205c4(int a, unsigned c);
 
 void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

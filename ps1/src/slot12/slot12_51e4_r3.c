@@ -2,7 +2,6 @@
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
-void func_8011f240(Slab172 *s);
 
 extern void (*data_800284ac_slot12[])(Object *);
 extern void (*data_800284c4_slot12[])(Object *);

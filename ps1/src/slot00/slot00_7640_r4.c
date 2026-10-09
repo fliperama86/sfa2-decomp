@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011f14c(Slab172 *o);
-
 void func_80077a18_slot00(Object *obj) {
     if ((((Slot00Obj *)obj->field_3c)->field_04 & 0xffffff) == 0x80001) {
         func_80120028(obj);

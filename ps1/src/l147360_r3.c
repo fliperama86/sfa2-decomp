@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-Block172 *func_8011f1e0(void);
-
 void func_8014780c(Object *object) {
     int zero = 0;
     game_state.field_358 = (Object *)func_8011f1e0();

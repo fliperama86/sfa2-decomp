@@ -10,11 +10,9 @@ extern Object *data_80051ac4_slot28[];
 extern SequenceStep *data_8003f084_slot28[];
 extern SequenceStep *data_8003f090_slot28[];
 extern SequenceStep *data_8003f09c_slot28[];
-Block172 *func_8011f1e0(void);
 void func_8001ef04_slot28(void);
 void func_8001eea4_slot28(Object *obj);
 void func_8001ee74_slot28(Object *obj, int arg);
-void func_80128370(void);
 
 void func_8001ea3c_slot28(Object *obj) {
     Object *b;

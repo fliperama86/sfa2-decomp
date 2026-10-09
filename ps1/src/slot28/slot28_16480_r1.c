@@ -16,11 +16,8 @@ extern SequenceStep *data_800502c8_slot28[];
 extern SequenceStep *data_800502d4_slot28[];
 extern SequenceStep *data_80050304_slot28[];
 extern SequenceStep *data_800502e8_slot28[];
-Block172 *func_8011f1e0(void);
 void func_800272c8_slot28(void);
 void func_8002728c_slot28(Object *o);
-void func_801280f0(void);
-void func_8012818c(void);
 
 void func_80026480_slot28(Object *obj) {
     HudState *h = data_8018f5a0;

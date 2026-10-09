@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-unsigned *func_80158374(unsigned *env);
-
 void func_801194f4(void) {
     int idx;
     int i;

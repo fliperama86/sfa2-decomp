@@ -5,8 +5,6 @@
 
 
 
-int func_8013d0fc(Object *object);
-
 void func_80132070(Object *object) {
     if ((*(u32 *)&object->field_04 & 0xffffff) == 0x70001 &&
         object->field_15a == 1 && object->field_7e == 0 &&

@@ -6,7 +6,6 @@
 extern u16 *data_801b8e10_slot04_sel[];
 extern u8 data_801b9d70_slot04_sel;
 extern u8 data_801b9d74_slot04_sel;
-void func_801205c4(int, unsigned);
 
 void func_801b64c0_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int unused) {
     u8 t;

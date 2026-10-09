@@ -12,10 +12,8 @@ extern u8 data_800426b8_slot28[];
 extern Object *data_80051b18_slot28[];
 extern ObjectRef data_80051b40_slot28;
 extern Object *data_80051b44_slot28[];
-Block172 *func_8011f1e0(void);
 void func_800210f0_slot28(void);
 void func_80021060_slot28(Object *obj, int arg);
-void func_80128370(void);
 
 void func_80020c38_slot28(Object *obj) {
     Object *p;

@@ -5,8 +5,6 @@
 
 extern ObjectFn data_801c0564_slot04_00[];
 
-void func_80137b64(Object *object);
-
 void func_801b31a4_slot04_00(Object *obj) {
     if (obj->field_ac != 4 || obj->field_af == 0) {
         func_80137b64(obj);

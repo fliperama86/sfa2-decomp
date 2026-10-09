@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-unsigned short func_80130470(Object *object);
-
 void func_80142adc(Object *object) {
     if (object->field_49 != 0 && object->field_17b == 0 && func_80130470(object)) {
         func_8013047c(object);

@@ -3,8 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801409d8(Object *object, s16 a, s16 b);
-
 /* The seventh parameter is unused here. It is declared because a caller in a character module passes seven arguments; that is compatible with a parameter and does not prove one. */
 void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
     ref_other.p = object->other;

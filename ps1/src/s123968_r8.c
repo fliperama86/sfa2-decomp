@@ -4,8 +4,6 @@
 #include "protos.h"
 
 
-int func_80125268(void);
-
 int func_80125394(void) {
     u8 result = 0;
     if (game_state.mode != 3) {

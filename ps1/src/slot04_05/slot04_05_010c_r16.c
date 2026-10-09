@@ -3,8 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011f38c(Object *o);
-
 void func_801b3cf8_slot04_05(Object *o, Object *p) {
     if ((s32)o == p->field_28) {
         p->field_28 = 0;

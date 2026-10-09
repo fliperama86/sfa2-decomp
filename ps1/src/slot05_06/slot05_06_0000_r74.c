@@ -4,10 +4,7 @@
 #include "../externs.h"
 
 int func_801ce6f8_slot05_06(Object *obj);
-void func_80131094(Object *obj);
-void func_8011ffdc(Object *obj);
 void func_801ce770_slot05_06(Object *obj);
-void func_8011f240(Slab172 *s);
 
 void func_801ce638_slot05_06(Object *obj) {
     if ((func_801ce6f8_slot05_06(obj) << 16) > 0) {
