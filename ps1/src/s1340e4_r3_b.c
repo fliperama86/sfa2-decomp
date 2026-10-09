@@ -30,7 +30,7 @@ void func_8013635c(Sprite *sprite) {
 
 void func_801363ac(Sprite *sprite) {
     if (sprite->field_00 != 0 && game_state.field_4b == 0) {
-        func_801364a0();
+        func_801364a0(sprite);
         func_80136744(sprite);
     }
 }
