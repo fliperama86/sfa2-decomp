@@ -1440,6 +1440,515 @@ def case_l_linked_addresses():
         return None if D.linked_addresses(path) == {} else f"without a table: {D.linked_addresses(path)}"
 
 
+# ---------------------------------------------------------------------------
+# Groups N, O, P: pointees and watched blocks of CallLog
+
+BUF = 0x80060000  # blocks that the made-up callers fill for a call
+BUF2 = 0x80060100
+WATCHED = 0x80030100
+WATCHED2 = 0x80030200
+RESULTS = 0x80030400
+
+
+def setreg(reg, value):
+    return [lui(reg, value >> 16), ori(reg, reg, value & 0xFFFF)]
+
+
+def stw(address, value):
+    return [*setreg(T0, address), *setreg(T1, value), sw(T1, T0, 0)]
+
+
+def program(*ops):
+    """A caller. ("st", address, value) stores a word; ("call", callee, [a0..a3 values], [stack argument values])."""
+    words = [addiu(SP, SP, -32), sw(RA, SP, 28)]
+    for op in ops:
+        if op[0] == "st":
+            words += stw(op[1], op[2])
+        else:
+            _, callee, registers, stack = op
+            for i, value in enumerate(stack):
+                words += [*setreg(T1, value), sw(T1, SP, 16 + 4 * i)]
+            for i, value in enumerate(registers):
+                words += setreg(4 + i, value)
+            words += [jal(callee), NOP]
+    return [*words, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def fill_block(address, *values):
+    return [("st", address + 4 * i, v) for i, v in enumerate(values)]
+
+
+def logged(words, replaces, watch=()):
+    """Entries of the log after one run of the caller `words`."""
+    holder: list = []
+
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state, watch=watch)
+        for replace in replaces:
+            replace(log) if callable(replace) else log.replace(*replace)
+        holder.append(log)
+        return contracts.Setup(args=(), returns_value=False)
+
+    state = D.State(ram_with_callees(words), bytes(D.SCRATCH_SIZE))
+    setup_ = setup(state, None, None)
+    result = D.run_once(D.machine(make_code([NOP])), state, ORIGINAL, setup_)
+    if isinstance(result, str):
+        raise RuntimeError(result)
+    log = holder[0]
+    read = lambda address: struct.unpack_from("<I", result["ram"], address - D.RAM_BASE)[0]
+    return [read(a) for a in range(log.entries, read(log.cursor), 4)], result, read
+
+
+def pair_logged(original, build, replaces, watch=(), cases=3):
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state, watch=watch)
+        for replace in replaces:
+            replace(log) if callable(replace) else log.replace(*replace)
+        return contracts.Setup(args=(), returns_value=False)
+
+    cfg = types.SimpleNamespace(symbol_values={})
+    with contract_of(LABEL, setup), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(original))):
+        return D.test_function(cfg, LABEL, make_code(build), cases, 1, ram_with_callees(original), bytes(D.SCRATCH_SIZE))[:3]
+
+
+def hexes(values):
+    return [hex(v) for v in values]
+
+
+def case_n_register_pointee():
+    words = program(*fill_block(BUF, 0xA0, 0xA1, 0xA2), ("st", BUF + 12, 0xEEEE), ("call", CALLEE, [BUF], []),
+                    *fill_block(BUF, 0xB0, 0xB1, 0xB2), ("call", CALLEE, [BUF], []))
+    entries = logged(words, [(CALLEE, 1, 0, {0: 3})])[0]
+    want = [CALLEE, BUF, 0xA0, 0xA1, 0xA2, CALLEE, BUF, 0xB0, 0xB1, 0xB2]
+    return None if entries == want else f"log {hexes(entries)}"
+
+
+def case_n_stack_pointee():
+    words = program(*fill_block(BUF, 0xA0, 0xA1, 0xFFFF), ("call", CALLEE, [1, 2, 3, 4], [BUF]),
+                    *fill_block(BUF, 0xB0, 0xB1, 0xFFFF), ("call", CALLEE, [1, 2, 3, 4], [BUF]))
+    entries = logged(words, [(CALLEE, 5, 0, {4: 2})])[0]
+    want = [CALLEE, 1, 2, 3, 4, BUF, 0xA0, 0xA1, CALLEE, 1, 2, 3, 4, BUF, 0xB0, 0xB1]
+    return None if entries == want else f"log {hexes(entries)}"
+
+
+def case_n_pointees_in_index_order():
+    words = program(*fill_block(BUF, 0x10, 0x11), *fill_block(BUF2, 0x20, 0x21), *fill_block(BUF2 + 0x80, 0x30),
+                    ("call", CALLEE, [BUF2, BUF], []), ("call", CALLEE_B, [BUF, 0, 0, 0], [BUF2 + 0x80]))
+    entries = logged(words, [(CALLEE, 2, 0, {1: 2, 0: 2}), (CALLEE_B, 5, 0, {4: 1, 0: 1})])[0]
+    want = [CALLEE, BUF2, BUF, 0x20, 0x21, 0x10, 0x11, CALLEE_B, BUF, 0, 0, 0, BUF2 + 0x80, 0x10, 0x30]
+    return None if entries == want else f"log {hexes(entries)}"
+
+
+def case_n_pointee_seen_through_test_function():
+    original = program(*fill_block(BUF, 1), ("call", CALLEE, [BUF], []), *fill_block(BUF, 2), ("call", CALLEE, [BUF], []))
+    build = program(*fill_block(BUF, 9), ("call", CALLEE, [BUF], []), *fill_block(BUF, 2), ("call", CALLEE, [BUF], []))
+    with_pointee = pair_logged(original, build, [(CALLEE, 1, 0, {0: 1})])
+    without = pair_logged(original, build, [(CALLEE, 1, 0)])
+    if with_pointee != (0, 0, 3):
+        return f"with the pointee: {with_pointee}"
+    return None if without == (0, 3, 0) else f"without the pointee (the gap that the feature closes): {without}"
+
+
+def case_n_refused_pointees():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    for arguments, pointees in ((1, {1: 1}), (1, {-1: 1}), (0, {0: 1}), (2, {2: 4}), (1, {0: 0}), (1, {0: -3})):
+        try:
+            log.replace(CALLEE, arguments, 0, pointees)
+        except ValueError:
+            continue
+        return f"{arguments} arguments with pointees {pointees} was accepted"
+    log.replace(CALLEE, 2, 0, {1: 1})  # the last argument with one word is fine
+    return None
+
+
+def case_o_watched_blocks_at_every_call():
+    words = program(*fill_block(BUF, 0xC0), *fill_block(WATCHED, 7, 8), *fill_block(WATCHED2, 9),
+                    ("call", CALLEE, [BUF], []), *fill_block(WATCHED, 70), ("call", CALLEE, [BUF], []))
+    entries = logged(words, [(CALLEE, 1, 0, {0: 1})], watch=((WATCHED, 2), (WATCHED2, 1)))[0]
+    want = [CALLEE, BUF, 0xC0, 7, 8, 9, CALLEE, BUF, 0xC0, 70, 8, 9]
+    if entries != want:
+        return f"log {hexes(entries)}"
+    swapped = logged(words, [(CALLEE, 1, 0, {0: 1})], watch=((WATCHED2, 1), (WATCHED, 2)))[0]
+    return None if swapped[:6] == [CALLEE, BUF, 0xC0, 9, 7, 8] else f"watched blocks in the other order: {hexes(swapped)}"
+
+
+def case_o_order_of_store_and_call():
+    original = program(*fill_block(WATCHED, 5), ("call", CALLEE, [], []))
+    build = program(("call", CALLEE, [], []), *fill_block(WATCHED, 5))
+    watched = pair_logged(original, build, [(CALLEE, 0, 0)], watch=((WATCHED, 1),))
+    plain = pair_logged(original, build, [(CALLEE, 0, 0)])
+    if watched != (0, 0, 3):
+        return f"with the block watched: {watched}"
+    return None if plain == (0, 3, 0) else f"without the watch (the gap that the feature closes): {plain}"
+
+
+def case_o_refused_watches():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    for watch in (((WATCHED + 2, 1),), ((WATCHED, 0),), ((WATCHED, -1),), ((WATCHED, 1), (WATCHED2 + 1, 2)), ((WATCHED + 1, 0),)):
+        try:
+            contracts.CallLog(state, watch=watch)
+        except ValueError:
+            continue
+        return f"the watch {watch} was accepted"
+    contracts.CallLog(state, watch=((WATCHED, 1), (WATCHED2, 3)))
+    return None
+
+
+def case_o_cursor_moves_by_the_whole_entry():
+    words = program(*fill_block(BUF, 1, 2, 3), *fill_block(WATCHED, 4, 5),
+                    ("call", CALLEE, [BUF, 7], []), ("call", CALLEE_B, [9], []), ("call", CALLEE, [BUF, 8], []))
+    entries, _, _ = logged(words, [(CALLEE, 2, 0, {0: 3}), (CALLEE_B, 1, 0)], watch=((WATCHED, 2),))
+    # A: address, two arguments, three pointee words, two watched words = 8; B: address, one argument, two watched = 4.
+    want = [CALLEE, BUF, 7, 1, 2, 3, 4, 5, CALLEE_B, 9, 4, 5, CALLEE, BUF, 8, 1, 2, 3, 4, 5]
+    return None if entries == want else f"log {hexes(entries)}"
+
+
+def case_o_no_watch_no_extra_words():
+    words = program(*fill_block(WATCHED, 4, 5), ("call", CALLEE, [3], []))
+    entries = logged(words, [(CALLEE, 1, 0)])[0]
+    return None if entries == [CALLEE, 3] else f"log {hexes(entries)}"
+
+
+def case_p_recorders_footprint_not_a_convention():
+    # t0 and t2 to t5 and v0 are changed by a recorder; the others named here are not. This is the
+    # recorder's footprint, not a promise of the calling convention.
+    return footprint(R(CALLEE, 5, 0x77, pointees={0: 2, 4: 1}), watch=((WATCHED, 1),), v0=0x77)
+
+
+def fill_block_code(address, *values):
+    return [w for i, v in enumerate(values) for w in stw(address + 4 * i, v)]
+
+
+# ---------------------------------------------------------------------------
+# Groups Q to U: masks, results in turn, runs that a recorder ends, stores and counts
+
+
+def R(address, arguments, result=0, **options):
+    """A recorder to put in place of a callee: a callable for `logged` and `pair_logged`."""
+    return lambda log: log.replace(address, arguments, result, **options)
+
+
+def program_v0(*ops):
+    """Like `program`, with ("sv0", address): store the callee's result at address."""
+    out = [addiu(SP, SP, -32), sw(RA, SP, 28)]
+    for op in ops:
+        if op[0] == "sv0":
+            out += [*setreg(T0, op[1]), sw(V0, T0, 0)]
+        elif op[0] == "st":
+            out += stw(op[1], op[2])
+        else:
+            _, callee, registers, stack = op
+            for i, value in enumerate(stack):
+                out += [*setreg(T1, value), sw(T1, SP, 16 + 4 * i)]
+            for i, value in enumerate(registers):
+                out += setreg(4 + i, value)
+            out += [jal(callee), NOP]
+    return [*out, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def endless(extra=(), store_value=None, callee=CALLEE):
+    """A function that calls `callee` for ever; after each call it adds 1 to the word at FLAG.
+    `extra` words run once before the loop; `store_value` (a word) is stored at FLAG2 first thing in the loop."""
+    head = [addiu(SP, SP, -8), sw(RA, SP, 4), *extra]
+    loop = len(head) * 4
+    body = [jal(callee), NOP, *setreg(T0, FLAG), lw(T1, T0, 0), NOP, addiu(T1, T1, 1), sw(T1, T0, 0)]
+    at = loop + 4 * len(body)
+    return [*head, *body, beq(ZERO, ZERO, at, loop), NOP]
+
+
+def calls(count, callee=CALLEE, registers=(), stack=()):
+    return [("call", callee, list(registers), list(stack))] * count
+
+
+def results_of(replaces, sequence):
+    """v0 after each call of `sequence` (a list of callees), stored one word each."""
+    ops = []
+    for i, callee in enumerate(sequence):
+        ops += [("call", callee, [], []), ("sv0", RESULTS + 4 * i)]
+    entries, result, read = logged(program_v0(*ops), replaces)
+    return [read(RESULTS + 4 * i) for i in range(len(sequence))]
+
+
+# Q: masks
+
+
+def case_q_argument_logged_under_its_mask():
+    words = program(("call", CALLEE, [0x12345678, 0xFFFF, 0xDEADBEEF], [0x0F0F0F0F, 0xA1B2C3D4]))
+    entries = logged(words, [R(CALLEE, 6, masks={0: 0xFF, 1: 0x0F0F, 4: 0xFFFF})])[0]
+    # a3 holds a leftover (0); the sixth argument is not masked.
+    want = [CALLEE, 0x78, 0x0F0F, 0xDEADBEEF, 0, 0x0F0F, 0xA1B2C3D4]
+    return None if entries == want else f"log {hexes(entries)}"
+
+
+def case_q_masked_out_bits_are_no_difference():
+    def build(a0, a4):
+        return program(("call", CALLEE, [a0], [a4, 0]))
+
+    replaces = [R(CALLEE, 6, masks={0: 0xFFFF, 4: 0x00FF})]
+    original = build(0x1234ABCD, 0x777700EE)
+    same = pair_logged(original, build(0x5678ABCD, 0x999900EE), replaces)
+    kept_bit = pair_logged(original, build(0x1234ABCC, 0x777700EE), replaces)
+    kept_stack = pair_logged(original, build(0x1234ABCD, 0x777700EF), replaces)
+    unmasked = pair_logged(original, build(0x5678ABCD, 0x777700EE), [R(CALLEE, 6)])
+    if same != (0, 3, 0):
+        return f"only masked-out bits differ: {same}"
+    if kept_bit != (0, 0, 3) or kept_stack != (0, 0, 3):
+        return f"a kept bit differs: {kept_bit}, {kept_stack}"
+    return None if unmasked == (0, 0, 3) else f"without the mask: {unmasked}"
+
+
+def case_q_bad_masks_refused():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    for arguments, masks in ((2, {0: 0}), (2, {0: 0x10000}), (2, {0: 0x1FFFF}), (2, {0: -1}), (2, {2: 0xFF}), (2, {-1: 0xFF}), (0, {0: 1})):
+        try:
+            log.replace(CALLEE, arguments, 0, masks=masks)
+        except ValueError:
+            continue
+        return f"{arguments} arguments with masks {masks} was accepted"
+    log.replace(CALLEE, 2, 0, masks={0: 1, 1: 0xFFFF})
+    return None
+
+
+# R: results in turn
+
+
+def case_r_three_results_then_the_last():
+    got = results_of([R(CALLEE, 0, results=(11, 22, 33))], [CALLEE] * 5)
+    return None if got == [11, 22, 33, 33, 33] else f"results {hexes(got)}"
+
+
+def case_r_results_replace_result():
+    got = results_of([R(CALLEE, 0, 99, results=(1, 2))], [CALLEE] * 3)
+    return None if got == [1, 2, 2] else f"results {hexes(got)}"
+
+
+def case_r_one_result_is_a_constant():
+    got = results_of([R(CALLEE, 0, 5, results=(0xFFFFFFFF,))], [CALLEE] * 3)
+    return None if got == [0xFFFFFFFF] * 3 else f"results {hexes(got)}"
+
+
+def case_r_recorders_do_not_share_their_position():
+    got = results_of([R(CALLEE, 0, results=(1, 2, 3)), R(CALLEE_B, 0, results=(10, 20))], [CALLEE, CALLEE_B] * 3)
+    return None if got == [1, 10, 2, 20, 3, 20] else f"results {hexes(got)}"
+
+
+def case_r_full_32_bit_results():
+    got = results_of([R(CALLEE, 0, results=(0x12345678, 0, 0x80000001))], [CALLEE] * 3)
+    return None if got == [0x12345678, 0, 0x80000001] else f"results {hexes(got)}"
+
+
+def footprint(replace, watch=(), v0=None, at_changes=None):
+    """A caller keeps values in the registers named here across a call to a recorder made with `replace`;
+    this is the recorder's footprint, not a promise of the calling convention. Returns None or a text."""
+    kept = {"t6": 14, "t7": 15, "t8": 24, "t9": 25, "v1": 3}
+    head = [addiu(SP, SP, -32), sw(RA, SP, 28), *fill_block_code(BUF, 1, 2), *fill_block_code(BUF2, 3),
+            *setreg(T1, BUF2), sw(T1, SP, 16), *setreg(1, 0x7777)]
+    for number, value in zip(kept.values(), (0x1111, 0x2222, 0x3333, 0x4444, 0x5555)):
+        head += setreg(number, value)
+    for i, value in enumerate((BUF, 0x11, 0x12, 0x13)):
+        head += setreg(4 + i, value)
+    call_at = len(head)
+    after = [*setreg(T0, RESULTS)]
+    for slot, number in enumerate((*kept.values(), 4, 5, 6, 7, RA, SP, 1)):
+        after.append(sw(number, T0, 4 * slot))
+    words = [*head, jal(CALLEE), NOP, *after, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+    entries, result, read = logged(words, [replace], watch=watch)
+    got = [read(RESULTS + 4 * i) for i in range(12)]
+    want = [0x1111, 0x2222, 0x3333, 0x4444, 0x5555, BUF, 0x11, 0x12, 0x13, ORIGINAL + 4 * (call_at + 2), D.STACK_TOP - 32]
+    if got[:11] != want:
+        return f"after the call: {hexes(got[:11])}, wanted {hexes(want)}"
+    if at_changes is not None and (got[11] != 0x7777) != at_changes:
+        return f"at after the call: {got[11]:#x}"
+    saved = [0x5A5A0000 + i for i in range(len(D.SAVED))]
+    if result["saved"] != saved or result["sp"] != D.STACK_TOP:
+        return f"saved {result['saved']}, sp {result['sp']:#x}"
+    return None if v0 is None or result["v0"] == v0 else f"v0 {result['v0']:#x}"
+
+
+def case_r_footprint_with_results_adds_only_at():
+    return footprint(R(CALLEE, 5, results=(0x66, 0x67), pointees={0: 2, 4: 1}), watch=((WATCHED, 1),), v0=0x66, at_changes=True)
+
+
+# S: a run that a recorder ends
+
+
+def case_s_run_ended_at_the_nth_call():
+    for n in (1, 2, 5):
+        entries, result, read = logged(endless(), [R(CALLEE, 0, ends_run_at=n)])
+        if len(entries) != n or read(FLAG) != n - 1:
+            return f"N={n}: {len(entries)} calls logged, {read(FLAG)} stores made after a call"
+    return None
+
+
+def pair_endless(original, build, n=2, returns=True, extra_replace=(), cases=3):
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 0, 0, ends_run_at=n)
+        return contracts.Setup(args=(), returns_value=False, returns=returns)
+
+    cfg = types.SimpleNamespace(symbol_values={})
+    with contract_of(LABEL, setup), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(original))):
+        return D.test_function(cfg, LABEL, make_code(build), cases, 1, ram_with_callees(original), bytes(D.SCRATCH_SIZE))
+
+
+def case_s_ended_run_is_completed_not_discarded():
+    f = endless()
+    got = pair_endless(f, f)
+    return None if got[:3] == (0, 3, 0) else f"result {got[:3]}"
+
+
+def case_s_registers_not_compared_when_not_returning():
+    original = endless()
+    other_registers = endless(extra=[addiu(16, ZERO, 7), addiu(V0, ZERO, 3), addiu(30, ZERO, 1)])
+    loose = pair_endless(original, other_registers, returns=False)
+    strict = pair_endless(original, other_registers, returns=True)
+    if loose[:3] != (0, 3, 0):
+        return f"different registers with returns=False: {loose[:3]}"
+    if strict[:3] != (0, 0, 3):
+        return f"different registers with the default returns: {strict[:3]}"
+    return None
+
+
+def case_s_log_and_memory_still_compared_when_not_returning():
+    original = endless()
+    other_memory = endless(extra=stw(FLAG + 0x40, 5))
+    fewer_calls = [addiu(SP, SP, -8), sw(RA, SP, 4), jal(CALLEE), NOP, *setreg(T0, FLAG), sw(ZERO, T0, 0), j(D.STOP_ADDRESS), NOP]
+    results = (pair_endless(original, other_memory, returns=False)[:3], pair_endless(original, fewer_calls, returns=False)[:3])
+    return None if results == ((0, 0, 3), (0, 0, 3)) else f"results {results}"
+
+
+def case_s_recorder_without_ends_run_at_returns_every_time():
+    words = program(*calls(3), ("st", FLAG, 5))
+    for option in ({}, {"ends_run_at": 0}, {"ends_run_at": 9}):
+        entries, result, read = logged(words, [R(CALLEE, 0, **option)])
+        if len(entries) != 3 or read(FLAG) != 5:
+            return f"{option}: {len(entries)} calls, FLAG {read(FLAG)}"
+    return None
+
+
+def case_s_negative_ends_run_at_refused():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    try:
+        log.replace(CALLEE, 0, 0, ends_run_at=-1)
+    except ValueError:
+        log.replace(CALLEE, 0, 0, ends_run_at=0)
+        return None
+    return "ends_run_at of -1 was accepted"
+
+
+def case_s_coverage_of_an_ended_run():
+    f = endless()
+    got = pair_endless(f, f, n=2)[4]
+    want = set(range(0, 4 * len(f), 4))
+    one = pair_endless(f, f, n=1)[4]
+    if got != want:
+        return f"N=2 executed {sorted(got)}, wanted {sorted(want)}"
+    return None if one == {0, 4, 8, 12} else f"N=1 executed {sorted(one)}"
+
+
+def case_s_state_stop_is_where_the_run_ends():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    return None if state.stop == D.STOP_ADDRESS else f"stop {state.stop:#x}"
+
+
+# T: differences without registers
+
+
+def case_t_registers_skipped_when_not_returning():
+    a, b = state(), state(v0=5, saved=[1] * len(D.SAVED_NAMES), sp=0)
+    if D.differences(a, b, True, False) != []:
+        return f"reported {D.differences(a, b, True, False)}"
+    return None if len(D.differences(a, b, True, True)) == 1 + len(D.SAVED_NAMES) + 1 else f"with returns: {D.differences(a, b, True, True)}"
+
+
+def case_t_memory_compared_when_not_returning():
+    ram = D.differences(state(), with_byte("ram", 0x1234), False, False)
+    scratch = D.differences(state(), with_byte("scratch", 0x10), False, False)
+    low = D.STACK_LOW - D.RAM_BASE
+    stack = D.differences(state(), with_byte("ram", low), False, False)
+    first = D.differences(state(), with_byte("ram", low - 1), False, False)
+    ok = len(ram) == 1 and ram[0].startswith("ram 0x80001234:") and len(scratch) == 1 and scratch[0].startswith("scratchpad 0x1f800010:") \
+        and stack == [] and len(first) == 1
+    return None if ok else f"ram {ram}, scratch {scratch}, stack {stack}, below {first}"
+
+
+def case_t_returns_defaults_to_true():
+    return None if D.differences(state(), state(sp=4), False) and D.differences(state(), state(v0=1), True) else "the default skips registers"
+
+
+# U: stores and counts
+
+
+def case_u_store_at_the_nth_call():
+    words = program(*calls(3))
+    entries = logged(words, [R(CALLEE, 0, stores=((2, WATCHED, 0xAA),))], watch=((WATCHED, 1),))
+    got, _, read = entries
+    if got != [CALLEE, 0, CALLEE, 0, CALLEE, 0xAA]:
+        return f"log {hexes(got)}"
+    return None if read(WATCHED) == 0xAA else f"final {read(WATCHED):#x}"
+
+
+def case_u_no_store_when_fewer_calls():
+    entries, _, read = logged(program(*calls(1)), [R(CALLEE, 0, stores=((2, WATCHED, 0xAA),))], watch=((WATCHED, 1),))
+    return None if read(WATCHED) == 0 and entries == [CALLEE, 0] else f"final {read(WATCHED):#x}, log {hexes(entries)}"
+
+
+def case_u_two_stores_at_different_calls():
+    entries, _, read = logged(program(*calls(4)), [R(CALLEE, 0, stores=((1, WATCHED, 1), (3, WATCHED2, 3)))],
+                              watch=((WATCHED, 1), (WATCHED2, 1)))
+    want = [CALLEE, 0, 0, CALLEE, 1, 0, CALLEE, 1, 0, CALLEE, 1, 3]
+    return None if entries == want and (read(WATCHED), read(WATCHED2)) == (1, 3) else f"log {hexes(entries)}"
+
+
+def case_u_store_and_end_at_the_same_call():
+    entries, _, read = logged(endless(), [R(CALLEE, 0, ends_run_at=2, stores=((2, WATCHED, 0xBB),))], watch=((WATCHED, 1),))
+    want = [CALLEE, 0, CALLEE, 0]
+    return None if entries == want and read(WATCHED) == 0xBB and read(FLAG) == 1 else f"log {hexes(entries)}, stored {read(WATCHED):#x}, FLAG {read(FLAG)}"
+
+
+def case_u_bad_stores_and_counts_refused():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    for option in ({"stores": ((0, WATCHED, 1),)}, {"stores": ((-1, WATCHED, 1),)}, {"stores": ((1, WATCHED + 2, 1),)},
+                   {"stores": ((1, WATCHED, 1), (2, WATCHED + 1, 1))}, {"counts": (WATCHED + 1,)}, {"counts": (WATCHED, WATCHED2 + 2)}):
+        try:
+            log.replace(CALLEE, 0, 0, **option)
+        except ValueError:
+            continue
+        return f"{option} was accepted"
+    log.replace(CALLEE, 0, 0, stores=((1, WATCHED, 1),), counts=(WATCHED2,))
+    return None
+
+
+def case_u_counts_go_up_after_the_entry():
+    entries, _, read = logged(program(*calls(3)), [R(CALLEE, 0, counts=(WATCHED,))], watch=((WATCHED, 1),))
+    return None if entries == [CALLEE, 0, CALLEE, 1, CALLEE, 2] and read(WATCHED) == 3 else f"log {hexes(entries)}, final {read(WATCHED)}"
+
+
+def case_u_two_counted_words():
+    entries, _, read = logged(program(*calls(2)), [R(CALLEE, 0, counts=(WATCHED, WATCHED2))], watch=((WATCHED, 1), (WATCHED2, 1)))
+    ok = entries == [CALLEE, 0, 0, CALLEE, 1, 1] and (read(WATCHED), read(WATCHED2)) == (2, 2)
+    return None if ok else f"log {hexes(entries)}"
+
+
+def case_u_wait_loop_ends_by_itself():
+    # call, then loop while the counted word is not 3; then store 1 at FLAG and return.
+    loop = [jal(CALLEE), NOP, *setreg(T0, WATCHED), lw(T1, T0, 0), NOP, addiu(10, ZERO, 3)]
+    at = 4 * (2 + len(loop))
+    words = [addiu(SP, SP, -8), sw(RA, SP, 4), *loop, 0x14000000 | T1 << 21 | 10 << 16 | ((8 - at - 4) // 4 & 0xFFFF), NOP,
+             *stw(FLAG, 1), lw(RA, SP, 4), addiu(SP, SP, 8), JR_RA, NOP]
+    entries, _, read = logged(words, [R(CALLEE, 0, counts=(WATCHED,))])
+    return None if len(entries) == 3 and read(FLAG) == 1 and read(WATCHED) == 3 else f"{len(entries)} calls, FLAG {read(FLAG)}, counted {read(WATCHED)}"
+
+
+def case_u_footprint_with_every_option():
+    return footprint(R(CALLEE, 5, 0x66, pointees={0: 2, 4: 1}, masks={1: 0xFF}, stores=((1, WATCHED2, 5),), counts=(WATCHED,), ends_run_at=9),
+                     watch=((WATCHED, 1),), v0=0x66)
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -1561,6 +2070,46 @@ CASES = [
     ("l-misplaced-nothing-to-report", case_l_misplaced_nothing_to_report),
     ("l-misplaced-only-the-unit-names", case_l_misplaced_only_the_unit_names),
     ("l-linked-addresses", case_l_linked_addresses),
+    ("n-register-pointee-follows-the-arguments", case_n_register_pointee),
+    ("n-stack-pointee-fifth-argument", case_n_stack_pointee),
+    ("n-pointees-in-index-order", case_n_pointees_in_index_order),
+    ("n-pointee-difference-and-the-gap-without-it", case_n_pointee_seen_through_test_function),
+    ("n-bad-pointee-index-or-count-refused", case_n_refused_pointees),
+    ("o-watched-blocks-copied-at-every-call", case_o_watched_blocks_at_every_call),
+    ("o-store-before-or-after-call-with-and-without-watch", case_o_order_of_store_and_call),
+    ("o-bad-watch-address-or-count-refused", case_o_refused_watches),
+    ("o-cursor-moves-by-the-whole-entry", case_o_cursor_moves_by_the_whole_entry),
+    ("o-no-watch-no-extra-words", case_o_no_watch_no_extra_words),
+    ("p-recorders-footprint-not-a-convention", case_p_recorders_footprint_not_a_convention),
+    ("q-argument-logged-under-its-mask", case_q_argument_logged_under_its_mask),
+    ("q-masked-out-bits-no-difference-kept-bits-difference", case_q_masked_out_bits_are_no_difference),
+    ("q-bad-masks-refused", case_q_bad_masks_refused),
+    ("r-three-results-then-the-last-again", case_r_three_results_then_the_last),
+    ("r-results-replace-the-result-argument", case_r_results_replace_result),
+    ("r-one-result-is-a-constant", case_r_one_result_is_a_constant),
+    ("r-recorders-do-not-share-their-position", case_r_recorders_do_not_share_their_position),
+    ("r-results-in-full-32-bits", case_r_full_32_bit_results),
+    ("r-recorders-footprint-with-results-adds-only-at", case_r_footprint_with_results_adds_only_at),
+    ("s-run-ended-at-the-nth-call", case_s_run_ended_at_the_nth_call),
+    ("s-ended-run-is-completed-not-discarded", case_s_ended_run_is_completed_not_discarded),
+    ("s-registers-not-compared-when-not-returning", case_s_registers_not_compared_when_not_returning),
+    ("s-log-and-memory-still-compared-when-not-returning", case_s_log_and_memory_still_compared_when_not_returning),
+    ("s-recorder-without-ends-run-at-returns-every-time", case_s_recorder_without_ends_run_at_returns_every_time),
+    ("s-negative-ends-run-at-refused", case_s_negative_ends_run_at_refused),
+    ("s-coverage-of-an-ended-run", case_s_coverage_of_an_ended_run),
+    ("s-state-stop-is-the-default-stop-address", case_s_state_stop_is_where_the_run_ends),
+    ("t-registers-skipped-when-not-returning", case_t_registers_skipped_when_not_returning),
+    ("t-memory-compared-when-not-returning", case_t_memory_compared_when_not_returning),
+    ("t-returns-defaults-to-true", case_t_returns_defaults_to_true),
+    ("u-store-at-the-nth-call", case_u_store_at_the_nth_call),
+    ("u-no-store-when-fewer-calls", case_u_no_store_when_fewer_calls),
+    ("u-two-stores-at-different-calls", case_u_two_stores_at_different_calls),
+    ("u-store-and-end-at-the-same-call", case_u_store_and_end_at_the_same_call),
+    ("u-bad-stores-and-counts-refused", case_u_bad_stores_and_counts_refused),
+    ("u-counts-go-up-after-the-entry", case_u_counts_go_up_after_the_entry),
+    ("u-two-counted-words", case_u_two_counted_words),
+    ("u-wait-loop-ends-by-itself", case_u_wait_loop_ends_by_itself),
+    ("u-footprint-with-every-option", case_u_footprint_with_every_option),
 ]
 
 

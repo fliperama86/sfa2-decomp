@@ -6803,6 +6803,69 @@ same findings on this group's tree as on the tree before it, line for
 line; only its count of declarations read in module units falls, by
 the 1,665 lines taken out.
 
+## Nonmatching C for the stage and character functions that stayed short of exact (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: nonmatching C, each with a contract and a passing
+  differential test, for the functions of the stage modules
+  (`ps1/src/slot06_nonmatching/`) and of the character modules `PL0C` to
+  `PL17` (`ps1/src/slot04b_nonmatching/`) that the build keeps as
+  original bytes. The two folders' pages hold what the test printed for
+  each: 2,000 cases, the count of instruction slots of the original that
+  the cases executed, and the negative control. Where slots are not
+  executed, the function's header says which and why no input reaches
+  them.
+- How they were written: one worker per function or family, against a
+  written brief, in a scratch tree of its own; the top level ran every
+  function again on the final tool, with two seeds, before publishing.
+  The goal given to the workers was not bytes but readable C that does
+  what the listing does: several functions came out shorter than the
+  original because a block that the original repeats is a helper, or
+  because a store that is overwritten before anything can read it is
+  left out. Each such choice is in the function's header.
+- The test caught real mistakes in candidates that had been a few
+  instruction slots from exact for days: a divisor read as 176 where the
+  listing has 88, a field written as `field_0c` for `field_0a`, a store
+  made in a branch delay slot that the C had put behind the branch, a
+  candidate that set an argument to 0 on a tie where the listing keeps
+  the old value. "A few slots from exact" had said nothing about
+  meaning.
+- Three additions to the tool came from workers who stopped and reported
+  instead of working around a limit, each with a change of their own
+  that the test had let pass:
+  - memory behind a pointer argument that the function fills for a call
+    was not recorded, only the pointer (`pointees`);
+  - a recorder returns at once, so C that stores a field after a call
+    which the original stores before it ended in the same state and
+    passed; every recorder now copies the blocks the log watches
+    (`watch`). Shown at the top level with two made-up callers that
+    differ only in that order: same log and same final state without the
+    watch, a difference with it. Every function that has a recorder was
+    run again with its objects watched and with one store moved across a
+    call; no function's C had to change, and one setup had: it left the
+    globals that the function writes at zero, so a moved store of zero
+    showed nothing;
+  - a function that waits for an interrupt or never returns could not be
+    tested at all (`results`, `stores`, `counts`, `ends_run_at`, and a
+    setup that says the run does not return).
+- One original function draws at a position it never set, in a case
+  that its own code does not handle (whatever two registers held on
+  entry, one of them a register of its caller); several of its
+  relatives in other stages do the same. No C states that. The C leaves
+  the two variables unset there, as the original's source most likely
+  did (inferred), the contract excludes the case, and the header says
+  so. It is in the object-drawing functions of six stage files (01, 03, 04, 0d, 0f and 10); one-off count, read from their headers.
+- Main moved under this work: a prototype that two units declared
+  locally entered the shared header with another result type (`void`
+  for `int`), and the two units stopped compiling. The local lines are
+  gone. A nonmatching unit is not in the build, so no check of the
+  matching work notices when it stops compiling: `difftest.py --all` on
+  each folder is the check, and it is run before each change here.
+- One-off figures from the private folder: the controls of the tool's
+  new parts were run against 73 more one-line changes of the tool by a
+  worker; all were noticed after one equivalent change was replaced.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

@@ -81,6 +81,7 @@ class State:
         self.ram = bytearray(ram)
         self.scratch = bytearray(scratch)
         self.arena = ARENA_BASE
+        self.stop = STOP_ADDRESS  # where a run ends; a recorder that ends the run jumps there
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
         if RAM_BASE <= address and address + size <= RAM_BASE + RAM_SIZE:
@@ -309,15 +310,18 @@ def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: s
     }
 
 
-def differences(a: dict, b: dict, returns_value: bool) -> list[str]:
-    """What differs between two final states, as text lines (empty when equal)."""
+def differences(a: dict, b: dict, returns_value: bool, returns: bool = True) -> list[str]:
+    """What differs between two final states, as text lines (empty when equal).
+
+    With `returns` false the runs were ended inside the function, and no register is compared.
+    """
     found = []
-    if returns_value and a["v0"] != b["v0"]:
+    if returns and returns_value and a["v0"] != b["v0"]:
         found.append(f"v0: original {a['v0']:#x}, build {b['v0']:#x}")
     for name, x, y in zip(SAVED_NAMES, a["saved"], b["saved"]):
-        if x != y:
+        if returns and x != y:
             found.append(f"{name}: original {x:#x}, build {y:#x}")
-    if a["sp"] != b["sp"]:
+    if returns and a["sp"] != b["sp"]:
         found.append(f"sp: original {a['sp']:#x}, build {b['sp']:#x}")
     low, high = STACK_LOW - RAM_BASE, STACK_TOP - RAM_BASE
     for label, base, x, y, skip in (("ram", RAM_BASE, a["ram"], b["ram"], (low, high)),
@@ -420,7 +424,7 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
         if isinstance(built, str):
             lines = [f"build: {built}"]
         else:
-            lines = differences(reference, built, setup.returns_value)
+            lines = differences(reference, built, setup.returns_value, getattr(setup, "returns", True))
         if lines:
             different += 1
             if not first:

@@ -5889,3 +5889,25 @@ data_801dd758_slot05_06 = 0x801dd758;
 data_80051c54_slot28 = 0x80051c54;
 
 data_801c25b4_slot04_0b = 0x801c25b4;
+
+/* Data that the nonmatching functions name. */
+data_801e9f48_slot06_00 = 0x801e9f48;
+data_801e9f60_slot06_00 = 0x801e9f60;
+data_801c6190_slot04_0e = 0x801c6190;
+data_801c6194_slot04_0e = 0x801c6194;
+data_801c6198_slot04_0e = 0x801c6198;
+data_801c5500_slot04_0f = 0x801c5500;
+data_801c5ae4_slot04_0f = 0x801c5ae4;
+data_801c711c_slot04_11 = 0x801c711c;
+data_801c74b0_slot04_11 = 0x801c74b0;
+data_801ce050_slot04_17 = 0x801ce050;
+data_801ce3e4_slot04_17 = 0x801ce3e4;
+data_801c7518_slot04_11 = 0x801c7518;
+data_801c7520_slot04_11 = 0x801c7520;
+data_801ce44c_slot04_17 = 0x801ce44c;
+data_801ce454_slot04_17 = 0x801ce454;
+data_801c7648_slot04_11 = 0x801c7648;
+data_801ce57c_slot04_17 = 0x801ce57c;
+data_801c7450_slot04_11 = 0x801c7450;
+data_801ce384_slot04_17 = 0x801ce384;
+data_801c6288_slot04_14 = 0x801c6288;

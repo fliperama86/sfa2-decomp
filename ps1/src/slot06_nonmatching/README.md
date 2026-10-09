@@ -60,6 +60,25 @@ difference. What the callee itself would have done is then outside the
 test, and the header comment of the `.c` file says which callees are
 replaced.
 
+A recorder returns at once, so by itself it shows only that a call was made
+and with which arguments. Two things it then misses, and each let wrong C
+pass here before it was closed. One is memory behind a pointer argument
+that the function fills for that call: a recorder can copy those words into
+its entry (`pointees`). The other is the order of a store against a call: C
+that stores a field after a call which the original stores before it ends
+in the same state. So every recorder also copies the blocks that the log
+watches (`watch`), which is what the function has written there by the time
+of the call. A header says what is watched. What a real callee would have
+changed in memory, and what the function does with that, stays outside the
+test unless the header says that a recorder stands for it.
+
+For a function that waits or never returns, a recorder can give its results
+in turn (`results`), store a word at its N-th call or count a word up at
+every call (`stores`, `counts`: what an interrupt does to memory while the
+function runs), and end the run at its N-th call (`ends_run_at`). A run
+that was ended is cut inside the function: its registers are then not
+compared, its log and memory are.
+
 ## What a pass does not show
 
 A pass is evidence for the tested inputs only. It is not a proof of
@@ -97,7 +116,21 @@ and the helper functions that cut and print the offsets). Group F checks the
 coverage line, `--uncovered`, `--folder` and contract files through `main`. Group G
 checks `contracts.CallLog`: what a recorder logs for zero to six arguments,
 the value it returns, that the callee's own code does not run, and that calls
-missing, out of order or with another value are differences. Group H checks that
+missing, out of order or with another value are differences. Group N checks
+pointees: the words behind a pointer argument (in a register or on the stack)
+are logged after the arguments, so that a call made with other contents behind
+the pointer is a difference. Group O checks watched blocks: they are copied
+into every entry, so that a store made after a call instead of before it is a
+difference. Group P checks the recorder's own footprint (which registers it
+leaves alone; not a calling convention). Group Q checks masks: an argument is
+logged under its mask. Group R checks results in turn: each call gets the next
+result and the last one repeats. Group S checks a run that a recorder ends at
+its N-th call: the call is logged, the store after it is not made, the run
+counts as completed, and with `returns=False` registers are not compared while
+the log and memory still are. Group T checks `differences` with `returns`
+false. Group U checks `stores` and `counts`, which stand for what an interrupt
+does: a word stored at the N-th call or counted up at every call, after the
+entry is written. Group H checks that
 code a setup writes into RAM runs as written in every case, not as the first
 case wrote it (recorder results that change from case to case, and both arms of
 a branch on one). Group I checks the build result: its size and entry reach the
@@ -148,12 +181,134 @@ that did not trip.
 
 ## Functions
 
-The figures are the two lines that `difftest.py` prints for the command above.
+The functions of the stage modules that the build keeps as original bytes.
+What these commands printed on 2026-10-09:
 
-| Function | Built bytes | Original bytes | Cases | Discarded | Equal | Different | Slots executed |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `func_801e9080_slot06_00` | 700 | 700 | 2000 | 0 | 2000 | 0 | 173 of 175 |
+    python difftest.py --config ../build.toml --cases 2000 --all
 
-With `--control`, the same function prints
-`func_801e9080_slot06_00 control: different 1797 of 2000` (more than 0, as
-required).
+```
+func_801e84cc_slot06_0e: built 504 bytes, original 536 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e84cc_slot06_0e coverage: 133 of 134 instruction slots of the original executed
+func_801e8bd8_slot06_08: built 1496 bytes, original 2124 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8bd8_slot06_08 coverage: 523 of 531 instruction slots of the original executed
+func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8dc4_slot06_00 coverage: 108 of 108 instruction slots of the original executed
+func_801e8dc8_slot06_05: built 756 bytes, original 840 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8dc8_slot06_05 coverage: 207 of 210 instruction slots of the original executed
+func_801e8df0_slot06_0a: built 768 bytes, original 768 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8df0_slot06_0a coverage: 190 of 192 instruction slots of the original executed
+func_801e8fec_slot06_11: built 648 bytes, original 728 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8fec_slot06_11 coverage: 180 of 182 instruction slots of the original executed
+func_801e9080_slot06_00: built 700 bytes, original 700 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9080_slot06_00 coverage: 173 of 175 instruction slots of the original executed
+func_801e90a8_slot06_10: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e90a8_slot06_10 coverage: 36 of 37 instruction slots of the original executed
+func_801e9114_slot06_12: built 704 bytes, original 828 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9114_slot06_12 coverage: 204 of 207 instruction slots of the original executed
+func_801e96fc_slot06_0b: built 820 bytes, original 996 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e96fc_slot06_0b coverage: 246 of 249 instruction slots of the original executed
+func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original executed
+func_801e9798_slot06_06: built 888 bytes, original 972 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9798_slot06_06 coverage: 240 of 243 instruction slots of the original executed
+func_801e9840_slot06_09: built 728 bytes, original 728 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9840_slot06_09 coverage: 180 of 182 instruction slots of the original executed
+func_801e98c8_slot06_0c: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e98c8_slot06_0c coverage: 36 of 37 instruction slots of the original executed
+func_801e98dc_slot06_07: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e98dc_slot06_07 coverage: 36 of 37 instruction slots of the original executed
+func_801e9970_slot06_07: built 768 bytes, original 768 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9970_slot06_07 coverage: 190 of 192 instruction slots of the original executed
+func_801e998c_slot06_0d: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e998c_slot06_0d coverage: 36 of 37 instruction slots of the original executed
+func_801e99b4_slot06_04: built 744 bytes, original 812 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e99b4_slot06_04 coverage: 200 of 203 instruction slots of the original executed
+func_801e99c8_slot06_02: built 828 bytes, original 860 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e99c8_slot06_02 coverage: 212 of 215 instruction slots of the original executed
+func_801e9b54_slot06_08: built 744 bytes, original 744 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9b54_slot06_08 coverage: 184 of 186 instruction slots of the original executed
+func_801e9bb0_slot06_0f: built 784 bytes, original 800 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9bb0_slot06_0f coverage: 197 of 200 instruction slots of the original executed
+func_801e9c80_slot06_0e: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9c80_slot06_0e coverage: 36 of 37 instruction slots of the original executed
+func_801e9d04_slot06_03: built 652 bytes, original 672 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9d04_slot06_03 coverage: 166 of 168 instruction slots of the original executed
+func_801e9d14_slot06_0e: built 952 bytes, original 1060 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9d14_slot06_0e coverage: 262 of 265 instruction slots of the original executed
+func_801e9ef4_slot06_10: built 636 bytes, original 724 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9ef4_slot06_10 coverage: 178 of 181 instruction slots of the original executed
+func_801e9f20_slot06_0d: built 768 bytes, original 788 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9f20_slot06_0d coverage: 194 of 197 instruction slots of the original executed
+func_801e9f90_slot06_01: built 628 bytes, original 648 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9f90_slot06_01 coverage: 160 of 162 instruction slots of the original executed
+func_801ea3b4_slot06_08: built 180 bytes, original 180 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801ea3b4_slot06_08 coverage: 45 of 45 instruction slots of the original executed
+func_801ea640_slot06_0c: built 780 bytes, original 780 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801ea640_slot06_0c coverage: 193 of 195 instruction slots of the original executed
+```
+
+    python difftest.py --config ../build.toml --cases 2000 --control --all
+
+```
+func_801e84cc_slot06_0e control: different 1966 of 2000 (expected more than 0)
+  altered: v coordinate store moved by one byte, instruction slot 89
+func_801e8bd8_slot06_08 control: different 107 of 2000 (expected more than 0)
+  altered: row count limit 0x20 changed to 0x10, instruction slot 67
+func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
+  altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69
+func_801e8dc8_slot06_05 control: different 1790 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 178
+func_801e8df0_slot06_0a control: different 1811 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 180
+func_801e8fec_slot06_11 control: different 1779 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 155
+func_801e9080_slot06_00 control: different 1797 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 164
+func_801e90a8_slot06_10 control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e9114_slot06_12 control: different 1820 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 168
+func_801e96fc_slot06_0b control: different 1813 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 193
+func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
+  altered: v coordinate store moved by one byte, instruction slot 107
+func_801e9798_slot06_06 control: different 1799 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 211
+func_801e9840_slot06_09 control: different 1800 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 172
+func_801e98c8_slot06_0c control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e98dc_slot06_07 control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e9970_slot06_07 control: different 1804 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 181
+func_801e998c_slot06_0d control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e99b4_slot06_04 control: different 1788 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 176
+func_801e99c8_slot06_02 control: different 1805 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 194
+func_801e9b54_slot06_08 control: different 1794 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 176
+func_801e9bb0_slot06_0f control: different 1825 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 183
+func_801e9c80_slot06_0e control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e9d04_slot06_03 control: different 1787 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 151
+func_801e9d14_slot06_0e control: different 1803 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 226
+func_801e9ef4_slot06_10 control: different 1793 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 148
+func_801e9f20_slot06_0d control: different 1804 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 179
+func_801e9f90_slot06_01 control: different 1788 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 147
+func_801ea3b4_slot06_08 control: different 1609 of 2000 (expected more than 0)
+  altered: field_54 store moved by four bytes, instruction slot 36
+func_801ea640_slot06_0c control: different 1663 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 183
+```
+
+A function with fewer slots executed than it has names the others in its
+header comment, with the reason why no input reaches them.

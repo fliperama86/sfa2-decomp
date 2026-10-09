@@ -82,10 +82,13 @@ not byte-matching. VC5 tools are available; game matching with VC5 is untested.
 Running a game is not another mandatory correctness gate for byte-identical
 output. Runtime observation is optional when useful for understanding behavior
 or resolving loading questions. Nonmatching code needs its own validation.
-The first such code is in
-[`ps1/src/slot06_nonmatching/`](ps1/src/slot06_nonmatching/README.md): one
-function, outside the build and outside every count here, with a
-differential test against the original code.
+Such code is in
+[`ps1/src/slot06_nonmatching/`](ps1/src/slot06_nonmatching/README.md) (stage
+modules) and
+[`ps1/src/slot04b_nonmatching/`](ps1/src/slot04b_nonmatching/README.md)
+(character modules `PL0C` to `PL17`): functions that the build keeps as
+original bytes, outside the build and outside every count here, each with a
+contract and a differential test against the original code.
 
 ## Layout
 
