@@ -37,10 +37,13 @@ choice between the two ways that follow was put:
 - The proof comes on Linux or on Windows first, and macOS on Apple Silicon
   after it runs. This was put to the owner as what the first decision
   costs, and accepted: with no change to the source, the game's C holds
-  only where a pointer has four bytes, as on the PS1, and macOS on Apple
-  Silicon runs no 32-bit program, by what Apple says of it; that was not
-  tried here. "With four-byte pointers" below has the count behind the
-  first half.
+  only where a pointer has four bytes, as on the PS1, and macOS runs no
+  native 32-bit application since version 10.15, by
+  [Apple's note](https://support.apple.com/en-us/103076); the macOS of an
+  Apple Silicon Mac is later than that. Whether such a program could be
+  run there through emulation was not looked into, and the order of the
+  proof does not rest on it. None of this was tried here. "With four-byte
+  pointers" below has the count behind the first half.
 
 What follows from these and is not built or tried: the port's memory at
 the PS1's own addresses, filled from the disc, in a 32-bit program, so

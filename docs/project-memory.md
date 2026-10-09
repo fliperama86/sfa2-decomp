@@ -4211,6 +4211,11 @@ switch, no change at all, until something runs.
   change, the game's C holds only where a pointer has four bytes, so the
   proof comes on Linux or Windows in a 32-bit program, and macOS on Apple
   Silicon after it runs.
+  The assistant's words to the owner were that Apple Silicon "cannot" run
+  32-bit programs. What is known is narrower: macOS runs no native 32-bit
+  application since 10.15, by Apple's own note. Emulation was not looked
+  into. The owner's "yes" was to the order of the proof, which does not
+  need the stronger claim.
 - The count behind it is on the port page: compiled with `-m32`, every
   shared struct keeps its layout and no cast between a pointer and an
   integer of another size is left.
