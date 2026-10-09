@@ -4183,12 +4183,18 @@ file places are nearly all of it. To remember:
   and main gets its first run before review.
 - The owner's second "yes" of 2026-10-09: PsyZ's own tests on the three
   systems, the workflow `Port PsyZ tests`. The whole suite passes on all
-  three runners, the picture comparisons included, on Windows built with
-  GCC. That answers what the machine of these sessions could not: its 55
-  failures of 2026-10-07 were its own, for want of anything to draw with,
-  and the 10 timer failures among them too. A result from one machine
-  that lacks something is a result about that machine until another
-  machine agrees.
+  three configured runners, the picture comparisons and the timer tests
+  included, on Windows built with GCC. The 55 failures of 2026-10-07 on
+  the machine of these sessions were not reproduced there. The black
+  pictures are consistent with that machine's missing drawing support.
+  The cause of the 10 timer failures is not investigated.
+- Correction, from the review of that change: the page and this file
+  first said that both kinds of failure "are that machine's and not
+  PsyZ's". The runs do not show that. A failure that does not come back
+  on other machines has not thereby got a cause: it may be the first
+  machine, or a fault of the library that needs those surroundings to
+  show. Say what was run and what came out; name a cause only when
+  something was done to find it.
 - The runners made the owner's password unnecessary: what this machine
   cannot install, a runner already has. Ask what a runner can show before
   asking the owner for access.

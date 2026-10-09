@@ -2,7 +2,7 @@
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **Nothing of the game links or runs on any of them.** The library
-that is to replace Sony's passes its own tests on all three. With GCC every
+that is to replace Sony's passes its own tests on a runner of each. With GCC every
 one of its C units compiles on Linux and on Windows, and Apple's compiler
 on macOS refuses a few, in a trial that is described below. This folder
 holds the decisions taken so far, one pinned dependency, one check of that
@@ -151,9 +151,14 @@ all: ztest: 287 passed, 55 failed, 1 skipped
 
 and ended with status 1. The three areas that compare drawn pictures
 mostly fail there: the pictures that were looked at came out black. Ten
-tests of timer events fail too. Neither happens on the runners, so both
-are that machine's and not PsyZ's; why the timer tests fail there was not
-looked into.
+tests of timer events fail too.
+
+Neither failure was reproduced on the three runners above, which pass the
+picture tests and the timer tests. That is all the runs say. The black
+pictures are consistent with that machine having nothing to draw with.
+Why the timer tests fail there was not looked into: it may be the
+machine, and a fault of the library that shows only in some surroundings
+is not ruled out.
 
 ### The script's own controls
 
