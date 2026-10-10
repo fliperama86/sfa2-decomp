@@ -76,7 +76,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt", "mirror", "mirrorcore"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt", "mirror", "mirrorcore"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -300,7 +300,7 @@ void game_crash(void)
 
 # The addresses that the game hands to the runtime to call: an unregistered one in the program's text (an x86
 # ret lies there) and a registered function without C. One game function for each path that calls an address.
-G_TARGET = {name: RAM + 0x101500 + 0x10 * i for i, name in enumerate(["thread", "event", "irq", "vsync", "valid"])}
+G_TARGET = {name: RAM + 0x101500 + 0x10 * i for i, name in enumerate(["thread", "event", "irq", "vsync", "valid", "wipe"])}
 
 
 def game_targets(target: int) -> str:
@@ -344,6 +344,15 @@ void g_vsync(void)
     SAY("vsync callback set\\n");
     ps1_VSync(0);
     SAY("after the vblank\\n");
+}}
+void g_wipe(void)
+{{
+    unsigned h;
+    *(volatile unsigned *)0x{ENTRY_C:08x}u = 0x90909090u;   /* the game's own write over a resident entry's jump */
+    h = ps1_OpenTh(0x{ENTRY_C:08x}u, 0, 0);
+    SAY("overwrote the jump\\n");
+    ps1_ChangeTh(h);
+    SAY("not reached\\n");
 }}
 void g_valid(void)
 {{
@@ -729,7 +738,7 @@ def tables_c(functions, absents, pin: bytes) -> str:
     out = ['#include "port_tables.h"']
     for _, _, sym in functions:
         out.append(f"extern void {sym}(void);")
-    out.append('const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0 }};')
+    out.append('const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0, 0 }};')
     out.append("const unsigned port_image_count = 1;")
     out.append("const struct port_function port_functions[] = {")
     for name, addr, sym in functions:
@@ -873,6 +882,17 @@ class Rig:
             self.objects.append(self.compile(stubs))
         return self.objects
 
+    def filler(self) -> Path:
+        """The object of the filler section that the program's link needs (see hostbuild.py), made once."""
+        if not self.hole:
+            hole = self.work / "hole.s"
+            hole.write_text(hb.hole_source())
+            self.hole = self.work / "hole.o"
+            proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
+            if proc.returncode != 0:
+                raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
+        return self.hole
+
     def program_for(self, variant: str, pin: bytes, old_link: bool = False) -> Path:
         """The runtime built with the variant's tables, domains and game code, for the program `pin`.
 
@@ -882,15 +902,8 @@ class Rig:
         key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}" + ("-old" if old_link else "")
         if key not in self.built:
             objs = list(self.runtime_objects())
-            if not self.hole:
-                hole = self.work / "hole.s"
-                hole.write_text(hb.hole_source())
-                self.hole = self.work / "hole.o"
-                proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
-                if proc.returncode != 0:
-                    raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
             if not old_link:
-                objs.append(self.hole)
+                objs.append(self.filler())
             for tag, text in (("tables", tables_c(v.functions, v.absents, pin)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
                 path.write_text(text)
@@ -1069,6 +1082,9 @@ def cases(rig: Rig):
         status, lines, img, arg = rig.run(f"tgt-{name}-absent", program(entry), variant="tgt-absent", timeout=60)
         yield f"{name}-target-that-is-a-function-without-c-ends-with-its-named-stop", verdict(
             (status, lines[-1]), (3, f"stop: no C yet for func_{ENTRY_ABSENT:08x} (0x{ENTRY_ABSENT:08x})"))
+    status, lines, img, arg = rig.run("tgt-wipe", program(G_TARGET["wipe"]), variant="tgt-unreg", timeout=60)
+    yield "a-resident-entry-whose-jump-the-game-wrote-over-is-refused-as-a-thread-entry-with-a-line-that-says-so", verdict(
+        (status, lines[-2:]), (12, ["overwrote the jump", f"refused: thread entry 0x{ENTRY_C:08x} is a resident entry whose jump is no longer there"]))
     status, lines, img, arg = rig.run("tgt-valid", program(G_TARGET["valid"]), variant="tgt-unreg", timeout=60)
     yield "handlers-and-callbacks-inside-the-games-own-code-are-called", verdict(
         (status, lines[-4:]), (0, ["event handler ran 1", "interrupt callback ran 1", "vsync callback ran 1", "stop: main returned"]))
@@ -1143,13 +1159,19 @@ def cases(rig: Rig):
         path = rig.work / f"{variant}-burst.bin"
         img.write(path)
         arg = rig.native(path)
-        bad = []
+        bad, first_bad = [], None
         for n in range(BURST_RUNS[kind]):
             got = rig.run_bounded(exe, arg, ["--timer-burst"], BURST_LIMIT)
             if got is None:
                 bad.append(f"run {n}: did not end in {BURST_LIMIT} s")
             elif got[0] != want[0] or not got[1] or not got[1][-1].startswith(want[1]):
                 bad.append(f"run {n}: status {got[0]}, last lines {got[1][-2:]!r}")
+            else:
+                continue
+            if first_bad is None:
+                first_bad = rig.last   # kept: a later good run must not overwrite what the first bad run printed
+        if first_bad is not None:
+            rig.last = first_bad
         yield name, None if not bad else f"{len(bad)} of {BURST_RUNS[kind]} runs wrong: {bad[:3]!r}"
 
     # ---- the kernel ----

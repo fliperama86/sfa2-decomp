@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "8c504f60d189a6bc92a6770732feb32b2340595a47454f22dcfc839a2f66f187",
+  "sha256": "f528ce36d5216f08416f84b6f4e0be80be1512f6537955225e3b2fd0c035e9b9",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -577,6 +577,10 @@
     {
       "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
       "line": 8788
+    },
+    {
+      "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
+      "line": 8822
     }
   ]
 }

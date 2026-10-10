@@ -10,7 +10,7 @@ delivering sectors in order, a fixed number a tick and none outside a tick;
 CdGetSector handing a sector out in pieces; Pause and a new Setloc in the
 middle of a read, and ReadN continuing after a Pause; reading past the end of
 the image (a disc error to the handler, the read stopped); the position
-conversions at their borders; the page-source record; the polling reader (no
+conversions at their borders; the word record; the polling reader (no
 handler: one sector waits for CdReady); the implied Setloc of SeekL and
 ReadS and its second response; GetlocP; XA audio sectors dropped; the
 library variables the game's C reads; an unknown command's stop and a
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
             for (i = 0; i < k; i++) printf(" %02x", at(a)[i]);
             printf("\n");
         }
-        else if (!strcmp(cmd, "page")) { unsigned a = (unsigned)strtoul(rest, 0, 16); printf("P %d\n", port_cd_page_source(a)); }
+        else if (!strcmp(cmd, "src")) { unsigned a = (unsigned)strtoul(rest, 0, 16); printf("P %d\n", port_cd_source_at(a)); }
         else if (!strcmp(cmd, "i2p")) { unsigned char p[4] = {9, 9, 9, 9}; unsigned char *r = port_CdIntToPos(atoi(rest), p); printf("I %02x %02x %02x %02x same=%d\n", p[0], p[1], p[2], p[3], r == p); }
         else if (!strcmp(cmd, "p2i")) { unsigned a, b, c; unsigned char p[3]; if (sscanf(rest, "%x %x %x", &a, &b, &c) != 3) return 64; p[0] = (unsigned char)a; p[1] = (unsigned char)b; p[2] = (unsigned char)c; printf("J %d\n", port_CdPosToInt(p)); }
         else if (!strcmp(cmd, "word")) { unsigned a = (unsigned)strtoul(rest, 0, 16); unsigned char *p = at(a); printf("W %08x\n", p[0] | p[1] << 8 | p[2] << 16 | (unsigned)p[3] << 24); }
@@ -389,17 +389,36 @@ def conversion_cases(root: Path, exe: Path):
 def page_cases(root: Path, exe: Path):
     img = root / "g.bin"
     make_image(img, 30)
-    script = ("cdinit\nreadn 12\nautotick 1\nready 0\nautotick 0\n"
-              "page 80100000\n"
-              "gs 80101800 512\n"          # 0x800 bytes from 0x80101800: ends at 0x80101fff, one page
-              "page 80101000\npage 80101fff\npage 80102000\n"
-              "tick 1\ngs 80101f00 512\n"      # crosses the page border into 0x80102000
-              "page 80101000\npage 80102000\npage 80103000\n"
-              "page 7fffffff\npage 80200000\npage 00101000\n")
-    rc, lines = run(exe, img, script)
-    p = [l for l in lines if l.startswith("P ")]
-    want = ["P -1", "P 12", "P 12", "P -1", "P 13", "P 13", "P -1", "P -1", "P -1", "P -1"]
-    yield check("the page-source record: pages written by CdGetSector hold the sector, others none", p == want, f"{p} {want}")
+    base = "cdinit\nreadn 12\nautotick 1\nready 0\nautotick 0\n"
+    queries = lambda *a: "".join(f"src {x:x}\n" for x in a)
+
+    def record(script):
+        rc, lines = run(exe, img, base + script)
+        return rc, [int(l.split()[1]) for l in lines if l.startswith("P ")]
+
+    # a sector of 0x800 bytes written at 0x80101800: the words it covers hold its number, the rest of the page none
+    rc, p = record("gs 80101800 512\n" + queries(0x80101000, 0x801017fc, 0x80101800, 0x80101ffc, 0x80101fff, 0x80102000))
+    yield check("the word record: the words a copy wrote hold the sector, the words before and after it none, the page's other words too",
+                p == [-1, -1, 12, 12, 12, -1], f"{p}")
+    # the next sector crosses a page border and overwrites the end of the first
+    rc, p = record("gs 80101800 512\ntick 1\ngs 80101f00 512\n" + queries(0x80101efc, 0x80101f00, 0x80101ffc, 0x80102000, 0x801026fc, 0x80102700))
+    yield check("the word record: a copy over an older one takes its words, the older ones keep theirs, across a page border",
+                p == [12, 13, 13, 13, 13, -1], f"{p}")
+    # the borders of the RAM
+    rc, p = record("gs 80000000 1\n" + queries(0x80000000, 0x80000003, 0x80000004, 0x7ffffffc, 0x7fffffff, 0x80200000, 0x00101000))
+    yield check("the word record: the first word of the RAM, and addresses outside it", p == [12, 12, -1, -1, -1, -1, -1], f"{p}")
+    rc, p = record("gs 801ffffc 1\n" + queries(0x801ffff8, 0x801ffffc, 0x801fffff, 0x80200000))
+    yield check("the word record: the last word of the RAM", p == [-1, 12, 12, -1], f"{p}")
+    # a copy that does not start or end on a word border: 16 bytes at 0x80100002 cover words 0x80100004, 8 and c whole
+    rc, p = record("gsraw 80100002 4\n" + queries(0x80100000, 0x80100004, 0x80100008, 0x8010000c, 0x80100010))
+    yield check("the word record: a copy that begins and ends in the middle of a word attributes only the words it wrote whole",
+                p == [-1, 12, 12, 12, -1], f"{p}")
+    # a whole word then a copy over half of it: the word holds bytes of two origins
+    rc, p = record("gs 80100000 4\ntick 1\ngsraw 80100002 1\n" + queries(0x80100000, 0x80100004, 0x80100008))
+    yield check("the word record: a word that is overwritten in part holds two origins and none is claimed (a 4-byte copy at +2 touches two words)", p == [-1, -1, 12], f"{p}")
+    # the zeros of an empty FIFO are not the disc's: the sector is read out, then more words are asked for
+    rc, p = record("gs 80100000 512\ngs 80100000 4\n" + queries(0x80100000, 0x8010000c, 0x80100010, 0x801007fc))
+    yield check("the word record: the zeros that an empty data FIFO gives are from nowhere", p == [-1, -1, 12, 12], f"{p}")
 
 
 def poll_cases(root: Path, exe: Path):
@@ -538,9 +557,9 @@ def buffer_cases(root: Path, exe: Path):
     rc, lines = run(exe, img, "cdinit\ngsraw 80100000 4\n")
     yield check("CdGetSector with no sector under the FIFO gives zeros and returns 1", rc == 0 and lines[-1] == "G ret=1", f"{rc} {lines[-2:]}")
     # the page record: the last page of the RAM
-    rc, lines = run(exe, img, fill + "gsraw 801ffff0 4\npage 801ff000\npage 801fe000\npage 80200000\npage 7fffffff\n")
-    yield check("the page-source record: the last page holds the sector, the page before none, addresses outside the RAM give -1",
-                rc == 0 and [l for l in lines if l.startswith("P ")] == ["P 6", "P -1", "P -1", "P -1"], f"{rc} {lines[-5:]}")
+    rc, lines = run(exe, img, fill + "gsraw 801ffff0 4\nsrc 801ff000\nsrc 801fe000\nsrc 80200000\nsrc 7fffffff\nsrc 801ffff0\nsrc 801ffffc\n")
+    yield check("the word record: the last 16 bytes of the RAM hold the sector, the page's other words and the page before none",
+                rc == 0 and [l for l in lines if l.startswith("P ")] == ["P -1", "P -1", "P -1", "P -1", "P 6", "P 6"], f"{rc} {lines[-7:]}")
 
 
 def groups(root: Path, exe: Path):

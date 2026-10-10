@@ -22,7 +22,7 @@ static void port_o_func_80119030(void)
 /* Exec(header, argc, argv): the game runs stand-alone programs of the disc with it (PAC/LOGO.EXE at start, then from the
  * attract thread PAC/Z2O.EXE and, from the menu code, PAC/BF3.EXE: each a program of its own with its own entry,
  * for which no C exists yet). The file the game asked for is found from the disc sector that the disc layer wrote
- * into the page of the header (0x801e0000). Not run: the program ends with a line that names the file and the
+ * into the first word of the header (0x801e0000). Not run: the program ends with a line that names the file and the
  * sector (status 13). With --skip-programs it prints a line at each skip and returns 1 at once instead. */
 int port_h_Exec(void *header, int argc, char **argv);
 int port_h_Exec(void *header, int argc, char **argv)
@@ -30,7 +30,7 @@ int port_h_Exec(void *header, int argc, char **argv)
     static struct port_disc_file files[512];
     unsigned count = 0, i;
     char err[PORT_ERR];
-    int sector = port_cd_page_source((unsigned)(size_t)header);
+    int sector = port_cd_source_at((unsigned)(size_t)header);
     const char *name = "?";
 
     (void)argc;

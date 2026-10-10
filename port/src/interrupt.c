@@ -19,6 +19,11 @@
 
 #include <stdlib.h>
 
+/* Set by the modules layer: is the page at `address` one that the disc wrote and that is not executable? A thread
+ * whose instruction pointer is on such a page is inside the access fault that the modules layer is about to handle,
+ * and is not interrupted. Null until that layer starts. */
+int (*port_page_blocked)(unsigned address);
+
 #ifdef _WIN32
 #include <windows.h>
 
@@ -91,7 +96,7 @@ void port_interrupt_set_return(unsigned ip)
 static int in_game_code(unsigned eip)
 {
     return ((size_t)eip >= (size_t)&port_game_text_begin && (size_t)eip < (size_t)&port_game_text_end) ||
-           (eip >= PORT_RAM_BASE && eip < PORT_RAM_BASE + PORT_RAM_SIZE);
+           (eip >= PORT_RAM_BASE && eip < PORT_RAM_BASE + PORT_RAM_SIZE && !(port_page_blocked && port_page_blocked(eip)));
 }
 
 /* The gate. Whoever suspends the game's thread (the timer here, the watchdog of debug.c) holds the gate from before
