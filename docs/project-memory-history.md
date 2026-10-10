@@ -8129,6 +8129,44 @@ baseline. The map after this, from `coveragemap.py render`: 5,419 of 5,600 disti
 Not claimed: that the form or any name is the original's. No run of
 the game.
 
+## Two functions exact from their look-alikes (2026-10-10)
+
+A second way to the functions without C, beside the unattended search:
+for each of them a private helper names the exact function elsewhere
+whose instructions are most like its own, and the source of that one
+is taken as the starting form. Thirteen of the 62 module functions
+without C in this session's files had such a look-alike on this day;
+these are the first two.
+
+- `func_801b33e8_slot04_05`, 208 bytes, of the character file
+  `PL05.PAC`. Its look-alike is `func_801b2638_slot04_0c` of another
+  character file; the helper counted the two as the same code, since
+  they differ only in words that depend on an address. One of those
+  words is a jump that goes somewhere else: there the last call
+  follows both arms of the test, here it is in the second arm only.
+  With the call after both arms this function differs in 1 instruction
+  slot, measured on the final text with `fndiff.py --rebuild`. With a
+  `return` after the first arm's call it is exact too; the form with
+  the call inside the second arm is kept.
+- `func_80078d78_slot00`, 204 bytes, of the module of slot 0x0. Its
+  look-alike is `func_801b5c6c_slot04_09` of a character file. The
+  original instructions of the two differ in two constants, in the
+  source field of the last byte, and in one byte that only the other
+  one clears. The other's form with these four things changed was
+  exact at the first build. Its parked candidate had the same
+  statements in another order.
+
+Both are exact in their second placements too (`PL05X.PAC`, and the
+module of slot 0x8): four placements.
+
+Evidence: both units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,420 of 5,600 distinct functions exact, 12,843 of 13,072 placements. That is four placements more and one distinct function more: the map compares functions without their address-dependent words, so it counts `func_801b33e8_slot04_05` and its look-alike as one function, although their jumps differ.
+
+Not claimed: that a form or any name is the original's, or that two
+functions with like instructions come from one piece of original
+source. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
