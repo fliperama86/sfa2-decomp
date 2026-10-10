@@ -470,20 +470,17 @@ def script_held(text: str, frame: int) -> int:
             parsed.append(("repeat", int(float(t[1]) * 60 + 0.5), int(float(t[2]) * 60 + 0.5), BUTTON_BIT[t[3]]))
         else:
             parsed.append(("step", int(float(t[0]) * 60 + 0.5), t[2] == "down", BUTTON_BIT[t[1]]))
-    steps = []
-    for i, p in enumerate(parsed):
-        if p[0] == "step":
-            steps.append((p[1], len(steps), p[3], p[2]))
-        else:
-            end = next((q[1] for q in parsed[i + 1:] if q[0] == "step"), p[1] + 3600 * 60)
-            for t in range(p[1], end, p[2]):
-                steps.append((t, len(steps), p[3], True))
-                steps.append((t + 4, len(steps), p[3], False))
+    # Two things press a button: a down line that no up line has ended yet, and a press of a repeat that is running
+    # (4 frames from each of its times, never past the repeat's end, which is the next line that is not a repeat).
     held = 0
-    for f, _, bit, down in sorted(steps):
-        if f > frame:
-            break
-        held = held | (1 << bit) if down else held & ~(1 << bit)
+    for p in parsed:
+        if p[0] == "step" and p[1] <= frame:
+            held = held | (1 << p[3]) if p[2] else held & ~(1 << p[3])
+    for i, p in enumerate(parsed):
+        if p[0] == "repeat":
+            end = next((q[1] for q in parsed[i + 1:] if q[0] == "step"), p[1] + 3600 * 60)
+            if any(t <= frame < min(t + 4, end) for t in range(p[1], end, p[2])):
+                held |= 1 << p[3]
     return held
 
 
@@ -513,6 +510,22 @@ repeat 0.5 0.2 up
 0.9 select down
 """
 SCRIPT_2 = "repeat 0.5 0.2 square\n"
+# Scripts whose words are written out by hand, frame by frame (not worked out by script_held): each is
+# (name, text, {frame: word}, last frame). cross is 0x0040, start 0x0800.
+EXPLICIT = [
+    # a repeat ends at a down line for its own button: the hold lasts until its up line (frame 60)
+    ("repeat-then-hold-of-the-same-button", "repeat 0 0.1 cross\n0.15 cross down\n1 cross up\n",
+     {1: 0x0040, 3: 0x0040, 4: 0, 5: 0, 6: 0x0040, 8: 0x0040, 9: 0x0040, 10: 0x0040, 11: 0x0040, 30: 0x0040, 59: 0x0040, 60: 0, 61: 0}, 62),
+    # a repeat ends at a line for another button: its running press ends at that frame, not 4 frames after it began
+    ("repeat-ends-at-a-line-of-another-button", "repeat 0 0.1 cross\n0.15 start down\n0.5 start up\n",
+     {7: 0x0040, 8: 0x0040, 9: 0x0800, 10: 0x0800, 29: 0x0800, 30: 0, 31: 0}, 32),
+    # a hold that began before a repeat on the same button is not released by the repeat's presses
+    ("hold-then-repeat-of-the-same-button", "0.05 cross down\nrepeat 0.1 0.1 cross\n0.5 cross up\n",
+     {2: 0, 3: 0x0040, 5: 0x0040, 10: 0x0040, 11: 0x0040, 16: 0x0040, 17: 0x0040, 29: 0x0040, 30: 0, 31: 0}, 32),
+    # two repeats on one button whose presses overlap: the end of one press does not cut the other short
+    ("two-repeats-on-one-button", "repeat 0 0.1 cross\nrepeat 0.05 0.1 cross\n0.5 start down\n",
+     {1: 0x0040, 4: 0x0040, 5: 0x0040, 6: 0x0040, 7: 0x0040, 16: 0x0040, 29: 0x0040, 30: 0x0800, 31: 0x0800}, 32),
+]
 SCRIPT_3 = "\t0.1   triangle\tdown  \r\n\r\n   # a comment\r\n0.2 triangle up"   # tabs and spaces, CRLF, no newline at the end
 
 
@@ -551,6 +564,30 @@ def script_cases(rig: PadRig, linked: bool, text: str, name: str, until: int, ex
         scripted = any(script_held(text, f) for f in frames)
         yield (f"script-{name}-{flavor}-{label}-presses-and-releases-at-the-exact-frames-on-top-of-the-pad",
                None if shape and not bad and scripted and pressed else f"status {status}, {len(snaps)} snapshots, frames {frames[:3]}.., first mismatches (frame, polls, got, wanted) {bad[:6]}")
+
+
+def explicit_cases(rig: PadRig, linked: bool, name: str, text: str, want: dict[int, int], until: int):
+    """Run g_script with `text`; at each listed frame the pad word is the word written in EXPLICIT (with the stand-in's
+    own buttons pressed on it in the linked build). Nothing of the expectation comes from script_held."""
+    flavor = "linked" if linked else "plain"
+    path = rig.work / f"explicit-{name}-{flavor}.txt"
+    path.write_bytes(text.encode())
+    for label, flags in (("timer", []), ("no-interrupt", ["--no-interrupt"])):
+        status, lines, img, arg = go(rig, f"explicit-{name}-{flavor}-{label}", G["g_script"], f"pads-{flavor}", ["--input", rig.native(path), *flags])
+        snaps = {frame: (polls, b0, b1, b2, b3) for frame, polls, b0, b1, b2, b3 in snap_lines(lines)}
+        bad = []
+        for frame, word in sorted(want.items()):
+            if frame not in snaps:
+                bad.append((frame, "no snapshot", f"{word:04x}"))
+                continue
+            polls, b0, b1, b2, b3 = snaps[frame]
+            got = ~(b3 | (b2 << 8)) & 0xffff
+            expected = (word | base_word(linked, polls)) & 0xffff
+            if (b0, b1) != (0, 0x41) or got != expected:
+                bad.append((frame, f"{got:04x}", f"{expected:04x}"))
+        shape = status == 0 and max(snaps, default=0) >= until and lines[-2:] == ["script done", "stop: main returned"]
+        yield (f"script-{name}-{flavor}-{label}-holds-the-words-written-out-frame-by-frame",
+               None if shape and not bad else f"status {status}, {len(snaps)} snapshots, (frame, got, wanted) {bad[:8]}")
 
 
 def cases(plain: PadRig, linked: PadRig, psyz_build: Path | None):
@@ -607,6 +644,8 @@ def cases(plain: PadRig, linked: PadRig, psyz_build: Path | None):
     for rig, flavor, is_linked in rigs:
         yield from script_cases(rig, is_linked, SCRIPT_1, "one", 80)
         yield from script_cases(rig, is_linked, SCRIPT_2, "repeat", 70, extra=[("timer", [])])
+        for name, text, want, until in EXPLICIT:
+            yield from explicit_cases(rig, is_linked, name, text, want, until)
         yield from script_cases(rig, is_linked, SCRIPT_3, "layout", 20, extra=[("timer", [])])
     path = linked.work / "none.txt"
     path.write_text(SCRIPT_1)

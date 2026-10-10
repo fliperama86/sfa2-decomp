@@ -22,8 +22,12 @@
  * backwards (the frames, after rounding). BUTTON is one of start select up down left right cross circle square
  * triangle l1 r1 l2 r2 l3 r3. A button is held from its down line to its up line. A repeat line presses BUTTON for 4
  * frames every EVERY seconds (at least 0.1) from its time up to, not including, the time of the next line that is not a
- * repeat line, or for an hour if there is none. At one frame the steps apply in the order of the lines. At a vertical
- * blank the buttons held at that frame are every step whose frame is not later than it. Every refusal is a line that
+ * repeat line, or for an hour if there is none; a press of a repeat that would run past that time ends at it.
+ * The holds of the down and up lines and the presses of the repeat lines are kept apart: a button is pressed at a
+ * frame when a down line holds it or a press of a repeat is running, so the end of a repeat's press never releases a
+ * button that a down line holds, and two repeats on one button do not cut each other short. At one frame the steps
+ * apply in the order of the lines. At a vertical blank the state is that of every step whose frame is not later
+ * than it. Every refusal is a line that
  * names the file and the line number. A script holds at most 1 MB, lines of at most 200 characters, and at most
  * 1000000 steps. */
 #include "port.h"
@@ -86,12 +90,13 @@ void port_pad_print_keys(void)
 #define REPEAT_HOLD      4u              /* frames a repeat holds the button */
 #define REPEAT_SPAN      (3600u * 60u)   /* frames a repeat with no later line runs */
 
-struct step { unsigned frame, seq, mask; int down; };
+struct step { unsigned frame, seq, mask; int down, pulse; };   /* pulse: a step of a repeat's press, not of a down or up line */
 
 static struct step *steps;
 static unsigned nsteps, applied;
 static int loaded;                       /* a script was read without a refusal */
-static unsigned held;                    /* bit i is word bit i of the pad word: 0 L2 ... 15 left */
+static unsigned held;                    /* the buttons the down lines hold: bit i is word bit i of the pad word, 0 L2 ... 15 left */
+static unsigned running[16];             /* for each button, how many presses of repeat lines are running */
 
 static const char *const names[16] = {
     "l2", "r2", "l1", "r1", "triangle", "circle", "cross", "square",
@@ -106,7 +111,7 @@ static int step_cmp(const void *a, const void *b)
     return x->seq < y->seq ? -1 : x->seq > y->seq;
 }
 
-static int add_step(unsigned *cap, unsigned frame, unsigned mask, int down)
+static int add_step(unsigned *cap, unsigned frame, unsigned mask, int down, int pulse)
 {
     if (nsteps == *cap) {
         struct step *grown;
@@ -119,6 +124,7 @@ static int add_step(unsigned *cap, unsigned frame, unsigned mask, int down)
     steps[nsteps].seq = nsteps;
     steps[nsteps].mask = mask;
     steps[nsteps].down = down;
+    steps[nsteps].pulse = pulse;
     nsteps++;
     return 0;
 }
@@ -181,6 +187,7 @@ int port_input_load(const char *path_given, char *err, size_t errsize)
 
     nsteps = applied = 0;
     held = 0;
+    memset(running, 0, sizeof running);
     loaded = 0;
     free(steps);
     steps = NULL;
@@ -305,7 +312,7 @@ int port_input_load(const char *path_given, char *err, size_t errsize)
     for (i = 0; i < nlines; i++) {
         unsigned t, end, k, count;
         if (!lines[i].repeat) {
-            if (add_step(&stepcap, lines[i].frame, lines[i].mask, lines[i].down) != 0) goto nomem;
+            if (add_step(&stepcap, lines[i].frame, lines[i].mask, lines[i].down, 0) != 0) goto nomem;
             continue;
         }
         end = lines[i].frame + REPEAT_SPAN;
@@ -319,8 +326,10 @@ int port_input_load(const char *path_given, char *err, size_t errsize)
             snprintf(err, errsize, "input: %s line %u: the script would hold more than %u steps", path, lines[i].number, SCRIPT_STEPS_MAX);
             goto done;
         }
-        for (t = lines[i].frame; t < end; t += lines[i].every)
-            if (add_step(&stepcap, t, lines[i].mask, 1) != 0 || add_step(&stepcap, t + REPEAT_HOLD, lines[i].mask, 0) != 0) goto nomem;
+        for (t = lines[i].frame; t < end; t += lines[i].every) {
+            unsigned release = end - t < REPEAT_HOLD ? end : t + REPEAT_HOLD;   /* a press does not run past the repeat's end */
+            if (add_step(&stepcap, t, lines[i].mask, 1, 1) != 0 || add_step(&stepcap, release, lines[i].mask, 0, 1) != 0) goto nomem;
+        }
     }
     if (nsteps > SCRIPT_STEPS_MAX) {
         snprintf(err, errsize, "input: %s would hold more than %u steps", path, SCRIPT_STEPS_MAX);
@@ -351,11 +360,23 @@ int port_input_loaded(void)
 
 void port_input_apply(unsigned char *raw, unsigned frame)
 {
+    unsigned i, word;
     while (applied < nsteps && steps[applied].frame <= frame) {
-        if (steps[applied].down) held |= steps[applied].mask;
-        else held &= ~steps[applied].mask;
-        applied++;
+        const struct step *s = &steps[applied++];
+        if (!s->pulse) {
+            if (s->down) held |= s->mask;
+            else held &= ~s->mask;
+            continue;
+        }
+        for (i = 0; i < 16; i++)
+            if (s->mask & (1u << i)) {
+                if (s->down) running[i]++;
+                else if (running[i]) running[i]--;
+            }
     }
-    raw[2] &= (unsigned char)~(held >> 8);
-    raw[3] &= (unsigned char)~(held & 0xffu);
+    word = held;
+    for (i = 0; i < 16; i++)
+        if (running[i]) word |= 1u << i;
+    raw[2] &= (unsigned char)~(word >> 8);
+    raw[3] &= (unsigned char)~(word & 0xffu);
 }

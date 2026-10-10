@@ -1075,11 +1075,15 @@ routines that do nothing on purpose. What is in this piece:
   that round to one frame are in order). BUTTON is one of `start select
   up down left right cross circle square triangle l1 r1 l2 r2 l3 r3`. A
   button is held from its `down` line to its `up` line; a `repeat` line
-  holds BUTTON for 4 frames every EVERY seconds (at least 0.1) from its
+  presses BUTTON for 4 frames every EVERY seconds (at least 0.1) from its
   time up to, not including, the time of the next line that is not a
-  `repeat` line, or for an hour if there is none; at one frame the steps
-  apply in the order of the lines. A vertical blank presses every button
-  whose last step is `down` and not later than its frame. A script that
+  `repeat` line, or for an hour if there is none, and a press that would
+  run past that time ends at it. The holds of the `down` and `up` lines
+  and the presses of the `repeat` lines are kept apart: at a vertical
+  blank a button is pressed when a `down` line holds it or a press of a
+  `repeat` is running, so the end of a repeat's press never releases a
+  button that a `down` line holds, and two repeats on one button do not
+  cut each other short. At one frame the lines apply in their order. A script that
   is empty or holds only comments, a file over 1 MB, a line over 200
   characters, a NUL byte, a script of over 1,000,000 steps, and every
   line that is not of these forms refuse the start (status 2) with one
