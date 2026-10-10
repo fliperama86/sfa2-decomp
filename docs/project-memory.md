@@ -36,6 +36,10 @@ Old figures describe their own date, not today's completion.
   Never put agent attribution in branch names or PR titles.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
+- Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
+  match needs only its image's byte comparison. A nonmatching function is
+  tested alone. No run is repeated. A run of hours is redesigned, not made.
+  Read [efficiency.md](efficiency.md) before any run.
 
 ## Working style
 
