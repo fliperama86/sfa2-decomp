@@ -715,16 +715,16 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `f6079ca`:
+it is in commit `b2f4e19`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3732 compiled, 1 of them nonmatching, 0 failed
+units: 3780 compiled, 49 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12460
-functions without C: 611, library 385, game and modules 226
+functions with C: 12524
+functions without C: 547, library 385, game and modules 162
 sweep rows that are not functions: 11
-names at PS1 addresses: 45855
+names at PS1 addresses: 46083
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -890,16 +890,36 @@ routines that do nothing on purpose. What is in this piece:
   library's own code. A picture is presented once per vertical blank.
   The window opens windowed; closing it ends the program.
 - What the graphics layer does not trust. The lists are the game's data:
-  every link must point into the RAM, a packet must have the words its
-  kind needs and end inside the RAM, and a list that does not end is cut
-  off by a count; each ends the program with a line. A rectangle of an
-  image routine must lie inside the frame buffer of 1024 by 512, and
-  the pixels it names inside the RAM; a width or height of zero or less
+  every link must point into the RAM and a list that does not end is cut
+  off by a count. A packet is a stream of commands: before any word of
+  it reaches PsyZ, the port steps through the whole packet with the
+  number of words that each kind of command takes, and the stream must
+  end exactly at the packet's end; a command that would need words
+  beyond it ends the program with a line that names the kind and the
+  word. PsyZ is given the packet's words and nothing else. A kind that
+  the port does not decode (polylines, the copies that carry their data,
+  and a few more) ends the program too, wherever it stands in a packet:
+  nothing is skipped. A rectangle of an image routine must lie inside
+  the frame buffer of 1024 by 512; a width or height of zero or less
   becomes 1 and one above 1023 or 511 becomes that, as the library's
   code does, before the test. The console's hardware wraps a rectangle
   that leaves the frame buffer; the port does not do that yet and ends
   with a line instead. A drawing or image routine before
-  `ResetGraph(0)` ends the program too: PsyZ would hang.
+  `ResetGraph(0)` ends the program: PsyZ would hang. `SetDispMask` and
+  `DrawSync` are served before it, as the console's library serves them
+  and as the game's start-up calls them; `ResetGraph(0)` then leaves
+  the display off, as the reset of the hardware does.
+- Which memory is the game's. A structure that the game's C keeps in a
+  local lies on the console's stack inside the RAM; on a PC it lies on
+  the host's stack. So a structure or buffer that the game hands over by
+  pointer is accepted when the whole of it lies in the RAM, in the
+  scratchpad, or in the live part of the stack that the calling task is
+  running on, and refused otherwise: not another task's stack, not the
+  heap, not the program's own code or data. One routine of the runtime
+  decides this for the graphics layer. The nodes of a list must be in
+  the RAM, since their links are RAM addresses. The first version
+  accepted the RAM only and stopped the real game at its first
+  `ClearImage`, whose rectangle is a local.
 - Where the picture differs from the console's, known so far: a drawn
   pixel reads back with its top bit set, where PsyZ keeps opacity; PsyZ
   rounds a flat colour's 8 bits to 5 in its own way (248 gives 30, the
@@ -996,8 +1016,14 @@ knows at the length it needs, at 255 words and one word short; lists
 that leave the RAM, loop or run past its end; ordering tables from 30
 entries to all of RAM; rectangles at the frame buffer's edges and one
 pixel past each; pixel buffers at the end of the RAM; a call before
-`ResetGraph(0)`; a display that cannot be opened; the dump onto a
-folder and onto a path that cannot be made.
+`ResetGraph(0)`, and `SetDispMask` before it; packets with an incomplete
+command in each position, after a command without effect and after each
+setting word; a kind that is not decoded; structures on the stack of
+the first task and of another one, on a dead part of the stack, on the
+heap and in the program's own data; a display that cannot be opened;
+the dump onto a folder and onto a path that cannot be made. The cases
+run on SDL's offscreen video driver: PsyZ and its device work, the
+picture is read back, and no window is made.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond

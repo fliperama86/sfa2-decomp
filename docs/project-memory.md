@@ -8008,6 +8008,30 @@ No function count changes here. Nothing under `ps1/` changed.
     the layer starts, without drawing a pixel; the worker's first fix
     cleared one pixel, which I turned down for the same reason as the
     skip.
+- The owner's review of the first version (PR 135), in his words: "The
+  list walker validates only the first GP0 command of each packet ...
+  but hands every payload word to PsyZ, which decodes subsequent
+  commands too", shown by him with a packet whose second command was a
+  fill without its position and size: it drew with the rectangle of an
+  earlier packet that was still in the conversion buffer. The walker
+  now steps through every command of a packet before PsyZ sees a word,
+  and PsyZ gets the packet's words only. A kind the walker does not
+  decode ends the program; the worker had made that a report and a
+  skip, which I turned down as with the rectangle.
+- Two checks of the first version refused the real game, found by the
+  private trial once the layers were put together: the game's start-up
+  calls `SetDispMask` before `ResetGraph(0)`, and its first
+  `ClearImage` takes a rectangle that is a local, which on a PC is on
+  the host's stack and not in the PS1's RAM. I had told the worker
+  "every pointer the game hands over lies in the RAM" without thinking
+  of where a local lives when the game's C is compiled natively. One
+  routine of the runtime now says which memory is the game's: the RAM,
+  the scratchpad, and the live part of the calling task's stack.
+- The controls opened one window per case, and I let a worker run four
+  chains of them at once for its mutants. The owner, at the same
+  machine, asked who was opening instances of the game every second. I
+  stopped them. The controls run on SDL's offscreen driver now, one run
+  at a time, and a mutant only against the cases that should notice it.
 - Width and height of zero or less: what the library does with them was
   read from its code in the original (no C for those two routines is
   in the tree), and PsyZ's own decompiled copy does something else.
