@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "60c68cdb3fd3765c251c6050ac0d8f053add0302382f217e329153b72201427f",
+  "sha256": "c5ec36d0d8d76a76226699447a371a4cd7929af5a41cc8fab8ee8ca43663333e",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -611,8 +611,36 @@
       "line": 9187
     },
     {
-      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "title": "Correction: what the controls of the port's overrides alter (2026-10-10)",
       "line": 9257
+    },
+    {
+      "title": "Correction: the review reused an override's result after the override changed (2026-10-10)",
+      "line": 9281
+    },
+    {
+      "title": "Efficient checks: the owner's rule (2026-10-10)",
+      "line": 9305
+    },
+    {
+      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
+      "line": 9359
+    },
+    {
+      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
+      "line": 9435
+    },
+    {
+      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "line": 9487
+    },
+    {
+      "title": "The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)",
+      "line": 9550
+    },
+    {
+      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "line": 9586
     }
   ]
 }

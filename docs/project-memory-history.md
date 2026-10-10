@@ -9254,6 +9254,335 @@ No function count changes here: none of this is in the build.
   that one had reached the ranking screen); the runs are not
   deterministic, and why was not looked into.
 
+## Correction: what the controls of the port's overrides alter (2026-10-10)
+
+- The record and the pages of the pull request that brought the
+  port's first four overrides said that each control alters the
+  original code. That was wrong. `difftest.py --control` hands a
+  contract's `control` the code words of the BUILD of the C under test
+  and alters one of them; the original code is never altered. So each
+  of the four controls puts `addiu a0,a0,4` into the empty delay slot
+  of the call in the built override, the altered build hands the
+  callee its parameter plus 4, and the test differs from the original,
+  which hands it the parameter.
+- What the controls show is unchanged: the test notices when the C
+  under test hands the callee another value. The printed lines on the
+  folder's page are unchanged (the same words are altered; an override
+  builds to the original's size and shape here).
+- Corrected: the sentence on `port/overrides/README.md`, the one on
+  `port/README.md`, and the four `control` descriptions in the
+  contracts. The record section above this one is left as it was
+  written.
+- How it came about: the control's description was written from
+  memory of the tool, not from its header (`ps1/src/slot06_nonmatching/README.md`
+  says "alters one instruction of the build"). Found the same day when
+  the tool's code was read for another purpose.
+
+## Correction: the review reused an override's result after the override changed (2026-10-10)
+
+- Found while this correction was prepared: the review reported the
+  five checks of the overrides' contracts as `cached` although the
+  four contract files had changed (their descriptions). The checks had
+  been given the scope of the game's own checks, whose key covers the
+  tracked files under `ps1/` and not `port/overrides/`. So a changed
+  override, its C included, would have been answered from the result
+  of an earlier head. The pull request that brought the overrides had
+  this fault in `tools/ai_workflow/review.py`; its own review ran the
+  checks fresh (there was no earlier result), so its evidence is not
+  affected.
+- Corrected: these checks have a scope of their own, `overrides`,
+  whose key covers `ps1/` and `port/overrides/`; the staging of the
+  private inputs and the toolchain's part of the key treat it like
+  the game's scope. A case shows a changed `NAME.c` and a changed
+  `NAME.py` each force a fresh run, a file of the port outside the
+  folder does not, and that the same check keyed with the game's
+  scope is answered from the old result (the fault). Two mutants fail
+  cases: the checks given the game's scope again, and the new scope
+  without the folder.
+- The reviews of this correction ran the overrides' checks fresh after
+  the change (the tool's own files are part of every key).
+
+## Efficient checks: the owner's rule (2026-10-10)
+
+- The owner wrote on 2026-10-10, after he was told that two pull
+  requests of nonmatching C needed "a couple of hours of checks" (his
+  words, as typed): "we should be more efficient from now on, you can't
+  simply run things for hours willy nilly. you must think about
+  scalling first. not you specific, but other Claude agents have been
+  rebuilding and retesting the entire game on each extac-match function
+  discorvery. think about it, what is the point? exact match doesnt
+  even need testing!! all process should be designed in such a way it
+  is AI-friendly, ie, you should be able to run isolated unit-tests the
+  runs extremely quickly without wasting time running the program." And
+  then: "we should document this "efficiency-oriented" approach in the
+  repo files, README or wherever you judge appropriated, this way all
+  future agents will find it (not only Claude in this machine)".
+- Documented: a new page `docs/efficiency.md` (eight rules, what to run
+  for which change, the same for a review, and the places where
+  today's tools do not follow the rules yet); a section "Cost of
+  checks" in `AGENTS.md` and the page in its reading list; one entry in
+  the active memory; a pointer in `docs/ai-workflow.md` and in the
+  README. No tool is changed by this.
+- What had gone wrong, as the lane that was told saw it: five runs of
+  2,000 cases over a whole folder for every added batch, one after the
+  other; the whole matching build before every pull request; the
+  review command running every nonmatching folder again when a shared
+  file changed; the same runs made by a worker, by the session that
+  directed it and by the review.
+- One-off figures of the same day, on one machine with a warm object
+  cache, not printed by any command of the repository:
+  `matchbuild.py --image slot12` ended with `RESULT: PASS` after about
+  5 seconds, `--image resident` after about 53 seconds; the whole
+  build and the checks around it take about a quarter of an hour. A
+  case of `difftest.py` cost about 6 to 13 milliseconds whatever the
+  function's size (two measurements under different load).
+- First use of the rule, the same day: the pull request with
+  thirty-one module functions was opened on the runs that existed, and
+  its description says that the review command was not run and why.
+- The owner added the same day, on tests: "IMO, non-matching functions
+  should be accompanied by a few fixtures for the unit test and that is
+  it. no need to re-run even dependent functions, this is the test
+  driven development, isolated tests. this is critical because each
+  function should only care about what they do, not about dependents
+  or dependencies." Asked whether values that the original code
+  computes may be published in fixtures: "fixtures are fine to
+  publish." And on reviews: "the reviewer can't spend hours retesting
+  everything, it should run the isolated tests, review the code and
+  that is it." The page has a section for each. The fixture form does
+  not exist yet in the tools.
+- Still to do, each its own work: `difftest.py` cheaper per case; the
+  review's results keyed by what a function depends on, and its checks
+  run at the same time; a matching build that links only the images a
+  change reaches; a port build that compiles only what changed; the
+  nonmatching folders' pages reworded to per-function lines.
+
+## Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- By the owner's word of 2026-10-10 the nonmatching C that still
+  waited is published in two large pull requests instead of batches.
+  This is the one for the modules: thirty-one more functions in
+  `ps1/src/modules_nonmatching/`, which then holds forty-five. Five of
+  `slot12` (`func_80011688`, `func_80012a0c`, `func_80013224`,
+  `func_8001606c`, `func_80016af0`), four of `slot28`
+  (`func_8001389c`, `func_800145f4`, `func_8001a69c`, `func_80022944`),
+  four of `slot2b` (`func_80077868`, `func_80079144`, `func_800793d4`,
+  `func_800796e4`), four of `slot0b` (`func_801e0a78`, `func_801e0ce8`,
+  `func_801e0ea8`, `func_801e1d6c`), two of `slot05_06`
+  (`func_801ca0b0`, `func_801cb564`) and twelve of character modules:
+  `func_801b2560_slot04_00`, `func_801b1934_slot04_02`,
+  `func_801b7bfc_slot04_02`, `func_801b37b0_slot04_03`,
+  `func_801b0904_slot04_04`, `func_801b20b0_slot04_06`,
+  `func_801b3564_slot04_06`, `func_801b36f8_slot04_09`,
+  `func_801b03e4_slot04_0a`, `func_801b2f1c_slot04_0a`,
+  `func_801b0ea0_slot04_sel`, `func_801b3f38_slot04_sel`. The folder's
+  page has what its three commands printed for each. Ten lines of
+  `symbols.ld` come with them. No function's C was changed by the cut
+  onto today's main.
+- `func_800145f4` exists in two modules: the one of `slot27` is exact C
+  on main; this is the one of `slot28`, another function at the same
+  address.
+- Their headers were read against their code on the waiting branch
+  before the cut. At the cut every byte count that a header states was
+  compared with the line the test prints. Two were wrong and are
+  corrected (`func_801b1934_slot04_02` said the same size and is 4
+  bytes shorter; `func_801b7bfc_slot04_02` said 8 bytes shorter and is
+  4). One header also stated how many instruction slots differ
+  (`func_800796e4_slot2b`), a figure that no command prints and that
+  depends on how a jump's target is counted; it states only the size
+  now.
+- None of the thirty-one is byte-identical (each was compared).
+- The scan for an index or offset on a cast pointer has three findings
+  in the new units, each read and kept as its contract says:
+  `func_8001389c_slot28` clears the last byte of a four-byte field,
+  `func_80016af0_slot12` reads two bytes of a block whose layout has no
+  named fields, and `func_801e1d6c_slot0b` advances a pointer by the
+  size of the 336 records it has just walked.
+- `func_80012a0c_slot12` calls two functions that no unit defines and
+  no header declares (`func_8015c150`, `func_8015bfe8`); it declares
+  them itself, with the number of arguments that the original's code
+  sets before each call (read from the listing).
+- The checks: the test, the control and the write audit of the folder
+  on two seeds; the declarations (the lane's check told to read the
+  folder: no call with another number of arguments than the
+  definition); the argument counts of every call in the new units; the
+  name lint; the lane's check on the commit of the cut.
+- Not done, and said in the pull request: the repository's review
+  command. For a change that adds a line to `symbols.ld` it runs every
+  nonmatching folder's tests again, one after the other, which takes
+  hours. The owner's word of the same day is that checks are to be
+  designed to run in isolation and fast, and that such runs are not to
+  be made as they are; the tool's scope and the test's cost per case
+  are the next work of this lane. Also not done: the search for
+  comparison edges that no case tries (the resident batch's record
+  describes it; the mode of the test tool is in work).
+- After the review of the pull request: `func_801b3564_slot04_06`
+  tested the whole result of `func_801b5ed8_slot04_06` where the
+  original tests its low byte (the header said low byte). The contract
+  gave the tested callees results from 0 to 255 only, so the test could
+  not see it. The reviewer found it by reading and with a result of
+  `0x100`. The C has the cast now, and the contract gives those five
+  callees whole words: zero, a word with a zero low byte and other bits
+  set, a byte, or a word with a non-zero low byte. With the new
+  contract and the C as it was, 79 of 2,000 cases differ on seed 1 and
+  79 on seed 7 (different cases; one-off runs); with the cast, none.
+  The page has the function's new lines. Looked at for the same
+  weakness, by a search of the contracts' recorder results in this
+  folder and the resident one: the others return 0, a whole random
+  word, or a result the function stores without testing it.
+
+## Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)
+
+- Added: `port/overrides/` takes five more pairs (`NAME.c` with its contract
+  and the evidence in the header, `NAME.py` the contract as code):
+  `func_80146794`, `func_8001385c_slot01`, `func_801b12bc_slot04_0f`,
+  `func_800205b4_slot28`, `func_8001714c_slot28`. Each passes the
+  argument that the callee reads. In four of them a call lies before, so the
+  register holds what that call left in it; in `func_80146794` the earlier
+  callee `func_80131094` leaves the word at 0x18 of the object in it on one
+  of its three paths, and the override passes that word (read before the
+  call) on that path and the object on the others. The folder's page gained a
+  column for what lies before the call and a paragraph on why the earlier
+  callees run as original code in the test; its three printed blocks and the
+  port page's build block (`functions overridden in C: 10`) are from the runs
+  below. No file under `ps1/` and no tool changed.
+- Read in the listings (Ghidra client, read tools): the callee's reading
+  instruction, and every earlier callee to its return: `func_80131094` (one
+  return, writes `a0` only at 801310c4 and 801310f4), the three entries of
+  `data_80015a64_slot01`, the two of `data_800306cc_slot28` and the leaf
+  `func_80020608_slot28`. The survey's report agreed with each. The lengths
+  of the two tables are inferred from the word after the last entry.
+- Ran, from `ps1/src/slot06_nonmatching/`, seeds 1 and 7 with 2,000 cases, all
+  nine functions: the test `different 0` with no discarded case, the control
+  above 0 for every function, the write audit `outside 0`. The setups run
+  every earlier callee as original code, and a private check (not committed)
+  showed that the cases execute every instruction slot of `func_80131094`,
+  of the three entries and the leaf they call, of the two entries of the other
+  table, and of `func_80020608_slot28`. The new controls alter the word `move
+  a0,s0` in the delay slot of the call (the build of these five has no empty
+  delay slot there), not an empty one.
+- One more control for each, in a private copy of the folder: the same C with
+  the argument replaced by the object plus 4 differs in all 2,000 cases (1,592
+  for `func_801b12bc_slot04_0f`); for `func_80146794` the C that always passes
+  the object differs in 654 of 2,000 and the C that always passes the word at
+  0x18 in 1,346, so the test tells the paths apart. The name lint of the
+  nonmatching batches (`b_nm_lint.py`) reports 0 names; the batch script
+  itself cuts functions out of a revision and was not run.
+- The build (`hostbuild.py --list`) ends with status 0, `linked ... verified`,
+  and the five among the `override:` lines. The count is 10 for nine
+  functions: the character module's function is placed a second time in its
+  `like` image, `slot05_0f`.
+- Not shown: that the PC program runs on with them (no run of it with a disc
+  image); that the tables have no further entries (the lengths are inferred);
+  the contents of the data the entries read, which the setups choose. The
+  sentence on `port/README.md` that says the build counts functions "of the
+  resident program" was not changed (outside the lines this work owned) and
+  is now too narrow.
+- Open, from the same survey, not solved by an override of the caller alone:
+  sites 7, 9, 10 and 11 (a register whose value comes from far up the call
+  chain; where it comes from is not determined). Sites 6, 8 and 12 need
+  nothing if the tables' lengths are as inferred.
+
+## Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- By the owner's word of 2026-10-10 the nonmatching C that still
+  waited is published in two large pull requests instead of batches.
+  This is the one for the resident program: forty-two more functions
+  in `ps1/src/resident_nonmatching/`, which then holds fifty-six:
+  `func_80124304`, `func_801254f4`, `func_8012f9b0`, `func_8012fd80`,
+  `func_8013172c`, `func_80131ab4`, `func_8013245c`, `func_80134234`,
+  `func_801347b4`, `func_80135a10`, `func_801364a0`, `func_80136744`,
+  `func_80138d70`, `func_8013902c`, `func_801397d0`, `func_80139928`,
+  `func_8013a3a8`, `func_8013b0c4`, `func_8013b558`, `func_8013bfa4`,
+  `func_8013c6ac`, `func_8013db48`, `func_8013e028`, `func_8013eb28`,
+  `func_8013ec50`, `func_8013ed90`, `func_8013f3e8`, `func_8013f474`,
+  `func_8013f8c4`, `func_8013fc18`, `func_80140b5c`, `func_80140cd8`,
+  `func_80141534`, `func_80141cec`, `func_80142030`, `func_801427d8`,
+  `func_801452ec`, `func_8014c4a8`, `func_8014e890`, `func_80151324`,
+  `func_80152124`, `func_801545cc`. The folder's page has what its
+  three commands printed for each. `types.fields` gets the fields they
+  name (`Box32`, and a new `PolyBlk`), `symbols.ld` twelve lines.
+- One function's C had to follow a change of main. `func_8013ed90`
+  counted a slot's 16-bit word up with `slot->field_02++`; main has
+  since split that word into two bytes, and the C then counted only
+  the low byte up. The test showed it at once (7 of 2,000 cases, a
+  carry into the second byte) and the line is now
+  `(*(u16 *)&slot->field_02)++`, the form main's own units use for the
+  word. No other function's C was changed by the cut.
+- Their headers were read against their code on the waiting branch
+  before the cut. What that reading could not check was checked at the
+  cut: the byte counts a header states against the line the test
+  prints. Three were wrong and are corrected (`func_80124304`,
+  `func_801254f4`, where the direction was wrong too, and
+  `func_80131ab4`). One header stated a count of differing instruction
+  slots that no command prints (`func_8013902c`); it states the two
+  byte counts now. One said a count is signed that is declared
+  unsigned (`func_8013bfa4`); it now says what the C does with it.
+- None of the forty-two is byte-identical (each was compared).
+- A boundary that the test did not reach, found by a deliberate
+  error: with `0x59` in place of `0x58` in the reach of
+  `func_8012fd80`, all 2,000 cases still passed, while every
+  instruction slot of the original was executed. Random positions
+  almost never land on the one distance where the two differ. The
+  setup now puts a third of the cases that have a box on that edge
+  (the reach, one less, one more, to either side). One-off runs after
+  the change, not commands of the page: `0x59` differs in 82 of 2,000
+  cases on seed 1 and 78 on seed 7, `0x57` in 77 and 79. What this
+  says about the other functions: full coverage of the instruction
+  slots does not show that a comparison's edge was tried. They have
+  not been searched for such edges.
+- The checks: the test, the control and the write audit of the folder
+  on two seeds; the declarations (the lane's check told to read the
+  folder), the resident table check, the scan for an index or offset
+  on a cast pointer (no finding), the argument counts of every call in
+  the new units against the callee, the name lint; the lane's check on
+  the commit of the cut.
+- Not done, and said in the pull request: the repository's review
+  command, which for a change of `symbols.ld` or `types.fields` runs
+  every nonmatching folder's tests again, one after the other, for
+  hours. The owner's rule of the same day is that such runs are
+  redesigned, not made (`docs/efficiency.md` when its pull request is
+  merged).
+
+## The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)
+
+- `func_801189c4`, the game's `main` (inferred), is nonmatching C in
+  `ps1/src/resident_nonmatching/`, the last function of that folder's
+  backlog that had no open question. It never returns; its test ends
+  each case at a recorder and compares the calls it makes and the
+  memory it leaves. Its lines are on the folder's page: `different 0`
+  on seeds 1 and 7, 204 of 211 instruction slots executed (the header
+  names the seven), the control and the write audit. It was tested
+  alone; no other function of the folder was run again.
+  Before the pull request its file was made to include `protos.h` and
+  `externs.h` like the folder's other units, and the declarations that
+  those headers already give were taken out of it; the five runs after
+  that print the same lines.
+- `func_80119444`, the handler that the vertical-blank event calls
+  once a frame (inferred; it counts the frame counter that `main`'s
+  loop waits on), is an exact unit: `resident_b/b119444_r1.c`, 72
+  bytes at 0x80119444. Its C had waited as nonmatching and turned out
+  byte-identical when the first resident batch was cut; it was offered
+  to the matching lane then. Evidence, by the rule that an exact match
+  needs no test: `python ps1/tools/matchbuild.py --image resident`
+  ends with `RESULT: PASS`, and `fndiff.py --rebuild` of the unit
+  prints `0 differing instruction slots: IDENTICAL`. The line of
+  `symbols.ld` that named the function is removed, as the build
+  requires for a function that a unit owns. One function more is
+  exact; the coverage map follows from the configuration.
+- Why both now: the port. Its program starts at `main` and stopped
+  there for want of C, and the frame handler is what the vertical
+  blank calls. With the two, the port's build lists four functions of
+  the game and its modules without C (one-off reading of its `--list`
+  output): the entry code, which the port does not run, and three
+  that wait on open questions (`func_80120604`,
+  `func_800e0850_slot0f`, `func_800e0a1c_slot0f`).
+- Not run: the whole matching build, the other functions' tests, the
+  repository's review command (`docs/efficiency.md`).
+
 ## The differential test lists the constants whose edge no case tries (2026-10-10)
 
 - Why: on 2026-10-10 a deliberate error in the C of `func_8012fd80`
