@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "840af84576b6d4a1dc67aa73efad8a6edca496550d0f21129eda35f027ef3593",
+  "sha256": "9228ba369fc0fe5fb5a07f377b5936ba6b2b80d3cabdf9fc11a10edefcf68fc1",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -643,8 +643,12 @@
       "line": 9586
     },
     {
-      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
       "line": 9614
+    },
+    {
+      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "line": 9654
     }
   ]
 }
