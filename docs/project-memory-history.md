@@ -8200,6 +8200,82 @@ baseline. The map after this, from `coveragemap.py render`: 5,422 of 5,600 disti
 Not claimed: that a form or any name is the original's. No run of the
 game.
 
+## Three more functions exact: two from look-alikes, one from the search (2026-10-10)
+
+- `func_801b1008_slot04_01`, 104 bytes, of the character file
+  `PL01.PAC`, from its look-alike `func_801b1548_slot04_07` of another
+  character file: four other constants and three of its statements in
+  another order. The order was found by building every order of the
+  last six statements (145 builds until the first exact one; a one-off
+  count of a private loop). Exact in the second side's file too.
+- `func_80013ee8_slot01`, 144 bytes, of the module of slot 0x1, from
+  its look-alike `func_80015de0_slot27` of another module: other
+  values and three more fields cleared, with the statements in the
+  look-alike's order. Exact at the first build. It calls through a
+  pointer of the module's data, which gets a name in `symbols.ld`
+  (`data_80015cdc_slot01`), declared as its look-alike declares its
+  own.
+- `func_80015ca4_slot27`, 284 bytes, of the module of slot 0x27, from
+  the unattended search. The search's form read one byte through a
+  pointer local; reduced, the local is gone and the field is read as
+  it is. What made it exact is the order of three stores of pointers,
+  which now is the listing's. With the parked candidate's order: 2
+  differing instruction slots, measured on the final text with
+  `fndiff.py --rebuild`.
+
+Evidence: the three units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,425 of 5,600 distinct functions exact, 12,850 of 13,072 placements: three distinct functions and four placements more.
+
+Not claimed: that a form or any name is the original's, or that two
+functions with like instructions come from one piece of original
+source. No run of the game.
+
+## Three more functions exact from look-alikes: a pair of the module of slot 0xf, a library routine (2026-10-10)
+
+`func_800df654_slot0f`, 164 bytes, and `func_800df750_slot0f`, 156
+bytes. Their look-alikes are two resident functions that are exact,
+`func_80150e94` and `func_80150f7c`: the same steps with another
+callee, another counter field and other constants.
+
+One thing kept their parked candidates one instruction off. Both call
+`func_80125f5c`, whose definition takes four bytes and is exact only
+so: with an `int` or a 16-bit third parameter and a byte local, the
+definition's unit differs in 4, 8 or 12 instruction slots (three forms
+built). But the original of both callers loads the third argument as
+a signed halfword (`lh`), which no call through that prototype gives:
+the compiler loads a byte. So each calls through a cast of the callee
+whose third parameter is 16 bits, with the comment above the function
+that the declaration check asks for. No other source calls
+`func_80125f5c` yet. Measured on the final text of both units with
+`fndiff.py --rebuild`: written as a plain call, 1 differing
+instruction slot each.
+
+The second function's two counters share one local, as in its parked
+candidate; its resident look-alike has a second local there.
+
+A library routine too: `func_8016a16c`, 100 bytes, in the sound
+library's range, with no source until now. Its look-alike is
+`_SsSndReplay` of the library part, which sets a byte and clears a bit
+of a word in the sequence table; this routine clears that byte and
+clears another bit. Written in two statements with this project's
+names for the table, it was exact at the first build. Its role and
+name are not known.
+
+Evidence: the three units rebuilt and compared, 0 differing slots. The
+whole configuration passed on the commit that holds the pair, with
+every image identical to its baseline, and its declaration check
+counts 24 calls through a cast of the callee in module units, none
+without its comment. The library routine was added after that run:
+for it the resident image was built again (`functions exact:
+1766/1766`), and the inventory regenerated, where one row of
+`library.tsv` gains the name. The map after this, from
+`coveragemap.py render`: 5,428 of 5,600 distinct functions exact,
+12,853 of 13,072 placements.
+
+Not claimed: that the original declared the callee in any particular
+way; the cast says what the instructions need. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8497,7 +8573,6 @@ No function count changes here. Nothing under `ps1/` changed.
   program printed is lost. It now prints, under a failing case, the
   status and every line of the last program run, so that the next
   such run says what happened. No retry was added.
-
 
 ## The program always ends when the game's thread ends it (2026-10-10)
 

@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "a28495f2c5891b26bea7188c7eb73cb3a77636c136a3dd34db39c4931677bc8c",
+  "sha256": "12aa565a54c287ce24afc3e37c09e061d514413df186f635683d783089026a9b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -527,28 +527,36 @@
       "line": 8170
     },
     {
-      "title": "Windows reference",
+      "title": "Three more functions exact: two from look-alikes, one from the search (2026-10-10)",
       "line": 8203
     },
     {
+      "title": "Three more functions exact from look-alikes: a pair of the module of slot 0xf, a library routine (2026-10-10)",
+      "line": 8234
+    },
+    {
+      "title": "Windows reference",
+      "line": 8279
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8220
+      "line": 8296
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8245
+      "line": 8321
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8302
+      "line": 8378
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8387
+      "line": 8463
     },
     {
       "title": "The program always ends when the game's thread ends it (2026-10-10)",
-      "line": 8502
+      "line": 8577
     }
   ]
 }
