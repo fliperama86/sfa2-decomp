@@ -7829,6 +7829,159 @@ The map after this group, from `coveragemap.py render`: 5,415 of 5,600
 distinct functions exact, 12,832 of 13,072 placements. The build's
 line for the resident image: `functions exact: 1762/1762`.
 
+## Nonmatching C for stage functions, first batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: nonmatching C, each with a contract file and a passing
+  differential test, for 14 functions of the stage modules that the
+  build keeps as original bytes (`ps1/src/slot06_nonmatching/`, 15 with
+  the first one). The folder's page holds what the test printed for
+  each: 2,000 cases, the instruction slots of the original that the
+  cases executed, and the negative control. Where slots are not
+  executed, the function's header says which and why no input reaches
+  them. More batches follow from the branch `ps1-nonmatching-batch`.
+- How they were written: one worker per function or family, against a
+  written brief, in a scratch tree of its own; the top level ran every
+  function again on the final tool, with two seeds, before publishing.
+  The goal given to the workers was not bytes but readable C that does
+  what the listing does: several functions came out shorter than the
+  original because a block that the original repeats is a helper, or
+  because a store that is overwritten before anything can read it is
+  left out. Each such choice is in the function's header.
+- The test caught real mistakes in candidates that had been a few
+  instruction slots from exact for days: a divisor read as 176 where the
+  listing has 88, a field written as `field_0c` for `field_0a`, a store
+  made in a branch delay slot that the C had put behind the branch, a
+  candidate that set an argument to 0 on a tie where the listing keeps
+  the old value. "A few slots from exact" had said nothing about
+  meaning. (These are from the whole set of stage and character
+  functions, not only from this batch.)
+- Every function that has a recorder was run again with its objects
+  watched and with one store moved across a call; no function's C had
+  to change, and one setup had: it left the globals that the function
+  writes at zero, so a moved store of zero showed nothing.
+- The owner's review of this batch (PR 131), in his words: "Two test
+  setups do not enforce the contracts they publish". One setup let a
+  count grow until the original wrote 2,554 bytes past its table, in a
+  case the header called excluded ("both original and C complete and
+  compare equal, while the original changes 2,554 bytes beyond the
+  declared table"); two setups filled another stage's table and left
+  the function's own at zero ("despite the promised whole-table
+  randomization"). The test had said "equal" each time, because both
+  codes did the same wrong thing or met the same zeros.
+- What followed from it. A private audit now runs the original on each
+  case and counts the bytes it changes outside what the setup wrote or
+  allocated, and a lint compares the names a setup takes from the
+  symbol table with the names in the function's text. On the first
+  run over all 177 functions written so far the audit flagged 41 and
+  the lint 6 (one-off counts): in this batch the three he named and two
+  more (a function that ran up to 8,226 bytes past its table, and one
+  whose index could select a record far outside its table). The
+  flagged setups are repaired before their functions are published;
+  the audit is to become a command of the tool.
+- The rule I take from it: "equal" compares two runs with each other
+  and says nothing about where they wrote. A contract that says "inside
+  the table" or "the whole table is random" is a claim about the setup,
+  and it needs its own measurement.
+- A nonmatching unit is not in the build, so no check of the matching
+  work notices when it stops compiling after a shared header changes:
+  `difftest.py --all` on each folder is the check, and it is run before
+  each change here. It happened twice on 2026-10-09 with prototypes that
+  moved into the shared header.
+
+## The test for nonmatching C audits where the original writes (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: `difftest.py --writes`, with controls (group X). It runs
+  the original alone and counts the cases in which it changed memory
+  that the setup did not make. The page says what it sees and what it
+  cannot.
+- Where it comes from: the owner's review of the first batch of
+  functions (PR 131) found a setup that let the original write past its
+  table and two that filled another table than the function's own. The
+  differential test had said "equal" each time. A private prototype of
+  this audit then ran over all 177 functions written so far (one-off
+  counts): besides the three he had named, it flagged 41 setups, two of
+  them in his batch. One of the 41 was the prototype's own fault: a
+  function that keeps an argument in the 16 bytes above the stack
+  pointer, which are its own under the calling convention; the audit
+  exempts them now. The other 40 were real: in 4 the original ran past
+  a table or indexed outside one, in the rest it wrote a global or a
+  table that the setup had left at the image's content, so that a
+  field the function must keep was never seen to be kept. All are
+  repaired before their functions are published; from now on a
+  folder's page carries the audit's lines.
+- A second, smaller check stays private for now: a lint that compares
+  the names a setup takes from the symbol table with the names in the
+  function's text. It found the two setups that filled another stage's
+  table, and four names in two resident contracts that the function's
+  header did not explain.
+- One-off figures of the worker who built the option: 26 one-line
+  changes of the new code, all noticed after cases were added for two
+  (a scratchpad exemption of 16 bytes, a name lookup shifted by one).
+
+## Nonmatching C for stage functions, second batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: 14 more functions of the stage modules, which makes 29 in
+  `ps1/src/slot06_nonmatching/`. The folder's page holds the test's
+  lines for all 29, and for the first time the write audit's: in no
+  case of either seed does the original of any of them change memory
+  that its setup did not make. One-off observation from the private
+  trial of the port, whose tree held these 29: its build listed no
+  function of a stage module without C other than three inventory rows
+  that are not functions.
+- One original function draws at a position it never set, in a case
+  that its own code does not handle (whatever two registers held on
+  entry, one of them a register of its caller); its relatives in other
+  stages do the same. No C states that. The C leaves the two variables
+  unset there, as the original's source most likely did (inferred), the
+  contract excludes the case, and the header says so. It is in the
+  object-drawing functions of six stage files (01, 03, 04, 0d, 0f and
+  10); one-off count, read from their headers. For the port it means a
+  PC build draws at other garbage there than the console did, if the
+  game ever reaches the case.
+- These six had a struct of their own for the records they fill; they
+  use the tree's `Slot06Tile` now, as the first function does.
+
+## Nonmatching C for character functions, first batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: a second folder, `ps1/src/slot04b_nonmatching/`, for the
+  character modules `PL0C` to `PL17`, with nine functions of `PL0E` and
+  `PL0F` that the build keeps as original bytes. Its page holds the
+  test's lines, the negative controls and the write audit's lines. The
+  tool stays in `ps1/src/slot06_nonmatching/` and is run from there
+  with `--folder`.
+- One function of `PL0F` that was written with these is held back for a
+  pull request of its own: the original reads a value that its callers
+  never pass, and its C states that as a parameter, so that its
+  definition and its callers' declarations disagree on purpose. That
+  needs to be read on its own.
+
+## Nonmatching C for character functions, second batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: eleven more functions of the character modules, of `PL11`,
+  `PL12`, `PL14` and `PL17`, which makes 20 in
+  `ps1/src/slot04b_nonmatching/`. Eight of them are four functions that
+  two characters share in their own copies (`PL11` and `PL17`).
+- Nine of the eleven had a setup that the write audit flagged before
+  publication (one-off, from the first run of its prototype): eight
+  never set the global word in which the function stores the other
+  object's pointer, and one left a palette array untouched that a
+  callee of the function writes. Each setup now fills that memory with
+  random content first, so that what the function writes there is seen
+  against something.
+- One unit had stopped compiling when the shared header took over four
+  data declarations with another shape (an array where the unit had a
+  scalar); the local lines are gone and the unit reads element 0.
+
 ## The port draws through PsyZ (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.
