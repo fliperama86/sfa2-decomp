@@ -224,14 +224,22 @@ class Selection(Fixture):
         self.assertIn('test_example',[c.name for c in self.selected(['ps1/tools/example.py'])])
 
     def test_port_runtime_controls_get_the_compiler_or_refuse(self):
-        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostiopage.py', 'test_hostbuild.py'):
+        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostbuild.py'):
             self.put('port/tools/' + name, '')
         self.put('port/src/example.c', '')
         argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
-        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostiopage', 'test_hostbuild'):
+        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostbuild'):
             self.assertEqual(argv[name][-2:], ('--cc', 'cc32'))
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
+    def test_sound_chip_controls_get_the_compiler_and_psyz_or_refuse(self):
+        self.put('port/tools/test_hostiopage.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32', 'psyzdir')}
+        self.assertEqual(argv['test_hostiopage'][-4:], ('--cc', 'cc32', '--psyz-build', 'psyzdir'))
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
 
     def test_a_change_under_port_overrides_gets_the_checks_of_a_change_of_the_build_tool(self):
         for name in ('test_hostlaunch.py', 'test_hostbuild.py', 'test_hostrun.py'):

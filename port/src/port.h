@@ -224,14 +224,26 @@ int  port_mirror_init(int trace, char *err, size_t errsize);
 int  port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip);
 void port_interrupt_set_return(unsigned ip);
 
-/* iopage.c: the console's I/O page (three cells), served as faults by mirror.c's handler. port_iopage_init: close the page, in
- * every build, after port_map. read/check_write/write return 0 or -1 with the reason in `why` (mirror.c ends the program with
- * it); check_write is called before the instruction that writes is carried out, write after it; served: once per fault served. */
+/* iopage.c: the console's I/O page (three cells, and with PsyZ the sound chip and DMA channel 4), served as faults by mirror.c's
+ * handler. port_iopage_init: close the page, in every build, after port_map; with PsyZ start its model of the chip. read /
+ * check_write / write return 0 or -1 with the reason in `why` (mirror.c ends the program with it); check_write is called before
+ * the instruction that writes is carried out, write after it; served: once per fault served.
+ * The completion of a transfer (see iopage.c), taken exactly once: port_iopage_poll by a poll of the game (kernel.c has checked
+ * the vblank's rules), port_iopage_deliver by the vblank's delivery before its handlers (port_handler_depth already raised),
+ * port_iopage_claim_due by the timer thread (1: claimed) and port_iopage_deliver_claimed by the interruption routine. */
 int  port_iopage_init(int trace, char *err, size_t errsize);
 int  port_iopage_read(unsigned addr, unsigned size, unsigned *value, char *why, size_t whysize);
 int  port_iopage_check_write(unsigned addr, unsigned size, char *why, size_t whysize);
 int  port_iopage_write(unsigned addr, unsigned size, unsigned value, char *why, size_t whysize);
 void port_iopage_served(void);
+void port_iopage_vblank(void);   /* kernel.c, once per vblank: with --trace, the counts line every 60 vblanks when the counts changed */
+void port_iopage_poll(void);
+void port_iopage_deliver(void);
+int  port_iopage_claim_due(void);
+void port_iopage_deliver_claimed(void);
+/* kernel.c: the one clock, in microseconds. iopage.c: PSY-Q's DMACallback(channel, routine): keeps the routine, returns the previous. */
+unsigned long long port_now_us(void);
+void *port_h_DMACallback(int dma, void (*func)(void));
 
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);

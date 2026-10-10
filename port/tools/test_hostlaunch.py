@@ -819,6 +819,7 @@ class Rig:
         self.built: dict[str, Path] = {}
         self.objects: list[Path] = []
         self.hole: Path | None = None
+        self.libs: list[str] = []            # libraries added to the link line of every program (test_hostiopage.py links PsyZ)
         self.last: dict | None = None        # the last program run: status (None if it timed out), stdout and stderr lines, timed_out
 
     def record(self, status, out, err, timed_out: bool = False) -> None:
@@ -916,7 +917,7 @@ class Rig:
             defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-{key}.exe"
             flags = [f for f in LINK_FLAGS if f not in hb.IMAGE_FLAGS] if old_link else LINK_FLAGS
-            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *flags, *defs], capture_output=True, text=True, timeout=300)
+            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *flags, *defs, *self.libs], capture_output=True, text=True, timeout=300)
             if proc.returncode != 0:
                 raise RuntimeError("the runtime did not link:\n" + proc.stderr.strip())
             self.built[key] = out
