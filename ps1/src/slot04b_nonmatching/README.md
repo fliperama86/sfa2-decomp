@@ -23,6 +23,8 @@ func_801b1a00_slot04_14: built 260 bytes, original 264 bytes; cases 2000, discar
 func_801b1a00_slot04_14 coverage: 66 of 66 instruction slots of the original executed
 func_801b1b40_slot04_0e: built 168 bytes, original 188 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b1b40_slot04_0e coverage: 47 of 47 instruction slots of the original executed
+func_801b21f8_slot04_0f: built 96 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801b21f8_slot04_0f coverage: 30 of 30 instruction slots of the original executed
 func_801b2270_slot04_0f: built 124 bytes, original 124 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b2270_slot04_0f coverage: 31 of 31 instruction slots of the original executed
 func_801b248c_slot04_0f: built 140 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -68,6 +70,8 @@ func_801b1a00_slot04_14 control: different 2000 of 2000 (expected more than 0)
   altered: store of the second table word moved from field_50 to field_5c, instruction slot 39
 func_801b1b40_slot04_0e control: different 2000 of 2000 (expected more than 0)
   altered: state byte 3 made 4, instruction slot 3
+func_801b21f8_slot04_0f control: different 2000 of 2000 (expected more than 0)
+  altered: final shift 4 changed to 3, instruction slot 21
 func_801b2270_slot04_0f control: different 756 of 2000 (expected more than 0)
   altered: bit test 0x80 changed to 0x40, instruction slot 10
 func_801b248c_slot04_0f control: different 2000 of 2000 (expected more than 0)
@@ -110,6 +114,7 @@ func_801b81f8_slot04_14 control: different 1484 of 2000 (expected more than 0)
 func_801b0904_slot04_12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b1a00_slot04_14 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b1b40_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801b21f8_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b2270_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b248c_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b24e0_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
