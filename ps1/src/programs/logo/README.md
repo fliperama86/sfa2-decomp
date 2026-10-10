@@ -249,10 +249,10 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   fixtures file is the largest of the folder because it holds the filled
   block.
 - `func_80010928_logo`: sets up the graphics and the two display environments
-  (inferred). Calls `ResetGraph(0)`, `SetDispMask(0)`, `CdReadCallback` with
-  the word at `0x8002eb38`, `SetDefDispEnv` for the two environments at
+  (inferred). Calls `ResetGraph(0)`, `SetDispMask(0)`, `SetVideoMode` with
+  the video mode word at `0x8002eb38`, `SetDefDispEnv` for the two environments at
   `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes and the word at
-  `0x8002eb50` to 0, and, when the word at `0x8002eb38` is not 0, the screen x
+  `0x8002eb50` to 0, and, when the video mode word is not 0, the screen x
   and y of both to 0 and 0x18. Then `ClearImage` of a local rectangle,
   `DrawSync(0)`, `VSync(0)`, `func_80158470` on the second environment and
   `SetDispMask(1)`. The eight callees are recorders in the test; the local

@@ -11,13 +11,13 @@
  * the program's two display environments (20 bytes each from 0x8002eb8c; the
  * game's DispEnv). In order:
  *   1. ResetGraph(0), SetDispMask(0);
- *   2. CdReadCallback(w) with the word w at 0x8002eb38 (a callback, inferred
- *      from the call);
+ *   2. SetVideoMode(w) with the video mode word w at 0x8002eb38 (the
+ *      routine is Sony's SetVideoMode, inferred from its listing);
  *   3. SetDefDispEnv(env0, 0, 0, 320, 240) and SetDefDispEnv(env1, 0, 240,
  *      320, 240) (the fifth argument goes on the stack);
  *   4. sets isrgb24 of env1 and of env0 to 1, and the word at 0x8002eb50
  *      (the index of the environment shown, as in func_80010a38_logo) to 0;
- *   5. when the word at 0x8002eb38 is not 0 (read again here): sets the
+ *   5. when the video mode word at 0x8002eb38 is not 0 (read again here): sets the
  *      screen y of env0 to 0x18, its screen x to 0, then the same of env1;
  *   6. makes the rectangle (0, 0, 0x3c0, 0x1e0) in a local and calls
  *      ClearImage(&rect, 0, 0, 0);
@@ -27,18 +27,18 @@
  *
  * Contract:
  *   Arguments: none. No result.
- *   Reads: the word at 0x8002eb38 (twice).
+ *   Reads: the video mode word at 0x8002eb38 (twice).
  *   Writes: isrgb24 of both environments (a byte each), the index word, and
- *     when the callback word is not 0 the two halfwords of each
+ *     when the video mode word is not 0 the two halfwords of each
  *     environment's screen x and y.
  *   Callees, all recorders in the test, never run: ResetGraph(mode),
- *     SetDispMask(mask), CdReadCallback(func), SetDefDispEnv(env, x, y, w, h)
+ *     SetDispMask(mask), SetVideoMode(mode), SetDefDispEnv(env, x, y, w, h)
  *     (five arguments), ClearImage(rect, r, g, b) (four arguments; the
  *     pointer is a local: the recorder logs its value and the two words
  *     behind it, so the test also compares the local's address, which the
  *     two codes share in the test), DrawSync(mode), VSync(mode), func_80158470(env) (one
  *     argument; the five words behind it are logged). The two
- *     environments (ten words), the callback word and the index word are
+ *     environments (ten words), the video mode word and the index word are
  *     watched, so that their values at every call are compared: the order
  *     of the stores against the calls shows.
  *   Slots no input can reach: none known.
@@ -52,7 +52,7 @@ void func_80010928_logo(void) {
     env = (DispEnv *)data_8002eb8c_logo;
     ResetGraph(0);
     SetDispMask(0);
-    CdReadCallback(data_8002eb38_logo);
+    SetVideoMode(data_8002eb38_logo);
     SetDefDispEnv(&env[0], 0, 0, 0x140, 0xf0);
     SetDefDispEnv(&env[1], 0, 0xf0, 0x140, 0xf0);
     env[1].isrgb24 = 1;

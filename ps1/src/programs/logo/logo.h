@@ -38,9 +38,7 @@ extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
    environments are data_8002eb8c_logo, reached through a cast to it. */
 extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
 
-/* A callback of the disc library: (status, result bytes). */
-typedef void (*CdCallback)(u8 status, u8 *result);
-extern CdCallback CdReadCallback(CdCallback func);
+extern long SetVideoMode(long mode);
 
 /* gp + 0x04: the buffer the decoder writes a strip to (inferred). */
 extern u32 *data_8002eb00_logo;
@@ -53,8 +51,8 @@ extern u32 *data_8002eb14_logo;
 extern Rect data_8002eb24_logo;
 /* gp + 0x38: not 0 sets the disc volume to left and right apart (inferred). */
 extern int data_8002eb34_logo;
-/* gp + 0x3c: a callback for the disc library (inferred; its use is the call of CdReadCallback). */
-extern CdCallback data_8002eb38_logo;
+/* gp + 0x3c: the video mode handed to SetVideoMode (inferred: 0 or 1). */
+extern int data_8002eb38_logo;
 /* gp + 0x40: a flag word, 1 while a strip is being decoded (inferred); volatile because an interrupt changes it (inferred). */
 extern volatile int data_8002eb3c_logo;
 /* gp + 0x44: the four volume bytes handed to CdMix (inferred from the call). */
