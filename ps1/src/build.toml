@@ -40074,3 +40074,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014362c", address = 0x8014362c, size = 92 },
 ]
+
+[[unit]]
+name = "f4a94cx_r1"
+source = "f4a94cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014a94c", address = 0x8014a94c, size = 256 },
+]
