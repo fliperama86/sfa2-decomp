@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "cd592d8ce9c0ed57565df4b77d3def19424bed1d59a1dd51400953543d855856",
+  "sha256": "e0357fdc975b379ea2b5140fd2a4b914340426802d76d8650e6422b94dc7c76f",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -515,20 +515,24 @@
       "line": 8065
     },
     {
-      "title": "Windows reference",
+      "title": "Two functions of one character file exact, the same code twice (2026-10-10)",
       "line": 8100
     },
     {
+      "title": "Windows reference",
+      "line": 8132
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8117
+      "line": 8149
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8142
+      "line": 8174
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8199
+      "line": 8231
     }
   ]
 }
