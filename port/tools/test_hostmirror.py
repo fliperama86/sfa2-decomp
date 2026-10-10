@@ -292,6 +292,7 @@ def native(rig: L.Rig):
 
 def launch(rig: L.Rig):
     L.VARIANTS["mirror"] = Variant("mirror", GAME_MIRROR, FUN_M, ABS_M, DOMAINS_M)
+    yield from L.rig_diagnostic_cases(rig)
 
     def go(tag, name, args=None, timeout=120, old_link=False):
         status, lines, img, arg = rig.run(tag, program(G[name]), variant="mirror", args=args, timeout=timeout, old_link=old_link)
@@ -428,19 +429,22 @@ def main() -> int:
         failed = 0
         gens = []
         if args.part in ("native", "all"):
-            gens.append(native(rig))
+            gens.append(("native", native(rig)))
         if args.part in ("launch", "all"):
-            gens.append(launch(rig))
+            gens.append(("launch", launch(rig)))
         try:
-            for gen in gens:
+            for part, gen in gens:
                 for name, detail in gen:
                     if detail is None:
                         print(f"ok   {name}")
                     else:
                         print(f"FAIL {name}: {detail}")
+                        if part == "launch":   # the whole output of the last program run, both streams (see test_hostlaunch.py)
+                            print("\n".join(rig.report()))
                         failed += 1
         except Exception as err:  # a control must report, not crash
             print(f"FAIL the control itself raised {type(err).__name__}: {err}")
+            print("\n".join(rig.report()))
             failed += 1
         print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
         return 1 if failed else 0

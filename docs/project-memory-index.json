@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "9ea83abd5c5fa66c9128aa3eb2f9add338fba6c3dec06b29e8abd3a8e129cf54",
+  "sha256": "c760823d65feee1160b5d1173729bdc44e8cda218243d4e4b7af0d8fabc029fd",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -569,6 +569,10 @@
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
       "line": 8677
+    },
+    {
+      "title": "The program always ends when the game's thread ends it (2026-10-10)",
+      "line": 8713
     }
   ]
 }

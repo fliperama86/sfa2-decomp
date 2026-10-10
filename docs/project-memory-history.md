@@ -8709,3 +8709,78 @@ No function count changes here: none of this is in the build.
   be one constant (inferred). For the port this means: in the PC
   program the low 12 bits of that field are 0 where the console had a
   value that depended on earlier code.
+
+## The program always ends when the game's thread ends it (2026-10-10)
+
+- What was seen. In a stress of the modules branch under 12 CPU burners, runs of
+  programs that end by `exit()` with the timer thread running printed their last
+  line and stayed (2 of 300 with the timer, 1 of 10 of a second case). With
+  `--no-interrupt` 300 of 300 ended; `--watchdog` did not end the hung ones.
+- Cause, shown on a hung process caught alive (`--timer-burst`, a scratch change
+  at first): one thread left, in the state Wait/Suspended, with suspend count 1,
+  instruction pointer in system code; a probe that resumed it once let the
+  process end. The timer thread had been ended by `ExitProcess` between its
+  `SuspendThread` and its `ResumeThread` of the game's thread.
+- Change (`interrupt.c`, `debug.c`, `main.c`, `mirror.c`, `port.h`): one gate,
+  a critical section, held from before `SuspendThread` until after
+  `ResumeThread` by the timer and by the watchdog. `port_suspenders_stop` takes
+  the gate, sets a flag and leaves it; after it no suspension is in flight and
+  none begins. It is registered with `atexit` and called before each
+  `ExitProcess` that can run on the game's thread: the crash routine of
+  `main.c` and the three stops of `mirror.c` (the last were added by the
+  graphics and mirror branches; found by searching for `ExitProcess`). The
+  handler entry is unchanged. `--timer-burst` (off by default) makes the timer
+  attempt without waiting.
+- Controls: two cases of `test_hostlaunch.py` run a program that ends by
+  `exit()` (20 runs) and one that ends through the crash routine (300 runs) with
+  `--timer-burst`; a run that does not end in 10 s fails the case and is ended
+  by its process id. One-off figures: without the gate and without the
+  `atexit` call, 78 of 200 runs of the first program hung (and 57 of about 140
+  in an earlier run of the unchanged code with the option); with the gate 0 of
+  200. The crash path hung 4 of 200 without its call (hence 300 runs). Mutants
+  (each fails a named case or is said not to): `atexit` removed fails the exit
+  case; the flag not checked fails both cases; the crash routine without the
+  call fails the crash case (5 of 300 runs hung); the timer without the gate
+  but still checking the flag fails no case (0 of 200 runs hung): the gate's
+  mutual exclusion beyond the flag is justified by reasoning only.
+- What the reviewer saw and what the rigs do now. One run of
+  `test_hostlaunch.py` failed `entry-unregistered-is-refused` with status 1 and no
+  output, and the rig had discarded stderr. The rig of `test_hostlaunch.py`
+  now keeps the status and every line of stdout and stderr of the last program
+  run (a run that timed out records that, with what it had printed, and does not
+  keep the run before); a failing case prints all of it. `test_hostgpu.py` had
+  a first version (last 12 lines, stale after a timeout) and now does the same;
+  `test_hostmirror.py` prints the launch rig's record. Each file has a case for
+  the diagnostic. No retry anywhere.
+- `test_psyzbuild.py`: the `input-unchanged` cases failed once or twice under
+  load (the two failed review runs of 2026-10-10, `boundary-obj-fifo-...` and
+  `boundary-obj-hard-link-to-the-patch-file-...`) without saying why; they now
+  name the entries that differ. Under 12 burners 12 of 25 runs failed one such
+  case (one-off), always with `removed psyz-src/.git/objects/maintenance.lock`:
+  the commit that the fixture makes started git's detached auto-maintenance,
+  which creates and removes that lock after the snapshot. Not the tool's doing.
+  Fixed at the root: every git command of the fixtures carries `-c
+  maintenance.auto=false -c gc.auto=0 -c gc.autoDetach=false` (covers the
+  `init`, `add` and `commit` of both fixtures); the comparison is unchanged and
+  `.git` is not excluded. After the change 0 of 25 runs failed under the same
+  load (one-off).
+- The gate's contract has a case. The hang itself was shown with the gate and
+  the `atexit` call removed (78 of 200, one-off); with only the flag (the timer
+  checks it, does not take the gate) 0 of 200 runs hung, also with a 1 ms wait
+  before `SuspendThread` or before `ResumeThread` in the timer: the hang needs
+  `SuspendThread` to land after the game's thread entered the kernel's
+  termination and before that ends the timer, and a wait only makes that rarer.
+  So the gate is kept for an interval no run reaches, and its stated contract
+  ("after the stop returns, no suspension is in flight and none can begin") is
+  tested directly, only with `--timer-burst`: the timer marks its round
+  (set once the flag was found clear, cleared after `ResumeThread`) and stays 1 ms
+  in it; the stop, after leaving the gate, ends the program with a line if the
+  mark is set; a round that begins after the stop, a direct `ExitProcess`
+  not preceded by the stop, and an `exit()` whose `atexit` stop did not run end
+  with a line of their own. One-off figures, 200 runs of the exit case with
+  `--timer-burst`: fixed 0 lines, 200 right (the crash case: 200 right);
+  timer without the gate but with the flag: 200 of 200 print the in-flight
+  line. The case runs 20 times each (the flawed variants fail every run).
+  Mutants, each failing a named case: gate not taken (exit case), flag not
+  checked (exit case), `atexit` removed (exit case), crash routine without the
+  stop (crash case).
