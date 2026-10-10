@@ -5888,3 +5888,7 @@ data_80051c54_slot28 = 0x80051c54;
 data_801c25b4_slot04_0b = 0x801c25b4;
 func_80158374 = 0x80158374;
 SetDrawEnv = 0x80158a84;
+
+/* Data that the nonmatching functions name. */
+data_801e9f48_slot06_00 = 0x801e9f48;
+data_801e9f60_slot06_00 = 0x801e9f60;
