@@ -9031,3 +9031,43 @@ No function count changes here. Nothing under `ps1/` changed.
   `Psyz_PadsPoll` and `Psyz_PadsGet` and starts no window. The keys line
   is compared with PsyZ's source, not with a key press.
 - A fault of the script found in review, and the control that could not find it. A repeat line was turned into presses and releases 4 frames apart, in one state with the down and up lines. Its last release could fall after the repeat's end and release a button that a later down line held: with `repeat 0 0.1 cross`, `0.15 cross down`, `1 cross up` the button was up from frame 10 where the page says it is held to frame 60. The controls did not see it because their expected words came from a function of the test that repeated the same calculation. Now the holds of the lines and the presses of the repeats are two states (a count of running presses per button), a press ends at the repeat's end, and four scripts have their words written out by hand, frame by frame, in both builds and with and without the timer: the reviewer's, a repeat that ends at a line of another button, a hold that begins before a repeat of the same button, and two repeats on one button. Against the code as it was pushed all 16 of those cases fail (the reviewer's at frames 10, 11, 30 and 59); with one state again, without the clipping, and without the count, named cases fail. The test's own function was rewritten in the other form (state at a frame, not a list of steps) and is no longer the only source of an expectation.
+
+## Nonmatching C for the other modules, first batch (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- A new folder, `ps1/src/modules_nonmatching/`, for functions of the
+  overlay modules that have no folder of their own (the stage modules
+  are in `slot06_nonmatching`, and `slot04b_nonmatching` holds the
+  character modules its page names; every other module's functions
+  come here); a file's name ends with its image's name.
+  First batch, fourteen functions: five of `slot01`
+  (`func_800108d4`, `func_80011a14`, `func_80012714`, `func_80012990`,
+  `func_80012dec`), two of `slot27` (`func_8001188c`, `func_8001791c`),
+  one of `slot00` (`func_80078628`) and six of `slot0f`
+  (`func_800e0b48`, `func_800e0f2c`, `func_800e3478`, `func_800e4ab0`,
+  `func_800e68e8`, `func_800e80ec`). The folder's page has what its
+  three commands printed for each.
+- The cut onto today's main needed no change to any function's C. It
+  brought one line of `symbols.ld` too many: a name of a function that
+  main builds as a unit since this C was written
+  (`func_80078d78_slot00`); the matching build refuses such a line, and
+  it was taken out again. The private helper that cuts the batches now
+  leaves out every name that the tree's configuration owns.
+- None of the fourteen builds the original's bytes (each was compared;
+  the first resident batch had shown that this has to be looked at).
+- The headers were read against the code before the pull request, as
+  for the resident batch after its review: about 430 statements (a
+  tally by hand), 10 wrong and 23 imprecise, all corrected in comments
+  and docstrings only; with comments and docstrings stripped, each of
+  the 28 files is identical before and after. Examples: a value
+  "pulled up by 8" that the code lowers by 8; a row test that was off
+  by one in the text; "all eight records" where seven are used;
+  "aliasing: none" where one global is a byte of another's block.
+- Calls: every call in the new units passes as many arguments as its
+  callee's definition or prototype has; none goes through a cast of
+  the callee.
+- Two functions of `slot0f` that wait with these are not in the batch
+  (`func_800e0850_slot0f`, `func_800e0a1c_slot0f`): they use the
+  result of three functions that the build's units define as `void`;
+  the question is with the matching lane.

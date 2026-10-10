@@ -1,10 +1,11 @@
 # Nonmatching C: the other modules
 
 C for functions of the overlay modules that have no folder of their own
-here (every module but the stage modules of
-[`../slot06_nonmatching/`](../slot06_nonmatching/README.md) and the
-character modules of [`../slot04b_nonmatching/`](../slot04b_nonmatching/README.md))
-that compiles with the pinned toolchain and does not reproduce the
+here (the stage modules are in
+[`../slot06_nonmatching/`](../slot06_nonmatching/README.md), and
+[`../slot04b_nonmatching/`](../slot04b_nonmatching/README.md) holds the
+character modules its page names; every other module's functions come
+here) that compiles with the pinned toolchain and does not reproduce the
 original's bytes. A file's name ends with the name of its image;
 `../build.toml` says which file of the disc's archives each image is.
 The PS1 build does not use any file of this folder; the raw bytes stay
