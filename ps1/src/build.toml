@@ -40012,3 +40012,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013e1e4", address = 0x8013e1e4, size = 204 },
 ]
+
+[[unit]]
+name = "f4362cx_r1"
+source = "f4362cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014362c", address = 0x8014362c, size = 92 },
+]

@@ -8062,6 +8062,41 @@ functions exact, 12,834 of 13,072 placements.
 Not claimed: that the form or any name is the original's. No run of
 the game.
 
+## A resident function exact, the first from an unattended search (2026-10-10)
+
+`func_8014362c`, 92 bytes, is called from three places with an object
+and the other object. It was parked: the original negates a box's
+extent into a register of its own and negates that again when the
+object is mirrored, and no candidate had kept both.
+
+From this day the functions without C are given to an unattended
+search first: the permuter runs on every parked candidate with a time
+limit (private helpers, twelve minutes for each function here), and
+what comes out exact is reduced by hand and published. This function
+is the first of that run.
+
+Reduced one step at a time, a local for the sum and the spare
+parentheses came out. What stays, each measured on the final text with
+`fndiff.py --rebuild`:
+
+- the difference is copied into the local that held the negated
+  extent, and the sign test reads the copy. With the test reading the
+  difference itself: 7 differing instruction slots. With one local for
+  the difference, the test and both values of the result: 6;
+- the result is 16 bits wide. As an `int`: 3;
+- the mirrored case negates the negated extent again. Reading the
+  extent again there: 12;
+- the mirror flag has a local. Tested in place: 14.
+
+Every assignment is read by a later statement.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,418 of 5,600 distinct functions exact, 12,835 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

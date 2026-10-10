@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "4754a36f4523a8bcdd54e9c45873b16c74cf79debb51b300c7240e8ae10ea8a1",
+  "sha256": "e8c2e35f2b1d7fdc1bffa24654767d1c1e9d22a2c119743dd1380822d6195745",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -511,24 +511,28 @@
       "line": 8023
     },
     {
-      "title": "Windows reference",
+      "title": "A resident function exact, the first from an unattended search (2026-10-10)",
       "line": 8065
     },
     {
+      "title": "Windows reference",
+      "line": 8100
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8082
+      "line": 8117
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8107
+      "line": 8142
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8164
+      "line": 8199
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8249
+      "line": 8284
     }
   ]
 }
