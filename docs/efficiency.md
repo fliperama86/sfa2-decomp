@@ -132,7 +132,8 @@ original code can have them too: the callee's calls are recorded with
 what it took and what it did, and a stand-in plays them at replay. A
 function cannot have them yet when its cases, or such a callee, read
 bytes of the game image, when its file stays over 100,000 bytes, when it
-has a recorder with a tail, when it reads address 0, when a callee that
+has a recorder with a tail (a callee that writes given bytes through
+an argument can have them: `fills`), when it reads address 0, when a callee that
 runs as original code takes a pointer to a local of the function or
 the address of its own stack, or when such a callee reads only part of
 an argument register and the two codes differ in the rest: for all of

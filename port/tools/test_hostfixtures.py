@@ -729,6 +729,17 @@ def format_and_input_cases(rig: Rig):
         name = "later" + label.replace("-", "")
         text = fills_line.replace("fills native", name + " native")
         yield f"fills-{label}-are-found", same(rig.run([rig.folder({name: SOURCES["add"]}, {name: doc(name, fixtures)})])[1], [text, counts(0, 0, 0, 0, 1)])
+    # A pointee behind an argument masked to 0 (the address of a local): the file holds 0 for the address, which this
+    # tool would take for a difference, so the function is not replayed. A mask that is not 0 is replayed as before.
+    masked_line = ("zeromask native replay: not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 "
+                   "(the address of a local, which the file does not hold); this tool cannot compare such an argument yet")
+    zero = doc("zeromask", [fx(), fx(recorders=[recorder(arguments=2, masks={"1": 0}, pointees={"1": 1})])])
+    status, out, err = rig.run([rig.folder({"zeromask": SOURCES["add"]}, {"zeromask": zero})])
+    yield "a-pointee-behind-an-argument-masked-to-0-is-not-replayed", same((status, out), (0, [masked_line, counts(0, 0, 0, 0, 1)]))
+    rec = lambda **kw: hf.Recorder(0x80100000, "stub_a", 2, kw.get("masks", {}), kw.get("pointees", {}), [], [], 0)  # noqa: E731
+    yield "masked-pointee-needs-both-a-mask-of-0-and-a-pointee", same(
+        [hf.masked_pointee(rec(masks={1: 0}, pointees={1: 1})), hf.masked_pointee(rec(masks={1: 0})), hf.masked_pointee(rec(masks={1: 255}, pointees={1: 1})),
+         hf.masked_pointee(rec(pointees={1: 1})), hf.masked_pointee(rec(masks={0: 0}, pointees={1: 1}))], [True, False, False, False, False])
     badfills = doc("badfills", [fx(recorders=[recorder(arguments=1, fills="x")])])
     status, out, err = rig.run([rig.folder({"badfills": SOURCES["add"]}, {"badfills": badfills})])
     yield "fills-that-are-not-a-list-are-an-input-error", same((status, out, err.startswith("INPUT ERROR: badfills.fixtures.json: fixture 0: fills of a recorder must be a list")), (2, [], True))

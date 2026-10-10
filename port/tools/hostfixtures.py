@@ -28,6 +28,8 @@ replayed with the override's C, which is what the PC program runs. Output: per f
     FUNC native replay: not replayed: its fixtures hold calls of original callees (format 2)
     FUNC native replay: not replayed: a recorder of its fixtures writes through an argument (fills); the native
         harness's stand-ins cannot write through an argument yet
+    FUNC native replay: not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 (the
+        address of a local, which the file does not hold); this tool cannot compare such an argument yet
 
 and a last line with the counts. Status: 0 when nothing failed and everything was built, 1 otherwise, 2 for a file
 that cannot be read or a name that no folder has (nothing is built then).
@@ -66,6 +68,8 @@ CALL_FIELDS = ("args", "callee", "pointees", "returned", "watched")
 FORMAT2_LINE = "not replayed: its fixtures hold calls of original callees (format 2)"
 FILLS_LINE = ("not replayed: a recorder of its fixtures writes through an argument (fills); "
               "the native harness's stand-ins cannot write through an argument yet")
+MASKED_POINTEE_LINE = ("not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 (the address of a "
+                        "local, which the file does not hold); this tool cannot compare such an argument yet")
 
 
 class FixtureError(Exception):
@@ -87,6 +91,13 @@ class Recorder:
     counts: list[int]
     ends_at: int
     fills: list = dataclasses.field(default_factory=list)  # [call, argument, offset, hex] as the file has them; not replayed here
+
+
+def masked_pointee(recorder: Recorder) -> bool:
+    """True when an argument of the recorder has a pointee and is masked to 0: the file holds 0 for the address, and this
+    tool, which takes an argument that the PC's stack holds as equal only for a fixture value in the PS1's stack, would
+    fail it."""
+    return any(recorder.masks.get(index) == 0 for index in recorder.pointees)
 
 
 @dataclasses.dataclass
@@ -578,6 +589,8 @@ def replay_job(job: Job, doc: Doc, config: Path, build: Path, cc: str, timeout: 
         return Outcome(job.name, lines + [head + FORMAT2_LINE], "not replayed")
     if any(r.fills for fx in doc.fixtures for r in fx.recorders):
         return Outcome(job.name, lines + [head + FILLS_LINE], "not replayed")
+    if any(masked_pointee(r) for fx in doc.fixtures for r in fx.recorders):
+        return Outcome(job.name, lines + [head + MASKED_POINTEE_LINE], "not replayed")
     try:
         ret = return_type(job.source.read_text(), job.name)
     except OSError as err:

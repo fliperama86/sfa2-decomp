@@ -182,7 +182,10 @@ function, has no fixtures, or has a fixture with a missing or malformed field is
 refused with the file's name on standard error and status 2, before anything is
 built. A file of format 2 (calls of original callees) is not replayed: its function
 gets the line `not replayed: its fixtures hold calls of original callees (format 2)`
-and is counted apart. A format 1 file with a call marked `original` is refused.
+and is counted apart. So is a function whose fixtures have a recorder with `fills`
+(`not replayed: a recorder of its fixtures writes through an argument (fills); the native
+harness's stand-ins cannot write through an argument yet`) or a pointee behind an
+argument masked to 0. A format 1 file with a call marked `original` is refused.
 
 **A fixture becomes a case** of the harness. Memory: the bytes of `reads`, over them
 those of `same`, and each byte of `writes` that neither names as its expected value
@@ -262,6 +265,7 @@ itself is replayed from its own file.
         up to three lines of what differed first
     FUNC native replay: not built: FIRST ERROR LINE
     FUNC native replay: not replayed: its fixtures hold calls of original callees (format 2)
+    FUNC native replay: not replayed: a recorder of its fixtures writes through an argument (fills); ...
     native replay: functions replayed R, all passed A, with a failure F, not built B, not replayed N
 
 `not built` is also the line for a C file that cannot be read, a definition whose
