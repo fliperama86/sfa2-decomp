@@ -455,7 +455,7 @@ static void run_vblank(void)
  * Not inside a handler, not with interrupts disabled (EnterCriticalSection), not while a vblank is being done. */
 int port_interrupt_allowed(void)
 {
-    return port_handler_depth == 0 && interrupts_enabled && !vblank_in_progress;
+    return port_handler_depth == 0 && interrupts_enabled && !vblank_in_progress && !port_mirror_serving;
 }
 
 /* The timer thread's step: with the game's thread suspended at a place where an interruption is allowed, take
