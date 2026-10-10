@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "316a835938270976f433d4f102f7b5365cdb59ff2e92e407b7268d5d51d55b06",
+  "sha256": "f64187b3064ec2cee58d11f35a5b53a3fe8d62999b42e90c30701824441501bc",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -515,24 +515,32 @@
       "line": 8065
     },
     {
-      "title": "Windows reference",
+      "title": "Two functions of one character file exact, the same code twice (2026-10-10)",
       "line": 8100
     },
     {
+      "title": "Windows reference",
+      "line": 8132
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8117
+      "line": 8149
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8142
+      "line": 8174
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8199
+      "line": 8231
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
+      "line": 8316
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8284
+      "line": 8430
     }
   ]
 }
