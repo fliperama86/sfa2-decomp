@@ -9339,6 +9339,17 @@ No function count changes here: none of this is in the build.
 - First use of the rule, the same day: the pull request with
   thirty-one module functions was opened on the runs that existed, and
   its description says that the review command was not run and why.
+- The owner added the same day, on tests: "IMO, non-matching functions
+  should be accompanied by a few fixtures for the unit test and that is
+  it. no need to re-run even dependent functions, this is the test
+  driven development, isolated tests. this is critical because each
+  function should only care about what they do, not about dependents
+  or dependencies." Asked whether values that the original code
+  computes may be published in fixtures: "fixtures are fine to
+  publish." And on reviews: "the reviewer can't spend hours retesting
+  everything, it should run the isolated tests, review the code and
+  that is it." The page has a section for each. The fixture form does
+  not exist yet in the tools.
 - Still to do, each its own work: `difftest.py` cheaper per case; the
   review's results keyed by what a function depends on, and its checks
   run at the same time; a matching build that links only the images a

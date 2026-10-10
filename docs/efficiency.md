@@ -65,11 +65,51 @@ are reworded when they next change.
 
 ## For a review
 
-The same rules hold for whoever reviews. Verify what a change claims
-with the narrowest run that would fail if the claim were false: for an
-exact unit its image, for a nonmatching function that function's test
-and whatever case the reviewer invents for it. Do not run the tree
-again to review one function.
+By the owner's word of 2026-10-10 a reviewer does not spend hours
+retesting. A review is: run the isolated tests of what changed, read
+the code, and that is it.
+
+- For an exact unit: build its image and see the bytes match. Read the
+  C.
+- For a nonmatching function: run that function's own test. Read the C
+  and its contract against each other. A case the reviewer invents for
+  that one function is welcome; a rerun of other functions is not.
+- For a tool or a piece of the port: run the tests of that piece. Read
+  the code.
+- For text: read it.
+
+Not part of a review: the whole matching build, every folder's tests,
+every control file of the port, or any run that the change cannot
+affect. When a reviewer thinks a wider run is needed, the reason is a
+gap in the isolated tests, and the finding is that gap.
+
+## Fixtures for nonmatching functions
+
+The owner's decision of 2026-10-10: a nonmatching function comes with
+a few fixtures for its unit test, and that is all its test needs. A
+fixture is one input (the arguments and the memory the function reads)
+with the result the original code gives for it (the return value, the
+memory it leaves, the calls it makes). The test runs the function's C
+on each fixture and compares. It does not run the original code, it
+does not depend on any other function's C, and nothing has to be run
+again when another function changes: each function cares about what it
+does, not about what depends on it or what it depends on.
+
+- The wide search with many random inputs against the original code is
+  made once, when the function is written or changed. What it found
+  worth keeping becomes fixtures.
+- Fixtures are chosen on purpose: every arm of the function, and the
+  edges of its comparisons, not only a random sample.
+- Fixtures are published with the function. The owner has said that
+  values the original code computes for inputs the project makes up
+  may be published.
+- The same fixtures can test the function as compiled for the PC,
+  which the comparison with the original's machine code cannot.
+
+This is the direction; as of 2026-10-10 the tools do not have it yet.
+Today's test (`difftest.py`) runs the original code and random cases
+on every run. Until the fixture form exists, the table above is what
+to run.
 
 ## Known costs, as of 2026-10-10
 
@@ -90,6 +130,8 @@ the table are the way around it.
   every case. (Measured once, on 2026-10-10; not yet profiled in
   detail.)
 - `port/tools/hostbuild.py` compiles every unit again on each run.
+
+- Nonmatching functions have no fixtures yet (see above).
 
 When one of these is repaired, its line leaves this list in the same
 pull request.

@@ -54,6 +54,11 @@ full and says what to run for which change; read it before any run.
   name its commit.
 - Every new tool and check is made as an isolated, fast unit test that
   needs no running game.
+- A nonmatching function comes with a few fixtures for its unit test;
+  nothing else is run again because it changed, and it is not run again
+  because something else changed.
+- A review runs the isolated tests of what changed and reads the code.
+  It does not retest the tree.
 
 ## Safety and workflow
 
