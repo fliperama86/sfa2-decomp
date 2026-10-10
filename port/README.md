@@ -901,7 +901,11 @@ routines that do nothing on purpose. What is in this piece:
   the game's files; both belong to the differential test.
   What no command of this repository shows: that the PC program with
   them plays on where it stopped without them. That was seen only in
-  private runs with the user's disc.
+  two private runs with the user's disc on 2026-10-10, the same tree
+  built with the folder and with an empty one: without the overrides
+  the program stopped in a fight, inside the call that `func_8014dcc0`
+  makes through the pointer; with them it played through that fight
+  and on for as long as the run lasted.
 - The runtime calls only what it installed. The game hands the library
   addresses to call later: a thread's entry, an event's handler, the
   interrupt and vertical-blank callbacks. Each is checked at the moment

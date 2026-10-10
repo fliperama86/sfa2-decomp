@@ -9233,3 +9233,23 @@ No function count changes here: none of this is in the build.
   the write audit and the control of a changed override on two seeds,
   and of every override when a shared header or the harness changes
   (a case in its test; with the block switched off the case fails).
+- Private runs, 2026-10-10, not a command of the repository (they need
+  the user's disc and the private tree with the unpublished
+  nonmatching C): the trial tree with this mechanism and the four
+  overrides, and with the two private changes of the game's source
+  taken out again (`s120f40_r2.c`, `s14d8a4_r2.c`, `protos.h` and
+  `externs.h` as on main). Built with the folder: the build said
+  `functions overridden in C: 4`, the program `overrides in C: 4`, and
+  a scripted run of 500 seconds played two fights, the change of
+  module between them and into a third fight, with no stop. Built
+  with an empty folder (`functions overridden in C: 0`): the same
+  script ended in the second fight with
+  `stop: crash: the game used the PS1's RAM mirror at 0x00000000 (execute)`,
+  and the report's stack names `func_8014dcc0` under a function of a
+  character module. The first fight passed in that run: the stop
+  depends on which function the pointer holds and on what the stack
+  holds where the callee looks for its parameter. The run with the
+  overrides was slower through the script than the run of the same
+  script with the private source changes had been (third fight where
+  that one had reached the ranking screen); the runs are not
+  deterministic, and why was not looked into.
