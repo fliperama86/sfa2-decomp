@@ -33,13 +33,10 @@ void func_8013d834(Object *object, u8 index, u8 arg) {
     func_8013f2c8(object);
     return;
 apply:
-    {
-        Slot *sl = (Slot *)((u8 *)object + (index << 3));
-        ((u8 *)&sl->field_02)[0x2b0]--;
-        if (((u8 *)&sl->field_02)[0x2b0] == 0) {
-            ((u8 *)&sl->field_00)[0x2b0]++;
-        }
-        ((u8 *)&sl->field_01)[0x2b0] = game_state.field_35c;
+    object->slots[index].field_02--;
+    if (object->slots[index].field_02 == 0) {
+        object->slots[index].field_00++;
     }
+    object->slots[index].field_01 = game_state.field_35c;
     func_8013f1bc(object, index, arg);
 }
