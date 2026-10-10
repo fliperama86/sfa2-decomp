@@ -734,7 +734,7 @@ const unsigned port_override_set_count = 1;
 """
 
 
-def tables_c(functions, absents, pin: bytes) -> str:
+def tables_c(functions, absents, pin: bytes, flagged=()) -> str:
     out = ['#include "port_tables.h"']
     for _, _, sym in functions:
         out.append(f"extern void {sym}(void);")
@@ -742,7 +742,7 @@ def tables_c(functions, absents, pin: bytes) -> str:
     out.append("const unsigned port_image_count = 1;")
     out.append("const struct port_function port_functions[] = {")
     for name, addr, sym in functions:
-        out.append(f'    {{ 0x{addr:08x}u, (void *){sym}, "{name}", -1 }},')
+        out.append(f'    {{ 0x{addr:08x}u, (void *){sym}, "{name}", -1, {int(name in flagged)} }},')
     out.append("};")
     out.append(f"const unsigned port_function_count = {len(functions)};")
     out.append("const struct port_absent port_absents[] = {")
@@ -760,8 +760,8 @@ MARK_END = '__asm__(".text\\n\\tnop\\n.globl _port_game_text_end\\n_port_game_te
 
 
 class Variant:
-    def __init__(self, name, game, functions, absents, domains_c):
-        self.name, self.game, self.functions, self.absents, self.domains_c = name, game, functions, absents, domains_c
+    def __init__(self, name, game, functions, absents, domains_c, flagged=()):
+        self.name, self.game, self.functions, self.absents, self.domains_c, self.flagged = name, game, functions, absents, domains_c, flagged
 
 
 VARIANTS = {
@@ -769,6 +769,10 @@ VARIANTS = {
     "mech": Variant("mech", GAME_MECH, FUN_MECH, ABS_MECH,
                     domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it" },')),
     "mech-noover": Variant("mech-noover", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C)),
+    # the row of game_over flagged: its C is an override of the build; with a host override of the same name that is two overrides
+    "mech-in-c": Variant("mech-in-c", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C), ("game_over",)),
+    "mech-twice": Variant("mech-twice", GAME_MECH, FUN_MECH, ABS_MECH,
+                          domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it" },'), ("game_over",)),
     "dup": Variant("dup", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "lib_a", (void *)host_c, 0 },')),
     "dup-address": Variant("dup-address", GAME_MECH, FUN_MECH, ABS_MECH,
                            domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_A)),
@@ -904,7 +908,7 @@ class Rig:
             objs = list(self.runtime_objects())
             if not old_link:
                 objs.append(self.filler())
-            for tag, text in (("tables", tables_c(v.functions, v.absents, pin)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
+            for tag, text in (("tables", tables_c(v.functions, v.absents, pin, v.flagged)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
                 path.write_text(text)
                 objs.append(self.compile(path, ["-Wno-unused-function"] if tag == "game" else None))
@@ -952,7 +956,7 @@ class Rig:
         return proc.returncode, out.replace("\r\n", "\n").splitlines()
 
 
-def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0, with_c: int = 2, without_c: int = 2) -> list[str]:
+def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0, with_c: int = 2, without_c: int = 2, in_c: int = 0) -> list[str]:
     s = img.sector["SLPS_004.15;1"]
     return [
         "memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000",
@@ -962,6 +966,7 @@ def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0
         f"jumps: {with_c} written for functions with C, {without_c} for functions without",
         f"library: {host} host routines, {stops} left that stop",
         f"overrides: {overrides}",
+        f"overrides in C: {in_c}",
     ]
 
 
@@ -1038,6 +1043,17 @@ def cases(rig: Rig):
 
     status, lines, img, arg = rig.run("mech-noover", program(G_MECH), variant="mech-noover")
     yield "without-the-override-the-games-own-c-runs", verdict((status, "original C ran" in lines, "override ran" in lines), (4, True, False))
+
+    status, lines, img, arg = rig.run("mech-in-c", program(G_MECH), variant="mech-in-c")
+    want = head(img, arg, host=2, stops=2, overrides=0, with_c=4, without_c=5, in_c=1) + [
+        f"start: 0x{G_MECH:08x}", "host a ran 5", "a returned 6", "host c ran 7", "c returned 9", "original C ran",
+        f"stop: library function lib_b (0x{LIB_B:08x}) has no host routine yet"]
+    yield "a-flagged-row-is-counted-on-its-own-line-and-not-as-a-host-override", verdict((status, lines), (4, want))
+
+    status, lines, img, arg = rig.run("mech-twice", program(G_MECH), variant="mech-twice")
+    bad = [l for l in lines if l.startswith(("library:", "overrides", "start:", "stop:")) or l.endswith("ran")]
+    yield "a-function-with-an-override-in-c-and-a-host-override-is-refused-by-name", None if status == 2 and lines[-1] == (
+        "refused: overrides: game_over has two overrides: a host routine of the overrides table and an override in C of the build") and not bad else f"status {status}, lines {lines!r}"
 
     for tag, text in (("dup", "library: lib_a is listed twice (test and test, as lib_a)"),
                       ("dup-address", f"library: lib_a is listed twice (test and test, as @0x{LIB_A:08x})"),

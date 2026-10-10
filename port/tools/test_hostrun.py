@@ -16,6 +16,10 @@ longer than the entry, a directory over the bound or longer than the image, an
 extent beyond the image, more files than the caller holds, more folders than the
 table holds, a folder inside a folder.
 
+The refusal of a function that has two overrides (library.c, on made-up tables): a host routine of the
+overrides table and an override in C of the build (the `overridden` field of its row), by name, also from the
+listing of the library; a host routine beside a flagged row of another function, and a flagged row alone, are fine.
+
 What is NOT tested here: the Windows mapping (memory.c), the jumps (jumps.c),
 the stop routine and main.c. Those need the linked Windows program and are
 exercised by the real run of the program on a real disc image.
@@ -125,7 +129,7 @@ static void fa(void) {}
 char port_game_text_begin, port_game_text_end;   /* jumps.c checks call targets against these; this test does not call it */
 const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0, 0 }};
 const unsigned port_image_count = 1;
-const struct port_function port_functions[] = {{ 0x80100000u, (void *)fa, "fa", -1 }, { 0x80100040u, (void *)fa, "fb", -1 }, { 0x80180000u, (void *)fa, "m", 0 }};
+const struct port_function port_functions[] = {{ 0x80100000u, (void *)fa, "fa", -1, 0 }, { 0x80100040u, (void *)fa, "fb", -1, 0 }, { 0x80180000u, (void *)fa, "m", 0, 0 }};
 const unsigned port_function_count = 3;
 const struct port_absent port_absents[] = {{ 0x80100020u, "x", -1, 0 }, { 0x801fffb0u, "end", -1, 1 }, { 0x80180100u, "my", 0, 0 }
 #ifdef DUP
@@ -779,6 +783,78 @@ def gate_cases(root: Path, cc: str):
     yield "gate-knows-exactly-the-resident-starts", None if first == (0, want) else f"status and lines {first!r}"
 
 
+OVER_MAIN = r"""
+#include "port.h"
+#include "port_tables.h"
+#include <stdlib.h>
+#include <string.h>
+void port_stop(unsigned returned) { (void)returned; }
+static void fa(void) {}
+static void host(void) {}
+const struct port_image port_images[] = {{ "mod", 0x80180000u, 0, 1, 0, 0 }};
+const unsigned port_image_count = 1;
+const struct port_function port_functions[] = {{ 0x80100000u, (void *)fa, "fa", -1, 0 }, { 0x80100040u, (void *)fa, "fb", -1, FLAG_FB }, { 0x80180000u, (void *)fa, "m", 0, 1 }};
+const unsigned port_function_count = 3;
+const struct port_absent port_absents[] = {{ 0x80100020u, "lib", -1, 1 }};
+const unsigned port_absent_count = 1;
+const unsigned char port_program_sha256[32] = {0};
+static const struct port_library none[] = {{ 0, 0, 0 }};
+const struct port_domain port_domains[] = {{ "test", none }};
+const unsigned port_domain_count = 1;
+static const struct port_override listed[] = { LISTED { 0, 0, 0 } };
+const struct port_override *const port_override_sets[] = { listed };
+const unsigned port_override_set_count = 1;
+int main(int argc, char **argv)
+{
+    char err[PORT_ERR] = "";
+    struct port_install in;
+    static unsigned char ram[PORT_RAM_SIZE];
+    int list = argc > 1 && strcmp(argv[1], "list") == 0;
+    int r = list ? port_library_list(err, sizeof err) : port_library_install(ram, &in, err, sizeof err);
+    if (r != 0) { printf("refused: %s\n", err); return 2; }
+    if (!list) printf("installed: %u overrides, jump at fa %02x, at fb %02x\n", in.overrides, ram[0x100000], ram[0x100040]);
+    return 0;
+}
+"""
+
+
+def override_flag_cases(root: Path, cc: str):
+    """The runtime's refusal of a function that has two overrides: a host routine of the overrides table and an override in C."""
+    d = root / "overflag"
+    d.mkdir()
+    src = d / "over.c"
+    src.write_text(OVER_MAIN)
+
+    def build(tag: str, flag_fb: int, listed: str):
+        out = d / tag
+        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", f"-DFLAG_FB={flag_fb}", f"-DLISTED={listed}", "-I", str(SRC), "-o", str(out), str(src), str(SRC / "library.c")],
+                              capture_output=True, text=True, timeout=120)
+        return out, proc
+
+    item = lambda name: '{ "%s", (void *)host, "the test replaces it" },' % name   # noqa: E731
+    out, proc = build("twice", 1, item("fb"))
+    if proc.returncode != 0:
+        yield "override-flag-builds", proc.stderr
+        return
+    status, lines = run(out)
+    refusal = "refused: overrides: fb has two overrides: a host routine of the overrides table and an override in C of the build"
+    yield "a-function-with-a-host-override-and-an-override-in-c-is-refused-by-name", None if (status, lines) == (2, [refusal]) else f"status {status}, lines {lines!r}"
+    status, lines = run(out, "list")
+    yield "the-listing-of-the-library-refuses-it-too", None if (status, lines) == (2, [refusal]) else f"status {status}, lines {lines!r}"
+    out, proc = build("host-only", 0, item("fb"))
+    status, lines = run(out)
+    yield "a-host-override-of-a-function-that-is-not-flagged-is-installed", None if (status, lines) == (0, ["installed: 1 overrides, jump at fa 00, at fb e9"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("c-only", 1, "")
+    status, lines = run(out)
+    yield "an-override-in-c-alone-is-no-host-override-and-writes-no-jump", None if (status, lines) == (0, ["installed: 0 overrides, jump at fa 00, at fb 00"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("other", 1, item("fa"))
+    status, lines = run(out)
+    yield "a-host-override-of-another-function-is-fine-beside-a-flagged-row", None if (status, lines) == (0, ["installed: 1 overrides, jump at fa e9, at fb 00"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("module", 0, item("m"))
+    status, lines = run(out)
+    yield "a-flagged-module-row-does-not-touch-the-resident-table", None if status == 2 and "m is listed but this build has no function of that name with C" in lines[-1] else f"status {status}, lines {lines!r}"
+
+
 def groups(root: Path, prog: Path, cc: str):
     yield disc_cases(root, prog)
     yield list_cases(root, prog)
@@ -788,6 +864,7 @@ def groups(root: Path, prog: Path, cc: str):
     yield sha_cases(root, prog)
     yield identity_cases(root, prog)
     yield gate_cases(root, cc)
+    yield override_flag_cases(root, cc)
 
 
 def main() -> int:
