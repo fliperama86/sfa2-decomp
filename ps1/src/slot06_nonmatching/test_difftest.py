@@ -3029,13 +3029,804 @@ def case_y_main_not_swept():
 def case_y_main_refusals():
     results = []
     for argv, text in ((["--edges", "--control"], "--edges and --control"), (["--edges", "--writes"], "--edges and --writes"),
-                       (["--jobs", "2"], "--jobs applies to --edges only"), (["--control", "--jobs", "1"], "--jobs applies"),
+                       (["--jobs", "2"], "--jobs applies to --edges and --record only"), (["--control", "--jobs", "1"], "--jobs applies"),
                        (["--writes", "--jobs", "1"], "--jobs applies"), (["--edges", "--jobs", "0"], "--jobs needs 1 or more"),
                        (["--edges", "--jobs", "-3"], "--jobs needs 1 or more")):
         status, out, err = edges_main(argv)
         results.append(None if status == 2 and out == "" and text in err and err.startswith("INPUT ERROR") else (argv, status, out, err))
     bad = [r for r in results if r]
     return None if not bad else f"{bad}"
+
+
+# ---------------------------------------------------------------------------
+# Group Z: fixtures (--record, --replay) on made-up functions
+
+import json  # noqa: E402
+
+FXCFG = types.SimpleNamespace(symbol_values={"func_callee": CALLEE, "func_callee_b": CALLEE_B})
+FX_CASES = 60
+FX_DATE = "2026-01-02"
+FLAG3 = 0x80030300
+
+
+def fx_x(case, seed=1):
+    """The input of a case of `fx_setup` (its first random draw)."""
+    return edge_input(random.Random(f"{seed}:{LABEL}:{case}"))
+
+
+def fx_first(value, seed=1):
+    return next(c for c in range(FX_CASES) if fx_x(c, seed) == value)
+
+
+def fx_setup(state, rng, sym):
+    """x in 0..7 at FLAG; the word after it is random and the function never reads it."""
+    state.w32(FLAG, edge_input(rng))
+    state.w32(FLAG + 4, rng.getrandbits(32))
+    return contracts.Setup(args=(), returns_value=True)
+
+
+# reads x, returns x < 5, stores the result at FLAG + 8, uses its stack (a store, a read of that store, a read of
+# an unwritten stack word), and stores a word to its own home area; slot 10 is never executed
+FX_WORDS = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), slti(V0, T1, 5), sw(V0, T0, 8),
+            sw(T1, SP, -8), lw(T2, SP, -8), lw(T2, SP, -16), sw(T1, SP, 0), JR_RA, NOP, ori(12, ZERO, 9)]
+
+
+def fx_record(words, setup, build_words=None, cases=FX_CASES, seed=1, cap=D.FIXTURE_CAP, ram=None, folder=None):
+    """record_function on a made-up original. Returns (lines, status, document or None, file text or None)."""
+    build_words = build_words or words
+    build = D.Build(make_code(build_words), 4 * len(build_words), 0)
+    with contextlib.ExitStack() as stack:
+        directory = Path(folder) if folder else Path(stack.enter_context(tempfile.TemporaryDirectory()))
+        stack.enter_context(contract_of(LABEL, setup))
+        stack.enter_context(patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(words)), today=lambda: FX_DATE))
+        lines, status = D.record_function(FXCFG, LABEL, build, cases, seed, cap, ram or ram_with_callees(words),
+                                          bytes(D.SCRATCH_SIZE), directory, 1)
+        path = D.fixtures_path(directory, LABEL)
+        text = path.read_text() if path.exists() else None
+    return lines, status, json.loads(text) if text else None, text
+
+
+def fx_replay(doc, build_words, image=None):
+    build = D.Build(make_code(build_words), 4 * len(build_words), 0)
+    return D.replay_function(FXCFG, LABEL, build, doc, lambda: image)
+
+
+def fx_summary(lines):
+    return lines[0]
+
+
+def case_z_hook_finds_the_reads():
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, cases=10)
+    if status:
+        return f"{lines}"
+    for fixture in doc["fixtures"]:
+        x = fx_x(fixture["case"])
+        if fixture["reads"] != [[D.hex8(FLAG), x.to_bytes(4, "little").hex()]]:
+            return f"case {fixture['case']}: reads {fixture['reads']}"
+        # the result is stored as a word over a word of zeros: a result of 0 changes no byte, and 1 changes one
+        want = ([[D.hex8(FLAG + 8), "01"]], [[D.hex8(FLAG + 9), "000000"]]) if x < 5 else ([], [[D.hex8(FLAG + 8), "00000000"]])
+        if (fixture["writes"], fixture["same"]) != want:
+            return f"case {fixture['case']}: writes {fixture['writes']}, same {fixture['same']}"
+    return None
+
+
+def case_z_stack_and_home_area_are_not_reads_or_writes():
+    _lines, _status, doc, _ = fx_record(FX_WORDS, fx_setup, cases=10)
+    low, high = D.STACK_LOW, D.STACK_TOP + D.HOME_AREA
+    for fixture in doc["fixtures"]:
+        for key in ("reads", "writes", "same"):
+            for address, data in fixture[key]:
+                start = int(address, 16)
+                if start < high and start + len(data) // 2 > low:
+                    return f"{key} {address} lies in the stack or the home area"
+    return None
+
+
+def case_z_recorders_own_memory_is_not_a_read_but_what_they_copy_is():
+    # the recorder copies two words behind its argument into the log; the log and the recorder's code are the
+    # harness's, the two words are memory of the case that the original's run depends on
+    words = program(("call", CALLEE, [BUF], []))
+
+    def setup(state, rng, sym):
+        state.w32(BUF, 0xA0)
+        state.w32(BUF + 4, 0xA1)
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 1, 0, pointees={0: 2})
+        holder.append(log)
+        return contracts.Setup(args=(), returns_value=False)
+
+    holder = []
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    got = D.bytes_of(fixture["reads"])
+    inside = [hex(a) for a in got if any(lo <= a < lo + n for lo, n in holder[0].owned)]
+    ok = fixture["reads"] == [[D.hex8(BUF), "a0000000a1000000"]] and not inside
+    return None if ok else f"reads {fixture['reads']}, in the harness {inside}"
+
+
+def case_z_watched_block_the_function_never_touched_is_a_read():
+    watched = WATCHED2
+    words = program(("call", CALLEE, [1], []))
+
+    def setup(state, rng, sym):
+        state.w32(watched, 0x11223344)
+        log = contracts.CallLog(state, watch=((watched, 1),))
+        log.replace(CALLEE, 1, 0)
+        return contracts.Setup(args=(), returns_value=False)
+
+    _lines, _status, doc, _ = fx_record(words, setup, cases=2)
+    fixture = doc["fixtures"][0]
+    ok = fixture["reads"] == [[D.hex8(watched), "44332211"]] and fixture["calls"][0]["watched"] == ["44332211"]
+    ok = ok and fixture["watch"] == [[D.hex8(watched), 1]]
+    return None if ok else f"reads {fixture['reads']}, calls {fixture['calls']}, watch {fixture['watch']}"
+
+
+def case_z_unicorn_delay_slot_hazard_does_not_matter():
+    # A store in the delay slot of a conditional branch that is not taken, with a jump after it: a memory hook
+    # of Unicorn 2.1.4 ends such a run with an exception; the instruction hook the tool uses does not.
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), addiu(T1, ZERO, 1), beq(T1, ZERO, 12, 28),
+             sw(T1, T0, 8), lw(T2, T0, 0), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, plain_setup(False), cases=2)
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    ok = fixture["reads"] == [[D.hex8(FLAG), "00000000"]] and fixture["writes"] == [[D.hex8(FLAG + 8), "01"]]
+    return None if ok else f"{fixture['reads']} {fixture['writes']}"
+
+
+def case_z_round_trip():
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    if status:
+        return f"{lines}"
+    got, replay_status = fx_replay(doc, FX_WORDS)
+    want = f"{LABEL} replay: fixtures {len(doc['fixtures'])}, passed {len(doc['fixtures'])}, failed 0"
+    return None if got == [want] and replay_status == 0 else f"{got} {replay_status}"
+
+
+def case_z_same_value_store_is_not_an_extra_write():
+    # the function stores 0 over a word that the setup left 0 and never reads it
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), sw(ZERO, T0, 4), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, plain_setup(False), cases=3)
+    fixture = doc["fixtures"][0]
+    if fixture["writes"] != [] or fixture["same"] != [[D.hex8(FLAG + 4), "00000000"]]:
+        return f"writes {fixture['writes']}, same {fixture['same']}"
+    got, _ = fx_replay(doc, words)
+    return None if got == [f"{LABEL} replay: fixtures {len(doc['fixtures'])}, passed {len(doc['fixtures'])}, failed 0"] else f"{got}"
+
+
+def case_z_file_is_deterministic():
+    first = fx_record(FX_WORDS, fx_setup)[3]
+    second = fx_record(FX_WORDS, fx_setup)[3]
+    ok = first == second and first.endswith("\n") and chr(0x2014) not in first and first.count("\n") == len(json.loads(first)["fixtures"]) + 8
+    return None if ok else "two records differ, or the file's shape is not one fixture to a line"
+
+
+def case_z_file_keys_and_record_line():
+    lines, status, doc, text = fx_record(FX_WORDS, fx_setup)
+    keys_ok = list(doc) == sorted(doc) and all(list(f) == sorted(f) for f in doc["fixtures"])
+    want = {"cases": FX_CASES, "date": FX_DATE, "seed": 1,
+            "comparison": f"{LABEL}: built 48 bytes, original 48 bytes; cases {FX_CASES}, discarded 0, equal {FX_CASES}, different 0"}
+    ok = keys_ok and doc["recorded"] == want and doc["format"] == 1 and doc["function"] == LABEL
+    return None if ok else f"{doc['recorded']} {keys_ok}"
+
+
+def case_z_record_replaces_a_file_and_says_so():
+    with tempfile.TemporaryDirectory() as tmp:
+        first = fx_record(FX_WORDS, fx_setup, folder=tmp)[0]
+        second = fx_record(FX_WORDS, fx_setup, folder=tmp)[0]
+    ok = len(first) == 1 and len(second) == 2 and second[0] == f"{LABEL} fixtures: replaced {LABEL}.fixtures.json"
+    return None if ok else f"{first} {second}"
+
+
+def kept_cases(doc):
+    return [f["case"] for f in doc["fixtures"]]
+
+
+def case_z_choice_slots_edges_and_line():
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    e5, e4 = fx_first(5), fx_first(4)
+    notes = {f["case"]: f["note"] for f in doc["fixtures"]}
+    want_cases = sorted({0, e5, e4})
+    ok = kept_cases(doc) == want_cases
+    ok = ok and notes[0].startswith("slots: 11 new") and notes[e5] == "edge: slot 3, immediate 0x5 against 0x6"
+    ok = ok and notes[e4] == "edge: slot 3, immediate 0x5 against 0x4"
+    line = f"{LABEL} fixtures: kept 3 of {FX_CASES} cases (slots 1, edges 2, results 0), needs image: no"
+    return None if ok and lines == [line] else f"{kept_cases(doc)} {notes} {lines}"
+
+
+def case_z_case_kept_for_two_reasons():
+    seed = next(s for s in range(1, 200) if fx_x(0, s) in (4, 5))
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, seed=seed)
+    note = doc["fixtures"][0]["note"]
+    reason = "against 0x6" if fx_x(0, seed) == 5 else "against 0x4"
+    ok = doc["fixtures"][0]["case"] == 0 and note.startswith("slots: 11 new; edge: slot 3, immediate 0x5 ") and reason in note
+    count = len(doc["fixtures"]) == len(set(kept_cases(doc)))
+    return None if ok and count and f"(slots 1, edges 1, results 0)" in lines[0] else f"{note} {lines}"
+
+
+def case_z_results_step():
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), andi(V0, T1, 3), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, fx_setup)
+    seen, wanted = {}, []
+    for case in range(FX_CASES):
+        value = fx_x(case) & 3
+        if value not in seen:
+            seen[value] = case
+    wanted = sorted(seen.values())
+    notes = {f["case"]: f["note"] for f in doc["fixtures"]}
+    ok = kept_cases(doc) == wanted and notes[0].startswith("slots: 6 new")
+    ok = ok and all(notes[seen[v]] == f"result {v:#x}" for v in seen if seen[v] != 0)
+    line = f"{LABEL} fixtures: kept {len(wanted)} of {FX_CASES} cases (slots 1, edges 0, results {len(wanted) - 1}), needs image: no"
+    return None if ok and lines == [line] else f"{kept_cases(doc)} vs {wanted}: {notes} {lines}"
+
+
+def case_z_no_results_step_without_a_result():
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), andi(V0, T1, 3), JR_RA, NOP]
+    _lines, _status, doc, _ = fx_record(words, plain_setup(False))
+    return None if kept_cases(doc) == [0] and doc["fixtures"][0]["result"] is None else f"{kept_cases(doc)}"
+
+
+def case_z_the_cap():
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, cap=2)
+    e5, e4 = fx_first(5), fx_first(4)
+    left = [e for e in doc["uncovered"]["edges"] if "left out" in e]
+    ok = kept_cases(doc) == sorted({0, e5}) and len(left) == 1 and "which the cap of 2 left out" in left[0]
+    ok = ok and f"kept 2 of {FX_CASES} cases (slots 1, edges 1, results 0)" in lines[0]
+    return None if ok else f"{kept_cases(doc)} {doc['uncovered']} {lines}"
+
+
+def case_z_cap_of_one_keeps_one():
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, cap=1)
+    left = [e for e in doc["uncovered"]["edges"] if "left out" in e]
+    return None if kept_cases(doc) == [0] and len(left) == 2 else f"{kept_cases(doc)} {doc['uncovered']}"
+
+
+def case_z_uncovered_slots_and_edges():
+    # slot 11 is never executed (its constant too); with a cap of 1 the edges are left out
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    ok = doc["uncovered"]["slots"] == ["+0x2c"] and doc["uncovered"]["edges"] == ["slot 11: not executed by any case"]
+    return None if ok else f"{doc['uncovered']}"
+
+
+def case_z_unnoticed_edge_is_on_record():
+    # slti v1,t1,100 changes no register the test compares: the edge is not noticed by any case
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), slti(V1, T1, 100), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, fx_setup)
+    want = [f"slot 3: slti v1,t1,0x64, immediate 0x64 -> 0x65: different 0 of {FX_CASES}, discarded 0",
+            f"slot 3: slti v1,t1,0x64, immediate 0x64 -> 0x63: different 0 of {FX_CASES}, discarded 0"]
+    return None if doc["uncovered"]["edges"] == want and kept_cases(doc) == [0] else f"{doc['uncovered']} {kept_cases(doc)}"
+
+
+def case_z_nothing_written_when_the_comparison_fails():
+    other = list(FX_WORDS)
+    other[3] = slti(V0, T1, 6)
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, build_words=other, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    ok = status == 1 and doc is None and not written and "not recorded" in lines[0] and "different" in lines[0]
+    return None if ok else f"{lines} {status} {written}"
+
+
+def case_z_nothing_written_when_a_case_is_discarded():
+    words = FX_WORDS[:2] + [ori(T2, ZERO, 0x21), lw(T3, T2, 0), JR_RA, NOP]
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, doc, _ = fx_record(words, fx_setup, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    ok = status == 1 and not written and "discarded 60" in lines[0]
+    return None if ok else f"{lines} {status} {written}"
+
+
+def calls_setup(state, rng, sym):
+    log = contracts.CallLog(state)
+    log.replace(CALLEE, 4, 0x11)
+    log.replace(CALLEE_B, 1, 0x22)
+    return contracts.Setup(args=(), returns_value=True)
+
+
+CALLS_ORIGINAL = program(("call", CALLEE, [1, 2, 3, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []), ("st", FLAG, 7))
+
+
+def calls_doc():
+    lines, status, doc, _ = fx_record(CALLS_ORIGINAL, calls_setup, cases=2)
+    if status:
+        raise RuntimeError(f"{lines}")
+    return doc
+
+
+def replay_text(doc, words):
+    lines, status = fx_replay(doc, words, ram_with_callees(CALLS_ORIGINAL))
+    return "\n".join(lines), status
+
+
+def case_z_calls_are_recorded():
+    doc = calls_doc()
+    fixture = doc["fixtures"][0]
+    names = [c["callee"] for c in fixture["calls"]]
+    ok = names == ["func_callee", "func_callee_b"] and fixture["calls"][0]["args"] == ["0x00000001", "0x00000002", "0x00000003", "0x00000004"]
+    ok = ok and [c["returned"] for c in fixture["calls"]] == ["0x00000011", "0x00000022"] and fixture["result"] == "0x00000022"
+    ok = ok and [r["callee"] for r in fixture["recorders"]] == ["func_callee", "func_callee_b"]
+    ok = ok and fixture["recorders"][0] == {"arguments": 4, "at": D.hex8(CALLEE), "callee": "func_callee"}
+    ok = ok and fixture["writes"] == [[D.hex8(FLAG), "07"]]
+    return None if ok else f"{fixture}"
+
+
+def case_z_replay_of_the_same_calls_passes():
+    text, status = replay_text(calls_doc(), CALLS_ORIGINAL)
+    return None if status == 0 and text == f"{LABEL} replay: fixtures 1, passed 1, failed 0" else f"{status} {text}"
+
+
+def expect_failure(words, *parts):
+    text, status = replay_text(calls_doc(), words)
+    ok = status == 1 and text.splitlines()[0] == f"{LABEL} replay: fixtures 1, passed 0, failed 1"
+    ok = ok and all(p in text for p in parts)
+    return None if ok else f"status {status}: {text}"
+
+
+def case_z_failure_wrong_result():
+    words = CALLS_ORIGINAL[:-4] + [addiu(V0, ZERO, 5)] + CALLS_ORIGINAL[-4:]
+    return expect_failure(words, "result: the build gives 0x00000005, the original gave 0x00000022")
+
+
+def case_z_failure_missing_call():
+    return expect_failure(program(("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7)),
+                          "call 2: missing, the original called func_callee_b")
+
+
+def case_z_failure_extra_call():
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []), ("call", CALLEE, [1, 2, 3, 4], []),
+                    ("st", FLAG, 7))
+    return expect_failure(words, "call 3: extra, the build called func_callee")
+
+
+def case_z_failure_wrong_argument():
+    words = program(("call", CALLEE, [1, 2, 9, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []), ("st", FLAG, 7))
+    return expect_failure(words, "call 1 to func_callee: argument 3 is 0x00000009, the original gave 0x00000003")
+
+
+def case_z_failure_calls_in_another_order():
+    words = program(("call", CALLEE_B, [5, 0, 0, 0], []), ("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7))
+    return expect_failure(words, "call 1")
+
+
+def case_z_failure_missing_write():
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []))
+    return expect_failure(words, f"missing write at {FLAG:#x}")
+
+
+def case_z_failure_extra_write():
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []), ("st", FLAG, 7), ("st", FLAG3, 9))
+    return expect_failure(words, f"extra write at {FLAG3:#x}")
+
+
+def case_z_failure_wrong_written_value():
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("call", CALLEE_B, [5, 0, 0, 0], []), ("st", FLAG, 8))
+    return expect_failure(words, f"wrong value at {FLAG:#x}: the build leaves 0x08, the original left 0x07")
+
+
+def case_z_failure_clobbered_saved_register():
+    words = CALLS_ORIGINAL[:-4] + [addiu(S0, ZERO, 1)] + CALLS_ORIGINAL[-4:]
+    return expect_failure(words, "s0: the build leaves 0x1, the original left 0x5a5a0000")
+
+
+def case_z_failure_changed_stack_pointer():
+    words = CALLS_ORIGINAL[:-3] + [addiu(SP, SP, 40), JR_RA, NOP]
+    text, status = replay_text(calls_doc(), words)
+    return None if status == 1 and "sp:" in text else f"{status} {text}"
+
+
+def case_z_failure_reads_something_else():
+    # the build reads the word after x: a stale fixture, because that word holds poison in the replay
+    words = list(FX_WORDS)
+    words[2] = lw(T1, T0, 4)
+    lines, status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    got, replay_status = fx_replay(doc, words)
+    return None if replay_status == 1 and "failed" in got[0] and "failed 0" not in got[0] else f"{got}"
+
+
+def case_z_poison_shows_a_zero_write_that_is_missing_or_extra():
+    # Memory the fixture does not name holds poison, not zero: a store of zeros that the original made over
+    # non-zero bytes must be missed when the build leaves it out, and one the original did not make must show.
+    def setup(state, rng, sym):
+        state.w32(FLAG + 12, rng.getrandbits(32) | 0x01010101)
+        return contracts.Setup(args=(), returns_value=False)
+
+    head = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF)]
+    with_store = [*head, sw(ZERO, T0, 12), JR_RA, NOP]
+    without = [*head, JR_RA, NOP]
+    out = []
+    for original, build, wanted in ((with_store, without, "missing write at"), (without, with_store, "extra write at")):
+        _lines, _status, doc, _ = fx_record(original, setup, cases=3)
+        got, status = fx_replay(doc, build)
+        out.append(None if status == 1 and wanted in "\n".join(got) else (wanted, got))
+    bad = [o for o in out if o]
+    return None if not bad else f"{bad}"
+
+
+def case_z_failure_memory_behind_a_pointer_argument():
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state, watch=((WATCHED, 1),))
+        log.replace(CALLEE, 1, 0, pointees={0: 2})
+        return contracts.Setup(args=(), returns_value=False)
+
+    original = program(*fill_block(BUF, 0xA0, 0xA1), ("st", WATCHED, 5), ("call", CALLEE, [BUF], []))
+    _lines, _status, doc, _ = fx_record(original, setup, cases=2)
+    pointee = program(*fill_block(BUF, 0xA0, 0xA2), ("st", WATCHED, 5), ("call", CALLEE, [BUF], []))
+    watched = program(*fill_block(BUF, 0xA0, 0xA1), ("st", WATCHED, 6), ("call", CALLEE, [BUF], []))
+    out = []
+    for words, wanted in ((pointee, "argument 1 differs from byte 4"), (watched, "watched block 1 differs from byte 0")):
+        got, status = fx_replay(doc, words, ram_with_callees(original))
+        out.append(None if status == 1 and wanted in "\n".join(got) else (wanted, got))
+    bad = [o for o in out if o]
+    return None if not bad else f"{bad}"
+
+
+def case_z_reads_the_setup_did_not_make_are_warned_about():
+    # the function reads a word of the image that no setup wrote
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), lw(T2, T0, 64), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, fx_setup, cases=3)
+    ok = status == 0 and len(lines) == 2 and lines[0] == (f"{LABEL} fixtures: warning, 4 bytes read were not made by the setup: "
+                                                          f"they come from the game's memory image, which the file would publish")
+    clean = fx_record(FX_WORDS, fx_setup, cases=3)[0]
+    return None if ok and len(clean) == 1 else f"{lines} {clean}"
+
+
+def case_z_failure_lines_are_at_most_three():
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), JR_RA, NOP]
+    many = []
+    for k in range(10):
+        many += stw(FLAG + 16 * k, 0x7F7F7F7F)
+    original = [*many, JR_RA, NOP]
+    _lines, _status, doc, _ = fx_record(original, plain_setup(False), cases=2)
+    got, status = fx_replay(doc, words)
+    first = got[1:]
+    ok = status == 1 and len(first) == 4 and first[0].startswith("  fixture 0 (case 0")
+    return None if ok else f"{got}"
+
+
+def case_z_failure_names_the_fixture():
+    seed = 1
+    other = list(FX_WORDS)
+    other[3] = slti(V0, T1, 6)  # differs from the original for x == 5 only
+    _lines, _status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    got, status = fx_replay(doc, other)
+    index = kept_cases(doc).index(fx_first(5))
+    ok = status == 1 and got[0].endswith(f"passed {len(doc['fixtures']) - 1}, failed 1") and got[1].startswith(f"  fixture {index} (case {fx_first(5)}, edge:")
+    return None if ok else f"{got}"
+
+
+def ends_setup(state, rng, sym):
+    log = contracts.CallLog(state)
+    log.replace(CALLEE, 1, 0x33, ends_run_at=2)
+    return contracts.Setup(args=(), returns_value=False, returns=False)
+
+
+def case_z_ends_in_callee():
+    words = program(("call", CALLEE, [1], []), ("call", CALLEE, [2], []), ("call", CALLEE, [3], []), ("st", FLAG, 7))
+    lines, status, doc, _ = fx_record(words, ends_setup, cases=3)
+    fixture = doc["fixtures"][0]
+    ok = fixture["ends_in_callee"] is True and len(fixture["calls"]) == 2 and fixture["result"] is None and fixture["writes"] == []
+    ok = ok and "registers" not in fixture and fixture["recorders"][0]["ends_run_at"] == 2
+    if not ok:
+        return f"{fixture}"
+    got, replay_status = fx_replay(doc, words, ram_with_callees(words))
+    if replay_status != 0:
+        return f"{got}"
+    # a build that goes on past the second call is a failure: the run ends there, so its third call is never made, but a
+    # build that makes only one call fails
+    short = program(("call", CALLEE, [1], []), ("st", FLAG, 7))
+    got, replay_status = fx_replay(doc, short, ram_with_callees(words))
+    return None if replay_status == 1 and "call 2: missing" in "\n".join(got) else f"{got}"
+
+
+def case_z_needs_image_set_and_unset():
+    # a callee that is not replaced by a recorder runs the game's code
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7))
+
+    def setup(state, rng, sym):
+        return contracts.Setup(args=(), returns_value=False)
+
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    unset = fx_record(FX_WORDS, fx_setup)[2]
+    marker = MARK_BODY
+    ok = doc["fixtures"][0]["needs_image"] is True and "needs image: yes" in lines[0]
+    ok = ok and all(f["needs_image"] is False for f in unset["fixtures"])
+    # the image is used for exactly the fixtures that need it, and said so in the line
+    asked = []
+    image = ram_with_callees(words)
+    got, replay_status = D.replay_function(FXCFG, LABEL, D.Build(make_code(words), 4 * len(words), 0), doc,
+                                           lambda: asked.append(1) or image)
+    ok = ok and replay_status == 0 and got == [f"{LABEL} replay: fixtures {len(doc['fixtures'])}, passed {len(doc['fixtures'])}, failed 0 (game image used for {len(doc['fixtures'])})"]
+    ok = ok and len(asked) == 1
+    asked.clear()
+    _unset_lines, _ = D.replay_function(FXCFG, LABEL, D.Build(make_code(FX_WORDS), 4 * len(FX_WORDS), 0), unset,
+                                        lambda: asked.append(1) or image)
+    ok = ok and not asked and "image" not in _unset_lines[0]
+    return None if ok else f"{lines} {got} {asked} {marker is MARK_BODY}"
+
+
+def case_z_pointer_cell_of_an_unnamed_recorder():
+    # the function calls through a pointer that the setup stored in a cell; the recorder is in a block of the setup's own
+    cell = 0x80030500
+
+    def setup(state, rng, sym):
+        block = state.alloc(16)
+        state.w32(cell, block)
+        log = contracts.CallLog(state)
+        log.replace(block, 1, 0x44)
+        return contracts.Setup(args=(), returns_value=True)
+
+    words = [addiu(SP, SP, -32), sw(RA, SP, 28), *setreg(T0, cell), lw(T1, T0, 0), addiu(4, ZERO, 9), 0x0120F809, NOP,
+             lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]  # jalr t1
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    recorder = fixture["recorders"][0]
+    block = int(recorder["at"], 16)
+    ok = recorder["callee"] == D.hex8(block) and recorder["cell"] == D.hex8(cell) and fixture["calls"][0]["callee"] == D.hex8(block)
+    ok = ok and fixture["calls"][0]["args"] == ["0x00000009"] and fixture["result"] == "0x00000044"
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 else f"{recorder} {fixture['calls']} {got}"
+
+
+def case_z_recorder_options_are_replayed():
+    # stores and counts of a recorder are part of what the callee does, and the fixture holds them
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 0, 5, results=(5, 6), stores=((2, FLAG3, 0x77),), counts=(WATCHED,))
+        return contracts.Setup(args=(), returns_value=True)
+
+    words = [addiu(SP, SP, -32), sw(RA, SP, 28), jal(CALLEE), NOP, *setreg(T0, FLAG), sw(V0, T0, 0), jal(CALLEE), NOP,
+             *setreg(T0, FLAG3), lw(T1, T0, 0), *setreg(T0, FLAG + 4), sw(T1, T0, 0), *setreg(T0, WATCHED), lw(T2, T0, 0),
+             *setreg(T0, FLAG + 8), sw(T2, T0, 0), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    recorder = fixture["recorders"][0]
+    ok = recorder["stores"] == [[2, D.hex8(FLAG3), "0x00000077"]] and recorder["counts"] == [D.hex8(WATCHED)]
+    ok = ok and [c["returned"] for c in fixture["calls"]] == ["0x00000005", "0x00000006"]
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 else f"{recorder} {got}"
+
+
+def case_z_tail_recorder_is_refused():
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 0, tail=(contracts.JR_RA, 0))
+        return contracts.Setup(args=(), returns_value=False)
+
+    words = program(("call", CALLEE, [], []))
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, doc, _ = fx_record(words, setup, cases=2, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    return None if status == 2 and doc is None and not written and "tail" in lines[0] else f"{lines} {status}"
+
+
+def case_z_calllog_decodes_its_entries():
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state, watch=((WATCHED, 2),))
+        log.replace(CALLEE, 5, 0, results=(7, 8), pointees={0: 2, 4: 1}, masks={1: 0xFF})
+        return contracts.Setup(args=(), returns_value=False)
+
+    words = program(*fill_block(BUF, 0xA0, 0xA1), *fill_block(BUF2, 0xB0), ("st", WATCHED, 0xC0), ("st", WATCHED + 4, 0xC1),
+                    ("call", CALLEE, [BUF, 0x1FF, 3, 4], [BUF2]), ("call", CALLEE, [BUF, 1, 3, 4], [BUF2]))
+    holder = []
+
+    def keep(state, rng, sym):
+        out = setup(state, rng, sym)
+        holder.append(state.call_logs[0])
+        return out
+
+    state = D.State(ram_with_callees(words), bytes(D.SCRATCH_SIZE))
+    setup_ = keep(state, None, None)
+    result = D.run_once(D.machine(make_code([NOP])), state, ORIGINAL, setup_)
+    calls = holder[0].calls(result["ram"])
+    ok = len(calls) == 2 and calls[0].address == CALLEE and calls[0].args == (BUF, 0xFF, 3, 4, BUF2)
+    ok = ok and calls[0].pointees == {0: struct.pack("<2I", 0xA0, 0xA1), 4: struct.pack("<I", 0xB0)}
+    ok = ok and calls[0].watched == [struct.pack("<2I", 0xC0, 0xC1)] and [c.returned for c in calls] == [7, 8]
+    owned = holder[0].owned
+    inside = lambda a: any(lo <= a < lo + n for lo, n in owned)
+    ok = ok and inside(holder[0].cursor) and inside(CALLEE) and inside(CALLEE + 4) and not inside(CALLEE + 8)
+    return None if ok else f"{calls}"
+
+
+def case_z_calllog_refuses_an_entry_of_no_recorder():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    state.w32(log.entries, 0x80001234)
+    state.w32(log.cursor, log.entries + 4)
+    try:
+        log.calls(bytes(state.ram))
+    except ValueError as exc:
+        return None if "0x80001234" in str(exc) else f"{exc}"
+    return "an entry of no recorder was accepted"
+
+
+def case_z_state_has_no_call_logs_by_default():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    contracts.CallLog(state)
+    contracts.CallLog(state)
+    return None if len(state.call_logs) == 2 and D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE)).call_logs == [] else "call_logs"
+
+
+def good_doc():
+    return fx_record(FX_WORDS, fx_setup, cases=10)[2]
+
+
+def case_z_malformed_files_are_refused():
+    cases = []
+    base = good_doc()
+
+    def variant(change):
+        doc = json.loads(json.dumps(base))
+        change(doc)
+        return json.dumps(doc)
+
+    cases.append(("not json", "{", "is not JSON"))
+    cases.append(("a list", "[]", "not an object"))
+    cases.append(("other format", variant(lambda d: d.update(format=2)), "format 2"))
+    cases.append(("other function", variant(lambda d: d.update(function="func_other")), "not func_80020000"))
+    cases.append(("no fixtures", variant(lambda d: d.update(fixtures=[])), "no fixtures"))
+    cases.append(("a fixture without reads", variant(lambda d: d["fixtures"][0].pop("reads")), "lacks reads"))
+    cases.append(("a fixture without ends_in_callee", variant(lambda d: d["fixtures"][0].pop("ends_in_callee")), "lacks ends_in_callee"))
+    cases.append(("a call without returned", variant(lambda d: d["fixtures"][0].update(calls=[{"args": [], "callee": "x", "pointees": {}, "watched": []}])), "a call of fixture 0 lacks returned"))
+    bad = []
+    for label, text, wanted in cases:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = D.fixtures_path(Path(tmp), LABEL)
+            path.write_text(text)
+            try:
+                D.load_fixtures(path, LABEL)
+                bad.append(f"{label}: accepted")
+            except D.FixtureError as exc:
+                if wanted not in str(exc):
+                    bad.append(f"{label}: {exc}")
+    try:
+        D.load_fixtures(Path("/nonexistent/x.fixtures.json"), LABEL)
+        bad.append("missing file accepted")
+    except D.FixtureError as exc:
+        if "cannot read" not in str(exc):
+            bad.append(f"missing: {exc}")
+    return None if not bad else f"{bad}"
+
+
+def case_z_unreadable_content_is_refused_by_replay():
+    doc = good_doc()
+    doc["fixtures"][0]["reads"] = [["0xzz", "00"]]
+    try:
+        fx_replay(doc, FX_WORDS)
+    except D.FixtureError as exc:
+        return None if "fixture 0 cannot be read" in str(exc) else f"{exc}"
+    return "a fixture with a bad address was accepted"
+
+
+def fx_main(argv, words=FX_WORDS, build_words=None, folder=None, setup=fx_setup, extra_patches=None):
+    """difftest.main for the made-up original with the emulator path; `folder` holds the fixtures."""
+    build_words = build_words or words
+    out, err = io.StringIO(), io.StringIO()
+    patches = dict(original_function=lambda cfg, name: (ORIGINAL, 4 * len(words)),
+                   initial_memory=lambda cfg, image: ram_with_callees(words),
+                   build_function=lambda cfg, name, directory, folder=None: D.Build(make_code(build_words), 4 * len(build_words), 0),
+                   today=lambda: FX_DATE)
+    patches.update(extra_patches or {})
+    with contract_of(LABEL, setup), patched(matchbuild, load_config=lambda path: FXCFG), patched(D, **patches), \
+            contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        status = D.main(["--config", "build.toml", "--folder", str(folder), *argv])
+    return status, out.getvalue(), err.getvalue()
+
+
+def case_z_main_record_then_replay():
+    with tempfile.TemporaryDirectory() as tmp:
+        status, out, err = fx_main(["--record", "--cases", "60", "--jobs", "1", LABEL], folder=tmp)
+        line = f"{LABEL} fixtures: kept 3 of 60 cases (slots 1, edges 2, results 0), needs image: no\n"
+        if (status, out, err) != (0, line, ""):
+            return f"record: {status} {out!r} {err!r}"
+        named = fx_main(["--replay", LABEL], folder=tmp)
+        every = fx_main(["--replay"], folder=tmp)
+    want = (0, f"{LABEL} replay: fixtures 3, passed 3, failed 0\n", "")
+    return None if named == want and every == want else f"{named} {every}"
+
+
+def case_z_main_replay_status_one_and_lines():
+    other = list(FX_WORDS)
+    other[3] = slti(V0, T1, 6)
+    with tempfile.TemporaryDirectory() as tmp:
+        fx_main(["--record", "--cases", "60", "--jobs", "1", LABEL], folder=tmp)
+        status, out, err = fx_main(["--replay"], build_words=other, folder=tmp)
+    lines = out.splitlines()
+    ok = status == 1 and lines[0] == f"{LABEL} replay: fixtures 3, passed 2, failed 1" and lines[1].startswith("  fixture ") and 3 <= len(lines) <= 5
+    return None if ok and err == "" else f"{status} {out!r} {err!r}"
+
+
+def case_z_main_replay_exit_two_for_bad_files():
+    results = []
+    with tempfile.TemporaryDirectory() as tmp:
+        none = fx_main(["--replay"], folder=tmp)
+        results.append(("no files", none[0] == 2 and "no fixtures file" in none[2]))
+        absent = fx_main(["--replay", LABEL], folder=tmp)
+        results.append(("named, absent", absent[0] == 2 and "cannot read" in absent[2]))
+        D.fixtures_path(Path(tmp), LABEL).write_text(json.dumps({"format": 9}))
+        other = fx_main(["--replay", LABEL], folder=tmp)
+        results.append(("other format", other[0] == 2 and "format 9" in other[2] and other[1] == ""))
+    bad = [label for label, ok in results if not ok]
+    return None if not bad else f"{bad}"
+
+
+def case_z_replay_never_runs_the_original():
+    def refuse(*args, **kwargs):
+        raise AssertionError("the original's run or its inputs were asked for")
+
+    entries = []
+    real = D.run_once
+
+    def watching(uc, state, entry, setup, *a, **k):
+        entries.append(entry)
+        return real(uc, state, entry, setup, *a, **k)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        fx_main(["--record", "--cases", "60", "--jobs", "1", LABEL], folder=tmp)
+        poisoned = dict(original_function=refuse, initial_memory=refuse, test_function=refuse, audit_writes=refuse,
+                        edge_sweep=refuse, run_once=watching, load_contracts=refuse)
+        # the contract is not read either: with none registered under the name the replay still runs
+        had = contracts.CONTRACTS.pop(LABEL, None)
+        try:
+            status, out, err = fx_main(["--replay", LABEL], folder=tmp, extra_patches=poisoned)
+        finally:
+            if had is not None:
+                contracts.CONTRACTS[LABEL] = had
+    ok = status == 0 and "failed 0" in out and entries and all(e >= D.TEST_ADDRESS for e in entries)
+    return None if ok else f"{status} {out!r} {err!r} {entries}"
+
+
+def case_z_replay_reads_the_image_only_when_a_fixture_needs_it():
+    asked = []
+
+    def image(cfg, name):
+        asked.append(name)
+        return ram_with_callees(FX_WORDS)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        fx_main(["--record", "--cases", "60", "--jobs", "1", LABEL], folder=tmp)
+        status, out, _ = fx_main(["--replay", LABEL], folder=tmp, extra_patches={"initial_memory": image})
+    return None if status == 0 and asked == [] and "image" not in out else f"{status} {out!r} {asked}"
+
+
+def case_z_option_refusals():
+    results = []
+    for argv, text in ((["--record", "--replay", LABEL], "--record and --replay"),
+                       (["--record", "--control", LABEL], "do not combine with --control"),
+                       (["--replay", "--writes", LABEL], "do not combine with --control"),
+                       (["--record", "--edges", LABEL], "do not combine with --control"),
+                       (["--record", "--all"], "--record takes one function"),
+                       (["--record", LABEL, "func_other"], "--record takes one function"),
+                       (["--max", "3", LABEL], "--max applies to --record only"),
+                       (["--record", "--max", "0", LABEL], "--max needs 1 or more"),
+                       (["--replay", "--all"], "--replay takes the functions named"),
+                       (["--replay", "--jobs", "2", LABEL], "--jobs applies to --edges and --record only"),
+                       (["--jobs", "2", LABEL], "--jobs applies to --edges and --record only")):
+        with tempfile.TemporaryDirectory() as tmp:
+            status, out, err = fx_main(argv, folder=tmp)
+        results.append(None if status == 2 and out == "" and text in err and err.startswith("INPUT ERROR") else (argv, status, out, err))
+    bad = [r for r in results if r]
+    return None if not bad else f"{bad}"
+
+
+def case_z_record_max_option():
+    with tempfile.TemporaryDirectory() as tmp:
+        status, out, _ = fx_main(["--record", "--max", "2", "--cases", "60", "--jobs", "1", LABEL], folder=tmp)
+    return None if status == 0 and "kept 2 of 60 cases" in out else f"{status} {out!r}"
+
+
+def case_z_record_input_error_is_two():
+    def refuse(*args, **kwargs):
+        raise D.InputError("no inventory row")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        status, out, err = fx_main(["--record", LABEL], folder=tmp, extra_patches={"original_function": refuse})
+    return None if status == 2 and "no inventory row" in err and out == "" else f"{status} {out!r} {err!r}"
 
 
 CASES = [
@@ -3298,6 +4089,62 @@ CASES = [
     ("y-main-status-zero", case_y_main_status_zero),
     ("y-main-not-swept", case_y_main_not_swept),
     ("y-main-refusals", case_y_main_refusals),
+    ("z-hook-finds-the-reads", case_z_hook_finds_the_reads),
+    ("z-stack-and-home-area-are-not-reads-or-writes", case_z_stack_and_home_area_are_not_reads_or_writes),
+    ("z-recorders-own-memory-is-not-a-read-but-what-they-copy-is", case_z_recorders_own_memory_is_not_a_read_but_what_they_copy_is),
+    ("z-watched-block-the-function-never-touched-is-a-read", case_z_watched_block_the_function_never_touched_is_a_read),
+    ("z-unicorn-delay-slot-hazard-does-not-matter", case_z_unicorn_delay_slot_hazard_does_not_matter),
+    ("z-round-trip", case_z_round_trip),
+    ("z-same-value-store-is-not-an-extra-write", case_z_same_value_store_is_not_an_extra_write),
+    ("z-file-is-deterministic", case_z_file_is_deterministic),
+    ("z-file-keys-and-record-line", case_z_file_keys_and_record_line),
+    ("z-record-replaces-a-file-and-says-so", case_z_record_replaces_a_file_and_says_so),
+    ("z-choice-slots-edges-and-line", case_z_choice_slots_edges_and_line),
+    ("z-case-kept-for-two-reasons", case_z_case_kept_for_two_reasons),
+    ("z-results-step", case_z_results_step),
+    ("z-no-results-step-without-a-result", case_z_no_results_step_without_a_result),
+    ("z-the-cap", case_z_the_cap),
+    ("z-cap-of-one-keeps-one", case_z_cap_of_one_keeps_one),
+    ("z-uncovered-slots-and-edges", case_z_uncovered_slots_and_edges),
+    ("z-unnoticed-edge-is-on-record", case_z_unnoticed_edge_is_on_record),
+    ("z-nothing-written-when-the-comparison-fails", case_z_nothing_written_when_the_comparison_fails),
+    ("z-nothing-written-when-a-case-is-discarded", case_z_nothing_written_when_a_case_is_discarded),
+    ("z-calls-are-recorded", case_z_calls_are_recorded),
+    ("z-replay-of-the-same-calls-passes", case_z_replay_of_the_same_calls_passes),
+    ("z-failure-wrong-result", case_z_failure_wrong_result),
+    ("z-failure-missing-call", case_z_failure_missing_call),
+    ("z-failure-extra-call", case_z_failure_extra_call),
+    ("z-failure-wrong-argument", case_z_failure_wrong_argument),
+    ("z-failure-calls-in-another-order", case_z_failure_calls_in_another_order),
+    ("z-failure-missing-write", case_z_failure_missing_write),
+    ("z-failure-extra-write", case_z_failure_extra_write),
+    ("z-failure-wrong-written-value", case_z_failure_wrong_written_value),
+    ("z-failure-clobbered-saved-register", case_z_failure_clobbered_saved_register),
+    ("z-failure-changed-stack-pointer", case_z_failure_changed_stack_pointer),
+    ("z-failure-reads-something-else", case_z_failure_reads_something_else),
+    ("z-poison-shows-a-zero-write-that-is-missing-or-extra", case_z_poison_shows_a_zero_write_that_is_missing_or_extra),
+    ("z-failure-memory-behind-a-pointer-argument", case_z_failure_memory_behind_a_pointer_argument),
+    ("z-reads-the-setup-did-not-make-are-warned-about", case_z_reads_the_setup_did_not_make_are_warned_about),
+    ("z-failure-lines-are-at-most-three", case_z_failure_lines_are_at_most_three),
+    ("z-failure-names-the-fixture", case_z_failure_names_the_fixture),
+    ("z-ends-in-callee", case_z_ends_in_callee),
+    ("z-needs-image-set-and-unset", case_z_needs_image_set_and_unset),
+    ("z-pointer-cell-of-an-unnamed-recorder", case_z_pointer_cell_of_an_unnamed_recorder),
+    ("z-recorder-options-are-replayed", case_z_recorder_options_are_replayed),
+    ("z-tail-recorder-is-refused", case_z_tail_recorder_is_refused),
+    ("z-calllog-decodes-its-entries", case_z_calllog_decodes_its_entries),
+    ("z-calllog-refuses-an-entry-of-no-recorder", case_z_calllog_refuses_an_entry_of_no_recorder),
+    ("z-state-has-no-call-logs-by-default", case_z_state_has_no_call_logs_by_default),
+    ("z-malformed-files-are-refused", case_z_malformed_files_are_refused),
+    ("z-unreadable-content-is-refused-by-replay", case_z_unreadable_content_is_refused_by_replay),
+    ("z-main-record-then-replay", case_z_main_record_then_replay),
+    ("z-main-replay-status-one-and-lines", case_z_main_replay_status_one_and_lines),
+    ("z-main-replay-exit-two-for-bad-files", case_z_main_replay_exit_two_for_bad_files),
+    ("z-replay-never-runs-the-original", case_z_replay_never_runs_the_original),
+    ("z-replay-reads-the-image-only-when-a-fixture-needs-it", case_z_replay_reads_the_image_only_when_a_fixture_needs_it),
+    ("z-option-refusals", case_z_option_refusals),
+    ("z-record-max-option", case_z_record_max_option),
+    ("z-record-input-error-is-two", case_z_record_input_error_is_two),
 ]
 
 

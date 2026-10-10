@@ -369,6 +369,99 @@ func_801ea640_slot06_0c edges: constants 13, altered runs 22, unnoticed 2, all d
   slot 137: not executed by any case
 ```
 
+## Fixtures
+
+A fixture is one case of one function, in terms of what the function does: the
+arguments, every byte the original read, the calls it made to the stand-ins of
+its callees with what they were given and what they returned, every byte it
+changed, and the result. `--record` runs the original once and writes a few of
+them to `FUNC.fixtures.json` beside `FUNC.c`; `--replay` runs the BUILD of
+`FUNC.c` on each of them and never runs the original.
+
+    python difftest.py --config ../build.toml [--folder DIR] --record --cases 2000 [--seed S] [--max M] [--jobs N] FUNC
+    python difftest.py --config ../build.toml [--folder DIR] --replay [FUNC]
+
+`--record` first runs the default comparison (it must show `different 0` and
+no discarded case; otherwise nothing is written and the status is 1). It then
+keeps, until M (default 12) are kept: every case that executes a slot of the
+original that no kept case executed; for each constant of the `--edges` sweep
+and each direction, the first case that notices the alteration (the sweep
+alters the ORIGINAL, as `--edges` does; `--control` is the other way round and
+plays no part here); and, when the function has a result, the first case for
+each result value no kept case has. Each fixture says why it was kept in its
+`note`. The file also lists, under `uncovered`, the slots of the original that
+no kept case executed and the constants whose edge no kept case could cover.
+The line printed is
+`FUNC fixtures: kept K of N cases (slots A, edges B, results C), needs image: yes|no`.
+A file that exists is replaced and the tool says so. A line starting
+`warning` says that the cases read bytes the setup did not make, which come
+from the game's memory image and would be published with the file.
+
+`--replay` puts the memory of the case in place (the game's image only when
+the fixture says `needs_image`, because the function runs code of the game
+other than its own and the stand-ins; otherwise poison bytes), puts a stand-in
+at each callee that returns the recorded values in order, runs the build, and
+requires the same calls in the same order with the same logged values, the
+result, the written bytes exactly, and the saved registers and stack pointer as
+the original left them. The line is `FUNC replay: fixtures K, passed P, failed F`
+(with `(game image used for N)` when the image was read), followed for each
+failure by the fixture and up to three lines saying what differed first. The
+status is 0 when F is 0, 1 otherwise, 2 for a missing or malformed file. With no
+function named, every function of the folder that has a fixtures file is
+replayed. Loading the configuration reads the baseline executable to check its
+hash, as in every mode; the replay uses nothing else of the game unless a
+fixture needs the image.
+
+What a replay shows is narrow: for the recorded inputs, the C reads, calls and
+writes what the original did. It is evidence for those inputs. It is not the
+wide comparison (that is made once, by `--record` and the default mode, when
+the function is written) and it is not equivalence. A fixture goes stale when
+the C changes what it reads (a byte the fixture does not hold is poison), calls
+or writes: the replay then fails, and nothing regenerates a file except a new
+`--record`.
+
+Choices of the tool, each of them a decision to review:
+
+- The reads include what the stand-ins copy into the log (the words behind a
+  pointer argument and the watched blocks), because the replay's log has to show
+  the same words. The stack region, the 16 bytes above it and the harness's own
+  memory are left out of reads and writes.
+- `same` holds bytes the original stored without changing them and did not
+  read; without them such a store would look like an extra write in the replay.
+- The stand-ins' own options that stand for what a callee does to memory
+  (`stores`, `counts`, `ends_run_at`, `masks`) are part of the fixture; a stand-in
+  with a `tail` (machine code of the contract's own) cannot be described and the
+  record refuses it with status 2.
+- The reads and writes are found by looking at each instruction before it runs,
+  not with the emulator's memory hooks: with a memory hook, Unicorn 2.1.4 ends a
+  run with an exception when a load or store lies in the delay slot of a
+  conditional branch that is not taken and a jump follows (`test_difftest.py`
+  has made-up code that shows the difference).
+
+The fixtures of three functions of `../resident_nonmatching` are the first.
+Each block is what the commands printed (seed 1, `--record --cases 2000 --jobs 4`):
+
+```
+func_8012fd80 fixtures: kept 6 of 2000 cases (slots 2, edges 3, results 1), needs image: no
+func_8012fd80 replay: fixtures 6, passed 6, failed 0
+func_80119694 fixtures: kept 4 of 2000 cases (slots 1, edges 3, results 0), needs image: no
+func_80119694 replay: fixtures 4, passed 4, failed 0
+func_8011cf98 fixtures: kept 12 of 2000 cases (slots 6, edges 6, results 0), needs image: yes
+func_8011cf98 replay: fixtures 12, passed 12, failed 0 (game image used for 12)
+```
+
+The files are 4897, 3614 and 22085 bytes. Each record took 9, 6 and 164 seconds
+by the shell's clock; each replay took 0.9 seconds by the same clock, the
+compile of the C included. What they leave uncovered is in the files: 6, 6 and
+48 lines of `uncovered.edges` (altered runs that no case notices; each line
+gives the number of discarded cases of that run), and for `func_8011cf98` one
+slot (`+0x48`) that no case executes.
+
+`func_8011a880` and `func_801189c4` have no file yet: recorded as described
+their files come to 275101 and 479117 bytes, because the watched blocks are
+copied into every call, and a file of that size waits for a decision on how the
+calls are written.
+
 ## Controls of the tool
 
     python test_difftest.py
@@ -442,6 +535,20 @@ Group L checks the symbol file of the standalone link: the lines that assign a
 name the unit defines are removed (plain, spaced and inside `PROVIDE`), names
 that only begin alike stay, and a link that puts a defined name outside the
 unit is reported with the name and the address.
+Group Z checks the fixtures on made-up functions: the reads found (not the
+stack's, not the log's, and what a stand-in copies into the log), the
+choice of cases (slots, edges, results, the cap, a case kept for two reasons,
+`uncovered`, nothing written when the comparison fails), the file (the same
+bytes for the same input, the keys, the line printed, malformed files), a
+record followed by a replay that passes, each kind of failure of a replay (a
+wrong result, a missing, extra or reordered call, a wrong argument or memory
+behind a pointer, a missing, extra or wrong write, a clobbered saved register
+or stack pointer, a read the fixture does not hold), a run that ends inside a
+stand-in, `needs_image` set and unset (and the image asked for only then), a
+stand-in at an unnamed address with its pointer cell, the options of a
+stand-in, that the replay never runs the original and reads no contract, the
+input errors of the options, and the decoding of the call log by
+`contracts.CallLog`.
 
 ## Controls that need the toolchain
 

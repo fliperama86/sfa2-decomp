@@ -3,6 +3,8 @@
 
     difftest.py --config ../build.toml [--folder DIR] [--cases N] [--seed S]
                 [--control | --writes | --edges [--jobs N]] [--uncovered] (FUNC... | --all)
+    difftest.py --config ../build.toml [--folder DIR] --record [--cases N] [--seed S] [--max M] [--jobs N] FUNC
+    difftest.py --config ../build.toml [--folder DIR] --replay [FUNC...]
 
 For each FUNC the tool builds `FUNC.c` of the folder (this one, or DIR) with the pinned
 toolchain of the matching build (the preprocessing, compiler, maspsx and
@@ -109,6 +111,74 @@ run. A K above 0 means the function runs past a table the setup built, or writes
 a global that the setup did not make, or the setup leaves a table unfilled that the function
 writes: the setup is to be changed, or the contract's header is to name the exception.
 
+The option --record writes a few fixtures of one function, and --replay tests the function's C on them
+without running the original code. A fixture is one case of the function in terms of what it does:
+
+    args          the argument registers the setup gave
+    reads         every byte the original (and the recorders standing for its callees) read before
+                  anything wrote it, as [address, hex bytes] runs; the function's stack region, the
+                  16 bytes above it and the harness's own memory (the call log, the recorders' code
+                  and cells) are left out; what a recorder copies into the log (the words behind a
+                  pointer argument, the watched blocks) is a read, because the replay's log has to
+                  show the same words
+    same          bytes the original stored without changing them and did not read first: the
+                  replay's memory holds them beforehand, or the store would look like a change
+    recorders     the stand-in of each callee: name (the symbol table's, else the address), address,
+                  number of arguments, the options of the recorder that are not return values
+                  (pointees, masks, stores, counts, ends_run_at) and, for a recorder in a block of
+                  the setup's own, the pointer cell (the aligned word of `reads` that holds its address)
+    watch         the watched blocks of the call log
+    calls         the calls made, in order: callee, arguments, the words behind pointer arguments, the
+                  watched blocks, the value the recorder returned
+    writes        every byte of RAM and scratchpad that differs after the run from before it, outside
+                  the same regions as `reads`, as runs
+    result        v0, when the contract says there is a result; null otherwise
+    ends_in_callee  the run ended inside a recorder (a function that never returns)
+    needs_image   the case executed code of the game other than the function and the recorders
+    registers     only when the original did not restore the saved registers and sp
+    note, seed, case  why the case was kept, and where it came from
+
+The file is `FUNC.fixtures.json` beside `FUNC.c`: format 1, the function, a `recorded` object (date,
+cases, seed and the line of the default comparison), the fixtures, and `uncovered` (the slots of the
+original that no kept case executed, and the constants of `--edges` that no kept case could cover).
+Keys are sorted, one fixture to a line, hex in lower case; the same input writes the same bytes.
+
+--record runs the default comparison of the function first (it must show `different 0` and no discarded
+case; otherwise nothing is written and the status is 1) and then chooses cases, in this order, until M
+(default 12) are kept: (a) each case, in order, that executes a slot of the original that no kept case
+executed (note `slots: N new`); (b) for each constant of the --edges sweep and each direction, the first
+case that notices the alteration (note `edge: slot I, immediate 0xOLD against 0xNEW`; a case already kept
+gets the note as a second reason); (c) when the function has a result and fewer than M are kept, the first
+case for each result value that no kept case has (note `result 0xV`). It prints
+
+    FUNC fixtures: kept K of N cases (slots A, edges B, results C), needs image: yes|no
+
+A and B and C count the cases kept for that reason first. The edge runs of (b) are made as --edges makes
+them (altered ORIGINAL code, `--jobs N` processes); the build is not altered. A file that exists is replaced,
+and the tool says so. A setup with more than one CallLog, or a recorder with a `tail`, cannot be described:
+status 2.
+
+--replay builds FUNC.c, and for each fixture puts the game's image (only when the fixture says
+`needs_image`) or poison bytes (0xA5, the stack zero as in a case) in memory, puts `reads` and `same` in
+place, puts a recorder at each callee that returns the recorded values in order, runs the BUILD, and requires
+the same calls in the same order with the same logged values, the result, the writes exactly (each byte of
+`writes` has that value afterwards, and no other byte outside the stack and the harness changed) and the saved
+registers and sp as the original left them. It prints `FUNC replay: fixtures K, passed P, failed F`
+(followed by `(game image used for N)` when it read the image) and, per failed fixture, a line naming it and at
+most three lines saying what differed first. The status is 0, 1 for a failed fixture, 2 for a missing or
+malformed file, 3 when the build fails. The original code is never run in this mode and the contract is not
+read. The configuration is loaded as for every mode, and loading it reads the baseline executable to check its
+hash; the replay uses nothing else of the game unless a fixture says `needs_image`.
+
+What replay shows: for the recorded inputs the C reads, calls and writes what the original did. It is evidence
+for those inputs, not the wide comparison and not equivalence. A fixture goes stale when the C changes what it
+reads (it then reads poison), calls or writes; nothing regenerates a fixture except a new --record.
+
+The memory hooks of the emulator are not used to find the reads and writes: with one installed, Unicorn 2.1.4
+ends a run with an exception when a load or store lies in the delay slot of a conditional branch that is not
+taken and a jump follows it. The tool looks at each instruction before it runs (an instruction hook) and
+decodes the loads and stores.
+
 The private inputs (the baseline executable and the module archive that
 the build configuration names) are read through the configuration; the
 tool stops with a message when they are absent.
@@ -124,7 +194,9 @@ import argparse
 import bisect
 import concurrent.futures
 import dataclasses
+import datetime
 import importlib.util
+import json
 import multiprocessing
 import random
 import re
@@ -141,7 +213,7 @@ sys.path.insert(0, str(HERE))
 import matchbuild  # noqa: E402
 from elftools.elf.elffile import ELFFile  # noqa: E402
 import contracts  # noqa: E402
-from unicorn import UC_ARCH_MIPS, UC_HOOK_BLOCK, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32, Uc, UcError  # noqa: E402
+from unicorn import UC_ARCH_MIPS, UC_HOOK_BLOCK, UC_HOOK_CODE, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32, Uc, UcError  # noqa: E402
 from unicorn import mips_const as reg  # noqa: E402
 
 RAM_BASE = 0x80000000
@@ -178,6 +250,7 @@ class State:
         self.stop = STOP_ADDRESS  # where a run ends; a recorder that ends the run jumps there
         self.made_ram = bytearray(RAM_SIZE)  # 1 for each byte that the setup made (see `owns`)
         self.made_scratch = bytearray(SCRATCH_SIZE)
+        self.call_logs: list = []  # the `contracts.CallLog`s of the setup, for `--record`
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
         if size < 0:
@@ -385,10 +458,13 @@ def machine(code: bytes) -> Uc:
     return uc
 
 
-def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: set | None = None) -> dict | str:
+def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: set | None = None,
+             watchers: tuple = ()) -> dict | str:
     """Run one call on `state`. Returns the final state, or a text naming the failure.
 
     With `blocks`, every block of code that the run enters is added to it as (address, size).
+    `watchers` are (hook type, callback) pairs that are put on the emulator for this run only
+    (`--record` uses them for the memory reads and writes).
     """
     uc.mem_write(0, bytes(state.ram))
     uc.mem_write(SCRATCH_BASE, bytes(state.scratch))
@@ -403,15 +479,17 @@ def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: s
         uc.reg_write(number, value)
     uc.reg_write(reg.UC_MIPS_REG_RA, STOP_ADDRESS)
     uc.reg_write(reg.UC_MIPS_REG_SP, STACK_TOP)
-    hook = None
+    hooks = []
     if blocks is not None:
-        hook = uc.hook_add(UC_HOOK_BLOCK, lambda _uc, address, size, _data: blocks.add((address & 0xFFFFFFFF, size)))
+        hooks.append(uc.hook_add(UC_HOOK_BLOCK, lambda _uc, address, size, _data: blocks.add((address & 0xFFFFFFFF, size))))
+    for kind, callback in watchers:
+        hooks.append(uc.hook_add(kind, callback))
     try:
         uc.emu_start(entry, STOP_ADDRESS, count=BUDGET)
     except UcError as exc:
         return f"fault ({exc})"
     finally:
-        if hook is not None:
+        for hook in hooks:
             uc.hook_del(hook)
     if uc.reg_read(reg.UC_MIPS_REG_PC) != STOP_ADDRESS:
         return "instruction budget exceeded"
@@ -511,13 +589,16 @@ def addresses(cfg) -> dict[str, int]:
 
 
 def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes, entry: int = 0,
-                  stop_at_first_difference: bool = False) -> tuple[int, int, int, list, set]:
+                  stop_at_first_difference: bool = False, on_case=None) -> tuple[int, int, int, list, set]:
     """Run the cases. `entry` is the offset of the function in `code`.
 
     Returns (discarded, equal, different, first difference report, executed): `executed` holds
     the offsets of the original function's instruction slots that the runs of the original
     which reached their end have executed. With `stop_at_first_difference` the loop ends after the
     first case that differs (only `--edges` asks for it; the counts are then those of the cases run).
+    `on_case`, when given, is called as `on_case(case, setup, reference, slots, differs)` for every case
+    that was not discarded: `slots` are the offsets of the original's instruction slots the case executed
+    (`--record` uses it; the counts and the return value do not depend on it).
     """
     contract = contracts.CONTRACTS[name]
     original, size = original_function(cfg, name)
@@ -535,12 +616,15 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
         if isinstance(reference, str):
             discarded += 1
             continue
-        executed |= slots_in(blocks, original, size)
+        case_slots = slots_in(blocks, original, size)
+        executed |= case_slots
         built = run_once(uc, state, TEST_ADDRESS + entry, setup)
         if isinstance(built, str):
             lines = [f"build: {built}"]
         else:
             lines = differences(reference, built, setup.returns_value, getattr(setup, "returns", True))
+        if on_case is not None:
+            on_case(case, setup, reference, case_slots, bool(lines))
         if lines:
             different += 1
             if not first:
@@ -732,6 +816,11 @@ def edge_run(task: tuple[int, int, int]) -> tuple[int, int, int, int]:
 
     The image is altered in place and put back, whatever happens, before the next run of this process.
     """
+    return edge_run_case(task)[:4]
+
+
+def edge_run_case(task: tuple[int, int, int]) -> tuple[int, int, int, int, int | None]:
+    """`edge_run` with a fifth value: the number of the first case that differs, None when none does."""
     index, which, new = task
     c = EDGE_CONTEXT
     at = c["base"] + 4 * index
@@ -739,22 +828,25 @@ def edge_run(task: tuple[int, int, int]) -> tuple[int, int, int, int]:
     image = c["image"]
     image[at : at + 4] = struct.pack("<I", (word & 0xFFFF0000) | new)
     try:
+        noticed: list[int] = []
         gone, _equal, changed, _first, _executed = test_function(
             c["cfg"], c["name"], c["code"], c["cases"], c["seed"], bytes(image), c["scratch"], c["entry"],
-            stop_at_first_difference=True)
+            stop_at_first_difference=True,
+            on_case=lambda case, _setup, _reference, _slots, differs: noticed.append(case) if differs and not noticed else None)
     finally:
         image[at : at + 4] = struct.pack("<I", word)
-    return index, which, gone, changed
+    return index, which, gone, changed, noticed[0] if noticed else None
 
 
-def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int) -> list[tuple[int, int, int, int]]:
-    """The results of `edge_run` for the tasks, in the order they finish (the caller sorts them)."""
+def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int, worker=edge_run) -> list[tuple]:
+    """The results of `worker` (`edge_run`, or `edge_run_case` for `--record`) for the tasks, in the order
+    they finish (the caller sorts them)."""
     if not tasks:
         return []
     if jobs == 1:
         edge_init(context)
         try:
-            return [edge_run(task) for task in tasks]
+            return [worker(task) for task in tasks]
         finally:
             EDGE_CONTEXT.clear()
     try:
@@ -763,7 +855,7 @@ def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int) -> li
         raise InputError("--jobs above 1 needs the fork start method of this system; use --jobs 1") from exc
     with concurrent.futures.ProcessPoolExecutor(max_workers=min(jobs, len(tasks)), mp_context=fork,
                                                 initializer=edge_init, initargs=(context,)) as pool:
-        futures = [pool.submit(edge_run, task) for task in tasks]
+        futures = [pool.submit(worker, task) for task in tasks]
         return [future.result() for future in concurrent.futures.as_completed(futures)]
 
 
@@ -799,11 +891,18 @@ def edge_sweep(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, 
     The default comparison runs first. The words of the original are scanned in `ram`; the altered runs
     are made by `jobs` processes (in this one with 1) and printed in a fixed order.
     """
-    address, size = original_function(cfg, name)
     discarded, _equal, different, _first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch, build.entry)
     if different or discarded:
         return [f"{name} edges: not swept, the comparison without alteration shows different {different}, "
                 f"discarded {discarded}"], 1
+    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed)
+    return edge_report(name, cases, constants, executed, edge_runs(context, tasks, jobs), uncovered)
+
+
+def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, scratch: bytes, executed: set) -> tuple[list, list, dict]:
+    """(constants, altered runs, context for the workers) of a function whose comparison without alteration
+    has passed and has executed the slots `executed`."""
+    address, size = original_function(cfg, name)
     base = address - RAM_BASE
     image = bytearray(ram)
     words = list(struct.unpack(f"<{size // 4}I", bytes(image[base : base + size - size % 4])))
@@ -812,7 +911,528 @@ def edge_sweep(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, 
              for which, new in enumerate(edge_neighbours(immediate))]
     context = {"cfg": cfg, "name": name, "code": build.code, "entry": build.entry, "cases": cases, "seed": seed,
                "scratch": scratch, "base": base, "words": words, "image": image}
-    return edge_report(name, cases, constants, executed, edge_runs(context, tasks, jobs), uncovered)
+    return constants, tasks, context
+
+
+# ---------------------------------------------------------------------------
+# Fixtures (--record, --replay)
+
+FIXTURE_FORMAT = 1
+FIXTURE_CAP = 12  # fixtures kept by --record unless --max says otherwise
+POISON = 0xA5  # what the memory of a replay holds where the fixture says nothing
+FIXTURE_FIELDS = ("args", "calls", "case", "ends_in_callee", "needs_image", "note", "reads", "recorders", "result",
+                  "same", "seed", "watch", "writes")
+CALL_FIELDS = ("args", "callee", "pointees", "returned", "watched")
+INITIAL_SAVED = tuple(0x5A5A0000 + index for index in range(len(SAVED)))
+
+
+class FixtureError(Exception):
+    """A fixture file that cannot be read, or a setup that fixtures cannot describe."""
+
+
+def fixtures_path(folder: Path, name: str) -> Path:
+    return folder / f"{name}.fixtures.json"
+
+
+def today() -> str:
+    return datetime.date.today().isoformat()
+
+
+def hex8(value: int) -> str:
+    return f"{value & 0xFFFFFFFF:#010x}"
+
+
+def console_address(physical: int) -> int:
+    """The console address of a physical one as the emulator's hooks give it (RAM or scratchpad)."""
+    return physical if physical >= SCRATCH_BASE else RAM_BASE + physical
+
+
+def names_of(cfg) -> dict[int, str]:
+    """address -> name, for the names of the tree's symbols and declared functions (the first name in order)."""
+    table: dict[int, str] = {}
+    for name, value in sorted(addresses(cfg).items()):
+        if isinstance(value, int):
+            table.setdefault(value, name)
+    return table
+
+
+def runs_of(found: dict[int, int]) -> list[list[str]]:
+    """{console address: byte} as [address, hex bytes] with adjacent bytes joined, ascending."""
+    runs: list[list] = []
+    for address in sorted(found):
+        if runs and runs[-1][0] + len(runs[-1][1]) == address:
+            runs[-1][1].append(found[address])
+        else:
+            runs.append([address, bytearray([found[address]])])
+    return [[hex8(start), bytes(data).hex()] for start, data in runs]
+
+
+def bytes_of(runs: list) -> dict[int, int]:
+    """The inverse of `runs_of`."""
+    found: dict[int, int] = {}
+    for start, text in runs:
+        for offset, byte in enumerate(bytes.fromhex(text)):
+            found[int(start, 16) + offset] = byte
+    return found
+
+
+def skip_map(harness: list[tuple[int, int]]) -> bytearray:
+    """One byte per byte of RAM: 1 where memory is the function's own stack or the harness's."""
+    skip = bytearray(RAM_SIZE)
+    low, high = STACK_LOW - RAM_BASE, STACK_TOP + HOME_AREA - RAM_BASE
+    skip[low:high] = b"\1" * (high - low)
+    for address, size in harness:
+        start = address - RAM_BASE
+        skip[start : start + size] = b"\1" * size
+    return skip
+
+
+# The instructions that touch memory: opcode -> (loads?, which bytes of the word). The R3000 is little
+# endian: lwl and swl touch the bytes from the start of the word up to the address, lwr and swr the bytes
+# from the address to the end of the word.
+MEMORY_OPS = {0x20: (True, "b"), 0x21: (True, "h"), 0x22: (True, "l"), 0x23: (True, "w"), 0x24: (True, "b"),
+              0x25: (True, "h"), 0x26: (True, "r"), 0x32: (True, "w"),
+              0x28: (False, "b"), 0x29: (False, "h"), 0x2A: (False, "l"), 0x2B: (False, "w"), 0x2E: (False, "r"),
+              0x3A: (False, "w")}
+
+
+def touched(kind: str, address: int) -> range:
+    """The addresses that one access of this kind at `address` reaches."""
+    if kind == "b":
+        return range(address, address + 1)
+    if kind == "h":
+        return range(address, address + 2)
+    if kind == "l":
+        return range(address & ~3, address + 1)
+    if kind == "r":
+        return range(address, (address | 3) + 1)
+    return range(address, address + 4)
+
+
+class Trace:
+    """The memory accesses of one run of the original, found by looking at each instruction before it runs.
+
+    `reads` holds the bytes the run read before anything wrote them (their value when read);
+    `written` holds the bytes the run wrote, with the value each held before its first write.
+    The function's own stack region, the home area above it and the harness's memory
+    (`skip`) are left out.
+
+    The emulator's memory hooks are not used: with one installed, Unicorn 2.1.4 ends a run with an
+    exception when a load or store lies in the delay slot of a conditional branch that is not taken and
+    a jump follows it (made-up code that shows it is in `test_difftest.py`). An instruction hook does not.
+    """
+
+    def __init__(self, skip: bytearray):
+        self.skip = skip
+        self.reads: dict[int, int] = {}
+        self.written: dict[int, int] = {}
+
+    def ignored(self, address: int) -> bool:
+        if address < RAM_SIZE:
+            return bool(self.skip[address])
+        return not SCRATCH_BASE <= address < SCRATCH_BASE + SCRATCH_SIZE
+
+    def step(self, uc, address, _size, _data) -> None:
+        word = struct.unpack("<I", uc.mem_read(address & 0x1FFFFFFF, 4))[0]
+        op = MEMORY_OPS.get(word >> 26)
+        if op is None:
+            return
+        loads, kind = op
+        offset = word & 0xFFFF
+        target = (uc.reg_read(reg.UC_MIPS_REG_0 + ((word >> 21) & 31)) + offset - (0x10000 if offset & 0x8000 else 0)) & 0x1FFFFFFF
+        for at in touched(kind, target):
+            if self.ignored(at) or at in self.written or (loads and at in self.reads):
+                continue
+            byte = uc.mem_read(at, 1)[0]
+            if loads:
+                self.reads[at] = byte
+            else:
+                self.written[at] = byte
+
+
+def changed_bytes(before_ram: bytes, before_scratch: bytes, final: dict, skip: bytearray) -> dict[int, int]:
+    """{console address: byte after} for the bytes of RAM and scratchpad that differ from `before_*`,
+    outside what `skip` marks."""
+    found: dict[int, int] = {}
+    for base, before, after, marks in ((RAM_BASE, before_ram, final["ram"], skip),
+                                       (SCRATCH_BASE, before_scratch, final["scratch"], None)):
+        for start in range(0, len(before), PAGE):
+            if before[start : start + PAGE] == after[start : start + PAGE]:
+                continue
+            for i in range(start, min(start + PAGE, len(before))):
+                if before[i] != after[i] and not (marks is not None and marks[i]):
+                    found[base + i] = after[i]
+    return found
+
+
+def call_text(call: contracts.Call, label: dict[int, str]) -> dict:
+    """A decoded call as the fixture holds it."""
+    return {"args": [hex8(a) for a in call.args], "callee": label[call.address],
+            "pointees": {str(i): data.hex() for i, data in sorted(call.pointees.items())},
+            "returned": hex8(call.returned), "watched": [data.hex() for data in call.watched]}
+
+
+def recorder_text(recorder: contracts.Recorder, label: str, cell: int | None) -> dict:
+    """The recorder as the fixture holds it: the callee's stand-in, apart from the values it returns."""
+    found: dict = {"arguments": recorder.arguments, "at": hex8(recorder.address), "callee": label}
+    if cell is not None:
+        found["cell"] = hex8(cell)
+    if recorder.counts:
+        found["counts"] = [hex8(a) for a in recorder.counts]
+    if recorder.ends_run_at:
+        found["ends_run_at"] = recorder.ends_run_at
+    if recorder.masks:
+        found["masks"] = {str(i): m for i, m in sorted(recorder.masks.items())}
+    if recorder.pointees:
+        found["pointees"] = {str(i): n for i, n in sorted(recorder.pointees.items())}
+    if recorder.stores:
+        found["stores"] = [[n, hex8(a), hex8(v)] for n, a, v in recorder.stores]
+    return found
+
+
+def pointer_cell(reads: dict[int, int], target: int) -> int | None:
+    """The first aligned word of `reads` that holds `target`, as its address; None when there is none."""
+    wanted = struct.pack("<I", target)
+    for address in sorted(reads):
+        if address % 4 == 0 and all(reads.get(address + i) == wanted[i] for i in range(4)):
+            return address
+    return None
+
+
+def unmade_reads(state: State, reads: dict[int, int]) -> int:
+    """How many of the bytes read are memory that the setup did not make: they come from the game's image."""
+    return sum(1 for at in reads
+               if not (state.made_ram[at] if at < RAM_SIZE else state.made_scratch[at - SCRATCH_BASE]))
+
+
+def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts.Setup, names: dict[int, str]) -> tuple[dict, int]:
+    """Run the original once on `state` with the hooks and describe the case as a fixture (without note, seed
+    and case). Returns it with the number of bytes it read that the setup did not make."""
+    if len(state.call_logs) > 1:
+        raise FixtureError("the setup makes more than one CallLog; fixtures describe one")
+    log = state.call_logs[0] if state.call_logs else None
+    if log is not None and any(r.tail for r in log.recorders.values()):
+        raise FixtureError("a recorder with a tail stands for the callee in machine code of the contract's own; "
+                           "fixtures cannot describe what it returns")
+    harness = list(log.owned) if log else []
+    skip = skip_map(harness)
+    trace = Trace(skip)
+    blocks: set = set()
+    final = run_once(uc, state, original, setup, blocks,
+                     ((UC_HOOK_CODE, trace.step),))
+    if isinstance(final, str):
+        raise FixtureError(f"the original does not finish on a case that the comparison accepted: {final}")
+    own = [(original, size), (STOP_ADDRESS, 16), *harness]
+    needs_image = any(not any(lo <= a and a + n <= lo + length for lo, length in own) for a, n in blocks)
+    writes = changed_bytes(state.ram, state.scratch, final, skip)
+    reads = dict(trace.reads)
+    # A byte the run stored without changing it, and did not read first: the replay's memory holds that value
+    # beforehand, or the store would look like a change.
+    same = {at: before for at, before in trace.written.items()
+            if before == (final["ram"][at] if at < RAM_SIZE else final["scratch"][at - SCRATCH_BASE]) and at not in trace.reads}
+    recorders, calls = [], []
+    if log is not None:
+        label = {address: names.get(address, hex8(address)) for address in log.recorders}
+        for recorder in sorted(log.recorders.values(), key=lambda r: r.address):
+            cell = None if recorder.address in names else pointer_cell(reads, recorder.address)
+            recorders.append(recorder_text(recorder, label[recorder.address], None if cell is None else console_address(cell)))
+        calls = [call_text(c, label) for c in log.calls(final["ram"])]
+    result = hex8(final["v0"]) if setup.returns_value and setup.returns else None
+    fixture = {"args": [hex8(a) for a in setup.args], "calls": calls, "ends_in_callee": not setup.returns,
+               "needs_image": needs_image, "reads": runs_of({console_address(a): b for a, b in reads.items()}),
+               "recorders": recorders, "result": result,
+               "same": runs_of({console_address(a): b for a, b in same.items()}),
+               "watch": [[hex8(a), n] for a, n in (log.watch if log else ())], "writes": runs_of(writes)}
+    if setup.returns and (tuple(final["saved"]) != INITIAL_SAVED or final["sp"] != STACK_TOP):
+        fixture["registers"] = {"saved": [hex8(v) for v in final["saved"]], "sp": hex8(final["sp"])}
+    return fixture, unmade_reads(state, reads)
+
+
+class Choice:
+    """The cases kept for a fixture file, with the reasons each was kept for."""
+
+    def __init__(self, cap: int):
+        self.cap = cap
+        self.reasons: dict[int, list[str]] = {}
+        self.by = {"slots": 0, "edges": 0, "results": 0}
+
+    def add(self, case: int, reason: str, kind: str) -> bool:
+        """Keep `case` for `reason`. A case already kept only gets the reason. False when the cap leaves it out."""
+        if case in self.reasons:
+            self.reasons[case].append(reason)
+            return True
+        if len(self.reasons) >= self.cap:
+            return False
+        self.reasons[case] = [reason]
+        self.by[kind] += 1
+        return True
+
+
+def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: int, ram: bytes, scratch: bytes,
+                    folder: Path, jobs: int) -> tuple[list[str], int]:
+    """The fixtures of one function: (lines to print, status). Writes `NAME.fixtures.json` in `folder`."""
+    info: dict[int, tuple[frozenset, int | None]] = {}
+
+    def collect(case, setup, reference, slots, _differs):
+        info[case] = (frozenset(slots), reference["v0"] if setup.returns_value and setup.returns else None)
+
+    discarded, equal, different, first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch,
+                                                                  build.entry, on_case=collect)
+    original, size = original_function(cfg, name)
+    comparison = (f"{name}: built {build.size} bytes, original {size} bytes; "
+                  f"cases {cases}, discarded {discarded}, equal {equal}, different {different}")
+    if different or discarded or not equal:
+        return [f"{name} fixtures: not recorded, the comparison shows different {different}, discarded {discarded}",
+                *(f"  {line}" for line in first)], 1
+
+    choice = Choice(cap)
+    # a. the cases that execute a slot of the original that no kept case executed
+    covered: set[int] = set()
+    for case in sorted(info):
+        new = info[case][0] - covered
+        if new and choice.add(case, f"slots: {len(new)} new", "slots"):
+            covered |= info[case][0]
+    # b. the first case that notices each alteration of a constant of the original (as `--edges` makes them)
+    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed)
+    noticed = {(r[0], r[1]): r for r in edge_runs(context, tasks, jobs, edge_run_case)}
+    by_constant = {c[0]: c for c in constants}
+    left_out: list[str] = []
+    for index, mnemonic, rs, rt, immediate in constants:
+        if 4 * index not in executed:
+            left_out.append(f"slot {index}: not executed by any case")
+            continue
+        for which, new in enumerate(edge_neighbours(immediate)):
+            _i, _w, gone, changed, case = noticed[(index, which)]
+            if changed:
+                text = f"slot {index}, immediate {immediate:#x} against {new:#x}"
+                if not choice.add(case, f"edge: {text}", "edges"):
+                    left_out.append(f"slot {index}: {mnemonic} {operands_text(mnemonic, rs, rt, immediate)}, immediate "
+                                    f"{immediate:#x} -> {new:#x}: first noticed by case {case}, which the cap of {cap} left out")
+            else:
+                left_out.append(edge_line(index, mnemonic, rs, rt, immediate, new, cases, gone).strip())
+    # c. one case for each result value that no kept case has
+    if any(result is not None for _slots, result in info.values()):
+        seen = {info[case][1] for case in choice.reasons}
+        for case in sorted(info):
+            result = info[case][1]
+            if result not in seen and len(choice.reasons) < cap:
+                seen.add(result)
+                choice.add(case, f"result {result:#x}", "results")
+
+    contract = contracts.CONTRACTS[name]
+    sym, names = addresses(cfg), names_of(cfg)
+    uc = machine(b"\0" * 16)
+    fixtures, needs_image, unmade = [], False, 0
+    for case in sorted(choice.reasons):
+        rng = random.Random(f"{seed}:{name}:{case}")
+        state = State(ram, scratch)
+        setup = contract.setup(state, rng, sym)
+        try:
+            fixture, not_made = record_case(uc, state, original, size, setup, names)
+        except (FixtureError, ValueError) as exc:
+            return [f"{name} fixtures: not recorded, case {case}: {exc}"], 2
+        fixture.update({"case": case, "note": "; ".join(choice.reasons[case]), "seed": seed})
+        needs_image = needs_image or fixture["needs_image"]
+        unmade += not_made
+        fixtures.append(fixture)
+    kept_slots = set().union(*(info[c][0] for c in choice.reasons)) if choice.reasons else set()
+    missing = [o for o in range(0, size - size % 4, 4) if o not in kept_slots]
+    doc = {"format": FIXTURE_FORMAT, "function": name, "fixtures": fixtures,
+           "recorded": {"cases": cases, "comparison": comparison, "date": today(), "seed": seed},
+           "uncovered": {"edges": left_out, "slots": ranges_text(missing).split(", ") if missing else []}}
+    path = fixtures_path(folder, name)
+    lines = []
+    if path.exists():
+        lines.append(f"{name} fixtures: replaced {path.name}")
+    path.write_text(fixtures_text(doc))
+    if unmade:
+        lines.append(f"{name} fixtures: warning, {unmade} bytes read were not made by the setup: they come from the "
+                     f"game's memory image, which the file would publish")
+    lines.append(f"{name} fixtures: kept {len(fixtures)} of {cases} cases (slots {choice.by['slots']}, "
+                 f"edges {choice.by['edges']}, results {choice.by['results']}), needs image: {'yes' if needs_image else 'no'}")
+    return lines, 0
+
+
+def fixtures_text(doc: dict) -> str:
+    """The file's text: sorted keys, one fixture to a line, the same bytes for the same document."""
+    rows = [json.dumps(fixture, sort_keys=True, separators=(", ", ": ")) for fixture in doc["fixtures"]]
+    out = ["{", ' "fixtures": ['] + [f"  {row}{',' if i < len(rows) - 1 else ''}" for i, row in enumerate(rows)] + [" ],"]
+    rest = sorted((k, v) for k, v in doc.items() if k != "fixtures")
+    for i, (key, value) in enumerate(rest):
+        out.append(f" {json.dumps(key)}: {json.dumps(value, sort_keys=True)}{',' if i < len(rest) - 1 else ''}")
+    out.append("}")
+    return "\n".join(out) + "\n"
+
+
+def load_fixtures(path: Path, name: str) -> dict:
+    """The document of a fixtures file, checked for its shape. Raises FixtureError."""
+    try:
+        doc = json.loads(path.read_text())
+    except OSError as exc:
+        raise FixtureError(f"cannot read {path.name}: {exc.strerror or exc}") from exc
+    except ValueError as exc:
+        raise FixtureError(f"{path.name} is not JSON: {exc}") from exc
+    if not isinstance(doc, dict):
+        raise FixtureError(f"{path.name}: the file is not an object")
+    if doc.get("format") != FIXTURE_FORMAT:
+        raise FixtureError(f"{path.name}: format {doc.get('format')!r}, this tool reads format {FIXTURE_FORMAT}")
+    if doc.get("function") != name:
+        raise FixtureError(f"{path.name}: the file is for {doc.get('function')!r}, not {name}")
+    if not isinstance(doc.get("fixtures"), list) or not doc["fixtures"]:
+        raise FixtureError(f"{path.name}: no fixtures")
+    for number, fixture in enumerate(doc["fixtures"]):
+        if not isinstance(fixture, dict):
+            raise FixtureError(f"{path.name}: fixture {number} is not an object")
+        missing = [f for f in FIXTURE_FIELDS if f not in fixture]
+        if missing:
+            raise FixtureError(f"{path.name}: fixture {number} lacks {', '.join(missing)}")
+        for call in fixture["calls"] if isinstance(fixture["calls"], list) else []:
+            lacking = [f for f in CALL_FIELDS if not isinstance(call, dict) or f not in call]
+            if lacking:
+                raise FixtureError(f"{path.name}: a call of fixture {number} lacks {', '.join(lacking)}")
+    return doc
+
+
+def replay_memory(fixture: dict, image: bytes | None) -> tuple[State, dict[int, int]]:
+    """The state a replay starts from: the game's image or poison, then what the fixture says was read or
+    stored without a change. Returns it with the bytes the fixture's writes name."""
+    ram = bytearray(image) if image is not None else bytearray([POISON]) * RAM_SIZE
+    scratch = bytearray([POISON]) * SCRATCH_SIZE
+    # The stack is not recorded (its bytes are not compared), and a case starts with it zero.
+    low, high = STACK_LOW - RAM_BASE, STACK_TOP + HOME_AREA - RAM_BASE
+    ram[low:high] = bytes(high - low)
+    for key in ("reads", "same"):
+        for address, byte in bytes_of(fixture[key]).items():
+            if address < RAM_BASE:
+                scratch[address - SCRATCH_BASE] = byte
+            else:
+                ram[address - RAM_BASE] = byte
+    return State(bytes(ram), bytes(scratch)), bytes_of(fixture["writes"])
+
+
+def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contracts.CallLog | None:
+    """Put the recorders of the fixture in the state, above every address the fixture uses in the arena."""
+    top = ARENA_BASE
+    used = [*bytes_of(fixture["reads"]), *bytes_of(fixture["same"]), *writes, *(int(r["at"], 16) for r in fixture["recorders"])]
+    for address in used:
+        if ARENA_BASE <= address < ARENA_END:
+            top = max(top, address + 1)
+    state.arena = (top + 0x100 + 15) & ~15
+    # `alloc` hands out zeroed blocks because the arena of a real case is zero: it is poison here.
+    state.ram[state.arena - RAM_BASE : ARENA_END - RAM_BASE] = bytes(ARENA_END - state.arena)
+    if not fixture["recorders"] and not fixture["calls"]:
+        return None
+    words = sum(1 + len(c["args"]) + sum(len(p) // 8 for p in c["pointees"].values()) +
+                sum(len(w) // 8 for w in c["watched"]) for c in fixture["calls"])
+    log = contracts.CallLog(state, words=words + 64, watch=tuple((int(a, 16), n) for a, n in fixture["watch"]))
+    returned: dict[str, list[int]] = {}
+    for call in fixture["calls"]:
+        returned.setdefault(call["callee"], []).append(int(call["returned"], 16))
+    for recorder in fixture["recorders"]:
+        results = tuple(returned.get(recorder["callee"], ()))
+        log.replace(int(recorder["at"], 16), recorder["arguments"], 0,
+                    pointees={int(i): n for i, n in recorder.get("pointees", {}).items()} or None,
+                    masks={int(i): m for i, m in recorder.get("masks", {}).items()} or None,
+                    results=results, ends_run_at=recorder.get("ends_run_at", 0),
+                    stores=tuple((n, int(a, 16), int(v, 16)) for n, a, v in recorder.get("stores", ())),
+                    counts=tuple(int(a, 16) for a in recorder.get("counts", ())))
+    return log
+
+
+def call_difference(number: int, want: dict | None, got: dict | None) -> str:
+    """One line for the first way in which call `number` (from 1) differs."""
+    if got is None:
+        return f"call {number}: missing, the original called {want['callee']}"
+    if want is None:
+        return f"call {number}: extra, the build called {got['callee']}"
+    for field in CALL_FIELDS:
+        if want[field] != got[field]:
+            if field == "args":
+                for index, (x, y) in enumerate(zip(want["args"], got["args"])):
+                    if x != y:
+                        return f"call {number} to {want['callee']}: argument {index + 1} is {y}, the original gave {x}"
+            if field in ("pointees", "watched"):
+                for index, (x, y) in enumerate(zip(want[field].items() if field == "pointees" else enumerate(want[field]),
+                                                   got[field].items() if field == "pointees" else enumerate(got[field]))):
+                    if x != y:
+                        place = f"argument {int(x[0]) + 1}" if field == "pointees" else f"watched block {index + 1}"
+                        at = next((i // 2 for i in range(min(len(x[1]), len(y[1]))) if x[1][i] != y[1][i]), min(len(x[1]), len(y[1])) // 2)
+                        return f"call {number} to {want['callee']}: {place} differs from byte {at} (the memory behind it)"
+            return f"call {number} to {want['callee']}: {field} differ: the build {got[field]}, the original {want[field]}"
+    return f"call {number}: differs"
+
+
+def replay_fixture(uc: Uc, build: Build, fixture: dict, image: bytes | None) -> list[str]:
+    """Run the build on one fixture. Returns the lines that say how it differs (empty: it passes)."""
+    state, writes = replay_memory(fixture, image)
+    log = replay_harness(state, fixture, writes)
+    setup = contracts.Setup(args=tuple(int(a, 16) for a in fixture["args"]), returns_value=fixture["result"] is not None,
+                            returns=not fixture["ends_in_callee"])
+    before_ram, before_scratch = bytes(state.ram), bytes(state.scratch)
+    final = run_once(uc, state, TEST_ADDRESS + build.entry, setup)
+    if isinstance(final, str):
+        return [f"build: {final}"]
+    lines: list[str] = []
+    label = {int(r["at"], 16): r["callee"] for r in fixture["recorders"]}
+    got = [call_text(c, label) for c in log.calls(final["ram"])] if log is not None else []
+    want = fixture["calls"]
+    for number in range(1, max(len(got), len(want)) + 1):
+        a = want[number - 1] if number <= len(want) else None
+        b = got[number - 1] if number <= len(got) else None
+        if a != b:
+            lines.append(call_difference(number, a, b))
+            break
+    if fixture["result"] is not None and setup.returns and hex8(final["v0"]) != fixture["result"]:
+        lines.append(f"result: the build gives {hex8(final['v0'])}, the original gave {fixture['result']}")
+    if setup.returns:
+        registers = fixture.get("registers")
+        saved = [int(v, 16) for v in registers["saved"]] if registers else list(INITIAL_SAVED)
+        sp = int(registers["sp"], 16) if registers else STACK_TOP
+        for register, x, y in zip(SAVED_NAMES, saved, final["saved"]):
+            if x != y:
+                lines.append(f"{register}: the build leaves {y:#x}, the original left {x:#x}")
+        if sp != final["sp"]:
+            lines.append(f"sp: the build leaves {final['sp']:#x}, the original left {sp:#x}")
+    harness = list(log.owned) if log is not None else []
+    skip = skip_map(harness)
+    changed = changed_bytes(before_ram, before_scratch, final, skip)
+    for address in sorted(set(writes) | set(changed)):
+        now = (final["scratch"][address - SCRATCH_BASE] if address < RAM_BASE else final["ram"][address - RAM_BASE])
+        if address in writes and now != writes[address]:
+            kind = "missing write" if address not in changed else "wrong value"
+            lines.append(f"{kind} at {address:#x}: the build leaves {now:#04x}, the original left {writes[address]:#04x}")
+        elif address not in writes:
+            lines.append(f"extra write at {address:#x}: {now:#04x}, the original wrote nothing there")
+    return lines
+
+
+def replay_function(cfg, name: str, build: Build, doc: dict, load_image) -> tuple[list[str], int]:
+    """Replay every fixture of `doc` on `build`. `load_image()` gives the game's memory image, and is called
+    only for a fixture that says `needs_image`. Returns (lines to print, status)."""
+    uc = machine(build.code)
+    passed = failed = used_image = 0
+    report: list[str] = []
+    image = None
+    for number, fixture in enumerate(doc["fixtures"]):
+        if fixture["needs_image"]:
+            used_image += 1
+            if image is None:
+                image = load_image()
+        try:
+            lines = replay_fixture(uc, build, fixture, image if fixture["needs_image"] else None)
+        except (KeyError, ValueError, TypeError, AttributeError) as exc:
+            raise FixtureError(f"{name}.fixtures.json: fixture {number} cannot be read: {type(exc).__name__}: {exc}") from exc
+        if lines:
+            failed += 1
+            note = fixture["note"] if len(fixture["note"]) <= 70 else fixture["note"][:67] + "..."
+            report.append(f"  fixture {number} (case {fixture['case']}, {note}):")
+            report.extend(f"    {line}" for line in lines[:3])
+        else:
+            passed += 1
+    head = f"{name} replay: fixtures {len(doc['fixtures'])}, passed {passed}, failed {failed}"
+    if used_image:
+        head += f" (game image used for {used_image})"
+    return [head, *report], 1 if failed else 0
 
 
 def load_contracts(folder: Path, names: list[str]) -> None:
@@ -830,6 +1450,37 @@ def load_contracts(folder: Path, names: list[str]) -> None:
         if not isinstance(getattr(module, "CONTRACT", None), contracts.Contract):
             raise InputError(f"{path.name} does not define CONTRACT, a contracts.Contract")
         contracts.CONTRACTS[name] = module.CONTRACT
+
+
+def replay_main(cfg, folder: Path, names: list[str]) -> int:
+    """`--replay`: the status of the replay of each function (all that have a fixtures file when none is named)."""
+    if not names:
+        names = sorted(path.name[: -len(".fixtures.json")] for path in folder.glob("*.fixtures.json"))
+        if not names:
+            print(f"INPUT ERROR: no fixtures file in {folder.name}", file=sys.stderr)
+            return 2
+    status = 0
+    for name in names:
+        try:
+            doc = load_fixtures(fixtures_path(folder, name), name)
+        except FixtureError as exc:
+            print(f"INPUT ERROR: {exc}", file=sys.stderr)
+            return 2
+        with tempfile.TemporaryDirectory(prefix="difftest-") as directory:
+            try:
+                build = build_function(cfg, name, Path(directory), folder)
+            except (matchbuild.StepError, matchbuild.EnvironmentFailure, InputError) as exc:
+                print(f"BUILD ERROR: {exc}", file=sys.stderr)
+                return 3
+        try:
+            lines, replayed = replay_function(cfg, name, build, doc, lambda: initial_memory(cfg, image_of(name)))
+        except (FixtureError, InputError, OSError) as exc:
+            print(f"INPUT ERROR: {exc}", file=sys.stderr)
+            return 2
+        for line in lines:
+            print(line)
+        status = max(status, replayed)
+    return status
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -851,7 +1502,15 @@ def main(argv: list[str] | None = None) -> int:
                         help="alter one constant of the original at a time (plus and minus one) and list the "
                              "alterations that no case notices")
     parser.add_argument("--jobs", type=int, default=None,
-                        help="with --edges: processes that make the altered runs (default 8; 1 runs them here)")
+                        help="with --edges or --record: processes that make the altered runs (default 8; 1 runs them here)")
+    parser.add_argument("--record", action="store_true",
+                        help="run the original on the cases of one function and write its fixtures, NAME.fixtures.json "
+                             "beside NAME.c")
+    parser.add_argument("--replay", action="store_true",
+                        help="test the C of each function on its fixtures, without running the original "
+                             "(no function named: every function of the folder that has a fixtures file)")
+    parser.add_argument("--max", type=int, default=None, dest="cap",
+                        help=f"with --record: at most this many fixtures (default {FIXTURE_CAP})")
     parser.add_argument("--all", action="store_true", help="every function that has a source in the folder")
     parser.add_argument("functions", nargs="*", metavar="FUNC")
     args = parser.parse_args(argv)
@@ -865,13 +1524,31 @@ def main(argv: list[str] | None = None) -> int:
     if args.edges and args.writes:
         print("INPUT ERROR: --edges and --writes do not combine", file=sys.stderr)
         return 2
-    if args.jobs is not None and not args.edges:
-        print("INPUT ERROR: --jobs applies to --edges only", file=sys.stderr)
+    if args.record and args.replay:
+        print("INPUT ERROR: --record and --replay do not combine", file=sys.stderr)
+        return 2
+    if (args.record or args.replay) and (args.control or args.writes or args.edges):
+        print("INPUT ERROR: --record and --replay do not combine with --control, --writes or --edges", file=sys.stderr)
+        return 2
+    if args.cap is not None and not args.record:
+        print("INPUT ERROR: --max applies to --record only", file=sys.stderr)
+        return 2
+    if args.cap is not None and args.cap < 1:
+        print("INPUT ERROR: --max needs 1 or more", file=sys.stderr)
+        return 2
+    if args.jobs is not None and not (args.edges or args.record):
+        print("INPUT ERROR: --jobs applies to --edges and --record only", file=sys.stderr)
+        return 2
+    if args.record and (args.all or len(args.functions) != 1):
+        print("INPUT ERROR: --record takes one function", file=sys.stderr)
         return 2
     if args.jobs is not None and args.jobs < 1:
         print("INPUT ERROR: --jobs needs 1 or more", file=sys.stderr)
         return 2
-    if args.all == bool(args.functions):
+    if args.replay and args.all:
+        print("INPUT ERROR: --replay takes the functions named, or none for every fixtures file of the folder", file=sys.stderr)
+        return 2
+    if not args.replay and args.all == bool(args.functions):
         print("INPUT ERROR: name the functions, or give --all and none", file=sys.stderr)
         return 2
     if args.all:
@@ -890,6 +1567,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"INPUT ERROR: {exc}", file=sys.stderr)
         return 2
     scratch = bytes(SCRATCH_SIZE)
+    if args.replay:
+        return replay_main(cfg, folder, args.functions)
     try:
         load_contracts(folder, args.functions)
     except (InputError, OSError) as exc:
@@ -921,6 +1600,18 @@ def main(argv: list[str] | None = None) -> int:
             except (matchbuild.StepError, matchbuild.EnvironmentFailure, InputError) as exc:
                 print(f"BUILD ERROR: {exc}", file=sys.stderr)
                 return 3
+        if args.record:
+            try:
+                lines, recorded = record_function(cfg, name, build, args.cases, args.seed,
+                                                  FIXTURE_CAP if args.cap is None else args.cap, ram, scratch, folder,
+                                                  8 if args.jobs is None else args.jobs)
+            except (InputError, OSError) as exc:
+                print(f"INPUT ERROR: {exc}", file=sys.stderr)
+                return 2
+            for line in lines:
+                print(line)
+            status = max(status, recorded)
+            continue
         if args.edges:
             try:
                 lines, swept = edge_sweep(cfg, name, build, args.cases, args.seed, ram, scratch, args.uncovered,
