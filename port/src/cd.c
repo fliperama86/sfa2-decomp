@@ -68,8 +68,33 @@
  *    sector offset; IntToPos returns its second argument.
  *
  * Timing: nothing here sleeps. A command that has a second response (Pause,
- * SeekL) completes in the next port_cd_tick (or when a blocking wait asks);
- * sectors are delivered only in port_cd_tick. */
+ * SeekL) completes in the next port_cd_tick (or when a blocking wait asks).
+ * Sectors are delivered in port_cd_tick, at the rate of the console's drive,
+ * counted BY THE FRAME AND NOT BY THE CLOCK: a vblank is a fixed amount of
+ * drive time here, whatever the host's clock says. The drive reads 75 sectors
+ * a second at single speed (the CD's own rate) and twice that, 150, with the
+ * double-speed bit (0x80) of the mode set. At 60 vblanks a second that is 2.5
+ * and 1.25 sectors a vblank. To lose no fraction, the layer keeps a carry in
+ * fifths of a sector: every vblank's delivery adds 5 to it, and a sector costs
+ * 2 with the double-speed bit (2, 3, 2, 3, ... sectors a vblank) and 4
+ * without it (1, 1, 1, 2, ...). The sectors of one vblank are delivered in a
+ * row. The carry is cleared when a read starts (ReadN, ReadS) and when the
+ * mode's speed bit changes. A sector that could not be delivered (the read
+ * ended, the handler paused it, or a polling reader has not taken the last
+ * one) does not use up its cost: the drive did not turn.
+ *
+ * The blocking wait of the game (CdReady with mode 0) is unchanged: when no
+ * sector is ready and a read is on, it calls port_cd_tick itself, as before.
+ * That call adds to the carry and delivers like a vblank's, so a wait can
+ * bring more sectors in a second than the rate gives. That is the game
+ * waiting on the drive, not the drive running ahead.
+ *
+ * What this does not guarantee: the rate is the console's and nothing more.
+ * The game reads a stream into a ring of seven places that its main loop
+ * empties once per pass. When a pass of the loop takes several frames, the
+ * ring can still be lapped, and for a sound bank the game's library then
+ * never recovers. This layer does not prevent that; it is a known fault for
+ * a later change. */
 #include "cd.h"
 
 #include <stdint.h>
@@ -108,6 +133,7 @@ static struct {
     unsigned cur_sector, offset;
     unsigned char data[PORT_DATA];
     int in_delivery;
+    unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a sector (see the header) */
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
 } cd;
 
@@ -309,6 +335,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         if (cd.mode & 0x20) cd_stop("disc mode (whole sector)", cd.mode);
         if (cd.loc_set) { cd.pos = cd.loc; cd.loc_set = 0; }
         cd.reading = 1;
+        cd.carry = 0;
         cd.ready = 0;
         set_status(ST_READ);
         one[0] = cd.status;
@@ -334,6 +361,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         break;
     case 0xe:
         if (param[0] & 0x20) cd_stop("disc mode (whole sector)", param[0]);
+        if ((cd.mode ^ param[0]) & 0x80) cd.carry = 0;
         cd.mode = param[0];
         respond(one, 1, 2);
         break;
@@ -552,13 +580,13 @@ static int deliver_one(void)
 
 void port_cd_tick(void)
 {
-    int n;
+    unsigned cost = (cd.mode & 0x80) ? 2u : 4u;
     if (!cd.started) return;
     settle_pending();
     if (cd.in_delivery) return;
     cd.in_delivery = 1;
-    for (n = 0; n < PORT_CD_SECTORS_PER_TICK; n++)
-        if (!deliver_one()) break;
+    cd.carry += 5;
+    while (cd.carry >= cost && deliver_one()) cd.carry -= cost;
     cd.in_delivery = 0;
 }
 
