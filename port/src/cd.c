@@ -124,12 +124,37 @@
  * game sends meanwhile (Pause, a new read) is served at once, and the held sector is read again at the next row from the same
  * position (a new read or a seek moves the position, and the hold ends with the old one).
  *
- * What this does not guarantee: the rate is the console's and nothing more.
- * The game reads a stream into a ring of seven places that its main loop
- * empties once per pass. When a pass of the loop takes several frames, the
- * ring can still be lapped, and for a sound bank the game's library then
- * never recovers. This layer does not prevent that; it is a known fault for
- * a later change. */
+ * THE DRIVE WAITS FOR THE GAME'S RING (a game-specific exception: this layer reads the game's memory).
+ * The rate above is the console's and nothing more. The game reads a streamed load into a ring of seven places that its main loop
+ * empties once per pass. On the console a pass fits in a frame or two. Here a pass can take several frames of the wall clock (a
+ * slow host routine, a full trace, a busy machine) while the vblank, and with it the drive, keeps the frame count's pace. The ring
+ * is then lapped. When the lost sectors were a sound bank's, the game's sound library never recovers and the game restarts the load
+ * for ever. So the drive does not deliver a sector of a streamed load while the ring holds 4 sectors or more that the game has
+ * not read.
+ *  - Where it applies: a read is on, the mode's XA bit (0x40) is clear, and the ready handler stored in the library variable is
+ *    the game's stream handler, func_8014f918 at 0x8014f918 (ps1/src/n14a648_r9.c; the game's function v10_r1.c stores it before a
+ *    streamed load and the loaders store 0). With another handler, with none (the game polls) or with the XA bit set, there is no
+ *    guard, whatever the ring holds.
+ *  - The ring: bytes 0x16 and 0x17 of the game's stream object, ctl_80190948 at 0x80190948. The source shows that byte 0x16 is the
+ *    place a sector is written to (the handler's work, 0x801e0000 plus the place times 2048; it is stepped 1 to 7, wrapping from 8 to
+ *    1, l14de94_r3.c and s14f9f0_r3.c) and byte 0x17 the place the main loop reads next (l14de94_r4.c, wrapping the same way);
+ *    both are 0 before a stream starts (s14ec80_r4.c, v10_r1.c). That the two bytes ARE a ring of seven that holds the written
+ *    but unread sectors, and that the fill is (w + 7 - r) % 7, is INFERRED from that source and from traces of good loads.
+ *    With either byte outside 1 to 7 there is no guard.
+ *  - The rule: before each sector of a vblank's row, with the fill 4 or more, the sector is not delivered and the row ends, the
+ *    carry cut to its remainder like every row that ends for want of a sector (the drive waits and does not catch up).
+ *  - The bound: when 30 vblanks in a row delivered nothing because of the guard, the next vblank delivers its row regardless,
+ *    with one line on the output and a count, so that a reader this guard misjudges cannot hang. A vblank that the guard did
+ *    not hold, or one that delivered a sector, begins the count again.
+ *  - Not guarded: the blocking wait of the game (CdReady with mode 0): that is the game asking for a sector. Its own delivery
+ *    does not count as a held vblank and does not end a run of held ones.
+ *  - The counts (checks, vblanks held, forced rows, the largest fill seen) go to the trace's last line. A run ended from outside
+ *    prints no last line, so the trace also gets one line each time a run of held vblanks ends.
+ * Why (one-off private runs of a trial, not a test): every lost lap fell where the ring's fill had reached 6; with every vblank's
+ * sectors read in time the largest fill was 3; with this guard, a full trace and four busy processes, 8 loads of 294 sectors each
+ * completed, the largest fill was 4, the guard held 2 vblanks and forced none.
+ * Not designed: the general answer, the port's clock following the game's progress, so that no game-specific knowledge is
+ * needed here. This is the game's memory in the disc layer, listed as an exception in port/README.md. */
 #include "cd.h"
 #include "xa.h"
 
@@ -146,6 +171,10 @@ void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 #define ST_READ 0x22u   /* motor on, reading */
 #define ST_ERR  0x03u   /* motor on, error */
 #define WAIT_LIMIT 600  /* polls of a wait with nothing to wait for (about ten seconds) */
+#define GUARD_STREAM  0x80190948u   /* ctl_80190948: the game's stream object */
+#define GUARD_HANDLER 0x8014f918u   /* func_8014f918: the ready handler of a streamed load */
+#define GUARD_FILL    4u            /* the fill at which the drive waits */
+#define GUARD_HOLD    30u           /* vblanks held in a row before the next row is delivered regardless */
 
 static struct {
     struct port_disc *disc;
@@ -169,6 +198,9 @@ static struct {
     unsigned cur_sector, offset;
     unsigned char data[PORT_DATA];
     int in_delivery;
+    int unguarded;                  /* the blocking wait of the game is delivering: the ring guard is off */
+    unsigned guard_run;             /* vblanks in a row that delivered nothing because of the guard */
+    unsigned guard_checked, guard_held, guard_forced, guard_max;   /* for the trace's last line */
     unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a vblank (see the header) */
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
     unsigned char filter_file, filter_channel;   /* the last Setfilter */
@@ -359,6 +391,12 @@ static int xa_take(const unsigned char *raw, unsigned sector)
     port_audio_unlock();
     xa.started = 1;
     return 1;
+}
+
+static void guard_report(void)
+{
+    if (!cd.guard_checked) return;   /* the guard never applied: a trace is what it was */
+    port_trace_line("cd: the ring guard looked %u times, held %u vblanks, forced %u rows, largest fill %u", cd.guard_checked, cd.guard_held, cd.guard_forced, cd.guard_max);
 }
 
 static void xa_report(void)
@@ -684,7 +722,11 @@ int port_CdReady(int mode, unsigned char *result)
     need_disc();
     for (n = 0; n < WAIT_LIMIT; n++) {
         if (!cd.in_delivery) port_tick();
-        if (cd.ready == 0 && !mode && cd.reading && !cd.in_delivery) port_cd_tick();
+        if (cd.ready == 0 && !mode && cd.reading && !cd.in_delivery) {
+            cd.unguarded = 1;   /* the game asks for a sector: the ring guard does not apply */
+            port_cd_tick();
+            cd.unguarded = 0;
+        }
         if (cd.ready) {
             int r = cd.ready;
             cd.ready = 0;
@@ -832,20 +874,63 @@ static int deliver_one(void)
     return 1;
 }
 
+/* The ring guard (see the header): 1 when the sector must not be delivered now. `regardless` is set for a row that is delivered
+ * regardless; the first sector it would have held is counted and reported. */
+static int ring_full(int *regardless)
+{
+    const unsigned char *b;
+    unsigned w, r, fill;
+
+    if (cd.unguarded || !cd.reading || (cd.mode & 0x40) || lib_get32(PORT_CD_VAR_READY_CB) != GUARD_HANDLER) return 0;
+    b = lib_ptr(GUARD_STREAM);
+    w = b[0x16];
+    r = b[0x17];
+    if (w < 1 || w > 7 || r < 1 || r > 7) return 0;   /* no stream has run, or these are not the places */
+    fill = (w + 7u - r) % 7u;
+    cd.guard_checked++;
+    if (fill > cd.guard_max) cd.guard_max = fill;
+    if (fill < GUARD_FILL) return 0;
+    if (*regardless == 1) {   /* the 31st vblank: delivered regardless, counted and reported once */
+        *regardless = 2;
+        cd.guard_forced++;
+        printf("cd: the game's ring looked full for %u vblanks; delivering\n", GUARD_HOLD);
+        fflush(stdout);
+    }
+    return *regardless == 0;
+}
+
 void port_cd_tick(void)
 {
     unsigned cost;
+    int regardless, delivered = 0, held = 0;
     if (!cd.started) return;
     settle_pending();
     if (cd.in_delivery) return;
     cd.in_delivery = 1;
+    regardless = !cd.unguarded && cd.guard_run >= GUARD_HOLD;   /* 1: this row is delivered regardless (2 once it was needed) */
     cost = (cd.mode & 0x80) ? 2u : 4u;   /* read here: after the pending commands are settled, before any handler runs */
     cd.carry += 5;
     while (cd.carry >= cost) {
+        if (ring_full(&regardless)) {   /* the sector waits: the drive waits and does not catch up */
+            held = 1;
+            cd.carry %= cost;
+            break;
+        }
         cd.carry -= cost;   /* the drive's time for this sector is spent before the handler runs; a reset by the handler leaves 0 and ends the row */
         if (!deliver_one()) {   /* the row ends: what the drive could not hand over now is not handed over later */
             cd.carry %= cost;   /* the same remainder as before the cost was taken */
             break;
+        }
+        delivered = 1;
+    }
+    if (!cd.unguarded) {
+        if (held && !delivered) {
+            cd.guard_run++;
+            cd.guard_held++;
+        } else {
+            if (cd.guard_run)   /* the run ends: a trace shows each one, so that a run ended from outside (no last line) still has its counts */
+                port_trace_line("cd: the ring guard held %u vblanks in a row, then a row was delivered (frame %u, largest fill so far %u)", cd.guard_run, port_frames(), cd.guard_max);
+            cd.guard_run = 0;
         }
     }
     cd.in_delivery = 0;
@@ -869,6 +954,7 @@ int port_cd_init(struct port_disc *disc)
         if (!registered) {
             registered = 1;
             atexit(xa_report);
+            atexit(guard_report);
         }
     }
     return 0;

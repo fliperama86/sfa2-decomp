@@ -982,6 +982,15 @@ routines that do nothing on purpose. What is in this piece:
   the second test: any address inside the game's compiled code passes,
   not only a function's first instruction, because the build does not
   list the game's static functions.
+- A game-specific exception: the disc layer reads the game's own memory
+  in one place. While the game's ring of seven sectors holds four or
+  more that the game has not read, the drive does not deliver a sector
+  of a streamed load (`port/src/cd.c`; "The drive waits for the game's
+  ring" below). This is knowledge of this game, the address of its stream
+  object and of its stream handler, in a layer that is otherwise the
+  library's. By the owner's decision of 2026-10-10, asked "Shall I
+  publish the guard?" after the two ways were put to him, he answered
+  "yes". It is listed here as an exception and not hidden in the layer.
 - `--trace` and `--trace-file FILE` write one line per library call.
 - The disc. The game reads its files through the CD library: it sets a
   position, starts a read, and a handler of the game's takes each
@@ -1019,8 +1028,8 @@ routines that do nothing on purpose. What is in this piece:
   near its limit, so a disc faster than the console's leaves it less
   room. The limit: this is the console's rate and nothing more. When a
   pass of the game's loop takes several frames, the ring can still be
-  lapped, and for a sound bank the game's library then never recovers.
-  That is a known fault, left to a later change.
+  lapped. A guard for a streamed load of the game closes that: "The
+  drive waits for the game's ring" below.
 - What the disc layer does not trust. `CdGetSector` copies a sector to
   an address and a length that the game gives: both must lie inside the
   PS1's RAM, or the program ends with a line before a byte is copied.
@@ -2185,19 +2194,119 @@ seconds, not traced (one-off, the same private input): no line began
 `refused` or `stop`, each printed 2 lines `skipped: Exec of z2o.exe` (the
 game's attract cycle came round twice) and was ended by the time limit.
 
-A known fault, not fixed here. The game reads a stream from the disc into
-a ring of seven sectors and empties it once in each pass of its main
-loop. When a pass takes several frames, the ring is lapped. If the
-sectors lost were a sound bank's, the library does not recover and the
-game restarts its load for ever. `port/src/cd.c` delivers at the
-console's rate (its header, "Timing"), and that does not prevent this.
-The private trial that this follows saw the hang with repeated loads,
-left at the title with no input, most often while a full trace slowed
-the game. Nothing here makes the disc wait for the game; that is the
-subject of a later change.
+### The drive waits for the game's ring
+
+The game reads a streamed load into a ring of seven sectors and empties
+it once in each pass of its main loop. On the console a pass fits in a
+frame or two. Here a pass can take several frames of the wall clock
+(a full trace, a busy machine), while the vblank, and with it the
+drive, keeps the frame count's pace. Then the ring is lapped. If the
+lost sectors were a sound bank's, the game's sound library does not
+recover and the game restarts its load for ever. The private trial that
+this follows saw it with the attract cycle repeating its loads, left at
+the title with no input, most often while a full trace slowed the game.
+
+The guard, in `port/src/cd.c` and nowhere else: the drive does not
+deliver a sector of a streamed load while the ring holds four sectors or
+more that the game has not read.
+
+- It applies only to a streamed load of the game. A read is on, the
+  mode's XA bit is clear, and the ready handler that the game stored in
+  the library's variable is its stream handler, `func_8014f918` at
+  `0x8014f918` (`ps1/src/n14a648_r9.c`). With another handler, with none
+  (the game polls) or with the XA bit set there is no guard.
+- The ring is read from two bytes of the game's stream object,
+  `ctl_80190948` at `0x80190948`. The game's source shows that byte
+  `0x16` is the place a sector is written to (it is stepped from 1 to 7
+  and back to 1, and the handler's work writes the sector at that place:
+  `l14de94_r3.c`, `s14f9f0_r3.c`) and that byte `0x17` is the place the
+  main loop reads next (stepped the same way, `l14de94_r4.c`), and that
+  both are 0 before a stream starts. (Some kinds of sector are read into
+  a buffer of their own and do not use the ring; they move neither place.)
+  That the pair is a ring of seven
+  that holds the written and unread sectors, so that the fill is
+  `(w + 7 - r) % 7`, is inferred from that source and from traces of good
+  loads. With either byte outside 1 to 7 there is no guard.
+- Before each sector of a vblank's row, with a fill of 4 or more, the
+  sector is not delivered and the row ends. The carry is cut to its
+  remainder, as for every row that ends for want of a sector: the drive
+  waits and does not catch up.
+- So that a reader this guard misjudges cannot hang: when 30 vblanks in a
+  row delivered nothing because of the guard, the next vblank delivers
+  its row regardless, with the line `cd: the game's ring looked full for
+  30 vblanks; delivering` on the output, and the count begins again.
+- The counts (the sectors it looked at, the vblanks held, the rows forced,
+  the largest fill) are the last line of a trace. A run ended from outside
+  prints none, so a trace also gets one line each time a run of held
+  vblanks ends.
+- Not covered: the blocking wait of the game (`CdReady` with mode 0) is
+  the game asking for a sector and is not guarded. A reader that is not
+  this game's stream, and a ring that is not these two bytes, are not
+  covered. The cause is only the disc outrunning the game's loop; the
+  guard does not make the port's clock follow the game ("Not decided").
+
+What was measured, all of it one-off, private runs of the trial that
+preceded this change (no command of this repository repeats them; they
+need the user's disc), taken from the trial's commit message: every lost
+lap fell where the ring's fill had reached 6; with every vblank's sectors
+read in time the largest fill was 3; with the guard, a heavy trace and
+four busy processes, 8 loads of 294 sectors each completed, the largest
+fill was 4, the guard held 2 vblanks and forced none.
+
+What `python3 port/tools/test_hostcd.py` checks, on a made-up image and
+a made-up handler: the fill of all 49 pairs of places (a table written
+out by hand), places outside 1 to 7, the held vblanks and the carry at
+both speeds, a fill that reaches 4 within a row, the 30 held vblanks and
+the forced row and the count beginning again, and the loads and calls that
+are not guarded (another handler, none, the XA bit, `CdReady(0)`). It does
+not show that the two bytes of the real game are what the source and the
+traces say; only a run with the disc does that.
+
+One-off runs with the user's disc for this change, on 2026-10-10
+(a private input: no button was pressed; offscreen, `--audio-dump`
+and never a sound device; one program at a time; no command of this
+repository repeats them; main was `0a99d3f`). Both builds were made with
+`--sound-library --psyz DIR`, one from main and one from this branch.
+They are not a measure; the fault is intermittent and a run that passes
+shows nothing either way.
+
+- The stressed run, 110 seconds, `--trace` with a trace file and four
+  processes `timeout 118 python3 -c "while True: pass"` started just
+  before. Main's build, first run: 2 lines `skipped: Exec of z2o.exe`,
+  a dump of 6,050 vblanks that was silent in every ten seconds from the
+  60th to the end, the same three loads repeating in the trace, no line
+  `refused` or `stop`. Main's build, second run: 5 such lines, 5,757
+  vblanks, sound in some windows and none in others, the loads repeating;
+  it did not go silent for good. This branch's build, three runs (the
+  first with the build before the trace line of a run's end was added,
+  so it has no counts): 2, 0 and 1 such lines; 3,577, 2,750 and 2,802
+  vblanks; sound in every window of ten seconds after the first except
+  one in the second run (20 to 30 seconds); each one a
+  stream of the disc's audio at sector 109,855 (file 1, channel 7)
+  starting at frame 3,294, 2,276 and 2,397; no `refused` or `stop`; no
+  forced line on the output; in the two runs with the new trace line, no
+  line of a run of held vblanks, so no run of held vblanks ended there.
+  In all three the loads went on to sectors (0x37dff and 0x1ad1f)
+  that main's two runs did not reach. These runs do not show the guard
+  holding a vblank; they show only that the build with it did not hang
+  in three runs. They also have fewer vblanks in 110 seconds than main's
+  (about 175 trace lines a vblank against about 60 for main's runs, in a
+  drawn scene whose trace costs more); that explanation is inferred from
+  those counts and not tested.
+- The light run, 60 seconds, no trace, no input: main's build 4 lines
+  `skipped: Exec of z2o.exe`, this branch's 4. No line `refused` or
+  `stop` in either.
+- The default build (`--psyz DIR`, no sound library), 25 seconds, no
+  input: no line began `refused` or `stop`; the start line is `library:
+  114 host routines, 270 left that stop`.
 
 ## Not decided
 
+- The port's clock following the game's progress. The guard of "The drive
+  waits for the game's ring" is the answer for one cause (the disc
+  outrunning the game's loop) and for one game object. The general
+  answer, a clock that the game's own progress drives so that no part
+  needs the game's memory, is not designed.
 - How game units reach the library. They call it by address names, such as
   `func_80157fc4`, and PsyZ has the library's own names. The list of
   needs has the pairs for the names the project knows. The host program

@@ -97,9 +97,9 @@ differential test against the original code.
   Linux. The game does not run on macOS or Linux. On Windows a program
   linked from its unchanged C starts the game from the user's disc image
   and, in one scripted run, played into a second fight; its sound is off
-  unless asked (the sequenced sound plays in a build with the game's own
-  sound library; the audio streamed from the disc is not there), and it is
-  not shown to play to the end.
+  unless asked (a build with the game's own sound library plays the
+  sequenced sound and the audio streamed from the disc), and it is not
+  shown to play to the end.
 - [`research/target-investigation.md`](research/target-investigation.md): original
   target-selection evidence, including a historical Saturn comparison.
 - [`tools/ghidra/`](tools/ghidra/): shared analysis scripts written for the project.
