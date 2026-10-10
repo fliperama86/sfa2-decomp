@@ -357,7 +357,7 @@
 80169b24	44	_SsSndPlay	sound	0	folder
 80169b50	1404	_SsSndCrescendo	sound	0	folder
 8016a0cc	160	_SsSndPause	sound	0	folder
-8016a16c	100	-	unidentified	0	-
+8016a16c	100	func_8016a16c	unidentified	0	-
 8016a1d0	480	_SsSndTempo	sound	0	folder
 8016a3b0	144	SsVabClose	sound	3	folder
 8016a440	92	SsVabOpen	sound	0	folder
