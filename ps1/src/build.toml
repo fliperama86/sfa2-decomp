@@ -7224,9 +7224,14 @@ slot = 0x5
 sha256 = "543c8c6d9cce198517593e4386209f6c9f87aad2f7aec05d5fc66a390085f056"
 address = 0x801c8000
 # Two units call the extra module of this character, which the second side
-# has at another address (slot 0x17); they stay raw here until a second link
-# can be given another image's moved functions.
-leave_out = ["slot04_11_5e80_r1_b", "slot04_11_655cx_r1"]
+# has at another address (slot 0x17). They call it by plain names, bound here
+# to the second side's addresses. The third call goes to the first side's copy
+# on both sides, which is what the bytes of both files say.
+
+[image.symbols]
+func_8007bc00 = 0x8008bf00
+func_8007be8c = 0x8008c18c
+func_801b1448 = 0x801b1448
 
 [[image]]
 name = "slot05_12"
