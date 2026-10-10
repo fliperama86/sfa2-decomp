@@ -3,7 +3,10 @@
 The selected PS1 program has an original-address matching build for the resident
 image and declared overlay images. It still retains raw ranges. This is not a
 whole-game build from recovered source, a completed decompilation, or proof of
-live gameplay. The PC port still stops where C is missing, not a running game.
+live gameplay. The PC port starts the game from the user's disc on Windows and
+played into a second fight in one scripted run; it has no sound, skips the disc's
+stand-alone programs, stops by name where C is missing, and is not shown to play
+to the end.
 
 ## Source of truth
 
