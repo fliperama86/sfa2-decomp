@@ -33,6 +33,11 @@ import psyzbuild as pb  # noqa: E402
 Problem = pb.Problem
 
 
+# Every git command of the fixtures carries these: git then starts no background work (auto-maintenance, detached) after a
+# commit, which would create and remove .git/objects/maintenance.lock in a folder that a case is comparing.
+NO_BACKGROUND = ["-c", "maintenance.auto=false", "-c", "gc.auto=0", "-c", "gc.autoDetach=false"]
+
+
 def same(got, want):
     return None if got == want else f"wanted {want!r}, got {got!r}"
 
@@ -438,7 +443,7 @@ class World:
             write(self.src / name, body)
         self.commit = "unknown"
         if git:
-            git_cmd = ["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(self.src)]
+            git_cmd = ["git", *NO_BACKGROUND, "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(self.src)]
             subprocess.run(git_cmd + ["init", "-q"], check=True, capture_output=True, timeout=60)
             subprocess.run(git_cmd + ["add", "-A"], check=True, capture_output=True, timeout=60)
             subprocess.run(git_cmd + ["commit", "-q", "-m", "x"], check=True, capture_output=True, timeout=60)
@@ -549,7 +554,7 @@ def program_cases(root):
     # A plain folder inside another repository: git would answer with that repository's commit; the tool says unknown.
     outer = root / "outer"
     write(outer / "readme", "x\n")
-    git_cmd = ["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(outer)]
+    git_cmd = ["git", *NO_BACKGROUND, "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(outer)]
     for step in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "x"]):
         subprocess.run(git_cmd + step, check=True, capture_output=True, timeout=60)
     outer_commit = subprocess.run(git_cmd + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True, timeout=60).stdout.strip()
@@ -677,6 +682,21 @@ def snapshot(root: Path) -> dict[str, object]:
     return out
 
 
+def unchanged(before: dict, after: dict):
+    """None when the two snapshots are equal; else a short text naming each entry that was added, removed or changed
+    (for a changed entry: its kind before and after and, for files, the two lengths; never the bytes)."""
+    def show(entry):
+        if entry[0] == "file":
+            return f"file of {len(entry[1])} bytes"
+        if entry[0] == "link":
+            return f"link to {entry[1]!r}"
+        return entry[0] if len(entry) == 1 else f"{entry[0]} {entry[1]!r}"
+    parts = [f"added {k} ({show(after[k])})" for k in sorted(after.keys() - before.keys())]
+    parts += [f"removed {k} ({show(before[k])})" for k in sorted(before.keys() - after.keys())]
+    parts += [f"changed {k}: {show(before[k])} -> {show(after[k])}" for k in sorted(before.keys() & after.keys()) if before[k] != after[k]]
+    return "; ".join(parts) if parts else None
+
+
 def link(path: Path, target) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.symlink_to(target)
@@ -691,13 +711,20 @@ def refused_unchanged(world: World, proc, *needles):
 
 
 def boundary_cases(root):
+    a = {"keep": ("file", b"abc"), "gone": ("file", b"12345"), "edit": ("file", b"xy"), "turn": ("file", b"zz"), "same": ("dir",)}
+    b = {"keep": ("file", b"abc"), "new": ("file", b"1234567"), "edit": ("file", b"xyz"), "turn": ("link", "keep"), "same": ("dir",)}
+    text = unchanged(a, b)
+    yield "the-snapshot-comparison-is-silent-for-equal-snapshots-and-names-each-difference-otherwise", same(
+        (unchanged(a, dict(a)), text), (None, "added new (file of 7 bytes); removed gone (file of 5 bytes); changed edit: file of 2 bytes -> file of 3 bytes; "
+                                        "changed turn: file of 2 bytes -> link to 'keep'"))
+
     def attempt(name, setup, *needles, **over):
         w = World(root)
         extra = setup(w) or {}
         before = snapshot(w.base)
         proc = w.run(**{**extra, **over})
         yield f"boundary-{name}-refused", refused_unchanged(w, proc, *needles)
-        yield f"boundary-{name}-input-unchanged", same(snapshot(w.base) == before, True)
+        yield f"boundary-{name}-input-unchanged", unchanged(before, snapshot(w.base))
 
     yield from attempt("build-is-the-source", lambda w: {"--build": w.src}, "is the PsyZ source", "psyz-src")
     yield from attempt("build-inside-the-source", lambda w: {"--build": w.src / "out"}, "lies inside it", "psyz-src")
@@ -1025,7 +1052,7 @@ def confine_cases(root):
         shown = name_in_patch(w) if callable(name_in_patch) else name_in_patch
         got = run(w, text.replace("@NAME@", shown))
         yield f"confine-{name}-refused", same(isinstance(got, Problem) and all(n in str(got) for n in (shown, *needles)), True)
-        yield f"confine-{name}-whole-input-unchanged", same(snapshot(w) == before, True)
+        yield f"confine-{name}-whole-input-unchanged", unchanged(before, snapshot(w))
 
     nothing = lambda w: None  # noqa: E731
     yield from refusal("dotdot-outside-file", nothing, "../outside.c", "`..` component", "inside the copy")

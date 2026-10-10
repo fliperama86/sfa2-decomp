@@ -108,6 +108,15 @@ int  port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c,
  * Anything else ends the program with `refused: PATH 0xADDRESS is not a function this program installed`
  * and status PORT_EXIT_TARGET; PATH names the call site. Called at the moment of the call. */
 void port_target_check(const char *path, const void *target);
+/* Set by the modules layer: is `address` an entry of a module that the layer installed (it wrote that entry's own
+ * jump, or call to the stop, and the five bytes are still exactly that)? The module is placed first if the address's
+ * bytes came from a pinned chunk of the disc and its page is not placed yet. 1: yes. 0: no. -1: it was installed and
+ * its jump is no longer there. Null until the layer starts. port_target_check asks it for an address that is not a
+ * resident entry. */
+extern int (*port_module_known)(unsigned address);
+/* Set by the modules layer, read by the timer thread of interrupt.c: is the page at `address` non-executable
+ * because the disc wrote it? */
+extern int (*port_page_blocked)(unsigned address);
 /* The entry of the 5-byte call written for functions without C. */
 void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */
@@ -194,7 +203,17 @@ int  port_interrupt_allowed(void);
 int  port_interrupt_take(void);
 void port_clock_start(void);
 /* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
-void port_interrupt_start(void);
+void port_interrupt_start(int burst);
+/* interrupt.c: the gate that every suspension of the game's thread goes through. port_suspenders_stop ends them for good
+ * (no suspension in flight afterwards, none can begin); it is registered with atexit and called before ExitProcess. The
+ * enter/leave pair is for the watchdog of debug.c (enter returns 0 once stopped, and then holds nothing). */
+void port_suspenders_init(void);   /* once, from the game's thread, before any thread that suspends it exists */
+void port_suspenders_stop(void);
+void port_suspenders_check_closed(void);   /* before each ExitProcess, after the stop: with --timer-burst, ends with a line if the gate is still open */
+#ifdef _WIN32
+int  port_suspenders_enter(void);
+void port_suspenders_leave(void);
+#endif
 
 /* mirror.c: serve the PS1's copy of RAM below 0x200000 (see the file); main.c calls port_mirror_init before the game starts. */
 int  port_mirror_init(int trace, char *err, size_t errsize);

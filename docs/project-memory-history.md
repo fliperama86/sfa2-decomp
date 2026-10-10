@@ -8693,3 +8693,232 @@ The layer that served only the first 64 KB met its limit in play: the exact `fun
 - Cost, from the controls' printed lines of one run: `timing: 10000 served reads took 75730 us (7.57 us each)`; `timing walk: real addresses 3 us, low view 60587 us` for 2,000 nodes.
 - Not shown: the real game on this layer; an access of the game to the header page beyond the made-up cases; the handler together with the modules layer's.
 - A control that could pass without its evidence, found in review. The case for the walk of 2,000 nodes was written as "no timing line: pass, else compare", so a program that ended before the walk printed anything passed it; the reviewer showed that with the fixture ending at status 10. The case now needs all three: status 0, the line with the checksum worked out in the test and every node written alike, and the timing line. Two cases control it on the real fixture: a program that ends before the walk's lines, and a walk with one node changed so that its two results differ; each must be a failed walk. With the old condition put back the first of them fails; with the result left out of the check the second fails. The other new cases of this change were read for the same shape; they compare status and lines. The comment in `hostbuild.py` that said the runtime closes the header page was wrong and is corrected: that page stays readable.
+
+## One character function that reads a register its callers never set (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Published: `func_801b21f8_slot04_0f`, the 21st function of
+  `ps1/src/slot04b_nonmatching/`, by itself because it differs from the
+  others in one respect that should be read on its own.
+- The original builds a 32-bit value whose low half is whatever the
+  third argument register holds on entry. Its two callers in the module
+  pass one argument and do not set that register: the function uses
+  what earlier code left there. (Most likely the original's source kept
+  a local whose low half it never assigned; inferred.) C cannot name
+  such a value.
+- The C takes one parameter, as its callers declare it, and makes that
+  low half 0. This is a stated difference from the original, in the
+  function's header: the contract holds the register at 0 on entry, and
+  the test compares the two for that case only. What the original
+  writes for another value of the register is outside the contract; by
+  its listing (read, not tested) only the low 12 bits of the object's
+  `field_4c` depend on it.
+- Two forms were tried first and are not published. A third parameter
+  that the callers do not pass made the value testable, and made this
+  definition disagree with the declarations of its two callers, which
+  are exact units: the lane's check of declarations stops on that, for
+  both lanes. A local bound to the register with the compiler's
+  extension kept the declarations alike, and the matching build refuses
+  inline assembly in a C unit.
+- What the register holds at the two call sites in the game was not
+  settled. Read from the listings: the resident callee that both
+  callers call first leaves the register as it was, and the module's
+  own callee that one caller calls next loads a byte of the object into
+  it on at least one path, before a further call. So the value need not
+  be one constant (inferred). For the port this means: in the PC
+  program the low 12 bits of that field are 0 where the console had a
+  value that depended on earlier code.
+
+## The program always ends when the game's thread ends it (2026-10-10)
+
+- What was seen. In a stress of the modules branch under 12 CPU burners, runs of
+  programs that end by `exit()` with the timer thread running printed their last
+  line and stayed (2 of 300 with the timer, 1 of 10 of a second case). With
+  `--no-interrupt` 300 of 300 ended; `--watchdog` did not end the hung ones.
+- Cause, shown on a hung process caught alive (`--timer-burst`, a scratch change
+  at first): one thread left, in the state Wait/Suspended, with suspend count 1,
+  instruction pointer in system code; a probe that resumed it once let the
+  process end. The timer thread had been ended by `ExitProcess` between its
+  `SuspendThread` and its `ResumeThread` of the game's thread.
+- Change (`interrupt.c`, `debug.c`, `main.c`, `mirror.c`, `port.h`): one gate,
+  a critical section, held from before `SuspendThread` until after
+  `ResumeThread` by the timer and by the watchdog. `port_suspenders_stop` takes
+  the gate, sets a flag and leaves it; after it no suspension is in flight and
+  none begins. It is registered with `atexit` and called before each
+  `ExitProcess` that can run on the game's thread: the crash routine of
+  `main.c` and the three stops of `mirror.c` (the last were added by the
+  graphics and mirror branches; found by searching for `ExitProcess`). The
+  handler entry is unchanged. `--timer-burst` (off by default) makes the timer
+  attempt without waiting.
+- Controls: two cases of `test_hostlaunch.py` run a program that ends by
+  `exit()` (20 runs) and one that ends through the crash routine (300 runs) with
+  `--timer-burst`; a run that does not end in 10 s fails the case and is ended
+  by its process id. One-off figures: without the gate and without the
+  `atexit` call, 78 of 200 runs of the first program hung (and 57 of about 140
+  in an earlier run of the unchanged code with the option); with the gate 0 of
+  200. The crash path hung 4 of 200 without its call (hence 300 runs). Mutants
+  (each fails a named case or is said not to): `atexit` removed fails the exit
+  case; the flag not checked fails both cases; the crash routine without the
+  call fails the crash case (5 of 300 runs hung); the timer without the gate
+  but still checking the flag fails no case (0 of 200 runs hung): the gate's
+  mutual exclusion beyond the flag is justified by reasoning only.
+- What the reviewer saw and what the rigs do now. One run of
+  `test_hostlaunch.py` failed `entry-unregistered-is-refused` with status 1 and no
+  output, and the rig had discarded stderr. The rig of `test_hostlaunch.py`
+  now keeps the status and every line of stdout and stderr of the last program
+  run (a run that timed out records that, with what it had printed, and does not
+  keep the run before); a failing case prints all of it. `test_hostgpu.py` had
+  a first version (last 12 lines, stale after a timeout) and now does the same;
+  `test_hostmirror.py` prints the launch rig's record. Each file has a case for
+  the diagnostic. No retry anywhere.
+- `test_psyzbuild.py`: the `input-unchanged` cases failed once or twice under
+  load (the two failed review runs of 2026-10-10, `boundary-obj-fifo-...` and
+  `boundary-obj-hard-link-to-the-patch-file-...`) without saying why; they now
+  name the entries that differ. Under 12 burners 12 of 25 runs failed one such
+  case (one-off), always with `removed psyz-src/.git/objects/maintenance.lock`:
+  the commit that the fixture makes started git's detached auto-maintenance,
+  which creates and removes that lock after the snapshot. Not the tool's doing.
+  Fixed at the root: every git command of the fixtures carries `-c
+  maintenance.auto=false -c gc.auto=0 -c gc.autoDetach=false` (covers the
+  `init`, `add` and `commit` of both fixtures); the comparison is unchanged and
+  `.git` is not excluded. After the change 0 of 25 runs failed under the same
+  load (one-off).
+- The gate's contract has a case. The hang itself was shown with the gate and
+  the `atexit` call removed (78 of 200, one-off); with only the flag (the timer
+  checks it, does not take the gate) 0 of 200 runs hung, also with a 1 ms wait
+  before `SuspendThread` or before `ResumeThread` in the timer: the hang needs
+  `SuspendThread` to land after the game's thread entered the kernel's
+  termination and before that ends the timer, and a wait only makes that rarer.
+  So the gate is kept for an interval no run reaches, and its stated contract
+  ("after the stop returns, no suspension is in flight and none can begin") is
+  tested directly, only with `--timer-burst`: the timer marks its round
+  (set once the flag was found clear, cleared after `ResumeThread`) and stays 1 ms
+  in it; the stop, after leaving the gate, ends the program with a line if the
+  mark is set; a round that begins after the stop, a direct `ExitProcess`
+  not preceded by the stop, and an `exit()` whose `atexit` stop did not run end
+  with a line of their own. One-off figures, 200 runs of the exit case with
+  `--timer-burst`: fixed 0 lines, 200 right (the crash case: 200 right);
+  timer without the gate but with the flag: 200 of 200 print the in-flight
+  line. The case runs 20 times each (the flawed variants fail every run).
+  Mutants, each failing a named case: gate not taken (exit case), flag not
+  checked (exit case), `atexit` removed (exit case), crash routine without the
+  stop (crash case).
+
+## The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)
+
+- What was open. The image `slot05_11` (the second placement of a
+  character module) left two units out of its link: they call the
+  character's extra module, which the second side has at another
+  address, and a second link could not be given another image's moved
+  functions. Their 14 functions stayed raw there. The canonical map
+  counted them with the first placement's owners; the linked ledger
+  marked them raw with missing C and a discrepancy label.
+- The way, found by the other lane and handed over as a patch (lane B
+  owns the files): no tool change. The two units call the extra
+  module by plain names (`func_8007bc00`, `func_8007be8c`) and a third
+  function by `func_801b1448`; `symbols.ld` gets the three names at
+  the first side's addresses, and the entry of `slot05_11` binds them
+  in `[image.symbols]` to the second side's (`0x8008bf00`,
+  `0x8008c18c`) and keeps the third at `0x801b1448`: a second link
+  moves every name of `symbols.ld` that lies inside the first image,
+  and the table wins. The third call goes to the first side's copy on
+  both sides, which is what the bytes of both files say. `leave_out`
+  and its comment are gone.
+- What the ledger command prints
+  (`python tools/ai_workflow/workflow.py ledger`, statuses counted
+  from its output file): on main before this change 12,790 rows
+  `exact_c` and 162 `raw`, 14 of the raw ones in `slot05_11`; with it
+  12,804 and 148, none raw in `slot05_11`. Its aggregate totals do not
+  move (5,430 of 5,600 distinct functions, 12,857 of 13,072
+  placements): they are the canonical map's, which had counted these
+  rows already.
+- The other lane's own run, in a private copy of main at `600021b`
+  (one-off, theirs): `slot05_11` 222 of 222 functions exact, no unit
+  left out, the image identical, 223 of 223 controls tripped;
+  `slot04_11` and `slot17` unchanged. This change's own checks are in
+  its pull request.
+
+## The port places a module's jumps when the game first runs it (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/modules.c`, the record in the disc layer of
+  where each word of RAM came from, the hashes of the images' chunks in
+  the build's tables, and `test_hostmodules.py`. The page has the
+  mechanism, what ends the program, and the cases.
+- What differs from the state that ran the private trial, each from a
+  lesson of the earlier reviews or from the trial itself:
+  - A module's jumps are written only for content that the build
+    configuration pins: the chunk is read from the user's image and
+    hashed before the first jump. The trial's state placed whatever the
+    archive held. (The lesson of the port's first piece, applied to the
+    modules before a review had to ask.)
+  - The archive's header is read as the user's file: lengths in 64
+    bits, every chunk against the file and the RAM. The trial's state
+    could wrap a 32-bit length.
+  - The trial stopped while loading the first fight: a stage's data
+    ends in the 4 KB page where the resident program begins, the layer
+    took the right to execute from the whole page, and the game's next
+    call into resident code there was taken for a call into a module.
+    The record is per word now and a page with resident code never
+    loses the right. Before choosing between that and a refusal of
+    shared pages, a worker asked the build's tables: of the 77 images
+    with functions, no two that can be in memory together share a page
+    with their code (one-off count of a script over the inventory and
+    the configuration); 19 begin in the middle of a page.
+  - The timer thread could suspend the game's thread inside the fault
+    and rewrite its context: a hang in 2 of 9 runs of the controls
+    (one-off). It now leaves a thread alone whose instruction pointer
+    is on such a page. A case of two thousand loads in a row failed in
+    3 of 3 runs without that.
+- Not shown: any of this on the real game from a published commit.
+- Per-entry installation (2026-10-10, after the owner's review of this pull
+  request). A page that was placed had been treated as proof that every
+  declared function on it was installed; two invented archives showed a
+  callback to an entry whose bytes were never loaded being accepted (the first
+  sector only; four bytes of an entry). Now each row of the tables has its own
+  state; an entry is installed only if its own five bytes were written and are
+  still there, the pages under them still belong to the module, and a placement
+  is refused, naming the lowest entry, if any declared entry of the image on a
+  page that would become executable cannot be installed. Resident entries are
+  checked by content too. Stated limits are on the page. Mutants (scratch,
+  restored): per-entry test replaced by page ownership; content check removed;
+  the uninstallable-entry refusal off; four bytes counted as an entry; resident
+  content check off: each made a case fail.
+- The tree was brought onto main of 2026-10-10 (documentation layout, graphics,
+  the console's copy of RAM, the exit gate, the rigs' diagnostics) with the
+  merge helper. Two fault handlers now exist: this layer's for execute faults on
+  pages it made non-executable, the mirror's for read and write faults below 2 MB.
+  Both are vectored handlers asked first; this layer's is installed later, so it
+  is asked first, and declines every fault that is not its own (kind, address
+  range, instruction pointer equal to the address, page it took). A case set in
+  `test_hostmodules.py` runs them together: a module placed at its first call
+  whose C writes and reads the low view below and above 64 KB, a call at a
+  non-entry while the low view is in use, an execute fault at a low address (the
+  mirror's crash line), a read outside the mirror's range (neither handler), and
+  500 placements mixed with low-view accesses with the timer on. Mutants: this
+  layer's handler taking a read or write fault (ending the program there) makes
+  five cases fail; the mirror's decision accepting execute faults and ignoring
+  game code makes the low-address execute case fail. Two mutants are
+  equivalent in behaviour and say so: this layer's handler without its kind
+  check (its address and instruction-pointer checks decline the same faults),
+  and the mirror's without its kind check alone (its game-code check declines).
+- Ending the process. This layer ends it only by `exit()` (the `atexit` stop of
+  the timer's gate runs) so nothing here calls the stop itself. A case runs 12
+  programs that the layer or the handlers around it end with and without
+  `--timer-burst` and requires the same result, no line of the gate's
+  self-checks. A direct `ExitProcess` added to this layer would not be seen by
+  that case (shown with a scratch mutant); it would hang only rarely.
+- The rigs. The retry of the module and launch rigs is gone (a program is run
+  once; a run that hangs or prints nothing fails its case). `ModRig` records
+  and prints the whole last run as `Rig` of main does, with the case for it; the
+  20-run burst loop keeps the first bad run's record for the failure text, not
+  the last good run's.
+- Stress (one-off, 12 CPU burners ended by PID after each run, merged tree):
+  300 runs of a program ending by `exit()` with the timer: 300 right; 300 with
+  `--no-interrupt`: 300 right; 10 runs of the two-thousand-faults case: 10
+  right (each rc 0, 2000 "A ran", `stop: main returned`). The earlier stop of
+  this work (2 of 300 hung) was the exit race, fixed on main.
+- Not done: data of modules beyond their code; the real game's modules run only
+  through the tables, not on the console's behaviour.

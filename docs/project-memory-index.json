@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "59cee5067db6b9ec9c322fdd750d97e50be50a8cc3146cf796e585e069b0a4c8",
+  "sha256": "fafcad8c6db82bb1f259fa758d27e123901849570c2303c184668180698944d8",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -569,6 +569,22 @@
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
       "line": 8684
+    },
+    {
+      "title": "One character function that reads a register its callers never set (2026-10-10)",
+      "line": 8697
+    },
+    {
+      "title": "The program always ends when the game's thread ends it (2026-10-10)",
+      "line": 8733
+    },
+    {
+      "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
+      "line": 8808
+    },
+    {
+      "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
+      "line": 8842
     }
   ]
 }

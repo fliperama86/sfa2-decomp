@@ -80,6 +80,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -965,7 +966,29 @@ class Rig:
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.info: dict = {}
         self.exe: Path | None = None
-        self.raw: list[str] = []
+        self.raw: list[str] = []              # every line of the last program run, stdout then stderr
+        self.last_status: int | None = None   # its status; None when it timed out or no program has run
+        self.last_out: list[str] = []
+        self.last_err: list[str] = []
+        self.timed_out = False
+
+    def record(self, status, out, err, timed_out: bool) -> None:
+        """Replace the record of the last program run; nothing of the run before stays."""
+        def lines(text):
+            if isinstance(text, bytes):
+                text = text.decode(errors="replace")
+            return (text or "").replace("\r\n", "\n").splitlines()
+        self.last_status, self.timed_out = status, timed_out
+        self.last_out, self.last_err = lines(out), lines(err)
+        self.raw = self.last_out + self.last_err
+
+    def report(self) -> list[str]:
+        """What the last program run did, every line of it, for a failing case to print."""
+        out = ["     the last program run " + ("did not end in time" if self.timed_out else f"ended with status {self.last_status}") +
+               f"; it printed {len(self.last_out)} line(s) to stdout and {len(self.last_err)} to stderr" + (":" if self.raw else "")]
+        out += [f"       stdout | {line}" for line in self.last_out]
+        out += [f"       stderr | {line}" for line in self.last_err]
+        return out
 
     def native(self, path: Path) -> str:
         if self.wsl:
@@ -1019,13 +1042,14 @@ class Rig:
             return 0, ["t: done"], 0.0          # a section that was not asked for: no program is started
         argv = [*self.prefix, str(self.exe), mode, *more]
         started = time.time()
+        self.record(None, "", "", False)         # a run that does not complete leaves nothing of the one before
         try:
             proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as err:
+            self.record(None, err.stdout, err.stderr, True)   # what it had printed until then
             return -999, ["(timeout)"], time.time() - started   # subprocess.run has ended the program it started
-        lines = (proc.stdout + proc.stderr).replace("\r\n", "\n").splitlines()
-        self.raw = lines                         # every line, PsyZ's own log lines included (the return value keeps only the layer's and the program's)
-        self.last_status = proc.returncode
+        self.record(proc.returncode, proc.stdout, proc.stderr, False)
+        lines = self.raw                         # every line, PsyZ's own log lines included (the return value keeps only the layer's and the program's)
         return proc.returncode, [l for l in lines if l.startswith(("t: ", "stop: ", "gpu: "))], time.time() - started
 
 
@@ -1151,6 +1175,27 @@ def program_cases(rig: Rig, work: Path):
     yield "trial-program-builds-gpu-c-with-psyz-warning-free", reason
     if reason:
         return
+
+    # The rig says what the last program run did: a probe that prints to both streams and ends with a status, then one that outlasts its time.
+    probe = work / "diag.c"
+    probe.write_text('#include <stdio.h>\n#include <windows.h>\nint main(int argc, char **argv) { fputs("to stderr\\n", stderr); puts("to stdout"); fflush(stdout); fflush(stderr);'
+                     ' if (argc > 1 && argv[1][0] == \'s\') Sleep(3000); return 5; }\n')
+    diag = work / "diag.exe"
+    built = subprocess.run([rig.cc, "-o", str(diag), str(probe)], capture_output=True, text=True, timeout=120)
+    trial_exe, rig.exe = rig.exe, diag
+    try:
+        status, lines, _ = rig.run("fast")
+        text = "\n".join(rig.report())
+        yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", same(
+            (built.returncode, status, rig.last_status, rig.last_out, rig.last_err, rig.timed_out, "stderr | to stderr" in text and "stdout | to stdout" in text),
+            (0, 5, 5, ["to stdout"], ["to stderr"], False, True))
+        status, lines, _ = rig.run("slow", timeout=1)
+        yield "a-run-that-timed-out-is-recorded-as-such-with-what-it-had-printed-and-nothing-of-the-run-before", same(
+            (status, rig.last_status, rig.last_out, rig.last_err, rig.timed_out, "did not end in time" in "\n".join(rig.report())),
+            (-999, None, ["to stdout"], ["to stderr"], True, True))
+        time.sleep(3)   # the slow probe ends by itself
+    finally:
+        rig.exe = trial_exe
 
     status, lines, _ = rig.run("semantics")
     want = expected_semantics() + ["t: ticks 0", "t: done"]
@@ -1594,15 +1639,13 @@ def main() -> int:
                         print(f"ok   {name}")
                     else:
                         print(f"FAIL {name}: {detail}")
-                        # Everything the last program run printed, kept or not: a run that ended without one of the
-                        # rig's lines (a start that failed, a program stopped from outside) is then not mute.
-                        raw = getattr(rig, "raw", [])
-                        print(f"     the last program run ended with status {getattr(rig, 'last_status', None)} and printed {len(raw)} line(s)" + (":" if raw else ""))
-                        for line in raw[-12:]:
-                            print(f"       | {line[:300]}")
+                        # Everything the last program run printed, both streams, not a tail: a run that ended without one
+                        # of the rig's lines (a start that failed, a program stopped from outside) is then not mute.
+                        print("\n".join(rig.report()))
                         failed += 1
             except Exception as err:  # a control must report, not crash
                 print(f"FAIL the control itself raised {type(err).__name__}: {err}")
+                print("\n".join(rig.report()))
                 failed += 1
         print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
         return 1 if failed else 0

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1448_slot04_11(Object *obj);
+void func_801b1448(Object *obj);
 void func_801b6604_slot04_11(Object *obj);
 void func_801b6628_slot04_11(Object *obj);
 int func_801b6668_slot04_11(Object *obj);
@@ -32,6 +32,6 @@ void func_801b655c_slot04_11(Object *obj) {
         obj->field_15a = 7;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;
-        func_801b1448_slot04_11(obj);
+        func_801b1448(obj);
     }
 }
