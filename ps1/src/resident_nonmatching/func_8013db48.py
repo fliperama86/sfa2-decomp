@@ -10,10 +10,12 @@ Choices of the setup:
     the entry the call uses (halfword 1 of the argument's 14 bytes) is built
     to steer: bits 0x200, 0x100 and 0x800 each set with probability a half,
     and a mask byte chosen from 0x94, 0x68, 0x03, 0xfc, 0 or random;
-  - field_134 and field_136 are random halfwords ORed to a pad that is, in a
-    third of the cases, exactly 1 or 2; otherwise steered in a half of the
-    cases so that the pad shares no bit of 0xfc with the mask, and in a
-    quarter so that pad & mask has the mask's bits 0xfc;
+  - a pad is made, and field_134 is set to pad & split and field_136 to
+    pad & ~split for a random 16-bit split, so that their OR is the pad; the
+    pad is steered in a half of the cases so that it shares no bit of 0xfc
+    with the mask and in a quarter so that pad & mask has the mask's bits
+    0xfc, and then, in a third of all cases, it is replaced by exactly 1 or
+    2;
   - a1 and a2 are random words (only the low byte counts);
   - no callee is replaced.
 """

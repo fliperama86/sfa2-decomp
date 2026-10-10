@@ -27,7 +27,7 @@
  *     objects' field_0b, pos_x and pos_y; the four halfwords of the box.
  *   Writes: data_80188ed0.out_3c, out_40 (always: the placed x values of a
  *     and b), and out_44, out_48 (only when the x test did not return: the
- *     placed y values minus the box y values).
+ *     pos_y of a minus the cursor y, and pos_y of b minus the box y).
  *   Aliasing: objects, box and the cursor box are distinct blocks; a and b
  *     are distinct.
  *   Excluded inputs: none. Every instruction slot is executed.

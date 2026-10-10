@@ -12,14 +12,15 @@
  * bit 0x80 of its field_74 is clear, its field_65 differs from the
  * object's, and the 16-bit horizontal distance between its field_12 and
  * the object's pos_x is less than 0x50 (the sum distance + 0x50 is
- * compared as a signed halfword with 0xa0). The cursor ref_other.p walks
+ * compared as a signed halfword with 0xa0, so a distance of 0x7fb0 or
+ * more, which wraps negative, passes too). The cursor ref_other.p walks
  * the table, 0xc0 bytes per step; it ends on the qualifying unit when
  * there is one. For a qualifying unit: if the object's field_150 has bit
  * 0x2000 set, field_24e and field_251 of the object are set to 1 when its
  * field_d8 is not 0; if the bit is clear, the unit is passed over when
  * field_d8 is 0 and field_24e and field_251 are set to 1 otherwise.
  * Then data_80186000 is set to 1 and the function returns. After 16 units
- * without a hit data_80186000 is set to the result of func_8012faf8().
+ * without a hit data_80186000 is set to the result of func_8012faf8(object).
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
@@ -30,7 +31,8 @@
  *   Watched at the call: the whole object, ref_other.p, data_80186000.
  *   Callee: func_8012faf8 takes the object, returns a byte stored in
  *     data_80186000; it is replaced by a recorder in both runs (it
- *     rewrites ref_other.p and reads much other state; outside this test).
+ *     rewrites ref_other.p and reads much other state (inferred); outside
+ *     this test).
  *   Aliasing: the object is one block, distinct from the unit table.
  *     ref_other.p is the word the original's game_state.field_358 shares.
  *   Excluded: none.

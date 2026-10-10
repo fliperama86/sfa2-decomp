@@ -21,18 +21,22 @@
  * other (func_80120554, or func_801204f4 when other's kind is 6) from the
  * tables at 0x80177390; else, unless g->field_10 has bit 0x80, it starts
  * one chosen by an index from g->field_10 (doubled, with bit 0 set when
- * other's field_5c is negative) and then a follow-up step from a table by
- * other's field_66.
+ * other's field_5c is negative): for an index below 16 one animation
+ * (func_80120554 with other's side and table_8017736c[index]), otherwise
+ * two (func_80120554 with other's side and 0x32e, then func_801204f4 with
+ * the other side value, side ^ 1, and table_8017736c[index]); then a
+ * follow-up step from a table by other's field_66 (func_80120444), left
+ * out when the table entry is 3.
  *
  * Contract (the roles named for the fields are inferred):
  *   Arguments: a0 = object, a1 = other, a2 = g (Box32 *, as in the prototype; its field_10 and field_17 are read). No return value.
  *   Reads: ref_other (a word; kept in data_80188f20 and put back),
- *     data_801a27d4, g's
- *     field_10 and field_17, object's field_65, other's field_72, field_0e,
- *     field_61, field_5c, kind, side and field_66, the rectangle
- *     data_80188ed0 (out_3c, out_40, out_44, out_48), the tables
- *     table_8017736c (16 halfwords from 0), table_80177390 (one halfword
- *     per kind) and table_80197ef8 (one halfword per field_66 value).
+ *     data_801a27d4, g's field_10 and field_17, object's field_65, other's
+ *     field_72, field_0e, field_61, field_5c, kind, side and field_66, the
+ *     rectangle data_80188ed0 (out_3c, out_40, out_44, out_48), the tables
+ *     table_8017736c (halfwords, index up to 255, see Aliasing),
+ *     table_80177390 (one halfword per kind) and table_80197ef8 (one
+ *     halfword per field_66 value).
  *   Writes: data_80188f20 (the old value of ref_other, always),
  *     data_801a27d4 (decremented once per effect), the effect
  *     object(s) (fields 00, 02, 03, 0b, 0e, 3c, 48, 65, 76 to 7c, 90,
@@ -46,8 +50,8 @@
  *     when both are made. func_80120554 and func_801204f4 (3 arguments),
  *     func_80120444 (2 arguments) return 0; the function ignores their
  *     results. The second argument of func_80120444 is a byte that the
- *     callee masks; the original passes a sign-extended halfword and this C
- *     the byte, so the test logs only its low byte.
+ *     callee masks (inferred); the original passes a sign-extended halfword
+ *     and this C the byte, so the test logs only its low byte.
  *   Watched at every recorded call (copied into the log, so the order of
  *     the function's stores against the calls is tested): other, the first
  *     0x100 bytes of the effect object, data_801a27d4, data_80188f20 and

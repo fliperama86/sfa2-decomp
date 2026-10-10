@@ -2,15 +2,18 @@
 
 Choices of the setup (reads and writes are listed in func_8013172c.c):
   - game_state.field_30 is 0 in one case of five, else random non-zero;
-  - game_state.mode is the object's side + 1 in one case of two, else
-    random (so both arms of the side test are common);
+  - game_state.mode is the object's side + 1 cut to a byte in one case of
+    two (for side 0xff that is 0, which differs from the C's side + 1),
+    else random (so both arms of the side test are common);
   - data_801a6985 and data_801a6987 are 0 in one case of three, else
-    random (signed bytes, so negative values are tried);
+    random non-zero bytes 1 to 255 (signed bytes, so negative values are
+    tried);
   - the object is a random block of 0x394 bytes; field_0b and field_158 are
     0 in one case of three, else random non-zero; the button words
     (field_130, field_132, field_150) are random 16-bit values, and with
-    probability one half they are built from the bits 0x2000, 0x8000 and
-    0x5fff only, so that the swap of bits is tried with every combination;
+    probability one half each is instead one of 0, 0x2000, 0x8000, 0xa000
+    plus, in one case of two, a random part of the bits 0x5fff, so that the
+    swap of bits is tried with every combination of bits 0x2000 and 0x8000;
   - func_80131ab4 is a recorder taking one argument and returning 0; it
     copies the whole object (0x394 bytes) at the call.
 """

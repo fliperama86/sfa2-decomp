@@ -17,15 +17,19 @@ Choices of the setup:
     to be drawn;
   - the variables that func_80134e94 and func_801350c0 read (the function
     itself names none of them except data_80188d28; the callees take them by
-    address: a stretch of data from data_80188d28 - 0x20, the byte table at
-    data_80171bf8 + 0x60 (0x108 bytes), and the halfword at offset 0xc6 and
-    the byte at 0xd8 of each of the two player objects, player_left and the
-    object 0x394 bytes after it, which is player_right) are random, the
-    halfwords near the ranges the two functions test;
+    address, inferred: a stretch of data from data_80188d28 - 0x20, the byte
+    table at data_80171bf8 + 0x60 (0x108 bytes), and the halfword at offset
+    0xc6 and the byte at 0xd8 of each of the two player objects, player_left
+    and the object 0x394 bytes after it, which is player_right) are set at
+    random: the stretch is 0x38 bytes, each random in one case of two, else
+    from 0 to 11; the byte table is random; the halfword at 0xc6 is, in 60
+    cases of 100, from low - 8 to low + count + 7 with (low, count) =
+    (0x60, 0x30) or (0x30, 0x30), one case of two each, else random; the
+    byte at 0xd8 is 0 in two cases of three, else random;
   - func_8015bf34 is a recorder (2 arguments, returns 0); the record it is
     given is a pointee (10 words); every recorder copies the words of
     data_80188d04 and data_80188d28 and the first 48 records of the run
-    (the table holds random bytes at the start).
+    (the record table and the 5760 bytes before it hold random bytes).
 """
 
 from contracts import CallLog, Contract, Setup
@@ -34,7 +38,7 @@ STACK_TOP = 0x801FF000  # sp at entry (the tool's constant); the 5th and 6th arg
 
 
 def _near_range(rng, low, count):
-    """A halfword in or around [low, low + count], half of the time."""
+    """A halfword from low - 8 to low + count + 7 in 60 cases of 100, else random."""
     if rng.random() < 0.6:
         return low + rng.randrange(-8, count + 8) & 0xFFFF
     return rng.getrandbits(16)

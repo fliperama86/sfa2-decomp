@@ -3,7 +3,7 @@
 Choices made here:
   - the function has no argument; its inputs are globals, all set at random
     before the call: the selectors data_801a8067 and data_801a83fb take
-    0x12, 0x13 or 0x14 in half of the cases, otherwise a value in 0 to 0x14
+    0x12, 0x13 or 0x14 in three cases of five, otherwise a value in 0 to 0x14
     (the index into table_80172144 stays within the first 34 words);
   - data_80198098 and data_8019842c are 0 or 1 at random (both arms are tried);
   - table_80172144 (34 words), player_left.field_5c and player_right.field_5c
@@ -29,8 +29,10 @@ Choices made here:
     never does, and the arena has no room for the larger log;
   - recorders replace func_8015c150 (1 argument), func_8015c09c (1),
     func_8015bd0c (4 arguments, a random result per case) and func_80136d1c
-    (1); the log has room for the 604 calls of the function and of its
-    callees, each entry holding the watch blocks (171 words) and its pointees.
+    (1); the log has room for the 604 calls the function itself makes (24 of
+    func_8015c150, 288 of func_8015c09c, 288 of func_8015bd0c, 4 of
+    func_80136d1c) and for the calls to func_80136d1c that its callees make,
+    each entry holding the watch blocks (169 words) and its pointees.
 """
 
 from contracts import CallLog, Contract, Setup

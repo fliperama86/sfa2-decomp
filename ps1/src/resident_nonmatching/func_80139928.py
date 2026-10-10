@@ -5,10 +5,11 @@ Choices of the setup:
     random bytes; game_state.cursor points at the cursor box;
   - field_0b of each object is 0 in half the cases and random otherwise (the
     mirror of the box x);
-  - the box and cursor values are random halfwords in a third of the cases,
-    and small values (-40..40 for positions and offsets, 0..40 for sizes) in
-    the others, so that the apart/overlapping decision falls on both sides
-    in both axes (random 16-bit values nearly always say "apart" in x);
+  - in 67 cases of 100 the objects' pos_x and pos_y and the box and cursor
+    values are small values (-40..40 for positions and offsets, 0..40 for
+    sizes); in the others they stay random halfwords, so that the
+    apart/overlapping decision falls on both sides in both axes (random
+    16-bit values nearly always say "apart" in x);
   - data_80188ed0 is filled with random bytes beforehand.
 """
 

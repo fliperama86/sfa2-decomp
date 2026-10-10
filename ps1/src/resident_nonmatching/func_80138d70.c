@@ -9,12 +9,14 @@
  *
  * What it does (inferred, not an original name): when state->field_30 is 0,
  * it picks one entry, a pair of bytes, of the table data_80176da0 (index:
- * 64 * field_2d + 16 * min(field_42, 3) + 2 * field_54, 16-bit signed), and
- * builds a 32-byte pattern: all bytes 0x40, then the first n1 bytes set to
- * 0 (n1 is the first byte of the entry), then the next n2 bytes set to
- * 0x20 (n2 is the second byte). A random byte (func_80151184, masked to
- * 0..31) selects one byte of the pattern; it is stored into field_220 of
- * each player (player_left, player_right) whose field_cd is not 0.
+ * 64 * field_2d + 16 * row + 2 * field_54, 16-bit signed, where row is 3
+ * when field_42 read as a signed halfword is 4 or more and otherwise
+ * field_42 itself as an unsigned halfword, so a negative field_42 is not
+ * clamped), and builds a 32-byte pattern: all bytes 0x40, then the first
+ * n1 bytes set to 0 (n1 is the first byte of the entry), then the next n2
+ * bytes set to 0x20 (n2 is the second byte). A random byte (func_80151184,
+ * masked to 0..31) selects one byte of the pattern; it is stored into
+ * field_220 of each player (player_left, player_right) whose field_cd is not 0.
  *
  * Contract:
  *   Argument: a0 = pointer to the game state (the prototype's type). No
@@ -26,14 +28,14 @@
  *     each player whose field_cd is not 0.
  *   Callees: func_80151184 runs as the original code in both runs (it is a
  *     pseudo-random generator that updates the halfword data_80190126 and
- *     returns its low byte); no recorder.
+ *     returns its low byte; inferred); no recorder.
  *   Aliasing: the game state and the two players are distinct blocks.
  *   Excluded inputs: the two table bytes of the entry are each at most 16,
  *     so their sum is at most 32; a larger sum writes beyond the 32-byte
  *     pattern into the stack frame, which the original's frame can take (up
  *     to 48) but is not a contract of the C. The table and the index stay
- *     inside a block that the setup fills (the index can reach about 1000
- *     bytes above the table and 64 below it).
+ *     inside a block that the setup fills (the index can reach 1070 bytes
+ *     above the table, 1071 for its second byte, and 64 below it).
  *   Unreached slots: none; every instruction slot is executed.
  */
 #include "../game.h"

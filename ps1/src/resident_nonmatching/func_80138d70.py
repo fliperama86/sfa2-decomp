@@ -1,8 +1,8 @@
 """Contract of func_80138d70 (see the header comment of func_80138d70.c).
 
 Choices of the setup:
-  - field_30 is 0 in nine cases of ten and random otherwise (the function
-    returns at once when it is not 0);
+  - field_30 is 0 in nine cases of ten and a random non-zero byte otherwise
+    (the function returns at once when it is not 0);
   - field_2d is 0..15 and field_54 is 0..31; field_42 is in -4..8 in
     four cases of five (the clamp to 3 at 4 and above, and values that make
     the row negative); in the others a multiple of 0x1000 is added to such a
@@ -13,7 +13,8 @@ Choices of the setup:
     is filled with random bytes of 0..16, so that the two entry bytes sum to
     at most 32 (the pattern has 32 bytes); a quarter of the entries are 0,
     so that both "no zeros" and "no fills" are taken;
-  - field_cd of each player is 0 in half the cases and random otherwise;
+  - field_cd of each player is 0 in half the cases and a random non-zero
+    byte otherwise;
     field_220 of both players and the generator's state start random;
   - func_80151184 is not replaced.
 """

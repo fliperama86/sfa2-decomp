@@ -4,16 +4,16 @@ Choices of the setup (reads and writes are listed in func_8012f9b0.c):
   - the unit table units_2c20 (16 units of 0xc0 bytes) is filled with random
     bytes; then for each unit field_00 is 0 in one case of five, bit 0x80 of
     field_74 is set in one case of five, field_65 equals the object's in one
-    case of five, and field_12 is near the object's pos_x (within 0x60,
-    either side, so that the boundary 0x50 is crossed) in one case of four,
-    else random;
+    case of five (else random), and field_12 is set near the object's pos_x
+    (within 0x60, either side, so that the boundary 0x50 is crossed) with a
+    probability per unit that is chosen per case among 0, 0.05, 0.25 and
+    0.5, else it stays random;
   - the object is a random block of 0x394 bytes; field_150 has bit 0x2000
     set in one case of two; field_d8 is 0 in one case of three;
   - ref_other.p starts random (the function sets it first);
   - func_8012faf8 is a recorder with one argument (the object), returning a random value
     (the function stores it in a byte); it copies the object, ref_other and
-    data_80186000 at the call; the hit arms are common enough that
-    both the early return and the full scan occur.
+    data_80186000 at the call.
 """
 from contracts import CallLog, Contract, Setup, fill
 

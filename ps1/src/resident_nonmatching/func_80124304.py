@@ -9,7 +9,7 @@ Choices of the setup (reads and writes are listed in func_80124304.c):
     data_80185fbc, fc0, fc4 are random bytes;
   - data_8018f5a0 points at a random block of 0x64 bytes; the input block
     (data_801a6984, 0x2010 bytes), both players (0x394 bytes each), the
-    game state and the text buffers' neighbours start random;
+    game state start random, and data_801ae028 starts as a random byte;
   - the six callees are recorders, each copying at every call the game state
     (0x200 bytes), both players, the input block, the HUD block and its
     pointer, the pad records, data_8016e800, data_80185fbc..fc4 and

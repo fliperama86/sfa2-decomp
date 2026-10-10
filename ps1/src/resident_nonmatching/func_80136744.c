@@ -13,11 +13,12 @@
  * target is 0xd0 - player_right.pos_y; else if player_right has that state,
  * it is 0xd0 - player_left.pos_y; else it is the larger (as signed 16-bit)
  * of 0xd0 - pos_y of the two. The sprite's field_26 is then moved one unit
- * toward target - 0x39 (16-bit arithmetic): up by 1 and capped by field_40
- * when above it, down by 1 and floored by field_42 when below it, and left
- * alone when equal. The value passed on is the capped or floored new
- * field_26, or the unchanged field_26 when equal. func_801368ac(sprite,
- * value) is called last.
+ * toward target - 0x39 (16-bit arithmetic): up by 1 when that is above it,
+ * down by 1 when below it, and left alone when equal; the stored field_26
+ * is not capped. The value passed on is, after a move up, the new field_26
+ * or field_40 if that is smaller; after a move down, the new field_26 or
+ * field_42 if that is larger (signed 16-bit comparisons); when equal, the
+ * unchanged field_26. func_801368ac(sprite, value) is called last.
  *
  * Contract:
  *   Argument: a0 = pointer to a sprite (the prototype's type). No result.
@@ -27,7 +28,8 @@
  *     whatever func_801368ac writes.
  *   Callees: func_801368ac runs as the original code in both runs (it is
  *     four instructions: it reads the sprite's halfword at 0x3a and writes
- *     the sprite's field_26); no recorder.
+ *     the sprite's field_26; read from the original's listing, not
+ *     tested); no recorder.
  *   Aliasing: the sprite and the two players are distinct blocks.
  *   Excluded inputs: none. Every instruction slot is executed.
  */

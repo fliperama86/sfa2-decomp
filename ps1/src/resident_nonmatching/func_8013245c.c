@@ -9,9 +9,10 @@
  * What it does (inferred, not an original name): sets up the screen of a
  * two-player display. It marks the first two bytes of the block
  * data_801ac6a8, looks up three words of table_80172144 for the block from
- * the two selectors data_801a8067 and data_801a83fb (selectors 0x12, 0x13
- * and 0x14 take other table entries), picks colour bytes by the flags
- * data_80198098 and data_8019842c, then
+ * the two selectors data_801a8067 and data_801a83fb (the word at selector
+ * + 13; the selectors 0x13 and 0x14 take words 30 and 15 instead of 32 and
+ * 33, and 0x12 takes word 31, which is also its default), picks colour
+ * bytes by the flags data_80198098 and data_8019842c, then
  *   1. fills two rows (16 bytes apart) of twelve 0x20-byte records at the
  *      start of the block: each record is initialised by func_8015c150, then
  *      gets a colour triple, a position, a value and a size;
@@ -38,15 +39,18 @@
  *     data_80188ebc and data_80188ec0, and what the three last callees write:
  *     strips2 and data_80188e4c (func_80132cf0), the strips of strips and
  *     data_80190014 (func_80132b30; it reads game_state.field_42), and the
- *     two records of data_8018d210 (func_80153088).
+ *     two records of data_8018d210 (func_80153088); these writes and reads
+ *     of the callees are inferred.
  *   Callees replaced by recorders, the same in both runs: func_8015c150 (1
  *     argument), func_8015c09c (1), func_8015bd0c (4; the result is random
- *     per case), all in Sony's library; and func_80136d1c (1), which reaches
- *     the library through func_80158a2c and func_8015c23c. func_80153088,
- *     func_80132b30 and func_80132cf0 are game code and run as the
- *     original in both runs (the last two call func_80136d1c, a recorder).
+ *     per case), all in Sony's library (inferred); and func_80136d1c (1),
+ *     which reaches the library through func_80158a2c and func_8015c23c
+ *     (inferred). func_80153088, func_80132b30 and func_80132cf0 are game
+ *     code and run as the original in both runs (the last two call
+ *     func_80136d1c, a recorder; inferred).
  *   Aliasing: the data named above are distinct from each other.
- *   Inputs excluded: none.
+ *   Inputs excluded: selectors above 0x14 (the word index would leave the
+ *     34 words of table_80172144; the setup keeps both from 0 to 0x14).
  *   Not reached by any input: none known (see the coverage line).
  */
 #include "../game.h"

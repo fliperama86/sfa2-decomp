@@ -12,17 +12,28 @@
  * is built from tables (a base from the attacker's table, a random jitter
  * of one table row, minus 0x10), scaled by a mode that comes from a0 or a1
  * (x1, x2, x1.25, x1.5), capped at 0x7f and, for a1 in the state 0xff,
- * cut to a quarter or an eighth. A second stage (defence tables of a1,
+ * cut. Let X be: a1->field_d8 is 0 and (a0->field_08 is 8 or
+ * a0->field_28a is 0). The cut is (dmg + 7) >> 3 (an eighth) when X and
+ * a2->field_14 is not 0, or when not X and a2->field_14 is 0; it is
+ * (dmg + 7) >> 2 (a quarter) when not X and a2->field_14 is not 0; and
+ * the function returns with no effect at all when a2->field_14 is 0 and
+ * (X or a1->field_5c is 0). A second stage (defence tables of a1,
  * a random term, a lookup in a damage table, a game option) turns it into
  * the points taken from a1->field_5c (a health value). A hit that cannot
  * be computed (the first sum is negative, or the cut leaves 0) only
- * removes 1 point, unless the option byte config->field_4c is not 0. When
- * the health goes below 0 the function records the defeat: it calls
- * func_8013a154 (when data_80188f34 is not 0) or func_8013ad64, writes a
- * code into the attacking player's field_167 and into config, and calls
- * func_80147000. The global pointers ref_first, ref_third and data_80188f24
- * are used as scratch by the original and written here in the same order,
- * because their last values stay in memory.
+ * removes 1 point, unless the option byte config->field_4c is not 0. On
+ * the main path a health below 0 after the points are taken is first set to
+ * -1 (with a1's field_163, field_15d and field_15e cleared), except that a1
+ * with field_d8 not 0 in the state 0xff hit by a record with field_14 equal
+ * to 0 is set to 0, which is no defeat. When the health is below 0 the
+ * function records the defeat: it calls func_8013a154 (when data_80188f34 is
+ * not 0) or func_8013ad64, writes a code into the attacking player's
+ * field_167 (only when that is 0) and config->field_8f, and calls
+ * func_80147000 (when a0->field_49 is not 0; otherwise when bit 0x40 of
+ * a2->field_08 is set, config->field_4e is 0 and a2->field_16 is not 0). The
+ * global pointers ref_first, ref_third and data_80188f24 are used as scratch
+ * by the original and written here in the same order, because their last
+ * values stay in memory (inferred).
  *
  * Contract (the roles named for the fields are inferred):
  *   Arguments: a0 = attacker, a1 = target, a2 = attack record (Box32).
@@ -40,7 +51,7 @@
  *     config->field_6b and field_8f; ref_first, ref_third, data_80188f20,
  *     data_80188f24, data_80188f40, ref_other (put back), the random seed
  *     (data_80190126, by the callee func_80151184), and what the callee
- *     func_8013ad2c writes in a1.
+ *     func_8013ad2c writes in a1 (inferred).
  *   Callees replaced by recorders, the same in both runs: func_8013ae00
  *     (3 arguments: a0, a1, a2; it reads them, the listing shows a0, a1
  *     and a2 live at its entry), func_8013a154 (3), func_8013ad64 (1),

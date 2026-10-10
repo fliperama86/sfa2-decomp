@@ -31,8 +31,8 @@
  *     (active) and wide_boxes; ref_first.p and the box it points at; box c.
  *   Writes: data_80188ed0.out_3c, out_40 (always: the placed x values of a
  *     and b), and out_44, out_48 (only when the x test did not return: the
- *     placed y values minus the box y values). These are the halfwords at
- *     0x80188f0c to 0x80188f18.
+ *     pos_y of a and of b, each minus its box y). These are the halfwords
+ *     at 0x80188f0c, 0x80188f10, 0x80188f14 and 0x80188f18.
  *   Aliasing: the objects, boxes, frame record and the box tables are
  *     distinct blocks; a and b are distinct.
  *   Excluded inputs: none. Every instruction slot is executed.

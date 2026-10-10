@@ -8,16 +8,17 @@
  *
  * What it does (inferred, not an original name): updates the strips of the
  * two player objects. Mode 1 of data_80190474: the object that
- * game_state.field_78 points at (when not null) is one of the two players
- * (its field_65 selects player_left or the next object); its field_167 is
- * stored in that player's byte table at the index field_ce - 1, the player
- * is passed to func_80120554 with the player number and 0x34c, and the
- * two strips of that index (one in each row of the player's pair of rows)
- * are passed to func_80135c0c with a code made from field_167 (shifted left
- * by two; a set high bit is dropped and bit 1 is set instead). Mode 2: for
- * each player and each of the four table entries that holds 8, the two
- * strips of that index are passed to func_80135c0c with code 0x20. Any
- * other mode does nothing.
+ * game_state.field_78 points at (when not null; it may be one of the two
+ * players or a separate block) has its field_65 select player_left (0) or
+ * the next object (not 0); its field_167 is stored in that player's byte
+ * table at the index field_ce - 1, the player is passed to func_80120554
+ * with the player number and 0x34c, and the two strips of that index (one
+ * in each row of the player's pair of rows) are passed to func_80135c0c
+ * with a code made from field_167: shifted left by two and cut to a byte
+ * (so bit 6 of field_167 is lost), with bit 1 of the code set when bit 7
+ * of field_167 is set. Mode 2: for each player and each of the four table
+ * entries that holds 8, the two strips of that index are passed to
+ * func_80135c0c with code 0x20. Any other mode does nothing.
  *
  * Contract (the roles named for the fields are inferred):
  *   No argument, no return value.
@@ -38,7 +39,7 @@
  *     with a separate block field_65 still selects the player written.
  *   Excluded: none. field_ce - 1 is a byte and may be any value 0 to 255;
  *     the byte tables and strips are then indexed past their ends, which
- *     stays inside RAM and is the same in the original.
+ *     stays inside RAM and is the same in the original (inferred).
  *   Not reached by any input: none expected.
  */
 #include "../game.h"

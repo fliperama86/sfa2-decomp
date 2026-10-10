@@ -2,17 +2,21 @@
 
 Choices of the setup:
   - each of the four gates (data_8019016c, data_801a6938, first byte of
-    data_801ac6a8, data_8018db10) lets the function go on in nine cases of
-    ten, and is random in the other tenth, so that each early return is
-    tried;
+    data_801ac6a8, data_8018db10) is set to a value that lets the function go
+    on in nine cases of ten (0 for the first and the last, non-zero for the
+    other two) and to a random byte in the other tenth (which may also let
+    it go on), so that each early return is tried;
   - data_801987c8 is the address of a block of the setup (it is only added
     to); data_801a27d0 is a random word, a small number half of the time;
   - the words data_801ac86c to data_801ac884 are random;
-  - the counters data_8019808e and data_80198422 are 0, small, or 255; the
-    flags data_80198098 and data_8019842c are zero or random;
+  - the counters data_8019808e and data_80198422 each take one of six
+    choices with equal probability: 0, 1, 2, a value from 1 to 7, a value
+    from 0 to 255, or 255; the flags data_80198098 and data_8019842c
+    are zero or random;
   - all five callees are recorders returning 0 (func_8015bf34 takes 2
     arguments, func_801347b4 six, the other three none); the log has room
-    for 8192 words, enough for 255 + 255 + 40 calls; every recorder copies
+    for 8192 words; one run makes at most 255 + 255 + 26 calls (26 are the
+    fixed calls, counting both optional pairs); every recorder copies
     the word that holds data_80188d04 (the only thing the function writes).
     None of the recorded callees is passed memory the function fills.
 """

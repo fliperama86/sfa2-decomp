@@ -16,22 +16,23 @@
  * player_left's; else the span is the union (lowest lo and highest hi, as
  * signed 16-bit values). When the span is 0xc0 or more wide (16-bit signed
  * difference), the follower aims at the span's middle: the amount
- * (lo + hi) / 2 - sprite->field_22 - 0xc0 (16-bit) drives func_801366d4
- * when negative, func_80136668 otherwise. When the span is narrower, the
- * follower works on the edges: if hi - field_22 - 0x120 is not negative it
- * calls func_80136668 with it; else, if lo - field_22 - 0x60 is not positive
- * it calls func_801366d4 with it; else it calls func_80136898 with
- * field_22.
+ * ((lo + hi) >> 1, from the 16-bit sum) - sprite->field_22 - 0xc0, as a
+ * 16-bit signed value, drives func_801366d4 when negative, func_80136668
+ * otherwise. When the span is narrower, the follower works on the edges: if
+ * hi - field_22 - 0x120 is not negative it calls func_80136668 with it;
+ * else, if lo - field_22 - 0x60 is not positive it calls func_801366d4 with
+ * it; else it calls func_80136898 with field_22. The two edge amounts are
+ * also 16-bit signed values.
  *
  * Contract:
  *   Argument: a0 = pointer to a sprite (the prototype's type). No result.
  *   Reads: player_left and player_right (field_73, field_261, pos_x,
  *     field_154); the sprite's field_22 and, through the callees, its
  *     other fields.
- *   Writes: what the callees write (the sprite's field_22).
+ *   Writes: what the callees write (the sprite's field_22; inferred).
  *   Callees: func_80136668, func_801366d4 and func_80136898 run as the
  *     original code in both runs (they are short game code that reads and
- *     writes the sprite's halfwords 0x22 to 0x46); no recorder.
+ *     writes the sprite's halfwords 0x22 to 0x46, inferred); no recorder.
  *   Aliasing: the sprite and the two players are distinct blocks.
  *   Excluded inputs: none. Every instruction slot is executed.
  * The tree declares func_80136898 with a Cam pointer; the sprite is cast to it here.

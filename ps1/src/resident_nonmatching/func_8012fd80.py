@@ -1,18 +1,20 @@
-"""Contract of func_8012fd80: a0 = object a, a1 = object b, returns int.
+"""Contract of func_8012fd80: a0 = object a, a1 = object b, returns u8 in v0.
 
 Choices of the setup (reads are listed in func_8012fd80.c):
   - b->frame points at a record whose field_0c has bit 0x80 set in one case
     of six, so that the early return is tried;
   - the sequence has 1 to 6 steps followed by a terminating step with a
     negative flags word; the flags of the earlier steps are non-negative,
-    except that in one case of eight a step in the middle is negative, so
-    the loop also ends early;
+    except that in one case of eight one of the first `count` steps (the
+    first one included, whose flags the function never tests) is negative,
+    so the loop also ends early;
   - the frame table has 8 records; each step's frame_index picks one, and
     a record's active byte is 0 in one case of three, else 1 to 6;
-  - the box table has 7 boxes of 32 bytes; origin and endpoint are small
-    in most cases (so the within-reach and out-of-reach arms are both
-    common) and full 16-bit random values otherwise;
-  - field_0b is 0 or random, positions of a and b are small or random.
+  - the box table has 7 boxes of 32 bytes; in four cases of five the origin
+    of every box is from -300 to 299 and its endpoint from -120 to 399,
+    otherwise both are random;
+  - field_0b is 0 in two cases of three, else random; the positions of a
+    and b are from -300 to 299 in four cases of five, else random.
 """
 from contracts import Contract, Setup, fill
 

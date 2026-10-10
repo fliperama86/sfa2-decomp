@@ -5,13 +5,14 @@ Choices of the setup:
     of random bytes, with the fields the function branches on steered so that
     each arm is common: a0->field_49, field_08 (0, 8 or random),
     field_28a, field_29c (0 to 4), field_0b and field_5c (below 0x28 in half
-    of the cases); a1->field_159, field_29c, field_61 (0xff in half),
-    field_d8, field_5c (a small health, 0 in one case of twenty, a random
-    halfword in one of seven), field_cd, field_6a (below 0x1f in two cases of
-    three), field_295, field_15e and field_162 (random bytes); a2->field_08,
-    field_14, field_15 (5 in a quarter), field_16 (0 to 4), field_17 (0, 1,
-    2 or random), field_1b, field_1c; the frame record of a1 is a block of
-    16 random bytes;
+    of the cases); a1->field_159, field_29c, field_61 (0xff in half of the
+    cases, else a random byte), field_d8, field_5c (a random halfword in 14
+    cases of 100, else 0 in one case of twenty, else 0 to 0x8f), field_cd,
+    field_6a (below 0x1f in 66 cases of 100), field_295, and field_15e and
+    field_162 (left as random bytes); a2->field_14, field_15 (5 in a
+    quarter), field_16 (0 to 4, or a random byte), field_17 (0, 1, 2 or
+    random), field_1b, field_1c (a2->field_08 stays a random byte); the
+    frame record of a1 is a block of 16 random bytes;
   - game_state.config points at a block of 0xb0 random bytes with field_12
     in 0 to 4, field_4c and field_4d usually 0, and field_4e usually 0;
   - the two players, data_80188f34 (0 or 1), the seed data_80190126 (random,

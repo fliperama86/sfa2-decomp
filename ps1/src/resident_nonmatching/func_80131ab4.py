@@ -1,16 +1,17 @@
 """Contract of func_80131ab4: a0 = object, no return value.
 
 Choices of the setup (reads and writes are listed in func_80131ab4.c):
-  - input_log.index is random below 0xffd in nine cases of ten, with the
-    top of the range (0xff8 to 0xffc) in one case of five, and 0xffd or
-    more otherwise (the function does nothing then);
+  - input_log.index is 0xffd to 0xffff in one case of ten (the function
+    does nothing then), 0xff8 to 0xffc in 18 cases of 100, and otherwise
+    random from 0 to 0xffc;
   - the log buffer, last and flag start random (flag 0 in one case of
     three, else random non-zero);
   - the controller words data_801a6966 and data_801a6972 are random, equal
     in one case of eight; input_log.last equals data_801a6966 in 40 cases
     of 100, data_801a6972 in 30 of 100, else random;
   - the object's field_02 is 0 or 1 in four cases of five, else random; its
-    side is 0 in one case of two; data_80171b34 is random (0xffff often);
+    side is 0 in one case of two; data_80171b34 is 0xffff in one case of ten,
+    else random;
   - the object block is 0xb0 bytes of random content.
 """
 from contracts import Contract, Setup, fill

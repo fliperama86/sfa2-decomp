@@ -8,15 +8,18 @@
  * What it does (inferred, not an original name): for each object of the
  * object table (data_8018f5e0, read downward, count_8018f59c entries) of
  * type 1 it picks a player object (player_left, or player_right when the
- * object's field_65 is 0), skips it when the player is in a state that
- * ignores hits, and tests the player's three box sets (boxes_a, boxes_b,
- * boxes_c, each indexed by the player's frame) against the box of the
- * table object's current frame (func_801397d0). Each box set that overlaps
- * adds its bit (1, 2, 4) to data_80188f30 and records the overlap's
- * corners and size in data_80188ed0. When any overlapped, the object hits the
- * player: the callees apply the hit, the player and an effect object get
- * state bytes, and the table object counts the hit (field_00 + 1, a
- * countdown in field_5c with two state bytes sets).
+ * object's field_65 is 0), skips it when the player's field_263, field_27b
+ * or field_163 is not 0, when (the object's field_49 is 0 or the player's
+ * field_295 is 0) and the object's frame field_04 is below the player's
+ * field_69, or when the object's frame active is 0, and tests the
+ * player's three box sets (boxes_a, boxes_b, boxes_c, each indexed by the
+ * player's frame and tested only when that index is not 0) against the box
+ * of the table object's current frame (func_801397d0). Each box set that
+ * overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
+ * overlap's corners and size in data_80188ed0. When any overlapped, the
+ * object hits the player: the callees apply the hit, the player and an
+ * effect object get state bytes, and the table object counts the hit
+ * (field_00 + 1, a countdown in field_5c with two state bytes sets).
  *
  * Contract (the roles named for the fields are inferred):
  *   No argument, no return value.
@@ -30,16 +33,18 @@
  *     data_80190468 (a pointer to an object whose bytes at 0x5c to 0x5e it
  *     writes).
  *   Writes: ref_other, ref_third, ref_second, ref_first, data_80190458,
- *     data_801904c0, data_80188ed0 (the in_ and f_ fields), data_80188f30;
+ *     data_801904c0, data_80188ed0 (the in_ and f_ fields, and the out_
+ *     fields through func_801397d0), data_80188f30;
  *     the player's field_241 and field_61; the table object's field_00,
  *     field_04 to field_07, field_5c; three bytes at data_80190468 + 0x5c.
  *   Callees that run as the original code: func_80139a1c (clears the
- *     overlap record) and func_801397d0 (computes the overlap).
+ *     overlap record; inferred) and func_801397d0 (computes the overlap).
  *     Callees replaced by recorders, which return 0: func_80139a78 (a, b),
  *     func_8013a3a8 (a, b, box), func_8013af1c (a, b, box), func_80155de0
  *     (box, b). What they do to the objects is outside the test. The
  *     original ignores the result of func_80155de0 (it tests a zero it has
- *     just set), and so does this C.
+ *     just set; read from the original's listing, not tested), and so does
+ *     this C.
  *   Watched by the recorders at every call, whole: the table objects, both
  *     players, the object at data_80190468, data_80188ed0, data_80188f30,
  *     ref_first to data_80190414 and the word after it, data_80190458,

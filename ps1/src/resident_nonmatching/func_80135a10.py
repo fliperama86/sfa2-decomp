@@ -5,9 +5,11 @@ Choices of the setup:
     otherwise (so that the 'neither' arm is tried);
   - game_state.field_78 is null in one case of six; otherwise it points at
     player_left, the object after it, or a separate random block, equally;
-    in the separate block field_65 is 0 in half of the cases;
+    in the selected object (a player or the separate block) field_65 is
+    set to 0 or 1, one case of two each;
   - field_ce is random (any byte) in a block that is the selected object;
-    field_167 is random with its high bit set in half of the cases;
+    field_167 is random with its high bit forced on in half of the
+    cases (so it is set in three cases of four);
   - both player objects (2 * 0x394 bytes) start with random bytes, so that
     the byte the function writes at an index up to 255 (field_ce is any
     byte) and the bytes it must leave alone are all tested;

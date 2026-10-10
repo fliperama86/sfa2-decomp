@@ -30,7 +30,9 @@
  *   Writes: ref_other (a pointer into the table), ref_third (the table
  *     object), ref_second (the player), data_80190414 (the object's
  *     box_tables), data_80190458 (the player's unknown_148), ref_first (the
- *     player's other object), and one pos_x per push.
+ *     player's other object; set only when the player's field_164 is not
+ *     0), and pos_x: the player's when its field_164 is 0, else the
+ *     player's other object's and the table object's.
  *   Callees: none.
  *   Aliasing: the table objects, players' frames, box tables and box lists
  *     are distinct blocks, except that the table may hold player_left or

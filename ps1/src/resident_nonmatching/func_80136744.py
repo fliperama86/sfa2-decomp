@@ -2,16 +2,18 @@
 
 Choices of the setup:
   - the sprite is a 0x4c-byte block of random bytes; field_26 is random and
-    the players' pos_y are chosen, in two cases of three, so that the target
-    minus 0x39 differs from field_26 by -2..2 (both signs and zero, and the
-    sign of the 16-bit difference at its edges); in the others they are
+    the players' pos_y are chosen, in 67 cases of 100, so that the target
+    computed from the left player's pos_y, minus 0x39, differs from field_26
+    by -2..2 (both signs and zero, and the sign of the 16-bit difference at
+    its edges); the right player's pos_y is that same value in a quarter of
+    those cases, else within -3..3 of it; in the other cases they are
     random;
   - the two players' blocks are filled with random bytes, then field_73 bit
     7 and field_261 zero-ness are steered: each player is "ready" (bit 7 set
     and field_261 0) in a third of the cases, has bit 7 clear in a third and
     bit 7 set with field_261 not 0 in a third, so that the three arms of the
-    target are all taken; pos_y of both players is equal in a quarter of the
-    steered cases (the max of the third arm);
+    target are all taken; pos_y of both players is set equal in a quarter of
+    the 67 cases of 100 above, so the third arm's maximum sees equal values;
   - func_801368ac is not replaced.
 """
 

@@ -11,9 +11,10 @@ Choices made by the setup:
     1 in five of six, field_65 from 0 to 2, a frame record whose box_a is 0 in
     one case of five and 1 to 3 otherwise, and a box_tables block whose first
     word points at a block of box records; the other bytes are random;
-  - func_801397d0 is a recorder with three arguments, returning 0 in about
-    three cases of five, else a value with a non-zero low byte, or one whose
-    low byte is 0 but higher bits are set (the call's result is a byte);
+  - func_801397d0 is a recorder with three arguments, returning 0 in three
+    cases of seven, 0x100 (low byte 0, a higher bit set) in one, and 1,
+    0x1ff or 0x80 (non-zero low byte) in one case of seven each (the call's
+    result is a byte);
   - func_8013b7b8 is a recorder without arguments;
   - the six pointer words the function writes (ref_first, ref_second,
     data_80190414, data_80190458, ref_other, ref_third) start as random words;

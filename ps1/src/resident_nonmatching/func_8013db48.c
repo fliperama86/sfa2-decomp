@@ -29,7 +29,8 @@
  * is the same. The original calls func_8013f2d8 with the object alone in
  * most arms; the second argument register still holds the masked index
  * there, which func_8013f2d8 reads, so the C passes object, index and arg
- * everywhere.)
+ * everywhere. These statements about the original are read from its
+ * listing, not tested.)
  *
  * Contract:
  *   Arguments: a0 = object, a1 = slot index, a2 = table index. Only the low
@@ -37,11 +38,12 @@
  *   Reads: the object's field_134 and field_136, the slot's field_04, the
  *     table halfword.
  *   Writes: the slot's field_04, and whatever the callees write (the slot's
- *     field_00 and the global byte data_80188f44, which the setup fills).
+ *     field_00 and the global byte data_80188f44, which the setup fills;
+ *     inferred).
  *   Callees: func_8013f2a8, func_8013f2d8 and func_8013f2c8 are short leaf
  *     functions (a slot byte and a global byte); they run as the original
  *     code in both runs. func_8013f2c8 takes no argument (its prototype says
- *     one).
+ *     one; inferred).
  *   Aliasing: the object is a block of its own.
  *   Inputs excluded: none.
  *   Not reached by any input: none expected.

@@ -4,25 +4,25 @@ Choices of the setup:
   - a0 = object, a1 = other, a2 = g, each a block of 0x400 bytes of random
     content;
   - ref_other holds a random word (it is only saved and put back);
-  - the counter data_801a27d4 is 0 in one case of six, 1 in one of three and
-    1 to 5 otherwise, so that the second effect (needs a counter still not 0
-    after the first) is tried often;
+  - the counter data_801a27d4 is 0 in one case of ten, 1 in four of ten,
+    2 in two of ten and 3, 4 or 5 in one of ten each, so that the second
+    effect (needs a counter still not 0 after the first) is tried often;
   - func_8011f1e0 is a recorder with no arguments that returns a block of
     0x400 random bytes, or 0 in one case of five;
   - g->field_17 has bit 0x80 in half of the cases; g->field_10 has bit 0x80
     in one case of five, is 0 to 7 in a third of the rest (index below 16)
     and 0 to 0x7f otherwise (index up to 255, so the reads of
-    table_8017736c go into the bytes after it, which are real image data
-    and are filled with random halfwords here);
-  - other's field_61 has bit 0x80 in two cases of five; its kind is 6 in a
-    third of the cases and a random byte otherwise; field_5c is negative in
+    table_8017736c go into the bytes after it, which are other data of
+    the image (inferred) and are filled with random halfwords here);
+  - other's field_61 has bit 0x80 in two cases of five; its kind is 6 in 34
+    cases of 100 and a random byte otherwise; field_5c is negative in
     half; field_66 is a random byte; the entry of table_80197ef8 for it is
     3 in a third of the cases, so the follow-up step is skipped then;
   - the rectangle data_80188ed0 gets random halfwords at 0x3c to 0x48;
   - the three tables are filled with random halfwords over the range any
-    index can reach (table_8017736c up to 0x24 + 512 bytes, table_80177390
-    and table_80197ef8 512 bytes each; the first range covers the second's
-    start);
+    index can reach (table_8017736c up to 0x24 + 512 bytes in one fill,
+    which also covers table_80177390 since that starts 0x24 bytes in;
+    table_80197ef8, 512 bytes);
   - func_80120554 and func_801204f4 (3 arguments) and func_80120444 (2)
     are recorders that return 0; the second argument of func_80120444 is
     logged as its low byte (the callee masks it, see MaskedLog);

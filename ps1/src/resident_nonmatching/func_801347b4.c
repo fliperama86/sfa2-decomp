@@ -17,13 +17,17 @@
  * corners (positions x, y), the texture coordinates of the tile (from its
  * low and next four bits), and it is handed to func_8015bf34 together with
  * a pointer into the list array at data_801987c8, indexed by e. Only the
- * low 8 bits of the kind a count. The kind changes the page word (kinds 0
+ * low 8 bits of the kind (a) count. The kind changes the page word (kinds 0
  * to 3, kind 6, or any other) and the corner layout: the plain layout for
  * flag 0 (any kind but 5) and for the tiles 0x3b and 0x3e, a layout with
  * the horizontal sides swapped for flag not 0 (any kind but 5), a mirrored
- * layout for kind 5. Kinds 4 and 5 shorten the texture height of a tile by
- * one, tiles 0x3b and 0x3e shorten the width instead; the shortening
- * persists to the following tiles. Kinds 2 and 3 call func_80134e94 for
+ * layout for kind 5. The right and lower texture coordinates of a tile are
+ * its origin plus 16 minus dx (right) and minus dy (lower); dx and dy are
+ * both 1 at the start of the call. Kinds 4 and 5 set dx = 1 and dy = 0
+ * (width shortened by one, height full); tiles 0x3b and 0x3e set dx = 0
+ * and dy = 1 (width full, height shortened by one), after the kind rule,
+ * so for these tiles the tile rule wins. The values persist to the
+ * following tiles, rows included. Kinds 2 and 3 call func_80134e94 for
  * each tile (before the page word, which then adds data_80188d28) and
  * func_801350c0 once at the end, with the column count of the last row.
  *
@@ -38,18 +42,19 @@
  *     texture fields of one record (offsets 0x0c to 0x25), data_80188d28
  *     (set to 0), data_80188d04 (plus 1); whatever func_80134e94 and
  *     func_801350c0 write. data_80188d04 is read once per tile because
- *     nothing the function calls changes it.
+ *     nothing the function calls changes it (inferred).
  *   Variables the callees reach by address (the function's own text names
- *     none of them): the byte table at data_80171bf8 + 0x60 (0x108 bytes of
- *     which the callees read the bytes around +0x5f to +0x68 and what those
- *     index), the halfword at offset 0xc6 and the byte at 0xd8 of player_left
- *     and of player_right (the object 0x394 bytes after player_left), and
- *     the stretch of data from data_80188d28 - 0x20.
+ *     none of them; what the callees reach is inferred): the byte table at
+ *     data_80171bf8 + 0x60 (0x108 bytes of which the callees read the bytes
+ *     around +0x5f to +0x68 and what those index), the halfword at offset
+ *     0xc6 and the byte at 0xd8 of player_left and of player_right (the
+ *     object 0x394 bytes after player_left), and the stretch of data from
+ *     data_80188d28 - 0x20.
  *   Callees: func_80134e94 and func_801350c0 are game code that only reads
- *     and writes variables; they run as the original code in both runs
- *     (the setup randomizes the variables they read). func_8015bf34 (a
- *     library call) is replaced by a recorder taking two arguments and
- *     returning 0.
+ *     and writes variables (inferred); they run as the original code in both
+ *     runs (the setup randomizes the variables they read). func_8015bf34 (a
+ *     library call, inferred) is replaced by a recorder taking two arguments
+ *     and returning 0.
  *   Watched by the test at every call of func_8015bf34: the words holding
  *     data_80188d04 and data_80188d28, and the first 48 records that the run
  *     can write (the whole table, 11520 bytes, at every one of up to 144
@@ -61,9 +66,10 @@
  *   Excluded: data_80188d04 plus the number of non-zero tiles must be at
  *     most 144 (the record buffer ends there; beyond it the original would
  *     overwrite the variables after the table). The buffer selector (the low
- *     halfword of data_801a27d0) is 0, 1 or 0xffff (-1).  Rows equal to 0 with the kind 2
- *     or 3: the original then passes its caller's untouched register as the
- *     column count to func_801350c0, a value no C can express; with rows 0
+ *     halfword of data_801a27d0) is 0, 1 or 0xffff (-1). Rows equal to 0
+ *     with the kind 2 or 3: the original then passes its caller's untouched
+ *     register as the column count to func_801350c0, a value no C can
+ *     express (read from the original's listing, not tested); with rows 0
  *     the C passes 0, so the test does not use this case.
  *   Not reached by any input: four instruction slots of the original, at
  *     offsets 0xec, 0xf0, 0x104 and 0x134, which adjust a division or a

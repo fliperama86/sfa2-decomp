@@ -13,13 +13,14 @@
  * the first byte of data_801ac6a8 is 0, or when data_8018db10 is not 0.
  * Otherwise, with sel the low 16 bits of data_801a27d0 as a signed number
  * (a buffer selector) and base = data_801ac6a8, it hands a series of
- * blocks to func_8015bf34 (a library call, first argument a pointer into
- * the block at data_801987c8, second the address of a record), in this
- * order: six records of base at 0xc4, 0x124, 0xe4, 0x144, 0x104, 0x164
- * (each plus 16 * sel) with the pointer data_801987c8 + 0x20; two at 4 and
- * 0x24 with data_801987c8 + 0x38; the seven calls of func_801347b4 with
- * the table of words data_801ac86c to data_801ac884 and constants; two
- * records at 0x44 and 0x64 with data_801987c8 + 0x3c; the calls of
+ * blocks to func_8015bf34 (a library call, inferred; first argument a
+ * pointer into the block at data_801987c8, second the address of a
+ * record), in this order: six records of base at 0xc4, 0x124, 0xe4, 0x144,
+ * 0x104, 0x164 (each plus 16 * sel) with the pointer data_801987c8 + 0x20;
+ * two at 4 and 0x24 (also plus 16 * sel) with data_801987c8 + 0x38; the
+ * seven calls of func_801347b4 with the table of words data_801ac86c to
+ * data_801ac884 and constants; two records at 0x44 and 0x64 (also plus
+ * 16 * sel) with data_801987c8 + 0x3c; the calls of
  * func_80153154 and func_80153f88; then, with data_801987c8 + 0x38, two
  * records of data_80188d6c at 56 * sel, data_8019808e records of strips
  * from row sel, data_80198422 records of data_80190014 from row sel, two

@@ -14,12 +14,13 @@ Choices made by the setup:
   - the two players are filled with random bytes, then given field_45 zero in
     five cases of six, a frame (field_07 zero in one case of eight), an
     unknown_148 list of box records, field_164 zero or not, and an "other"
-    object (a block of its own, or a table object);
+    object (a block of its own in two cases of four, else a table object or
+    a player at one case of four each);
   - the six pointer words the function writes (ref_first, ref_second,
     data_80190414, data_80190458, ref_other, ref_third) start as random words;
   - positions, box origins and extents are small numbers (so that the boxes
-    overlap) in four cases of five and random otherwise; field_0b is 0 or a
-    random byte.
+    overlap) in four cases of five and random otherwise; field_0b is 0 in two
+    cases of three, else a random byte.
 """
 
 from contracts import Contract, Setup, fill

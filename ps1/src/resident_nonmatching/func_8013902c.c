@@ -26,8 +26,13 @@
  * player_left's field_45 is 0 and player_right's is not, in which case
  * player_right moves (direction from player_left's field_164); if neither
  * has it, the one whose field_45 is not 0 moves when only one has it, the
- * direction being that of the sign of the x distance; otherwise both move
- * by half, away from each other.
+ * direction being that of the sign of x2 - x1 (the player_right box x
+ * minus the player_left box x, each as computed for the x test): when it
+ * is negative player_left's word gets +amount and player_right's gets
+ * -amount, otherwise the reverse; otherwise both move by half:
+ * player_left's word gets -half and player_right's +half, except when
+ * x2 - x1 is negative and player_left's pos_x is not below player_right's
+ * pos_x, in which case the signs are swapped.
  *
  * Contract:
  *   Argument: none. No result.
@@ -39,7 +44,9 @@
  *   Callees: none.
  *   Aliasing: the frame records and box tables are distinct blocks from
  *     the players; the two players are distinct.
- *   Excluded inputs: none. Every instruction slot is executed.
+ *   Excluded inputs: a field_07 above 4 (the setup gives each player a box
+ *     table of five boxes, indices 0 to 4, and keeps field_07 within it).
+ *     Every instruction slot is executed.
  */
 #include "../game.h"
 #include "../protos.h"

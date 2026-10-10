@@ -5,14 +5,17 @@
  * func_8013b558.py) compares the behavior of this C with the original code
  * on random inputs of the contract below.
  *
- * What it does (inferred, not an original name): walks every pair of
- * objects of the object table (data_8018f5e0, filled downward from its first
- * word, count_8018f59c entries). For each pair (a = outer, b = inner) it
- * skips pairs that cannot collide, and otherwise looks up the box of each
- * object's current frame in the object's box tables, publishes both boxes and
- * both table pointers in global slots, and calls func_801397d0 (a test of the
- * two boxes). If that returns non-zero the scan for this outer object ends;
- * otherwise func_8013b7b8 is called (it dispatches on the two objects' kinds).
+ * What it does (inferred, not an original name): walks the pairs of objects
+ * of the object table (data_8018f5e0, filled downward from its first word,
+ * count_8018f59c entries): the outer object a takes all count entries, the
+ * inner object b only the first count - 1. For each pair it skips pairs
+ * that cannot collide, and otherwise looks up the box of each object's
+ * current frame in the object's box tables, publishes a's box and both
+ * table pointers in global slots (b's box is only passed on), and calls
+ * func_801397d0 with a, b and b's box (a test of the two boxes). If that
+ * returns non-zero the scan for this outer object ends; otherwise
+ * func_8013b7b8 is called (it dispatches on the two objects' kinds;
+ * inferred).
  * Per pair, in this order: same object: skip; a of kind 0x17: end the scan;
  * b of kind 0x17: skip; a of a type other
  * than 1: end the scan for a; b of another type, equal field_65, or a
@@ -30,14 +33,15 @@
  *     of a), ref_first (the box found for a), data_80190414 (the box_tables
  *     of b); all as pointer words.
  *   Replaced callees: func_801397d0 (three arguments: a, b, the box of b;
- *     returns a byte) is a recorder whose result is 0 in most cases and a
- *     non-zero byte otherwise; func_8013b7b8 (no argument) is a recorder.
+ *     returns a byte) is a recorder whose result is 0 in three cases of
+ *     seven, 0x100 (low byte 0) in one and a value with a non-zero low byte
+ *     in three; func_8013b7b8 (no argument) is a recorder.
  *   Watched by the recorders at every call: the words from ref_first to the
  *     one after data_80190414, data_80190458, ref_other and ref_third.
  *   Aliasing: the table, the objects, their frames and box tables are
  *     distinct blocks; the table's entries may repeat an object.
- *   Excluded: a count that makes the original loop without end (count above
- *     the size of the table); the table holds at most 12 entries.
+ *   Excluded: a count above 12, the number of table entries the setup fills
+ *     (the original would read past the table; inferred).
  *   Not reached by any input: none expected; see the coverage line.
  */
 #include "../game.h"

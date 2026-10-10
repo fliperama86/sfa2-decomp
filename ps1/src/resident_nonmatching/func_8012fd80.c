@@ -7,19 +7,24 @@
  *
  * What it does (inferred, not an original name): walks the animation
  * sequence of object b and tests, for each step whose frame has a box,
- * whether that box (mirrored when b's field_0b is set) lies within 0x58 of
- * object a's horizontal position, measured as a 16-bit distance. Returns 0
- * when b's current frame has bit 0x80 in its field_0c; 2 at the first step
- * whose box is within reach; 1 when the sequence ends (a step with a
- * negative flags word) without finding one.
+ * whether that box (mirrored when b's field_0b is set) is within reach of
+ * object a's horizontal position: the 16-bit distance between a's pos_x
+ * and the box origin (negated when field_0b is set, added to b's pos_x)
+ * must not exceed the box's endpoint halfword plus 0x58 (equality counts
+ * as reached). Returns 0 when b's current frame has bit 0x80 in its
+ * field_0c; 2 at the first step whose box is within reach; 1 when the
+ * sequence ends without finding one. The first step is always tested;
+ * the walk ends when the step after the one just tested has a negative
+ * flags word, and that step is not tested.
  *
  * Contract:
  *   Arguments: a0 = object a, a1 = object b. Returns u8 (0, 1 or 2) in v0.
- *   Reads: b->frame (field_0c), b->sequence (the steps, from the first one
- *     on), b->frames (frame_index of a step selects a record; its active
- *     byte selects a box), b->wide_boxes (box index is the active byte,
- *     origin and endpoint halfwords of the box), b->field_0b, b->pos_x and
- *     a->pos_x. Writes nothing.
+ *   Reads: b->frame (field_0c), b->sequence (the steps, from the
+ *     first one on; the flags word of each step after the first), b->frames
+ *     (frame_index of a step selects a record; its active byte selects a
+ *     box), b->wide_boxes (box index is the active byte, origin and endpoint
+ *     halfwords of the box), b->field_0b, b->pos_x and a->pos_x. Writes
+ *     nothing.
  *   Aliasing: a and b may be the same object or distinct; the test uses
  *     distinct blocks. No callee.
  *   Excluded: a sequence without a terminating step (negative flags)
