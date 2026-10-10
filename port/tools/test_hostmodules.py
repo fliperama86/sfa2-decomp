@@ -82,6 +82,10 @@ YBASE = RAM + 0x1f8000     # an image whose chunk would end outside the RAM
 PBASE = RAM + 0x1a0800     # two images that share the page 0x801a0000: mq in its first half, mp in its second
 QBASE = RAM + 0x1a0000
 PF, QF = PBASE + 0x10, QBASE + 0x10
+TBASE = RAM + 0x1b0000     # two pages: entries with C at +0x10, +0x900 and +0x1010, without C at +0x20 and +0xa00
+UBASE = RAM + 0x1b8000     # entries without C only, at +0x10 and +0x900
+T0, TG, T1, TZ, TW = TBASE + 0x10, TBASE + 0x20, TBASE + 0x900, TBASE + 0xa00, TBASE + 0x1010
+U0, U1 = UBASE + 0x10, UBASE + 0x900
 MANY = 2000
 YSIZE = 0x10000
 ATK = RAM + 0x190000       # where the broken archives are loaded
@@ -99,6 +103,7 @@ def raw_archive(entries: list[tuple[int, int, int]], data: bytes, count: int | N
 FILES = {"MODA.PAC;1": archive(5, SIZE, 3), "MODB.PAC;1": archive(5, SIZE, 5), "MODL.PAC;1": archive(7, 0x800, 7), "MODX.PAC;1": archive(9, 0x800, 11),
          "MODK.PAC;1": archive(8, 0x800, 13), "MODY.PAC;1": archive(11, YSIZE, 17),
          "MODP.PAC;1": archive(12, 0x800, 19), "MODQ.PAC;1": archive(13, 0x800, 23),
+         "MODT.PAC;1": archive(14, 0x2000, 29), "MODU.PAC;1": archive(15, 0x2000, 31),
          "MODH1.PAC;1": raw_archive([(5, 0, 0x800)], bytes(0x800), count=64),        # more chunks than a header holds
          "MODH2.PAC;1": raw_archive([(5, 0, 0xFFFFFFFF)], bytes(0x800)),              # a length that wraps 32 bits
          "MODH3.PAC;1": raw_archive([(5, 0, 0x800), (5, 0, 0x100000)], bytes(0x800)),  # a later chunk past the file
@@ -117,7 +122,8 @@ FILE_SECTOR = {n.split(";")[0]: PROBE.sector["PAC/" + n] for n in FILES}   # "MO
 # resident game functions (with C) and the library functions the game code calls (absent, library)
 G = {n: RAM + 0x101800 + 0x10 * i for i, n in enumerate(
     ["g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "g_tamper", "g_thread", "g_cb_ok", "g_cb_bad", "g_second", "g_second_noc", "g_big"]
-    + [f"g_atk{k}" for k in range(len(ATTACKS))] + ["g_resident", "g_trial", "g_edge", "g_inside", "g_shared", "g_shared_one", "g_shared_data", "g_partial", "g_gap", "g_many"])}
+    + [f"g_atk{k}" for k in range(len(ATTACKS))] + ["g_resident", "g_trial", "g_edge", "g_inside", "g_shared", "g_shared_one", "g_shared_data", "g_partial", "g_gap", "g_many",
+     "g_pa", "g_pa_cb_unloaded", "g_pa_cb_first", "g_pu", "g_four_t", "g_four_t_cb", "g_four_u", "g_full_t", "g_over_t", "g_rewrite_page", "g_rewrite_entry", "g_direct_unloaded"])}
 LIB = {n: RAM + 0x100700 + 0x10 * i for i, n in enumerate(["CdControlB", "CdReady", "CdGetSector", "CdIntToPos", "CdInit", "CdSync", "CdControl", "CdControlF", "CdMix", "CdPosToInt"])}
 FA, GA, FB2 = BASE + 0x10, BASE + 0x20, BASE + 0x1010   # C, without C, C on the second page
 NONSTART = BASE + 0x1018
@@ -203,10 +209,10 @@ void g_thread(void)
 static void ready_via(unsigned target)
 {{
     unsigned char pos[4], res[8];
+    READY_CB = target;   /* set before the read starts: the handler is called for each sector as it is delivered */
     ps1_CdIntToPos({FILE_SECTOR['MODA.PAC'] + 1}, pos);
     ps1_CdControlB(2, pos, res);
     ps1_CdControlB(6, 0, res);
-    READY_CB = target;
     ps1_CdReady(0, res);
 }}
 void g_cb_ok(void) {{ LOAD_A; SAY("loaded A\\n"); ready_via(0x{FA:08x}u); SAY("after the callback\\n"); }}
@@ -259,6 +265,52 @@ void g_partial(void)
     load({FILE_SECTOR['MODB.PAC'] + 1}, 1, 0x{BASE:08x}u); SAY("loaded the first sector of B\\n");
     CALL(0x{FA:08x}u); SAY("after B\\n");
 }}
+static void load_words(int sector, int words, unsigned dest)
+{{
+    unsigned char pos[4], res[8];
+    ps1_CdIntToPos(sector, pos);
+    ps1_CdControlB(2, pos, res);
+    ps1_CdControlB(6, 0, res);
+    ps1_CdReady(0, res);
+    ps1_CdGetSector((void *)(size_t)dest, words);
+    ps1_CdControlB(9, 0, res);
+}}
+#define LOAD_T4 load({FILE_SECTOR['MODT.PAC'] + 1}, 4, 0x{TBASE:08x}u)
+#define LOAD_T1 load({FILE_SECTOR['MODT.PAC'] + 1}, 1, 0x{TBASE:08x}u)
+#define LOAD_U1 load({FILE_SECTOR['MODU.PAC'] + 1}, 1, 0x{UBASE:08x}u)
+void mt_f0(void) {{ SAY("T0 ran\\n"); }}
+void mt_f1(void) {{ SAY("T1 ran\\n"); }}
+void mt_fw(void) {{ SAY("TW ran\\n"); }}
+void g_pa(void) {{ LOAD_T1; SAY("loaded the first sector of T\\n"); CALL(0x{T0:08x}u); SAY("not reached\\n"); }}
+void g_pa_cb_unloaded(void) {{ LOAD_T1; SAY("loaded the first sector of T\\n"); ready_via(0x{T1:08x}u); SAY("accepted: not reached\\n"); }}
+void g_pa_cb_first(void) {{ LOAD_T1; SAY("loaded the first sector of T\\n"); ready_via(0x{T0:08x}u); SAY("accepted: not reached\\n"); }}
+void g_pu(void) {{ LOAD_U1; SAY("loaded the first sector of U\\n"); CALL(0x{U0:08x}u); SAY("not reached\\n"); }}
+void g_four_t(void) {{ load_words({FILE_SECTOR['MODT.PAC'] + 1}, 1, 0x{T0:08x}u); SAY("copied four bytes\\n"); CALL(0x{T0:08x}u); SAY("not reached\\n"); }}
+void g_four_t_cb(void) {{ load_words({FILE_SECTOR['MODT.PAC'] + 1}, 1, 0x{T0:08x}u); SAY("copied four bytes\\n"); ready_via(0x{T0:08x}u); SAY("accepted: not reached\\n"); }}
+void g_four_u(void) {{ load_words({FILE_SECTOR['MODU.PAC'] + 1}, 1, 0x{U0:08x}u); SAY("copied four bytes\\n"); CALL(0x{U0:08x}u); SAY("not reached\\n"); }}
+void g_full_t(void)
+{{
+    LOAD_T4; SAY("loaded T\\n"); CALL(0x{T0:08x}u); ready_via(0x{T1:08x}u); ready_via(0x{TW:08x}u); SAY("after the callbacks\\n");
+}}
+void g_over_t(void)
+{{
+    LOAD_T4; SAY("loaded T\\n"); CALL(0x{T0:08x}u);
+    *(volatile unsigned char *)0x{T1:08x}u ^= 0xff;   /* the game's own write over an installed entry */
+    SAY("overwrote the entry\\n"); ready_via(0x{T1:08x}u); SAY("accepted: not reached\\n");
+}}
+void g_rewrite_page(void)
+{{
+    LOAD_T4; SAY("loaded T\\n"); CALL(0x{T0:08x}u);
+    load({FILE_SECTOR['MODA.PAC'] + 1}, 1, 0x{TBASE + 0x800:08x}u); SAY("the disc wrote over tf1\\n");
+    CALL(0x{T0:08x}u); SAY("not reached\\n");
+}}
+void g_rewrite_entry(void)
+{{
+    LOAD_T4; SAY("loaded T\\n"); CALL(0x{T0:08x}u);
+    load({FILE_SECTOR['MODA.PAC'] + 1}, 1, 0x{TBASE:08x}u); SAY("the disc wrote over tf0\\n");
+    CALL(0x{T0:08x}u); SAY("not reached\\n");
+}}
+void g_direct_unloaded(void) {{ LOAD_T1; SAY("loaded the first sector of T\\n"); CALL(0x{T1:08x}u); SAY("not reached\\n"); }}
 void g_gap(void)
 {{
     load({FILE_SECTOR['MODA.PAC'] + 1}, 1, 0x{BASE:08x}u); SAY("loaded the first sector of A\\n");
@@ -300,7 +352,7 @@ def c_bytes(b: bytes) -> str:
 def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     """The made-up tables. `unpinned` names an image whose hash the build did not give."""
     out = ['#include "port_tables.h"']
-    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "mp_f", "mq_f", "c_main", "c_big") + tuple(G)[8:]
+    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "mp_f", "mq_f", "mt_f0", "mt_f1", "mt_fw", "c_main", "c_big") + tuple(G)[8:]
     for sym in dict.fromkeys(syms):
         out.append(f"extern void {sym}(void);")
     out.append('static const char *const arch_a[] = { "MODA.PAC", "MODA2.PAC", 0 };')
@@ -310,10 +362,13 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     out.append('static const char *const arch_y[] = { "MODY.PAC", 0 };')
     out.append('static const char *const arch_p[] = { "MODP.PAC", 0 };')
     out.append('static const char *const arch_q[] = { "MODQ.PAC", 0 };')
+    out.append('static const char *const arch_t[] = { "MODT.PAC", 0 };')
+    out.append('static const char *const arch_u[] = { "MODU.PAC", 0 };')
     images = [("ma", BASE, "0", 5, "arch_a", pinned(3, SIZE)), ("mb", BASE, "0", 5, "arch_b", pinned(5, SIZE)),
               ("ml", LIKE_BASE, '"ma"', 7, "arch_l", pinned(7, 0x800)), ("mk", KBASE, '"ma"', 8, "arch_k", pinned(13, 0x800)),
               ("my", YBASE, "0", 11, "arch_y", pinned(17, YSIZE)),
-              ("mp", PBASE, "0", 12, "arch_p", pinned(19, 0x800)), ("mq", QBASE, "0", 13, "arch_q", pinned(23, 0x800))]
+              ("mp", PBASE, "0", 12, "arch_p", pinned(19, 0x800)), ("mq", QBASE, "0", 13, "arch_q", pinned(23, 0x800)),
+              ("mt", TBASE, "0", 14, "arch_t", pinned(29, 0x2000)), ("mu", UBASE, "0", 15, "arch_u", pinned(31, 0x2000))]
     for n, im in enumerate(images):
         out.append(f"static const unsigned char sha_{n}[32] __attribute__((unused)) = {c_bytes(im[5])};")
     out.append("const struct port_image port_images[] = {")
@@ -324,7 +379,8 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     fns = [(tl.ENTRY_C, "c_main", "c_main", -1), (tl.BIG_C, "c_big", "c_big", -1)]
     fns += [(a, n, n, -1) for n, a in G.items()]
     fns += [(FA, "ma_f", "ma_f", 0), (FA, "mb_f", "mb_f", 1), (FB2, "mb_g", "mb_g", 1), (KF, "mk_f", "mk_f", 3),
-             (PF, "mp_f", "mp_f", 5), (QF, "mq_f", "mq_f", 6)]
+             (PF, "mp_f", "mp_f", 5), (QF, "mq_f", "mq_f", 6),
+             (T0, "mt_f0", "mt_f0", 7), (T1, "mt_f1", "mt_f1", 7), (TW, "mt_fw", "mt_fw", 7)]
     fns.sort(key=lambda f: (f[3], f[0]))
     out.append("const struct port_function port_functions[] = {")
     for a, name, sym, image in fns:
@@ -332,7 +388,8 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     out.append("};")
     out.append(f"const unsigned port_function_count = {len(fns)};")
     abs_ = [(a, n, -1, 1) for n, a in LIB.items()] + [(GA, "func_80150020_ma", 0, 0), (GA, "func_80150020_mb", 1, 0), (KG, "func_80180020_mk", 3, 0),
-                                                       (YF, "func_801f8010_my", 4, 0)]
+                                                       (YF, "func_801f8010_my", 4, 0),
+                                                       (TG, "func_801b0020_mt", 7, 0), (TZ, "func_801b0a00_mt", 7, 0), (U0, "func_801b8010_mu", 8, 0), (U1, "func_801b8900_mu", 8, 0)]
     abs_.sort(key=lambda f: (f[2], f[0]))
     out.append("const struct port_absent port_absents[] = {")
     for a, name, image, lib in abs_:
@@ -383,7 +440,15 @@ class ModRig(tl.Rig):
         img = disc_image(data, files)
         path = self.work / f"{tag}.bin"
         img.write(path)
-        proc = subprocess.run([*self.prefix, str(exe), self.native(path)], capture_output=True, text=True, timeout=timeout)
+        for attempt in range(3):   # the program prints its first line before anything can fail: no output at all, or a run that outlasts a loaded machine's patience, is tried again
+            try:
+                proc = subprocess.run([*self.prefix, str(exe), self.native(path)], capture_output=True, text=True, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                if attempt == 2:
+                    raise
+                continue
+            if proc.stdout:
+                break
         lines = proc.stdout.replace("\r\n", "\n").splitlines()
         if f"start: 0x{entry:08x}" in lines:
             lines = lines[lines.index(f"start: 0x{entry:08x}") + 1:]
@@ -506,6 +571,49 @@ def cases(rig: ModRig):
     status, lines = rig.go("partial", G["g_partial"])
     yield "only-the-functions-whose-bytes-the-chunk-wrote-get-a-jump-the-image-s-second-page-function-is-left-alone", verdict(
         (status, lines), (0, ["loaded the first sector of B", mline("mb", BASE, 1, 1), "B ran", "after B", "stop: main returned"]))
+    # ---- installation is per entry ----
+    sec_t = FILE_SECTOR["MODT.PAC"] + 1
+    def refusal(img, name, addr):
+        return (f"refused: image {img}: the entry {name} at 0x{addr:08x} cannot be installed: the bytes of this entry did not all come from the pinned chunk "
+                f"(at sector {{sec}} of {{file}}), and the page 0x{addr & ~0xfff:08x} would become executable without a jump there; no jump of the image was written")
+    t_line = lambda name, addr: refusal("mt", name, addr).format(sec=sec_t, file="modt.pac")
+    u_line = lambda name, addr: refusal("mu", name, addr).format(sec=FILE_SECTOR["MODU.PAC"] + 1, file="modu.pac")
+    status, lines = rig.go("pa", G["g_pa"])
+    yield "only-the-first-sector-loaded-the-page-is-not-made-executable-for-the-first-function-the-entry-that-was-not-loaded-is-named", verdict(
+        (status, lines), (2, ["loaded the first sector of T", t_line("mt_f1", T1)]))
+    status, lines = rig.go("pa-cb-first", G["g_pa_cb_first"])
+    yield "only-the-first-sector-loaded-the-first-function-handed-over-as-a-callback-is-not-accepted", verdict(
+        (status, lines), (2, ["loaded the first sector of T", t_line("mt_f1", T1)]))
+    status, lines = rig.go("pa-cb-unloaded", G["g_pa_cb_unloaded"])
+    yield "only-the-first-sector-loaded-a-later-entry-on-the-page-handed-over-as-a-callback-is-refused-and-never-reported-accepted", verdict(
+        (status, lines), (12, ["loaded the first sector of T", f"refused: ready callback 0x{T1:08x} is not a function this program installed"]))
+    status, lines = rig.go("pu", G["g_pu"])
+    yield "the-same-for-an-entry-without-c-the-stop-path", verdict((status, lines), (2, ["loaded the first sector of U", u_line("func_801b8900_mu", U1)]))
+    status, lines = rig.go("four-t", G["g_four_t"])
+    yield "only-four-bytes-of-an-entry-copied-nothing-is-installed-and-the-placement-is-refused", verdict(
+        (status, lines), (2, ["copied four bytes", t_line("mt_f0", T0)]))
+    status, lines = rig.go("four-t-cb", G["g_four_t_cb"])
+    yield "only-four-bytes-of-an-entry-copied-it-handed-over-as-a-callback-is-refused", verdict(
+        (status, lines), (2, ["copied four bytes", t_line("mt_f0", T0)]))
+    status, lines = rig.go("four-u", G["g_four_u"])
+    yield "only-four-bytes-of-an-entry-without-c-copied-the-same", verdict((status, lines), (2, ["copied four bytes", u_line("func_801b8010_mu", U0)]))
+    status, lines = rig.go("direct-unloaded", G["g_direct_unloaded"])
+    ok = status == 10 and lines[0] == "loaded the first sector of T" and len(lines) == 2 and lines[1].startswith(f"stop: crash: access violation (execute 0x{T1:08x})")
+    yield "a-direct-call-to-an-entry-whose-bytes-were-never-loaded-is-no-module-call", None if ok else f"status {status}, lines {lines!r}"
+    status, lines = rig.go("full-t", G["g_full_t"])
+    ran = [l for i, l in enumerate(lines) if not (l in ("T0 ran", "T1 ran", "TW ran") and lines[i - 1] == l)]
+    yield "the-whole-chunk-loaded-every-entry-is-installed-and-accepted-while-its-jump-is-there", verdict(
+        (status, [l for l in ran if l in ("loaded T", "after the callbacks") or l.startswith("module:")]), (0, ["loaded T", mline("mt", TBASE, 3, 2), "after the callbacks"]))
+    status, lines = rig.go("over-t", G["g_over_t"])
+    yield "an-installed-entry-the-game-wrote-over-is-refused-as-a-callback-with-a-line-that-says-its-jump-is-gone", verdict(
+        (status, lines[-2:]), (12, ["overwrote the entry", f"refused: ready callback 0x{T1:08x} is an entry of a module whose jump is no longer there"]))
+    status, lines = rig.go("rewrite-page", G["g_rewrite_page"])
+    yield "a-later-disc-write-to-the-page-takes-the-entries-away-and-the-next-call-is-refused-naming-the-entry-that-lost-its-bytes", verdict(
+        (status, lines[-2:]), (2, ["the disc wrote over tf1", t_line("mt_f1", T1)]))
+    status, lines = rig.go("rewrite-entry", G["g_rewrite_entry"])
+    ok = status == 5 and lines[-2] == "the disc wrote over tf0" and "no image of the tables has that archive, slot and address" in lines[-1]
+    yield "a-later-disc-write-over-the-entry-itself-and-the-next-call-is-placed-for-what-is-there-now-and-refused", None if ok else f"status {status}, lines {lines[-2:]!r}"
+
     status, lines = rig.go("gap", G["g_gap"])
     ok = status == 10 and lines[0] == "loaded the first sector of A" and len(lines) == 2 and lines[1].startswith(f"stop: crash: access violation (execute 0x{BASE + 0x900:08x})")
     yield "a-call-at-an-address-whose-bytes-did-not-come-from-the-disc-is-no-module-call-it-is-the-crash-line", None if ok else f"status {status}, lines {lines!r}"

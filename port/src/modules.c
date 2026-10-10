@@ -36,6 +36,15 @@
  * Everything read from an archive is bounded before use: the count of chunks, each chunk's length and place
  * against the file's extent on the disc, the chunk against the PS1's RAM, the page and table indexes.
  *
+ * Installation is per entry, not per page. Before a page becomes executable every declared entry of the image on
+ * it must be installable (its five bytes inside the chunk and all written from it), else the placement is refused,
+ * naming the first entry that is not, and nothing is written. An entry counts as installed while this layer's own
+ * jump (or call to the stop) is there: checked by content at the moment of use (a call that faulted, a target handed
+ * over for a later call). A disc write to the page takes its owner away, so its entries are no longer installed.
+ * Stated limit: a write by the game's own code over an installed entry is not seen when it happens; it is seen when
+ * the entry is next handed over as a target (the line says the entry's jump is no longer there), not when the game
+ * calls it directly.
+ *
  * Resident code is never a module's: a page that holds any byte of the resident program's text keeps its execute
  * permission whatever the disc copies into its other bytes (a data sector may end in the page where the resident
  * code begins), and a copy that reaches the first bytes of a resident function, where the start-up wrote a jump
@@ -70,6 +79,7 @@ static unsigned sys_thread(void);
 
 /* ---- state ------------------------------------------------------------ */
 static volatile unsigned char exec_page[NPAGES];    /* 1: the page is executable (read by the timer thread too) */
+static unsigned char *entry_state;         /* per row of the tables (functions, then absents): 1 once this layer wrote the entry's jump */
 static short owner_page[NPAGES];           /* image index + 1 that placed its jumps on the page, 0: none */
 static struct port_disc_file *files;
 static unsigned file_count;
@@ -331,6 +341,7 @@ static unsigned char *verified_chunk(int index, const struct chunk *c, const str
 
 static int owned(int index, unsigned page_address)
 {
+    if (page_address < PORT_RAM_BASE || page_address - PORT_RAM_BASE >= PORT_RAM_SIZE) return 0;
     return owner_page[(page_address - PORT_RAM_BASE) / PAGE] == index + 1;
 }
 
@@ -345,18 +356,97 @@ static int page_ours(unsigned page, const struct chunk *c)
     return 0;
 }
 
-static void place(int index, const struct chunk *c, const unsigned char *bytes, unsigned fault, const struct port_disc_file *f)
+/* ---- the entries of an image, as one list ---------------------------------- */
+
+/* Row i of the functions with C (i < port_function_count) and then of the functions without C. */
+static int row_image(unsigned i)
+{
+    return i < port_function_count ? port_functions[i].image : port_absents[i - port_function_count].image;
+}
+
+static unsigned row_address(unsigned i)
+{
+    return i < port_function_count ? port_functions[i].address : port_absents[i - port_function_count].address;
+}
+
+static const char *row_name(unsigned i)
+{
+    return i < port_function_count ? port_functions[i].name : port_absents[i - port_function_count].name;
+}
+
+static unsigned char row_opcode(unsigned i)
+{
+    return i < port_function_count ? 0xe9 : 0xe8;   /* a jump to the C, or a call to the stop */
+}
+
+static const void *row_target(unsigned i)
+{
+    return i < port_function_count ? port_functions[i].impl : (const void *)port_module_stop_entry;
+}
+
+#define ROWS (port_function_count + port_absent_count)
+
+/* Are the five bytes at `address` exactly the jump or call that jump_site writes for `target`? */
+static int bytes_are(unsigned address, unsigned char opcode, const void *target)
+{
+    const unsigned char *site = (const unsigned char *)(size_t)address;
+    uint32_t rel = (uint32_t)((uintptr_t)target - ((uintptr_t)site + 5));
+    return site[0] == opcode && memcmp(site + 1, &rel, 4) == 0;
+}
+
+/* 1: the entry of image `index` at `address` is installed and its jump remains valid. 0: not installed (or its page
+ * is no longer the image's: it will be placed anew on the next call). -1: it was installed, its page is still the
+ * image's, and its five bytes are not what was written. Is the entry installed, and does its jump remain valid? Installed means: this layer
+ * wrote the jump (or the call to the stop) of that very entry, the pages it lies on are still this image's, and the
+ * five bytes are, now, exactly what was written. (A write by the game's own code to those bytes after the disc
+ * layer's last write is seen here, at the moment of use, and only here.) */
+static int entry_valid(int index, unsigned address)
+{
+    unsigned i;
+    for (i = 0; i < ROWS; i++) {
+        if (row_image(i) != index || row_address(i) != address) continue;
+        if (!entry_state[i] || !owned(index, address & ~(PAGE - 1)) || !owned(index, (address + 4) & ~(PAGE - 1))) return 0;
+        return bytes_are(address, row_opcode(i), row_target(i)) ? 1 : -1;
+    }
+    return 0;
+}
+
+static void place(int index, const struct chunk *c, const unsigned char *bytes, const struct port_disc_file *f)
 {
     const struct port_image *im = &port_images[index];
     unsigned lo = im->address & ~(PAGE - 1), hi, p, i;
     unsigned long long end = (unsigned long long)im->address + c->size + PAGE - 1;
-    unsigned with_c = 0, without_c = 0;
-    int src;
+    unsigned with_c = 0, without_c = 0, worst = 0;
+    int src, bad = 0;
+    static unsigned char becoming[NPAGES];
 
     hi = end > PORT_RAM_BASE + (unsigned long long)PORT_RAM_SIZE ? PORT_RAM_BASE + PORT_RAM_SIZE : (unsigned)end & ~(PAGE - 1);
     if (end >= (1ull << 32)) hi = PORT_RAM_BASE + PORT_RAM_SIZE;
 #define IN_CHUNK(a) ((src = port_cd_source_at(a)) >= 0 && (unsigned)src >= c->first_sector && (unsigned)src < c->first_sector + c->sectors)
-#define NEW(a) (!owned(index, (a) & ~(PAGE - 1)) || !owned(index, ((a) + 4) & ~(PAGE - 1)))
+    /* the pages that become executable: those with a word of this chunk that are not this image's yet */
+    memset(becoming, 0, sizeof becoming);
+    for (p = lo; p < hi; p += PAGE)
+        if (!owned(index, p) && page_ours(p, c)) becoming[(p - PORT_RAM_BASE) / PAGE] = 1;
+#define ON_BECOMING(a) ((a) >= PORT_RAM_BASE && (a) - PORT_RAM_BASE < PORT_RAM_SIZE && (becoming[((a) - PORT_RAM_BASE) / PAGE] || \
+                        ((a) + 4 - PORT_RAM_BASE < PORT_RAM_SIZE && becoming[((a) + 4 - PORT_RAM_BASE) / PAGE])))
+    /* every declared entry of the image on those pages must be installable: its five bytes inside the chunk and all
+     * written from it. Otherwise the page would be executable with an entry in it that nothing jumps from. */
+    for (i = 0; i < ROWS; i++) {
+        unsigned a = row_address(i);
+        if (row_image(i) != index || !ON_BECOMING(a)) continue;
+        if (a < im->address || a - im->address + 5 > c->size || !IN_CHUNK(a) || !IN_CHUNK(a + 4)) {
+            if (!bad || a < worst) worst = a;
+            bad = 1;
+        }
+    }
+    if (bad) {
+        const char *name = "?";
+        for (i = 0; i < ROWS; i++)
+            if (row_image(i) == index && row_address(i) == worst) name = row_name(i);
+        printf("refused: image %s: the entry %s at 0x%08x cannot be installed: the bytes of this entry did not all come from the pinned chunk (at sector %u of %s), and the page 0x%08x would become executable without a jump there; no jump of the image was written\n",
+               im->name, name, worst, c->first_sector, f->name, worst & ~(PAGE - 1));
+        finish(PORT_EXIT_REFUSED);
+    }
 #define SAME(a) do { \
         unsigned off_ = (a) - im->address, n_ = c->size - off_ < WINDOW ? c->size - off_ : WINDOW; \
         if (off_ >= c->size || memcmp((const void *)(size_t)(a), bytes + off_, n_) != 0) { \
@@ -365,43 +455,27 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
             finish(PORT_EXIT_REFUSED); \
         } \
     } while (0)
-    /* first every function is checked against the pinned bytes, then the jumps are written */
-    for (i = 0; i < port_function_count; i++) {
-        unsigned a = port_functions[i].address;
-        if (port_functions[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) SAME(a);
-    }
-    for (i = 0; i < port_absent_count; i++) {
-        unsigned a = port_absents[i].address;
-        if (port_absents[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) SAME(a);
-    }
-    for (i = 0; i < port_function_count; i++) {
-        unsigned a = port_functions[i].address;
-        if (port_functions[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) {
-            jump_site(a, 0xe9, port_functions[i].impl);
-            with_c++;
-        }
-    }
-    for (i = 0; i < port_absent_count; i++) {
-        unsigned a = port_absents[i].address;
-        if (port_absents[i].image != index || a < im->address || a - im->address + 4 >= c->size || a + 4 >= hi) continue;
-        if (IN_CHUNK(a) && IN_CHUNK(a + 4) && NEW(a)) {
-            jump_site(a, 0xe8, (const void *)port_module_stop_entry);
-            without_c++;
-        }
+    /* first every entry is checked against the pinned bytes, then the jumps are written */
+    for (i = 0; i < ROWS; i++)
+        if (row_image(i) == index && ON_BECOMING(row_address(i))) SAME(row_address(i));
+    for (i = 0; i < ROWS; i++) {
+        unsigned a = row_address(i);
+        if (row_image(i) != index || !ON_BECOMING(a)) continue;
+        jump_site(a, row_opcode(i), row_target(i));
+        entry_state[i] = 1;
+        if (i < port_function_count) with_c++;
+        else without_c++;
     }
 #undef SAME
-#undef NEW
+#undef ON_BECOMING
     /* the pages: owner and permission, in runs */
     for (p = lo; p < hi;) {
         unsigned q;
-        if (!page_ours(p, c)) {
+        if (!becoming[(p - PORT_RAM_BASE) / PAGE]) {
             p += PAGE;
             continue;
         }
-        for (q = p; q < hi && page_ours(q, c); q += PAGE) owner_page[(q - PORT_RAM_BASE) / PAGE] = (short)(index + 1);
+        for (q = p; q < hi && becoming[(q - PORT_RAM_BASE) / PAGE]; q += PAGE) owner_page[(q - PORT_RAM_BASE) / PAGE] = (short)(index + 1);
         if (sys_protect(p, q - p, 1) != 0) {
             printf("stop: modules: cannot make 0x%08x..0x%08x executable\n", p, q);
             finish(PORT_EXIT_OTHER);
@@ -409,12 +483,11 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
         for (; p < q; p += PAGE) exec_page[(p - PORT_RAM_BASE) / PAGE] = 1;
     }
 #undef IN_CHUNK
+    /* The call resumes only into a jump that this placement wrote: the faulting address is a function start of the
+     * image (checked by the caller), its page is one of the becoming pages (its word came from the chunk), and every
+     * entry on those pages was installed above or the placement was refused. */
     printf("module: %s at 0x%08x, %u C jumps, %u without C\n", im->name, im->address, with_c, without_c);
     fflush(stdout);
-    if (!exec_page[(fault - PORT_RAM_BASE) / PAGE]) {
-        printf("stop: modules: the page of 0x%08x is still not executable after placing %s\n", fault, im->name);
-        finish(PORT_EXIT_OTHER);
-    }
 }
 
 /* The image that the bytes at `address` came from, by the word record of the disc layer: the chunk that wrote the
@@ -515,7 +588,7 @@ static int resolve(unsigned address, int quiet)
     }
     bytes = verified_chunk(found, &c, f);
     check_shared(found, &c);
-    place(found, &c, bytes, address, f);
+    place(found, &c, bytes, f);
     free(bytes);
     return 0;
 }
@@ -536,8 +609,9 @@ static int blocked(unsigned address)
     return address >= PORT_RAM_BASE && address - PORT_RAM_BASE < PORT_RAM_SIZE && !exec_page[(address - PORT_RAM_BASE) / PAGE];
 }
 
-/* The check of an address that the game handed over (port_target_check): is it the start of a function of a
- * module that is placed, or whose bytes came from the disc and can be placed now? */
+/* The check of an address that the game handed over (port_target_check): is it an entry of a module that this layer
+ * installed (its own jump or stop was written and is still there, checked now by content), after placing the
+ * module if the address's bytes came from the disc and the page is not placed yet? */
 static int known(unsigned address)
 {
     unsigned page;
@@ -547,7 +621,7 @@ static int known(unsigned address)
     page = (address - PORT_RAM_BASE) / PAGE;
     if (!owner_page[page] && !exec_page[page]) resolve(address, 1);
     owner = owner_page[page] - 1;
-    return owner >= 0 && is_function_start(owner, address);
+    return owner >= 0 ? entry_valid(owner, address) : 0;
 }
 
 /* ---- the hook of the disc layer ---------------------------------------- */
@@ -624,6 +698,9 @@ void port_modules_init(unsigned text_address, unsigned text_size)
     text_hi = text_address + text_size;
     if (text_hi < text_lo) text_hi = text_lo = 0;
     memset(owner_page, 0, sizeof owner_page);
+    free(entry_state);
+    entry_state = calloc(ROWS ? ROWS : 1, 1);
+    if (!entry_state) refuse("modules: out of memory");
     for (p = 0; p < NPAGES; p++) exec_page[p] = 1;
     if (sys_install() != 0) refuse("modules: no access fault handler for this system");
     game_thread = sys_thread();

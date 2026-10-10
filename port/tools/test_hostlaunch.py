@@ -263,7 +263,7 @@ void game_crash(void)
 
 # The addresses that the game hands to the runtime to call: an unregistered one in the program's text (an x86
 # ret lies there) and a registered function without C. One game function for each path that calls an address.
-G_TARGET = {name: RAM + 0x101500 + 0x10 * i for i, name in enumerate(["thread", "event", "irq", "vsync", "valid"])}
+G_TARGET = {name: RAM + 0x101500 + 0x10 * i for i, name in enumerate(["thread", "event", "irq", "vsync", "valid", "wipe"])}
 
 
 def game_targets(target: int) -> str:
@@ -307,6 +307,15 @@ void g_vsync(void)
     SAY("vsync callback set\\n");
     ps1_VSync(0);
     SAY("after the vblank\\n");
+}}
+void g_wipe(void)
+{{
+    unsigned h;
+    *(volatile unsigned *)0x{ENTRY_C:08x}u = 0x90909090u;   /* the game's own write over a resident entry's jump */
+    h = ps1_OpenTh(0x{ENTRY_C:08x}u, 0, 0);
+    SAY("overwrote the jump\\n");
+    ps1_ChangeTh(h);
+    SAY("not reached\\n");
 }}
 void g_valid(void)
 {{
@@ -821,7 +830,15 @@ class Rig:
         path = self.work / f"{tag}.bin"
         img.write(path)
         arg = self.native(path)
-        proc = subprocess.run([*self.prefix, str(exe), *(args or []), arg], capture_output=True, text=True, timeout=timeout)
+        for attempt in range(3):   # the program prints its first line before anything can fail: no output at all, or a run that outlasts a loaded machine's patience, is tried again
+            try:
+                proc = subprocess.run([*self.prefix, str(exe), *(args or []), arg], capture_output=True, text=True, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                if attempt == 2:
+                    raise
+                continue
+            if proc.stdout:
+                break
         return proc.returncode, proc.stdout.replace("\r\n", "\n").splitlines(), img, arg
 
 
@@ -927,6 +944,9 @@ def cases(rig: Rig):
         status, lines, img, arg = rig.run(f"tgt-{name}-absent", program(entry), variant="tgt-absent", timeout=60)
         yield f"{name}-target-that-is-a-function-without-c-ends-with-its-named-stop", verdict(
             (status, lines[-1]), (3, f"stop: no C yet for func_{ENTRY_ABSENT:08x} (0x{ENTRY_ABSENT:08x})"))
+    status, lines, img, arg = rig.run("tgt-wipe", program(G_TARGET["wipe"]), variant="tgt-unreg", timeout=60)
+    yield "a-resident-entry-whose-jump-the-game-wrote-over-is-refused-as-a-thread-entry-with-a-line-that-says-so", verdict(
+        (status, lines[-2:]), (12, ["overwrote the jump", f"refused: thread entry 0x{ENTRY_C:08x} is a resident entry whose jump is no longer there"]))
     status, lines, img, arg = rig.run("tgt-valid", program(G_TARGET["valid"]), variant="tgt-unreg", timeout=60)
     yield "handlers-and-callbacks-inside-the-games-own-code-are-called", verdict(
         (status, lines[-4:]), (0, ["event handler ran 1", "interrupt callback ran 1", "vsync callback ran 1", "stop: main returned"]))
