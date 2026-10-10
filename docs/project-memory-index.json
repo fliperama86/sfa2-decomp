@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "bbe7d6e7e6cc2149c6f871269d1cf707fd1bab583d4a86d722ce0522a480e04c",
+  "sha256": "0744e3e27b6037c16f5ab3915ac6ab22c3bdcda8036af6aec7d3de2819cb8cc9",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -543,44 +543,56 @@
       "line": 8325
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)",
       "line": 8366
     },
     {
+      "title": "A function of the module of slot 0x1 exact, with its palette table (2026-10-10)",
+      "line": 8386
+    },
+    {
+      "title": "Windows reference",
+      "line": 8410
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8383
+      "line": 8427
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8408
+      "line": 8452
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8465
+      "line": 8509
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8550
+      "line": 8594
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8664
+      "line": 8708
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8677
+      "line": 8721
     },
     {
       "title": "The program always ends when the game's thread ends it (2026-10-10)",
-      "line": 8713
+      "line": 8757
     },
     {
       "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
-      "line": 8788
+      "line": 8832
+    },
+    {
+      "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
+      "line": 8866
     },
     {
       "title": "The pads and the input script of the port (2026-10-10)",
-      "line": 8822
+      "line": 8950
     }
   ]
 }

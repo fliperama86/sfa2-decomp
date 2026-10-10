@@ -44,6 +44,7 @@
 #include "gpu.h"
 #include "port_tables.h"
 #include "cd.h"
+#include "modules.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -171,6 +172,7 @@ int main(int argc, char **argv)
     port_pad_print_keys();
     fflush(stdout);
 
+    port_modules_init(prog.t_addr, prog.t_size);
     if (port_entry_gp(ram, prog.pc0, &gp) != 0) return refuse("start: no lui/addiu of gp among the first 64 instructions at the entry");
     port_set_gp(gp);
     if (port_entry_scan(ram, prog.pc0, &entry) != 0) return refuse("start: no jal before a break among the first 64 instructions at the entry");

@@ -9968,6 +9968,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot12_2c34x_r1"
+image = "slot12"
+source = "slot12/slot12_2c34x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80012c34_slot12", address = 0x80012c34, size = 168 },
+]
+
+[[unit]]
 name = "slot12_4754x_r1"
 image = "slot12"
 source = "slot12/slot12_4754x_r1.c"
@@ -23738,6 +23747,16 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800100a4_slot01", address = 0x800100a4, size = 96 },
 ]
+
+[[unit]]
+name = "slot01_0104x_r1"
+image = "slot01"
+source = "slot01/slot01_0104x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80010104_slot01", address = 0x80010104, size = 916 },
+]
+rodata = { address = 0x80010000, size = 160 }
 
 [[unit]]
 name = "slot01_00a4_r3"

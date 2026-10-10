@@ -8363,6 +8363,50 @@ character files hold further byte pointers into the slots; they are
 not touched here. The inference about the type stands on the function
 that is exact only with a byte member, not on the count.
 
+## A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)
+
+`func_80012c34_slot12`, 168 bytes, of the module of slot 0x12
+(`CONT00.PAC`). Its parked candidate did not compile any more: it
+declared `box_margin` as one halfword where the shared header has an
+array. With the header's form the unattended search found the bytes in
+its second round: the margin is read into a local after the first
+group of stores and used for `pos_x` at the end. Measured on the final
+text with `fndiff.py --rebuild`: read in place at that statement, 32
+differing instruction slots; read one statement earlier, 26; one
+statement later, 13; at the declaration, 35. As an `int` the local is
+exact too.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,431 of 5,600 distinct functions exact, 12,858 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## A function of the module of slot 0x1 exact, with its palette table (2026-10-10)
+
+`func_80010104_slot01`, 916 bytes, of the module of slot 0x1
+(`CDEMO00.PAC`). Its parked candidate did not compile any more: it
+declared two resident symbols as single values where the shared
+header has arrays, and one library call with another result type.
+With the header's forms the code differed in one instruction slot,
+the address of the read-only data that its local array of 80
+halfwords is copied from: the build put that data elsewhere. The unit
+names the range now, 160 bytes at the start of the module, and the
+build places and compares it. The note of ten differing slots in the
+parked file was about its old declarations.
+
+The array's 80 values are written in the source as its initializer:
+five rows of sixteen colours.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; its
+read-only range is identical to the original's; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,432 of 5,600 distinct functions exact, 12,859 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's, or what the
+colours are for. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8818,6 +8862,90 @@ No function count changes here: none of this is in the build.
   left out, the image identical, 223 of 223 controls tripped;
   `slot04_11` and `slot17` unchanged. This change's own checks are in
   its pull request.
+
+## The port places a module's jumps when the game first runs it (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/modules.c`, the record in the disc layer of
+  where each word of RAM came from, the hashes of the images' chunks in
+  the build's tables, and `test_hostmodules.py`. The page has the
+  mechanism, what ends the program, and the cases.
+- What differs from the state that ran the private trial, each from a
+  lesson of the earlier reviews or from the trial itself:
+  - A module's jumps are written only for content that the build
+    configuration pins: the chunk is read from the user's image and
+    hashed before the first jump. The trial's state placed whatever the
+    archive held. (The lesson of the port's first piece, applied to the
+    modules before a review had to ask.)
+  - The archive's header is read as the user's file: lengths in 64
+    bits, every chunk against the file and the RAM. The trial's state
+    could wrap a 32-bit length.
+  - The trial stopped while loading the first fight: a stage's data
+    ends in the 4 KB page where the resident program begins, the layer
+    took the right to execute from the whole page, and the game's next
+    call into resident code there was taken for a call into a module.
+    The record is per word now and a page with resident code never
+    loses the right. Before choosing between that and a refusal of
+    shared pages, a worker asked the build's tables: of the 77 images
+    with functions, no two that can be in memory together share a page
+    with their code (one-off count of a script over the inventory and
+    the configuration); 19 begin in the middle of a page.
+  - The timer thread could suspend the game's thread inside the fault
+    and rewrite its context: a hang in 2 of 9 runs of the controls
+    (one-off). It now leaves a thread alone whose instruction pointer
+    is on such a page. A case of two thousand loads in a row failed in
+    3 of 3 runs without that.
+- Not shown: any of this on the real game from a published commit.
+- Per-entry installation (2026-10-10, after the owner's review of this pull
+  request). A page that was placed had been treated as proof that every
+  declared function on it was installed; two invented archives showed a
+  callback to an entry whose bytes were never loaded being accepted (the first
+  sector only; four bytes of an entry). Now each row of the tables has its own
+  state; an entry is installed only if its own five bytes were written and are
+  still there, the pages under them still belong to the module, and a placement
+  is refused, naming the lowest entry, if any declared entry of the image on a
+  page that would become executable cannot be installed. Resident entries are
+  checked by content too. Stated limits are on the page. Mutants (scratch,
+  restored): per-entry test replaced by page ownership; content check removed;
+  the uninstallable-entry refusal off; four bytes counted as an entry; resident
+  content check off: each made a case fail.
+- The tree was brought onto main of 2026-10-10 (documentation layout, graphics,
+  the console's copy of RAM, the exit gate, the rigs' diagnostics) with the
+  merge helper. Two fault handlers now exist: this layer's for execute faults on
+  pages it made non-executable, the mirror's for read and write faults below 2 MB.
+  Both are vectored handlers asked first; this layer's is installed later, so it
+  is asked first, and declines every fault that is not its own (kind, address
+  range, instruction pointer equal to the address, page it took). A case set in
+  `test_hostmodules.py` runs them together: a module placed at its first call
+  whose C writes and reads the low view below and above 64 KB, a call at a
+  non-entry while the low view is in use, an execute fault at a low address (the
+  mirror's crash line), a read outside the mirror's range (neither handler), and
+  500 placements mixed with low-view accesses with the timer on. Mutants: this
+  layer's handler taking a read or write fault (ending the program there) makes
+  five cases fail; the mirror's decision accepting execute faults and ignoring
+  game code makes the low-address execute case fail. Two mutants are
+  equivalent in behaviour and say so: this layer's handler without its kind
+  check (its address and instruction-pointer checks decline the same faults),
+  and the mirror's without its kind check alone (its game-code check declines).
+- Ending the process. This layer ends it only by `exit()` (the `atexit` stop of
+  the timer's gate runs) so nothing here calls the stop itself. A case runs 12
+  programs that the layer or the handlers around it end with and without
+  `--timer-burst` and requires the same result, no line of the gate's
+  self-checks. A direct `ExitProcess` added to this layer would not be seen by
+  that case (shown with a scratch mutant); it would hang only rarely.
+- The rigs. The retry of the module and launch rigs is gone (a program is run
+  once; a run that hangs or prints nothing fails its case). `ModRig` records
+  and prints the whole last run as `Rig` of main does, with the case for it; the
+  20-run burst loop keeps the first bad run's record for the failure text, not
+  the last good run's.
+- Stress (one-off, 12 CPU burners ended by PID after each run, merged tree):
+  300 runs of a program ending by `exit()` with the timer: 300 right; 300 with
+  `--no-interrupt`: 300 right; 10 runs of the two-thousand-faults case: 10
+  right (each rc 0, 2000 "A ran", `stop: main returned`). The earlier stop of
+  this work (2 of 300 hung) was the exit race, fixed on main.
+- Not done: data of modules beyond their code; the real game's modules run only
+  through the tables, not on the console's behaviour.
 
 ## The pads and the input script of the port (2026-10-10)
 
