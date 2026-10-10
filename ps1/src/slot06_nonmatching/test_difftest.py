@@ -5511,6 +5511,441 @@ def case_p_replay_needs_no_program_file():
     return None if (status, out.getvalue(), err.getvalue()) == (0, want, "") else f"{status} {out.getvalue()!r} {err.getvalue()!r}"
 
 
+# ---------------------------------------------------------------------------
+# Group FL: fills, a recorder that stores bytes through a register argument
+
+def local_caller(local, load, read=None):
+    """A caller that passes the address of its local at sp+`local` as a0, then loads from sp+`read` (default: the local)
+    with `load` and stores what it read at FLAG."""
+    read = local if read is None else read
+    return [addiu(SP, SP, -32), sw(RA, SP, 28), addiu(4, SP, local), jal(CALLEE), NOP, load(T1, SP, read),
+            *setreg(T0, FLAG), sw(T1, T0, 0), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def case_fl_local_at_two_places_of_two_frames():
+    # The original keeps the local at sp+16, the build at sp+20: the recorder fills whichever the caller hands it.
+    word = bytes([0x78, 0x56, 0x34, 0x12])
+    replaces = [R(CALLEE, 1, 0, masks={0: 0}, fills=((0, 0, 0, word),))]
+    for words in (local_caller(16, lw), local_caller(20, lw)):
+        if (got := logged(words, replaces)[2](FLAG)) != 0x12345678:
+            return f"the caller read {got:#x} from its local, wanted 0x12345678"
+    if (got := pair_logged(local_caller(16, lw), local_caller(20, lw), replaces)) != (0, 3, 0):
+        return f"two frames, both read the filled word: {got}"
+    # one byte filled: a build that reads the byte next to it gets what the stack held there (0)
+    one = [R(CALLEE, 1, 0, masks={0: 0}, fills=((0, 0, 0, b"\x5A"),))]
+    if (got := logged(local_caller(20, lbu), one)[2](FLAG)) != 0x5A:
+        return f"one byte: {got:#x}"
+    if (got := pair_logged(local_caller(16, lbu), local_caller(20, lbu), one)) != (0, 3, 0):
+        return f"one byte, two frames: {got}"
+    if (got := pair_logged(local_caller(16, lbu), local_caller(20, lbu, read=21), one)) != (0, 0, 3):
+        return f"a build that reads the neighbouring byte: {got}, wanted every case different"
+    return None
+
+
+def twice_caller():
+    """Calls CALLEE twice with the address of the local at sp+16; the local's word after the first call goes to FLAG,
+    the one after the second to FLAG + 4."""
+    return [addiu(SP, SP, -32), sw(RA, SP, 28),
+            addiu(4, SP, 16), jal(CALLEE), NOP, lw(T1, SP, 16), *setreg(T0, FLAG), sw(T1, T0, 0),
+            addiu(4, SP, 16), jal(CALLEE), NOP, lw(T1, SP, 16), *setreg(T0, FLAG + 4), sw(T1, T0, 0),
+            lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def case_fl_call_zero_against_call_n():
+    # (FLAG, FLAG + 4) after the two calls, and the log: two entries of a masked argument
+    want = {"every call": (((0, 0, 0, b"\x55"),), (0x55, 0x55)),
+            "call 1 only": (((1, 0, 0, b"\x11"),), (0x11, 0x11)),  # the local keeps it through the second call
+            "call 2 only": (((2, 0, 0, b"\x77"),), (0, 0x77)),
+            "call 3, never reached": (((3, 0, 0, b"\x99"),), (0, 0))}
+    for label, (fills, wanted) in want.items():
+        entries, _, read = logged(twice_caller(), [R(CALLEE, 1, 0, masks={0: 0}, fills=fills)])
+        if (read(FLAG), read(FLAG + 4)) != wanted or entries != [CALLEE, 0, CALLEE, 0]:
+            return f"{label}: read {read(FLAG):#x}, {read(FLAG + 4):#x}, log {hexes(entries)}"
+    # a fill of the second call is not there after the first, and both fills of two calls are made in turn
+    fills = ((1, 0, 0, b"\x21"), (2, 0, 1, b"\x22"))
+    _, _, read = logged(twice_caller(), [R(CALLEE, 1, 0, masks={0: 0}, fills=fills)])
+    return None if (read(FLAG), read(FLAG + 4)) == (0x21, 0x2221) else f"calls 1 and 2: {read(FLAG):#x}, {read(FLAG + 4):#x}"
+
+
+def case_fl_pointee_shows_the_bytes_from_before_the_fill():
+    words = program(("st", BUF, 0x11111111), ("call", CALLEE, [BUF], []))
+    entries, _, read = logged(words, [R(CALLEE, 1, 0, pointees={0: 1}, fills=((0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))])
+    if entries != [CALLEE, BUF, 0x11111111] or read(BUF) != 0xAABBCCDD:
+        return f"log {hexes(entries)}, word after {read(BUF):#x}"
+    # a watched block is copied before the fill too
+    entries, _, read = logged(words, [R(CALLEE, 1, 0, fills=((0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))], watch=((BUF, 1),))
+    return None if entries == [CALLEE, BUF, 0x11111111] and read(BUF) == 0xAABBCCDD else f"watched: log {hexes(entries)}"
+
+
+def case_fl_later_fill_of_a_call_wins():
+    first, second = (0, 0, 0, b"\x01\x02\x03\x04"), (0, 0, 2, b"\xAA\xBB")
+    for label, fills, wanted in (("in this order", (first, second), 0xBBAA0201), ("in the other order", (second, first), 0x04030201)):
+        _, _, read = logged(program(("call", CALLEE, [BUF], [])), [R(CALLEE, 1, 0, fills=fills)])
+        if read(BUF) != wanted:
+            return f"{label}: {read(BUF):#x}, wanted {wanted:#x}"
+    return None
+
+
+def case_fl_unaligned_odd_and_long_fills():
+    def bytes_at(result, address, count):
+        return bytes(result["ram"][address - D.RAM_BASE : address - D.RAM_BASE + count])
+
+    # offset 3, 5 bytes: nothing else changes
+    _, result, _ = logged(program(("call", CALLEE, [BUF], [])), [R(CALLEE, 1, 0, fills=((0, 0, 3, bytes([1, 2, 3, 4, 5])),))])
+    if (got := bytes_at(result, BUF, 12)) != bytes([0, 0, 0, 1, 2, 3, 4, 5, 0, 0, 0, 0]):
+        return f"offset 3, 5 bytes: {got.hex()}"
+    # 256 bytes at offset 0
+    data = bytes((7 * i + 1) & 0xFF for i in range(256))
+    _, result, _ = logged(program(("call", CALLEE, [BUF], [])), [R(CALLEE, 1, 0, fills=((0, 0, 0, data),))])
+    if bytes_at(result, BUF - 1, 258) != b"\0" + data + b"\0":
+        return "256 bytes at offset 0"
+    # 256 bytes at the largest offset: the last byte lies 0xff past what a signed 16-bit offset reaches
+    base = 0x80010000
+    _, result, _ = logged(program(("call", CALLEE, [base], [])), [R(CALLEE, 1, 0, fills=((0, 0, 0x7FFF, data),))])
+    if bytes_at(result, base + 0x7FFF - 1, 258) != b"\0" + data + b"\0":
+        return "256 bytes at offset 0x7fff"
+    # one byte at the largest offset; and each of the four register arguments
+    _, result, _ = logged(program(("call", CALLEE, [base], [])), [R(CALLEE, 1, 0, fills=((0, 0, 0x7FFF, b"\xEE"),))])
+    if bytes_at(result, base + 0x7FFF - 1, 3) != b"\0\xEE\0":
+        return "one byte at offset 0x7fff"
+    for argument in range(4):
+        registers = [BUF + 0x40 * i for i in range(4)]
+        _, result, _ = logged(program(("call", CALLEE, registers, [])),
+                              [R(CALLEE, 4, 0, fills=((0, argument, 2, bytes([0xA0 + argument])),))])
+        want = {BUF + 0x40 * argument + 2: 0xA0 + argument}
+        changed = {BUF + i: result["ram"][BUF - D.RAM_BASE + i] for i in range(0x100) if result["ram"][BUF - D.RAM_BASE + i]}
+        if changed != want:
+            return f"argument {argument}: changed {changed}, wanted {want}"
+    return None
+
+
+def case_fl_fills_come_after_stores_and_counts_and_before_the_end():
+    # the store of call 1 writes the word 0xAA at WATCHED; the fill then writes its byte over the low one
+    words = program(("call", CALLEE, [WATCHED], []))
+    _, _, read = logged(words, [R(CALLEE, 1, 0, stores=((1, WATCHED, 0xAA),), fills=((0, 0, 0, b"\xBB"),))])
+    if read(WATCHED) != 0xBB:
+        return f"after a store: {read(WATCHED):#x}, wanted 0xbb (the store, then the fill)"
+    # the count adds 1 to the word at WATCHED2 (0 to 1); the fill then writes 0x40 over the low byte
+    _, _, read = logged(program(("call", CALLEE, [WATCHED2], [])), [R(CALLEE, 1, 0, counts=(WATCHED2,), fills=((0, 0, 0, b"\x40"),))])
+    if read(WATCHED2) != 0x40:
+        return f"after a count: {read(WATCHED2):#x}, wanted 0x40"
+    # the run ends at call 2 after the fill of call 2 was made
+    words = endless(extra=setreg(4, BUF))
+    entries, _, read = logged(words, [R(CALLEE, 1, 0, ends_run_at=2, fills=((2, 0, 0, b"\x9E"),))])
+    return None if read(BUF) == 0x9E and read(FLAG) == 1 and entries == [CALLEE, BUF, CALLEE, BUF] else f"end: {read(BUF):#x}, FLAG {read(FLAG)}, log {hexes(entries)}"
+
+
+def case_fl_footprint_with_fills():
+    return footprint(R(CALLEE, 5, 0x66, pointees={0: 2, 4: 1}, masks={1: 0xFF}, stores=((1, WATCHED2, 5),), counts=(WATCHED,),
+                       fills=((0, 0, 0, b"\x01\x02"), (2, 3, 1, b"\xFF"), (1, 1, 0x7FFF, b"\x03")), ends_run_at=9),
+                     watch=((WATCHED, 1),), v0=0x66)
+
+
+def routine_words(state, log, address):
+    """The words of the recorder's routine at `address` (the stub there jumps to it)."""
+    stub = struct.unpack_from("<I", state.ram, address - D.RAM_BASE)[0]
+    routine = D.RAM_BASE + ((stub & 0x03FFFFFF) << 2)
+    size = next(n for a, n in log.owned if a == routine)
+    return list(struct.unpack_from(f"<{size // 4}I", state.ram, routine - D.RAM_BASE))
+
+
+# The routines that this tool built before fills existed (printed from the tree before the change): a log of 64 words
+# at the first free block of the arena, watching two words at WATCHED, a recorder at CALLEE.
+BEFORE_FILLS = {
+    "plain": (dict(arguments=0, result=0x66),
+              [0x3C088004, 0x35080000, 0x8D0D0000, 0x3C0A8002, 0x354A1000, 0xADAA0000, 0x25AD0004, 0x3C0B8003, 0x356B0100,
+               0x3C0C8003, 0x358C0108, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004, 0xAD0D0000, 0x3C020000,
+               0x03E00008, 0x34420066]),
+    "arguments pointees masks": (dict(arguments=5, result=0x66, pointees={0: 2, 4: 1}, masks={1: 0xFF}),
+              [0x3C088004, 0x35080000, 0x8D0D0000, 0x3C0A8002, 0x354A1000, 0xADAA0000, 0x00805021, 0xADAA0004, 0x00A05021,
+               0x314A00FF, 0xADAA0008, 0x00C05021, 0xADAA000C, 0x00E05021, 0xADAA0010, 0x8FAA0010, 0x00000000, 0xADAA0014,
+               0x25AD0018, 0x00805821, 0x256C0008, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004, 0x8FAB0010,
+               0x00000000, 0x256C0004, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004, 0x3C0B8003, 0x356B0100,
+               0x3C0C8003, 0x358C0108, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004, 0xAD0D0000, 0x3C020000,
+               0x03E00008, 0x34420066]),
+    "results": (dict(arguments=2, results=(7, 8, 9)),
+              [0x3C088004, 0x35080000, 0x8D0D0000, 0x3C0A8002, 0x354A1000, 0xADAA0000, 0x00805021, 0xADAA0004, 0x00A05021,
+               0xADAA0008, 0x25AD000C, 0x3C0B8003, 0x356B0100, 0x3C0C8003, 0x358C0108, 0x8D6A0000, 0x256B0004, 0xADAA0000,
+               0x156CFFFC, 0x25AD0004, 0xAD0D0000, 0x3C0B8004, 0x356B0104, 0x8D6A0000, 0x8D6C0004, 0x000A0880, 0x002B0821,
+               0x8C220008, 0x014C082B, 0x01415021, 0xAD6A0000, 0x03E00008, 0x00000000]),
+    "stores counts ends_run_at": (dict(arguments=1, result=3, stores=((1, 0x80030100, 5), (3, 0x80030200, 6)), counts=(0x80030300,), ends_run_at=4),
+              [0x3C088004, 0x35080000, 0x8D0D0000, 0x3C0A8002, 0x354A1000, 0xADAA0000, 0x00805021, 0xADAA0004, 0x25AD0008,
+               0x3C0B8003, 0x356B0100, 0x3C0C8003, 0x358C0108, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004,
+               0xAD0D0000, 0x3C0B8003, 0x356B0300, 0x8D6A0000, 0x00000000, 0x254A0001, 0xAD6A0000, 0x3C0B8004, 0x356B0104,
+               0x8D6A0000, 0x00000000, 0x254A0001, 0xAD6A0000, 0x240C0001, 0x154C0005, 0x3C0B8003, 0x356B0100, 0x3C0C0000,
+               0x358C0005, 0xAD6C0000, 0x240C0003, 0x154C0005, 0x3C0B8003, 0x356B0200, 0x3C0C0000, 0x358C0006, 0xAD6C0000,
+               0x240C0004, 0x154C0002, 0x00000000, 0x08103C00, 0x00000000, 0x3C020000, 0x03E00008, 0x34420003]),
+    "tail": (dict(arguments=1, tail=(contracts.JR_RA, 0)),
+              [0x3C088004, 0x35080000, 0x8D0D0000, 0x3C0A8002, 0x354A1000, 0xADAA0000, 0x00805021, 0xADAA0004, 0x25AD0008,
+               0x3C0B8003, 0x356B0100, 0x3C0C8003, 0x358C0108, 0x8D6A0000, 0x256B0004, 0xADAA0000, 0x156CFFFC, 0x25AD0004,
+               0xAD0D0000, 0x03E00008, 0x00000000]),
+}
+
+
+def case_fl_recorder_without_fills_has_the_words_it_had():
+    for label, (options, wanted) in BEFORE_FILLS.items():
+        options = dict(options)
+        state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+        log = contracts.CallLog(state, words=64, watch=((WATCHED, 2),))
+        log.replace(CALLEE, options.pop("arguments"), **options)
+        if (got := routine_words(state, log, CALLEE)) != wanted:
+            index = next((i for i, (x, y) in enumerate(zip(got, wanted)) if x != y), min(len(got), len(wanted)))
+            return f"{label}: {len(got)} words against {len(wanted)}, the first to differ is word {index}"
+        # an empty `fills` is no fill
+        options = dict(BEFORE_FILLS[label][0])
+        arguments = options.pop("arguments")
+        state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+        log = contracts.CallLog(state, words=64, watch=((WATCHED, 2),))
+        log.replace(CALLEE, arguments, fills=(), **options)
+        if routine_words(state, log, CALLEE) != wanted:
+            return f"{label} with fills=(): other words"
+    return None
+
+
+def case_fl_a_fill_adds_three_words_after_the_log_update():
+    def words_of(**options):
+        state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+        log = contracts.CallLog(state, words=64, watch=((WATCHED, 2),))
+        log.replace(CALLEE, 1, 0x66, **options)
+        return routine_words(state, log, CALLEE)
+
+    base, filled = words_of(), words_of(fills=((0, 0, 0, b"\x01"),))
+    # word 18 stores the log's cursor (sw t5, 0(t0)); the fill follows it: move t3, a0; addiu t4, zero, 1; sb t4, 0(t3)
+    wanted = base[:19] + [0x00805821, 0x240C0001, 0xA16C0000] + base[19:]
+    if base[18] != 0xAD0D0000 or filled != wanted:
+        return f"{len(filled)} words against {len(wanted)}: {hexes(filled[17:])}"
+    # offset 0x20: one more word, addiu t3, t3, 0x20, and the byte store keeps its own offset 0
+    more = words_of(fills=((0, 0, 0x20, b"\x01"),))
+    return None if more == base[:19] + [0x00805821, 0x256B0020, 0x240C0001, 0xA16C0000] + base[19:] else f"offset: {hexes(more[17:])}"
+
+
+def case_fl_bad_fills_are_refused_by_name():
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    ok = (0, 0, 0, b"\x01")
+    refused = [
+        ({"fills": (ok,), "tail": (contracts.JR_RA, 0)}, "tail"),
+        ({"fills": ((-1, 0, 0, b"\x01"),)}, "call"),
+        ({"fills": ((0, -1, 0, b"\x01"),)}, "argument"),
+        ({"fills": ((0, 4, 0, b"\x01"),)}, "argument"),
+        ({"fills": ((0, 2, 0, b"\x01"),)}, "argument 2 of 2"),
+        ({"fills": ((0, 0, -1, b"\x01"),)}, "offset"),
+        ({"fills": ((0, 0, 0x8000, b"\x01"),)}, "offset"),
+        ({"fills": ((0, 0, 0, b""),)}, "data"),
+        ({"fills": ((0, 0, 0, bytes(257)),)}, "257 bytes"),
+        ({"fills": ((0, 0, 0, "\x01"),)}, "data"),
+        ({"fills": ((0, 0, 0, bytearray(b"\x01")),)}, "data"),
+        ({"fills": ((0, 0, 0, [1]),)}, "data"),
+        ({"fills": ((True, 0, 0, b"\x01"),)}, "whole numbers"),
+        ({"fills": ((0, 0, 0.5, b"\x01"),)}, "whole numbers"),
+        ({"fills": ((0, 0, 0),)}, "(call, argument, offset, data)"),
+        ({"fills": ((0, 0, 0, b"\x01", 1),)}, "(call, argument, offset, data)"),
+        ({"fills": (7,)}, "(call, argument, offset, data)"),
+    ]
+    for option, word in refused:
+        arguments = 2 if "argument 2 of 2" == word else 4
+        try:
+            log.replace(CALLEE, arguments, 0, **option)
+        except ValueError as exc:
+            if word not in str(exc):
+                return f"{option}: the message {str(exc)!r} lacks {word!r}"
+            continue
+        return f"{option} was accepted"
+    # a refusal leaves nothing behind: no recorder was put at CALLEE
+    if CALLEE in log.recorders:
+        return "a refused recorder was kept"
+    # the edges of the ranges are accepted, and the log keeps the fills as given
+    log.replace(CALLEE, 4, 0, fills=((0, 3, 0x7FFF, bytes(256)), (1, 0, 0, b"\x01"), [5, 1, 7, b"\x02"]))
+    return None if log.recorders[CALLEE].fills == ((0, 3, 0x7FFF, bytes(256)), (1, 0, 0, b"\x01"), (5, 1, 7, b"\x02")) else f"{log.recorders[CALLEE].fills}"
+
+
+def pair_report(original, build, replaces, cases=3):
+    """Like `pair_logged`, with the whole result of `test_function` (the report included)."""
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state)
+        for replace in replaces:
+            replace(log)
+        return contracts.Setup(args=(), returns_value=False)
+
+    cfg = types.SimpleNamespace(symbol_values={})
+    with contract_of(LABEL, setup), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(original))):
+        return D.test_function(cfg, LABEL, make_code(build), cases, 1, ram_with_callees(original), bytes(D.SCRATCH_SIZE))
+
+
+def case_fl_fill_through_an_argument_that_is_not_an_address():
+    wild = 0x12345678
+    replaces = [R(CALLEE, 1, 0, fills=((0, 0, 0, b"\x01"),))]
+    # in a run of the original it is a fault, as any wild store: the case is discarded; `logged` raises with the text
+    try:
+        logged(program(("call", CALLEE, [wild], [])), replaces)
+    except RuntimeError as exc:
+        if not str(exc).startswith("fault (") or "UC_ERR_WRITE_UNMAPPED" not in str(exc):
+            return f"the run's text: {exc}"
+    else:
+        return "the wild fill did not fault"
+    good, bad = program(("call", CALLEE, [BUF], [])), program(("call", CALLEE, [wild], []))
+    if (got := pair_report(bad, bad, replaces)[:3]) != (3, 0, 0):
+        return f"the original faults: {got}, wanted all three discarded"
+    result = pair_report(good, bad, replaces)
+    if result[:3] != (0, 0, 3) or not any(line.startswith("build: fault (") and "UC_ERR_WRITE_UNMAPPED" in line for line in result[3]):
+        return f"the build faults: {result[:3]} {result[3]}"
+    return None
+
+
+# fixtures
+
+FILL_FUNCTION = [addiu(SP, SP, -32), sw(RA, SP, 28), addiu(4, SP, 16), jal(CALLEE), NOP, lw(V0, SP, 16), lw(RA, SP, 28),
+                 addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def fill_setup(state, rng, sym):
+    log = contracts.CallLog(state)
+    data = bytes(rng.randrange(1, 256) for _ in range(4))
+    log.replace(CALLEE, 1, 0x44, masks={0: 0}, fills=((0, 0, 0, data),))
+    return contracts.Setup(args=(), returns_value=True)
+
+
+def fill_doc():
+    lines, status, doc, text = fx_record(FILL_FUNCTION, fill_setup, cases=6)
+    if status:
+        raise RuntimeError(f"{lines}")
+    return lines, doc, text
+
+
+def case_fl_record_has_the_fills_and_no_warning():
+    lines, doc, text = fill_doc()
+    if any("warning" in line for line in lines) or not lines[-1].startswith(f"{LABEL} fixtures: kept "):
+        return f"lines {lines}"
+    for fixture in doc["fixtures"]:
+        recorder = fixture["recorders"][0]
+        fills = recorder.get("fills")
+        # the data is what the setup chose, the result is the word the function read from its local
+        if not fills or len(fills) != 1 or fills[0][:3] != [0, 0, 0] or len(fills[0][3]) != 8:
+            return f"case {fixture['case']}: fills {fills}"
+        want = int.from_bytes(bytes.fromhex(fills[0][3]), "little")
+        if fixture["result"] != D.hex8(want) or fixture["calls"][0]["args"] != ["0x00000000"]:
+            return f"case {fixture['case']}: result {fixture['result']}, call {fixture['calls'][0]}"
+        # the function reads only its local, which the fill made: no input, no write outside its stack
+        if fixture["reads"] or fixture["same"] or fixture["writes"]:
+            return f"case {fixture['case']}: reads {fixture['reads']}, same {fixture['same']}, writes {fixture['writes']}"
+    return None if doc["format"] == 1 and '"fills": [[0, 0, 0, "' in text else f"format {doc['format']}"
+
+
+def case_fl_replay_of_the_right_build_passes_and_of_others_fails():
+    _lines, doc, _text = fill_doc()
+    total = len(doc["fixtures"])
+    got, status = fx_replay(doc, FILL_FUNCTION)
+    if status != 0 or got != [f"{LABEL} replay: fixtures {total}, passed {total}, failed 0"]:
+        return f"the build: {status} {got}"
+    # a build that ignores the filled bytes returns 0
+    ignoring = FILL_FUNCTION[:5] + [addiu(V0, ZERO, 0)] + FILL_FUNCTION[6:]
+    got, status = fx_replay(doc, ignoring)
+    first = doc["fixtures"][0]
+    wanted = f"    result: the build gives 0x00000000, the original gave {first['result']}"
+    if status != 1 or got[0] != f"{LABEL} replay: fixtures {total}, passed 0, failed {total}" or wanted not in got:
+        return f"ignoring: {status} {got[:3]}"
+    # a build that reads the word next to the filled one
+    got, status = fx_replay(doc, FILL_FUNCTION[:5] + [lw(V0, SP, 20)] + FILL_FUNCTION[6:])
+    return None if status == 1 and wanted in got else f"neighbour: {status} {got[:3]}"
+
+
+def case_fl_fixtures_file_with_a_changed_fill_fails_the_right_build():
+    _lines, doc, _text = fill_doc()
+    first = doc["fixtures"][0]
+    original = first["recorders"][0]["fills"][0][3]
+    for label, change, line in (
+            ("other data", lambda: first["recorders"][0]["fills"][0].__setitem__(3, "ffffffff"),
+             f"    result: the build gives 0xffffffff, the original gave {first['result']}"),
+            ("other call", lambda: first["recorders"][0]["fills"][0].__setitem__(0, 5),
+             f"    result: the build gives 0x00000000, the original gave {first['result']}"),
+            ("other offset", lambda: first["recorders"][0]["fills"][0].__setitem__(2, 4),
+             f"    result: the build gives 0x00000000, the original gave {first['result']}")):
+        copy = json.loads(json.dumps(doc))
+        first = copy["fixtures"][0]
+        change()
+        got, status = fx_replay(copy, FILL_FUNCTION)
+        if status != 1 or line not in got:
+            return f"{label}: {status} {got[:3]}"
+    return None if original != "ffffffff" else "the data was already ffffffff"
+
+
+def case_fl_record_pointee_shows_the_memory_before_the_fill():
+    # the function writes 0x11111111 to the buffer, then calls with the buffer; the entry holds that word, the fill
+    # then writes 0xAABBCCDD, which is the function's result when it reads the buffer again
+    def setup(state, rng, sym):
+        buffer = state.alloc(8)
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 1, 0x44, pointees={0: 1}, fills=((0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))
+        return contracts.Setup(args=(buffer,), returns_value=True)
+
+    words = [addiu(SP, SP, -32), sw(RA, SP, 28), sw(4, SP, 20), *setreg(T1, 0x11111111), sw(T1, 4, 0), jal(CALLEE), NOP,
+             lw(T1, SP, 20), NOP, lw(V0, T1, 0), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+    lines, status, doc, _ = fx_record(words, setup, cases=3)
+    if status or any("warning" in line for line in lines):
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    buffer = int(fixture["args"][0], 16)
+    # the call holds the changes against the input state: the word the function wrote, not the fill
+    ok = fixture["calls"][0]["pointees"] == {"0": [[0, "11111111"]]} and fixture["result"] == "0xaabbccdd"
+    # the filled bytes are written by the stand-in and not read from the input: the buffer is only in `writes`
+    ok = ok and fixture["reads"] == [] and fixture["writes"] == [[D.hex8(buffer), "ddccbbaa"]]
+    if not ok:
+        return f"{fixture['calls'][0]['pointees']} {fixture['result']} reads {fixture['reads']} writes {fixture['writes']}"
+    got, replay_status = fx_replay(doc, words)
+    if replay_status != 0:
+        return f"replay: {got}"
+    # a build that does not write the word before the call shows other bytes to the pointee
+    got, replay_status = fx_replay(doc, words[:3] + words[6:])
+    wanted = "call 1 to func_callee: argument 1 differs from byte 0 (the build has 0x00 there at this call, the original had 0x11)"
+    return None if replay_status == 1 and any(wanted in line for line in got) else f"without the first write: {replay_status} {got}"
+
+
+def case_fl_reader_refuses_a_fills_that_is_not_of_the_form():
+    _lines, doc, _text = fill_doc()
+    cases = {
+        "not a list": ("x", "fills is not a list"),
+        "an entry of three": ([[0, 0, 0]], "[call, argument, offset, hex of the data]"),
+        "an entry that is not a list": ([7], "[call, argument, offset, hex of the data]"),
+        "odd hex": ([[0, 0, 0, "abc"]], "[call, argument, offset, hex of the data]"),
+        "not hex": ([[0, 0, 0, "zz"]], "[call, argument, offset, hex of the data]"),
+        "no data": ([[0, 0, 0, ""]], "[call, argument, offset, hex of the data]"),
+        "data that is not text": ([[0, 0, 0, 1]], "[call, argument, offset, hex of the data]"),
+        "257 bytes": ([[0, 0, 0, "00" * 257]], "257 bytes"),
+        "call below 0": ([[-1, 0, 0, "01"]], "call"),
+        "call that is text": ([["1", 0, 0, "01"]], "whole numbers"),
+        "argument 4": ([[0, 4, 0, "01"]], "argument 4 of 1"),
+        "argument -1": ([[0, -1, 0, "01"]], "argument -1 of 1"),
+        "argument the recorder does not take": ([[0, 1, 0, "01"]], "argument 1 of 1"),
+        "offset 0x8000": ([[0, 0, 0x8000, "01"]], "offset"),
+        "offset -1": ([[0, 0, -1, "01"]], "offset"),
+        "offset that is a float": ([[0, 0, 1.5, "01"]], "whole numbers"),
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        path = D.fixtures_path(Path(tmp), LABEL)
+        path.write_text(json.dumps(doc))
+        D.load_fixtures(path, LABEL)  # the good file is read
+        for label, (fills, word) in cases.items():
+            copy = json.loads(json.dumps(doc))
+            copy["fixtures"][0]["recorders"][0]["fills"] = fills
+            path.write_text(json.dumps(copy))
+            try:
+                D.load_fixtures(path, LABEL)
+            except D.FixtureError as exc:
+                if "fixture 0" not in str(exc) or "fills" not in str(exc) or word not in str(exc):
+                    return f"{label}: the message {exc}"
+                continue
+            return f"{label}: the file was read"
+        # a second fixture is looked at too
+        copy = json.loads(json.dumps(doc))
+        copy["fixtures"][1]["recorders"][0]["fills"] = [[0, 0, 0x8000, "01"]]
+        path.write_text(json.dumps(copy))
+        try:
+            D.load_fixtures(path, LABEL)
+        except D.FixtureError as exc:
+            return None if "fixture 1" in str(exc) else f"{exc}"
+    return "a bad fill in the second fixture was read"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -5961,6 +6396,22 @@ CASES = [
     ("p-run-begins-with-the-states-global-pointer", case_p_run_begins_with_the_states_global_pointer),
     ("p-every-mode-begins-with-the-programs-global-pointer", case_p_every_mode_begins_with_the_programs_global_pointer),
     ("p-replay-begins-with-the-programs-global-pointer", case_p_replay_begins_with_the_programs_global_pointer),
+    ("fl-local-at-two-places-of-two-frames", case_fl_local_at_two_places_of_two_frames),
+    ("fl-call-zero-against-call-n", case_fl_call_zero_against_call_n),
+    ("fl-pointee-shows-the-bytes-from-before-the-fill", case_fl_pointee_shows_the_bytes_from_before_the_fill),
+    ("fl-later-fill-of-a-call-wins", case_fl_later_fill_of_a_call_wins),
+    ("fl-unaligned-odd-and-long-fills", case_fl_unaligned_odd_and_long_fills),
+    ("fl-fills-come-after-stores-and-counts-and-before-the-end", case_fl_fills_come_after_stores_and_counts_and_before_the_end),
+    ("fl-footprint-with-fills", case_fl_footprint_with_fills),
+    ("fl-recorder-without-fills-has-the-words-it-had", case_fl_recorder_without_fills_has_the_words_it_had),
+    ("fl-a-fill-adds-three-words-after-the-log-update", case_fl_a_fill_adds_three_words_after_the_log_update),
+    ("fl-bad-fills-are-refused-by-name", case_fl_bad_fills_are_refused_by_name),
+    ("fl-fill-through-an-argument-that-is-not-an-address", case_fl_fill_through_an_argument_that_is_not_an_address),
+    ("fl-record-has-the-fills-and-no-warning", case_fl_record_has_the_fills_and_no_warning),
+    ("fl-replay-of-the-right-build-passes-and-of-others-fails", case_fl_replay_of_the_right_build_passes_and_of_others_fails),
+    ("fl-fixtures-file-with-a-changed-fill-fails-the-right-build", case_fl_fixtures_file_with_a_changed_fill_fails_the_right_build),
+    ("fl-record-pointee-shows-the-memory-before-the-fill", case_fl_record_pointee_shows_the_memory_before_the_fill),
+    ("fl-reader-refuses-a-fills-that-is-not-of-the-form", case_fl_reader_refuses_a_fills_that_is_not_of_the_form),
 ]
 
 

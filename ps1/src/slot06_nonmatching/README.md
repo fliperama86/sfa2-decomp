@@ -90,6 +90,20 @@ buffer the caller hands it or returns that buffer's address: that is a
 model written by the contract's author, and the function's header says
 what it models and from what that is known.
 
+A callee that only stores given bytes through one of its pointer arguments
+needs no machine code: `fills` says it as data, `(call, argument, offset,
+data)` for each fill. At the call (0: every call; N: the N-th only) the
+recorder stores `data` (1 to 256 bytes) at the value of that argument plus
+`offset` (0 to 0x7fff), after the entry is logged and after `stores` and
+`counts`, before the run is ended or the result returned. The address is the
+argument's value at the call, so it works where the argument is the address of
+a local, which the two codes place differently and which no contract can name
+(give the argument the mask 0). Its limits: the argument is one of the four
+register arguments; the data is chosen by the contract and is not computed from
+the call (a callee that copies from one argument to another, or returns an
+argument, still needs a `tail`); and `fills` and `tail` cannot be used together.
+A fixture holds the fills, so a function with them has a record and a replay.
+
 ## What a pass does not show
 
 A pass is evidence for the tested inputs only. It is not a proof of
@@ -485,9 +499,21 @@ Choices of the tool, each of them a decision to review:
 - `same` holds bytes the original stored without changing them and did not
   read; without them such a store would look like an extra write in the replay.
 - The stand-ins' own options that stand for what a callee does to memory
-  (`stores`, `counts`, `ends_run_at`, `masks`) are part of the fixture; a stand-in
-  with a `tail` (machine code of the contract's own) cannot be described and the
-  record refuses it with status 2.
+  (`stores`, `counts`, `ends_run_at`, `masks`, `fills`) are part of the fixture; a
+  stand-in with a `tail` (machine code of the contract's own) cannot be described
+  and the record refuses it with status 2. A recorder's `fills` is a list of
+  `[call, argument, offset, hex of the data]`; the file's format number does not
+  change, and the reader refuses a `fills` that is not of that form, or out of
+  range for the recorder, naming the fixture. The bytes a fill wrote are, for
+  what the function reads afterwards, memory that something wrote earlier: they
+  are not in `reads` and not "memory the setup did not make". Like the bytes a
+  `stores` writes, they are written by the stand-in and not by the function, and
+  are found by the same hook: they are in `writes` when they lie outside the
+  function's stack region and change a byte, in the comparison and in the write
+  audit as for any other byte of memory, and the replay's recorder makes them
+  again. The native replay (`port/tools/hostfixtures.py`) does not replay a
+  function whose fixtures have `fills` (the native harness's stand-ins cannot
+  write through an argument yet) and says so.
 - The reads and writes are found by looking at each instruction before it runs,
   not with the emulator's memory hooks: with a memory hook, Unicorn 2.1.4 ends a
   run with an exception when a load or store lies in the delay slot of a
@@ -676,7 +702,19 @@ the filler value that cannot be missed, a
 stand-in at an unnamed address with its pointer cell, the options of a
 stand-in, that the replay never runs the original and reads no contract, the
 input errors of the options, and the decoding of the call log by
-`contracts.CallLog`.
+`contracts.CallLog`. Group FL checks `fills`: a local at two places of two
+frames is filled in both and a build that reads the neighbouring byte differs;
+a fill at every call against one at the N-th; a pointee that shows the bytes
+from before the fill; the later of two overlapping fills; an unaligned offset,
+an odd length, 256 bytes and the largest offset; the order against `stores`,
+`counts` and `ends_run_at`; the recorder's footprint; that a recorder without
+fills has the words it had before fills existed (listed in the test); each
+refusal by name; a fill through an argument that is not an address (a fault,
+as any wild store: the original's case is discarded, the build's is `build:
+fault (Invalid memory write (UC_ERR_WRITE_UNMAPPED))`); and the record (the
+fills in the file, no warning, the filled bytes not in `reads`), the replay of
+the right build and of builds that fail it, a file whose fill was changed by
+hand, and the reader's refusals.
 
 ## Controls that need the toolchain
 

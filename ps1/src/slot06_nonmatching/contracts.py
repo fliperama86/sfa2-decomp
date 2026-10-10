@@ -84,6 +84,10 @@ def _addiu(rt: int, rs: int, value: int) -> int:
     return 0x24000000 | rs << 21 | rt << 16 | value & 0xFFFF
 
 
+def _sb(rt: int, offset: int, base: int) -> int:
+    return 0xA0000000 | base << 21 | rt << 16 | offset & 0xFFFF
+
+
 # Copy words from t3 up to t4 to where t5 points, moving t5 along:
 #   lw t2, 0(t3); addiu t3, t3, 4; sw t2, 0(t5); bne t3, t4, back to the lw; addiu t5, t5, 4 (delay slot)
 _COPY = [_lw(_T2, 0, _T3), _addiu(_T3, _T3, 4), _sw(_T2, 0, _T5),
@@ -110,6 +114,7 @@ class Recorder:
     stores: tuple
     counts: tuple
     tail: bool
+    fills: tuple = ()  # ((call, argument, offset, data), ...) as `CallLog.replace` was given them
 
     def returned(self, number: int) -> int:
         """The value that the recorder returns at its `number`-th call (from 0)."""
@@ -174,7 +179,8 @@ class CallLog:
     def replace(self, address: int, arguments: int, result: int = 0, pointees: dict[int, int] | None = None,
                 masks: dict[int, int] | None = None, results: tuple[int, ...] = (), ends_run_at: int = 0,
                 stores: tuple[tuple[int, int, int], ...] = (), counts: tuple[int, ...] = (),
-                tail: tuple[int, ...] | None = None) -> None:
+                tail: tuple[int, ...] | None = None,
+                fills: tuple[tuple[int, int, int, bytes], ...] = ()) -> None:
         """Put a recorder in place of the function at `address`.
 
         `arguments` is how many arguments the callee takes (the fifth and
@@ -234,6 +240,9 @@ class CallLog:
                 raise ValueError(f"argument {index} of {arguments} cannot have the mask {mask:#x}")
         if ends_run_at < 0:
             raise ValueError("ends_run_at counts calls from 1")
+        fills = self._checked_fills(fills, arguments)
+        if fills and tail is not None:
+            raise ValueError("fills and a tail cannot be used together: a tail is machine code of the contract's own")
         for number, target, _ in stores:
             if number < 1 or target % 4:
                 raise ValueError(f"a store needs a call number from 1 and a word-aligned address, not {number}, {target:#x}")
@@ -259,7 +268,7 @@ class CallLog:
         code.append(_sw(_T5, 0, _T0))
         for target in counts:
             code += [_lui(_T3, target), _ori(_T3, _T3, target), _lw(_T2, 0, _T3), 0, _addiu(_T2, _T2, 1), _sw(_T2, 0, _T3)]
-        if ends_run_at or stores:
+        if ends_run_at or stores or any(number for number, _a, _o, _d in fills):
             # A cell counts this recorder's calls; t2 holds the number of this call from here on.
             cell = self._alloc(4)
             code += [_lui(_T3, cell), _ori(_T3, _T3, cell), _lw(_T2, 0, _T3), 0, _addiu(_T2, _T2, 1), _sw(_T2, 0, _T3)]
@@ -268,11 +277,22 @@ class CallLog:
                          0x14000000 | _T2 << 21 | _T4 << 16 | 5,  # bne t2, t4, past this store
                          _lui(_T3, target), _ori(_T3, _T3, target), _lui(_T4, value), _ori(_T4, _T4, value),
                          _sw(_T4, 0, _T3)]
-            if ends_run_at:
-                # At the N-th call the run jumps to where a returning function would end.
-                code += [_addiu(_T4, 0, ends_run_at),
-                         0x14000000 | _T2 << 21 | _T4 << 16 | 2,  # bne t2, t4, past the jump
-                         0, 0x08000000 | (self.state.stop >> 2) & 0x03FFFFFF, 0]  # nop; j stop; nop
+        for number, index, offset, data in fills:
+            # t3 = the argument + offset (a 16-bit offset of the byte stores could not reach every byte), then
+            # each byte through t4. t2 (the call number) and the argument registers are not touched.
+            body = self._argument(index, _T3)
+            if offset:
+                body.append(_addiu(_T3, _T3, offset))
+            for position, byte in enumerate(data):
+                body += [_addiu(_T4, 0, byte), _sb(_T4, position, _T3)]
+            if number:
+                code += [_addiu(_T4, 0, number), 0x14000000 | _T2 << 21 | _T4 << 16 | len(body) + 1, 0]  # bne t2, t4, past the fill
+            code += body
+        if ends_run_at:
+            # At the N-th call the run jumps to where a returning function would end.
+            code += [_addiu(_T4, 0, ends_run_at),
+                     0x14000000 | _T2 << 21 | _T4 << 16 | 2,  # bne t2, t4, past the jump
+                     0, 0x08000000 | (self.state.stop >> 2) & 0x03FFFFFF, 0]  # nop; j stop; nop
         if tail is not None:
             code += list(tail)
         elif results:
@@ -298,7 +318,30 @@ class CallLog:
         self.state.w32(address + 4, 0)
         self.owned.append((address, 8))
         self.recorders[address] = Recorder(address, arguments, pointees, dict(masks), result, tuple(results), ends_run_at,
-                                           tuple(stores), tuple(counts), tail is not None)
+                                           tuple(stores), tuple(counts), tail is not None, fills)
+
+    @staticmethod
+    def _checked_fills(fills, arguments: int) -> tuple:
+        """`fills` as a tuple of (call, argument, offset, bytes); ValueError naming what is wrong."""
+        found = []
+        for fill in fills:
+            if not isinstance(fill, (tuple, list)) or len(fill) != 4:
+                raise ValueError(f"a fill is (call, argument, offset, data), not {fill!r}")
+            call, argument, offset, data = fill
+            if any(not isinstance(v, int) or isinstance(v, bool) for v in (call, argument, offset)):
+                raise ValueError(f"a fill needs whole numbers for the call, the argument and the offset, not {fill[:3]!r}")
+            if call < 0:
+                raise ValueError(f"a fill's call is 0 (every call) or the number of a call from 1, not {call}")
+            if not 0 <= argument < min(arguments, 4):
+                raise ValueError(f"a fill goes through a register argument (0 to 3) that the callee takes: "
+                                 f"argument {argument} of {arguments}")
+            if not 0 <= offset <= 0x7FFF:
+                raise ValueError(f"a fill's offset is 0 to 0x7fff, not {offset:#x}")
+            if not isinstance(data, bytes) or not 1 <= len(data) <= 256:
+                size = f"{len(data)} bytes" if isinstance(data, bytes) else type(data).__name__
+                raise ValueError(f"a fill's data is 1 to 256 bytes, not {size}")
+            found.append((call, argument, offset, data))
+        return tuple(found)
 
     def entry_words(self, address: int) -> int:
         """The words that one call of the recorder at `address` adds to the log."""

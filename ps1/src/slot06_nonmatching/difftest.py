@@ -144,7 +144,7 @@ without running the original code. A fixture is one case of the function in term
                   bytes of the case's input that only an original callee read (format 2)
     recorders     the recorder of each callee that the contract replaced: name (the symbol table's, else the address), address,
                   number of arguments, the options of the recorder that are not return values
-                  (pointees, masks, stores, counts, ends_run_at) and, for a recorder in a block of
+                  (pointees, masks, stores, counts, fills, ends_run_at) and, for a recorder in a block of
                   the setup's own, the pointer cell (the aligned word of `reads` that holds its address)
     watch         the watched blocks of the call log
     callees       (format 2, only in a fixture that has an original call) the callees that run as the game's
@@ -161,6 +161,19 @@ without running the original code. A fixture is one case of the function in term
     ends_in_callee  the run ended inside a recorder (a function that never returns)
     registers     only when the original did not restore the saved registers and sp
     note, seed, case  why the case was kept, and where it came from
+
+FILLS. A recorder of the contract can store given bytes through one of its register arguments (`fills` of
+`CallLog.replace`, [call, argument, offset, hex of the data] in the file; the format number is the same). At the
+call it stores the data at the argument's value plus the offset, after its entry is logged and after its `stores`
+and `counts`. The address is the argument's value at the call, which is how it stands for a callee that fills a
+local of the function (the two codes place a local differently; give the argument the mask 0). Limits: register
+arguments only, and the data is chosen by the contract, not computed from the call. In a record the bytes a fill
+wrote are, for what the function reads afterwards, memory that something wrote earlier: not in `reads`, not memory
+the setup did not make. Like a `stores` word they are the stand-in's, not the function's, found by the same hook:
+they are in `writes` when they lie outside the stack region and change a byte (the replay's recorder makes them
+again), and the comparison and the write audit count them as they count any byte of memory. The reader refuses a
+`fills` that is not of the form or is out of range for its recorder (status 2). The native replay does not replay
+a function whose recorders have fills.
 
 ORIGINAL CALLEES. A callee that the contract did not replace (`CallLog.replace`) runs as the game's own code
 in the original's run: an ORIGINAL CALLEE. Its call begins at the first instruction that lies outside the
@@ -1768,6 +1781,8 @@ def recorder_text(recorder: contracts.Recorder, label: str, cell: int | None) ->
         found["cell"] = hex8(cell)
     if recorder.counts:
         found["counts"] = [hex8(a) for a in recorder.counts]
+    if recorder.fills:
+        found["fills"] = [[call, argument, offset, data.hex()] for call, argument, offset, data in recorder.fills]
     if recorder.ends_run_at:
         found["ends_run_at"] = recorder.ends_run_at
     if recorder.masks:
@@ -2061,6 +2076,12 @@ def load_fixtures(path: Path, name: str) -> dict:
             raise FixtureError(f"{path.name}: fixture {number} lacks {', '.join(missing)}")
         if doc["format"] == 1 and "callees" in fixture:
             raise FixtureError(f"{path.name}: fixture {number} has callees, which only format 2 has")
+        for recorder in fixture["recorders"] if isinstance(fixture["recorders"], list) else []:
+            if isinstance(recorder, dict) and "fills" in recorder:
+                try:
+                    fills_of(recorder)
+                except ValueError as exc:
+                    raise FixtureError(f"{path.name}: fixture {number}: a recorder's fills are malformed: {exc}") from exc
         for call in fixture["calls"] if isinstance(fixture["calls"], list) else []:
             original = isinstance(call, dict) and call.get("original") is True
             if original and doc["format"] == 1:
@@ -2069,6 +2090,24 @@ def load_fixtures(path: Path, name: str) -> dict:
             if lacking:
                 raise FixtureError(f"{path.name}: a call of fixture {number} lacks {', '.join(lacking)}")
     return doc
+
+
+def fills_of(recorder: dict) -> tuple:
+    """The fills of a recorder of a fixture as `CallLog.replace` takes them: from [call, argument, offset, hex].
+    ValueError says what is wrong."""
+    found = []
+    listed = recorder["fills"]
+    if not isinstance(listed, list):
+        raise ValueError(f"fills is not a list: {listed!r}")
+    for fill in listed:
+        if not isinstance(fill, list) or len(fill) != 4 or not isinstance(fill[3], str) \
+                or not re.fullmatch(r"(?:[0-9a-fA-F]{2})+", fill[3]):
+            raise ValueError(f"a fill is [call, argument, offset, hex of the data], not {fill!r}")
+        found.append((fill[0], fill[1], fill[2], bytes.fromhex(fill[3])))
+    arguments = recorder.get("arguments")
+    if not isinstance(arguments, int) or isinstance(arguments, bool):
+        raise ValueError(f"the recorder's arguments is not a number: {arguments!r}")
+    return contracts.CallLog._checked_fills(found, arguments)
 
 
 def replay_memory(fixture: dict, gp: int = 0) -> tuple[State, dict[int, int]]:
@@ -2136,7 +2175,8 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
                     masks={int(i): m for i, m in recorder.get("masks", {}).items()} or None,
                     results=results, ends_run_at=recorder.get("ends_run_at", 0),
                     stores=tuple((n, int(a, 16), int(v, 16)) for n, a, v in recorder.get("stores", ())),
-                    counts=tuple(int(a, 16) for a in recorder.get("counts", ())))
+                    counts=tuple(int(a, 16) for a in recorder.get("counts", ())),
+                    fills=fills_of(recorder) if "fills" in recorder else ())
     return log
 
 
