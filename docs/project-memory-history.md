@@ -8350,3 +8350,117 @@ No function count changes here. Nothing under `ps1/` changed.
   the timer thread runs; it is code that is on main, not this layer's,
   and its fix is a change of its own. The next run of the same case
   passed.
+
+## The port draws through PsyZ (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/gpu.c` with the graphics library's host
+  routines, the picture dump, and `test_hostgpu.py`. It exists only in
+  a program built with `hostbuild.py --psyz`. The page has what is
+  served by PsyZ and what by the port, what ends the program, and
+  where the picture is known to differ from the console's.
+- What differs from the state that drew the private trial's pictures,
+  from the lessons of the earlier reviews:
+  - The lists and rectangles are checked as the game's data against
+    the RAM and the frame buffer; the trial's state followed whatever
+    it was given.
+  - A rectangle outside the frame buffer ends the program. The worker
+    had made it a skip that returns -1, with a line; I turned that
+    down: it is behaviour that neither the console nor the game has.
+    The console wraps; until the port does the same, it stops.
+  - The layer had an "override" of `PutDrawEnv`. That function is the
+    library's and has no C in the build, so it is an ordinary library
+    row; the override mechanism is for game functions with C only.
+  - PsyZ crashed when a list was the first thing drawn (its vertex
+    buffer did not exist yet). The layer now makes PsyZ create it when
+    the layer starts, without drawing a pixel; the worker's first fix
+    cleared one pixel, which I turned down for the same reason as the
+    skip.
+- The owner's review of the first version (PR 135), in his words: "The
+  list walker validates only the first GP0 command of each packet ...
+  but hands every payload word to PsyZ, which decodes subsequent
+  commands too", shown by him with a packet whose second command was a
+  fill without its position and size: it drew with the rectangle of an
+  earlier packet that was still in the conversion buffer. The walker
+  now steps through every command of a packet before PsyZ sees a word,
+  and PsyZ gets the packet's words only. A kind the walker does not
+  decode ends the program; the worker had made that a report and a
+  skip, which I turned down as with the rectangle.
+- Two checks of the first version refused the real game, found by the
+  private trial once the layers were put together: the game's start-up
+  calls `SetDispMask` before `ResetGraph(0)`, and its first
+  `ClearImage` takes a rectangle that is a local, which on a PC is on
+  the host's stack and not in the PS1's RAM. I had told the worker
+  "every pointer the game hands over lies in the RAM" without thinking
+  of where a local lives when the game's C is compiled natively. One
+  routine of the runtime now says which memory is the game's: the RAM,
+  the scratchpad, and the live part of the calling task's stack.
+- The controls opened one window per case, and I let a worker run four
+  chains of them at once for its mutants. The owner, at the same
+  machine, asked who was opening instances of the game every second. I
+  stopped them. The controls run on SDL's offscreen driver now, one run
+  at a time, and a mutant only against the cases that should notice it.
+- Width and height of zero or less: what the library does with them was
+  read from its code in the original (no C for those two routines is
+  in the tree), and PsyZ's own decompiled copy does something else.
+  The port follows the original's.
+- Not shown: any picture of the real game from a published commit; and
+  no comparison of a picture with the console's.
+- 2026-10-10: the controls' own rig stopped a program that outlasted
+  its time with `taskkill.exe` by image name, one fixed name. A second
+  run of the file on the same machine (the review's frozen checkout
+  beside mine) then lost programs to the first one's stop: on my
+  second run of the one-command review, one case got no line and
+  status 1 while every case had passed minutes before. The stop by
+  name was never needed: a program started through WSL ends with the
+  Linux process that started it (tried with `ping.exe` and with the
+  trial program). It is removed. A case starts the same program under
+  the same file name from another folder, lets its own program run
+  out of time, and requires that its own is gone and the other one
+  ends by itself; with the stop by name put back, that case fails
+  (the other program has status 1 and no last line). The program's
+  file name also carries a random token of the run, so that an older
+  copy of the file beside it cannot stop this run's program. Runs of
+  this pull request's earlier heads beside a reviewer's run may have
+  cost that run a case in the same way.
+
+- 2026-10-10, second review of this pull request (at `1ba036a`): the
+  owner showed that the walker accepted the lines `0x44` and `0x54` as
+  three and four words while PsyZ's line decoder reads their bit 2 as a
+  padded form and takes one word more, the next command's first word, so
+  a complete fill after such a line was lost with status 0. The decision
+  at the top level: refuse every kind whose length PsyZ reads otherwise,
+  never rewrite it (a rewrite would claim that the console treats the two
+  forms alike, which nothing here shows), and compare both sides for all
+  256 kinds, not only the lines. The comparison is in the comment above
+  `command_words` in `port/src/gpu.c`, with file and line of PsyZ's
+  decoder. The only kinds that were accepted and are read otherwise are
+  `0x44` to `0x47` and `0x54` to `0x57`; they are refused with the line
+  `... (line with a flag bit that the library the port draws with reads as
+  a longer command) at word N; the port does not decode this kind yet`.
+  The standard primitive codes of the SDK (`0x40`, `0x50` with the
+  semi-transparency or raw bit) are still accepted.
+- The control is a sweep over all 256 kinds in `test_hostgpu.py`
+  (section `stream`): an accepted kind, with arguments whose top byte is
+  `0x03` (PsyZ reports such a word as an unsupported command, should it
+  take one for a command), then a complete blue fill, then the kind again
+  as the last command of the packet; a refused kind ends with the line
+  that names it and the pixel unchanged. PsyZ's report reaches the rig
+  (a copy of the layer that forwards a no-operation kind is run to show
+  it, as a case). A first version had the kind only before the fill; a
+  walker that counted a kind one word too long went unnoticed, because
+  the fill's words are forwarded as they are. Ending the packet with the
+  kind catches it. One-off figures of the work: 302 cases in the section
+  `stream` after the change, 542 in the file. A case of the section
+  `images` failed once in a full run (status 1 and no line, for a
+  `MoveImage` pointer past the scratchpad) and passed in a run of its
+  section and in the next full run; not explained.
+- One run that could not be explained. A full run of the graphics
+  controls on this branch failed one case (a rectangle pointer past
+  the scratchpad): its program ended with status 1 and none of the
+  lines the rig keeps. The same section alone passed, and so did the
+  next full run. The rig kept only the lines it knows, so what that
+  program printed is lost. It now prints, under a failing case, the
+  status and every line of the last program run, so that the next
+  such run says what happened. No retry was added.

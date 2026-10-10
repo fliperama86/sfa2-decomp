@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "6e37b95e9e1a3757eba4f5d5ff51e415720d61ed9bcdd19e7b8128875c99551c",
+  "sha256": "4f653f1a1a9dfda05ab906b53d169669971a50f037fa343ade845f178d5ac9c2",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -537,6 +537,10 @@
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
       "line": 8269
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
+      "line": 8354
     }
   ]
 }
