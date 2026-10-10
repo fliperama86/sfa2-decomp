@@ -8167,6 +8167,39 @@ Not claimed: that a form or any name is the original's, or that two
 functions with like instructions come from one piece of original
 source. No run of the game.
 
+## Three more functions exact from the unattended search (2026-10-10)
+
+- `func_801b33b8_slot04_06` and `func_801cb3b8_slot05_06`, 180 bytes
+  each: one function of a character, in the first side's file
+  `PL06.PAC` and in the second side's `PL06X.PAC`, which is built from
+  units of its own. Their instructions are the same but for addresses.
+  The first was parked with 3 differing instruction slots. The search
+  found the bytes with one local that holds two values in turn:
+  whether a field is set, and later the halved value of another. Each
+  measured on the final text of both units with `fndiff.py --rebuild`,
+  with the same result: the test in place, 3 slots; the shift in
+  place, 3; both in place, 3; a local for each, 3. The second unit
+  takes the first one's form.
+- `func_8014a94c`, 256 bytes, resident, parked with 4 slots. The
+  search found the bytes by using the local that held the list's
+  halfword a second time, for the field that the first test reads.
+  Its form had the whole condition as one chained expression with
+  assignments and a call inside. Written as plain tests with one
+  shared exit (`goto none`) the unit is exact too, and that form is
+  kept; two nested forms without `goto` are 11 slots off and 4 bytes
+  shorter. A cast of the compared value and two casts of a pointer
+  came out. Measured on the final text: the field tested in place, 4
+  slots; the halfword put together in one statement, 13; its high byte
+  stored straight from the shift, 6 and 8 bytes shorter; the halfword
+  read straight into the signed local, 3 and 4 bytes shorter.
+
+Evidence: the three units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,422 of 5,600 distinct functions exact, 12,846 of 13,072 placements: three placements more and two distinct functions more, since the pair is one function to the map.
+
+Not claimed: that a form or any name is the original's. No run of the
+game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
