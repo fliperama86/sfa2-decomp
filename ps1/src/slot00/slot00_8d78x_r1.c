@@ -3,6 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
+/* The form of func_801b5c6c_slot04_09 of a character file, with two other
+   constants, another source field for the last byte, and without the byte
+   that one clears. */
 void func_80078d78_slot00(Object *o) {
     Object *p;
     u16 y;
