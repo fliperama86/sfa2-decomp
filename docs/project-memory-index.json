@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "9228ba369fc0fe5fb5a07f377b5936ba6b2b80d3cabdf9fc11a10edefcf68fc1",
+  "sha256": "7b7c6eb1be7ea1f05289646f5ce6fdf77db0a77ca4cf9517f7e49f1bb2b64de5",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -649,6 +649,10 @@
     {
       "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
       "line": 9654
+    },
+    {
+      "title": "The program built from published code starts the game and plays (2026-10-10)",
+      "line": 9713
     }
   ]
 }
