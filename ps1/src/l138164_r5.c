@@ -40,8 +40,8 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
     return;
 apply:
     object->slots[index].field_00++;
-    ((u8 *)&object->slots[index].field_02)[0]--;
-    ((u8 *)&object->slots[index].field_02)[1] = dir;
+    object->slots[index].field_02--;
+    object->slots[index].field_03 = dir;
     if (dir == -1) {
         object->slots[index].field_01--;
     } else {

@@ -20,7 +20,7 @@ void func_8013dd8c(Object *object, u8 index) {
     int step = object->slots[index].field_01;
 
     game_state.field_35c = step;
-    if (((u8 *)&object->slots[index].field_02)[1] & 0x80) {
+    if (object->slots[index].field_03 & 0x80) {
         game_state.field_35c = step - 1;
     } else {
         game_state.field_35c = step + 1;
