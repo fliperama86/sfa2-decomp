@@ -8154,3 +8154,35 @@ No function count changes here. Nothing under `ps1/` changed.
   copy of the file beside it cannot stop this run's program. Runs of
   this pull request's earlier heads beside a reviewer's run may have
   cost that run a case in the same way.
+
+- 2026-10-10, second review of this pull request (at `1ba036a`): the
+  owner showed that the walker accepted the lines `0x44` and `0x54` as
+  three and four words while PsyZ's line decoder reads their bit 2 as a
+  padded form and takes one word more, the next command's first word, so
+  a complete fill after such a line was lost with status 0. The decision
+  at the top level: refuse every kind whose length PsyZ reads otherwise,
+  never rewrite it (a rewrite would claim that the console treats the two
+  forms alike, which nothing here shows), and compare both sides for all
+  256 kinds, not only the lines. The comparison is in the comment above
+  `command_words` in `port/src/gpu.c`, with file and line of PsyZ's
+  decoder. The only kinds that were accepted and are read otherwise are
+  `0x44` to `0x47` and `0x54` to `0x57`; they are refused with the line
+  `... (line with a flag bit that the library the port draws with reads as
+  a longer command) at word N; the port does not decode this kind yet`.
+  The standard primitive codes of the SDK (`0x40`, `0x50` with the
+  semi-transparency or raw bit) are still accepted.
+- The control is a sweep over all 256 kinds in `test_hostgpu.py`
+  (section `stream`): an accepted kind, with arguments whose top byte is
+  `0x03` (PsyZ reports such a word as an unsupported command, should it
+  take one for a command), then a complete blue fill, then the kind again
+  as the last command of the packet; a refused kind ends with the line
+  that names it and the pixel unchanged. PsyZ's report reaches the rig
+  (a copy of the layer that forwards a no-operation kind is run to show
+  it, as a case). A first version had the kind only before the fill; a
+  walker that counted a kind one word too long went unnoticed, because
+  the fill's words are forwarded as they are. Ending the packet with the
+  kind catches it. One-off figures of the work: 302 cases in the section
+  `stream` after the change, 542 in the file. A case of the section
+  `images` failed once in a full run (status 1 and no line, for a
+  `MoveImage` pointer past the scratchpad) and passed in a run of its
+  section and in the next full run; not explained.

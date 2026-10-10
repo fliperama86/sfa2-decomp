@@ -881,6 +881,81 @@ def same(got, want):
 
 
 
+# ---- both sides of the interface between the walker and PsyZ, kind by kind ----
+# The console's length of a command and the number of words PsyZ's decoder takes for it, worked out HERE for all 256
+# kinds (the console's from the GP0 command list of psx-spx, PsyZ's by reading its decoder in the pinned copy:
+# src/psyz/libgpu.c DispatchPackets and src/platform/sdl3_gpu.c Draw_PushPrim, line numbers in the comment of gpu.c's
+# walker). The sweep below uses them as the expected outcome of each kind; they are never read back from gpu.c.
+
+def console_length(code: int) -> int | None:
+    """Words of the command whose first word has this top byte; None where the length is not fixed by the kind or the
+    kind is not decoded by the port (polylines, the copies that carry data, the interrupt request)."""
+    if code in (0x00, 0x01, 0xE0) or 0x03 <= code <= 0x1E or 0xE1 <= code <= 0xE6 or code >= 0xE7:
+        return 1                                                    # no-operation, cache clear, the setting words
+    if code == 0x02:
+        return 3
+    if code == 0x80:
+        return 4
+    if 0x20 <= code <= 0x3F:                                        # polygons: bit 3 quad, bit 2 textured, bit 4 gouraud
+        vertices = 4 if code & 0x08 else 3
+        return 1 + vertices + (vertices if code & 0x04 else 0) + (vertices - 1 if code & 0x10 else 0)
+    if 0x40 <= code <= 0x5F:                                        # lines: bit 3 makes a polyline; bit 2 means nothing here
+        return None if code & 0x08 else (4 if code & 0x10 else 3)
+    if 0x60 <= code <= 0x7F:                                        # rectangles: the size is in a word when bits 4..3 are clear
+        return 2 + (1 if code & 0x04 else 0) + (1 if code & 0x18 == 0 else 0)
+    return None                                                     # 0x1F, 0x81..0x9F, 0xA0..0xDF
+
+
+def psyz_length(code: int) -> tuple[int, bool]:
+    """(words PsyZ takes, whether it reports the kind as unsupported) for a command whose first word has this top byte,
+    given enough words after it."""
+    if code in (0x00, 0x01, 0xA0, 0xC0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6):
+        return 1, False                                             # libgpu.c:63-115 (0xA0 and 0xC0 step one word)
+    if code == 0x02:
+        return 3, False                                             # libgpu.c:69-78
+    if code == 0x80:
+        return 4, False                                             # libgpu.c:79-88
+    if 0x20 <= code <= 0x3F:                                        # sdl3_gpu.c:1105-1136: a writePacket per vertex, a colour word read ahead after the last
+        vertices = 4 if code & 0x08 else 3
+        textured, gouraud = 1 if code & 0x04 else 0, 1 if code & 0x10 else 0
+        return 1 + vertices * (1 + textured + gouraud) - gouraud, False
+    if 0x40 <= code <= 0x5F:                                        # sdl3_gpu.c:1159-1199
+        points = ((code >> 2) & 3) + 1
+        padding = points != 1
+        points = 2 if points == 1 else points
+        gouraud = 1 if code & 0x10 else 0
+        return 1 + points + (points - 1) * gouraud + (1 if padding else 0), False
+    if 0x60 <= code <= 0x7F:                                        # sdl3_gpu.c:1270-1343
+        return 2 + (1 if code & 0x04 else 0) + (1 if (code & ~3) in (0x60, 0x64) else 0), False
+    return 1, True                                                  # libgpu.c:132, "unsupported command"
+
+
+def kind_is_accepted(code: int) -> bool:
+    """What the walker must do with a kind: the no-operation kinds are accepted (and kept from PsyZ); any other kind only
+    where the console's length and PsyZ's are the same."""
+    console = console_length(code)
+    if console is None:
+        return False
+    if psyz_length(code)[1]:
+        return True                                                 # a no-operation: left out of what PsyZ gets
+    return console == psyz_length(code)[0]
+
+
+def kind_refusal_name(code: int) -> str:
+    if code == 0x1F:
+        return "interrupt request"
+    if 0x40 <= code <= 0x5F and code & 0x08:
+        return "polyline, its length depends on a terminator word"
+    if 0x40 <= code <= 0x5F:
+        return "line with a flag bit that the library the port draws with reads as a longer command"
+    if 0x81 <= code <= 0x9F:
+        return "copy rectangle VRAM to VRAM, mirror"
+    if 0xA0 <= code <= 0xBF:
+        return "copy rectangle CPU to VRAM"
+    return "copy rectangle VRAM to CPU"                             # 0xC0..0xDF
+
+
+
 class Rig:
     def __init__(self, cc: str, prefix: list[str], work: Path, psyz_build: Path, gpu_source: Path):
         self.cc, self.prefix, self.work, self.psyz_build, self.gpu_source = cc, prefix, work, psyz_build, gpu_source
@@ -890,6 +965,7 @@ class Rig:
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.info: dict = {}
         self.exe: Path | None = None
+        self.raw: list[str] = []
 
     def native(self, path: Path) -> str:
         if self.wsl:
@@ -948,6 +1024,7 @@ class Rig:
         except subprocess.TimeoutExpired:
             return -999, ["(timeout)"], time.time() - started   # subprocess.run has ended the program it started
         lines = (proc.stdout + proc.stderr).replace("\r\n", "\n").splitlines()
+        self.raw = lines                         # every line, PsyZ's own log lines included (the return value keeps only the layer's and the program's)
         return proc.returncode, [l for l in lines if l.startswith(("t: ", "stop: ", "gpu: "))], time.time() - started
 
 
@@ -1385,6 +1462,69 @@ def program_cases(rig: Rig, work: Path):
     # a list whose packets have length 0 draws nothing and ends
     status, lines, _ = rig.run("script", "env", "chain:0x80100000:100:0xffffff", "draw:0x80100000")
     yield "a-list-of-packets-of-length-0-draws-nothing", same((status, lines[-1]), (0, "t: done"))
+
+    # ---- the sweep: all 256 kinds, each followed in its own packet by a complete blue fill ----
+    # An accepted kind is given the words the console takes, whose top bytes are 0x03 where the kind allows (PsyZ reports a
+    # command of that kind as unsupported, so a word of the kind that PsyZ took for a command would show), and then the fill:
+    # status 0 and the probe pixel (5,5) blue, and PsyZ has reported nothing as unsupported. A refused kind ends with the stop
+    # line that names it and the pixel stays 0. The expected outcome is worked out from the tables above, not from gpu.c.
+    disagree = [k for k in range(256) if console_length(k) is not None and not psyz_length(k)[1] and console_length(k) != psyz_length(k)[0]]
+    yield "the-kinds-where-the-console-and-psyz-take-another-number-of-words-are-the-lines-with-bit-2", same(
+        disagree, [0x44, 0x45, 0x46, 0x47, 0x54, 0x55, 0x56, 0x57])
+    # does a command that PsyZ reports as unsupported reach this rig? A copy of the layer that forwards the no-operation kind
+    # 0x03 to PsyZ (the real one leaves it out) is run with it: PsyZ's own log line must be among the lines the rig keeps.
+    forwarding = work / "forward" / "gpu.c"
+    forwarding.parent.mkdir(exist_ok=True)
+    text = rig.gpu_source.read_text()
+    nop_old, len_old = "    return (code >= 0x03 && code <= 0x1e) || code == 0xe0 || code >= 0xe7;", "    if (code <= 0x01) return 1;"
+    if nop_old in text and len_old in text:
+        forwarding.write_text(text.replace(nop_old, "    return code > 0x1000;").replace(len_old, "    if (code <= 0x01 || code == 0x03) return 1;"))
+        other = Rig(rig.cc, rig.prefix, forwarding.parent, rig.psyz_build, forwarding)
+        other.memory_source, other.section, other.groups = rig.memory_source, rig.section, rig.groups
+        problem = other.build() if rig.groups is None or "stream" in rig.groups else None
+        if problem:
+            yield "a-copy-of-the-layer-that-forwards-a-no-operation-builds", problem
+        else:
+            status, lines, _ = other.run("script", "env", packet([0x03000000, *blue_fill]), "draw:0x80100000", "pixel:5:5")
+            reports = [l for l in other.raw if "unsupported command 03" in l]
+            yield "psyz-reports-an-unsupported-command-and-the-rig-sees-the-line", same((status, len(reports), lines[-2:]), (0, 1, ["t: pixel 5 5 7c00", "t: done"]))
+    else:
+        yield "psyz-reports-an-unsupported-command-and-the-rig-sees-the-line", "gpu.c no longer has the text this control replaces; adjust the control"
+    for kind in range(256):
+        console = console_length(kind)
+        if kind_is_accepted(kind):
+            count = 1 if psyz_length(kind)[1] else console
+            low = 0x7FFFF if kind == 0xE4 else 0
+            args = [0x03000000 | (i + 1) for i in range(count - 1)]
+            if kind == 0x02:                                # the kind's own drawing stays in the frame buffer, far from the probe pixel
+                args = [0x00C8012C, 0x00040004]
+            if kind == 0x80:
+                args = [0x00C8012C, 0x00C80190, 0x00040004]
+            # the kind comes twice: before the fill (a walker or PsyZ that reads it longer loses the fill) and as the last
+            # command of the packet (a walker that counts it longer finds the packet too short: nothing else notices a count
+            # that is one too long, since the fill's words are forwarded as they are)
+            words = [(kind << 24) | low, *args, *blue_fill, (kind << 24) | low, *args]
+            status, lines, _ = rig.run("script", "env", "recover", packet(words), "draw:0x80100000", "pixel:5:5")
+            reports = [l for l in rig.raw if "unsupported command" in l]
+            yield f"sweep-kind-0x{kind:02X}-accepted-then-the-blue-fill-draws", same(
+                (status, [l for l in lines if l.startswith(("stop:", "gpu:"))], lines[-2:], reports), (0, [], ["t: pixel 5 5 7c00", "t: done"], []))
+        else:
+            words = [kind << 24, 0x03000001, 0x03000002, *blue_fill]
+            status, lines, _ = rig.run("script", "env", "recover", packet(words), "draw:0x80100000", "pixel:5:5")
+            yield f"sweep-kind-0x{kind:02X}-refused-with-the-line-and-the-pixel-unchanged", same(
+                ([l for l in lines if l.startswith(("stop:", "gpu:"))], lines[-2:], status),
+                (["stop: " + not_decoded("0x80100000", kind, kind_refusal_name(kind), 0)], ["t: pixel 5 5 0000", "t: done"], 0))
+    # the owner's probes of 2026-10-10, each beside its flag-free twin
+    for code, twin, rest in ((0x44, 0x40, [0, 1]), (0x54, 0x50, [0, 1, 2])):
+        for kind in (code, twin):
+            words = [(kind << 24) | 0xFF, *rest, *blue_fill]
+            status, lines, _ = rig.run("script", "env", "recover", packet(words), "draw:0x80100000", "pixel:5:5")
+            if kind == code:
+                want = (["stop: " + not_decoded("0x80100000", kind, kind_refusal_name(kind), 0)], ["t: pixel 5 5 0000", "t: done"])
+            else:
+                want = ([], ["t: pixel 5 5 7c00", "t: done"])
+            yield f"the-probe-{kind:02x}-then-a-complete-blue-fill-is-{'refused-and-the-pixel-stays-0' if kind == code else 'drawn-blue'}", same(
+                ([l for l in lines if l.startswith(("stop:", "gpu:"))], lines[-2:]), want)
 
     rig.section = "basic"
     status, lines, _ = rig.run("closed")

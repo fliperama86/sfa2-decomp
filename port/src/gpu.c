@@ -271,16 +271,47 @@ int port_gpu_read_frame(unsigned short *pixels)
 /* A packet's words are a stream of GP0 commands, and PsyZ's DispatchPackets decodes them one after the other: the
  * kind of a command is the top byte of its first word, and the kind fixes how many words the command takes, so the
  * next command starts right after. The walker steps through the whole payload the same way before it hands any of it
- * over, and each command must lie wholly inside the packet. The numbers (command_words) are the console's; they
- * agree with what PsyZ takes for every kind listed here (read in its decoder: a no-operation, the cache clear and the
- * settings one word, the fill 3, the copy 4, a polygon 1 + vertices + a texture word per vertex + a colour word per
- * vertex after the first, a line 3 or 4, a rectangle 2 + texture + size when free).
+ * over, and each command must lie wholly inside the packet.
  *
- * A kind that has no exact length here ends the program, wherever in the payload it stands: the port does not decode it
- * yet, and a skipped command would be a picture that silently lacks something. These are
+ * The two sides of this interface, kind by kind. A kind is accepted only when the console's length (the first column
+ * below, command_words) and the number of words PsyZ takes for it (the second) are the same; every other kind ends
+ * the program, so that PsyZ is never given a stream that it cuts at another place than the console does. Nothing is
+ * translated: a form that PsyZ reads differently is refused, not rewritten into one that it reads as the console does.
+ * PsyZ's side is read in the pinned copy (src/psyz/ of the build folder; paths below are inside its src/):
+ *
+ *   kind                 console   PsyZ takes (file:line)
+ *   0x00, 0x01               1      1       psyz/libgpu.c:63, :66
+ *   0x02 fill                3      3       psyz/libgpu.c:69-78 (i += 2)
+ *   0x80 VRAM copy           4      4       psyz/libgpu.c:79-88 (i += 3)
+ *   0xE1..0xE6               1      1       psyz/libgpu.c:95-115
+ *   0x20..0x3f polygons   1 + V + (V if textured) + (V-1 if gouraud), V = 3 or 4 (bit 3)
+ *                                    the same: platform/sdl3_gpu.c:1105-1136 with writePacket,
+ *                                    platform/sdl3_common.h:1001-1033 (its read-ahead of a colour word after the last
+ *                                    vertex is given back at sdl3_gpu.c:1134-1137)
+ *   0x40..0x43, 0x50..0x53   3 / 4  3 / 4    platform/sdl3_gpu.c:1159-1199 (bits 3 and 2 clear: two points, no padding)
+ *   0x44..0x47, 0x54..0x57   3 / 4  4 / 5    the same lines: bit 2 makes nPoints 2 with `padding`, one more word, which is
+ *                                    the next command's first word: REFUSED
+ *   0x48..0x4f, 0x58..0x5f  until a terminator word, on the console; PsyZ takes 3 or 4 points and a padding word
+ *                                    (the same lines): REFUSED
+ *   0x60..0x7f rectangles    2 + (1 if textured) + (1 if the size is free: bits 4..3 clear)
+ *                                    the same: platform/sdl3_gpu.c:1270-1343, size cases at :1287-1308
+ *   0x81..0x9f, 0xA0..0xDF   copies with data, mirrors: PsyZ steps one word and reads the data as commands
+ *                                    (psyz/libgpu.c:89-94 for 0xA0 and 0xC0, :132 for the rest): REFUSED
+ *   0x1f                     interrupt request, latched by the console: not decoded: REFUSED
+ *   0x03..0x1e, 0xE0, 0xE7..0xFF   no-operation, 1 word; PsyZ reports each as unsupported (psyz/libgpu.c:132) and steps
+ *                                    one word: the walker checks them and leaves them out of what PsyZ gets
+ *
+ * PsyZ's length never depends on the argument words, only on the kind and on the words that remain in the packet
+ * (Draw_PushPrim is told how many are left). No custom command handler is registered by this layer
+ * (psyz/libgpu.c:121 finds none). The control for this table is the sweep over all 256 kinds in test_hostgpu.py.
+ *
+ * A kind that has no exact length here, or whose length PsyZ reads otherwise, ends the program, wherever in the
+ * payload it stands: the port does not decode it yet, and a skipped command would be a picture that silently lacks
+ * something. These are
  *  - polylines (codes 0x48..0x4f and 0x58..0x5f): on the console they run until a terminator word, PsyZ takes a fixed
  *    3 or 4 vertices and a padding word; the length depends on later words, and the port will take the console's rule
  *    when a game sends one (the game's compiled C uses no line setters);
+ *  - the lines with bit 2 set (0x44..0x47, 0x54..0x57): PsyZ reads one more word than the line's three or four;
  *  - the copy commands with data words after them (0xa0..0xdf) and the VRAM copy mirrors (0x81..0x9f), which PsyZ does
  *    not implement;
  *  - the interrupt request 0x1f, which the console latches.
@@ -298,7 +329,7 @@ static unsigned command_words(unsigned code)
         unsigned verts = (code & 0x08) ? 4 : 3;
         return 1 + verts + (textured ? verts : 0) + (gouraud ? verts - 1 : 0);
     }
-    if (code >= 0x40 && code <= 0x5f) return (code & 0x08) ? 0 : (gouraud ? 4 : 3);
+    if (code >= 0x40 && code <= 0x5f) return (code & 0x0c) ? 0 : (gouraud ? 4 : 3);
     if (code >= 0x60 && code <= 0x7f) return 2 + textured + (((code >> 3) & 3) == 0);
     return 0;
 }
@@ -312,7 +343,10 @@ static int is_nop_kind(unsigned code)
 static const char *kind_name(unsigned code)
 {
     if (code == 0x1f) return "interrupt request";
-    if (code >= 0x40 && code <= 0x5f) return "polyline, its length depends on a terminator word";
+    if (code >= 0x40 && code <= 0x5f) {
+        if (code & 0x08) return "polyline, its length depends on a terminator word";
+        return "line with a flag bit that the library the port draws with reads as a longer command";
+    }
     if (code >= 0x81 && code <= 0x9f) return "copy rectangle VRAM to VRAM, mirror";
     if (code >= 0xa0 && code <= 0xbf) return "copy rectangle CPU to VRAM";
     if (code >= 0xc0 && code <= 0xdf) return "copy rectangle VRAM to CPU";

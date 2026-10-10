@@ -899,7 +899,14 @@ routines that do nothing on purpose. What is in this piece:
   word. PsyZ is given the packet's words and nothing else. A kind that
   the port does not decode (polylines, the copies that carry their data,
   and a few more) ends the program too, wherever it stands in a packet:
-  nothing is skipped. A rectangle of an image routine must lie inside
+  nothing is skipped. So does a kind whose length PsyZ reads differently
+  from the console's: the lines with bit 2 set (`0x44` to `0x47` and
+  `0x54` to `0x57`), for which PsyZ takes one word more, the next
+  command's first word. Such a kind is refused, never rewritten into
+  another form. The walker's table and PsyZ's decoder were compared
+  for all 256 kinds (the comment above `command_words` in `gpu.c` has the
+  table with file and line), and `test_hostgpu.py` sends every kind,
+  followed by a complete fill, as a control. A rectangle of an image routine must lie inside
   the frame buffer of 1024 by 512; a width or height of zero or less
   becomes 1 and one above 1023 or 511 becomes that, as the library's
   code does, before the test. The console's hardware wraps a rectangle
