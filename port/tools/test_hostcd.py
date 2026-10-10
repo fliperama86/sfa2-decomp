@@ -75,6 +75,7 @@ static unsigned h_dest;
 static int h_pieces[16], h_np, h_stop, h_calls, h_count;
 static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call number a_when (0: on every call) */
 static char a_kind;
+static unsigned char rbuf[4096];   /* the runtime's own buffer for port_cd_fifo_read and port_cd_store */
 static int g_calls, hh_calls;   /* calls of the game's made-up handler and of the host ready handler */
 static int ring_adv;   /* the made-up handler steps the writer's place of the game's ring (byte 0x16 of the stream object) as the game's does */
 
@@ -182,6 +183,30 @@ int main(int argc, char **argv)
             p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = (unsigned char)(v >> 16); p[3] = (unsigned char)(v >> 24);
         }
         else if (!strcmp(cmd, "ring")) { unsigned w, r; if (sscanf(rest, "%u %u", &w, &r) != 2) return 64; at(0x80190948u)[0x16] = (unsigned char)w; at(0x80190948u)[0x17] = (unsigned char)r; }   /* the two places of the game's ring */
+        else if (!strcmp(cmd, "fr")) {   /* port_cd_fifo_read into rbuf+off, bytes; rbuf is filled with 0xa5 first on request by "rfill" */
+            unsigned off, n, real; int sec = 12345;
+            if (sscanf(rest, "%u %u", &off, &n) != 2 || off + n > sizeof rbuf) return 64;
+            real = port_cd_fifo_read(rbuf + off, n, &sec);
+            printf("FR real %u sector %d\n", real, sec);
+        }
+        else if (!strcmp(cmd, "frram")) {   /* port_cd_fifo_read with a destination INSIDE the game's RAM (a caller's mistake): it must still touch neither the record nor the hook */
+            unsigned a, n; int sec;
+            if (sscanf(rest, "%x %u", &a, &n) != 2) return 64;
+            printf("FQ real %u\n", port_cd_fifo_read(at(a), n, &sec));
+        }
+        else if (!strcmp(cmd, "frnull")) { unsigned n = (unsigned)atoi(rest); printf("FN real %u\n", port_cd_fifo_read(rbuf, n, 0)); }
+        else if (!strcmp(cmd, "rfill")) { unsigned i, v = (unsigned)atoi(rest); for (i = 0; i < sizeof rbuf; i++) rbuf[i] = (unsigned char)(v + i); }
+        else if (!strcmp(cmd, "rdump")) {
+            unsigned off, k, i;
+            if (sscanf(rest, "%u %u", &off, &k) != 2 || off + k > sizeof rbuf) return 64;
+            printf("M"); for (i = 0; i < k; i++) printf(" %02x", rbuf[off + i]); printf("\n");
+        }
+        else if (!strcmp(cmd, "st")) {   /* port_cd_store(game address, rbuf+off, bytes, sector); the address may be anywhere (raw) */
+            unsigned a, off, n; int sec;
+            if (sscanf(rest, "%x %u %u %d", &a, &off, &n, &sec) != 4 || off + n > sizeof rbuf) return 64;
+            port_cd_store(ram + ((size_t)a - PORT_RAM_BASE), rbuf + off, n, sec);
+            printf("ST done\n");
+        }
         else if (!strcmp(cmd, "host")) port_cd_host_ready(atoi(rest) ? host_handler : 0);   /* the host ready handler on or off (CdInit removes it) */
         else if (!strcmp(cmd, "calls")) printf("CA game %d host %d\n", g_calls, hh_calls);
         else if (!strcmp(cmd, "depth")) printf("D %d\n", port_handler_depth);
@@ -1319,6 +1344,84 @@ def host_cases(root: Path, exe: Path):
     yield check("a host handler in the whole-sector mode takes the 2,340 bytes of its sector inside the call", got == [sum(data[n * SECTOR + 12:(n + 1) * SECTOR]) for n in (5,)], f"{got}")
 
 
+def seam_cases(root: Path, exe: Path):
+    """port_cd_fifo_read and port_cd_store, the two routines for a stream's code in the runtime."""
+    img = root / "s2.bin"
+    data = make_pattern_image(img, 40)
+    raw = lambda n: data[n * SECTOR:(n + 1) * SECTOR]
+    whole = lambda n: raw(n)[12:]
+    plain = lambda n: raw(n)[24:24 + 2048]
+    take = "autotick 1\nready 0\nautotick 0\n"
+    A = 0x80100000
+    # the FIFO read: one piece, and pieces, in both forms
+    for mode, form, body, size in ((0x20, "whole-sector", whole, 2340), (0x00, "2,048-byte", plain, 2048)):
+        head = f"cdinit\nctl N e {mode:x}\nreadn 7\n{take}"
+        rc, lines = run(exe, img, head + f"fr 0 {size}\nrdump 0 {size}\n")
+        yield check(f"fifo read, {form} mode: one piece of {size} bytes is the sector's bytes, all real, with the sector's number",
+                    rc == 0 and "FR real %d sector 7" % size in lines and dump_of(lines) == body(7), f"{rc} {lines[:3]}")
+        cuts = [12, 32, 2016, size - 2060] if size == 2340 else [12, 32, 2004]
+        script = head + "".join(f"fr {sum(cuts[:i])} {c}\n" for i, c in enumerate(cuts)) + f"rdump 0 {size}\n"
+        rc, lines = run(exe, img, script)
+        frs = [l for l in lines if l.startswith("FR ")]
+        yield check(f"fifo read, {form} mode: pieces of {cuts} bytes continue each other and give the bytes in order",
+                    rc == 0 and frs == [f"FR real {c} sector 7" for c in cuts] and dump_of(lines) == body(7), f"{rc} {frs}")
+        rc, lines = run(exe, img, head + f"rfill 1\nfr 0 {size - 4}\nfr 0 40\nrdump 0 40\n")
+        d = dump_of(lines)
+        yield check(f"fifo read, {form} mode: past the end the rest is zeros and the count says how many were real (4 of 40)",
+                    rc == 0 and "FR real 4 sector 7" in lines and d == body(7)[size - 4:] + bytes(36), f"{rc} {lines[-3:]}")
+        rc, lines = run(exe, img, head + f"fr 0 {size}\nrfill 3\nfr 0 16\nrdump 0 16\n")
+        yield check(f"fifo read, {form} mode: a read of a sector taken whole gives 0 real bytes, zeros over what was there, still the sector's number",
+                    "FR real 0 sector 7" in lines and dump_of(lines) == bytes(16), f"{rc} {lines[-3:]}")
+    # alternately with port_CdGetSector
+    w = whole(7)
+    script = (f"cdinit\nctl N e 20\nreadn 7\n{take}gs {A:x} 3\nfr 0 32\ngs {A + 12:x} 8\nfr 32 2016\ngs {A + 44:x} 70\n"
+              f"rdump 0 2048\ndump {A:x} 12\ndump {A + 12:x} 32\ndump {A + 44:x} 280\n")
+    rc, lines = run(exe, img, script)
+    r = dump_of(lines, 0)
+    yield check("fifo read and CdGetSector alternate: bytes 0-11 by gs, 12-43 by fr, 44-75 by gs, 76-2091 by fr, 2092 on by gs (zeros past 2340)",
+                rc == 0 and dump_of(lines, 1) == w[:12] and r[:32] == w[12:44] and dump_of(lines, 2) == w[44:76] and r[32:2048] == w[76:2092]
+                and dump_of(lines, 3) == w[2092:] + bytes(280 - (2340 - 2092)), f"{rc} {[len(dump_of(lines, k)) for k in range(4)]}")
+    # no sector in the FIFO: zeros, 0 real, sector -1; also after CdInit
+    rc, lines = run(exe, img, "cdinit\nrfill 9\nfr 0 8\nrdump 0 8\n")
+    yield check("fifo read with no sector in the FIFO: 0 real bytes, zeros, sector -1", "FR real 0 sector -1" in lines and dump_of(lines) == bytes(8), f"{rc} {lines}")
+    rc, lines = run(exe, img, f"cdinit\nreadn 7\n{take}cdinit\nrfill 9\nfr 0 8\n")
+    yield check("fifo read after CdInit: no sector in the FIFO again (sector -1)", "FR real 0 sector -1" in lines, f"{lines}")
+    rc, lines = run(exe, img, f"cdinit\nreadn 7\n{take}frnull 4\nfr 0 0\n")
+    yield check("fifo read with a null sector pointer works, and with 0 bytes gives 0 and moves nothing", rc == 0 and "FN real 4" in lines and "FR real 0 sector 7" in lines, f"{rc} {lines}")
+    # nothing of the game's memory or record changes, and the hook is not called
+    script = (f"cdinit\nctl N e 20\nreadn 7\n{take}hook 1\nfr 0 2340\nsrc {A:x}\nsrc {A + 400:x}\ndump {A:x} 8\nword {A:x}\n")
+    rc, lines = run(exe, img, script)
+    yield check("fifo read changes nothing in the game's RAM, nothing in the record of sources (-1 for the words it would have covered) and does not call the hook",
+                rc == 0 and [l for l in lines if l.startswith("P ")] == ["P -1", "P -1"] and dump_of(lines) == bytes(8) and not any(l.startswith("K ") for l in lines), f"{rc} {lines[-5:]}")
+    script = f"cdinit\nctl N e 20\nreadn 7\n{take}hook 1\nfrram {A + 0x200:x} 100\nsrc {A + 0x200:x}\nsrc {A + 0x210:x}\n"
+    rc, lines = run(exe, img, script)
+    yield check("fifo read with a destination inside the game's RAM (a caller's mistake) still records nothing and calls no hook, though the bytes land",
+                rc == 0 and "FQ real 100" in lines and [l for l in lines if l.startswith("P ")] == ["P -1", "P -1"] and not any(l.startswith("K ") for l in lines), f"{rc} {lines}")
+    script = (f"cdinit\nctl N e 20\nreadn 7\n{take}gs {A:x} 585\nreadn 8\ntick 1\nfr 0 100\nsrc {A:x}\nsrc {A + 400:x}\n")
+    rc, lines = run(exe, img, script)
+    yield check("fifo read leaves the record of an earlier copy alone (sector 7 still the source)", [l for l in lines if l.startswith("P ")] == ["P 7", "P 7"], f"{lines[-3:]}")
+    # store
+    script = (f"cdinit\nhook 1\nrfill 17\nst {A + 0x100:x} 0 64 9\nsrc {A + 0xfc:x}\nsrc {A + 0x100:x}\nsrc {A + 0x13c:x}\nsrc {A + 0x140:x}\n"
+              f"dump {A + 0xfc:x} 70\n")
+    rc, lines = run(exe, img, script)
+    d = dump_of(lines)
+    yield check("store: the bytes land, the words covered come from the sector given, the neighbours from nowhere, the hook is called once with the address and the length",
+                rc == 0 and d == bytes(4) + bytes((17 + i) & 0xFF for i in range(64)) + bytes(2) and [l for l in lines if l.startswith("P ")] == ["P -1", "P 9", "P 9", "P -1"]
+                and [l for l in lines if l.startswith("K ")] == [f"K {A + 0x100:x} 64"], f"{rc} {lines}")
+    rc, lines = run(exe, img, f"cdinit\nhook 1\nrfill 17\nst {A:x} 0 64 9\nst {A:x} 0 32 -1\nsrc {A:x}\nsrc {A + 32:x}\n")
+    yield check("store with the sector -1: the words are from nowhere (and replace the record of an earlier store); a second hook call",
+                [l for l in lines if l.startswith("P ")] == ["P -1", "P 9"] and len([l for l in lines if l.startswith("K ")]) == 2, f"{lines}")
+    rc, lines = run(exe, img, f"cdinit\nhook 1\nst {A:x} 0 0 5\nst 7ffffff0 0 0 5\nst 80300000 0 0 5\nsrc {A:x}\n")
+    yield check("store of 0 bytes does nothing (no hook, no record, no stop, whatever the address)", rc == 0 and "ST done" in lines and not any(l.startswith("K ") for l in lines) and "P -1" in lines, f"{rc} {lines}")
+    for a, n, label in ((0x7ffffff0, 16, "below the RAM"), (0x80200000 - 8, 16, "over the end of the RAM"), (0x80200000, 4, "past the RAM")):
+        rc, lines = run(exe, img, f"cdinit\nhook 1\nrfill 17\nst {a:x} 0 {n} 3\n")
+        yield check(f"store to a destination {label} stops with the routine's name and status 6, nothing copied",
+                    rc == 6 and lines and lines[-1].startswith("stop: port_cd_store buffer 0x") and lines[-1].endswith(f"({n} bytes) is outside the PS1's RAM") and "ST done" not in lines and not any(l.startswith("K ") for l in lines), f"{rc} {lines}")
+    # the last bytes of the RAM are accepted
+    rc, lines = run(exe, img, f"cdinit\nrfill 17\nst 801ffff0 0 16 3\nsrc 801ffffc\n")
+    yield check("store into the last 16 bytes of the RAM is accepted and recorded", rc == 0 and "P 3" in lines, f"{rc} {lines}")
+
+
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
     yield rate_cases(root, exe)
@@ -1336,6 +1439,7 @@ def groups(root: Path, exe: Path):
     yield buffer_cases(root, exe)
     yield whole_cases(root, exe)
     yield host_cases(root, exe)
+    yield seam_cases(root, exe)
 
 
 def main() -> int:

@@ -47,6 +47,10 @@
  *    is then not called, whatever it holds). While one is set a polling game's rule (the next sector waits until the last is taken)
  *    and the ring guard below do not apply: a host handler is a handler, and the ring is the game's. It may call this layer's
  *    routines as a game's handler may, and the rules below for the carry hold for it. CdInit removes it.
+ *  - Two routines for a stream's code in the runtime, which puts a sector aside in its own memory (port.h): port_cd_fifo_read takes the next
+ *    bytes of the FIFO into a buffer of the runtime's (the same rules as CdGetSector, the same position; returns how many were real
+ *    bytes, gives the sector's number; no record, no hook), and port_cd_store puts such bytes into the game's memory as bytes of a given
+ *    sector (the destination checked, the source recorded, the hook called, as for CdGetSector).
  *
  * What the original library does that the game relies on (read at the
  * listing's addresses):
@@ -794,16 +798,10 @@ static void record(unsigned off, unsigned n, int sector)
         cd.word_source[w] = (unsigned long long)w * 4 >= off && (unsigned long long)w * 4 + 4 <= (unsigned long long)off + n ? sector : -1;
 }
 
-int port_CdGetSector(void *madr, int words)
+/* The next `bytes` bytes of the FIFO into `dst`: the sector's bytes, then zeros once it has run dry. Returns how many were the sector's. */
+static unsigned fifo_take(unsigned char *dst, unsigned bytes)
 {
-    unsigned long long want = words > 0 ? (unsigned long long)words * 4u : 0u;
-    unsigned bytes, give = 0;
-    unsigned char *dst = (unsigned char *)madr;
-    long off;
-    need_disc();
-    if (want == 0) return 1;
-    need_buffer(madr, want, "CdGetSector");   /* the count and the address are the game's: both inside the RAM, or nothing is copied */
-    bytes = (unsigned)want;
+    unsigned give = 0;
     if (cd.have_sector && cd.offset < cd.data_len) {
         give = cd.data_len - cd.offset;
         if (give > bytes) give = bytes;
@@ -811,13 +809,49 @@ int port_CdGetSector(void *madr, int words)
         cd.offset += give;
     }
     if (give < bytes) memset(dst + give, 0, bytes - give);   /* the FIFO ran dry */
-    off = ram_offset(dst);
+    return give;
+}
+
+/* `bytes` bytes now stand in the game's memory at dst (inside the RAM, checked by the caller): the first `give` came from `sector`, the
+ * rest from nowhere (the zeros of a dry FIFO). The record and the hook. */
+static void land(const unsigned char *dst, unsigned bytes, unsigned give, int sector)
+{
+    long off = ram_offset(dst);
     if (off >= 0) {
-        record((unsigned)off, give, (int)cd.cur_sector);   /* the sector's bytes ... */
-        record((unsigned)off + give, bytes - give, -1);    /* ... and the zeros of a dry FIFO, which are from nowhere */
+        record((unsigned)off, give, sector);                /* the sector's bytes ... */
+        record((unsigned)off + give, bytes - give, -1);     /* ... and the zeros of a dry FIFO, which are from nowhere */
         if (port_cd_written_hook) port_cd_written_hook(PORT_RAM_BASE + (unsigned)off, bytes);
     }
+}
+
+int port_CdGetSector(void *madr, int words)
+{
+    unsigned long long want = words > 0 ? (unsigned long long)words * 4u : 0u;
+    unsigned bytes, give;
+    need_disc();
+    if (want == 0) return 1;
+    need_buffer(madr, want, "CdGetSector");   /* the count and the address are the game's: both inside the RAM, or nothing is copied */
+    bytes = (unsigned)want;
+    give = fifo_take((unsigned char *)madr, bytes);
+    land((unsigned char *)madr, bytes, give, (int)cd.cur_sector);
     return 1;
+}
+
+unsigned port_cd_fifo_read(void *dst, unsigned bytes, int *sector)
+{
+    need_disc();
+    if (sector) *sector = cd.have_sector ? (int)cd.cur_sector : -1;
+    if (!bytes) return 0;
+    return fifo_take((unsigned char *)dst, bytes);   /* the caller's own buffer: not the game's memory, so no record and no hook */
+}
+
+void port_cd_store(void *madr, const void *src, unsigned bytes, int sector)
+{
+    need_disc();
+    if (!bytes) return;
+    need_buffer(madr, bytes, "port_cd_store");
+    memcpy(madr, src, bytes);
+    land((unsigned char *)madr, bytes, bytes, sector);
 }
 
 struct port_disc *port_cd_disc(void)

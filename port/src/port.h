@@ -196,6 +196,13 @@ void port_cd_tick(void);
 /* A ready handler of the runtime's own for the disc layer (cd.c): called for each delivered data sector with (1, result) and for a disc
  * error with (5, result) in place of the game's handler variable. Null removes it; port_CdInit removes it too. */
 void port_cd_host_ready(void (*handler)(int intr, unsigned char *result));
+/* For a stream's code in the runtime. port_cd_fifo_read: the next `bytes` bytes of the current sector's FIFO into dst (the caller's own
+ * buffer, not checked), by the rules of port_CdGetSector (same position, zeros once dry); returns how many were the sector's bytes and
+ * stores the sector's number in *sector (if not null; -1 with no sector in the FIFO). It does not touch the record of sources nor the
+ * hook. port_cd_store: `bytes` bytes at src into the game's memory at madr as bytes of the disc's sector `sector` (-1: from nowhere):
+ * madr checked as CdGetSector's is, the record of sources and the hook as for it; 0 bytes do nothing. */
+unsigned port_cd_fifo_read(void *dst, unsigned bytes, int *sector);
+void port_cd_store(void *madr, const void *src, unsigned bytes, int sector);
 
 /* gpu.c: show the picture and pump the window's events; kernel.c calls it once per vblank. */
 void port_gpu_present(void);

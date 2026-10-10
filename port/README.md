@@ -1024,6 +1024,11 @@ routines that do nothing on purpose. What is in this piece:
   ready handler of the runtime's own (`port_cd_host_ready`), called
   directly for each sector in place of the game's handler variable,
   without the polling rule and without the ring guard.
+  Two routines let that code put a sector aside in the runtime's own
+  memory and hand it into the game's later: `port_cd_fifo_read` takes
+  the next bytes of the FIFO (same position as `CdGetSector`, no
+  record, no hook) and `port_cd_store` writes bytes into the game's
+  memory as a sector's (checked, recorded, hooked as `CdGetSector` does).
 - The disc's rate. The drive of the console reads 75 sectors a second
   at single speed (the CD's own rate) and 150 with the double-speed bit
   (0x80) of the mode set. The port delivers at that rate counted by the
