@@ -16,7 +16,7 @@
  * x direction and bit 1 the y direction. For each tile of a run it writes
  * the quad's x and y (which corner is stored depends on field_0b being 0, 1,
  * 2 or 3; with another value no position is written), the tile's texture
- * bytes, and a word from func_8015bdd4; it then hands the quad to
+ * bytes, and a halfword from func_8015bdd4; it then hands the quad to
  * func_8015bf34. After every 16 tiles it also hands a descriptor in
  * data_8018db18 to func_8015bf34 and moves on to the next tile id taken from
  * data_80183c90; after the last run a partial group of tiles hands its
@@ -25,7 +25,7 @@
  * Contract (the roles named for fields are inferred):
  *   Argument: a0 = pointer to the object. No return value.
  *   Returns at once, writing nothing, when the object's field_94 (an index)
- *     selects a header pointer of 0 in data_80184380, a tile id of 0 in
+ *     is 0 or selects a header pointer of 0 in data_80184380, a tile id of 0 in
  *     data_80183ffc, a value of 0 in data_801841bc, or a header whose count
  *     is 0.
  *   Reads: the object's field_02, field_08, field_09, field_0b, field_0d,
@@ -41,7 +41,8 @@
  *   Writes: for each tile a quad at the cursor (offsets 8 to 0xf), and the
  *     cursor.
  *   Callees (replaced by recorders): func_8015bdd4 (2 arguments, result
- *     random) and func_8015bf34 (2 arguments). Both are Sony library range.
+ *     random) and func_8015bf34 (2 arguments). Both are in the Sony
+ *     library range (inferred from their addresses).
  *   Watched by the test at every call of a replaced callee: the object (0xb0
  *     bytes), the quad area and the cursor data_801a4fe8; the four words
  *     behind the second argument of func_8015bf34 are logged too.
@@ -49,12 +50,13 @@
  *     tables cover, the stream and the quad area are valid blocks, and the
  *     run total of the stream is bounded; the original would read or write
  *     outside RAM otherwise.
- *   Not reached by any input: two instruction slots of the original, at
- *     offsets 0x248 and 0x24c, the jump of the mode dispatch for a mode below
+ *   Not reached by any input (read from the listing): two instruction
+ *     slots of the original, at offsets 0x248 and 0x24c, the jump of the mode dispatch for a mode below
  *     2 that is neither 0 nor 1; no value can be.
- *   The original tests the run count a second time before the loop (the
- *     count is already known to be non-zero) and reloads field_0b into
- *     two registers; the C reads it once.
+ *   The original (read from the listing, not tested) tests the run count
+ *     a second time before the loop (the count is already known to be
+ *     non-zero) and reloads field_0b into two registers; the C reads it
+ *     once.
  */
 #include "../game.h"
 #include "../protos.h"

@@ -6,16 +6,18 @@ header comment of func_8011db78.c. Choices made here:
   - the frame distance d is 0 to 9 in nine cases of ten, else 10 or more;
   - the size entry and the header pointer are 0 in one case of ten each,
     the header count is 0 in one case of ten, otherwise 1 to 8;
-  - the flag entry is 0 in half of the cases; then the entries before it
-    equal the current ones in three cases of five, else the size entry or
-    the header pointer differs;
+  - the flag entry is 0 in half of the cases; the entries before it (set
+    for any flag entry) equal the current ones when rng.random() < 0.6;
+    otherwise each equals them with probability 0.5 and then, for one of
+    three picks, the header (pick 0) or the size (pick 1) is made to
+    differ, for the third pick both are left as drawn;
   - the mode byte is 0 to 3 in nine cases of ten, otherwise random (4 or
     more store nothing); its upper byte is random;
   - the stream has x step, y step and a group count per group; the group
     count value is 0 to 5 in nine cases of ten, else 0xffff (a group of
     zero records); steps are random halfwords; the stream offset in the
-    header is random in 0 to 0x40 (odd values included, the code clears
-    bit 0);
+    header is random in 0 to 0x40, with 0xFF80 or-ed in when
+    rng.random() >= 0.8 (odd values included, the code clears bit 0);
   - field_0f is 0 in half of the cases; all globals read are random;
   - the record buffer cells that the cases write are filled with random
     bytes, so that the bytes left alone are tested.

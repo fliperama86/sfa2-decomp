@@ -9,10 +9,12 @@ Choices of the setup (details in the header of func_8011a018.c):
   - func_8015c0ec and func_80158a2c are recorders (1 and 5 arguments) that
     return 0; func_8015bdd4 (2 arguments) and func_8015bd0c (4 arguments)
     return one random 32-bit value per case, kept for the whole case;
-  - CallLog watches, at every call, data_801846fc and data_80184700 and the
-    last entry of three of the tables the function writes (the calls number
-    5,424 and more blocks exhaust the instruction budget), and func_8015c0ec records the 16 bytes of the cell it is given; the
-    cell buffers themselves are too large to watch whole (see setup);
+  - CallLog watches, at every call, data_801846fc and data_80184700 and
+    one word at the end of each of three of the tables the function writes
+    (the calls number 5,728 and more blocks exhaust the instruction
+    budget), and func_8015c0ec records the 16 bytes of the cell it is
+    given; the cell buffers themselves are too large to watch whole (see
+    setup);
   - the log has room for the words of the longest run (about 60,000).
 """
 
@@ -29,11 +31,11 @@ def setup(state, rng, sym):
     fill(state, sym["data_801987cc"], 0xA000, rng)
     fill(state, sym["data_8018db18"], 0xA80, rng)
     fill(state, sym["data_8019056c"], 0x3C0, rng)
-    # Watched at every call: the two counters and the last entry of three of
-    # the tables written before the first call (more blocks take the original
-    # past the instruction budget, the calls number 5,424). Cell writes cannot
-    # be watched whole (the cell buffers are 0xa000 bytes and the calls
-    # number 5,424), so the cell passed to func_8015c0ec is recorded: its 16
+    # Watched at every call: the two counters and one word at the end of
+    # each of three of the tables written before the first call (more blocks
+    # take the original past the instruction budget, the calls number
+    # 5,728). Cell writes cannot be watched whole (the cell buffers are
+    # 0xa000 bytes and the calls number 5,728), so the cell passed to func_8015c0ec is recorded: its 16
     # bytes as they are at the call.
     watch = ((0x801846FC, 2), (0x80183C90 + 0xDC, 1), (0x80183DEC + 0x4C, 1), (0x80183910 + 0xDC, 1))
     log = CallLog(state, words=60000, watch=watch)

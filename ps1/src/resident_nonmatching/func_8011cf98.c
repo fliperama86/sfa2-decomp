@@ -6,8 +6,8 @@
  * test next to it (difftest.py, with func_8011cf98.py as the contract) compares the behavior of this C with the
  * original code on random inputs of the contract below.
  *
- * What it does (inferred, not an original name): the same unpacking as
- * func_8011cf98, for a second family of tables. It unpacks a compressed list
+ * What it does (inferred, not an original name): an unpacking like that of
+ * func_8011bf70, with a history per channel. It unpacks a compressed list
  * of 16-bit texture cells (q) into the cell tables, in blocks of 16 taken
  * from the same free list (func_8011a604 appends a block to the chain of the
  * new entry; the blocks the object's channel p->field_02 held last are given
@@ -15,7 +15,8 @@
  * 4 or 6; another value stores no cells), a byte source at 2 (low 5 bits)
  * and the data from index 5:
  *   mode 0: n cells, each one word; mode 2: n pairs (word, flags);
- *   mode 4: n pairs (word, extra run); mode 6: n triples (word, flags, run).
+ *   mode 4: pairs (word, run); mode 6: triples (word, flags, run); in the
+ *   run modes groups are read until their run + 1 add up to n or more.
  * The word is xored with a mask built from the object's field_0b (bit 0 to
  * 0x8000, bit 1 to 0x4000), and in modes 2 and 6 also with flag bits 0x20
  * and 0x40 of the flags word moved to 0x8000 and 0x4000; the low 5 bits of
@@ -31,9 +32,11 @@
  * Contract (the roles named for fields are inferred):
  *   Arguments: a0 = p (the object: field_02, field_0b, field_94), a1 = q
  *     (halfwords). No return value.
- *   Reads: p->field_02 and p->field_0b; q; entry 8 of the history tables
- *     data_80183d9c and data_80183dc4 of the channel (first block id and
- *     block count); the free list state in data_801846fc (head),
+ *   Reads: p->field_02 and p->field_0b; q; entry 9, the last one, of the
+ *     history tables data_80183d9c and data_80183dc4 of the channel (first
+ *     block id and block count: the capacity test and the release of the
+ *     chain use it), and entries 0 to 8 of all four history tables, which
+ *     are moved up by one; the free list state in data_801846fc (head),
  *     data_80184700 (free count) and the next-link table data_80183c90.
  *   Writes: the cell tables data_80184704 (halfwords, 16 per block) and
  *     data_80185504 (bytes, 16 per block); the history tables data_80183d74,
@@ -51,9 +54,10 @@
  *     0xffff for a block when it runs dry and then writes far outside the
  *     tables); run counts are bounded; the entry index p->field_94 on entry
  *     is below 64 (func_8011d5b8, which takes the delegated work, indexes
- *     the group tables with it and checks no bound).
- *   Not reached by any input: one instruction slot of the original, at
- *     offset 0x48, which adjusts the sum for a negative value before the
+ *     the group tables with it and checks no bound; read from its listing,
+ *     not tested; this C does not read field_94 on entry).
+ *   Not reached by any input (read from the listing): one instruction
+ *     slot of the original, at offset 0x48, which adjusts the sum for a negative value before the
  *     division by 16; the count is a 16-bit unsigned value.
  */
 #include "../game.h"

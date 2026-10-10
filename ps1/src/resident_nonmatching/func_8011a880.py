@@ -2,8 +2,9 @@
 
 Choices of the setup (details in the header of func_8011a880.c):
   - player_left and player_right are filled with random bytes; then field_00
-    and field_01 of each are non-zero in three cases of four each, field_73
-    is 0 in two cases of five, 1 in one of three of the rest, else random;
+    and field_01 of each are, with probability 0.25, one of 0, 1 or a
+    random byte and otherwise 1 to 255; field_73 is 0 for r < 0.4, 1 for
+    0.4 <= r < 0.7 (r = rng.random()), else random;
     for the tie arms field_17a of both fighters is drawn from 0 to 3, the
     frame field_04 values from 0 to 3, so that less, equal and greater all
     occur often;

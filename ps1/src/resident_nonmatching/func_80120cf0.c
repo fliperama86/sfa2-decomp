@@ -21,7 +21,8 @@
  *
  * Contract:
  *   Argument: the original takes the address of the game state in its
- *     first argument register (a0) and never names the global game_state.
+ *     first argument register (a0) and never names the global game_state
+ *     (read from the listing).
  *     The tree declares the function with that argument (protos.h, GameState
  *     *state), and its one caller (func_80120ca0) leaves the address in a0.
  *     This C does not read the parameter; it
@@ -36,11 +37,12 @@
  *     table_8016e730 indexed by game_state.field_14, game_state.field_0e,
  *     field_10, field_17 and the fields it has written.
  *   Reads and writes through the callees that run as original code (the C
- *     does not name them): the seed word data_80190126 (func_80151184
+ *     does not name them; what they read and write is read from their
+ *     listings, not tested): the seed word data_80190126 (func_80151184
  *     reads and rewrites it), table_6cf0 (func_80138358 reads the entry
  *     game_state.field_2d), and counter_a, counter_b and counter_c
  *     (func_80138358 writes them), game_state.field_6e.
- *   Writes: about thirty game_state fields (the list is the function), the
+ *   Writes: 40 game_state fields (the list is the function), the
  *     two players player_left and player_right (the fields set by
  *     func_80120f40 and, by bit of field_17, field_a5, kind, field_a9,
  *     field_cd and field_f0), data_801a6938, data_801a6984,
@@ -51,9 +53,10 @@
  *   Callees replaced by recorders, the same in both runs: func_8011eb14
  *     (takes no argument, returns 0; it runs the whole round
  *     initialisation chain) and func_80120374 (takes one argument; it
- *     reaches Sony's library). func_80151184 (a generator of 8-bit values
- *     from a seed word in RAM), func_80120f40 and func_80138358 run as the
- *     original code in both runs.
+ *     reaches Sony's library; inferred, not tested). func_80151184 (a
+ *     generator of 8-bit values from a seed word in RAM; inferred),
+ *     func_80120f40 and func_80138358 run as the original code in both
+ *     runs.
  *   Aliasing: the status block, the players and game_state are distinct.
  *   Not reached by any input: none expected; see the coverage line.
  */

@@ -14,16 +14,18 @@
  * count n at 0, a mode at 1 (0, 2, 4 or 6; another value stores no cells),
  * a byte source at 2 (low 5 bits) and the data from index 5:
  *   mode 0: n cells, each one word; mode 2: n pairs (word, flags);
- *   mode 4: n pairs (word, extra run); mode 6: n triples (word, flags, run).
+ *   mode 4: pairs (word, run); mode 6: triples (word, flags, run); in the
+ *   run modes groups are read until their run + 1 add up to n or more.
  * The word is xored with a mask built from the object's field_0b (bit 0 to
  * 0x8000, bit 1 to 0x4000), and in modes 2 and 6 also with flag bits 0x20
  * and 0x40 of the flags word moved to 0x8000 and 0x4000; the low 5 bits of
  * the flags word (mode 2, 6) or of q[2] (mode 0, 4) go to the byte table.
  * In the run modes a word is written run + 1 times, counting up by one each
  * time, and the entries consumed count run + 1. The new entry (a free
- * entry taken with func_8011a5f4) records the old entry's two fields, q,
- * the number of blocks used and the number of cells written; p->field_94
- * then points at it. When the free blocks plus the entry's own are fewer
+ * entry taken with func_8011a5f4) records three fields of the old entry
+ * (column 0 of data_80183ffc, data_801841bc and data_8018437c, into
+ * column 1), q, the number of blocks used and the number of cells
+ * written; p->field_94 then points at it. When the free blocks plus the entry's own are fewer
  * than (n + 15) / 16 + 1, the work is left to func_8011c568.
  *
  * Contract (the roles named for fields are inferred):
@@ -45,8 +47,8 @@
  *   Excluded inputs: the free list must hold enough blocks for every cell
  *     written (the original takes 0xffff for a block when it runs dry and
  *     then writes far outside the tables); run counts are bounded.
- *   Not reached by any input: one instruction slot of the original, at
- *     offset 0x48, which adjusts the sum for a negative value before the
+ *   Not reached by any input (read from the listing): one instruction
+ *     slot of the original, at offset 0x48, which adjusts the sum for a negative value before the
  *     division by 16; the count is a 16-bit unsigned value.
  */
 #include "../game.h"

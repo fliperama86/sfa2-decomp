@@ -3,9 +3,9 @@ header comment of func_8011df3c.c. Choices made here:
   - the flags: bit 15 and bit 14 random, the table index (bits 0 to 13) 0 to
     7, the upper 16 bits random in a quarter of the cases;
   - the data block is 36 KiB of random bytes; the eight table entries point
-    into its last 2 KiB (even offsets) and the stream of the case starts at
-    the entry the flags choose, with the first halfword n written by the
-    setup; everything after it (flag halfwords, literals, references) is
+    into its bytes 0x8000 to 0x87FE (even offsets) and the stream of the
+    case starts at the entry the flags choose, with the first halfword n
+    written by the setup; everything after it (flag halfwords, literals, references) is
     random, so a reference may point back up to 32 KiB into random data;
   - n: 0 in 12 cases of 100; a small count (high byte 0) in 46 of 100, of
     which 15 of 100 are below 16 and 20 of 100 a multiple of 16; the form

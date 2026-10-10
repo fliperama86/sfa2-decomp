@@ -1,9 +1,9 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * original allocates its registers differently in every block and writes
- * back two pointers with the value just loaded from them; the code built
- * from this C is smaller and is not the original's bytes. The exact owner of the
- * bytes in the PS1 build stays the raw bytes of the resident image; the
+ * back two pointers with the value just loaded from them (read from the
+ * listing); the code built from this C is smaller and is not the
+ * original's bytes. The exact owner of the bytes in the PS1 build stays the raw bytes of the resident image; the
  * build does not use this file. The differential test next to it
  * (difftest.py) compares the behavior of this C with the original code on
  * random inputs of the contract below.
@@ -37,11 +37,12 @@
  *     tables, the counters and ref_third).
  *   Callee replaced by a recorder, the same in both runs: func_8011ef34
  *     (takes no argument, returns 0; it initialises the players and
- *     reaches the library).
+ *     reaches the library: inferred, not tested).
  *   Aliasing: none intended; the regions are the program's own distinct
  *     arrays.
- *   Not written by this C, written by the original: the original stores
- *     back into the first entry of data_801ac30c and into the last entry
+ *   Not written by this C, written by the original (read from the listing):
+ *     the original stores back into the first entry of data_801ac30c and
+ *     into the last entry
  *     of data_801ad358 the word it has just loaded from there (a store of
  *     the same value); the value does not change and no input could show a
  *     difference.

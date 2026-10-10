@@ -28,7 +28,7 @@
  *     are read). Upper halves of a1 and a2 are zero. No return value.
  *   Callees, all replaced by recorders (the first one is a small game
  *     function whose tables are not built here; the others are Sony's
- *     library, from 0x80157090 on):
+ *     library, from 0x80157090 on; inferred from their addresses):
  *       func_801250c0(object, frame): 2 arguments, returns a block the
  *         setup made, of which the first halfword is read;
  *       func_80158150(list, 2): 2 arguments, no result used;
@@ -67,8 +67,8 @@
  *     to rows below 111), and a count above 40 (so that the cell buffer
  *     stays clear of the globals above it); side 0 or 1, column 0 to 3 and
  *     selector 0 or 1 (the sizes of the cache and buffer tables).
- *   Not reached by any input: one instruction slot of the original, at
- *     offset 0x2ac, which adds 15 to a value before it is divided by 16 when
+ *   Not reached by any input (read from the listing): one instruction
+ *     slot of the original, at offset 0x2ac, which adds 15 to a value before it is divided by 16 when
  *     the value is negative; the value is a sum of non-negative products
  *     (side, column and the sizes of the arrays are small non-negative
  *     numbers), so no input reaches it.

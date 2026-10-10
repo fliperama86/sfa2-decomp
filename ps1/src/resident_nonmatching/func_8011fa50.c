@@ -24,13 +24,14 @@
  *     func_8011fb70 the destination cells (see below).
  *   Callee func_8011fb70 (game code, copies a grid of 16-bit cells from the
  *     data block, whose first two halfwords are the columns and rows count)
- *     runs as the original in both runs; the destination is the buffer in
+ *     runs as the original in both runs (what it copies is read from its
+ *     listing, not tested); the destination is the buffer in
  *     cam_f50 plus a signed offset of 17 bits. The setup keeps the data
  *     block, the object and the buffer in separate blocks, and counts of
  *     0 to 6.
- *   Not reached by any input: one instruction slot of the original, at
- *     offset 0x40, which adds 31 to the masked pos_x bits before dividing
- *     by 32; the masked value (pos_x & 0x1e0) is never negative.
+ *   Not reached by any input (read from the listing): one instruction
+ *     slot of the original, at offset 0x40, which adds 31 to the masked
+ *     pos_x bits before dividing by 32; the masked value (pos_x & 0x1e0) is never negative.
  */
 #include "../game.h"
 #include "../protos.h"

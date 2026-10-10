@@ -6,14 +6,17 @@ header comment of func_8011d74c.c. Choices made here:
   - the size entry (1 to 110), the header pointer and the header count (1 to
     40; 16, 17, 31 or 32 in a quarter of the cases, so that the row of 16
     ends exactly or leaves a partial row) are 0 in one case of ten each;
-  - the flag entry is 0 in half of the cases; then the entries before it
-    equal the current ones in three cases of five, else one or both differ;
+  - the flag entry is 0 in half of the cases; the entries before it (set
+    for any flag entry) are both equal to the current ones when
+    rng.randrange(5) gives 0 or 4, the size differs for 1, the header
+    for 2, both for 3;
   - the cache cells hold the three values the function would store in a
     quarter of the cases (it returns at once), otherwise each of the three
     equals the new value in half of the cases and is random otherwise;
   - the row table (16 bytes per size value) and the chain table hold
     random values, the chain entries are 0 to 110;
-  - the recorders return random 32-bit values;
+  - func_8015bdd4 and func_8015bd0c return random 32-bit values,
+    func_801250c0 the call block, the other recorders 0;
   - the cell buffer bytes the function may write are filled with random
     bytes, so that the bytes left alone are tested.
 """

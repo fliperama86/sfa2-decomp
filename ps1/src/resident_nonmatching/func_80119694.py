@@ -5,10 +5,10 @@ Choices made here:
     block's word 29 to 63 (so the 29 words read stay inside it), given with
     a random top byte (the function uses only the low 24 bits; the block's
     address is below 0x100000, so the low 24 bits address the same RAM);
-  - each word is, with a probability chosen per case (from 0.1 to 0.9), a
-    link to the previous word (its own address minus 4, as the function
-    compares it), and otherwise a random word; so that runs of links of
-    every length occur, a case sometimes starts with a long run;
+  - each word is, with a probability chosen per case (one of 0.1, 0.3,
+    0.5, 0.7, 0.9, 0.97), a link to the previous word (its own address
+    minus 4, as the function compares it), and otherwise a random word;
+    so that runs of links of every length occur;
   - the counter is run to 0 in the middle of a run, of a non-link, and at
     each of the function's decrements, by the random lengths of the runs
     and the start position.

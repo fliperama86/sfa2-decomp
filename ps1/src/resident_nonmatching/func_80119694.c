@@ -29,8 +29,8 @@
  *   The words read stay inside RAM: the start address is at least 29 words
  *     above the start of the RAM mirror and the memory below it is readable.
  *   Nothing is called.
- *   Every instruction slot of the original is reachable by an input (the
- *     counter reaching 0 at each of its five decrements).
+ *   Every instruction slot of the original is executed by some input (see
+ *     the coverage line). The C decrements the counter at four places.
  */
 #include "../game.h"
 #include "../protos.h"

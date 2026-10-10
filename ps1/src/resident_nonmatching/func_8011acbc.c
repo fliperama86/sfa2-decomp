@@ -27,8 +27,9 @@
  *   No argument, no result. Reads data_80190568, game_state.field_40, the
  *     counter data_8019045c (set to 0 first) and the 40 records: field_00,
  *     field_01, field_02, field_08, field_09, field_81 and the part
- *     pointers at 0x28, 0x2c, 0x30 and 0x34 of each. Writes the counter
- *     and field_09 of the parts it passes on.
+ *     pointers at 0x28, 0x2c, 0x30 and 0x34 of each, and field_01 of each
+ *     non-null part. Writes the counter and field_09 of the parts it
+ *     passes on.
  *   Callees replaced by recorders in the test, each returning 0: the 19
  *     stage handlers (func_801e9080, func_801e9f90, func_801e99c8,
  *     func_801e9d04, func_801e99b4, func_801e8dc8, func_801e9798,

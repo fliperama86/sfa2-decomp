@@ -1,8 +1,8 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * original forms the address of the first byte before it clears the loop
- * counter; the code built from this C clears the counter first (two
- * instruction slots, registers right). The exact owner of the bytes in the
+ * counter (read from the listing); the code built from this C clears the
+ * counter first (two instruction slots, registers right). The exact owner of the bytes in the
  * PS1 build stays the raw bytes of the resident image; the build does not
  * use this file. The differential test next to it (difftest.py) compares
  * the behavior of this C with the original code on random inputs of the

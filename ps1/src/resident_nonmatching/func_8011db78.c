@@ -33,7 +33,8 @@
  *   Reads: object field_02, field_0f, side (0xa6), field_98 (a pointer);
  *     data_801900f8[field_02]; the tables data_80183d9c, data_80183dc4,
  *     data_80183dec and data_80183d74 at [field_02][d] with d from 0 to 9,
- *     and at [field_02][d - 1] when the flag table entry is 0; box_margin;
+ *     and data_80183d9c and data_80183dec also at [field_02][d - 1] when
+ *     the flag table entry is 0; box_margin;
  *     data_801aa5ea; game_state.field_92 when field_0f is not 0;
  *     data_801a27d0 (buffer selector); data_801987c8; the stream.
  *   Returns early, writing nothing but the recorders' log, in these
@@ -62,8 +63,8 @@
  *     The two y values are always equal, and the stored x of each mode
  *     moves the same way in the original and here, so the C keeps one x
  *     and one y (inferred from the listing; the test is the check).
- *   Not reached by any input: two instruction slots of the original, at
- *     offsets 0x298 and 0x29c: the jump after a "mode is 0" test that has
+ *   Not reached by any input (read from the listing): two instruction
+ *     slots of the original, at offsets 0x298 and 0x29c: the jump after a "mode is 0" test that has
  *     just failed for a mode already known to be below 2 and not 1.
  */
 #include "../game.h"

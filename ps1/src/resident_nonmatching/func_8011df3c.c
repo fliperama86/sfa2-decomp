@@ -2,7 +2,8 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction scheduling and
  * register choice, and the original holds two copies of its code (one for
- * each value of bit 15 of the flags) where this C holds one. The exact owner
+ * each value of bit 15 of the flags; read from the listing) where this C
+ * holds one. The exact owner
  * of the bytes in the PS1 build stays the raw bytes of the resident image;
  * the build does not use this file. The differential test next to it
  * (difftest.py with func_8011df3c.py) compares the behavior of this C with
@@ -16,30 +17,34 @@
  * address (a running pointer) exclusive-or the mask. The block starts with
  * a halfword n:
  *   n == 0              the next 64 halfwords are the cells;
- *   high byte of n 0    low byte n8 is a count of cells in groups of 16:
+ *   high byte of n 0    low byte n8 is a count of items in groups of 16:
  *                       ((n8 - 1) / 16 + 1) flag halfwords follow, then the
  *                       data; for each of n8 / 16 full groups and then
- *                       n8 % 16 more cells, one flag bit (lowest first)
- *                       selects either one literal halfword, or a reference:
+ *                       n8 % 16 more items, one flag bit (lowest first)
+ *                       selects either one literal halfword (one cell), or
+ *                       a reference:
  *                       a halfword whose low 2 bits plus 2 give a length
  *                       and whose upper 14 bits give a distance in
  *                       halfwords back from the start of the block; that
- *                       many cells are copied from there;
+ *                       many cells (2 to 5) are copied from there;
  *   n & 0xff00 == 0x8000  four flag halfwords follow, then the data; each of
  *                       the 64 flag bits selects a literal halfword (bit
  *                       set) or a zero cell (bit clear);
  *   any other n         the work is given to func_8011e5c8 (bit 15 set) or
  *                       func_8011e790 (clear), a byte-oriented unpacker
- *                       that is passed n, the stream after n, the
+ *                       (inferred) that is passed n (func_8011e5c8 takes
+ *                       its low byte only), the stream after n, the
  *                       destination and the second mask.
  *
  * Contract (what the code reads and writes; roles are inferred):
  *   Arguments: a0 = base of the data, a1 = flags (the upper 16 bits are
  *     ignored), a2 = destination (an even address). No return value.
  *   Callees: func_8011e5c8 and func_8011e790 are game code that stays in
- *     game code (they call nothing); they run as the original, the same in
- *     both runs. The test thereby also checks the four arguments they get.
- *     Both read their fourth argument as an address mask.
+ *     game code (they call nothing; read from the original's listing, not
+ *     tested); they run as the original, the same in both runs. The test
+ *     thereby also checks the four arguments they get. Both read their
+ *     fourth argument as an address mask (read from the original's listing,
+ *     not tested).
  *   Reads: the offset table at the base, the block it points to, the data
  *     the references point back to, and (read-only, from the image) the two
  *     tables of four masks {0, 0x78, 6, 0x7e} and {0, 0x78, 7, 0x7f} that

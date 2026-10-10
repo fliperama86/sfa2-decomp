@@ -5,16 +5,17 @@
  * (difftest.py, with func_8011a880.py) compares the behavior of this C with
  * the original code on random inputs of the contract below.
  *
- * What it does (inferred, not an original name): for the two fighters
- * (player_left, player_right) it decides which one is drawn in front and
- * stores that as field_09 (1 for the one in front, 0 for the other), then
- * runs the per-fighter update calls for the left fighter and for the right
- * one. If either fighter has a non-zero field_73, the one with the larger
- * field_17a is in front (the right one when they are equal and the right
- * one's field_73 is 1, the left one when they are equal otherwise). If both
- * have field_73 equal to 0, the one whose current frame record has the
- * larger field_04 is in front, and when those are equal neither field_09 is
- * changed. Then, for each fighter in turn: the four part blocks at
+ * What it does (inferred, not an original name): it sets field_09 of the
+ * two fighters (player_left, player_right) as described below, then runs
+ * the per-fighter update calls for the left fighter and for the right one. If either fighter has a non-zero field_73, both field_09 are
+ * set to 0 and then the fighter with the larger field_17a gets 1 (the right
+ * one when they are equal and the right one's field_73 is 1, the left one
+ * when they are equal otherwise). If both have field_73 equal to 0, the
+ * byte field_04 of each fighter's current frame record is compared: the
+ * fighter with the SMALLER one gets field_09 = 1 and the other gets 0, and
+ * when the two are equal neither field_09 is changed. What field_09 means
+ * to the code that reads it is not stated here. Then, for each fighter in
+ * turn: the four part blocks at
  * offsets 0x28, 0x2c, 0x30 and 0x34, when present and with field_01 not 0,
  * get field_09 = fighter's field_09 + 4 and are passed to func_8011bc84; the
  * calls to func_8011cbb8(fighter) (after the 0x2c part) and to
@@ -26,7 +27,7 @@
  *     (field_00, field_01, field_09, field_73, the frame pointer at 0x88,
  *     field_17a, the part pointers), the frame records they point at
  *     (field_04), frames_left and frames_right (scratchpad words), and
- *     field_01 and field_09 of each part block.
+ *     field_01 of each part block.
  *   Writes: field_09 of both fighters (before the calls) and field_09 of
  *     each part block it passes to func_8011bc84.
  *   Callees replaced by recorders in the test, returning 0: func_8011bc84
