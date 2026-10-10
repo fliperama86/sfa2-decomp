@@ -97,6 +97,8 @@ static void cb_b(void)
     printf("cb B started the next\n");
 }
 static char kind(void (*f)(void)) { return f == 0 ? '0' : f == cb_a ? 'A' : f == cb_b ? 'B' : '?'; }
+/* The runtime's check of an address before it is called: here it prints what it was asked about, and the order shows. */
+void port_target_check(const char *path, const void *target) { printf("target %s %c\n", path, kind((void (*)(void))target)); }
 
 static int unhex(const char *s, unsigned char *out)
 {
@@ -733,6 +735,19 @@ def completion_not_taken_before_its_due_time():
     c = three()
     g = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1) - 1}", "poll", "claim", "deliver", "poll"])
     return eq((cbs(g), claims(g)), ([], ["claim 0"]))
+
+
+@case
+def completion_checks_the_routines_address_before_calling_it():
+    # The runtime's check of a call target is asked about the registered routine, once, right before the call, by the
+    # poll and by the timer's way alike; with no routine registered it is not asked at all.
+    c = three()
+    by_poll = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "poll"])
+    by_timer = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "claim", "deliver"])
+    want = ["target decoder output callback A", f"cb A t={due(1)} depth=1"]
+    seen = lambda g: [l for grp in g for l in grp if l.startswith(("target ", "cb "))]
+    none = ok_run(three(mode_cb="") + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "poll"])
+    return eq((seen(by_poll), seen(by_timer), seen(none)), (want, want, []))
 
 
 @case

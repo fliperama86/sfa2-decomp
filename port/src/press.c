@@ -35,6 +35,7 @@ static void run_completion(void)
     void (*f)(void) = port_iopage_dma_callback(1);
     state = 0;
     if (f) {
+        port_target_check("decoder output callback", (const void *)f);   /* its address checked now, as iopage.c does for its own */
         f();
     } else {
         dropped++;
