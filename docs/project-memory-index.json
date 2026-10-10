@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "2a1490e2bab3f6855f3c83af3113d6866ea187411b0cc4fae18ad67e35dd3f2b",
+  "sha256": "c5b7565d472c7b72d6dcdfa2b8f56a160cb83abda45ba84852ca6b688169dceb",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -627,8 +627,12 @@
       "line": 9359
     },
     {
-      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
       "line": 9435
+    },
+    {
+      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "line": 9487
     }
   ]
 }
