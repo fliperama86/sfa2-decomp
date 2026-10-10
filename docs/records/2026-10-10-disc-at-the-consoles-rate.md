@@ -27,7 +27,7 @@
   and for a sound bank the game's library then never recovers. A later
   change.
 - Ran:
-  - `python3 port/tools/test_hostcd.py`: 60 lines `ok` on main, 79 now,
+  - `python3 port/tools/test_hostcd.py`: 60 lines `ok` on main, 88 now,
     last line `all cases behaved as required`, 0.5 seconds. Cases
     corrected by hand: the ones that counted three sectors a tick (the
     ticks of a read, a read after Pause, the sector under the buffer
@@ -37,8 +37,17 @@
     a Setmode that leaves the bit alone, a read paused by the handler in
     the middle of a vblank's delivery, a blocked reader at both speeds (after 3 and 4 blocked vblanks, and the bound after 50), and ticks with no
     read on.
+  - The cost of a sector is taken from the carry before the game's ready
+    handler runs, and a read start or a speed change made by the handler
+    ends the row. Found in review: with the cost taken after the call, a
+    handler that issued ReadN, ReadS or a Setmode that changes the speed
+    bit made the unsigned carry wrap and delivered the rest of a
+    32-sector image in one tick (with the old code the controls printed
+    counts of 13 and 32 sectors in the first tick, and a handler that
+    issued ReadN at every sector never ended). Nine cases now cover the
+    handler's actions.
   - Each rule fails under a change made to a copy of `cd.c`, run under a
-    time limit: 11 changes (one per rule, among them the remainder kept whole and the carry cleared to 0 in its place), each failing at least one case (one-off run;
+    time limit: 13 changes (one per rule, among them the remainder kept whole and the carry cleared to 0 in its place, and the cost taken after the handler's call), 12 of them failing at least one case; the thirteenth (the handler's reset not checked, with the cost taken first) changes nothing a case can see (one-off run;
     the table is in the working notes and not in the repository).
   - `python3 port/tools/test_hostmodules.py --cc CC`: 55 lines `ok`,
     `all cases behaved as required`; `python3 port/tools/test_hostlaunch.py

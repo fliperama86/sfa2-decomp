@@ -994,7 +994,11 @@ routines that do nothing on purpose. What is in this piece:
   sector (the reader is not taking, the read stopped, the handler
   paused it), the carry is cut to its remainder, so what the drive could
   not hand over is not handed over later: no frame brings more than 3
-  sectors at double speed or 2 at single speed. A blocking wait of the game for a sector
+  sectors at double speed or 2 at single speed. The cost of a sector is taken
+  before the game's handler runs, and a read or a speed change that the
+  handler issues ends the row of that frame, so a handler cannot make
+  the drive run ahead (a read started at every sector gives one sector a
+  frame). A blocking wait of the game for a sector
   is not counted by it. The reason (measured in a private trial of the
   port's sound, not published): the game reads a stream into a ring
   of seven places that its main loop empties once per pass, and runs it

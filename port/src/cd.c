@@ -88,6 +88,31 @@
  * brings more than 3 sectors at double speed or 2 at single speed (a blocked
  * reader never gets a burst when it starts taking again).
  *
+ * The ready handler runs inside the row, and what it may do to the carry:
+ *  - The cost of a sector is taken from the carry BEFORE deliver_one calls the
+ *    handler (the drive's time for the sector is spent before the handler
+ *    runs). Taking it first leaves the same remainder when the sector could
+ *    not be delivered: (c - cost) modulo cost is c modulo cost.
+ *  - A handler may start a read (ReadN, ReadS) or change the speed bit; both
+ *    clear the carry and count the clear (carry_resets). The row reads the
+ *    count before deliver_one and, if it changed, ends at once and leaves the
+ *    carry as the command left it, so a reset made by a handler stands for the
+ *    next vblank: no burst, no wrap of the unsigned carry, and the cost, which
+ *    belongs to the old speed, is not used again. A handler that starts a read
+ *    at every sector therefore brings exactly one sector a vblank.
+ *    (With the cost taken first, a reset leaves the carry at 0 and the loop
+ *    would end by itself; the count is a second guard that does not depend on
+ *    that, and no case can tell the two apart.)
+ *  - Pause: reading is 0, the next deliver_one returns 0, the row ends with
+ *    the remainder.
+ *  - A Setmode that leaves the speed bit as it is changes nothing the row uses.
+ *    CdInit from a handler stops the read (reading 0), so the row ends at the
+ *    next round, before the changed mode could be used.
+ *  - CdReady(0) from a handler: it does not call port_tick while a delivery is
+ *    on, and its call of port_cd_tick is guarded by in_delivery; port_cd_tick
+ *    itself returns before it touches the carry when a delivery is on. It
+ *    takes the ready flag and leaves the carry as it is.
+ *
  * The blocking wait of the game (CdReady with mode 0) is unchanged: when no
  * sector is ready and a read is on, it calls port_cd_tick itself, as before.
  * That call adds to the carry and delivers like a vblank's, so a wait can
@@ -139,6 +164,7 @@ static struct {
     unsigned char data[PORT_DATA];
     int in_delivery;
     unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a vblank (see the header) */
+    unsigned carry_resets;          /* counts the clears of the carry, so that the delivery row sees one made by a handler */
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
 } cd;
 
@@ -261,6 +287,13 @@ static void set_status(unsigned char s)
     lib_put32(PORT_CD_VAR_STATUS, s);
 }
 
+/* The carry is cleared (a read starts, the speed bit changes); the count lets a delivery row in progress see it. */
+static void clear_carry(void)
+{
+    cd.carry = 0;
+    cd.carry_resets++;
+}
+
 /* The second response of Pause and SeekL arrives. */
 static void settle_pending(void)
 {
@@ -340,7 +373,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         if (cd.mode & 0x20) cd_stop("disc mode (whole sector)", cd.mode);
         if (cd.loc_set) { cd.pos = cd.loc; cd.loc_set = 0; }
         cd.reading = 1;
-        cd.carry = 0;
+        clear_carry();
         cd.ready = 0;
         set_status(ST_READ);
         one[0] = cd.status;
@@ -366,7 +399,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         break;
     case 0xe:
         if (param[0] & 0x20) cd_stop("disc mode (whole sector)", param[0]);
-        if ((cd.mode ^ param[0]) & 0x80) cd.carry = 0;
+        if ((cd.mode ^ param[0]) & 0x80) clear_carry();
         cd.mode = param[0];
         respond(one, 1, 2);
         break;
@@ -592,11 +625,15 @@ void port_cd_tick(void)
     cd.in_delivery = 1;
     cd.carry += 5;
     while (cd.carry >= cost) {
-        if (!deliver_one()) {   /* the row ends: what the drive could not hand over now is not handed over later */
-            cd.carry %= cost;
+        unsigned resets = cd.carry_resets;
+        int taken;
+        cd.carry -= cost;   /* the drive's time for this sector is spent before the handler runs */
+        taken = deliver_one();
+        if (cd.carry_resets != resets) break;   /* the handler started a read or changed the speed: its reset stands, and the cost above is not used again */
+        if (!taken) {   /* the row ends: what the drive could not hand over now is not handed over later */
+            cd.carry %= cost;   /* the same remainder as before the cost was taken */
             break;
         }
-        cd.carry -= cost;
     }
     cd.in_delivery = 0;
 }

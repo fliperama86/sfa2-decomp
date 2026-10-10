@@ -55,6 +55,8 @@ static int ticks, autotick;
 static int h_on;
 static unsigned h_dest;
 static int h_pieces[16], h_np, h_stop, h_calls, h_count;
+static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call number a_when (0: on every call) */
+static char a_kind;
 
 volatile int port_handler_depth;   /* the driver's counter; cd.c raises it around the ready handler */
 /* jumps.c's check of a callback's address; cd.c calls it only when port_cd_call is not set, and here it is, so this
@@ -82,6 +84,13 @@ static void handler(unsigned h, int intr, unsigned char *res)
     if (h != 0x1234) { printf("H bad handler value %x\n", h); return; }
     printf("H intr=%d res0=%02x\n", intr, res[0]);
     if (intr == 1) h_count++;
+    if (intr == 1 && a_kind && (!a_when || ++a_calls == a_when)) {
+        unsigned char p[4] = {0, 0, 0, 0}, rs[8];
+        if (a_kind == 'N' || a_kind == 'S') { port_CdIntToPos(a_arg, p); port_CdControl(a_kind == 'N' ? 6 : 0x1b, p, rs); }
+        else if (a_kind == 'M') { p[0] = (unsigned char)a_arg; port_CdControl(0xe, p, rs); }
+        else if (a_kind == 'I') port_CdInit();
+        else if (a_kind == 'R') { port_CdReady(0, rs); }
+    }
     if (intr != 1 || !h_on) return;
     for (i = 0; i < h_np; i++) {
         int r = port_CdGetSector(at(h_dest) + 4 * done, h_pieces[i]);
@@ -125,6 +134,7 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) port_cd_tick(); }
         else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
+        else if (!strcmp(cmd, "act")) { char k = 0; int w = 0, a = 0; if (sscanf(rest, "%d %c %d", &w, &k, &a) < 2) return 64; a_when = w; a_kind = k; a_arg = a; a_calls = 0; }   /* what the ready handler does: N ReadN to a, S ReadS to a, M Setmode a, I CdInit, R CdReady(0) */
         else if (!strcmp(cmd, "cb")) { unsigned v = atoi(rest) ? HANDLER_VALUE_C : 0; unsigned char *p = at(PORT_CD_VAR_READY_CB); p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = p[3] = 0; }
         else if (!strcmp(cmd, "stopafter")) { h_stop = atoi(rest); h_calls = 0; }
         else if (!strcmp(cmd, "handler")) {
@@ -638,6 +648,42 @@ def rate_cases(root: Path, exe: Path):
     yield check("double speed: after 50 blocked ticks no tick brings more than 3 sectors", rc == 0 and len(v) == 12 and max(v) == 3, f"{v}")
     rc, v = counts(sgl + "cb 0\nreadn 0\ntick 50\ncb 1\ntickc 12\n")
     yield check("single speed: after 50 blocked ticks no tick brings more than 2 sectors", rc == 0 and len(v) == 12 and max(v) == 2, f"{v}")
+    # the ready handler acts on the drive from inside the row (a made-up image of 32 sectors; the handler takes whole
+    # sectors, so the sector numbers show). The cost is taken before the handler runs; a read start or a speed change
+    # made by the handler clears the carry and ends the row, so it brings no burst. By hand, counts of five ticks:
+    img32 = root / "act.bin"
+    make_image(img32, 32)
+
+    def acted(script):
+        rc, lines = run(exe, img32, "cdinit\ncb 1\nhandler 80100000 512\n" + script)
+        return rc, [int(l.split()[1]) for l in lines if l.startswith("V ")], [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+
+    # double speed, the first callback issues ReadN to 20: tick 1: 5, cost 2, sector 0, the reset ends the row (1);
+    # then from zero: 5 -> 2 (20, 21), 6 -> 3 (22, 23, 24), 5 -> 2 (25, 26), 6 -> 3 (27, 28, 29)
+    for kind, label in (("N", "ReadN"), ("S", "ReadS")):
+        rc, v, sec = acted(dbl + f"readn 0\nact 1 {kind} 20\ntickc 5\n")
+        yield check(f"the first ready callback issues {label} (double speed): 1, 2, 3, 2, 3 sectors, the new read's from its position",
+                    rc == 0 and v == [1, 2, 3, 2, 3] and sec == [0] + list(range(20, 30)), f"{rc} {v} {sec}")
+    # double to single: tick 1: sector 0, the reset ends the row (1); from zero at cost 4: 1 (1), 1 (2), 1 (3), 2 (4, 5)
+    rc, v, sec = acted(dbl + "readn 0\nact 1 M 0\ntickc 5\n")
+    yield check("the first ready callback sets single speed (from double): 1, 1, 1, 1, 2 sectors", rc == 0 and v == [1, 1, 1, 1, 2] and sec == [0, 1, 2, 3, 4, 5], f"{rc} {v} {sec}")
+    # single to double: tick 1: 5, cost 4, sector 0, carry 1, the reset ends the row (1); from zero at cost 2: 2, 3, 2, 3
+    rc, v, sec = acted(sgl + "readn 0\nact 1 M 128\ntickc 5\n")
+    yield check("the first ready callback sets double speed (from single): 1, 2, 3, 2, 3 sectors", rc == 0 and v == [1, 2, 3, 2, 3] and sec == list(range(0, 11)), f"{rc} {v} {sec}")
+    # a read started at every sector: each tick brings exactly one (the handler cannot make the drive run ahead)
+    rc, v, sec = acted(dbl + "readn 0\nact 0 N 20\ntickc 5\n")
+    yield check("a ReadN at every sector: exactly 1 sector a tick (double speed)", rc == 0 and v == [1, 1, 1, 1, 1] and sec == [0, 20, 20, 20, 20], f"{rc} {v} {sec}")
+    rc, v, sec = acted(sgl + "readn 0\nact 0 N 20\ntickc 5\n")
+    yield check("a ReadN at every sector: exactly 1 sector a tick (single speed)", rc == 0 and v == [1, 1, 1, 1, 1] and sec == [0, 20, 20, 20, 20], f"{rc} {v} {sec}")
+    # what the handler does that leaves the row alone: a Setmode with the same speed bit, CdReady(0) taking the flag
+    rc, v, sec = acted(dbl + "readn 0\nact 1 M 200\ntickc 5\n")
+    yield check("a Setmode that keeps the speed bit, from the handler: 2, 3, 2, 3, 2 sectors", rc == 0 and v == [2, 3, 2, 3, 2] and sec == list(range(0, 12)), f"{rc} {v} {sec}")
+    rc, v, sec = acted(dbl + "readn 0\nact 0 R 0\ntickc 5\n")
+    yield check("CdReady(0) from the handler (no re-entry of the tick, the carry untouched): 2, 3, 2, 3, 2 sectors", rc == 0 and v == [2, 3, 2, 3, 2] and sec == list(range(0, 12)), f"{rc} {v} {sec}")
+    # CdInit from the handler stops the read: the row ends after the sector it was called for, nothing after
+    rc, v, sec = acted(dbl + "readn 0\nact 1 I 0\ntickc 5\n")
+    yield check("CdInit from the handler stops the read: 1, 0, 0, 0, 0 sectors", rc == 0 and v == [1, 0, 0, 0, 0] and sec == [0], f"{rc} {v} {sec}")
+    # (every list above stays within the bound: at most 3 sectors a tick)
     # nothing is delivered, and no carry kept, when no read is on
     rc, v = counts(dbl + "tickc 4\nreadn 0\ntickc 2\n")
     yield check("ticks with no read on deliver nothing and leave no carry for the read that follows (0, 0, 0, 0, then 2, 3)", rc == 0 and v == [0, 0, 0, 0, 2, 3], f"{v}")
