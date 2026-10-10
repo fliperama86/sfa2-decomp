@@ -61,8 +61,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8011e5c8(u16 n, u16 *src, u16 *dst, u32 key);
-void func_8011e790(u16 n, u16 *src, u16 *dst, u32 key);
+void func_8011e5c8(unsigned char n, unsigned char *src, unsigned int dst, unsigned int key);
+void func_8011e790(unsigned int n, unsigned char *src, unsigned int dst, unsigned int key);
 
 /* Address masks, one pair per value of bits 14 and 15 of the flags. */
 static const u16 mask_table[4] = {0x0000, 0x0078, 0x0006, 0x007e};
@@ -141,8 +141,8 @@ void func_8011df3c(void *a, int b, u8 *c) {
             }
         }
     } else if (reverse) {
-        func_8011e5c8(n, p, dst, key);
+        func_8011e5c8(n, (unsigned char *)p, (unsigned int)dst, key);
     } else {
-        func_8011e790(n, p, dst, key);
+        func_8011e790(n, (unsigned char *)p, (unsigned int)dst, key);
     }
 }

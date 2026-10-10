@@ -52,7 +52,7 @@
 /* Declarations that the published headers lack (inferred types, not
    original declarations). */
 extern u8 data_8019016c;
-extern u16 data_80188d04;
+extern s16 data_80188d04;
 extern u8 data_8019808e;
 extern u8 data_80198422;
 extern u8 data_801ac6a8[];

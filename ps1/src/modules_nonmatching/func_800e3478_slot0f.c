@@ -47,7 +47,7 @@
 
 extern Slot0fRecf32c data_800df32c_slot0f;
 extern s8 data_800f8554_slot0f[];
-extern s8 data_800f8564_slot0f[2][8];
+extern u8 data_800f8564_slot0f[2][8];
 extern Cell16 data_800e953c_slot0f[];
 extern Slot0fRec94b0 data_800e94b0_slot0f[];
 extern Slot0fRec94ec data_800e94ec_slot0f[];

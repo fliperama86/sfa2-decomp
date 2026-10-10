@@ -110,7 +110,7 @@ def setup(state, rng, sym) -> Setup:
     log.replace(sym["func_80119030"], 0)
     log.replace(sym["func_80119144"], 2)
     log.replace(sym["func_80157784"], 1, ends_run_at=resets_at, stores=stores)
-    log.replace(sym["func_80118fc8"], 2, results=pads)
+    log.replace(sym["func_80118fc8"], 0, results=pads)
     log.replace(sym["func_80120408"], 0)
     log.replace(sym["func_8014f4d4"], 2)
     log.replace(sym["func_80157d00"], 1)

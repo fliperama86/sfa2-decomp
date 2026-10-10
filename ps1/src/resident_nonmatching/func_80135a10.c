@@ -45,7 +45,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80135c0c(Strip1c *a, Strip1c *b, u8 index);
+void func_80135c0c(u8 *a, u8 *b, u8 index);
 
 void func_80135a10(void) {
     Object *left = &player_left;
@@ -67,7 +67,7 @@ void func_80135a10(void) {
                 } else {
                     v = v << 2;
                 }
-                func_80135c0c(&strips[0][i], &strips[1][i], v);
+                func_80135c0c((u8 *)&strips[0][i], (u8 *)&strips[1][i], v);
             } else {
                 right->bytes_d0[i] = v;
                 func_80120554(right, 1, 0x34c);
@@ -76,18 +76,18 @@ void func_80135a10(void) {
                 } else {
                     v = v << 2;
                 }
-                func_80135c0c(&strips[2][i], &strips[3][i], v);
+                func_80135c0c((u8 *)&strips[2][i], (u8 *)&strips[3][i], v);
             }
         }
     } else if (data_80190474 == 2) {
         for (i = 0; i < 4; i++) {
             if (left->bytes_d0[i] == 8) {
-                func_80135c0c(&strips[0][i], &strips[1][i], 0x20);
+                func_80135c0c((u8 *)&strips[0][i], (u8 *)&strips[1][i], 0x20);
             }
         }
         for (i = 0; i < 4; i++) {
             if (right->bytes_d0[i] == 8) {
-                func_80135c0c(&strips[2][i], &strips[3][i], 0x20);
+                func_80135c0c((u8 *)&strips[2][i], (u8 *)&strips[3][i], 0x20);
             }
         }
     }

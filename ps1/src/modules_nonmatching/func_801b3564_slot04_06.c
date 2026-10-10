@@ -78,7 +78,7 @@ int func_801410c8(Object *object);
 int func_801468f4(Object *object);
 void func_801b4818_slot04_06(Object *obj);
 void func_801b4874_slot04_06(Object *obj, u16 *p);
-u8 func_801b5ed8_slot04_06(Object *obj);
+int func_801b5ed8_slot04_06(Object *obj);
 extern u16 data_801c547c_slot04_06[];
 
 /* Pushes the object that ref_other points at away: x by d as the helper

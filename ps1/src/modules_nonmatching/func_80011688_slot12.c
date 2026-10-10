@@ -34,7 +34,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 data_80028aa0_slot12[];
+extern u8 data_80028aa0_slot12[];
 extern u16 *data_80028b40_slot12;
 
 int func_80011688_slot12(void) {
@@ -42,7 +42,7 @@ int func_80011688_slot12(void) {
     int i;
     unsigned blue_target, green_target, red_target;
     unsigned blue, green, red;
-    u16 *target = data_80028aa0_slot12;
+    u16 *target = (u16 *)data_80028aa0_slot12;
     u16 *cur = data_80028b40_slot12;
     int changed = 0;
 

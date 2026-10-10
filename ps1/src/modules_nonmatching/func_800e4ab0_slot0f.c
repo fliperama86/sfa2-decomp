@@ -45,9 +45,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 data_800f7264_slot0f;
+extern s16 data_800f7264_slot0f;
 
-void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, int count) {
+void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, short count_arg) {
+    int count = count_arg;
     int row;
     int col;
     u16 ty;

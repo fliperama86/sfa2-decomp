@@ -54,8 +54,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80134624(Slab172 *rec);
-void func_801452ec(Slab172 *rec);
+void func_80134624(Object *object);
+void func_801452ec(Object *object);
 
 
 /* A part block of a record is passed on only when it exists and is active;
@@ -81,9 +81,9 @@ static void update_record(Slab172 *rec) {
         if (type == 3 || type == 0xb || type == 0x14) {
             func_8011cd68((Block172 *)rec);
         } else if (type == 0x6d) {
-            func_80134624(rec);
+            func_80134624((Object *)rec);
         } else if (type == 0x27 && rec->field_01 == 1) {
-            func_801452ec(rec);
+            func_801452ec((Object *)rec);
         } else {
             func_8011bc84(rec);
         }

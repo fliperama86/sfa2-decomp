@@ -9,7 +9,7 @@
  * What it does (inferred, not an original name): sets up a scene of eleven
  * objects. When the given object's field_f0 is 0 it sets the HUD state's
  * field_60 to 600 and adds 1 to its field_52, calls func_80022bf0_slot28
- * with the object, and prepares the object held in data_80051bd0_slot28
+ * (no argument), and prepares the object held in data_80051bd0_slot28
  * (position y -0x60, field_01 1, sequence set with func_80130768). Then it
  * asks func_8011f1e0 for nine objects; each one it gets is filled in and
  * entered in the table data_80051ba4_slot28 at index 1 to 9. It asks for
@@ -32,7 +32,7 @@
  *     data_80051bd0_slot28 and the ten objects func_8011f1e0 returns are
  *     distinct blocks; the table is another block.
  *   Callees replaced by recorders (same in both runs): func_80022bf0_slot28
- *     (1 argument), func_80130768 (3 arguments), func_8011f1e0 (no
+ *     (no argument), func_80130768 (3 arguments), func_8011f1e0 (no
  *     argument; the setup gives it, per call in turn, a new object or 0),
  *     func_80022c6c_slot28 (1), func_80128370 (0; it waits for the
  *     hardware), func_8014f4d4 (2; it reaches the library),
@@ -51,14 +51,14 @@
 
 extern HudState *data_8018f5a0;
 /* Tables of the module, inferred from the code. */
-extern ObjectRef data_80051ba4_slot28[];
-extern ObjectRef data_80051bd0_slot28;
+extern Object *data_80051ba4_slot28[];
+extern Object *data_80051bd0_slot28[];
 extern u8 data_800469ec_slot28[];
 extern u8 data_80046d34_slot28[];
 extern SequenceStep *data_80047bdc_slot28[];
 extern SequenceStep *data_80047be4_slot28[];
 void func_80128370(void);
-void func_80022bf0_slot28(Object *obj);
+void func_80022bf0_slot28(void);
 void func_80022c3c_slot28(Object *obj, int arg);
 void func_80022c6c_slot28(Object *obj);
 
@@ -71,9 +71,9 @@ void func_80022944_slot28(Object *obj) {
     }
     data_8018f5a0->field_60 = 0x258;
     data_8018f5a0->field_52++;
-    func_80022bf0_slot28(obj);
+    func_80022bf0_slot28();
 
-    o = data_80051bd0_slot28.p;
+    o = data_80051bd0_slot28[0];
     o->pos_y = -0x60;
     o->field_01 = 1;
     func_80130768(o, 0, data_80047bdc_slot28);
@@ -93,7 +93,7 @@ void func_80022944_slot28(Object *obj) {
             o->field_01 = 1;
             o->field_0d = 0;
             o->box_tables = (BoxTables *)data_80047be4_slot28;
-            data_80051ba4_slot28[i].p = o;
+            data_80051ba4_slot28[i] = o;
         }
     }
 
@@ -107,7 +107,7 @@ void func_80022944_slot28(Object *obj) {
         o->field_0d = 0;
         o->field_09 = 2;
         func_80130768(o, 2, data_80047be4_slot28);
-        data_80051ba4_slot28[0].p = o;
+        data_80051ba4_slot28[0] = o;
         o->field_09 = 3;
     }
     func_80128370();

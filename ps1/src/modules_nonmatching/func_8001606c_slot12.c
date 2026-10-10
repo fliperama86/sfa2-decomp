@@ -46,7 +46,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern Slot12Rec data_8002bc94_slot12[];
+extern Slot12Quad data_8002bc94_slot12[];
 extern u8 data_8002bc8c_slot12[];
 extern SequenceStep *data_80028444_slot12[];
 extern u8 data_80028500_slot12[];
@@ -56,7 +56,7 @@ void func_8001606c_slot12(Object *obj, int mode) {
     Slot12Rec *rec;
     SequenceStep **steps;
 
-    rec = &data_8002bc94_slot12[obj->field_03];
+    rec = &((Slot12Rec *)data_8002bc94_slot12)[obj->field_03];
     rec->field_00 = 0;
     rec->field_08 = 0x10;
     rec->field_09 = 0x10;

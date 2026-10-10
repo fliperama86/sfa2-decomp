@@ -39,7 +39,7 @@
  *   addresses and what they point at is not watched (main does not write it).
  *   Callees and what they return:
  *     func_8014f0bc  (0 args)  0 a random number of times, then 1
- *     func_80118fc8  (2 args)  random per call, 0 most often
+ *     func_80118fc8  (0 args)  random per call, 0 most often
  *     func_801576e8  (1 arg)   random per case
  *     func_80157d9c  (1 arg)   random per call, some above 0, some not
  *     every other callee returns 0 and its result is not used.
@@ -79,8 +79,6 @@ extern u16 data_801ac314;
 extern u16 data_801ac620;
 extern u16 data_801abef8;
 extern u16 data_801abf0c;
-extern u8 data_801a6964;
-extern u8 data_801a6970;
 extern u16 data_801903b0[];
 
 void func_80118900(void);
@@ -88,13 +86,13 @@ void func_8015efc0(void);
 void func_8015f0b4(void);
 int func_8014f0bc(void);
 void func_80150cd0(int a);
-void func_80155c90(GameState *g);
+void func_80155c90(Object *o);
 void func_80118d10(short a, short b);
 void func_80118e58(int a, int b, int c, int d);
 void func_80119030(void);
 void func_80119144(int a, int b);
 void func_80157784(unsigned counter);
-int func_80118fc8(void *pad, int port);
+int func_80118fc8(void);
 void func_80120408(void);
 void func_8014f4d4(int a, int b);
 void func_80157d00(int a);
@@ -124,8 +122,8 @@ static int run_frames(void) {
         data_801ac310 = 0;
         func_80157784(ROOT_COUNTER_1);
         if (game_state.field_225 == 0) {
-            reset = func_80118fc8(&data_801a6964, 0);
-            reset |= func_80118fc8(&data_801a6970, 1);
+            reset = func_80118fc8();
+            reset |= func_80118fc8();
         }
         if (reset != 0) {
             func_80120408();
@@ -193,7 +191,7 @@ void func_801189c4(void) {
     scratch_word_00 = 0;
     scratch_word_18 = 0;
     game_state.field_1e = 0x1c3;
-    func_80155c90(&game_state);
+    func_80155c90((Object *)&game_state);
     game_state.field_0a = 0;
     game_state.field_0c = 0;
 

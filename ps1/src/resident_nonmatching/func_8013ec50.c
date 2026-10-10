@@ -24,8 +24,9 @@
  *     byte of a1 and of a2 counts. No return value.
  *   Reads: the object's field_150 and the table entry. Writes: nothing
  *     itself.
- *   Callees (replaced by recorders; each takes the object, the masked index
- *     and the masked table index; they return nothing the function uses):
+ *   Callees (replaced by recorders; func_8013ed1c takes the object and the
+ *     masked index, func_8013f2a8 also the masked table index; they return
+ *     nothing the function uses):
  *     func_8013ed1c and func_8013f2a8. The log shows which was called, or
  *     that neither was.
  *   Watched: the object, whole (0x394 bytes), is copied into the log at every
@@ -40,7 +41,7 @@
 
 /* Declarations the published headers lack (inferred, not original). */
 extern u16 table_8017ab5c[];
-void func_8013ed1c(Object *object, int index, int arg);
+void func_8013ed1c(Object *object, int index);
 void func_8013f2a8(Object *object, int index, int arg);
 
 void func_8013ec50(Object *object, int index, int arg) {
@@ -65,7 +66,7 @@ void func_8013ec50(Object *object, int index, int arg) {
         return;
     }
     if (passed) {
-        func_8013ed1c(object, index, arg);
+        func_8013ed1c(object, index);
     } else {
         func_8013f2a8(object, index, arg);
     }

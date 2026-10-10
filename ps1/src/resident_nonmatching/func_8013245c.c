@@ -55,7 +55,7 @@
 
 /* data_801ac6a8 is declared by the shared header as an array of bytes; the
    function reads it as this block. */
-extern u8 data_80186004[];
+extern PolyBlk data_80186004[];
 
 void func_8015c150(u8 *record);
 void func_80153088(void);
@@ -146,7 +146,7 @@ void func_8013245c(void)
 
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x90; j++) {
-            rec = data_80186004 + i * 0x1680 + j * 0x28;
+            rec = (u8 *)data_80186004 + i * 0x1680 + j * 0x28;
             func_8015c09c(rec);
             rec[4] = 0x80;
             rec[5] = 0x80;

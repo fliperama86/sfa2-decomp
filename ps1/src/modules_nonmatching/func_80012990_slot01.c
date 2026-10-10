@@ -48,7 +48,9 @@
 
 void func_8015c09c(void *prim);
 
-void func_80012990_slot01(Object *obj, Poly28 *prim, u16 tpage, int base, int flag) {
+void func_80012990_slot01(Object *obj, unsigned char *prim_arg, int tpage_arg, int base, int flag) {
+    Poly28 *prim = (Poly28 *)prim_arg;
+    u16 tpage = tpage_arg;
     SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
     int pass;
     int n;

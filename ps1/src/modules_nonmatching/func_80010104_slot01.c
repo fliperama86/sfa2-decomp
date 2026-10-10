@@ -72,7 +72,7 @@
 #include "../externs.h"
 
 extern Object *data_8002ceb0_slot01;
-extern Object *data_80055f44_slot01;
+extern ObjectRef data_80055f44_slot01;
 extern int data_80055f3c_slot01;
 extern u8 data_80015174_slot01[];
 extern u8 data_80070d48[];
@@ -141,7 +141,7 @@ void func_80010104_slot01(void) {
             second->field_3c = other;
             second->field_7a = 0x70;
             second->field_7c = 0x1e0;
-            data_80055f44_slot01 = second;
+            data_80055f44_slot01.p = second;
         }
         data_8018f5a0->field_4e++;
         game_state.field_c8 = 0x30;

@@ -41,8 +41,8 @@
 #include "../externs.h"
 
 /* Callees of the follower; not in the published prototypes. Inferred. */
-void func_80136668(Sprite *sprite, int amount);
-void func_801366d4(Sprite *sprite, int amount);
+void func_80136668(Cam *cam, short step);
+void func_801366d4(Cam *cam, short step);
 
 void func_801364a0(Sprite *sprite) {
     u16 lo;
@@ -66,15 +66,15 @@ void func_801364a0(Sprite *sprite) {
     }
     if ((s16)(hi - lo) >= 0xc0) {
         amount = ((s16)(hi + lo) >> 1) - sprite->field_22 - 0xc0;
-        if (amount < 0) func_801366d4(sprite, amount);
-        else func_80136668(sprite, amount);
+        if (amount < 0) func_801366d4((Cam *)sprite, amount);
+        else func_80136668((Cam *)sprite, amount);
     } else {
         amount = hi - sprite->field_22 - 0x120;
         if (amount >= 0) {
-            func_80136668(sprite, amount);
+            func_80136668((Cam *)sprite, amount);
         } else {
             amount = lo - sprite->field_22 - 0x60;
-            if (amount <= 0) func_801366d4(sprite, amount);
+            if (amount <= 0) func_801366d4((Cam *)sprite, amount);
             else func_80136898((Cam *)sprite, (s16)sprite->field_22);
         }
     }

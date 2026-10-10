@@ -70,8 +70,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u32 data_80185c04[];
-SeqHeader *func_801250c0(Object *o, int n);
+extern Quad data_80185c04[][8];
+Tri *func_801250c0(Object *object, int offset);
 void func_8015bf70(u8 *a, u32 *b, u32 *c);
 
 void func_8011db78(void *a, int b, int c, Block172 *d) {
@@ -89,7 +89,7 @@ void func_8011db78(void *a, int b, int c, Block172 *d) {
     int fb;
 
     idx = o->field_02;
-    r = func_801250c0(o, frame & 0xffff);
+    r = (SeqHeader *)func_801250c0(o, frame & 0xffff);
     dist = data_801900f8[idx] - r->field_00 + 1;
     if (dist >= 10)
         return;
@@ -142,6 +142,6 @@ void func_8011db78(void *a, int b, int c, Block172 *d) {
         i += group;
     }
     func_8015bf70((u8 *)data_801987c8 + (d->field_09 * 4 + 0x30),
-                  &data_80185c04[(u16)((o->side * 4 + column) * 2) + data_801a27d0 * 16],
-                  &data_80185c04[(u16)((o->side * 4 + column) * 2) + data_801a27d0 * 16 + 1]);
+                  &((u32 *)data_80185c04)[(u16)((o->side * 4 + column) * 2) + data_801a27d0 * 16],
+                  &((u32 *)data_80185c04)[(u16)((o->side * 4 + column) * 2) + data_801a27d0 * 16 + 1]);
 }

@@ -28,7 +28,7 @@
 #include "../externs.h"
 
 /* Inferred declarations; not original ones. */
-extern u16 data_801ac310;
+extern volatile u16 data_801ac310;
 void func_80119718(void);
 void func_80150638(void);
 

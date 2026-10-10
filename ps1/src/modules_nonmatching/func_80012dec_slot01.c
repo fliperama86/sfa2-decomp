@@ -58,7 +58,8 @@ typedef struct {
     u16 *pts;
 } Slot01Parts;
 
-void func_80012dec_slot01(Object *obj, Poly28 *p) {
+void func_80012dec_slot01(Object *obj, unsigned char *p_arg) {
+    Poly28 *p = (Poly28 *)p_arg;
     Slot01Parts *parts = (Slot01Parts *)obj->sequence->field_04;
     u32 *ot = (u32 *)data_801987c8 + data_80015780_slot01[obj->field_09];
     u8 *tex = parts->tex;

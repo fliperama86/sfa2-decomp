@@ -28,7 +28,7 @@
  *   Writes: ref_other.p, the object's field_24e and field_251,
  *     data_80186000.
  *   Watched at the call: the whole object, ref_other.p, data_80186000.
- *   Callee: func_8012faf8 takes no argument, returns a byte stored in
+ *   Callee: func_8012faf8 takes the object, returns a byte stored in
  *     data_80186000; it is replaced by a recorder in both runs (it
  *     rewrites ref_other.p and reads much other state; outside this test).
  *   Aliasing: the object is one block, distinct from the unit table.
@@ -40,7 +40,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8012faf8(void);
+u8 func_8012faf8(Object *object);
 
 void func_8012f9b0(Object *object) {
     s16 i;
@@ -66,5 +66,5 @@ void func_8012f9b0(Object *object) {
         }
         ref_other.p = (Object *)((u8 *)ref_other.p + 0xc0);
     }
-    data_80186000 = func_8012faf8();
+    data_80186000 = func_8012faf8(object);
 }

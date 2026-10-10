@@ -24,7 +24,7 @@
  *   Writes: the slot's field_02 (when the check passes), and whatever the
  *     callees write.
  *   Callees: func_8013f2c8 and func_8013f2fc are short leaf functions that
- *     run as the original code in both runs (a global byte, and for
+ *     run as the original code in both runs (a global byte, data_80188f44, and for
  *     func_8013f2fc a slot byte chosen from the slot's field_02 and the
  *     object's field_7e). func_8013f2c8 takes no argument (its prototype
  *     says one).

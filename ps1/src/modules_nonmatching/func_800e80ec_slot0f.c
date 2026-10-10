@@ -47,7 +47,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern Slot0fRec7d50 data_800f7d50_slot0f[];
+extern Slot12Quad data_800f7d50_slot0f[];
 extern u8 data_800f7d48_slot0f[];
 extern SequenceStep *data_800f00fc_slot0f[];
 extern SequenceStep *data_800f010c_slot0f[];
@@ -59,7 +59,7 @@ void func_800e80ec_slot0f(Object *obj, int a) {
     Slot0fRec7d50 *e;
     SequenceStep **t;
 
-    e = &data_800f7d50_slot0f[obj->field_03];
+    e = &((Slot0fRec7d50 *)data_800f7d50_slot0f)[obj->field_03];
     e->field_00 = 0;
     e->field_08 = 0x10;
     e->field_09 = 0x10;

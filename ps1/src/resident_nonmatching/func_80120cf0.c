@@ -64,7 +64,7 @@
 /* Inferred declarations; not original ones. */
 extern u8 table_8016e730[];
 extern u16 data_801a6966;
-void func_80120f40(Object *player, int side, u16 value);
+void func_80120f40(Object *object, u8 a1, u16 a2);
 
 void func_80120cf0(GameState *state) {
     GameState *g = &game_state;

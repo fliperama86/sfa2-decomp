@@ -76,7 +76,7 @@ extern u8 data_8016e802;
 extern u8 data_8016e803;
 extern HudState *data_8018f5a0;
 void func_801246cc(Object *a, Triple *b);
-void func_801246a4(GameState *a, Object *b, Object *c);
+void func_801246a4(ObjectView *a, Object *b, Object *c);
 void func_8013788c(Object *object);
 
 void func_80124304(void) {
@@ -126,7 +126,7 @@ void func_80124304(void) {
     func_80124ae8(data_8016e802);
     input->field_05 = data_8016e803;
     if (data_8016e800 == 1) {
-        func_801246a4(&game_state, left, right);
+        func_801246a4((ObjectView *)&game_state, left, right);
         input->field_01 = 1;
         data_801ae028 = 0x88;
         data_80185fbc = data_8016e801;
@@ -140,7 +140,7 @@ void func_80124304(void) {
             input->buf[i] = 0;
         }
     } else if (data_8016e800 == 2) {
-        func_801246a4(&game_state, left, right);
+        func_801246a4((ObjectView *)&game_state, left, right);
         input->field_00 = 1;
         func_80124a7c(data_80185fbc);
         func_80124ae8(data_80185fc0);

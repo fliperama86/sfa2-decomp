@@ -55,8 +55,8 @@
 #include "../externs.h"
 
 /* Inferred declarations, not original ones. */
-extern Object *data_801b701c_slot04_sel[];
-extern Object *data_801b6fcc_slot04_sel[];
+extern TextItem *data_801b701c_slot04_sel[];
+extern TextItem *data_801b6fcc_slot04_sel[];
 /* The start of a text block: two halfwords are set here, the rest is the
    buffer's. */
 typedef struct {
@@ -65,8 +65,8 @@ typedef struct {
     u16 field_06;
 } Slot04SelTextHead;
 
-extern Slot04SelTextHead data_801b7978_slot04_sel;
-extern u8 data_801b7648_slot04_sel[];
+extern TextItem data_801b7978_slot04_sel;
+extern Slot04SelRec7648 data_801b7648_slot04_sel;
 extern void (*data_801b6e70_slot04_sel[])(Object *, Slot04SelRec *);
 extern Slot04SelRec data_801b9cf0_slot04_sel[];
 extern u8 data_801b9d28_slot04_sel;
@@ -76,14 +76,14 @@ extern HudState *data_8018f5a0;
 void func_801b0ea0_slot04_sel(void) {
     Slot04SelRec *rec = data_801b9cf0_slot04_sel;
 
-    func_801519b4(data_801b701c_slot04_sel[player_left.side]);
-    func_801519b4(data_801b701c_slot04_sel[player_right.side]);
-    func_801519b4(data_801b6fcc_slot04_sel[player_left.side]);
-    func_801519b4(data_801b6fcc_slot04_sel[player_right.side]);
-    data_801b7978_slot04_sel.field_04 = 0xa8;
-    data_801b7978_slot04_sel.field_06 = 0x30;
+    func_801519b4((Object *)data_801b701c_slot04_sel[player_left.side]);
+    func_801519b4((Object *)data_801b701c_slot04_sel[player_right.side]);
+    func_801519b4((Object *)data_801b6fcc_slot04_sel[player_left.side]);
+    func_801519b4((Object *)data_801b6fcc_slot04_sel[player_right.side]);
+    ((Slot04SelTextHead *)&data_801b7978_slot04_sel)->field_04 = 0xa8;
+    ((Slot04SelTextHead *)&data_801b7978_slot04_sel)->field_06 = 0x30;
     func_801519b4((Object *)&data_801b7978_slot04_sel);
-    func_801519b4((Object *)data_801b7648_slot04_sel);
+    func_801519b4((Object *)&data_801b7648_slot04_sel);
     data_801b6e70_slot04_sel[rec[0].field_00](&player_left, &rec[0]);
     data_801b6e70_slot04_sel[rec[1].field_00](&player_right, &rec[1]);
     if (game_state.field_07 == (rec[0].field_09 | rec[1].field_09)) {

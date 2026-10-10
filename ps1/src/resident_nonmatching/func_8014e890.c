@@ -61,7 +61,7 @@ extern u8 data_80050000[];
 extern u8 data_80070000[];
 void func_80136bc0(void);
 void func_8015808c(Rect *rect, int a, int b);
-void func_801451ac(int a);
+void func_801451ac(u8 flag);
 
 void func_8014e890(int arg) {
     int row;

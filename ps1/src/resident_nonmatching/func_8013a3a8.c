@@ -76,7 +76,7 @@ extern u8 table_80178514[];
 extern u8 table_801787b4[][128];
 
 /* Not in protos.h (inferred from the listing and the callers' use). */
-void func_8013ae00(Object *a0, Object *a1, Box32 *a2);
+void func_8013ae00(Object *a, Object *b, Tx *c);
 void func_8013ad2c(Object *object);
 void func_8013ad64(Object *object);
 
@@ -200,7 +200,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   int points;
   int e;
 
-  func_8013ae00(a0, a1, a2);
+  func_8013ae00(a0, a1, (Tx *)a2);
   ref_first.p = a0->field_65 ? &player_right : &player_left;
   data_80188f40 = ref_first.p;
 

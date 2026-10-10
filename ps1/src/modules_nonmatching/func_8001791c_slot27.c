@@ -80,11 +80,11 @@ typedef struct {
     u16 tpage;
 } Slot27Prim;
 
-extern Slot27Scroll data_8002f0c8_slot27;
-extern Slot27Prim data_8002b388_slot27[][280];
+extern Slot27Recf0c8 data_8002f0c8_slot27;
+extern Slot27Recb388 data_8002b388_slot27[2][0x118];
 
 void func_8001791c_slot27(void) {
-    Slot27Scroll *scroll = &data_8002f0c8_slot27;
+    Slot27Scroll *scroll = (Slot27Scroll *)&data_8002f0c8_slot27;
     Slot27Prim *prim;
     u32 *ot;
     u16 *row;
@@ -115,7 +115,7 @@ void func_8001791c_slot27(void) {
     lines = scroll->field_5c >> 3;
     empty = scroll->field_1e;
     line = (vy >> 3) + 2;
-    prim = data_8002b388_slot27[*(u8 *)&data_801a27d0];
+    prim = (Slot27Prim *)data_8002b388_slot27[*(u8 *)&data_801a27d0];
     ot = (u32 *)data_801987c8 + scroll->field_8a;
 
     for (r = 2; r < 10; r++, line++) {

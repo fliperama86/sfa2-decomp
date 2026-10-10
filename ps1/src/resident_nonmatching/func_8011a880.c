@@ -67,8 +67,8 @@ typedef struct {
     u8 field_17a;
 } FighterView;
 
-void func_8011cbb8(FighterView *f);
-void func_80151324(FighterView *f, FrameRecord *frames);
+void func_8011cbb8(Slab172 *p);
+void func_80151324(Object *object, FrameRecord *frames);
 
 /* A part block that is present and active gets the fighter's field_09 plus 4
    and is handed to func_8011bc84. */
@@ -83,12 +83,12 @@ static void update_fighter(FighterView *f, FrameRecord *frames) {
     update_part(f->part_28, f);
     update_part(f->part_2c, f);
     if (f->field_00 != 0 && f->field_01 != 0) {
-        func_8011cbb8(f);
+        func_8011cbb8((Slab172 *)f);
     }
     update_part(f->part_30, f);
     update_part(f->part_34, f);
     if (f->field_00 != 0 && f->field_01 != 0) {
-        func_80151324(f, frames);
+        func_80151324((Object *)f, frames);
     }
 }
 

@@ -48,7 +48,8 @@
 
 extern s16 data_800212d8_slot01[];
 
-void func_80012714_slot01(Object *obj, Poly28 *prim, int unused, int flag) {
+void func_80012714_slot01(Object *obj, unsigned char *prim_arg, int unused, int flag) {
+    Poly28 *prim = (Poly28 *)prim_arg;
     SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
     int count = set->count;
     u16 *offs = set->offsets;

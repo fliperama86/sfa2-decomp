@@ -10,7 +10,7 @@ Choices of the setup (reads and writes are listed in func_8012f9b0.c):
   - the object is a random block of 0x394 bytes; field_150 has bit 0x2000
     set in one case of two; field_d8 is 0 in one case of three;
   - ref_other.p starts random (the function sets it first);
-  - func_8012faf8 is a recorder with no argument, returning a random value
+  - func_8012faf8 is a recorder with one argument (the object), returning a random value
     (the function stores it in a byte); it copies the object, ref_other and
     data_80186000 at the call; the hit arms are common enough that
     both the early return and the full scan occur.
@@ -41,7 +41,7 @@ def setup(state, rng, sym):
     state.w32(sym["ref_other"], rng.getrandbits(32))
     state.w8(sym["data_80186000"], rng.getrandbits(8))
     log = CallLog(state, watch=((obj, 0x394 // 4), (sym["ref_other"], 1), (sym["data_80186000"], 1)))
-    log.replace(sym["func_8012faf8"], 0, rng.getrandbits(32))
+    log.replace(sym["func_8012faf8"], 1, rng.getrandbits(32))
     return Setup(args=(obj,), returns_value=False)
 
 

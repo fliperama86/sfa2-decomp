@@ -40,7 +40,8 @@
 
 extern u32 table_801e47a8_slot0b[];
 
-void func_801e0ea8_slot0b(Object *obj, Poly28 *prim) {
+void func_801e0ea8_slot0b(Object *obj, unsigned char *prim_arg) {
+    Poly28 *prim = (Poly28 *)prim_arg;
     Slot0bShape *shape = (Slot0bShape *)obj->sequence->field_04;
     u32 index = table_801e47a8_slot0b[obj->field_09];
     int n = shape->count;

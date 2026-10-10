@@ -77,6 +77,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
+Tri *func_801250c0(Object *object, int offset);
 extern Quad data_80185c04[][8];
 extern u8 data_80185504[][16];
 void func_80158150(Quad *list, int n);
@@ -94,7 +95,7 @@ void func_8011d74c(void *a, int b, int c, Block172 *d) {
     int i, col;
 
     idx = o->field_02;
-    r = func_801250c0(o, c & 0xffff);
+    r = (u16 *)func_801250c0(o, c & 0xffff);
     dist = data_801900f8[idx] - *r + 1;
     if (dist >= 10)
         return;

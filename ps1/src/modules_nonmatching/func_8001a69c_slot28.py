@@ -60,7 +60,7 @@ def setup(state, rng, sym):
     watch = [(obj, OBJECT // 4), (hud, 0x64 // 4), (low, 2), (sym["data_800519c0_slot28"], 3)]
     watch += [(b, OBJECT // 4) for b in table + blocks]
     log = CallLog(state, 12 * (5 + sum(c for _, c in watch)), watch=tuple(watch))
-    log.replace(sym["func_8001a9e8_slot28"], 1, 0)
+    log.replace(sym["func_8001a9e8_slot28"], 0, 0)
     log.replace(sym["func_80130768"], 3, 0)
     log.replace(sym["func_8011f1e0"], 0, results=tuple(results))
     log.replace(sym["func_8001a988_slot28"], 1, 0)

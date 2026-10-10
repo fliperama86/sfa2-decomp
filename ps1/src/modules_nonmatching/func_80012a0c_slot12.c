@@ -42,8 +42,8 @@ extern Slot12Tile data_8002a394_slot12[];
 extern Slot12Tile data_8002a794_slot12[];
 
 /* Inferred from the callers' use; not original declarations. */
-void func_8015c150(Slot12Tile *tile);
-void func_8015bfe8(Slot12Tile *tile, int flag);
+void func_8015c150(u8 *record);
+void func_8015bfe8(Poly28 *quad, int flag);
 
 void func_80012a0c_slot12(Object *obj) {
     Slot12Tile *a;
@@ -58,10 +58,10 @@ void func_80012a0c_slot12(Object *obj) {
     }
     for (i = 0; i < 14; i++) {
         b = a + 0x20;
-        func_8015c150(a);
-        func_8015c150(b);
-        func_8015bfe8(a, 0);
-        func_8015bfe8(b, 0);
+        func_8015c150((u8 *)a);
+        func_8015c150((u8 *)b);
+        func_8015bfe8((Poly28 *)a, 0);
+        func_8015bfe8((Poly28 *)b, 0);
         a->r = 0;
         b->r = 0;
         a->g = 0;

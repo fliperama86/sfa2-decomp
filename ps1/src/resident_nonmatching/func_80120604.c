@@ -63,7 +63,7 @@
 
 /* Inferred declarations; not original ones. */
 extern u8 data_80197ed0[];
-extern u16 table_80197ef8[];
+extern s16 table_80197ef8[];
 int func_8016a7e4(unsigned mask);
 void func_80164140(int a, int b, int c, int d, int e, int f, short g, short h);
 void func_80164ef0(int a, int b, short c, short d);

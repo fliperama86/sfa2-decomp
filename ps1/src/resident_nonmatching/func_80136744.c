@@ -35,7 +35,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801368ac(Sprite *sprite, int value);
+void func_801368ac(Cam *cam, int delta);
 
 void func_80136744(Sprite *sprite) {
     s16 target;
@@ -66,5 +66,5 @@ void func_80136744(Sprite *sprite) {
         limit = sprite->field_42;
         if (limit < (s16)next) limit = next;
     }
-    func_801368ac(sprite, limit);
+    func_801368ac((Cam *)sprite, limit);
 }

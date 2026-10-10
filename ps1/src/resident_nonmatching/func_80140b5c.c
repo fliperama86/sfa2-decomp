@@ -27,7 +27,7 @@
  *     table_80179834, table_8017984c (rows of 128 bytes), ref_other.p and
  *     its field_64 and field_15b, game_state.field_12 (the handler index).
  *   Writes: ref_other.p->field_64, game_state.cursor, and the random state
- *     func_80151184 keeps (it runs as the original code, as do
+ *     func_80151184 keeps, the seed halfword data_80190126 (it runs as the original code, as do
  *     func_80140ec0 and the code before its handler).
  *   The handler called through table_8017ac34[game_state.field_12] is a
  *     recorder with no arguments that returns at once; the setup points the

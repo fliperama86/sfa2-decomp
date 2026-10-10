@@ -45,7 +45,9 @@
 
 extern Slot0bRot table_801e1fec_slot0b[];
 
-void func_801e0a78_slot0b(Object *obj, Poly28 *buf, int unused, int flag) {
+void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) {
+    Object *obj = (Object *)obj_arg;
+    Poly28 *buf = (Poly28 *)buf_arg;
     Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->field_04;
     int n = lay->count;
     u16 *coords = lay->coords;

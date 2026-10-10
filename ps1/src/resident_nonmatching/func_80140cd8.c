@@ -30,7 +30,7 @@
  *     in the resident image's own data), table_80179834, table_8017984c,
  *     table_80181510; the partner's field_64 and field_5c; game_state.config
  *     fields 4d and 4e; game_state.field_12 (handler index); the random
- *     state of func_80151184.
+ *     state of func_80151184 (the seed halfword data_80190126).
  *   Writes: ref_other, game_state.cursor, the partner's field_64 and field_5c,
  *     object->field_be and field_bf, the random state.
  *   func_80151184 and func_80140ec0 run as the original code. The handler

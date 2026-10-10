@@ -45,7 +45,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e0ce8_slot0b(Object *obj, Poly28 *buf, u16 tag, int base, int mirror) {
+void func_801e0ce8_slot0b(Object *obj, unsigned char *buf_arg, int tag_arg, int base, int mirror) {
+    Poly28 *buf = (Poly28 *)buf_arg;
+    u16 tag = tag_arg;
     Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->field_04;
     u8 *ids;
     u16 *coords;

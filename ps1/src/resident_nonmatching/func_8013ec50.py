@@ -8,7 +8,7 @@ Choices of the setup:
     that is, in a half of the cases, a random subset of field_150's low byte
     (so that the mask test passes; in three cases of ten one random bit is added), otherwise random;
   - a1 and a2 are random words (only the low byte counts);
-  - func_8013ed1c and func_8013f2a8 are recorders (3 arguments, result 0). Every recorder copies the object whole (0x394 bytes)
+  - func_8013ed1c (2 arguments) and func_8013f2a8 (3) are recorders (result 0). Every recorder copies the object whole (0x394 bytes)
     into its log entry at the call.
 """
 from contracts import CallLog, Contract, Setup, fill
@@ -17,8 +17,8 @@ from contracts import CallLog, Contract, Setup, fill
 def setup(state, rng, sym):
     obj = state.alloc(0x394)
     log = CallLog(state, words=512, watch=((obj, 0x394 // 4),))
-    for name in ("func_8013ed1c", "func_8013f2a8"):
-        log.replace(sym[name], 3, 0)
+    log.replace(sym["func_8013ed1c"], 2, 0)
+    log.replace(sym["func_8013f2a8"], 3, 0)
     fill(state, obj, 0x394, rng)
     flags = rng.getrandbits(16)
     state.w16(obj + 0x150, flags)

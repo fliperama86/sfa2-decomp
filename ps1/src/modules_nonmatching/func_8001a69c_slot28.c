@@ -9,7 +9,7 @@
  * What it does (inferred, not an original name): sets up a scene of five
  * objects. When data_80190949 is not 0 and the given object's field_f0 is
  * 0, it sets the HUD state's field_60 to 480 and adds 1 to its field_52,
- * calls func_8001a9e8_slot28 with the object, sets the sequence of the
+ * calls func_8001a9e8_slot28 (no argument), sets the sequence of the
  * objects held in data_800519c0_slot28 and data_800519c4_slot28 with
  * func_80130768, and positions the object of data_800519c8_slot28. It then
  * asks func_8011f1e0 for two objects; each one it gets is filled in and
@@ -30,7 +30,7 @@
  *   Aliasing: the given object, the HUD state, the three table objects and
  *     the two returned objects are distinct blocks.
  *   Callees replaced by recorders (same in both runs): func_8001a9e8_slot28
- *     (1 argument), func_80130768 (3 arguments), func_8011f1e0 (no
+ *     (no argument), func_80130768 (3 arguments), func_8011f1e0 (no
  *     argument; the setup gives it, per call in turn, a new object or 0),
  *     func_8001a988_slot28 (1), func_8001a958_slot28 (2), func_80128370
  *     (0; it waits for the hardware). All results are 0 except those of
@@ -54,14 +54,14 @@ extern SequenceStep *data_800366a8_slot28[];
 extern u8 data_80035430_slot28[];
 extern u8 data_800357d8_slot28[];
 extern ObjectRef data_800519c0_slot28;
-extern ObjectRef data_800519c4_slot28;
+extern Object *data_800519c4_slot28[];
 extern ObjectRef data_800519c8_slot28;
-extern ObjectRef data_80051998_slot28;
+extern Object *data_80051998_slot28[];
 extern ObjectRef data_8005199c_slot28;
 void func_80128370(void);
 void func_8001a958_slot28(Object *obj, int arg);
 void func_8001a988_slot28(Object *obj);
-void func_8001a9e8_slot28(Object *obj);
+void func_8001a9e8_slot28(void);
 
 void func_8001a69c_slot28(Object *obj) {
     Object *o;
@@ -71,10 +71,10 @@ void func_8001a69c_slot28(Object *obj) {
     }
     data_8018f5a0->field_52++;
     data_8018f5a0->field_60 = 0x1e0;
-    func_8001a9e8_slot28(obj);
+    func_8001a9e8_slot28();
 
     func_80130768(data_800519c0_slot28.p, 1, data_80036694_slot28);
-    o = data_800519c4_slot28.p;
+    o = data_800519c4_slot28[0];
     o->pos_y = -0x60;
     func_80130768(o, 0, data_8003669c_slot28);
     o = data_800519c8_slot28.p;
@@ -92,7 +92,7 @@ void func_8001a69c_slot28(Object *obj) {
         o->field_0d = 0;
         o->field_09 = 3;
         func_80130768(o, 5, data_800366a8_slot28);
-        data_80051998_slot28.p = o;
+        data_80051998_slot28[0] = o;
     }
 
     o = (Object *)func_8011f1e0();
