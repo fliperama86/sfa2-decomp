@@ -1,10 +1,9 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
- * built code uses other registers for two values (the second frame index
- * and a box y) and so differs in 26 instruction slots. The exact owner of
- * the bytes in the PS1 build stays the raw bytes of the original; the build
- * does not use this file. The differential test next to it
- * (func_8013902c.py, run with difftest.py) compares this C with the
+ * build of this C is 740 bytes (the original has 728); the bytes differ.
+ * The exact owner of the bytes in the PS1 build stays the raw bytes of the
+ * original; the build does not use this file. The differential test next to
+ * it (func_8013902c.py, run with difftest.py) compares this C with the
  * original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): collision push-out between

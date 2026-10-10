@@ -14,7 +14,13 @@ Choices of the setup (reads are listed in func_8012fd80.c):
     of every box is from -300 to 299 and its endpoint from -120 to 399,
     otherwise both are random;
   - field_0b is 0 in two cases of three, else random; the positions of a
-    and b are from -300 to 299 in four cases of five, else random.
+    and b are from -300 to 299 in four cases of five, else random;
+  - the edge of the reach: in one case of three, when the first step's
+    frame has a box, a's position is then set so that the distance for
+    that box is the box's endpoint plus 0x58 exactly, one less or one
+    more, to either side of the box (chosen evenly among the six). Random
+    positions alone almost never land on that edge: before this choice a
+    build with 0x59 in place of 0x58 passed all 2,000 cases.
 """
 from contracts import Contract, Setup, fill
 
@@ -26,8 +32,9 @@ def setup(state, rng, sym):
 
     frames = state.alloc(16 * 8)
     fill(state, frames, 16 * 8, rng)
+    active = [0 if rng.random() < 1 / 3 else rng.randrange(1, 7) for _ in range(8)]
     for i in range(8):
-        state.w8(frames + 16 * i, 0 if rng.random() < 1 / 3 else rng.randrange(1, 7))
+        state.w8(frames + 16 * i, active[i])
 
     boxes = state.alloc(32 * 7)
     fill(state, boxes, 32 * 7, rng)
@@ -46,7 +53,10 @@ def setup(state, rng, sym):
         if i == count or i == early:
             flags = rng.randrange(0x8000, 0x10000)
         state.w16(steps + 12 * i + 2, flags)
-        state.w16(steps + 12 * i + 10, rng.randrange(8))
+        index = rng.randrange(8)
+        if i == 0:
+            first = active[index]
+        state.w16(steps + 12 * i + 10, index)
 
     def pos():
         return rng.randrange(-300, 300) & 0xFFFF if rng.random() < 0.8 else rng.getrandbits(16)
@@ -58,6 +68,20 @@ def setup(state, rng, sym):
     fill(state, b, 0x394, rng)
     state.w16(b + 0x12, pos())
     state.w8(b + 0x0B, rng.choice((0, 0, rng.getrandbits(8))))
+    if first and rng.random() < 1 / 3:
+        # The edge of the reach for the first step's box: the distance is the reach, one less or one more.
+        def half(address):
+            return int.from_bytes(state.read(address, 2), "little")
+
+        origin = half(boxes + 32 * first + 0)
+        reach = (half(boxes + 32 * first + 4) + 0x58) & 0xFFFF
+        reach -= 0x10000 if reach & 0x8000 else 0
+        distance = reach + rng.choice((-1, 0, 1))
+        if 0 <= distance <= 0x7FFF:
+            if state.read(b + 0x0B, 1)[0]:
+                origin = -origin
+            side = rng.choice((1, -1))
+            state.w16(a + 0x12, (origin + half(b + 0x12) - side * distance) & 0xFFFF)
     state.w32(b + 0x88, frame)
     state.w32(b + 0x8C, frames)
     state.w32(b + 0x144, boxes)
