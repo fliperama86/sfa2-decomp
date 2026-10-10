@@ -27,7 +27,37 @@ def sections(text: str) -> list[dict]:
             for a, b in zip(starts, starts[1:] + [len(lines)])]
 
 
+RECORD_NAME = re.compile(r'^\d{4}-\d{2}-\d{2}-[a-z0-9]+(-[a-z0-9]+)*\.md$')
+RECORD_HEADING = re.compile(r'^## .+ \(\d{4}-\d{2}-\d{2}\)$')
+
+
+def record_files(root: Path) -> list[Path]:
+    """The files of docs/records/ except its README, in order of file name."""
+    folder = root / 'docs/records'
+    return sorted((p for p in folder.glob('*.md') if p.name != 'README.md'), key=lambda p: p.name)
+
+
+def check_records(root: Path) -> list[str]:
+    """Name every record file whose name or first line has not the required form."""
+    problems = []
+    for path in record_files(root):
+        if not RECORD_NAME.match(path.name):
+            problems.append(f'{path.name}: the name is not YYYY-MM-DD-short-name.md')
+        lines = path.read_text().splitlines()
+        if not lines or not RECORD_HEADING.match(lines[0]):
+            problems.append(f'{path.name}: the first line is not a heading "## Title (YYYY-MM-DD)"')
+    return problems
+
+
 def context(root: Path, query: str = '', limit: int = 120) -> str:
+    """Active state, or the sections and records that match every word of the query.
+
+    Order when both match: the history's sections first, in file order, capped at
+    `limit` lines exactly as before; then the matching records of docs/records/,
+    newest first (reverse order of file name), capped at `limit` lines of their
+    own. The total can reach twice the limit: separate budgets keep a record from
+    being hidden by old history sections.
+    """
     if limit < 1 or limit > 500:
         raise Problem('context limit must be 1..500 lines')
     active = (root / 'docs/project-memory.md').read_text()
@@ -40,7 +70,13 @@ def context(root: Path, query: str = '', limit: int = 120) -> str:
     out = []
     for s in found:
         out.extend([f"[{history.name if history.exists() else 'project-memory.md'}:{s['line']}]", s['text'], ''])
-    return '\n'.join('\n'.join(out).splitlines()[:limit]) or 'No matching historical section.'
+    recs = []
+    for path in reversed(record_files(root)):
+        body = path.read_text()
+        if all(t in body.casefold() for t in terms):
+            recs.extend([f'[records/{path.name}]', body.rstrip('\n'), ''])
+    lines = '\n'.join(out).splitlines()[:limit] + '\n'.join(recs).splitlines()[:limit]
+    return '\n'.join(lines) or 'No matching historical section.'
 
 
 def history_index(path: Path) -> dict:

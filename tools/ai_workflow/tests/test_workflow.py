@@ -416,5 +416,67 @@ class RepositoryControls(unittest.TestCase):
         self.assertLessEqual(len((REPO/'docs/project-memory.md').read_text().splitlines()),120)
 
 
+class Records(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.put('docs/project-memory.md', '# Active\n')
+        self.put('docs/project-memory-history.md', '# History\n\n## Old widget work (2026-01-01)\nwidget in history')
+
+    def put(self, name, text):
+        p = self.root / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def test_record_is_found_and_history_still_first(self):
+        self.put('docs/records/2026-02-02-new-widget.md', '## New widget (2026-02-02)\nwidget in record\n')
+        out = model.context(self.root, 'widget')
+        self.assertIn('[project-memory-history.md:3]', out)
+        self.assertIn('[records/2026-02-02-new-widget.md]', out)
+        self.assertLess(out.index('widget in history'), out.index('widget in record'))
+        self.assertEqual(model.context(self.root, 'history'), '[project-memory-history.md:3]\n## Old widget work (2026-01-01)\nwidget in history')
+
+    def test_record_not_hidden_by_long_history(self):
+        self.put('docs/project-memory-history.md', '## Big (2026-01-01)\n' + 'gizmo\n' * 50)
+        self.put('docs/records/2026-02-02-gizmo.md', '## Gizmo (2026-02-02)\ngizmo record\n')
+        out = model.context(self.root, 'gizmo', 10)
+        self.assertIn('[records/2026-02-02-gizmo.md]', out)
+        self.assertEqual(len(out.splitlines()), 10 + 3)
+
+    def test_readme_is_not_a_record(self):
+        self.put('docs/records/README.md', 'widget readme text\n')
+        self.assertNotIn('records/README.md', model.context(self.root, 'widget'))
+        self.assertEqual(model.check_records(self.root), [])
+
+    def test_records_come_newest_first(self):
+        self.put('docs/records/2026-03-03-b.md', '## B (2026-03-03)\ngadget\n')
+        self.put('docs/records/2026-03-01-a.md', '## A (2026-03-01)\ngadget\n')
+        out = model.context(self.root, 'gadget')
+        self.assertLess(out.index('2026-03-03-b.md'), out.index('2026-03-01-a.md'))
+
+    def test_bad_name_and_bad_first_line_are_refused_with_the_file_name(self):
+        self.put('docs/records/2026-03-01-good.md', '## Good (2026-03-01)\ntext\n')
+        self.put('docs/records/notes.md', '## Notes (2026-03-01)\n')
+        self.put('docs/records/2026-03-01-Upper.md', '## Upper (2026-03-01)\n')
+        self.put('docs/records/2026-03-02-nohead.md', 'no heading\n')
+        self.put('docs/records/2026-03-04-nodate.md', '## No date\n')
+        problems = '\n'.join(model.check_records(self.root))
+        for name in ('notes.md', '2026-03-01-Upper.md', '2026-03-02-nohead.md', '2026-03-04-nodate.md'):
+            self.assertIn(name, problems)
+        self.assertNotIn('2026-03-01-good.md', problems)
+
+    def test_empty_and_missing_folder_are_fine(self):
+        self.assertEqual(model.check_records(self.root), [])
+        self.assertIn('widget in history', model.context(self.root, 'widget'))
+        (self.root / 'docs/records').mkdir()
+        self.assertEqual(model.check_records(self.root), [])
+        self.assertIn('widget in history', model.context(self.root, 'widget'))
+        self.assertEqual(model.context(self.root, 'absent'), 'No matching historical section.')
+
+    def test_repository_records_have_the_form(self):
+        self.assertEqual(model.check_records(REPO), [])
+
+
 if __name__=='__main__':
     unittest.main()
