@@ -5472,6 +5472,44 @@ def case_p_every_mode_begins_with_the_programs_global_pointer():
     return None
 
 
+def case_p_the_declaration_is_read_once_for_several_cases():
+    # The declaration of the programs is opened once for a run of several cases, in the comparison, the audit, the
+    # record (its comparison and its own pass) and the replay of several fixtures, not once per case.
+    words = [JR_RA, NOP]
+    ram, scratch = made_up_ram(words), bytes(D.SCRATCH_SIZE)
+    reads = []
+    real = D.declared_programs
+
+    def counting():
+        reads.append(1)
+        return real()
+
+    build = D.Build(make_code(words), 8, 0)
+    def replay_doc(folder):
+        D.record_function(pg_cfg(), PG_NAME, build, 6, 1, 6, ram, scratch, Path(folder), 1)
+        return json.loads(D.fixtures_path(Path(folder), PG_NAME).read_text())
+
+    # (`addresses` reads the declaration too, so the count is compared for one case and for five, not against 1.)
+    got = {}
+    with tempfile.TemporaryDirectory() as tmp, pg_program(gp=PG_GP), contract_of(PG_NAME, plain_setup(False)), \
+            patched(D, original_function=lambda cfg, name: (ORIGINAL, 8), today=lambda: FX_DATE):
+        doc = replay_doc(tmp)
+        doc5 = {**doc, "fixtures": (doc["fixtures"] * 5)[:5]}
+        doc1 = {**doc, "fixtures": doc["fixtures"][:1]}
+        for cases in (1, 5):
+            runs = {"compare": lambda: D.test_function(pg_cfg(), PG_NAME, make_code(words), cases, 1, ram, scratch),
+                    "audit": lambda: D.audit_writes(pg_cfg(), PG_NAME, cases, 1, ram, scratch),
+                    "record": lambda: D.record_function(pg_cfg(), PG_NAME, build, cases, 1, cases, ram, scratch, Path(tmp), 1),
+                    "replay": lambda: D.replay_function(pg_cfg(), PG_NAME, build, doc1 if cases == 1 else doc5)}
+            for mode, run in runs.items():
+                reads.clear()
+                with patched(D, declared_programs=counting):
+                    run()
+                got[(mode, cases)] = len(reads)
+    same_counts = all(got[(mode, 1)] == got[(mode, 5)] for mode in ("compare", "audit", "record", "replay"))
+    return None if same_counts and got[("replay", 5)] == 1 else f"reads of the declaration for 1 and 5 cases: {got}"
+
+
 def case_p_replay_begins_with_the_programs_global_pointer():
     seen: list[int] = []
 
@@ -5958,6 +5996,141 @@ def case_fl_reader_refuses_a_fills_that_is_not_of_the_form():
     return "a bad fill in the second fixture was read"
 
 
+# ---------------------------------------------------------------------------
+# Group SP: a pointee behind an argument masked to 0 (the address of a local of the function)
+
+def sp_setup(arguments=1, **options):
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, arguments, 0x44, **options)
+        return contracts.Setup(args=(), returns_value=True)
+
+    return setup
+
+
+def sp_function(local, init=0x11223344, address=None, after=()):
+    """Stores `init` in its local at sp+`local` (when `init` is not None), calls CALLEE with a0 = the local's address (or
+    with a0 = `address`), then runs `after` and returns what the callee returned."""
+    head = [addiu(SP, SP, -32), sw(RA, SP, 28), *([] if init is None else [*setreg(T1, init), sw(T1, SP, local)])]
+    arg = setreg(4, address) if address is not None else [addiu(4, SP, local)]
+    return [*head, *arg, jal(CALLEE), NOP, *after, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+SP_OPTIONS = dict(masks={0: 0}, pointees={0: 1})
+
+
+def sp_doc(words, build=None, **options):
+    lines, status, doc, text = fx_record(words, sp_setup(**(options or SP_OPTIONS)), build_words=build, cases=3)
+    if status:
+        raise RuntimeError(f"{lines}")
+    return lines, doc
+
+
+def case_sp_local_pointee_records_and_replays_in_two_frames():
+    lines, doc = sp_doc(sp_function(16), build=sp_function(20))
+    if any("warning" in line for line in lines) or not lines[-1].startswith(f"{LABEL} fixtures: kept "):
+        return f"lines {lines}"
+    fixture = doc["fixtures"][0]
+    call = fixture["calls"][0]
+    # the entry holds the local's word (little endian) against zeros; the address is not in the file
+    ok = call["pointees"] == {"0": [[0, "44332211"]]} and call["args"] == ["0x00000000"] and fixture["result"] == "0x00000044"
+    ok = ok and fixture["recorders"][0]["masks"] == {"0": 0} and fixture["recorders"][0]["pointees"] == {"0": 1}
+    ok = ok and fixture["reads"] == [] and fixture["writes"] == [] and fixture["same"] == []
+    if not ok:
+        return f"{fixture}"
+    total = len(doc["fixtures"])
+    for frame, words in (("the frame of the original (local at sp+16)", sp_function(16)), ("another frame (local at sp+20)", sp_function(20))):
+        got, status = fx_replay(doc, words)
+        if status != 0 or got != [f"{LABEL} replay: fixtures {total}, passed {total}, failed 0"]:
+            return f"{frame}: {status} {got}"
+    # a build that puts another value in the local
+    got, status = fx_replay(doc, sp_function(16, init=0x55667788))
+    wanted = "    call 1 to func_callee: argument 1 differs from byte 0 (the build has 0x88 there at this call, the original had 0x44)"
+    return None if status == 1 and wanted in got else f"another value: {status} {got[:3]}"
+
+
+def case_sp_pointee_outside_the_stack_refuses_the_record():
+    words = sp_function(16, init=None, address=BUF)
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, doc, _ = fx_record(words, sp_setup(**SP_OPTIONS), cases=3, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    wanted = (f"{LABEL} fixtures: not recorded, case 0: the callee func_callee, argument 0 (from 0): it is masked to 0 and has a pointee, "
+              "and its real value 0x80060000 leads to 4 bytes that are not wholly inside the stack region (0x801fe000 to 0x801ff010): "
+              "their bytes cannot be told from the case's input, and the argument's value is not in the log")
+    return None if status == 1 and doc is None and not written and lines == [wanted] else f"{status} {lines} {written}"
+
+
+def case_sp_replay_of_a_build_whose_pointer_leaves_the_stack_fails():
+    _lines, doc = sp_doc(sp_function(16))
+    # the build writes the same word to a global and hands that address over: the bytes agree, the pointer does not
+    build = sp_function(16, init=None, address=BUF)
+    build = build[:2] + stw(BUF, 0x11223344) + build[2:]
+    got, status = fx_replay(doc, build)
+    wanted = ("    call 1 to func_callee: argument 1 points to 0x80060000, and its 4 bytes are not wholly inside the stack region; "
+              "the original handed the callee a local of the function, the build must too")
+    return None if status == 1 and wanted in got else f"{status} {got[:4]}"
+
+
+def case_sp_block_at_the_edges_of_the_stack_region():
+    top = D.STACK_TOP + D.HOME_AREA  # 0x801ff010: the end of the region
+    options = dict(masks={0: 0}, pointees={0: 2})
+    for label, address, accepted in (("ends exactly at the end", top - 8, True), ("starts exactly at the low end", D.STACK_LOW, True),
+                                     ("one word past the end", top - 4, False), ("one word below the low end", D.STACK_LOW - 4, False)):
+        words = sp_function(16, init=None, address=address)
+        with tempfile.TemporaryDirectory() as tmp:
+            lines, status, doc, _ = fx_record(words, sp_setup(**options), cases=2, folder=tmp)
+        if accepted and (status != 0 or doc is None or doc["fixtures"][0]["calls"][0]["pointees"] != {"0": []}):
+            return f"{label}: {status} {lines}"
+        if not accepted and (status != 1 or doc is not None or "leads to 8 bytes that are not wholly inside the stack region" not in lines[0]):
+            return f"{label}: {status} {lines}"
+    return None
+
+
+def case_sp_a_fill_through_the_same_argument_follows_the_entry():
+    # the stand-in's entry shows the caller's word, then the fill writes the local, which the function returns
+    fill = (0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA]))
+    options = dict(masks={0: 0}, pointees={0: 1}, fills=(fill,))
+    words = lambda local, init=0x11223344: sp_function(local, init=init, after=[lw(V0, SP, local)])  # noqa: E731
+    lines, doc = sp_doc(words(16), build=words(20), **options)
+    if any("warning" in line for line in lines):
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    ok = fixture["calls"][0]["pointees"] == {"0": [[0, "44332211"]]} and fixture["result"] == "0xaabbccdd"
+    ok = ok and fixture["recorders"][0]["fills"] == [[0, 0, 0, "ddccbbaa"]] and fixture["reads"] == [] and fixture["writes"] == []
+    if not ok:
+        return f"{fixture}"
+    total = len(doc["fixtures"])
+    for local in (16, 20):
+        got, status = fx_replay(doc, words(local))
+        if status != 0 or got != [f"{LABEL} replay: fixtures {total}, passed {total}, failed 0"]:
+            return f"local at {local}: {status} {got}"
+    got, status = fx_replay(doc, words(16, init=0))
+    wanted = "    call 1 to func_callee: argument 1 differs from byte 0 (the build has 0x00 there at this call, the original had 0x44)"
+    return None if status == 1 and wanted in got else f"without the first word: {status} {got[:3]}"
+
+
+def case_sp_fifth_argument_on_the_callers_stack():
+    # the pointer is the fifth argument, passed at sp+16: its real value is read from the caller's stack at the entry
+    def words(local, address=None):
+        point = setreg(T1, address) if address is not None else [addiu(T1, SP, local)]
+        return [addiu(SP, SP, -40), sw(RA, SP, 36), *setreg(T0, 0x11223344), sw(T0, SP, local), *point, sw(T1, SP, 16),
+                jal(CALLEE), NOP, lw(RA, SP, 36), addiu(SP, SP, 40), JR_RA, NOP]
+
+    options = dict(arguments=5, masks={4: 0}, pointees={4: 1})
+    lines, doc = sp_doc(words(24), build=words(28), **options)
+    fixture = doc["fixtures"][0]
+    if fixture["calls"][0]["pointees"] != {"4": [[0, "44332211"]]} or fixture["calls"][0]["args"][4] != "0x00000000":
+        return f"{fixture['calls'][0]}"
+    total = len(doc["fixtures"])
+    got, status = fx_replay(doc, words(28))
+    if status != 0:
+        return f"another frame: {got}"
+    out = words(24, address=BUF)
+    got, status = fx_replay(doc, out[:2] + stw(BUF, 0x11223344) + out[2:])
+    wanted = "    call 1 to func_callee: argument 5 points to 0x80060000, and its 4 bytes are not wholly inside the stack region;"
+    return None if status == 1 and any(line.startswith(wanted) for line in got) else f"{status} {got[:4]}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -6408,6 +6581,7 @@ CASES = [
     ("p-run-begins-with-the-states-global-pointer", case_p_run_begins_with_the_states_global_pointer),
     ("p-every-mode-begins-with-the-programs-global-pointer", case_p_every_mode_begins_with_the_programs_global_pointer),
     ("p-replay-begins-with-the-programs-global-pointer", case_p_replay_begins_with_the_programs_global_pointer),
+    ("p-the-declaration-is-read-once-for-several-cases", case_p_the_declaration_is_read_once_for_several_cases),
     ("fl-local-at-two-places-of-two-frames", case_fl_local_at_two_places_of_two_frames),
     ("fl-call-zero-against-call-n", case_fl_call_zero_against_call_n),
     ("fl-pointee-shows-the-bytes-from-before-the-fill", case_fl_pointee_shows_the_bytes_from_before_the_fill),
@@ -6424,6 +6598,12 @@ CASES = [
     ("fl-fixtures-file-with-a-changed-fill-fails-the-right-build", case_fl_fixtures_file_with_a_changed_fill_fails_the_right_build),
     ("fl-record-pointee-shows-the-memory-before-the-fill", case_fl_record_pointee_shows_the_memory_before_the_fill),
     ("fl-reader-refuses-a-fills-that-is-not-of-the-form", case_fl_reader_refuses_a_fills_that_is_not_of_the_form),
+    ("sp-local-pointee-records-and-replays-in-two-frames", case_sp_local_pointee_records_and_replays_in_two_frames),
+    ("sp-pointee-outside-the-stack-refuses-the-record", case_sp_pointee_outside_the_stack_refuses_the_record),
+    ("sp-replay-of-a-build-whose-pointer-leaves-the-stack-fails", case_sp_replay_of_a_build_whose_pointer_leaves_the_stack_fails),
+    ("sp-block-at-the-edges-of-the-stack-region", case_sp_block_at_the_edges_of_the_stack_region),
+    ("sp-a-fill-through-the-same-argument-follows-the-entry", case_sp_a_fill_through_the_same_argument_follows_the_entry),
+    ("sp-fifth-argument-on-the-callers-stack", case_sp_fifth_argument_on_the_callers_stack),
 ]
 
 

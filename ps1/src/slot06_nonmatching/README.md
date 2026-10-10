@@ -104,6 +104,16 @@ the call (a callee that copies from one argument to another, or returns an
 argument, still needs a `tail`); and `fills` and `tail` cannot be used together.
 A fixture holds the fills, so a function with them has a record and a replay.
 
+A pointee behind an argument masked to 0 (the address of a local of the function, not in the log) is recorded
+too, when the whole block lies in the stack region of a case. The record reads the argument's real value at the
+stand-in's entry; the block is described against zeros (the region starts as zeros and is not input). If any
+byte of the block lies outside the region (a global, memory of the game, a block that straddles an end), the
+function is refused with a line naming the callee, the argument and the real address, and no file is written.
+The replay compares the block against zeros and also looks at the build's real pointer at the entry: a build
+that hands the callee a pointer outside the stack region fails (`argument K points to ADDR, and its N bytes are
+not wholly inside the stack region`). The file needs no new field: `masks` {i: 0} with `pointees` {i: n} says
+it. The native replay does not replay such a function.
+
 ## What a pass does not show
 
 A pass is evidence for the tested inputs only. It is not a proof of
@@ -714,7 +724,11 @@ as any wild store: the original's case is discarded, the build's is `build:
 fault (Invalid memory write (UC_ERR_WRITE_UNMAPPED))`); and the record (the
 fills in the file, no warning, the filled bytes not in `reads`), the replay of
 the right build and of builds that fail it, a file whose fill was changed by
-hand, and the reader's refusals.
+hand, and the reader's refusals. Group SP checks a pointee behind an argument masked to 0: a local filled by the
+function, recorded and replayed in two frames, a build that puts another value there, a pointer to a global
+(refused with its line), a build whose pointer leaves the stack (fails), the edges of the stack region, a fill
+through the same argument, and a fifth argument on the caller's stack. One case of group P shows that the
+declaration of the programs is read as often for five cases as for one.
 
 ## Controls that need the toolchain
 

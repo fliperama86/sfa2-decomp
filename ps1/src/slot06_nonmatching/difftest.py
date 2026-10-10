@@ -175,6 +175,14 @@ again), and the comparison and the write audit count them as they count any byte
 `fills` that is not of the form or is out of range for its recorder (status 2). The native replay does not replay
 a function whose recorders have fills.
 
+MASKED POINTEES. A recorder argument with a mask of 0 and a pointee is the address of a local of the function (the log
+holds 0 for it). At the stand-in's entry the record reads the argument's real value (a register, or the caller's
+stack for the fifth on). When the pointee's whole block lies in the stack region of a case (STACK_LOW to the top
+and the home area: not recorded, zero at the start, not input) the call holds the bytes as changes against zeros;
+otherwise the function is refused (`the callee F, argument I (from 0): it is masked to 0 and has a pointee ...`,
+status 1, no file). The replay compares against zeros and fails a build whose real pointer is not wholly in that
+region. The native replay does not replay such a function.
+
 ORIGINAL CALLEES. A callee that the contract did not replace (`CallLog.replace`) runs as the game's own code
 in the original's run: an ORIGINAL CALLEE. Its call begins at the first instruction that lies outside the
 function, outside every recorder (its code and its stub at the callee's address) and is not the stop address,
@@ -872,9 +880,10 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     first: list[str] = []
     executed: set[int] = set()
     most = 0
+    gp = global_pointer(cfg, name)  # the declaration is read once for the run, not once per case
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch, global_pointer(cfg, name))
+        state = State(ram, scratch, gp)
         setup = contract.setup(state, rng, sym)
         blocks: set = set()
         steps: list = []
@@ -960,9 +969,10 @@ def audit_writes(cfg, name: str, cases: int, seed: int, ram: bytes, scratch: byt
     sym = addresses(cfg, name)
     discarded = outside = largest = 0
     first = ""
+    gp = global_pointer(cfg, name)
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch, global_pointer(cfg, name))
+        state = State(ram, scratch, gp)
         setup = contract.setup(state, rng, sym)
         final = run_once(uc, state, original, setup)
         if isinstance(final, str):
@@ -1428,6 +1438,26 @@ def register_value(uc, number: int) -> int:
     return uc.reg_read(register_unicorn(number))
 
 
+def in_stack(address: int, size: int) -> bool:
+    """True when the `size` bytes at the console address `address` lie wholly in the stack region of a case (from its
+    low end to the top and the callee's home area above it): memory that the tool does not record and that starts as zeros."""
+    start = address & 0x1FFFFFFF
+    return STACK_LOW & 0x1FFFFFFF <= start and start + size <= STACK_HIGH & 0x1FFFFFFF
+
+
+def masked_pointees(pointees, masks) -> list[int]:
+    """The arguments of a recorder that have a pointee and a mask of 0: the log holds 0 for their value."""
+    return sorted(int(i) for i in pointees if masks.get(i) == 0 or masks.get(int(i)) == 0)
+
+
+def argument_at_entry(uc, index: int) -> int:
+    """The value of argument `index` of a call as the callee is entered: a register, or the caller's stack for the fifth on."""
+    if index < 4:
+        return uc.reg_read(reg.UC_MIPS_REG_A0 + index)
+    sp = uc.reg_read(reg.UC_MIPS_REG_SP)
+    return struct.unpack("<I", uc.mem_read((sp + 16 + 4 * (index - 4)) & 0x1FFFFFFF, 4))[0]
+
+
 class Refusal(FixtureError):
     """A case that this piece cannot describe (status 1 for the function, no file)."""
 
@@ -1484,7 +1514,7 @@ class Trace:
     """
 
     def __init__(self, skip: bytearray, original: int = 0, size: int = 0, recorders: frozenset = frozenset(),
-                 names: dict | None = None, made=None):
+                 names: dict | None = None, made=None, pointers: dict | None = None):
         self.skip = skip
         self.original, self.size = original, size
         self.recorders = recorders
@@ -1496,6 +1526,8 @@ class Trace:
         self.recorder_written: set[int] = set()
         self.sequence: list[tuple[str, object]] = []
         self.entries = 0  # instructions run at a recorder's address: one entry of the log each
+        self.pointers = pointers or {}  # recorder address -> its arguments with a mask of 0 and a pointee
+        self.entry_pointers: list[dict[int, int]] = []  # for each entry: those arguments' real values at the callee's entry
         self.call: OriginalCall | None = None
         self.open_at_end = False
         self.previous_in_function = False
@@ -1547,6 +1579,7 @@ class Trace:
         if address in self.recorders:
             if self.call is None:
                 self.sequence.append(("log", self.entries))
+            self.entry_pointers.append({i: argument_at_entry(uc, i) for i in self.pointers.get(address, ())})
             self.entries += 1
         word = struct.unpack("<I", uc.mem_read(address & 0x1FFFFFFF, 4))[0]
         if self.call is not None:
@@ -1762,12 +1795,26 @@ def apply_changes(base: bytes, spans: list) -> bytes:
 CALL_SCALARS = ("args", "callee", "returned")
 
 
-def call_text(call: contracts.Call, label: dict[int, str], log: contracts.CallLog, before_ram: bytes, before_scratch: bytes) -> dict:
+def call_text(call: contracts.Call, label: dict[int, str], log: contracts.CallLog, before_ram: bytes, before_scratch: bytes,
+              real: dict[int, int] | None = None) -> dict:
     """A decoded call as the fixture holds it. The words behind a pointer argument and the watched blocks are
-    stored as the bytes that differ, at this call, from the same memory in the input state."""
+    stored as the bytes that differ, at this call, from the same memory in the input state. `real` holds the real
+    values, at the callee's entry, of the arguments that the log holds as 0 (mask 0) and that have a pointee: such a
+    pointee must lie wholly in the stack region of the case, which starts as zeros and is not input, and is
+    described against zeros; otherwise the case is refused (Refusal)."""
+    real = real or {}
     pointees = {}
     for index, data in sorted(call.pointees.items()):
-        pointees[str(index)] = span_changes(data, input_bytes(before_ram, before_scratch, call.args[index], len(data)))
+        if index in real:
+            if not in_stack(real[index], len(data)):
+                raise Refusal(f"the callee {label[call.address]}, argument {index} (from 0): it is masked to 0 and has a pointee, and its "
+                              f"real value {hex8(real[index])} leads to {len(data)} bytes that are not wholly inside the stack region "
+                              f"({hex8(STACK_LOW)} to {hex8(STACK_HIGH)}): their bytes cannot be told from the case's input, and the "
+                              f"argument's value is not in the log")
+            base = bytes(len(data))
+        else:
+            base = input_bytes(before_ram, before_scratch, call.args[index], len(data))
+        pointees[str(index)] = span_changes(data, base)
     watched = [span_changes(data, input_bytes(before_ram, before_scratch, block, 4 * count))
                for (block, count), data in zip(log.watch, call.watched)]
     return {"args": [hex8(a) for a in call.args], "callee": label[call.address], "pointees": pointees,
@@ -1839,8 +1886,9 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
                            "fixtures cannot describe what it returns")
     harness = list(log.owned) if log else []
     skip = skip_map(harness)
+    pointers = {r.address: tuple(masked_pointees(r.pointees, r.masks)) for r in log.recorders.values()} if log else {}
     trace = Trace(skip, original, size, frozenset(log.recorders) if log else frozenset(), names,
-                  lambda at: made_by_setup(state, at))
+                  lambda at: made_by_setup(state, at), pointers)
     final = run_once(uc, state, original, setup, None, ((UC_HOOK_CODE, trace.step),))
     if trace.error is not None:
         raise trace.error
@@ -1859,10 +1907,12 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
     # The bytes of the memory that a recorder saw at a call (pointees and watched blocks): the calls hold them as
     # changes against the input state, so a byte of them that the function stored needs its input value stated.
     # The entries that a recorder made inside the call of an original callee are not in the file.
-    kept_entries = [decoded[number] for kind, number in trace.sequence if kind == "log"]
+    kept_entries = [(number, decoded[number]) for kind, number in trace.sequence if kind == "log"]
     seen_by_recorders: set[int] = set()
-    for call in kept_entries:
+    for number, call in kept_entries:
         for index, data in call.pointees.items():
+            if index in trace.entry_pointers[number]:
+                continue  # the stack of the case: not recorded
             seen_by_recorders.update(range(call.args[index] & 0x1FFFFFFF, (call.args[index] & 0x1FFFFFFF) + len(data)))
         for block, count in log.watch:
             seen_by_recorders.update(range(block & 0x1FFFFFFF, (block & 0x1FFFFFFF) + 4 * count))
@@ -1886,7 +1936,7 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
             recorders.append(recorder_text(recorder, label[recorder.address], None if cell is None else console_address(cell)))
     for kind, item in trace.sequence:
         if kind == "log":
-            calls.append(call_text(decoded[item], label, log, state.ram, state.scratch))
+            calls.append(call_text(decoded[item], label, log, state.ram, state.scratch, trace.entry_pointers[item]))
         else:
             calls.append(original_call_text(item, trace.label(item.entry)))
     result = hex8(final["v0"]) if setup.returns_value and setup.returns else None
@@ -1944,11 +1994,12 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     contract = contracts.CONTRACTS[name]
     sym, names = addresses(cfg, name), names_of(cfg, name)
     uc = machine(b"\0" * 16)
+    gp = global_pointer(cfg, name)
 
     def recorded(case: int) -> tuple[dict | None, int, tuple[list[str], int] | None]:
         """(fixture, bytes not made, None) of a case, or (None, 0, the lines and status that refuse the function)."""
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch, global_pointer(cfg, name))
+        state = State(ram, scratch, gp)
         setup = contract.setup(state, rng, sym)
         try:
             fixture, not_made = record_case(uc, state, original, size, setup, names)
@@ -2020,7 +2071,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     checked = machine(build.code)
     for fixture in json.loads(text)["fixtures"]:
         try:
-            failed = replay_fixture(checked, build, fixture, global_pointer(cfg, name))
+            failed = replay_fixture(checked, build, fixture, gp)
         except (KeyError, ValueError, TypeError, AttributeError, FixtureError) as exc:
             failed = [f"cannot be read: {type(exc).__name__}: {exc}"]
         if failed:
@@ -2150,7 +2201,9 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
     # go above all of it, or they would lie inside what is compared. (A word that a recorder stores or adds to
     # is in `reads`, `same` or `writes` already.)
     used += [int(a, 16) + 4 * n - 1 for a, n in fixture["watch"]]
-    behind = {r["callee"]: r.get("pointees", {}) for r in fixture["recorders"]}
+    # (A pointee behind an argument masked to 0 is in the stack region, which is not recorded and lies below the arena.)
+    behind = {r["callee"]: {i: n for i, n in r.get("pointees", {}).items() if int(i) not in masked_pointees(r.get("pointees", {}), r.get("masks", {}))}
+              for r in fixture["recorders"]}
     for call in recorded_calls:
         used += [int(call["args"][int(i)], 16) + 4 * n - 1 for i, n in behind[call["callee"]].items()]
     for address in used:
@@ -2288,11 +2341,20 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict, gp: int = 0) -> list[str
     for at, _length in stubs:
         state.write(at, struct.pack("<II", contracts.JR_RA, 0))
     standins = StandIns(fixture, log)
+    # The real pointer of an argument masked to 0 that has a pointee, at the stand-in's entry (the log holds 0).
+    pointers: list[tuple[int, str, int, int]] = []  # (call number, callee, argument, real value)
+    pointer_hooks = []
+    for recorder in fixture["recorders"]:
+        for index in masked_pointees(recorder.get("pointees", {}), recorder.get("masks", {})):
+            def at_entry(uc, _address, _size, _data, callee=recorder["callee"], index=index):
+                pointers.append((calls_in_log(uc, log) + len(standins.made) + 1, callee, index, argument_at_entry(uc, index)))
+            pointer_hooks.append((int(recorder["at"], 16), at_entry))
+    hooks = standins.hooks(fixture) + tuple(pointer_hooks)
     setup = contracts.Setup(args=tuple(int(a, 16) for a in fixture["args"]), returns_value=fixture["result"] is not None,
                             returns=not fixture["ends_in_callee"])
     before_ram, before_scratch = bytes(state.ram), bytes(state.scratch)
     executed: set = set()
-    final = run_once(uc, state, TEST_ADDRESS + build.entry, setup, executed, **({"standins": standins.hooks(fixture)} if stubs else {}))
+    final = run_once(uc, state, TEST_ADDRESS + build.entry, setup, executed, **({"standins": hooks} if hooks else {}))
     if standins.failure is not None:
         return [standins.failure]
     # Only the build, the recorders and the stop address may run: code at any other address is the original's
@@ -2304,6 +2366,12 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict, gp: int = 0) -> list[str
     if isinstance(final, str):
         return [f"build: {final}"]
     lines: list[str] = []
+    sizes = {r["callee"]: r["pointees"] for r in fixture["recorders"] if "pointees" in r}
+    for number, callee, index, value in pointers:
+        size = 4 * sizes[callee][str(index)]
+        if not in_stack(value, size):
+            lines.append(f"call {number} to {callee}: argument {index + 1} points to {hex8(value)}, and its {size} bytes are not wholly "
+                         f"inside the stack region; the original handed the callee a local of the function, the build must too")
     label = {int(r["at"], 16): r["callee"] for r in fixture["recorders"]}
     decoded = log.calls(final["ram"]) if log is not None else []
     got_recorders = [{"args": [hex8(x) for x in c.args], "callee": label[c.address], "returned": hex8(c.returned)} for c in decoded]
@@ -2323,14 +2391,17 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict, gp: int = 0) -> list[str
     else:
         # The memory behind the pointer arguments and the watched blocks, at each call: the replay's own input
         # state with the recorded changes over it.
+        masks_of = {r["callee"]: (r.get("pointees", {}), r.get("masks", {})) for r in fixture["recorders"]}
         recorder_calls = [(n, c) for n, c in enumerate(fixture["calls"], 1) if not c.get("original")]
         for (number, recorded), call in zip(recorder_calls, decoded):
-            places = [(f"argument {int(i) + 1}", call.pointees[int(i)], call.args[int(i)], spans)
+            zero = masked_pointees(masks_of[recorded["callee"]][0], masks_of[recorded["callee"]][1])
+            places = [(f"argument {int(i) + 1}", call.pointees[int(i)], None if int(i) in zero else call.args[int(i)], spans)
                       for i, spans in recorded["pointees"].items()]
             places += [(f"watched block {k + 1}", data, block, spans)
                        for k, ((block, _n), data, spans) in enumerate(zip(log.watch, call.watched, recorded["watched"]))]
             for place, data, address, spans in places:
-                expected = apply_changes(input_bytes(before_ram, before_scratch, address, len(data)), spans)
+                base = bytes(len(data)) if address is None else input_bytes(before_ram, before_scratch, address, len(data))
+                expected = apply_changes(base, spans)
                 if (line := block_difference(number, recorded["callee"], place, expected, data)):
                     lines.append(line)
                     break
