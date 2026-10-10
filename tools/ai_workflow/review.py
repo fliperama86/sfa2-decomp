@@ -78,6 +78,10 @@ FUNCTION_FILE = re.compile(r'(func_[0-9a-f]{8}(?:_[a-z0-9_]+)?)\.(c|py|fixtures\
 OVERRIDE_FILE = re.compile(r'([A-Za-z0-9_]+)\.(c|py|fixtures\.json)')
 HARNESS = ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py')
 DIFFTEST = 'ps1/src/slot06_nonmatching/difftest.py'
+# The stand-alone programs of the disc: a folder of C for each program beside the declaration and two small tools.
+PROGRAMS = 'ps1/src/programs'
+PROGRAM_DECLARATION = ('programs.toml', 'programs.py', 'discfile.py')
+PROGRAM_TESTS = ('test_programs.py', 'test_discfile.py')
 
 
 def function_checks(root: Path, label: str, rel: str, scope: str, changed: list[str], everything: bool,
@@ -140,6 +144,10 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
                 or any(p.startswith('ps1/src/' + f.name + '/') and Path(p).name not in ('README.md', *HARNESS)
                        and not FUNCTION_FILE.fullmatch(Path(p).name) for f in folders)
                 for p in changed)
+    program_folders = sorted(p for p in (src / 'programs').glob('*') if p.is_dir() and p.name != '__pycache__')
+    in_programs = lambda p: p.startswith(PROGRAMS + '/') and p.count('/') == PROGRAMS.count('/') + 1
+    # A change of the declaration or of a small tool can change what any function of any program is tested against.
+    declaration = any(in_programs(p) and Path(p).name in PROGRAM_DECLARATION for p in changed)
     checks = []
     if broad or any(p in owned or p.startswith('ps1/inventory/') for p in changed):
         checks.append(Check('matching', (sys.executable, 'ps1/tools/matchbuild.py', '--config', 'ps1/src/build.toml', '--tag', 'ai-review'), 'ps1'))
@@ -148,6 +156,12 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
             checks.append(Check(script.stem, (sys.executable, script.relative_to(root).as_posix()), 'ps1'))
     for folder in folders:
         checks.extend(function_checks(root, folder.name, folder.relative_to(root).as_posix(), 'ps1', changed, broad or harness, cases, seeds))
+    for folder in program_folders:
+        checks.extend(function_checks(root, 'programs-' + folder.name, folder.relative_to(root).as_posix(), 'ps1', changed,
+                                      broad or harness or declaration, cases, seeds))
+    if any(in_programs(p) and Path(p).name in PROGRAM_DECLARATION + PROGRAM_TESTS for p in changed):
+        for name in PROGRAM_TESTS:
+            checks.append(Check(Path(name).stem, (sys.executable, f'{PROGRAMS}/{name}'), 'ps1'))
     # The port's overrides in C are tested like nonmatching C, by each one's contract and fixtures. Their scope is
     # their own: the files a result depends on are those of `ps1` and the overrides themselves.
     if (root / 'port/overrides').is_dir():
@@ -178,7 +192,12 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     if any(p.startswith('tools/ai_workflow/') for p in changed):
         checks.append(Check('workflow-controls', (sys.executable, '-m', 'unittest', 'discover', '-s', 'tools/ai_workflow/tests', '-v'), 'workflow'))
     understood = lambda p: p.startswith(('docs/', 'ps1/docs/')) or p.endswith('.md') or p in owned or p.startswith(('ps1/tools/', 'ps1/inventory/', 'port/', 'tools/ai_workflow/')) or p in ('ps1/src/build.toml', 'ps1/src/symbols.ld', 'ps1/src/types.fields') or p.startswith('ps1/src/') and (p.endswith('.h') or any(p.startswith('ps1/src/' + f.name + '/') for f in folders))
-    unknown = [p for p in changed if not understood(p)]
+    # A file of a program's folder is understood when it is a function's file; of the programs' own folder when it is
+    # the declaration, a tool or a test of the tools. Anything else there is not known to carry a check.
+    understood_program = lambda p: p.startswith(PROGRAMS + '/') and (
+        in_programs(p) and Path(p).name in PROGRAM_DECLARATION + PROGRAM_TESTS
+        or p.count('/') == PROGRAMS.count('/') + 2 and FUNCTION_FILE.fullmatch(Path(p).name) is not None)
+    unknown = [p for p in changed if not (understood(p) or understood_program(p))]
     if unknown:
         raise Problem('unmapped changes require explicit review scope: ' + ', '.join(unknown))
     # Removal/rename must not silently disappear from the new source list.

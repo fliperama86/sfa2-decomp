@@ -297,6 +297,40 @@ def case_workspace_is_ignored(rig: Rig):
     return None if not listed.stdout.strip() else f"git lists the workspace: {listed.stdout.strip()}"
 
 
+def case_program_names_win_in_the_link_of_a_program_function_only(rig: Rig):
+    # `data_80030000` is a name of the tree's symbol file (0x80030000). A program of programs.toml gives it another
+    # address, 0x80012080: the program's function must link to that one (lui 0x8001), a resident function with the
+    # same body to the tree's (lui 0x8003). The program's file is not needed: it is never read by a build.
+    body = "extern unsigned data_80030000[];\nunsigned %s(void) { return data_80030000[0]; }\n"
+
+    def first_lui(name: str) -> int | None:
+        (rig.folder / f"{name}.c").write_text(body % name)
+        with tempfile.TemporaryDirectory(prefix="difftest-") as directory:
+            build = D.build_function(rig.cfg, name, Path(directory), rig.folder)
+        words = struct.unpack(f"<{build.size // 4}I", build.code[: build.size])
+        return next((w & 0xFFFF for w in words if w >> 26 == 0xF), None)
+
+    toml = rig.folder / "programs.toml"
+    toml.write_text('[[program]]\nname = "zz"\nfile = "ZZ.EXE"\ndisc = "PAC/ZZ.EXE"\nsha256 = "' + "ab" * 32 + '"\n'
+                    'address = 0x80012000\nfunctions = [ { name = "func_80012010_zz", address = 0x80012010, size = 24 } ]\n'
+                    "[program.symbols]\ndata_80030000 = 0x80012080\n")
+    saved, saved_link = D.PROGRAMS_TOML, D.link_symbols
+    D.PROGRAMS_TOML = toml
+    try:
+        program, resident = first_lui("func_80012010_zz"), first_lui("func_80012010")
+        if (program, resident) != (0x8001, 0x8003):
+            return f"lui immediates: program {program}, resident {resident}"
+        # Fail closed: a link that kept the tree's address for the program's name is refused, not tested.
+        D.link_symbols = lambda tree, defined, extra: D.without_assignments(tree, defined)
+        try:
+            first_lui("func_80012010_zz")
+        except D.InputError as exc:
+            return None if "did not place the program's names" in str(exc) and "data_80030000 at 0x80030000" in str(exc) else f"message {exc}"
+        return "a link that put the program's name at the tree's address was accepted"
+    finally:
+        D.PROGRAMS_TOML, D.link_symbols = saved, saved_link
+
+
 CASES = [
     ("m-unedited-function-passes", case_baseline),
     ("m-helper-named-like-a-linker-symbol-runs", case_colliding_helper_runs),
@@ -306,6 +340,7 @@ CASES = [
     ("m-three-kinds-of-writable-data-are-refused", case_writable_data),
     ("m-helper-named-like-a-declared-function-runs", case_helper_named_like_a_declared_function),
     ("m-external-callees-keep-their-original-address", case_external_callee),
+    ("m-program-names-win-in-the-link-of-a-program-function-only", case_program_names_win_in_the_link_of_a_program_function_only),
     ("w-another-run-is-left-alone", case_another_run_is_left_alone),
     ("w-workspace-is-ignored-by-git", case_workspace_is_ignored),
 ]

@@ -332,10 +332,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / "tools"))
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "programs"))
 
 import matchbuild  # noqa: E402
 from elftools.elf.elffile import ELFFile  # noqa: E402
 import contracts  # noqa: E402
+import programs  # noqa: E402
 from unicorn import UC_ARCH_MIPS, UC_HOOK_BLOCK, UC_HOOK_CODE, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32, Uc, UcError  # noqa: E402
 from unicorn import mips_const as reg  # noqa: E402
 
@@ -356,6 +358,7 @@ PAGE = 0x1000  # the unit of the first pass of the memory comparison
 SAVED = (reg.UC_MIPS_REG_S0, reg.UC_MIPS_REG_S1, reg.UC_MIPS_REG_S2, reg.UC_MIPS_REG_S3,
          reg.UC_MIPS_REG_S4, reg.UC_MIPS_REG_S5, reg.UC_MIPS_REG_S6, reg.UC_MIPS_REG_S7, reg.UC_MIPS_REG_FP)
 SAVED_NAMES = ("s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "fp")
+PROGRAMS_TOML = HERE.parent / "programs" / "programs.toml"  # the declaration of the disc's stand-alone programs
 ARGS = (reg.UC_MIPS_REG_A0, reg.UC_MIPS_REG_A1, reg.UC_MIPS_REG_A2, reg.UC_MIPS_REG_A3)
 
 
@@ -485,14 +488,17 @@ def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Buil
     if written or any(s.section == "SHN_COMMON" for s in symbols) or sizes.get("COMMON"):
         raise InputError(f"{source.name} defines writable data: {', '.join(written) or 'a common symbol'}")
     # Declared functions of the build that the code may call resolve to their original addresses.
-    known = set(cfg.symbol_values)
+    # A program's own names (its data, its functions) hold for that program's functions only and
+    # win over the tree's symbol file and over the build's declared functions there.
+    extra = program_symbols(program_for(cfg, image_of(name)))
+    known = set(cfg.symbol_values) | set(extra)
     lines = [f"{fn.name} = {fn.address:#x};\n" for u in cfg.units for fn in u.functions
              if fn.name not in defined and fn.name not in known]
     (directory / "others.ld").write_text("".join(lines))
     # The tree's symbol file places names at their original addresses, the parked function's
     # own name among them. An assignment there would win over a definition of the unit, and a
     # call by that name would run the ORIGINAL code: every name the unit defines is taken out.
-    (directory / "symbols.ld").write_text(without_assignments(Path(cfg.symbols_path).read_text(), defined))
+    (directory / "symbols.ld").write_text(link_symbols(Path(cfg.symbols_path).read_text(), defined, extra))
     discard = " ".join(f"*({s})" for s in matchbuild.DISCARDED_SECTIONS)
     (directory / "link.ld").write_text(
         "OUTPUT_ARCH(mips)\n"
@@ -515,6 +521,10 @@ def build_function(cfg, name: str, directory: Path, folder: Path = HERE) -> Buil
     astray = misplaced(linked_addresses(directory / "image.elf"), defined, TEST_ADDRESS, TEST_ADDRESS + len(code))
     if astray:
         raise InputError(f"{source.name}: the link placed outside the unit what the unit defines: {', '.join(astray)}")
+    # And a name of the program must lie where the program says, not where the tree's file puts it.
+    wrong = misvalued(linked_addresses(directory / "image.elf"), {n: a for n, a in extra.items() if n not in defined})
+    if wrong:
+        raise InputError(f"{source.name}: the link did not place the program's names as declared: {', '.join(wrong)}")
     return Build(code, sizes.get(".text", 0), entry)
 
 
@@ -526,6 +536,21 @@ def without_assignments(text: str, names: set[str]) -> str:
         if match is None or match.group(1) not in names:
             kept.append(line)
     return "".join(kept)
+
+
+def link_symbols(tree_text: str, defined: set[str], extra: dict[str, int]) -> str:
+    """The symbol file of one link: the tree's file without the lines that assign a name the unit
+    defines or a name of the program, then the program's names at their addresses (a name the unit
+    defines is not among them: the unit's own definition stands)."""
+    kept = without_assignments(tree_text, defined | set(extra))
+    return kept + "".join(f"{name} = {address:#x};\n" for name, address in extra.items() if name not in defined)
+
+
+def misvalued(linked: dict[str, int], wanted: dict[str, int]) -> list[str]:
+    """The names of `wanted` that the link placed, but not at the address wanted. A name the link does
+    not carry is not placed: a unit that uses it would not have linked."""
+    return [f"{name} at {linked[name]:#x}, declared {address:#x}" for name, address in sorted(wanted.items())
+            if name in linked and linked[name] != address]
 
 
 def linked_addresses(elf_path: Path) -> dict[str, int]:
@@ -561,9 +586,18 @@ def initial_memory(cfg, image: str | None) -> bytes:
     """RAM with the resident executable and the module image `image` (None: none) at their load addresses.
 
     Several module images share one address, so exactly the image of the function is loaded.
+    The body of a stand-alone program (`image` names one of `programs.toml`) is loaded over the resident.
     """
     ram = bytearray(RAM_SIZE)
     images = [(cfg.load, cfg.payload)] + [(i.address, i.payload) for i in cfg.images if i.name == image]
+    program = program_for(cfg, image)
+    if program is not None:
+        # A program replaces what the resident executable holds at its addresses, as `Exec` does; the
+        # resident stays where the body does not reach. The file's hash and header are checked first.
+        try:
+            images.append((program.address, programs.read_body(program)))
+        except programs.ProgramError as exc:
+            raise InputError(str(exc)) from exc
     for address, data in images:
         offset = address - RAM_BASE
         if not data or offset < 0 or offset + len(data) > RAM_SIZE:
@@ -702,7 +736,8 @@ def original_function(cfg, name: str) -> tuple[int, int]:
     `func_<address>_<image>` for a module image. The address is in the name;
     the size comes from the published function inventory (`ps1/inventory/`),
     because a nonmatching function is not declared in the build. A resident
-    name is looked up in `game.tsv` and in `library.tsv` and must be in exactly one.
+    name is looked up in `game.tsv` and in `library.tsv` and must be in exactly one. When the image part is a
+    program of `programs.toml` the function must be listed there, and the toml gives its size.
     """
     match = re.fullmatch(r"func_([0-9a-f]{8})(?:_(\w+))?", name)
     if match is None:
@@ -714,10 +749,16 @@ def original_function(cfg, name: str) -> tuple[int, int]:
         for table in ("game.tsv", "library.tsv"):
             rows = [line.split("\t") for line in (inventory / table).read_text().splitlines()]
             sizes += [int(r[1]) for r in rows if int(r[0], 16) == address]
+    elif program_for(cfg, match.group(2)) is not None:
+        program = program_for(cfg, match.group(2))
+        function = next((f for f in program.functions if f.name == name), None)
+        if function is None:
+            raise InputError(f"{name}: programs.toml lists no such function of the program {program.name!r}")
+        return function.address, function.size
     else:
         image = next((i for i in cfg.images if i.name == match.group(2)), None)
         if image is None:
-            raise InputError(f"{name}: the build declares no module image {match.group(2)!r}")
+            raise InputError(f"{name}: the build declares no module image or program {match.group(2)!r}")
         rows = [line.split("\t") for line in (inventory / "modules.tsv").read_text().splitlines()]
         sizes = [int(r[3]) for r in rows if r[0] == image.archive.name and int(r[1], 16) == image.slot and int(r[2], 16) == address]
     if len(sizes) != 1:
@@ -745,11 +786,42 @@ def ranges_text(offsets: list[int]) -> str:
     return ", ".join(f"+{a:#x}" if a == b else f"+{a:#x}..+{b:#x}" for a, b in parts)
 
 
-def addresses(cfg) -> dict[str, int]:
+def declared_programs() -> tuple:
+    """The programs of `programs.toml`; whatever the reader refuses is an input error."""
+    try:
+        return programs.load(PROGRAMS_TOML)
+    except programs.ProgramError as exc:
+        raise InputError(f"{PROGRAMS_TOML.name}: {exc}") from exc
+
+
+def program_for(cfg, image: str | None):
+    """The program that the image part of a function's name stands for, None for the resident executable
+    and for a module image. A name that is both a module image and a program is ambiguous and refused."""
+    if image is None:
+        return None
+    program = next((p for p in declared_programs() if p.name == image), None)
+    if program is not None and any(i.name == image for i in getattr(cfg, "images", ())):
+        raise InputError(f"{image!r} is both a module image of the build and a program of {PROGRAMS_TOML.name}")
+    return program
+
+
+def program_symbols(program) -> dict[str, int]:
+    """The names that hold inside a program: its symbols and its listed functions, each with its address."""
+    if program is None:
+        return {}
+    table = {f.name: f.address for f in program.functions}
+    table.update(program.symbols)
+    return table
+
+
+def addresses(cfg, name: str | None = None) -> dict[str, int]:
     """What a contract's setup is given as `sym`: the names of the tree's linker symbols
-    and of the functions that the build declares, each with its address."""
+    and of the functions that the build declares, each with its address. For a function of a
+    program (`name` given) the program's own names are added and win."""
     table = {fn.name: fn.address for unit in getattr(cfg, "units", ()) for fn in unit.functions}
     table.update(cfg.symbol_values)
+    if name is not None:
+        table.update(program_symbols(program_for(cfg, image_of(name))))
     return table
 
 
@@ -772,7 +844,7 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     contract = contracts.CONTRACTS[name]
     original, size = original_function(cfg, name)
     uc = machine(code)
-    sym = addresses(cfg)
+    sym = addresses(cfg, name)
     discarded = equal = different = 0
     first: list[str] = []
     executed: set[int] = set()
@@ -862,7 +934,7 @@ def audit_writes(cfg, name: str, cases: int, seed: int, ram: bytes, scratch: byt
     contract = contracts.CONTRACTS[name]
     original, _size = original_function(cfg, name)
     uc = machine(b"\0" * 16)
-    sym = addresses(cfg)
+    sym = addresses(cfg, name)
     discarded = outside = largest = 0
     first = ""
     for case in range(cases):
@@ -1194,12 +1266,12 @@ def console_address(physical: int) -> int:
     return physical if physical >= SCRATCH_BASE else RAM_BASE + physical
 
 
-def names_of(cfg) -> dict[int, str]:
+def names_of(cfg, name: str | None = None) -> dict[int, str]:
     """address -> name, for the names of the tree's symbols and declared functions (the first name in order)."""
     table: dict[int, str] = {}
-    for name, value in sorted(addresses(cfg).items()):
+    for symbol, value in sorted(addresses(cfg, name).items()):
         if isinstance(value, int):
-            table.setdefault(value, name)
+            table.setdefault(value, symbol)
     return table
 
 
@@ -1845,7 +1917,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
                 *(f"  {line}" for line in first)], 1
 
     contract = contracts.CONTRACTS[name]
-    sym, names = addresses(cfg), names_of(cfg)
+    sym, names = addresses(cfg, name), names_of(cfg, name)
     uc = machine(b"\0" * 16)
 
     def recorded(case: int) -> tuple[dict | None, int, tuple[list[str], int] | None]:
