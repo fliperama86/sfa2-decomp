@@ -52,10 +52,31 @@ through the corrected record: 33 read no such byte, 5 do, and those 5
 are not in the tree and not in the branch's history (the branch was
 built again on main without them).
 
-Tests: `test_difftest.py`, 396 cases, "all cases behaved as required"
-(347 before); `test_difftest_build.py --config ../build.toml`, the same
-line; 68 mutants of the new code in bounded runs, each failing a named
-case; `python tools/ai_workflow/tests/test_workflow.py`, OK.
+A finding of the owner's review, corrected in this change: the stand-in
+set every recorded volatile register, also ones the callee never wrote,
+and `uses` checked only the argument registers. His case, all made up:
+the caller sets `a0 = 7`, calls a callee that is `jr ra; nop`, and
+returns `a0`; a build that sets 8 really returns 8, and the replay
+passed, because the stand-in put the recorded 7 back. Now the trace
+keeps every register of a call as untouched or written. A register the
+callee saves into its own memory and loads back is untouched again.
+`leaves` holds exactly the registers that are written when the call
+ends, and the stand-in sets those and no other. `uses` holds every
+caller register the callee read while it was untouched (the argument
+registers, the temporaries, `at`, `v0`, `v1`, `gp`, `hi`, `lo`), and the
+stand-in checks each. A callee that reads a register its caller must
+keep (`s0` to `s7`, `fp`, `k0`, `k1`, or `ra` other than to return) in
+any other way than to save it is refused, and so is one that leaves the
+stack pointer changed. The 33 format 2 files were recorded again under
+these rules: none warned, none was refused, the replay lines are the
+same. The one function that fails its record's own check
+(`func_8011df3c`) fails it as before.
+
+Tests: `test_difftest.py`, 414 cases, "all cases behaved as required"
+(347 before this change); `test_difftest_build.py --config
+../build.toml`, the same line; 94 mutants of the new code in bounded
+runs, each failing a named case (26 of them of the register rules);
+`python tools/ai_workflow/tests/test_workflow.py`, OK.
 
 Not done and not shown: no contract and no C file was changed; the
 functions still without a file stay with the wide comparison (their
