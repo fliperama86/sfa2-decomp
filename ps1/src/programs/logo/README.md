@@ -94,6 +94,10 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
+func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -111,6 +115,7 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
@@ -119,6 +124,8 @@ func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -130,6 +137,8 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010a38_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010f20_logo replay: fixtures 1, passed 1, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
@@ -151,3 +160,7 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   test sets the flag to 0 in every case (with another value the function ends
   only through an interrupt, which the tool does not model), so it shows the
   exit and the read, not the waiting.
+- `func_80010a38_logo`: hands the display environment named by the index at
+  `0x8002eb50` (20 bytes each, from `0x8002eb8c`) to the library call
+  `func_80158470` (the program's copy), then flips the index. The call is a
+  recorder in the test; the index is 0 or 1 in four cases of five.
