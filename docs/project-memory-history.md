@@ -9547,6 +9547,42 @@ No function count changes here: none of this is in the build.
   redesigned, not made (`docs/efficiency.md` when its pull request is
   merged).
 
+## The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)
+
+- `func_801189c4`, the game's `main` (inferred), is nonmatching C in
+  `ps1/src/resident_nonmatching/`, the last function of that folder's
+  backlog that had no open question. It never returns; its test ends
+  each case at a recorder and compares the calls it makes and the
+  memory it leaves. Its lines are on the folder's page: `different 0`
+  on seeds 1 and 7, 204 of 211 instruction slots executed (the header
+  names the seven), the control and the write audit. It was tested
+  alone; no other function of the folder was run again.
+  Before the pull request its file was made to include `protos.h` and
+  `externs.h` like the folder's other units, and the declarations that
+  those headers already give were taken out of it; the five runs after
+  that print the same lines.
+- `func_80119444`, the handler that the vertical-blank event calls
+  once a frame (inferred; it counts the frame counter that `main`'s
+  loop waits on), is an exact unit: `resident_b/b119444_r1.c`, 72
+  bytes at 0x80119444. Its C had waited as nonmatching and turned out
+  byte-identical when the first resident batch was cut; it was offered
+  to the matching lane then. Evidence, by the rule that an exact match
+  needs no test: `python ps1/tools/matchbuild.py --image resident`
+  ends with `RESULT: PASS`, and `fndiff.py --rebuild` of the unit
+  prints `0 differing instruction slots: IDENTICAL`. The line of
+  `symbols.ld` that named the function is removed, as the build
+  requires for a function that a unit owns. One function more is
+  exact; the coverage map follows from the configuration.
+- Why both now: the port. Its program starts at `main` and stopped
+  there for want of C, and the frame handler is what the vertical
+  blank calls. With the two, the port's build lists four functions of
+  the game and its modules without C (one-off reading of its `--list`
+  output): the entry code, which the port does not run, and three
+  that wait on open questions (`func_80120604`,
+  `func_800e0850_slot0f`, `func_800e0a1c_slot0f`).
+- Not run: the whole matching build, the other functions' tests, the
+  repository's review command (`docs/efficiency.md`).
+
 ## Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)
 
 - `func_80120604` (inferred: it walks a list of 8-byte sound commands

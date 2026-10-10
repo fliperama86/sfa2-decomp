@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "09ff13b16d22c574d8fe49a06a513bb8fb993d781012aa877d84b818cabf382c",
+  "sha256": "be3d592841d3eb4808b13bef818f900406f66f3d71e7f7af2dc0cdf39897ab2d",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -635,8 +635,12 @@
       "line": 9487
     },
     {
-      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
+      "title": "The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)",
       "line": 9550
+    },
+    {
+      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
+      "line": 9586
     }
   ]
 }
