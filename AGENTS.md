@@ -1,6 +1,10 @@
 # SFA2 project instructions
 
-Read `PLAN.md`, `docs/requirements.md`, and `docs/project-memory.md` before work.
+Read `docs/project-memory.md`, `docs/current-state.md`, `PLAN.md`, and
+`docs/requirements.md` before work. Retrieve history by topic with
+`python tools/ai_workflow/workflow.py context --query "topic" --limit 80`;
+do not load the entire historical log by default. Use `docs/tasks/template.md`
+for bounded implementation packages and `docs/ai-workflow.md` for validation.
 Record corrections and relevant preferences in the project memory. The active
 working repository is this directory, not `../68k-decomp`.
 
