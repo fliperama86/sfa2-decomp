@@ -2361,10 +2361,12 @@ struct Slot04bObj size=0x394
 0x27d u8 field_27d
 0x298 u8 field_298
 0x330 u8 field_330
+0x332 u16 field_332
 0x334 u8 field_334
 0x335 u8 field_335
 0x336 u8 field_336
 0x337 u8 field_337
+0x338 u8 field_338
 0x339 u8 field_339
 
 struct Slot04_10Rec6cb0 size=0x10

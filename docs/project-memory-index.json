@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "6f2f2b8e804c057a7c4b331fa742707ff140215c7e62941c57769d197d598166",
+  "sha256": "9ea83abd5c5fa66c9128aa3eb2f9add338fba6c3dec06b29e8abd3a8e129cf54",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -565,6 +565,10 @@
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
       "line": 8664
+    },
+    {
+      "title": "One character function that reads a register its callers never set (2026-10-10)",
+      "line": 8677
     }
   ]
 }
