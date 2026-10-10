@@ -7982,6 +7982,86 @@ No function count changes here: none of this is in the build.
   data declarations with another shape (an array where the unit had a
   scalar); the local lines are gone and the unit reads element 0.
 
+## A fourth parked function exact, and its table's entries take int (2026-10-09)
+
+`func_8013e1e4`, 204 bytes, was parked with four differing instruction
+slots: the original keeps the raw index in one register and the masked
+index in another, and no form had produced both.
+
+A bounded run of the permuter found the bytes with a second local for
+the masked index. Reduced one thing at a time, this is what stays: the
+masked index is held twice, in a byte local that the second half of
+the function uses, and written back to the parameter, which the first
+half uses. Measured on the final text: with the byte local everywhere
+and no write back, 16 slots; with the parameter masked in place and
+used everywhere, 4; with the last argument of the third call passed
+directly and not through the local that held another value before, 5.
+Both variables are read; nothing is assigned that nothing reads.
+
+The function is entry 0 of the dispatch table `table_8017abe4`, and
+that table was declared with entries that take two bytes. The owner's
+rule is that an entry takes its table's type. With byte parameters
+this function differs in 16 slots or more in each of six forms tried.
+The table's one other entry, `func_8013e2b0`, was exact with byte
+parameters only through copies into `int` locals that it masked once
+more; its own comment said that it took bytes because the table did.
+Declared with entries that take two `int`s, as the tables after it
+are, both entries are exact, the second in a plainer form with its
+parameters masked in place and no copies, and the dispatcher that
+calls through the table is exact unchanged. So the table's entry type
+is two `int`s now. Inferred from that: the functions of this table
+take the values as they come and mask them themselves.
+
+The four tables before it keep entries that take bytes: their entries
+that are C are exact with byte parameters. Two of their entries are
+not C yet. One of them, `func_8013db48`, measured four differing slots
+with byte parameters and with `int` parameters alike.
+
+The map after this group, from `coveragemap.py render`: 5,416 of 5,600 distinct functions exact, 12,833 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1763/1763`.
+
+## A function of the module of slot 0x27 exact: one local, two values (2026-10-10)
+
+`func_80010840_slot27`, 300 bytes, of the module of slot 0x27
+(`SELECTA.PAC`), had been exact only with a statement that masks a
+local to its low byte where the original has no instruction, and such
+a statement is excluded. Without it the candidate differed in 11
+instruction slots: the original keeps one byte of the game state in
+one register and the next byte in another, and the build had them the
+other way around.
+
+It was taken first of the functions without C because the other
+session reported that its private trial of the port stops at this
+function when Arcade is chosen. That trial was not run here.
+
+A bounded run of the permuter, a private helper with a limit of twelve
+minutes, found the bytes by using the function's first local a second
+time: it holds the mode value that the first test compares, and later
+the byte that goes to `field_40`. Reduced one thing at a time, three
+locals of the candidate came out, each alone and then all together: a
+pointer to the structure, a pointer to one field, and a copy of a
+counter. Measured on the final text with `fndiff.py --rebuild`: with a
+second local for the byte, 11 slots; with the first test written
+without a local, 15. The local is an `int`; declared `u8` or `u16` the
+unit is exact too, so nothing is claimed about the original's type.
+
+The function is entry 2 of the module's table `data_80017bc4_slot27`,
+whose entries are declared to take nothing and return nothing, and it
+is defined so.
+
+The Ghidra project of the private workspace has no function at this
+address: no instruction calls it, only the table holds its address.
+The original was read from the private instruction listing instead.
+A function that only a table reaches may be missing there.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,417 of 5,600 distinct
+functions exact, 12,834 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8080,6 +8160,91 @@ No function count changes here: none of this is in the build.
   written, measure the exact variant once more on the final tree, and
   name the variant in the sentence: which symbol, which form, what
   stays as it is.
+
+## The port serves the console's copy of RAM below 64 KB (2026-10-10)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Why. A private run of the real game on the layers put together
+  (never published) reached the loading of its first fight and ended
+  with the runtime's crash line: `func_80130768` adds an offset to a
+  null pointer and reads address `0xd`. The console has its RAM there
+  a second time. A Windows process cannot map address 0.
+- First design, dropped. Serve every access to `0..0x1fffff` in the
+  fault handler. A probe (`VirtualQuery` over the range in a program
+  linked like the runtime) found `0xf4000` bytes of that range
+  accessible in one run: the system's own mappings, most of them
+  read-only, some writable, at places that change from run to run. An
+  access there does not fault, so it cannot be served, and serving the
+  rest would make the program right or wrong by the day's layout. A
+  launcher that reserves the free ranges before the program starts
+  brought that to `0x4a000` bytes in the probe and cannot close it.
+  (One-off figures of one machine.)
+- What is published: only `[0, 0x10000)` is served, where Windows
+  guarantees a fault. `port/src/mirror.c` is the handler (a vectored
+  one, for read and write faults; the modules layer's handler on its
+  own branch takes execute faults only), `mirrorcore.c` holds the
+  parts that need no Windows: the decision, the start check, the
+  decoder and the operations. An unserved form, a straddle of
+  `0x10000`, an access from host code: the program ends with a line.
+- The forms. Counted in the objects of the private trial build:
+  154,599 instructions with a memory operand in 5,492 objects, 227
+  forms; the decoder takes 152,124 of them at exactly their length and
+  refuses 2,475, which are the classes left out on purpose (`call` and
+  `jmp` through memory, `imul`, `idiv`, `mul`, `neg`, shifts,
+  `cmovcc`, `setcc`). No string, x87 or SSE form has a memory operand
+  there. (One-off counts, private scripts over a private build.)
+- Deliberate users of the copy above 64 KB. The same objects were
+  searched for an `and` by `0x00ffffff`: 307 instructions in 124
+  functions, all with the mask as an immediate. Read from the C: 116
+  functions store the masked value into another primitive's tag, 7
+  compare a field with a constant, and 1 uses it as an address,
+  `func_80119694` (a function whose C is not on main yet). The search
+  sees only C compiled for the PC, and would not see 24 bits taken out
+  by shifts. (One-off counts.) That function needs a host routine with
+  a differential test against the original; not in this change.
+- The timer. The vertical blank's timer can aim the game's thread at
+  the interruption routine in the instant between a fault and the
+  start of the handler; the control's loop of served accesses met that
+  11 to 13 times per run. The handler recognises it, carries the
+  instruction out and moves the address the interruption returns to.
+  With that recognition taken out the loop's case fails.
+- A guard that was removed. The first version also kept the timer from
+  redirecting the thread while the handler works, by a flag. No case
+  could fail without it: while the handler works the thread's
+  instruction pointer is in the runtime or the system, where the timer
+  redirects nothing anyway. The flag's use by the timer is gone; the
+  flag itself stays for the second-fault line, which has a case.
+- Mutants, each against the cases that should notice it: the upper
+  limit moved by one, the lower limit moved by one, a straddle allowed,
+  the game-code condition taken out of the decision and out of the
+  handler, one flag of one operation wrong, the instruction length off
+  by one, the width of `movzx`'s destination wrong, the aimed context
+  not recognised, the second fault not detected. Each made a case fail.
+- Tests without the program. The owner asked on 2026-10-09 whether
+  tests could avoid running the program. This layer's decisions are
+  pure functions and 61 of its cases build and run them with the
+  host's compiler alone; 17 run the linked program. (Counts of the day;
+  the file prints its cases.)
+- Not shown: any access above `0x10000`; the handler together with the
+  modules layer's (read, not run together); the real game past the
+  point of the crash from a published commit.
+- The review command had to learn the new control file. It gives the
+  cross compiler to the port's control files by a list of names;
+  `test_hostmirror.py` was not on it, was started without `--cc` and
+  ended with its usage text, status 2: the review failed at that check.
+  The name is on the list now, and the workflow's own tests got one
+  case for it (28 cases with it; `docs/ai-workflow.md` reports the 27
+  of its own day): with the name taken off the list again, that case
+  fails. A control file that needs an argument must be made known to
+  the review command in the same change.
+- One run of the review on this branch, before that, ended at a launch
+  case that outlasted its 60 seconds: the program had not ended. The
+  machine was under load from a stress run of another change, which
+  looks for exactly that, a program that sometimes does not end when
+  the timer thread runs; it is code that is on main, not this layer's,
+  and its fix is a change of its own. The next run of the same case
+  passed.
 
 ## The port draws through PsyZ (2026-10-09)
 

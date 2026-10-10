@@ -196,6 +196,15 @@ void port_clock_start(void);
 /* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
 void port_interrupt_start(void);
 
+/* mirror.c: serve the PS1's copy of RAM below 0x10000 (see the file); main.c calls port_mirror_init before the game starts. */
+int  port_mirror_init(int trace, char *err, size_t errsize);
+/* interrupt.c: has the timer aimed the faulting thread at the interruption routine just as it faulted? The context's
+ * instruction pointer is then the routine's, and the exception record holds either the routine's address or the
+ * faulting instruction's; either way *fault_ip is the instruction that faulted. port_interrupt_set_return then moves the
+ * address the interruption will return to. */
+int  port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip);
+void port_interrupt_set_return(unsigned ip);
+
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);
 

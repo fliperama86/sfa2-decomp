@@ -214,7 +214,7 @@ extern u16 table_8017ab88[];
 extern void (*table_8017abb8[])(Object *object, u8 index, u8 arg);
 extern void (*table_8017abc4[])(Object *object, u8 index, u8 arg);
 extern void (*table_8017abd8[])(Object *object, u8 index, u8 arg);
-extern void (*table_8017abe4[])(Object *object, u8 index, u8 arg);
+extern void (*table_8017abe4[])(Object *object, int index, int arg);
 extern void (*table_8017abec[])(Object *object, u8 index, u8 arg);
 extern void (*table_8017abf4[])(Object *, int, int);
 extern void (*table_8017ac08[])(Object *, int, int);

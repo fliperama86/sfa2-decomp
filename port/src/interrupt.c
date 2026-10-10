@@ -66,6 +66,25 @@ __asm__(".text\n"
 extern volatile unsigned interrupted_eip_cell;
 volatile unsigned interrupted_eip_cell;
 
+int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
+{
+    if (context_eip != (unsigned)(size_t)port_interrupt_entry) return 0;
+    if (exception_ip == context_eip) {            /* the system took the thread's address after the redirection */
+        *fault_ip = interrupted_eip_cell;
+        return 1;
+    }
+    if (interrupted_eip_cell == exception_ip) {   /* the system had taken it before */
+        *fault_ip = exception_ip;
+        return 1;
+    }
+    return 0;
+}
+
+void port_interrupt_set_return(unsigned ip)
+{
+    interrupted_eip_cell = ip;
+}
+
 static int in_game_code(unsigned eip)
 {
     return ((size_t)eip >= (size_t)&port_game_text_begin && (size_t)eip < (size_t)&port_game_text_end) ||
@@ -106,5 +125,16 @@ void port_interrupt_start(void)
 #else
 void port_interrupt_start(void)
 {
+}
+int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
+{
+    (void)context_eip;
+    (void)exception_ip;
+    (void)fault_ip;
+    return 0;
+}
+void port_interrupt_set_return(unsigned ip)
+{
+    (void)ip;
 }
 #endif

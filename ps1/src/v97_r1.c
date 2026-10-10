@@ -5,25 +5,24 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-/* Exact. Decided by: params taken as u8 (the table's type) and copied to int locals that are masked (index at the top,
-   arg in each path before the shared f2a8 label), the mask == 0 early goto to
-   the shared f2c8 call, and entry declared unsigned (fixes the and operand order). */
-void func_8013e2b0(Object *object, u8 index_in, u8 arg_in)
+/* The parameters are masked in the function, the index at the top and the
+   argument in each path before the shared call. Also in this form from the
+   search: the early goto to the shared call when the mask is zero, and entry
+   declared unsigned. */
+void func_8013e2b0(Object *object, int index, int arg)
 {
   unsigned entry;
   int mask;
-  int arg;
-  int index = index_in;
   index &= 0xff;
   object->slots[index].field_04--;
   if (object->slots[index].field_04 == 0)
   {
-    arg = arg_in & 0xff;
+    arg &= 0xff;
   call_a8:
     func_8013f2a8(object, index, arg);
     return;
   }
-  arg = arg_in & 0xff;
+  arg &= 0xff;
   entry = table_8017a8cc[(arg * 7) + object->slots[index].field_01];
   mask = object->field_134 & 0xf0ff;
   if (mask == 0)

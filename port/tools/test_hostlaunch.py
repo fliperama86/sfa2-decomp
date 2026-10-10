@@ -73,7 +73,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt", "mirror", "mirrorcore"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -289,8 +289,8 @@ void game_thread_ret(void)
 GAME_CRASH = PROLOGUE + r"""
 void game_crash(void)
 {
-    volatile unsigned *p = (volatile unsigned *)0x1000;
-    SAY("about to read the mirror\n");
+    volatile unsigned *p = (volatile unsigned *)0xffff1000u;   /* the last 64 KB of the address space always fault and are not served */
+    SAY("about to read the top of the address space\n");
     SAY("read %u\n", *p);
 }
 """
@@ -939,7 +939,7 @@ def cases(rig: Rig):
 
     trace = rig.work / "trace.txt"
     status, lines, img, arg = rig.run("traced", program(G_MECH), variant="mech", args=["--trace", "--trace-file", rig.native(trace)])
-    got = trace.read_text().splitlines() if trace.exists() else None
+    got = [l for l in trace.read_text().splitlines() if not l.startswith("mirror:")] if trace.exists() else None   # the mirror's lines (test_hostmirror.py) share the file
     want_trace = ["lib_a 0x5 0x0 0x0 0x0", "lib_c 0x7 0x0 0x0 0x0", "lib_b 0x1 0x0 0x0 0x0"]
     got_cmp = [" ".join(l.split()[:2] + ["0x0"] * 3) for l in got] if got else got
     yield "trace-logs-each-library-call-including-the-one-that-stops", verdict(
@@ -957,8 +957,8 @@ def cases(rig: Rig):
     yield "list-library-needs-no-disc-and-prints-the-groups-with-addresses", verdict((proc.returncode, out), (0, want))
 
     status, lines, img, arg = rig.run("crash", program(G_CRASH), variant="crash")
-    ok = status == 10 and lines[-2] == "about to read the mirror" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00001000 \(read\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
-    yield "a-read-of-the-ram-mirror-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
+    ok = status == 10 and lines[-2] == "about to read the top of the address space" and re.fullmatch(r"stop: crash: access violation \(read 0xffff1000\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
+    yield "a-read-in-the-last-64-kb-of-the-address-space-is-not-served-and-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
 
     # ---- addresses that the game hands to the runtime to call ----
     for path, name, after in (("thread entry", "thread", "after the switch"), ("event handler", "event", "after the vblank"),

@@ -12,7 +12,7 @@
  *
  * Status (one `stop:` or `refused:` line says why, except for 0 by a return):
  *   0 main returned, or the window was closed
- *   2 a refusal at start (including a bad table: a name listed twice, a listed
+ *   2 a refusal at start (including the mirror's start check (mirror.c) and a bad table: a name listed twice, a listed
  *     name that no library function or function with C has)
  *   3 a function without C was reached
  *   4 a library function without a host routine was reached
@@ -130,6 +130,7 @@ int main(int argc, char **argv)
     SetUnhandledExceptionFilter(crashed);
 #endif
     if (port_map(err, sizeof err) != 0) return refuse(err);
+    if (port_mirror_init(trace, err, sizeof err) != 0) return refuse(err);
     printf("memory: RAM at 0x%08x (2 MB), scratchpad at 0x%08x\n", PORT_RAM_BASE, PORT_SCRATCH);
     fflush(stdout);
 
