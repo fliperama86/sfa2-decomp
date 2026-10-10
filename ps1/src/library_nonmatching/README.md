@@ -17,8 +17,9 @@ and `FUNC.py`, the contract as code. A file includes only `../game.h`,
 `../protos.h` and `../externs.h`, and declares the library's variables and
 records itself (local views, named as views in a comment), so that it
 compiles in the repository's public builds. The port's PC build does not
-compile this folder today: like the units under `../sdk/`, the library's C
-is left out there (see the header of `port/tools/hostbuild.py`). The function's name is its
+compile this folder unless it is given the option `--sound-library`: like the
+units under `../sdk/`, the library's C is left out otherwise (see the header of
+`port/tools/hostbuild.py`). The function's name is its
 address, as in the other nonmatching folders; the library's name for it is
 in the header. The rows of `ps1/inventory/library.tsv` give the sizes, which
 the tool reads (it looks a resident function up in `game.tsv` and in

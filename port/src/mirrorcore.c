@@ -26,6 +26,24 @@ int port_mirror_decision(unsigned kind, unsigned addr, unsigned size, int game_t
     return 1;
 }
 
+int port_mirror_decision_io(unsigned kind, unsigned addr, unsigned size, int game_thread, int in_game_code)
+{
+    if (kind != 0 && kind != 1) return 0;
+    if (!game_thread || !in_game_code) return 0;
+    if (size == 0 || addr < IO_BASE || addr >= IO_END || size > IO_END - addr) return 0;
+    return 1;
+}
+
+int port_mirror_insn_reads(const struct mirror_insn *in)
+{
+    return !(in->op == MI_MOV && in->mem_dst);
+}
+
+int port_mirror_insn_writes(const struct mirror_insn *in)
+{
+    return in->mem_dst && in->op != MI_CMP && in->op != MI_TEST;
+}
+
 /* ---- the decoder ---- */
 
 static unsigned sx8(unsigned v) { return (unsigned)(int)(signed char)v; }

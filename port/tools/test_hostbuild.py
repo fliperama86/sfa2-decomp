@@ -1137,6 +1137,156 @@ def psyz_cases(root: Path):
     yield "psyz-malformed-psyz-json-is-refused", same((proc.returncode, proc.stdout, "psyz.json" in proc.stderr), (2, "", True))
 
 
+SOUND_UNITS = (
+    unit("ua", "a.c", [("fa", 0x80100000), ("fb", 0x80100010)])
+    + unit("ub", "b.c", [("fc", 0x80100020)])
+    + unit("sn1", "sdk/libsnd/sn1.c", [("snf", 0x80100100)])
+    + unit("sn2", "sdk/libsnd/sn2.c", [("snf2", 0x80100110)])
+    + unit("sp1", "sdk/libspu/sp1.c", [("spf", 0x80100120)])
+    + unit("so", "sdk/other/o.c", [("of", 0x80100130)])
+    + unit("sa", "sdk/libsnd/sa.s", [("saf", 0x80100140)], kind="asm")
+    + unit("ux", "asm/x.s", [("asmf", 0x80100200), ("callee", 0x80100210)], kind="asm")
+)
+SOUND_DEFS = {"ua": ["fa", "fb"], "ub": ["fc"], "sn1": ["snf"], "sn2": ["snf2"], "sp1": ["spf"], "func_80100300": ["func_80100300"], "func_80100310": ["func_80100310"]}
+SOUND_NONMATCHING = {"library_nonmatching/func_80100300.c": "int y;\n", "n_nonmatching/func_80100310.c": "int z;\n"}
+
+
+def sound_tree(root: Path, tag: str, units: str = SOUND_UNITS, prefix: dict[str, str] | None = None, shim: bool = True):
+    """A made-up game with sound library units, a runtime folder with three files, a PsyZ folder and the shim folder."""
+    config = run_tree(root, tag, units=units, nonmatching=SOUND_NONMATCHING)
+    base = root / tag
+    for rel in ("sdk/libsnd/sn1.c", "sdk/libsnd/sn2.c", "sdk/libspu/sp1.c", "sdk/other/o.c", "sdk/libsnd/sa.s"):
+        write(base / "src" / rel, "int x;\n")
+    write(base / "runtime" / "gpu.c", "int gpu;\n")
+    for rel, text in (prefix or {}).items():
+        write(base / "prefix" / rel, text)
+    if shim:
+        write(base / "sdkshim" / "common.h", "/* made up */\n")
+    folder = base / "psyzdir"
+    (folder / "inc").mkdir(parents=True)
+    lib = write(folder / "libpsyz.a", "")
+    write(folder / "psyz.json", json.dumps({"include": str(folder / "inc"), "define": ["__psyz", "EXTRA=1"], "link": [str(lib), "-lm"], "commit": "abc123"}))
+    return config, folder
+
+
+def sound_calls(root: Path, tag: str):
+    """The commands the stand-in compiler saw: the unit compiles by source file name, the runtime compiles by source file name."""
+    class Seen(dict):
+        def __missing__(self, key):   # a command that was not made is an empty one, so that its case fails and the group goes on
+            return []
+
+    calls = [x.split() for x in read(root / f"{tag}.log").splitlines()]
+    units = Seen({Path(c[-1]).name: c for c in calls if "-S" in c and c[-1].endswith(".c") and not c[-1].endswith("underscore.c")})
+    rt = Seen({Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]})
+    return units, rt
+
+
+def sound_cases(root: Path):
+    """--sound-library and the prefix folder."""
+    flags = hb.COMPILE_FLAGS
+
+    # The selection, called directly: the units of sdk/libsnd and sdk/libspu whose source is .c, and the library folder.
+    config, path = config_tree(root, "snd-sel", SOUND_UNITS, "", SOUND_NONMATCHING)
+    for rel in ("sdk/libsnd/sn1.c", "sdk/libsnd/sn2.c", "sdk/libspu/sp1.c", "sdk/other/o.c"):
+        write(path.parent / rel, "int x;\n")
+    sel = hb.select_units(config, path, True)
+    yield "sound-select-with-the-option", same(sorted((j.name, j.library) for j in sel.jobs), [
+        ("func_80100300", True), ("func_80100310", False), ("sn1", True), ("sn2", True), ("sp1", True), ("ua", False), ("ub", False)])
+    yield "sound-select-counts", same(sel.sound_counts, (2, 1, 1))
+    sel = hb.select_units(config, path)
+    yield "sound-select-without-the-option", same(sorted((j.name, j.library) for j in sel.jobs), [("func_80100310", False), ("ua", False), ("ub", False)])
+    yield "sound-select-without-the-option-counts-nothing", same(sel.sound_counts, (0, 0, 0))
+    config, path = config_tree(root, "snd-sel2", unit("ua", "a.c", [("fa", 0x80100000)]) + unit("so", "sdk/other/o.c", [("of", 0x80100130)]) + unit("sa", "sdk/libsnd/sa.s", kind="asm"))
+    yield "sound-select-no-library-unit-is-refused", raises(lambda: hb.select_units(config, path, True), "--sound-library", "sdk/libsnd")
+    yield "sound-select-no-library-unit-is-fine-without-the-option", same([j.name for j in hb.select_units(config, path).jobs], ["ua"])
+
+    # A whole run with the option.
+    config, folder = sound_tree(root, "snd")
+    cc, nm = fake(root, "snd", defs=SOUND_DEFS)
+    proc = run(root, "snd", config, cc, nm, "--sound-library", "--psyz", folder)
+    out = proc.stdout.splitlines()
+    exe = root / "snd" / "build" / "sfa2.exe"
+    yield "sound-run-ends-verified", same((proc.returncode, proc.stderr, out[-1]), (0, "", f"linked: {exe}, verified"))
+    yield "sound-line-after-the-psyz-line", same(out[:3], ["compiler: fakecc 1.0", "psyz: abc123", "sound library: 2 units of sdk/libsnd, 1 of sdk/libspu, 1 of library_nonmatching"])
+    yield "sound-units-line-counts-library-units-and-files", same(out[3], "units: 7 compiled, 2 of them nonmatching, 0 failed")
+    units, rt = sound_calls(root, "snd")
+    yield "sound-compiled-sources", same(sorted(units), ["a.c", "b.c", "func_80100300.c", "func_80100310.c", "sn1.c", "sn2.c", "sp1.c"])
+    gen = str(root / "snd" / "build" / "gen")
+    shim, inc = str(root / "snd" / "sdkshim"), str(folder / "inc")
+    asm = lambda n: str(root / "snd" / "build" / "asm" / f"{n}.s")
+    src = lambda n, rel: str(root / "snd" / "src" / rel)
+    yield "sound-library-unit-gets-the-shim-then-psyz-include", same(units["sn1.c"], [*flags, "-S", "-I", gen, "-I", shim, "-I", inc, "-o", asm("sn1"), src("sn1", "sdk/libsnd/sn1.c")])
+    yield "sound-libspu-unit-gets-them-too", same(units["sp1.c"], [*flags, "-S", "-I", gen, "-I", shim, "-I", inc, "-o", asm("sp1"), src("sp1", "sdk/libspu/sp1.c")])
+    yield "sound-library-nonmatching-file-gets-them", same(units["func_80100300.c"][:-1], [*flags, "-S", "-I", gen, "-I", shim, "-I", inc, "-o", asm("func_80100300")])
+    yield "sound-game-unit-does-not", same(units["a.c"], [*flags, "-S", "-I", gen, "-o", asm("ua"), src("ua", "a.c")])
+    yield "sound-other-nonmatching-file-does-not", same(units["func_80100310.c"][:-1], [*flags, "-S", "-I", gen, "-o", asm("func_80100310")])
+    yield "sound-no-private-include-path-reaches-the-compiler", same(any("sdk/include" in x for x in read(root / "snd.log").splitlines()), False)
+    yield "sound-library-units-have-no-defines", same([a for a in units["sn1.c"] + units["func_80100300.c"] if a.startswith("-D")], [])
+    tables = read(root / "snd" / "build" / "gen" / "port_tables.c")
+    yield "sound-library-functions-have-c-in-the-tables", same(
+        [l.strip() for l in tables.splitlines() if l.strip().startswith("{ 0x801") and ("impl_s" in l or "impl_func_80100300" in l)],
+        ['{ 0x80100100u, (void *)impl_snf, "snf", -1, 0 },', '{ 0x80100110u, (void *)impl_snf2, "snf2", -1, 0 },', '{ 0x80100120u, (void *)impl_spf, "spf", -1, 0 },',
+         '{ 0x80100300u, (void *)impl_func_80100300, "func_80100300", -1, 0 },'])
+    rsp = [Path(json.loads(x)).name for x in read(root / "snd" / "build" / "link.rsp").splitlines()]
+    yield "sound-library-objects-are-linked", same([n for n in rsp if n.startswith(("sn", "sp", "func_"))], ["func_80100300.o", "func_80100310.o", "sn1.o", "sn2.o", "sp1.o"])
+
+    # The define reaches the runtime's files with the option, port_tables.c never.
+    d = "-DPORT_SOUND_LIBRARY_C"
+    rtd = str(root / "snd" / "runtime")
+    obj = lambda n: str(root / "snd" / "build" / "rt" / f"{n}.o")
+    yield "sound-define-reaches-main-c", same(rt["main.c"], ["-O1", "-Wall", "-Wextra", "-c", d, "-I", rtd, "-o", obj("main"), str(root / "snd" / "runtime" / "main.c")])
+    yield "sound-define-follows-psyz-flags-on-gpu-c", same(rt["gpu.c"][:10], ["-O1", "-Wall", "-Wextra", "-c", "-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, d])
+    yield "sound-define-not-on-the-tables", same(rt["port_tables.c"], ["-O1", "-Wall", "-Wextra", "-c", "-I", rtd, "-o", obj("port_tables"), str(root / "snd" / "build" / "gen" / "port_tables.c")])
+
+    # The same tree without the option.
+    config, folder = sound_tree(root, "snd0")
+    cc, nm = fake(root, "snd0", defs=SOUND_DEFS)
+    proc = run(root, "snd0", config, cc, nm, "--psyz", folder)
+    out = proc.stdout.splitlines()
+    units, rt = sound_calls(root, "snd0")
+    yield "sound-without-the-option-no-added-line", same((proc.returncode, out[:3]), (0, ["compiler: fakecc 1.0", "psyz: abc123", "units: 3 compiled, 1 of them nonmatching, 0 failed"]))
+    yield "sound-without-the-option-sources", same(sorted(units), ["a.c", "b.c", "func_80100310.c"])
+    yield "sound-without-the-option-library-folder-left-out", same(("func_80100300" in read(root / "snd0" / "build" / "gen" / "port_tables.c"), "func_80100300.c" in units), (False, False))
+    yield "sound-without-the-option-no-define-no-shim", same(("-DPORT_SOUND_LIBRARY_C" in " ".join(sum(rt.values(), [])), "sdkshim" in read(root / "snd0.log")), (False, False))
+    yield "sound-without-the-option-main-c-as-before", same(rt["main.c"], ["-O1", "-Wall", "-Wextra", "-c", "-I", str(root / "snd0" / "runtime"), "-o", str(root / "snd0" / "build" / "rt" / "main.o"), str(root / "snd0" / "runtime" / "main.c")])
+
+    # The refusals of the option.
+    config, folder = sound_tree(root, "snd1")
+    cc, nm = fake(root, "snd1", defs=SOUND_DEFS)
+    proc = run(root, "snd1", config, cc, nm, "--sound-library")
+    yield "sound-needs-psyz", same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "--sound-library" in proc.stderr and "--psyz" in proc.stderr, read(root / "snd1.log")), (2, "", 1, True, "(missing)"))
+    config, folder = sound_tree(root, "snd2", units=unit("ua", "a.c", [("fa", 0x80100000)]) + unit("so", "sdk/other/o.c", [("of", 0x80100130)]) + unit("ux", "asm/x.s", [("callee", 0x80100210)], kind="asm"))
+    cc, nm = fake(root, "snd2", defs=SOUND_DEFS)
+    proc = run(root, "snd2", config, cc, nm, "--sound-library", "--psyz", folder)
+    yield "sound-no-library-unit-is-refused", same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "sdk/libsnd" in proc.stderr, read(root / "snd2.log")), (2, "", 1, True, "(missing)"))
+
+    # The prefix folder.
+    config, folder = sound_tree(root, "snd3", prefix={"sn1.h": "int p1;\n", "ua.h": "int p2;\n", "so.h": "int p3;\n"})
+    cc, nm = fake(root, "snd3", defs=SOUND_DEFS)
+    proc = run(root, "snd3", config, cc, nm, "--sound-library", "--psyz", folder)
+    units, _ = sound_calls(root, "snd3")
+    pre = str(root / "snd3" / "prefix")
+    gen = str(root / "snd3" / "build" / "gen")
+    yield "prefix-file-reaches-its-library-unit-after-the-includes", same(units["sn1.c"][len(flags):-1], [
+        "-S", "-I", gen, "-I", str(root / "snd3" / "sdkshim"), "-I", str(folder / "inc"), "-include", f"{pre}/sn1.h", "-o", str(root / "snd3" / "build" / "asm" / "sn1.s")])
+    yield "prefix-file-reaches-a-game-unit-too", same(units["a.c"][len(flags):-1], ["-S", "-I", gen, "-include", f"{pre}/ua.h", "-o", str(root / "snd3" / "build" / "asm" / "ua.s")])
+    yield "prefix-file-reaches-no-other-unit", same([sorted(k for k, c in units.items() if "-include" in c)], [["a.c", "sn1.c"]])
+    yield "prefix-file-of-an-uncompiled-unit-is-no-error", same((proc.returncode, proc.stderr, "so.h" in read(root / "snd3.log")), (0, "", False))
+    config, folder = sound_tree(root, "snd4", prefix={"sn1.h": "int p1;\n"})
+    cc, nm = fake(root, "snd4", defs=SOUND_DEFS)
+    proc = run(root, "snd4", config, cc, nm, "--psyz", folder)
+    yield "prefix-file-of-a-unit-not-compiled-in-this-run-is-not-used", same((proc.returncode, proc.stderr, "-include" in read(root / "snd4.log")), (0, "", False))
+    for tag, rel, text, named in (("snd5", "zz.h", "int z;\n", "zz.h"), ("snd6", "sn1.txt", "int z;\n", "sn1.txt"), ("snd7", "sn1.h/inner.h", "int z;\n", "sn1.h")):
+        config, folder = sound_tree(root, tag, prefix={rel: text})
+        cc, nm = fake(root, tag, defs=SOUND_DEFS)
+        proc = run(root, tag, config, cc, nm, "--sound-library", "--psyz", folder)
+        yield f"prefix-refusal-{named}", same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), named in proc.stderr, read(root / f"{tag}.log")), (2, "", 1, True, "(missing)"))
+    config, folder = sound_tree(root, "snd8", prefix={"zz.h": "int z;\n"})
+    cc, nm = fake(root, "snd8", defs=SOUND_DEFS)
+    proc = run(root, "snd8", config, cc, nm, "--psyz", folder)
+    yield "prefix-refusal-also-without-the-option", same((proc.returncode, proc.stdout, "zz.h" in proc.stderr), (2, "", True))
+
+
 IMAGES_SYM = IMAGES + "\n[image.symbols]\nsym_own = 0x801f0200\n"
 LIKE_SYMBOLS = "sym_out = 0x80190000;\nsym_own = 0x80190010;\nsym_in = 0x801e0100;\n"
 LIKE_UNITS = (
@@ -1672,6 +1822,7 @@ def groups(root: Path, rig: "Rig | None" = None):
     yield marker_flow_cases(root)
     yield image_flow_cases(root)
     yield psyz_cases(root)
+    yield sound_cases(root)
     yield override_rename_cases()
     yield override_check_cases()
     yield override_flow_cases(root)

@@ -110,11 +110,11 @@ class Selection(Fixture):
         self.assertIn('test_example',[c.name for c in self.selected(['ps1/tools/example.py'])])
 
     def test_port_runtime_controls_get_the_compiler_or_refuse(self):
-        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostbuild.py'):
+        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostiopage.py', 'test_hostbuild.py'):
             self.put('port/tools/' + name, '')
         self.put('port/src/example.c', '')
         argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
-        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostbuild'):
+        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostiopage', 'test_hostbuild'):
             self.assertEqual(argv[name][-2:], ('--cc', 'cc32'))
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
@@ -164,6 +164,16 @@ class Selection(Fixture):
         self.assertEqual(argv['test_hostpads'][-4:], ('--cc', 'cc32', '--psyz-build', 'psyzdir'))
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
+
+    def test_sdkshim_control_gets_the_compiler_and_psyz_or_refuses(self):
+        self.put('port/tools/test_sdkshim.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32', 'psyzdir')}
+        self.assertEqual(argv['test_sdkshim'][-4:], ('--cc', 'cc32', '--psyz-build', 'psyzdir'))
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
 
     def test_bad_seeds_and_zero_cases_refuse(self):
         for cases, seeds in ((0,(1,7)),(2,(1,1))):

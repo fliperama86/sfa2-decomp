@@ -29,9 +29,10 @@ The C units of the configuration as `hostcheck` selects them (not under
 `sdk/`, source ending in `.c`), and every `func_*.c` of every folder
 `*_nonmatching` next to the configuration, but for the folder
 `library_nonmatching`: its files are C of Sony's library, and like the units
-under `sdk/` they are not compiled here (a library function runs a host
-routine of the port or stops with its name, and a host routine for a function
-that has C is refused when the program starts). A nonmatching file defines one
+under `sdk/` they are not compiled here unless `--sound-library` is given (a
+library function runs a host routine of the port or stops with its name, and a
+host routine for a function that has C is refused when the program starts; see
+"The sound library"). A nonmatching file defines one
 function, named by the file's stem, whose address is the eight-digit hex
 number after `func_`; what follows that number, after an underscore, names
 the image the function is in and must be an image of the configuration
@@ -294,6 +295,33 @@ file, the sections one after the other with no gap or overlap, the filler
 reaching 0x200000 and every other section at 0x200000 or above, the headers
 inside the first page. A miss ends the build with status 1.
 
+The sound library
+-----------------
+
+With `--sound-library` (no value; it needs `--psyz DIR`, else status 2 with one
+line) the game's own sound library is compiled into the program. The units of the
+configuration whose source is under `sdk/libsnd/` or `sdk/libspu/` and ends in
+`.c` are compiled like game units (a configuration with none is status 2, one
+line), and so is the folder `library_nonmatching`, like the other `*_nonmatching`
+folders. Nothing else lifts the rule of the folder `library_nonmatching`. These
+units and files, and only they, get `-I SDKSHIM -I PSYZ_INCLUDE` on the compile
+command, before their source: `SDKSHIM` is the folder `sdkshim` beside the
+runtime folder (found as `overrides` is) and `PSYZ_INCLUDE` is the `include` of
+`psyz.json`. `VERSION_PC` and `__psyz` are not defined for them, and no path of
+`ps1/src/sdk/include` is ever given to the compiler. Every runtime file
+(`RUNTIME/*.c`, not `port_tables.c`) is compiled with `-DPORT_SOUND_LIBRARY_C`
+when the option is given and without it otherwise. Without the option nothing in
+this section applies and the output is what it would be.
+
+The folder `prefix` beside the runtime folder holds declarations that a present
+compiler needs and the console's compiler did not: a file `UNIT.h` is given to the
+compiler as `-include FILE`, before the source of the unit named UNIT, when that
+unit is compiled. Before any compilation a file of that folder is refused (status
+2, one line that names it) when it is not `*.h`, when it is a folder, or when its
+stem is not the name of a unit of the configuration. A file whose unit exists and
+is not compiled in this run is not an error and is not used. A folder `prefix`
+that does not exist holds nothing.
+
 The graphics library
 --------------------
 
@@ -324,7 +352,9 @@ Standard output, in this order, with nothing else:
     data defined in C, at host addresses: D
     linked: PATH, verified
 
-With `--psyz` the line `psyz: COMMIT` follows `compiler:`. PATH is relative to the current folder when the linked file lies under it.
+With `--psyz` the line `psyz: COMMIT` follows `compiler:`. With `--sound-library` the line
+`sound library: N units of sdk/libsnd, M of sdk/libspu, K of library_nonmatching` follows the `psyz:` line (N, M and K
+count the units and files selected for compiling; the units of U above include them). PATH is relative to the current folder when the linked file lies under it.
 
 O is the number of rows of `port_functions` whose field `overridden` is 1 (second placements counted as the line above
 counts them); the line is printed also when O is 0. U counts the units tried, nonmatching ones included. A is the number of
@@ -352,13 +382,13 @@ compiler cannot be run, with one line on standard error that names it.
 
 usage:
   hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
-               [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--psyz DIR] [--jobs N]
+               [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--psyz DIR] [--sound-library] [--jobs N]
                [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
 `i686-w64-mingw32-gcc`; the `nm` next to CC with the same prefix (`gcc` at
 its end replaced by `nm`, else `nm`); `port/build/host`; `sfa2.exe`;
-`port/src`; `overrides` beside the runtime folder; as many jobs as the machine has processors; 300 seconds.
+`port/src`; `overrides`, `sdkshim` and `prefix` beside the runtime folder; as many jobs as the machine has processors; 300 seconds.
 """
 
 from __future__ import annotations
@@ -400,7 +430,8 @@ LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
-LIBRARY_NONMATCHING = "library_nonmatching"  # C of Sony's library: left out, like the units under sdk/
+LIBRARY_NONMATCHING = "library_nonmatching"  # C of Sony's library: left out unless --sound-library, like the units under sdk/
+SOUND_FOLDERS = ("libsnd", "libspu")  # the folders of sdk/ that --sound-library compiles
 ASSIGNMENT = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(0[xX][0-9a-fA-F]+|[0-9]+)\s*;")
 COMMENT = re.compile(r"/\*.*?\*/", re.S)
 
@@ -514,6 +545,7 @@ class Job:
     nonmatching: bool
     functions: list[Function]
     image: str | None = None  # the image the unit belongs to; None: the resident executable
+    library: bool = False  # a unit of the sound library (--sound-library): compiled with the shim and PsyZ's include folder
 
 
 @dataclass
@@ -523,6 +555,7 @@ class Selection:
     like_images: int
     images: list[dict]
     unit_names: dict[str | None, list[str]] = field(default_factory=dict)  # every unit of the configuration, by image
+    sound_counts: tuple[int, int, int] = (0, 0, 0)  # --sound-library: units of sdk/libsnd, of sdk/libspu, files of library_nonmatching
 
 
 def read_images(config: dict, path: Path) -> list[dict]:
@@ -556,12 +589,30 @@ def read_functions(entry: dict, path: Path) -> list[Function]:
     return out
 
 
-def select_units(config: dict, path: Path) -> Selection:
-    """The jobs to compile, every declared function, and the count of images that are like another."""
+def select_units(config: dict, path: Path, sound_library: bool = False) -> Selection:
+    """The jobs to compile, every declared function, and the count of images that are like another.
+
+    With `sound_library` the units whose source is under sdk/libsnd/ or sdk/libspu/ and ends in .c, and the files of the
+    folder library_nonmatching, are jobs too, marked as library jobs."""
     images = read_images(config, path)
     by_name = {i["name"]: i for i in images}
     units, _, _ = hostcheck.read_units(config, path)
     compiled = {u.name for u in units}
+    library_units: list[tuple[hostcheck.Unit, str]] = []
+    if sound_library:
+        for entry in config.get("unit", []):
+            source = entry.get("source", "")
+            folder = next((f for f in SOUND_FOLDERS if source.startswith(f"sdk/{f}/")), None)
+            if folder is None or not source.endswith(".c"):
+                continue
+            if entry["name"] in compiled:
+                raise Problem(f"{path}: unit name {entry['name']} is used twice")
+            if not (path.parent / source).is_file():
+                raise Problem(f"source of unit {entry['name']} does not exist: {path.parent / source}")
+            compiled.add(entry["name"])
+            library_units.append((hostcheck.Unit(entry["name"], source, path.parent / source), folder))
+        if not library_units:
+            raise Problem(f"--sound-library: {path} has no unit whose source is a .c file under sdk/libsnd/ or sdk/libspu/")
     jobs: list[Job] = []
     declared: list[Function] = []
     unit_names: dict[str | None, list[str]] = {}
@@ -579,10 +630,15 @@ def select_units(config: dict, path: Path) -> Selection:
     for u in units:
         entry = next(e for e in config["unit"] if e["name"] == u.name)
         jobs.append(Job(u.name, u.path, False, read_functions(entry, path), entry.get("image")))
+    for u, _ in library_units:
+        entry = next(e for e in config["unit"] if e["name"] == u.name)
+        jobs.append(Job(u.name, u.path, False, read_functions(entry, path), entry.get("image"), True))
+    library_files = 0
     seen_files: dict[str, Path] = {}
     for folder in sorted(path.parent.glob("*_nonmatching")):
-        if not folder.is_dir() or folder.name == LIBRARY_NONMATCHING:
+        if not folder.is_dir() or (folder.name == LIBRARY_NONMATCHING and not sound_library):
             continue
+        library = folder.name == LIBRARY_NONMATCHING
         for file in sorted(folder.glob("func_*.c")):
             stem = file.stem
             match = NONMATCHING.match(stem)
@@ -600,8 +656,10 @@ def select_units(config: dict, path: Path) -> Selection:
             seen_files[stem] = file
             fn = Function(stem, int(match.group(1), 16), image, stem)
             declared.append(fn)
-            jobs.append(Job(stem, file, True, [fn], image))
-    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names)
+            jobs.append(Job(stem, file, True, [fn], image, library))
+            library_files += library
+    counts = (sum(1 for _, f in library_units if f == "libsnd"), sum(1 for _, f in library_units if f == "libspu"), library_files)
+    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names, counts)
 
 
 # The overrides.
@@ -648,6 +706,29 @@ def read_overrides(folder: Path | None, selection: Selection) -> list[Override]:
         if not file.with_suffix(".py").is_file():
             raise Problem(f"{file}: there is no {name}.py beside it, the file of its differential test")
         out.append(Override(name, file, declared_in[name]))
+    return out
+
+
+# The prefix files.
+
+
+def read_prefix(folder: Path | None, selection: Selection) -> dict[str, Path]:
+    """The declaration files of `folder`, by unit name (none when the folder does not exist).
+
+    A file is refused, with its name, when it is a folder, when it is not `*.h`, or when its stem is not the name of
+    a unit of the configuration (compiled in this run or not)."""
+    if folder is None or not folder.is_dir():
+        return {}
+    units = {n for names in selection.unit_names.values() for n in names}
+    out: dict[str, Path] = {}
+    for file in sorted(folder.iterdir()):
+        if file.is_dir():
+            raise Problem(f"{file}: a folder in the prefix folder; it holds only UNIT.h files")
+        if file.suffix != ".h":
+            raise Problem(f"{file}: not a .h file; the prefix folder holds only UNIT.h files")
+        if file.stem not in units:
+            raise Problem(f"{file}: {file.stem} is not the name of a unit of the configuration")
+        out[file.stem] = file
     return out
 
 
@@ -1222,16 +1303,22 @@ class Outcome:
     seconds: list[Placement] = field(default_factory=list)  # the second placements that were assembled, as `<unit>__<image>.o`
 
 
-def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, placements: list[Placement] = (), replaced: frozenset[str] = frozenset()) -> Outcome:
+def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, placements: list[Placement] = (), replaced: frozenset[str] = frozenset(),
+               library_inc: list[str] = (), prefix: dict[str, Path] = {}) -> Outcome:
     """Compile one unit (or one override, which is built the same way), rename its definitions, assemble.
 
-    `replaced` holds the C names of functions that an override stands in for: their definitions become `replaced_NAME`."""
+    `replaced` holds the C names of functions that an override stands in for: their definitions become `replaced_NAME`.
+    A library job gets `library_inc` (the -I arguments of the sound library) and every job whose name has a file in
+    `prefix` gets `-include` that file; both come before the source."""
     out = Outcome(job)
     marked = frozenset(("_" if underscore else "") + n for n in replaced)
     asm, obj = build / "asm" / f"{job.name}.s", build / "obj" / f"{job.name}.o"
     asm.unlink(missing_ok=True)
     obj.unlink(missing_ok=True)
-    proc = hostcheck.compile_run([cc, *COMPILE_FLAGS, "-S", "-I", str(build / "gen"), "-o", str(asm), str(job.source)], timeout)
+    inc = list(library_inc) if job.library else []
+    if job.name in prefix:
+        inc += ["-include", str(prefix[job.name])]
+    proc = hostcheck.compile_run([cc, *COMPILE_FLAGS, "-S", "-I", str(build / "gen"), *inc, "-o", str(asm), str(job.source)], timeout)
     if proc is None:
         out.reason = f"no end after {timeout} seconds"
         return out
@@ -1371,7 +1458,9 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     config = hostcheck.read_config(config_path)
     fields_path, header = hostcheck.read_types(config, config_path)
     baseline_hash = read_baseline_hash(config, config_path)
-    selection = select_units(config, config_path)
+    if args.sound_library and not args.psyz:
+        raise Problem("--sound-library needs --psyz (PsyZ's include folder)")
+    selection = select_units(config, config_path, args.sound_library)
     model = hostcheck.read_model(fields_path)
     symbols = read_symbols(read_text(config_path.parent / "symbols.ld"))
     runtime: Path = args.runtime
@@ -1405,11 +1494,15 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     for ov in overrides:
         if any(j.name == ov.object for j in selection.jobs):
             raise Problem(f"{ov.source}: the unit {ov.object} has the name that its object would have")
+    prefix = read_prefix(runtime.parent / "prefix", selection)
     psyz = read_psyz(args.psyz) if args.psyz else None
+    library_inc = ["-I", str(runtime.parent / "sdkshim"), "-I", str(psyz[0]["include"])] if args.sound_library and psyz else []
     version = hostcheck.compiler_version(args.cc, args.timeout)
     out.append(f"compiler: {version}")
     if psyz:
         out.append(f"psyz: {psyz[1]}")
+    if args.sound_library:
+        out.append("sound library: {} units of sdk/libsnd, {} of sdk/libspu, {} of library_nonmatching".format(*selection.sound_counts))
     build: Path = args.build
     for sub in ("gen", "asm", "obj", "rt", "probe"):
         (build / sub).mkdir(parents=True, exist_ok=True)
@@ -1429,7 +1522,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         ov_outcomes.append(o)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout, placements,
-                               frozenset(ov.name for ov in overrides if ov.job is j)) for j in selection.jobs]
+                               frozenset(ov.name for ov in overrides if ov.job is j), library_inc, prefix) for j in selection.jobs]
         outcomes = sorted((f.result() for f in futures), key=lambda o: o.job.name)
     failed = [o for o in outcomes if not o.ok]
     write_text(build / "failed.tsv", "".join(f"{o.job.name}\t{o.reason}\n" for o in failed))
@@ -1553,6 +1646,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         extra: list[str] = []
         if psyz and source.name in ("gpu.c", "input.c"):
             extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
+        if args.sound_library and source != tables_path:
+            extra.append("-DPORT_SOUND_LIBRARY_C")
         proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
         if proc is None or proc.returncode != 0:
             raise Failure(f"{source}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
@@ -1626,6 +1721,7 @@ def main() -> int:
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--overrides", type=Path, default=None)
     parser.add_argument("--psyz", type=Path, default=None)
+    parser.add_argument("--sound-library", action="store_true", help="compile the game's own sound library (needs --psyz)")
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)
     parser.add_argument("--list", action="store_true")

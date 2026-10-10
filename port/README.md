@@ -1245,7 +1245,9 @@ forms served are loads, stores and plain arithmetic and logic (`mov`,
 other form ends the program with a line that gives the instruction's
 bytes, and is built when a run of the real game stops on it. The first
 time a function uses the copy, the program prints one line with the
-function's name; with `--trace` every access is a line of the trace file.
+function's name; with `--trace` every access is a line of the trace file. The same handler serves the console's I/O page,
+`0x1f801000` to `0x1f801fff`, on a temporary value instead of the mapped
+RAM (see "The I/O page" in the part on the game's own sound library).
 
 What the copy holds. On the console the first 64 KB of RAM belong to
 the BIOS. The port has no BIOS: that part of the RAM holds zeros until
@@ -1493,6 +1495,190 @@ and through each setting a linker might not honour. On 2026-10-10 the
 file ended with `all cases behaved as required` and had printed
 `timing: 10000 served reads took 75730 us (7.57 us each)` and
 `timing walk: real addresses 3 us, low view 60587 us`.
+`python3 port/tools/test_hostiopage.py --cc CC` has the cases for the
+I/O page, on the same rig as `test_hostmirror.py` (it imports its helpers
+from `test_hostlaunch.py`): the page is closed at start (asked of the
+system) and the bytes around it are plain memory; each cell reads 0,
+reads back what was written, and gives the right value after `or`, `and`,
+`add`, `sub` and `xor` to memory; `cmp` and `test` against a cell set the
+flags that the made-up game then branches on, both ways; the stops, each
+with its exact line and the instruction's bytes (8-bit and 16-bit reads
+and writes of each cell, a word two bytes into a cell, addresses with no
+model, the first and last byte of the page, a word that straddles an end
+of the page, a form that is not served, an execute fault, a read by the
+runtime's own code and reads and writes from a second thread); the
+mirror's served read and write and its crash line in the same program; and
+the `--trace` line. Each case lists the lines it must print and the
+status it must end with, and a missing line, a line more, another status
+or a death after the right line is a failure. The cases of the check
+itself are the first ones. The native part of `test_hostmirror.py` has the
+decision for the page and the two questions the handler asks of a decoded
+instruction.
+
+## The game's own sound library
+
+By the owner, on 2026-10-10:
+
+- Sound is the port's next piece. It was put to him that the PS1's sound
+  chip only plays recorded samples and has no synthesis of its own, and
+  that PsyZ has a model of that chip, with its mixer and an output to the
+  machine's sound, but no player of the game's music sequences. His
+  words: "we dont need to emulated anything, we just play the samples",
+  then "I think that Psyx (?) lib could already handle that for us", then
+  "ok. we can start the implementation then, ofc focused on the PC port".
+- What this page makes of that, not his words: the samples are played by
+  PsyZ's model of the chip (PsyZ calls it an emulation of the chip; it
+  runs no code of the game or of Sony's library), and what decides which
+  sample sounds when is the game's own sound library, run as C like the
+  rest of the game. The rule of 2026-10-09 stands: no original code is
+  interpreted.
+- A private trial of this design, which is not published, wrote the
+  game's sequenced music to a file. He listened to it: "sounds good".
+  That is his ear on one recording of 77 seconds, not a measurement, and
+  the voices and music that the game streams from the disc were not in
+  it.
+
+An option of the build, `--sound-library` (it needs `--psyz`), compiles
+the game's own sound library into the program: the units of
+`ps1/src/sdk/libsnd` and `ps1/src/sdk/libspu` and the folder
+`ps1/src/library_nonmatching`. The header of `port/tools/hostbuild.py`
+is its contract ("The sound library"). Without the option the program is
+as before.
+
+Why the library's own C. Two facts, both read in the source. Game
+functions that are library code read the library's state in RAM:
+`func_8016a7e4` in `ps1/src/s1682d0_r10.c` follows the pointer at
+`0x80183138` (`_spu_RXX` in `symbols.ld`, the library's pointer to the
+chip's registers) to a voice's registers, and reads the word at
+`0x801831e8` (`_spu_keystat`). PsyZ's library keeps its own `_spu_RXX`
+(`decomp/src/libspu/spu.c`, line 6 at the pin), which the game's code
+would not see. And PsyZ's sound library as built has no sequencer: in
+`psyz/src/psyz/libsnd.c` at the pin `_SsSeqPlay`, `_SsSndTempo` and
+`SsSeqOpen` are `NOT_IMPLEMENTED` (lines 62 to 69), and the files that hold
+the real ones (`decomp/src/libsnd/midiread.c`, `midinote.c`) are
+`INCLUDE_ASM` only.
+
+What the option does:
+
+- The units under `sdk/libsnd/` and `sdk/libspu/` and the files of
+  `library_nonmatching` are compiled like game units, with `-I
+  port/sdkshim` and PsyZ's include folder. No other unit gets them, and no
+  path of `ps1/src/sdk/include` (the headers this repository does not
+  carry) reaches the compiler.
+- Every file of the runtime is compiled with `-DPORT_SOUND_LIBRARY_C`. In
+  `port/src/sound.c` the table of stand-ins is then empty: a library
+  function that has C does not also get a host routine, which the program
+  refuses at start.
+- A file `port/prefix/UNIT.h` is given to the compiler before the source
+  of that unit. It holds a declaration that the console's compiler did not
+  need (today one: `sdk_libsnd_vmanager_p1.h`, which declares
+  `SpuVmKeyOff`, called before the unit defines it). The tool refuses a
+  file there that is not a header or names no unit.
+- One more line of the output, after the `psyz:` line.
+
+The shim, `port/sdkshim/`, is four headers of this project's own that
+stand in for the headers the units name, over PsyZ's. Its page
+[`sdkshim/README.md`](sdkshim/README.md) says what each does.
+
+One unit compiles to different code under PsyZ's declaration than under
+the headers of the matching work: `libspu/s_sca.c`, because PsyZ declares
+the halves of `SpuVolume` as `short` and the library C was written for
+`unsigned short`. `port/tools/test_sdkshim.py` is the control for it:
+
+```sh
+python3 port/tools/test_sdkshim.py --cc CC --psyz-build DIR
+```
+
+On 2026-10-10 it printed `calls 150000, different 0` for the unit
+compiled both ways, and `calls 150000, different 5186` for the negative
+control (one cast taken out), and ended with `all cases behaved as
+required`. It tests one function on plain memory and the inputs it draws;
+it is not a proof for other inputs.
+
+Built on 2026-10-10 (main at `c98a1bc` plus this change, PsyZ at its pin):
+
+```
+psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+sound library: 45 units of sdk/libsnd, 22 of sdk/libspu, 6 of library_nonmatching
+units: 3980 compiled, 161 of them nonmatching, 0 failed
+functions with C: 12850
+functions without C: 221, library 220, game and modules 1
+linked: ..., verified
+```
+
+Without the option the same build prints the lines of the build above
+(3907 units, 12686 functions with C).
+
+### The I/O page
+
+The console's I/O registers lie at `0x1f801000` to `0x1f801fff`. The
+mapping that `memory.c` makes for the scratchpad at `0x1f800000` is 64 KB
+(the system's granularity; the scratchpad itself is 1 KB), so it would
+cover that page as plain memory, where the game could read and write it
+and nobody would notice. The program closes the page (no access) at
+start, in every build, after the memory is mapped and before the game
+runs; if the page cannot be closed it refuses to start with one line.
+Bytes next to the page are plain memory as before: `0x1f800fff` and
+`0x1f802000` lie in the same mapping, outside the page, and the controls
+show a read and a write at each.
+
+What is served. A read or a write that the game's thread makes, from the
+game's own compiled code, wholly inside the page, is a fault that the
+mirror layer's handler serves (`mirror.c`, with the page's models in
+`iopage.c`). The handler decodes the instruction as it does for the copy
+of RAM at address 0 and carries it out on a temporary value, never on the
+page: an instruction that reads gets the value from the model first, one
+that writes gives it to the model after, one that does both (`add` to
+memory) does both. A write is checked before the instruction is carried
+out, so a refused one changes no register and no state.
+
+The models are three cells, each 32 bits wide, each reading back what was
+last written and 0 at start: `0x1f801014`, `0x1f8010f0` and `0x1f8010f4`
+(by the console's hardware documentation the sound chip's access timing,
+the DMA control register and the DMA interrupt register; no test here
+shows what they are). They are the ones the sound library writes when it
+starts; they are cells and nothing more, and nothing reads them for an
+effect.
+
+What stops. An access of another width to a cell, an access that covers
+part of a cell, an access to any other address of the page, an access
+that begins inside the page and ends outside it, one from another thread
+or from code that is not the game's, an execute fault in the page, and an
+instruction the decoder does not serve, each end the program with
+
+```
+stop: crash: the game used the PS1's I/O page at 0xADDRESS (read|write) in NAME REASON: BYTES
+```
+
+with the mirror's exit status for a crash (10 in the controls). The mirror's lines
+for `0` to `0x1fffff` are unchanged. With `--trace` the program writes,
+at exit, one line to the trace file with the faults served and the reads
+and writes of each cell, and no line per access.
+
+What is not there yet: the sound chip's registers (`0x1f801c00` to
+`0x1f801dff`), the DMA registers (`0x1f8010c0` to `0x1f8010c8`), the
+completions, and any sound. All of them end the program with the line
+above. `python3 port/tools/test_hostiopage.py --cc CC` has the cases
+(see "Controls").
+
+What is not there. A program built with the option does not get far. In
+one-off starts with the disc (a private input, 25 seconds, not on a
+screen), the build with `--sound-library --psyz DIR` printed its start
+lines and then, on 2026-10-10,
+
+```
+stop: crash: the game used the PS1's I/O page at 0x1f801daa (write) in func_8016b788 with an address that no model of the page claims (0x1f801daa, 2 bytes): 66 c7 82 aa 01 00 00 00 00 c7 44 24 28 0d 00
+```
+
+and ended with status 10. That is the library's first access to a register
+of the sound chip; the page now stops it. Before this change the same
+kind of start ended with `stop: library function DMACallback (0x8015f020)
+has no host routine yet` (status 4), because the page was plain memory
+and the access went through unseen. The system services the library
+calls (such as `DMACallback`) are not written either. Nothing sounds. A
+start of a build with `--psyz DIR` and without the option, the same way,
+printed no line that begins `refused` or `stop` and was ended by the time
+limit (status 124).
 
 ## Not decided
 
