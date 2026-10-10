@@ -326,13 +326,14 @@ The graphics library
 --------------------
 
 With `--psyz DIR` (DIR is a build folder of `psyzbuild.py`, which holds
-`psyz.json`) the runtime's `gpu.c` and `input.c` are compiled with
+`psyz.json`) the runtime's `gpu.c`, `input.c` and `iopage.c` are compiled with
 `-DPORT_HAVE_PSYZ`, PsyZ's defines and `-isystem` its include folder, and the
 link line gets PsyZ's libraries (its static library, SDL's and the system
 libraries, in the order the file lists them) after the objects. No other
 runtime file sees PsyZ's headers. Without the option `gpu.c` compiles to empty
-tables, `input.c` reads no device (port 1 is a pad with no button pressed), and
-the program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
+tables, `input.c` reads no device (port 1 is a pad with no button pressed),
+`iopage.c` has no model of the sound chip and DMA channel 4 (their addresses
+stop), and the program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
 is not valid or names a file that is missing, is an error (status 2). With the
 option the line `psyz: COMMIT` follows the `compiler:` line.
 
