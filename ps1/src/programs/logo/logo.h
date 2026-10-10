@@ -31,8 +31,8 @@ extern u32 *data_8002eb00_logo;
 extern u8 *data_8002eb10_logo;
 /* gp + 0x28: the rectangle of the picture that the next strip goes to (inferred). */
 extern Rect data_8002eb24_logo;
-/* gp + 0x40: a flag word, 1 while a strip is being decoded (inferred). */
-extern int data_8002eb3c_logo;
+/* gp + 0x40: a flag word, 1 while a strip is being decoded (inferred); volatile because an interrupt changes it (inferred). */
+extern volatile int data_8002eb3c_logo;
 /* gp + 0x54: the index (0 or 1) of the display environment shown (inferred). */
 extern int data_8002eb50_logo;
 /* Two display environments of 20 bytes each (inferred from the stride). */

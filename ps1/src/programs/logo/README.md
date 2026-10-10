@@ -94,6 +94,10 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
+func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -107,6 +111,7 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
@@ -114,6 +119,8 @@ func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -123,6 +130,8 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010f20_logo replay: fixtures 1, passed 1, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
 func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -137,3 +146,8 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   in `programs.toml`.
 - `func_80011838_logo`: an empty function (a return and its delay slot).
   Its test also compares `v0`, so that the C is shown to leave it alone.
+- `func_80010f20_logo`: waits while the flag word at `0x8002eb3c` is not 0. The
+  flag is `volatile` in `logo.h`, so that the C reads it at every turn. The
+  test sets the flag to 0 in every case (with another value the function ends
+  only through an interrupt, which the tool does not model), so it shows the
+  exit and the read, not the waiting.
