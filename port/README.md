@@ -1245,7 +1245,9 @@ forms served are loads, stores and plain arithmetic and logic (`mov`,
 other form ends the program with a line that gives the instruction's
 bytes, and is built when a run of the real game stops on it. The first
 time a function uses the copy, the program prints one line with the
-function's name; with `--trace` every access is a line of the trace file.
+function's name; with `--trace` every access is a line of the trace file. The same handler serves the console's I/O page,
+`0x1f801000` to `0x1f801fff`, on a temporary value instead of the mapped
+RAM (see "The I/O page" in the part on the game's own sound library).
 
 What the copy holds. On the console the first 64 KB of RAM belong to
 the BIOS. The port has no BIOS: that part of the RAM holds zeros until
@@ -1493,6 +1495,25 @@ and through each setting a linker might not honour. On 2026-10-10 the
 file ended with `all cases behaved as required` and had printed
 `timing: 10000 served reads took 75730 us (7.57 us each)` and
 `timing walk: real addresses 3 us, low view 60587 us`.
+`python3 port/tools/test_hostiopage.py --cc CC` has the cases for the
+I/O page, on the same rig as `test_hostmirror.py` (it imports its helpers
+from `test_hostlaunch.py`): the page is closed at start (asked of the
+system) and the bytes around it are plain memory; each cell reads 0,
+reads back what was written, and gives the right value after `or`, `and`,
+`add`, `sub` and `xor` to memory; `cmp` and `test` against a cell set the
+flags that the made-up game then branches on, both ways; the stops, each
+with its exact line and the instruction's bytes (8-bit and 16-bit reads
+and writes of each cell, a word two bytes into a cell, addresses with no
+model, the first and last byte of the page, a word that straddles an end
+of the page, a form that is not served, an execute fault, a read by the
+runtime's own code and reads and writes from a second thread); the
+mirror's served read and write and its crash line in the same program; and
+the `--trace` line. Each case lists the lines it must print and the
+status it must end with, and a missing line, a line more, another status
+or a death after the right line is a failure. The cases of the check
+itself are the first ones. The native part of `test_hostmirror.py` has the
+decision for the page and the two questions the handler asks of a decoded
+instruction.
 
 ## The game's own sound library
 
@@ -1588,19 +1609,74 @@ linked: ..., verified
 Without the option the same build prints the lines of the build above
 (3907 units, 12686 functions with C).
 
-What is not there. The program built with the option stops early. In a
-one-off start with the disc (a private input, 20 seconds, not on a screen)
-it printed its start lines and then
+### The I/O page
+
+The console's I/O registers lie at `0x1f801000` to `0x1f801fff`. The
+scratchpad, which `memory.c` maps at `0x1f800000`, is 64 KB and would
+cover that page as plain memory, where the game could read and write it
+and nobody would notice. The program closes the page (no access) at
+start, in every build, after the memory is mapped and before the game
+runs; if the page cannot be closed it refuses to start with one line.
+Bytes next to the page are plain memory as before: `0x1f800fff` and
+`0x1f802000` are scratchpad, and the controls show a read and a write at
+each.
+
+What is served. A read or a write that the game's thread makes, from the
+game's own compiled code, wholly inside the page, is a fault that the
+mirror layer's handler serves (`mirror.c`, with the page's models in
+`iopage.c`). The handler decodes the instruction as it does for the copy
+of RAM at address 0 and carries it out on a temporary value, never on the
+page: an instruction that reads gets the value from the model first, one
+that writes gives it to the model after, one that does both (`add` to
+memory) does both. A write is checked before the instruction is carried
+out, so a refused one changes no register and no state.
+
+The models are three cells, each 32 bits wide, each reading back what was
+last written and 0 at start: `0x1f801014` (the chip's access timing),
+`0x1f8010f0` (the DMA control register) and `0x1f8010f4` (the DMA
+interrupt register). They are the ones the sound library writes when it
+starts; they are cells and nothing more, and nothing reads them for an
+effect.
+
+What stops. An access of another width to a cell, an access that covers
+part of a cell, an access to any other address of the page, an access
+that begins inside the page and ends outside it, one from another thread
+or from code that is not the game's, an execute fault in the page, and an
+instruction the decoder does not serve, each end the program with
 
 ```
-stop: library function DMACallback (0x8015f020) has no host routine yet
+stop: crash: the game used the PS1's I/O page at 0xADDRESS (read|write) in NAME REASON: BYTES
 ```
 
-and ended with status 4. The sound chip is not served: nothing in this
-program answers the library's accesses to its registers, and the system
-services it calls (such as `DMACallback`) are not written. Nothing sounds.
-A start of the program without the option, the same way, printed no line
-that begins `refused` or `stop` in 20 seconds.
+with the mirror's exit status for a crash (10 in the controls). The mirror's lines
+for `0` to `0x1fffff` are unchanged. With `--trace` the program writes,
+at exit, one line to the trace file with the faults served and the reads
+and writes of each cell, and no line per access.
+
+What is not there yet: the sound chip's registers (`0x1f801c00` to
+`0x1f801dff`), the DMA registers (`0x1f8010c0` to `0x1f8010c8`), the
+completions, and any sound. All of them end the program with the line
+above. `python3 port/tools/test_hostiopage.py --cc CC` has the cases
+(see "Controls").
+
+What is not there. A program built with the option does not get far. In
+one-off starts with the disc (a private input, 25 seconds, not on a
+screen), the build with `--sound-library --psyz DIR` printed its start
+lines and then, on 2026-10-10,
+
+```
+stop: crash: the game used the PS1's I/O page at 0x1f801daa (write) in func_8016b788 with an address that no model of the page claims (0x1f801daa, 2 bytes): 66 c7 82 aa 01 00 00 00 00 c7 44 24 28 0d 00
+```
+
+and ended with status 10. That is the library's first access to a register
+of the sound chip; the page now stops it. Before this change the same
+kind of start ended with `stop: library function DMACallback (0x8015f020)
+has no host routine yet` (status 4), because the page was plain memory
+and the access went through unseen. The system services the library
+calls (such as `DMACallback`) are not written either. Nothing sounds. A
+start of a build with `--psyz DIR` and without the option, the same way,
+printed no line that begins `refused` or `stop` and was ended by the time
+limit (status 124).
 
 ## Not decided
 

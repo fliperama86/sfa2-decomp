@@ -268,7 +268,8 @@ func("i_trace", r'''
     W32(0x1f801014, 1u);
     SAY("%08x\n", R32(0x1f801014));
     W32(0x1f8010f0, 2u);
-    __asm__ volatile("orl $4, 0x1f8010f4" : : : "memory", "cc");''')
+    __asm__ volatile("orl $4, 0x1f8010f4" : : : "memory", "cc");
+    __asm__ volatile("cmpl $1, 0x1f8010f0\n\ttestl $1, 0x1f8010f0" : : : "memory", "cc");''')
 case("with-trace-the-page-is-reported-closed-and-the-counts-are-one-line-at-exit", "i_trace", ["00000000", "00000001"])
 
 DOMAINS = L.DOMAINS_NONE + r"""
@@ -339,7 +340,7 @@ def launch(rig: L.Rig, only: str):
             tl = trace.read_text().splitlines() if trace.exists() else []
             io = [l for l in tl if l.startswith("iopage:")]
             why = verdict(io, ["iopage: the I/O page 0x1f801000..0x1f801fff closed",
-                               "iopage: 5 faults served; 0x1f801014 2 reads 1 writes, 0x1f8010f0 0 reads 1 writes, 0x1f8010f4 1 reads 1 writes"])
+                               "iopage: 7 faults served; 0x1f801014 2 reads 1 writes, 0x1f8010f0 2 reads 1 writes, 0x1f8010f4 1 reads 1 writes"])
         yield c["name"], why
 
 
