@@ -5892,3 +5892,7 @@ SetDrawEnv = 0x80158a84;
 /* Data that the nonmatching functions name. */
 data_801e9f48_slot06_00 = 0x801e9f48;
 data_801e9f60_slot06_00 = 0x801e9f60;
+data_801c6190_slot04_0e = 0x801c6190;
+data_801c6194_slot04_0e = 0x801c6194;
+data_801c6198_slot04_0e = 0x801c6198;
+data_801c5500_slot04_0f = 0x801c5500;
