@@ -177,7 +177,9 @@ Group K checks `--all` (each `func_*.c` once in sorted order, and status 2 for
 names with it, for neither, or for no source).
 Group X checks the write audit: what counts as made by a setup (its
 writes, its blocks, memory it marks, and the padding behind a block,
-which is not made), the stack and the argument area at their borders,
+which is not made), that a negative size or a block that does not fit
+is refused before anything changes and leaves the record of made
+memory as it was, the stack and the argument area at their borders,
 the scratchpad, cases that are discarded, the recorders' own log and
 code, the address runs and names of the second line, the lines, status
 and errors of `--writes` through `main` (no build is attempted), and

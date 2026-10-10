@@ -2172,6 +2172,92 @@ def case_x_owns_outside_memory_refused():
     return None
 
 
+def refused(call) -> bool:
+    try:
+        call()
+    except ValueError:
+        return True
+    return False
+
+
+def record_sizes(state):
+    return len(state.made_ram), len(state.made_scratch)
+
+
+def case_x_negative_owns_is_refused_and_the_record_keeps_its_size():
+    # Only the last byte of RAM is made. A negative size must not shrink the record and move that mark to
+    # offset 0: the store to the first byte of RAM is then still a store outside.
+    def prepare(state, case):
+        state.owns(D.RAM_BASE + D.RAM_SIZE - 1, 1)
+        if not refused(lambda: state.owns(D.RAM_BASE, -1)):
+            raise AssertionError("owns(RAM_BASE, -1) was accepted")
+        if record_sizes(state) != (D.RAM_SIZE, D.SCRATCH_SIZE) or state.made_ram[0] or not state.made_ram[-1]:
+            raise AssertionError("the record changed")
+        return (D.RAM_BASE,)
+    return want(audit(BYTE_WRITER, prepare), 1, 1)
+
+
+def case_x_negative_owns_in_the_scratchpad_likewise():
+    def prepare(state, case):
+        state.owns(D.SCRATCH_BASE + D.SCRATCH_SIZE - 1, 1)
+        if not refused(lambda: state.owns(D.SCRATCH_BASE, -1)):
+            raise AssertionError("owns(SCRATCH_BASE, -1) was accepted")
+        if record_sizes(state) != (D.RAM_SIZE, D.SCRATCH_SIZE) or state.made_scratch[0] or not state.made_scratch[-1]:
+            raise AssertionError("the record changed")
+        return (D.SCRATCH_BASE,)
+    return want(audit(BYTE_WRITER, prepare), 1, 1)
+
+
+def case_x_negative_sizes_are_refused_before_anything_changes():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    arena = st.arena
+    for name, call in (("owns in RAM", lambda: st.owns(0x80030000, -4)), ("owns at the end of RAM", lambda: st.owns(D.RAM_BASE + D.RAM_SIZE, -1)),
+                       ("owns in the scratchpad", lambda: st.owns(D.SCRATCH_BASE + 8, -8)), ("alloc", lambda: st.alloc(-1)),
+                       ("alloc of a whole word", lambda: st.alloc(-4)), ("read", lambda: st.read(0x80030000, -1))):
+        if not refused(call):
+            return f"{name}: a negative size was accepted"
+        if record_sizes(st) != (D.RAM_SIZE, D.SCRATCH_SIZE) or any(st.made_ram) or any(st.made_scratch) or st.arena != arena:
+            return f"{name}: the refusal changed the state"
+    return None
+
+
+def case_x_alloc_that_does_not_fit_leaves_the_arena():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    first = st.alloc(8)
+    arena = st.arena
+    if not refused(lambda: st.alloc(D.ARENA_END - D.ARENA_BASE)):
+        return "a block larger than the arena's rest was handed out"
+    if st.arena != arena or st.alloc(4) != first + 8:
+        return "the refused block moved the arena"
+    return None
+
+
+def case_x_empty_spans_are_valid_and_make_nothing():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    for address in (0x80030000, D.RAM_BASE, D.RAM_BASE + D.RAM_SIZE, D.SCRATCH_BASE, D.SCRATCH_BASE + D.SCRATCH_SIZE):
+        st.owns(address, 0)
+        st.write(address, b"")
+    block = st.alloc(0)
+    if any(st.made_ram) or any(st.made_scratch) or record_sizes(st) != (D.RAM_SIZE, D.SCRATCH_SIZE):
+        return "an empty span made memory or changed the record"
+    return None if st.alloc(0) == block else "an empty block moved the arena"
+
+
+def case_x_a_record_of_another_size_is_refused_by_the_audit():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    final = {"ram": bytes(D.RAM_SIZE), "scratch": bytes(D.SCRATCH_SIZE)}
+    for attribute in ("made_ram", "made_scratch"):
+        keep = getattr(st, attribute)
+        setattr(st, attribute, keep[:1])
+        try:
+            D.outside_addresses(st, final)
+        except D.InputError:
+            setattr(st, attribute, keep)
+            continue
+        return f"a shortened {attribute} was accepted"
+    return None if D.outside_addresses(st, final) == [] else "the unchanged state reports addresses"
+
+
 def case_x_same_value_not_seen():
     # The stated limit: a store of the value that is already there changes no byte.
     why = want(audit(ZERO_WRITER, lambda state, case: (0x80030000,)), 0, 0)
@@ -2791,6 +2877,12 @@ CASES = [
     ("x-global-after-owns", case_x_global_after_owns),
     ("x-owns-covers-only-its-range", case_x_owns_covers_only_its_range),
     ("x-owns-outside-memory-refused", case_x_owns_outside_memory_refused),
+    ("x-negative-owns-is-refused-and-the-record-keeps-its-size", case_x_negative_owns_is_refused_and_the_record_keeps_its_size),
+    ("x-negative-owns-in-the-scratchpad-likewise", case_x_negative_owns_in_the_scratchpad_likewise),
+    ("x-negative-sizes-are-refused-before-anything-changes", case_x_negative_sizes_are_refused_before_anything_changes),
+    ("x-alloc-that-does-not-fit-leaves-the-arena", case_x_alloc_that_does_not_fit_leaves_the_arena),
+    ("x-empty-spans-are-valid-and-make-nothing", case_x_empty_spans_are_valid_and_make_nothing),
+    ("x-a-record-of-another-size-is-refused-by-the-audit", case_x_a_record_of_another_size_is_refused_by_the_audit),
     ("x-same-value-not-seen", case_x_same_value_not_seen),
     ("x-stack-region", case_x_stack_region),
     ("x-stack-borders", case_x_stack_borders),
