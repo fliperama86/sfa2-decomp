@@ -43,10 +43,12 @@ old pin) and after (this branch with a new library build):
 - `python3 port/tools/psyzbuild.py`: `psyz: 6d01339aadf16c5c9d6e44f44c0d66514752e472`,
   `patch: psyz.patch applied at 1 place`; the first build took about
   35 seconds (one-off timing).
-- All 20 files `port/tools/test_*.py`: each ended with status 0 and the
-  same last line before and after (among them the picture test, the
+- All 20 files `port/tools/test_*.py` (among them the picture test, the
   sound chip's page, the audio test, the pads, the modules, the native
-  replay of the fixtures).
+  replay of the fixtures): each ended with status 0 before and after,
+  with the same count of cases and the same outcome in its last line;
+  the two files whose last line gives the time they took differ in the
+  seconds.
 - `python3 port/tools/hostbuild.py --sound-library`: `units: 3980
   compiled, 161 of them nonmatching, 0 failed`, linked and verified.
 - Three runs of the PC program without a window, the same input
