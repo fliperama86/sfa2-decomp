@@ -94,6 +94,7 @@ K = {name: RAM + 0x100300 + 0x10 * i for i, name in enumerate(
      "ExitCriticalSection", "OpenTh", "ChangeTh", "CloseTh", "GetGp", "CloseEvent", "InterruptCallback", "VSyncCallback"])}
 G_CRASH = RAM + 0x100520
 G_VBLANK, G_THREADS, G_THREAD_RET, T1, T2, T3 = (RAM + 0x100400 + 0x10 * i for i in range(6))
+G_SPANS = RAM + 0x100480
 
 
 def jal(target: int) -> int:
@@ -244,6 +245,37 @@ void game_threads(void)
     again = ps1_OpenTh((unsigned)(size_t)t1, 0, 0);
     i = ps1_ChangeTh(h3);
     SAY("reopened %08x; change to the closed t3 %d; close the main thread %d\n", again, i, ps1_CloseTh(hm));
+}
+extern int port_game_span(const void *, size_t);
+static unsigned hu1, hu2;
+static char *u1_local, *u2_local;
+void u1(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    u1_local = mine;
+    SAY("u1: own local %d\n", port_game_span(mine, sizeof mine));
+    ps1_ChangeTh(hu2);
+    SAY("u1: u2's local %d\n", port_game_span(u2_local, 4));
+    ps1_ChangeTh(hm);
+}
+void u2(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    u2_local = mine;
+    SAY("u2: own local %d, u1's local %d\n", port_game_span(mine, sizeof mine), port_game_span(u1_local, 4));
+    ps1_ChangeTh(hu1);
+}
+void game_spans(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    SAY("main: own local %d, address in the RAM %d, in the scratchpad %d\n", port_game_span(mine, sizeof mine), port_game_span((void *)0x80100000u, 16), port_game_span((void *)0x1f800000u, 16));
+    hu1 = ps1_OpenTh((unsigned)(size_t)u1, 0x801fec00u, 0);
+    hu2 = ps1_OpenTh((unsigned)(size_t)u2, 0x801ff400u, 0);
+    ps1_ChangeTh(hu1);
+    SAY("main: u1's local %d, u2's local %d\n", port_game_span(u1_local, 4), port_game_span(u2_local, 4));
 }
 void thread_returns(void) { SAY("thread function ran and returns\n"); }
 void game_thread_ret(void)
@@ -420,7 +452,7 @@ ABS_MECH = ABS_BASE + [("lib_a", LIB_A, 1), ("lib_b", LIB_B, 1), ("lib_c", LIB_C
 FUN_MECH = FUN_BASE + [("game_over", G_OVER, "game_over"), ("game_mech", G_MECH, "game_mech")]
 ABS_KERN = ABS_BASE + [(n, a, 1) for n, a in K.items()]
 FUN_KERN = FUN_BASE + [("game_vblank", G_VBLANK, "game_vblank"), ("game_threads", G_THREADS, "game_threads"),
-                       ("game_thread_ret", G_THREAD_RET, "game_thread_ret"),
+                       ("game_thread_ret", G_THREAD_RET, "game_thread_ret"), ("game_spans", G_SPANS, "game_spans"),
                        ("t1", T1, "t1"), ("t2", T2, "t2"), ("t3", T3, "t3"), ("thread_returns", RAM + 0x100460, "thread_returns")]
 
 FUN_CRASH = FUN_BASE + [("game_crash", G_CRASH, "game_crash")]
@@ -1053,6 +1085,11 @@ def cases(rig: Rig):
             "t3-b", "t3 closes itself: 1", "main-3",
             "reopened ff000001; change to the closed t3 0; close the main thread 0", "stop: main returned"]
     yield "three-tasks-run-in-order-and-a-task-that-closed-itself-is-gone", verdict((status, body), (0, want))
+
+    status, lines, img, arg = rig.run("spans", program(G_SPANS), variant="kern", timeout=60)
+    body = lines[len(head(img, arg)) + 1:]
+    yield "the-memory-a-task-may-hand-over-is-its-own-stack-the-ram-and-the-scratchpad-not-another-tasks-stack", verdict((status, body[:5]), (0, [
+        "main: own local 1, address in the RAM 1, in the scratchpad 1", "u1: own local 1", "u2: own local 1, u1's local 0", "u1: u2's local 0", "main: u1's local 0, u2's local 0"]))
 
     status, lines, img, arg = rig.run("threadret", program(G_THREAD_RET), variant="kern", timeout=60)
     body = lines[len(head(img, arg)) + 1:]

@@ -15,12 +15,26 @@
 #define PORT_RAM_SIZE   0x00200000u
 #define PORT_SCRATCH    0x1f800000u
 #define PORT_SCRATCH_ALLOC 0x10000u   /* the system's granularity; the first 1 KB is the scratchpad */
+#define PORT_SCRATCH_SIZE  0x400u     /* the scratchpad itself */
 #define PORT_ERR        256           /* size of every error buffer */
 
 /* memory.c: map the PS1's RAM (2 MB, executable) and scratchpad at their own
  * addresses. On failure the line names the range and the system's error. */
 int  port_map(char *err, size_t errsize);
 void port_unmap(void);
+
+/* The memory that is the game's on this machine, for every layer that takes a pointer from the game (a structure to
+ * read or write, a buffer to copy from or to). 1 when the whole span [p, p + n) lies in ONE of:
+ *  - the mapped PS1 RAM;
+ *  - the mapped scratchpad (its 1 KB);
+ *  - the live part of the calling thread's own stack: from the frame of this very check up to the base of the stack the
+ *    thread (or fiber) is running on now. The game's C is compiled natively, so its locals live on the host's stack
+ *    and not in the mapped RAM; a pointer to one of them is the game's memory. Not the dead part below the check, not
+ *    another task's stack (every task is a fiber with a stack of its own).
+ * Nothing else: not the heap, not the program's own code or data. A span of 0 bytes is accepted when p itself lies in
+ * one of these regions (not at the end of one). The sum is made in 64 bits. Not for the nodes of a drawing list: their
+ * links are RAM addresses, so a node must be in the mapped RAM. */
+int  port_game_span(const void *p, size_t n);
 
 /* disc.c */
 struct port_disc {

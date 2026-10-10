@@ -90,6 +90,7 @@
 const struct port_library  port_gpu_library[]   = { { 0, 0, 0 } };
 void port_gpu_present(void) {}
 int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
+int  port_gpu_display_enabled(void) { return 0; }
 
 #else
 
@@ -139,6 +140,26 @@ static void *ram_span(const char *what, const void *p, unsigned long long length
     if ((segment != 0 && segment != 4 && segment != 5) || physical >= PORT_RAM_SIZE || length > PORT_RAM_SIZE - physical)
         stop("gpu: %s: %llu bytes at 0x%08x are not inside the PS1's RAM", what, length, a);
     return (void *)(uintptr_t)(PORT_RAM_BASE + physical);
+}
+
+/* A pointer to a structure or a buffer of the game's (a rectangle, an environment, a packet to set up, pixels): the
+ * whole span must be memory that is the game's on this machine, which port_game_span decides (the PS1's RAM, its
+ * scratchpad, or the live part of the caller's stack, where the game's C keeps its locals). The pointer is used as it is.
+ * The nodes of a drawing list and the ordering tables are different: their links are 24-bit addresses of the RAM, so
+ * they go through ram_span above. */
+static void *game_span(const char *what, const void *p, unsigned long long length)
+{
+    if (!port_game_span(p, (size_t)length))
+        stop("gpu: %s: %llu bytes at 0x%08x are not inside the PS1's RAM, its scratchpad or the caller's stack", what, length, (unsigned)(uintptr_t)p);
+    return (void *)p;
+}
+
+/* A node of a drawing list handed to a routine that links it: the link is its address in the RAM. */
+static void list_node(const char *what, const void *p)
+{
+    uint32_t a = (uint32_t)(uintptr_t)p;
+    if (a < PORT_RAM_BASE || a > PORT_RAM_BASE + PORT_RAM_SIZE - 4u)
+        stop("gpu: %s: the packet at 0x%08x is not in the PS1's RAM, and a drawing list's links are RAM addresses", what, a);
 }
 
 /* The rectangle rules of the image routines.
@@ -209,9 +230,15 @@ static void begin(void)
 }
 
 /* PsyZ's routines reach its GPU through a table that only its ResetGraph(0) sets; before that they would
- * call through a null pointer. The game's first graphics call is ResetGraph (on the console too), so a routine that
- * needs the table and finds it unset is the game's error and ends with a line. */
+ * call through a null pointer. In the library the same table is set at load (its pointer is initialised in the
+ * data), so on the console every routine runs before ResetGraph. The port keeps the stop only for the routines
+ * that draw, transfer images or set up an environment, which need PsyZ's GPU routines; SetDispMask and DrawSync,
+ * which write or read one register, are served without them (below). The game's start-up (its function at
+ * 0x80118d10) calls SetDispMask(0) and then ResetGraph(0). */
 static int reset_done;
+static int display_on;   /* the display enable the layer last sent (GP1 command 03) */
+
+int port_gpu_display_enabled(void) { return display_on; }
 
 static void need_reset(const char *what)
 {
@@ -247,16 +274,19 @@ int port_gpu_read_frame(unsigned short *pixels)
  * over, and each command must lie wholly inside the packet. The numbers (command_words) are the console's; they
  * agree with what PsyZ takes for every kind listed here (read in its decoder: a no-operation, the cache clear and the
  * settings one word, the fill 3, the copy 4, a polygon 1 + vertices + a texture word per vertex + a colour word per
- * vertex after the first, a line 3 or 4, a rectangle 2 + texture + size when free). It differs from the console for:
+ * vertex after the first, a line 3 or 4, a rectangle 2 + texture + size when free).
+ *
+ * A kind that has no exact length here ends the program, wherever in the payload it stands: the port does not decode it
+ * yet, and a skipped command would be a picture that silently lacks something. These are
  *  - polylines (codes 0x48..0x4f and 0x58..0x5f): on the console they run until a terminator word, PsyZ takes a fixed
- *    3 or 4 vertices and a padding word; the length depends on later words, so the walker does not decode them.
- *  - the copy-to-VRAM and copy-from-VRAM commands (0xa0..0xdf), whose data words follow, and their mirrors, which
- *    PsyZ does not implement.
+ *    3 or 4 vertices and a padding word; the length depends on later words, and the port will take the console's rule
+ *    when a game sends one (the game's compiled C uses no line setters);
+ *  - the copy commands with data words after them (0xa0..0xdf) and the VRAM copy mirrors (0x81..0x9f), which PsyZ does
+ *    not implement;
  *  - the interrupt request 0x1f, which the console latches.
- * A packet with a command of those kinds anywhere in it is not forwarded: the first time each kind is met the
- * walker says what it is, and the whole packet is skipped (one rule for every position). The GPU's other kinds,
- * 0x03..0x1e, 0xe0 and 0xe7..0xff, take one word and do nothing on the console; they are checked as one-word
- * commands and left out of what PsyZ gets (it would report each as unsupported). */
+ * The GPU's other kinds, 0x03..0x1e, 0xe0 and 0xe7..0xff, are no-operations of one word each on the console (the GP0
+ * command list of the console's documentation: everything not named there ignores the word); the walker checks them
+ * as one-word commands and leaves them out of what PsyZ gets (it would report each as unsupported). */
 static unsigned command_words(unsigned code)
 {
     unsigned textured = (code & 0x04) != 0, gouraud = (code & 0x10) != 0;
@@ -289,25 +319,21 @@ static const char *kind_name(unsigned code)
     return "not a command of the GPU";
 }
 
-/* Step through the payload of the packet at `here`. 1: every command is complete and the stream ends at the
- * packet's end; `*effective` is the number of words PsyZ will get. 0: a command of a kind that is not decoded was
- * met, its kind in `*undecoded`. A command that needs words beyond the packet's end is the stop. */
-static int walk_payload(uint32_t here, const uint32_t *w, unsigned len, unsigned *effective, unsigned *undecoded)
+/* Step through the payload of the packet at `here`: every command must be of a decoded kind and complete, and the stream
+ * must end at the packet's end; else the program stops. `*effective` is the number of words PsyZ will get. */
+static void walk_payload(uint32_t here, const uint32_t *w, unsigned len, unsigned *effective)
 {
     unsigned pos = 0, kept = 0;
     while (pos < len) {
         unsigned code = w[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
-        if (!need) {
-            *undecoded = code;
-            return 0;
-        }
+        if (!need)
+            stop("gpu: the packet at 0x%08x holds a command of kind 0x%02X (%s) at word %u; the port does not decode this kind yet", here, code, kind_name(code), pos);
         if (len - pos < need)
             stop("gpu: the packet at 0x%08x holds a command of kind 0x%02X at word %u that needs %u words; %u are left", here, code, pos, need, len - pos);
         if (!is_nop_kind(code)) kept += need;
         pos += need;
     }
     *effective = kept;
-    return 1;
 }
 
 #define CHUNK_WORDS 8192u
@@ -353,16 +379,29 @@ static uint32_t *ram_at(uint32_t physical, uint32_t from)
     return (uint32_t *)(uintptr_t)(PORT_RAM_BASE + (physical & (PORT_RAM_SIZE - 1) & ~3u));
 }
 
+/* One packet that is not in a list (the environment's own packet, which may be on the caller's stack): its tag word,
+ * then the payload, checked and handed over like a packet of a list. */
+static void send_single(const uint32_t *packet)
+{
+    unsigned len = packet[0] >> 24, effective = 0;
+    chunk_used = 0;
+    chunk_last = NULL;
+    if (len) {
+        walk_payload((uint32_t)(uintptr_t)packet, packet + 1, len, &effective);
+        if (effective) chunk_add(packet + 1, len, effective);
+    }
+    chunk_flush();
+}
+
 static void send_list(uint32_t *first)
 {
-    static unsigned char seen[256];
     uint32_t *node;
     uint32_t start = (uint32_t)(uintptr_t)first;
     unsigned count = 0;
     chunk_used = 0;
     chunk_last = NULL;
     if (!((start >= PORT_RAM_BASE && start < PORT_RAM_BASE + PORT_RAM_SIZE) || (start >= 0xa0000000u && start < 0xa0000000u + PORT_RAM_SIZE)))
-        stop("gpu: DrawOTag(0x%08x): the list does not start in RAM", start);
+        stop("gpu: DrawOTag(0x%08x): the list does not start in RAM (its links are RAM addresses, so a first node on the caller's stack or in the scratchpad is refused)", start);
     node = ram_at(start & 0xffffffu, start);
     for (;;) {
         uint32_t head = node[0];
@@ -373,14 +412,9 @@ static void send_list(uint32_t *first)
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
             stop("gpu: the packet at 0x%08x is %u words long and runs past the end of RAM", here, len);
         if (len) {
-            unsigned effective = 0, code = 0;
-            if (walk_payload(here, node + 1, len, &effective, &code)) {
-                if (effective) chunk_add(node + 1, len, effective);
-            } else if (!seen[code]) {
-                seen[code] = 1;
-                printf("gpu: packet at 0x%08x has a command of kind 0x%02X (%s) that is not handled; the packet is skipped (once per kind)\n", here, code, kind_name(code));
-                fflush(stdout);
-            }
+            unsigned effective = 0;
+            walk_payload(here, node + 1, len, &effective);
+            if (effective) chunk_add(node + 1, len, effective);
         }
         if ((head & LINK_END) == LINK_END) break;
         node = ram_at(head & LINK_END, here);
@@ -400,9 +434,17 @@ static int host_ResetGraph(int mode)
 {
     begin();
     if ((mode & 7) == 0) {
+        int version;
         port_callbacks_reset();
         reset_done = 1;
-        return ResetGraph(0);
+        version = ResetGraph(0);
+        /* The library's reset for mode 0 (code at 0x8015a000, the branch for mode & 7 == 0) writes 0 to the GPU's
+         * command register, which is the hardware reset, and the reset turns the display off; the branch for
+         * mode 1 writes only the acknowledge and the command-buffer reset (0x02000000, 0x01000000) and leaves the
+         * display as it is. PsyZ's ResetGraph does not touch the display, so the display-off is sent here. */
+        Psyz_GpuDisplayCommand(0x03000001u);
+        display_on = 0;
+        return version;
     }
     need_reset("ResetGraph with a mode other than 0");
     return ResetGraph(1);
@@ -415,13 +457,18 @@ static int host_GetGraphDebug(void)
     return GetGraphDebug();
 }
 
-/* library code at 0x80157d00. Mode 0 forgets the display environment and sends GP1
- * 0x03000001; non-zero sends 0x03000000; PsyZ's SetDispMask is the same. */
+/* library code at 0x80157d00 (read in the original): mode 0 forgets the display environment (a memset of the
+ * library's own state) and sends GP1 0x03000001 (display off); non-zero sends 0x03000000 (display on); it goes
+ * through the library's jump table, whose pointer is set before any ResetGraph. Before ResetGraph(0) the command is
+ * sent to PsyZ directly (its SetDispMask would go through a table that is not set up yet); the display is then off
+ * again after the ResetGraph(0) that follows, which is the hardware reset and is sent by host_ResetGraph, so the
+ * early call leaves nothing behind, as on the console. After ResetGraph(0) PsyZ's SetDispMask does the same. */
 static void host_SetDispMask(int mask)
 {
     begin();
-    need_reset("SetDispMask");
-    SetDispMask(mask);
+    if (!reset_done) Psyz_GpuDisplayCommand(mask ? 0x03000000u : 0x03000001u);
+    else SetDispMask(mask);
+    display_on = mask != 0;
 }
 
 /* library code at 0x80157d9c returns what the GPU driver's sync returns: 0 when the
@@ -431,20 +478,24 @@ static void host_SetDispMask(int mask)
 static int host_DrawSync(int mode)
 {
     begin();
-    need_reset("DrawSync");
     port_tick();
+    if (!reset_done) {
+        /* the library's sync polls the GPU and the (empty) queue; nothing was drawn, so it is idle */
+        Psyz_GpuExeque();
+        return 0;
+    }
     return DrawSync(mode);
 }
 
 /* library code at 0x80157f30 (fits the width and height, queues the fill, returns the queue result); PsyZ
- * fills synchronously. The RECT must lie in RAM; its width and height are fitted in place as the library does
+ * fills synchronously. The RECT must be the game's memory (game_span); its width and height are fitted in place as the library does
  * (clamp_size) and the rectangle must then lie inside the frame buffer, else the program stops. */
 static int host_ClearImage(RECT *rect, int r, int g, int b)
 {
     RECT given;
     begin();
     need_reset("ClearImage");
-    rect = ram_span("ClearImage", rect, sizeof *rect);
+    rect = game_span("ClearImage", rect, sizeof *rect);
     given = *rect;
     clamp_size(rect);
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("ClearImage", given.x, given.y, given.w, given.h);
@@ -453,8 +504,8 @@ static int host_ClearImage(RECT *rect, int r, int g, int b)
 
 /* library code at 0x80157fc4 and 0x80158028: queue the transfer, return the queue
  * result. The pixels are 16-bit words packed in u32s at the PS1 address; the
- * whole transfer (width x height halfwords after the fit, rounded up to a word) must lie
- * in RAM. The size is computed in 64 bits from fields the fit has bounded. */
+ * whole transfer (width x height halfwords after the fit, rounded up to a word) must be
+ * the game's memory (game_span). The size is computed in 64 bits from fields the fit has bounded. */
 static unsigned long long transfer_bytes(const RECT *r)
 {
     return ((unsigned long long)r->w * (unsigned long long)r->h * 2ull + 3ull) & ~3ull;
@@ -465,11 +516,11 @@ static int host_LoadImage(RECT *rect, void *pixels)
     RECT given;
     begin();
     need_reset("LoadImage");
-    rect = ram_span("LoadImage", rect, sizeof *rect);
+    rect = game_span("LoadImage", rect, sizeof *rect);
     given = *rect;
     clamp_size(rect);
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("LoadImage", given.x, given.y, given.w, given.h);
-    pixels = ram_span("LoadImage", pixels, transfer_bytes(rect));
+    pixels = game_span("LoadImage", pixels, transfer_bytes(rect));
     return LoadImage(rect, (u_long *)pixels);
 }
 
@@ -478,11 +529,11 @@ static int host_StoreImage(RECT *rect, void *pixels)
     RECT given;
     begin();
     need_reset("StoreImage");
-    rect = ram_span("StoreImage", rect, sizeof *rect);
+    rect = game_span("StoreImage", rect, sizeof *rect);
     given = *rect;
     clamp_size(rect);
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("StoreImage", given.x, given.y, given.w, given.h);
-    pixels = ram_span("StoreImage", pixels, transfer_bytes(rect));
+    pixels = game_span("StoreImage", pixels, transfer_bytes(rect));
     return StoreImage(rect, (u_long *)pixels);
 }
 
@@ -493,7 +544,7 @@ static int host_MoveImage(RECT *rect, int x, int y)
 {
     begin();
     need_reset("MoveImage");
-    rect = ram_span("MoveImage", rect, sizeof *rect);
+    rect = game_span("MoveImage", rect, sizeof *rect);
     if (rect->w == 0 || rect->h == 0) return -1;
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h) || !rect_fits(x, y, rect->w, rect->h))
         stop("gpu: MoveImage: the rectangle (%d,%d %dx%d) moved to (%d,%d) is not inside the %dx%d frame buffer", rect->x, rect->y, rect->w, rect->h, x, y, FRAME_W, FRAME_H);
@@ -506,6 +557,7 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
 {
     begin();
     need_reset("PutDispEnv");
+    game_span("PutDispEnv", env, sizeof *env);
     return PutDispEnv(env);
 }
 
@@ -522,8 +574,9 @@ static void host_DrawOTag(uint32_t *list)
 
 static uint32_t phys(const void *p) { return (uint32_t)(uintptr_t)p & LINK_END; }
 static void set_link(uint32_t *tag, uint32_t physical) { *tag = (*tag & 0xff000000u) | (physical & LINK_END); }
-static void set_len_code(void *p, unsigned len, unsigned code)
+static void set_len_code(const char *what, void *p, unsigned len, unsigned code)
 {
+    game_span(what, p, 8);
     ((uint8_t *)p)[3] = (uint8_t)len;
     ((uint8_t *)p)[7] = (uint8_t)code;
 }
@@ -563,6 +616,8 @@ static uint32_t *host_ClearOTagR(uint32_t *ot, int n)
  * bytes stay. */
 static void host_AddPrim(uint32_t *ot, uint32_t *p)
 {
+    list_node("AddPrim", ot);
+    list_node("AddPrim", p);
     set_link(p, *ot);
     set_link(ot, phys(p));
 }
@@ -570,6 +625,9 @@ static void host_AddPrim(uint32_t *ot, uint32_t *p)
 /* library code at 0x8015bf70: p1 takes ot's link, ot takes p0's address. */
 static void host_AddPrims(uint32_t *ot, uint32_t *p0, uint32_t *p1)
 {
+    list_node("AddPrims", ot);
+    list_node("AddPrims", p0);
+    list_node("AddPrims", p1);
     set_link(p1, *ot);
     set_link(ot, phys(p0));
 }
@@ -579,6 +637,8 @@ static void host_AddPrims(uint32_t *ot, uint32_t *p0, uint32_t *p1)
  * tag alone, as this does. */
 static int host_MargePrim(uint8_t *p0, uint8_t *p1)
 {
+    game_span("MargePrim", p0, 4);
+    game_span("MargePrim", p1, 4);
     unsigned len = (unsigned)p0[3] + p1[3] + 1;
     if (len >= 0x21) return -1;
     p0[3] = (uint8_t)len;
@@ -588,15 +648,16 @@ static int host_MargePrim(uint8_t *p0, uint8_t *p1)
 /* library code at 0x8015bfe8: bit 1 of the code byte (offset 7) set or cleared. */
 static void host_SetSemiTrans(uint8_t *p, int abe)
 {
+    game_span("SetSemiTrans", p, 8);
     p[7] = abe ? (uint8_t)(p[7] | 0x02) : (uint8_t)(p[7] & 0xfd);
 }
 
 /* library code at 0x8015c09c, 0x8015c0ec, 0x8015c100, 0x8015c150: length byte and
  * code byte, nothing else. */
-static void host_SetPolyFT4(void *p) { set_len_code(p, 9, 0x2c); }
-static void host_SetSprt16(void *p) { set_len_code(p, 3, 0x7c); }
-static void host_SetSprt(void *p) { set_len_code(p, 4, 0x64); }
-static void host_SetTile(void *p) { set_len_code(p, 3, 0x60); }
+static void host_SetPolyFT4(void *p) { set_len_code("SetPolyFT4", p, 9, 0x2c); }
+static void host_SetSprt16(void *p) { set_len_code("SetSprt16", p, 3, 0x7c); }
+static void host_SetSprt(void *p) { set_len_code("SetSprt", p, 4, 0x64); }
+static void host_SetTile(void *p) { set_len_code("SetTile", p, 3, 0x60); }
 
 /* library code at 0x8015bd0c, graphics type 0 branch (the type is PsyZ's: 0). */
 static unsigned host_GetTPage(int tp, int abr, int x, int y)
@@ -632,6 +693,8 @@ static uint32_t texture_window(const RECT *r)
 
 static void host_SetDrawMode(uint32_t *p, int dfe, int dtd, int tpage, const RECT *tw)
 {
+    game_span("SetDrawMode", p, 12);
+    if (tw) game_span("SetDrawMode", tw, sizeof *tw);
     ((uint8_t *)p)[3] = 2;
     p[1] = drawing_mode(dfe, dtd, (unsigned)tpage & 0xffffu);
     p[2] = texture_window(tw);
@@ -642,6 +705,7 @@ static void host_SetDrawMode(uint32_t *p, int dfe, int dtd, int tpage, const REC
  * of page (0,0) at x = 640), isbg = 0. Returns env. */
 static struct sony_drawenv *host_SetDefDrawEnv(struct sony_drawenv *env, int x, int y, int w, int h)
 {
+    game_span("SetDefDrawEnv", env, sizeof *env);
     env->clip.x = (int16_t)x;
     env->clip.y = (int16_t)y;
     env->clip.w = (int16_t)w;
@@ -661,6 +725,7 @@ static struct sony_drawenv *host_SetDefDrawEnv(struct sony_drawenv *env, int x, 
  * the four bytes at 0x10..0x13 0. Returns env. */
 static DISPENV *host_SetDefDispEnv(DISPENV *env, int x, int y, int w, int h)
 {
+    game_span("SetDefDispEnv", env, sizeof *env);
     env->disp.x = (int16_t)x;
     env->disp.y = (int16_t)y;
     env->disp.w = (int16_t)w;
@@ -696,6 +761,8 @@ static uint32_t pack(int a, int b) { return ((uint32_t)(uint16_t)b << 16) | (uin
 static void host_SetDrawEnv(struct sony_dr_env *dr_env, struct sony_drawenv *env)
 {
     unsigned n = 0;
+    game_span("SetDrawEnv", dr_env, sizeof *dr_env);
+    game_span("SetDrawEnv", env, sizeof *env);
     uint32_t *code = dr_env->code;
     code[n++] = area_word(0xe3000000u, env->clip.x, env->clip.y);
     code[n++] = area_word(0xe4000000u, (int16_t)(env->clip.w + env->clip.x - 1), (int16_t)(env->clip.h + env->clip.y - 1));
@@ -728,9 +795,10 @@ static struct sony_drawenv *host_PutDrawEnv(struct sony_drawenv *env)
 {
     begin();
     need_reset("PutDrawEnv");
+    game_span("PutDrawEnv", env, sizeof *env);
     host_SetDrawEnv(&env->dr_env, env);
     env->dr_env.tag |= LINK_END;
-    send_list((uint32_t *)&env->dr_env);
+    send_single(&env->dr_env.tag);
     return env;
 }
 

@@ -36,6 +36,10 @@ void port_gpu_present(void);
  * or the window is gone. */
 int port_gpu_read_frame(unsigned short *pixels);
 
+/* The display enable the layer last sent to PsyZ: 1 after SetDispMask(non-zero), 0 after SetDispMask(0) and after
+ * ResetGraph(0) (the hardware reset turns the display off). For the controls and the picture dump. */
+int port_gpu_display_enabled(void);
+
 /* The frame buffer, in halfwords. */
 #define PORT_GPU_FRAME_W 1024
 #define PORT_GPU_FRAME_H 512

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Controls for the graphics layer: gpu.c, linked like the game's C, with PsyZ underneath.
 
-    python3 test_hostgpu.py --cc CROSS_CC --psyz-build DIR [--run PREFIX]
+    python3 test_hostgpu.py --cc CROSS_CC --psyz-build DIR [--run PREFIX] [--gpu-source FILE] [--memory-source FILE] [--group NAMES]
 
 DIR is a build folder of psyzbuild.py (it holds psyz.json, the library and the
 headers), for example
 `python3 port/tools/psyzbuild.py --psyz port/external/psyz --build SCRATCH/psyz`.
 The patch and the tool are tested by test_psyzbuild.py; this file starts from a
-built PsyZ.
+built PsyZ. --group NAMES runs only those sections of the cases (basic, images, tables,
+walker, warmup, prims, stream, display, memory; the build cases always run), for trying a changed
+copy of the layer against the cases that should notice it. --gpu-source FILE and --memory-source FILE test another copy of gpu.c, memory.c in place of the real ones
+(for trying a changed copy against the cases; the default is the real file).
 
 The runtime's gpu.c, linked like the game's C with a made-up game of this file's
 own (a C program written below, using the library only by the names of
@@ -27,13 +30,18 @@ read back from the runtime. Cases:
   through a hand-built ordering table, in a window for about three seconds; the
   picture is read back with StoreImage and compared with the 64 x 48 pixels
   computed here, pixel by pixel;
-- packets of kinds PsyZ does not decode in the list are reported once per kind
-  by name and skipped, and the rest of the picture is right;
+- a command kind the walker does not decode (polylines, the copy commands with
+  data, the interrupt request) in any position of a packet ends the program
+  with a line naming the kind, the packet and the word, and nothing of the
+  packet is drawn; the console's one-word no-operation kinds are accepted;
+- every command of a packet is checked before PsyZ sees the packet (incomplete
+  commands in every position, the two probes of the review, a stale conversion
+  buffer, several commands of different kinds in one packet, 255 words);
 - the game's data read as an attacker would: lists ended wrongly (a cycle, a
   link outside RAM, a packet running past RAM, a list not in RAM), each with the
   last valid value and the first invalid one of the start, a link, a packet's
   end and the count; image routines with rectangles at and past the frame
-  buffer's edges (skipped with one line, never an overflow of a size), buffers
+  buffer's edges (a stop, never an overflow of a size), buffers
   and rectangles at and past the end of RAM (a stop), ordering tables at and past
   the end of RAM; each stop is one line and the graphics status;
 - both sides of the conversion: a list that fills PsyZ's buffer to the last
@@ -44,6 +52,11 @@ read back from the runtime. Cases:
   `stop: window closed`, and nothing after the present runs;
 - presenting takes at most one display refresh (PsyZ's frame limiter is off; a window that cannot tear is
   paced by its swapchain, which the port does not control).
+
+The trial program runs with SDL's offscreen video driver (it sets SDL_VIDEODRIVER itself before its first
+graphics call): PsyZ and its GPU device run as usual but no window is created, so nothing appears on the desktop
+and nothing takes the keyboard focus. The published layer has no option for it; the real program shows its
+window as before. (The pictures read back are the frame buffer's, which is what the cases compare.)
 
 PREFIX is a command prefix to start the Windows program; without it the program
 is started directly (on Windows, or from a shell under WSL, where paths are
@@ -69,6 +82,7 @@ SRC = PORT / "src"
 BUILD = PORT / "build"
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
 EXE = "hostgpu-trial.exe"
+SECTIONS = ["build", "basic", "images", "tables", "walker", "warmup", "prims", "stream", "display", "memory"]
 EXIT_GRAPHICS = 7
 
 TRIAL_C = r'''
@@ -92,6 +106,10 @@ TRIAL_C = r'''
  *   presents      300 presents in a row, timed
  *   names         print the names in the table
  *   nodisplay     PsyZ cannot start: the first call ends the program with a line
+ *   stack         port_game_span on every kind of pointer, from the main stack and from a fiber's
+ *   roundtrip-main | roundtrip-fiber   LoadImage and StoreImage through locals of the game code, on the main stack and in a fiber
+ *   heapload      LoadImage from a heap buffer: a stop
+ *   stacknode     DrawOTag with a first node on the stack: a stop
  *   script OP...  operations given as arguments (see script())
  */
 #include "port.h"
@@ -457,6 +475,8 @@ static void closed(void)
  * tiles:ADDR:COUNT        COUNT TILE packets, white 1x1, tile k at (k%64, k/64), chained, the last ending the list
  * extremes:ADDR           every primitive type the game uses at extreme values, then a white 64x48 TILE, chained
  * senv:ADDR:ISBG          SetDrawEnv on a default environment at ADDR with a canary word after it
+ * setmask:N reset reset1 dsync   SetDispMask(N), ResetGraph(0), ResetGraph(1), DrawSync(0) (printing its value)
+ * display                 print the display enable the layer last sent
  * list0:ADDR              a packet of drawing-area commands and a white 4x4 TILE at (5,5), chained
  * prim:ADDR:CODE:LEN      one packet of LEN words, the first with the command code CODE in its top byte, the rest zero
  * frame                   read the whole frame buffer with port_gpu_read_frame, print how many halfwords are not 0
@@ -494,6 +514,11 @@ static void script(int argc, char **argv)
         buf[sizeof buf - 1] = 0;
         for (tok = strtok(buf, ":"); tok && n < 10; tok = strtok(NULL, ":")) a[n++] = tok;
         if (!strcmp(a[0], "recover")) recoverable = 1;
+        else if (!strcmp(a[0], "setmask")) ((f_vi)lib("SetDispMask"))((int)num(a[1]));
+        else if (!strcmp(a[0], "reset")) ((f_ii)lib("ResetGraph"))(0);
+        else if (!strcmp(a[0], "reset1")) ((f_ii)lib("ResetGraph"))(1);
+        else if (!strcmp(a[0], "dsync")) printf("t: DrawSync %d\n", ((f_ii)lib("DrawSync"))(0));
+        else if (!strcmp(a[0], "display")) printf("t: display %d\n", port_gpu_display_enabled());
         else if (!strcmp(a[0], "pkt")) {
             /* pkt:ADDR:NEXT:W0,W1,... one packet with these words (hex), linking NEXT */
             uint32_t at = (uint32_t)num(a[1]);
@@ -616,6 +641,152 @@ static void script(int argc, char **argv)
     }
 }
 
+/* ---- the game's memory: RAM, scratchpad, the live stack of the thread or fiber that is running ---- */
+
+static char global_bytes[64];
+static char *fiber_local;             /* the address of a local of the fiber, set by the fiber */
+static char *main_local_ptr;          /* the address of a local of the main stack */
+static LPVOID main_fiber, other_fiber;
+static volatile int fiber_mode;
+
+/* The address of a local of a function that has returned, kept in a variable (the compiler turns a returned address
+ * of a local into a null pointer). The array is 4 KB so that its start lies well below the frames of the routines that
+ * make the check, which are live and count as the caller's side of the bound; the probe is a pointer into the dead stack. */
+static char *volatile dead_saved;
+
+static void dead_local(void)
+{
+    volatile char x[4096];
+    x[0] = 1;
+    dead_saved = (char *)x;
+}
+
+static void span(const char *name, const void *p, size_t n)
+{
+    printf("t: span %s %d\n", name, port_game_span(p, n));
+}
+
+/* Every kind of pointer, from the stack that is running now (the main one or a fiber's). */
+static void probes(const char *tag, const char *foreign)
+{
+    char local[16];
+    char *dead;
+    char *base = (char *)((NT_TIB *)NtCurrentTeb())->StackBase;
+    char *heap = malloc(64);
+    char name[80];
+#define PROBE(label, p, n) do { snprintf(name, sizeof name, "%s %s", tag, label); span(name, (p), (n)); } while (0)
+    local[0] = 0;
+    dead_local();
+    dead = dead_saved;
+    PROBE("local", local, sizeof local);
+    PROBE("local-zero-length", local, 0);
+    PROBE("dead-stack-below-the-frame", dead, 8);
+    PROBE("last-bytes-below-the-base", base - 4, 4);
+    PROBE("at-the-base", base, 1);
+    PROBE("straddling-the-base", base - 4, 8);
+    PROBE("zero-length-at-the-base", base, 0);
+    PROBE("heap", heap, 8);
+    PROBE("program-data", global_bytes, 8);
+    PROBE("program-code", (const void *)probes, 4);
+    if (foreign) PROBE("other-stack", foreign, 4);
+    free(heap);
+}
+
+static VOID CALLBACK other_main(LPVOID unused)
+{
+    char mine[16];
+    (void)unused;
+    mine[0] = 0;
+    fiber_local = mine;
+    if (fiber_mode == 1) {
+        probes("fiber", main_local_ptr);
+        SwitchToFiber(main_fiber);     /* this fiber stays suspended, with its stack alive */
+    }
+    if (fiber_mode == 2) {
+        /* the same checks as the game would meet: a local rectangle and a local buffer, through the library */
+        uint16_t pix[16], back[16];
+        int16_t rect[4] = { 10, 10, 4, 4 }, r2[4] = { 10, 10, 4, 4 };
+        unsigned k, same = 1;
+        for (k = 0; k < 16; k++) pix[k] = (uint16_t)(0x0101 * (k + 1)), back[k] = 0;
+        ((f_rp)lib("LoadImage"))(rect, pix);
+        ((f_rp)lib("StoreImage"))(r2, back);
+        for (k = 0; k < 16; k++) if (back[k] != pix[k]) same = 0;
+        printf("t: fiber roundtrip through locals %d\n", same);
+    }
+    SwitchToFiber(main_fiber);
+}
+
+static void ranges(void)
+{
+    static const struct { const char *name; uint32_t a; size_t n; } r[] = {
+        { "ram first byte", 0x80000000u, 1 }, { "ram last byte", 0x801fffffu, 1 }, { "ram whole", 0x80000000u, 0x200000u },
+        { "ram one past the end, 1 byte", 0x80200000u, 1 }, { "ram last byte, 2 bytes", 0x801fffffu, 2 }, { "ram one byte before", 0x7fffffffu, 1 },
+        { "ram zero length inside", 0x80100000u, 0 }, { "ram zero length at the end", 0x80200000u, 0 },
+        { "ram a size that wraps", 0x80000000u, (size_t)0xffffffffu }, { "ram the largest size", 0x80100000u, (size_t)-1 },
+        { "scratch whole", 0x1f800000u, 0x400 }, { "scratch one byte more", 0x1f800000u, 0x401 }, { "scratch last byte", 0x1f8003ffu, 1 },
+        { "scratch one past", 0x1f800400u, 1 }, { "scratch one before", 0x1f7fffffu, 1 }, { "null", 0, 1 },
+    };
+    unsigned i;
+    for (i = 0; i < sizeof r / sizeof r[0]; i++) span(r[i].name, (const void *)(uintptr_t)r[i].a, r[i].n);
+}
+
+static void stackcheck(void)
+{
+    char here[16];
+    main_fiber = ConvertThreadToFiber(NULL);
+    here[0] = 0;
+    main_local_ptr = here;
+    ranges();
+    probes("main", NULL);
+    fiber_mode = 1;
+    other_fiber = CreateFiber(0, other_main, NULL);
+    SwitchToFiber(other_fiber);
+    probes("main with a suspended fiber", fiber_local);
+    DeleteFiber(other_fiber);
+}
+
+static void stackroundtrip(int in_fiber)
+{
+    ((f_ii)lib("ResetGraph"))(0);
+    main_fiber = ConvertThreadToFiber(NULL);
+    {
+        uint16_t pix[16], back[16];
+        int16_t rect[4] = { 10, 10, 4, 4 }, r2[4] = { 10, 10, 4, 4 };
+        unsigned k, same = 1;
+        for (k = 0; k < 16; k++) pix[k] = (uint16_t)(0x0101 * (k + 1)), back[k] = 0;
+        if (!in_fiber) {
+            ((f_rp)lib("LoadImage"))(rect, pix);
+            ((f_rp)lib("StoreImage"))(r2, back);
+            for (k = 0; k < 16; k++) if (back[k] != pix[k]) same = 0;
+            printf("t: main roundtrip through locals %d\n", same);
+        } else {
+            fiber_mode = 2;
+            other_fiber = CreateFiber(0, other_main, NULL);
+            SwitchToFiber(other_fiber);
+            DeleteFiber(other_fiber);
+        }
+    }
+}
+
+static void heapload(void)
+{
+    uint16_t *heap = malloc(64);
+    int16_t rect[4] = { 10, 10, 4, 4 };
+    ((f_ii)lib("ResetGraph"))(0);
+    ((f_rp)lib("LoadImage"))(rect, heap);
+    printf("t: not reached\n");
+}
+
+static void firstnode_on_stack(void)
+{
+    uint32_t node[2];
+    node[0] = 0xffffffu;
+    node[1] = 0;
+    ((f_ii)lib("ResetGraph"))(0);
+    ((f_vp)lib("DrawOTag"))(node);
+    printf("t: not reached\n");
+}
+
 static void nodisplay(void)
 {
     SetEnvironmentVariableA("SDL_VIDEODRIVER", "no-such-driver");
@@ -661,6 +832,10 @@ int main(int argc, char **argv)
     const char *mode = argc > 1 ? argv[1] : "";
     SetUnhandledExceptionFilter(crashed);
     setvbuf(stdout, NULL, _IONBF, 0);
+    /* No window on the desktop: PsyZ's GPU path runs on SDL's offscreen video driver (the cases that need the video
+     * system to fail set their own value later). */
+    SetEnvironmentVariableA("SDL_VIDEODRIVER", "offscreen");
+    _putenv("SDL_VIDEODRIVER=offscreen");
     map_or_die();
     if (!strcmp(mode, "semantics")) semantics();
     else if (!strcmp(mode, "picture") && argc > 2) scene(0, argv[2], 3000);
@@ -670,6 +845,11 @@ int main(int argc, char **argv)
     else if (!strcmp(mode, "presents")) presents();
     else if (!strcmp(mode, "names")) names();
     else if (!strcmp(mode, "nodisplay")) nodisplay();
+    else if (!strcmp(mode, "stack")) stackcheck();
+    else if (!strcmp(mode, "roundtrip-main")) stackroundtrip(0);
+    else if (!strcmp(mode, "roundtrip-fiber")) stackroundtrip(1);
+    else if (!strcmp(mode, "heapload")) heapload();
+    else if (!strcmp(mode, "stacknode")) firstnode_on_stack();
     else if (!strcmp(mode, "script")) script(argc, argv);
     else { printf("t: bad usage\n"); return 93; }
     printf("t: done\n");
@@ -687,8 +867,11 @@ def same(got, want):
 
 
 class Rig:
-    def __init__(self, cc: str, prefix: list[str], work: Path, psyz_build: Path):
-        self.cc, self.prefix, self.work, self.psyz_build = cc, prefix, work, psyz_build
+    def __init__(self, cc: str, prefix: list[str], work: Path, psyz_build: Path, gpu_source: Path):
+        self.cc, self.prefix, self.work, self.psyz_build, self.gpu_source = cc, prefix, work, psyz_build, gpu_source
+        self.memory_source = SRC / "memory.c"
+        self.section = "build"
+        self.groups: set[str] | None = None   # --group: only these sections of cases run
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.info: dict = {}
         self.exe: Path | None = None
@@ -724,8 +907,8 @@ class Rig:
         (self.work / "trial.c").write_text(TRIAL_C)
         flags = ["-O1", "-Wall", "-Wextra", "-c", "-I", str(SRC)]
         steps = {
-            "gpu.o": [*flags, "-Werror", "-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in self.info["define"]), "-isystem", str(include), str(SRC / "gpu.c")],
-            "memory.o": [*flags, "-Werror", str(SRC / "memory.c")],
+            "gpu.o": [*flags, "-Werror", "-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in self.info["define"]), "-isystem", str(include), str(self.gpu_source)],
+            "memory.o": [*flags, "-Werror", str(self.memory_source)],
             "trial.o": [*flags, "-DTRIAL_SDL", "-I", str(include.parents[1] / "external" / "SDL" / "include"), str(self.work / "trial.c")],
         }
         for obj, argv in steps.items():
@@ -741,6 +924,8 @@ class Rig:
     def run(self, mode: str, *more: str, timeout: int = 90) -> tuple[int, list[str], float]:
         """Run the trial program; (status, the lines that are the layer's or the program's, seconds)."""
         import time
+        if self.groups is not None and self.section not in self.groups:
+            return 0, ["t: done"], 0.0          # a section that was not asked for: no program is started
         argv = [*self.prefix, str(self.exe), mode, *more]
         started = time.time()
         try:
@@ -862,13 +1047,13 @@ def diff_picture(got: list[int] | None, want: list[int], bit15: list[int] | None
 
 def program_cases(rig: Rig, work: Path):
     # gpu.c compiles to empty tables without PsyZ, and the stub has nothing to link.
-    stub = rig.compile(["-O1", "-Wall", "-Wextra", "-Werror", "-c", "-I", str(SRC), str(SRC / "gpu.c"), "-o", str(work / "stub.o")])
+    stub = rig.compile(["-O1", "-Wall", "-Wextra", "-Werror", "-c", "-I", str(SRC), str(rig.gpu_source), "-o", str(work / "stub.o")])
     yield "gpu-c-compiles-without-psyz-warning-free", same((stub.returncode, stub.stderr.strip()), (0, ""))
     nm = rig.cc[:-3] + "nm" if rig.cc.endswith("gcc") else "nm"
     syms = subprocess.run([nm, "-g", str(work / "stub.o")], capture_output=True, text=True)
     defined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if " T " in l or " D " in l or " R " in l)
     undefined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if l.strip().startswith("U "))
-    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame"]), []))
+    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_display_enabled", "_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame"]), []))
 
     reason = rig.build()
     yield "trial-program-builds-gpu-c-with-psyz-warning-free", reason
@@ -881,6 +1066,7 @@ def program_cases(rig: Rig, work: Path):
     yield "semantics-every-line-as-worked-out", same(lines, want)
 
 
+    rig.section = "basic"
     # the table: what is served, and no routine that stores an address to call later
     status, lines, _ = rig.run("names")
     listed = [l.split()[2] for l in lines if l.startswith("t: name ")]
@@ -902,22 +1088,20 @@ def program_cases(rig: Rig, work: Path):
 
     shot2 = work / "unknown.bin"
     status, lines, _ = rig.run("unknown", rig.native(shot2))
-    gpu_lines = [l for l in lines if l.startswith("gpu:")]
-    yield "unknown-kinds-are-reported-once-each-by-name", same(gpu_lines, [
-        "gpu: packet at 0x80131340 has a command of kind 0xA0 (copy rectangle CPU to VRAM) that is not handled; the packet is skipped (once per kind)",
-        "gpu: packet at 0x80131380 has a command of kind 0xC0 (copy rectangle VRAM to CPU) that is not handled; the packet is skipped (once per kind)"])
-    yield "unknown-kinds-are-skipped-the-rest-is-drawn", same((status, diff_picture(read_picture(shot2), colors)), (0, None))
+    yield "a-copy-command-with-data-in-a-list-ends-the-program-with-the-line-and-the-graphics-status", same((status, lines[-1:], shot2.exists()), (EXIT_GRAPHICS, [
+        "stop: gpu: the packet at 0x80131340 holds a command of kind 0xA0 (copy rectangle CPU to VRAM) at word 0; the port does not decode this kind yet"], False))
 
     for mode, text in (
         ("cycle", "stop: gpu: the list from 0x80100000 has no end within 524288 packets (at 0x80100000); a cycle, or a list never terminated"),
         ("outside", "stop: gpu: ordering table link 0xa00000 (from the packet at 0x80100000) is outside RAM"),
         ("past", "stop: gpu: the packet at 0x801ffff0 is 20 words long and runs past the end of RAM"),
-        ("notram", "stop: gpu: DrawOTag(0x00001000): the list does not start in RAM"),
+        ("notram", "stop: gpu: DrawOTag(0x00001000): the list does not start in RAM (its links are RAM addresses, so a first node on the caller's stack or in the scratchpad is refused)"),
     ):
         status, lines, seconds = rig.run(mode)
         yield f"list-{mode}-stops-with-one-line-and-the-graphics-status", same((status, lines, seconds < 30), (EXIT_GRAPHICS, [text], True))
 
 
+    rig.section = "images"
     # ---- the game's data read as an attacker would ----
     RAM_END = 0x80200000
     # image routines: the library fits the width and height (zero or less -> 1, above the buffer -> 1023 and 511), then the
@@ -959,19 +1143,25 @@ def program_cases(rig: Rig, work: Path):
 
     # buffers and rectangles against the end of RAM: a stop with the graphics status
     yield "load-image-pixels-ending-exactly-at-the-end-of-ram-are-accepted", same(rig.run("script", "rect:0x80100000:0:0:16:16", "load:0x80100000:0x801ffe00")[1][-2:], ["t: LoadImage 0", "t: done"])
-    yield "load-image-pixels-one-word-later-stop", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0x801ffe04"], "gpu: LoadImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM")
+    yield "load-image-pixels-one-word-later-stop", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0x801ffe04"], "gpu: LoadImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM, its scratchpad or the caller's stack")
     yield "load-image-odd-size-rounds-up-to-a-word-last-valid", same(rig.run("script", "rect:0x80100000:0:0:3:1", "load:0x80100000:0x801ffff8")[1][-2:], ["t: LoadImage 0", "t: done"])
-    yield "load-image-odd-size-first-invalid", stops(["rect:0x80100000:0:0:3:1", "load:0x80100000:0x801ffffc"], "gpu: LoadImage: 8 bytes at 0x801ffffc are not inside the PS1's RAM")
-    yield "store-image-pixels-first-invalid", stops(["rect:0x80100000:0:0:16:16", "store:0x80100000:0x801ffe04"], "gpu: StoreImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM")
-    yield "store-image-into-the-scratchpad-stops", stops(["rect:0x80100000:0:0:16:16", "store:0x80100000:0x1f800000"], "gpu: StoreImage: 512 bytes at 0x1f800000 are not inside the PS1's RAM")
-    yield "load-image-from-an-unmapped-segment-stops", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0xc0000000"], "gpu: LoadImage: 512 bytes at 0xc0000000 are not inside the PS1's RAM")
+    yield "load-image-odd-size-first-invalid", stops(["rect:0x80100000:0:0:3:1", "load:0x80100000:0x801ffffc"], "gpu: LoadImage: 8 bytes at 0x801ffffc are not inside the PS1's RAM, its scratchpad or the caller's stack")
+    yield "store-image-pixels-first-invalid", stops(["rect:0x80100000:0:0:16:16", "store:0x80100000:0x801ffe04"], "gpu: StoreImage: 512 bytes at 0x801ffe04 are not inside the PS1's RAM, its scratchpad or the caller's stack")
+    for tag, at, ok in (("first-byte", "0x1f800000", True), ("last-valid-place", "0x1f800200", True), ("one-word-later", "0x1f800204", False), ("past-the-kilobyte", "0x1f800400", False)):
+        if ok:
+            yield f"store-image-into-the-scratchpad-{tag}-is-accepted", same(rig.run("script", "rect:0x80100000:0:0:16:16", f"store:0x80100000:{at}")[1][-2:], ["t: StoreImage 0", "t: done"])
+        else:
+            yield f"store-image-into-the-scratchpad-{tag}-stops", stops(["rect:0x80100000:0:0:16:16", f"store:0x80100000:{at}"], f"gpu: StoreImage: 512 bytes at {at} are not inside the PS1's RAM, its scratchpad or the caller's stack")
+    yield "load-image-from-an-unmapped-segment-stops", stops(["rect:0x80100000:0:0:16:16", "load:0x80100000:0xc0000000"], "gpu: LoadImage: 512 bytes at 0xc0000000 are not inside the PS1's RAM, its scratchpad or the caller's stack")
     yield "load-image-whole-frame-buffer-last-valid-place-ends-at-the-end-of-ram", same(rig.run("script", "rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100bfc")[1][-2:], ["t: LoadImage 0", "t: done"])
-    yield "load-image-whole-frame-buffer-one-word-later-stops", stops(["rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100c00"], "gpu: LoadImage: 1045508 bytes at 0x80100c00 are not inside the PS1's RAM")
+    yield "load-image-whole-frame-buffer-one-word-later-stops", stops(["rect:0x80100000:0:0:1024:512", "load:0x80100000:0x80100c00"], "gpu: LoadImage: 1045508 bytes at 0x80100c00 are not inside the PS1's RAM, its scratchpad or the caller's stack")
     yield "rectangle-pointer-at-the-last-valid-place", same(rig.run("script", "rect:0x801ffff8:0:0:1:1", "load:0x801ffff8:0x80000800")[1][-2:], ["t: LoadImage 0", "t: done"])
-    yield "rectangle-pointer-first-invalid-stops", stops(["load:0x801ffffc:0x80000800"], "gpu: LoadImage: 8 bytes at 0x801ffffc are not inside the PS1's RAM")
-    yield "move-image-rectangle-pointer-outside-ram-stops", stops(["move:0x1f800000:0:0"], "gpu: MoveImage: 8 bytes at 0x1f800000 are not inside the PS1's RAM")
-    yield "clear-image-rectangle-pointer-outside-ram-stops", stops(["clear:0x80200000"], "gpu: ClearImage: 8 bytes at 0x80200000 are not inside the PS1's RAM")
+    yield "rectangle-pointer-first-invalid-stops", stops(["load:0x801ffffc:0x80000800"], "gpu: LoadImage: 8 bytes at 0x801ffffc are not inside the PS1's RAM, its scratchpad or the caller's stack")
+    yield "move-image-rectangle-in-the-scratchpad-last-valid-place", same(rig.run("script", "rect:0x1f8003f8:0:0:4:4", "move:0x1f8003f8:8:8")[1][-2:], ["t: MoveImage 0", "t: done"])
+    yield "move-image-rectangle-pointer-past-the-scratchpad-stops", stops(["move:0x1f800400:0:0"], "gpu: MoveImage: 8 bytes at 0x1f800400 are not inside the PS1's RAM, its scratchpad or the caller's stack")
+    yield "clear-image-rectangle-pointer-outside-ram-stops", stops(["clear:0x80200000"], "gpu: ClearImage: 8 bytes at 0x80200000 are not inside the PS1's RAM, its scratchpad or the caller's stack")
 
+    rig.section = "tables"
     # ordering tables against the end of RAM
     yield "clearotagr-30-entries-the-largest-table-the-game-declares", same(rig.run("script", "cotagr:0x80130000:30", "peek:0x80130000", "peek:0x80130074")[1][-4:], [
         "t: ClearOTagR returns 80130000", "t: peek 80130000: 00ffffff", "t: peek 80130074: 00130070", "t: done"])
@@ -985,11 +1175,12 @@ def program_cases(rig: Rig, work: Path):
     yield "clearotagr-negative-count-stops", stops(["cotagr:0x80130000:-1"], "gpu: ClearOTagR(0x80130000, -1): the table has no entry")
     yield "clearotag-the-largest-count-stops-without-overflowing-the-size", stops(["cotag:0x80130000:0x7fffffff"], "gpu: ClearOTag: 8589934588 bytes at 0x80130000 are not inside the PS1's RAM")
 
+    rig.section = "walker"
     # the walker: start, link, packet end and count, last valid and first invalid
     yield "list-start-at-the-last-word-of-ram-is-valid", same(rig.run("script", "w:0x801ffffc:0x00ffffff", "draw:0x801ffffc")[1][-1:], ["t: done"])
     yield "list-start-in-the-uncached-mirror-is-valid", same(rig.run("script", "w:0x801ffffc:0x00ffffff", "draw:0xa01ffffc")[1][-1:], ["t: done"])
-    yield "list-start-one-past-ram-stops", stops(["draw:0x80200000"], "gpu: DrawOTag(0x80200000): the list does not start in RAM")
-    yield "list-start-one-past-the-uncached-mirror-stops", stops(["draw:0xa0200000"], "gpu: DrawOTag(0xa0200000): the list does not start in RAM")
+    yield "list-start-one-past-ram-stops", stops(["draw:0x80200000"], "gpu: DrawOTag(0x80200000): the list does not start in RAM (its links are RAM addresses, so a first node on the caller's stack or in the scratchpad is refused)")
+    yield "list-start-one-past-the-uncached-mirror-stops", stops(["draw:0xa0200000"], "gpu: DrawOTag(0xa0200000): the list does not start in RAM (its links are RAM addresses, so a first node on the caller's stack or in the scratchpad is refused)")
     yield "list-link-to-the-last-word-of-the-mirrored-8-mb-is-folded-into-ram", same(rig.run("script", "w:0x801ffffc:0x00ffffff", "w:0x80100000:0x007ffffc", "draw:0x80100000")[1][-1:], ["t: done"])
     yield "list-link-to-the-first-address-past-8-mb-stops", stops(["w:0x80100000:0x00800000", "draw:0x80100000"], "gpu: ordering table link 0x800000 (from the packet at 0x80100000) is outside RAM")
     yield "list-link-to-just-below-the-end-marker-stops", stops(["w:0x80100000:0x00fffffe", "draw:0x80100000"], "gpu: ordering table link 0xfffffe (from the packet at 0x80100000) is outside RAM")
@@ -1018,6 +1209,7 @@ def program_cases(rig: Rig, work: Path):
     yield "setdrawenv-writes-nine-words-at-most-and-nothing-past-its-packet", same((status, lines[-3:]), (0, ["t: senv words 9 canary cafecafe", "t: senv words 6 canary cafecafe", "t: done"]))
 
 
+    rig.section = "warmup"
     # the warm-up: at the layer's start, changes no pixel, and a list drawn first works
     frame = rig.run("script", "frame")
     yield "warm-up-leaves-the-whole-frame-buffer-as-it-was-all-zero", same([l for l in frame[1] if l != "t: done"][-1:], ["t: frame rc 0 nonzero 0"])
@@ -1034,6 +1226,7 @@ def program_cases(rig: Rig, work: Path):
     yield "psyz-that-cannot-start-ends-with-a-line-and-the-graphics-status", same((status, lines[-1:], secs < 60), (EXIT_GRAPHICS, [
         "stop: gpu: PsyZ could not open its window or its GPU device (no display or no usable GPU; its own lines above say why)"], True))
 
+    rig.section = "prims"
     # each primitive type the game uses and a few more: the packet that is as long as the kind needs, one of 255 words
     # (the rest are no-operation words), and one word too short
     for name, code, need in (("POLY_FT4", 0x2C, 9), ("POLY_GT4", 0x3C, 12), ("POLY_F3", 0x20, 4), ("POLY_FT3", 0x24, 7), ("POLY_G3", 0x30, 6), ("POLY_GT3", 0x34, 9),
@@ -1050,6 +1243,7 @@ def program_cases(rig: Rig, work: Path):
             yield f"{name}-packet-of-{length}-words-is-converted", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
 
 
+    rig.section = "stream"
     # ---- every command of a packet is checked before PsyZ sees the packet ----
     def packet(words, nxt="0xffffff", addr="0x80100000"):
         return f"pkt:{addr}:{nxt}:" + ",".join(f"{w:08x}" for w in words)
@@ -1094,14 +1288,69 @@ def program_cases(rig: Rig, work: Path):
     status, lines, _ = rig.run("script", "env", "tilepkt:0x80100000:85", "draw:0x80100000", "pixel:0:40", "pixel:84:40", "pixel:85:40")
     px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
     yield "a-packet-of-255-words-holding-85-tiles-draws-them-all", same((status, px), (0, [0x7FFF, 0x7FFF, 0]))
-    # a kind that is not decoded, in a later position: reported once, the whole packet skipped, nothing of it drawn
-    status, lines, _ = rig.run("script", "env", packet([*tile(2, 2, 4, 4), 0xA0000000, 0, 0]), "draw:0x80100000", packet([*tile(12, 12, 4, 4), 0xA0000000, 0, 0], addr="0x80100100"), "draw:0x80100100", "pixel:3:3", "pixel:13:13")
-    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
-    yield "an-undecoded-kind-in-a-later-position-is-reported-once-and-skips-the-packet", same((status, px, [l for l in lines if l.startswith("gpu:")]), (0, [0, 0], [
-        "gpu: packet at 0x80100000 has a command of kind 0xA0 (copy rectangle CPU to VRAM) that is not handled; the packet is skipped (once per kind)"]))
-    status, lines, _ = rig.run("script", "env", packet([0x00000000, 0x48000000, 0, 0, 0, 0x55555555]), "draw:0x80100000")
-    yield "a-polyline-after-a-nop-is-reported-by-name-and-skipped", same((status, [l for l in lines if l.startswith("gpu:")]), (0, [
-        "gpu: packet at 0x80100000 has a command of kind 0x48 (polyline, its length depends on a terminator word) that is not handled; the packet is skipped (once per kind)"]))
+
+    rig.section = "display"
+    # the game's start-up calls SetDispMask(0) and then ResetGraph(0): SetDispMask needs no set-up, and the reset turns the display off
+    status, lines, _ = rig.run("script", "noreset", "setmask:0", "reset", "display", "env", "list0:0x80100000", "draw:0x80100000", "pixel:5:5")
+    yield "setmask-0-then-resetgraph-then-a-list-the-start-up-order-does-not-stop-and-draws", same((status, [l for l in lines if l.startswith(("stop:", "gpu:", "t: display", "t: pixel"))]), (0, ["t: display 0", "t: pixel 5 5 ffff"]))
+    status, lines, _ = rig.run("script", "noreset", "setmask:1", "display", "reset", "display", "env", "list0:0x80100000", "draw:0x80100000", "pixel:5:5")
+    yield "setmask-1-before-resetgraph-is-on-until-the-reset-turns-the-display-off", same((status, [l for l in lines if l.startswith(("stop:", "gpu:", "t: display", "t: pixel"))]), (0, ["t: display 1", "t: display 0", "t: pixel 5 5 ffff"]))
+    status, lines, _ = rig.run("script", "noreset", "setmask:0", "setmask:1", "reset", "setmask:1", "display", "setmask:0", "display")
+    yield "setmask-after-resetgraph-sets-the-display-as-asked", same((status, [l for l in lines if l.startswith(("stop:", "gpu:", "t: display"))]), (0, ["t: display 1", "t: display 0"]))
+    status, lines, _ = rig.run("script", "noreset", "dsync", "reset", "dsync")
+    yield "drawsync-before-and-after-resetgraph-returns-0", same((status, [l for l in lines if l.startswith(("stop:", "gpu:", "t: DrawSync"))]), (0, ["t: DrawSync 0", "t: DrawSync 0"]))
+    yield "resetgraph-with-another-mode-before-resetgraph-0-stops", stops(["noreset", "reset1"], "gpu: ResetGraph with a mode other than 0 was called before ResetGraph(0), which sets up the GPU's routines")
+    status, lines, _ = rig.run("script", "env", "display", "reset1", "display")
+    yield "resetgraph-1-leaves-the-display-as-it-is", same((status, [l for l in lines if l.startswith("t: display")]), (0, ["t: display 0", "t: display 0"]))
+    status, lines, _ = rig.run("script", "setmask:1", "reset1", "display")
+    yield "resetgraph-1-after-setmask-1-keeps-the-display-on", same((status, [l for l in lines if l.startswith("t: display")]), (0, ["t: display 1"]))
+
+
+    rig.section = "memory"
+    # the game's memory on this machine: RAM, scratchpad, the live part of the running stack (the game's locals), nothing else
+    status, lines, _ = rig.run("stack")
+    got = {l[len("t: span "):].rsplit(" ", 1)[0]: int(l.rsplit(" ", 1)[1]) for l in lines if l.startswith("t: span ")}
+    want = {
+        "ram first byte": 1, "ram last byte": 1, "ram whole": 1, "ram one past the end, 1 byte": 0, "ram last byte, 2 bytes": 0, "ram one byte before": 0,
+        "ram zero length inside": 1, "ram zero length at the end": 0, "ram a size that wraps": 0, "ram the largest size": 0,
+        "scratch whole": 1, "scratch one byte more": 0, "scratch last byte": 1, "scratch one past": 0, "scratch one before": 0, "null": 0,
+    }
+    for tag, foreign in (("main", False), ("fiber", True), ("main with a suspended fiber", True)):
+        want.update({f"{tag} local": 1, f"{tag} local-zero-length": 1, f"{tag} dead-stack-below-the-frame": 0, f"{tag} last-bytes-below-the-base": 1,
+                     f"{tag} at-the-base": 0, f"{tag} straddling-the-base": 0, f"{tag} zero-length-at-the-base": 0, f"{tag} heap": 0,
+                     f"{tag} program-data": 0, f"{tag} program-code": 0})
+        if foreign:
+            want[f"{tag} other-stack"] = 0
+    yield "stack-run-ends-by-itself", same((status, lines[-1:]), (0, ["t: done"]))
+    for name in want:
+        yield f"game-span-{name.replace(' ', '-').replace(',', '')}-is-{want[name]}", same(got.get(name), want[name])
+    yield "game-span-answers-nothing-else", same(sorted(set(got) - set(want)), [])
+    for mode, text in (("main", "main"), ("fiber", "fiber")):
+        status, lines, _ = rig.run("roundtrip-" + mode)
+        yield f"a-rectangle-and-a-buffer-in-locals-of-the-game-code-work-{'on-the-main-stack' if mode == 'main' else 'in-a-fiber'}", same((status, [l for l in lines if "roundtrip" in l]), (0, [f"t: {text} roundtrip through locals 1"]))
+    status, lines, _ = rig.run("heapload")
+    yield "a-buffer-on-the-heap-is-refused-with-the-named-stop", same((status, lines[-1].startswith("stop: gpu: LoadImage: 32 bytes at 0x") and lines[-1].endswith("are not inside the PS1's RAM, its scratchpad or the caller's stack")), (EXIT_GRAPHICS, True))
+    status, lines, _ = rig.run("stacknode")
+    yield "a-first-list-node-on-the-stack-is-refused-and-the-line-says-why", same((status, lines[-1].startswith("stop: gpu: DrawOTag(0x") and lines[-1].endswith("so a first node on the caller's stack or in the scratchpad is refused)")), (EXIT_GRAPHICS, True))
+
+    rig.section = "stream"
+    # a kind the walker does not decode ends the program, in any position, and nothing of its packet is drawn
+    def not_decoded(addr, code, name, at):
+        return f"gpu: the packet at {addr} holds a command of kind 0x{code:02X} ({name}) at word {at}; the port does not decode this kind yet"
+
+    poly = "polyline, its length depends on a terminator word"
+    for tag, words, code, name, at in (
+        ("a-polyline-first-in-a-packet", [0x48000000, 0, 0, 0, 0x55555555], 0x48, poly, 0),
+        ("a-gouraud-polyline-first-in-a-packet", [0x5C000000] + [0] * 8, 0x5C, poly, 0),
+        ("a-polyline-after-a-complete-primitive", [*tile(2, 2, 4, 4), 0x58000000, 0, 0, 0, 0, 0, 0x55555555], 0x58, poly, 3),
+        ("a-copy-to-vram-after-a-nop", [0x00000000, 0xA0000000, 0, 0], 0xA0, "copy rectangle CPU to VRAM", 1),
+        ("a-copy-from-vram-first-in-a-packet", [0xC0000000, 0, 0], 0xC0, "copy rectangle VRAM to CPU", 0),
+        ("a-mirror-of-the-vram-copy", [0x81000000, 0, 0, 0], 0x81, "copy rectangle VRAM to VRAM, mirror", 0),
+        ("the-interrupt-request-after-a-tile", [*tile(2, 2, 4, 4), 0x1F000000], 0x1F, "interrupt request", 3),
+    ):
+        status, lines, _ = rig.run("script", "env", "recover", packet(words), "draw:0x80100000", "pixel:3:3")
+        yield f"{tag}-is-the-named-stop-and-nothing-of-the-packet-is-drawn", same(
+            ([l for l in lines if l.startswith(("stop:", "gpu:"))], lines[-2:], status), (["stop: " + not_decoded("0x80100000", code, name, at)], ["t: pixel 3 3 0000", "t: done"], 0))
     # no-operation kinds are checked as one-word commands and kept from PsyZ; a packet of nothing else draws nothing and ends well
     status, lines, _ = rig.run("script", "env", packet([0x03000000, 0x1E000000, 0xE0000000, 0xE7000000, 0xFF000000]), "draw:0x80100000", "pixel:0:0")
     yield "a-packet-of-no-operation-kinds-is-accepted", same((status, lines[-2:]), (0, ["t: pixel 0 0 0000", "t: done"]))
@@ -1123,6 +1372,7 @@ def program_cases(rig: Rig, work: Path):
     status, lines, _ = rig.run("script", "env", "chain:0x80100000:100:0xffffff", "draw:0x80100000")
     yield "a-list-of-packets-of-length-0-draws-nothing", same((status, lines[-1]), (0, "t: done"))
 
+    rig.section = "basic"
     status, lines, _ = rig.run("closed")
     yield "closed-window-ends-the-program-with-status-0-and-the-line", same((status, lines), (0, ["t: before", "stop: window closed"]))
 
@@ -1137,6 +1387,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--cc", required=True)
     parser.add_argument("--psyz-build", required=True, type=Path, help="a build folder of psyzbuild.py")
+    parser.add_argument("--group", default="", help="run only these sections of cases (comma separated; %s)" % ", ".join(SECTIONS))
+    parser.add_argument("--memory-source", type=Path, default=SRC / "memory.c", help="another copy of memory.c to test")
+    parser.add_argument("--gpu-source", type=Path, default=SRC / "gpu.c", help="another copy of gpu.c to test")
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     args = parser.parse_args()
     if not shutil.which(args.cc):
@@ -1146,7 +1399,9 @@ def main() -> int:
     work = Path(tempfile.mkdtemp(prefix="hostgpu-", dir=BUILD))
     failed = 0
     try:
-        rig = Rig(args.cc, args.run.split(), work, args.psyz_build.resolve())
+        rig = Rig(args.cc, args.run.split(), work, args.psyz_build.resolve(), args.gpu_source.resolve())
+        rig.memory_source = args.memory_source.resolve()
+        rig.groups = (set(args.group.split(",")) | {"build"}) if args.group else None
         groups = []
         problem = rig.start_check()
         if problem:
@@ -1156,6 +1411,8 @@ def main() -> int:
         for group in groups:
             try:
                 for name, detail in group:
+                    if rig.groups is not None and rig.section not in rig.groups:
+                        continue
                     if detail is None:
                         print(f"ok   {name}")
                     else:
