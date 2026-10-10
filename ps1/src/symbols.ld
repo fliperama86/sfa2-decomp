@@ -2069,7 +2069,6 @@ data_8017ff68 = 0x8017ff68;
 /* Added by src.u_slot2a_0958x. */
 
 /* Added by src.u_slot00_5e00. */
-func_80077808_slot00 = 0x80077808;
 func_80078628_slot00 = 0x80078628;
 data_80079140_slot00 = 0x80079140;
 data_80079148_slot00 = 0x80079148;
