@@ -6,8 +6,12 @@
   carry grows by 5 at every vblank's delivery. With the double-speed bit
   (0x80) of the mode a sector costs 2 (2, 3, 2, 3 sectors a vblank, 150
   a second); without it a sector costs 4 (1, 1, 1, 2: 75 a second). The
-  carry is cleared when a read starts and when the speed bit changes. A
-  sector that could not be delivered keeps its cost in the carry. The
+  carry is cleared when a read starts and when the speed bit changes. When
+  a vblank cannot hand over a sector (the reader is not taking, the read
+  stopped, the handler paused it), the carry is cut to its remainder
+  (carry modulo the cost): what the drive could not hand over is not
+  handed over later, so no vblank brings more than 3 sectors at double
+  speed or 2 at single speed. The
   delivery is still in `port_cd_tick`, in a row. `PORT_CD_SECTORS_PER_TICK`
   is gone and `cd.h` states the rule. The blocking wait of the game
   (`CdReady` with mode 0) is as it was: it calls `port_cd_tick` when no
@@ -23,7 +27,7 @@
   and for a sound bank the game's library then never recovers. A later
   change.
 - Ran:
-  - `python3 port/tools/test_hostcd.py`: 60 lines `ok` on main, 74 now,
+  - `python3 port/tools/test_hostcd.py`: 60 lines `ok` on main, 79 now,
     last line `all cases behaved as required`, 0.5 seconds. Cases
     corrected by hand: the ones that counted three sectors a tick (the
     ticks of a read, a read after Pause, the sector under the buffer
@@ -31,10 +35,10 @@
     speed, the totals of 60 vblanks (150 and 75), the carry cleared by a
     read's start, by ReadN after Pause, and by a change of the speed bit,
     a Setmode that leaves the bit alone, a read paused by the handler in
-    the middle of a vblank's delivery, a blocked reader, and ticks with no
+    the middle of a vblank's delivery, a blocked reader at both speeds (after 3 and 4 blocked vblanks, and the bound after 50), and ticks with no
     read on.
   - Each rule fails under a change made to a copy of `cd.c`, run under a
-    time limit: 11 changes, each failing at least one case (one-off run;
+    time limit: 11 changes (one per rule, among them the remainder kept whole and the carry cleared to 0 in its place), each failing at least one case (one-off run;
     the table is in the working notes and not in the repository).
   - `python3 port/tools/test_hostmodules.py --cc CC`: 55 lines `ok`,
     `all cases behaved as required`; `python3 port/tools/test_hostlaunch.py

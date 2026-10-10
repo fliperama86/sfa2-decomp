@@ -32,8 +32,9 @@ extern void port_tick(void);
  * port_cd_tick. A sector costs 2 with the double-speed bit
  * (0x80) of the mode (2, 3, 2, 3 ... sectors a tick: 150 a second at 60
  * ticks) and 4 without it (1, 1, 1, 2 ...: 75 a second). The carry is
- * cleared when a read starts and when the speed bit changes; a sector that
- * could not be delivered keeps its cost. */
+ * cleared when a read starts and when the speed bit changes; when a sector
+ * could not be delivered the carry is cut to its remainder (carry modulo the
+ * cost), so no tick brings more than 3 sectors (2 at single speed). */
 
 /* The library's own variables that game code reads or writes directly
  * (addresses in the game's RAM, this build of SLPS_004.15). */

@@ -79,9 +79,14 @@
  * 2 with the double-speed bit (2, 3, 2, 3, ... sectors a vblank) and 4
  * without it (1, 1, 1, 2, ...). The sectors of one vblank are delivered in a
  * row. The carry is cleared when a read starts (ReadN, ReadS) and when the
- * mode's speed bit changes. A sector that could not be delivered (the read
- * ended, the handler paused it, or a polling reader has not taken the last
- * one) does not use up its cost: the drive did not turn.
+ * mode's speed bit changes. The drive is modelled as waiting: when the row
+ * of a vblank ends because a sector could not be delivered (the read ended,
+ * the handler paused it, or a polling reader has not taken the last one), the
+ * carry left is cut to its remainder, the carry modulo the cost of a sector.
+ * What the drive could not hand over at a vblank is not handed over later, so
+ * the carry is below the cost at the start of every vblank and no vblank
+ * brings more than 3 sectors at double speed or 2 at single speed (a blocked
+ * reader never gets a burst when it starts taking again).
  *
  * The blocking wait of the game (CdReady with mode 0) is unchanged: when no
  * sector is ready and a read is on, it calls port_cd_tick itself, as before.
@@ -586,7 +591,13 @@ void port_cd_tick(void)
     if (cd.in_delivery) return;
     cd.in_delivery = 1;
     cd.carry += 5;
-    while (cd.carry >= cost && deliver_one()) cd.carry -= cost;
+    while (cd.carry >= cost) {
+        if (!deliver_one()) {   /* the row ends: what the drive could not hand over now is not handed over later */
+            cd.carry %= cost;
+            break;
+        }
+        cd.carry -= cost;
+    }
     cd.in_delivery = 0;
 }
 

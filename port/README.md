@@ -990,7 +990,11 @@ routines that do nothing on purpose. What is in this piece:
   frame, not by the clock: a carry grows by 5 at every vertical blank,
   and a sector costs 2 with the bit set (2, 3, 2, 3 sectors a frame) and
   4 without it (1, 1, 1, 2). The carry is cleared when a read starts and
-  when the speed bit changes. A blocking wait of the game for a sector
+  when the speed bit changes. When a vertical blank cannot hand over a
+  sector (the reader is not taking, the read stopped, the handler
+  paused it), the carry is cut to its remainder, so what the drive could
+  not hand over is not handed over later: no frame brings more than 3
+  sectors at double speed or 2 at single speed. A blocking wait of the game for a sector
   is not counted by it. The reason (measured in a private trial of the
   port's sound, not published): the game reads a stream into a ring
   of seven places that its main loop empties once per pass, and runs it
@@ -1389,7 +1393,7 @@ address outside the RAM ends the run. `python3 port/tools/test_hostcd.py`
 builds the disc layer with the host's own `cc` and drives it by a
 script on images of invented bytes: sectors in order and a fixed
 number per frame at each of the two speeds (2, 3, 2, 3 and 1, 1, 1, 2),
-the carry cleared by a new read and by a change of speed, a sector handed
+the carry cleared by a new read and by a change of speed, the remainder after a blocked reader, a sector handed
 out in pieces, pause and a new
 position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio

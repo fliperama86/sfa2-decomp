@@ -612,15 +612,32 @@ def rate_cases(root: Path, exe: Path):
     yield check("a Setmode that does not change the speed bit keeps the carry", rc == 0 and v == [2, 3], f"{v}")
     # the handler pauses the read during a tick's delivery (the end of a stream): double speed, the tick
     # owes 2 sectors and delivers 1; the rest is not delivered, then nothing; and the next read does not get it
-    # as extra (carry 3 would give 4 sectors, not 2)
+    # as extra (the carry of 1 left by the pause, if kept, would give 3 sectors, not 2; the whole 3, 4). The tick: 5, one sector (3 left),
+    # the next fails, 3 % 2 = 1; the read start clears it.
     rc, v = counts(dbl + "stopafter 1\nreadn 0\ntickc 3\nstopafter 0\ncb 1\nreadn 50\ntickc 2\n")
     yield check("a read paused by the handler in a tick's delivery: the rest of the tick's sectors are not delivered, and the next read starts from zero",
                 rc == 0 and v == [1, 0, 0, 2, 3], f"{v}")
-    # a sector that could not be delivered does not use up its cost. A polling reader (no handler) holds the first
-    # sector in the FIFO; the ticks that cannot deliver keep the carry. Double speed: tick 1 delivers one sector
-    # (5 - 2 = 3 left), ticks 2 and 3 cannot deliver (carry 8, then 13); with a handler the next tick (18) delivers 9.
-    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 3\ncb 1\ntickc 1\n")
-    yield check("a sector that could not be delivered keeps its cost in the carry (a polling reader blocked for 3 ticks, then a handler: 9 sectors)", rc == 0 and v == [9], f"{v}")
+    # a sector that could not be delivered: the row ends and the carry is cut to its remainder (carry modulo the cost).
+    # A polling reader (no handler) holds the first sector in the FIFO, so every later sector fails; then a handler comes.
+    # Double speed (cost 2): tick 1: 5, one sector, 3, the next fails, 3 % 2 = 1; tick 2: 6, fails, 0; tick 3: 5, fails, 1;
+    # tick 4: 6, fails, 0. After 3 blocked ticks the carry is 1: the next ticks give 3 (6), then 2, 3 (carry 0 -> 5, 6).
+    # After 4 blocked ticks the carry is 0: 2 (5, carry 1), 3 (6), 2.
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 3\ncb 1\ntickc 3\n")
+    yield check("double speed: after 3 blocked ticks the first free one gives 3, then 2, 3 (no burst)", rc == 0 and v == [3, 2, 3], f"{v}")
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 4\ncb 1\ntickc 3\n")
+    yield check("double speed: after 4 blocked ticks the first free one gives 2, then 3, 2", rc == 0 and v == [2, 3, 2], f"{v}")
+    # Single speed (cost 4): tick 1: 5, one sector, 1 (no failure yet); tick 2: 6, fails, 6 % 4 = 2; tick 3: 7, fails, 3;
+    # tick 4: 8, fails, 0. After 3 blocked ticks the carry is 3: 8 gives 2, then 1, 1, 1 (carry 0 -> 5, 6, 7).
+    # After 4 blocked ticks the carry is 0: 1 (5), 1 (6), 1 (7), 2 (8).
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 3\ncb 1\ntickc 4\n")
+    yield check("single speed: after 3 blocked ticks the first free one gives 2, then 1, 1, 1 (no burst)", rc == 0 and v == [2, 1, 1, 1], f"{v}")
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 4\ncb 1\ntickc 4\n")
+    yield check("single speed: after 4 blocked ticks the first free one gives 1, 1, 1, 2", rc == 0 and v == [1, 1, 1, 2], f"{v}")
+    # the bound, stated directly: after 50 blocked ticks no tick brings more than 3 (double) or 2 (single), and the bound is reached
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 50\ncb 1\ntickc 12\n")
+    yield check("double speed: after 50 blocked ticks no tick brings more than 3 sectors", rc == 0 and len(v) == 12 and max(v) == 3, f"{v}")
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 50\ncb 1\ntickc 12\n")
+    yield check("single speed: after 50 blocked ticks no tick brings more than 2 sectors", rc == 0 and len(v) == 12 and max(v) == 2, f"{v}")
     # nothing is delivered, and no carry kept, when no read is on
     rc, v = counts(dbl + "tickc 4\nreadn 0\ntickc 2\n")
     yield check("ticks with no read on deliver nothing and leave no carry for the read that follows (0, 0, 0, 0, then 2, 3)", rc == 0 and v == [0, 0, 0, 0, 2, 3], f"{v}")
