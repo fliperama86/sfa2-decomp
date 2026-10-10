@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "bade7c1568984a47eb9e900a50b67c44c16c7ff19654c892414538ede44836f0",
+  "sha256": "962696a9422afb82e9c395beac01d7a2d817ac3d61ff905d2756ed8e2fa63e6f",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -503,16 +503,20 @@
       "line": 7966
     },
     {
-      "title": "Windows reference",
+      "title": "A fourth parked function exact, and its table's entries take int (2026-10-09)",
       "line": 7985
     },
     {
+      "title": "Windows reference",
+      "line": 8023
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8002
+      "line": 8040
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8027
+      "line": 8065
     }
   ]
 }
