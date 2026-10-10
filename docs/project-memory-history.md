@@ -8785,6 +8785,40 @@ No function count changes here: none of this is in the build.
   checked (exit case), `atexit` removed (exit case), crash routine without the
   stop (crash case).
 
+## The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)
+
+- What was open. The image `slot05_11` (the second placement of a
+  character module) left two units out of its link: they call the
+  character's extra module, which the second side has at another
+  address, and a second link could not be given another image's moved
+  functions. Their 14 functions stayed raw there. The canonical map
+  counted them with the first placement's owners; the linked ledger
+  marked them raw with missing C and a discrepancy label.
+- The way, found by the other lane and handed over as a patch (lane B
+  owns the files): no tool change. The two units call the extra
+  module by plain names (`func_8007bc00`, `func_8007be8c`) and a third
+  function by `func_801b1448`; `symbols.ld` gets the three names at
+  the first side's addresses, and the entry of `slot05_11` binds them
+  in `[image.symbols]` to the second side's (`0x8008bf00`,
+  `0x8008c18c`) and keeps the third at `0x801b1448`: a second link
+  moves every name of `symbols.ld` that lies inside the first image,
+  and the table wins. The third call goes to the first side's copy on
+  both sides, which is what the bytes of both files say. `leave_out`
+  and its comment are gone.
+- What the ledger command prints
+  (`python tools/ai_workflow/workflow.py ledger`, statuses counted
+  from its output file): on main before this change 12,790 rows
+  `exact_c` and 162 `raw`, 14 of the raw ones in `slot05_11`; with it
+  12,804 and 148, none raw in `slot05_11`. Its aggregate totals do not
+  move (5,430 of 5,600 distinct functions, 12,857 of 13,072
+  placements): they are the canonical map's, which had counted these
+  rows already.
+- The other lane's own run, in a private copy of main at `600021b`
+  (one-off, theirs): `slot05_11` 222 of 222 functions exact, no unit
+  left out, the image identical, 223 of 223 controls tripped;
+  `slot04_11` and `slot17` unchanged. This change's own checks are in
+  its pull request.
+
 ## The port places a module's jumps when the game first runs it (2026-10-09)
 
 No function count changes here. Nothing under `ps1/` changed.
