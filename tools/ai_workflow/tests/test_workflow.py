@@ -211,6 +211,26 @@ class Selection(Fixture):
                          ['slot06_nonmatching-diff-once-1', 'programs-logo-replay', 'programs-logo-diff-once-1', 'difftest-tools',
                           'difftest-build-tools'])
 
+    def test_a_header_of_a_programs_folder_selects_that_folder_and_nothing_of_the_game(self):
+        self.with_programs()
+        self.put(self.PG + 'zed/func_80120000_zed.c', '')
+        self.put(self.PG + 'zed/func_80120000_zed.py', '')
+        self.put(self.PG + 'logo/logo.h', '')
+        # Every function of the header's own folder (the one with fixtures replayed, the other compared once); not
+        # the other program's, not the matching build, not the functions of the game, not the PC build.
+        self.assertEqual([c.name for c in self.selected([self.PG + 'logo/logo.h'])],
+                         ['programs-logo-replay', 'programs-logo-diff-once-1'])
+        # A header of the game is still a change of everything, the programs' functions included.
+        self.put('ps1/src/game.h', '')
+        names = [c.name for c in self.selected(['ps1/src/game.h'])]
+        self.assertIn('matching', names)
+        self.assertIn('programs-logo-replay', names)
+        self.assertIn('programs-zed-diff-once-1', names)
+        # A header one level up or one level down is not a program folder's header.
+        for path in (self.PG + 'stray.h', self.PG + 'logo/sub/deep.h'):
+            self.put(path, '')
+            self.assertIn('matching', [c.name for c in self.selected([path])])
+
     def test_a_file_of_the_programs_that_carries_no_check_is_unmapped(self):
         self.with_programs()
         self.put(self.PG + 'README.md', '')
