@@ -9356,6 +9356,82 @@ No function count changes here: none of this is in the build.
   change reaches; a port build that compiles only what changed; the
   nonmatching folders' pages reworded to per-function lines.
 
+## Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- By the owner's word of 2026-10-10 the nonmatching C that still
+  waited is published in two large pull requests instead of batches.
+  This is the one for the modules: thirty-one more functions in
+  `ps1/src/modules_nonmatching/`, which then holds forty-five. Five of
+  `slot12` (`func_80011688`, `func_80012a0c`, `func_80013224`,
+  `func_8001606c`, `func_80016af0`), four of `slot28`
+  (`func_8001389c`, `func_800145f4`, `func_8001a69c`, `func_80022944`),
+  four of `slot2b` (`func_80077868`, `func_80079144`, `func_800793d4`,
+  `func_800796e4`), four of `slot0b` (`func_801e0a78`, `func_801e0ce8`,
+  `func_801e0ea8`, `func_801e1d6c`), two of `slot05_06`
+  (`func_801ca0b0`, `func_801cb564`) and twelve of character modules:
+  `func_801b2560_slot04_00`, `func_801b1934_slot04_02`,
+  `func_801b7bfc_slot04_02`, `func_801b37b0_slot04_03`,
+  `func_801b0904_slot04_04`, `func_801b20b0_slot04_06`,
+  `func_801b3564_slot04_06`, `func_801b36f8_slot04_09`,
+  `func_801b03e4_slot04_0a`, `func_801b2f1c_slot04_0a`,
+  `func_801b0ea0_slot04_sel`, `func_801b3f38_slot04_sel`. The folder's
+  page has what its three commands printed for each. Ten lines of
+  `symbols.ld` come with them. No function's C was changed by the cut
+  onto today's main.
+- `func_800145f4` exists in two modules: the one of `slot27` is exact C
+  on main; this is the one of `slot28`, another function at the same
+  address.
+- Their headers were read against their code on the waiting branch
+  before the cut. At the cut every byte count that a header states was
+  compared with the line the test prints. Two were wrong and are
+  corrected (`func_801b1934_slot04_02` said the same size and is 4
+  bytes shorter; `func_801b7bfc_slot04_02` said 8 bytes shorter and is
+  4). One header also stated how many instruction slots differ
+  (`func_800796e4_slot2b`), a figure that no command prints and that
+  depends on how a jump's target is counted; it states only the size
+  now.
+- None of the thirty-one is byte-identical (each was compared).
+- The scan for an index or offset on a cast pointer has three findings
+  in the new units, each read and kept as its contract says:
+  `func_8001389c_slot28` clears the last byte of a four-byte field,
+  `func_80016af0_slot12` reads two bytes of a block whose layout has no
+  named fields, and `func_801e1d6c_slot0b` advances a pointer by the
+  size of the 336 records it has just walked.
+- `func_80012a0c_slot12` calls two functions that no unit defines and
+  no header declares (`func_8015c150`, `func_8015bfe8`); it declares
+  them itself, with the number of arguments that the original's code
+  sets before each call (read from the listing).
+- The checks: the test, the control and the write audit of the folder
+  on two seeds; the declarations (the lane's check told to read the
+  folder: no call with another number of arguments than the
+  definition); the argument counts of every call in the new units; the
+  name lint; the lane's check on the commit of the cut.
+- Not done, and said in the pull request: the repository's review
+  command. For a change that adds a line to `symbols.ld` it runs every
+  nonmatching folder's tests again, one after the other, which takes
+  hours. The owner's word of the same day is that checks are to be
+  designed to run in isolation and fast, and that such runs are not to
+  be made as they are; the tool's scope and the test's cost per case
+  are the next work of this lane. Also not done: the search for
+  comparison edges that no case tries (the resident batch's record
+  describes it; the mode of the test tool is in work).
+- After the review of the pull request: `func_801b3564_slot04_06`
+  tested the whole result of `func_801b5ed8_slot04_06` where the
+  original tests its low byte (the header said low byte). The contract
+  gave the tested callees results from 0 to 255 only, so the test could
+  not see it. The reviewer found it by reading and with a result of
+  `0x100`. The C has the cast now, and the contract gives those five
+  callees whole words: zero, a word with a zero low byte and other bits
+  set, a byte, or a word with a non-zero low byte. With the new
+  contract and the C as it was, 79 of 2,000 cases differ on seed 1 and
+  79 on seed 7 (different cases; one-off runs); with the cast, none.
+  The page has the function's new lines. Looked at for the same
+  weakness, by a search of the contracts' recorder results in this
+  folder and the resident one: the others return 0, a whole random
+  word, or a result the function stores without testing it.
+
 ## Nonmatching C for the four sound-library functions that had none (2026-10-10)
 
 No function count changes here: none of this is in the build.
