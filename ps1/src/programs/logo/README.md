@@ -81,8 +81,10 @@ A pass is evidence for the recorded inputs. It is not the wide comparison and
 it is not equivalence. Details of the files are on the page of the tool's
 folder.
 
-The record of `func_80011758_logo` printed no warning. Its fixtures file holds
-12 cases; the bytes in it are the ones the setup made.
+The record of each function below printed no warning about bytes that the setup
+did not make; the case counts of the fixtures files are in the record block.
+The declarations of the program's data and of the library routines the C calls
+are in [`logo.h`](logo.h).
 
 ## The recorded lines
 
@@ -96,12 +98,17 @@ func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, 
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
+func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
+func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
 
 ```
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
+func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -109,6 +116,8 @@ The write audit (`--writes`, seed 1, then `--seed 7`):
 ```
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -116,6 +125,8 @@ The record (`--record`) and the replay (`--replay`):
 ```
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
+func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80011838_logo replay: fixtures 1, passed 1, failed 0
 ```
 
 ## The functions
@@ -124,3 +135,5 @@ func_80011758_logo replay: fixtures 12, passed 12, failed 0
   Returns the first word of the entry at `0x8001a678 + 12 * index` and stores
   the second word through the pointer. The table is named `data_8001a678_logo`
   in `programs.toml`.
+- `func_80011838_logo`: an empty function (a return and its delay slot).
+  Its test also compares `v0`, so that the C is shown to leave it alone.
