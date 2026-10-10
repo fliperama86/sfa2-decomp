@@ -1,7 +1,7 @@
 # SFA2 project instructions
 
-Read `docs/project-memory.md`, `docs/current-state.md`, `PLAN.md`, and
-`docs/requirements.md` before work. Retrieve history by topic with
+Read `docs/project-memory.md`, `docs/current-state.md`, `PLAN.md`,
+`docs/requirements.md` and `docs/efficiency.md` before work. Retrieve history by topic with
 `python tools/ai_workflow/workflow.py context --query "topic" --limit 80`;
 do not load the entire historical log by default. Use `docs/tasks/template.md`
 for bounded implementation packages and `docs/ai-workflow.md` for validation.
@@ -35,6 +35,30 @@ working repository is this directory, not `../68k-decomp`.
   code requires scoped behavioral evidence, not validation by nearby exact code.
 - No full-game build or live-game validation has been performed. See the pilot
   reports rather than extrapolating whole-game completion from three functions.
+
+## Cost of checks
+
+By the owner's rule of 2026-10-10. `docs/efficiency.md` has the rules in
+full and says what to run for which change; read it before any run.
+
+- Think about cost and scale first. A run of hours for a small change is
+  a design fault: narrow it, run its parts at the same time, reuse a
+  result, or fix the tool. If none of that is possible, say the cost and
+  ask the owner.
+- An exact match needs no testing. Rebuild its image and compare the
+  bytes (`python ps1/tools/matchbuild.py --image NAME`). No whole build
+  for it, no retest of other code, no differential test.
+- A nonmatching function is tested alone, with its own contract: not its
+  folder, not every folder.
+- Never repeat a run whose inputs did not change. Reuse the result and
+  name its commit.
+- Every new tool and check is made as an isolated, fast unit test that
+  needs no running game.
+- A nonmatching function comes with a few fixtures for its unit test;
+  nothing else is run again because it changed, and it is not run again
+  because something else changed.
+- A review runs the isolated tests of what changed and reads the code.
+  It does not retest the tree.
 
 ## Safety and workflow
 

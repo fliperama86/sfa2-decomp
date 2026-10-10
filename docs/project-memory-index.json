@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "817b0ebe053c57b4181d53ec1346a4fe68cacd61b2fd7a3b80e3a28e0daa8ff0",
+  "sha256": "8e3841300b66da7c9a926730bd8740768af35779552eb4408b5a24fd06fa9730",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -619,8 +619,12 @@
       "line": 9281
     },
     {
-      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
+      "title": "Efficient checks: the owner's rule (2026-10-10)",
       "line": 9305
+    },
+    {
+      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
+      "line": 9359
     }
   ]
 }

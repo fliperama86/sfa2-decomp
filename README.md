@@ -140,3 +140,7 @@ Read [short current state](docs/current-state.md) and
 subject. The [AI workflow](docs/ai-workflow.md) provides one-command frozen-head
 validation, a linked function ledger, integrity-checked result reuse and bounded
 task contracts. Reports and private dependencies stay under ignored `local/`.
+
+Before any build or test run, read [efficient checks](docs/efficiency.md): an
+exact match is shown by its image's bytes alone, a nonmatching function is
+tested alone, and no run is repeated or made for hours.
