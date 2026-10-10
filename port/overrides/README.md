@@ -18,6 +18,12 @@ pass shows that the override hands the callee the same value as the original
 code does. Each control alters the original code so that the callee gets
 that value plus 4, and the test must then differ.
 
+The build of the PC program (`port/tools/hostbuild.py`, whose header is
+the contract) compiles every `NAME.c` of this folder and lets it run in
+place of the unit's C of NAME; it refuses a file whose NAME is not a
+function that a unit has C for, and a file without its `NAME.py`. How it
+does that is on [the port's page](../README.md), under "Overrides in C".
+
 | Function | Unit of its exact C | What the override adds | Callee |
 | --- | --- | --- | --- |
 | `func_8014dcc0` | `ps1/src/s14d8a4_r2.c` | passes `object` | the function in `scr_d4_left` or `scr_184_right` |

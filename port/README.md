@@ -729,7 +729,7 @@ compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
 units: 3829 compiled, 78 of them nonmatching, 0 failed
 like images built: 22
 functions with C: 12596
-functions overridden in C: 0
+functions overridden in C: 4
 functions without C: 475, library 384, game and modules 91
 sweep rows that are not functions: 11
 names at PS1 addresses: 46128
@@ -738,13 +738,17 @@ linked: port/build/host/sfa2.exe, verified
 ```
 
 The functions and names of the second placements are in these counts,
-each under its own name. The line `functions overridden in C` was added
-on 2026-10-10. The program's start line `overrides in C: M` (see
-"Overrides in C" below) is not in the sample of "Running it", which was
-printed before it existed.
+each under its own name. The four functions of the line
+`functions overridden in C` are those of the folder
+[`overrides/`](overrides/README.md) (see "Overrides in C" below). The
+program's start line `overrides in C: M` is not in the sample of
+"Running it", which was printed before that line existed.
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
-as the scripts above take it.
+as the scripts above take it, and with `--overrides` that tree's
+overrides, or an empty folder for none: the default is this
+repository's folder, whose files name functions of this game. A path
+that is not a folder is refused.
 
 ### Running it
 
@@ -885,9 +889,19 @@ routines that do nothing on purpose. What is in this piece:
   The evidence for an override comes from the differential test of its
   contract, run with the tool of `ps1/src/slot06_nonmatching/` and
   `--folder`; a pass is evidence for the tested inputs, not equivalence.
-  No override exists yet and no test of a contract: the folder
-  `port/overrides/` is not there, and the build above prints
-  `functions overridden in C: 0`.
+  The build above counts those of [`overrides/`](overrides/README.md):
+  functions of the resident program whose exact C calls a function
+  without the argument that the callee reads, by a plain call or through
+  a pointer of the scratchpad. That page has each one's contract and
+  what its test printed; the control of each alters the original code
+  so that the callee gets another value, and the test must then differ.
+  What the build does not check: that an override's C has the
+  parameters and the result type of the unit's C, and that the test of
+  its contract passes or was run. The build reads no C and has none of
+  the game's files; both belong to the differential test.
+  What no command of this repository shows: that the PC program with
+  them plays on where it stopped without them. That was seen only in
+  private runs with the user's disc.
 - The runtime calls only what it installed. The game hands the library
   addresses to call later: a thread's entry, an event's handler, the
   interrupt and vertical-blank callbacks. Each is checked at the moment
@@ -1241,7 +1255,7 @@ overrides in C: the rename to `replaced_NAME`, the unit's other
 definitions, the flagged rows, the object between the markers, the
 second placement and the left-out unit, each refusal (an unknown name,
 a nonmatching function, a function of an unselected unit, a missing
-`NAME.py`), a build that stops (an override that does not compile,
+`NAME.py`, an option that names no folder), a build that stops (an override that does not compile,
 defines another global symbol or not NAME, or whose unit does not define
 NAME), the link check of a `replaced_` symbol, and the two output lines
 with 0 and with more. With `--cc CC` (and `--run PREFIX` as for

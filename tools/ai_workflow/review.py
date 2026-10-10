@@ -100,6 +100,17 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
             checks.append(Check(folder.name + f'-diff-{seed}', base + ('--seed', str(seed), *selected), 'ps1', tuple(selected), 'differential'))
             checks.append(Check(folder.name + f'-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'ps1', tuple(selected), 'writes'))
         checks.append(Check(folder.name + '-controls', base + ('--control', *selected), 'ps1', tuple(selected), 'control'))
+    # The port's overrides in C are tested like nonmatching C: by the differential test of each one's contract.
+    overrides = root / 'port/overrides'
+    if overrides.is_dir():
+        names = sorted(p.stem for p in overrides.glob('*.c'))
+        selected = names if broad else [n for n in names if any('port/overrides/' + n + ext in changed for ext in ('.c', '.py'))]
+        if selected:
+            base = (sys.executable, 'ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder', 'port/overrides', '--cases', str(cases))
+            for seed in seeds:
+                checks.append(Check(f'port-overrides-diff-{seed}', base + ('--seed', str(seed), *selected), 'ps1', tuple(selected), 'differential'))
+                checks.append(Check(f'port-overrides-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'ps1', tuple(selected), 'writes'))
+            checks.append(Check('port-overrides-controls', base + ('--control', *selected), 'ps1', tuple(selected), 'control'))
     if any(p.startswith('ps1/src/slot06_nonmatching/') and Path(p).name in ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py') for p in changed):
         # Harness changes exercise every contract folder, not just changed stems.
         if not broad:

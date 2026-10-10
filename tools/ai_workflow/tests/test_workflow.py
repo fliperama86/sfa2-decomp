@@ -125,9 +125,29 @@ class Selection(Fixture):
         self.put('port/tools/hostbuild.py', '')
         for name in ('fa.c', 'fa.py'):
             self.put('port/overrides/' + name, '')
+        self.put('port/overrides/fb.c', '')
+        self.put('port/overrides/fb.py', '')
+        self.put('port/overrides/README.md', '')
         tool = [(c.name, c.argv) for c in self.selected(['port/tools/hostbuild.py'])]
+        self.assertFalse([n for n, _ in tool if n.startswith('port-overrides-')])
         for changed in (['port/overrides/fa.c'], ['port/overrides/fa.py'], ['port/overrides/fa.c', 'port/overrides/fa.py']):
-            self.assertEqual([(c.name, c.argv) for c in self.selected(changed)], tool)
+            checks = self.selected(changed)
+            # The differential test of the changed override on both seeds, its write audit and its control come first.
+            own = [c for c in checks if c.name.startswith('port-overrides-')]
+            self.assertEqual([(c.name, c.mode, c.functions) for c in own], [
+                ('port-overrides-diff-1', 'differential', ('fa',)), ('port-overrides-writes-1', 'writes', ('fa',)),
+                ('port-overrides-diff-7', 'differential', ('fa',)), ('port-overrides-writes-7', 'writes', ('fa',)),
+                ('port-overrides-controls', 'control', ('fa',))])
+            for c in own:
+                self.assertEqual(c.argv[c.argv.index('--folder') + 1], 'port/overrides')
+                self.assertEqual(c.argv[-1], 'fa')
+            self.assertEqual([(c.name, c.argv) for c in checks if c not in own], tool)
+        # A header of the game, which every override includes, selects every override.
+        broad = [c for c in self.selected(['ps1/src/shared.h']) if c.name.startswith('port-overrides-')]
+        self.assertEqual({c.functions for c in broad}, {('fa', 'fb')})
+        self.assertEqual(len(broad), 5)
+        # The folder's page alone selects nothing.
+        self.assertEqual(self.selected(['port/overrides/README.md']), [])
         names = [n for n, _ in tool]
         self.assertIn('native-build', names)
         self.assertIn('test_hostbuild', names)

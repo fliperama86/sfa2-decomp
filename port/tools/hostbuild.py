@@ -116,9 +116,11 @@ The overrides
 Some exact C of the game cannot run on a PC as written: a call through a pointer declared without parameters, to a
 function that reads its parameter, relies on the value being left in an argument register. The game's source is not
 changed for the port, so the port carries a second C file for such a function, which runs in its place in the PC
-program. The files are in the folder `--overrides DIR` (default: the folder `overrides` beside the runtime folder,
-so `port/overrides`; a folder that does not exist means none). Every `*.c` file of the folder (not of its subfolders)
-is one override, and its stem is the NAME of the function it stands for.
+program. The files are in the folder `--overrides DIR`, which must be a folder (anything else is refused, status 2:
+a mistyped path must not build a program without its overrides; an empty folder is how to ask for none). Without the
+option the folder is `overrides` beside the runtime folder, so `port/overrides`, and when that one does not exist
+there are none. Every `*.c` file of the folder (not of its subfolders) is one override, and its stem is the NAME of
+the function it stands for.
 
 Before any compilation a file is refused (status 2, one line that names the file and the reason) when NAME is a
 nonmatching function, when NAME is no function that a unit of the configuration declares (two messages), when NAME is
@@ -139,6 +141,10 @@ unit is (`impl_NAME__X`; the unit's second definition is `replaced_NAME__X`); a 
 placement of its override either. `port_functions` points NAME (and `NAME__X`) at `impl_NAME`, with its field
 `overridden` at 1. The link check treats the `replaced_` definitions as game text (between the markers, outside the
 PS1's ranges) and refuses a row of `port_functions` that points at a `replaced_` symbol.
+
+What this tool does not check: that the override's C has the parameters and the result type of the unit's C (it
+does not read C), and that the test of `NAME.py` passes or was ever run (it has none of the game's files). Both
+belong to the differential test, which is run where the game's files are.
 
 The namespace
 -------------
@@ -1388,6 +1394,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     names = merge_names(entries + [(f.name, f.address, f"unit {f.unit} placed in {f.image}") for f in moved_functions]
                         + [(n + pl.suffix, a, f"{pl.image} placed") for pl in placements for n, a in pl.moved.items()])
 
+    if args.overrides is not None and not args.overrides.is_dir():
+        raise Problem(f"--overrides {args.overrides}: not a folder (give an empty folder for no override)")
     overrides = read_overrides(args.overrides or runtime.parent / "overrides", selection)
     for ov in overrides:
         if any(j.name == ov.object for j in selection.jobs):

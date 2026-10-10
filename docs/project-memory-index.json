@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "a38b783903dd22636a4d5510c96323a812b6c215163d8224cddbe5e589897ee1",
+  "sha256": "2eccd52fac51116bb297406c3ad7934160267b94d6d68dc2013a4ace23766eb4",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -605,6 +605,10 @@
     {
       "title": "The port's build accepts an override written as the game's C (2026-10-10)",
       "line": 9120
+    },
+    {
+      "title": "The port's first four overrides in C (2026-10-10)",
+      "line": 9187
     }
   ]
 }

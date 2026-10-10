@@ -19,7 +19,8 @@ The cases show that an override runs in place of the unit's C for a call from an
 the unit that defines the function, that the unit's other functions keep their own C, that a call through a
 pointer declared without parameters reaches a callee that reads its parameter, and that both placements of
 a `like` image run the override with their own moved names. Without --cc these cases are not run and the
-file says so. A program that cannot be started ends this file with status 2.
+file says so. A program that cannot be started ends this file with status 2. No run is repeated: a run that
+ends with status 1 and prints nothing fails its case, and a note at the end says how many did.
 """
 
 from __future__ import annotations
@@ -1366,6 +1367,14 @@ def override_flow_cases(root: Path):
     proc2 = run(root, "ov0b", config, cc, nm)
     yield "override-no-folder-is-no-override-and-the-line-says-0", same((proc.returncode, "functions overridden in C: 0" in proc.stdout), (0, True))
     yield "override-a-file-that-is-not-c-and-a-subfolder-are-ignored", same((proc2.returncode, "functions overridden in C: 0" in proc2.stdout, (root / "ov0b" / "build" / "obj" / "ovr_fa.o").exists()), (0, True, False))
+    # The option must name a folder: a path that is none is refused, not taken for "no override".
+    config, cc, nm = start("ov0c", [], defs=DEFS)
+    proc = run(root, "ov0c", config, cc, nm, "--overrides", root / "ov0c" / "no-such-folder")
+    yield "override-the-option-naming-no-folder-is-refused", same(
+        (proc.returncode, "no-such-folder" in proc.stderr and "--overrides" in proc.stderr, (root / "ov0c" / "build" / "sfa2.exe").exists()), (2, True, False))
+    write(root / "ov0c" / "a-file", "x\n")
+    proc = run(root, "ov0c", config, cc, nm, "--overrides", root / "ov0c" / "a-file")
+    yield "override-the-option-naming-a-file-is-refused", same((proc.returncode, "a-file" in proc.stderr), (2, True))
     # The option names another folder.
     config, cc, nm = start("ov2", [], defs={**DEFS, "ovr_fb": ["fb"]})
     elsewhere = override_files(root, "elsewhere", "fb")
@@ -1563,7 +1572,7 @@ class Rig:
 
     def __init__(self, cc: str, prefix: list[str], work: Path):
         self.cc, self.prefix, self.work = cc, prefix, work
-        self.retried = 0   # runs that ended with status 1 and no output (a launch that timed out under load) and were run again
+        self.silent: list[str] = []   # the standard error of each run that ended with status 1 and printed nothing
 
     def start_check(self) -> str | None:
         probe = self.work / "probe.c"
@@ -1599,15 +1608,13 @@ class Rig:
         return proc, root / tag / "build" / "sfa2.exe"
 
     def run(self, exe: Path, *args: str) -> tuple[int, list[str]]:
-        """One run of the program. A run that ends with status 1 and no output is a launch that timed out under load:
-        it is run once more and counted in `retried`."""
-        for attempt in range(2):
-            proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=120)
-            lines = proc.stdout.replace("\r\n", "\n").splitlines()
-            if proc.returncode == 1 and not lines and attempt == 0:
-                self.retried += 1
-                continue
-            return proc.returncode, lines
+        """One run of the program: its status and the lines it printed. Nothing is run a second time. A run that
+        ends with status 1 and prints nothing fails its case like any other wrong result; its standard error is
+        kept for the note at the end (a program started from a loaded WSL shell can end so before it runs)."""
+        proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=120)
+        lines = proc.stdout.replace("\r\n", "\n").splitlines()
+        if proc.returncode == 1 and not lines:
+            self.silent.append(proc.stderr.strip())
         return proc.returncode, lines
 
 
@@ -1696,8 +1703,9 @@ def main() -> int:
     finally:
         if work:
             shutil.rmtree(work, ignore_errors=True)
-    if rig and rig.retried:
-        print(f"note: {rig.retried} program run(s) ended with status 1 and no output (a launch that timed out) and were run again")
+    if rig and rig.silent:
+        print(f"note: {len(rig.silent)} program run(s) ended with status 1 and printed nothing; their cases failed. "
+              f"Standard error of the last: {rig.silent[-1] or '(empty)'}")
     print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
     return 1 if failed else 0
 
