@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "7a0bc59f159fe6aa0af2f0e12a313739d09f8a0bf520b5f3c75f8828c794a6f0",
+  "sha256": "fc076bf42496e951999a973a1519d88be3b72106bca2377bbfbc407e10d86fb9",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -503,20 +503,20 @@
       "line": 7966
     },
     {
-      "title": "One character function whose C takes what its callers never pass (2026-10-09)",
+      "title": "Windows reference",
       "line": 7985
     },
     {
-      "title": "Windows reference",
-      "line": 8013
-    },
-    {
       "title": "Tool locations and reproducibility",
-      "line": 8030
+      "line": 8002
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8055
+      "line": 8027
+    },
+    {
+      "title": "One character function that reads a register its callers never set (2026-10-10)",
+      "line": 8084
     }
   ]
 }

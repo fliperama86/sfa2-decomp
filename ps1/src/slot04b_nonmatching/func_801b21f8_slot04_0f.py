@@ -1,4 +1,4 @@
-"""a0 is a character object, a1 is ignored, a2 carries 16 bits that are used.
+"""a0 is a character object, a1 is ignored, a2 is held at 0 (the contract's restriction).
 
 Reads and writes are listed in the header comment of
 func_801b21f8_slot04_0f.c. Choices made here:
@@ -9,7 +9,8 @@ func_801b21f8_slot04_0f.c. Choices made here:
   - field_338 is random over the byte (its lowest bit is ignored);
   - field_332 and field_12 are random halfwords, sometimes chosen so that
     the sum overflows 16 bits;
-  - a1 and a2 are random 32-bit values.
+  - a1 is a random 32-bit value; a2 is 0 in every case: the original reads
+    its low half, which the C does not have (the header's stated difference).
 """
 from contracts import Contract, Setup, fill
 
@@ -24,7 +25,7 @@ def setup(state, rng, sym):
     state.w8(obj + 0x0B, 0 if rng.random() < 0.5 else rng.randrange(1, 256))
     state.w16(obj + 0x332, rng.choice((rng.getrandbits(16), 0x7FFF, 0x8000, 0xFFFF, 0)))
     state.w16(obj + 0x12, rng.choice((rng.getrandbits(16), 0x7FFF, 0x8000, 0xFFFF, 0)))
-    return Setup(args=(obj, rng.getrandbits(32), rng.getrandbits(32)), returns_value=False)
+    return Setup(args=(obj, rng.getrandbits(32), 0), returns_value=False)
 
 
 def control(words):

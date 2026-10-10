@@ -7982,34 +7982,6 @@ No function count changes here: none of this is in the build.
   data declarations with another shape (an array where the unit had a
   scalar); the local lines are gone and the unit reads element 0.
 
-## One character function whose C takes what its callers never pass (2026-10-09)
-
-No function count changes here: none of this is in the build.
-
-- Published: `func_801b21f8_slot04_0f`, the 21st function of
-  `ps1/src/slot04b_nonmatching/`, by itself because it differs from the
-  others in one respect that should be read on its own.
-- The original builds a value whose low half is whatever the third
-  argument register holds on entry. Its two callers in the module pass
-  one argument and set that register to nothing: the function reads what
-  earlier code left there. (Most likely the original's source kept a
-  local whose low half it never assigned; inferred.) C cannot name such
-  a value. The C here states it as a third parameter that the callers
-  do not pass, so that the test can give it a value and compare what
-  the function does with it.
-- The consequence, accepted on purpose: this definition and the
-  declarations of its two callers, which are exact units of the build,
-  disagree. The private check of declarations prints three lines for
-  it, and they stay: the callers' declaration is what reproduces their
-  bytes, and this definition is what makes the unset value testable.
-  The function's header says so. For the port it means that the low 12
-  bits of one field depend on what the calling convention of the
-  machine leaves in that place.
-- The alternative that was not taken: one parameter, and the value as a
-  local that is never assigned. That keeps the declarations alike, and
-  the test could then not compare the field that the value reaches,
-  because the tool compares all memory.
-
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8108,3 +8080,39 @@ No function count changes here: none of this is in the build.
   written, measure the exact variant once more on the final tree, and
   name the variant in the sentence: which symbol, which form, what
   stays as it is.
+
+## One character function that reads a register its callers never set (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Published: `func_801b21f8_slot04_0f`, the 21st function of
+  `ps1/src/slot04b_nonmatching/`, by itself because it differs from the
+  others in one respect that should be read on its own.
+- The original builds a 32-bit value whose low half is whatever the
+  third argument register holds on entry. Its two callers in the module
+  pass one argument and do not set that register: the function uses
+  what earlier code left there. (Most likely the original's source kept
+  a local whose low half it never assigned; inferred.) C cannot name
+  such a value.
+- The C takes one parameter, as its callers declare it, and makes that
+  low half 0. This is a stated difference from the original, in the
+  function's header: the contract holds the register at 0 on entry, and
+  the test compares the two for that case only. What the original
+  writes for another value of the register is outside the contract; by
+  its listing (read, not tested) only the low 12 bits of the object's
+  `field_4c` depend on it.
+- Two forms were tried first and are not published. A third parameter
+  that the callers do not pass made the value testable, and made this
+  definition disagree with the declarations of its two callers, which
+  are exact units: the lane's check of declarations stops on that, for
+  both lanes. A local bound to the register with the compiler's
+  extension kept the declarations alike, and the matching build refuses
+  inline assembly in a C unit.
+- What the register holds at the two call sites in the game was not
+  settled. Read from the listings: the resident callee that both
+  callers call first leaves the register as it was, and the module's
+  own callee that one caller calls next loads a byte of the object into
+  it on at least one path, before a further call. So the value need not
+  be one constant (inferred). For the port this means: in the PC
+  program the low 12 bits of that field are 0 where the console had a
+  value that depended on earlier code.
