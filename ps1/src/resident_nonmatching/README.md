@@ -12,9 +12,32 @@ Each function is a pair: `FUNC.c` with its contract in the header comment,
 and `FUNC.py`, the contract as code. A function that is later rebuilt
 exactly becomes a unit of the build and leaves this folder.
 
-What these commands printed on 2026-10-10, run from the tool's folder:
+## Testing one function
 
-    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --all
+A function is tested alone. When one is added or changed, run its own
+five runs, from the tool's folder, and at the same time (see
+[efficient checks](../../../docs/efficiency.md)):
+
+    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 FUNC
+    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --seed 7 FUNC
+    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --control FUNC
+    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --writes FUNC
+    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --writes --seed 7 FUNC
+
+Then put that function's lines into the three blocks below, in place of
+its old ones or at its place in the order of names. No other function is
+run again for it, and the folder is not run as a whole.
+
+## The recorded lines
+
+The three blocks are a record, not an instruction. They are what the
+commands printed for each function when it was last run. As it stands
+that is one run of the whole folder on 2026-10-10, made when the last
+functions were added, with `--all` in place of FUNC; the page keeps
+those lines as printed. From now on a function's lines change only when
+that function is run again.
+
+The test (`--cases 2000 FUNC`, seed 1):
 
 ```
 func_80119694: built 132 bytes, original 132 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -131,7 +154,7 @@ func_801545cc: built 664 bytes, original 940 bytes; cases 2000, discarded 0, equ
 func_801545cc coverage: 235 of 235 instruction slots of the original executed
 ```
 
-    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --control --all
+The control (`--cases 2000 --control FUNC`):
 
 ```
 func_80119694 control: different 141 of 2000 (expected more than 0)
@@ -248,7 +271,7 @@ func_801545cc control: different 2000 of 2000 (expected more than 0)
   altered: the constant 0x1b of the cursor loop becomes 0x1c, instruction slot 120
 ```
 
-    python difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --writes --all
+The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_80119694 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
