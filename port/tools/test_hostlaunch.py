@@ -917,11 +917,8 @@ class Rig:
                 for pid in ids:
                     subprocess.run(["taskkill.exe", "/F", "/PID", pid], capture_output=True, timeout=60)
             proc.kill()
-            rest_out, rest_err = proc.communicate()
-            self.record(None, partial_out, partial_err, timed_out=True)
-            if rest_out or rest_err:   # what the end of the run gave after the limit
-                self.last["stdout"] += rest_out.replace("\r\n", "\n").splitlines()
-                self.last["stderr"] += rest_err.replace("\r\n", "\n").splitlines()
+            rest_out, rest_err = proc.communicate()   # after a timeout this returns everything the run printed, the partial output included
+            self.record(None, rest_out or partial_out, rest_err or partial_err, timed_out=True)
             return None
         self.record(proc.returncode, out, err)
         return proc.returncode, out.replace("\r\n", "\n").splitlines()

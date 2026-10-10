@@ -8601,12 +8601,12 @@ No function count changes here. Nothing under `ps1/` changed.
   by its process id. One-off figures: without the gate and without the
   `atexit` call, 78 of 200 runs of the first program hung (and 57 of about 140
   in an earlier run of the unchanged code with the option); with the gate 0 of
-  200. The crash path hung 4 of 200 without its call (hence 300 runs). Mutants:
-  `atexit` removed fails the exit case; the flag not checked fails both cases;
-  the crash routine without the call fails no run in 20 or 300 on the first
-  try in the file (the rate is low; see the report), the timer without the gate
-  but still checking the flag fails none (0 of 200 hung): the gate's
-  mutual exclusion is justified by reasoning only, no case reaches it.
+  200. The crash path hung 4 of 200 without its call (hence 300 runs). Mutants
+  (each fails a named case or is said not to): `atexit` removed fails the exit
+  case; the flag not checked fails both cases; the crash routine without the
+  call fails the crash case (5 of 300 runs hung); the timer without the gate
+  but still checking the flag fails no case (0 of 200 runs hung): the gate's
+  mutual exclusion beyond the flag is justified by reasoning only.
 - What the reviewer saw and what the rigs do now. One run of
   `test_hostlaunch.py` failed `entry-unregistered-is-refused` with status 1 and no
   output, and the rig had discarded stderr. The rig of `test_hostlaunch.py`
