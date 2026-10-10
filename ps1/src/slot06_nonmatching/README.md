@@ -98,6 +98,23 @@ generation does not reach, timing, and the order of memory stores are not
 covered. The contract is in the header comment of each `.c` file and in
 `contracts.py`.
 
+A pass also says nothing about where the two codes wrote: it compares
+them with each other. If a setup lets the original run past the end of
+a table, both codes run past it alike and the test says "equal"; if a
+setup leaves a table at the image's zeros, a C that clears a field
+which it must keep passes. `--writes` looks at that. It runs the
+original alone on the cases of the seed and counts the cases in which
+the original changed a byte of RAM or of the scratchpad that the setup
+did not make: a byte that the setup neither wrote, nor got as part of a
+block it allocated, nor marked as the function's to write. The
+function's own memory is not counted: the stack, and the 16 bytes from
+the initial stack pointer upward, where the calling convention lets a
+function keep its arguments. A count above 0 means that the function
+runs past a table, or writes a table or a global that the setup did not
+make. What this audit cannot see: a store of the value that is already
+there; reads; and whether memory that the setup made holds varied
+content or was only touched. It runs the cases of the given seed only.
+
 ## Negative control
 
 `--control` alters one instruction of the build that the contract's inputs
@@ -158,6 +175,15 @@ from a real link, which need the toolchain. Group J checks the table of
 addresses that a setup is given (linker symbols win over declared functions).
 Group K checks `--all` (each `func_*.c` once in sorted order, and status 2 for
 names with it, for neither, or for no source).
+Group X checks the write audit: what counts as made by a setup (its
+writes, its blocks, memory it marks, and the padding behind a block,
+which is not made), that a negative size or a block that does not fit
+is refused before anything changes and leaves the record of made
+memory as it was, the stack and the argument area at their borders,
+the scratchpad, cases that are discarded, the recorders' own log and
+code, the address runs and names of the second line, the lines, status
+and errors of `--writes` through `main` (no build is attempted), and
+that the default mode prints what it printed before.
 Group L checks the symbol file of the standalone link: the lines that assign a
 name the unit defines are removed (plain, spaced and inside `PROVIDE`), names
 that only begin alike stay, and a link that puts a defined name outside the
@@ -190,11 +216,15 @@ the matching build in place:
 
     python difftest.py --config ../build.toml --cases 2000 func_801e9080_slot06_00
     python difftest.py --config ../build.toml --cases 2000 --control func_801e9080_slot06_00
+    python difftest.py --config ../build.toml --cases 2000 --writes func_801e9080_slot06_00
 
 `--seed S` changes the random inputs (default 1); a run is reproducible for a
 given seed. `--folder DIR` reads the sources and contract files of another
-folder; `--uncovered` lists the instruction slots that no case executed. Exit status 1 means a difference, or no equal case, or a control
-that did not trip.
+folder; `--uncovered` lists the instruction slots that no case executed,
+and with `--writes` it adds where the first case outside wrote. Exit
+status 1 means a difference, or no equal case, or a control that did not
+trip, or with `--writes` a case in which the original wrote outside what
+the setup made.
 
 ## Functions
 
@@ -269,6 +299,26 @@ func_801e98c8_slot06_0c control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
 func_801e98dc_slot06_07 control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
+```
+
+    python difftest.py --config ../build.toml --cases 2000 --writes --all
+
+```
+func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e8bd8_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e8dc4_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e8dc8_slot06_05 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e8df0_slot06_0a writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e8fec_slot06_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9080_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e90a8_slot06_10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9114_slot06_12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e96fc_slot06_0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9738_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9798_slot06_06 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9840_slot06_09 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e98c8_slot06_0c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e98dc_slot06_07 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
