@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "b70c859123ae34d0cdf7204f823efed31af51249430ac5838e6fcda6dde880bb",
+  "sha256": "a28495f2c5891b26bea7188c7eb73cb3a77636c136a3dd34db39c4931677bc8c",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -545,6 +545,10 @@
     {
       "title": "The port draws through PsyZ (2026-10-09)",
       "line": 8387
+    },
+    {
+      "title": "The program always ends when the game's thread ends it (2026-10-10)",
+      "line": 8502
     }
   ]
 }

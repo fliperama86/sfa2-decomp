@@ -803,7 +803,16 @@ routines that do nothing on purpose. What is in this piece:
   timer or by the clock; the thread is interrupted only while it is in
   the game's own code, between the build's two markers, or at a jump in
   the PS1's RAM, never while a handler of the game runs and never inside
-  a critical section. `--no-interrupt` turns the timer off. The cost,
+  a critical section. `--no-interrupt` turns the timer off. Every
+  suspension of the game's thread, the timer's and the watchdog's, goes
+  through one gate that is closed for good before the process ends: it is
+  registered with `atexit` (every `exit()` and a return from `main`) and
+  called before each direct `ExitProcess` on the game's thread (the crash
+  routine of `main.c` and the stops of `mirror.c`), so the timer cannot
+  be ended between a suspension and its resumption and leave the game's
+  thread suspended inside the exit. `--timer-burst` makes the timer
+  attempt its suspension without waiting between attempts; it is a control
+  for that race and does nothing otherwise. The cost,
   stated: the game's code can be interrupted between any two
   instructions, as on the console, C that a PC compiler orders
   differently may be interrupted in a state the console never showed,
@@ -1026,7 +1035,9 @@ the hash of the program and the gate at the entry among them.
 `python3 port/tools/test_hostlaunch.py --cc CC` needs the cross compiler
 and a way to start a Windows program: it builds the runtime with small
 made-up tables and runs the real start of the program on invented disc
-images. Its cases: the right image stops at a function without C; an
+images; a failing case prints the status and the whole output (every
+line of stdout and of stderr) of its last program run, also when that run
+did not end in time, and the graphics and mirror controls do the same. Its cases: the right image stops at a function without C; an
 entry with C runs that C; an image that differs in one byte from the
 pinned one is refused and nothing of it runs; an entry at an address
 that no table holds, inside a function, just before one, or in a module
@@ -1046,7 +1057,7 @@ blank, is held back inside a critical section and delivered once after
 it; an event that was closed is not called; three tasks run in the
 order the game switches them, and a task function that returns ends
 the program; the card routines answer with the time-out event. Its
-cases for the interruption: made-up game code that spins on a counter
+cases for the end of the program: a program that ends by `exit()` and one that ends through the crash routine, each run many times with `--timer-burst`, each of which must end by itself in time (a run that does not fails its case and is ended by its process id). Its cases for the interruption: made-up game code that spins on a counter
 which only its handler raises ends by itself, and the handler ran on the
 game's thread; the same code with `--no-interrupt` is ended by the
 watchdog; a loop inside a host routine is not interrupted; a handler is
