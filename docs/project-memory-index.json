@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "fc076bf42496e951999a973a1519d88be3b72106bca2377bbfbc407e10d86fb9",
+  "sha256": "54d0e54595b8a567e80ee13451febed8f9be7cba7543f807ec8160cf5edc77d5",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -503,20 +503,24 @@
       "line": 7966
     },
     {
-      "title": "Windows reference",
+      "title": "A fourth parked function exact, and its table's entries take int (2026-10-09)",
       "line": 7985
     },
     {
+      "title": "Windows reference",
+      "line": 8023
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8002
+      "line": 8040
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8027
+      "line": 8065
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8084
+      "line": 8122
     }
   ]
 }

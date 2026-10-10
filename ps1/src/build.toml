@@ -39995,3 +39995,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014c9f4", address = 0x8014c9f4, size = 136 },
 ]
+
+[[unit]]
+name = "f3e1e4x_r1"
+source = "f3e1e4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013e1e4", address = 0x8013e1e4, size = 204 },
+]
