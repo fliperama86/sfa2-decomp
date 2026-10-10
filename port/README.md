@@ -1496,7 +1496,26 @@ file ended with `all cases behaved as required` and had printed
 
 ## The game's own sound library
 
-<!-- top level: owner's decisions on sound go here -->
+By the owner, on 2026-10-10:
+
+- Sound is the port's next piece. It was put to him that the PS1's sound
+  chip only plays recorded samples and has no synthesis of its own, and
+  that PsyZ has a model of that chip, with its mixer and an output to the
+  machine's sound, but no player of the game's music sequences. His
+  words: "we dont need to emulated anything, we just play the samples",
+  then "I think that Psyx (?) lib could already handle that for us", then
+  "ok. we can start the implementation then, ofc focused on the PC port".
+- What this page makes of that, not his words: the samples are played by
+  PsyZ's model of the chip (PsyZ calls it an emulation of the chip; it
+  runs no code of the game or of Sony's library), and what decides which
+  sample sounds when is the game's own sound library, run as C like the
+  rest of the game. The rule of 2026-10-09 stands: no original code is
+  interpreted.
+- A private trial of this design, which is not published, wrote the
+  game's sequenced music to a file. He listened to it: "sounds good".
+  That is his ear on one recording of 77 seconds, not a measurement, and
+  the voices and music that the game streams from the disc were not in
+  it.
 
 An option of the build, `--sound-library` (it needs `--psyz`), compiles
 the game's own sound library into the program: the units of
@@ -1507,8 +1526,9 @@ as before.
 
 Why the library's own C. Two facts, both read in the source. Game
 functions that are library code read the library's state in RAM:
-`func_8016a7e4` in `ps1/src/s1682d0_r10.c` reads the voice table at
-`0x80183138` (`_spu_RXX` in `symbols.ld`) and the key state at
+`func_8016a7e4` in `ps1/src/s1682d0_r10.c` follows the pointer at
+`0x80183138` (`_spu_RXX` in `symbols.ld`, the library's pointer to the
+chip's registers) to a voice's registers, and reads the word at
 `0x801831e8` (`_spu_keystat`). PsyZ's library keeps its own `_spu_RXX`
 (`decomp/src/libspu/spu.c`, line 6 at the pin), which the game's code
 would not see. And PsyZ's sound library as built has no sequencer: in
