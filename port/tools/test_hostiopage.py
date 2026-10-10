@@ -265,9 +265,9 @@ static DWORD WINAPI thread_fn(LPVOID p)
     return 0;
 }
 '''
-fn = func("i_thread", 'HANDLE h;\n    SAY("before\\n");\n    h = CreateThread(NULL, 0, thread_fn, NULL, 0, NULL);\n    WaitForSingleObject(h, 20000);\n    SAY("after\\n");')
+fn = func("i_thread", 'HANDLE h;\n    SAY("before\\n");\n    h = CreateThread(NULL, 0, thread_fn, NULL, 0, NULL);\n    if (!h) SAY("thread: CreateThread failed, error %lu\\n", (unsigned long)GetLastError());\n    else SAY("thread: wait returned %lu\\n", (unsigned long)WaitForSingleObject(h, 20000));\n    SAY("after\\n");')
 case("a-read-from-a-second-thread-in-the-games-code-ends-the-program", fn, ["before"], r"stop: crash: the game used the PS1's I/O page at 0x1f801014 \(read\) in \S+ %s: [0-9a-f]{2}( [0-9a-f]{2})*" % re.escape(NOT_GAME))
-fn = func("i_thread_w", 'HANDLE h;\n    SAY("before\\n");\n    h = CreateThread(NULL, 0, thread_wfn, NULL, 0, NULL);\n    WaitForSingleObject(h, 20000);\n    SAY("after\\n");')
+fn = func("i_thread_w", 'HANDLE h;\n    SAY("before\\n");\n    h = CreateThread(NULL, 0, thread_wfn, NULL, 0, NULL);\n    if (!h) SAY("thread: CreateThread failed, error %lu\\n", (unsigned long)GetLastError());\n    else SAY("thread: wait returned %lu\\n", (unsigned long)WaitForSingleObject(h, 20000));\n    SAY("after\\n");')
 THREAD_FN += r'''
 static DWORD WINAPI thread_wfn(LPVOID p)
 {

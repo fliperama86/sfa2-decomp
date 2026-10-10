@@ -5,7 +5,8 @@ Linux. **The game does not run on macOS or Linux, and on Windows it is
 not shown to play to its end.** What runs since 2026-10-10, on Windows: a
 program linked from the game's unchanged C that starts the game from the
 user's disc image. In one scripted run of five minutes it went from the
-title through a first fight into a second. It has no sound, it skips the
+title through a first fight into a second. Its sound is a file or the
+machine's output, only when asked ("Sound out" below); it skips the
 stand-alone programs of the disc (the logo is the first), and a function
 without C would end it with that function's name; the build counts one
 such function of the game, the entry code, which it does not run. It is
@@ -771,6 +772,18 @@ shell under WSL the path is given in Windows form. `--skip-programs` lets
 the game go on past the stand-alone programs of the disc for which no C
 exists (the logo is the first; see "Programs of the disc" below); without
 it the program ends at the first of them and names it.
+
+With sound (a build made with `--psyz DIR`; the game's sequenced sound
+needs `--sound-library` as well, see "Sound out"):
+
+```sh
+port/build/host/sfa2.exe --skip-programs --audio-dump FILE.wav DISC
+port/build/host/sfa2.exe --skip-programs --audio DISC
+```
+
+The first writes what the sound chip's model mixes to a WAV file and
+opens no device. The second plays it on the machine's default sound
+output. Both are off unless asked.
 
 What follows is from one private run on 2026-10-10 with the disc of
 `SLPS_004.15`. No command of this repository can repeat it: it needs the
@@ -1545,7 +1558,9 @@ be, one that pulls frames out of PsyZ's model and counts the samples that
 are not zero and one that reads a byte of the chip's RAM, and no audio
 device is opened. Without `--psyz-build` those cases are printed as
 `NOT RUN` with their names and the status is 3. The review command hands
-the file the folder. The native part of `test_hostmirror.py` has the
+the file the folder. The file `test_hostaudio.py` has the controls of
+"Sound out"; it is a file of its own so that this one does not grow past
+what can be read. The native part of `test_hostmirror.py` has the
 decision for the page and the two questions the handler asks of a decoded
 instruction.
 
@@ -1678,11 +1693,14 @@ they are cells and nothing more, and nothing reads them for an effect.
 The sound chip, `0x1f801c00` to `0x1f801dff`, in a build with PsyZ only.
 A 16-bit read or write at an even address goes to PsyZ's model of the
 chip (`Psyz_SpuRead` and `Psyz_SpuWrite` with the offset from
-`0x1f801c00`), between `Psyz_AudioLock` and `Psyz_AudioUnlock`. The lock
-costs nothing here: in PsyZ's `src/platform/sdl3_audio.c` the mutex is
-created by `Psyz_AudioInit` and both routines do nothing while it does
-not exist, and this program opens no audio device in this version.
-`Psyz_SpuInit` runs once at start, before the first access. PsyZ's model
+`0x1f801c00`), between `Psyz_AudioLock` and `Psyz_AudioUnlock`. In PsyZ's
+`src/platform/sdl3_audio.c` the mutex is created by `Psyz_AudioInit` and
+both routines do nothing while it does not exist: without `--audio` the
+lock costs nothing, and with it (see "Sound out") PsyZ's audio thread
+pulls from the model under the same mutex, so the lock then excludes it.
+The lock is held around the one PsyZ call it names and never across a
+call into the game or a fault. `Psyz_SpuInit` runs once at start, before
+the first access. PsyZ's model
 keeps what is written to a register and gives it back, makes a write to
 the key-on registers start the voices, and gives the status register as
 the low six bits of the control register; those three are what the
@@ -1809,12 +1827,138 @@ Three library calls that the sound library makes are served by
   `SpuClearReverbWorkArea` (`libspu/s_crwa.c` line 52), after each start
   of a transfer.
 
-What runs, and what is not there. With the option the program now runs
-the library through its start, its uploads of sound banks to the chip and
-its sequencer's ticks. Nothing sounds: no audio device is opened and no
-sample is played. One-off starts with the disc on 2026-10-10 (a private
-input, offscreen, one at a time; no command of this repository repeats
-them, they need the user's disc):
+### Sound out
+
+Two options of the program, both off unless asked, both in a build with
+PsyZ (`--psyz`). Without PsyZ either one refuses the start with one line
+(`refused: --audio needs a build with PsyZ (sound out is PsyZ's model of
+the chip)`, and the same for `--audio-dump`).
+
+`--audio-dump FILE` writes what the chip's model mixes to FILE and opens
+no audio device. At the end of every vblank the program pulls 735 stereo
+frames from the model (`Psyz_SpuPullSamples`, under PsyZ's audio lock)
+and appends them: a WAV file, 16 bits, stereo, 44,100 Hz, little endian.
+735 frames at 60 vblanks a second are 44,100 frames a second. A FILE that
+cannot be opened refuses the start with `refused: --audio-dump: cannot
+open FILE for writing`. A write that fails later prints `audio: writing
+the dump failed; the dump stops and the game goes on`, closes the file,
+and the game goes on; nothing is pulled after that.
+
+The header's two lengths are rewritten, and the file flushed, every 60
+vblanks, and at every end that runs the exit routines (a return from
+main, `exit()`). The controls show each end:
+
+- a return: the header holds the whole length;
+- a stop line (a crash stop of the runtime; `mirror.c` and `interrupt.c`
+  end the process with `ExitProcess`, which runs no exit routine): the
+  header is at the last multiple of 60 vblanks, and the file holds at
+  most 60 vblanks more;
+- the program ended from outside: the same bound.
+
+A file is therefore right to within a second of game time however the
+program ends, and a player that reads the header sees the whole of it
+only after an end of the first kind.
+
+`--audio` opens the machine's sound output: `Psyz_AudioInit()` once, at
+start, after the chip's model is started and before the game runs. It
+does not clear the model: `Psyz_AudioInit` calls `Psyz_SpuInit`, which
+returns at once when the model is started (`src/psyz/psyz_spu.c`, "if
+(spu.initialized) return"), and the port's own `Psyz_SpuInit` call comes
+first in `port_iopage_init`. PsyZ's audio thread then pulls from the
+model under the audio lock. A device that cannot be opened is one line
+(`audio: the machine's sound output could not be opened; the game runs
+without sound`) and the game runs on. When it opens, the line is `audio:
+sound output open, 44100 Hz stereo`.
+
+With both options the file is written and no device is opened; one line
+says so (`audio: --audio-dump and --audio together: the file is written
+and no sound device is opened`).
+
+The file and the device keep different times. The file is the game's
+time: 735 frames for every vblank the game ends. A game that runs slower
+than 60 vblanks a second still gets 735 frames a vblank, so the file is
+the same on a slow machine and on a fast one, and plays at the game's own
+pace. The device is the machine's time: PsyZ's thread pulls 44,100 frames
+a second of the machine's clock whatever the game does. The sequencer is
+driven by the game's vblanks and the voices sound at the pitch set, so a
+slow game is heard with its tempo slowed and its samples at their own
+pitch (inferred from the design; not measured).
+
+Whether sound is on by default is not decided; here it is off unless
+asked, so that no test and no script makes a sound.
+
+Neither option needs `--sound-library`. Without it the stand-ins of
+`sound.c` write nothing to the chip and the output is silence.
+
+Access to the model, each under the audio lock and none held across a
+call into the game, the completion's routine or a fault: `Psyz_SpuRead`
+and `Psyz_SpuWrite` (the chip's registers), `Psyz_SpuFifoWriteBulk`,
+`Psyz_SpuGetTransferAddr`, `Psyz_SpuMemRead` and
+`Psyz_SpuSetTransferAddr` (the transfer), and `Psyz_SpuPullSamples` (the
+dump). Only `Psyz_SpuInit` is outside it, once at start, before any
+thread but the game's runs. The mutex exists only after `Psyz_AudioInit`,
+so the lock excludes PsyZ's thread only with `--audio`; the control
+`test_hostaudio.py` wraps these routines at the link. Inside each
+locked call the wrapper starts a worker thread that tries the audio lock,
+waits 15 ms, and notes whether the worker got it: with a correct lock it
+must not. The wrapper cannot join the worker, because it returns to
+`iopage.c`, which then unlocks; so the made-up game joins all workers
+after its accesses have returned, and each must finish within 2 s with
+exit code 0. A thread that is not created, a wait that fails or times
+out, or a handle that does not close fails the case with its reason. The
+case takes about a second. Its made-up game uses only the chip's
+registers, so the calls of the transfer are shown by the code, not by a
+run.
+
+`python3 port/tools/test_hostaudio.py --cc CC --psyz-build DIR` has the
+cases (its header lists them). No case opens a real device: the control
+puts `SDL_AUDIODRIVER` in the environment of every child it starts (SDL's
+`dummy` driver, or for the case of a device that cannot be opened a name
+that SDL does not have), and under WSL passes it through `WSLENV`. Start
+the program with `--audio` from a Linux shell under WSL in the same way
+for a test: `SDL_AUDIODRIVER=dummy WSLENV=SDL_AUDIODRIVER sfa2.exe
+--audio ...`; without the variable it plays on the machine.
+
+### What runs, and what is not there
+
+With `--sound-library` and `--audio` or `--audio-dump` the sequenced
+sound of the game is audible (in the file, or on the machine's output):
+the library runs through its start, its uploads of sound banks to the
+chip and its sequencer's ticks, and the chip's model mixes the voices.
+The audio that the game streams from the disc (the player-select and the
+stage music among it) is not there yet: the disc layer takes the sectors
+of compressed audio and drops them. One-off starts with the disc on
+2026-10-10 (a private input: none was pressed; offscreen; one at a time;
+no command of this repository repeats them, they need the user's disc):
+
+- The build with `--sound-library --psyz DIR` and `--audio-dump FILE`, a
+  limit of 60 seconds (status 124), with `--skip-programs`: no line began
+  `refused` or `stop`. The file held 10,423,984 data bytes, 3,545.6
+  vblanks of 2,940 bytes; at 60 vblanks a second for 60 seconds the
+  figure would be 10,584,000, so the game ended 3,545.6 of the 3,600 vblanks
+  in the limit (the start of the program before its clock takes the
+  rest; that explanation is inferred, not measured). The header said
+  10,407,600 bytes, 5.6 vblanks behind the file, inside the bound. Per
+  ten seconds of the file, the largest absolute sample and the root mean
+  square (`levels.py`, a small script of the standard library, not
+  published): 0-10 s 15330 and 1568, 10-20 s 15360 and 752, 20-30 s
+  15360 and 1739, 30-40 s 15360 and 1739, 40-50 s 15330 and 1569, 50-59
+  s 15360 and 787. No window was silent. That is the sound of the game's
+  start and attract cycle in the model, not a judgment of how it sounds;
+  nobody has listened to this file.
+- The same build with `--audio` and `SDL_AUDIODRIVER=dummy` (passed into
+  the program through `WSLENV`, so that nothing sounds), 30 seconds
+  (status 124): the first line was `audio: sound output open, 44100 Hz
+  stereo`, and no line began `refused` or `stop`. The dummy device
+  discards what it is given: this shows that the output opens and the
+  program runs with it, not that anything is heard.
+- The build with `--psyz DIR` and no option, 25 seconds (status 124): no
+  line began `refused`, `stop` or `audio`; it printed `library: 114 host
+  routines, 270 left that stop` and PsyZ's one log line about its model
+  on the error stream, as before this change.
+
+Earlier one-off starts (2026-10-10, before sound out, with the same kind of
+private input, offscreen, one at a time; they need the user's disc):
 
 - The build with `--sound-library --psyz DIR`, 40 seconds, with `--trace`
   to a file: it printed its start lines (`library: 85 host routines, 135

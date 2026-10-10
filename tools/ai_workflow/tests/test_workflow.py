@@ -241,6 +241,14 @@ class Selection(Fixture):
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
 
+    def test_sound_out_controls_get_the_compiler_and_psyz_or_refuse(self):
+        self.put('port/tools/test_hostaudio.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32', 'psyzdir')}
+        self.assertEqual(argv['test_hostaudio'][-4:], ('--cc', 'cc32', '--psyz-build', 'psyzdir'))
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
+
     def test_a_change_under_port_overrides_gets_the_checks_of_a_change_of_the_build_tool(self):
         for name in ('test_hostlaunch.py', 'test_hostbuild.py', 'test_hostrun.py'):
             self.put('port/tools/' + name, '')
