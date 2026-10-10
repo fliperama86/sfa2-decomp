@@ -311,7 +311,9 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
     name left is the host's (the C library, the compiler's helpers), and one that nothing resolves is an error that
     names it. A program newer than its inputs (the source, every file the compiler lists as read for it, the
     configuration, the symbol file, the fields file, the harness, this driver and `hostbuild.py`) is not built
-    again; when that listing fails or does not end the program is built, whatever is on disk. The result is its path."""
+    again; when that listing fails or does not end the program is built, whatever is on disk. A program made from
+    another source file, another configuration or another compiler than the ones given is built too, whatever the
+    files' times (a note beside the program says what it was made from). The result is its path."""
     source, config, build = Path(source), Path(config), Path(build)
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
         raise ReplayError(f"{name!r} is not a C name")
@@ -332,9 +334,16 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
             raise ReplayError(f"{source} does not exist")
         # The program on disk is handed back only when everything it was built from is known and older. When
         # the listing of what the source reads fails or does not end, the build is made, and it says what is wrong.
-        headers = _headers(source, cc, gen, timeout) if exe.is_file() else None
+        # A program is also what it was made FROM: another source file for the same name, another configuration or
+        # another compiler make another program, whatever the times of the files say. The build notes the three
+        # beside the program when it has succeeded, and a program without that note, or with another, is built.
+        made_from = "".join(f"{text}\n" for text in (source.resolve(), config.resolve(), cc))
+        note = gen / f"{name}.from"
+        same_origin = exe.is_file() and note.is_file() and note.read_text() == made_from
+        headers = _headers(source, cc, gen, timeout) if same_origin else None
         if headers is not None and _up_to_date(exe, inputs + headers):
             return exe
+        note.unlink(missing_ok=True)
         for sub in ("asm", "obj", "rt", "probe"):
             (build / sub).mkdir(parents=True, exist_ok=True)
         underscore = hb.detect_underscore(cc, build / "probe", timeout)
@@ -382,6 +391,7 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
             shown = ", ".join(hb.c_name(m, underscore) for m in missing)
             raise ReplayError(f"link: no PS1 address, and nothing in the link provides: {shown}")
         raise ReplayError(f"link: {hb.link_errors(link.stderr)}")
+    note.write_text(made_from)
     return exe
 
 

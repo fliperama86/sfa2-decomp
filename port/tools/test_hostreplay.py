@@ -382,6 +382,39 @@ def build_cases(rig: Rig):
     yield "a-listing-that-does-not-end-means-a-build-not-the-program-on-disk", same(
         (quiet, len(listings), exe.stat().st_mtime_ns != mtime, rig.run(exe, [{}])[0]["result"]), (True, 1, True, 7))
 
+    # Another source file for the same name, older than the program on disk: the program is what it was made from, not
+    # only when; the other file's program answers 9. And without the note of what it was made from it is built again.
+    exe = rig.program("other")
+    alt = rig.root / "alt"
+    alt.mkdir()
+    (alt / "other.c").write_text("int other(void) { return 9; }\n")
+    old = exe.stat().st_mtime_ns - 60 * 10**9
+    os.utime(alt / "other.c", ns=(old, old))
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "another-older-source-for-the-same-name-is-built-not-reused", same(rig.run(exe, [{}])[0]["result"], 9)
+    mtime = exe.stat().st_mtime_ns
+    again = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    quiet = again.stat().st_mtime_ns == mtime
+    (rig.build_dir / "gen" / "other.from").unlink()
+    again = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "a-program-without-the-note-of-its-origin-is-built-again", same((quiet, again.stat().st_mtime_ns != mtime), (True, True))
+    yield "the-note-of-origin-names-the-source-the-configuration-and-the-compiler", same(
+        (rig.build_dir / "gen" / "other.from").read_text().splitlines(),
+        [str((alt / "other.c").resolve()), str((rig.src / "build.toml").resolve()), rig.cc])
+
+    # A build that fails takes the note away: the program still on disk is from an earlier build, and after the source
+    # is put back with an old time nothing says any more that it is this source's program, so it is built.
+    good = "int other(void) { return 9; }\n"
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    mtime = exe.stat().st_mtime_ns
+    (alt / "other.c").write_text("int other(void) { return 9 }\n")
+    os.utime(alt / "other.c", ns=(mtime + 5 * 10**9, mtime + 5 * 10**9))
+    failed = raises(lambda: hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120), "other.c")
+    (alt / "other.c").write_text(good)
+    os.utime(alt / "other.c", ns=(old, old))
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "after-a-failed-build-the-program-on-disk-is-not-handed-back", same((failed, exe.stat().st_mtime_ns != mtime), (None, True))
+
     # An input with the very time of the program is not older than it.
     mtime = exe.stat().st_mtime_ns
     os.utime(rig.src / "val.h", ns=(mtime, mtime))
