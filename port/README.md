@@ -721,16 +721,17 @@ CC is a C compiler for 32-bit Windows, by default `i686-w64-mingw32-gcc`.
 The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
-`port/src/`. It reads no game file. Its output on 2026-10-10, for `ps1/` as
-it is in commit `2be339c` and `port/overrides/` as it is in commit `b9c0946`:
+`port/src/`. It reads no game file. Its output on 2026-10-10, for main as
+of commit `ca997f6` with the two functions and the three overrides that
+the same change added:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3906 compiled, 154 of them nonmatching, 0 failed
+units: 3907 compiled, 155 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12685
+functions with C: 12686
 functions overridden in C: 13
-functions without C: 386, library 384, game and modules 2
+functions without C: 385, library 384, game and modules 1
 sweep rows that are not functions: 11
 names at PS1 addresses: 46284
 data defined in C, at host addresses: 0
@@ -742,9 +743,13 @@ each under its own name. The thirteen of the line
 `functions overridden in C` are the twelve functions of the folder
 [`overrides/`](overrides/README.md) (see "Overrides in C" below); the
 function of the character module `slot04_0f` is placed a second time in its
-`like` image `slot05_0f` and counted again. The
+`like` image `slot05_0f` and counted again. The one
+function of the game and its modules that the build still counts as
+without C is the entry code (`--list` names it: `func_80118908`), which is
+hand-written assembly that the program does not run. The
 program's start line `overrides in C: M` is not in the sample of
-"Running it", which was printed before that line existed.
+"Running it", which was printed before that line existed and when the
+game's `main` had no C.
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
 as the scripts above take it, and with `--overrides` that tree's
