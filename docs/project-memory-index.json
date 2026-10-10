@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "b48d8a802257f31d40caed2af1bb773d2e1a3b661a53d985a3652057d1cda969",
+  "sha256": "840af84576b6d4a1dc67aa73efad8a6edca496550d0f21129eda35f027ef3593",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -639,8 +639,12 @@
       "line": 9550
     },
     {
-      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
       "line": 9586
+    },
+    {
+      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "line": 9614
     }
   ]
 }
