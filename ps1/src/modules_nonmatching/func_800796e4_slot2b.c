@@ -1,11 +1,11 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction order and
- * register choice (36 of 72 instruction slots; same size, 288 bytes; the
- * dead first store of field_02 is not made, read from the original's
- * listing, not tested). The exact owner of the bytes in the PS1
- * build stays the raw bytes of the module image; the build does not use
- * this file. The differential test next to it (func_800796e4_slot2b.py)
+ * register choice (same size, 288 bytes; the dead first store of field_02
+ * is not made, read from the original's listing, not tested). The exact
+ * owner of the bytes in the PS1 build stays the raw bytes of the module
+ * image; the build does not use this file. The differential test next to
+ * it (func_800796e4_slot2b.py)
  * compares the behavior of this C with the original code on random inputs
  * of the contract below.
  *
