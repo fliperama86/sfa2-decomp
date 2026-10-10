@@ -45,6 +45,7 @@ SYMBOLS = "data_word = 0x80190000;\n"
 
 SOURCES = {
     "add": "int add(int a, int b) { return a + b; }\n",
+    "five": "int five(int a, int b, int c, int d, short e, int f) { return a + b + c + d + e * 16 + f; }\n",
     "u8f": "unsigned char u8f(int a) { return (unsigned char)a; }\n",
     "s16f": "short s16f(int a) { return (short)a; }\n",
     "voidf": "void voidf(int *p) { *p = 1; }\n",
@@ -274,7 +275,15 @@ def case_cases(rig: Rig):
                                 recorder("stub_b", "0x80100010", 1)],
                      calls=[call(args=["0x1", "0x2"], returned="0x00000003", watched=[[]]), call("stub_b", ["0x4"], "0x00000005", watched=[[]]), call(args=["0x6", "0x7"], returned="0x00000008", watched=[[]])])]).fixtures[0]
     case = hf.build_case(f)
-    yield "case-args-are-the-fixtures-words", same(case["args"], [0x80000100, 5])
+    yield "case-args-are-the-fixtures-words-then-the-stack-words", same(
+        case["args"], [0x80000100, 5, 0, 0, 0xA5A5A5A5, 0xA5A5A5A5, 0xA5A5A5A5, 0xA5A5A5A5])
+    # The fifth and later arguments: what the fixture states as read at 0x801ff010 and upward. Two bytes stated of
+    # the fifth (a halfword argument), the whole sixth, one byte of the eighth (stated by `same`); a read just
+    # below, at 0x801ff00c, is no argument.
+    stack = hf.build_case(rig.load([fx(args=["0x1", "0x2", "0x3", "0x4"], reads=[["0x801ff010", "3955"], ["0x801ff014", "78563412"]],
+                                       same=[["0x801ff01f", "7f"]])]).fixtures[0])
+    yield "case-the-fifth-to-eighth-arguments-are-the-words-above-the-home-area", same(
+        stack["args"], [1, 2, 3, 4, 0xA5A55539, 0x12345678, 0xA5A5A5A5, 0x7FA5A5A5])
     yield "case-memory-is-reads-then-same-then-flipped-writes", same(
         case["memory"], [("bytes", 0x1F800010, bytes([0x00])), ("bytes", 0x80000100, bytes([0x0A, 0x02, 0x03])), ("bytes", 0x80000104, bytes([0xDD, 0xFF]))])
     yield "case-watch-is-the-fixtures", same(case["watch"], [(0x80000300, 2)])
@@ -287,7 +296,7 @@ def case_cases(rig: Rig):
     yield "case-adjacent-bytes-are-one-run", same(
         hf.build_case(rig.load([fx(reads=[["0x80000100", "01"], ["0x80000101", "02"]], writes=[["0x80000102", "00"]])]).fixtures[0])["memory"],
         [("bytes", 0x80000100, bytes([1, 2, 0xFF]))])
-    yield "case-the-harness-takes-the-case", same(hr.normalize_case(case)["args"], [0x80000100, 5])
+    yield "case-the-harness-takes-the-case", same(hr.normalize_case(case)["args"][:2], [0x80000100, 5])
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -468,6 +477,15 @@ def run_cases(rig: Rig):
         fixture_head(2, 4, "high bit"), "    result: the PC build gives 0x00000007, the original gave 0x80000007",
         counts(1, 0, 1, 0, 0)])
     yield "run-status-1-for-a-failed-fixture", same((status, err), (1, ""))
+    # The fifth argument (a halfword here) and the sixth come from the words the fixture states above the home area:
+    # 1 + 2 + 3 + 4 + 0x0020 * 16 + 0x100 = 0x30a. With another fifth word in the fixture the same C gives another sum.
+    status, out, err = rig.replay("five", [
+        fx(args=["0x1", "0x2", "0x3", "0x4"], reads=[["0x801ff010", "2000"], ["0x801ff014", "00010000"]], result="0x0000030a"),
+        fx(args=["0x1", "0x2", "0x3", "0x4"], reads=[["0x801ff010", "2100"], ["0x801ff014", "00010000"]], result="0x0000030a", case=1, note="other fifth")])
+    yield "run-the-fifth-and-sixth-arguments-reach-the-function", same(out, [
+        "five native replay: fixtures 2, passed 1, failed 1",
+        fixture_head(1, 1, "other fifth"), "    result: the PC build gives 0x0000031a, the original gave 0x0000030a",
+        counts(1, 0, 1, 0, 0)])
     status, out, err = rig.replay("add", [fx(args=["0x00000003", "0x00000004"], result="0x00000007")])
     yield "run-a-pass", same((status, out, err), (0, ["add native replay: fixtures 1, passed 1, failed 0", counts(1, 1, 0, 0, 0)], ""))
 

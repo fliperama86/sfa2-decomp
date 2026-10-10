@@ -361,7 +361,16 @@ def build_case(fx: Fixture) -> dict:
         returned.setdefault(call.callee, []).append(call.returned)
     stubs = [{"at": r.at, "arguments": r.arguments, "masks": dict(r.masks), "pointees": dict(r.pointees), "returns": returned.get(r.callee, []),
               "stores": list(r.stores), "counts": list(r.counts), "ends_at": r.ends_at} for r in fx.recorders]
-    return {"memory": _runs(input_memory(fx)), "args": list(fx.args), "stubs": stubs, "watch": list(fx.watch)}
+    # The console passes the fifth and later arguments on the stack, at the 16 bytes above the home area of the
+    # call: a fixture states them as memory read at STACK_HIGH and upward (the stack region below is not recorded).
+    # A C call takes them as its fifth to eighth words. A byte the fixture does not state is the filler there, as
+    # it is in memory.
+    memory = input_memory(fx)
+    args = (list(fx.args) + [0, 0, 0, 0])[:4]
+    for k in range(4):
+        at = STACK_HIGH + 4 * k
+        args.append(int.from_bytes(bytes(memory.get(at + i, POISON) for i in range(4)), "little"))
+    return {"memory": _runs(memory), "args": args, "stubs": stubs, "watch": list(fx.watch)}
 
 
 # ---------------------------------------------------------------------------------------------------------------

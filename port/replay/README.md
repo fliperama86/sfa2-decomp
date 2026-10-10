@@ -26,7 +26,13 @@ The files the source includes are what the compiler lists for it. When that
 listing fails or does not end (a header that was deleted makes it fail), what
 the source depends on is not known, and the program is built whatever is on
 disk; the build then says what is wrong. An input with the very time of the
-program is not older than it, and the program is built again.
+program is not older than it, and the program is built again. A program is
+also what it was made from: the build leaves a note beside it that names the
+source file, the configuration and the compiler, and a program without that
+note, or with another, is built whatever the files' times; a build that fails
+takes the note away. The configuration, the symbol file and the fields file are
+read once for each state of the three (path, time and size), not once for each
+program: reading them costs more than building one function.
 
 The program is a Windows program, like the port. Everything that knows the
 system (the mapping of memory, the pages without execute permission, the
@@ -181,7 +187,11 @@ those of `same`, and each byte of `writes` that neither names as its expected va
 with every bit flipped (so a missing store shows whatever its value); every other
 byte is the harness's 0xA5. There is no zeroed stack and no zeroed arena: natively
 the function's stack is the program's own. The arguments are the fixture's `args`
-as the first words, the rest 0. One stand-in per recorder at its `at`, with its
+as the first four words (a missing one 0). The fifth to eighth words are what the
+fixture states as memory at 0x801ff010 and upward, 4 bytes each: that is where the
+console's code finds its fifth and later arguments (above the 16 bytes of the
+call's home area), and a C call takes them as arguments; a byte there that the
+fixture does not state is 0xA5, as in memory. One stand-in per recorder at its `at`, with its
 `arguments`, `masks`, `pointees`, `stores`, `counts` and `ends_run_at` (as
 `ends_at`), and as `returns` the `returned` values of that callee's calls in order.
 `watch` is the fixture's.
@@ -223,6 +233,14 @@ prints at most three):
 
 Not compared natively: the saved registers and the stack pointer (the
 fixture's `registers`), which do not exist in the PC program.
+
+**Known limits.** A function that reaches RAM through its mirror at the bottom
+of the address space (an address with the top byte cut off, as the console's
+link words hold it) cannot be replayed here yet: the PC program serves those
+accesses with `port/src/mirror.c`, the harness does not have that part, and the
+accesses go to the program's own low memory. One published function does this
+(`func_80119694`), and its replay fails for that reason. A file of format 2 is
+not replayed. Both are work to be done in the harness, not in the functions.
 
 **Which C.** A function of a folder that has a file `FUNC.c` in the overrides folder
 (`port/overrides`, or `--overrides DIR`) is replayed with the override's C, which is

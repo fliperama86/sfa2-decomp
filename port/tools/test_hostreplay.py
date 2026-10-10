@@ -430,6 +430,43 @@ def build_cases(rig: Rig):
     exe = rig.program("calc")
     yield "a-changed-symbol-file-is-built-again", same((quiet, exe.stat().st_mtime_ns != mtime), (True, True))
 
+    # The configuration is read once for each state of its files, not once for each program. A symbol file that
+    # moves a name is read again: the program then reads the name at its new address.
+    both = {"memory": [("bytes", 0x80190000, bytes([1, 0, 0, 0])), ("bytes", 0x80190040, bytes([2, 0, 0, 0]))], "args": [0]}
+    exe = rig.program("rd")
+    before = rig.run(exe, [both])[0]["result"]
+    mtime = exe.stat().st_mtime_ns
+    (rig.src / "symbols.ld").write_text(SYMBOLS.replace("data_word = 0x80190000;", "data_word = 0x80190040;"))
+    os.utime(rig.src / "symbols.ld", ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    exe = rig.program("rd")
+    yield "a-moved-name-of-the-symbol-file-is-read-at-its-new-address", same((before, rig.run(exe, [both])[0]["result"]), (1, 2))
+    # A fields file that changes is read again: the generated header has the new field.
+    mtime = exe.stat().st_mtime_ns
+    (rig.src / "t.fields").write_text("struct S size=0x8\n0x000 u32 a\n0x004 u32 added_field\n")
+    os.utime(rig.src / "t.fields", ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    rig.program("rd")
+    yield "a-changed-fields-file-is-read-again", same("added_field" in (rig.build_dir / "gen" / "t.h").read_text(), True)
+    # A configuration that changes is read again (a function's address here); it is then put back as it was.
+    cfg_path = rig.src / "build.toml"
+    was = hr._configuration(cfg_path)[0]["stub_a"]
+    mtime = cfg_path.stat().st_mtime_ns
+    cfg_path.write_text(CONFIG.replace("address = 0x80100000", "address = 0x80100040"))
+    os.utime(cfg_path, ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    now = hr._configuration(cfg_path)[0]["stub_a"]
+    cfg_path.write_text(CONFIG)
+    os.utime(cfg_path, ns=(mtime + 18 * 10**9, mtime + 18 * 10**9))
+    yield "a-changed-configuration-is-read-again", same((was, now, hr._configuration(cfg_path)[0]["stub_a"]), (0x80100000, 0x80100040, 0x80100000))
+    # And nothing is read again while the three files stay as they are.
+    reads = []
+    real = hr.hb.hostcheck.read_config
+    hr.hb.hostcheck.read_config = lambda path: reads.append(path) or real(path)
+    try:
+        rig.program("rd")
+        rig.program("calc")
+    finally:
+        hr.hb.hostcheck.read_config = real
+    yield "the-configuration-is-not-read-again-for-each-program", same(reads, [])
+
 
 def format_cases_test(rig: Rig | None):
     case = {
