@@ -74,9 +74,9 @@ acceptance commands. Stop and report options on a decision-bearing fork.
 
 ## Keeping this file small
 
-Keep active memory within 120 lines. Put detailed new evidence in dated/domain
-reports or the historical log, preserving existing bytes and conclusions.
-If history grows, regenerate its heading index with the workflow command.
+Keep active memory within 120 lines. Put detailed new evidence in a record
+file in `docs/records/` (one per change) or a dated/domain report. The
+history is the archive: preserve its bytes and do not append to it.
 Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
 

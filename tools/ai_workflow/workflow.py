@@ -111,7 +111,7 @@ def parser() -> argparse.ArgumentParser:
     doc.add_argument('--verbose', action='store_true')
     ctx = sub.add_parser('context')
     ctx.add_argument('--query', default='')
-    ctx.add_argument('--reindex', action='store_true', help='regenerate the preserved memory heading/hash index')
+    ctx.add_argument('--reindex', action='store_true', help='regenerate the history file\'s heading/hash index only; the files of docs/records/ need no index')
     ctx.add_argument('--limit', type=int, default=120)
     led = sub.add_parser('ledger')
     led.add_argument('--output', type=Path)

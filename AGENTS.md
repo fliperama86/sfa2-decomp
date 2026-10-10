@@ -3,7 +3,8 @@
 Read `docs/project-memory.md`, `docs/current-state.md`, `PLAN.md`,
 `docs/requirements.md` and `docs/efficiency.md` before work. Retrieve history by topic with
 `python tools/ai_workflow/workflow.py context --query "topic" --limit 80`;
-do not load the entire historical log by default. Use `docs/tasks/template.md`
+do not load the entire historical log by default. A record of a change is a
+new file in `docs/records/` (see its README); the history file is the archive. Use `docs/tasks/template.md`
 for bounded implementation packages and `docs/ai-workflow.md` for validation.
 Record corrections and relevant preferences in the project memory. The active
 working repository is this directory, not `../68k-decomp`.

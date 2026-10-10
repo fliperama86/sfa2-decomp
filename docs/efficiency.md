@@ -40,6 +40,8 @@ time on running the program. His words are in the project's history
    where that is possible.
 8. A work package for another agent states the machine time its
    acceptance commands are expected to take.
+9. Records of changes are separate files in `docs/records/`, so that open
+   pull requests do not conflict over a shared history file.
 
 ## What to run for which change
 

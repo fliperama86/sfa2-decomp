@@ -13,8 +13,11 @@ Generated reports, cache entries, frozen checkouts and binary-dependent
 results stay under ignored `local/ai-workflow/` by default.
 
 - `context`: read short active state, or retrieve matching sections of the
-  historical memory with bounded output. History remains byte-preserved in
-  the same documentation directory, so relative links retain their meaning.
+  historical memory and then the files of `docs/records/`, newest first,
+  with bounded output. The two have separate line budgets (`--limit` each),
+  so the total can reach twice the limit; a record must not be hidden by
+  old history sections. History remains byte-preserved in the same documentation
+  directory, so relative links retain their meaning.
 - `doctor`: check tool availability and the actual configuration's local
   private input paths. It never installs software, changes inputs or starts
   a game. Missing prerequisites are refusals, not passes.
@@ -93,8 +96,9 @@ python tools/ai_workflow/workflow.py task --check local/task.md
 ```
 
 Fill the generated task with actual paths, a pinned contract and commands before
-using it. Task validation is structural, not proof of acceptance. Regenerate the
-history index after adding historical evidence with `context --reindex`.
+using it. Task validation is structural, not proof of acceptance. A record of a change
+is a new file in `docs/records/`; there is nothing to regenerate. The history
+file and its index are the archive up to that folder and are not appended to.
 The original archived memory and goals remain verbatim; links stay in `docs/`.
 
 For a review, supply the local repository that contains the private prerequisites
