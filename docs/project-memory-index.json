@@ -1,0 +1,522 @@
+{
+  "file": "project-memory-history.md",
+  "sha256": "e623ccbd117d823db5dcca20673f1ee27d410d3527c12d7fb7bec10829c27250",
+  "sections": [
+    {
+      "title": "User preferences and scope",
+      "line": 8
+    },
+    {
+      "title": "Most important correction: matching versus running",
+      "line": 40
+    },
+    {
+      "title": "Current primary baseline",
+      "line": 54
+    },
+    {
+      "title": "PS1 matching result",
+      "line": 69
+    },
+    {
+      "title": "Matching build and second group",
+      "line": 101
+    },
+    {
+      "title": "Third group: object reset",
+      "line": 133
+    },
+    {
+      "title": "Fourth group: first parallel round",
+      "line": 166
+    },
+    {
+      "title": "Fifth group: second parallel round",
+      "line": 202
+    },
+    {
+      "title": "Sixth group: third parallel round",
+      "line": 230
+    },
+    {
+      "title": "Seventh group: small-function sweep",
+      "line": 250
+    },
+    {
+      "title": "Eighth group: second sweep",
+      "line": 275
+    },
+    {
+      "title": "Ninth group: third sweep",
+      "line": 292
+    },
+    {
+      "title": "Tenth group: fourth sweep",
+      "line": 305
+    },
+    {
+      "title": "Eleventh group: fifth sweep and the library area",
+      "line": 322
+    },
+    {
+      "title": "Twelfth group: sixth sweep and a retry of the parked pool",
+      "line": 353
+    },
+    {
+      "title": "Thirteenth group: end of the small-function sweep",
+      "line": 375
+    },
+    {
+      "title": "Fourteenth group: medium functions and first permutation results",
+      "line": 392
+    },
+    {
+      "title": "Fifteenth group: second medium round",
+      "line": 420
+    },
+    {
+      "title": "Sixteenth group: last medium functions, first larger ones, first jump table",
+      "line": 437
+    },
+    {
+      "title": "Seventeenth group: larger game functions",
+      "line": 459
+    },
+    {
+      "title": "Eighteenth group: end of the game sweep, large functions, SDK identification",
+      "line": 478
+    },
+    {
+      "title": "Nineteenth group: data and assembly owners, the rest of the identified SDK",
+      "line": 557
+    },
+    {
+      "title": "Twentieth group: parts of partly identified SDK files",
+      "line": 636
+    },
+    {
+      "title": "Twenty-first group: the first adapted header",
+      "line": 698
+    },
+    {
+      "title": "Twenty-second group: reference files adapted to this SDK version",
+      "line": 769
+    },
+    {
+      "title": "Twenty-third group: large game functions, fourth permutation sweep, second SDK pass",
+      "line": 883
+    },
+    {
+      "title": "Twenty-fourth group: end of the fourth sweep, assembly units for assembly code",
+      "line": 984
+    },
+    {
+      "title": "Twenty-fifth group: second attempt on the parked pool",
+      "line": 1041
+    },
+    {
+      "title": "Twenty-sixth group: third retry wave, end of the fifth sweep, 1,500 functions",
+      "line": 1139
+    },
+    {
+      "title": "Twenty-seventh group: the high-byte form, sixth sweep",
+      "line": 1195
+    },
+    {
+      "title": "Twenty-eighth group: library functions that were exact but not imported",
+      "line": 1265
+    },
+    {
+      "title": "Twenty-ninth group: the CD file whole, a wave of one-function packages",
+      "line": 1346
+    },
+    {
+      "title": "Thirtieth group: one-function retries on the parked game pool, seventh sweep",
+      "line": 1455
+    },
+    {
+      "title": "Thirty-first group: the same call once per path, exact twins, eighth sweep",
+      "line": 1552
+    },
+    {
+      "title": "Thirty-second group: far and large functions, ninth sweep, locals assigned twice",
+      "line": 1706
+    },
+    {
+      "title": "Thirty-third group: one shared header for prototypes",
+      "line": 1839
+    },
+    {
+      "title": "Thirty-fourth group: one shared header for data externs",
+      "line": 1926
+    },
+    {
+      "title": "Thirty-fifth group: callback typedefs and callback tables in the shared header",
+      "line": 1990
+    },
+    {
+      "title": "Thirty-sixth group: the data symbols that units declared differently",
+      "line": 2040
+    },
+    {
+      "title": "Thirty-seventh group: the reconstructed source is published",
+      "line": 2103
+    },
+    {
+      "title": "Thirty-eighth group: one function at the top level, a 16-bit local scaled in place",
+      "line": 2184
+    },
+    {
+      "title": "Thirty-ninth group: the overlay map confirmed against the loader",
+      "line": 2283
+    },
+    {
+      "title": "Fortieth group: an inventory of the functions inside the overlay modules",
+      "line": 2356
+    },
+    {
+      "title": "Forty-first group: the owner's decisions of 2026-10-06",
+      "line": 2456
+    },
+    {
+      "title": "Forty-second group: module images in the matching build",
+      "line": 2501
+    },
+    {
+      "title": "Forty-third group: a loop for one unit",
+      "line": 2584
+    },
+    {
+      "title": "Forty-fourth group: module images in the diff and merge tools",
+      "line": 2648
+    },
+    {
+      "title": "Forty-fifth group: names across images",
+      "line": 2688
+    },
+    {
+      "title": "Forty-sixth group: the pilot module is declared, its first function exact",
+      "line": 2733
+    },
+    {
+      "title": "Forty-seventh group: first round on an overlay module",
+      "line": 2783
+    },
+    {
+      "title": "Forty-eighth group: second attempts on the module's parked functions",
+      "line": 2848
+    },
+    {
+      "title": "Forty-ninth group: the first side of the second pilot target",
+      "line": 2892
+    },
+    {
+      "title": "Fiftieth group: second links",
+      "line": 2959
+    },
+    {
+      "title": "Fifty-first group: the second side of the second pilot target",
+      "line": 3038
+    },
+    {
+      "title": "Fifty-second group: the functions outside the resident inventory",
+      "line": 3063
+    },
+    {
+      "title": "Fifty-third group: library families of the resident game functions",
+      "line": 3147
+    },
+    {
+      "title": "Fifty-fourth group: library families of the module functions",
+      "line": 3179
+    },
+    {
+      "title": "Fifty-fifth group: a round on the game functions outside the inventory",
+      "line": 3232
+    },
+    {
+      "title": "Fifty-sixth group: second attempts on the round's parked functions",
+      "line": 3315
+    },
+    {
+      "title": "Fifty-seventh group: 32 library functions take their names from the reference",
+      "line": 3370
+    },
+    {
+      "title": "Fifty-eighth group: 28 library functions named by reference",
+      "line": 3420
+    },
+    {
+      "title": "Fifty-ninth group: a family by place for 21 library functions",
+      "line": 3493
+    },
+    {
+      "title": "Sixtieth group: 17 more library functions from the reference, placed by what they call",
+      "line": 3547
+    },
+    {
+      "title": "Sixty-first group: a second overlay module, the one of slot 0xb",
+      "line": 3593
+    },
+    {
+      "title": "Sixty-second group: a third overlay module, the one of slot 0x12",
+      "line": 3691
+    },
+    {
+      "title": "Sixty-third group: four source forms tried on what was parked",
+      "line": 3863
+    },
+    {
+      "title": "Sixty-fourth group: a fourth module, at two addresses: slots 0x0 and 0x8",
+      "line": 3960
+    },
+    {
+      "title": "A port is started: the owner's decisions of 2026-10-06",
+      "line": 4057
+    },
+    {
+      "title": "Completion map requested on 2026-10-06",
+      "line": 4232
+    },
+    {
+      "title": "Sixty-fifth group: a fifth module, at two addresses: slots 0x2b and 0x2c; the pilot module complete",
+      "line": 4306
+    },
+    {
+      "title": "Sixty-sixth group: a sixth module, the one of slot 0xf",
+      "line": 4386
+    },
+    {
+      "title": "The module sweep offered every name to every module (2026-10-06)",
+      "line": 4454
+    },
+    {
+      "title": "Three resident functions take what their module callers pass (2026-10-07)",
+      "line": 4485
+    },
+    {
+      "title": "Sixty-seventh group: the first stage module, slot 0x6 of STAGE00.PAC",
+      "line": 4536
+    },
+    {
+      "title": "Sixty-eighth group: an eighth module, the one of slot 0x27",
+      "line": 4644
+    },
+    {
+      "title": "Two sessions in parallel (2026-10-06)",
+      "line": 4739
+    },
+    {
+      "title": "Sixty-ninth group: the 20 stage modules",
+      "line": 4763
+    },
+    {
+      "title": "Seventieth group: eleven character blocks, slot 0x4 of PL0C.PAC to PL17.PAC",
+      "line": 4937
+    },
+    {
+      "title": "Seventy-first group: the module of slot 0x28",
+      "line": 5123
+    },
+    {
+      "title": "Third attempts at the stage and character leftovers (2026-10-08)",
+      "line": 5221
+    },
+    {
+      "title": "Seventy-second group: the module of slot 0x1",
+      "line": 5284
+    },
+    {
+      "title": "Seventy-third group: the first-side blocks of twelve character files",
+      "line": 5389
+    },
+    {
+      "title": "The stage drawing functions: a rule from the compiler's source (2026-10-08)",
+      "line": 5541
+    },
+    {
+      "title": "Seventy-fourth group: the module of slot 0x4 of SELECT.PAC",
+      "line": 5613
+    },
+    {
+      "title": "Seven more functions with the byte oracle (2026-10-09)",
+      "line": 5720
+    },
+    {
+      "title": "The perspective tile layer of eleven stages (2026-10-09)",
+      "line": 5763
+    },
+    {
+      "title": "Seventy-fifth group: third attempts with the compiler's pass dumps",
+      "line": 5814
+    },
+    {
+      "title": "Seventy-sixth group: the pass dumps on the resident image, and one correction by the owner",
+      "line": 5907
+    },
+    {
+      "title": "Seventy-seventh group: the shared functions of twelve character blocks, copied",
+      "line": 6053
+    },
+    {
+      "title": "One more quad layer, and where the last large stage functions stand (2026-10-09)",
+      "line": 6110
+    },
+    {
+      "title": "Seventy-eighth group: the second side of PL06, an image of its own",
+      "line": 6135
+    },
+    {
+      "title": "Comment figures measured again, and two more copies (2026-10-09)",
+      "line": 6181
+    },
+    {
+      "title": "Declarations in resident units agree with the definitions (2026-10-09)",
+      "line": 6254
+    },
+    {
+      "title": "Resident dispatch tables agree with their entries (2026-10-09)",
+      "line": 6363
+    },
+    {
+      "title": "The script table, the last table difference (2026-10-09)",
+      "line": 6433
+    },
+    {
+      "title": "Two functions without a result are declared so, and one data symbol (2026-10-09)",
+      "line": 6464
+    },
+    {
+      "title": "Nonmatching C with a differential test: the first function (2026-10-09)",
+      "line": 6487
+    },
+    {
+      "title": "Seventy-ninth group: a search over the types of locals",
+      "line": 6531
+    },
+    {
+      "title": "The differential test gets controls, a coverage line and recorders (2026-10-09)",
+      "line": 6580
+    },
+    {
+      "title": "After the type search: seven second looks, and a question about three bytes (2026-10-09)",
+      "line": 6684
+    },
+    {
+      "title": "Prototypes that units carried themselves moved into the shared header (2026-10-09)",
+      "line": 6732
+    },
+    {
+      "title": "The port's first piece: a program that stops where C is missing (2026-10-09)",
+      "line": 6806
+    },
+    {
+      "title": "Four declarations that the original instructions contradict (2026-10-09)",
+      "line": 6891
+    },
+    {
+      "title": "Five library functions that units declared in more than one way (2026-10-09)",
+      "line": 6950
+    },
+    {
+      "title": "The declaration findings on module units, all of them (2026-10-09)",
+      "line": 7002
+    },
+    {
+      "title": "The port after its first piece: what exists, where it is, and how it is published (2026-10-09)",
+      "line": 7076
+    },
+    {
+      "title": "The last header lines without a parameter list (2026-10-09)",
+      "line": 7181
+    },
+    {
+      "title": "Data symbols that units declared themselves moved into the shared header (2026-10-09)",
+      "line": 7226
+    },
+    {
+      "title": "The port's runtime gets its core (2026-10-09)",
+      "line": 7278
+    },
+    {
+      "title": "The port delivers the vertical blank as an interruption (2026-10-09)",
+      "line": 7325
+    },
+    {
+      "title": "Twelve data symbols in more than one form: eleven get one (2026-10-09)",
+      "line": 7359
+    },
+    {
+      "title": "The script tables get their types in the shared header (2026-10-09)",
+      "line": 7438
+    },
+    {
+      "title": "The test for nonmatching C records what a callee would see (2026-10-09)",
+      "line": 7475
+    },
+    {
+      "title": "Three graphics library functions from the reference's source: how the copy routine is declared (2026-10-09)",
+      "line": 7520
+    },
+    {
+      "title": "The port builds PsyZ from a patched copy (2026-10-09)",
+      "line": 7568
+    },
+    {
+      "title": "A parked function exact: the call passes the object (2026-10-09)",
+      "line": 7621
+    },
+    {
+      "title": "The port reads the disc (2026-10-09)",
+      "line": 7655
+    },
+    {
+      "title": "A second parked function from the same lead, 1,432 bytes (2026-10-09)",
+      "line": 7698
+    },
+    {
+      "title": "Rows of the sweep that are not functions, and what the port's work list really was (2026-10-09)",
+      "line": 7747
+    },
+    {
+      "title": "A third parked function exact: one local for two values (2026-10-09)",
+      "line": 7798
+    },
+    {
+      "title": "Nonmatching C for stage functions, first batch (2026-10-09)",
+      "line": 7832
+    },
+    {
+      "title": "The test for nonmatching C audits where the original writes (2026-10-09)",
+      "line": 7893
+    },
+    {
+      "title": "Nonmatching C for stage functions, second batch (2026-10-09)",
+      "line": 7925
+    },
+    {
+      "title": "Nonmatching C for character functions, first batch (2026-10-09)",
+      "line": 7950
+    },
+    {
+      "title": "Nonmatching C for character functions, second batch (2026-10-09)",
+      "line": 7966
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
+      "line": 7985
+    },
+    {
+      "title": "Windows reference",
+      "line": 8042
+    },
+    {
+      "title": "Tool locations and reproducibility",
+      "line": 8059
+    },
+    {
+      "title": "Mistakes and lessons to preserve",
+      "line": 8084
+    }
+  ]
+}
