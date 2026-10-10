@@ -45,6 +45,11 @@ SYMBOLS = "data_word = 0x80190000;\n"
 
 SOURCES = {
     "add": "int add(int a, int b) { return a + b; }\n",
+    "loc0": "extern int stub_a(int *p);\nint loc0(void) { int local = 0; stub_a(&local); return 0; }\n",
+    "loc256": "extern int stub_a(int *p);\nint loc256(void) { int local = 256; stub_a(&local); return 0; }\n",
+    "loc119": "extern int stub_a(int *p);\nint loc119(void) { int local = 119; stub_a(&local); return 0; }\n",
+    "loc375": "extern int stub_a(int *p);\nint loc375(void) { int local = 375; stub_a(&local); return 0; }\n",
+    "locnone": "extern int stub_a(int *p);\nint locnone(void) { int local; stub_a(&local); return 0; }\n",
     "five": "int five(int a, int b, int c, int d, short e, int f) { return a + b + c + d + e * 16 + f; }\n",
     "u8f": "unsigned char u8f(int a) { return (unsigned char)a; }\n",
     "s16f": "short s16f(int a) { return (short)a; }\n",
@@ -421,9 +426,17 @@ def compare_cases(rig: Rig):
     yield "block-unstated-input-is-0xA5", same(
         cmp(fx(recorders=[recorder(arguments=1, pointees={"0": 1})], calls=[call(args=["0x80000800"], pointees={"0": [[1, "00"]]})]),
             returned(0, [stub_call(args=[0x80000800], pointees={0: bytes([0xA5, 0, 0xA5, 0xA5])})]))[0], [])
-    yield "block-behind-the-stack-argument-compares-only-the-changed-bytes", same(
-        cmp(fx(recorders=[recorder(arguments=1, pointees={"0": 1})], calls=[call(args=["0x801fe800"], pointees={"0": [[0, "77"]]})]),
-            returned(0, [stub_call(args=[0], stack=[0], pointees={0: bytes([0x77, 0x13, 0x14, 0x15])})])), ([], 1))
+    # Behind a stack argument lies a local: the original's is zero with the fixture's changes over it, and every
+    # byte is compared, the ones the fixture's changes do not name too (they were zero in the original).
+    behind = lambda changes, seen: cmp(fx(recorders=[recorder(arguments=1, pointees={"0": 1})], calls=[call(args=["0x801fe800"], pointees={"0": changes})]),
+                                       returned(0, [stub_call(args=[0], stack=[0], pointees={0: seen})]))
+    yield "block-behind-the-stack-argument-equal-passes", same(behind([[0, "77"]], bytes([0x77, 0, 0, 0])), ([], 1))
+    yield "block-behind-the-stack-argument-a-byte-the-changes-do-not-name-is-compared", same(
+        behind([[0, "77"]], bytes([0x77, 0x01, 0, 0]))[0],
+        ["call 1 to stub_a: argument 1 differs from byte 1 (the PC build has 0x01 there at this call, the original had 0x00)"])
+    yield "block-behind-the-stack-argument-no-change-means-zero", same(
+        (behind([], bytes([0, 0, 0, 0]))[0], behind([], bytes([0, 1, 0, 0]))[0]),
+        ([], ["call 1 to stub_a: argument 1 differs from byte 1 (the PC build has 0x01 there at this call, the original had 0x00)"]))
     yield "block-behind-the-stack-argument-a-changed-byte-is-compared", same(
         cmp(fx(recorders=[recorder(arguments=1, pointees={"0": 1})], calls=[call(args=["0x801fe800"], pointees={"0": [[0, "78"]]})]),
             returned(0, [stub_call(args=[0], stack=[0], pointees={0: bytes([0x77, 0, 0, 0])})]))[0],
@@ -477,6 +490,25 @@ def run_cases(rig: Rig):
         fixture_head(2, 4, "high bit"), "    result: the PC build gives 0x00000007, the original gave 0x80000007",
         counts(1, 0, 1, 0, 0)])
     yield "run-status-1-for-a-failed-fixture", same((status, err), (1, ""))
+    # A local handed to a callee, as real programs: the original's local was 0 (no change against the zeroed stack) or
+    # 119 (one changed byte). A C whose local is 256, or 375, differs in a byte that the fixture's changes do not name.
+    def local_fixture(changes):
+        return fx(recorders=[recorder(arguments=1, pointees={"0": 1})], calls=[call(args=["0x801fefe8"], pointees={"0": changes})], result="0x00000000")
+
+    passes = lambda name, changes: rig.replay(name, [local_fixture(changes)])[1]
+    yield "run-a-zero-local-passes-and-256-does-not", same((passes("loc0", []), passes("loc256", [])), (
+        ["loc0 native replay: fixtures 1, passed 1, failed 0, stack arguments not compared 1", counts(1, 1, 0, 0, 0)],
+        ["loc256 native replay: fixtures 1, passed 0, failed 1, stack arguments not compared 1", fixture_head(0),
+         "    call 1 to stub_a: argument 1 differs from byte 1 (the PC build has 0x01 there at this call, the original had 0x00)",
+         counts(1, 0, 1, 0, 0)]))
+    yield "run-a-local-of-119-passes-and-375-does-not", same((passes("loc119", [[0, "77"]]), passes("loc375", [[0, "77"]])), (
+        ["loc119 native replay: fixtures 1, passed 1, failed 0, stack arguments not compared 1", counts(1, 1, 0, 0, 0)],
+        ["loc375 native replay: fixtures 1, passed 0, failed 1, stack arguments not compared 1", fixture_head(0),
+         "    call 1 to stub_a: argument 1 differs from byte 1 (the PC build has 0x01 there at this call, the original had 0x00)",
+         counts(1, 0, 1, 0, 0)]))
+    # A local the function never stores is 0 on the console's zeroed stack, and here: the harness zeroes its stack.
+    yield "run-a-local-never-stored-is-zero-as-on-the-console", same(passes("locnone", []), [
+        "locnone native replay: fixtures 1, passed 1, failed 0, stack arguments not compared 1", counts(1, 1, 0, 0, 0)])
     # The fifth argument (a halfword here) and the sixth come from the words the fixture states above the home area:
     # 1 + 2 + 3 + 4 + 0x0020 * 16 + 0x100 = 0x30a. With another fifth word in the fixture the same C gives another sum.
     status, out, err = rig.replay("five", [

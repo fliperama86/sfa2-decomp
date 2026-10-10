@@ -422,6 +422,19 @@ static void changes(struct buffer *out, unsigned base, const unsigned char *befo
     }
 }
 
+/* The console's test starts every case with a zeroed stack, so a local that the function never stores holds 0 there,
+ * and a fixture records it so. Here the stack below the call is zeroed before each case for the same reason, this
+ * far down; what a function leaves deeper than that is not cleared. */
+#define STACK_CLEAR 0x10000
+
+static void __attribute__((noinline)) clear_stack(void)
+{
+    volatile unsigned char below[STACK_CLEAR];
+    unsigned i;
+
+    for (i = 0; i < sizeof below; i++) below[i] = 0;
+}
+
 static void run_case(void)
 {
     unsigned i, p;
@@ -443,6 +456,7 @@ static void run_case(void)
     replay_fault.kind = "other";
     replay_fault.address = replay_fault.pc = 0;
     sys_case(1);
+    clear_stack();
     end = sys_call(case_args, replay_target_pointer());
     sys_case(0);
     sys_pages(RAM_BASE, RAM_SIZE, 0);

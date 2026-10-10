@@ -49,6 +49,10 @@ SOURCES = {
     "calc": "int calc(int a, int b, int c, int d, int e, int f, int g, int h)\n"
             "{ return (h << 28) | (g << 24) | (f << 20) | (e << 16) | (d << 12) | (c << 8) | (b << 4) | a; }\n",
     "mem": "unsigned mem(unsigned *p, unsigned v) { unsigned old = *p; *p = v; return old; }\n",
+    "deep": "extern int stub_a(int *p);\n"
+            "static void dirty(void) { volatile unsigned char a[2048]; int i; for (i = 0; i < 2048; i++) a[i] = 0x5a; }\n"
+            "static int look(void) { int never_stored[8]; return stub_a(never_stored); }\n"
+            "int deep(int mode) { if (mode) dirty(); else look(); return 0; }\n",
     "call1": "extern int stub_a(int a, int b, int c);\n"
              "int call1(int *p) { *p = 5; stub_a(0x12345678, (int)p, 7); *p = 6; return 0; }\n",
     "ret4": "extern int stub_a(void);\n"
@@ -260,6 +264,13 @@ def stub_cases(rig: Rig):
         [c["pointees"] for c in got[0]["calls"]], [{0: bytes([0x77, 0, 0, 0]), 1: bytes([0x11, 0, 0, 0])}])
     yield "the-function-returns-after-a-stub-that-got-a-local", same(got[0]["result"], 0x77)
     yield "a-mask-does-not-change-the-mark-of-an-address-of-a-local", same([(c["args"], c["stack_args"]) for c in got[1]["calls"]], [([0, q], [0])])
+
+    # The stack below the call is zeroed before each case, as a case of the console's test starts: the first case
+    # fills two thousand bytes of stack with 0x5a, and in the second a local that is never stored still reads zero.
+    stub = [{"at": 0x80100000, "arguments": 1, "pointees": {0: 8}}]
+    deep = rig.run(rig.program("deep"), [{"args": [1]}, {"args": [0], "stubs": stub}, {"args": [0], "stubs": stub}])
+    yield "a-local-never-stored-reads-zero-whatever-the-case-before-left", same(
+        [[c["pointees"][0] for c in r["calls"]] for r in deep], [[], [bytes(32)], [bytes(32)]])
     yield "a-pointee-that-cannot-be-read-is-a-fault-of-the-case-with-no-half-entry", same(
         (got[2]["end"], got[2]["fault"]["kind"], got[2]["fault"]["address"], got[2]["calls"]), ("fault", "read", 0, []))
 

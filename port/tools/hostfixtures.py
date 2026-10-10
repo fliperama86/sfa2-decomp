@@ -449,18 +449,13 @@ def _call_line(fx: Fixture, res: dict, label: dict[int, str]) -> tuple[str | Non
     return None, stack_equal
 
 
-def _block_line(number: int, callee: str, place: str, expected: bytes, seen: bytes, only: list[tuple[int, bytes]] | None = None) -> str | None:
-    """A line when a block at a call is not what the fixture says. `only` limits the check to the bytes of those changes."""
-    if only is None:
-        if len(seen) != len(expected):
-            return f"call {number} to {callee}: {place} has {len(seen)} bytes in the PC build, {len(expected)} are expected"
-        indices = range(len(expected))
-    else:
-        indices = [offset + k for offset, data in only for k in range(len(data))]
-    for at in indices:
-        if at >= len(seen) or seen[at] != expected[at]:
-            have = f"{seen[at]:#04x}" if at < len(seen) else "nothing"
-            return (f"call {number} to {callee}: {place} differs from byte {at} (the PC build has {have} there at this call, "
+def _block_line(number: int, callee: str, place: str, expected: bytes, seen: bytes) -> str | None:
+    """A line when a block at a call is not what the fixture says: every byte of it is compared."""
+    if len(seen) != len(expected):
+        return f"call {number} to {callee}: {place} has {len(seen)} bytes in the PC build, {len(expected)} are expected"
+    for at in range(len(expected)):
+        if seen[at] != expected[at]:
+            return (f"call {number} to {callee}: {place} differs from byte {at} (the PC build has {seen[at]:#04x} there at this call, "
                     f"the original had {expected[at]:#04x})")
     return None
 
@@ -478,9 +473,10 @@ def _block_lines(fx: Fixture, res: dict, memory: dict[int, int]) -> str | None:
             if got is None:
                 return f"call {number} to {want.callee}: the PC build logged nothing for {place}"
             if on_stack:
-                # What a local held before the call is the PC's own; only the bytes the original changed are compared.
-                expected = _with_changes(bytes(length), spans)
-                line = _block_line(number, want.callee, place, expected, got, only=spans)
+                # A local of the function. The console's test starts a case with a zeroed stack and records what
+                # the local holds at the call as changes against that, so the whole of it is known: zero with the
+                # changes over it. The harness zeroes the PC's stack before a case too, so every byte is compared.
+                line = _block_line(number, want.callee, place, _with_changes(bytes(length), spans), got)
             else:
                 base = _input_bytes(memory, address, length)
                 if base is None:

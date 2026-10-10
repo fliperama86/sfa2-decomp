@@ -51,9 +51,22 @@ So this run shows no function whose PC build differs from the original
 on its recorded inputs, among the 98; it does not show that for the
 functions it cannot replay.
 
+A finding of the owner's review, corrected in this change: behind an
+argument that is the address of a local, only the bytes that the
+fixture's changes name were compared, so a C whose local was 256 where
+the original's was 0 (no change against the zeroed stack) passed, and
+375 where it was 119. The original's local is known in full: the
+console's test starts a case with a zeroed stack, and the fixture gives
+the changes against that. So the expected block is zero with the changes
+over it, and every byte is compared. The harness zeroes the PC's stack
+below the call before each case for the same reason (64 KB), so a local
+that a function never stores reads 0 on both sides. The run over the
+published tree prints the same last line with it.
+
 Tests: `python port/tools/test_hostfixtures.py --cc i686-w64-mingw32-gcc`,
-"all 166 tests passed"; `python port/tools/test_hostreplay.py --cc ...`,
-"all 103 tests passed"; mutants in bounded runs, each failing a named
+"all 171 tests passed"; `python port/tools/test_hostreplay.py --cc ...`,
+"all 104 tests passed"; 5 more mutants for this finding (3 of the
+comparison, 2 of the zeroed stack), each failing a named test; before it: mutants in bounded runs, each failing a named
 test: 39 of the reader, the case builder and the comparator (a fortieth
 was dead code, which was removed), 6 of the fifth-argument rule, 6 of
 the note of origin, 6 of the configuration read once.

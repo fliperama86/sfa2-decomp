@@ -46,7 +46,9 @@ handler for faults, the call and the return from a fault) is in the last part of
 2. Takes a copy of both regions. Maps both readable and writable without execute
    permission, except the pages that hold a stub. At each stub's address it
    writes a five-byte call into a common entry.
-3. Calls the function with eight words (`args`, missing ones 0), as a C call
+3. Zeroes the program's own stack below the call, 64 KB of it (the console's
+   test starts a case with a zeroed stack, and a local the function never stores
+   reads 0 there). Calls the function with eight words (`args`, missing ones 0), as a C call
    (cdecl; a function that takes fewer ignores the rest).
 4. Catches without ending the process: a fault of execution (the function
    called an address that has no stub), a fault of a read or a write, and any
@@ -213,10 +215,14 @@ prints at most three):
    compared before the first difference of their fixture).
 3. The words behind pointer arguments and the watched blocks at each call (only
    when the calls are equal): the expected bytes are the case's own input memory
-   with the fixture's changes over it; the first differing byte is named. Behind
-   an argument that is a stack address the input is the PC's own, so only the bytes
-   that the fixture's changes name are compared there (this one is compared in
-   part).
+   with the fixture's changes over it, and every byte of the block is compared;
+   the first differing byte is named. Behind an argument that is a stack address
+   lies a local of the function: the console's test starts a case with a zeroed
+   stack, so the fixture's changes there are changes against zero, and the
+   expected block is zero with those changes over it, every byte compared. The
+   harness zeroes the PC's stack below the call before each case for that reason
+   (64 KB of it), so a local that the function never stores reads 0 on both
+   sides.
 4. The result, when the fixture has one and the run returned, under the width of
    the return type as the definition in `FUNC.c` states it (the text before the
    name on its definition line): `u8`, `s8`, `char` and `signed`/`unsigned char`:
