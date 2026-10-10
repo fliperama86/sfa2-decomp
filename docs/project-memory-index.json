@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "6f2f2b8e804c057a7c4b331fa742707ff140215c7e62941c57769d197d598166",
+  "sha256": "59cee5067db6b9ec9c322fdd750d97e50be50a8cc3146cf796e585e069b0a4c8",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -543,28 +543,32 @@
       "line": 8325
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)",
       "line": 8366
     },
     {
+      "title": "Windows reference",
+      "line": 8386
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8383
+      "line": 8403
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8408
+      "line": 8428
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8465
+      "line": 8485
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8550
+      "line": 8570
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8664
+      "line": 8684
     }
   ]
 }
