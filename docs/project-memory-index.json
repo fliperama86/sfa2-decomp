@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "d107dbb44f70926228d0d9e37a7fa7935111365f528a3d02b93df6b297493493",
+  "sha256": "a38b783903dd22636a4d5510c96323a812b6c215163d8224cddbe5e589897ee1",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -601,6 +601,10 @@
     {
       "title": "Nonmatching C for the other modules, first batch (2026-10-10)",
       "line": 9080
+    },
+    {
+      "title": "The port's build accepts an override written as the game's C (2026-10-10)",
+      "line": 9120
     }
   ]
 }
