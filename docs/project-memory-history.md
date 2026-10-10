@@ -8674,6 +8674,42 @@ The layer that served only the first 64 KB met its limit in play: the exact `fun
 - Not shown: the real game on this layer; an access of the game to the header page beyond the made-up cases; the handler together with the modules layer's.
 - A control that could pass without its evidence, found in review. The case for the walk of 2,000 nodes was written as "no timing line: pass, else compare", so a program that ended before the walk printed anything passed it; the reviewer showed that with the fixture ending at status 10. The case now needs all three: status 0, the line with the checksum worked out in the test and every node written alike, and the timing line. Two cases control it on the real fixture: a program that ends before the walk's lines, and a walk with one node changed so that its two results differ; each must be a failed walk. With the old condition put back the first of them fails; with the result left out of the check the second fails. The other new cases of this change were read for the same shape; they compare status and lines. The comment in `hostbuild.py` that said the runtime closes the header page was wrong and is corrected: that page stays readable.
 
+## One character function that reads a register its callers never set (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Published: `func_801b21f8_slot04_0f`, the 21st function of
+  `ps1/src/slot04b_nonmatching/`, by itself because it differs from the
+  others in one respect that should be read on its own.
+- The original builds a 32-bit value whose low half is whatever the
+  third argument register holds on entry. Its two callers in the module
+  pass one argument and do not set that register: the function uses
+  what earlier code left there. (Most likely the original's source kept
+  a local whose low half it never assigned; inferred.) C cannot name
+  such a value.
+- The C takes one parameter, as its callers declare it, and makes that
+  low half 0. This is a stated difference from the original, in the
+  function's header: the contract holds the register at 0 on entry, and
+  the test compares the two for that case only. What the original
+  writes for another value of the register is outside the contract; by
+  its listing (read, not tested) only the low 12 bits of the object's
+  `field_4c` depend on it.
+- Two forms were tried first and are not published. A third parameter
+  that the callers do not pass made the value testable, and made this
+  definition disagree with the declarations of its two callers, which
+  are exact units: the lane's check of declarations stops on that, for
+  both lanes. A local bound to the register with the compiler's
+  extension kept the declarations alike, and the matching build refuses
+  inline assembly in a C unit.
+- What the register holds at the two call sites in the game was not
+  settled. Read from the listings: the resident callee that both
+  callers call first leaves the register as it was, and the module's
+  own callee that one caller calls next loads a byte of the object into
+  it on at least one path, before a further call. So the value need not
+  be one constant (inferred). For the port this means: in the PC
+  program the low 12 bits of that field are 0 where the console had a
+  value that depended on earlier code.
+
 ## The program always ends when the game's thread ends it (2026-10-10)
 
 - What was seen. In a stress of the modules branch under 12 CPU burners, runs of
