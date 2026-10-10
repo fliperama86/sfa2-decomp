@@ -201,12 +201,16 @@ payloads, accurate source coverage, and retained human/AI refinements.
   exact: 1,693 from C, 285,472 bytes, and 53 from assembly. By area the
   build has 1,360 of the 1,436 game functions that the sweep counts.
 
-- Nonmatching C, by the owner's decision of 2026-10-09: one stage function
-  that stayed short of exact is published in
+- Nonmatching C, by the owner's decision of 2026-10-09: functions that
+  stayed short of exact are published in the folders
+  `ps1/src/*_nonmatching/`, a batch at a time, the first folder being
   [`ps1/src/slot06_nonmatching/`](../ps1/src/slot06_nonmatching/README.md)
-  with its contract and a differential test against the original code under
-  an emulator. It is not in the build and no count above changes. A pass of
-  the test is evidence for the tested inputs, not equivalence.
+  with the test. Each function has its contract and a differential test
+  against the original code under an emulator, and each folder's page
+  holds the test's lines. None of it is in the build and no count above
+  changes. A pass of the test is evidence for the tested inputs, not
+  equivalence. The port needs C for every function, so this goes on
+  until no function of the game is without C.
 
 ## Current checkpoint
 

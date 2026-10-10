@@ -11,10 +11,11 @@ of its image, enters the build there, and leaves this one.
 
 ## What "nonmatching" means here
 
-The function is NOT byte-identical to the original: its build has the same
-size (see the table) but differs from the original's bytes. What these files
-claim is narrower: on the inputs of the function's contract, the build and
-the original code leave the same final state.
+A function here is NOT byte-identical to the original: its build differs
+from the original's bytes, and mostly in size too (the lines under
+"Functions" give both sizes). What these files claim is narrower: on the
+inputs of the function's contract, the build and the original code leave
+the same final state.
 
 ## The test
 
@@ -203,15 +204,71 @@ What these commands printed on 2026-10-09:
     python difftest.py --config ../build.toml --cases 2000 --all
 
 ```
+func_801e84cc_slot06_0e: built 504 bytes, original 536 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e84cc_slot06_0e coverage: 133 of 134 instruction slots of the original executed
+func_801e8bd8_slot06_08: built 1496 bytes, original 2124 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8bd8_slot06_08 coverage: 523 of 531 instruction slots of the original executed
+func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8dc4_slot06_00 coverage: 108 of 108 instruction slots of the original executed
+func_801e8dc8_slot06_05: built 756 bytes, original 840 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8dc8_slot06_05 coverage: 207 of 210 instruction slots of the original executed
+func_801e8df0_slot06_0a: built 768 bytes, original 768 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8df0_slot06_0a coverage: 190 of 192 instruction slots of the original executed
+func_801e8fec_slot06_11: built 648 bytes, original 728 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e8fec_slot06_11 coverage: 180 of 182 instruction slots of the original executed
 func_801e9080_slot06_00: built 700 bytes, original 700 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e9080_slot06_00 coverage: 173 of 175 instruction slots of the original executed
+func_801e90a8_slot06_10: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e90a8_slot06_10 coverage: 36 of 37 instruction slots of the original executed
+func_801e9114_slot06_12: built 704 bytes, original 828 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9114_slot06_12 coverage: 204 of 207 instruction slots of the original executed
+func_801e96fc_slot06_0b: built 820 bytes, original 996 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e96fc_slot06_0b coverage: 246 of 249 instruction slots of the original executed
+func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original executed
+func_801e9798_slot06_06: built 888 bytes, original 972 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9798_slot06_06 coverage: 240 of 243 instruction slots of the original executed
+func_801e9840_slot06_09: built 728 bytes, original 728 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9840_slot06_09 coverage: 180 of 182 instruction slots of the original executed
+func_801e98c8_slot06_0c: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e98c8_slot06_0c coverage: 36 of 37 instruction slots of the original executed
+func_801e98dc_slot06_07: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e98dc_slot06_07 coverage: 36 of 37 instruction slots of the original executed
 ```
 
     python difftest.py --config ../build.toml --cases 2000 --control --all
 
 ```
+func_801e84cc_slot06_0e control: different 1968 of 2000 (expected more than 0)
+  altered: v coordinate store moved by one byte, instruction slot 89
+func_801e8bd8_slot06_08 control: different 110 of 2000 (expected more than 0)
+  altered: row count limit 0x20 changed to 0x10, instruction slot 67
+func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
+  altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69
+func_801e8dc8_slot06_05 control: different 1790 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 178
+func_801e8df0_slot06_0a control: different 1811 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 180
+func_801e8fec_slot06_11 control: different 1779 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 155
 func_801e9080_slot06_00 control: different 1797 of 2000 (expected more than 0)
   altered: record counter store moved by two bytes, instruction slot 164
+func_801e90a8_slot06_10 control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e9114_slot06_12 control: different 1820 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 168
+func_801e96fc_slot06_0b control: different 1813 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 193
+func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
+  altered: v coordinate store moved by one byte, instruction slot 107
+func_801e9798_slot06_06 control: different 1799 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 211
+func_801e9840_slot06_09 control: different 1800 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 172
+func_801e98c8_slot06_0c control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e98dc_slot06_07 control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
 ```
 
 A function with fewer slots executed than it has names the others in its
