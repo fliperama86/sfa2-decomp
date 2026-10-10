@@ -736,7 +736,7 @@ def cases(plain: PadRig, linked: PadRig, psyz_build: Path | None):
         elif keys_line is None:
             print("skip pads-keys-line-names-the-keys-of-psyz-s-table: no --psyz-build")
         else:
-            yield "keys-line-names-the-keys-of-psyz-s-table-and-follows-the-overrides-line", None if status == 0 and shown == [keys_line] and lines[lines.index("overrides: 0") + 1] == keys_line else f"status {status}, lines {shown!r}, wanted {keys_line!r}"
+            yield "keys-line-names-the-keys-of-psyz-s-table-and-follows-the-overrides-in-c-line", None if status == 0 and shown == [keys_line] and lines[lines.index("overrides in C: 0") + 1] == keys_line else f"status {status}, lines {shown!r}, wanted {keys_line!r}"
 
 
 def main() -> int:

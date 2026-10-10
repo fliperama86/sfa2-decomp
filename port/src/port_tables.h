@@ -7,7 +7,7 @@
  * `address`, exactly its bytes); null where the build gave none. archives: the names (upper case, as the inventory writes them) of all the archives that carry the image's content,
  * ending with a null pointer; null where the build gave none. */
 struct port_image    { const char *name; unsigned address; const char *like; unsigned slot; const char *const *archives; const unsigned char *sha256; };
-struct port_function { unsigned address; void *impl; const char *name; int image; };  /* image: index, -1 = resident */
+struct port_function { unsigned address; void *impl; const char *name; int image; int overridden; };  /* image: index, -1 = resident; overridden: 1 when the C behind impl is an override of the port's own (port/overrides), else 0 */
 struct port_absent   { unsigned address; const char *name; int image; int library; };
 
 extern const struct port_image    port_images[];    extern const unsigned port_image_count;

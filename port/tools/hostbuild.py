@@ -110,6 +110,42 @@ tree of 2026-10-09 none did: that was one comparison made with the chunk
 lengths of the game's archives, which this repository does not hold, and no
 command here repeats it.
 
+The overrides
+-------------
+
+Some exact C of the game cannot run on a PC as written: a call through a pointer declared without parameters, to a
+function that reads its parameter, relies on the value being left in an argument register. The game's source is not
+changed for the port, so the port carries a second C file for such a function, which runs in its place in the PC
+program. The files are in the folder `--overrides DIR`, which must be a folder (anything else is refused, status 2:
+a mistyped path must not build a program without its overrides; an empty folder is how to ask for none). Without the
+option the folder is `overrides` beside the runtime folder, so `port/overrides`, and when that one does not exist
+there are none. Every `*.c` file of the folder (not of its subfolders) is one override, and its stem is the NAME of
+the function it stands for.
+
+Before any compilation a file is refused (status 2, one line that names the file and the reason) when NAME is a
+nonmatching function, when NAME is no function that a unit of the configuration declares (two messages), when NAME is
+declared by a unit that `hostcheck` does not select, and when `NAME.py` is not beside `NAME.c`. That file is the
+contract of the override's differential test; this tool does not read or run it, it requires it to exist.
+
+An override is compiled alone with the command of a unit (it includes the game's headers by a path relative to its
+own folder). Its assembly must define exactly one global symbol, NAME (static functions and data are allowed). An
+override that does not compile, or defines another global symbol or not NAME, ends the build with status 1 and the
+first error line or the symbol's name; there is no fall back to the unit's C. Its object is `ovr_NAME.o`.
+
+In the override's assembly NAME's definition becomes `impl_NAME`, as for a unit. In the assembly of the unit that
+defines NAME that one definition becomes `replaced_NAME` instead (the same lines as the rename changes); every other
+definition of the unit stays `impl_`. References are untouched, so every caller, those in the unit too, reaches NAME
+through its PS1 address and so reaches the override. A unit that does not build, or does not define NAME, ends the
+build with status 1. For an image X that is `like` the image Y of the unit, the override is placed a second time as a
+unit is (`impl_NAME__X`; the unit's second definition is `replaced_NAME__X`); a unit that X leaves out has no second
+placement of its override either. `port_functions` points NAME (and `NAME__X`) at `impl_NAME`, with its field
+`overridden` at 1. The link check treats the `replaced_` definitions as game text (between the markers, outside the
+PS1's ranges) and refuses a row of `port_functions` that points at a `replaced_` symbol.
+
+What this tool does not check: that the override's C has the parameters and the result type of the unit's C (it
+does not read C), and that the test of `NAME.py` passes or was ever run (it has none of the game's files). Both
+belong to the differential test, which is run where the game's files are.
+
 The namespace
 -------------
 
@@ -157,7 +193,8 @@ compilation.
 `port_functions` holds every function with C: a function that a unit which
 compiled declares and defines, and a nonmatching function that its file
 defines; sorted by image (the resident executable first, as -1) and
-address. Two at one address of one image is an error. `port_absents` holds
+address. Two at one address of one image is an error. The field `overridden` of a row is 1 when an
+override (below) stands behind the row, else 0. `port_absents` holds
 every function of the inventory (`ps1/inventory/game.tsv`, `library.tsv`
 and, for every image of the configuration (the second placements too),
 `modules.tsv`; a row of `modules.tsv` belongs to an image as
@@ -276,6 +313,7 @@ Standard output, in this order, with nothing else:
     units: U compiled, N of them nonmatching, F failed
     like images built: L
     functions with C: C
+    functions overridden in C: O
     functions without C: A, library L2, game and modules G
     sweep rows that are not functions: N
     names at PS1 addresses: P
@@ -284,7 +322,8 @@ Standard output, in this order, with nothing else:
 
 With `--psyz` the line `psyz: COMMIT` follows `compiler:`. PATH is relative to the current folder when the linked file lies under it.
 
-U counts the units tried, nonmatching ones included. A is the number of
+O is the number of rows of `port_functions` whose field `overridden` is 1 (second placements counted as the line above
+counts them); the line is printed also when O is 0. U counts the units tried, nonmatching ones included. A is the number of
 rows of `port_absents`, L2 those of the library and G the others (the
 resident game and the module images, without the rows that begin with data), so that A = L2 + G. L is the number of
 `like` images placed a second time. The last line is
@@ -297,6 +336,7 @@ F, D, the `like` images and the game rows of A follow, one per line:
     data-row: NAME at 0xADDRESS, IMAGE, rule 2: inside the unit UNIT (0xSTART-0xEND)
     not-contiguous: unit UNIT: its functions are not contiguous; rows inside its range keep their stop
     like: IMAGE of FIRST, shift +0xSHIFT, N names move, units left out: UNIT ...
+    override: NAME at FILE, in place of the C of unit UNIT
     absent: NAME 0xADDRESS IMAGE
 
 (IMAGE is `-` for the resident executable). Objects are always rebuilt.
@@ -308,13 +348,13 @@ compiler cannot be run, with one line on standard error that names it.
 
 usage:
   hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
-               [--out NAME] [--runtime DIR] [--sweep-rows FILE] [--psyz DIR] [--jobs N]
+               [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--psyz DIR] [--jobs N]
                [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
 `i686-w64-mingw32-gcc`; the `nm` next to CC with the same prefix (`gcc` at
 its end replaced by `nm`, else `nm`); `port/build/host`; `sfa2.exe`;
-`port/src`; as many jobs as the machine has processors; 300 seconds.
+`port/src`; `overrides` beside the runtime folder; as many jobs as the machine has processors; 300 seconds.
 """
 
 from __future__ import annotations
@@ -371,16 +411,18 @@ SYMBOL = re.compile(r"[A-Za-z_.$][\w.$]*")
 # The rename.
 
 
-def renamed(name: str, underscore: bool, suffix: str = "") -> str:
+def renamed(name: str, underscore: bool, suffix: str = "", prefix: str = "impl_") -> str:
     if underscore and name.startswith("_"):
-        return "_impl_" + name[1:] + suffix
-    return "impl_" + name + suffix
+        return "_" + prefix + name[1:] + suffix
+    return prefix + name + suffix
 
 
-def rename_definitions(text: str, underscore: bool, suffix: str = "") -> tuple[str, set[str]]:
+def rename_definitions(text: str, underscore: bool, suffix: str = "", replaced: frozenset[str] | set[str] = frozenset()) -> tuple[str, set[str]]:
     """The assembly with the definitions of its global symbols renamed, and the symbols defined.
 
-    `suffix` is added to the new names (`impl_NAME` + suffix), for the second placement of a unit."""
+    `suffix` is added to the new names (`impl_NAME` + suffix), for the second placement of a unit. A defined symbol
+    that is in `replaced` (spelled as the assembly spells it) becomes `replaced_NAME` + suffix instead: the
+    definition of a function that an override in C stands in for."""
     lines = text.split("\n")
     stripped = [x[:-1] if x.endswith("\r") else x for x in lines]
     named: set[str] = set()
@@ -399,7 +441,7 @@ def rename_definitions(text: str, underscore: bool, suffix: str = "") -> tuple[s
         if match:
             placed.add(match.group(2))
     defined = named & placed
-    new = {name: renamed(name, underscore, suffix) for name in defined}
+    new = {name: renamed(name, underscore, suffix, "replaced_" if name in replaced else "impl_") for name in defined}
     out = []
     for raw, line in zip(lines, stripped):
         tail = raw[len(line):]
@@ -555,6 +597,53 @@ def select_units(config: dict, path: Path) -> Selection:
             declared.append(fn)
             jobs.append(Job(stem, file, True, [fn], image))
     return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names)
+
+
+# The overrides.
+
+
+@dataclass
+class Override:
+    """A C file of the port's own that stands in, in the PC program, for a function that a unit has C for."""
+
+    name: str  # the function; the file's stem
+    source: Path
+    job: Job  # the unit that defines the function
+
+    @property
+    def object(self) -> str:
+        return f"ovr_{self.name}"
+
+
+def read_overrides(folder: Path | None, selection: Selection) -> list[Override]:
+    """The overrides of `folder` (every `*.c` file of it, not of its subfolders; none when the folder does not exist).
+
+    A file is refused, with its name and the reason, when its stem is not a function that a selected unit declares
+    (a nonmatching function and an unknown name each have their message), when it names a function of a unit that
+    `hostcheck` does not select, or when `NAME.py`, the file of its differential test, is not beside it."""
+    if folder is None or not folder.is_dir():
+        return []
+    nonmatching = {j.name for j in selection.jobs if j.nonmatching}
+    selected = {j.name for j in selection.jobs}
+    declared_in: dict[str, Job] = {}
+    for job in selection.jobs:
+        if not job.nonmatching:
+            for fn in job.functions:
+                declared_in.setdefault(fn.name, job)
+    unselected = {fn.name: fn.unit for fn in selection.declared if fn.unit not in selected}
+    out: list[Override] = []
+    for file in sorted(x for x in folder.glob("*.c") if x.is_file()):
+        name = file.stem
+        if name in nonmatching:
+            raise Problem(f"{file}: {name} is a nonmatching function; an override stands in for a function that a unit of the configuration has C for")
+        if name not in declared_in:
+            if name in unselected:
+                raise Problem(f"{file}: {name} belongs to the unit {unselected[name]}, which hostcheck does not select")
+            raise Problem(f"{file}: {name} is not a function that a unit of the configuration declares; an override is not a way to supply a function")
+        if not file.with_suffix(".py").is_file():
+            raise Problem(f"{file}: there is no {name}.py beside it, the file of its differential test")
+        out.append(Override(name, file, declared_in[name]))
+    return out
 
 
 # The names.
@@ -882,8 +971,10 @@ def read_baseline_hash(config: dict, path: Path) -> str:
     return value.lower()
 
 
-def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None) -> str:
-    """`archives` (image name to archive names) adds the archive list of each image that has one."""
+def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None,
+                  overridden: frozenset[str] | set[str] = frozenset()) -> str:
+    """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
+    the names of the functions whose row is flagged: the C behind the row is an override of the port's own."""
     archives = archives or {}
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
@@ -913,8 +1004,8 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         for n, i in enumerate(images)
     ], "{ 0, 0, 0, 0, 0, 0 }")
     table("port_function", "port_functions", [
-        "{ 0x%08xu, (void *)%s, %s, %d }" % (f[1], f[2], c_string(f[3]), f[0]) for f in functions
-    ], "{ 0, 0, 0, 0 }")
+        "{ 0x%08xu, (void *)%s, %s, %d, %d }" % (f[1], f[2], c_string(f[3]), f[0], int(f[3] in overridden)) for f in functions
+    ], "{ 0, 0, 0, 0, 0 }")
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
@@ -936,8 +1027,9 @@ def in_ps1(address: int) -> bool:
     return any(low <= address <= high for low, high in PS1_RANGES)
 
 
-def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: list[str], underscore: bool) -> list[str]:
-    """The misses of the linked file, from the text of `nm`; empty when none."""
+def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: list[str], underscore: bool, replaced: list[str] = ()) -> list[str]:
+    """The misses of the linked file, from the text of `nm`; empty when none. `replaced` are the functions whose
+    definition in a unit is `replaced_NAME` (an override stands in for it): each must exist outside the PS1's ranges."""
     us = "_" if underscore else ""
     seen: dict[str, list[int]] = {}
     for line in nm_text.splitlines():
@@ -960,6 +1052,12 @@ def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: 
             misses.append(f"impl_{name}: not in the linked file")
         elif any(in_ps1(a) for a in found):
             misses.append(f"impl_{name}: at a PS1 address {found[0]:#x}")
+    for name in sorted(replaced):
+        found = seen.get(us + "replaced_" + name)
+        if not found:
+            misses.append(f"replaced_{name}: not in the linked file")
+        elif any(in_ps1(a) for a in found):
+            misses.append(f"replaced_{name}: at a PS1 address {next(x for x in found if in_ps1(x)):#x}")
     for name in sorted(aliases):
         plain, copy = seen.get(us + "ps1_" + name), seen.get(us + "impl_" + name)
         if not plain or not copy:
@@ -1055,11 +1153,11 @@ def text_symbols(nm_text: str) -> list[str]:
     return out
 
 
-def verify_markers(nm_text: str, impls: list[str], runtime_symbols: list[str], underscore: bool) -> list[str]:
+def verify_markers(nm_text: str, impls: list[str], runtime_symbols: list[str], underscore: bool, replaced: list[str] = ()) -> list[str]:
     """The misses of the game-code markers in the linked file; empty when none.
 
-    Both markers exist, begin lies below end, every `impl_` function lies between them, and no text symbol
-    of the runtime's own objects does."""
+    Both markers exist, begin lies below end, every `impl_` function lies between them (the `replaced_` ones too: they
+    are the game's text), and no text symbol of the runtime's own objects does."""
     us = "_" if underscore else ""
     seen: dict[str, list[int]] = {}
     for line in nm_text.splitlines():
@@ -1082,11 +1180,21 @@ def verify_markers(nm_text: str, impls: list[str], runtime_symbols: list[str], u
         for a in seen.get(us + "impl_" + name, []):
             if not low <= a < high:
                 misses.append(f"impl_{name}: at {a:#x}, outside the game's code {low:#x}-{high:#x}")
+    for name in sorted(replaced):
+        for a in seen.get(us + "replaced_" + name, []):
+            if not low <= a < high:
+                misses.append(f"replaced_{name}: at {a:#x}, outside the game's code {low:#x}-{high:#x}")
     for name in sorted(set(runtime_symbols)):
         for a in seen.get(name, []):
             if low <= a < high:
                 misses.append(f"{name}: a runtime symbol at {a:#x}, inside the game's code {low:#x}-{high:#x}")
     return misses
+
+
+def verify_rows(functions: list[tuple]) -> list[str]:
+    """The misses of the rows of `port_functions` (as `build_tables` gives them): no row may point at a `replaced_` symbol,
+    the C that an override stands in for."""
+    return [f"{f[3]}: its row of port_functions points at {f[2]}, the C that an override stands in for" for f in functions if f[2].startswith("replaced_")]
 
 
 # Running the compiler.
@@ -1109,8 +1217,12 @@ class Outcome:
     seconds: list[Placement] = field(default_factory=list)  # the second placements that were assembled, as `<unit>__<image>.o`
 
 
-def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, placements: list[Placement] = ()) -> Outcome:
+def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, placements: list[Placement] = (), replaced: frozenset[str] = frozenset()) -> Outcome:
+    """Compile one unit (or one override, which is built the same way), rename its definitions, assemble.
+
+    `replaced` holds the C names of functions that an override stands in for: their definitions become `replaced_NAME`."""
     out = Outcome(job)
+    marked = frozenset(("_" if underscore else "") + n for n in replaced)
     asm, obj = build / "asm" / f"{job.name}.s", build / "obj" / f"{job.name}.o"
     asm.unlink(missing_ok=True)
     obj.unlink(missing_ok=True)
@@ -1124,7 +1236,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
     try:
         with open(asm, encoding="utf-8", errors="surrogateescape", newline="") as handle:
             text = handle.read()
-        new, defined = rename_definitions(text, underscore)
+        new, defined = rename_definitions(text, underscore, replaced=marked)
         left = labels_left(new, defined)
         if left:
             raise Problem(f"the rename of {job.name} left these defined names as labels: {' '.join(left)}")
@@ -1142,7 +1254,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
     for place in placements:
         if place.first != job.image or job.name in place.left_out:
             continue
-        second, again = rename_definitions(text, underscore, place.suffix)
+        second, again = rename_definitions(text, underscore, place.suffix, marked)
         left = labels_left(second, again)
         if left:
             raise Problem(f"the rename of {job.name} for {place.image} left these defined names as labels: {' '.join(left)}")
@@ -1282,6 +1394,12 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     names = merge_names(entries + [(f.name, f.address, f"unit {f.unit} placed in {f.image}") for f in moved_functions]
                         + [(n + pl.suffix, a, f"{pl.image} placed") for pl in placements for n, a in pl.moved.items()])
 
+    if args.overrides is not None and not args.overrides.is_dir():
+        raise Problem(f"--overrides {args.overrides}: not a folder (give an empty folder for no override)")
+    overrides = read_overrides(args.overrides or runtime.parent / "overrides", selection)
+    for ov in overrides:
+        if any(j.name == ov.object for j in selection.jobs):
+            raise Problem(f"{ov.source}: the unit {ov.object} has the name that its object would have")
     psyz = read_psyz(args.psyz) if args.psyz else None
     version = hostcheck.compiler_version(args.cc, args.timeout)
     out.append(f"compiler: {version}")
@@ -1293,8 +1411,20 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     write_text(build / "gen" / header, structgen.generate_header(model, Path(header).name))
     underscore = detect_underscore(args.cc, build / "probe", args.timeout)
 
+    # The overrides are built first, alone: one that does not build, or defines more than its function, ends the build.
+    ov_outcomes: list[Outcome] = []
+    for ov in overrides:
+        job = Job(ov.object, ov.source, False, [Function(ov.name, 0, ov.job.image, ov.object)], ov.job.image)
+        o = build_unit(job, args.cc, build, underscore, args.timeout, [pl for pl in placements if ov.job.name not in pl.left_out])
+        if not o.ok:
+            raise Failure(f"override {ov.source}: {o.reason}")
+        if o.defined != {ov.name}:
+            extra = sorted(o.defined - {ov.name})
+            raise Failure(f"override {ov.source}: " + (f"it defines the global symbol {extra[0]}; it may define only {ov.name}" if extra else f"it does not define {ov.name}"))
+        ov_outcomes.append(o)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout, placements) for j in selection.jobs]
+        futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout, placements,
+                               frozenset(ov.name for ov in overrides if ov.job is j)) for j in selection.jobs]
         outcomes = sorted((f.result() for f in futures), key=lambda o: o.job.name)
     failed = [o for o in outcomes if not o.ok]
     write_text(build / "failed.tsv", "".join(f"{o.job.name}\t{o.reason}\n" for o in failed))
@@ -1305,6 +1435,21 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         f"like: {pl.image} of {pl.first}, shift {pl.shift:+#x}, {len(pl.moved)} names move, units left out: {' '.join(sorted(pl.left_out)) or '-'}"
         for pl in placements
     )
+
+    # The overrides: the unit that declares the function must have compiled and defined it (as `replaced_NAME` now).
+    by_unit = {o.job.name: o for o in outcomes}
+    overridden: set[str] = set()
+    replaced_names: list[str] = []
+    for ov in overrides:
+        owner = by_unit[ov.job.name]
+        if not owner.ok:
+            raise Failure(f"override {ov.source}: the unit {ov.job.name}, which defines {ov.name}, did not build")
+        if ov.name not in owner.defined:
+            raise Failure(f"override {ov.source}: the unit {ov.job.name} declares {ov.name} but its C does not define it")
+        for suffix in ("", *(pl.suffix for pl in owner.seconds)):
+            overridden.add(ov.name + suffix)
+            replaced_names.append(ov.name + suffix)
+    listing.extend(f"override: {o.name} at {shown(o.source)}, in place of the C of unit {o.job.name}" for o in overrides)
 
     # Functions with C.
     with_c: list[tuple[Function, str]] = []
@@ -1338,6 +1483,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     kept_rows, span_rows = split_span_rows(kept_rows, spans)
     functions, absents = build_tables(selection.images, with_c, kept_rows, selection.declared + moved_functions)
     out.append(f"functions with C: {len(functions)}")
+    out.append(f"functions overridden in C: {sum(1 for f in functions if f[3] in overridden)}")
     library = sum(1 for a in absents if a[3])
     out.append(f"functions without C: {len(absents)}, library {library}, game and modules {len(absents) - library}")
     out.append(f"sweep rows that are not functions: {len(sweep_entries) + len(span_rows)}")
@@ -1382,18 +1528,19 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         write_text(build / "gen" / f"redefine{pl.suffix}.txt",
                    render_redefine(plain, aliases, underscore, moved=set(pl.moved) | pl.data, suffix=pl.suffix))
     objcopy = args.objcopy or default_objcopy(args.cc)
-    todo = [(o.job.name, "redefine.txt") for o in outcomes if o.ok]
-    todo += [(f"{o.job.name}{pl.suffix}", f"redefine{pl.suffix}.txt") for o in outcomes if o.ok for pl in o.seconds]
+    built = [o for o in outcomes if o.ok] + ov_outcomes
+    todo = [(o.job.name, "redefine.txt") for o in built]
+    todo += [(f"{o.job.name}{pl.suffix}", f"redefine{pl.suffix}.txt") for o in built for pl in o.seconds]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         reasons = list(pool.map(lambda t: redefine(t[0], objcopy, build, args.timeout, t[1]), todo))
     broken = [(t[0], r) for t, r in zip(todo, reasons) if r]
     if broken:
         raise Failure("\n".join(f"{n}: {r}" for n, r in broken[:20]))
     tables_path = build / "gen" / "port_tables.c"
-    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives))
+    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives, overridden))
 
     # The runtime, the tables and the link.
-    objects = sorted([o.job.name for o in outcomes if o.ok] + [f"{o.job.name}{pl.suffix}" for o in outcomes if o.ok for pl in o.seconds])
+    objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds])
     rt_objects: list[Path] = []
     for source in [*runtime_sources, tables_path]:
         obj = build / "rt" / f"{source.stem}.o"
@@ -1438,8 +1585,9 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             raise Failure(f"nm did not run on {obj}")
         runtime_symbols += text_symbols(listing_nm.stdout)
     misses = verify_image(exe.read_bytes())
-    misses += verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
-    misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore)
+    misses += verify_rows(functions)
+    misses += verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore, replaced_names)
+    misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore, replaced_names)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
     out.append(f"linked: {shown(exe)}, verified")
@@ -1471,6 +1619,7 @@ def main() -> int:
     parser.add_argument("--out", default="sfa2.exe")
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
+    parser.add_argument("--overrides", type=Path, default=None)
     parser.add_argument("--psyz", type=Path, default=None)
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)

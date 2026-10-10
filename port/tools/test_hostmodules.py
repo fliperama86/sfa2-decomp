@@ -418,7 +418,7 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     fns.sort(key=lambda f: (f[3], f[0]))
     out.append("const struct port_function port_functions[] = {")
     for a, name, sym, image in fns:
-        out.append(f'    {{ 0x{a:08x}u, (void *){sym}, "{name}", {image} }},')
+        out.append(f'    {{ 0x{a:08x}u, (void *){sym}, "{name}", {image}, 0 }},')
     out.append("};")
     out.append(f"const unsigned port_function_count = {len(fns)};")
     abs_ = [(a, n, -1, 1) for n, a in LIB.items()] + [(GA, "func_80150020_ma", 0, 0), (GA, "func_80150020_mb", 1, 0), (KG, "func_80180020_mk", 3, 0),

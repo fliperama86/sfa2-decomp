@@ -29,7 +29,10 @@ results stay under ignored `local/ai-workflow/` by default.
   private inputs from the supplied local input repository, and select checks
   from the diff. Matching-input changes use the authoritative matching build;
   nonmatching additions run differential cases on two seeds, actual negative
-  controls, and original write audits. Port/tool changes select their controls.
+  controls, and original write audits. A changed override of the port
+  (`port/overrides/NAME.c` or `NAME.py`) runs the same three on its
+  contract, and a change that broadens (a shared header, the harness)
+  runs them on every override. Port/tool changes select their controls.
   A plan-only mode explains commands without claiming that they ran. Results
   record the exact commit, scope, commands, exit status and evidence hashes.
   Passing checks never automatically approve a PR.
