@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "b13d6dedd16f43517f953d981bba657190ae5fec302ec2a8892e328911eda2a2",
+  "sha256": "ce89ed190ef872f6031283e6ce2205f6d10d5eb32638c8acebdb2ea9f498aa83",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -519,24 +519,44 @@
       "line": 8100
     },
     {
-      "title": "Windows reference",
+      "title": "Two functions exact from their look-alikes (2026-10-10)",
       "line": 8132
     },
     {
+      "title": "Three more functions exact from the unattended search (2026-10-10)",
+      "line": 8170
+    },
+    {
+      "title": "Three more functions exact: two from look-alikes, one from the search (2026-10-10)",
+      "line": 8203
+    },
+    {
+      "title": "Three more functions exact from look-alikes: a pair of the module of slot 0xf, a library routine (2026-10-10)",
+      "line": 8234
+    },
+    {
+      "title": "Windows reference",
+      "line": 8279
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8149
+      "line": 8296
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8174
+      "line": 8321
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8231
+      "line": 8378
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
+      "line": 8463
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8316
+      "line": 8577
     }
   ]
 }

@@ -177,7 +177,8 @@ case of a refusal also checks that the whole input is unchanged. It
 needs no compiler. On 2026-10-09 it ended with
 `all cases behaved as required`.
 
-Nothing in this tree links the result yet.
+The graphics layer of the host program links the result when the host
+build is given `--psyz` (below).
 
 ## The check
 
@@ -714,16 +715,16 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `c895976`:
+it is in commit `b2f4e19`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3730 compiled, 1 of them nonmatching, 0 failed
+units: 3780 compiled, 49 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12458
-functions without C: 613, library 385, game and modules 228
+functions with C: 12524
+functions without C: 547, library 385, game and modules 162
 sweep rows that are not functions: 11
-names at PS1 addresses: 45855
+names at PS1 addresses: 46083
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -750,7 +751,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1402 written for functions with C, 450 for functions without
+jumps: 1404 written for functions with C, 448 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
@@ -869,8 +870,76 @@ routines that do nothing on purpose. What is in this piece:
   program had returned at once, and prints a line at each skip; that is
   not what the game does, and it is off unless asked for.
 
-Not in this piece: the graphics, the pads, the modules. Their
-functions are among the 301 that stop.
+- The graphics, through PsyZ. This part exists only in a program built
+  with `hostbuild.py --psyz DIR`, DIR being a build folder of
+  `psyzbuild.py`; without the option the graphics functions stay among
+  those that stop and the program links nothing of PsyZ. With it the
+  program built from this tree prints
+  `library: 111 host routines, 274 left that stop`. The layer serves 27
+  functions of the graphics library. The drawing goes through PsyZ:
+  every list that the game hands to `DrawOTag`, and the packet of
+  `PutDrawEnv`, is walked by the port and each packet is handed on
+  behind the two-word tag that PsyZ uses, because the game's lists are
+  linked by 24-bit addresses of the PS1's RAM. `ClearImage`,
+  `LoadImage`, `StoreImage`, `MoveImage`, `DrawSync`, `SetDispMask`,
+  `PutDispEnv`, `ResetGraph` and the window are PsyZ's as well. The
+  port itself does what only touches the game's own structures: the
+  ordering-table setters, `AddPrim` and its relatives, the setters of
+  primitives, `GetTPage`, `GetClut`, `SetDrawMode`, the default
+  environments, and the words of a drawing environment, after the
+  library's own code. A picture is presented once per vertical blank.
+  The window opens windowed; closing it ends the program.
+- What the graphics layer does not trust. The lists are the game's data:
+  every link must point into the RAM and a list that does not end is cut
+  off by a count. A packet is a stream of commands: before any word of
+  it reaches PsyZ, the port steps through the whole packet with the
+  number of words that each kind of command takes, and the stream must
+  end exactly at the packet's end; a command that would need words
+  beyond it ends the program with a line that names the kind and the
+  word. PsyZ is given the packet's words and nothing else. A kind that
+  the port does not decode (polylines, the copies that carry their data,
+  and a few more) ends the program too, wherever it stands in a packet:
+  nothing is skipped. So does a kind whose length PsyZ reads differently
+  from the console's: the lines with bit 2 set (`0x44` to `0x47` and
+  `0x54` to `0x57`), for which PsyZ takes one word more, the next
+  command's first word. Such a kind is refused, never rewritten into
+  another form. The walker's table and PsyZ's decoder were compared
+  for all 256 kinds (the comment above `command_words` in `gpu.c` has the
+  table with file and line), and `test_hostgpu.py` sends every kind,
+  followed by a complete fill, as a control. A rectangle of an image routine must lie inside
+  the frame buffer of 1024 by 512; a width or height of zero or less
+  becomes 1 and one above 1023 or 511 becomes that, as the library's
+  code does, before the test. The console's hardware wraps a rectangle
+  that leaves the frame buffer; the port does not do that yet and ends
+  with a line instead. A drawing or image routine before
+  `ResetGraph(0)` ends the program: PsyZ would hang. `SetDispMask` and
+  `DrawSync` are served before it, as the console's library serves them
+  and as the game's start-up calls them; `ResetGraph(0)` then leaves
+  the display off, as the reset of the hardware does.
+- Which memory is the game's. A structure that the game's C keeps in a
+  local lies on the console's stack inside the RAM; on a PC it lies on
+  the host's stack. So a structure or buffer that the game hands over by
+  pointer is accepted when the whole of it lies in the RAM, in the
+  scratchpad, or in the live part of the stack that the calling task is
+  running on, and refused otherwise: not another task's stack, not the
+  heap, not the program's own code or data. One routine of the runtime
+  decides this for the graphics layer. The nodes of a list must be in
+  the RAM, since their links are RAM addresses. The first version
+  accepted the RAM only and stopped the real game at its first
+  `ClearImage`, whose rectangle is a local.
+- Where the picture differs from the console's, known so far: a drawn
+  pixel reads back with its top bit set, where PsyZ keeps opacity; PsyZ
+  rounds a flat colour's 8 bits to 5 in its own way (248 gives 30, the
+  console's shift gives 31); `ClearOTag` ends a table with the
+  library's end mark itself; a present waits for the display's refresh
+  on a window that cannot tear. None of this has been compared with the
+  console's picture: the list is what the worker saw in PsyZ's code and
+  in the controls.
+- `--dump-vram PREFIX` writes the frame buffer as a picture file when
+  the program ends, and `--dump-every N` every N seconds.
+
+Not in this piece: the pads and the modules. Their functions are
+among those that stop.
 
 ### The console's copy of RAM at address 0
 
@@ -935,11 +1004,11 @@ large offset, stays unseen.
   and linked, and nothing of them has run.
 - Anything about the library on the real game: its host routines have
   run only on the made-up game code of the controls, because the
-  published tree stops at `main` before any of them. PsyZ is not linked.
-  The build tool takes a build of PsyZ (`--psyz`) and writes each
-  image's archive names into its tables, and its header names `gpu.c`,
-  `modules.c` and `psyzbuild.py` for them: those files are not in this
-  tree yet.
+  published tree stops at `main` before any of them. That holds for the
+  graphics too: nothing of the real game has been drawn by a published
+  commit. The build tool also writes each image's archive names into
+  its tables, and its header names `modules.c` for them: that file is
+  not in this tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
 - An access of the game to the console's copy of RAM at `0x10000` or
   above: it is not served and, where Windows has memory of its own, not
@@ -1000,6 +1069,27 @@ position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
+`python3 port/tools/test_hostgpu.py --cc CC --psyz-build DIR` needs a
+built PsyZ and a way to open a window: it links the graphics layer
+with a small program of its own and reads the frame buffer back. Its
+cases: each routine's value; a picture checked pixel by pixel; the
+first list of a program drawn right; every primitive kind the walker
+knows at the length it needs, at 255 words and one word short; lists
+that leave the RAM, loop or run past its end; ordering tables from 30
+entries to all of RAM; rectangles at the frame buffer's edges and one
+pixel past each; pixel buffers at the end of the RAM; a call before
+`ResetGraph(0)`, and `SetDispMask` before it; packets with an incomplete
+command in each position, after a command without effect and after each
+setting word; a kind that is not decoded; structures on the stack of
+the first task and of another one, on a dead part of the stack, on the
+heap and in the program's own data; a display that cannot be opened;
+the dump onto a folder and onto a path that cannot be made; a program
+that outlasts its time, which is gone when the run goes on, while the
+same program started as another run would start it lives on. The cases
+run on SDL's offscreen video driver: PsyZ and its device work, the
+picture is read back, and no window is made. Nothing is stopped by
+name: two runs of this file on one machine do not touch each other's
+programs.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond
@@ -1009,7 +1099,7 @@ the image's last byte, an image cut inside the last file and one cut
 right behind its last byte; a directory that declares only its own two
 records, and a record that crosses or only begins inside the declared
 end, for the reader that lists and for the one that looks a file up. On
-2026-10-09 each of the four ended with
+2026-10-09 each of the five ended with
 `all cases behaved as required`.
 `python3 port/tools/test_hostmirror.py --cc CC` has the cases for the
 copy of RAM at address 0, in two parts. The first needs no Windows
