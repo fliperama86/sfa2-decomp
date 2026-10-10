@@ -33,6 +33,11 @@ import psyzbuild as pb  # noqa: E402
 Problem = pb.Problem
 
 
+# Every git command of the fixtures carries these: git then starts no background work (auto-maintenance, detached) after a
+# commit, which would create and remove .git/objects/maintenance.lock in a folder that a case is comparing.
+NO_BACKGROUND = ["-c", "maintenance.auto=false", "-c", "gc.auto=0", "-c", "gc.autoDetach=false"]
+
+
 def same(got, want):
     return None if got == want else f"wanted {want!r}, got {got!r}"
 
@@ -438,7 +443,7 @@ class World:
             write(self.src / name, body)
         self.commit = "unknown"
         if git:
-            git_cmd = ["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(self.src)]
+            git_cmd = ["git", *NO_BACKGROUND, "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(self.src)]
             subprocess.run(git_cmd + ["init", "-q"], check=True, capture_output=True, timeout=60)
             subprocess.run(git_cmd + ["add", "-A"], check=True, capture_output=True, timeout=60)
             subprocess.run(git_cmd + ["commit", "-q", "-m", "x"], check=True, capture_output=True, timeout=60)
@@ -549,7 +554,7 @@ def program_cases(root):
     # A plain folder inside another repository: git would answer with that repository's commit; the tool says unknown.
     outer = root / "outer"
     write(outer / "readme", "x\n")
-    git_cmd = ["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(outer)]
+    git_cmd = ["git", *NO_BACKGROUND, "-c", "user.name=t", "-c", "user.email=t@example.com", "-C", str(outer)]
     for step in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "x"]):
         subprocess.run(git_cmd + step, check=True, capture_output=True, timeout=60)
     outer_commit = subprocess.run(git_cmd + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True, timeout=60).stdout.strip()

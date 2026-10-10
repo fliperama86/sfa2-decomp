@@ -8630,8 +8630,21 @@ The layer that served only the first 64 KB met its limit in play: the exact `fun
   `test_hostmirror.py` prints the launch rig's record. Each file has a case for
   the diagnostic. No retry anywhere.
 - `test_psyzbuild.py`: the `input-unchanged` cases failed once or twice under
-  load without saying why; they now name the entries that differ. Under 12
-  burners 12 of 25 runs failed one such case, always with `removed
-  psyz-src/.git/objects/maintenance.lock`: the git commit that the fixture
-  makes starts a detached `git maintenance` that creates and removes that lock
-  after the snapshot. Not the tool's doing; not fixed here.
+  load (the two failed review runs of 2026-10-10, `boundary-obj-fifo-...` and
+  `boundary-obj-hard-link-to-the-patch-file-...`) without saying why; they now
+  name the entries that differ. Under 12 burners 12 of 25 runs failed one such
+  case (one-off), always with `removed psyz-src/.git/objects/maintenance.lock`:
+  the commit that the fixture makes started git's detached auto-maintenance,
+  which creates and removes that lock after the snapshot. Not the tool's doing.
+  Fixed at the root: every git command of the fixtures carries `-c
+  maintenance.auto=false -c gc.auto=0 -c gc.autoDetach=false` (covers the
+  `init`, `add` and `commit` of both fixtures); the comparison is unchanged and
+  `.git` is not excluded. After the change 0 of 25 runs failed under the same
+  load (one-off).
+- Not done: the gate's own mutual exclusion has no case that needs it. A timer
+  that checks the flag without taking the gate hung 0 of 200 runs of the exit
+  case, also with a 1 ms wait between its flag check and `SuspendThread` and
+  with a 1 ms wait between `SuspendThread` and `ResumeThread` (one-off, scratch
+  mutants). The hang needs `SuspendThread` to land after the game's thread
+  entered the kernel's process termination and before that termination ends
+  the timer; waiting in the timer makes that landing rarer, not likelier.

@@ -173,7 +173,10 @@ Ninja it is given.
 `python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
 the output lines and the exit statuses on invented trees and patch
 texts, and the real patch on a file made of the lines it expects; every
-case of a refusal also checks that the whole input is unchanged. It
+case of a refusal also checks that the whole input is unchanged (a
+difference is reported by the entries that were added, removed or changed;
+the fixture's git commands are run with git's background work switched off,
+so that nothing but the tool can write into a case's folder). It
 needs no compiler. On 2026-10-09 it ended with
 `all cases behaved as required`.
 
