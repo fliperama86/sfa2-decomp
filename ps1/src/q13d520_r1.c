@@ -44,7 +44,7 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
         object->slots[(u8)index].field_00 = object->slots[(u8)index].field_00 + 1;
         entry = table_8017a8cc[(u8)arg * 7];
         object->slots[(u8)index].field_01 = t0;
-        *(u8 *)&object->slots[(u8)index].field_02 = entry;
+        object->slots[(u8)index].field_02 = entry;
         ((void (*)(Object *, u8, u8, u16))func_8013f1bc)(object, (u8)index, (u8)arg, entry);
     }
 }

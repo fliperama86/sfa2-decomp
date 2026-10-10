@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "43617027f13c4919577f54c83ee65256b20845a7b393e3b3dd85ad5c84265b4b",
+  "sha256": "df3c24265dff951e5f6d634bf9a507fe1bb479fa77aff7eae75019e9c9675624",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -535,28 +535,32 @@
       "line": 8234
     },
     {
-      "title": "Windows reference",
+      "title": "The slot's third and fourth bytes are bytes, and one more function exact with that (2026-10-10)",
       "line": 8279
     },
     {
+      "title": "Windows reference",
+      "line": 8325
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8296
+      "line": 8342
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8321
+      "line": 8367
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8378
+      "line": 8424
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8463
+      "line": 8509
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8577
+      "line": 8623
     }
   ]
 }

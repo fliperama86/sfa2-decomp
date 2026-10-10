@@ -5391,7 +5391,6 @@ data_801c2efc_slot04_0b = 0x801c2efc;
 data_801c2f04_slot04_0b = 0x801c2f04;
 
 /* A parked function that an exact unit calls. */
-func_801b3a70_slot04_05 = 0x801b3a70;
 
 /* Added by src.u_slot04_00_1d2cx. */
 data_801c55b4_slot04_06 = 0x801c55b4;
