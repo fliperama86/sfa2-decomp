@@ -5,17 +5,19 @@ compile for the PC program from published files only: these headers and
 PsyZ's include folder (the port's dependency). They stand in for the
 headers that the repository does not carry (`ps1/src/sdk/include`).
 Every line here is written by this project; nothing is copied from that
-folder. `hostbuild.py --sdk` puts this folder, then PsyZ's include folder,
-on the include path of those units (`--sdk-private-include` keeps the old
-path, for a comparison).
+folder. `hostbuild.py --sound-library --psyz DIR` puts this folder, then
+PsyZ's include folder, on the include path of those units and of the files
+of `ps1/src/library_nonmatching`, and of no other unit. No path of
+`ps1/src/sdk/include` is ever given to the compiler.
 
 ## The headers
 
 - `common.h`: includes `<psyz/types.h>` (the fixed-width names `s16`, `u8`
   and the rest, taken from PsyZ), adds `bool`, `true` and `false`, then
   forwards to PsyZ's own `common.h` (`#include_next`). `bool` is a plain
-  `int` and not C's `_Bool`: the units' assembly (`s_srmp`) is the same as
-  with the matching work's headers only with `int`. The need for each name
+  `int` and not C's `_Bool`: in one private comparison, made once with the
+  matching work's headers (which the repository does not carry), the
+  assembly of `libspu/s_srmp.c` was the same only with `int`. The need for each name
   came from the compiler's errors on the units.
 - `psxsdk/libspu.h`: forwards to PsyZ's `libspu.h`. Adds nothing but the
   renaming below.
@@ -41,15 +43,17 @@ not changed.
 ## `__psyz`
 
 The units are compiled without `__psyz` and without `VERSION_PC`, the
-console's path. PsyZ's `common.h` pulls in `psyz.h` only under `__psyz`; it
-is not defined for them, so register accesses stay plain accesses through
-the library's pointers and nothing becomes a call into PsyZ.
+console's path. PsyZ's `common.h` includes `psyz.h` only under `__psyz`
+(read at the pin), and it is not defined for them. The units' own accesses
+to the sound chip's registers are therefore left as the library's C has them.
+This build does not serve those registers.
 
 ## The one unit whose assembly differs
 
-A comparison made once, with files the repository does not carry (the
-matching work's headers): the assembly of 66 of the 67 units is
-byte-identical to the build with those headers. `libspu/s_sca.c`
+A one-off comparison, made once with files the repository does not carry
+(the matching work's headers) and not repeatable from this repository: the
+assembly of 66 of the 67 units is byte-identical to the build with those
+headers. `libspu/s_sca.c`
 (`SpuSetCommonAttr`) differs: PsyZ declares the two halves of `SpuVolume`
 as `short`, the library C was written for `unsigned short`, and the
 compiler schedules the unit's comparisons differently. Every read of such
