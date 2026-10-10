@@ -11,10 +11,16 @@
  * What it does (inferred, not an original name): sets up an object as a
  * panel piece. It sets the common fields and the default handlers, then
  * takes one of three shapes by the object's field_03: with bit 7 set it is
- * the piece that shows a picked entry (a byte chosen from tables by the
- * kind and a selector of the object game_state.field_78 points at, or by
- * the random generator func_80151184 when that object's field_2ac is
- * negative), stored in game_state.field_112, and starts an animation with
+ * the piece that shows a picked entry (a byte chosen by the kind of the
+ * object game_state.field_78 points at and its field_2ac: when field_2ac
+ * is not negative, from data_8002ce3c_slot01 by kind and field_2ac, at the
+ * offset data_8002cbfc_slot01[kind * 24 + game_state.field_13a]; when it is
+ * negative, the random generator func_80151184 masked with 3 if
+ * game_state.field_0c is not 0, otherwise the entry of the same table
+ * selected by the complement of field_2ac, at an offset of 0x20 (field_5c
+ * as a signed halfword below 0xf), 0x10 (0xf to 0x7f) or 0 (0x80 and
+ * above) plus a generator value masked with 0xf), stored in
+ * game_state.field_112, and starts an animation with
  * func_80130768; with field_03 non-zero but bit 7 clear it is placed at
  * the left margin; with field_03 zero it is placed at the right margin
  * and, when field_48 is not 0, mirrored (position, field_4c and field_54).
@@ -26,10 +32,12 @@
  *   Reads: the object's field_03, field_04, field_48; game_state.field_78
  *     (the other object), field_0c (s16), field_13a; that object's
  *     field_2ac (s32), field_5c (read as s16) and kind; for the picked
- *     shape the tables data_8002cbfc_slot01, data_8002ce3c_slot01,
- *     data_800192dc_slot01, data_80021170_slot01 and data_80021224_slot01
- *     (indexed by kind); box_margin[0]; the random generator state that
- *     func_80151184 uses.
+ *     shape the tables data_8002cbfc_slot01 (by kind and field_13a),
+ *     data_8002ce3c_slot01 (by kind, then a selector, then an offset),
+ *     data_800192dc_slot01 (by kind, then game_state.field_112),
+ *     data_80021170_slot01 (words 2 * kind and 2 * kind + 1) and
+ *     data_80021224_slot01 (passed whole to func_80130768); box_margin[0];
+ *     the random generator state that func_80151184 uses.
  *   Writes: the object's field_01, 04, 05, 09, 0b, 0c, 0d, 0e, 20, 24, 90,
  *     98, 9c, pos_x, pos_y, in the right-margin shape also field_46, 4c,
  *     54; game_state.field_112; data_8002121c_slot01[0]; the cursor words

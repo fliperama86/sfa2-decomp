@@ -12,9 +12,10 @@
  * description: a count, a list of 4-byte texture records and a list of
  * 4-byte position records. For each part it fills one 0x28-byte primitive
  * with four corner positions (the part's position plus the object's
- * pos_x and pos_y, and a size of 16 times the texture record's second and
- * third bytes) and four texture coordinates (from the first byte: its low
- * nibble times 16 as u, its high nibble as v, each plus the size), then
+ * pos_x and pos_y, and a size of 16 times the texture record's bytes 2
+ * and 3, the third and fourth byte) and four texture coordinates (from
+ * byte 0: its low nibble times 16 as u, its high nibble times 16 (the byte
+ * with its low nibble cleared) as v, each plus the size), then
  * links the primitive into the ordering list whose index is
  * data_80015780_slot01[object->field_09].
  *
@@ -27,7 +28,7 @@
  *     texture-record pointer at 4 and position-record pointer at 8; the
  *     table data_80015780_slot01 entry at index field_09; the list base
  *     pointer data_801987c8 and the list head word it selects.
- *   Texture record, 4 bytes: byte 0 texture byte, bytes 1 unused, byte 2
+ *   Texture record, 4 bytes: byte 0 texture byte, byte 1 unused, byte 2
  *     width in units of 16, byte 3 height in units of 16. Position record,
  *     4 bytes: u16 x, u16 y.
  *   Writes: for each part the primitive's offsets 0x08, 0x0a, 0x0c, 0x0d,

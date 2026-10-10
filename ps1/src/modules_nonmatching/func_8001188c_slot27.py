@@ -6,7 +6,7 @@ Choices of the setup (reads and writes are in the header of the .c file):
     source strip then lies in the 0x2000 random bytes the setup writes at
     data_800e2000), otherwise both are random bytes (the strip is then
     whatever the memory holds there, the same in both runs);
-  - its side is 0 to 9, 9 in one case of three (the exact fit: the strip
+  - its side is 0 to 9, 9 in about two cases of five (the exact fit: the strip
     written into row 5 ends at the last halfword of the table); a larger
     side would write past the end of the table, which the original does not
     check, and is excluded;
@@ -30,8 +30,8 @@ def setup(state, rng, sym):
     state.w8(other + 0xA7, rng.randrange(8) if near else rng.randrange(256))
     # side 0 to 9: the original does not check it; the strip written into
     # row 5 ends at halfword 0x20 + side * 0x30 + 0x2f, which is the last
-    # halfword of the row (0x1ff) when side is 9 (the exact fit, one case in
-    # three); a larger side leaves the table and is not part of the contract.
+    # halfword of the row (0x1ff) when side is 9 (the exact fit, about two
+    # cases in five); a larger side leaves the table and is not part of the contract.
     side = 9 if rng.random() < 0.33 else rng.randrange(10)
     assert 0x20 + side * 0x30 + 0x2F < 0x200  # the strip ends inside row 5
     state.w8(other + 0xA6, side)

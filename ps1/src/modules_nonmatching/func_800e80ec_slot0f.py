@@ -1,9 +1,10 @@
 """Contract of func_800e80ec_slot0f (reads and writes: see the header of the .c).
 
 Choices of the setup:
-  - the object is random; field_03 is 0 to 7, field_5c is 0 to 4 (as an
-    unsigned 16-bit value, so the sign extension is not exercised; see the
-    header), game_state.field_2bd is 0 in half of the cases;
+  - the object is random; field_03 is 0 to 7, field_5c is 0 to 4 (the C reads
+    it as a signed halfword; the setup keeps it in 0 to 4, so the sign
+    extension is not exercised, and the header excludes other values),
+    game_state.field_2bd is 0 in half of the cases;
   - the second argument is 1 in half of the cases, otherwise a random value
     other than 1 (small, or a random word);
   - the record table (8 records) and the flag array start random;

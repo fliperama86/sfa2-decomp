@@ -10,8 +10,8 @@
  * What it does (inferred, not an original name): draws a window of a tile
  * map as sprite records. The map layer c has a pixel width (field_58), a
  * pixel height (field_5c), a data block (field_50) and a scroll position
- * (field_12 horizontal, field_14 a 16.16 vertical value, whose negation is
- * used). The map is stored in blocks of 32 by 16 cells of 4 bytes (a cell
+ * (field_12 horizontal, field_14 a 16.16 vertical value, which is
+ * subtracted from 0x100000 before use). The map is stored in blocks of 32 by 16 cells of 4 bytes (a cell
  * word, then a texture-page word). The function walks 15 rows and `count`
  * columns from the scroll position; a row outside the map is skipped, and
  * the column index wraps with the map's width. For every cell whose first
@@ -38,8 +38,9 @@
  *     15 * 40 records). Counts at or below 0 are included.
  *   Not reached by any input: none; every slot is executed. For a negative
  *     vertical tile index the original computes the shift twice (a test
- *     whose first result is overwritten at once); the C computes it once as
- *     an arithmetic shift, which is what the final value is.
+ *     whose first result is overwritten at once; inferred, not tested); the
+ *     C computes it once as an arithmetic shift, which is what the final
+ *     value is.
  */
 #include "../game.h"
 #include "../protos.h"

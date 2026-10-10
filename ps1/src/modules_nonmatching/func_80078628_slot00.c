@@ -1,7 +1,8 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in size (4 bytes more) and register use (the
- * original keeps the object in two registers, this build in one). The exact
+ * original keeps the object in two registers, this build in one: inferred,
+ * not tested). The exact
  * owner of the bytes in the PS1 build stays the raw bytes of the module
  * image; the build does not use this file. The differential test next to it
  * (func_80078628_slot00.py) compares the behavior of this C with the

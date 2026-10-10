@@ -2,10 +2,11 @@
 
 Choices of the setup (reads and writes are in the header of the .c file):
   - the scroll record data_8002f0c8_slot27 holds random bytes except:
-    the halfword at 0x12 is -0x48 to 0x188 in nine cases of ten (the
-    function then runs on; otherwise a random halfword, which usually
-    returns at once) and the one at 0x2a is random (so that the pull by 8
-    happens in about half of the cases); word 0x14 puts the vertical value
+    the halfword at 0x12 is -0x48 to 0x187 in nine cases of ten (the
+    function runs on for most of these, the values near the two ends return
+    at once; otherwise a random halfword, which usually returns at once)
+    and the one at 0x2a is random (so that the lowering by 8 happens in
+    about half of the cases); word 0x14 puts the vertical value
     at -80 to 200 (rows below zero, past the end, and inside); word 0x5c
     gives 0 to 40 rows in nine cases of ten, otherwise random; word 0x58 is
     0x200, 0x400, 0x800 or 0x1000 or, in one case of eight, a random value

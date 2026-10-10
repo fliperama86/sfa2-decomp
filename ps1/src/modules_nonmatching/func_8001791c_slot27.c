@@ -7,12 +7,13 @@
  * C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): draws a scrolling tile map
- * as sprite records. A scroll record (data_8002f0c8_slot27) holds a vertical
- * and a horizontal scroll position, a pointer to the map and its width. The
- * function first pulls the scroll value at offset 0x12 up by 8 when the
+ * as sprite records. A scroll record (data_8002f0c8_slot27) holds a
+ * horizontal scroll position (halfword at 0x12), a vertical one (word at
+ * 0x14, 16.16), a pointer to the map and its width. The
+ * function first lowers the scroll value at offset 0x12 by 8 when the
  * value at 0x2a is smaller, and does nothing more when that value plus 0x40
  * is outside 0 to 0x1c0. Otherwise it walks 8 map rows and 0x30 columns of
- * 4-byte cells (a tile word and a texture page word). Each cell different
+ * 4-byte cells (a tile halfword and a texture page halfword). Each cell different
  * from the "empty" value at 0x1e gets a 0x1c-byte record in the buffer
  * chosen by data_801a27d0: position (8 pixels per cell, less the scroll
  * remainders), texture coordinates and a command word from the tile word,
@@ -27,7 +28,7 @@
  *     pointer data_801987c8 and the head words it points at; the map cells.
  *   Map: rows of 64 cells of 4 bytes; 32 rows form a strip of
  *     (S.0x58 >> 9) * 0x2000 bytes. A column index outside 0 to 0x3f is
- *     skipped, a row index outside 0 to (S.0x5c >> 3) is skipped.
+ *     skipped, a row index below 0 or at or above S.0x5c >> 3 is skipped.
  *   Records: data_8002b388_slot27, 2 buffers of 280 records of 28 bytes.
  *   Writes: S halfword 0x12 (when lowered), for each drawn cell one record
  *     (offsets 0, 4, 0x14 to 0x1b) and the head word of its list.
@@ -41,7 +42,8 @@
  *     offset 0x1c0, the correction (add 0x3f) of a division by 64 of a
  *     negative column index; the index is known to be 0 to 0x3f there, so
  *     the quotient is 0 and this C leaves the division out. The test that
- *     precedes it in the original is a branch that is always taken.
+ *     precedes it in the original is a branch that is always taken
+ *     (inferred, not tested).
  */
 #include "../game.h"
 #include "../protos.h"

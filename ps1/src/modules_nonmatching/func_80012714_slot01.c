@@ -12,8 +12,9 @@
  * list. The object's sequence step points at a set: an s16 count and a
  * list of offsets (pairs of u16 x, y). Each offset is transformed in
  * steps: when the object's field_48 is not 0 the x is mirrored (-x - 16);
- * a non-zero field_20 then stretches x about -8 (x grows by (x + 8) *
- * field_20 / 16), a non-zero field_22 does the same for y; a non-zero
+ * a non-zero field_20 then stretches x about -8 (x grows by ((x + 8) *
+ * field_20) >> 4, an arithmetic shift of the signed product), a non-zero
+ * field_22 does the same for y; a non-zero
  * field_24 selects a 2x2 matrix of s16 entries from the table
  * data_800212d8_slot01 (index = the low byte of field_24, 4 entries each),
  * and (x + 8, y + 8) is multiplied by it, in 1/256 units, minus 8. The
@@ -27,7 +28,8 @@
  *     value.
  *   Reads: the object's sequence, field_09, field_20, field_22, field_24,
  *     field_48, pos_x, pos_y; the step's field_04 (the set); the set's s16
- *     count at offset 0 and offsets pointer at 8; the table
+ *     count at offset 0 and offsets pointer at 8 and the offset pairs it
+ *     points at; the table
  *     data_800212d8_slot01; the list base pointer data_801987c8 and the
  *     list head word at index field_09 + 8.
  *   Writes: for each sprite the primitive's offsets 0x08, 0x0a, 0x10,

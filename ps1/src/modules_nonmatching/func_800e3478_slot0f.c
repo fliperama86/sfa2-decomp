@@ -11,21 +11,24 @@
  * block data_8016e685 into the selections of a menu page. It copies
  * option bytes into the array data_800f8554_slot0f (index 0 from field_00;
  * index 1 the position of field_02 among five bytes of data_800df32c_slot0f,
- * or 4 when the byte data_8016e688 is not zero, otherwise left as it was;
+ * or 4 when the byte data_8016e688 is not zero, otherwise left as it was
+ * (also when field_02 is not among the five bytes);
  * indices 8, 2, 3, 4, 5 from field_01, 04, 05, 07, 06), calls func_80120374
  * with field_01 as a signed byte, copies field_0a and field_0b into indices
  * 6 and 7, and copies 16 bytes of table_8016e664 into
  * data_800f8564_slot0f. It then sets byte 0xb of three runs of cells of
  * data_800e953c_slot0f (8 cells up to index 0, 4 cells from cell 8 up to
- * index 3, 8 cells from cell 12 up to index 4) to 0x16 for cell numbers up
- * to the selection (signed byte) and 0x1b past it, and sets six pointers
+ * index 3, 8 cells from cell 12 up to index 4) to 0x16 for positions 0 up
+ * to and including the selection (signed byte), counted from the start of
+ * each run, and 0x1b past it, and sets six pointers
  * (data_800e9688_slot0f and five more) into tables of 12 and 8 byte
  * records, indexed by the selections 1, 2, 6, 7, 5 and 8.
  *
  * Contract (what the code reads and writes; the roles named are inferred):
  *   No arguments, no return value.
- *   Reads: data_8016e685 (bytes 0 to 7, 0xa, 0xb), data_8016e688,
- *     data_800df32c_slot0f (5 bytes), table_8016e664 (16 bytes), and
+ *   Reads: data_8016e685 (bytes 0, 1, 2, 4, 5, 6, 7, 0xa, 0xb),
+ *     data_8016e688 (byte 3 of the same block), data_800df32c_slot0f
+ *     (5 bytes), table_8016e664 (16 bytes), and
  *     data_800f8554_slot0f[1] when it stays.
  *   Writes: data_800f8554_slot0f (indices 0 to 8), data_800f8564_slot0f
  *     (16 bytes), byte 0xb of cells 0 to 19 of data_800e953c_slot0f, and
@@ -37,7 +40,9 @@
  *     data_800f8554_slot0f and data_800f8564_slot0f (8 words), the cells
  *     (80 words) and the six pointer words (21 words), so a store that
  *     moves across the call is a difference.
- *   Aliasing: none; all are separate globals.
+ *   Aliasing: data_8016e688 is byte 3 of the option block data_8016e685
+ *     (the setup writes it after filling the block); the others are
+ *     separate globals.
  *   Inputs excluded: none.
  *   Not reached by any input: none expected.
  */

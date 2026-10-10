@@ -5,14 +5,14 @@ Choices of the setup:
     256 in steps of 1 (so the height in tiles, field_5c >> 4, is 1 to 16
     and the low bits of field_5c are random);
   - the vertical scroll is chosen through the tile row it gives: the first
-    visible row (as a signed halfword) is -25 to height + 10, so that rows
+    visible row (as a signed halfword) is -25 to 16 * (height >> 4) + 9, so that rows
     outside the map on both sides, negative first rows and fully visible
     windows all occur; the fraction bits of field_14 are random, and
     field_12 is random (so negative scroll values and wraparound occur);
   - count is 1 to 40 in most cases; in one case in eight it is 0, a
     negative halfword or has random upper bits (only the low 16 bits count);
-  - every cell is field_1e in 40 percent of the cases of a map, otherwise
-    random; field_1e is below 0x8000 in three cases of four, otherwise
+  - in seven maps of ten about 40 percent of the cells hold field_1e, the
+    others (and all cells of the other maps) are random; field_1e is below 0x8000 in three cases of four, otherwise
     0x8000 or more (a value no cell can equal);
   - the record counter is random, the records and list array are filled
     with random bytes (the top byte of each link word is kept by the

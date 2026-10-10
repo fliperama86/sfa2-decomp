@@ -16,8 +16,9 @@
  * bytes to 0x80, the texture page, a clut-like halfword (base plus the
  * code times 64) and the four corner texture coordinates: the offset
  * plus (0x60, 0x50), a square of 16. When the flag is not 0 the square is
- * mirrored in x (the x coordinates are exchanged: the left pair gets x +
- * 0x6f and the right pair x + 0x60). A set with a count of 0 or less
+ * mirrored in x: the left pair of texture x coordinates gets the offset +
+ * 0x6f and the right pair the offset + 0x60, instead of the offset + 0x60
+ * and the offset + 0x70. A set with a count of 0 or less
  * still runs its loop once (the loop is a do-while).
  *
  * Contract:
@@ -26,7 +27,8 @@
  *     used), a3 = the base of the clut-like halfword, and the fifth
  *     argument, the flag, on the stack at sp + 0x10. No return value.
  *   Reads: the object's sequence; the step's field_04 (the set); the set's
- *     s16 count at offset 0, codes pointer at 4 and offsets pointer at 8.
+ *     s16 count at offset 0, codes pointer at 4 and offsets pointer at 8,
+ *     and the codes and offsets they point at.
  *   Writes: for each sprite of each pass the primitive's offsets 0x04,
  *     0x05, 0x06, 0x0c, 0x0d, 0x0e, 0x14, 0x15, 0x16, 0x1c, 0x1d, 0x24,
  *     0x25. Nothing else (the object, the set and its lists are not

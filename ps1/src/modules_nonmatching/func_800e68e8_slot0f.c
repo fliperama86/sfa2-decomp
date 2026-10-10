@@ -12,7 +12,7 @@
  * A sprite number n selects a table of 16-bit values: n == 2 uses the entry
  * of data_800efef8_slot0f chosen by the object's field_48, any other n uses
  * entry n of data_800efdc8_slot0f. The first two values are the texture
- * coordinates; the values from index 6 on are two 16-bit numbers handed to
+ * coordinates; the values at indices 6 and 7 are two 16-bit numbers handed to
  * func_8015bd0c, whose result (low 5 bits) goes into the command word with
  * two bytes of the block data_801987c8 points at (shifted by 9 and 10).
  * The position is the object's pos_x plus entry n of data_800eff58_slot0f,
@@ -36,7 +36,9 @@
  *   Aliasing: object, records, tables and the data_801987c8 block are
  *     distinct blocks.
  *   Inputs excluded: none beyond n < 76 for the two table sizes read here
- *     (n above reads image data that is not a table of pointers).
+ *     (n above reads image data that is not a table of pointers), and a
+ *     field_48 of 24 or more for n == 2 (the setup builds 24 entries of
+ *     data_800efef8_slot0f).
  *   Not reached by any input: none expected.
  */
 #include "../game.h"

@@ -1,8 +1,9 @@
 """Contract of func_800e3478_slot0f (reads and writes: see the header of the .c).
 
 Choices of the setup:
-  - the option block (16 bytes at data_8016e685) is random; the byte
-    data_8016e688 is 0 in half of the cases; field_02 equals one of the five
+  - the option block (its first 12 bytes at data_8016e685 are random, bytes
+    0xc to 0xf are not touched); the byte data_8016e688 (byte 3 of the block,
+    written after the fill) is 0 in half of the cases; field_02 equals one of the five
     table bytes in three cases of four (the table data_800df32c_slot0f is
     rewritten with random bytes, with repeats allowed), else it is random;
   - field_00, field_05 and field_07 (the loop limits) are random signed
