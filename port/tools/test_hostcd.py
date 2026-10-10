@@ -23,7 +23,14 @@ library variables the game's C reads; an unknown command's stop and a
 Setmode with the whole-sector bit; the buffer CdGetSector is given: its
 start or its end outside the PS1's RAM, a count that overflows 32 bits, a
 negative count, the last bytes of RAM (accepted), each ending the program
-with a line and status 6 before a byte is copied.
+with a line and status 6 before a byte is copied; the guard by which the drive
+waits for the game's ring (the fill for all 49 pairs of places, places outside 1
+to 7, held vblanks and the carry, a fill that reaches 4 within a row, the 30
+held vblanks and the forced row, and the loads and calls that are not guarded).
+The seam of the rig for it: the library variable of the ready handler can hold
+the game's stream handler (0x8014f918) or another, and the two bytes of the
+game's stream object (0x80190948) are in the rig's RAM, which cd.c reads like the
+library's variables; the made-up handler steps the writer's place when told.
 
 What is NOT tested here: the table's use by the driver (library.c), the
 Windows pointers, and the game itself. Those need the linked program.
@@ -62,6 +69,7 @@ static unsigned h_dest;
 static int h_pieces[16], h_np, h_stop, h_calls, h_count;
 static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call number a_when (0: on every call) */
 static char a_kind;
+static int ring_adv;   /* the made-up handler steps the writer's place of the game's ring (byte 0x16 of the stream object) as the game's does */
 
 volatile int port_handler_depth;   /* the driver's counter; cd.c raises it around the ready handler */
 /* The seams of the streamed audio: the audio lock (counted: calls, depth, an unlock without a lock), the frame count and the trace
@@ -94,9 +102,10 @@ static unsigned sum(const unsigned char *p, unsigned n)
 static void handler(unsigned h, int intr, unsigned char *res)
 {
     int i, done = 0;
-    if (h != 0x1234) { printf("H bad handler value %x\n", h); return; }
+    if (h != 0x1234 && h != 0x8014f918u && h != 0x2345) { printf("H bad handler value %x\n", h); return; }
     printf("H intr=%d res0=%02x\n", intr, res[0]);
     if (intr == 1) h_count++;
+    if (intr == 1 && ring_adv) { unsigned char *w = at(0x80190948u) + 0x16; *w = (unsigned char)(*w + 1 == 8 ? 1 : *w + 1); }
     if (intr == 1 && a_kind && (!a_when || ++a_calls == a_when)) {
         unsigned char p[4] = {0, 0, 0, 0}, rs[8];
         if (a_kind == 'N' || a_kind == 'S') { port_CdIntToPos(a_arg, p); port_CdControl(a_kind == 'N' ? 6 : 0x1b, p, rs); }
@@ -148,7 +157,13 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) { frames++; port_cd_tick(); } }
         else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; frames++; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
         else if (!strcmp(cmd, "act")) { char k = 0; int w = 0, a = 0; if (sscanf(rest, "%d %c %d", &w, &k, &a) < 2) return 64; a_when = w; a_kind = k; a_arg = a; a_calls = 0; }   /* what the ready handler does: N ReadN to a, S ReadS to a, M Setmode a, I CdInit, R CdReady(0) */
-        else if (!strcmp(cmd, "cb")) { unsigned v = atoi(rest) ? HANDLER_VALUE_C : 0; unsigned char *p = at(PORT_CD_VAR_READY_CB); p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = p[3] = 0; }
+        else if (!strcmp(cmd, "cb")) {   /* the ready handler variable: 0 none, 1 the made-up handler, 2 the game's stream handler, 3 another handler */
+            static const unsigned values[4] = { 0u, HANDLER_VALUE_C, 0x8014f918u, 0x2345u };
+            unsigned v = values[atoi(rest) & 3]; unsigned char *p = at(PORT_CD_VAR_READY_CB);
+            p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = (unsigned char)(v >> 16); p[3] = (unsigned char)(v >> 24);
+        }
+        else if (!strcmp(cmd, "ring")) { unsigned w, r; if (sscanf(rest, "%u %u", &w, &r) != 2) return 64; at(0x80190948u)[0x16] = (unsigned char)w; at(0x80190948u)[0x17] = (unsigned char)r; }   /* the two places of the game's ring */
+        else if (!strcmp(cmd, "adv")) ring_adv = atoi(rest);
         else if (!strcmp(cmd, "stopafter")) { h_stop = atoi(rest); h_calls = 0; }
         else if (!strcmp(cmd, "handler")) {
             char *q = rest; char *e;
@@ -987,9 +1002,107 @@ def rate_cases(root: Path, exe: Path):
     yield check("ticks with no read on deliver nothing and leave no carry for the read that follows (0, 0, 0, 0, then 2, 3)", rc == 0 and v == [0, 0, 0, 0, 2, 3], f"{v}")
 
 
+# The fill of the game's ring, worked by hand for every pair of places: row w - 1, column r - 1. The writer's place w (byte 0x16)
+# is the place the next sector goes to, the reader's place r (byte 0x17) the place the main loop reads next; the fill is how many
+# written sectors have not been read, w - r counted round the ring of seven (1 to 7). Written out, not computed.
+FILL = (
+    (0, 6, 5, 4, 3, 2, 1),
+    (1, 0, 6, 5, 4, 3, 2),
+    (2, 1, 0, 6, 5, 4, 3),
+    (3, 2, 1, 0, 6, 5, 4),
+    (4, 3, 2, 1, 0, 6, 5),
+    (5, 4, 3, 2, 1, 0, 6),
+    (6, 5, 4, 3, 2, 1, 0),
+)
+FORCED_LINE = "cd: the game's ring looked full for 30 vblanks; delivering"
+
+
+def guard_cases(root: Path, exe: Path):
+    img = root / "guard.bin"
+    make_image(img, 400)
+    head = "cdinit\ncb 2\nhandler 80100000 0\n"      # the game's stream handler; it takes no piece, only its calls are counted
+    dbl, sgl = "ctl N e 80\n", "ctl N e 00\n"
+
+    def go(script, cb_head=head):
+        rc, lines, err = run_err(exe, img, cb_head + script)
+        return rc, lines, err, [int(l.split()[1]) for l in lines if l.startswith("V ")], [l for l in lines if l == FORCED_LINE]
+
+    # all 49 pairs, double speed (a tick gives 2 sectors from a zero carry): delivered when the fill is 3 or less, held from 4
+    script = "".join(f"ring {w} {r}\nreadn 0\ntickc 1\n" for w in range(1, 8) for r in range(1, 8))
+    rc, lines, err, v, forced = go(dbl + script)
+    want = [2 if FILL[w - 1][r - 1] <= 3 else 0 for w in range(1, 8) for r in range(1, 8)]
+    yield check("the fill for all 49 pairs of places (table written out): 2 sectors with a fill of 0 to 3, none from 4 to 6", rc == 0 and v == want and not forced, f"{rc} {v} {want}")
+    bad = [(w, r) for w in range(1, 8) for r in range(1, 8) if v[(w - 1) * 7 + r - 1] != want[(w - 1) * 7 + r - 1]]
+    yield check("(each pair of the table that differs, if any)", not bad, f"{bad}")
+    # a byte that is 0 or above 7: no guard, whatever the other holds
+    for w, r in ((0, 1), (5, 0), (0, 0), (8, 2), (5, 8), (255, 1), (5, 255), (1, 200)):
+        rc, lines, err, v, forced = go(dbl + f"ring {w} {r}\nreadn 0\ntickc 1\n")
+        yield check(f"places {w} and {r} (outside 1 to 7): no guard, 2 sectors", rc == 0 and v == [2], f"{rc} {v}")
+    # held at fill 4, 5 and 6, double speed: carry 5 % 2 = 1, then 6 % 2 = 0, then 1; the reader moves (fill 3): 1 + 5 = 6 -> 3 sectors.
+    # (A carry that was not cut would give 15 / 2 = 7 sectors.)
+    for w, fill in ((5, 4), (6, 5), (7, 6)):
+        rc, lines, err, v, forced = go(dbl + f"ring {w} 1\nreadn 0\ntickc 3\nring 4 1\ntickc 2\n")
+        yield check(f"double speed, fill {fill}: nothing for 3 vblanks, then fill 3: 3 sectors (the carry cut to 1), then 2", rc == 0 and v == [0, 0, 0, 3, 2], f"{rc} {v}")
+    # single speed (a sector costs 4): held 5 % 4 = 1, 6 % 4 = 2, 7 % 4 = 3; resumed 3 + 5 = 8 -> 2 sectors. (Not cut: 20 / 4 = 5.)
+    for w, fill in ((5, 4), (6, 5), (7, 6)):
+        rc, lines, err, v, forced = go(sgl + f"ring {w} 1\nreadn 0\ntickc 3\nring 4 1\ntickc 2\n")
+        yield check(f"single speed, fill {fill}: nothing for 3 vblanks, then fill 3: 2 sectors, then 1", rc == 0 and v == [0, 0, 0, 2, 1], f"{rc} {v}")
+    # within a row: the handler steps the writer's place. Fill 3 (w 4, r 1): the first sector comes, w is 5, the fill 4, the second waits.
+    # Carry: 5 - 2 = 3, cut to 1; next vblank held: 6 % 2 = 0; with fill 3 (w 5, r 2): 5 -> a sector, w 6, fill 4 -> held.
+    rc, lines, err, v, forced = go(dbl + "adv 1\nring 4 1\nreadn 0\ntickc 2\nring 5 2\ntickc 1\n")
+    yield check("within a row the fill reaches 4 after the first sector: the second is not delivered (1, 0, 1)", rc == 0 and v == [1, 0, 1], f"{rc} {v}")
+    # the writer's place wraps from 7 to 1 as the game's does: w 7, r 5 is fill 2; after one sector w is 1, fill 3; after two w is 2, fill 4
+    rc, lines, err, v, forced = go(dbl + "adv 1\nring 7 5\nreadn 0\ntickc 1\n")
+    yield check("the writer's place wraps from 7 to 1: w 7, r 5 (fill 2) gives 2 sectors (fills 2, then 3 after the first)", rc == 0 and v == [2], f"{rc} {v}")
+    rc, lines, err, v, forced = go(dbl + "adv 1\nring 7 4\nreadn 0\ntickc 1\n")
+    yield check("w 7, r 4 (fill 3): the first sector makes w 1, the fill 4: the second waits (1 sector)", rc == 0 and v == [1], f"{rc} {v}")
+    # the trace's last line (standard error): the vblank that delivered a sector before the row ended was not a held vblank
+    rc, lines, err, v, forced = go(dbl + "adv 1\nring 4 1\nreadn 0\ntickc 2\n")
+    yield check("the trace's last line: the row that delivered one and then waited is not counted as held; the next one is (held 1, largest fill 4)",
+                rc == 0 and any(l.startswith("T cd: the ring guard looked") and "held 1 vblanks, forced 0 rows, largest fill 4" in l for l in err), f"{err}")
+    # 30 held vblanks, then the next row is delivered regardless, with its line; the count starts again
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 30\ntickc 1\n")
+    yield check("30 held vblanks, then the 31st delivers its row regardless (2 sectors: the carry after 30 cuts is 0) with one line",
+                rc == 0 and v == [0] * 30 + [2] and forced == [FORCED_LINE], f"{rc} {v} {forced}")
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 31\ntickc 30\ntickc 1\n")
+    # after the forced row (2 sectors, carry 1): 30 more held (carry 0, 1, ..., ends at 1), the next forced gives (1 + 5) / 2 = 3
+    yield check("the count of held vblanks starts again after a forced row: 30 more held, then forced again (3 sectors), 2 lines",
+                rc == 0 and v == [0] * 30 + [2] + [0] * 30 + [3] and len(forced) == 2, f"{rc} {v} {len(forced)}")
+    yield check("the trace's last line: held 60, forced 2, largest fill 4",
+                any(l.startswith("T cd: the ring guard looked") and "held 60 vblanks, forced 2 rows, largest fill 4" in l for l in err), f"{err}")
+    # a vblank that is not held ends the run: 29 held, one free (fill 3), 29 held: no forced row
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 29\nring 4 1\ntickc 1\nring 5 1\ntickc 29\n")
+    yield check("29 held, one vblank free, 29 held: the run began again, no forced row", rc == 0 and len(v) == 59 and sum(v[:29]) == 0 and v[29] > 0 and sum(v[30:]) == 0 and not forced, f"{rc} {v} {forced}")
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 29\nring 4 1\ntickc 1\nring 5 1\ntickc 30\ntickc 1\n")
+    yield check("... and the 30th held after it still waits, the 31st is forced", rc == 0 and v[30:60] == [0] * 30 and v[60] > 0 and len(forced) == 1, f"{rc} {v[30:]} {forced}")
+    # a ring that looks full when no read is on holds nothing and counts nothing
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\ntickc 40\nreadn 0\ntickc 1\n")
+    yield check("40 vblanks with no read on and a full-looking ring count nothing: the read's first vblank is held, not forced",
+                rc == 0 and v == [0] * 40 + [0] and not forced and not any(l.startswith("T cd: the ring guard") and "forced 1" in l for l in err), f"{rc} {v[-3:]} {forced}")
+    # not a streamed load of the game: no guard with a ring that looks full
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 3\n", head.replace("cb 2", "cb 3"))
+    yield check("another handler: no guard, 2, 3, 2 sectors with a ring that looks full", rc == 0 and v == [2, 3, 2], f"{rc} {v}")
+    rc, lines, err, v, forced = go(dbl + "ring 5 1\nreadn 0\ntickc 3\n", head.replace("cb 2", "cb 1"))
+    yield check("the other made-up handler: no guard, 2, 3, 2 sectors", rc == 0 and v == [2, 3, 2], f"{rc} {v}")
+    rc, lines, err, v, forced = go("ring 5 1\n" + dbl + "readn 0\ntickc 1\nready 1\n", "cdinit\ncb 0\n")
+    ys = [l for l in lines if l.startswith("Y ")]
+    yield check("no handler (the game polls): no guard, the first sector waits for the poll and the poll gets it", rc == 0 and len(ys) == 1 and ys[0].startswith("Y ret=1 "), f"{rc} {ys}")
+    rc, lines, err, v, forced = go("ctl N e c0\nring 5 1\nreadn 0\ntickc 3\n")
+    yield check("the XA bit of the mode set (0xc0): no guard, 2, 3, 2 sectors with a ring that looks full", rc == 0 and v == [2, 3, 2], f"{rc} {v}")
+    # the blocking wait of the game: CdReady(0) with a ring that looks full gets the sector (single speed: 5 -> 1 sector)
+    rc, lines, err, v, forced = go(sgl + "ring 5 1\nreadn 0\nready 0\n")
+    ys = [l for l in lines if l.startswith("Y ")]
+    yield check("CdReady(0) with a ring that looks full: the sector comes (ret 1, the handler called once)", rc == 0 and len(ys) == 1 and ys[0].startswith("Y ret=1 ") and lines.count("H intr=1 res0=22") == 1, f"{rc} {ys} {lines}")
+    # ... and it counts as neither held nor free: 3 held, the blocking wait, 27 held (30 held in all), the next is forced
+    rc, lines, err, v, forced = go(sgl + "ring 5 1\nreadn 0\ntickc 3\nready 0\ntickc 27\ntickc 1\n")
+    yield check("the blocking wait in the middle of a run neither ends nor adds to it: forced at the 31st vblank, with one line",
+                rc == 0 and v[:30] == [0] * 30 and v[30] > 0 and len(forced) == 1, f"{rc} {v} {forced}")
+
+
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
     yield rate_cases(root, exe)
+    yield guard_cases(root, exe)
     yield pieces_cases(root, exe)
     yield pause_cases(root, exe)
     yield end_cases(root, exe)
