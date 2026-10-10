@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "54d0e54595b8a567e80ee13451febed8f9be7cba7543f807ec8160cf5edc77d5",
+  "sha256": "5b4222cf02622884355662e2b11b75324921644a4c01f53e49417bd441a20f01",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -507,20 +507,24 @@
       "line": 7985
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x27 exact: one local, two values (2026-10-10)",
       "line": 8023
     },
     {
-      "title": "Tool locations and reproducibility",
-      "line": 8040
-    },
-    {
-      "title": "Mistakes and lessons to preserve",
+      "title": "Windows reference",
       "line": 8065
     },
     {
+      "title": "Tool locations and reproducibility",
+      "line": 8082
+    },
+    {
+      "title": "Mistakes and lessons to preserve",
+      "line": 8107
+    },
+    {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8122
+      "line": 8164
     }
   ]
 }

@@ -8020,6 +8020,48 @@ with byte parameters and with `int` parameters alike.
 The map after this group, from `coveragemap.py render`: 5,416 of 5,600 distinct functions exact, 12,833 of 13,072 placements. The
 build's line for the resident image: `functions exact: 1763/1763`.
 
+## A function of the module of slot 0x27 exact: one local, two values (2026-10-10)
+
+`func_80010840_slot27`, 300 bytes, of the module of slot 0x27
+(`SELECTA.PAC`), had been exact only with a statement that masks a
+local to its low byte where the original has no instruction, and such
+a statement is excluded. Without it the candidate differed in 11
+instruction slots: the original keeps one byte of the game state in
+one register and the next byte in another, and the build had them the
+other way around.
+
+It was taken first of the functions without C because the other
+session reported that its private trial of the port stops at this
+function when Arcade is chosen. That trial was not run here.
+
+A bounded run of the permuter, a private helper with a limit of twelve
+minutes, found the bytes by using the function's first local a second
+time: it holds the mode value that the first test compares, and later
+the byte that goes to `field_40`. Reduced one thing at a time, three
+locals of the candidate came out, each alone and then all together: a
+pointer to the structure, a pointer to one field, and a copy of a
+counter. Measured on the final text with `fndiff.py --rebuild`: with a
+second local for the byte, 11 slots; with the first test written
+without a local, 15. The local is an `int`; declared `u8` or `u16` the
+unit is exact too, so nothing is claimed about the original's type.
+
+The function is entry 2 of the module's table `data_80017bc4_slot27`,
+whose entries are declared to take nothing and return nothing, and it
+is defined so.
+
+The Ghidra project of the private workspace has no function at this
+address: no instruction calls it, only the table holds its address.
+The original was read from the private instruction listing instead.
+A function that only a table reaches may be missing there.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,417 of 5,600 distinct
+functions exact, 12,834 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
