@@ -171,6 +171,47 @@ class Selection(Fixture):
         with self.assertRaises(model.Problem):
             review.check_output(review.Check('r', ('python', 'difftest.py', '--replay'), 'ps1', (), 'replay'), '')
 
+    def test_a_second_summary_of_a_function_is_never_hidden_by_a_passing_one(self):
+        # Every line that begins like a function's summary counts, also one that does not look like a pass: a pass
+        # beside a failure, beside a line that goes on, beside a claim of no fixture, or beside its own copy.
+        one = review.Check('r', ('python', 'difftest.py', '--replay', 'f'), 'ps1', ('f',), 'replay')
+        good = 'f replay: fixtures 3, passed 3, failed 0'
+        review.check_output(one, good + '\n')
+        review.check_output(one, 'fa replay: fixtures 1, passed 0, failed 1\n' + good + '\n  fixture 0 (case 4, note):\n')
+        others = {'a failure': 'f replay: fixtures 3, passed 2, failed 1', 'a line that goes on': good + ' of 4',
+                  'no fixture': 'f replay: fixtures 0, passed 0, failed 0', 'its own copy': good,
+                  'something else': 'f replay: could not be read'}
+        for why, other in others.items():
+            for output in (good + '\n' + other + '\n', other + '\n' + good + '\n'):
+                with self.subTest(why=why, first=output.splitlines()[0]), self.assertRaises(model.Problem):
+                    review.check_output(one, output)
+        # The same for the three modes of the wide runs.
+        wide = {'differential': ('f: built 12 bytes; cases 2, discarded 0, equal 2, different 0',
+                                 ('f: built 12 bytes; cases 2, discarded 0, equal 1, different 1', 'f: no contract')),
+                'writes': ('f writes: cases 2, discarded 0, outside 0 (largest 0 bytes)',
+                           ('f writes: cases 2, discarded 0, outside 1 (largest 4 bytes)',)),
+                'control': ('f control: different 1 of 2 (expected more than 0)',
+                            ('f control: different 0 of 2 (expected more than 0)',))}
+        for mode, (good, bad) in wide.items():
+            check = dataclasses.replace(self.check, mode=mode)
+            review.check_output(check, good + '\nf coverage: 3 of 3 instruction slots of the original executed\n')
+            with self.subTest(mode=mode, lone='a line that goes on'), self.assertRaises(model.Problem):
+                review.check_output(check, good + ' and more')
+            for other in (*bad, good, good + ' and more'):
+                for output in (good + '\n' + other, other + '\n' + good):
+                    with self.subTest(mode=mode, other=other, first=output.splitlines()[0]), self.assertRaises(model.Problem):
+                        review.check_output(check, output)
+
+    def test_contradictory_replay_evidence_of_a_zero_status_run_is_not_a_pass_and_is_not_cached(self):
+        check = review.Check('r', ('python', 'difftest.py', '--replay', 'f'), 'ps1', ('f',), 'replay')
+        self.result_output = 'f replay: fixtures 3, passed 3, failed 0\nf replay: fixtures 3, passed 2, failed 1\n'
+        result = self.run_job('contradiction', check=check)
+        self.assertFalse(result['complete'])
+        self.assertNotEqual(result['status'], 'fresh_pass')
+        self.assertFalse((self.root / 'local/cache').exists())
+        self.result_output = 'f replay: fixtures 3, passed 3, failed 0\n'
+        self.assertEqual(self.run_job('plain', check=check)['status'], 'fresh_pass')
+
     def test_unknown_removed_and_missing_native_refuse(self):
         for changed in (['mystery.py'], ['requirements.txt'], ['ps1/src/slot06_nonmatching/func_80110001_slot06_00.c']):
             with self.subTest(changed=changed), self.assertRaises(model.Problem):

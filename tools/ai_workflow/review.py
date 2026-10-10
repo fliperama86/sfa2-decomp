@@ -188,6 +188,25 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     return checks
 
 
+# How the one summary line of a function begins in the output of each mode of the test tool.
+SUMMARY_LEAD = {'replay': '{} replay: ', 'differential': '{}: ', 'writes': '{} writes: ', 'control': '{} control: '}
+
+
+def summary_line(mode: str, name: str, output: str) -> str:
+    """The summary line of `name` in the output of a check of `mode`.
+
+    Every line that begins like a summary of the function is counted, whatever follows, and there must be
+    exactly one: a passing line beside a second one that fails, goes on, or says something else is a
+    contradiction, and beside its own copy a repeat; neither is evidence. The caller then requires the
+    whole of the one line to be a pass.
+    """
+    lead = SUMMARY_LEAD[mode].format(name)
+    found = [line for line in output.splitlines() if line.startswith(lead)]
+    if len(found) != 1:
+        raise Problem('missing/duplicate/incomplete evidence for ' + name)
+    return found[0]
+
+
 def check_output(check: Check, output: str) -> None:
     if check.mode == 'exit':
         if check.name == 'workflow-controls' and not re.search(r'Ran [1-9][0-9]* tests', output):
@@ -205,8 +224,8 @@ def check_output(check: Check, output: str) -> None:
         if not check.functions or '--replay' not in check.argv:
             raise Problem('empty replay check')
         for name in check.functions:
-            matches = list(re.finditer(rf'^{re.escape(name)} replay: fixtures ([1-9][0-9]*), passed ([0-9]+), failed 0$', output, re.M))
-            if len(matches) != 1 or matches[0][1] != matches[0][2]:
+            match = re.fullmatch(rf'{re.escape(name)} replay: fixtures ([1-9][0-9]*), passed ([0-9]+), failed 0', summary_line(check.mode, name, output))
+            if match is None or match[1] != match[2]:
                 raise Problem('missing/duplicate/incomplete evidence for ' + name)
         return
     if '--cases' not in check.argv:
@@ -216,17 +235,17 @@ def check_output(check: Check, output: str) -> None:
         raise Problem('empty function check')
     for name in check.functions:
         if check.mode == 'differential':
-            pattern = rf'^{re.escape(name)}: built .*; cases ({cases}), discarded 0, equal ({cases}), different 0$'
+            pattern = rf'{re.escape(name)}: built .*; cases ({cases}), discarded 0, equal ({cases}), different 0'
         elif check.mode == 'writes':
-            pattern = rf'^{re.escape(name)} writes: cases {cases}, discarded 0, outside 0 \(largest 0 bytes\)$'
+            pattern = rf'{re.escape(name)} writes: cases {cases}, discarded 0, outside 0 \(largest 0 bytes\)'
         elif check.mode == 'control':
-            pattern = rf'^{re.escape(name)} control: different ([1-9][0-9]*) of {cases} \(expected more than 0\)$'
+            pattern = rf'{re.escape(name)} control: different ([1-9][0-9]*) of {cases} \(expected more than 0\)'
         else:
             raise Problem('unknown check mode')
-        matches = list(re.finditer(pattern, output, re.M))
-        if len(matches) != 1:
+        match = re.fullmatch(pattern, summary_line(check.mode, name, output))
+        if match is None:
             raise Problem('missing/duplicate/incomplete evidence for ' + name)
-        if check.mode == 'control' and int(matches[0][1]) > cases:
+        if check.mode == 'control' and int(match[1]) > cases:
             raise Problem('control count exceeds requested cases')
 
 

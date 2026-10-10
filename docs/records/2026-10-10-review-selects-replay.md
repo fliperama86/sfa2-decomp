@@ -54,6 +54,20 @@ ended with `checks_passed`; the check's evidence is the line
 `func_8012fd80 replay: fixtures 6, passed 6, failed 0`. About 5 seconds
 (one-off timing).
 
+A finding of the owner's review, corrected in this change: the
+validator of a replay check counted only the lines that look like a
+pass, so a passing summary of a function followed by a second summary
+that fails (or goes on, or claims no fixture) was accepted, and the run
+layer cached it as a pass. The validators of the three wide modes
+counted the same way. Now every line that begins like a function's
+summary is counted, whatever follows; exactly one is allowed, and the
+whole of it must be a pass. This holds for the replay and for the
+comparison, the write audit and the control. With it:
+`test_workflow.py`, 45 tests, OK; 7 more mutants, each failing a named
+test; and the new validator accepts the saved outputs of pull request
+180 (the six replay outputs with 101 functions, and the 72 single
+comparisons), read by a private script, nothing run again.
+
 Not done and not shown: no review with the wide runs or with a broad
 change was run with the new selection (the commands it selects ran for
 pull request 180). The ledger is unchanged: its tested status asks for
