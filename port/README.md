@@ -895,8 +895,10 @@ routines that do nothing on purpose. What is in this piece:
   functions of the resident program and of modules whose exact C calls
   a function without the argument that the callee reads: by a plain
   call, through a pointer of the scratchpad, or after another call,
-  where the callee gets what that earlier call left in the register.
-  That page has each one's contract and
+  where the callee gets what that earlier call left in the register;
+  and functions whose exact C is declared `void` although their
+  callers use what they leave in the result register (the override
+  returns it). That page has each one's contract and
   what its test printed; the control of each alters the build of the
   override so that the callee gets another value, and the test must
   then differ from the original code.
