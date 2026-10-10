@@ -8363,6 +8363,50 @@ character files hold further byte pointers into the slots; they are
 not touched here. The inference about the type stands on the function
 that is exact only with a byte member, not on the count.
 
+## A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)
+
+`func_80012c34_slot12`, 168 bytes, of the module of slot 0x12
+(`CONT00.PAC`). Its parked candidate did not compile any more: it
+declared `box_margin` as one halfword where the shared header has an
+array. With the header's form the unattended search found the bytes in
+its second round: the margin is read into a local after the first
+group of stores and used for `pos_x` at the end. Measured on the final
+text with `fndiff.py --rebuild`: read in place at that statement, 32
+differing instruction slots; read one statement earlier, 26; one
+statement later, 13; at the declaration, 35. As an `int` the local is
+exact too.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,431 of 5,600 distinct functions exact, 12,858 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## A function of the module of slot 0x1 exact, with its palette table (2026-10-10)
+
+`func_80010104_slot01`, 916 bytes, of the module of slot 0x1
+(`CDEMO00.PAC`). Its parked candidate did not compile any more: it
+declared two resident symbols as single values where the shared
+header has arrays, and one library call with another result type.
+With the header's forms the code differed in one instruction slot,
+the address of the read-only data that its local array of 80
+halfwords is copied from: the build put that data elsewhere. The unit
+names the range now, 160 bytes at the start of the module, and the
+build places and compares it. The note of ten differing slots in the
+parked file was about its old declarations.
+
+The array's 80 values are written in the source as its initializer:
+five rows of sixteen colours.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; its
+read-only range is identical to the original's; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,432 of 5,600 distinct functions exact, 12,859 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's, or what the
+colours are for. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8818,6 +8862,175 @@ No function count changes here: none of this is in the build.
   left out, the image identical, 223 of 223 controls tripped;
   `slot04_11` and `slot17` unchanged. This change's own checks are in
   its pull request.
+
+## The port places a module's jumps when the game first runs it (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/modules.c`, the record in the disc layer of
+  where each word of RAM came from, the hashes of the images' chunks in
+  the build's tables, and `test_hostmodules.py`. The page has the
+  mechanism, what ends the program, and the cases.
+- What differs from the state that ran the private trial, each from a
+  lesson of the earlier reviews or from the trial itself:
+  - A module's jumps are written only for content that the build
+    configuration pins: the chunk is read from the user's image and
+    hashed before the first jump. The trial's state placed whatever the
+    archive held. (The lesson of the port's first piece, applied to the
+    modules before a review had to ask.)
+  - The archive's header is read as the user's file: lengths in 64
+    bits, every chunk against the file and the RAM. The trial's state
+    could wrap a 32-bit length.
+  - The trial stopped while loading the first fight: a stage's data
+    ends in the 4 KB page where the resident program begins, the layer
+    took the right to execute from the whole page, and the game's next
+    call into resident code there was taken for a call into a module.
+    The record is per word now and a page with resident code never
+    loses the right. Before choosing between that and a refusal of
+    shared pages, a worker asked the build's tables: of the 77 images
+    with functions, no two that can be in memory together share a page
+    with their code (one-off count of a script over the inventory and
+    the configuration); 19 begin in the middle of a page.
+  - The timer thread could suspend the game's thread inside the fault
+    and rewrite its context: a hang in 2 of 9 runs of the controls
+    (one-off). It now leaves a thread alone whose instruction pointer
+    is on such a page. A case of two thousand loads in a row failed in
+    3 of 3 runs without that.
+- Not shown: any of this on the real game from a published commit.
+- Per-entry installation (2026-10-10, after the owner's review of this pull
+  request). A page that was placed had been treated as proof that every
+  declared function on it was installed; two invented archives showed a
+  callback to an entry whose bytes were never loaded being accepted (the first
+  sector only; four bytes of an entry). Now each row of the tables has its own
+  state; an entry is installed only if its own five bytes were written and are
+  still there, the pages under them still belong to the module, and a placement
+  is refused, naming the lowest entry, if any declared entry of the image on a
+  page that would become executable cannot be installed. Resident entries are
+  checked by content too. Stated limits are on the page. Mutants (scratch,
+  restored): per-entry test replaced by page ownership; content check removed;
+  the uninstallable-entry refusal off; four bytes counted as an entry; resident
+  content check off: each made a case fail.
+- The tree was brought onto main of 2026-10-10 (documentation layout, graphics,
+  the console's copy of RAM, the exit gate, the rigs' diagnostics) with the
+  merge helper. Two fault handlers now exist: this layer's for execute faults on
+  pages it made non-executable, the mirror's for read and write faults below 2 MB.
+  Both are vectored handlers asked first; this layer's is installed later, so it
+  is asked first, and declines every fault that is not its own (kind, address
+  range, instruction pointer equal to the address, page it took). A case set in
+  `test_hostmodules.py` runs them together: a module placed at its first call
+  whose C writes and reads the low view below and above 64 KB, a call at a
+  non-entry while the low view is in use, an execute fault at a low address (the
+  mirror's crash line), a read outside the mirror's range (neither handler), and
+  500 placements mixed with low-view accesses with the timer on. Mutants: this
+  layer's handler taking a read or write fault (ending the program there) makes
+  five cases fail; the mirror's decision accepting execute faults and ignoring
+  game code makes the low-address execute case fail. Two mutants are
+  equivalent in behaviour and say so: this layer's handler without its kind
+  check (its address and instruction-pointer checks decline the same faults),
+  and the mirror's without its kind check alone (its game-code check declines).
+- Ending the process. This layer ends it only by `exit()` (the `atexit` stop of
+  the timer's gate runs) so nothing here calls the stop itself. A case runs 12
+  programs that the layer or the handlers around it end with and without
+  `--timer-burst` and requires the same result, no line of the gate's
+  self-checks. A direct `ExitProcess` added to this layer would not be seen by
+  that case (shown with a scratch mutant); it would hang only rarely.
+- The rigs. The retry of the module and launch rigs is gone (a program is run
+  once; a run that hangs or prints nothing fails its case). `ModRig` records
+  and prints the whole last run as `Rig` of main does, with the case for it; the
+  20-run burst loop keeps the first bad run's record for the failure text, not
+  the last good run's.
+- Stress (one-off, 12 CPU burners ended by PID after each run, merged tree):
+  300 runs of a program ending by `exit()` with the timer: 300 right; 300 with
+  `--no-interrupt`: 300 right; 10 runs of the two-thousand-faults case: 10
+  right (each rc 0, 2000 "A ran", `stop: main returned`). The earlier stop of
+  this work (2 of 300 hung) was the exit race, fixed on main.
+- Not done: data of modules beyond their code; the real game's modules run only
+  through the tables, not on the console's behaviour.
+
+## The pads and the input script of the port (2026-10-10)
+
+- What it is. The runtime now fills port 1's buffer at every vertical
+  blank after `StartPAD` from PsyZ (`Psyz_PadsPoll()`, then
+  `Psyz_PadsGet(0, ...)`) or, without PsyZ, with a digital pad that has no
+  button pressed, fills port 2's with 0xff, and takes `--input FILE`, a
+  text script of presses and releases. The code is `port/src/input.c`, the
+  pads part of `kernel.c`, the option and the keys line in `main.c`; the
+  control is `port/tools/test_hostpads.py`. The starting point was the
+  private trial's `input.c` and pad code; what was kept and what was
+  changed is below.
+- Kept from the trial. The script's grammar (`SECONDS BUTTON down|up` and
+  `repeat SECONDS EVERY BUTTON`, comments, a time as the frame
+  `round(SECONDS * 60)`), the 4-frame hold of a repeat, the word the game
+  builds from the buffer for the trace line, port 2 as 0xff, the poll made
+  by the port before the fetch. The task text calls the times "frame
+  numbers"; the trial's times are seconds that become frames, and that is
+  kept (a judgment, flagged in the work report).
+- Changed, and why.
+  - The reader of the script is the project's own (the trial's used
+    `sscanf`): it accepts only digits and one point for a number (the
+    trial's `%lf` took `nan`, `inf`, `0x10`, `1e3`, and cast a `nan` to a
+    frame), refuses a line over 200 characters (the trial's `fgets` would
+    have cut it into two lines and miscounted), a NUL byte, an empty file,
+    a file with only comments, a file over 1 MB, a time over 1,000,000
+    seconds, a script over 1,000,000 steps (a `repeat` from 0 to a line a
+    million seconds later would have made ten million), and a file that
+    cannot be opened or read; every message names the file and the line.
+    The steps are sorted by (frame, line order) with `qsort`, not by the
+    trial's insertion sort (quadratic).
+  - A refusal is printed whole: the first run of the review (a long path
+    inside its copy of the tree) cut the message at the runtime's usual
+    256-character error buffer and lost the line number and the reason.
+    The script's reader now has an error buffer of its own (2048), shows a
+    path of over 1000 characters shortened with `...`, and a control makes
+    a path that puts the message past 256 characters (the mutant with a
+    256-character buffer fails it).
+  - `InitPAD` checks both buffers when they are given (main had no check;
+    the trial had none): a negative length, or a non-null buffer of
+    positive length not wholly inside `port_game_span`, ends the run
+    (`stop: InitPAD: ...`, status 9) before either is kept; null and
+    length 0 are served without a write.
+  - The frame is 34 bytes (PsyZ's `PSYZ_PAD_BUF_LEN`): a buffer is written
+    up to 34 bytes and not past them, for port 1 and port 2. The trial
+    wrote a longer port 2 buffer whole, and its build without PsyZ wrote
+    byte 2 as 0 for a length of 3 (the control found this: the first
+    three bytes of a frame are 0, 0x41, 0xff).
+  - PsyZ is reached by strong references under `PORT_HAVE_PSYZ`, which
+    `hostbuild.py --psyz` now defines for `input.c` as it does for `gpu.c`
+    (the trial used weak references; an archive member that nothing else
+    pulls in would then silently be absent). `InitPAD` calls PsyZ's
+    `PadInit(0)`, as PsyZ's own `InitPAD` does: without it PsyZ's pads stay
+    uninitialised and read no button.
+  - The script is pressed only on a frame of a digital pad (status 0, kind
+    0x41). The trial pressed it on any frame, including PsyZ's "no
+    controller" frame (0xff, 0xff), which made a frame that says "no
+    controller" with buttons in it. Now such a frame is left as it is, the
+    word is 0, and the first time with a script loaded one line says that
+    the script is not applied. This follows from the task text ("on top of
+    what PsyZ gave") and is a judgment, flagged.
+  - The keys line names the keys of PsyZ's `keyb_p1` in its order with the
+    buttons of PsyZ's definitions; the trial's text grouped them
+    differently and added the window's close handling. With
+    `--psyz-build` the control builds the expected line from PsyZ's
+    `sdl3_common.h` and `libetc.h` and compares.
+  - Another `--input`, or `--input` with `--list-library`, gives the usage.
+- Known limit (stated on the page, not worked around). In a Windows Remote
+  Desktop session SDL reports no keyboard, so PsyZ reads no key for port
+  1; with no game controller its frame says "no controller", and the
+  script has no effect there (the one line says so).
+- Checks, one-off counts, all on 2026-10-10 in the worktree of the branch
+  `port-pads-input`. `test_hostpads.py --cc ... --psyz-build ...`: 80 cases
+  `ok`, `all cases behaved as required`; mutants, each in a copy of the
+  runtime's folder with one line changed, each failing named cases: the
+  poll left out (7 cases), the poll after the fetch (10), the script's
+  bits ORed in instead of cleared (10), the frame comparison off by one
+  (10), the buffer check left out (7), port 2 written like port 1 (10).
+  `test_hostlaunch.py` (65 cases) and `test_hostbuild.py` (301 cases)
+  still end with `all cases behaved as required`.
+- Not shown. Nothing of this has run against PsyZ's real routines or a
+  device: the control links a stand-in object for `PadInit`,
+  `Psyz_PadsPoll` and `Psyz_PadsGet` and starts no window. The keys line
+  is compared with PsyZ's source, not with a key press.
+- A fault of the script found in review, and the control that could not find it. A repeat line was turned into presses and releases 4 frames apart, in one state with the down and up lines. Its last release could fall after the repeat's end and release a button that a later down line held: with `repeat 0 0.1 cross`, `0.15 cross down`, `1 cross up` the button was up from frame 10 where the page says it is held to frame 60. The controls did not see it because their expected words came from a function of the test that repeated the same calculation. Now the holds of the lines and the presses of the repeats are two states (a count of running presses per button), a press ends at the repeat's end, and four scripts have their words written out by hand, frame by frame, in both builds and with and without the timer: the reviewer's, a repeat that ends at a line of another button, a hold that begins before a repeat of the same button, and two repeats on one button. Against the code as it was pushed all 16 of those cases fail (the reviewer's at frames 10, 11, 30 and 59); with one state again, without the clipping, and without the count, named cases fail. The test's own function was rewritten in the other form (state at a frame, not a list of steps) and is no longer the only source of an expectation.
 
 ## Nonmatching C for the resident program, first batch (2026-10-10)
 

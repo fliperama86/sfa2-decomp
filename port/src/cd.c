@@ -80,7 +80,7 @@ unsigned char *port_cd_ram;
 void (*port_cd_written_hook)(unsigned address, unsigned bytes);
 void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 
-#define NPAGES (PORT_RAM_SIZE / 0x1000u)
+#define NWORDS (PORT_RAM_SIZE / 4u)
 #define ST_IDLE 0x02u   /* motor on */
 #define ST_READ 0x22u   /* motor on, reading */
 #define ST_ERR  0x03u   /* motor on, error */
@@ -108,7 +108,7 @@ static struct {
     unsigned cur_sector, offset;
     unsigned char data[PORT_DATA];
     int in_delivery;
-    int page_source[NPAGES];
+    int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
 } cd;
 
 /* ---- stops ---------------------------------------------------------- */
@@ -449,6 +449,19 @@ int port_CdMix(void *vol)
     return 1;
 }
 
+/* Record that the bytes [off, off + n) of the RAM now come from `sector` (-1: not from the disc). A word is
+ * attributed only when all four of its bytes were written; a word that is only partly covered holds bytes of two
+ * origins and is -1. */
+static void record(unsigned off, unsigned n, int sector)
+{
+    unsigned first, last, w;
+    if (!n || !cd.word_source) return;
+    first = off / 4;
+    last = (unsigned)(((unsigned long long)off + n - 1) / 4);
+    for (w = first; w <= last && w < NWORDS; w++)
+        cd.word_source[w] = (unsigned long long)w * 4 >= off && (unsigned long long)w * 4 + 4 <= (unsigned long long)off + n ? sector : -1;
+}
+
 int port_CdGetSector(void *madr, int words)
 {
     unsigned long long want = words > 0 ? (unsigned long long)words * 4u : 0u;
@@ -467,9 +480,9 @@ int port_CdGetSector(void *madr, int words)
     }
     if (give < bytes) memset(dst + give, 0, bytes - give);   /* the FIFO ran dry */
     off = ram_offset(dst);
-    if (cd.have_sector && off >= 0) {
-        unsigned first = (unsigned)off / 0x1000u, last = (unsigned)(off + (long)bytes - 1) / 0x1000u;
-        for (; first <= last && first < NPAGES; first++) cd.page_source[first] = (int)cd.cur_sector;
+    if (off >= 0) {
+        record((unsigned)off, give, (int)cd.cur_sector);   /* the sector's bytes ... */
+        record((unsigned)off + give, bytes - give, -1);    /* ... and the zeros of a dry FIFO, which are from nowhere */
         if (port_cd_written_hook) port_cd_written_hook(PORT_RAM_BASE + (unsigned)off, bytes);
     }
     return 1;
@@ -480,10 +493,10 @@ struct port_disc *port_cd_disc(void)
     return cd.disc;
 }
 
-int port_cd_page_source(unsigned address)
+int port_cd_source_at(unsigned address)
 {
-    if (address < PORT_RAM_BASE || address - PORT_RAM_BASE >= PORT_RAM_SIZE) return -1;
-    return cd.page_source[(address - PORT_RAM_BASE) / 0x1000u];
+    if (!cd.word_source || address < PORT_RAM_BASE || address - PORT_RAM_BASE >= PORT_RAM_SIZE) return -1;
+    return cd.word_source[(address - PORT_RAM_BASE) / 4u];
 }
 
 /* ---- delivery ---------------------------------------------------------- */
@@ -552,10 +565,13 @@ void port_cd_tick(void)
 int port_cd_init(struct port_disc *disc)
 {
     unsigned i;
+    free(cd.word_source);
     memset(&cd, 0, sizeof cd);
     cd.disc = disc;
     cd.total = disc->length / PORT_SECTOR;
-    for (i = 0; i < NPAGES; i++) cd.page_source[i] = -1;
+    cd.word_source = malloc(NWORDS * sizeof *cd.word_source);
+    if (!cd.word_source) return -1;
+    for (i = 0; i < NWORDS; i++) cd.word_source[i] = -1;
     cd.status = ST_IDLE;
     cd.sync = 2;
     cd.started = 1;

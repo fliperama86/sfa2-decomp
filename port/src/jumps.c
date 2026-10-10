@@ -87,12 +87,43 @@ int port_jump_known(unsigned address)
 /* The build's two markers around the game's own compiled code (hostbuild.py places them). */
 extern char port_game_text_begin, port_game_text_end;
 
+int (*port_module_known)(unsigned address);
+
+/* Is the jump or call that start-up wrote at the resident entry `address` still there? Checked by content, cheaply:
+ * the opcode is a call or a jump and its target is outside the PS1's RAM (everything the runtime writes there goes to
+ * host code). This sees bytes that were overwritten with anything else; it cannot see bytes overwritten with another
+ * jump to host code. A write by the game's own code is seen only here, at the moment a target is checked. */
+static int jump_intact(unsigned address)
+{
+    const unsigned char *site = (const unsigned char *)(size_t)address;
+    uint32_t rel, to;
+
+    if (site[0] != 0xe8 && site[0] != 0xe9) return 0;
+    memcpy(&rel, site + 1, 4);
+    to = (uint32_t)((uintptr_t)site + 5 + rel);
+    return to < PORT_RAM_BASE || to - PORT_RAM_BASE >= PORT_RAM_SIZE;
+}
+
 void port_target_check(const char *path, const void *target)
 {
     size_t address = (size_t)target;
 
-    if ((size_t)(unsigned)address == address && port_jump_known((unsigned)address)) return;
+    if ((size_t)(unsigned)address == address && port_jump_known((unsigned)address)) {
+        if (jump_intact((unsigned)address)) return;
+        printf("refused: %s 0x%08x is a resident entry whose jump is no longer there\n", path, (unsigned)address);
+        fflush(stdout);
+        exit(PORT_EXIT_TARGET);
+    }
     if (address >= (size_t)&port_game_text_begin && address < (size_t)&port_game_text_end) return;
+    if ((size_t)(unsigned)address == address && port_module_known) {
+        int known = port_module_known((unsigned)address);
+        if (known > 0) return;
+        if (known < 0) {
+            printf("refused: %s 0x%08x is an entry of a module whose jump is no longer there\n", path, (unsigned)address);
+            fflush(stdout);
+            exit(PORT_EXIT_TARGET);
+        }
+    }
     printf("refused: %s 0x%08x is not a function this program installed\n", path, (unsigned)address);
     fflush(stdout);
     exit(PORT_EXIT_TARGET);

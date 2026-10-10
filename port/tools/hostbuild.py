@@ -148,7 +148,12 @@ for it; a configuration without 64 hex digits there is an error).
 `port_images` holds every image of the configuration in its order, with
 the names of all the archives that carry its content (`contents.tsv`; the
 configuration's own archive when that table is absent), which the runtime's
-placing of modules (`modules.c`) matches against the disc's files.
+placing of modules (`modules.c`) matches against the disc's files, and the
+SHA-256 that the image's `sha256` pins (32 bytes; the hash of the chunk's
+bytes exactly as they lie in the archive, which is what the runtime reads from
+the user's disc and compares before it writes a jump of the image). An image
+whose `sha256` is missing or is not 64 hex digits is an error before any
+compilation.
 `port_functions` holds every function with C: a function that a unit which
 compiled declares and defines, and a nonmatching function that its file
 defines; sorted by image (the resident executable first, as -1) and
@@ -252,12 +257,13 @@ The graphics library
 --------------------
 
 With `--psyz DIR` (DIR is a build folder of `psyzbuild.py`, which holds
-`psyz.json`) the runtime's `gpu.c` is compiled with `-DPORT_HAVE_PSYZ`,
-PsyZ's defines and `-isystem` its include folder, and the link line gets
-PsyZ's libraries (its static library, SDL's and the system libraries, in the
-order the file lists them) after the objects. No other runtime file sees
-PsyZ's headers. Without the option `gpu.c` compiles to empty tables and the
-program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
+`psyz.json`) the runtime's `gpu.c` and `input.c` are compiled with
+`-DPORT_HAVE_PSYZ`, PsyZ's defines and `-isystem` its include folder, and the
+link line gets PsyZ's libraries (its static library, SDL's and the system
+libraries, in the order the file lists them) after the objects. No other
+runtime file sees PsyZ's headers. Without the option `gpu.c` compiles to empty
+tables, `input.c` reads no device (port 1 is a pad with no button pressed), and
+the program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
 is not valid or names a file that is missing, is an error (status 2). With the
 option the line `psyz: COMMIT` follows the `compiler:` line.
 
@@ -483,6 +489,9 @@ def read_images(config: dict, path: Path) -> list[dict]:
             raise Problem(f"{path}: an image has no name or one that is used twice: {name!r}")
         if not isinstance(image.get("address"), int) or not isinstance(image.get("slot"), int):
             raise Problem(f"{path}: image {name} needs integer `address` and `slot`")
+        digest = image.get("sha256")
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", digest):
+            raise Problem(f"{path}: image {name} needs `sha256`, 64 hex digits (the pinned content of its chunk)")
         seen.add(name)
     for image in images:
         if "like" in image and image["like"] not in seen:
@@ -881,6 +890,10 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
     for n, i in enumerate(images):
+        out.append(f"static const unsigned char port_sha256_{n}[32] = {{ " + ", ".join("0x%02x" % b for b in bytes.fromhex(i["sha256"])) + " };\n")
+    if images:
+        out.append("\n")
+    for n, i in enumerate(images):
         if i["name"] in archives:
             out.append(f"static const char *const port_archives_{n}[] = {{ " + "".join(c_string(a) + ", " for a in archives[i["name"]]) + "0 };\n")
     if archives:
@@ -895,10 +908,10 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         out.append(f"const unsigned {kind}_count = {len(rows)};\n\n")
 
     table("port_image", "port_images", [
-        "{ %s, 0x%08xu, %s, 0x%xu%s }" % (c_string(i["name"]), i["address"], c_string(i["like"]) if "like" in i else "0", i["slot"],
-                                          f", port_archives_{n}" if i["name"] in archives else "")
+        "{ %s, 0x%08xu, %s, 0x%xu, %s, port_sha256_%d }" % (c_string(i["name"]), i["address"], c_string(i["like"]) if "like" in i else "0", i["slot"],
+                                                           f"port_archives_{n}" if i["name"] in archives else "0", n)
         for n, i in enumerate(images)
-    ], "{ 0, 0, 0, 0 }")
+    ], "{ 0, 0, 0, 0, 0, 0 }")
     table("port_function", "port_functions", [
         "{ 0x%08xu, (void *)%s, %s, %d }" % (f[1], f[2], c_string(f[3]), f[0]) for f in functions
     ], "{ 0, 0, 0, 0 }")
@@ -1386,7 +1399,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         obj = build / "rt" / f"{source.stem}.o"
         obj.unlink(missing_ok=True)
         extra: list[str] = []
-        if psyz and source.name == "gpu.c":
+        if psyz and source.name in ("gpu.c", "input.c"):
             extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
         proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
         if proc is None or proc.returncode != 0:

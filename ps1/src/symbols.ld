@@ -1880,7 +1880,6 @@ data_8019d7cc = 0x8019d7cc;
 /* Added by src.u_slot12_0058. */
 func_80011688_slot12 = 0x80011688;
 func_80012a0c_slot12 = 0x80012a0c;
-func_80012c34_slot12 = 0x80012c34;
 func_80013224_slot12 = 0x80013224;
 func_8001606c_slot12 = 0x8001606c;
 func_80016af0_slot12 = 0x80016af0;
@@ -4602,6 +4601,7 @@ data_801a37e4 = 0x801a37e4;
 data_800100a0_slot01 = 0x800100a0;
 
 /* Added by src.u_slot01_0d0c. */
+data_80015174_slot01 = 0x80015174;
 data_800151b4_slot01 = 0x800151b4;
 data_80055ea4_slot01 = 0x80055ea4;
 

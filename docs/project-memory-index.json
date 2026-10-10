@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "17777ff8c98b64bb4f24265b21a2d495bcf4ce3febfaadb95b15136863d4a3a0",
+  "sha256": "0c1e72609f4fff95fc068d0ab0cfc53f94d0ca52aab13eed37431055868940ea",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -543,44 +543,60 @@
       "line": 8325
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)",
       "line": 8366
     },
     {
+      "title": "A function of the module of slot 0x1 exact, with its palette table (2026-10-10)",
+      "line": 8386
+    },
+    {
+      "title": "Windows reference",
+      "line": 8410
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8383
+      "line": 8427
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8408
+      "line": 8452
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8465
+      "line": 8509
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8550
+      "line": 8594
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8664
+      "line": 8708
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8677
+      "line": 8721
     },
     {
       "title": "The program always ends when the game's thread ends it (2026-10-10)",
-      "line": 8713
+      "line": 8757
     },
     {
       "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
-      "line": 8788
+      "line": 8832
+    },
+    {
+      "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
+      "line": 8866
+    },
+    {
+      "title": "The pads and the input script of the port (2026-10-10)",
+      "line": 8950
     },
     {
       "title": "Nonmatching C for the resident program, first batch (2026-10-10)",
-      "line": 8822
+      "line": 9035
     }
   ]
 }

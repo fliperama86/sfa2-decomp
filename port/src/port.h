@@ -108,6 +108,15 @@ int  port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c,
  * Anything else ends the program with `refused: PATH 0xADDRESS is not a function this program installed`
  * and status PORT_EXIT_TARGET; PATH names the call site. Called at the moment of the call. */
 void port_target_check(const char *path, const void *target);
+/* Set by the modules layer: is `address` an entry of a module that the layer installed (it wrote that entry's own
+ * jump, or call to the stop, and the five bytes are still exactly that)? The module is placed first if the address's
+ * bytes came from a pinned chunk of the disc and its page is not placed yet. 1: yes. 0: no. -1: it was installed and
+ * its jump is no longer there. Null until the layer starts. port_target_check asks it for an address that is not a
+ * resident entry. */
+extern int (*port_module_known)(unsigned address);
+/* Set by the modules layer, read by the timer thread of interrupt.c: is the page at `address` non-executable
+ * because the disc wrote it? */
+extern int (*port_page_blocked)(unsigned address);
 /* The entry of the 5-byte call written for functions without C. */
 void port_stop_entry(void);
 /* Print the line, flush, end the program. Never returns. */
@@ -229,6 +238,17 @@ unsigned port_frames(void);                /* kernel.c: vblanks since the start 
 /* main.c: the open disc, for the routines that look files up; --skip-programs */
 extern struct port_disc *port_disc_handle;
 extern int port_skip_programs;
+
+/* input.c: the pads (see the file). The BIOS's frame of one controller is PORT_PAD_FRAME bytes. */
+#define PORT_PAD_FRAME 34
+void port_pad_host_init(void);                               /* once per InitPAD */
+void port_pad_host_read(unsigned char *dst, int len);        /* port 1's frame, the first min(len, PORT_PAD_FRAME) bytes */
+void port_pad_print_keys(void);                              /* one line at start when PsyZ is linked, else nothing */
+#define PORT_INPUT_ERR        2048   /* size of the error buffer that port_input_load needs: a long path is shortened to PORT_INPUT_PATH_SHOWN characters */
+#define PORT_INPUT_PATH_SHOWN 1000
+int  port_input_load(const char *path, char *err, size_t errsize);   /* --input FILE: 0, or -1 with a line that names the file and line */
+int  port_input_loaded(void);
+void port_input_apply(unsigned char *frame, unsigned vblank);        /* press the script's buttons held at that vertical blank on a digital pad frame */
 
 /* threads.c */
 /* The gp that the entry code loads (lui/addiu), from the loaded memory. */
