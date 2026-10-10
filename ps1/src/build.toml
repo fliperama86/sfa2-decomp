@@ -23749,6 +23749,16 @@ functions = [
 ]
 
 [[unit]]
+name = "slot01_0104x_r1"
+image = "slot01"
+source = "slot01/slot01_0104x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80010104_slot01", address = 0x80010104, size = 916 },
+]
+rodata = { address = 0x80010000, size = 160 }
+
+[[unit]]
 name = "slot01_00a4_r3"
 image = "slot01"
 source = "slot01/slot01_00a4_r3.c"
