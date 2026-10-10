@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "0031d8a9b4e77364e73480371dd56da0ca0c4f363e521990504cefb5d60aff2d",
+  "sha256": "15d48a446c34d75db0f9ce9cffbb1073ea8617130062fd2aa295801183bf50d1",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -507,20 +507,24 @@
       "line": 7985
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x27 exact: one local, two values (2026-10-10)",
       "line": 8023
     },
     {
-      "title": "Tool locations and reproducibility",
-      "line": 8040
-    },
-    {
-      "title": "Mistakes and lessons to preserve",
+      "title": "Windows reference",
       "line": 8065
     },
     {
+      "title": "Tool locations and reproducibility",
+      "line": 8082
+    },
+    {
+      "title": "Mistakes and lessons to preserve",
+      "line": 8107
+    },
+    {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8122
+      "line": 8164
     }
   ]
 }
