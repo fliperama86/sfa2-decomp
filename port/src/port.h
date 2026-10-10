@@ -176,7 +176,16 @@ int  port_interrupt_allowed(void);
 int  port_interrupt_take(void);
 void port_clock_start(void);
 /* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
-void port_interrupt_start(void);
+void port_interrupt_start(int burst);
+/* interrupt.c: the gate that every suspension of the game's thread goes through. port_suspenders_stop ends them for good
+ * (no suspension in flight afterwards, none can begin); it is registered with atexit and called before ExitProcess. The
+ * enter/leave pair is for the watchdog of debug.c (enter returns 0 once stopped, and then holds nothing). */
+void port_suspenders_init(void);   /* once, from the game's thread, before any thread that suspends it exists */
+void port_suspenders_stop(void);
+#ifdef _WIN32
+int  port_suspenders_enter(void);
+void port_suspenders_leave(void);
+#endif
 
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);

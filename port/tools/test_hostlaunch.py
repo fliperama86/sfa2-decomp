@@ -68,6 +68,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from test_hostrun import CNF, Image  # noqa: E402
 
+BURST_RUNS, BURST_LIMIT = 20, 10   # runs of each ending case, and the seconds a run may take
 SRC = HERE.parent / "src"
 BUILD = HERE.parent / "build"
 RAM = 0x80000000
@@ -825,6 +826,24 @@ class Rig:
         return proc.returncode, proc.stdout.replace("\r\n", "\n").splitlines(), img, arg
 
 
+    def run_bounded(self, exe: Path, arg: str, args: list[str], limit: int) -> tuple[int, list[str]] | None:
+        """One run of a program that must end by itself within `limit` seconds; None if it did not. A program that
+        did not end is ended by its process id (found by its exact path, never by name), and the run is not repeated."""
+        proc = subprocess.Popen([*self.prefix, str(exe), *args, arg], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        try:
+            out, _ = proc.communicate(timeout=limit)
+        except subprocess.TimeoutExpired:
+            if self.wsl:
+                query = ("Get-Process | Where-Object { $_.Path -eq '%s' } | ForEach-Object { $_.Id }" % self.native(exe))
+                ids = subprocess.run(["powershell.exe", "-NoProfile", "-Command", query], capture_output=True, text=True, timeout=120).stdout.split()
+                for pid in ids:
+                    subprocess.run(["taskkill.exe", "/F", "/PID", pid], capture_output=True, timeout=60)
+            proc.kill()
+            proc.communicate()
+            return None
+        return proc.returncode, out.replace("\r\n", "\n").splitlines()
+
+
 def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0, with_c: int = 2, without_c: int = 2) -> list[str]:
     s = img.sector["SLPS_004.15;1"]
     return [
@@ -987,6 +1006,26 @@ def cases(rig: Rig):
         body[1:2], ["handler saw: default control word 1 empty x87 stack 1 default mxcsr 1 direction flag clear 1"])
     yield "the-handler-computes-right-with-all-eight-x87-slots-occupied-by-the-interrupted-code", verdict(
         body[2:3], ["handler arithmetic: x87 1 sse 1; handler ran %s times: 1" % (body[2].split("ran ")[1].split(" ")[0] if len(body) > 2 and "ran " in body[2] else "?")])
+
+    # ---- the program ends when the game's thread ends it, with the timer attempting its suspension without waiting ----
+    # Each case runs the program RUNS times, every run once; a run that does not end within LIMIT seconds fails the case.
+    for name, variant, data, want in (
+            ("a-program-that-ends-by-exit-always-ends-with-the-timer-suspending-without-waiting", "cd-valid", program(G_CD["getsector"]),
+             (6, "stop: CdGetSector buffer 0x00001000 (2048 bytes) is outside the PS1's RAM")),
+            ("a-program-that-ends-through-the-crash-routine-always-ends-with-the-timer-suspending-without-waiting", "crash", program(G_CRASH), (10, "stop: crash: "))):
+        exe = rig.program_for(variant, data)
+        img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": data})
+        path = rig.work / f"{variant}-burst.bin"
+        img.write(path)
+        arg = rig.native(path)
+        bad = []
+        for n in range(BURST_RUNS):
+            got = rig.run_bounded(exe, arg, ["--timer-burst"], BURST_LIMIT)
+            if got is None:
+                bad.append(f"run {n}: did not end in {BURST_LIMIT} s")
+            elif got[0] != want[0] or not got[1] or not got[1][-1].startswith(want[1]):
+                bad.append(f"run {n}: status {got[0]}, last lines {got[1][-2:]!r}")
+        yield name, None if not bad else f"{len(bad)} of {BURST_RUNS} runs wrong: {bad[:3]!r}"
 
     # ---- the kernel ----
     status, lines, img, arg = rig.run("vblank", program(G_VBLANK), variant="kern", timeout=60)

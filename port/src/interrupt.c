@@ -17,12 +17,15 @@
  * Risk, stated: the game's code can now be interrupted between any two instructions, as on the console. */
 #include "port.h"
 
+#include <stdlib.h>
+
 #ifdef _WIN32
 #include <windows.h>
 
 extern char port_game_text_begin, port_game_text_end;
 
 static HANDLE game_thread;
+static int burst;
 unsigned port_interrupt_count;               /* how many vblanks the timer delivered (for the controls and the page) */
 
 void port_interrupt_entry(void);
@@ -72,6 +75,46 @@ static int in_game_code(unsigned eip)
            (eip >= PORT_RAM_BASE && eip < PORT_RAM_BASE + PORT_RAM_SIZE);
 }
 
+/* The gate. Whoever suspends the game's thread (the timer here, the watchdog of debug.c) holds the gate from before
+ * SuspendThread until after ResumeThread. port_suspenders_stop takes the gate once and sets the flag under it; after
+ * it returns no suspension is in flight and none can begin. It runs at every way the game's thread ends the process:
+ * registered with atexit (every exit() and a return from main) and called before the ExitProcess of main.c's crash
+ * routine. Without it the timer could be ended by ExitProcess between its SuspendThread and its ResumeThread, and the
+ * game's thread, left suspended inside the exit, would never finish ending the process. */
+static CRITICAL_SECTION gate;
+static int gate_ready, stopped;
+
+void port_suspenders_init(void)
+{
+    if (gate_ready) return;
+    InitializeCriticalSection(&gate);
+    gate_ready = 1;
+    atexit(port_suspenders_stop);
+}
+
+void port_suspenders_stop(void)
+{
+    if (!gate_ready) return;
+    EnterCriticalSection(&gate);
+    stopped = 1;
+    LeaveCriticalSection(&gate);
+}
+
+int port_suspenders_enter(void)
+{
+    EnterCriticalSection(&gate);
+    if (stopped) {
+        LeaveCriticalSection(&gate);
+        return 0;
+    }
+    return 1;
+}
+
+void port_suspenders_leave(void)
+{
+    LeaveCriticalSection(&gate);
+}
+
 static DWORD WINAPI timer(LPVOID unused)
 {
     /* a high-resolution timer (CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, 0x2) where the system has it: Sleep(1) may last 15 ms */
@@ -80,11 +123,12 @@ static DWORD WINAPI timer(LPVOID unused)
     for (;;) {
         LARGE_INTEGER due;
         due.QuadPart = -10000;   /* 1 ms */
-        if (wait && SetWaitableTimer(wait, &due, 0, NULL, NULL, 0)) WaitForSingleObject(wait, 20);
+        if (burst) { /* --timer-burst: no wait between attempts (a control) */ }
+        else if (wait && SetWaitableTimer(wait, &due, 0, NULL, NULL, 0)) WaitForSingleObject(wait, 20);
         else Sleep(1);
-        {
+        if (!port_suspenders_enter()) return 0;
+        if (SuspendThread(game_thread) != (DWORD)-1) {
             CONTEXT c;
-            if (SuspendThread(game_thread) == (DWORD)-1) continue;
             c.ContextFlags = CONTEXT_CONTROL;
             if (GetThreadContext(game_thread, &c) && in_game_code(c.Eip) && port_interrupt_allowed() && port_interrupt_take()) {
                 interrupted_eip_cell = c.Eip;
@@ -94,17 +138,27 @@ static DWORD WINAPI timer(LPVOID unused)
             }
             ResumeThread(game_thread);
         }
+        port_suspenders_leave();
     }
     return 0;
 }
 
-void port_interrupt_start(void)
+void port_interrupt_start(int burst_mode)
 {
+    burst = burst_mode;
+    port_suspenders_init();
     if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS)) return;
     CreateThread(NULL, 0, timer, NULL, 0, NULL);
 }
 #else
-void port_interrupt_start(void)
+void port_interrupt_start(int burst_mode)
+{
+    (void)burst_mode;
+}
+void port_suspenders_init(void)
+{
+}
+void port_suspenders_stop(void)
 {
 }
 #endif

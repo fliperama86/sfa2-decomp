@@ -33,6 +33,7 @@ static DWORD WINAPI watch(LPVOID unused)
             const unsigned *sp;
             int n = 0, k;
             char names[400] = "";
+            if (!port_suspenders_enter()) return 0;   /* the process is ending already */
             SuspendThread(game_thread);
             c.ContextFlags = CONTEXT_CONTROL | CONTEXT_INTEGER;
             GetThreadContext(game_thread, &c);
@@ -47,7 +48,7 @@ static DWORD WINAPI watch(LPVOID unused)
             }
             printf("stop: hang: no vblank for %u s; the program is at 0x%08x in %s; stack words point into: %s\n", quiet, (unsigned)c.Eip, port_function_at(c.Eip), names);
             fflush(stdout);
-            ExitProcess(PORT_EXIT_HANG);
+            ExitProcess(PORT_EXIT_HANG);   /* the gate stays held: nothing may resume the game's thread */
         }
     }
     return 0;
@@ -57,6 +58,7 @@ void port_debug_watchdog(unsigned seconds)
 {
     if (!seconds) return;
     wd_seconds = seconds;
+    port_suspenders_init();
     DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS);
     CreateThread(NULL, 0, watch, NULL, 0, NULL);
 }

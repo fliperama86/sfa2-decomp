@@ -65,6 +65,7 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
     } else
         printf("stop: crash: exception 0x%08x in %s (at 0x%08x)\n", (unsigned)r->ExceptionCode, port_function_at(ip), (unsigned)ip);
     fflush(stdout);
+    port_suspenders_stop();
     ExitProcess(PORT_EXIT_CRASH);
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
 {
     const char *disc_path = NULL, *trace_path = NULL;
     unsigned watchdog = 0;
-    int list = 0, trace = 0, bad = 0, no_interrupt = 0, i;
+    int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
     FILE *trace_file = NULL;
@@ -99,6 +100,7 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--no-interrupt") == 0) no_interrupt = 1;
+        else if (strcmp(argv[i], "--timer-burst") == 0) burst = 1;
         else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
         else if (strcmp(argv[i], "--watchdog") == 0 && i + 1 < argc) watchdog = (unsigned)atoi(argv[++i]);
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
@@ -156,7 +158,7 @@ int main(int argc, char **argv)
     fflush(stdout);
 
     port_clock_start();
-    if (!no_interrupt) port_interrupt_start();
+    if (!no_interrupt) port_interrupt_start(burst);
     ((void (*)(void))(size_t)entry)();
     port_stop_main_returned();
     return 0;
