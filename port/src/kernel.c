@@ -537,6 +537,7 @@ int port_interrupt_take(void)
         taken = 1;
     }
     if (port_iopage_claim_due()) taken = 1;
+    if (port_press_claim_due()) taken = 1;
     return taken;
 }
 
@@ -546,6 +547,7 @@ void port_interrupt_work(void);
 void port_interrupt_work(void)
 {
     port_iopage_deliver_claimed();
+    port_press_deliver_claimed();
     if (vblank_for_work) {
         vblank_for_work = 0;
         run_vblank();
@@ -563,6 +565,7 @@ void port_tick(void)
 
     if (port_handler_depth || vblank_in_progress) return;
     if (interrupts_enabled) port_iopage_poll();   /* the first poll after a transfer's start takes its completion, with no delay */
+    if (interrupts_enabled) port_press_poll();    /* the movie decoder's output transfer: taken when its due time has passed */
     now = now_us();
     if (vblanks_taken >= vblanks_due(now)) {
         unsigned long long next = clock_start_us + (unsigned long long)(vblanks_taken + 1) * FRAME_US;
