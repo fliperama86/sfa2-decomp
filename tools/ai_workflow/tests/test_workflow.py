@@ -91,12 +91,126 @@ class Selection(Fixture):
         self.assertEqual([c.mode for c in checks], ['differential', 'writes', 'differential', 'writes', 'control', 'exit'])
         self.assertEqual(len({c.argv[c.argv.index('--seed')+1] for c in checks if '--seed' in c.argv}), 2)
 
+    FB = 'ps1/src/slot06_nonmatching/func_80110004_slot06_00'
+
+    def with_fixtures(self):
+        """A second function of the folder, which has a fixtures file; the first has none."""
+        for ext in ('.c', '.py', '.fixtures.json'):
+            self.put(self.FB + ext, '')
+        return 'func_80110004_slot06_00', 'func_80110000_slot06_00'
+
+    def shape(self, changed):
+        return [(c.name, c.mode, c.functions) for c in self.selected(changed) if c.mode != 'exit']
+
     def test_binding_header_config_tools_broaden(self):
-        for p in ('ps1/src/symbols.ld', 'ps1/src/build.toml', 'ps1/src/types.fields', 'ps1/src/shared.h', 'ps1/tools/new.py', 'ps1/src/slot06_nonmatching/contracts.py'):
+        # What can change any function's build: the matching build, a replay of every function that has fixtures,
+        # and one comparison of every function that has none. No write audit and no control: they were the
+        # author's step for each function.
+        with_file, without = self.with_fixtures()
+        for p in ('ps1/src/symbols.ld', 'ps1/src/build.toml', 'ps1/src/types.fields', 'ps1/src/shared.h', 'ps1/tools/new.py'):
             with self.subTest(path=p):
-                checks = self.selected([p])
-                self.assertIn('matching', [c.name for c in checks])
-                self.assertIn('control', [c.mode for c in checks])
+                self.assertIn('matching', [c.name for c in self.selected([p])])
+                self.assertEqual(self.shape([p]), [('slot06_nonmatching-replay', 'replay', (with_file,)),
+                                                   ('slot06_nonmatching-diff-once-1', 'differential', (without,))])
+
+    def test_the_test_tool_of_nonmatching_c_selects_its_tests_and_every_function_but_no_matching_build(self):
+        with_file, without = self.with_fixtures()
+        self.put('ps1/tools/test_example.py', '')
+        for name in ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py'):
+            path = 'ps1/src/slot06_nonmatching/' + name
+            self.put(path, '')
+            with self.subTest(path=path):
+                names = [c.name for c in self.selected([path])]
+                self.assertEqual(names, ['slot06_nonmatching-replay', 'slot06_nonmatching-diff-once-1', 'difftest-tools',
+                                         'difftest-build-tools'])
+        # Another file of a folder that is neither a function's nor the tool's still broadens.
+        self.put('ps1/src/slot06_nonmatching/helper.py', '')
+        self.assertIn('matching', [c.name for c in self.selected(['ps1/src/slot06_nonmatching/helper.py'])])
+
+    def test_a_function_with_fixtures_is_replayed_and_not_compared_again(self):
+        with_file, _ = self.with_fixtures()
+        replay = [('slot06_nonmatching-replay', 'replay', (with_file,))]
+        for changed in ([self.FB + '.c'], [self.FB + '.fixtures.json'], [self.FB + '.c', self.FB + '.fixtures.json'],
+                        [self.FB + '.py', self.FB + '.fixtures.json'], [self.FB + '.c', self.FB + '.py', self.FB + '.fixtures.json']):
+            with self.subTest(changed=changed):
+                self.assertEqual(self.shape(changed), replay)
+        check = [c for c in self.selected([self.FB + '.c']) if c.mode == 'replay'][0]
+        self.assertEqual(check.argv[1:], ('ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder',
+                                          'ps1/src/slot06_nonmatching', '--replay', with_file))
+        # A fixtures file alone changes no C: nothing is built for it, and it is no reason for the matching build.
+        self.assertEqual([c.name for c in self.selected([self.FB + '.fixtures.json'])], ['slot06_nonmatching-replay'])
+        # A function of the same name in another folder is another function.
+        for ext in ('.c', '.py'):
+            self.put('ps1/src/other_nonmatching/' + with_file + ext, '')
+        self.assertEqual(self.shape([self.FB + '.c']), replay)
+
+    def test_a_changed_contract_without_new_fixtures_gets_the_wide_runs_too(self):
+        with_file, _ = self.with_fixtures()
+        for changed in ([self.FB + '.py'], [self.FB + '.py', self.FB + '.c']):
+            with self.subTest(changed=changed):
+                self.assertEqual([(n, m) for n, m, f in self.shape(changed)], [
+                    ('slot06_nonmatching-replay', 'replay'), ('slot06_nonmatching-diff-1', 'differential'),
+                    ('slot06_nonmatching-writes-1', 'writes'), ('slot06_nonmatching-diff-7', 'differential'),
+                    ('slot06_nonmatching-writes-7', 'writes'), ('slot06_nonmatching-controls', 'control')])
+                self.assertEqual({f for n, m, f in self.shape(changed)}, {(with_file,)})
+
+    def test_replay_evidence_is_one_complete_line_for_each_function(self):
+        check = review.Check('r', ('python', 'difftest.py', '--replay', 'fa', 'fb'), 'ps1', ('fa', 'fb'), 'replay')
+        good = 'fa replay: fixtures 3, passed 3, failed 0\nfb replay: fixtures 12, passed 12, failed 0\n'
+        review.check_output(check, good)
+        bad = {'a failed fixture': good.replace('passed 3, failed 0', 'passed 2, failed 1'),
+               'a fixture neither passed nor failed': good.replace('passed 3', 'passed 2'),
+               'a line that says failed with every fixture passed': good.replace('passed 3, failed 0', 'passed 3, failed 1'),
+               'no fixture': good.replace('fixtures 3, passed 3', 'fixtures 0, passed 0'),
+               'a function without a line': good.splitlines()[0] + '\n',
+               'a line twice': good + good.splitlines()[1] + '\n',
+               'a line that goes on': good.replace('fb replay: fixtures 12, passed 12, failed 0', 'fb replay: fixtures 12, passed 12, failed 0 of 13')}
+        for why, output in bad.items():
+            with self.subTest(why=why), self.assertRaises(model.Problem):
+                review.check_output(check, output)
+        with self.assertRaises(model.Problem):
+            review.check_output(review.Check('r', ('python', 'difftest.py', '--replay'), 'ps1', (), 'replay'), '')
+
+    def test_a_second_summary_of_a_function_is_never_hidden_by_a_passing_one(self):
+        # Every line that begins like a function's summary counts, also one that does not look like a pass: a pass
+        # beside a failure, beside a line that goes on, beside a claim of no fixture, or beside its own copy.
+        one = review.Check('r', ('python', 'difftest.py', '--replay', 'f'), 'ps1', ('f',), 'replay')
+        good = 'f replay: fixtures 3, passed 3, failed 0'
+        review.check_output(one, good + '\n')
+        review.check_output(one, 'fa replay: fixtures 1, passed 0, failed 1\n' + good + '\n  fixture 0 (case 4, note):\n')
+        others = {'a failure': 'f replay: fixtures 3, passed 2, failed 1', 'a line that goes on': good + ' of 4',
+                  'no fixture': 'f replay: fixtures 0, passed 0, failed 0', 'its own copy': good,
+                  'something else': 'f replay: could not be read'}
+        for why, other in others.items():
+            for output in (good + '\n' + other + '\n', other + '\n' + good + '\n'):
+                with self.subTest(why=why, first=output.splitlines()[0]), self.assertRaises(model.Problem):
+                    review.check_output(one, output)
+        # The same for the three modes of the wide runs.
+        wide = {'differential': ('f: built 12 bytes; cases 2, discarded 0, equal 2, different 0',
+                                 ('f: built 12 bytes; cases 2, discarded 0, equal 1, different 1', 'f: no contract')),
+                'writes': ('f writes: cases 2, discarded 0, outside 0 (largest 0 bytes)',
+                           ('f writes: cases 2, discarded 0, outside 1 (largest 4 bytes)',)),
+                'control': ('f control: different 1 of 2 (expected more than 0)',
+                            ('f control: different 0 of 2 (expected more than 0)',))}
+        for mode, (good, bad) in wide.items():
+            check = dataclasses.replace(self.check, mode=mode)
+            review.check_output(check, good + '\nf coverage: 3 of 3 instruction slots of the original executed\n')
+            with self.subTest(mode=mode, lone='a line that goes on'), self.assertRaises(model.Problem):
+                review.check_output(check, good + ' and more')
+            for other in (*bad, good, good + ' and more'):
+                for output in (good + '\n' + other, other + '\n' + good):
+                    with self.subTest(mode=mode, other=other, first=output.splitlines()[0]), self.assertRaises(model.Problem):
+                        review.check_output(check, output)
+
+    def test_contradictory_replay_evidence_of_a_zero_status_run_is_not_a_pass_and_is_not_cached(self):
+        check = review.Check('r', ('python', 'difftest.py', '--replay', 'f'), 'ps1', ('f',), 'replay')
+        self.result_output = 'f replay: fixtures 3, passed 3, failed 0\nf replay: fixtures 3, passed 2, failed 1\n'
+        result = self.run_job('contradiction', check=check)
+        self.assertFalse(result['complete'])
+        self.assertNotEqual(result['status'], 'fresh_pass')
+        self.assertFalse((self.root / 'local/cache').exists())
+        self.result_output = 'f replay: fixtures 3, passed 3, failed 0\n'
+        self.assertEqual(self.run_job('plain', check=check)['status'], 'fresh_pass')
 
     def test_unknown_removed_and_missing_native_refuse(self):
         for changed in (['mystery.py'], ['requirements.txt'], ['ps1/src/slot06_nonmatching/func_80110001_slot06_00.c']):
@@ -144,10 +258,16 @@ class Selection(Fixture):
                 self.assertEqual(c.argv[c.argv.index('--folder') + 1], 'port/overrides')
                 self.assertEqual(c.argv[-1], 'fa')
             self.assertEqual([(c.name, c.argv) for c in checks if c not in own], tool)
-        # A header of the game, which every override includes, selects every override.
+        # A header of the game, which every override includes, selects every override: one comparison of each,
+        # and a replay of the one that has fixtures.
         broad = [c for c in self.selected(['ps1/src/shared.h']) if c.name.startswith('port-overrides-')]
-        self.assertEqual({c.functions for c in broad}, {('fa', 'fb')})
-        self.assertEqual(len(broad), 5)
+        self.assertEqual([(c.name, c.mode, c.functions) for c in broad], [('port-overrides-diff-once-1', 'differential', ('fa', 'fb'))])
+        self.put('port/overrides/fb.fixtures.json', '')
+        broad = [c for c in self.selected(['ps1/src/shared.h']) if c.name.startswith('port-overrides-')]
+        self.assertEqual([(c.name, c.mode, c.functions, c.scope) for c in broad], [
+            ('port-overrides-replay', 'replay', ('fb',), 'overrides'), ('port-overrides-diff-once-1', 'differential', ('fa',), 'overrides')])
+        own = [c for c in self.selected(['port/overrides/fb.c']) if c.name.startswith('port-overrides-')]
+        self.assertEqual([(c.name, c.argv[-4:]) for c in own], [('port-overrides-replay', ('--folder', 'port/overrides', '--replay', 'fb'))])
         # The folder's page alone selects nothing.
         self.assertEqual(self.selected(['port/overrides/README.md']), [])
         names = [n for n, _ in tool]
@@ -305,6 +425,13 @@ class Results(Fixture):
         self.assertEqual(second['status'],'nonmatching_unvalidated')
         incomplete={**report,'checks':records[:-1]}; path.write_text(json.dumps(incomplete))
         row['status']='nonmatching_unvalidated'; model.import_evidence(self.root,[row],path)
+        self.assertEqual(row['status'],'nonmatching_unvalidated')
+        # A replay is evidence for the recorded inputs only: a report with nothing else is read and leaves the status.
+        log=report_dir/'r.log'; log.write_text(f'{name} replay: fixtures 2, passed 2, failed 0')
+        replay={'name':'r','head':model.revision(self.root),'scope':'ps1','mode':'replay','argv':['python','--replay',name],
+                'functions':[name],'complete':True,'exit_code':0,'evidence':log.name,'evidence_sha256':review.digest(log),
+                'source_files':review.source_files(self.root,'ps1')}
+        path.write_text(json.dumps({**report,'checks':[replay]})); model.import_evidence(self.root,[row],path)
         self.assertEqual(row['status'],'nonmatching_unvalidated')
         path.write_text(json.dumps({**report,'head':'wrong'}))
         with self.assertRaises(model.Problem): model.import_evidence(self.root,[row],path)
