@@ -137,7 +137,7 @@
  *    guard, whatever the ring holds.
  *  - The ring: bytes 0x16 and 0x17 of the game's stream object, ctl_80190948 at 0x80190948. The source shows that byte 0x16 is the
  *    place a sector is written to (the handler's work, 0x801e0000 plus the place times 2048; it is stepped 1 to 7, wrapping from 8 to
- *    1, l14de94_r3.c and s14f9f0_r2.c) and byte 0x17 the place the main loop reads next (l14de94_r4.c, wrapping the same way);
+ *    1, l14de94_r3.c and s14f9f0_r3.c) and byte 0x17 the place the main loop reads next (l14de94_r4.c, wrapping the same way);
  *    both are 0 before a stream starts (s14ec80_r4.c, v10_r1.c). That the two bytes ARE a ring of seven that holds the written
  *    but unread sectors, and that the fill is (w + 7 - r) % 7, is INFERRED from that source and from traces of good loads.
  *    With either byte outside 1 to 7 there is no guard.
