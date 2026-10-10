@@ -1025,6 +1025,7 @@ class Rig:
             return -999, ["(timeout)"], time.time() - started   # subprocess.run has ended the program it started
         lines = (proc.stdout + proc.stderr).replace("\r\n", "\n").splitlines()
         self.raw = lines                         # every line, PsyZ's own log lines included (the return value keeps only the layer's and the program's)
+        self.last_status = proc.returncode
         return proc.returncode, [l for l in lines if l.startswith(("t: ", "stop: ", "gpu: "))], time.time() - started
 
 
@@ -1593,6 +1594,12 @@ def main() -> int:
                         print(f"ok   {name}")
                     else:
                         print(f"FAIL {name}: {detail}")
+                        # Everything the last program run printed, kept or not: a run that ended without one of the
+                        # rig's lines (a start that failed, a program stopped from outside) is then not mute.
+                        raw = getattr(rig, "raw", [])
+                        print(f"     the last program run ended with status {getattr(rig, 'last_status', None)} and printed {len(raw)} line(s)" + (":" if raw else ""))
+                        for line in raw[-12:]:
+                            print(f"       | {line[:300]}")
                         failed += 1
             except Exception as err:  # a control must report, not crash
                 print(f"FAIL the control itself raised {type(err).__name__}: {err}")

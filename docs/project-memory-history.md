@@ -8351,3 +8351,11 @@ No function count changes here. Nothing under `ps1/` changed.
   `images` failed once in a full run (status 1 and no line, for a
   `MoveImage` pointer past the scratchpad) and passed in a run of its
   section and in the next full run; not explained.
+- One run that could not be explained. A full run of the graphics
+  controls on this branch failed one case (a rectangle pointer past
+  the scratchpad): its program ended with status 1 and none of the
+  lines the rig keeps. The same section alone passed, and so did the
+  next full run. The rig kept only the lines it knows, so what that
+  program printed is lost. It now prints, under a failing case, the
+  status and every line of the last program run, so that the next
+  such run says what happened. No retry was added.
