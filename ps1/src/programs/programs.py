@@ -202,9 +202,6 @@ def load(path: Path = DECLARATION) -> tuple[Program, ...]:
     seen = [p.name for p in programs]
     for repeated in sorted({n for n in seen if seen.count(n) > 1}):
         errors.append(f"program {repeated} is declared twice")
-    functions = [f.name for p in programs for f in p.functions]
-    for repeated in sorted({n for n in functions if functions.count(n) > 1}):
-        errors.append(f"function {repeated} is declared twice")
     if errors:
         raise ProgramError(errors)
     return tuple(programs)

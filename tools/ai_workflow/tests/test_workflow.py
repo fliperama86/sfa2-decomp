@@ -215,9 +215,11 @@ class Selection(Fixture):
         self.put(self.PG + 'logo/README.md', '')
         self.assertEqual(self.selected([self.PG + 'README.md', self.PG + 'logo/README.md']), [])
         for changed in ([self.PG + 'stray.txt'], [self.PG + 'logo/notes.txt'], [self.PG + 'logo/sub/' + self.PB + '.c'],
-                        [self.PG + self.PB + '.c'], [self.PG + 'logo/' + self.PB + '.json']):
-            with self.subTest(changed=changed), self.assertRaises(model.Problem):
+                        [self.PG + self.PB + '.c'], [self.PG + 'logo/' + self.PB + '.json'], [self.PG + 'logo/programs.py']):
+            self.put(changed[0], '')  # the file exists: it is refused as unmapped, not as a removed file
+            with self.subTest(changed=changed), self.assertRaises(model.Problem) as raised:
                 self.selected(changed)
+            self.assertIn('unmapped changes', str(raised.exception))
 
     def test_replay_evidence_is_one_complete_line_for_each_function(self):
         check = review.Check('r', ('python', 'difftest.py', '--replay', 'fa', 'fb'), 'ps1', ('fa', 'fb'), 'replay')

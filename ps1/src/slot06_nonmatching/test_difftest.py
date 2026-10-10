@@ -5367,13 +5367,19 @@ def case_p_every_mode_gives_the_setup_the_programs_names():
             "audit": lambda cfg, folder: D.audit_writes(cfg, PG_NAME, 1, 1, ram, scratch),
             "record": lambda cfg, folder: D.record_function(cfg, PG_NAME, D.Build(make_code(words), 8, 0), 2, 1, 2, ram, scratch,
                                                             Path(folder), 1)}
+    labelled: list = []
+    names_of = D.names_of  # the record labels the original's callees with these names: it must ask for the program's
     for mode, run in runs.items():
         seen.clear()
+        labelled.clear()
         with tempfile.TemporaryDirectory() as tmp, pg_program(), contract_of(PG_NAME, setup), \
-                patched(D, original_function=lambda cfg, name: (ORIGINAL, 8)):
+                patched(D, original_function=lambda cfg, name: (ORIGINAL, 8),
+                        names_of=lambda cfg, name=None: labelled.append(name) or names_of(cfg, name)):
             run(pg_cfg(), tmp)
         if seen.get("sym", {}).get("tbl_zz") != 0x80012080:
             return f"{mode}: the setup was given {seen.get('sym')}"
+        if labelled != ([PG_NAME] if mode == "record" else []):
+            return f"{mode}: the labels were asked for with {labelled}"
     return None
 
 

@@ -303,8 +303,10 @@ def case_program_names_win_in_the_link_of_a_program_function_only(rig: Rig):
     # same body to the tree's (lui 0x8003). The program's file is not needed: it is never read by a build.
     body = "extern unsigned data_80030000[];\nunsigned %s(void) { return data_80030000[0]; }\n"
 
-    def first_lui(name: str) -> int | None:
-        (rig.folder / f"{name}.c").write_text(body % name)
+    unit_function = rig.cfg.units[0].functions[0].name  # a name the build declares: the program may give it its own address
+
+    def first_lui(name: str, symbol: str = "data_80030000") -> int | None:
+        (rig.folder / f"{name}.c").write_text((body % name).replace("data_80030000", symbol))
         with tempfile.TemporaryDirectory(prefix="difftest-") as directory:
             build = D.build_function(rig.cfg, name, Path(directory), rig.folder)
         words = struct.unpack(f"<{build.size // 4}I", build.code[: build.size])
@@ -313,13 +315,16 @@ def case_program_names_win_in_the_link_of_a_program_function_only(rig: Rig):
     toml = rig.folder / "programs.toml"
     toml.write_text('[[program]]\nname = "zz"\nfile = "ZZ.EXE"\ndisc = "PAC/ZZ.EXE"\nsha256 = "' + "ab" * 32 + '"\n'
                     'address = 0x80012000\nfunctions = [ { name = "func_80012010_zz", address = 0x80012010, size = 24 } ]\n'
-                    "[program.symbols]\ndata_80030000 = 0x80012080\n")
+                    "[program.symbols]\ndata_80030000 = 0x80012080\n" + f"{unit_function} = 0x80012080\n")
     saved, saved_link = D.PROGRAMS_TOML, D.link_symbols
     D.PROGRAMS_TOML = toml
     try:
         program, resident = first_lui("func_80012010_zz"), first_lui("func_80012010")
         if (program, resident) != (0x8001, 0x8003):
             return f"lui immediates: program {program}, resident {resident}"
+        declared = first_lui("func_80012010_zz", unit_function)
+        if declared != 0x8001:
+            return f"a program name that the build also declares as a function was linked with lui {declared}, not 0x8001"
         # Fail closed: a link that kept the tree's address for the program's name is refused, not tested.
         D.link_symbols = lambda tree, defined, extra: D.without_assignments(tree, defined)
         try:

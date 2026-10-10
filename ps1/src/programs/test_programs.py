@@ -251,9 +251,11 @@ def case_body_missing_file():
 def case_body_function_past_its_end():
     far = '{ name = "func_800120f8_zz", address = 0x800120f8, size = 16 }'
     ends = '{ name = "func_800120f8_zz", address = 0x800120f8, size = 8 }'
+    four = '{ name = "func_800120f8_zz", address = 0x800120f8, size = 12 }'
     with tempfile.TemporaryDirectory() as tmp:
         P.read_body(body_file(tmp, functions=ends))  # ends exactly at the body's end: accepted
-    return body_refused(["func_800120f8_zz", "past the body"], functions=far)
+    return body_refused(["func_800120f8_zz", "past the body"], functions=far) or \
+        body_refused(["func_800120f8_zz", "past the body"], functions=four)  # four bytes past
 
 
 def case_program_of():
