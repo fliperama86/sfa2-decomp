@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "3b515a69c3282a16b7ab21e62536cde617e4a5e1f23913694b1a4061e62af340",
+  "sha256": "11326807ae9eb59e2cbbd8c96c94ec0dca081b6de6c150aef50d2208e2b1ae92",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -617,6 +617,10 @@
     {
       "title": "Correction: the review reused an override's result after the override changed (2026-10-10)",
       "line": 9281
+    },
+    {
+      "title": "Efficient checks: the owner's rule (2026-10-10)",
+      "line": 9305
     }
   ]
 }
