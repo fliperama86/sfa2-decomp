@@ -1898,10 +1898,17 @@ and `Psyz_SpuWrite` (the chip's registers), `Psyz_SpuFifoWriteBulk`,
 dump). Only `Psyz_SpuInit` is outside it, once at start, before any
 thread but the game's runs. The mutex exists only after `Psyz_AudioInit`,
 so the lock excludes PsyZ's thread only with `--audio`; the control
-`test_hostaudio.py` wraps these routines at the link and has a second
-thread try the lock during each call. Its made-up game uses only the
-chip's registers, so the calls of the transfer are shown by the code, not
-by a run.
+`test_hostaudio.py` wraps these routines at the link. Inside each
+locked call the wrapper starts a worker thread that tries the audio lock,
+waits 15 ms, and notes whether the worker got it: with a correct lock it
+must not. The wrapper cannot join the worker, because it returns to
+`iopage.c`, which then unlocks; so the made-up game joins all workers
+after its accesses have returned, and each must finish within 2 s with
+exit code 0. A thread that is not created, a wait that fails or times
+out, or a handle that does not close fails the case with its reason. The
+case takes about a second. Its made-up game uses only the chip's
+registers, so the calls of the transfer are shown by the code, not by a
+run.
 
 `python3 port/tools/test_hostaudio.py --cc CC --psyz-build DIR` has the
 cases (its header lists them). No case opens a real device: the control

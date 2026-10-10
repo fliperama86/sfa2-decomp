@@ -26,8 +26,10 @@ lines it must print and the status, checks the status first, and fails on a miss
   register, which only a pulled frame changes, is not zero) and PsyZ's own state says a device is open (Psyz_AudioIsPaused is 0); the
   same game with no option: envelope 0 and no device; --audio with a driver that does not exist: the line, status 0, no device;
   both options: the file is written, the line, no device (PsyZ says so), the model pulled by the dump;
-- the lock: with --audio the mutex exists, and every access of iopage.c to the model is probed (the link wraps PsyZ's routines; a second thread
-  tries the audio lock while the call runs: it must wait);
+- the lock: with --audio the mutex exists, and every access of iopage.c to the model is probed (the link wraps PsyZ's routines; inside each locked call a
+  worker thread tries the audio lock and must NOT get it during the call; after the game's accesses have returned, so after every unlock, the
+  game joins all workers: each must finish within 2 s with exit code 0; a thread not created, a wait that fails or times out, or a handle that
+  does not close is a failure with its reason);
 - a build without PsyZ: each option refused with its line, status 2, no file.
 
 Every case prints `ok NAME` or `FAIL NAME: why`; the last line is `all N cases that ran behaved as required` or the number that did not.
@@ -59,7 +61,7 @@ BAD_DRIVER = "nosuchdriver"
 SAMPLE = "dummy"
 
 HOSTS = dict(I.PSYZ_HOSTS)
-HOSTS.update({"audio_paused": "host_audio_paused", "lock_calls": "host_lock_calls", "lock_viol": "host_lock_viol"})
+HOSTS.update({"audio_paused": "host_audio_paused", "lock_calls": "host_lock_calls", "lock_viol": "host_lock_viol", "lock_bad": "host_lock_bad", "lock_collect": "host_lock_collect"})
 ABS = [(n, RAM + 0x101e00 + 0x10 * i, 1) for i, n in enumerate(HOSTS)]
 
 GAMES: list[tuple[str, str]] = []   # (function name, body)
@@ -109,7 +111,8 @@ game("a_device", "int i;\n" + VOICE0 + r"""
     for (i = 0; i < 20; i++) ps1_VSync(0);
     SAY("device paused %d\n", ps1_audio_paused());
     SAY("envelope not zero %d\n", R16(0x1f801c0cu) != 0);
-    SAY("lock probes: %d calls, %d with the lock not held\n", ps1_lock_calls(), ps1_lock_viol());""")
+    ps1_lock_collect();
+    SAY("lock probes: %d calls, %d where the worker got the lock during the call, %d not clean after the release\n", ps1_lock_calls(), ps1_lock_viol(), ps1_lock_bad());""")
 game("a_wfail", "int i;\n" + VOICE0 + r"""
     for (i = 0; i < 6; i++) ps1_VSync(0);
     SAY("the game goes on at vblank %d\n", ps1_VSync(-1));""")
@@ -117,7 +120,7 @@ game("a_wfail", "int i;\n" + VOICE0 + r"""
 FUN = FUN_BASE + [(n, RAM + 0x101100 + 0x10 * i, n) for i, (n, _) in enumerate(GAMES)]
 G = {n: a for n, a, _ in FUN}
 GAME_C = I.HEADER + I.PSYZ_HEADER + "\nstatic void unused_names(void) { (void)wait_ev; }\n" + "".join("void %s(void)\n{\n%s\n}\n" % (n, b) for n, b in GAMES)
-GAME_C = GAME_C.replace("extern int ps1_EnterCriticalSection(void)", "extern int ps1_audio_paused(void), ps1_lock_calls(void), ps1_lock_viol(void);\nextern int ps1_EnterCriticalSection(void)", 1)
+GAME_C = GAME_C.replace("extern int ps1_EnterCriticalSection(void)", "extern int ps1_audio_paused(void), ps1_lock_calls(void), ps1_lock_viol(void), ps1_lock_bad(void), ps1_lock_collect(void);\nextern int ps1_EnterCriticalSection(void)", 1)
 
 WRAPPED = ["Psyz_SpuRead", "Psyz_SpuWrite", "Psyz_SpuFifoWriteBulk", "Psyz_SpuMemRead", "Psyz_SpuSetTransferAddr", "Psyz_SpuGetTransferAddr"]
 
@@ -137,9 +140,10 @@ extern int Psyz_AudioIsPaused(void);
 int host_pull_nonzero(int frames) {{ (void)frames; return 0; }}
 int host_chip_ram(int offset) {{ return Psyz_SpuGetRam()[offset]; }}
 int host_audio_paused(void) {{ return Psyz_AudioIsPaused(); }}
-static volatile int calls, viol;
-int host_lock_calls(void) {{ return calls; }}
-int host_lock_viol(void) {{ return viol; }}
+int host_lock_calls(void);
+int host_lock_viol(void);
+int host_lock_bad(void);
+int host_lock_collect(void);
 unsigned host_io_read(void) {{ return *(volatile unsigned *)0x1f801014; }}
 {extra}
 static const struct port_library t[] = {{ {rows} {{ 0, 0, 0 }} }};
@@ -151,19 +155,50 @@ const unsigned port_override_set_count = 1;
 """
 
 
-# The lock probe: each routine of PsyZ that iopage.c calls on the model is wrapped by the link (--wrap). While the real routine runs, a second
-# thread tries the audio lock; if the caller holds it, the thread must still be waiting after 15 ms.
+# The lock probe, in three parts. Each routine of PsyZ that iopage.c calls on the model is wrapped by the link (--wrap). The wrapper runs inside
+# the locked call: it starts a worker that tries the audio lock (one record per call, in static storage, so nothing on a stack outlives its
+# frame), waits 15 ms, and notes whether the worker got the lock during the call. A correct lock holds the worker off: not acquired. The wrapper
+# cannot join the worker: it returns to iopage.c, which then unlocks. So the join is host_lock_collect(), which the made-up game calls after its
+# accesses have returned, when every unlock has happened. There each worker must finish within 2 s (a correct program finishes at once) with exit
+# code 0, or the case fails with the reason. A thread that cannot be created, a wait that fails and a handle that cannot be closed are failures too.
 PROBE = r"""
-static DWORD WINAPI probe_thread(LPVOID p) { Psyz_AudioLock(); *(volatile int *)p = 1; Psyz_AudioUnlock(); return 0; }
+#define MAXP 64
+struct rec { HANDLE h; volatile int acquired, done; };
+static struct rec recs[MAXP];
+static volatile int calls, viol, bad, nrec;
+static DWORD WINAPI probe_thread(LPVOID p)
+{
+    struct rec *r = (struct rec *)p;
+    Psyz_AudioLock();
+    r->acquired = 1;
+    Psyz_AudioUnlock();
+    r->done = 1;
+    return 0;
+}
 static void probe(void)
 {
-    volatile int got = 0;
-    HANDLE h = CreateThread(NULL, 0, probe_thread, (void *)&got, 0, NULL);
-    Sleep(15);
+    struct rec *r;
+    if (nrec >= MAXP) { bad++; printf("lock probe: more than %d probed calls\n", MAXP); fflush(stdout); return; }
+    r = &recs[nrec++];
     calls++;
-    if (got) viol++;
-    WaitForSingleObject(h, 5000);
-    CloseHandle(h);
+    r->h = CreateThread(NULL, 0, probe_thread, r, 0, NULL);
+    if (!r->h) { bad++; printf("lock probe: CreateThread failed, error %lu\n", (unsigned long)GetLastError()); fflush(stdout); return; }
+    Sleep(15);
+    if (r->acquired) viol++;
+}
+int host_lock_collect(void)
+{
+    int i;
+    for (i = 0; i < nrec; i++) {
+        DWORD w, code = 1;
+        if (!recs[i].h) continue;
+        w = WaitForSingleObject(recs[i].h, 2000);
+        if (w != WAIT_OBJECT_0) { bad++; printf("lock probe %d: the worker had not finished 2 s after the unlock (wait returned %lu)\n", i, (unsigned long)w); fflush(stdout); continue; }
+        if (!GetExitCodeThread(recs[i].h, &code) || code != 0 || !recs[i].done) { bad++; printf("lock probe %d: the worker ended with code %lu, done %d\n", i, (unsigned long)code, recs[i].done); fflush(stdout); }
+        if (!CloseHandle(recs[i].h)) { bad++; printf("lock probe %d: CloseHandle failed\n", i); fflush(stdout); }
+        recs[i].h = NULL;
+    }
+    return bad;
 }
 unsigned short __real_Psyz_SpuRead(unsigned int);
 void __real_Psyz_SpuWrite(unsigned int, unsigned short);
@@ -188,7 +223,18 @@ size_t __wrap_fwrite(const void *p, size_t s, size_t n, FILE *f)
     return __real_fwrite(p, s, n, f);
 }
 """
-VARIANT_C = {"audio": domains(), "lock": domains(PROBE), "wfail": domains(WFAIL)}
+NOPROBE = r"""
+int host_lock_calls(void) { return 0; }
+int host_lock_viol(void) { return 0; }
+int host_lock_bad(void) { return 0; }
+int host_lock_collect(void) { return 0; }
+"""
+PROBE_ACCESSORS = r"""
+int host_lock_calls(void) { return calls; }
+int host_lock_viol(void) { return viol; }
+int host_lock_bad(void) { return bad; }
+"""
+VARIANT_C = {"audio": domains(NOPROBE), "lock": domains(PROBE + PROBE_ACCESSORS), "wfail": domains(NOPROBE + WFAIL)}
 VARIANT_FLAGS = {"lock": [f"-Wl,--wrap={n}" for n in WRAPPED], "wfail": ["-Wl,--wrap=fwrite"]}
 
 
@@ -407,15 +453,15 @@ def cases(rig, only: str, rig_nopsyz):
     # ---- the device ----
     if want("device"):
         status, lines = run(rig, "a_device", [NI], tag="nodev")
-        yield "with-no-option-no-device-is-open-and-the-model-is-not-pulled", expect(rig, status, lines, 0, [], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 with the lock not held", MAIN])
+        yield "with-no-option-no-device-is-open-and-the-model-is-not-pulled", expect(rig, status, lines, 0, [], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
         status, lines = run(rig, "a_device", [NI, "--audio"], tag="dummy")
-        yield "audio-with-the-dummy-device-opens-it-and-the-model-is-pulled", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 0 calls, 0 with the lock not held", MAIN])
+        yield "audio-with-the-dummy-device-opens-it-and-the-model-is-pulled", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
         status, lines = run(rig, "a_device", [NI, "--audio"], env=wsl_env(BAD_DRIVER), tag="baddev")
-        yield "audio-with-a-driver-that-does-not-exist-is-a-line-and-the-game-runs-without-sound", expect(rig, status, lines, 0, [FAILED_OPEN], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 with the lock not held", MAIN])
+        yield "audio-with-a-driver-that-does-not-exist-is-a-line-and-the-game-runs-without-sound", expect(rig, status, lines, 0, [FAILED_OPEN], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
         f = work / "b.wav"
         f.unlink(missing_ok=True)
         status, lines = run(rig, "a_device", [NI, "--audio", "--audio-dump", native(f)], tag="both")
-        why = expect(rig, status, lines, 0, [BOTH], ["device paused 1", "envelope not zero 1", "lock probes: 0 calls, 0 with the lock not held", MAIN])
+        why = expect(rig, status, lines, 0, [BOTH], ["device paused 1", "envelope not zero 1", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
         if why is None:
             b = f.read_bytes()
             dlen = len(b) - 44
@@ -423,7 +469,7 @@ def cases(rig, only: str, rig_nopsyz):
         yield "both-options-write-the-file-and-open-no-device-and-say-so", why
         # every access to the model is made with the lock held: 19 writes of the game and 1 read (counted by hand)
         status, lines = run(rig, "a_device", [NI, "--audio"], tag="lock", variant="lock")
-        yield "with-the-device-open-every-access-of-iopage-to-the-model-is-made-with-the-audio-lock-held", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 20 calls, 0 with the lock not held", MAIN])
+        yield "with-the-device-open-every-access-of-iopage-to-the-model-is-made-with-the-audio-lock-held", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 20 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
 
     # ---- no PsyZ ----
     if want("nopsyz"):

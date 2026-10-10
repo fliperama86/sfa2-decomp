@@ -32,7 +32,7 @@
   SDL does not have), through `WSLENV` under WSL, and the control refuses
   a start with `--audio` without it. The model being pulled is shown by the
   envelope register of a voice, which only a pulled frame changes; the
-  device by `Psyz_AudioIsPaused`. 14 mutants of the runtime (a copy,
+  device by `Psyz_AudioIsPaused`. 15 mutants of the runtime (a copy,
   under a time limit), each removing one rule, each fail the case that
   names it; the cases that failed, one run each:
 
@@ -48,8 +48,9 @@
   | `Psyz_AudioInit` is called | the dummy device (device paused, envelope 0) |
   | a device that cannot be opened is not a stop | the driver that does not exist |
   | with both options no device is opened | both options |
-  | every access is under the audio lock | the lock probe |
+  | every access is under the audio lock | the lock probe (20 of 20 workers got the lock during the call) |
   | a build without PsyZ refuses either option | both cases without PsyZ |
+  | the audio lock is released | the lock case hangs and the rig's time limit ends it |
   | off unless asked (default on) | the run with no option |
 - Not here: the audio the disc streams (XA), whether sound is on by default
   (decided no: off unless asked, so that no test makes a sound), and the
@@ -60,3 +61,10 @@
   seconds, every window of ten seconds not silent (largest sample 15360);
   30 seconds with `--audio` and the dummy driver, the open line, no
   `refused` or `stop`; 25 seconds of the default build, no new line.
+- The lock case, as repaired after review: inside each locked call a
+  worker thread tries the audio lock (one record per call in static
+  storage), the wrapper waits 15 ms and notes whether the worker got it
+  (it must not); the made-up game joins the workers after its accesses
+  have returned, so after every unlock, each within 2 s with exit code 0.
+  Creation, wait and close results are checked. The whole control took
+  21 s (it took 1 min 57 s before, from a 5 s wait per probed access).
