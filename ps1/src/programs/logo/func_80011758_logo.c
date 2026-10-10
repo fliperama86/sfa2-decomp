@@ -1,12 +1,11 @@
 /*
  * Not part of the matching build, which does not know the stand-alone
- * programs of the disc. With the pinned toolchain this C builds the same
- * 15 words as the original function (compared word by word when the
- * function was added; the test below does not compare bytes). The
- * differential test next to it (difftest.py,
- * with func_80011758_logo.py) compares the behavior of this C with the
- * original code of the logo's program (PAC/LOGO.EXE, the body loaded at
- * 0x80010000) on random inputs of the contract below.
+ * programs of the disc. No tool of the tree compares this C's bytes with
+ * the original's, so nothing is claimed about them here. The differential
+ * test next to it (difftest.py, with func_80011758_logo.py) compares the
+ * behavior of this C with the original code of the logo's program
+ * (PAC/LOGO.EXE, the body loaded at 0x80010000) on random inputs of the
+ * contract below.
  *
  * What it does (inferred, not an original name): looks up an entry in the
  * program's table of the disc's files. The table starts at 0x8001a678 and

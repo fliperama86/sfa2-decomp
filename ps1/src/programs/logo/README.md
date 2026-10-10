@@ -113,5 +113,4 @@ func_80011758_logo replay: fixtures 12, passed 12, failed 0
 - `func_80011758_logo`: the lookup in the program's table of the disc's files.
   Returns the first word of the entry at `0x8001a678 + 12 * index` and stores
   the second word through the pointer. The table is named `data_8001a678_logo`
-  in `programs.toml`. With the pinned toolchain the C builds the same 15 words
-  as the original (compared word by word when the function was added).
+  in `programs.toml`.

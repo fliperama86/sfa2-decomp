@@ -192,8 +192,10 @@ class Selection(Fixture):
         self.with_programs()
         for name in ('programs.toml', 'programs.py', 'discfile.py'):
             with self.subTest(name=name):
+                # The reader is imported by the test tool, so a change of it runs that tool's own tests as well.
+                tool = ['difftest-tools', 'difftest-build-tools'] if name == 'programs.py' else []
                 self.assertEqual([c.name for c in self.selected([self.PG + name])],
-                                 ['programs-logo-replay', 'programs-logo-diff-once-1', 'test_programs', 'test_discfile'])
+                                 ['programs-logo-replay', 'programs-logo-diff-once-1', 'test_programs', 'test_discfile'] + tool)
         # The tests alone select the tests alone.
         for name in ('test_programs.py', 'test_discfile.py'):
             with self.subTest(name=name):

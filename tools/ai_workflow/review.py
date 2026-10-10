@@ -148,6 +148,8 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     in_programs = lambda p: p.startswith(PROGRAMS + '/') and p.count('/') == PROGRAMS.count('/') + 1
     # A change of the declaration or of a small tool can change what any function of any program is tested against.
     declaration = any(in_programs(p) and Path(p).name in PROGRAM_DECLARATION for p in changed)
+    # The reader is part of the test tool (difftest.py imports it): a change of it runs the tool's own tests too.
+    reader = any(in_programs(p) and Path(p).name == 'programs.py' for p in changed)
     checks = []
     if broad or any(p in owned or p.startswith('ps1/inventory/') for p in changed):
         checks.append(Check('matching', (sys.executable, 'ps1/tools/matchbuild.py', '--config', 'ps1/src/build.toml', '--tag', 'ai-review'), 'ps1'))
@@ -167,7 +169,7 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     if (root / 'port/overrides').is_dir():
         checks.extend(function_checks(root, 'port-overrides', 'port/overrides', 'overrides', changed, broad or harness, cases, seeds,
                                       OVERRIDE_FILE))
-    if harness:
+    if harness or reader:
         checks.extend([Check('difftest-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest.py'), 'ps1'),
                        Check('difftest-build-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest_build.py', '--config', 'ps1/src/build.toml'), 'ps1')])
     if any(p.startswith('port/') and not p.endswith('.md') for p in changed):
