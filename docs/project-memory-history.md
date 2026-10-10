@@ -8322,6 +8322,47 @@ header of types changed. The map after this, from
 Not claimed: the original's declaration of the record. No run of the
 game.
 
+## A function of the module of slot 0x0 exact from the search's second round (2026-10-10)
+
+`func_80077808_slot00`, 528 bytes. Its parked candidate was far off.
+The unattended search took it to one differing register in its first
+round of twelve minutes, and a second round of twenty minutes found
+the bytes. Reduced, with spare parentheses and casts taken out, two
+things stay that a reader may ask about, each measured on the final
+text with `fndiff.py --rebuild`:
+
+- the box is reached by a byte offset: the count is shifted and then
+  added to the address of the boxes. Indexed as an array of 32-byte
+  boxes, the function is 4 bytes shorter and differs in 22 instruction
+  slots;
+- one local holds two values in turn: the byte of `field_50` before it
+  is stepped, and later the index into the log. With a local of its
+  own for the byte: 2 slots. With the byte read in place: 2. With the
+  index written into the subscript: 49.
+
+The log's field `c` is read as 16 bits through a cast; read as it is,
+1 slot.
+
+Exact in the module of slot 0x8 too, which is linked from the same
+units: two placements.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,430 of 5,600 distinct functions exact, 12,857 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+A correction to the note before this one, on the slot's bytes. Its
+count of accesses, twelve of bytes against three of a word, was not
+an inventory: it came from a search for one spelling. The owner's
+review named a unit it missed. `v49_r1` reached three bytes of a slot
+through a byte offset on a cast pointer; with the byte fields it is
+exact as plain members, and that is its form now. Units of the
+character files hold further byte pointers into the slots; they are
+not touched here. The inference about the type stands on the function
+that is exact only with a byte member, not on the count.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
