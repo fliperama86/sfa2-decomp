@@ -34392,12 +34392,30 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_08_1c28x_r1"
+image = "slot04_08"
+source = "slot04_08/slot04_08_1c28x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b1c28_slot04_08", address = 0x801b1c28, size = 144 },
+]
+
+[[unit]]
 name = "slot04_08_16b0x_r1"
 image = "slot04_08"
 source = "slot04_08/slot04_08_16b0x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801b16b0_slot04_08", address = 0x801b16b0, size = 468 },
+]
+
+[[unit]]
+name = "slot04_08_1884x_r1"
+image = "slot04_08"
+source = "slot04_08/slot04_08_1884x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b1884_slot04_08", address = 0x801b1884, size = 144 },
 ]
 
 [[unit]]

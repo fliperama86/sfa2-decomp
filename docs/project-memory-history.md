@@ -8097,6 +8097,38 @@ map after this, from `coveragemap.py render`: 5,418 of 5,600 distinct functions 
 Not claimed: that the form or any name is the original's. No run of
 the game.
 
+## Two functions of one character file exact, the same code twice (2026-10-10)
+
+`func_801b1884_slot04_08` and `func_801b1c28_slot04_08`, 144 bytes
+each, of the character file `PL08.PAC`. Their instructions are the
+same but for the addresses of their branches. The first had a parked
+candidate with 4 differing instruction slots; the second had none.
+
+The unattended search (the permuter, a private helper, twelve minutes
+for each candidate) found the bytes of the first: each arm of the last
+test puts its comparison into a local and tests the local. Reduced one
+step at a time, the plain spelling of the two sums came back and the
+local stayed. Measured on the final text of each unit with
+`fndiff.py --rebuild`, the same figures for both: the comparisons
+tested in place, 4 slots; the local in the first arm only, 4; in the
+second arm only, 4; one test of the local after both arms, 2 and 4
+bytes longer; one value local that one arm negates and one test, 14.
+The local is read in both arms.
+
+The second function takes the first one's form and is exact with it.
+It has a unit of its own, because the two do not lie next to each
+other.
+
+The second side's file `PL08X.PAC` is linked from the same units, so
+both functions are exact there too: four placements.
+
+Evidence: both units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,419 of 5,600 distinct functions exact, 12,839 of 13,072 placements. The map counts the two as one distinct function, because their instructions are the same, in four placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
