@@ -7963,6 +7963,25 @@ No function count changes here: none of this is in the build.
   definition and its callers' declarations disagree on purpose. That
   needs to be read on its own.
 
+## Nonmatching C for character functions, second batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: eleven more functions of the character modules, of `PL11`,
+  `PL12`, `PL14` and `PL17`, which makes 20 in
+  `ps1/src/slot04b_nonmatching/`. Eight of them are four functions that
+  two characters share in their own copies (`PL11` and `PL17`).
+- Nine of the eleven had a setup that the write audit flagged before
+  publication (one-off, from the first run of its prototype): eight
+  never set the global word in which the function stores the other
+  object's pointer, and one left a palette array untouched that a
+  callee of the function writes. Each setup now fills that memory with
+  random content first, so that what the function writes there is seen
+  against something.
+- One unit had stopped compiling when the shared header took over four
+  data declarations with another shape (an array where the unit had a
+  scalar); the local lines are gone and the unit reads element 0.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
