@@ -231,7 +231,7 @@ void port_interrupt_set_return(unsigned ip);
  * The completion of a transfer (see iopage.c), taken exactly once: port_iopage_poll by a poll of the game (kernel.c has checked
  * the vblank's rules), port_iopage_deliver by the vblank's delivery before its handlers (port_handler_depth already raised),
  * port_iopage_claim_due by the timer thread (1: claimed) and port_iopage_deliver_claimed by the interruption routine. */
-int  port_iopage_init(int trace, char *err, size_t errsize);
+int  port_iopage_init(const char *audio_dump, int audio_device, int trace, char *err, size_t errsize);   /* audio_dump: a file name or NULL; audio_device: --audio */
 int  port_iopage_read(unsigned addr, unsigned size, unsigned *value, char *why, size_t whysize);
 int  port_iopage_check_write(unsigned addr, unsigned size, char *why, size_t whysize);
 int  port_iopage_write(unsigned addr, unsigned size, unsigned value, char *why, size_t whysize);

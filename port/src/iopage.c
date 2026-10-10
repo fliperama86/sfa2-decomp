@@ -23,9 +23,25 @@
  *
  * The audio lock. Every access to PsyZ's model of the chip is made between Psyz_AudioLock and Psyz_AudioUnlock. They are
  * harmless while no audio layer runs: in PsyZ's src/platform/sdl3_audio.c the mutex they take is created by Psyz_AudioInit
- * (line 49) and both routines do nothing while it does not exist (lines 90 to 99, "if (mutex)"). This program opens no audio
- * device in this version, so the calls take nothing; a later version that opens one gets the exclusion with no change here.
- * Psyz_SpuInit runs once, at start, before the first access.
+ * and both routines do nothing while it does not exist ("if (mutex)"). With --audio the mutex exists and PsyZ's audio thread
+ * pulls frames from the model under it, so these calls then exclude that thread. The lock is held only around the one PsyZ
+ * call it names, never across a call into the game, the completion's routine or a fault. Psyz_SpuInit runs once, at start,
+ * before the first access.
+ *
+ * Sound out (PORT_HAVE_PSYZ). Two options, both off unless asked:
+ *   --audio-dump FILE  no device. At the end of every vblank (port_iopage_vblank, on the game's thread) 735 stereo frames
+ *                      (44,100 a second at 60 vblanks) are pulled from the model under the lock and appended to FILE as a
+ *                      WAV file (16 bits, stereo, 44,100 Hz, little endian). The header's two lengths are rewritten and the
+ *                      file flushed every 60 vblanks, and at every end that runs the exit routines (a return from main, exit()).
+ *                      An end by ExitProcess (the stops of mirror.c and interrupt.c, the unhandled-fault filter) runs none, so the
+ *                      header is then at most 59 vblanks behind the frames that reached the file. A file that cannot be opened
+ *                      refuses the start. A write that fails later prints one line, `audio: writing the dump failed, ...`, closes
+ *                      the file, and the game goes on; nothing is pulled after that.
+ *   --audio            Psyz_AudioInit() once, in port_iopage_init, after Psyz_SpuInit and before the game runs. PsyZ opens its
+ *                      default device and its thread pulls from the model. Psyz_AudioInit calls Psyz_SpuInit again, which returns
+ *                      at once when the model is started (src/psyz/psyz_spu.c, "if (spu.initialized) return"), so it clears
+ *                      nothing. A device that cannot be opened prints one line and the game runs without sound.
+ * With both, the file is written and no device is opened (one line says so). Without PsyZ either option refuses the start.
  *
  * The transfer. The library's start of a transfer (the sound library's _spu_t in libspu/spu_p2.c) writes the address, the
  * block control (blocks of 16 words, so a multiple of 64 bytes) and the control 0x01000201 (to the chip) or 0x01000200 (from
@@ -67,6 +83,7 @@
 #include "mirror.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -344,14 +361,81 @@ static void counts_line(unsigned vblanks)
                     at, chip_reads, chip_writes, dma_reads, dma_writes, transfers, bytes_to_chip, bytes_from_chip, taken[1] + taken[2] + taken[3], taken[1], taken[2], taken[3], dropped);
 }
 
+#ifdef PORT_HAVE_PSYZ
+/* ---- the dump ---- */
+#define WAV_FRAMES 735u
+#define WAV_BYTES (WAV_FRAMES * 4u)
+static FILE *wav;
+static unsigned wav_data;   /* bytes of samples written */
+
+static void put32(unsigned char *p, unsigned v)
+{
+    p[0] = (unsigned char)v;
+    p[1] = (unsigned char)(v >> 8);
+    p[2] = (unsigned char)(v >> 16);
+    p[3] = (unsigned char)(v >> 24);
+}
+
+/* The 44-byte header with the lengths so far, written at the start of the file; the position goes back to the end. 0 or -1. */
+static int wav_header(void)
+{
+    unsigned char h[44];
+    memcpy(h, "RIFF\0\0\0\0WAVEfmt \x10\0\0\0\x01\0\x02\0", 24);
+    put32(h + 4, 36 + wav_data);
+    put32(h + 24, 44100);
+    put32(h + 28, 44100 * 4);
+    h[32] = 4;
+    h[33] = 0;
+    h[34] = 16;
+    h[35] = 0;
+    memcpy(h + 36, "data", 4);
+    put32(h + 40, wav_data);
+    if (fseek(wav, 0, SEEK_SET) != 0 || fwrite(h, 1, 44, wav) != 44 || fflush(wav) != 0 || fseek(wav, 0, SEEK_END) != 0) return -1;
+    return 0;
+}
+
+static void wav_stop(void)
+{
+    printf("audio: writing the dump failed; the dump stops and the game goes on\n");
+    fflush(stdout);
+    wav_header();   /* best effort: the lengths of what did reach the file */
+    fclose(wav);
+    wav = NULL;
+}
+
+static void wav_end(void)
+{
+    if (wav) {
+        if (wav_header() != 0) wav_stop();
+        else {
+            fclose(wav);
+            wav = NULL;
+        }
+    }
+}
+#endif
+
 static int tracing;
 static unsigned vblanks_seen, last_sum;
 
-/* Called by kernel.c once per vblank, on the game's thread. */
+/* Called by kernel.c once per vblank, on the game's thread, at its end. */
 void port_iopage_vblank(void)
 {
     unsigned sum = chip_reads + chip_writes + dma_reads + dma_writes + transfers + taken[1] + taken[2] + taken[3] + dropped;
     vblanks_seen++;
+#ifdef PORT_HAVE_PSYZ
+    if (wav) {
+        short buf[WAV_FRAMES * 2];
+        LOCK();
+        Psyz_SpuPullSamples(buf, (int)WAV_FRAMES);
+        UNLOCK();
+        if (wav_data > 0xfffff000u - WAV_BYTES || fwrite(buf, 4, WAV_FRAMES, wav) != WAV_FRAMES) wav_stop();   /* the host is little endian */
+        else {
+            wav_data += WAV_BYTES;
+            if (vblanks_seen % 60 == 0 && wav_header() != 0) wav_stop();
+        }
+    }
+#endif
     if (!tracing || vblanks_seen % 60 != 0 || sum == last_sum) return;
     last_sum = sum;
     counts_line(vblanks_seen);
@@ -364,8 +448,22 @@ static void report(void)
     counts_line(0);
 }
 
-int port_iopage_init(int trace, char *err, size_t errsize)
+int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *err, size_t errsize)
 {
+#ifndef PORT_HAVE_PSYZ
+    if (audio_dump || audio_device) {
+        snprintf(err, errsize, "%s needs a build with PsyZ (sound out is PsyZ's model of the chip)", audio_dump ? "--audio-dump" : "--audio");
+        return -1;
+    }
+#else
+    if (audio_dump) {
+        wav = fopen(audio_dump, "wb");
+        if (!wav) {
+            snprintf(err, errsize, "--audio-dump: cannot open %s for writing", audio_dump);
+            return -1;
+        }
+    }
+#endif
 #ifdef _WIN32
     DWORD old;
     if (!VirtualProtect((void *)(size_t)IO_BASE, IO_END - IO_BASE, PAGE_NOACCESS, &old)) {
@@ -378,6 +476,24 @@ int port_iopage_init(int trace, char *err, size_t errsize)
 #endif
 #ifdef PORT_HAVE_PSYZ
     Psyz_SpuInit();
+    if (wav) {
+        if (wav_header() != 0) {
+            fclose(wav);
+            wav = NULL;
+            snprintf(err, errsize, "--audio-dump: cannot write to %s", audio_dump);
+            return -1;
+        }
+        atexit(wav_end);
+        if (audio_device) {
+            printf("audio: --audio-dump and --audio together: the file is written and no sound device is opened\n");
+            fflush(stdout);
+        }
+    } else if (audio_device) {
+        /* The machine's sound output: PsyZ opens the default device and its thread pulls from the model under the lock. */
+        if (Psyz_AudioInit() != 0) printf("audio: the machine's sound output could not be opened; the game runs without sound\n");
+        else printf("audio: sound output open, 44100 Hz stereo\n");
+        fflush(stdout);
+    }
 #endif
     tracing = trace;
     if (trace) {
