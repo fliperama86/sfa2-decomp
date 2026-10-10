@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "7f783ab21ace0a45930c7478ab23ef38c78070b85d61605de1e7b8272fc70e3d",
+  "sha256": "8c504f60d189a6bc92a6770732feb32b2340595a47454f22dcfc839a2f66f187",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -571,8 +571,12 @@
       "line": 8677
     },
     {
-      "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
+      "title": "The program always ends when the game's thread ends it (2026-10-10)",
       "line": 8713
+    },
+    {
+      "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
+      "line": 8788
     }
   ]
 }

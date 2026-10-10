@@ -28,6 +28,11 @@
  *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead)
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --no-interrupt turns the timer thread off: the vblank is then taken only by the library routines that tick.
+ * --timer-burst (a test mode; does nothing with --no-interrupt) makes the timer thread attempt its suspension of the game's thread
+ *   without waiting between attempts and stay 1 ms in each round, and makes the stop routine of interrupt.c check its own contract:
+ *   if a round was still in flight when it returned it prints `stop: a suspension round was in flight when the stop returned`
+ *   and ends with status 10; if a round began after the stop it prints `stop: a suspension round began after the stop` (status 10); and each direct ExitProcess checks that the stop was called before it, with the line
+ *   `stop: the process was ended while suspensions were still allowed` (status 10). Without the option those checks are not made.
  * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * --dump-vram PREFIX writes the video memory to PREFIX_end.ppm at the end of any run; --dump-every N
@@ -70,6 +75,8 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
         printf("stop: crash: exception 0x%08x in %s (at 0x%08x)\n", (unsigned)r->ExceptionCode, port_function_at(ip), (unsigned)ip);
     fflush(stdout);
     port_debug_end();
+    port_suspenders_stop();
+    port_suspenders_check_closed();
     ExitProcess(PORT_EXIT_CRASH);
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -89,7 +96,7 @@ int main(int argc, char **argv)
 {
     const char *disc_path = NULL, *trace_path = NULL, *dump_path = NULL;
     unsigned watchdog = 0, dump_every = 0;
-    int list = 0, trace = 0, bad = 0, no_interrupt = 0, i;
+    int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
     FILE *trace_file = NULL;
@@ -104,6 +111,7 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--no-interrupt") == 0) no_interrupt = 1;
+        else if (strcmp(argv[i], "--timer-burst") == 0) burst = 1;
         else if (strcmp(argv[i], "--dump-vram") == 0 && i + 1 < argc) dump_path = argv[++i];
         else if (strcmp(argv[i], "--dump-every") == 0 && i + 1 < argc) dump_every = (unsigned)atoi(argv[++i]);
         else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
@@ -166,7 +174,7 @@ int main(int argc, char **argv)
     fflush(stdout);
 
     port_clock_start();
-    if (!no_interrupt) port_interrupt_start();
+    if (!no_interrupt) port_interrupt_start(burst);
     ((void (*)(void))(size_t)entry)();
     port_stop_main_returned();
     return 0;

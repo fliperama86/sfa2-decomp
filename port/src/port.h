@@ -194,7 +194,17 @@ int  port_interrupt_allowed(void);
 int  port_interrupt_take(void);
 void port_clock_start(void);
 /* Start the timer thread that interrupts the game's thread with the vblank (call from the game's thread, before the game starts). */
-void port_interrupt_start(void);
+void port_interrupt_start(int burst);
+/* interrupt.c: the gate that every suspension of the game's thread goes through. port_suspenders_stop ends them for good
+ * (no suspension in flight afterwards, none can begin); it is registered with atexit and called before ExitProcess. The
+ * enter/leave pair is for the watchdog of debug.c (enter returns 0 once stopped, and then holds nothing). */
+void port_suspenders_init(void);   /* once, from the game's thread, before any thread that suspends it exists */
+void port_suspenders_stop(void);
+void port_suspenders_check_closed(void);   /* before each ExitProcess, after the stop: with --timer-burst, ends with a line if the gate is still open */
+#ifdef _WIN32
+int  port_suspenders_enter(void);
+void port_suspenders_leave(void);
+#endif
 
 /* mirror.c: serve the PS1's copy of RAM below 0x200000 (see the file); main.c calls port_mirror_init before the game starts. */
 int  port_mirror_init(int trace, char *err, size_t errsize);
