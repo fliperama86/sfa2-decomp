@@ -1,0 +1,10 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000"], "callee": "func_80141c4c", "pointees": {}, "returned": "0x00000000", "watched": [[]]}], "case": 0, "ends_in_callee": false, "note": "slots: 19 new", "reads": [["0x80040260", "00"]], "recorders": [{"arguments": 1, "at": "0x80141c4c", "callee": "func_80141c4c"}], "result": "0x00000000", "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": []},
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000"], "callee": "func_80141c4c", "pointees": {}, "returned": "0x00000001", "watched": [[]]}], "case": 1, "ends_in_callee": false, "note": "slots: 9 new; edge: slot 11, immediate 0x1 against 0x2; edge: slot 11, immediate 0x1 against 0x0; edge: slot 14, immediate 0x1 against 0x2; edge: slot 14, immediate 0x1 against 0x0; edge: slot 16, immediate 0x7 against 0x8; edge: slot 16, immediate 0x7 against 0x6; edge: slot 18, immediate 0x6 against 0x7; edge: slot 18, immediate 0x6 against 0x5", "reads": [["0x80040260", "00"]], "recorders": [{"arguments": 1, "at": "0x80141c4c", "callee": "func_80141c4c"}], "result": "0x00000001", "same": [["0x80040004", "e5b7b085"], ["0x80040159", "5a1f"]], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040004", "01000700"], ["0x80040159", "0006"]]}
+ ],
+ "format": 1,
+ "function": "func_801b12bc_slot04_0f",
+ "recorded": {"cases": 2000, "comparison": "func_801b12bc_slot04_0f: built 112 bytes, original 112 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

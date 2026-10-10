@@ -1,0 +1,12 @@
+{
+ "fixtures": [
+  {"args": ["0x80040020", "0x12bc2d45"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 34 new; edge: slot 25, immediate 0x6 against 0x7; edge: slot 25, immediate 0x6 against 0x5", "reads": [["0x80040016", "57f5"], ["0x800400c7", "05"], ["0x80040150", "5adf"], ["0x801717b0", "14000480"]], "recorders": [], "result": "0x00000000", "same": [], "seed": 1, "watch": [], "writes": []},
+  {"args": ["0x80040020", "0x00721f68"], "calls": [], "case": 3, "ends_in_callee": false, "note": "edge: slot 6, immediate 0x1 against 0x2; edge: slot 6, immediate 0x1 against 0x0", "reads": [["0x80040150", "ff44"]], "recorders": [], "result": "0x00000001", "same": [], "seed": 1, "watch": [], "writes": []},
+  {"args": ["0x80040020", "0x004c72c3"], "calls": [], "case": 6, "ends_in_callee": false, "note": "slots: 1 new; edge: slot 28, immediate 0x1 against 0x0", "reads": [["0x80040016", "b499"], ["0x800400c7", "05"], ["0x80040150", "d261"], ["0x801717b0", "14000480"]], "recorders": [], "result": "0x00000000", "same": [], "seed": 1, "watch": [], "writes": []},
+  {"args": ["0x80040020", "0x7db084df"], "calls": [], "case": 22, "ends_in_callee": false, "note": "edge: slot 28, immediate 0x1 against 0x2", "reads": [["0x8004000c", "6968"], ["0x800400c7", "03"], ["0x80040150", "a62f"], ["0x801717a8", "0c000480"]], "recorders": [], "result": "0x00000001", "same": [], "seed": 1, "watch": [], "writes": []}
+ ],
+ "format": 1,
+ "function": "func_80141534",
+ "recorded": {"cases": 2000, "comparison": "func_80141534: built 140 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": ["slot 17: addiu a0,a0,0x2, immediate 0x2 -> 0x3: different 0 of 2000, discarded 775", "slot 17: addiu a0,a0,0x2, immediate 0x2 -> 0x1: different 0 of 2000, discarded 775"], "slots": []}
+}

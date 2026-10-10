@@ -1,0 +1,11 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000", "0x80040394", "0x80040728"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 59 new", "reads": [["0x8004000b", "00"], ["0x80040012", "e9ff"], ["0x80040016", "fbff"], ["0x8004039f", "00"], ["0x800403a6", "1600"], ["0x800403aa", "f7ff"], ["0x80040728", "dbfffaff11001800"], ["0x80040748", "1500eeff05001d00"], ["0x8019040c", "48070480"]], "recorders": [], "result": "0x00000000", "same": [], "seed": 1, "watch": [], "writes": [["0x80188f0c", "feff"], ["0x80188f10", "f1ff"], ["0x80188f14", "0d00"], ["0x80188f18", "fdff"]]},
+  {"args": ["0x80040000", "0x80040394", "0x80040728"], "calls": [], "case": 1, "ends_in_callee": false, "note": "slots: 1 new; edge: slot 39, immediate 0x1 against 0x2; edge: slot 39, immediate 0x1 against 0x0", "reads": [["0x8004000b", "00"], ["0x80040012", "b01d"], ["0x8004039f", "47"], ["0x800403a6", "19a8"], ["0x80040728", "0efe39d06e376a7a"], ["0x80040748", "81da594e0c6ee76c"], ["0x8019040c", "48070480"]], "recorders": [], "result": "0x00000001", "same": [], "seed": 1, "watch": [], "writes": [["0x80188f0c", "31f8"], ["0x80188f10", "0baa"]]},
+  {"args": ["0x80040000", "0x80040394", "0x80040728"], "calls": [], "case": 2, "ends_in_callee": false, "note": "slots: 1 new", "reads": [["0x8004000b", "6b"], ["0x80040012", "0900"], ["0x8004039f", "00"], ["0x800403a6", "d8ff"], ["0x80040728", "defffbff12001400"], ["0x80040748", "2500010013000a00"], ["0x8019040c", "48070480"]], "recorders": [], "result": "0x00000001", "same": [], "seed": 1, "watch": [], "writes": [["0x80188f0c", "e4ff"], ["0x80188f10", "b6ff"]]}
+ ],
+ "format": 1,
+ "function": "func_80139928",
+ "recorded": {"cases": 2000, "comparison": "func_80139928: built 256 bytes, original 244 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

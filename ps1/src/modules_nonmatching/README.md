@@ -35,6 +35,67 @@ Then put that function's lines into the three blocks below, in place of
 its old ones or at its place in the order of names. No other function is
 run again for it, and the folder is not run as a whole.
 
+## Fixtures
+
+A function that has fixtures has a file `FUNC.fixtures.json` beside its
+`FUNC.c`. Replay runs the C of the function on the recorded inputs and never
+runs the original code. It still needs the private inputs of the build
+configuration and the PS1 compiler. From the tool's folder
+(`ps1/src/slot06_nonmatching/`), for this folder and for one function:
+
+    python -B difftest.py --config ../build.toml --folder ../modules_nonmatching --replay
+    python -B difftest.py --config ../build.toml --folder ../modules_nonmatching --replay FUNC
+
+For a new or changed function, record once (the wide comparison, then the
+fixtures it keeps), then replay:
+
+    python -B difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --jobs 4 --record FUNC
+
+A pass is evidence for the recorded inputs. It is not the wide comparison and
+it is not equivalence. Details of the files are on the page of the tool's folder.
+
+Functions of this folder without a fixtures file, by reason:
+
+- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_800108d4_slot01`, `func_80011a14_slot01`, `func_800796e4_slot2b`, `func_801b03e4_slot04_0a`, `func_801b0904_slot04_04`, `func_801b1934_slot04_02`, `func_801b3564_slot04_06`, `func_801b36f8_slot04_09`, `func_801b7bfc_slot04_02`, `func_801cb564_slot05_06`.
+- The cases read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_80013224_slot12`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b0ea0_slot04_sel`.
+- The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_800e0f2c_slot0f`.
+
+What the replay command of the folder printed on 2026-10-10, one line per function:
+
+```
+func_80011688_slot12 replay: fixtures 2, passed 2, failed 0
+func_8001188c_slot27 replay: fixtures 1, passed 1, failed 0
+func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
+func_80012a0c_slot12 replay: fixtures 1, passed 1, failed 0
+func_80012dec_slot01 replay: fixtures 2, passed 2, failed 0
+func_8001389c_slot28 replay: fixtures 1, passed 1, failed 0
+func_800145f4_slot28 replay: fixtures 2, passed 2, failed 0
+func_8001606c_slot12 replay: fixtures 2, passed 2, failed 0
+func_80016af0_slot12 replay: fixtures 2, passed 2, failed 0
+func_8001791c_slot27 replay: fixtures 5, passed 5, failed 0
+func_8001a69c_slot28 replay: fixtures 1, passed 1, failed 0
+func_80022944_slot28 replay: fixtures 4, passed 4, failed 0
+func_80077868_slot2b replay: fixtures 3, passed 3, failed 0
+func_80078628_slot00 replay: fixtures 2, passed 2, failed 0
+func_80079144_slot2b replay: fixtures 3, passed 3, failed 0
+func_800793d4_slot2b replay: fixtures 2, passed 2, failed 0
+func_800e0850_slot0f replay: fixtures 9, passed 9, failed 0
+func_800e0b48_slot0f replay: fixtures 4, passed 4, failed 0
+func_800e3478_slot0f replay: fixtures 6, passed 6, failed 0
+func_800e4ab0_slot0f replay: fixtures 3, passed 3, failed 0
+func_800e68e8_slot0f replay: fixtures 2, passed 2, failed 0
+func_801b20b0_slot04_06 replay: fixtures 1, passed 1, failed 0
+func_801b2560_slot04_00 replay: fixtures 2, passed 2, failed 0
+func_801b2f1c_slot04_0a replay: fixtures 5, passed 5, failed 0
+func_801b37b0_slot04_03 replay: fixtures 5, passed 5, failed 0
+func_801b3f38_slot04_sel replay: fixtures 3, passed 3, failed 0
+func_801ca0b0_slot05_06 replay: fixtures 1, passed 1, failed 0
+func_801e0a78_slot0b replay: fixtures 2, passed 2, failed 0
+func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
+func_801e0ea8_slot0b replay: fixtures 2, passed 2, failed 0
+func_801e1d6c_slot0b replay: fixtures 2, passed 2, failed 0
+```
+
 ## The recorded lines
 
 The three blocks are a record, not an instruction. They are what the

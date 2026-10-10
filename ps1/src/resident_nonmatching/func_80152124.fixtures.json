@@ -1,0 +1,10 @@
+{
+ "fixtures": [
+  {"args": ["0xa20acc31", "0x650a6cd6", "0x3fdb2200", "0x00003c6b"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 11 new", "reads": [["0x801ff010", "2958"]], "recorders": [{"arguments": 2, "at": "0x8015bf34", "callee": "AddPrim", "pointees": {"1": 5}}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 15], ["0x8018d13c", 1]], "writes": []},
+  {"args": ["0x6b8c8892", "0xf03b9830", "0x00000070", "0x00003450"], "calls": [{"args": ["0x6b8c8892", "0x80040014"], "callee": "AddPrim", "pointees": {"1": [[8, "5034395500702b5610001000"]]}, "returned": "0xe8cfbe5a", "watched": [[[28, "5034395500702b5610001000"]], []]}], "case": 2, "ends_in_callee": false, "note": "slots: 20 new; edge: slot 14, immediate 0x10 against 0x11; edge: slot 14, immediate 0x10 against 0xf; edge: slot 23, immediate 0x14 against 0x15; edge: slot 23, immediate 0x14 against 0x13", "reads": [["0x8018d13c", "14000480"], ["0x8018d208", "2b56"], ["0x801ff010", "3955"]], "recorders": [{"arguments": 2, "at": "0x8015bf34", "callee": "AddPrim", "pointees": {"1": 5}}], "result": null, "same": [["0x8004001c", "395d3def03058504b41aefdb"]], "seed": 1, "watch": [["0x80040000", 15], ["0x8018d13c", 1]], "writes": [["0x8004001c", "5034395500702b5610001000"], ["0x8018d13c", "28"]]}
+ ],
+ "format": 1,
+ "function": "func_80152124",
+ "recorded": {"cases": 2000, "comparison": "func_80152124: built 124 bytes, original 124 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}
