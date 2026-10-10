@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "1f0b156378f25524e9a2267665b60690500c01f0310d645bb69860259e73cb9f",
+  "sha256": "4f653f1a1a9dfda05ab906b53d169669971a50f037fa343ade845f178d5ac9c2",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -519,24 +519,28 @@
       "line": 8100
     },
     {
-      "title": "Windows reference",
+      "title": "Two functions exact from their look-alikes (2026-10-10)",
       "line": 8132
     },
     {
+      "title": "Windows reference",
+      "line": 8170
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8149
+      "line": 8187
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8174
+      "line": 8212
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8231
+      "line": 8269
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8316
+      "line": 8354
     }
   ]
 }
