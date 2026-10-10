@@ -35,8 +35,8 @@
   - `test_hostiopage.py --cc CC --psyz-build DIR`: 110 lines `ok`, `all
     110 cases that ran behaved as required`, 55 seconds; four runs in a
     row gave 110 each time (55, 56, 66, 68 seconds). Without
-    `--psyz-build`: 68 lines `ok`, 45 lines `NOT RUN NAME: it needs
-    --psyz-build`, `45 case(s) were not run`, status 3. The file had 68
+    `--psyz-build`: 68 lines `ok`, 46 lines `NOT RUN NAME: it needs
+    --psyz-build`, `46 case(s) were not run`, status 3. The file had 68
     lines `ok` before.
   - `test_hostlaunch.py` 68, `test_hostmirror.py` 103, `test_hostmodules.py`
     55, `test_hostpads.py --psyz-build` 96, `test_hostbuild.py` 407 before
