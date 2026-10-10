@@ -11,8 +11,9 @@ Choices of the setup:
     byte at 5 is 0 in four cases of five (the other cases return -1);
   - at the position the function reads from (addr, addr + 2 or addr + 8): the
     resolution is 1 to 100 in one case of two, 1 to 0x7fff in one of four,
-    0x8000 to 0xffff in one of four (never 0); the tempo is 1 (half) or 1 to 100 in one
-    case of eight, a divisor of 60000000 below 2^24 in one of eight (the edge
+    0x8000 to 0xffff in one of four (never 0); the tempo is, in one case of
+    eight, 1 (two times of three) or 1 to 100; a divisor of 60000000 below
+    2^24 in one of eight (the edge
     of the constant), 100000 to 2000000 in two of eight, random 1 to 0xffffff
     otherwise (never 0), so that both rounding arms of the division and both
     arms of the final computation occur; the four length bytes are random;
@@ -101,8 +102,8 @@ def setup(state, rng, sym):
 def control(words):
     """Alter the pan value stored for each channel: 0x40 becomes 0x41.
 
-    It is the one `ori rt, zero, 0x40` of the function; every case that gets
-    past the header test reaches it.
+    It is the one `ori rt, zero, 0x40` of the function. Every case reaches
+    it: the stores for the channels come before the test of the header.
     """
     found = [i for i, w in enumerate(words) if w >> 26 == 0xD and (w >> 21) & 31 == 0 and w & 0xFFFF == 0x40]
     if len(found) != 1:

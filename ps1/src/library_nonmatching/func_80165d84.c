@@ -36,15 +36,17 @@
  *     0x4a (inferred: resolution) and the 3 bytes after it as a big-endian
  *     number t (inferred: tempo as microseconds per beat); 5 bytes are
  *     counted. It stores t in the word at 0x84, and then 60000000 / t, plus
- *     1 when t / 2 (a logical shift) is less than 60000000 % t; the word at
- *     0x8c gets the same value.
+ *     1 when t / 2 is less than 60000000 % t; the word at 0x8c gets the same
+ *     value. (The original halves t with a logical shift and this C with a
+ *     shift of a signed number; t is below 2^24, so both give the same.)
  *   - Skips 2 bytes, reads the next 4 bytes as a big-endian number len (the
  *     length of this sequence in the group, inferred), advances the position
  *     by 6 in all and counts 6.
  *   - Calls _SsReadDeltaValue(slot, index) (inferred name; the library's
- *     function at 0x80168038) and stores the result in the words at 0x7c and
- *     0x88; then copies the position (word at 4, read again after the call)
- *     into the words at 8 and 0xc.
+ *     function at 0x80168038), stores the result in the words at 0x7c and
+ *     0x88 and copies the position (word at 4, read again after the call)
+ *     into the words at 8 and 0xc. The original makes these four stores in
+ *     another order (0xc, 0x7c, 0x88, 8); none of them depends on another.
  *   - With V = the library variable VBLANK_MINUS and p = the signed
  *     halfword at 0x4a times the word at 0x84 (a 32-bit product): when
  *     p * 10 < V * 60 (unsigned) the halfwords at 0x6e and 0x70 get
@@ -58,9 +60,12 @@
  *     sign-extends the low half of each), a3 = addr, a pointer to bytes.
  *     slot is 0 to 31 and index 0 to 3 (the row _ss_score[slot] holds four
  *     records). Returns the count plus len as an int, or -1.
- *   Reads: _ss_score[slot]; the bytes at addr that are named above, 12 to 26
- *     of them at most (8 header bytes, then 11 or 13); VBLANK_MINUS; the
- *     words and halfwords of the score that it has just written.
+ *   Reads: _ss_score[slot]; the bytes at addr that are named above, all of
+ *     them among the first 19 (with index 0 and a first byte 'S' or 'p': the
+ *     bytes 0, 5, 8 to 12 and 15 to 18, or only 0 and 5 when it returns -1;
+ *     with index 0 and another first byte: 0 to 4 and 7 to 10; with another
+ *     index: 2 to 6 and 9 to 12); VBLANK_MINUS; the words and halfwords of
+ *     the score that it has just written.
  *   Writes: the score as listed above; nothing else.
  *   Callees: printf and _SsReadDeltaValue are replaced by recorders in both
  *     runs. printf (1 argument) logs its string (6 words behind the pointer;
