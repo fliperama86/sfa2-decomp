@@ -17,12 +17,16 @@ def setup(state, rng, sym) -> Setup:
 
 
 def control(words):
-    """Alter the frame of the function: `addiu sp,sp,-0x18` becomes -0x20."""
-    found = [i for i, w in enumerate(words) if w == 0x27BDFFE8]
-    if len(found) != 1:
-        raise ValueError(f"expected one frame setup, found {len(found)}")
-    i = found[0]
-    return i, 0x27BDFFE0, "frame of 0x20 bytes, restored as 0x18"
+    """Alter the argument register at the call: the empty delay slot of `jal func_8001365c` becomes `addiu a0,a0,4`.
+
+    The original code then hands the callee its parameter plus 4, which the recorder logs: this is the
+    alteration that shows the test sees the value the callee gets.
+    """
+    jal = 0x0C000000 | ((0x8001365c >> 2) & 0x03FFFFFF)
+    found = [i for i, w in enumerate(words) if w == jal]
+    if len(found) != 1 or words[found[0] + 1] != 0:
+        raise ValueError("expected one call of func_8001365c with an empty delay slot")
+    return found[0] + 1, 0x24840004, "the callee gets a0 + 4"
 
 
 CONTRACT = Contract(setup, control)

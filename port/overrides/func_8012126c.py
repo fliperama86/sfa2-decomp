@@ -27,12 +27,16 @@ def setup(state, rng, sym) -> Setup:
 
 
 def control(words):
-    """Alter the mask of the argument of func_8014efa8: 0x7f becomes 0x3f."""
-    found = [i for i, w in enumerate(words) if w >> 26 == 0x0C and w & 0xFFFF == 0x7F]
-    if len(found) != 1:
-        raise ValueError(f"expected one andi with 0x7f, found {len(found)}")
-    i = found[0]
-    return i, (words[i] & ~0xFFFF) | 0x3F, "mask 0x7f becomes 0x3f"
+    """Alter the argument register at the call: the empty delay slot of `jal func_80013834` becomes `addiu a0,a0,4`.
+
+    The original code then hands the callee its parameter plus 4, which the recorder logs: this is the
+    alteration that shows the test sees the value the callee gets.
+    """
+    jal = 0x0C000000 | ((0x80013834 >> 2) & 0x03FFFFFF)
+    found = [i for i, w in enumerate(words) if w == jal]
+    if len(found) != 1 or words[found[0] + 1] != 0:
+        raise ValueError("expected one call of func_80013834 with an empty delay slot")
+    return found[0] + 1, 0x24840004, "the callee gets a0 + 4"
 
 
 CONTRACT = Contract(setup, control)

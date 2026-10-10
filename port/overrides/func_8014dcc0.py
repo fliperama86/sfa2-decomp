@@ -26,12 +26,15 @@ def setup(state, rng, sym) -> Setup:
 
 
 def control(words):
-    """Alter the load of the side: `lbu v0,0xa6(a0)` reads 0xa7."""
-    found = [i for i, w in enumerate(words) if w >> 26 == 0x24 and (w >> 21) & 31 == 4 and (w >> 16) & 31 == 2 and w & 0xFFFF == 0xA6]
-    if len(found) != 1:
-        raise ValueError(f"expected one load of the side, found {len(found)}")
-    i = found[0]
-    return i, words[i] + 1, "side read from the byte after it"
+    """Alter the argument register at the call: the empty delay slot of `jalr v0` becomes `addiu a0,a0,4`.
+
+    The original code then hands the function in the pointer the object plus 4, which the recorder logs:
+    this is the alteration that shows the test sees the value the callee gets.
+    """
+    found = [i for i, w in enumerate(words) if w == 0x0040F809]
+    if len(found) != 1 or words[found[0] + 1] != 0:
+        raise ValueError("expected one call through v0 with an empty delay slot")
+    return found[0] + 1, 0x24840004, "the callee gets a0 + 4"
 
 
 CONTRACT = Contract(setup, control)

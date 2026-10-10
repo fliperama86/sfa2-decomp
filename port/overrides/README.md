@@ -15,14 +15,15 @@ comment and `NAME.py`, the contract as code, tested with the tool of
 A pass is evidence for the tested inputs of a contract, not equivalence. The
 test replaces each callee by a recorder that logs its first argument, so a
 pass shows that the override hands the callee the same value as the original
-code does.
+code does. Each control alters the original code so that the callee gets
+that value plus 4, and the test must then differ.
 
 | Function | Unit of its exact C | What the override adds | Callee |
 | --- | --- | --- | --- |
 | `func_8014dcc0` | `ps1/src/s14d8a4_r2.c` | passes `object` | the function in `scr_d4_left` or `scr_184_right` |
-| `func_8012126c` | `ps1/src/s120f40_r2.c` | passes `state` in the second arm | `func_80013834` |
-| `func_801212c8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_8001365c` |
-| `func_801212e8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_800136b0` |
+| `func_8012126c` | `ps1/src/s120f40_r2.c` | passes `state` in the second arm | `func_80013834` (the module `slot28` has it) |
+| `func_801212c8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_8001365c` (the module `slot12` has it) |
+| `func_801212e8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_800136b0` (the module `slot12` has it) |
 
 What these commands printed on 2026-10-10, run from the tool's folder (`ps1/src/slot06_nonmatching/`):
 
@@ -42,14 +43,14 @@ func_8014dcc0 coverage: 21 of 21 instruction slots of the original executed
     python difftest.py --config ../build.toml --folder ../../../port/overrides --cases 2000 --seed 1 --control --all
 
 ```
-func_8012126c control: different 504 of 2000 (expected more than 0)
-  altered: mask 0x7f becomes 0x3f, instruction slot 14
+func_8012126c control: different 1013 of 2000 (expected more than 0)
+  altered: the callee gets a0 + 4, instruction slot 18
 func_801212c8 control: different 2000 of 2000 (expected more than 0)
-  altered: frame of 0x20 bytes, restored as 0x18, instruction slot 0
+  altered: the callee gets a0 + 4, instruction slot 3
 func_801212e8 control: different 2000 of 2000 (expected more than 0)
-  altered: frame of 0x20 bytes, restored as 0x18, instruction slot 0
-func_8014dcc0 control: different 1031 of 2000 (expected more than 0)
-  altered: side read from the byte after it, instruction slot 2
+  altered: the callee gets a0 + 4, instruction slot 3
+func_8014dcc0 control: different 2000 of 2000 (expected more than 0)
+  altered: the callee gets a0 + 4, instruction slot 14
 ```
 
     python difftest.py --config ../build.toml --folder ../../../port/overrides --cases 2000 --seed 1 --writes --all

@@ -7,15 +7,18 @@
  * second arm is written with the argument `state`. The unit calls it with
  * none.
  *
- * Why: func_80013834 hands its a0 on, unchanged, to func_80013854 (jal at
- * 8001383c, a0 not written in between), and that function hands it on again
- * to an entry of a table (jalr at 80013884, a0 not written); the entries
- * take the object. On the console a0 still holds the caller's first
- * parameter at the call, because the second arm of the original code does
- * not write a0 (a0 is written at 8012129c only in the first arm, which then
- * calls func_8014efa8). Compiled for a PC, the callee chain would pass on
- * something else. That the entries of the table read a0 is not checked here;
- * the test only shows that the callee gets the same a0 as in the original.
+ * Why: the function that the module slot28 has at that address
+ * (func_80013834_slot28; inferred: this arm runs while that module is
+ * loaded) hands its a0 on, unchanged, to the function after it (jal 0x80013854
+ * at 8001383c, a0 not written before it), and that one hands it on again to
+ * an entry of a table (jalr at 80013884, a0 not written before it). On the
+ * console a0 still holds this function's first parameter at the call,
+ * because the second arm of the original code does not write a0 (a0 is
+ * written at 8012129c, in the first arm only, which then calls
+ * func_8014efa8). Compiled for a PC, the chain would pass on something else.
+ * Whether the entries of that table read a0 is not checked here (inferred:
+ * they take the record); the test shows that the callee gets the same a0
+ * as in the original code.
  *
  * What the function does (inferred): when the u16 field_4c of the record
  * data_8018f5a0 points at is 0, it raises that field by one and calls

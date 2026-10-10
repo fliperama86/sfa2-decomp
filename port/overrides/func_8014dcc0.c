@@ -15,13 +15,14 @@
  * used at 8014dcc8 and not written before the call at 8014dcf4). Compiled for
  * a PC, the callee would read something else.
  *
- * Evidence that the callees read a0, read in the original code's listing: all
- * 24 functions that the private argument table names as the targets of these
- * pointers (functions of the overlay modules slot04 and slot05) read a0 at
- * their start. For example the instruction `lbu v0,0x15a(a0)` at 801b0c90 in
- * func_801b0c88 and the same instruction at 801b1078 in func_801b1070. Which
- * of them a pointer holds at a given time is not decided here (inferred: the
- * overlay that is loaded sets the pointers).
+ * Evidence that the callees read a0, read in the original code's listing:
+ * the functions that the start-up code of the character modules stores in
+ * these two pointers read a0 at their start, in every one that a one-off
+ * search of 2026-10-10 found (a private search, not a command of this
+ * repository). Two of them: func_801b0c88_slot04_0a has `lbu v0,0x15a(a0)` at
+ * 801b0c90, and func_801b1070_slot04_01 has the same instruction at 801b1078.
+ * Which function a pointer holds at a given time is not decided here
+ * (inferred: the module that is loaded for a side sets that side's pointer).
  *
  * Contract:
  *   Argument: object (a0), a pointer to an object record; it is not written.

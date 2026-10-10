@@ -7,8 +7,10 @@
  * with the argument `unused`, the function's own parameter. The unit calls
  * it with none (and names the parameter `unused`).
  *
- * Why: func_8001365c reads a0 at its start (`sb zero,0x1(a0)` at 80013664,
- * read in the original code's listing). On the console a0 still holds this
+ * Why: the function that the module slot12 has at that address
+ * (func_8001365c_slot12; inferred: this function runs while that module is
+ * loaded) reads a0 at its start (`sb zero,0x1(a0)` at 80013664, read in the
+ * original code's listing). On the console a0 still holds this
  * function's first parameter at the call, because the original code does
  * not write a0 between its entry (801212c8) and the jal at 801212d0.
  * Compiled for a PC, the callee would read something else.
