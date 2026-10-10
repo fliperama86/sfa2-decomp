@@ -9253,3 +9253,27 @@ No function count changes here: none of this is in the build.
   script with the private source changes had been (third fight where
   that one had reached the ranking screen); the runs are not
   deterministic, and why was not looked into.
+
+## Correction: what the controls of the port's overrides alter (2026-10-10)
+
+- The record and the pages of the pull request that brought the
+  port's first four overrides said that each control alters the
+  original code. That was wrong. `difftest.py --control` hands a
+  contract's `control` the code words of the BUILD of the C under test
+  and alters one of them; the original code is never altered. So each
+  of the four controls puts `addiu a0,a0,4` into the empty delay slot
+  of the call in the built override, the altered build hands the
+  callee its parameter plus 4, and the test differs from the original,
+  which hands it the parameter.
+- What the controls show is unchanged: the test notices when the C
+  under test hands the callee another value. The printed lines on the
+  folder's page are unchanged (the same words are altered; an override
+  builds to the original's size and shape here).
+- Corrected: the sentence on `port/overrides/README.md`, the one on
+  `port/README.md`, and the four `control` descriptions in the
+  contracts. The record section above this one is left as it was
+  written.
+- How it came about: the control's description was written from
+  memory of the tool, not from its header (`ps1/src/slot06_nonmatching/README.md`
+  says "alters one instruction of the build"). Found the same day when
+  the tool's code was read for another purpose.

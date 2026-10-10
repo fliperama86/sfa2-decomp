@@ -893,8 +893,9 @@ routines that do nothing on purpose. What is in this piece:
   functions of the resident program whose exact C calls a function
   without the argument that the callee reads, by a plain call or through
   a pointer of the scratchpad. That page has each one's contract and
-  what its test printed; the control of each alters the original code
-  so that the callee gets another value, and the test must then differ.
+  what its test printed; the control of each alters the build of the
+  override so that the callee gets another value, and the test must
+  then differ from the original code.
   What the build does not check: that an override's C has the
   parameters and the result type of the unit's C, and that the test of
   its contract passes or was run. The build reads no C and has none of

@@ -19,8 +19,9 @@ def setup(state, rng, sym) -> Setup:
 def control(words):
     """Alter the argument register at the call: the empty delay slot of `jal func_800136b0` becomes `addiu a0,a0,4`.
 
-    The original code then hands the callee its parameter plus 4, which the recorder logs: this is the
-    alteration that shows the test sees the value the callee gets.
+    The control alters the build of this C (the tool hands it the build's code words, not the original's). The
+    altered build then hands the callee its parameter plus 4, which the recorder logs, while the original code
+    hands it the parameter: this is the alteration that shows the test sees the value the callee gets.
     """
     jal = 0x0C000000 | ((0x800136b0 >> 2) & 0x03FFFFFF)
     found = [i for i, w in enumerate(words) if w == jal]
