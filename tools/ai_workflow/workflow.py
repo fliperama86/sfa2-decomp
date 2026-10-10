@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 from model import Problem, context, history_index, ledger, revision, validate_task
-from review import config_inputs, freeze, run_check, select_checks, stage_inputs
+from review import GAME_SCOPES, config_inputs, freeze, run_check, select_checks, stage_inputs
 
 
 def git(root: Path, *args: str) -> str:
@@ -79,7 +79,7 @@ def review(args, root: Path) -> int:
             report['status'] = 'planned_not_run'
             rc = 0
         else:
-            if any(c.scope == 'ps1' for c in checks):
+            if any(c.scope in GAME_SCOPES for c in checks):
                 common = Path(git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir')).parent
                 stage_inputs(snapshot, (args.data_root or common).resolve())
             for check in checks:

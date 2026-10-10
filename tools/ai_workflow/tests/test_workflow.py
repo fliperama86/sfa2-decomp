@@ -138,6 +138,8 @@ class Selection(Fixture):
                 ('port-overrides-diff-1', 'differential', ('fa',)), ('port-overrides-writes-1', 'writes', ('fa',)),
                 ('port-overrides-diff-7', 'differential', ('fa',)), ('port-overrides-writes-7', 'writes', ('fa',)),
                 ('port-overrides-controls', 'control', ('fa',))])
+            # Their scope names the files their results depend on: the game's tree and the overrides.
+            self.assertEqual({c.scope for c in own}, {'overrides'})
             for c in own:
                 self.assertEqual(c.argv[c.argv.index('--folder') + 1], 'port/overrides')
                 self.assertEqual(c.argv[-1], 'fa')
@@ -178,6 +180,34 @@ class Results(Fixture):
         self.assertEqual(self.executions, 1)
         self.assertEqual(self.run_job('third', fresh=True)['status'], 'fresh_pass')
         self.assertEqual(self.executions, 2)
+
+    def test_a_changed_override_is_never_answered_from_an_old_result(self):
+        for name in ('port/overrides/fa.c', 'port/overrides/fa.py', 'port/src/example.c'):
+            self.put(name, 'before')
+            self.git('add', '-f', name)
+        check = review.Check('port-overrides-diff-1', ('python', '--cases', '2', '--seed', '1'), 'overrides', ('f',), 'differential')
+        # The key as the tool builds it: from the files of the check's own scope.
+        scoped = lambda root, c: {'files': review.source_files(root, c.scope), 'check': dataclasses.asdict(c)}
+        run = lambda name, c=check: review.run_check(self.root, c, self.root / 'local' / name, self.root / 'local/cache', 'head',
+                                                     identity=scoped, execute=self.execute)
+        self.assertEqual(run('o1')['status'], 'fresh_pass')
+        self.assertEqual(run('o2')['status'], 'cached')
+        for i, name in enumerate(('port/overrides/fa.c', 'port/overrides/fa.py', 'ps1/src/one.c')):
+            self.put(name, 'after ' + str(i))
+            with self.subTest(name=name):
+                self.assertEqual(run('o3' + str(i))['status'], 'fresh_pass')
+        # A file of the port outside the folder is no input of these checks.
+        self.put('port/src/example.c', 'after')
+        self.assertEqual(run('o4')['status'], 'cached')
+        self.assertEqual(self.executions, 4)
+        self.assertIn('port/overrides/fa.c', review.source_files(self.root, 'overrides'))
+        self.assertNotIn('port/src/example.c', review.source_files(self.root, 'overrides'))
+        # The scope of the game's own checks does not hold the folder: a check of an override keyed by it is
+        # answered from the old result after the override changed. That was the fault of the first version.
+        wrong = dataclasses.replace(check, scope='ps1')
+        self.assertEqual(run('w1', wrong)['status'], 'fresh_pass')
+        self.put('port/overrides/fa.c', 'changed again')
+        self.assertEqual(run('w2', wrong)['status'], 'cached')
 
     def test_every_dependency_class_invalidates(self):
         for name in ('ps1/src/one.c', 'ps1/src/shared.h', 'ps1/src/symbols.ld', 'ps1/src/slot06_nonmatching/func_80110000_slot06_00.py', 'baseline', 'compiler'):
