@@ -12,13 +12,14 @@
  *
  * Status (one `stop:` or `refused:` line says why, except for 0 by a return):
  *   0 main returned, or the window was closed
- *   2 a refusal at start (including a bad table: a name listed twice, a listed
+ *   2 a refusal at start (including the mirror's start check (mirror.c) and a bad table: a name listed twice, a listed
  *     name that no library function or function with C has)
  *   3 a function without C was reached
  *   4 a library function without a host routine was reached
  *   5 an unknown function was reached
  *   6 a disc command or state the disc layer does not handle, or a buffer the game named for it outside the
  *     PS1's RAM
+ *   7 a graphics call or state the graphics layer does not handle
  *   8 a thread's function returned (the game never lets one)
  *   9 a library call whose arguments a host routine does not serve
  *  11 the watchdog (--watchdog S) found no vblank for S seconds; the line says where
@@ -27,10 +28,15 @@
  *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead)
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --no-interrupt turns the timer thread off: the vblank is then taken only by the library routines that tick.
+ * --timer-burst makes the timer thread attempt its suspension of the game's thread without waiting between attempts (a control
+ *   for the exits that race with it; does nothing with --no-interrupt).
  * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
+ * --dump-vram PREFIX writes the video memory to PREFIX_end.ppm at the end of any run; --dump-every N
+ * also every N seconds (debug.c).
  * See PORT_EXIT_* in port.h. */
 #include "port.h"
+#include "gpu.h"
 #include "port_tables.h"
 #include "cd.h"
 
@@ -65,6 +71,7 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
     } else
         printf("stop: crash: exception 0x%08x in %s (at 0x%08x)\n", (unsigned)r->ExceptionCode, port_function_at(ip), (unsigned)ip);
     fflush(stdout);
+    port_debug_end();
     port_suspenders_stop();
     ExitProcess(PORT_EXIT_CRASH);
     return EXCEPTION_EXECUTE_HANDLER;
@@ -83,8 +90,8 @@ static int refuse(const char *line)
 
 int main(int argc, char **argv)
 {
-    const char *disc_path = NULL, *trace_path = NULL;
-    unsigned watchdog = 0;
+    const char *disc_path = NULL, *trace_path = NULL, *dump_path = NULL;
+    unsigned watchdog = 0, dump_every = 0;
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
@@ -101,6 +108,8 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--no-interrupt") == 0) no_interrupt = 1;
         else if (strcmp(argv[i], "--timer-burst") == 0) burst = 1;
+        else if (strcmp(argv[i], "--dump-vram") == 0 && i + 1 < argc) dump_path = argv[++i];
+        else if (strcmp(argv[i], "--dump-every") == 0 && i + 1 < argc) dump_every = (unsigned)atoi(argv[++i]);
         else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
         else if (strcmp(argv[i], "--watchdog") == 0 && i + 1 < argc) watchdog = (unsigned)atoi(argv[++i]);
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
@@ -118,11 +127,14 @@ int main(int argc, char **argv)
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");
     port_trace_set(trace_file);
+    port_debug_set(dump_path, dump_every);
     port_debug_watchdog(watchdog);
+    atexit(port_debug_end);
 #ifdef _WIN32
     SetUnhandledExceptionFilter(crashed);
 #endif
     if (port_map(err, sizeof err) != 0) return refuse(err);
+    if (port_mirror_init(trace, err, sizeof err) != 0) return refuse(err);
     printf("memory: RAM at 0x%08x (2 MB), scratchpad at 0x%08x\n", PORT_RAM_BASE, PORT_SCRATCH);
     fflush(stdout);
 

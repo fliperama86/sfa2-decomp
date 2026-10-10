@@ -884,7 +884,7 @@
 80142fe8	412	func_80142fe8	-	-	0	0	closed
 80143184	552	func_80143184	-	-	0	0	closed
 801433ac	640	func_801433ac	-	-	0	0	closed
-8014362c	92	-	-	-	0	0	closed
+8014362c	92	func_8014362c	-	-	0	0	closed
 80143688	64	func_80143688	-	-	1	0	open
 801436c8	20	func_801436c8	-	-	0	0	closed
 801436dc	64	func_801436dc	-	-	1	0	open
@@ -1123,7 +1123,7 @@
 8014a788	184	func_8014a788	-	-	0	0	open
 8014a840	112	func_8014a840	-	-	0	0	open
 8014a8b0	156	func_8014a8b0	-	-	0	0	closed
-8014a94c	256	-	-	-	0	0	open
+8014a94c	256	func_8014a94c	-	-	0	0	open
 8014aa4c	128	func_8014aa4c	-	-	0	0	open
 8014aacc	84	func_8014aacc	-	-	0	0	open
 8014ab20	84	func_8014ab20	-	-	0	0	open

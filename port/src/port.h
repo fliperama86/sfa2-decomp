@@ -15,12 +15,26 @@
 #define PORT_RAM_SIZE   0x00200000u
 #define PORT_SCRATCH    0x1f800000u
 #define PORT_SCRATCH_ALLOC 0x10000u   /* the system's granularity; the first 1 KB is the scratchpad */
+#define PORT_SCRATCH_SIZE  0x400u     /* the scratchpad itself */
 #define PORT_ERR        256           /* size of every error buffer */
 
 /* memory.c: map the PS1's RAM (2 MB, executable) and scratchpad at their own
  * addresses. On failure the line names the range and the system's error. */
 int  port_map(char *err, size_t errsize);
 void port_unmap(void);
+
+/* The memory that is the game's on this machine, for every layer that takes a pointer from the game (a structure to
+ * read or write, a buffer to copy from or to). 1 when the whole span [p, p + n) lies in ONE of:
+ *  - the mapped PS1 RAM;
+ *  - the mapped scratchpad (its 1 KB);
+ *  - the live part of the calling thread's own stack: from the frame of this very check up to the base of the stack the
+ *    thread (or fiber) is running on now. The game's C is compiled natively, so its locals live on the host's stack
+ *    and not in the mapped RAM; a pointer to one of them is the game's memory. Not the dead part below the check, not
+ *    another task's stack (every task is a fiber with a stack of its own).
+ * Nothing else: not the heap, not the program's own code or data. A span of 0 bytes is accepted when p itself lies in
+ * one of these regions (not at the end of one). The sum is made in 64 bits. Not for the nodes of a drawing list: their
+ * links are RAM addresses, so a node must be in the mapped RAM. */
+int  port_game_span(const void *p, size_t n);
 
 /* disc.c */
 struct port_disc {
@@ -109,6 +123,7 @@ void port_stop_main_returned(void);
 #define PORT_EXIT_NO_HOST 4     /* a library function without a host routine was reached */
 #define PORT_EXIT_UNKNOWN 5     /* a call into an unknown function */
 #define PORT_EXIT_DISC    6     /* a disc command or state, or a buffer, that the disc layer does not handle */
+#define PORT_EXIT_GRAPHICS 7    /* a graphics call or state the graphics layer does not handle */
 #define PORT_EXIT_THREAD  8     /* a thread's function returned (the game never lets one) */
 #define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
 #define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
@@ -137,8 +152,8 @@ struct port_domain   { const char *name; const struct port_library *table; };  /
 extern const struct port_domain   port_domains[];   extern const unsigned port_domain_count;
 extern const struct port_override *const port_override_sets[]; extern const unsigned port_override_set_count;  /* each set ends with a null name */
 
-/* The domains' tables (ending with a null name). port_cd_library is defined by cd.c. */
-extern const struct port_library port_kernel_library[], port_cd_library[], port_sound_library[], port_card_library[],
+/* The domains' tables (ending with a null name). port_cd_library is defined by cd.c, port_gpu_library by gpu.c. */
+extern const struct port_library port_kernel_library[], port_cd_library[], port_gpu_library[], port_sound_library[], port_card_library[],
                                  port_c_library[], port_thread_library[], port_system_library[];
 extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
 
@@ -156,10 +171,10 @@ int  port_library_install(unsigned char *ram, struct port_install *out, char *er
 int  port_library_list(char *err, size_t errsize);
 
 /* kernel.c */
-/* Called by the host routines in which the game waits or polls (VSync,
- * GetRCnt, TestEvent, CdSync, CdReady, ...), and by the disc layer's own
+/* Called by the host routines in which the game waits or polls (DrawSync,
+ * VSync, GetRCnt, TestEvent, CdSync, CdReady, ...), and by the disc layer's own
  * waits. Keeps the clock of frames: when 1/60 s has passed it does one vblank
- * (the registered handlers, then port_cd_tick); otherwise it yields the
+ * (the registered handlers, then port_cd_tick, then port_gpu_present); otherwise it yields the
  * processor briefly. A call made from inside a handler does nothing. */
 void port_tick(void);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
@@ -169,6 +184,9 @@ void port_callbacks_reset(void);
 void port_deliver_event(unsigned event_class, unsigned spec);
 /* The port's own seam to the disc layer (cd.c). */
 void port_cd_tick(void);
+
+/* gpu.c: show the picture and pump the window's events; kernel.c calls it once per vblank. */
+void port_gpu_present(void);
 
 /* kernel.c / interrupt.c: the vblank as an interrupt of the game's thread */
 extern volatile int port_handler_depth;   /* > 0 while a handler of the game runs; the disc layer raises it around its ready handler */
@@ -187,10 +205,22 @@ int  port_suspenders_enter(void);
 void port_suspenders_leave(void);
 #endif
 
+/* mirror.c: serve the PS1's copy of RAM below 0x10000 (see the file); main.c calls port_mirror_init before the game starts. */
+int  port_mirror_init(int trace, char *err, size_t errsize);
+/* interrupt.c: has the timer aimed the faulting thread at the interruption routine just as it faulted? The context's
+ * instruction pointer is then the routine's, and the exception record holds either the routine's address or the
+ * faulting instruction's; either way *fault_ip is the instruction that faulted. port_interrupt_set_return then moves the
+ * address the interruption will return to. */
+int  port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip);
+void port_interrupt_set_return(unsigned ip);
+
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);
 
-/* debug.c: the watchdog (see the file) */
+/* debug.c: run options for looking at a run (see the file) */
+void port_debug_set(const char *dump_prefix, unsigned dump_every);
+void port_debug_end(void);
+void port_debug_tick(unsigned frame);
 void port_debug_watchdog(unsigned seconds);
 const char *port_function_at(size_t ip);   /* main.c: the game function whose implementation is nearest at or below ip */
 unsigned port_frames(void);                /* kernel.c: vblanks since the start */

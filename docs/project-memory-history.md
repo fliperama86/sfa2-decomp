@@ -8020,6 +8020,186 @@ with byte parameters and with `int` parameters alike.
 The map after this group, from `coveragemap.py render`: 5,416 of 5,600 distinct functions exact, 12,833 of 13,072 placements. The
 build's line for the resident image: `functions exact: 1763/1763`.
 
+## A function of the module of slot 0x27 exact: one local, two values (2026-10-10)
+
+`func_80010840_slot27`, 300 bytes, of the module of slot 0x27
+(`SELECTA.PAC`), had been exact only with a statement that masks a
+local to its low byte where the original has no instruction, and such
+a statement is excluded. Without it the candidate differed in 11
+instruction slots: the original keeps one byte of the game state in
+one register and the next byte in another, and the build had them the
+other way around.
+
+It was taken first of the functions without C because the other
+session reported that its private trial of the port stops at this
+function when Arcade is chosen. That trial was not run here.
+
+A bounded run of the permuter, a private helper with a limit of twelve
+minutes, found the bytes by using the function's first local a second
+time: it holds the mode value that the first test compares, and later
+the byte that goes to `field_40`. Reduced one thing at a time, three
+locals of the candidate came out, each alone and then all together: a
+pointer to the structure, a pointer to one field, and a copy of a
+counter. Measured on the final text with `fndiff.py --rebuild`: with a
+second local for the byte, 11 slots; with the first test written
+without a local, 15. The local is an `int`; declared `u8` or `u16` the
+unit is exact too, so nothing is claimed about the original's type.
+
+The function is entry 2 of the module's table `data_80017bc4_slot27`,
+whose entries are declared to take nothing and return nothing, and it
+is defined so.
+
+The Ghidra project of the private workspace has no function at this
+address: no instruction calls it, only the table holds its address.
+The original was read from the private instruction listing instead.
+A function that only a table reaches may be missing there.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,417 of 5,600 distinct
+functions exact, 12,834 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## A resident function exact, the first from an unattended search (2026-10-10)
+
+`func_8014362c`, 92 bytes, is called from three places with an object
+and the other object. It was parked: the original negates a box's
+extent into a register of its own and negates that again when the
+object is mirrored, and no candidate had kept both.
+
+From this day the functions without C are given to an unattended
+search first: the permuter runs on every parked candidate with a time
+limit (private helpers, twelve minutes for each function here), and
+what comes out exact is reduced by hand and published. This function
+is the first of that run.
+
+Reduced one step at a time, a local for the sum and the spare
+parentheses came out. What stays, each measured on the final text with
+`fndiff.py --rebuild`:
+
+- the difference is copied into the local that held the negated
+  extent, and the sign test reads the copy. With the test reading the
+  difference itself: 7 differing instruction slots. With one local for
+  the difference, the test and both values of the result: 6;
+- the result is 16 bits wide. As an `int`: 3;
+- the mirrored case negates the negated extent again. Reading the
+  extent again there: 12;
+- the mirror flag has a local. Tested in place: 14.
+
+Every assignment is read by a later statement.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,418 of 5,600 distinct functions exact, 12,835 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## Two functions of one character file exact, the same code twice (2026-10-10)
+
+`func_801b1884_slot04_08` and `func_801b1c28_slot04_08`, 144 bytes
+each, of the character file `PL08.PAC`. Their instructions are the
+same but for the addresses of their branches. The first had a parked
+candidate with 4 differing instruction slots; the second had none.
+
+The unattended search (the permuter, a private helper, twelve minutes
+for each candidate) found the bytes of the first: each arm of the last
+test puts its comparison into a local and tests the local. Reduced one
+step at a time, the plain spelling of the two sums came back and the
+local stayed. Measured on the final text of each unit with
+`fndiff.py --rebuild`, the same figures for both: the comparisons
+tested in place, 4 slots; the local in the first arm only, 4; in the
+second arm only, 4; one test of the local after both arms, 2 and 4
+bytes longer; one value local that one arm negates and one test, 14.
+The local is read in both arms.
+
+The second function takes the first one's form and is exact with it.
+It has a unit of its own, because the two do not lie next to each
+other.
+
+The second side's file `PL08X.PAC` is linked from the same units, so
+both functions are exact there too: four placements.
+
+Evidence: both units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,419 of 5,600 distinct functions exact, 12,839 of 13,072 placements. The map counts the two as one distinct function, because their instructions are the same, in four placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## Two functions exact from their look-alikes (2026-10-10)
+
+A second way to the functions without C, beside the unattended search:
+for each of them a private helper names the exact function elsewhere
+whose instructions are most like its own, and the source of that one
+is taken as the starting form. Thirteen of the 62 module functions
+without C in this session's files had such a look-alike on this day;
+these are the first two.
+
+- `func_801b33e8_slot04_05`, 208 bytes, of the character file
+  `PL05.PAC`. Its look-alike is `func_801b2638_slot04_0c` of another
+  character file; the helper counted the two as the same code, since
+  they differ only in words that depend on an address. One of those
+  words is a jump that goes somewhere else: there the last call
+  follows both arms of the test, here it is in the second arm only.
+  With the call after both arms this function differs in 1 instruction
+  slot, measured on the final text with `fndiff.py --rebuild`. With a
+  `return` after the first arm's call it is exact too; the form with
+  the call inside the second arm is kept.
+- `func_80078d78_slot00`, 204 bytes, of the module of slot 0x0. Its
+  look-alike is `func_801b5c6c_slot04_09` of a character file. The
+  original instructions of the two differ in two constants, in the
+  source field of the last byte, and in one byte that only the other
+  one clears. The other's form with these four things changed was
+  exact at the first build. Its parked candidate had the same
+  statements in another order.
+
+Both are exact in their second placements too (`PL05X.PAC`, and the
+module of slot 0x8): four placements.
+
+Evidence: both units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,420 of 5,600 distinct functions exact, 12,843 of 13,072 placements. That is four placements more and one distinct function more: the map compares functions without their address-dependent words, so it counts `func_801b33e8_slot04_05` and its look-alike as one function, although their jumps differ.
+
+Not claimed: that a form or any name is the original's, or that two
+functions with like instructions come from one piece of original
+source. No run of the game.
+
+## Three more functions exact from the unattended search (2026-10-10)
+
+- `func_801b33b8_slot04_06` and `func_801cb3b8_slot05_06`, 180 bytes
+  each: one function of a character, in the first side's file
+  `PL06.PAC` and in the second side's `PL06X.PAC`, which is built from
+  units of its own. Their instructions are the same but for addresses.
+  The first was parked with 3 differing instruction slots. The search
+  found the bytes with one local that holds two values in turn:
+  whether a field is set, and later the halved value of another. Each
+  measured on the final text of both units with `fndiff.py --rebuild`,
+  with the same result: the test in place, 3 slots; the shift in
+  place, 3; both in place, 3; a local for each, 3. The second unit
+  takes the first one's form.
+- `func_8014a94c`, 256 bytes, resident, parked with 4 slots. The
+  search found the bytes by using the local that held the list's
+  halfword a second time, for the field that the first test reads.
+  Its form had the whole condition as one chained expression with
+  assignments and a call inside. Written as plain tests with one
+  shared exit (`goto none`) the unit is exact too, and that form is
+  kept; two nested forms without `goto` are 11 slots off and 4 bytes
+  shorter. A cast of the compared value and two casts of a pointer
+  came out. Measured on the final text: the field tested in place, 4
+  slots; the halfword put together in one statement, 13; its high byte
+  stored straight from the shift, 6 and 8 bytes shorter; the halfword
+  read straight into the signed local, 3 and 4 bytes shorter.
+
+Evidence: the three units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,422 of 5,600 distinct functions exact, 12,846 of 13,072 placements: three placements more and two distinct functions more, since the pair is one function to the map.
+
+Not claimed: that a form or any name is the original's. No run of the
+game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8118,3 +8298,203 @@ build's line for the resident image: `functions exact: 1763/1763`.
   written, measure the exact variant once more on the final tree, and
   name the variant in the sentence: which symbol, which form, what
   stays as it is.
+
+## The port serves the console's copy of RAM below 64 KB (2026-10-10)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Why. A private run of the real game on the layers put together
+  (never published) reached the loading of its first fight and ended
+  with the runtime's crash line: `func_80130768` adds an offset to a
+  null pointer and reads address `0xd`. The console has its RAM there
+  a second time. A Windows process cannot map address 0.
+- First design, dropped. Serve every access to `0..0x1fffff` in the
+  fault handler. A probe (`VirtualQuery` over the range in a program
+  linked like the runtime) found `0xf4000` bytes of that range
+  accessible in one run: the system's own mappings, most of them
+  read-only, some writable, at places that change from run to run. An
+  access there does not fault, so it cannot be served, and serving the
+  rest would make the program right or wrong by the day's layout. A
+  launcher that reserves the free ranges before the program starts
+  brought that to `0x4a000` bytes in the probe and cannot close it.
+  (One-off figures of one machine.)
+- What is published: only `[0, 0x10000)` is served, where Windows
+  guarantees a fault. `port/src/mirror.c` is the handler (a vectored
+  one, for read and write faults; the modules layer's handler on its
+  own branch takes execute faults only), `mirrorcore.c` holds the
+  parts that need no Windows: the decision, the start check, the
+  decoder and the operations. An unserved form, a straddle of
+  `0x10000`, an access from host code: the program ends with a line.
+- The forms. Counted in the objects of the private trial build:
+  154,599 instructions with a memory operand in 5,492 objects, 227
+  forms; the decoder takes 152,124 of them at exactly their length and
+  refuses 2,475, which are the classes left out on purpose (`call` and
+  `jmp` through memory, `imul`, `idiv`, `mul`, `neg`, shifts,
+  `cmovcc`, `setcc`). No string, x87 or SSE form has a memory operand
+  there. (One-off counts, private scripts over a private build.)
+- Deliberate users of the copy above 64 KB. The same objects were
+  searched for an `and` by `0x00ffffff`: 307 instructions in 124
+  functions, all with the mask as an immediate. Read from the C: 116
+  functions store the masked value into another primitive's tag, 7
+  compare a field with a constant, and 1 uses it as an address,
+  `func_80119694` (a function whose C is not on main yet). The search
+  sees only C compiled for the PC, and would not see 24 bits taken out
+  by shifts. (One-off counts.) That function needs a host routine with
+  a differential test against the original; not in this change.
+- The timer. The vertical blank's timer can aim the game's thread at
+  the interruption routine in the instant between a fault and the
+  start of the handler; the control's loop of served accesses met that
+  11 to 13 times per run. The handler recognises it, carries the
+  instruction out and moves the address the interruption returns to.
+  With that recognition taken out the loop's case fails.
+- A guard that was removed. The first version also kept the timer from
+  redirecting the thread while the handler works, by a flag. No case
+  could fail without it: while the handler works the thread's
+  instruction pointer is in the runtime or the system, where the timer
+  redirects nothing anyway. The flag's use by the timer is gone; the
+  flag itself stays for the second-fault line, which has a case.
+- Mutants, each against the cases that should notice it: the upper
+  limit moved by one, the lower limit moved by one, a straddle allowed,
+  the game-code condition taken out of the decision and out of the
+  handler, one flag of one operation wrong, the instruction length off
+  by one, the width of `movzx`'s destination wrong, the aimed context
+  not recognised, the second fault not detected. Each made a case fail.
+- Tests without the program. The owner asked on 2026-10-09 whether
+  tests could avoid running the program. This layer's decisions are
+  pure functions and 61 of its cases build and run them with the
+  host's compiler alone; 17 run the linked program. (Counts of the day;
+  the file prints its cases.)
+- Not shown: any access above `0x10000`; the handler together with the
+  modules layer's (read, not run together); the real game past the
+  point of the crash from a published commit.
+- The review command had to learn the new control file. It gives the
+  cross compiler to the port's control files by a list of names;
+  `test_hostmirror.py` was not on it, was started without `--cc` and
+  ended with its usage text, status 2: the review failed at that check.
+  The name is on the list now, and the workflow's own tests got one
+  case for it (28 cases with it; `docs/ai-workflow.md` reports the 27
+  of its own day): with the name taken off the list again, that case
+  fails. A control file that needs an argument must be made known to
+  the review command in the same change.
+- One run of the review on this branch, before that, ended at a launch
+  case that outlasted its 60 seconds: the program had not ended. The
+  machine was under load from a stress run of another change, which
+  looks for exactly that, a program that sometimes does not end when
+  the timer thread runs; it is code that is on main, not this layer's,
+  and its fix is a change of its own. The next run of the same case
+  passed.
+
+## The port draws through PsyZ (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/gpu.c` with the graphics library's host
+  routines, the picture dump, and `test_hostgpu.py`. It exists only in
+  a program built with `hostbuild.py --psyz`. The page has what is
+  served by PsyZ and what by the port, what ends the program, and
+  where the picture is known to differ from the console's.
+- What differs from the state that drew the private trial's pictures,
+  from the lessons of the earlier reviews:
+  - The lists and rectangles are checked as the game's data against
+    the RAM and the frame buffer; the trial's state followed whatever
+    it was given.
+  - A rectangle outside the frame buffer ends the program. The worker
+    had made it a skip that returns -1, with a line; I turned that
+    down: it is behaviour that neither the console nor the game has.
+    The console wraps; until the port does the same, it stops.
+  - The layer had an "override" of `PutDrawEnv`. That function is the
+    library's and has no C in the build, so it is an ordinary library
+    row; the override mechanism is for game functions with C only.
+  - PsyZ crashed when a list was the first thing drawn (its vertex
+    buffer did not exist yet). The layer now makes PsyZ create it when
+    the layer starts, without drawing a pixel; the worker's first fix
+    cleared one pixel, which I turned down for the same reason as the
+    skip.
+- The owner's review of the first version (PR 135), in his words: "The
+  list walker validates only the first GP0 command of each packet ...
+  but hands every payload word to PsyZ, which decodes subsequent
+  commands too", shown by him with a packet whose second command was a
+  fill without its position and size: it drew with the rectangle of an
+  earlier packet that was still in the conversion buffer. The walker
+  now steps through every command of a packet before PsyZ sees a word,
+  and PsyZ gets the packet's words only. A kind the walker does not
+  decode ends the program; the worker had made that a report and a
+  skip, which I turned down as with the rectangle.
+- Two checks of the first version refused the real game, found by the
+  private trial once the layers were put together: the game's start-up
+  calls `SetDispMask` before `ResetGraph(0)`, and its first
+  `ClearImage` takes a rectangle that is a local, which on a PC is on
+  the host's stack and not in the PS1's RAM. I had told the worker
+  "every pointer the game hands over lies in the RAM" without thinking
+  of where a local lives when the game's C is compiled natively. One
+  routine of the runtime now says which memory is the game's: the RAM,
+  the scratchpad, and the live part of the calling task's stack.
+- The controls opened one window per case, and I let a worker run four
+  chains of them at once for its mutants. The owner, at the same
+  machine, asked who was opening instances of the game every second. I
+  stopped them. The controls run on SDL's offscreen driver now, one run
+  at a time, and a mutant only against the cases that should notice it.
+- Width and height of zero or less: what the library does with them was
+  read from its code in the original (no C for those two routines is
+  in the tree), and PsyZ's own decompiled copy does something else.
+  The port follows the original's.
+- Not shown: any picture of the real game from a published commit; and
+  no comparison of a picture with the console's.
+- 2026-10-10: the controls' own rig stopped a program that outlasted
+  its time with `taskkill.exe` by image name, one fixed name. A second
+  run of the file on the same machine (the review's frozen checkout
+  beside mine) then lost programs to the first one's stop: on my
+  second run of the one-command review, one case got no line and
+  status 1 while every case had passed minutes before. The stop by
+  name was never needed: a program started through WSL ends with the
+  Linux process that started it (tried with `ping.exe` and with the
+  trial program). It is removed. A case starts the same program under
+  the same file name from another folder, lets its own program run
+  out of time, and requires that its own is gone and the other one
+  ends by itself; with the stop by name put back, that case fails
+  (the other program has status 1 and no last line). The program's
+  file name also carries a random token of the run, so that an older
+  copy of the file beside it cannot stop this run's program. Runs of
+  this pull request's earlier heads beside a reviewer's run may have
+  cost that run a case in the same way.
+
+- 2026-10-10, second review of this pull request (at `1ba036a`): the
+  owner showed that the walker accepted the lines `0x44` and `0x54` as
+  three and four words while PsyZ's line decoder reads their bit 2 as a
+  padded form and takes one word more, the next command's first word, so
+  a complete fill after such a line was lost with status 0. The decision
+  at the top level: refuse every kind whose length PsyZ reads otherwise,
+  never rewrite it (a rewrite would claim that the console treats the two
+  forms alike, which nothing here shows), and compare both sides for all
+  256 kinds, not only the lines. The comparison is in the comment above
+  `command_words` in `port/src/gpu.c`, with file and line of PsyZ's
+  decoder. The only kinds that were accepted and are read otherwise are
+  `0x44` to `0x47` and `0x54` to `0x57`; they are refused with the line
+  `... (line with a flag bit that the library the port draws with reads as
+  a longer command) at word N; the port does not decode this kind yet`.
+  The standard primitive codes of the SDK (`0x40`, `0x50` with the
+  semi-transparency or raw bit) are still accepted.
+- The control is a sweep over all 256 kinds in `test_hostgpu.py`
+  (section `stream`): an accepted kind, with arguments whose top byte is
+  `0x03` (PsyZ reports such a word as an unsupported command, should it
+  take one for a command), then a complete blue fill, then the kind again
+  as the last command of the packet; a refused kind ends with the line
+  that names it and the pixel unchanged. PsyZ's report reaches the rig
+  (a copy of the layer that forwards a no-operation kind is run to show
+  it, as a case). A first version had the kind only before the fill; a
+  walker that counted a kind one word too long went unnoticed, because
+  the fill's words are forwarded as they are. Ending the packet with the
+  kind catches it. One-off figures of the work: 302 cases in the section
+  `stream` after the change, 542 in the file. A case of the section
+  `images` failed once in a full run (status 1 and no line, for a
+  `MoveImage` pointer past the scratchpad) and passed in a run of its
+  section and in the next full run; not explained.
+- One run that could not be explained. A full run of the graphics
+  controls on this branch failed one case (a rectangle pointer past
+  the scratchpad): its program ended with status 1 and none of the
+  lines the rig keeps. The same section alone passed, and so did the
+  next full run. The rig kept only the lines it knows, so what that
+  program printed is lost. It now prints, under a failing case, the
+  status and every line of the last program run, so that the next
+  such run says what happened. No retry was added.
+

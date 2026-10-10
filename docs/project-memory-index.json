@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "962696a9422afb82e9c395beac01d7a2d817ac3d61ff905d2756ed8e2fa63e6f",
+  "sha256": "b70c859123ae34d0cdf7204f823efed31af51249430ac5838e6fcda6dde880bb",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -507,16 +507,44 @@
       "line": 7985
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x27 exact: one local, two values (2026-10-10)",
       "line": 8023
     },
     {
+      "title": "A resident function exact, the first from an unattended search (2026-10-10)",
+      "line": 8065
+    },
+    {
+      "title": "Two functions of one character file exact, the same code twice (2026-10-10)",
+      "line": 8100
+    },
+    {
+      "title": "Two functions exact from their look-alikes (2026-10-10)",
+      "line": 8132
+    },
+    {
+      "title": "Three more functions exact from the unattended search (2026-10-10)",
+      "line": 8170
+    },
+    {
+      "title": "Windows reference",
+      "line": 8203
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8040
+      "line": 8220
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8065
+      "line": 8245
+    },
+    {
+      "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
+      "line": 8302
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
+      "line": 8387
     }
   ]
 }
