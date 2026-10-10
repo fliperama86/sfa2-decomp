@@ -10,8 +10,8 @@ extern u8 data_801c7a50_slot04_11[];
 
 void func_80131468(Object *obj);
 void func_80131638(Object *obj);
-void func_8007bc00_slot16(Object *obj);
-void func_8007be8c_slot16(Object *obj);
+void func_8007bc00(Object *obj);
+void func_8007be8c(Object *obj);
 void func_801b5ab8_slot04_11(Object *obj);
 void func_801b6604_slot04_11(Object *obj);
 void func_801b6628_slot04_11(Object *obj);
@@ -47,7 +47,7 @@ void func_801b606c_slot04_11(Object *obj) {
         func_801b5ab8_slot04_11(obj);
         select_box_tables(obj);
         build_metrics(obj);
-        func_8007bc00_slot16(obj);
+        func_8007bc00(obj);
     } else {
         data_801c7a34_slot04_11[obj->field_128 >> 1](obj);
     }
@@ -133,7 +133,7 @@ void func_801b63fc_slot04_11(Object *obj) {
         func_801b5ab8_slot04_11(obj);
         select_box_tables(obj);
         build_metrics(obj);
-        func_8007be8c_slot16(obj);
+        func_8007be8c(obj);
     } else if (obj->field_211 != 0) {
         func_801b655c_slot04_11(obj);
     } else {

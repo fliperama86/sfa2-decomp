@@ -5900,3 +5900,6 @@ data_801c7450_slot04_11 = 0x801c7450;
 data_801ce384_slot04_17 = 0x801ce384;
 data_801c6288_slot04_14 = 0x801c6288;
 data_801c5ae4_slot04_0f = 0x801c5ae4;
+func_8007bc00 = 0x8007bc00;
+func_8007be8c = 0x8007be8c;
+func_801b1448 = 0x801b1448;

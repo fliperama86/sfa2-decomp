@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "9ea83abd5c5fa66c9128aa3eb2f9add338fba6c3dec06b29e8abd3a8e129cf54",
+  "sha256": "7f783ab21ace0a45930c7478ab23ef38c78070b85d61605de1e7b8272fc70e3d",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -569,6 +569,10 @@
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
       "line": 8677
+    },
+    {
+      "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
+      "line": 8713
     }
   ]
 }
