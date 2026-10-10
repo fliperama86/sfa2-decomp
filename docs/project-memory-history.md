@@ -8200,6 +8200,37 @@ baseline. The map after this, from `coveragemap.py render`: 5,422 of 5,600 disti
 Not claimed: that a form or any name is the original's. No run of the
 game.
 
+## Three more functions exact: two from look-alikes, one from the search (2026-10-10)
+
+- `func_801b1008_slot04_01`, 104 bytes, of the character file
+  `PL01.PAC`, from its look-alike `func_801b1548_slot04_07` of another
+  character file: four other constants and three of its statements in
+  another order. The order was found by building every order of the
+  last six statements (145 builds until the first exact one; a one-off
+  count of a private loop). Exact in the second side's file too.
+- `func_80013ee8_slot01`, 144 bytes, of the module of slot 0x1, from
+  its look-alike `func_80015de0_slot27` of another module: other
+  values and three more fields cleared, with the statements in the
+  look-alike's order. Exact at the first build. It calls through a
+  pointer of the module's data, which gets a name in `symbols.ld`
+  (`data_80015cdc_slot01`), declared as its look-alike declares its
+  own.
+- `func_80015ca4_slot27`, 284 bytes, of the module of slot 0x27, from
+  the unattended search. The search's form read one byte through a
+  pointer local; reduced, the local is gone and the field is read as
+  it is. What made it exact is the order of three stores of pointers,
+  which now is the listing's. With the parked candidate's order: 2
+  differing instruction slots, measured on the final text with
+  `fndiff.py --rebuild`.
+
+Evidence: the three units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,425 of 5,600 distinct functions exact, 12,850 of 13,072 placements: three distinct functions and four placements more.
+
+Not claimed: that a form or any name is the original's, or that two
+functions with like instructions come from one piece of original
+source. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
