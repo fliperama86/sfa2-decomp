@@ -7963,6 +7963,44 @@ No function count changes here: none of this is in the build.
   definition and its callers' declarations disagree on purpose. That
   needs to be read on its own.
 
+## A fourth parked function exact, and its table's entries take int (2026-10-09)
+
+`func_8013e1e4`, 204 bytes, was parked with four differing instruction
+slots: the original keeps the raw index in one register and the masked
+index in another, and no form had produced both.
+
+A bounded run of the permuter found the bytes with a second local for
+the masked index. Reduced one thing at a time, this is what stays: the
+masked index is held twice, in a byte local that the second half of
+the function uses, and written back to the parameter, which the first
+half uses. Measured on the final text: with the byte local everywhere
+and no write back, 16 slots; with the parameter masked in place and
+used everywhere, 4; with the last argument of the third call passed
+directly and not through the local that held another value before, 5.
+Both variables are read; nothing is assigned that nothing reads.
+
+The function is entry 0 of the dispatch table `table_8017abe4`, and
+that table was declared with entries that take two bytes. The owner's
+rule is that an entry takes its table's type. With byte parameters
+this function differs in 16 slots or more in each of six forms tried.
+The table's one other entry, `func_8013e2b0`, was exact with byte
+parameters only through copies into `int` locals that it masked once
+more; its own comment said that it took bytes because the table did.
+Declared with entries that take two `int`s, as the tables after it
+are, both entries are exact, the second in a plainer form with its
+parameters masked in place and no copies, and the dispatcher that
+calls through the table is exact unchanged. So the table's entry type
+is two `int`s now. Inferred from that: the functions of this table
+take the values as they come and mask them themselves.
+
+The four tables before it keep entries that take bytes: their entries
+that are C are exact with byte parameters. Two of their entries are
+not C yet. One of them, `func_8013db48`, measured four differing slots
+with byte parameters and with `int` parameters alike.
+
+The map after this group, from `coveragemap.py render`: 5,416 of 5,600 distinct functions exact, 12,833 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1763/1763`.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
