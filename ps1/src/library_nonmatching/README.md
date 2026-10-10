@@ -1,7 +1,7 @@
 # Nonmatching C: the sound library
 
 C for functions of the PS1 game's sound library (the Sony library part of the
-resident executable, `SLPS_004.15`) that have no exact C: the four functions
+resident executable, `SLPS_004.15`) that have no exact C: the six functions
 below. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
@@ -50,6 +50,17 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 - `func_80167388` (`_SsContDataEntry`, a data entry of the sequencer): written
   by this project from the listing. The reference only declares a function of
   this name and has no definition. No license line.
+- `func_80166144` (inferred `SsSepOpen`, opens a group of sequences): written
+  by this project from the listing. The reference has no such function; the
+  single-sequence twin `SsSeqOpen` of `../sdk/libsnd/seqinit.c` was read as an
+  aid and none of its text is copied. No license line. Its test replaces the
+  callee `func_80165d84`, which is why that name has a line in `../symbols.ld`.
+- `func_80165d84` (inferred `_SsInitSoundSep`, prepares one sequence of a
+  group): written by this project from the listing, with `_SsInitSoundSeq` of
+  `../sdk/libsnd/seqinit.c` as a reading aid and none of its text copied. No
+  license line. The original traps (a break instruction) on four divisions by
+  zero and on one overflow; the setup keeps all of them out and the header
+  says so; the seven slots they take are the ones the test does not execute.
 
 Adapted files, as `../sdk/README.md` lists adapted files: `func_8015ffc0.c`
 and `func_80163794.c`.
@@ -73,8 +84,12 @@ function is run again for it, and the folder is not run as a whole.
 
 The three blocks are a record, not an instruction: what the commands
 printed for each function when it was last run. As it stands that is
-the run of 2026-10-10 in which the four were added. From now on a
-function's lines change only when that function is run again.
+the run of 2026-10-10 in which the first four were added, and the runs of the
+same day in which `func_80166144` and `func_80165d84` were added, each run
+alone with the commands above (seed 1 for the test and
+the audit; seed 7 gave `different 0` and `outside 0` as well, and the control
+printed what is below). From now on a function's lines change only when that
+function is run again.
 
 The test (`--cases 2000 FUNC`, seed 1):
 
@@ -87,6 +102,10 @@ func_80167388: built 1124 bytes, original 1504 bytes; cases 2000, discarded 0, e
 func_80167388 coverage: 301 of 376 instruction slots of the original executed
 func_8016b788: built 1328 bytes, original 1464 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8016b788 coverage: 366 of 366 instruction slots of the original executed
+func_80165d84: built 840 bytes, original 960 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80165d84 coverage: 233 of 240 instruction slots of the original executed
+func_80166144: built 304 bytes, original 304 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80166144 coverage: 76 of 76 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
@@ -100,6 +119,10 @@ func_80167388 control: different 266 of 2000 (expected more than 0)
   altered: constant 0x1e becomes 0x1f, instruction slot 53
 func_8016b788 control: different 2000 of 2000 (expected more than 0)
   altered: control register receives 0xc001, instruction slot 320
+func_80165d84 control: different 2000 of 2000 (expected more than 0)
+  altered: pan value 0x40 becomes 0x41, instruction slot 6
+func_80166144 control: different 1717 of 2000 (expected more than 0)
+  altered: bit mask 1 becomes 2, instruction slot 22
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
@@ -109,7 +132,14 @@ func_8015ffc0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80165d84 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80166144 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
+
+`func_80166144` is 304 bytes in the build and in the original, and is not
+byte-identical; it stays here. `func_80165d84` executes 233 of 240 slots: the other seven are the
+original's guards for a zero divisor and for an overflowing division, which
+the contract excludes.
 
 `func_80167388` has fewer slots executed than it has: the others are a loop
 over the tones for one value of a byte that an earlier test has already

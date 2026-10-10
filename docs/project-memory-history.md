@@ -9787,3 +9787,40 @@ No function count changes here: none of this is in the build.
   stale sentences there (an override that is no longer needed since
   the mirror layer; the start line that the sample now has), the root
   README's line on the port, and the current-state page.
+
+## Nonmatching C for two more functions of the sound library (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Why: a private trial of the port that runs the game's own sound
+  library as C (not published) stopped at `func_80166144`, which the
+  game calls to open a group of music sequences (`x07_r2.c`), and that
+  function calls the one at 0x80165d84. Neither had C. Both are rows
+  without a name in `inventory/library.tsv`.
+- The names are inferred, not original symbols: `SsSepOpen` for
+  `func_80166144` and `_SsInitSoundSep` for `func_80165d84`, from what
+  they do and from their twins for a single sequence, `SsSeqOpen` and
+  `_SsInitSoundSeq` of `sdk/libsnd/seqinit.c`.
+- Both were written by this project from the listing. The reference
+  that the SDK files come from has neither at its pinned commit (a
+  search of its `src/main/psxsdk` for the two names finds nothing).
+- `symbols.ld` gets one name, `func_80165d84`, which the C of the first
+  function calls. No unit of the build refers to it.
+- `func_80165d84`: 233 of 240 instruction slots executed. The seven
+  others are the guards the original has at its divisions (four breaks
+  for a zero divisor and the test for an overflowing quotient), which
+  the contract excludes; the header names them.
+- Ran, the two functions alone (about six seconds a run): the test and
+  the write audit on seeds 1 and 7 and the control (the page has seed
+  1's lines); deliberate errors, three in the first function and four
+  in the second, each noticed (one-off runs); the constant 60000000
+  plus one, which 1 case of 2,000 noticed at first and, after cases on
+  that edge were added to the setup, 166 on seed 1 and 157 on seed 7;
+  the declarations check told to read the folder; the name lint; the
+  port's public build (0 failed, and its count of library functions
+  without C went from 380 to 378: a one-off run on the head before
+  main was merged in).
+- Not run: the matching build and the other folders (the one added
+  name is new and nothing else refers to it); the repository's review
+  command, which plans the matching build and every folder for a
+  change of `symbols.ld` (see `docs/efficiency.md`).
