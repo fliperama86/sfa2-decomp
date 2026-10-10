@@ -52,6 +52,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import test_hostcd as C  # noqa: E402  (the made-up audio sectors and the expected frames)
 import test_hostiopage as I  # noqa: E402
 import test_hostlaunch as L  # noqa: E402
 from test_hostlaunch import ABS_BASE, FUN_BASE, RAM, Variant, program  # noqa: E402
@@ -61,7 +62,8 @@ BAD_DRIVER = "nosuchdriver"
 SAMPLE = "dummy"
 
 HOSTS = dict(I.PSYZ_HOSTS)
-HOSTS.update({"audio_paused": "host_audio_paused", "lock_calls": "host_lock_calls", "lock_viol": "host_lock_viol", "lock_bad": "host_lock_bad", "lock_collect": "host_lock_collect"})
+HOSTS.update({"audio_paused": "host_audio_paused", "lock_calls": "host_lock_calls", "lock_viol": "host_lock_viol", "lock_bad": "host_lock_bad", "lock_collect": "host_lock_collect",
+              "CdInit": "port_CdInit", "CdControl": "port_CdControl", "CdMix": "port_CdMix", "CdIntToPos": "port_CdIntToPos", "xa_count": "host_xa_count"})
 ABS = [(n, RAM + 0x101e00 + 0x10 * i, 1) for i, n in enumerate(HOSTS)]
 
 GAMES: list[tuple[str, str]] = []   # (function name, body)
@@ -117,19 +119,45 @@ game("a_wfail", "int i;\n" + VOICE0 + r"""
     for (i = 0; i < 6; i++) ps1_VSync(0);
     SAY("the game goes on at vblank %d\n", ps1_VSync(-1));""")
 
+# The disc's streamed audio on the real path: the chip is set to mix the CD input at full volume, the disc layer is told the filter (file 1,
+# channel 3), the mode (double speed, XA on, filter on) and the CdMix volumes, ReadS starts at the sector AUDIO_LBA of the made-up image, and the
+# game waits 40 vblanks (29,400 frames of the dump; the 8 sectors played make 18,816). It prints the counts of the disc layer.
+AUDIO_LBA = 200
+XA_BODY = r"""
+    unsigned char pos[4], res[8], vol[4] = { %s }, mode[1] = { 0xc8 }, filt[2] = { 1, 3 };
+    int i;
+    W16(0x1f801daau, 0xc001u);
+    W16(0x1f801d80u, 0x3fffu);
+    W16(0x1f801d82u, 0x3fffu);
+    W16(0x1f801db0u, 0x7fffu);
+    W16(0x1f801db2u, 0x7fffu);
+    ps1_CdInit();
+    ps1_CdControl(0xd, filt, res);
+    ps1_CdControl(0xe, mode, res);
+    ps1_CdMix(vol);
+    ps1_CdIntToPos(%d, pos);
+    ps1_CdControl(0x1b, pos, res);
+    for (i = 0; i < 40; i++) ps1_VSync(0);
+    SAY("sectors: played %%d held %%d refused %%d skipped %%d silent %%d\n", ps1_xa_count(0), ps1_xa_count(1), ps1_xa_count(2), ps1_xa_count(3), ps1_xa_count(4));
+    SAY("frames: queued in all %%d pulled %%d in the queue %%d\n", ps1_xa_count(5), ps1_xa_count(6), ps1_xa_count(7));
+"""
+for _name, _vol in (("a_xa", "128, 0, 128, 0"), ("a_xa_half", "64, 0, 64, 0"), ("a_xa_mixed", "100, 30, 90, 20")):
+    game(_name, XA_BODY % (_vol, AUDIO_LBA))
+
 FUN = FUN_BASE + [(n, RAM + 0x101100 + 0x10 * i, n) for i, (n, _) in enumerate(GAMES)]
 G = {n: a for n, a, _ in FUN}
 GAME_C = I.HEADER + I.PSYZ_HEADER + "\nstatic void unused_names(void) { (void)wait_ev; }\n" + "".join("void %s(void)\n{\n%s\n}\n" % (n, b) for n, b in GAMES)
-GAME_C = GAME_C.replace("extern int ps1_EnterCriticalSection(void)", "extern int ps1_audio_paused(void), ps1_lock_calls(void), ps1_lock_viol(void), ps1_lock_bad(void), ps1_lock_collect(void);\nextern int ps1_EnterCriticalSection(void)", 1)
+GAME_C = GAME_C.replace("extern int ps1_EnterCriticalSection(void)", "extern int ps1_audio_paused(void), ps1_lock_calls(void), ps1_lock_viol(void), ps1_lock_bad(void), ps1_lock_collect(void);\nextern int ps1_CdInit(void), ps1_CdControl(int, unsigned char *, unsigned char *), ps1_CdMix(void *), ps1_xa_count(int);\nextern unsigned char *ps1_CdIntToPos(int, unsigned char *);\nextern int ps1_EnterCriticalSection(void)", 1)
 
 WRAPPED = ["Psyz_SpuRead", "Psyz_SpuWrite", "Psyz_SpuFifoWriteBulk", "Psyz_SpuMemRead", "Psyz_SpuSetTransferAddr", "Psyz_SpuGetTransferAddr"]
 
 
 def domains(extra: str = "") -> str:
-    decls = "".join(f"extern void {h}();\n" for h in HOSTS.values() if h.startswith("port_h_") and h != "port_h_DMACallback")
+    decls = "".join(f"extern void {h}();\n" for h in HOSTS.values() if h.startswith("port_h_") and h != "port_h_DMACallback")   # the disc layer's port_Cd* come from cd.h
     rows = "".join(f'{{ "{n}", (void *){h}, 0 }}, ' for n, h in HOSTS.items())
     return f"""
 #include "port.h"
+#include "cd.h"
 #include <stdio.h>
 #include <windows.h>
 #include <psyz.h>
@@ -140,6 +168,21 @@ extern int Psyz_AudioIsPaused(void);
 int host_pull_nonzero(int frames) {{ (void)frames; return 0; }}
 int host_chip_ram(int offset) {{ return Psyz_SpuGetRam()[offset]; }}
 int host_audio_paused(void) {{ return Psyz_AudioIsPaused(); }}
+int host_xa_count(int which)
+{{
+    struct port_xa_counts c;
+    port_xa_counts_get(&c);
+    switch (which) {{
+    case 0: return (int)c.played;
+    case 1: return (int)c.held;
+    case 2: return (int)c.refused;
+    case 3: return (int)c.skipped;
+    case 4: return (int)c.silent;
+    case 5: return (int)c.frames;
+    case 6: return (int)c.pulled;
+    default: return (int)c.queued;
+    }}
+}}
 int host_lock_calls(void);
 int host_lock_viol(void);
 int host_lock_bad(void);
@@ -471,6 +514,10 @@ def cases(rig, only: str, rig_nopsyz):
         status, lines = run(rig, "a_device", [NI, "--audio"], tag="lock", variant="lock")
         yield "with-the-device-open-every-access-of-iopage-to-the-model-is-made-with-the-audio-lock-held", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 20 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
 
+    # ---- the disc's streamed audio ----
+    if want("stream"):
+        yield from stream_cases(rig, work)
+
     # ---- no PsyZ ----
     if want("nopsyz"):
         f = work / "n.wav"
@@ -481,12 +528,117 @@ def cases(rig, only: str, rig_nopsyz):
             yield ("a-build-without-psyz-refuses-%s" % opt.lstrip("-")), (f"status {status}, wanted 2; lines {lines!r}" if status != 2 else (None if lines == [line] and not f.exists() else f"lines {lines!r}, wanted {[line]!r}; file exists {f.exists()}"))
 
 
+# ---- the disc's streamed audio on the real path ----
+
+STREAM_ORDER = [0, 1, "b", 2, 3, "b", 4, 5, "b", 6, 7, "b"]   # the made-up stream: 8 sectors of channel 3 (played), 4 of channel 4 (the filter lets them go)
+
+
+def stream_disc(rig, fn, path):
+    """Write the made-up image: the game's program, then zero sectors up to AUDIO_LBA, then the stream. Returns the played sectors, in order."""
+    prog = program(G[fn])
+    img = L.Image({"SYSTEM.CNF;1": L.CNF, "SLPS_004.15;1": prog})
+    assert img.end <= AUDIO_LBA, f"the image ends at sector {img.end}, after the stream's start"
+    img.write(path)
+    raw = bytearray(path.read_bytes())
+    raw += bytes(2352 * (AUDIO_LBA - img.end))
+    played = []
+    for k, tag in enumerate(STREAM_ORDER):
+        if tag == "b":
+            raw += C.xa_sector(900 + k, channel=4)
+        else:
+            sec = C.xa_sector(800 + tag)
+            played.append(sec)
+            raw += sec
+    path.write_bytes(bytes(raw))
+    return played
+
+
+def chip_out(frames):
+    """What the model's mixer makes of CD frames with the registers the game sets (CD input on, volumes 0x7fff, main volume 0x3fff, no voice,
+    no reverb), by the sums in PsyZ's psyz_spu.c: (cd * 0x7fff) >> 15, then (sum * 0x3fff) >> 14, clamped to 16 bits."""
+    def one(v):
+        a = (v * 0x7fff) >> 15
+        return max(-32768, min(32767, (a * 0x3fff) >> 14))
+    return [(one(l), one(r)) for l, r in frames]
+
+
+def nm_of(rig):
+    cc = rig.cc
+    return cc[:-3] + "nm" if cc.endswith("gcc") else "nm"
+
+
+def stream_cases(rig, work):
+    NI = "--no-interrupt"
+    L.VARIANTS["audio"] = Variant("audio", GAME_C, FUN, ABS_BASE + ABS, VARIANT_C["audio"])
+
+    def go(fn, args, tag):
+        disc = work / f"{tag}.bin"
+        played = stream_disc(rig, fn, disc)
+        exe = rig.program_for("audio", program(G[fn]))
+        status, out = rig.start(exe, [*args, rig.native(disc)], 120)
+        return status, out.replace("\r\n", "\n").splitlines(), played
+
+    for fn, vol, label in (("a_xa", (128, 0, 128, 0), "unity"), ("a_xa_half", (64, 0, 64, 0), "half"), ("a_xa_mixed", (100, 30, 90, 20), "mixed")):
+        f = work / f"x_{label}.wav"
+        f.unlink(missing_ok=True)
+        status, lines, played = go(fn, [NI, "--audio-dump", rig.native(f)], f"x_{label}")
+        want = C.volumes(C.expected_frames(played), vol)
+        mixed = chip_out(want)
+        n = len(want)
+        why = expect(rig, status, lines, 0, [], [f"sectors: played 8 held 0 refused 0 skipped 4 silent 0", f"frames: queued in all {n} pulled {n} in the queue 0", MAIN])
+        if why is None:
+            b = f.read_bytes()
+            data = b[44:]
+            frames = list(struct.iter_unpack("<hh", data[: len(data) // 4 * 4]))
+            first = next((i for i, fr in enumerate(frames) if fr != (0, 0)), None)
+            if first is None:
+                why = "the dump is all zero"
+            elif mixed[0] == (0, 0):
+                why = "the made-up stream starts with a silent frame, so the control cannot find its start"
+            elif frames[first:first + n] != mixed:
+                k = next((i for i in range(n) if first + i >= len(frames) or frames[first + i] != mixed[i]), None)
+                why = f"the dump differs from the expected frames at frame {k} of {n}: {frames[first + k] if k is not None and first + k < len(frames) else None} vs {mixed[k] if k is not None else None}"
+            else:
+                print("     %s: %d frames of the stream found in the dump at frame %d, all equal to the mixer's sums (tolerance 0); the dump holds %d frames" % (label, n, first, len(frames)), flush=True)
+                if any(fr != (0, 0) for fr in frames[first + n:]):
+                    why = "a frame after the stream's end is not zero"
+        yield f"the-streamed-audio-reaches-the-dump-as-the-reference-frames-through-the-volumes-({label})", why
+
+    status, lines, _ = go("a_xa", [NI], "x_nosink")
+    yield "with-no-sink-the-audio-sectors-are-consumed-in-silence-and-nothing-is-queued", expect(rig, status, lines, 0, [], ["sectors: played 0 held 0 refused 0 skipped 4 silent 8", "frames: queued in all 0 pulled 0 in the queue 0", MAIN])
+
+    # the link: exactly one definition of the function, and no other symbol of PsyZ's libcd object in the program
+    exe = rig.program_for("audio", program(G["a_xa"]))
+    nm = nm_of(rig)
+    prog = subprocess.run([nm, "--defined-only", str(exe)], capture_output=True, text=True, timeout=120)
+    arch = [x for x in rig.info["link"] if str(x).endswith("libpsyz.a")]
+    lib = subprocess.run([nm, "-A", "--defined-only", str(arch[0])], capture_output=True, text=True, timeout=120) if arch else None
+    why = None
+    if prog.returncode != 0 or lib is None or lib.returncode != 0:
+        why = "nm failed"
+    else:
+        defined = {l.split()[-1] for l in prog.stdout.splitlines() if len(l.split()) == 3}
+        mine = [l for l in prog.stdout.splitlines() if l.endswith(" T _Psyz_CdPullSamples") or l.endswith(" T Psyz_CdPullSamples")]
+        members = [l.split() for l in lib.stdout.splitlines() if "libcd.c" in l.split(":")[-2 if l.count(":") >= 2 else 0]]
+        names = {m[-1] for m in members if len(m) >= 2 and m[-2] in "TDBR"}
+        others = sorted(n for n in names if n not in ("_Psyz_CdPullSamples", "Psyz_CdPullSamples") and n in defined)
+        if len(mine) != 1:
+            why = f"{len(mine)} definitions of Psyz_CdPullSamples in the program"
+        elif len(names) < 10 or not any(n.endswith("Psyz_CdPullSamples") for n in names):
+            why = f"the control found {len(names)} global symbols in PsyZ's libcd object and did not find Psyz_CdPullSamples among them"
+        elif others:
+            why = f"symbols of PsyZ's libcd object are in the program: {others[:5]}"
+        else:
+            print("     one definition of Psyz_CdPullSamples; none of the other %d global symbols of PsyZ's libcd object is in the program" % (len(names) - 1), flush=True)
+    yield "the-program-has-one-definition-of-psyz-cdpullsamples-and-none-of-psyzs-libcd-object", why
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--cc", required=True)
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     parser.add_argument("--src", default=None, help="another copy of the runtime's folder")
-    parser.add_argument("--only", default="", help="run only the group of cases with this name (environment, dump, stop, killed, folder, write, device, nopsyz)")
+    parser.add_argument("--only", default="", help="run only the group of cases with this name (environment, dump, stop, killed, folder, write, device, stream, nopsyz)")
     parser.add_argument("--psyz-build", required=True, type=Path, help="a build folder of psyzbuild.py")
     args = parser.parse_args()
     if not shutil.which(args.cc):
@@ -525,7 +677,7 @@ def main() -> int:
             print("\n".join(rig.report()))
             failed += 1
         if total == 0:
-            print(f"no case matched --only {args.only!r}: the groups are environment, dump, stop, killed, folder, write, device, nopsyz")
+            print(f"no case matched --only {args.only!r}: the groups are environment, dump, stop, killed, folder, write, device, stream, nopsyz")
             return 2
         print(f"{failed} case(s) behaved wrongly" if failed else f"all {total} cases that ran behaved as required")
         return 1 if failed else 0
