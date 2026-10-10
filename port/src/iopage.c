@@ -60,8 +60,9 @@
  * The routine's address comes from the game and is checked at each call (port_target_check), not when it is registered.
  * With no routine registered a completion is dropped and counted.
  *
- * With --trace, at exit: one line with the faults served and the reads and writes of each cell, and one with the chip's and
- * the DMA's counts and the completions taken and how. */
+ * With --trace, at exit: three lines: that the page is closed, the faults served with the reads and writes of each cell, and
+ * the chip's and the DMA's counts with the completions taken and how. A run that is ended from outside (a time limit) does not
+ * reach its exit, so every 60 vblanks the counts line is written again, with the vblank it was taken at, when the counts changed. */
 #include "port.h"
 #include "mirror.h"
 
@@ -334,12 +335,33 @@ void port_iopage_deliver_claimed(void)
     }
 }
 
+static void counts_line(unsigned vblanks)
+{
+    char at[32];
+    at[0] = 0;
+    if (vblanks) snprintf(at, sizeof at, "at vblank %u: ", vblanks);
+    port_trace_line("iopage: %schip %u reads %u writes; dma %u reads %u writes; %u transfers, %u bytes to the chip, %u bytes from the chip; completions %u taken (poll %u, timer %u, vblank %u), %u dropped without a routine",
+                    at, chip_reads, chip_writes, dma_reads, dma_writes, transfers, bytes_to_chip, bytes_from_chip, taken[1] + taken[2] + taken[3], taken[1], taken[2], taken[3], dropped);
+}
+
+static int tracing;
+static unsigned vblanks_seen, last_sum;
+
+/* Called by kernel.c once per vblank, on the game's thread. */
+void port_iopage_vblank(void)
+{
+    unsigned sum = chip_reads + chip_writes + dma_reads + dma_writes + transfers + taken[1] + taken[2] + taken[3] + dropped;
+    vblanks_seen++;
+    if (!tracing || vblanks_seen % 60 != 0 || sum == last_sum) return;
+    last_sum = sum;
+    counts_line(vblanks_seen);
+}
+
 static void report(void)
 {
     port_trace_line("iopage: %u faults served; 0x%08x %u reads %u writes, 0x%08x %u reads %u writes, 0x%08x %u reads %u writes", faults,
                     cell_addr[0], cell_reads[0], cell_writes[0], cell_addr[1], cell_reads[1], cell_writes[1], cell_addr[2], cell_reads[2], cell_writes[2]);
-    port_trace_line("iopage: chip %u reads %u writes; dma %u reads %u writes; %u transfers, %u bytes to the chip, %u bytes from the chip; completions %u taken (poll %u, timer %u, vblank %u), %u dropped without a routine",
-                    chip_reads, chip_writes, dma_reads, dma_writes, transfers, bytes_to_chip, bytes_from_chip, taken[1] + taken[2] + taken[3], taken[1], taken[2], taken[3], dropped);
+    counts_line(0);
 }
 
 int port_iopage_init(int trace, char *err, size_t errsize)
@@ -357,6 +379,7 @@ int port_iopage_init(int trace, char *err, size_t errsize)
 #ifdef PORT_HAVE_PSYZ
     Psyz_SpuInit();
 #endif
+    tracing = trace;
     if (trace) {
         port_trace_line("iopage: the I/O page 0x%08x..0x%08x closed", IO_BASE, IO_END - 1);
         atexit(report);

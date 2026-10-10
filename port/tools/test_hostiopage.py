@@ -91,9 +91,9 @@ extern unsigned host_io_read(void);
 CASES: list[dict] = []   # name, function, lines (before the end), end: None (main returned) or a regex of the stop line, status, args
 
 
-def case(name, fn, lines, stop=None, status=None, args=None, after=None, psyz=False, counts=None, no_psyz=False):
+def case(name, fn, lines, stop=None, status=None, args=None, after=None, psyz=False, counts=None, no_psyz=False, periodic=None):
     """counts: a regex that the second `iopage:` line of the trace (the chip's, the DMA's and the completions' counts) must match as a whole."""
-    CASES.append(dict(name=name, fn=fn, lines=lines, stop=stop, status=status if status is not None else (0 if stop is None else 10), args=args or [], after=after, psyz=psyz, counts=counts, no_psyz=no_psyz))
+    CASES.append(dict(name=name, fn=fn, lines=lines, stop=stop, status=status if status is not None else (0 if stop is None else 10), args=args or [], after=after, psyz=psyz, counts=counts, no_psyz=no_psyz, periodic=periodic))
 
 
 def le(addr: int) -> str:
@@ -405,8 +405,8 @@ def pfunc(name: str, body: str) -> str:
     return func(name, body, psyz=True)
 
 
-def pcase(name, fn, lines, stop=None, status=None, args=None, counts=None):
-    case(name, fn, lines, stop, status, args, psyz=True, counts=counts)
+def pcase(name, fn, lines, stop=None, status=None, args=None, counts=None, periodic=None):
+    case(name, fn, lines, stop, status, args, psyz=True, counts=counts, periodic=periodic)
 
 
 COMP = r"completions %s taken \(poll %s, timer %s, vblank %s\), %s dropped without a routine"
@@ -841,6 +841,16 @@ pcase("with-trace-the-chips-and-dmas-counts-and-the-completions-are-one-line-at-
       counts=r"iopage: chip 1 reads 2 writes; dma 3 reads 3 writes; 1 transfers, 64 bytes to the chip, 0 bytes from the chip; " + COMP % (1, 1, 0, 0, 0))
 
 
+# a run that is ended from outside does not reach its exit: every 60 vblanks the counts line is written again when the counts changed
+pfunc("p_trace_periodic", r'''
+    vblank_on(vb_handler);
+    W16(0x1f801d84u, 0x1111u);
+    { unsigned long n = 0; unsigned t0 = us_now(); while (vb_count < 65 && !((++n & 0xfffffu) == 0 && us_now() - t0 > 6000000u)) { } }
+    SAY("vblanks passed: %d\n", vb_count >= 65);''')
+pcase("with-trace-the-counts-are-written-again-at-the-60th-vblank-when-they-changed", "p_trace_periodic", ["vblanks passed: 1"],
+      args=["--trace", "--trace-file", "@TRACE"], periodic=r"iopage: at vblank 60: chip 0 reads 1 writes; dma 0 reads 0 writes; 0 transfers, 0 bytes to the chip, 0 bytes from the chip; " + COMP % (0, 0, 0, 0, 0))
+
+
 DOMAINS = L.DOMAINS_NONE + r"""
 unsigned host_io_read(void) { return *(volatile unsigned *)0x1f801014; }
 """
@@ -929,16 +939,22 @@ def launch(rig: L.Rig, only: str, psyz: bool, not_run: list[str]):
         s = f"start: 0x{G[c['fn']]:08x}"
         body = lines[lines.index(s) + 1:] if s in lines else lines
         why = check(status, body, c["status"], c["lines"], c["stop"])
-        if why is None and c["counts"] is not None:
+        if why is None and (c["counts"] is not None or c["periodic"] is not None):
             tl = trace.read_text().splitlines() if trace.exists() else []
             io = [l for l in tl if l.startswith("iopage:")]
-            if len(io) != 3 or io[0] != "iopage: the I/O page 0x1f801000..0x1f801fff closed":
+            per = [l for l in io if l.startswith("iopage: at vblank")]   # the counts line that is written every 60 vblanks
+            io = [l for l in io if l not in per]
+            if c["periodic"] is not None and (len(per) != 1 or not re.fullmatch(c["periodic"], per[0])):
+                why = f"the trace has the periodic lines {per!r}, wanted one that matches {c['periodic']!r}"
+            elif c["counts"] is None:
+                pass
+            elif len(io) != 3 or io[0] != "iopage: the I/O page 0x1f801000..0x1f801fff closed":
                 why = f"the trace has the iopage lines {io!r}, wanted three, the first the one that says the page is closed"
             elif not re.fullmatch(c["counts"], io[2]):
                 why = f"the counts line {io[2]!r} does not match {c['counts']!r}"
         if why is None and c["fn"] == "i_trace":
             tl = trace.read_text().splitlines() if trace.exists() else []
-            io = [l for l in tl if l.startswith("iopage:")]
+            io = [l for l in tl if l.startswith("iopage:") and not l.startswith("iopage: at vblank")]
             why = verdict(io, ["iopage: the I/O page 0x1f801000..0x1f801fff closed",
                                "iopage: 7 faults served; 0x1f801014 2 reads 1 writes, 0x1f8010f0 2 reads 1 writes, 0x1f8010f4 1 reads 1 writes",
                                "iopage: chip 0 reads 0 writes; dma 0 reads 0 writes; 0 transfers, 0 bytes to the chip, 0 bytes from the chip; "

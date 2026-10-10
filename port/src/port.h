@@ -236,6 +236,7 @@ int  port_iopage_read(unsigned addr, unsigned size, unsigned *value, char *why, 
 int  port_iopage_check_write(unsigned addr, unsigned size, char *why, size_t whysize);
 int  port_iopage_write(unsigned addr, unsigned size, unsigned value, char *why, size_t whysize);
 void port_iopage_served(void);
+void port_iopage_vblank(void);   /* kernel.c, once per vblank: with --trace, the counts line every 60 vblanks when the counts changed */
 void port_iopage_poll(void);
 void port_iopage_deliver(void);
 int  port_iopage_claim_due(void);

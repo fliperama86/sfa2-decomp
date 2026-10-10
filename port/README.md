@@ -1495,7 +1495,7 @@ and through each setting a linker might not honour. On 2026-10-10 the
 file ended with `all cases behaved as required` and had printed
 `timing: 10000 served reads took 75730 us (7.57 us each)` and
 `timing walk: real addresses 3 us, low view 60587 us`.
-`python3 port/tools/test_hostiopage.py --cc CC` has the cases for the
+`python3 port/tools/test_hostiopage.py --cc CC --psyz-build DIR` has the cases for the
 I/O page, on the same rig as `test_hostmirror.py` (it imports its helpers
 from `test_hostlaunch.py`): the page is closed at start (asked of the
 system) and the bytes around it are plain memory; each cell reads 0,
@@ -1508,10 +1508,19 @@ model, the first and last byte of the page, a word that straddles an end
 of the page, a form that is not served, an execute fault, a read by the
 runtime's own code and reads and writes from a second thread); the
 mirror's served read and write and its crash line in the same program; and
-the `--trace` line. Each case lists the lines it must print and the
+the `--trace` lines. Each case lists the lines it must print and the
 status it must end with, and a missing line, a line more, another status
 or a death after the right line is a failure. The cases of the check
-itself are the first ones. The native part of `test_hostmirror.py` has the
+itself are the first ones. With `--psyz-build DIR` (a build folder of
+`psyzbuild.py`) the runtime's `iopage.c` is compiled for PsyZ, every
+program is linked with it, and the cases of the sound chip, DMA channel 4,
+the completion and the three services run (the file's header lists them);
+the made-up runtime has two small routines of its own where a mixer would
+be, one that pulls frames out of PsyZ's model and counts the samples that
+are not zero and one that reads a byte of the chip's RAM, and no audio
+device is opened. Without `--psyz-build` those cases are printed as
+`NOT RUN` with their names and the status is 3. The review command hands
+the file the folder. The native part of `test_hostmirror.py` has the
 decision for the page and the two questions the handler asks of a decoded
 instruction.
 
@@ -1632,16 +1641,58 @@ that writes gives it to the model after, one that does both (`add` to
 memory) does both. A write is checked before the instruction is carried
 out, so a refused one changes no register and no state.
 
-The models are three cells, each 32 bits wide, each reading back what was
-last written and 0 at start: `0x1f801014`, `0x1f8010f0` and `0x1f8010f4`
-(by the console's hardware documentation the sound chip's access timing,
-the DMA control register and the DMA interrupt register; no test here
-shows what they are). They are the ones the sound library writes when it
-starts; they are cells and nothing more, and nothing reads them for an
-effect.
+The models are three cells, the sound chip, and DMA channel 4.
 
-What stops. An access of another width to a cell, an access that covers
-part of a cell, an access to any other address of the page, an access
+Three cells, each 32 bits wide, each reading back what was last written
+and 0 at start: `0x1f801014`, `0x1f8010f0` and `0x1f8010f4` (by the
+console's hardware documentation the sound chip's access timing, the DMA
+control register and the DMA interrupt register; no test here shows what
+they are). They are the ones the sound library writes when it starts;
+they are cells and nothing more, and nothing reads them for an effect.
+
+The sound chip, `0x1f801c00` to `0x1f801dff`, in a build with PsyZ only.
+A 16-bit read or write at an even address goes to PsyZ's model of the
+chip (`Psyz_SpuRead` and `Psyz_SpuWrite` with the offset from
+`0x1f801c00`), between `Psyz_AudioLock` and `Psyz_AudioUnlock`. The lock
+costs nothing here: in PsyZ's `src/platform/sdl3_audio.c` the mutex is
+created by `Psyz_AudioInit` and both routines do nothing while it does
+not exist, and this program opens no audio device in this version.
+`Psyz_SpuInit` runs once at start, before the first access. PsyZ's model
+keeps what is written to a register and gives it back, makes a write to
+the key-on registers start the voices, and gives the status register as
+the low six bits of the control register; those three are what the
+controls show. Without PsyZ the chip has no model and its addresses stop
+as they did.
+
+DMA channel 4, `0x1f8010c0` (address), `0x1f8010c4` (block control) and
+`0x1f8010c8` (control), 32 bits, in a build with PsyZ only. Each reads
+back what was written, but bit 24 of the control reads clear after a
+transfer. A write to the control with bit 24 set is a transfer of
+(block control >> 16) x (block control & 0xffff) x 4 bytes, done at
+once: with bit 0 of the control set from RAM to the chip's RAM
+(`Psyz_SpuFifoWriteBulk` at the chip's transfer address), clear from the
+chip's RAM to RAM (`Psyz_SpuMemRead` at that address, then the address
+moved on). The sound library starts its transfers with `0x01000201`
+(to the chip) and `0x01000200` (from it) in `_spu_t` (`libspu/spu_p2.c`).
+What the model does not trust, each ending the program with a line that
+carries the values: an address whose top byte is not `0x00` or `0x80`; a
+span that does not lie wholly in the 2 MB of RAM (the sum is made in 64
+bits); a block control with a zero half; a span longer than the chip's
+512 KB of RAM (PsyZ's bulk routines wrap once and would write past their
+memory; this check is mine, the console's behaviour there was not
+looked up); and a start while the completion of the last transfer is
+still pending. The library does not start one while another is pending:
+`SpuIsTransferCompleted` (`libspu/s_itc.c`) polls the event of the
+completion with `TestEvent`, and `SpuClearReverbWorkArea`
+(`libspu/s_crwa.c`) calls `WaitEvent` after each start. The checks are
+made when the control is written, before the model changes; the
+instruction has been carried out on its temporary value by then. Other
+DMA channels stay stops.
+
+What stops. An access of another width to a register (a chip register
+takes 16 bits, a cell and a DMA register 32), a 16-bit access at an odd
+address of the chip, an access that covers part of a cell or a DMA
+register, an access to any other address of the page, an access
 that begins inside the page and ends outside it, one from another thread
 or from code that is not the game's, an execute fault in the page, and an
 instruction the decoder does not serve, each end the program with
@@ -1652,14 +1703,86 @@ stop: crash: the game used the PS1's I/O page at 0xADDRESS (read|write) in NAME 
 
 with the mirror's exit status for a crash (10 in the controls). The mirror's lines
 for `0` to `0x1fffff` are unchanged. With `--trace` the program writes,
-at exit, one line to the trace file with the faults served and the reads
-and writes of each cell, and no line per access.
+at exit, three lines to the trace file: that the page is closed, the
+faults served with the reads and writes of each cell, and the counts of
+the chip, of DMA (transfers and bytes each way) and of the completions
+(taken by each way, dropped), and no line per access.
 
-What is not there yet: the sound chip's registers (`0x1f801c00` to
-`0x1f801dff`), the DMA registers (`0x1f8010c0` to `0x1f8010c8`), the
-completions, and any sound. All of them end the program with the line
-above. `python3 port/tools/test_hostiopage.py --cc CC` has the cases
-(see "Controls").
+`python3 port/tools/test_hostiopage.py --cc CC --psyz-build DIR` has the
+cases (see "Controls"). Without `--psyz-build` the cases of the chip, DMA
+and the completion are listed as not run, by name, and the status is 3.
+
+### The completion of a transfer
+
+After a transfer a completion is pending. It is delivered by calling the
+routine that the library registered with `DMACallback(4, routine)`
+(`_spu_FiDMA`, `libspu/spu_p2.c`, which then calls `DeliverEvent` for the
+event that `WaitEvent` and `TestEvent` look at). It runs on the game's
+thread, never from the fault handler, and never inside a handler of the
+game or between `EnterCriticalSection` and `ExitCriticalSection`: the
+vblank's rules, by the same variables of `kernel.c`. It is taken exactly
+once, by whichever of three comes first:
+
+1. The first poll of the game after the transfer's start: `port_tick`
+   and so `TestEvent`, `WaitEvent`, `VSync` and the others that tick.
+   There is no delay.
+2. The timer thread, which redirects the game's thread as it does for a
+   vblank (`interrupt.c` is unchanged: `port_interrupt_take` in
+   `kernel.c` also claims the completion, and the interruption routine
+   delivers it before the vblank). Not before a due time: the start plus
+   13 ticks of the console's clock (33,868,800 a second) per byte. That
+   figure is not verified. It is the top level's memory of an emulator's
+   constant (26 ticks per 16-bit word), from the header of the private
+   trial's `iopage.c`; no source of this repository gives it. It sets
+   only how long the timer waits, about 0.8 ms for a sector of 2,048
+   bytes.
+3. The vblank's delivery, before the vblank's own handlers.
+
+Why the poll has no delay and the timer has one. A poll is a call that
+the game makes later, never the instructions that follow the start, so
+there is nothing to keep the completion from coming before: and a due
+time in real time ties the completion to the speed of the machine, where
+the game's progress is what its code waits on. The private trial that
+this follows saw a game that waits for the completion take 2 to 8 ms on a
+busy machine where the console takes 0.8 ms of its own clock. The timer
+is the way for a game that does not poll, and there a due time in real
+time is the stand-in for the console's clock. The vblank has no due time
+either: it is a moment of the game's progress, like a poll. A
+consequence the controls show: a vblank that the timer delivers while a
+long transfer is pending takes the completion before its due time.
+
+The routine's address comes from the game. It is checked at each call
+as an interrupt callback is (`port_target_check`), not when it is
+registered: a routine outside the game's code ends the program with the
+`refused: dma callback 0xADDRESS is not a function this program
+installed` line (status 12). With no routine registered, a completion is
+dropped and counted (the `--trace` line says how many).
+
+### The services
+
+Three library calls that the sound library makes are served by
+`kernel.c` and `iopage.c`, each as small as the library's use needs:
+
+- `DMACallback(channel, routine)` (channels 0 to 6; another channel
+  changes nothing and returns 0): keeps the routine, returns the previous
+  one, as `InterruptCallback` does. Only channel 4 is ever raised.
+  Reached by `_SpuDataCallback` (`libspu/s_dcb.c`), which `_SpuInit`
+  (`libspu/s_ini.c` line 35) calls with `_spu_FiDMA` and `SpuQuit`
+  (`libspu/s_q.c` line 15) with 0. The disc library's `CdDataCallback`
+  (`libcd/sys_p3.c`) would call it with channel 3; that is kept and never
+  raised.
+- `DeliverEvent(class, spec)`: the runtime's existing delivery, as a
+  library call. Reached by `_spu_FiDMA` (`libspu/spu_p2.c` line 204) when
+  no transfer callback is set; the disc library's callbacks
+  (`libcd/event.c`) call it too.
+- `WaitEvent(event)`: waits until the event is ready, passing the frame
+  clock (so the completion and the vblank are delivered meanwhile),
+  marks the event enabled again and returns 1; a closed or disabled
+  event or a bad descriptor returns 0 at once. It is not bounded, as on
+  the console: called inside a handler or a critical section for an event
+  that nothing can deliver, it does not return. Reached by
+  `SpuClearReverbWorkArea` (`libspu/s_crwa.c` line 52), after each start
+  of a transfer.
 
 What is not there. A program built with the option does not get far. In
 one-off starts with the disc (a private input, 25 seconds, not on a
