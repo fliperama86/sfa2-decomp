@@ -7922,6 +7922,31 @@ No function count changes here: none of this is in the build.
   changes of the new code, all noticed after cases were added for two
   (a scratchpad exemption of 16 bytes, a name lookup shifted by one).
 
+## Nonmatching C for stage functions, second batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: 14 more functions of the stage modules, which makes 29 in
+  `ps1/src/slot06_nonmatching/`. The folder's page holds the test's
+  lines for all 29, and for the first time the write audit's: in no
+  case of either seed does the original of any of them change memory
+  that its setup did not make. One-off observation from the private
+  trial of the port, whose tree held these 29: its build listed no
+  function of a stage module without C other than three inventory rows
+  that are not functions.
+- One original function draws at a position it never set, in a case
+  that its own code does not handle (whatever two registers held on
+  entry, one of them a register of its caller); its relatives in other
+  stages do the same. No C states that. The C leaves the two variables
+  unset there, as the original's source most likely did (inferred), the
+  contract excludes the case, and the header says so. It is in the
+  object-drawing functions of six stage files (01, 03, 04, 0d, 0f and
+  10); one-off count, read from their headers. For the port it means a
+  PC build draws at other garbage there than the console did, if the
+  game ever reaches the case.
+- These six had a struct of their own for the records they fill; they
+  use the tree's `Slot06Tile` now, as the first function does.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

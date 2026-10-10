@@ -264,6 +264,34 @@ func_801e98c8_slot06_0c: built 136 bytes, original 148 bytes; cases 2000, discar
 func_801e98c8_slot06_0c coverage: 36 of 37 instruction slots of the original executed
 func_801e98dc_slot06_07: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e98dc_slot06_07 coverage: 36 of 37 instruction slots of the original executed
+func_801e9970_slot06_07: built 768 bytes, original 768 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9970_slot06_07 coverage: 190 of 192 instruction slots of the original executed
+func_801e998c_slot06_0d: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e998c_slot06_0d coverage: 36 of 37 instruction slots of the original executed
+func_801e99b4_slot06_04: built 744 bytes, original 812 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e99b4_slot06_04 coverage: 200 of 203 instruction slots of the original executed
+func_801e99c8_slot06_02: built 828 bytes, original 860 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e99c8_slot06_02 coverage: 212 of 215 instruction slots of the original executed
+func_801e9b54_slot06_08: built 744 bytes, original 744 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9b54_slot06_08 coverage: 184 of 186 instruction slots of the original executed
+func_801e9bb0_slot06_0f: built 784 bytes, original 800 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9bb0_slot06_0f coverage: 197 of 200 instruction slots of the original executed
+func_801e9c80_slot06_0e: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9c80_slot06_0e coverage: 36 of 37 instruction slots of the original executed
+func_801e9d04_slot06_03: built 652 bytes, original 672 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9d04_slot06_03 coverage: 166 of 168 instruction slots of the original executed
+func_801e9d14_slot06_0e: built 952 bytes, original 1060 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9d14_slot06_0e coverage: 262 of 265 instruction slots of the original executed
+func_801e9ef4_slot06_10: built 636 bytes, original 724 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9ef4_slot06_10 coverage: 178 of 181 instruction slots of the original executed
+func_801e9f20_slot06_0d: built 768 bytes, original 788 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9f20_slot06_0d coverage: 194 of 197 instruction slots of the original executed
+func_801e9f90_slot06_01: built 628 bytes, original 648 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801e9f90_slot06_01 coverage: 160 of 162 instruction slots of the original executed
+func_801ea3b4_slot06_08: built 180 bytes, original 180 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801ea3b4_slot06_08 coverage: 45 of 45 instruction slots of the original executed
+func_801ea640_slot06_0c: built 780 bytes, original 780 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801ea640_slot06_0c coverage: 193 of 195 instruction slots of the original executed
 ```
 
     python difftest.py --config ../build.toml --cases 2000 --control --all
@@ -299,6 +327,34 @@ func_801e98c8_slot06_0c control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
 func_801e98dc_slot06_07 control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
+func_801e9970_slot06_07 control: different 1804 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 181
+func_801e998c_slot06_0d control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e99b4_slot06_04 control: different 1788 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 176
+func_801e99c8_slot06_02 control: different 1805 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 194
+func_801e9b54_slot06_08 control: different 1794 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 176
+func_801e9bb0_slot06_0f control: different 1825 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 183
+func_801e9c80_slot06_0e control: different 2000 of 2000 (expected more than 0)
+  altered: low half stored at field_04, instruction slot 10
+func_801e9d04_slot06_03 control: different 1787 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 151
+func_801e9d14_slot06_0e control: different 1803 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 226
+func_801e9ef4_slot06_10 control: different 1793 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 148
+func_801e9f20_slot06_0d control: different 1804 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 179
+func_801e9f90_slot06_01 control: different 1788 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 147
+func_801ea3b4_slot06_08 control: different 1609 of 2000 (expected more than 0)
+  altered: field_54 store moved by four bytes, instruction slot 36
+func_801ea640_slot06_0c control: different 1663 of 2000 (expected more than 0)
+  altered: record counter store moved by two bytes, instruction slot 183
 ```
 
     python difftest.py --config ../build.toml --cases 2000 --writes --all
@@ -319,6 +375,20 @@ func_801e9798_slot06_06 writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801e9840_slot06_09 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e98c8_slot06_0c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e98dc_slot06_07 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9970_slot06_07 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e998c_slot06_0d writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e99b4_slot06_04 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e99c8_slot06_02 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9b54_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9bb0_slot06_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9c80_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9d04_slot06_03 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9d14_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9ef4_slot06_10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9f20_slot06_0d writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801e9f90_slot06_01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801ea3b4_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_801ea640_slot06_0c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
