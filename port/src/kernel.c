@@ -39,6 +39,12 @@ static unsigned long long now_us(void)
 #endif
 }
 
+/* The one clock, in microseconds (the completion of a transfer, iopage.c, is due by it). */
+unsigned long long port_now_us(void)
+{
+    return now_us();
+}
+
 static void sleep_us(unsigned long long us)
 {
 #ifdef _WIN32
@@ -185,6 +191,28 @@ void port_deliver_event(unsigned event_class, unsigned spec)
         }
         else e->status = EV_READY;
     }
+}
+
+/* BIOS B0 07h DeliverEvent(class, spec) as a library call. The sound library's _spu_FiDMA (libspu/spu_p2.c) calls it with
+ * the chip's event when it has no transfer callback; the disc library's callbacks (libcd/event.c) call it too. */
+void port_h_DeliverEvent(unsigned event_class, unsigned spec);
+void port_h_DeliverEvent(unsigned event_class, unsigned spec)
+{
+    port_deliver_event(event_class, spec);
+}
+
+/* BIOS B0 0Ah WaitEvent(ev): waits until the event is ready, marks it enabled again and returns 1; a closed or a disabled
+ * event, or a bad descriptor, returns 0 at once. The wait is the game's own: it passes the frame clock (port_tick), where a
+ * transfer's completion and the vblank are delivered. It is not bounded, as on the console; the sound library's
+ * SpuClearReverbWorkArea (libspu/s_crwa.c) calls it after each start of a transfer. */
+int port_h_WaitEvent(unsigned ev);
+int port_h_WaitEvent(unsigned ev)
+{
+    struct event *e = event_of(ev);
+    if (!e || e->status == EV_DISABLED) return 0;
+    while (e->status != EV_READY) port_tick();
+    e->status = EV_ENABLED;
+    return 1;
 }
 
 /* ---- critical sections ---- */
@@ -426,6 +454,7 @@ void port_h_VSyncCallback(void (*handler)(void))
 static void deliver_vblank(void)
 {
     port_handler_depth++;
+    port_iopage_deliver();   /* the completion of a transfer that is pending, before the vblank's own handlers */
     if (irq0_enabled) port_deliver_event(0xf2000003u, 2);
     if (callbacks_active) {
         if (irq_handler[0]) {
@@ -495,17 +524,31 @@ int port_interrupt_allowed(void)
 }
 
 /* The timer thread's step: with the game's thread suspended at a place where an interruption is allowed, take
- * the vblank if one is due. 1: taken (the caller redirects the thread to the interruption routine). */
+ * the vblank if one is due, and claim the completion of a transfer if its due time has passed (iopage.c). Nonzero: something
+ * was taken (the caller redirects the thread to the interruption routine, which delivers what was taken). The timer thread
+ * only reads the clock and sets flags here. */
+static volatile int vblank_for_work;   /* the timer took a vblank: the interruption routine runs it */
 int port_interrupt_take(void)
 {
-    return take_vblank(now_us());
+    int taken = 0;
+    if (take_vblank(now_us())) {
+        vblank_for_work = 1;
+        taken = 1;
+    }
+    if (port_iopage_claim_due()) taken = 1;
+    return taken;
 }
 
-/* The interruption routine's C part (interrupt.c's assembly calls it on the game's thread). */
+/* The interruption routine's C part (interrupt.c's assembly calls it on the game's thread): the completion that the timer
+ * claimed first, then the vblank if the timer took one. */
 void port_interrupt_work(void);
 void port_interrupt_work(void)
 {
-    run_vblank();
+    port_iopage_deliver_claimed();
+    if (vblank_for_work) {
+        vblank_for_work = 0;
+        run_vblank();
+    }
 }
 
 void port_clock_start(void)
@@ -518,6 +561,7 @@ void port_tick(void)
     unsigned long long now;
 
     if (port_handler_depth || vblank_in_progress) return;
+    if (interrupts_enabled) port_iopage_poll();   /* the first poll after a transfer's start takes its completion, with no delay */
     now = now_us();
     if (vblanks_taken >= vblanks_due(now)) {
         unsigned long long next = clock_start_us + (unsigned long long)(vblanks_taken + 1) * FRAME_US;
@@ -574,6 +618,9 @@ const struct port_library port_kernel_library[] = {
     { "DisableEvent", (void *)port_h_DisableEvent, NULL },
     { "CloseEvent", (void *)port_h_CloseEvent, NULL },
     { "TestEvent", (void *)port_h_TestEvent, NULL },
+    { "DeliverEvent", (void *)port_h_DeliverEvent, NULL },
+    { "WaitEvent", (void *)port_h_WaitEvent, NULL },
+    { "DMACallback", (void *)port_h_DMACallback, NULL },
     { "EnterCriticalSection", (void *)port_h_EnterCriticalSection, NULL },
     { "ExitCriticalSection", (void *)port_h_ExitCriticalSection, NULL },
     { "func_8015764c", (void *)port_h_SetRCnt, NULL },

@@ -1644,7 +1644,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         obj = build / "rt" / f"{source.stem}.o"
         obj.unlink(missing_ok=True)
         extra: list[str] = []
-        if psyz and source.name in ("gpu.c", "input.c"):
+        if psyz and source.name in ("gpu.c", "input.c", "iopage.c"):
             extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
         if args.sound_library and source != tables_path:
             extra.append("-DPORT_SOUND_LIBRARY_C")
