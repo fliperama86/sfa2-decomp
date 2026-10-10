@@ -148,7 +148,8 @@
  *    not hold, or one that delivered a sector, begins the count again.
  *  - Not guarded: the blocking wait of the game (CdReady with mode 0): that is the game asking for a sector. Its own delivery
  *    does not count as a held vblank and does not end a run of held ones.
- *  - The counts (checks, vblanks held, forced rows, the largest fill seen) go to the trace's last line.
+ *  - The counts (checks, vblanks held, forced rows, the largest fill seen) go to the trace's last line. A run ended from outside
+ *    prints no last line, so the trace also gets one line each time a run of held vblanks ends.
  * Why (one-off private runs of a trial, not a test): every lost lap fell where the ring's fill had reached 6; with every vblank's
  * sectors read in time the largest fill was 3; with this guard, a full trace and four busy processes, 8 loads of 294 sectors each
  * completed, the largest fill was 4, the guard held 2 vblanks and forced none.
@@ -927,6 +928,8 @@ void port_cd_tick(void)
             cd.guard_run++;
             cd.guard_held++;
         } else {
+            if (cd.guard_run)   /* the run ends: a trace shows each one, so that a run ended from outside (no last line) still has its counts */
+                port_trace_line("cd: the ring guard held %u vblanks in a row, then a row was delivered (frame %u, largest fill so far %u)", cd.guard_run, port_frames(), cd.guard_max);
             cd.guard_run = 0;
         }
     }

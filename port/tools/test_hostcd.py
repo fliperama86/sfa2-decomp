@@ -1068,6 +1068,9 @@ def guard_cases(root: Path, exe: Path):
     # after the forced row (2 sectors, carry 1): 30 more held (carry 0, 1, ..., ends at 1), the next forced gives (1 + 5) / 2 = 3
     yield check("the count of held vblanks starts again after a forced row: 30 more held, then forced again (3 sectors), 2 lines",
                 rc == 0 and v == [0] * 30 + [2] + [0] * 30 + [3] and len(forced) == 2, f"{rc} {v} {len(forced)}")
+    runs = [l for l in err if l.startswith("T cd: the ring guard held ")]
+    yield check("the trace gets a line when a run of held vblanks ends: two runs of 30, with the frame (31 and 62) and the largest fill 4",
+                len(runs) == 2 and "held 30 vblanks in a row" in runs[0] and "frame 31" in runs[0] and "frame 62" in runs[1] and "largest fill so far 4" in runs[1], f"{runs}")
     yield check("the trace's last line: held 60, forced 2, largest fill 4",
                 any(l.startswith("T cd: the ring guard looked") and "held 60 vblanks, forced 2 rows, largest fill 4" in l for l in err), f"{err}")
     # a vblank that is not held ends the run: 29 held, one free (fill 3), 29 held: no forced row
