@@ -9650,3 +9650,177 @@ No function count changes here: none of this is in the build.
   for byte; the mode on `func_8012fd80` of the resident folder (its
   reach constant is noticed both ways with the corrected setup).
 - Not done: no contract was changed for the unnoticed lines.
+
+## The last two module functions without C, and three overrides that return the result (2026-10-10)
+
+- `func_800e0850_slot0f` and `func_800e0a1c_slot0f` (inferred: a save
+  and a load of a memory-card file) are nonmatching C in
+  `ps1/src/modules_nonmatching/`, with contracts and tests. Their C
+  came from the staging branch and was fitted to main: the headers
+  `protos.h` and `externs.h` are included; the data symbols follow
+  main's declarations (`u8 []` for `data_800df0f0_slot0f` and
+  `data_800df0f8_slot0f`, `u8 *` for `data_800e8504_slot0f`, with a
+  cast to the header record where the first function uses it); the
+  second parameter of `func_800e0850_slot0f` is `s16 *` as in main's
+  declaration in `slot0f_171c_r3.c`, cast to `char *` where it is the
+  name string; the calls of the three retry loops, defined `void` in
+  their exact units, go through a cast of the callee to a type that
+  returns the result, with a comment that says why. The contracts'
+  recorders of the retry loops answer whole words, and the values that
+  decide a test (-1, other negative words, 0, positive words, words
+  with a low byte or halfword of ones) are drawn often. The headers'
+  figures of the build were replaced by the byte counts that the
+  folder's first command prints (412 against 460, 276 against 300),
+  because the earlier sentences about registers could not be read off
+  the files. Lines on the folder's page, which is now in the form of
+  the resident folder's page: `different 0` on seeds 1 and 7 for both,
+  115 of 115 and 75 of 75 instruction slots executed, the control
+  (585 and 314 of 2,000 differ) and the write audit (`outside 0`).
+  The declarations check, run with the two files named, reports no
+  finding.
+- `port/overrides/` has three more: `func_800e11e4_slot0f`,
+  `func_800e1250_slot0f`, `func_800e12cc_slot0f`. Each is its unit's
+  exact C with the result of `open`, `read` or `write` returned. The
+  original's callers read the result register after the call
+  (`move s0,v0` at 0x800e0924, 0x800e0944, 0x800e0968 and 0x800e0adc;
+  `bltz v0` at 0x800e0b00; `bne v0,v1` at 0x800e09d4, read in the
+  listing of the module image), and on the console the register still
+  holds the library call's result, since no instruction between that
+  call's return and the function's `jr ra` writes it. Their tests use
+  recorders for the library call and for `func_8015fb30`, with a script
+  of results that ends the loop at the first try, at a later try and
+  never (0x78 tries). Lines on the folder's page: `different 0` on
+  seeds 1 and 7, built size equal to the original's (108, 124 and 124
+  bytes), all instruction slots executed, the control (the build
+  returns its result plus 1: 2,000 of 2,000 differ for each), the
+  write audit `outside 0`. The page has a second table for these three
+  and the sections "Testing one function" and "The recorded lines".
+- The port's build once (`hostbuild.py --list`): status 0, 0 failed,
+  `linked: ..., verified`, `functions overridden in C: 13` (the twelve
+  files of the folder, and the function of `slot04_0f` counted again
+  for its second placement in `slot05_0f`; the `slot0f` ones have none).
+  The two functions are not among the `absent:` lines; two remain, the
+  entry code (`func_80118908`) and `func_80120604`, which waits on its
+  own pull request. The build block of `port/README.md` is that run's.
+- Not shown: that the callers' reading of the result register is
+  all the original relies on (other callers of the three loops were
+  not searched); a gameplay or boot run; the exact units were not
+  touched, and the matching build was not run. The sentence in the
+  "Overrides in C" bullet of `port/README.md` that says what the
+  folder's functions have in common names only the argument kind and
+  was left as it was.
+
+## Nonmatching C for the four sound-library functions that had none (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Why: the owner made sound the port's next priority on 2026-10-10.
+  The game's own sound library is in the tree as exact C for 158 of
+  the 165 functions of the sound part of the executable (units of
+  `sdk/libsnd` and `sdk/libspu`; one-off count from `build.toml` and
+  `inventory/library.tsv`), and three more are game units. These four
+  were the gap: `_spu_init` (0x8016b788), `SpuVmAlloc` (0x8015ffc0),
+  `SpuVmSetVol` (0x80163794), `_SsContDataEntry` (0x80167388).
+- A new folder, `ps1/src/library_nonmatching/`, with the rules and the
+  test of the other nonmatching folders; a file is named by the
+  function's address and its header gives the library's name. Each
+  file includes only the game's three headers and declares the
+  library's variables and records itself, so that it compiles in the
+  port's public build, which does not have the SDK's headers.
+- Where each comes from, as the folder's page states: `func_8016b788`
+  and `func_80167388` were written by this project from the listing;
+  `func_8015ffc0` and `func_80163794` are adapted from the functions
+  of the same names in the reference that the SDK files come from
+  (another version of the library; MIT, the license line kept).
+- `_spu_init` works on the sound chip's registers. Its test has no
+  chip: the setup points the library's register pointers at plain
+  memory and presets the status word. The header says what that shows
+  and what it does not (the order of the stores is not compared; no
+  register that answers by itself is modelled; a wait that ends after
+  some polls is not reached).
+- `func_80167388`: 301 of 376 instruction slots executed; the header
+  names the two parts no input reaches (a loop behind a test that an
+  earlier test already excludes, and one arm of a computation whose
+  result is not used).
+- The tool: `difftest.py` looked a resident function's size up in
+  `inventory/game.tsv` only; it now looks in `game.tsv` and
+  `library.tsv` and wants the name in exactly one. Four cases in its
+  test.
+- `symbols.ld` gets two names that `_spu_init` needs (`D_80033514`,
+  `D_80033540`).
+- Ran, the four functions alone: the test and the write audit on
+  seeds 1 and 7, the control (the page has seed 1's lines); a
+  deliberate error or two per function and every comparison constant
+  plus one, each noticed (one-off runs); the tool's own tests; the
+  declarations check told to read the folder; the port's public build
+  (the four leave its list of functions without C: library 380
+  instead of 384, one-off comparison).
+- Not run: the repository's review command (a change of the test tool
+  makes it run every folder again; see `docs/efficiency.md`).
+
+## The program built from published code starts the game and plays (2026-10-10)
+
+- On 2026-10-10 the last functions that the PC program runs got C on
+  main (the game's `main`, its frame handler as an exact unit, the
+  player of sound command lists, the two functions of the title
+  module that write and read saved data, and thirteen overrides in C
+  under `port/overrides/`). The port's build of main at `e1b47e6`
+  says `functions without C: 385, library 384, game and modules 1`:
+  the one is the entry code, which the program does not run.
+- Three private runs that day, each one build from a checkout of
+  published code alone and one scripted run of 300 seconds with the
+  user's disc, without a window on screen. From main with the pull
+  request for `main` and the frame handler: the title screen, then
+  `stop: no C yet for func_80120604`. From main at `ca997f6`: no stop;
+  player select, a first fight, into a second. From main at
+  `e1b47e6`: the same, with `overrides in C: 13` and every module
+  line saying `0 without C`. No command of the repository can repeat
+  these runs (they need the user's disc); their lines are on the
+  port's page under "Running it", which had still shown the stop at
+  `main`.
+- What this does not show: that the game plays to its end, any mode
+  other than the one the script chose, sound (none: the sound
+  library's routines are stand-ins), the stand-alone programs of the
+  disc (skipped: the logo, and those of the attract sequence and of a
+  menu, for which no C exists), or any system but Windows.
+- Text changed with it: the port page's opening and "Running it", two
+  stale sentences there (an override that is no longer needed since
+  the mirror layer; the start line that the sample now has), the root
+  README's line on the port, and the current-state page.
+
+## Nonmatching C for two more functions of the sound library (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Why: a private trial of the port that runs the game's own sound
+  library as C (not published) stopped at `func_80166144`, which the
+  game calls to open a group of music sequences (`x07_r2.c`), and that
+  function calls the one at 0x80165d84. Neither had C. Both are rows
+  without a name in `inventory/library.tsv`.
+- The names are inferred, not original symbols: `SsSepOpen` for
+  `func_80166144` and `_SsInitSoundSep` for `func_80165d84`, from what
+  they do and from their twins for a single sequence, `SsSeqOpen` and
+  `_SsInitSoundSeq` of `sdk/libsnd/seqinit.c`.
+- Both were written by this project from the listing. The reference
+  that the SDK files come from has neither at its pinned commit (a
+  search of its `src/main/psxsdk` for the two names finds nothing).
+- `symbols.ld` gets one name, `func_80165d84`, which the C of the first
+  function calls. No unit of the build refers to it.
+- `func_80165d84`: 233 of 240 instruction slots executed. The seven
+  others are the guards the original has at its divisions (four breaks
+  for a zero divisor and the test for an overflowing quotient), which
+  the contract excludes; the header names them.
+- Ran, the two functions alone (about six seconds a run): the test and
+  the write audit on seeds 1 and 7 and the control (the page has seed
+  1's lines); deliberate errors, three in the first function and four
+  in the second, each noticed (one-off runs); the constant 60000000
+  plus one, which 1 case of 2,000 noticed at first and, after cases on
+  that edge were added to the setup, 166 on seed 1 and 157 on seed 7;
+  the declarations check told to read the folder; the name lint; the
+  port's public build (0 failed, and its count of library functions
+  without C went from 380 to 378: a one-off run on the head before
+  main was merged in).
+- Not run: the matching build and the other folders (the one added
+  name is new and nothing else refers to it); the repository's review
+  command, which plans the matching build and every folder for a
+  change of `symbols.ld` (see `docs/efficiency.md`).

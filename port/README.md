@@ -1,11 +1,15 @@
 # Port
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
-Linux. **The game does not run on any of them.** One thing runs since
-2026-10-09, on Windows: a program linked from the game's unchanged C that
-loads the game's program from a disc image and stops at the first function
-that has no C, which today is the game's `main`. It is described under
-"The host program" below. The library
+Linux. **The game does not run on macOS or Linux, and on Windows it is
+not shown to play to its end.** What runs since 2026-10-10, on Windows: a
+program linked from the game's unchanged C that starts the game from the
+user's disc image. In one scripted run of five minutes it went from the
+title through a first fight into a second. It has no sound, it skips the
+stand-alone programs of the disc (the logo is the first), and a function
+without C would end it with that function's name; the build counts one
+such function of the game, the entry code, which it does not run. It is
+described under "The host program" below. The library
 that is to replace Sony's passes its own tests on a runner of each. With GCC every
 one of its C units compiles on Linux and on Windows, and Apple's compiler
 on macOS refuses a few, in a trial that is described below. This folder
@@ -721,30 +725,34 @@ CC is a C compiler for 32-bit Windows, by default `i686-w64-mingw32-gcc`.
 The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
-`port/src/`. It reads no game file. Its output on 2026-10-10, for `ps1/` as
-it is in commit `3d2dd22`:
+`port/src/`. It reads no game file. Its output on 2026-10-10, for main as
+of commit `ca997f6` with the two functions and the three overrides that
+the same change added:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3829 compiled, 78 of them nonmatching, 0 failed
+units: 3907 compiled, 155 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12596
-functions overridden in C: 10
-functions without C: 475, library 384, game and modules 91
+functions with C: 12686
+functions overridden in C: 13
+functions without C: 385, library 384, game and modules 1
 sweep rows that are not functions: 11
-names at PS1 addresses: 46128
+names at PS1 addresses: 46284
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
 
 The functions and names of the second placements are in these counts,
-each under its own name. The ten of the line
-`functions overridden in C` are the nine functions of the folder
+each under its own name. The thirteen of the line
+`functions overridden in C` are the twelve functions of the folder
 [`overrides/`](overrides/README.md) (see "Overrides in C" below); the
 function of the character module `slot04_0f` is placed a second time in its
-`like` image `slot05_0f` and counted again. The
-program's start line `overrides in C: M` is not in the sample of
-"Running it", which was printed before that line existed.
+`like` image `slot05_0f` and counted again. The one
+function of the game and its modules that the build still counts as
+without C is the entry code (`--list` names it: `func_80118908`), which is
+hand-written assembly that the program does not run. The
+program's start line `overrides in C: M` is in the sample of
+"Running it".
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
 as the scripts above take it, and with `--overrides` that tree's
@@ -755,30 +763,66 @@ that is not a folder is refused.
 ### Running it
 
 ```sh
-port/build/host/sfa2.exe DISC
+port/build/host/sfa2.exe [--skip-programs] DISC
 ```
 
 DISC is the `.cue` of the user's disc image, or its `.bin`; from a Linux
-shell under WSL the path is given in Windows form. With the disc of
-`SLPS_004.15`, the program built above printed, with the image's path
-written here as FILE:
+shell under WSL the path is given in Windows form. `--skip-programs` lets
+the game go on past the stand-alone programs of the disc for which no C
+exists (the logo is the first; see "Programs of the disc" below); without
+it the program ends at the first of them and names it.
+
+What follows is from one private run on 2026-10-10 with the disc of
+`SLPS_004.15`. No command of this repository can repeat it: it needs the
+user's disc. The program was built from main at commit `e1b47e6` with
+`--psyz` and the overrides of `port/overrides/`, and started with
+`--skip-programs`, with a script of button presses (`--input`) and with
+the options that take a picture every five seconds, in a session without a
+window on screen. Its first lines, with the image's path written here as
+FILE:
 
 ```
 memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1408 written for functions with C, 444 for functions without
-library: 84 host routines, 300 left that stop
+jumps: 1467 written for functions with C, 385 for functions without
+library: 111 host routines, 273 left that stop
 overrides: 1
+overrides in C: 13
+pad: keys: W = L2, E = R2, Q = L1, R = R1, S = triangle, D = circle, X = cross, Z = square, Backspace = select, 1 = L3, 2 = R3, Return = start, Up arrow = d-pad up, Right arrow = d-pad right, Down arrow = d-pad down, Left arrow = d-pad left; a game controller if one is plugged in; port 2 has none
 start: 0x801189c4
-stop: no C yet for func_801189c4 (0x801189c4)
 ```
 
-and ended with status 3. The game's `main` is the first function it
-calls, and `main` has no C in that tree. The original's entry code is
-hand-written assembly and is not run: the program finds `main` as the
-target of the last call before the entry code's halt.
+Then, among other lines, the skip of the first stand-alone program and
+one line for each module as the game first ran it:
+
+```
+skipped: Exec of logo.exe (disc sector 211970): a program of its own for which no C exists yet; it returns at once
+module: slot0f at 0x800df000, 228 C jumps, 0 without C
+module: slot27 at 0x80010000, 212 C jumps, 0 without C
+module: slot06_08 at 0x801e8000, 43 C jumps, 0 without C
+module: slot0b at 0x801e0000, 61 C jumps, 0 without C
+module: slot05_08 at 0x801c8000, 149 C jumps, 0 without C
+module: slot04_00 at 0x801b0000, 142 C jumps, 0 without C
+module: slot01 at 0x80010000, 124 C jumps, 0 without C
+module: slot06_0e at 0x801e8000, 71 C jumps, 0 without C
+module: slot0b at 0x801e0000, 61 C jumps, 0 without C
+module: slot05_0e at 0x801c8000, 239 C jumps, 0 without C
+module: slot04_00 at 0x801b0000, 142 C jumps, 0 without C
+module: slot2c at 0x8008bf00, 107 C jumps, 0 without C
+```
+
+The run was ended by its time limit after 300 seconds, with no line that
+begins `stop:` or `crash:`. In its pictures the game goes from the title
+to the player select, through a first fight and into a second. Nothing
+sounds: the sound library's routines are stand-ins. This says what one
+scripted run of five minutes did, not that the game is playable to its
+end.
+
+The original's entry code is hand-written assembly and is not run: the
+program finds the game's `main` as the target of the last call before the
+entry code's halt, and starts there.
 
 ### What stands in for the library
 
@@ -852,12 +896,10 @@ routines that do nothing on purpose. What is in this piece:
   in the listing: it sets up the game's task slots as the function's C
   does, without the stores into the BIOS's thread table, which is at an
   address the program does not have. An override is accepted only for a
-  function that has C: it is not a way to supply a function. A second
-  one is needed and is not in this piece: one function walks an
-  ordering table through the copy of RAM that the PS1 shows from
-  address 0, a range that a Windows program cannot have. Its host
-  routine waits for differential evidence against the original code;
-  until then that function is one that stops.
+  function that has C: it is not a way to supply a function. The
+  function that walks an ordering table through the copy of RAM that
+  the PS1 shows from address 0 needs no host routine: the layer of
+  "The console's copy of RAM at address 0" below serves its accesses.
 - Overrides in C: a second C file of the port, kept as
   `port/overrides/NAME.c` with `NAME.py` beside it, that runs in the PC
   program in place of the C of the game function NAME. The reason for
@@ -895,11 +937,16 @@ routines that do nothing on purpose. What is in this piece:
   functions of the resident program and of modules whose exact C calls
   a function without the argument that the callee reads: by a plain
   call, through a pointer of the scratchpad, or after another call,
-  where the callee gets what that earlier call left in the register.
-  That page has each one's contract and
-  what its test printed; the control of each alters the build of the
-  override so that the callee gets another value, and the test must
-  then differ from the original code.
+  where the callee gets what that earlier call left in the register;
+  and functions whose exact C is declared `void` although their
+  callers use what they leave in the result register (the override
+  returns it). That page has each one's contract and
+  what its test printed. Each has a control that alters the build of
+  the override, and the test must then differ from the original code:
+  for an override that passes an argument, the altered build hands the
+  callee another value; for one that returns a result, the altered
+  build returns its result plus 1, after its library call and with the
+  arguments unchanged.
   What the build does not check: that an override's C has the
   parameters and the result type of the unit's C, and that the test of
   its contract passes or was run. The build reads no C and has none of

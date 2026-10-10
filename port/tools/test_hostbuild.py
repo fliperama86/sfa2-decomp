@@ -258,11 +258,14 @@ def selection_cases(root: Path):
         "n_nonmatching/func_80100300.c": "int y;\n",
         "n_nonmatching/readme.txt": "no",
         "other/func_80100400.c": "not scanned\n",
+        "library_nonmatching/func_80100500.c": "the library's C: left out\n",
     }
     config, path = config_tree(root, "sel", units, IMAGES_3, nm)
     sel = hb.select_units(config, path)
     yield "select-jobs", same([(j.name, j.nonmatching) for j in sel.jobs], [("ua", False), ("um", False), ("func_80100300", True), ("func_801e0100_mod", True)])
     yield "select-sdk-and-asm-left-out", same(any(j.name in ("us", "ux") for j in sel.jobs), False)
+    yield "select-library-nonmatching-left-out", same(
+        (any(j.name == "func_80100500" for j in sel.jobs), any(f.name == "func_80100500" for f in sel.declared)), (False, False))
     yield "select-declared-includes-all-units", same(
         sorted((f.name, f.address, f.image) for f in sel.declared),
         sorted([("fa", 0x80100000, None), ("fb", 0x80100010, None), ("lib", 0x80100100, None), ("asmf", 0x80100200, None), ("mf", 0x801e0000, "mod"),

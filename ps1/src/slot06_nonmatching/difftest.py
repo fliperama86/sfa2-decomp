@@ -111,6 +111,9 @@ run. A K above 0 means the function runs past a table the setup built, or writes
 a global that the setup did not make, or the setup leaves a table unfilled that the function
 writes: the setup is to be changed, or the contract's header is to name the exception.
 
+The size of a resident function comes from `ps1/inventory/game.tsv` or `library.tsv`, whichever lists
+its address, and an address listed in neither or in both is an error (status 2).
+
 The option --record writes a few fixtures of one function, and --replay tests the function's C on them
 without running the original code. A fixture is one case of the function in terms of what it does:
 
@@ -549,7 +552,8 @@ def original_function(cfg, name: str) -> tuple[int, int]:
     The name is `func_<address>` for the resident executable or
     `func_<address>_<image>` for a module image. The address is in the name;
     the size comes from the published function inventory (`ps1/inventory/`),
-    because a nonmatching function is not declared in the build.
+    because a nonmatching function is not declared in the build. A resident
+    name is looked up in `game.tsv` and in `library.tsv` and must be in exactly one.
     """
     match = re.fullmatch(r"func_([0-9a-f]{8})(?:_(\w+))?", name)
     if match is None:
@@ -557,8 +561,10 @@ def original_function(cfg, name: str) -> tuple[int, int]:
     address = int(match.group(1), 16)
     inventory = HERE.parents[1] / "inventory"
     if match.group(2) is None:
-        rows = [line.split("\t") for line in (inventory / "game.tsv").read_text().splitlines()]
-        sizes = [int(r[1]) for r in rows if int(r[0], 16) == address]
+        sizes = []
+        for table in ("game.tsv", "library.tsv"):
+            rows = [line.split("\t") for line in (inventory / table).read_text().splitlines()]
+            sizes += [int(r[1]) for r in rows if int(r[0], 16) == address]
     else:
         image = next((i for i in cfg.images if i.name == match.group(2)), None)
         if image is None:

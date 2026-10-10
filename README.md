@@ -94,9 +94,10 @@ differential test against the original code.
   baseline audit and Ghidra project in an ignored local workspace.
 - [`windows/`](windows/README.md): comparison research and private working files.
 - [`port/`](port/README.md): groundwork for a port to macOS, Windows and
-  Linux. The game does not run there; a Windows program linked from its
-  unchanged C loads the game's program from a disc image and stops at the
-  first function without C.
+  Linux. The game does not run on macOS or Linux. On Windows a program
+  linked from its unchanged C starts the game from the user's disc image
+  and, in one scripted run, played into a second fight; it has no sound
+  and is not shown to play to the end.
 - [`research/target-investigation.md`](research/target-investigation.md): original
   target-selection evidence, including a historical Saturn comparison.
 - [`tools/ghidra/`](tools/ghidra/): shared analysis scripts written for the project.
