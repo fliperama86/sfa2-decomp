@@ -3122,31 +3122,45 @@ def case_z_stack_and_home_area_are_not_reads_or_writes():
     return None
 
 
-def case_z_recorders_own_memory_is_not_a_read_but_what_they_copy_is():
-    # the recorder copies two words behind its argument into the log; the log and the recorder's code are the
-    # harness's, the two words are memory of the case that the original's run depends on
+def case_z_what_a_recorder_copies_is_not_a_read_of_the_function():
+    # the recorder copies two words behind its argument into the log; neither they, nor the log, nor the
+    # recorder's code are reads of the function, which only passes the pointer
     words = program(("call", CALLEE, [BUF], []))
 
     def setup(state, rng, sym):
         state.w32(BUF, 0xA0)
         state.w32(BUF + 4, 0xA1)
-        log = contracts.CallLog(state)
+        log = contracts.CallLog(state, watch=((WATCHED, 1),))
         log.replace(CALLEE, 1, 0, pointees={0: 2})
-        holder.append(log)
         return contracts.Setup(args=(), returns_value=False)
 
-    holder = []
     lines, status, doc, _ = fx_record(words, setup, cases=2)
     if status:
         return f"{lines}"
     fixture = doc["fixtures"][0]
-    got = D.bytes_of(fixture["reads"])
-    inside = [hex(a) for a in got if any(lo <= a < lo + n for lo, n in holder[0].owned)]
-    ok = fixture["reads"] == [[D.hex8(BUF), "a0000000a1000000"]] and not inside
-    return None if ok else f"reads {fixture['reads']}, in the harness {inside}"
+    call = fixture["calls"][0]
+    ok = fixture["reads"] == [] and call["pointees"] == {"0": []} and call["watched"] == [[]]
+    return None if ok else f"reads {fixture['reads']}, call {call}"
 
 
-def case_z_watched_block_the_function_never_touched_is_a_read():
+def case_z_recorder_word_that_it_adds_to_is_kept_as_an_input():
+    # `counts` adds 1 to a word at each call: the recorder reads and writes it itself, and the replay's recorder
+    # needs the first value, which no instruction of the function reads
+    def setup(state, rng, sym):
+        state.w32(WATCHED, 0x41)
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 0, 0, counts=(WATCHED,))
+        return contracts.Setup(args=(), returns_value=False)
+
+    words = program(("call", CALLEE, [], []))
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    fixture = doc["fixtures"][0]
+    ok = fixture["reads"] == [[D.hex8(WATCHED), "41000000"]] and fixture["writes"] == [[D.hex8(WATCHED), "42"]]
+    got, replay_status = fx_replay(doc, words, ram_with_callees(words))
+    return None if ok and replay_status == 0 else f"{fixture['reads']} {fixture['writes']} {got}"
+
+
+def case_z_unchanged_watched_block_needs_no_bytes():
     watched = WATCHED2
     words = program(("call", CALLEE, [1], []))
 
@@ -3158,9 +3172,60 @@ def case_z_watched_block_the_function_never_touched_is_a_read():
 
     _lines, _status, doc, _ = fx_record(words, setup, cases=2)
     fixture = doc["fixtures"][0]
-    ok = fixture["reads"] == [[D.hex8(watched), "44332211"]] and fixture["calls"][0]["watched"] == ["44332211"]
-    ok = ok and fixture["watch"] == [[D.hex8(watched), 1]]
+    ok = fixture["reads"] == [] and fixture["calls"][0]["watched"] == [[]] and fixture["watch"] == [[D.hex8(watched), 1]]
     return None if ok else f"reads {fixture['reads']}, calls {fixture['calls']}, watch {fixture['watch']}"
+
+
+def watch_setup(state, rng, sym):
+    log = contracts.CallLog(state, watch=((WATCHED, 2),))
+    log.replace(CALLEE, 1, 0)
+    return contracts.Setup(args=(), returns_value=False)
+
+
+def watch_record(*ops):
+    words = program(*ops)
+    return words, fx_record(words, watch_setup, cases=2)[2]
+
+
+def case_z_watched_changes_are_against_the_input_state_not_the_previous_call():
+    # one store before the first call; at the second call the block still differs from the input state
+    words, doc = watch_record(("st", WATCHED, 5), ("call", CALLEE, [1], []), ("call", CALLEE, [2], []))
+    watched = [c["watched"] for c in doc["fixtures"][0]["calls"]]
+    return None if watched == [[[[0, "05"]]], [[[0, "05"]]]] else f"{watched}"
+
+
+def case_z_watched_change_after_the_first_call_shows_only_from_the_second():
+    words, doc = watch_record(("call", CALLEE, [1], []), ("st", WATCHED + 4, 7), ("call", CALLEE, [2], []))
+    watched = [c["watched"] for c in doc["fixtures"][0]["calls"]]
+    return None if watched == [[[]], [[[4, "07"]]]] else f"{watched}"
+
+
+def watch_failure(original_ops, build_ops, wanted):
+    original, doc = watch_record(*original_ops)
+    build = program(*build_ops)
+    got, status = fx_replay(doc, build, ram_with_callees(original))
+    text = "\n".join(got)
+    return None if status == 1 and wanted in text else f"{status} {text}"
+
+
+def case_z_failure_build_changes_a_watched_byte_the_original_had_not():
+    return watch_failure((("call", CALLEE, [1], []), ("st", WATCHED, 5)), (("st", WATCHED, 5), ("call", CALLEE, [1], [])),
+                         "watched block 1 differs from byte 0")
+
+
+def case_z_failure_build_does_not_change_a_watched_byte_the_original_had():
+    return watch_failure((("st", WATCHED, 5), ("call", CALLEE, [1], [])), (("call", CALLEE, [1], []), ("st", WATCHED, 5)),
+                         "watched block 1 differs from byte 0")
+
+
+def case_z_failure_store_after_the_call_instead_of_before():
+    return watch_failure((("st", WATCHED + 4, 7), ("call", CALLEE, [1], [])), (("call", CALLEE, [1], []), ("st", WATCHED + 4, 7)),
+                         "watched block 1 differs from byte 4")
+
+
+def case_z_failure_wrong_value_in_a_watched_byte():
+    return watch_failure((("st", WATCHED, 5), ("call", CALLEE, [1], [])), (("st", WATCHED, 6), ("call", CALLEE, [1], [])),
+                         "the build has 0x06 there at this call, the original had 0x05")
 
 
 def case_z_unicorn_delay_slot_hazard_does_not_matter():
@@ -4091,8 +4156,15 @@ CASES = [
     ("y-main-refusals", case_y_main_refusals),
     ("z-hook-finds-the-reads", case_z_hook_finds_the_reads),
     ("z-stack-and-home-area-are-not-reads-or-writes", case_z_stack_and_home_area_are_not_reads_or_writes),
-    ("z-recorders-own-memory-is-not-a-read-but-what-they-copy-is", case_z_recorders_own_memory_is_not_a_read_but_what_they_copy_is),
-    ("z-watched-block-the-function-never-touched-is-a-read", case_z_watched_block_the_function_never_touched_is_a_read),
+    ("z-what-a-recorder-copies-is-not-a-read-of-the-function", case_z_what_a_recorder_copies_is_not_a_read_of_the_function),
+    ("z-recorder-word-that-it-adds-to-is-kept-as-an-input", case_z_recorder_word_that_it_adds_to_is_kept_as_an_input),
+    ("z-unchanged-watched-block-needs-no-bytes", case_z_unchanged_watched_block_needs_no_bytes),
+    ("z-watched-changes-are-against-the-input-state-not-the-previous-call", case_z_watched_changes_are_against_the_input_state_not_the_previous_call),
+    ("z-watched-change-after-the-first-call-shows-only-from-the-second", case_z_watched_change_after_the_first_call_shows_only_from_the_second),
+    ("z-failure-build-changes-a-watched-byte-the-original-had-not", case_z_failure_build_changes_a_watched_byte_the_original_had_not),
+    ("z-failure-build-does-not-change-a-watched-byte-the-original-had", case_z_failure_build_does_not_change_a_watched_byte_the_original_had),
+    ("z-failure-store-after-the-call-instead-of-before", case_z_failure_store_after_the_call_instead_of_before),
+    ("z-failure-wrong-value-in-a-watched-byte", case_z_failure_wrong_value_in_a_watched_byte),
     ("z-unicorn-delay-slot-hazard-does-not-matter", case_z_unicorn_delay_slot_hazard_does_not_matter),
     ("z-round-trip", case_z_round_trip),
     ("z-same-value-store-is-not-an-extra-write", case_z_same_value_store_is_not_an_extra_write),

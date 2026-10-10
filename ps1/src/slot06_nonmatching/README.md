@@ -408,9 +408,12 @@ the original left them. The line is `FUNC replay: fixtures K, passed P, failed F
 failure by the fixture and up to three lines saying what differed first. The
 status is 0 when F is 0, 1 otherwise, 2 for a missing or malformed file. With no
 function named, every function of the folder that has a fixtures file is
-replayed. Loading the configuration reads the baseline executable to check its
-hash, as in every mode; the replay uses nothing else of the game unless a
-fixture needs the image.
+replayed. The replay does not run the original and uses no byte of the game for
+a fixture that does not need the image, but it starts like every mode: it loads
+the configuration, which reads the baseline executable to check its hash, so it
+needs the private inputs of the configuration, and it builds the C with the
+private PS1 compiler. A replay that needs nothing private is a later piece (the
+C as compiled for a PC).
 
 What a replay shows is narrow: for the recorded inputs, the C reads, calls and
 writes what the original did. It is evidence for those inputs. It is not the
@@ -422,10 +425,19 @@ or writes: the replay then fails, and nothing regenerates a file except a new
 
 Choices of the tool, each of them a decision to review:
 
-- The reads include what the stand-ins copy into the log (the words behind a
-  pointer argument and the watched blocks), because the replay's log has to show
-  the same words. The stack region, the 16 bytes above it and the harness's own
-  memory are left out of reads and writes.
+- `reads` holds what the function's own instructions read (and what its real
+  callees read, when the fixture needs the image). What a stand-in copies into
+  the log is not a read of the function: the words behind a pointer argument and
+  the watched blocks are stored in each call as the bytes that differ, at that
+  call, from the same memory in the case's input state (the memory before the
+  function ran), as `[offset, hex]` spans, empty when nothing differs. In words:
+  at this call these bytes of the block had been changed to these values. Each
+  call reads alone; it is not a chain against the previous call. The replay
+  rebuilds the block from its own input state (poison where the fixture says
+  nothing) and the changes, and requires it to equal what the build's call
+  shows, so a build that changes a watched byte the original had not changed by
+  that call, or does not change one it had, fails. The stack region, the 16
+  bytes above it and the harness's own memory are left out of reads and writes.
 - `same` holds bytes the original stored without changing them and did not
   read; without them such a store would look like an extra write in the replay.
 - The stand-ins' own options that stand for what a callee does to memory
@@ -438,7 +450,7 @@ Choices of the tool, each of them a decision to review:
   conditional branch that is not taken and a jump follows (`test_difftest.py`
   has made-up code that shows the difference).
 
-The fixtures of three functions of `../resident_nonmatching` are the first.
+The fixtures of five functions of `../resident_nonmatching` are the first.
 Each block is what the commands printed (seed 1, `--record --cases 2000 --jobs 4`):
 
 ```
@@ -448,19 +460,19 @@ func_80119694 fixtures: kept 4 of 2000 cases (slots 1, edges 3, results 0), need
 func_80119694 replay: fixtures 4, passed 4, failed 0
 func_8011cf98 fixtures: kept 12 of 2000 cases (slots 6, edges 6, results 0), needs image: yes
 func_8011cf98 replay: fixtures 12, passed 12, failed 0 (game image used for 12)
+func_8011a880 fixtures: kept 7 of 2000 cases (slots 5, edges 2, results 0), needs image: no
+func_8011a880 replay: fixtures 7, passed 7, failed 0
+func_801189c4 fixtures: kept 5 of 2000 cases (slots 4, edges 1, results 0), needs image: no
+func_801189c4 replay: fixtures 5, passed 5, failed 0
 ```
 
-The files are 4897, 3614 and 22085 bytes. Each record took 9, 6 and 164 seconds
-by the shell's clock; each replay took 0.9 seconds by the same clock, the
-compile of the C included. What they leave uncovered is in the files: 6, 6 and
-48 lines of `uncovered.edges` (altered runs that no case notices; each line
-gives the number of discarded cases of that run), and for `func_8011cf98` one
-slot (`+0x48`) that no case executes.
-
-`func_8011a880` and `func_801189c4` have no file yet: recorded as described
-their files come to 275101 and 479117 bytes, because the watched blocks are
-copied into every call, and a file of that size waits for a decision on how the
-calls are written.
+The files are 4897, 3614, 22085, 17393 and 70736 bytes. The records took 8, 5,
+161, 14 and 43 seconds by the shell's clock; each replay took 1 second by the
+same clock, the compile of the C included. What they leave uncovered is in the
+files: 6, 6, 48, 2 and 2 lines of `uncovered.edges` (altered runs that no case
+notices; each line gives the number of discarded cases of that run), and slot
+`+0x48` of `func_8011cf98` and slots `+0x330..+0x348` of `func_801189c4`, which
+no case executes. A second record of each function wrote the same bytes.
 
 ## Controls of the tool
 

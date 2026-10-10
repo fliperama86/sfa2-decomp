@@ -115,12 +115,13 @@ The option --record writes a few fixtures of one function, and --replay tests th
 without running the original code. A fixture is one case of the function in terms of what it does:
 
     args          the argument registers the setup gave
-    reads         every byte the original (and the recorders standing for its callees) read before
-                  anything wrote it, as [address, hex bytes] runs; the function's stack region, the
-                  16 bytes above it and the harness's own memory (the call log, the recorders' code
-                  and cells) are left out; what a recorder copies into the log (the words behind a
-                  pointer argument, the watched blocks) is a read, because the replay's log has to
-                  show the same words
+    reads         every byte the original FUNCTION's own instructions read before anything wrote it
+                  (and, when `needs_image`, what its real callees read), as [address, hex bytes] runs;
+                  the function's stack region, the 16 bytes above it and the harness's own memory (the
+                  call log, the recorders' code and cells) are left out. What a recorder copies into the
+                  log is not a read of the function. The one exception is a word that a recorder reads
+                  and then writes itself (`counts`): its first value is kept, the replay's recorder
+                  needs it
     same          bytes the original stored without changing them and did not read first: the
                   replay's memory holds them beforehand, or the store would look like a change
     recorders     the stand-in of each callee: name (the symbol table's, else the address), address,
@@ -128,8 +129,12 @@ without running the original code. A fixture is one case of the function in term
                   (pointees, masks, stores, counts, ends_run_at) and, for a recorder in a block of
                   the setup's own, the pointer cell (the aligned word of `reads` that holds its address)
     watch         the watched blocks of the call log
-    calls         the calls made, in order: callee, arguments, the words behind pointer arguments, the
-                  watched blocks, the value the recorder returned
+    calls         the calls made, in order: callee, arguments, the value the recorder returned and, for
+                  the words behind each pointer argument and for each watched block, the bytes that
+                  differ at that call from the same memory in the case's INPUT state (the memory before
+                  the function ran), as [offset in the block, hex] spans, empty when nothing differs. Not
+                  a chain of changes against the previous call: each call reads alone. In words: "at
+                  this call these bytes of the block had been changed to these values"
     writes        every byte of RAM and scratchpad that differs after the run from before it, outside
                   the same regions as `reads`, as runs
     result        v0, when the contract says there is a result; null otherwise
@@ -161,14 +166,19 @@ status 2.
 --replay builds FUNC.c, and for each fixture puts the game's image (only when the fixture says
 `needs_image`) or poison bytes (0xA5, the stack zero as in a case) in memory, puts `reads` and `same` in
 place, puts a recorder at each callee that returns the recorded values in order, runs the BUILD, and requires
-the same calls in the same order with the same logged values, the result, the writes exactly (each byte of
+the same calls in the same order with the same logged arguments and returned values, the same changes
+to each watched block and pointee as the fixture says (the replay's own input state, poison where the fixture
+says nothing, with the changes over it: a build that changes a watched byte the original had not changed by
+that call, or does not change one it had, fails), the result, the writes exactly (each byte of
 `writes` has that value afterwards, and no other byte outside the stack and the harness changed) and the saved
 registers and sp as the original left them. It prints `FUNC replay: fixtures K, passed P, failed F`
 (followed by `(game image used for N)` when it read the image) and, per failed fixture, a line naming it and at
 most three lines saying what differed first. The status is 0, 1 for a failed fixture, 2 for a missing or
 malformed file, 3 when the build fails. The original code is never run in this mode and the contract is not
-read. The configuration is loaded as for every mode, and loading it reads the baseline executable to check its
-hash; the replay uses nothing else of the game unless a fixture says `needs_image`.
+read. The replay uses no byte of the game for a fixture that does not need the image, but it starts like every
+mode: it loads the configuration, which reads the baseline executable to check its hash, so it needs the private
+inputs of the configuration, and it builds the C with the private PS1 compiler. A replay that needs nothing
+private is a later piece (the C as compiled for a PC).
 
 What replay shows: for the recorded inputs the C reads, calls and writes what the original did. It is evidence
 for those inputs, not the wide comparison and not equivalence. A fixture goes stale when the C changes what it
@@ -1012,8 +1022,12 @@ def touched(kind: str, address: int) -> range:
 class Trace:
     """The memory accesses of one run of the original, found by looking at each instruction before it runs.
 
-    `reads` holds the bytes the run read before anything wrote them (their value when read);
-    `written` holds the bytes the run wrote, with the value each held before its first write.
+    `reads` holds the bytes the run's own code (the function and the real callees, not the recorders)
+    read before anything wrote them (their value when read); `written` holds the bytes the run wrote
+    (recorders included), with the value each held before its first write. What a recorder copies into
+    the log is not a read of the function and is not in `reads`; a byte a recorder reads and then writes
+    itself (a word that `counts` adds to) is kept apart in `recorder_reads`, because the replay's recorder
+    needs its first value.
     The function's own stack region, the home area above it and the harness's memory
     (`skip`) are left out.
 
@@ -1026,6 +1040,14 @@ class Trace:
         self.skip = skip
         self.reads: dict[int, int] = {}
         self.written: dict[int, int] = {}
+        self.recorder_reads: dict[int, int] = {}
+        self.recorder_written: set[int] = set()
+
+    def inputs(self) -> dict[int, int]:
+        """`reads` and the first values of the bytes a recorder read and wrote itself."""
+        found = {a: v for a, v in self.recorder_reads.items() if a in self.recorder_written}
+        found.update(self.reads)
+        return found
 
     def ignored(self, address: int) -> bool:
         if address < RAM_SIZE:
@@ -1038,16 +1060,21 @@ class Trace:
         if op is None:
             return
         loads, kind = op
+        in_recorder = bool(self.skip[address & 0x1FFFFFFF])
         offset = word & 0xFFFF
         target = (uc.reg_read(reg.UC_MIPS_REG_0 + ((word >> 21) & 31)) + offset - (0x10000 if offset & 0x8000 else 0)) & 0x1FFFFFFF
         for at in touched(kind, target):
             if self.ignored(at) or at in self.written or (loads and at in self.reads):
                 continue
             byte = uc.mem_read(at, 1)[0]
-            if loads:
+            if loads and in_recorder:
+                self.recorder_reads.setdefault(at, byte)
+            elif loads:
                 self.reads[at] = byte
             else:
                 self.written[at] = byte
+                if in_recorder:
+                    self.recorder_written.add(at)
 
 
 def changed_bytes(before_ram: bytes, before_scratch: bytes, final: dict, skip: bytearray) -> dict[int, int]:
@@ -1065,11 +1092,52 @@ def changed_bytes(before_ram: bytes, before_scratch: bytes, final: dict, skip: b
     return found
 
 
-def call_text(call: contracts.Call, label: dict[int, str]) -> dict:
-    """A decoded call as the fixture holds it."""
-    return {"args": [hex8(a) for a in call.args], "callee": label[call.address],
-            "pointees": {str(i): data.hex() for i, data in sorted(call.pointees.items())},
-            "returned": hex8(call.returned), "watched": [data.hex() for data in call.watched]}
+def input_bytes(before_ram: bytes, before_scratch: bytes, address: int, size: int) -> bytes:
+    """`size` bytes at the console address `address` of the input state (the memory before the run)."""
+    if address < RAM_BASE:
+        if not (SCRATCH_BASE <= address and address + size <= SCRATCH_BASE + SCRATCH_SIZE):
+            raise ValueError(f"{address:#x} is outside RAM and the scratchpad")
+        return bytes(before_scratch[address - SCRATCH_BASE : address - SCRATCH_BASE + size])
+    if address + size > RAM_BASE + RAM_SIZE:
+        raise ValueError(f"{address:#x} is outside RAM and the scratchpad")
+    return bytes(before_ram[address - RAM_BASE : address - RAM_BASE + size])
+
+
+def span_changes(seen: bytes, base: bytes) -> list[list]:
+    """The bytes of `seen` that differ from `base`, as [offset, hex] spans with adjacent bytes joined."""
+    spans: list[list] = []
+    for offset, (x, y) in enumerate(zip(seen, base)):
+        if x == y:
+            continue
+        if spans and spans[-1][0] + len(spans[-1][1]) == offset:
+            spans[-1][1].append(x)
+        else:
+            spans.append([offset, bytearray([x])])
+    return [[offset, bytes(data).hex()] for offset, data in spans]
+
+
+def apply_changes(base: bytes, spans: list) -> bytes:
+    """`base` with the spans put over it: what a block held at a call, from the input state and its changes."""
+    block = bytearray(base)
+    for offset, text in spans:
+        data = bytes.fromhex(text)
+        block[offset : offset + len(data)] = data
+    return bytes(block)
+
+
+CALL_SCALARS = ("args", "callee", "returned")
+
+
+def call_text(call: contracts.Call, label: dict[int, str], log: contracts.CallLog, before_ram: bytes, before_scratch: bytes) -> dict:
+    """A decoded call as the fixture holds it. The words behind a pointer argument and the watched blocks are
+    stored as the bytes that differ, at this call, from the same memory in the input state."""
+    pointees = {}
+    for index, data in sorted(call.pointees.items()):
+        pointees[str(index)] = span_changes(data, input_bytes(before_ram, before_scratch, call.args[index], len(data)))
+    watched = [span_changes(data, input_bytes(before_ram, before_scratch, block, 4 * count))
+               for (block, count), data in zip(log.watch, call.watched)]
+    return {"args": [hex8(a) for a in call.args], "callee": label[call.address], "pointees": pointees,
+            "returned": hex8(call.returned), "watched": watched}
 
 
 def recorder_text(recorder: contracts.Recorder, label: str, cell: int | None) -> dict:
@@ -1125,18 +1193,18 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
     own = [(original, size), (STOP_ADDRESS, 16), *harness]
     needs_image = any(not any(lo <= a and a + n <= lo + length for lo, length in own) for a, n in blocks)
     writes = changed_bytes(state.ram, state.scratch, final, skip)
-    reads = dict(trace.reads)
+    reads = trace.inputs()
     # A byte the run stored without changing it, and did not read first: the replay's memory holds that value
     # beforehand, or the store would look like a change.
     same = {at: before for at, before in trace.written.items()
-            if before == (final["ram"][at] if at < RAM_SIZE else final["scratch"][at - SCRATCH_BASE]) and at not in trace.reads}
+            if before == (final["ram"][at] if at < RAM_SIZE else final["scratch"][at - SCRATCH_BASE]) and at not in reads}
     recorders, calls = [], []
     if log is not None:
         label = {address: names.get(address, hex8(address)) for address in log.recorders}
         for recorder in sorted(log.recorders.values(), key=lambda r: r.address):
             cell = None if recorder.address in names else pointer_cell(reads, recorder.address)
             recorders.append(recorder_text(recorder, label[recorder.address], None if cell is None else console_address(cell)))
-        calls = [call_text(c, label) for c in log.calls(final["ram"])]
+        calls = [call_text(c, label, log, state.ram, state.scratch) for c in log.calls(final["ram"])]
     result = hex8(final["v0"]) if setup.returns_value and setup.returns else None
     fixture = {"args": [hex8(a) for a in setup.args], "calls": calls, "ends_in_callee": not setup.returns,
                "needs_image": needs_image, "reads": runs_of({console_address(a): b for a, b in reads.items()}),
@@ -1322,8 +1390,9 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
     state.ram[state.arena - RAM_BASE : ARENA_END - RAM_BASE] = bytes(ARENA_END - state.arena)
     if not fixture["recorders"] and not fixture["calls"]:
         return None
-    words = sum(1 + len(c["args"]) + sum(len(p) // 8 for p in c["pointees"].values()) +
-                sum(len(w) // 8 for w in c["watched"]) for c in fixture["calls"])
+    watched_words = sum(n for _a, n in fixture["watch"])
+    entry = {r["callee"]: 1 + r["arguments"] + sum(r.get("pointees", {}).values()) + watched_words for r in fixture["recorders"]}
+    words = sum(entry[c["callee"]] for c in fixture["calls"]) + 8 * max(entry.values(), default=0)
     log = contracts.CallLog(state, words=words + 64, watch=tuple((int(a, 16), n) for a, n in fixture["watch"]))
     returned: dict[str, list[int]] = {}
     for call in fixture["calls"]:
@@ -1340,26 +1409,28 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
 
 
 def call_difference(number: int, want: dict | None, got: dict | None) -> str:
-    """One line for the first way in which call `number` (from 1) differs."""
+    """One line for the first way in which the scalars of call `number` (from 1) differ."""
     if got is None:
         return f"call {number}: missing, the original called {want['callee']}"
     if want is None:
         return f"call {number}: extra, the build called {got['callee']}"
-    for field in CALL_FIELDS:
+    for field in CALL_SCALARS:
         if want[field] != got[field]:
             if field == "args":
                 for index, (x, y) in enumerate(zip(want["args"], got["args"])):
                     if x != y:
                         return f"call {number} to {want['callee']}: argument {index + 1} is {y}, the original gave {x}"
-            if field in ("pointees", "watched"):
-                for index, (x, y) in enumerate(zip(want[field].items() if field == "pointees" else enumerate(want[field]),
-                                                   got[field].items() if field == "pointees" else enumerate(got[field]))):
-                    if x != y:
-                        place = f"argument {int(x[0]) + 1}" if field == "pointees" else f"watched block {index + 1}"
-                        at = next((i // 2 for i in range(min(len(x[1]), len(y[1]))) if x[1][i] != y[1][i]), min(len(x[1]), len(y[1])) // 2)
-                        return f"call {number} to {want['callee']}: {place} differs from byte {at} (the memory behind it)"
             return f"call {number} to {want['callee']}: {field} differ: the build {got[field]}, the original {want[field]}"
     return f"call {number}: differs"
+
+
+def block_difference(number: int, callee: str, place: str, expected: bytes, seen: bytes) -> str | None:
+    """A line when a block at a call is not what the fixture says, else None."""
+    at = next((i for i in range(len(expected)) if expected[i] != seen[i]), None)
+    if at is None:
+        return None
+    return (f"call {number} to {callee}: {place} differs from byte {at} (the build has {seen[at]:#04x} there at this call, "
+            f"the original had {expected[at]:#04x})")
 
 
 def replay_fixture(uc: Uc, build: Build, fixture: dict, image: bytes | None) -> list[str]:
@@ -1374,14 +1445,30 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict, image: bytes | None) -> 
         return [f"build: {final}"]
     lines: list[str] = []
     label = {int(r["at"], 16): r["callee"] for r in fixture["recorders"]}
-    got = [call_text(c, label) for c in log.calls(final["ram"])] if log is not None else []
-    want = fixture["calls"]
+    decoded = log.calls(final["ram"]) if log is not None else []
+    got = [{"args": [hex8(x) for x in c.args], "callee": label[c.address], "returned": hex8(c.returned)} for c in decoded]
+    want = [{k: c[k] for k in CALL_SCALARS} for c in fixture["calls"]]
     for number in range(1, max(len(got), len(want)) + 1):
         a = want[number - 1] if number <= len(want) else None
         b = got[number - 1] if number <= len(got) else None
         if a != b:
             lines.append(call_difference(number, a, b))
             break
+    else:
+        # The memory behind the pointer arguments and the watched blocks, at each call: the replay's own input
+        # state with the recorded changes over it.
+        for number, (call, recorded) in enumerate(zip(decoded, fixture["calls"]), 1):
+            places = [(f"argument {int(i) + 1}", call.pointees[int(i)], call.args[int(i)], spans)
+                      for i, spans in recorded["pointees"].items()]
+            places += [(f"watched block {k + 1}", data, block, spans)
+                       for k, ((block, _n), data, spans) in enumerate(zip(log.watch, call.watched, recorded["watched"]))]
+            for place, data, address, spans in places:
+                expected = apply_changes(input_bytes(before_ram, before_scratch, address, len(data)), spans)
+                if (line := block_difference(number, recorded["callee"], place, expected, data)):
+                    lines.append(line)
+                    break
+            if lines:
+                break
     if fixture["result"] is not None and setup.returns and hex8(final["v0"]) != fixture["result"]:
         lines.append(f"result: the build gives {hex8(final['v0'])}, the original gave {fixture['result']}")
     if setup.returns:
