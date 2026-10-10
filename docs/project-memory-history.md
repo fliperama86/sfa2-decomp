@@ -8187,3 +8187,19 @@ No function count changes here. Nothing under `ps1/` changed.
 - Not shown: any access above `0x10000`; the handler together with the
   modules layer's (read, not run together); the real game past the
   point of the crash from a published commit.
+- The review command had to learn the new control file. It gives the
+  cross compiler to the port's control files by a list of names;
+  `test_hostmirror.py` was not on it, was started without `--cc` and
+  ended with its usage text, status 2: the review failed at that check.
+  The name is on the list now, and the workflow's own tests got one
+  case for it (28 cases with it; `docs/ai-workflow.md` reports the 27
+  of its own day): with the name taken off the list again, that case
+  fails. A control file that needs an argument must be made known to
+  the review command in the same change.
+- One run of the review on this branch, before that, ended at a launch
+  case that outlasted its 60 seconds: the program had not ended. The
+  machine was under load from a stress run of another change, which
+  looks for exactly that, a program that sometimes does not end when
+  the timer thread runs; it is code that is on main, not this layer's,
+  and its fix is a change of its own. The next run of the same case
+  passed.

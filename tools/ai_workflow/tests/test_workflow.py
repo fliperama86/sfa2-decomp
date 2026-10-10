@@ -109,6 +109,17 @@ class Selection(Fixture):
         self.put('ps1/tools/test_example.py','')
         self.assertIn('test_example',[c.name for c in self.selected(['ps1/tools/example.py'])])
 
+    def test_port_runtime_controls_get_the_compiler_or_refuse(self):
+        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostbuild.py'):
+            self.put('port/tools/' + name, '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
+        for name in ('test_hostlaunch', 'test_hostmirror'):
+            self.assertEqual(argv[name][-2:], ('--cc', 'cc32'))
+        self.assertNotIn('--cc', argv['test_hostbuild'])
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
     def test_bad_seeds_and_zero_cases_refuse(self):
         for cases, seeds in ((0,(1,7)),(2,(1,1))):
             with self.assertRaises(model.Problem):
