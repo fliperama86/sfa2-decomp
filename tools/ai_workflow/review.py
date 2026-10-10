@@ -139,8 +139,11 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     # The test tool of nonmatching C: a change of it can change how every function is tested, and nothing
     # of what the matching build makes.
     harness = any(p.startswith('ps1/src/slot06_nonmatching/') and Path(p).name in HARNESS for p in changed)
+    # A header inside a program's folder is included by that program's C alone: neither build sees it. It selects
+    # the functions of its own folder (below) and is not a change of the game's headers.
+    program_header = lambda p: p.startswith(PROGRAMS + '/') and p.count('/') == PROGRAMS.count('/') + 2 and p.endswith('.h')
     broad = any(p.startswith('ps1/tools/') or p in ('ps1/src/build.toml', 'ps1/src/symbols.ld', 'ps1/src/types.fields')
-                or p.startswith('ps1/src/') and p.endswith('.h')
+                or p.startswith('ps1/src/') and p.endswith('.h') and not program_header(p)
                 or any(p.startswith('ps1/src/' + f.name + '/') and Path(p).name not in ('README.md', *HARNESS)
                        and not FUNCTION_FILE.fullmatch(Path(p).name) for f in folders)
                 for p in changed)
@@ -159,8 +162,10 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     for folder in folders:
         checks.extend(function_checks(root, folder.name, folder.relative_to(root).as_posix(), 'ps1', changed, broad or harness, cases, seeds))
     for folder in program_folders:
-        checks.extend(function_checks(root, 'programs-' + folder.name, folder.relative_to(root).as_posix(), 'ps1', changed,
-                                      broad or harness or declaration, cases, seeds))
+        rel = folder.relative_to(root).as_posix()
+        own_header = any(program_header(p) and p.startswith(rel + '/') for p in changed)
+        checks.extend(function_checks(root, 'programs-' + folder.name, rel, 'ps1', changed,
+                                      broad or harness or declaration or own_header, cases, seeds))
     if any(in_programs(p) and Path(p).name in PROGRAM_DECLARATION + PROGRAM_TESTS for p in changed):
         for name in PROGRAM_TESTS:
             checks.append(Check(Path(name).stem, (sys.executable, f'{PROGRAMS}/{name}'), 'ps1'))

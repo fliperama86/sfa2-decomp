@@ -8,6 +8,9 @@ file = "../../extract/programs/LOGO.EXE"
 disc = "PAC/LOGO.EXE"
 sha256 = "42f07130e1175a7a77ed8a71726ed4dfbcb4a4276ea0866a4e552ff95abd51e6"
 address = 0x80010000
+# The global pointer register as the program's entry code sets it before its main (the header's own field is 0).
+# The reader checks the value against that code when it reads the file; the test tool begins each run with it.
+gp = 0x8002eafc
 functions = [
   { name = "func_80011758_logo", address = 0x80011758, size = 60 },
 ]

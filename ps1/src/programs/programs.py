@@ -16,6 +16,10 @@ The file holds one `[[program]]` table per program:
     disc       the file's path on the disc
     sha256     the file's hash, 64 lower case hex digits
     address    where the body loads; the file's header must say the same
+    gp         the global pointer register as the program's entry code sets it before its main; an
+               address in RAM; optional. The header has a field for it that may be 0 (the logo's is),
+               so the value is checked against the code: the two instructions at the header's entry
+               address must be `lui gp,H` and `addiu gp,gp,L` and give this value
     functions  array of { name, address, size } for the functions that have C in the tree; the name
                is func_ADDRESS_PROGRAM with the address in eight lower case hex digits; required
                (an empty array when none has C yet)
@@ -25,7 +29,8 @@ The file holds one `[[program]]` table per program:
 `load` reads the toml only, never the program's file; it collects every refusal and raises one
 `ProgramError` that names each. `read_body` reads the file and refuses a wrong hash, a header
 that is not a PS-X EXE header, a load address or a size that disagrees with the declaration,
-and a function that lies outside the body. Cost: a run reads one small text file (and, for
+a declared `gp` that the entry code does not set in the form above, and a function that lies
+outside the body. Cost: a run reads one small text file (and, for
 `read_body`, the program's file of about 130 kilobytes), milliseconds.
 """
 
@@ -45,9 +50,10 @@ HEADER_SIZE = 2048
 MAGIC = b"PS-X EXE"
 RAM_BASE = 0x80000000
 RAM_END = 0x80200000
-PROGRAM_KEYS = {"name", "file", "disc", "sha256", "address", "functions", "symbols"}
+PROGRAM_KEYS = {"name", "file", "disc", "sha256", "address", "gp", "functions", "symbols"}
 REQUIRED_KEYS = ("name", "file", "disc", "sha256", "address", "functions")
 FUNCTION_KEYS = {"name", "address", "size"}
+LUI_GP, ADDIU_GP_GP = 0x3C1C, 0x279C  # the upper halves of `lui gp,H` and `addiu gp,gp,L`
 
 
 class ProgramError(Exception):
@@ -74,6 +80,7 @@ class Program:
     address: int
     functions: tuple[ProgramFunction, ...]
     symbols: dict[str, int]
+    gp: int | None = None  # the global pointer the program's entry code sets before its main; None: not declared
 
 
 def is_int(value) -> bool:
@@ -144,6 +151,9 @@ def check_program(entry, base: Path, errors: list[str]) -> Program | None:
     if not in_ram(address) or address % 4:
         errors.append(f"{label}: address is a word aligned address in RAM")
         return None
+    gp = entry.get("gp")
+    if gp is not None and not in_ram(gp):
+        errors.append(f"{label}: gp is an address in RAM")
     functions = []
     declared = entry["functions"]
     if not isinstance(declared, list):
@@ -174,7 +184,7 @@ def check_program(entry, base: Path, errors: list[str]) -> Program | None:
     if len(errors) > before or not isinstance(file, str) or not isinstance(digest, str) or not isinstance(disc, str):
         return None
     return Program(name, (base / file).resolve(), disc, digest, address, tuple(functions),
-                   {k: v for k, v in symbols.items()})
+                   {k: v for k, v in symbols.items()}, gp)
 
 
 def load(path: Path = DECLARATION) -> tuple[Program, ...]:
@@ -233,6 +243,20 @@ def read_body(program: Program) -> bytes:
     body = data[HEADER_SIZE:]
     if size != len(body):
         raise ProgramError(f"program {program.name}: the header says a body of {size} bytes, the file holds {len(body)}")
+    if program.gp is not None:
+        # The header's own field for the global pointer may be 0 (the logo's is): the entry code sets the register.
+        # The declared value is checked against that code, in the one form this reader knows.
+        entry = struct.unpack_from("<I", data, 0x10)[0] - program.address
+        if entry < 0 or entry % 4 or entry + 8 > len(body):
+            raise ProgramError(f"program {program.name}: the header's entry address is outside the body")
+        first, second = struct.unpack_from("<II", body, entry)
+        if first >> 16 != LUI_GP or second >> 16 != ADDIU_GP_GP:
+            raise ProgramError(f"program {program.name}: the entry code does not begin with `lui gp` and `addiu gp,gp`, "
+                               f"so the declared gp cannot be checked")
+        low = second & 0xFFFF
+        value = (((first & 0xFFFF) << 16) + (low - 0x10000 if low & 0x8000 else low)) & 0xFFFFFFFF
+        if value != program.gp:
+            raise ProgramError(f"program {program.name}: the entry code sets gp to {value:#x}, the declaration says {program.gp:#x}")
     for function in program.functions:
         if function.address + function.size > program.address + len(body):
             raise ProgramError(f"program {program.name}: {function.name} ends at {function.address + function.size:#x}, "
