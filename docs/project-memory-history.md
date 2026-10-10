@@ -9253,3 +9253,43 @@ No function count changes here: none of this is in the build.
   script with the private source changes had been (third fight where
   that one had reached the ranking screen); the runs are not
   deterministic, and why was not looked into.
+
+## The differential test lists the constants whose edge no case tries (2026-10-10)
+
+- Why: on 2026-10-10 a deliberate error in the C of `func_8012fd80`
+  (`0x59` in place of `0x58` in a reach) passed all 2,000 cases
+  although every instruction slot of the original was executed. Full
+  coverage of the slots does not show that the edge of a comparison
+  was tried.
+- Added to `ps1/src/slot06_nonmatching/difftest.py`: the mode
+  `--edges`. For one function it alters one constant of the ORIGINAL
+  code by one at a time (plus one and minus one; the constants are
+  the immediates of `slti` and `sltiu`, of `addiu` that is not a
+  stack or global-pointer adjustment nor the low half of an address,
+  and of `ori` from zero) and lists the alterations that no case
+  notices. It is not `--control`, which alters the build of the C.
+  An altered run ends at its first difference; the runs of one
+  function go to a pool of processes (`--jobs`, 8 unless given). A
+  constant in a slot that no case executes gets no run and is listed
+  with `--uncovered`; a run in which every case is discarded is
+  counted apart.
+- What an unnoticed line means, as the tool's header and the page
+  say: no case of that seed tells the constant from its neighbour.
+  That is a gap of the setup when the contract's inputs can reach the
+  edge, and none when they cannot; the tool cannot tell the two apart.
+- What it is for, after the owner's decision of the same day that a
+  nonmatching function comes with a few fixtures: it is a tool for
+  the day a function is written. The cases that notice an edge are
+  the ones worth keeping as fixtures. It is not a check to run on
+  every change.
+- The stage folder's page has what the mode printed for its
+  functions on 2026-10-10: the lines are open, not yet read one by
+  one. That run took about eighteen minutes with eight processes on a
+  machine other work was using (the shell's clock; one-off).
+- Ran: the tool's two test files (`all cases behaved as required`),
+  with a new group of cases for the mode on made-up functions; eight
+  mutants of the mode, each failing named cases, run under a time and
+  a memory limit; the folder's three existing blocks, unchanged byte
+  for byte; the mode on `func_8012fd80` of the resident folder (its
+  reach constant is noticed both ways with the corrected setup).
+- Not done: no contract was changed for the unnoticed lines.

@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "38578ffd9f487369e451fb0bdcd1dd352a045f59cfe861afa947af8d152a56a9",
+  "sha256": "60c68cdb3fd3765c251c6050ac0d8f053add0302382f217e329153b72201427f",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -609,6 +609,10 @@
     {
       "title": "The port's first four overrides in C (2026-10-10)",
       "line": 9187
+    },
+    {
+      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "line": 9257
     }
   ]
 }
