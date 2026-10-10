@@ -448,7 +448,18 @@ def dec(exe, jobs, setup=()):
     return res
 
 
+# The case whose commands the driver is running. A decoder that reads or writes beyond a size ends the driver at a guard
+# page, in the middle of a case: the case is then named here, so that the failure is a named one and not only a status.
+IN_WORK = [None]
+
+
+def about(name: str) -> str:
+    IN_WORK[0] = name
+    return name
+
+
 def check(name, bad):
+    IN_WORK[0] = None
     return name, bad
 
 
@@ -562,9 +573,14 @@ def cases(exe: Path, tmp: Path):
     yield expect("set_scale: 64 signed little-endian halfwords", r3[3], sc.hex())
     bad_lines = ["reset", f"setq 60000000 64 {qy.hex()}", f"setq 40000000 63 {qy[:63].hex()}", f"setq 40000001 127 {(qy + qc)[:127].hex()}",
                  f"sets 40000000 128 {sc.hex()}", f"sets 60000000 127 {sc[:127].hex()}", "tables"]
+    short = about("set_quant refuses a command that is not 2, 64 bytes short, 128 short; set_scale a wrong command and 127 bytes: each E_COMMAND, tables unchanged")
     rc, out = run_driver(exe, bad_lines)
-    yield expect("set_quant refuses a command that is not 2, 64 bytes short, 128 short; set_scale a wrong command and 127 bytes: each E_COMMAND, tables unchanged",
-                 ([int(l.split()[1]) for l in out[1:6]], out[6].split()[1:]), ([E_COMMAND] * 5, [bytes(DEFAULT_QUANT).hex(), bytes(DEFAULT_QUANT).hex(), want_scale]))
+    if rc != 0 or len(out) != len(bad_lines):
+        # a setter that does not look at the size reads past the short table and ends the driver at the guard page
+        yield check(short, f"the driver ended with status {rc} after {len(out)} of {len(bad_lines)} lines (a read beyond a size ends it at the guard)")
+    else:
+        yield expect(short, ([int(l.split()[1]) for l in out[1:6]], out[6].split()[1:]),
+                     ([E_COMMAND] * 5, [bytes(DEFAULT_QUANT).hex(), bytes(DEFAULT_QUANT).hex(), want_scale]))
     rc, out = run_driver(exe, ["reset", f"setq 40000000 64 {qy.hex()}", f"setq 40000001 128 {(qy + qc).hex()}", f"sets 60000000 128 {sc.hex()}", f"setq 40000001 129 {(qy + qc).hex()}00"])
     yield expect("controls of the refusals: the exact sizes (64, 128, 128) and a larger size are accepted", [int(l.split()[1]) for l in out[1:]], [0, 0, 0, 0])
     rc, out = run_driver(exe, [f"args {k}" for k in range(1, 11)])
@@ -1124,8 +1140,10 @@ def main() -> int:
                 else:
                     print(f"FAIL {name}: {bad}")
                     failed += 1
-        except RuntimeError as e:
-            print(f"FAIL the test program stopped after the case `{last}`: {e}")
+        except Exception as e:  # the driver ended, or answered with fewer lines than it was asked for
+            where = f"`{IN_WORK[0]}`" if IN_WORK[0] else f"the case that follows `{last}`"
+            print(f"FAIL {where}: the test program stopped or answered short: {type(e).__name__}: {e}")
+            print(f"{count} cases before it; the cases after it were not run")
             return 1
     print(f"{count} cases, {time.time() - t0:.1f} seconds")
     print(f"{failed} case(s) behaved wrongly" if failed else f"all {count} cases behaved as required")
