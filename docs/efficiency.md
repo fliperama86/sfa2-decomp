@@ -108,10 +108,22 @@ does, not about what depends on it or what it depends on.
 - The same fixtures can test the function as compiled for the PC,
   which the comparison with the original's machine code cannot.
 
-This is the direction; as of 2026-10-10 the tools do not have it yet.
-Today's test (`difftest.py`) runs the original code and random cases
-on every run. Until the fixture form exists, the table above is what
-to run.
+The tool has both halves since 2026-10-10, from the folder
+`ps1/src/slot06_nonmatching/`:
+
+    python difftest.py --config ../build.toml --folder ../FOLDER --cases 2000 --record FUNC
+    python difftest.py --config ../build.toml --folder ../FOLDER --replay FUNC
+
+`--record` is the step of the day a function is written: it makes the
+wide comparison once and writes `FUNC.fixtures.json`. `--replay` is the
+test after that: it builds the C, runs it on the fixtures and never
+runs the original code. It still starts like every mode of the tool,
+so it needs the private inputs of the build configuration and the PS1
+compiler; a replay of the C as compiled for a PC, which needs nothing
+private, is not built yet. Four functions of the resident folder have
+fixtures. A function whose contract lets a callee run as original code
+cannot have them yet (`--record` refuses it), and the other functions
+have none yet: for all of those the table above is what to run.
 
 ## Known costs, as of 2026-10-10
 
@@ -133,7 +145,8 @@ the table are the way around it.
   detail.)
 - `port/tools/hostbuild.py` compiles every unit again on each run.
 
-- Nonmatching functions have no fixtures yet (see above).
+- Most nonmatching functions have no fixtures yet, and a replay that
+  needs nothing private does not exist (see above).
 
 When one of these is repaired, its line leaves this list in the same
 pull request.

@@ -369,6 +369,118 @@ func_801ea640_slot06_0c edges: constants 13, altered runs 22, unnoticed 2, all d
   slot 137: not executed by any case
 ```
 
+## Fixtures
+
+A fixture is one case of one function, in terms of what the function does: the
+arguments, every byte the original read, the calls it made to the stand-ins of
+its callees with what they were given and what they returned, every byte it
+changed, and the result. `--record` runs the original once and writes a few of
+them to `FUNC.fixtures.json` beside `FUNC.c`; `--replay` runs the BUILD of
+`FUNC.c` on each of them and never runs the original.
+
+    python difftest.py --config ../build.toml [--folder DIR] --record --cases 2000 [--seed S] [--max M] [--jobs N] FUNC
+    python difftest.py --config ../build.toml [--folder DIR] --replay [FUNC]
+
+`--record` first runs the default comparison (it must show `different 0` and
+no discarded case; otherwise nothing is written and the status is 1). It then
+keeps, until M (default 12) are kept: every case that executes a slot of the
+original that no kept case executed; for each constant of the `--edges` sweep
+and each direction, the first case that notices the alteration (the sweep
+alters the ORIGINAL, as `--edges` does; `--control` is the other way round and
+plays no part here); and, when the function has a result, the first case for
+each result value no kept case has. Each fixture says why it was kept in its
+`note`. The file also lists, under `uncovered`, the slots of the original that
+no kept case executed and the constants whose edge no kept case could cover.
+The line printed is
+`FUNC fixtures: kept K of N cases (slots A, edges B, results C)`.
+A file that exists is replaced and the tool says so. A line starting
+`warning` says that the cases read bytes the setup did not make, which come
+from the game's memory image and would be published with the file.
+
+A function is refused (one line, status 1, no file written, an existing file
+left alone) when a chosen case executes code of the game other than the
+function itself and the recorders. Its contract lets a callee run as original
+code, fixtures cannot stand in for such a callee, and the function stays with
+the wide comparison. For that reason a fixture has no `needs_image` field (an
+earlier draft had one; no published file has it, and format stays 1), and
+`--replay` refuses a file that has it, with status 2. `func_8011cf98` is such a
+function and has no fixtures.
+
+`--replay` puts the memory of the case in place (poison bytes; a byte of
+`writes` whose input value the fixture does not give starts as its expected
+value with every bit flipped, never as the filler, so that a missing store shows
+whatever its value), puts a stand-in at each callee that returns the recorded
+values in order, runs the build, and requires the same calls in the same order
+with the same logged values, the result, the written bytes exactly, and the
+saved registers and stack pointer as the original left them. Every address
+executed must lie in the build, in a stand-in, or be the stop address; a build
+that calls an address without a stand-in fails. The line is
+`FUNC replay: fixtures K, passed P, failed F`, followed for each failure by the
+fixture and up to three lines saying what differed first. The status is 0 when
+F is 0, 1 otherwise, 2 for a missing or malformed file. With no function named,
+every function of the folder that has a fixtures file is replayed. The replay
+does not run the original, never loads the game's image and uses no byte of the
+game, but it starts like every mode: it loads the configuration, which reads the
+baseline executable to check its hash, so it needs the private inputs of the
+configuration, and it builds the C with the private PS1 compiler. A replay that
+needs nothing private is a later piece (the C as compiled for a PC).
+
+What a replay shows is narrow: for the recorded inputs, the C reads, calls and
+writes what the original did. It is evidence for those inputs. It is not the
+wide comparison (that is made once, by `--record` and the default mode, when
+the function is written) and it is not equivalence. A fixture goes stale when
+the C changes what it reads (a byte the fixture does not hold is poison), calls
+or writes: the replay then fails, and nothing regenerates a file except a new
+`--record`.
+
+Choices of the tool, each of them a decision to review:
+
+- `reads` holds what the function's own instructions read. What a stand-in copies into
+  the log is not a read of the function: the words behind a pointer argument and
+  the watched blocks are stored in each call as the bytes that differ, at that
+  call, from the same memory in the case's input state (the memory before the
+  function ran), as `[offset, hex]` spans, empty when nothing differs. In words:
+  at this call these bytes of the block had been changed to these values. Each
+  call reads alone; it is not a chain against the previous call. The replay
+  rebuilds the block from its own input state (poison where the fixture says
+  nothing) and the changes, and requires it to equal what the build's call
+  shows, so a build that changes a watched byte the original had not changed by
+  that call, or does not change one it had, fails. The stack region, the 16
+  bytes above it and the harness's own memory are left out of reads and writes.
+- `same` holds bytes the original stored without changing them and did not
+  read; without them such a store would look like an extra write in the replay.
+- The stand-ins' own options that stand for what a callee does to memory
+  (`stores`, `counts`, `ends_run_at`, `masks`) are part of the fixture; a stand-in
+  with a `tail` (machine code of the contract's own) cannot be described and the
+  record refuses it with status 2.
+- The reads and writes are found by looking at each instruction before it runs,
+  not with the emulator's memory hooks: with a memory hook, Unicorn 2.1.4 ends a
+  run with an exception when a load or store lies in the delay slot of a
+  conditional branch that is not taken and a jump follows (`test_difftest.py`
+  has made-up code that shows the difference).
+
+The fixtures of four functions of `../resident_nonmatching` are the first.
+Each block is what the commands printed (seed 1, `--record --cases 2000 --jobs 4`):
+
+```
+func_8012fd80 fixtures: kept 6 of 2000 cases (slots 2, edges 3, results 1)
+func_8012fd80 replay: fixtures 6, passed 6, failed 0
+func_80119694 fixtures: kept 4 of 2000 cases (slots 1, edges 3, results 0)
+func_80119694 replay: fixtures 4, passed 4, failed 0
+func_8011a880 fixtures: kept 7 of 2000 cases (slots 5, edges 2, results 0)
+func_8011a880 replay: fixtures 7, passed 7, failed 0
+func_801189c4 fixtures: kept 5 of 2000 cases (slots 4, edges 1, results 0)
+func_801189c4 replay: fixtures 5, passed 5, failed 0
+```
+
+The files are 4765, 3526, 18237 and 71582 bytes. The records took 9, 6, 15 and
+52 seconds by the shell's clock; each replay took 1 second by the same clock,
+the compile of the C included. What they leave uncovered is in the files:
+`uncovered.edges` holds altered runs that no case notices (each line gives the
+number of discarded cases of that run), and `uncovered.slots` the slots
+`+0x330..+0x348` of `func_801189c4`, which no case executes. A second record of
+each function wrote the same bytes.
+
 ## Controls of the tool
 
     python test_difftest.py
@@ -442,6 +554,23 @@ Group L checks the symbol file of the standalone link: the lines that assign a
 name the unit defines are removed (plain, spaced and inside `PROVIDE`), names
 that only begin alike stay, and a link that puts a defined name outside the
 unit is reported with the name and the address.
+Group Z checks the fixtures on made-up functions: the reads found (not the
+stack's, not the log's, and what a stand-in copies into the log), the
+choice of cases (slots, edges, results, the cap, a case kept for two reasons,
+`uncovered`, nothing written when the comparison fails), the file (the same
+bytes for the same input, the keys, the line printed, malformed files), a
+record followed by a replay that passes, each kind of failure of a replay (a
+wrong result, a missing, extra or reordered call, a wrong argument or memory
+behind a pointer, a missing, extra or wrong write, a clobbered saved register
+or stack pointer, a read the fixture does not hold), a run that ends inside a
+stand-in, that a function whose callee runs as original code is refused and a
+file with `needs_image` is not read, that a replay executes only the build and the
+stand-ins (and fails for a build that calls an address without one), stores of
+the filler value that cannot be missed, a
+stand-in at an unnamed address with its pointer cell, the options of a
+stand-in, that the replay never runs the original and reads no contract, the
+input errors of the options, and the decoding of the call log by
+`contracts.CallLog`.
 
 ## Controls that need the toolchain
 
