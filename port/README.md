@@ -2412,7 +2412,9 @@ address; each read and write is checked to lie in the mapped RAM, and a
 range outside it, or a case that is not modelled (a null bitstream, a
 monochrome depth, a count of words that is not a multiple of 32, a
 chip that cannot give what is asked), stops the program with a line that
-names the call. What was compared with what: the layout that `DecDCTvlc`
+names the call. `hostbuild.py` gives `press.c` the library's define with
+`--psyz`; a program built without the library has no decoder chip, and its
+reset, input and output calls stop with a line that says so. What was compared with what: the layout that `DecDCTvlc`
 writes against the reader's own codes, and the pixels that `DecDCTout`
 hands out against direct calls of the same chip after the same reset and
 tables. Nothing is compared with the console's library or its output.

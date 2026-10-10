@@ -43,8 +43,16 @@ declarations in `port/src/port.h`, three stand-ins in the rig of
 `port/tools/test_hostlaunch.py` (it builds `kernel.c` without
 `press.c`), the test's name in the review tool's two lists.
 
+A program built without the library has no chip. `hostbuild.py` gives
+`press.c` the library's define with `--psyz` (as it does for three
+other runtime files); without it the reset, the input and the output
+calls stop with a line that names the call, and the program links
+nothing of PsyZ. The first form of this change called the chip
+unconditionally, and the review command's build of the PC program
+without the library did not link; that run found it.
+
 What ran: `python port/tools/test_hostpress.py --cc CC --psyz-build
-DIR`, `all 60 cases behaved as required` in about 8 seconds (one-off).
+DIR`, `all 61 cases behaved as required` in about 8 seconds (one-off).
 Expected codes come from the driver's own call of the reader, expected
 pixels from its own direct calls of the chip after the same reset and
 tables; the completion's cases run on a clock the test sets. Mutants
@@ -58,7 +66,10 @@ threads, which a driver with one thread cannot show); the chip's
 refusal of a decode command ignored (the checks before it leave no
 input that reaches it). The sixtieth case, the check of the routine's
 address, and one mutant by hand that takes the check out and fails
-that case. The review command was run on the branch's final head
+that case. The sixty-first builds `press.c` a second time without the
+define and without the chip and shows the three stops; the build
+tool's test got a case for the define, and with `press.c` taken out of
+the tool's list that case fails. The review command was run on the branch's final head
 before the pull request; its count of checks is in the pull request's
 text.
 

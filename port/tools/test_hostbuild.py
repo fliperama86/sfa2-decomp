@@ -1084,12 +1084,13 @@ def flow_cases(root: Path):
 
 
 def psyz_cases(root: Path):
-    """--psyz: gpu.c, input.c and iopage.c alone see PsyZ's headers, the link line gets its libraries, and a bad folder is refused."""
+    """--psyz: gpu.c, input.c, iopage.c and press.c alone see PsyZ's headers, the link line gets its libraries, and a bad folder is refused."""
     def tree(tag: str):
         config = run_tree(root, tag)
         write(root / tag / "runtime" / "gpu.c", "int gpu;\n")
         write(root / tag / "runtime" / "input.c", "int input;\n")
         write(root / tag / "runtime" / "iopage.c", "int iopage;\n")
+        write(root / tag / "runtime" / "press.c", "int press;\n")
         folder = root / tag / "psyzdir"
         (folder / "inc").mkdir(parents=True)
         libs = [write(folder / "libpsyz.a", ""), write(folder / "libSDL3.a", "")]
@@ -1107,6 +1108,7 @@ def psyz_cases(root: Path):
     yield "psyz-gpu-c-gets-the-flags", same(rt["gpu.c"][4:10], ["-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, "-I"])
     yield "psyz-input-c-gets-the-flags", same(rt["input.c"][4:10], ["-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, "-I"])
     yield "psyz-iopage-c-gets-the-flags", same(rt["iopage.c"][4:10], ["-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, "-I"])
+    yield "psyz-press-c-gets-the-flags", same(rt["press.c"][4:10], ["-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, "-I"])
     yield "psyz-other-runtime-files-do-not", same(["PORT_HAVE_PSYZ" in " ".join(rt["main.c"]), inc in rt["main.c"]], [False, False])
     link = [c for c in calls if c and c[0].startswith("@")]
     yield "psyz-link-line-has-the-libraries-after-the-flags", same(link[0][1:] if link else None, [*hb.LINK_FLAGS, str(libs[0]), str(libs[1]), "-lm", "-o", str(root / "ps" / "build" / "sfa2.exe")])

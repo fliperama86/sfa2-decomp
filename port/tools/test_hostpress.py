@@ -257,6 +257,48 @@ int main(void)
 }
 '''
 
+# press.c as a program without the picture library has it: linked with no chip. The three calls that need one must stop.
+NOCHIP_C = r'''
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "port.h"
+#include "press.h"
+volatile int port_handler_depth;
+static int resets;
+unsigned long long port_now_us(void) { return 0; }
+int port_interrupt_allowed(void) { return 1; }
+void *port_h_ResetCallback(void) { resets++; return 0; }
+void *port_h_DMACallback(int d, void (*f)(void)) { (void)d; (void)f; return 0; }
+void (*port_iopage_dma_callback(int d))(void) { (void)d; return 0; }
+void port_target_check(const char *path, const void *target) { (void)path; (void)target; }
+void port_halt(int status, const char *fmt, ...)
+{
+    va_list ap;
+    printf("resets %d\nstop: ", resets);
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
+    printf("\n");
+    fflush(stdout);
+    exit(status);
+}
+int main(int argc, char **argv)
+{
+    static unsigned long word[40];
+    if (argc < 2) return 2;
+    if (!strcmp(argv[1], "reset0")) port_DecDCTReset(0);
+    if (!strcmp(argv[1], "reset1")) port_DecDCTReset(1);
+    if (!strcmp(argv[1], "reset7")) port_DecDCTReset(7);
+    if (!strcmp(argv[1], "in")) port_DecDCTin(word, 1);
+    if (!strcmp(argv[1], "out")) port_DecDCTout(word, 32);
+    if (!strcmp(argv[1], "callback")) printf("callback %p\n", (void *)port_DecDCToutCallback(0));
+    printf("returned\n");
+    return 0;
+}
+'''
+
 NAMES: list = []
 
 
@@ -267,6 +309,7 @@ def case(fn):
 
 class Ctx:
     exe: Path
+    nochip: Path
 
 
 def run(cmds):
@@ -738,6 +781,27 @@ def completion_not_taken_before_its_due_time():
 
 
 @case
+def without_the_library_the_calls_that_need_the_chip_stop_by_name():
+    # press.c built as a program without the picture library has it (no define, no chip in the link). The reset, the input
+    # and the output stop with a line that names the call, before anything else is done (the reset before ResetCallback);
+    # a wrong mode is still the first thing said; the callback's registration needs no chip.
+    def run_one(what):
+        p = subprocess.run([str(Ctx.nochip), what], capture_output=True, timeout=LIMIT)
+        return p.returncode, p.stdout.decode(errors="replace").splitlines()
+    line = "this program was built without the picture library, which has the decoder's chip"
+    want = {"reset0": (STATUS, ["resets 0", "stop: DecDCTReset: " + line]),
+            "reset1": (STATUS, ["resets 0", "stop: DecDCTReset: " + line]),
+            "reset7": (STATUS, ["resets 0", "stop: DecDCTReset: mode 7 is not 0 or 1"]),
+            "in": (STATUS, ["resets 0", "stop: DecDCTin: " + line]),
+            "out": (STATUS, ["resets 0", "stop: DecDCTout: " + line])}
+    got = {what: run_one(what) for what in want}
+    callback = run_one("callback")
+    if callback[0] != 0 or callback[1][-1:] != ["returned"]:
+        return f"the callback's registration: {callback}"
+    return eq(got, want)
+
+
+@case
 def completion_checks_the_routines_address_before_calling_it():
     # The runtime's check of a call target is asked about the registered routine, once, right before the call, by the
     # poll and by the timer's way alike; with no routine registered it is not asked at all.
@@ -1047,12 +1111,21 @@ def main() -> int:
         if proc.returncode != 0:
             print("FAIL the chip core does not build:\n" + proc.stderr[-2000:])
             return 1
-        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(args.src), "-o", str(exe), str(root / "pressmain.c"),
+        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-DPORT_HAVE_PSYZ", "-I", str(args.src), "-o", str(exe), str(root / "pressmain.c"),
                                str(args.src / "press.c"), str(args.src / "mdec.c"), str(chip_obj)] + LINK_FLAGS, capture_output=True, text=True, timeout=180)
         if proc.returncode != 0:
             print("FAIL the test program does not build:\n" + proc.stderr[-2000:])
             return 1
         Ctx.exe = exe
+        # The same file as a program without the library is built: no define, and nothing of the chip in the link.
+        (root / "nochip.c").write_text(NOCHIP_C)
+        nochip = root / "nochip.exe"
+        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(args.src), "-o", str(nochip), str(root / "nochip.c"),
+                               str(args.src / "press.c"), str(args.src / "mdec.c")] + LINK_FLAGS, capture_output=True, text=True, timeout=180)
+        if proc.returncode != 0:
+            print("FAIL press.c does not build and link without the library:\n" + proc.stderr[-2000:])
+            return 1
+        Ctx.nochip = nochip
         for fn in NAMES:
             name = fn.__name__
             if args.only not in name:

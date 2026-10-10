@@ -5,10 +5,20 @@
 #include <stddef.h>
 #include <string.h>
 
-/* PsyZ's decoder chip core (its src/psyz/mdec.c; the header there is the library's internal one). */
+/* PsyZ's decoder chip core (its src/psyz/mdec.c; the header there is the library's internal one). hostbuild.py defines
+ * PORT_HAVE_PSYZ for this file when the program is built with the library (--psyz). Without it there is no chip: the three calls
+ * that need one stop the program with a line that names the call, and the program links nothing of PsyZ. */
+#ifdef PORT_HAVE_PSYZ
 void Psyz_MdecReset(void);
 int Psyz_MdecCommand(unsigned int command, const void *data, size_t words);
 int Psyz_MdecRead(void *data, size_t words);
+#define NEED_CHIP(call) ((void)0)
+#else
+#define NEED_CHIP(call) port_halt(PORT_EXIT_OTHER, "%s: this program was built without the picture library, which has the decoder's chip", call)
+static void Psyz_MdecReset(void) {}
+static int Psyz_MdecCommand(unsigned int command, const void *data, size_t words) { (void)command; (void)data; (void)words; return -1; }
+static int Psyz_MdecRead(void *data, size_t words) { (void)data; (void)words; return -1; }
+#endif
 
 void *port_h_ResetCallback(void);
 
@@ -52,6 +62,7 @@ static void take_here(void)
 void port_DecDCTReset(int mode)
 {
     if (mode != 0 && mode != 1) port_halt(PORT_EXIT_OTHER, "DecDCTReset: mode %d is not 0 or 1", mode);
+    NEED_CHIP("DecDCTReset");
     if (mode == 0) port_h_ResetCallback();
     Psyz_MdecReset();
     state = 0;
@@ -99,6 +110,7 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf)
 void port_DecDCTin(unsigned long *buf, int mode)
 {
     unsigned w, count, depth;
+    NEED_CHIP("DecDCTin");
     need("DecDCTin", "the command word", buf, 4);
     w = (unsigned)*buf;
     w = (mode & 1) ? (w & ~(1u << 27)) : (w | (1u << 27));
@@ -121,6 +133,7 @@ void port_DecDCTout(unsigned long *buf, int words)
 {
     unsigned long long n;
     unsigned long long blocks;
+    NEED_CHIP("DecDCTout");
     if (words < 0) port_halt(PORT_EXIT_OTHER, "DecDCTout: %d words", words);
     n = 32ull * ((unsigned)words >> 5);
     need("DecDCTout", "the strip", buf, n * 4);
