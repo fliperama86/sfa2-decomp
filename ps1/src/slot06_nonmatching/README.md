@@ -511,7 +511,9 @@ listed apart. An altered original has an instruction budget of its own, eight
 times the longest run of the unaltered original (at least 20,000
 instructions). `--edges` alters the original; `--control` alters the build.
 `--record` also looks at the first three cases for what refuses a function
-before it makes the altered runs.
+before it makes the altered runs, and it counts memory that a setup marked
+with `State.owns` (made, with the image's content) among the bytes that a
+file would publish.
 
 Functions of this folder without a fixtures file, by reason:
 

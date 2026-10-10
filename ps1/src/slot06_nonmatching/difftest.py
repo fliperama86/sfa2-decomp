@@ -173,7 +173,10 @@ case for each result value that no kept case has (note `result 0xV`). It prints
 
     FUNC fixtures: kept K of N cases (slots A, edges B, results C)
 
-A and B and C count the cases kept for that reason first. The edge runs of (b) are made as --edges makes
+A and B and C count the cases kept for that reason first. A line `FUNC fixtures: warning, N bytes read were
+not made by the setup: ...` comes before it when kept cases read memory that the setup did not make, or
+memory that it marked with `State.owns` (made for the audit of the writes, with the image's content left in
+it): such bytes are the game's. The file is written all the same, and it is not for publication. The edge runs of (b) are made as --edges makes
 them (altered ORIGINAL code, `--jobs N` at a time, the altered original's own budget); the build is not
 altered. An altered run whose process ended without a result gives no case, and its line is among the
 uncovered edges of the file. A file that exists is replaced, and the tool says so. A setup with more than one CallLog, or a recorder with a `tail`, cannot be described:
@@ -286,6 +289,7 @@ class State:
         self.made_ram = bytearray(RAM_SIZE)  # 1 for each byte that the setup made (see `owns`)
         self.made_scratch = bytearray(SCRATCH_SIZE)
         self.call_logs: list = []  # the `contracts.CallLog`s of the setup, for `--record`
+        self.kept: list[tuple[int, int]] = []  # what the setup marked with `owns`: made, with the image's content
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
         if size < 0:
@@ -311,6 +315,7 @@ class State:
         """Mark [address, address + size) as made without writing it (see `--writes`)."""
         block, offset = self._locate(address, size)
         self._mark(block, offset, size)
+        self.kept.append((address, size))
 
     def read(self, address: int, size: int) -> bytes:
         block, offset = self._locate(address, size)
@@ -334,7 +339,8 @@ class State:
         if end > ARENA_END:
             raise ValueError("the setup needs more free RAM than the arena holds")
         self.arena = end
-        self.owns(address, size)
+        # Made like what `owns` marks, but not kept content of the image: the arena is free RAM.
+        self._mark(*self._locate(address, size), size)
         return address
 
 
@@ -1308,9 +1314,15 @@ def pointer_cell(reads: dict[int, int], target: int) -> int | None:
 
 
 def unmade_reads(state: State, reads: dict[int, int]) -> int:
-    """How many of the bytes read are memory that the setup did not make: they come from the game's image."""
+    """How many of the bytes read are memory that the setup did not make: they come from the game's image.
+    What the setup marked with `owns` counts with them: it is made for the audit of the writes, and its
+    content is the image's all the same."""
+    def kept(at: int) -> bool:
+        address = at + RAM_BASE if at < RAM_SIZE else at
+        return any(start <= address < start + size for start, size in state.kept)
+
     return sum(1 for at in reads
-               if not (state.made_ram[at] if at < RAM_SIZE else state.made_scratch[at - SCRATCH_BASE]))
+               if kept(at) or not (state.made_ram[at] if at < RAM_SIZE else state.made_scratch[at - SCRATCH_BASE]))
 
 
 def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts.Setup, names: dict[int, str]) -> tuple[dict, int]:

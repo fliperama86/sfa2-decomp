@@ -3777,6 +3777,26 @@ def case_z_reads_the_setup_did_not_make_are_warned_about():
     return None if ok and len(clean) == 1 else f"{lines} {clean}"
 
 
+def case_z_reads_of_what_the_setup_kept_from_the_image_are_warned_about():
+    # `owns` makes the word for the audit of the writes and leaves the image's content in it: a file with
+    # that word would publish it all the same; a block of `alloc` is free RAM and is no such content
+    words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), lw(T2, T0, 64), JR_RA, NOP]
+
+    def keeping(state, rng, sym):
+        state.owns(FLAG + 64, 4)
+        return fx_setup(state, rng, sym)
+
+    def allocating(state, rng, sym):
+        state.alloc(16)
+        return fx_setup(state, rng, sym)
+
+    lines = fx_record(words, keeping, cases=3)[0]
+    block = [lui(T0, D.ARENA_BASE >> 16), lw(T1, T0, 0), JR_RA, NOP]
+    clean = fx_record(block, allocating, cases=3)[0]
+    ok = len(lines) == 2 and lines[0].startswith(f"{LABEL} fixtures: warning, 4 bytes read were not made by the setup")
+    return None if ok and len(clean) == 1 else f"{lines} {clean}"
+
+
 def case_z_failure_lines_are_at_most_three():
     words = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), JR_RA, NOP]
     many = []
@@ -4529,6 +4549,7 @@ CASES = [
     ("z-poison-shows-a-zero-write-that-is-missing-or-extra", case_z_poison_shows_a_zero_write_that_is_missing_or_extra),
     ("z-failure-memory-behind-a-pointer-argument", case_z_failure_memory_behind_a_pointer_argument),
     ("z-reads-the-setup-did-not-make-are-warned-about", case_z_reads_the_setup_did_not_make_are_warned_about),
+    ("z-reads-of-what-the-setup-kept-from-the-image-are-warned-about", case_z_reads_of_what_the_setup_kept_from_the_image_are_warned_about),
     ("z-failure-lines-are-at-most-three", case_z_failure_lines_are_at_most_three),
     ("z-failure-names-the-fixture", case_z_failure_names_the_fixture),
     ("z-ends-in-callee", case_z_ends_in_callee),

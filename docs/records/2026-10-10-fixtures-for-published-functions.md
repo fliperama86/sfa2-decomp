@@ -46,9 +46,26 @@ that repaired them, none is in a function's C or contract):
   case. Found by the time of the records (22 s to 7 s and 256 s to 90 s after
   the repair, one-off timings with six cases instead of twelve in the second
   run of each).
-Tests after the repair: `test_difftest.py`, 345 cases, "all cases behaved as
-required"; `test_difftest_build.py --config ../build.toml`, the same line; 26
-mutants of the new code, each failing a named case.
+A fifth change closes a gap that no published contract uses: memory that a
+setup marks with `State.owns` is made for the audit of the writes and keeps
+the image's content, and `--record` took a read of it for a read of made
+memory. It now counts with the bytes the setup did not make, so a file with
+such bytes is warned about like the nine above. No contract of the six
+folders calls `owns` (`grep -l "\.owns(" ps1/src/*_nonmatching/func_*.py
+port/overrides/*.py` prints nothing), so no recorded file is affected.
+
+Tests after the repairs: `test_difftest.py`, 347 cases, "all cases behaved as
+required" (330 on main before; the message of commit `294dd7c` says 345 where
+that commit has 346); `test_difftest_build.py --config ../build.toml`, the same
+line; 28 mutants of the new code, each failing a named case.
+
+The functions without a fixtures file were each run once more with the
+repaired tool, alone, `--cases 2000` (seed 1), eight at a time: 72 runs, every
+status 0, and the comparison line and the coverage line of each are the lines
+its folder's page has (144 lines compared by a private script). So the repair
+that ends a run at a full call log changed no published line of theirs. The
+functions with a file were not run again: their replays pass with the
+repaired tool, and their files hold the comparison line of their record.
 
 Not recorded, 72 functions, by reason:
 - 53 whose contract lets a callee run as original code (`--record` refuses
