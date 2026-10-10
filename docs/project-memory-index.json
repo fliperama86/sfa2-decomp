@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "7d518679ce7b86594d8990830970fdfac75c132714a9c01c106607153eef3adc",
+  "sha256": "0d9e391acdb07e25db7bbac6fcd77d9a969e427f217f329605cf236691ff2139",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -619,8 +619,12 @@
       "line": 9281
     },
     {
-      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
+      "title": "Efficient checks: the owner's rule (2026-10-10)",
       "line": 9305
+    },
+    {
+      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
+      "line": 9359
     }
   ]
 }

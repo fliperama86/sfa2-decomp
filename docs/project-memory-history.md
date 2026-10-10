@@ -9302,6 +9302,60 @@ No function count changes here: none of this is in the build.
 - The reviews of this correction ran the overrides' checks fresh after
   the change (the tool's own files are part of every key).
 
+## Efficient checks: the owner's rule (2026-10-10)
+
+- The owner wrote on 2026-10-10, after he was told that two pull
+  requests of nonmatching C needed "a couple of hours of checks" (his
+  words, as typed): "we should be more efficient from now on, you can't
+  simply run things for hours willy nilly. you must think about
+  scalling first. not you specific, but other Claude agents have been
+  rebuilding and retesting the entire game on each extac-match function
+  discorvery. think about it, what is the point? exact match doesnt
+  even need testing!! all process should be designed in such a way it
+  is AI-friendly, ie, you should be able to run isolated unit-tests the
+  runs extremely quickly without wasting time running the program." And
+  then: "we should document this "efficiency-oriented" approach in the
+  repo files, README or wherever you judge appropriated, this way all
+  future agents will find it (not only Claude in this machine)".
+- Documented: a new page `docs/efficiency.md` (eight rules, what to run
+  for which change, the same for a review, and the places where
+  today's tools do not follow the rules yet); a section "Cost of
+  checks" in `AGENTS.md` and the page in its reading list; one entry in
+  the active memory; a pointer in `docs/ai-workflow.md` and in the
+  README. No tool is changed by this.
+- What had gone wrong, as the lane that was told saw it: five runs of
+  2,000 cases over a whole folder for every added batch, one after the
+  other; the whole matching build before every pull request; the
+  review command running every nonmatching folder again when a shared
+  file changed; the same runs made by a worker, by the session that
+  directed it and by the review.
+- One-off figures of the same day, on one machine with a warm object
+  cache, not printed by any command of the repository:
+  `matchbuild.py --image slot12` ended with `RESULT: PASS` after about
+  5 seconds, `--image resident` after about 53 seconds; the whole
+  build and the checks around it take about a quarter of an hour. A
+  case of `difftest.py` cost about 6 to 13 milliseconds whatever the
+  function's size (two measurements under different load).
+- First use of the rule, the same day: the pull request with
+  thirty-one module functions was opened on the runs that existed, and
+  its description says that the review command was not run and why.
+- The owner added the same day, on tests: "IMO, non-matching functions
+  should be accompanied by a few fixtures for the unit test and that is
+  it. no need to re-run even dependent functions, this is the test
+  driven development, isolated tests. this is critical because each
+  function should only care about what they do, not about dependents
+  or dependencies." Asked whether values that the original code
+  computes may be published in fixtures: "fixtures are fine to
+  publish." And on reviews: "the reviewer can't spend hours retesting
+  everything, it should run the isolated tests, review the code and
+  that is it." The page has a section for each. The fixture form does
+  not exist yet in the tools.
+- Still to do, each its own work: `difftest.py` cheaper per case; the
+  review's results keyed by what a function depends on, and its checks
+  run at the same time; a matching build that links only the images a
+  change reaches; a port build that compiles only what changed; the
+  nonmatching folders' pages reworded to per-function lines.
+
 ## Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)
 
 No function count changes here: none of this is in the build.
