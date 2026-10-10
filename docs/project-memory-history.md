@@ -8383,6 +8383,30 @@ map after this, from `coveragemap.py render`: 5,431 of 5,600 distinct functions 
 Not claimed: that the form or any name is the original's. No run of
 the game.
 
+## A function of the module of slot 0x1 exact, with its palette table (2026-10-10)
+
+`func_80010104_slot01`, 916 bytes, of the module of slot 0x1
+(`CDEMO00.PAC`). Its parked candidate did not compile any more: it
+declared two resident symbols as single values where the shared
+header has arrays, and one library call with another result type.
+With the header's forms the code differed in one instruction slot,
+the address of the read-only data that its local array of 80
+halfwords is copied from: the build put that data elsewhere. The unit
+names the range now, 160 bytes at the start of the module, and the
+build places and compares it. The note of ten differing slots in the
+parked file was about its old declarations.
+
+The array's 80 values are written in the source as its initializer:
+five rows of sixteen colours.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; its
+read-only range is identical to the original's; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,432 of 5,600 distinct functions exact, 12,859 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's, or what the
+colours are for. No run of the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
