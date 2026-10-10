@@ -94,6 +94,10 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010928_logo coverage: 68 of 68 instruction slots of the original executed
+func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010928_logo coverage: 68 of 68 instruction slots of the original executed
 func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
 func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -135,6 +139,7 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
@@ -149,6 +154,8 @@ func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -172,6 +179,8 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010928_logo replay: fixtures 1, passed 1, failed 0
 func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -239,3 +248,13 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   the first pointer. The two callees are recorders in the test; the
   fixtures file is the largest of the folder because it holds the filled
   block.
+- `func_80010928_logo`: sets up the graphics and the two display environments
+  (inferred). Calls `ResetGraph(0)`, `SetDispMask(0)`, `CdReadCallback` with
+  the word at `0x8002eb38`, `SetDefDispEnv` for the two environments at
+  `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes and the word at
+  `0x8002eb50` to 0, and, when the word at `0x8002eb38` is not 0, the screen x
+  and y of both to 0 and 0x18. Then `ClearImage` of a local rectangle,
+  `DrawSync(0)`, `VSync(0)`, `func_80158470` on the second environment and
+  `SetDispMask(1)`. The eight callees are recorders in the test; the local
+  rectangle's address is part of the log, so the test also holds the local
+  at the address the original places it at.
