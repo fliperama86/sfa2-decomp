@@ -729,7 +729,7 @@ compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
 units: 3829 compiled, 78 of them nonmatching, 0 failed
 like images built: 22
 functions with C: 12596
-functions overridden in C: 4
+functions overridden in C: 10
 functions without C: 475, library 384, game and modules 91
 sweep rows that are not functions: 11
 names at PS1 addresses: 46128
@@ -738,9 +738,11 @@ linked: port/build/host/sfa2.exe, verified
 ```
 
 The functions and names of the second placements are in these counts,
-each under its own name. The four functions of the line
-`functions overridden in C` are those of the folder
-[`overrides/`](overrides/README.md) (see "Overrides in C" below). The
+each under its own name. The ten of the line
+`functions overridden in C` are the nine functions of the folder
+[`overrides/`](overrides/README.md) (see "Overrides in C" below); the
+function of the character module `slot04_0f` is placed a second time in its
+`like` image `slot05_0f` and counted again. The
 program's start line `overrides in C: M` is not in the sample of
 "Running it", which was printed before that line existed.
 
