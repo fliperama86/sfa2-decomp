@@ -8849,6 +8849,13 @@ No function count changes here: none of this is in the build.
     cannot be opened or read; every message names the file and the line.
     The steps are sorted by (frame, line order) with `qsort`, not by the
     trial's insertion sort (quadratic).
+  - A refusal is printed whole: the first run of the review (a long path
+    inside its copy of the tree) cut the message at the runtime's usual
+    256-character error buffer and lost the line number and the reason.
+    The script's reader now has an error buffer of its own (2048), shows a
+    path of over 1000 characters shortened with `...`, and a control makes
+    a path that puts the message past 256 characters (the mutant with a
+    256-character buffer fails it).
   - `InitPAD` checks both buffers when they are given (main had no check;
     the trial had none): a negative length, or a non-null buffer of
     positive length not wholly inside `port_game_span`, ends the run
@@ -8883,7 +8890,7 @@ No function count changes here: none of this is in the build.
   1; with no game controller its frame says "no controller", and the
   script has no effect there (the one line says so).
 - Checks, one-off counts, all on 2026-10-10 in the worktree of the branch
-  `port-pads-input`. `test_hostpads.py --cc ... --psyz-build ...`: 79 cases
+  `port-pads-input`. `test_hostpads.py --cc ... --psyz-build ...`: 80 cases
   `ok`, `all cases behaved as required`; mutants, each in a copy of the
   runtime's folder with one line changed, each failing named cases: the
   poll left out (7 cases), the poll after the fetch (10), the script's

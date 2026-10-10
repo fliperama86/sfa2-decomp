@@ -135,7 +135,10 @@ int main(int argc, char **argv)
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");
     port_trace_set(trace_file);
-    if (input_path && port_input_load(input_path, err, sizeof err) != 0) return refuse(err);
+    if (input_path) {
+        char input_err[PORT_INPUT_ERR];
+        if (port_input_load(input_path, input_err, sizeof input_err) != 0) return refuse(input_err);
+    }
     port_debug_set(dump_path, dump_every);
     port_debug_watchdog(watchdog);
     atexit(port_debug_end);

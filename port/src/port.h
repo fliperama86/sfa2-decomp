@@ -235,6 +235,8 @@ extern int port_skip_programs;
 void port_pad_host_init(void);                               /* once per InitPAD */
 void port_pad_host_read(unsigned char *dst, int len);        /* port 1's frame, the first min(len, PORT_PAD_FRAME) bytes */
 void port_pad_print_keys(void);                              /* one line at start when PsyZ is linked, else nothing */
+#define PORT_INPUT_ERR        2048   /* size of the error buffer that port_input_load needs: a long path is shortened to PORT_INPUT_PATH_SHOWN characters */
+#define PORT_INPUT_PATH_SHOWN 1000
 int  port_input_load(const char *path, char *err, size_t errsize);   /* --input FILE: 0, or -1 with a line that names the file and line */
 int  port_input_loaded(void);
 void port_input_apply(unsigned char *frame, unsigned vblank);        /* press the script's buttons held at that vertical blank on a digital pad frame */

@@ -158,9 +158,21 @@ static int number(const char *tok, size_t len, double *out, const char **why)
     return 0;
 }
 
-int port_input_load(const char *path, char *err, size_t errsize)
+/* The path as a message shows it: all of it up to PORT_INPUT_PATH_SHOWN characters, else the first of them and "...". The
+ * caller's buffer (PORT_INPUT_ERR) then holds the line number and the reason in every case. */
+static const char *shown_path(const char *path, char *buffer)
 {
-    FILE *f = fopen(path, "rb");
+    if (strlen(path) <= PORT_INPUT_PATH_SHOWN) return path;
+    memcpy(buffer, path, PORT_INPUT_PATH_SHOWN - 3);
+    strcpy(buffer + PORT_INPUT_PATH_SHOWN - 3, "...");
+    return buffer;
+}
+
+int port_input_load(const char *path_given, char *err, size_t errsize)
+{
+    char shown[PORT_INPUT_PATH_SHOWN + 1];
+    const char *path = shown_path(path_given, shown);
+    FILE *f = fopen(path_given, "rb");
     char *text = NULL;
     size_t size = 0, pos = 0;
     struct line *lines = NULL;

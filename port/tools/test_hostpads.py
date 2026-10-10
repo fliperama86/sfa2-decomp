@@ -664,6 +664,15 @@ def cases(plain: PadRig, linked: PadRig, psyz_build: Path | None):
         yield refuse("missing-file", None, "cannot be opened", None, rig.native(missing))
         yield refuse("a-folder", None, "cannot be opened", None, rig.native(rig.work))
 
+        # a path so long that the whole message is longer than 256 characters keeps its line number and its reason
+        folder = rig.work / ("d" * max(1, 225 - len(rig.native(rig.work)) - 9))
+        folder.mkdir()
+        (folder / "bad.txt").write_bytes(b"0.1 cross down\n1x cross down\n")
+        long_path = rig.native(folder / "bad.txt")
+        want_long = f"refused: input: {long_path} line 2: the time `1x` is not a number (digits and one point)"
+        status, lines, img, arg = go(rig, "bad-long-path", entry, "pads-plain", ["--input", long_path])
+        yield "script-with-a-long-path-keeps-its-line-and-reason-in-the-refusal", None if len(want_long) > 256 and (status, lines) == (2, [want_long]) else f"status {status}, lines {lines!r}, wanted {want_long!r}"
+
         # accepted: rounding to one frame is not backwards; the layout forms; the largest time
         for name, data in (("same-frame-after-rounding", b"0.3 cross down\n0.2999 cross up\n"), ("largest-time", b"1000000 cross down\n"), ("layout", SCRIPT_3.encode())):
             p = rig.work / f"ok-{name}.txt"
