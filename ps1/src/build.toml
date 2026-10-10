@@ -40177,3 +40177,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8016a16c", address = 0x8016a16c, size = 100 },
 ]
+
+[[unit]]
+name = "b119444_r1"
+source = "resident_b/b119444_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119444", address = 0x80119444, size = 72 },
+]

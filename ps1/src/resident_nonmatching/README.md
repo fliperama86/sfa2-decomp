@@ -40,6 +40,8 @@ that function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
+func_801189c4: built 884 bytes, original 844 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801189c4 coverage: 204 of 211 instruction slots of the original executed
 func_80119694: built 132 bytes, original 132 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80119694 coverage: 33 of 33 instruction slots of the original executed
 func_8011a018: built 788 bytes, original 1016 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -66,6 +68,8 @@ func_8011f06c: built 44 bytes, original 48 bytes; cases 2000, discarded 0, equal
 func_8011f06c coverage: 12 of 12 instruction slots of the original executed
 func_8011fa50: built 128 bytes, original 144 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011fa50 coverage: 35 of 36 instruction slots of the original executed
+func_80120604: built 928 bytes, original 952 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80120604 coverage: 238 of 238 instruction slots of the original executed
 func_80120cf0: built 664 bytes, original 592 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80120cf0 coverage: 148 of 148 instruction slots of the original executed
 func_80124304: built 904 bytes, original 928 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -157,6 +161,8 @@ func_801545cc coverage: 235 of 235 instruction slots of the original executed
 The control (`--cases 2000 --control FUNC`):
 
 ```
+func_801189c4 control: different 2000 of 2000 (expected more than 0)
+  altered: game_state.field_1e constant 0x1c3 changed to 0x1c4, instruction slot 177
 func_80119694 control: different 141 of 2000 (expected more than 0)
   altered: counter starts at 28, instruction slot 0
 func_8011a018 control: different 2000 of 2000 (expected more than 0)
@@ -183,6 +189,8 @@ func_8011f06c control: different 2000 of 2000 (expected more than 0)
   altered: store of field_226 moved by one byte, instruction slot 8
 func_8011fa50 control: different 2000 of 2000 (expected more than 0)
   altered: store of field_3a moved by two bytes, instruction slot 10
+func_80120604 control: different 254 of 2000 (expected more than 0)
+  altered: volume shifted by 5 instead of 6, instruction slot 102
 func_80120cf0 control: different 1012 of 2000 (expected more than 0)
   altered: random byte masked with 0x70, instruction slot 111
 func_80124304 control: different 307 of 2000 (expected more than 0)
@@ -274,6 +282,7 @@ func_801545cc control: different 2000 of 2000 (expected more than 0)
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
+func_801189c4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80119694 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011a018 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011a880 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -287,6 +296,7 @@ func_8011df3c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011eb4c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011f06c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011fa50 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80120604 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80120cf0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80124304 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801254f4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)

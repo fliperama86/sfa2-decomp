@@ -9547,6 +9547,169 @@ No function count changes here: none of this is in the build.
   redesigned, not made (`docs/efficiency.md` when its pull request is
   merged).
 
+## The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)
+
+- `func_801189c4`, the game's `main` (inferred), is nonmatching C in
+  `ps1/src/resident_nonmatching/`, the last function of that folder's
+  backlog that had no open question. It never returns; its test ends
+  each case at a recorder and compares the calls it makes and the
+  memory it leaves. Its lines are on the folder's page: `different 0`
+  on seeds 1 and 7, 204 of 211 instruction slots executed (the header
+  names the seven), the control and the write audit. It was tested
+  alone; no other function of the folder was run again.
+  Before the pull request its file was made to include `protos.h` and
+  `externs.h` like the folder's other units, and the declarations that
+  those headers already give were taken out of it; the five runs after
+  that print the same lines.
+- `func_80119444`, the handler that the vertical-blank event calls
+  once a frame (inferred; it counts the frame counter that `main`'s
+  loop waits on), is an exact unit: `resident_b/b119444_r1.c`, 72
+  bytes at 0x80119444. Its C had waited as nonmatching and turned out
+  byte-identical when the first resident batch was cut; it was offered
+  to the matching lane then. Evidence, by the rule that an exact match
+  needs no test: `python ps1/tools/matchbuild.py --image resident`
+  ends with `RESULT: PASS`, and `fndiff.py --rebuild` of the unit
+  prints `0 differing instruction slots: IDENTICAL`. The line of
+  `symbols.ld` that named the function is removed, as the build
+  requires for a function that a unit owns. One function more is
+  exact; the coverage map follows from the configuration.
+- Why both now: the port. Its program starts at `main` and stopped
+  there for want of C, and the frame handler is what the vertical
+  blank calls. With the two, the port's build lists four functions of
+  the game and its modules without C (one-off reading of its `--list`
+  output): the entry code, which the port does not run, and three
+  that wait on open questions (`func_80120604`,
+  `func_800e0850_slot0f`, `func_800e0a1c_slot0f`).
+- Not run: the whole matching build, the other functions' tests, the
+  repository's review command (`docs/efficiency.md`).
+
+## Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)
+
+- `func_80120604` (inferred: it walks a list of 8-byte sound commands
+  and calls the sound library for each) is nonmatching C in
+  `ps1/src/resident_nonmatching/`. It had waited for two questions.
+- First: its callee `func_80164ef0` is defined with two
+  `unsigned short` parameters, and the original's code here
+  sign-extends those two values before the call. The call is now made
+  through a type that takes them as `short`, with a comment; the
+  file's own declaration of the callee is the definition's. One-off
+  runs: called with the definition's type, 832 of 2,000 cases differ
+  on seed 1 and 826 on seed 7; through the cast, none.
+- Second: its command 11 clears `data_80197ed0[channel]` for a channel
+  of up to 0xffe + 4, far past the 36 priority bytes. The image has
+  zeros there, so the store of a zero changed nothing that the test or
+  the write audit could see. The setup now fills the 0x1004 bytes that
+  such a channel can reach with random bytes; the store is then
+  compared like any other at the end of a case.
+- Ran, the function alone: `different 0` on seeds 1 and 7, every
+  instruction slot of the original executed, the control, the write
+  audit `outside 0` on both seeds; the declarations check told to read
+  the file (no finding for it); the port's build with it (`0 failed`).
+  Its lines are on the folder's page at their place; no other line
+  changed.
+- Why now: a private run of the PC program built from main and the
+  open pull request for the game's `main` reached the title screen and
+  stopped at this function.
+
+## The differential test lists the constants whose edge no case tries (2026-10-10)
+
+- Why: on 2026-10-10 a deliberate error in the C of `func_8012fd80`
+  (`0x59` in place of `0x58` in a reach) passed all 2,000 cases
+  although every instruction slot of the original was executed. Full
+  coverage of the slots does not show that the edge of a comparison
+  was tried.
+- Added to `ps1/src/slot06_nonmatching/difftest.py`: the mode
+  `--edges`. For one function it alters one constant of the ORIGINAL
+  code by one at a time (plus one and minus one; the constants are
+  the immediates of `slti` and `sltiu`, of `addiu` that is not a
+  stack or global-pointer adjustment nor the low half of an address,
+  and of `ori` from zero) and lists the alterations that no case
+  notices. It is not `--control`, which alters the build of the C.
+  An altered run ends at its first difference; the runs of one
+  function go to a pool of processes (`--jobs`, 8 unless given). A
+  constant in a slot that no case executes gets no run and is listed
+  with `--uncovered`; a run in which every case is discarded is
+  counted apart.
+- What an unnoticed line means, as the tool's header and the page
+  say: no case of that seed tells the constant from its neighbour.
+  That is a gap of the setup when the contract's inputs can reach the
+  edge, and none when they cannot; the tool cannot tell the two apart.
+- What it is for, after the owner's decision of the same day that a
+  nonmatching function comes with a few fixtures: it is a tool for
+  the day a function is written. The cases that notice an edge are
+  the ones worth keeping as fixtures. It is not a check to run on
+  every change.
+- The stage folder's page has what the mode printed for its
+  functions on 2026-10-10: the lines are open, not yet read one by
+  one. That run took about eighteen minutes with eight processes on a
+  machine other work was using (the shell's clock; one-off).
+- Ran: the tool's two test files (`all cases behaved as required`),
+  with a new group of cases for the mode on made-up functions; eight
+  mutants of the mode, each failing named cases, run under a time and
+  a memory limit; the folder's three existing blocks, unchanged byte
+  for byte; the mode on `func_8012fd80` of the resident folder (its
+  reach constant is noticed both ways with the corrected setup).
+- Not done: no contract was changed for the unnoticed lines.
+
+## The last two module functions without C, and three overrides that return the result (2026-10-10)
+
+- `func_800e0850_slot0f` and `func_800e0a1c_slot0f` (inferred: a save
+  and a load of a memory-card file) are nonmatching C in
+  `ps1/src/modules_nonmatching/`, with contracts and tests. Their C
+  came from the staging branch and was fitted to main: the headers
+  `protos.h` and `externs.h` are included; the data symbols follow
+  main's declarations (`u8 []` for `data_800df0f0_slot0f` and
+  `data_800df0f8_slot0f`, `u8 *` for `data_800e8504_slot0f`, with a
+  cast to the header record where the first function uses it); the
+  second parameter of `func_800e0850_slot0f` is `s16 *` as in main's
+  declaration in `slot0f_171c_r3.c`, cast to `char *` where it is the
+  name string; the calls of the three retry loops, defined `void` in
+  their exact units, go through a cast of the callee to a type that
+  returns the result, with a comment that says why. The contracts'
+  recorders of the retry loops answer whole words, and the values that
+  decide a test (-1, other negative words, 0, positive words, words
+  with a low byte or halfword of ones) are drawn often. The headers'
+  figures of the build were replaced by the byte counts that the
+  folder's first command prints (412 against 460, 276 against 300),
+  because the earlier sentences about registers could not be read off
+  the files. Lines on the folder's page, which is now in the form of
+  the resident folder's page: `different 0` on seeds 1 and 7 for both,
+  115 of 115 and 75 of 75 instruction slots executed, the control
+  (585 and 314 of 2,000 differ) and the write audit (`outside 0`).
+  The declarations check, run with the two files named, reports no
+  finding.
+- `port/overrides/` has three more: `func_800e11e4_slot0f`,
+  `func_800e1250_slot0f`, `func_800e12cc_slot0f`. Each is its unit's
+  exact C with the result of `open`, `read` or `write` returned. The
+  original's callers read the result register after the call
+  (`move s0,v0` at 0x800e0924, 0x800e0944, 0x800e0968 and 0x800e0adc;
+  `bltz v0` at 0x800e0b00; `bne v0,v1` at 0x800e09d4, read in the
+  listing of the module image), and on the console the register still
+  holds the library call's result, since no instruction between that
+  call's return and the function's `jr ra` writes it. Their tests use
+  recorders for the library call and for `func_8015fb30`, with a script
+  of results that ends the loop at the first try, at a later try and
+  never (0x78 tries). Lines on the folder's page: `different 0` on
+  seeds 1 and 7, built size equal to the original's (108, 124 and 124
+  bytes), all instruction slots executed, the control (the build
+  returns its result plus 1: 2,000 of 2,000 differ for each), the
+  write audit `outside 0`. The page has a second table for these three
+  and the sections "Testing one function" and "The recorded lines".
+- The port's build once (`hostbuild.py --list`): status 0, 0 failed,
+  `linked: ..., verified`, `functions overridden in C: 13` (the twelve
+  files of the folder, and the function of `slot04_0f` counted again
+  for its second placement in `slot05_0f`; the `slot0f` ones have none).
+  The two functions are not among the `absent:` lines; two remain, the
+  entry code (`func_80118908`) and `func_80120604`, which waits on its
+  own pull request. The build block of `port/README.md` is that run's.
+- Not shown: that the callers' reading of the result register is
+  all the original relies on (other callers of the three loops were
+  not searched); a gameplay or boot run; the exact units were not
+  touched, and the matching build was not run. The sentence in the
+  "Overrides in C" bullet of `port/README.md` that says what the
+  folder's functions have in common names only the argument kind and
+  was left as it was.
+
 ## Nonmatching C for the four sound-library functions that had none (2026-10-10)
 
 No function count changes here: none of this is in the build.
