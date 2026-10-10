@@ -88,6 +88,8 @@ T0, TG, T1, TZ, TW = TBASE + 0x10, TBASE + 0x20, TBASE + 0x900, TBASE + 0xa00, T
 U0, U1 = UBASE + 0x10, UBASE + 0x900
 MANY = 2000
 YSIZE = 0x10000
+MBASE = RAM + 0x1c0000     # a module whose C uses the console's low view (both fault handlers in one run)
+MF = MBASE + 0x10
 ATK = RAM + 0x190000       # where the broken archives are loaded
 
 
@@ -103,7 +105,7 @@ def raw_archive(entries: list[tuple[int, int, int]], data: bytes, count: int | N
 FILES = {"MODA.PAC;1": archive(5, SIZE, 3), "MODB.PAC;1": archive(5, SIZE, 5), "MODL.PAC;1": archive(7, 0x800, 7), "MODX.PAC;1": archive(9, 0x800, 11),
          "MODK.PAC;1": archive(8, 0x800, 13), "MODY.PAC;1": archive(11, YSIZE, 17),
          "MODP.PAC;1": archive(12, 0x800, 19), "MODQ.PAC;1": archive(13, 0x800, 23),
-         "MODT.PAC;1": archive(14, 0x2000, 29), "MODU.PAC;1": archive(15, 0x2000, 31),
+         "MODT.PAC;1": archive(14, 0x2000, 29), "MODU.PAC;1": archive(15, 0x2000, 31), "MODM.PAC;1": archive(16, 0x800, 37),
          "MODH1.PAC;1": raw_archive([(5, 0, 0x800)], bytes(0x800), count=64),        # more chunks than a header holds
          "MODH2.PAC;1": raw_archive([(5, 0, 0xFFFFFFFF)], bytes(0x800)),              # a length that wraps 32 bits
          "MODH3.PAC;1": raw_archive([(5, 0, 0x800), (5, 0, 0x100000)], bytes(0x800)),  # a later chunk past the file
@@ -123,7 +125,7 @@ FILE_SECTOR = {n.split(";")[0]: PROBE.sector["PAC/" + n] for n in FILES}   # "MO
 G = {n: RAM + 0x101800 + 0x10 * i for i, n in enumerate(
     ["g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "g_tamper", "g_thread", "g_cb_ok", "g_cb_bad", "g_second", "g_second_noc", "g_big"]
     + [f"g_atk{k}" for k in range(len(ATTACKS))] + ["g_resident", "g_trial", "g_edge", "g_inside", "g_shared", "g_shared_one", "g_shared_data", "g_partial", "g_gap", "g_many",
-     "g_pa", "g_pa_cb_unloaded", "g_pa_cb_first", "g_pu", "g_four_t", "g_four_t_cb", "g_four_u", "g_full_t", "g_over_t", "g_rewrite_page", "g_rewrite_entry", "g_direct_unloaded"])}
+     "g_pa", "g_pa_cb_unloaded", "g_pa_cb_first", "g_pu", "g_four_t", "g_four_t_cb", "g_four_u", "g_full_t", "g_over_t", "g_rewrite_page", "g_rewrite_entry", "g_direct_unloaded", "g_mm", "g_mm_nonentry", "g_mm_exec", "g_mm_many"])}
 LIB = {n: RAM + 0x100700 + 0x10 * i for i, n in enumerate(["CdControlB", "CdReady", "CdGetSector", "CdIntToPos", "CdInit", "CdSync", "CdControl", "CdControlF", "CdMix", "CdPosToInt"])}
 FA, GA, FB2 = BASE + 0x10, BASE + 0x20, BASE + 0x1010   # C, without C, C on the second page
 NONSTART = BASE + 0x1018
@@ -185,9 +187,9 @@ void g_like(void)
 }}
 void g_read(void)
 {{
-    volatile unsigned *p = (volatile unsigned *)0x1000;
+    volatile unsigned *p = (volatile unsigned *)0xffff1000u;
     LOAD_A; SAY("loaded A\\n"); CALL(0x{FA:08x}u);
-    SAY("about to read the mirror\\n");
+    SAY("about to read outside the mirror\\n");
     SAY("read %u\\n", *p);
 }}
 void g_tamper(void)
@@ -323,6 +325,37 @@ void g_many(void)
     SAY("many done\\n");
 }}
 void mk_f(void) {{ SAY("K ran\\n"); }}
+#define LOW32(a) (*(volatile unsigned *)(size_t)(a))
+#define LOW16(a) (*(volatile unsigned short *)(size_t)(a))
+#define LOW8(a) (*(volatile unsigned char *)(size_t)(a))
+#define LOAD_M load({FILE_SECTOR['MODM.PAC'] + 1}, 1, 0x{MBASE:08x}u)
+/* a module function whose C writes and reads the console's low view: below 64 KB and above it (served by the mirror) */
+void mm_f(void)
+{{
+    LOW32(0x2000) = 0x11223344u; LOW16(0x2010) = 0x5566u; LOW8(0x2018) = 0x77;
+    LOW32(0x20000) = 0x99aabbccu; LOW32(0x1ff000) = 0x0badf00du;
+    SAY("low view %08x %04x %02x %08x %08x\\n", LOW32(0x2000), LOW16(0x2010), LOW8(0x2018), LOW32(0x20000), LOW32(0x1ff000));
+}}
+void g_mm(void) {{ LOAD_M; SAY("loaded M\\n"); CALL(0x{MF:08x}u); SAY("after M\\n"); LOW32(0x2004) = LOW32(0x2000) + 1; SAY("then %08x\\n", LOW32(0x2004)); }}
+void g_mm_nonentry(void)
+{{
+    LOW32(0x2000) = 5; SAY("low view in use %u\\n", LOW32(0x2000));
+    LOAD_M; SAY("loaded M\\n"); CALL(0x{MBASE + 0x18:08x}u); SAY("not reached\\n");
+}}
+void g_mm_exec(void)
+{{
+    LOW32(0x2000) = 5; LOAD_M; SAY("loaded M\\n"); CALL(0x{MF:08x}u);
+    SAY("about to execute at the low view\\n"); CALL(0x1000u); SAY("not reached\\n");
+}}
+void g_mm_many(void)
+{{
+    int k, ok = 0;
+    for (k = 0; k < {MANY // 4}; k++) {{
+        LOW32(0x3000) = (unsigned)k; LOAD_M; CALL(0x{MF:08x}u);
+        if (LOW32(0x3000) == (unsigned)k && LOW32(0x20000) == 0x99aabbccu) ok++;
+    }}
+    SAY("mix done %d\\n", ok);
+}}
 void g_data(void)
 {{
     volatile unsigned char *p = (volatile unsigned char *)0x{BASE + 4:08x}u;
@@ -352,7 +385,7 @@ def c_bytes(b: bytes) -> str:
 def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     """The made-up tables. `unpinned` names an image whose hash the build did not give."""
     out = ['#include "port_tables.h"']
-    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "mp_f", "mq_f", "mt_f0", "mt_f1", "mt_fw", "c_main", "c_big") + tuple(G)[8:]
+    syms = ("g_a", "g_ab", "g_noc", "g_nonstart", "g_other", "g_like", "g_read", "g_data", "ma_f", "mb_f", "mb_g", "mk_f", "mp_f", "mq_f", "mt_f0", "mt_f1", "mt_fw", "mm_f", "c_main", "c_big") + tuple(G)[8:]
     for sym in dict.fromkeys(syms):
         out.append(f"extern void {sym}(void);")
     out.append('static const char *const arch_a[] = { "MODA.PAC", "MODA2.PAC", 0 };')
@@ -364,11 +397,12 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     out.append('static const char *const arch_q[] = { "MODQ.PAC", 0 };')
     out.append('static const char *const arch_t[] = { "MODT.PAC", 0 };')
     out.append('static const char *const arch_u[] = { "MODU.PAC", 0 };')
+    out.append('static const char *const arch_m[] = { "MODM.PAC", 0 };')
     images = [("ma", BASE, "0", 5, "arch_a", pinned(3, SIZE)), ("mb", BASE, "0", 5, "arch_b", pinned(5, SIZE)),
               ("ml", LIKE_BASE, '"ma"', 7, "arch_l", pinned(7, 0x800)), ("mk", KBASE, '"ma"', 8, "arch_k", pinned(13, 0x800)),
               ("my", YBASE, "0", 11, "arch_y", pinned(17, YSIZE)),
               ("mp", PBASE, "0", 12, "arch_p", pinned(19, 0x800)), ("mq", QBASE, "0", 13, "arch_q", pinned(23, 0x800)),
-              ("mt", TBASE, "0", 14, "arch_t", pinned(29, 0x2000)), ("mu", UBASE, "0", 15, "arch_u", pinned(31, 0x2000))]
+              ("mt", TBASE, "0", 14, "arch_t", pinned(29, 0x2000)), ("mu", UBASE, "0", 15, "arch_u", pinned(31, 0x2000)), ("mm", MBASE, "0", 16, "arch_m", pinned(37, 0x800))]
     for n, im in enumerate(images):
         out.append(f"static const unsigned char sha_{n}[32] __attribute__((unused)) = {c_bytes(im[5])};")
     out.append("const struct port_image port_images[] = {")
@@ -380,7 +414,7 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
     fns += [(a, n, n, -1) for n, a in G.items()]
     fns += [(FA, "ma_f", "ma_f", 0), (FA, "mb_f", "mb_f", 1), (FB2, "mb_g", "mb_g", 1), (KF, "mk_f", "mk_f", 3),
              (PF, "mp_f", "mp_f", 5), (QF, "mq_f", "mq_f", 6),
-             (T0, "mt_f0", "mt_f0", 7), (T1, "mt_f1", "mt_f1", 7), (TW, "mt_fw", "mt_fw", 7)]
+             (T0, "mt_f0", "mt_f0", 7), (T1, "mt_f1", "mt_f1", 7), (TW, "mt_fw", "mt_fw", 7), (MF, "mm_f", "mm_f", 9)]
     fns.sort(key=lambda f: (f[3], f[0]))
     out.append("const struct port_function port_functions[] = {")
     for a, name, sym, image in fns:
@@ -424,7 +458,7 @@ class ModRig(tl.Rig):
                 self.built_parts["fixed"] = parts
             path = self.work / f"mod-tables-{key}.c"
             path.write_text(tables_c(pin, unpinned))
-            objs = list(self.runtime_objects()) + self.built_parts["fixed"] + [self.compile(path)]
+            objs = list(self.runtime_objects()) + [self.filler()] + self.built_parts["fixed"] + [self.compile(path)]
             names = {n: a for n, a in LIB.items()} | G | {"ma_f": FA, "mb_f": FA, "mb_g": FB2}
             defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-mod-{key}.exe"
@@ -434,17 +468,17 @@ class ModRig(tl.Rig):
             self.built[key] = out
         return self.built[key]
 
-    def go(self, tag: str, entry: int, timeout: int = 60, files: dict | None = None, unpinned: str | None = None) -> tuple[int, list[str]]:
+    def go(self, tag: str, entry: int, timeout: int = 60, files: dict | None = None, unpinned: str | None = None, args: list[str] | None = None) -> tuple[int, list[str]]:
         data = tl.program(entry)
         exe = self.program(data, unpinned)
         img = disc_image(data, files)
         path = self.work / f"{tag}.bin"
         img.write(path)
-        proc = subprocess.run([*self.prefix, str(exe), self.native(path)], capture_output=True, text=True, timeout=timeout)
-        lines = proc.stdout.replace("\r\n", "\n").splitlines()
+        status, out = self.start(exe, [*(args or []), self.native(path)], timeout)   # records status, stdout and stderr of this run
+        lines = out.replace("\r\n", "\n").splitlines()
         if f"start: 0x{entry:08x}" in lines:
             lines = lines[lines.index(f"start: 0x{entry:08x}") + 1:]
-        return proc.returncode, lines
+        return status, lines
 
 
 def verdict(got, want):
@@ -456,6 +490,7 @@ def mline(name: str, base: int, c: int, a: int) -> str:
 
 
 def cases(rig: ModRig):
+    yield from tl.rig_diagnostic_cases(rig)
     yield "fixture-the-two-modules-share-an-address-and-an-slot", verdict((BASE, 5), (BASE, 5))
     yield "fixture-archives-are-sector-aligned-and-hold-their-chunk", verdict(
         (len(FILES["MODA.PAC;1"]) % 2048, len(FILES["MODA.PAC;1"]) - 0x800), (0, SIZE))
@@ -493,9 +528,47 @@ def cases(rig: ModRig):
     yield "a-like-image-ends-with-a-line-that-names-it-and-says-its-c-is-not-built", verdict((status, lines), (3, want))
 
     status, lines = rig.go("read", G["g_read"])
-    ok = (status == 10 and lines[:4] == ["loaded A", mline("ma", BASE, 1, 1), "A ran", "about to read the mirror"]
-          and len(lines) == 5 and lines[4].startswith("stop: crash: the game used the PS1's RAM mirror at 0x00001000 (read)"))
-    yield "a-fault-of-the-kind-read-is-not-swallowed", None if ok else f"status {status}, lines {lines!r}"
+    ok = (status == 10 and lines[:4] == ["loaded A", mline("ma", BASE, 1, 1), "A ran", "about to read outside the mirror"]
+          and len(lines) == 5 and lines[4].startswith("stop: crash: access violation (read 0xffff1000)"))
+    yield "a-fault-of-the-kind-read-outside-the-mirror-is-not-swallowed-by-either-handler", None if ok else f"status {status}, lines {lines!r}"
+
+    # ---- both fault handlers in one run: the modules' (execute faults) and the mirror's (read and write faults) ----
+    status, lines = rig.go("mm", G["g_mm"])
+    want = ["loaded M", mline("mm", MBASE, 1, 0), "low view 11223344 5566 77 99aabbcc 0badf00d", "after M", "then 11223345", "stop: main returned"]
+    yield "a-module-placed-at-its-first-call-whose-c-uses-the-low-view-below-and-above-64-kb-runs-and-the-low-view-still-works-after", verdict(
+        (status, [l for l in lines if not l.startswith("mirror:")]), (0, want))
+    status, lines = rig.go("mm-nonentry", G["g_mm_nonentry"])
+    sector_m = FILE_SECTOR["MODM.PAC"] + 1
+    want = ["low view in use 5", "loaded M", f"stop: call to 0x{MBASE + 0x18:08x}, which no module can be placed at: the page was written from sector {sector_m} of modm.pac "
+            f"(image mm is there but 0x{MBASE + 0x18:08x} is no function start of it); images the tables have at that address: mm"]
+    yield "a-call-into-a-module-at-a-non-entry-while-the-low-view-is-in-use-is-refused-as-before", verdict(
+        (status, [l for l in lines if not l.startswith("mirror:")]), (5, want))
+    status, lines = rig.go("mm-exec", G["g_mm_exec"])
+    body = [l for l in lines if not l.startswith("mirror:")]
+    ok = (status == 10 and body[:4] == ["loaded M", mline("mm", MBASE, 1, 0), "low view 11223344 5566 77 99aabbcc 0badf00d", "about to execute at the low view"]
+          and len(body) == 5 and body[4].startswith("stop: crash: the game used the PS1's RAM mirror at 0x00001000 (execute)"))
+    yield "an-execute-fault-at-a-low-address-stays-the-crash-line-with-both-handlers-installed", None if ok else f"status {status}, lines {body!r}"
+    status, lines = rig.go("mm-many", G["g_mm_many"], timeout=120)
+    yield "many-placements-and-low-view-accesses-in-a-row-with-the-timer-running-end-without-a-hang", verdict(
+        ([l for l in lines if l.startswith(("mix", "stop"))], status), ([f"mix done {MANY // 4}", "stop: main returned"], 0))
+
+    # ---- every way this layer ends the process goes through the stop of the timer's gate ----
+    # With --timer-burst the program ends with a line of its own if the process was ended without the stop (an exit() whose
+    # atexit stop did not run, a direct ExitProcess not preceded by it) or while a suspension round was in flight. Each
+    # program that this layer (or the handlers around it) ends is run with and without the option; the two runs must agree.
+    changed_b = dict(FILES)
+    changed_b["MODA.PAC;1"] = archive(5, SIZE, 4)
+    ends = [("noc", G["g_noc"], {}), ("nonstart", G["g_nonstart"], {}), ("other", G["g_other"], {}), ("like", G["g_like"], {}),
+            ("read", G["g_read"], {}), ("mm-exec", G["g_mm_exec"], {}), ("wrong-content", G["g_a"], {"files": changed_b}),
+            ("unpinned", G["g_a"], {"unpinned": "ma"}), ("tamper", G["g_tamper"], {}), ("cb-bad", G["g_cb_bad"], {}),
+            ("rewrite-entry", G["g_rewrite_entry"], {}), ("direct-unloaded", G["g_direct_unloaded"], {})]
+    bad = []
+    for tag, entry, kw in ends:
+        plain = rig.go(tag + "-p", entry, **kw)
+        burst = rig.go(tag + "-b", entry, args=["--timer-burst"], **kw)
+        if plain[0] == 0 or plain != burst or any("in flight" in l or "ended while" in l or "began after" in l for l in burst[1]):
+            bad.append(f"{tag}: without {plain[0]}, with {burst[0]}; last lines {burst[1][-2:]!r}")
+    yield "every-way-the-layer-ends-the-process-ends-the-same-with-the-timer-burst-checks-on-the-stop", None if not bad else "; ".join(bad)
 
     # ---- identity before jumps ----
     sec_a = FILE_SECTOR["MODA.PAC"] + 1
@@ -648,9 +721,11 @@ def main() -> int:
                     print(f"ok   {name}")
                 else:
                     print(f"FAIL {name}: {detail}")
+                    print("\n".join(rig.report()))   # the whole output of the last program run, both streams
                     failed += 1
         except Exception as err:  # a control must report, not crash
             print(f"FAIL the control itself raised {type(err).__name__}: {err}")
+            print("\n".join(rig.report()))
             failed += 1
         print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
         return 1 if failed else 0

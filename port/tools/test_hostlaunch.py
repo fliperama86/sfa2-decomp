@@ -882,6 +882,17 @@ class Rig:
             self.objects.append(self.compile(stubs))
         return self.objects
 
+    def filler(self) -> Path:
+        """The object of the filler section that the program's link needs (see hostbuild.py), made once."""
+        if not self.hole:
+            hole = self.work / "hole.s"
+            hole.write_text(hb.hole_source())
+            self.hole = self.work / "hole.o"
+            proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
+            if proc.returncode != 0:
+                raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
+        return self.hole
+
     def program_for(self, variant: str, pin: bytes, old_link: bool = False) -> Path:
         """The runtime built with the variant's tables, domains and game code, for the program `pin`.
 
@@ -891,15 +902,8 @@ class Rig:
         key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}" + ("-old" if old_link else "")
         if key not in self.built:
             objs = list(self.runtime_objects())
-            if not self.hole:
-                hole = self.work / "hole.s"
-                hole.write_text(hb.hole_source())
-                self.hole = self.work / "hole.o"
-                proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
-                if proc.returncode != 0:
-                    raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
             if not old_link:
-                objs.append(self.hole)
+                objs.append(self.filler())
             for tag, text in (("tables", tables_c(v.functions, v.absents, pin)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
                 path.write_text(text)
@@ -1155,13 +1159,19 @@ def cases(rig: Rig):
         path = rig.work / f"{variant}-burst.bin"
         img.write(path)
         arg = rig.native(path)
-        bad = []
+        bad, first_bad = [], None
         for n in range(BURST_RUNS[kind]):
             got = rig.run_bounded(exe, arg, ["--timer-burst"], BURST_LIMIT)
             if got is None:
                 bad.append(f"run {n}: did not end in {BURST_LIMIT} s")
             elif got[0] != want[0] or not got[1] or not got[1][-1].startswith(want[1]):
                 bad.append(f"run {n}: status {got[0]}, last lines {got[1][-2:]!r}")
+            else:
+                continue
+            if first_bad is None:
+                first_bad = rig.last   # kept: a later good run must not overwrite what the first bad run printed
+        if first_bad is not None:
+            rig.last = first_bad
         yield name, None if not bad else f"{len(bad)} of {BURST_RUNS[kind]} runs wrong: {bad[:3]!r}"
 
     # ---- the kernel ----
