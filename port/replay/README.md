@@ -5,9 +5,9 @@ game's C, as compiled for the PC, on described cases. `port/tools/hostreplay.py`
 builds the program and runs cases in it. `port/tools/test_hostreplay.py` tests
 both with made-up functions; it needs the cross compiler and nothing private.
 
-This is the first half of the native replay of fixtures. Reading a
-`FUNC.fixtures.json` and comparing as `difftest.py --replay` does is a later
-package.
+This is the first half of the native replay of fixtures. The second half,
+reading a `FUNC.fixtures.json` and comparing, is `port/tools/hostfixtures.py`
+(see "Replaying fixtures" below); its tests are `port/tools/test_hostfixtures.py`.
 
 ## How a program is made
 
@@ -147,3 +147,103 @@ The differences:
   undefined.
 - The PC function runs with the PC's stack. The address of a local means
   nothing in either code, which is why it is logged as 0.
+
+## Replaying fixtures
+
+`port/tools/hostfixtures.py` takes the published `FUNC.fixtures.json` files
+(format 1, as `ps1/src/slot06_nonmatching/difftest.py --record` writes them),
+builds each function's C as the port's compiler builds it with
+`hostreplay.build_program`, runs the fixtures with `hostreplay.run_cases` and says
+per function whether the PC build does what the original did on the recorded
+inputs. It needs the cross compiler and the published tree and nothing private; it
+does not import `difftest.py`, whose header is the definition of the format.
+A failure here is a finding about the port, not about the fixture.
+
+    python port/tools/hostfixtures.py --config ps1/src/build.toml --cc CC [--build DIR] [--jobs N] [--folder DIR ...] [--overrides DIR] [--timeout SECONDS] [FUNC ...]
+
+Without `--folder`: the `*_nonmatching` folders beside the configuration except
+`library_nonmatching` (the PC build does not compile Sony's library C), and
+`port/overrides`. Without `FUNC`: every function that has a fixtures file in them.
+A building of one function takes about a second and a run well under one;
+`--jobs N` (default 4) does N functions at a time and the lines come in the order
+of the names. Each function is built in its own folder of `--build` (a temporary
+folder without it).
+
+**A file.** A file that is not JSON, has another format than 1 or 2, is for another
+function, has no fixtures, or has a fixture with a missing or malformed field is
+refused with the file's name on standard error and status 2, before anything is
+built. A file of format 2 (calls of original callees) is not replayed: its function
+gets the line `not replayed: its fixtures hold calls of original callees (format 2)`
+and is counted apart. A format 1 file with a call marked `original` is refused.
+
+**A fixture becomes a case** of the harness. Memory: the bytes of `reads`, over them
+those of `same`, and each byte of `writes` that neither names as its expected value
+with every bit flipped (so a missing store shows whatever its value); every other
+byte is the harness's 0xA5. There is no zeroed stack and no zeroed arena: natively
+the function's stack is the program's own. The arguments are the fixture's `args`
+as the first words, the rest 0. One stand-in per recorder at its `at`, with its
+`arguments`, `masks`, `pointees`, `stores`, `counts` and `ends_run_at` (as
+`ends_at`), and as `returns` the `returned` values of that callee's calls in order.
+`watch` is the fixture's.
+
+**What is compared**, in this order (the first lines that differ; a failed fixture
+prints at most three):
+
+1. How it ended. A fault (with its kind, address and instruction), a death or a
+   timeout is one line and nothing else is compared. `ends_in_callee` true needs
+   the end `stub`, false needs `returned`; a mismatch is one line and nothing else
+   is compared.
+2. The calls, in order: the callee (by the label of the recorder at the address
+   called), their number, each argument; the first difference only. An argument
+   that the harness marked as an address of the program's own stack is equal when
+   the fixture's value lies in the PS1's stack region [0x801fe000, 0x801ff010) and
+   a difference otherwise (`argument K is an address of the PC's stack, the
+   original gave X`). The function's line counts the arguments taken as equal
+   (`stack arguments not compared S`, when S is above 0; the ones counted are those
+   compared before the first difference of their fixture).
+3. The words behind pointer arguments and the watched blocks at each call (only
+   when the calls are equal): the expected bytes are the case's own input memory
+   with the fixture's changes over it; the first differing byte is named. Behind
+   an argument that is a stack address the input is the PC's own, so only the bytes
+   that the fixture's changes name are compared there (this one is compared in
+   part).
+4. The result, when the fixture has one and the run returned, under the width of
+   the return type as the definition in `FUNC.c` states it (the text before the
+   name on its definition line): `u8`, `s8`, `char` and `signed`/`unsigned char`:
+   the low 8 bits; `u16`, `s16`, `short` (also `unsigned`/`signed`): the low 16;
+   anything else, a pointer included: the whole word. The line says when it was
+   compared in part. A definition that returns `void` while the fixture has a result
+   is its own line (`the C returns nothing, the original's result was X`). A
+   definition that cannot be found is `not built`.
+5. The writes, exactly: every byte of `writes` has that value in the end, and no
+   other byte of RAM or the scratchpad changed (the stand-ins' own five bytes
+   excepted). A byte of `writes` that did not change is a `missing write` and says
+   the value it was left with, a byte with another value is a `wrong value`, and a
+   changed byte the fixture does not list is an `extra write`.
+
+Not compared natively: the saved registers and the stack pointer (the
+fixture's `registers`), which do not exist in the PC program.
+
+**Which C.** A function of a folder that has a file `FUNC.c` in the overrides folder
+(`port/overrides`, or `--overrides DIR`) is replayed with the override's C, which is
+what the PC program runs; the function gets a line saying so first. (`hostbuild`
+refuses an override of a nonmatching function, so the real tree has no such
+function; the rule is tested on made-up ones.) A function of the overrides folder
+itself is replayed from its own file.
+
+**The lines.**
+
+    FUNC native replay: fixtures K, passed P, failed F[, stack arguments not compared S]
+      fixture N (case C, NOTE):         one per failed fixture (N is the place in the file)
+        up to three lines of what differed first
+    FUNC native replay: not built: FIRST ERROR LINE
+    FUNC native replay: not replayed: its fixtures hold calls of original callees (format 2)
+    native replay: functions replayed R, all passed A, with a failure F, not built B, not replayed N
+
+`not built` is also the line for a C file that cannot be read, a definition whose
+return type cannot be read, a program for which the harness gave fewer results than
+cases, and cases the harness refuses; B counts them all. R is the functions that
+were run (A plus F). Status: 0 when nothing failed and everything was built (a
+format 2 function does not change it), 1 otherwise, 2 for a file that cannot be
+read, a name that no folder has, a function in two folders or a missing
+configuration.
