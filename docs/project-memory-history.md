@@ -9582,3 +9582,31 @@ No function count changes here: none of this is in the build.
   `func_800e0850_slot0f`, `func_800e0a1c_slot0f`).
 - Not run: the whole matching build, the other functions' tests, the
   repository's review command (`docs/efficiency.md`).
+
+## Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)
+
+- `func_80120604` (inferred: it walks a list of 8-byte sound commands
+  and calls the sound library for each) is nonmatching C in
+  `ps1/src/resident_nonmatching/`. It had waited for two questions.
+- First: its callee `func_80164ef0` is defined with two
+  `unsigned short` parameters, and the original's code here
+  sign-extends those two values before the call. The call is now made
+  through a type that takes them as `short`, with a comment; the
+  file's own declaration of the callee is the definition's. One-off
+  runs: called with the definition's type, 832 of 2,000 cases differ
+  on seed 1 and 826 on seed 7; through the cast, none.
+- Second: its command 11 clears `data_80197ed0[channel]` for a channel
+  of up to 0xffe + 4, far past the 36 priority bytes. The image has
+  zeros there, so the store of a zero changed nothing that the test or
+  the write audit could see. The setup now fills the 0x1004 bytes that
+  such a channel can reach with random bytes; the store is then
+  compared like any other at the end of a case.
+- Ran, the function alone: `different 0` on seeds 1 and 7, every
+  instruction slot of the original executed, the control, the write
+  audit `outside 0` on both seeds; the declarations check told to read
+  the file (no finding for it); the port's build with it (`0 failed`).
+  Its lines are on the folder's page at their place; no other line
+  changed.
+- Why now: a private run of the PC program built from main and the
+  open pull request for the game's `main` reached the title screen and
+  stopped at this function.
