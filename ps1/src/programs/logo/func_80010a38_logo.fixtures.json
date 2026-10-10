@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  {"args": [], "calls": [{"args": ["0x8002eb8c"], "callee": "func_80158470", "pointees": {"0": []}, "returned": "0x00000000", "watched": [[]]}], "case": 0, "ends_in_callee": false, "note": "slots: 18 new", "reads": [["0x8002eb50", "00000000"]], "recorders": [{"arguments": 1, "at": "0x800133b0", "callee": "func_80158470", "pointees": {"0": 5}}], "result": null, "same": [], "seed": 1, "watch": [["0x8002eb50", 1]], "writes": [["0x8002eb50", "01"]]}
+ ],
+ "format": 1,
+ "function": "func_80010a38_logo",
+ "recorded": {"cases": 2000, "comparison": "func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

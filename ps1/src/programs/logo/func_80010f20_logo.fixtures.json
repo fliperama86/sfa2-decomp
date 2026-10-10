@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  {"args": [], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 6 new", "reads": [["0x8002eb3c", "00000000"]], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": []}
+ ],
+ "format": 1,
+ "function": "func_80010f20_logo",
+ "recorded": {"cases": 2000, "comparison": "func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}
