@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "7b41e2bca9c3f7f99fd1a3491c8facb9cf3b8677e6fb0315bd1aeebcb1a00f03",
+  "sha256": "d107dbb44f70926228d0d9e37a7fa7935111365f528a3d02b93df6b297493493",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -597,6 +597,10 @@
     {
       "title": "Nonmatching C for the resident program, first batch (2026-10-10)",
       "line": 9035
+    },
+    {
+      "title": "Nonmatching C for the other modules, first batch (2026-10-10)",
+      "line": 9080
     }
   ]
 }
