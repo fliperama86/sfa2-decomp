@@ -9758,6 +9758,36 @@ No function count changes here: none of this is in the build.
 - Not run: the repository's review command (a change of the test tool
   makes it run every folder again; see `docs/efficiency.md`).
 
+## The program built from published code starts the game and plays (2026-10-10)
+
+- On 2026-10-10 the last functions that the PC program runs got C on
+  main (the game's `main`, its frame handler as an exact unit, the
+  player of sound command lists, the two functions of the title
+  module that write and read saved data, and thirteen overrides in C
+  under `port/overrides/`). The port's build of main at `e1b47e6`
+  says `functions without C: 385, library 384, game and modules 1`:
+  the one is the entry code, which the program does not run.
+- Three private runs that day, each one build from a checkout of
+  published code alone and one scripted run of 300 seconds with the
+  user's disc, without a window on screen. From main with the pull
+  request for `main` and the frame handler: the title screen, then
+  `stop: no C yet for func_80120604`. From main at `ca997f6`: no stop;
+  player select, a first fight, into a second. From main at
+  `e1b47e6`: the same, with `overrides in C: 13` and every module
+  line saying `0 without C`. No command of the repository can repeat
+  these runs (they need the user's disc); their lines are on the
+  port's page under "Running it", which had still shown the stop at
+  `main`.
+- What this does not show: that the game plays to its end, any mode
+  other than the one the script chose, sound (none: the sound
+  library's routines are stand-ins), the stand-alone programs of the
+  disc (skipped: the logo, and those of the attract sequence and of a
+  menu, for which no C exists), or any system but Windows.
+- Text changed with it: the port page's opening and "Running it", two
+  stale sentences there (an override that is no longer needed since
+  the mirror layer; the start line that the sample now has), the root
+  README's line on the port, and the current-state page.
+
 ## Nonmatching C for two more functions of the sound library (2026-10-10)
 
 No function count changes here: none of this is in the build.

@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "d0595052de7161f04042cd974eca4af27e256356e72fd074b6d23deaf9a01246",
+  "sha256": "73b1db55faafa1788a4543d9af845c3adebd02442c391e89ef868573d9cffbb8",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -655,8 +655,12 @@
       "line": 9713
     },
     {
-      "title": "Nonmatching C for two more functions of the sound library (2026-10-10)",
+      "title": "The program built from published code starts the game and plays (2026-10-10)",
       "line": 9761
+    },
+    {
+      "title": "Nonmatching C for two more functions of the sound library (2026-10-10)",
+      "line": 9791
     }
   ]
 }
