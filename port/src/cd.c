@@ -35,8 +35,18 @@
  *   the result are the absolute position, read with CdPosToInt; the game
  *   reads the last command through CdLastCom (a library variable kept here).
  * Commands never sent, so not written (they stop): everything but 1, 2, 6,
- *   9, 0xd, 0xe, 0x11, 0x15, 0x1b; and a Setmode with the 0x20 bit (whole
- *   sector, 2340 bytes).
+ *   9, 0xd, 0xe, 0x11, 0x15, 0x1b; and a Setmode with the 0x10 bit (the form
+ *   of 2,328 bytes).
+ * Two things for a movie's stream, written for a later package; nothing uses them yet:
+ *  - The whole-sector mode (Setmode bit 0x20, as in the mode byte 0xe8 of the logo's movie). The bit is looked at when a sector is
+ *    delivered. With it the FIFO of a data sector holds the raw bytes 12 to 2351 (2,340: the 4 of the sector's header, the 8 of its
+ *    subheader, then the rest) and CdGetSector serves successive pieces of them, zeros when it runs dry. Without it the FIFO holds
+ *    the 2,048 bytes from byte 24, as before. Sectors of the disc's compressed audio go to xa_take in either mode.
+ *  - A ready handler of the runtime's own, port_cd_host_ready (port.h), called directly for each delivered data sector with (1,
+ *    result) and for a disc error with (5, result), with port_handler_depth raised, in place of the game's handler variable (which
+ *    is then not called, whatever it holds). While one is set a polling game's rule (the next sector waits until the last is taken)
+ *    and the ring guard below do not apply: a host handler is a handler, and the ring is the game's. It may call this layer's
+ *    routines as a game's handler may, and the rules below for the carry hold for it. CdInit removes it.
  *
  * What the original library does that the game relies on (read at the
  * listing's addresses):
@@ -196,7 +206,9 @@ static struct {
     /* the sector under the FIFO */
     int have_sector;
     unsigned cur_sector, offset;
-    unsigned char data[PORT_DATA];
+    unsigned char data[PORT_SECTOR - 12u];   /* 2,340 bytes: the whole-sector form; the 2,048-byte form uses the first PORT_DATA */
+    unsigned data_len;              /* bytes of the sector in `data`: PORT_DATA, or 2,340 in the whole-sector mode */
+    void (*host_ready)(int intr, unsigned char *result);   /* the runtime's own ready handler (port_cd_host_ready), or null */
     int in_delivery;
     int unguarded;                  /* the blocking wait of the game is delivering: the ring guard is off */
     unsigned guard_run;             /* vblanks in a row that delivered nothing because of the guard */
@@ -609,7 +621,6 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         }
         break;
     case 6: case 0x1b:
-        if (cd.mode & 0x20) cd_stop("disc mode (whole sector)", cd.mode);
         if (cd.loc_set) { cd.pos = cd.loc; cd.loc_set = 0; }
         cd.reading = 1;
         clear_carry();
@@ -640,7 +651,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         respond(one, 1, 2);
         break;
     case 0xe:
-        if (param[0] & 0x20) cd_stop("disc mode (whole sector)", param[0]);
+        if (param[0] & 0x10) cd_stop("disc mode (2,328-byte form)", param[0]);
         if ((cd.mode ^ param[0]) & 0x80) clear_carry();
         cd.mode = param[0];
         respond(one, 1, 2);
@@ -684,6 +695,7 @@ int port_CdInit(void)
     cd.pending = 0;
     cd.have_sector = 0;
     cd.ready = 0;
+    cd.host_ready = 0;   /* the library's init sets the default handlers */
     set_status(ST_IDLE);
     memset(cd.sync_result, 0, sizeof cd.sync_result);
     memset(cd.ready_result, 0, sizeof cd.ready_result);
@@ -792,8 +804,8 @@ int port_CdGetSector(void *madr, int words)
     if (want == 0) return 1;
     need_buffer(madr, want, "CdGetSector");   /* the count and the address are the game's: both inside the RAM, or nothing is copied */
     bytes = (unsigned)want;
-    if (cd.have_sector && cd.offset < PORT_DATA) {
-        give = PORT_DATA - cd.offset;
+    if (cd.have_sector && cd.offset < cd.data_len) {
+        give = cd.data_len - cd.offset;
         if (give > bytes) give = bytes;
         memcpy(dst, cd.data + cd.offset, give);
         cd.offset += give;
@@ -832,6 +844,19 @@ static void call_ready(unsigned handler, int intr)
     port_handler_depth--;
 }
 
+void port_cd_host_ready(void (*handler)(int intr, unsigned char *result))
+{
+    cd.host_ready = handler;
+}
+
+/* The runtime's own handler: a pointer into this program, so it is called directly (no target check, no port_cd_call). */
+static void call_host(int intr)
+{
+    port_handler_depth++;
+    cd.host_ready(intr, cd.ready_result);
+    port_handler_depth--;
+}
+
 /* One sector of the read in progress. 0 when nothing more can be delivered now. */
 static int deliver_one(void)
 {
@@ -842,7 +867,7 @@ static int deliver_one(void)
     if (!cd.reading) return 0;
     /* without a handler the game polls; the next sector waits for the poll
      * to take the last one (the controller's FIFO holds one) */
-    if (!handler && cd.ready) return 0;
+    if (!handler && !cd.host_ready && cd.ready) return 0;
     sector = cd.pos;
     if ((unsigned long long)sector >= cd.total ||
         fseek(cd.disc->f, (long)((unsigned long long)sector * PORT_SECTOR), SEEK_SET) != 0 ||
@@ -854,7 +879,8 @@ static int deliver_one(void)
         cd.ready_result[0] = ST_ERR;
         cd.ready_result[1] = 0x40;
         cd.ready = 5;
-        if (handler) call_ready(handler, 5);
+        if (cd.host_ready) call_host(5);
+        else if (handler) call_ready(handler, 5);
         return 0;
     }
     if ((cd.mode & 0x40) && (raw[18] & 0x04)) {   /* XA audio: played, skipped or refused; never handed to the handler */
@@ -863,14 +889,21 @@ static int deliver_one(void)
         return 1;
     }
     cd.pos = sector + 1;
-    memcpy(cd.data, raw + PORT_DATA_OFFSET, PORT_DATA);
+    if (cd.mode & 0x20) {   /* whole sectors: the raw bytes 12 to 2351 */
+        memcpy(cd.data, raw + 12, PORT_SECTOR - 12u);
+        cd.data_len = PORT_SECTOR - 12u;
+    } else {
+        memcpy(cd.data, raw + PORT_DATA_OFFSET, PORT_DATA);
+        cd.data_len = PORT_DATA;
+    }
     cd.have_sector = 1;
     cd.cur_sector = sector;
     cd.offset = 0;
     memset(cd.ready_result, 0, sizeof cd.ready_result);
     cd.ready_result[0] = ST_READ;
     cd.ready = 1;
-    if (handler) call_ready(handler, 1);
+    if (cd.host_ready) call_host(1);
+    else if (handler) call_ready(handler, 1);
     return 1;
 }
 
@@ -881,7 +914,7 @@ static int ring_full(int *regardless)
     const unsigned char *b;
     unsigned w, r, fill;
 
-    if (cd.unguarded || !cd.reading || (cd.mode & 0x40) || lib_get32(PORT_CD_VAR_READY_CB) != GUARD_HANDLER) return 0;
+    if (cd.unguarded || cd.host_ready || !cd.reading || (cd.mode & 0x40) || lib_get32(PORT_CD_VAR_READY_CB) != GUARD_HANDLER) return 0;
     b = lib_ptr(GUARD_STREAM);
     w = b[0x16];
     r = b[0x17];

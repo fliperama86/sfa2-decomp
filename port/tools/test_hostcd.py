@@ -20,7 +20,13 @@ ReadS and its second response; GetlocP; XA audio sectors: consumed in silence wi
 (the filter on and off, the file and channel, the volumes of CdMix, the hold when the queue is full and its release, the reset at a
 read's start, refused sectors, the lock calls); the
 library variables the game's C reads; an unknown command's stop and a
-Setmode with the whole-sector bit; the buffer CdGetSector is given: its
+Setmode with the 2,328-byte bit (0x10); the whole-sector mode (bit 0x20) on
+an image whose every byte is a pattern (a sector as one piece of 2,340 bytes and
+as pieces, zeros past the end, the mode changed between sectors, the audio, the
+word record and the hook); the host ready handler (port_cd_host_ready: its calls
+and codes, the game's variable not called, the polling rule and the ring guard
+not applied, a handler that pauses or starts a read, the depth counter, CdInit);
+the buffer CdGetSector is given: its
 start or its end outside the PS1's RAM, a count that overflows 32 bits, a
 negative count, the last bytes of RAM (accepted), each ending the program
 with a line and status 6 before a byte is copied; the guard by which the drive
@@ -69,6 +75,7 @@ static unsigned h_dest;
 static int h_pieces[16], h_np, h_stop, h_calls, h_count;
 static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call number a_when (0: on every call) */
 static char a_kind;
+static int g_calls, hh_calls;   /* calls of the game's made-up handler and of the host ready handler */
 static int ring_adv;   /* the made-up handler steps the writer's place of the game's ring (byte 0x16 of the stream object) as the game's does */
 
 volatile int port_handler_depth;   /* the driver's counter; cd.c raises it around the ready handler */
@@ -102,7 +109,8 @@ static unsigned sum(const unsigned char *p, unsigned n)
 static void handler(unsigned h, int intr, unsigned char *res)
 {
     int i, done = 0;
-    if (h != 0x1234 && h != 0x8014f918u && h != 0x2345) { printf("H bad handler value %x\n", h); return; }
+    if (h != 0x7777u) g_calls++;   /* 0x7777: the host ready handler below, which calls this body */
+    if (h != 0x1234 && h != 0x8014f918u && h != 0x2345 && h != 0x7777u) { printf("H bad handler value %x\n", h); return; }
     printf("H intr=%d res0=%02x\n", intr, res[0]);
     if (intr == 1) h_count++;
     if (intr == 1 && ring_adv) { unsigned char *w = at(0x80190948u) + 0x16; *w = (unsigned char)(*w + 1 == 8 ? 1 : *w + 1); }
@@ -112,6 +120,7 @@ static void handler(unsigned h, int intr, unsigned char *res)
         else if (a_kind == 'M') { p[0] = (unsigned char)a_arg; port_CdControl(0xe, p, rs); }
         else if (a_kind == 'I') port_CdInit();
         else if (a_kind == 'R') { port_CdReady(0, rs); }
+        else if (a_kind == 'P') { port_CdControlB(9, 0, rs); }
     }
     if (intr != 1 || !h_on) return;
     for (i = 0; i < h_np; i++) {
@@ -126,6 +135,16 @@ static void handler(unsigned h, int intr, unsigned char *res)
         printf("  pause from the handler ret %d\n", port_CdControlB(9, 0, 0));
     }
 }
+
+/* The runtime's own ready handler (port_cd_host_ready): marks its call, then does what the made-up game handler does. */
+static void host_handler(int intr, unsigned char *res)
+{
+    hh_calls++;
+    printf("HH intr=%d res0=%02x depth=%d\n", intr, res[0], port_handler_depth);
+    handler(0x7777u, intr, res);
+}
+
+static void hook(unsigned a, unsigned b) { printf("K %x %u\n", a, b); }
 
 static void show(const char *tag, int ret, const unsigned char *res)
 {
@@ -163,6 +182,10 @@ int main(int argc, char **argv)
             p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = (unsigned char)(v >> 16); p[3] = (unsigned char)(v >> 24);
         }
         else if (!strcmp(cmd, "ring")) { unsigned w, r; if (sscanf(rest, "%u %u", &w, &r) != 2) return 64; at(0x80190948u)[0x16] = (unsigned char)w; at(0x80190948u)[0x17] = (unsigned char)r; }   /* the two places of the game's ring */
+        else if (!strcmp(cmd, "host")) port_cd_host_ready(atoi(rest) ? host_handler : 0);   /* the host ready handler on or off (CdInit removes it) */
+        else if (!strcmp(cmd, "calls")) printf("CA game %d host %d\n", g_calls, hh_calls);
+        else if (!strcmp(cmd, "depth")) printf("D %d\n", port_handler_depth);
+        else if (!strcmp(cmd, "hook")) port_cd_written_hook = atoi(rest) ? hook : 0;
         else if (!strcmp(cmd, "adv")) ring_adv = atoi(rest);
         else if (!strcmp(cmd, "stopafter")) { h_stop = atoi(rest); h_calls = 0; }
         else if (!strcmp(cmd, "handler")) {
@@ -853,10 +876,11 @@ def stop_cases(root: Path, exe: Path):
                     rc == 6 and lines[-1] == f"stop: disc command 0x{com:x} is not handled" and "X 1" not in lines, f"{rc} {lines}")
     rc, lines = run(exe, img, "cdinit\nctl F 10\n")
     yield check("the stop is the same through CdControlF", rc == 6 and lines[-1] == "stop: disc command 0x10 is not handled", f"{rc} {lines}")
-    rc, lines = run(exe, img, "cdinit\nctl N e 20\n")
-    yield check("Setmode with the whole-sector bit stops", rc == 6 and lines[-1] == "stop: disc mode (whole sector) 0x20 is not handled", f"{rc} {lines}")
-    rc, lines = run(exe, img, "cdinit\nctl N e a0\n")
-    yield check("the same bit inside other bits", rc == 6 and lines[-1] == "stop: disc mode (whole sector) 0xa0 is not handled", f"{rc} {lines}")
+    # the whole-sector bit (0x20) is accepted now (see whole_cases); the 2,328-byte form (0x10) is not used by anything and stops
+    for mode in (0x10, 0x30, 0xf8):
+        rc, lines = run(exe, img, f"cdinit\nctl N e {mode:x}\nmix\n")
+        yield check(f"Setmode 0x{mode:x} (the 2,328-byte form) stops with its line and status 6",
+                    rc == 6 and lines[-1] == f"stop: disc mode (2,328-byte form) 0x{mode:x} is not handled" and "X 1" not in lines, f"{rc} {lines}")
 
 
 def buffer_cases(root: Path, exe: Path):
@@ -1102,6 +1126,199 @@ def guard_cases(root: Path, exe: Path):
                 rc == 0 and v[:30] == [0] * 30 and v[30] > 0 and len(forced) == 1, f"{rc} {v} {forced}")
 
 
+def make_pattern_image(path: Path, count: int, audio: tuple[int, ...] = ()) -> bytes:
+    """count raw sectors in which every byte of the 2352 is a pattern of the sector and the place (the sync, the header, the subheader
+    and the error codes too), so that a piece taken from a wrong place differs. The sectors of `audio` have the audio bit in their
+    submode (byte 18); the others do not. Returns the image's bytes."""
+    out = bytearray()
+    for n in range(count):
+        raw = bytearray(((n * 31 + i * 7 + (i >> 8) * 3 + 1) & 0xFF) for i in range(SECTOR))
+        raw[18] = raw[22] = 0x64 if n in audio else 0x08
+        out += raw
+    path.write_bytes(bytes(out))
+    return bytes(out)
+
+
+def dump_of(lines: list[str], k: int = 0) -> bytes:
+    """The bytes of the k-th `dump` line of a run."""
+    return bytes(int(x, 16) for x in [l for l in lines if l.startswith("M ")][k].split()[1:])
+
+
+def whole_cases(root: Path, exe: Path):
+    """The whole-sector mode (Setmode bit 0x20): the FIFO of a data sector holds the raw bytes 12 to 2351 (2,340)."""
+    img = root / "w.bin"
+    data = make_pattern_image(img, 40, audio=(14,))
+    raw = lambda n: data[n * SECTOR:(n + 1) * SECTOR]
+    whole = lambda n: raw(n)[12:]
+    plain = lambda n: raw(n)[24:24 + 2048]
+    take = "autotick 1\nready 0\nautotick 0\n"   # the polling reader's blocking CdReady(0): the first sector of the read
+    A = 0x80100000
+    for mode in (0x20, 0xa0, 0xe8):
+        rc, lines = run(exe, img, f"cdinit\nctl N e {mode:x}\nmix\n")
+        yield check(f"Setmode 0x{mode:x} (whole sectors) is accepted", rc == 0 and "C ret=1 res=02 00 00 00 00 00 00 00" in lines and "X 1" in lines, f"{rc} {lines}")
+    rc, lines = run(exe, img, "cdinit\nctl N e 20\nctl N 6\nctl B 9\n")
+    yield check("ReadN with the whole-sector mode on is accepted (it stopped the program before)", rc == 0 and lines.count("C ret=1 res=22 00 00 00 00 00 00 00") == 1, f"{rc} {lines}")
+    # one sector as one piece of 585 words = 2340 bytes: the raw bytes 12 to 2351, in order
+    rc, lines = run(exe, img, f"cdinit\nctl N e 20\nreadn 5\n{take}gs {A:x} 585\ndump {A:x} 2340\ndump {A + 2340:x} 8\n")
+    yield check("whole sectors: one sector taken as one piece of 2,340 bytes is the raw bytes 12 to 2351",
+                rc == 0 and dump_of(lines, 0) == whole(5) and dump_of(lines, 1) == bytes(8), f"{rc} {dump_of(lines, 0)[:24].hex()} {whole(5)[:24].hex()}")
+    yield check("whole sectors: the first four bytes are the sector's header and the next eight its subheader",
+                dump_of(lines, 0)[:12] == raw(5)[12:24] and dump_of(lines, 0)[12:16] == raw(5)[24:28], "the start is not the raw byte 12")
+    # pieces of 12, 32 and 2,016 bytes and a rest of 280, taken one after the other; the places do not overlap
+    pieces = [(0, 3), (12, 8), (44, 504), (2060, 70)]
+    script = f"cdinit\nctl N e 20\nreadn 5\n{take}" + "".join(f"gs {A + off:x} {w}\n" for off, w in pieces) + f"dump {A:x} 2340\ndump {A + 2340:x} 8\n"
+    rc, lines = run(exe, img, script)
+    g = [l for l in lines if l.startswith("G ")]
+    yield check("whole sectors: pieces of 12, 32 and 2,016 bytes and the rest of 280 bytes give the raw bytes in order",
+                rc == 0 and len(g) == 4 and all(x.startswith("G ret=1 ") for x in g) and dump_of(lines, 0) == whole(5) and dump_of(lines, 1) == bytes(8), f"{rc} {g}")
+    # a rest that asks for more than is left: the 280 bytes and then zeros
+    script = f"cdinit\nctl N e 20\nreadn 5\n{take}gs {A:x} 3\ngs {A + 12:x} 8\ngs {A + 44:x} 504\ngs {A + 2060:x} 100\ndump {A + 2060:x} 400\n"
+    rc, lines = run(exe, img, script)
+    yield check("whole sectors: a rest asked for beyond the sector's end gives its 280 bytes and then zeros",
+                rc == 0 and dump_of(lines, 0) == whole(5)[2060:] + bytes(120), f"{rc} {dump_of(lines, 0)[:8].hex()}")
+    # a piece past the end gives zeros, over what was there before
+    script = f"cdinit\nctl N e 20\nreadn 5\n{take}gs {A:x} 585\ndump {A:x} 16\ngs {A:x} 4\ndump {A:x} 16\n"
+    rc, lines = run(exe, img, script)
+    yield check("whole sectors: a piece past the end gives zeros and returns 1, over the bytes that were there",
+                rc == 0 and dump_of(lines, 0) == whole(5)[:16] and dump_of(lines, 1) == bytes(16) and "G ret=1 first=0 sum=0 last=00" in lines, f"{rc} {lines[-4:]}")
+    # the bit is looked at when a sector is delivered: set after ReadN and before the first tick
+    rc, lines = run(exe, img, f"cdinit\nreadn 5\nctl N e 20\n{take}gs {A:x} 585\ndump {A:x} 2340\n")
+    yield check("whole sectors: the bit is looked at when the sector is delivered, so a mode set after ReadN and before the first sector counts",
+                rc == 0 and dump_of(lines) == whole(5), f"{rc}")
+    # and cleared between two sectors of one read, then set again
+    script = (f"cdinit\nctl N e 20\nreadn 5\n{take}gs {A:x} 585\ndump {A:x} 2340\n"                  # sector 5 whole
+              f"ctl N e 00\ntick 1\ngs {A + 0x1000:x} 512\ndump {A + 0x1000:x} 2048\ngs {A + 0x1000:x} 4\ndump {A + 0x1000:x} 16\n"   # sector 6, mode cleared
+              f"ctl N e 20\nready 1\ntick 1\ngs {A + 0x2000:x} 585\ndump {A + 0x2000:x} 2340\n")      # sector 7, mode set again
+    rc, lines = run(exe, img, script)
+    yield check("whole sectors: the mode cleared between two sectors of one read changes what the next gives (2,048 bytes from byte 24, then zeros), and set again changes it back",
+                rc == 0 and dump_of(lines, 0) == whole(5) and dump_of(lines, 1) == plain(6) and dump_of(lines, 2) == bytes(16) and dump_of(lines, 3) == whole(7),
+                f"{rc} {[dump_of(lines, k)[:6].hex() for k in range(4)]}")
+    # without the bit: a sector is the 2,048 bytes from byte 24, in both speeds, as before
+    for mode, label in ((0x00, "single speed"), (0x80, "double speed")):
+        rc, lines = run(exe, img, f"cdinit\nctl N e {mode:x}\nreadn 9\n{take}gs {A:x} 512\ndump {A:x} 2048\ngs {A:x} 4\ndump {A:x} 16\n")
+        yield check(f"without the whole-sector bit ({label}) a sector is the 2,048 bytes from byte 24, and then zeros",
+                    rc == 0 and dump_of(lines, 0) == plain(9) and dump_of(lines, 0) == raw(9)[24:2072] and dump_of(lines, 1) == bytes(16), f"{rc}")
+    # the mode bits other than 0x20 do not change the form of the data
+    rc, lines = run(exe, img, f"cdinit\nctl N e c8\nreadn 9\n{take}gs {A:x} 512\ndump {A:x} 2048\n")
+    yield check("without the whole-sector bit but with the others (0xc8) a sector is the 2,048 bytes from byte 24", rc == 0 and dump_of(lines) == plain(9), f"{rc}")
+    # the disc's compressed audio goes to the audio in either mode and never to the data FIFO or the handler
+    for mode, form, words, payload in ((0x60, "whole-sector", 585, whole), (0x40, "2,048-byte", 512, plain)):
+        rc, lines = run(exe, img, f"cdinit\ncb 1\nhandler {A:x} {words}\nctl N e {mode:x}\nreadn 13\ntick 3\nxac\n")
+        got = [(int(l.split()[1]), int(l.split()[3])) for l in lines if l.startswith("  sector")]
+        want = [(payload(n)[0] | payload(n)[1] << 8, sum(payload(n))) for n in (13, 15)]
+        xc = [l for l in lines if l.startswith("XC ")]
+        yield check(f"{form} mode with the audio on: the audio sector 14 never reaches the handler (13 and 15 do, with their bytes) and is consumed as silence",
+                    rc == 0 and got == want and xc and "silent 1" in xc[0] and lines.count("H intr=1 res0=22") == 2, f"{rc} {got} {want} {xc}")
+    # the record of where the bytes came from, and the hook, work as for the 2,048-byte form, for what CdGetSector copies
+    script = (f"cdinit\nctl N e 20\nreadn 12\n{take}hook 1\ngs {A:x} 100\ngs {A + 400:x} 485\n"
+              f"src {A:x}\nsrc {A + 396:x}\nsrc {A + 400:x}\nsrc {A + 2336:x}\nsrc {A + 2340:x}\n")
+    rc, lines = run(exe, img, script)
+    p = [int(l.split()[1]) for l in lines if l.startswith("P ")]
+    k = [l for l in lines if l.startswith("K ")]
+    yield check("whole sectors: the word record says sector 12 for the words a piece wrote (the last word of the 2,340 bytes too), none past it; the hook is told each copy",
+                rc == 0 and p == [12, 12, 12, 12, -1] and k == [f"K {0x80100000:x} 400", f"K {0x80100190:x} 1940"], f"{rc} {p} {k}")
+    script = f"cdinit\nctl N e 20\nreadn 12\n{take}gs {A:x} 585\ngs {A:x} 4\nsrc {A:x}\nsrc {A + 12:x}\nsrc {A + 16:x}\n"
+    rc, lines = run(exe, img, script)
+    p = [int(l.split()[1]) for l in lines if l.startswith("P ")]
+    yield check("whole sectors: the zeros of a dry FIFO are from nowhere (-1) and replace the record of the bytes they overwrote", rc == 0 and p == [-1, -1, 12], f"{rc} {p}")
+
+
+def host_cases(root: Path, exe: Path):
+    """The host ready handler (port_cd_host_ready): called in place of the game's handler variable."""
+    img = root / "h.bin"
+    make_image(img, 60, audio={13: (1, 0, 0x64)})
+    A = 0x80100000
+    dbl = "ctl N e 80\n"
+    sectors = lambda lines: [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    # called once per data sector, in order, with interrupt code 1 and the status byte the game's handler gets
+    host = "cdinit\nhost 1\ncb 3\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\ntick 1\n"
+    game = "cdinit\ncb 1\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\ntick 1\n"
+    rc, lines = run(exe, img, host + "calls\n")
+    rc2, lines2 = run(exe, img, game + "calls\n")
+    hh = [l for l in lines if l.startswith("HH ")]
+    yield check("the host handler is called once per data sector, in order (double speed: 2 then 3 sectors), with interrupt code 1 and the status 0x22",
+                rc == 0 and hh == ["HH intr=1 res0=22 depth=1"] * 5 and sectors(lines) == [10, 11, 12, 13, 14], f"{rc} {hh} {sectors(lines)}")
+    yield check("... the same calls, status and bytes as the game's handler gets",
+                [l for l in lines if l.startswith("H ") or l.startswith("  ")] == [l for l in lines2 if l.startswith("H ") or l.startswith("  ")] and sectors(lines) == sectors(lines2),
+                f"{[l for l in lines if l.startswith('H ')][:2]} {[l for l in lines2 if l.startswith('H ')][:2]}")
+    yield check("the game's handler variable, set to a made-up handler at the same time, is not called", "CA game 0 host 5" in lines, f"{lines[-1]}")
+    rc, lines = run(exe, img, host.replace("cb 3", "cb 1") + "calls\n")
+    yield check("... whatever the variable holds (the other made-up handler too)", "CA game 0 host 5" in lines, f"{lines[-1]}")
+    rc, lines = run(exe, img, host.replace("cb 3", "cb 2") + "calls\n")
+    yield check("... or the game's stream handler's address", "CA game 0 host 5" in lines, f"{lines[-1]}")
+    # a handler that takes the sector's bytes inside the call gets that sector's
+    rc, lines = run(exe, img, host)
+    yield check("a handler that takes the sector's bytes inside the call gets that sector's (the sums of sectors 10 to 14)", [int(l.split()[3]) for l in lines if l.startswith("  sector")] == [total(n) for n in range(10, 15)], f"{[l for l in lines if l.startswith('  sector')]}")
+    # removal: the game's handler is called again
+    rc, lines = run(exe, img, "cdinit\nhost 1\ncb 1\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\nhost 0\ntick 1\ncalls\n")
+    yield check("after the host handler is removed (a null pointer) the game's handler is called again (2 host calls, then 3 game calls)",
+                "CA game 3 host 2" in lines and sectors(lines) == [10, 11, 12, 13, 14], f"{lines[-1]} {sectors(lines)}")
+    rc, lines = run(exe, img, "cdinit\nhost 1\nhost 0\ncb 1\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\ncalls\n")
+    yield check("a host handler set and removed before the read is never called", "CA game 2 host 0" in lines, f"{lines[-1]}")
+    # CdInit removes it
+    rc, lines = run(exe, img, "cdinit\nhost 1\ncdinit\ncb 1\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\ncalls\n")
+    yield check("port_CdInit removes the host handler", "CA game 2 host 0" in lines and not any(l.startswith("HH ") for l in lines), f"{lines[-1]}")
+    rc, lines = run(exe, img, "cdinit\nhost 1\ncb 1\nhandler 80100000 512\n" + dbl + "readn 10\ntick 1\nact 1 I 0\ntick 1\ncalls\n")
+    yield check("... a CdInit from a handler included: the read stops, and a later read is the game's", "CA game 0 host 3" in lines or "CA game 0 host 2" in lines, f"{lines[-1]}")
+    # the compressed audio never reaches it
+    rc, lines = run(exe, img, "cdinit\nhost 1\nhandler 80100000 512\nctl N e 40\nreadn 12\ntick 3\ncalls\nxac\n")
+    xc = [l for l in lines if l.startswith("XC ")]
+    yield check("with the compressed audio on, an audio sector (13) never reaches the host handler: sectors 12 and 14 do",
+                sectors(lines) == [12, 14] and "CA game 0 host 2" in lines and "silent 1" in xc[0], f"{sectors(lines)} {lines[-2:]}")
+    # a read past the image's end: interrupt code 5 with the error status
+    img2 = root / "h2.bin"
+    make_image(img2, 12)
+    rc, lines = run(exe, img2, "cdinit\nhost 1\nhandler 80100000 512\nreadn 9\ntick 4\ntick 4\nready 1\ncalls\n")
+    hh = [l for l in lines if l.startswith("HH ")]
+    yield check("a read past the image's end gives the host handler interrupt code 5 with the error result, once, after sectors 9 to 11",
+                hh == ["HH intr=1 res0=22 depth=1"] * 3 + ["HH intr=5 res0=03 depth=1"] and sectors(lines) == [9, 10, 11], f"{hh}")
+    rc, lines = run(exe, img2, "cdinit\nhost 1\ncb 3\nreadn 11\ntick 4\ncalls\n")
+    yield check("... the error does not reach the game's handler", "CA game 0 host 2" in lines, f"{lines[-1]}")
+    # a handler that pauses the read stops the row; ReadN continues
+    rc, lines = run(exe, img, "cdinit\nhost 1\nhandler 80100000 512\n" + dbl + "act 1 P 0\nreadn 10\ntickc 3\nctl N 6\ntickc 1\n")
+    v = [int(l.split()[1]) for l in lines if l.startswith("V ")]
+    yield check("a host handler that pauses the read stops the row: 1 sector, then none; ReadN continues from the next with a fresh carry (2 sectors)",
+                rc == 0 and v == [1, 0, 0, 2] and sectors(lines) == [10, 11, 12], f"{rc} {v} {sectors(lines)}")
+    # a handler that starts a new read gets one sector a vblank
+    rc, lines = run(exe, img, "cdinit\nhost 1\nhandler 80100000 512\n" + dbl + "act 0 N 40\nreadn 10\ntickc 5\n")
+    v = [int(l.split()[1]) for l in lines if l.startswith("V ")]
+    yield check("a host handler that starts a new read at every sector gets one sector a vblank (the header's rule): 10, then 40 each time",
+                rc == 0 and v == [1] * 5 and sectors(lines) == [10, 40, 40, 40, 40], f"{rc} {v} {sectors(lines)}")
+    rc, lines = run(exe, img, "cdinit\ncb 1\nhandler 80100000 512\n" + dbl + "act 0 N 40\nreadn 10\ntickc 5\n")
+    yield check("... the same as the game's handler gets", [int(l.split()[1]) for l in lines if l.startswith("V ")] == [1] * 5, f"{lines}")
+    # the handler calls the layer: CdReady inside takes the flag
+    rc, lines = run(exe, img, "cdinit\nhost 1\nhandler 80100000 512\n" + dbl + "act 0 R 0\nreadn 10\ntick 1\nready 1\n")
+    yield check("a host handler may call CdReady and CdGetSector from inside (the flag is taken: CdReady(1) afterwards finds none)",
+                rc == 0 and sectors(lines) == [10, 11] and [l for l in lines if l.startswith("Y ")][0].startswith("Y ret=0"), f"{rc} {lines[-3:]}")
+    # port_handler_depth is 1 inside, 0 after
+    rc, lines = run(exe, img2, "cdinit\nhost 1\ndepth\n" + dbl + "readn 9\ntick 1\ndepth\ntick 4\ndepth\n")
+    d = [int(l.split()[1]) for l in lines if l.startswith("D ")]
+    yield check("port_handler_depth is 1 inside the host handler (for data and for the error) and 0 before and after",
+                d == [0, 0, 0] and all(l.endswith("depth=1") for l in lines if l.startswith("HH ")) and any("intr=5" in l for l in lines), f"{d} {[l for l in lines if l.startswith('HH ')]}")
+    # the ring guard of the game's own stream does not apply: a ring that would hold a sector
+    guard = "cdinit\ncb 2\nhandler 80100000 0\n" + dbl + "ring 5 1\nreadn 0\ntickc 2\n"
+    rc, lines = run(exe, img, guard)
+    v0 = [int(l.split()[1]) for l in lines if l.startswith("V ")]
+    rc, lines = run(exe, img, guard.replace("cb 2", "host 1\ncb 2"))
+    v1 = [int(l.split()[1]) for l in lines if l.startswith("V ")]
+    yield check("with the game's ring variables arranged so that the guard holds a sector (fill 4), it does: no sector without a host handler (control), the host handler gets 2 and 3",
+                v0 == [0, 0] and v1 == [2, 3], f"{v0} {v1}")
+    # the polling rule does not apply: no handler variable, the flag not taken
+    poll = "cdinit\ncb 0\nhandler 80100000 0\n" + dbl + "readn 0\ntick 2\nctl N 11\n"   # GetlocP: bytes 2 to 4 are the position of the next sector to read
+    rc, lines = run(exe, img, poll)
+    p0 = [l for l in lines if l.startswith("C ret=1 res=01 01")]
+    rc, lines = run(exe, img, poll.replace("cb 0", "host 1\ncb 0"))
+    p1 = [l for l in lines if l.startswith("C ret=1 res=01 01")]
+    yield check("a polling game (no handler variable): without a host handler one sector waits for the poll (control: after 2 ticks the next sector is 1); with one all of them are delivered (2 and 3: the next is 5)",
+                p0 == ["C ret=1 res=01 01 00 00 01 00 02 01"] and p1 == ["C ret=1 res=01 01 00 00 05 00 02 05"], f"{p0} {p1}")
+    # whole sectors through the host handler: the bytes taken inside the call
+    img3 = root / "h3.bin"
+    data = make_pattern_image(img3, 20)
+    rc, lines = run(exe, img3, f"cdinit\nhost 1\nctl N e 20\nhandler {A:x} 585\nreadn 5\ntick 1\n")
+    got = [int(l.split()[3]) for l in lines if l.startswith("  sector")]
+    yield check("a host handler in the whole-sector mode takes the 2,340 bytes of its sector inside the call", got == [sum(data[n * SECTOR + 12:(n + 1) * SECTOR]) for n in (5,)], f"{got}")
+
+
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
     yield rate_cases(root, exe)
@@ -1117,6 +1334,8 @@ def groups(root: Path, exe: Path):
     yield stream_cases(root, exe)
     yield stop_cases(root, exe)
     yield buffer_cases(root, exe)
+    yield whole_cases(root, exe)
+    yield host_cases(root, exe)
 
 
 def main() -> int:

@@ -193,6 +193,9 @@ void port_callbacks_reset(void);
 void port_deliver_event(unsigned event_class, unsigned spec);
 /* The port's own seam to the disc layer (cd.c). */
 void port_cd_tick(void);
+/* A ready handler of the runtime's own for the disc layer (cd.c): called for each delivered data sector with (1, result) and for a disc
+ * error with (5, result) in place of the game's handler variable. Null removes it; port_CdInit removes it too. */
+void port_cd_host_ready(void (*handler)(int intr, unsigned char *result));
 
 /* gpu.c: show the picture and pump the window's events; kernel.c calls it once per vblank. */
 void port_gpu_present(void);
