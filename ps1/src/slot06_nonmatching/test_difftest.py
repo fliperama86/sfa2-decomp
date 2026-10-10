@@ -2133,6 +2133,7 @@ def case_w_still_refused_masks():
 
 
 def sb(rt, base, off): return 0xA0000000 | base << 21 | rt << 16 | (off & 0xFFFF)
+def lbu(rt, base, off): return 0x90000000 | base << 21 | rt << 16 | (off & 0xFFFF)
 def beq_self(): return 0x1000FFFF  # beq zero, zero, -1: a branch to itself (the delay slot follows)
 
 
@@ -4319,9 +4320,32 @@ def case_z_orig_refusal_callee_writes_the_stack_above_its_pointer():
 
 
 def case_z_orig_refusal_callee_reads_the_stack_through_a_pointer():
-    words = program(("call", CALLEE, [], []))
-    return orig_refused(words, {CALLEE: [addu(T0, SP, ZERO), lw(T1, T0, 16), JR_RA, NOP]},
+    # the function hands the callee the address of a local of its own
+    words = reg_caller([addiu(A0, SP, 16)])
+    return orig_refused(words, {CALLEE: [lw(T1, A0, 0), JR_RA, NOP]},
                    "through a register other than sp (a pointer to a local of the function)")
+
+
+def case_z_orig_refusal_callee_takes_the_address_of_its_stack():
+    # sp read other than as a base or to move it: as the source of a copy, as the value of a store, in a sum
+    words = program(("call", CALLEE, [], []))
+    bodies = ([addu(T0, SP, ZERO), JR_RA, NOP], [*setreg(T0, FLAG), sw(SP, T0, 0), JR_RA, NOP], [addiu(V0, SP, 8), JR_RA, NOP],
+              [addiu(SP, SP, -8), sw(SP, SP, 0), addiu(SP, SP, 8), JR_RA, NOP])  # the last: stored into its own frame
+    bad = [why for body in bodies if (why := orig_refused(words, {CALLEE: body}, "takes the address of its stack"))]
+    # as a base, and moved, it is no refusal
+    fine = orig_record(words, {CALLEE: [addiu(SP, SP, -8), sw(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]})[1]
+    return None if not bad and fine == 0 else f"{bad} {fine}"
+
+
+def case_z_orig_refusal_callee_reads_its_frame_before_writing_it():
+    # what its frame holds before it writes it is what earlier code left on the stack
+    words = program(("call", CALLEE, [], []))
+    why = orig_refused(words, {CALLEE: [addiu(SP, SP, -8), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]},
+                       "reads its own frame at 0x801fefd8 before writing it")
+    # a byte of the word that it did not write is such a read too
+    part = orig_refused(words, {CALLEE: [addiu(SP, SP, -8), sb(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]},
+                        "reads its own frame at 0x801fefd9 before writing it")
+    return why or part
 
 
 def case_z_orig_refusal_callee_entered_again():
@@ -4440,7 +4464,8 @@ def case_z_orig_uses_checks_failure_wrong_argument():
     return None if ok else f"{other} {wrong}"
 
 
-STACK_BODY = [addiu(SP, SP, -8), lw(T0, SP, 24), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]  # reads the fifth argument
+# reads the fifth argument, and a word of its own frame that it wrote
+STACK_BODY = [addiu(SP, SP, -8), lw(T0, SP, 24), sw(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]
 
 
 def case_z_orig_stack_words():
@@ -4876,8 +4901,9 @@ def case_z_orig_write_at_sixteen_above_the_pointer_is_refused():
 
 
 def case_z_orig_home_area_read_through_a_pointer_is_refused():
-    words = program(("call", CALLEE, [], []))
-    return orig_refused(words, {CALLEE: [addu(T0, SP, ZERO), lw(T1, T0, 4), JR_RA, NOP]}, "through a register other than sp")
+    # the function hands the callee its stack pointer, which is where the callee's home area is
+    words = reg_caller([addiu(A0, SP, 0)])
+    return orig_refused(words, {CALLEE: [lw(T1, A0, 4), JR_RA, NOP]}, "through a register other than sp")
 
 
 
@@ -5061,6 +5087,66 @@ def case_z_reg_gp_is_a_use_and_k0_is_refused():
     refused_k0 = orig_refused(words, {CALLEE: [addu(V0, 26, ZERO), JR_RA, NOP]}, "reads register k0 of its caller, which is no argument",
                               setup=orig_setup(returns_value=True))
     return None if ok and refused_k0 is None else f"{lines} {refused_k0}"
+
+
+def case_z_reg_second_save_does_not_hide_the_first_copy():
+    # two saves of a0 into two words, then the first word loaded into v0: the result is a0, so a0 is a use, whichever
+    # of the two copies is loaded
+    for offset in (0, 4):
+        body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(A0, SP, 4), lw(V0, SP, offset), addiu(SP, SP, 16), JR_RA, NOP]
+        doc = reg_record(reg_caller([addiu(A0, ZERO, 7)]), body)[2]
+        call = orig_call(doc)
+        if call["uses"] != {"a0": "0x00000007"} or call["leaves"] != {"v0": "0x00000007"} or doc["fixtures"][0]["result"] != "0x00000007":
+            return f"copy at {offset}: {call} {doc['fixtures'][0]['result']}"
+        why = result_failure(doc, reg_caller([addiu(A0, ZERO, 8)]),
+                             "call 1 to func_callee: argument a0 is 0x00000008, the original gave 0x00000007")
+        if why:
+            return f"copy at {offset}: {why}"
+    return None
+
+
+def case_z_reg_partial_overwrite_leaves_the_other_bytes_copies():
+    # one byte of the saved word is written over: the other three are still a0's, so the load of the word is a use
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    doc = reg_record(reg_caller(setreg(A0, 0x1234)), body)[2]
+    call = orig_call(doc)
+    if call["uses"] != {"a0": "0x00001234"} or call["leaves"] != {"v0": "0x00001200"}:
+        return f"{call}"
+    why = result_failure(doc, reg_caller(setreg(A0, 0x5634)), "argument a0 is 0x00005634, the original gave 0x00001234")
+    # loaded back into a0 itself it is no restore: a0 is written with the changed word, and it was used
+    back = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lw(A0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    again = orig_call(reg_record(reg_caller(setreg(A0, 0x1234)), back)[2])
+    ok = again["uses"] == {"a0": "0x00001234"} and again["leaves"] == {"a0": "0x00001200"}
+    if why or not ok:
+        return why or f"loaded back: {again}"
+    # one surviving byte read alone: a0 = 0x100 gives 1, and a build with 0x200, which really gives 2, fails
+    one = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lbu(V0, SP, 1), addiu(SP, SP, 16), JR_RA, NOP]
+    doc = reg_record(reg_caller(setreg(A0, 0x100)), one)[2]
+    call = orig_call(doc)
+    if call["uses"] != {"a0": "0x00000100"} or call["leaves"] != {"v0": "0x00000001"} or doc["fixtures"][0]["result"] != "0x00000001":
+        return f"one byte: {call}"
+    why = result_failure(doc, reg_caller(setreg(A0, 0x200)), "argument a0 is 0x00000200, the original gave 0x00000100")
+    # the byte that was written over is no copy any more: read alone it is no use
+    gone = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lbu(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    call = orig_call(reg_record(reg_caller(setreg(A0, 0x100)), gone)[2])
+    return why or (None if call["uses"] == {} and call["leaves"] == {"v0": "0x00000000"} else f"the byte written over: {call}")
+
+
+def case_z_reg_copy_written_over_in_full_is_no_copy():
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(ZERO, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    call = orig_call(reg_record(reg_caller([addiu(A0, ZERO, 7)]), body)[2])
+    return None if call["uses"] == {} and call["leaves"] == {"v0": "0x00000000"} else f"{call}"
+
+
+def case_z_reg_restore_from_either_live_copy():
+    # s0 saved twice and written; the first copy is written over; the load of the second is still a restore
+    body = [addiu(SP, SP, -16), sw(S0, SP, 0), sw(S0, SP, 4), addiu(S0, ZERO, 5), sw(ZERO, SP, 0), lw(S0, SP, 4),
+            addiu(SP, SP, 16), JR_RA, NOP]
+    lines, status, doc, _ = reg_record(reg_caller([]), body)
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    return None if call["uses"] == {} and "s0" not in call["leaves"] else f"{call}"
 
 
 def case_z_reg_register_written_and_then_restored_is_untouched_again():
@@ -5427,6 +5513,8 @@ CASES = [
     ("z-orig-refusal-tail-call-when-the-function-returns", case_z_orig_refusal_tail_call_when_the_function_returns),
     ("z-orig-refusal-callee-writes-the-stack-above-its-pointer", case_z_orig_refusal_callee_writes_the_stack_above_its_pointer),
     ("z-orig-refusal-callee-reads-the-stack-through-a-pointer", case_z_orig_refusal_callee_reads_the_stack_through_a_pointer),
+    ("z-orig-refusal-callee-takes-the-address-of-its-stack", case_z_orig_refusal_callee_takes_the_address_of_its_stack),
+    ("z-orig-refusal-callee-reads-its-frame-before-writing-it", case_z_orig_refusal_callee_reads_its_frame_before_writing_it),
     ("z-orig-refusal-callee-entered-again", case_z_orig_refusal_callee_entered_again),
     ("z-orig-callee-entered-again-through-jalr", case_z_orig_callee_entered_again_through_jalr),
     ("z-orig-own-frame-and-a-loop-back-are-no-refusal", case_z_orig_own_frame_and_a_loop_back_are_no_refusal),
@@ -5480,6 +5568,10 @@ CASES = [
     ("z-reg-store-of-an-incoming-register-outside-the-callees-memory-is-a-use", case_z_reg_store_of_an_incoming_register_outside_the_callees_memory_is_a_use),
     ("z-reg-gp-is-a-use-and-k0-is-refused", case_z_reg_gp_is_a_use_and_k0_is_refused),
     ("z-reg-register-written-and-then-restored-is-untouched-again", case_z_reg_register_written_and_then_restored_is_untouched_again),
+    ("z-reg-second-save-does-not-hide-the-first-copy", case_z_reg_second_save_does_not_hide_the_first_copy),
+    ("z-reg-partial-overwrite-leaves-the-other-bytes-copies", case_z_reg_partial_overwrite_leaves_the_other_bytes_copies),
+    ("z-reg-copy-written-over-in-full-is-no-copy", case_z_reg_copy_written_over_in_full_is_no_copy),
+    ("z-reg-restore-from-either-live-copy", case_z_reg_restore_from_either_live_copy),
     ("z-orig-home-area-writes-are-the-callees-own", case_z_orig_home_area_writes_are_the_callees_own),
     ("z-orig-home-area-read-before-a-write-is-a-stack-word", case_z_orig_home_area_read_before_a_write_is_a_stack_word),
     ("z-orig-write-at-sixteen-above-the-pointer-is-refused", case_z_orig_write_at_sixteen_above_the_pointer_is_refused),

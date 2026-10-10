@@ -199,13 +199,22 @@ Each call is an entry of `calls`, at its place among the recorders' calls, with
 REGISTERS OF A CALL. For each register (1 to 31, hi and lo) the trace keeps one of two states during a call: UNTOUCHED
 (it holds the value it had at the begin) or WRITTEN. The callee's own memory is its frame (the stack below the call's
 stack pointer) and its home area. A `sw R` of an UNTOUCHED R into the callee's own memory is a SAVE: it is no use of R,
-and its word is R's save slot (a later store to a byte of the word ends the slot). A `lw R` from R's own slot is a
-RESTORE: R is UNTOUCHED again. Any other load of a byte of R's slot is a use of R. Any other read of an UNTOUCHED
-register by an executed instruction is a use of it, except `jr ra` reading ra, sp read as itself and register 0. A use of
+and each of the word's four bytes is from then on a COPY of R (of that byte of the value R had at the begin). A
+register may have any number of copies at the same time. A byte stops being a copy when a store writes that byte, and
+only then: a store of one byte into a saved word leaves the other three copies. A `lw R` over four bytes that are R's
+own copy, in order, is a RESTORE: R is UNTOUCHED again. Any other load of a byte that is still a copy, whatever the
+register it loads into and however many bytes it loads, is a use of the register the byte is a copy of. Any other read
+of an UNTOUCHED register by an executed instruction is a use of it, except `jr ra` reading ra and register 0. A use of
 s0 to s7, fp, k0, k1, or of ra other than by `jr ra`, refuses the case: `the original callee F reads register NAME of its
 caller, which is no argument`. A call that ends with another stack pointer than it began with refuses the case: `the
-original callee F leaves the stack pointer changed`. (`--control` alters the build and `--edges` alters the original;
-neither takes part here.)
+original callee F leaves the stack pointer changed`.
+The stack pointer may be read as the base of a load or a store and by the instruction that moves it (`addiu sp, sp,
+N`). Read in any other way (copied, added to, stored as a value) its value goes somewhere else, and what the callee
+then makes of it is an address of its stack, which is another one under a build and which nothing here could check: the
+case is refused, `the original callee F takes the address of its stack`. A callee that loads a byte of its own frame
+(below the call's stack pointer) that it has not written during this call reads what earlier code left on the stack,
+which is other code under a build: the case is refused, `the original callee F reads its own frame at ADDRESS before
+writing it`. (`--control` alters the build and `--edges` alters the original; neither takes part here.)
 
 The 16 bytes from the call's stack pointer upward are the callee's own argument home area (o32, as for the function
 itself): its writes there are neither effects nor refusals, and a read there of a byte it wrote itself is not a read
@@ -1338,7 +1347,11 @@ class OriginalCall:
         self.args = [begin[number] for number in range(4, 8)]  # a0 to a3 at the begin
         self.uses: dict[int, int] = {}  # register -> value at the begin, for each register used before it was written
         self.written_regs: set[int] = set()  # the registers in the state WRITTEN (the others are UNTOUCHED)
-        self.slots: dict[int, int] = {}  # register -> physical address of the word where the callee saved it
+        # Every byte of the callee's own memory that holds a saved copy of a register that was UNTOUCHED when it was
+        # stored: byte (physical address) -> (register, which of its four bytes). A register may have several
+        # live copies; a store ends only the bytes it writes.
+        self.saved: dict[int, tuple[int, int]] = {}
+        self.frame_written: set[int] = set()  # bytes of its frame (below the call's sp) that the callee wrote
         self.reads: dict[int, tuple[int, bool]] = {}  # byte -> (value, written earlier in the run); read before written here
         self.written: dict[int, int] = {}  # byte -> value before the call's first write
         self.stack_bytes: set[int] = set()  # bytes at or above sp read through sp
@@ -1474,23 +1487,32 @@ class Trace:
         op, rt = word >> 26, (word >> 16) & 31
         memory = MEMORY_OPS.get(op)
         span = touched(memory[1], self.target(uc, word)) if memory else None
-        # The callee's own memory is its frame and its home area; a word of it is the save slot of a register.
-        # `sw R` of an UNTOUCHED R there is a SAVE (no use of R); `lw R` from R's own slot is a RESTORE (R is
-        # UNTOUCHED again); any other load of a byte of the slot of R is a use of R.
-        save = restore = False
-        if memory is not None and op == 0x2B and rt not in (0, SP) and rt not in call.written_regs:
-            save = span.start >= STACK_LOW & 0x1FFFFFFF and span.stop <= (call.sp & 0x1FFFFFFF) + HOME_AREA
-        if memory is not None and op == 0x23 and call.slots.get(rt) == span.start:
-            restore = True
-        if memory is not None:
-            for number, slot in list(call.slots.items()):
-                if slot < span.stop and span.start < slot + 4:
-                    if memory[0] and not (restore and number == rt):
-                        self.use(call, number)
-                    elif not memory[0]:
-                        del call.slots[number]
+        # The stack pointer may be read as the base of a load or a store and by the instruction that moves it.
+        # Read in any other way its value goes somewhere else, and what the callee then makes of it is an address of
+        # its stack, which is another one under a build: nothing here could check that, so it is refused.
+        if SP in sources:
+            as_base = memory is not None and (word >> 21) & 31 == SP and (memory[0] or rt != SP)
+            moved = op in (8, 9) and (word >> 21) & 31 == SP and rt == SP
+            if not (as_base or moved):
+                raise Refusal(f"the original callee {self.label(call.entry)} takes the address of its stack (it reads sp "
+                              f"other than as the base of a load or a store, or to move it)")
+        # The callee's own memory is its frame and its home area. `sw R` of an UNTOUCHED R there is a SAVE (no use of
+        # R): its four bytes are then copies of R's value of the call's begin, and they stay so, each one, until a
+        # store writes that byte. `lw R` over four bytes that are R's own copy, in order, is a RESTORE (R is UNTOUCHED
+        # again). Any other load of a byte that is still a copy is a use of the register it is a copy of.
+        own_low, own_high = STACK_LOW & 0x1FFFFFFF, (call.sp & 0x1FFFFFFF) + HOME_AREA
+        save = (memory is not None and op == 0x2B and rt not in (0, SP) and rt not in call.written_regs
+                and span.start >= own_low and span.stop <= own_high)
+        restore = memory is not None and op == 0x23 and all(call.saved.get(span.start + k) == (rt, k) for k in range(4))
+        if memory is not None and memory[0] and not restore:
+            for number in sorted({call.saved[at][0] for at in span if at in call.saved}):
+                self.use(call, number)
+        if memory is not None and not memory[0]:
+            for at in span:
+                call.saved.pop(at, None)
             if save:
-                call.slots[rt] = span.start
+                for k in range(4):
+                    call.saved[span.start + k] = (rt, k)
         for number in sources:
             if number == 0 or number == SP or (save and number == rt):
                 continue
@@ -1532,6 +1554,15 @@ class Trace:
                                   f"at or above its stack pointer, through a register other than sp (a pointer to a local "
                                   f"of the function)")
                 call.stack_bytes.add(at)
+                continue
+            if (STACK_LOW & 0x1FFFFFFF) <= at < low:
+                # Its own frame. What it holds before the callee writes it is what earlier code left on the stack, which
+                # is other code under a build: a callee that reads it cannot be stood in for.
+                if not loads:
+                    call.frame_written.add(at)
+                elif at not in call.frame_written:
+                    raise Refusal(f"the original callee {self.label(call.entry)} reads its own frame at "
+                                  f"{console_address(at):#x} before writing it")
                 continue
             if self.ignored(at):
                 continue
