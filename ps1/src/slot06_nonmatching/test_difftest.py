@@ -5729,6 +5729,7 @@ def case_fl_bad_fills_are_refused_by_name():
         ({"fills": ((0, -1, 0, b"\x01"),)}, "argument"),
         ({"fills": ((0, 4, 0, b"\x01"),)}, "argument"),
         ({"fills": ((0, 2, 0, b"\x01"),)}, "argument 2 of 2"),
+        ({"fills": ((0, 4, 0, b"\x01"),)}, "argument 4 of 5"),
         ({"fills": ((0, 0, -1, b"\x01"),)}, "offset"),
         ({"fills": ((0, 0, 0x8000, b"\x01"),)}, "offset"),
         ({"fills": ((0, 0, 0, b""),)}, "data"),
@@ -5743,7 +5744,7 @@ def case_fl_bad_fills_are_refused_by_name():
         ({"fills": (7,)}, "(call, argument, offset, data)"),
     ]
     for option, word in refused:
-        arguments = 2 if "argument 2 of 2" == word else 4
+        arguments = {"argument 2 of 2": 2, "argument 4 of 5": 5}.get(word, 4)
         try:
             log.replace(CALLEE, arguments, 0, **option)
         except ValueError as exc:
@@ -5823,7 +5824,7 @@ def case_fl_record_has_the_fills_and_no_warning():
         if not fills or len(fills) != 1 or fills[0][:3] != [0, 0, 0] or len(fills[0][3]) != 8:
             return f"case {fixture['case']}: fills {fills}"
         want = int.from_bytes(bytes.fromhex(fills[0][3]), "little")
-        if fixture["result"] != D.hex8(want) or fixture["calls"][0]["args"] != ["0x00000000"]:
+        if fills[0][3] != fills[0][3].lower() or fixture["result"] != D.hex8(want) or fixture["calls"][0]["args"] != ["0x00000000"]:
             return f"case {fixture['case']}: result {fixture['result']}, call {fixture['calls'][0]}"
         # the function reads only its local, which the fill made: no input, no write outside its stack
         if fixture["reads"] or fixture["same"] or fixture["writes"]:
@@ -5871,15 +5872,15 @@ def case_fl_fixtures_file_with_a_changed_fill_fails_the_right_build():
 
 def case_fl_record_pointee_shows_the_memory_before_the_fill():
     # the function writes 0x11111111 to the buffer, then calls with the buffer; the entry holds that word, the fill
-    # then writes 0xAABBCCDD, which is the function's result when it reads the buffer again
+    # then writes 0xAABBCCDD at offset 4, which is the function's result when it reads the buffer's second word
     def setup(state, rng, sym):
         buffer = state.alloc(8)
         log = contracts.CallLog(state)
-        log.replace(CALLEE, 1, 0x44, pointees={0: 1}, fills=((0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))
+        log.replace(CALLEE, 1, 0x44, pointees={0: 1}, fills=((0, 0, 4, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))
         return contracts.Setup(args=(buffer,), returns_value=True)
 
     words = [addiu(SP, SP, -32), sw(RA, SP, 28), sw(4, SP, 20), *setreg(T1, 0x11111111), sw(T1, 4, 0), jal(CALLEE), NOP,
-             lw(T1, SP, 20), NOP, lw(V0, T1, 0), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+             lw(T1, SP, 20), NOP, lw(V0, T1, 4), lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
     lines, status, doc, _ = fx_record(words, setup, cases=3)
     if status or any("warning" in line for line in lines):
         return f"{lines}"
@@ -5887,8 +5888,9 @@ def case_fl_record_pointee_shows_the_memory_before_the_fill():
     buffer = int(fixture["args"][0], 16)
     # the call holds the changes against the input state: the word the function wrote, not the fill
     ok = fixture["calls"][0]["pointees"] == {"0": [[0, "11111111"]]} and fixture["result"] == "0xaabbccdd"
-    # the filled bytes are written by the stand-in and not read from the input: the buffer is only in `writes`
-    ok = ok and fixture["reads"] == [] and fixture["writes"] == [[D.hex8(buffer), "ddccbbaa"]]
+    # the filled bytes are written by the stand-in and not read from the input: the buffer is only in `writes` (the function's word, then the fill)
+    ok = ok and fixture["reads"] == [] and fixture["writes"] == [[D.hex8(buffer), "11111111ddccbbaa"]]
+    ok = ok and fixture["recorders"][0]["fills"] == [[0, 0, 4, "ddccbbaa"]]
     if not ok:
         return f"{fixture['calls'][0]['pointees']} {fixture['result']} reads {fixture['reads']} writes {fixture['writes']}"
     got, replay_status = fx_replay(doc, words)
@@ -5935,6 +5937,16 @@ def case_fl_reader_refuses_a_fills_that_is_not_of_the_form():
                     return f"{label}: the message {exc}"
                 continue
             return f"{label}: the file was read"
+        copy = json.loads(json.dumps(doc))
+        copy["fixtures"][0]["recorders"][0]["arguments"] = "x"
+        path.write_text(json.dumps(copy))
+        try:
+            D.load_fixtures(path, LABEL)
+        except D.FixtureError as exc:
+            if "arguments is not a number" not in str(exc):
+                return f"arguments that is text: {exc}"
+        else:
+            return "a recorder whose arguments is text was read"
         # a second fixture is looked at too
         copy = json.loads(json.dumps(doc))
         copy["fixtures"][1]["recorders"][0]["fills"] = [[0, 0, 0x8000, "01"]]

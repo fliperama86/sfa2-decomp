@@ -724,6 +724,11 @@ def format_and_input_cases(rig: Rig):
     yield "a-recorder-without-fills-is-replayed-as-before", same(
         rig.run([rig.folder({"nof": SOURCES["add"].replace("add", "nof")}, {"nof": doc("nof", [fx(args=["0x1", "0x2"], result="0x00000003", recorders=[recorder(arguments=1, fills=[])])])})])[1],
         ["nof native replay: fixtures 1, passed 1, failed 0", counts(1, 1, 0, 0, 0)])
+    for label, fixtures in (("in-the-second-fixture", [fx(), fx(recorders=[recorder(arguments=1, fills=[[0, 0, 0, "11"]])])]),
+                            ("in-the-second-recorder", [fx(recorders=[recorder(arguments=1), recorder("stub_b", "0x80100100", arguments=1, fills=[[0, 0, 0, "11"]])])])):
+        name = "later" + label.replace("-", "")
+        text = fills_line.replace("fills native", name + " native")
+        yield f"fills-{label}-are-found", same(rig.run([rig.folder({name: SOURCES["add"]}, {name: doc(name, fixtures)})])[1], [text, counts(0, 0, 0, 0, 1)])
     badfills = doc("badfills", [fx(recorders=[recorder(arguments=1, fills="x")])])
     status, out, err = rig.run([rig.folder({"badfills": SOURCES["add"]}, {"badfills": badfills})])
     yield "fills-that-are-not-a-list-are-an-input-error", same((status, out, err.startswith("INPUT ERROR: badfills.fixtures.json: fixture 0: fills of a recorder must be a list")), (2, [], True))
