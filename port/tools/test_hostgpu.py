@@ -61,15 +61,21 @@ window as before. (The pictures read back are the frame buffer's, which is what 
 PREFIX is a command prefix to start the Windows program; without it the program
 is started directly (on Windows, or from a shell under WSL, where paths are
 converted with wslpath). When no Windows program can be started the program
-cases are not run and this says so and ends with status 2. A program that does
-not end is stopped by name with taskkill.exe. The run's files live in a folder
-of its own under port/build/, removed at the end.
+cases are not run and this says so and ends with status 2. A program that
+outlasts its time ends with the process that started it (a case shows that it
+is gone); nothing is stopped by name. This file used to stop its program with
+taskkill.exe by image name, and two runs on one machine (two checkouts) then
+stopped each other's programs: the stopped one printed nothing and its case
+failed. The program's name also carries a random token of the run, so that an
+older copy of this file running beside it cannot stop this run's program. The
+run's files live in a folder of its own under port/build/, removed at the end.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import secrets
 import shutil
 import subprocess
 import sys
@@ -81,7 +87,15 @@ PORT = HERE.parent
 SRC = PORT / "src"
 BUILD = PORT / "build"
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
-EXE = "hostgpu-trial.exe"
+
+
+def image_name(token: str) -> str:
+    """The trial program's file name for one run: not shared with any other run on the machine (another
+    checkout, an older copy of this file that stops its program by name)."""
+    return f"hostgpu-trial-{token}.exe"
+
+
+EXE = image_name(secrets.token_hex(4))
 SECTIONS = ["build", "basic", "images", "tables", "walker", "warmup", "prims", "stream", "display", "memory"]
 EXIT_GRAPHICS = 7
 
@@ -851,6 +865,7 @@ int main(int argc, char **argv)
     else if (!strcmp(mode, "heapload")) heapload();
     else if (!strcmp(mode, "stacknode")) firstnode_on_stack();
     else if (!strcmp(mode, "script")) script(argc, argv);
+    else if (!strcmp(mode, "linger") && argc > 2) { printf("t: lingering\n"); Sleep((DWORD)atoi(argv[2])); }
     else { printf("t: bad usage\n"); return 93; }
     printf("t: done\n");
     return 0;
@@ -931,8 +946,7 @@ class Rig:
         try:
             proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
         except subprocess.TimeoutExpired:
-            subprocess.run(["taskkill.exe", "/IM", EXE, "/F"], capture_output=True, timeout=60)
-            return -999, ["(timeout)"], time.time() - started
+            return -999, ["(timeout)"], time.time() - started   # subprocess.run has ended the program it started
         lines = (proc.stdout + proc.stderr).replace("\r\n", "\n").splitlines()
         return proc.returncode, [l for l in lines if l.startswith(("t: ", "stop: ", "gpu: "))], time.time() - started
 
@@ -1381,6 +1395,28 @@ def program_cases(rig: Rig, work: Path):
     # 300 presents. PsyZ's frame limiter is off (its log line says so); the swapchain of a window that cannot tear
     # still holds each present to the display's refresh (about 16.7 ms here), which is all the time one may take.
     yield "present-takes-at-most-one-refresh-300-presents-under-7.5-s", same((status, bool(milliseconds) and milliseconds[0] < 7500), (0, True))
+
+    # A program that outlasts its time is gone when run() returns, and nothing else is: the same program under the
+    # SAME file name, started from another folder as another run would start it, lives on and ends by itself.
+    if rig.groups is None or rig.section in rig.groups:
+        (rig.work / "other-run").mkdir()
+        other = rig.work / "other-run" / rig.exe.name
+        shutil.copy(rig.exe, other)
+        decoy = subprocess.Popen([*rig.prefix, str(other), "linger", "8000"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        status, lines, _ = rig.run("linger", "20000", timeout=2)
+        listed = subprocess.run(["tasklist.exe", "/FI", f"IMAGENAME eq {rig.exe.name}", "/FO", "CSV", "/NH"], capture_output=True, text=True, timeout=60).stdout
+        try:
+            out, _ = decoy.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            decoy.kill()
+            out = "(the other run's program did not end)"
+        theirs = [l for l in out.replace("\r\n", "\n").splitlines() if l.startswith("t: ")]
+        got = (status, lines, listed.count(rig.exe.name), decoy.returncode, theirs)
+    else:
+        got = None
+    # one program of that name is still listed right after the stop: the other run's
+    yield "a-program-that-outlasts-its-time-is-gone-and-another-runs-program-of-the-same-name-lives-on", same(
+        got, (-999, ["(timeout)"], 1, 0, ["t: lingering", "t: done"]))
 
 
 def main() -> int:

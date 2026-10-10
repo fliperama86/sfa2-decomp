@@ -1021,9 +1021,13 @@ command in each position, after a command without effect and after each
 setting word; a kind that is not decoded; structures on the stack of
 the first task and of another one, on a dead part of the stack, on the
 heap and in the program's own data; a display that cannot be opened;
-the dump onto a folder and onto a path that cannot be made. The cases
+the dump onto a folder and onto a path that cannot be made; a program
+that outlasts its time, which is gone when the run goes on, while the
+same program started as another run would start it lives on. The cases
 run on SDL's offscreen video driver: PsyZ and its device work, the
-picture is read back, and no window is made.
+picture is read back, and no window is made. Nothing is stopped by
+name: two runs of this file on one machine do not touch each other's
+programs.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond

@@ -8137,3 +8137,20 @@ No function count changes here. Nothing under `ps1/` changed.
   The port follows the original's.
 - Not shown: any picture of the real game from a published commit; and
   no comparison of a picture with the console's.
+- 2026-10-10: the controls' own rig stopped a program that outlasted
+  its time with `taskkill.exe` by image name, one fixed name. A second
+  run of the file on the same machine (the review's frozen checkout
+  beside mine) then lost programs to the first one's stop: on my
+  second run of the one-command review, one case got no line and
+  status 1 while every case had passed minutes before. The stop by
+  name was never needed: a program started through WSL ends with the
+  Linux process that started it (tried with `ping.exe` and with the
+  trial program). It is removed. A case starts the same program under
+  the same file name from another folder, lets its own program run
+  out of time, and requires that its own is gone and the other one
+  ends by itself; with the stop by name put back, that case fails
+  (the other program has status 1 and no last line). The program's
+  file name also carries a random token of the run, so that an older
+  copy of the file beside it cannot stop this run's program. Runs of
+  this pull request's earlier heads beside a reviewer's run may have
+  cost that run a case in the same way.
