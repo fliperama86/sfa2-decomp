@@ -224,11 +224,11 @@ class Selection(Fixture):
         self.assertIn('test_example',[c.name for c in self.selected(['ps1/tools/example.py'])])
 
     def test_port_runtime_controls_get_the_compiler_or_refuse(self):
-        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostbuild.py', 'test_hostreplay.py', 'test_hostfixtures.py'):
+        for name in ('test_hostlaunch.py', 'test_hostmirror.py', 'test_hostbuild.py', 'test_hostreplay.py', 'test_hostfixtures.py', 'test_hostmdec.py'):
             self.put('port/tools/' + name, '')
         self.put('port/src/example.c', '')
         argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
-        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostbuild', 'test_hostreplay', 'test_hostfixtures'):
+        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostbuild', 'test_hostreplay', 'test_hostfixtures', 'test_hostmdec'):
             self.assertEqual(argv[name][-2:], ('--cc', 'cc32'))
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))

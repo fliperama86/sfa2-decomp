@@ -2196,6 +2196,89 @@ left at the title with no input, most often while a full trace slowed
 the game. Nothing here makes the disc wait for the game; that is the
 subject of a later change.
 
+### The movie decoder
+
+The game's logo and its attract movie are movies in the console's stream
+format. The library that the port uses in Sony's place has only empty
+stand-ins for the decoder (`DecDCT...` in its `libpress.c`). This part is
+the core that a later change will put behind those calls; nothing calls
+it yet, and the calls themselves (`DecDCTin`, `DecDCTout`, callbacks,
+synchronisation), reading the sectors, drawing and sound are not in it.
+
+What it is. `port/src/mdec.c` and `mdec.h` are pure C (no global, no
+allocation) with three entry points. `port_mdec_vlc` turns one frame's
+bitstream (its 8-byte header first) into the chip's run-level codes, as
+`DecDCTvlc` hands them on: versions 1, 2 and 3 of the bitstream, the
+table of variable-length codes, the escape code, the end of block and
+the end of frame. `port_mdec_reset`, `port_mdec_set_quant` and
+`port_mdec_set_scale` hold the chip's tables as its second and third
+commands take them. `port_mdec_decode` turns run-level codes into
+pixels as the chip's decode command does: the six blocks of a macroblock,
+the inverse transform, the colour conversion, 24 or 15 bits a pixel,
+macroblock after macroblock. A function that takes a size never reads or
+writes beyond it; the 4-bit and 8-bit monochrome depths and the other
+versions of the bitstream (encrypted forms, single games' variants) are
+left out and refused.
+
+The source. The public psx-spx document: the chapter "Macroblock Decoder
+(MDEC)" gives the chip's commands, the run-level rule, the transform with
+the scale table, the colour conversion, the zigzag order and the 16-bit
+code; the chapter "CDROM File Formats", its section on the video streams
+and BS compression, gives the frame's header, the versions, the table of
+codes and the offsets of version 3. The header of `mdec.h` lists every
+reading of this project where the documents leave a point open: the
+form of the transform (the one with the scale table, operation for
+operation, with divisions rounding down), the colour conversion's integer
+constants (this project's choice: the document's decimals times 65536),
+the order and shifts of the 15-bit pixel, and the end-of-block code that
+a full block does not need.
+
+The quantisation tables at reset. Neither chapter gives them. The
+document says only that the library's table begins 02h 10h 10h 13h and
+ends 53h. `port_mdec_reset` sets the default intra quantiser matrix of
+the MPEG-1 video standard (ISO/IEC 11172-2) with its first entry 2, the
+same for both tables, in the zigzag order of the chip's command. That
+the first entry is 2 and that one matrix serves both tables are NOT from
+the documents. What was checked, once and privately: the 64 bytes in
+that order occur twice in a program of the game on the user's disc
+(and not in the natural order). That says the table is the one the game
+sets or carries; it does not say which of the two the library sets at
+its reset, and nothing here is run on the console.
+
+The controls. `port/tools/test_hostmdec.py --cc CC` builds `mdec.c` with
+a driver of its own and runs it. NOTHING IN IT IS COMPARED WITH A
+CONSOLE'S OUTPUT; there is none. The expected values are worked out by
+hand in the test's comments (a block with only its first value, a
+single coefficient, saturation at both ends, the mask bit, the two
+depths, the order of the six blocks and of the four luminance blocks,
+two macroblocks in a row, the padding code, a block that reaches the
+last coefficient), or come from a reference written in the test in
+another form: the mathematical inverse transform in floating point, with
+a bound of 2 that the test argues from the document's statement that the
+hardware's results are not perfect (the table is cut to 13 bits and each
+pass rounds), not from a run; the colour conversion against the
+document's decimals, with a bound of 1; and an encoder of bitstreams that
+uses the table typed again from the document, for the round trip codes to
+bits to codes in all three versions with every code of the table, both
+signs, the escape and the wrap of version 3's running DC. Every refusal
+has a case that gives it and a control that is accepted; the buffers of
+the driver end at a page that cannot be read or written, so that a read
+or write beyond a size ends the program, and two controls show that the
+guards bite; truncated and corrupt input is run with them. The mutants
+of the decoder and of the reader (a copy of `mdec.c` changed by one
+edit, each run under a time limit and `ulimit -v`) were run once, in the
+work of this change, with a runner that is not in the repository; no
+command here repeats them.
+
+A real frame, one-off and private (the user's disc, read in place,
+nothing copied; no command of this repository repeats it): the logo's
+movie has 320 by 240 pixels, bitstream version 2, 4 or 5 sectors a
+frame; the frames tried (the 61st, 151st and 251st) decode with result
+0 to 300 macroblocks, as many as the size needs, and the pictures they
+make look like pictures. That shows the reading of the documents is
+consistent with a real stream; it does not show that the pixels are the
+console's.
+
 ## Not decided
 
 - How game units reach the library. They call it by address names, such as
