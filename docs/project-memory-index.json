@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "c5b7565d472c7b72d6dcdfa2b8f56a160cb83abda45ba84852ca6b688169dceb",
+  "sha256": "09ff13b16d22c574d8fe49a06a513bb8fb993d781012aa877d84b818cabf382c",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -633,6 +633,10 @@
     {
       "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
       "line": 9487
+    },
+    {
+      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
+      "line": 9550
     }
   ]
 }
