@@ -719,10 +719,10 @@ it is in commit `f6079ca`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3731 compiled, 1 of them nonmatching, 0 failed
+units: 3732 compiled, 1 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12459
-functions without C: 612, library 385, game and modules 227
+functions with C: 12460
+functions without C: 611, library 385, game and modules 226
 sweep rows that are not functions: 11
 names at PS1 addresses: 45855
 data defined in C, at host addresses: 0
@@ -751,7 +751,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1403 written for functions with C, 449 for functions without
+jumps: 1404 written for functions with C, 448 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
@@ -925,11 +925,11 @@ among those that stop.
   and linked, and nothing of them has run.
 - Anything about the library on the real game: its host routines have
   run only on the made-up game code of the controls, because the
-  published tree stops at `main` before any of them. PsyZ is not linked.
-  The build tool takes a build of PsyZ (`--psyz`) and writes each
-  image's archive names into its tables, and its header names `gpu.c`,
-  `modules.c` and `psyzbuild.py` for them: those files are not in this
-  tree yet.
+  published tree stops at `main` before any of them. That holds for the
+  graphics too: nothing of the real game has been drawn by a published
+  commit. The build tool also writes each image's archive names into
+  its tables, and its header names `modules.c` for them: that file is
+  not in this tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
 
 ### Controls
