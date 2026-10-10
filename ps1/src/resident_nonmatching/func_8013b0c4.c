@@ -8,7 +8,7 @@
  * of the contract below.
  *
  * What it does (inferred, not an original name): `object` is the object
- * that triggered a hit, `other` the object that was hit, `g` the game state.
+ * that triggered a hit, `other` the object that was hit, `g` the Box32 record that the callers pass (inferred; the role is not known).
  * If the pool of spawnable objects (data_801a27d4, a byte counter) is not 0
  * and the pool hands out an object, it fills that object in as a hit effect
  * (kind 4, copies of fields of object and other, a link back to other,
@@ -25,7 +25,7 @@
  * other's field_66.
  *
  * Contract (the roles named for the fields are inferred):
- *   Arguments: a0 = object, a1 = other, a2 = g. No return value.
+ *   Arguments: a0 = object, a1 = other, a2 = g (Box32 *, as in the prototype; its field_10 and field_17 are read). No return value.
  *   Reads: ref_other (a word; kept in data_80188f20 and put back),
  *     data_801a27d4, g's
  *     field_10 and field_17, object's field_65, other's field_72, field_0e,
@@ -69,7 +69,7 @@ extern s16 table_8017736c[];
 extern s16 table_80177390[];
 extern s16 table_80197ef8[];
 
-void func_8013b0c4(Object *object, Object *other, GameState *g)
+void func_8013b0c4(Object *object, Object *other, Box32 *g)
 {
   Object *fx;
   int centre_x;

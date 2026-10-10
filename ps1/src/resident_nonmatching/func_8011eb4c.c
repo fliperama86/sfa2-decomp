@@ -52,7 +52,6 @@
 #include "../externs.h"
 
 /* Inferred declarations; not original ones. */
-extern u8 *ref_third;
 extern Pooled *data_801abf10[];
 extern Pooled *data_801ac30c[];
 extern Pooled *data_801ad358[];
@@ -63,14 +62,14 @@ void func_8011ef34(void);
    type byte at offset 8, moves the pointer past the record and returns the
    record's address. */
 static u8 *take_record(int size, u8 type) {
-    u8 *start = ref_third;
+    u8 *start = (u8 *)ref_third.p;
     int n;
 
     for (n = 0; n < size; n++) {
         start[n] = 0;
     }
-    ref_third[8] = type;
-    ref_third = start + size;
+    ((u8 *)ref_third.p)[8] = type;
+    ref_third.p = (Object *)(start + size);
     return start;
 }
 
@@ -81,19 +80,19 @@ void func_8011eb4c(void) {
     func_8011ef34();
 
     data_801a6960 = 0xf;
-    ref_third = (u8 *)units_2c20;
+    ref_third.p = (Object *)units_2c20;
     for (i = 0; i < 16; i++) {
         data_801a89b0[i] = (Object *)take_record(0xc0, 8);
     }
 
     data_80197f10 = 0x27;
-    ref_third = (u8 *)data_801a89f4;
+    ref_third.p = (Object *)data_801a89f4;
     for (i = 0; i < 40; i++) {
         table_80197f20[i] = (Block172 *)take_record(0xac, 0xc);
     }
 
     data_801a4fec = 0xf;
-    ref_third = (u8 *)data_801ac888;
+    ref_third.p = (Object *)data_801ac888;
     for (i = 0; i < 16; i++) {
         data_801a68f0[i] = (Object *)take_record(0xac, 0x10);
     }

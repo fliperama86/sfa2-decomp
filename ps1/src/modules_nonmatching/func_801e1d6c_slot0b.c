@@ -45,8 +45,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
-extern u16 data_801aa5ea;
 extern u8 data_8019d7cc;
 extern u32 data_801e7668_slot0b;
 
@@ -63,8 +61,8 @@ void func_801e1d6c_slot0b(Object *obj) {
     int cell;
 
     tpage = ((obj->field_0d + map->field_03) << 6) + 0x7808;
-    x0 = obj->pos_x - box_margin;
-    y = obj->pos_y + data_801aa5ea - 8;
+    x0 = obj->pos_x - box_margin[0];
+    y = obj->pos_y + data_801aa5ea[0] - 8;
     data_801e7668_slot0b = 0;
     if (*(u8 *)&data_801a27d0 != 0) {
         p = (u32 *)((u8 *)p + 0x24c0);

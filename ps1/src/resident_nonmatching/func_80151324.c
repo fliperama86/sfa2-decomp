@@ -53,9 +53,6 @@
 #include "../externs.h"
 
 extern u8 *data_8017ff68[];
-extern u8 data_8018947c[];
-extern u16 box_margin;
-extern u16 data_801aa5ea;
 
 void func_80151324(Object *object, FrameRecord *table) {
     FrameRecord *rec = &table[object->sequence->frame_index];
@@ -90,13 +87,13 @@ void func_80151324(Object *object, FrameRecord *table) {
     tex_x = *map++;
     tex_y = *map++;
 
-    left = object->pos_x - box_margin;
+    left = object->pos_x - box_margin[0];
     x0 = left + (tex_x - 16);
     x1 = left - tex_x;
     x2 = left + tex_x;
     x3 = left - (tex_x - 16);
-    y0 = data_801aa5ea - (tex_y - 200);
-    y1 = data_801aa5ea - (tex_y - 216);
+    y0 = data_801aa5ea[0] - (tex_y - 200);
+    y1 = data_801aa5ea[0] - (tex_y - 216);
     base = object->field_02 * 65;
     flags = object->field_0b;
 
@@ -130,7 +127,7 @@ void func_80151324(Object *object, FrameRecord *table) {
                 xa = x2 - (col << 4);
                 xb = x0 - (col << 4);
             }
-            q = &((Poly28 *) (data_8018947c + (base << 5) + n * 80))[data_801a27d0];
+            q = &((Poly28 *) ((u8 *)data_8018947c + (base << 5) + n * 80))[data_801a27d0];
             q->field_0c = near;
             q->field_0d = hi;
             q->field_14 = far;

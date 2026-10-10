@@ -77,8 +77,6 @@ extern int data_80055f3c_slot01;
 extern u8 data_80015174_slot01[];
 extern u8 data_80070d48[];
 extern HudState *data_8018f5a0;
-extern u8 data_801ac6a8;
-extern s16 data_801aa5ea;
 Block172 *func_8011f1e0(void);
 
 void func_80010104_slot01(void) {
@@ -95,8 +93,8 @@ void func_80010104_slot01(void) {
     Object *second;
 
     data_80055f3c_slot01 = game_state.field_40;
-    data_801ac6a8 = 0;
-    data_801aa5ea = 0;
+    data_801ac6a8[0] = 0;
+    data_801aa5ea[0] = 0;
     game_state.field_40 = data_801abf08;
     saved = other->field_2ac;
     data_80190568 = 1;

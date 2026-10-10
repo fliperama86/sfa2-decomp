@@ -45,9 +45,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern Slot0fOpts data_8016e685;
 extern Slot0fRecf32c data_800df32c_slot0f;
-extern s8 data_8016e688;
 extern s8 data_800f8554_slot0f[];
 extern s8 data_800f8564_slot0f[2][8];
 extern Cell16 data_800e953c_slot0f[];
@@ -66,10 +64,11 @@ extern Slot0fRec94ec *data_800e96d8_slot0f;
 void func_800e3478_slot0f(void) {
     int i;
     int j;
+    Slot0fOpts *opts = (Slot0fOpts *)&data_8016e685;
 
-    data_800f8554_slot0f[0] = data_8016e685.field_00;
+    data_800f8554_slot0f[0] = opts->field_00;
     for (i = 0; i < 5; i++) {
-        if ((s8)data_800df32c_slot0f.b[i] == data_8016e685.field_02) {
+        if ((s8)data_800df32c_slot0f.b[i] == opts->field_02) {
             data_800f8554_slot0f[1] = i;
             break;
         }
@@ -77,14 +76,14 @@ void func_800e3478_slot0f(void) {
     if (data_8016e688 != 0) {
         data_800f8554_slot0f[1] = 4;
     }
-    data_800f8554_slot0f[8] = data_8016e685.field_01;
-    data_800f8554_slot0f[2] = data_8016e685.field_04;
-    data_800f8554_slot0f[3] = data_8016e685.field_05;
-    data_800f8554_slot0f[4] = data_8016e685.field_07;
-    data_800f8554_slot0f[5] = data_8016e685.field_06;
-    func_80120374((s8)data_8016e685.field_01);
-    data_800f8554_slot0f[6] = data_8016e685.field_0a;
-    data_800f8554_slot0f[7] = data_8016e685.field_0b;
+    data_800f8554_slot0f[8] = opts->field_01;
+    data_800f8554_slot0f[2] = opts->field_04;
+    data_800f8554_slot0f[3] = opts->field_05;
+    data_800f8554_slot0f[4] = opts->field_07;
+    data_800f8554_slot0f[5] = opts->field_06;
+    func_80120374((s8)opts->field_01);
+    data_800f8554_slot0f[6] = opts->field_0a;
+    data_800f8554_slot0f[7] = opts->field_0b;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             data_800f8564_slot0f[i][j] = table_8016e664[i][j];

@@ -70,8 +70,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
-extern u16 data_801aa5ea;
 extern u32 data_80185c04[];
 SeqHeader *func_801250c0(Object *o, int n);
 void func_8015bf70(u8 *a, u32 *b, u32 *c);
@@ -110,13 +108,13 @@ void func_8011db78(void *a, int b, int c, Block172 *d) {
         if ((u32)hdr != data_80183dec[idx][dist - 1])
             return;
     }
-    y = r->field_0a - 8 + data_801aa5ea;
+    y = r->field_0a - 8 + data_801aa5ea[0];
     if (o->field_0f != 0)
         y = game_state.field_92 + y;
     mode = data_80183d74[idx][dist] & 0xff;
     fb = mode & 2;
     step = (mode & 1) ? -0x10 : 0x10;
-    x = r->field_08 - box_margin;
+    x = r->field_08 - box_margin[0];
     if (mode & 1)
         x -= 0x10;
     rec = (Pooled *)(data_801987cc + (o->side * 320 + column * 80 + 640) * 16 + data_801a27d0 * 0x5000);

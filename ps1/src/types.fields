@@ -41,6 +41,7 @@ struct Box32 size=0x20
 0x00d u8 field_0d
 0x00e u8 field_0e
 0x00f u8 field_0f
+0x010 u8 field_10
 0x011 u8 field_11
 0x012 u8 field_12
 0x014 u8 field_14

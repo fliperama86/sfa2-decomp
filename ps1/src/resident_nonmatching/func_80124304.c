@@ -74,7 +74,6 @@ extern u8 data_80185fc4;
 extern u8 data_8016e801;
 extern u8 data_8016e802;
 extern u8 data_8016e803;
-extern InputBlock data_801a6984;
 extern HudState *data_8018f5a0;
 void func_801246cc(Object *a, Triple *b);
 void func_801246a4(GameState *a, Object *b, Object *c);
@@ -94,7 +93,7 @@ void func_80124304(void) {
     right = left + 1;
     func_801246cc(left, &data_80185fac[0]);
     func_801246cc(right, &data_80185fac[1]);
-    input = &data_801a6984;
+    input = (InputBlock *)data_801a6984;
     if (game_state.field_17 == 0) return;
     if (data_80185fac[0].c == 0 && data_80185fac[1].c == 0) return;
 

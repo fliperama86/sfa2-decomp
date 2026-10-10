@@ -62,8 +62,6 @@
 
 extern SpriteEnt data_80184380[];
 extern u8 data_80185504[][16];
-extern u16 box_margin;
-extern u16 data_801aa5ea;
 extern u16 data_8019019a;
 
 void func_8011c724(Slab172 *p) {
@@ -101,9 +99,9 @@ void func_8011c724(Slab172 *p) {
         y1 = obj->pos_y;
         x1 = x2 - 16;
     } else {
-        x1 = obj->pos_x - 16 - box_margin;
-        x2 = obj->pos_x - box_margin;
-        y1 = data_801aa5ea + (obj->pos_y - 8);
+        x1 = obj->pos_x - 16 - box_margin[0];
+        x2 = obj->pos_x - box_margin[0];
+        y1 = data_801aa5ea[0] + (obj->pos_y - 8);
     }
     y2 = y1;
     if (obj->field_0f != 0) {

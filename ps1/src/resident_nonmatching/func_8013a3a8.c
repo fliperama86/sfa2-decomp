@@ -65,7 +65,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern Object *ref_third;
 extern Object *data_80188f20;
 extern Object *data_80188f24;
 extern Object *data_80188f40;
@@ -213,10 +212,10 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   {
     row = a2->field_0f;
   }
-  ref_third = data_80188f40;
+  ref_third.p = data_80188f40;
   data_80188f24 = a0;
   ref_first.p = (Object *) &table_80177bd4[row * 32];
-  ref_third = data_80188f24;
+  ref_third.p = data_80188f24;
   sum = base + ((u8 *) ref_first.p)[func_80151184() & 0x1f] - 0x10;
   if (sum < 0)
   {

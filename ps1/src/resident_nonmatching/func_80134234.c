@@ -61,8 +61,6 @@ extern u32 data_801ac874;
 extern u32 data_801ac87c;
 extern u32 data_801ac880;
 extern u32 data_801ac884;
-extern u8 strips2[];
-extern u8 data_80188e4c[];
 void func_80153154(void);
 void func_80153f88(void);
 void func_80135c88(void);
@@ -112,12 +110,12 @@ void func_80134234(void) {
         func_8015bf34(obj + 0x38, (Cmd *)&strip[i]);
     }
     if (data_80198098 != 0) {
-        func_8015bf34(obj + 0x38, (Cmd *)(strips2 + sel * 56));
-        func_8015bf34(obj + 0x38, (Cmd *)(strips2 + sel * 56 + 0x1c));
+        func_8015bf34(obj + 0x38, (Cmd *)((u8 *)strips2 + sel * 56));
+        func_8015bf34(obj + 0x38, (Cmd *)((u8 *)strips2 + sel * 56 + 0x1c));
     }
     if (data_8019842c != 0) {
-        func_8015bf34(obj + 0x38, (Cmd *)(data_80188e4c + sel * 56));
-        func_8015bf34(obj + 0x38, (Cmd *)(data_80188e4c + sel * 56 + 0x1c));
+        func_8015bf34(obj + 0x38, (Cmd *)((u8 *)data_80188e4c + sel * 56));
+        func_8015bf34(obj + 0x38, (Cmd *)((u8 *)data_80188e4c + sel * 56 + 0x1c));
     }
     func_80135c88();
 }

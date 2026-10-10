@@ -32,7 +32,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
 extern u8 data_80019054_slot12[];
 extern u8 data_80019548_slot12[];
 extern SequenceStep *data_8001d4ec_slot12[];
@@ -51,7 +50,7 @@ void func_80012c34_slot12(Object *obj) {
     obj->field_90 = data_80055598;
     obj->field_7a = 0;
     obj->field_7c = 0x1f1;
-    obj->pos_x = box_margin + 0xc0;
+    obj->pos_x = box_margin[0] + 0xc0;
     func_80130768(obj, 0, data_8001d4ec_slot12);
     func_80131094(obj);
 }
