@@ -56,6 +56,12 @@ interrupted, incomplete, malformed or stale results are never reused.
 A forced-fresh switch reruns checks and negative controls. Cached results
 name their originating commit and remain distinguishable from fresh runs.
 
+What to run for which change, and what not to run, is in
+[efficiency.md](efficiency.md), by the owner's rule of 2026-10-10. The
+selection described here is older than that rule and costs more than it
+allows in the cases that page lists; the narrow commands of that page
+come first.
+
 Selection is deliberately conservative: shared headers, bindings,
 configuration or validation-tool changes broaden the check set. Unknown
 code/build-input changes refuse an automatic pass and require explicit scope.
