@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "9ab34e1af6e72e1d8e1c6e1aa9c385016f13c5a4d7f832ffa89a0274de13c5d1",
+  "sha256": "2a1490e2bab3f6855f3c83af3113d6866ea187411b0cc4fae18ad67e35dd3f2b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -623,8 +623,12 @@
       "line": 9305
     },
     {
-      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
       "line": 9359
+    },
+    {
+      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "line": 9435
     }
   ]
 }
