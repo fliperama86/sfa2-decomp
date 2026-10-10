@@ -9117,6 +9117,143 @@ No function count changes here: none of this is in the build.
   result of three functions that the build's units define as `void`;
   the question is with the matching lane.
 
+## The port's build accepts an override written as the game's C (2026-10-10)
+
+- Added: `port/tools/hostbuild.py` takes `--overrides DIR`, which must be
+  a folder (a path that is none is refused with status 2, so that a
+  mistyped path cannot build a program without its overrides; an empty
+  folder asks for none). Without the option it is the folder `overrides`
+  beside the runtime folder, so `port/overrides`, and none when that
+  does not exist. Each `*.c` file of the folder is
+  an override for the function of its stem; it needs `NAME.py` beside it,
+  the file of its differential test (the tool requires it and does not read
+  it). It is refused, before any compilation, with status 2 and its file
+  name, when the name is a nonmatching function, an unknown name, or a
+  function of a unit that `hostcheck` does not select. The override is
+  compiled alone as a unit is; it may define exactly one global symbol,
+  NAME, and a miss ends the build with status 1. In the unit that defines
+  NAME the one definition becomes `replaced_NAME`; the override's becomes
+  `impl_NAME`; references are untouched, so every caller reaches the
+  override by the PS1 address. A `like` image gets the override a second
+  time (`impl_NAME__X`, `replaced_NAME__X`), and none where the unit is
+  left out. `port_functions` rows have a new field `overridden`; the build
+  prints `functions overridden in C: N` after `functions with C:`; the
+  program prints `overrides in C: M` after `overrides: N` and refuses at
+  start (status 2, the existing refusal) a function that has such a row and
+  a host routine in `port_game_overrides`. `--list` names each override. The
+  link check now also covers the `replaced_` definitions (outside the PS1's
+  ranges, between the markers) and refuses a row that points at one.
+- Judgment calls, not in the work package: the refusal of the runtime reuses
+  the status 2 refusal of the library layer (no new status code); an
+  override whose unit did not build or does not define NAME ends the build
+  with status 1; the object of an override is `ovr_NAME.o`, and a unit with
+  that name is refused; `test_hostbuild.py` now takes an optional `--cc` and
+  `--run` (without `--cc` it says that the real-run cases were not run), and
+  `tools/ai_workflow/review.py` passes `--cc` to it, so the review runs those
+  cases; the runtime's line and refusal are tested in `test_hostlaunch.py`
+  and `test_hostrun.py` (library.c on made-up tables), and the fixtures of
+  `test_hostlaunch.py`, `test_hostmodules.py` and `test_hostpads.py` took the
+  new field and the new line, which their table shapes forced.
+- Ran, on 2026-10-10, with the cross compiler: `test_hostbuild.py --cc` ended
+  with `all cases behaved as required` (366 `ok` lines, the `e2e-` ones start
+  the Windows program), `test_hostrun.py` the same (111 `ok` lines),
+  `test_hostlaunch.py --cc`, `test_hostmodules.py --cc`,
+  `test_hostmirror.py --cc` and `test_hostpads.py --cc --psyz-build` the same;
+  `tools/ai_workflow/tests/test_workflow.py`: OK (30 tests), with a case that a
+  change under `port/overrides/` selects the checks of a change of
+  `hostbuild.py`. The real tree's build ended with status 0, the same lines as
+  the tool of `origin/main` run on the same configuration, plus
+  `functions overridden in C: 0` (compared line by line; the program files
+  differ as built files do, `names.ld` is identical).
+- Six one-line mutants, each run in a scratch copy: the unit's definition left
+  `impl_` (the real linker says multiple definition of `impl_fa`; the tool's
+  own link check says `replaced_fa` is missing; 11 cases fail, among them the
+  assembly cases and `e2e-build-with-overrides-verifies`); the row pointing at
+  `replaced_NAME` (the row check ends the build; 11 cases fail); the second
+  placement of the override not made (5 cases fail); the contract-file check
+  left out (1 case fails: `override-refused-without-its-contract-file`); the
+  runtime's refusal left out (2 cases of `test_hostrun.py` and 1 of
+  `test_hostlaunch.py` fail); the flag always 0 (7 cases fail). The runs are
+  in the scratch notes, not published.
+- Not shown: no real override exists, no differential test of a contract was
+  run, and the real program was not started on a disc (no disc image was used,
+  so `overrides in C: M` was run only on made-up tables and made-up games).
+  What the unit's own C of the made-up pointer case prints without the
+  override is not asserted: it depends on the stack. A program launched
+  from the shell under load can end with status 1 and no output; the test
+  repeats no run: such a run fails its case, and a note at the end says
+  how many did (none in the final run of `test_hostbuild.py`).
+
+## The port's first four overrides in C (2026-10-10)
+
+- Added: the folder `port/overrides/` with four functions of the
+  resident program, each a pair `NAME.c` and `NAME.py`, and a page:
+  `func_8014dcc0` (unit `s14d8a4_r2.c`), `func_8012126c`,
+  `func_801212c8` and `func_801212e8` (unit `s120f40_r2.c`). Each is
+  the unit's exact C with the argument written at one call. The exact
+  C calls a function without the argument that the callee reads: on
+  the console the value is still in `a0`, which the original code does
+  not write between the function's entry and the call (read in the
+  listing); compiled for a PC the callee reads something else. The
+  game's source is not changed for it (the owner's rule of 2026-10-09
+  for the port), so the port carries the C.
+- Evidence: the differential test of each contract
+  (`ps1/src/slot06_nonmatching/difftest.py --folder ../../../port/overrides`),
+  with the callee replaced by a recorder that logs its first argument.
+  Ran on 2026-10-10, 2,000 cases, seeds 1 and 7: every function
+  `different 0`, `discarded 0`, every instruction slot of the original
+  executed, write audit `outside 0`. Each control puts `addiu a0,a0,4`
+  into the empty delay slot of the call in the original code, so that
+  the callee gets another value: the test differed in every case that
+  reaches the call (the page has seed 1's lines). A pass is evidence
+  for the tested inputs, not equivalence.
+- One-off, not a command of the repository: the unit's own exact C put
+  through the same test also passes, as it must (its machine code is
+  the original's); the test cannot tell the two C texts apart on the
+  console, and it is not what shows the PC problem. What it shows is
+  that the override hands the callee what the original code hands it.
+- The build of the real tree with them (`python3 port/tools/hostbuild.py`):
+  `functions overridden in C: 4`, `linked: port/build/host/sfa2.exe, verified`.
+  One-off look at that program with `objdump`: `impl_func_801212c8`
+  stores its parameter for the callee before the call, and
+  `replaced_func_801212c8` (the unit's C) calls without it.
+- Where the callees are: `func_8001365c` and `func_800136b0` are
+  functions of the module `slot12`, `func_80013834` of `slot28`
+  (inferred: the caller's arm runs while that module is loaded); the
+  two scratchpad pointers hold functions of the character modules.
+- Changed at the top level after the mechanism's package, before the
+  pull request: `--overrides` must name a folder (a path that is none
+  was taken for "no override"; two cases, and a mutant without the
+  check fails both); the real-run cases of `test_hostbuild.py` repeat
+  no run (the package's rig ran a silent status 1 a second time; such
+  a run now fails its case and a note counts them); the tool's header
+  and the page say what the build does not check (the override's
+  parameters against the unit's, and whether the contract's test
+  passes); `tools/ai_workflow/review.py` runs the differential test,
+  the write audit and the control of a changed override on two seeds,
+  and of every override when a shared header or the harness changes
+  (a case in its test; with the block switched off the case fails).
+- Private runs, 2026-10-10, not a command of the repository (they need
+  the user's disc and the private tree with the unpublished
+  nonmatching C): the trial tree with this mechanism and the four
+  overrides, and with the two private changes of the game's source
+  taken out again (`s120f40_r2.c`, `s14d8a4_r2.c`, `protos.h` and
+  `externs.h` as on main). Built with the folder: the build said
+  `functions overridden in C: 4`, the program `overrides in C: 4`, and
+  a scripted run of 500 seconds played two fights, the change of
+  module between them and into a third fight, with no stop. Built
+  with an empty folder (`functions overridden in C: 0`): the same
+  script ended in the second fight with
+  `stop: crash: the game used the PS1's RAM mirror at 0x00000000 (execute)`,
+  and the report's stack names `func_8014dcc0` under a function of a
+  character module. The first fight passed in that run: the stop
+  depends on which function the pointer holds and on what the stack
+  holds where the callee looks for its parameter. The run with the
+  overrides was slower through the script than the run of the same
+  script with the private source changes had been (third fight where
+  that one had reached the ranking screen); the runs are not
+  deterministic, and why was not looked into.
+
 ## Nonmatching C for the other modules, second batch (2026-10-10)
 
 No function count changes here: none of this is in the build.

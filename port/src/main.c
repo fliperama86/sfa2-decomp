@@ -169,6 +169,11 @@ int main(int argc, char **argv)
     if (port_library_install(ram, &installed, err, sizeof err) != 0) return refuse(err);
     printf("library: %u host routines, %u left that stop\n", installed.host, installed.stops);
     printf("overrides: %u\n", installed.overrides);
+    {
+        unsigned in_c = 0, k;
+        for (k = 0; k < port_function_count; k++) in_c += port_functions[k].overridden != 0;
+        printf("overrides in C: %u\n", in_c);
+    }
     port_pad_print_keys();
     fflush(stdout);
 

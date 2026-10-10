@@ -714,33 +714,41 @@ cross compiler, the program started from that shell.
 ### Building it
 
 ```sh
-python3 port/tools/hostbuild.py [--config ps1/src/build.toml] [--cc CC] [--build DIR] [--jobs N] [--list]
+python3 port/tools/hostbuild.py [--config ps1/src/build.toml] [--cc CC] [--build DIR] [--overrides DIR] [--jobs N] [--list]
 ```
 
 CC is a C compiler for 32-bit Windows, by default `i686-w64-mingw32-gcc`.
 The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
-`port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `6d2ec20`:
+`port/src/`. It reads no game file. Its output on 2026-10-10, for `ps1/` as
+it is in commit `3d2dd22`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3799 compiled, 50 of them nonmatching, 0 failed
+units: 3829 compiled, 78 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12551
-functions without C: 520, library 384, game and modules 136
+functions with C: 12596
+functions overridden in C: 4
+functions without C: 475, library 384, game and modules 91
 sweep rows that are not functions: 11
-names at PS1 addresses: 46076
+names at PS1 addresses: 46128
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
 
 The functions and names of the second placements are in these counts,
-each under its own name.
+each under its own name. The four functions of the line
+`functions overridden in C` are those of the folder
+[`overrides/`](overrides/README.md) (see "Overrides in C" below). The
+program's start line `overrides in C: M` is not in the sample of
+"Running it", which was printed before that line existed.
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
-as the scripts above take it.
+as the scripts above take it, and with `--overrides` that tree's
+overrides, or an empty folder for none: the default is this
+repository's folder, whose files name functions of this game. A path
+that is not a folder is refused.
 
 ### Running it
 
@@ -848,6 +856,56 @@ routines that do nothing on purpose. What is in this piece:
   address 0, a range that a Windows program cannot have. Its host
   routine waits for differential evidence against the original code;
   until then that function is one that stops.
+- Overrides in C: a second C file of the port, kept as
+  `port/overrides/NAME.c` with `NAME.py` beside it, that runs in the PC
+  program in place of the C of the game function NAME. The reason for
+  such a file is exact C that cannot run on a PC as written: for
+  example a call through a pointer declared without parameters, to a
+  function that reads its parameter, which on the console finds the
+  value still in the argument register. The game's source is not
+  changed for the port, so the port carries its own C for that function.
+  `hostbuild.py` accepts one only for a function that a unit of the
+  configuration declares and that `hostcheck` selects: a nonmatching
+  function, an unknown name and a function of an unselected unit are each
+  refused with their own message and the file's name, before any
+  compilation, and so is a file without `NAME.py`, which is the contract
+  of the override's differential test (the tool requires the file and does
+  not read it). The override is compiled alone with the flags of a unit,
+  includes the game's headers by a path relative to its own folder, and may
+  define exactly one global symbol, NAME; static functions and data are
+  fine. In the unit that defines NAME the one definition is renamed
+  `replaced_NAME` and the unit's other functions stay as they are; every
+  call to NAME, from other units and from the unit itself, goes by the PS1
+  address and so reaches the override. A `like` image gets the override a
+  second time for its second placement (`impl_NAME__X`), and none where
+  the unit is left out. The row of `port_functions` has a field
+  `overridden`, 1 for such a row. The build prints `functions overridden
+  in C: N` directly after `functions with C:`, and `--list` names each
+  override with its file and its unit. The program prints `overrides in
+  C: M` directly after the `overrides:` line, M being the number of rows
+  with that field at 1; a function that has such a row and is also in the
+  table of host overrides above is refused at start, by name, with the
+  words "has two overrides".
+  The evidence for an override comes from the differential test of its
+  contract, run with the tool of `ps1/src/slot06_nonmatching/` and
+  `--folder`; a pass is evidence for the tested inputs, not equivalence.
+  The build above counts those of [`overrides/`](overrides/README.md):
+  functions of the resident program whose exact C calls a function
+  without the argument that the callee reads, by a plain call or through
+  a pointer of the scratchpad. That page has each one's contract and
+  what its test printed; the control of each alters the original code
+  so that the callee gets another value, and the test must then differ.
+  What the build does not check: that an override's C has the
+  parameters and the result type of the unit's C, and that the test of
+  its contract passes or was run. The build reads no C and has none of
+  the game's files; both belong to the differential test.
+  What no command of this repository shows: that the PC program with
+  them plays on where it stopped without them. That was seen only in
+  two private runs with the user's disc on 2026-10-10, the same tree
+  built with the folder and with an empty one: without the overrides
+  the program stopped in a fight, inside the call that `func_8014dcc0`
+  makes through the pointer; with them it played through that fight
+  and on for as long as the run lasted.
 - The runtime calls only what it installed. The game hands the library
   addresses to call later: a thread's entry, an event's handler, the
   interrupt and vertical-blank callbacks. Each is checked at the moment
@@ -1196,10 +1254,28 @@ not that function).
 `python3 port/tools/test_hostbuild.py` checks the tool on made-up
 assembly, tables and symbol lists, without a compiler: the renaming of
 definitions, the names, the tables, the choice of units, the second
-placements, the markers, and each miss of the link check. `python3 port/tools/test_hostrun.py` builds the disc
+placements, the markers, and each miss of the link check. Its cases for
+overrides in C: the rename to `replaced_NAME`, the unit's other
+definitions, the flagged rows, the object between the markers, the
+second placement and the left-out unit, each refusal (an unknown name,
+a nonmatching function, a function of an unselected unit, a missing
+`NAME.py`, an option that names no folder), a build that stops (an override that does not compile,
+defines another global symbol or not NAME, or whose unit does not define
+NAME), the link check of a `replaced_` symbol, and the two output lines
+with 0 and with more. With `--cc CC` (and `--run PREFIX` as for
+`test_hostlaunch.py`) it also builds a made-up game of four units with
+overrides and starts the Windows program: the override runs for a call
+from another unit and for a call from the unit that defines the
+function, the unit's other functions keep their own C, a call through a
+pointer declared without parameters reaches a callee that reads its
+parameter (the case does not state what the unit's own C prints there,
+which is not the same on every run), and both placements of a `like`
+image run the override, each with the moved name of a data symbol; the
+same game without overrides runs the units' C and says 0. `python3 port/tools/test_hostrun.py` builds the disc
 reading and program loading of the runtime with the host's own `cc` and
 runs them on disc images that the test makes from invented bytes, with
-the hash of the program and the gate at the entry among them.
+the hash of the program and the gate at the entry among them, and the
+refusal of a function that has a host override and a flagged row.
 `python3 port/tools/test_hostlaunch.py --cc CC` needs the cross compiler
 and a way to start a Windows program: it builds the runtime with small
 made-up tables and runs the real start of the program on invented disc
@@ -1211,7 +1287,9 @@ pinned one is refused and nothing of it runs; an entry at an address
 that no table holds, inside a function, just before one, or in a module
 is refused. Its cases for the library, all on made-up game code: a
 library function with a host routine is reached and one without still
-stops; an override replaces a function's C; a table that names a
+stops; an override replaces a function's C; a flagged row is counted on
+the line `overrides in C` and not on `overrides`, and a function with a
+host override and a flagged row is refused by name; a table that names a
 function twice, an unknown one or an unknown address is refused, and so
 is an override of a function without C; the trace has each library
 call; a read of an address that no memory has ends the program with
