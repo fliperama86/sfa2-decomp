@@ -62,6 +62,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -803,6 +804,37 @@ class Rig:
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.built: dict[str, Path] = {}
         self.objects: list[Path] = []
+        self.last: dict | None = None        # the last program run: status (None if it timed out), stdout and stderr lines, timed_out
+
+    def record(self, status, out, err, timed_out: bool = False) -> None:
+        """Replace the record of the last program run (never merged with the one before)."""
+        def lines(text):
+            if isinstance(text, bytes):
+                text = text.decode(errors="replace")
+            return (text or "").replace("\r\n", "\n").splitlines()
+        self.last = {"status": status, "stdout": lines(out), "stderr": lines(err), "timed_out": timed_out}
+
+    def report(self) -> list[str]:
+        """What the last program run did, every line of it, for a failing case to print."""
+        if self.last is None:
+            return ["     (no program has been run yet)"]
+        last = self.last
+        out = ["     the last program run " + ("did not end in time" if last["timed_out"] else f"ended with status {last['status']}") +
+               f"; it printed {len(last['stdout'])} line(s) to stdout and {len(last['stderr'])} to stderr" + (":" if last["stdout"] or last["stderr"] else "")]
+        out += [f"       stdout | {line}" for line in last["stdout"]]
+        out += [f"       stderr | {line}" for line in last["stderr"]]
+        return out
+
+    def start(self, exe: Path, args: list[str], timeout: int) -> tuple[int, str]:
+        """Run a program once; record its status and both streams (also when it timed out, and then raise the timeout)."""
+        self.last = None
+        try:
+            proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired as err:
+            self.record(None, err.stdout, err.stderr, timed_out=True)
+            raise
+        self.record(proc.returncode, proc.stdout, proc.stderr)
+        return proc.returncode, proc.stdout
 
     def native(self, path: Path) -> str:
         if self.wsl:
@@ -866,25 +898,32 @@ class Rig:
         path = self.work / f"{tag}.bin"
         img.write(path)
         arg = self.native(path)
-        proc = subprocess.run([*self.prefix, str(exe), *(args or []), arg], capture_output=True, text=True, timeout=timeout)
-        return proc.returncode, proc.stdout.replace("\r\n", "\n").splitlines(), img, arg
+        status, out = self.start(exe, [*(args or []), arg], timeout)
+        return status, out.replace("\r\n", "\n").splitlines(), img, arg
 
 
     def run_bounded(self, exe: Path, arg: str, args: list[str], limit: int) -> tuple[int, list[str]] | None:
         """One run of a program that must end by itself within `limit` seconds; None if it did not. A program that
         did not end is ended by its process id (found by its exact path, never by name), and the run is not repeated."""
-        proc = subprocess.Popen([*self.prefix, str(exe), *args, arg], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        self.last = None
+        proc = subprocess.Popen([*self.prefix, str(exe), *args, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
-            out, _ = proc.communicate(timeout=limit)
-        except subprocess.TimeoutExpired:
+            out, err = proc.communicate(timeout=limit)
+        except subprocess.TimeoutExpired as expired:
+            partial_out, partial_err = expired.stdout, expired.stderr
             if self.wsl:
                 query = ("Get-Process | Where-Object { $_.Path -eq '%s' } | ForEach-Object { $_.Id }" % self.native(exe))
                 ids = subprocess.run(["powershell.exe", "-NoProfile", "-Command", query], capture_output=True, text=True, timeout=120).stdout.split()
                 for pid in ids:
                     subprocess.run(["taskkill.exe", "/F", "/PID", pid], capture_output=True, timeout=60)
             proc.kill()
-            proc.communicate()
+            rest_out, rest_err = proc.communicate()
+            self.record(None, partial_out, partial_err, timed_out=True)
+            if rest_out or rest_err:   # what the end of the run gave after the limit
+                self.last["stdout"] += rest_out.replace("\r\n", "\n").splitlines()
+                self.last["stderr"] += rest_err.replace("\r\n", "\n").splitlines()
             return None
+        self.record(proc.returncode, out, err)
         return proc.returncode, out.replace("\r\n", "\n").splitlines()
 
 
@@ -903,6 +942,34 @@ def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0
 
 def verdict(got, want):
     return None if got == want else f"got {got!r}, wanted {want!r}"
+
+
+def rig_diagnostic_cases(rig: Rig):
+    """The rig says what the last program run did, also when it printed nothing to stdout or timed out (the other control
+    files that run programs through this rig yield these cases too)."""
+    probe = rig.work / "diag.c"
+    probe.write_text('#include <stdio.h>\n#include <windows.h>\nint main(int argc, char **argv) { fputs("to stderr\\n", stderr); puts("to stdout"); fflush(stdout); fflush(stderr);'
+                     ' if (argc > 1) Sleep(3000); return 5; }\n')
+    diag = rig.work / "diag.exe"
+    built = subprocess.run([rig.cc, "-o", str(diag), str(probe)], capture_output=True, text=True, timeout=120)
+    if built.returncode != 0:
+        yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", "the probe did not build: " + built.stderr.strip()
+    else:
+        rig.start(diag, [], 60)
+        text = "\n".join(rig.report())
+        yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", None if (
+            rig.last == {"status": 5, "stdout": ["to stdout"], "stderr": ["to stderr"], "timed_out": False}
+            and "ended with status 5" in text and "stdout | to stdout" in text and "stderr | to stderr" in text) else f"recorded {rig.last!r}, report {text!r}"
+        try:
+            rig.start(diag, ["slow"], 1)
+            got = "it did not time out"
+        except subprocess.TimeoutExpired:
+            got = None if (rig.last is not None and rig.last["timed_out"] and rig.last["status"] is None and rig.last["stdout"] == ["to stdout"]
+                           and rig.last["stderr"] == ["to stderr"] and "did not end in time" in "\n".join(rig.report())) else f"recorded {rig.last!r}"
+        yield "a-run-that-timed-out-is-recorded-as-such-with-what-it-had-printed", got
+        rig.start(diag, [], 60)
+        yield "the-next-run-does-not-leave-the-previous-ones-lines-standing", None if rig.last is not None and not rig.last["timed_out"] and rig.last["status"] == 5 else f"recorded {rig.last!r}"
+        time.sleep(3)   # the slow probe ends by itself
 
 
 def cases(rig: Rig):
@@ -1051,6 +1118,8 @@ def cases(rig: Rig):
     yield "the-handler-computes-right-with-all-eight-x87-slots-occupied-by-the-interrupted-code", verdict(
         body[2:3], ["handler arithmetic: x87 1 sse 1; handler ran %s times: 1" % (body[2].split("ran ")[1].split(" ")[0] if len(body) > 2 and "ran " in body[2] else "?")])
 
+    yield from rig_diagnostic_cases(rig)
+
     # ---- the program ends when the game's thread ends it, with the timer attempting its suspension without waiting ----
     # Each case runs the program BURST_RUNS times, every run once; a run that does not end within LIMIT seconds fails the case.
     for kind, name, variant, data, want in (
@@ -1159,9 +1228,11 @@ def main() -> int:
                     print(f"ok   {name}")
                 else:
                     print(f"FAIL {name}: {detail}")
+                    print("\n".join(rig.report()))
                     failed += 1
         except Exception as err:  # a control must report, not crash
             print(f"FAIL the control itself raised {type(err).__name__}: {err}")
+            print("\n".join(rig.report()))
             failed += 1
         print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
         return 1 if failed else 0
