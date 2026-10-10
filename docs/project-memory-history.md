@@ -9254,6 +9254,54 @@ No function count changes here: none of this is in the build.
   that one had reached the ranking screen); the runs are not
   deterministic, and why was not looked into.
 
+## Correction: what the controls of the port's overrides alter (2026-10-10)
+
+- The record and the pages of the pull request that brought the
+  port's first four overrides said that each control alters the
+  original code. That was wrong. `difftest.py --control` hands a
+  contract's `control` the code words of the BUILD of the C under test
+  and alters one of them; the original code is never altered. So each
+  of the four controls puts `addiu a0,a0,4` into the empty delay slot
+  of the call in the built override, the altered build hands the
+  callee its parameter plus 4, and the test differs from the original,
+  which hands it the parameter.
+- What the controls show is unchanged: the test notices when the C
+  under test hands the callee another value. The printed lines on the
+  folder's page are unchanged (the same words are altered; an override
+  builds to the original's size and shape here).
+- Corrected: the sentence on `port/overrides/README.md`, the one on
+  `port/README.md`, and the four `control` descriptions in the
+  contracts. The record section above this one is left as it was
+  written.
+- How it came about: the control's description was written from
+  memory of the tool, not from its header (`ps1/src/slot06_nonmatching/README.md`
+  says "alters one instruction of the build"). Found the same day when
+  the tool's code was read for another purpose.
+
+## Correction: the review reused an override's result after the override changed (2026-10-10)
+
+- Found while this correction was prepared: the review reported the
+  five checks of the overrides' contracts as `cached` although the
+  four contract files had changed (their descriptions). The checks had
+  been given the scope of the game's own checks, whose key covers the
+  tracked files under `ps1/` and not `port/overrides/`. So a changed
+  override, its C included, would have been answered from the result
+  of an earlier head. The pull request that brought the overrides had
+  this fault in `tools/ai_workflow/review.py`; its own review ran the
+  checks fresh (there was no earlier result), so its evidence is not
+  affected.
+- Corrected: these checks have a scope of their own, `overrides`,
+  whose key covers `ps1/` and `port/overrides/`; the staging of the
+  private inputs and the toolchain's part of the key treat it like
+  the game's scope. A case shows a changed `NAME.c` and a changed
+  `NAME.py` each force a fresh run, a file of the port outside the
+  folder does not, and that the same check keyed with the game's
+  scope is answered from the old result (the fault). Two mutants fail
+  cases: the checks given the game's scope again, and the new scope
+  without the folder.
+- The reviews of this correction ran the overrides' checks fresh after
+  the change (the tool's own files are part of every key).
+
 ## Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)
 
 No function count changes here: none of this is in the build.

@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "94ec3b5c03782f88e439dd05eeae31d5198f653dd4016bfa6c66c0067d20cf80",
+  "sha256": "7d518679ce7b86594d8990830970fdfac75c132714a9c01c106607153eef3adc",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -611,8 +611,16 @@
       "line": 9187
     },
     {
-      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
+      "title": "Correction: what the controls of the port's overrides alter (2026-10-10)",
       "line": 9257
+    },
+    {
+      "title": "Correction: the review reused an override's result after the override changed (2026-10-10)",
+      "line": 9281
+    },
+    {
+      "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
+      "line": 9305
     }
   ]
 }

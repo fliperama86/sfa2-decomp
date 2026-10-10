@@ -32,7 +32,9 @@ results stay under ignored `local/ai-workflow/` by default.
   controls, and original write audits. A changed override of the port
   (`port/overrides/NAME.c` or `NAME.py`) runs the same three on its
   contract, and a change that broadens (a shared header, the harness)
-  runs them on every override. Port/tool changes select their controls.
+  runs them on every override. A result of such a check is reused only
+  while the game's tree and `port/overrides/` are both unchanged.
+  Port/tool changes select their controls.
   A plan-only mode explains commands without claiming that they ran. Results
   record the exact commit, scope, commands, exit status and evidence hashes.
   Passing checks never automatically approve a PR.

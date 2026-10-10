@@ -70,6 +70,10 @@ class Check:
     mode: str = 'exit'
 
 
+# The scopes whose checks build with the game's toolchain and read its private inputs.
+GAME_SCOPES = ('ps1', 'overrides')
+
+
 def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, ...], cc: str | None = None,
                   psyz: str | None = None) -> list[Check]:
     if cases < 1 or len(set(seeds)) < 2:
@@ -107,10 +111,11 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
         selected = names if broad else [n for n in names if any('port/overrides/' + n + ext in changed for ext in ('.c', '.py'))]
         if selected:
             base = (sys.executable, 'ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder', 'port/overrides', '--cases', str(cases))
+            # Their scope is their own: the files a result depends on are those of `ps1` and the overrides themselves.
             for seed in seeds:
-                checks.append(Check(f'port-overrides-diff-{seed}', base + ('--seed', str(seed), *selected), 'ps1', tuple(selected), 'differential'))
-                checks.append(Check(f'port-overrides-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'ps1', tuple(selected), 'writes'))
-            checks.append(Check('port-overrides-controls', base + ('--control', *selected), 'ps1', tuple(selected), 'control'))
+                checks.append(Check(f'port-overrides-diff-{seed}', base + ('--seed', str(seed), *selected), 'overrides', tuple(selected), 'differential'))
+                checks.append(Check(f'port-overrides-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'overrides', tuple(selected), 'writes'))
+            checks.append(Check('port-overrides-controls', base + ('--control', *selected), 'overrides', tuple(selected), 'control'))
     if any(p.startswith('ps1/src/slot06_nonmatching/') and Path(p).name in ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py') for p in changed):
         # Harness changes exercise every contract folder, not just changed stems.
         if not broad:
@@ -222,7 +227,11 @@ def tool_identity(command: str) -> dict:
 
 def source_files(root: Path, scope: str) -> dict[str, str]:
     entries = subprocess.check_output(['git', 'ls-files', '-s', '-z'], cwd=root).decode().split('\0')
-    prefixes = ('ps1/', 'requirements.txt') if scope == 'ps1' else ('ps1/', 'port/', 'requirements.txt')
+    # What a result of each scope depends on. `overrides`: the differential test of an override of the port reads the
+    # game's tree and the override's own two files; a result keyed without `port/overrides/` would be reused after an
+    # override changed.
+    prefixes = {'ps1': ('ps1/', 'requirements.txt'),
+                'overrides': ('ps1/', 'port/overrides/', 'requirements.txt')}.get(scope, ('ps1/', 'port/', 'requirements.txt'))
     result = {}
     for entry in entries:
         if not entry:
@@ -254,7 +263,7 @@ def fingerprint(root: Path, check: Check) -> dict:
     files = list(source_files(root, check.scope).items())
     implementation = hash_tree(Path(__file__).parent)
     tools = [tool_identity(sys.executable), tool_identity('git')]
-    if check.scope == 'ps1':
+    if check.scope in GAME_SCOPES:
         files += [(path, sha) for p in config_inputs(root) for path, sha in hash_tree(p)]
         cfg = tomllib.loads((root / 'ps1/src/build.toml').read_text())['toolchain']
         for command in (cfg['cpp'], *[cfg['binutils_prefix'] + suffix for suffix in ('as', 'ld', 'objcopy', 'nm')]):
