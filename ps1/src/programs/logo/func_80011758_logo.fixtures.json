@@ -1,0 +1,20 @@
+{
+ "fixtures": [
+  {"args": ["0x00000001", "0x80040000"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 15 new", "reads": [["0x8001a684", "92b668f38181460f"]], "recorders": [], "result": "0xf368b692", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "8181460f"]]},
+  {"args": ["0x0000000f", "0x80040000"], "calls": [], "case": 1, "ends_in_callee": false, "note": "result 0x1c1f6f6e", "reads": [["0x8001a72c", "6e6f1f1c36cdd9eb"]], "recorders": [], "result": "0x1c1f6f6e", "same": [["0x80040002", "d9"]], "seed": 1, "watch": [], "writes": [["0x80040000", "36cd"], ["0x80040003", "eb"]]},
+  {"args": ["0x00000006", "0x80040000"], "calls": [], "case": 2, "ends_in_callee": false, "note": "result 0x40a953d0", "reads": [["0x8001a6c0", "d053a940e73cddbd"]], "recorders": [], "result": "0x40a953d0", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "e73cddbd"]]},
+  {"args": ["0x0000000d", "0x80040000"], "calls": [], "case": 3, "ends_in_callee": false, "note": "result 0xb7caa459", "reads": [["0x8001a714", "59a4cab7d232af8c"]], "recorders": [], "result": "0xb7caa459", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "d232af8c"]]},
+  {"args": ["0x0000096c", "0x80040000"], "calls": [], "case": 4, "ends_in_callee": false, "note": "result 0xdf30b7c8", "reads": [["0x80021788", "c8b730dfba9ca0aa"]], "recorders": [], "result": "0xdf30b7c8", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "ba9ca0aa"]]},
+  {"args": ["0x0000000a", "0x80040000"], "calls": [], "case": 5, "ends_in_callee": false, "note": "result 0x2e8c239f", "reads": [["0x8001a6f0", "9f238c2eced33e24"]], "recorders": [], "result": "0x2e8c239f", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "ced33e24"]]},
+  {"args": ["0x00000002", "0x80040000"], "calls": [], "case": 6, "ends_in_callee": false, "note": "result 0x718bd77c", "reads": [["0x8001a690", "7cd78b7116fbc3e9"]], "recorders": [], "result": "0x718bd77c", "same": [["0x80040002", "c3"]], "seed": 1, "watch": [], "writes": [["0x80040000", "16fb"], ["0x80040003", "e9"]]},
+  {"args": ["0x0000000d", "0x80040000"], "calls": [], "case": 7, "ends_in_callee": false, "note": "result 0x7072f643", "reads": [["0x8001a714", "43f67270ea5b1a42"]], "recorders": [], "result": "0x7072f643", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "ea5b1a42"]]},
+  {"args": ["0x00000009", "0x80040000"], "calls": [], "case": 8, "ends_in_callee": false, "note": "result 0xa931fc0d", "reads": [["0x8001a6e4", "0dfc31a9147ecf49"]], "recorders": [], "result": "0xa931fc0d", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "147ecf49"]]},
+  {"args": ["0x00000000", "0x80040000"], "calls": [], "case": 9, "ends_in_callee": false, "note": "result 0x386fe406", "reads": [["0x8001a678", "06e46f38079ee749"]], "recorders": [], "result": "0x386fe406", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "079ee749"]]},
+  {"args": ["0x00000008", "0x80040000"], "calls": [], "case": 10, "ends_in_callee": false, "note": "result 0x4f61a4fd", "reads": [["0x8001a6d8", "fda4614f7a6db992"]], "recorders": [], "result": "0x4f61a4fd", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "7a6db992"]]},
+  {"args": ["0x00000c95", "0x80040000"], "calls": [], "case": 11, "ends_in_callee": false, "note": "result 0xa7c53f6c", "reads": [["0x80023d74", "6c3fc5a77887ea03"]], "recorders": [], "result": "0xa7c53f6c", "same": [], "seed": 1, "watch": [], "writes": [["0x80040000", "7887ea03"]]}
+ ],
+ "format": 1,
+ "function": "func_80011758_logo",
+ "recorded": {"cases": 2000, "comparison": "func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

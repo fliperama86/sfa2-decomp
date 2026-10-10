@@ -1,0 +1,16 @@
+# The stand-alone programs of the disc that the game starts with Exec.
+# Read by programs.py. The file of each program is the user's own copy, taken out
+# of the user's disc image with discfile.py; it is private and never committed.
+
+[[program]]
+name = "logo"
+file = "../../extract/programs/LOGO.EXE"
+disc = "PAC/LOGO.EXE"
+sha256 = "42f07130e1175a7a77ed8a71726ed4dfbcb4a4276ea0866a4e552ff95abd51e6"
+address = 0x80010000
+functions = [
+  { name = "func_80011758_logo", address = 0x80011758, size = 60 },
+]
+
+[program.symbols]
+data_8001a678_logo = 0x8001a678

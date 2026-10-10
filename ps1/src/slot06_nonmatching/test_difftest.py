@@ -5158,6 +5158,288 @@ def case_z_reg_register_written_and_then_restored_is_untouched_again():
     return None if ok and fx_replay(doc, words)[1] == 0 else f"{lines} {call}"
 
 
+# ---------------------------------------------------------------------------
+# Group P: a stand-alone program as the third kind of image (programs.toml)
+# The program files are written here, small and made up; no private input. Every expected value is
+# written out by hand: the body is 0x100 bytes of 0xBB at 0x80012000, the resident is 0xAA bytes
+# from 0x80010000 to 0x80018000, so a byte at 0x80011fff, 0x80012000, 0x800120ff, 0x80012100 and
+# 0x80018000 must be 0xAA, 0xBB, 0xBB, 0xAA and 0.
+
+import hashlib
+
+sys.path.insert(0, str(HERE.parent / "programs"))
+import programs as PR  # noqa: E402
+
+PG_ADDRESS = 0x80012000
+PG_BODY = b"\xBB" * 0x100
+
+
+def pg_header(load=PG_ADDRESS, size=0x100, magic=b"PS-X EXE") -> bytes:
+    return (magic + bytes(16 - len(magic)) + bytes(8) + struct.pack("<II", load, size)).ljust(2048, b"\0")
+
+
+def pg_write(tmp, *, load=PG_ADDRESS, size=0x100, magic=b"PS-X EXE", body=PG_BODY, claim=None, present=True,
+             functions='{ name = "func_80012010_zz", address = 0x80012010, size = 24 }', extra=""):
+    """A program `zz` with its file in `tmp`; returns the toml's path. `claim` replaces the file's hash in the toml."""
+    data = pg_header(load, size, magic) + body
+    if present:
+        (Path(tmp) / "ZZ.EXE").write_bytes(data)
+    toml = (f'[[program]]\nname = "zz"\nfile = "ZZ.EXE"\ndisc = "PAC/ZZ.EXE"\n'
+            f'sha256 = "{claim or hashlib.sha256(data).hexdigest()}"\naddress = {PG_ADDRESS:#x}\n'
+            f'functions = [ {functions} ]\n[program.symbols]\ntbl_zz = 0x80012080\n{extra}')
+    path = Path(tmp) / "programs.toml"
+    path.write_text(toml)
+    return path
+
+
+def pg_cfg(images=()):
+    return types.SimpleNamespace(load=0x80010000, payload=b"\xAA" * 0x8000, images=list(images), symbol_values={"s": 5})
+
+
+@contextlib.contextmanager
+def pg_program(**kinds):
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, **kinds)):
+            yield tmp
+
+
+def pg_refused(call, *words) -> str | None:
+    """None when `call` raises InputError whose text holds every word of `words`."""
+    try:
+        call()
+    except D.InputError as exc:
+        missing = [w for w in words if w not in str(exc)]
+        return f"the message {str(exc)!r} lacks {missing}" if missing else None
+    return "nothing was refused"
+
+
+def case_p_original_place_and_size_from_the_toml():
+    with pg_program():
+        got = D.original_function(pg_cfg(), "func_80012010_zz")
+    return None if got == (0x80012010, 24) else f"got {got}"
+
+
+def case_p_function_not_listed_is_named():
+    with pg_program():
+        return pg_refused(lambda: D.original_function(pg_cfg(), "func_80012020_zz"), "func_80012020_zz", "programs.toml lists no such function")
+
+
+def case_p_unknown_image_names_both_kinds():
+    with pg_program():
+        return pg_refused(lambda: D.original_function(pg_cfg(), "func_80012010_qq"), "'qq'", "module image or program")
+
+
+def case_p_body_at_its_address_and_resident_still_there():
+    with pg_program():
+        ram = D.initial_memory(pg_cfg(), "zz")
+    at = lambda a: ram[a - D.RAM_BASE]
+    got = [at(0x80011FFF), at(0x80012000), at(0x800120FF), at(0x80012100), at(0x80017FFF), at(0x80018000)]
+    want = [0xAA, 0xBB, 0xBB, 0xAA, 0xAA, 0]
+    return None if got == want and len(ram) == D.RAM_SIZE else f"got {got}, wanted {want}"
+
+
+def case_p_resident_function_reads_no_toml():
+    # No image part: the resident only, and the declaration is not even opened (a broken one would not matter).
+    with patched(D, PROGRAMS_TOML=Path("/nonexistent/programs.toml")):
+        ram = D.initial_memory(pg_cfg(), None)
+        refused = pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "programs.toml", "cannot be read")
+    ok = ram[0x12000] == 0xAA and ram[0x12100] == 0xAA and ram[0x18000] == 0
+    return refused or (None if ok else "the resident is not as the module-free call gave it")
+
+
+def case_p_wrong_hash_is_refused_and_the_right_one_accepted():
+    with tempfile.TemporaryDirectory() as tmp:
+        path = pg_write(tmp)
+        (Path(tmp) / "ZZ.EXE").write_bytes(pg_header() + b"\xBB" * 0xFF + b"\xBC")  # one byte of the body differs
+        with patched(D, PROGRAMS_TOML=path):
+            return pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "sha256")  # the accepted file is in the case above
+
+
+def case_p_declared_hash_of_the_wrong_form_or_value_is_refused():
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, claim="0" * 64)):
+            wrong = pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "sha256")
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, claim="ABC")):
+            form = pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "sha256 is 64 lower case hex digits")
+    return wrong or form
+
+
+def case_p_header_load_address_is_checked():
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, load=0x80013000)):
+            return pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "0x80013000", "0x80012000")
+
+
+def case_p_header_magic_and_size_are_checked():
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, magic=b"PS-X EXF")):
+            magic = pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "PS-X EXE header")
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, size=0x200)):
+            size = pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "512 bytes", "256")
+    return magic or size
+
+
+def case_p_missing_file_is_refused_and_says_how_to_get_it():
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, present=False)):
+            return pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "ZZ.EXE", "discfile.py")
+
+
+def case_p_function_past_the_body_is_refused():
+    # 0x800120f8 + 16 ends at 0x80012108, past the body's end 0x80012100; the reader alone cannot see it.
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, functions='{ name = "func_800120f8_zz", address = 0x800120f8, size = 16 }')):
+            return pg_refused(lambda: D.initial_memory(pg_cfg(), "zz"), "func_800120f8_zz", "past the body")
+
+
+def case_p_module_image_with_a_programs_name_is_ambiguous():
+    image = types.SimpleNamespace(name="zz", address=0x80100000, payload=b"\1")
+    with pg_program():
+        return pg_refused(lambda: D.initial_memory(pg_cfg([image]), "zz"), "both a module image", "program")
+
+
+def case_p_toml_the_reader_refuses_is_an_input_error():
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, PROGRAMS_TOML=pg_write(tmp, extra="stray = 1\n")):
+            return pg_refused(lambda: D.original_function(pg_cfg(), "func_80012010_zz"), "programs.toml", "not an address in RAM")
+
+
+PG_TREE = "a = 0x80000001;\nPROVIDE(tbl_zz = 0x80000002);\nown = 0x80000003;\nz = 0x80000004;\n"
+
+
+def case_p_program_symbol_wins_over_the_symbol_file_for_its_function():
+    got = D.link_symbols(PG_TREE, {"own"}, {"tbl_zz": 0x80012080, "func_80012010_zz": 0x80012010})
+    want = "a = 0x80000001;\nz = 0x80000004;\ntbl_zz = 0x80012080;\nfunc_80012010_zz = 0x80012010;\n"
+    return None if got == want else f"got {got!r}"
+
+
+def case_p_program_symbol_does_not_reach_a_resident_function():
+    # A resident function has no program: its link file is the tree's, less the names the unit defines.
+    got = D.link_symbols(PG_TREE, {"own"}, D.program_symbols(None))
+    want = "a = 0x80000001;\nPROVIDE(tbl_zz = 0x80000002);\nz = 0x80000004;\n"
+    with pg_program():
+        other = D.program_symbols(D.program_for(pg_cfg(), None))
+    return None if got == want and other == {} else f"got {got!r} {other}"
+
+
+def case_p_name_the_unit_defines_is_not_replaced_by_a_program_name():
+    got = D.link_symbols(PG_TREE, {"tbl_zz"}, {"tbl_zz": 0x80012080})
+    want = "a = 0x80000001;\nown = 0x80000003;\nz = 0x80000004;\n"
+    return None if got == want else f"got {got!r}"
+
+
+def case_p_placement_of_a_program_name_is_verified():
+    wanted = {"tbl_zz": 0x80012080, "func_80012010_zz": 0x80012010}
+    moved = D.misvalued({"tbl_zz": 0x80000002, "func_80012010_zz": 0x80012010}, wanted)
+    right = D.misvalued({"tbl_zz": 0x80012080, "func_80012010_zz": 0x80012010, "other": 1}, wanted)
+    unused = D.misvalued({}, wanted)
+    ok = moved == ["tbl_zz at 0x80000002, declared 0x80012080"] and right == [] and unused == []
+    return None if ok else f"{moved} {right} {unused}"
+
+
+def case_p_contract_sees_the_programs_names():
+    # The tree has a name of its own, tbl_zz = 7; the program's tbl_zz wins for the program's function only.
+    cfg = pg_cfg()
+    cfg.symbol_values = {"s": 5, "tbl_zz": 7}
+    with pg_program():
+        program_side = D.addresses(cfg, "func_80012010_zz")
+        resident_side = D.addresses(cfg, "func_80012010")
+        no_name = D.addresses(cfg)
+        labels = D.names_of(cfg, "func_80012010_zz")
+    ok = (program_side == {"s": 5, "tbl_zz": 0x80012080, "func_80012010_zz": 0x80012010}
+          and resident_side == {"s": 5, "tbl_zz": 7} and no_name == {"s": 5, "tbl_zz": 7}
+          and labels[0x80012080] == "tbl_zz" and labels[5] == "s" and 7 not in labels)
+    return None if ok else f"{program_side} {resident_side} {no_name} {labels}"
+
+
+def case_p_every_mode_gives_the_setup_the_programs_names():
+    # The setup of a contract receives `sym`; for a program's function it holds the program's names in the
+    # comparison, in the write audit and in the record.
+    words = [JR_RA, NOP]
+    seen: dict[str, dict] = {}
+
+    def setup(state, rng, sym):
+        seen["sym"] = dict(sym)
+        return contracts.Setup(args=(), returns_value=False)
+
+    ram, scratch = made_up_ram(words), bytes(D.SCRATCH_SIZE)
+    runs = {"compare": lambda cfg, folder: D.test_function(cfg, PG_NAME, make_code(words), 1, 1, ram, scratch),
+            "audit": lambda cfg, folder: D.audit_writes(cfg, PG_NAME, 1, 1, ram, scratch),
+            "record": lambda cfg, folder: D.record_function(cfg, PG_NAME, D.Build(make_code(words), 8, 0), 2, 1, 2, ram, scratch,
+                                                            Path(folder), 1)}
+    labelled: list = []
+    names_of = D.names_of  # the record labels the original's callees with these names: it must ask for the program's
+    for mode, run in runs.items():
+        seen.clear()
+        labelled.clear()
+        with tempfile.TemporaryDirectory() as tmp, pg_program(), contract_of(PG_NAME, setup), \
+                patched(D, original_function=lambda cfg, name: (ORIGINAL, 8),
+                        names_of=lambda cfg, name=None: labelled.append(name) or names_of(cfg, name)):
+            run(pg_cfg(), tmp)
+        if seen.get("sym", {}).get("tbl_zz") != 0x80012080:
+            return f"{mode}: the setup was given {seen.get('sym')}"
+        if labelled != ([PG_NAME] if mode == "record" else []):
+            return f"{mode}: the labels were asked for with {labelled}"
+    return None
+
+
+PG_NAME = "func_80012010_zz"
+
+
+def pg_main(argv, tmp, seen):
+    """difftest.main on a program function with a made-up run: records what the run was given."""
+    def test_function(cfg, name, code, cases, seed, ram, scratch, entry=0, **_ignored):
+        seen["ram"] = ram
+        return 0, cases, 0, [], set(range(0, 24, 4))
+
+    out, err = io.StringIO(), io.StringIO()
+    with contract_of(PG_NAME, plain_setup(False)), patched(matchbuild, load_config=lambda path: pg_cfg()), \
+            patched(D, test_function=test_function, build_function=lambda cfg, name, d, folder=None: D.Build(b"\0" * 24, 24, 0)), \
+            contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        status = D.main(["--config", "build.toml", "--folder", tmp, *argv, PG_NAME])
+    return status, out.getvalue(), err.getvalue()
+
+
+def case_p_main_runs_a_program_function_on_the_programs_memory():
+    seen: dict = {}
+    with pg_program() as tmp:
+        status, out, err = pg_main(["--cases", "3"], tmp, seen)
+    want = f"{PG_NAME}: built 24 bytes, original 24 bytes; cases 3, discarded 0, equal 3, different 0"
+    ram = seen.get("ram", b"")
+    ok = status == 0 and out.splitlines()[:1] == [want] and err == "" and ram[0x12000] == 0xBB and ram[0x12100] == 0xAA
+    return None if ok else f"{status} {out!r} {err!r}"
+
+
+def case_p_main_names_a_function_the_toml_does_not_list():
+    seen: dict = {}
+    with pg_program(functions='{ name = "func_80012020_zz", address = 0x80012020, size = 8 }') as tmp:
+        status, out, err = pg_main([], tmp, seen)
+    ok = status == 2 and "programs.toml lists no such function" in err and PG_NAME in err and "ram" not in seen
+    return None if ok else f"{status} {out!r} {err!r}"
+
+
+def case_p_replay_needs_no_program_file():
+    # The program's file is absent, and neither its reader nor the memory nor the original's size may be asked for.
+    def never(what):
+        def call(*args, **kwargs):
+            raise AssertionError(f"the replay asked for {what}")
+        return call
+
+    words = [JR_RA, NOP]
+    with tempfile.TemporaryDirectory() as tmp:
+        path = pg_write(tmp, present=False)
+        out, err = io.StringIO(), io.StringIO()
+        with patched(D, PROGRAMS_TOML=path, initial_memory=never("memory"), original_function=never("the original"),
+                     build_function=lambda cfg, name, d, folder=None: D.Build(make_code(words), 8, 0),
+                     replay_function=lambda cfg, name, build, doc: ([f"{name} replay: fixtures 1, passed 1, failed 0"], 0),
+                     load_fixtures=lambda p, n: {"fixtures": [{}]}), \
+                patched(PR, read_body=never("the body")), patched(matchbuild, load_config=lambda p: pg_cfg()), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            status = D.main(["--config", "build.toml", "--folder", tmp, "--replay", PG_NAME])
+    want = f"{PG_NAME} replay: fixtures 1, passed 1, failed 0\n"
+    return None if (status, out.getvalue(), err.getvalue()) == (0, want, "") else f"{status} {out.getvalue()!r} {err.getvalue()!r}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -5582,6 +5864,28 @@ CASES = [
     ("z-orig-effects-inside-the-arena-stay-above-the-replays-log", case_z_orig_effects_inside_the_arena_stay_above_the_replays_log),
     ("z-orig-callee-inside-the-arena-stays-above-the-replays-log", case_z_orig_callee_inside_the_arena_stays_above_the_replays_log),
 
+    ("p-original-place-and-size-from-the-toml", case_p_original_place_and_size_from_the_toml),
+    ("p-function-not-listed-is-named", case_p_function_not_listed_is_named),
+    ("p-unknown-image-names-both-kinds", case_p_unknown_image_names_both_kinds),
+    ("p-body-at-its-address-and-resident-still-there", case_p_body_at_its_address_and_resident_still_there),
+    ("p-resident-function-reads-no-toml", case_p_resident_function_reads_no_toml),
+    ("p-wrong-hash-is-refused-and-the-right-one-accepted", case_p_wrong_hash_is_refused_and_the_right_one_accepted),
+    ("p-declared-hash-of-the-wrong-form-or-value-is-refused", case_p_declared_hash_of_the_wrong_form_or_value_is_refused),
+    ("p-header-load-address-is-checked", case_p_header_load_address_is_checked),
+    ("p-header-magic-and-size-are-checked", case_p_header_magic_and_size_are_checked),
+    ("p-missing-file-is-refused-and-says-how-to-get-it", case_p_missing_file_is_refused_and_says_how_to_get_it),
+    ("p-function-past-the-body-is-refused", case_p_function_past_the_body_is_refused),
+    ("p-module-image-with-a-programs-name-is-ambiguous", case_p_module_image_with_a_programs_name_is_ambiguous),
+    ("p-toml-the-reader-refuses-is-an-input-error", case_p_toml_the_reader_refuses_is_an_input_error),
+    ("p-program-symbol-wins-over-the-symbol-file-for-its-function", case_p_program_symbol_wins_over_the_symbol_file_for_its_function),
+    ("p-program-symbol-does-not-reach-a-resident-function", case_p_program_symbol_does_not_reach_a_resident_function),
+    ("p-name-the-unit-defines-is-not-replaced-by-a-program-name", case_p_name_the_unit_defines_is_not_replaced_by_a_program_name),
+    ("p-placement-of-a-program-name-is-verified", case_p_placement_of_a_program_name_is_verified),
+    ("p-contract-sees-the-programs-names", case_p_contract_sees_the_programs_names),
+    ("p-every-mode-gives-the-setup-the-programs-names", case_p_every_mode_gives_the_setup_the_programs_names),
+    ("p-main-runs-a-program-function-on-the-programs-memory", case_p_main_runs_a_program_function_on_the_programs_memory),
+    ("p-main-names-a-function-the-toml-does-not-list", case_p_main_names_a_function_the_toml_does_not_list),
+    ("p-replay-needs-no-program-file", case_p_replay_needs_no_program_file),
 ]
 
 
