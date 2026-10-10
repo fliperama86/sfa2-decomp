@@ -2211,8 +2211,6 @@ data_800e83a8_slot0f = 0x800e83a8;
 data_800e83b4_slot0f = 0x800e83b4;
 data_800e83c8_slot0f = 0x800e83c8;
 data_800e83e0_slot0f = 0x800e83e0;
-func_800df654_slot0f = 0x800df654;
-func_800df750_slot0f = 0x800df750;
 
 /* Added by src.u_slot0f_fa04. */
 data_800e83e8_slot0f = 0x800e83e8;

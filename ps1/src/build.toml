@@ -11069,12 +11069,30 @@ functions = [
 ]
 
 [[unit]]
+name = "slot0f_f654x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_f654x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800df654_slot0f", address = 0x800df654, size = 164 },
+]
+
+[[unit]]
 name = "slot0f_f378_r3"
 image = "slot0f"
 source = "slot0f/slot0f_f378_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800df6f8_slot0f", address = 0x800df6f8, size = 88 },
+]
+
+[[unit]]
+name = "slot0f_f750x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_f750x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800df750_slot0f", address = 0x800df750, size = 156 },
 ]
 
 [[unit]]
