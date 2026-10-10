@@ -1272,7 +1272,7 @@ def sound_cases(root: Path):
     cc, nm = fake(root, "snd4", defs=SOUND_DEFS)
     proc = run(root, "snd4", config, cc, nm, "--psyz", folder)
     yield "prefix-file-of-a-unit-not-compiled-in-this-run-is-not-used", same((proc.returncode, proc.stderr, "-include" in read(root / "snd4.log")), (0, "", False))
-    for tag, rel, text, named in (("snd5", "zz.h", "int z;\n", "zz.h"), ("snd6", "sn1.txt", "int z;\n", "sn1.txt"), ("snd7", "sub/sn1.h", "int z;\n", "sub")):
+    for tag, rel, text, named in (("snd5", "zz.h", "int z;\n", "zz.h"), ("snd6", "sn1.txt", "int z;\n", "sn1.txt"), ("snd7", "sn1.h/inner.h", "int z;\n", "sn1.h")):
         config, folder = sound_tree(root, tag, prefix={rel: text})
         cc, nm = fake(root, tag, defs=SOUND_DEFS)
         proc = run(root, tag, config, cc, nm, "--sound-library", "--psyz", folder)
