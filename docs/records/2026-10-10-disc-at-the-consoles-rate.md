@@ -47,8 +47,13 @@
     issued ReadN at every sector never ended). Nine cases now cover the
     handler's actions.
   - Each rule fails under a change made to a copy of `cd.c`, run under a
-    time limit: 13 changes (one per rule, among them the remainder kept whole and the carry cleared to 0 in its place, and the cost taken after the handler's call), 12 of them failing at least one case; the thirteenth (the handler's reset not checked, with the cost taken first) changes nothing a case can see (one-off run;
-    the table is in the working notes and not in the repository).
+    time limit: 12 changes (one per rule, among them the remainder kept
+    whole, the carry cleared to 0 in its place, and the cost taken after
+    the handler's call), each failing at least one case (one-off run;
+    the table is in the working notes and not in the repository). A
+    counter that let the row see a handler's reset was tried and taken
+    out again: with the cost taken first a reset leaves the carry at 0
+    and the row ends by itself, and no case could tell the two apart.
   - `python3 port/tools/test_hostmodules.py --cc CC`: 55 lines `ok`,
     `all cases behaved as required`; `python3 port/tools/test_hostlaunch.py
     --cc CC`: 68 lines `ok`, the same last line. Their expected values
