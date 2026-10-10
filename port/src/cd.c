@@ -181,9 +181,15 @@ static struct {
  * PsyZ, and calls port_xa_pull). When the queue lacks room for a sector the sector is not consumed (see the header). Without a
  * consumer (no --audio and no --audio-dump, or a build without PsyZ: port_xa_set_sink was not called) nothing would empty the
  * queue, so the sector is consumed in silence, as before.
+ * A consumer that is gone. The drive waits for sound that is being played, without a bound. It must not wait for a consumer that has
+ * stopped: the layer counts pulls (port_xa_pull). When an audio sector has been held for XA_GONE_VBLANKS vblanks in a row (by
+ * port_frames) and no pull happened in that time, the sink is taken as gone: one line on the output, the queue emptied, and audio
+ * sectors consumed in silence. A pull that arrives later puts the sink on again from the next audio sector, with the decoder reset
+ * (one line). port_xa_set_sink(0) (the dump stopped, in iopage.c) switches the sink off for good and empties the queue.
  * The lock: the pull is called by PsyZ under its audio lock (the audio thread's callback; the dump's pull in iopage.c takes it
  * itself), so it does not take it. The game's thread takes it (port_audio_lock) for every access to the queue and its counts. */
 #define XA_QUEUE_FRAMES 44100u
+#define XA_GONE_VBLANKS 120u
 static struct {
     int16_t q[XA_QUEUE_FRAMES * 2];
     unsigned head, count;               /* under the lock */
@@ -192,6 +198,10 @@ static struct {
     struct port_xa_counts n;            /* under the lock */
     int sink;                           /* something empties the queue */
     int started;                        /* a sector has been played since the read began */
+    unsigned pulls;                     /* calls of the pull (under the lock) */
+    int holding;                        /* a sector is being held: since frame hold_from, with hold_pulls pulls counted then */
+    unsigned hold_from, hold_pulls;
+    int gone, revived;                  /* the sink is taken as gone; a pull has come since (under the lock) */
     struct xa_state st;
 } xa = { .vol = { 128, 0, 128, 0 }, .passthrough = 1 };
 static int16_t xa_src[XA_MAX_FRAMES * 2];
@@ -199,7 +209,13 @@ static int16_t xa_out[XA_MAX_FRAMES * 3 * 2];   /* 4,032 frames at 18,900 Hz mak
 
 void port_xa_set_sink(int on)
 {
+    port_audio_lock();
     xa.sink = on;
+    if (!on) {   /* nothing takes the frames any more: they are dropped, and the audio sectors are consumed in silence */
+        xa.head = xa.count = 0;
+        xa.holding = 0;
+    }
+    port_audio_unlock();
 }
 
 static int clamp16(int v)
@@ -228,6 +244,8 @@ size_t port_xa_pull(short *out, size_t num_frames)
     }
     xa.count -= (unsigned)give;
     xa.n.pulled += (unsigned)give;
+    xa.pulls++;
+    if (xa.gone) xa.revived = 1;
     return give;
 }
 
@@ -266,6 +284,24 @@ static int xa_take(const unsigned char *raw, unsigned sector)
         xa.n.silent++;
         return 1;
     }
+    port_audio_lock();
+    if (xa.gone) {
+        int back = xa.revived;
+        if (back) {   /* a pull has come: the sink is on again, the decoder begins again */
+            xa.gone = xa.revived = 0;
+            xa_reset(&xa.st);
+            xa.started = 0;
+            xa.holding = 0;
+        } else {
+            xa.n.silent++;
+        }
+        port_audio_unlock();
+        if (!back) return 1;
+        printf("audio: something takes sound again; the disc's audio is played from this sector, with the decoder begun again\n");
+        fflush(stdout);
+    } else {
+        port_audio_unlock();
+    }
     r = xa_parse(raw, &info);
     if (r != XA_OK) {
         port_audio_lock();
@@ -281,10 +317,26 @@ static int xa_take(const unsigned char *raw, unsigned sector)
     port_audio_lock();
     room = XA_QUEUE_FRAMES - xa.count;
     if (xa.count > 0 && room < bound) {   /* an empty queue always takes a sector */
+        if (!xa.holding || xa.hold_pulls != xa.pulls) {   /* a new hold, or a pull came: the count of vblanks begins here */
+            xa.holding = 1;
+            xa.hold_pulls = xa.pulls;
+            xa.hold_from = port_frames();
+        } else if (port_frames() - xa.hold_from >= XA_GONE_VBLANKS) {   /* held for 120 vblanks and nothing pulled: the sink is gone */
+            xa.gone = 1;
+            xa.revived = 0;
+            xa.holding = 0;
+            xa.head = xa.count = 0;
+            xa.n.silent++;
+            port_audio_unlock();
+            printf("audio: nothing has taken sound for %u vblanks; the disc's audio is consumed in silence until something does\n", XA_GONE_VBLANKS);
+            fflush(stdout);
+            return 1;
+        }
         xa.n.held++;
         port_audio_unlock();
         return 0;
     }
+    xa.holding = 0;
     port_audio_unlock();
     if (!xa.started) {   /* the first sector played since a read began: one line on the output, and one in the trace */
         printf("audio: a stream starts at sector %u: file %u channel %u, %s, %d Hz\n", sector, info.file, info.channel, info.stereo ? "stereo" : "mono", info.rate);

@@ -141,7 +141,7 @@ XA_BODY = r"""
     SAY("sectors: played %%d held %%d refused %%d skipped %%d silent %%d\n", ps1_xa_count(0), ps1_xa_count(1), ps1_xa_count(2), ps1_xa_count(3), ps1_xa_count(4));
     SAY("frames: queued in all %%d pulled %%d in the queue %%d\n", ps1_xa_count(5), ps1_xa_count(6), ps1_xa_count(7));
 """
-for _name, _vol in (("a_xa", "128, 0, 128, 0"), ("a_xa_half", "64, 0, 64, 0"), ("a_xa_mixed", "100, 30, 90, 20")):
+for _name, _vol in (("a_xa_wfail", "128, 0, 128, 0"), ("a_xa", "128, 0, 128, 0"), ("a_xa_half", "64, 0, 64, 0"), ("a_xa_mixed", "100, 30, 90, 20")):
     game(_name, XA_BODY % (_vol, AUDIO_LBA))
 
 FUN = FUN_BASE + [(n, RAM + 0x101100 + 0x10 * i, n) for i, (n, _) in enumerate(GAMES)]
@@ -533,7 +533,7 @@ def cases(rig, only: str, rig_nopsyz):
 STREAM_ORDER = [0, 1, "b", 2, 3, "b", 4, 5, "b", 6, 7, "b"]   # the made-up stream: 8 sectors of channel 3 (played), 4 of channel 4 (the filter lets them go)
 
 
-def stream_disc(rig, fn, path):
+def stream_disc(rig, fn, path, order=None):
     """Write the made-up image: the game's program, then zero sectors up to AUDIO_LBA, then the stream. Returns the played sectors, in order."""
     prog = program(G[fn])
     img = L.Image({"SYSTEM.CNF;1": L.CNF, "SLPS_004.15;1": prog})
@@ -542,7 +542,7 @@ def stream_disc(rig, fn, path):
     raw = bytearray(path.read_bytes())
     raw += bytes(2352 * (AUDIO_LBA - img.end))
     played = []
-    for k, tag in enumerate(STREAM_ORDER):
+    for k, tag in enumerate(STREAM_ORDER if order is None else order):
         if tag == "b":
             raw += C.xa_sector(900 + k, channel=4)
         else:
@@ -551,6 +551,13 @@ def stream_disc(rig, fn, path):
             raw += sec
     path.write_bytes(bytes(raw))
     return played
+
+
+XW_STREAM = f"audio: a stream starts at sector {AUDIO_LBA}: file 1 channel 3, stereo, 37800 Hz"
+# by hand: the dump fails at the end of the third vblank; the drive gave 2 + 3 + 2 = 7 sectors by then (double speed, 5 fifths a vblank at a cost of 2), the other 33 are silent
+XW_SECTORS = "sectors: played 7 held 0 refused 0 skipped 0 silent 33"
+# 7 sectors of 2,352 frames each; PsyZ pulled 4,096 (the size of its own ring) before the stop; the queue is empty after it
+XW_FRAMES = "frames: queued in all 16464 pulled 4096 in the queue 0"
 
 
 def chip_out(frames):
@@ -571,10 +578,10 @@ def stream_cases(rig, work):
     NI = "--no-interrupt"
     L.VARIANTS["audio"] = Variant("audio", GAME_C, FUN, ABS_BASE + ABS, VARIANT_C["audio"])
 
-    def go(fn, args, tag):
+    def go(fn, args, tag, order=None, variant="audio"):
         disc = work / f"{tag}.bin"
-        played = stream_disc(rig, fn, disc)
-        exe = rig.program_for("audio", program(G[fn]))
+        played = stream_disc(rig, fn, disc, order)
+        exe = rig.program_for(variant, program(G[fn]))
         status, out = rig.start(exe, [*args, rig.native(disc)], 120)
         return status, out.replace("\r\n", "\n").splitlines(), played
 
@@ -606,6 +613,15 @@ def stream_cases(rig, work):
 
     status, lines, _ = go("a_xa", [NI], "x_nosink")
     yield "with-no-sink-the-audio-sectors-are-consumed-in-silence-and-nothing-is-queued", expect(rig, status, lines, 0, [], ["sectors: played 0 held 0 refused 0 skipped 4 silent 8", "frames: queued in all 0 pulled 0 in the queue 0", MAIN])
+
+    # a dump that fails while a stream plays: the sink goes off, the queue is emptied, and the audio sectors that follow are consumed in silence (no
+    # sector is held for ever). 40 sectors of the played channel; the third write of the dump fails (the wrapper of the `wfail` variant). Without the
+    # fix the queue fills (18 sectors), the 19th is held at every vblank, and the count of held sectors rises
+    f = work / "xw.wav"
+    f.unlink(missing_ok=True)
+    status, lines, played = go("a_xa_wfail", [NI, "--audio-dump", rig.native(f)], "xw", order=list(range(40)), variant="wfail")
+    yield "a-dump-that-fails-while-a-stream-plays-switches-the-sink-off-and-the-rest-of-the-stream-is-consumed-in-silence", expect(
+        rig, status, lines, 0, [], [XW_STREAM, WFAIL_LINE, XW_SECTORS, XW_FRAMES, MAIN])
 
     # the link: exactly one definition of the function, and no other symbol of PsyZ's libcd object in the program
     exe = rig.program_for("audio", program(G["a_xa"]))

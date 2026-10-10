@@ -426,6 +426,7 @@ static void wav_stop(void)
 {
     printf("audio: writing the dump failed; the dump stops and the game goes on\n");
     fflush(stdout);
+    port_xa_set_sink(0);   /* nothing is pulled any more: the disc's audio is consumed in silence, and the queue emptied */
     wav_header();   /* best effort: the lengths of what did reach the file */
     fclose(wav);
     wav = NULL;

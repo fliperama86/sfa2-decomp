@@ -1845,7 +1845,9 @@ and appends them: a WAV file, 16 bits, stereo, 44,100 Hz, little endian.
 cannot be opened refuses the start with `refused: --audio-dump: cannot
 open FILE for writing`. A write that fails later prints `audio: writing
 the dump failed; the dump stops and the game goes on`, closes the file,
-and the game goes on; nothing is pulled after that.
+and the game goes on; nothing is pulled after that, so the sink of the
+disc's streamed audio is switched off, its queue is emptied, and the
+audio sectors are consumed in silence (see "The disc's streamed audio").
 
 The header's two lengths are rewritten, and the file flushed, every 60
 vblanks, and at every end that runs the exit routines (a return from
@@ -1986,6 +1988,23 @@ queued then are lost; a `Pause` leaves them to play. When nothing takes
 sound out (neither `--audio` nor `--audio-dump`, or a build without
 PsyZ) the played sectors are consumed in silence, as they were before,
 because nothing would empty the queue.
+
+When the consumer is gone. The wait is for sound that is being played,
+and it has no bound while pulls happen. It must not wait for a consumer
+that has stopped, so the layer counts the pulls. If the dump stops (a
+write or flush failure, or the size limit of the WAV file), the sink is
+switched off at once and the queue emptied; the audio sectors are then
+consumed in silence and the data sectors behind them reach the game. With
+`--audio` nothing guarantees that PsyZ's thread keeps pulling (a device
+that goes away, a paused device). When an audio sector has been held for
+120 vblanks in a row and no pull came in that time, the sink is taken as
+gone: one line on the output (`audio: nothing has taken sound for 120
+vblanks; the disc's audio is consumed in silence until something does`),
+the queue is emptied, and audio sectors are consumed in silence. A pull
+that comes later puts the sink on again from the next audio sector, with
+the decoder begun again and one line (`audio: something takes sound
+again; ...`). The figure 120 is this project's choice, two seconds of
+game time, and is not measured against any device.
 
 The mix. In a build with PsyZ, `iopage.c` defines `Psyz_CdPullSamples`
 (PsyZ's signature) over the queue. PsyZ's model of the chip calls it

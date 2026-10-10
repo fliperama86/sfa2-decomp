@@ -69,7 +69,8 @@ volatile int port_handler_depth;   /* the driver's counter; cd.c raises it aroun
 static int lock_calls, lock_depth, lock_bad;
 void port_audio_lock(void) { lock_calls++; lock_depth++; }
 void port_audio_unlock(void) { if (--lock_depth < 0) lock_bad++; }
-unsigned port_frames(void) { return 0; }
+static unsigned frames;
+unsigned port_frames(void) { return frames; }
 void port_trace_line(const char *fmt, ...) { va_list ap; va_start(ap, fmt); fputs("T ", stderr); vfprintf(stderr, fmt, ap); fputc('\n', stderr); va_end(ap); }
 /* jumps.c's check of a callback's address; cd.c calls it only when port_cd_call is not set, and here it is, so this
  * stands in for the link. The real check on the ready callback is exercised through the linked program
@@ -144,8 +145,8 @@ int main(int argc, char **argv)
         if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
         else if (!strcmp(cmd, "autotick")) autotick = atoi(rest);
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
-        else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) port_cd_tick(); }
-        else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
+        else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) { frames++; port_cd_tick(); } }
+        else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; frames++; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
         else if (!strcmp(cmd, "act")) { char k = 0; int w = 0, a = 0; if (sscanf(rest, "%d %c %d", &w, &k, &a) < 2) return 64; a_when = w; a_kind = k; a_arg = a; a_calls = 0; }   /* what the ready handler does: N ReadN to a, S ReadS to a, M Setmode a, I CdInit, R CdReady(0) */
         else if (!strcmp(cmd, "cb")) { unsigned v = atoi(rest) ? HANDLER_VALUE_C : 0; unsigned char *p = at(PORT_CD_VAR_READY_CB); p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = p[3] = 0; }
         else if (!strcmp(cmd, "stopafter")) { h_stop = atoi(rest); h_calls = 0; }
@@ -710,11 +711,11 @@ def stream_cases(root: Path, exe: Path):
     yield check("the lock calls are balanced (depth 0, none unlocked without a lock), and a pull takes no lock",
                 rc == 0 and len(lk) == 3 and lk[0][2] == lk[1][2] and lk[0][4] == "0" and lk[1][4] == "0" and lk[2][4] == "0" and lk[2][6] == "0" and int(lk[0][2]) > 0 and int(lk[2][2]) > int(lk[1][2]), f"{rc} {lk}")
 
-    # the lock is taken for every access to the queue: a tick that plays two sectors takes it four times (once to look at the room and once to
-    # add, for each), and nothing else takes it
+    # the lock is taken for every access to the queue: a tick that plays two sectors takes it six times (to look at whether the sink is gone, at the
+    # room and to add, for each), and nothing else takes it
     rc, lines = run(exe, img, start + mode_filter + "readn 4\nlocks\ntick 1\nlocks\ntick 1\nlocks\n")
     lk = [int(l.split()[2]) for l in lines if l.startswith("LK ")]
-    yield check("each played sector takes the lock twice (to look at the room, to add); the sectors of data take none", rc == 0 and len(lk) == 3 and lk[1] - lk[0] == 0 and lk[2] - lk[1] == 4, f"{rc} {lk}")
+    yield check("each played sector takes the lock three times (sink gone, room, add); the sectors of data take none", rc == 0 and len(lk) == 3 and lk[1] - lk[0] == 0 and lk[2] - lk[1] == 6, f"{rc} {lk}")
 
     # the reset at a read's start: the queue is emptied and the decoder begins again (history and resampler)
     imgq = root / "xq.bin"
@@ -772,6 +773,55 @@ def stream_cases(root: Path, exe: Path):
     rc, lines = run(exe, imgo, start + mode_filter + "readn 4\ntick 30\ndrain\ntick 30\ndrain\ntick 30\ndrain\ntick 30\ndrain\nxac\n")
     sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
     yield check("drained in time, the whole run is consumed and the data sectors follow in order", rc == 0 and sec == [4, 5] + list(range(30, 40)), f"{rc} {sec}")
+
+
+    # the sink is switched off in the middle of a hold (the dump stopped): the queue is emptied, the held sector and the audio behind it are consumed in
+    # silence, and the data sectors behind them reach the handler. By hand: the image is audio 6 to 29 and data 30 to 39; 18 sectors are played, sector
+    # 24 is held; after "sink 0" the 6 sectors 24 to 29 are silent, and the handler sees sectors 4, 5 and 30 to 39
+    rc, lines = run(exe, imgo, start + mode_filter + "readn 4\ntick 30\nxac\nsink 0\nxac\ntick 30\nxac\nlocks\n")
+    c = counts_of(lines)
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    lk = [l.split() for l in lines if l.startswith("LK ")]
+    yield check("the sink switched off while a sector is held: the queue is emptied, nothing is held after it, the data sectors behind it are delivered",
+                rc == 0 and c[0]["played"] == 18 and c[0]["held"] >= 1 and c[0]["queued"] > 40000 and c[1]["queued"] == 0 and c[2]["held"] == c[0]["held"]
+                and c[2]["silent"] == 6 and c[2]["played"] == 18 and sec == [4, 5] + list(range(30, 40)) and lk[0][4] == "0" and lk[0][6] == "0", f"{rc} {c} {sec} {lk}")
+
+    # a consumer that is gone. The image is audio 6 to 80, then data 81 to 89. No pull: the queue fills (18 played), sector 24 is held at every
+    # tick from the first; the 121st attempt is the cut-off. By hand: held 120, played 18, then the held sector and the audio behind it are silent
+    imgg = root / "xg.bin"
+    audio3 = {n: xa_sector(300 + n) for n in range(6, 81)}
+    make_xa_image(imgg, 90, audio3)
+    line_gone = "audio: nothing has taken sound for 120 vblanks; the disc's audio is consumed in silence until something does"
+    line_back = "audio: something takes sound again; the disc's audio is played from this sector, with the decoder begun again"
+    rc, lines = run(exe, imgg, start + mode_filter + "readn 4\ntick 100\nxac\n")
+    c0 = counts_of(lines)
+    yield check("held with no pull for 100 vblanks: not cut off yet (no line, nothing silent), 18 sectors played and the hold counted",
+                rc == 0 and line_gone not in lines and c0[0]["played"] == 18 and c0[0]["silent"] == 0 and 80 < c0[0]["held"] < 100, f"{rc} {c0}")
+    rc, lines = run(exe, imgg, start + mode_filter + "readn 4\ntick 200\nxac\n")
+    c = [None] + counts_of(lines)
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("held with no pull: cut off at the 121st attempt (held 120, played 18), one line, the rest of the audio and the data consumed or delivered",
+                rc == 0 and c[1]["held"] == 120 and c[1]["played"] == 18 and c[1]["silent"] == 75 - 18 and lines.count(line_gone) == 1 and sec == [4, 5] + list(range(81, 90)) and c[1]["queued"] == 0, f"{rc} {c} {sec} {lines.count(line_gone)}")
+    # the same with pulls going on: one frame each tick keeps the queue full and moves the pull count, so no cut-off after 250 vblanks
+    rc, lines = run(exe, imgg, start + mode_filter + "readn 4\n" + "tick 1\npull 1\n" * 250 + "xac\n")
+    c = counts_of(lines)
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("held with pulls going on: no cut-off after 250 vblanks (nothing silent, no line, no data sector delivered, the hold still counted)",
+                rc == 0 and line_gone not in lines and c[0]["silent"] == 0 and sec == [4, 5] and c[0]["held"] > 200 and 18 <= c[0]["played"] <= 19, f"{rc} {c} {sec}")
+    # a pull after the cut-off: ticks until the first silent sector, then one pull, then ticks; the audio is played again from the next audio sector
+    rc, lines = run(exe, imgg, start + mode_filter + "readn 4\n" + "tick 1\nxac\n" * 130)
+    cs = counts_of(lines)
+    k = next(i for i, x in enumerate(cs) if x["silent"] > 0) + 1
+    silent_at = cs[k - 1]["silent"]
+    rc, lines = run(exe, imgg, start + mode_filter + f"readn 4\ntick {k}\nxac\npull 10\nxac\ntick 1\nxac\npull 48000\n")
+    c = counts_of(lines)
+    pl = parse_pull(lines)
+    nxt = 24 + silent_at   # the first audio sector after the silent ones (the audio run is unbroken)
+    played_new = c[2]["played"] - c[1]["played"]
+    yield check("the cut-off comes at the 121st attempt of the hold (hold 120 before it)", k >= 120 and cs[k - 1]["held"] == 120 and cs[k - 2]["silent"] == 0, f"{k} {cs[k - 2:k]}")
+    yield check("after the cut-off one pull puts the sink on again: one line, the audio played from the next audio sector with the decoder begun again, every frame equal",
+                rc == 0 and lines.count(line_back) == 1 and 2 <= played_new <= 3 and pl and pl[-1] == expected_frames([audio3[nxt + i] for i in range(played_new)]) and c[1]["queued"] == 0,
+                f"{rc} {c} next sector {nxt}, new {played_new}, line {lines.count(line_back)}")
 
     # a held sector and the sink off: with no sink nothing is ever held
     rc, lines = run(exe, imgh, "cdinit\ncb 1\nhandler 80100000 512\n" + mode_filter + "readn 6\ntick 40\nxac\n")

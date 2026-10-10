@@ -116,3 +116,20 @@
 - Not here: the console's resampling filter, 8-bit sectors, a check
   against hardware, the loss of the queued frames when a new read starts
   (by the rule), and the known fault of the lapped ring.
+- After review: a consumer that is gone. A failing dump (`wav_stop`)
+  left the sink on, the queue filled and a held audio sector stopped the
+  data sectors behind it for ever. Now `wav_stop` switches the sink off
+  and empties the queue, and the layer counts pulls: a sector held for
+  120 vblanks with no pull in that time takes the sink as gone (a line,
+  the queue emptied, audio consumed in silence), and a later pull puts it
+  on again with the decoder reset (a line). The hold while pulls happen is
+  unchanged and unbounded. Cases in `test_hostcd.py` (a switched-off sink
+  in a hold; no cut-off after 100 vblanks; cut-off at the 121st attempt
+  with held 120, played 18, silent 57; no cut-off in 250 vblanks with
+  pulls; revival with the frames equal to a fresh decode) and one in
+  `test_hostaudio.py` (a failing write with a stream playing: played 7,
+  held 0, silent 33). Negative controls, each under `timeout` on a copy:
+  the queue not emptied, the sink left on in `set_sink(0)` and in
+  `wav_stop`, the 120-vblank rule removed, the rule cutting off while pulls
+  happen, 60 vblanks instead of 120, no revival, no decoder reset: each
+  fails the case that names it (1 to 3 cases).
