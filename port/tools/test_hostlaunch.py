@@ -76,7 +76,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt", "mirror", "mirrorcore", "input"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt", "mirror", "mirrorcore", "iopage", "input"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -1066,7 +1066,7 @@ def cases(rig: Rig):
 
     trace = rig.work / "trace.txt"
     status, lines, img, arg = rig.run("traced", program(G_MECH), variant="mech", args=["--trace", "--trace-file", rig.native(trace)])
-    got = [l for l in trace.read_text().splitlines() if not l.startswith("mirror:")] if trace.exists() else None   # the mirror's lines (test_hostmirror.py) share the file
+    got = [l for l in trace.read_text().splitlines() if not l.startswith(("mirror:", "iopage:"))] if trace.exists() else None   # the mirror's and the I/O page's lines (test_hostmirror.py, test_hostiopage.py) share the file
     want_trace = ["lib_a 0x5 0x0 0x0 0x0", "lib_c 0x7 0x0 0x0 0x0", "lib_b 0x1 0x0 0x0 0x0"]
     got_cmp = [" ".join(l.split()[:2] + ["0x0"] * 3) for l in got] if got else got
     yield "trace-logs-each-library-call-including-the-one-that-stops", verdict(

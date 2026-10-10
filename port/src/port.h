@@ -224,6 +224,15 @@ int  port_mirror_init(int trace, char *err, size_t errsize);
 int  port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip);
 void port_interrupt_set_return(unsigned ip);
 
+/* iopage.c: the console's I/O page (three cells), served as faults by mirror.c's handler. port_iopage_init: close the page, in
+ * every build, after port_map. read/check_write/write return 0 or -1 with the reason in `why` (mirror.c ends the program with
+ * it); check_write is called before the instruction that writes is carried out, write after it; served: once per fault served. */
+int  port_iopage_init(int trace, char *err, size_t errsize);
+int  port_iopage_read(unsigned addr, unsigned size, unsigned *value, char *why, size_t whysize);
+int  port_iopage_check_write(unsigned addr, unsigned size, char *why, size_t whysize);
+int  port_iopage_write(unsigned addr, unsigned size, unsigned value, char *why, size_t whysize);
+void port_iopage_served(void);
+
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);
 

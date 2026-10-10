@@ -24,6 +24,12 @@
  * not served ends the program with `stop: crash: the game used the PS1's RAM mirror at 0x... (read|write) in
  * NAME with an instruction the port does not serve yet: BYTES`. A second fault while serving ends the program too.
  *
+ * The same handler serves the console's I/O page [IO_BASE, IO_END) (iopage.c), closed at start like the range above: the
+ * same checks, the same decoder and executor, but the instruction works on a temporary value that iopage.c fills from its
+ * model before an instruction that reads and takes after one that wrote. A write is checked before the instruction is carried
+ * out. What iopage.c does not claim ends the program with `stop: crash: the game used the PS1's I/O page at 0x... (read|write)
+ * in NAME REASON: BYTES`. The mirror's own lines are unchanged.
+ *
  * What the copy holds: zeros at first; on the console the first 64 KB hold the BIOS's tables, so an accidental
  * read like [null + 0xd] reads a zero where the console read a byte of the BIOS's.
  *
@@ -69,11 +75,11 @@ static void report(void)
         port_trace_line("mirror: %s: %u reads, %u writes", seen[i].name, seen[i].reads, seen[i].writes);
 }
 
-static void stop_unserved(const char *what, unsigned where, const char *name, const char *why, const unsigned char *code, unsigned avail)
+static void stop_unserved_in(const char *area, const char *what, unsigned where, const char *name, const char *why, const unsigned char *code, unsigned avail)
 {
     char bytes[64];
     port_mirror_hex(code, avail > 15 ? 15 : avail, bytes, sizeof bytes);
-    printf("stop: crash: the game used the PS1's RAM mirror at 0x%08x (%s) in %s %s: %s\n", where, what, name, why, bytes);
+    printf("stop: crash: the game used the PS1's %s at 0x%08x (%s) in %s %s: %s\n", area, where, what, name, why, bytes);
     fflush(stdout);
     port_suspenders_stop();
     port_suspenders_check_closed();
@@ -95,8 +101,9 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
     struct mirror_insn in;
     const unsigned char *code;
     const char *name, *what;
-    int raced;
-    unsigned aimed_ip = 0;
+    int raced, io;
+    unsigned aimed_ip = 0, temp = 0;
+    void *mem;
 
     if (rec->ExceptionCode != EXCEPTION_ACCESS_VIOLATION || rec->NumberParameters < 2) return EXCEPTION_CONTINUE_SEARCH;
     if (port_mirror_serving && GetCurrentThreadId() == game_tid) {
@@ -118,7 +125,21 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
      * returns after the instruction. */
     raced = port_interrupt_aimed((unsigned)c->Eip, (unsigned)ip, &aimed_ip);
     if (raced) ip = aimed_ip;
-    if (!port_mirror_decision(kind, addr, 1, GetCurrentThreadId() == game_tid, in_game_code(ip))) return EXCEPTION_CONTINUE_SEARCH;
+    /* The two layers share everything above and everything below: the exception check, the second-fault check, the race
+     * with the vblank's redirection, the decode, the check of the operand's address, the register write-back, the move of
+     * the instruction pointer and the counts. They differ in two places: the decision, and what the instruction works on:
+     * the mapped RAM for the mirror, a temporary value for the I/O page (iopage.c fetches it from the model before the
+     * instruction when the instruction reads, and gives it to the model after when the instruction wrote). */
+    io = addr >= IO_BASE && addr < IO_END;
+    if (io) {
+        /* The page is closed to everything but the game's thread in the game's code, so any other fault on it ends the program with a line. */
+        int ours = in_game_code(ip);
+        if (!port_mirror_decision_io(kind, addr, 1, GetCurrentThreadId() == game_tid, ours)) {
+            char why[96];
+            snprintf(why, sizeof why, "%s", ours && GetCurrentThreadId() == game_tid ? "with an access that is not a read or a write" : "from a thread or code that is not the game's");
+            stop_unserved_in("I/O page", kind == 8 ? "execute" : kind ? "write" : "read", addr, ours ? port_function_at(ip) : "?", why, (const unsigned char *)ip, ours ? (unsigned)((size_t)&port_game_text_end - ip) : 0);
+        }
+    } else if (!port_mirror_decision(kind, addr, 1, GetCurrentThreadId() == game_tid, in_game_code(ip))) return EXCEPTION_CONTINUE_SEARCH;
 
     port_mirror_serving = 1;
     name = port_function_at(ip);
@@ -130,18 +151,40 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
     regs.eip = (unsigned)ip;
     regs.eflags = c->EFlags;
     if (port_mirror_decode(code, avail, &regs, &in) != 0)
-        stop_unserved(what, addr, name, "with an instruction the port does not serve yet", code, avail);
+        stop_unserved_in(io ? "I/O page" : "RAM mirror", what, addr, name, "with an instruction the port does not serve yet", code, avail);
     if (in.ea != addr) {
         char why[80];
         snprintf(why, sizeof why, "with an instruction whose operand is at 0x%08x, not there", in.ea);
-        stop_unserved(what, addr, name, why, code, avail);
+        stop_unserved_in(io ? "I/O page" : "RAM mirror", what, addr, name, why, code, avail);
     }
-    if (!port_mirror_decision(kind, addr, in.msize, 1, 1)) {
-        port_mirror_serving = 0;
-        return EXCEPTION_CONTINUE_SEARCH;   /* it straddles the end of the copy: the crash line */
+    if (io) {
+        char why[160];
+        if (!port_mirror_decision_io(kind, addr, in.msize, 1, 1))
+            stop_unserved_in("I/O page", what, addr, name, "with an access that straddles the end of the page", code, avail);
+        /* the instruction's kind decides: an `or` to memory faults as a read and is a fetch, an execution and a store */
+        if (port_mirror_insn_reads(&in) && port_iopage_read(addr, in.msize, &temp, why, sizeof why) != 0)
+            stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        /* a store or a read-modify-write: refused before the instruction runs, so that a refusal changes nothing */
+        if (port_mirror_insn_writes(&in) && port_iopage_check_write(addr, in.msize, why, sizeof why) != 0)
+            stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        mem = &temp;
+    } else {
+        if (!port_mirror_decision(kind, addr, in.msize, 1, 1)) {
+            port_mirror_serving = 0;
+            return EXCEPTION_CONTINUE_SEARCH;   /* it straddles the end of the copy: the crash line */
+        }
+        mem = (void *)(size_t)(PORT_RAM_BASE + addr);
     }
 
-    port_mirror_exec(&in, &regs, (void *)(size_t)(PORT_RAM_BASE + addr));
+    port_mirror_exec(&in, &regs, mem);
+    if (io) {
+        if (port_mirror_insn_writes(&in)) {
+            char why[160];
+            if (port_iopage_write(addr, in.msize, temp, why, sizeof why) != 0)
+                stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        }
+        port_iopage_served();
+    }
 
     if (c->Eip != (DWORD)ip && !raced) {
         printf("stop: crash: the context of a fault in the PS1's RAM mirror is at 0x%08x, not at the faulting instruction 0x%08x\n", (unsigned)c->Eip, (unsigned)ip);
@@ -161,20 +204,22 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
     }
     port_mirror_served_count++;
 
-    for (i = 0; i < seen_count && seen[i].name != name; i++) {
+    if (!io) {
+        for (i = 0; i < seen_count && seen[i].name != name; i++) {
+        }
+        if (i == seen_count && seen_count < MAX_SEEN) {
+            seen[seen_count].name = name;
+            seen[seen_count].reads = seen[seen_count].writes = 0;
+            seen_count++;
+            printf("mirror: %s uses the PS1's copy of RAM at address 0 (first at 0x%08x; %s)\n", name, addr, what);
+            fflush(stdout);
+        }
+        if (i < seen_count) {
+            if (kind) seen[i].writes++;
+            else seen[i].reads++;
+        }
     }
-    if (i == seen_count && seen_count < MAX_SEEN) {
-        seen[seen_count].name = name;
-        seen[seen_count].reads = seen[seen_count].writes = 0;
-        seen_count++;
-        printf("mirror: %s uses the PS1's copy of RAM at address 0 (first at 0x%08x; %s)\n", name, addr, what);
-        fflush(stdout);
-    }
-    if (i < seen_count) {
-        if (kind) seen[i].writes++;
-        else seen[i].reads++;
-    }
-    if (tracing) port_trace_line("mirror: %s %s 0x%08x %u (at 0x%08x)", name, what, addr, in.msize, (unsigned)ip);
+    if (tracing && !io) port_trace_line("mirror: %s %s 0x%08x %u (at 0x%08x)", name, what, addr, in.msize, (unsigned)ip);
     port_mirror_serving = 0;
     return EXCEPTION_CONTINUE_EXECUTION;
 }
