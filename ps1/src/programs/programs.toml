@@ -19,6 +19,7 @@ functions = [
   { name = "func_80010f38_logo", address = 0x80010f38, size = 140 },
   { name = "func_800110f4_logo", address = 0x800110f4, size = 220 },
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
+  { name = "func_80011060_logo", address = 0x80011060, size = 148 },
 ]
 
 [program.symbols]

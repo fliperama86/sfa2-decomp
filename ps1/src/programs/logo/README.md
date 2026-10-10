@@ -110,6 +110,10 @@ func_80010fc4_logo: built 176 bytes, original 156 bytes; cases 2000, discarded 0
 func_80010fc4_logo coverage: 39 of 39 instruction slots of the original executed
 func_80010fc4_logo: built 176 bytes, original 156 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010fc4_logo coverage: 39 of 39 instruction slots of the original executed
+func_80011060_logo: built 168 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011060_logo coverage: 37 of 37 instruction slots of the original executed
+func_80011060_logo: built 168 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011060_logo coverage: 37 of 37 instruction slots of the original executed
 func_800110f4_logo: built 220 bytes, original 220 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800110f4_logo coverage: 55 of 55 instruction slots of the original executed
 func_800110f4_logo: built 220 bytes, original 220 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -131,6 +135,7 @@ func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010fc4_logo control: different 991 of 2000 (expected more than 0)
+func_80011060_logo control: different 1001 of 2000 (expected more than 0)
 func_800110f4_logo control: different 1463 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
@@ -147,6 +152,8 @@ func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010fc4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010fc4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011060_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011060_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800110f4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800110f4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -166,6 +173,8 @@ func_80010f38_logo fixtures: kept 4 of 2000 cases (slots 2, edges 2, results 0)
 func_80010f38_logo replay: fixtures 4, passed 4, failed 0
 func_80010fc4_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
 func_80010fc4_logo replay: fixtures 2, passed 2, failed 0
+func_80011060_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_80011060_logo replay: fixtures 2, passed 2, failed 0
 func_800110f4_logo fixtures: kept 3 of 2000 cases (slots 1, edges 2, results 0)
 func_800110f4_logo replay: fixtures 3, passed 3, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
@@ -208,3 +217,6 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   `0x8002eb40` to i, 0, i, 0 when the word is not 0, else all four to i / 2,
   and calls `CdMix` (the program's copy) on them at every step. `CdMix` is a
   recorder in the test; the log holds the four bytes at each call.
+- `func_80011060_logo`: brings the disc's volume down (inferred), the mirror of
+  `func_80010fc4_logo`: the same word and the same four bytes, for
+  i = 128, 126, ... 0, and `CdMix` at every step (a recorder in the test).
