@@ -8276,6 +8276,52 @@ for it the resident image was built again (`functions exact:
 Not claimed: that the original declared the callee in any particular
 way; the cast says what the instructions need. No run of the game.
 
+## The slot's third and fourth bytes are bytes, and one more function exact with that (2026-10-10)
+
+`Slot`, the 8-byte record of which an object has 28, had a 16-bit
+`field_02`. Nine places in six resident units read or wrote one byte
+of it through a cast of its address. Three places in three units use
+both bytes as one word.
+
+`func_801b3a70_slot04_05`, 164 bytes, of the character file
+`PL05.PAC`, was parked with one differing instruction slot: an
+addition with its operands exchanged, where the function decrements
+the third byte of a slot. The original adds the object and the scaled
+index in that order. A plain member access compiles to that order:
+the function's other arm, which uses a byte member of the record, was
+exact already. An access through a cast pointer compiles to the other
+order, in each of eight spellings built with the 16-bit field.
+
+So the record's type now says what its uses say: `u8 field_02` and
+`u8 field_03`. With that:
+
+- the function is exact with `obj->slots[i].field_02`. Through a cast
+  pointer it still differs in 1 slot, in two spellings measured on the
+  final text with `fndiff.py --rebuild`;
+- the nine cast accesses are plain members now, `field_02`, and
+  `field_03` where the cast reached the second byte. The six units
+  stay exact;
+- the three places that use the word say so:
+  `*(u16 *)&slot->field_02`. Their units are exact so; with the plain
+  byte member they differ in 2, 1 and 16 slots.
+
+Inferred, not shown: that the original record had two byte members
+there. The evidence is twelve byte accesses against three word
+accesses, and one function that is exact only with a byte member. A
+union would fit both kinds of use; this project's type table has
+none.
+
+Exact in the second side's file too: two placements.
+
+Evidence: the whole configuration passes with every image identical
+to its baseline; every unit was compiled again, since the generated
+header of types changed. The map after this, from
+`coveragemap.py render`: 5,429 of 5,600 distinct functions exact,
+12,855 of 13,072 placements.
+
+Not claimed: the original's declaration of the record. No run of the
+game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified

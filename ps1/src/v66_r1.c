@@ -73,8 +73,8 @@ void func_8013e944(Object *object, int index, int arg)
 
   if (object->slots[(u8) index].field_04 == 0)
   {
-    *((u8 *) (&object->slots[(u8) index].field_02)) -= 2;
-    if ((*((u8 *) (&object->slots[(u8) index].field_02))) == 0)
+    object->slots[(u8) index].field_02 -= 2;
+    if (object->slots[(u8) index].field_02 == 0)
     {
       func_8013f2a8(object, (u8) index, (u8) arg);
     }
