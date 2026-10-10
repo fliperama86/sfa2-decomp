@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "9228ba369fc0fe5fb5a07f377b5936ba6b2b80d3cabdf9fc11a10edefcf68fc1",
+  "sha256": "aaa123cd6a875977969b01c4b1884781eff461892384a3d6f4c200a3f9de148b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -649,6 +649,10 @@
     {
       "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
       "line": 9654
+    },
+    {
+      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "line": 9713
     }
   ]
 }

@@ -9709,3 +9709,51 @@ No function count changes here: none of this is in the build.
   "Overrides in C" bullet of `port/README.md` that says what the
   folder's functions have in common names only the argument kind and
   was left as it was.
+
+## Nonmatching C for the four sound-library functions that had none (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Why: the owner made sound the port's next priority on 2026-10-10.
+  The game's own sound library is in the tree as exact C for 158 of
+  the 165 functions of the sound part of the executable (units of
+  `sdk/libsnd` and `sdk/libspu`; one-off count from `build.toml` and
+  `inventory/library.tsv`), and three more are game units. These four
+  were the gap: `_spu_init` (0x8016b788), `SpuVmAlloc` (0x8015ffc0),
+  `SpuVmSetVol` (0x80163794), `_SsContDataEntry` (0x80167388).
+- A new folder, `ps1/src/library_nonmatching/`, with the rules and the
+  test of the other nonmatching folders; a file is named by the
+  function's address and its header gives the library's name. Each
+  file includes only the game's three headers and declares the
+  library's variables and records itself, so that it compiles in the
+  port's public build, which does not have the SDK's headers.
+- Where each comes from, as the folder's page states: `func_8016b788`
+  and `func_80167388` were written by this project from the listing;
+  `func_8015ffc0` and `func_80163794` are adapted from the functions
+  of the same names in the reference that the SDK files come from
+  (another version of the library; MIT, the license line kept).
+- `_spu_init` works on the sound chip's registers. Its test has no
+  chip: the setup points the library's register pointers at plain
+  memory and presets the status word. The header says what that shows
+  and what it does not (the order of the stores is not compared; no
+  register that answers by itself is modelled; a wait that ends after
+  some polls is not reached).
+- `func_80167388`: 301 of 376 instruction slots executed; the header
+  names the two parts no input reaches (a loop behind a test that an
+  earlier test already excludes, and one arm of a computation whose
+  result is not used).
+- The tool: `difftest.py` looked a resident function's size up in
+  `inventory/game.tsv` only; it now looks in `game.tsv` and
+  `library.tsv` and wants the name in exactly one. Four cases in its
+  test.
+- `symbols.ld` gets two names that `_spu_init` needs (`D_80033514`,
+  `D_80033540`).
+- Ran, the four functions alone: the test and the write audit on
+  seeds 1 and 7, the control (the page has seed 1's lines); a
+  deliberate error or two per function and every comparison constant
+  plus one, each noticed (one-off runs); the tool's own tests; the
+  declarations check told to read the folder; the port's public build
+  (the four leave its list of functions without C: library 380
+  instead of 384, one-off comparison).
+- Not run: the repository's review command (a change of the test tool
+  makes it run every folder again; see `docs/efficiency.md`).
