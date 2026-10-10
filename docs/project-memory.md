@@ -7947,6 +7947,22 @@ No function count changes here: none of this is in the build.
 - These six had a struct of their own for the records they fill; they
   use the tree's `Slot06Tile` now, as the first function does.
 
+## Nonmatching C for character functions, first batch (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: a second folder, `ps1/src/slot04b_nonmatching/`, for the
+  character modules `PL0C` to `PL17`, with nine functions of `PL0E` and
+  `PL0F` that the build keeps as original bytes. Its page holds the
+  test's lines, the negative controls and the write audit's lines. The
+  tool stays in `ps1/src/slot06_nonmatching/` and is run from there
+  with `--folder`.
+- One function of `PL0F` that was written with these is held back for a
+  pull request of its own: the original reads a value that its callers
+  never pass, and its C states that as a parameter, so that its
+  definition and its callers' declarations disagree on purpose. That
+  needs to be read on its own.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
