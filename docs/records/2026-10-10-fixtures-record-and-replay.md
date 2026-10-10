@@ -18,21 +18,32 @@
   alteration; one case for each result value not yet kept. What no
   kept case covers is written into the file as uncovered.
 - `--replay` builds the C and runs it on each fixture in memory that
-  holds only what the fixture says (a filler byte elsewhere, or the
-  game's image when the fixture says a callee ran as original code),
-  with a stand-in at each callee that returns the recorded values. It
-  requires the same calls in the same order with the same changes seen
-  at each call, the result, and the writes exactly. It never runs the
-  original code. A fixture that the C no longer satisfies fails;
-  nothing regenerates fixtures silently.
-- First use: five functions of the resident folder, `func_8012fd80`,
-  `func_80119694`, `func_8011cf98`, `func_8011a880` and
-  `func_801189c4`. Their replay together printed 34 fixtures passed
-  and none failed, in under three seconds by the shell's clock,
-  compile included (one-off timing, on the tree with main merged in).
+  holds only what the fixture says, with a stand-in at each callee
+  that returns the recorded values. Elsewhere the memory holds a
+  filler byte, except that a byte the function must write, and whose
+  value before the fixture does not state, starts as the opposite of
+  its expected value, so that a missing store cannot pass. It requires
+  the same calls in the same order with the same changes seen at each
+  call, the result, the writes exactly, and that every address
+  executed lies in the build or in a stand-in. It never runs the
+  original code and never loads the game's image. A fixture that the C
+  no longer satisfies fails; nothing regenerates fixtures silently.
+- A function whose contract lets a callee run as original code cannot
+  have fixtures yet: `--record` refuses it, and it stays with the wide
+  comparison. Standing in for such a callee with what it was recorded
+  to do is later work.
+- First use: four functions of the resident folder, `func_8012fd80`,
+  `func_80119694`, `func_8011a880` and `func_801189c4` (22 fixtures).
   One deliberate error in the C of each, in a scratch copy, made its
   replay fail (for `func_8012fd80` the reach `0x58` made `0x59`: the
   case that the wide comparison had missed that morning).
+- Two faults of the first version, found by the owner's reviewer with
+  probes of a fraction of a second, and corrected before the merge: a
+  missing store passed when the value to be stored equalled the filler
+  byte; and for a fixture marked as needing the game's image (the
+  fifth function of the first version, `func_8011cf98`) the replay ran
+  the original callees from that image, against its own claim. That
+  marking and that function's fixture file are gone.
 - Limits: a pass is evidence for the recorded inputs; it is not the
   wide comparison and not equivalence. Replay still needs the private
   inputs of the configuration and the PS1 compiler; a replay of the C

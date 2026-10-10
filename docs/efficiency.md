@@ -120,9 +120,10 @@ test after that: it builds the C, runs it on the fixtures and never
 runs the original code. It still starts like every mode of the tool,
 so it needs the private inputs of the build configuration and the PS1
 compiler; a replay of the C as compiled for a PC, which needs nothing
-private, is not built yet. Five functions of the resident folder have
-fixtures. The others have none yet, and for them the table above is
-what to run.
+private, is not built yet. Four functions of the resident folder have
+fixtures. A function whose contract lets a callee run as original code
+cannot have them yet (`--record` refuses it), and the other functions
+have none yet: for all of those the table above is what to run.
 
 ## Known costs, as of 2026-10-10
 
