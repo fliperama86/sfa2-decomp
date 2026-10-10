@@ -722,16 +722,16 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `b2f4e19`:
+it is in commit `6d2ec20`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3780 compiled, 49 of them nonmatching, 0 failed
+units: 3799 compiled, 50 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12524
-functions without C: 547, library 385, game and modules 162
+functions with C: 12551
+functions without C: 520, library 384, game and modules 136
 sweep rows that are not functions: 11
-names at PS1 addresses: 46083
+names at PS1 addresses: 46076
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -758,8 +758,8 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1404 written for functions with C, 448 for functions without
-library: 84 host routines, 301 left that stop
+jumps: 1408 written for functions with C, 444 for functions without
+library: 84 host routines, 300 left that stop
 overrides: 1
 start: 0x801189c4
 stop: no C yet for func_801189c4 (0x801189c4)
@@ -780,7 +780,7 @@ still ends the program with its name. `sfa2.exe --list-library` prints
 the table; for the program built from this tree it ends with
 
 ```
-library: 84 host routines, 301 left that stop
+library: 84 host routines, 300 left that stop
 ```
 
 of which the listing gives 39 as routines that do something and 45 as
@@ -923,10 +923,46 @@ routines that do nothing on purpose. What is in this piece:
   last refusal is not expected on the real game; a module's data can
   share a page with anything, and a page that holds resident code never
   loses the right to execute.
-  A module's functions count as installed for the checks of addresses
-  that the game hands over, once the module is placed; a second
-  placement gets the jumps of its own table, and the units left out for
-  it are functions without C there.
+  Installation is tracked per entry, not per page. For each function of
+  the tables the layer keeps whether the five bytes of its jump (to the C)
+  or of its stop call (without C) were written. A function counts as
+  installed, for the checks of addresses that the game hands over (a
+  thread entry, an event handler, a callback), only if that is so, the
+  pages under its five bytes still belong to the module, and the five
+  bytes are at this moment exactly the jump or call that was written. A
+  later write from the disc to such a page takes the module away from it,
+  and every entry on it is then not installed. Before anything is
+  written, every declared entry of the image that lies on a page about to
+  become executable must have its five bytes inside the chunk and all
+  written from it; otherwise the placement is refused with the lowest such
+  entry named, and no jump of the image is written, so a page never
+  becomes executable first. This answers two cases of the review: the
+  first sector of a module loaded and its first function called, then a
+  later entry of the same page handed over as a callback; and a copy of
+  only four bytes of an entry. Both are refused (status 12 for the
+  callback, the placement refusal for the copy), also for an entry
+  without C, and a game write over an installed entry is refused with
+  `jump is no longer there`.
+  A resident function's entry is checked by content as well: its five
+  bytes must still be a jump or call to host code. Stated limits: a game
+  write that leaves another jump to host code is not seen; a direct call
+  (not a handed-over address) into overwritten bytes is not seen in either
+  layer; a second placement gets the jumps of its own table, and the
+  units left out for it are functions without C there.
+  Two handlers of access faults exist in the program. This layer's
+  handles execute faults only, at an address in the PS1's RAM whose page
+  it made non-executable; the mirror's (see "The console's copy of RAM at
+  address 0") handles read and write faults only, below 2 MB, from the
+  game's code on the game's thread. They are installed in this order: the
+  mirror's at start, this layer's after the program is loaded; the
+  later one is asked first, declines every fault that is not its own
+  kind and place, and the other then gets its turn. An execute fault at a
+  low address is neither's: it ends with the mirror's crash line. The
+  program ends only by `exit()` (registered with `atexit` to close the
+  timer's gate first, see the timer above) or by the crash routines,
+  which close the gate themselves; with `--timer-burst` the program says
+  so if a way of ending skipped the stop. The controls run each program
+  that this layer ends with and without that option and compare.
 
 - The graphics, through PsyZ. This part exists only in a program built
   with `hostbuild.py --psyz DIR`, DIR being a build folder of
@@ -996,8 +1032,8 @@ routines that do nothing on purpose. What is in this piece:
 - `--dump-vram PREFIX` writes the frame buffer as a picture file when
   the program ends, and `--dump-every N` every N seconds.
 
-Not in this piece: the pads and the modules. Their functions are
-among those that stop.
+Not in this piece: the pads. Their functions are among those that
+stop.
 
 ### The console's copy of RAM at address 0
 
@@ -1159,8 +1195,20 @@ crash line; the disc's data in the page where resident code begins
 leaves that code running, and a copy over a resident function's start
 ends the program; a module function handed over as a handler is placed
 and runs, and an address inside a module that is no function start is
-refused; a second placement runs its own C; and two thousand loads and
-first calls in a row with the timer running end without a hang.
+refused; a second placement runs its own C; a module whose first sector
+only is loaded refuses a later entry of its page as a callback, and so
+does a copy of four bytes of an entry, each also for an entry without
+C; a game or disc write over an installed entry or its page is
+refused when the entry is next used; a module function whose C reads and
+writes the low view below and above 64 KB runs after its placement, a
+call at a non-entry while the low view is in use is refused as before,
+an execute fault at a low address stays the mirror's crash line, a read
+outside the mirror's range is swallowed by neither handler, and two
+thousand loads and first calls in a row, alone and mixed with accesses
+to the low view, with the timer running, end without a hang; every
+program that the layer ends is run with and without `--timer-burst` and
+must end the same. A failing case prints the whole output of its last
+program run. No case runs a program twice to get a pass.
 `python3 port/tools/test_hostgpu.py --cc CC --psyz-build DIR` needs a
 built PsyZ and a way to open a window: it links the graphics layer
 with a small program of its own and reads the frame buffer back. Its

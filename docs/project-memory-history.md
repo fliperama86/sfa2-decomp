@@ -8819,3 +8819,52 @@ No function count changes here. Nothing under `ps1/` changed.
     is on such a page. A case of two thousand loads in a row failed in
     3 of 3 runs without that.
 - Not shown: any of this on the real game from a published commit.
+- Per-entry installation (2026-10-10, after the owner's review of this pull
+  request). A page that was placed had been treated as proof that every
+  declared function on it was installed; two invented archives showed a
+  callback to an entry whose bytes were never loaded being accepted (the first
+  sector only; four bytes of an entry). Now each row of the tables has its own
+  state; an entry is installed only if its own five bytes were written and are
+  still there, the pages under them still belong to the module, and a placement
+  is refused, naming the lowest entry, if any declared entry of the image on a
+  page that would become executable cannot be installed. Resident entries are
+  checked by content too. Stated limits are on the page. Mutants (scratch,
+  restored): per-entry test replaced by page ownership; content check removed;
+  the uninstallable-entry refusal off; four bytes counted as an entry; resident
+  content check off: each made a case fail.
+- The tree was brought onto main of 2026-10-10 (documentation layout, graphics,
+  the console's copy of RAM, the exit gate, the rigs' diagnostics) with the
+  merge helper. Two fault handlers now exist: this layer's for execute faults on
+  pages it made non-executable, the mirror's for read and write faults below 2 MB.
+  Both are vectored handlers asked first; this layer's is installed later, so it
+  is asked first, and declines every fault that is not its own (kind, address
+  range, instruction pointer equal to the address, page it took). A case set in
+  `test_hostmodules.py` runs them together: a module placed at its first call
+  whose C writes and reads the low view below and above 64 KB, a call at a
+  non-entry while the low view is in use, an execute fault at a low address (the
+  mirror's crash line), a read outside the mirror's range (neither handler), and
+  500 placements mixed with low-view accesses with the timer on. Mutants: this
+  layer's handler taking a read or write fault (ending the program there) makes
+  five cases fail; the mirror's decision accepting execute faults and ignoring
+  game code makes the low-address execute case fail. Two mutants are
+  equivalent in behaviour and say so: this layer's handler without its kind
+  check (its address and instruction-pointer checks decline the same faults),
+  and the mirror's without its kind check alone (its game-code check declines).
+- Ending the process. This layer ends it only by `exit()` (the `atexit` stop of
+  the timer's gate runs) so nothing here calls the stop itself. A case runs 12
+  programs that the layer or the handlers around it end with and without
+  `--timer-burst` and requires the same result, no line of the gate's
+  self-checks. A direct `ExitProcess` added to this layer would not be seen by
+  that case (shown with a scratch mutant); it would hang only rarely.
+- The rigs. The retry of the module and launch rigs is gone (a program is run
+  once; a run that hangs or prints nothing fails its case). `ModRig` records
+  and prints the whole last run as `Rig` of main does, with the case for it; the
+  20-run burst loop keeps the first bad run's record for the failure text, not
+  the last good run's.
+- Stress (one-off, 12 CPU burners ended by PID after each run, merged tree):
+  300 runs of a program ending by `exit()` with the timer: 300 right; 300 with
+  `--no-interrupt`: 300 right; 10 runs of the two-thousand-faults case: 10
+  right (each rc 0, 2000 "A ran", `stop: main returned`). The earlier stop of
+  this work (2 of 300 hung) was the exit race, fixed on main.
+- Not done: data of modules beyond their code; the real game's modules run only
+  through the tables, not on the console's behaviour.
