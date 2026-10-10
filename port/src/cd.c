@@ -286,9 +286,12 @@ static int xa_take(const unsigned char *raw, unsigned sector)
         return 0;
     }
     port_audio_unlock();
-    if (!xa.started)
+    if (!xa.started) {   /* the first sector played since a read began: one line on the output, and one in the trace */
+        printf("audio: a stream starts at sector %u: file %u channel %u, %s, %d Hz\n", sector, info.file, info.channel, info.stereo ? "stereo" : "mono", info.rate);
+        fflush(stdout);
         port_trace_line("xa: frame %u stream starts: sector %u file %u channel %u, %s, %d Hz, %d bits", port_frames(), sector, info.file, info.channel,
                         info.stereo ? "stereo" : "mono", info.rate, info.bits);
+    }
     xa_decode(&xa.st, raw, xa_src, &info);   /* parsed above: it cannot refuse */
     n = xa_resample(&xa.st, xa_src, info.frames, (unsigned)info.rate, xa_out);
     port_audio_lock();   /* only this thread adds, so the room found above is still there */

@@ -585,7 +585,7 @@ def stream_cases(rig, work):
         want = C.volumes(C.expected_frames(played), vol)
         mixed = chip_out(want)
         n = len(want)
-        why = expect(rig, status, lines, 0, [], [f"sectors: played 8 held 0 refused 0 skipped 4 silent 0", f"frames: queued in all {n} pulled {n} in the queue 0", MAIN])
+        why = expect(rig, status, lines, 0, [], [f"audio: a stream starts at sector {AUDIO_LBA}: file 1 channel 3, stereo, 37800 Hz", f"sectors: played 8 held 0 refused 0 skipped 4 silent 0", f"frames: queued in all {n} pulled {n} in the queue 0", MAIN])
         if why is None:
             b = f.read_bytes()
             data = b[44:]

@@ -686,7 +686,8 @@ def stream_cases(root: Path, exe: Path):
     yield check("an 8-bit sector and a sector with differing subheader copies are refused and counted; the others are played in order",
                 rc == 0 and c[0]["refused"] == 2 and c[0]["played"] == 2 and sec == [10, 11] and pl and pl[0] == expected_frames([sa, sb]), f"{rc} {c} {sec}")
     yield check("each refusal is a trace line with the reason", len([e for e in err if "refused:" in e]) == 2 and any("8 bit samples are not decoded" in e for e in err) and any("two copies of the subheader differ" in e for e in err), f"{err}")
-    yield check("the stream's start is one trace line", len([e for e in err if "stream starts" in e]) == 1, f"{err}")
+    yield check("the stream's start is one trace line and one line on the output",
+                len([e for e in err if "stream starts" in e]) == 1 and [l for l in lines if l.startswith("audio:")] == ["audio: a stream starts at sector 6: file 1 channel 3, stereo, 37800 Hz"], f"{err} {lines[:3]}")
 
     # the volumes of CdMix: unity, 127 (passthrough as PsyZ), half, crossed and clamped
     v_cases = [("unity 128, 0, 128, 0", (128, 0, 128, 0)), ("127, 0, 127, 0 goes through unchanged", (127, 0, 127, 0)), ("half 64, 0, 64, 0", (64, 0, 64, 0)),
