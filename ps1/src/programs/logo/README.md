@@ -102,6 +102,10 @@ func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, 
 func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
+func_80010f38_logo: built 164 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010f38_logo coverage: 35 of 35 instruction slots of the original executed
+func_80010f38_logo: built 164 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010f38_logo coverage: 35 of 35 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -117,6 +121,7 @@ The negative control (`--control`):
 ```
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
+func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
@@ -128,6 +133,8 @@ func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -141,6 +148,8 @@ func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010f20_logo replay: fixtures 1, passed 1, failed 0
+func_80010f38_logo fixtures: kept 4 of 2000 cases (slots 2, edges 2, results 0)
+func_80010f38_logo replay: fixtures 4, passed 4, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
 func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -164,3 +173,9 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   `0x8002eb50` (20 bytes each, from `0x8002eb8c`) to the library call
   `func_80158470` (the program's copy), then flips the index. The call is a
   recorder in the test; the index is 0 or 1 in four cases of five.
+- `func_80010f38_logo`: the movie decoder's output routine (inferred). Clears
+  the word at `0x8002edb8` after `StCdInterrupt` when it is set, copies the
+  strip to the picture (`func_80157fc4`, the program's `LoadImage`), moves the
+  rectangle 24 pixels right and, while its x is below 480, asks for the next
+  strip (`DecDCTout`) and sets the word at `0x8002eb3c` to 1, else to 0. The
+  three callees are recorders in the test.
