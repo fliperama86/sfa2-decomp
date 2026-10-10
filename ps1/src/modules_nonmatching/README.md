@@ -19,9 +19,34 @@ Each function is a pair: `FUNC.c` with its contract in the header
 comment, and `FUNC.py`, the contract as code. A function that is later
 rebuilt exactly becomes a unit of the build and leaves this folder.
 
-What these commands printed on 2026-10-10, run from the tool's folder:
+## Testing one function
 
-    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --all
+A function is tested alone. When one is added or changed, run its own
+five runs, from the tool's folder, and at the same time (see
+[efficient checks](../../../docs/efficiency.md)):
+
+    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 FUNC
+    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --seed 7 FUNC
+    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --control FUNC
+    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --writes FUNC
+    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --writes --seed 7 FUNC
+
+Then put that function's lines into the three blocks below, in place of
+its old ones or at its place in the order of names. No other function is
+run again for it, and the folder is not run as a whole.
+
+## The recorded lines
+
+The three blocks are a record, not an instruction. They are what the
+commands printed for each function when it was last run. For all functions
+but `func_800e0850_slot0f` and `func_800e0a1c_slot0f` that is one run of
+the whole folder on 2026-10-10, with `--all` in place of FUNC; the page
+keeps those lines as printed. The lines of the two functions named are from
+their own runs on 2026-10-10 (seed 1 in the test and the write audit; their
+seed 7 runs also printed `different 0` and `outside 0`). From now on a
+function's lines change only when that function is run again.
+
+The test (`--cases 2000 FUNC`, seed 1):
 
 ```
 func_800108d4_slot01: built 704 bytes, original 796 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -66,6 +91,10 @@ func_800793d4_slot2b: built 200 bytes, original 204 bytes; cases 2000, discarded
 func_800793d4_slot2b coverage: 51 of 51 instruction slots of the original executed
 func_800796e4_slot2b: built 288 bytes, original 288 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800796e4_slot2b coverage: 72 of 72 instruction slots of the original executed
+func_800e0850_slot0f: built 412 bytes, original 460 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800e0850_slot0f coverage: 115 of 115 instruction slots of the original executed
+func_800e0a1c_slot0f: built 276 bytes, original 300 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800e0a1c_slot0f coverage: 75 of 75 instruction slots of the original executed
 func_800e0b48_slot0f: built 168 bytes, original 172 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e0b48_slot0f coverage: 43 of 43 instruction slots of the original executed
 func_800e0f2c_slot0f: built 148 bytes, original 232 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -116,7 +145,7 @@ func_801e1d6c_slot0b: built 540 bytes, original 624 bytes; cases 2000, discarded
 func_801e1d6c_slot0b coverage: 154 of 156 instruction slots of the original executed
 ```
 
-    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --control --all
+The control (`--cases 2000 --control FUNC`):
 
 ```
 func_800108d4_slot01 control: different 809 of 2000 (expected more than 0)
@@ -161,6 +190,10 @@ func_800793d4_slot2b control: different 865 of 2000 (expected more than 0)
   altered: third argument 0x10 changed to 0x11, instruction slot 40
 func_800796e4_slot2b control: different 1479 of 2000 (expected more than 0)
   altered: size word 0x1e0 changed to 0x1e1, instruction slot 25
+func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
+  altered: write length changed to 0x2001, instruction slot 84
+func_800e0a1c_slot0f control: different 314 of 2000 (expected more than 0)
+  altered: a returned 2 becomes 3, instruction slot 61
 func_800e0b48_slot0f control: different 678 of 2000 (expected more than 0)
   altered: mode 0x10 becomes 0x11, instruction slot 15
 func_800e0f2c_slot0f control: different 1703 of 2000 (expected more than 0)
@@ -211,7 +244,7 @@ func_801e1d6c_slot0b control: different 1847 of 2000 (expected more than 0)
   altered: command word constant changed, instruction slot 75
 ```
 
-    python difftest.py --config ../build.toml --folder ../modules_nonmatching --cases 2000 --writes --all
+The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_800108d4_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -235,6 +268,8 @@ func_80078628_slot00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes
 func_80079144_slot2b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800793d4_slot2b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800796e4_slot2b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800e0850_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800e0a1c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0b48_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0f2c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e3478_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
