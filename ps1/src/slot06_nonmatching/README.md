@@ -122,6 +122,245 @@ make the function execute, then requires the test to report differences. A
 control that reports none exits with status 1. A control by hand: change one
 constant in a copy of the `.c` and the test reports differences.
 
+## Edges of the constants
+
+Coverage of instruction slots does not show that the edge of a comparison was
+tried: a deliberate error in the C of one function (`0x59` in place of `0x58`
+in a reach) passed 2,000 cases although every slot of the original was
+executed, because random inputs rarely land on the one value where the two
+differ. `--edges` looks for such constants. It alters the ORIGINAL code, one
+constant at a time, and leaves the build alone (`--control` is the other way
+round: it alters one word of the build).
+
+    python difftest.py --config ../build.toml --cases 2000 --edges --uncovered [--jobs N] --all
+
+For each function the default comparison runs first. If it shows a difference
+or a discarded case, the function is not swept: one line says so and the
+status is 1. Otherwise each constant of the original gets two altered runs,
+its immediate plus 1 and minus 1 (taken modulo 0x10000), each the default
+comparison with the same cases, the same seed and the same build, with that
+one word of the original replaced in the memory image of every case. A word is
+a constant of the sweep when it is:
+
+- `slti` or `sltiu`;
+- `addiu rt,rs,imm` with neither register `sp` or `gp`, and not the low half of
+  an address or of a 32-bit constant (`rs == rt` and the nearest earlier word of
+  the function that writes `rt` is `lui rt`);
+- `ori rt,zero,imm`.
+
+Nothing else is taken: no load or store offset, no `andi` or `xori` mask, no
+shift amount, no branch, no `lui`. This list is a choice. The sweep finds the
+edges of comparisons and of added limits, not every constant.
+
+The first line per function is
+`FUNC edges: constants C, altered runs R, unnoticed U, all discarded A`. A line
+follows for every altered run that no case notices (`different 0`), in the
+order of the slot, plus before minus; with `--uncovered`, a line follows for
+each constant in a slot that no case executed (such a constant counts in C and
+gets no run). A run ends at its first differing case, which means it is
+noticed. A run in which every case is discarded (the altered original faults or
+does not end) counts in A, not in U. The status is 0 when every U is 0 and 1
+otherwise. `--jobs N` (default 8, only with `--edges`) sets how many processes
+make the altered runs of a function; the output is the same for every N.
+
+What an unnoticed line means: no case of this seed tells the constant from its
+neighbour. That is a gap of the setup when the contract's inputs can reach the
+edge, and it is no gap when they cannot (the edge lies in inputs the contract
+excludes, or the constant has no effect on what the test compares). The tool
+cannot tell the two apart; the author of the contract does, for each line. A
+sweep with U at 0 is not equivalence either.
+
+What this command printed for this folder on 2026-10-10 (seed 1, 2,000 cases,
+`--jobs 8`, 1079 seconds for the whole folder by the shell's clock, 352 seconds for func_801e8bd8_slot06_08 alone, on a machine that other work was also using). The lines are open: they are not yet read one by one, and
+no contract was changed for them.
+
+    python difftest.py --config ../build.toml --cases 2000 --edges --uncovered --jobs 8 --all
+
+```
+func_801e84cc_slot06_0e edges: constants 13, altered runs 24, unnoticed 6, all discarded 2
+  slot 74: addiu a1,a3,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1968
+  slot 74: addiu a1,a3,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1968
+  slot 103: addiu a1,a1,0x1c, immediate 0x1c -> 0x1d: different 0 of 2000, discarded 1963
+  slot 103: addiu a1,a1,0x1c, immediate 0x1c -> 0x1b: different 0 of 2000, discarded 1963
+  slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1d: different 0 of 2000, discarded 1965
+  slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1b: different 0 of 2000, discarded 1965
+  slot 36: not executed by any case
+func_801e8bd8_slot06_08 edges: constants 71, altered runs 142, unnoticed 43, all discarded 1
+  slot 38: addiu v0,v0,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
+  slot 50: addiu a1,a1,0xffb1, immediate 0xffb1 -> 0xffb2: different 0 of 2000, discarded 0
+  slot 50: addiu a1,a1,0xffb1, immediate 0xffb1 -> 0xffb0: different 0 of 2000, discarded 0
+  slot 155: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
+  slot 155: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
+  slot 159: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 925
+  slot 159: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 925
+  slot 207: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 911
+  slot 207: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 911
+  slot 217: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 923
+  slot 217: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 923
+  slot 223: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 981
+  slot 236: addiu v0,v0,0xf, immediate 0xf -> 0x10: different 0 of 2000, discarded 0
+  slot 272: addiu v1,v1,0xf, immediate 0xf -> 0x10: different 0 of 2000, discarded 0
+  slot 308: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
+  slot 308: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
+  slot 324: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
+  slot 324: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
+  slot 333: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
+  slot 333: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
+  slot 337: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 1417
+  slot 337: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 1417
+  slot 385: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1385
+  slot 385: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1385
+  slot 394: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1413
+  slot 394: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1413
+  slot 400: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
+  slot 406: ori fp,zero,0x88, immediate 0x88 -> 0x89: different 0 of 2000, discarded 0
+  slot 406: ori fp,zero,0x88, immediate 0x88 -> 0x87: different 0 of 2000, discarded 0
+  slot 419: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
+  slot 419: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
+  slot 435: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
+  slot 435: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
+  slot 444: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
+  slot 444: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
+  slot 448: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 1260
+  slot 448: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 1260
+  slot 496: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1242
+  slot 496: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1242
+  slot 505: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1249
+  slot 505: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1249
+  slot 511: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1334
+  slot 516: addiu s2,s2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
+func_801e8dc4_slot06_00 edges: constants 9, altered runs 18, unnoticed 0, all discarded 0
+func_801e8dc8_slot06_05 edges: constants 20, altered runs 34, unnoticed 2, all discarded 0
+  slot 189: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1707
+  slot 194: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1738
+  slot 103: not executed by any case
+  slot 110: not executed by any case
+  slot 170: not executed by any case
+func_801e8df0_slot06_0a edges: constants 14, altered runs 24, unnoticed 2, all discarded 0
+  slot 170: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1726
+  slot 175: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1755
+  slot 123: not executed by any case
+  slot 131: not executed by any case
+func_801e8fec_slot06_11 edges: constants 14, altered runs 24, unnoticed 3, all discarded 0
+  slot 28: addiu v1,v1,0x7f, immediate 0x7f -> 0x7e: different 0 of 2000, discarded 0
+  slot 162: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1682
+  slot 167: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1716
+  slot 115: not executed by any case
+  slot 123: not executed by any case
+func_801e9080_slot06_00 edges: constants 12, altered runs 20, unnoticed 2, all discarded 0
+  slot 154: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1721
+  slot 159: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1751
+  slot 107: not executed by any case
+  slot 115: not executed by any case
+func_801e90a8_slot06_10 edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
+  slot 17: not executed by any case
+func_801e9114_slot06_12 edges: constants 18, altered runs 30, unnoticed 2, all discarded 0
+  slot 186: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1748
+  slot 191: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1776
+  slot 117: not executed by any case
+  slot 124: not executed by any case
+  slot 167: not executed by any case
+func_801e96fc_slot06_0b edges: constants 35, altered runs 64, unnoticed 2, all discarded 0
+  slot 231: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1724
+  slot 236: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1762
+  slot 108: not executed by any case
+  slot 115: not executed by any case
+  slot 211: not executed by any case
+func_801e9738_slot06_0e edges: constants 17, altered runs 32, unnoticed 6, all discarded 4
+  slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1883
+  slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1883
+  slot 125: addiu a1,a1,0x20, immediate 0x20 -> 0x21: different 0 of 2000, discarded 1820
+  slot 125: addiu a1,a1,0x20, immediate 0x20 -> 0x1f: different 0 of 2000, discarded 1820
+  slot 134: addiu t2,t2,0x20, immediate 0x20 -> 0x21: different 0 of 2000, discarded 1878
+  slot 134: addiu t2,t2,0x20, immediate 0x20 -> 0x1f: different 0 of 2000, discarded 1878
+  slot 37: not executed by any case
+func_801e9798_slot06_06 edges: constants 26, altered runs 46, unnoticed 2, all discarded 0
+  slot 223: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1712
+  slot 228: addiu t4,t4,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1746
+  slot 116: not executed by any case
+  slot 123: not executed by any case
+  slot 204: not executed by any case
+func_801e9840_slot06_09 edges: constants 14, altered runs 24, unnoticed 3, all discarded 0
+  slot 28: addiu v1,v1,0x7f, immediate 0x7f -> 0x7e: different 0 of 2000, discarded 0
+  slot 162: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1710
+  slot 167: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1749
+  slot 115: not executed by any case
+  slot 123: not executed by any case
+func_801e98c8_slot06_0c edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
+  slot 17: not executed by any case
+func_801e98dc_slot06_07 edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
+  slot 17: not executed by any case
+func_801e9970_slot06_07 edges: constants 13, altered runs 22, unnoticed 2, all discarded 0
+  slot 171: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1709
+  slot 176: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1747
+  slot 124: not executed by any case
+  slot 132: not executed by any case
+func_801e998c_slot06_0d edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
+  slot 17: not executed by any case
+func_801e99b4_slot06_04 edges: constants 21, altered runs 36, unnoticed 4, all discarded 0
+  slot 135: ori v0,zero,0x6, immediate 0x6 -> 0x7: different 0 of 2000, discarded 0
+  slot 135: ori v0,zero,0x6, immediate 0x6 -> 0x5: different 0 of 2000, discarded 0
+  slot 182: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1697
+  slot 187: addiu t4,t4,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1736
+  slot 119: not executed by any case
+  slot 126: not executed by any case
+  slot 163: not executed by any case
+func_801e99c8_slot06_02 edges: constants 16, altered runs 26, unnoticed 2, all discarded 0
+  slot 193: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1740
+  slot 198: addiu t5,t5,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1782
+  slot 127: not executed by any case
+  slot 134: not executed by any case
+  slot 173: not executed by any case
+func_801e9b54_slot06_08 edges: constants 13, altered runs 22, unnoticed 2, all discarded 0
+  slot 166: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1700
+  slot 171: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1730
+  slot 119: not executed by any case
+  slot 127: not executed by any case
+func_801e9bb0_slot06_0f edges: constants 15, altered runs 24, unnoticed 2, all discarded 0
+  slot 177: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1746
+  slot 182: addiu t8,t8,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1773
+  slot 124: not executed by any case
+  slot 131: not executed by any case
+  slot 157: not executed by any case
+func_801e9c80_slot06_0e edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
+  slot 17: not executed by any case
+func_801e9d04_slot06_03 edges: constants 12, altered runs 20, unnoticed 2, all discarded 0
+  slot 146: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1714
+  slot 151: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1750
+  slot 102: not executed by any case
+  slot 110: not executed by any case
+func_801e9d14_slot06_0e edges: constants 38, altered runs 70, unnoticed 2, all discarded 0
+  slot 245: addiu t1,t1,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1715
+  slot 250: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1752
+  slot 116: not executed by any case
+  slot 123: not executed by any case
+  slot 226: not executed by any case
+func_801e9ef4_slot06_10 edges: constants 14, altered runs 22, unnoticed 2, all discarded 0
+  slot 158: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1711
+  slot 163: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1740
+  slot 105: not executed by any case
+  slot 112: not executed by any case
+  slot 138: not executed by any case
+func_801e9f20_slot06_0d edges: constants 16, altered runs 26, unnoticed 3, all discarded 0
+  slot 31: addiu v1,v1,0x7f, immediate 0x7f -> 0x7e: different 0 of 2000, discarded 0
+  slot 174: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1713
+  slot 179: addiu t8,t8,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1743
+  slot 115: not executed by any case
+  slot 122: not executed by any case
+  slot 154: not executed by any case
+func_801e9f90_slot06_01 edges: constants 12, altered runs 20, unnoticed 2, all discarded 0
+  slot 141: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1711
+  slot 146: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1736
+  slot 94: not executed by any case
+  slot 102: not executed by any case
+func_801ea3b4_slot06_08 edges: constants 1, altered runs 2, unnoticed 0, all discarded 0
+func_801ea640_slot06_0c edges: constants 13, altered runs 22, unnoticed 2, all discarded 0
+  slot 173: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1597
+  slot 178: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1625
+  slot 129: not executed by any case
+  slot 137: not executed by any case
+```
+
 ## Controls of the tool
 
     python test_difftest.py
@@ -184,6 +423,13 @@ the scratchpad, cases that are discarded, the recorders' own log and
 code, the address runs and names of the second line, the lines, status
 and errors of `--writes` through `main` (no build is attempted), and
 that the default mode prints what it printed before.
+Group Y checks the edges sweep: which words are constants (each class, and each
+exclusion: `sp`, `gp`, the `lui` pair, loads, stores, masks, shifts), the wrap
+at both ends, the lines, a made-up function run under the emulator with a
+noticed, an unnoticed, a never-executed and an all-discarded constant (same
+lines for `--jobs 1`, 3 and 8), that a noticed run stops at its first
+difference and a run without one does not, that the original is put back
+between runs, the status, and the input errors.
 Group L checks the symbol file of the standalone link: the lines that assign a
 name the unit defines are removed (plain, spaced and inside `PROVIDE`), names
 that only begin alike stay, and a link that puts a defined name outside the

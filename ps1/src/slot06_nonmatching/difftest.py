@@ -2,7 +2,7 @@
 """Differential test of a nonmatching C function against the original code.
 
     difftest.py --config ../build.toml [--folder DIR] [--cases N] [--seed S]
-                [--control | --writes] [--uncovered] (FUNC... | --all)
+                [--control | --writes | --edges [--jobs N]] [--uncovered] (FUNC... | --all)
 
 For each FUNC the tool builds `FUNC.c` of the folder (this one, or DIR) with the pinned
 toolchain of the matching build (the preprocessing, compiler, maspsx and
@@ -35,6 +35,54 @@ the nearest name at or below its first address in the same region (RAM or scratc
 tree's symbol table, `?` when there is none; at most six runs, then `and M more`. The status is
 0 when every K is 0, 1 otherwise, 2 for the errors above, and --writes with --control is one.
 The default mode and --control print what they printed before the option existed.
+
+The option --edges looks for the constants whose edge no case tries. It alters the ORIGINAL
+code, one constant at a time, and leaves the build alone (--control does the opposite: it alters one
+word of the BUILD). Coverage of instruction slots does not show that the edge of a comparison was
+tried: random inputs rarely land on the one value where a limit and its neighbour differ. For each FUNC
+the build is made once and the default comparison is run first, with the given cases and seed; if it
+shows a difference or a discarded case the edges of that function are not swept (one line says so, and
+the status is 1). Otherwise the words of the original function are scanned, and a word is a constant of
+the sweep when it is one of these (a choice, not a theory: the sweep finds the edges of comparisons and
+of added limits, not every constant):
+
+  - `slti` or `sltiu`, with any registers;
+  - `addiu rt,rs,imm` with neither rs nor rt `sp` or `gp`, and not the low half of an address or of a
+    32-bit constant (it is such a low half when rs == rt and the nearest earlier word of the function
+    that writes rt is `lui rt`);
+  - `ori rt,zero,imm`. An `ori` whose source is not `zero` is not taken, so `ori rt,zero,imm` cannot be
+    the low half of a 32-bit constant, and the `lui` rule is applied to `addiu` only.
+
+Nothing else is a constant of the sweep: no load or store offset, no `andi` or `xori` mask, no shift
+amount, no branch, no `lui`. Each constant gets two altered runs, its immediate plus 1 and minus 1,
+each taken modulo 0x10000 (0xffff plus 1 is 0, and 0 minus 1 is 0xffff). An altered run is the default
+comparison (same cases, same seed, same build) with that one word of the original replaced in the memory
+image of every case; the original is put back before the next run. A run ends at its first case that
+differs: it is then noticed and it is not run to its end. A run that has found no difference goes on
+to the last case, because only then is it unnoticed (or all discarded). The altered runs of a function are
+made by `--jobs N` processes (default 8; 1 makes them in this process, with no pool; the processes are
+forked, so the option needs a system that has that start method); the lines are printed in the fixed order
+below whatever N is. `--jobs` is for `--edges` only, and N below 1 is an input error. Per function it prints
+
+    FUNC edges: constants C, altered runs R, unnoticed U, all discarded A
+
+and, in order of the word's index in the original (the numbering of the coverage line), plus before
+minus, a line for every altered run that ends with `different 0`:
+
+    `  slot I: MNEMONIC OPERANDS, immediate 0xOLD -> 0xNEW: different 0 of N, discarded D`
+
+A constant in a slot that no case of the unaltered run executed counts in C, but its two runs are not
+made, they are not in R, and it is not in U (the coverage line says that the slot is not executed); with
+--uncovered a line `  slot I: not executed by any case` is printed for it, after the lines above. A run in
+which every case is discarded (the altered original faults or does not end) is not unnoticed: it counts
+in A. The status is 0 when every U is 0, 1 when any U is above 0 or a function was not swept, 2 and 3 as
+above; --edges with --control or with --writes is an input error (2).
+
+What an unnoticed line means: no case of this seed tells the constant from its neighbour. That is a gap
+of the setup when the contract's inputs can reach the edge, and it is no gap when they cannot (the edge
+lies in inputs the contract excludes, or the constant has no effect on what the test compares). The tool
+cannot tell the two apart; the author of the contract does, for each line. A sweep with U at 0 is not
+equivalence either: it covers the constants of the list above, by one in each direction, for these cases.
 
 "Made" is memory that the setup of the case wrote through `State.write` (so through `w8`, `w16`,
 `w32` and the helpers that call them, the recorders of `contracts.CallLog` among them, which
@@ -74,8 +122,10 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import concurrent.futures
 import dataclasses
 import importlib.util
+import multiprocessing
 import random
 import re
 import struct
@@ -460,12 +510,14 @@ def addresses(cfg) -> dict[str, int]:
     return table
 
 
-def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes, entry: int = 0) -> tuple[int, int, int, list, set]:
+def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes, entry: int = 0,
+                  stop_at_first_difference: bool = False) -> tuple[int, int, int, list, set]:
     """Run the cases. `entry` is the offset of the function in `code`.
 
     Returns (discarded, equal, different, first difference report, executed): `executed` holds
     the offsets of the original function's instruction slots that the runs of the original
-    which reached their end have executed.
+    which reached their end have executed. With `stop_at_first_difference` the loop ends after the
+    first case that differs (only `--edges` asks for it; the counts are then those of the cases run).
     """
     contract = contracts.CONTRACTS[name]
     original, size = original_function(cfg, name)
@@ -495,6 +547,8 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
                 first = [f"first difference: case {case}, seed {seed}", *lines[:24]]
                 if len(lines) > 24:
                     first.append(f"... and {len(lines) - 24} more")
+            if stop_at_first_difference:
+                break
         else:
             equal += 1
     return discarded, equal, different, first, executed
@@ -568,6 +622,199 @@ def audit_writes(cfg, name: str, cases: int, seed: int, ram: bytes, scratch: byt
     return discarded, outside, largest, first
 
 
+# ---------------------------------------------------------------------------
+# Edges of the constants (--edges)
+
+REGISTER_NAMES = ("zero", "at", "v0", "v1", "a0", "a1", "a2", "a3", "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+                  "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra")
+SP, GP, RA_NUMBER = 29, 28, 31
+# opcode -> mnemonic of the immediate instructions that the sweep may take
+OP_ADDIU, OP_SLTI, OP_SLTIU, OP_ORI, OP_LUI = 0x09, 0x0A, 0x0B, 0x0D, 0x0F
+EDGE_MNEMONICS = {OP_SLTI: "slti", OP_SLTIU: "sltiu", OP_ADDIU: "addiu", OP_ORI: "ori"}
+# SPECIAL functions that write no register (jr, mult, div, mthi, mtlo, syscall, break)
+SPECIAL_NO_WRITE = frozenset({0x08, 0x11, 0x13, 0x18, 0x19, 0x1A, 0x1B, 0x0C, 0x0D})
+# SPECIAL functions that write rd
+SPECIAL_WRITES_RD = frozenset({0x00, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09, 0x10, 0x12, 0x20, 0x21, 0x22, 0x23,
+                               0x24, 0x25, 0x26, 0x27, 0x2A, 0x2B})
+
+
+def register_written(word: int) -> int | None:
+    """The register that the instruction `word` writes, None when it writes none.
+
+    Raises InputError for a word whose opcode or function this table does not know: the rule for the
+    low half of a constant needs to know what a word writes, and it is not guessed.
+    """
+    op, rs, rt, rd, funct = word >> 26, (word >> 21) & 31, (word >> 16) & 31, (word >> 11) & 31, word & 63
+    if op == 0:
+        if funct in SPECIAL_WRITES_RD:
+            return rd
+        if funct in SPECIAL_NO_WRITE:
+            return None
+    elif op == 1:  # REGIMM: bltzal and bgezal write ra
+        return RA_NUMBER if rt in (0x10, 0x11) else None
+    elif op == 3:  # jal
+        return RA_NUMBER
+    elif op in (2, 4, 5, 6, 7):  # j and the branches
+        return None
+    elif 0x08 <= op <= 0x0F or 0x20 <= op <= 0x26:  # arithmetic immediates, lui; loads
+        return rt
+    elif 0x28 <= op <= 0x2E or op in (0x32, 0x3A):  # stores; lwc2, swc2
+        return None
+    elif op == 0x10:  # COP0: mfc0 writes rt
+        return rt if rs == 0 else None
+    elif op == 0x12:  # COP2 (the GTE): mfc2 and cfc2 write rt
+        return rt if rs in (0, 2) else None
+    raise InputError(f"word {word:#010x}: the tool does not know which register it writes")
+
+
+def is_low_half(words: list[int], index: int, reg_number: int) -> bool:
+    """True when the nearest earlier word of `words` that writes `reg_number` is `lui reg_number`."""
+    for earlier in range(index - 1, -1, -1):
+        written = register_written(words[earlier])
+        if written == reg_number:
+            return words[earlier] >> 26 == OP_LUI
+    return False
+
+
+def edge_constant(words: list[int], index: int) -> tuple[str, int, int, int] | None:
+    """(mnemonic, rs, rt, immediate) when word `index` of `words` is a constant of the sweep, else None."""
+    word = words[index]
+    op, rs, rt, imm = word >> 26, (word >> 21) & 31, (word >> 16) & 31, word & 0xFFFF
+    if op in (OP_SLTI, OP_SLTIU):
+        return EDGE_MNEMONICS[op], rs, rt, imm
+    if op == OP_ADDIU:
+        if SP in (rs, rt) or GP in (rs, rt):
+            return None
+        if rs == rt and is_low_half(words, index, rt):
+            return None
+        return "addiu", rs, rt, imm
+    if op == OP_ORI and rs == 0:
+        return "ori", rs, rt, imm
+    return None
+
+
+def edge_constants(words: list[int]) -> list[tuple[int, str, int, int, int]]:
+    """The constants of the sweep in a function's words, as (index, mnemonic, rs, rt, immediate)."""
+    found = []
+    for index in range(len(words)):
+        constant = edge_constant(words, index)
+        if constant is not None:
+            found.append((index, *constant))
+    return found
+
+
+def edge_neighbours(immediate: int) -> tuple[int, int]:
+    """The immediate plus one and minus one, each modulo 0x10000."""
+    return (immediate + 1) & 0xFFFF, (immediate - 1) & 0xFFFF
+
+
+def operands_text(mnemonic: str, rs: int, rt: int, immediate: int) -> str:
+    return f"{REGISTER_NAMES[rt]},{REGISTER_NAMES[rs]},{immediate:#x}"
+
+
+def edge_line(index: int, mnemonic: str, rs: int, rt: int, old: int, new: int, different_of: int, discarded: int) -> str:
+    return (f"  slot {index}: {mnemonic} {operands_text(mnemonic, rs, rt, old)}, immediate {old:#x} -> {new:#x}: "
+            f"different 0 of {different_of}, discarded {discarded}")
+
+
+# What the workers of an `--edges` pool (or the one process, with `--jobs 1`) share: set by `edge_init`.
+EDGE_CONTEXT: dict = {}
+
+
+def edge_init(context: dict) -> None:
+    EDGE_CONTEXT.clear()
+    EDGE_CONTEXT.update(context)
+
+
+def edge_run(task: tuple[int, int, int]) -> tuple[int, int, int, int]:
+    """One altered run: the default comparison with word `index` of the original replaced by one with
+    the immediate `new`, ended at its first differing case. Returns (index, which, discarded, different).
+
+    The image is altered in place and put back, whatever happens, before the next run of this process.
+    """
+    index, which, new = task
+    c = EDGE_CONTEXT
+    at = c["base"] + 4 * index
+    word = c["words"][index]
+    image = c["image"]
+    image[at : at + 4] = struct.pack("<I", (word & 0xFFFF0000) | new)
+    try:
+        gone, _equal, changed, _first, _executed = test_function(
+            c["cfg"], c["name"], c["code"], c["cases"], c["seed"], bytes(image), c["scratch"], c["entry"],
+            stop_at_first_difference=True)
+    finally:
+        image[at : at + 4] = struct.pack("<I", word)
+    return index, which, gone, changed
+
+
+def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int) -> list[tuple[int, int, int, int]]:
+    """The results of `edge_run` for the tasks, in the order they finish (the caller sorts them)."""
+    if not tasks:
+        return []
+    if jobs == 1:
+        edge_init(context)
+        try:
+            return [edge_run(task) for task in tasks]
+        finally:
+            EDGE_CONTEXT.clear()
+    try:
+        fork = multiprocessing.get_context("fork")
+    except ValueError as exc:
+        raise InputError("--jobs above 1 needs the fork start method of this system; use --jobs 1") from exc
+    with concurrent.futures.ProcessPoolExecutor(max_workers=min(jobs, len(tasks)), mp_context=fork,
+                                                initializer=edge_init, initargs=(context,)) as pool:
+        futures = [pool.submit(edge_run, task) for task in tasks]
+        return [future.result() for future in concurrent.futures.as_completed(futures)]
+
+
+def edge_report(name: str, cases: int, constants: list, executed: set, results: list, uncovered: bool) -> tuple[list[str], int]:
+    """The lines of one function and the status, from the results of its altered runs in any order.
+
+    `constants` are (index, mnemonic, rs, rt, immediate); a result is (index, which, discarded, different),
+    `which` 0 for the immediate plus one and 1 for minus one.
+    """
+    by_constant = {c[0]: c for c in constants}
+    runs = unnoticed = all_discarded = 0
+    lines: list[str] = []
+    for index, which, gone, changed in sorted(results):
+        _i, mnemonic, rs, rt, immediate = by_constant[index]
+        runs += 1
+        if changed:
+            continue
+        if gone == cases:
+            all_discarded += 1
+        else:
+            unnoticed += 1
+            lines.append(edge_line(index, mnemonic, rs, rt, immediate, edge_neighbours(immediate)[which], cases, gone))
+    skipped = [f"  slot {c[0]}: not executed by any case" for c in constants if 4 * c[0] not in executed]
+    head = (f"{name} edges: constants {len(constants)}, altered runs {runs}, unnoticed {unnoticed}, "
+            f"all discarded {all_discarded}")
+    return [head, *lines, *(skipped if uncovered else [])], 1 if unnoticed else 0
+
+
+def edge_sweep(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, scratch: bytes,
+               uncovered: bool, jobs: int = 1) -> tuple[list[str], int]:
+    """The edges sweep of one function: (lines to print, status 0 or 1).
+
+    The default comparison runs first. The words of the original are scanned in `ram`; the altered runs
+    are made by `jobs` processes (in this one with 1) and printed in a fixed order.
+    """
+    address, size = original_function(cfg, name)
+    discarded, _equal, different, _first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch, build.entry)
+    if different or discarded:
+        return [f"{name} edges: not swept, the comparison without alteration shows different {different}, "
+                f"discarded {discarded}"], 1
+    base = address - RAM_BASE
+    image = bytearray(ram)
+    words = list(struct.unpack(f"<{size // 4}I", bytes(image[base : base + size - size % 4])))
+    constants = edge_constants(words)
+    tasks = [(index, which, new) for index, _m, _rs, _rt, immediate in constants if 4 * index in executed
+             for which, new in enumerate(edge_neighbours(immediate))]
+    context = {"cfg": cfg, "name": name, "code": build.code, "entry": build.entry, "cases": cases, "seed": seed,
+               "scratch": scratch, "base": base, "words": words, "image": image}
+    return edge_report(name, cases, constants, executed, edge_runs(context, tasks, jobs), uncovered)
+
+
 def load_contracts(folder: Path, names: list[str]) -> None:
     """Take the contract of each name that has a file `NAME.py` in `folder` into `contracts.CONTRACTS`."""
     for name in names:
@@ -600,12 +847,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--writes", action="store_true",
                         help="audit where the original writes, without building the C: cases that change "
                              "bytes the setup did not make")
+    parser.add_argument("--edges", action="store_true",
+                        help="alter one constant of the original at a time (plus and minus one) and list the "
+                             "alterations that no case notices")
+    parser.add_argument("--jobs", type=int, default=None,
+                        help="with --edges: processes that make the altered runs (default 8; 1 runs them here)")
     parser.add_argument("--all", action="store_true", help="every function that has a source in the folder")
     parser.add_argument("functions", nargs="*", metavar="FUNC")
     args = parser.parse_args(argv)
     folder = args.folder.resolve()
     if args.writes and args.control:
         print("INPUT ERROR: --writes and --control do not combine", file=sys.stderr)
+        return 2
+    if args.edges and args.control:
+        print("INPUT ERROR: --edges and --control do not combine", file=sys.stderr)
+        return 2
+    if args.edges and args.writes:
+        print("INPUT ERROR: --edges and --writes do not combine", file=sys.stderr)
+        return 2
+    if args.jobs is not None and not args.edges:
+        print("INPUT ERROR: --jobs applies to --edges only", file=sys.stderr)
+        return 2
+    if args.jobs is not None and args.jobs < 1:
+        print("INPUT ERROR: --jobs needs 1 or more", file=sys.stderr)
         return 2
     if args.all == bool(args.functions):
         print("INPUT ERROR: name the functions, or give --all and none", file=sys.stderr)
@@ -657,6 +921,17 @@ def main(argv: list[str] | None = None) -> int:
             except (matchbuild.StepError, matchbuild.EnvironmentFailure, InputError) as exc:
                 print(f"BUILD ERROR: {exc}", file=sys.stderr)
                 return 3
+        if args.edges:
+            try:
+                lines, swept = edge_sweep(cfg, name, build, args.cases, args.seed, ram, scratch, args.uncovered,
+                                         8 if args.jobs is None else args.jobs)
+            except (InputError, OSError) as exc:
+                print(f"INPUT ERROR: {exc}", file=sys.stderr)
+                return 2
+            for line in lines:
+                print(line)
+            status = max(status, swept)
+            continue
         code = build.code
         if args.control:
             # The control sees the unit's code, not its read-only data, and may alter one word of it.

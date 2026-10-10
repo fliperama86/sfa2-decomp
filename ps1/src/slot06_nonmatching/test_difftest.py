@@ -410,7 +410,7 @@ def run_main(argv, *, names=("func_80000001",), results=None, build=b"\0\0\0\0" 
     SEEN["folders"], SEEN["contracts"], SEEN["entries"] = [], [], []
     before = set(contracts.CONTRACTS)
 
-    def test_function(cfg, name, code, cases, seed, ram, scratch, entry=0):
+    def test_function(cfg, name, code, cases, seed, ram, scratch, entry=0, **_ignored):
         calls.append((name, code, cases, seed))
         SEEN["entries"].append(entry)
         SEEN["contracts"].append(contracts.CONTRACTS.get(name))
@@ -2701,6 +2701,343 @@ def case_x_state_default_behaviour_unchanged():
     return None if ok else "State behaves differently"
 
 
+# ---------------------------------------------------------------------------
+# Group Y: the edges sweep (--edges)
+
+
+def slti(rt, rs, imm): return 0x28000000 | rs << 21 | rt << 16 | (imm & 0xFFFF)
+def sltiu(rt, rs, imm): return 0x2C000000 | rs << 21 | rt << 16 | (imm & 0xFFFF)
+def andi(rt, rs, imm): return 0x30000000 | rs << 21 | rt << 16 | imm
+def xori(rt, rs, imm): return 0x38000000 | rs << 21 | rt << 16 | imm
+def sll(rd, rt, sh): return rt << 16 | rd << 11 | sh << 6
+def addu(rd, rs, rt): return rs << 21 | rt << 16 | rd << 11 | 0x21
+
+
+V1, T2, T3, T4, A0, GP = 3, 10, 11, 12, 4, 28
+
+
+def constants_of(words):
+    return [(i, m, imm) for i, m, _rs, _rt, imm in D.edge_constants(words)]
+
+
+def case_y_classes_are_taken():
+    words = [slti(T0, T1, 5), sltiu(T0, T1, 6), addiu(V0, T0, 7), addiu(V0, ZERO, 8), ori(T2, ZERO, 9)]
+    want = [(0, "slti", 5), (1, "sltiu", 6), (2, "addiu", 7), (3, "addiu", 8), (4, "ori", 9)]
+    got = constants_of(words)
+    return None if got == want else f"{got}"
+
+
+def case_y_sp_and_gp_are_left_out():
+    words = [addiu(SP, SP, -8), addiu(T0, SP, 4), addiu(GP, T0, 1), addiu(T0, GP, 1), addiu(T0, T1, 4)]
+    got = constants_of(words)
+    return None if got == [(4, "addiu", 4)] else f"{got}"
+
+
+def case_y_lui_pair_is_a_low_half_for_addiu():
+    pair = [lui(T0, 0x8010), addiu(T0, T0, 0x1234)]
+    other_reg = [lui(T1, 0x8010), addiu(T0, T0, 4)]
+    unrelated = [lui(T0, 0x8010), addiu(T1, ZERO, 5), addiu(T0, T0, 4)]  # a write of another register in between
+    with_jal = [lui(T0, 0x8010), jal(0x80000000), addiu(T0, T0, 4)]  # jal writes ra only
+    broken_by_addu = [lui(T0, 0x8010), addu(T0, T0, T1), addiu(T0, T0, 4)]
+    broken_by_lw = [lui(T0, 0x8010), lw(T0, T1, 0), addiu(T0, T0, 4)]
+    alone = [addiu(A0, A0, 1)]
+    got = [constants_of(w) for w in (pair, other_reg, unrelated, with_jal, broken_by_addu, broken_by_lw, alone)]
+    want = [[], [(1, "addiu", 4)], [(1, "addiu", 5)], [], [(2, "addiu", 4)], [(2, "addiu", 4)], [(0, "addiu", 1)]]
+    return None if got == want else f"{got}"
+
+
+def case_y_ori_only_with_zero_source():
+    words = [lui(T0, 0x8010), ori(T0, T0, 0x34), lui(T1, 1), ori(T2, ZERO, 5), ori(T1, T3, 2)]
+    got = constants_of(words)
+    return None if got == [(3, "ori", 5)] else f"{got}"
+
+
+def case_y_other_words_are_not_constants():
+    words = [lw(T0, T1, 4), sw(T0, T1, 8), andi(T0, T1, 0xFF), xori(T0, T1, 3), sll(T0, T1, 2), lui(T0, 5),
+             beq(T0, T1, 24, 40), NOP, JR_RA, NOP]
+    got = constants_of(words)
+    return None if got == [] else f"{got}"
+
+
+def case_y_unknown_opcode_in_the_search_is_refused():
+    try:
+        D.edge_constants([0x70000000, addiu(T0, T0, 1)])
+    except D.InputError as exc:
+        return None if "0x70000000" in str(exc) else f"message {exc}"
+    return "no refusal"
+
+
+def case_y_register_written():
+    pairs = [(addu(T0, T1, T2), T0), (lw(T3, ZERO, 0), T3), (sw(T3, ZERO, 0), None), (JR_RA, None), (jal(0), 31),
+             (beq(T0, T1, 0, 8), None), (0x04110000, 31), (0x04000000, None), (0x40080000, 8), (0x40880000, None)]
+    for word, want in pairs:
+        got = D.register_written(word)
+        if got != want:
+            return f"{word:#x}: {got}, wanted {want}"
+    return None
+
+
+def case_y_wrap_at_both_ends():
+    got = [D.edge_neighbours(0xFFFF), D.edge_neighbours(0), D.edge_neighbours(0x58)]
+    return None if got == [(0, 0xFFFE), (1, 0xFFFF), (0x59, 0x57)] else f"{got}"
+
+
+def case_y_word_is_replaced_in_the_low_half_only():
+    words = [slti(T0, T1, 0xFFFF)]
+    c = D.edge_constants(words)
+    return None if c == [(0, "slti", T1, T0, 0xFFFF)] else f"{c}"
+
+
+def case_y_line_shapes():
+    line = D.edge_line(7, "addiu", T1, V0, 0x58, 0x59, 2000, 3)
+    want = "  slot 7: addiu v0,t1,0x58, immediate 0x58 -> 0x59: different 0 of 2000, discarded 3"
+    line2 = D.edge_line(0, "sltiu", 29 - 29, 31, 0, 0xFFFF, 10, 0)
+    want2 = "  slot 0: sltiu ra,zero,0x0, immediate 0x0 -> 0xffff: different 0 of 10, discarded 0"
+    return None if (line, line2) == (want, want2) else f"{line!r} {line2!r}"
+
+
+REPORT_CONSTANTS = [(2, "slti", T1, V0, 5), (5, "addiu", ZERO, T0, 8), (9, "ori", ZERO, T2, 0x20), (12, "slti", T1, V1, 100)]
+
+
+def case_y_report_fixed_order_and_counts():
+    # results in the order of completion: not the fixed order
+    results = [(12, 1, 3, 0), (5, 1, 0, 1), (5, 0, 0, 0), (9, 1, 10, 0), (2, 0, 0, 1), (12, 0, 0, 0), (9, 0, 10, 0), (2, 1, 0, 1)]
+    lines, status = D.edge_report("F", 10, REPORT_CONSTANTS, {8, 20, 36, 48}, results, True)
+    want = ["F edges: constants 4, altered runs 8, unnoticed 3, all discarded 2",
+            "  slot 5: addiu t0,zero,0x8, immediate 0x8 -> 0x9: different 0 of 10, discarded 0",
+            "  slot 12: slti v1,t1,0x64, immediate 0x64 -> 0x65: different 0 of 10, discarded 0",
+            "  slot 12: slti v1,t1,0x64, immediate 0x64 -> 0x63: different 0 of 10, discarded 3"]
+    return None if (lines, status) == (want, 1) else f"{lines} {status}"
+
+
+def case_y_report_uncovered_lines_and_status_zero():
+    results = [(2, 0, 0, 1), (2, 1, 0, 1)]
+    quiet, status = D.edge_report("F", 10, REPORT_CONSTANTS[:1] + REPORT_CONSTANTS[2:3], {8}, results, False)
+    loud, status2 = D.edge_report("F", 10, REPORT_CONSTANTS[:1] + REPORT_CONSTANTS[2:3], {8}, results, True)
+    want = ["F edges: constants 2, altered runs 2, unnoticed 0, all discarded 0"]
+    ok = quiet == want and loud == want + ["  slot 9: not executed by any case"] and status == status2 == 0
+    return None if ok else f"{quiet} {loud} {status} {status2}"
+
+
+# The made-up function of the emulator cases. Slots: 0 lui, 1 ori, 2 lw x, 3 slti v0,x,5 (the edge is tried by
+# x = 4, 5, 6), 4 slti v1,x,100 (v1 is not compared), 5 ori t2,zero,0x20, 6 lw t3,0(t2) (an altered address is
+# not aligned and the load faults), 7 jr, 8 delay slot, 9 ori t4,zero,9 (never executed).
+EDGE_WORDS = [lui(T0, FLAG >> 16), ori(T0, T0, FLAG & 0xFFFF), lw(T1, T0, 0), slti(V0, T1, 5), slti(V1, T1, 100),
+              ori(T2, ZERO, 0x20), lw(T3, T2, 0), JR_RA, NOP, ori(T4, ZERO, 9)]
+EDGE_CASES = 40
+
+
+def edge_input(rng):
+    return rng.randrange(0, 8)
+
+
+def edge_setup(state, rng, sym):
+    state.w32(FLAG, edge_input(rng))
+    return contracts.Setup(args=(), returns_value=True)
+
+
+def edge_cfg():
+    return types.SimpleNamespace(symbol_values={})
+
+
+@contextlib.contextmanager
+def edge_world(words, build_words=None):
+    """Made-up original at ORIGINAL and a build of `build_words` (default: the same words)."""
+    build_words = build_words or words
+    with contract_of(LABEL, edge_setup), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(words))):
+        yield D.Build(make_code(build_words), 4 * len(build_words), 0), made_up_ram(words)
+
+
+def sweep(words, jobs, uncovered=True, build_words=None, cases=EDGE_CASES):
+    with edge_world(words, build_words) as (build, ram):
+        return D.edge_sweep(edge_cfg(), LABEL, build, cases, 1, ram, bytes(D.SCRATCH_SIZE), uncovered, jobs)
+
+
+EDGE_WANT = [
+    "func_80020000 edges: constants 4, altered runs 6, unnoticed 2, all discarded 2",
+    "  slot 4: slti v1,t1,0x64, immediate 0x64 -> 0x65: different 0 of 40, discarded 0",
+    "  slot 4: slti v1,t1,0x64, immediate 0x64 -> 0x63: different 0 of 40, discarded 0",
+    "  slot 9: not executed by any case",
+]
+
+
+def case_y_inputs_reach_the_edges():
+    seen = {edge_input(random.Random(f"1:{LABEL}:{c}")) for c in range(EDGE_CASES)}
+    return None if {4, 5, 6} <= seen else f"values {sorted(seen)}"
+
+
+def case_y_sweep_lines():
+    lines, status = sweep(EDGE_WORDS, 1)
+    return None if (lines, status) == (EDGE_WANT, 1) else f"{lines} {status}"
+
+
+def case_y_sweep_same_for_each_job_count():
+    one = sweep(EDGE_WORDS, 1)
+    three = sweep(EDGE_WORDS, 3)
+    eight = sweep(EDGE_WORDS, 8)
+    return None if one == three == eight == (EDGE_WANT, 1) else f"{one} {three} {eight}"
+
+
+def case_y_sweep_without_uncovered_lines():
+    lines, status = sweep(EDGE_WORDS, 1, uncovered=False)
+    return None if lines == EDGE_WANT[:-1] and status == 1 else f"{lines} {status}"
+
+
+def case_y_noticed_edge_is_not_listed_and_the_altered_word_runs():
+    # slot 3 is noticed in both directions only if the plus word and then the minus word are what runs
+    lines, _ = sweep(EDGE_WORDS[:4] + [JR_RA, NOP], 1)
+    want = ["func_80020000 edges: constants 1, altered runs 2, unnoticed 0, all discarded 0"]
+    return None if lines == want else f"{lines}"
+
+
+def case_y_all_discarded_is_not_unnoticed():
+    words = EDGE_WORDS[:2] + [ori(T2, ZERO, 0x20), lw(T3, T2, 0), JR_RA, NOP]
+    lines, status = sweep(words, 1)
+    want = ["func_80020000 edges: constants 1, altered runs 2, unnoticed 0, all discarded 2"]
+    return None if (lines, status) == (want, 0) else f"{lines} {status}"
+
+
+def case_y_not_swept_when_the_build_differs():
+    other = list(EDGE_WORDS)
+    other[3] = slti(V0, T1, 6)
+    lines, status = sweep(EDGE_WORDS, 3, build_words=other)
+    ok = status == 1 and len(lines) == 1 and lines[0].startswith("func_80020000 edges: not swept") and "different" in lines[0]
+    return None if ok else f"{lines} {status}"
+
+
+def case_y_not_swept_when_a_case_is_discarded():
+    words = EDGE_WORDS[:2] + [ori(T2, ZERO, 0x21), lw(T3, T2, 0), JR_RA, NOP]
+    lines, status = sweep(words, 1)
+    ok = status == 1 and len(lines) == 1 and "not swept" in lines[0] and "discarded 40" in lines[0]
+    return None if ok else f"{lines} {status}"
+
+
+def counted_run_once():
+    calls = [0]
+    real = D.run_once
+
+    def counting(*args, **kwargs):
+        calls[0] += 1
+        return real(*args, **kwargs)
+
+    return calls, counting
+
+
+def first_case_with(value):
+    return next(c for c in range(EDGE_CASES) if edge_input(random.Random(f"1:{LABEL}:{c}")) == value)
+
+
+def case_y_noticed_run_stops_at_its_first_difference():
+    altered = list(EDGE_WORDS)
+    altered[3] = slti(V0, T1, 6)  # differs from the build at x == 5 only
+    first = first_case_with(5)
+    results = {}
+    for stop in (True, False):
+        calls, counting = counted_run_once()
+        with edge_world(altered, EDGE_WORDS) as (build, ram), patched(D, run_once=counting):
+            got = D.test_function(edge_cfg(), LABEL, build.code, EDGE_CASES, 1, ram, bytes(D.SCRATCH_SIZE), 0,
+                                  stop_at_first_difference=stop)
+        results[stop] = (calls[0], got[2])
+    want = {True: (2 * (first + 1), 1), False: (2 * EDGE_CASES, results[False][1])}
+    ok = results == want and results[False][1] > 1 and first < EDGE_CASES - 1
+    return None if ok else f"{results}, wanted {want}"
+
+
+def case_y_run_without_difference_is_not_stopped():
+    calls, counting = counted_run_once()
+    with edge_world(EDGE_WORDS) as (build, ram), patched(D, run_once=counting):
+        got = D.test_function(edge_cfg(), LABEL, build.code, EDGE_CASES, 1, ram, bytes(D.SCRATCH_SIZE), 0,
+                              stop_at_first_difference=True)
+    ok = got[:3] == (0, EDGE_CASES, 0) and calls[0] == 2 * EDGE_CASES
+    return None if ok else f"{got[:3]}, {calls[0]} runs"
+
+
+def case_y_default_call_is_not_stopped():
+    altered = list(EDGE_WORDS)
+    altered[3] = slti(V0, T1, 6)
+    with edge_world(altered, EDGE_WORDS) as (build, ram):
+        got = D.test_function(edge_cfg(), LABEL, build.code, EDGE_CASES, 1, ram, bytes(D.SCRATCH_SIZE), 0)
+    return None if got[0] + got[1] + got[2] == EDGE_CASES and got[2] > 1 else f"{got[:3]}"
+
+
+def case_y_original_is_restored_between_runs():
+    slot = {3: [], 4: []}
+    real = D.test_function
+
+    def watching(cfg, name, code, cases, seed, ram, scratch, entry=0, **kw):
+        offset = ORIGINAL - D.RAM_BASE
+        for index in slot:
+            slot[index].append(struct.unpack_from("<I", ram, offset + 4 * index)[0])
+        return real(cfg, name, code, cases, seed, ram, scratch, entry, **kw)
+
+    with patched(D, test_function=watching):
+        sweep(EDGE_WORDS, 1)
+    w3, w4 = EDGE_WORDS[3], EDGE_WORDS[4]
+    want3 = [w3, w3 + 1, w3 - 1, w3, w3, w3, w3]
+    want4 = [w4, w4, w4, w4 + 1, w4 - 1, w4, w4]
+    ok = slot[3] == want3 and slot[4] == want4
+    return None if ok else f"{slot}"
+
+
+def case_y_image_given_is_not_changed():
+    with edge_world(EDGE_WORDS) as (build, ram):
+        before = bytes(ram)
+        D.edge_sweep(edge_cfg(), LABEL, build, EDGE_CASES, 1, ram, bytes(D.SCRATCH_SIZE), False, 1)
+        after = bytes(ram)
+        again = D.test_function(edge_cfg(), LABEL, build.code, EDGE_CASES, 1, ram, bytes(D.SCRATCH_SIZE), 0)
+    return None if before == after and again[:3] == (0, EDGE_CASES, 0) else "the image or a later run changed"
+
+
+def edges_main(argv, words=EDGE_WORDS, build_words=None):
+    """difftest.main with a made-up original and build and the real emulator path."""
+    build_words = build_words or words
+    out, err = io.StringIO(), io.StringIO()
+    with contract_of(LABEL, edge_setup), \
+            patched(matchbuild, load_config=lambda path: edge_cfg()), \
+            patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(words)),
+                    initial_memory=lambda cfg, image: made_up_ram(words),
+                    build_function=lambda cfg, name, directory, folder=None: D.Build(make_code(build_words), 4 * len(build_words), 0)), \
+            contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        status = D.main(["--config", "build.toml", "--cases", str(EDGE_CASES), *argv, LABEL])
+    return status, out.getvalue(), err.getvalue()
+
+
+def case_y_main_status_and_lines():
+    status, out, err = edges_main(["--edges", "--uncovered", "--jobs", "2"])
+    return None if (status, out.splitlines(), err) == (1, EDGE_WANT, "") else f"{status} {out!r} {err!r}"
+
+
+def case_y_main_jobs_does_not_change_the_output():
+    outs = [edges_main(["--edges", "--uncovered", "--jobs", str(n)]) for n in (1, 3)]
+    return None if outs[0] == outs[1] else f"{outs}"
+
+
+def case_y_main_status_zero():
+    words = EDGE_WORDS[:4] + [JR_RA, NOP]
+    status, out, _ = edges_main(["--edges", "--jobs", "1"], words)
+    want = ["func_80020000 edges: constants 1, altered runs 2, unnoticed 0, all discarded 0"]
+    return None if (status, out.splitlines()) == (0, want) else f"{status} {out!r}"
+
+
+def case_y_main_not_swept():
+    other = list(EDGE_WORDS)
+    other[3] = slti(V0, T1, 6)
+    status, out, _ = edges_main(["--edges", "--jobs", "1"], EDGE_WORDS, other)
+    return None if status == 1 and out.count("\n") == 1 and "not swept" in out else f"{status} {out!r}"
+
+
+def case_y_main_refusals():
+    results = []
+    for argv, text in ((["--edges", "--control"], "--edges and --control"), (["--edges", "--writes"], "--edges and --writes"),
+                       (["--jobs", "2"], "--jobs applies to --edges only"), (["--control", "--jobs", "1"], "--jobs applies"),
+                       (["--writes", "--jobs", "1"], "--jobs applies"), (["--edges", "--jobs", "0"], "--jobs needs 1 or more"),
+                       (["--edges", "--jobs", "-3"], "--jobs needs 1 or more")):
+        status, out, err = edges_main(argv)
+        results.append(None if status == 2 and out == "" and text in err and err.startswith("INPUT ERROR") else (argv, status, out, err))
+    bad = [r for r in results if r]
+    return None if not bad else f"{bad}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -2931,6 +3268,36 @@ CASES = [
     ("x-main-original-input-error", case_x_main_original_input_error),
     ("x-default-output-unchanged", case_x_default_output_unchanged),
     ("x-state-default-behaviour-unchanged", case_x_state_default_behaviour_unchanged),
+    ("y-classes-are-taken", case_y_classes_are_taken),
+    ("y-sp-and-gp-are-left-out", case_y_sp_and_gp_are_left_out),
+    ("y-lui-pair-is-a-low-half-for-addiu", case_y_lui_pair_is_a_low_half_for_addiu),
+    ("y-ori-only-with-zero-source", case_y_ori_only_with_zero_source),
+    ("y-other-words-are-not-constants", case_y_other_words_are_not_constants),
+    ("y-unknown-opcode-in-the-search-is-refused", case_y_unknown_opcode_in_the_search_is_refused),
+    ("y-register-written", case_y_register_written),
+    ("y-wrap-at-both-ends", case_y_wrap_at_both_ends),
+    ("y-word-is-replaced-in-the-low-half-only", case_y_word_is_replaced_in_the_low_half_only),
+    ("y-line-shapes", case_y_line_shapes),
+    ("y-report-fixed-order-and-counts", case_y_report_fixed_order_and_counts),
+    ("y-report-uncovered-lines-and-status-zero", case_y_report_uncovered_lines_and_status_zero),
+    ("y-inputs-reach-the-edges", case_y_inputs_reach_the_edges),
+    ("y-sweep-lines", case_y_sweep_lines),
+    ("y-sweep-same-for-each-job-count", case_y_sweep_same_for_each_job_count),
+    ("y-sweep-without-uncovered-lines", case_y_sweep_without_uncovered_lines),
+    ("y-noticed-edge-is-not-listed-and-the-altered-word-runs", case_y_noticed_edge_is_not_listed_and_the_altered_word_runs),
+    ("y-all-discarded-is-not-unnoticed", case_y_all_discarded_is_not_unnoticed),
+    ("y-not-swept-when-the-build-differs", case_y_not_swept_when_the_build_differs),
+    ("y-not-swept-when-a-case-is-discarded", case_y_not_swept_when_a_case_is_discarded),
+    ("y-noticed-run-stops-at-its-first-difference", case_y_noticed_run_stops_at_its_first_difference),
+    ("y-run-without-difference-is-not-stopped", case_y_run_without_difference_is_not_stopped),
+    ("y-default-call-is-not-stopped", case_y_default_call_is_not_stopped),
+    ("y-original-is-restored-between-runs", case_y_original_is_restored_between_runs),
+    ("y-image-given-is-not-changed", case_y_image_given_is_not_changed),
+    ("y-main-status-and-lines", case_y_main_status_and_lines),
+    ("y-main-jobs-does-not-change-the-output", case_y_main_jobs_does_not_change_the_output),
+    ("y-main-status-zero", case_y_main_status_zero),
+    ("y-main-not-swept", case_y_main_not_swept),
+    ("y-main-refusals", case_y_main_refusals),
 ]
 
 
