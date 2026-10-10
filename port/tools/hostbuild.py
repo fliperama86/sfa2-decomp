@@ -27,7 +27,11 @@ The units
 
 The C units of the configuration as `hostcheck` selects them (not under
 `sdk/`, source ending in `.c`), and every `func_*.c` of every folder
-`*_nonmatching` next to the configuration. A nonmatching file defines one
+`*_nonmatching` next to the configuration, but for the folder
+`library_nonmatching`: its files are C of Sony's library, and like the units
+under `sdk/` they are not compiled here (a library function runs a host
+routine of the port or stops with its name, and a host routine for a function
+that has C is refused when the program starts). A nonmatching file defines one
 function, named by the file's stem, whose address is the eight-digit hex
 number after `func_`; what follows that number, after an underscore, names
 the image the function is in and must be an image of the configuration
@@ -396,6 +400,7 @@ LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
+LIBRARY_NONMATCHING = "library_nonmatching"  # C of Sony's library: left out, like the units under sdk/
 ASSIGNMENT = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(0[xX][0-9a-fA-F]+|[0-9]+)\s*;")
 COMMENT = re.compile(r"/\*.*?\*/", re.S)
 
@@ -576,7 +581,7 @@ def select_units(config: dict, path: Path) -> Selection:
         jobs.append(Job(u.name, u.path, False, read_functions(entry, path), entry.get("image")))
     seen_files: dict[str, Path] = {}
     for folder in sorted(path.parent.glob("*_nonmatching")):
-        if not folder.is_dir():
+        if not folder.is_dir() or folder.name == LIBRARY_NONMATCHING:
             continue
         for file in sorted(folder.glob("func_*.c")):
             stem = file.stem
