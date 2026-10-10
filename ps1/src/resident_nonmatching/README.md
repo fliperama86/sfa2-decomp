@@ -28,6 +28,69 @@ Then put that function's lines into the three blocks below, in place of
 its old ones or at its place in the order of names. No other function is
 run again for it, and the folder is not run as a whole.
 
+## Fixtures
+
+A function that has fixtures has a file `FUNC.fixtures.json` beside its
+`FUNC.c`. Replay runs the C of the function on the recorded inputs and never
+runs the original code. It still needs the private inputs of the build
+configuration and the PS1 compiler. From the tool's folder
+(`ps1/src/slot06_nonmatching/`), for this folder and for one function:
+
+    python -B difftest.py --config ../build.toml --folder ../resident_nonmatching --replay
+    python -B difftest.py --config ../build.toml --folder ../resident_nonmatching --replay FUNC
+
+For a new or changed function, record once (the wide comparison, then the
+fixtures it keeps), then replay:
+
+    python -B difftest.py --config ../build.toml --folder ../resident_nonmatching --cases 2000 --jobs 4 --record FUNC
+
+A pass is evidence for the recorded inputs. It is not the wide comparison and
+it is not equivalence. Details of the files are on the page of the tool's folder.
+
+Functions of this folder without a fixtures file, by reason:
+
+- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_8011bf70`, `func_8011cf98`, `func_8011df3c`, `func_8011fa50`, `func_80120cf0`, `func_8013245c`, `func_801347b4`, `func_801364a0`, `func_80136744`, `func_80138d70`, `func_8013a3a8`, `func_8013bfa4`, `func_8013db48`, `func_8013e028`, `func_8013ed90`, `func_8013f8c4`, `func_80140b5c`, `func_80140cd8`, `func_80141cec`, `func_801427d8`.
+- The cases read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80142030`.
+- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011a018`, `func_8011c724`, `func_8014e890`.
+
+What the replay command of the folder printed on 2026-10-10, one line per function:
+
+```
+func_801189c4 replay: fixtures 5, passed 5, failed 0
+func_80119694 replay: fixtures 4, passed 4, failed 0
+func_8011a880 replay: fixtures 7, passed 7, failed 0
+func_8011acbc replay: fixtures 6, passed 6, failed 0
+func_8011d74c replay: fixtures 6, passed 6, failed 0
+func_8011db78 replay: fixtures 10, passed 10, failed 0
+func_8011eb4c replay: fixtures 1, passed 1, failed 0
+func_8011f06c replay: fixtures 1, passed 1, failed 0
+func_80124304 replay: fixtures 6, passed 6, failed 0
+func_801254f4 replay: fixtures 10, passed 10, failed 0
+func_8012f9b0 replay: fixtures 8, passed 8, failed 0
+func_8012fd80 replay: fixtures 6, passed 6, failed 0
+func_8013172c replay: fixtures 3, passed 3, failed 0
+func_80131ab4 replay: fixtures 6, passed 6, failed 0
+func_80134234 replay: fixtures 1, passed 1, failed 0
+func_80135a10 replay: fixtures 8, passed 8, failed 0
+func_8013902c replay: fixtures 10, passed 10, failed 0
+func_801397d0 replay: fixtures 4, passed 4, failed 0
+func_80139928 replay: fixtures 3, passed 3, failed 0
+func_8013b0c4 replay: fixtures 10, passed 10, failed 0
+func_8013b558 replay: fixtures 10, passed 10, failed 0
+func_8013c6ac replay: fixtures 8, passed 8, failed 0
+func_8013eb28 replay: fixtures 5, passed 5, failed 0
+func_8013ec50 replay: fixtures 7, passed 7, failed 0
+func_8013f3e8 replay: fixtures 3, passed 3, failed 0
+func_8013f474 replay: fixtures 12, passed 12, failed 0
+func_8013fc18 replay: fixtures 6, passed 6, failed 0
+func_80141534 replay: fixtures 4, passed 4, failed 0
+func_801452ec replay: fixtures 5, passed 5, failed 0
+func_8014c4a8 replay: fixtures 3, passed 3, failed 0
+func_80151324 replay: fixtures 5, passed 5, failed 0
+func_80152124 replay: fixtures 2, passed 2, failed 0
+func_801545cc replay: fixtures 8, passed 8, failed 0
+```
+
 ## The recorded lines
 
 The three blocks are a record, not an instruction. They are what the
