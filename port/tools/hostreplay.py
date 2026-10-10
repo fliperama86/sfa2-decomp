@@ -301,6 +301,40 @@ def _check(proc, what: str, timeout: int) -> None:
         raise ReplayError(f"{what}: {hb.first_error(proc.stderr)}")
 
 
+_CONFIGURATIONS: dict[tuple, tuple] = {}
+_CONFIGURATIONS_LOCK = threading.Lock()
+
+
+def _configuration(config: Path) -> tuple[dict[str, int], Path | None, str, str]:
+    """What a build takes from the configuration: (the names with their PS1 addresses, the fields file or None,
+    the name of the generated header, its text). Reading it costs more than a build of one function, and it is
+    the same for every function, so it is read once for each state of its files: the configuration, the symbol
+    file and the fields file, each by its path, time and size."""
+    def state(path: Path) -> tuple:
+        try:
+            st = path.stat()
+        except OSError as err:
+            raise ReplayError(f"cannot read {path}: {err.strerror}")
+        return (str(path.resolve()), st.st_mtime_ns, st.st_size)
+
+    key = (state(config), state(config.parent / "symbols.ld"))
+    with _CONFIGURATIONS_LOCK:
+        found = _CONFIGURATIONS.get(key)
+        if found is not None and (found[1] is None or state(found[1]) == found[4]):
+            return found[:4]
+        cfg = hb.hostcheck.read_config(config)
+        selection = hb.select_units(cfg, config)
+        symbols = hb.read_symbols(_read(config.parent / "symbols.ld"))
+        names = hb.merge_names(symbols + [(f.name, f.address, f"unit {f.unit}") for f in selection.declared])
+        fields_path, header, header_text, fields_state = None, "", "", None
+        if "types" in cfg:
+            fields_path, header = hb.hostcheck.read_types(cfg, config)
+            fields_state = state(fields_path)
+            header_text = hb.structgen.generate_header(hb.hostcheck.read_model(fields_path), Path(header).name)
+        _CONFIGURATIONS[key] = (names, fields_path, header, header_text, fields_state)
+        return names, fields_path, header, header_text
+
+
 def build_program(source, name: str, config, build, cc: str, timeout: int = 300) -> Path:
     """Compile `source`, which defines the function `name`, and link it with the harness into BUILD/NAME.exe.
 
@@ -311,30 +345,33 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
     name left is the host's (the C library, the compiler's helpers), and one that nothing resolves is an error that
     names it. A program newer than its inputs (the source, every file the compiler lists as read for it, the
     configuration, the symbol file, the fields file, the harness, this driver and `hostbuild.py`) is not built
-    again; when that listing fails or does not end the program is built, whatever is on disk. The result is its path."""
+    again; when that listing fails or does not end the program is built, whatever is on disk. A program made from
+    another source file, another configuration or another compiler than the ones given is built too, whatever the
+    files' times (a note beside the program says what it was made from). The result is its path."""
     source, config, build = Path(source), Path(config), Path(build)
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
         raise ReplayError(f"{name!r} is not a C name")
     try:
-        cfg = hb.hostcheck.read_config(config)
-        selection = hb.select_units(cfg, config)
-        symbols = hb.read_symbols(_read(config.parent / "symbols.ld"))
-        names = hb.merge_names(symbols + [(f.name, f.address, f"unit {f.unit}") for f in selection.declared])
+        names, fields_path, header, header_text = _configuration(config)
         gen, exe = build / "gen", build / f"{name}.exe"
         inputs = [source, config, config.parent / "symbols.ld", HARNESS, Path(__file__), Path(hb.__file__)]
-        header_text = ""
-        if "types" in cfg:
-            fields_path, header = hb.hostcheck.read_types(cfg, config)
-            header_text = hb.structgen.generate_header(hb.hostcheck.read_model(fields_path), Path(header).name)
+        if fields_path is not None:
             _write_if_changed(gen / header, header_text)
             inputs.append(fields_path)
         if not source.is_file():
             raise ReplayError(f"{source} does not exist")
         # The program on disk is handed back only when everything it was built from is known and older. When
         # the listing of what the source reads fails or does not end, the build is made, and it says what is wrong.
-        headers = _headers(source, cc, gen, timeout) if exe.is_file() else None
+        # A program is also what it was made FROM: another source file for the same name, another configuration or
+        # another compiler make another program, whatever the times of the files say. The build notes the three
+        # beside the program when it has succeeded, and a program without that note, or with another, is built.
+        made_from = "".join(f"{text}\n" for text in (source.resolve(), config.resolve(), cc))
+        note = gen / f"{name}.from"
+        same_origin = exe.is_file() and note.is_file() and note.read_text() == made_from
+        headers = _headers(source, cc, gen, timeout) if same_origin else None
         if headers is not None and _up_to_date(exe, inputs + headers):
             return exe
+        note.unlink(missing_ok=True)
         for sub in ("asm", "obj", "rt", "probe"):
             (build / sub).mkdir(parents=True, exist_ok=True)
         underscore = hb.detect_underscore(cc, build / "probe", timeout)
@@ -382,6 +419,7 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
             shown = ", ".join(hb.c_name(m, underscore) for m in missing)
             raise ReplayError(f"link: no PS1 address, and nothing in the link provides: {shown}")
         raise ReplayError(f"link: {hb.link_errors(link.stderr)}")
+    note.write_text(made_from)
     return exe
 
 
