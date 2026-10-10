@@ -2,14 +2,16 @@
 
 Reads and writes are listed in the header comment of
 func_801e8dc4_slot06_00.c. Choices made here:
-  - the object is a random block of 0x394 bytes; its field_03 is 0 to 2 in
-    nine cases of ten (the word table data_801e9f60_slot06_00 holds 12 words
-    before the next function of the image, so these three indices read
-    table words that the setup filled) and any byte otherwise (the index
-    then reads other data of the image, the same in both runs);
-  - the 12 table words, the pointer data_801e9f48_slot06_00 and the first
-    three records of data_801f3010_slot06_00 are random; the rest of the
-    256 records keep the image's content, which both runs rewrite alike;
+  - the object is a random block of 0x394 bytes; its field_03 is 0, 1 or 2:
+    the word table data_801e9f60_slot06_00 holds 12 words before the next
+    function of the image, entries for three records, and a larger index
+    would read words beyond it and write a record far from the table (the
+    original checks nothing; the header excludes it);
+  - the 12 table words, the pointer data_801e9f48_slot06_00 and the three
+    records that these indices select are random, so that a byte of a
+    record that the function must not leave as it was is seen to change;
+    an assertion states that the selected record lies inside what the
+    setup filled;
   - field_04, pos_y and the other fields are random.
 """
 
@@ -20,13 +22,18 @@ def fill(state, address, size, rng):
     state.write(address, bytes(rng.getrandbits(8) for _ in range(size)))
 
 
+RECORDS = 3            # the indices that the word table has entries for
+
+
 def setup(state, rng, sym) -> Setup:
     fill(state, sym["data_801e9f60_slot06_00"], 12 * 4, rng)
     state.w32(sym["data_801e9f48_slot06_00"], rng.getrandbits(32))
-    fill(state, sym["data_801f3010_slot06_00"], 3 * 0x20, rng)
+    fill(state, sym["data_801f3010_slot06_00"], RECORDS * 0x20, rng)
     obj = state.alloc(0x394)
     fill(state, obj, 0x394, rng)
-    state.w8(obj + 0x03, rng.randrange(3) if rng.random() < 0.9 else rng.randrange(256))
+    index = rng.randrange(RECORDS)
+    assert 0x20 * (index + 1) <= RECORDS * 0x20, "the selected record lies outside what the setup filled"
+    state.w8(obj + 0x03, index)
     return Setup(args=(obj,), returns_value=False)
 
 

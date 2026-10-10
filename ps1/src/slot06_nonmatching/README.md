@@ -11,10 +11,11 @@ of its image, enters the build there, and leaves this one.
 
 ## What "nonmatching" means here
 
-The function is NOT byte-identical to the original: its build has the same
-size (see the table) but differs from the original's bytes. What these files
-claim is narrower: on the inputs of the function's contract, the build and
-the original code leave the same final state.
+A function here is NOT byte-identical to the original: its build differs
+from the original's bytes, and mostly in size too (the lines under
+"Functions" give both sizes). What these files claim is narrower: on the
+inputs of the function's contract, the build and the original code leave
+the same final state.
 
 ## The test
 
@@ -238,9 +239,9 @@ func_801e98dc_slot06_07 coverage: 36 of 37 instruction slots of the original exe
     python difftest.py --config ../build.toml --cases 2000 --control --all
 
 ```
-func_801e84cc_slot06_0e control: different 1966 of 2000 (expected more than 0)
+func_801e84cc_slot06_0e control: different 1968 of 2000 (expected more than 0)
   altered: v coordinate store moved by one byte, instruction slot 89
-func_801e8bd8_slot06_08 control: different 107 of 2000 (expected more than 0)
+func_801e8bd8_slot06_08 control: different 110 of 2000 (expected more than 0)
   altered: row count limit 0x20 changed to 0x10, instruction slot 67
 func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
   altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69

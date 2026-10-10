@@ -75,7 +75,12 @@ def setup(state, rng, sym) -> Setup:
 
     state.w16(sym["data_801adfe4"], rng.randrange(0, 256 - written + 1))
     state.w8(sym["data_801a27d0"], rng.randrange(2))
-    fill(state, sym["data_801f6800_slot06_10"], 2 * 256 * 28, rng)
+    table = sym["data_801f6070_slot06_12"]
+    fill(state, table, 2 * 256 * 28, rng)
+    # The function's own table, from its first record to its last, holds varied bytes that are not all
+    # zero: a record that the function must leave alone is then seen to be left alone.
+    for record in (0, 255, 256, 511):
+        assert any(state.read(table + 28 * record, 28)), f"record {record} of data_801f6070_slot06_12 is all zero"
     return Setup(args=(obj,), returns_value=False)
 
 

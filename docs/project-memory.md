@@ -7650,6 +7650,29 @@ No function count changes here: none of this is in the build.
   watched and with one store moved across a call; no function's C had
   to change, and one setup had: it left the globals that the function
   writes at zero, so a moved store of zero showed nothing.
+- The owner's review of this batch (PR 131), in his words: "Two test
+  setups do not enforce the contracts they publish". One setup let a
+  count grow until the original wrote 2,554 bytes past its table, in a
+  case the header called excluded ("both original and C complete and
+  compare equal, while the original changes 2,554 bytes beyond the
+  declared table"); two setups filled another stage's table and left
+  the function's own at zero ("despite the promised whole-table
+  randomization"). The test had said "equal" each time, because both
+  codes did the same wrong thing or met the same zeros.
+- What followed from it. A private audit now runs the original on each
+  case and counts the bytes it changes outside what the setup wrote or
+  allocated, and a lint compares the names a setup takes from the
+  symbol table with the names in the function's text. On the first
+  run over all 177 functions written so far the audit flagged 41 and
+  the lint 6 (one-off counts): in this batch the three he named and two
+  more (a function that ran up to 8,226 bytes past its table, and one
+  whose index could select a record far outside its table). The
+  flagged setups are repaired before their functions are published;
+  the audit is to become a command of the tool.
+- The rule I take from it: "equal" compares two runs with each other
+  and says nothing about where they wrote. A contract that says "inside
+  the table" or "the whole table is random" is a claim about the setup,
+  and it needs its own measurement.
 - A nonmatching unit is not in the build, so no check of the matching
   work notices when it stops compiling after a shared header changes:
   `difftest.py --all` on each folder is the check, and it is run before
