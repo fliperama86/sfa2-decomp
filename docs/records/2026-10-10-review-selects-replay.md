@@ -19,8 +19,12 @@ for the functions the tool accepts).
   folder, one check after the other.
 - The test tool of nonmatching C changed (`difftest.py`, `contracts.py`
   or their two test files): its two test files and the same replay and
-  comparison. It no longer selects the matching build or the tests of
-  `ps1/tools`, which it cannot affect.
+  comparison. It no longer selects the matching build or the build of
+  the PC program, which it cannot affect. (The message of commit
+  `1b0540a` names the tests of `ps1/tools` there; the old selection did
+  not have them for this change. What it had was printed from main's
+  `review.py` by a private script: the matching build, the five wide
+  runs of every folder, the tool's two test files and the PC build.)
 - A fixtures file is a file of its function. Before, it counted as an
   unknown file of its folder, and that selected everything.
 - The evidence of a replay check: one line for each function, at least
