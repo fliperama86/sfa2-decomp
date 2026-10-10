@@ -98,8 +98,10 @@ it, and the rule above replaces it for the time until the port runs:
 
 PsyZ replaces the PSY-Q library, so that source written against it compiles
 for other machines. It is a submodule at `external/psyz`, pinned to commit
-`4e4b3e8dc7ae740c085fd190d635f54142d2d552`. A submodule records an address
-and a commit: no file of PsyZ is in this repository.
+`6d01339aadf16c5c9d6e44f44c0d66514752e472` (of 2026-10-10; the pin before it was of 2026-10-05). A submodule records an address
+and a commit: no file of PsyZ is in this repository. The newer library has a
+movie decoder core, a 24-bit display mode, a DMA notification and decompiled movie routines;
+the port does not use them yet.
 
 Its `LICENSE` file at that commit gives three terms: MIT for its samples
 and its test framework, among others; MPL 2.0 for its own two source
@@ -124,12 +126,12 @@ machine the port runs on, by default with `i686-w64-mingw32-gcc` for
 32-bit Windows, and prints what a program that links them needs. It
 needs CMake and Ninja. It never writes into the submodule: it copies the
 folders that the build reads and builds the copy. Its header is its
-contract. On 2026-10-09, with PsyZ at its pin, it printed, with the
+contract. On 2026-10-10, with PsyZ at its pin, it printed, with the
 build folder written here as BUILD and the system libraries of the last
 line left out:
 
 ```
-psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+psyz: 6d01339aadf16c5c9d6e44f44c0d66514752e472
 patch: psyz.patch applied at 1 place
 library: BUILD/obj/psyz/libpsyz.a
 include: BUILD/src/psyz/include
@@ -141,7 +143,16 @@ PsyZ has one path for machines whose `unsigned long` has 4 bytes, and on
 that path it draws into its batch of vertices and sends the batch to the
 picture only when built for the browser. A 32-bit native program then
 sees nothing of what it draws. The patch makes that path send the batch
-always. The file says what was observed with and without it. The three
+always. The file says what was observed with and without it on 2026-10-09, at the
+pin before this one. At the pin of 2026-10-10 PsyZ's own `Psyz_GpuExeque` sends the
+batch first on 32-bit targets (its change #178), so what a program draws is no
+longer dropped at the next `DrawSync`, `LoadImage` or `StoreImage`. On
+2026-10-10 the port's picture test, `test_hostgpu.py`, ended with `all cases
+behaved as required` against a library built with the patch and against a
+second one built with the patch's hunk replaced by a change of a comment
+(four minutes each). That test therefore does not show the patch to be
+needed at this pin; the patch stays, and whether upstream's change makes it
+unnecessary is not decided here. The three
 lines of PsyZ that the patch quotes are PsyZ's, under the Mozilla Public
 License 2.0, and the patch says so and is offered under the same
 license. Offering the fix to PsyZ's authors has not been done: that is
@@ -182,7 +193,7 @@ case of a refusal also checks that the whole input is unchanged (a
 difference is reported by the entries that were added, removed or changed;
 the fixture's git commands are run with git's background work switched off,
 so that nothing but the tool can write into a case's folder). It
-needs no compiler. On 2026-10-09 it ended with
+needs no compiler. On 2026-10-10 it ended with
 `all cases behaved as required`.
 
 The graphics layer of the host program links the result when the host
@@ -213,7 +224,7 @@ Linux, macOS and Windows and puts the output on the page of the run. It
 runs when the pin, the script or the workflow changes, and on request. It
 is a measurement and no gate: a job fails only on status 2.
 
-[Run 37946944473](https://github.com/fliperama86/sfa2-decomp/actions/runs/37946944473) of 2026-10-09, PsyZ at the pin:
+[Run 37946944473](https://github.com/fliperama86/sfa2-decomp/actions/runs/37946944473) of 2026-10-09, PsyZ at the pin of that day (not the present one):
 
 | system | compiler, as CMake names it | the whole suite | status |
 | --- | --- | --- | --- |
@@ -312,29 +323,28 @@ the source of PsyZ at the pin, which
 script ends with status 2 and says which file it misses. No game file is
 read and nothing is built. The header of the script says how each status
 is decided. Its output on
-2026-10-07:
+2026-10-10, with the present pin:
 
 ```
 compared: 101 of 416 library functions (those with a caller)
-built: 73
-stub: 1
+built: 75
+stub: 0
 some-targets: 1
 assembly: 0
 not-built: 3
 absent: 0
-unnamed: 23
+unnamed: 22
 disc: built 11, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 1
-graphics: built 23, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 2
+graphics: built 24, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 1
 memory card: built 2, stub 0, some-targets 1, assembly 0, not-built 0, absent 0, unnamed 0
 pads: built 1, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 2
-sound: built 23, stub 1, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 0
+sound: built 24, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 0
 system: built 13, stub 0, some-targets 0, assembly 0, not-built 3, absent 0, unnamed 0
 threads: built 0, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 3
 unidentified: built 0, stub 0, some-targets 0, assembly 0, not-built 0, absent 0, unnamed 15
-stub: SsSeqOpen
 some-targets: _bu_init
 not-built: Exec FlushCache InitHeap
-unnamed: 80157090 80157174 8015760c 8015762c 801577bc 801577dc 801577ec 8015789c 80158374 80158470 8015a560 8015a570 8015c814 8015f734 8015fd24 8015fde4 8015fe04 8015fe28 80164ef0 801656ec 80166144 8016904c 8016a7e4
+unnamed: 80157090 80157174 8015760c 8015762c 801577bc 801577dc 801577ec 8015789c 80158470 8015a560 8015a570 8015c814 8015f734 8015fd24 8015fde4 8015fe04 8015fe28 80164ef0 801656ec 80166144 8016904c 8016a7e4
 renamed by a header: EnterCriticalSection to PS1_EnterCriticalSection (psyz/include/kernel.h:171)
 renamed by a header: ExitCriticalSection to PS1_ExitCriticalSection (psyz/include/kernel.h:172)
 ```
@@ -342,18 +352,18 @@ renamed by a header: ExitCriticalSection to PS1_ExitCriticalSection (psyz/includ
 What that says of the 101 library functions that a game function of the
 resident executable calls:
 
-- 73 have a definition that PsyZ builds for every target. Two of them, the
+- 75 have a definition that PsyZ builds for every target. Two of them, the
   pair that enters and leaves a critical section, have it under another
   name that a header gives them.
 - None is missing from PsyZ's tree altogether.
-- `SsSeqOpen`, which opens a music sequence, is a stub: its body carries
-  PsyZ's own mark for not implemented.
+- None is a stub. (`SsSeqOpen`, which opens a music sequence, was one at the
+  pin before: its body carried PsyZ's mark for not implemented.)
 - `_bu_init`, which sets up the memory card, carries that mark under one
   compiler only.
 - `Exec`, `FlushCache` and `InitHeap` are in PsyZ only as assembly for the
   PS1, in files that it does not build. Its headers declare them and the
   built library does not define them.
-- 23 have no library name in this project yet, 15 of them in no family.
+- 22 have no library name in this project yet, 15 of them in no family.
   They cannot be compared before the matching work names them.
 
 What it does not say:
@@ -366,17 +376,17 @@ What it does not say:
   published table, so a library function that only a module calls is not
   among the 101.
 - With `--all` every library function of the image is compared, called by
-  the game or not, and the first lines are
+  the game or not, and the first lines on 2026-10-10 are
 
 ```
 compared: 416 of 416 library functions (all)
-built: 235
-stub: 22
+built: 242
+stub: 20
 some-targets: 5
 assembly: 2
-not-built: 51
+not-built: 50
 absent: 49
-unnamed: 52
+unnamed: 48
 ```
 
   Many of the 49 that are absent are sound functions whose names begin
@@ -384,7 +394,7 @@ unnamed: 52
   game function calls one of them. It suggests, and does not show, that
   the library of this game is another version than the one PsyZ follows.
 
-The scan was checked against the library that `check_psyz.sh --headless`
+The scan was checked, on 2026-10-07 and with the pin of that day, against the library that `check_psyz.sh --headless`
 built on Linux from the same commit. With `--archive` and that file the
 last line is `archive: 77 names checked, 0 disagree`, and with `--all` as well it is
 `archive: 359 names checked, 0 disagree`: every name that the scan calls
@@ -392,7 +402,7 @@ built or stub is a symbol of that library, and none of the names that it
 calls assembly, not built or absent is.
 
 `python3 port/tools/test_libgap.py` runs the tool on small made-up trees.
-On 2026-10-07 it printed 108 lines that begin `ok` and ended with
+On 2026-10-10 it printed 108 lines that begin `ok` and ended with
 `all cases behaved as required`.
 
 ## The game's C on a PC compiler
@@ -1614,10 +1624,11 @@ chip's registers) to a voice's registers, and reads the word at
 `0x801831e8` (`_spu_keystat`). PsyZ's library keeps its own `_spu_RXX`
 (`decomp/src/libspu/spu.c`, line 6 at the pin), which the game's code
 would not see. And PsyZ's sound library as built has no sequencer: in
-`psyz/src/psyz/libsnd.c` at the pin `_SsSeqPlay`, `_SsSndTempo` and
-`SsSeqOpen` are `NOT_IMPLEMENTED` (lines 62 to 69), and the files that hold
-the real ones (`decomp/src/libsnd/midiread.c`, `midinote.c`) are
-`INCLUDE_ASM` only.
+`psyz/src/psyz/libsnd.c` at the pin `_SsSeqPlay` and `_SsSndTempo`
+are `NOT_IMPLEMENTED` (lines 62 and 64), and the files that hold
+the real ones (`decomp/src/libsnd/midiread.c`, `tempo.c`) are
+`INCLUDE_ASM` only. (`SsSeqOpen` was one of them until the pin of 2026-10-10;
+it now has C in `decomp/src/libsnd/ssopenq.c`.)
 
 What the option does:
 
@@ -1656,10 +1667,10 @@ control (one cast taken out), and ended with `all cases behaved as
 required`. It tests one function on plain memory and the inputs it draws;
 it is not a proof for other inputs.
 
-Built on 2026-10-10 (main at `c98a1bc` plus this change, PsyZ at its pin):
+Built on 2026-10-10 (main at `6ba3a52` plus this change, PsyZ at its pin):
 
 ```
-psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+psyz: 6d01339aadf16c5c9d6e44f44c0d66514752e472
 sound library: 45 units of sdk/libsnd, 22 of sdk/libspu, 6 of library_nonmatching
 units: 3980 compiled, 161 of them nonmatching, 0 failed
 functions with C: 12850
@@ -2304,7 +2315,7 @@ shows nothing either way.
 
 The game's logo and its attract movie are movies in the console's stream
 format. The library that the port uses in Sony's place has only empty
-stand-ins for the decoder (`DecDCT...` in its `libpress.c`). This part is
+stand-ins for the decoder (`DecDCT...` in its `libpress.c`, at the pin before 2026-10-10). This part is
 the core that a later change will put behind those calls; nothing calls
 it yet, and the calls themselves (`DecDCTin`, `DecDCTout`, callbacks,
 synchronisation), reading the sectors, drawing and sound are not in it.

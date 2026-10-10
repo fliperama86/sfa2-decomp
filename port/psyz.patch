@@ -1,5 +1,5 @@
 PsyZ patch for the port. Written by this project; applies to PsyZ commit
-4e4b3e8dc7ae740c085fd190d635f54142d2d552 (port/external/psyz at its pin).
+6d01339aadf16c5c9d6e44f44c0d66514752e472 (port/external/psyz at its pin).
 Applied by port/tools/psyzbuild.py to a copy of PsyZ, never to the submodule.
 
 License: the file that this patch changes is PsyZ's and is under the
@@ -20,9 +20,15 @@ of 37 with the flush made unconditional; no command of this repository
 repeats that run. The 64-bit path does flush (through Psyz_GpuExeque), so
 only the 32-bit path needs this.
 
+At PsyZ commit 6d01339aadf16c5c9d6e44f44c0d66514752e472 the function
+Psyz_GpuExeque also flushes the batch on 32-bit targets (PsyZ's change #178),
+which covers the drop at the next DrawSync, LoadImage or StoreImage. On
+2026-10-10 the port's picture test passed with this patch and without it, so
+it does not show the patch to be needed there; the patch is kept.
+
 --- a/psyz/src/psyz/libgpu.c
 +++ b/psyz/src/psyz/libgpu.c
-@@ -161,3 +161,1 @@
+@@ -165,3 +165,1 @@
 -#ifdef __EMSCRIPTEN__
          Draw_FlushBuffer();
 -#endif
