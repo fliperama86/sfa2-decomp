@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "c5ec36d0d8d76a76226699447a371a4cd7929af5a41cc8fab8ee8ca43663333e",
+  "sha256": "293a00f9e072fb482f392ac20ccbf996e767fa2ae5f7f9ecb20b54e083bef922",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -639,8 +639,12 @@
       "line": 9550
     },
     {
-      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
       "line": 9586
+    },
+    {
+      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "line": 9614
     }
   ]
 }
