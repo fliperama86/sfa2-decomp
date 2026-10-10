@@ -36,10 +36,11 @@ one-off:
   argument register, the two codes differ in the bits above, and the
   stand-in compares the whole register. A limit of the tool.
 
-With the 101 of pull request 180, the six replay commands print 134
-lines, one per function with a file, every one `failed 0` (about 18
-seconds for the six started together, one-off timing). The lines of the
-101 are the lines they printed before.
+With the 101 of pull request 180, the six replay commands printed 134
+lines at that point, one per function with a file, every one `failed 0`
+(about 18 seconds for the six started together, one-off timing). The
+lines of the 101 are the lines they printed before. (After the review,
+below, it is 133.)
 
 A fault of this change's first design, found at the top level before
 anything was pushed: the record left out the bytes that an original
@@ -72,10 +73,37 @@ these rules: none warned, none was refused, the replay lines are the
 same. The one function that fails its record's own check
 (`func_8011df3c`) fails it as before.
 
-Tests: `test_difftest.py`, 414 cases, "all cases behaved as required"
+Two more findings of the owner's review on the same rule, corrected in
+this change. The trace kept one save slot for each register, so a
+second save of the same register hid the first copy, and a load of the
+first into another register was no use; and a store of one byte ended
+the whole slot, so the three bytes that still held the register's value
+were no copies any more. His cases: `sw a0,0(sp); sw a0,4(sp); lw
+v0,0(sp)`, and `sw a0,0(sp); sb zero,0(sp); lbu v0,1(sp)`; in both a
+build with another `a0` really returns another value, and the replay
+passed. Now every byte of a saved word is a copy of its register until
+a store writes that very byte, a register may have any number of
+copies, a restore is a load of the whole word into the same register
+while all four bytes are still its copies, and any other load of a byte
+that is still a copy is a use. Two patterns that nothing could check
+are refused from now on: a callee that reads the stack pointer in any
+way but as the base of a load or a store or to move it (it takes the
+address of its stack), and a callee that loads a byte of its own frame
+that it has not written during the call (what earlier code left on the
+stack). The 33 format 2 files were recorded again: 32 came out byte for
+byte as they were; one function is refused by the first of the two new
+refusals (`func_801b1b40_slot04_0e`: a callee hands a local of its own
+to a function it calls) and has no file any more. So 133 functions have
+a file, and the six replay commands print 133 lines, every one
+`failed 0`.
+
+Tests: `test_difftest.py`, 420 cases, "all cases behaved as required"
 (347 before this change); `test_difftest_build.py --config
-../build.toml`, the same line; 94 mutants of the new code in bounded
-runs, each failing a named case (26 of them of the register rules);
+../build.toml`, the same line; 94 mutants of this change's code as it
+was before the last two findings, in bounded runs, each failing a named
+case then; 17 more of the copy tracking and of the two new refusals,
+each failing a named case (an eighteenth changes nothing that runs and
+was dropped);
 `python tools/ai_workflow/tests/test_workflow.py`, OK.
 
 Not done and not shown: no contract and no C file was changed; the

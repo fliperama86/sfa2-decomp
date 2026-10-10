@@ -161,11 +161,11 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801b1a00_slot04_14`, `func_801b5e34_slot04_0e`, `func_801b0904_slot04_12`, `func_801b81f8_slot04_14`.
+- A callee that runs as original code takes the address of its own stack (it hands a local of its own to a function it calls). What it then makes of that address is another value under a build, and the stand-in could not check it; `--record` refuses the function. A limit of the tool. `func_801b1b40_slot04_0e`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_801b1b40_slot04_0e replay: fixtures 4, passed 4, failed 0
 func_801b21f8_slot04_0f replay: fixtures 1, passed 1, failed 0
 func_801b2270_slot04_0f replay: fixtures 2, passed 2, failed 0
 func_801b248c_slot04_0f replay: fixtures 3, passed 3, failed 0

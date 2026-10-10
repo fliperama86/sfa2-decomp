@@ -401,8 +401,12 @@ A callee that the contract does not replace with a recorder runs as the game's
 own code when the original is recorded. `--record` records each call of such a
 callee as an entry of `calls` (with `original` true): the registers of the
 caller that it used while they still held the caller's value (`uses`: at, v0,
-v1, a0 to a3, t0 to t9, gp, hi, lo; a save of a register to its own frame and
-the restore from the same word are no use), the stack words it read through the
+v1, a0 to a3, t0 to t9, gp, hi, lo; a save of a register into the callee's
+own memory is no use, and each byte of the saved word is then a copy of the
+register until a store writes that very byte; a load of the whole word back
+into the same register while all four bytes are still its copies is a restore
+and no use, and any other load of a byte that is still a copy is a use of the
+register it is a copy of), the stack words it read through the
 stack pointer (`stack`), the bytes it read that the setup made or the run had
 written (`reads`), the bytes it changed (`effects`) and the registers it
 wrote and did not restore (`leaves`). A fixture with such a call also has `callees`, the
@@ -420,8 +424,11 @@ the stack at or above that area, reads it through a register other than sp (a
 pointer to a local of the function, which the build cannot repeat), is entered
 again before it ended, reads a register of its caller that is no argument (s0
 to s7, fp, k0, k1, or ra other than by `jr ra`), leaves the stack pointer
-changed, or does not end when the run does while the setup says the function
-returns; these are limits of the tool. After choosing and before
+changed, reads the stack pointer in any way but as the base of a load or a
+store or to move it (it takes the address of its stack), loads a byte of its
+own frame that it has not written during the call, or does not end when the
+run does while the setup says the function returns; these are limits of the
+tool. After choosing and before
 writing, `--record` replays every kept fixture on the build, and a fixture that
 fails is a refusal (`the replay of case N fails`). A byte that such a callee
 reads and that the setup did not make is content of the game's image: it is
