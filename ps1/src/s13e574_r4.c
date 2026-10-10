@@ -11,6 +11,6 @@ void func_8013ebf4(Object *object, int index, int arg) {
     if (object->field_7e != 0) arg = 5;
     object->slots[(u8)index].field_04 = arg;
     slot = &object->slots[(u8)index];
-    slot->field_02 = 0;
+    *(u16 *)&slot->field_02 = 0;
     func_8013f2c8(object);
 }

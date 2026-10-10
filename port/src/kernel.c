@@ -448,6 +448,8 @@ static void run_vblank(void)
         deliver_vblank();
     }
     port_cd_tick();
+    port_gpu_present();
+    port_debug_tick(total_frames);
     vblank_in_progress = 0;
 }
 

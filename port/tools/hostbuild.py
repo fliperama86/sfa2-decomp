@@ -166,6 +166,41 @@ for a row of `library.tsv`, the name is the one that a unit of the
 configuration declares for that address in that image, else
 `func_<address>` with `_<image>` for a module image. Sorted as above.
 
+Some rows of the inventory are not functions: the static sweep took data in
+front of a function for code, or split a function in two. The runtime would
+write its stop call at such a row's address, into the data or the middle of a
+function. Two things leave such a row out of `port_absents`, and nothing else
+does: a row that is not covered by either keeps its stop, whatever lies near it
+(a missing function directly before a later function with C, bytes that no
+declared function owns in front of one).
+
+The reviewed table, for data in front of a function with C. A row is left out
+only when `port/sweep_rows.toml` (option `--sweep-rows`) lists it, and each entry
+is verified against the tree first. The inventory must have a row at the entry's
+image and address; the function it names must be a function with C of that image
+(compiled in this build, at the stated address; for a second placement, the name
+and moved address the tool gives it there; a `like` image's row is listed on its
+own); the function's address minus the row's address is `data_bytes`, above zero,
+the function lies strictly inside the row and no other function begins between;
+when the entry has a `data_symbol`, that name of `symbols.ld` is at exactly the
+row's address (the configuration then names the data's owner; an entry without
+one rests on its written evidence alone). Any miss ends the build with status 1
+and names the entry; a malformed table (a field missing or unknown, an entry
+twice) is status 2; a missing table drops nothing.
+
+Rule 2, for the tail of a split function. A row that begins inside the address
+range of a unit that is built here (compiled; for a second placement the moved
+range, unless the unit is left out for that image) and is not the address of a
+function the unit declares is part of that unit and gets no stop. The range of a
+unit is function coverage because the matching build's validator requires the
+functions of a unit to be contiguous ("gap or overlap between functions" in
+`parse_units` of `ps1/tools/matchbuild.py`). This tool relies on it, so it checks
+it where it uses it: a unit whose declared functions are not contiguous gets no
+rule 2; the tool says so on standard error and with `--list`.
+
+The rows left out are counted (`sweep rows that are not functions`) and named
+with `--list`: the table's rows with their evidence, rule 2's with the unit.
+
 The link
 --------
 
@@ -180,16 +215,43 @@ tells by whether an instruction pointer lies between the markers. The check
 below covers them.
 
 All objects of the units, every `RUNTIME/*.c` compiled with
-`CC -O1 -Wall -Wextra -c`, `port_tables.o` and `names.ld` go to one run of
-the compiler by a response file, with `-static -Wl,--large-address-aware
--Wl,--disable-dynamicbase`, to `BUILD/NAME`. The link is then verified, and
-a miss ends the tool with status 1 naming the symbols: both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
+`CC -O1 -Wall -Wextra -c`, `port_tables.o`, the filler object (below) and
+`names.ld` go to one run of the compiler by a response file, with `-static
+-Wl,--large-address-aware -Wl,--disable-dynamicbase` and the settings of the
+image (below), to `BUILD/NAME`. The link is then verified, and a miss ends
+the tool with status 1 naming the symbols: the header of the linked file
+says what the settings say (below); both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
 linked file, every `ps1_` name of `names.ld` has exactly its address, no plain game name is
 at a PS1 address, every
 `impl_` function of `port_functions` exists outside the PS1's ranges
 (`0x80000000` to `0x801fffff`, `0x1f800000` to `0x1f8003ff`), every host
 data alias `ps1_NAME` has the address of its `impl_` copy outside those
 ranges. The plain name may exist (the host's own function of that name).
+
+The image over the console's copy of RAM
+-----------------------------------------
+
+The console shows its RAM a second time at addresses 0 to 0x1fffff, and the
+game's code reaches that view in ordinary play (the runtime's `mirror.c`
+serves the game's accesses there as faults, the image's header page excepted). Windows gives a process nothing below
+0x10000 and puts memory of its own into the rest of the range, where an access
+would not fault. So the program's own image takes the range first. The link
+settings: image base 0x10000 (`--image-base`), no relocations
+(`--disable-reloc-section`, with `--disable-dynamicbase`), the first real section at 0x200000 (`--section-start=.text`).
+Windows refuses an image whose sections leave a gap between them or after the
+header, so the range between the header page and 0x200000 is filled by a
+section of its own, `.hole` (`--section-start=.hole=0x11000`), uninitialized,
+from an assembly object of the tool (`BUILD/gen/hole.s`, `BUILD/rt/hole.o`,
+first in the response file). The system maps it readable and writable; the
+runtime closes it at start (`mirror.c`). The header page itself stays
+readable: the C library reads the executable's header when the program
+exits.
+The check reads the linked file's PE header: image base 0x10000, the flag
+for stripped relocations and no relocation table, no dynamic base, section
+alignment 0x1000, the first section `.hole` at 0x11000 with no bytes in the
+file, the sections one after the other with no gap or overlap, the filler
+reaching 0x200000 and every other section at 0x200000 or above, the headers
+inside the first page. A miss ends the build with status 1.
 
 The graphics library
 --------------------
@@ -214,6 +276,7 @@ Standard output, in this order, with nothing else:
     like images built: L
     functions with C: C
     functions without C: A, library L2, game and modules G
+    sweep rows that are not functions: N
     names at PS1 addresses: P
     data defined in C, at host addresses: D
     linked: PATH, verified
@@ -222,13 +285,16 @@ With `--psyz` the line `psyz: COMMIT` follows `compiler:`. PATH is relative to t
 
 U counts the units tried, nonmatching ones included. A is the number of
 rows of `port_absents`, L2 those of the library and G the others (the
-resident game and the module images), so that A = L2 + G. L is the number of
+resident game and the module images, without the rows that begin with data), so that A = L2 + G. L is the number of
 `like` images placed a second time. The last line is
 printed only for a link that was verified. With `--list` the names behind
 F, D, the `like` images and the game rows of A follow, one per line:
 
     failed: UNIT: FIRST ERROR LINE
     data: NAME
+    data-row: NAME at 0xADDRESS, IMAGE, table, function NAME2 at 0xADDRESS2: EVIDENCE
+    data-row: NAME at 0xADDRESS, IMAGE, rule 2: inside the unit UNIT (0xSTART-0xEND)
+    not-contiguous: unit UNIT: its functions are not contiguous; rows inside its range keep their stop
     like: IMAGE of FIRST, shift +0xSHIFT, N names move, units left out: UNIT ...
     absent: NAME 0xADDRESS IMAGE
 
@@ -241,7 +307,7 @@ compiler cannot be run, with one line on standard error that names it.
 
 usage:
   hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
-               [--out NAME] [--runtime DIR] [--psyz DIR] [--jobs N]
+               [--out NAME] [--runtime DIR] [--sweep-rows FILE] [--psyz DIR] [--jobs N]
                [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
@@ -257,6 +323,7 @@ import json
 import os
 import re
 import sys
+import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -275,7 +342,16 @@ COMPILE_FLAGS = [
     "-std=gnu89", "-O1", "-fno-inline", "-fno-strict-aliasing", "-fwrapv", "-fno-pic", "-fno-builtin",
     "-ffreestanding", "-fno-stack-protector", "-fno-asynchronous-unwind-tables", "-fno-ident",
 ]
-LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
+# The image holds the console's copy of RAM at address 0 (see "The link"): base 0x10000, no relocations, a filler
+# section `.hole` from 0x11000 and the first real section at 0x200000.
+IMAGE_BASE = 0x10000
+HOLE_BEGIN = 0x11000
+IMAGE_TOP = 0x200000
+IMAGE_FLAGS = [
+    f"-Wl,--image-base={IMAGE_BASE:#x}", "-Wl,--disable-reloc-section",
+    f"-Wl,--section-start=.hole={HOLE_BEGIN:#x}", f"-Wl,--section-start=.text={IMAGE_TOP:#x}",
+]
+LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase", *IMAGE_FLAGS]
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
@@ -380,6 +456,7 @@ class Function:
     address: int
     image: str | None  # None: the resident executable
     unit: str
+    size: int = 0
 
 
 @dataclass
@@ -427,7 +504,7 @@ def read_functions(entry: dict, path: Path) -> list[Function]:
     for item in entry.get("functions", []):
         if not isinstance(item, dict) or not isinstance(item.get("name"), str) or not isinstance(item.get("address"), int):
             raise Problem(f"{path}: unit {entry.get('name')} has a function without a name and an address")
-        out.append(Function(item["name"], item["address"], image, entry["name"]))
+        out.append(Function(item["name"], item["address"], image, entry["name"], item.get("size", 0) if isinstance(item.get("size", 0), int) else 0))
     return out
 
 
@@ -590,6 +667,7 @@ class Row:
     address: int
     image: str | None
     library: bool
+    size: int = 0
 
 
 def read_inventory(directory: Path, config: dict) -> list[Row]:
@@ -597,7 +675,7 @@ def read_inventory(directory: Path, config: dict) -> list[Row]:
     try:
         rows = []
         for block in coveragemap.read_resident(directory):
-            rows += [Row(f.address, None, block.key != coveragemap.GAME) for f in block.functions]
+            rows += [Row(f.address, None, block.key != coveragemap.GAME, f.size) for f in block.functions]
         modules = coveragemap.read_modules(directory)
         coveragemap.assign_images(modules, config)
     except coveragemap.Problem as err:
@@ -606,7 +684,7 @@ def read_inventory(directory: Path, config: dict) -> list[Row]:
         raise Problem(f"cannot read the inventory in {directory}: {err.strerror}")
     for block in modules:
         if block.image:
-            rows += [Row(f.address, block.image, False) for f in block.functions]
+            rows += [Row(f.address, block.image, False, f.size) for f in block.functions]
     return rows
 
 
@@ -636,6 +714,131 @@ def default_name(address: int, image: str | None) -> str:
 
 def order_key(image: str | None, address: int, index: dict[str | None, int]):
     return index[image], address
+
+
+@dataclass
+class SweepEntry:
+    """One entry of the reviewed table of inventory rows that are not functions (`port/sweep_rows.toml`)."""
+
+    image: str | None  # None: the resident executable
+    address: int
+    function: str
+    function_address: int
+    data_bytes: int
+    evidence: str
+    data_symbol: str | None = None  # a name of symbols.ld at exactly the row's address, when the configuration names the data
+
+
+@dataclass
+class Span:
+    """The text range of a unit that is built, in the image it is placed in (moved for a second placement)."""
+
+    unit: str
+    image: str | None
+    start: int
+    end: int
+    declared: set[int]  # the addresses of the functions the unit declares
+
+
+def contiguous(functions: list[Function]) -> bool:
+    """Whether the functions of a unit, by address, follow each other with no gap and no overlap, as the matching
+    build's validator (`matchbuild.py`, "gap or overlap between functions") requires of every unit."""
+    ordered = sorted(functions, key=lambda f: f.address)
+    return all(a.address + a.size == b.address for a, b in zip(ordered, ordered[1:]))
+
+
+def split_span_rows(rows: list[Row], spans: list[Span]) -> tuple[list[Row], list[tuple[Row, Span]]]:
+    """(the rows to keep, the rows that begin inside a unit's range without being one of its functions, with that unit).
+
+    The range of a unit is function coverage because the functions of a unit are contiguous (see `contiguous`)."""
+    inside: dict[str | None, list[Span]] = {}
+    for span in spans:
+        inside.setdefault(span.image, []).append(span)
+    kept, dropped = [], []
+    for row in rows:
+        owner = next((sp for sp in inside.get(row.image, []) if sp.start <= row.address < sp.end and row.address not in sp.declared), None)
+        if owner is None:
+            kept.append(row)
+        else:
+            dropped.append((row, owner))
+    return kept, dropped
+
+
+def read_sweep_rows(path: Path | None) -> list[SweepEntry]:
+    """The entries of the reviewed table; none when the file does not exist. A malformed table is an error."""
+    if path is None or not path.is_file():
+        return []
+    try:
+        with open(path, "rb") as handle:
+            table = tomllib.load(handle)
+    except (OSError, tomllib.TOMLDecodeError) as err:
+        raise Problem(f"cannot read {path}: {err}")
+    rows = table.get("row", [])
+    if not isinstance(rows, list):
+        raise Problem(f"{path}: `row` is not an array of tables")
+    out: list[SweepEntry] = []
+    seen: set[tuple[str | None, int]] = set()
+    for number, raw in enumerate(rows, 1):
+        where = f"{path}: entry {number}"
+        if not isinstance(raw, dict):
+            raise Problem(f"{where} is not a table")
+        for key in ("image", "address", "function", "function_address", "data_bytes", "evidence"):
+            if key not in raw:
+                raise Problem(f"{where} has no `{key}`")
+        unknown = sorted(set(raw) - {"image", "address", "function", "function_address", "data_bytes", "evidence", "data_symbol"})
+        if unknown:
+            raise Problem(f"{where} has an unknown field `{unknown[0]}`")
+        types_ok = (isinstance(raw["image"], str) and isinstance(raw["address"], int) and isinstance(raw["function"], str)
+                    and isinstance(raw["function_address"], int) and isinstance(raw["evidence"], str) and raw["evidence"].strip()
+                    and isinstance(raw["data_bytes"], int) and isinstance(raw.get("data_symbol", ""), str))
+        if not types_ok:
+            raise Problem(f"{where} has a field of the wrong type or an empty evidence")
+        image = None if raw["image"] == "resident" else raw["image"]
+        key = (image, raw["address"])
+        if key in seen:
+            raise Problem(f"{where}: {raw['image']} {raw['address']:#x} is listed twice")
+        seen.add(key)
+        out.append(SweepEntry(image, raw["address"], raw["function"], raw["function_address"], raw["data_bytes"], raw["evidence"].strip(), raw.get("data_symbol")))
+    return out
+
+
+def verify_sweep_rows(entries: list[SweepEntry], rows: list[Row], with_c: list[Function], declared: list[Function],
+                      symbols: dict[str, int] | None = None) -> tuple[list[Row], list[str]]:
+    """(the rows to keep, the misses). A row is dropped only when the table lists it and the entry is verified against
+    the tree; an entry that cannot be verified is a miss and drops nothing. `symbols` are the names of the symbol file."""
+    by_key = {(r.image, r.address): r for r in rows}
+    misses: list[str] = []
+    dropped: set[tuple[str | None, int]] = set()
+    for e in entries:
+        name = f"{e.image or 'resident'} {e.address:#x}"
+        row = by_key.get((e.image, e.address))
+        if row is None:
+            misses.append(f"{name}: the inventory has no row at this address in this image")
+            continue
+        fns = [f for f in with_c if f.image == e.image and f.name == e.function]
+        if not fns:
+            misses.append(f"{name}: {e.function} is not a function with C in this image")
+            continue
+        fn = fns[0]
+        if fn.address != e.function_address:
+            misses.append(f"{name}: {e.function} is at {fn.address:#x}, not at {e.function_address:#x}")
+            continue
+        if e.data_bytes <= 0 or e.function_address - e.address != e.data_bytes:
+            misses.append(f"{name}: data_bytes {e.data_bytes} is not the distance {e.function_address - e.address} to the function")
+            continue
+        if not e.address < e.function_address < e.address + row.size:
+            misses.append(f"{name}: {e.function} at {e.function_address:#x} does not lie strictly inside the row")
+            continue
+        between = [a for a in (f.address for f in declared if f.image == e.image and f.address != fn.address) if e.address <= a < e.function_address]
+        if between:
+            misses.append(f"{name}: another function begins at {between[0]:#x}, between the row and {e.function}")
+            continue
+        if e.data_symbol is not None and (symbols or {}).get(e.data_symbol) != e.address:
+            found = (symbols or {}).get(e.data_symbol)
+            misses.append(f"{name}: data_symbol {e.data_symbol} is " + ("not in the symbol file" if found is None else f"at {found:#x}, not at the row"))
+            continue
+        dropped.add((e.image, e.address))
+    return [r for r in rows if (r.image, r.address) not in dropped], misses
 
 
 def build_tables(images: list[dict], with_c: list[tuple[Function, str]], rows: list[Row], declared: list[Function]):
@@ -772,6 +975,73 @@ def marker_source(name: str, underscore: bool) -> str:
     """The assembly of one marker: a global label in the text section."""
     sym = ("_" if underscore else "") + name
     return f"\t.text\n\t.globl\t{sym}\n{sym}:\n"
+
+
+def hole_source() -> str:
+    """The assembly of the filler section: uninitialized, from HOLE_BEGIN to IMAGE_TOP (its address is the link flag's)."""
+    return f'\t.section\t.hole,"b"\n\t.space\t{IMAGE_TOP - HOLE_BEGIN:#x}\n'
+
+
+def verify_image(data: bytes) -> list[str]:
+    """The misses of the linked file's PE header against the link settings; empty when none.
+
+    Image base 0x10000, no relocations (the flag, no table), not dynamic base; the first section is `.hole`
+    at 0x11000, uninitialized (no bytes in the file); the sections follow one another with no gap (Windows
+    refuses an image with one); the first real section lies at 0x200000 or above; the headers fit the page
+    that is the image's first, so that nothing of the range 0x10000..0x1fffff is outside the image."""
+    def u16(o: int) -> int:
+        return int.from_bytes(data[o:o + 2], "little")
+
+    def u32(o: int) -> int:
+        return int.from_bytes(data[o:o + 4], "little")
+
+    if len(data) < 0x40 or data[:2] != b"MZ":
+        return ["the file has no DOS header"]
+    pe = u32(0x3C)
+    if pe + 24 + 96 > len(data) or data[pe:pe + 4] != b"PE\0\0":
+        return ["the file has no PE header"]
+    count, optsize, chars = u16(pe + 6), u16(pe + 20), u16(pe + 22)
+    opt = pe + 24
+    if u16(opt) != 0x10B or optsize < 96 + 8 * 16:
+        return ["the file is not a 32-bit PE image"]
+    misses = []
+    base, align, headers, dll = u32(opt + 28), u32(opt + 32), u32(opt + 60), u16(opt + 70)
+    if base != IMAGE_BASE:
+        misses.append(f"image base {base:#x}, wanted {IMAGE_BASE:#x}")
+    if not chars & 1:
+        misses.append("relocations are not stripped (flag)")
+    if u32(opt + 96 + 8 * 5) or u32(opt + 96 + 8 * 5 + 4):
+        misses.append("the image has a relocation table")
+    if dll & 0x40:
+        misses.append("the image is relocatable (dynamic base)")
+    if align != 0x1000:
+        misses.append(f"section alignment {align:#x}, wanted 0x1000")
+    if headers > HOLE_BEGIN - IMAGE_BASE:
+        misses.append(f"the headers ({headers:#x} bytes) do not fit the first page")
+    table = opt + optsize
+    if count < 2 or table + 40 * count > len(data):
+        return misses + [f"{count} sections: the filler and the program's own are needed"]
+    rows = []
+    for i in range(count):
+        o = table + 40 * i
+        name = data[o:o + 8].rstrip(b"\0").decode("ascii", "replace")
+        rows.append((name, base + u32(o + 12), u32(o + 8), u32(o + 16), u32(o + 36)))
+    name, begin, size, raw, flags = rows[0]
+    if name != ".hole":
+        misses.append(f"the first section is {name}, wanted .hole")
+    if begin != HOLE_BEGIN:
+        misses.append(f"the first section begins at {begin:#x}, wanted {HOLE_BEGIN:#x}")
+    if raw or not flags & 0x80:
+        misses.append("the filler section is not uninitialized")
+    for (n1, b1, s1, _, _), (n2, b2, _, _, _) in zip(rows, rows[1:]):
+        if b2 != b1 + (s1 + align - 1) // align * align:
+            misses.append(f"a gap or an overlap between {n1} ({b1:#x}, {s1:#x} bytes) and {n2} ({b2:#x})")
+    if begin + (size + align - 1) // align * align < IMAGE_TOP:
+        misses.append(f"the filler ends at {begin + (size + align - 1) // align * align:#x}, below {IMAGE_TOP:#x}")
+    for n, b, _, _, _ in rows[1:]:
+        if b < IMAGE_TOP:
+            misses.append(f"section {n} begins at {b:#x}, below {IMAGE_TOP:#x}")
+    return misses
 
 
 def text_symbols(nm_text: str) -> list[str]:
@@ -990,6 +1260,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     if not (runtime / "port_tables.h").is_file():
         raise Problem(f"{runtime / 'port_tables.h'} does not exist")
     runtime_sources = sorted(runtime.glob("*.c"))
+    sweep_entries = read_sweep_rows(args.sweep_rows)
     inventory = read_inventory(config_path.parent.parent / "inventory", config)
     image_archives = read_image_archives(config_path.parent.parent / "inventory", config)
 
@@ -1004,7 +1275,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
                 raise Problem(f"unit {job.name} has a name that ends like the second placement {place.suffix}")
     # The functions of the second placements: the names of the first image's functions, at their moved addresses.
     moved_functions = [
-        Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit)
+        Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit, fn.size)
         for pl in placements for fn in selection.declared if fn.image == pl.first
     ]
     names = merge_names(entries + [(f.name, f.address, f"unit {f.unit} placed in {f.image}") for f in moved_functions]
@@ -1045,14 +1316,44 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             if fn.name in o.defined:
                 with_c.append((fn, "impl_" + fn.name))
                 for pl in o.seconds:
-                    with_c.append((Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit), "impl_" + fn.name + pl.suffix))
-    functions, absents = build_tables(selection.images, with_c, inventory, selection.declared + moved_functions)
+                    with_c.append((Function(fn.name + pl.suffix, pl.moved[fn.name], pl.image, fn.unit, fn.size), "impl_" + fn.name + pl.suffix))
+    kept_rows, misses = verify_sweep_rows(sweep_entries, inventory, [fn for fn, _ in with_c], selection.declared + moved_functions, {n: a for n, a, _ in symbols})
+    if misses:
+        raise Failure("the table of sweep rows does not verify:\n" + "\n".join(misses))
+    spans: list[Span] = []
+    for o in outcomes:
+        if not o.ok or o.job.nonmatching or not o.job.functions:
+            continue
+        if not contiguous(o.job.functions):
+            note = f"unit {o.job.name}: its functions are not contiguous; rows inside its range keep their stop"
+            print(f"hostbuild.py: {note}", file=sys.stderr)
+            listing.append(f"not-contiguous: {note}")
+            continue
+        fns = o.job.functions
+        start, end = min(f.address for f in fns), max(f.address + f.size for f in fns)
+        spans.append(Span(o.job.name, o.job.image, start, end, {f.address for f in fns}))
+        for pl in o.seconds:
+            spans.append(Span(o.job.name, pl.image, start + pl.shift, end + pl.shift, {pl.moved[f.name] for f in fns}))
+    kept_rows, span_rows = split_span_rows(kept_rows, spans)
+    functions, absents = build_tables(selection.images, with_c, kept_rows, selection.declared + moved_functions)
     out.append(f"functions with C: {len(functions)}")
     library = sum(1 for a in absents if a[3])
     out.append(f"functions without C: {len(absents)}, library {library}, game and modules {len(absents) - library}")
+    out.append(f"sweep rows that are not functions: {len(sweep_entries) + len(span_rows)}")
     images_by_index = [i["name"] for i in selection.images]
+    declared_names = {(f.image, f.address): f.name for f in reversed(selection.declared + moved_functions)}
     listing.extend(
         f"absent: {a[2]} {a[1]:#x} {images_by_index[a[0]] if a[0] >= 0 else '-'}" for a in absents if not a[3]
+    )
+    listing.extend(
+        f"data-row: {declared_names.get((e.image, e.address)) or default_name(e.address, e.image)} at {e.address:#x}, {e.image or '-'}, "
+        f"table, function {e.function} at {e.function_address:#x}: {e.evidence}"
+        for e in sweep_entries
+    )
+    listing.extend(
+        f"data-row: {declared_names.get((r.image, r.address)) or default_name(r.address, r.image)} at {r.address:#x}, {r.image or '-'}, "
+        f"rule 2: inside the unit {sp.unit} ({sp.start:#x}-{sp.end:#x})"
+        for r, sp in span_rows
     )
 
     symbol_names = {s[0] for s in symbols}
@@ -1112,8 +1413,14 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         if proc is None or proc.returncode != 0:
             raise Failure(f"{asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
         marks.append(obj)
+    hole_asm, hole_obj = build / "gen" / "hole.s", build / "rt" / "hole.o"
+    write_text(hole_asm, hole_source())
+    hole_obj.unlink(missing_ok=True)
+    proc = hostcheck.compile_run([args.cc, "-c", "-o", str(hole_obj), str(hole_asm)], args.timeout)
+    if proc is None or proc.returncode != 0:
+        raise Failure(f"{hole_asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
     response = build / "link.rsp"
-    write_text(response, "".join(quote(p) + "\n" for p in [marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
+    write_text(response, "".join(quote(p) + "\n" for p in [hole_obj, marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
     exe = build / args.out
     exe.unlink(missing_ok=True)
     libraries = [str(x) for x in psyz[0]["link"]] if psyz else []
@@ -1129,7 +1436,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         if listing_nm is None or listing_nm.returncode != 0:
             raise Failure(f"nm did not run on {obj}")
         runtime_symbols += text_symbols(listing_nm.stdout)
-    misses = verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
+    misses = verify_image(exe.read_bytes())
+    misses += verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
     misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
@@ -1161,6 +1469,7 @@ def main() -> int:
     parser.add_argument("--build", type=Path, default=REPO / "port/build/host")
     parser.add_argument("--out", default="sfa2.exe")
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
+    parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--psyz", type=Path, default=None)
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)

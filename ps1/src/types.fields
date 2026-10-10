@@ -53,7 +53,8 @@ struct BoxTables size=0x14
 struct Slot size=0x8
 0x000 u8 field_00
 0x001 u8 field_01
-0x002 u16 field_02
+0x002 u8 field_02
+0x003 u8 field_03
 0x004 u8 field_04
 0x005 u8 field_05
 0x006 u8 field_06
@@ -2133,6 +2134,7 @@ struct Slot06Layer size=0x90
 0x080 s32 field_80
 0x084 s32 field_84
 0x088 s16 field_88
+0x08a u8 field_8a
 0x08b u8 field_8b
 0x08c u8 field_8c
 
@@ -2359,10 +2361,12 @@ struct Slot04bObj size=0x394
 0x27d u8 field_27d
 0x298 u8 field_298
 0x330 u8 field_330
+0x332 u16 field_332
 0x334 u8 field_334
 0x335 u8 field_335
 0x336 u8 field_336
 0x337 u8 field_337
+0x338 u8 field_338
 0x339 u8 field_339
 
 struct Slot04_10Rec6cb0 size=0x10

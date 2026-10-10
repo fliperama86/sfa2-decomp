@@ -780,7 +780,7 @@
 8013df68	192	func_8013df68	-	-	0	0	closed
 8013e028	360	-	-	-	0	0	closed
 8013e190	84	func_8013e190	-	-	1	0	open
-8013e1e4	204	-	-	-	0	0	closed
+8013e1e4	204	func_8013e1e4	-	-	0	0	closed
 8013e2b0	260	func_8013e2b0	-	-	0	0	closed
 8013e3b4	84	func_8013e3b4	-	-	1	0	open
 8013e408	160	func_8013e408	-	-	0	0	closed
@@ -884,7 +884,7 @@
 80142fe8	412	func_80142fe8	-	-	0	0	closed
 80143184	552	func_80143184	-	-	0	0	closed
 801433ac	640	func_801433ac	-	-	0	0	closed
-8014362c	92	-	-	-	0	0	closed
+8014362c	92	func_8014362c	-	-	0	0	closed
 80143688	64	func_80143688	-	-	1	0	open
 801436c8	20	func_801436c8	-	-	0	0	closed
 801436dc	64	func_801436dc	-	-	1	0	open
@@ -1123,7 +1123,7 @@
 8014a788	184	func_8014a788	-	-	0	0	open
 8014a840	112	func_8014a840	-	-	0	0	open
 8014a8b0	156	func_8014a8b0	-	-	0	0	closed
-8014a94c	256	-	-	-	0	0	open
+8014a94c	256	func_8014a94c	-	-	0	0	open
 8014aa4c	128	func_8014aa4c	-	-	0	0	open
 8014aacc	84	func_8014aacc	-	-	0	0	open
 8014ab20	84	func_8014ab20	-	-	0	0	open
@@ -1189,7 +1189,7 @@
 8014c804	272	func_8014c804	-	-	0	0	open
 8014c914	128	func_8014c914	-	-	0	0	open
 8014c994	96	func_8014c994	-	-	0	0	closed
-8014c9f4	136	-	-	-	0	0	closed
+8014c9f4	136	func_8014c9f4	-	-	0	0	closed
 8014ca7c	160	func_8014ca7c	-	-	0	0	closed
 8014cb1c	136	func_8014cb1c	-	-	0	0	closed
 8014cba4	84	func_8014cba4	-	-	0	0	closed

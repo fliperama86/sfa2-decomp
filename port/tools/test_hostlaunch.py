@@ -62,18 +62,21 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from test_hostrun import CNF, Image  # noqa: E402
+import hostbuild as hb  # noqa: E402
 
+BURST_RUNS, BURST_LIMIT = {"exit": 20, "crash": 20}, 10   # runs of each ending case (the flawed variants fail every run of 200, see the page), and the seconds a run may take
 SRC = HERE.parent / "src"
 BUILD = HERE.parent / "build"
 RAM = 0x80000000
-LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
+LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "modules", "debug", "interrupt", "mirror", "mirrorcore"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -94,6 +97,7 @@ K = {name: RAM + 0x100300 + 0x10 * i for i, name in enumerate(
      "ExitCriticalSection", "OpenTh", "ChangeTh", "CloseTh", "GetGp", "CloseEvent", "InterruptCallback", "VSyncCallback"])}
 G_CRASH = RAM + 0x100520
 G_VBLANK, G_THREADS, G_THREAD_RET, T1, T2, T3 = (RAM + 0x100400 + 0x10 * i for i in range(6))
+G_SPANS = RAM + 0x100480
 
 
 def jal(target: int) -> int:
@@ -127,6 +131,7 @@ def sha_bytes(data: bytes) -> str:
 PROLOGUE = r"""
 #include <stdio.h>
 #include <windows.h>
+extern int test_presents;
 #define SAY(...) do { printf(__VA_ARGS__); fflush(stdout); } while (0)
 """
 
@@ -161,7 +166,7 @@ static void handler(void) { count++; }
 void game_vblank(void)
 {
     unsigned ev, ev2;
-    int i, v, c, was;
+    int i, v, c, p, was;
     DWORD t0;
     SAY("reset %s\n", ps1_ResetCallback() ? "first" : "again");
     SAY("reset %s\n", ps1_ResetCallback() ? "first" : "again");
@@ -173,7 +178,8 @@ void game_vblank(void)
     t0 = GetTickCount() - t0;
     v = ps1_VSync(-1);
     c = count;
-    SAY("five waits: vblanks %d handler %d slow %d fast %d\n", v, c, t0 < 50, t0 > 1000);
+    p = test_presents;
+    SAY("five waits: vblanks %d handler %d presents %d slow %d fast %d\n", v, c, p, t0 < 50, t0 > 1000);
     was = ps1_EnterCriticalSection();
     c = count;
     for (i = 0; i < 3; i++) ps1_VSync(0);
@@ -243,6 +249,37 @@ void game_threads(void)
     i = ps1_ChangeTh(h3);
     SAY("reopened %08x; change to the closed t3 %d; close the main thread %d\n", again, i, ps1_CloseTh(hm));
 }
+extern int port_game_span(const void *, size_t);
+static unsigned hu1, hu2;
+static char *u1_local, *u2_local;
+void u1(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    u1_local = mine;
+    SAY("u1: own local %d\n", port_game_span(mine, sizeof mine));
+    ps1_ChangeTh(hu2);
+    SAY("u1: u2's local %d\n", port_game_span(u2_local, 4));
+    ps1_ChangeTh(hm);
+}
+void u2(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    u2_local = mine;
+    SAY("u2: own local %d, u1's local %d\n", port_game_span(mine, sizeof mine), port_game_span(u1_local, 4));
+    ps1_ChangeTh(hu1);
+}
+void game_spans(void)
+{
+    char mine[16];
+    mine[0] = 0;
+    SAY("main: own local %d, address in the RAM %d, in the scratchpad %d\n", port_game_span(mine, sizeof mine), port_game_span((void *)0x80100000u, 16), port_game_span((void *)0x1f800000u, 16));
+    hu1 = ps1_OpenTh((unsigned)(size_t)u1, 0x801fec00u, 0);
+    hu2 = ps1_OpenTh((unsigned)(size_t)u2, 0x801ff400u, 0);
+    ps1_ChangeTh(hu1);
+    SAY("main: u1's local %d, u2's local %d\n", port_game_span(u1_local, 4), port_game_span(u2_local, 4));
+}
 void thread_returns(void) { SAY("thread function ran and returns\n"); }
 void game_thread_ret(void)
 {
@@ -255,8 +292,8 @@ void game_thread_ret(void)
 GAME_CRASH = PROLOGUE + r"""
 void game_crash(void)
 {
-    volatile unsigned *p = (volatile unsigned *)0x1000;
-    SAY("about to read the mirror\n");
+    volatile unsigned *p = (volatile unsigned *)0xffff1000u;   /* the last 64 KB of the address space always fault and are not served */
+    SAY("about to read the top of the address space\n");
     SAY("read %u\n", *p);
 }
 """
@@ -427,7 +464,7 @@ ABS_MECH = ABS_BASE + [("lib_a", LIB_A, 1), ("lib_b", LIB_B, 1), ("lib_c", LIB_C
 FUN_MECH = FUN_BASE + [("game_over", G_OVER, "game_over"), ("game_mech", G_MECH, "game_mech")]
 ABS_KERN = ABS_BASE + [(n, a, 1) for n, a in K.items()]
 FUN_KERN = FUN_BASE + [("game_vblank", G_VBLANK, "game_vblank"), ("game_threads", G_THREADS, "game_threads"),
-                       ("game_thread_ret", G_THREAD_RET, "game_thread_ret"),
+                       ("game_thread_ret", G_THREAD_RET, "game_thread_ret"), ("game_spans", G_SPANS, "game_spans"),
                        ("t1", T1, "t1"), ("t2", T2, "t2"), ("t3", T3, "t3"), ("thread_returns", RAM + 0x100460, "thread_returns")]
 
 FUN_CRASH = FUN_BASE + [("game_crash", G_CRASH, "game_crash")]
@@ -758,6 +795,16 @@ STUBS = r"""
 #include <stdio.h>
 void c_main(void) { puts("C main ran"); fflush(stdout); }
 void c_big(void) { puts("C big ran"); fflush(stdout); }
+#include "port.h"
+int test_presents;
+void port_gpu_present(void) { test_presents++; }
+int port_gpu_read_frame(unsigned short *pixels)
+{
+    int i;
+    if (test_presents == 0) return -1;
+    for (i = 0; i < 1024 * 512; i++) pixels[i] = (unsigned short)((i * 7) & 0x7fff);
+    return 0;
+}
 """
 
 
@@ -767,6 +814,38 @@ class Rig:
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.built: dict[str, Path] = {}
         self.objects: list[Path] = []
+        self.hole: Path | None = None
+        self.last: dict | None = None        # the last program run: status (None if it timed out), stdout and stderr lines, timed_out
+
+    def record(self, status, out, err, timed_out: bool = False) -> None:
+        """Replace the record of the last program run (never merged with the one before)."""
+        def lines(text):
+            if isinstance(text, bytes):
+                text = text.decode(errors="replace")
+            return (text or "").replace("\r\n", "\n").splitlines()
+        self.last = {"status": status, "stdout": lines(out), "stderr": lines(err), "timed_out": timed_out}
+
+    def report(self) -> list[str]:
+        """What the last program run did, every line of it, for a failing case to print."""
+        if self.last is None:
+            return ["     (no program has been run yet)"]
+        last = self.last
+        out = ["     the last program run " + ("did not end in time" if last["timed_out"] else f"ended with status {last['status']}") +
+               f"; it printed {len(last['stdout'])} line(s) to stdout and {len(last['stderr'])} to stderr" + (":" if last["stdout"] or last["stderr"] else "")]
+        out += [f"       stdout | {line}" for line in last["stdout"]]
+        out += [f"       stderr | {line}" for line in last["stderr"]]
+        return out
+
+    def start(self, exe: Path, args: list[str], timeout: int) -> tuple[int, str]:
+        """Run a program once; record its status and both streams (also when it timed out, and then raise the timeout)."""
+        self.last = None
+        try:
+            proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired as err:
+            self.record(None, err.stdout, err.stderr, timed_out=True)
+            raise
+        self.record(proc.returncode, proc.stdout, proc.stderr)
+        return proc.returncode, proc.stdout
 
     def native(self, path: Path) -> str:
         if self.wsl:
@@ -803,12 +882,24 @@ class Rig:
             self.objects.append(self.compile(stubs))
         return self.objects
 
-    def program_for(self, variant: str, pin: bytes) -> Path:
-        """The runtime built with the variant's tables, domains and game code, for the program `pin`."""
+    def program_for(self, variant: str, pin: bytes, old_link: bool = False) -> Path:
+        """The runtime built with the variant's tables, domains and game code, for the program `pin`.
+
+        old_link: linked the way the programs were before the image took the console's copy of RAM (default
+        base, no filler section); the program must then refuse to start."""
         v = VARIANTS[variant]
-        key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}"
+        key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}" + ("-old" if old_link else "")
         if key not in self.built:
             objs = list(self.runtime_objects())
+            if not self.hole:
+                hole = self.work / "hole.s"
+                hole.write_text(hb.hole_source())
+                self.hole = self.work / "hole.o"
+                proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
+                if proc.returncode != 0:
+                    raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
+            if not old_link:
+                objs.append(self.hole)
             for tag, text in (("tables", tables_c(v.functions, v.absents, pin)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
                 path.write_text(text)
@@ -816,22 +907,45 @@ class Rig:
             names = {n: a for n, a, _ in v.absents} | {n: a for n, a, _ in v.functions}
             defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-{key}.exe"
-            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *LINK_FLAGS, *defs], capture_output=True, text=True, timeout=300)
+            flags = [f for f in LINK_FLAGS if f not in hb.IMAGE_FLAGS] if old_link else LINK_FLAGS
+            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *flags, *defs], capture_output=True, text=True, timeout=300)
             if proc.returncode != 0:
                 raise RuntimeError("the runtime did not link:\n" + proc.stderr.strip())
             self.built[key] = out
         return self.built[key]
 
     def run(self, tag: str, data: bytes, pin: bytes | None = None, variant: str = "base", args: list[str] | None = None,
-            timeout: int = 60) -> tuple[int, list[str], Image, str]:
+            timeout: int = 60, old_link: bool = False) -> tuple[int, list[str], Image, str]:
         """Run the program built for `pin` (default: `data` itself) on an image holding `data`."""
-        exe = self.program_for(variant, data if pin is None else pin)
+        exe = self.program_for(variant, data if pin is None else pin, old_link)
         img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": data})
         path = self.work / f"{tag}.bin"
         img.write(path)
         arg = self.native(path)
-        proc = subprocess.run([*self.prefix, str(exe), *(args or []), arg], capture_output=True, text=True, timeout=timeout)
-        return proc.returncode, proc.stdout.replace("\r\n", "\n").splitlines(), img, arg
+        status, out = self.start(exe, [*(args or []), arg], timeout)
+        return status, out.replace("\r\n", "\n").splitlines(), img, arg
+
+
+    def run_bounded(self, exe: Path, arg: str, args: list[str], limit: int) -> tuple[int, list[str]] | None:
+        """One run of a program that must end by itself within `limit` seconds; None if it did not. A program that
+        did not end is ended by its process id (found by its exact path, never by name), and the run is not repeated."""
+        self.last = None
+        proc = subprocess.Popen([*self.prefix, str(exe), *args, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            out, err = proc.communicate(timeout=limit)
+        except subprocess.TimeoutExpired as expired:
+            partial_out, partial_err = expired.stdout, expired.stderr
+            if self.wsl:
+                query = ("Get-Process | Where-Object { $_.Path -eq '%s' } | ForEach-Object { $_.Id }" % self.native(exe))
+                ids = subprocess.run(["powershell.exe", "-NoProfile", "-Command", query], capture_output=True, text=True, timeout=120).stdout.split()
+                for pid in ids:
+                    subprocess.run(["taskkill.exe", "/F", "/PID", pid], capture_output=True, timeout=60)
+            proc.kill()
+            rest_out, rest_err = proc.communicate()   # after a timeout this returns everything the run printed, the partial output included
+            self.record(None, rest_out or partial_out, rest_err or partial_err, timed_out=True)
+            return None
+        self.record(proc.returncode, out, err)
+        return proc.returncode, out.replace("\r\n", "\n").splitlines()
 
 
 def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0, with_c: int = 2, without_c: int = 2) -> list[str]:
@@ -849,6 +963,34 @@ def head(img: Image, arg: str, host: int = 0, stops: int = 1, overrides: int = 0
 
 def verdict(got, want):
     return None if got == want else f"got {got!r}, wanted {want!r}"
+
+
+def rig_diagnostic_cases(rig: Rig):
+    """The rig says what the last program run did, also when it printed nothing to stdout or timed out (the other control
+    files that run programs through this rig yield these cases too)."""
+    probe = rig.work / "diag.c"
+    probe.write_text('#include <stdio.h>\n#include <windows.h>\nint main(int argc, char **argv) { fputs("to stderr\\n", stderr); puts("to stdout"); fflush(stdout); fflush(stderr);'
+                     ' if (argc > 1) Sleep(3000); return 5; }\n')
+    diag = rig.work / "diag.exe"
+    built = subprocess.run([rig.cc, "-o", str(diag), str(probe)], capture_output=True, text=True, timeout=120)
+    if built.returncode != 0:
+        yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", "the probe did not build: " + built.stderr.strip()
+    else:
+        rig.start(diag, [], 60)
+        text = "\n".join(rig.report())
+        yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", None if (
+            rig.last == {"status": 5, "stdout": ["to stdout"], "stderr": ["to stderr"], "timed_out": False}
+            and "ended with status 5" in text and "stdout | to stdout" in text and "stderr | to stderr" in text) else f"recorded {rig.last!r}, report {text!r}"
+        try:
+            rig.start(diag, ["slow"], 1)
+            got = "it did not time out"
+        except subprocess.TimeoutExpired:
+            got = None if (rig.last is not None and rig.last["timed_out"] and rig.last["status"] is None and rig.last["stdout"] == ["to stdout"]
+                           and rig.last["stderr"] == ["to stderr"] and "did not end in time" in "\n".join(rig.report())) else f"recorded {rig.last!r}"
+        yield "a-run-that-timed-out-is-recorded-as-such-with-what-it-had-printed", got
+        rig.start(diag, [], 60)
+        yield "the-next-run-does-not-leave-the-previous-ones-lines-standing", None if rig.last is not None and not rig.last["timed_out"] and rig.last["status"] == 5 else f"recorded {rig.last!r}"
+        time.sleep(3)   # the slow probe ends by itself
 
 
 def cases(rig: Rig):
@@ -904,7 +1046,7 @@ def cases(rig: Rig):
 
     trace = rig.work / "trace.txt"
     status, lines, img, arg = rig.run("traced", program(G_MECH), variant="mech", args=["--trace", "--trace-file", rig.native(trace)])
-    got = trace.read_text().splitlines() if trace.exists() else None
+    got = [l for l in trace.read_text().splitlines() if not l.startswith("mirror:")] if trace.exists() else None   # the mirror's lines (test_hostmirror.py) share the file
     want_trace = ["lib_a 0x5 0x0 0x0 0x0", "lib_c 0x7 0x0 0x0 0x0", "lib_b 0x1 0x0 0x0 0x0"]
     got_cmp = [" ".join(l.split()[:2] + ["0x0"] * 3) for l in got] if got else got
     yield "trace-logs-each-library-call-including-the-one-that-stops", verdict(
@@ -922,8 +1064,8 @@ def cases(rig: Rig):
     yield "list-library-needs-no-disc-and-prints-the-groups-with-addresses", verdict((proc.returncode, out), (0, want))
 
     status, lines, img, arg = rig.run("crash", program(G_CRASH), variant="crash")
-    ok = status == 10 and lines[-2] == "about to read the mirror" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00001000 \(read\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
-    yield "a-read-of-the-ram-mirror-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
+    ok = status == 10 and lines[-2] == "about to read the top of the address space" and re.fullmatch(r"stop: crash: access violation \(read 0xffff1000\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
+    yield "a-read-in-the-last-64-kb-of-the-address-space-is-not-served-and-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
 
     # ---- addresses that the game hands to the runtime to call ----
     for path, name, after in (("thread entry", "thread", "after the switch"), ("event handler", "event", "after the vblank"),
@@ -1000,11 +1142,33 @@ def cases(rig: Rig):
     yield "the-handler-computes-right-with-all-eight-x87-slots-occupied-by-the-interrupted-code", verdict(
         body[2:3], ["handler arithmetic: x87 1 sse 1; handler ran %s times: 1" % (body[2].split("ran ")[1].split(" ")[0] if len(body) > 2 and "ran " in body[2] else "?")])
 
+    yield from rig_diagnostic_cases(rig)
+
+    # ---- the program ends when the game's thread ends it, with the timer attempting its suspension without waiting ----
+    # Each case runs the program BURST_RUNS times, every run once; a run that does not end within LIMIT seconds fails the case.
+    for kind, name, variant, data, want in (
+            ("exit", "a-program-that-ends-by-exit-always-ends-with-the-timer-suspending-without-waiting", "cd-valid", program(G_CD["getsector"]),
+             (6, "stop: CdGetSector buffer 0x00001000 (2048 bytes) is outside the PS1's RAM")),
+            ("crash", "a-program-that-ends-through-the-crash-routine-always-ends-with-the-timer-suspending-without-waiting", "crash", program(G_CRASH), (10, "stop: crash: "))):
+        exe = rig.program_for(variant, data)
+        img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": data})
+        path = rig.work / f"{variant}-burst.bin"
+        img.write(path)
+        arg = rig.native(path)
+        bad = []
+        for n in range(BURST_RUNS[kind]):
+            got = rig.run_bounded(exe, arg, ["--timer-burst"], BURST_LIMIT)
+            if got is None:
+                bad.append(f"run {n}: did not end in {BURST_LIMIT} s")
+            elif got[0] != want[0] or not got[1] or not got[1][-1].startswith(want[1]):
+                bad.append(f"run {n}: status {got[0]}, last lines {got[1][-2:]!r}")
+        yield name, None if not bad else f"{len(bad)} of {BURST_RUNS[kind]} runs wrong: {bad[:3]!r}"
+
     # ---- the kernel ----
     status, lines, img, arg = rig.run("vblank", program(G_VBLANK), variant="kern", timeout=60)
     body = lines[len(head(img, arg)) + 1:]
     want = ["reset first", "reset again", "event f1000000 enable 1",
-            "five waits: vblanks 5 handler 5 slow 0 fast 0",
+            "five waits: vblanks 5 handler 5 presents 5 slow 0 fast 0",
             "enter returned 1; in the critical section the handler ran 0 times",
             "exit; enter again returned 0",
             "after exit the handler ran 2 times in one wait",  # the held-back vblank (merged into one) and the one waited for
@@ -1016,6 +1180,35 @@ def cases(rig: Rig):
     tail = [l for l in body if l.startswith(("close", "closed"))]
     yield "closed-event-stops-calling-its-handler", verdict(tail, ["close 1 0", "closed handler ran 0 times"])
 
+    # ---- the picture dump: --dump-vram writes only the path the user's prefix makes ----
+    folder = rig.work / "dump"
+    folder.mkdir()
+    status, lines, img, arg = rig.run("dump-end", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(folder / "pic")])
+    pixels = [(i * 7) & 0x7FFF for i in range(1024 * 512)]
+    ppm = b"P6\n1024 512\n255\n" + b"".join(bytes(((v & 31) * 255 // 31, ((v >> 5) & 31) * 255 // 31, ((v >> 10) & 31) * 255 // 31)) for v in pixels)
+    made = sorted(x.name for x in folder.iterdir())
+    yield "dump-vram-writes-the-end-picture-and-nothing-else", verdict((status, made, (folder / "pic_end.ppm").read_bytes() == ppm if made else None), (0, ["pic_end.ppm"], True))
+    for x in folder.iterdir():
+        x.unlink()
+    status, lines, img, arg = rig.run("dump-every", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(folder / "pic"), "--dump-every", "1"])
+    yield "dump-every-writes-the-first-picture-at-the-first-vblank-and-no-second-one-within-a-second", verdict((status, sorted(x.name for x in folder.iterdir())), (0, ["pic_00.ppm", "pic_end.ppm"]))
+    status, lines, img, arg = rig.run("dump-nothing", program(ENTRY_C), args=["--dump-vram", rig.native(folder / "none")])
+    yield "dump-vram-before-the-game-drew-anything-says-so-and-writes-nothing", verdict(
+        (status, lines[-1], sorted(x.name for x in folder.iterdir() if x.name.startswith("none"))),
+        (0, "dump: the game has drawn nothing, or the window is gone; " + rig.native(folder / "none") + "_end.ppm not written", []))
+    missing = folder / "no-such-folder" / "pic"
+    status, lines, img, arg = rig.run("dump-nofolder", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(missing)])
+    yield "dump-vram-into-a-missing-folder-says-so-and-makes-nothing", verdict(
+        (status, lines[-1], (folder / "no-such-folder").exists()), (0, "dump: cannot write " + rig.native(missing) + "_end.ppm", False))
+    (folder / "isdir_end.ppm").mkdir()
+    status, lines, img, arg = rig.run("dump-isdir", program(G_VBLANK), variant="kern", args=["--dump-vram", rig.native(folder / "isdir")])
+    yield "dump-vram-onto-a-path-that-is-a-folder-says-so-and-leaves-the-folder", verdict(
+        (status, lines[-1], (folder / "isdir_end.ppm").is_dir(), list((folder / "isdir_end.ppm").iterdir())), (0, "dump: cannot write " + rig.native(folder / "isdir") + "_end.ppm", True, []))
+    before = set(x.name for x in HERE.iterdir())
+    status, lines, img, arg = rig.run("dump-long", program(G_VBLANK), variant="kern", args=["--dump-vram", "x" * 1100])
+    yield "dump-vram-with-a-path-too-long-for-the-buffer-writes-no-truncated-path", verdict(
+        (status, lines[-1], set(x.name for x in HERE.iterdir()) - before), (0, "dump: the picture path (PREFIX_end.ppm) is longer than 1099 characters; nothing written", set()))
+
     status, lines, img, arg = rig.run("threads", program(G_THREADS), variant="kern", timeout=60)
     body = lines[len(head(img, arg)) + 1:]
     want = [f"gp {GP:08x}", "handles ff000001 ff000002 ff000003 fourth ffffffff",
@@ -1024,6 +1217,11 @@ def cases(rig: Rig):
             "t3-b", "t3 closes itself: 1", "main-3",
             "reopened ff000001; change to the closed t3 0; close the main thread 0", "stop: main returned"]
     yield "three-tasks-run-in-order-and-a-task-that-closed-itself-is-gone", verdict((status, body), (0, want))
+
+    status, lines, img, arg = rig.run("spans", program(G_SPANS), variant="kern", timeout=60)
+    body = lines[len(head(img, arg)) + 1:]
+    yield "the-memory-a-task-may-hand-over-is-its-own-stack-the-ram-and-the-scratchpad-not-another-tasks-stack", verdict((status, body[:5]), (0, [
+        "main: own local 1, address in the RAM 1, in the scratchpad 1", "u1: own local 1", "u2: own local 1, u1's local 0", "u1: u2's local 0", "main: u1's local 0, u2's local 0"]))
 
     status, lines, img, arg = rig.run("threadret", program(G_THREAD_RET), variant="kern", timeout=60)
     body = lines[len(head(img, arg)) + 1:]
@@ -1054,9 +1252,11 @@ def main() -> int:
                     print(f"ok   {name}")
                 else:
                     print(f"FAIL {name}: {detail}")
+                    print("\n".join(rig.report()))
                     failed += 1
         except Exception as err:  # a control must report, not crash
             print(f"FAIL the control itself raised {type(err).__name__}: {err}")
+            print("\n".join(rig.report()))
             failed += 1
         print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
         return 1 if failed else 0

@@ -173,11 +173,15 @@ Ninja it is given.
 `python3 port/tools/test_psyzbuild.py` checks the reader, the paths,
 the output lines and the exit statuses on invented trees and patch
 texts, and the real patch on a file made of the lines it expects; every
-case of a refusal also checks that the whole input is unchanged. It
+case of a refusal also checks that the whole input is unchanged (a
+difference is reported by the entries that were added, removed or changed;
+the fixture's git commands are run with git's background work switched off,
+so that nothing but the tool can write into a case's folder). It
 needs no compiler. On 2026-10-09 it ended with
 `all cases behaved as required`.
 
-Nothing in this tree links the result yet.
+The graphics layer of the host program links the result when the host
+build is given `--psyz` (below).
 
 ## The check
 
@@ -667,6 +671,34 @@ cross compiler, the program started from that shell.
   addresses, and every other name where it was. Which names move is taken
   from the matching build's rule; the tool's header gives it, with the one
   bound that is looser here because it would need the game's archive.
+- Which functions have no C is read from the function inventory, a
+  table that a static sweep of the original code made. A few of its
+  rows are not functions, and the runtime writes a stop at every
+  function without C: a stop written at such a row would land in the
+  game's data. Two kinds are left out, and nothing else is.
+  A row that begins with data in front of a function with C is left
+  out only if `port/sweep_rows.toml` lists it. Each entry of that table
+  names the row, the function behind the data and the number of data
+  bytes, and says in words what was read in the original's listing that
+  shows the bytes are data. The tool verifies every entry against the
+  tree (the row exists, the function has C at that address and lies
+  inside the row at the stated distance, a named data symbol stands at
+  the row's address) and refuses to build with an entry it cannot
+  verify. A row in front of a function that the table does not list
+  keeps its stop, whatever lies next to it: nothing is inferred from
+  what stands near a row.
+  A row that begins inside the address range of a unit that is built,
+  without being one of that unit's functions, is the tail of a function
+  that the sweep split. That range is the unit's own code because the
+  matching build requires the functions of a unit to follow one another
+  without a gap; the tool checks that itself, and a unit for which it
+  does not hold gets no such treatment.
+  The tool counts the rows left out and `--list` names each with its
+  reason.
+- The program's image holds the console's copy of RAM: image base
+  `0x10000`, no relocations, a filler section from `0x11000`, the first
+  real section at `0x200000`; the check reads the linked file's header
+  (see the header of the tool).
 - The link places one marker before and one after the code of all game
   objects and checks that every implementation lies between them and that
   nothing of the runtime does. A later piece of the runtime uses them to
@@ -690,15 +722,16 @@ The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
 `port/src/`. It reads no game file. Its output on 2026-10-09, for `ps1/` as
-it is in commit `8b51d04`:
+it is in commit `b2f4e19`:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3731 compiled, 1 of them nonmatching, 0 failed
+units: 3780 compiled, 49 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12459
-functions without C: 623, library 385, game and modules 238
-names at PS1 addresses: 45855
+functions with C: 12524
+functions without C: 547, library 385, game and modules 162
+sweep rows that are not functions: 11
+names at PS1 addresses: 46083
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
@@ -725,7 +758,7 @@ memory: RAM at 0x80000000 (2 MB), scratchpad at 0x1f800000
 disc: FILE, 2352-byte sectors
 program: SLPS_004.15 at sector 243219, 614400 bytes to 0x80118900, entry 0x80118908
 identity: SHA-256 matches the build's baseline
-jumps: 1403 written for functions with C, 449 for functions without
+jumps: 1404 written for functions with C, 448 for functions without
 library: 84 host routines, 301 left that stop
 overrides: 1
 start: 0x801189c4
@@ -777,7 +810,23 @@ routines that do nothing on purpose. What is in this piece:
   timer or by the clock; the thread is interrupted only while it is in
   the game's own code, between the build's two markers, or at a jump in
   the PS1's RAM, never while a handler of the game runs and never inside
-  a critical section. `--no-interrupt` turns the timer off. The cost,
+  a critical section. `--no-interrupt` turns the timer off. Every
+  suspension of the game's thread, the timer's and the watchdog's, goes
+  through one gate that is closed for good before the process ends: it is
+  registered with `atexit` (every `exit()` and a return from `main`) and
+  called before each direct `ExitProcess` on the game's thread (the crash
+  routine of `main.c` and the stops of `mirror.c`), so the timer cannot
+  be ended between a suspension and its resumption and leave the game's
+  thread suspended inside the exit. `--timer-burst` makes the timer
+  attempt its suspension without waiting between attempts and stay 1 ms in
+  each round, and makes the stop routine check its own contract: if a
+  round of the timer was still in flight when it returned, the program
+  prints `stop: a suspension round was in flight when the stop returned`
+  and ends with status 10 (a round that begins after the stop ends it with a line too; a direct `ExitProcess` that was not preceded by the stop ends with a line
+  of its own, status 10; without the option those checks are not made).
+  The hang itself was shown with the gate and the `atexit` call removed;
+  with only the flag, no run hung. The gate is kept for the interval that
+  no run reaches, and its contract has a case. The cost,
   stated: the game's code can be interrupted between any two
   instructions, as on the console, C that a PC compiler orders
   differently may be interrupted in a state the console never showed,
@@ -879,8 +928,143 @@ routines that do nothing on purpose. What is in this piece:
   placement gets the jumps of its own table, and the units left out for
   it are functions without C there.
 
-Not in this piece: the graphics and the pads. Their functions are
-among the 301 that stop.
+- The graphics, through PsyZ. This part exists only in a program built
+  with `hostbuild.py --psyz DIR`, DIR being a build folder of
+  `psyzbuild.py`; without the option the graphics functions stay among
+  those that stop and the program links nothing of PsyZ. With it the
+  program built from this tree prints
+  `library: 111 host routines, 274 left that stop`. The layer serves 27
+  functions of the graphics library. The drawing goes through PsyZ:
+  every list that the game hands to `DrawOTag`, and the packet of
+  `PutDrawEnv`, is walked by the port and each packet is handed on
+  behind the two-word tag that PsyZ uses, because the game's lists are
+  linked by 24-bit addresses of the PS1's RAM. `ClearImage`,
+  `LoadImage`, `StoreImage`, `MoveImage`, `DrawSync`, `SetDispMask`,
+  `PutDispEnv`, `ResetGraph` and the window are PsyZ's as well. The
+  port itself does what only touches the game's own structures: the
+  ordering-table setters, `AddPrim` and its relatives, the setters of
+  primitives, `GetTPage`, `GetClut`, `SetDrawMode`, the default
+  environments, and the words of a drawing environment, after the
+  library's own code. A picture is presented once per vertical blank.
+  The window opens windowed; closing it ends the program.
+- What the graphics layer does not trust. The lists are the game's data:
+  every link must point into the RAM and a list that does not end is cut
+  off by a count. A packet is a stream of commands: before any word of
+  it reaches PsyZ, the port steps through the whole packet with the
+  number of words that each kind of command takes, and the stream must
+  end exactly at the packet's end; a command that would need words
+  beyond it ends the program with a line that names the kind and the
+  word. PsyZ is given the packet's words and nothing else. A kind that
+  the port does not decode (polylines, the copies that carry their data,
+  and a few more) ends the program too, wherever it stands in a packet:
+  nothing is skipped. So does a kind whose length PsyZ reads differently
+  from the console's: the lines with bit 2 set (`0x44` to `0x47` and
+  `0x54` to `0x57`), for which PsyZ takes one word more, the next
+  command's first word. Such a kind is refused, never rewritten into
+  another form. The walker's table and PsyZ's decoder were compared
+  for all 256 kinds (the comment above `command_words` in `gpu.c` has the
+  table with file and line), and `test_hostgpu.py` sends every kind,
+  followed by a complete fill, as a control. A rectangle of an image routine must lie inside
+  the frame buffer of 1024 by 512; a width or height of zero or less
+  becomes 1 and one above 1023 or 511 becomes that, as the library's
+  code does, before the test. The console's hardware wraps a rectangle
+  that leaves the frame buffer; the port does not do that yet and ends
+  with a line instead. A drawing or image routine before
+  `ResetGraph(0)` ends the program: PsyZ would hang. `SetDispMask` and
+  `DrawSync` are served before it, as the console's library serves them
+  and as the game's start-up calls them; `ResetGraph(0)` then leaves
+  the display off, as the reset of the hardware does.
+- Which memory is the game's. A structure that the game's C keeps in a
+  local lies on the console's stack inside the RAM; on a PC it lies on
+  the host's stack. So a structure or buffer that the game hands over by
+  pointer is accepted when the whole of it lies in the RAM, in the
+  scratchpad, or in the live part of the stack that the calling task is
+  running on, and refused otherwise: not another task's stack, not the
+  heap, not the program's own code or data. One routine of the runtime
+  decides this for the graphics layer. The nodes of a list must be in
+  the RAM, since their links are RAM addresses. The first version
+  accepted the RAM only and stopped the real game at its first
+  `ClearImage`, whose rectangle is a local.
+- Where the picture differs from the console's, known so far: a drawn
+  pixel reads back with its top bit set, where PsyZ keeps opacity; PsyZ
+  rounds a flat colour's 8 bits to 5 in its own way (248 gives 30, the
+  console's shift gives 31); `ClearOTag` ends a table with the
+  library's end mark itself; a present waits for the display's refresh
+  on a window that cannot tear. None of this has been compared with the
+  console's picture: the list is what the worker saw in PsyZ's code and
+  in the controls.
+- `--dump-vram PREFIX` writes the frame buffer as a picture file when
+  the program ends, and `--dump-every N` every N seconds.
+
+Not in this piece: the pads and the modules. Their functions are
+among those that stop.
+
+### The console's copy of RAM at address 0
+
+The console shows its RAM a second time from address 0, and the game's
+C reaches that copy in two ways. By accident: a function adds an offset
+to a null pointer and reads there. A private run of the real game met
+one such read, at address `0xd`, while its first fight was loading; on
+the console that is a byte of low RAM and nothing happens. On purpose:
+one function follows links of 24 bits, whose top byte is cut off,
+through an ordering table.
+
+A Windows process cannot have memory at address 0, and from `0x10000`
+up to the end of the 2 MB it would get memory of the system's own, where
+an access does not fault. So the program takes the range first, with its
+own image. It is linked with its image base at `0x10000`, not
+relocatable, and with its first real section at `0x200000`. Windows
+refuses an image whose sections leave a gap, so a filler section,
+`.hole`, uninitialized, covers `0x11000` to `0x1fffff`. The system maps
+the filler readable and writable; at start the runtime makes it
+inaccessible. Nobody else can allocate there, so every access of the game
+to the range faults, each time. The settings and the check of the linked
+file's header are in `hostbuild.py`. The program also checks, at start,
+that every page of `0` to `0x1fffff` is inaccessible, and refuses to
+start otherwise and names the page; a program linked the old way
+refuses.
+
+A handler for access faults takes a read or a write that the game's
+thread made, by an instruction inside the game's own compiled code, at
+an address that lies wholly in `0` to `0x1fffff` and does not touch the
+image's header page. It decodes that one instruction, carries it out on
+the mapped RAM at `0x80000000` plus the address, sets the registers and
+the flags as the processor would, and resumes behind it. Nothing of the
+game is replaced, and no original code is run: the instruction is the PC
+compiler's translation of the game's C. An access that begins inside
+the range and ends at or above `0x200000`, one made by the runtime's or
+a library's code, and an execute fault each end with the crash line. The
+forms served are loads, stores and plain arithmetic and logic (`mov`,
+`movzx`, `movsx`, `add`, `sub`, `and`, `or`, `xor`, `cmp`, `test`); any
+other form ends the program with a line that gives the instruction's
+bytes, and is built when a run of the real game stops on it. The first
+time a function uses the copy, the program prints one line with the
+function's name; with `--trace` every access is a line of the trace file.
+
+What the copy holds. On the console the first 64 KB of RAM belong to
+the BIOS. The port has no BIOS: that part of the RAM holds zeros until
+the game or the port writes there. An accidental read therefore reads 0
+where the console read a byte of the BIOS's.
+
+The header page. The first page of the image, `0x10000` to `0x10fff`,
+holds the executable's header and stays readable: the C library reads
+the header when the program exits, and with the page closed the program
+ended with an access violation inside the library (the record has the
+evidence). So an access of the game to that page is not served: a read
+returns the header's bytes and is not seen, and a write is the crash line.
+
+What else is not served. `0x200000` and above is the program's own first
+section: a read there returns the program's bytes and is not seen, a
+write is the crash line.
+
+Cost. Every served access is a fault, which costs far more than a memory
+access. The controls print the cost of 10000 served reads and the time of
+a walk of 2,000 nodes of an ordering table through links of 24 bits, once
+through the low view and once through real addresses (the last runs are
+in the record). A function that walks the low view in a loop is slow,
+not wrong. The game's function that follows such links needs no host
+routine: its C runs through this layer (the controls show a made-up walk,
+not that function).
 
 ### What this does not show
 
@@ -893,12 +1077,16 @@ among the 301 that stop.
   only on the made-up archives and game code of the controls.
 - Anything about the library on the real game: its host routines have
   run only on the made-up game code of the controls, because the
-  published tree stops at `main` before any of them. PsyZ is not linked.
-  The build tool takes a build of PsyZ (`--psyz`) and writes each
-  image's archive names into its tables, and its header names `gpu.c`,
-  `modules.c` and `psyzbuild.py` for them: those files are not in this
-  tree yet.
+  published tree stops at `main` before any of them. That holds for the
+  graphics too: nothing of the real game has been drawn by a published
+  commit. The build tool also writes each image's archive names into
+  its tables, and its header names `modules.c` for them: that file is
+  not in this tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
+- Anything about the real game's accesses to the copy: the controls use
+  made-up game code.
+- An access of the game to the header page, `0x10000` to `0x10fff`: a
+  read returns the header's bytes without a fault.
 
 ### Controls
 
@@ -912,7 +1100,9 @@ the hash of the program and the gate at the entry among them.
 `python3 port/tools/test_hostlaunch.py --cc CC` needs the cross compiler
 and a way to start a Windows program: it builds the runtime with small
 made-up tables and runs the real start of the program on invented disc
-images. Its cases: the right image stops at a function without C; an
+images; a failing case prints the status and the whole output (every
+line of stdout and of stderr) of its last program run, also when that run
+did not end in time, and the graphics and mirror controls do the same. Its cases: the right image stops at a function without C; an
 entry with C runs that C; an image that differs in one byte from the
 pinned one is refused and nothing of it runs; an entry at an address
 that no table holds, inside a function, just before one, or in a module
@@ -921,8 +1111,8 @@ library function with a host routine is reached and one without still
 stops; an override replaces a function's C; a table that names a
 function twice, an unknown one or an unknown address is refused, and so
 is an override of a function without C; the trace has each library
-call; a read of the PS1's low copy of RAM ends the program with a line
-that says so; a thread entry, an event handler, an interrupt callback
+call; a read of an address that no memory has ends the program with
+the crash line; a thread entry, an event handler, an interrupt callback
 and a vertical-blank callback at an address that the program did not
 install are each refused before the call, and the byte there does not
 run, while the same four paths with a function without C as the target
@@ -932,7 +1122,7 @@ blank, is held back inside a critical section and delivered once after
 it; an event that was closed is not called; three tasks run in the
 order the game switches them, and a task function that returns ends
 the program; the card routines answer with the time-out event. Its
-cases for the interruption: made-up game code that spins on a counter
+cases for the end of the program: a program that ends by `exit()` and one that ends through the crash routine, each run many times with `--timer-burst`, each of which must end by itself in time (a run that does not fails its case and is ended by its process id). Its cases for the interruption: made-up game code that spins on a counter
 which only its handler raises ends by itself, and the handler ran on the
 game's thread; the same code with `--no-interrupt` is ended by the
 watchdog; a loop inside a host routine is not interrupted; a handler is
@@ -971,6 +1161,27 @@ ends the program; a module function handed over as a handler is placed
 and runs, and an address inside a module that is no function start is
 refused; a second placement runs its own C; and two thousand loads and
 first calls in a row with the timer running end without a hang.
+`python3 port/tools/test_hostgpu.py --cc CC --psyz-build DIR` needs a
+built PsyZ and a way to open a window: it links the graphics layer
+with a small program of its own and reads the frame buffer back. Its
+cases: each routine's value; a picture checked pixel by pixel; the
+first list of a program drawn right; every primitive kind the walker
+knows at the length it needs, at 255 words and one word short; lists
+that leave the RAM, loop or run past its end; ordering tables from 30
+entries to all of RAM; rectangles at the frame buffer's edges and one
+pixel past each; pixel buffers at the end of the RAM; a call before
+`ResetGraph(0)`, and `SetDispMask` before it; packets with an incomplete
+command in each position, after a command without effect and after each
+setting word; a kind that is not decoded; structures on the stack of
+the first task and of another one, on a dead part of the stack, on the
+heap and in the program's own data; a display that cannot be opened;
+the dump onto a folder and onto a path that cannot be made; a program
+that outlasts its time, which is gone when the run goes on, while the
+same program started as another run would start it lives on. The cases
+run on SDL's offscreen video driver: PsyZ and its device work, the
+picture is read back, and no window is made. Nothing is stopped by
+name: two runs of this file on one machine do not touch each other's
+programs.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond
@@ -982,6 +1193,35 @@ records, and a record that crosses or only begins inside the declared
 end, for the reader that lists and for the one that looks a file up. On
 2026-10-09 each of the five ended with
 `all cases behaved as required`.
+`python3 port/tools/test_hostmirror.py --cc CC` has the cases for the
+copy of RAM at address 0, in two parts. The first needs no Windows
+program: it builds the layer's decisions with the host's own `cc` and
+tests them alone: whether a fault is served, at the borders `0xffff`,
+`0x10000`, `0x10fff`, `0x11000`, `0x1fffff` and `0x200000` and across
+them; the start check on invented answers of the system, over the whole
+range and with the header page let through; the image's filler read
+from invented headers; the decoder on every served form in every
+addressing shape, and on encodings it must refuse; and each served
+operation against the processor itself, register by register and flag by
+flag. The second part runs the linked program on made-up game code: a
+served read and write of each size; at `0x11000`, `0x3e0cc` and the last
+word `0x1ffffc`, and the sum of two upper-view addresses that wraps; a
+destination that is also the address's register; the read at a null
+pointer plus `0xd`; an access across `0x200000`, a write at it, one from
+a host routine and an execute fault at a low address, each the crash
+line; a read of the header page and a write to it; a form that is not
+served, the line with its bytes; a second fault inside the handler; the
+first-use line and the trace lines; the start check, and a program
+linked the old way, which refuses; a walk of 2,000 nodes through
+24-bit links equal to the same walk on real addresses; and a loop of
+served accesses with the timer running, in which the timer sometimes
+aims the thread between a fault and its handler. It prints the cost of a
+served access and the time of the walk. `test_hostbuild.py` also checks
+the linked file's header against the link settings, on invented headers
+and through each setting a linker might not honour. On 2026-10-10 the
+file ended with `all cases behaved as required` and had printed
+`timing: 10000 served reads took 75730 us (7.57 us each)` and
+`timing walk: real addresses 3 us, low view 60587 us`.
 
 ## Not decided
 

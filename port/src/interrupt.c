@@ -17,6 +17,8 @@
  * Risk, stated: the game's code can now be interrupted between any two instructions, as on the console. */
 #include "port.h"
 
+#include <stdlib.h>
+
 /* Set by the modules layer: is the page at `address` one that the disc wrote and that is not executable? A thread
  * whose instruction pointer is on such a page is inside the access fault that the modules layer is about to handle,
  * and is not interrupted. Null until that layer starts. */
@@ -28,6 +30,7 @@ int (*port_page_blocked)(unsigned address);
 extern char port_game_text_begin, port_game_text_end;
 
 static HANDLE game_thread;
+static int burst;
 unsigned port_interrupt_count;               /* how many vblanks the timer delivered (for the controls and the page) */
 
 void port_interrupt_entry(void);
@@ -71,10 +74,94 @@ __asm__(".text\n"
 extern volatile unsigned interrupted_eip_cell;
 volatile unsigned interrupted_eip_cell;
 
+int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
+{
+    if (context_eip != (unsigned)(size_t)port_interrupt_entry) return 0;
+    if (exception_ip == context_eip) {            /* the system took the thread's address after the redirection */
+        *fault_ip = interrupted_eip_cell;
+        return 1;
+    }
+    if (interrupted_eip_cell == exception_ip) {   /* the system had taken it before */
+        *fault_ip = exception_ip;
+        return 1;
+    }
+    return 0;
+}
+
+void port_interrupt_set_return(unsigned ip)
+{
+    interrupted_eip_cell = ip;
+}
+
 static int in_game_code(unsigned eip)
 {
     return ((size_t)eip >= (size_t)&port_game_text_begin && (size_t)eip < (size_t)&port_game_text_end) ||
            (eip >= PORT_RAM_BASE && eip < PORT_RAM_BASE + PORT_RAM_SIZE && !(port_page_blocked && port_page_blocked(eip)));
+}
+
+/* The gate. Whoever suspends the game's thread (the timer here, the watchdog of debug.c) holds the gate from before
+ * SuspendThread until after ResumeThread. port_suspenders_stop takes the gate once and sets the flag under it; after
+ * it returns no suspension is in flight and none can begin. It runs at every way the game's thread ends the process:
+ * registered with atexit (every exit() and a return from main) and called before the ExitProcess of main.c's crash
+ * routine. Without it the timer could be ended by ExitProcess between its SuspendThread and its ResumeThread, and the
+ * game's thread, left suspended inside the exit, would never finish ending the process.
+ * What was shown, and what was not: with the gate and the registration removed, 78 of 200 runs of a program that ends by
+ * exit() hung (one-off, with --timer-burst); with the flag alone (the timer checks it but does not take the gate) no run
+ * hung, because the hang needs the timer held up between its check and its suspension for the whole length of the game's
+ * exit path, which no run reaches. The gate is kept for that interval, and its contract ("after the stop returns, no
+ * suspension is in flight and none can begin") has a case of its own: with --timer-burst the timer marks its round
+ * (in_round, set once the flag was found clear, cleared after ResumeThread) and waits 1 ms inside it, and the stop, once it
+ * has set the flag and left the gate, ends the program with a line if the mark is set; a round that begins after the stop, and
+ * a direct ExitProcess (port_suspenders_check_closed) or an exit() not preceded by the stop, end it with a line of their own.
+ * Without --timer-burst none of these checks is made: they are self-checks of the test mode. */
+static CRITICAL_SECTION gate;
+static int gate_ready, stopped;
+static volatile int in_round;
+
+void port_suspenders_init(void)
+{
+    if (gate_ready) return;
+    InitializeCriticalSection(&gate);
+    gate_ready = 1;
+    atexit(port_suspenders_check_closed);   /* registered first, so it runs after the stop: the --timer-burst self-check of the registration */
+    atexit(port_suspenders_stop);
+}
+
+void port_suspenders_stop(void)
+{
+    if (!gate_ready) return;
+    EnterCriticalSection(&gate);
+    stopped = 1;
+    LeaveCriticalSection(&gate);
+    if (burst && in_round) {   /* --timer-burst only: the contract of this routine, checked */
+        printf("stop: a suspension round was in flight when the stop returned\n");
+        fflush(stdout);
+        ExitProcess(PORT_EXIT_CRASH);
+    }
+}
+
+void port_suspenders_check_closed(void)
+{
+    if (burst && gate_ready && !stopped) {   /* --timer-burst only: a way of ending the process that did not close the gate */
+        printf("stop: the process was ended while suspensions were still allowed\n");
+        fflush(stdout);
+        ExitProcess(PORT_EXIT_CRASH);
+    }
+}
+
+int port_suspenders_enter(void)
+{
+    EnterCriticalSection(&gate);
+    if (stopped) {
+        LeaveCriticalSection(&gate);
+        return 0;
+    }
+    return 1;
+}
+
+void port_suspenders_leave(void)
+{
+    LeaveCriticalSection(&gate);
 }
 
 static DWORD WINAPI timer(LPVOID unused)
@@ -85,11 +172,19 @@ static DWORD WINAPI timer(LPVOID unused)
     for (;;) {
         LARGE_INTEGER due;
         due.QuadPart = -10000;   /* 1 ms */
-        if (wait && SetWaitableTimer(wait, &due, 0, NULL, NULL, 0)) WaitForSingleObject(wait, 20);
+        if (burst) { /* --timer-burst: no wait between attempts (a control) */ }
+        else if (wait && SetWaitableTimer(wait, &due, 0, NULL, NULL, 0)) WaitForSingleObject(wait, 20);
         else Sleep(1);
-        {
+        if (!port_suspenders_enter()) return 0;
+        in_round = 1;
+        if (burst && stopped) {   /* --timer-burst only: the other half of the contract, that none begins after the stop */
+            printf("stop: a suspension round began after the stop\n");
+            fflush(stdout);
+            ExitProcess(PORT_EXIT_CRASH);
+        }
+        if (burst) Sleep(1);   /* --timer-burst: stay in the round for a moment, so that a missing gate shows in the self-check of the stop */
+        if (SuspendThread(game_thread) != (DWORD)-1) {
             CONTEXT c;
-            if (SuspendThread(game_thread) == (DWORD)-1) continue;
             c.ContextFlags = CONTEXT_CONTROL;
             if (GetThreadContext(game_thread, &c) && in_game_code(c.Eip) && port_interrupt_allowed() && port_interrupt_take()) {
                 interrupted_eip_cell = c.Eip;
@@ -99,17 +194,42 @@ static DWORD WINAPI timer(LPVOID unused)
             }
             ResumeThread(game_thread);
         }
+        in_round = 0;
+        port_suspenders_leave();
     }
     return 0;
 }
 
-void port_interrupt_start(void)
+void port_interrupt_start(int burst_mode)
 {
+    burst = burst_mode;
+    port_suspenders_init();
     if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS)) return;
     CreateThread(NULL, 0, timer, NULL, 0, NULL);
 }
 #else
-void port_interrupt_start(void)
+void port_interrupt_start(int burst_mode)
 {
+    (void)burst_mode;
+}
+void port_suspenders_init(void)
+{
+}
+void port_suspenders_stop(void)
+{
+}
+void port_suspenders_check_closed(void)
+{
+}
+int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
+{
+    (void)context_eip;
+    (void)exception_ip;
+    (void)fault_ip;
+    return 0;
+}
+void port_interrupt_set_return(unsigned ip)
+{
+    (void)ip;
 }
 #endif

@@ -21,7 +21,7 @@ void func_8013f2d8(Object *object, int index, int unused) {
 void func_8013f2fc(Object *object, int index) {
     Slot *slot = &object->slots[(u8)index];
     int level;
-    u16 raw = slot->field_02;
+    u16 raw = *(u16 *)&slot->field_02;
     s16 value;
     if (object->field_7e == 0) {
         value = raw;
