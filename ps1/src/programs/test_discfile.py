@@ -103,9 +103,9 @@ def case_reads_a_file_in_a_directory():
 def case_reads_the_other_files():
     def test(tmp, disc):
         got = []
-        for path in ("PAC/TWO.EXE", "TOP.TXT", "/PAC/TWO.EXE"):
-            D.extract(disc, path, tmp / "o")
-            got.append((tmp / "o").read_bytes())
+        for number, path in enumerate(("PAC/TWO.EXE", "TOP.TXT", "/PAC/TWO.EXE")):
+            D.extract(disc, path, tmp / f"o{number}")  # each into a file of its own: the tool writes over nothing
+            got.append((tmp / f"o{number}").read_bytes())
         return None if got == [TWO, TOP, TWO] else f"got {got}"
     return with_image(image(), test)
 
@@ -179,6 +179,149 @@ def case_arguments_and_unwritable_output():
     def test(tmp, disc):
         status, _, err = run(disc, "TOP.TXT", tmp / "no-such-folder" / "o")
         return None if status == 2 and "cannot be written" in err else f"{status} {err!r}"
+    return with_image(image(), test)
+
+
+CUE = 'FILE "disc.bin" BINARY\n  TRACK 01 MODE2/2352\n    INDEX 01 00:00:00\n'
+
+
+def snapshot(tmp: Path) -> dict:
+    """What a folder holds: for each name, a file's bytes (read through a link), a folder's names, or where a link
+    that leads nowhere points."""
+    import os
+    found = {}
+    for entry in sorted(tmp.iterdir()):
+        if entry.is_symlink() and not entry.exists():
+            found[entry.name] = ("link to nothing", os.readlink(entry))
+        elif entry.is_dir():
+            found[entry.name] = ("folder", sorted(e.name for e in entry.iterdir()))
+        else:
+            found[entry.name] = ("file", entry.is_symlink(), entry.read_bytes())
+    return found
+
+
+def output_refused(make, disc_name: str, out_name: str, needle: str):
+    """A run whose OUT is `out_name` after `make(tmp)` has prepared the folder: refused with `needle`, status 2,
+    nothing printed, and everything in the folder as before, byte for byte (the inputs above all)."""
+    with tempfile.TemporaryDirectory() as folder:
+        tmp = Path(folder)
+        (tmp / "disc.bin").write_bytes(image())
+        (tmp / "d.cue").write_text(CUE)
+        make(tmp)
+        before = snapshot(tmp)
+        status, stdout, stderr = run(tmp / disc_name, "PAC/TWO.EXE", tmp / out_name)
+        if (status, stdout) != (2, "") or needle not in stderr:
+            return f"{out_name}: {status} {stdout!r} {stderr!r}"
+        after = snapshot(tmp)
+        if after != before:
+            return f"{out_name}: the folder changed: {sorted(n for n in set(after) | set(before) if after.get(n) != before.get(n))}"
+        if before["disc.bin"] != ("file", False, image()) or before["d.cue"] != ("file", False, CUE.encode()):
+            return f"{out_name}: the inputs were not what the case made"
+    return None
+
+
+def case_output_that_is_the_image_is_refused_and_the_image_kept():
+    # OUT is the image itself: by its own name, with the image given directly and through a cue.
+    return (output_refused(lambda tmp: None, "disc.bin", "disc.bin", "is the disc file given itself")
+            or output_refused(lambda tmp: None, "d.cue", "disc.bin", "is the disc's image itself"))
+
+
+def case_output_that_is_the_cue_is_refused_and_the_cue_kept():
+    return output_refused(lambda tmp: None, "d.cue", "d.cue", "is the disc file given itself")
+
+
+def case_output_that_is_a_link_to_an_input_is_refused():
+    # A symbolic link and a second name (hard link) of the image, and a symbolic link to the cue.
+    import os
+    return (output_refused(lambda tmp: os.symlink(tmp / "disc.bin", tmp / "s"), "disc.bin", "s", "is the disc file given itself")
+            or output_refused(lambda tmp: os.link(tmp / "disc.bin", tmp / "h"), "disc.bin", "h", "is the disc file given itself")
+            or output_refused(lambda tmp: os.symlink(tmp / "disc.bin", tmp / "s"), "d.cue", "s", "is the disc's image itself")
+            or output_refused(lambda tmp: os.link(tmp / "disc.bin", tmp / "h"), "d.cue", "h", "is the disc's image itself")
+            or output_refused(lambda tmp: os.symlink(tmp / "d.cue", tmp / "s"), "d.cue", "s", "is the disc file given itself")
+            or output_refused(lambda tmp: os.link(tmp / "d.cue", tmp / "h"), "d.cue", "h", "is the disc file given itself"))
+
+
+def case_output_that_exists_is_refused_and_kept():
+    # Any other thing at OUT: a file, a folder, a symbolic link to another file, a link that leads nowhere.
+    import os
+    return (output_refused(lambda tmp: (tmp / "old").write_bytes(b"keep me"), "disc.bin", "old", "exists")
+            or output_refused(lambda tmp: (tmp / "dir").mkdir(), "disc.bin", "dir", "exists")
+            or output_refused(lambda tmp: ((tmp / "old").write_bytes(b"keep me"), os.symlink(tmp / "old", tmp / "s")),
+                              "disc.bin", "s", "exists")
+            or output_refused(lambda tmp: os.symlink(tmp / "nowhere", tmp / "s"), "disc.bin", "s", "exists"))
+
+
+def case_existing_output_is_refused_before_anything_is_read():
+    # The image is not an image at all (5 bytes); the refusal is about OUT all the same, so the check of OUT comes
+    # before any reading. For a file at OUT and for a link at OUT that leads nowhere.
+    import os
+    for make in (lambda tmp: (tmp / "o").write_bytes(b"keep me"), lambda tmp: os.symlink(tmp / "nowhere", tmp / "o")):
+        with tempfile.TemporaryDirectory() as folder:
+            tmp = Path(folder)
+            (tmp / "disc.bin").write_bytes(b"not a")
+            make(tmp)
+            before = snapshot(tmp)
+            status, stdout, stderr = run(tmp / "disc.bin", "PAC/TWO.EXE", tmp / "o")
+            if (status, stdout) != (2, "") or "exists" not in stderr or "sectors" in stderr or snapshot(tmp) != before:
+                return f"{status} {stdout!r} {stderr!r}"
+    return None
+
+
+def case_second_run_does_not_replace_the_first_output():
+    def test(tmp, disc):
+        out = tmp / "out.bin"
+        first = run(disc, "PAC/TWO.EXE", out)
+        second = run(disc, "PAC/ONE.EXE", out)  # another file of the disc to the same OUT
+        ok = first[0] == 0 and second[0] == 2 and "exists" in second[2] and second[1] == "" and out.read_bytes() == TWO
+        return None if ok and disc.read_bytes() == image() else f"{first} {second}"
+    return with_image(image(), test)
+
+
+def case_exclusive_creation_is_the_guard():
+    # The check before the read is not what protects: with it taken out, the creation itself refuses, for the
+    # image under its own name, under a second name and behind a symbolic link, and the image stays as it was.
+    import os
+    def test(tmp, disc):
+        os.link(disc, tmp / "h")
+        os.symlink(disc, tmp / "s")
+        real = D.refuse_existing
+        D.refuse_existing = lambda out, sources: None
+        try:
+            for name in ("disc.bin", "h", "s"):
+                status, stdout, stderr = run(disc, "PAC/TWO.EXE", tmp / name)
+                # the tool's own line for it, not the system's words for a failed open
+                if (status, stdout) != (2, "") or "exists: the tool does not write over a file" not in stderr \
+                        or disc.read_bytes() != image():
+                    return f"{name}: {status} {stdout!r} {stderr!r}"
+        finally:
+            D.refuse_existing = real
+        return None
+    return with_image(image(), test)
+
+
+def case_write_that_fails_part_way_removes_nothing():
+    class Failing:
+        def __init__(self, handle):
+            self.handle = handle
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            self.handle.close()
+            return False
+        def write(self, data):
+            self.handle.write(data[:2])
+            raise OSError(28, "No space left on device")
+
+    def test(tmp, disc):
+        out = tmp / "out.bin"
+        real = open
+        D.open = lambda path, mode="r", *a, **k: Failing(real(path, mode, *a, **k)) if mode == "xb" else real(path, mode, *a, **k)
+        try:
+            status, stdout, stderr = run(disc, "PAC/TWO.EXE", out)
+        finally:
+            del D.open
+        ok = status == 2 and stdout == "" and "not written completely" in stderr and out.read_bytes() == TWO[:2]
+        return None if ok and disc.read_bytes() == image() else f"{status} {stdout!r} {stderr!r}"
     return with_image(image(), test)
 
 

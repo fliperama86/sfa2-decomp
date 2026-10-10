@@ -16,11 +16,23 @@ of sectors, a sector without the sync pattern, a disc without the ISO 9660 volum
 cue that names no readable image, and a file stored in Form 2 sectors (2,324 bytes of data, no
 checksum; a program is never stored so) are refused, status 2, nothing written. OUT is not
 written when anything is refused.
+
+The tool never writes over a file. OUT must be a path at which nothing is: the file is made with
+exclusive creation, which the system refuses for any path that exists (a file, a folder, a
+symbolic link whether it leads somewhere or not). So no input can be overwritten, under whatever
+name OUT reaches it: DISC itself, the image a cue names, a symbolic link or a second name (hard
+link) of either. Before anything is read, an OUT that is the same file as DISC or as the image
+is refused with a line that says so, and any other OUT that exists with a line that says that;
+the exclusive creation is the guard that holds even if the path changes in between. To take a
+file out again, remove the old output first or name another. If the system fails in the middle
+of the write, the part that was written stays under OUT and the line says so (the tool removes
+nothing, ever).
 """
 
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import struct
 import sys
@@ -136,17 +148,51 @@ def read_file(image: Image, path: str) -> bytes:
     return image.extent(block, size)
 
 
+def same_file(first: Path, second: Path) -> bool:
+    """True when the two paths lead to one file (the same path, a symbolic link, a second name of the file).
+    A path at which nothing is, or that cannot be looked at, is the same file as nothing."""
+    try:
+        return os.path.samefile(first, second)
+    except OSError:
+        return False
+
+
+def refuse_existing(out: Path, sources: tuple[tuple[Path, str], ...]) -> None:
+    """Refuse an OUT at which something is, saying so when it is one of the inputs."""
+    for source, what in sources:
+        if same_file(out, source):
+            raise DiscError(f"{out.name} is {what} itself: the tool does not write over its input")
+    if os.path.lexists(out):
+        raise DiscError(f"{out.name} exists: the tool does not write over a file; remove it first or name another")
+
+
+def write_new(out: Path, data: bytes) -> None:
+    """Make the file `out` and write `data`. A path at which anything is, is never opened for writing: the
+    system refuses the exclusive creation. Nothing is removed if the write fails part of the way."""
+    try:
+        handle = open(out, "xb")
+    except FileExistsError:
+        raise DiscError(f"{out.name} exists: the tool does not write over a file; remove it first or name another") from None
+    except OSError as exc:
+        raise DiscError(f"{out.name} cannot be written: {exc.strerror or exc}") from exc
+    try:
+        with handle:
+            handle.write(data)
+    except OSError as exc:
+        raise DiscError(f"{out.name} was not written completely ({exc.strerror or exc}): what is there is a part, "
+                        f"remove it") from exc
+
+
 def extract(disc: Path, path: str, out: Path) -> str:
-    """Write the file `path` of the disc to `out`; the line that says what was written."""
-    image = Image(image_path(disc))
+    """Write the file `path` of the disc to the new file `out`; the line that says what was written."""
+    source = image_path(disc)
+    refuse_existing(out, ((disc, "the disc file given"), (source, "the disc's image")))
+    image = Image(source)
     try:
         data = read_file(image, path)
     finally:
         image.close()
-    try:
-        out.write_bytes(data)
-    except OSError as exc:
-        raise DiscError(f"{out.name} cannot be written: {exc.strerror or exc}") from exc
+    write_new(out, data)
     return f"{path}: {len(data)} bytes, sha256 {hashlib.sha256(data).hexdigest()}"
 
 

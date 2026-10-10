@@ -26,7 +26,9 @@ from `ps1/src/programs/`; `ps1/extract/` is a private folder that Git ignores:
     python discfile.py DISC PAC/LOGO.EXE ../../extract/programs/LOGO.EXE
 
 It prints the size and the SHA-256, which must be the `sha256` in
-`programs.toml`. The comparison, the write audit and the control need the file
+`programs.toml`. The tool makes a new file and never writes over one: an
+output path at which anything is (the disc image itself under any name
+included) is refused, so to take the file out again remove the old copy first. The comparison, the write audit and the control need the file
 (the original runs from it, over the resident executable); `--replay` does not.
 
 ## Testing one function

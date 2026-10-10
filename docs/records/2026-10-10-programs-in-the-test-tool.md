@@ -49,7 +49,7 @@ What ran, on the branch with main merged in:
 `python -B test_difftest.py`, "all cases behaved as required", 442
 cases; `python -B test_difftest_build.py --config ../build.toml`, the
 same line, 11 cases; `test_programs.py`, the same line, 29 cases;
-`test_discfile.py`, the same line, 11 cases;
+`test_discfile.py`, the same line, 19 cases;
 `python tools/ai_workflow/tests/test_workflow.py`, 51 tests, OK. The
 five runs of `func_80011758_logo` with `--folder ../programs/logo` and
 2,000 cases: `different 0` and `discarded 0` with both seeds, 15 of 15
@@ -62,7 +62,7 @@ test tool's new lines: 20, each failing a named case of group P; a
 twenty-first that changes nothing passed, as it must. Of the reader:
 29, of which 28 failed a named case and 1 passed (it lets a boolean
 count as a number; the range and alignment checks refuse the same
-inputs, so no input tells the two apart). Of the disc file tool: 17,
+inputs, so no input tells the two apart). Of the disc file tool as first written: 17,
 each failing a named case. Of the review tool's new lines: 10, each
 making the workflow's test file fail (that script prints the counts of
 failures, not the tests' names), and one more by hand on the reader's
@@ -76,6 +76,26 @@ bytes read that the setup did not make (so the warning does cover a
 program's body); and of the 96 bytes that the committed fixtures file
 holds at addresses inside the program's body, none equals the
 program's byte at its address.
+
+A finding of the owner's review, corrected in this change: the disc
+file tool wrote its output with a plain write, so an output path that
+was the disc image itself, the cue, or a symbolic link or a second
+name of either replaced the user's input with the extracted file. The
+tool now makes its output with exclusive creation, which the system
+refuses for any path at which anything is, so it cannot write over a
+file under whatever name; before anything is read it refuses an output
+that is one of its inputs, or that exists at all, with a line that
+says which; and it removes nothing, also not a part left by a write
+that failed. Eight new cases: the image and the cue as output, by
+their own names, by a symbolic link and by a second name, with the
+image given directly and through a cue; a file, a folder and two kinds
+of link at the output path; a second run to the same path; a broken
+image with an existing output (the refusal is about the output, so
+nothing was read first); the check before the read taken out (the
+creation alone refuses); a write that fails part of the way. Each
+compares everything in the folder before and after, byte for byte.
+Mutants of the repair, in bounded runs by a private script: 11, each
+failing a named case, and a change of nothing passing.
 
 Limits, stated: the test tool compares behaviour on a contract's
 inputs, not bytes; no tool of the tree compares a program function's
