@@ -16,8 +16,8 @@
  *   2. copies the strip in the buffer (the pointer at 0x8002eb00) to the
  *      picture, with the game's name for the program's LoadImage,
  *      func_80157fc4(&rect, buffer), the rectangle at 0x8002eb24;
- *   3. moves the rectangle 24 pixels to the right (x += 0x18, a halfword
- *      store; x is a signed halfword);
+ *   3. adds 0x18 to the rectangle's x (24 words of video memory; a
+ *      halfword store; x is a signed halfword);
  *   4. if the new x is below 480 (0x1e0): asks for the next strip with
  *      DecDCTout(buffer, 0xb40) and sets the word at 0x8002eb3c to 1;
  *      otherwise sets that word to 0 (the waiting function

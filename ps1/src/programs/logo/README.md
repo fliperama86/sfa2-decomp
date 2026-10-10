@@ -220,8 +220,9 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   recorder in the test; the index is 0 or 1 in four cases of five.
 - `func_80010f38_logo`: the movie decoder's output routine (inferred). Clears
   the word at `0x8002edb8` after `StCdInterrupt` when it is set, copies the
-  strip to the picture (`func_80157fc4`, the program's `LoadImage`), moves the
-  rectangle 24 pixels right and, while its x is below 480, asks for the next
+  strip to the picture (`func_80157fc4`, the program's `LoadImage`), adds 0x18
+  to the rectangle's x (24 words of video memory) and, while that x is below
+  0x1e0, asks for the next
   strip (`DecDCTout`) and sets the word at `0x8002eb3c` to 1, else to 0. The
   three callees are recorders in the test.
 - `func_800110f4_logo`: expands run-length data (the format is in the header of
