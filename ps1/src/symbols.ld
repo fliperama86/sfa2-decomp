@@ -5903,3 +5903,4 @@ data_801c5ae4_slot04_0f = 0x801c5ae4;
 func_8007bc00 = 0x8007bc00;
 func_8007be8c = 0x8007be8c;
 func_801b1448 = 0x801b1448;
+data_801e0000 = 0x801e0000;
