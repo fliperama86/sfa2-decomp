@@ -4,6 +4,8 @@
  * `ok NAME (N checks)` or `FAIL NAME: the first failure`:
  *  - the decision "is this fault served": borders at 0xffff, 0x10000, 0x1fffff and 0x200000 and the overflow of
  *    address plus size, kinds, thread, code;
+ *  - the I/O page's decision (borders, kinds, thread, code) and the two questions the handler asks of a decoded
+ *    instruction (does it read the memory operand, does it write it) for every form as destination and as source;
  *  - the decoder: every instruction this file builds (each form, each register operand, each addressing
  *    shape) is decoded to its length, operand address and sizes; instructions that are not served are refused;
  *  - the operation: every built instruction is run on the processor (the real instruction, on real memory, with
@@ -537,6 +539,61 @@ static void decision_scan_hex(void)
     CHECK("hex-never-writes-past-the-buffer", strlen(hex) < 6, "got '%s'", hex);
 }
 
+/* The I/O page's decision and the two questions the handler asks of a decoded instruction (iopage.c, mirror.c). */
+static void io_page(void)
+{
+    const char *D = "io-decision-serves-the-io-page-to-the-game-thread-in-game-code-and-only-wholly-inside-it";
+    const char *R = "insn-reads-is-false-only-for-a-mov-to-memory";
+    const char *W = "insn-writes-is-true-only-for-a-destination-in-memory-that-is-not-cmp-or-test";
+    static const int ops[] = { MI_MOV, MI_MOVZX, MI_MOVSX, MI_ADD, MI_OR, MI_AND, MI_SUB, MI_XOR, MI_CMP, MI_TEST };
+    static const char *const names[] = { "mov", "movzx", "movsx", "add", "or", "and", "sub", "xor", "cmp", "test" };
+    unsigned i, dst;
+    CHECK(D, port_mirror_decision_io(0, 0x1f801000u, 1, 1, 1) == 1, "read of the first byte of the page");
+    CHECK(D, port_mirror_decision_io(1, 0x1f801000u, 4, 1, 1) == 1, "write of the first word of the page");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801fffu, 1, 1, 1) == 1, "read of the last byte of the page");
+    CHECK(D, port_mirror_decision_io(1, 0x1f801ffcu, 4, 1, 1) == 1, "write of the last word of the page");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801014u, 4, 1, 1) == 1, "read of a cell");
+    CHECK(D, port_mirror_decision_io(0, 0x1f800fffu, 1, 1, 1) == 0, "the byte before the page");
+    CHECK(D, port_mirror_decision_io(0, 0x1f800ffeu, 4, 1, 1) == 0, "four bytes that end inside the page, begun before it");
+    CHECK(D, port_mirror_decision_io(1, 0x1f802000u, 1, 1, 1) == 0, "the byte after the page");
+    CHECK(D, port_mirror_decision_io(1, 0x1f801fffu, 2, 1, 1) == 0, "two bytes that begin in the page and end outside it");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801ffdu, 4, 1, 1) == 0, "four bytes from 0x1f801ffd");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801ffcu, 5, 1, 1) == 0, "five bytes from 0x1f801ffc");
+    CHECK(D, port_mirror_decision_io(0, 0xffffffffu, 2, 1, 1) == 0, "the top of the address space");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801014u, 0, 1, 1) == 0, "size 0");
+    CHECK(D, port_mirror_decision_io(8, 0x1f801014u, 4, 1, 1) == 0, "execute fault (kind 8)");
+    CHECK(D, port_mirror_decision_io(2, 0x1f801014u, 4, 1, 1) == 0, "an unknown kind");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801014u, 4, 0, 1) == 0, "another thread, a read");
+    CHECK(D, port_mirror_decision_io(1, 0x1f801014u, 4, 0, 1) == 0, "another thread, a write");
+    CHECK(D, port_mirror_decision_io(0, 0x1f801014u, 4, 1, 0) == 0, "code that is not the game's, a read");
+    CHECK(D, port_mirror_decision_io(1, 0x1f801014u, 4, 1, 0) == 0, "code that is not the game's, a write");
+    CHECK(D, port_mirror_decision(0, 0x1f801014u, 4, 1, 1) == 0, "the mirror's decision does not serve the page");
+    CHECK(D, port_mirror_decision_io(0, 0x1000, 4, 1, 1) == 0, "an address of the mirror's range is not the page's");
+    for (i = 0; i < 10; i++) {
+        for (dst = 0; dst < 2; dst++) {
+            struct mirror_insn in;
+            int op = ops[i], is_alu = op >= MI_ADD, cmp_test = op == MI_CMP || op == MI_TEST;
+            memset(&in, 0, sizeof in);
+            in.op = (unsigned char)op;
+            in.mem_dst = (unsigned char)dst;
+            in.msize = 4;
+            CHECK(R, port_mirror_insn_reads(&in) == !(op == MI_MOV && dst), "%s with the memory as %s", names[i], dst ? "destination" : "source");
+            CHECK(W, port_mirror_insn_writes(&in) == (dst && !cmp_test), "%s with the memory as %s", names[i], dst ? "destination" : "source");
+            (void)is_alu;
+        }
+    }
+    {
+        struct mirror_insn in;
+        memset(&in, 0, sizeof in);
+        in.op = MI_MOV; in.mem_dst = 1; in.has_imm = 1;
+        CHECK(R, port_mirror_insn_reads(&in) == 0, "mov of an immediate to memory");
+        CHECK(W, port_mirror_insn_writes(&in) == 1, "mov of an immediate to memory");
+        in.op = MI_CMP;
+        CHECK(R, port_mirror_insn_reads(&in) == 1, "cmp of an immediate with memory");
+        CHECK(W, port_mirror_insn_writes(&in) == 0, "cmp of an immediate with memory");
+    }
+}
+
 int main(void)
 {
     unsigned i;
@@ -548,6 +605,7 @@ int main(void)
     build_templates();
     build_shapes();
     decision_scan_hex();
+    io_page();
     image_hole();
     refusals();
     literals();
