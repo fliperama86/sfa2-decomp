@@ -11069,12 +11069,30 @@ functions = [
 ]
 
 [[unit]]
+name = "slot0f_f654x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_f654x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800df654_slot0f", address = 0x800df654, size = 164 },
+]
+
+[[unit]]
 name = "slot0f_f378_r3"
 image = "slot0f"
 source = "slot0f/slot0f_f378_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800df6f8_slot0f", address = 0x800df6f8, size = 88 },
+]
+
+[[unit]]
+name = "slot0f_f750x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_f750x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800df750_slot0f", address = 0x800df750, size = 156 },
 ]
 
 [[unit]]
@@ -14686,6 +14704,15 @@ source = "slot27/slot27_5ab4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80015ab4_slot27", address = 0x80015ab4, size = 496 },
+]
+
+[[unit]]
+name = "slot27_5ca4x_r1"
+image = "slot27"
+source = "slot27/slot27_5ca4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80015ca4_slot27", address = 0x80015ca4, size = 284 },
 ]
 
 [[unit]]
@@ -24327,6 +24354,15 @@ source = "slot01/slot01_07f8_r15.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80013ec8_slot01", address = 0x80013ec8, size = 32 },
+]
+
+[[unit]]
+name = "slot01_3ee8x_r1"
+image = "slot01"
+source = "slot01/slot01_3ee8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013ee8_slot01", address = 0x80013ee8, size = 144 },
 ]
 
 [[unit]]
@@ -35954,6 +35990,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_01_1008x_r1"
+image = "slot04_01"
+source = "slot04_01/slot04_01_1008x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b1008_slot04_01", address = 0x801b1008, size = 104 },
+]
+
+[[unit]]
 name = "slot04_01_0108_r8"
 image = "slot04_01"
 source = "slot04_01/slot04_01_0108_r8.c"
@@ -40081,4 +40126,12 @@ source = "f4a94cx_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014a94c", address = 0x8014a94c, size = 256 },
+]
+
+[[unit]]
+name = "f6a16cx_r1"
+source = "f6a16cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a16c", address = 0x8016a16c, size = 100 },
 ]

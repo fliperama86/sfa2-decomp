@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "6ab82a3488a7a12196ec79de040b1359f61efa034d6f64d0eafa7fc2856ed47d",
+  "sha256": "43617027f13c4919577f54c83ee65256b20845a7b393e3b3dd85ad5c84265b4b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -527,28 +527,36 @@
       "line": 8170
     },
     {
-      "title": "Windows reference",
+      "title": "Three more functions exact: two from look-alikes, one from the search (2026-10-10)",
       "line": 8203
     },
     {
+      "title": "Three more functions exact from look-alikes: a pair of the module of slot 0xf, a library routine (2026-10-10)",
+      "line": 8234
+    },
+    {
+      "title": "Windows reference",
+      "line": 8279
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8220
+      "line": 8296
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8245
+      "line": 8321
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8302
+      "line": 8378
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8387
+      "line": 8463
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8501
+      "line": 8577
     }
   ]
 }
