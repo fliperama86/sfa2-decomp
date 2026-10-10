@@ -8,6 +8,11 @@
  * 1 and waits on it, PSY-Q's SS_WAIT_COMPLETED). The rest return 0. */
 #include "port.h"
 
+/* With PORT_SOUND_LIBRARY_C (hostbuild.py --sound-library) the library's functions have C in the program, and a host
+ * routine for a function that has C is refused when the program starts: the table is empty then, and the four
+ * routines that only the table uses are left out. */
+#ifndef PORT_SOUND_LIBRARY_C
+
 /* No sound: the call is accepted and nothing sounds; 0. */
 int port_h_sound_ok(void);
 int port_h_sound_ok(void)
@@ -56,3 +61,11 @@ const struct port_library port_sound_library[] = {
     OK("SsSeqClose"), OK("SsSepClose"), OK("SsVabClose"), OK("SsSeqOpen"), OK("func_80166144"),
     { NULL, NULL, NULL }
 };
+
+#else
+
+const struct port_library port_sound_library[] = {
+    { NULL, NULL, NULL }
+};
+
+#endif

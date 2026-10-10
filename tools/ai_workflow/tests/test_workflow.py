@@ -165,6 +165,16 @@ class Selection(Fixture):
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
 
+    def test_sdkshim_control_gets_the_compiler_and_psyz_or_refuses(self):
+        self.put('port/tools/test_sdkshim.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32', 'psyzdir')}
+        self.assertEqual(argv['test_sdkshim'][-4:], ('--cc', 'cc32', '--psyz-build', 'psyzdir'))
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
     def test_bad_seeds_and_zero_cases_refuse(self):
         for cases, seeds in ((0,(1,7)),(2,(1,1))):
             with self.assertRaises(model.Problem):

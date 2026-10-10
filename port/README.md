@@ -1494,6 +1494,114 @@ file ended with `all cases behaved as required` and had printed
 `timing: 10000 served reads took 75730 us (7.57 us each)` and
 `timing walk: real addresses 3 us, low view 60587 us`.
 
+## The game's own sound library
+
+By the owner, on 2026-10-10:
+
+- Sound is the port's next piece. It was put to him that the PS1's sound
+  chip only plays recorded samples and has no synthesis of its own, and
+  that PsyZ has a model of that chip, with its mixer and an output to the
+  machine's sound, but no player of the game's music sequences. His
+  words: "we dont need to emulated anything, we just play the samples",
+  then "I think that Psyx (?) lib could already handle that for us", then
+  "ok. we can start the implementation then, ofc focused on the PC port".
+- What this page makes of that, not his words: the samples are played by
+  PsyZ's model of the chip (PsyZ calls it an emulation of the chip; it
+  runs no code of the game or of Sony's library), and what decides which
+  sample sounds when is the game's own sound library, run as C like the
+  rest of the game. The rule of 2026-10-09 stands: no original code is
+  interpreted.
+- A private trial of this design, which is not published, wrote the
+  game's sequenced music to a file. He listened to it: "sounds good".
+  That is his ear on one recording of 77 seconds, not a measurement, and
+  the voices and music that the game streams from the disc were not in
+  it.
+
+An option of the build, `--sound-library` (it needs `--psyz`), compiles
+the game's own sound library into the program: the units of
+`ps1/src/sdk/libsnd` and `ps1/src/sdk/libspu` and the folder
+`ps1/src/library_nonmatching`. The header of `port/tools/hostbuild.py`
+is its contract ("The sound library"). Without the option the program is
+as before.
+
+Why the library's own C. Two facts, both read in the source. Game
+functions that are library code read the library's state in RAM:
+`func_8016a7e4` in `ps1/src/s1682d0_r10.c` follows the pointer at
+`0x80183138` (`_spu_RXX` in `symbols.ld`, the library's pointer to the
+chip's registers) to a voice's registers, and reads the word at
+`0x801831e8` (`_spu_keystat`). PsyZ's library keeps its own `_spu_RXX`
+(`decomp/src/libspu/spu.c`, line 6 at the pin), which the game's code
+would not see. And PsyZ's sound library as built has no sequencer: in
+`psyz/src/psyz/libsnd.c` at the pin `_SsSeqPlay`, `_SsSndTempo` and
+`SsSeqOpen` are `NOT_IMPLEMENTED` (lines 62 to 69), and the files that hold
+the real ones (`decomp/src/libsnd/midiread.c`, `midinote.c`) are
+`INCLUDE_ASM` only.
+
+What the option does:
+
+- The units under `sdk/libsnd/` and `sdk/libspu/` and the files of
+  `library_nonmatching` are compiled like game units, with `-I
+  port/sdkshim` and PsyZ's include folder. No other unit gets them, and no
+  path of `ps1/src/sdk/include` (the headers this repository does not
+  carry) reaches the compiler.
+- Every file of the runtime is compiled with `-DPORT_SOUND_LIBRARY_C`. In
+  `port/src/sound.c` the table of stand-ins is then empty: a library
+  function that has C does not also get a host routine, which the program
+  refuses at start.
+- A file `port/prefix/UNIT.h` is given to the compiler before the source
+  of that unit. It holds a declaration that the console's compiler did not
+  need (today one: `sdk_libsnd_vmanager_p1.h`, which declares
+  `SpuVmKeyOff`, called before the unit defines it). The tool refuses a
+  file there that is not a header or names no unit.
+- One more line of the output, after the `psyz:` line.
+
+The shim, `port/sdkshim/`, is four headers of this project's own that
+stand in for the headers the units name, over PsyZ's. Its page
+[`sdkshim/README.md`](sdkshim/README.md) says what each does.
+
+One unit compiles to different code under PsyZ's declaration than under
+the headers of the matching work: `libspu/s_sca.c`, because PsyZ declares
+the halves of `SpuVolume` as `short` and the library C was written for
+`unsigned short`. `port/tools/test_sdkshim.py` is the control for it:
+
+```sh
+python3 port/tools/test_sdkshim.py --cc CC --psyz-build DIR
+```
+
+On 2026-10-10 it printed `calls 150000, different 0` for the unit
+compiled both ways, and `calls 150000, different 5186` for the negative
+control (one cast taken out), and ended with `all cases behaved as
+required`. It tests one function on plain memory and the inputs it draws;
+it is not a proof for other inputs.
+
+Built on 2026-10-10 (main at `c98a1bc` plus this change, PsyZ at its pin):
+
+```
+psyz: 4e4b3e8dc7ae740c085fd190d635f54142d2d552
+sound library: 45 units of sdk/libsnd, 22 of sdk/libspu, 6 of library_nonmatching
+units: 3980 compiled, 161 of them nonmatching, 0 failed
+functions with C: 12850
+functions without C: 221, library 220, game and modules 1
+linked: ..., verified
+```
+
+Without the option the same build prints the lines of the build above
+(3907 units, 12686 functions with C).
+
+What is not there. The program built with the option stops early. In a
+one-off start with the disc (a private input, 20 seconds, not on a screen)
+it printed its start lines and then
+
+```
+stop: library function DMACallback (0x8015f020) has no host routine yet
+```
+
+and ended with status 4. The sound chip is not served: nothing in this
+program answers the library's accesses to its registers, and the system
+services it calls (such as `DMACallback`) are not written. Nothing sounds.
+A start of the program without the option, the same way, printed no line
+that begins `refused` or `stop` in 20 seconds.
+
 ## Not decided
 
 - How game units reach the library. They call it by address names, such as
