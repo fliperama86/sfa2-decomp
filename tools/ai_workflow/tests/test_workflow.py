@@ -114,11 +114,26 @@ class Selection(Fixture):
             self.put('port/tools/' + name, '')
         self.put('port/src/example.c', '')
         argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
-        for name in ('test_hostlaunch', 'test_hostmirror'):
+        for name in ('test_hostlaunch', 'test_hostmirror', 'test_hostbuild'):
             self.assertEqual(argv[name][-2:], ('--cc', 'cc32'))
-        self.assertNotIn('--cc', argv['test_hostbuild'])
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
+    def test_a_change_under_port_overrides_gets_the_checks_of_a_change_of_the_build_tool(self):
+        for name in ('test_hostlaunch.py', 'test_hostbuild.py', 'test_hostrun.py'):
+            self.put('port/tools/' + name, '')
+        self.put('port/tools/hostbuild.py', '')
+        for name in ('fa.c', 'fa.py'):
+            self.put('port/overrides/' + name, '')
+        tool = [(c.name, c.argv) for c in self.selected(['port/tools/hostbuild.py'])]
+        for changed in (['port/overrides/fa.c'], ['port/overrides/fa.py'], ['port/overrides/fa.c', 'port/overrides/fa.py']):
+            self.assertEqual([(c.name, c.argv) for c in self.selected(changed)], tool)
+        names = [n for n, _ in tool]
+        self.assertIn('native-build', names)
+        self.assertIn('test_hostbuild', names)
+        self.assertIn('test_hostrun', names)
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/overrides/fa.c'], 2, (1, 7))
 
     def test_port_pad_controls_get_the_compiler_and_psyz_or_refuse(self):
         self.put('port/tools/test_hostpads.py', '')

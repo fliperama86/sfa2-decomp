@@ -9,12 +9,25 @@ file that lists the labels, "links" the lists and the names file into one
 file, and the `nm` reads that file back, so that a run is checked from the
 sources to the last line. The expected values are worked out here from each
 fixture, never read back from the tool.
+
+    python3 test_hostbuild.py [--cc CROSS_CC [--run PREFIX]]
+
+With --cc the overrides are also built and run for real: hostbuild.py makes a made-up game of four
+units and a small runtime of this file's own with the cross compiler CC, and the Windows program is started
+(PREFIX is a command prefix that starts one, as in test_hostlaunch.py; without it the program is started directly).
+The cases show that an override runs in place of the unit's C for a call from another unit and for a call from
+the unit that defines the function, that the unit's other functions keep their own C, that a call through a
+pointer declared without parameters reaches a callee that reads its parameter, and that both placements of
+a `like` image run the override with their own moved names. Without --cc these cases are not run and the
+file says so. A program that cannot be started ends this file with status 2.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -486,8 +499,8 @@ def table_cases(root: Path):
         '    { "mod2", 0x801f0000u, "mod", 0x6u, 0, port_sha256_1 },\n'
         "};\nconst unsigned port_image_count = 2;\n\n"
         "const struct port_function port_functions[] = {\n"
-        '    { 0x80100000u, (void *)impl_fa, "fa", -1 },\n'
-        '    { 0x801e0000u, (void *)impl_mf, "mf", 0 },\n'
+        '    { 0x80100000u, (void *)impl_fa, "fa", -1, 0 },\n'
+        '    { 0x801e0000u, (void *)impl_mf, "mf", 0, 0 },\n'
         "};\nconst unsigned port_function_count = 2;\n\n"
         "const struct port_absent port_absents[] = {\n"
         '    { 0x80100100u, "libf", -1, 1 },\n'
@@ -907,6 +920,7 @@ def flow_cases(root: Path):
         "units: 4 compiled, 0 of them nonmatching, 0 failed\n"
         "like images built: 1\n"
         "functions with C: 6\n"
+        "functions overridden in C: 0\n"
         "functions without C: 5, library 2, game and modules 3\n"
         "sweep rows that are not functions: 0\n"
         "names at PS1 addresses: 11\n"
@@ -920,9 +934,9 @@ def flow_cases(root: Path):
             "mf": 0x801E0000, "mf__mod2": 0x801F0000, "libf": 0x80100100, "asmf": 0x80100200, "callee": 0x80100210}.items())))
     tables = read(build / "gen" / "port_tables.c")
     yield "flow-tables-functions", same([l.strip() for l in tables.splitlines() if l.strip().startswith("{ 0x") and "impl" in l], [
-        '{ 0x80100000u, (void *)impl_fa, "fa", -1 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1 },',
-        '{ 0x80100020u, (void *)impl_fc, "fc", -1 },', '{ 0x80100030u, (void *)impl_fd, "fd", -1 },',
-        '{ 0x801e0000u, (void *)impl_mf, "mf", 0 },', '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1 },'])
+        '{ 0x80100000u, (void *)impl_fa, "fa", -1, 0 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1, 0 },',
+        '{ 0x80100020u, (void *)impl_fc, "fc", -1, 0 },', '{ 0x80100030u, (void *)impl_fd, "fd", -1, 0 },',
+        '{ 0x801e0000u, (void *)impl_mf, "mf", 0, 0 },', '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1, 0 },'])
     yield "flow-tables-carry-the-configurations-hash", same(
         [l.strip() for l in tables.split("port_program_sha256[32] = {")[1].splitlines()[1:5]],
         [", ".join(f"0x{b:02x}" for b in range(i, i + 8)) + "," for i in range(0, 32, 8)])
@@ -992,34 +1006,35 @@ def flow_cases(root: Path):
     exe = root / "flow2" / "build" / "sfa2.exe"
     out = proc.stdout.splitlines()
     yield "flow-failed-status-1", same(proc.returncode, 1)
-    yield "flow-failed-lines", same(out[1:5], [
-        "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions without C: 5, library 2, game and modules 3"])
-    yield "flow-failed-names-count", same(out[6], "names at PS1 addresses: 12")
-    yield "flow-failed-link-still-made", same(out[8], f"linked: {exe}, verified")
-    yield "flow-list-failed", same(out[9], "failed: ub: b.c:3:5: error: boom in ub")
-    yield "flow-list-absent-lines", same(out[11:], [
+    yield "flow-failed-lines", same(out[1:6], [
+        "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions overridden in C: 0",
+        "functions without C: 5, library 2, game and modules 3"])
+    yield "flow-failed-names-count", same(out[7], "names at PS1 addresses: 12")
+    yield "flow-failed-link-still-made", same(out[9], f"linked: {exe}, verified")
+    yield "flow-list-failed", same(out[10], "failed: ub: b.c:3:5: error: boom in ub")
+    yield "flow-list-absent-lines", same(out[12:], [
         "absent: fc 0x80100020 -", "absent: asmf 0x80100200 -", "absent: func_801e0010_mod 0x801e0010 mod"])
-    absent = out[11:]
+    absent = out[12:]
     yield "flow-list-absent-count-and-no-library", same((len(absent), any("libf" in x for x in absent)), (3, False))
     yield "flow-failed-table", same(read(root / "flow2" / "build" / "failed.tsv"), "ub\tb.c:3:5: error: boom in ub\n")
     yield "flow-nonmatching-is-function-with-c", same("func_80100040" in read(root / "flow2" / "build" / "gen" / "port_tables.c"), True)
-    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 9)
+    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 10)
 
     # Data defined in C.
     cc, nm = fake(root, "flow3", defs={**DEFS, "ub": ["fc", "hostvar"]})
     config = run_tree(root, "flow3")
     proc = run(root, "flow3", config, cc, nm, "--list")
     out = proc.stdout.splitlines()
-    yield "flow-data-line", same((proc.returncode, out[7], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
+    yield "flow-data-line", same((proc.returncode, out[8], out[-1] if out else None), (0, "data defined in C, at host addresses: 1", out[-1] if out else None))
     yield "flow-data-listed", same("data: hostvar" in out, True)
     yield "flow-data-alias-line", same("_ps1_hostvar = _impl_hostvar;\n" in read(root / "flow3" / "build" / "gen" / "names.ld"), True)
-    yield "flow-data-names-count-unchanged", same(out[6], "names at PS1 addresses: 11")
+    yield "flow-data-names-count-unchanged", same(out[7], "names at PS1 addresses: 11")
 
     # A data symbol that symbols.ld places is bound there, not aliased.
     cc, nm = fake(root, "flow3b", defs={**DEFS, "ub": ["fc", "sym_a"]})
     config = run_tree(root, "flow3b")
     proc = run(root, "flow3b", config, cc, nm)
-    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[7]), (0, "data defined in C, at host addresses: 0"))
+    yield "flow-data-in-symbols-is-not-host", same((proc.returncode, proc.stdout.splitlines()[8]), (0, "data defined in C, at host addresses: 0"))
 
     # Verification misses end the tool with status 1.
     cc, nm = fake(root, "flow4", defs=DEFS, nm_extra=["80100000 A _fa"])
@@ -1196,7 +1211,7 @@ def like_cases(root: Path):
     proc = run(root, "like", config, cc, nm, "--list")
     build = root / "like" / "build"
     out = proc.stdout.splitlines()
-    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[8]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
+    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[9]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
     names = read(build / "gen" / "names.ld").splitlines()
     yield "like-moved-names-in-the-names-file", same([l for l in names if "__mod2" in l], [
         "_ps1_mf__mod2 = 0x801f0000;", "_ps1_mg__mod2 = 0x801f0010;", "_ps1_sym_in__mod2 = 0x801f0100;",
@@ -1216,7 +1231,7 @@ def like_cases(root: Path):
         len([x for x in read(root / "like.log").splitlines() if " -S " in f" {x} " and x.endswith("d.c")]), 1)
     tables = read(build / "gen" / "port_tables.c")
     yield "like-tables-second-functions", same([l.strip() for l in tables.splitlines() if "__mod2" in l and l.strip().startswith("{ 0x")], [
-        '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1 },', '{ 0x801f0010u, (void *)impl_mg__mod2, "mg__mod2", 1 },'])
+        '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1, 0 },', '{ 0x801f0010u, (void *)impl_mg__mod2, "mg__mod2", 1, 0 },'])
     yield "like-redefine-file-moves-only-moved", same(
         sorted(l.split()[0] for l in read(build / "gen" / "redefine__mod2.txt").splitlines() if "__mod2" in l),
         ["_hv", "_mf", "_mg", "_sym_in", "_sym_own"])
@@ -1248,7 +1263,390 @@ def like_cases(root: Path):
     yield "like-unit-named-like-a-second-object-is-refused", same((proc.returncode, "um__mod2" in proc.stderr), (2, True))
 
 
-def groups(root: Path):
+# The overrides: a second C file of the port for a function that a unit has C for.
+
+def override_files(root: Path, tag: str, *names: str, py: bool = True) -> Path:
+    """The folder `overrides` beside the tag's runtime folder, with a made-up NAME.c (and NAME.py) for each name."""
+    folder = root / tag / "overrides"
+    for name in names:
+        write(folder / f"{name}.c", "int x;\n")
+        if py:
+            write(folder / f"{name}.py", "# the contract of the differential test, made up\n")
+    return folder
+
+
+def override_rename_cases():
+    both = func("f") + func("g", "\tcall\t_f\n\tret\n")
+    text, defined = hb.rename_definitions(both, True, replaced={"_f"})
+    yield "override-rename-replaced-definition", same((text, defined), (func("replaced_f") + func("impl_g", "\tcall\t_f\n\tret\n"), {"_f", "_g"}))
+    text, _ = hb.rename_definitions(both, True, "__mod2", {"_f"})
+    yield "override-rename-replaced-keeps-the-suffix", same(text, func("replaced_f__mod2") + func("impl_g__mod2", "\tcall\t_f\n\tret\n"))
+    elf = "\t.globl\tf\n\t.type\tf, @function\nf:\n\tcall\tf\n\tret\n\t.size\tf, .-f\n"
+    text, _ = hb.rename_definitions(elf, False, replaced={"f"})
+    yield "override-rename-replaced-elf-type-and-size", same(text, "\t.globl\treplaced_f\n\t.type\treplaced_f, @function\nreplaced_f:\n\tcall\tf\n\tret\n\t.size\treplaced_f, .-replaced_f\n")
+    text, defined = hb.rename_definitions("\t.globl\t_only\n" + func("g"), True, replaced={"_only", "_nothere"})
+    yield "override-rename-a-replaced-name-that-is-not-defined-changes-nothing", same((text, defined), ("\t.globl\t_only\n" + func("impl_g"), {"_g"}))
+    yield "override-rename-without-replaced-is-the-old-rename", same(hb.rename_definitions(both, True), hb.rename_definitions(both, True, "", frozenset()))
+
+
+def override_check_cases():
+    yield "override-rows-pointing-at-the-units-c-are-named", same(
+        hb.verify_rows([(-1, 0x80100000, "impl_fa", "fa"), (-1, 0x80100010, "replaced_fb", "fb")]),
+        ["fb: its row of port_functions points at replaced_fb, the C that an override stands in for"])
+    yield "override-rows-all-good", same(hb.verify_rows([(-1, 0x80100000, "impl_fa", "fa")]), [])
+    nm = "00401000 T _port_game_text_begin\n00401100 T _port_game_text_end\n00401010 T _impl_fa\n00401020 T _replaced_fa\n"
+    yield "override-markers-replaced-between", same(hb.verify_markers(nm, ["fa"], [], True, ["fa"]), [])
+    yield "override-markers-replaced-outside", same(
+        hb.verify_markers(nm.replace("00401020 T _replaced_fa", "00402000 T _replaced_fa"), ["fa"], [], True, ["fa"]),
+        ["replaced_fa: at 0x402000, outside the game's code 0x401000-0x401100"])
+    link = GOOD_NM + "00401020 T _replaced_fa\n"
+    yield "override-link-replaced-present", same(hb.verify_link(link, dict(NAMES), ["host"], ["fa"], True, ["fa"]), [])
+    yield "override-link-replaced-missing", same(hb.verify_link(GOOD_NM, dict(NAMES), ["host"], ["fa"], True, ["fa"]), ["replaced_fa: not in the linked file"])
+    yield "override-link-replaced-at-a-ps1-address", same(
+        hb.verify_link(GOOD_NM + "80100040 T _replaced_fa\n", dict(NAMES), ["host"], ["fa"], True, ["fa"]), ["replaced_fa: at a PS1 address 0x80100040"])
+    text = hb.render_tables([], [(-1, 0x80100000, "impl_fa", "fa"), (-1, 0x80100010, "impl_fb", "fb")], [], SHA, None, {"fb"})
+    yield "override-render-flags-exactly-the-overridden-rows", same(
+        [l.strip() for l in text.splitlines() if l.strip().startswith("{ 0x8")], ['{ 0x80100000u, (void *)impl_fa, "fa", -1, 0 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1, 1 },'])
+
+
+UNITS_OV = RUN_UNITS
+
+
+def override_flow_cases(root: Path):
+    def start(tag, over=(), units=RUN_UNITS, py=True, nonmatching=None, **spec):
+        config = run_tree(root, tag, units=units, nonmatching=nonmatching)
+        override_files(root, tag, *over, py=py)
+        cc, nm = fake(root, tag, **spec)
+        return config, cc, nm
+
+    def stage(tag, over, *more, **spec):
+        config, cc, nm = start(tag, over, **spec)
+        return run(root, tag, config, cc, nm, *more), root / tag / "build"
+
+    # An override for fa, which unit ua defines together with fb; ub calls it; its own unit calls it too.
+    defs = {**DEFS, "ovr_fa": ["fa"]}
+    calls = {"ua": ["fa", "fc"], "ub": ["fa"], "ovr_fa": ["fc"]}
+    proc, b = stage("ov1", ["fa"], "--list", defs=defs, calls=calls)
+    out = proc.stdout.splitlines()
+    exe = b / "sfa2.exe"
+    yield "override-run-output-has-the-new-line-with-the-count", same(
+        (proc.returncode, proc.stderr, out[3:5]),
+        (0, "", ["functions with C: 6", "functions overridden in C: 1"]))
+    yield "override-run-lists-the-override-with-its-file-and-unit", same(
+        [l for l in out if l.startswith("override:")], [f"override: fa at {root / 'ov1' / 'overrides' / 'fa.c'}, in place of the C of unit ua"])
+    ua, ovr = read(b / "obj" / "ua.o"), read(b / "obj" / "ovr_fa.o")
+    yield "override-the-units-definition-is-replaced-and-its-others-stay-impl", same(
+        sorted(l for l in ua.splitlines() if l.startswith("def ")), ["def _impl_fb", "def _replaced_fa"])
+    yield "override-the-override-defines-impl-of-the-name", same(sorted(l for l in ovr.splitlines() if l.startswith("def ")), ["def _impl_fa"])
+    yield "override-references-are-untouched-so-every-caller-reaches-the-address", same(
+        (sorted(l for l in ua.splitlines() if l.startswith("ref ")), sorted(l for l in read(b / "obj" / "ub.o").splitlines() if l.startswith("ref ")),
+         [l for l in ovr.splitlines() if l.startswith("ref ")]),
+        (sorted(["ref _ps1_callee", "ref _ps1_callee", "ref _ps1_fa", "ref _ps1_fc"]), ["ref _ps1_callee", "ref _ps1_fa"], ["ref _ps1_callee", "ref _ps1_fc"]))
+    asm = read(b / "asm" / "ua.s")
+    yield "override-the-units-assembly-says-replaced", same(("_replaced_fa:" in asm, "_impl_fa:" in asm, "_impl_fb:" in asm), (True, False, True))
+    tables = read(b / "gen" / "port_tables.c")
+    yield "override-the-row-points-at-the-override-and-is-flagged", same(
+        [l.strip() for l in tables.splitlines() if l.strip().startswith("{ 0x8010")][:4], [
+            '{ 0x80100000u, (void *)impl_fa, "fa", -1, 1 },', '{ 0x80100010u, (void *)impl_fb, "fb", -1, 0 },',
+            '{ 0x80100020u, (void *)impl_fc, "fc", -1, 0 },', '{ 0x80100030u, (void *)impl_fd, "fd", -1, 0 },'])
+    yield "override-no-row-names-a-replaced-symbol", same("replaced_" in tables, False)
+    rsp = [Path(json.loads(x)).name for x in read(b / "link.rsp").splitlines()]
+    yield "override-its-object-is-linked-between-the-markers", same(rsp[:7], ["hole.o", "port_game_text_begin.o", "ovr_fa.o", "ua.o", "ub.o", "uc.o", "um.o"])
+    yield "override-the-output-without-list-has-no-extra-line", same(
+        len(run(root, "ov1", *start("ov1", ["fa"], defs=defs, calls=calls)).stdout.splitlines()), 10)
+
+    # A folder that does not exist, or one that holds nothing that is a C file, is no override.
+    proc, b = stage("ov0", [], defs=DEFS)
+    folder = root / "ov0" / "overrides"
+    write(folder / "README.txt", "not an override\n")
+    write(folder / "sub" / "fa.c", "int x;\n")
+    config, cc, nm = start("ov0b", [], defs=DEFS)
+    write(root / "ov0b" / "overrides" / "README.txt", "x\n")
+    write(root / "ov0b" / "overrides" / "sub" / "fa.c", "int x;\n")
+    proc2 = run(root, "ov0b", config, cc, nm)
+    yield "override-no-folder-is-no-override-and-the-line-says-0", same((proc.returncode, "functions overridden in C: 0" in proc.stdout), (0, True))
+    yield "override-a-file-that-is-not-c-and-a-subfolder-are-ignored", same((proc2.returncode, "functions overridden in C: 0" in proc2.stdout, (root / "ov0b" / "build" / "obj" / "ovr_fa.o").exists()), (0, True, False))
+    # The option names another folder.
+    config, cc, nm = start("ov2", [], defs={**DEFS, "ovr_fb": ["fb"]})
+    elsewhere = override_files(root, "elsewhere", "fb")
+    proc = run(root, "ov2", config, cc, nm, "--overrides", elsewhere)
+    yield "override-the-option-names-the-folder", same((proc.returncode, "functions overridden in C: 1" in proc.stdout, "def _replaced_fb" in read(root / "ov2" / "build" / "obj" / "ua.o")), (0, True, True))
+
+    # Second placements.
+    like_defs = {"ur": ["r1"], "um": ["mf", "mg", "hv"], "ovr_mf": ["mf"]}
+    like_calls = {**LIKE_CALLS, "ovr_mf": ["mg", "sym_in"]}
+
+    def like_run(tag, images, defs=like_defs, calls=like_calls):
+        config = run_tree(root, tag, units=LIKE_UNITS, symbols=LIKE_SYMBOLS, images=images)
+        override_files(root, tag, "mf")
+        cc, nm = fake(root, tag, defs=defs, call="r1", calls=calls)
+        return run(root, tag, config, cc, nm, "--list"), root / tag / "build"
+
+    proc, b = like_run("ovlike", IMAGES_SYM)
+    out = proc.stdout.splitlines()
+    first, second = read(b / "obj" / "ovr_mf.o"), read(b / "obj" / "ovr_mf__mod2.o")
+    yield "override-second-placement-runs", same((proc.returncode, proc.stderr), (0, ""))
+    yield "override-second-placement-definitions", same(
+        (sorted(l for l in first.splitlines() if l.startswith("def ")), sorted(l for l in second.splitlines() if l.startswith("def "))), (["def _impl_mf"], ["def _impl_mf__mod2"]))
+    yield "override-second-placement-references-follow-the-redefine-file", same(
+        (sorted(l for l in first.splitlines() if l.startswith("ref ")), sorted(l for l in second.splitlines() if l.startswith("ref "))),
+        (sorted(["ref _ps1_mg", "ref _ps1_sym_in", "ref _ps1_r1"] if False else ["ref _ps1_mg", "ref _ps1_sym_in", "ref _ps1_r1"]),
+         sorted(["ref _ps1_mg__mod2", "ref _ps1_sym_in__mod2", "ref _ps1_r1"])))
+    yield "override-second-placement-of-the-units-definition-is-replaced", same(
+        (sorted(l for l in read(b / "obj" / "um.o").splitlines() if l.startswith("def ")), sorted(l for l in read(b / "obj" / "um__mod2.o").splitlines() if l.startswith("def "))),
+        (["def _impl_hv", "def _impl_mg", "def _replaced_mf"], ["def _impl_hv__mod2", "def _impl_mg__mod2", "def _replaced_mf__mod2"]))
+    tables = read(b / "gen" / "port_tables.c")
+    yield "override-second-placement-rows-flagged", same(
+        [l.strip() for l in tables.splitlines() if "mf" in l and l.strip().startswith("{ 0x")], [
+            '{ 0x801e0000u, (void *)impl_mf, "mf", 0, 1 },', '{ 0x801f0000u, (void *)impl_mf__mod2, "mf__mod2", 1, 1 },'])
+    yield "override-second-placements-count-in-the-line", same([l for l in out if l.startswith("functions overridden")], ["functions overridden in C: 2"])
+    yield "override-second-placement-objects-are-linked", same(
+        [Path(json.loads(x)).name for x in read(b / "link.rsp").splitlines()][:6], ["hole.o", "port_game_text_begin.o", "ovr_mf.o", "ovr_mf__mod2.o", "um.o", "um__mod2.o"])
+    yield "override-second-placement-compiles-the-override-once", same(
+        len([x for x in read(root / "ovlike.log").splitlines() if " -S " in f" {x} " and x.endswith("mf.c")]), 1)
+    # The unit is left out of the second image: no second object, the name is absent there.
+    left = IMAGES_SYM.replace('archive = "../x/B.PAC"', 'archive = "../x/B.PAC"\nleave_out = ["um"]')
+    proc, b = like_run("ovlike2", left, {"ur": ["r1"], "um": ["mf", "mg"], "ovr_mf": ["mf"]},
+                      {"um": ["mg", "r1", "sym_in", "sym_out", "sym_own"], "ovr_mf": ["mg", "sym_in"]})
+    out = proc.stdout.splitlines()
+    yield "override-left-out-unit-has-no-second-object", same(
+        (proc.returncode, (b / "obj" / "ovr_mf__mod2.o").exists(), (b / "obj" / "um__mod2.o").exists(), [l for l in out if l.startswith("functions overridden")]),
+        (0, False, False, ["functions overridden in C: 1"]))
+    yield "override-left-out-unit-name-absent-there", same(
+        ("absent: mf__mod2 0x801f0000 mod2" in out, "impl_mf__mod2" in read(b / "gen" / "port_tables.c")), (True, False))
+
+    # Refusals before any compilation: status 2, one line, the file and the reason.
+    def refused(tag, over, needles, py=True, units=RUN_UNITS, nonmatching=None):
+        config, cc, nm = start(tag, over, units=units, py=py, nonmatching=nonmatching, defs=DEFS)
+        proc = run(root, tag, config, cc, nm)
+        file = root / tag / "overrides" / f"{over[0]}.c"
+        return same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), all(n in proc.stderr for n in (str(file), *needles)), (root / f"{tag}.log").exists()),
+                    (2, "", 1, True, False))
+
+    yield "override-refused-unknown-name", refused("ovr1", ["nothere"], ["nothere", "not a function that a unit of the configuration declares"])
+    yield "override-refused-nonmatching-function", refused(
+        "ovr2", ["func_80100040"], ["func_80100040", "nonmatching function"], nonmatching={"n_nonmatching/func_80100040.c": "int z;\n"})
+    yield "override-refused-without-its-contract-file", refused("ovr3", ["fa"], ["fa", "no fa.py", "differential test"], py=False)
+    yield "override-refused-a-unit-hostcheck-does-not-select", refused("ovr4", ["asmf"], ["asmf", "unit ux", "does not select"])
+    yield "override-refused-a-library-unit-hostcheck-does-not-select", refused("ovr5", ["libf"], ["libf", "unit us", "does not select"])
+    config, cc, nm = start("ovr6", ["fa", "nothere"], defs=DEFS)
+    proc = run(root, "ovr6", config, cc, nm)
+    yield "override-refused-names-the-file-that-is-wrong", same((proc.returncode, "nothere.c" in proc.stderr, "fa.c" in proc.stderr), (2, True, False))
+    # The nonmatching message differs from the unknown one, and the contract check does not hide the name checks.
+    config, cc, nm = start("ovr7", ["func_80100040"], py=False, nonmatching={"n_nonmatching/func_80100040.c": "int z;\n"}, defs=DEFS)
+    proc = run(root, "ovr7", config, cc, nm)
+    yield "override-refused-the-name-check-comes-before-the-contract-check", same((proc.returncode, "nonmatching" in proc.stderr, "differential" in proc.stderr), (2, True, False))
+
+    # Build stops, status 1, no fall back to the unit's C.
+    def stops(tag, spec, over=("fa",), needles=(), no_units_line=True, **more):
+        config, cc, nm = start(tag, list(over), defs=spec.pop("defs", defs), **spec)
+        proc = run(root, tag, config, cc, nm)
+        return same((proc.returncode, all(n in proc.stderr for n in needles), "linked:" in proc.stdout, "units:" in proc.stdout), (1, True, False, not no_units_line))
+
+    yield "override-that-does-not-compile-stops-the-build-with-its-first-error", stops("ovb1", dict(fail=["ovr_fa"]), needles=["fa.c", "b.c:3:5: error: boom in ovr_fa".replace("b.c", "fa.c")])
+    yield "override-that-defines-another-global-symbol-is-an-error-naming-it", stops(
+        "ovb2", dict(defs={**DEFS, "ovr_fa": ["fa", "extra_global"]}), needles=["fa.c", "extra_global"])
+    yield "override-that-does-not-define-its-name-is-an-error", stops("ovb3", dict(defs={**DEFS, "ovr_fa": ["other"]}), needles=["fa.c", "other"])
+    yield "override-that-defines_nothing-is-an-error", stops("ovb4", dict(defs={**DEFS, "ovr_fa": []}), needles=["fa.c", "does not define fa"])
+    yield "override-whose-unit-does-not-define-the-name-is-an-error", stops(
+        "ovb5", dict(defs={"ua": ["fb"], "ub": ["fc"], "uc": ["fd"], "um": ["mf"], "ovr_fa": ["fa"]}), needles=["fa.c", "unit ua", "fa"], no_units_line=False)
+    yield "override-whose-unit-does-not-build-is-an-error", stops("ovb6", dict(fail=["ua"]), needles=["fa.c", "unit ua"], no_units_line=False)
+    # A failing override compiled alone is not a failed unit: nothing in failed.tsv and the build did not go on to link.
+    config, cc, nm = start("ovb7", ["fa"], defs=defs, fail=["ovr_fa"])
+    proc = run(root, "ovb7", config, cc, nm)
+    yield "override-that-fails-is-not-a-failed-unit", same((proc.returncode, proc.stdout, (root / "ovb7" / "build" / "failed.tsv").exists(), (root / "ovb7" / "build" / "sfa2.exe").exists()), (1, "compiler: fakecc 1.0\n", False, False))
+    # The link check covers the new symbol: a linker whose output lacks replaced_fa is caught.
+    cc, nm = fake(root, "ovb8", defs=defs, nm_extra=["80100040 T _replaced_fa"])
+    config = run_tree(root, "ovb8")
+    override_files(root, "ovb8", "fa")
+    proc = run(root, "ovb8", config, cc, nm)
+    yield "override-replaced-symbol-at-a-ps1-address-fails-the-link-check", same((proc.returncode, "replaced_fa: at a PS1 address 0x80100040" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+
+# The overrides built and run for real (needs --cc).
+
+E2E_UNITS = (
+    unit("ua", "a.c", [("fa", 0x80100000), ("fb", 0x80100010)])
+    + unit("ub", "b.c", [("fc", 0x80100020), ("game_a", 0x80100030), ("game_c", 0x80100040)])
+    + unit("uc", "c.c", [("fe", 0x80100050)])
+    + unit("um", "d.c", [("mf", 0x801e0000), ("mg", 0x801e0010)], image="mod")
+)
+E2E_SYMBOLS = "sym_in = 0x801e0100;\n"
+E2E_HEADER = """/* made up */
+int printf(const char *, ...);
+extern int sym_in;
+extern void (*cb)(void);
+int fa(int x); int fb(int x); int fc(int v); void fe(int v); int mf(void); int mg(void);
+void game_a(void); void game_c(void);
+"""
+E2E_SOURCES = {
+    "a.c": """#include "game.h"
+int fa(int x) { printf("fa: the unit's own C, x=%d\\n", x); return x + 1; }
+int fb(int x) { printf("fb: the unit's own C\\n"); return fa(x) * 10; }
+""",
+    "b.c": """#include "game.h"
+void (*cb)(void);
+/* the call through a pointer declared without parameters: on the console the value is still in the argument register */
+int fc(int v) { printf("fc: the unit's own C\\n"); cb(); return v; }
+void game_a(void)
+{
+    int r = fa(1);
+    printf("main: fa -> %d\\n", r);
+    r = fb(2);
+    printf("main: fb -> %d\\n", r);
+}
+void game_c(void)
+{
+    cb = (void (*)(void))fe;
+    fc(41);
+}
+""",
+    "c.c": """#include "game.h"
+void fe(int v) { printf("fe: v=%d\\n", v); }
+""",
+    "d.c": """#include "game.h"
+int mf(void) { printf("mf: the unit's own C, sym_in at 0x%08x\\n", (unsigned)&sym_in); return 1; }
+int mg(void) { printf("mg: the unit's own C, sym_in at 0x%08x\\n", (unsigned)&sym_in); return 2; }
+""",
+}
+E2E_OVERRIDES = {
+    "fa": """#include "../src/game.h"
+int fa(int x) { printf("fa: the override, x=%d\\n", x); return x + 2; }
+""",
+    "fc": """#include "../src/game.h"
+int fc(int v) { printf("fc: the override, v=%d\\n", v); ((void (*)(int))cb)(v); return v; }
+""",
+    "mf": """#include "../src/game.h"
+static unsigned where(void) { return (unsigned)&sym_in; }
+int mf(void) { printf("mf: the override, sym_in at 0x%08x\\n", where()); return 1; }
+""",
+}
+E2E_MAIN = r"""
+#include "port_tables.h"
+#include <windows.h>
+#include <stdio.h>
+#include <string.h>
+
+extern void ps1_game_a(void), ps1_game_c(void), ps1_mf(void), ps1_mf__mod2(void), ps1_mg(void), ps1_mg__mod2(void);
+
+int main(int argc, char **argv)
+{
+    unsigned i, flagged = 0;
+    unsigned char *ram = VirtualAlloc((void *)0x80100000u, 0x100000u, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (!ram) { printf("no memory\n"); return 3; }
+    for (i = 0; i < port_function_count; i++) {
+        unsigned char *site = (unsigned char *)(size_t)port_functions[i].address;
+        unsigned rel = (unsigned)((size_t)port_functions[i].impl - ((size_t)site + 5));
+        site[0] = 0xe9;
+        memcpy(site + 1, &rel, 4);
+        flagged += port_functions[i].overridden != 0;
+    }
+    printf("overrides in C: %u\n", flagged);
+    fflush(stdout);
+    if (argc < 2) return 4;
+    if (strcmp(argv[1], "a") == 0) ps1_game_a();
+    else if (strcmp(argv[1], "c") == 0) ps1_game_c();
+    else if (strcmp(argv[1], "mf") == 0) ps1_mf();
+    else if (strcmp(argv[1], "mf2") == 0) ps1_mf__mod2();
+    else if (strcmp(argv[1], "mg") == 0) ps1_mg();
+    else if (strcmp(argv[1], "mg2") == 0) ps1_mg__mod2();
+    else return 5;
+    printf("end\n");
+    fflush(stdout);
+    return 0;
+}
+"""
+
+
+class Rig:
+    """Builds the made-up game with hostbuild.py and the real compiler and starts the Windows programs."""
+
+    def __init__(self, cc: str, prefix: list[str], work: Path):
+        self.cc, self.prefix, self.work = cc, prefix, work
+        self.retried = 0   # runs that ended with status 1 and no output (a launch that timed out under load) and were run again
+
+    def start_check(self) -> str | None:
+        probe = self.work / "probe.c"
+        probe.write_text("int main(void) { return 7; }\n")
+        out = self.work / "probe.exe"
+        proc = subprocess.run([self.cc, "-o", str(out), str(probe)], capture_output=True, text=True, timeout=120)
+        if proc.returncode != 0:
+            return "the compiler cannot build a program: " + (proc.stderr.strip().splitlines() or ["?"])[0]
+        try:
+            ran = subprocess.run([*self.prefix, str(out)], capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as err:
+            return f"cannot start a Windows program: {err}"
+        return None if ran.returncode == 7 else f"cannot start a Windows program (status {ran.returncode})"
+
+    def build(self, tag: str, overrides: tuple[str, ...]) -> tuple[subprocess.CompletedProcess, Path]:
+        """hostbuild.py on the made-up game with the given overrides; (the process, the program's path)."""
+        root = self.work
+        run_tree(root, tag, units=E2E_UNITS, symbols=E2E_SYMBOLS)
+        base = root / tag / "src"
+        write(base / "game.h", E2E_HEADER)
+        for name, text in E2E_SOURCES.items():
+            write(base / name, text)
+        runtime = root / tag / "runtime"
+        write(runtime / "port_tables.h", (TOOLS.parent / "src" / "port_tables.h").read_text())
+        write(runtime / "main.c", E2E_MAIN)
+        for name in overrides:
+            write(root / tag / "overrides" / f"{name}.c", E2E_OVERRIDES[name])
+            write(root / tag / "overrides" / f"{name}.py", "# the contract of the differential test, made up\n")
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPT), "--config", str(base / "build.toml"), "--cc", self.cc, "--build", str(root / tag / "build"),
+             "--runtime", str(runtime), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml")],
+            capture_output=True, text=True, timeout=900)
+        return proc, root / tag / "build" / "sfa2.exe"
+
+    def run(self, exe: Path, *args: str) -> tuple[int, list[str]]:
+        """One run of the program. A run that ends with status 1 and no output is a launch that timed out under load:
+        it is run once more and counted in `retried`."""
+        for attempt in range(2):
+            proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=120)
+            lines = proc.stdout.replace("\r\n", "\n").splitlines()
+            if proc.returncode == 1 and not lines and attempt == 0:
+                self.retried += 1
+                continue
+            return proc.returncode, lines
+        return proc.returncode, lines
+
+
+def e2e_cases(rig: Rig):
+    proc, exe = rig.build("e2e-over", ("fa", "fc", "mf"))
+    yield "e2e-build-with-overrides-verifies", same((proc.returncode, proc.stderr, proc.stdout.splitlines()[3:5]), (0, "", ["functions with C: 10", "functions overridden in C: 4"]))
+    if proc.returncode != 0:
+        return
+    status, lines = rig.run(exe, "a")
+    yield "e2e-the-override-runs-for-a-call-from-another-unit-and-from-the-unit-that-defines-it", same((status, lines), (0, [
+        "overrides in C: 4", "fa: the override, x=1", "main: fa -> 3", "fb: the unit's own C", "fa: the override, x=2", "main: fb -> 40", "end"]))
+    status, lines = rig.run(exe, "c")
+    yield "e2e-a-call-through-a-pointer-without-parameters-reaches-a-callee-that-reads-its-parameter", same((status, lines), (0, [
+        "overrides in C: 4", "fc: the override, v=41", "fe: v=41", "end"]))
+    status, lines = rig.run(exe, "mf")
+    yield "e2e-first-placement-runs-the-override-with-its-own-name-of-the-data", same((status, lines), (0, ["overrides in C: 4", "mf: the override, sym_in at 0x801e0100", "end"]))
+    status, lines = rig.run(exe, "mf2")
+    yield "e2e-second-placement-runs-the-override-with-the-moved-name-of-the-data", same((status, lines), (0, ["overrides in C: 4", "mf: the override, sym_in at 0x801f0100", "end"]))
+    status, lines = rig.run(exe, "mg")
+    status2, lines2 = rig.run(exe, "mg2")
+    yield "e2e-the-units-other-functions-keep-their-own-c-in-both-placements", same(
+        ((status, lines[1:]), (status2, lines2[1:])),
+        ((0, ["mg: the unit's own C, sym_in at 0x801e0100", "end"]), (0, ["mg: the unit's own C, sym_in at 0x801f0100", "end"])))
+
+    # The same game without any override: the unit's C runs, the count is 0.
+    proc, exe0 = rig.build("e2e-plain", ())
+    yield "e2e-build-without-overrides-says-0", same((proc.returncode, proc.stdout.splitlines()[3:5]), (0, ["functions with C: 10", "functions overridden in C: 0"]))
+    if proc.returncode != 0:
+        return
+    status, lines = rig.run(exe0, "a")
+    yield "e2e-without-the-override-the-units-c-runs", same((status, lines), (0, [
+        "overrides in C: 0", "fa: the unit's own C, x=1", "main: fa -> 2", "fb: the unit's own C", "fa: the unit's own C, x=2", "main: fb -> 30", "end"]))
+    status, lines = rig.run(exe0, "mf2")
+    yield "e2e-without-the-override-the-second-placement-runs-the-units-c", same((status, lines), (0, ["overrides in C: 0", "mf: the unit's own C, sym_in at 0x801f0100", "end"]))
+    # Not asserted: what fe prints when the unit's own fc calls it through cb() with no argument. The value it reads is
+    # whatever lies in the stack slot, which this file does not control, so no case states it.
+
+
+def groups(root: Path, rig: "Rig | None" = None):
     yield rename_cases()
     yield sweep_table_cases(root)
     yield placement_cases()
@@ -1264,12 +1662,50 @@ def groups(root: Path):
     yield marker_flow_cases(root)
     yield image_flow_cases(root)
     yield psyz_cases(root)
+    yield override_rename_cases()
+    yield override_check_cases()
+    yield override_flow_cases(root)
+    if rig:
+        yield e2e_cases(rig)
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Controls for hostbuild.py.")
+    parser.add_argument("--cc", default=None, help="cross compiler: also build and run the overrides for real")
+    parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
+    args = parser.parse_args()
+    rig = None
+    work = None
+    if args.cc:
+        if not shutil.which(args.cc):
+            print(f"the cross compiler {args.cc} is missing; these controls need it")
+            return 2
+        build = TOOLS.parent / "build"
+        build.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix="hostbuild-e2e-", dir=build))
+        rig = Rig(args.cc, args.run.split(), work)
+        problem = rig.start_check()
+        if problem:
+            print(problem)
+            shutil.rmtree(work, ignore_errors=True)
+            return 2
+    else:
+        print("note: without --cc the overrides are not built and run for real (the e2e- cases are not run)")
+    try:
+        failed = run_all(rig)
+    finally:
+        if work:
+            shutil.rmtree(work, ignore_errors=True)
+    if rig and rig.retried:
+        print(f"note: {rig.retried} program run(s) ended with status 1 and no output (a launch that timed out) and were run again")
+    print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
+    return 1 if failed else 0
+
+
+def run_all(rig: "Rig | None") -> int:
     failed = 0
     with tempfile.TemporaryDirectory(prefix="hostbuild-test-") as tmp:
-        for produced in groups(Path(tmp)):
+        for produced in groups(Path(tmp), rig):
             while True:
                 try:
                     name, detail = next(produced)
@@ -1284,8 +1720,7 @@ def main() -> int:
                 else:
                     print(f"FAIL {name}: {detail}")
                     failed += 1
-    print(f"{failed} case(s) behaved wrongly" if failed else "all cases behaved as required")
-    return 1 if failed else 0
+    return failed
 
 
 if __name__ == "__main__":

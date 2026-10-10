@@ -196,6 +196,10 @@ static int check(char *err, size_t errsize)
             snprintf(err, errsize, "overrides: %s is listed but this build has no function of that name with C", o->name);
             return -1;
         }
+        if (find_function(o->name)->overridden) {
+            snprintf(err, errsize, "overrides: %s has two overrides: a host routine of the overrides table and an override in C of the build", o->name);
+            return -1;
+        }
     }
     return 0;
 }
