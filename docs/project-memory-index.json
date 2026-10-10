@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "8c504f60d189a6bc92a6770732feb32b2340595a47454f22dcfc839a2f66f187",
+  "sha256": "17777ff8c98b64bb4f24265b21a2d495bcf4ce3febfaadb95b15136863d4a3a0",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -577,6 +577,10 @@
     {
       "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
       "line": 8788
+    },
+    {
+      "title": "Nonmatching C for the resident program, first batch (2026-10-10)",
+      "line": 8822
     }
   ]
 }

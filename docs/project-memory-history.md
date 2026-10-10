@@ -8818,3 +8818,47 @@ No function count changes here: none of this is in the build.
   left out, the image identical, 223 of 223 controls tripped;
   `slot04_11` and `slot17` unchanged. This change's own checks are in
   its pull request.
+
+## Nonmatching C for the resident program, first batch (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- A new folder, `ps1/src/resident_nonmatching/`, for functions of the
+  resident program itself, with the same rules and the same test as
+  the stage and character folders. First batch, fourteen functions:
+  `func_80119694`, `func_8011a018`, `func_8011a880`, `func_8011acbc`,
+  `func_8011bf70`, `func_8011c724`, `func_8011cf98`, `func_8011d74c`,
+  `func_8011db78`, `func_8011df3c`, `func_8011eb4c`, `func_8011f06c`,
+  `func_8011fa50`, `func_80120cf0`. The folder's page has what its
+  three commands printed for each.
+- They were written days ago and waited on a branch; the cut onto
+  today's main needed no change to any function's C.
+- One function that was to be in the batch is not: with today's
+  headers the C of `func_80119444` builds the original's 72 bytes word
+  for word. An exact function does not belong in a nonmatching folder,
+  and its header ("differs in register use") would have been false. It
+  is handed to the matching lane as a candidate unit. That it was
+  noticed at all is thanks to a byte comparison the cut does not make
+  by itself; the other thirteen that were compared in that run differ.
+- `func_80119694` walks an ordering table through links of 24 bits,
+  that is through the console's low view of its RAM. Its test maps
+  both views of the RAM, as the console has them. On a PC the port's
+  mirror layer serves those accesses; no host routine stands in for
+  the function.
+- In a private run of the real game on a PC, `func_8011a880` read
+  the low view at address 4: a frame pointer was null. That is the
+  input its contract leaves out, with the note that the original
+  reads through the pointer as well (read from the listing when the
+  contract was written; not a tested input). On a PC the port's
+  mirror layer serves the read.
+- The checks before the pull request, all on the batch's commit: the
+  declarations of the new units agree with their definitions and with
+  `protos.h` (the lane's check, told to read the new folder, which it
+  does not read by default); the resident table check; the scan for
+  an index or offset on a cast pointer, with one finding read and
+  kept (a type byte at offset 8 of an untyped record in
+  `func_8011eb4c`, as its comment says); the write audit on two seeds;
+  the name lint.
+- Two faults of this lane's private helpers showed and are fixed: the
+  cut stopped on a structure it had no rule for, and the batch script
+  went on after a failed cut because it took its status from `tee`.
