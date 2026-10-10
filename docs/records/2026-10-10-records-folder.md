@@ -3,7 +3,7 @@
 Added the folder `docs/records/`: a record of a change is a new file
 `YYYY-MM-DD-short-name.md` whose first line is `## Title (date)`. The
 workflow tool's `context --query` now searches the history's sections as
-before and then the records, in order of file name, and prints each with
+before and then the records, the newest first by file name, and prints each with
 its source (`[records/FILE]`). A check in `tools/ai_workflow/tests/test_workflow.py`
 refuses a record whose name or first line has not that form, naming the file.
 `context --reindex` still regenerates only the history's index; records have none.
