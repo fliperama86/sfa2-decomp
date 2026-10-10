@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "3b515a69c3282a16b7ab21e62536cde617e4a5e1f23913694b1a4061e62af340",
+  "sha256": "1e88e63c8fda1b0713ede15bf11bf9dcac9aed10753c8231ce31d1afcc8aa2b3",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -617,6 +617,10 @@
     {
       "title": "Correction: the review reused an override's result after the override changed (2026-10-10)",
       "line": 9281
+    },
+    {
+      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "line": 9305
     }
   ]
 }
