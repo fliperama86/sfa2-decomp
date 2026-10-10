@@ -16,7 +16,9 @@ middle of a read, and ReadN continuing after a Pause; reading past the end of
 the image (a disc error to the handler, the read stopped); the position
 conversions at their borders; the word record; the polling reader (no
 handler: one sector waits for CdReady); the implied Setloc of SeekL and
-ReadS and its second response; GetlocP; XA audio sectors dropped; the
+ReadS and its second response; GetlocP; XA audio sectors: consumed in silence with no sink, and with a sink decoded and queued
+(the filter on and off, the file and channel, the volumes of CdMix, the hold when the queue is full and its release, the reset at a
+read's start, refused sectors, the lock calls); the
 library variables the game's C reads; an unknown command's stop and a
 Setmode with the whole-sector bit; the buffer CdGetSector is given: its
 start or its end outside the PS1's RAM, a count that overflows 32 bits, a
@@ -41,12 +43,15 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SRC = HERE.parent / "src"
+sys.path.insert(0, str(HERE))
+import test_hostxa as X  # noqa: E402  (the decoder's reference, for the expected frames)
 
 SECTOR = 2352
 HANDLER_VALUE = 0x1234
 
 TEST_MAIN = r'''
 #include "cd.h"
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -59,6 +64,13 @@ static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call 
 static char a_kind;
 
 volatile int port_handler_depth;   /* the driver's counter; cd.c raises it around the ready handler */
+/* The seams of the streamed audio: the audio lock (counted: calls, depth, an unlock without a lock), the frame count and the trace
+ * (to standard error, so that the lines the cases read on standard output are the same as before). */
+static int lock_calls, lock_depth, lock_bad;
+void port_audio_lock(void) { lock_calls++; lock_depth++; }
+void port_audio_unlock(void) { if (--lock_depth < 0) lock_bad++; }
+unsigned port_frames(void) { return 0; }
+void port_trace_line(const char *fmt, ...) { va_list ap; va_start(ap, fmt); fputs("T ", stderr); vfprintf(stderr, fmt, ap); fputc('\n', stderr); va_end(ap); }
 /* jumps.c's check of a callback's address; cd.c calls it only when port_cd_call is not set, and here it is, so this
  * stands in for the link. The real check on the ready callback is exercised through the linked program
  * (test_hostlaunch.py). */
@@ -193,6 +205,19 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "p2i")) { unsigned a, b, c; unsigned char p[3]; if (sscanf(rest, "%x %x %x", &a, &b, &c) != 3) return 64; p[0] = (unsigned char)a; p[1] = (unsigned char)b; p[2] = (unsigned char)c; printf("J %d\n", port_CdPosToInt(p)); }
         else if (!strcmp(cmd, "word")) { unsigned a = (unsigned)strtoul(rest, 0, 16); unsigned char *p = at(a); printf("W %08x\n", p[0] | p[1] << 8 | p[2] << 16 | (unsigned)p[3] << 24); }
         else if (!strcmp(cmd, "mix")) { printf("X %d\n", port_CdMix(0)); }
+        else if (!strcmp(cmd, "mixv")) { unsigned char v[4]; unsigned a, b, c, d; if (sscanf(rest, "%u %u %u %u", &a, &b, &c, &d) != 4) return 64; v[0] = (unsigned char)a; v[1] = (unsigned char)b; v[2] = (unsigned char)c; v[3] = (unsigned char)d; printf("X %d\n", port_CdMix(v)); }
+        else if (!strcmp(cmd, "sink")) port_xa_set_sink(atoi(rest));
+        else if (!strcmp(cmd, "xac")) { struct port_xa_counts c; port_xa_counts_get(&c); printf("XC played %u held %u refused %u skipped %u silent %u frames %u pulled %u queued %u\n", c.played, c.held, c.refused, c.skipped, c.silent, c.frames, c.pulled, c.queued); }
+        else if (!strcmp(cmd, "locks")) printf("LK calls %d depth %d bad %d\n", lock_calls, lock_depth, lock_bad);
+        else if (!strcmp(cmd, "pull")) {   /* what PsyZ does: the pull is called with the lock held, so it takes none itself */
+            static short buf[48000 * 2]; size_t n = (size_t)atoi(rest), got, i;
+            if (n > 48000) return 64;
+            got = port_xa_pull(buf, n);
+            printf("PL %u", (unsigned)got);
+            for (i = 0; i < got * 2; i++) printf(" %d", buf[i]);
+            printf("\n");
+        }
+        else if (!strcmp(cmd, "drain")) { static short buf[48000 * 2]; size_t got = port_xa_pull(buf, 48000); printf("DR %u\n", (unsigned)got); }
         else { printf("unknown script command %s\n", cmd); return 64; }
         (void)arg;
         fflush(stdout);
@@ -245,7 +270,7 @@ def build(root: Path, cc: str) -> Path:
     main = root / "cdmain.c"
     main.write_text(TEST_MAIN)
     exe = root / "cdtest"
-    proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-o", str(exe), str(main), str(SRC / "cd.c"), str(SRC / "disc.c"), str(SRC / "sha256.c")],
+    proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-o", str(exe), str(main), str(SRC / "cd.c"), str(SRC / "xa.c"), str(SRC / "disc.c"), str(SRC / "sha256.c")],
                           capture_output=True, text=True, timeout=180)
     if proc.returncode != 0:
         raise RuntimeError("the test program does not build:\n" + proc.stderr[-1500:])
@@ -255,6 +280,11 @@ def build(root: Path, cc: str) -> Path:
 def run(exe: Path, image: Path, script: str) -> tuple[int, list[str]]:
     proc = subprocess.run([str(exe), str(image)], input=script, capture_output=True, text=True, timeout=60)
     return proc.returncode, proc.stdout.splitlines()
+
+
+def run_err(exe: Path, image: Path, script: str) -> tuple[int, list[str], list[str]]:
+    proc = subprocess.run([str(exe), str(image)], input=script, capture_output=True, text=True, timeout=60)
+    return proc.returncode, proc.stdout.splitlines(), proc.stderr.splitlines()
 
 
 def check(name: str, ok: bool, detail: str = ""):
@@ -531,6 +561,223 @@ def audio_cases(root: Path, exe: Path):
     yield check("with XA off, the same sectors are data", sec == list(span), f"{sec}")
 
 
+# ---- the streamed audio with a sink ------------------------------------------------------
+
+def make_xa_image(path: Path, count: int, xa: dict[int, bytes]) -> None:
+    """count sectors of the usual pattern, with the sectors in `xa` (raw XA sectors of test_hostxa.make_sector) in place."""
+    make_image(path, count)
+    raw = bytearray(path.read_bytes())
+    for n, sec in xa.items():
+        raw[n * SECTOR + 16:(n + 1) * SECTOR] = sec[16:]
+    path.write_bytes(bytes(raw))
+
+
+def xa_sector(seed: int, file: int = 1, channel: int = 3, coding: int = 1, copy=None, submode: int = 0x64) -> bytes:
+    import random
+    rnd = random.Random(seed)
+    return X.make_sector(file=file, channel=channel, submode=submode, coding=coding, headers=lambda g, b: rnd.randrange(256) & 0x3f | 0, data=lambda g, j, k: rnd.randrange(256), copy=copy)
+
+
+def expected_frames(sectors: list[bytes], rate: int = 37800) -> list[tuple[int, int]]:
+    d = X.RefDecoder()
+    frames: list[tuple[int, int]] = []
+    for raw in sectors:
+        code, fr = d.sector(raw)
+        assert code == X.OK
+        frames += fr
+    return X.ref_resample(frames, rate)
+
+
+def parse_pull(lines: list[str]) -> list[list[tuple[int, int]]]:
+    out = []
+    for l in lines:
+        if l.startswith("PL "):
+            v = [int(x) for x in l.split()[1:]]
+            out.append(list(zip(v[1::2], v[2::2])) if v[0] else [])
+    return out
+
+
+def counts_of(lines: list[str]) -> list[dict[str, int]]:
+    out = []
+    for l in lines:
+        if l.startswith("XC "):
+            w = l.split()
+            out.append({w[i]: int(w[i + 1]) for i in range(1, len(w), 2)})
+    return out
+
+
+def volumes(frames: list[tuple[int, int]], v: tuple[int, int, int, int]) -> list[tuple[int, int]]:
+    def cl(x):
+        return max(-32768, min(32767, x))
+    if v[0] in (127, 128) and v[2] in (127, 128) and v[1] == 0 and v[3] == 0:
+        return list(frames)
+    return [(cl((l * v[0] + r * v[3]) >> 7), cl((l * v[1] + r * v[2]) >> 7)) for l, r in frames]
+
+
+def stream_cases(root: Path, exe: Path):
+    sa, sb, sc = xa_sector(1), xa_sector(2), xa_sector(3)
+    img = root / "xs.bin"
+    make_xa_image(img, 24, {6: sa, 7: sb})
+    start = "cdinit\nsink 1\ncb 1\nhandler 80100000 512\n"
+    mode_filter = "ctl N d 01 03\nctl N e c8\n"
+    want = expected_frames([sa, sb])
+    # the filter on and the file and channel equal: both sectors are played, the handler sees only data sectors (double speed: 2 + 3)
+    rc, lines = run(exe, img, start + mode_filter + "readn 4\ntick 2\nxac\npull 48000\nxac\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    c = counts_of(lines)
+    pl = parse_pull(lines)
+    yield check("filter on, file and channel equal: two audio sectors played, the handler sees the data sectors only",
+                rc == 0 and sec == [4, 5, 8] and c and c[0]["played"] == 2 and c[0]["skipped"] == 0 and c[0]["held"] == 0, f"{rc} {sec} {c}")
+    yield check("a played sector reaches the queue: the frames counted are the reference's (decode, then resample), every sample equal",
+                rc == 0 and c[0]["frames"] == len(want) and c[0]["queued"] == len(want) and pl and pl[0] == want, f"{c} {len(pl[0]) if pl else None} vs {len(want)}")
+    yield check("after the pull the queue is empty and the pulled count is the frames played", c[1]["queued"] == 0 and c[1]["pulled"] == len(want), f"{c}")
+    # the file differs, then the channel differs: skipped, consumed in silence, nothing queued
+    for tag, flt in (("file", "ctl N d 02 03"), ("channel", "ctl N d 01 04")):
+        rc, lines = run(exe, img, start + flt + "\nctl N e c8\nreadn 4\ntick 2\nxac\n")
+        sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+        c = counts_of(lines)
+        yield check(f"filter on, {tag} differs: the two audio sectors are skipped (consumed, nothing queued)",
+                    rc == 0 and sec == [4, 5, 8] and c[0]["skipped"] == 2 and c[0]["played"] == 0 and c[0]["queued"] == 0, f"{rc} {sec} {c}")
+    # a Setfilter after the read started takes effect for the next sector
+    rc, lines = run(exe, img, start + "ctl N d 05 05\nctl N e c8\nreadn 5\ntick 1\nctl N d 01 03\ntick 1\nxac\n")
+    c = counts_of(lines)
+    yield check("the Setfilter given in the middle of a read is used at once (sector 6 skipped, sector 7 played)",
+                rc == 0 and c[0]["skipped"] == 1 and c[0]["played"] == 1, f"{rc} {c}")
+    # the filter off: every audio sector is played whatever its channel; setfilter bytes unused
+    rc, lines = run(exe, img, start + "ctl N d 09 09\nctl N e c0\nreadn 4\ntick 2\nxac\n")
+    c = counts_of(lines)
+    yield check("filter bit off: every audio sector is played, whatever the Setfilter says", rc == 0 and c[0]["played"] == 2 and c[0]["skipped"] == 0, f"{rc} {c}")
+    # the XA bit off: the sectors are data
+    rc, lines = run(exe, img, start + "ctl N e 80\nreadn 4\ntick 2\nxac\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    c = counts_of(lines)
+    yield check("XA bit off: the same sectors go to the handler as data and nothing is queued", rc == 0 and len(sec) == 5 and sec[:2] == [4, 5] and sec[4] == 8 and c[0]["played"] == 0 and c[0]["queued"] == 0, f"{rc} {sec} {c}")
+    # no sink: consumed in silence, as before
+    rc, lines = run(exe, img, "cdinit\ncb 1\nhandler 80100000 512\n" + mode_filter + "readn 4\ntick 2\nxac\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    c = counts_of(lines)
+    yield check("no sink: the audio sectors are consumed in silence (counted apart), nothing is queued, the data sectors are delivered as before",
+                rc == 0 and sec == [4, 5, 8] and c[0]["silent"] == 2 and c[0]["played"] == 0 and c[0]["queued"] == 0, f"{rc} {sec} {c}")
+    # no stream: a pull gives nothing
+    rc, lines = run(exe, img, start + "pull 100\n")
+    yield check("no stream: a pull returns 0 frames", rc == 0 and "PL 0" in lines, f"{rc} {lines}")
+
+    # mono and 18,900 Hz sectors play too
+    imgm = root / "xm.bin"
+    m1, m2 = xa_sector(11, coding=0), xa_sector(12, coding=4)
+    make_xa_image(imgm, 12, {6: m1})
+    rc, lines = run(exe, imgm, start + mode_filter + "readn 6\ntick 1\nxac\npull 48000\n")
+    pl = parse_pull(lines)
+    yield check("a mono sector at 37,800 Hz is played, both sides equal", rc == 0 and pl and pl[0] == expected_frames([m1]) and all(a == b for a, b in pl[0]), f"{rc} {len(pl[0]) if pl else None}")
+    make_xa_image(imgm, 12, {6: m2})
+    rc, lines = run(exe, imgm, start + mode_filter + "readn 6\ntick 1\nxac\npull 48000\n")
+    pl = parse_pull(lines)
+    yield check("a mono sector at 18,900 Hz is played (resampled from 18,900 Hz)", rc == 0 and pl and pl[0] == expected_frames([m2], 18900), f"{rc} {len(pl[0]) if pl else None}")
+
+    # refused: the 8-bit sector and a sector whose two subheader copies differ; consumed and counted, the position moves on
+    imgr = root / "xr.bin"
+    r8 = xa_sector(21, coding=0x11)
+    rbad = xa_sector(22, copy=[1, 3, 0x64, 2])
+    make_xa_image(imgr, 12, {6: sa, 7: r8, 8: rbad, 9: sb})
+    rc, lines, err = run_err(exe, imgr, start + mode_filter + "readn 6\ntick 2\ntick 1\nxac\npull 48000\n")
+    c = counts_of(lines)
+    pl = parse_pull(lines)
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("an 8-bit sector and a sector with differing subheader copies are refused and counted; the others are played in order",
+                rc == 0 and c[0]["refused"] == 2 and c[0]["played"] == 2 and sec == [10, 11] and pl and pl[0] == expected_frames([sa, sb]), f"{rc} {c} {sec}")
+    yield check("each refusal is a trace line with the reason", len([e for e in err if "refused:" in e]) == 2 and any("8 bit samples are not decoded" in e for e in err) and any("two copies of the subheader differ" in e for e in err), f"{err}")
+    yield check("the stream's start is one trace line", len([e for e in err if "stream starts" in e]) == 1, f"{err}")
+
+    # the volumes of CdMix: unity, 127 (passthrough as PsyZ), half, crossed and clamped
+    v_cases = [("unity 128, 0, 128, 0", (128, 0, 128, 0)), ("127, 0, 127, 0 goes through unchanged", (127, 0, 127, 0)), ("half 64, 0, 64, 0", (64, 0, 64, 0)),
+               ("mixed 100, 30, 90, 20", (100, 30, 90, 20)), ("swapped sides 0, 128, 0, 128", (0, 128, 0, 128)), ("twice 255, 0, 255, 0 (clamped)", (255, 0, 255, 0)),
+               ("126, 0, 126, 0 is a real scaling", (126, 0, 126, 0))]
+    base = expected_frames([sa, sb])
+    for label, v in v_cases:
+        rc, lines = run(exe, img, start + mode_filter + f"mixv {v[0]} {v[1]} {v[2]} {v[3]}\nreadn 4\ntick 2\npull 48000\n")
+        pl = parse_pull(lines)
+        yield check(f"CdMix {label}: every pulled frame by the sum", rc == 0 and pl and pl[0] == volumes(base, v), f"{rc} {len(pl[0]) if pl else None}")
+    yield check("the 255 case reaches the clamp (so that the check means something)", any(abs(x) == 32767 or x == -32768 for fr in volumes(base, (255, 0, 255, 0)) for x in fr), "no sample reached a limit")
+    # the volumes are kept until the next CdMix and a read's start does not reset them
+    rc, lines = run(exe, img, start + mode_filter + "mixv 64 0 64 0\nreadn 4\ntick 2\nreadn 4\ntick 2\npull 48000\n")
+    pl = parse_pull(lines)
+    yield check("the volumes stay after a new read", rc == 0 and pl and pl[0] == volumes(base, (64, 0, 64, 0)), f"{rc}")
+
+    # the lock: every access of the game's thread to the queue is between a lock and an unlock; the pull takes none (PsyZ holds it)
+    rc, lines = run(exe, img, start + mode_filter + "readn 4\ntick 2\nlocks\npull 100\nlocks\nxac\nlocks\n")
+    lk = [l.split() for l in lines if l.startswith("LK ")]
+    yield check("the lock calls are balanced (depth 0, none unlocked without a lock), and a pull takes no lock",
+                rc == 0 and len(lk) == 3 and lk[0][2] == lk[1][2] and lk[0][4] == "0" and lk[1][4] == "0" and lk[2][4] == "0" and lk[2][6] == "0" and int(lk[0][2]) > 0 and int(lk[2][2]) > int(lk[1][2]), f"{rc} {lk}")
+
+    # the lock is taken for every access to the queue: a tick that plays two sectors takes it four times (once to look at the room and once to
+    # add, for each), and nothing else takes it
+    rc, lines = run(exe, img, start + mode_filter + "readn 4\nlocks\ntick 1\nlocks\ntick 1\nlocks\n")
+    lk = [int(l.split()[2]) for l in lines if l.startswith("LK ")]
+    yield check("each played sector takes the lock twice (to look at the room, to add); the sectors of data take none", rc == 0 and len(lk) == 3 and lk[1] - lk[0] == 0 and lk[2] - lk[1] == 4, f"{rc} {lk}")
+
+    # the reset at a read's start: the queue is emptied and the decoder begins again (history and resampler)
+    imgq = root / "xq.bin"
+    make_xa_image(imgq, 24, {6: sa, 7: sb, 14: sc})
+    rc, lines = run(exe, imgq, start + mode_filter + "readn 6\ntick 2\nxac\nreadn 14\nxac\ntick 1\nxac\npull 48000\n")
+    c = counts_of(lines)
+    pl = parse_pull(lines)
+    yield check("a read's start empties the queue", rc == 0 and c[0]["queued"] == len(expected_frames([sa, sb])) and c[1]["queued"] == 0, f"{c}")
+    yield check("after the new read the first sector decodes as the first of a stream (history and phase fresh): every sample equal",
+                rc == 0 and pl and pl[0] == expected_frames([sc]), f"{len(pl[0]) if pl else None}")
+
+    # the hold: a run of audio sectors fills the queue, the sector that does not fit stays on the disc; a pull releases it
+    N = 40
+    audio = {n: xa_sector(100 + n) for n in range(6, 6 + N)}
+    imgh = root / "xh.bin"
+    make_xa_image(imgh, 6 + N + 6, audio)
+    secs = [audio[n] for n in range(6, 6 + N)]
+    d = X.RefDecoder()
+    frames: list[tuple[int, int]] = []
+    cum = []
+    for raw in secs:
+        frames += d.sector(raw)[1]
+        cum.append(len(X.ref_resample(frames, 37800)))
+    bound = 2016 * 44100 // 37800 + 2
+    played = 1
+    while played < N and 44100 - cum[played - 1] >= bound:
+        played += 1
+    held_at = 6 + played   # the sector that stays on the disc
+    rc, lines = run(exe, imgh, start + mode_filter + "readn 6\ntick 40\nxac\nlocks\nctl B 11\ntick 5\nxac\nlocks\n")
+    c = counts_of(lines)
+    loc = [l for l in lines if l.startswith("C ") and "res=" in l]
+    pos = None
+    if loc:
+        b = [int(x, 16) for x in loc[-1].split("res=")[1].split()]
+        bc = lambda x: (x >> 4) * 10 + (x & 15)
+        pos = (bc(b[2]) * 60 + bc(b[3])) * 75 + bc(b[4])
+    yield check(f"the queue is full: {played} sectors are played (by the reference's frame counts), the next is held and not consumed (the drive waits)",
+                rc == 0 and c[0]["played"] == played and c[0]["held"] >= 1 and c[0]["queued"] == cum[played - 1], f"{rc} {c} wanted played {played}")
+    lk = [l.split() for l in lines if l.startswith("LK ")]
+    yield check("a held sector leaves the lock released (depth 0, nothing unlocked without a lock), after 40 and after 45 ticks", rc == 0 and len(lk) == 2 and all(x[4] == "0" and x[6] == "0" for x in lk), f"{rc} {lk}")
+    yield check("the read position stays at the held sector however many ticks pass", rc == 0 and pos == held_at and c[1]["played"] == played and c[1]["held"] > c[0]["held"], f"{pos} vs {held_at}, {c}")
+    # the release: a pull empties the queue; the next tick takes the sector, and no burst (at most 3 sectors in one tick)
+    rc, lines = run(exe, imgh, start + mode_filter + "readn 6\ntick 40\nxac\ndrain\ntick 1\nxac\ndrain\ntick 1\nxac\n")
+    c = counts_of(lines)
+    yield check("after the queue is drained the held sector is taken at the next tick, and the wait is not paid back as a burst (at most 3 sectors)",
+                rc == 0 and 1 <= c[1]["played"] - c[0]["played"] <= 3 and 1 <= c[2]["played"] - c[1]["played"] <= 3, f"{rc} {c}")
+    # the hold does not reorder: data sectors after the audio run reach the handler only after all audio sectors are consumed
+    imgo = root / "xo.bin"
+    audio2 = {n: xa_sector(200 + n) for n in range(6, 30)}
+    make_xa_image(imgo, 40, audio2)
+    rc, lines = run(exe, imgo, start + mode_filter + "readn 4\ntick 30\nxac\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    c = counts_of(lines)
+    yield check("the data sectors after a held run are not delivered while the audio sector is held", rc == 0 and sec == [4, 5] and c[0]["held"] >= 1, f"{rc} {sec} {c}")
+    rc, lines = run(exe, imgo, start + mode_filter + "readn 4\ntick 30\ndrain\ntick 30\ndrain\ntick 30\ndrain\ntick 30\ndrain\nxac\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("drained in time, the whole run is consumed and the data sectors follow in order", rc == 0 and sec == [4, 5] + list(range(30, 40)), f"{rc} {sec}")
+
+    # a held sector and the sink off: with no sink nothing is ever held
+    rc, lines = run(exe, imgh, "cdinit\ncb 1\nhandler 80100000 512\n" + mode_filter + "readn 6\ntick 40\nxac\n")
+    c = counts_of(lines)
+    yield check("without a sink nothing is held, however many sectors", rc == 0 and c[0]["held"] == 0 and c[0]["silent"] >= 40 and c[0]["played"] == 0, f"{c}")
+
+
 def stop_cases(root: Path, exe: Path):
     img = root / "s.bin"
     make_image(img, 10)
@@ -700,11 +947,18 @@ def groups(root: Path, exe: Path):
     yield poll_cases(root, exe)
     yield command_cases(root, exe)
     yield audio_cases(root, exe)
+    yield stream_cases(root, exe)
     yield stop_cases(root, exe)
     yield buffer_cases(root, exe)
 
 
 def main() -> int:
+    global SRC
+    if len(sys.argv) == 3 and sys.argv[1] == "--src":   # another copy of the runtime's folder (the mutants of the controls run on a scratch copy)
+        SRC = Path(sys.argv[2]).resolve()
+    elif len(sys.argv) != 1:
+        print("usage: test_hostcd.py [--src DIR]")
+        return 2
     cc = shutil.which("cc")
     if not cc:
         print("the host's C compiler `cc` is missing; these controls need it")

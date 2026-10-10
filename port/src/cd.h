@@ -71,6 +71,21 @@ int            port_CdGetSector(void *madr, int words);
 unsigned char *port_CdIntToPos(int i, unsigned char *p);
 int            port_CdPosToInt(const unsigned char *p);
 
+/* The disc's streamed audio (the queue is in cd.c, see its header). port_xa_set_sink(1): something takes frames out (iopage.c calls
+ * it with --audio or --audio-dump); without it audio sectors are consumed in silence. port_xa_pull: up to `num_frames` stereo
+ * frames from the queue through the last CdMix's volumes, the count given; the caller holds the audio lock (PsyZ's pull does).
+ * port_xa_counts_get: the counts so far, under the lock. port_audio_lock/unlock (iopage.c): PsyZ's audio lock, nothing without
+ * PsyZ. port_frames and port_trace_line: kernel.c and library.c. */
+struct port_xa_counts {
+    unsigned played, held, refused, skipped, silent;   /* sectors */
+    unsigned frames, pulled, queued;                    /* frames at 44,100 Hz: queued in all, pulled in all, in the queue now */
+};
+void   port_xa_set_sink(int on);
+size_t port_xa_pull(short *out, size_t num_frames);
+void   port_xa_counts_get(struct port_xa_counts *out);
+void   port_audio_lock(void);
+void   port_audio_unlock(void);
+
 /* Test hooks; null in the port. port_cd_ram: where the 2 MB of the PS1's RAM
  * lives, when it is not at its own addresses (a 64-bit test). port_cd_call:
  * how to call the ready handler whose value is stored in RAM, when that value
