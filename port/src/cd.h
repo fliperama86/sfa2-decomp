@@ -28,7 +28,7 @@ struct port_library {
 extern void port_tick(void);
 
 /* The rate of delivery (the rule is in the header of cd.c): the console's drive,
- * counted by the frame. A carry in fifths of a sector grows by 5 at every
+ * counted by the frame. A carry in fifths of a tick's drive time grows by 5 at every
  * port_cd_tick. A sector costs 2 with the double-speed bit
  * (0x80) of the mode (2, 3, 2, 3 ... sectors a tick: 150 a second at 60
  * ticks) and 4 without it (1, 1, 1, 2 ...: 75 a second). The carry is

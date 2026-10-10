@@ -75,7 +75,7 @@
  * a second at single speed (the CD's own rate) and twice that, 150, with the
  * double-speed bit (0x80) of the mode set. At 60 vblanks a second that is 2.5
  * and 1.25 sectors a vblank. To lose no fraction, the layer keeps a carry in
- * fifths of a sector: every vblank's delivery adds 5 to it, and a sector costs
+ * fifths of a vblank's drive time: every vblank's delivery adds 5 to it, and a sector costs
  * 2 with the double-speed bit (2, 3, 2, 3, ... sectors a vblank) and 4
  * without it (1, 1, 1, 2, ...). The sectors of one vblank are delivered in a
  * row. The carry is cleared when a read starts (ReadN, ReadS) and when the
@@ -138,7 +138,7 @@ static struct {
     unsigned cur_sector, offset;
     unsigned char data[PORT_DATA];
     int in_delivery;
-    unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a sector (see the header) */
+    unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a vblank (see the header) */
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
 } cd;
 
