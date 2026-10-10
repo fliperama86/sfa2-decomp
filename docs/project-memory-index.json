@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "e0357fdc975b379ea2b5140fd2a4b914340426802d76d8650e6422b94dc7c76f",
+  "sha256": "6e37b95e9e1a3757eba4f5d5ff51e415720d61ed9bcdd19e7b8128875c99551c",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -519,20 +519,24 @@
       "line": 8100
     },
     {
-      "title": "Windows reference",
+      "title": "Two functions exact from their look-alikes (2026-10-10)",
       "line": 8132
     },
     {
+      "title": "Windows reference",
+      "line": 8170
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8149
+      "line": 8187
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8174
+      "line": 8212
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8231
+      "line": 8269
     }
   ]
 }
