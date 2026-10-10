@@ -72,6 +72,56 @@ class Check:
 
 # The scopes whose checks build with the game's toolchain and read its private inputs.
 GAME_SCOPES = ('ps1', 'overrides')
+# The files of one nonmatching function: its C, its contract and its fixtures. An override of the port has the
+# same three, and its folder holds nothing else but its page, so there any name with a `.c` is one.
+FUNCTION_FILE = re.compile(r'(func_[0-9a-f]{8}(?:_[a-z0-9_]+)?)\.(c|py|fixtures\.json)')
+OVERRIDE_FILE = re.compile(r'([A-Za-z0-9_]+)\.(c|py|fixtures\.json)')
+HARNESS = ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py')
+DIFFTEST = 'ps1/src/slot06_nonmatching/difftest.py'
+
+
+def function_checks(root: Path, label: str, rel: str, scope: str, changed: list[str], everything: bool,
+                    cases: int, seeds: tuple[int, ...], file: re.Pattern = FUNCTION_FILE) -> list[Check]:
+    """The checks of the functions of one folder of nonmatching C (`rel`, relative to the root).
+
+    A function is selected when one of its files is among `changed`, and every function of the folder with
+    `everything` (a change of a header, the configuration, a build tool or the test tool itself, which can
+    change what any of them builds to or how it is tested).
+
+    A selected function that has a fixtures file is replayed: seconds, and no original code is run. The
+    wide comparison that made the file was its author's step. One exception: when the contract of a
+    function changed and its fixtures file did not, nothing recorded stands for the new contract, so the
+    function also gets the wide runs below.
+
+    A selected function without a fixtures file gets the wide runs when its own files changed (the
+    comparison and the write audit with each seed, and the control), and one comparison with the first
+    seed when it is selected only because of `everything`.
+    """
+    folder = root / rel
+    names = sorted(p.stem for p in folder.glob('*.c') if file.fullmatch(p.name))
+    touched: dict[str, set[str]] = {}
+    for path in changed:
+        match = file.fullmatch(Path(path).name)
+        if match and path == f'{rel}/{Path(path).name}':
+            touched.setdefault(match[1], set()).add(match[2])
+    selected = [n for n in names if everything or n in touched]
+    fixtures = {n for n in selected if (folder / (n + '.fixtures.json')).is_file()}
+    replay = [n for n in selected if n in fixtures]
+    wide = [n for n in selected if n in touched and (n not in fixtures or ('py' in touched[n] and 'fixtures.json' not in touched[n]))]
+    once = [n for n in selected if n not in fixtures and n not in touched]
+    base = (sys.executable, DIFFTEST, '--config', 'ps1/src/build.toml', '--folder', rel)
+    checks = []
+    if replay:
+        checks.append(Check(label + '-replay', base + ('--replay', *replay), scope, tuple(replay), 'replay'))
+    counted = base + ('--cases', str(cases))
+    if wide:
+        for seed in seeds:
+            checks.append(Check(f'{label}-diff-{seed}', counted + ('--seed', str(seed), *wide), scope, tuple(wide), 'differential'))
+            checks.append(Check(f'{label}-writes-{seed}', counted + ('--writes', '--seed', str(seed), *wide), scope, tuple(wide), 'writes'))
+        checks.append(Check(label + '-controls', counted + ('--control', *wide), scope, tuple(wide), 'control'))
+    if once:
+        checks.append(Check(f'{label}-diff-once-{seeds[0]}', counted + ('--seed', str(seeds[0]), *once), scope, tuple(once), 'differential'))
+    return checks
 
 
 def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, ...], cc: str | None = None,
@@ -82,10 +132,13 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     cfg = tomllib.loads((src / 'build.toml').read_text())
     owned = {'ps1/src/' + u['source'] for u in cfg.get('unit', [])}
     folders = sorted(p for p in src.glob('*_nonmatching') if p.is_dir())
+    # The test tool of nonmatching C: a change of it can change how every function is tested, and nothing
+    # of what the matching build makes.
+    harness = any(p.startswith('ps1/src/slot06_nonmatching/') and Path(p).name in HARNESS for p in changed)
     broad = any(p.startswith('ps1/tools/') or p in ('ps1/src/build.toml', 'ps1/src/symbols.ld', 'ps1/src/types.fields')
                 or p.startswith('ps1/src/') and p.endswith('.h')
-                or any(p.startswith('ps1/src/' + f.name + '/') and Path(p).name not in ('README.md',)
-                       and not re.fullmatch(r'func_[0-9a-f]{8}(?:_[a-z0-9_]+)?\.(?:c|py)', Path(p).name) for f in folders)
+                or any(p.startswith('ps1/src/' + f.name + '/') and Path(p).name not in ('README.md', *HARNESS)
+                       and not FUNCTION_FILE.fullmatch(Path(p).name) for f in folders)
                 for p in changed)
     checks = []
     if broad or any(p in owned or p.startswith('ps1/inventory/') for p in changed):
@@ -94,32 +147,13 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
         for script in sorted((root / 'ps1/tools').glob('test_*.py')):
             checks.append(Check(script.stem, (sys.executable, script.relative_to(root).as_posix()), 'ps1'))
     for folder in folders:
-        names = sorted(p.stem for p in folder.glob('func_*.c'))
-        selected = names if broad else [n for n in names if any('ps1/src/' + folder.name + '/' + n + ext in changed for ext in ('.c', '.py'))]
-        if not selected:
-            continue
-        rel = folder.relative_to(root).as_posix()
-        base = (sys.executable, 'ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder', rel, '--cases', str(cases))
-        for seed in seeds:
-            checks.append(Check(folder.name + f'-diff-{seed}', base + ('--seed', str(seed), *selected), 'ps1', tuple(selected), 'differential'))
-            checks.append(Check(folder.name + f'-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'ps1', tuple(selected), 'writes'))
-        checks.append(Check(folder.name + '-controls', base + ('--control', *selected), 'ps1', tuple(selected), 'control'))
-    # The port's overrides in C are tested like nonmatching C: by the differential test of each one's contract.
-    overrides = root / 'port/overrides'
-    if overrides.is_dir():
-        names = sorted(p.stem for p in overrides.glob('*.c'))
-        selected = names if broad else [n for n in names if any('port/overrides/' + n + ext in changed for ext in ('.c', '.py'))]
-        if selected:
-            base = (sys.executable, 'ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder', 'port/overrides', '--cases', str(cases))
-            # Their scope is their own: the files a result depends on are those of `ps1` and the overrides themselves.
-            for seed in seeds:
-                checks.append(Check(f'port-overrides-diff-{seed}', base + ('--seed', str(seed), *selected), 'overrides', tuple(selected), 'differential'))
-                checks.append(Check(f'port-overrides-writes-{seed}', base + ('--writes', '--seed', str(seed), *selected), 'overrides', tuple(selected), 'writes'))
-            checks.append(Check('port-overrides-controls', base + ('--control', *selected), 'overrides', tuple(selected), 'control'))
-    if any(p.startswith('ps1/src/slot06_nonmatching/') and Path(p).name in ('difftest.py', 'contracts.py', 'test_difftest.py', 'test_difftest_build.py') for p in changed):
-        # Harness changes exercise every contract folder, not just changed stems.
-        if not broad:
-            return select_checks(root, changed + ['ps1/tools/'], cases, seeds, cc, psyz)
+        checks.extend(function_checks(root, folder.name, folder.relative_to(root).as_posix(), 'ps1', changed, broad or harness, cases, seeds))
+    # The port's overrides in C are tested like nonmatching C, by each one's contract and fixtures. Their scope is
+    # their own: the files a result depends on are those of `ps1` and the overrides themselves.
+    if (root / 'port/overrides').is_dir():
+        checks.extend(function_checks(root, 'port-overrides', 'port/overrides', 'overrides', changed, broad or harness, cases, seeds,
+                                      OVERRIDE_FILE))
+    if harness:
         checks.extend([Check('difftest-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest.py'), 'ps1'),
                        Check('difftest-build-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest_build.py', '--config', 'ps1/src/build.toml'), 'ps1')])
     if any(p.startswith('port/') and not p.endswith('.md') for p in changed):
@@ -165,6 +199,15 @@ def check_output(check: Check, output: str) -> None:
             tested = standard and finished and int(finished[1] or 0) < int(standard[1])
             if not (bespoke or tested):
                 raise Problem('control suite lacks executed cases and a completion marker')
+        return
+    if check.mode == 'replay':
+        # One line for each function, with at least one fixture and none failed or left out.
+        if not check.functions or '--replay' not in check.argv:
+            raise Problem('empty replay check')
+        for name in check.functions:
+            matches = list(re.finditer(rf'^{re.escape(name)} replay: fixtures ([1-9][0-9]*), passed ([0-9]+), failed 0$', output, re.M))
+            if len(matches) != 1 or matches[0][1] != matches[0][2]:
+                raise Problem('missing/duplicate/incomplete evidence for ' + name)
         return
     if '--cases' not in check.argv:
         raise Problem('function check has no requested case count')
