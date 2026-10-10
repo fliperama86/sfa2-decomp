@@ -7982,63 +7982,6 @@ No function count changes here: none of this is in the build.
   data declarations with another shape (an array where the unit had a
   scalar); the local lines are gone and the unit reads element 0.
 
-## The port draws through PsyZ (2026-10-09)
-
-No function count changes here. Nothing under `ps1/` changed.
-
-- Published: `port/src/gpu.c` with the graphics library's host
-  routines, the picture dump, and `test_hostgpu.py`. It exists only in
-  a program built with `hostbuild.py --psyz`. The page has what is
-  served by PsyZ and what by the port, what ends the program, and
-  where the picture is known to differ from the console's.
-- What differs from the state that drew the private trial's pictures,
-  from the lessons of the earlier reviews:
-  - The lists and rectangles are checked as the game's data against
-    the RAM and the frame buffer; the trial's state followed whatever
-    it was given.
-  - A rectangle outside the frame buffer ends the program. The worker
-    had made it a skip that returns -1, with a line; I turned that
-    down: it is behaviour that neither the console nor the game has.
-    The console wraps; until the port does the same, it stops.
-  - The layer had an "override" of `PutDrawEnv`. That function is the
-    library's and has no C in the build, so it is an ordinary library
-    row; the override mechanism is for game functions with C only.
-  - PsyZ crashed when a list was the first thing drawn (its vertex
-    buffer did not exist yet). The layer now makes PsyZ create it when
-    the layer starts, without drawing a pixel; the worker's first fix
-    cleared one pixel, which I turned down for the same reason as the
-    skip.
-- The owner's review of the first version (PR 135), in his words: "The
-  list walker validates only the first GP0 command of each packet ...
-  but hands every payload word to PsyZ, which decodes subsequent
-  commands too", shown by him with a packet whose second command was a
-  fill without its position and size: it drew with the rectangle of an
-  earlier packet that was still in the conversion buffer. The walker
-  now steps through every command of a packet before PsyZ sees a word,
-  and PsyZ gets the packet's words only. A kind the walker does not
-  decode ends the program; the worker had made that a report and a
-  skip, which I turned down as with the rectangle.
-- Two checks of the first version refused the real game, found by the
-  private trial once the layers were put together: the game's start-up
-  calls `SetDispMask` before `ResetGraph(0)`, and its first
-  `ClearImage` takes a rectangle that is a local, which on a PC is on
-  the host's stack and not in the PS1's RAM. I had told the worker
-  "every pointer the game hands over lies in the RAM" without thinking
-  of where a local lives when the game's C is compiled natively. One
-  routine of the runtime now says which memory is the game's: the RAM,
-  the scratchpad, and the live part of the calling task's stack.
-- The controls opened one window per case, and I let a worker run four
-  chains of them at once for its mutants. The owner, at the same
-  machine, asked who was opening instances of the game every second. I
-  stopped them. The controls run on SDL's offscreen driver now, one run
-  at a time, and a mutant only against the cases that should notice it.
-- Width and height of zero or less: what the library does with them was
-  read from its code in the original (no C for those two routines is
-  in the tree), and PsyZ's own decompiled copy does something else.
-  The port follows the original's.
-- Not shown: any picture of the real game from a published commit; and
-  no comparison of a picture with the console's.
-
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8137,3 +8080,60 @@ No function count changes here. Nothing under `ps1/` changed.
   written, measure the exact variant once more on the final tree, and
   name the variant in the sentence: which symbol, which form, what
   stays as it is.
+
+## The port draws through PsyZ (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/gpu.c` with the graphics library's host
+  routines, the picture dump, and `test_hostgpu.py`. It exists only in
+  a program built with `hostbuild.py --psyz`. The page has what is
+  served by PsyZ and what by the port, what ends the program, and
+  where the picture is known to differ from the console's.
+- What differs from the state that drew the private trial's pictures,
+  from the lessons of the earlier reviews:
+  - The lists and rectangles are checked as the game's data against
+    the RAM and the frame buffer; the trial's state followed whatever
+    it was given.
+  - A rectangle outside the frame buffer ends the program. The worker
+    had made it a skip that returns -1, with a line; I turned that
+    down: it is behaviour that neither the console nor the game has.
+    The console wraps; until the port does the same, it stops.
+  - The layer had an "override" of `PutDrawEnv`. That function is the
+    library's and has no C in the build, so it is an ordinary library
+    row; the override mechanism is for game functions with C only.
+  - PsyZ crashed when a list was the first thing drawn (its vertex
+    buffer did not exist yet). The layer now makes PsyZ create it when
+    the layer starts, without drawing a pixel; the worker's first fix
+    cleared one pixel, which I turned down for the same reason as the
+    skip.
+- The owner's review of the first version (PR 135), in his words: "The
+  list walker validates only the first GP0 command of each packet ...
+  but hands every payload word to PsyZ, which decodes subsequent
+  commands too", shown by him with a packet whose second command was a
+  fill without its position and size: it drew with the rectangle of an
+  earlier packet that was still in the conversion buffer. The walker
+  now steps through every command of a packet before PsyZ sees a word,
+  and PsyZ gets the packet's words only. A kind the walker does not
+  decode ends the program; the worker had made that a report and a
+  skip, which I turned down as with the rectangle.
+- Two checks of the first version refused the real game, found by the
+  private trial once the layers were put together: the game's start-up
+  calls `SetDispMask` before `ResetGraph(0)`, and its first
+  `ClearImage` takes a rectangle that is a local, which on a PC is on
+  the host's stack and not in the PS1's RAM. I had told the worker
+  "every pointer the game hands over lies in the RAM" without thinking
+  of where a local lives when the game's C is compiled natively. One
+  routine of the runtime now says which memory is the game's: the RAM,
+  the scratchpad, and the live part of the calling task's stack.
+- The controls opened one window per case, and I let a worker run four
+  chains of them at once for its mutants. The owner, at the same
+  machine, asked who was opening instances of the game every second. I
+  stopped them. The controls run on SDL's offscreen driver now, one run
+  at a time, and a mutant only against the cases that should notice it.
+- Width and height of zero or less: what the library does with them was
+  read from its code in the original (no C for those two routines is
+  in the tree), and PsyZ's own decompiled copy does something else.
+  The port follows the original's.
+- Not shown: any picture of the real game from a published commit; and
+  no comparison of a picture with the console's.

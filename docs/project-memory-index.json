@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "e623ccbd117d823db5dcca20673f1ee27d410d3527c12d7fb7bec10829c27250",
+  "sha256": "2ffbf56cb11cbc2800161abe6c15ea9f01574cbf1a77c768986239646acf1c5b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -503,19 +503,19 @@
       "line": 7966
     },
     {
-      "title": "The port draws through PsyZ (2026-10-09)",
+      "title": "Windows reference",
       "line": 7985
     },
     {
-      "title": "Windows reference",
-      "line": 8042
-    },
-    {
       "title": "Tool locations and reproducibility",
-      "line": 8059
+      "line": 8002
     },
     {
       "title": "Mistakes and lessons to preserve",
+      "line": 8027
+    },
+    {
+      "title": "The port draws through PsyZ (2026-10-09)",
       "line": 8084
     }
   ]
