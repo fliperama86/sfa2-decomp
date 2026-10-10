@@ -160,16 +160,26 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_801b0904_slot04_12`, `func_801b1a00_slot04_14`, `func_801b1b40_slot04_0e`, `func_801b248c_slot04_0f`, `func_801b24e0_slot04_17`, `func_801b24f0_slot04_11`, `func_801b27a0_slot04_17`, `func_801b27b0_slot04_11`, `func_801b2e8c_slot04_0e`, `func_801b339c_slot04_0e`, `func_801b4374_slot04_17`, `func_801b43e8_slot04_11`, `func_801b5e34_slot04_0e`, `func_801b81f8_slot04_14`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801b1a00_slot04_14`, `func_801b5e34_slot04_0e`, `func_801b0904_slot04_12`, `func_801b81f8_slot04_14`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
+func_801b1b40_slot04_0e replay: fixtures 4, passed 4, failed 0
 func_801b21f8_slot04_0f replay: fixtures 1, passed 1, failed 0
 func_801b2270_slot04_0f replay: fixtures 2, passed 2, failed 0
+func_801b248c_slot04_0f replay: fixtures 3, passed 3, failed 0
+func_801b24e0_slot04_17 replay: fixtures 7, passed 7, failed 0
+func_801b24f0_slot04_11 replay: fixtures 7, passed 7, failed 0
+func_801b27a0_slot04_17 replay: fixtures 10, passed 10, failed 0
+func_801b27b0_slot04_11 replay: fixtures 9, passed 9, failed 0
+func_801b2e8c_slot04_0e replay: fixtures 7, passed 7, failed 0
+func_801b339c_slot04_0e replay: fixtures 9, passed 9, failed 0
 func_801b34b8_slot04_17 replay: fixtures 4, passed 4, failed 0
 func_801b34e4_slot04_11 replay: fixtures 6, passed 6, failed 0
 func_801b4100_slot04_0e replay: fixtures 1, passed 1, failed 0
 func_801b420c_slot04_0e replay: fixtures 2, passed 2, failed 0
+func_801b4374_slot04_17 replay: fixtures 9, passed 9, failed 0
+func_801b43e8_slot04_11 replay: fixtures 8, passed 8, failed 0
 func_801b4a3c_slot04_0e replay: fixtures 3, passed 3, failed 0
 ```

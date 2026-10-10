@@ -128,10 +128,15 @@ private, is not built yet. Fixtures files exist for the published nonmatching fu
 every nonmatching folder and for the port's overrides that the tool
 accepted (each folder's page has the replay command and the list of its
 functions without a file). A function whose contract lets a callee run as
-original code cannot have them yet (`--record` refuses it), nor can one
-whose cases read bytes of the game image, one whose file stays over
-100,000 bytes, one with a recorder with a tail, or one that reads address
-0: for all of those the table above is what to run.
+original code can have them too: the callee's calls are recorded with
+what it took and what it did, and a stand-in plays them at replay. A
+function cannot have them yet when its cases, or such a callee, read
+bytes of the game image, when its file stays over 100,000 bytes, when it
+has a recorder with a tail, when it reads address 0, when a callee that
+runs as original code takes a pointer to a local of the function, or
+when such a callee reads only part of an argument register and the two
+codes differ in the rest: for all of those the table above is what to
+run.
 
 ## Known costs, as of 2026-10-10
 
