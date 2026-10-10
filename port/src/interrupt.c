@@ -99,15 +99,26 @@ static int in_game_code(unsigned eip)
  * it returns no suspension is in flight and none can begin. It runs at every way the game's thread ends the process:
  * registered with atexit (every exit() and a return from main) and called before the ExitProcess of main.c's crash
  * routine. Without it the timer could be ended by ExitProcess between its SuspendThread and its ResumeThread, and the
- * game's thread, left suspended inside the exit, would never finish ending the process. */
+ * game's thread, left suspended inside the exit, would never finish ending the process.
+ * What was shown, and what was not: with the gate and the registration removed, 78 of 200 runs of a program that ends by
+ * exit() hung (one-off, with --timer-burst); with the flag alone (the timer checks it but does not take the gate) no run
+ * hung, because the hang needs the timer held up between its check and its suspension for the whole length of the game's
+ * exit path, which no run reaches. The gate is kept for that interval, and its contract ("after the stop returns, no
+ * suspension is in flight and none can begin") has a case of its own: with --timer-burst the timer marks its round
+ * (in_round, set once the flag was found clear, cleared after ResumeThread) and waits 1 ms inside it, and the stop, once it
+ * has set the flag and left the gate, ends the program with a line if the mark is set; a round that begins after the stop, and
+ * a direct ExitProcess (port_suspenders_check_closed) or an exit() not preceded by the stop, end it with a line of their own.
+ * Without --timer-burst none of these checks is made: they are self-checks of the test mode. */
 static CRITICAL_SECTION gate;
 static int gate_ready, stopped;
+static volatile int in_round;
 
 void port_suspenders_init(void)
 {
     if (gate_ready) return;
     InitializeCriticalSection(&gate);
     gate_ready = 1;
+    atexit(port_suspenders_check_closed);   /* registered first, so it runs after the stop: the --timer-burst self-check of the registration */
     atexit(port_suspenders_stop);
 }
 
@@ -117,6 +128,20 @@ void port_suspenders_stop(void)
     EnterCriticalSection(&gate);
     stopped = 1;
     LeaveCriticalSection(&gate);
+    if (burst && in_round) {   /* --timer-burst only: the contract of this routine, checked */
+        printf("stop: a suspension round was in flight when the stop returned\n");
+        fflush(stdout);
+        ExitProcess(PORT_EXIT_CRASH);
+    }
+}
+
+void port_suspenders_check_closed(void)
+{
+    if (burst && gate_ready && !stopped) {   /* --timer-burst only: a way of ending the process that did not close the gate */
+        printf("stop: the process was ended while suspensions were still allowed\n");
+        fflush(stdout);
+        ExitProcess(PORT_EXIT_CRASH);
+    }
 }
 
 int port_suspenders_enter(void)
@@ -146,6 +171,13 @@ static DWORD WINAPI timer(LPVOID unused)
         else if (wait && SetWaitableTimer(wait, &due, 0, NULL, NULL, 0)) WaitForSingleObject(wait, 20);
         else Sleep(1);
         if (!port_suspenders_enter()) return 0;
+        in_round = 1;
+        if (burst && stopped) {   /* --timer-burst only: the other half of the contract, that none begins after the stop */
+            printf("stop: a suspension round began after the stop\n");
+            fflush(stdout);
+            ExitProcess(PORT_EXIT_CRASH);
+        }
+        if (burst) Sleep(1);   /* --timer-burst: stay in the round for a moment, so that a missing gate shows in the self-check of the stop */
         if (SuspendThread(game_thread) != (DWORD)-1) {
             CONTEXT c;
             c.ContextFlags = CONTEXT_CONTROL;
@@ -157,6 +189,7 @@ static DWORD WINAPI timer(LPVOID unused)
             }
             ResumeThread(game_thread);
         }
+        in_round = 0;
         port_suspenders_leave();
     }
     return 0;
@@ -178,6 +211,9 @@ void port_suspenders_init(void)
 {
 }
 void port_suspenders_stop(void)
+{
+}
+void port_suspenders_check_closed(void)
 {
 }
 int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)

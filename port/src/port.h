@@ -200,6 +200,7 @@ void port_interrupt_start(int burst);
  * enter/leave pair is for the watchdog of debug.c (enter returns 0 once stopped, and then holds nothing). */
 void port_suspenders_init(void);   /* once, from the game's thread, before any thread that suspends it exists */
 void port_suspenders_stop(void);
+void port_suspenders_check_closed(void);   /* before each ExitProcess, after the stop: with --timer-burst, ends with a line if the gate is still open */
 #ifdef _WIN32
 int  port_suspenders_enter(void);
 void port_suspenders_leave(void);

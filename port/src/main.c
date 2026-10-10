@@ -28,8 +28,11 @@
  *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead)
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --no-interrupt turns the timer thread off: the vblank is then taken only by the library routines that tick.
- * --timer-burst makes the timer thread attempt its suspension of the game's thread without waiting between attempts (a control
- *   for the exits that race with it; does nothing with --no-interrupt).
+ * --timer-burst (a test mode; does nothing with --no-interrupt) makes the timer thread attempt its suspension of the game's thread
+ *   without waiting between attempts and stay 1 ms in each round, and makes the stop routine of interrupt.c check its own contract:
+ *   if a round was still in flight when it returned it prints `stop: a suspension round was in flight when the stop returned`
+ *   and ends with status 10; if a round began after the stop it prints `stop: a suspension round began after the stop` (status 10); and each direct ExitProcess checks that the stop was called before it, with the line
+ *   `stop: the process was ended while suspensions were still allowed` (status 10). Without the option those checks are not made.
  * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * --dump-vram PREFIX writes the video memory to PREFIX_end.ppm at the end of any run; --dump-every N
@@ -73,6 +76,7 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
     fflush(stdout);
     port_debug_end();
     port_suspenders_stop();
+    port_suspenders_check_closed();
     ExitProcess(PORT_EXIT_CRASH);
     return EXCEPTION_EXECUTE_HANDLER;
 }

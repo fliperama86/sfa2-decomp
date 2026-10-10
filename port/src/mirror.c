@@ -76,6 +76,7 @@ static void stop_unserved(const char *what, unsigned where, const char *name, co
     printf("stop: crash: the game used the PS1's RAM mirror at 0x%08x (%s) in %s %s: %s\n", where, what, name, why, bytes);
     fflush(stdout);
     port_suspenders_stop();
+    port_suspenders_check_closed();
     ExitProcess(PORT_EXIT_CRASH);
 }
 
@@ -104,6 +105,7 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
                rec->ExceptionInformation[0] == 8 ? "execute" : rec->ExceptionInformation[0] ? "write" : "read", (unsigned)rec->ExceptionInformation[1]);
         fflush(stdout);
         port_suspenders_stop();
+        port_suspenders_check_closed();
         ExitProcess(PORT_EXIT_CRASH);
     }
     kind = (unsigned)rec->ExceptionInformation[0];
@@ -145,6 +147,7 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
         printf("stop: crash: the context of a fault in the PS1's RAM mirror is at 0x%08x, not at the faulting instruction 0x%08x\n", (unsigned)c->Eip, (unsigned)ip);
         fflush(stdout);
         port_suspenders_stop();
+        port_suspenders_check_closed();
         ExitProcess(PORT_EXIT_CRASH);
     }
     c->Eax = regs.r[0]; c->Ecx = regs.r[1]; c->Edx = regs.r[2]; c->Ebx = regs.r[3];

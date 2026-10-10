@@ -818,8 +818,15 @@ routines that do nothing on purpose. What is in this piece:
   routine of `main.c` and the stops of `mirror.c`), so the timer cannot
   be ended between a suspension and its resumption and leave the game's
   thread suspended inside the exit. `--timer-burst` makes the timer
-  attempt its suspension without waiting between attempts; it is a control
-  for that race and does nothing otherwise. The cost,
+  attempt its suspension without waiting between attempts and stay 1 ms in
+  each round, and makes the stop routine check its own contract: if a
+  round of the timer was still in flight when it returned, the program
+  prints `stop: a suspension round was in flight when the stop returned`
+  and ends with status 10 (a round that begins after the stop ends it with a line too; a direct `ExitProcess` that was not preceded by the stop ends with a line
+  of its own, status 10; without the option those checks are not made).
+  The hang itself was shown with the gate and the `atexit` call removed;
+  with only the flag, no run hung. The gate is kept for the interval that
+  no run reaches, and its contract has a case. The cost,
   stated: the game's code can be interrupted between any two
   instructions, as on the console, C that a PC compiler orders
   differently may be interrupted in a state the console never showed,

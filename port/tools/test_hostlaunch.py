@@ -70,7 +70,7 @@ sys.path.insert(0, str(HERE))
 from test_hostrun import CNF, Image  # noqa: E402
 import hostbuild as hb  # noqa: E402
 
-BURST_RUNS, BURST_LIMIT = {"exit": 20, "crash": 300}, 10   # runs of each ending case, chosen from the rate of hangs measured without the gate (about 4 in 10 on the exit path, 2 in 100 on the crash path), and the seconds a run may take
+BURST_RUNS, BURST_LIMIT = {"exit": 20, "crash": 20}, 10   # runs of each ending case (the flawed variants fail every run of 200, see the page), and the seconds a run may take
 SRC = HERE.parent / "src"
 BUILD = HERE.parent / "build"
 RAM = 0x80000000
