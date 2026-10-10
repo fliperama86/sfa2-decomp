@@ -397,14 +397,49 @@ A file that exists is replaced and the tool says so. A line starting
 `warning` says that the cases read bytes the setup did not make, which come
 from the game's memory image and would be published with the file.
 
-A function is refused (one line, status 1, no file written, an existing file
-left alone) when a chosen case executes code of the game other than the
-function itself and the recorders. Its contract lets a callee run as original
-code, fixtures cannot stand in for such a callee, and the function stays with
-the wide comparison. For that reason a fixture has no `needs_image` field (an
-earlier draft had one; no published file has it, and format stays 1), and
-`--replay` refuses a file that has it, with status 2. `func_8011cf98` is such a
-function and has no fixtures.
+A callee that the contract does not replace with a recorder runs as the game's
+own code when the original is recorded. `--record` records each call of such a
+callee as an entry of `calls` (with `original` true): the registers of the
+caller that it used while they still held the caller's value (`uses`: at, v0,
+v1, a0 to a3, t0 to t9, gp, hi, lo; a save of a register into the callee's
+own memory is no use, and each byte of the saved word is then a copy of the
+register until a store writes that very byte; a load of the whole word back
+into the same register while all four bytes are still its copies is a restore
+and no use, and any other load of a byte that is still a copy is a use of the
+register it is a copy of), the stack words it read through the
+stack pointer (`stack`), the bytes it read that the setup made or the run had
+written (`reads`), the bytes it changed (`effects`) and the registers it
+wrote and did not restore (`leaves`). A fixture with such a call also has `callees`, the
+addresses where replay puts the stand-ins, and the file is format 2; a file
+without such a call stays format 1. At replay a stand-in is two words,
+`jr ra; nop`, and a hook at that address: it checks the call's place among the
+calls, the registers of `uses` (the whole register is compared), the stack
+words and the bytes read, then writes the effects and sets exactly the registers
+of `leaves`, and no other, so a register the callee never wrote keeps the
+build's own value; so
+the callee's code, and the recorders it called, are never run. The 16 bytes
+from the call's stack pointer upward are the callee's own argument home area.
+The tool refuses a case, with one line and status 1, when the callee writes
+the stack at or above that area, reads it through a register other than sp (a
+pointer to a local of the function, which the build cannot repeat), is entered
+again before it ended, reads a register of its caller that is no argument (s0
+to s7, fp, k0, k1, or ra other than by `jr ra`), leaves the stack pointer
+changed, reads the stack pointer in any way but as the base of a load or a
+store or to move it (it takes the address of its stack), loads a byte of its
+own frame that it has not written during the call, or does not end when the
+run does while the setup says the function returns; these are limits of the
+tool. After choosing and before
+writing, `--record` replays every kept fixture on the build, and a fixture that
+fails is a refusal (`the replay of case N fails`). A byte that such a callee
+reads and that the setup did not make is content of the game's image: it is
+not kept as a read, and it is counted in the record's warning like a read of
+the function's own, because what the callee makes of it (the bytes it stores,
+the registers it leaves) is in the file. A file with that warning is not
+published. `--edges` alters the original, as the altered runs of a record do;
+`--control` alters the build and is no part of a record. For
+the earlier refusal, a fixture has no `needs_image` field (an earlier draft
+had one; no published file has it), and `--replay` refuses a file that has it,
+with status 2.
 
 `--replay` puts the memory of the case in place (poison bytes; a byte of
 `writes` whose input value the fixture does not give starts as its expected
@@ -517,8 +552,7 @@ file would publish.
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_801e90a8_slot06_10`, `func_801e98c8_slot06_0c`, `func_801e98dc_slot06_07`, `func_801e998c_slot06_0d`, `func_801e9c80_slot06_0e`.
-- The cases read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`, `func_801e9738_slot06_0e`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`, `func_801e9738_slot06_0e`.
 - The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_801e8bd8_slot06_08`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
@@ -529,15 +563,20 @@ func_801e8dc8_slot06_05 replay: fixtures 4, passed 4, failed 0
 func_801e8df0_slot06_0a replay: fixtures 7, passed 7, failed 0
 func_801e8fec_slot06_11 replay: fixtures 5, passed 5, failed 0
 func_801e9080_slot06_00 replay: fixtures 4, passed 4, failed 0
+func_801e90a8_slot06_10 replay: fixtures 2, passed 2, failed 0
 func_801e9114_slot06_12 replay: fixtures 6, passed 6, failed 0
 func_801e96fc_slot06_0b replay: fixtures 12, passed 12, failed 0
 func_801e9798_slot06_06 replay: fixtures 12, passed 12, failed 0
 func_801e9840_slot06_09 replay: fixtures 5, passed 5, failed 0
+func_801e98c8_slot06_0c replay: fixtures 4, passed 4, failed 0
+func_801e98dc_slot06_07 replay: fixtures 4, passed 4, failed 0
 func_801e9970_slot06_07 replay: fixtures 4, passed 4, failed 0
+func_801e998c_slot06_0d replay: fixtures 3, passed 3, failed 0
 func_801e99b4_slot06_04 replay: fixtures 9, passed 9, failed 0
 func_801e99c8_slot06_02 replay: fixtures 4, passed 4, failed 0
 func_801e9b54_slot06_08 replay: fixtures 4, passed 4, failed 0
 func_801e9bb0_slot06_0f replay: fixtures 3, passed 3, failed 0
+func_801e9c80_slot06_0e replay: fixtures 3, passed 3, failed 0
 func_801e9d04_slot06_03 replay: fixtures 3, passed 3, failed 0
 func_801e9d14_slot06_0e replay: fixtures 12, passed 12, failed 0
 func_801e9ef4_slot06_10 replay: fixtures 5, passed 5, failed 0
@@ -629,8 +668,9 @@ record followed by a replay that passes, each kind of failure of a replay (a
 wrong result, a missing, extra or reordered call, a wrong argument or memory
 behind a pointer, a missing, extra or wrong write, a clobbered saved register
 or stack pointer, a read the fixture does not hold), a run that ends inside a
-stand-in, that a function whose callee runs as original code is refused and a
-file with `needs_image` is not read, that a replay executes only the build and the
+stand-in, the calls of callees that run as original code (what a call holds, the
+stand-in and its checks, the refusals, format 2, the check of a record by its own
+replay) and that a file with `needs_image` is not read, that a replay executes only the build and the
 stand-ins (and fails for a build that calls an address without one), stores of
 the filler value that cannot be missed, a
 stand-in at an unnamed address with its pointer cell, the options of a

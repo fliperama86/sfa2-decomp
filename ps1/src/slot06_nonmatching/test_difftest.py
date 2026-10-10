@@ -2133,6 +2133,7 @@ def case_w_still_refused_masks():
 
 
 def sb(rt, base, off): return 0xA0000000 | base << 21 | rt << 16 | (off & 0xFFFF)
+def lbu(rt, base, off): return 0x90000000 | base << 21 | rt << 16 | (off & 0xFFFF)
 def beq_self(): return 0x1000FFFF  # beq zero, zero, -1: a branch to itself (the delay slot follows)
 
 
@@ -3845,47 +3846,7 @@ def case_z_ends_in_callee():
     return None if replay_status == 1 and "call 2: missing" in "\n".join(got) else f"{got}"
 
 
-def case_z_record_refuses_a_callee_that_runs_as_original_code():
-    # a callee that is not replaced by a recorder runs the game's code: fixtures cannot stand in for it
-    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7))
-
-    def setup(state, rng, sym):
-        return contracts.Setup(args=(), returns_value=False)
-
-    with tempfile.TemporaryDirectory() as tmp:
-        none = fx_record(words, setup, cases=2, folder=tmp)
-        written = list(Path(tmp).iterdir())
-        path = D.fixtures_path(Path(tmp), LABEL)
-        path.write_text("{}")
-        again = fx_record(words, setup, cases=2, folder=tmp)
-        kept = path.read_text()
-    lines, status = none[0], none[1]
-    ok = status == 1 and none[2] is None and not written and "executes code of the game other than the function" in lines[0]
-    ok = ok and "stays with the wide comparison" in lines[0] and len(lines) == 1
-    ok = ok and again[1] == 1 and kept == "{}"
-    # a function with only recorders is not refused
-    ok = ok and fx_record(FX_WORDS, fx_setup, cases=10)[1] == 0
-    return None if ok else f"{lines} {status} {written} {again[:2]} {kept!r}"
-
-
-def case_z_record_refuses_before_the_altered_runs_and_after_them():
-    # the first cases show the refusal, so the altered runs (the long part) are not made; a case that the
-    # first ones did not show is still refused when it is one of the kept
-    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7))
-    made: list = []
-    real = D.edge_runs
-
-    def spy(context, tasks, jobs, worker=None):
-        made.append(len(tasks))
-        return real(context, tasks, jobs, worker)
-
-    with patched(D, edge_runs=spy):
-        early = fx_record(words, plain_setup(False), cases=2)
-        before = list(made)
-        with patched(D, RECORD_PROBES=0):
-            late = fx_record(words, plain_setup(False), cases=2)
-    ok = early[1] == late[1] == 1 and early[0] == late[0] and "executes code of the game" in early[0][0]
-    return None if ok and before == [] and len(made) == 1 else f"{early[:2]} {late[:2]} {before} {made}"
+# (the tests of the original callees, formerly refused, are in the block `z-orig` below)
 
 
 def case_z_replay_refuses_a_file_with_needs_image():
@@ -4077,7 +4038,7 @@ def case_z_malformed_files_are_refused():
 
     cases.append(("not json", "{", "is not JSON"))
     cases.append(("a list", "[]", "not an object"))
-    cases.append(("other format", variant(lambda d: d.update(format=2)), "format 2"))
+    cases.append(("other format", variant(lambda d: d.update(format=3)), "format 3"))
     cases.append(("other function", variant(lambda d: d.update(function="func_other")), "not func_80020000"))
     cases.append(("no fixtures", variant(lambda d: d.update(fixtures=[])), "no fixtures"))
     cases.append(("a fixture without reads", variant(lambda d: d["fixtures"][0].pop("reads")), "lacks reads"))
@@ -4225,6 +4186,977 @@ def case_z_record_input_error_is_two():
     with tempfile.TemporaryDirectory() as tmp:
         status, out, err = fx_main(["--record", LABEL], folder=tmp, extra_patches={"original_function": refuse})
     return None if status == 2 and "no inventory row" in err and out == "" else f"{status} {out!r} {err!r}"
+
+
+# ---------------------------------------------------------------------------
+# Group Z, original callees: a callee that is not replaced by a recorder runs the game's own code in --record,
+# and the fixture holds what the call took and did (format 2)
+
+def mult(rs, rt): return rs << 21 | rt << 16 | 0x18
+def mflo(rd): return rd << 11 | 0x12
+def jalr_(rs): return rs << 21 | 31 << 11 | 0x09
+
+
+A1, A2, A3 = 5, 6, 7
+IMAGE = 0x80030500  # an address that the setups below never make
+# reads a0 and then changes it, writes a1 and then reads it
+U_BODY = [addu(V0, A0, ZERO), addiu(A0, A0, 100), addiu(A1, ZERO, 5), addu(V0, V0, A1), JR_RA, NOP]
+READ_FLAG = [*setreg(T0, FLAG), lw(T2, T0, 0), JR_RA, NOP]
+
+
+def with_callees(words, bodies):
+    ram = bytearray(made_up_ram(words))
+    for address, body in bodies.items():
+        ram[address - D.RAM_BASE : address - D.RAM_BASE + 4 * len(body)] = make_code(body)
+    return bytes(ram)
+
+
+def orig_setup(replaces=(), returns_value=False, returns=True, made=()):
+    def setup(state, rng, sym):
+        for address, value in made:
+            state.w32(address, value)
+        if replaces:
+            log = contracts.CallLog(state)
+            for replace in replaces:
+                log.replace(*replace)
+        return contracts.Setup(args=(), returns_value=returns_value, returns=returns)
+
+    return setup
+
+
+def orig_record(words, bodies, setup=None, cases=2, **kw):
+    """fx_record on a made-up original that calls the code `bodies` ({address: words}) as the game's own."""
+    return fx_record(words, setup or orig_setup(), cases=cases, ram=with_callees(words, bodies), **kw)
+
+
+def orig_call(doc, number=0, fixture=0):
+    return doc["fixtures"][fixture]["calls"][number]
+
+
+def case_z_orig_call_is_recorded():
+    words = program(("call", CALLEE, [], []), ("st", FLAG3, 9))
+    lines, status, doc, _ = orig_record(words, {CALLEE: MARK_BODY})
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    call = orig_call(doc)
+    ok = doc["format"] == 2 and fixture["callees"] == [{"at": D.hex8(CALLEE), "callee": "func_callee"}] and len(fixture["calls"]) == 1
+    ok = ok and call["original"] is True and call["callee"] == "func_callee" and call["effects"] == [[D.hex8(FLAG), "55"]]
+    # MARK_BODY writes t0 and t1 and nothing else: those are the leaves
+    ok = ok and call["leaves"] == {"t0": D.hex8(FLAG), "t1": "0x00000055"}
+    ok = ok and call["reads"] == [] and call["stack"] == [] and call["uses"] == {}
+    ok = ok and fixture["reads"] == [] and fixture["writes"] == [[D.hex8(FLAG), "55"], [D.hex8(FLAG3), "09"]]
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 and "failed 0" in got[0] else f"{fixture} {got}"
+
+
+def inner_call_body():
+    return [addiu(SP, SP, -16), sw(RA, SP, 12), *setreg(A0, 3), jal(CALLEE_B), NOP, lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+
+
+def case_z_orig_call_that_calls_a_recorder_inside():
+    # the recorder's entry belongs to the call: it is left out, and the call is one entry that ends when the function runs again
+    words = program(("call", CALLEE, [], []), ("call", CALLEE_B, [5], []))
+    setup = orig_setup([(CALLEE_B, 1, 0x22)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: inner_call_body()}, setup)
+    if status:
+        return f"{lines}"
+    calls = doc["fixtures"][0]["calls"]
+    ok = [c["callee"] for c in calls] == ["func_callee", "func_callee_b"] and calls[0].get("original") and "original" not in calls[1]
+    ok = ok and calls[1]["args"] == [D.hex8(5)] and calls[0]["leaves"]["v0"] == "0x00000022" and calls[0]["uses"] == {}
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 else f"{calls} {got}"
+
+
+def case_z_orig_two_calls_of_one_callee():
+    words = program(("call", CALLEE, [], []), ("st", FLAG3, 1), ("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: MARK_BODY})
+    fixture = doc["fixtures"][0]
+    names = [c["callee"] for c in fixture["calls"]]
+    ok = names == ["func_callee", "func_callee"] and len(fixture["callees"]) == 1
+    # the second call changes nothing (the marker is there already): its effects are empty
+    ok = ok and fixture["calls"][0]["effects"] == [[D.hex8(FLAG), "55"]] and fixture["calls"][1]["effects"] == []
+    got, replay_status = fx_replay(doc, words)
+    one = fx_replay(doc, program(("call", CALLEE, [], []), ("st", FLAG3, 1)))
+    return None if ok and replay_status == 0 and one[1] == 1 and "call 2: missing, the original called func_callee" in "\n".join(one[0]) else f"{fixture} {got} {one}"
+
+
+TAIL = [j(CALLEE), NOP]
+
+
+def case_z_orig_tail_call_ends_with_the_run():
+    setup = orig_setup(returns=False)
+    lines, status, doc, _ = orig_record(TAIL, {CALLEE: MARK_BODY}, setup)
+    if status:
+        return f"{lines}"
+    fixture = doc["fixtures"][0]
+    call = orig_call(doc)
+    ok = fixture["ends_in_callee"] is True and len(fixture["calls"]) == 1 and call["effects"] == [[D.hex8(FLAG), "55"]]
+    ok = ok and call["leaves"]["t1"] == "0x00000055"
+    got, replay_status = fx_replay(doc, TAIL)
+    return None if ok and replay_status == 0 else f"{fixture} {got}"
+
+
+def orig_refused(words, bodies, wanted, setup=None, cases=2):
+    """The record must be refused: status 1, one line that says why, no file, an existing file left alone."""
+    with tempfile.TemporaryDirectory() as tmp:
+        path = D.fixtures_path(Path(tmp), LABEL)
+        path.write_text("{}")
+        lines, status, doc, _ = orig_record(words, bodies, setup, cases=cases, folder=tmp)
+        kept = path.read_text()
+        others = [p.name for p in Path(tmp).iterdir() if p != path]
+    ok = status == 1 and doc is None or status == 1 and kept == "{}"
+    ok = ok and len(lines) == 1 and wanted in lines[0] and lines[0].startswith(f"{LABEL} fixtures: not recorded, case 0: ") and kept == "{}" and not others
+    return None if ok else f"{status} {lines} {kept!r} {others}"
+
+
+def case_z_orig_refusal_tail_call_when_the_function_returns():
+    return orig_refused(TAIL, {CALLEE: MARK_BODY}, "does not end when the run does, and the setup says the function returns")
+
+
+def case_z_orig_refusal_callee_writes_the_stack_above_its_pointer():
+    words = program(("call", CALLEE, [], []))
+    return orig_refused(words, {CALLEE: [sw(ZERO, SP, 16), JR_RA, NOP]}, "writes the stack at")
+
+
+def case_z_orig_refusal_callee_reads_the_stack_through_a_pointer():
+    # the function hands the callee the address of a local of its own
+    words = reg_caller([addiu(A0, SP, 16)])
+    return orig_refused(words, {CALLEE: [lw(T1, A0, 0), JR_RA, NOP]},
+                   "through a register other than sp (a pointer to a local of the function)")
+
+
+def case_z_orig_refusal_callee_takes_the_address_of_its_stack():
+    # sp read other than as a base or to move it: as the source of a copy, as the value of a store, in a sum
+    words = program(("call", CALLEE, [], []))
+    bodies = ([addu(T0, SP, ZERO), JR_RA, NOP], [*setreg(T0, FLAG), sw(SP, T0, 0), JR_RA, NOP], [addiu(V0, SP, 8), JR_RA, NOP],
+              [addiu(SP, SP, -8), sw(SP, SP, 0), addiu(SP, SP, 8), JR_RA, NOP])  # the last: stored into its own frame
+    bad = [why for body in bodies if (why := orig_refused(words, {CALLEE: body}, "takes the address of its stack"))]
+    # as a base, and moved, it is no refusal
+    fine = orig_record(words, {CALLEE: [addiu(SP, SP, -8), sw(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]})[1]
+    return None if not bad and fine == 0 else f"{bad} {fine}"
+
+
+def case_z_orig_refusal_callee_reads_its_frame_before_writing_it():
+    # what its frame holds before it writes it is what earlier code left on the stack
+    words = program(("call", CALLEE, [], []))
+    why = orig_refused(words, {CALLEE: [addiu(SP, SP, -8), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]},
+                       "reads its own frame at 0x801fefd8 before writing it")
+    # a byte of the word that it did not write is such a read too
+    part = orig_refused(words, {CALLEE: [addiu(SP, SP, -8), sb(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]},
+                        "reads its own frame at 0x801fefd9 before writing it")
+    return why or part
+
+
+def case_z_orig_refusal_callee_entered_again():
+    # a callee that calls itself once (a0 counts down), so the comparison ends
+    words = program(("call", CALLEE, [1], []))
+    again = [addiu(SP, SP, -16), sw(RA, SP, 12), beq(A0, ZERO, 8, 24), addiu(A0, A0, -1), jal(CALLEE), NOP,
+             lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+    return orig_refused(words, {CALLEE: again}, "is entered again before it ended")
+
+
+def case_z_orig_callee_entered_again_through_jalr():
+    words = program(("call", CALLEE, [1], []))
+    again = [addiu(SP, SP, -16), sw(RA, SP, 12), beq(A0, ZERO, 8, 32), addiu(A0, A0, -1), *setreg(T0, CALLEE), jalr_(T0), NOP,
+             lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+    return orig_refused(words, {CALLEE: again}, "is entered again before it ended")
+
+
+def case_z_orig_own_frame_and_a_loop_back_are_no_refusal():
+    # the callee's frame lies below its stack pointer, and a jump back to its own first instruction is a loop, not a new entry
+    body = [addiu(SP, SP, -16), sw(ZERO, SP, 4), lw(T0, SP, 4), addiu(T1, T1, 1), slti(T2, T1, 3),
+            beq(T2, ZERO, 20, 32), NOP, j(CALLEE + 12), NOP, addiu(SP, SP, 16), JR_RA, NOP]
+    words = program(("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: body})
+    call = orig_call(doc) if doc else None
+    return None if status == 0 and call["stack"] == [] and call["reads"] == [] and call["effects"] == [] else f"{lines} {call}"
+
+
+def case_z_orig_refusal_comes_before_the_altered_runs_and_again_after_them():
+    # the first cases show the refusal, so the altered runs (the long part) are not made; a case that the
+    # first ones did not show is still refused when it is one of the kept
+    words = program(("call", CALLEE, [], []))
+    made: list = []
+    real = D.edge_runs
+
+    def spy(context, tasks, jobs, worker=None):
+        made.append(len(tasks))
+        return real(context, tasks, jobs, worker)
+
+    bodies = {CALLEE: [sw(ZERO, SP, 16), JR_RA, NOP]}
+    with patched(D, edge_runs=spy):
+        early = orig_record(words, bodies)
+        before = list(made)
+        with patched(D, RECORD_PROBES=0):
+            late = orig_record(words, bodies)
+    ok = early[1] == late[1] == 1 and early[0] == late[0] and "writes the stack at" in early[0][0]
+    return None if ok and before == [] and len(made) == 1 else f"{early[:2]} {late[:2]} {before} {made}"
+
+
+def case_z_orig_unknown_instruction_is_an_error_that_names_it():
+    words = program(("call", CALLEE, [], []))
+    with tempfile.TemporaryDirectory() as tmp:
+        movz = A0 << 21 | A1 << 16 | V0 << 11 | 0x0A  # a MIPS IV instruction: the emulator runs it, the table does not know it
+        lines, status, doc, _ = orig_record(words, {CALLEE: [movz, JR_RA, NOP]}, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    ok = status == 2 and not written and len(lines) == 1 and f"word {movz:#010x} of an original callee" in lines[0]
+    return None if ok else f"{status} {lines} {written}"
+
+
+def case_z_orig_register_table():
+    def regs(word):
+        return D.registers_of(word)
+
+    checks = [
+        (lw(T0, A0, 4), ((4,), (8,))), (sw(T0, A0, 4), ((4, 8), ())), (addu(V0, A0, A1), ((4, 5), (2,))),
+        (0x88000000 | 4 << 21 | 8 << 16, ((4, 8), (8,))),  # lwl t0,0(a0): the old rt is merged
+        (jal(CALLEE), ((), (31,))), (jalr_(T0), ((8,), (31,))), (JR_RA, ((31,), ())), (NOP, ((0,), (0,))),
+        (mult(T0, T1), ((8, 9), (D.HI, D.LO))), (mflo(V0), ((D.LO,), (2,))), (0x00000010 | 2 << 11, ((D.HI,), (2,))),
+        (0x04110000 | 4 << 21, ((4,), (31,))),  # bgezal a0
+        (0x4A000000 | 1 << 25 | 0x18, ((), ())), (0x48C00000 | 8 << 16, ((8,), ())),  # a GTE command; ctc2 t0
+        (0x48000000 | 8 << 16, ((), (8,))), (0xC8800000 | 4 << 21, ((4,), ())), (lui(T0, 1), ((), (8,))),
+        (0x40086000, ((), (8,))),  # mfc0 t0
+    ]
+    bad = []
+    for word, want in checks:
+        try:
+            got = regs(word)
+        except D.FixtureError as exc:
+            bad.append((hex(word), str(exc)))
+            continue
+        if got != want:
+            bad.append((hex(word), got, want))
+    for word in (0x0000000C, 0x0000000D, 0xFC000000, 0x44000000):  # syscall, break, an unknown opcode, COP1
+        try:
+            regs(word)
+            bad.append((hex(word), "accepted"))
+        except D.FixtureError as exc:
+            if f"{word:#010x}" not in str(exc):
+                bad.append((hex(word), str(exc)))
+    return None if not bad else f"{bad}"
+
+
+def case_z_orig_uses_read_before_write_only():
+    words = program(("call", CALLEE, [11, 22, 33, 44], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: U_BODY})
+    uses = orig_call(doc)["uses"]
+    # a0 is read first; a1 is written before it is read; a2 and a3 are never touched
+    return None if status == 0 and uses == {"a0": D.hex8(11)} else f"{lines} {uses}"
+
+
+def case_z_orig_uses_a_register_read_by_a_nested_recorder():
+    # the callee passes a0 on to a recorder without writing it: the recorder reads it, and so the call does
+    words = program(("call", CALLEE, [9], []))
+    body = [addiu(SP, SP, -16), sw(RA, SP, 12), jal(CALLEE_B), NOP, lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+    lines, status, doc, _ = orig_record(words, {CALLEE: body}, orig_setup([(CALLEE_B, 1, 0)]))
+    return None if status == 0 and orig_call(doc)["uses"] == {"a0": D.hex8(9)} else f"{lines} {doc and orig_call(doc)}"
+
+
+def case_z_orig_uses_checks_failure_wrong_argument():
+    words = program(("call", CALLEE, [11, 22, 33, 44], []))
+    _lines, _status, doc, _ = orig_record(words, {CALLEE: U_BODY})
+    # a1 and a2 are not in `uses`: another value there is no difference; a0 is
+    other = fx_replay(doc, program(("call", CALLEE, [11, 99, 98, 97], [])))
+    wrong = fx_replay(doc, program(("call", CALLEE, [12, 22, 33, 44], [])))
+    text = "\n".join(wrong[0])
+    ok = other[1] == 0 and wrong[1] == 1 and "call 1 to func_callee: argument a0 is 0x0000000c, the original gave 0x0000000b" in text
+    return None if ok else f"{other} {wrong}"
+
+
+# reads the fifth argument, and a word of its own frame that it wrote
+STACK_BODY = [addiu(SP, SP, -8), lw(T0, SP, 24), sw(ZERO, SP, 0), lw(T1, SP, 0), addiu(SP, SP, 8), JR_RA, NOP]
+
+
+def case_z_orig_stack_words():
+    words = program(("call", CALLEE, [], [0x1234]))
+    lines, status, doc, _ = orig_record(words, {CALLEE: STACK_BODY})
+    call = orig_call(doc)
+    # sp + 24 inside the callee is sp + 16 of the call; the word at its own sp (below the call's) is its frame
+    ok = status == 0 and call["stack"] == [[16, "0x00001234"]]
+    same = fx_replay(doc, words)
+    other = fx_replay(doc, program(("call", CALLEE, [], [0x1235])))
+    text = "\n".join(other[0])
+    ok = ok and same[1] == 0 and other[1] == 1 and "call 1 to func_callee: the stack word at sp+0x10 is 0x00001235 there at this call, the original had 0x00001234" in text
+    return None if ok else f"{lines} {call} {same} {other}"
+
+
+def case_z_orig_reads_made_by_the_setup_go_to_same():
+    words = program(("call", CALLEE, [], []))
+    setup = orig_setup(made=[(FLAG, 0xCAFE)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: READ_FLAG}, setup)
+    fixture = doc["fixtures"][0]
+    call = orig_call(doc)
+    ok = call["reads"] == [[D.hex8(FLAG), "feca0000"]] and fixture["reads"] == [] and fixture["same"] == [[D.hex8(FLAG), "feca0000"]]
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 and len(lines) == 1 else f"{lines} {fixture} {got}"
+
+
+def case_z_orig_read_that_the_function_also_makes_stays_in_the_functions_reads():
+    words = program(("call", CALLEE, [], []), ("st", FLAG3, 0), *[])
+    words = caller([(CALLEE, [])], tail=[*setreg(T0, FLAG), lw(T3, T0, 0)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: READ_FLAG}, orig_setup(made=[(FLAG, 0xCAFE)]))
+    fixture = doc["fixtures"][0]
+    ok = fixture["reads"] == [[D.hex8(FLAG), "feca0000"]] and fixture["same"] == [] and orig_call(doc)["reads"] == fixture["reads"]
+    return None if ok else f"{lines} {fixture}"
+
+
+def case_z_orig_reads_written_by_the_function_before_the_call():
+    words = program(("st", FLAG, 7), ("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: READ_FLAG})
+    fixture = doc["fixtures"][0]
+    call = orig_call(doc)
+    ok = call["reads"] == [[D.hex8(FLAG), "07000000"]] and fixture["reads"] == [] and len(lines) == 1
+    # a build that stores another value there is a failure at the call
+    other = fx_replay(doc, program(("st", FLAG, 6), ("call", CALLEE, [], [])))
+    text = "\n".join(other[0])
+    wanted = f"call 1 to func_callee: memory at {FLAG:#x} is 0x06 there at this call, the original had 0x07"
+    same = fx_replay(doc, words)
+    return None if ok and same[1] == 0 and other[1] == 1 and wanted in text else f"{lines} {call} {other}"
+
+
+def case_z_orig_image_content_is_not_kept_as_a_read_and_is_warned_about():
+    # the callee reads a word that no setup made and nothing wrote: the game's image. It is neither in the call's reads
+    # nor in the fixture's; but the callee leaves it in t2, which the file holds, so the four bytes are warned about
+    # like a read of the function's own. A callee that reads only what the setup made gives no warning.
+    words = program(("call", CALLEE, [], []))
+    body = [*setreg(T0, IMAGE), lw(T2, T0, 0), JR_RA, NOP]
+    lines, status, doc, _ = orig_record(words, {CALLEE: body})
+    fixture = doc["fixtures"][0]
+    ok = orig_call(doc)["reads"] == [] and fixture["reads"] == [] and fixture["same"] == [] and len(lines) == 2
+    ok = ok and lines[0].startswith(f"{LABEL} fixtures: warning, 4 bytes read were not made by the setup")
+    made = orig_record(words, {CALLEE: [*setreg(T0, FLAG), lw(T2, T0, 0), JR_RA, NOP]}, orig_setup(made=((FLAG, 7),)))[0]
+    return None if ok and len(made) == 1 and "warning" not in made[0] else f"{lines} {fixture} {made}"
+
+
+def case_z_orig_effects_and_leaves_reach_the_build():
+    # the function reads the word the callee stored and the leftover t1; the build is the same code, and passes only
+    # because the stand-in stores the word and leaves t1 as the callee did
+    words = caller([(CALLEE, [])], tail=[*setreg(T0, FLAG), lw(V0, T0, 0), sw(T1, T0, 8)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: MARK_BODY}, orig_setup(returns_value=True))
+    fixture = doc["fixtures"][0]
+    ok = fixture["result"] == "0x00000055" and fixture["writes"] == [[D.hex8(FLAG), "55"], [D.hex8(FLAG + 8), "55"]]
+    got, replay_status = fx_replay(doc, words)
+    # a build that does not use the leftover differs in its write
+    without = fx_replay(doc, caller([(CALLEE, [])], tail=[*setreg(T0, FLAG), lw(V0, T0, 0)]))
+    return None if ok and replay_status == 0 and without[1] == 1 and "missing write" in "\n".join(without[0]) else f"{lines} {fixture} {got} {without}"
+
+
+def case_z_orig_hi_and_lo_reach_the_build():
+    body = [ori(T0, ZERO, 6), ori(T1, ZERO, 7), mult(T0, T1), JR_RA, NOP]
+    words = caller([(CALLEE, [])], tail=[mflo(V0)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: body}, orig_setup(returns_value=True))
+    leaves = orig_call(doc)["leaves"]
+    got, replay_status = fx_replay(doc, words)
+    ok = doc["fixtures"][0]["result"] == "0x0000002a" and leaves["lo"] == "0x0000002a" and leaves["hi"] == "0x00000000"
+    return None if ok and replay_status == 0 else f"{lines} {leaves} {got}"
+
+
+def order_pair():
+    """An original that calls the original callee and then a recorder; its fixture."""
+    words = program(("call", CALLEE, [11, 0, 0, 0], []), ("call", CALLEE_B, [1, 2, 3, 4], []))
+    setup = orig_setup([(CALLEE_B, 4, 0x22)])
+    _lines, status, doc, _ = orig_record(words, {CALLEE: U_BODY}, setup)
+    return words, doc
+
+
+def orig_failure(build, *parts):
+    _words, doc = order_pair()
+    lines, status = fx_replay(doc, build)
+    text = "\n".join(lines)
+    ok = status == 1 and lines[0] == f"{LABEL} replay: fixtures 1, passed 0, failed 1" and all(p in text for p in parts)
+    return None if ok else f"{status} {text}"
+
+
+def case_z_orig_replay_of_the_same_code_passes():
+    words, doc = order_pair()
+    lines, status = fx_replay(doc, words)
+    return None if status == 0 and lines == [f"{LABEL} replay: fixtures 1, passed 1, failed 0"] else f"{status} {lines}"
+
+
+def case_z_orig_failure_missing_call():
+    return orig_failure(program(("call", CALLEE_B, [1, 2, 3, 4], [])), "call 1: the build called func_callee_b, the original called func_callee")
+
+
+def case_z_orig_failure_missing_last_call():
+    return orig_failure(program(("call", CALLEE, [11, 0, 0, 0], [])), "call 2: missing, the original called func_callee_b")
+
+
+def case_z_orig_failure_extra_call():
+    return orig_failure(program(("call", CALLEE, [11, 0, 0, 0], []), ("call", CALLEE_B, [1, 2, 3, 4], []),
+                                ("call", CALLEE, [11, 0, 0, 0], [])), "call 3: extra, the build called func_callee")
+
+
+def case_z_orig_failure_extra_call_before_the_end_of_calls():
+    return orig_failure(program(("call", CALLEE, [11, 0, 0, 0], []), ("call", CALLEE, [11, 0, 0, 0], []),
+                                ("call", CALLEE_B, [1, 2, 3, 4], [])),
+                        "call 2: the build called func_callee, the original called func_callee_b")
+
+
+def case_z_orig_failure_order_stand_in_first():
+    # original: callee, recorder. The build's recorder call comes first, so its stand-in's call is the second
+    return orig_failure(program(("call", CALLEE_B, [1, 2, 3, 4], []), ("call", CALLEE, [11, 0, 0, 0], [])),
+                        "call 2: the build called func_callee, the original called func_callee_b")
+
+
+def case_z_orig_failure_stand_in_after_a_recorder_is_at_its_place():
+    # original: recorder, then callee. The same build passes; a build that calls the callee first has its
+    # stand-in at the place that the original's recorder had
+    words = program(("call", CALLEE_B, [1, 2, 3, 4], []), ("call", CALLEE, [11, 0, 0, 0], []))
+    setup = orig_setup([(CALLEE_B, 4, 0x22)])
+    _lines, status, doc, _ = orig_record(words, {CALLEE: U_BODY}, setup)
+    same = fx_replay(doc, words)
+    swapped = fx_replay(doc, program(("call", CALLEE, [11, 0, 0, 0], []), ("call", CALLEE_B, [1, 2, 3, 4], [])))
+    text = "\n".join(swapped[0])
+    ok = same[1] == 0 and swapped[1] == 1 and "call 1: the build called func_callee, the original called func_callee_b" in text
+    return None if ok else f"{same} {swapped}"
+
+
+def case_z_orig_failure_wrong_argument_of_a_recorder_next_to_a_stand_in():
+    return orig_failure(program(("call", CALLEE, [11, 0, 0, 0], []), ("call", CALLEE_B, [1, 2, 9, 4], [])),
+                        "call 2 to func_callee_b: argument 3 is 0x00000009, the original gave 0x00000003")
+
+
+def case_z_orig_replay_never_runs_the_callee():
+    from unicorn import UC_HOOK_CODE
+    words, doc = order_pair()
+    seen = set()
+    real = D.run_once
+
+    def spying(uc, state, entry, setup, blocks=None, watchers=(), **kw):
+        return real(uc, state, entry, setup, blocks, (*watchers, (UC_HOOK_CODE, lambda _uc, a, _s, _d: seen.add(a))), **kw)
+
+    build = D.Build(make_code(words), 4 * len(words), 0)
+    with patched(D, run_once=spying):
+        lines, status = D.replay_function(FXCFG, LABEL, build, doc)
+    stubs = {CALLEE, CALLEE + 4, CALLEE_B, CALLEE_B + 4}
+    outside = [hex(a) for a in seen if not (D.TEST_ADDRESS <= a < D.TEST_ADDRESS + len(build.code) or a == D.STOP_ADDRESS
+                                           or D.ARENA_BASE <= a < D.ARENA_END or a in stubs)]
+    ok = status == 0 and CALLEE in seen and CALLEE + 4 in seen and CALLEE + 8 not in seen and not outside
+    return None if ok else f"{status} {lines} {outside}"
+
+
+def case_z_orig_stub_words_are_harness_memory():
+    # the two words at the callee's address are not a write of the build, and the build that calls the callee passes
+    words = program(("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: MARK_BODY})
+    # a build that stores to the stub's address is a write like any other
+    store_there = program(("call", CALLEE, [], []), ("st", CALLEE + 0x40, 5))
+    got = fx_replay(doc, store_there)
+    return None if status == 0 and got[1] == 1 and f"extra write at {CALLEE + 0x40:#x}" in "\n".join(got[0]) else f"{lines} {got}"
+
+
+def case_z_orig_file_is_format_two_and_deterministic():
+    words = program(("call", CALLEE, [], []), ("st", FLAG3, 9))
+    first = orig_record(words, {CALLEE: MARK_BODY})
+    second = orig_record(words, {CALLEE: MARK_BODY})
+    doc, text = first[2], first[3]
+    plain = fx_record(FX_WORDS, fx_setup, cases=10)
+    fixture = doc["fixtures"][0]
+    ok = text == second[3] and doc["format"] == 2 and list(doc) == sorted(doc) and list(fixture) == sorted(fixture)
+    ok = ok and all(list(c) == sorted(c) for c in fixture["calls"]) and chr(0x2014) not in text
+    ok = ok and plain[2]["format"] == 1 and "callees" not in json.dumps(plain[2])
+    return None if ok else f"{doc['format']} {plain[2]['format']}"
+
+
+def case_z_orig_format_two_file_is_read_and_format_one_file_refuses_callees():
+    words = program(("call", CALLEE, [], []))
+    doc = orig_record(words, {CALLEE: MARK_BODY})[2]
+    bad = []
+    with tempfile.TemporaryDirectory() as tmp:
+        path = D.fixtures_path(Path(tmp), LABEL)
+        path.write_text(D.fixtures_text(doc))
+        D.load_fixtures(path, LABEL)
+        for label, change, wanted in (
+                ("format one with callees", lambda d: d.update(format=1), "has callees, which only format 2 has"),
+                ("format one with an original call", lambda d: (d.update(format=1), d["fixtures"][0].pop("callees")), "of an original callee, which only format 2 has"),
+                ("an original call without effects", lambda d: d["fixtures"][0]["calls"][0].pop("effects"), "a call of fixture 0 lacks effects")):
+            changed = json.loads(json.dumps(doc))
+            change(changed)
+            path.write_text(json.dumps(changed))
+            try:
+                D.load_fixtures(path, LABEL)
+                bad.append(f"{label}: accepted")
+            except D.FixtureError as exc:
+                if wanted not in str(exc):
+                    bad.append(f"{label}: {exc}")
+    return None if not bad else f"{bad}"
+
+
+def case_z_orig_published_format_one_files_are_unchanged():
+    # every file of the folders next to this one is format 1 or 2, is read, and is the text that this tool writes for its
+    # document (the files without an original callee are format 1)
+    found = sorted(HERE.parent.glob("*/*.fixtures.json"))
+    bad, formats = [], set()
+    for path in found:
+        text = path.read_text()
+        name = path.name[: -len(".fixtures.json")]
+        doc = D.load_fixtures(path, name)
+        if doc["format"] not in (1, 2) or D.fixtures_text(json.loads(text)) != text:
+            bad.append(path.name)
+        formats.add(doc["format"] if "callees" not in text else 2)
+    return None if found and not bad and 1 in formats else f"{len(found)} files; changed: {bad}"
+
+
+def case_z_orig_record_is_replayed_before_it_is_written():
+    # the self-check: a fixture that the build does not pass is a refusal of the function, and nothing is written
+    seen = []
+    real = D.replay_fixture
+
+    def failing(uc, build, fixture):
+        seen.append(fixture["case"])
+        return ["boom", "second"] if len(seen) == 2 else real(uc, build, fixture)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        with patched(D, replay_fixture=failing):
+            lines, status, doc, _ = fx_record(FX_WORDS, fx_setup, folder=tmp)
+        written = list(Path(tmp).iterdir())
+        plain = fx_record(FX_WORDS, fx_setup, folder=tmp)
+    ok = status == 1 and doc is None and not written and lines == [f"{LABEL} fixtures: not recorded, the replay of case {seen[1]} fails: boom"]
+    ok = ok and len(seen) == 2 and plain[1] == 0 and plain[0] == [f"{LABEL} fixtures: kept 3 of {FX_CASES} cases (slots 1, edges 2, results 0)"]
+    return None if ok else f"{status} {lines} {seen} {written}"
+
+
+def case_z_orig_self_check_replays_every_kept_fixture():
+    seen = []
+    real = D.replay_fixture
+
+    def counting(uc, build, fixture):
+        seen.append(fixture["case"])
+        return real(uc, build, fixture)
+
+    with patched(D, replay_fixture=counting):
+        _lines, _status, doc, _ = fx_record(FX_WORDS, fx_setup)
+        words = program(("call", CALLEE, [], []))
+        count = len(seen)
+        orig_record(words, {CALLEE: MARK_BODY})
+    kept = [f["case"] for f in doc["fixtures"]]
+    return None if seen[:count] == kept and len(seen) == count + 1 else f"{seen} {kept}"
+
+
+def case_z_orig_self_check_catches_a_build_that_differs_after_the_comparison():
+    # the comparison passes (the build equals the original in what it compares), but the build's replay of the call
+    # fails: here the build passes another value in a0 than the original, and the comparison cannot see it (a0 is not
+    # compared) while the callee reads a0
+    words = program(("call", CALLEE, [11, 22, 33, 44], []))
+    build = program(("call", CALLEE, [12, 22, 33, 44], []))
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, doc, _ = orig_record(words, {CALLEE: U_BODY}, build_words=build, folder=tmp)
+        written = list(Path(tmp).iterdir())
+    return None if status == 1 and not written and lines and "the replay of case 0 fails: call 1 to func_callee: argument a0 is" in lines[0] else f"{status} {lines} {written}"
+
+
+def case_z_orig_stack_of_the_function_is_not_in_the_functions_reads():
+    # reads of the function's own code are unchanged by a callee that runs: the same function without the callee
+    words = program(("call", CALLEE, [], []))
+    _l, _s, with_call, _ = orig_record(words, {CALLEE: READ_FLAG}, orig_setup(made=[(FLAG, 5)]))
+    return None if with_call["fixtures"][0]["reads"] == [] else f"{with_call['fixtures'][0]['reads']}"
+
+
+
+def case_z_orig_effects_are_the_net_change():
+    # the callee stores a word and then stores zero over it again: nothing differs at the end of the call. It also
+    # reads a word of its own after writing it: not a read of the call
+    body = [*setreg(T0, FLAG3), ori(T1, ZERO, 9), sw(T1, T0, 0), lw(T2, T0, 0), sw(ZERO, T0, 0), JR_RA, NOP]
+    words = program(("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: body})
+    call = orig_call(doc)
+    return None if status == 0 and call["effects"] == [] and call["reads"] == [] else f"{lines} {call}"
+
+
+def case_z_orig_stack_word_at_the_top_of_the_stack():
+    # a tail call: the stack pointer of the call is the initial one, and the callee reads the word at sp, which is the
+    # first word of the home area above the function's region
+    setup = orig_setup(returns=False)
+    lines, status, doc, _ = orig_record(TAIL, {CALLEE: [lw(T0, SP, 0), lw(T1, SP, 12), JR_RA, NOP]}, setup)
+    call = orig_call(doc)
+    return None if status == 0 and call["stack"] == [[0, "0x00000000"], [12, "0x00000000"]] else f"{lines} {call}"
+
+
+def case_z_orig_two_callees_in_another_order():
+    words = program(("call", CALLEE, [], []), ("call", CALLEE_B, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: MARK_BODY, CALLEE_B: MARK_BODY})
+    swapped = fx_replay(doc, program(("call", CALLEE_B, [], []), ("call", CALLEE, [], [])))
+    same = fx_replay(doc, words)
+    text = "\n".join(swapped[0])
+    ok = [c["at"] for c in doc["fixtures"][0]["callees"]] == [D.hex8(CALLEE), D.hex8(CALLEE_B)] and same[1] == 0
+    ok = ok and swapped[1] == 1 and "call 1: the build called func_callee_b, the original called func_callee" in text
+    return None if ok else f"{lines} {same} {swapped}"
+
+
+def case_z_orig_recorder_inside_a_call_counts_for_the_calls_after_it():
+    # the callee calls a recorder that adds 1 to a word; the function calls the recorder again afterwards. The
+    # stand-in leaves the word as the call did (as an effect), and the recorder after it adds to that
+    counted = 0x80030600
+    body = [addiu(SP, SP, -16), sw(RA, SP, 12), jal(CALLEE_B), NOP, lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+    words = program(("call", CALLEE, [], []), ("call", CALLEE_B, [], []))
+    setup = orig_setup([(CALLEE_B, 0, 0, None, None, (), 0, (), (counted,))], made=[(counted, 0x41)])
+    lines, status, doc, _ = orig_record(words, {CALLEE: body}, setup)
+    fixture = doc["fixtures"][0]
+    call = orig_call(doc)
+    ok = call["effects"] == [[D.hex8(counted), "42"]] and call["reads"] == [[D.hex8(counted), "41000000"]]
+    ok = ok and fixture["writes"] == [[D.hex8(counted), "43"]] and len(fixture["calls"]) == 2
+    got, replay_status = fx_replay(doc, words)
+    return None if ok and replay_status == 0 else f"{lines} {fixture} {got}"
+
+
+def case_z_orig_effects_inside_the_arena_stay_above_the_replays_log():
+    # the setup's first block lies at the start of the arena; the callee writes in it where the replay's log would
+    # start if it were put just above the start
+    block = D.ARENA_BASE
+
+    def setup(state, rng, sym):
+        arena_block(state)
+        log = contracts.CallLog(state)
+        log.replace(CALLEE_B, 1, 0)
+        return contracts.Setup(args=(), returns_value=False)
+
+    body = [*setreg(T0, block + 0x100), ori(T1, ZERO, 0x77), sw(T1, T0, 0), JR_RA, NOP]
+    words = program(("call", CALLEE, [], []), ("call", CALLEE_B, [1], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: body}, setup)
+    got, replay_status = fx_replay(doc, words)
+    return None if status == 0 and replay_status == 0 else f"{lines} {got}"
+
+
+def case_z_orig_callee_inside_the_arena_stays_above_the_replays_log():
+    # the callee's code is in a block of the setup's own, where the replay's log would put its first entry
+    callee = D.ARENA_BASE + 0x108
+
+    def setup(state, rng, sym):
+        block = arena_block(state)
+        state.write(callee, make_code(MARK_BODY))
+        log = contracts.CallLog(state)
+        log.replace(CALLEE_B, 1, 0)
+        return contracts.Setup(args=(), returns_value=False)
+
+    words = program(("call", CALLEE_B, [1], []), ("call", callee, [], []))
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    if status:
+        return f"{lines}"
+    got, replay_status = fx_replay(doc, words)
+    fixture = doc["fixtures"][0]
+    ok = fixture["callees"] == [{"at": D.hex8(callee), "callee": D.hex8(callee)}] and replay_status == 0
+    return None if ok else f"{fixture} {got}"
+
+
+
+class FakeUc:
+    """The little of a Unicorn that `Trace.step` asks for: registers that read 0, and memory that holds nops."""
+
+    def mem_read(self, address, size):
+        return bytes(size)
+
+    def reg_read(self, number):
+        return 0
+
+    def emu_stop(self):
+        pass
+
+
+def case_z_orig_call_begins_only_after_an_instruction_of_the_function():
+    # an instruction outside the function, the recorders and the stop address starts a call when the one before it was
+    # the function's, and not when the one before it was the harness's
+    skip = D.skip_map([(CALLEE_B, 8)])
+    other = 0x80050000
+
+    def sequence(*addresses):
+        trace = D.Trace(skip, ORIGINAL, 16, frozenset(), {}, lambda at: True)
+        uc = FakeUc()
+        for address in addresses:
+            trace.step(uc, address, 4, None)
+        return [kind for kind, _ in trace.sequence], trace.call is not None
+
+    after_function = sequence(ORIGINAL, ORIGINAL + 4, other)
+    after_harness = sequence(ORIGINAL, CALLEE_B, other)
+    ends = sequence(ORIGINAL, other, other + 4, ORIGINAL + 8)
+    stop = sequence(ORIGINAL, D.STOP_ADDRESS, other)
+    ok = after_function == (["call"], True) and after_harness == ([], False) and ends == (["call"], False) and stop == ([], False)
+    return None if ok else f"{after_function} {after_harness} {ends} {stop}"
+
+
+
+def case_z_orig_home_area_writes_are_the_callees_own():
+    # spills a0 to a3 into [sp, sp + 16) and reads one back: no refusal, no effect, no stack word
+    body = [sw(A0, SP, 0), sw(A1, SP, 4), sw(A2, SP, 8), sw(A3, SP, 12), lw(T0, SP, 4), JR_RA, NOP]
+    words = program(("call", CALLEE, [1, 2, 3, 4], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: body})
+    call = orig_call(doc) if doc else None
+    ok = status == 0 and call["stack"] == [] and call["effects"] == [] and call["reads"] == []
+    got, replay_status = fx_replay(doc, words) if doc else (None, None)
+    return None if ok and replay_status == 0 else f"{lines} {call} {got}"
+
+
+def case_z_orig_home_area_read_before_a_write_is_a_stack_word():
+    # reads sp+8 before writing it, then writes sp+8 and reads it again: one stack word at offset 8
+    body = [lw(T0, SP, 8), sw(T0, SP, 8), lw(T1, SP, 8), JR_RA, NOP]
+    words = program(("call", CALLEE, [], []))
+    lines, status, doc, _ = orig_record(words, {CALLEE: body})
+    call = orig_call(doc) if doc else None
+    return None if status == 0 and call["stack"] == [[8, "0x00000000"]] else f"{lines} {call}"
+
+
+def case_z_orig_write_at_sixteen_above_the_pointer_is_refused():
+    words = program(("call", CALLEE, [], []))
+    return orig_refused(words, {CALLEE: [sw(ZERO, SP, 12), sw(ZERO, SP, 16), JR_RA, NOP]}, "writes the stack at")
+
+
+def case_z_orig_home_area_read_through_a_pointer_is_refused():
+    # the function hands the callee its stack pointer, which is where the callee's home area is
+    words = reg_caller([addiu(A0, SP, 0)])
+    return orig_refused(words, {CALLEE: [lw(T1, A0, 4), JR_RA, NOP]}, "through a register other than sp")
+
+
+
+# ---------------------------------------------------------------------------
+# Group Z, the registers of a call: UNTOUCHED and WRITTEN, saves and restores
+
+S1, S2, T3_ = 17, 18, 11
+
+
+def mtlo(rs): return rs << 21 | 0x13
+
+
+def reg_caller(pre, tail=()):
+    """A caller with a frame: `pre` runs before the call of CALLEE, `tail` after it; the result is what `tail` leaves in v0."""
+    return [addiu(SP, SP, -32), sw(RA, SP, 28), *pre, jal(CALLEE), NOP, *tail, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def reg_record(words, body, setup=None, cases=2):
+    return orig_record(words, {CALLEE: body}, setup or orig_setup(returns_value=True), cases=cases)
+
+
+def result_failure(doc, build, wanted):
+    lines, status = fx_replay(doc, build)
+    text = "\n".join(lines)
+    return None if status == 1 and wanted in text else f"{status} {text}"
+
+
+def untouched_register(number, name):
+    # the caller sets the register to 7, calls a callee that is `jr ra; nop`, and returns the register
+    words = reg_caller([addiu(number, ZERO, 7)], [addu(V0, number, ZERO)])
+    lines, status, doc, _ = reg_record(words, [JR_RA, NOP])
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    ok = doc["fixtures"][0]["result"] == "0x00000007" and call["uses"] == {} and call["leaves"] == {}
+    same = fx_replay(doc, words)
+    other = result_failure(doc, reg_caller([addiu(number, ZERO, 8)], [addu(V0, number, ZERO)]),
+                           "result: the build gives 0x00000008, the original gave 0x00000007")
+    return None if ok and same[1] == 0 and other is None else f"{name}: {call} {same} {other}"
+
+
+def case_z_reg_untouched_a0_keeps_the_builds_value():
+    return untouched_register(A0, "a0")
+
+
+def case_z_reg_untouched_temporary_keeps_the_builds_value():
+    return untouched_register(T3_, "t3")
+
+
+def case_z_reg_untouched_v1_keeps_the_builds_value():
+    return untouched_register(V1, "v1")
+
+
+def case_z_reg_incoming_register_that_is_no_argument_is_a_use():
+    # v0 = t0: the output depends on an incoming t0
+    words = reg_caller([addiu(T0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, T0, ZERO), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"t0": "0x00000005"} and call["leaves"] == {"v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6)], []), "call 1 to func_callee: register t0 is 0x00000006, the original gave 0x00000005")
+    same = fx_replay(doc, words)
+    return None if ok and other is None and same[1] == 0 else f"{lines} {call} {other} {same}"
+
+
+def case_z_reg_argument_use_keeps_the_argument_wording():
+    words = reg_caller([addiu(A1, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, A1, ZERO), JR_RA, NOP])
+    return result_failure(doc, reg_caller([addiu(A1, ZERO, 6)], []), "call 1 to func_callee: argument a1 is 0x00000006, the original gave 0x00000005")
+
+
+def case_z_reg_lo_read_before_written_is_a_use_and_written_is_a_leave():
+    words = reg_caller([addiu(T0, ZERO, 5), mtlo(T0)], [])
+    lines, status, doc, _ = reg_record(words, [mflo(V0), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"lo": "0x00000005"} and call["leaves"] == {"v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6), mtlo(T0)], []), "call 1 to func_callee: register lo is 0x00000006, the original gave 0x00000005")
+    # written: the callee multiplies; the function takes lo from it, and so does the build
+    mul = [ori(T0, ZERO, 6), ori(T1, ZERO, 7), mult(T0, T1), JR_RA, NOP]
+    words2 = reg_caller([], [mflo(V0)])
+    lines2, status2, doc2, _ = reg_record(words2, mul)
+    call2 = orig_call(doc2)
+    ok2 = status2 == 0 and call2["uses"] == {} and call2["leaves"] == {"hi": "0x00000000", "lo": "0x0000002a", "t0": "0x00000006", "t1": "0x00000007"}
+    ok2 = ok2 and doc2["fixtures"][0]["result"] == "0x0000002a" and fx_replay(doc2, words2)[1] == 0
+    return None if ok and other is None and ok2 else f"{lines} {call} {other} {lines2} {call2}"
+
+
+SAVING = [addiu(SP, SP, -16), sw(S0, SP, 8), sw(RA, SP, 12), jal(CALLEE_B), NOP, lw(S0, SP, 8), lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+
+
+def case_z_reg_callee_that_saves_and_restores_s0_and_ra():
+    # saves s0 and ra, calls a recorder, restores both: no use, no refusal, neither in leaves; the build's own s0 stays
+    words = reg_caller([addiu(S0, ZERO, 9)], [addu(V0, S0, ZERO)])
+    setup = orig_setup([(CALLEE_B, 0, 0)], returns_value=True)
+    lines, status, doc, _ = orig_record(words, {CALLEE: SAVING}, setup)
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    ok = call["uses"] == {} and "s0" not in call["leaves"] and "ra" not in call["leaves"] and doc["fixtures"][0]["result"] == "0x00000009"
+    same = fx_replay(doc, words)
+    # a build whose s0 differs keeps it through the stand-in: it returns its own s0, and so differs in the result
+    other = result_failure(doc, reg_caller([addiu(S0, ZERO, 10)], [addu(V0, S0, ZERO)]),
+                           "result: the build gives 0x0000000a, the original gave 0x00000009")
+    return None if ok and same[1] == 0 and other is None else f"{call} {same} {other}"
+
+
+def case_z_reg_callee_that_reads_s0_is_refused():
+    words = reg_caller([addiu(S0, ZERO, 9)], [])
+    return orig_refused(words, {CALLEE: [addu(V0, S0, ZERO), JR_RA, NOP]}, "reads register s0 of its caller, which is no argument",
+                        setup=orig_setup(returns_value=True))
+
+
+def case_z_reg_callee_that_reads_ra_otherwise_is_refused():
+    words = reg_caller([], [])
+    return orig_refused(words, {CALLEE: [addu(T0, RA, ZERO), JR_RA, NOP]}, "reads register ra of its caller, which is no argument")
+
+
+SAVE_A0_LOAD_V0 = [addiu(SP, SP, -16), sw(A0, SP, 0), addiu(A0, ZERO, 99), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+
+
+def case_z_reg_load_of_the_saved_word_of_a0_is_a_use_of_a0():
+    words = reg_caller([addiu(A0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, SAVE_A0_LOAD_V0)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"a0": "0x00000005"} and call["leaves"] == {"a0": "0x00000063", "v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(A0, ZERO, 6)], []), "call 1 to func_callee: argument a0 is 0x00000006, the original gave 0x00000005")
+    return None if ok and other is None else f"{lines} {call} {other}"
+
+
+def case_z_reg_load_of_the_saved_word_of_s1_is_refused():
+    body = [addiu(SP, SP, -16), sw(S1, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    return orig_refused(reg_caller([addiu(S1, ZERO, 5)], []), {CALLEE: body}, "reads register s1 of its caller, which is no argument",
+                        setup=orig_setup(returns_value=True))
+
+
+def case_z_reg_written_s2_is_a_leave_and_the_build_sees_it():
+    words = reg_caller([], [addu(V0, S2, ZERO)])
+    lines, status, doc, _ = reg_record(words, [addiu(S2, ZERO, 5), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["leaves"] == {"s2": "0x00000005"} and call["uses"] == {} and doc["fixtures"][0]["result"] == "0x00000005"
+    return None if ok and fx_replay(doc, words)[1] == 0 else f"{lines} {call}"
+
+
+def case_z_reg_callee_that_leaves_sp_changed_is_refused():
+    setup = orig_setup(returns=False)
+    return orig_refused(TAIL, {CALLEE: [addiu(SP, SP, -16), JR_RA, NOP]}, "leaves the stack pointer changed", setup=setup)
+
+
+def case_z_reg_save_slot_overwritten_before_the_load_is_no_restore():
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), addiu(A0, ZERO, 5), sw(A0, SP, 0), lw(A0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(A0, ZERO, 3)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    return None if status == 0 and call["uses"] == {} and call["leaves"] == {"a0": "0x00000005"} else f"{lines} {call}"
+
+
+def case_z_reg_restore_needs_the_registers_own_slot():
+    # a0 is saved, v0 is loaded from a0's slot (a use of a0), then a0 is loaded from the slot of a1: a0 is no restore
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(A1, SP, 4), lw(A0, SP, 4), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(A0, ZERO, 3), addiu(A1, ZERO, 4)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    return None if status == 0 and call["uses"] == {"a1": "0x00000004"} and call["leaves"] == {"a0": "0x00000004"} else f"{lines} {call}"
+
+
+
+def case_z_reg_store_of_an_incoming_register_outside_the_callees_memory_is_a_use():
+    # sw t0 to a global is no save: the callee puts the caller's t0 into memory
+    body = [*setreg(T1, FLAG), sw(T0, T1, 0), JR_RA, NOP]
+    words = reg_caller([addiu(T0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"t0": "0x00000005"} and call["effects"] == [[D.hex8(FLAG), "05"]]
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6)], []), "register t0 is 0x00000006, the original gave 0x00000005")
+    return None if ok and other is None else f"{lines} {call} {other}"
+
+
+def case_z_reg_gp_is_a_use_and_k0_is_refused():
+    words = reg_caller([addiu(28, ZERO, 3)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, 28, ZERO), JR_RA, NOP])
+    ok = status == 0 and orig_call(doc)["uses"] == {"gp": "0x00000003"}
+    refused_k0 = orig_refused(words, {CALLEE: [addu(V0, 26, ZERO), JR_RA, NOP]}, "reads register k0 of its caller, which is no argument",
+                              setup=orig_setup(returns_value=True))
+    return None if ok and refused_k0 is None else f"{lines} {refused_k0}"
+
+
+def case_z_reg_second_save_does_not_hide_the_first_copy():
+    # two saves of a0 into two words, then the first word loaded into v0: the result is a0, so a0 is a use, whichever
+    # of the two copies is loaded
+    for offset in (0, 4):
+        body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(A0, SP, 4), lw(V0, SP, offset), addiu(SP, SP, 16), JR_RA, NOP]
+        doc = reg_record(reg_caller([addiu(A0, ZERO, 7)]), body)[2]
+        call = orig_call(doc)
+        if call["uses"] != {"a0": "0x00000007"} or call["leaves"] != {"v0": "0x00000007"} or doc["fixtures"][0]["result"] != "0x00000007":
+            return f"copy at {offset}: {call} {doc['fixtures'][0]['result']}"
+        why = result_failure(doc, reg_caller([addiu(A0, ZERO, 8)]),
+                             "call 1 to func_callee: argument a0 is 0x00000008, the original gave 0x00000007")
+        if why:
+            return f"copy at {offset}: {why}"
+    return None
+
+
+def case_z_reg_partial_overwrite_leaves_the_other_bytes_copies():
+    # one byte of the saved word is written over: the other three are still a0's, so the load of the word is a use
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    doc = reg_record(reg_caller(setreg(A0, 0x1234)), body)[2]
+    call = orig_call(doc)
+    if call["uses"] != {"a0": "0x00001234"} or call["leaves"] != {"v0": "0x00001200"}:
+        return f"{call}"
+    why = result_failure(doc, reg_caller(setreg(A0, 0x5634)), "argument a0 is 0x00005634, the original gave 0x00001234")
+    # loaded back into a0 itself it is no restore: a0 is written with the changed word, and it was used
+    back = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lw(A0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    again = orig_call(reg_record(reg_caller(setreg(A0, 0x1234)), back)[2])
+    ok = again["uses"] == {"a0": "0x00001234"} and again["leaves"] == {"a0": "0x00001200"}
+    if why or not ok:
+        return why or f"loaded back: {again}"
+    # one surviving byte read alone: a0 = 0x100 gives 1, and a build with 0x200, which really gives 2, fails
+    one = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lbu(V0, SP, 1), addiu(SP, SP, 16), JR_RA, NOP]
+    doc = reg_record(reg_caller(setreg(A0, 0x100)), one)[2]
+    call = orig_call(doc)
+    if call["uses"] != {"a0": "0x00000100"} or call["leaves"] != {"v0": "0x00000001"} or doc["fixtures"][0]["result"] != "0x00000001":
+        return f"one byte: {call}"
+    why = result_failure(doc, reg_caller(setreg(A0, 0x200)), "argument a0 is 0x00000200, the original gave 0x00000100")
+    # the byte that was written over is no copy any more: read alone it is no use
+    gone = [addiu(SP, SP, -16), sw(A0, SP, 0), sb(ZERO, SP, 0), lbu(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    call = orig_call(reg_record(reg_caller(setreg(A0, 0x100)), gone)[2])
+    return why or (None if call["uses"] == {} and call["leaves"] == {"v0": "0x00000000"} else f"the byte written over: {call}")
+
+
+def case_z_reg_copy_written_over_in_full_is_no_copy():
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(ZERO, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    call = orig_call(reg_record(reg_caller([addiu(A0, ZERO, 7)]), body)[2])
+    return None if call["uses"] == {} and call["leaves"] == {"v0": "0x00000000"} else f"{call}"
+
+
+def case_z_reg_restore_from_either_live_copy():
+    # s0 saved twice and written; the first copy is written over; the load of the second is still a restore
+    body = [addiu(SP, SP, -16), sw(S0, SP, 0), sw(S0, SP, 4), addiu(S0, ZERO, 5), sw(ZERO, SP, 0), lw(S0, SP, 4),
+            addiu(SP, SP, 16), JR_RA, NOP]
+    lines, status, doc, _ = reg_record(reg_caller([]), body)
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    return None if call["uses"] == {} and "s0" not in call["leaves"] else f"{call}"
+
+
+def case_z_reg_register_written_and_then_restored_is_untouched_again():
+    body = [addiu(SP, SP, -16), sw(S0, SP, 8), addiu(S0, ZERO, 1), lw(S0, SP, 8), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(S0, ZERO, 9)], [addu(V0, S0, ZERO)])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {} and call["leaves"] == {} and doc["fixtures"][0]["result"] == "0x00000009"
+    return None if ok and fx_replay(doc, words)[1] == 0 else f"{lines} {call}"
+
 
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
@@ -4553,8 +5485,6 @@ CASES = [
     ("z-failure-lines-are-at-most-three", case_z_failure_lines_are_at_most_three),
     ("z-failure-names-the-fixture", case_z_failure_names_the_fixture),
     ("z-ends-in-callee", case_z_ends_in_callee),
-    ("z-record-refuses-a-callee-that-runs-as-original-code", case_z_record_refuses_a_callee_that_runs_as_original_code),
-    ("z-record-refuses-before-the-altered-runs-and-after-them", case_z_record_refuses_before_the_altered_runs_and_after_them),
     ("z-replay-refuses-a-file-with-needs-image", case_z_replay_refuses_a_file_with_needs_image),
     ("z-replay-executes-only-the-build-and-the-recorders", case_z_replay_executes_only_the_build_and_the_recorders),
     ("z-build-that-calls-an-address-without-a-recorder-fails", case_z_build_that_calls_an_address_without_a_recorder_fails),
@@ -4575,6 +5505,82 @@ CASES = [
     ("z-option-refusals", case_z_option_refusals),
     ("z-record-max-option", case_z_record_max_option),
     ("z-record-input-error-is-two", case_z_record_input_error_is_two),
+
+    ("z-orig-call-is-recorded", case_z_orig_call_is_recorded),
+    ("z-orig-call-that-calls-a-recorder-inside", case_z_orig_call_that_calls_a_recorder_inside),
+    ("z-orig-two-calls-of-one-callee", case_z_orig_two_calls_of_one_callee),
+    ("z-orig-tail-call-ends-with-the-run", case_z_orig_tail_call_ends_with_the_run),
+    ("z-orig-refusal-tail-call-when-the-function-returns", case_z_orig_refusal_tail_call_when_the_function_returns),
+    ("z-orig-refusal-callee-writes-the-stack-above-its-pointer", case_z_orig_refusal_callee_writes_the_stack_above_its_pointer),
+    ("z-orig-refusal-callee-reads-the-stack-through-a-pointer", case_z_orig_refusal_callee_reads_the_stack_through_a_pointer),
+    ("z-orig-refusal-callee-takes-the-address-of-its-stack", case_z_orig_refusal_callee_takes_the_address_of_its_stack),
+    ("z-orig-refusal-callee-reads-its-frame-before-writing-it", case_z_orig_refusal_callee_reads_its_frame_before_writing_it),
+    ("z-orig-refusal-callee-entered-again", case_z_orig_refusal_callee_entered_again),
+    ("z-orig-callee-entered-again-through-jalr", case_z_orig_callee_entered_again_through_jalr),
+    ("z-orig-own-frame-and-a-loop-back-are-no-refusal", case_z_orig_own_frame_and_a_loop_back_are_no_refusal),
+    ("z-orig-refusal-comes-before-the-altered-runs-and-again-after-them", case_z_orig_refusal_comes_before_the_altered_runs_and_again_after_them),
+    ("z-orig-unknown-instruction-is-an-error-that-names-it", case_z_orig_unknown_instruction_is_an_error_that_names_it),
+    ("z-orig-register-table", case_z_orig_register_table),
+    ("z-orig-uses-read-before-write-only", case_z_orig_uses_read_before_write_only),
+    ("z-orig-uses-a-register-read-by-a-nested-recorder", case_z_orig_uses_a_register_read_by_a_nested_recorder),
+    ("z-orig-uses-checks-failure-wrong-argument", case_z_orig_uses_checks_failure_wrong_argument),
+    ("z-orig-stack-words", case_z_orig_stack_words),
+    ("z-orig-reads-made-by-the-setup-go-to-same", case_z_orig_reads_made_by_the_setup_go_to_same),
+    ("z-orig-read-that-the-function-also-makes-stays-in-the-functions-reads", case_z_orig_read_that_the_function_also_makes_stays_in_the_functions_reads),
+    ("z-orig-reads-written-by-the-function-before-the-call", case_z_orig_reads_written_by_the_function_before_the_call),
+    ("z-orig-image-content-is-not-kept-as-a-read-and-is-warned-about", case_z_orig_image_content_is_not_kept_as_a_read_and_is_warned_about),
+    ("z-orig-effects-and-leaves-reach-the-build", case_z_orig_effects_and_leaves_reach_the_build),
+    ("z-orig-hi-and-lo-reach-the-build", case_z_orig_hi_and_lo_reach_the_build),
+    ("z-orig-replay-of-the-same-code-passes", case_z_orig_replay_of_the_same_code_passes),
+    ("z-orig-failure-missing-call", case_z_orig_failure_missing_call),
+    ("z-orig-failure-missing-last-call", case_z_orig_failure_missing_last_call),
+    ("z-orig-failure-extra-call", case_z_orig_failure_extra_call),
+    ("z-orig-failure-extra-call-before-the-end-of-calls", case_z_orig_failure_extra_call_before_the_end_of_calls),
+    ("z-orig-failure-order-stand-in-first", case_z_orig_failure_order_stand_in_first),
+    ("z-orig-failure-stand-in-after-a-recorder-is-at-its-place", case_z_orig_failure_stand_in_after_a_recorder_is_at_its_place),
+    ("z-orig-failure-wrong-argument-of-a-recorder-next-to-a-stand-in", case_z_orig_failure_wrong_argument_of_a_recorder_next_to_a_stand_in),
+    ("z-orig-replay-never-runs-the-callee", case_z_orig_replay_never_runs_the_callee),
+    ("z-orig-stub-words-are-harness-memory", case_z_orig_stub_words_are_harness_memory),
+    ("z-orig-file-is-format-two-and-deterministic", case_z_orig_file_is_format_two_and_deterministic),
+    ("z-orig-format-two-file-is-read-and-format-one-file-refuses-callees", case_z_orig_format_two_file_is_read_and_format_one_file_refuses_callees),
+    ("z-orig-published-format-one-files-are-unchanged", case_z_orig_published_format_one_files_are_unchanged),
+    ("z-orig-record-is-replayed-before-it-is-written", case_z_orig_record_is_replayed_before_it_is_written),
+    ("z-orig-self-check-replays-every-kept-fixture", case_z_orig_self_check_replays_every_kept_fixture),
+    ("z-orig-self-check-catches-a-build-that-differs-after-the-comparison", case_z_orig_self_check_catches_a_build_that_differs_after_the_comparison),
+    ("z-orig-stack-of-the-function-is-not-in-the-functions-reads", case_z_orig_stack_of_the_function_is_not_in_the_functions_reads),
+    ("z-orig-call-begins-only-after-an-instruction-of-the-function", case_z_orig_call_begins_only_after_an_instruction_of_the_function),
+    ("z-orig-effects-are-the-net-change", case_z_orig_effects_are_the_net_change),
+    ("z-reg-untouched-a0-keeps-the-builds-value", case_z_reg_untouched_a0_keeps_the_builds_value),
+    ("z-reg-untouched-temporary-keeps-the-builds-value", case_z_reg_untouched_temporary_keeps_the_builds_value),
+    ("z-reg-untouched-v1-keeps-the-builds-value", case_z_reg_untouched_v1_keeps_the_builds_value),
+    ("z-reg-incoming-register-that-is-no-argument-is-a-use", case_z_reg_incoming_register_that_is_no_argument_is_a_use),
+    ("z-reg-argument-use-keeps-the-argument-wording", case_z_reg_argument_use_keeps_the_argument_wording),
+    ("z-reg-lo-read-before-written-is-a-use-and-written-is-a-leave", case_z_reg_lo_read_before_written_is_a_use_and_written_is_a_leave),
+    ("z-reg-callee-that-saves-and-restores-s0-and-ra", case_z_reg_callee_that_saves_and_restores_s0_and_ra),
+    ("z-reg-callee-that-reads-s0-is-refused", case_z_reg_callee_that_reads_s0_is_refused),
+    ("z-reg-callee-that-reads-ra-otherwise-is-refused", case_z_reg_callee_that_reads_ra_otherwise_is_refused),
+    ("z-reg-load-of-the-saved-word-of-a0-is-a-use-of-a0", case_z_reg_load_of_the_saved_word_of_a0_is_a_use_of_a0),
+    ("z-reg-load-of-the-saved-word-of-s1-is-refused", case_z_reg_load_of_the_saved_word_of_s1_is_refused),
+    ("z-reg-written-s2-is-a-leave-and-the-build-sees-it", case_z_reg_written_s2_is_a_leave_and_the_build_sees_it),
+    ("z-reg-callee-that-leaves-sp-changed-is-refused", case_z_reg_callee_that_leaves_sp_changed_is_refused),
+    ("z-reg-save-slot-overwritten-before-the-load-is-no-restore", case_z_reg_save_slot_overwritten_before_the_load_is_no_restore),
+    ("z-reg-restore-needs-the-registers-own-slot", case_z_reg_restore_needs_the_registers_own_slot),
+    ("z-reg-store-of-an-incoming-register-outside-the-callees-memory-is-a-use", case_z_reg_store_of_an_incoming_register_outside_the_callees_memory_is_a_use),
+    ("z-reg-gp-is-a-use-and-k0-is-refused", case_z_reg_gp_is_a_use_and_k0_is_refused),
+    ("z-reg-register-written-and-then-restored-is-untouched-again", case_z_reg_register_written_and_then_restored_is_untouched_again),
+    ("z-reg-second-save-does-not-hide-the-first-copy", case_z_reg_second_save_does_not_hide_the_first_copy),
+    ("z-reg-partial-overwrite-leaves-the-other-bytes-copies", case_z_reg_partial_overwrite_leaves_the_other_bytes_copies),
+    ("z-reg-copy-written-over-in-full-is-no-copy", case_z_reg_copy_written_over_in_full_is_no_copy),
+    ("z-reg-restore-from-either-live-copy", case_z_reg_restore_from_either_live_copy),
+    ("z-orig-home-area-writes-are-the-callees-own", case_z_orig_home_area_writes_are_the_callees_own),
+    ("z-orig-home-area-read-before-a-write-is-a-stack-word", case_z_orig_home_area_read_before_a_write_is_a_stack_word),
+    ("z-orig-write-at-sixteen-above-the-pointer-is-refused", case_z_orig_write_at_sixteen_above_the_pointer_is_refused),
+    ("z-orig-home-area-read-through-a-pointer-is-refused", case_z_orig_home_area_read_through_a_pointer_is_refused),
+    ("z-orig-stack-word-at-the-top-of-the-stack", case_z_orig_stack_word_at_the_top_of_the_stack),
+    ("z-orig-two-callees-in-another-order", case_z_orig_two_callees_in_another_order),
+    ("z-orig-recorder-inside-a-call-counts-for-the-calls-after-it", case_z_orig_recorder_inside_a_call_counts_for_the_calls_after_it),
+    ("z-orig-effects-inside-the-arena-stay-above-the-replays-log", case_z_orig_effects_inside_the_arena_stay_above_the_replays_log),
+    ("z-orig-callee-inside-the-arena-stays-above-the-replays-log", case_z_orig_callee_inside_the_arena_stays_above_the_replays_log),
 
 ]
 
