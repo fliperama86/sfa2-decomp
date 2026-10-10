@@ -34,8 +34,13 @@ was typed from the document a second time, as a round trip.
 What ran: `python port/tools/test_hostmdec.py --cc i686-w64-mingw32-gcc`,
 "96 cases", "all 96 cases behaved as required", about 8 seconds
 (one-off); 83 mutants of the code in bounded runs with a private
-runner, 82 failing a named case and one that changes nothing that can
-be seen (a wrap to 10 bits before a mask to 10 bits);
+runner: 81 failed a named case; one (the table setter without its check
+of the size) ended the tester with a nonzero status at a guard page and
+no named case; one changes nothing that can be seen (a wrap to 10 bits
+before a mask to 10 bits). (Corrected after the owner's review of pull
+request 189: this sentence first said that 82 failed a named case. The
+tester now names the case in that situation; see the record of the
+correction.)
 `python tools/ai_workflow/tests/test_workflow.py`, OK.
 
 One-off private checks, on the user's disc and on the private study,
