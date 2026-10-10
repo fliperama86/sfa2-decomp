@@ -104,7 +104,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_80167388`.
+- The contract has a recorder with a pointee behind an argument that is masked to 0 (the address of a local, which the log therefore does not hold). `--record` stops at the first case with `0x0 is outside RAM and the scratchpad`. `func_80167388`.
 - The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_80166144`, `func_8016b788`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:

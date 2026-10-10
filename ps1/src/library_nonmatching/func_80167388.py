@@ -15,16 +15,19 @@ Choices of the setup:
     count and three random bytes;
   - the 32 bytes that the tone-record recorder hands out are random;
   - all five callees are recorders (arguments 3, 4, 4, 2, 18); the program
-    header and tone-record recorders have a tail that writes the memory
-    named above and are models of the contract's author; the log watches the
-    whole record (43 words) and has room for 2,500 words;
+    header and tone-record recorders have a fill each (data of the contract,
+    stored through the pointer argument at every call; models of the
+    contract's author); the log watches the whole record (43 words) and has
+    room for 2,500 words;
   - SsUtSetVagAtr logs the 8 words behind its tone-record pointer, and the
     pointer itself is not logged (mask 0); _SsSndSetVabAttr logs the three
     s16 arguments, idx and attr and no word of the two records passed by
     value (masks 0 on those words), _SsReadDeltaValue returns a random word.
 """
 
-from contracts import A2, A3, JR_RA, T0, T2, CallLog, Contract, Setup, lui, lw, ori, sw
+import struct
+
+from contracts import CallLog, Contract, Setup
 
 RECORD = 172
 
@@ -53,18 +56,13 @@ def setup(state, rng, sym):
 
     tones = rng.randrange(7)
     word = tones | rng.getrandbits(24) << 8
-    vag = state.alloc(32)
-    for offset in range(0, 32, 4):
-        state.w32(vag + offset, rng.getrandbits(32))
+    vag = struct.pack("<8I", *(rng.getrandbits(32) for _ in range(8)))
 
     log = CallLog(state, words=2500, watch=((score, RECORD // 4),))
     log.replace(sym["SsUtGetProgAtr"], 3, 0, masks={0: 0xFFFF, 1: 0xFFFF, 2: 0},
-                tail=(lui(T2, word), ori(T2, T2, word), sw(T2, 0, A2), JR_RA, 0))
-    fill = [lui(T0, vag), ori(T0, T0, vag)]
-    for index in range(8):
-        fill += [lw(T2, 4 * index, T0), 0, sw(T2, 4 * index, A3)]
+                fills=((0, 2, 0, struct.pack("<I", word)),))
     log.replace(sym["SsUtGetVagAtr"], 4, 0, masks={0: 0xFFFF, 1: 0xFFFF, 2: 0xFFFF, 3: 0},
-                tail=tuple(fill + [JR_RA, 0]))
+                fills=((0, 3, 0, vag),))
     log.replace(sym["SsUtSetVagAtr"], 4, 0, masks={0: 0xFFFF, 1: 0xFFFF, 2: 0xFFFF, 3: 0}, pointees={3: 8})
     log.replace(sym["_SsReadDeltaValue"], 2, rng.getrandbits(32), masks={0: 0xFFFF, 1: 0xFFFF})
     masks = {index: 0 for index in range(3, 16)}

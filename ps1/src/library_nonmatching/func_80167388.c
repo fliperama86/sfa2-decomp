@@ -55,9 +55,10 @@
  *     at 0x88, as listed above.
  *   Callees: all five are replaced by recorders in both runs (they reach
  *     the sound library's tables): SsUtGetProgAtr (3 arguments; the
- *     recorder stands for it by writing a word with the tone count into
- *     prog), SsUtGetVagAtr (4; the recorder fills vag with 32 bytes that
- *     the setup chose), SsUtSetVagAtr (4; its vag is logged, 8 words),
+ *     recorder stands for it by a fill: at every call it stores a word with
+ *     the tone count through the third argument, into prog), SsUtGetVagAtr
+ *     (4; a fill through the fourth argument stores 32 bytes that the setup
+ *     chose into vag, at every call), SsUtSetVagAtr (4; its vag is logged, 8 words),
  *     _SsReadDeltaValue (2; returns a value that the setup chose) and
  *     _SsSndSetVabAttr (7 arguments, 18 words: the log holds its three
  *     s16 arguments, idx and attr; the words of the two by-value records,
@@ -67,7 +68,10 @@
  *     the real callees do to the sound library is outside the test: the two
  *     recorders that stand for a callee that fills memory are models
  *     written by the contract's author from how this function uses the
- *     result, not from the callees' code.
+ *     result, not from the callees' code. (Both used to be machine code of
+ *     the contract's own, a tail, that left v0 as the caller had it; as
+ *     fills they return 0 in v0. The five runs of the test gave the same
+ *     lines for both forms.)
  *   Aliasing: the score row, the table _ss_score and the recorders' blocks
  *     do not overlap.
  *   Excluded inputs: the tone count is 0 to 6; the channel byte is 0 to 15;
