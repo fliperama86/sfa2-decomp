@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "a8969ca8c9566398e76ec1f448d5775d6045262bf6ede84364b43f91b06d377e",
+  "sha256": "1ec3d9a3b80976d8dc6b65b05b01c1b5e74e61d2f942eaf0aa02d7b318f79cf1",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -625,6 +625,10 @@
     {
       "title": "Nonmatching C for the other modules, the rest: thirty-one functions (2026-10-10)",
       "line": 9359
+    },
+    {
+      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
+      "line": 9435
     }
   ]
 }

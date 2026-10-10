@@ -9431,3 +9431,55 @@ No function count changes here: none of this is in the build.
   weakness, by a search of the contracts' recorder results in this
   folder and the resident one: the others return 0, a whole random
   word, or a result the function stores without testing it.
+
+## Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)
+
+- Added: `port/overrides/` takes five more pairs (`NAME.c` with its contract
+  and the evidence in the header, `NAME.py` the contract as code):
+  `func_80146794`, `func_8001385c_slot01`, `func_801b12bc_slot04_0f`,
+  `func_800205b4_slot28`, `func_8001714c_slot28`. Each passes the
+  argument that the callee reads. In four of them a call lies before, so the
+  register holds what that call left in it; in `func_80146794` the earlier
+  callee `func_80131094` leaves the word at 0x18 of the object in it on one
+  of its three paths, and the override passes that word (read before the
+  call) on that path and the object on the others. The folder's page gained a
+  column for what lies before the call and a paragraph on why the earlier
+  callees run as original code in the test; its three printed blocks and the
+  port page's build block (`functions overridden in C: 10`) are from the runs
+  below. No file under `ps1/` and no tool changed.
+- Read in the listings (Ghidra client, read tools): the callee's reading
+  instruction, and every earlier callee to its return: `func_80131094` (one
+  return, writes `a0` only at 801310c4 and 801310f4), the three entries of
+  `data_80015a64_slot01`, the two of `data_800306cc_slot28` and the leaf
+  `func_80020608_slot28`. The survey's report agreed with each. The lengths
+  of the two tables are inferred from the word after the last entry.
+- Ran, from `ps1/src/slot06_nonmatching/`, seeds 1 and 7 with 2,000 cases, all
+  nine functions: the test `different 0` with no discarded case, the control
+  above 0 for every function, the write audit `outside 0`. The setups run
+  every earlier callee as original code, and a private check (not committed)
+  showed that the cases execute every instruction slot of `func_80131094`,
+  of the three entries and the leaf they call, of the two entries of the other
+  table, and of `func_80020608_slot28`. The new controls alter the word `move
+  a0,s0` in the delay slot of the call (the build of these five has no empty
+  delay slot there), not an empty one.
+- One more control for each, in a private copy of the folder: the same C with
+  the argument replaced by the object plus 4 differs in all 2,000 cases (1,592
+  for `func_801b12bc_slot04_0f`); for `func_80146794` the C that always passes
+  the object differs in 654 of 2,000 and the C that always passes the word at
+  0x18 in 1,346, so the test tells the paths apart. The name lint of the
+  nonmatching batches (`b_nm_lint.py`) reports 0 names; the batch script
+  itself cuts functions out of a revision and was not run.
+- The build (`hostbuild.py --list`) ends with status 0, `linked ... verified`,
+  and the five among the `override:` lines. The count is 10 for nine
+  functions: the character module's function is placed a second time in its
+  `like` image, `slot05_0f`.
+- Not shown: that the PC program runs on with them (no run of it with a disc
+  image); that the tables have no further entries (the lengths are inferred);
+  the contents of the data the entries read, which the setups choose. The
+  sentence on `port/README.md` that says the build counts functions "of the
+  resident program" was not changed (outside the lines this work owned) and
+  is now too narrow.
+- Open, from the same survey, not solved by an override of the caller alone:
+  sites 7, 9, 10 and 11 (a register whose value comes from far up the call
+  chain; where it comes from is not determined). Sites 6, 8 and 12 need
+  nothing if the tables' lengths are as inferred.
