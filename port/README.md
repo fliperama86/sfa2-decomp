@@ -1837,18 +1837,22 @@ them, they need the user's disc):
   to its log on the error stream at the start (`[I][psyz/src/psyz/psyz_spu.c:50][Psyz_SpuInit] SPU emulation initialized`),
   from the call that starts its model of the chip.
 
+Both starts above were made on the commit before main's change of the
+disc's rate was merged in. On the head with it, a start of each build, 40
+seconds, not traced (one-off, the same private input): no line began
+`refused` or `stop`, each printed 2 lines `skipped: Exec of z2o.exe` (the
+game's attract cycle came round twice) and was ended by the time limit.
+
 A known fault, not fixed here. The game reads a stream from the disc into
 a ring of seven sectors and empties it once in each pass of its main
-loop. When a pass takes longer than the disc's deliveries allow, the ring
-is lapped. If the sectors lost were a sound bank's, the library does not
-recover and the game restarts its load
-for ever. On the base of this change, `port/src/cd.c` delivers three
-sectors at every vblank, which is more than the console's drive (150 a
-second); main has since changed `cd.c` to the console's rate, and the ring
-can still be lapped when a pass takes several frames. The private trial
-that this follows saw the hang with repeated loads, left at the title with
-no input. The disc's pace is the subject of a later change; nothing here
-makes the game wait for it.
+loop. When a pass takes several frames, the ring is lapped. If the
+sectors lost were a sound bank's, the library does not recover and the
+game restarts its load for ever. `port/src/cd.c` delivers at the
+console's rate (its header, "Timing"), and that does not prevent this.
+The private trial that this follows saw the hang with repeated loads,
+left at the title with no input, most often while a full trace slowed
+the game. Nothing here makes the disc wait for the game; that is the
+subject of a later change.
 
 ## Not decided
 

@@ -64,3 +64,11 @@
   `WaitEvent` is not bounded.
 - Did not do: any audio output, XA, the disc layer, the trial's
   histograms. The disc's pace is a known fault, stated in the page.
+- After main's change of the disc's rate (pull request 179) was merged
+  in: `python3 port/tools/test_hostiopage.py --cc CC --psyz-build DIR`
+  and `tools/ai_workflow/tests/test_workflow.py` were run again (their
+  lines are in the pull request), and each build was started once more
+  with the disc, 40 seconds, not traced (one-off): no line beginning
+  `refused` or `stop`, 2 lines `skipped: Exec of z2o.exe` each. The
+  page's paragraph on the known fault was reworded for the rate main
+  now has.
