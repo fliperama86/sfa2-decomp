@@ -47,7 +47,12 @@ the region the comparison leaves out, and the 16 bytes from the initial stack po
 [STACK_TOP, STACK_TOP + 16): under the calling convention (o32) they are the callee's argument
 home area, where it may spill a0 to a3. The comparison still compares those 16 bytes; only the
 audit does not count them. Memory that the setup made stays made wherever it lies, in the home
-area too. The scratchpad has no such region.
+area too. The scratchpad has no such region. `owns` and `read`
+refuse a negative size, and `alloc` a negative size or a block that does not fit the arena,
+before they change anything; every method refuses a span that does not lie inside the RAM or
+the scratchpad; a span of no bytes is valid and makes nothing. The record
+of what was made has one mark per byte of RAM and of scratchpad, and the audit refuses a state
+whose record has another size.
 
 What the audit does not see: a store of the value that is already there changes no byte, so
 it is not counted; reads are not audited; "made" says that the setup touched or allocated the
@@ -125,6 +130,8 @@ class State:
         self.made_scratch = bytearray(SCRATCH_SIZE)
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
+        if size < 0:
+            raise ValueError(f"size {size} is negative")
         if RAM_BASE <= address and address + size <= RAM_BASE + RAM_SIZE:
             return self.ram, address - RAM_BASE
         if SCRATCH_BASE <= address and address + size <= SCRATCH_BASE + SCRATCH_SIZE:
@@ -137,6 +144,8 @@ class State:
         self._mark(block, offset, len(data))
 
     def _mark(self, block: bytearray, offset: int, size: int) -> None:
+        # `_locate` has refused a negative size and a span outside the memory: a slice with a negative end
+        # would shrink or shift the record instead of marking it.
         made = self.made_ram if block is self.ram else self.made_scratch
         made[offset : offset + size] = b"\1" * size
 
@@ -160,10 +169,13 @@ class State:
 
     def alloc(self, size: int) -> int:
         """A zero-initialised block of free RAM, word aligned. The block is made; the padding after it is not."""
+        if size < 0:
+            raise ValueError(f"size {size} is negative")
         address = self.arena
-        self.arena = (self.arena + size + 3) & ~3
-        if self.arena > ARENA_END:
+        end = (address + size + 3) & ~3
+        if end > ARENA_END:
             raise ValueError("the setup needs more free RAM than the arena holds")
+        self.arena = end
         self.owns(address, size)
         return address
 
@@ -491,6 +503,8 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
 def outside_addresses(state: State, final: dict) -> list[int]:
     """The addresses of the bytes that the run changed and that are neither made nor in the stack region."""
     low, high = STACK_LOW - RAM_BASE, STACK_TOP + HOME_AREA - RAM_BASE
+    if len(state.made_ram) != RAM_SIZE or len(state.made_scratch) != SCRATCH_SIZE:
+        raise InputError("the record of what the setup made has another size than the memory it describes")
     found = []
     for base, before, after, made, skip in ((RAM_BASE, state.ram, final["ram"], state.made_ram, (low, high)),
                                             (SCRATCH_BASE, state.scratch, final["scratch"], state.made_scratch, (0, 0))):
