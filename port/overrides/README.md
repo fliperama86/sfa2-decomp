@@ -118,17 +118,19 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_8001385c_slot01`, `func_8001714c_slot28`, `func_800205b4_slot28`, `func_80146794`.
 - The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_800e12cc_slot0f`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_8001385c_slot01`, `func_8001714c_slot28`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
+func_800205b4_slot28 replay: fixtures 2, passed 2, failed 0
 func_800e11e4_slot0f replay: fixtures 6, passed 6, failed 0
 func_800e1250_slot0f replay: fixtures 12, passed 12, failed 0
 func_8012126c replay: fixtures 2, passed 2, failed 0
 func_801212c8 replay: fixtures 1, passed 1, failed 0
 func_801212e8 replay: fixtures 1, passed 1, failed 0
+func_80146794 replay: fixtures 3, passed 3, failed 0
 func_8014dcc0 replay: fixtures 12, passed 12, failed 0
 func_801b12bc_slot04_0f replay: fixtures 2, passed 2, failed 0
 ```
