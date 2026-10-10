@@ -276,19 +276,36 @@ int port_h_GetRCnt(unsigned spec)
 
 /* ---- the pads (InitPAD / StartPAD) ---- */
 
+/* The buffers are the game's: InitPAD gives their addresses and lengths, and the vblank writes into them from then
+ * on, so each is checked when it is given. */
 static unsigned char *pad_buffer[2];
 static int pad_len[2];
 static int pad_started;
+static unsigned pad_word_last;      /* the word of port 1 at the last vblank, for the trace */
+static int pad_no_controller_said;
 
-/* BIOS B0 12h InitPAD(buf1, len1, buf2, len2): the BIOS reads the pads every
- * vblank into these two buffers. Returns 1. */
+/* A buffer is acceptable when it is null (nothing is written), has length 0 (nothing is written) or lies whole inside
+ * the game's memory (port_game_span: the RAM, the scratchpad, the running stack). A negative length is refused. */
+static void pad_check(int port, const void *buffer, int len)
+{
+    if (len < 0)
+        port_halt(PORT_EXIT_OTHER, "InitPAD: the length %d of the buffer of port %d is negative", len, port);
+    if (buffer && len > 0 && !port_game_span(buffer, (size_t)len))
+        port_halt(PORT_EXIT_OTHER, "InitPAD: the buffer of port %d (0x%08x, %d bytes) is not inside the game's memory", port, (unsigned)(size_t)buffer, len);
+}
+
+/* BIOS B0 12h InitPAD(buf1, len1, buf2, len2): the BIOS reads the pads every vblank into these two buffers once
+ * StartPAD has been called. Returns 1. Nothing is written here. Both buffers are checked before either is kept. */
 int port_h_InitPAD(void *buf1, int len1, void *buf2, int len2);
 int port_h_InitPAD(void *buf1, int len1, void *buf2, int len2)
 {
+    pad_check(1, buf1, len1);
+    pad_check(2, buf2, len2);
     pad_buffer[0] = buf1;
     pad_len[0] = len1;
     pad_buffer[1] = buf2;
     pad_len[1] = len2;
+    port_pad_host_init();
     return 1;
 }
 
@@ -309,17 +326,34 @@ int port_h_ChangeClearPAD(int flag)
     return 0;
 }
 
-/* Port 1 is a digital pad with no button pressed, in the BIOS's documented format (status 0, kind 0x41, two
- * bytes of buttons, a 0 bit for a pressed button). Port 2 is empty: 0xff, the BIOS's "no controller". */
+/* At each vblank after StartPAD (nothing before it): port 1's buffer gets the frame of port_pad_host_read (input.c) with
+ * the input script's buttons pressed on it; port 2 is empty, 0xff, the BIOS's "no controller". A buffer is written up to
+ * the BIOS's frame size (PORT_PAD_FRAME) and no further. With tracing on, a line when the word that the game builds from
+ * port 1's buffer changes (~(byte3 | byte2 << 8), a 1 bit for a pressed button; 0 when the frame is not a digital pad's). */
 static void pads_fill(void)
 {
     if (!pad_started) return;
     if (pad_buffer[0] && pad_len[0] > 0) {
-        memset(pad_buffer[0], 0, (size_t)pad_len[0]);
-        if (pad_len[0] > 1) pad_buffer[0][1] = 0x41;
-        if (pad_len[0] > 3) pad_buffer[0][2] = pad_buffer[0][3] = 0xff;
+        unsigned char *b = pad_buffer[0];
+        int n = pad_len[0] < PORT_PAD_FRAME ? pad_len[0] : PORT_PAD_FRAME;
+        port_pad_host_read(b, n);
+        if (n > 3) {
+            unsigned word = 0;
+            if (b[0] == 0 && b[1] == 0x41) {
+                port_input_apply(b, total_frames);
+                word = (~(b[3] | (b[2] << 8))) & 0xffffu;
+            } else if (port_input_loaded() && !pad_no_controller_said) {
+                pad_no_controller_said = 1;
+                printf("pad: port 1 reports no controller, so the buttons of the input script are not applied\n");
+                fflush(stdout);
+            }
+            if (word != pad_word_last) {
+                port_trace_line("pad frame %u: 0x%04x -> 0x%04x", total_frames, pad_word_last, word);
+                pad_word_last = word;
+            }
+        }
     }
-    if (pad_buffer[1] && pad_len[1] > 0) memset(pad_buffer[1], 0xff, (size_t)pad_len[1]);
+    if (pad_buffer[1] && pad_len[1] > 0) memset(pad_buffer[1], 0xff, (size_t)(pad_len[1] < PORT_PAD_FRAME ? pad_len[1] : PORT_PAD_FRAME));
 }
 
 /* ---- callbacks ---- */

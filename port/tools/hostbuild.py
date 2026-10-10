@@ -252,12 +252,13 @@ The graphics library
 --------------------
 
 With `--psyz DIR` (DIR is a build folder of `psyzbuild.py`, which holds
-`psyz.json`) the runtime's `gpu.c` is compiled with `-DPORT_HAVE_PSYZ`,
-PsyZ's defines and `-isystem` its include folder, and the link line gets
-PsyZ's libraries (its static library, SDL's and the system libraries, in the
-order the file lists them) after the objects. No other runtime file sees
-PsyZ's headers. Without the option `gpu.c` compiles to empty tables and the
-program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
+`psyz.json`) the runtime's `gpu.c` and `input.c` are compiled with
+`-DPORT_HAVE_PSYZ`, PsyZ's defines and `-isystem` its include folder, and the
+link line gets PsyZ's libraries (its static library, SDL's and the system
+libraries, in the order the file lists them) after the objects. No other
+runtime file sees PsyZ's headers. Without the option `gpu.c` compiles to empty
+tables, `input.c` reads no device (port 1 is a pad with no button pressed), and
+the program links nothing of PsyZ. A DIR without `psyz.json`, or one whose file
 is not valid or names a file that is missing, is an error (status 2). With the
 option the line `psyz: COMMIT` follows the `compiler:` line.
 
@@ -1386,7 +1387,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         obj = build / "rt" / f"{source.stem}.o"
         obj.unlink(missing_ok=True)
         extra: list[str] = []
-        if psyz and source.name == "gpu.c":
+        if psyz and source.name in ("gpu.c", "input.c"):
             extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
         proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
         if proc is None or proc.returncode != 0:

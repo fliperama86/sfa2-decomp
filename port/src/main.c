@@ -33,6 +33,8 @@
  *   if a round was still in flight when it returned it prints `stop: a suspension round was in flight when the stop returned`
  *   and ends with status 10; if a round began after the stop it prints `stop: a suspension round began after the stop` (status 10); and each direct ExitProcess checks that the stop was called before it, with the line
  *   `stop: the process was ended while suspensions were still allowed` (status 10). Without the option those checks are not made.
+ * --input FILE gives the pad buttons that a run presses, on top of what PsyZ reads (input.c); a line of the file that is not
+ *   valid refuses the start (status 2) with a line that names the file and the line number.
  * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * --dump-vram PREFIX writes the video memory to PREFIX_end.ppm at the end of any run; --dump-every N
@@ -96,6 +98,7 @@ int main(int argc, char **argv)
 {
     const char *disc_path = NULL, *trace_path = NULL, *dump_path = NULL;
     unsigned watchdog = 0, dump_every = 0;
+    const char *input_path = NULL;
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
@@ -114,23 +117,25 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--timer-burst") == 0) burst = 1;
         else if (strcmp(argv[i], "--dump-vram") == 0 && i + 1 < argc) dump_path = argv[++i];
         else if (strcmp(argv[i], "--dump-every") == 0 && i + 1 < argc) dump_every = (unsigned)atoi(argv[++i]);
+        else if (strcmp(argv[i], "--input") == 0 && i + 1 < argc && !input_path) input_path = argv[++i];
         else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
         else if (strcmp(argv[i], "--watchdog") == 0 && i + 1 < argc) watchdog = (unsigned)atoi(argv[++i]);
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
         else bad = 1;
     }
-    if (list && !bad && !disc_path && !trace && !trace_path) {
+    if (list && !bad && !disc_path && !trace && !trace_path && !input_path) {
         if (port_library_list(err, sizeof err) != 0) return refuse(err);
         return 0;
     }
     if (bad || list || !disc_path) {
-        printf("usage: %s [--trace --trace-file FILE] DISC (a .cue or the .bin itself)\n       %s --list-library\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--trace --trace-file FILE] [--input FILE] DISC (a .cue or the .bin itself)\n       %s --list-library\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");
     port_trace_set(trace_file);
+    if (input_path && port_input_load(input_path, err, sizeof err) != 0) return refuse(err);
     port_debug_set(dump_path, dump_every);
     port_debug_watchdog(watchdog);
     atexit(port_debug_end);
@@ -160,6 +165,7 @@ int main(int argc, char **argv)
     if (port_library_install(ram, &installed, err, sizeof err) != 0) return refuse(err);
     printf("library: %u host routines, %u left that stop\n", installed.host, installed.stops);
     printf("overrides: %u\n", installed.overrides);
+    port_pad_print_keys();
     fflush(stdout);
 
     if (port_entry_gp(ram, prog.pc0, &gp) != 0) return refuse("start: no lui/addiu of gp among the first 64 instructions at the entry");

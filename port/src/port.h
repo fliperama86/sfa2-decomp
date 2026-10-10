@@ -230,6 +230,15 @@ unsigned port_frames(void);                /* kernel.c: vblanks since the start 
 extern struct port_disc *port_disc_handle;
 extern int port_skip_programs;
 
+/* input.c: the pads (see the file). The BIOS's frame of one controller is PORT_PAD_FRAME bytes. */
+#define PORT_PAD_FRAME 34
+void port_pad_host_init(void);                               /* once per InitPAD */
+void port_pad_host_read(unsigned char *dst, int len);        /* port 1's frame, the first min(len, PORT_PAD_FRAME) bytes */
+void port_pad_print_keys(void);                              /* one line at start when PsyZ is linked, else nothing */
+int  port_input_load(const char *path, char *err, size_t errsize);   /* --input FILE: 0, or -1 with a line that names the file and line */
+int  port_input_loaded(void);
+void port_input_apply(unsigned char *frame, unsigned vblank);        /* press the script's buttons held at that vertical blank on a digital pad frame */
+
 /* threads.c */
 /* The gp that the entry code loads (lui/addiu), from the loaded memory. */
 int  port_entry_gp(const unsigned char *ram, unsigned pc0, unsigned *gp);
