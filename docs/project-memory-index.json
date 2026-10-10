@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "fc7f99270520f5aa149fe7277256f29417cded78b1df9fe0d6f8ddfd60a1ae7c",
+  "sha256": "b48d8a802257f31d40caed2af1bb773d2e1a3b661a53d985a3652057d1cda969",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -637,6 +637,10 @@
     {
       "title": "The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)",
       "line": 9550
+    },
+    {
+      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "line": 9586
     }
   ]
 }

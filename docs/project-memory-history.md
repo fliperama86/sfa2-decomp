@@ -9582,3 +9582,62 @@ No function count changes here: none of this is in the build.
   `func_800e0850_slot0f`, `func_800e0a1c_slot0f`).
 - Not run: the whole matching build, the other functions' tests, the
   repository's review command (`docs/efficiency.md`).
+
+## The last two module functions without C, and three overrides that return the result (2026-10-10)
+
+- `func_800e0850_slot0f` and `func_800e0a1c_slot0f` (inferred: a save
+  and a load of a memory-card file) are nonmatching C in
+  `ps1/src/modules_nonmatching/`, with contracts and tests. Their C
+  came from the staging branch and was fitted to main: the headers
+  `protos.h` and `externs.h` are included; the data symbols follow
+  main's declarations (`u8 []` for `data_800df0f0_slot0f` and
+  `data_800df0f8_slot0f`, `u8 *` for `data_800e8504_slot0f`, with a
+  cast to the header record where the first function uses it); the
+  second parameter of `func_800e0850_slot0f` is `s16 *` as in main's
+  declaration in `slot0f_171c_r3.c`, cast to `char *` where it is the
+  name string; the calls of the three retry loops, defined `void` in
+  their exact units, go through a cast of the callee to a type that
+  returns the result, with a comment that says why. The contracts'
+  recorders of the retry loops answer whole words, and the values that
+  decide a test (-1, other negative words, 0, positive words, words
+  with a low byte or halfword of ones) are drawn often. The headers'
+  figures of the build were replaced by the byte counts that the
+  folder's first command prints (412 against 460, 276 against 300),
+  because the earlier sentences about registers could not be read off
+  the files. Lines on the folder's page, which is now in the form of
+  the resident folder's page: `different 0` on seeds 1 and 7 for both,
+  115 of 115 and 75 of 75 instruction slots executed, the control
+  (585 and 314 of 2,000 differ) and the write audit (`outside 0`).
+  The declarations check, run with the two files named, reports no
+  finding.
+- `port/overrides/` has three more: `func_800e11e4_slot0f`,
+  `func_800e1250_slot0f`, `func_800e12cc_slot0f`. Each is its unit's
+  exact C with the result of `open`, `read` or `write` returned. The
+  original's callers read the result register after the call
+  (`move s0,v0` at 0x800e0924, 0x800e0944, 0x800e0968 and 0x800e0adc;
+  `bltz v0` at 0x800e0b00; `bne v0,v1` at 0x800e09d4, read in the
+  listing of the module image), and on the console the register still
+  holds the library call's result, since no instruction between that
+  call's return and the function's `jr ra` writes it. Their tests use
+  recorders for the library call and for `func_8015fb30`, with a script
+  of results that ends the loop at the first try, at a later try and
+  never (0x78 tries). Lines on the folder's page: `different 0` on
+  seeds 1 and 7, built size equal to the original's (108, 124 and 124
+  bytes), all instruction slots executed, the control (the build
+  returns its result plus 1: 2,000 of 2,000 differ for each), the
+  write audit `outside 0`. The page has a second table for these three
+  and the sections "Testing one function" and "The recorded lines".
+- The port's build once (`hostbuild.py --list`): status 0, 0 failed,
+  `linked: ..., verified`, `functions overridden in C: 13` (the twelve
+  files of the folder, and the function of `slot04_0f` counted again
+  for its second placement in `slot05_0f`; the `slot0f` ones have none).
+  The two functions are not among the `absent:` lines; two remain, the
+  entry code (`func_80118908`) and `func_80120604`, which waits on its
+  own pull request. The build block of `port/README.md` is that run's.
+- Not shown: that the callers' reading of the result register is
+  all the original relies on (other callers of the three loops were
+  not searched); a gameplay or boot run; the exact units were not
+  touched, and the matching build was not run. The sentence in the
+  "Overrides in C" bullet of `port/README.md` that says what the
+  folder's functions have in common names only the argument kind and
+  was left as it was.
