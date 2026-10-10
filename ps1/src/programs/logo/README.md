@@ -106,6 +106,10 @@ func_80010f38_logo: built 164 bytes, original 140 bytes; cases 2000, discarded 0
 func_80010f38_logo coverage: 35 of 35 instruction slots of the original executed
 func_80010f38_logo: built 164 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010f38_logo coverage: 35 of 35 instruction slots of the original executed
+func_800110f4_logo: built 220 bytes, original 220 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800110f4_logo coverage: 55 of 55 instruction slots of the original executed
+func_800110f4_logo: built 220 bytes, original 220 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800110f4_logo coverage: 55 of 55 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -122,6 +126,7 @@ The negative control (`--control`):
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
+func_800110f4_logo control: different 1463 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
@@ -135,6 +140,8 @@ func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800110f4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800110f4_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -150,6 +157,8 @@ func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010f20_logo replay: fixtures 1, passed 1, failed 0
 func_80010f38_logo fixtures: kept 4 of 2000 cases (slots 2, edges 2, results 0)
 func_80010f38_logo replay: fixtures 4, passed 4, failed 0
+func_800110f4_logo fixtures: kept 3 of 2000 cases (slots 1, edges 2, results 0)
+func_800110f4_logo replay: fixtures 3, passed 3, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
 func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -179,3 +188,9 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   rectangle 24 pixels right and, while its x is below 480, asks for the next
   strip (`DecDCTout`) and sets the word at `0x8002eb3c` to 1, else to 0. The
   three callees are recorders in the test.
+- `func_800110f4_logo`: expands run-length data (the format is in the header of
+  the `.c`, read from the listing): a table of three-byte entries (a0) and a
+  stream of 16-bit codes ended by `0xffff` (a1); a code with bit 15 clear adds
+  a table entry to the running color and writes it, a code with bit 15 set
+  writes the running color that many times. The output pointer is the word at
+  `0x8002eb10`. The test's streams have at most 12 codes of at most 6 repeats.
