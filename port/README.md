@@ -961,8 +961,67 @@ routines that do nothing on purpose. What is in this piece:
 - `--dump-vram PREFIX` writes the frame buffer as a picture file when
   the program ends, and `--dump-every N` every N seconds.
 
-Not in this piece: the pads and the modules. Their functions are
-among those that stop.
+- The pads. `InitPAD` gives the BIOS two buffers and `StartPAD` starts
+  the reading; from then on, at every vertical blank, port 1's buffer
+  receives the BIOS's frame of a digital pad (status byte 0, kind 0x41,
+  two bytes of buttons in which a 0 bit is a pressed button) and port
+  2's receives 0xff, the BIOS's "no controller". Nothing is written
+  before `StartPAD`, and a buffer is written up to the 34 bytes of a
+  controller's frame and no further. The buffers are the game's, so each
+  is checked when `InitPAD` gives it: a null buffer and a length of 0
+  are served without a write, a negative length is refused, and any
+  other buffer must lie whole in the game's memory by the rule given
+  above for the graphics (the RAM, the scratchpad, the live part of the
+  running stack); otherwise the run ends with `stop: InitPAD: ...`, status
+  9, before any byte is written. Reading the devices is
+  PsyZ's: with PsyZ linked (`hostbuild.py --psyz`) `InitPAD` calls PsyZ's
+  `PadInit(0)`, which starts SDL's game controller handling and marks
+  PsyZ's pads initialised, and every vertical blank calls
+  `Psyz_PadsPoll()` and then `Psyz_PadsGet(0, ...)`. The poll is made
+  here because `Psyz_PadsGet` polls the devices only once by itself and
+  then hands out the same frame until PsyZ's own `VSync` clears its flag,
+  and this program never calls that `VSync`. Without PsyZ port 1 is a
+  digital pad with no button pressed. With PsyZ linked the start prints
+  one line after the `overrides:` line that names the keys of PsyZ's table
+  for port 1 (`pad: keys: W = L2, ...`; a game controller works as well);
+  the control reads PsyZ's table and button definitions from its source
+  and compares the line with them. A known limit, not worked around: PsyZ
+  reads the keyboard for port 1 only when SDL reports that a keyboard
+  exists, and in a Windows Remote Desktop session SDL reported none
+  (a probe of 2026-10-10, not a published command); key events still
+  arrive there (Escape ends the program) but no key is a button, so
+  without a game controller PsyZ's frame says "no controller" and the
+  game sees none. The keyboard is not read beside PsyZ.
+- The input script. `--input FILE` presses and releases buttons at
+  frames of the port's own clock, on top of what PsyZ gave (a pressed
+  bit is 0 in the buffer), so it does not depend on the window's focus
+  or the host's speed. A line is `SECONDS BUTTON down`, `SECONDS BUTTON
+  up` or `repeat SECONDS EVERY BUTTON`; blank lines and lines that start
+  with `#` are skipped. SECONDS and EVERY are decimal numbers (digits and
+  one point); a time is the frame `round(SECONDS * 60)`, the frame being
+  the number of the vertical blank since the program started (the first
+  is 1). The times do not go backwards (compared as frames, so two times
+  that round to one frame are in order). BUTTON is one of `start select
+  up down left right cross circle square triangle l1 r1 l2 r2 l3 r3`. A
+  button is held from its `down` line to its `up` line; a `repeat` line
+  holds BUTTON for 4 frames every EVERY seconds (at least 0.1) from its
+  time up to, not including, the time of the next line that is not a
+  `repeat` line, or for an hour if there is none; at one frame the steps
+  apply in the order of the lines. A vertical blank presses every button
+  whose last step is `down` and not later than its frame. A script that
+  is empty or holds only comments, a file over 1 MB, a line over 200
+  characters, a NUL byte, a script of over 1,000,000 steps, and every
+  line that is not of these forms refuse the start (status 2) with one
+  line that names the file and the line number, before anything else is
+  printed. When PsyZ's frame says "no controller" the script presses
+  nothing, and one line says so the first time. With `--trace`, a line
+  `pad frame N: 0x.... -> 0x....` goes to the trace file when the word
+  that the game builds from port 1's buffer (`~(byte3 | byte2 << 8)`, a 1
+  bit for a pressed button) changes; a frame that says "no controller"
+  gives the word 0.
+
+Not in this piece: the modules. Their functions are among those that
+stop.
 
 ### The console's copy of RAM at address 0
 
@@ -1047,6 +1106,13 @@ not that function).
   commit. The build tool also writes each image's archive names into
   its tables, and its header names `modules.c` for them: that file is
   not in this tree yet.
+- Anything about the pads on the real game or a real device: the controls
+  run the pad routines on made-up game code with a stand-in of this
+  file's own for PsyZ's three routines, so no key, controller or window
+  was involved, and nothing here shows that PsyZ's real routines give
+  the frames the stand-in gives. The line of keys is compared with
+  PsyZ's source, not with a keypress. The script has been run against
+  that stand-in and the build without PsyZ only.
 - Linux and macOS: the memory mapping is written for Windows only.
 - Anything about the real game's accesses to the copy: the controls use
   made-up game code.
@@ -1131,6 +1197,32 @@ run on SDL's offscreen video driver: PsyZ and its device work, the
 picture is read back, and no window is made. Nothing is stopped by
 name: two runs of this file on one machine do not touch each other's
 programs.
+`python3 port/tools/test_hostpads.py --cc CC --psyz-build DIR` builds the
+runtime twice, without PsyZ and with `input.c` compiled for it and a
+stand-in object that defines `PadInit`, `Psyz_PadsPoll` and
+`Psyz_PadsGet` (it counts the calls, makes the frame depend on the number
+of polls, and like PsyZ's polls once by itself when no poll came before);
+no case starts PsyZ's window or reads a device. Made-up game code records
+port 1's buffer in a vertical-blank handler and prints it. Its cases:
+nothing is written before `StartPAD` and the buffer is written at every
+vertical blank after it, with the poll once per blank and before the
+fetch, the fetch for port 1 only, and port 2 filled with 0xff; every
+length from 0 to beyond the frame's size, for both buffers, in both
+builds; a buffer in the low mirror, above the RAM, ending past the RAM
+or the scratchpad, a negative length and the smallest one, each for
+port 1 and port 2, ending the run before a write, and a buffer ending at
+the last byte, a length of 0 with a wild address and null buffers served;
+the trace line, also to 0 for "no controller"; a script pressing and
+releasing at the exact frames on top of the stand-in's buttons and in
+the build without PsyZ, with a `repeat` line and its end, with the steps
+of one frame in order; the script on a frame that says "no controller";
+each kind of malformed line, an empty file, a file of comments, a file
+that is too large, one that is missing and a folder; the options that go
+with `--input`; and the line of keys, printed only with PsyZ and equal to
+the line made from PsyZ's source. The game cases run with the timer on,
+with `--no-interrupt` and with `--timer-burst`, which must print none of
+its lines. Without `--psyz-build` the case for the keys line is skipped
+with a line that says so.
 `test_hostrun.py` also reads file tables made to break the reader: a
 record that runs past its sector, a name past its record, a directory
 extent beyond the image, a folder too large; a file that starts beyond
