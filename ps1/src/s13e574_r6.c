@@ -12,8 +12,8 @@ int func_8013ee80(Object *object, int index, u8 arg) {
 void func_8013eed4(Object *object, int index, int arg) {
     u8 v = object->slots[(u8)index].field_00;
     object->slots[(u8)index].field_01 = 1;
-    *(u8 *)&object->slots[(u8)index].field_02 = 0;
-    *((u8 *)&object->slots[(u8)index].field_02 + 1) = 1;
+    object->slots[(u8)index].field_02 = 0;
+    object->slots[(u8)index].field_03 = 1;
     object->slots[(u8)index].field_04 = 0;
     object->slots[(u8)index].field_05 = 1;
     object->slots[(u8)index].field_06 = 0;

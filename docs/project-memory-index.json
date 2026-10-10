@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "1026b7c7d0d478a7ce6026d156830a327dbfd344c1b6b68c3ad3efd01a4493cc",
+  "sha256": "b2bc786e14bfcebab81d8431539766042c918ef0261eb4821b9b48afcfb6f0b9",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -535,32 +535,36 @@
       "line": 8234
     },
     {
-      "title": "Windows reference",
+      "title": "The slot's third and fourth bytes are bytes, and one more function exact with that (2026-10-10)",
       "line": 8279
     },
     {
+      "title": "Windows reference",
+      "line": 8325
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8296
+      "line": 8342
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8321
+      "line": 8367
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8378
+      "line": 8424
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8463
+      "line": 8509
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8577
+      "line": 8623
     },
     {
       "title": "The program always ends when the game's thread ends it (2026-10-10)",
-      "line": 8590
+      "line": 8636
     }
   ]
 }

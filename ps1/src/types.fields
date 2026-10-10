@@ -53,7 +53,8 @@ struct BoxTables size=0x14
 struct Slot size=0x8
 0x000 u8 field_00
 0x001 u8 field_01
-0x002 u16 field_02
+0x002 u8 field_02
+0x003 u8 field_03
 0x004 u8 field_04
 0x005 u8 field_05
 0x006 u8 field_06
