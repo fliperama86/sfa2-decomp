@@ -138,3 +138,38 @@ A function with fewer slots executed than it has names the others in its
 header comment, with the reason why no input reaches them. The third
 block is the write audit: in how many cases the original changed memory
 that the function's setup did not make.
+
+## Fixtures
+
+A function that has fixtures has a file `FUNC.fixtures.json` beside its
+`FUNC.c`. Replay runs the C of the function on the recorded inputs and never
+runs the original code. It still needs the private inputs of the build
+configuration and the PS1 compiler. From the tool's folder
+(`ps1/src/slot06_nonmatching/`), for this folder and for one function:
+
+    python -B difftest.py --config ../build.toml --folder ../slot04b_nonmatching --replay
+    python -B difftest.py --config ../build.toml --folder ../slot04b_nonmatching --replay FUNC
+
+For a new or changed function, record once (the wide comparison, then the
+fixtures it keeps), then replay:
+
+    python -B difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --jobs 4 --record FUNC
+
+A pass is evidence for the recorded inputs. It is not the wide comparison and
+it is not equivalence. Details of the files are on the page of the tool's folder.
+
+Functions of this folder without a fixtures file, by reason:
+
+- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_801b0904_slot04_12`, `func_801b1a00_slot04_14`, `func_801b1b40_slot04_0e`, `func_801b248c_slot04_0f`, `func_801b24e0_slot04_17`, `func_801b24f0_slot04_11`, `func_801b27a0_slot04_17`, `func_801b27b0_slot04_11`, `func_801b2e8c_slot04_0e`, `func_801b339c_slot04_0e`, `func_801b4374_slot04_17`, `func_801b43e8_slot04_11`, `func_801b5e34_slot04_0e`, `func_801b81f8_slot04_14`.
+
+What the replay command of the folder printed on 2026-10-10, one line per function:
+
+```
+func_801b21f8_slot04_0f replay: fixtures 1, passed 1, failed 0
+func_801b2270_slot04_0f replay: fixtures 2, passed 2, failed 0
+func_801b34b8_slot04_17 replay: fixtures 4, passed 4, failed 0
+func_801b34e4_slot04_11 replay: fixtures 6, passed 6, failed 0
+func_801b4100_slot04_0e replay: fixtures 1, passed 1, failed 0
+func_801b420c_slot04_0e replay: fixtures 2, passed 2, failed 0
+func_801b4a3c_slot04_0e replay: fixtures 3, passed 3, failed 0
+```

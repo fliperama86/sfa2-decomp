@@ -1,0 +1,10 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000", "0x801ca640"], "callee": "func_801b2340_slot04_01", "pointees": {}, "returned": "0x00000000", "watched": [[[825, "00"]]]}], "case": 0, "ends_in_callee": false, "note": "slots: 27 new", "reads": [["0x8004003a", "00"], ["0x800400d4", "82"], ["0x80040339", "0e"]], "recorders": [{"arguments": 1, "at": "0x801b22ec", "callee": "func_801b22ec_slot04_03"}, {"arguments": 2, "at": "0x801b2340", "callee": "func_801b2340_slot04_01"}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040339", "00"]]},
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000"], "callee": "func_801b22ec_slot04_03", "pointees": {}, "returned": "0x00000000", "watched": [[[825, "ff"]]]}], "case": 5, "ends_in_callee": false, "note": "slots: 4 new", "reads": [["0x8004003a", "ff"], ["0x80040339", "d6"]], "recorders": [{"arguments": 1, "at": "0x801b22ec", "callee": "func_801b22ec_slot04_03"}, {"arguments": 2, "at": "0x801b2340", "callee": "func_801b2340_slot04_01"}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040339", "ff"]]}
+ ],
+ "format": 1,
+ "function": "func_801b2270_slot04_0f",
+ "recorded": {"cases": 2000, "comparison": "func_801b2270_slot04_0f: built 124 bytes, original 124 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

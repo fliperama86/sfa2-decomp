@@ -1,0 +1,10 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000"], "callee": "func_80130efc", "pointees": {}, "returned": "0xb057568d", "watched": [[]]}], "case": 0, "ends_in_callee": false, "note": "slots: 13 new", "reads": [["0x8004003a", "55"]], "recorders": [{"arguments": 2, "at": "0x801307e0", "callee": "func_801307e0"}, {"arguments": 1, "at": "0x80130efc", "callee": "func_80130efc"}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": []},
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000", "0x00000059"], "callee": "func_801307e0", "pointees": {}, "returned": "0x8753eeea", "watched": [[[7, "a6"], [20, "fb6f34b1"], [69, "01"], [80, "abece4c1"], [420, "50"]]]}], "case": 1, "ends_in_callee": false, "note": "slots: 23 new; edge: slot 6, immediate 0x1 against 0x2; edge: slot 6, immediate 0x1 against 0x0; edge: slot 21, immediate 0x1 against 0x2; edge: slot 21, immediate 0x1 against 0x0; edge: slot 23, immediate 0x1 against 0x2; edge: slot 23, immediate 0x1 against 0x0; edge: slot 24, immediate 0x32 against 0x33; edge: slot 24, immediate 0x32 against 0x31", "reads": [["0x80040007", "a5"], ["0x80040014", "9abadb93"], ["0x8004003a", "00"], ["0x80040050", "9f4aa7e2"], ["0x80040058", "0ca23ddf"], ["0x8004012a", "4f"]], "recorders": [{"arguments": 2, "at": "0x801307e0", "callee": "func_801307e0"}, {"arguments": 1, "at": "0x80130efc", "callee": "func_80130efc"}], "result": null, "same": [["0x80040045", "68"], ["0x800401a4", "05"]], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040007", "a6"], ["0x80040014", "fb6f34b1"], ["0x80040045", "01"], ["0x80040050", "abece4c1"], ["0x800401a4", "50"]]}
+ ],
+ "format": 1,
+ "function": "func_801b2560_slot04_00",
+ "recorded": {"cases": 2000, "comparison": "func_801b2560_slot04_00: built 144 bytes, original 144 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

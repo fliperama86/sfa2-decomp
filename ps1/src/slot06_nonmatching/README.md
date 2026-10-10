@@ -481,6 +481,72 @@ number of discarded cases of that run), and `uncovered.slots` the slots
 `+0x330..+0x348` of `func_801189c4`, which no case executes. A second record of
 each function wrote the same bytes.
 
+## Fixtures of this folder and the tool after recording them
+
+A function that has fixtures has a file `FUNC.fixtures.json` beside its
+`FUNC.c`. Replay runs the C of the function on the recorded inputs and never
+runs the original code. It still needs the private inputs of the build
+configuration and the PS1 compiler. From the tool's folder
+(`ps1/src/slot06_nonmatching/`), for this folder and for one function:
+
+    python -B difftest.py --config ../build.toml --replay
+    python -B difftest.py --config ../build.toml --replay FUNC
+
+For a new or changed function, record once (the wide comparison, then the
+fixtures it keeps), then replay:
+
+    python -B difftest.py --config ../build.toml --cases 2000 --jobs 4 --record FUNC
+
+A pass is evidence for the recorded inputs. It is not the wide comparison and
+it is not equivalence.
+
+Recording every published function found four faults of the tool, which are
+repaired. Replay keeps its call log clear of the watched blocks and of the
+words behind pointer arguments that it compares. A run, in every mode and for
+the original and the build alike, is ended at the call whose entry would not
+fit in the room of the contract's call log, and a case that ends so is
+discarded. Each altered run of `--edges` and of `--record` is made in a process
+of its own, so that an altered original that ends the emulator is counted and
+listed apart. An altered original has an instruction budget of its own, eight
+times the longest run of the unaltered original (at least 20,000
+instructions). `--edges` alters the original; `--control` alters the build.
+`--record` also looks at the first three cases for what refuses a function
+before it makes the altered runs, and it counts memory that a setup marked
+with `State.owns` (made, with the image's content) among the bytes that a
+file would publish.
+
+Functions of this folder without a fixtures file, by reason:
+
+- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_801e90a8_slot06_10`, `func_801e98c8_slot06_0c`, `func_801e98dc_slot06_07`, `func_801e998c_slot06_0d`, `func_801e9c80_slot06_0e`.
+- The cases read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`, `func_801e9738_slot06_0e`.
+- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_801e8bd8_slot06_08`.
+
+What the replay command of the folder printed on 2026-10-10, one line per function:
+
+```
+func_801e8dc4_slot06_00 replay: fixtures 1, passed 1, failed 0
+func_801e8dc8_slot06_05 replay: fixtures 4, passed 4, failed 0
+func_801e8df0_slot06_0a replay: fixtures 7, passed 7, failed 0
+func_801e8fec_slot06_11 replay: fixtures 5, passed 5, failed 0
+func_801e9080_slot06_00 replay: fixtures 4, passed 4, failed 0
+func_801e9114_slot06_12 replay: fixtures 6, passed 6, failed 0
+func_801e96fc_slot06_0b replay: fixtures 12, passed 12, failed 0
+func_801e9798_slot06_06 replay: fixtures 12, passed 12, failed 0
+func_801e9840_slot06_09 replay: fixtures 5, passed 5, failed 0
+func_801e9970_slot06_07 replay: fixtures 4, passed 4, failed 0
+func_801e99b4_slot06_04 replay: fixtures 9, passed 9, failed 0
+func_801e99c8_slot06_02 replay: fixtures 4, passed 4, failed 0
+func_801e9b54_slot06_08 replay: fixtures 4, passed 4, failed 0
+func_801e9bb0_slot06_0f replay: fixtures 3, passed 3, failed 0
+func_801e9d04_slot06_03 replay: fixtures 3, passed 3, failed 0
+func_801e9d14_slot06_0e replay: fixtures 12, passed 12, failed 0
+func_801e9ef4_slot06_10 replay: fixtures 5, passed 5, failed 0
+func_801e9f20_slot06_0d replay: fixtures 6, passed 6, failed 0
+func_801e9f90_slot06_01 replay: fixtures 3, passed 3, failed 0
+func_801ea3b4_slot06_08 replay: fixtures 2, passed 2, failed 0
+func_801ea640_slot06_0c replay: fixtures 5, passed 5, failed 0
+```
+
 ## Controls of the tool
 
     python test_difftest.py
