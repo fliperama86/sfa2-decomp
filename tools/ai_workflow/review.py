@@ -228,12 +228,38 @@ def summary_line(mode: str, name: str, output: str) -> str:
     return found[0]
 
 
+# The last line of a control file of this tree that passed, in the forms the files print: with no number, with the
+# number of cases, with the number of cases "that ran", and the number of tests with the time they took.
+CONTROL_PASS = re.compile(r'all cases behaved as required'
+                          r'|all ([1-9][0-9]*) cases behaved as required'
+                          r'|all ([1-9][0-9]*) cases that ran behaved as required'
+                          r'|all ([1-9][0-9]*) tests passed in [0-9]+\.[0-9]+ seconds')
+# A line with which such a file says that it failed, wherever it stands.
+CONTROL_FAIL = re.compile(r'FAIL\b.*|[0-9]+ case\(s\) behaved wrongly.*|[0-9]+ of [0-9]+ tests FAILED.*')
+
+
+def control_passed(output: str) -> bool:
+    """Whether the output of a control file of this tree (`ok NAME` for every case, then one line that says all
+    passed) is evidence of a pass. The line must be the last one, whole, and the only one of its kind; at least one
+    case must show as `ok`; no line may say that a case or the file failed; and where the line gives a number, that
+    many cases must show as `ok`: a file that says 20 passed and shows 19 is not believed, nor one that shows 21."""
+    lines = [line for line in output.splitlines() if line.strip()]
+    if not lines or any(CONTROL_FAIL.fullmatch(line) for line in lines):
+        return False
+    passing = [CONTROL_PASS.fullmatch(line) for line in lines]
+    shown = sum(1 for line in lines if re.match(r'ok\s', line))
+    if passing[-1] is None or sum(1 for found in passing if found) != 1 or shown == 0:
+        return False
+    number = passing[-1][1] or passing[-1][2] or passing[-1][3]
+    return number is None or int(number) == shown
+
+
 def check_output(check: Check, output: str) -> None:
     if check.mode == 'exit':
         if check.name == 'workflow-controls' and not re.search(r'Ran [1-9][0-9]* tests', output):
             raise Problem('workflow test discovery ran no tests')
         if check.name.startswith('test_'):
-            bespoke = 'all cases behaved as required' in output and re.search(r'^ok\s+', output, re.M)
+            bespoke = control_passed(output)
             standard = re.search(r'Ran ([1-9][0-9]*) tests?', output)
             finished = re.search(r'^OK(?: \(skipped=([0-9]+)\))?$', output, re.M)
             tested = standard and finished and int(finished[1] or 0) < int(standard[1])
