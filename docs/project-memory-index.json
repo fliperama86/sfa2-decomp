@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "aaa123cd6a875977969b01c4b1884781eff461892384a3d6f4c200a3f9de148b",
+  "sha256": "d0595052de7161f04042cd974eca4af27e256356e72fd074b6d23deaf9a01246",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -653,6 +653,10 @@
     {
       "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
       "line": 9713
+    },
+    {
+      "title": "Nonmatching C for two more functions of the sound library (2026-10-10)",
+      "line": 9761
     }
   ]
 }

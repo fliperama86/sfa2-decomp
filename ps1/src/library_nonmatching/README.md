@@ -1,8 +1,8 @@
 # Nonmatching C: the sound library
 
 C for functions of the PS1 game's sound library (the Sony library part of the
-resident executable, `SLPS_004.15`) that have no exact C: the four functions
-below (the four of 2026-10-10 and two more of the same day). The PS1 build does not use any file of this folder; the raw bytes stay
+resident executable, `SLPS_004.15`) that have no exact C: the six functions
+below. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
 [`../slot06_nonmatching/`](../slot06_nonmatching/README.md): a pass is
@@ -50,7 +50,6 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 - `func_80167388` (`_SsContDataEntry`, a data entry of the sequencer): written
   by this project from the listing. The reference only declares a function of
   this name and has no definition. No license line.
-
 - `func_80166144` (inferred `SsSepOpen`, opens a group of sequences): written
   by this project from the listing. The reference has no such function; the
   single-sequence twin `SsSeqOpen` of `../sdk/libsnd/seqinit.c` was read as an
@@ -85,9 +84,9 @@ function is run again for it, and the folder is not run as a whole.
 
 The three blocks are a record, not an instruction: what the commands
 printed for each function when it was last run. As it stands that is
-the run of 2026-10-10 in which the first four were added, and the run of the
-same day (`date +%F`: 2026-10-10) in which `func_80166144` and `func_80165d84`
-were added, each run alone with the commands above (seed 1 for the test and
+the run of 2026-10-10 in which the first four were added, and the runs of the
+same day in which `func_80166144` and `func_80165d84` were added, each run
+alone with the commands above (seed 1 for the test and
 the audit; seed 7 gave `different 0` and `outside 0` as well, and the control
 printed what is below). From now on a function's lines change only when that
 function is run again.
@@ -138,8 +137,7 @@ func_80166144 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 `func_80166144` is 304 bytes in the build and in the original, and is not
-byte-identical (six words that are not jumps differ, and a jump); it stays
-here. `func_80165d84` executes 233 of 240 slots: the other seven are the
+byte-identical; it stays here. `func_80165d84` executes 233 of 240 slots: the other seven are the
 original's guards for a zero divisor and for an overflowing division, which
 the contract excludes.
 
