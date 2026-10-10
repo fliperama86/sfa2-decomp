@@ -1,21 +1,31 @@
 /* The PS1's copy of RAM at address 0.
  *
  * The console shows its 2 MB of RAM a second time from address 0 and the first 64 KB of it hold the BIOS's
- * tables. Windows never lets a process have memory below 64 KB, so every access there faults, and this layer
- * serves it: the handler decodes the one faulting instruction (mirrorcore.c), carries it out on the mapped RAM
- * at 0x80000000 + address, moves the instruction pointer past it and resumes. Nothing of the game is replaced.
+ * tables. This layer serves every access of the game to [0, 0x200000): the handler decodes the one faulting
+ * instruction (mirrorcore.c), carries it out on the mapped RAM at 0x80000000 + address, moves the instruction
+ * pointer past it and resumes. Nothing of the game is replaced.
  *
- * Served: a read or a write, at an address that lies wholly in [0, 0x10000), by the game's thread, from an
+ * Why every access faults. Windows never lets a process have memory below 64 KB. From 0x10000 to 0x1fffff it
+ * would put memory of its own, so the program takes the range first: it is linked with its image base at
+ * 0x10000, not relocatable, and a filler section (`.hole`, uninitialized) from 0x11000 up to its first real
+ * section at 0x200000 (hostbuild.py has the link settings and checks the header). The range then belongs to the
+ * program's image and nobody else can allocate there. At start (port_mirror_init) the filler is made
+ * PAGE_NOACCESS, and the start check asks the system about every page of [0, 0x200000): one accessible page, and
+ * the program refuses to start and names it. So a program linked the old way refuses. The image's header page
+ * (0x10000..0x10fff) is the one page that stays readable: the C library reads the executable's header at exit and
+ * a closed page ends the program inside the library. An access of the game to that page is not served: a read
+ * returns the header's bytes and is not seen, a write is the crash line.
+ *
+ * Served: a read or a write, at an address that lies wholly in [0, 0x10000) or [0x11000, 0x200000), by the game's thread, from an
  * instruction inside the game's own compiled code (between the build's two markers), of a form mirrorcore.c
- * serves. An access that begins below 0x10000 and ends at or above it, an access from anywhere else, an execute
- * fault and everything at 0x10000 and above is not touched: the crash line of main.c. A form that is not served
- * ends the program with `stop: crash: the game used the PS1's RAM mirror at 0x... (read|write) in NAME with an
- * instruction the port does not serve yet: BYTES`. A second fault while serving ends the program too.
+ * serves. An access that begins below 0x200000 and ends at or above it, an access from anywhere else, an
+ * execute fault and everything at 0x200000 and above is not touched: the crash line of main.c (0x200000 is the
+ * program's first section: a read there returns the program's own bytes and does not fault). A form that is
+ * not served ends the program with `stop: crash: the game used the PS1's RAM mirror at 0x... (read|write) in
+ * NAME with an instruction the port does not serve yet: BYTES`. A second fault while serving ends the program too.
  *
- * Above 0x10000 Windows has memory of its own in places that change from run to run, and an access there does not
- * fault, so it cannot be served: a read returns the system's bytes where the console read its RAM. This is a
- * known limit, not a handled case. The part below 0x10000 holds, on the console, the BIOS's tables; here it holds
- * zeros until the game or the port writes there.
+ * What the copy holds: zeros at first; on the console the first 64 KB hold the BIOS's tables, so an accidental
+ * read like [null + 0xd] reads a zero where the console read a byte of the BIOS's.
  *
  * Seen, not silent: the first use of the copy by each function prints one line; with --trace each access and
  * the start check are lines of the trace file, and at exit the count per function.
@@ -124,7 +134,7 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
     }
     if (!port_mirror_decision(kind, addr, in.msize, 1, 1)) {
         port_mirror_serving = 0;
-        return EXCEPTION_CONTINUE_SEARCH;   /* it straddles 0x10000: the crash line */
+        return EXCEPTION_CONTINUE_SEARCH;   /* it straddles the end of the copy: the crash line */
     }
 
     port_mirror_exec(&in, &regs, (void *)(size_t)(PORT_RAM_BASE + addr));
@@ -163,12 +173,35 @@ static LONG CALLBACK serve(EXCEPTION_POINTERS *p)
     return EXCEPTION_CONTINUE_EXECUTION;
 }
 
+/* Close the filler section of the program's own image, when the image has it (the header says so). The header
+ * page stays readable: the C library reads the executable's header when the program exits, and a closed page
+ * ends the program with an access violation inside the library. An image without the filler is left alone: the
+ * start check then finds the system's pages and refuses. */
+static int close_own_range(unsigned *closed_end, char *err, size_t errsize)
+{
+    const unsigned char *base = (const unsigned char *)GetModuleHandle(NULL);
+    unsigned end = 0;
+    DWORD old;
+    *closed_end = 0;
+    if ((size_t)base != MIRROR_IMAGE_BASE) return 0;
+    if (port_mirror_image_hole(base, 0x1000, &end) != 0) return 0;
+    if (!VirtualProtect((void *)(size_t)MIRROR_HOLE, end - MIRROR_HOLE, PAGE_NOACCESS, &old)) {
+        snprintf(err, errsize, "mirror: cannot close the program's own range 0x%08x..0x%08x (system error %lu)", MIRROR_HOLE, end - 1, (unsigned long)GetLastError());
+        return -1;
+    }
+    *closed_end = end;
+    return 0;
+}
+
 int port_mirror_init(int trace, char *err, size_t errsize)
 {
-    if (port_mirror_scan(query_page, err, errsize) != 0) return -1;
+    unsigned closed_end;
+    if (close_own_range(&closed_end, err, errsize) != 0) return -1;
+    if (port_mirror_scan(query_page, closed_end ? MIRROR_IMAGE_BASE : 0, closed_end ? MIRROR_HOLE : 0, err, errsize) != 0) return -1;
     tracing = (unsigned)trace;
     if (trace) {
-        port_trace_line("mirror: start check: no page of 0x00000000..0x0000ffff is accessible");
+        if (closed_end) port_trace_line("mirror: the program's own range 0x%08x..0x%08x closed; its header page 0x%08x..0x%08x stays readable", MIRROR_HOLE, closed_end - 1, MIRROR_IMAGE_BASE, MIRROR_HOLE - 1);
+        port_trace_line("mirror: start check: no page of 0x00000000..0x%08x is accessible%s", MIRROR_LIMIT - 1, closed_end ? " (the header page excepted)" : "");
         atexit(report);
     }
     game_tid = GetCurrentThreadId();

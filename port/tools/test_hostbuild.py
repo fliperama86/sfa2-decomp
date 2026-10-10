@@ -597,18 +597,135 @@ def marker_cases():
     yield "markers-text-symbols", same(hb.text_symbols("00000000 T _a\n00000010 t _b\n00000000 D _c\n         U _d\n00000020 b _e\n00000000 t .text\n"), ["_a", "_b"])
 
 
+def image_flow_cases(root: Path):
+    config = run_tree(root, "img")
+    cc, nm = fake(root, "img", defs=DEFS)
+    proc = run(root, "img", config, cc, nm)
+    build = root / "img" / "build"
+    yield "image-run-verifies", same((proc.returncode, proc.stdout.splitlines()[-1], proc.stderr), (0, f"linked: {build / 'sfa2.exe'}, verified", ""))
+    yield "image-hole-assembly-written", same(read(build / "gen" / "hole.s"), '\t.section\t.hole,"b"\n\t.space\t0x1ef000\n')
+    # a linker that does not honour one of the settings: the check names it and the tool ends with status 1
+    for tag, ignore, skip, want in (
+        ("base", ["-Wl,--image-base="], False, "image base 0x400000, wanted 0x10000"),
+        ("reloc", ["-Wl,--disable-reloc-section"], False, "relocations are not stripped (flag)"),
+        ("holestart", ["-Wl,--section-start=.hole="], False, "the first section is .text, wanted .hole"),
+        ("textstart", ["-Wl,--section-start=.text="], False, "the filler ends at 0x11000, below 0x200000"),
+        ("nohole", [], True, "the first section is .text, wanted .hole"),
+        ("dynamic", ["-Wl,--disable-dynamicbase"], False, "the image is relocatable (dynamic base)"),
+    ):
+        config = run_tree(root, "img-" + tag)
+        cc, nm = fake(root, "img-" + tag, defs=DEFS, ignore=ignore, skip_hole=skip)
+        proc = run(root, "img-" + tag, config, cc, nm)
+        yield f"image-flow-{tag}-not-honoured-ends-with-status-1", same((proc.returncode, want in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+
 def marker_flow_cases(root: Path):
     config = run_tree(root, "mark")
     cc, nm = fake(root, "mark", defs=DEFS, rt_defs=["rtfunc"])
     proc = run(root, "mark", config, cc, nm)
     names = [Path(json.loads(x)).name for x in read(root / "mark" / "build" / "link.rsp").splitlines()]
     yield "mark-run-verifies", same((proc.returncode, proc.stderr), (0, ""))
-    yield "mark-first-and-last-among-game-objects", same((names[0], names[names.index("um__mod2.o") + 1], names[-3:]), ("port_game_text_begin.o", "port_game_text_end.o", ["main.o", "port_tables.o", "names.ld"]))
+    yield "mark-first-and-last-among-game-objects", same((names[1], names[names.index("um__mod2.o") + 1], names[-3:]), ("port_game_text_begin.o", "port_game_text_end.o", ["main.o", "port_tables.o", "names.ld"]))
     yield "mark-assembly", same(read(root / "mark" / "build" / "gen" / "port_game_text_end.s"), "\t.text\n\t.globl\t_port_game_text_end\n_port_game_text_end:\n")
     cc, nm = fake(root, "mark2", defs=DEFS, rt_defs=["rtfunc"], nm_extra=["00401020 T _rtfunc"])
     config = run_tree(root, "mark2")
     proc = run(root, "mark2", config, cc, nm)
     yield "mark-runtime-symbol-inside-fails-the-link-check", same((proc.returncode, "_rtfunc: a runtime symbol" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+
+# The linked file's header (verify_image) on invented headers.
+
+def pe_bytes(base=0x10000, sections=None, stripped=True, reloc_dir=False, dynamic=False, align=0x1000, headers=0x400, bits=0x10B) -> bytes:
+    """A PE image header with the given sections [(name, address, size, raw size, flags)]; the default is the good one."""
+    if sections is None:
+        sections = [(".hole", 0x11000, 0x1EF000, 0, 0xC0000080), (".text", 0x200000, 0x1800, 0x1800, 0x60000020),
+                    (".data", 0x202000, 0x100, 0x200, 0xC0000040), (".bss", 0x203000, 0x80, 0, 0xC0000080)]
+    data = bytearray(0x400)
+    data[0:2] = b"MZ"
+    data[0x3C:0x40] = (0x80).to_bytes(4, "little")
+    pe, opt = 0x80, 0x80 + 24
+    data[pe:pe + 4] = b"PE\0\0"
+    data[pe + 4:pe + 6] = (0x14C).to_bytes(2, "little")
+    data[pe + 6:pe + 8] = len(sections).to_bytes(2, "little")
+    data[pe + 20:pe + 22] = (224).to_bytes(2, "little")
+    data[pe + 22:pe + 24] = (0x127 if stripped else 0x126).to_bytes(2, "little")
+    data[opt:opt + 2] = bits.to_bytes(2, "little")
+    data[opt + 28:opt + 32] = base.to_bytes(4, "little")
+    data[opt + 32:opt + 36] = align.to_bytes(4, "little")
+    data[opt + 60:opt + 64] = headers.to_bytes(4, "little")
+    data[opt + 70:opt + 72] = (0x140 if dynamic else 0x100).to_bytes(2, "little")
+    if reloc_dir:
+        data[opt + 96 + 40:opt + 96 + 44] = (0x5000).to_bytes(4, "little")
+        data[opt + 96 + 44:opt + 96 + 48] = (0x100).to_bytes(4, "little")
+    for i, (name, address, size, raw, flags) in enumerate(sections):
+        o = opt + 224 + 40 * i
+        data[o:o + 8] = name.encode().ljust(8, b"\0")
+        data[o + 8:o + 12] = size.to_bytes(4, "little")
+        data[o + 12:o + 16] = ((address - base) & 0xFFFFFFFF).to_bytes(4, "little")
+        data[o + 16:o + 20] = raw.to_bytes(4, "little")
+        data[o + 36:o + 40] = flags.to_bytes(4, "little")
+    return bytes(data)
+
+
+def pe_for_link(args: list[str], objects: list[str], ignore: list[str], skip_hole: bool) -> bytes:
+    """What a linker that honoured the flags would write, for the stand-in compiler: the header of the image."""
+    args = [a for a in args if not any(a.startswith(i) for i in ignore)]
+    base = 0x400000
+    starts: dict[str, int] = {}
+    for a in args:
+        if a.startswith("-Wl,--image-base="):
+            base = int(a.split("=", 1)[1], 16)
+        if a.startswith("-Wl,--section-start="):
+            name, address = a.split("=", 2)[1:]
+            starts[name] = int(address, 16)
+    hole = any(o.endswith("hole.o") for o in objects) and not skip_hole
+    text = starts.get(".text", base + 0x1000)
+    sections = [(".text", text, 0x1800, 0x1800, 0x60000020), (".data", text + 0x2000, 0x100, 0x200, 0xC0000040)]
+    if hole and ".hole" in starts:
+        sections.insert(0, (".hole", starts[".hole"], text - starts[".hole"], 0, 0xC0000080))   # sections are listed in address order
+    elif hole:
+        sections.append((".hole", text + 0x3000, 0x1000, 0, 0xC0000080))   # no address given: the linker puts the orphan section last
+    return pe_bytes(base=base, sections=sections, stripped="-Wl,--disable-reloc-section" in args, reloc_dir="-Wl,--disable-reloc-section" not in args,
+                    dynamic="-Wl,--disable-dynamicbase" not in args)
+
+
+def image_cases():
+    def check(**kw):
+        return hb.verify_image(pe_bytes(**kw))
+
+    yield "image-good-header", same(check(), [])
+    yield "image-link-flags-are-the-settings", same(hb.IMAGE_FLAGS, ["-Wl,--image-base=0x10000", "-Wl,--disable-reloc-section", "-Wl,--section-start=.hole=0x11000", "-Wl,--section-start=.text=0x200000"])
+    yield "image-hole-source", same(hb.hole_source(), '\t.section\t.hole,"b"\n\t.space\t0x1ef000\n')
+    yield "image-wrong-base", same(check(base=0x400000, sections=[(".hole", 0x401000, 0x1EF000, 0, 0xC0000080), (".text", 0x5F0000, 0x100, 0x200, 0x60000020)]),
+                                   ["image base 0x400000, wanted 0x10000", "the first section begins at 0x401000, wanted 0x11000"])
+    yield "image-relocations-not-stripped-flag", same(check(stripped=False), ["relocations are not stripped (flag)"])
+    yield "image-relocation-table-present", same(check(reloc_dir=True), ["the image has a relocation table"])
+    yield "image-dynamic-base", same(check(dynamic=True), ["the image is relocatable (dynamic base)"])
+    yield "image-section-alignment", same(check(align=0x10000), [
+        "section alignment 0x10000, wanted 0x1000",
+        "a gap or an overlap between .hole (0x11000, 0x1ef000 bytes) and .text (0x200000)",
+        "a gap or an overlap between .text (0x200000, 0x1800 bytes) and .data (0x202000)",
+        "a gap or an overlap between .data (0x202000, 0x100 bytes) and .bss (0x203000)"])
+    yield "image-headers-too-large", same(check(headers=0x1200), ["the headers (0x1200 bytes) do not fit the first page"])
+    sec = lambda *rows: [(".hole", 0x11000, 0x1EF000, 0, 0xC0000080), *rows]
+    yield "image-first-section-is-not-the-filler", same(check(sections=[(".text", 0x11000, 0x1EF000, 0, 0xC0000080), (".data", 0x200000, 0x100, 0x200, 0xC0000040)]), ["the first section is .text, wanted .hole"])
+    yield "image-filler-begins-late", same(check(sections=[(".hole", 0x12000, 0x1EE000, 0, 0xC0000080), (".text", 0x200000, 0x100, 0x200, 0x60000020)]), ["the first section begins at 0x12000, wanted 0x11000"])
+    yield "image-filler-has-file-bytes", same(check(sections=[(".hole", 0x11000, 0x1EF000, 0x200, 0xC0000040), (".text", 0x200000, 0x100, 0x200, 0x60000020)]), ["the filler section is not uninitialized"])
+    yield "image-gap-after-the-filler", same(check(sections=[(".hole", 0x11000, 0x1EF000, 0, 0xC0000080), (".text", 0x210000, 0x100, 0x200, 0x60000020)]),
+                                            ["a gap or an overlap between .hole (0x11000, 0x1ef000 bytes) and .text (0x210000)"])
+    yield "image-overlap-after-the-filler", same(check(sections=[(".hole", 0x11000, 0x1EF000, 0, 0xC0000080), (".text", 0x1FF000, 0x100, 0x200, 0x60000020)]),
+                                                 ["a gap or an overlap between .hole (0x11000, 0x1ef000 bytes) and .text (0x1ff000)", "section .text begins at 0x1ff000, below 0x200000"])
+    yield "image-filler-short", same(check(sections=[(".hole", 0x11000, 0x1E0000, 0, 0xC0000080), (".text", 0x1F1000, 0x100, 0x200, 0x60000020)]),
+                                     ["the filler ends at 0x1f1000, below 0x200000", "section .text begins at 0x1f1000, below 0x200000"])
+    yield "image-gap-between-real-sections", same(check(sections=sec((".text", 0x200000, 0x1800, 0x1800, 0x60000020), (".data", 0x205000, 0x100, 0x200, 0xC0000040))),
+                                                  ["a gap or an overlap between .text (0x200000, 0x1800 bytes) and .data (0x205000)"])
+    yield "image-one-section", same(check(sections=[(".hole", 0x11000, 0x1EF000, 0, 0xC0000080)]), ["1 sections: the filler and the program's own are needed"])
+    yield "image-not-32-bit", same(hb.verify_image(pe_bytes(bits=0x20B)), ["the file is not a 32-bit PE image"])
+    yield "image-no-dos-header", same(hb.verify_image(b"\x7fELF" + bytes(100)), ["the file has no DOS header"])
+    yield "image-short-file", same(hb.verify_image(b"MZ"), ["the file has no DOS header"])
+    yield "image-no-pe-header", same(hb.verify_image(b"MZ" + bytes(0x3E) + (0x80).to_bytes(4, "little") + bytes(0x100)), ["the file has no PE header"])
+    yield "image-pe-offset-past-the-file", same(hb.verify_image(pe_bytes()[:0x60]), ["the file has no PE header"])
+    yield "image-section-table-cut", same(hb.verify_image(pe_bytes()[:0x80 + 24 + 224 + 60]), ["4 sections: the filler and the program's own are needed"])
 
 
 # The whole run, with a stand-in compiler.
@@ -620,7 +737,7 @@ spec = json.loads({spec!r})
 args = sys.argv[1:]
 name = Path(sys.argv[0]).name
 if name.startswith("fakenm"):
-    data = Path(args[0]).read_text().splitlines()
+    data = Path(args[0]).read_bytes().decode("latin-1").splitlines()
     out, address = [], 0x401000
     labels = {{}}
     for line in data:
@@ -700,7 +817,10 @@ for n in ldn & defs:
 if spec.get("link_fail"):
     sys.stderr.write("x.o: undefined reference to `gone'\\nx.o: undefined reference to `gone'\\ncollect2: error: ld returned 1 exit status\\n")
     sys.exit(1)
-out.write_text(text)
+sys.path.insert(0, {tools!r})
+import test_hostbuild as T
+pe = T.pe_for_link(args, [json.loads(l) for l in rsp], spec.get("ignore", []), spec.get("skip_hole", False))
+out.write_bytes(pe + b"\\n" + text.encode("latin-1"))
 """
 
 
@@ -709,7 +829,7 @@ def fake(root: Path, tag: str, **spec) -> tuple[Path, Path]:
     spec["log"] = str(log)
     cc, nm, oc = root / f"fakecc-{tag}", root / f"fakenm-{tag}", root / f"fakeobjcopy-{tag}"
     for path in (cc, nm, oc):
-        path.write_text(FAKE.format(python=sys.executable, spec=json.dumps(spec)))
+        path.write_text(FAKE.format(python=sys.executable, spec=json.dumps(spec), tools=str(TOOLS)))
         path.chmod(0o755)
     return cc, nm
 
@@ -756,7 +876,7 @@ def run(root: Path, tag: str, config: Path, cc: Path, nm: Path, *more) -> subpro
 
 def read(path: Path) -> str:
     try:
-        return path.read_text()
+        return path.read_bytes().decode("latin-1")   # the linked file starts with a PE header
     except OSError:
         return "(missing)"
 
@@ -800,14 +920,14 @@ def flow_cases(root: Path):
     rsp = read(build / "link.rsp").splitlines()
     yield "flow-response-file", same(
         [Path(json.loads(x)).name for x in rsp],
-        ["port_game_text_begin.o", "ua.o", "ub.o", "uc.o", "um.o", "um__mod2.o", "port_game_text_end.o", "main.o", "port_tables.o", "names.ld"],
+        ["hole.o", "port_game_text_begin.o", "ua.o", "ub.o", "uc.o", "um.o", "um__mod2.o", "port_game_text_end.o", "main.o", "port_tables.o", "names.ld"],
     )
     calls = [x.split() for x in read(root / "flow.log").splitlines()]
     units = [c for c in calls if "-S" in c and c[-1].endswith((".c",)) and not c[-1].endswith("underscore.c")]
     flags = hb.COMPILE_FLAGS
     yield "flow-compile-flags", same((len(units), all(c[:len(flags)] == flags and c[len(flags):len(flags) + 3] == ["-S", "-I", str(build / "gen")] for c in units)), (4, True))
     link = [c for c in calls if c and c[0].startswith("@")]
-    yield "flow-link-flags", same((len(link), link[0][1:4] if link else None), (1, ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]))
+    yield "flow-link-flags", same((len(link), link[0][1:8] if link else None), (1, ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase", "-Wl,--image-base=0x10000", "-Wl,--disable-reloc-section", "-Wl,--section-start=.hole=0x11000", "-Wl,--section-start=.text=0x200000"]))
     rt = [c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]]
     yield "flow-runtime-flags", same(len(rt), 2)
     yield "flow-header-written", same("struct S" in read(build / "gen" / "t.h"), True)
@@ -1085,7 +1205,7 @@ def like_cases(root: Path):
         ["_hv", "_mf", "_mg", "_sym_in", "_sym_own"])
     yield "like-listing-names-the-image", same([l for l in out if l.startswith("like:")], ["like: mod2 of mod, shift +0x10000, 4 names move, units left out: -"])
     yield "like-response-file-has-both-objects", same(
-        [Path(json.loads(x)).name for x in read(build / "link.rsp").splitlines()][:3], ["port_game_text_begin.o", "um.o", "um__mod2.o"])
+        [Path(json.loads(x)).name for x in read(build / "link.rsp").splitlines()][:4], ["hole.o", "port_game_text_begin.o", "um.o", "um__mod2.o"])
     yield "like-verification-covers-the-new-names", same(
         run(root, "like", config, *fake(root, "like-bad", defs={"ur": ["r1"], "um": ["mf", "mg", "hv"]}, call="r1", calls=LIKE_CALLS,
                                         nm_extra=["801f0004 A _ps1_mf__mod2"])).returncode, 1)
@@ -1120,10 +1240,12 @@ def groups(root: Path):
     yield table_cases(root)
     yield verify_cases()
     yield marker_cases()
+    yield image_cases()
     yield flow_cases(root)
     yield like_cases(root)
     yield sweep_flow_cases(root)
     yield marker_flow_cases(root)
+    yield image_flow_cases(root)
     yield psyz_cases(root)
 
 

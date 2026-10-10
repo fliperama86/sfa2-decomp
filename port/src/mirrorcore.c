@@ -22,6 +22,7 @@ int port_mirror_decision(unsigned kind, unsigned addr, unsigned size, int game_t
     if (kind != 0 && kind != 1) return 0;
     if (!game_thread || !in_game_code) return 0;
     if (size == 0 || addr >= MIRROR_LIMIT || size > MIRROR_LIMIT - addr) return 0;
+    if (addr < MIRROR_HOLE && addr + size > MIRROR_IMAGE_BASE) return 0;   /* touches the image's header page */
     return 1;
 }
 
@@ -284,7 +285,7 @@ void port_mirror_hex(const unsigned char *bytes, unsigned n, char *out, size_t o
         at += (size_t)snprintf(out + at, outsize - at, i ? " %02x" : "%02x", bytes[i]);
 }
 
-int port_mirror_scan(port_mirror_query query, char *err, size_t errsize)
+int port_mirror_scan(port_mirror_query query, unsigned skip_begin, unsigned skip_end, char *err, size_t errsize)
 {
     unsigned a = 0;
     while (a < MIRROR_LIMIT) {
@@ -294,12 +295,45 @@ int port_mirror_scan(port_mirror_query query, char *err, size_t errsize)
             snprintf(err, errsize, "mirror: the system cannot say what is at 0x%08x; the PS1's copy of RAM at address 0 cannot be relied on", a);
             return -1;
         }
-        if (accessible) {
+        if (accessible && a >= skip_begin && a < skip_end) {
+            if (next > skip_end) next = skip_end;   /* only the pages of the skipped window are let through */
+        } else if (accessible) {
             snprintf(err, errsize, "mirror: the system has an accessible page at 0x%08x; the PS1's copy of RAM at address 0 cannot be served here", a);
             return -1;
         }
         if (next <= a) next = a + 0x1000;
         a = next;
     }
+    return 0;
+}
+
+/* ---- the image's filler section ---- */
+
+static unsigned le16(const unsigned char *p) { return p[0] | (unsigned)p[1] << 8; }
+static unsigned le32(const unsigned char *p) { return le16(p) | (unsigned)le16(p + 2) << 16; }
+
+int port_mirror_image_hole(const unsigned char *hdr, unsigned size, unsigned *end)
+{
+    unsigned pe, sections, optsize, table, first, second, hole_va, next_va;
+    if (size < 0x40 || hdr[0] != 'M' || hdr[1] != 'Z') return -1;
+    pe = le32(hdr + 0x3c);
+    if (pe > size || size - pe < 24 + 96) return -1;
+    if (memcmp(hdr + pe, "PE\0\0", 4) != 0) return -1;
+    sections = le16(hdr + pe + 6);
+    optsize = le16(hdr + pe + 20);
+    if (sections < 2 || optsize < 96 || le16(hdr + pe + 24) != 0x10b) return -1;
+    if (le32(hdr + pe + 24 + 28) != MIRROR_IMAGE_BASE) return -1;
+    table = pe + 24 + optsize;
+    if (table > size || size - table < 80) return -1;
+    first = table;
+    second = table + 40;
+    if (memcmp(hdr + first, ".hole\0\0\0", 8) != 0) return -1;
+    hole_va = MIRROR_IMAGE_BASE + le32(hdr + first + 12);
+    if (hole_va != MIRROR_HOLE) return -1;
+    if (le32(hdr + first + 16) != 0) return -1;   /* uninitialized: nothing of the file is in it */
+    next_va = MIRROR_IMAGE_BASE + le32(hdr + second + 12);
+    if (next_va < MIRROR_LIMIT) return -1;
+    if (next_va - hole_va != ((le32(hdr + first + 8) + 0xfffu) & ~0xfffu)) return -1;   /* no gap between the filler and the next section */
+    *end = next_va;
     return 0;
 }

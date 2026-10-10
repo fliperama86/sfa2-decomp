@@ -37,10 +37,11 @@ sys.path.insert(0, str(HERE))
 import test_hostlaunch as L  # noqa: E402
 from test_hostlaunch import ABS_BASE, FUN_BASE, PROLOGUE, RAM, Variant, program, head, verdict  # noqa: E402
 
-M_NAMES = ["g_rw", "g_base", "g_null", "g_straddle", "g_straddle_w", "g_host", "g_unserved", "g_exec", "g_two", "g_a1", "g_a2", "g_second", "g_loop", "g_time", "g_alu"]
+M_NAMES = ["g_rw", "g_base", "g_null", "g_straddle", "g_straddle_w", "g_host", "g_unserved", "g_exec", "g_two", "g_a1", "g_a2", "g_second", "g_loop", "g_time", "g_alu",
+           "g_hi", "g_top_r", "g_top_w", "g_edge_r", "g_edge_w", "g_hdr_r", "g_hdr_w", "g_walk"]
 G = {n: RAM + 0x101900 + 0x10 * i for i, n in enumerate(M_NAMES)}
 IRQ_NAMES = ["OpenEvent", "EnableEvent", "StartRCnt", "ResetCallback"]
-IRQ_ADDR = {n: RAM + 0x101a00 + 0x10 * i for i, n in enumerate(IRQ_NAMES)}
+IRQ_ADDR = {n: RAM + 0x101c00 + 0x10 * i for i, n in enumerate(IRQ_NAMES)}
 ABS_M = ABS_BASE + [(n, a, 1) for n, a in IRQ_ADDR.items()]
 FUN_M = FUN_BASE + [(n, a, n) for n, a in G.items()]
 
@@ -130,6 +131,67 @@ void g_alu(void)
     __asm__ volatile("movl $3, %%ebx\n\txorl %%eax, %%eax\n\tcmpl 0x3030, %%ebx\n\tsetb %%al" : "=a"(c2) : : "ebx", "memory", "cc");
     SAY("cmp r,m: below %u\n", c2 & 1);
 }
+void g_hi(void)
+{
+    volatile unsigned a = 0x80024300u, b = 0x80019dccu;   /* two addresses of the upper view added: the sum wraps to 0x3e0cc */
+    LOW32(0x11000) = 0x11110000u;
+    LOW32(0x3e0cc) = 0xcafe0001u;
+    LOW32(0x1ffffc) = 0x7777abcdu;
+    SAY("read back %08x %08x %08x\n", LOW32(0x11000), LOW32(0x3e0cc), LOW32(0x1ffffc));
+    SAY("in the RAM %08x %08x %08x\n", LOW32(0x80011000u), LOW32(0x8003e0ccu), LOW32(0x801ffffcu));
+    LOW8(0x1fffff) = 0x5a;
+    SAY("last byte %02x, last word %08x\n", LOW8(0x1fffff), LOW32(0x1ffffc));
+    SAY("wrapped sum: %08x\n", *(volatile unsigned *)(a + b));
+}
+void g_top_r(void) { SAY("before\n"); SAY("read %u\n", LOW32(0x1ffffe)); }
+void g_top_w(void) { SAY("before\n"); LOW16(0x1fffff) = 1; SAY("after\n"); }
+void g_edge_r(void) { SAY("read at 0x200000: %s\n", LOW8(0x200000) == *(volatile unsigned char *)(size_t)0x200000 ? "the program's own byte" : "?"); }
+void g_edge_w(void) { SAY("before\n"); LOW8(0x200000) = 1; SAY("after\n"); }
+void g_hdr_r(void) { SAY("header page: %04x\n", LOW16(0x10000)); }
+void g_hdr_w(void) { SAY("before\n"); LOW8(0x10010) = 1; SAY("after\n"); }
+#define NODES 2000
+#define NODE(base, i) ((volatile unsigned *)((base) + (i) * 0x40u))
+static void chain(unsigned base)
+{
+    unsigned i;
+    for (i = 0; i < NODES; i++) {
+        NODE(base, i)[0] = ((i & 0xffu) << 24) | (i + 1 < NODES ? (base + (i + 1) * 0x40u) & 0xffffffu : 0xffffffu);
+        NODE(base, i)[1] = i * 7u;
+    }
+}
+/* the walk of an ordering table through links of 24 bits, as the game's C does: the link is an address of the
+ * console's low view; `low` follows it there, otherwise through the real address (the upper view) */
+static unsigned walk(unsigned base, int low)
+{
+    unsigned sum = 0, n = 0, p = low ? base & 0xffffffu : base;
+    for (;;) {
+        volatile unsigned *node = (volatile unsigned *)(size_t)p;
+        unsigned link = node[0] & 0xffffffu;
+        sum = sum * 31u + node[1] + (node[0] >> 24);
+        node[1] = node[1] + 1;
+        n++;
+        if (link == 0xffffffu) break;
+        p = low ? link : 0x80000000u | link;
+    }
+    return sum ^ (n << 20);
+}
+void g_walk(void)
+{
+    LARGE_INTEGER f, a, b, c;
+    unsigned i, real, lowv, same_ram = 0;
+    chain(0x80040000u);
+    chain(0x80070000u);
+    QueryPerformanceFrequency(&f);
+    QueryPerformanceCounter(&a);
+    real = walk(0x80040000u, 0);
+    QueryPerformanceCounter(&b);
+    lowv = walk(0x80070000u, 1);
+    QueryPerformanceCounter(&c);
+    for (i = 0; i < NODES; i++)
+        if ((NODE(0x80040000u, i)[0] >> 24) == (NODE(0x80070000u, i)[0] >> 24) && NODE(0x80040000u, i)[1] == NODE(0x80070000u, i)[1] && NODE(0x80040000u, i)[1] == i * 7u + 1) same_ram++;
+    SAY("walk of %u nodes: low view %s the real addresses (%08x, %08x), the nodes written %u of %u alike\n", NODES, real == lowv ? "equals" : "DIFFERS from", lowv, real, same_ram, NODES);
+    SAY("timing walk: real addresses %lld us, low view %lld us\n", (b.QuadPart - a.QuadPart) * 1000000 / f.QuadPart, (c.QuadPart - b.QuadPart) * 1000000 / f.QuadPart);
+}
 static volatile int count;
 static void handler(void) { count++; }
 void g_loop(void)
@@ -184,6 +246,14 @@ const unsigned port_override_set_count = 1;
 """
 
 
+def python_walk() -> int:
+    """The checksum the game's walk of 2000 nodes must give (node i: tag i & 0xff, counter i * 7), worked out here."""
+    total = 0
+    for i in range(2000):
+        total = (total * 31 + i * 7 + (i & 0xFF)) & 0xFFFFFFFF
+    return total ^ (2000 << 20)
+
+
 def native(rig: L.Rig):
     exe = rig.work / "native.exe"
     proc = subprocess.run([rig.cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(L.SRC), "-o", str(exe), str(HERE / "mirror_native_test.c"),
@@ -207,8 +277,8 @@ def native(rig: L.Rig):
 def launch(rig: L.Rig):
     L.VARIANTS["mirror"] = Variant("mirror", GAME_MIRROR, FUN_M, ABS_M, DOMAINS_M)
 
-    def go(tag, name, args=None, timeout=120):
-        status, lines, img, arg = rig.run(tag, program(G[name]), variant="mirror", args=args, timeout=timeout)
+    def go(tag, name, args=None, timeout=120, old_link=False):
+        status, lines, img, arg = rig.run(tag, program(G[name]), variant="mirror", args=args, timeout=timeout, old_link=old_link)
         s = f"start: 0x{G[name]:08x}"
         body = lines[lines.index(s) + 1:] if s in lines else lines
         return status, body
@@ -220,6 +290,11 @@ def launch(rig: L.Rig):
     want = [first_use("g_rw", 0x1000, "write"), "read back ab beef deadbeef", "in the RAM ab beef deadbeef", "first and last byte of the copy: 11 22",
             "in the RAM 11 22", "last word: 01020304", "stop: main returned"]
     yield "a-served-write-and-read-of-each-size-and-the-borders-of-the-copy-reach-the-ram", verdict((status, body), (0, want))
+
+    status, body = go("hi", "g_hi")
+    want = [first_use("g_hi", 0x11000, "write"), "read back 11110000 cafe0001 7777abcd", "in the RAM 11110000 cafe0001 7777abcd", "last byte 5a, last word 5a77abcd",
+            "wrapped sum: cafe0001", "stop: main returned"]
+    yield "a-served-read-and-write-above-64-kb-at-0x11000-0x3e0cc-and-the-last-word-0x1ffffc-and-the-sum-of-two-upper-view-addresses-that-wraps", verdict((status, body), (0, want))
 
     status, body = go("base", "g_base")
     want = [first_use("g_base", 0x1100, "read"), "destination is the base: 11223344", "partial destination inside the base: 00001044", "movzx into the base: 00000044",
@@ -242,7 +317,7 @@ def launch(rig: L.Rig):
         0, [first_use("g_a1", 0x2000, "write"), first_use("g_a2", 0x2000, "read")], ["done: 00000001 00000002 03 00000002 0002", "stop: main returned"]))
     acc = [l for l in lines if re.match(r"mirror: g_a[12] (read|write) ", l)]
     yield "trace-writes-one-line-for-each-access-with-its-size-and-instruction", None if len(acc) == 12 and re.fullmatch(r"mirror: g_a1 write 0x00002000 4 \(at 0x[0-9a-f]{8}\)", acc[0]) else f"{len(acc)} lines: {acc[:2]!r}"
-    yield "the-start-check-runs-and-says-so-with-trace", None if lines[:1] == ["mirror: start check: no page of 0x00000000..0x0000ffff is accessible"] else f"lines {lines[:2]!r}"
+    yield "the-start-check-runs-and-says-so-with-trace", None if lines[:2] == ["mirror: the program's own range 0x00011000..0x001fffff closed; its header page 0x00010000..0x00010fff stays readable", "mirror: start check: no page of 0x00000000..0x001fffff is accessible (the header page excepted)"] else f"lines {lines[:2]!r}"
     counts = [l for l in lines if re.match(r"mirror: g_a[12]: \d+ reads, \d+ writes", l)]
     yield "trace-prints-the-count-per-function-at-exit", verdict(counts, ["mirror: g_a1: 2 reads, 6 writes", "mirror: g_a2: 2 reads, 2 writes"])
 
@@ -252,6 +327,34 @@ def launch(rig: L.Rig):
     status, body = go("straddle-w", "g_straddle_w")
     ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x0000ffff \(write\) in g_straddle_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
     yield "a-write-that-straddles-0x10000-is-the-crash-line-and-the-game-does-not-go-on", None if ok else f"status {status}, lines {body[-3:]!r}"
+    status, body = go("top-r", "g_top_r")
+    ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001ffffe \(read\) in g_top_r \(at 0x[0-9a-f]{8}\)", body[-1])
+    yield "a-read-that-straddles-0x200000-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
+    status, body = go("top-w", "g_top_w")
+    ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001fffff \(write\) in g_top_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
+    yield "a-write-that-straddles-0x200000-is-the-crash-line-and-the-game-does-not-go-on", None if ok else f"status {status}, lines {body[-3:]!r}"
+    status, body = go("edge-r", "g_edge_r")
+    yield "a-read-at-0x200000-is-the-programs-own-first-section-and-not-served", verdict((status, body), (0, ["read at 0x200000: the program's own byte", "stop: main returned"]))
+    status, body = go("edge-w", "g_edge_w")
+    ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: access violation \(write 0x00200000\) in g_edge_w \(at 0x[0-9a-f]{8}\)", body[-1])
+    yield "a-write-at-0x200000-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
+    status, body = go("hdr-r", "g_hdr_r")
+    yield "a-read-of-the-header-page-returns-the-headers-bytes-and-is-not-served", verdict((status, body), (0, ["header page: 5a4d", "stop: main returned"]))
+    status, body = go("hdr-w", "g_hdr_w")
+    ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00010010 \(write\) in g_hdr_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
+    yield "a-write-to-the-header-page-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
+
+    status, body = go("old", "g_rw", old_link=True)
+    ok = status == 2 and len(body) == 1 and re.fullmatch(r"refused: mirror: the system has an accessible page at 0x[0-9a-f]{8}; the PS1's copy of RAM at address 0 cannot be served here", body[0])
+    yield "a-program-linked-the-old-way-refuses-to-start-and-names-an-accessible-page", None if ok else f"status {status}, lines {body[-3:]!r}"
+
+    status, body = go("walk", "g_walk", args=["--no-interrupt"], timeout=300)
+    w = [l for l in body if l.startswith("walk of")]
+    t = [l for l in body if l.startswith("timing walk:")]
+    print(f"     {t[0] if t else 'no timing line'}")
+    yield "a-walk-of-2000-nodes-through-24-bit-links-equals-the-same-walk-on-real-addresses", None if not t else verdict((status, w), (0, [
+        "walk of 2000 nodes: low view equals the real addresses (%08x, %08x), the nodes written 2000 of 2000 alike" % (python_walk(), python_walk())]))
+
     status, body = go("host", "g_host")
     ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00002000 \(read\) in \S+ \(at 0x[0-9a-f]{8}\)", body[-1]) and not any(l.startswith("mirror:") for l in body)
     yield "a-low-read-from-host-code-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"

@@ -210,16 +210,41 @@ tells by whether an instruction pointer lies between the markers. The check
 below covers them.
 
 All objects of the units, every `RUNTIME/*.c` compiled with
-`CC -O1 -Wall -Wextra -c`, `port_tables.o` and `names.ld` go to one run of
-the compiler by a response file, with `-static -Wl,--large-address-aware
--Wl,--disable-dynamicbase`, to `BUILD/NAME`. The link is then verified, and
-a miss ends the tool with status 1 naming the symbols: both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
+`CC -O1 -Wall -Wextra -c`, `port_tables.o`, the filler object (below) and
+`names.ld` go to one run of the compiler by a response file, with `-static
+-Wl,--large-address-aware -Wl,--disable-dynamicbase` and the settings of the
+image (below), to `BUILD/NAME`. The link is then verified, and a miss ends
+the tool with status 1 naming the symbols: the header of the linked file
+says what the settings say (below); both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
 linked file, every `ps1_` name of `names.ld` has exactly its address, no plain game name is
 at a PS1 address, every
 `impl_` function of `port_functions` exists outside the PS1's ranges
 (`0x80000000` to `0x801fffff`, `0x1f800000` to `0x1f8003ff`), every host
 data alias `ps1_NAME` has the address of its `impl_` copy outside those
 ranges. The plain name may exist (the host's own function of that name).
+
+The image over the console's copy of RAM
+-----------------------------------------
+
+The console shows its RAM a second time at addresses 0 to 0x1fffff, and the
+game's code reaches that view in ordinary play (the runtime's `mirror.c`
+serves every access there as a fault). Windows gives a process nothing below
+0x10000 and puts memory of its own into the rest of the range, where an access
+would not fault. So the program's own image takes the range first. The link
+settings: image base 0x10000 (`--image-base`), no relocations
+(`--disable-reloc-section`, with `--disable-dynamicbase`), the first real section at 0x200000 (`--section-start=.text`).
+Windows refuses an image whose sections leave a gap between them or after the
+header, so the range between the header page and 0x200000 is filled by a
+section of its own, `.hole` (`--section-start=.hole=0x11000`), uninitialized,
+from an assembly object of the tool (`BUILD/gen/hole.s`, `BUILD/rt/hole.o`,
+first in the response file). The system maps it readable and writable; the
+runtime closes it, with the header page, at start (`mirror.c`).
+The check reads the linked file's PE header: image base 0x10000, the flag
+for stripped relocations and no relocation table, no dynamic base, section
+alignment 0x1000, the first section `.hole` at 0x11000 with no bytes in the
+file, the sections one after the other with no gap or overlap, the filler
+reaching 0x200000 and every other section at 0x200000 or above, the headers
+inside the first page. A miss ends the build with status 1.
 
 The graphics library
 --------------------
@@ -310,7 +335,16 @@ COMPILE_FLAGS = [
     "-std=gnu89", "-O1", "-fno-inline", "-fno-strict-aliasing", "-fwrapv", "-fno-pic", "-fno-builtin",
     "-ffreestanding", "-fno-stack-protector", "-fno-asynchronous-unwind-tables", "-fno-ident",
 ]
-LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
+# The image holds the console's copy of RAM at address 0 (see "The link"): base 0x10000, no relocations, a filler
+# section `.hole` from 0x11000 and the first real section at 0x200000.
+IMAGE_BASE = 0x10000
+HOLE_BEGIN = 0x11000
+IMAGE_TOP = 0x200000
+IMAGE_FLAGS = [
+    f"-Wl,--image-base={IMAGE_BASE:#x}", "-Wl,--disable-reloc-section",
+    f"-Wl,--section-start=.hole={HOLE_BEGIN:#x}", f"-Wl,--section-start=.text={IMAGE_TOP:#x}",
+]
+LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase", *IMAGE_FLAGS]
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
@@ -929,6 +963,73 @@ def marker_source(name: str, underscore: bool) -> str:
     return f"\t.text\n\t.globl\t{sym}\n{sym}:\n"
 
 
+def hole_source() -> str:
+    """The assembly of the filler section: uninitialized, from HOLE_BEGIN to IMAGE_TOP (its address is the link flag's)."""
+    return f'\t.section\t.hole,"b"\n\t.space\t{IMAGE_TOP - HOLE_BEGIN:#x}\n'
+
+
+def verify_image(data: bytes) -> list[str]:
+    """The misses of the linked file's PE header against the link settings; empty when none.
+
+    Image base 0x10000, no relocations (the flag, no table), not dynamic base; the first section is `.hole`
+    at 0x11000, uninitialized (no bytes in the file); the sections follow one another with no gap (Windows
+    refuses an image with one); the first real section lies at 0x200000 or above; the headers fit the page
+    that is the image's first, so that nothing of the range 0x10000..0x1fffff is outside the image."""
+    def u16(o: int) -> int:
+        return int.from_bytes(data[o:o + 2], "little")
+
+    def u32(o: int) -> int:
+        return int.from_bytes(data[o:o + 4], "little")
+
+    if len(data) < 0x40 or data[:2] != b"MZ":
+        return ["the file has no DOS header"]
+    pe = u32(0x3C)
+    if pe + 24 + 96 > len(data) or data[pe:pe + 4] != b"PE\0\0":
+        return ["the file has no PE header"]
+    count, optsize, chars = u16(pe + 6), u16(pe + 20), u16(pe + 22)
+    opt = pe + 24
+    if u16(opt) != 0x10B or optsize < 96 + 8 * 16:
+        return ["the file is not a 32-bit PE image"]
+    misses = []
+    base, align, headers, dll = u32(opt + 28), u32(opt + 32), u32(opt + 60), u16(opt + 70)
+    if base != IMAGE_BASE:
+        misses.append(f"image base {base:#x}, wanted {IMAGE_BASE:#x}")
+    if not chars & 1:
+        misses.append("relocations are not stripped (flag)")
+    if u32(opt + 96 + 8 * 5) or u32(opt + 96 + 8 * 5 + 4):
+        misses.append("the image has a relocation table")
+    if dll & 0x40:
+        misses.append("the image is relocatable (dynamic base)")
+    if align != 0x1000:
+        misses.append(f"section alignment {align:#x}, wanted 0x1000")
+    if headers > HOLE_BEGIN - IMAGE_BASE:
+        misses.append(f"the headers ({headers:#x} bytes) do not fit the first page")
+    table = opt + optsize
+    if count < 2 or table + 40 * count > len(data):
+        return misses + [f"{count} sections: the filler and the program's own are needed"]
+    rows = []
+    for i in range(count):
+        o = table + 40 * i
+        name = data[o:o + 8].rstrip(b"\0").decode("ascii", "replace")
+        rows.append((name, base + u32(o + 12), u32(o + 8), u32(o + 16), u32(o + 36)))
+    name, begin, size, raw, flags = rows[0]
+    if name != ".hole":
+        misses.append(f"the first section is {name}, wanted .hole")
+    if begin != HOLE_BEGIN:
+        misses.append(f"the first section begins at {begin:#x}, wanted {HOLE_BEGIN:#x}")
+    if raw or not flags & 0x80:
+        misses.append("the filler section is not uninitialized")
+    for (n1, b1, s1, _, _), (n2, b2, _, _, _) in zip(rows, rows[1:]):
+        if b2 != b1 + (s1 + align - 1) // align * align:
+            misses.append(f"a gap or an overlap between {n1} ({b1:#x}, {s1:#x} bytes) and {n2} ({b2:#x})")
+    if begin + (size + align - 1) // align * align < IMAGE_TOP:
+        misses.append(f"the filler ends at {begin + (size + align - 1) // align * align:#x}, below {IMAGE_TOP:#x}")
+    for n, b, _, _, _ in rows[1:]:
+        if b < IMAGE_TOP:
+            misses.append(f"section {n} begins at {b:#x}, below {IMAGE_TOP:#x}")
+    return misses
+
+
 def text_symbols(nm_text: str) -> list[str]:
     """The names of the text symbols (type T or t) in the text of `nm` for one object; the section symbols (`.text`) are no function."""
     out = []
@@ -1298,8 +1399,14 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         if proc is None or proc.returncode != 0:
             raise Failure(f"{asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
         marks.append(obj)
+    hole_asm, hole_obj = build / "gen" / "hole.s", build / "rt" / "hole.o"
+    write_text(hole_asm, hole_source())
+    hole_obj.unlink(missing_ok=True)
+    proc = hostcheck.compile_run([args.cc, "-c", "-o", str(hole_obj), str(hole_asm)], args.timeout)
+    if proc is None or proc.returncode != 0:
+        raise Failure(f"{hole_asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
     response = build / "link.rsp"
-    write_text(response, "".join(quote(p) + "\n" for p in [marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
+    write_text(response, "".join(quote(p) + "\n" for p in [hole_obj, marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
     exe = build / args.out
     exe.unlink(missing_ok=True)
     libraries = [str(x) for x in psyz[0]["link"]] if psyz else []
@@ -1315,7 +1422,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         if listing_nm is None or listing_nm.returncode != 0:
             raise Failure(f"nm did not run on {obj}")
         runtime_symbols += text_symbols(listing_nm.stdout)
-    misses = verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
+    misses = verify_image(exe.read_bytes())
+    misses += verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore)
     misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
