@@ -9968,6 +9968,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot12_2c34x_r1"
+image = "slot12"
+source = "slot12/slot12_2c34x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80012c34_slot12", address = 0x80012c34, size = 168 },
+]
+
+[[unit]]
 name = "slot12_4754x_r1"
 image = "slot12"
 source = "slot12/slot12_4754x_r1.c"

@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "f528ce36d5216f08416f84b6f4e0be80be1512f6537955225e3b2fd0c035e9b9",
+  "sha256": "fafcad8c6db82bb1f259fa758d27e123901849570c2303c184668180698944d8",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -543,44 +543,48 @@
       "line": 8325
     },
     {
-      "title": "Windows reference",
+      "title": "A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)",
       "line": 8366
     },
     {
+      "title": "Windows reference",
+      "line": 8386
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8383
+      "line": 8403
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8408
+      "line": 8428
     },
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
-      "line": 8465
+      "line": 8485
     },
     {
       "title": "The port draws through PsyZ (2026-10-09)",
-      "line": 8550
+      "line": 8570
     },
     {
       "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
-      "line": 8664
+      "line": 8684
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8677
+      "line": 8697
     },
     {
       "title": "The program always ends when the game's thread ends it (2026-10-10)",
-      "line": 8713
+      "line": 8733
     },
     {
       "title": "The second side of one character file is linked whole: 14 rows leave the missing list (2026-10-10)",
-      "line": 8788
+      "line": 8808
     },
     {
       "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
-      "line": 8822
+      "line": 8842
     }
   ]
 }

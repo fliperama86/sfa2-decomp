@@ -8363,6 +8363,26 @@ character files hold further byte pointers into the slots; they are
 not touched here. The inference about the type stands on the function
 that is exact only with a byte member, not on the count.
 
+## A function of the module of slot 0x12 exact: the margin read into a local mid-way (2026-10-10)
+
+`func_80012c34_slot12`, 168 bytes, of the module of slot 0x12
+(`CONT00.PAC`). Its parked candidate did not compile any more: it
+declared `box_margin` as one halfword where the shared header has an
+array. With the header's form the unattended search found the bytes in
+its second round: the margin is read into a local after the first
+group of stores and used for `pos_x` at the end. Measured on the final
+text with `fndiff.py --rebuild`: read in place at that statement, 32
+differing instruction slots; read one statement earlier, 26; one
+statement later, 13; at the declaration, 35. As an `int` the local is
+exact too.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,431 of 5,600 distinct functions exact, 12,858 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
