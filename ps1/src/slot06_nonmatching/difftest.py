@@ -118,14 +118,15 @@ The option --record writes a few fixtures of one function, and --replay tests th
 without running the original code. A fixture is one case of the function in terms of what it does:
 
     args          the argument registers the setup gave
-    reads         every byte the original FUNCTION's own instructions read before anything wrote it
-                  (and, when `needs_image`, what its real callees read), as [address, hex bytes] runs;
+    reads         every byte the original FUNCTION's own instructions read before anything wrote it,
+                  as [address, hex bytes] runs;
                   the function's stack region, the 16 bytes above it and the harness's own memory (the
                   call log, the recorders' code and cells) are left out. What a recorder copies into the
                   log is not a read of the function. The one exception is a word that a recorder reads
                   and then writes itself (`counts`): its first value is kept, the replay's recorder
                   needs it
-    same          bytes the original stored without changing them and did not read first: the
+    same          the input value of bytes the original stored and did not read first, when the store
+                  changed nothing or a recorder saw the byte (a watched block or pointee): the
                   replay's memory holds them beforehand, or the store would look like a change
     recorders     the stand-in of each callee: name (the symbol table's, else the address), address,
                   number of arguments, the options of the recorder that are not return values
@@ -142,7 +143,6 @@ without running the original code. A fixture is one case of the function in term
                   the same regions as `reads`, as runs
     result        v0, when the contract says there is a result; null otherwise
     ends_in_callee  the run ended inside a recorder (a function that never returns)
-    needs_image   the case executed code of the game other than the function and the recorders
     registers     only when the original did not restore the saved registers and sp
     note, seed, case  why the case was kept, and where it came from
 
@@ -159,27 +159,32 @@ case that notices the alteration (note `edge: slot I, immediate 0xOLD against 0x
 gets the note as a second reason); (c) when the function has a result and fewer than M are kept, the first
 case for each result value that no kept case has (note `result 0xV`). It prints
 
-    FUNC fixtures: kept K of N cases (slots A, edges B, results C), needs image: yes|no
+    FUNC fixtures: kept K of N cases (slots A, edges B, results C)
 
 A and B and C count the cases kept for that reason first. The edge runs of (b) are made as --edges makes
 them (altered ORIGINAL code, `--jobs N` processes); the build is not altered. A file that exists is replaced,
 and the tool says so. A setup with more than one CallLog, or a recorder with a `tail`, cannot be described:
-status 2.
+status 2. A function is refused (one line, status 1, no file written, an existing file left alone) when a
+chosen case executes code of the game other than the function itself and the recorders: its contract lets a
+callee run as original code, fixtures cannot stand in for such a callee, and the function stays with the wide
+comparison. For that reason no fixture has a `needs_image` field (an earlier draft had one; no published file
+has it, format stays 1), and --replay refuses a file that has it (status 2).
 
---replay builds FUNC.c, and for each fixture puts the game's image (only when the fixture says
-`needs_image`) or poison bytes (0xA5, the stack zero as in a case) in memory, puts `reads` and `same` in
-place, puts a recorder at each callee that returns the recorded values in order, runs the BUILD, and requires
+--replay builds FUNC.c, and for each fixture puts poison bytes (0xA5, the stack zero as in a case) in memory,
+puts `reads` and `same` in place (a byte of `writes` whose input value the fixture does not give starts as its
+expected value with every bit flipped, never as the filler, so that a missing store shows whatever its value), puts a recorder at each callee that returns the recorded values in order, runs the BUILD, and requires
 the same calls in the same order with the same logged arguments and returned values, the same changes
 to each watched block and pointee as the fixture says (the replay's own input state, poison where the fixture
 says nothing, with the changes over it: a build that changes a watched byte the original had not changed by
 that call, or does not change one it had, fails), the result, the writes exactly (each byte of
 `writes` has that value afterwards, and no other byte outside the stack and the harness changed) and the saved
 registers and sp as the original left them. It prints `FUNC replay: fixtures K, passed P, failed F`
-(followed by `(game image used for N)` when it read the image) and, per failed fixture, a line naming it and at
+and, per failed fixture, a line naming it and at
 most three lines saying what differed first. The status is 0, 1 for a failed fixture, 2 for a missing or
 malformed file, 3 when the build fails. The original code is never run in this mode and the contract is not
-read. The replay uses no byte of the game for a fixture that does not need the image, but it starts like every
-mode: it loads the configuration, which reads the baseline executable to check its hash, so it needs the private
+read. Every address executed during a replay must lie in the build, in a recorder or be the stop address (a
+build that calls an address without a recorder fails). The replay never loads the game's image and uses no byte of
+the game, but it starts like every mode: it loads the configuration, which reads the baseline executable to check its hash, so it needs the private
 inputs of the configuration, and it builds the C with the private PS1 compiler. A replay that needs nothing
 private is a later piece (the C as compiled for a PC).
 
@@ -936,7 +941,7 @@ def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, s
 FIXTURE_FORMAT = 1
 FIXTURE_CAP = 12  # fixtures kept by --record unless --max says otherwise
 POISON = 0xA5  # what the memory of a replay holds where the fixture says nothing
-FIXTURE_FIELDS = ("args", "calls", "case", "ends_in_callee", "needs_image", "note", "reads", "recorders", "result",
+FIXTURE_FIELDS = ("args", "calls", "case", "ends_in_callee", "note", "reads", "recorders", "result",
                   "same", "seed", "watch", "writes")
 CALL_FIELDS = ("args", "callee", "pointees", "returned", "watched")
 INITIAL_SAVED = tuple(0x5A5A0000 + index for index in range(len(SAVED)))
@@ -1200,17 +1205,27 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
     needs_image = any(not any(lo <= a and a + n <= lo + length for lo, length in own) for a, n in blocks)
     writes = changed_bytes(state.ram, state.scratch, final, skip)
     reads = trace.inputs()
-    # A byte the run stored without changing it, and did not read first: the replay's memory holds that value
-    # beforehand, or the store would look like a change.
+    decoded = log.calls(final["ram"]) if log is not None else []
+    # The bytes of the memory that a recorder saw at a call (pointees and watched blocks): the calls hold them as
+    # changes against the input state, so a byte of them that the function stored needs its input value stated.
+    seen_by_recorders: set[int] = set()
+    for call in decoded:
+        for index, data in call.pointees.items():
+            seen_by_recorders.update(range(call.args[index] & 0x1FFFFFFF, (call.args[index] & 0x1FFFFFFF) + len(data)))
+        for block, count in log.watch:
+            seen_by_recorders.update(range(block & 0x1FFFFFFF, (block & 0x1FFFFFFF) + 4 * count))
+    # A byte the run stored without changing it, or that a recorder saw, and did not read first: the replay's
+    # memory holds its input value beforehand, or the store would look like a change (or a call would look changed).
     same = {at: before for at, before in trace.written.items()
-            if before == (final["ram"][at] if at < RAM_SIZE else final["scratch"][at - SCRATCH_BASE]) and at not in reads}
+            if at not in reads and (at in seen_by_recorders or
+                                    before == (final["ram"][at] if at < RAM_SIZE else final["scratch"][at - SCRATCH_BASE]))}
     recorders, calls = [], []
     if log is not None:
         label = {address: names.get(address, hex8(address)) for address in log.recorders}
         for recorder in sorted(log.recorders.values(), key=lambda r: r.address):
             cell = None if recorder.address in names else pointer_cell(reads, recorder.address)
             recorders.append(recorder_text(recorder, label[recorder.address], None if cell is None else console_address(cell)))
-        calls = [call_text(c, label, log, state.ram, state.scratch) for c in log.calls(final["ram"])]
+        calls = [call_text(c, label, log, state.ram, state.scratch) for c in decoded]
     result = hex8(final["v0"]) if setup.returns_value and setup.returns else None
     fixture = {"args": [hex8(a) for a in setup.args], "calls": calls, "ends_in_callee": not setup.returns,
                "needs_image": needs_image, "reads": runs_of({console_address(a): b for a, b in reads.items()}),
@@ -1296,7 +1311,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     contract = contracts.CONTRACTS[name]
     sym, names = addresses(cfg), names_of(cfg)
     uc = machine(b"\0" * 16)
-    fixtures, needs_image, unmade = [], False, 0
+    fixtures, unmade = [], 0
     for case in sorted(choice.reasons):
         rng = random.Random(f"{seed}:{name}:{case}")
         state = State(ram, scratch)
@@ -1305,8 +1320,11 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
             fixture, not_made = record_case(uc, state, original, size, setup, names)
         except (FixtureError, ValueError) as exc:
             return [f"{name} fixtures: not recorded, case {case}: {exc}"], 2
+        if fixture.pop("needs_image"):
+            return [f"{name} fixtures: not recorded, case {case} executes code of the game other than the function and "
+                    f"the recorders (the contract lets a callee run as original code); fixtures cannot stand in for "
+                    f"such a callee, the function stays with the wide comparison"], 1
         fixture.update({"case": case, "note": "; ".join(choice.reasons[case]), "seed": seed})
-        needs_image = needs_image or fixture["needs_image"]
         unmade += not_made
         fixtures.append(fixture)
     kept_slots = set().union(*(info[c][0] for c in choice.reasons)) if choice.reasons else set()
@@ -1323,7 +1341,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
         lines.append(f"{name} fixtures: warning, {unmade} bytes read were not made by the setup: they come from the "
                      f"game's memory image, which the file would publish")
     lines.append(f"{name} fixtures: kept {len(fixtures)} of {cases} cases (slots {choice.by['slots']}, "
-                 f"edges {choice.by['edges']}, results {choice.by['results']}), needs image: {'yes' if needs_image else 'no'}")
+                 f"edges {choice.by['edges']}, results {choice.by['results']})")
     return lines, 0
 
 
@@ -1357,6 +1375,9 @@ def load_fixtures(path: Path, name: str) -> dict:
     for number, fixture in enumerate(doc["fixtures"]):
         if not isinstance(fixture, dict):
             raise FixtureError(f"{path.name}: fixture {number} is not an object")
+        if "needs_image" in fixture:
+            raise FixtureError(f"{path.name}: fixture {number} has the field needs_image; fixtures do not stand in for "
+                               f"callees that run as original code, and this tool reads no such file")
         missing = [f for f in FIXTURE_FIELDS if f not in fixture]
         if missing:
             raise FixtureError(f"{path.name}: fixture {number} lacks {', '.join(missing)}")
@@ -1367,10 +1388,12 @@ def load_fixtures(path: Path, name: str) -> dict:
     return doc
 
 
-def replay_memory(fixture: dict, image: bytes | None) -> tuple[State, dict[int, int]]:
-    """The state a replay starts from: the game's image or poison, then what the fixture says was read or
-    stored without a change. Returns it with the bytes the fixture's writes name."""
-    ram = bytearray(image) if image is not None else bytearray([POISON]) * RAM_SIZE
+def replay_memory(fixture: dict) -> tuple[State, dict[int, int]]:
+    """The state a replay starts from: poison, then what the fixture says was read or stored without a change.
+    A byte of `writes` whose input value the fixture does not give starts as its expected value with every bit
+    flipped, never as the filler, so that a store that is missing shows whatever the value. Returns the state
+    with the bytes the fixture's writes name."""
+    ram = bytearray([POISON]) * RAM_SIZE
     scratch = bytearray([POISON]) * SCRATCH_SIZE
     # The stack is not recorded (its bytes are not compared), and a case starts with it zero.
     low, high = STACK_LOW - RAM_BASE, STACK_TOP + HOME_AREA - RAM_BASE
@@ -1381,7 +1404,15 @@ def replay_memory(fixture: dict, image: bytes | None) -> tuple[State, dict[int, 
                 scratch[address - SCRATCH_BASE] = byte
             else:
                 ram[address - RAM_BASE] = byte
-    return State(bytes(ram), bytes(scratch)), bytes_of(fixture["writes"])
+    stated = set(bytes_of(fixture["reads"])) | set(bytes_of(fixture["same"]))
+    writes = bytes_of(fixture["writes"])
+    for address, byte in writes.items():
+        if address not in stated:
+            if address < RAM_BASE:
+                scratch[address - SCRATCH_BASE] = byte ^ 0xFF
+            else:
+                ram[address - RAM_BASE] = byte ^ 0xFF
+    return State(bytes(ram), bytes(scratch)), writes
 
 
 def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contracts.CallLog | None:
@@ -1439,14 +1470,21 @@ def block_difference(number: int, callee: str, place: str, expected: bytes, seen
             f"the original had {expected[at]:#04x})")
 
 
-def replay_fixture(uc: Uc, build: Build, fixture: dict, image: bytes | None) -> list[str]:
+def replay_fixture(uc: Uc, build: Build, fixture: dict) -> list[str]:
     """Run the build on one fixture. Returns the lines that say how it differs (empty: it passes)."""
-    state, writes = replay_memory(fixture, image)
+    state, writes = replay_memory(fixture)
     log = replay_harness(state, fixture, writes)
     setup = contracts.Setup(args=tuple(int(a, 16) for a in fixture["args"]), returns_value=fixture["result"] is not None,
                             returns=not fixture["ends_in_callee"])
     before_ram, before_scratch = bytes(state.ram), bytes(state.scratch)
-    final = run_once(uc, state, TEST_ADDRESS + build.entry, setup)
+    executed: set = set()
+    final = run_once(uc, state, TEST_ADDRESS + build.entry, setup, executed)
+    # Only the build, the recorders and the stop address may run: code at any other address is the original's
+    # (or whatever the memory holds), and a replay must not run it.
+    own = [(TEST_ADDRESS, len(build.code)), (STOP_ADDRESS, 16), *(log.owned if log is not None else [])]
+    outside = sorted(a for a, n in executed if not any(lo <= a and a + n <= lo + length for lo, length in own))
+    if outside:
+        return [f"build: executed code at {outside[0]:#x}, which is neither the build nor a recorder"]
     if isinstance(final, str):
         return [f"build: {final}"]
     lines: list[str] = []
@@ -1499,20 +1537,14 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict, image: bytes | None) -> 
     return lines
 
 
-def replay_function(cfg, name: str, build: Build, doc: dict, load_image) -> tuple[list[str], int]:
-    """Replay every fixture of `doc` on `build`. `load_image()` gives the game's memory image, and is called
-    only for a fixture that says `needs_image`. Returns (lines to print, status)."""
+def replay_function(cfg, name: str, build: Build, doc: dict) -> tuple[list[str], int]:
+    """Replay every fixture of `doc` on `build`. Returns (lines to print, status)."""
     uc = machine(build.code)
-    passed = failed = used_image = 0
+    passed = failed = 0
     report: list[str] = []
-    image = None
     for number, fixture in enumerate(doc["fixtures"]):
-        if fixture["needs_image"]:
-            used_image += 1
-            if image is None:
-                image = load_image()
         try:
-            lines = replay_fixture(uc, build, fixture, image if fixture["needs_image"] else None)
+            lines = replay_fixture(uc, build, fixture)
         except (KeyError, ValueError, TypeError, AttributeError) as exc:
             raise FixtureError(f"{name}.fixtures.json: fixture {number} cannot be read: {type(exc).__name__}: {exc}") from exc
         if lines:
@@ -1523,8 +1555,6 @@ def replay_function(cfg, name: str, build: Build, doc: dict, load_image) -> tupl
         else:
             passed += 1
     head = f"{name} replay: fixtures {len(doc['fixtures'])}, passed {passed}, failed {failed}"
-    if used_image:
-        head += f" (game image used for {used_image})"
     return [head, *report], 1 if failed else 0
 
 
@@ -1566,7 +1596,7 @@ def replay_main(cfg, folder: Path, names: list[str]) -> int:
                 print(f"BUILD ERROR: {exc}", file=sys.stderr)
                 return 3
         try:
-            lines, replayed = replay_function(cfg, name, build, doc, lambda: initial_memory(cfg, image_of(name)))
+            lines, replayed = replay_function(cfg, name, build, doc)
         except (FixtureError, InputError, OSError) as exc:
             print(f"INPUT ERROR: {exc}", file=sys.stderr)
             return 2
