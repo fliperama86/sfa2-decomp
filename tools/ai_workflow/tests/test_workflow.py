@@ -154,6 +154,75 @@ class Selection(Fixture):
                     ('slot06_nonmatching-writes-7', 'writes'), ('slot06_nonmatching-controls', 'control')])
                 self.assertEqual({f for n, m, f in self.shape(changed)}, {(with_file,)})
 
+    PG = 'ps1/src/programs/'
+    PA, PB = 'func_80110004_logo', 'func_80110000_logo'
+
+    def with_programs(self):
+        """The folder of the stand-alone programs: the declaration, the two tools and their tests, and the folder `logo`
+        with a function that has a fixtures file (PA) and one that has none (PB)."""
+        for name in ('programs.toml', 'programs.py', 'discfile.py', 'test_programs.py', 'test_discfile.py'):
+            self.put(self.PG + name, '')
+        for ext in ('.c', '.py', '.fixtures.json'):
+            self.put(self.PG + 'logo/' + self.PA + ext, '')
+        for ext in ('.c', '.py'):
+            self.put(self.PG + 'logo/' + self.PB + ext, '')
+
+    def test_a_function_of_a_program_is_selected_like_a_nonmatching_one(self):
+        self.with_programs()
+        # With fixtures: the replay alone. Not the native build (the PC build does not see the folder) and not the matching build.
+        for ext in ('.c', '.fixtures.json'):
+            checks = self.selected([self.PG + 'logo/' + self.PA + ext])
+            self.assertEqual([(c.name, c.mode, c.functions) for c in checks], [('programs-logo-replay', 'replay', (self.PA,))])
+        self.assertEqual(checks[0].argv[1:], ('ps1/src/slot06_nonmatching/difftest.py', '--config', 'ps1/src/build.toml', '--folder',
+                                              'ps1/src/programs/logo', '--replay', self.PA))
+        # Without: both seeds, the audit and the control.
+        checks = self.selected([self.PG + 'logo/' + self.PB + '.c'])
+        self.assertEqual([c.name for c in checks], ['programs-logo-diff-1', 'programs-logo-writes-1', 'programs-logo-diff-7',
+                                                    'programs-logo-writes-7', 'programs-logo-controls'])
+        self.assertEqual({c.functions for c in checks}, {(self.PB,)})
+        self.assertEqual(checks[0].argv[checks[0].argv.index('--folder') + 1], 'ps1/src/programs/logo')
+        # A second program has a label of its own.
+        for ext in ('.c', '.py'):
+            self.put(self.PG + 'zed/func_80120000_zed' + ext, '')
+        self.assertEqual([c.name for c in self.selected([self.PG + 'zed/func_80120000_zed.c'])],
+                         ['programs-zed-diff-1', 'programs-zed-writes-1', 'programs-zed-diff-7', 'programs-zed-writes-7',
+                          'programs-zed-controls'])
+
+    def test_the_declaration_and_the_tools_of_the_programs_select_every_function_and_their_tests(self):
+        self.with_programs()
+        for name in ('programs.toml', 'programs.py', 'discfile.py'):
+            with self.subTest(name=name):
+                # The reader is imported by the test tool, so a change of it runs that tool's own tests as well.
+                tool = ['difftest-tools', 'difftest-build-tools'] if name == 'programs.py' else []
+                self.assertEqual([c.name for c in self.selected([self.PG + name])],
+                                 ['programs-logo-replay', 'programs-logo-diff-once-1', 'test_programs', 'test_discfile'] + tool)
+        # The tests alone select the tests alone.
+        for name in ('test_programs.py', 'test_discfile.py'):
+            with self.subTest(name=name):
+                self.assertEqual([c.name for c in self.selected([self.PG + name])], ['test_programs', 'test_discfile'])
+        checks = self.selected([self.PG + 'programs.py'])
+        self.assertEqual(checks[2].argv[1:], ('ps1/src/programs/test_programs.py',))
+        self.assertEqual(checks[3].argv[1:], ('ps1/src/programs/test_discfile.py',))
+
+    def test_the_test_tool_changes_reach_the_functions_of_the_programs(self):
+        self.with_programs()
+        self.put('ps1/src/slot06_nonmatching/difftest.py', '')
+        self.assertEqual([c.name for c in self.selected(['ps1/src/slot06_nonmatching/difftest.py'])],
+                         ['slot06_nonmatching-diff-once-1', 'programs-logo-replay', 'programs-logo-diff-once-1', 'difftest-tools',
+                          'difftest-build-tools'])
+
+    def test_a_file_of_the_programs_that_carries_no_check_is_unmapped(self):
+        self.with_programs()
+        self.put(self.PG + 'README.md', '')
+        self.put(self.PG + 'logo/README.md', '')
+        self.assertEqual(self.selected([self.PG + 'README.md', self.PG + 'logo/README.md']), [])
+        for changed in ([self.PG + 'stray.txt'], [self.PG + 'logo/notes.txt'], [self.PG + 'logo/sub/' + self.PB + '.c'],
+                        [self.PG + self.PB + '.c'], [self.PG + 'logo/' + self.PB + '.json'], [self.PG + 'logo/programs.py']):
+            self.put(changed[0], '')  # the file exists: it is refused as unmapped, not as a removed file
+            with self.subTest(changed=changed), self.assertRaises(model.Problem) as raised:
+                self.selected(changed)
+            self.assertIn('unmapped changes', str(raised.exception))
+
     def test_replay_evidence_is_one_complete_line_for_each_function(self):
         check = review.Check('r', ('python', 'difftest.py', '--replay', 'fa', 'fb'), 'ps1', ('fa', 'fb'), 'replay')
         good = 'fa replay: fixtures 3, passed 3, failed 0\nfb replay: fixtures 12, passed 12, failed 0\n'
