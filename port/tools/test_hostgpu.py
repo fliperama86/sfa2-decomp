@@ -102,6 +102,7 @@ TRIAL_C = r'''
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <setjmp.h>
 #include <windows.h>
 
 #ifdef TRIAL_SDL
@@ -114,6 +115,11 @@ static unsigned ticks;
 static unsigned resets;
 static int presenting = 1;
 
+/* After the script operation `recover`, a stop does not end the trial: it returns to the script, which goes on with
+ * the next operation (so that a case can read the picture after a refused list). */
+static jmp_buf recover_to;
+static int recoverable;
+
 void port_halt(int status, const char *fmt, ...)
 {
     va_list ap;
@@ -123,6 +129,7 @@ void port_halt(int status, const char *fmt, ...)
     va_end(ap);
     printf("\n");
     fflush(stdout);
+    if (recoverable) longjmp(recover_to, status);
     exit(status);
 }
 
@@ -469,19 +476,56 @@ static void link_to(uint32_t at, uint32_t next) { W(at)[0] = (W(at)[0] & 0xff000
 
 static void script(int argc, char **argv)
 {
-    int i = 2;
+    volatile int i = 2;
     if (argc > 2 && !strcmp(argv[2], "noreset")) i++;    /* the first graphics call is then the script's own */
     else ((f_ii)lib("ResetGraph"))(0);
     for (; i < argc; i++) {
-        char buf[200];
+        char buf[1500];
         char *a[10];
-        int n = 0;
+        int n = 0, st;
         char *tok;
         unsigned long long k;
+        if (recoverable && (st = setjmp(recover_to)) != 0) {
+            printf("t: stopped %d\n", st);
+            fflush(stdout);
+            continue;
+        }
         strncpy(buf, argv[i], sizeof buf - 1);
         buf[sizeof buf - 1] = 0;
         for (tok = strtok(buf, ":"); tok && n < 10; tok = strtok(NULL, ":")) a[n++] = tok;
-        if (!strcmp(a[0], "w")) W((uint32_t)num(a[1]))[0] = (uint32_t)num(a[2]);
+        if (!strcmp(a[0], "recover")) recoverable = 1;
+        else if (!strcmp(a[0], "pkt")) {
+            /* pkt:ADDR:NEXT:W0,W1,... one packet with these words (hex), linking NEXT */
+            uint32_t at = (uint32_t)num(a[1]);
+            unsigned count = 0;
+            char *word;
+            for (word = strtok(a[3], ","); word; word = strtok(NULL, ",")) W(at)[1 + count++] = (uint32_t)strtoul(word, NULL, 16);
+            W(at)[0] = (count << 24) | ((uint32_t)num(a[2]) & 0xffffffu);
+        } else if (!strcmp(a[0], "tilepkt")) {
+            /* tilepkt:ADDR:COUNT one packet of COUNT white 1x1 tiles at (k, 40) */
+            uint32_t at = (uint32_t)num(a[1]);
+            unsigned count = (unsigned)num(a[2]), j;
+            for (j = 0; j < count; j++) {
+                W(at)[1 + 3 * j] = 0x60ffffffu;
+                H(at + 8 + 12 * j)[0] = (int16_t)j; H(at + 8 + 12 * j)[1] = 40;
+                W(at)[3 + 3 * j] = 0x00010001u;
+            }
+            W(at)[0] = ((3u * count) << 24) | 0xffffffu;
+        } else if (!strcmp(a[0], "marge")) {
+            /* marge:ADDR two TILE packets one after the other, merged with MargePrim; prints its result and the length */
+            uint32_t at = (uint32_t)num(a[1]);
+            set_tile(at, 255, 255, 255, 30, 10, 1, 1);
+            set_tile(at + 16, 255, 255, 255, 32, 10, 1, 1);
+            link_to(at, 0xffffffu);
+            link_to(at + 16, 0xffffffu);
+            { int rc = ((f_rp)lib("MargePrim"))(W(at), W(at + 16)); printf("t: MargePrim %d length %u\n", rc, W(at)[0] >> 24); }
+        } else if (!strcmp(a[0], "penv")) {
+            /* penv:ADDR:ISBG:X:W a draw environment with a background fill, sent with PutDrawEnv */
+            uint32_t at = (uint32_t)num(a[1]);
+            ((f_ppiiii)lib("SetDefDrawEnv"))(W(at), (int)num(a[3]), 0, (int)num(a[4]), 240);
+            B(at)[0x18] = (uint8_t)num(a[2]); B(at)[0x19] = 9;
+            ((f_pp)lib("PutDrawEnv"))(W(at));
+        } else if (!strcmp(a[0], "w")) W((uint32_t)num(a[1]))[0] = (uint32_t)num(a[2]);
         else if (!strcmp(a[0], "h")) H((uint32_t)num(a[1]))[0] = (int16_t)num(a[2]);
         else if (!strcmp(a[0], "rect")) { int j; for (j = 0; j < 4; j++) H((uint32_t)num(a[1]))[j] = (int16_t)num(a[2 + j]); }
         else if (!strcmp(a[0], "fillw")) for (k = 0; k < (unsigned long long)num(a[2]); k++) W((uint32_t)num(a[1]))[k] = (uint32_t)num(a[3]);
@@ -860,8 +904,8 @@ def program_cases(rig: Rig, work: Path):
     status, lines, _ = rig.run("unknown", rig.native(shot2))
     gpu_lines = [l for l in lines if l.startswith("gpu:")]
     yield "unknown-kinds-are-reported-once-each-by-name", same(gpu_lines, [
-        "gpu: packet kind 0xA0 (copy rectangle CPU to VRAM) is not handled by PsyZ; skipped (once per kind)",
-        "gpu: packet kind 0xC0 (copy rectangle VRAM to CPU) is not handled by PsyZ; skipped (once per kind)"])
+        "gpu: packet at 0x80131340 has a command of kind 0xA0 (copy rectangle CPU to VRAM) that is not handled; the packet is skipped (once per kind)",
+        "gpu: packet at 0x80131380 has a command of kind 0xC0 (copy rectangle VRAM to CPU) that is not handled; the packet is skipped (once per kind)"])
     yield "unknown-kinds-are-skipped-the-rest-is-drawn", same((status, diff_picture(read_picture(shot2), colors)), (0, None))
 
     for mode, text in (
@@ -999,11 +1043,85 @@ def program_cases(rig: Rig, work: Path):
             status, lines, _ = rig.run("script", "env", f"prim:0x80100000:0x{code:02x}:{length}", "draw:0x80100000", "pixel:0:0")
             yield f"{name}-packet-of-{length}-words-is-converted", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
         yield f"{name}-packet-one-word-too-short-stops", stops(["env", f"prim:0x80100000:0x{code:02x}:{need - 1}", "draw:0x80100000"] if need > 1 else ["env"],
-                                                            f"gpu: the packet at 0x80100000 is kind 0x{code:02X} with {need - 1} words; that kind needs {need}")
+                                                            f"gpu: the packet at 0x80100000 holds a command of kind 0x{code:02X} at word 0 that needs {need} words; {need - 1} are left")
     for name, code in (("GP0 drawing mode", 0xE1), ("GP0 texture window", 0xE2), ("GP0 area start", 0xE3), ("GP0 area end", 0xE4), ("GP0 offset", 0xE5), ("GP0 mask", 0xE6)):
         for length in (1, 2, 255):
             status, lines, _ = rig.run("script", "env", f"prim:0x80100000:0x{code:02x}:{length}", "draw:0x80100000")
             yield f"{name}-packet-of-{length}-words-is-converted", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
+
+
+    # ---- every command of a packet is checked before PsyZ sees the packet ----
+    def packet(words, nxt="0xffffff", addr="0x80100000"):
+        return f"pkt:{addr}:{nxt}:" + ",".join(f"{w:08x}" for w in words)
+
+    def short(addr, code, at, need, left):
+        return f"gpu: the packet at {addr} holds a command of kind 0x{code:02X} at word {at} that needs {need} words; {left} are left"
+
+    tile = lambda x, y, w, h, rgb=0xFFFFFF: [0x60000000 | rgb, (y << 16) | x, (h << 16) | w]
+    blue_fill = [0x02FF0000, 0x00050005, 0x00040004]
+    # the two probes of the review
+    yield "an-incomplete-fill-after-a-nop-is-the-named-stop", stops(["env", packet([0x00000000, 0x020000FF]), "draw:0x80100000"], short("0x80100000", 0x02, 1, 3, 1))
+    status, lines, _ = rig.run("script", "env", packet([0x00000000, *blue_fill]), "draw:0x80100000", "pixel:5:5", "recover", packet([0x00000000, 0x020000FF], addr="0x80100100"), "draw:0x80100100", "pixel:5:5", "pixel:8:8")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    stopped = [l for l in lines if l.startswith(("stop:", "t: stopped"))]
+    yield "after-a-valid-blue-fill-the-incomplete-payload-is-the-named-stop-and-the-picture-is-unchanged", same(
+        (status, px, stopped), (0, [0x7C00, 0x7C00, 0x7C00], ["stop: " + short("0x80100100", 0x02, 1, 3, 1), "t: stopped 7"]))
+    # an incomplete command as the second, the third and the last of a packet, after a no-op, after each setting word, after a primitive
+    incomplete = {
+        "second": ([0xE3000000, 0x2C000000], 0x2C, 1, 9, 1),
+        "third": ([0x00000000, 0xE1000000, 0x64000000, 0x00000000], 0x64, 2, 4, 2),
+        "last-after-a-complete-sprite-16": ([0x7C000000, 0, 0, 0x7C000000], 0x7C, 3, 3, 1),
+        "after-a-complete-tile": ([*tile(1, 1, 1, 1), 0x02FF0000], 0x02, 3, 3, 1),
+        "textured-quad-one-word-short": ([0x2C000000] + [0] * 7, 0x2C, 0, 9, 8),
+        "gouraud-quad-one-word-short": ([0x3C000000] + [0] * 10, 0x3C, 0, 12, 11),
+        "the-fill-with-its-position-only": ([0x02000000, 0x00050005], 0x02, 0, 3, 2),
+        "the-copy-with-three-words": ([0x80000000, 0, 0], 0x80, 0, 4, 3),
+        "a-line-with-one-vertex": ([0x40000000, 0], 0x40, 0, 3, 2),
+        "a-gouraud-line-with-one-vertex": ([0x50000000, 0, 0], 0x50, 0, 4, 3),
+    }
+    for name, code in (("E1", 0xE1), ("E2", 0xE2), ("E3", 0xE3), ("E4", 0xE4), ("E5", 0xE5), ("E6", 0xE6)):
+        incomplete[f"after-setting-word-{name}"] = ([code << 24, 0x02000000], 0x02, 1, 3, 1)
+    for name, (words, code, at, need, left) in incomplete.items():
+        yield f"an-incomplete-command-{name}-is-the-named-stop", stops(["env", packet(words), "draw:0x80100000"], short("0x80100000", code, at, need, left))
+    yield "a-stream-that-leaves-one-word-over-is-the-named-stop", stops(["env", packet([*tile(1, 1, 1, 1), 0x00000000, 0x02000000]), "draw:0x80100000"], short("0x80100000", 0x02, 4, 3, 1))
+    # several complete commands of different kinds in one packet, the last ending exactly at the packet's end
+    words = [0xE3000000, 0xE4000000 | (47 << 10) | 63, 0xE5000000, 0x00000000, *tile(2, 2, 4, 4), 0x03000000, 0xE0000000, 0xE7000000,
+             *tile(20, 20, 2, 2), 0x01000000, 0x02FF0000, 0x001E001E, 0x00040004]
+    status, lines, _ = rig.run("script", "env", packet(words), "draw:0x80100000", "pixel:3:3", "pixel:20:20", "pixel:31:31", "pixel:10:10", "pixel:34:34")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    yield "a-packet-of-several-complete-commands-draws-all-of-them", same((status, px, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, [0x7FFF, 0x7FFF, 0x7C00, 0, 0], []))
+    # the largest packet, 255 words, of 85 commands
+    status, lines, _ = rig.run("script", "env", "tilepkt:0x80100000:85", "draw:0x80100000", "pixel:0:40", "pixel:84:40", "pixel:85:40")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    yield "a-packet-of-255-words-holding-85-tiles-draws-them-all", same((status, px), (0, [0x7FFF, 0x7FFF, 0]))
+    # a kind that is not decoded, in a later position: reported once, the whole packet skipped, nothing of it drawn
+    status, lines, _ = rig.run("script", "env", packet([*tile(2, 2, 4, 4), 0xA0000000, 0, 0]), "draw:0x80100000", packet([*tile(12, 12, 4, 4), 0xA0000000, 0, 0], addr="0x80100100"), "draw:0x80100100", "pixel:3:3", "pixel:13:13")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    yield "an-undecoded-kind-in-a-later-position-is-reported-once-and-skips-the-packet", same((status, px, [l for l in lines if l.startswith("gpu:")]), (0, [0, 0], [
+        "gpu: packet at 0x80100000 has a command of kind 0xA0 (copy rectangle CPU to VRAM) that is not handled; the packet is skipped (once per kind)"]))
+    status, lines, _ = rig.run("script", "env", packet([0x00000000, 0x48000000, 0, 0, 0, 0x55555555]), "draw:0x80100000")
+    yield "a-polyline-after-a-nop-is-reported-by-name-and-skipped", same((status, [l for l in lines if l.startswith("gpu:")]), (0, [
+        "gpu: packet at 0x80100000 has a command of kind 0x48 (polyline, its length depends on a terminator word) that is not handled; the packet is skipped (once per kind)"]))
+    # no-operation kinds are checked as one-word commands and kept from PsyZ; a packet of nothing else draws nothing and ends well
+    status, lines, _ = rig.run("script", "env", packet([0x03000000, 0x1E000000, 0xE0000000, 0xE7000000, 0xFF000000]), "draw:0x80100000", "pixel:0:0")
+    yield "a-packet-of-no-operation-kinds-is-accepted", same((status, lines[-2:]), (0, ["t: pixel 0 0 0000", "t: done"]))
+    # stale buffer: the words of an earlier packet in the conversion buffer are never read by a later one
+    status, lines, _ = rig.run("script", "env", "tilepkt:0x80100000:85", "draw:0x80100000", packet([0x00000000, 0x02000000, 0x00040004, 0x00040004], addr="0x80100800"), "draw:0x80100800", "pixel:4:4")
+    yield "a-short-packet-after-a-long-one-uses-only-its-own-words", same((status, lines[-2:]), (0, ["t: pixel 4 4 0000", "t: done"]))
+    # PutDrawEnv's packet is a stream too: the background fill, aligned (fill command) and not aligned (rectangle command), goes through the walker whole
+    for tag, x, w in (("aligned", 0, 320), ("unaligned-x", 3, 320), ("unaligned-width", 0, 300)):
+        status, lines, _ = rig.run("script", f"penv:0x80100000:1:{x}:{w}", "pixel:4:4")
+        yield f"putdrawenv-with-a-background-{tag}-passes-the-walker", same((status, [l for l in lines if l.startswith(("stop:", "gpu:"))]), (0, []))
+    # MargePrim joins the second packet's tag word into the first packet's stream (the library leaves it there): the tag's top
+    # byte, the second packet's length, is then a command of its own, a no-operation kind for 3; the merged packet is a stream
+    # like any other
+    status, lines, _ = rig.run("script", "env", "marge:0x80100000", "draw:0x80100000", "pixel:30:10", "pixel:32:10", "pixel:31:10")
+    px = [int(l.split()[4], 16) & 0x7FFF for l in lines if l.startswith("t: pixel ")]
+    yield "two-tiles-merged-with-margeprim-are-both-drawn-the-tag-word-between-them-is-a-no-operation", same(
+        (status, [l for l in lines if l.startswith(("t: Marge", "stop:", "gpu:"))], px), (0, ["t: MargePrim 0 length 7"], [0x7FFF, 0x7FFF, 0]))
+    # a list whose packets have length 0 draws nothing and ends
+    status, lines, _ = rig.run("script", "env", "chain:0x80100000:100:0xffffff", "draw:0x80100000")
+    yield "a-list-of-packets-of-length-0-draws-nothing", same((status, lines[-1]), (0, "t: done"))
 
     status, lines, _ = rig.run("closed")
     yield "closed-window-ends-the-program-with-status-0-and-the-line", same((status, lines), (0, ["t: before", "stop: window closed"]))

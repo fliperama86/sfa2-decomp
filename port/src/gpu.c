@@ -241,53 +241,80 @@ int port_gpu_read_frame(unsigned short *pixels)
 
 /* ---- seam: the list walker ---- */
 
-/* The GP0 command kinds (the top byte of the first word after a tag) that
- * PsyZ's DispatchPackets decodes: no-operation 0x00, clear cache 0x01, fill
- * rectangle 0x02, the primitives 0x20..0x7f, copy VRAM to VRAM 0x80, and the
- * settings 0xe1..0xe6. Any other kind it reports on every packet and then
- * reads on with the next word, which turns a copy command's rectangle into
- * garbage commands, so the walker does not hand such a packet over: it says
- * once per kind what it is and skips the packet. (The GPU ignores kinds it does
- * not know; skipping is the same. A game that depended on a copy command in a
- * list would show the missing picture, with the line saying why.) */
-static int kind_known(unsigned code)
-{
-    return code <= 0x02 || (code >= 0x20 && code <= 0x80) || (code >= 0xe1 && code <= 0xe6);
-}
-
-/* How many words after the tag a command of this kind needs: polygons 1 + vertices (+ one texture word per vertex)
- * (+ a colour word per vertex after the first), lines the two-vertex form, rectangles 1 + position (+ texture)
- * (+ size when free), the fill 3, the VRAM copy 4, the others 1. A packet shorter than that is a stop: on the console
- * the GPU would take the missing words from the packet after it, which this conversion does not reproduce; a longer
- * packet is fine (the GPU reads the extra words as further commands, and so does PsyZ). */
-static unsigned min_words(unsigned code)
+/* A packet's words are a stream of GP0 commands, and PsyZ's DispatchPackets decodes them one after the other: the
+ * kind of a command is the top byte of its first word, and the kind fixes how many words the command takes, so the
+ * next command starts right after. The walker steps through the whole payload the same way before it hands any of it
+ * over, and each command must lie wholly inside the packet. The numbers (command_words) are the console's; they
+ * agree with what PsyZ takes for every kind listed here (read in its decoder: a no-operation, the cache clear and the
+ * settings one word, the fill 3, the copy 4, a polygon 1 + vertices + a texture word per vertex + a colour word per
+ * vertex after the first, a line 3 or 4, a rectangle 2 + texture + size when free). It differs from the console for:
+ *  - polylines (codes 0x48..0x4f and 0x58..0x5f): on the console they run until a terminator word, PsyZ takes a fixed
+ *    3 or 4 vertices and a padding word; the length depends on later words, so the walker does not decode them.
+ *  - the copy-to-VRAM and copy-from-VRAM commands (0xa0..0xdf), whose data words follow, and their mirrors, which
+ *    PsyZ does not implement.
+ *  - the interrupt request 0x1f, which the console latches.
+ * A packet with a command of those kinds anywhere in it is not forwarded: the first time each kind is met the
+ * walker says what it is, and the whole packet is skipped (one rule for every position). The GPU's other kinds,
+ * 0x03..0x1e, 0xe0 and 0xe7..0xff, take one word and do nothing on the console; they are checked as one-word
+ * commands and left out of what PsyZ gets (it would report each as unsupported). */
+static unsigned command_words(unsigned code)
 {
     unsigned textured = (code & 0x04) != 0, gouraud = (code & 0x10) != 0;
+    if (code <= 0x01) return 1;
     if (code == 0x02) return 3;
     if (code == 0x80) return 4;
+    if (code >= 0xe1 && code <= 0xe6) return 1;
     if (code >= 0x20 && code <= 0x3f) {
         unsigned verts = (code & 0x08) ? 4 : 3;
         return 1 + verts + (textured ? verts : 0) + (gouraud ? verts - 1 : 0);
     }
-    if (code >= 0x40 && code <= 0x5f) return gouraud ? 4 : 3;
+    if (code >= 0x40 && code <= 0x5f) return (code & 0x08) ? 0 : (gouraud ? 4 : 3);
     if (code >= 0x60 && code <= 0x7f) return 2 + textured + (((code >> 3) & 3) == 0);
-    return 1;
+    return 0;
+}
+
+/* One-word commands that do nothing: the console ignores them. */
+static int is_nop_kind(unsigned code)
+{
+    return (code >= 0x03 && code <= 0x1e) || code == 0xe0 || code >= 0xe7;
 }
 
 static const char *kind_name(unsigned code)
 {
-    if (code >= 0x03 && code <= 0x1e) return "reserved";
     if (code == 0x1f) return "interrupt request";
+    if (code >= 0x40 && code <= 0x5f) return "polyline, its length depends on a terminator word";
     if (code >= 0x81 && code <= 0x9f) return "copy rectangle VRAM to VRAM, mirror";
     if (code >= 0xa0 && code <= 0xbf) return "copy rectangle CPU to VRAM";
     if (code >= 0xc0 && code <= 0xdf) return "copy rectangle VRAM to CPU";
-    return "no operation";
+    return "not a command of the GPU";
+}
+
+/* Step through the payload of the packet at `here`. 1: every command is complete and the stream ends at the
+ * packet's end; `*effective` is the number of words PsyZ will get. 0: a command of a kind that is not decoded was
+ * met, its kind in `*undecoded`. A command that needs words beyond the packet's end is the stop. */
+static int walk_payload(uint32_t here, const uint32_t *w, unsigned len, unsigned *effective, unsigned *undecoded)
+{
+    unsigned pos = 0, kept = 0;
+    while (pos < len) {
+        unsigned code = w[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
+        if (!need) {
+            *undecoded = code;
+            return 0;
+        }
+        if (len - pos < need)
+            stop("gpu: the packet at 0x%08x holds a command of kind 0x%02X at word %u that needs %u words; %u are left", here, code, pos, need, len - pos);
+        if (!is_nop_kind(code)) kept += need;
+        pos += need;
+    }
+    *effective = kept;
+    return 1;
 }
 
 #define CHUNK_WORDS 8192u
-/* PsyZ decodes a primitive by its code and reads as many words as that primitive has (at most 12), without
- * looking at the length of a packet that is shorter; the slack after the buffer keeps those reads inside it. */
-static unsigned long chunk[CHUNK_WORDS + 32];
+/* The conversion buffer. PsyZ gets, for each packet, a tag with the number of words of the packet (as walk_payload
+ * counted them) and exactly those words; every command has been checked to lie inside them, so PsyZ reads
+ * nothing of an earlier packet or list that is left in the buffer. */
+static unsigned long chunk[CHUNK_WORDS];
 static unsigned chunk_used;
 static unsigned long *chunk_last;
 
@@ -301,15 +328,20 @@ static void chunk_flush(void)
     chunk_last = NULL;
 }
 
-static void chunk_add(const uint32_t *words, unsigned n)
+static void chunk_add(const uint32_t *words, unsigned len, unsigned n)
 {
     unsigned long *node;
-    unsigned i;
+    unsigned i, k = 0, pos = 0;
     if (chunk_used + 2 + n > CHUNK_WORDS) chunk_flush();
     node = &chunk[chunk_used];
     node[0] = LINK_END;
     node[1] = n;
-    for (i = 0; i < n; i++) node[2 + i] = words[i];
+    while (pos < len) {
+        unsigned code = words[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
+        if (!is_nop_kind(code))
+            for (i = 0; i < need; i++) node[2 + k++] = words[pos + i];
+        pos += need;
+    }
     if (chunk_last) chunk_last[0] = (unsigned long)node;
     chunk_last = node;
     chunk_used += 2 + n;
@@ -327,6 +359,8 @@ static void send_list(uint32_t *first)
     uint32_t *node;
     uint32_t start = (uint32_t)(uintptr_t)first;
     unsigned count = 0;
+    chunk_used = 0;
+    chunk_last = NULL;
     if (!((start >= PORT_RAM_BASE && start < PORT_RAM_BASE + PORT_RAM_SIZE) || (start >= 0xa0000000u && start < 0xa0000000u + PORT_RAM_SIZE)))
         stop("gpu: DrawOTag(0x%08x): the list does not start in RAM", start);
     node = ram_at(start & 0xffffffu, start);
@@ -339,14 +373,12 @@ static void send_list(uint32_t *first)
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
             stop("gpu: the packet at 0x%08x is %u words long and runs past the end of RAM", here, len);
         if (len) {
-            unsigned code = node[1] >> 24;
-            if (kind_known(code)) {
-                if (len < min_words(code))
-                    stop("gpu: the packet at 0x%08x is kind 0x%02X with %u words; that kind needs %u", here, code, len, min_words(code));
-                chunk_add(node + 1, len);
+            unsigned effective = 0, code = 0;
+            if (walk_payload(here, node + 1, len, &effective, &code)) {
+                if (effective) chunk_add(node + 1, len, effective);
             } else if (!seen[code]) {
                 seen[code] = 1;
-                printf("gpu: packet kind 0x%02X (%s) is not handled by PsyZ; skipped (once per kind)\n", code, kind_name(code));
+                printf("gpu: packet at 0x%08x has a command of kind 0x%02X (%s) that is not handled; the packet is skipped (once per kind)\n", here, code, kind_name(code));
                 fflush(stdout);
             }
         }
