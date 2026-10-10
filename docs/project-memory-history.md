@@ -9032,6 +9032,51 @@ No function count changes here. Nothing under `ps1/` changed.
   is compared with PsyZ's source, not with a key press.
 - A fault of the script found in review, and the control that could not find it. A repeat line was turned into presses and releases 4 frames apart, in one state with the down and up lines. Its last release could fall after the repeat's end and release a button that a later down line held: with `repeat 0 0.1 cross`, `0.15 cross down`, `1 cross up` the button was up from frame 10 where the page says it is held to frame 60. The controls did not see it because their expected words came from a function of the test that repeated the same calculation. Now the holds of the lines and the presses of the repeats are two states (a count of running presses per button), a press ends at the repeat's end, and four scripts have their words written out by hand, frame by frame, in both builds and with and without the timer: the reviewer's, a repeat that ends at a line of another button, a hold that begins before a repeat of the same button, and two repeats on one button. Against the code as it was pushed all 16 of those cases fail (the reviewer's at frames 10, 11, 30 and 59); with one state again, without the clipping, and without the count, named cases fail. The test's own function was rewritten in the other form (state at a frame, not a list of steps) and is no longer the only source of an expectation.
 
+## Nonmatching C for the resident program, first batch (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- A new folder, `ps1/src/resident_nonmatching/`, for functions of the
+  resident program itself, with the same rules and the same test as
+  the stage and character folders. First batch, fourteen functions:
+  `func_80119694`, `func_8011a018`, `func_8011a880`, `func_8011acbc`,
+  `func_8011bf70`, `func_8011c724`, `func_8011cf98`, `func_8011d74c`,
+  `func_8011db78`, `func_8011df3c`, `func_8011eb4c`, `func_8011f06c`,
+  `func_8011fa50`, `func_80120cf0`. The folder's page has what its
+  three commands printed for each.
+- They were written days ago and waited on a branch; the cut onto
+  today's main needed no change to any function's C.
+- One function that was to be in the batch is not: with today's
+  headers the C of `func_80119444` builds the original's 72 bytes word
+  for word. An exact function does not belong in a nonmatching folder,
+  and its header ("differs in register use") would have been false. It
+  is handed to the matching lane as a candidate unit. That it was
+  noticed at all is thanks to a byte comparison the cut does not make
+  by itself; the other thirteen that were compared in that run differ.
+- `func_80119694` walks an ordering table through links of 24 bits,
+  that is through the console's low view of its RAM. Its test maps
+  both views of the RAM, as the console has them. On a PC the port's
+  mirror layer serves those accesses; no host routine stands in for
+  the function.
+- In a private run of the real game on a PC, `func_8011a880` read
+  the low view at address 4: a frame pointer was null. That is the
+  input its contract leaves out, with the note that the original
+  reads through the pointer as well (read from the listing when the
+  contract was written; not a tested input). On a PC the port's
+  mirror layer serves the read.
+- The checks before the pull request, all on the batch's commit: the
+  declarations of the new units agree with their definitions and with
+  `protos.h` (the lane's check, told to read the new folder, which it
+  does not read by default); the resident table check; the scan for
+  an index or offset on a cast pointer, with one finding read and
+  kept (a type byte at offset 8 of an untyped record in
+  `func_8011eb4c`, as its comment says); the write audit on two seeds;
+  the name lint.
+- Two faults of this lane's private helpers showed and are fixed: the
+  cut stopped on a structure it had no rule for, and the batch script
+  went on after a failed cut because it took its status from `tee`.
+- Headers that said something other than their code, found in review. The reviewer ran targeted cases and found two: `func_8011a880`'s header gave `field_09 = 1` to the fighter with the larger frame byte where the C (and the original, in his case) gives it to the smaller one; `func_8011cf98`'s named history entry 8 where the code uses entry 9, and referred to itself where `func_8011bf70` was meant. The tests could not see this: they compare the C with the original and do not read prose. All fourteen headers and their contracts' docstrings were then read against the code, sentence by sentence (about 450 statements, a tally by hand): 21 wrong (11 in headers, 10 in docstrings: counts, entry numbers, a missing early return, items missing from or wrongly in the Reads lists, probabilities of the setups) and 5 imprecise. All are corrected, 34 corrections in 20 files, in comments and docstrings only: for each of the 28 files, the C with its comments stripped and the Python with its docstrings removed are identical before and after. Statements about the original's code that the files cannot show are now labelled as read from the listing or as inferred. Where a header used a meaning to say which value goes where ("in front"), it now states the value. From here on every batch gets this reading before it is published; the method is a private work package, and the functions that still wait are being read the same way.
+
 ## Nonmatching C for the other modules, first batch (2026-10-10)
 
 No function count changes here: none of this is in the build.
