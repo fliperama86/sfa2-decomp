@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import dataclasses
+import re
 import hashlib
 import json
 from pathlib import Path
@@ -550,6 +551,58 @@ class Results(Fixture):
         check=review.Check('test_example',('python',),'workflow')
         review.check_output(check,'Ran 2 tests in 1s\nOK\n')
         with self.assertRaises(model.Problem):review.check_output(check,'Ran 2 tests in 1s\nOK (skipped=2)\n')
+
+    def test_a_control_file_passes_by_its_last_line_in_each_form_the_files_print(self):
+        check = review.Check('test_example', ('python',), 'port')
+        oks = lambda n: ''.join(f'ok   case-{i}\n' for i in range(n))
+        for last, n in (('all cases behaved as required', 3), ('all 3 cases behaved as required', 3),
+                        ('all 20 cases that ran behaved as required', 20), ('all 104 tests passed in 17.0 seconds', 104),
+                        ('all 1 cases behaved as required', 1)):
+            with self.subTest(last=last):
+                # lines of detail between the cases do not count as cases
+                review.check_output(check, '     a detail line\n' + oks(n) + '     ok is not at the line\'s start here\n' + last + '\n')
+
+    def test_a_control_file_whose_output_contradicts_its_last_line_is_refused(self):
+        check = review.Check('test_example', ('python',), 'port')
+        good = 'ok   a\nok   b\nall 2 cases behaved as required\n'
+        review.check_output(check, good)
+        bad = {
+            'one case fewer than the line says': 'ok   a\nall 2 cases behaved as required\n',
+            'one case more than the line says': 'ok   a\nok   b\nok   c\nall 2 cases behaved as required\n',
+            'tests fewer than the line says': 'ok   a\nall 2 tests passed in 1.0 seconds\n',
+            'cases that ran fewer than the line says': 'ok   a\nall 2 cases that ran behaved as required\n',
+            'no case shown': 'all cases behaved as required\n',
+            'a zero count': 'ok   a\nall 0 cases behaved as required\n',
+            'a failed case before a passing line': 'ok   a\nFAIL b: why\nok   c\nall 2 cases behaved as required\n',
+            'a failing summary before a passing line': 'ok   a\n1 case(s) behaved wrongly\nok   b\nall 2 cases behaved as required\n',
+            'a failing summary of tests before a passing line': 'ok   a\n1 of 2 tests FAILED in 1.0 seconds\nok   b\nall 2 tests passed in 1.0 seconds\n',
+            'two passing lines': 'ok   a\nall 1 cases behaved as required\nok   b\nall 2 cases behaved as required\n',
+            'the passing line is not the last': good + 'Traceback (most recent call last):\n',
+            'the passing line goes on': 'ok   a\nok   b\nall 2 cases behaved as required, but see above\n',
+            'the passing line is indented': 'ok   a\nok   b\n  all 2 cases behaved as required\n',
+            'only the failing summary': 'ok   a\n1 case(s) behaved wrongly\n',
+            'nothing': '',
+        }
+        for why, output in bad.items():
+            with self.subTest(why=why), self.assertRaises(model.Problem):
+                review.check_output(check, output)
+
+    def test_the_tests_of_the_port_print_lines_the_review_accepts(self):
+        # The form each control file of the port prints for a pass, read from the file's own text: a file whose
+        # passing line the review would not accept would fail every review of a change of the port.
+        root = Path(review.__file__).resolve().parents[2]
+        files = sorted((root / 'port/tools').glob('test_*.py')) + sorted((root / 'ps1/tools').glob('test_*.py')) \
+            + sorted((root / 'ps1/src/programs').glob('test_*.py'))
+        self.assertGreater(len(files), 20)
+        for file in files:
+            text = file.read_text()
+            forms = set(re.findall(r'"(all cases behaved as required)"|f"(all \{\w+\} cases behaved as required)"'
+                                   r'|f"(all \{\w+\} cases that ran behaved as required)"'
+                                   r'|f"(all \{\w+\} tests passed in \{\w+:\.1f\} seconds)"', text))
+            with self.subTest(file=file.name):
+                self.assertEqual(len(forms), 1, 'the file has not exactly one passing line of a known form')
+                line = re.sub(r'\{\w+:\.1f\}', '1.5', re.sub(r'\{\w+\}', '2', next(f for f in forms.pop() if f)))
+                review.check_output(review.Check(file.stem, ('python',), 'port'), 'ok   a\nok   b\n' + line + '\n')
 
     def test_write_and_negative_control_counts(self):
         for mode, good in (('writes','f writes: cases 2, discarded 0, outside 0 (largest 0 bytes)'),('control','f control: different 1 of 2 (expected more than 0)')):
