@@ -33,6 +33,15 @@ its data by address and does not use the register, so a replay's
 result does not depend on it today; it is set there all the same, so
 that a run begins the same way in every mode.
 
+With it, one rule of the review tool (`tools/ai_workflow/review.py`):
+a header inside a program's folder (`ps1/src/programs/NAME/*.h`)
+selects the functions of that folder and nothing of the game. Before,
+any header under `ps1/src` counted as a change of everything, the
+matching build included; a header of a program's folder is included by
+that program's C alone, and neither build sees it. A header of the
+game still selects everything, the programs' functions too (one new
+test of the selection).
+
 What ran: `python -B test_difftest.py`, "all cases behaved as
 required", 446 cases (4 new); `python -B test_programs.py`, the same
 line, 33 cases (4 new); `python -B test_difftest_build.py --config
