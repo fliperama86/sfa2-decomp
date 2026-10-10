@@ -2,7 +2,7 @@
 """Differential test of a nonmatching C function against the original code.
 
     difftest.py --config ../build.toml [--folder DIR] [--cases N] [--seed S]
-                [--control] [--uncovered] (FUNC... | --all)
+                [--control | --writes] [--uncovered] (FUNC... | --all)
 
 For each FUNC the tool builds `FUNC.c` of the folder (this one, or DIR) with the pinned
 toolchain of the matching build (the preprocessing, compiler, maspsx and
@@ -19,6 +19,43 @@ many instruction slots of the original function the cases executed, and
 `--uncovered` lists the others: cases that never reach a part of the
 function say nothing about it.
 
+The option --writes audits where the ORIGINAL writes, which the comparison above does not
+say: both runs may end alike and both may have written outside what the contract names.
+It runs the original only (nothing is built) on the cases of the seed and prints per function
+
+    FUNC writes: cases N, discarded D, outside K (largest B bytes)
+
+K is the number of cases in which the original changed at least one byte of RAM or of the
+scratchpad that is neither made nor in the stack region; B is the largest number of such bytes
+in one case. D counts the cases that were discarded (a fault, or the instruction budget), as
+in the default mode; a discarded case is not counted as outside. With --uncovered and a K above
+0 a second line follows, `  first: case C; 0xADDR..0xADDR (NAME+0xOFF); ...`: the first such
+case and the address runs of its bytes (bytes less than 17 apart form one run), each run with
+the nearest name at or below its first address in the same region (RAM or scratchpad) of the
+tree's symbol table, `?` when there is none; at most six runs, then `and M more`. The status is
+0 when every K is 0, 1 otherwise, 2 for the errors above, and --writes with --control is one.
+The default mode and --control print what they printed before the option existed.
+
+"Made" is memory that the setup of the case wrote through `State.write` (so through `w8`, `w16`,
+`w32` and the helpers that call them, the recorders of `contracts.CallLog` among them, which
+write code and log through `State`), each block that `State.alloc` handed out, whole, and what
+the setup marked with `State.owns(address, size)`. `owns` writes nothing: a setup uses it for
+memory whose content from the image it wants to keep and that the function may write, and the
+header of that function's contract says why. The padding that `alloc` adds to reach a multiple
+of 4 bytes is not made. The function's own memory is the stack region [STACK_LOW, STACK_TOP),
+the region the comparison leaves out, and the 16 bytes from the initial stack pointer upward,
+[STACK_TOP, STACK_TOP + 16): under the calling convention (o32) they are the callee's argument
+home area, where it may spill a0 to a3. The comparison still compares those 16 bytes; only the
+audit does not count them. Memory that the setup made stays made wherever it lies, in the home
+area too. The scratchpad has no such region.
+
+What the audit does not see: a store of the value that is already there changes no byte, so
+it is not counted; reads are not audited; "made" says that the setup touched or allocated the
+memory, not that it filled it with varied content; and only the cases of the given seed are
+run. A K above 0 means the function runs past a table the setup built, or writes a table or
+a global that the setup did not make, or the setup leaves a table unfilled that the function
+writes: the setup is to be changed, or the contract's header is to name the exception.
+
 The private inputs (the baseline executable and the module archive that
 the build configuration names) are read through the configuration; the
 tool stops with a message when they are absent.
@@ -31,6 +68,7 @@ problem, 3 when the build fails.
 from __future__ import annotations
 
 import argparse
+import bisect
 import dataclasses
 import importlib.util
 import random
@@ -63,6 +101,7 @@ ARENA_END = 0x80100000
 STACK_TOP = 0x801FF000  # initial sp
 STACK_LOW = 0x801FE000  # the stack region [STACK_LOW, STACK_TOP) is not compared
 BUDGET = 2_000_000
+HOME_AREA = 16  # the callee's argument home area, sp to sp + 15 on entry (o32): the --writes audit counts it as the function's own
 PAGE = 0x1000  # the unit of the first pass of the memory comparison
 SAVED = (reg.UC_MIPS_REG_S0, reg.UC_MIPS_REG_S1, reg.UC_MIPS_REG_S2, reg.UC_MIPS_REG_S3,
          reg.UC_MIPS_REG_S4, reg.UC_MIPS_REG_S5, reg.UC_MIPS_REG_S6, reg.UC_MIPS_REG_S7, reg.UC_MIPS_REG_FP)
@@ -82,6 +121,8 @@ class State:
         self.scratch = bytearray(scratch)
         self.arena = ARENA_BASE
         self.stop = STOP_ADDRESS  # where a run ends; a recorder that ends the run jumps there
+        self.made_ram = bytearray(RAM_SIZE)  # 1 for each byte that the setup made (see `owns`)
+        self.made_scratch = bytearray(SCRATCH_SIZE)
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
         if RAM_BASE <= address and address + size <= RAM_BASE + RAM_SIZE:
@@ -93,6 +134,16 @@ class State:
     def write(self, address: int, data: bytes) -> None:
         block, offset = self._locate(address, len(data))
         block[offset : offset + len(data)] = data
+        self._mark(block, offset, len(data))
+
+    def _mark(self, block: bytearray, offset: int, size: int) -> None:
+        made = self.made_ram if block is self.ram else self.made_scratch
+        made[offset : offset + size] = b"\1" * size
+
+    def owns(self, address: int, size: int) -> None:
+        """Mark [address, address + size) as made without writing it (see `--writes`)."""
+        block, offset = self._locate(address, size)
+        self._mark(block, offset, size)
 
     def read(self, address: int, size: int) -> bytes:
         block, offset = self._locate(address, size)
@@ -108,11 +159,12 @@ class State:
         self.write(address, struct.pack("<I", value & 0xFFFFFFFF))
 
     def alloc(self, size: int) -> int:
-        """A zero-initialised block of free RAM, word aligned."""
+        """A zero-initialised block of free RAM, word aligned. The block is made; the padding after it is not."""
         address = self.arena
         self.arena = (self.arena + size + 3) & ~3
         if self.arena > ARENA_END:
             raise ValueError("the setup needs more free RAM than the arena holds")
+        self.owns(address, size)
         return address
 
 
@@ -436,6 +488,72 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     return discarded, equal, different, first, executed
 
 
+def outside_addresses(state: State, final: dict) -> list[int]:
+    """The addresses of the bytes that the run changed and that are neither made nor in the stack region."""
+    low, high = STACK_LOW - RAM_BASE, STACK_TOP + HOME_AREA - RAM_BASE
+    found = []
+    for base, before, after, made, skip in ((RAM_BASE, state.ram, final["ram"], state.made_ram, (low, high)),
+                                            (SCRATCH_BASE, state.scratch, final["scratch"], state.made_scratch, (0, 0))):
+        for start in range(0, len(before), PAGE):
+            if before[start : start + PAGE] == after[start : start + PAGE]:
+                continue
+            for i in range(start, min(start + PAGE, len(before))):
+                if before[i] != after[i] and not made[i] and not skip[0] <= i < skip[1]:
+                    found.append(base + i)
+    return found
+
+
+def runs_text(found: list[int], sym: dict) -> str:
+    """Addresses (RAM ones, then scratchpad ones, each ascending) as `0xA..0xB (NAME+0xOFF); ...`:
+    runs of bytes less than 17 apart, six at most, then `and M more`."""
+    names = sorted((v, k) for k, v in sym.items() if isinstance(v, int))
+    runs = []
+    for address in found:
+        if runs and 0 <= address - runs[-1][1] <= 16:
+            runs[-1][1] = address
+        else:
+            runs.append([address, address])
+    parts = []
+    for first, last in runs[:6]:
+        region = RAM_BASE if first >= RAM_BASE else SCRATCH_BASE
+        size = RAM_SIZE if first >= RAM_BASE else SCRATCH_SIZE
+        i = bisect.bisect_right(names, (first, "~")) - 1
+        near = f"{names[i][1]}+{first - names[i][0]:#x}" if i >= 0 and region <= names[i][0] < region + size else "?"
+        parts.append(f"{first:#x}..{last:#x} ({near})")
+    if len(runs) > 6:
+        parts.append(f"and {len(runs) - 6} more")
+    return "; ".join(parts)
+
+
+def audit_writes(cfg, name: str, cases: int, seed: int, ram: bytes, scratch: bytes) -> tuple[int, int, int, str]:
+    """Run the original alone on the cases and count those that change a byte outside what the setup made.
+
+    Returns (discarded, outside, largest, first): `largest` is the most such bytes in one case;
+    `first` is the text `case C; <runs>` of the first such case, empty when there is none.
+    """
+    contract = contracts.CONTRACTS[name]
+    original, _size = original_function(cfg, name)
+    uc = machine(b"\0" * 16)
+    sym = addresses(cfg)
+    discarded = outside = largest = 0
+    first = ""
+    for case in range(cases):
+        rng = random.Random(f"{seed}:{name}:{case}")
+        state = State(ram, scratch)
+        setup = contract.setup(state, rng, sym)
+        final = run_once(uc, state, original, setup)
+        if isinstance(final, str):
+            discarded += 1
+            continue
+        found = outside_addresses(state, final)
+        if found:
+            outside += 1
+            largest = max(largest, len(found))
+            if not first:
+                first = f"case {case}; {runs_text(found, sym)}"
+    return discarded, outside, largest, first
+
+
 def load_contracts(folder: Path, names: list[str]) -> None:
     """Take the contract of each name that has a file `NAME.py` in `folder` into `contracts.CONTRACTS`."""
     for name in names:
@@ -463,11 +581,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--control", action="store_true",
                         help="negative control: alter one instruction of the build and require differences")
     parser.add_argument("--uncovered", action="store_true",
-                        help="list the instruction slots of the original that no case executed")
+                        help="list the instruction slots of the original that no case executed "
+                             "(with --writes: where the first case outside wrote)")
+    parser.add_argument("--writes", action="store_true",
+                        help="audit where the original writes, without building the C: cases that change "
+                             "bytes the setup did not make")
     parser.add_argument("--all", action="store_true", help="every function that has a source in the folder")
     parser.add_argument("functions", nargs="*", metavar="FUNC")
     args = parser.parse_args(argv)
     folder = args.folder.resolve()
+    if args.writes and args.control:
+        print("INPUT ERROR: --writes and --control do not combine", file=sys.stderr)
+        return 2
     if args.all == bool(args.functions):
         print("INPUT ERROR: name the functions, or give --all and none", file=sys.stderr)
         return 2
@@ -504,6 +629,14 @@ def main(argv: list[str] | None = None) -> int:
         except (InputError, OSError) as exc:
             print(f"INPUT ERROR: {exc}", file=sys.stderr)
             return 2
+        if args.writes:
+            discarded, outside, largest, first = audit_writes(cfg, name, args.cases, args.seed, ram, scratch)
+            print(f"{name} writes: cases {args.cases}, discarded {discarded}, outside {outside} (largest {largest} bytes)")
+            if outside and args.uncovered:
+                print(f"  first: {first}")
+            if outside:
+                status = 1
+            continue
         with tempfile.TemporaryDirectory(prefix="difftest-") as directory:
             try:
                 build = build_function(cfg, name, Path(directory), folder)

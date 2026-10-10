@@ -8,6 +8,8 @@ and Unicorn. Group A feeds `differences` made-up final states. Group B runs
 the emulator path (`machine`, `run_once`, `test_function`) on short functions
 written here as instruction words. Group C runs `main` with stand-ins for the
 build and the run. Group D checks what difftest.py takes from matchbuild.py.
+Group X checks the audit of --writes: what counts as made, what the original may change, the
+lines that main prints, and that the default output is the one stored here.
 The expected results are worked out here from each case, not read from the tool.
 """
 
@@ -17,6 +19,7 @@ import ast
 import contextlib
 import gc
 import io
+import random
 import re
 import struct
 import sys
@@ -2069,6 +2072,549 @@ def case_w_still_refused_masks():
     return None
 
 
+# ---------------------------------------------------------------------------
+# Group X: --writes, the audit of where the original writes
+
+
+def sb(rt, base, off): return 0xA0000000 | base << 21 | rt << 16 | (off & 0xFFFF)
+def beq_self(): return 0x1000FFFF  # beq zero, zero, -1: a branch to itself (the delay slot follows)
+
+
+A0 = 4
+ARENA = D.ARENA_BASE
+BYTE_WRITER = returning(ori(T1, ZERO, 0x55), sb(T1, A0, 0))  # *(char *)a0 = 0x55
+WORD_WRITER = returning(ori(T1, ZERO, 0x5555), sw(T1, A0, 0))  # *(int *)a0 = 0x5555: two bytes change
+ZERO_WRITER = returning(sw(ZERO, A0, 0))  # *(int *)a0 = 0: no byte changes in zeroed memory
+
+
+def audit(words, prepare, cases=1, budget=None, ram=None, sym=None):
+    """D.audit_writes on a made-up original. `prepare(state, case)` makes the case's memory and gives the arguments."""
+    counter = iter(range(cases))
+
+    def setup(state, rng, table):
+        return contracts.Setup(args=tuple(prepare(state, next(counter))), returns_value=False)
+
+    cfg = types.SimpleNamespace(symbol_values=sym or {})
+    with contract_of(LABEL, setup), \
+            patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(words)), BUDGET=budget or D.BUDGET):
+        return D.audit_writes(cfg, LABEL, cases, 1, made_up_ram(words) if ram is None else ram, bytes(D.SCRATCH_SIZE))
+
+
+def block_of(size, extra=()):
+    """prepare: allocate a block of `size`, then run the original on the address `extra[0]` bytes from its start."""
+    def prepare(state, case):
+        start = state.alloc(size)
+        return (start + extra[0],)
+    return prepare
+
+
+def want(result, outside, largest, discarded=0, first=None):
+    got = result[:3]
+    if got != (discarded, outside, largest):
+        return f"discarded/outside/largest {got}, wanted {(discarded, outside, largest)}"
+    if first is not None and not result[3].startswith(first):
+        return f"first {result[3]!r}, wanted it to start {first!r}"
+    return None
+
+
+def case_x_inside_a_block():
+    for offset in (0, 3, 7):
+        why = want(audit(BYTE_WRITER, block_of(8, (offset,))), 0, 0)
+        if why:
+            return f"offset {offset}: {why}"
+    return None
+
+
+def case_x_one_byte_past_the_block():
+    return want(audit(BYTE_WRITER, block_of(8, (8,))), 1, 1, first=f"case 0; {ARENA + 8:#x}..{ARENA + 8:#x} (")
+
+
+def case_x_one_byte_before_the_block():
+    return want(audit(BYTE_WRITER, block_of(8, (-1,))), 1, 1, first=f"case 0; {ARENA - 1:#x}..{ARENA - 1:#x} (")
+
+
+def case_x_global_written_by_the_setup():
+    def prepare(state, case):
+        state.w32(0x80030000, 0)
+        return (0x80030000,)
+    return want(audit(WORD_WRITER, prepare), 0, 0)
+
+
+def case_x_global_not_written_by_the_setup():
+    return want(audit(WORD_WRITER, lambda state, case: (0x80030000,)), 1, 2)
+
+
+def case_x_global_after_owns():
+    def prepare(state, case):
+        before = state.read(0x80030000, 4)
+        state.owns(0x80030000, 4)
+        if state.read(0x80030000, 4) != before:
+            raise AssertionError("owns wrote")
+        return (0x80030000,)
+    return want(audit(WORD_WRITER, prepare), 0, 0)
+
+
+def case_x_owns_covers_only_its_range():
+    def prepare(state, case):
+        state.owns(0x80030000, 1)  # the word store changes bytes 0 and 1: byte 1 is not made
+        return (0x80030000,)
+    return want(audit(WORD_WRITER, prepare), 1, 1)
+
+
+def case_x_owns_outside_memory_refused():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    for address, size in ((0x80200000, 1), (0x801FFFFF, 2), (0x1F801000, 1), (0x10, 1)):
+        try:
+            st.owns(address, size)
+        except ValueError:
+            continue
+        return f"owns({address:#x}, {size}) was accepted"
+    return None
+
+
+def case_x_same_value_not_seen():
+    # The stated limit: a store of the value that is already there changes no byte.
+    why = want(audit(ZERO_WRITER, lambda state, case: (0x80030000,)), 0, 0)
+    if why:
+        return why
+    # The same store over content that differs is seen.
+    ram = bytearray(made_up_ram(ZERO_WRITER))
+    ram[0x30000] = 9
+    return want(audit(ZERO_WRITER, lambda state, case: (0x80030000,), ram=bytes(ram)), 1, 1)
+
+
+def case_x_stack_region():
+    for address in (D.STACK_LOW, STACK_WORD, D.STACK_TOP - 1, D.STACK_TOP, D.STACK_TOP + 15):
+        why = want(audit(BYTE_WRITER, lambda state, case, a=address: (a,)), 0, 0)
+        if why:
+            return f"{address:#x}: {why}"
+    return None
+
+
+def case_x_stack_borders():
+    for address in (D.STACK_LOW - 1, D.STACK_TOP + D.HOME_AREA):
+        why = want(audit(BYTE_WRITER, lambda state, case, a=address: (a,)), 1, 1)
+        if why:
+            return f"{address:#x}: {why}"
+    return None
+
+
+def case_x_stack_borders_as_the_comparator_has_them():
+    # Below and inside the region the audit counts what the comparator compares; the 16 bytes above are the
+    # difference: compared, not counted.
+    for address in (D.STACK_LOW - 1, D.STACK_LOW, D.STACK_TOP - 1):
+        a, b = state(), state()
+        b["ram"][address - D.RAM_BASE] = 0x55
+        compared = bool(D.differences(a, b, False))
+        counted = audit(BYTE_WRITER, lambda state, case, x=address: (x,))[1] == 1
+        if compared != counted:
+            return f"{address:#x}: comparator {compared}, audit {counted}"
+    for address in (D.STACK_TOP, D.STACK_TOP + 15):
+        a, b = state(), state()
+        b["ram"][address - D.RAM_BASE] = 0x55
+        if not D.differences(a, b, False):
+            return f"{address:#x} is not compared"
+    return None
+
+
+def case_x_home_area():
+    # sp + 0 and sp + 15 are the function's own; sp + 16 is not. sp is the tool's initial stack pointer.
+    for offset, outside in ((0, 0), (4, 0), (5, 0), (15, 0), (16, 1)):
+        why = want(audit(BYTE_WRITER, lambda state, case, o=offset: (D.STACK_TOP + o,)), outside, outside)
+        if why:
+            return f"sp + {offset}: {why}"
+    # The function stores through its own sp, as a spill of a1 does.
+    spill = returning(ori(T1, ZERO, 0x55), sw(T1, SP, 4), sb(T1, SP, 15), sb(T1, SP, 16))
+    return want(audit(spill, lambda state, case: ()), 1, 1, first=f"case 0; {D.STACK_TOP + 16:#x}..")
+
+
+def case_x_home_area_made_stays_made():
+    def prepare(state, case):
+        state.w8(D.STACK_TOP + 16, 0)
+        return (D.STACK_TOP + 16,)
+    return want(audit(BYTE_WRITER, prepare), 0, 0)
+
+
+def case_x_home_area_is_compared():
+    # Only the audit exempts it: a difference there is still a difference of the comparison.
+    original = returning(*store(0x55, D.STACK_TOP + 4))
+    return expect(run_pair(original, returning(NOP)), 0, 0, 10)
+
+
+def case_x_scratchpad_unmade():
+    return want(audit(BYTE_WRITER, lambda state, case: (D.SCRATCH_BASE + 0x10,)), 1, 1,
+                first=f"case 0; {D.SCRATCH_BASE + 0x10:#x}..{D.SCRATCH_BASE + 0x10:#x} (")
+
+
+def case_x_scratchpad_first_and_last_bytes():
+    for address in (D.SCRATCH_BASE, D.SCRATCH_BASE + 15, D.SCRATCH_BASE + D.SCRATCH_SIZE - 1):
+        why = want(audit(BYTE_WRITER, lambda state, case, a=address: (a,)), 1, 1)
+        if why:
+            return f"{address:#x}: {why}"
+    return None
+
+
+def case_x_scratchpad_made():
+    def by_write(state, case):
+        state.w8(D.SCRATCH_BASE + 0x10, 0)
+        return (D.SCRATCH_BASE + 0x10,)
+
+    def by_owns(state, case):
+        state.owns(D.SCRATCH_BASE + 0x10, 1)
+        return (D.SCRATCH_BASE + 0x10,)
+
+    return want(audit(BYTE_WRITER, by_write), 0, 0) or want(audit(BYTE_WRITER, by_owns), 0, 0)
+
+
+def case_x_made_ram_does_not_cover_scratchpad():
+    def prepare(state, case):
+        state.w8(D.RAM_BASE + 0x10, 0)  # the same offset in RAM
+        state.owns(D.RAM_BASE + 0x10, 1)
+        return (D.SCRATCH_BASE + 0x10,)
+    return want(audit(BYTE_WRITER, prepare), 1, 1)
+
+
+def case_x_made_scratchpad_does_not_cover_ram():
+    def prepare(state, case):
+        state.w8(D.SCRATCH_BASE + 0x30000 % D.SCRATCH_SIZE, 0)
+        return (0x80030000,)
+    return want(audit(BYTE_WRITER, prepare), 1, 1)
+
+
+def case_x_made_by_each_writer():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    base = 0x80030000
+    st.w8(base, 1)
+    st.w16(base + 8, 1)
+    st.w32(base + 16, 1)
+    st.write(base + 32, b"abc")
+    st.write(base + 40, b"")
+    marked = [i for i, m in enumerate(st.made_ram) if m]
+    wanted = [0x30000, 0x30008, 0x30009, *range(0x30010, 0x30014), 0x30020, 0x30021, 0x30022]
+    if marked != wanted:
+        return f"made bytes {[hex(i) for i in marked]}"
+    if any(st.made_scratch):
+        return "a write to RAM marked the scratchpad"
+    st.w8(D.SCRATCH_BASE + 5, 1)
+    return None if [i for i, m in enumerate(st.made_scratch) if m] == [5] else "the scratchpad write is not marked alone"
+
+
+def case_x_alloc_marks_the_whole_block():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    a = st.alloc(12)
+    b = st.alloc(1)
+    marked = [i + D.RAM_BASE for i, m in enumerate(st.made_ram) if m]
+    wanted = [*range(a, a + 12), b]
+    return None if marked == wanted else f"made {[hex(m) for m in marked]}, wanted {[hex(m) for m in wanted]}"
+
+
+def case_x_alloc_padding_is_not_made():
+    # alloc(5) makes bytes 0 to 4; the three padding bytes up to the next block are not made, the next block is.
+    def prepare(state, case):
+        start = state.alloc(5)
+        state.alloc(4)
+        return (start + (4, 5, 7, 8)[case],)
+    return want(audit(BYTE_WRITER, prepare, cases=4), 2, 1, first="case 1; ")
+
+
+def case_x_alloc_of_a_multiple_of_four_has_no_padding():
+    def prepare(state, case):
+        start = state.alloc(8)
+        state.alloc(4)
+        return (start + 8,)  # the next block's first byte
+    return want(audit(BYTE_WRITER, prepare), 0, 0)
+
+
+def case_x_largest_and_first_over_the_cases():
+    # Case 1 changes two bytes outside, case 3 one: the largest is 2, the first is 1; the other cases stay inside.
+    words = returning(ori(T1, ZERO, 0x55), sb(T1, A0, 0), sb(T1, A0 + 1, 0))  # stores to a0 and to a1
+
+    def prepare(state, case):
+        block = state.alloc(8)
+        if case == 1:
+            return (block + 8, block + 9)
+        if case == 3:
+            return (block + 8, block)
+        return (block, block + 1)
+
+    return want(audit(words, prepare, cases=5), 2, 2, first="case 1; ")
+
+
+def case_x_discarded_not_counted_as_outside():
+    fault = [*store(0x55), lui(T0, HOLE >> 16), lw(T1, T0, 0), JR_RA, NOP]
+    loop = [*store(0x55), beq_self(), NOP]
+    nothing = lambda state, case: ()
+    why = want(audit(fault, nothing, cases=3), 0, 0, discarded=3)
+    if why:
+        return f"fault: {why}"
+    why = want(audit(loop, nothing, cases=2, budget=200), 0, 0, discarded=2)
+    if why:
+        return f"budget: {why}"
+    # The same store in a run that ends is outside.
+    return want(audit(returning(*store(0x55)), nothing, cases=3), 3, 1, first="case 0; ")
+
+
+def case_x_discarded_and_outside_in_one_run():
+    # The store of FLAG comes first; a0 = 1 then faults, a0 = 0 returns.
+    words = [*store(0x55), 0x10000000 | A0 << 21 | 3, NOP, lui(T0, HOLE >> 16), lw(T1, T0, 0), JR_RA, NOP]
+    return want(audit(words, lambda state, case: (case % 2,), cases=4), 2, 1, discarded=2, first="case 0; ")
+
+
+def case_x_recorder_log_and_code_not_counted():
+    replaces = [(CALLEE, 2, 7), (CALLEE_B, 0, 0)]
+    words = caller([(CALLEE, [1, 2]), (CALLEE_B, [])])
+    # The recorders did write: code at both callees and entries in the log.
+    entries, result, log, u32 = run_caller(words, replaces)
+    if len(entries) != 4 or u32(CALLEE) >> 26 != 2 or u32(CALLEE_B) >> 26 != 2:
+        return f"the recorders wrote nothing ({len(entries)} entries)"
+
+    def prepare(state, case):
+        log = contracts.CallLog(state)
+        for replace in replaces:
+            log.replace(*replace)
+        return ()
+
+    return want(audit(words, prepare, ram=ram_with_callees(words)), 0, 0)
+
+
+def case_x_recorder_does_not_cover_a_store_of_the_function():
+    words = caller([(CALLEE, [1, 2])], tail=store(0x55))  # the function writes FLAG after the call
+
+    def prepare(state, case):
+        contracts.CallLog(state).replace(CALLEE, 2, 7)
+        return ()
+
+    return want(audit(words, prepare, ram=ram_with_callees(words)), 1, 1)
+
+
+def case_x_callee_body_would_write_outside():
+    # Without the recorder the callee's body runs and writes FLAG: the audit sees it.
+    words = caller([(CALLEE, [1, 2])])
+    return want(audit(words, lambda state, case: (), ram=ram_with_callees(words)), 1, 1)
+
+
+def case_x_state_is_new_for_each_case():
+    # A byte made in case 0 is not made in case 1.
+    def prepare(state, case):
+        if case == 0:
+            state.w8(0x80030000, 0)
+        return (0x80030000,)
+    return want(audit(BYTE_WRITER, prepare, cases=2), 1, 1, first="case 1; ")
+
+
+def case_x_cases_use_the_seed_and_case_number():
+    drawn = []
+
+    def setup(state, rng, table):
+        drawn.append(rng.getrandbits(32))
+        return contracts.Setup(args=(), returns_value=False)
+
+    cfg = types.SimpleNamespace(symbol_values={})
+    with contract_of(LABEL, setup), patched(D, original_function=lambda cfg, name: (ORIGINAL, 8)):
+        D.audit_writes(cfg, LABEL, 3, 7, made_up_ram(returning()), bytes(D.SCRATCH_SIZE))
+    wanted = [random.Random(f"7:{LABEL}:{case}").getrandbits(32) for case in range(3)]
+    return None if drawn == wanted else f"drawn {drawn}, wanted {wanted}"
+
+
+def case_x_zero_cases():
+    return want(audit(BYTE_WRITER, lambda state, case: (0x80030000,), cases=0), 0, 0, first="")
+
+
+def case_x_audit_builds_nothing():
+    with patched(D, build_function=lambda *a, **k: (_ for _ in ()).throw(AssertionError("build"))):
+        return want(audit(BYTE_WRITER, block_of(8, (0,))), 0, 0)
+
+
+# runs_text
+
+def case_x_runs_join_within_sixteen_bytes():
+    sym = {"data_a": 0x80030000}
+    text = D.runs_text([0x80030000, 0x80030010, 0x80030011, 0x80030022], sym)
+    want_ = "0x80030000..0x80030011 (data_a+0x0); 0x80030022..0x80030022 (data_a+0x22)"
+    return None if text == want_ else text
+
+
+def case_x_runs_sixteen_and_seventeen():
+    sym = {"s": 0x80030000}
+    joined = D.runs_text([0x80030000, 0x80030010], sym)
+    split = D.runs_text([0x80030000, 0x80030011], sym)
+    ok = joined == "0x80030000..0x80030010 (s+0x0)" and split == "0x80030000..0x80030000 (s+0x0); 0x80030011..0x80030011 (s+0x11)"
+    return None if ok else f"{joined!r} / {split!r}"
+
+
+def case_x_runs_six_then_more():
+    found = [0x80030000 + 0x100 * i for i in range(9)]
+    parts = D.runs_text(found, {"s": 0x80030000}).split("; ")
+    ok = len(parts) == 7 and parts[0] == "0x80030000..0x80030000 (s+0x0)" and parts[5].startswith("0x80030500") and parts[6] == "and 3 more"
+    exact = D.runs_text(found[:6], {"s": 0x80030000}).split("; ")
+    return None if ok and len(exact) == 6 and "more" not in exact[-1] else f"{parts} / {exact}"
+
+
+def case_x_runs_nearest_name():
+    sym = {"low": 0x80010000, "mid": 0x80020000, "high": 0x80030000, "text": "x", "scr": 0x1F800100}
+    text = D.runs_text([0x80020004, 0x80029000, 0x8002FFFF], sym)
+    want_ = "0x80020004..0x80020004 (mid+0x4); 0x80029000..0x80029000 (mid+0x9000); 0x8002ffff..0x8002ffff (mid+0xffff)"
+    return None if text == want_ else text
+
+
+def case_x_runs_name_must_share_the_region():
+    sym = {"ram_name": 0x80010000, "scr_name": 0x1F800100}
+    scratch_below = D.runs_text([0x1F8000F0], sym)  # no scratchpad name at or below: not the RAM name
+    scratch_above = D.runs_text([0x1F800104], sym)
+    ram_below = D.runs_text([0x8000F000], sym)  # no RAM name at or below
+    ok = scratch_below.endswith("(?)") and scratch_above.endswith("(scr_name+0x4)") and ram_below.endswith("(?)")
+    return None if ok else f"{scratch_below!r} {scratch_above!r} {ram_below!r}"
+
+
+def case_x_runs_name_at_the_address_itself():
+    text = D.runs_text([0x80030000], {"a": 0x80020000, "b": 0x80030000, "c": 0x80040000})
+    return None if text == "0x80030000..0x80030000 (b+0x0)" else text
+
+
+def case_x_runs_tie_takes_the_last_name():
+    text = D.runs_text([0x80030004], {"b": 0x80030000, "a": 0x80030000})
+    return None if text == "0x80030004..0x80030004 (b+0x4)" else text
+
+
+def case_x_runs_ram_before_scratchpad():
+    text = D.runs_text([0x80030000, 0x1F800010], {})
+    return None if text == "0x80030000..0x80030000 (?); 0x1f800010..0x1f800010 (?)" else text
+
+
+# main
+
+OUT = "func_80000001"
+
+
+def writes_main(argv, results, **kwargs):
+    """main with stand-ins and an audit_writes stand-in that gives `results[name]` and records its calls."""
+    seen = []
+
+    def audit_writes(cfg, name, cases, seed, ram, scratch):
+        seen.append((name, cases, seed))
+        return results.get(name, (0, 0, 0, ""))
+
+    with patched(D, audit_writes=audit_writes):
+        status, out, err, calls = run_main(["--writes", *argv], **kwargs)
+    return status, out, err, calls, seen
+
+
+def case_x_main_line():
+    status, out, _, calls, seen = writes_main(["--cases", "9", "--seed", "4"], {OUT: (2, 3, 17, "case 5; 0x80030000..0x80030003 (s+0x0)")})
+    ok = out == f"{OUT} writes: cases 9, discarded 2, outside 3 (largest 17 bytes)\n" and status == 1
+    return None if ok and seen == [(OUT, 9, 4)] else f"status {status}, out {out!r}, seen {seen}"
+
+
+def case_x_main_line_when_clean():
+    status, out, _, _, _ = writes_main(["--uncovered"], {OUT: (4, 0, 0, "")}, )
+    return None if status == 0 and out == f"{OUT} writes: cases 1000, discarded 4, outside 0 (largest 0 bytes)\n" else f"{status} {out!r}"
+
+
+def case_x_main_second_line():
+    first = "case 5; 0x80030000..0x80030003 (s+0x0); and 2 more"
+    status, out, _, _, _ = writes_main(["--uncovered"], {OUT: (0, 3, 6, first)})
+    want_ = f"{OUT} writes: cases 1000, discarded 0, outside 3 (largest 6 bytes)\n  first: {first}\n"
+    return None if status == 1 and out == want_ else f"{status} {out!r}"
+
+
+def case_x_main_no_second_line_without_uncovered():
+    _, out, _, _, _ = writes_main([], {OUT: (0, 3, 6, "case 5; x")})
+    return None if out.count("\n") == 1 else out
+
+
+def case_x_main_status():
+    s0 = writes_main([], {OUT: (0, 0, 0, "")})[0]
+    s1 = writes_main([], {OUT: (0, 1, 1, "case 0; x")})[0]
+    s2 = writes_main([], {OUT: (5, 0, 0, "")})[0]
+    return None if (s0, s1, s2) == (0, 1, 0) else f"statuses {(s0, s1, s2)}"
+
+
+def case_x_main_control_is_an_error():
+    status, out, err, calls, seen = writes_main(["--control"], {})
+    ok = status == 2 and out == "" and "INPUT ERROR" in err and "--writes" in err and "--control" in err and not seen and not calls
+    return None if ok else f"status {status}, out {out!r}, err {err!r}"
+
+
+def case_x_main_no_build():
+    status, out, err, calls, seen = writes_main(["--uncovered"], {OUT: (0, 0, 0, "")})
+    return None if SEEN["folders"] == [] and calls == [] and seen == [(OUT, 1000, 1)] else f"builds {SEEN['folders']}, runs {calls}"
+
+
+def case_x_main_build_that_would_fail_is_not_tried():
+    status, out, err, _, _ = writes_main([], {OUT: (0, 0, 0, "")}, build_error=matchbuild.StepError("no"))
+    return None if status == 0 and err == "" else f"status {status}, err {err!r}"
+
+
+def case_x_main_all_in_order_and_all_run():
+    results = {n: (0, 0, 0, "") for n in ALL_NAMES}
+    results["func_80000002"] = (1, 2, 3, "case 4; r")
+    seen_all = []
+
+    def body(folder):
+        status, out, err, calls, seen = writes_main(["--folder", str(folder), "--all", "--uncovered"], results, names=ALL_NAMES, cli_names=())
+        seen_all.append(seen)
+        return status, out
+
+    status, out = all_folder(body)
+    lines = out.splitlines()
+    ok = (status == 1 and [l.split()[0] for l in lines if " writes: " in l] == list(ALL_NAMES)
+          and lines[2] == "  first: case 4; r" and len(lines) == 4 and [s[0] for s in seen_all[0]] == list(ALL_NAMES))
+    return None if ok else f"status {status}, out {lines}"
+
+
+def case_x_main_no_contract():
+    status, out, err, _, seen = writes_main([], {}, register=False)
+    return None if status == 2 and out == "" and "no contract" in err and not seen else f"{status} {out!r} {err!r}"
+
+
+def case_x_main_config_error():
+    status, out, err, _, seen = writes_main([], {}, load=matchbuild.ConfigError(["bad"]))
+    return None if status == 2 and out == "" and "CONFIG ERROR" in err and not seen else f"{status} {out!r} {err!r}"
+
+
+def case_x_main_original_input_error():
+    status, out, err, _, seen = writes_main([], {}, original_error=D.InputError("nope"))
+    return None if status == 2 and out == "" and "INPUT ERROR: nope" in err and not seen else f"{status} {out!r} {err!r}"
+
+
+def case_x_default_output_unchanged():
+    def fail(*a, **k):
+        raise AssertionError("audit_writes ran in the default mode")
+
+    with patched(D, audit_writes=fail):
+        _, out, _, _ = run_main(["--cases", "7"], build=b"\0" * 8, original_size=12, executed={0, 8},
+                                results={OUT: (1, 4, 2, ["first difference: case 3, seed 1", "ram 0x1: x"])})
+        _, out_u, _, _ = run_main(["--cases", "7", "--uncovered"], build=b"\0" * 8, original_size=12, executed={0, 8},
+                                  results={OUT: (1, 4, 2, ["first difference: case 3, seed 1", "ram 0x1: x"])})
+        _, out_c, _, _ = run_main(["--cases", "7", "--control"], build=b"\0" * 8, original_size=12, control=lambda words: (1, 9, "w"),
+                                  results={OUT: (0, 0, 5, [])})
+    stored = ("func_80000001: built 8 bytes, original 12 bytes; cases 7, discarded 1, equal 4, different 2\n"
+              "  first difference: case 3, seed 1\n  ram 0x1: x\n"
+              "func_80000001 coverage: 2 of 3 instruction slots of the original executed\n")
+    stored_u = stored + "  not executed: +0x4\n"
+    stored_c = "func_80000001 control: different 5 of 7 (expected more than 0)\n  altered: w, instruction slot 1\n"
+    for got, wanted in ((out, stored), (out_u, stored_u), (out_c, stored_c)):
+        if got != wanted:
+            return f"{got!r} != {wanted!r}"
+    return None
+
+
+def case_x_state_default_behaviour_unchanged():
+    st = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    block = st.alloc(5)
+    st.w32(block, 0x01020304)
+    st.w8(D.SCRATCH_BASE + 3, 9)
+    ok = (block == D.ARENA_BASE and st.arena == D.ARENA_BASE + 8 and st.read(block, 5) == b"\4\3\2\1\0"
+          and st.read(D.SCRATCH_BASE + 3, 1) == b"\x09" and st.stop == D.STOP_ADDRESS)
+    try:
+        st.arena = D.ARENA_END - 4
+        st.alloc(8)
+        return "alloc past the arena was accepted"
+    except ValueError:
+        pass
+    return None if ok else "State behaves differently"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -2237,6 +2783,62 @@ CASES = [
     ("v-exported-encoders-and-registers", case_v_exported_encoders_and_registers),
     ("w-mask-zero-logs-zero", case_w_mask_zero_logs_zero),
     ("w-other-bad-masks-still-refused", case_w_still_refused_masks),
+    ("x-inside-a-block", case_x_inside_a_block),
+    ("x-one-byte-past-the-block", case_x_one_byte_past_the_block),
+    ("x-one-byte-before-the-block", case_x_one_byte_before_the_block),
+    ("x-global-written-by-the-setup", case_x_global_written_by_the_setup),
+    ("x-global-not-written-by-the-setup", case_x_global_not_written_by_the_setup),
+    ("x-global-after-owns", case_x_global_after_owns),
+    ("x-owns-covers-only-its-range", case_x_owns_covers_only_its_range),
+    ("x-owns-outside-memory-refused", case_x_owns_outside_memory_refused),
+    ("x-same-value-not-seen", case_x_same_value_not_seen),
+    ("x-stack-region", case_x_stack_region),
+    ("x-stack-borders", case_x_stack_borders),
+    ("x-stack-borders-as-the-comparator-has-them", case_x_stack_borders_as_the_comparator_has_them),
+    ("x-home-area", case_x_home_area),
+    ("x-home-area-made-stays-made", case_x_home_area_made_stays_made),
+    ("x-home-area-is-compared", case_x_home_area_is_compared),
+    ("x-scratchpad-unmade", case_x_scratchpad_unmade),
+    ("x-scratchpad-first-and-last-bytes", case_x_scratchpad_first_and_last_bytes),
+    ("x-scratchpad-made", case_x_scratchpad_made),
+    ("x-made-ram-does-not-cover-scratchpad", case_x_made_ram_does_not_cover_scratchpad),
+    ("x-made-scratchpad-does-not-cover-ram", case_x_made_scratchpad_does_not_cover_ram),
+    ("x-made-by-each-writer", case_x_made_by_each_writer),
+    ("x-alloc-marks-the-whole-block", case_x_alloc_marks_the_whole_block),
+    ("x-alloc-padding-is-not-made", case_x_alloc_padding_is_not_made),
+    ("x-alloc-of-a-multiple-of-four-has-no-padding", case_x_alloc_of_a_multiple_of_four_has_no_padding),
+    ("x-largest-and-first-over-the-cases", case_x_largest_and_first_over_the_cases),
+    ("x-discarded-not-counted-as-outside", case_x_discarded_not_counted_as_outside),
+    ("x-discarded-and-outside-in-one-run", case_x_discarded_and_outside_in_one_run),
+    ("x-recorder-log-and-code-not-counted", case_x_recorder_log_and_code_not_counted),
+    ("x-recorder-does-not-cover-a-store-of-the-function", case_x_recorder_does_not_cover_a_store_of_the_function),
+    ("x-callee-body-would-write-outside", case_x_callee_body_would_write_outside),
+    ("x-state-is-new-for-each-case", case_x_state_is_new_for_each_case),
+    ("x-cases-use-the-seed-and-case-number", case_x_cases_use_the_seed_and_case_number),
+    ("x-zero-cases", case_x_zero_cases),
+    ("x-audit-builds-nothing", case_x_audit_builds_nothing),
+    ("x-runs-join-within-sixteen-bytes", case_x_runs_join_within_sixteen_bytes),
+    ("x-runs-sixteen-and-seventeen", case_x_runs_sixteen_and_seventeen),
+    ("x-runs-six-then-more", case_x_runs_six_then_more),
+    ("x-runs-nearest-name", case_x_runs_nearest_name),
+    ("x-runs-name-must-share-the-region", case_x_runs_name_must_share_the_region),
+    ("x-runs-name-at-the-address-itself", case_x_runs_name_at_the_address_itself),
+    ("x-runs-tie-takes-the-last-name", case_x_runs_tie_takes_the_last_name),
+    ("x-runs-ram-before-scratchpad", case_x_runs_ram_before_scratchpad),
+    ("x-main-line", case_x_main_line),
+    ("x-main-line-when-clean", case_x_main_line_when_clean),
+    ("x-main-second-line", case_x_main_second_line),
+    ("x-main-no-second-line-without-uncovered", case_x_main_no_second_line_without_uncovered),
+    ("x-main-status", case_x_main_status),
+    ("x-main-control-is-an-error", case_x_main_control_is_an_error),
+    ("x-main-no-build", case_x_main_no_build),
+    ("x-main-build-that-would-fail-is-not-tried", case_x_main_build_that_would_fail_is_not_tried),
+    ("x-main-all-in-order-and-all-run", case_x_main_all_in_order_and_all_run),
+    ("x-main-no-contract", case_x_main_no_contract),
+    ("x-main-config-error", case_x_main_config_error),
+    ("x-main-original-input-error", case_x_main_original_input_error),
+    ("x-default-output-unchanged", case_x_default_output_unchanged),
+    ("x-state-default-behaviour-unchanged", case_x_state_default_behaviour_unchanged),
 ]
 
 

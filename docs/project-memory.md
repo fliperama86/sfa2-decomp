@@ -7829,6 +7829,38 @@ The map after this group, from `coveragemap.py render`: 5,415 of 5,600
 distinct functions exact, 12,832 of 13,072 placements. The build's
 line for the resident image: `functions exact: 1762/1762`.
 
+## The test for nonmatching C audits where the original writes (2026-10-09)
+
+No function count changes here: none of this is in the build.
+
+- Published: `difftest.py --writes`, with controls (group X). It runs
+  the original alone and counts the cases in which it changed memory
+  that the setup did not make. The page says what it sees and what it
+  cannot.
+- Where it comes from: the owner's review of the first batch of
+  functions (PR 131) found a setup that let the original write past its
+  table and two that filled another table than the function's own. The
+  differential test had said "equal" each time. A private prototype of
+  this audit then ran over all 177 functions written so far (one-off
+  counts): besides the three he had named, it flagged 41 setups, two of
+  them in his batch. One of the 41 was the prototype's own fault: a
+  function that keeps an argument in the 16 bytes above the stack
+  pointer, which are its own under the calling convention; the audit
+  exempts them now. The other 40 were real: in 4 the original ran past
+  a table or indexed outside one, in the rest it wrote a global or a
+  table that the setup had left at the image's content, so that a
+  field the function must keep was never seen to be kept. All are
+  repaired before their functions are published; from now on a
+  folder's page carries the audit's lines.
+- A second, smaller check stays private for now: a lint that compares
+  the names a setup takes from the symbol table with the names in the
+  function's text. It found the two setups that filled another stage's
+  table, and four names in two resident contracts that the function's
+  header did not explain.
+- One-off figures of the worker who built the option: 26 one-line
+  changes of the new code, all noticed after cases were added for two
+  (a scratchpad exemption of 16 bytes, a name lookup shifted by one).
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
