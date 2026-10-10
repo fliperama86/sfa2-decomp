@@ -132,3 +132,11 @@ its launchers can retain paths to another repository.
 
 The generic 68000/CPS2 workbench, its source/tests/history, and its ROM/capture
 workspaces were deliberately not migrated. They remain in `../68k-decomp`.
+
+## AI-friendly workflow
+
+Read [short current state](docs/current-state.md) and
+[active memory](docs/project-memory.md), then retrieve historical context by
+subject. The [AI workflow](docs/ai-workflow.md) provides one-command frozen-head
+validation, a linked function ledger, integrity-checked result reuse and bounded
+task contracts. Reports and private dependencies stay under ignored `local/`.
