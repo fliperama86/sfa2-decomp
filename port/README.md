@@ -1784,24 +1784,46 @@ Three library calls that the sound library makes are served by
   `SpuClearReverbWorkArea` (`libspu/s_crwa.c` line 52), after each start
   of a transfer.
 
-What is not there. A program built with the option does not get far. In
-one-off starts with the disc (a private input, 25 seconds, not on a
-screen), the build with `--sound-library --psyz DIR` printed its start
-lines and then, on 2026-10-10,
+What runs, and what is not there. With the option the program now runs
+the library through its start, its uploads of sound banks to the chip and
+its sequencer's ticks. Nothing sounds: no audio device is opened and no
+sample is played. One-off starts with the disc on 2026-10-10 (a private
+input, offscreen, one at a time; no command of this repository repeats
+them, they need the user's disc):
 
-```
-stop: crash: the game used the PS1's I/O page at 0x1f801daa (write) in func_8016b788 with an address that no model of the page claims (0x1f801daa, 2 bytes): 66 c7 82 aa 01 00 00 00 00 c7 44 24 28 0d 00
-```
+- The build with `--sound-library --psyz DIR`, 40 seconds, with `--trace`
+  to a file: it printed its start lines (`library: 85 host routines, 135
+  left that stop`) and went on to the line `module: slot27 at 0x80010000,
+  212 C jumps, 0 without C`; it was ended by the time limit (status 124)
+  and no line began `stop` or `refused`. In the trace: 1 call of
+  `DMACallback`, 440 of `DeliverEvent`, none of `WaitEvent`. The counts
+  line that `--trace` writes every 60 vblanks said, at its 1260th
+  vblank: 29236 reads and 8829 writes of the chip's registers, 1320 writes
+  of DMA registers, 440 transfers, 896192 bytes to the chip, none from it,
+  and 440 completions, all taken by a poll (none by the timer or the
+  vblank), none dropped. The transfers rose to 440 by the 960th vblank and
+  did not rise after that, up to the 1260th. This run was traced, and the
+  trace slows the game (a line for every library call and every access of
+  the copy of RAM at address 0), so it is not a measure of the program.
+- The build with `--psyz DIR` and without the option, 25 seconds: no line
+  began `refused` or `stop`, and it was ended by the time limit (status
+  124). Its start line is `library: 114 host routines, 270 left that stop`
+  (the three services are among the host routines). PsyZ writes one more line
+  to its log on the error stream at the start (`[I][psyz/src/psyz/psyz_spu.c:50][Psyz_SpuInit] SPU emulation initialized`),
+  from the call that starts its model of the chip.
 
-and ended with status 10. That is the library's first access to a register
-of the sound chip; the page now stops it. Before this change the same
-kind of start ended with `stop: library function DMACallback (0x8015f020)
-has no host routine yet` (status 4), because the page was plain memory
-and the access went through unseen. The system services the library
-calls (such as `DMACallback`) are not written either. Nothing sounds. A
-start of a build with `--psyz DIR` and without the option, the same way,
-printed no line that begins `refused` or `stop` and was ended by the time
-limit (status 124).
+A known fault, not fixed here. The game reads a stream from the disc into
+a ring of seven sectors and empties it once in each pass of its main
+loop. When a pass takes longer than the disc's deliveries allow, the ring
+is lapped. If the sectors lost were a sound bank's, the library does not
+recover and the game restarts its load
+for ever. On the base of this change, `port/src/cd.c` delivers three
+sectors at every vblank, which is more than the console's drive (150 a
+second); main has since changed `cd.c` to the console's rate, and the ring
+can still be lapped when a pass takes several frames. The private trial
+that this follows saw the hang with repeated loads, left at the title with
+no input. The disc's pace is the subject of a later change; nothing here
+makes the game wait for it.
 
 ## Not decided
 
