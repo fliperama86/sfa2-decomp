@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "f799e17a3c5a7ba896d8c174c51024af9cd4f18b7b0a4f2afe8bec7fd0985803",
+  "sha256": "aaa123cd6a875977969b01c4b1884781eff461892384a3d6f4c200a3f9de148b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -635,8 +635,24 @@
       "line": 9487
     },
     {
-      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "title": "The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)",
       "line": 9550
+    },
+    {
+      "title": "Nonmatching C for func_80120604, the player of a list of sound commands (2026-10-10)",
+      "line": 9586
+    },
+    {
+      "title": "The differential test lists the constants whose edge no case tries (2026-10-10)",
+      "line": 9614
+    },
+    {
+      "title": "The last two module functions without C, and three overrides that return the result (2026-10-10)",
+      "line": 9654
+    },
+    {
+      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "line": 9713
     }
   ]
 }

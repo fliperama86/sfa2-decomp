@@ -721,30 +721,35 @@ CC is a C compiler for 32-bit Windows, by default `i686-w64-mingw32-gcc`.
 The header of the tool is its contract. It compiles the C units of the
 build configuration that are not Sony's library and every function of the
 folders `ps1/src/*_nonmatching/`, and links them with the runtime of
-`port/src/`. It reads no game file. Its output on 2026-10-10, for `ps1/` as
-it is in commit `3d2dd22`:
+`port/src/`. It reads no game file. Its output on 2026-10-10, for main as
+of commit `ca997f6` with the two functions and the three overrides that
+the same change added:
 
 ```
 compiler: i686-w64-mingw32-gcc (GCC) 16.2.0
-units: 3829 compiled, 78 of them nonmatching, 0 failed
+units: 3907 compiled, 155 of them nonmatching, 0 failed
 like images built: 22
-functions with C: 12596
-functions overridden in C: 10
-functions without C: 475, library 384, game and modules 91
+functions with C: 12686
+functions overridden in C: 13
+functions without C: 385, library 384, game and modules 1
 sweep rows that are not functions: 11
-names at PS1 addresses: 46128
+names at PS1 addresses: 46284
 data defined in C, at host addresses: 0
 linked: port/build/host/sfa2.exe, verified
 ```
 
 The functions and names of the second placements are in these counts,
-each under its own name. The ten of the line
-`functions overridden in C` are the nine functions of the folder
+each under its own name. The thirteen of the line
+`functions overridden in C` are the twelve functions of the folder
 [`overrides/`](overrides/README.md) (see "Overrides in C" below); the
 function of the character module `slot04_0f` is placed a second time in its
-`like` image `slot05_0f` and counted again. The
+`like` image `slot05_0f` and counted again. The one
+function of the game and its modules that the build still counts as
+without C is the entry code (`--list` names it: `func_80118908`), which is
+hand-written assembly that the program does not run. The
 program's start line `overrides in C: M` is not in the sample of
-"Running it", which was printed before that line existed.
+"Running it", which was printed before that line existed and when the
+game's `main` had no C.
 
 For another tree, give the tool that tree's `build.toml` with `--config`,
 as the scripts above take it, and with `--overrides` that tree's
@@ -895,11 +900,16 @@ routines that do nothing on purpose. What is in this piece:
   functions of the resident program and of modules whose exact C calls
   a function without the argument that the callee reads: by a plain
   call, through a pointer of the scratchpad, or after another call,
-  where the callee gets what that earlier call left in the register.
-  That page has each one's contract and
-  what its test printed; the control of each alters the build of the
-  override so that the callee gets another value, and the test must
-  then differ from the original code.
+  where the callee gets what that earlier call left in the register;
+  and functions whose exact C is declared `void` although their
+  callers use what they leave in the result register (the override
+  returns it). That page has each one's contract and
+  what its test printed. Each has a control that alters the build of
+  the override, and the test must then differ from the original code:
+  for an override that passes an argument, the altered build hands the
+  callee another value; for one that returns a result, the altered
+  build returns its result plus 1, after its library call and with the
+  arguments unchanged.
   What the build does not check: that an override's C has the
   parameters and the result type of the unit's C, and that the test of
   its contract passes or was run. The build reads no C and has none of
