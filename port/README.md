@@ -904,9 +904,12 @@ routines that do nothing on purpose. What is in this piece:
   and functions whose exact C is declared `void` although their
   callers use what they leave in the result register (the override
   returns it). That page has each one's contract and
-  what its test printed; the control of each alters the build of the
-  override so that the callee gets another value, and the test must
-  then differ from the original code.
+  what its test printed. Each has a control that alters the build of
+  the override, and the test must then differ from the original code:
+  for an override that passes an argument, the altered build hands the
+  callee another value; for one that returns a result, the altered
+  build returns its result plus 1, after its library call and with the
+  arguments unchanged.
   What the build does not check: that an override's C has the
   parameters and the result type of the unit's C, and that the test of
   its contract passes or was run. The build reads no C and has none of
