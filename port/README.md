@@ -5,7 +5,8 @@ Linux. **The game does not run on macOS or Linux, and on Windows it is
 not shown to play to its end.** What runs since 2026-10-10, on Windows: a
 program linked from the game's unchanged C that starts the game from the
 user's disc image. In one scripted run of five minutes it went from the
-title through a first fight into a second. It has no sound, it skips the
+title through a first fight into a second. Its sound is a file or the
+machine's output, only when asked ("Sound out" below); it skips the
 stand-alone programs of the disc (the logo is the first), and a function
 without C would end it with that function's name; the build counts one
 such function of the game, the entry code, which it does not run. It is
@@ -1678,11 +1679,14 @@ they are cells and nothing more, and nothing reads them for an effect.
 The sound chip, `0x1f801c00` to `0x1f801dff`, in a build with PsyZ only.
 A 16-bit read or write at an even address goes to PsyZ's model of the
 chip (`Psyz_SpuRead` and `Psyz_SpuWrite` with the offset from
-`0x1f801c00`), between `Psyz_AudioLock` and `Psyz_AudioUnlock`. The lock
-costs nothing here: in PsyZ's `src/platform/sdl3_audio.c` the mutex is
-created by `Psyz_AudioInit` and both routines do nothing while it does
-not exist, and this program opens no audio device in this version.
-`Psyz_SpuInit` runs once at start, before the first access. PsyZ's model
+`0x1f801c00`), between `Psyz_AudioLock` and `Psyz_AudioUnlock`. In PsyZ's
+`src/platform/sdl3_audio.c` the mutex is created by `Psyz_AudioInit` and
+both routines do nothing while it does not exist: without `--audio` the
+lock costs nothing, and with it (see "Sound out") PsyZ's audio thread
+pulls from the model under the same mutex, so the lock then excludes it.
+The lock is held around the one PsyZ call it names and never across a
+call into the game or a fault. `Psyz_SpuInit` runs once at start, before
+the first access. PsyZ's model
 keeps what is written to a register and gives it back, makes a write to
 the key-on registers start the voices, and gives the status register as
 the low six bits of the control register; those three are what the

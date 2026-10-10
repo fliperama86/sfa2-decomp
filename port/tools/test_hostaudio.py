@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Controls for the port's sound out (iopage.c): --audio-dump FILE and --audio.
 
-    python3 test_hostaudio.py --cc CROSS_CC --psyz-build DIR [--run PREFIX] [--src DIR] [--only SUBSTRING]
+    python3 test_hostaudio.py --cc CROSS_CC --psyz-build DIR [--run PREFIX] [--src DIR] [--only GROUP]
 
 --audio-dump FILE appends 735 stereo frames of PsyZ's model of the sound chip to a WAV file at the end of every vblank, with no audio
 device. --audio opens the machine's sound output through PsyZ (Psyz_AudioInit, once, at start). Both are off unless asked. With both the
@@ -440,7 +440,7 @@ def main() -> int:
     parser.add_argument("--cc", required=True)
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     parser.add_argument("--src", default=None, help="another copy of the runtime's folder")
-    parser.add_argument("--only", default="", help="run only the cases whose name contains this")
+    parser.add_argument("--only", default="", help="run only the group of cases with this name (environment, dump, stop, killed, folder, write, device, nopsyz)")
     parser.add_argument("--psyz-build", required=True, type=Path, help="a build folder of psyzbuild.py")
     args = parser.parse_args()
     if not shutil.which(args.cc):
@@ -478,6 +478,9 @@ def main() -> int:
             print(f"FAIL the control itself raised {type(err).__name__}: {err}")
             print("\n".join(rig.report()))
             failed += 1
+        if total == 0:
+            print(f"no case matched --only {args.only!r}: the groups are environment, dump, stop, killed, folder, write, device, nopsyz")
+            return 2
         print(f"{failed} case(s) behaved wrongly" if failed else f"all {total} cases that ran behaved as required")
         return 1 if failed else 0
     finally:
