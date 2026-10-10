@@ -9254,3 +9254,66 @@ No function count changes here: none of this is in the build.
   that one had reached the ranking screen); the runs are not
   deterministic, and why was not looked into.
 
+
+## Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- By the owner's word of 2026-10-10 the nonmatching C that still
+  waited is published in two large pull requests instead of batches.
+  This is the one for the resident program: forty-two more functions
+  in `ps1/src/resident_nonmatching/`, which then holds fifty-six:
+  `func_80124304`, `func_801254f4`, `func_8012f9b0`, `func_8012fd80`,
+  `func_8013172c`, `func_80131ab4`, `func_8013245c`, `func_80134234`,
+  `func_801347b4`, `func_80135a10`, `func_801364a0`, `func_80136744`,
+  `func_80138d70`, `func_8013902c`, `func_801397d0`, `func_80139928`,
+  `func_8013a3a8`, `func_8013b0c4`, `func_8013b558`, `func_8013bfa4`,
+  `func_8013c6ac`, `func_8013db48`, `func_8013e028`, `func_8013eb28`,
+  `func_8013ec50`, `func_8013ed90`, `func_8013f3e8`, `func_8013f474`,
+  `func_8013f8c4`, `func_8013fc18`, `func_80140b5c`, `func_80140cd8`,
+  `func_80141534`, `func_80141cec`, `func_80142030`, `func_801427d8`,
+  `func_801452ec`, `func_8014c4a8`, `func_8014e890`, `func_80151324`,
+  `func_80152124`, `func_801545cc`. The folder's page has what its
+  three commands printed for each. `types.fields` gets the fields they
+  name (`Box32`, and a new `PolyBlk`), `symbols.ld` twelve lines.
+- One function's C had to follow a change of main. `func_8013ed90`
+  counted a slot's 16-bit word up with `slot->field_02++`; main has
+  since split that word into two bytes, and the C then counted only
+  the low byte up. The test showed it at once (7 of 2,000 cases, a
+  carry into the second byte) and the line is now
+  `(*(u16 *)&slot->field_02)++`, the form main's own units use for the
+  word. No other function's C was changed by the cut.
+- Their headers were read against their code on the waiting branch
+  before the cut. What that reading could not check was checked at the
+  cut: the byte counts a header states against the line the test
+  prints. Three were wrong and are corrected (`func_80124304`,
+  `func_801254f4`, where the direction was wrong too, and
+  `func_80131ab4`). One header stated a count of differing instruction
+  slots that no command prints (`func_8013902c`); it states the two
+  byte counts now. One said a count is signed that is declared
+  unsigned (`func_8013bfa4`); it now says what the C does with it.
+- None of the forty-two is byte-identical (each was compared).
+- A boundary that the test did not reach, found by a deliberate
+  error: with `0x59` in place of `0x58` in the reach of
+  `func_8012fd80`, all 2,000 cases still passed, while every
+  instruction slot of the original was executed. Random positions
+  almost never land on the one distance where the two differ. The
+  setup now puts a third of the cases that have a box on that edge
+  (the reach, one less, one more, to either side). One-off runs after
+  the change, not commands of the page: `0x59` differs in 82 of 2,000
+  cases on seed 1 and 78 on seed 7, `0x57` in 77 and 79. What this
+  says about the other functions: full coverage of the instruction
+  slots does not show that a comparison's edge was tried. They have
+  not been searched for such edges.
+- The checks: the test, the control and the write audit of the folder
+  on two seeds; the declarations (the lane's check told to read the
+  folder), the resident table check, the scan for an index or offset
+  on a cast pointer (no finding), the argument counts of every call in
+  the new units against the callee, the name lint; the lane's check on
+  the commit of the cut.
+- Not done, and said in the pull request: the repository's review
+  command, which for a change of `symbols.ld` or `types.fields` runs
+  every nonmatching folder's tests again, one after the other, for
+  hours. The owner's rule of the same day is that such runs are
+  redesigned, not made (`docs/efficiency.md` when its pull request is
+  merged).

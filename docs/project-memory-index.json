@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "e563b8c600df01bf0936f3b56212d232d702fbf351b3674a5640b726524b23db",
+  "sha256": "0f01892d2a440ad327ef3dcccbe978301a546abb6ec0412db161a90bb56a7e0b",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -609,6 +609,10 @@
     {
       "title": "The port's first four overrides in C (2026-10-10)",
       "line": 9187
+    },
+    {
+      "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
+      "line": 9258
     }
   ]
 }

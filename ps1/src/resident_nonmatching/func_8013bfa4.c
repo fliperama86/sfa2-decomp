@@ -23,7 +23,8 @@
  *
  * Contract (the roles named for the fields are inferred):
  *   No argument, no return value.
- *   Reads: count_8018f59c (16 bits, signed), the table data_8018f5e0 (words
+ *   Reads: count_8018f59c (16 bits; the count less one is kept as a
+ *     signed 16-bit bound), the table data_8018f5e0 (words
  *     at 0, -4, -8, ... from its start); the table object's field_00,
  *     field_02, field_49, field_5c, field_65, frame (active, field_04),
  *     box_tables (boxes_b), and, through func_801397d0, its field_08,
