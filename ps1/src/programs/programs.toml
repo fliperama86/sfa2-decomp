@@ -18,14 +18,19 @@ functions = [
   { name = "func_80010a38_logo", address = 0x80010a38, size = 72 },
   { name = "func_80010f38_logo", address = 0x80010f38, size = 140 },
   { name = "func_800110f4_logo", address = 0x800110f4, size = 220 },
+  { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
 ]
 
 [program.symbols]
 data_8001a678_logo = 0x8001a678
 data_8002eb00_logo = 0x8002eb00
 data_8002eb10_logo = 0x8002eb10
+data_8002eb14_logo = 0x8002eb14
 data_8002eb24_logo = 0x8002eb24
+data_8002eb34_logo = 0x8002eb34
+data_8002eb38_logo = 0x8002eb38
 data_8002eb3c_logo = 0x8002eb3c
+data_8002eb40_logo = 0x8002eb40
 data_8002eb50_logo = 0x8002eb50
 data_8002eb8c_logo = 0x8002eb8c
 data_8002edb8_logo = 0x8002edb8
@@ -34,3 +39,14 @@ DecDCTout = 0x80011990
 StCdInterrupt = 0x800188e8
 func_80157fc4 = 0x80012f04
 func_80158470 = 0x800133b0
+CdInit = 0x8001862c
+CdControlB = 0x800162b0
+CdIntToPos = 0x80016530
+CdMix = 0x80016404
+CdReadCallback = 0x80019f5c
+ResetGraph = 0x8001283c
+SetDispMask = 0x80012c40
+DrawSync = 0x80012cdc
+VSync = 0x8001a358
+ClearImage = 0x80012e70
+SetDefDispEnv = 0x800156a4
