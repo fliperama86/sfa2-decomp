@@ -49,9 +49,9 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract lets a callee run as original code. Such a function stays with the wide comparison until its contract stands a recorder in the callee's place (not done yet); `--record` refuses it. `func_8011bf70`, `func_8011cf98`, `func_8011df3c`, `func_8011fa50`, `func_80120cf0`, `func_8013245c`, `func_801347b4`, `func_801364a0`, `func_80136744`, `func_80138d70`, `func_8013a3a8`, `func_8013bfa4`, `func_8013db48`, `func_8013e028`, `func_8013ed90`, `func_8013f8c4`, `func_80140b5c`, `func_80140cd8`, `func_80141cec`, `func_801427d8`.
-- The cases read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80142030`.
-- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011a018`, `func_8011c724`, `func_8014e890`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80120cf0`, `func_8013a3a8`, `func_80140b5c`, `func_80140cd8`, `func_80142030`.
+- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011a018`, `func_8011c724`, `func_8013245c`, `func_801347b4`, `func_8014e890`.
+- An original callee reads only part of an argument register, and the two codes differ in the rest; the tool compares the whole register, its own check of the record fails, and none is kept. `func_8011df3c`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -60,10 +60,13 @@ func_801189c4 replay: fixtures 5, passed 5, failed 0
 func_80119694 replay: fixtures 4, passed 4, failed 0
 func_8011a880 replay: fixtures 7, passed 7, failed 0
 func_8011acbc replay: fixtures 6, passed 6, failed 0
+func_8011bf70 replay: fixtures 12, passed 12, failed 0
+func_8011cf98 replay: fixtures 12, passed 12, failed 0
 func_8011d74c replay: fixtures 6, passed 6, failed 0
 func_8011db78 replay: fixtures 10, passed 10, failed 0
 func_8011eb4c replay: fixtures 1, passed 1, failed 0
 func_8011f06c replay: fixtures 1, passed 1, failed 0
+func_8011fa50 replay: fixtures 3, passed 3, failed 0
 func_80124304 replay: fixtures 6, passed 6, failed 0
 func_801254f4 replay: fixtures 10, passed 10, failed 0
 func_8012f9b0 replay: fixtures 8, passed 8, failed 0
@@ -72,18 +75,28 @@ func_8013172c replay: fixtures 3, passed 3, failed 0
 func_80131ab4 replay: fixtures 6, passed 6, failed 0
 func_80134234 replay: fixtures 1, passed 1, failed 0
 func_80135a10 replay: fixtures 8, passed 8, failed 0
+func_801364a0 replay: fixtures 11, passed 11, failed 0
+func_80136744 replay: fixtures 7, passed 7, failed 0
+func_80138d70 replay: fixtures 8, passed 8, failed 0
 func_8013902c replay: fixtures 10, passed 10, failed 0
 func_801397d0 replay: fixtures 4, passed 4, failed 0
 func_80139928 replay: fixtures 3, passed 3, failed 0
 func_8013b0c4 replay: fixtures 10, passed 10, failed 0
 func_8013b558 replay: fixtures 10, passed 10, failed 0
+func_8013bfa4 replay: fixtures 10, passed 10, failed 0
 func_8013c6ac replay: fixtures 8, passed 8, failed 0
+func_8013db48 replay: fixtures 12, passed 12, failed 0
+func_8013e028 replay: fixtures 11, passed 11, failed 0
 func_8013eb28 replay: fixtures 5, passed 5, failed 0
 func_8013ec50 replay: fixtures 7, passed 7, failed 0
+func_8013ed90 replay: fixtures 9, passed 9, failed 0
 func_8013f3e8 replay: fixtures 3, passed 3, failed 0
 func_8013f474 replay: fixtures 12, passed 12, failed 0
+func_8013f8c4 replay: fixtures 12, passed 12, failed 0
 func_8013fc18 replay: fixtures 6, passed 6, failed 0
 func_80141534 replay: fixtures 4, passed 4, failed 0
+func_80141cec replay: fixtures 9, passed 9, failed 0
+func_801427d8 replay: fixtures 12, passed 12, failed 0
 func_801452ec replay: fixtures 5, passed 5, failed 0
 func_8014c4a8 replay: fixtures 3, passed 3, failed 0
 func_80151324 replay: fixtures 5, passed 5, failed 0
