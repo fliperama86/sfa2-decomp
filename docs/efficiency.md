@@ -73,9 +73,13 @@ the code, and that is it.
 
 - For an exact unit: build its image and see the bytes match. Read the
   C.
-- For a nonmatching function: run that function's own test. Read the C
-  and its contract against each other. A case the reviewer invents for
-  that one function is welcome; a rerun of other functions is not.
+- For a nonmatching function: run that function's own test. When it
+  has a fixtures file that is the replay, which takes seconds; the wide
+  runs are for a function without a file, and for one whose contract
+  changed without a new file. The review command selects it so. Read
+  the C and its contract against each other. A case the reviewer
+  invents for that one function is welcome; a rerun of other functions
+  is not.
 - For a tool or a piece of the port: run the tests of that piece. Read
   the code.
 - For text: read it.
@@ -137,9 +141,11 @@ the table are the way around it.
 
 - The whole matching build links every image, one after the other,
   also when one unit changed. `--image` is the narrow form.
-- `python tools/ai_workflow/workflow.py review` runs every nonmatching
-  folder's tests again, one check after the other, as soon as a shared
-  file changes (`symbols.ld`, `types.fields`, a header), and all the
+- `python tools/ai_workflow/workflow.py review`, when a shared file
+  changes (`symbols.ld`, `types.fields`, a header, the test tool of
+  nonmatching C), replays every function that has fixtures, which is
+  seconds, and still runs one comparison of every function that has
+  none, one check after the other, which is minutes. It runs all the
   port's control files for any change under `port/`. Its results are
   keyed by the whole tree under `ps1/`, so one changed file ends every
   reuse.
