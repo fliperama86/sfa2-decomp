@@ -1171,9 +1171,13 @@ def sound_tree(root: Path, tag: str, units: str = SOUND_UNITS, prefix: dict[str,
 
 def sound_calls(root: Path, tag: str):
     """The commands the stand-in compiler saw: the unit compiles by source file name, the runtime compiles by source file name."""
+    class Seen(dict):
+        def __missing__(self, key):   # a command that was not made is an empty one, so that its case fails and the group goes on
+            return []
+
     calls = [x.split() for x in read(root / f"{tag}.log").splitlines()]
-    units = {Path(c[-1]).name: c for c in calls if "-S" in c and c[-1].endswith(".c") and not c[-1].endswith("underscore.c")}
-    rt = {Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]}
+    units = Seen({Path(c[-1]).name: c for c in calls if "-S" in c and c[-1].endswith(".c") and not c[-1].endswith("underscore.c")})
+    rt = Seen({Path(c[-1]).name: c for c in calls if c[:4] == ["-O1", "-Wall", "-Wextra", "-c"]})
     return units, rt
 
 
