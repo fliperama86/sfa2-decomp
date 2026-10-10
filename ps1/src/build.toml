@@ -40127,3 +40127,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014a94c", address = 0x8014a94c, size = 256 },
 ]
+
+[[unit]]
+name = "f6a16cx_r1"
+source = "f6a16cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8016a16c", address = 0x8016a16c, size = 100 },
+]
