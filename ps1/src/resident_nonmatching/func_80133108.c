@@ -31,7 +31,9 @@
  *     halfwords at 0xcc, 0xd0, 0xec, 0xf0, 0x10c, 0x110, 0x130, 0x150, 0x170,
  *     the bytes at 0xc8 to 0xca, 0xe8 to 0xea, 0x128 to 0x12a, 0x148 to
  *     0x14a; the objects' field_c6 (restored to a third of the tripled
- *     value), and what the callees write.
+ *     value), and what the callees write: data_80188d44 and data_80188d48
+ *     (func_80133848), data_80188d64, data_80188d65,
+ *     data_80188d68 and data_80188d69 (func_801340e4, func_8013411c).
  *   Callees: func_801336a0 (called with base, left, right and the row
  *     index in a3, which it reads), func_801340e4, func_8013411c and
  *     func_80133848 are game code and run as the original in both runs; none

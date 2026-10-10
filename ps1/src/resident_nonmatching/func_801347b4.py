@@ -15,11 +15,13 @@ Choices of the setup:
     random bits above it;
   - the record counter is random from 0 to 144 minus the number of tiles
     to be drawn;
-  - the variables that func_80134e94 and func_801350c0 read (a stretch
-    of data from data_80188d28 - 0x20, a table at data_80171bf8 + 0x68,
-    the halfword before data_80198098, the halfwords at offset 0xc6 of the
-    two player objects and the bytes at 0xd8) are random, the halfwords
-    near the ranges the two functions test;
+  - the variables that func_80134e94 and func_801350c0 read (the function
+    itself names none of them except data_80188d28; the callees take them by
+    address: a stretch of data from data_80188d28 - 0x20, the byte table at
+    data_80171bf8 + 0x60 (0x108 bytes), and the halfword at offset 0xc6 and
+    the byte at 0xd8 of each of the two player objects, player_left and the
+    object 0x394 bytes after it, which is player_right) are random, the
+    halfwords near the ranges the two functions test;
   - func_8015bf34 is a recorder (2 arguments, returns 0); the record it is
     given is a pointee (10 words); every recorder copies the words of
     data_80188d04 and data_80188d28 and the first 48 records of the run
@@ -88,8 +90,6 @@ def setup(state, rng, sym):
     state.write(var, bytes(rng.getrandbits(8) if rng.random() < 0.5 else rng.randrange(0, 12) for _ in range(0x38)))
     table = sym["data_80171bf8"] + 0x60
     state.write(table, bytes(rng.getrandbits(8) for _ in range(0x108)))
-    state.w16(sym["data_80198098"] - 0x12, _near_range(rng, 0x30, 0x30))
-    state.w8(sym["data_80198098"], rng.choice((0, 0, rng.getrandbits(8))))
     for player in (sym["player_left"], sym["player_left"] + 0x394):
         state.w16(player + 0xC6, _near_range(rng, 0x60, 0x30) if rng.random() < 0.5 else _near_range(rng, 0x30, 0x30))
         state.w8(player + 0xD8, rng.choice((0, 0, rng.getrandbits(8))))

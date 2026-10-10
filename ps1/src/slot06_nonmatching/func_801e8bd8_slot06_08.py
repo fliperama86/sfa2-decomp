@@ -23,8 +23,16 @@ Choices made here:
     divides by it; the original traps);
   - field_4c below -15 is not generated: the second pass would then index
     the map with negative rows, outside any block;
-  - the tiles that would be drawn are counted and surplus ones are made
-    blank, so that no more than 264 records are written (the buffer);
+  - the function writes one record per drawn tile from the start of the
+    selected buffer, without a check. The setup counts the tiles that the
+    function will draw with the function's own walk (rows of the first pass
+    skipped outside the map, the second pass from field_4c / 16 to row 14,
+    33 columns wrapping at the width, a tile drawn when it differs from
+    field_1e), and keeps the last record inside the table: buffer 1 is
+    kept only when at most 264 tiles are drawn, otherwise (or when the
+    drawn tiles exceed the capacity) tiles are blanked, in most cases
+    until the capacity is exactly full, so the last record of the table
+    is written. An assertion states the bound;
   - the record table is filled with random bytes; the list array has 256
     words of random content, field_8a (a random byte) indexes it; the
     selector is 0 or 1.
@@ -37,6 +45,61 @@ BUFFER = 0x108
 def s16(v):
     v &= 0xFFFF
     return v - 0x10000 if v & 0x8000 else v
+
+
+def u16(state, address):
+    return int.from_bytes(state.read(address, 2), "little")
+
+
+def u32(state, address):
+    return int.from_bytes(state.read(address, 4), "little")
+
+
+def trunc16(v):
+    """Division by 16 rounding toward zero, as the compiled code does."""
+    return -((-v) >> 4) if v < 0 else v >> 4
+
+
+def visited(state, layer, game_state):
+    """The addresses of the map cells in the order the function reads them (a cell may come twice).
+
+    Mirrors the function: the first pass takes 3 to 6 rows from the row of
+    field_3e (rows outside 0..field_5c/16 are skipped), the second pass takes
+    the rows from field_4c / 16 up to 14; each row is 33 cells, the column
+    wrapping with the map's width."""
+    n = s16(u16(state, layer + 0x3E))
+    width = u32(state, layer + 0x58)
+    rows_total = s16(u32(state, layer + 0x5C) >> 4)
+    f4c = s16(u16(state, layer + 0x4C))
+    mask = ((width >> 4) - 1) & 0xFFFF
+    col0 = (((s16(u16(state, layer + 0x12)) - 0x60) & (width - 1)) >> 4) & 0xFFFF
+    cells = u32(state, layer + 0x50)
+    stride = (width >> 9) << 11
+    total = s16(u16(state, layer + 0x16)) + s16(u16(state, game_state + 0x92))
+    count = 3 if total == 0 else 4 if total < 0x10 else 5 if total < 0x20 else 6
+    rows = []
+    row = (n - 0x40) >> 4
+    for _ in range(count):
+        if 0 <= s16(row) < rows_total:
+            rows.append(row)
+        row += 1
+    row = trunc16(f4c)
+    for _ in range(max(0, 15 - trunc16(f4c))):
+        rows.append(row)
+        row += 1
+    out = []
+    for row in rows:
+        line = cells + ((row & 0xFFFF) >> 4) * stride + (row & 0xF) * 128
+        cc = col0
+        for _ in range(33):
+            out.append(line + (cc >> 5) * 2048 + (cc & 0x1F) * 4)
+            cc = mask & (cc + 1)
+    return out
+
+
+def drawn(state, cells, blank):
+    """How many records the function writes: one per visit of a cell whose tile is not the blank value."""
+    return sum(1 for address in cells if u16(state, address) != blank)
 
 
 def setup(state, rng, sym):
@@ -120,37 +183,43 @@ def setup(state, rng, sym):
             state.w16(base + 2, rng.getrandbits(16))
     state.w32(layer + 0x50, tmap)
 
-    # count the tiles drawn and blank the surplus
-    mask = (width >> 4) - 1
-    col0 = (((f12 - 0x60) & 0xFFFF) & (width - 1)) >> 4
-    visited = []
-    sums = f92 + s16(f16)
-    count = 3 if sums == 0 else 4 if sums < 16 else 5 if sums < 32 else 6
-    row0 = (n - 0x40) >> 4
-    for i in range(count):
-        row = row0 + i
-        if 0 <= row < height >> 4:
-            visited.append(row)
-    r0 = int(s16(f4c) / 16)
-    for row in range(r0, 15):
-        visited.append(row)
-    drawn = []
-    for row in visited:
-        cc = col0
-        for _ in range(33):
-            drawn.append(cell(row, cc))
-            cc = (cc + 1) & mask
-    live = [a for a in drawn if int.from_bytes(state.read(a, 2), "little") != blank]
-    surplus = len(live) - BUFFER
-    if surplus > 0:
-        rng.shuffle(live)
-        for a in live[:surplus]:
-            state.w16(a, blank)
+    # keep the last record inside the table (the function does not check)
+    walk = visited(state, layer, game_state)
+    assert all(tmap <= address < tmap + size for address in walk), "a visited cell lies outside the map"
+    selector = rng.randrange(2)
+    capacity = 2 * BUFFER - selector * BUFFER
+    if drawn(state, walk, blank) > capacity:
+        if rng.random() < 0.5 and selector == 1:
+            selector = 0
+            capacity = 2 * BUFFER
+        if drawn(state, walk, blank) > capacity:
+            # blank cells until the buffer is full or, when that cannot be hit, just below
+            order = list(dict.fromkeys(walk))
+            rng.shuffle(order)
+            for address in order:
+                total = drawn(state, walk, blank)
+                if total <= capacity:
+                    break
+                if u16(state, address) != blank:
+                    if total - walk.count(address) >= capacity or rng.random() < 0.3:
+                        state.w16(address, blank)
+    elif rng.random() < 0.7:
+        # fewer tiles than the capacity: draw more until the buffer is exactly full, when that can be hit
+        order = list(dict.fromkeys(walk))
+        rng.shuffle(order)
+        for address in order:
+            total = drawn(state, walk, blank)
+            if total == capacity:
+                break
+            if u16(state, address) == blank and total + walk.count(address) <= capacity:
+                state.w16(address, (blank + 1 + rng.randrange(0xFFFF)) & 0xFFFF)
+    total = drawn(state, walk, blank)
+    assert selector * BUFFER + total <= 2 * BUFFER, "the function would write past its table"
 
     lists = state.alloc(4 * 256)
     state.write(lists, bytes(rng.getrandbits(8) for _ in range(4 * 256)))
     state.w32(sym["data_801987c8"], lists)
-    state.w32(sym["data_801a27d0"], rng.randrange(2))
+    state.w32(sym["data_801a27d0"], selector)
     table = sym["data_801f2504_slot06_08"]
     state.write(table, bytes(rng.getrandbits(8) for _ in range(2 * BUFFER * 40)))
     return Setup(args=(), returns_value=False)

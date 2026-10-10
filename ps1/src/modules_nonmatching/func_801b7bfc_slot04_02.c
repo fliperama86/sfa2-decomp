@@ -29,7 +29,8 @@
  *     field_0f, field_0e, field_0b = 0, field_09 = 6, field_1c, field_90,
  *     field_98, field_9c, field_7a, field_7c, pos_x, field_0d = 0x1f,
  *     field_44 = 1, field_46 = 0x15, field_54 = 6, field_a0 = 0, pos_y,
- *     field_03, and what the callees write.
+ *     field_03, the palette array data_801a2bc4 (written by
+ *     func_801b7e34_slot04_02), and what the other callees write.
  *   Callees: func_801b7d58_slot04_02, func_801b7e34_slot04_02, func_80130768
  *     and func_8011ffdc run as the original code (with the setup giving them
  *     sequence tables, frame records and the object stacks). The one callee
@@ -47,8 +48,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
-extern u16 data_801aa5ea;
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
@@ -73,13 +72,13 @@ void func_801b7bfc_slot04_02(Object *obj) {
         obj->field_9c = other->field_9c;
         obj->field_7a = other->field_7a;
         obj->field_7c = other->field_7c;
-        obj->pos_x = box_margin + 0xb8;
+        obj->pos_x = box_margin[0] + 0xb8;
         obj->field_0d = 0x1f;
         obj->field_44 = 1;
         obj->field_46 = 0x15;
         obj->field_54 = 6;
         obj->field_a0 = 0;
-        obj->pos_y = 0x78 - data_801aa5ea;
+        obj->pos_y = 0x78 - data_801aa5ea[0];
         palette = obj->field_03;
         if (other->field_5c != 0x90) {
             palette++;

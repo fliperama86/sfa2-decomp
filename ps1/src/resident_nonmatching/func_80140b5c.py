@@ -6,7 +6,9 @@ Choices of the setup:
   - `a` is -1 in one case of eight, otherwise a random 16-bit value; the
     upper half of a1 holds random bits; b is a small value (0 to 40) in
     three cases of four and a random 32-bit value otherwise;
-  - the random state of func_80151184 is random;
+  - the random state of func_80151184 (the seed halfword data_80190126, which
+    it writes) is random; game_state.cursor, which the function writes, starts
+    as a random word (so that a return before the write is seen to leave it);
   - game_state.field_12 is 0 to 3 and table_8017ac34[0..3] point at four
     small blocks, each holding a zero-argument recorder; the log watches the
     target block and game_state.cursor at every call;
@@ -24,6 +26,8 @@ def setup(state, rng, sym) -> Setup:
     fill(state, obj, 0x394, rng)
     state.w16(sym["game_state"] + 0x1E, halfword(rng))
     state.w8(sym["game_state"] + 0x12, rng.randrange(4))
+    state.w16(sym["data_80190126"], halfword(rng))
+    state.w32(sym["game_state"] + 0x304, rng.getrandbits(32))
     log = CallLog(state, 1024, watch=((target, 0x394 // 4), (sym["game_state"] + 0x304, 1)))
     for i in range(4):
         block = state.alloc(8)

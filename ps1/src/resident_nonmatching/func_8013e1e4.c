@@ -23,7 +23,9 @@
  *     byte of a1 and of a2 counts. No return value.
  *   Reads: the object's field_130 and field_134, the first halfword of the
  *     14-byte table entry table_8017a8cc[arg * 7], and the slot's field_00.
- *   Writes: the slot's field_01 (always) and field_00 (on the second arm).
+ *   Writes: the slot's field_01 (always) and field_00 (on the second arm),
+ *     and through the callees the global byte data_80188f44, which the
+ *     setup fills.
  *   Callees: func_8013f2a8 and func_8013f2d8 are short leaf functions that
  *     run as the original code in both runs (each clears or sets a slot byte
  *     and a global). func_8013f0c8 is replaced by a recorder (3 arguments,

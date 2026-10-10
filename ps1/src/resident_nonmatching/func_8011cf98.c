@@ -49,7 +49,9 @@
  *     channels of 10 words each; the u32 table is 2 channels too); the free
  *     list must hold enough blocks for every cell written (the original takes
  *     0xffff for a block when it runs dry and then writes far outside the
- *     tables); run counts are bounded.
+ *     tables); run counts are bounded; the entry index p->field_94 on entry
+ *     is below 64 (func_8011d5b8, which takes the delegated work, indexes
+ *     the group tables with it and checks no bound).
  *   Not reached by any input: one instruction slot of the original, at
  *     offset 0x48, which adjusts the sum for a negative value before the
  *     division by 16; the count is a 16-bit unsigned value.

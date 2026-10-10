@@ -13,7 +13,9 @@ Choices of the setup:
   - func_80155d4c is a recorder with two arguments, result 0, no pointee;
     the log watches the whole object, the whole partner, ref_other and
     game_state.cursor at every call;
-  - the random state of func_80151184 is random; the tables the function
+  - the random state of func_80151184 (the seed halfword data_80190126, which
+    it writes) is random; game_state.cursor, which the function writes, starts
+    as a random word; the tables the function
     reads keep the resident image's contents.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword
@@ -36,6 +38,8 @@ def setup(state, rng, sym) -> Setup:
     state.w16(sym["game_state"] + 0x1E, halfword(rng))
     state.w8(sym["game_state"] + 0x12, rng.randrange(4))
     state.w32(sym["ref_other"], rng.getrandbits(32))
+    state.w16(sym["data_80190126"], halfword(rng))
+    state.w32(sym["game_state"] + 0x304, rng.getrandbits(32))
     log = CallLog(state, 2048, watch=((obj, 0x394 // 4), (partner, 0x394 // 4),
                                       (sym["ref_other"], 1), (sym["game_state"] + 0x304, 1)))
     for i in range(4):

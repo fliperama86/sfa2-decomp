@@ -14,6 +14,7 @@ Choices of the setup:
     distance func_8014c4a8 computes is small as well as random;
   - in three cases of ten the first script word is set to the distance that
     func_8014c4a8 will compute, or one off, so the comparison's border is tried;
+  - ref_other and ref_second, which the function writes, start as random words;
   - func_8014c914 is a recorder with one argument (the object; no pointee).
     The log watches the whole object, data_80189460 and data_80189464 (as
     one two-word block), ref_other and ref_second at every call.
@@ -26,6 +27,8 @@ def setup(state, rng, sym) -> Setup:
     fill(state, script, 8, rng)
     state.w32(sym["data_80189460"], script)
     state.w16(sym["data_80189464"], halfword(rng))
+    state.w32(sym["ref_other"], rng.getrandbits(32))
+    state.w32(sym["ref_second"], rng.getrandbits(32))
 
     boxes = state.alloc(8 * 6)
     fill(state, boxes, 8 * 6, rng)

@@ -22,8 +22,9 @@
  * Contract:
  *   Argument: the original takes the address of the game state in its
  *     first argument register (a0) and never names the global game_state.
- *     The tree declares the function without an argument (protos.h), and
- *     its one caller (func_80120ca0) leaves that address in a0. This C
+ *     The tree declares the function with that argument (protos.h, GameState
+ *     *state), and its one caller (func_80120ca0) leaves the address in a0.
+ *     This C does not read the parameter; it
  *     uses the global game_state, which is the same memory in every call
  *     the game makes. The contract passes &game_state in a0; a call with
  *     another pointer is outside the contract, because the C does not
@@ -34,6 +35,11 @@
  *     data_8016e688, table_8016e664 at offsets 0x25, 0x26 and 0x28,
  *     table_8016e730 indexed by game_state.field_14, game_state.field_0e,
  *     field_10, field_17 and the fields it has written.
+ *   Reads and writes through the callees that run as original code (the C
+ *     does not name them): the seed word data_80190126 (func_80151184
+ *     reads and rewrites it), table_6cf0 (func_80138358 reads the entry
+ *     game_state.field_2d), and counter_a, counter_b and counter_c
+ *     (func_80138358 writes them), game_state.field_6e.
  *   Writes: about thirty game_state fields (the list is the function), the
  *     two players player_left and player_right (the fields set by
  *     func_80120f40 and, by bit of field_17, field_a5, kind, field_a9,
@@ -56,17 +62,11 @@
 #include "../externs.h"
 
 /* Inferred declarations; not original ones. */
-extern HudState *data_8018f5a0;
-extern u8 data_8016e685;
-extern u8 data_8016e687;
-extern s8 data_8016e688;
 extern u8 table_8016e730[];
 extern u16 data_801a6966;
-extern u8 data_801a6984;
 void func_80120f40(Object *player, int side, u16 value);
-void func_80138358(GameState *g);
 
-void func_80120cf0(void) {
+void func_80120cf0(GameState *state) {
     GameState *g = &game_state;
     Tbl664 *t = (Tbl664 *)table_8016e664;
     Object *l = &player_left;
@@ -137,6 +137,6 @@ void func_80120cf0(void) {
     g->field_56 = table_8016e730[g->field_14];
     func_80138358(g);
     data_801a6938 = 0;
-    data_801a6984 = 0;
+    data_801a6984[0] = 0;
     data_801a6985 = 0;
 }

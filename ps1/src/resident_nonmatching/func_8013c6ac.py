@@ -15,6 +15,8 @@ Choices made by the setup:
     five cases of six, a frame (field_07 zero in one case of eight), an
     unknown_148 list of box records, field_164 zero or not, and an "other"
     object (a block of its own, or a table object);
+  - the six pointer words the function writes (ref_first, ref_second,
+    data_80190414, data_80190458, ref_other, ref_third) start as random words;
   - positions, box origins and extents are small numbers (so that the boxes
     overlap) in four cases of five and random otherwise; field_0b is 0 or a
     random byte.
@@ -67,6 +69,9 @@ def setup(state, rng, sym) -> Setup:
     else:
         count = rng.randrange(1, 9)
     state.w16(sym["count_8018f59c"], count)
+    # the six pointer words the function writes start random
+    for name in ("ref_first", "ref_second", "data_80190414", "data_80190458", "ref_other", "ref_third"):
+        state.w32(sym[name], rng.getrandbits(32))
 
     objects = []
     for _ in range(rng.randrange(2, 5)):

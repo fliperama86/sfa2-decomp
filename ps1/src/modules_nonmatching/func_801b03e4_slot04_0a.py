@@ -8,6 +8,8 @@ func_801b03e4_slot04_0a.c. Choices made here:
   - the object is a block of 0x394 bytes of random content (func_80125734
     reads fields 0xa7, 0xcd, 0x130 of it, so both its early exit and its
     search loop run), field_06 random, field_46 and field_48 random;
+  - game_state.field_76, which the function writes, holds a random halfword
+    before the call;
   - the random generator state is random;
   - func_80130678 and func_80130efc are recorders returning 0, the log
     watches the whole object and game_state.field_76.
@@ -24,6 +26,7 @@ def setup(state, rng, sym) -> Setup:
     else:
         state.w8(game_state + 0x64, rng.choice((0, rng.randrange(1, 256))))
         state.w8(game_state + 0x5C, rng.choice((0, rng.randrange(1, 256))))
+    state.w16(game_state + 0x76, halfword(rng))  # written by the function
     obj = state.alloc(0x394)
     fill(state, obj, 0x394, rng)
     # func_80125734 tests bit 0x100 of the halfword at 0x130, its early exit needs byte 0xcd non-zero.

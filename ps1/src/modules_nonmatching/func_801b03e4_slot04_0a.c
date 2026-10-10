@@ -41,10 +41,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* Inferred declarations, not original ones. */
-u8 func_80125734(Object *object, s8 a);
-void func_80130678(Object *object, int arg);
-
 void func_801b03e4_slot04_0a(Object *obj) {
     s8 variant;
 
@@ -52,7 +48,7 @@ void func_801b03e4_slot04_0a(Object *obj) {
         obj->field_46 = 0x3c00;
         obj->field_06 = obj->field_06 + 1;
         game_state.field_76 = 0x1e;
-        variant = func_80125734(obj, func_80151184() / 52);
+        variant = func_80125734(obj, (s8)(func_80151184() / 52));
         obj->field_48 = variant;
         func_80130678(obj, variant + 0x23);
     } else {

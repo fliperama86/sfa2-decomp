@@ -9,6 +9,8 @@ Choices of the setup:
   - in four cases of five the positions, box x and box y are small (-30..30)
     and the box widths and heights 0..40, so that the y and x overlap tests
     both pass and fail; in the others they are random;
+  - ref_third and ref_other, which the function sets to the two players,
+    start as random words;
   - the word at offset 0x10 of the players is random, which tests the add
     with carry into pos_x.
 """
@@ -23,6 +25,10 @@ def setup(state, rng, sym):
     def small(span):
         return rng.randrange(-span, span + 1) & 0xFFFF
 
+    # the two object pointers the function sets (ref_third.p, and ref_other.p
+    # = game_state.field_358) start random, so that a missed store is seen
+    state.w32(sym["ref_third"], rng.getrandbits(32))
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     near = rng.random() < 0.8
     for player in (sym["player_left"], sym["player_right"]):
         fill(player, 0x394)

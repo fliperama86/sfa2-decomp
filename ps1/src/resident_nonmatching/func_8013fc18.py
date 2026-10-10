@@ -14,6 +14,9 @@ Choices of the setup:
   - the other object's pos_x is chosen so that the distance falls within
     3 of c in two cases of three (in half of those, exactly at the boundary,
     c plus -1 to 2), otherwise random;
+  - ref_other, which the function writes (the other object's address, once
+    the early checks pass), starts as a random word, so that a refusal
+    before that write is seen to leave it alone;
   - func_8013fab4 is a recorder (1 argument, result 0); every call copies
     ref_other, the object and the other object whole.
 """
@@ -39,6 +42,7 @@ def setup(state, rng, sym):
     def mostly(passing, other_value):
         return passing if rng.random() < 5 / 6 else other_value
 
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     state.w32(obj + 0x40, other)
     state.w32(other + 0x88, frame)
     state.w32(other + 0x148, box)

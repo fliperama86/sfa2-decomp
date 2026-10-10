@@ -56,7 +56,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_8013f8c4(Object *object, s16 a, s16 b) {
+int func_8013f8c4(Object *object, int a_arg, int b_arg) {
+    s16 a = a_arg; /* the shared prototype takes int; the function uses the low halfword */
+    s16 b = b_arg;
     Object *other;
     FrameRecord *frame;
     Box6 *box;

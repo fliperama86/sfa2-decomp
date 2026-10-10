@@ -59,7 +59,8 @@
 /* Globals as the original uses them (inferred types; not original
    declarations). */
 extern ObjectRef ref_third;
-extern Box6 *data_80190458;
+/* data_80190458 is an ObjectRef in the shared header; the function uses its
+   word as a pointer to Box6 records. */
 extern BoxTables *data_801904c0;
 
 /* The object that data_80190468 points at: three state bytes at 0x5c.
@@ -70,7 +71,8 @@ typedef struct {
     u8 mode;
     u8 mode2;
 } StateBytes;
-extern StateBytes *data_80190468;
+/* data_80190468 is an ObjectRef in the shared header; its word points at this
+   object. */
 
 /* The size of an overlap: the distance between two 16-bit coordinates, as
    the original computes it (a negative 16-bit difference is negated). */
@@ -119,7 +121,7 @@ void func_8013bfa4(void) {
             if (obj->frame->field_04 < player->field_69) continue;
         }
         if (obj->frame->active == 0) continue;
-        data_80190458 = (Box6 *)obj->box_tables;
+        data_80190458.p = (Object *)obj->box_tables;
         box = obj->box_tables->boxes_b;
         data_801904c0 = obj->box_tables;
         box = (Box32 *)((u8 *)box + obj->frame->active * sizeof(Box32));
@@ -155,14 +157,14 @@ void func_8013bfa4(void) {
         func_8013a3a8(obj, player, box);
         if (player->field_61 != 0xff && (s16)player->field_5c >= 0) {
             if ((0x800000 >> (obj->field_02 & 31)) != 0) {
-                data_80190468->state = 0xf;
-                data_80190468->mode = 2;
-                data_80190468->mode2 = 2;
+                ((StateBytes *)data_80190468.p)->state = 0xf;
+                ((StateBytes *)data_80190468.p)->mode = 2;
+                ((StateBytes *)data_80190468.p)->mode2 = 2;
             }
             if (obj->field_49 != 0) {
-                data_80190468->state = 7;
-                data_80190468->mode = 1;
-                data_80190468->mode2 = 1;
+                ((StateBytes *)data_80190468.p)->state = 7;
+                ((StateBytes *)data_80190468.p)->mode = 1;
+                ((StateBytes *)data_80190468.p)->mode2 = 1;
             }
         }
         func_8013af1c(obj, player, box);

@@ -47,11 +47,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern u16 box_margin;
-extern u16 data_801aa5ea[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
-
 /* Declared here because the published headers lack them (inferred). */
 void func_801b8354_slot04_14(Object *obj);
 void func_801b8430_slot04_14(Object *obj, u8 arg);
@@ -73,7 +68,7 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->field_9c = other->field_9c;
         obj->field_7a = other->field_7a;
         obj->field_7c = other->field_7c;
-        obj->pos_x = box_margin + 0xb8;
+        obj->pos_x = box_margin[0] + 0xb8;
         obj->field_0d = 0x1f;
         obj->field_44 = 1;
         obj->field_46 = 0x15;

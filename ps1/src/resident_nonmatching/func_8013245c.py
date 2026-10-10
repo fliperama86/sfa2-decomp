@@ -19,6 +19,14 @@ Choices made here:
     up to 0x3c, data_80171c5c/5d, the four strips of data_80188d6c and
     data_80188ebc to ec3); the pointer argument of func_8015c150 is followed
     for 8 words, of func_8015c09c for 10 and of func_80136d1c for 7;
+  - the memory that the three last callees write is random before the call:
+    strips2 and data_80188e4c (0xe0 bytes), strips (0x1c0 bytes, the first
+    two rows of eight records and the rest that func_80132b30 reaches
+    through data_80190014) and the two records of data_8018d210 (0x40
+    bytes); game_state.field_42, which func_80132b30 tests, is zero in half
+    of the cases; the watch list does not hold those three blocks: only
+    game code that runs alike in both runs writes them, the function itself
+    never does, and the arena has no room for the larger log;
   - recorders replace func_8015c150 (1 argument), func_8015c09c (1),
     func_8015bd0c (4 arguments, a random result per case) and func_80136d1c
     (1); the log has room for the 604 calls of the function and of its
@@ -48,6 +56,15 @@ def setup(state, rng, sym):
     for name, size in (("data_801a6938", 4), ("data_80188d64", 8), ("data_80171c5c", 4),
                        ("data_80188d6c", 0x70), ("data_80188ebc", 8)):
         _rand(state, rng, sym[name], size)
+    # what the three last callees (game code, run as the original) write: the
+    # two-by-two strips2 and data_80188e4c (func_80132cf0: 2 * 0x70 bytes),
+    # the eight strips and eight more of strips (func_80132b30: 0x1c0 bytes),
+    # two Effect records (func_80153088: 0x40 bytes); func_80132b30 reads
+    # game_state.field_42, which is zero in half of the cases
+    _rand(state, rng, sym["strips2"], 0xE0)
+    _rand(state, rng, sym["strips"], 0x1C0)
+    _rand(state, rng, sym["data_8018d210"], 0x40)
+    state.w8(sym["game_state"] + 0x42, 0 if rng.random() < 0.5 else rng.randrange(1, 256))
     state.w16(sym["player_left"] + 0x5C, rng.getrandbits(16))
     state.w16(sym["player_right"] + 0x5C, rng.getrandbits(16))
     watch = ((sym["data_801ac6a8"], 0x1E0 // 4),      # the block the function fills

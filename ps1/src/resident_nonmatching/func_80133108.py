@@ -12,7 +12,9 @@ Choices made here:
     every step of the state bytes is tried; with field_d8 set the value is
     chosen about a third of the target, so that the tripled value lands there;
   - the globals the function writes and the callees read are filled with
-    random bytes before the call.
+    random bytes before the call, including data_80188d44 and data_80188d48 that func_80133848 writes and the four bytes data_80188d64,
+    data_80188d65, data_80188d68 and data_80188d69 that the helpers
+    func_801340e4 and func_8013411c write (the C does not name them).
 """
 
 from contracts import Contract, Setup
@@ -40,8 +42,9 @@ def setup(state, rng, sym):
     right = _object(state, rng)
     state.w32(sym["data_801a27d0"], rng.randrange(3))
     for name in ("data_80171c5c", "data_80171c5d", "data_80171c5e", "data_80171c5f",
-                 "data_80188d4c", "data_80188d50", "data_80188d54",
-                 "data_80188d58", "data_80188d5c", "data_80188d60"):
+                 "data_80188d44", "data_80188d48", "data_80188d4c", "data_80188d50", "data_80188d54",
+                 "data_80188d58", "data_80188d5c", "data_80188d60",
+                 "data_80188d64", "data_80188d65", "data_80188d68", "data_80188d69"):
         state.w8(sym[name], rng.getrandbits(8))
     return Setup(args=(base, left, right), returns_value=False)
 

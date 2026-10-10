@@ -19,6 +19,9 @@ Choices of the setup:
     word of data_80190126 at each call (the watch);
   - func_801204f4, func_801307e0 and func_80130efc are recorders; their
     arguments are compared through the log.
+  - ref_other (the global word the function sets to the other object) is
+    filled with a random word first, so that the function's store to it is
+    seen.
 """
 
 from contracts import CallLog, Contract, Setup
@@ -67,6 +70,7 @@ def setup(state, rng, sym) -> Setup:
         state.w32(table + 4 * index, rng.getrandbits(32))
     state.w16(sym["data_80190126"], rng.getrandbits(16))
 
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     log = CallLog(state, 2048, watch=((obj, 0x100), (other, 0x100), (sym["ref_other"], 1), (sym["data_80190126"] & ~3, 1)))
     log.replace(sym["func_801204f4"], 3)
     log.replace(sym["func_801307e0"], 2)

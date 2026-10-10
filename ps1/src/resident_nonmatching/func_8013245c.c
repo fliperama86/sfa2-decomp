@@ -35,7 +35,10 @@
  *     data_801a6938, data_80188d64, 65, 68, 69, the table_80188d08 bytes and
  *     halfwords named in the C, data_80171c5c and data_80171c5d, the two
  *     record areas at data_80186004, the strips of data_80188d6c,
- *     data_80188ebc and data_80188ec0, and what the three last callees write.
+ *     data_80188ebc and data_80188ec0, and what the three last callees write:
+ *     strips2 and data_80188e4c (func_80132cf0), the strips of strips and
+ *     data_80190014 (func_80132b30; it reads game_state.field_42), and the
+ *     two records of data_8018d210 (func_80153088).
  *   Callees replaced by recorders, the same in both runs: func_8015c150 (1
  *     argument), func_8015c09c (1), func_8015bd0c (4; the result is random
  *     per case), all in Sony's library; and func_80136d1c (1), which reaches
@@ -50,7 +53,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-extern HudBlk data_801ac6a8;
+/* data_801ac6a8 is declared by the shared header as an array of bytes; the
+   function reads it as this block. */
 extern u8 data_80186004[];
 
 void func_8015c150(u8 *record);
@@ -74,7 +78,8 @@ static void init_record(u8 *rec, int c0, int c1, int c2, int x, int y, int z, in
 
 void func_8013245c(void)
 {
-    u8 *base = data_801ac6a8.head;
+    HudBlk *blk = (HudBlk *)data_801ac6a8;
+    u8 *base = blk->head;
     int sel_left, sel_right;
     int i, j;
     int x;
@@ -86,27 +91,27 @@ void func_8013245c(void)
     base[1] = 1;
     sel_left = data_801a8067;
     sel_right = data_801a83fb;
-    data_801ac6a8.field_1d4 = table_80172144[sel_left + 13];
-    data_801ac6a8.field_1d8 = table_80172144[sel_right + 13];
-    data_801ac6a8.field_1dc = table_80172144[32];
+    blk->field_1d4 = table_80172144[sel_left + 13];
+    blk->field_1d8 = table_80172144[sel_right + 13];
+    blk->field_1dc = table_80172144[32];
     data_801a6938 = 0;
     if (sel_left == 0x12) {
-        data_801ac6a8.field_1d4 = table_80172144[31];
+        blk->field_1d4 = table_80172144[31];
     }
     if (sel_left == 0x13) {
-        data_801ac6a8.field_1d4 = table_80172144[30];
+        blk->field_1d4 = table_80172144[30];
     }
     if (sel_left == 0x14) {
-        data_801ac6a8.field_1d4 = table_80172144[15];
+        blk->field_1d4 = table_80172144[15];
     }
     if (sel_right == 0x12) {
-        data_801ac6a8.field_1d8 = table_80172144[31];
+        blk->field_1d8 = table_80172144[31];
     }
     if (sel_right == 0x13) {
-        data_801ac6a8.field_1d8 = table_80172144[30];
+        blk->field_1d8 = table_80172144[30];
     }
     if (sel_right == 0x14) {
-        data_801ac6a8.field_1d8 = table_80172144[15];
+        blk->field_1d8 = table_80172144[15];
     }
     if (data_80198098) {
         data_80188d64 = 0;
@@ -170,10 +175,10 @@ void func_8013245c(void)
     *(u16 *)(table_80188d08 + 0x30) = 1;
     *(u16 *)(table_80188d08 + 0x34) = 1;
     *(u16 *)(table_80188d08 + 0x38) = 1;
-    data_801ac6a8.field_1c4 = table_80172144[10];
-    data_801ac6a8.field_1cc = table_80172144[8];
-    data_801ac6a8.field_1c8 = table_80172144[0];
-    data_801ac6a8.field_1d0 = table_80172144[4];
+    blk->field_1c4 = table_80172144[10];
+    blk->field_1cc = table_80172144[8];
+    blk->field_1c8 = table_80172144[0];
+    blk->field_1d0 = table_80172144[4];
 
     for (i = 0; i < 2; i++) {
         x = 0xa8;

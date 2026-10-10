@@ -10,7 +10,9 @@ Choices made here:
   - data_801a27d0 is 0 or 1;
   - the eight text records of the module image, the queue table_8018d144,
     the arrays data_80190014 and strips and the ordering table head words
-    are filled with random bytes;
+    are filled with random bytes; so are the four output words
+    data_8002ce9c_slot01 to data_8002cea8_slot01 (16 bytes), which the
+    function overwrites;
   - game_state.field_74 is 0 in half the cases (func_801519b4 queues only
     then); the queue counter data_8018d204 is 0 to 0x35, with the values
     near its limit 0x30 in half the cases;
@@ -43,6 +45,8 @@ def setup(state, rng, sym) -> Setup:
     fill(state, sym["data_80190014"], 2 * 4 * 0x1C, rng)
     fill(state, sym["strips"], 4 * 4 * 0x1C, rng)
     fill(state, sym["data_801fc050"], 0x1E0, rng)
+
+    fill(state, sym["data_8002ce9c_slot01"], 16, rng)
 
     log = CallLog(state, 1024, watch=((records, 8 * 16 // 4), (sym["data_8002ce9c_slot01"], 4)))
     log.replace(sym["func_80010d0c_slot01"], 2, 0)

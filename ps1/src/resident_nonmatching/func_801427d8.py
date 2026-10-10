@@ -8,6 +8,7 @@ Choices of the setup:
     occur through the random half;
   - the object and the block at its field_40 are 0x394-byte blocks of random
     bytes (field_7e, field_66 random, so the callee's branches both run);
+  - ref_other, which func_80142c04 writes, starts as a random word;
   - func_80142c04 is not replaced.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword
@@ -23,6 +24,7 @@ def setup(state, rng, sym) -> Setup:
     obj = state.alloc(0x394)
     fill(state, obj, 0x394, rng)
     state.w32(obj + 0x40, target)
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     if rng.random() < 0.5:
         c6 = halfword(rng)
     else:

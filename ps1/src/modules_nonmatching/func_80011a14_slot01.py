@@ -23,6 +23,13 @@ Choices made here:
     hold a step (frame index 0 to 7, random other bytes), and the object's
     field_8c points at a block of 8 frame records (the object's field_08 is
     0, 8 or random in equal shares), so that func_80130768 runs;
+  - data_8002121c_slot01[0], which the first shape writes, holds random
+    bytes before the call;
+  - game_state.field_112, which the first shape writes, is a random byte
+    before the call;
+  - the cursor words that func_80011fe8_slot01 writes (a pointer and two
+    halfwords from data_80055e94_slot01, 8 bytes) hold random bytes before
+    the call;
   - no recorder: the callees run as the original code in both runs.
 """
 
@@ -41,8 +48,12 @@ def setup(state, rng, sym) -> Setup:
     state.w32(game_state + 0x78, other)
     state.w16(game_state + 0x0C, 0 if rng.random() < 0.5 else halfword(rng))
     state.w8(game_state + 0x13A, rng.getrandbits(8))
+    state.w8(game_state + 0x112, rng.getrandbits(8))
     state.w16(game_state + 0x1E, halfword(rng))
     state.w16(sym["box_margin"], halfword(rng))
+
+    fill(state, sym["data_8002121c_slot01"], 4, rng)
+    fill(state, sym["data_80055e94_slot01"], 8, rng)
 
     rows = state.alloc(4 * 8)
     for index in range(8):

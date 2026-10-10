@@ -16,6 +16,9 @@ Choices of the setup:
     func_80130768 and of func_80120028);
   - the stacks that func_80120080 and its helpers push on hold 32 words and
     the stack pointers start at their last word; their counters are random;
+  - the palette array data_801a2bc4 (16 halfwords, written by func_801b8430)
+    is filled with random bytes first, so a halfword that is preserved is
+    seen to be preserved;
   - func_80137220 is a recorder (2 arguments) that returns a random word;
   - the recorder copies the whole object (0x394 bytes) and the palette array
     data_801a2bc4 (16 halfwords) into its entry at its call, so the stores of
@@ -35,6 +38,7 @@ def setup(state, rng, sym):
     state.w8(game_state + 0x64, 0 if rng.random() < 0.25 else rng.randrange(1, 256))
     state.w16(sym["box_margin"], rng.getrandbits(16))
     state.w16(sym["data_801aa5ea"], rng.getrandbits(16))
+    fill(state, sym["data_801a2bc4"], 32, rng)
 
     for stack in ("stack_801ad354", "stack_8018db00", "stack_8018db04"):
         block = state.alloc(4 * 32)

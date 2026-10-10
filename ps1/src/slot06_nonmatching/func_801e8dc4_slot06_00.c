@@ -34,8 +34,15 @@
  *     sequence, field_76, field_78, field_7a, field_7c, field_81 and pos_y;
  *     all 0x20 bytes of record field_03 of data_801f3010_slot06_00.
  *   Aliasing: the object, the record table, the word table and the
- *     sequence table are distinct blocks. The record index is a byte, so
- *     the record table has 256 records.
+ *     sequence table are distinct blocks.
+ *   Excluded: a field_03 of 3 or more. The index is a byte and the
+ *     original checks nothing, but the word table holds entries for three
+ *     records (12 words, then the next function of the image), so a
+ *     larger index reads words that are not the table's and writes a
+ *     record far outside it. Of the three records, the first two lie
+ *     before the symbol data_801f3050_slot06_00 and the third covers its
+ *     first 0x20 bytes: the two tables are 0x40 bytes apart. Whether the
+ *     game uses index 2 is not known.
  *   Every instruction slot of the original is reached by some input.
  */
 #include "../game.h"

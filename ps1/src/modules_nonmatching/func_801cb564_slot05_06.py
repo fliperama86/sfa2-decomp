@@ -8,6 +8,8 @@ func_801cb564_slot05_06.c. Choices made here:
     else random;
   - field_4c (a word) is negative in a third of the cases, 0 in a tenth,
     else positive, always within 30 bits; field_54 within 30 bits;
+  - game_state.field_63, which the function writes, is a random byte before
+    the call;
   - field_cd is 0 in half of the cases; game_state.field_1d has random bits;
   - field_1c5 is 0, 1, 2 or 0x80 or above or near (field_12a >> 1) + 3 in
     most cases, else random; field_12a is random; field_0b is 0 or random;
@@ -76,6 +78,7 @@ def setup(state, rng, sym) -> Setup:
         state.w8(obj + 0xCD, 0)
     state.w8(obj + 0x0B, 0 if rng.random() < 0.5 else rng.randrange(1, 256))
     state.w8(game_state + 0x1D, rng.getrandbits(8))
+    state.w8(game_state + 0x63, rng.getrandbits(8))  # written by the function
 
     f12a = state.read(obj + 0x12A, 1)[0]
     roll = rng.random()

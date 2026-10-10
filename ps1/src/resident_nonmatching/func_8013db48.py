@@ -1,6 +1,8 @@
 """Contract of func_8013db48: step one slot of an object against the table entry at step 1.
 
 Choices of the setup:
+  - data_80188f44, the global byte that the leaf callees set (to 0 or 1),
+    starts random, so that a call that leaves it alone is seen;
   - the object is a random block that holds the 256 slots of 8 bytes the
     index can reach; the slot used has field_04 equal to 1 in a fifth of the
     cases (it reaches 0), otherwise 2 to 255;
@@ -47,6 +49,9 @@ def setup(state, rng, sym):
     state.w16(table + 2 * (arg_low * 7 + 1), entry)
     index = (rng.getrandbits(24) << 8) | index_low
     arg = (rng.getrandbits(24) << 8) | arg_low
+    # the global byte that func_8013f2a8, func_8013f2c8 and func_8013f2d8 set
+    # (0 or 1) starts random, so that a call that leaves it alone is seen
+    state.w8(sym["data_80188f44"], rng.getrandbits(8))
     return Setup(args=(obj, index, arg), returns_value=False)
 
 

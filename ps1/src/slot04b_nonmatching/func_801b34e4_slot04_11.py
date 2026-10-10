@@ -19,6 +19,9 @@ Choices of the setup:
     func_80130efc are recorders (results unused); func_80140cd8 is a
     recorder whose result is 0 in half of the cases and a random word
     otherwise. The log holds their arguments, compared in order.
+  - ref_other (the global word the function sets to the other object) is
+    filled with a random word first, so that the function's store to it is
+    seen.
 """
 
 from contracts import CallLog, Contract, Setup
@@ -48,6 +51,7 @@ def setup(state, rng, sym) -> Setup:
     fill(state, sym["data_801c7518_slot04_11"] - 8, 0x110, rng)
 
     result = 0 if rng.random() < 0.5 else rng.getrandbits(32)
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     log = CallLog(state, 4096, watch=((obj, 0x100), (other, 0x100), (sym["ref_other"], 1)))
     log.replace(sym["func_801465b0"], 4)
     log.replace(sym["func_80140770"], 7)

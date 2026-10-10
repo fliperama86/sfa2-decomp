@@ -27,6 +27,9 @@ Choices of the setup:
     compared through the log, and each call also copies the whole object
     block (0x100 words), the word ref_other and the word that holds the seed
     data_80190126, so that a store made on the other side of a call differs.
+  - ref_other (the global word the function sets to the other object) is
+    filled with a random word first, so that the function's store to it is
+    seen.
 """
 
 from contracts import CallLog, Contract, Setup
@@ -94,6 +97,7 @@ def setup(state, rng, sym) -> Setup:
     state.w16(sym["data_80190126"], rng.getrandbits(16))
 
     seed = sym["data_80190126"] & ~3
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     log = CallLog(state, 1024, watch=((obj, 0x100), (sym["ref_other"], 1), (seed, 1)))
     log.replace(sym["func_801307e0"], 2)
     log.replace(sym["func_80130efc"], 1)

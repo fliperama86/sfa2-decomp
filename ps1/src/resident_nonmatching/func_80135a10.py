@@ -8,6 +8,9 @@ Choices of the setup:
     in the separate block field_65 is 0 in half of the cases;
   - field_ce is random (any byte) in a block that is the selected object;
     field_167 is random with its high bit set in half of the cases;
+  - both player objects (2 * 0x394 bytes) start with random bytes, so that
+    the byte the function writes at an index up to 255 (field_ce is any
+    byte) and the bytes it must leave alone are all tested;
   - the byte tables bytes_d0[0..3] of both players hold 8 in each entry
     with probability one half, otherwise a random byte;
   - func_80120554 and func_80135c0c are recorders returning 0; both take
@@ -25,6 +28,7 @@ def setup(state, rng, sym):
     log = CallLog(state, 8192, watch=((left, 0x394 // 4), (right, 0x394 // 4)))
     log.replace(sym["func_80120554"], 3, 0, pointees={0: 0x394 // 4})
     log.replace(sym["func_80135c0c"], 3, 0)
+    state.write(left, bytes(rng.getrandbits(8) for _ in range(2 * 0x394)))
     mode = rng.choice((1, 1, 2, 2, rng.randrange(256)))
     state.w8(sym["data_80190474"], mode)
     for player in (left, right):

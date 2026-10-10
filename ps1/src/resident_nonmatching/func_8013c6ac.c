@@ -49,7 +49,8 @@
    declarations). */
 extern ObjectRef ref_third;
 extern ObjectRef data_80190414;
-extern Box6 *data_80190458;
+/* data_80190458 is an ObjectRef in the shared header; the function uses its
+   word as a pointer to Box6 records. */
 
 void func_8013c6ac(void) {
     s16 last;
@@ -81,8 +82,8 @@ void func_8013c6ac(void) {
         data_80190414.p = (Object *)obj->box_tables;
         obj_box = ((BoxTables *)data_80190414.p)->boxes_c + obj->frame->field_07;
         if (player->frame->field_07 == 0) continue;
-        data_80190458 = (Box6 *)player->unknown_148;
-        player_box = data_80190458 + player->frame->field_07;
+        data_80190458.p = (Object *)player->unknown_148;
+        player_box = (Box6 *)data_80190458.p + player->frame->field_07;
         dy = (s16)player_box->field_02 - player->pos_y - (s16)(obj_box->field_02 - obj->pos_y);
         if (dy < 0) dy = -dy;
         if (dy - (player_box->field_05 + obj_box->field_05) >= 0) continue;

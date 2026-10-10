@@ -11,7 +11,9 @@ Choices of the setup:
     (so that the mask test passes; in three cases of ten one random bit is
     added), otherwise random;
   - a1 and a2 are random words (only the low byte counts);
-  - no callee is replaced.
+  - no callee is replaced; the global byte data_80188f44, which func_8013f2c8
+    and func_8013f2fc write (0 or 1), starts as a random byte of 2 to 255, so
+    that a call that leaves it alone is seen to leave it alone.
 """
 from contracts import Contract, Setup, fill
 
@@ -40,6 +42,7 @@ def setup(state, rng, sym):
         if rng.random() < 0.5:
             entry |= bit
     state.w16(table + 2 * arg_low, entry)
+    state.w8(sym["data_80188f44"], rng.randrange(2, 256))
     index = rng.getrandbits(32)
     arg = (rng.getrandbits(24) << 8) | arg_low
     return Setup(args=(obj, index, arg), returns_value=False)

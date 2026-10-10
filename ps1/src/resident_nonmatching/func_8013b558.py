@@ -15,6 +15,8 @@ Choices made by the setup:
     three cases of five, else a value with a non-zero low byte, or one whose
     low byte is 0 but higher bits are set (the call's result is a byte);
   - func_8013b7b8 is a recorder without arguments;
+  - the six pointer words the function writes (ref_first, ref_second,
+    data_80190414, data_80190458, ref_other, ref_third) start as random words;
   - every recorder copies, at each call, the globals the function writes
     (ref_first to data_80190414 and the word after it, data_80190458,
     ref_other, ref_third); no recorded pointer argument points at memory the
@@ -60,7 +62,12 @@ def setup(state, rng, sym) -> Setup:
     for index in range(12):
         state.w32(table - 4 * index, rng.choice(objects))
 
-    watch = ((0x8019040C, 4), (0x80190458, 1), (0x80190460, 1), (0x80190478, 1))
+    # the six pointer words the function writes start random, so that a word
+    # that is kept is seen to be kept and one that is set to be set
+    for name in ("ref_first", "ref_second", "data_80190414", "data_80190458", "ref_other", "ref_third"):
+        state.w32(sym[name], rng.getrandbits(32))
+
+    watch = ((sym["ref_first"], 4), (sym["data_80190458"], 1), (sym["ref_other"], 1), (sym["ref_third"], 1))
     log = CallLog(state, 4096, watch=watch)
     result = rng.choice((0, 0, 0, 1, 0x100, 0x1FF, 0x80))
     log.replace(sym["func_801397d0"], 3, result)

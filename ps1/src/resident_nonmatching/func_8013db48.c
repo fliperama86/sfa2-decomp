@@ -36,7 +36,8 @@
  *     byte of a1 and of a2 counts. No return value.
  *   Reads: the object's field_134 and field_136, the slot's field_04, the
  *     table halfword.
- *   Writes: the slot's field_04, and whatever the callees write.
+ *   Writes: the slot's field_04, and whatever the callees write (the slot's
+ *     field_00 and the global byte data_80188f44, which the setup fills).
  *   Callees: func_8013f2a8, func_8013f2d8 and func_8013f2c8 are short leaf
  *     functions (a slot byte and a global byte); they run as the original
  *     code in both runs. func_8013f2c8 takes no argument (its prototype says

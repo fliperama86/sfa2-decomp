@@ -89,7 +89,6 @@ int func_801cded4_slot05_06(Object *obj);
 void func_80141248(Object *object);
 int func_801410c8(Object *object);
 int func_801468f4(Object *object);
-u8 func_80140cd8(Object *object, int a, int b);
 extern u16 data_801dd478_slot05_06[];
 
 /* The push on the opponent object, done twice with another amount. */

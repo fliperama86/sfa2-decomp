@@ -19,7 +19,10 @@ the original code, on a free list that this setup builds. Choices made here:
     case of five (free plus own blocks below (n + 15) / 16 + 1) and otherwise
     covers both that bound and every block the cells need, so that the
     original never runs dry;
-  - the object has random bytes, so field_0b takes every value.
+  - the object has random bytes, so field_0b takes every value, except
+    field_94 (the entry index), which is 0 to 63: when the work is left to
+    func_8011d5b8 that callee indexes the group tables with it, unchecked,
+    and the tables the setup fills hold 64 entries.
 """
 
 from contracts import Contract, Setup
@@ -87,6 +90,10 @@ def setup(state, rng, sym):
     for offset in range(0, 0xB0, 4):
         state.w32(p + offset, rng.getrandbits(32))
     state.w8(p + 0x02, chan)
+    # the object's entry index (field_94): func_8011d5b8 reads it as the
+    # index into the four group tables of 64 entries that this setup filled
+    # (the original checks no bound); the C overwrites it otherwise
+    state.w16(p + 0x94, rng.randrange(64))
     return Setup(args=(p, q), returns_value=False)
 
 

@@ -22,6 +22,8 @@ Choices made by the setup:
   - positions, origins, extents are small numbers (so that boxes overlap) in
     nine cases of ten and random otherwise;
   - data_80190468 points at a block of its own;
+  - the six pointer words the function writes (ref_first, ref_second,
+    data_80190458, ref_other, ref_third, data_801904c0) start as random words;
   - every recorder copies, at each call, whole: the table objects, both
     players, the block at data_80190468, data_80188ed0, data_80188f30,
     ref_first to data_80190414 and its next word, data_80190458,
@@ -136,7 +138,12 @@ def setup(state, rng, sym) -> Setup:
     for index in range(12):
         state.w32(table - 4 * index, rng.choice(objects))
 
-    watch = [(0x8019040C, 4), (0x80190458, 1), (0x80190460, 1), (0x80190478, 1), (0x801904C0, 1),
+    # the pointer words the function writes start random
+    for name in ("ref_first", "ref_second", "data_80190458", "ref_other", "ref_third", "data_801904c0"):
+        state.w32(sym[name], rng.getrandbits(32))
+
+    watch = [(sym["ref_first"], 4), (sym["data_80190458"], 1), (sym["ref_other"], 1), (sym["ref_third"], 1),
+             (sym["data_801904c0"], 1),
              (sym["data_80188ed0"], 0x4C // 4), (sym["data_80188f30"], 1), (block, 0x394 // 4)]
     watch += [(obj, 0x394 // 4) for obj in objects]
     watch += [(sym["player_left"], 0x394 // 4), (sym["player_right"], 0x394 // 4)]

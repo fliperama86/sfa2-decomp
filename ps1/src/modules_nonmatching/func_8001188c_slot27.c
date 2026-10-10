@@ -29,8 +29,11 @@
  *     data_801a27e4_rows, whole, at the call.
  *   Aliasing: the objects, the source table and the destination rows are
  *     distinct memory; no source word lies in a destination row.
- *   Excluded inputs: none; a side above 9 writes past the end of a row into
- *     the next, as the original does, and the setup uses such values too.
+ *   Excluded inputs: a side above 9. The original does not check it; the
+ *     strip written into row 5 would then pass the end of the table
+ *     data_801a27e4_rows (side 9 ends at its last halfword). An input that
+ *     leaves the table is not part of the contract; the setup keeps side
+ *     0 to 9, with 9 often.
  *   Not reached by any input: none expected.
  */
 #include "../game.h"

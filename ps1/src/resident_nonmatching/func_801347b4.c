@@ -39,6 +39,12 @@
  *     (set to 0), data_80188d04 (plus 1); whatever func_80134e94 and
  *     func_801350c0 write. data_80188d04 is read once per tile because
  *     nothing the function calls changes it.
+ *   Variables the callees reach by address (the function's own text names
+ *     none of them): the byte table at data_80171bf8 + 0x60 (0x108 bytes of
+ *     which the callees read the bytes around +0x5f to +0x68 and what those
+ *     index), the halfword at offset 0xc6 and the byte at 0xd8 of player_left
+ *     and of player_right (the object 0x394 bytes after player_left), and
+ *     the stretch of data from data_80188d28 - 0x20.
  *   Callees: func_80134e94 and func_801350c0 are game code that only reads
  *     and writes variables; they run as the original code in both runs
  *     (the setup randomizes the variables they read). func_8015bf34 (a

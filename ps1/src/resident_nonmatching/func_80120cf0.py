@@ -16,6 +16,10 @@ Choices made here:
   - every recorder copies, at every call, game_state (0x364 bytes), both
     players, the status block and the words holding data_801a6938 and
     data_801a6984 and data_801a6985;
+  - the seed word data_80190126 of func_80151184, the counters counter_a,
+    counter_b and counter_c that func_80138358 sets, and the 256 bytes of
+    table_6cf0 that it reads are random (the seed and the counters are
+    written by callees that run as original code; the C never names them);
   - func_8011eb14 and func_80120374 are recorders (0 and 1 arguments, both
     returning 0); the log shows the value passed to func_80120374.
 """
@@ -49,8 +53,14 @@ def setup(state, rng, sym) -> Setup:
     state.w16(sym["data_801a6972"], rng.getrandbits(16))
     for name in ("data_801a6938", "data_801a6984", "data_801a6985"):
         state.w8(sym[name], rng.getrandbits(8))
-    # the seed word of func_80151184
+    # the seed word of func_80151184: the callee reads and rewrites it
+    # (the C does not name it; the callee runs as original code)
     state.w16(sym["data_80190126"], rng.getrandbits(16))
+    # func_80138358 (original code) writes the three counters and reads
+    # table_6cf0 at an index that is a random byte: all 256 entries are random
+    for name in ("counter_a", "counter_b", "counter_c"):
+        state.w16(sym[name], rng.getrandbits(16))
+    fill(state, sym["table_6cf0"], 256, rng)
 
     watch = (
         (game_state, 0x364 // 4),

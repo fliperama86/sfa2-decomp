@@ -23,6 +23,9 @@ Choices of the setup:
     of the arm the case takes) falls within 3 of the limit in two cases of
     three, otherwise random; in half of those the distance is exactly the limit's
     magnitude plus -1 to 2 (the boundary);
+  - ref_other, which the function and func_8013f474 write (the other object's
+    address), starts as a random word, so that a return before that write is
+    seen to leave it alone;
   - func_8013fab4 is a recorder (1 argument) with a random 32-bit result;
     every call copies ref_other, the object and the other object whole;
     func_8013f474 is not replaced.
@@ -49,6 +52,7 @@ def setup(state, rng, sym):
     def mostly(passing, other_value):
         return passing if rng.random() < 5 / 6 else other_value
 
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     state.w32(obj + 0x40, other)
     state.w32(other + 0x88, frame)
     state.w32(other + 0x148, boxes)

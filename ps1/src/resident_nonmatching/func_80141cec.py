@@ -13,6 +13,8 @@ Choices of the setup:
   - the partner block's 16-bit field_04 has 1 in its low byte in half the
     cases (func_8012f56c then returns 0); the object's field_cd is 0 in
     half of them;
+  - ref_other, which a callee writes (func_8012f56c or func_80142c04), starts
+    as a random word;
   - func_80155d4c is a recorder with two arguments, result 0, no pointee;
     the log watches the whole object and ref_other at every call.
 """
@@ -50,6 +52,7 @@ def setup(state, rng, sym) -> Setup:
     state.w8(obj + 0xCD, rng.choice((0, rng.randrange(256))))
     state.w8(sym["game_state"] + 0x30, 0 if rng.random() < 0.33 else rng.randrange(1, 256))
     state.w8(sym["game_state"] + 0x1B, (side + 1) & 0xFF if rng.random() < 0.5 else rng.randrange(256))
+    state.w32(sym["ref_other"], rng.getrandbits(32))
     log = CallLog(state, 1024, watch=((obj, 0x394 // 4), (sym["ref_other"], 1)))
     log.replace(sym["func_80155d4c"], 2)
     return Setup(args=(obj,), returns_value=True)

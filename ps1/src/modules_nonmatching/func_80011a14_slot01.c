@@ -32,8 +32,9 @@
  *     func_80151184 uses.
  *   Writes: the object's field_01, 04, 05, 09, 0b, 0c, 0d, 0e, 20, 24, 90,
  *     98, 9c, pos_x, pos_y, in the right-margin shape also field_46, 4c,
- *     54; game_state.field_112; data_8002121c_slot01[0]; and whatever the
- *     real callees write.
+ *     54; game_state.field_112; data_8002121c_slot01[0]; the cursor words
+ *     data_80055e94_slot01 (8 bytes, written by func_80011fe8_slot01); and
+ *     whatever the other real callees write.
  *   Callees: all run as the original code in both runs (func_80151184 only
  *     steps the random generator in memory; func_80130768 sets an
  *     animation from a table entry; func_80011fe8_slot01 records a cursor

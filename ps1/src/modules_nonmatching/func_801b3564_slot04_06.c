@@ -76,7 +76,6 @@
 void func_80141248(Object *object);
 int func_801410c8(Object *object);
 int func_801468f4(Object *object);
-u8 func_80140cd8(Object *object, int a, int b);
 void func_801b4818_slot04_06(Object *obj);
 void func_801b4874_slot04_06(Object *obj, u16 *p);
 u8 func_801b5ed8_slot04_06(Object *obj);

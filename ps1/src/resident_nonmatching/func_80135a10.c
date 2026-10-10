@@ -24,7 +24,9 @@
  *   Reads: data_80190474 (mode); in mode 1 game_state.field_78 and, from the
  *     object it points at, field_65, field_ce and field_167; in mode 2 the
  *     byte tables bytes_d0[0..3] of player_left and of the object after it.
- *   Writes: in mode 1 one byte of bytes_d0 of the selected player.
+ *   Writes: in mode 1 one byte of bytes_d0 of the selected player (at the
+ *     index field_ce - 1, 0 to 255: the byte lies inside the player object,
+ *     which the test fills whole with random bytes).
  *   Calls (replaced by recorders in the test, both runs alike):
  *     func_80120554(object, player number, 0x34c), three arguments;
  *     func_80135c0c(strip, strip, code), three arguments. Both return 0.

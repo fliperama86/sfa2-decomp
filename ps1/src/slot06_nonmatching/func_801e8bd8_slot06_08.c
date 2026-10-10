@@ -35,8 +35,14 @@
  *     table are distinct blocks.
  *   Excluded inputs (the original cannot survive them): a field_4e minus
  *     field_1c whose low 16 bits are 0 (a division by zero in the second
- *     pass, the original traps); more drawn tiles than the buffer holds
- *     (the setup keeps them within it so that no write leaves the table).
+ *     pass, the original traps); a run past the end of the
+ *     record table. The original does not check the number of drawn tiles
+ *     against the 264 records of the buffer, and with too many tiles the records
+ *     go on into the next data symbol past the table; that is not part of the
+ *     contract and this C is not tested on it. The setup counts the tiles
+ *     the original will draw and keeps the last record inside the table
+ *     (buffer 1 only when at most 264 fit; the last record of the table
+ *     itself is a tested case).
  *   Slots no input reaches: eight `break` instructions of the original: two
  *     per division, two divisions per row of the second pass, in each of its
  *     two loop copies (division by zero, and the most negative number

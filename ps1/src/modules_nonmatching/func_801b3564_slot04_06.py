@@ -17,6 +17,8 @@ Choices of the setup:
   - game_state.field_1d is random with its two low bits taken uniformly;
     the other game_state bytes keep what the executable image holds;
   - other's field_5c is random with its sign taken at random;
+  - game_state.field_63, which the function writes, is a random byte
+    before the call;
   - the table of halfwords at data_801c547c_slot04_06 gets 256 random values;
   - the results of func_801410c8, func_801b5ed8_slot04_06, func_801468f4,
     func_80148e84 and func_80148ea8 are, per case, 0 in half of the cases
@@ -55,6 +57,7 @@ def setup(state, rng, sym):
     log.replace(sym["func_80151184"], 0, results=tuple(rng.getrandbits(32) for _ in range(12)))
     for block in (obj, other, target):
         fill(state, block, 0x394, rng)
+    state.w8(gs + 0x63, rng.getrandbits(8))  # written by the function
     state.w32(sym["ref_other"], target)
     state.w32(obj + 0x40, other)
     r = rng.random()
