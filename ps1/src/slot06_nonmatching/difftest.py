@@ -1447,7 +1447,7 @@ def in_stack(address: int, size: int) -> bool:
 
 def masked_pointees(pointees, masks) -> list[int]:
     """The arguments of a recorder that have a pointee and a mask of 0: the log holds 0 for their value."""
-    return sorted(int(i) for i in pointees if masks.get(i) == 0 or masks.get(int(i)) == 0)
+    return sorted(int(i) for i in pointees if masks.get(i) == 0)  # both dicts have int keys (a recorder) or text keys (a file)
 
 
 def argument_at_entry(uc, index: int) -> int:
@@ -1909,10 +1909,8 @@ def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts
     # The entries that a recorder made inside the call of an original callee are not in the file.
     kept_entries = [(number, decoded[number]) for kind, number in trace.sequence if kind == "log"]
     seen_by_recorders: set[int] = set()
-    for number, call in kept_entries:
+    for _number, call in kept_entries:
         for index, data in call.pointees.items():
-            if index in trace.entry_pointers[number]:
-                continue  # the stack of the case: not recorded
             seen_by_recorders.update(range(call.args[index] & 0x1FFFFFFF, (call.args[index] & 0x1FFFFFFF) + len(data)))
         for block, count in log.watch:
             seen_by_recorders.update(range(block & 0x1FFFFFFF, (block & 0x1FFFFFFF) + 4 * count))
@@ -2201,9 +2199,7 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
     # go above all of it, or they would lie inside what is compared. (A word that a recorder stores or adds to
     # is in `reads`, `same` or `writes` already.)
     used += [int(a, 16) + 4 * n - 1 for a, n in fixture["watch"]]
-    # (A pointee behind an argument masked to 0 is in the stack region, which is not recorded and lies below the arena.)
-    behind = {r["callee"]: {i: n for i, n in r.get("pointees", {}).items() if int(i) not in masked_pointees(r.get("pointees", {}), r.get("masks", {}))}
-              for r in fixture["recorders"]}
+    behind = {r["callee"]: r.get("pointees", {}) for r in fixture["recorders"]}
     for call in recorded_calls:
         used += [int(call["args"][int(i)], 16) + 4 * n - 1 for i, n in behind[call["callee"]].items()]
     for address in used:

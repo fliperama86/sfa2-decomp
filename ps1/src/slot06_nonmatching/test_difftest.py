@@ -5474,8 +5474,8 @@ def case_p_every_mode_begins_with_the_programs_global_pointer():
 
 def case_p_the_declaration_is_read_once_for_several_cases():
     # The declaration of the programs is opened once for a run of several cases, in the comparison, the audit, the
-    # record (its comparison and its own pass) and the replay of several fixtures, not once per case.
-    words = [JR_RA, NOP]
+    # record (its comparison and its own replay of several fixtures) and the replay, not once per case or fixture.
+    words = FX_WORDS
     ram, scratch = made_up_ram(words), bytes(D.SCRATCH_SIZE)
     reads = []
     real = D.declared_programs
@@ -5484,30 +5484,27 @@ def case_p_the_declaration_is_read_once_for_several_cases():
         reads.append(1)
         return real()
 
-    build = D.Build(make_code(words), 8, 0)
-    def replay_doc(folder):
-        D.record_function(pg_cfg(), PG_NAME, build, 6, 1, 6, ram, scratch, Path(folder), 1)
-        return json.loads(D.fixtures_path(Path(folder), PG_NAME).read_text())
-
-    # (`addresses` reads the declaration too, so the count is compared for one case and for five, not against 1.)
-    got = {}
-    with tempfile.TemporaryDirectory() as tmp, pg_program(gp=PG_GP), contract_of(PG_NAME, plain_setup(False)), \
-            patched(D, original_function=lambda cfg, name: (ORIGINAL, 8), today=lambda: FX_DATE):
-        doc = replay_doc(tmp)
-        doc5 = {**doc, "fixtures": (doc["fixtures"] * 5)[:5]}
-        doc1 = {**doc, "fixtures": doc["fixtures"][:1]}
-        for cases in (1, 5):
+    build = D.Build(make_code(words), 4 * len(words), 0)
+    # (`addresses` reads the declaration too, so the count is compared for few cases and for many, not against 1.)
+    got, kept = {}, {}
+    with tempfile.TemporaryDirectory() as tmp, pg_program(gp=PG_GP), contract_of(PG_NAME, fx_setup), \
+            patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(words)), today=lambda: FX_DATE):
+        for cases in (1, 12):
+            D.record_function(pg_cfg(), PG_NAME, build, cases, 1, 12, ram, scratch, Path(tmp), 1)
+            doc = json.loads(D.fixtures_path(Path(tmp), PG_NAME).read_text())
+            kept[cases] = len(doc["fixtures"])
             runs = {"compare": lambda: D.test_function(pg_cfg(), PG_NAME, make_code(words), cases, 1, ram, scratch),
                     "audit": lambda: D.audit_writes(pg_cfg(), PG_NAME, cases, 1, ram, scratch),
-                    "record": lambda: D.record_function(pg_cfg(), PG_NAME, build, cases, 1, cases, ram, scratch, Path(tmp), 1),
-                    "replay": lambda: D.replay_function(pg_cfg(), PG_NAME, build, doc1 if cases == 1 else doc5)}
+                    "record": lambda: D.record_function(pg_cfg(), PG_NAME, build, cases, 1, 12, ram, scratch, Path(tmp), 1),
+                    "replay": lambda: D.replay_function(pg_cfg(), PG_NAME, build, doc)}
             for mode, run in runs.items():
                 reads.clear()
                 with patched(D, declared_programs=counting):
                     run()
                 got[(mode, cases)] = len(reads)
-    same_counts = all(got[(mode, 1)] == got[(mode, 5)] for mode in ("compare", "audit", "record", "replay"))
-    return None if same_counts and got[("replay", 5)] == 1 else f"reads of the declaration for 1 and 5 cases: {got}"
+    same_counts = all(got[(mode, 1)] == got[(mode, 12)] for mode in ("compare", "audit", "record", "replay"))
+    ok = same_counts and kept[1] == 1 and kept[12] >= 3 and got[("replay", 12)] == 1
+    return None if ok else f"reads of the declaration for 1 and 12 cases: {got}; fixtures kept {kept}"
 
 
 def case_p_replay_begins_with_the_programs_global_pointer():
@@ -6131,6 +6128,43 @@ def case_sp_fifth_argument_on_the_callers_stack():
     return None if status == 1 and any(line.startswith(wanted) for line in got) else f"{status} {got[:4]}"
 
 
+def case_sp_the_call_number_is_the_calls_own():
+    # two calls with a local; in the build the second hands over a global: the line names call 2
+    def twice(second_address=None):
+        second = setreg(4, second_address) if second_address is not None else [addiu(4, SP, 20)]
+        return [addiu(SP, SP, -32), sw(RA, SP, 28), *setreg(T1, 0x11223344), sw(T1, SP, 16), sw(T1, SP, 20), addiu(4, SP, 16),
+                jal(CALLEE), NOP, *second, jal(CALLEE), NOP, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+    _lines, doc = sp_doc(twice())
+    build = twice(BUF)
+    build = build[:2] + stw(BUF, 0x11223344) + build[2:]
+    got, status = fx_replay(doc, build)
+    wanted = ("    call 2 to func_callee: argument 1 points to 0x80060000, and its 4 bytes are not wholly inside the stack region; "
+              "the original handed the callee a local of the function, the build must too")
+    return None if status == 1 and wanted in got else f"{status} {got[:4]}"
+
+
+def case_sp_any_register_argument_and_only_a_mask_of_0():
+    # the pointer is the third argument (a2): its real value is read from that register
+    def words(address=None):
+        point = setreg(6, address) if address is not None else [addiu(6, SP, 16)]
+        return [addiu(SP, SP, -32), sw(RA, SP, 28), *setreg(T1, 0x11223344), sw(T1, SP, 16), *point, jal(CALLEE), NOP,
+                lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+    options = dict(arguments=3, masks={2: 0}, pointees={2: 1})
+    _lines, doc = sp_doc(words(), **options)
+    if doc["fixtures"][0]["calls"][0]["pointees"] != {"2": [[0, "44332211"]]}:
+        return f"{doc['fixtures'][0]['calls'][0]}"
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, _doc, _ = fx_record(words(BUF), sp_setup(**options), cases=2, folder=tmp)
+    if status != 1 or "the callee func_callee, argument 2 (from 0)" not in lines[0] or "real value 0x80060000" not in lines[0]:
+        return f"a global through a2: {status} {lines}"
+    # a mask that is not 0 keeps the logged value as the pointee's address, as before: a pointer cut to 16 bits is outside RAM
+    with tempfile.TemporaryDirectory() as tmp:
+        lines, status, _doc, _ = fx_record(words(BUF), sp_setup(arguments=3, masks={2: 0xFFFF}, pointees={2: 1}), cases=2, folder=tmp)
+    return None if status == 2 and "outside RAM and the scratchpad" in lines[0] else f"a mask of 0xffff: {status} {lines}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -6604,6 +6638,8 @@ CASES = [
     ("sp-block-at-the-edges-of-the-stack-region", case_sp_block_at_the_edges_of_the_stack_region),
     ("sp-a-fill-through-the-same-argument-follows-the-entry", case_sp_a_fill_through_the_same_argument_follows_the_entry),
     ("sp-fifth-argument-on-the-callers-stack", case_sp_fifth_argument_on_the_callers_stack),
+    ("sp-the-call-number-is-the-calls-own", case_sp_the_call_number_is_the_calls_own),
+    ("sp-any-register-argument-and-only-a-mask-of-0", case_sp_any_register_argument_and_only_a_mask_of_0),
 ]
 
 

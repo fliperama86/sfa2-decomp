@@ -736,6 +736,9 @@ def format_and_input_cases(rig: Rig):
     zero = doc("zeromask", [fx(), fx(recorders=[recorder(arguments=2, masks={"1": 0}, pointees={"1": 1})])])
     status, out, err = rig.run([rig.folder({"zeromask": SOURCES["add"]}, {"zeromask": zero})])
     yield "a-pointee-behind-an-argument-masked-to-0-is-not-replayed", same((status, out), (0, [masked_line, counts(0, 0, 0, 0, 1)]))
+    second = doc("secondmask", [fx(recorders=[recorder(arguments=2), recorder("stub_b", "0x80100100", arguments=2, masks={"1": 0}, pointees={"1": 1})])])
+    status, out, err = rig.run([rig.folder({"secondmask": SOURCES["add"]}, {"secondmask": second})])
+    yield "a-masked-pointee-of-a-second-recorder-is-found", same((status, out), (0, [masked_line.replace("zeromask", "secondmask"), counts(0, 0, 0, 0, 1)]))
     rec = lambda **kw: hf.Recorder(0x80100000, "stub_a", 2, kw.get("masks", {}), kw.get("pointees", {}), [], [], 0)  # noqa: E731
     yield "masked-pointee-needs-both-a-mask-of-0-and-a-pointee", same(
         [hf.masked_pointee(rec(masks={1: 0}, pointees={1: 1})), hf.masked_pointee(rec(masks={1: 0})), hf.masked_pointee(rec(masks={1: 255}, pointees={1: 1})),
