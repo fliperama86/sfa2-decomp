@@ -7618,6 +7618,217 @@ No function count changes here. Nothing under `ps1/` changed.
   (the last position of a file without a final newline, and the
   no-newline marker between lines).
 
+## A parked function exact: the call passes the object (2026-10-09)
+
+`func_80137e38`, 92 bytes, was parked with one differing instruction
+slot after about 35 forms: the store that follows the second call's
+argument move went through the saved register where the original goes
+through the argument register. The pass dumps had shown where the
+scheduler put the store and not why.
+
+The cause was a call written with too few arguments. The second
+session, reading the instructions of functions that are not C yet,
+listed calls in parked candidates that pass fewer arguments than the
+instructions have in the registers. This candidate called
+`func_801380f0` with nothing; the function takes the object, and the
+original has it in the argument register there without setting it.
+With `func_801380f0(object)` the function is exact, with no other
+change. It is an entry of the table `handlers_268c`, whose declared
+entry type is the function's.
+
+Inferred, not shown: why the argument changes the store's base
+register. The compiler now has the object in the argument register as
+a value of the call, and that seems to be what lets it use the
+register again after the second argument move.
+
+The same lead on other parked candidates, by a private scan that
+compares every call a candidate declares with the definition in the
+tree: more candidates declare a callee with another number of
+parameters than the callee has. One of them, a function of 1,432
+bytes, lost its long-standing residual the same way and is being
+finished; the others are leads for retries.
+
+The map after this group, from `coveragemap.py render`: 5,413 of
+5,600 distinct functions exact, 12,830 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1760/1760`.
+
+## The port reads the disc (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Published: `port/src/cd.c` with the CD library's host routines, the
+  file table reader in `disc.c`, `Exec`, and their controls. The page
+  has what is served, what ends the program, and the cases.
+- Three things differ from the state that ran the private trial, all
+  from the reviews of the pieces before this one:
+  - `Exec` of a program of the disc ended nothing there: it printed a
+    line and returned. The disc has three such programs that the game
+    starts (two were seen in the trial, by their place probably the
+    company's logo and the opening film: inferred). No C exists for
+    them. The port's rule is to stop where C is missing, so that is the
+    default now; `--skip-programs` is the trial's behaviour, by option.
+    Whether these programs get C, or the port may skip them for good,
+    is the owner's to decide and has not been asked yet.
+  - `CdGetSector` copied to whatever address the game gave. It now
+    refuses a buffer that is not inside the PS1's RAM. One-off check
+    that the real game stays inside: in three traces of the private
+    trial, 1,102, 1,397 and 2,672 calls, none had a buffer outside.
+  - The ready handler's address is checked at each call.
+- The owner's review of the first version (PR 128), in his words: "The
+  new file-table reader does not enforce the bounds its interface and
+  README promise. In independent native tests on an invented 25-sector
+  image, `port_disc_list` succeeds with a file starting at sector 900,
+  and also with a file claiming 4,294,967,295 bytes", and "It also
+  scans the whole final sector rather than the remaining declared
+  directory bytes." My page had said "every length, extent and name
+  bounded"; the worker had bounded the directories, and I had accepted
+  "no check had to be added" without asking what the reader hands to
+  its caller. Both readers now stop at the directory's declared end and
+  refuse a file that is not inside the image. Ten one-line changes of
+  the new checks were run against the cases at the top level: seven
+  were noticed at once, one was noticed by a compile error and not by
+  a case, and for the rest four cases were added (the other reader's
+  two paths, the last byte of a cut image, one byte of slack). The
+  rule I take from it: a sentence on a page that says "every" is
+  checked word by word against the code before it is written, and a
+  worker's "nothing had to be added" is a claim to test.
+- Not shown: the disc layer on the real game from a published commit
+  (the published tree stops at `main`).
+
+## A second parked function from the same lead, 1,432 bytes (2026-10-09)
+
+`func_80133108` had been parked with four differing instruction slots:
+the value loaded from `data_801a27d0` sat in one register where the
+original has it in the fourth argument register, and the pass dumps
+did not show why the original's allocation had skipped the first
+register.
+
+Two things made it exact.
+
+- The call. The candidate called `func_801336a0` with nothing. The
+  definition takes four parameters, and the original sets no register
+  for the call: the first three argument registers still hold this
+  function's own parameters, and the value of `data_801a27d0` is
+  loaded straight into the fourth. Written
+  `func_801336a0(base, left, right, index)`, the load is in the fourth
+  argument register and there is no argument move, as in the original.
+  What was left were 41 slots, all of them one exchange of two saved
+  registers.
+- The place of one copy. The 16-bit copy of the index that the code
+  after the call uses stood before the call. A bounded run of the
+  permuter on the new candidate found the exact form, and its one
+  change that matters is that this copy stands after the first block
+  that follows the call. Inferred from the allocation dump of the
+  version before: the copy's value and the first parameter are ranked
+  almost alike for the lower saved register, by uses over the length
+  of their lives, and a copy that begins later is the shorter one.
+
+The published source was then reduced, one thing at a time with a
+rebuild each: what stays has its measured figure in the comment above
+the function, each measured again at the top level on the final text.
+The copy before the call: 41 slots. Without the stand-in for the
+stack space the original reserves and never uses: 14. With the index
+used in place of the copy: 6. With four record pointers written in
+the plain order of their operands: 4.
+
+Two declarations followed the definition. The shared header had this
+function with an untyped first parameter; it has the byte pointer of
+the definition, which is what its one caller passes. `data_801a27d0`
+stays an `int` in the shared header, as about 120 uses read it; this
+function loads 16 bits of it, signed, and says so at the read. Four
+functions that this unit calls and no other unit had declared are in
+the shared prototype header now.
+
+The stand-in for unused stack space is the 79th of the tree.
+
+The map after this group, from `coveragemap.py render`: 5,414 of 5,600 distinct functions exact, 12,831 of 13,072 placements. The
+build's line for the resident image: `functions exact: 1761/1761`.
+
+## Rows of the sweep that are not functions, and what the port's work list really was (2026-10-09)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Found while writing the C that the port still lacked. The trial
+  program's table listed 26 game functions without C. Workers who went
+  to write them stopped and reported instead, each for its own rows:
+  seven rows begin with a data table that stands in front of a function
+  which already has C; four begin inside a function of a unit that is
+  built, where the sweep had split the function (one at a word of
+  zeros, three behind a head of four words that the listing shows as
+  data). None of the eleven is a function without C. The port wrote a
+  5-byte stop call at each of them when the module was placed: into the
+  table, for the first seven.
+- Published: `port/tools/hostbuild.py` leaves such rows out, counts
+  them (`sweep rows that are not functions: 11`) and names them with
+  `--list`. The seven that begin with data are left out only by a
+  reviewed table, `port/sweep_rows.toml`, whose entries the tool
+  verifies against the tree; the four tails are found by the address
+  range of the unit that holds the function.
+- The first version had two rules and no table, and the owner's review
+  (PR 129) turned the first rule down: "The new exclusions infer
+  ownership from proximity rather than prove it. Rule 1 drops any
+  inventory row that overruns into a later C function, even when its
+  prefix has no data owner. An imprecise sweep can also combine a
+  genuinely missing function with the following known one; proximity
+  alone does not prove that the first entry is data." He first objected
+  to the second rule too, with a unit whose functions have a gap
+  between them, then withdrew that after reading the matching build's
+  validator, which requires a unit's functions to be contiguous. What I
+  had done: turned eleven observations into two general rules, and a
+  general rule drops rows that nobody has looked at. The port's own
+  principle is that a function without C stops; a rule that removes
+  stops by inference works against it. The rows that begin with data
+  are now a list, each with what was read.
+- What the work list comes to after that: of the 26, eleven are these
+  rows; one was a real function without C (`func_80010840_slot27`, now
+  written and tested, waiting in a scratch tree for its pull request);
+  fourteen are the functions of two units that the second side of one
+  character leaves out, because three of their calls bind differently
+  on that side. Those fourteen need the same C linked with other
+  callees and are not done.
+- The inventory itself is the matching work's and is regenerated by its
+  tool; the rows are reported to that lane in the private requests
+  file. Nothing of it is changed here.
+- A lesson: I had taken "no C in the build's table" for "the game lacks
+  this function" and sent three workers to write eleven functions that
+  do not exist. They read the listings first and stopped. A work list
+  made from a derived table is checked against the listing for a few of
+  its rows before it is handed out.
+
+## A third parked function exact: one local for two values (2026-10-09)
+
+`func_8014c9f4`, 136 bytes, was parked with one differing instruction
+slot: the shift of a halfword read the register of the load where the
+original shifts the copy. The pass dumps had shown that the common
+subexpression pass replaces the copy by the older register, and no
+order of declarations changed which register it keeps.
+
+A bounded run of the permuter found a variant with the original's
+bytes and flagged it as meaningless, because it assigned a local to
+itself. Without that statement the same bytes come out, and what is
+left of the variant is this: the shifted value is held in a local that
+was assigned once before, the result of the function's first test. The
+working model of the goals has a rule that may be at work here: a
+local that is assigned more than once loses what the compiler knew
+about it. Whether that is the reason in this function was not shown.
+
+The published source was reduced from there, one thing at a time with
+a rebuild each. Four things stay, each with the figure in the comment
+above the function, measured on the final text: the test written in
+the `if` with the local used for the shift only, 6 instruction slots;
+the halfword read straight into its second local, 5; the shifted value
+stored without passing through a local, 5; the pointer taken from the
+object's field and not read back from the global, 5. One of the four
+had measured 4 during the reduction, on a text that still had another
+form in it; the comment has the figure of the final text.
+
+Not claimed: that the original source used one local for both values.
+It is a form with which this compiler gives the original's bytes.
+
+The map after this group, from `coveragemap.py render`: 5,415 of 5,600
+distinct functions exact, 12,832 of 13,072 placements. The build's
+line for the resident image: `functions exact: 1762/1762`.
+
 ## Nonmatching C for stage functions, first batch (2026-10-09)
 
 No function count changes here: none of this is in the build.

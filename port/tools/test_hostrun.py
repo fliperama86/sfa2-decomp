@@ -9,7 +9,12 @@ the root and one folder down; version suffix and case; a root directory of two
 sectors; a cue sheet and its relative path; each refusal of the program load
 (magic, text range outside RAM, short file, bss, entry); a truncated image;
 the BOOT line of SYSTEM.CNF; the entry scan on made-up words (the last jal before the first break, a break with no jal before it,
-no break, the 64-instruction window, a start that is not at the base).
+no break, the 64-instruction window, a start that is not at the base); the
+file listing (port_disc_list) on directories made to break it: a record that
+runs past its sector or is too short, a name that runs past its record, a name
+longer than the entry, a directory over the bound or longer than the image, an
+extent beyond the image, more files than the caller holds, more folders than the
+table holds, a folder inside a folder.
 
 What is NOT tested here: the Windows mapping (memory.c), the jumps (jumps.c),
 the stop routine and main.c. Those need the linked Windows program and are
@@ -76,6 +81,16 @@ int main(int argc, char **argv)
         printf("bytes: text0 %02x textlast %02x after %02x bss0 %02x bsslast %02x bssafter %02x\n",
                ram[p.t_addr - PORT_RAM_BASE], ram[p.t_addr - PORT_RAM_BASE + p.t_size - 1], ram[p.t_addr - PORT_RAM_BASE + p.t_size],
                p.b_size ? ram[p.b_addr - PORT_RAM_BASE] : 0, p.b_size ? ram[p.b_addr - PORT_RAM_BASE + p.b_size - 1] : 0, p.b_size ? ram[p.b_addr - PORT_RAM_BASE + p.b_size] : 0xaa);
+        return 0;
+    }
+    if (argc >= 4 && strcmp(argv[1], "list") == 0) {   /* list IMAGE MAX: every file of the root and one folder down */
+        struct port_disc d;
+        static struct port_disc_file files[4096];
+        unsigned count = 0, i, max = (unsigned)atoi(argv[3]);
+        if (max > 4096) max = 4096;
+        if (port_disc_open(&d, argv[2], err, sizeof err) != 0) { printf("refused: %s\n", err); return 2; }
+        if (port_disc_list(&d, files, max, &count, err, sizeof err) != 0) { printf("refused: %s\n", err); return 2; }
+        for (i = 0; i < count; i++) printf("file %s %u %u\n", files[i].name, files[i].sector, files[i].size);
         return 0;
     }
     if (argc >= 3 && strcmp(argv[1], "boot") == 0) {
@@ -365,11 +380,242 @@ def disc_cases(root: Path, prog: Path):
     img, path = make("cut", base)
     last = img.sector["SLPS_004.15;1"] + sectors(base["SLPS_004.15;1"]) - 1
     img.write(path, cut=last * SECTOR + 24 + 100)
-    yield "image-cut-inside-the-boot-file", expect_refusal(prog, path, "truncated", str(last))
+    yield "image-cut-inside-the-boot-file", expect_refusal(prog, path, "truncated", str(last), "file slps_004.15 lies outside the image")
     img.write(path, cut=10 * SECTOR + 700)
     yield "image-cut-before-the-volume-descriptor", expect_refusal(prog, path, "truncated", "16")
     path.write_bytes(b"")
     yield "empty-image", expect_refusal(prog, path, "truncated")
+
+
+def list_cases(root: Path, prog: Path):
+    d = root / "list"
+    d.mkdir()
+    base = {"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": exe(), "BIN": {"A.EXE;1": exe(), "B.BIN;1": b"x" * 5000}}
+
+    def made(tag, patch=None, cut=None, **kw):
+        img = Image(base, **kw)
+        if patch:
+            patch(img)
+        path = d / f"{tag}.bin"
+        img.write(path, cut)
+        return img, path
+
+    def listing(path, mx=100):
+        status, lines = run(prog, "list", path, mx)
+        return status, lines
+
+    img, path = made("ok")
+    status, lines = listing(path)
+    want = [f"file system.cnf {img.sector['SYSTEM.CNF;1']} {len(CNF)}", f"file slps_004.15 {img.sector['SLPS_004.15;1']} {len(exe())}",
+            f"file a.exe {img.sector['BIN/A.EXE;1']} {len(exe())}", f"file b.bin {img.sector['BIN/B.BIN;1']} 5000"]
+    yield "list-gives-the-root-and-one-folder-in-directory-order-without-version-suffixes", None if (status, lines) == (0, want) else f"status {status}, lines {lines!r}"
+    status, lines = listing(path, 3)
+    yield "list-with-more-files-than-the-caller-holds-is-refused", None if status == 2 and lines == ["refused: disc: more files than the listing holds"] else f"status {status}, lines {lines!r}"
+    status, lines = listing(path, 4)
+    yield "list-with-exactly-as-many-files-as-the-caller-holds-is-accepted", None if status == 0 and len(lines) == 4 else f"status {status}, lines {lines!r}"
+    status, lines = listing(path, 0)
+    yield "list-with-room-for-no-file-is-refused-and-writes-nothing", None if status == 2 and lines == ["refused: disc: more files than the listing holds"] else f"status {status}, lines {lines!r}"
+
+    root_at = 20
+
+    def end_of_records(buf):
+        pos = 0
+        while buf[pos]:
+            pos += buf[pos]
+        return pos
+
+    def rec_at(img, sector, pos, data):
+        """Append `data` after the last record (pos = 0), or after valid filler records until the next record would start at `pos` or later."""
+        buf = bytearray(img.data[sector])
+        end = end_of_records(buf)
+        k = 0
+        while end < pos:
+            filler = record(("F%02d" % k).encode() + b"Q" * 60, 16, 1, False)   # a file inside the image
+            buf[end:end + len(filler)] = filler
+            end += len(filler)
+            k += 1
+        buf[end:end + len(data)] = data
+        img.data[sector] = bytes(buf)
+
+    # a record that runs past the end of its sector: length 200 at offset 2000 (the root's records end far below)
+    img, path = made("runs-past-sector", lambda i: rec_at(i, root_at, 2000, bytes([200]) + bytes(40)))
+    status, lines = listing(path)
+    yield "list-a-directory-record-that-runs-past-its-sector-is-refused", None if status == 2 and lines == ["refused: disc: corrupt directory record"] else f"status {status}, lines {lines!r}"
+    # a record whose name length runs past the record: length 34, name length 100
+    r = bytearray(record(b"X;1", 5, 10, False)); r[32] = 100
+    img, path = made("name-runs-past-record", lambda i: rec_at(i, root_at, 0, bytes(r)))
+    status, lines = listing(path)
+    yield "list-a-name-that-runs-past-its-record-is-refused", None if status == 2 and lines == ["refused: disc: corrupt directory record"] else f"status {status}, lines {lines!r}"
+    # a record shorter than the fixed part
+    img, path = made("short-record", lambda i: rec_at(i, root_at, 0, bytes([33]) + bytes(40)))
+    status, lines = listing(path)
+    yield "list-a-record-shorter-than-its-fixed-part-is-refused", None if status == 2 and lines == ["refused: disc: corrupt directory record"] else f"status {status}, lines {lines!r}"
+    # a name of 200 characters: kept to what the entry holds, nothing written beyond it
+    long_name = b"N" * 200
+    img, path = made("long-name", lambda i: rec_at(i, root_at, 0, record(long_name + b";1", 7, 9, False)))
+    status, lines = listing(path)
+    got = [l for l in lines if l.endswith(" 7 9")]
+    yield "list-a-name-longer-than-the-entry-is-cut-and-the-listing-goes-on", None if status == 0 and len(got) == 1 and len(got[0].split()[1]) == 31 and len(lines) == 5 else f"status {status}, lines {lines!r}"
+
+    # sizes and extents from the image
+    def big_root(i):
+        pvd = bytearray(i.data[16])
+        pvd[156 + 10:156 + 14] = struct.pack("<I", 0x200000)   # a root directory of 2 MB
+        i.data[16] = bytes(pvd)
+    img, path = made("big-root", big_root)
+    status, lines = listing(path)
+    yield "list-a-root-directory-larger-than-the-bound-is-refused", None if status == 2 and lines == ["refused: disc: directory is too large"] else f"status {status}, lines {lines!r}"
+
+    def far_root(i):
+        pvd = bytearray(i.data[16])
+        pvd[156 + 2:156 + 6] = struct.pack("<I", 0xfffffff0)
+        i.data[16] = bytes(pvd)
+    img, path = made("far-root", far_root)
+    status, lines = listing(path)
+    yield "list-a-root-extent-beyond-the-image-is-refused-with-its-sector", None if status == 2 and lines == ["refused: disc: the image ends inside sector 4294967280 (truncated)"] else f"status {status}, lines {lines!r}"
+
+    def long_root(i):
+        pvd = bytearray(i.data[16])
+        pvd[156 + 10:156 + 14] = struct.pack("<I", 2048 * 40)   # says 40 sectors; the image holds the files right behind the first
+        i.data[16] = bytes(pvd)
+    img = Image({"BIN": {}})            # no file: the root (sector 20) and one empty folder (21), and the image ends there
+    long_root(img)
+    path = d / "root-past-image.bin"
+    img.write(path)
+    status, lines = listing(path)
+    yield "list-a-directory-that-says-it-is-longer-than-the-image-is-refused", None if status == 2 and lines == [f"refused: disc: the image ends inside sector {img.end} (truncated)"] and img.end == 22 else f"status {status}, lines {lines!r}"
+
+    def far_folder(i):
+        buf = bytearray(i.data[root_at])
+        pos = 0
+        while buf[pos]:
+            ln = buf[pos]
+            if buf[pos + 25] & 2 and buf[pos + 32] == 3:
+                buf[pos + 2:pos + 6] = struct.pack("<I", 0x7fffffff)
+            pos += ln
+        i.data[root_at] = bytes(buf)
+    img, path = made("far-folder", far_folder)
+    status, lines = listing(path)
+    yield "list-a-folder-extent-beyond-the-image-is-refused", None if status == 2 and lines == ["refused: disc: the image ends inside sector 2147483647 (truncated)"] else f"status {status}, lines {lines!r}"
+
+    # the files' own ranges: every sector and size that the listing hands out lies inside the image
+    def set_file(i, name: bytes, extent=None, size=None, sector=root_at):
+        buf = bytearray(i.data[sector])
+        pos = hit = 0
+        while buf[pos]:
+            ln, n = buf[pos], buf[pos + 32]
+            if not buf[pos + 25] & 2 and bytes(buf[pos + 33:pos + 33 + n]) == name:
+                if extent is not None:
+                    buf[pos + 2:pos + 6] = struct.pack("<I", extent)
+                if size is not None:
+                    buf[pos + 10:pos + 14] = struct.pack("<I", size)
+                hit += 1
+            pos += ln
+        assert hit == 1, (name, hit)
+        i.data[sector] = bytes(buf)
+
+    def outside_line(i, name, sector, size):
+        return f"refused: disc: file {name} lies outside the image (sector {sector}, {size} bytes): the image ends inside sector {i.end} (truncated)"
+    img, path = made("file-starts-beyond", lambda i: set_file(i, b"SYSTEM.CNF;1", extent=900))
+    status, lines = listing(path)
+    yield "list-a-file-that-starts-beyond-the-image-is-refused", None if status == 2 and lines == [outside_line(img, "system.cnf", 900, len(CNF))] else f"status {status}, lines {lines!r}"
+    img, path = made("file-size-huge", lambda i: set_file(i, b"SYSTEM.CNF;1", size=0xffffffff))
+    status, lines = listing(path)
+    yield "list-a-file-of-4294967295-bytes-is-refused", None if status == 2 and lines == [outside_line(img, "system.cnf", img.sector["SYSTEM.CNF;1"], 0xffffffff)] else f"status {status}, lines {lines!r}"
+    img, path = made("file-start-wraps", lambda i: set_file(i, b"SYSTEM.CNF;1", extent=0xffffffff, size=4096))
+    status, lines = listing(path)
+    yield "list-a-file-whose-sectors-wrap-32-bits-is-refused", None if status == 2 and lines == [outside_line(img, "system.cnf", 0xffffffff, 4096)] else f"status {status}, lines {lines!r}"
+    folder_sector = root_at + 1                       # the one folder, BIN, lies right behind the root
+    last = img.sector["BIN/B.BIN;1"]                  # the last file: 5000 bytes, three sectors, the image ends with them
+    img, path = made("file-to-the-last-byte", lambda i: set_file(i, b"B.BIN;1", size=3 * 2048, sector=folder_sector))
+    status, lines = listing(path)
+    yield "list-a-file-that-ends-with-the-images-last-data-byte-is-accepted", None if status == 0 and lines[-1] == f"file b.bin {last} {3 * 2048}" and img.end == last + 3 else f"status {status}, lines {lines!r}, end {img.end}"
+    img, path = made("file-one-byte-past", lambda i: set_file(i, b"B.BIN;1", size=3 * 2048 + 1, sector=folder_sector))
+    status, lines = listing(path)
+    yield "list-a-file-one-byte-longer-than-the-image-holds-is-refused", None if status == 2 and lines == [outside_line(img, "b.bin", last, 3 * 2048 + 1)] else f"status {status}, lines {lines!r}"
+    img, path = made("empty-file-last-sector", lambda i: set_file(i, b"B.BIN;1", extent=i.end - 1, size=0, sector=folder_sector))
+    status, lines = listing(path)
+    yield "list-an-empty-file-in-the-images-last-sector-is-accepted", None if status == 0 and lines[-1] == f"file b.bin {img.end - 1} 0" else f"status {status}, lines {lines!r}"
+    img, path = made("empty-file-past-end", lambda i: set_file(i, b"B.BIN;1", extent=i.end, size=0, sector=folder_sector))
+    status, lines = listing(path)
+    yield "list-an-empty-file-behind-the-images-last-sector-is-refused", None if status == 2 and lines == [outside_line(img, "b.bin", img.end, 0)] else f"status {status}, lines {lines!r}"
+
+    # the image is cut inside the last sector of the last file: the file's start is inside, its last byte is not
+    img, path = made("cut-inside-last-file", cut=(last + 2) * SECTOR + 24 + 100)
+    status, lines = listing(path)
+    want = f"refused: disc: file b.bin lies outside the image (sector {last}, 5000 bytes): the image ends inside sector {last + 2} (truncated)"
+    yield "list-a-file-whose-last-bytes-the-image-lacks-is-refused", None if status == 2 and lines == [want] else f"status {status}, lines {lines!r}"
+    img, path = made("cut-one-byte-short", cut=(last + 2) * SECTOR + 24 + (5000 - 2 * 2048) - 1)
+    status, lines = listing(path)
+    yield "list-an-image-that-lacks-the-last-files-last-byte-is-refused", None if status == 2 and lines == [want] else f"status {status}, lines {lines!r}"
+    img, path = made("cut-behind-last-file-byte", cut=(last + 2) * SECTOR + 24 + (5000 - 2 * 2048))
+    status, lines = listing(path)
+    yield "list-an-image-cut-right-behind-the-last-files-last-byte-is-accepted", None if status == 0 and lines[-1] == f"file b.bin {last} 5000" else f"status {status}, lines {lines!r}"
+
+    # the directory's declared size ends the directory, whatever stands behind it in the sector
+    two = len(record(b"\0", 0, 0, True)) + len(record(b"\1", 0, 0, True))    # the records of the folder itself and of its parent
+    first = len(record(b"SYSTEM.CNF;1", 0, 0, False))
+
+    def root_size(n):
+        def patch(i):
+            pvd = bytearray(i.data[16])
+            pvd[156 + 10:156 + 14] = struct.pack("<I", n)
+            i.data[16] = bytes(pvd)
+        return patch
+    img, path = made("root-of-two-records", root_size(two))
+    status, lines = listing(path)
+    yield "list-a-root-that-declares-only-its-two-own-records-gives-no-file", None if (status, lines, two) == (0, [], 68) else f"status {status}, lines {lines!r}, two {two}"
+    status, lines = run(prog, "load", path, "00" * 32)   # the other reader, which looks a file up by name
+    yield "find-in-a-root-that-declares-only-its-two-own-records-finds-no-file", None if status == 2 and "is not in the root directory" in lines[-1] else f"status {status}, lines {lines!r}"
+    img, path = made("root-of-three-records", root_size(two + first))
+    status, lines = listing(path)
+    yield "list-a-root-that-ends-behind-its-first-file-gives-that-file-only", None if (status, lines) == (0, [f"file system.cnf {img.sector['SYSTEM.CNF;1']} {len(CNF)}"]) else f"status {status}, lines {lines!r}"
+    img, path = made("record-crosses-root-end", root_size(two + first - 1))
+    status, lines = listing(path)
+    yield "list-a-record-that-crosses-the-declared-end-of-its-directory-is-refused", None if status == 2 and lines == ["refused: disc: corrupt directory record"] else f"status {status}, lines {lines!r}"
+    status, lines = run(prog, "load", path, "00" * 32)
+    yield "find-a-record-that-crosses-the-declared-end-of-its-directory-is-refused", None if status == 2 and lines[-1] == "refused: disc: corrupt directory record" else f"status {status}, lines {lines!r}"
+    img, path = made("record-begins-at-root-end", root_size(two + first + 1))
+    status, lines = listing(path)
+    yield "list-a-record-that-only-begins-inside-the-declared-end-is-refused", None if status == 2 and lines == ["refused: disc: corrupt directory record"] else f"status {status}, lines {lines!r}"
+
+    # more folders than the table holds: the first 256 are followed, the rest ignored, nothing overflows
+    def many_folders(i):
+        folder_at = int.from_bytes(i.data[root_at][0:0], "little")
+        buf = bytearray(i.data[root_at])
+        pos = 0
+        while buf[pos]:
+            ln = buf[pos]
+            if buf[pos + 25] & 2 and buf[pos + 32] == 3:
+                folder_at = struct.unpack_from("<I", buf, pos + 2)[0]
+            pos += ln
+        recs = [record(b"\0", root_at, 2048 * 6, True), record(b"\1", root_at, 2048, True)]
+        recs += [record(f"D{k:03d}".encode(), folder_at, 2048, True) for k in range(300)]
+        sec, off = root_at, 0
+        blocks = [bytearray(2048) for _ in range(6)]
+        b = 0
+        for r in recs:
+            if off + len(r) > 2048:
+                b, off = b + 1, 0
+            blocks[b][off:off + len(r)] = r
+            off += len(r)
+        for k in range(6):
+            i.data[root_at + k] = bytes(blocks[k])
+        pvd = bytearray(i.data[16])
+        pvd[156 + 10:156 + 14] = struct.pack("<I", 2048 * 6)
+        i.data[16] = bytes(pvd)
+    img, path = made("many-folders", many_folders, root_sectors=6)
+    status, lines = listing(path, 4096)
+    got = [l for l in lines if l.startswith("file a.exe ")]
+    yield "list-more-folders-than-the-table-holds", None if status == 0 and len(got) == 256 else f"status {status}, {len(got)} folders followed, lines {lines[:2]!r}"
+
+    # a folder inside a folder is not followed
+    nested = {"SYSTEM.CNF;1": CNF, "TOP": {"IN.BIN;1": b"z"}}
+    img = Image(nested)
+    path = d / "nested.bin"
+    img.write(path)
+    status, lines = listing(path)
+    yield "list-does-not-follow-a-folder-inside-a-folder", None if status == 0 and [l.split()[1] for l in lines] == ["system.cnf", "in.bin"] else f"status {status}, lines {lines!r}"
 
 
 def exe_cases(root: Path, prog: Path):
@@ -535,6 +781,7 @@ def gate_cases(root: Path, cc: str):
 
 def groups(root: Path, prog: Path, cc: str):
     yield disc_cases(root, prog)
+    yield list_cases(root, prog)
     yield exe_cases(root, prog)
     yield boot_cases(root, prog)
     yield scan_cases(root, prog)

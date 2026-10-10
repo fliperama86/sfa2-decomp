@@ -565,7 +565,7 @@
 80132cf0	404	func_80132cf0	-	graphics	0	0	closed
 80132e84	268	func_80132e84	-	sound,unidentified	0	0	closed
 80132f90	376	func_80132f90	-	-	0	0	closed
-80133108	1432	-	-	-	0	0	closed
+80133108	1432	func_80133108	-	-	0	0	closed
 801336a0	424	func_801336a0	-	-	0	0	closed
 80133848	1452	func_80133848	-	-	0	0	closed
 80133df4	220	func_80133df4	-	-	0	0	closed
@@ -651,7 +651,7 @@
 80137d48	52	func_80137d48	-	-	0	0	closed
 80137d7c	76	func_80137d7c	-	-	0	0	closed
 80137dc8	112	func_80137dc8	-	-	1	0	open
-80137e38	92	-	-	-	0	0	open
+80137e38	92	func_80137e38	-	-	0	0	open
 80137e94	108	func_80137e94	-	-	0	0	closed
 80137f00	112	func_80137f00	-	-	1	0	open
 80137f70	116	func_80137f70	-	-	0	0	open
@@ -1189,7 +1189,7 @@
 8014c804	272	func_8014c804	-	-	0	0	open
 8014c914	128	func_8014c914	-	-	0	0	open
 8014c994	96	func_8014c994	-	-	0	0	closed
-8014c9f4	136	-	-	-	0	0	closed
+8014c9f4	136	func_8014c9f4	-	-	0	0	closed
 8014ca7c	160	func_8014ca7c	-	-	0	0	closed
 8014cb1c	136	func_8014cb1c	-	-	0	0	closed
 8014cba4	84	func_8014cba4	-	-	0	0	closed
