@@ -1612,14 +1612,15 @@ Without the option the same build prints the lines of the build above
 ### The I/O page
 
 The console's I/O registers lie at `0x1f801000` to `0x1f801fff`. The
-scratchpad, which `memory.c` maps at `0x1f800000`, is 64 KB and would
+mapping that `memory.c` makes for the scratchpad at `0x1f800000` is 64 KB
+(the system's granularity; the scratchpad itself is 1 KB), so it would
 cover that page as plain memory, where the game could read and write it
 and nobody would notice. The program closes the page (no access) at
 start, in every build, after the memory is mapped and before the game
 runs; if the page cannot be closed it refuses to start with one line.
 Bytes next to the page are plain memory as before: `0x1f800fff` and
-`0x1f802000` are scratchpad, and the controls show a read and a write at
-each.
+`0x1f802000` lie in the same mapping, outside the page, and the controls
+show a read and a write at each.
 
 What is served. A read or a write that the game's thread makes, from the
 game's own compiled code, wholly inside the page, is a fault that the
@@ -1632,9 +1633,10 @@ memory) does both. A write is checked before the instruction is carried
 out, so a refused one changes no register and no state.
 
 The models are three cells, each 32 bits wide, each reading back what was
-last written and 0 at start: `0x1f801014` (the chip's access timing),
-`0x1f8010f0` (the DMA control register) and `0x1f8010f4` (the DMA
-interrupt register). They are the ones the sound library writes when it
+last written and 0 at start: `0x1f801014`, `0x1f8010f0` and `0x1f8010f4`
+(by the console's hardware documentation the sound chip's access timing,
+the DMA control register and the DMA interrupt register; no test here
+shows what they are). They are the ones the sound library writes when it
 starts; they are cells and nothing more, and nothing reads them for an
 effect.
 
