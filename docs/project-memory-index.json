@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "35d3b2c7480720b5467e75b070ea3a4a1e83e926da49da4c5f2b88f790b21b9d",
+  "sha256": "cd592d8ce9c0ed57565df4b77d3def19424bed1d59a1dd51400953543d855856",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -525,6 +525,10 @@
     {
       "title": "Mistakes and lessons to preserve",
       "line": 8142
+    },
+    {
+      "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
+      "line": 8199
     }
   ]
 }

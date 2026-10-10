@@ -872,6 +872,58 @@ routines that do nothing on purpose. What is in this piece:
 Not in this piece: the graphics, the pads, the modules. Their
 functions are among the 301 that stop.
 
+### The console's copy of RAM at address 0
+
+The console shows its RAM a second time from address 0, and the game's
+C reaches that copy in two ways. By accident: a function adds an offset
+to a null pointer and reads there. A private run of the real game met
+one such read, at address `0xd`, while its first fight was loading; on
+the console that is a byte of low RAM and nothing happens. On purpose:
+one function follows links of 24 bits, whose top byte is cut off,
+through an ordering table.
+
+A Windows process cannot have memory at address 0. The first 64 KB of
+the address space are never given to a process, so every access there
+faults, each time, and the runtime serves those. A handler for access
+faults takes a read or a write that the game's thread made, by an
+instruction inside the game's own compiled code, at an address that
+lies wholly below `0x10000`. It decodes that one instruction, carries
+it out on the mapped RAM at `0x80000000` plus the address, sets the
+registers and the flags as the processor would, and resumes behind it.
+Nothing of the game is replaced, and no original code is run: the
+instruction is the PC compiler's translation of the game's C. Anything
+else stays what it was. An access that begins below `0x10000` and ends
+above it, one made by the runtime's or a library's code, and an execute
+fault each end with the crash line. The forms served are loads, stores
+and plain arithmetic and logic (`mov`, `movzx`, `movsx`, `add`, `sub`,
+`and`, `or`, `xor`, `cmp`, `test`); any other form ends the program
+with a line that gives the instruction's bytes, and is built when a run
+of the real game stops on it. At its start the program checks what it
+relies on, that no page below `0x10000` is accessible, and refuses to
+start otherwise. The first time a function uses the copy, the program
+prints one line with the function's name; with `--trace` every access
+is a line of the trace file.
+
+What the copy holds. On the console the first 64 KB of RAM belong to
+the BIOS. The port has no BIOS: that part of the RAM holds zeros until
+the game or the port writes there. An accidental read therefore reads 0
+where the console read a byte of the BIOS's.
+
+A known limit. From `0x10000` to the end of the 2 MB, a Windows process
+has memory of the system's own, at places that change from run to run.
+An access of the game there does not fault and is not seen: a read
+returns the system's bytes where the console read its RAM, and a write
+to a writable page changes the system's data. Serving the faults that
+do happen in that range would make the program right or wrong by the
+layout of the day, so nothing from `0x10000` on is served. Deliberate
+uses are looked for instead. The game's C as compiled for the PC was
+searched for the 24-bit mask, and one function uses a masked value as
+an address: `func_80119694` (the search and what it cannot find are in
+the project's record). That function gets a host routine of its own,
+with a differential test against the original, in a later change; this
+tree has none. An accidental access above 64 KB, a null pointer plus a
+large offset, stays unseen.
+
 ### What this does not show
 
 - That the game runs, draws or sounds. No function of the game has been
@@ -889,6 +941,9 @@ functions are among the 301 that stop.
   `modules.c` and `psyzbuild.py` for them: those files are not in this
   tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
+- An access of the game to the console's copy of RAM at `0x10000` or
+  above: it is not served and, where Windows has memory of its own, not
+  even seen (see above).
 
 ### Controls
 
@@ -911,8 +966,8 @@ library function with a host routine is reached and one without still
 stops; an override replaces a function's C; a table that names a
 function twice, an unknown one or an unknown address is refused, and so
 is an override of a function without C; the trace has each library
-call; a read of the PS1's low copy of RAM ends the program with a line
-that says so; a thread entry, an event handler, an interrupt callback
+call; a read of an address that no memory has ends the program with
+the crash line; a thread entry, an event handler, an interrupt callback
 and a vertical-blank callback at an address that the program did not
 install are each refused before the call, and the byte there does not
 run, while the same four paths with a function without C as the target
@@ -956,6 +1011,25 @@ records, and a record that crosses or only begins inside the declared
 end, for the reader that lists and for the one that looks a file up. On
 2026-10-09 each of the four ended with
 `all cases behaved as required`.
+`python3 port/tools/test_hostmirror.py --cc CC` has the cases for the
+copy of RAM at address 0, in two parts. The first needs no Windows
+program: it builds the layer's decisions with the host's own `cc` and
+tests them alone: whether a fault is served, at the borders `0xffff`
+and `0x10000` and across them; the start check on invented answers of
+the system; the decoder on every served form in every addressing
+shape, and on encodings it must refuse; and each served operation
+against the processor itself, register by register and flag by flag.
+The second part runs the linked program on made-up game code: a served
+read and a served write of each size; a destination that is also the
+address's register; the read at a null pointer plus `0xd`; an access
+across `0x10000`, one from a host routine and an execute fault at a low
+address, each the crash line; a form that is not served, the line with
+its bytes; a second fault inside the handler; the first-use line and
+the trace lines; the start check; and a loop of served accesses with
+the timer running, in which the timer sometimes aims the thread
+between a fault and its handler. It also prints what a served access
+costs. On 2026-10-10 it ended with `all cases behaved as required` and
+had printed `timing: 10000 served reads took 51425 us (5.14 us each)`.
 
 ## Not decided
 
