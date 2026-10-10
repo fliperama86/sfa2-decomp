@@ -148,6 +148,7 @@ int main(int argc, char **argv)
 #endif
     if (port_map(err, sizeof err) != 0) return refuse(err);
     if (port_mirror_init(trace, err, sizeof err) != 0) return refuse(err);
+    if (port_iopage_init(trace, err, sizeof err) != 0) return refuse(err);
     printf("memory: RAM at 0x%08x (2 MB), scratchpad at 0x%08x\n", PORT_RAM_BASE, PORT_SCRATCH);
     fflush(stdout);
 

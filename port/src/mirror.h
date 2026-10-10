@@ -44,6 +44,18 @@ struct mirror_insn {
  * and ends at or past MIRROR_LIMIT, one that touches the header page. */
 int port_mirror_decision(unsigned kind, unsigned addr, unsigned size, int game_thread, int in_game_code);
 
+/* The I/O page [IO_BASE, IO_END) of the console (iopage.c), served by the same handler with the model of the page on
+ * a temporary value in place of the memory. This is the decision for it: kind 0 or 1, the game's thread, the game's
+ * code, and the whole access inside the page. 1: serve. 0: the program stops with a line (iopage.c). */
+#define IO_BASE 0x1f801000u
+#define IO_END  0x1f802000u
+int port_mirror_decision_io(unsigned kind, unsigned addr, unsigned size, int game_thread, int in_game_code);
+
+/* Does the decoded instruction read the memory operand (1) or only store to it (0: a mov to memory)? Does it write
+ * it (a store, or an arithmetic form with the memory as destination other than cmp and test)? */
+int port_mirror_insn_reads(const struct mirror_insn *in);
+int port_mirror_insn_writes(const struct mirror_insn *in);
+
 /* Decode the instruction at `code` (`avail` bytes readable, at most 15 are looked at) against the
  * registers before it. 0 and *out filled; -1 if it is not one of the forms served (the list is in the
  * file; a `call` or `jmp` through memory, imul, idiv, mul, neg, shifts, cmovcc, setcc, inc, dec, push,
