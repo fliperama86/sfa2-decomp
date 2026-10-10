@@ -26,6 +26,11 @@ prints the number of calls and `different N`; `different 0` is required.
 Negative control. Variant U built from a scratch copy of s_sca.c in which one `(s16)` cast before a comparison of a
 volume is removed must differ from variant S; the case passes only if it does. Without it the test shows nothing.
 
+How a run is read. A run of the test program counts only when the program ended with status 0, printed exactly one
+result line, and that line has the number of calls this file asked for. A result line from a program that ended with
+another status is not a result, for the test and for the negative control alike. The `result:` cases show this on
+made-up outputs, with no compiler and no program.
+
 What it does not show. It tests one function, on the inputs above, with plain memory in place of the chip's registers.
 It does not compare with a build that uses the headers the repository does not carry (the repository cannot do that;
 the 66-of-67 comparison was made once, privately). It is not a proof for inputs outside those it draws.
@@ -178,12 +183,53 @@ class Rig:
         return exe, ""
 
     def run(self, exe: Path) -> tuple[int, int] | str:
-        proc = subprocess.run([*self.prefix, str(exe)], capture_output=True, text=True, timeout=120)
-        m = re.search(r"calls (\d+) different (\d+)", proc.stdout)
-        return (int(m[1]), int(m[2])) if m else f"no result line (status {proc.returncode}): {proc.stdout[-100:]!r} {proc.stderr[-100:]!r}"
+        try:
+            proc = subprocess.run([*self.prefix, str(exe)], capture_output=True, text=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            return "the test program had not ended after 120 seconds"
+        return result_of(proc.returncode, proc.stdout, proc.stderr)
+
+
+def result_of(status: int, stdout: str, stderr: str) -> tuple[int, int] | str:
+    """What a run of the test program showed: (calls, different), or the reason it showed nothing.
+
+    A run counts only when the program ended with status 0, printed exactly one result line and made the number of
+    calls this file asked for. A result line from a program that ended otherwise is not a result."""
+    if status != 0:
+        return f"the test program ended with status {status}, not 0: {stdout[-100:]!r} {stderr[-100:]!r}"
+    found = re.findall(r"^calls (\d+) different (\d+)$", stdout, re.M)
+    if len(found) != 1:
+        return f"{len(found)} result lines, wanted 1: {stdout[-100:]!r} {stderr[-100:]!r}"
+    calls, different = int(found[0][0]), int(found[0][1])
+    if calls != CALLS:
+        return f"the test program made {calls} calls, not {CALLS}"
+    return calls, different
+
+
+def result_cases():
+    """The reading of a run, on made-up outputs: no compiler and no program is needed. Expected values written out."""
+    line = f"calls {CALLS} different 0\n"
+    yield "result: status 0 and one line is a result", same(result_of(0, line, ""), (150000, 0))
+    yield "result: differences are counted", same(result_of(0, f"calls {CALLS} different 5186\n", ""), (150000, 5186))
+    for name, got in (
+        ("result: status 1 with a valid line is no result", result_of(1, line, "")),
+        ("result: status 1 with differences is no result", result_of(1, f"calls {CALLS} different 5186\n", "")),
+        ("result: a signal's status is no result", result_of(-11, line, "")),
+        ("result: no line is no result", result_of(0, "", "")),
+        ("result: two lines are no result", result_of(0, line + line, "")),
+        ("result: fewer calls than asked is no result", result_of(0, "calls 10 different 0\n", "")),
+        ("result: a line inside other text is no result", result_of(0, f"xcalls {CALLS} different 0 y\n", "")),
+    ):
+        yield name, None if isinstance(got, str) else f"taken as the result {got}"
+
+
+def same(got, want) -> str | None:
+    return None if got == want else f"wanted {want}, got {got}"
 
 
 def cases(rig: Rig, inc: Path):
+    # 0. how a run is read
+    yield from result_cases()
     # 1. the unit as it is: both variants give the same blocks
     exe, why = rig.program("plain", UNIT)
     if not exe:
@@ -194,7 +240,7 @@ def cases(rig: Rig, inc: Path):
             yield "unit, signed and unsigned SpuVolume", got
         else:
             print(f"     calls {got[0]}, different {got[1]}")
-            yield "unit, signed and unsigned SpuVolume", None if got[1] == 0 and got[0] >= 100000 else f"calls {got[0]}, different {got[1]}"
+            yield "unit, signed and unsigned SpuVolume", None if got[1] == 0 else f"calls {got[0]}, different {got[1]}"
     # 2. negative control: one (s16) cast of a volume comparison removed
     src = UNIT.read_text()
     old = "if ((s16)attr->mvol.left >= 0x80) {"
