@@ -228,7 +228,7 @@ The image over the console's copy of RAM
 
 The console shows its RAM a second time at addresses 0 to 0x1fffff, and the
 game's code reaches that view in ordinary play (the runtime's `mirror.c`
-serves every access there as a fault). Windows gives a process nothing below
+serves the game's accesses there as faults, the image's header page excepted). Windows gives a process nothing below
 0x10000 and puts memory of its own into the rest of the range, where an access
 would not fault. So the program's own image takes the range first. The link
 settings: image base 0x10000 (`--image-base`), no relocations
@@ -238,7 +238,9 @@ header, so the range between the header page and 0x200000 is filled by a
 section of its own, `.hole` (`--section-start=.hole=0x11000`), uninitialized,
 from an assembly object of the tool (`BUILD/gen/hole.s`, `BUILD/rt/hole.o`,
 first in the response file). The system maps it readable and writable; the
-runtime closes it, with the header page, at start (`mirror.c`).
+runtime closes it at start (`mirror.c`). The header page itself stays
+readable: the C library reads the executable's header when the program
+exits.
 The check reads the linked file's PE header: image base 0x10000, the flag
 for stripped relocations and no relocation table, no dynamic base, section
 alignment 0x1000, the first section `.hole` at 0x11000 with no bytes in the

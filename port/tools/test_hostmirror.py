@@ -38,7 +38,7 @@ import test_hostlaunch as L  # noqa: E402
 from test_hostlaunch import ABS_BASE, FUN_BASE, PROLOGUE, RAM, Variant, program, head, verdict  # noqa: E402
 
 M_NAMES = ["g_rw", "g_base", "g_null", "g_straddle", "g_straddle_w", "g_host", "g_unserved", "g_exec", "g_two", "g_a1", "g_a2", "g_second", "g_loop", "g_time", "g_alu",
-           "g_hi", "g_top_r", "g_top_w", "g_edge_r", "g_edge_w", "g_hdr_r", "g_hdr_w", "g_walk"]
+           "g_hi", "g_top_r", "g_top_w", "g_edge_r", "g_edge_w", "g_hdr_r", "g_hdr_w", "g_walk", "g_walk_spoiled", "g_walk_dead"]
 G = {n: RAM + 0x101900 + 0x10 * i for i, n in enumerate(M_NAMES)}
 IRQ_NAMES = ["OpenEvent", "EnableEvent", "StartRCnt", "ResetCallback"]
 IRQ_ADDR = {n: RAM + 0x101c00 + 0x10 * i for i, n in enumerate(IRQ_NAMES)}
@@ -175,12 +175,14 @@ static unsigned walk(unsigned base, int low)
     }
     return sum ^ (n << 20);
 }
-void g_walk(void)
+/* spoil: one node of the second chain differs before the walks, so the two walks must not agree (a control of the case) */
+static void walk_report(int spoil)
 {
     LARGE_INTEGER f, a, b, c;
     unsigned i, real, lowv, same_ram = 0;
     chain(0x80040000u);
     chain(0x80070000u);
+    if (spoil) NODE(0x80070000u, 1000)[1] += 5;
     QueryPerformanceFrequency(&f);
     QueryPerformanceCounter(&a);
     real = walk(0x80040000u, 0);
@@ -192,6 +194,10 @@ void g_walk(void)
     SAY("walk of %u nodes: low view %s the real addresses (%08x, %08x), the nodes written %u of %u alike\n", NODES, real == lowv ? "equals" : "DIFFERS from", lowv, real, same_ram, NODES);
     SAY("timing walk: real addresses %lld us, low view %lld us\n", (b.QuadPart - a.QuadPart) * 1000000 / f.QuadPart, (c.QuadPart - b.QuadPart) * 1000000 / f.QuadPart);
 }
+void g_walk(void) { walk_report(0); }
+void g_walk_spoiled(void) { walk_report(1); }
+/* ends before the walk prints anything: an address that no memory has and that is not served */
+void g_walk_dead(void) { SAY("before\n"); SAY("%02x\n", *(volatile unsigned char *)0xffff1000u); walk_report(0); }
 static volatile int count;
 static void handler(void) { count++; }
 void g_loop(void)
@@ -252,6 +258,16 @@ def python_walk() -> int:
     for i in range(2000):
         total = (total * 31 + i * 7 + (i & 0xFF)) & 0xFFFFFFFF
     return total ^ (2000 << 20)
+
+
+def walk_verdict(status: int, body: list[str]) -> str | None:
+    """The walk's case. It passes only with all three: status 0; the one line that says the walk through the low
+    view equals the walk on real addresses, with the checksum worked out here and every node written alike; and
+    the timing line. A program that ended before its lines, or printed another result, is a failed walk."""
+    w = [l for l in body if l.startswith("walk of")]
+    t = [l for l in body if l.startswith("timing walk:")]
+    want = "walk of 2000 nodes: low view equals the real addresses (%08x, %08x), the nodes written 2000 of 2000 alike" % (python_walk(), python_walk())
+    return verdict((status, w, len(t)), (0, [want], 1))
 
 
 def native(rig: L.Rig):
@@ -349,11 +365,20 @@ def launch(rig: L.Rig):
     yield "a-program-linked-the-old-way-refuses-to-start-and-names-an-accessible-page", None if ok else f"status {status}, lines {body[-3:]!r}"
 
     status, body = go("walk", "g_walk", args=["--no-interrupt"], timeout=300)
-    w = [l for l in body if l.startswith("walk of")]
     t = [l for l in body if l.startswith("timing walk:")]
     print(f"     {t[0] if t else 'no timing line'}")
-    yield "a-walk-of-2000-nodes-through-24-bit-links-equals-the-same-walk-on-real-addresses", None if not t else verdict((status, w), (0, [
-        "walk of 2000 nodes: low view equals the real addresses (%08x, %08x), the nodes written 2000 of 2000 alike" % (python_walk(), python_walk())]))
+    yield "a-walk-of-2000-nodes-through-24-bit-links-equals-the-same-walk-on-real-addresses", walk_verdict(status, body)
+    # The case's own controls: the same check must FAIL a program that ended before the walk's lines and a walk
+    # whose two results differ. (The first version of this case passed when the timing line was missing.)
+    status, body = go("walk-dead", "g_walk_dead", args=["--no-interrupt"], timeout=300)
+    refused = walk_verdict(status, body)
+    ok = status == 10 and body[-2:-1] == ["before"] and not [l for l in body if l.startswith(("walk of", "timing walk:"))] and refused is not None
+    yield "a-walk-whose-program-ends-before-its-lines-is-a-failed-walk", None if ok else f"status {status}, lines {body[-3:]!r}, the walk's check said {refused!r}"
+    status, body = go("walk-spoiled", "g_walk_spoiled", args=["--no-interrupt"], timeout=300)
+    refused = walk_verdict(status, body)
+    w = [l for l in body if l.startswith("walk of")]
+    ok = status == 0 and len(w) == 1 and "low view DIFFERS from the real addresses" in w[0] and "the nodes written 1999 of 2000 alike" in w[0] and refused is not None
+    yield "a-walk-whose-two-results-differ-is-a-failed-walk", None if ok else f"status {status}, lines {w!r}, the walk's check said {refused!r}"
 
     status, body = go("host", "g_host")
     ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00002000 \(read\) in \S+ \(at 0x[0-9a-f]{8}\)", body[-1]) and not any(l.startswith("mirror:") for l in body)
