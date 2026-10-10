@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000", "0x00000007"], "callee": "func_80141f28", "pointees": {}, "returned": "0x7e3d124d", "watched": [[[7, "5b"], [300, "00000000"], [379, "01"]]]}, {"args": ["0x80190108", "0x80040000"], "callee": "func_80138ae8", "pointees": {}, "returned": "0xe8e79eb5", "watched": [[[7, "5b"], [300, "00000000"], [379, "01"]]]}, {"args": ["0x80040000", "0x00000072"], "callee": "func_801307e0", "pointees": {}, "returned": "0x8b8d0bc8", "watched": [[[7, "5b"], [76, "69e7d747"], [84, "e7d01b7c"], [300, "00000000"], [379, "01"], [549, "01"]]]}], "case": 0, "ends_in_callee": false, "note": "slots: 46 new; edge: slot 3, immediate 0x7 against 0x8; edge: slot 3, immediate 0x7 against 0x6; edge: slot 7, immediate 0x1 against 0x2; edge: slot 7, immediate 0x1 against 0x0; edge: slot 13, immediate 0x1 against 0x2; edge: slot 13, immediate 0x1 against 0x0; edge: slot 37, immediate 0x1b against 0x1c; edge: slot 37, immediate 0x1b against 0x1a", "reads": [["0x80040007", "5a"], ["0x8004012a", "ae"], ["0x801dd64c", "69e7d747e7d01b7c"]], "recorders": [{"arguments": 2, "at": "0x801307e0", "callee": "func_801307e0"}, {"arguments": 2, "at": "0x80138ae8", "callee": "func_80138ae8"}, {"arguments": 2, "at": "0x80141f28", "callee": "func_80141f28"}], "result": null, "same": [["0x8004004c", "ec52fd2b"], ["0x80040054", "cb927b74"], ["0x8004012c", "1eef3872"], ["0x8004017b", "09"], ["0x80040225", "c6"]], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040007", "5b"], ["0x8004004c", "69e7d747"], ["0x80040054", "e7d01b7c"], ["0x8004012c", "00000000"], ["0x8004017b", "01"], ["0x80040225", "01"]]}
+ ],
+ "format": 1,
+ "function": "func_801ca0b0_slot05_06",
+ "recorded": {"cases": 2000, "comparison": "func_801ca0b0_slot05_06: built 188 bytes, original 184 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}
