@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "78eeeaf6bbc34fb629c9008d6309bca870765f9bf9ab756de220b990eb378c42",
+  "sha256": "000e9e36918fde1ccb8fe2fc1b567004846a1a01c34c694142ce9ab07e26c40d",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -627,8 +627,12 @@
       "line": 9359
     },
     {
-      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "title": "Record: five more overrides in C, where the register holds what an earlier call left (2026-10-10)",
       "line": 9435
+    },
+    {
+      "title": "Nonmatching C for the four sound-library functions that had none (2026-10-10)",
+      "line": 9487
     }
   ]
 }
