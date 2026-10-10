@@ -41,7 +41,12 @@
  *                      default device and its thread pulls from the model. Psyz_AudioInit calls Psyz_SpuInit again, which returns
  *                      at once when the model is started (src/psyz/psyz_spu.c, "if (spu.initialized) return"), so it clears
  *                      nothing. A device that cannot be opened prints one line and the game runs without sound.
- * With both, the file is written and no device is opened (one line says so). Without PsyZ either option refuses the start.
+ * With both, the file is written and no device is opened (one line says so).
+ *
+ * The disc's streamed audio. In a build with PsyZ this file defines Psyz_CdPullSamples (PsyZ's own is in its libcd, which the
+ * program does not link) over the queue of cd.c, and port_audio_lock / port_audio_unlock, the same lock for cd.c. Once something
+ * takes sound out (the dump, or a device that opened) port_xa_set_sink(1) is called, and only then does cd.c decode and queue the
+ * audio sectors; without it they are consumed in silence. Without PsyZ either option refuses the start.
  *
  * The transfer. The library's start of a transfer (the sound library's _spu_t in libspu/spu_p2.c) writes the address, the
  * block control (blocks of 16 words, so a multiple of 64 bytes) and the control 0x01000201 (to the chip) or 0x01000200 (from
@@ -80,6 +85,7 @@
  * the chip's and the DMA's counts with the completions taken and how. A run that is ended from outside (a time limit) does not
  * reach its exit, so every 60 vblanks the counts line is written again, with the vblank it was taken at, when the counts changed. */
 #include "port.h"
+#include "cd.h"
 #include "mirror.h"
 
 #include <stdlib.h>
@@ -122,6 +128,28 @@ static unsigned taken[4], dropped;   /* completions taken by how: 1 poll, 2 time
 #ifdef PORT_HAVE_PSYZ
 #define LOCK() Psyz_AudioLock()
 #define UNLOCK() Psyz_AudioUnlock()
+
+/* The disc layer's access to the same lock (cd.c has no PsyZ header), for its queue of streamed audio. */
+void port_audio_lock(void)
+{
+    Psyz_AudioLock();
+}
+
+void port_audio_unlock(void)
+{
+    Psyz_AudioUnlock();
+}
+
+/* The sound chip's model takes the disc's streamed audio from here. PsyZ's own libcd defines this function too; the program
+ * links this one and not that object (the control test_hostaudio.py shows it). PsyZ calls it with its audio lock held: from its
+ * audio thread's callback, and from the dump's pull in port_iopage_vblank. The queue and the volumes are cd.c's. */
+size_t Psyz_CdPullSamples(short *out, size_t num_frames)
+{
+    return port_xa_pull(out, num_frames);
+}
+#else
+void port_audio_lock(void) {}
+void port_audio_unlock(void) {}
 #endif
 
 /* The cell at exactly this address, or -1. */
@@ -398,6 +426,7 @@ static void wav_stop(void)
 {
     printf("audio: writing the dump failed; the dump stops and the game goes on\n");
     fflush(stdout);
+    port_xa_set_sink(0);   /* nothing is pulled any more: the disc's audio is consumed in silence, and the queue emptied */
     wav_header();   /* best effort: the lengths of what did reach the file */
     fclose(wav);
     wav = NULL;
@@ -484,14 +513,19 @@ int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *
             return -1;
         }
         atexit(wav_end);
+        port_xa_set_sink(1);
         if (audio_device) {
             printf("audio: --audio-dump and --audio together: the file is written and no sound device is opened\n");
             fflush(stdout);
         }
     } else if (audio_device) {
         /* The machine's sound output: PsyZ opens the default device and its thread pulls from the model under the lock. */
-        if (Psyz_AudioInit() != 0) printf("audio: the machine's sound output could not be opened; the game runs without sound\n");
-        else printf("audio: sound output open, 44100 Hz stereo\n");
+        if (Psyz_AudioInit() != 0) {
+            printf("audio: the machine's sound output could not be opened; the game runs without sound\n");
+        } else {
+            port_xa_set_sink(1);
+            printf("audio: sound output open, 44100 Hz stereo\n");
+        }
         fflush(stdout);
     }
 #endif

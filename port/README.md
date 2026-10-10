@@ -993,7 +993,8 @@ routines that do nothing on purpose. What is in this piece:
   Sectors are delivered at the console's rate counted by the frame (see
   the paragraph below), from the vertical blank or from the game's own
   poll, and the game's handler is called once per sector; no vertical
-  blank is delivered inside it. Sectors of compressed audio are taken and dropped: nothing sounds. Any other
+  blank is delivered inside it. Sectors of compressed audio are decoded and queued when something takes sound out (`--audio` or
+  `--audio-dump`, see "The disc's streamed audio"), and consumed in silence when nothing does. Any other
   command, and the mode that asks for whole raw sectors, ends the
   program with a line that names it. The handler's address is checked
   at each call like the other addresses the game hands over.
@@ -1416,7 +1417,9 @@ the carry cleared by a new read and by a change of speed, the remainder after a 
 out in pieces, pause and a new
 position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio
-sectors dropped, the stops for a command that is not served, and each
+sectors consumed in silence with no sink, the streamed audio with a sink
+(the filter, the queue, the hold, the volumes, the lock; see "The disc's
+streamed audio"), the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
 `python3 port/tools/test_hostmodules.py --cc CC` builds the runtime
 with made-up tables and runs it on invented discs whose archives hold
@@ -1842,7 +1845,9 @@ and appends them: a WAV file, 16 bits, stereo, 44,100 Hz, little endian.
 cannot be opened refuses the start with `refused: --audio-dump: cannot
 open FILE for writing`. A write that fails later prints `audio: writing
 the dump failed; the dump stops and the game goes on`, closes the file,
-and the game goes on; nothing is pulled after that.
+and the game goes on; nothing is pulled after that, so the sink of the
+disc's streamed audio is switched off, its queue is emptied, and the
+audio sectors are consumed in silence (see "The disc's streamed audio").
 
 The header's two lengths are rewritten, and the file flushed, every 60
 vblanks, and at every end that runs the exit routines (a return from
@@ -1888,7 +1893,9 @@ Whether sound is on by default is not decided; here it is off unless
 asked, so that no test and no script makes a sound.
 
 Neither option needs `--sound-library`. Without it the stand-ins of
-`sound.c` write nothing to the chip and the output is silence.
+`sound.c` write nothing to the chip, so no voice sounds; the disc's
+streamed audio is then mixed only if the chip's registers for the CD
+input are set (see "The disc's streamed audio").
 
 Access to the model, each under the audio lock and none held across a
 call into the game, the completion's routine or a fault: `Psyz_SpuRead`
@@ -1919,16 +1926,207 @@ the program with `--audio` from a Linux shell under WSL in the same way
 for a test: `SDL_AUDIODRIVER=dummy WSLENV=SDL_AUDIODRIVER sfa2.exe
 --audio ...`; without the variable it plays on the machine.
 
+### The disc's streamed audio
+
+The first sound out (the part above) left out the audio that the game
+streams from the disc; this part is that piece. The owner's words about
+it are not recorded on this page.
+
+What is played. The game starts a read of audio with the mode's XA bit
+(`0x40`), usually the filter bit (`0x08`) and a `Setfilter` file and
+channel. In `port/src/cd.c` a sector with the mode's XA bit and the
+sector's own audio bit (`0x04` of the submode) is played when the mode's
+filter bit is clear, or when it is set and the sector's file and channel
+are the last `Setfilter`'s. A sector that the filter lets by is consumed
+in silence and counted. A played sector is never handed to the game's
+handler. The game's streams, as the trial and the one-off start below
+saw them, are 4-bit, stereo, 37,800 Hz.
+
+The decoder. `port/src/xa.c` is pure C (`stdint.h` and `string.h`, no
+global). It takes a raw sector of 2,352 bytes, refuses it if the
+subheader at byte 16 differs from its copy at byte 20, and decodes the
+18 groups of 128 bytes from byte 24: 4-bit samples, stereo or mono, at
+37,800 or 18,900 Hz. The rule is from the console's hardware
+documentation, the description of CD-ROM XA ADPCM in the psx-spx
+document:
+
+```
+s = (t << shift) + ((old * f0 + older * f1 + 32) >> 6)
+shift = 12 - range   (a range above 12 is taken as 9)
+(f0, f1) = (0, 0), (60, 0), (115, -52), (98, -55) by the filter
+```
+
+then a clamp to 16 bits, and the clamped value is the history, two
+values for each channel, carried from sector to sector. Two readings
+are this project's and are not verified on hardware: a shift of a
+negative value rounds down (an arithmetic shift, not a division that
+truncates), and a range above 12 is taken as 9 as the sound chip's
+documented behaviour has it; nothing here shows that the console's XA
+does the same. An 8-bit sector is refused and counted, with one line in
+the trace for the first eight. PsyZ's own decoder (in its `libcd.c`,
+which the program does not link) differs in three ways: its history is
+the unclamped value, it divides by 64 (truncating toward zero), and a
+sector at 18,900 Hz or with 8 bits is decoded as 4-bit at 37,800 Hz.
+
+The resampler. A second pure function turns the decoded frames into
+frames of 44,100 Hz by linear interpolation, with its phase carried from
+call to call. THIS IS NOT THE CONSOLE'S FILTER, which has more points;
+the output differs from the console's in the high frequencies. PsyZ's
+own is a 4-point Hermite interpolation.
+
+The queue, and the drive that waits. The frames go into a ring of
+44,100 stereo frames, one second. When the queue has less room than one
+sector can make, the sector is not consumed: the read position does not
+move, the row of that vblank ends, and the drive's time for it is spent
+(the carry is cut to its remainder, as for every row that ends for want
+of a sector; the header of `cd.c` has the rule). The drive waits for the
+sound, and the sound empties the queue 44,100 frames a second. An empty
+queue always takes a sector (no sector makes more than a fraction of the
+queue, so that rule never decides anything). The decoder and the queue
+are reset when a read starts (`ReadN` or `ReadS`), so the frames still
+queued then are lost; a `Pause` leaves them to play. When nothing takes
+sound out (neither `--audio` nor `--audio-dump`, or a build without
+PsyZ) the played sectors are consumed in silence, as they were before,
+because nothing would empty the queue.
+
+When the consumer is gone. The wait is for sound that is being played,
+and it has no bound while pulls happen. It must not wait for a consumer
+that has stopped, so the layer counts the pulls. If the dump stops (a
+write or flush failure, or the size limit of the WAV file), the sink is
+switched off at once and the queue emptied; the audio sectors are then
+consumed in silence and the data sectors behind them reach the game. With
+`--audio` nothing guarantees that PsyZ's thread keeps pulling (a device
+that goes away, a paused device). When an audio sector has been held for
+120 vblanks in a row and no pull came in that time, the sink is taken as
+gone: one line on the output (`audio: nothing has taken sound for 120
+vblanks; the disc's audio is consumed in silence until something does`),
+the queue is emptied, and audio sectors are consumed in silence. A pull
+that comes later puts the sink on again from the next audio sector, with
+the decoder begun again and one line (`audio: something takes sound
+again; ...`). The figure 120 is this project's choice, two seconds of
+game time, and is not measured against any device.
+
+The mix. In a build with PsyZ, `iopage.c` defines `Psyz_CdPullSamples`
+(PsyZ's signature) over the queue. PsyZ's model of the chip calls it
+for CD frames, under its audio lock: from its audio thread's callback,
+and from the dump's pull, which `iopage.c` makes under the lock. The
+game's thread takes the same lock (`port_audio_lock`, in `iopage.c`,
+since `cd.c` has no PsyZ header) for every access to the queue and its
+counts, never across a call into the game. The program has exactly one
+definition of the function and none of PsyZ's `libcd` object; the
+control below shows it. The four bytes of `CdMix` are kept as the
+volumes, in PsyZ's order: left to left, left to right, right to right,
+right to left, 128 unity:
+
+```
+out_left  = (left * v0 + right * v3) >> 7
+out_right = (left * v1 + right * v2) >> 7
+```
+
+clamped to 16 bits, and no sum at all when the volumes are 127 or 128
+straight through, as PsyZ's own pull has it. The chip's model adds the
+CD frames to the mix only when the control register's CD bit is set, and
+scales them by its own CD volume registers (`psyz_spu.c`, where it
+mixes a frame). Which code of the game sets them was not looked at here;
+the control's made-up game sets them itself.
+
+One line on the output at the start of each stream, when a sector is
+played after a read began: `audio: a stream starts at sector N: file F
+channel C, stereo, 37800 Hz`. With `--trace` the same fact is a trace
+line, with one line for each of the first eight refused sectors, and at
+the end of a run that ends by itself one line of the counts (played,
+held, refused, skipped by the filter, consumed in silence).
+
+The controls.
+
+- `python3 port/tools/test_hostxa.py` compiles `xa.c` alone with the
+  host's `cc`. Its reference decoder and resampler are written in
+  another form than the C. It compares every sample on made-up sectors:
+  every filter at the ranges 0, 6 and 12, the ranges above 12, clamps at
+  both ends, stereo and mono at both rates, the history over two and
+  three sectors, 40 random sectors from a fixed seed, the refusals, the
+  `+ 32` and the rounding of a negative value with samples written out by
+  hand, and the resampler at seven chunk sizes against the reference
+  over a whole stream. On 2026-10-10 it printed `54 cases, 0.4 seconds`
+  and `all 54 cases behaved as required`. One change per rule in a copy
+  of `xa.c` (`--xa FILE`), 16 of them, each fail cases; the table is in
+  `docs/records/2026-10-10-streamed-audio.md`.
+- `python3 port/tools/test_hostcd.py`: cases on a made-up image for the
+  audio path (the filter on and off, the file and the channel each,
+  the queue and its frames counted against the reference, mono and
+  18,900 Hz, refusals, the volumes, the lock, the reset at a read's
+  start, the hold when the queue is full and its release with no burst).
+  The native rig has two seams of its own for the queue: the pull is
+  called by the test, and the audio lock is a counting stub. The case
+  count went from 88 to 123.
+- `python3 port/tools/test_hostaudio.py --cc CC --psyz-build DIR`, group
+  `stream`: a made-up game sets the chip and `CdMix` and plays 8 sectors
+  of a made-up image (with 4 of another channel between them) with
+  `--audio-dump`. The dumped frames are compared with the reference
+  frames through the volumes and through the mixer's own sums, and they
+  are equal, so the tolerance is 0: the registers the game sets make the
+  sums exact integers, which the control computes from the formula of
+  `psyz_spu.c`. The same game with no option consumes the sectors in
+  silence. The group also reads the linked program with `nm`: one
+  definition of `Psyz_CdPullSamples`, and none of the other 37 global
+  symbols of PsyZ's `libcd` object. The case count went from 14 to 19.
+
+Real sectors, one-off and private (the user's disc, read in place and
+held in memory, nothing copied): the first 300 audio sectors of the
+stream at sector 109855 (file 1, channel 7), decoded by the published C
+and by the test's reference: `every sample equal`, 1,209,600 samples.
+With the `+ 32` taken out of a copy of the C, 602,840 of the 604,800
+frames differed from the reference.
+
 ### What runs, and what is not there
 
 With `--sound-library` and `--audio` or `--audio-dump` the sequenced
 sound of the game is audible (in the file, or on the machine's output):
 the library runs through its start, its uploads of sound banks to the
 chip and its sequencer's ticks, and the chip's model mixes the voices.
-The audio that the game streams from the disc (the player-select and the
-stage music among it) is not there yet: the disc layer takes the sectors
-of compressed audio and drops them. One-off starts with the disc on
-2026-10-10 (a private input: none was pressed; offscreen; one at a time;
+With either option, and with or without `--sound-library`, the audio
+that the game streams from the disc is decoded, queued and offered to the
+chip's model as "The disc's streamed audio" says. What is not there: the
+console's own resampling filter (this is linear interpolation), 8-bit
+sectors (refused), any check against the console's output (the decoder is
+compared with a reference written from the same document, not with
+hardware), and any judgment of how it sounds: nobody has listened to a
+file of this change. Whether the game's code sets the chip's registers
+for the CD input was not looked at; the one-off start below shows that the
+levels of the dump changed, not why. One-off starts with the disc for the
+streamed audio, on 2026-10-10 (a private input; offscreen; one at a time;
+no command of this repository repeats them, they need the user's disc):
+
+- The build with `--sound-library --psyz DIR` and `--audio-dump FILE`,
+  the input script of the earlier starts, `--skip-programs`, a limit of
+  100 seconds (status 124): no line began `refused` or `stop`. Three lines
+  said that a stream started: sector 109855 (file 1, channel 7), sector
+  138668 (file 1, channel 4) and sector 36632 (file 1, channel 0), each
+  stereo at 37,800 Hz. The picture dump taken at the 90th second showed a
+  fight in progress, so the game was in play near the end. The file's header said
+  17,287,200 data bytes, which is 5,880 vblanks, and the file held
+  17,369,120, so the header was 27.9 vblanks behind, inside the bound of
+  60. Per ten seconds of the file, the largest absolute sample and the root
+  mean square (`levels.py`, a small script of the standard library, not
+  published): 0-10 s 15330 and 1568, 10-20 s 21108 and 2184, 20-30 s 12148
+  and 1868, 30-40 s 20244 and 1954, 40-50 s 23499 and 1900, 50-60 s 13369
+  and 1863, 60-70 s 14967 and 1479, 70-80 s 29455 and 2224, 80-90 s 26983
+  and 3388, the last 8 s 24543 and 3443. The queue's hold was not counted
+  in this run (a run ended from outside prints no counts), so whether the
+  drive ever waited is not known. The run is one run, not a measure.
+- The same build, before the line on the output was added, with
+  `--trace` and a trace file, 100 seconds: no line began `refused` or
+  `stop`, the trace held no `xa:` line, and the dump was silent in every
+  window of ten seconds (largest sample 0). The trace of every library
+  call and every access of the copy of RAM slows the game a great deal
+  (the dump held 4,980 vblanks of the 6,000 the time allowed), so a
+  traced run does not reach the streams; the line on the output is what
+  shows them.
+- The build with `--psyz DIR` and no option, 25 seconds (status 124): no
+  line began `refused`, `stop` or `audio`; it printed `library: 114 host
+  routines, 270 left that stop` as before this change.
+
+Earlier one-off starts, of sound out and before the streamed audio. They are of 2026-10-10 (a private input: none was pressed; offscreen; one at a time;
 no command of this repository repeats them, they need the user's disc):
 
 - The build with `--sound-library --psyz DIR` and `--audio-dump FILE`, a
