@@ -22,7 +22,10 @@ A contract may also be the value `CONTRACT` of a file `FUNC.py` beside
 from __future__ import annotations
 
 import dataclasses
+import struct
 from typing import Callable
+
+RAM_BASE = 0x80000000  # the console's RAM; `CallLog.calls` reads the final RAM that the test hands it
 
 
 @dataclasses.dataclass(frozen=True)
@@ -93,6 +96,38 @@ JR_RA = 0x03E00008
 AT, V0, A0, A1, A2, A3, T0, T1, T2, T3, T4, T5, SP = 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 29
 
 
+@dataclasses.dataclass
+class Recorder:
+    """What `CallLog.replace` was asked to put at one address (kept so that the log can be read back)."""
+
+    address: int
+    arguments: int
+    pointees: dict
+    masks: dict
+    result: int
+    results: tuple
+    ends_run_at: int
+    stores: tuple
+    counts: tuple
+    tail: bool
+
+    def returned(self, number: int) -> int:
+        """The value that the recorder returns at its `number`-th call (from 0)."""
+        value = self.results[min(number, len(self.results) - 1)] if self.results else self.result
+        return value & 0xFFFFFFFF
+
+
+@dataclasses.dataclass
+class Call:
+    """One entry of the log, decoded."""
+
+    address: int
+    args: tuple
+    pointees: dict  # argument index -> bytes behind the pointer
+    watched: list  # one bytes per watched block, in the order of `CallLog.watch`
+    returned: int
+
+
 class CallLog:
     """A log of calls in the RAM of one case.
 
@@ -121,6 +156,18 @@ class CallLog:
         self.cursor = state.alloc(4 + 4 * words)
         self.entries = self.cursor + 4
         state.w32(self.cursor, self.entries)
+        # What the log has put in the state, kept for the tests that read it back: the memory that is the
+        # harness's own (`owned`: the log, each recorder's code, its stub at the callee's address and the
+        # cells it uses) and what each recorder was asked to do. Nothing here changes what a setup does.
+        self.owned = [(self.cursor, 4 + 4 * words)]
+        self.recorders: dict[int, Recorder] = {}
+        if hasattr(state, "call_logs"):
+            state.call_logs.append(self)
+
+    def _alloc(self, size: int) -> int:
+        address = self.state.alloc(size)
+        self.owned.append((address, size))
+        return address
 
     def replace(self, address: int, arguments: int, result: int = 0, pointees: dict[int, int] | None = None,
                 masks: dict[int, int] | None = None, results: tuple[int, ...] = (), ends_run_at: int = 0,
@@ -212,7 +259,7 @@ class CallLog:
             code += [_lui(_T3, target), _ori(_T3, _T3, target), _lw(_T2, 0, _T3), 0, _addiu(_T2, _T2, 1), _sw(_T2, 0, _T3)]
         if ends_run_at or stores:
             # A cell counts this recorder's calls; t2 holds the number of this call from here on.
-            cell = self.state.alloc(4)
+            cell = self._alloc(4)
             code += [_lui(_T3, cell), _ori(_T3, _T3, cell), _lw(_T2, 0, _T3), 0, _addiu(_T2, _T2, 1), _sw(_T2, 0, _T3)]
             for number, target, value in stores:
                 code += [_addiu(_T4, 0, number),
@@ -228,7 +275,7 @@ class CallLog:
             code += list(tail)
         elif results:
             # A block holds the index of the next result, the last index, and the results.
-            table = self.state.alloc(8 + 4 * len(results))
+            table = self._alloc(8 + 4 * len(results))
             self.state.w32(table + 4, len(results) - 1)
             for index, value in enumerate(results):
                 self.state.w32(table + 8 + 4 * index, value)
@@ -241,12 +288,45 @@ class CallLog:
                      _sw(_T2, 0, _T3), 0x03E00008, 0]  # jr ra; nop
         else:
             code += [_lui(_V0, result), 0x03E00008, _ori(_V0, _V0, result)]  # jr ra; the last one is its delay slot
-        routine = self.state.alloc(4 * len(code))
+        routine = self._alloc(4 * len(code))
         for index, word in enumerate(code):
             self.state.w32(routine + 4 * index, word)
         # j routine; nop
         self.state.w32(address, 0x08000000 | (routine >> 2) & 0x03FFFFFF)
         self.state.w32(address + 4, 0)
+        self.owned.append((address, 8))
+        self.recorders[address] = Recorder(address, arguments, pointees, dict(masks), result, tuple(results), ends_run_at,
+                                           tuple(stores), tuple(counts), tail is not None)
+
+    def calls(self, ram: bytes) -> list[Call]:
+        """The calls that the log holds in `ram` (the RAM after a run), in order.
+
+        Raises ValueError for an entry of a callee that no `replace` of this log put in place.
+        """
+        def word(address: int) -> int:
+            return struct.unpack_from("<I", ram, address - RAM_BASE)[0]
+
+        found, seen, position, end = [], {}, self.entries, word(self.cursor)
+        while position < end:
+            address = word(position)
+            recorder = self.recorders.get(address)
+            if recorder is None:
+                raise ValueError(f"the log holds an entry for {address:#x}, which no recorder of this log stands at")
+            position += 4
+            args = tuple(word(position + 4 * i) for i in range(recorder.arguments))
+            position += 4 * recorder.arguments
+            pointees = {}
+            for index, count in recorder.pointees.items():
+                pointees[index] = bytes(ram[position - RAM_BASE : position - RAM_BASE + 4 * count])
+                position += 4 * count
+            watched = []
+            for _block, count in self.watch:
+                watched.append(bytes(ram[position - RAM_BASE : position - RAM_BASE + 4 * count]))
+                position += 4 * count
+            number = seen.get(address, 0)
+            seen[address] = number + 1
+            found.append(Call(address, args, pointees, watched, recorder.returned(number)))
+        return found
 
     @staticmethod
     def _argument(index: int, register: int) -> list[int]:
