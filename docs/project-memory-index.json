@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "7e64116c5eb6027f8154b829452f07ecc5fe4cc3d6e846d7ff580aa4a504d8e6",
+  "sha256": "2aeed982e7a59e255c8499f4271ba13a641f6800e7bbcf03fcd2a31eaf5908f1",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -589,6 +589,10 @@
     {
       "title": "The port places a module's jumps when the game first runs it (2026-10-09)",
       "line": 8866
+    },
+    {
+      "title": "The pads and the input script of the port (2026-10-10)",
+      "line": 8950
     }
   ]
 }

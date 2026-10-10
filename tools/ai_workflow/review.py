@@ -109,13 +109,13 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     if any(p.startswith('port/') and not p.endswith('.md') for p in changed):
         for script in sorted((root / 'port/tools').glob('test_*.py')):
             argv = (sys.executable, script.relative_to(root).as_posix())
-            if script.name in ('test_hostlaunch.py', 'test_hostmodules.py', 'test_hostgpu.py', 'test_hostmirror.py'):
+            if script.name in ('test_hostlaunch.py', 'test_hostmodules.py', 'test_hostgpu.py', 'test_hostmirror.py', 'test_hostpads.py'):
                 if not cc:
                     raise Problem('port runtime controls require --cc, not a silent skip')
                 argv += ('--cc', cc)
-            if script.name == 'test_hostgpu.py':
+            if script.name in ('test_hostgpu.py', 'test_hostpads.py'):
                 if not psyz:
-                    raise Problem('graphics controls require --psyz-build, not a silent skip')
+                    raise Problem('graphics and pad controls require --psyz-build, not a silent skip')
                 argv += ('--psyz-build', psyz)
             checks.append(Check(script.stem, argv, 'port'))
         if not checks:

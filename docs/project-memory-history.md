@@ -8946,3 +8946,88 @@ No function count changes here. Nothing under `ps1/` changed.
   this work (2 of 300 hung) was the exit race, fixed on main.
 - Not done: data of modules beyond their code; the real game's modules run only
   through the tables, not on the console's behaviour.
+
+## The pads and the input script of the port (2026-10-10)
+
+- What it is. The runtime now fills port 1's buffer at every vertical
+  blank after `StartPAD` from PsyZ (`Psyz_PadsPoll()`, then
+  `Psyz_PadsGet(0, ...)`) or, without PsyZ, with a digital pad that has no
+  button pressed, fills port 2's with 0xff, and takes `--input FILE`, a
+  text script of presses and releases. The code is `port/src/input.c`, the
+  pads part of `kernel.c`, the option and the keys line in `main.c`; the
+  control is `port/tools/test_hostpads.py`. The starting point was the
+  private trial's `input.c` and pad code; what was kept and what was
+  changed is below.
+- Kept from the trial. The script's grammar (`SECONDS BUTTON down|up` and
+  `repeat SECONDS EVERY BUTTON`, comments, a time as the frame
+  `round(SECONDS * 60)`), the 4-frame hold of a repeat, the word the game
+  builds from the buffer for the trace line, port 2 as 0xff, the poll made
+  by the port before the fetch. The task text calls the times "frame
+  numbers"; the trial's times are seconds that become frames, and that is
+  kept (a judgment, flagged in the work report).
+- Changed, and why.
+  - The reader of the script is the project's own (the trial's used
+    `sscanf`): it accepts only digits and one point for a number (the
+    trial's `%lf` took `nan`, `inf`, `0x10`, `1e3`, and cast a `nan` to a
+    frame), refuses a line over 200 characters (the trial's `fgets` would
+    have cut it into two lines and miscounted), a NUL byte, an empty file,
+    a file with only comments, a file over 1 MB, a time over 1,000,000
+    seconds, a script over 1,000,000 steps (a `repeat` from 0 to a line a
+    million seconds later would have made ten million), and a file that
+    cannot be opened or read; every message names the file and the line.
+    The steps are sorted by (frame, line order) with `qsort`, not by the
+    trial's insertion sort (quadratic).
+  - A refusal is printed whole: the first run of the review (a long path
+    inside its copy of the tree) cut the message at the runtime's usual
+    256-character error buffer and lost the line number and the reason.
+    The script's reader now has an error buffer of its own (2048), shows a
+    path of over 1000 characters shortened with `...`, and a control makes
+    a path that puts the message past 256 characters (the mutant with a
+    256-character buffer fails it).
+  - `InitPAD` checks both buffers when they are given (main had no check;
+    the trial had none): a negative length, or a non-null buffer of
+    positive length not wholly inside `port_game_span`, ends the run
+    (`stop: InitPAD: ...`, status 9) before either is kept; null and
+    length 0 are served without a write.
+  - The frame is 34 bytes (PsyZ's `PSYZ_PAD_BUF_LEN`): a buffer is written
+    up to 34 bytes and not past them, for port 1 and port 2. The trial
+    wrote a longer port 2 buffer whole, and its build without PsyZ wrote
+    byte 2 as 0 for a length of 3 (the control found this: the first
+    three bytes of a frame are 0, 0x41, 0xff).
+  - PsyZ is reached by strong references under `PORT_HAVE_PSYZ`, which
+    `hostbuild.py --psyz` now defines for `input.c` as it does for `gpu.c`
+    (the trial used weak references; an archive member that nothing else
+    pulls in would then silently be absent). `InitPAD` calls PsyZ's
+    `PadInit(0)`, as PsyZ's own `InitPAD` does: without it PsyZ's pads stay
+    uninitialised and read no button.
+  - The script is pressed only on a frame of a digital pad (status 0, kind
+    0x41). The trial pressed it on any frame, including PsyZ's "no
+    controller" frame (0xff, 0xff), which made a frame that says "no
+    controller" with buttons in it. Now such a frame is left as it is, the
+    word is 0, and the first time with a script loaded one line says that
+    the script is not applied. This follows from the task text ("on top of
+    what PsyZ gave") and is a judgment, flagged.
+  - The keys line names the keys of PsyZ's `keyb_p1` in its order with the
+    buttons of PsyZ's definitions; the trial's text grouped them
+    differently and added the window's close handling. With
+    `--psyz-build` the control builds the expected line from PsyZ's
+    `sdl3_common.h` and `libetc.h` and compares.
+  - Another `--input`, or `--input` with `--list-library`, gives the usage.
+- Known limit (stated on the page, not worked around). In a Windows Remote
+  Desktop session SDL reports no keyboard, so PsyZ reads no key for port
+  1; with no game controller its frame says "no controller", and the
+  script has no effect there (the one line says so).
+- Checks, one-off counts, all on 2026-10-10 in the worktree of the branch
+  `port-pads-input`. `test_hostpads.py --cc ... --psyz-build ...`: 80 cases
+  `ok`, `all cases behaved as required`; mutants, each in a copy of the
+  runtime's folder with one line changed, each failing named cases: the
+  poll left out (7 cases), the poll after the fetch (10), the script's
+  bits ORed in instead of cleared (10), the frame comparison off by one
+  (10), the buffer check left out (7), port 2 written like port 1 (10).
+  `test_hostlaunch.py` (65 cases) and `test_hostbuild.py` (301 cases)
+  still end with `all cases behaved as required`.
+- Not shown. Nothing of this has run against PsyZ's real routines or a
+  device: the control links a stand-in object for `PadInit`,
+  `Psyz_PadsPoll` and `Psyz_PadsGet` and starts no window. The keys line
+  is compared with PsyZ's source, not with a key press.
+- A fault of the script found in review, and the control that could not find it. A repeat line was turned into presses and releases 4 frames apart, in one state with the down and up lines. Its last release could fall after the repeat's end and release a button that a later down line held: with `repeat 0 0.1 cross`, `0.15 cross down`, `1 cross up` the button was up from frame 10 where the page says it is held to frame 60. The controls did not see it because their expected words came from a function of the test that repeated the same calculation. Now the holds of the lines and the presses of the repeats are two states (a count of running presses per button), a press ends at the repeat's end, and four scripts have their words written out by hand, frame by frame, in both builds and with and without the timer: the reviewer's, a repeat that ends at a line of another button, a hold that begins before a repeat of the same button, and two repeats on one button. Against the code as it was pushed all 16 of those cases fail (the reviewer's at frames 10, 11, 30 and 59); with one state again, without the clipping, and without the count, named cases fail. The test's own function was rewritten in the other form (state at a frame, not a list of steps) and is no longer the only source of an expectation.
