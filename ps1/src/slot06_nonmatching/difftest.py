@@ -172,14 +172,16 @@ call). The tool tells the begin and the end by the instruction hook alone (the s
 Each call is an entry of `calls`, at its place among the recorders' calls, with
 
     callee, original   the symbol's name, else the address as text; `original` is true
-    uses               the argument registers a0 to a3 that the callee read before it wrote them, as {name: value}
-                       at the begin of the call (a register counts as read when an executed instruction of the
-                       call has it as a source: `registers_of` is the table of the MIPS I instructions of the game;
-                       an instruction it does not know is an error naming the word, status 2, not a guess)
-                       The whole register is compared at replay: a callee that reads only part of an argument
-                       register (a byte or a halfword) leaves the other bits free and two codes may differ there,
-                       but the stand-in compares all 32 bits, so such a function fails the check of its own record
-                       and is not recorded (a stated limit)
+    uses               the registers of the caller that the callee read while they were UNTOUCHED (see below),
+                       as {name: value at the begin of the call}: at, v0, v1, a0 to a3, t0 to t9, gp, hi, lo.
+                       (A register counts as read when an executed instruction of the call has it as a source:
+                       `registers_of` is the table of the MIPS I instructions of the game, hi and lo included;
+                       an instruction it does not know is an error naming the word, status 2, not a guess.)
+                       At replay the stand-in requires each named register to hold its value (`call N to F:
+                       register NAME is X, the original gave Y`; for a0 to a3 `argument NAME`). The whole register
+                       is compared: a callee that reads only part of an argument register (a byte or a halfword)
+                       leaves the other bits free and two codes may differ there, but the stand-in compares all 32
+                       bits, so such a function fails the check of its own record and is not recorded (a stated limit)
     stack              the words at or above the call's stack pointer that the callee read through sp, as
                        [offset from that stack pointer, hex] (its fifth and later arguments)
     reads              the bytes outside the stack region that the callee read before writing them and that
@@ -189,7 +191,21 @@ Each call is an entry of `calls`, at its place among the recorders' calls, with
                        function (no warning). A byte of these that the function did not read goes to `same`
     effects            the bytes outside the stack region that differ at the end of the call from the begin,
                        as [address, hex] runs (what the recorders called inside did to memory included)
-    leaves             v0, v1, a0 to a3, t0 to t9, hi and lo at the end of the call
+    leaves             {name: value at the end of the call} for exactly the registers that are WRITTEN then, among
+                       at, v0, v1, a0 to a3, t0 to t9, gp, s0 to s7, fp, hi and lo. At replay the stand-in sets
+                       exactly these and no other register: an untouched register keeps the build's own value
+                       (the stand-in never injects the recorded caller's state). ra, k0, k1 and sp are never in it
+
+REGISTERS OF A CALL. For each register (1 to 31, hi and lo) the trace keeps one of two states during a call: UNTOUCHED
+(it holds the value it had at the begin) or WRITTEN. The callee's own memory is its frame (the stack below the call's
+stack pointer) and its home area. A `sw R` of an UNTOUCHED R into the callee's own memory is a SAVE: it is no use of R,
+and its word is R's save slot (a later store to a byte of the word ends the slot). A `lw R` from R's own slot is a
+RESTORE: R is UNTOUCHED again. Any other load of a byte of R's slot is a use of R. Any other read of an UNTOUCHED
+register by an executed instruction is a use of it, except `jr ra` reading ra, sp read as itself and register 0. A use of
+s0 to s7, fp, k0, k1, or of ra other than by `jr ra`, refuses the case: `the original callee F reads register NAME of its
+caller, which is no argument`. A call that ends with another stack pointer than it began with refuses the case: `the
+original callee F leaves the stack pointer changed`. (`--control` alters the build and `--edges` alters the original;
+neither takes part here.)
 
 The 16 bytes from the call's stack pointer upward are the callee's own argument home area (o32, as for the function
 itself): its writes there are neither effects nor refusals, and a read there of a byte it wrote itself is not a read
@@ -197,7 +213,7 @@ of the call; a read there before any write of its own is a `stack` word (offset 
 saying which, status 1, no file written, an existing file left alone) when an original callee writes the stack region
 at or above the call's stack pointer plus 16, or reads it at or above the call's stack pointer other than by reads
 through sp (`stack`; a pointer to a local of the function is such a read the build cannot repeat, the frames
-differ), when it is
+differ), when it reads a register of its caller that is no argument, when it leaves sp changed, when it is
 entered again (a `jal` or `jalr` to its first instruction) before it ended, or when it does not end when the run
 does while the setup says the function returns. These are limits of this piece. A function whose callee is a
 `tail` recorder still cannot be described (status 2).
@@ -1286,10 +1302,26 @@ def registers_of(word: int) -> tuple[tuple[int, ...], tuple[int, ...]]:
 
 # The registers that the stand-in of an original callee sets after the call (`leaves`): the ones a callee may
 # leave anything in, by the calling convention (the saved ones, sp and ra are the callee's to restore).
-LEAVES = (("v0", 2), ("v1", 3), ("a0", 4), ("a1", 5), ("a2", 6), ("a3", 7), ("t0", 8), ("t1", 9), ("t2", 10),
-          ("t3", 11), ("t4", 12), ("t5", 13), ("t6", 14), ("t7", 15), ("t8", 24), ("t9", 25))
+LEAVES = (("at", 1), ("v0", 2), ("v1", 3), ("a0", 4), ("a1", 5), ("a2", 6), ("a3", 7), ("t0", 8), ("t1", 9), ("t2", 10),
+          ("t3", 11), ("t4", 12), ("t5", 13), ("t6", 14), ("t7", 15), ("s0", 16), ("s1", 17), ("s2", 18), ("s3", 19),
+          ("s4", 20), ("s5", 21), ("s6", 22), ("s7", 23), ("t8", 24), ("t9", 25), ("gp", 28), ("fp", 30), ("hi", HI),
+          ("lo", LO))
+# the registers whose value at the begin of a call may be a use of the call (`uses`); a use of any other register of
+# the caller (the saved ones, k0, k1, and ra other than by `jr ra`) is a refusal. sp and register 0 are no use.
+USABLE = frozenset(number for name, number in LEAVES if not name.startswith("s") and name != "fp")
+REGISTER_LABELS = {**{number: name for number, name in enumerate(REGISTER_NAMES)}, HI: "hi", LO: "lo"}
+REGISTER_NUMBERS = {name: number for number, name in REGISTER_LABELS.items()}
 STACK_HIGH = STACK_TOP + HOME_AREA  # the end of the function's own stack region, the home area included
 PLACE_FUNCTION, PLACE_HARNESS, PLACE_STOP, PLACE_OTHER = range(4)
+
+
+def register_unicorn(number: int) -> int:
+    """The Unicorn constant of register `number` (0 to 31, HI or LO)."""
+    return {HI: reg.UC_MIPS_REG_HI, LO: reg.UC_MIPS_REG_LO}.get(number, reg.UC_MIPS_REG_0 + number)
+
+
+def register_value(uc, number: int) -> int:
+    return uc.reg_read(register_unicorn(number))
 
 
 class Refusal(FixtureError):
@@ -1299,12 +1331,14 @@ class Refusal(FixtureError):
 class OriginalCall:
     """One call of an original callee, from its first instruction to the function's next one (or the run's end)."""
 
-    def __init__(self, entry: int, sp: int, args: list[int]):
+    def __init__(self, entry: int, begin: dict[int, int]):
         self.entry = entry
-        self.sp = sp  # the stack pointer of the call
-        self.args = args  # a0 to a3 at the begin
-        self.read_args: set[int] = set()  # register numbers 4 to 7 read before written
-        self.written_regs: set[int] = set()
+        self.begin = begin  # register number (0 to 31, HI, LO) -> its value when the call began
+        self.sp = begin[SP]  # the stack pointer of the call
+        self.args = [begin[number] for number in range(4, 8)]  # a0 to a3 at the begin
+        self.uses: dict[int, int] = {}  # register -> value at the begin, for each register used before it was written
+        self.written_regs: set[int] = set()  # the registers in the state WRITTEN (the others are UNTOUCHED)
+        self.slots: dict[int, int] = {}  # register -> physical address of the word where the callee saved it
         self.reads: dict[int, tuple[int, bool]] = {}  # byte -> (value, written earlier in the run); read before written here
         self.written: dict[int, int] = {}  # byte -> value before the call's first write
         self.stack_bytes: set[int] = set()  # bytes at or above sp read through sp
@@ -1395,8 +1429,9 @@ class Trace:
             return
         if self.call is None:
             if place == PLACE_OTHER and self.previous_in_function:
-                self.call = OriginalCall(address, uc.reg_read(reg.UC_MIPS_REG_SP),
-                                         [uc.reg_read(n) for n in ARGS])
+                begin = {n: uc.reg_read(reg.UC_MIPS_REG_0 + n) for n in range(32)}
+                begin[HI], begin[LO] = uc.reg_read(reg.UC_MIPS_REG_HI), uc.reg_read(reg.UC_MIPS_REG_LO)
+                self.call = OriginalCall(address, begin)
                 self.sequence.append(("call", self.call))
         elif place == PLACE_FUNCTION:
             self.close(uc)
@@ -1435,12 +1470,38 @@ class Trace:
     def inside(self, uc, address: int, word: int) -> None:
         """One instruction that belongs to the open call."""
         call = self.call
-        reads, writes = registers_of(word)
-        for number in reads:
-            if 4 <= number <= 7 and number not in call.written_regs:
-                call.read_args.add(number)
-        call.written_regs.update(writes)
-        op = word >> 26
+        sources, dests = registers_of(word)
+        op, rt = word >> 26, (word >> 16) & 31
+        memory = MEMORY_OPS.get(op)
+        span = touched(memory[1], self.target(uc, word)) if memory else None
+        # The callee's own memory is its frame and its home area; a word of it is the save slot of a register.
+        # `sw R` of an UNTOUCHED R there is a SAVE (no use of R); `lw R` from R's own slot is a RESTORE (R is
+        # UNTOUCHED again); any other load of a byte of the slot of R is a use of R.
+        save = restore = False
+        if memory is not None and op == 0x2B and rt not in (0, SP) and rt not in call.written_regs:
+            save = span.start >= STACK_LOW & 0x1FFFFFFF and span.stop <= (call.sp & 0x1FFFFFFF) + HOME_AREA
+        if memory is not None and op == 0x23 and call.slots.get(rt) == span.start:
+            restore = True
+        if memory is not None:
+            for number, slot in list(call.slots.items()):
+                if slot < span.stop and span.start < slot + 4:
+                    if memory[0] and not (restore and number == rt):
+                        self.use(call, number)
+                    elif not memory[0]:
+                        del call.slots[number]
+            if save:
+                call.slots[rt] = span.start
+        for number in sources:
+            if number == 0 or number == SP or (save and number == rt):
+                continue
+            if number == RA_NUMBER and op == 0 and word & 63 == 8:  # jr ra
+                continue
+            if number not in call.written_regs:
+                self.use(call, number)
+        if restore:
+            call.written_regs.discard(rt)
+        else:
+            call.written_regs.update(number for number in dests if number != 0)
         entered = None
         if op == 3:
             entered = (address & 0xF0000000) | ((word & 0x03FFFFFF) << 2)
@@ -1482,13 +1543,24 @@ class Trace:
                 call.written.setdefault(at, byte)
                 self.written.setdefault(at, byte)
 
+    def use(self, call: OriginalCall, number: int) -> None:
+        """The call reads the register `number` while it is UNTOUCHED: a use, or a refusal for a register that is no argument."""
+        if number in call.uses:
+            return
+        if number not in USABLE:
+            raise Refusal(f"the original callee {self.label(call.entry)} reads register {REGISTER_LABELS[number]} of its "
+                          f"caller, which is no argument")
+        call.uses[number] = call.begin[number]
+
     def close(self, uc) -> None:
         """The open call ends here: take its registers, its effects and its stack words."""
         call, self.call = self.call, None
+        if uc.reg_read(reg.UC_MIPS_REG_SP) != call.sp:
+            raise Refusal(f"the original callee {self.label(call.entry)} leaves the stack pointer changed")
+        # exactly the registers in the state WRITTEN at the end; an UNTOUCHED one (never written, or restored) is not there
         for name, number in LEAVES:
-            call.leaves[name] = uc.reg_read(reg.UC_MIPS_REG_0 + number)
-        call.leaves["hi"] = uc.reg_read(reg.UC_MIPS_REG_HI)
-        call.leaves["lo"] = uc.reg_read(reg.UC_MIPS_REG_LO)
+            if number in call.written_regs:
+                call.leaves[name] = register_value(uc, number)
         for at, before in call.written.items():
             now = uc.mem_read(at, 1)[0]
             if now != before:
@@ -1625,7 +1697,7 @@ def original_call_text(call: OriginalCall, label: str) -> dict:
             "original": True,
             "reads": runs_of({console_address(a): b for a, b in call.kept_reads.items()}),
             "stack": [[offset, hex8(word)] for offset, word in call.stack],
-            "uses": {f"a{number - 4}": hex8(call.args[number - 4]) for number in sorted(call.read_args)}}
+            "uses": {REGISTER_LABELS[number]: hex8(value) for number, value in sorted(call.uses.items())}}
 
 
 def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts.Setup, names: dict[int, str]) -> tuple[dict, int]:
@@ -2030,11 +2102,11 @@ class StandIns:
         if want is None or not want.get("original") or want["callee"] != name:
             return call_difference(number, want, {"callee": name, "original": True})
         self.made.append(position)
-        for argument, text in want["uses"].items():
-            number_of = reg.UC_MIPS_REG_A0 + int(argument[1])
-            have = uc.reg_read(number_of)
+        for register, text in want["uses"].items():
+            have = register_value(uc, REGISTER_NUMBERS[register])
             if have != int(text, 16):
-                return f"call {number} to {name}: argument {argument} is {hex8(have)}, the original gave {text}"
+                what = "argument" if register in ("a0", "a1", "a2", "a3") else "register"
+                return f"call {number} to {name}: {what} {register} is {hex8(have)}, the original gave {text}"
         sp = uc.reg_read(reg.UC_MIPS_REG_SP)
         for offset, text in want["stack"]:
             have = struct.unpack("<I", uc.mem_read((sp + offset) & 0x1FFFFFFF, 4))[0]
@@ -2048,11 +2120,8 @@ class StandIns:
                         f"the original had {byte:#04x}")
         for address, byte in bytes_of(want["effects"]).items():
             uc.mem_write(address & 0x1FFFFFFF, bytes([byte]))
-        for register, text in want["leaves"].items():
-            number_of = {"hi": reg.UC_MIPS_REG_HI, "lo": reg.UC_MIPS_REG_LO}.get(register)
-            if number_of is None:
-                number_of = reg.UC_MIPS_REG_0 + dict(LEAVES)[register]
-            uc.reg_write(number_of, int(text, 16))
+        for register, text in want["leaves"].items():  # exactly the registers the callee wrote, and no other
+            uc.reg_write(register_unicorn(REGISTER_NUMBERS[register]), int(text, 16))
         return None
 
 

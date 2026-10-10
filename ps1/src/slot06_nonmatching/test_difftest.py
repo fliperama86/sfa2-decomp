@@ -4241,8 +4241,8 @@ def case_z_orig_call_is_recorded():
     call = orig_call(doc)
     ok = doc["format"] == 2 and fixture["callees"] == [{"at": D.hex8(CALLEE), "callee": "func_callee"}] and len(fixture["calls"]) == 1
     ok = ok and call["original"] is True and call["callee"] == "func_callee" and call["effects"] == [[D.hex8(FLAG), "55"]]
-    ok = ok and call["leaves"]["t0"] == D.hex8(FLAG) and call["leaves"]["t1"] == "0x00000055" and set(call["leaves"]) == set(
-        ["hi", "lo", "v0", "v1", "a0", "a1", "a2", "a3", *(f"t{i}" for i in range(10))])
+    # MARK_BODY writes t0 and t1 and nothing else: those are the leaves
+    ok = ok and call["leaves"] == {"t0": D.hex8(FLAG), "t1": "0x00000055"}
     ok = ok and call["reads"] == [] and call["stack"] == [] and call["uses"] == {}
     ok = ok and fixture["reads"] == [] and fixture["writes"] == [[D.hex8(FLAG), "55"], [D.hex8(FLAG3), "09"]]
     got, replay_status = fx_replay(doc, words)
@@ -4880,6 +4880,198 @@ def case_z_orig_home_area_read_through_a_pointer_is_refused():
     return orig_refused(words, {CALLEE: [addu(T0, SP, ZERO), lw(T1, T0, 4), JR_RA, NOP]}, "through a register other than sp")
 
 
+
+# ---------------------------------------------------------------------------
+# Group Z, the registers of a call: UNTOUCHED and WRITTEN, saves and restores
+
+S1, S2, T3_ = 17, 18, 11
+
+
+def mtlo(rs): return rs << 21 | 0x13
+
+
+def reg_caller(pre, tail=()):
+    """A caller with a frame: `pre` runs before the call of CALLEE, `tail` after it; the result is what `tail` leaves in v0."""
+    return [addiu(SP, SP, -32), sw(RA, SP, 28), *pre, jal(CALLEE), NOP, *tail, lw(RA, SP, 28), addiu(SP, SP, 32), JR_RA, NOP]
+
+
+def reg_record(words, body, setup=None, cases=2):
+    return orig_record(words, {CALLEE: body}, setup or orig_setup(returns_value=True), cases=cases)
+
+
+def result_failure(doc, build, wanted):
+    lines, status = fx_replay(doc, build)
+    text = "\n".join(lines)
+    return None if status == 1 and wanted in text else f"{status} {text}"
+
+
+def untouched_register(number, name):
+    # the caller sets the register to 7, calls a callee that is `jr ra; nop`, and returns the register
+    words = reg_caller([addiu(number, ZERO, 7)], [addu(V0, number, ZERO)])
+    lines, status, doc, _ = reg_record(words, [JR_RA, NOP])
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    ok = doc["fixtures"][0]["result"] == "0x00000007" and call["uses"] == {} and call["leaves"] == {}
+    same = fx_replay(doc, words)
+    other = result_failure(doc, reg_caller([addiu(number, ZERO, 8)], [addu(V0, number, ZERO)]),
+                           "result: the build gives 0x00000008, the original gave 0x00000007")
+    return None if ok and same[1] == 0 and other is None else f"{name}: {call} {same} {other}"
+
+
+def case_z_reg_untouched_a0_keeps_the_builds_value():
+    return untouched_register(A0, "a0")
+
+
+def case_z_reg_untouched_temporary_keeps_the_builds_value():
+    return untouched_register(T3_, "t3")
+
+
+def case_z_reg_untouched_v1_keeps_the_builds_value():
+    return untouched_register(V1, "v1")
+
+
+def case_z_reg_incoming_register_that_is_no_argument_is_a_use():
+    # v0 = t0: the output depends on an incoming t0
+    words = reg_caller([addiu(T0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, T0, ZERO), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"t0": "0x00000005"} and call["leaves"] == {"v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6)], []), "call 1 to func_callee: register t0 is 0x00000006, the original gave 0x00000005")
+    same = fx_replay(doc, words)
+    return None if ok and other is None and same[1] == 0 else f"{lines} {call} {other} {same}"
+
+
+def case_z_reg_argument_use_keeps_the_argument_wording():
+    words = reg_caller([addiu(A1, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, A1, ZERO), JR_RA, NOP])
+    return result_failure(doc, reg_caller([addiu(A1, ZERO, 6)], []), "call 1 to func_callee: argument a1 is 0x00000006, the original gave 0x00000005")
+
+
+def case_z_reg_lo_read_before_written_is_a_use_and_written_is_a_leave():
+    words = reg_caller([addiu(T0, ZERO, 5), mtlo(T0)], [])
+    lines, status, doc, _ = reg_record(words, [mflo(V0), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"lo": "0x00000005"} and call["leaves"] == {"v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6), mtlo(T0)], []), "call 1 to func_callee: register lo is 0x00000006, the original gave 0x00000005")
+    # written: the callee multiplies; the function takes lo from it, and so does the build
+    mul = [ori(T0, ZERO, 6), ori(T1, ZERO, 7), mult(T0, T1), JR_RA, NOP]
+    words2 = reg_caller([], [mflo(V0)])
+    lines2, status2, doc2, _ = reg_record(words2, mul)
+    call2 = orig_call(doc2)
+    ok2 = status2 == 0 and call2["uses"] == {} and call2["leaves"] == {"hi": "0x00000000", "lo": "0x0000002a", "t0": "0x00000006", "t1": "0x00000007"}
+    ok2 = ok2 and doc2["fixtures"][0]["result"] == "0x0000002a" and fx_replay(doc2, words2)[1] == 0
+    return None if ok and other is None and ok2 else f"{lines} {call} {other} {lines2} {call2}"
+
+
+SAVING = [addiu(SP, SP, -16), sw(S0, SP, 8), sw(RA, SP, 12), jal(CALLEE_B), NOP, lw(S0, SP, 8), lw(RA, SP, 12), addiu(SP, SP, 16), JR_RA, NOP]
+
+
+def case_z_reg_callee_that_saves_and_restores_s0_and_ra():
+    # saves s0 and ra, calls a recorder, restores both: no use, no refusal, neither in leaves; the build's own s0 stays
+    words = reg_caller([addiu(S0, ZERO, 9)], [addu(V0, S0, ZERO)])
+    setup = orig_setup([(CALLEE_B, 0, 0)], returns_value=True)
+    lines, status, doc, _ = orig_record(words, {CALLEE: SAVING}, setup)
+    if status:
+        return f"{lines}"
+    call = orig_call(doc)
+    ok = call["uses"] == {} and "s0" not in call["leaves"] and "ra" not in call["leaves"] and doc["fixtures"][0]["result"] == "0x00000009"
+    same = fx_replay(doc, words)
+    # a build whose s0 differs keeps it through the stand-in: it returns its own s0, and so differs in the result
+    other = result_failure(doc, reg_caller([addiu(S0, ZERO, 10)], [addu(V0, S0, ZERO)]),
+                           "result: the build gives 0x0000000a, the original gave 0x00000009")
+    return None if ok and same[1] == 0 and other is None else f"{call} {same} {other}"
+
+
+def case_z_reg_callee_that_reads_s0_is_refused():
+    words = reg_caller([addiu(S0, ZERO, 9)], [])
+    return orig_refused(words, {CALLEE: [addu(V0, S0, ZERO), JR_RA, NOP]}, "reads register s0 of its caller, which is no argument",
+                        setup=orig_setup(returns_value=True))
+
+
+def case_z_reg_callee_that_reads_ra_otherwise_is_refused():
+    words = reg_caller([], [])
+    return orig_refused(words, {CALLEE: [addu(T0, RA, ZERO), JR_RA, NOP]}, "reads register ra of its caller, which is no argument")
+
+
+SAVE_A0_LOAD_V0 = [addiu(SP, SP, -16), sw(A0, SP, 0), addiu(A0, ZERO, 99), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+
+
+def case_z_reg_load_of_the_saved_word_of_a0_is_a_use_of_a0():
+    words = reg_caller([addiu(A0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, SAVE_A0_LOAD_V0)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"a0": "0x00000005"} and call["leaves"] == {"a0": "0x00000063", "v0": "0x00000005"}
+    other = result_failure(doc, reg_caller([addiu(A0, ZERO, 6)], []), "call 1 to func_callee: argument a0 is 0x00000006, the original gave 0x00000005")
+    return None if ok and other is None else f"{lines} {call} {other}"
+
+
+def case_z_reg_load_of_the_saved_word_of_s1_is_refused():
+    body = [addiu(SP, SP, -16), sw(S1, SP, 0), lw(V0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    return orig_refused(reg_caller([addiu(S1, ZERO, 5)], []), {CALLEE: body}, "reads register s1 of its caller, which is no argument",
+                        setup=orig_setup(returns_value=True))
+
+
+def case_z_reg_written_s2_is_a_leave_and_the_build_sees_it():
+    words = reg_caller([], [addu(V0, S2, ZERO)])
+    lines, status, doc, _ = reg_record(words, [addiu(S2, ZERO, 5), JR_RA, NOP])
+    call = orig_call(doc)
+    ok = status == 0 and call["leaves"] == {"s2": "0x00000005"} and call["uses"] == {} and doc["fixtures"][0]["result"] == "0x00000005"
+    return None if ok and fx_replay(doc, words)[1] == 0 else f"{lines} {call}"
+
+
+def case_z_reg_callee_that_leaves_sp_changed_is_refused():
+    setup = orig_setup(returns=False)
+    return orig_refused(TAIL, {CALLEE: [addiu(SP, SP, -16), JR_RA, NOP]}, "leaves the stack pointer changed", setup=setup)
+
+
+def case_z_reg_save_slot_overwritten_before_the_load_is_no_restore():
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), addiu(A0, ZERO, 5), sw(A0, SP, 0), lw(A0, SP, 0), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(A0, ZERO, 3)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    return None if status == 0 and call["uses"] == {} and call["leaves"] == {"a0": "0x00000005"} else f"{lines} {call}"
+
+
+def case_z_reg_restore_needs_the_registers_own_slot():
+    # a0 is saved, v0 is loaded from a0's slot (a use of a0), then a0 is loaded from the slot of a1: a0 is no restore
+    body = [addiu(SP, SP, -16), sw(A0, SP, 0), sw(A1, SP, 4), lw(A0, SP, 4), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(A0, ZERO, 3), addiu(A1, ZERO, 4)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    return None if status == 0 and call["uses"] == {"a1": "0x00000004"} and call["leaves"] == {"a0": "0x00000004"} else f"{lines} {call}"
+
+
+
+def case_z_reg_store_of_an_incoming_register_outside_the_callees_memory_is_a_use():
+    # sw t0 to a global is no save: the callee puts the caller's t0 into memory
+    body = [*setreg(T1, FLAG), sw(T0, T1, 0), JR_RA, NOP]
+    words = reg_caller([addiu(T0, ZERO, 5)], [])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {"t0": "0x00000005"} and call["effects"] == [[D.hex8(FLAG), "05"]]
+    other = result_failure(doc, reg_caller([addiu(T0, ZERO, 6)], []), "register t0 is 0x00000006, the original gave 0x00000005")
+    return None if ok and other is None else f"{lines} {call} {other}"
+
+
+def case_z_reg_gp_is_a_use_and_k0_is_refused():
+    words = reg_caller([addiu(28, ZERO, 3)], [])
+    lines, status, doc, _ = reg_record(words, [addu(V0, 28, ZERO), JR_RA, NOP])
+    ok = status == 0 and orig_call(doc)["uses"] == {"gp": "0x00000003"}
+    refused_k0 = orig_refused(words, {CALLEE: [addu(V0, 26, ZERO), JR_RA, NOP]}, "reads register k0 of its caller, which is no argument",
+                              setup=orig_setup(returns_value=True))
+    return None if ok and refused_k0 is None else f"{lines} {refused_k0}"
+
+
+def case_z_reg_register_written_and_then_restored_is_untouched_again():
+    body = [addiu(SP, SP, -16), sw(S0, SP, 8), addiu(S0, ZERO, 1), lw(S0, SP, 8), addiu(SP, SP, 16), JR_RA, NOP]
+    words = reg_caller([addiu(S0, ZERO, 9)], [addu(V0, S0, ZERO)])
+    lines, status, doc, _ = reg_record(words, body)
+    call = orig_call(doc)
+    ok = status == 0 and call["uses"] == {} and call["leaves"] == {} and doc["fixtures"][0]["result"] == "0x00000009"
+    return None if ok and fx_replay(doc, words)[1] == 0 else f"{lines} {call}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -5270,6 +5462,24 @@ CASES = [
     ("z-orig-stack-of-the-function-is-not-in-the-functions-reads", case_z_orig_stack_of_the_function_is_not_in_the_functions_reads),
     ("z-orig-call-begins-only-after-an-instruction-of-the-function", case_z_orig_call_begins_only_after_an_instruction_of_the_function),
     ("z-orig-effects-are-the-net-change", case_z_orig_effects_are_the_net_change),
+    ("z-reg-untouched-a0-keeps-the-builds-value", case_z_reg_untouched_a0_keeps_the_builds_value),
+    ("z-reg-untouched-temporary-keeps-the-builds-value", case_z_reg_untouched_temporary_keeps_the_builds_value),
+    ("z-reg-untouched-v1-keeps-the-builds-value", case_z_reg_untouched_v1_keeps_the_builds_value),
+    ("z-reg-incoming-register-that-is-no-argument-is-a-use", case_z_reg_incoming_register_that_is_no_argument_is_a_use),
+    ("z-reg-argument-use-keeps-the-argument-wording", case_z_reg_argument_use_keeps_the_argument_wording),
+    ("z-reg-lo-read-before-written-is-a-use-and-written-is-a-leave", case_z_reg_lo_read_before_written_is_a_use_and_written_is_a_leave),
+    ("z-reg-callee-that-saves-and-restores-s0-and-ra", case_z_reg_callee_that_saves_and_restores_s0_and_ra),
+    ("z-reg-callee-that-reads-s0-is-refused", case_z_reg_callee_that_reads_s0_is_refused),
+    ("z-reg-callee-that-reads-ra-otherwise-is-refused", case_z_reg_callee_that_reads_ra_otherwise_is_refused),
+    ("z-reg-load-of-the-saved-word-of-a0-is-a-use-of-a0", case_z_reg_load_of_the_saved_word_of_a0_is_a_use_of_a0),
+    ("z-reg-load-of-the-saved-word-of-s1-is-refused", case_z_reg_load_of_the_saved_word_of_s1_is_refused),
+    ("z-reg-written-s2-is-a-leave-and-the-build-sees-it", case_z_reg_written_s2_is_a_leave_and_the_build_sees_it),
+    ("z-reg-callee-that-leaves-sp-changed-is-refused", case_z_reg_callee_that_leaves_sp_changed_is_refused),
+    ("z-reg-save-slot-overwritten-before-the-load-is-no-restore", case_z_reg_save_slot_overwritten_before_the_load_is_no_restore),
+    ("z-reg-restore-needs-the-registers-own-slot", case_z_reg_restore_needs_the_registers_own_slot),
+    ("z-reg-store-of-an-incoming-register-outside-the-callees-memory-is-a-use", case_z_reg_store_of_an_incoming_register_outside_the_callees_memory_is_a_use),
+    ("z-reg-gp-is-a-use-and-k0-is-refused", case_z_reg_gp_is_a_use_and_k0_is_refused),
+    ("z-reg-register-written-and-then-restored-is-untouched-again", case_z_reg_register_written_and_then_restored_is_untouched_again),
     ("z-orig-home-area-writes-are-the-callees-own", case_z_orig_home_area_writes_are_the_callees_own),
     ("z-orig-home-area-read-before-a-write-is-a-stack-word", case_z_orig_home_area_read_before_a_write_is_a_stack_word),
     ("z-orig-write-at-sixteen-above-the-pointer-is-refused", case_z_orig_write_at_sixteen_above_the_pointer_is_refused),
