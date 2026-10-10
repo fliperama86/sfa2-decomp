@@ -205,7 +205,7 @@ int  port_suspenders_enter(void);
 void port_suspenders_leave(void);
 #endif
 
-/* mirror.c: serve the PS1's copy of RAM below 0x10000 (see the file); main.c calls port_mirror_init before the game starts. */
+/* mirror.c: serve the PS1's copy of RAM below 0x200000 (see the file); main.c calls port_mirror_init before the game starts. */
 int  port_mirror_init(int trace, char *err, size_t errsize);
 /* interrupt.c: has the timer aimed the faulting thread at the interruption routine just as it faulted? The context's
  * instruction pointer is then the routine's, and the exception record holds either the routine's address or the

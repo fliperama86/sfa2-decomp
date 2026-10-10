@@ -68,12 +68,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from test_hostrun import CNF, Image  # noqa: E402
+import hostbuild as hb  # noqa: E402
 
 BURST_RUNS, BURST_LIMIT = {"exit": 20, "crash": 300}, 10   # runs of each ending case, chosen from the rate of hangs measured without the gate (about 4 in 10 on the exit path, 2 in 100 on the crash path), and the seconds a run may take
 SRC = HERE.parent / "src"
 BUILD = HERE.parent / "build"
 RAM = 0x80000000
-LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase"]
+LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
 RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "debug", "interrupt", "mirror", "mirrorcore"]
 
@@ -804,6 +805,7 @@ class Rig:
         self.wsl = not prefix and shutil.which("wslpath") is not None
         self.built: dict[str, Path] = {}
         self.objects: list[Path] = []
+        self.hole: Path | None = None
         self.last: dict | None = None        # the last program run: status (None if it timed out), stdout and stderr lines, timed_out
 
     def record(self, status, out, err, timed_out: bool = False) -> None:
@@ -871,12 +873,24 @@ class Rig:
             self.objects.append(self.compile(stubs))
         return self.objects
 
-    def program_for(self, variant: str, pin: bytes) -> Path:
-        """The runtime built with the variant's tables, domains and game code, for the program `pin`."""
+    def program_for(self, variant: str, pin: bytes, old_link: bool = False) -> Path:
+        """The runtime built with the variant's tables, domains and game code, for the program `pin`.
+
+        old_link: linked the way the programs were before the image took the console's copy of RAM (default
+        base, no filler section); the program must then refuse to start."""
         v = VARIANTS[variant]
-        key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}"
+        key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}" + ("-old" if old_link else "")
         if key not in self.built:
             objs = list(self.runtime_objects())
+            if not self.hole:
+                hole = self.work / "hole.s"
+                hole.write_text(hb.hole_source())
+                self.hole = self.work / "hole.o"
+                proc = subprocess.run([self.cc, "-c", str(hole), "-o", str(self.hole)], capture_output=True, text=True, timeout=120)
+                if proc.returncode != 0:
+                    raise RuntimeError("the filler section did not assemble:\n" + proc.stderr.strip())
+            if not old_link:
+                objs.append(self.hole)
             for tag, text in (("tables", tables_c(v.functions, v.absents, pin)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
                 path.write_text(text)
@@ -884,16 +898,17 @@ class Rig:
             names = {n: a for n, a, _ in v.absents} | {n: a for n, a, _ in v.functions}
             defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-{key}.exe"
-            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *LINK_FLAGS, *defs], capture_output=True, text=True, timeout=300)
+            flags = [f for f in LINK_FLAGS if f not in hb.IMAGE_FLAGS] if old_link else LINK_FLAGS
+            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *flags, *defs], capture_output=True, text=True, timeout=300)
             if proc.returncode != 0:
                 raise RuntimeError("the runtime did not link:\n" + proc.stderr.strip())
             self.built[key] = out
         return self.built[key]
 
     def run(self, tag: str, data: bytes, pin: bytes | None = None, variant: str = "base", args: list[str] | None = None,
-            timeout: int = 60) -> tuple[int, list[str], Image, str]:
+            timeout: int = 60, old_link: bool = False) -> tuple[int, list[str], Image, str]:
         """Run the program built for `pin` (default: `data` itself) on an image holding `data`."""
-        exe = self.program_for(variant, data if pin is None else pin)
+        exe = self.program_for(variant, data if pin is None else pin, old_link)
         img = Image({"SYSTEM.CNF;1": CNF, "SLPS_004.15;1": data})
         path = self.work / f"{tag}.bin"
         img.write(path)

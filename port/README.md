@@ -692,6 +692,10 @@ cross compiler, the program started from that shell.
   does not hold gets no such treatment.
   The tool counts the rows left out and `--list` names each with its
   reason.
+- The program's image holds the console's copy of RAM: image base
+  `0x10000`, no relocations, a filler section from `0x11000`, the first
+  real section at `0x200000`; the check reads the linked file's header
+  (see the header of the tool).
 - The link places one marker before and one after the code of all game
   objects and checks that every implementation lies between them and that
   nothing of the runtime does. A later piece of the runtime uses them to
@@ -960,47 +964,62 @@ the console that is a byte of low RAM and nothing happens. On purpose:
 one function follows links of 24 bits, whose top byte is cut off,
 through an ordering table.
 
-A Windows process cannot have memory at address 0. The first 64 KB of
-the address space are never given to a process, so every access there
-faults, each time, and the runtime serves those. A handler for access
-faults takes a read or a write that the game's thread made, by an
-instruction inside the game's own compiled code, at an address that
-lies wholly below `0x10000`. It decodes that one instruction, carries
-it out on the mapped RAM at `0x80000000` plus the address, sets the
-registers and the flags as the processor would, and resumes behind it.
-Nothing of the game is replaced, and no original code is run: the
-instruction is the PC compiler's translation of the game's C. Anything
-else stays what it was. An access that begins below `0x10000` and ends
-above it, one made by the runtime's or a library's code, and an execute
-fault each end with the crash line. The forms served are loads, stores
-and plain arithmetic and logic (`mov`, `movzx`, `movsx`, `add`, `sub`,
-`and`, `or`, `xor`, `cmp`, `test`); any other form ends the program
-with a line that gives the instruction's bytes, and is built when a run
-of the real game stops on it. At its start the program checks what it
-relies on, that no page below `0x10000` is accessible, and refuses to
-start otherwise. The first time a function uses the copy, the program
-prints one line with the function's name; with `--trace` every access
-is a line of the trace file.
+A Windows process cannot have memory at address 0, and from `0x10000`
+up to the end of the 2 MB it would get memory of the system's own, where
+an access does not fault. So the program takes the range first, with its
+own image. It is linked with its image base at `0x10000`, not
+relocatable, and with its first real section at `0x200000`. Windows
+refuses an image whose sections leave a gap, so a filler section,
+`.hole`, uninitialized, covers `0x11000` to `0x1fffff`. The system maps
+the filler readable and writable; at start the runtime makes it
+inaccessible. Nobody else can allocate there, so every access of the game
+to the range faults, each time. The settings and the check of the linked
+file's header are in `hostbuild.py`. The program also checks, at start,
+that every page of `0` to `0x1fffff` is inaccessible, and refuses to
+start otherwise and names the page; a program linked the old way
+refuses.
+
+A handler for access faults takes a read or a write that the game's
+thread made, by an instruction inside the game's own compiled code, at
+an address that lies wholly in `0` to `0x1fffff` and does not touch the
+image's header page. It decodes that one instruction, carries it out on
+the mapped RAM at `0x80000000` plus the address, sets the registers and
+the flags as the processor would, and resumes behind it. Nothing of the
+game is replaced, and no original code is run: the instruction is the PC
+compiler's translation of the game's C. An access that begins inside
+the range and ends at or above `0x200000`, one made by the runtime's or
+a library's code, and an execute fault each end with the crash line. The
+forms served are loads, stores and plain arithmetic and logic (`mov`,
+`movzx`, `movsx`, `add`, `sub`, `and`, `or`, `xor`, `cmp`, `test`); any
+other form ends the program with a line that gives the instruction's
+bytes, and is built when a run of the real game stops on it. The first
+time a function uses the copy, the program prints one line with the
+function's name; with `--trace` every access is a line of the trace file.
 
 What the copy holds. On the console the first 64 KB of RAM belong to
 the BIOS. The port has no BIOS: that part of the RAM holds zeros until
 the game or the port writes there. An accidental read therefore reads 0
 where the console read a byte of the BIOS's.
 
-A known limit. From `0x10000` to the end of the 2 MB, a Windows process
-has memory of the system's own, at places that change from run to run.
-An access of the game there does not fault and is not seen: a read
-returns the system's bytes where the console read its RAM, and a write
-to a writable page changes the system's data. Serving the faults that
-do happen in that range would make the program right or wrong by the
-layout of the day, so nothing from `0x10000` on is served. Deliberate
-uses are looked for instead. The game's C as compiled for the PC was
-searched for the 24-bit mask, and one function uses a masked value as
-an address: `func_80119694` (the search and what it cannot find are in
-the project's record). That function gets a host routine of its own,
-with a differential test against the original, in a later change; this
-tree has none. An accidental access above 64 KB, a null pointer plus a
-large offset, stays unseen.
+The header page. The first page of the image, `0x10000` to `0x10fff`,
+holds the executable's header and stays readable: the C library reads
+the header when the program exits, and with the page closed the program
+ended with an access violation inside the library (the record has the
+evidence). So an access of the game to that page is not served: a read
+returns the header's bytes and is not seen, and a write is the crash line.
+
+What else is not served. `0x200000` and above is the program's own first
+section: a read there returns the program's bytes and is not seen, a
+write is the crash line.
+
+Cost. Every served access is a fault, which costs far more than a memory
+access. The controls print the cost of 10000 served reads and the time of
+a walk of 2,000 nodes of an ordering table through links of 24 bits, once
+through the low view and once through real addresses (the last runs are
+in the record). A function that walks the low view in a loop is slow,
+not wrong. The game's function that follows such links needs no host
+routine: its C runs through this layer (the controls show a made-up walk,
+not that function).
 
 ### What this does not show
 
@@ -1019,9 +1038,10 @@ large offset, stays unseen.
   its tables, and its header names `modules.c` for them: that file is
   not in this tree yet.
 - Linux and macOS: the memory mapping is written for Windows only.
-- An access of the game to the console's copy of RAM at `0x10000` or
-  above: it is not served and, where Windows has memory of its own, not
-  even seen (see above).
+- Anything about the real game's accesses to the copy: the controls use
+  made-up game code.
+- An access of the game to the header page, `0x10000` to `0x10fff`: a
+  read returns the header's bytes without a fault.
 
 ### Controls
 
@@ -1115,22 +1135,32 @@ end, for the reader that lists and for the one that looks a file up. On
 `python3 port/tools/test_hostmirror.py --cc CC` has the cases for the
 copy of RAM at address 0, in two parts. The first needs no Windows
 program: it builds the layer's decisions with the host's own `cc` and
-tests them alone: whether a fault is served, at the borders `0xffff`
-and `0x10000` and across them; the start check on invented answers of
-the system; the decoder on every served form in every addressing
-shape, and on encodings it must refuse; and each served operation
-against the processor itself, register by register and flag by flag.
-The second part runs the linked program on made-up game code: a served
-read and a served write of each size; a destination that is also the
-address's register; the read at a null pointer plus `0xd`; an access
-across `0x10000`, one from a host routine and an execute fault at a low
-address, each the crash line; a form that is not served, the line with
-its bytes; a second fault inside the handler; the first-use line and
-the trace lines; the start check; and a loop of served accesses with
-the timer running, in which the timer sometimes aims the thread
-between a fault and its handler. It also prints what a served access
-costs. On 2026-10-10 it ended with `all cases behaved as required` and
-had printed `timing: 10000 served reads took 51425 us (5.14 us each)`.
+tests them alone: whether a fault is served, at the borders `0xffff`,
+`0x10000`, `0x10fff`, `0x11000`, `0x1fffff` and `0x200000` and across
+them; the start check on invented answers of the system, over the whole
+range and with the header page let through; the image's filler read
+from invented headers; the decoder on every served form in every
+addressing shape, and on encodings it must refuse; and each served
+operation against the processor itself, register by register and flag by
+flag. The second part runs the linked program on made-up game code: a
+served read and write of each size; at `0x11000`, `0x3e0cc` and the last
+word `0x1ffffc`, and the sum of two upper-view addresses that wraps; a
+destination that is also the address's register; the read at a null
+pointer plus `0xd`; an access across `0x200000`, a write at it, one from
+a host routine and an execute fault at a low address, each the crash
+line; a read of the header page and a write to it; a form that is not
+served, the line with its bytes; a second fault inside the handler; the
+first-use line and the trace lines; the start check, and a program
+linked the old way, which refuses; a walk of 2,000 nodes through
+24-bit links equal to the same walk on real addresses; and a loop of
+served accesses with the timer running, in which the timer sometimes
+aims the thread between a fault and its handler. It prints the cost of a
+served access and the time of the walk. `test_hostbuild.py` also checks
+the linked file's header against the link settings, on invented headers
+and through each setting a linker might not honour. On 2026-10-10 the
+file ended with `all cases behaved as required` and had printed
+`timing: 10000 served reads took 75730 us (7.57 us each)` and
+`timing walk: real addresses 3 us, low view 60587 us`.
 
 ## Not decided
 

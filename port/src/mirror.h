@@ -1,13 +1,20 @@
 /* The PS1's copy of RAM at address 0, served by the fault handler (mirror.c) with the decisions and the
  * instruction work in plain functions (mirrorcore.c) that need no running program and no system header.
  *
- * Only [0, MIRROR_LIMIT) is served: Windows never gives a process memory there, so every access faults. */
+ * [0, MIRROR_LIMIT) is served, but for the image's header page: below MIRROR_IMAGE_BASE Windows never gives a
+ * process memory, and from MIRROR_HOLE to MIRROR_LIMIT the program's own image holds the range (the link settings
+ * are in hostbuild.py), closed at start, so every access of the game there faults. */
 #ifndef PORT_MIRROR_H
 #define PORT_MIRROR_H
 
 #include <stddef.h>
 
-#define MIRROR_LIMIT 0x10000u
+#define MIRROR_LIMIT 0x200000u      /* the console's RAM, 2 MB, seen a second time from address 0 */
+#define MIRROR_IMAGE_BASE 0x10000u  /* where the program's image is linked: the first address a process can have */
+#define MIRROR_HOLE 0x11000u        /* where the image's filler section begins, after the header's page */
+/* The image's header page, [MIRROR_IMAGE_BASE, MIRROR_HOLE), stays readable (the C library reads the header at
+ * exit), so an access there is not served: a read returns the header's bytes without a fault, a write faults on
+ * the read-only page and is the crash line. */
 
 /* The general registers in the processor's order, then the instruction pointer and the flags. */
 struct mirror_regs {
@@ -32,9 +39,9 @@ struct mirror_insn {
 
 /* Is this fault one the mirror serves? kind: 0 read, 1 write, 8 execute (the access violation's own
  * numbers); addr and size: the access; game_thread: the thread is the game's; in_game_code: the
- * instruction pointer is in the game's own compiled code. 1: serve. 0: not ours (the crash line, as
- * before): wrong kind, wrong thread, wrong code, an access outside [0, MIRROR_LIMIT) or one that begins
- * inside it and ends at or past MIRROR_LIMIT. */
+ * instruction pointer is in the game's own compiled code. 1: serve. 0: not ours (the crash line):
+ * wrong kind, wrong thread, wrong code, an access outside [0, MIRROR_LIMIT) or one that begins inside it
+ * and ends at or past MIRROR_LIMIT, one that touches the header page. */
 int port_mirror_decision(unsigned kind, unsigned addr, unsigned size, int game_thread, int in_game_code);
 
 /* Decode the instruction at `code` (`avail` bytes readable, at most 15 are looked at) against the
@@ -54,9 +61,17 @@ unsigned port_mirror_alu(int op, unsigned size, unsigned a, unsigned b, unsigned
 /* "88 00 ..." for up to `n` bytes, into `out`. */
 void port_mirror_hex(const unsigned char *bytes, unsigned n, char *out, size_t outsize);
 
+/* Does the image whose header is at `hdr` (`size` bytes readable) carry the filler section that holds the range?
+ * 0 and *end (the address where the filler ends, MIRROR_LIMIT or above): the header says image base
+ * MIRROR_IMAGE_BASE and its first section is `.hole`, uninitialized, at MIRROR_HOLE, followed with no gap by
+ * the next section. -1 when not (the image is linked the old way, or the header is not a valid one). */
+int port_mirror_image_hole(const unsigned char *hdr, unsigned size, unsigned *end);
+
 /* The start check: `query(addr, &accessible, &next)` says whether the page at `addr` can be read or written
- * and where the next region begins. -1 with a line when a page of [0, MIRROR_LIMIT) is accessible. */
+ * and where the next region begins. -1 with a line when a page of [0, MIRROR_LIMIT) is accessible, except
+ * the pages of [skip_begin, skip_end) (the image's header page, when the image is the program's own; 0, 0
+ * for none). */
 typedef int (*port_mirror_query)(unsigned addr, int *accessible, unsigned *next);
-int port_mirror_scan(port_mirror_query query, char *err, size_t errsize);
+int port_mirror_scan(port_mirror_query query, unsigned skip_begin, unsigned skip_end, char *err, size_t errsize);
 
 #endif

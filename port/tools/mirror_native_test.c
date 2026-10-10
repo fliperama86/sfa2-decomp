@@ -2,14 +2,15 @@
  *
  * It links mirrorcore.c only and starts no part of the port's program. Each group below prints one line,
  * `ok NAME (N checks)` or `FAIL NAME: the first failure`:
- *  - the decision "is this fault served": borders at 0xffff, 0x10000 and the overflow of address plus size,
- *    kinds, thread, code;
+ *  - the decision "is this fault served": borders at 0xffff, 0x10000, 0x1fffff and 0x200000 and the overflow of
+ *    address plus size, kinds, thread, code;
  *  - the decoder: every instruction this file builds (each form, each register operand, each addressing
  *    shape) is decoded to its length, operand address and sizes; instructions that are not served are refused;
  *  - the operation: every built instruction is run on the processor (the real instruction, on real memory, with
  *    the registers and flags set) and by port_mirror_exec on an equal copy; all registers, all flags and every
  *    byte of the memory must be equal afterwards;
- *  - the start check, with invented answers of the system. */
+ *  - the start check, with invented answers of the system, over the whole range;
+ *  - the image's filler section, read from invented headers (the good one and each way it can be wrong). */
 #include "mirror.h"
 
 #include <stdio.h>
@@ -20,7 +21,7 @@
 #define PORT_STR(x) PORT_STR2(x)
 #define US PORT_STR(__USER_LABEL_PREFIX__)
 
-static struct group { char name[120]; unsigned n, bad; char first[240]; } groups[64];
+static struct group { char name[120]; unsigned n, bad; char first[240]; } groups[128];
 static unsigned ngroups;
 
 static struct group *grp(const char *name)
@@ -399,45 +400,136 @@ static int fake_kind;
 static int fake_query(unsigned addr, int *accessible, unsigned *next)
 {
     if (fake_kind == 3) return -1;
-    *accessible = fake_kind == 1 && addr >= 0x8000 && addr < 0x9000;
+    *accessible = (fake_kind == 1 && addr >= 0x8000 && addr < 0x9000) || (fake_kind == 5 && addr >= 0x11000 && addr < 0x12000) ||
+                  (fake_kind == 6 && addr >= 0x1ff000 && addr < 0x200000) || (fake_kind == 7 && addr >= 0x10000 && addr < 0x11000) ||
+                  (fake_kind == 8 && addr >= 0x200000 && addr < 0x201000) || (fake_kind == 9 && addr >= 0x10000 && addr < 0x12000) ||
+                  (fake_kind == 10 && addr >= 0x10000 && addr < 0x30000);
     *next = fake_kind == 2 ? 0 : (addr & ~0xfffu) + 0x1000;
-    if (fake_kind == 4) *next = addr + 0x10000;   /* one region for the whole range */
+    if (fake_kind == 4) *next = 0x200000;   /* one region for the whole range */
+    if (fake_kind == 10 && addr >= 0x10000 && addr < 0x30000) *next = 0x30000;   /* one accessible region from the header page on */
     return 0;
+}
+
+static unsigned char hdr_buf[0x400];
+
+/* An invented header: base, then `.hole` at 0x11000 of `hole_size` bytes (raw size `raw`), then a section at `next_rva`. */
+static void make_header(unsigned base, const char *name, unsigned hole_rva, unsigned hole_size, unsigned raw, unsigned next_rva)
+{
+    unsigned char *p = hdr_buf;
+    unsigned pe = 0x80, sec = pe + 24 + 224;
+    memset(hdr_buf, 0, sizeof hdr_buf);
+    p[0] = 'M'; p[1] = 'Z'; p[0x3c] = (unsigned char)pe;
+    memcpy(p + pe, "PE\0\0", 4);
+    p[pe + 6] = 2;                  /* sections */
+    p[pe + 20] = 224;               /* optional header size */
+    p[pe + 24] = 0x0b; p[pe + 25] = 0x01;
+    memcpy(p + pe + 24 + 28, &base, 4);
+    memcpy(p + sec, name, strlen(name));
+    memcpy(p + sec + 8, &hole_size, 4);
+    memcpy(p + sec + 12, &hole_rva, 4);
+    memcpy(p + sec + 16, &raw, 4);
+    memcpy(p + sec + 40, ".text", 5);
+    memcpy(p + sec + 40 + 12, &next_rva, 4);
+}
+
+static void image_hole(void)
+{
+    const char *G = "the-image-hole-is-read-from-the-header-and-only-the-right-one-is-accepted";
+    unsigned end = 0;
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == 0 && end == 0x200000, "the good header: end %08x", end);
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x2f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "a gap after the filler");
+    make_header(0x10000, ".hole", 0x1000, 0x2ef000, 0, 0x2f0000);
+    end = 0;
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == 0 && end == 0x300000, "a larger filler: end %08x", end);
+    make_header(0x10000, ".hole", 0x1000, 0x1ee000, 0, 0x1ef000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "the next section below 0x200000");
+    make_header(0x400000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "image base 0x400000");
+    make_header(0x20000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "image base 0x20000");
+    make_header(0x10000, ".text", 0x1000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "the first section is not the filler");
+    make_header(0x10000, ".hole", 0x2000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "the filler does not begin at 0x11000");
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0x200, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "the filler has bytes in the file");
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    hdr_buf[0] = 'X';
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "no MZ");
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    hdr_buf[0x80] = 'Q';
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "no PE signature");
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    CHECK(G, port_mirror_image_hole(hdr_buf, 0x80 + 24 + 224 + 79, &end) == -1, "a buffer that ends inside the section table");
+    CHECK(G, port_mirror_image_hole(hdr_buf, 0x30, &end) == -1, "a buffer shorter than the DOS header");
+    make_header(0x10000, ".hole", 0x1000, 0x1ef000, 0, 0x1f0000);
+    hdr_buf[0x3c] = 0xff; hdr_buf[0x3d] = 0xff;
+    CHECK(G, port_mirror_image_hole(hdr_buf, sizeof hdr_buf, &end) == -1, "a PE offset past the buffer");
 }
 
 static void decision_scan_hex(void)
 {
-    const char *G = "decision-serves-only-reads-and-writes-wholly-inside-the-first-64-kb-of-the-game-thread-in-game-code";
+    const char *G = "decision-serves-the-first-2-mb-but-not-the-header-page-to-the-game-thread-in-game-code";
+    const char *S = "start-check-accepts-an-address-space-with-nothing-accessible-in-the-first-2-mb";
     char err[200], hex[64];
     static const unsigned char b[3] = { 0x88, 0x00, 0xff };
     CHECK(G, port_mirror_decision(0, 0, 1, 1, 1) == 1, "read of 0");
     CHECK(G, port_mirror_decision(1, 0, 4, 1, 1) == 1, "write of 0, 4 bytes");
     CHECK(G, port_mirror_decision(0, 0xffff, 1, 1, 1) == 1, "last byte 0xffff");
-    CHECK(G, port_mirror_decision(0, 0xfffc, 4, 1, 1) == 1, "last four bytes");
-    CHECK(G, port_mirror_decision(0, 0xffff, 2, 1, 1) == 0, "straddle from 0xffff");
-    CHECK(G, port_mirror_decision(1, 0xfffe, 4, 1, 1) == 0, "straddle from 0xfffe");
-    CHECK(G, port_mirror_decision(0, 0xfffd, 4, 1, 1) == 0, "straddle from 0xfffd");
-    CHECK(G, port_mirror_decision(0, 0x10000, 1, 1, 1) == 0, "0x10000");
-    CHECK(G, port_mirror_decision(0, 0x10001, 4, 1, 1) == 0, "0x10001");
+    CHECK(G, port_mirror_decision(0, 0xfffc, 4, 1, 1) == 1, "last four bytes of the first 64 KB");
+    CHECK(G, port_mirror_decision(0, 0xffff, 1, 1, 1) == 1, "0xffff, the byte before the header page");
+    CHECK(G, port_mirror_decision(0, 0xfffc, 4, 1, 1) == 1, "0xfffc, four bytes, the last word before the header page");
+    CHECK(G, port_mirror_decision(0, 0xfffe, 4, 1, 1) == 0, "four bytes from 0xfffe reach the header page");
+    CHECK(G, port_mirror_decision(0, 0xffff, 2, 1, 1) == 0, "two bytes from 0xffff reach the header page");
+    CHECK(G, port_mirror_decision(0, 0x10000, 1, 1, 1) == 0, "0x10000, the header page");
+    CHECK(G, port_mirror_decision(1, 0x10fff, 1, 1, 1) == 0, "0x10fff, the header page");
+    CHECK(G, port_mirror_decision(1, 0x10ffc, 4, 1, 1) == 0, "0x10ffc, the header page");
+    CHECK(G, port_mirror_decision(0, 0x10ffe, 4, 1, 1) == 0, "four bytes from 0x10ffe reach past the header page");
+    CHECK(G, port_mirror_decision(0, 0x11000, 4, 1, 1) == 1, "0x11000, the end of the header page");
+    CHECK(G, port_mirror_decision(1, 0x11000, 1, 1, 1) == 1, "write at 0x11000");
+    CHECK(G, port_mirror_decision(0, 0x3e0cc, 4, 1, 1) == 1, "0x3e0cc");
+    CHECK(G, port_mirror_decision(0, 0x1fffff, 1, 1, 1) == 1, "last byte 0x1fffff");
+    CHECK(G, port_mirror_decision(1, 0x1ffffc, 4, 1, 1) == 1, "last word of the copy");
+    CHECK(G, port_mirror_decision(0, 0x1fffff, 2, 1, 1) == 0, "straddle from 0x1fffff");
+    CHECK(G, port_mirror_decision(1, 0x1ffffe, 4, 1, 1) == 0, "straddle from 0x1ffffe");
+    CHECK(G, port_mirror_decision(0, 0x1ffffd, 4, 1, 1) == 0, "straddle from 0x1ffffd");
     CHECK(G, port_mirror_decision(0, 0x200000, 1, 1, 1) == 0, "0x200000");
+    CHECK(G, port_mirror_decision(0, 0x200001, 4, 1, 1) == 0, "0x200001");
     CHECK(G, port_mirror_decision(0, 0xffffffffu, 2, 1, 1) == 0, "the top of the address space (address plus size overflows)");
     CHECK(G, port_mirror_decision(0, 0xfffffff0u, 0x20, 1, 1) == 0, "an access that wraps");
     CHECK(G, port_mirror_decision(0, 0x1000, 0, 1, 1) == 0, "size 0");
     CHECK(G, port_mirror_decision(8, 0x1000, 1, 1, 1) == 0, "execute fault");
+    CHECK(G, port_mirror_decision(8, 0x20000, 1, 1, 1) == 0, "execute fault above 64 KB");
     CHECK(G, port_mirror_decision(2, 0x1000, 1, 1, 1) == 0, "an unknown kind");
     CHECK(G, port_mirror_decision(0, 0x1000, 1, 0, 1) == 0, "another thread");
     CHECK(G, port_mirror_decision(1, 0x1000, 1, 1, 0) == 0, "code that is not the game's");
+    CHECK(G, port_mirror_decision(1, 0x80000, 1, 1, 0) == 0, "code that is not the game's, above 64 KB");
 
     fake_kind = 0;
-    CHECK("start-check-accepts-an-address-space-with-nothing-accessible-below-64-kb", port_mirror_scan(fake_query, err, sizeof err) == 0, "refused: %s", err);
+    CHECK(S, port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == 0, "refused: %s", err);
     fake_kind = 4;
-    CHECK("start-check-accepts-an-address-space-with-nothing-accessible-below-64-kb", port_mirror_scan(fake_query, err, sizeof err) == 0, "one region: %s", err);
+    CHECK(S, port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == 0, "one region: %s", err);
     fake_kind = 1;
-    CHECK("start-check-refuses-an-accessible-page-and-names-its-address", port_mirror_scan(fake_query, err, sizeof err) == -1 && strstr(err, "0x00008000") && strncmp(err, "mirror: ", 8) == 0, "got: %s", err);
+    CHECK("start-check-refuses-an-accessible-page-and-names-its-address", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x00008000") && strncmp(err, "mirror: ", 8) == 0, "got: %s", err);
+    fake_kind = 5;
+    CHECK("start-check-refuses-an-accessible-page-above-64-kb-and-names-its-address", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x00011000"), "got: %s", err);
+    fake_kind = 6;
+    CHECK("start-check-refuses-an-accessible-page-at-the-end-of-the-copy-and-names-its-address", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x001ff000"), "got: %s", err);
+    fake_kind = 7;
+    CHECK("start-check-lets-the-header-page-through-when-told-to", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == 0, "got: %s", err);
+    CHECK("start-check-refuses-an-accessible-header-page-when-not-told-to-and-names-its-address", port_mirror_scan(fake_query, 0, 0, err, sizeof err) == -1 && strstr(err, "0x00010000"), "got: %s", err);
+    fake_kind = 9;
+    CHECK("start-check-lets-only-the-header-page-through", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x00011000"), "got: %s", err);
+    fake_kind = 10;
+    CHECK("start-check-lets-only-the-header-page-through-of-one-big-region", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x00011000"), "got: %s", err);
+    fake_kind = 8;
+    CHECK("start-check-does-not-look-at-0x200000-and-above", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == 0, "got: %s", err);
     fake_kind = 3;
-    CHECK("start-check-refuses-when-the-system-cannot-answer", port_mirror_scan(fake_query, err, sizeof err) == -1 && strstr(err, "0x00000000"), "got: %s", err);
+    CHECK("start-check-refuses-when-the-system-cannot-answer", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == -1 && strstr(err, "0x00000000"), "got: %s", err);
     fake_kind = 2;
-    CHECK("start-check-ends-when-the-system-gives-no-progress", port_mirror_scan(fake_query, err, sizeof err) == 0, "got: %s", err);
+    CHECK("start-check-ends-when-the-system-gives-no-progress", port_mirror_scan(fake_query, 0x10000, 0x11000, err, sizeof err) == 0, "got: %s", err);
 
     port_mirror_hex(b, 3, hex, sizeof hex);
     CHECK("hex-prints-bytes-separated-by-a-blank", strcmp(hex, "88 00 ff") == 0, "got '%s'", hex);
@@ -456,6 +548,7 @@ int main(void)
     build_templates();
     build_shapes();
     decision_scan_hex();
+    image_hole();
     refusals();
     literals();
     run_forms();
