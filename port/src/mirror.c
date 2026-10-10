@@ -20,18 +20,19 @@
  * Seen, not silent: the first use of the copy by each function prints one line; with --trace each access and
  * the start check are lines of the trace file, and at exit the count per function.
  *
- * The vblank (interrupt.c) never redirects the thread while this handler works (port_mirror_serving), and the
- * window before the handler starts is dealt with in serve(). */
+ * The vblank (interrupt.c) does not redirect the thread while this handler works: the timer redirects only a thread
+ * whose instruction pointer is in the game's code or in the PS1's RAM, and the handler is neither. The window
+ * between the fault and the handler's start, in which the timer can still aim the thread, is dealt with in serve(). */
 #include "port.h"
 #include "mirror.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-volatile int port_mirror_serving;
-
 #ifdef _WIN32
 #include <windows.h>
+
+static volatile int port_mirror_serving;   /* set while serve() works: a fault of the game's thread then is a second fault */
 
 extern char port_game_text_begin, port_game_text_end;
 
