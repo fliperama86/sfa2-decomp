@@ -440,15 +440,7 @@ class ModRig(tl.Rig):
         img = disc_image(data, files)
         path = self.work / f"{tag}.bin"
         img.write(path)
-        for attempt in range(3):   # the program prints its first line before anything can fail: no output at all, or a run that outlasts a loaded machine's patience, is tried again
-            try:
-                proc = subprocess.run([*self.prefix, str(exe), self.native(path)], capture_output=True, text=True, timeout=timeout)
-            except subprocess.TimeoutExpired:
-                if attempt == 2:
-                    raise
-                continue
-            if proc.stdout:
-                break
+        proc = subprocess.run([*self.prefix, str(exe), self.native(path)], capture_output=True, text=True, timeout=timeout)
         lines = proc.stdout.replace("\r\n", "\n").splitlines()
         if f"start: 0x{entry:08x}" in lines:
             lines = lines[lines.index(f"start: 0x{entry:08x}") + 1:]
