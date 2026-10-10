@@ -1880,7 +1880,6 @@ data_8019d7cc = 0x8019d7cc;
 /* Added by src.u_slot12_0058. */
 func_80011688_slot12 = 0x80011688;
 func_80012a0c_slot12 = 0x80012a0c;
-func_80012c34_slot12 = 0x80012c34;
 func_80013224_slot12 = 0x80013224;
 func_8001606c_slot12 = 0x8001606c;
 func_80016af0_slot12 = 0x80016af0;
