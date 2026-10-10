@@ -9116,3 +9116,42 @@ No function count changes here: none of this is in the build.
   (`func_800e0850_slot0f`, `func_800e0a1c_slot0f`): they use the
   result of three functions that the build's units define as `void`;
   the question is with the matching lane.
+
+## Nonmatching C for the other modules, second batch (2026-10-10)
+
+No function count changes here: none of this is in the build.
+
+- Thirteen more functions in `ps1/src/modules_nonmatching/`: five of
+  `slot12` (`func_80011688`, `func_80012a0c`, `func_80013224`,
+  `func_8001606c`, `func_80016af0`), four of `slot28`
+  (`func_8001389c`, `func_800145f4`, `func_8001a69c`, `func_80022944`)
+  and four of `slot2b` (`func_80077868`, `func_80079144`,
+  `func_800793d4`, `func_800796e4`). The folder's page has what its
+  three commands printed for each. One line of `symbols.ld` comes
+  with them. No function's C was changed by the cut onto today's main.
+- `func_800145f4` exists in two modules: the one of `slot27` is exact C
+  on main; this is the one of `slot28`, another function at the same
+  address.
+- Their headers were read against their code on the waiting branch
+  before the cut. At the cut every byte count that a header states was
+  compared with the line the test prints: all agree. One header also
+  stated how many instruction slots differ (`func_800796e4_slot2b`,
+  36 of 72), a figure that no command prints and that depends on how a
+  jump's target is counted; the header now states only the size.
+- None of the thirteen is byte-identical (each was compared).
+- The scan for an index or offset on a cast pointer has two findings
+  in the new units, both read and kept, each as its contract says:
+  `func_8001389c_slot28` clears the last byte of a four-byte field,
+  and `func_80016af0_slot12` reads two bytes of a block whose layout
+  has no named fields.
+- `func_80012a0c_slot12` calls two functions that no unit defines and
+  no header declares (`func_8015c150`, `func_8015bfe8`); it declares
+  them itself, with the number of arguments that the original's code
+  sets before each call (read from the listing).
+- The checks before the pull request: the declarations (the lane's
+  check told to read the folder: no call with another number of
+  arguments than the definition), the argument counts of every call in
+  the new units, the write audit on two seeds, the name lint.
+- Not done here: the search for comparison edges that no case tries,
+  which the second resident batch's record describes. It is a mode of
+  the test tool in work; these contracts have not been swept.
