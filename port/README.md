@@ -143,8 +143,8 @@ PsyZ has one path for machines whose `unsigned long` has 4 bytes, and on
 that path it draws into its batch of vertices and sends the batch to the
 picture only when built for the browser. A 32-bit native program then
 sees nothing of what it draws. The patch makes that path send the batch
-always. The file says what was observed with and without it, at the pin of
-2026-10-09. At the pin of 2026-10-10 PsyZ's own `Psyz_GpuExeque` sends the
+always. The file says what was observed with and without it on 2026-10-09, at the
+pin before this one. At the pin of 2026-10-10 PsyZ's own `Psyz_GpuExeque` sends the
 batch first on 32-bit targets (its change #178), so what a program draws is no
 longer dropped at the next `DrawSync`, `LoadImage` or `StoreImage`. On
 2026-10-10 the port's picture test, `test_hostgpu.py`, ended with `all cases
