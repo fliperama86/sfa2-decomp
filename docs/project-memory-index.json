@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "cd592d8ce9c0ed57565df4b77d3def19424bed1d59a1dd51400953543d855856",
+  "sha256": "316a835938270976f433d4f102f7b5365cdb59ff2e92e407b7268d5d51d55b06",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -529,6 +529,10 @@
     {
       "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
       "line": 8199
+    },
+    {
+      "title": "The port serves the whole copy of RAM at address 0 (2026-10-10)",
+      "line": 8284
     }
   ]
 }

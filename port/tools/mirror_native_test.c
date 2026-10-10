@@ -471,7 +471,7 @@ static void image_hole(void)
 
 static void decision_scan_hex(void)
 {
-    const char *G = "decision-serves-only-reads-and-writes-wholly-inside-the-first-2-mb-but-not-the-header-page-of-the-game-thread-in-game-code";
+    const char *G = "decision-serves-the-first-2-mb-but-not-the-header-page-to-the-game-thread-in-game-code";
     const char *S = "start-check-accepts-an-address-space-with-nothing-accessible-in-the-first-2-mb";
     char err[200], hex[64];
     static const unsigned char b[3] = { 0x88, 0x00, 0xff };

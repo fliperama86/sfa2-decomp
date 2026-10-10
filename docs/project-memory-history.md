@@ -8280,3 +8280,15 @@ No function count changes here. Nothing under `ps1/` changed.
   the timer thread runs; it is code that is on main, not this layer's,
   and its fix is a change of its own. The next run of the same case
   passed.
+
+## The port serves the whole copy of RAM at address 0 (2026-10-10)
+
+The layer that served only the first 64 KB met its limit in play: the exact `func_8011bdc0` adds two upper-view addresses, the sum wraps to `0x3e0cc`, and the caller reads there. The change takes the range `0` to `0x1fffff` away from Windows by linking the port's program over it.
+
+- The probe came first. Linked with its image base at `0x10000` and its first section at `0x200000`, the program was refused by Windows (`Invalid argument`): an image whose section table has a gap, after the header or between two sections, does not start; the same program with no gap, or with sections 64 KB apart, did. One-off matrix, not a published command.
+- The way found: a filler section `.hole` (uninitialized, `0x11000` to `0x1fffff`) from an assembly object of `hostbuild.py`, placed with `--section-start`; no linker script. The system maps it writable, so the runtime closes it at start. The first real section is at `0x200000`; the first section of the table is the filler. This differs from the wording of the specification, which had no filler.
+- One-off probe, 30 runs: the image loaded at `0x10000` in all 30, never moved; no region of the range was anyone else's in any run; the stack was at the same place in all, the heap changed between runs and lay above `0x200000`; the filler could be closed in one call; faults at six addresses were seen by a handler each time.
+- The header page. Closed at start, it broke the program at exit: `ucrtbase.dll` reads the executable's header (its test whether the program is managed), and the access violation ended 35 cases of the launch controls and every launch case of the mirror's. The page stays readable; the decision refuses any access that touches it (a read returns the header's bytes unseen, a write is the crash line), and the start check lets only that page through, only when the image's header has the filler.
+- Mutants, each making a named case fail: the upper limit moved by one both ways, a straddle allowed, the start check covering only the first 64 KB, the header rule removed from the decision, the header rule one page too wide, the start check's allowance of the header page removed, the game-code condition removed from the decision and from the handler, the filler not closed. One survived and is an equivalent mutant: widening the start check's allowance by one page changes nothing, because the runtime has closed that page.
+- Cost, from the controls' printed lines of one run: `timing: 10000 served reads took 75730 us (7.57 us each)`; `timing walk: real addresses 3 us, low view 60587 us` for 2,000 nodes.
+- Not shown: the real game on this layer; an access of the game to the header page beyond the made-up cases; the handler together with the modules layer's.
