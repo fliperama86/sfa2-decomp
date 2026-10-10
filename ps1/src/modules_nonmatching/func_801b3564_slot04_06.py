@@ -23,8 +23,12 @@ Choices of the setup:
     before the call;
   - the table of halfwords at data_801c547c_slot04_06 gets 256 random values;
   - the results of func_801410c8, func_801b5ed8_slot04_06, func_801468f4,
-    func_80148e84 and func_80148ea8 are, per case, 0 in half of the cases
-    and a random byte from 1 to 255 otherwise; func_80151184 returns a
+    func_80148e84 and func_80148ea8 are whole words, chosen per case and per
+    callee so that a test of the low byte and a test of the word disagree
+    often: 0 in one case of four, a word with a zero low byte and other bits
+    set (0x100, or random upper bits) in one of four, a byte from 1 to 255 in
+    one of four, and a random word with a non-zero low byte otherwise;
+    func_80151184 returns a
     different random word at each of its calls (twelve are given);
   - every recorder copies the three objects and game_state (0x364 bytes)
     into its log entry at every call.
@@ -40,7 +44,21 @@ def s30(rng):
 
 
 def flag(rng):
+    """A byte for a field of the object: 0 in half of the cases, else 1 to 255."""
     return 0 if rng.random() < 0.5 else rng.randrange(1, 256)
+
+
+def result(rng):
+    """A callee's result as a whole word. The original tests some results by their low byte only, so the
+    values with a zero low byte and other bits set are the ones that tell a byte test from a word test."""
+    kind = rng.randrange(4)
+    if kind == 0:
+        return 0
+    if kind == 1:
+        return 0x100 if rng.random() < 0.5 else rng.randrange(1, 1 << 24) << 8
+    if kind == 2:
+        return rng.randrange(1, 256)
+    return (rng.getrandbits(24) << 8) | rng.randrange(1, 256)
 
 
 def setup(state, rng, sym):
@@ -55,7 +73,7 @@ def setup(state, rng, sym):
         log.replace(sym[name], args, rng.getrandbits(32))
     for name in ("func_801410c8", "func_801b5ed8_slot04_06", "func_801468f4",
                  "func_80148e84", "func_80148ea8"):
-        log.replace(sym[name], 1, flag(rng))
+        log.replace(sym[name], 1, result(rng))
     log.replace(sym["func_80151184"], 0, results=tuple(rng.getrandbits(32) for _ in range(12)))
     for block in (obj, other, target):
         fill(state, block, 0x394, rng)

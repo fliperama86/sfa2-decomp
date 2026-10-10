@@ -54,8 +54,11 @@
  *     (3), func_80120554 (3), func_80141248 (1), func_801410c8 (1),
  *     func_801b5ed8_slot04_06 (1), func_801468f4 (1), func_80148e84 (1),
  *     func_80148ea8 (1), func_80151184 (0, a different random value at
- *     each call). The results of the five tested callees are random per
- *     case, zero in half of the cases.
+ *     each call). The results of the five tested callees are whole words,
+ *     random per case and callee: zero, a word with a zero low byte and
+ *     other bits set, a byte, or a word with a non-zero low byte, each in
+ *     about a quarter of the cases, so that a result tested by its low
+ *     byte is told from one tested as a word.
  *   Aliasing: the object, field_40's object, and the ref_other.p object are
  *     distinct blocks of 0x394 bytes.
  *   Watched by the recorders: the whole object, the field_40 object, the
@@ -138,7 +141,7 @@ void func_801b3564_slot04_06(Object *obj) {
     }
     if ((game_state.field_1d & 1) == 0) {
         if (((Slot04aObj *)obj)->field_1c5 < (u32)(obj->field_12a >> 1) + 3 || (((Slot04aObj *)obj)->field_1c5 & 0x80) != 0) {
-            if (func_801b5ed8_slot04_06(obj) != 0) {
+            if ((u8)func_801b5ed8_slot04_06(obj) != 0) {
                 knock_back(obj, (func_80151184() & 0xf) + 0x5c);
             }
         }

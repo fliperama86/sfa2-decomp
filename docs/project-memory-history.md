@@ -9417,3 +9417,17 @@ No function count changes here: none of this is in the build.
   are the next work of this lane. Also not done: the search for
   comparison edges that no case tries (the resident batch's record
   describes it; the mode of the test tool is in work).
+- After the review of the pull request: `func_801b3564_slot04_06`
+  tested the whole result of `func_801b5ed8_slot04_06` where the
+  original tests its low byte (the header said low byte). The contract
+  gave the tested callees results from 0 to 255 only, so the test could
+  not see it. The reviewer found it by reading and with a result of
+  `0x100`. The C has the cast now, and the contract gives those five
+  callees whole words: zero, a word with a zero low byte and other bits
+  set, a byte, or a word with a non-zero low byte. With the new
+  contract and the C as it was, 79 of 2,000 cases differ on seed 1 and
+  79 on seed 7 (different cases; one-off runs); with the cast, none.
+  The page has the function's new lines. Looked at for the same
+  weakness, by a search of the contracts' recorder results in this
+  folder and the resident one: the others return 0, a whole random
+  word, or a result the function stores without testing it.

@@ -92,7 +92,7 @@ func_801b2560_slot04_00: built 144 bytes, original 144 bytes; cases 2000, discar
 func_801b2560_slot04_00 coverage: 36 of 36 instruction slots of the original executed
 func_801b2f1c_slot04_0a: built 304 bytes, original 312 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b2f1c_slot04_0a coverage: 78 of 78 instruction slots of the original executed
-func_801b3564_slot04_06: built 724 bytes, original 876 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_801b3564_slot04_06: built 728 bytes, original 876 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b3564_slot04_06 coverage: 215 of 219 instruction slots of the original executed
 func_801b36f8_slot04_09: built 288 bytes, original 312 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b36f8_slot04_09 coverage: 78 of 78 instruction slots of the original executed
@@ -187,8 +187,8 @@ func_801b2560_slot04_00 control: different 705 of 2000 (expected more than 0)
   altered: sequence base 0x32 changed to 0x33, instruction slot 24
 func_801b2f1c_slot04_0a control: different 1003 of 2000 (expected more than 0)
   altered: field_50 constant 0x38000 changed to 0x48000, instruction slot 51
-func_801b3564_slot04_06 control: different 85 of 2000 (expected more than 0)
-  altered: knock-back distance 0x60 changed to 0x61, instruction slot 173
+func_801b3564_slot04_06 control: different 80 of 2000 (expected more than 0)
+  altered: knock-back distance 0x60 changed to 0x61, instruction slot 174
 func_801b36f8_slot04_09 control: different 1020 of 2000 (expected more than 0)
   altered: sequence 0x33 changed to 0x34, instruction slot 42
 func_801b37b0_slot04_03 control: different 1445 of 2000 (expected more than 0)
