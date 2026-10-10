@@ -2701,6 +2701,42 @@ def case_x_state_default_behaviour_unchanged():
     return None if ok else "State behaves differently"
 
 
+def inventory_lookup(game_rows, library_rows, name):
+    """`original_function` on made-up inventory tables: (result, error text)."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp) / "ps1"
+        (root / "inventory").mkdir(parents=True)
+        (root / "src" / "tool").mkdir(parents=True)
+        (root / "inventory" / "game.tsv").write_text("".join(f"{a}\t{n}\tx\n" for a, n in game_rows))
+        (root / "inventory" / "library.tsv").write_text("".join(f"{a}\t{n}\tx\n" for a, n in library_rows))
+        with patched(D, HERE=root / "src" / "tool"):
+            try:
+                return D.original_function(None, name), None
+            except D.InputError as exc:
+                return None, str(exc)
+
+
+def case_y_size_from_game_table():
+    got, err = inventory_lookup([("80100000", 12)], [("80200000", 99)], "func_80100000")
+    return None if got == (0x80100000, 12) and err is None else f"{got} {err}"
+
+
+def case_y_size_from_library_table():
+    got, err = inventory_lookup([("80100000", 12)], [("80200000", 99)], "func_80200000")
+    return None if got == (0x80200000, 99) and err is None else f"{got} {err}"
+
+
+def case_y_in_neither_table_is_an_error():
+    got, err = inventory_lookup([("80100000", 12)], [("80200000", 99)], "func_80300000")
+    return None if got is None and err and "lists 0 functions" in err else f"{got} {err}"
+
+
+def case_y_in_both_tables_is_an_error():
+    got, err = inventory_lookup([("80100000", 12)], [("80100000", 99)], "func_80100000")
+    return None if got is None and err and "lists 2 functions" in err else f"{got} {err}"
+
+
 CASES = [
     ("a-equal-states-give-no-line", case_a_equal),
     ("a-ram-byte-reported-with-console-address", case_a_ram_byte),
@@ -2931,6 +2967,10 @@ CASES = [
     ("x-main-original-input-error", case_x_main_original_input_error),
     ("x-default-output-unchanged", case_x_default_output_unchanged),
     ("x-state-default-behaviour-unchanged", case_x_state_default_behaviour_unchanged),
+    ("y-size-from-game-table", case_y_size_from_game_table),
+    ("y-size-from-library-table", case_y_size_from_library_table),
+    ("y-in-neither-table-is-an-error", case_y_in_neither_table_is_an_error),
+    ("y-in-both-tables-is-an-error", case_y_in_both_tables_is_an_error),
 ]
 
 
