@@ -7,14 +7,16 @@ Choices of the setup:
     1, 0 and a byte 6 from {2, 7, 8, 9, random} with byte 7 random in
     another third, random otherwise; field_7e and field_45 are 0 in four
     cases of five;
-  - game_state.field_30 is 0 in a third of the cases; game_state.mode (byte)
-    equals the object's side plus 1 in half the cases;
+  - the object's side byte (offset 0xa6) is random; game_state.field_30 is 0
+    in a third of the cases; game_state.mode (byte) is set to the side plus 1
+    modulo 256 in half the cases (for a side of 255 that is 0, which is not
+    equal to the 256 the C compares it with), random otherwise;
   - the three configuration bytes are all 0 in two cases of three;
   - the partner block's 16-bit field_04 has 1 in its low byte in half the
-    cases (func_8012f56c then returns 0); the object's field_cd is 0 in
-    half of them;
-  - ref_other, which a callee writes (func_8012f56c or func_80142c04), starts
-    as a random word;
+    cases (func_8012f56c then returns 0; read from the original's listing,
+    not tested); the object's field_cd is 0 in half of the cases;
+  - ref_other, which a callee writes (func_8012f56c or func_80142c04; read
+    from the original's listing, not tested), starts as a random word;
   - func_80155d4c is a recorder with two arguments, result 0, no pointee;
     the log watches the whole object and ref_other at every call.
 """

@@ -1,7 +1,8 @@
 """Contract of func_80151324 (see the header comment of the .c file).
 
 Choices made here:
-  - game_state.field_64 is 0 in nine cases of ten, otherwise random;
+  - game_state.field_64 is 0 in nine cases of ten, otherwise a random
+    non-zero byte;
   - the table holds 4 frame records of random bytes; the object's sequence
     step names one of them (halfword at 0xa, 0 to 3); the record's field_05
     is 0 in one case of eight (the early return), otherwise 1 to 4;
@@ -16,7 +17,7 @@ Choices made here:
   - data_801987c8 is the address of a block of the setup;
   - func_8015bf34 is a recorder taking two arguments; the 10 words of the
     record that its second argument points at are copied into the log, and the
-    record buffer (2200 words from data_8018947c) is watched at every call.
+    record buffer (2900 words from data_8018947c) is watched at every call.
 """
 
 from contracts import CallLog, Contract, Setup
@@ -67,7 +68,7 @@ def setup(state, rng, sym):
     state.w32(sym["data_801987c8"], state.alloc(0x80))
     fill(state, sym["data_8018947c"], 4 * 65 * 32 + 40 * 80 + 80, rng)
 
-    # 30 cells at most, each entry holds 3 + 10 + 2200 words.
+    # 30 cells at most, each entry holds 3 + 10 + 2900 words.
     watched = (4 * 65 * 32 + 40 * 80 + 80) // 4
     log = CallLog(state, words=31 * (13 + watched), watch=((sym["data_8018947c"], watched),))
     # The callee may change the buffer selector and the object's field_0b (a

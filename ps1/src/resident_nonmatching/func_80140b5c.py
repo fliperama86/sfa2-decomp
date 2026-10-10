@@ -7,8 +7,10 @@ Choices of the setup:
     upper half of a1 holds random bits; b is a small value (0 to 40) in
     three cases of four and a random 32-bit value otherwise;
   - the random state of func_80151184 (the seed halfword data_80190126, which
-    it writes) is random; game_state.cursor, which the function writes, starts
-    as a random word (so that a return before the write is seen to leave it);
+    it writes; read from the original's listing, not tested) is random; a
+    halfword of game_state at offset 0x1e is random (this C does not read
+    it); game_state.cursor, which the function writes, starts as a random
+    word (so that a return before the write is seen to leave it);
   - game_state.field_12 is 0 to 3 and table_8017ac34[0..3] point at four
     small blocks, each holding a zero-argument recorder; the log watches the
     target block and game_state.cursor at every call;

@@ -1,8 +1,9 @@
 """Contract of func_8013e028: step one slot of an object against a table entry.
 
 Choices of the setup:
-  - data_80188f44, the global byte that the leaf callees set (to 0 or 1),
-    starts random, so that a call that leaves it alone is seen;
+  - data_80188f44, the global byte that the leaf callees set (to 0 or 1;
+    read from the original's listing, not tested), starts random, so that a
+    call that leaves it alone is seen;
   - the object is a random block that holds the 256 slots of 8 bytes the
     index can reach; the slot used has field_04 equal to 1 in a fifth of the
     cases (it reaches 0), otherwise 2 to 255; its field_01 is random;
@@ -12,8 +13,9 @@ Choices of the setup:
     and a mask byte chosen from 0x94, 0x68, 0x03, 0xfc, 0 or random;
   - field_134 and field_136 are random halfwords, steered in a half of the
     cases so that the pad shares no bit of 0xfc with the mask, and in a
-    quarter so that pad & mask equals 0x94 or 0x68; the pad's low two bits
-    are set to 1 or 2 in a half of the cases;
+    quarter so that the pad has every bit of the mask's 0xfc part (pad &
+    mask is then 0x94 when the mask is 0x94, 0x68 when it is 0x68); the
+    pad's low two bits are set to 1 or 2 in a half of the cases;
   - a1 and a2 are random words (only the low byte counts);
   - no callee is replaced.
 """
@@ -51,8 +53,9 @@ def setup(state, rng, sym):
     state.w16(table + 2 * (arg_low * 7 + step), entry)
     index = (rng.getrandbits(24) << 8) | index_low
     arg = (rng.getrandbits(24) << 8) | arg_low
-    # the global byte that func_8013f2a8, func_8013f2c8 and func_8013f2d8 set
-    # (0 or 1) starts random, so that a call that leaves it alone is seen
+    # the global byte that func_8013f2a8, func_8013f2c8 and func_8013f2d8
+    # set (0 or 1; read from the original's listing, not tested) starts
+    # random, so that a call that leaves it alone is seen
     state.w8(sym["data_80188f44"], rng.getrandbits(8))
     return Setup(args=(obj, index, arg), returns_value=False)
 

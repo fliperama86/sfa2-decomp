@@ -1,10 +1,11 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction scheduling
- * and register choice. The exact owner of the bytes in the PS1 build stays
- * the raw bytes of the executable; the build does not use this file.
- * The differential test next to it (difftest.py) compares the behavior of
- * this C with the original code on random inputs of the contract below.
+ * and register choice (read from the original's listing, not tested). The
+ * exact owner of the bytes in the PS1 build stays the raw bytes of the
+ * executable; the build does not use this file. The differential test next
+ * to it (difftest.py) compares the behavior of this C with the original
+ * code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): draws a box of tiles as
  * sprite records. The object's sequence step names a frame record of the
@@ -13,10 +14,12 @@
  * height rows of width cells each. A non-zero tile byte (bits 0 to 3 the
  * tile column, bits 4 to 6 the tile row, bit 7 a horizontal flip) becomes
  * one 40-byte record of the buffer chosen by data_801a27d0: texture
- * coordinates, and screen positions that start from the object's position
- * and are spaced 16 apart per cell (mirrored when bit 0 of the object's
- * field_0b is set). Each record is handed to func_8015bf34 together with
- * the list head 0x38 bytes into data_801987c8.
+ * coordinates, and screen positions that are spaced 16 apart per cell
+ * (mirrored when bit 0 of the object's field_0b is set). The x positions
+ * start from the object's x position less box_margin and the map's first
+ * offset, the y positions from data_801aa5ea and the map's second offset.
+ * Each record is handed to func_8015bf34 together with the list head 0x38
+ * bytes into data_801987c8.
  *
  * Contract:
  *   Arguments: a0 = object, a1 = table of frame records (16 bytes each).
@@ -37,15 +40,16 @@
  *     record's address) is replaced by a recorder; it is above the start of
  *     Sony's library in the image. What it does is outside the test.
  *     The log copies the 10 words of the record at each call and watches
- *     the first 2200 words of data_8018947c. The original reads field_0b
- *     once, before the loops, and data_801a27d0 for each cell; in half of
+ *     the first 2900 words of data_8018947c. The original reads field_0b
+ *     once, before the loops, and data_801a27d0 for each cell (read from
+ *     the original's listing, not tested); in half of
  *     the cases the recorder stores new values for both (as a callee might;
  *     inferred) at its first call.
  *   Aliasing: the object, frame table, sequence step and tile map are
  *     blocks of their own; the record buffer and the list pointer's target
  *     lie in the image and the setup's blocks.
  *   Excluded: object.field_02 is kept small and the map small so that the
- *     records stay inside RAM (the original faults past its end).
+ *     records stay inside RAM (the original faults past its end; inferred).
  *   Not reached: none planned; the coverage line says.
  */
 #include "../game.h"

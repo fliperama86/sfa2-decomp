@@ -1,11 +1,12 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in size and register use
- * (the original copies the table value before masking it). The exact owner
- * of the bytes in the PS1 build stays the raw bytes of the resident
- * executable; the build does not use this file. The differential test next
- * to it (difftest.py, with func_8013ed90.py) compares the behavior of this
- * C with the original code on random inputs of the contract below.
+ * (the original copies the table value before masking it; read from the
+ * original's listing, not tested). The exact owner of the bytes in the PS1
+ * build stays the raw bytes of the resident executable; the build does not
+ * use this file. The differential test next to it (difftest.py, with
+ * func_8013ed90.py) compares the behavior of this C with the original code
+ * on random inputs of the contract below.
  *
  * What it does (inferred, not original names): the same check of an
  * object's flag halfword (field_150) against a table entry
@@ -23,11 +24,12 @@
  *   Reads: the object's field_150 and the table entry; the slot's field_02.
  *   Writes: the slot's field_02 (when the check passes), and whatever the
  *     callees write.
- *   Callees: func_8013f2c8 and func_8013f2fc are short leaf functions that
- *     run as the original code in both runs (a global byte, data_80188f44, and for
- *     func_8013f2fc a slot byte chosen from the slot's field_02 and the
- *     object's field_7e). func_8013f2c8 takes no argument (its prototype
- *     says one).
+ *   Callees: func_8013f2c8 and func_8013f2fc run as the original code in
+ *     both runs; they are short leaf functions (a global byte,
+ *     data_80188f44, and for func_8013f2fc a slot byte chosen from the
+ *     slot's field_02 and the object's field_7e; read from the original's
+ *     listing, not tested). func_8013f2c8 takes no argument (same source;
+ *     its prototype says one, and this C passes it the object).
  *   Aliasing: the object is a block of its own.
  *   Inputs excluded: none.
  *   Not reached by any input: none expected.

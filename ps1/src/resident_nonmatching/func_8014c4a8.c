@@ -1,16 +1,20 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
- * built code differs from the original's bytes in register choice. The exact
- * owner of the bytes in the PS1 build stays the raw bytes of the resident
- * executable; the build does not use this file. The differential test next
- * to it (func_8014c4a8.py, run by difftest.py) compares the behavior of this
- * C with the original code on random inputs of the contract below.
+ * built code differs from the original's bytes in register choice. The
+ * exact owner of the bytes in the PS1 build stays the raw bytes of the
+ * resident executable; the build does not use this file. The differential
+ * test next to it (func_8014c4a8.py, run by difftest.py) compares the
+ * behavior of this C with the original code on random inputs of the
+ * contract below.
  *
  * What it does (inferred, not an original name): the same distance as
  * func_8014362c, for the object's partner (object->other) and a box chosen
  * by the animation frame of the object that ref_second points at. The
  * result goes to the global data_80189464 instead of a field. The partner's
- * field_0b selects the mirrored arm.
+ * field_0b selects the mirrored arm. The distance: the object's x minus the
+ * sum of the partner's x and the box half-width (origin minus the extent
+ * byte, negated when the partner's field_0b is non-zero), as a 16-bit
+ * number made positive.
  *
  * Contract:
  *   Argument: a0 = object. No return value.
@@ -22,7 +26,8 @@
  *   Writes: data_80189464 (16 bits) only.
  *   Aliasing: object, other, the reference object, its frame record and
  *     the box table are distinct blocks.
- *   Exclusions: none. No callee. All instruction slots are reachable.
+ *   Exclusions: none. No callee. All instruction slots are reachable
+ *     (inferred).
  */
 #include "../game.h"
 #include "../protos.h"

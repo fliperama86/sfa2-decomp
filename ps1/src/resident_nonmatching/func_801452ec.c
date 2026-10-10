@@ -14,8 +14,9 @@
  * kind (field_03 picks one of two sides) and by the double buffer selector,
  * clears the quad with a library call, asks two library functions for a
  * texture page word and a clut word, sets the vertex positions (the corners
- * depend on the cell's top two bits), sets the texture coordinates from the
- * low bits of the cell, and links the quad into a list.
+ * depend on whether the cell's top two bits are 0), sets the texture
+ * coordinates from the low bits of the cell, and links the quad into a
+ * list.
  *
  * Contract (the roles named for the fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
@@ -28,12 +29,15 @@
  *   Table data_801a4ff0: 2 sides of 40 pairs of 2 quads of 0x28 bytes. The
  *     function writes, for each non-zero cell, the quad idx of the side
  *     for the selector: bytes 4 to 6 (only when field_03 is below 2), the
- *     vertex halfwords at 0x8 to 0x22, the texture bytes at 0xc, 0xd,
+ *     vertex halfwords at 0x8, 0xa, 0x10, 0x12, 0x18, 0x1a, 0x20 and 0x22,
+ *     the texture bytes at 0xc, 0xd,
  *     0x14, 0x15, 0x1c, 0x1d, 0x24, 0x25, and the halfwords at 0xe and 0x16
- *     from two callee results. Nothing else is written.
+ *     from two callee results. Nothing else is written by the function
+ *     itself.
  *   field_03 must be 0, 1, 9 or 10: it picks the side (0 and 9 side 0, 1
  *     and 10 side 1). For any other value the original uses a register
- *     left over from its caller; that input is excluded. For 9 and 10 the
+ *     left over from its caller (read from the original's listing, not
+ *     tested); that input is excluded. For 9 and 10 the
  *     vertical stretch dy is 0, otherwise field_5c. The quad bytes 4 to 6
  *     are set and the call to func_8015bfe8 made only for field_03 0 and 1.
  *   idx is a 16-bit counter that starts at 0 and counts the drawn cells;
@@ -48,21 +52,25 @@
  *       func_8015bfe8(quad, 1)       2 arguments
  *       func_8015bf34(link, quad)    2 arguments, links the quad
  *     The three that get a quad pointer also copy its 0x28 bytes into the
- *     log at every call (pointees), because the function filled it in for
- *     that call. Besides, every recorder copies the written pairs of the
- *     side in use (watch), so the order of each store against each call is
- *     compared. The two result-returning recorders return a value that the
- *     setup chose for the case.
+ *     log at every call (pointees): for func_8015bfe8 and func_8015bf34 the
+ *     quad as the function filled it in for that call, for func_8015c09c
+ *     its content before it is cleared. Besides, every recorder copies the
+ *     written pairs of the side in use (watch), so the order of each store
+ *     against each call is compared. The two result-returning recorders
+ *     return a value that the setup chose for the case.
  *   Aliasing: the object, header, sequence step and table are distinct
  *     blocks; the list base pointer is only passed on, never read through.
  *   Not reached by any input: two instruction slots of the original, at
  *     offsets 0x114 and 0x178, which round a negative value before the
- *     division by 16 and the division by 256; the cell is masked to 14
- *     bits and is never negative.
+ *     division by 16 and the division by 256 (read from the original's
+ *     listing, not tested); the cell is masked to 14 bits and is never
+ *     negative.
  *   Size: the build is 860 bytes against the original's 1,632; the original
- *     recomputes each quad address for every store.
+ *     recomputes each quad address for every store (read from the
+ *     original's listing, not tested).
  *   Reads of data_801a27d0 and the object are done once per cell here; the
- *     original reloads the selector after each call. The recorders do not
+ *     original (read from its listing, not tested) reloads the selector
+ *     after each call. The recorders do not
  *     change it, so the test cannot tell the two apart.
  */
 #include "../game.h"

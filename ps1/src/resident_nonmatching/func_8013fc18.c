@@ -2,11 +2,11 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register use (the
  * original keeps the object and the frame record in the other two
- * temporaries). The exact owner of the bytes in the PS1 build stays the raw
- * bytes of the resident executable; the build does not use this file. The
- * differential test next to it (difftest.py, with func_8013fc18.py)
- * compares the behavior of this C with the original code on random inputs
- * of the contract below.
+ * temporaries; read from the original's listing, not tested). The exact
+ * owner of the bytes in the PS1 build stays the raw bytes of the resident
+ * executable; the build does not use this file. The differential test next
+ * to it (difftest.py, with func_8013fc18.py) compares the behavior of this
+ * C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): tests whether the object's
  * "other" object (the one the object's field_40 points at, which it also
@@ -34,7 +34,8 @@
  *   Writes: ref_other.p (always).
  *   Callee: func_8013fab4 (takes the object; its result is unused) is
  *     replaced by a recorder with result 0. Its real code writes into the
- *     other object and calls further code. Watched at every call: the
+ *     other object and calls further code (read from the original's
+ *     listing, not tested). Watched at every call: the
  *     global ref_other, the object and the other object, whole.
  *   Aliasing: the object, the other object, the frame record, the box and
  *     the configuration block are distinct blocks.

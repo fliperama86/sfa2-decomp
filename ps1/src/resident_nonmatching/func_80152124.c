@@ -1,10 +1,11 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction scheduling
- * and register choice. The exact owner of the bytes in the PS1 build stays
- * the raw bytes of the executable; the build does not use this file.
- * The differential test next to it (difftest.py) compares the behavior of
- * this C with the original code on random inputs of the contract below.
+ * and register choice (read from the original's listing, not tested). The
+ * exact owner of the bytes in the PS1 build stays the raw bytes of the
+ * executable; the build does not use this file. The differential test next
+ * to it (difftest.py) compares the behavior of this C with the original
+ * code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): appends one 20-byte
  * command record to the command buffer and hands it to func_8015bf34. The
@@ -27,7 +28,8 @@
  *     buffer block and the buffer pointer: the record is complete before the
  *     call and the pointer is advanced after it.
  *   Aliasing: the record lies in a block of its own.
- *   Not reached: none; every instruction slot of the original is executed.
+ *   Not reached: none; every instruction slot of the original is executed
+ *     (inferred).
  * The tree declares func_80152124 with a pointer first argument, an int third and an s16 fifth; c is narrowed to a byte at entry and a is passed on as a number.
  */
 #include "../game.h"

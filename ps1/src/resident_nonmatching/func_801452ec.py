@@ -1,14 +1,17 @@
 """Contract of func_801452ec (see the header comment of func_801452ec.c).
 
 Choices of the setup:
-  - field_03 is 0, 1, 9 or 10 (the other values read a leftover register);
+  - field_03 is 0, 1, 9 or 10 (the other values read a leftover register;
+    read from the original's listing, not tested);
   - the object block is random bytes otherwise (0x100 bytes); field_09 and
     the pointer data_801987c8 are random (the pointer is only passed on);
   - the header has 0 to 8 columns and 0 to 6 rows, mostly 1 to 4 by 1 to 3;
-    its bytes 3, 4 to 7 are random;
+    its bytes 1, 3 and 4 to 7 are random; the sequence step (12 bytes) holds
+    the header's address at offset 4 and the object's sequence points at it;
   - a cell is 0 in one case in ten, has a zero low part in one in ten
-    (a skipped cell with a flag), and otherwise a random low part; its top
-    two bits are 0 half of the time, so both vertex arms are driven;
+    (a skipped cell; with a non-zero flag in half of them), and otherwise a
+    random low part; its top two bits are 0 half of the time, so both
+    vertex arms are driven;
   - when more than 40 cells are non-zero the later ones are set to 0 (the
     side holds 40 pairs);
   - the selector data_801a27d0 is 0 or 1; the table is random bytes;

@@ -7,8 +7,10 @@ Choices of the setup:
     thresholds (0x60, 0x90, plus or minus 2) otherwise; negative values
     occur through the random half;
   - the object and the block at its field_40 are 0x394-byte blocks of random
-    bytes (field_7e, field_66 random, so the callee's branches both run);
-  - ref_other, which func_80142c04 writes, starts as a random word;
+    bytes (field_7e and field_66 are random, so that the callee's branches on
+    them both run; read from the original's listing, not tested);
+  - ref_other, which func_80142c04 writes (read from the original's
+    listing, not tested), starts as a random word;
   - func_80142c04 is not replaced.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword

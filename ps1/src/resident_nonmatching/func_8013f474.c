@@ -2,11 +2,12 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register use (the
  * original copies the arguments into temporaries and keeps the absolute
- * distance apart from the difference). The exact owner of the bytes in the
- * PS1 build stays the raw bytes of the resident executable; the build does
- * not use this file. The differential test next to it (difftest.py, with
- * func_8013f474.py) compares the behavior of this C with the original code
- * on random inputs of the contract below.
+ * distance apart from the difference; read from the original's listing, not
+ * tested). The exact owner of the bytes in the PS1 build stays the raw
+ * bytes of the resident executable; the build does not use this file. The
+ * differential test next to it (difftest.py, with func_8013f474.py)
+ * compares the behavior of this C with the original code on random inputs
+ * of the contract below.
  *
  * What it does (inferred, not original names): a sibling of func_8013fc18.
  * It tests whether the object's "other" object (field_40, also stored in

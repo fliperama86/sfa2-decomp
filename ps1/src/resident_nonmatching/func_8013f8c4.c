@@ -1,12 +1,12 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register use (the
- * original keeps the two arguments and a halfword in other temporaries).
- * The exact owner of the bytes in the PS1 build stays the raw bytes of the
- * resident executable; the build does not use this file. The differential
- * test next to it (difftest.py, with func_8013f8c4.py) compares the
- * behavior of this C with the original code on random inputs of the
- * contract below.
+ * original keeps the two arguments and a halfword in other temporaries;
+ * read from the original's listing, not tested). The exact owner of the
+ * bytes in the PS1 build stays the raw bytes of the resident executable;
+ * the build does not use this file. The differential test next to it
+ * (difftest.py, with func_8013f8c4.py) compares the behavior of this C with
+ * the original code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): a relative of
  * func_8013f474 and func_8013fc18, for objects of two kinds told apart by
@@ -36,11 +36,12 @@
  * Contract:
  *   Arguments: a0 = object, a1 = a (s16), a2 = b (s16), passed
  *     sign-extended. Result in v0 (a byte, or 0 or 1).
- *   Reads: as listed above; the object's field_49, halfword at 4, field_06,
- *     field_40, field_0b, field_25e, pos_x; for the other object field_249,
- *     field_27b, halfword at 4, field_45, frame, box array pointer (0x148),
- *     field_0b, pos_x; game_state's config pointer and its field_4e; the
- *     frame record's box flags and field_07; the box's origin and extent.
+ *   Reads: as listed above and what func_8013f474 reads (see its contract);
+ *     the object's field_49, halfword at 4, field_06, field_40, field_0b,
+ *     field_25e, pos_x; for the other object field_249, field_27b, halfword
+ *     at 4, field_45, frame, box array pointer (0x148), field_0b, pos_x;
+ *     game_state's config pointer and its field_4e; the frame record's box
+ *     flags and field_07; the box's origin and extent.
  *   Writes: ref_other.p (in the field_49 zero kind), and whatever
  *     func_8013f474 writes.
  *   Callees: func_8013f474 runs as the original code in both runs;

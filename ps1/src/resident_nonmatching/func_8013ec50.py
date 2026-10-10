@@ -6,7 +6,8 @@ Choices of the setup:
   - the table (256 halfwords) is random; the entry the call uses has bits
     0x200, 0x100 and 0x800 each set with probability a half, and a mask byte
     that is, in a half of the cases, a random subset of field_150's low byte
-    (so that the mask test passes; in three cases of ten one random bit is added), otherwise random;
+    (so that the mask test passes; in three cases of ten one random bit is
+    added, which may already be set in field_150), otherwise random;
   - a1 and a2 are random words (only the low byte counts);
   - func_8013ed1c (2 arguments) and func_8013f2a8 (3) are recorders (result 0). Every recorder copies the object whole (0x394 bytes)
     into its log entry at the call.
@@ -29,7 +30,7 @@ def setup(state, rng, sym):
     if rng.random() < 0.5:
         mask &= flags
         if rng.random() < 0.3:
-            mask |= 1 << rng.randrange(8)  # one bit more than field_150 has
+            mask |= 1 << rng.randrange(8)  # one more bit; it may already be set in field_150
     entry = (rng.getrandbits(16) & 0xFF00 & ~0x0B00) | mask
     for bit in (0x200, 0x100, 0x800):
         if rng.random() < 0.5:
@@ -41,7 +42,10 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Replace the first `beq v0,zero` (the entry's 0x100 test) by a nop: it is never taken."""
+    """Replace the first `beq v0,zero` by a nop: it is never taken.
+
+    It is the entry's 0x100 test (read from the original's listing, not tested).
+    """
     found = [i for i, w in enumerate(words) if w >> 26 == 4 and (w >> 21) & 31 == 2 and (w >> 16) & 31 == 0]
     if not found:
         raise ValueError("no beq v0,zero")

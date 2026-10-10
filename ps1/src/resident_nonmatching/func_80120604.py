@@ -7,14 +7,14 @@ Choices made here:
   - the list has 1 to 6 entries; every entry but the last has bit 23 of its
     second word set, the last has it clear; the first word's command is
     drawn from 0 to 11 (all, with 0, 1, 9 and 11 more often) and from 12 to
-    15 in one entry of twelve; the low 12 bits are 0xfff in a third of the
+    15 in one entry of ten; the low 12 bits are 0xfff in a third of the
     entries; byte 2 is 0xff in a third of the entries; the other fields
     are random;
   - b is 0 in half of the cases; c has random upper 16 bits in half of the
     cases (they must not matter); d is random, and in a sixth of the cases
     it is chosen so that the first step by 0xc0 makes its low 16 bits 0;
-  - data_80190a44[a] and [a + 8] and the 36 priority bytes data_80197ed0
-    are random;
+  - data_80190a44[a] and [a + 8] (one byte each) and the 36 priority bytes
+    data_80197ed0 are random, and so are the two halfwords of table_80197ef8;
   - func_8016a7e4 returns 2 in half of the cases (the same for every call
     of that case; the recorder cannot differ between calls), 0 otherwise;
   - every recorder copies, at every call, the priority bytes data_80197ed0
@@ -82,7 +82,10 @@ def setup(state, rng, sym) -> Setup:
 
 
 def control(words):
-    """Alter the shift that scales the volume: srl 6 becomes srl 5."""
+    """Alter the first shift right by 6: srl 6 becomes srl 5.
+
+    It is the volume scaling (read from the original's listing, not tested).
+    """
     found = [i for i, w in enumerate(words) if w >> 26 == 0 and w & 0x3F == 0x02 and (w >> 6) & 31 == 6]
     if not found:
         raise ValueError("expected a shift right by 6")

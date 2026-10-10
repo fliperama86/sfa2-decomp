@@ -1,11 +1,11 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is 8 bytes smaller (200 against 208) and differs in which
- * registers hold two locals and in the layout of the branches. The exact owner of the bytes in the PS1 build stays the raw
- * bytes of the resident executable; the build does not use this file. The
- * differential test next to it (func_801427d8.py, run by difftest.py)
- * compares the behavior of this C with the original code on random inputs
- * of the contract below.
+ * registers hold two locals and in the layout of the branches. The exact
+ * owner of the bytes in the PS1 build stays the raw bytes of the resident
+ * executable; the build does not use this file. The differential test next
+ * to it (func_801427d8.py, run by difftest.py) compares the behavior of
+ * this C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): picks a level 0, 2 or 4 as
  * the smaller of two caps, one from the game mode and one from the object's
@@ -22,9 +22,10 @@
  *     object->field_7e, field_66 and object->field_40 (a pointer to another
  *     object, which the setup provides) and writes object fields 0x49,
  *     0x29a and 0x29c, the global ref_other (set to field_40), and byte 0x288
- *     or 0x289 of the other object.
+ *     or 0x289 of the other object (all read from the original's listing,
+ *     not tested).
  *   Aliasing: the object and its field_40 target are distinct blocks.
- *   Exclusions: none. All instruction slots are reachable.
+ *   Exclusions: none. All instruction slots are reachable (inferred).
  */
 #include "../game.h"
 #include "../protos.h"

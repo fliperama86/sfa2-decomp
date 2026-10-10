@@ -2,19 +2,21 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register use and frame
  * size (the original recomputes `a & 0x1f` where this build keeps the first
- * copy). The exact owner of the bytes in the PS1 build stays the raw bytes
- * of the resident executable; the build does not use this file. The
- * differential test next to it (func_80140cd8.py, run by difftest.py)
- * compares the behavior of this C with the original code on random inputs
- * of the contract below.
+ * copy; read from the original's listing, not tested). The exact owner of
+ * the bytes in the PS1 build stays the raw bytes of the resident
+ * executable; the build does not use this file. The differential test next
+ * to it (func_80140cd8.py, run by difftest.py) compares the behavior of
+ * this C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): the sibling of
  * func_80140b5c. It makes ref_other point at the object's partner
  * (object->other) and computes a byte in the partner's field_64 from the
- * same tables, in the same way, except that the result is not cleared when
- * bit 7 is set and the sum of the random number and b << 5 is added, not
- * or-ed. After the handler call (func_80140ec0) it returns 0 at once when
- * either of two configuration bytes (fields 4d, 4e) is set. Otherwise it
+ * same tables, in the same way, except that a value of 0x80 or more is set
+ * to 0x7f (func_80140b5c clears it when bit 7 is set), there is no early
+ * return for a == -1, and the sum of the random number and b << 5 is
+ * added, not or-ed. After the handler call (func_80140ec0) it returns 0 at
+ * once when either of two configuration bytes (fields 4d, 4e) is set.
+ * Otherwise it
  * takes the byte (at least 1), records the low five bits of a in
  * object->field_be and 0xff in field_bf, calls func_80155d4c with a table
  * byte selected by those five bits and the object's side, subtracts the
@@ -42,8 +44,10 @@
  *     ref_other and game_state.cursor.
  *   Aliasing: the object, the partner and the configuration block are
  *     distinct blocks.
- *   Exclusions: none. All instruction slots are reachable.
- * The tree declares func_80155d4c with int arguments; the side is cast to s8 at the call, as the original passes it sign-extended.
+ *   Exclusions: none. All instruction slots are reachable (inferred).
+ * The tree declares func_80155d4c with int arguments; the side is cast to s8
+ * at the call, as the original passes it sign-extended (read from the
+ * original's listing, not tested).
  */
 #include "../game.h"
 #include "../protos.h"

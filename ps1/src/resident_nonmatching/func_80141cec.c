@@ -1,11 +1,12 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is 8 bytes larger (336 against 328) and orders the or-chain of
- * the first test and its registers differently. The exact owner of the bytes
- * in the PS1 build stays the raw bytes of the resident executable; the
- * build does not use this file. The differential test next to it
- * (func_80141cec.py, run by difftest.py) compares the behavior of this C
- * with the original code on random inputs of the contract below.
+ * the first test and its registers differently (read from the original's
+ * listing, not tested). The exact owner of the bytes in the PS1 build stays
+ * the raw bytes of the resident executable; the build does not use this
+ * file. The differential test next to it (func_80141cec.py, run by
+ * difftest.py) compares the behavior of this C with the original code on
+ * random inputs of the contract below.
  *
  * What it does (inferred, not an original name): tries to start an action
  * for the object. Unless the object's bytes 4 to 7 hold exactly 1, 1, 2, 0
@@ -14,15 +15,15 @@
  * returns 0. It clears field_69 and field_6a; when game_state.field_30 is
  * set and game_state.mode is not the object's side plus 1, it clears
  * field_19f and field_1a2. It returns 0 when any of three bytes of the
- * game configuration (fields 4d, 4e, 04) is set, or when func_8012f56c
- * (a test on the partner object) returns non-zero. In the idle-checked
- * case (the bytes were not 1, 1, 2, 0) it also sets field_bd to 2 and,
- * when field_cd is 0, calls func_80155d4c(0xd, side). Then it clears
- * field_157, copies field_25c to field_4b, calls func_80142c04 and
- * returns 1.
+ * game configuration (fields 4d, 4e, 04) is set, or when the low byte of
+ * func_8012f56c's result (a test on the partner object; inferred) is
+ * non-zero. When the bytes were exactly 1, 1, 2, 0 (the idle check was
+ * skipped) it also sets field_bd to 2 and, when field_cd is 0, calls
+ * func_80155d4c(0xd, side). Then it clears field_157, copies field_25c to
+ * field_4b, calls func_80142c04 and returns 1.
  *
  * Contract:
- *   Argument: a0 = object. Result: v0 = 0 or 1 (int).
+ *   Argument: a0 = object. Result: v0 = 0 or 1.
  *   Reads: object fields 4 to 7, 7e, 45, a6 (side), cd, 25c, 40 (partner
  *     pointer, used by the callees); game_state.field_30, .mode (byte at
  *     0x80190123), .config and from it fields 4d, 4e, 04.
@@ -31,13 +32,14 @@
  *   func_8012f56c and func_80142c04 run as the original code (they read
  *     object->field_40, a block the setup provides; the result of the first
  *     is zero when the 16-bit field_04 of that block has 1 in its low byte,
- *     which the setup arranges in about half the cases).
+ *     which the setup arranges in about half the cases; read from the
+ *     original's listing, not tested).
  *   func_80155d4c is replaced by a recorder with two arguments, no pointee,
  *     and result 0 (its result is not used); its own code reaches library
- *     and game objects outside this test. Watched at every call: the whole
- *     object and ref_other.
+ *     and game objects outside this test (read from the original's listing,
+ *     not tested). Watched at every call: the whole object and ref_other.
  *   Aliasing: object, partner block and configuration block are distinct.
- *   Exclusions: none. All instruction slots are reachable.
+ *   Exclusions: none. All instruction slots are reachable (inferred).
  * The tree declares func_80141cec with a byte result (u8); the result is 0 or 1.
  * The tree declares func_80155d4c with int arguments; the side is cast to s8 at the call, as the original passes it sign-extended.
  */

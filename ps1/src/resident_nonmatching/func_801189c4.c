@@ -2,32 +2,38 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction scheduling
  * and register choice, and the C is organised in a helper and loops where
- * the original jumps between labels. The exact owner of the bytes in the PS1
- * build stays the raw bytes of the resident image; the build does not use
- * this file. The differential test next to it (difftest.py, with
- * func_801189c4.py) compares the calls this C makes and the memory it leaves
- * with the original code on random inputs of the contract below.
+ * the original jumps between labels (all read from the original's listing,
+ * not tested). The exact owner of the bytes in the PS1 build stays the raw
+ * bytes of the resident image; the build does not use this file. The
+ * differential test next to it (difftest.py, with func_801189c4.py)
+ * compares the calls this C makes and the memory it leaves with the
+ * original code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): the game's main. It never
- * returns and has no epilogue after its endless loop. Start-up: an empty
- * function, two library calls (inferred ResetCallback and StopCallback),
- * a wait until the disc start-up function reports done, the call that loads
- * and runs the stand-alone program, a clear of seven scratchpad words, the
- * game_state set-up. Then the display is built (func_80118d10 once per
- * session, func_80118e58 / func_80119030 / func_80119144 after each soft
- * reset) and the frame loop runs. One frame: reset root counter 1 (inferred
- * ResetRCnt), read the pads unless game_state.field_225 is set; if either
- * pad check says reset, run the soft-reset path (stop sound and disc, end
- * three threads) and rebuild the display. Otherwise, unless data_801ac620 is
- * above 0x4000, run the game's frame functions and count the frame in
- * game_state.field_32. If the interrupt-set scratchpad word 4 is not 0,
- * end the threads and go back to the session start with scratchpad words 0
- * and 8 set to -1. Otherwise read root counter 1 into both halves of
- * data_801903b0 (again after func_80157d9c(0) when data_801ac314 is not 0),
- * wait until data_801ac310 (counted up by an interrupt, inferred) reaches
- * data_801abef8 unless data_801abf0c is not 0, and run the two draw
- * functions unless data_801ac620 is above 0x4000. data_801ac620 then counts
- * down, or gets bit 4 set when its low five bits are 0.
+ * returns and has no epilogue after its endless loop (read from the
+ * original's listing, not tested). Start-up: an empty function
+ * (func_80118900; inferred), two library calls (inferred ResetCallback and
+ * StopCallback), a wait until the disc start-up function reports done, the
+ * call that loads and runs the stand-alone program, a clear of seven
+ * scratchpad words, the game_state set-up. Then the display is built
+ * (func_80118d10 once per session, func_80118e58 / func_80119030 /
+ * func_80119144 after each soft reset) and the frame loop runs. One frame:
+ * reset root counter 1 (inferred ResetRCnt), read the pads unless
+ * game_state.field_225 is set; if either pad check says reset, run the
+ * soft-reset path (stop sound and disc, end three threads) and rebuild the
+ * display. Otherwise, unless data_801ac620 is above 0x4000, run the game's
+ * frame functions and count the frame in game_state.field_32. If the
+ * interrupt-set scratchpad word 4 is not 0, end the threads and go back to
+ * the session start with scratchpad words 0 and 8 set to -1. Otherwise read
+ * root counter 1 into both halves of data_801903b0 (its second half again
+ * after func_80157d9c(0) when data_801ac314 is not 0), wait until
+ * data_801ac310 (counted up by an interrupt, inferred) reaches
+ * data_801abef8 unless data_801abf0c is not 0 (each turn of the wait calls
+ * func_80157d9c(1) when data_801ac314 is 0, and when that returns more than
+ * 0 the second half of data_801903b0 is read again), call func_801578fc(1)
+ * when data_801ac314 is 0, and run the two draw functions unless
+ * data_801ac620 is above 0x4000. data_801ac620 then counts down, or gets
+ * bit 4 set when its low five bits are 0.
  *
  * Contract (the roles named for the fields are inferred):
  *   Arguments: none. Result: none; the test ends the run at a call of the
@@ -35,21 +41,23 @@
  *   registers and everything main stores on its stack are not compared.
  *   Every callee is a recorder; none of them runs. The log shows the
  *   address, the arguments and the watched memory at each call. Recorded
- *   arguments are the ones main passes; the pad pointers are logged as
- *   addresses and what they point at is not watched (main does not write it).
+ *   arguments are the ones main passes; the only pointer among them, the
+ *   address of game_state passed to func_80155c90, is logged as an address
+ *   (the whole of game_state is watched).
  *   Callees and what they return:
  *     func_8014f0bc  (0 args)  0 a random number of times, then 1
  *     func_80118fc8  (0 args)  random per call, 0 most often
  *     func_801576e8  (1 arg)   random per case
  *     func_80157d9c  (1 arg)   random per call, some above 0, some not
  *     every other callee returns 0 and its result is not used.
- *   Interrupts: the test stands in for them with recorders. A recorder of
- *     the wait loop adds 1 to the word at data_801ac310 at every call (the
- *     counter is the low halfword of that word; its neighbour at +2 has no
- *     reader in the resident image), and a recorder called once per frame
+ *   Interrupts: the test stands in for them with recorders. The recorder of
+ *     func_80157d9c (called in the wait loop and before it) adds 1 to the
+ *     word at data_801ac310 at every call (the counter is the low halfword
+ *     of that word; its neighbour at +2 has no reader in the resident
+ *     image; inferred), and a recorder called once per frame
  *     stores 1 into scratchpad word 4 at a chosen frame, and in some cases
  *     0 again one frame later.
- *   Reads: game_state.field_225, data_801ac620, data_801ac314,
+ *   Reads: game_state.field_225 and field_32, data_801ac620, data_801ac314,
  *     data_801abf0c, data_801abef8, scratchpad word 4, data_801ac310 (in
  *     the wait loop, after main cleared it).
  *   Writes: scratchpad words 0 to 0x18 (clear, and -1 at 0 and 8),
@@ -65,7 +73,7 @@
  *     loop; the setup does not generate it.
  *   Not reached by any input (7 of 211 instruction slots): +0x330..+0x348,
  *     after the endless loop; nothing jumps there and the original has no
- *     epilogue.
+ *     epilogue (read from the original's listing, not tested).
  */
 #include "../game.h"
 

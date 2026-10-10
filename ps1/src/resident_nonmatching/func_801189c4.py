@@ -8,12 +8,12 @@ Choices of the setup (the contract itself is in the header of func_801189c4.c):
     iteration of the frame loop: at its K-th call, K from 2 to 5, so that 1 to
     4 whole iterations run before it.
   - Interrupts are stood in for by the recorders:
-    * data_801ac310 is the low halfword of the word at its address (the other
-      halfword, data_801ac310 + 2, has no reader in the resident image and is
-      random). `counts` on func_80157d9c adds 1 to the word at every call, so
-      the halfword counts one per turn of the wait loop; it never carries into
-      the other halfword (main clears it every iteration and a case has fewer
-      than 65,535 turns).
+    * data_801ac310 is the low halfword of the word at its address (the
+      other halfword, data_801ac310 + 2, has no reader in the resident image
+      (inferred) and is random). `counts` on func_80157d9c adds 1 to the
+      word at every call, so the halfword counts one per turn of the wait
+      loop; it never carries into the other halfword (main clears it every
+      iteration and a case has fewer than 65,535 turns).
     * in 2 cases of 5 the wait loop is entered (data_801abf0c 0, data_801ac314
       0, data_801abef8 from 1 to 6, which is the number of turns it takes);
       elsewhere it is skipped: data_801abf0c is not 0 or data_801abef8 is 0.

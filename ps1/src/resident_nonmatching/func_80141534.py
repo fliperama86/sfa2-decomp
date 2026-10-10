@@ -4,9 +4,10 @@ Choices of the setup:
   - table_8017179c[0..7] are overwritten with pointers to eight blocks of
     two random 16-bit entries; the object's kind is 0 to 7;
   - the object is a 0x394-byte block of random bytes; field_130 has each of
-    the bits 0xa000 and 0x4000 set with probability one half, the other bits
-    random, so the early return (no 0xa000 bit) is taken one case in four;
-  - the pair `dir` is two random bytes, the second one 0 in a third of the
+    the bits 0x8000, 0x4000 and 0x2000 set with probability one half, the
+    low 13 bits random, so the early return (neither 0x8000 nor 0x2000) is
+    taken one case in four;
+  - the pair `dir` is two random bytes, the second one 0 in half of the
     cases; the lower half of a1 is random.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword

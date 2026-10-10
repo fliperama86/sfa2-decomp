@@ -5,11 +5,11 @@ Choices of the setup:
     0x394-byte blocks of random bytes;
   - the frame record is a block of random bytes whose first byte (the index)
     is 0 to 7; the box table has 8 records of random bytes;
-  - the partner's field_0b is 0 in a third of the cases, random otherwise
+  - the partner's field_0b is 0 in half of the cases, random otherwise
     (so both arms are taken);
   - half the time the object's pos_x is set near the partner's, so that the
     difference is small as well as random;
-  - data_80189464 starts as random bytes.
+  - data_80189464 starts as a random halfword.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword
 

@@ -2,12 +2,13 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * original keeps its channel number in two registers and a pointer in a
  * third, loads some words with lw and masks them where this C reads them as
- * halfwords of the same value, and has a frame of another size; the code
- * built from this C has other registers and a different size. The exact
- * owner of the bytes in the PS1 build stays the raw bytes of the resident
- * image; the build does not use this file. The differential test next to it
- * (difftest.py) compares the behavior of this C with the original code on
- * random inputs of the contract below.
+ * halfwords of the same value, and has a frame of another size (all read
+ * from the original's listing, not tested); the code built from this C has
+ * other registers and a different size. The exact owner of the bytes in the
+ * PS1 build stays the raw bytes of the resident image; the build does not
+ * use this file. The differential test next to it (difftest.py) compares
+ * the behavior of this C with the original code on random inputs of the
+ * contract below.
  *
  * What it does (inferred, not an original name): plays a list of sound
  * commands. The list is a run of 8-byte entries, found through
@@ -27,8 +28,8 @@
  *      d as above (unscaled volumes 0x7f), remember c for a below 2 in
  *      table_80197ef8, and make three calls (func_80164ef0, func_8016936c,
  *      func_80168f50) with the program and the low 12 bits of the first word.
- *   9  with the low 12 bits 0xfff, call func_80165d34, else func_80164a78,
- *      with byte 2 of the first word.
+ *   9  with the low 12 bits 0xfff, call func_80165d34(byte 2, byte 2) of the
+ *      first word, else func_80164a78(the low 12 bits, byte 2, byte 2).
  *  11  stop a channel: low 12 bits 0xfff stops all with func_80164bbc(0);
  *      otherwise the channel (plus 4 when b is not 0) has its priority cleared
  *      and func_8016452c is called for it.
@@ -41,18 +42,23 @@
  *   No return value.
  *   Reads: table_8016e6e0[a]; the entries; data_80190a44[a] and [a + 8];
  *     data_80197ed0[channel].
- *   Writes: data_80197ed0[channel], table_80197ef8[a] (a below 2).
+ *   Writes: data_80197ed0[channel], table_80197ef8[a] (a below 2). The
+ *     channel of command 11 is the low 12 bits of the first word (plus 4
+ *     when b is not 0), so it can be as large as 0xffe + 4 (the setup draws
+ *     such values); that of command 0 is 0 to 31, plus 4 when b is not 0.
  *   Watched at every call (copied into the log): the 36 bytes of
  *     data_80197ed0 and the word at table_80197ef8.
  *   Callees replaced by recorders, the same in both runs (all in Sony's
- *     library, from 0x80164000): func_80164bbc (1 argument), func_8016a7e4
+ *     library, from 0x80164000; inferred from their addresses):
+ *     func_80164bbc (1 argument), func_8016a7e4
  *     (1 argument; returns 2 in half of the cases and another value
  *     otherwise, the same for all its calls in a case), func_80164140 (8
  *     arguments), func_80164ef0 (4), func_8016936c (2), func_80168f50 (4),
  *     func_80165d34 (2), func_80164a78 (3), func_8016452c (1). All other
  *     results are 0. The volumes are passed as 16-bit values: the products
  *     are unsigned shifts of possibly negative numbers, as in the original.
- *   Excluded inputs: a above 0x80 (the original indexes past the table).
+ *   Excluded inputs: a above 0x80 (the original indexes past the table;
+ *     inferred).
  *   Not changed from the original: the loop test reads the second word after
  *     the command has run.
  *   Not reached by any input: none expected; see the coverage line.

@@ -3,19 +3,21 @@
 Choices made here:
   - game_state.field_30 is 0 in three cases of four (the arm with the
     callees), otherwise random;
-  - game_state.field_31 is 0, 1 or 2 about equally, in one case in six
-    random;
+  - game_state.field_31 is 0 in one case in four, 2 in one in four, 1 in
+    three of eight and a random byte in one in eight (which may also be 0,
+    1 or 2);
   - the halfwords field_c2 of both players are random with bit 0x100 set
     in half the cases;
   - the HUD block that data_8018f5a0 points at is a block of its own with
-    random content (its halfword at 0x52 gets all values, including 0xffff);
+    random content (its halfword at 0x52 is random, and 0xffff in a tenth of
+    the cases);
   - the 16 ids read from table_8016e664 + 0x10 are random bytes, a half of
     them taken from 0x93 to 0x98 (the borders of the special range);
   - the tables the function writes (the bytes from data_80181094 to the end
-    of data_8018128a's eight 5-byte entries, 0x801812b2) and the cursor bytes
-    data_8018d250 to data_8018d264 get random content first; so do the two
-    bytes game_state + 0x32 and + 0x33, which the recorder of func_801519b4
-    overwrites with its stored word;
+    of data_8018128a's eight 5-byte entries, 0x801812b2) and the 24 cursor
+    bytes from data_8018d250 (to data_8018d268) get random content first; so
+    do the two bytes game_state + 0x32 and + 0x33, which the recorder of
+    func_801519b4 overwrites with its stored word;
   - the log watches the hud block (25 words), data_8018d250 (6 words) and
     the tables from data_80181094 (136 words); no pointer argument of a
     recorded callee points at memory this function fills (the blocks passed
@@ -71,7 +73,10 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Alter the store of 0x1b into the first of the cursor tables' loops."""
+    """Alter the store of 0x1b into the first of the cursor tables' loops.
+
+    The loop is read from the original's listing, not tested.
+    """
     found = [i for i, w in enumerate(words) if w >> 26 == 0x0D and w & 0xFFFF == 0x1B]
     if not found:
         raise ValueError("no ori with 0x1b")

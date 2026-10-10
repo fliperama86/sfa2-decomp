@@ -22,8 +22,9 @@
  *     the ring's word 0.
  *   Aliasing: the object is a block apart from the rings.
  *   Inputs excluded: a head outside 0 to 255 (the ring has 256 words, so
- *     such a head would write past the ring; the original has no check and
- *     the game keeps the head in range by this very function).
+ *     such a head would write past the ring; the original has no check
+ *     (read from the original's listing, not tested) and the game keeps the
+ *     head in range by this very function (inferred)).
  *   Not reached by any input: none expected.
  */
 #include "../game.h"

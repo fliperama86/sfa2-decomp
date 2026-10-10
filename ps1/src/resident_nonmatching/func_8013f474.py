@@ -5,19 +5,23 @@ Choices of the setup:
     object points at the other object; the frame record (16 bytes), the box
     array (256 boxes of 6 bytes) and the configuration block (0x100 bytes)
     are their own blocks;
-  - each refusing field (the object's field_49 non-zero, the object's
-    field_7e, game_state's config field_4e, field_27b, the three box flags,
-    the frame record's field_06, field_45) is in its passing state in five
-    cases of six, otherwise random; field_7e is 0 in half of the cases;
+  - each of the object's field_49 (passing state non-zero; otherwise 0),
+    game_state's config field_4e, field_27b, the frame record's field_06 and
+    field_45 (passing state 0; otherwise random) is in its passing state in
+    five cases of six; the object's field_7e is 0 in half of the cases and
+    random otherwise; of the three box flags, box_c is non-zero in five
+    cases of six (otherwise 0 in two cases of three, else random), box_b and
+    box_a are each a random byte in three cases of five and 0 otherwise;
   - the frame record's field_07 is a small box number (0 to 3) in three
     cases of four, otherwise any byte;
   - field_0b and field_158 are 0 or random;
   - a is a small signed number in three cases of four, otherwise any s16;
     limit is a small non-negative number in three cases of four, otherwise
     any s16;
-  - the other object's pos_x is chosen so that the distance falls within
-    3 of limit in two cases of three (in half of those, exactly at the boundary,
-    limit plus -1 to 2), otherwise random;
+  - the other object's pos_x is chosen in two cases of three so that the
+    signed difference (before it is made positive) is a random value from
+    -(|limit| + 3) to |limit| + 3 or, in half of those cases instead, plus
+    or minus (|limit| + k) with k from -1 to 2; otherwise it stays random;
   - ref_other, which the function writes (the other object's address, once
     the first two checks pass), starts as a random word, so that a refusal
     before that write is seen to leave it alone;
@@ -86,7 +90,11 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Replace the first `beq v0,zero` (the field_49 test, a return to the caller) by a nop: it is never taken."""
+    """Replace the first `beq v0,zero` by a nop: it is never taken.
+
+    It is the field_49 test, a return to the caller (read from the original's
+    listing, not tested).
+    """
     found = [i for i, w in enumerate(words) if w >> 26 == 4 and (w >> 21) & 31 == 2 and (w >> 16) & 31 == 0]
     if not found:
         raise ValueError("no beq v0,zero")

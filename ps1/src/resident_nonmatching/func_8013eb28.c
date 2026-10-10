@@ -1,12 +1,12 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in size and register use
- * (the original copies the index and the table value before masking them).
- * The exact owner of the bytes in the PS1 build stays the raw bytes of the
- * resident executable; the build does not use this file. The differential
- * test next to it (difftest.py, with func_8013eb28.py) compares the
- * behavior of this C with the original code on random inputs of the
- * contract below.
+ * (the original copies the index and the table value before masking them;
+ * read from the original's listing, not tested). The exact owner of the
+ * bytes in the PS1 build stays the raw bytes of the resident executable;
+ * the build does not use this file. The differential test next to it
+ * (difftest.py, with func_8013eb28.py) compares the behavior of this C with
+ * the original code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): checks an object's flag
  * halfword (field_150) against a table entry, and calls func_8013ebf4 when

@@ -15,8 +15,9 @@ Choices of the setup:
     game_state.cursor at every call;
   - the random state of func_80151184 (the seed halfword data_80190126, which
     it writes) is random; game_state.cursor, which the function writes, starts
-    as a random word; the tables the function
-    reads keep the resident image's contents.
+    as a random word; so do ref_other and a halfword of game_state at offset
+    0x1e (this C does not read it); the tables the function reads keep the
+    resident image's contents.
 """
 from contracts import CallLog, Contract, Setup, fill, halfword
 

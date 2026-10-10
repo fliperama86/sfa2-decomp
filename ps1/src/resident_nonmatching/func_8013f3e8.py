@@ -21,9 +21,12 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Move the last halfword store at offset 0 (the write-back of the head) to offset 2.
+    """Move the last halfword store at offset 0 to offset 2.
 
-    Every call executes it; word 0 of the ring then keeps its old value.
+    The store is the write-back of the head (read from the original's
+    listing, not tested). Every call executes it; word 0 of the ring then
+    keeps its old value, except for a head of 0, where the store of field_150
+    at the old head has written word 0.
     """
     found = [i for i, w in enumerate(words) if w >> 26 == 0x29 and w & 0xFFFF == 0]
     if not found:

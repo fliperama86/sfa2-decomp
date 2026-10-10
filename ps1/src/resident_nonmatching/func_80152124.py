@@ -4,11 +4,11 @@ Choices made here:
   - c is zero in one case of five (the function then does nothing),
     otherwise random bytes with the high bits of the register set about half
     the time (only the low byte counts);
-  - a0, d and e are random; e is placed in the fifth argument slot of the
+  - a0, a1, d and e are random; e is placed in the fifth argument slot of the
     caller's stack (sp + 0x10 at the call), as a halfword with random high
     bits;
-  - the command buffer pointer points into a block of 3 records filled with
-    random bytes, data_8018d208 is random;
+  - the command buffer pointer points at record 0 or 1 of a block of 3
+    records filled with random bytes, data_8018d208 is random;
   - func_8015bf34 is a recorder taking two arguments; the record that its
     second argument points at (5 words) is copied into the log at the call;
     the three records of the buffer and the buffer pointer

@@ -8,21 +8,26 @@ Choices of the setup:
   - the object's field_49 is 0 in half of the cases; its halfword at offset
     4 is 1 in three cases of four (random otherwise); its field_06 is 7, 8 or
     random; its field_25e is 0 in half of the cases;
-  - each refusing field of the other object (field_249, field_27b, the
-    halfword at 4, game_state's config field_4e, field_45, the three box
-    flags) is in its passing state in five cases of six, otherwise random;
-    field_7e and the frame record's field_06 (read by func_8013f474) are 0
-    in half of the cases;
+  - each of the other object's field_249, field_27b, halfword at 4 (passing
+    state 1) and field_45, and game_state's config field_4e, is in its
+    passing state in five cases of six, otherwise random; of the three box
+    flags, box_c is non-zero in five cases of six (otherwise 0 in two cases
+    of three, else random), box_b and box_a are each a random byte in three
+    cases of five and 0 otherwise; the object's field_7e and the frame
+    record's field_06 (both read by func_8013f474) are 0 in half of the
+    cases and random otherwise;
   - the frame record's field_07 is a small box number (0 to 3) in three
     cases of four, otherwise any byte; the object's field_0b and the other's
     field_0b and field_158 are 0 or random;
   - a is a small signed number in three cases of four, otherwise any s16;
     b is a small non-negative number in three cases of four, otherwise any
     s16;
-  - the other object's pos_x is chosen so that the distance (by the formula
-    of the arm the case takes) falls within 3 of the limit in two cases of
-    three, otherwise random; in half of those the distance is exactly the limit's
-    magnitude plus -1 to 2 (the boundary);
+  - the other object's pos_x is chosen in two cases of three so that the
+    signed difference (before it is made positive; by the formula of the arm
+    the case takes) is a random value from -(|limit| + 3) to |limit| + 3 or,
+    in half of those cases instead, plus or minus (|limit| + k) with k from
+    -1 to 2, where limit is b, or b + 4 where the function adds 4; otherwise
+    it stays random;
   - ref_other, which the function and func_8013f474 write (the other object's
     address), starts as a random word, so that a return before that write is
     seen to leave it alone;
@@ -111,7 +116,11 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Replace the first `beq v0,zero` (the field_49 test, a return to the caller) by a nop: it is never taken."""
+    """Replace the first `beq v0,zero` by a nop: it is never taken.
+
+    It is the field_49 test, a return to the caller (read from the original's
+    listing, not tested).
+    """
     found = [i for i, w in enumerate(words) if w >> 26 == 4 and (w >> 21) & 31 == 2 and (w >> 16) & 31 == 0]
     if not found:
         raise ValueError("no beq v0,zero")

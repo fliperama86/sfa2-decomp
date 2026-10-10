@@ -2,11 +2,11 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in size and register use
  * (the original copies the index, the argument and the table value before
- * masking them). The exact owner of the bytes in the PS1 build stays the
- * raw bytes of the resident executable; the build does not use this file.
- * The differential test next to it (difftest.py, with func_8013e028.py)
- * compares the behavior of this C with the original code on random inputs
- * of the contract below.
+ * masking them; read from the original's listing, not tested). The exact
+ * owner of the bytes in the PS1 build stays the raw bytes of the resident
+ * executable; the build does not use this file. The differential test next
+ * to it (difftest.py, with func_8013e028.py) compares the behavior of this
+ * C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not original names): steps one numbered slot of
  * an object. It decrements the slot's field_04; when that reaches 0 it
@@ -22,19 +22,22 @@
  *     is set and (m is 0x94 or dir is 1), or else when entry bit 0x800 is
  *     set and (m is 0x68 or dir is 2).
  * A hit calls func_8013f2d8, anything else func_8013f2c8. (The original
- * tests the mask against 0x868; the mask has 8 bits, so 0x68 is the same.)
+ * tests the mask against 0x868, read from its listing, not tested; the mask
+ * has 8 bits, so 0x68 is the same.)
  *
  * Contract:
  *   Arguments: a0 = object, a1 = slot index, a2 = table index. Only the low
  *     byte of a1 and of a2 counts. No return value.
  *   Reads: the object's field_134 and field_136, the slot's field_01 and
  *     field_04, the table halfword.
- *   Writes: the slot's field_04, and whatever the callees write (the slot's
- *     field_00 and the global byte data_80188f44, which the setup fills).
- *   Callees: func_8013f2a8, func_8013f2d8 and func_8013f2c8 are short leaf
- *     functions (a slot byte and a global byte); they run as the original
- *     code in both runs. func_8013f2c8 takes no argument (its prototype says
- *     one).
+ *   Writes: the slot's field_04, and whatever the callees write (read from
+ *     the original's listing, not tested: the slot's field_00 and the global
+ *     byte data_80188f44, which the setup fills).
+ *   Callees: func_8013f2a8, func_8013f2d8 and func_8013f2c8 run as the
+ *     original code in both runs; they are short leaf functions that write a
+ *     slot byte and a global byte (read from the original's listing, not
+ *     tested). func_8013f2c8 takes no argument (same source; its prototype
+ *     says one, and this C passes it the object).
  *   Aliasing: the object is a block of its own.
  *   Inputs excluded: none.
  *   Not reached by any input: none expected.

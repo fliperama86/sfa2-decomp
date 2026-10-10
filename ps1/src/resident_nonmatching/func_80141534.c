@@ -2,11 +2,11 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code has the original's size but differs in where one shift is
  * scheduled around a branch (a measured difference of the instruction
- * order, not of meaning). The exact owner of the bytes in the PS1 build stays the
- * raw bytes of the resident executable; the build does not use this file.
- * The differential test next to it (func_80141534.py, run by difftest.py)
- * compares the behavior of this C with the original code on random inputs
- * of the contract below.
+ * order, not of meaning). The exact owner of the bytes in the PS1 build
+ * stays the raw bytes of the resident executable; the build does not use
+ * this file. The differential test next to it (func_80141534.py, run by
+ * difftest.py) compares the behavior of this C with the original code on
+ * random inputs of the contract below.
  *
  * What it does (inferred, not an original name): tests one bit of a 16-bit
  * mask. The object's field_130 flags say whether a mask applies at all
@@ -24,8 +24,9 @@
  *     pointer to two 16-bit entries) and the entry.
  *   Writes: nothing. No callee.
  *   The shift count is taken modulo 32 as the machine does (the original
- *     uses a variable shift); the C states the mask so the count is
- *     defined. Counts reach at most 133.
+ *     uses a variable shift; read from the original's listing, not tested);
+ *     the C states the mask so the count is defined. Counts reach at most
+ *     134 (127 + 6 + 1).
  *   Aliasing: none that matters (nothing is written).
  *   Exclusions: kind is limited by the setup to the 8 table entries the
  *     setup fills with its own blocks. All instruction slots are reachable.

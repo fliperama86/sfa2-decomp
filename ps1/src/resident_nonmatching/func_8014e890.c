@@ -1,11 +1,12 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code has the same size but differs from the original's bytes in
- * register choice and instruction order. The exact owner of the bytes in the
- * PS1 build stays the raw bytes of the original; the build does not use this
- * file. The differential test next to it (func_8014e890.py, run by
- * difftest.py) compares the behavior of this C with the original code on
- * random inputs of the contract below.
+ * register choice and instruction order (read from the original's listing,
+ * not tested). The exact owner of the bytes in the PS1 build stays the raw
+ * bytes of the original; the build does not use this file. The differential
+ * test next to it (func_8014e890.py, run by difftest.py) compares the
+ * behavior of this C with the original code on random inputs of the
+ * contract below.
  *
  * What it does (inferred, not an original name): sets up the texture memory
  * of a screen. It sets a flag byte, calls a fixed sequence of setup
@@ -14,8 +15,10 @@
  * entry is a byte count, selected by game_state.field_40), placed in a grid
  * of 16 rows by 16 columns of strips per page, starting at an x offset taken
  * from a second table; then three 16 by 32 clears, one 16 by 7 upload, and
- * a fixed 949 strips from another buffer in the same grid layout starting at
- * page x 0x180. It ends with one more routine call.
+ * a fixed 949 strips from another buffer in the same grid layout (16 by 16
+ * strips a page, 64 pixels of x a page) but starting at page x 0x180, with y
+ * from 0 instead of 0x100 and without the second table's offset. It ends
+ * with one more routine call.
  *
  * Contract (the roles of the names are inferred):
  *   Argument: a0 = a value passed on to the second call of func_8014f3b8.
@@ -38,8 +41,8 @@
  *     recorder also copies the rectangle (8 bytes) that the first argument
  *     points at, at every call, so the values the function wrote for that
  *     call are compared. func_80157fc4 and func_8015808c are Sony library
- *     routines; the others are replaced because they would need contracts of
- *     their own.
+ *     routines (inferred from their addresses); the others are replaced
+ *     because they would need contracts of their own.
  *   Excluded inputs: field_40 above 19 (it indexes past the tables, and the
  *     loop count would be whatever data follows); a count of strips above
  *     about 300, which only lengthens the run.
