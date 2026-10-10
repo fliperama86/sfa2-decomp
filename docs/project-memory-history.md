@@ -8062,6 +8062,73 @@ functions exact, 12,834 of 13,072 placements.
 Not claimed: that the form or any name is the original's. No run of
 the game.
 
+## A resident function exact, the first from an unattended search (2026-10-10)
+
+`func_8014362c`, 92 bytes, is called from three places with an object
+and the other object. It was parked: the original negates a box's
+extent into a register of its own and negates that again when the
+object is mirrored, and no candidate had kept both.
+
+From this day the functions without C are given to an unattended
+search first: the permuter runs on every parked candidate with a time
+limit (private helpers, twelve minutes for each function here), and
+what comes out exact is reduced by hand and published. This function
+is the first of that run.
+
+Reduced one step at a time, a local for the sum and the spare
+parentheses came out. What stays, each measured on the final text with
+`fndiff.py --rebuild`:
+
+- the difference is copied into the local that held the negated
+  extent, and the sign test reads the copy. With the test reading the
+  difference itself: 7 differing instruction slots. With one local for
+  the difference, the test and both values of the result: 6;
+- the result is 16 bits wide. As an `int`: 3;
+- the mirrored case negates the negated extent again. Reading the
+  extent again there: 12;
+- the mirror flag has a local. Tested in place: 14.
+
+Every assignment is read by a later statement.
+
+Evidence: the unit rebuilt and compared, 0 differing slots; the whole
+configuration passes with every image identical to its baseline. The
+map after this, from `coveragemap.py render`: 5,418 of 5,600 distinct functions exact, 12,835 of 13,072 placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
+## Two functions of one character file exact, the same code twice (2026-10-10)
+
+`func_801b1884_slot04_08` and `func_801b1c28_slot04_08`, 144 bytes
+each, of the character file `PL08.PAC`. Their instructions are the
+same but for the addresses of their branches. The first had a parked
+candidate with 4 differing instruction slots; the second had none.
+
+The unattended search (the permuter, a private helper, twelve minutes
+for each candidate) found the bytes of the first: each arm of the last
+test puts its comparison into a local and tests the local. Reduced one
+step at a time, the plain spelling of the two sums came back and the
+local stayed. Measured on the final text of each unit with
+`fndiff.py --rebuild`, the same figures for both: the comparisons
+tested in place, 4 slots; the local in the first arm only, 4; in the
+second arm only, 4; one test of the local after both arms, 2 and 4
+bytes longer; one value local that one arm negates and one test, 14.
+The local is read in both arms.
+
+The second function takes the first one's form and is exact with it.
+It has a unit of its own, because the two do not lie next to each
+other.
+
+The second side's file `PL08X.PAC` is linked from the same units, so
+both functions are exact there too: four placements.
+
+Evidence: both units rebuilt and compared, 0 differing slots; the
+whole configuration passes with every image identical to its
+baseline. The map after this, from `coveragemap.py render`: 5,419 of 5,600 distinct functions exact, 12,839 of 13,072 placements. The map counts the two as one distinct function, because their instructions are the same, in four placements.
+
+Not claimed: that the form or any name is the original's. No run of
+the game.
+
 ## Windows reference
 
 - GOG, original-CD installation, and mounted-CD `ALPHA2.EXE` were verified
@@ -8160,6 +8227,91 @@ the game.
   written, measure the exact variant once more on the final tree, and
   name the variant in the sentence: which symbol, which form, what
   stays as it is.
+
+## The port serves the console's copy of RAM below 64 KB (2026-10-10)
+
+No function count changes here. Nothing under `ps1/` changed.
+
+- Why. A private run of the real game on the layers put together
+  (never published) reached the loading of its first fight and ended
+  with the runtime's crash line: `func_80130768` adds an offset to a
+  null pointer and reads address `0xd`. The console has its RAM there
+  a second time. A Windows process cannot map address 0.
+- First design, dropped. Serve every access to `0..0x1fffff` in the
+  fault handler. A probe (`VirtualQuery` over the range in a program
+  linked like the runtime) found `0xf4000` bytes of that range
+  accessible in one run: the system's own mappings, most of them
+  read-only, some writable, at places that change from run to run. An
+  access there does not fault, so it cannot be served, and serving the
+  rest would make the program right or wrong by the day's layout. A
+  launcher that reserves the free ranges before the program starts
+  brought that to `0x4a000` bytes in the probe and cannot close it.
+  (One-off figures of one machine.)
+- What is published: only `[0, 0x10000)` is served, where Windows
+  guarantees a fault. `port/src/mirror.c` is the handler (a vectored
+  one, for read and write faults; the modules layer's handler on its
+  own branch takes execute faults only), `mirrorcore.c` holds the
+  parts that need no Windows: the decision, the start check, the
+  decoder and the operations. An unserved form, a straddle of
+  `0x10000`, an access from host code: the program ends with a line.
+- The forms. Counted in the objects of the private trial build:
+  154,599 instructions with a memory operand in 5,492 objects, 227
+  forms; the decoder takes 152,124 of them at exactly their length and
+  refuses 2,475, which are the classes left out on purpose (`call` and
+  `jmp` through memory, `imul`, `idiv`, `mul`, `neg`, shifts,
+  `cmovcc`, `setcc`). No string, x87 or SSE form has a memory operand
+  there. (One-off counts, private scripts over a private build.)
+- Deliberate users of the copy above 64 KB. The same objects were
+  searched for an `and` by `0x00ffffff`: 307 instructions in 124
+  functions, all with the mask as an immediate. Read from the C: 116
+  functions store the masked value into another primitive's tag, 7
+  compare a field with a constant, and 1 uses it as an address,
+  `func_80119694` (a function whose C is not on main yet). The search
+  sees only C compiled for the PC, and would not see 24 bits taken out
+  by shifts. (One-off counts.) That function needs a host routine with
+  a differential test against the original; not in this change.
+- The timer. The vertical blank's timer can aim the game's thread at
+  the interruption routine in the instant between a fault and the
+  start of the handler; the control's loop of served accesses met that
+  11 to 13 times per run. The handler recognises it, carries the
+  instruction out and moves the address the interruption returns to.
+  With that recognition taken out the loop's case fails.
+- A guard that was removed. The first version also kept the timer from
+  redirecting the thread while the handler works, by a flag. No case
+  could fail without it: while the handler works the thread's
+  instruction pointer is in the runtime or the system, where the timer
+  redirects nothing anyway. The flag's use by the timer is gone; the
+  flag itself stays for the second-fault line, which has a case.
+- Mutants, each against the cases that should notice it: the upper
+  limit moved by one, the lower limit moved by one, a straddle allowed,
+  the game-code condition taken out of the decision and out of the
+  handler, one flag of one operation wrong, the instruction length off
+  by one, the width of `movzx`'s destination wrong, the aimed context
+  not recognised, the second fault not detected. Each made a case fail.
+- Tests without the program. The owner asked on 2026-10-09 whether
+  tests could avoid running the program. This layer's decisions are
+  pure functions and 61 of its cases build and run them with the
+  host's compiler alone; 17 run the linked program. (Counts of the day;
+  the file prints its cases.)
+- Not shown: any access above `0x10000`; the handler together with the
+  modules layer's (read, not run together); the real game past the
+  point of the crash from a published commit.
+- The review command had to learn the new control file. It gives the
+  cross compiler to the port's control files by a list of names;
+  `test_hostmirror.py` was not on it, was started without `--cc` and
+  ended with its usage text, status 2: the review failed at that check.
+  The name is on the list now, and the workflow's own tests got one
+  case for it (28 cases with it; `docs/ai-workflow.md` reports the 27
+  of its own day): with the name taken off the list again, that case
+  fails. A control file that needs an argument must be made known to
+  the review command in the same change.
+- One run of the review on this branch, before that, ended at a launch
+  case that outlasted its 60 seconds: the program had not ended. The
+  machine was under load from a stress run of another change, which
+  looks for exactly that, a program that sometimes does not end when
+  the timer thread runs; it is code that is on main, not this layer's,
+  and its fix is a change of its own. The next run of the same case
+  passed.
 
 ## One character function that reads a register its callers never set (2026-10-10)
 

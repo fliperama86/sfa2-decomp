@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "5b4222cf02622884355662e2b11b75324921644a4c01f53e49417bd441a20f01",
+  "sha256": "b13d6dedd16f43517f953d981bba657190ae5fec302ec2a8892e328911eda2a2",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -511,20 +511,32 @@
       "line": 8023
     },
     {
-      "title": "Windows reference",
+      "title": "A resident function exact, the first from an unattended search (2026-10-10)",
       "line": 8065
     },
     {
+      "title": "Two functions of one character file exact, the same code twice (2026-10-10)",
+      "line": 8100
+    },
+    {
+      "title": "Windows reference",
+      "line": 8132
+    },
+    {
       "title": "Tool locations and reproducibility",
-      "line": 8082
+      "line": 8149
     },
     {
       "title": "Mistakes and lessons to preserve",
-      "line": 8107
+      "line": 8174
+    },
+    {
+      "title": "The port serves the console's copy of RAM below 64 KB (2026-10-10)",
+      "line": 8231
     },
     {
       "title": "One character function that reads a register its callers never set (2026-10-10)",
-      "line": 8164
+      "line": 8316
     }
   ]
 }
