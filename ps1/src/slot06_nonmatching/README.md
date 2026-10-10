@@ -132,7 +132,12 @@ differ. `--edges` looks for such constants. It alters the ORIGINAL code, one
 constant at a time, and leaves the build alone (`--control` is the other way
 round: it alters one word of the build).
 
-    python difftest.py --config ../build.toml --cases 2000 --edges --uncovered [--jobs N] --all
+    python difftest.py --config ../build.toml --cases 2000 --edges --uncovered [--jobs N] FUNC
+
+It is a tool for the day a function is written or its setup changes: run it
+for that one function, and keep the cases that notice an edge. It is not a
+check to repeat on other changes (see
+[efficient checks](../../../docs/efficiency.md)).
 
 For each function the default comparison runs first. If it shows a difference
 or a discarded case, the function is not swept: one line says so and the
@@ -170,11 +175,14 @@ excludes, or the constant has no effect on what the test compares). The tool
 cannot tell the two apart; the author of the contract does, for each line. A
 sweep with U at 0 is not equivalence either.
 
-What this command printed for this folder on 2026-10-10 (seed 1, 2,000 cases,
-`--jobs 8`, 1079 seconds for the whole folder by the shell's clock, 352 seconds for func_801e8bd8_slot06_08 alone, on a machine that other work was also using). The lines are open: they are not yet read one by one, and
-no contract was changed for them.
-
-    python difftest.py --config ../build.toml --cases 2000 --edges --uncovered --jobs 8 --all
+The block below is a record, not an instruction: what the mode printed for
+this folder's functions on 2026-10-10 (seed 1, 2,000 cases, `--jobs 8`), in
+one run of the whole folder with `--all` in place of FUNC, made once when
+the mode was new. That run took 1079 seconds by the shell's clock, 352 of
+them for func_801e8bd8_slot06_08, on a machine that other work was also
+using. The lines are open: they are not yet read one by one, and no contract
+was changed for them. A function's lines are replaced when the mode is run
+for that function again.
 
 ```
 func_801e84cc_slot06_0e edges: constants 13, altered runs 24, unnoticed 6, all discarded 2
@@ -461,8 +469,15 @@ From this folder, with a Python that has the packages of the repository's
 the matching build in place:
 
     python difftest.py --config ../build.toml --cases 2000 func_801e9080_slot06_00
+    python difftest.py --config ../build.toml --cases 2000 --seed 7 func_801e9080_slot06_00
     python difftest.py --config ../build.toml --cases 2000 --control func_801e9080_slot06_00
     python difftest.py --config ../build.toml --cases 2000 --writes func_801e9080_slot06_00
+    python difftest.py --config ../build.toml --cases 2000 --writes --seed 7 func_801e9080_slot06_00
+
+A function is tested alone: these five runs for the function that was added
+or changed, at the same time. No other function is run again for it, and a
+folder is not run as a whole (see
+[efficient checks](../../../docs/efficiency.md)).
 
 `--seed S` changes the random inputs (default 1); a run is reproducible for a
 given seed. `--folder DIR` reads the sources and contract files of another
@@ -475,9 +490,13 @@ the setup made.
 ## Functions
 
 The functions of this folder.
-What these commands printed on 2026-10-09:
+The three blocks are a record, not an instruction: what the commands of
+"Running" printed for each function when it was last run. As it stands that
+is one run of the whole folder on 2026-10-09, with `--all` in place of the
+function's name. From now on a function's lines change only when that
+function is run again.
 
-    python difftest.py --config ../build.toml --cases 2000 --all
+The test (`--cases 2000 FUNC`, seed 1):
 
 ```
 func_801e84cc_slot06_0e: built 504 bytes, original 536 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -540,7 +559,7 @@ func_801ea640_slot06_0c: built 780 bytes, original 780 bytes; cases 2000, discar
 func_801ea640_slot06_0c coverage: 193 of 195 instruction slots of the original executed
 ```
 
-    python difftest.py --config ../build.toml --cases 2000 --control --all
+The control (`--cases 2000 --control FUNC`):
 
 ```
 func_801e84cc_slot06_0e control: different 1968 of 2000 (expected more than 0)
@@ -603,7 +622,7 @@ func_801ea640_slot06_0c control: different 1663 of 2000 (expected more than 0)
   altered: record counter store moved by two bytes, instruction slot 183
 ```
 
-    python difftest.py --config ../build.toml --cases 2000 --writes --all
+The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
