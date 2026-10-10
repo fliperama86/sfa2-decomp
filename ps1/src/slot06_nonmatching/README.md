@@ -399,23 +399,29 @@ from the game's memory image and would be published with the file.
 
 A callee that the contract does not replace with a recorder runs as the game's
 own code when the original is recorded. `--record` records each call of such a
-callee as an entry of `calls` (with `original` true): the argument registers
-it read before writing them (`uses`), the stack words it read through the
+callee as an entry of `calls` (with `original` true): the registers of the
+caller that it used while they still held the caller's value (`uses`: at, v0,
+v1, a0 to a3, t0 to t9, gp, hi, lo; a save of a register to its own frame and
+the restore from the same word are no use), the stack words it read through the
 stack pointer (`stack`), the bytes it read that the setup made or the run had
 written (`reads`), the bytes it changed (`effects`) and the registers it
-leaves (`leaves`). A fixture with such a call also has `callees`, the
+wrote and did not restore (`leaves`). A fixture with such a call also has `callees`, the
 addresses where replay puts the stand-ins, and the file is format 2; a file
 without such a call stays format 1. At replay a stand-in is two words,
 `jr ra; nop`, and a hook at that address: it checks the call's place among the
-calls, the argument registers (the whole register is compared), the stack
-words and the bytes read, then writes the effects and sets the registers, so
+calls, the registers of `uses` (the whole register is compared), the stack
+words and the bytes read, then writes the effects and sets exactly the registers
+of `leaves`, and no other, so a register the callee never wrote keeps the
+build's own value; so
 the callee's code, and the recorders it called, are never run. The 16 bytes
 from the call's stack pointer upward are the callee's own argument home area.
 The tool refuses a case, with one line and status 1, when the callee writes
 the stack at or above that area, reads it through a register other than sp (a
 pointer to a local of the function, which the build cannot repeat), is entered
-again before it ended, or does not end when the run does while the setup says
-the function returns; these are limits of the tool. After choosing and before
+again before it ended, reads a register of its caller that is no argument (s0
+to s7, fp, k0, k1, or ra other than by `jr ra`), leaves the stack pointer
+changed, or does not end when the run does while the setup says the function
+returns; these are limits of the tool. After choosing and before
 writing, `--record` replays every kept fixture on the build, and a fixture that
 fails is a refusal (`the replay of case N fails`). A byte that such a callee
 reads and that the setup did not make is content of the game's image: it is
