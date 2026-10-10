@@ -22,11 +22,12 @@
  *   1. b27 == 1 and the byte at 0x10 is 0: byte 0x28 = arg2, byte 0x10 = 1.
  *   2. b16 is neither 0x1e nor 0x14: byte 0x15 = arg2, b2a is increased
  *      by one.
- *   3. b29 == 2: for each tone of the program (prog.tones, a byte), when
- *      b13 == 0 and b14 == 0: SsUtGetVagAtr(vab, program, tone, &vag), then
- *      bytes 0xc and 0xd of vag are set to arg2 & 0x7f, then SsUtSetVagAtr
- *      with the same arguments; when b13 == 1 and b14 == 0, and when b13
- *      == 2 and b14 == 0, the same two calls without any change of vag.
+ *   3. b29 == 2: when b13 == 0 and b14 == 0, for each tone of the program
+ *      (prog.tones, a byte): SsUtGetVagAtr(vab, program, tone, &vag), then
+ *      bytes 0xc and 0xd of vag are set to arg2 & 0x7f, then
+ *      SsUtSetVagAtr(vab, program, tone, &vag). When b13 == 1 and b14 == 0,
+ *      and again when b13 == 2 and b14 == 0, the same two calls for each
+ *      tone without any change of vag.
  *      (In the last two cases the original also computes a value from
  *      arg2 and does not use it; it loads byte 5 of vag (b13 == 1) or
  *      byte 4 (b13 == 2) after the first call and stores the same value

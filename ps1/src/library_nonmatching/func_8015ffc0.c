@@ -28,7 +28,10 @@
  * kept); equal to it, the count goes up by one and the voice replaces the
  * candidate when its halfword at 6 is smaller than the kept one (as unsigned
  * 16-bit values; the kept value starts at 0xffff), or, when those are equal,
- * when its signed halfword at 2 is larger than the kept one. With no free
+ * when its signed halfword at 2 is larger than the kept one (the kept
+ * halfword at 2 is a full int: a voice that becomes the candidate or wins on
+ * the halfword at 6 stores it zero-extended, a win on equal halfwords at 6
+ * stores it sign-extended, as the listing does). With no free
  * voice and a count of 0 the result is spuVmMaxVoice; otherwise the
  * candidate. A result below spuVmMaxVoice then adds 1 to the halfword at 2
  * of every voice, sets the halfword at 2 of the result to 0 and its

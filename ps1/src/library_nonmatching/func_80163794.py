@@ -10,8 +10,8 @@ Choices of the setup:
     or any 16-bit value; prog is 0 to 127 or any 16-bit value; arguments are
     passed sign-extended (a0..a2) and zero-extended (a3, the fifth argument);
   - a voice matches (all three keys equal to the arguments) in 55 cases of
-    100; otherwise one of the three keys, chosen at random, is made to
-    differ; the halfword at 0x10 is random;
+    100; otherwise one of the three keys, chosen at random, is set to a
+    random 16-bit value; the halfword at 0x10 is random;
   - the bytes of _svm_cur at 0xa, 0xb, 0xd, 0xe are drawn from 0, 0x3f, 0x40,
     0x7f, 0x80, 0xff and random; the byte at 0x18 of the header that
     _svm_vh points at is drawn from the same list; arg3 is 0 to 0x7f or any
@@ -100,10 +100,10 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Alter the mask that makes the pan test: `sltiu rt, rs, 0x40` becomes 0x41.
+    """Alter the constant of a pan test: `sltiu rt, rs, 0x40` becomes 0x41.
 
-    The function has three such tests (the three pans) and the first one
-    (in program order) is altered; every matching voice reaches it.
+    The function has three such tests (the three pans); the first one in the
+    build's code is altered. Every matching voice reaches all three.
     """
     found = [i for i, w in enumerate(words) if w >> 26 == 0xB and w & 0xFFFF == 0x40]
     if not found:

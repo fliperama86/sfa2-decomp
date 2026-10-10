@@ -21,10 +21,12 @@
  * it changed. arg a0 = seq_sep_no (16 bits: the low byte selects a row
  * pointer of the table _ss_score, the high byte an element of 172 bytes in
  * that row, "score"), a1 = vabId, a2 = prog, a3 = arg3 (a volume, 16 bits),
- * the fifth argument arg4 (16 bits, on the stack; a pan). It calls
- * SpuVmVSetUp(vabId, prog) first, which sets fields of _svm_cur (bytes at
- * 0xa, 0xb, 0xd and 0xe are read here), then stores seq_sep_no into the
- * halfword at 0x16 of _svm_cur. For each voice below spuVmMaxVoice whose
+ * the fifth argument arg4 (16 bits, on the stack; used as a pan). It calls
+ * SpuVmVSetUp(vabId, prog) first (in the library that function sets the
+ * pointers _svm_vh, _svm_pg and _svm_tn and the bytes at 1, 6 and 7 of
+ * _svm_cur; its result is not used here), then stores seq_sep_no into the
+ * halfword at 0x16 of _svm_cur. The bytes at 0xa, 0xb, 0xd and 0xe of
+ * _svm_cur are read as they are; SpuVmVSetUp does not set them. For each voice below spuVmMaxVoice whose
  * records in _svm_voice have the signed halfword at 0xa equal to seq_sep_no,
  * the halfword at 0x12 equal to vabId and the halfword at 0xe equal to prog
  * (all compared as signed 16-bit values), it:
@@ -38,8 +40,7 @@
  *   h74 and h76 are the halfwords at 0x74 and 0x76 of the score element);
  *   applies three pans in turn, from c[0xe], from c[0xb] and from arg4 & 0xff:
  *   a pan p below 0x40 makes right = (right * p) >> 6, otherwise left =
- *   (left * (0x7f - p)) >> 6 (the first of the three, from c[0xe], does
- *   the same);
+ *   (left * (0x7f - p)) >> 6;
  *   when _svm_stereo_mono is 1, the smaller of left and right takes the
  *   larger one's value (equal: both stay);
  *   squares both and divides by 0x3fff (unsigned);
@@ -64,8 +65,9 @@
  *     address and its two arguments (under a mask of 0xffff, they are 16-bit
  *     values) and a copy of the first 0x20 bytes of _svm_cur at the call, so
  *     the store of seq_sep_no after the call, not before it, is checked. What
- *     the real SpuVmVSetUp would write into _svm_cur is outside the test:
- *     the setup gives _svm_cur random content instead.
+ *     the real SpuVmVSetUp would write (_svm_vh, _svm_pg, _svm_tn and the
+ *     bytes at 1, 6 and 7 of _svm_cur) is outside the test: the setup gives
+ *     _svm_vh and _svm_cur their content before the call.
  *   Aliasing: _svm_cur, the voice table, the sreg tables, the vab header and
  *     the score rows do not overlap.
  *   Excluded inputs: spuVmMaxVoice is 0 to 24; the low byte of seq_sep_no is

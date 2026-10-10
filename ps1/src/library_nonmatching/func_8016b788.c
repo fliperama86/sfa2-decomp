@@ -29,14 +29,15 @@
  * A cold start then also clears the register pairs for frequency
  * modulation, noise, CD volume and external volume, sets _spu_tsa to 0x200,
  * writes the 16 bytes of the table at 0x80183174 (D_80033540) through
- * _spu_writeByIO, sets all 24 voices through _spu_setVoiceRegs with a
- * local record (all voices, mask 0x1f, volumes 0, pitch 0x3fff, start
- * address 0x200, envelope word 0), clears _spu_addrMode again, writes
- * 0xffff to the key-on low half, ors 0xff into its high half, idles four
- * times, does the same for key-off, and idles four times. Both ends: sets
- * _spu_inTransfer to 1, writes 0xc000 to the control register, clears
- * _spu_transferCallback and _spu_IRQCallback, leaves 0 in v0. The role names are
- * inferred from where the registers sit (offsets from _spu_RXX).
+ * _spu_writeByIO, fills a local record (voice mask 0xffffffff, mask 0x1f,
+ * volumes 0, pitch 0x3fff, start address 0x200, envelope word 0), clears
+ * _spu_addrMode again and calls _spu_setVoiceRegs with the record (which
+ * sets all 24 voices), sets the key-on low half to 0xffff and ors 0xff into
+ * its high half, idles four times, does the same for the key-off pair,
+ * and idles four times. On both paths it then sets _spu_inTransfer to 1,
+ * writes 0xc000 to the control register, clears _spu_transferCallback and
+ * _spu_IRQCallback, and leaves 0 in v0. The role names are inferred from
+ * where the registers sit (offsets from _spu_RXX).
  *
  * Contract (the roles named for fields are inferred):
  *   Arguments: a0 = arg0 (0: cold start, not 0: hot start). The original
@@ -45,13 +46,17 @@
  *     declares func_8016b788, so it returns nothing and the test does not
  *     compare v0.
  *   Reads: the pointers _spu_RXX and D_80033514; the word they point at
- *     (the DMA register); the chip's status register at offset 0x1ae and,
- *     through the callees below, other registers of the block; the table
- *     D_80033540 (16 bytes, only read by _spu_writeByIO).
- *   Writes: the globals above; the chip's register block at the offsets
- *     0x180..0x19a, 0x1aa, 0x1ac, 0x1b0..0x1b6 and, through the two library
- *     callees, the voice registers and the transfer registers; the DMA
- *     register word.
+ *     (the DMA register; it is read and written back with bits set); the
+ *     chip's status register at offset 0x1ae and, in a cold start, the
+ *     key-on and key-off registers (read and written back); and, through
+ *     the callees below, other registers of the block and the table
+ *     D_80033540 (16 bytes; only _spu_writeByIO reads it).
+ *   Writes: _spu_transMode, _spu_addrMode, _spu_tsa, D_800334FC, the four
+ *     memory-mode words, _spu_inTransfer, _spu_transferCallback and
+ *     _spu_IRQCallback; the DMA register word; the chip's register block at
+ *     the offsets 0x180..0x19a, 0x1aa, 0x1ac and 0x1b0..0x1b6 and, through
+ *     the two library callees, the voice registers and the transfer
+ *     registers.
  *   Callees: _spu_writeByIO and _spu_setVoiceRegs run as the original code,
  *     the same in both runs, on a register block that is plain memory in
  *     the test. printf is replaced by a recorder in both runs: it logs its
@@ -67,17 +72,17 @@
  *     the stores (not compared), and a register that answers by itself on
  *     the real chip is not modelled: the status register is a fixed word
  *     per case, so a wait that ends after some polls and not at the first
- *     one, or a wait whose count is cut by a changing status, is not
- *     reached (the loop's exit test after at least one poll is never taken
- *     as true). Cases cover the cold and the hot start, a status with low
- *     bits 0 (no wait) and with them set (the wait runs to its time-out,
- *     the printf call is made), and random content of the block.
+ *     one is not reached (this function's wait loop never leaves through
+ *     its test after a poll that finds the low 11 bits set; it ends only at
+ *     its time-out). Cases cover the cold and the hot start, a status with
+ *     the low 11 bits 0 (no wait) and with them set (the wait runs to its
+ *     time-out and the printf call is made), and random content of the
+ *     block.
  *   Aliasing: the register block, the DMA word and the globals do not
  *     overlap.
  *   Excluded inputs: none other than the above.
- *   Not reached by any input (read from the listing): the exit test of the
- *     wait loop after a poll that finds the low bits 0 (the status does not
- *     change during a run).
+ *   Not reached by any input: the exit of the wait loop through the test
+ *     after a poll (see Hardware above).
  */
 #include "../game.h"
 #include "../protos.h"
@@ -133,6 +138,7 @@ extern void (*volatile _spu_IRQCallback)(void);
 extern u16 D_80033540[];
 extern char _spu_timeout_msg[];
 
+int printf(const char *, ...);
 s32 _spu_writeByIO(u8 *addr, u32 size);
 void _spu_setVoiceRegs(VoiceAttrView *attr);
 
