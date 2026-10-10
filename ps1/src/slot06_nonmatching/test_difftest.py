@@ -19,8 +19,10 @@ import ast
 import contextlib
 import gc
 import io
+import os
 import random
 import re
+import signal
 import struct
 import sys
 import tempfile
@@ -1607,6 +1609,60 @@ def case_o_cursor_moves_by_the_whole_entry():
     return None if entries == want else f"log {hexes(entries)}"
 
 
+def room_run(words, room, replace=(CALLEE, 1, 0), watch=(), second=None):
+    """One run of the caller `words` with a log of `room` words: the calls it logged, or the text of the failure."""
+    state = D.State(ram_with_callees(words), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state, words=room, watch=watch)
+    log.replace(*replace)
+    if second is not None:
+        log.replace(*second)
+    result = D.run_once(D.machine(make_code([NOP])), state, ORIGINAL, contracts.Setup(args=(), returns_value=False))
+    return result if isinstance(result, str) else len(log.calls(result["ram"]))
+
+
+FULL = "the call log is full at a call of 0x80021000"
+
+
+def case_o_log_room_to_the_last_word():
+    # three calls with one argument each are six words: they fit in six, and the third does not fit in five
+    words = program(*[("call", CALLEE, [i], []) for i in (1, 2, 3)])
+    fits, short = room_run(words, 6), room_run(words, 5)
+    return None if fits == 3 and isinstance(short, str) and short.startswith(FULL) else f"room 6: {fits}; room 5: {short}"
+
+
+def case_o_log_room_counts_pointees_and_watched_blocks():
+    # an entry here is the address, one argument, three words behind it and two watched words: seven
+    words = program(("call", CALLEE, [BUF], []), ("call", CALLEE, [BUF], []))
+    runs = [room_run(words, room, (CALLEE, 1, 0, {0: 3}), ((WATCHED, 2),)) for room in (14, 13)]
+    return None if runs[0] == 2 and isinstance(runs[1], str) and runs[1].startswith(FULL) else f"{runs}"
+
+
+def case_o_log_room_is_one_for_all_recorders_of_the_log():
+    # four calls, two of each callee, are eight words; in seven the fourth does not fit, whichever callee it is
+    words = program(*[("call", callee, [1], []) for callee in (CALLEE, CALLEE_B, CALLEE, CALLEE_B)])
+    fits, short = room_run(words, 8, second=(CALLEE_B, 1, 0)), room_run(words, 7, second=(CALLEE_B, 1, 0))
+    ok = fits == 4 and isinstance(short, str) and short.startswith("the call log is full at a call of 0x80021100")
+    return None if ok else f"room 8: {fits}; room 7: {short}"
+
+
+ENDLESS_CALLS = [jal(CALLEE), NOP, j(ORIGINAL), NOP]
+
+
+def case_o_caller_without_end_stops_at_the_full_log():
+    # without the stop the entries would go on past the log, over the recorder's own code
+    got = room_run(ENDLESS_CALLS, 64)
+    return None if isinstance(got, str) and got.startswith(FULL) else f"{got}"
+
+
+def case_o_full_log_of_the_original_discards_and_of_the_build_differs():
+    once = program(("call", CALLEE, [], []))
+    endless_build = [jal(CALLEE), NOP, j(D.TEST_ADDRESS), NOP]
+    if (got := pair_logged(ENDLESS_CALLS, once, [(CALLEE, 0, 0)])) != (3, 0, 0):
+        return f"the original never ends: {got}"
+    got = pair_logged(once, endless_build, [(CALLEE, 0, 0)])
+    return None if got == (0, 0, 3) else f"the build never ends: {got}"
+
+
 def case_o_no_watch_no_extra_words():
     words = program(*fill_block(WATCHED, 4, 5), ("call", CALLEE, [3], []))
     entries = logged(words, [(CALLEE, 1, 0)])[0]
@@ -2819,6 +2875,56 @@ def case_y_report_uncovered_lines_and_status_zero():
     return None if ok else f"{quiet} {loud} {status} {status2}"
 
 
+def case_y_report_run_without_result():
+    # neither noticed nor unnoticed: listed, counted apart, and the status stays what the others make it
+    results = [(2, 0, 0, 1), (2, 1, None, -11), (5, 0, None, 3), (5, 1, 0, 1)]
+    lines, status = D.edge_report("F", 10, REPORT_CONSTANTS[:2], {8, 20}, results, False)
+    want = ["F edges: constants 2, altered runs 4, unnoticed 0, all discarded 0, no result 2",
+            "  slot 2: slti v0,t1,0x5, immediate 0x5 -> 0x4: no result, the process of this run ended (signal 11)",
+            "  slot 5: addiu t0,zero,0x8, immediate 0x8 -> 0x9: no result, the process of this run ended (status 3)"]
+    return None if (lines, status) == (want, 0) else f"{lines} {status}"
+
+
+def ending_worker(task):
+    """A made-up altered run: the process of slot 5 ends as the emulator has ended one, slot 7 raises."""
+    if task[0] == 5:
+        os.kill(os.getpid(), signal.SIGKILL)
+    if task[0] == 7:
+        raise ValueError("seven")
+    return (task[0], task[1], 0, 1)
+
+
+def ending_worker_case(task):
+    return (*ending_worker(task), 4)
+
+
+def case_y_run_whose_process_ends_has_no_result_and_the_others_have_theirs():
+    tasks = [(2, 0, 1), (5, 0, 1), (5, 1, 1), (9, 0, 1), (9, 1, 1)]
+    got = sorted(D.edge_runs({"mark": 1}, tasks, 3, ending_worker), key=lambda r: r[:2])
+    want = [(2, 0, 0, 1), (5, 0, None, -9), (5, 1, None, -9), (9, 0, 0, 1), (9, 1, 0, 1)]
+    if got != want or D.EDGE_CONTEXT:
+        return f"{got} {D.EDGE_CONTEXT}"
+    with patched(D, edge_run_case=ending_worker_case):
+        got = sorted(D.edge_runs({}, tasks[:2], 2, D.edge_run_case), key=lambda r: r[:2])
+    return None if got == [(2, 0, 0, 1, 4), (5, 0, None, -9, None)] else f"with the case: {got}"
+
+
+def case_y_error_in_the_process_of_a_run_is_raised_here():
+    try:
+        D.edge_runs({"mark": 1}, [(2, 0, 1), (7, 0, 1)], 2, ending_worker)
+    except ValueError as exc:
+        return None if str(exc) == "seven" and not D.EDGE_CONTEXT else f"{exc!r} {D.EDGE_CONTEXT}"
+    return "no error was raised"
+
+
+def case_y_budget_of_an_altered_original():
+    got = [D.edge_budget(n) for n in (None, 0, 2_500, 2_501, 100_000, D.BUDGET)]
+    if got != [None, 20_000, 20_000, 20_008, 800_000, D.BUDGET]:
+        return f"{got}"
+    with patched(D, BUDGET=500):
+        return None if D.edge_budget(10) == 500 else "the general budget is not the upper limit"
+
+
 # The made-up function of the emulator cases. Slots: 0 lui, 1 ori, 2 lw x, 3 slti v0,x,5 (the edge is tried by
 # x = 4, 5, 6), 4 slti v1,x,100 (v1 is not compared), 5 ori t2,zero,0x20, 6 lw t3,0(t2) (an altered address is
 # not aligned and the load faults), 7 jr, 8 delay slot, 9 ori t4,zero,9 (never executed).
@@ -2895,6 +3001,54 @@ def case_y_all_discarded_is_not_unnoticed():
     lines, status = sweep(words, 1)
     want = ["func_80020000 edges: constants 1, altered runs 2, unnoticed 0, all discarded 2"]
     return None if (lines, status) == (want, 0) else f"{lines} {status}"
+
+
+def case_y_longest_run_counts_every_round_of_a_loop():
+    # 1 instruction, three rounds of 3, and the return with its delay slot: 12; nothing when no run ends
+    loop = [addiu(T0, ZERO, 3), addiu(T0, T0, -1), 0x1500FFFE, NOP, JR_RA, NOP]  # bne t0,zero,-2
+    longest: list = []
+    with contract_of(LABEL, plain_setup(False)), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(loop))):
+        D.test_function(edge_cfg(), LABEL, make_code(loop), 2, 1, made_up_ram(loop), bytes(D.SCRATCH_SIZE), longest=longest)
+        endless = [j(ORIGINAL), NOP]
+        with patched(D, original_function=lambda cfg, name: (ORIGINAL, 8), BUDGET=300):
+            D.test_function(edge_cfg(), LABEL, make_code(loop), 2, 1, made_up_ram(endless), bytes(D.SCRATCH_SIZE), longest=longest)
+    return None if longest == [12, 0] else f"{longest}"
+
+
+def case_y_altered_original_runs_on_its_budget_and_the_build_on_the_general_one():
+    seen: list = []
+    real = D.run_once
+
+    def spy(uc, state, entry, setup, blocks=None, watchers=(), **extra):
+        seen.append((entry == ORIGINAL, extra.get("budget")))
+        return real(uc, state, entry, setup, blocks, watchers, **extra)
+
+    with patched(D, run_once=spy):
+        sweep(EDGE_WORDS, 1)
+    first, later = seen[: 2 * EDGE_CASES], seen[2 * EDGE_CASES :]
+    # the unaltered pass has no budget of its own; the function is nine instructions long, so the floor applies
+    ok = ({b for _o, b in first} == {None} and {b for o, b in later if o} == {20_000}
+          and {b for o, b in later if not o} == {None} and any(o for o, _b in later))
+    return None if ok else f"{sorted(set(first), key=str)} {sorted(set(later), key=str)}"
+
+
+def case_y_altered_original_that_does_not_end_costs_its_budget_only():
+    # the minus alteration of slot 1 makes the count go up: the loop does not end, and each such run is cut
+    # at the altered budget, which the spy reads back from what the emulator was started with
+    loop = [addiu(T0, ZERO, 3), addiu(T0, T0, -1), 0x1500FFFE, NOP, JR_RA, NOP]
+    started: list = []
+    real = D.Uc.emu_start
+
+    def start(self, begin, until, timeout=0, count=0):
+        started.append(count)
+        return real(self, begin, until, timeout, count)
+
+    with contract_of(LABEL, plain_setup(False)), patched(D, original_function=lambda cfg, name: (ORIGINAL, 4 * len(loop))), \
+            patched(D.Uc, emu_start=start):
+        lines, _status = D.edge_sweep(edge_cfg(), LABEL, D.Build(make_code(loop), 4 * len(loop), 0), 2, 1, made_up_ram(loop),
+                                      bytes(D.SCRATCH_SIZE), False, 1)
+    ok = set(started) == {D.BUDGET, 20_000} and "all discarded" in lines[0]
+    return None if ok else f"{sorted(set(started))} {lines}"
 
 
 def case_y_not_swept_when_the_build_differs():
@@ -3209,6 +3363,57 @@ def case_z_unchanged_watched_block_needs_no_bytes():
     fixture = doc["fixtures"][0]
     ok = fixture["reads"] == [] and fixture["calls"][0]["watched"] == [[]] and fixture["watch"] == [[D.hex8(watched), 1]]
     return None if ok else f"reads {fixture['reads']}, calls {fixture['calls']}, watch {fixture['watch']}"
+
+
+def arena_replay(setup):
+    # the function only passes the address of the first block of the arena to its callee
+    words = program(("call", CALLEE, [D.ARENA_BASE], []))
+    lines, status, doc, _ = fx_record(words, setup, cases=2)
+    if status:
+        return f"{lines}"
+    got, replay_status = fx_replay(doc, words, ram_with_callees(words))
+    want = f"{LABEL} replay: fixtures {len(doc['fixtures'])}, passed {len(doc['fixtures'])}, failed 0"
+    return None if got == [want] and replay_status == 0 else f"{got} {replay_status}"
+
+
+def arena_block(state):
+    block = state.alloc(0x200)
+    if block != D.ARENA_BASE:
+        raise AssertionError(f"the first block of the arena is at {block:#x}")
+    return block
+
+
+def case_z_watched_block_in_the_arena_that_the_function_does_not_touch():
+    # the fixture names no byte of the block, and the replay must still keep its recorders and their log out of it
+    def setup(state, rng, sym):
+        log = contracts.CallLog(state, watch=((arena_block(state), 0x80),))
+        log.replace(CALLEE, 1, 0)
+        return contracts.Setup(args=(), returns_value=False)
+
+    return arena_replay(setup)
+
+
+def case_z_pointee_in_the_arena_that_the_function_does_not_touch():
+    def setup(state, rng, sym):
+        arena_block(state)
+        log = contracts.CallLog(state)
+        log.replace(CALLEE, 1, 0, pointees={0: 0x80})
+        return contracts.Setup(args=(), returns_value=False)
+
+    return arena_replay(setup)
+
+
+def case_z_edge_run_without_result_is_among_the_uncovered():
+    real = D.edge_runs
+
+    def losing(context, tasks, jobs, worker=None):
+        results = real(context, tasks, jobs, worker)
+        return [(results[0][0], results[0][1], None, -11, None), *results[1:]]
+
+    with patched(D, edge_runs=losing):
+        lines, status, doc, _ = fx_record(FX_WORDS, fx_setup)
+    lost = [e for e in doc["uncovered"]["edges"] if e.endswith("no result, the process of this run ended (signal 11)")]
+    return None if status == 0 and len(lost) == 1 and lost[0].startswith("slot ") else f"{status} {lines} {doc['uncovered']}"
 
 
 def watch_setup(state, rng, sym):
@@ -3641,6 +3846,26 @@ def case_z_record_refuses_a_callee_that_runs_as_original_code():
     # a function with only recorders is not refused
     ok = ok and fx_record(FX_WORDS, fx_setup, cases=10)[1] == 0
     return None if ok else f"{lines} {status} {written} {again[:2]} {kept!r}"
+
+
+def case_z_record_refuses_before_the_altered_runs_and_after_them():
+    # the first cases show the refusal, so the altered runs (the long part) are not made; a case that the
+    # first ones did not show is still refused when it is one of the kept
+    words = program(("call", CALLEE, [1, 2, 3, 4], []), ("st", FLAG, 7))
+    made: list = []
+    real = D.edge_runs
+
+    def spy(context, tasks, jobs, worker=None):
+        made.append(len(tasks))
+        return real(context, tasks, jobs, worker)
+
+    with patched(D, edge_runs=spy):
+        early = fx_record(words, plain_setup(False), cases=2)
+        before = list(made)
+        with patched(D, RECORD_PROBES=0):
+            late = fx_record(words, plain_setup(False), cases=2)
+    ok = early[1] == late[1] == 1 and early[0] == late[0] and "executes code of the game" in early[0][0]
+    return None if ok and before == [] and len(made) == 1 else f"{early[:2]} {late[:2]} {before} {made}"
 
 
 def case_z_replay_refuses_a_file_with_needs_image():
@@ -4111,6 +4336,11 @@ CASES = [
     ("o-store-before-or-after-call-with-and-without-watch", case_o_order_of_store_and_call),
     ("o-bad-watch-address-or-count-refused", case_o_refused_watches),
     ("o-cursor-moves-by-the-whole-entry", case_o_cursor_moves_by_the_whole_entry),
+    ("o-log-room-to-the-last-word", case_o_log_room_to_the_last_word),
+    ("o-log-room-counts-pointees-and-watched-blocks", case_o_log_room_counts_pointees_and_watched_blocks),
+    ("o-log-room-is-one-for-all-recorders-of-the-log", case_o_log_room_is_one_for_all_recorders_of_the_log),
+    ("o-caller-without-end-stops-at-the-full-log", case_o_caller_without_end_stops_at_the_full_log),
+    ("o-full-log-of-the-original-discards-and-of-the-build-differs", case_o_full_log_of_the_original_discards_and_of_the_build_differs),
     ("o-no-watch-no-extra-words", case_o_no_watch_no_extra_words),
     ("p-recorders-footprint-not-a-convention", case_p_recorders_footprint_not_a_convention),
     ("q-argument-logged-under-its-mask", case_q_argument_logged_under_its_mask),
@@ -4223,6 +4453,13 @@ CASES = [
     ("y-line-shapes", case_y_line_shapes),
     ("y-report-fixed-order-and-counts", case_y_report_fixed_order_and_counts),
     ("y-report-uncovered-lines-and-status-zero", case_y_report_uncovered_lines_and_status_zero),
+    ("y-report-run-without-result", case_y_report_run_without_result),
+    ("y-run-whose-process-ends-has-no-result-and-the-others-have-theirs", case_y_run_whose_process_ends_has_no_result_and_the_others_have_theirs),
+    ("y-error-in-the-process-of-a-run-is-raised-here", case_y_error_in_the_process_of_a_run_is_raised_here),
+    ("y-budget-of-an-altered-original", case_y_budget_of_an_altered_original),
+    ("y-longest-run-counts-every-round-of-a-loop", case_y_longest_run_counts_every_round_of_a_loop),
+    ("y-altered-original-runs-on-its-budget-and-the-build-on-the-general-one", case_y_altered_original_runs_on_its_budget_and_the_build_on_the_general_one),
+    ("y-altered-original-that-does-not-end-costs-its-budget-only", case_y_altered_original_that_does_not_end_costs_its_budget_only),
     ("y-inputs-reach-the-edges", case_y_inputs_reach_the_edges),
     ("y-sweep-lines", case_y_sweep_lines),
     ("y-sweep-same-for-each-job-count", case_y_sweep_same_for_each_job_count),
@@ -4251,6 +4488,9 @@ CASES = [
     ("z-what-a-recorder-copies-is-not-a-read-of-the-function", case_z_what_a_recorder_copies_is_not_a_read_of_the_function),
     ("z-recorder-word-that-it-adds-to-is-kept-as-an-input", case_z_recorder_word_that_it_adds_to_is_kept_as_an_input),
     ("z-unchanged-watched-block-needs-no-bytes", case_z_unchanged_watched_block_needs_no_bytes),
+    ("z-edge-run-without-result-is-among-the-uncovered", case_z_edge_run_without_result_is_among_the_uncovered),
+    ("z-watched-block-in-the-arena-that-the-function-does-not-touch", case_z_watched_block_in_the_arena_that_the_function_does_not_touch),
+    ("z-pointee-in-the-arena-that-the-function-does-not-touch", case_z_pointee_in_the_arena_that_the_function_does_not_touch),
     ("z-watched-changes-are-against-the-input-state-not-the-previous-call", case_z_watched_changes_are_against_the_input_state_not_the_previous_call),
     ("z-watched-change-after-the-first-call-shows-only-from-the-second", case_z_watched_change_after_the_first_call_shows_only_from_the_second),
     ("z-failure-build-changes-a-watched-byte-the-original-had-not", case_z_failure_build_changes_a_watched_byte_the_original_had_not),
@@ -4293,6 +4533,7 @@ CASES = [
     ("z-failure-names-the-fixture", case_z_failure_names_the_fixture),
     ("z-ends-in-callee", case_z_ends_in_callee),
     ("z-record-refuses-a-callee-that-runs-as-original-code", case_z_record_refuses_a_callee_that_runs_as_original_code),
+    ("z-record-refuses-before-the-altered-runs-and-after-them", case_z_record_refuses_before_the_altered_runs_and_after_them),
     ("z-replay-refuses-a-file-with-needs-image", case_z_replay_refuses_a_file_with_needs_image),
     ("z-replay-executes-only-the-build-and-the-recorders", case_z_replay_executes_only_the_build_and_the_recorders),
     ("z-build-that-calls-an-address-without-a-recorder-fails", case_z_build_that_calls_an_address_without_a_recorder_fails),
