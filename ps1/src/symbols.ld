@@ -5922,3 +5922,4 @@ data_8002cea0_slot01 = 0x8002cea0;
 data_8002ce9c_slot01 = 0x8002ce9c;
 data_801fc050 = 0x801fc050;
 data_800e2000 = 0x800e2000;
+data_80051ea8_slot28 = 0x80051ea8;
