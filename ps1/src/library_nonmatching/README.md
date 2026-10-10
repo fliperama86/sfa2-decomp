@@ -54,11 +54,29 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 Adapted files, as `../sdk/README.md` lists adapted files: `func_8015ffc0.c`
 and `func_80163794.c`.
 
-## What the commands printed
+## Testing one function
 
-On 2026-10-10, run from the tool's folder (`ps1/src/slot06_nonmatching/`), 2,000 cases, seed 1:
+A function is tested alone. When one is added or changed, run its own
+five runs, from the tool's folder (`../slot06_nonmatching/`), and at the
+same time (see [efficient checks](../../../docs/efficiency.md)):
 
-    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --all
+    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 FUNC
+    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --seed 7 FUNC
+    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --control FUNC
+    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --writes FUNC
+    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --writes --seed 7 FUNC
+
+Then put that function's lines into the three blocks below. No other
+function is run again for it, and the folder is not run as a whole.
+
+## The recorded lines
+
+The three blocks are a record, not an instruction: what the commands
+printed for each function when it was last run. As it stands that is
+the run of 2026-10-10 in which the four were added. From now on a
+function's lines change only when that function is run again.
+
+The test (`--cases 2000 FUNC`, seed 1):
 
 ```
 func_8015ffc0: built 628 bytes, original 636 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -71,7 +89,7 @@ func_8016b788: built 1328 bytes, original 1464 bytes; cases 2000, discarded 0, e
 func_8016b788 coverage: 366 of 366 instruction slots of the original executed
 ```
 
-    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --control --all
+The control (`--cases 2000 --control FUNC`):
 
 ```
 func_8015ffc0 control: different 240 of 2000 (expected more than 0)
@@ -84,7 +102,7 @@ func_8016b788 control: different 2000 of 2000 (expected more than 0)
   altered: control register receives 0xc001, instruction slot 320
 ```
 
-    python difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --writes --all
+The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_8015ffc0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
