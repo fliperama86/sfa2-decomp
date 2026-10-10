@@ -49,6 +49,10 @@ SOURCES = {
     "calc": "int calc(int a, int b, int c, int d, int e, int f, int g, int h)\n"
             "{ return (h << 28) | (g << 24) | (f << 20) | (e << 16) | (d << 12) | (c << 8) | (b << 4) | a; }\n",
     "mem": "unsigned mem(unsigned *p, unsigned v) { unsigned old = *p; *p = v; return old; }\n",
+    "deep": "extern int stub_a(int *p);\n"
+            "static void dirty(void) { volatile unsigned char a[2048]; int i; for (i = 0; i < 2048; i++) a[i] = 0x5a; }\n"
+            "static int look(void) { int never_stored[8]; return stub_a(never_stored); }\n"
+            "int deep(int mode) { if (mode) dirty(); else look(); return 0; }\n",
     "call1": "extern int stub_a(int a, int b, int c);\n"
              "int call1(int *p) { *p = 5; stub_a(0x12345678, (int)p, 7); *p = 6; return 0; }\n",
     "ret4": "extern int stub_a(void);\n"
@@ -260,6 +264,13 @@ def stub_cases(rig: Rig):
         [c["pointees"] for c in got[0]["calls"]], [{0: bytes([0x77, 0, 0, 0]), 1: bytes([0x11, 0, 0, 0])}])
     yield "the-function-returns-after-a-stub-that-got-a-local", same(got[0]["result"], 0x77)
     yield "a-mask-does-not-change-the-mark-of-an-address-of-a-local", same([(c["args"], c["stack_args"]) for c in got[1]["calls"]], [([0, q], [0])])
+
+    # The stack below the call is zeroed before each case, as a case of the console's test starts: the first case
+    # fills two thousand bytes of stack with 0x5a, and in the second a local that is never stored still reads zero.
+    stub = [{"at": 0x80100000, "arguments": 1, "pointees": {0: 8}}]
+    deep = rig.run(rig.program("deep"), [{"args": [1]}, {"args": [0], "stubs": stub}, {"args": [0], "stubs": stub}])
+    yield "a-local-never-stored-reads-zero-whatever-the-case-before-left", same(
+        [[c["pointees"][0] for c in r["calls"]] for r in deep], [[], [bytes(32)], [bytes(32)]])
     yield "a-pointee-that-cannot-be-read-is-a-fault-of-the-case-with-no-half-entry", same(
         (got[2]["end"], got[2]["fault"]["kind"], got[2]["fault"]["address"], got[2]["calls"]), ("fault", "read", 0, []))
 
@@ -382,6 +393,39 @@ def build_cases(rig: Rig):
     yield "a-listing-that-does-not-end-means-a-build-not-the-program-on-disk", same(
         (quiet, len(listings), exe.stat().st_mtime_ns != mtime, rig.run(exe, [{}])[0]["result"]), (True, 1, True, 7))
 
+    # Another source file for the same name, older than the program on disk: the program is what it was made from, not
+    # only when; the other file's program answers 9. And without the note of what it was made from it is built again.
+    exe = rig.program("other")
+    alt = rig.root / "alt"
+    alt.mkdir()
+    (alt / "other.c").write_text("int other(void) { return 9; }\n")
+    old = exe.stat().st_mtime_ns - 60 * 10**9
+    os.utime(alt / "other.c", ns=(old, old))
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "another-older-source-for-the-same-name-is-built-not-reused", same(rig.run(exe, [{}])[0]["result"], 9)
+    mtime = exe.stat().st_mtime_ns
+    again = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    quiet = again.stat().st_mtime_ns == mtime
+    (rig.build_dir / "gen" / "other.from").unlink()
+    again = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "a-program-without-the-note-of-its-origin-is-built-again", same((quiet, again.stat().st_mtime_ns != mtime), (True, True))
+    yield "the-note-of-origin-names-the-source-the-configuration-and-the-compiler", same(
+        (rig.build_dir / "gen" / "other.from").read_text().splitlines(),
+        [str((alt / "other.c").resolve()), str((rig.src / "build.toml").resolve()), rig.cc])
+
+    # A build that fails takes the note away: the program still on disk is from an earlier build, and after the source
+    # is put back with an old time nothing says any more that it is this source's program, so it is built.
+    good = "int other(void) { return 9; }\n"
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    mtime = exe.stat().st_mtime_ns
+    (alt / "other.c").write_text("int other(void) { return 9 }\n")
+    os.utime(alt / "other.c", ns=(mtime + 5 * 10**9, mtime + 5 * 10**9))
+    failed = raises(lambda: hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120), "other.c")
+    (alt / "other.c").write_text(good)
+    os.utime(alt / "other.c", ns=(old, old))
+    exe = hr.build_program(alt / "other.c", "other", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "after-a-failed-build-the-program-on-disk-is-not-handed-back", same((failed, exe.stat().st_mtime_ns != mtime), (None, True))
+
     # An input with the very time of the program is not older than it.
     mtime = exe.stat().st_mtime_ns
     os.utime(rig.src / "val.h", ns=(mtime, mtime))
@@ -396,6 +440,43 @@ def build_cases(rig: Rig):
     os.utime(rig.src / "symbols.ld", ns=(mtime + 5 * 10**9, mtime + 5 * 10**9))
     exe = rig.program("calc")
     yield "a-changed-symbol-file-is-built-again", same((quiet, exe.stat().st_mtime_ns != mtime), (True, True))
+
+    # The configuration is read once for each state of its files, not once for each program. A symbol file that
+    # moves a name is read again: the program then reads the name at its new address.
+    both = {"memory": [("bytes", 0x80190000, bytes([1, 0, 0, 0])), ("bytes", 0x80190040, bytes([2, 0, 0, 0]))], "args": [0]}
+    exe = rig.program("rd")
+    before = rig.run(exe, [both])[0]["result"]
+    mtime = exe.stat().st_mtime_ns
+    (rig.src / "symbols.ld").write_text(SYMBOLS.replace("data_word = 0x80190000;", "data_word = 0x80190040;"))
+    os.utime(rig.src / "symbols.ld", ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    exe = rig.program("rd")
+    yield "a-moved-name-of-the-symbol-file-is-read-at-its-new-address", same((before, rig.run(exe, [both])[0]["result"]), (1, 2))
+    # A fields file that changes is read again: the generated header has the new field.
+    mtime = exe.stat().st_mtime_ns
+    (rig.src / "t.fields").write_text("struct S size=0x8\n0x000 u32 a\n0x004 u32 added_field\n")
+    os.utime(rig.src / "t.fields", ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    rig.program("rd")
+    yield "a-changed-fields-file-is-read-again", same("added_field" in (rig.build_dir / "gen" / "t.h").read_text(), True)
+    # A configuration that changes is read again (a function's address here); it is then put back as it was.
+    cfg_path = rig.src / "build.toml"
+    was = hr._configuration(cfg_path)[0]["stub_a"]
+    mtime = cfg_path.stat().st_mtime_ns
+    cfg_path.write_text(CONFIG.replace("address = 0x80100000", "address = 0x80100040"))
+    os.utime(cfg_path, ns=(mtime + 9 * 10**9, mtime + 9 * 10**9))
+    now = hr._configuration(cfg_path)[0]["stub_a"]
+    cfg_path.write_text(CONFIG)
+    os.utime(cfg_path, ns=(mtime + 18 * 10**9, mtime + 18 * 10**9))
+    yield "a-changed-configuration-is-read-again", same((was, now, hr._configuration(cfg_path)[0]["stub_a"]), (0x80100000, 0x80100040, 0x80100000))
+    # And nothing is read again while the three files stay as they are.
+    reads = []
+    real = hr.hb.hostcheck.read_config
+    hr.hb.hostcheck.read_config = lambda path: reads.append(path) or real(path)
+    try:
+        rig.program("rd")
+        rig.program("calc")
+    finally:
+        hr.hb.hostcheck.read_config = real
+    yield "the-configuration-is-not-read-again-for-each-program", same(reads, [])
 
 
 def format_cases_test(rig: Rig | None):
