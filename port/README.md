@@ -977,13 +977,36 @@ routines that do nothing on purpose. What is in this piece:
   variants, `CdMix`, `CdGetSector` and the two position conversions,
   with these commands of the drive: no operation, set position, read
   (both kinds), pause, set filter, set mode, get position, seek.
-  Sectors are delivered three per frame, from the vertical blank or
-  from the game's own poll, and the game's handler is called once per
-  sector; no vertical blank is delivered inside it. Sectors of
-  compressed audio are taken and dropped: nothing sounds. Any other
+  Sectors are delivered at the console's rate counted by the frame (see
+  the paragraph below), from the vertical blank or from the game's own
+  poll, and the game's handler is called once per sector; no vertical
+  blank is delivered inside it. Sectors of compressed audio are taken and dropped: nothing sounds. Any other
   command, and the mode that asks for whole raw sectors, ends the
   program with a line that names it. The handler's address is checked
   at each call like the other addresses the game hands over.
+- The disc's rate. The drive of the console reads 75 sectors a second
+  at single speed (the CD's own rate) and 150 with the double-speed bit
+  (0x80) of the mode set. The port delivers at that rate counted by the
+  frame, not by the clock: a carry grows by 5 at every vertical blank,
+  and a sector costs 2 with the bit set (2, 3, 2, 3 sectors a frame) and
+  4 without it (1, 1, 1, 2). The carry is cleared when a read starts and
+  when the speed bit changes. When a vertical blank cannot hand over a
+  sector (the reader is not taking, the read stopped, the handler
+  paused it), the carry is cut to its remainder, so what the drive could
+  not hand over is not handed over later: no frame brings more than 3
+  sectors at double speed or 2 at single speed. The cost of a sector is taken
+  before the game's handler runs, and a read or a speed change that the
+  handler issues ends the row of that frame, so a handler cannot make
+  the drive run ahead (a read started at every sector gives one sector a
+  frame). A blocking wait of the game for a sector
+  is not counted by it. The reason (measured in a private trial of the
+  port's sound, not published): the game reads a stream into a ring
+  of seven places that its main loop empties once per pass, and runs it
+  near its limit, so a disc faster than the console's leaves it less
+  room. The limit: this is the console's rate and nothing more. When a
+  pass of the game's loop takes several frames, the ring can still be
+  lapped, and for a sound bank the game's library then never recovers.
+  That is a known fault, left to a later change.
 - What the disc layer does not trust. `CdGetSector` copies a sector to
   an address and a length that the game gives: both must lie inside the
   PS1's RAM, or the program ends with a line before a byte is copied.
@@ -1375,7 +1398,9 @@ with `--skip-programs` prints its line and goes on; a sector copy to an
 address outside the RAM ends the run. `python3 port/tools/test_hostcd.py`
 builds the disc layer with the host's own `cc` and drives it by a
 script on images of invented bytes: sectors in order and a fixed
-number per frame, a sector handed out in pieces, pause and a new
+number per frame at each of the two speeds (2, 3, 2, 3 and 1, 1, 1, 2),
+the carry cleared by a new read and by a change of speed, the remainder after a blocked reader, a sector handed
+out in pieces, pause and a new
 position in the middle of a read, the end of the image, the position
 conversions at their borders, the poll without a handler, audio
 sectors dropped, the stops for a command that is not served, and each

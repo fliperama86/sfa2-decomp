@@ -1,0 +1,11 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 50 new", "reads": [["0x8004000b", "53"], ["0x80040130", "34550f15"], ["0x80040150", "4925"], ["0x80040158", "ef"], ["0x80190138", "00"]], "recorders": [{"arguments": 1, "at": "0x80131ab4", "callee": "func_80131ab4"}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040134", "30400b00"], ["0x80040151", "85"]]},
+  {"args": ["0x80040000"], "calls": [], "case": 1, "ends_in_callee": false, "note": "slots: 17 new; edge: slot 21, immediate 0x4000 against 0x4001; edge: slot 21, immediate 0x4000 against 0x3fff", "reads": [["0x8004000b", "c6"], ["0x800400a6", "0f"], ["0x80040132", "0020"], ["0x80040158", "02"], ["0x80190123", "47"], ["0x80190138", "48"], ["0x801a6987", "b5"]], "recorders": [{"arguments": 1, "at": "0x80131ab4", "callee": "func_80131ab4"}], "result": null, "same": [], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x800400c2", "0040"], ["0x80040130", "0040"], ["0x80040134", "00400020"], ["0x80040150", "0040"]]},
+  {"args": ["0x80040000"], "calls": [{"args": ["0x80040000"], "callee": "func_80131ab4", "pointees": {}, "returned": "0x00000000", "watched": [[]]}], "case": 3, "ends_in_callee": false, "note": "slots: 7 new; edge: slot 11, immediate 0x1 against 0x2; edge: slot 11, immediate 0x1 against 0x0", "reads": [["0x8004000b", "00"], ["0x800400a6", "3a"], ["0x80040130", "ae726817"], ["0x80040150", "ef99"], ["0x80040158", "00"], ["0x80190123", "3b"], ["0x80190138", "dd"], ["0x801a6985", "ae"]], "recorders": [{"arguments": 1, "at": "0x80131ab4", "callee": "func_80131ab4"}], "result": null, "same": [["0x80040134", "1244a895"]], "seed": 1, "watch": [["0x80040000", 229]], "writes": [["0x80040134", "86604005"]]}
+ ],
+ "format": 1,
+ "function": "func_8013172c",
+ "recorded": {"cases": 2000, "comparison": "func_8013172c: built 280 bytes, original 296 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

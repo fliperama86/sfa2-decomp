@@ -6,7 +6,11 @@ calls, on disc images of invented bytes (every sector says which sector it is
 in its first two bytes; the rest is a pattern), with a made-up ready handler,
 a made-up port_tick and a made-up RAM in the test's own C (a script on
 standard input drives it, one command a line). Cases: Setloc and ReadN
-delivering sectors in order, a fixed number a tick and none outside a tick;
+delivering sectors in order, at the console's rate counted by the tick
+(2, 3, 2, 3 ... a tick at double speed and 1, 1, 1, 2 ... at single speed,
+the totals of 60 ticks, the carry cleared by a read's start and by a change
+of the speed bit, a read paused by the handler in the middle of a tick's
+delivery) and none outside a tick;
 CdGetSector handing a sector out in pieces; Pause and a new Setloc in the
 middle of a read, and ReadN continuing after a Pause; reading past the end of
 the image (a disc error to the handler, the read stopped); the position
@@ -50,7 +54,9 @@ static unsigned char *ram;
 static int ticks, autotick;
 static int h_on;
 static unsigned h_dest;
-static int h_pieces[16], h_np, h_stop, h_calls;
+static int h_pieces[16], h_np, h_stop, h_calls, h_count;
+static int a_when, a_calls, a_arg;   /* an action of the ready handler: on call number a_when (0: on every call) */
+static char a_kind;
 
 volatile int port_handler_depth;   /* the driver's counter; cd.c raises it around the ready handler */
 /* jumps.c's check of a callback's address; cd.c calls it only when port_cd_call is not set, and here it is, so this
@@ -77,6 +83,14 @@ static void handler(unsigned h, int intr, unsigned char *res)
     int i, done = 0;
     if (h != 0x1234) { printf("H bad handler value %x\n", h); return; }
     printf("H intr=%d res0=%02x\n", intr, res[0]);
+    if (intr == 1) h_count++;
+    if (intr == 1 && a_kind && (!a_when || ++a_calls == a_when)) {
+        unsigned char p[4] = {0, 0, 0, 0}, rs[8];
+        if (a_kind == 'N' || a_kind == 'S') { port_CdIntToPos(a_arg, p); port_CdControl(a_kind == 'N' ? 6 : 0x1b, p, rs); }
+        else if (a_kind == 'M') { p[0] = (unsigned char)a_arg; port_CdControl(0xe, p, rs); }
+        else if (a_kind == 'I') port_CdInit();
+        else if (a_kind == 'R') { port_CdReady(0, rs); }
+    }
     if (intr != 1 || !h_on) return;
     for (i = 0; i < h_np; i++) {
         int r = port_CdGetSector(at(h_dest) + 4 * done, h_pieces[i]);
@@ -115,11 +129,12 @@ int main(int argc, char **argv)
         int n = 0;
         if (sscanf(line, "%31s %n", cmd, &n) < 1) continue;
         rest += n;
-        if (!strcmp(cmd, "n")) printf("N %d\n", PORT_CD_SECTORS_PER_TICK);
-        else if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
+        if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
         else if (!strcmp(cmd, "autotick")) autotick = atoi(rest);
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) port_cd_tick(); }
+        else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
+        else if (!strcmp(cmd, "act")) { char k = 0; int w = 0, a = 0; if (sscanf(rest, "%d %c %d", &w, &k, &a) < 2) return 64; a_when = w; a_kind = k; a_arg = a; a_calls = 0; }   /* what the ready handler does: N ReadN to a, S ReadS to a, M Setmode a, I CdInit, R CdReady(0) */
         else if (!strcmp(cmd, "cb")) { unsigned v = atoi(rest) ? HANDLER_VALUE_C : 0; unsigned char *p = at(PORT_CD_VAR_READY_CB); p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = p[3] = 0; }
         else if (!strcmp(cmd, "stopafter")) { h_stop = atoi(rest); h_calls = 0; }
         else if (!strcmp(cmd, "handler")) {
@@ -255,22 +270,21 @@ def hexs(*b: int) -> str:
 def read_cases(root: Path, exe: Path):
     img = root / "r.bin"
     make_image(img, 60)
-    # N from the runtime is only a quantity to count with; the case's meaning is "the same
-    # number every tick, in order, none without a tick"
-    rc, lines = run(exe, img, "n\n")
-    n = int(lines[0].split()[1])
-    yield check("a tick delivers a fixed number of sectors", n >= 1, f"N {n}")
+    # cdinit leaves the mode at 0: single speed, so the ticks give 1, 1, 1, 2 sectors (see rate_cases)
     script = ("cdinit\ncb 1\nhandler 80100000 512\nreadn 10\n"
               "ticks\n"                       # nothing delivered by the commands
               "tick 1\ntick 1\n")
     rc, lines = run(exe, img, script)
     got = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
-    want = list(range(10, 10 + 2 * n))
-    yield check("Setloc and ReadN deliver the sectors in order, N a tick", got == want and rc == 0, f"{got} {want} {lines}")
+    want = [10, 11]   # single speed: one sector at each of the first two ticks
+    yield check("Setloc and ReadN deliver the sectors in order, one a tick at single speed", got == want and rc == 0, f"{got} {want} {lines}")
+    rc, lines2 = run(exe, img, "cdinit\ncb 1\nhandler 80100000 512\nctl N e 80\nreadn 10\ntick 1\ntick 1\n")
+    got2 = [int(l.split()[1]) for l in lines2 if l.startswith("  sector")]
+    yield check("at double speed the first two ticks give 2 and 3 sectors, in order", got2 == [10, 11, 12, 13, 14] and rc == 0, f"{got2}")
     sums = [int(l.split()[3]) for l in lines if l.startswith("  sector")]
     yield check("each sector's 2048 bytes reach the handler's buffer", sums == [total(s) for s in want], f"{sums}")
     intr = [l for l in lines if l.startswith("H ")]
-    yield check("the handler gets interrupt code 1 and a status result", all(l == "H intr=1 res0=22" for l in intr) and len(intr) == 2 * n, f"{intr}")
+    yield check("the handler gets interrupt code 1 and a status result", all(l == "H intr=1 res0=22" for l in intr) and len(intr) == 2, f"{intr}")
     # no delivery outside a tick, however many commands and polls are made
     script = "cdinit\ncb 1\nhandler 80100000 512\nreadn 10\nsync 1\nsync 1\nready 1\nctl N 1\n"
     rc, lines = run(exe, img, script)
@@ -307,8 +321,7 @@ def pieces_cases(root: Path, exe: Path):
 def pause_cases(root: Path, exe: Path):
     img = root / "z.bin"
     make_image(img, 80)
-    rc, lines = run(exe, img, "n\n")
-    n = int(lines[0].split()[1])
+    # single speed (cdinit leaves the mode 0): one sector at the tick after each read's start
     script = ("cdinit\ncb 1\nhandler 80100000 512\nreadn 10\ntick 1\n"
               "ctl B 9\n"
               "tick 2\n"
@@ -316,7 +329,7 @@ def pause_cases(root: Path, exe: Path):
               "ctl B 9\nctl N 6\ntick 1\n")
     rc, lines = run(exe, img, script)
     sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
-    want = list(range(10, 10 + n)) + list(range(40, 40 + n)) + list(range(40 + n, 40 + 2 * n))
+    want = [10, 40, 41]   # the second read and the continuation after Pause each start with a zero carry
     yield check("Pause stops delivery; a new Setloc and ReadN restart elsewhere; ReadN after Pause continues", sec == want, f"{sec} {want}")
     pa = [l for l in lines if l.startswith("C ret=")]
     yield check("CdControlB(Pause) returns 1 and the final status shows the idle drive",
@@ -505,15 +518,14 @@ def audio_cases(root: Path, exe: Path):
     img = root / "x.bin"
     # sectors 6 and 7 are XA audio (submode 0x64); 8 is data
     make_image(img, 20, audio={6: (1, 3, 0x64), 7: (1, 3, 0x64)})
-    rc, lines = run(exe, img, "n\n")
-    n = int(lines[0].split()[1])
-    span = range(4, 4 + 2 * n)   # two ticks consume 2n sectors, audio ones included
+    # double speed: two ticks consume 2 + 3 = 5 sectors, 4 to 8, audio ones included
+    span = range(4, 9)
     script = "cdinit\nctl N e c8\ncb 1\nhandler 80100000 512\nreadn 4\ntick 1\ntick 1\n"
     rc, lines = run(exe, img, script)
     sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
     yield check("with XA on, audio sectors are consumed (they use the tick's budget) and never reach the handler",
                 sec == [x for x in span if x not in (6, 7)], f"{sec}")
-    script = "cdinit\ncb 1\nhandler 80100000 512\nreadn 4\ntick 1\ntick 1\n"
+    script = "cdinit\nctl N e 80\ncb 1\nhandler 80100000 512\nreadn 4\ntick 1\ntick 1\n"
     rc, lines = run(exe, img, script)
     sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
     yield check("with XA off, the same sectors are data", sec == list(span), f"{sec}")
@@ -558,12 +570,128 @@ def buffer_cases(root: Path, exe: Path):
     yield check("CdGetSector with no sector under the FIFO gives zeros and returns 1", rc == 0 and lines[-1] == "G ret=1", f"{rc} {lines[-2:]}")
     # the page record: the last page of the RAM
     rc, lines = run(exe, img, fill + "gsraw 801ffff0 4\nsrc 801ff000\nsrc 801fe000\nsrc 80200000\nsrc 7fffffff\nsrc 801ffff0\nsrc 801ffffc\n")
-    yield check("the word record: the last 16 bytes of the RAM hold the sector, the page's other words and the page before none",
-                rc == 0 and [l for l in lines if l.startswith("P ")] == ["P -1", "P -1", "P -1", "P -1", "P 6", "P 6"], f"{rc} {lines[-7:]}")
+    yield check("the word record: the last 16 bytes of the RAM hold the sector (the one tick gave sector 4, at single speed), the page's other words and the page before none",
+                rc == 0 and [l for l in lines if l.startswith("P ")] == ["P -1", "P -1", "P -1", "P -1", "P 4", "P 4"], f"{rc} {lines[-7:]}")
+
+
+def rate_cases(root: Path, exe: Path):
+    img = root / "rate.bin"
+    make_image(img, 400)
+    head = "cdinit\ncb 1\nhandler 80100000 0\n"      # the handler takes no piece: only its calls are counted
+    dbl, sgl = "ctl N e 80\n", "ctl N e 00\n"
+
+    def counts(script):
+        rc, lines = run(exe, img, head + script)
+        return rc, [int(l.split()[1]) for l in lines if l.startswith("V ")]
+
+    # worked by hand: the carry grows by 5 a tick. Double speed, a sector costs 2:
+    # 5 -> 2 sectors, carry 1; 6 -> 3, carry 0; and again. Single speed, a sector costs 4:
+    # 5 -> 1, carry 1; 6 -> 1, carry 2; 7 -> 1, carry 3; 8 -> 2, carry 0; and again.
+    rc, v = counts(dbl + "readn 0\ntickc 10\n")
+    yield check("double speed: 2, 3, 2, 3 ... sectors a tick over ten ticks", rc == 0 and v == [2, 3, 2, 3, 2, 3, 2, 3, 2, 3], f"{v}")
+    rc, v = counts(sgl + "readn 0\ntickc 10\n")
+    yield check("single speed: 1, 1, 1, 2 ... sectors a tick over ten ticks", rc == 0 and v == [1, 1, 1, 2, 1, 1, 1, 2, 1, 1], f"{v}")
+    # 60 ticks are a second: 30 * 5 = 150 at double speed, 15 * 5 = 75 at single speed
+    rc, v = counts(dbl + "readn 0\ntickc 60\n")
+    yield check("double speed: 150 sectors in 60 ticks", rc == 0 and len(v) == 60 and sum(v) == 150, f"{len(v)} {sum(v)}")
+    rc, v = counts(sgl + "readn 0\ntickc 60\n")
+    yield check("single speed: 75 sectors in 60 ticks", rc == 0 and len(v) == 60 and sum(v) == 75, f"{len(v)} {sum(v)}")
+    # the sectors come in order, in a row, from the read's position
+    rc, lines = run(exe, img, "cdinit\ncb 1\nhandler 80100000 512\n" + dbl + "readn 100\ntickc 2\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("the sectors of a tick come in order, one after the other, from the read's position", rc == 0 and sec == [100, 101, 102, 103, 104], f"{sec}")
+    # a new read starts from a zero carry. Double speed, one tick (2 sectors, carry 1), stop,
+    # new read: 2 then 3. With the carry kept it would be 3 (6 / 2).
+    rc, v = counts(dbl + "readn 0\ntickc 1\nctl B 9\nreadn 50\ntickc 2\n")
+    yield check("double speed: a new read after a stopped one starts from a zero carry (2, 3)", rc == 0 and v == [2, 2, 3], f"{v}")
+    # single speed, two ticks (1, 1, carry 2), a new read: 1, 1, 1, 2. With the carry kept: 1, 2.
+    rc, v = counts(sgl + "readn 0\ntickc 2\nreadn 50\ntickc 4\n")
+    yield check("single speed: a new read in the middle of a read starts from a zero carry (1, 1, 1, 2)", rc == 0 and v == [1, 1, 1, 1, 1, 2], f"{v}")
+    # ReadN after Pause is a start too: double speed, 2 (carry 1), Pause, ReadN (no position): 2, 3
+    rc, v = counts(dbl + "readn 0\ntickc 1\nctl B 9\nctl N 6\ntickc 2\n")
+    yield check("ReadN after Pause starts from a zero carry", rc == 0 and v == [2, 2, 3], f"{v}")
+    # the speed bit changes in the middle of a read: the carry is cleared, the cost is the new one.
+    # double: 2 (carry 1); to single: 1, 1, 1, 2 from zero (carry kept: 6 -> 1, 7 -> 1, 8 -> 2).
+    rc, v = counts(dbl + "readn 0\ntickc 1\n" + sgl + "tickc 4\n")
+    yield check("the speed bit cleared (double to single) in a read: the carry is cleared and a sector costs 4", rc == 0 and v == [2, 1, 1, 1, 2], f"{v}")
+    # single: 1, 1, 1 (carry 3); to double: 2, 3 from zero (carry kept: 8 -> 4)
+    rc, v = counts(sgl + "readn 0\ntickc 3\n" + dbl + "tickc 2\n")
+    yield check("the speed bit set (single to double) in a read: the carry is cleared and a sector costs 2", rc == 0 and v == [1, 1, 1, 2, 3], f"{v}")
+    # a Setmode that leaves the speed bit as it is keeps the carry: double 2 (carry 1), mode 0xc8 (still double), 3 (6 / 2)
+    rc, v = counts(dbl + "readn 0\ntickc 1\nctl N e c8\ntickc 1\n")
+    yield check("a Setmode that does not change the speed bit keeps the carry", rc == 0 and v == [2, 3], f"{v}")
+    # the handler pauses the read during a tick's delivery (the end of a stream): double speed, the tick
+    # owes 2 sectors and delivers 1; the rest is not delivered, then nothing; and the next read does not get it
+    # as extra (the carry of 1 left by the pause, if kept, would give 3 sectors, not 2; the whole 3, 4). The tick: 5, one sector (3 left),
+    # the next fails, 3 % 2 = 1; the read start clears it.
+    rc, v = counts(dbl + "stopafter 1\nreadn 0\ntickc 3\nstopafter 0\ncb 1\nreadn 50\ntickc 2\n")
+    yield check("a read paused by the handler in a tick's delivery: the rest of the tick's sectors are not delivered, and the next read starts from zero",
+                rc == 0 and v == [1, 0, 0, 2, 3], f"{v}")
+    # a sector that could not be delivered: the row ends and the carry is cut to its remainder (carry modulo the cost).
+    # A polling reader (no handler) holds the first sector in the FIFO, so every later sector fails; then a handler comes.
+    # Double speed (cost 2): tick 1: 5, one sector, 3, the next fails, 3 % 2 = 1; tick 2: 6, fails, 0; tick 3: 5, fails, 1;
+    # tick 4: 6, fails, 0. After 3 blocked ticks the carry is 1: the next ticks give 3 (6), then 2, 3 (carry 0 -> 5, 6).
+    # After 4 blocked ticks the carry is 0: 2 (5, carry 1), 3 (6), 2.
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 3\ncb 1\ntickc 3\n")
+    yield check("double speed: after 3 blocked ticks the first free one gives 3, then 2, 3 (no burst)", rc == 0 and v == [3, 2, 3], f"{v}")
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 4\ncb 1\ntickc 3\n")
+    yield check("double speed: after 4 blocked ticks the first free one gives 2, then 3, 2", rc == 0 and v == [2, 3, 2], f"{v}")
+    # Single speed (cost 4): tick 1: 5, one sector, 1 (no failure yet); tick 2: 6, fails, 6 % 4 = 2; tick 3: 7, fails, 3;
+    # tick 4: 8, fails, 0. After 3 blocked ticks the carry is 3: 8 gives 2, then 1, 1, 1 (carry 0 -> 5, 6, 7).
+    # After 4 blocked ticks the carry is 0: 1 (5), 1 (6), 1 (7), 2 (8).
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 3\ncb 1\ntickc 4\n")
+    yield check("single speed: after 3 blocked ticks the first free one gives 2, then 1, 1, 1 (no burst)", rc == 0 and v == [2, 1, 1, 1], f"{v}")
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 4\ncb 1\ntickc 4\n")
+    yield check("single speed: after 4 blocked ticks the first free one gives 1, 1, 1, 2", rc == 0 and v == [1, 1, 1, 2], f"{v}")
+    # the bound, stated directly: after 50 blocked ticks no tick brings more than 3 (double) or 2 (single), and the bound is reached
+    rc, v = counts(dbl + "cb 0\nreadn 0\ntick 50\ncb 1\ntickc 12\n")
+    yield check("double speed: after 50 blocked ticks no tick brings more than 3 sectors", rc == 0 and len(v) == 12 and max(v) == 3, f"{v}")
+    rc, v = counts(sgl + "cb 0\nreadn 0\ntick 50\ncb 1\ntickc 12\n")
+    yield check("single speed: after 50 blocked ticks no tick brings more than 2 sectors", rc == 0 and len(v) == 12 and max(v) == 2, f"{v}")
+    # the ready handler acts on the drive from inside the row (a made-up image of 32 sectors; the handler takes whole
+    # sectors, so the sector numbers show). The cost is taken before the handler runs; a read start or a speed change
+    # made by the handler clears the carry and ends the row, so it brings no burst. By hand, counts of five ticks:
+    img32 = root / "act.bin"
+    make_image(img32, 32)
+
+    def acted(script):
+        rc, lines = run(exe, img32, "cdinit\ncb 1\nhandler 80100000 512\n" + script)
+        return rc, [int(l.split()[1]) for l in lines if l.startswith("V ")], [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+
+    # double speed, the first callback issues ReadN to 20: tick 1: 5, cost 2, sector 0, the reset ends the row (1);
+    # then from zero: 5 -> 2 (20, 21), 6 -> 3 (22, 23, 24), 5 -> 2 (25, 26), 6 -> 3 (27, 28, 29)
+    for kind, label in (("N", "ReadN"), ("S", "ReadS")):
+        rc, v, sec = acted(dbl + f"readn 0\nact 1 {kind} 20\ntickc 5\n")
+        yield check(f"the first ready callback issues {label} (double speed): 1, 2, 3, 2, 3 sectors, the new read's from its position",
+                    rc == 0 and v == [1, 2, 3, 2, 3] and sec == [0] + list(range(20, 30)), f"{rc} {v} {sec}")
+    # double to single: tick 1: sector 0, the reset ends the row (1); from zero at cost 4: 1 (1), 1 (2), 1 (3), 2 (4, 5)
+    rc, v, sec = acted(dbl + "readn 0\nact 1 M 0\ntickc 5\n")
+    yield check("the first ready callback sets single speed (from double): 1, 1, 1, 1, 2 sectors", rc == 0 and v == [1, 1, 1, 1, 2] and sec == [0, 1, 2, 3, 4, 5], f"{rc} {v} {sec}")
+    # single to double: tick 1: 5, cost 4, sector 0, carry 1, the reset ends the row (1); from zero at cost 2: 2, 3, 2, 3
+    rc, v, sec = acted(sgl + "readn 0\nact 1 M 128\ntickc 5\n")
+    yield check("the first ready callback sets double speed (from single): 1, 2, 3, 2, 3 sectors", rc == 0 and v == [1, 2, 3, 2, 3] and sec == list(range(0, 11)), f"{rc} {v} {sec}")
+    # a read started at every sector: each tick brings exactly one (the handler cannot make the drive run ahead)
+    rc, v, sec = acted(dbl + "readn 0\nact 0 N 20\ntickc 5\n")
+    yield check("a ReadN at every sector: exactly 1 sector a tick (double speed)", rc == 0 and v == [1, 1, 1, 1, 1] and sec == [0, 20, 20, 20, 20], f"{rc} {v} {sec}")
+    rc, v, sec = acted(sgl + "readn 0\nact 0 N 20\ntickc 5\n")
+    yield check("a ReadN at every sector: exactly 1 sector a tick (single speed)", rc == 0 and v == [1, 1, 1, 1, 1] and sec == [0, 20, 20, 20, 20], f"{rc} {v} {sec}")
+    # what the handler does that leaves the row alone: a Setmode with the same speed bit, CdReady(0) taking the flag
+    rc, v, sec = acted(dbl + "readn 0\nact 1 M 200\ntickc 5\n")
+    yield check("a Setmode that keeps the speed bit, from the handler: 2, 3, 2, 3, 2 sectors", rc == 0 and v == [2, 3, 2, 3, 2] and sec == list(range(0, 12)), f"{rc} {v} {sec}")
+    rc, v, sec = acted(dbl + "readn 0\nact 0 R 0\ntickc 5\n")
+    yield check("CdReady(0) from the handler (no re-entry of the tick, the carry untouched): 2, 3, 2, 3, 2 sectors", rc == 0 and v == [2, 3, 2, 3, 2] and sec == list(range(0, 12)), f"{rc} {v} {sec}")
+    # CdInit from the handler stops the read: the row ends after the sector it was called for, nothing after
+    rc, v, sec = acted(dbl + "readn 0\nact 1 I 0\ntickc 5\n")
+    yield check("CdInit from the handler stops the read: 1, 0, 0, 0, 0 sectors", rc == 0 and v == [1, 0, 0, 0, 0] and sec == [0], f"{rc} {v} {sec}")
+    # (every list above stays within the bound: at most 3 sectors a tick)
+    # nothing is delivered, and no carry kept, when no read is on
+    rc, v = counts(dbl + "tickc 4\nreadn 0\ntickc 2\n")
+    yield check("ticks with no read on deliver nothing and leave no carry for the read that follows (0, 0, 0, 0, then 2, 3)", rc == 0 and v == [0, 0, 0, 0, 2, 3], f"{v}")
 
 
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
+    yield rate_cases(root, exe)
     yield pieces_cases(root, exe)
     yield pause_cases(root, exe)
     yield end_cases(root, exe)

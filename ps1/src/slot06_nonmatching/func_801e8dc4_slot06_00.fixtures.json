@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  {"args": ["0x80040000"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 108 new; edge: slot 0, immediate 0x1 against 0x2; edge: slot 0, immediate 0x1 against 0x0; edge: slot 7, immediate 0x1 against 0x2; edge: slot 7, immediate 0x1 against 0x0; edge: slot 87, immediate 0xc against 0xd; edge: slot 87, immediate 0xc against 0xb; edge: slot 91, immediate 0x280 against 0x281; edge: slot 91, immediate 0x280 against 0x27f; edge: slot 93, immediate 0x100 against 0x101; edge: slot 93, immediate 0x100 against 0xff; edge: slot 95, immediate 0x70 against 0x71; edge: slot 95, immediate 0x70 against 0x6f; edge: slot 97, immediate 0x1e0 against 0x1e1; edge: slot 97, immediate 0x1e0 against 0x1df; edge: slot 99, immediate 0x4 against 0x5; edge: slot 99, immediate 0x4 against 0x3; edge: slot 101, immediate 0xf8 against 0xf9; edge: slot 101, immediate 0xf8 against 0xf7", "reads": [["0x80040003", "0281"], ["0x80040016", "2927"], ["0x801e9f48", "d7b82078"], ["0x801e9f80", "5448fb3f1aaff2acae557c7923ababc8"], ["0x801f3050", "82bff93cd15d1b75ed799d4e921fd14e"]], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": [["0x80040004", "82"], ["0x8004000a", "01"], ["0x8004000c", "0000"], ["0x8004000f", "01"], ["0x80040016", "cfd9efb82078"], ["0x80040076", "800200017000e001"], ["0x80040081", "04"], ["0x801f3050", "0000f2ac0000de510000abc80000d5555448fb3fae557c79efb82078fbb82078"]]}
+ ],
+ "format": 1,
+ "function": "func_801e8dc4_slot06_00",
+ "recorded": {"cases": 2000, "comparison": "func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

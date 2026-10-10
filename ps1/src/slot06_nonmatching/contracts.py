@@ -134,9 +134,10 @@ class CallLog:
     `words` is the room for entries. An entry holds the callee's address,
     then each recorded argument, then the words behind the pointer arguments
     named for that callee, then the words of every watched block. The first
-    word of the log's block points at the next free entry. A run that makes
-    more calls than the room holds writes past the block: give the log room
-    for the longest run.
+    word of the log's block points at the next free entry. A recorder does
+    not look at the room that is left: the test ends a run at the call whose
+    entry would not fit (`entry_words`), and that run counts as one that did
+    not end. Give the log room for the longest run.
 
     `watch` names memory as (address, words) that every recorder copies into
     its entry at every call: what the function under test has written there
@@ -155,6 +156,7 @@ class CallLog:
         self.watch = tuple(watch)
         self.cursor = state.alloc(4 + 4 * words)
         self.entries = self.cursor + 4
+        self.end = self.entries + 4 * words  # the first address past the room
         state.w32(self.cursor, self.entries)
         # What the log has put in the state, kept for the tests that read it back: the memory that is the
         # harness's own (`owned`: the log, each recorder's code, its stub at the callee's address and the
@@ -297,6 +299,11 @@ class CallLog:
         self.owned.append((address, 8))
         self.recorders[address] = Recorder(address, arguments, pointees, dict(masks), result, tuple(results), ends_run_at,
                                            tuple(stores), tuple(counts), tail is not None)
+
+    def entry_words(self, address: int) -> int:
+        """The words that one call of the recorder at `address` adds to the log."""
+        recorder = self.recorders[address]
+        return 1 + recorder.arguments + sum(recorder.pointees.values()) + sum(count for _block, count in self.watch)
 
     def calls(self, ram: bytes) -> list[Call]:
         """The calls that the log holds in `ram` (the RAM after a run), in order.

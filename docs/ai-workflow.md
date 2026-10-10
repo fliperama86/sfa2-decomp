@@ -30,13 +30,22 @@ results stay under ignored `local/ai-workflow/` by default.
   remain distinct. No original bytes enter the ledger.
 - `review --base REF --head REF` (or `--pr NUMBER`): freeze the head, resolve
   private inputs from the supplied local input repository, and select checks
-  from the diff. Matching-input changes use the authoritative matching build;
-  nonmatching additions run differential cases on two seeds, actual negative
-  controls, and original write audits. A changed override of the port
-  (`port/overrides/NAME.c` or `NAME.py`) runs the same three on its
-  contract, and a change that broadens (a shared header, the harness)
-  runs them on every override. A result of such a check is reused only
-  while the game's tree and `port/overrides/` are both unchanged.
+  from the diff. Matching-input changes use the authoritative matching build.
+  A changed nonmatching function that has a fixtures file
+  (`FUNC.fixtures.json`) gets the replay of its fixtures, which runs no
+  original code; one without a file, and one whose contract changed
+  while its file did not, runs differential cases on two seeds, actual
+  negative controls, and original write audits. A changed override of
+  the port (`port/overrides/NAME.c`, `NAME.py` or `NAME.fixtures.json`)
+  is selected the same way. A change that broadens (a shared header, the
+  configuration, a build tool, the test tool of nonmatching C) selects
+  every function and override: the replay of those with a file and one
+  differential run, on the first seed, of those without. The test tool
+  of nonmatching C selects its own two test files and not the matching
+  build. A result of an override's check is reused only while the
+  game's tree and `port/overrides/` are both unchanged. A replay is
+  evidence for the recorded inputs: the ledger's tested status still
+  asks for the wide runs in the report it is given.
   Port/tool changes select their controls.
   A plan-only mode explains commands without claiming that they ran. Results
   record the exact commit, scope, commands, exit status and evidence hashes.
@@ -167,7 +176,8 @@ whole-check result is independently reusable.
 
 ## Implementation validation
 
-The workflow's 27 standard-library controls pass, including failed/zero-case
+The workflow's standard-library controls pass (their number is what
+`python tools/ai_workflow/tests/test_workflow.py` prints), including failed/zero-case
 jobs, source/header/binding/compiler/baseline/contract/argument invalidation,
 missing or tampered logs/manifests, subprocess timeout, metadata categories,
 second-placement limits and archive identity. The ledger's 13,072 rows and

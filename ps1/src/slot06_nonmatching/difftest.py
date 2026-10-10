@@ -29,7 +29,9 @@ It runs the original only (nothing is built) on the cases of the seed and prints
 
 K is the number of cases in which the original changed at least one byte of RAM or of the
 scratchpad that is neither made nor in the stack region; B is the largest number of such bytes
-in one case. D counts the cases that were discarded (a fault, or the instruction budget), as
+in one case. D counts the cases that were discarded (a fault, the instruction budget, or a call
+log of the contract that is full: a run is ended at the call whose entry would not fit in the room
+the contract gave its log, in every mode, for the original and for the build), as
 in the default mode; a discarded case is not counted as outside. With --uncovered and a K above
 0 a second line follows, `  first: case C; 0xADDR..0xADDR (NAME+0xOFF); ...`: the first such
 case and the address runs of its bytes (bytes less than 17 apart form one run), each run with
@@ -61,17 +63,27 @@ each taken modulo 0x10000 (0xffff plus 1 is 0, and 0 minus 1 is 0xffff). An alte
 comparison (same cases, same seed, same build) with that one word of the original replaced in the memory
 image of every case; the original is put back before the next run. A run ends at its first case that
 differs: it is then noticed and it is not run to its end. A run that has found no difference goes on
-to the last case, because only then is it unnoticed (or all discarded). The altered runs of a function are
-made by `--jobs N` processes (default 8; 1 makes them in this process, with no pool; the processes are
-forked, so the option needs a system that has that start method); the lines are printed in the fixed order
-below whatever N is. `--jobs` is for `--edges` only, and N below 1 is an input error. Per function it prints
+to the last case, because only then is it unnoticed (or all discarded). An altered original has an
+instruction budget of its own: eight times the longest run of the unaltered original over the cases, at
+least 20,000 instructions and at most the general budget. A case in which it runs longer is discarded,
+like any case whose original does not end; so an altered original that would have ended later than that
+counts as one that does not end. The altered runs of a function are made `--jobs N` at a time (default 8),
+each in a forked process of its own (the option needs a system that has that start method); 1 makes them
+in this process. The lines are printed in the fixed order below whatever N is. An altered original can
+jump anywhere, and the emulator itself has ended (with a signal) on what it found there, seen with a
+bounds check before a jump table moved by one: the process of that run then ends without a result, the
+run is neither noticed nor unnoticed, and it is counted and listed apart (with `--jobs 1` such an end is
+the end of the tool). `--jobs` is for `--edges` and `--record` only, and N below 1 is an input error. Per
+function it prints
 
     FUNC edges: constants C, altered runs R, unnoticed U, all discarded A
 
-and, in order of the word's index in the original (the numbering of the coverage line), plus before
-minus, a line for every altered run that ends with `different 0`:
+with `, no result L` at its end when L runs ended without a result, and, in order of the word's index in
+the original (the numbering of the coverage line), plus before minus, a line for every altered run that
+ends with `different 0`, or without a result:
 
     `  slot I: MNEMONIC OPERANDS, immediate 0xOLD -> 0xNEW: different 0 of N, discarded D`
+    `  slot I: MNEMONIC OPERANDS, immediate 0xOLD -> 0xNEW: no result, the process of this run ended (signal S)`
 
 A constant in a slot that no case of the unaltered run executed counts in C, but its two runs are not
 made, they are not in R, and it is not in U (the coverage line says that the slot is not executed); with
@@ -161,13 +173,18 @@ case for each result value that no kept case has (note `result 0xV`). It prints
 
     FUNC fixtures: kept K of N cases (slots A, edges B, results C)
 
-A and B and C count the cases kept for that reason first. The edge runs of (b) are made as --edges makes
-them (altered ORIGINAL code, `--jobs N` processes); the build is not altered. A file that exists is replaced,
-and the tool says so. A setup with more than one CallLog, or a recorder with a `tail`, cannot be described:
+A and B and C count the cases kept for that reason first. A line `FUNC fixtures: warning, N bytes read were
+not made by the setup: ...` comes before it when kept cases read memory that the setup did not make, or
+memory that it marked with `State.owns` (made for the audit of the writes, with the image's content left in
+it): such bytes are the game's. The file is written all the same, and it is not for publication. The edge runs of (b) are made as --edges makes
+them (altered ORIGINAL code, `--jobs N` at a time, the altered original's own budget); the build is not
+altered. An altered run whose process ended without a result gives no case, and its line is among the
+uncovered edges of the file. A file that exists is replaced, and the tool says so. A setup with more than one CallLog, or a recorder with a `tail`, cannot be described:
 status 2. A function is refused (one line, status 1, no file written, an existing file left alone) when a
 chosen case executes code of the game other than the function itself and the recorders: its contract lets a
 callee run as original code, fixtures cannot stand in for such a callee, and the function stays with the wide
-comparison. For that reason no fixture has a `needs_image` field (an earlier draft had one; no published file
+comparison. The first three cases are looked at for what refuses a function before the altered runs are made,
+which are the long part; the chosen cases are looked at again when they are written. For that reason no fixture has a `needs_image` field (an earlier draft had one; no published file
 has it, format stays 1), and --replay refuses a file that has it (status 2).
 
 --replay builds FUNC.c, and for each fixture puts poison bytes (0xA5, the stack zero as in a case) in memory,
@@ -176,7 +193,9 @@ expected value with every bit flipped, never as the filler, so that a missing st
 the same calls in the same order with the same logged arguments and returned values, the same changes
 to each watched block and pointee as the fixture says (the replay's own input state, poison where the fixture
 says nothing, with the changes over it: a build that changes a watched byte the original had not changed by
-that call, or does not change one it had, fails), the result, the writes exactly (each byte of
+that call, or does not change one it had, fails; the replay's recorders and their log are put above every
+address that the fixture names or that a recorder copies from, the end of a watched block and of the words
+behind a pointer argument included, so that they never lie inside what is compared), the result, the writes exactly (each byte of
 `writes` has that value afterwards, and no other byte outside the stack and the harness changed) and the saved
 registers and sp as the original left them. It prints `FUNC replay: fixtures K, passed P, failed F`
 and, per failed fixture, a line naming it and at
@@ -216,6 +235,7 @@ import datetime
 import importlib.util
 import json
 import multiprocessing
+import multiprocessing.connection
 import random
 import re
 import struct
@@ -269,6 +289,7 @@ class State:
         self.made_ram = bytearray(RAM_SIZE)  # 1 for each byte that the setup made (see `owns`)
         self.made_scratch = bytearray(SCRATCH_SIZE)
         self.call_logs: list = []  # the `contracts.CallLog`s of the setup, for `--record`
+        self.kept: list[tuple[int, int]] = []  # what the setup marked with `owns`: made, with the image's content
 
     def _locate(self, address: int, size: int) -> tuple[bytearray, int]:
         if size < 0:
@@ -294,6 +315,7 @@ class State:
         """Mark [address, address + size) as made without writing it (see `--writes`)."""
         block, offset = self._locate(address, size)
         self._mark(block, offset, size)
+        self.kept.append((address, size))
 
     def read(self, address: int, size: int) -> bytes:
         block, offset = self._locate(address, size)
@@ -317,7 +339,8 @@ class State:
         if end > ARENA_END:
             raise ValueError("the setup needs more free RAM than the arena holds")
         self.arena = end
-        self.owns(address, size)
+        # Made like what `owns` marks, but not kept content of the image: the arena is free RAM.
+        self._mark(*self._locate(address, size), size)
         return address
 
 
@@ -477,12 +500,14 @@ def machine(code: bytes) -> Uc:
 
 
 def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: set | None = None,
-             watchers: tuple = ()) -> dict | str:
+             watchers: tuple = (), budget: int | None = None, steps: list | None = None) -> dict | str:
     """Run one call on `state`. Returns the final state, or a text naming the failure.
 
     With `blocks`, every block of code that the run enters is added to it as (address, size).
     `watchers` are (hook type, callback) pairs that are put on the emulator for this run only
-    (`--record` uses them for the memory reads and writes).
+    (`--record` uses them for the memory reads and writes). `budget` is the instruction budget of
+    this run when it is not the general one. With `blocks` and `steps`, the instructions of the blocks
+    the run entered are appended to `steps` as one number (how long the run was).
     """
     uc.mem_write(0, bytes(state.ram))
     uc.mem_write(SCRATCH_BASE, bytes(state.scratch))
@@ -498,17 +523,46 @@ def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: s
     uc.reg_write(reg.UC_MIPS_REG_RA, STOP_ADDRESS)
     uc.reg_write(reg.UC_MIPS_REG_SP, STACK_TOP)
     hooks = []
+    entered = [0]
     if blocks is not None:
-        hooks.append(uc.hook_add(UC_HOOK_BLOCK, lambda _uc, address, size, _data: blocks.add((address & 0xFFFFFFFF, size))))
+        def enter(_uc, address, size, _data):
+            blocks.add((address & 0xFFFFFFFF, size))
+            entered[0] += size // 4
+
+        hooks.append(uc.hook_add(UC_HOOK_BLOCK, enter))
     for kind, callback in watchers:
         hooks.append(uc.hook_add(kind, callback))
+    # A recorder writes its entry without looking at the room that is left, so a run that calls without end
+    # (an original with an altered constant, say) would write past the log, over the recorders' own code and
+    # whatever follows. The run is ended at the call whose entry would not fit, before the recorder runs.
+    # Each call of a recorder adds an entry of a known size and a run starts with an empty log, so the room
+    # is counted down here and the emulator's memory is not read at each call (a function may call a
+    # recorder some thousand times in one case).
+    full: list[int] = []
+
+    def guard(left, size, address):
+        def at_call(emulator, _address, _size, _data):
+            left[0] -= size
+            if left[0] < 0:
+                full.append(address)
+                emulator.emu_stop()
+        return at_call
+
+    for log in state.call_logs:
+        left = [log.end - log.entries]
+        for address in log.recorders:
+            hooks.append(uc.hook_add(UC_HOOK_CODE, guard(left, 4 * log.entry_words(address), address), begin=address, end=address))
     try:
-        uc.emu_start(entry, STOP_ADDRESS, count=BUDGET)
+        uc.emu_start(entry, STOP_ADDRESS, count=BUDGET if budget is None else budget)
     except UcError as exc:
         return f"fault ({exc})"
     finally:
         for hook in hooks:
             uc.hook_del(hook)
+    if blocks is not None and steps is not None:
+        steps.append(entered[0])
+    if full:
+        return f"the call log is full at a call of {full[0]:#x} (the run makes more calls than the log has room for)"
     if uc.reg_read(reg.UC_MIPS_REG_PC) != STOP_ADDRESS:
         return "instruction budget exceeded"
     return {
@@ -610,7 +664,8 @@ def addresses(cfg) -> dict[str, int]:
 
 
 def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes, scratch: bytes, entry: int = 0,
-                  stop_at_first_difference: bool = False, on_case=None) -> tuple[int, int, int, list, set]:
+                  stop_at_first_difference: bool = False, on_case=None, original_budget: int | None = None,
+                  longest: list | None = None) -> tuple[int, int, int, list, set]:
     """Run the cases. `entry` is the offset of the function in `code`.
 
     Returns (discarded, equal, different, first difference report, executed): `executed` holds
@@ -620,6 +675,9 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     `on_case`, when given, is called as `on_case(case, setup, reference, slots, differs)` for every case
     that was not discarded: `slots` are the offsets of the original's instruction slots the case executed
     (`--record` uses it; the counts and the return value do not depend on it).
+    `original_budget` is the instruction budget of the original's runs when it is not the general one
+    (the altered runs of `--edges` give one). `longest`, when given, gets one number appended: the
+    instructions of the longest run of the original that reached its end (0 when none did).
     """
     contract = contracts.CONTRACTS[name]
     original, size = original_function(cfg, name)
@@ -628,15 +686,20 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     discarded = equal = different = 0
     first: list[str] = []
     executed: set[int] = set()
+    most = 0
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
         state = State(ram, scratch)
         setup = contract.setup(state, rng, sym)
         blocks: set = set()
-        reference = run_once(uc, state, original, setup, blocks)
+        steps: list = []
+        # The two options are passed only when a caller of this function asked for one of them.
+        extra = {"budget": original_budget, "steps": steps} if original_budget is not None or longest is not None else {}
+        reference = run_once(uc, state, original, setup, blocks, **extra)
         if isinstance(reference, str):
             discarded += 1
             continue
+        most = max([most, *steps])
         case_slots = slots_in(blocks, original, size)
         executed |= case_slots
         built = run_once(uc, state, TEST_ADDRESS + entry, setup)
@@ -656,6 +719,8 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
                 break
         else:
             equal += 1
+    if longest is not None:
+        longest.append(most)
     return discarded, equal, different, first, executed
 
 
@@ -822,8 +887,25 @@ def edge_line(index: int, mnemonic: str, rs: int, rt: int, old: int, new: int, d
             f"different 0 of {different_of}, discarded {discarded}")
 
 
-# What the workers of an `--edges` pool (or the one process, with `--jobs 1`) share: set by `edge_init`.
+def lost_line(index: int, mnemonic: str, rs: int, rt: int, old: int, new: int, status: int) -> str:
+    how = f"signal {-status}" if status < 0 else f"status {status}"
+    return (f"  slot {index}: {mnemonic} {operands_text(mnemonic, rs, rt, old)}, immediate {old:#x} -> {new:#x}: "
+            f"no result, the process of this run ended ({how})")
+
+
+# What the processes of the altered runs (or the one process, with `--jobs 1`) share: set by `edge_init`.
 EDGE_CONTEXT: dict = {}
+# The instruction budget of an altered original: this many times the longest run of the unaltered original,
+# and at least the floor (never above the general budget).
+EDGE_BUDGET_FACTOR = 8
+EDGE_BUDGET_FLOOR = 20_000
+
+
+def edge_budget(longest: int | None) -> int | None:
+    """The budget of an altered original's run; None (the general budget) when the longest run is not known."""
+    if longest is None:
+        return None
+    return min(BUDGET, max(EDGE_BUDGET_FLOOR, EDGE_BUDGET_FACTOR * longest))
 
 
 def edge_init(context: dict) -> None:
@@ -852,16 +934,33 @@ def edge_run_case(task: tuple[int, int, int]) -> tuple[int, int, int, int, int |
         noticed: list[int] = []
         gone, _equal, changed, _first, _executed = test_function(
             c["cfg"], c["name"], c["code"], c["cases"], c["seed"], bytes(image), c["scratch"], c["entry"],
-            stop_at_first_difference=True,
+            stop_at_first_difference=True, original_budget=c.get("budget"),
             on_case=lambda case, _setup, _reference, _slots, differs: noticed.append(case) if differs and not noticed else None)
     finally:
         image[at : at + 4] = struct.pack("<I", word)
     return index, which, gone, changed, noticed[0] if noticed else None
 
 
+def edge_child(worker, task, send) -> None:
+    """The body of the process of one altered run: sends ("result", value) or ("raise", exception)."""
+    try:
+        message = ("result", worker(task))
+    except Exception as exc:  # the parent raises it again
+        message = ("raise", exc)
+    send.send(message)
+    send.close()
+
+
 def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int, worker=edge_run) -> list[tuple]:
     """The results of `worker` (`edge_run`, or `edge_run_case` for `--record`) for the tasks, in the order
-    they finish (the caller sorts them)."""
+    they finish (the caller sorts them).
+
+    With `jobs` above 1 every altered run is made in a forked process of its own, `jobs` of them at a time.
+    An altered original can jump anywhere, and the emulator itself has ended (a signal) on what it found
+    there: the process of that run then ends without a result, and the run's result here is
+    (index, which, None, exit status of the process), with a fifth None for `edge_run_case`. With `jobs` 1
+    the runs are made in this process, and such an end is the end of the tool.
+    """
     if not tasks:
         return []
     if jobs == 1:
@@ -874,24 +973,55 @@ def edge_runs(context: dict, tasks: list[tuple[int, int, int]], jobs: int, worke
         fork = multiprocessing.get_context("fork")
     except ValueError as exc:
         raise InputError("--jobs above 1 needs the fork start method of this system; use --jobs 1") from exc
-    with concurrent.futures.ProcessPoolExecutor(max_workers=min(jobs, len(tasks)), mp_context=fork,
-                                                initializer=edge_init, initargs=(context,)) as pool:
-        futures = [pool.submit(worker, task) for task in tasks]
-        return [future.result() for future in concurrent.futures.as_completed(futures)]
+    edge_init(context)  # the forked processes find it as it is here
+    waiting, running, results = list(reversed(tasks)), {}, []
+    try:
+        while waiting or running:
+            while waiting and len(running) < jobs:
+                task = waiting.pop()
+                receive, send = fork.Pipe(duplex=False)
+                child = fork.Process(target=edge_child, args=(worker, task, send))
+                child.start()
+                send.close()
+                running[receive] = (child, task)
+            for receive in multiprocessing.connection.wait(list(running)):
+                child, task = running.pop(receive)
+                try:
+                    kind, value = receive.recv()
+                except EOFError:
+                    kind, value = "lost", None
+                receive.close()
+                child.join()
+                if kind == "raise":
+                    raise value
+                if kind == "lost":
+                    value = (task[0], task[1], None, child.exitcode) + ((None,) if worker is edge_run_case else ())
+                results.append(value)
+    finally:
+        for child, _task in running.values():
+            child.terminate()
+            child.join()
+        EDGE_CONTEXT.clear()
+    return results
 
 
 def edge_report(name: str, cases: int, constants: list, executed: set, results: list, uncovered: bool) -> tuple[list[str], int]:
     """The lines of one function and the status, from the results of its altered runs in any order.
 
     `constants` are (index, mnemonic, rs, rt, immediate); a result is (index, which, discarded, different),
-    `which` 0 for the immediate plus one and 1 for minus one.
+    `which` 0 for the immediate plus one and 1 for minus one, or (index, which, None, exit status) for a run
+    whose process ended without a result.
     """
     by_constant = {c[0]: c for c in constants}
-    runs = unnoticed = all_discarded = 0
+    runs = unnoticed = all_discarded = lost = 0
     lines: list[str] = []
-    for index, which, gone, changed in sorted(results):
+    for index, which, gone, changed in sorted(results, key=lambda r: r[:2]):
         _i, mnemonic, rs, rt, immediate = by_constant[index]
         runs += 1
+        if gone is None:
+            lost += 1
+            lines.append(lost_line(index, mnemonic, rs, rt, immediate, edge_neighbours(immediate)[which], changed))
+            continue
         if changed:
             continue
         if gone == cases:
@@ -901,7 +1031,7 @@ def edge_report(name: str, cases: int, constants: list, executed: set, results: 
             lines.append(edge_line(index, mnemonic, rs, rt, immediate, edge_neighbours(immediate)[which], cases, gone))
     skipped = [f"  slot {c[0]}: not executed by any case" for c in constants if 4 * c[0] not in executed]
     head = (f"{name} edges: constants {len(constants)}, altered runs {runs}, unnoticed {unnoticed}, "
-            f"all discarded {all_discarded}")
+            f"all discarded {all_discarded}" + (f", no result {lost}" if lost else ""))
     return [head, *lines, *(skipped if uncovered else [])], 1 if unnoticed else 0
 
 
@@ -912,17 +1042,21 @@ def edge_sweep(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, 
     The default comparison runs first. The words of the original are scanned in `ram`; the altered runs
     are made by `jobs` processes (in this one with 1) and printed in a fixed order.
     """
-    discarded, _equal, different, _first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch, build.entry)
+    longest: list = []
+    discarded, _equal, different, _first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch, build.entry,
+                                                                   longest=longest)
     if different or discarded:
         return [f"{name} edges: not swept, the comparison without alteration shows different {different}, "
                 f"discarded {discarded}"], 1
-    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed)
+    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed, longest[0])
     return edge_report(name, cases, constants, executed, edge_runs(context, tasks, jobs), uncovered)
 
 
-def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, scratch: bytes, executed: set) -> tuple[list, list, dict]:
-    """(constants, altered runs, context for the workers) of a function whose comparison without alteration
-    has passed and has executed the slots `executed`."""
+def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, scratch: bytes, executed: set,
+              longest: int | None = None) -> tuple[list, list, dict]:
+    """(constants, altered runs, context for the processes) of a function whose comparison without alteration
+    has passed and has executed the slots `executed`. `longest` is the longest run of the unaltered
+    original in instructions: the altered originals get their budget from it (`edge_budget`)."""
     address, size = original_function(cfg, name)
     base = address - RAM_BASE
     image = bytearray(ram)
@@ -931,7 +1065,7 @@ def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, s
     tasks = [(index, which, new) for index, _m, _rs, _rt, immediate in constants if 4 * index in executed
              for which, new in enumerate(edge_neighbours(immediate))]
     context = {"cfg": cfg, "name": name, "code": build.code, "entry": build.entry, "cases": cases, "seed": seed,
-               "scratch": scratch, "base": base, "words": words, "image": image}
+               "scratch": scratch, "base": base, "words": words, "image": image, "budget": edge_budget(longest)}
     return constants, tasks, context
 
 
@@ -940,6 +1074,7 @@ def edge_plan(cfg, name: str, build: Build, cases: int, seed: int, ram: bytes, s
 
 FIXTURE_FORMAT = 1
 FIXTURE_CAP = 12  # fixtures kept by --record unless --max says otherwise
+RECORD_PROBES = 3  # cases that --record looks at for a refusal before it makes the altered runs
 POISON = 0xA5  # what the memory of a replay holds where the fixture says nothing
 FIXTURE_FIELDS = ("args", "calls", "case", "ends_in_callee", "note", "reads", "recorders", "result",
                   "same", "seed", "watch", "writes")
@@ -1179,9 +1314,15 @@ def pointer_cell(reads: dict[int, int], target: int) -> int | None:
 
 
 def unmade_reads(state: State, reads: dict[int, int]) -> int:
-    """How many of the bytes read are memory that the setup did not make: they come from the game's image."""
+    """How many of the bytes read are memory that the setup did not make: they come from the game's image.
+    What the setup marked with `owns` counts with them: it is made for the audit of the writes, and its
+    content is the image's all the same."""
+    def kept(at: int) -> bool:
+        address = at + RAM_BASE if at < RAM_SIZE else at
+        return any(start <= address < start + size for start, size in state.kept)
+
     return sum(1 for at in reads
-               if not (state.made_ram[at] if at < RAM_SIZE else state.made_scratch[at - SCRATCH_BASE]))
+               if kept(at) or not (state.made_ram[at] if at < RAM_SIZE else state.made_scratch[at - SCRATCH_BASE]))
 
 
 def record_case(uc: Uc, state: State, original: int, size: int, setup: contracts.Setup, names: dict[int, str]) -> tuple[dict, int]:
@@ -1265,14 +1406,40 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     def collect(case, setup, reference, slots, _differs):
         info[case] = (frozenset(slots), reference["v0"] if setup.returns_value and setup.returns else None)
 
+    longest: list = []
     discarded, equal, different, first, executed = test_function(cfg, name, build.code, cases, seed, ram, scratch,
-                                                                  build.entry, on_case=collect)
+                                                                  build.entry, on_case=collect, longest=longest)
     original, size = original_function(cfg, name)
     comparison = (f"{name}: built {build.size} bytes, original {size} bytes; "
                   f"cases {cases}, discarded {discarded}, equal {equal}, different {different}")
     if different or discarded or not equal:
         return [f"{name} fixtures: not recorded, the comparison shows different {different}, discarded {discarded}",
                 *(f"  {line}" for line in first)], 1
+
+    contract = contracts.CONTRACTS[name]
+    sym, names = addresses(cfg), names_of(cfg)
+    uc = machine(b"\0" * 16)
+
+    def recorded(case: int) -> tuple[dict | None, int, tuple[list[str], int] | None]:
+        """(fixture, bytes not made, None) of a case, or (None, 0, the lines and status that refuse the function)."""
+        rng = random.Random(f"{seed}:{name}:{case}")
+        state = State(ram, scratch)
+        setup = contract.setup(state, rng, sym)
+        try:
+            fixture, not_made = record_case(uc, state, original, size, setup, names)
+        except (FixtureError, ValueError) as exc:
+            return None, 0, ([f"{name} fixtures: not recorded, case {case}: {exc}"], 2)
+        if fixture.pop("needs_image"):
+            return None, 0, ([f"{name} fixtures: not recorded, case {case} executes code of the game other than the function and "
+                              f"the recorders (the contract lets a callee run as original code); fixtures cannot stand in for "
+                              f"such a callee, the function stays with the wide comparison"], 1)
+        return fixture, not_made, None
+
+    # What refuses a function is looked for in its first cases before the altered runs are made: they are
+    # the long part, and a refusal after them would have been known without them.
+    for case in sorted(info)[:RECORD_PROBES]:
+        if (refusal := recorded(case)[2]) is not None:
+            return refusal
 
     choice = Choice(cap)
     # a. the cases that execute a slot of the original that no kept case executed
@@ -1282,7 +1449,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
         if new and choice.add(case, f"slots: {len(new)} new", "slots"):
             covered |= info[case][0]
     # b. the first case that notices each alteration of a constant of the original (as `--edges` makes them)
-    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed)
+    constants, tasks, context = edge_plan(cfg, name, build, cases, seed, ram, scratch, executed, longest[0])
     noticed = {(r[0], r[1]): r for r in edge_runs(context, tasks, jobs, edge_run_case)}
     by_constant = {c[0]: c for c in constants}
     left_out: list[str] = []
@@ -1292,7 +1459,9 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
             continue
         for which, new in enumerate(edge_neighbours(immediate)):
             _i, _w, gone, changed, case = noticed[(index, which)]
-            if changed:
+            if gone is None:
+                left_out.append(lost_line(index, mnemonic, rs, rt, immediate, new, changed).strip())
+            elif changed:
                 text = f"slot {index}, immediate {immediate:#x} against {new:#x}"
                 if not choice.add(case, f"edge: {text}", "edges"):
                     left_out.append(f"slot {index}: {mnemonic} {operands_text(mnemonic, rs, rt, immediate)}, immediate "
@@ -1308,22 +1477,11 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
                 seen.add(result)
                 choice.add(case, f"result {result:#x}", "results")
 
-    contract = contracts.CONTRACTS[name]
-    sym, names = addresses(cfg), names_of(cfg)
-    uc = machine(b"\0" * 16)
     fixtures, unmade = [], 0
     for case in sorted(choice.reasons):
-        rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch)
-        setup = contract.setup(state, rng, sym)
-        try:
-            fixture, not_made = record_case(uc, state, original, size, setup, names)
-        except (FixtureError, ValueError) as exc:
-            return [f"{name} fixtures: not recorded, case {case}: {exc}"], 2
-        if fixture.pop("needs_image"):
-            return [f"{name} fixtures: not recorded, case {case} executes code of the game other than the function and "
-                    f"the recorders (the contract lets a callee run as original code); fixtures cannot stand in for "
-                    f"such a callee, the function stays with the wide comparison"], 1
+        fixture, not_made, refusal = recorded(case)
+        if refusal is not None:
+            return refusal
         fixture.update({"case": case, "note": "; ".join(choice.reasons[case]), "seed": seed})
         unmade += not_made
         fixtures.append(fixture)
@@ -1419,6 +1577,14 @@ def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contr
     """Put the recorders of the fixture in the state, above every address the fixture uses in the arena."""
     top = ARENA_BASE
     used = [*bytes_of(fixture["reads"]), *bytes_of(fixture["same"]), *writes, *(int(r["at"], 16) for r in fixture["recorders"])]
+    # What a recorder copies at a call is memory of the case too, to its last byte, whether or not the function
+    # reads or writes it: a watched block, and the words behind a pointer argument. The recorders and their log
+    # go above all of it, or they would lie inside what is compared. (A word that a recorder stores or adds to
+    # is in `reads`, `same` or `writes` already.)
+    used += [int(a, 16) + 4 * n - 1 for a, n in fixture["watch"]]
+    behind = {r["callee"]: r.get("pointees", {}) for r in fixture["recorders"]}
+    for call in fixture["calls"]:
+        used += [int(call["args"][int(i)], 16) + 4 * n - 1 for i, n in behind[call["callee"]].items()]
     for address in used:
         if ARENA_BASE <= address < ARENA_END:
             top = max(top, address + 1)

@@ -83,6 +83,37 @@ same time (see [efficient checks](../../../docs/efficiency.md)):
 Then put that function's lines into the three blocks below. No other
 function is run again for it, and the folder is not run as a whole.
 
+## Fixtures
+
+A function that has fixtures has a file `FUNC.fixtures.json` beside its
+`FUNC.c`. Replay runs the C of the function on the recorded inputs and never
+runs the original code. It still needs the private inputs of the build
+configuration and the PS1 compiler. From the tool's folder
+(`ps1/src/slot06_nonmatching/`), for this folder and for one function:
+
+    python -B difftest.py --config ../build.toml --folder ../library_nonmatching --replay
+    python -B difftest.py --config ../build.toml --folder ../library_nonmatching --replay FUNC
+
+For a new or changed function, record once (the wide comparison, then the
+fixtures it keeps), then replay:
+
+    python -B difftest.py --config ../build.toml --folder ../library_nonmatching --cases 2000 --jobs 4 --record FUNC
+
+A pass is evidence for the recorded inputs. It is not the wide comparison and
+it is not equivalence. Details of the files are on the page of the tool's folder.
+
+Functions of this folder without a fixtures file, by reason:
+
+- The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_80167388`.
+- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_80166144`, `func_8016b788`.
+
+What the replay command of the folder printed on 2026-10-10, one line per function:
+
+```
+func_8015ffc0 replay: fixtures 12, passed 12, failed 0
+func_80163794 replay: fixtures 12, passed 12, failed 0
+```
+
 ## The recorded lines
 
 The three blocks are a record, not an instruction: what the commands

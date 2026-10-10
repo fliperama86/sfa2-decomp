@@ -73,9 +73,13 @@ the code, and that is it.
 
 - For an exact unit: build its image and see the bytes match. Read the
   C.
-- For a nonmatching function: run that function's own test. Read the C
-  and its contract against each other. A case the reviewer invents for
-  that one function is welcome; a rerun of other functions is not.
+- For a nonmatching function: run that function's own test. When it
+  has a fixtures file that is the replay, which takes seconds; the wide
+  runs are for a function without a file, and for one whose contract
+  changed without a new file. The review command selects it so. Read
+  the C and its contract against each other. A case the reviewer
+  invents for that one function is welcome; a rerun of other functions
+  is not.
 - For a tool or a piece of the port: run the tests of that piece. Read
   the code.
 - For text: read it.
@@ -120,10 +124,14 @@ test after that: it builds the C, runs it on the fixtures and never
 runs the original code. It still starts like every mode of the tool,
 so it needs the private inputs of the build configuration and the PS1
 compiler; a replay of the C as compiled for a PC, which needs nothing
-private, is not built yet. Four functions of the resident folder have
-fixtures. A function whose contract lets a callee run as original code
-cannot have them yet (`--record` refuses it), and the other functions
-have none yet: for all of those the table above is what to run.
+private, is not built yet. Fixtures files exist for the published nonmatching functions of
+every nonmatching folder and for the port's overrides that the tool
+accepted (each folder's page has the replay command and the list of its
+functions without a file). A function whose contract lets a callee run as
+original code cannot have them yet (`--record` refuses it), nor can one
+whose cases read bytes of the game image, one whose file stays over
+100,000 bytes, one with a recorder with a tail, or one that reads address
+0: for all of those the table above is what to run.
 
 ## Known costs, as of 2026-10-10
 
@@ -133,9 +141,11 @@ the table are the way around it.
 
 - The whole matching build links every image, one after the other,
   also when one unit changed. `--image` is the narrow form.
-- `python tools/ai_workflow/workflow.py review` runs every nonmatching
-  folder's tests again, one check after the other, as soon as a shared
-  file changes (`symbols.ld`, `types.fields`, a header), and all the
+- `python tools/ai_workflow/workflow.py review`, when a shared file
+  changes (`symbols.ld`, `types.fields`, a header, the test tool of
+  nonmatching C), replays every function that has fixtures, which is
+  seconds, and still runs one comparison of every function that has
+  none, one check after the other, which is minutes. It runs all the
   port's control files for any change under `port/`. Its results are
   keyed by the whole tree under `ps1/`, so one changed file ends every
   reuse.
@@ -145,8 +155,9 @@ the table are the way around it.
   detail.)
 - `port/tools/hostbuild.py` compiles every unit again on each run.
 
-- Most nonmatching functions have no fixtures yet, and a replay that
-  needs nothing private does not exist (see above).
+- Some nonmatching functions have no fixtures (the pages of the folders
+  say which and why), and a replay that needs nothing private does not
+  exist (see above).
 
 When one of these is repaired, its line leaves this list in the same
 pull request.

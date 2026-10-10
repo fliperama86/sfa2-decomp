@@ -27,10 +27,14 @@ struct port_library {
 /* kernel.c: one step of the clock; may call port_cd_tick. */
 extern void port_tick(void);
 
-/* How many sectors one port_cd_tick delivers while a read is on (double
- * speed is 150 a second, so 3 per 60 Hz frame is the real rate halved
- * with a margin; the value is a named constant to be tuned). */
-#define PORT_CD_SECTORS_PER_TICK 3
+/* The rate of delivery (the rule is in the header of cd.c): the console's drive,
+ * counted by the frame. A carry in fifths of a tick's drive time grows by 5 at every
+ * port_cd_tick. A sector costs 2 with the double-speed bit
+ * (0x80) of the mode (2, 3, 2, 3 ... sectors a tick: 150 a second at 60
+ * ticks) and 4 without it (1, 1, 1, 2 ...: 75 a second). The carry is
+ * cleared when a read starts and when the speed bit changes; when a sector
+ * could not be delivered the carry is cut to its remainder (carry modulo the
+ * cost), so no tick brings more than 3 sectors (2 at single speed). */
 
 /* The library's own variables that game code reads or writes directly
  * (addresses in the game's RAM, this build of SLPS_004.15). */
@@ -44,8 +48,8 @@ extern const struct port_library port_cd_library[];
 
 /* Give the layer the open image and reset it. 0, or -1 with a line in err. */
 int  port_cd_init(struct port_disc *disc);
-/* Deliver: complete pending commands, then up to PORT_CD_SECTORS_PER_TICK
- * sectors of a read in progress. Re-entry (from a ready handler) completes
+/* Deliver: complete pending commands, then the sectors of a read in progress
+ * that the rate gives for this tick (above). Re-entry (from a ready handler) completes
  * commands and delivers nothing. */
 void port_cd_tick(void);
 /* The sector of the image that the word of RAM containing `address` (a PS1

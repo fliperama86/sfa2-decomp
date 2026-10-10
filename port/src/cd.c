@@ -68,8 +68,59 @@
  *    sector offset; IntToPos returns its second argument.
  *
  * Timing: nothing here sleeps. A command that has a second response (Pause,
- * SeekL) completes in the next port_cd_tick (or when a blocking wait asks);
- * sectors are delivered only in port_cd_tick. */
+ * SeekL) completes in the next port_cd_tick (or when a blocking wait asks).
+ * Sectors are delivered in port_cd_tick, at the rate of the console's drive,
+ * counted BY THE FRAME AND NOT BY THE CLOCK: a vblank is a fixed amount of
+ * drive time here, whatever the host's clock says. The drive reads 75 sectors
+ * a second at single speed (the CD's own rate) and twice that, 150, with the
+ * double-speed bit (0x80) of the mode set. At 60 vblanks a second that is 2.5
+ * and 1.25 sectors a vblank. To lose no fraction, the layer keeps a carry in
+ * fifths of a vblank's drive time: every vblank's delivery adds 5 to it, and a sector costs
+ * 2 with the double-speed bit (2, 3, 2, 3, ... sectors a vblank) and 4
+ * without it (1, 1, 1, 2, ...). The sectors of one vblank are delivered in a
+ * row. The carry is cleared when a read starts (ReadN, ReadS) and when the
+ * mode's speed bit changes. The drive is modelled as waiting: when the row
+ * of a vblank ends because a sector could not be delivered (the read ended,
+ * the handler paused it, or a polling reader has not taken the last one), the
+ * carry left is cut to its remainder, the carry modulo the cost of a sector.
+ * What the drive could not hand over at a vblank is not handed over later, so
+ * the carry is below the cost at the start of every vblank and no vblank
+ * brings more than 3 sectors at double speed or 2 at single speed (a blocked
+ * reader never gets a burst when it starts taking again).
+ *
+ * The ready handler runs inside the row, and what it may do to the carry:
+ *  - The cost of a sector is taken from the carry BEFORE deliver_one calls the
+ *    handler (the drive's time for the sector is spent before the handler
+ *    runs). Taking it first leaves the same remainder when the sector could
+ *    not be delivered: (c - cost) modulo cost is c modulo cost.
+ *  - A handler may start a read (ReadN, ReadS) or change the speed bit; both
+ *    clear the carry. With the cost already taken the carry is then 0, below
+ *    any cost, so the row ends by itself and the reset stands for the next
+ *    vblank: no burst, no wrap of the unsigned carry, and the cost, which
+ *    belongs to the old speed, is not used again. A handler that starts a read
+ *    at every sector therefore brings exactly one sector a vblank.
+ *  - Pause: reading is 0, the next deliver_one returns 0, the row ends with
+ *    the remainder.
+ *  - A Setmode that leaves the speed bit as it is changes nothing the row uses.
+ *    CdInit from a handler stops the read (reading 0), so the row ends at the
+ *    next round, before the changed mode could be used.
+ *  - CdReady(0) from a handler: it does not call port_tick while a delivery is
+ *    on, and its call of port_cd_tick is guarded by in_delivery; port_cd_tick
+ *    itself returns before it touches the carry when a delivery is on. It
+ *    takes the ready flag and leaves the carry as it is.
+ *
+ * The blocking wait of the game (CdReady with mode 0) is unchanged: when no
+ * sector is ready and a read is on, it calls port_cd_tick itself, as before.
+ * That call adds to the carry and delivers like a vblank's, so a wait can
+ * bring more sectors in a second than the rate gives. That is the game
+ * waiting on the drive, not the drive running ahead.
+ *
+ * What this does not guarantee: the rate is the console's and nothing more.
+ * The game reads a stream into a ring of seven places that its main loop
+ * empties once per pass. When a pass of the loop takes several frames, the
+ * ring can still be lapped, and for a sound bank the game's library then
+ * never recovers. This layer does not prevent that; it is a known fault for
+ * a later change. */
 #include "cd.h"
 
 #include <stdint.h>
@@ -108,6 +159,7 @@ static struct {
     unsigned cur_sector, offset;
     unsigned char data[PORT_DATA];
     int in_delivery;
+    unsigned carry;                 /* the drive's time not yet turned into sectors, in fifths of a vblank (see the header) */
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
 } cd;
 
@@ -230,6 +282,12 @@ static void set_status(unsigned char s)
     lib_put32(PORT_CD_VAR_STATUS, s);
 }
 
+/* The carry is cleared (a read starts, the speed bit changes). A delivery row in progress then ends: 0 is below any cost. */
+static void clear_carry(void)
+{
+    cd.carry = 0;
+}
+
 /* The second response of Pause and SeekL arrives. */
 static void settle_pending(void)
 {
@@ -309,6 +367,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         if (cd.mode & 0x20) cd_stop("disc mode (whole sector)", cd.mode);
         if (cd.loc_set) { cd.pos = cd.loc; cd.loc_set = 0; }
         cd.reading = 1;
+        clear_carry();
         cd.ready = 0;
         set_status(ST_READ);
         one[0] = cd.status;
@@ -334,6 +393,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         break;
     case 0xe:
         if (param[0] & 0x20) cd_stop("disc mode (whole sector)", param[0]);
+        if ((cd.mode ^ param[0]) & 0x80) clear_carry();
         cd.mode = param[0];
         respond(one, 1, 2);
         break;
@@ -552,13 +612,20 @@ static int deliver_one(void)
 
 void port_cd_tick(void)
 {
-    int n;
+    unsigned cost;
     if (!cd.started) return;
     settle_pending();
     if (cd.in_delivery) return;
     cd.in_delivery = 1;
-    for (n = 0; n < PORT_CD_SECTORS_PER_TICK; n++)
-        if (!deliver_one()) break;
+    cost = (cd.mode & 0x80) ? 2u : 4u;   /* read here: after the pending commands are settled, before any handler runs */
+    cd.carry += 5;
+    while (cd.carry >= cost) {
+        cd.carry -= cost;   /* the drive's time for this sector is spent before the handler runs; a reset by the handler leaves 0 and ends the row */
+        if (!deliver_one()) {   /* the row ends: what the drive could not hand over now is not handed over later */
+            cd.carry %= cost;   /* the same remainder as before the cost was taken */
+            break;
+        }
+    }
     cd.in_delivery = 0;
 }
 
