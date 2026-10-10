@@ -18,12 +18,14 @@
  *   Other modes, field_4c not negative: it moves the object
  *     (func_801cc814_slot05_06). When field_cd is not 0 it calls
  *     func_80141248, then func_801410c8, and a non-zero low byte of the
- *     result takes the "enter" exit below. Otherwise, when bit 0 of
+ *     result takes the "enter" exit below. Then, when that exit was not taken
+ *     and bit 0 of
  *     game_state.field_1d is 0 and (field_1c5 is below (field_12a >> 1) + 3
  *     or has its bit 0x80 set) and func_801cded4_slot05_06 returns non-zero
  *     (it makes an object and sets ref_other.p to it), it pushes that
  *     object: a random 0 to 15 plus 0x5c goes through func_801cc870_slot05_06
- *     (which negates it when field_0b is 0) and is added to the object's x,
+ *     (which negates it when field_0b is 0, read from the
+ *     original's listing, not tested) and is added to the object's x,
  *     and a random 0 to 15 is subtracted from its y. Then, when bits 0 and
  *     1 of game_state.field_1d are both 0, it decides to push again: with
  *     field_1c5 equal to 1 when func_801468f4 returns a non-zero low byte,
@@ -52,31 +54,37 @@
  *   Writes: the object's field_0b, field_07, field_1c5, field_4c, field_54;
  *     ref_other.p's x and y; game_state.field_63; the random generator
  *     state; and what the real callees write (func_801cc814_slot05_06
- *     writes the object's words at 0x10 and 0x4c).
+ *     writes the object's words at 0x10 and 0x4c, read from the original's
+ *     listing, not tested).
  *   Callees that run as the original: func_801cc814_slot05_06 (the move),
- *     func_801cc870_slot05_06 (negates a halfword by field_0b) and
- *     func_80151184 (random generator).
+ *     func_801cc870_slot05_06 (negates a halfword by field_0b, read from
+ *     the original's listing, not tested) and func_80151184 (random
+ *     generator).
  *   Callees replaced by recorders: func_80141248 (1 argument),
  *     func_801410c8 (1, random result), func_801cded4_slot05_06 (1, random
  *     result), func_801468f4 (1, random result), func_80148e84 (1, random
  *     result), func_80148ea8 (1, random result), func_80140cd8 (3),
  *     func_801204f4 (3), func_80120554 (3), func_801307e0 (2, the second
  *     under a 16-bit mask), func_80130efc (1). They reach resident code of
- *     the objects, collision and animation. The log watches the whole
- *     object, ref_other.p's words at offsets 0x10 and 0x14 (x and y, which
- *     this function writes after calls) and the word at game_state offset
+ *     the objects, collision and animation (read from the original's
+ *     listing, not tested). The log watches the whole
+ *     object, ref_other.p's words at offsets 0x10 and 0x14 (the words that
+ *     hold x at 0x12 and y at 0x16, which this function writes after calls)
+ *     and the word at game_state offset
  *     0x60 (field_63), so that a field written after a call instead of
  *     before it is a difference.
  *   Aliasing: the object, the opponent and the object at ref_other.p are
  *     distinct blocks.
- *   Excluded inputs: none; field_4c and its move are kept within 30 bits so
- *     that the move's sum does not overflow (the move is signed).
+ *   Excluded inputs: none by the contract; the setup draws field_4c and
+ *     field_54 within signed 30 bits, so the sums of the move do not
+ *     overflow, and inputs where they would overflow are not tested.
  *   Not reached by any input: the original has 4 instruction slots (at
  *     offsets 0x8c to 0x98) that set game_state.field_63 to 0x18 and call
  *     func_80146960 when the mode byte is 2; the same byte was already
  *     found not 2 at the first test (mode 2 returns before), and the
- *     original does not re-read it, so no input reaches them. They are not
- *     written in this C.
+ *     original does not re-read it, so no input reaches them (all read
+ *     from the original's listing, not tested). They are not written in
+ *     this C.
  */
 #include "../game.h"
 #include "../protos.h"

@@ -7,7 +7,8 @@ func_801b0ea0_slot04_sel.c. Choices made here:
   - the handler table has four entries, each a recorder of its own; the
     records' first bytes are random in 0 to 3;
   - the records are 0x32 bytes of random content; game_state.field_07 is
-    0 in a fifth of the cases, else random; in half of the cases the
+    0 in a fifth of the cases, else a random non-zero byte; in half of the
+    cases the
     records' field_09 are chosen so that their OR equals it; field_0b of
     each is 0 in half of the cases;
   - the two comparison bytes equal game_state.field_07 and mode in three

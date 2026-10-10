@@ -3,13 +3,15 @@
 Choices of the setup:
   - the arena is moved to 0x80060000, past the module's data tables;
   - the given object (0x394 bytes) is random; its field_f0 is 0 in four
-    cases of five and random otherwise;
+    cases of five and random non-zero otherwise;
   - the HUD state (0x64 bytes) is random;
   - the object of data_80051bd0_slot28 and the table words at index 0 to 9
     (data_80051ba4_slot28) are random blocks/words;
-  - func_8011f1e0 returns, call by call, a new random object in three cases
-    of four and 0 otherwise (ten calls, ten results), so that every arm of
-    the loop and of the last request is tried;
+  - func_8011f1e0 returns, call by call, a new random object or 0 (ten
+    calls, ten results; the chance of an object per case is drawn from 3/4,
+    3/4, 1/4, 1 and 0, with equal probability for each of the five values),
+    so that every arm of the loop and of the last request is tried;
+  - func_80022bf0_slot28 returns a random word, the others 0;
   - the seven callees are recorders; the log watches the given object, the
     HUD state, the object of data_80051bd0_slot28, the ten objects that
     func_8011f1e0 can return, and the table (index 0 to 9 and the pointer

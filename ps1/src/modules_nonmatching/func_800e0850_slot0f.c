@@ -11,14 +11,15 @@
  * file. It builds a path in the buffer at data_8018ff14 (a word and a
  * halfword chosen by mode, then a string appended), asks func_800e0da8
  * about the card (results 1 and 4 are returned as they are, 3 becomes 2),
- * opens the file for reading and writing; when that fails it opens it again
- * with the create flag (failure returns 3), closes that handle (failure
- * returns 2) and opens it once more. It then fills the header block that
- * data_800e8504_slot0f points at (a halfword, the bytes 0x11 and 1 at
- * offsets 2 and 3, the name copied in at offset 4, 28 bytes from offset
- * 0x44 cleared), calls func_800e13dc, and writes 0x2000 bytes of the block
- * with func_800e12cc (failure returns 2). Otherwise it closes the file and
- * returns 1 when the close failed, 0 when it did not.
+ * opens the file for reading and writing (flag 2); when that returns -1 it
+ * opens it again with the create flag (flag 0x10200; -1 returns 3), closes
+ * that handle (-1 returns 2) and opens it once more (flag 2; that result is
+ * not checked). It then fills the header block that data_800e8504_slot0f
+ * points at (a halfword, the bytes 0x11 and 1 at offsets 2 and 3, 28 bytes
+ * from offset 0x44 cleared, then the name copied in at offset 4), calls
+ * func_800e13dc, and writes 0x2000 bytes of the block with func_800e12cc
+ * (result -1 returns 2). Otherwise it closes the file and returns 1 when
+ * the close returned -1, 0 when it did not.
  *
  * Contract (what the code reads and writes; the roles named are inferred):
  *   Arguments: a0 = mode (zero or not), a1 = pointer to a name string.
@@ -29,8 +30,9 @@
  *   Writes: data_8018ff14 (word) and data_8018ff18 (halfword); the header
  *     block: halfword at 0, bytes at 2 and 3, the 28 bytes from 0x44.
  *     The original also stores the byte at data_800df11a into offset 2 of
- *     the block, and overwrites it at once with 0x11; this C omits that
- *     store, as no callee runs between and nothing observes it.
+ *     the block, and overwrites it at once with 0x11 (read from the
+ *     original's listing, not tested); this C omits that store, as no
+ *     callee runs between and nothing observes it.
  *   Callees replaced by recorders (they reach the library or the card):
  *     strcat (2 args; the log copies the destination 2 words and the
  *     source 4 words), func_800e0da8 (1 arg, results chosen per case),

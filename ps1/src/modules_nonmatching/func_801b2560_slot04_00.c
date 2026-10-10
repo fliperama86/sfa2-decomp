@@ -25,13 +25,15 @@
  *   Callees: func_801307e0 (2 arguments) and func_80130efc (1 argument) are
  *     replaced by recorders returning a random word, in the original and in
  *     this C alike; they reach the sequence code and the shared state code
- *     of the resident image.
+ *     of the resident image (read from the original's listing, not tested).
  *   Aliasing: only the object is a block; nothing else is written.
  *   Watched by the recorders: the whole object (0x394 bytes) at every call,
  *     so the order of this function's stores against the calls is tested.
  *     No recorded callee gets a pointer to memory filled for the call.
- *   Inputs excluded: none (field_50 + field_58 is kept within 31 bits so the
- *     sum does not overflow; the sum is a plain add in both codes).
+ *   Inputs excluded: the setup draws field_50 and field_58 each as a signed
+ *     30-bit value, so their sum always fits 32 bits signed; sums that
+ *     overflow are not tested (the sum is a plain add in both codes, read
+ *     from the original's listing, not tested).
  *   Slots not reached: none.
  */
 #include "../game.h"

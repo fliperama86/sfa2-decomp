@@ -1,7 +1,8 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes (156 bytes against 160:
- * the half is kept in one register, where the original keeps two copies).
+ * the half is kept in one register, where the original keeps two copies,
+ * read from the original's listing, not tested).
  * The exact owner of the bytes in the PS1 build stays the
  * raw bytes of the module image; the build does not use this file. The
  * differential test next to it (func_80077868_slot2b.py) compares the
@@ -11,8 +12,10 @@
  * What it does (inferred, not an original name): sets field_07 to 3 and
  * field_159 to 1. When field_219 is not 0 it calls func_80077908_slot2b
  * and ends. Otherwise it takes half of field_12a, passes it to
- * func_80141f28 (which adds a signed amount to a gauge of the object), and
- * then calls func_801307e0 with that half plus a base, 0xc when field_48
+ * func_80141f28 (which adds a signed amount to a gauge of the object, read
+ * from the
+ * original's listing, not tested), and then calls func_801307e0 with that
+ * half plus a base, 0xc when field_48
  * is 0 and 0x12 otherwise, plus 3 when field_129 is not 0, truncated to 16
  * bits.
  *
@@ -22,7 +25,8 @@
  *   Writes: field_07 and field_159.
  *   Callees replaced by recorders returning 0 (their results are not used;
  *     func_80141f28 reaches the library's sound, func_801307e0 the sequence
- *     start, func_80077908_slot2b is the next function of the module):
+ *     start, func_80077908_slot2b is the next function of the module; all
+ *     three read from the original's listing, not tested):
  *     func_80077908_slot2b (1 argument: the object), func_80141f28 (2: the
  *     object and the half), func_801307e0 (2: the object and the sum). The
  *     log watches the object, whole (0x394 bytes), at every call.

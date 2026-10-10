@@ -2,7 +2,8 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in instruction order and
  * register choice (36 of 72 instruction slots; same size, 288 bytes; the
- * dead first store of field_02 is not made). The exact owner of the bytes in the PS1
+ * dead first store of field_02 is not made, read from the original's
+ * listing, not tested). The exact owner of the bytes in the PS1
  * build stays the raw bytes of the module image; the build does not use
  * this file. The differential test next to it (func_800796e4_slot2b.py)
  * compares the behavior of this C with the original code on random inputs
@@ -17,8 +18,9 @@
  * and field_9c. The child's position is the spawning object's position
  * plus an offset pair from the table data_8007ee64_slot2b, selected by a
  * random number (func_80151184) masked to an even index below 32: x adds
- * the first half of the pair, y subtracts the second. Last it calls
- * func_801204f4 with the spawning object, the parent's side and 0xf.
+ * the first half of the pair, y subtracts the second. Last, and only when
+ * it got one, it calls func_801204f4 with the spawning object, the
+ * parent's side and 0xf.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
@@ -34,7 +36,9 @@
  *     writes the seed). Replaced by recorders returning no used value:
  *     func_8011f1e0 (no arguments; the pool allocator; it returns the new
  *     object of the setup, or 0 in a quarter of the cases) and
- *     func_801204f4 (3 arguments, reaches the sequence tables). The log
+ *     func_801204f4 (3 arguments, reaches the sequence tables, read from
+ *     the original's
+ *     listing, not tested). The log
  *     watches the new object, the spawning object and the parent, whole
  *     (0x394 bytes each), at every call.
  *   Aliasing: the object, the new object and the parent are distinct
@@ -42,7 +46,8 @@
  *   Excluded inputs: none.
  *   Slots no input reaches: none known; see the coverage line. (The
  *     original also stores 0x3b into field_02 and overwrites it with 0x14
- *     before any call; the C stores only the 0x14, with no difference in
+ *     before any call, read from the original's listing, not tested; the C
+ *     stores only the 0x14, with no difference in
  *     any state a callee or the test can observe.)
  * The tree declares func_8011f1e0 as returning a Block172 pointer; the result is cast to Object * here.
  */

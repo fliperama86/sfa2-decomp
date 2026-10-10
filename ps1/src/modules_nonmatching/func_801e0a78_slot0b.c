@@ -2,7 +2,9 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is 556 bytes against the original's 624: the original has
  * two copies of the x scaling, one for each side of the mirror test, and
- * this C has one; register choice and instruction order differ too. The exact owner of the bytes in the PS1
+ * this C has one (read from the original's listing, not tested); register
+ * choice and instruction order differ too. The exact owner of the bytes in
+ * the PS1
  * build stays the raw bytes of the module image; the build does not use
  * this file. The differential test next to it (difftest.py) compares the
  * behavior of this C with the original code on random inputs of the
@@ -13,7 +15,7 @@
  * an ordering-table list. A layout reached through the object's sequence
  * holds a count and a list of coordinate pairs. Each pair is transformed by
  * the object's state: field_48 mirrors x (x becomes -x - 16), field_20 and
- * field_22 scale x and y about the point 8 (value + ((value + 8) * scale >>
+ * field_22 scale x and y about the point -8 (value + ((value + 8) * scale >>
  * 4)), and field_24 (its low byte indexes a table of sine and cosine
  * pairs) rotates about the point (-8, -8) with 8 fractional bits. The
  * square then has its corners at the result plus the object's position,
@@ -29,8 +31,9 @@
  *     coordinate list at 8, u16 pairs); table_801e1fec_slot0b entries
  *     (s16 at 0 and 2) indexed by the low byte of field_24; the list base
  *     pointer data_801987c8 and the word 8 + field_09 words into it.
- *   Writes: per record offsets 0x08, 0x0a, 0x10, 0x12, 0x18, 0x1a, 0x20,
- *     0x22 and the link word at 0; the list word.
+ *   Writes: per record the halfwords at offsets 0x08, 0x0a, 0x10, 0x12,
+ *     0x18, 0x1a, 0x20, 0x22 and the link word at 0 (its 24-bit address
+ *     part); the list word (its 24-bit address part).
  *   No callee.
  *   Aliasing: the object, sequence step, layout, coordinate list, the
  *     rotation table, the record array and the list array are distinct

@@ -18,7 +18,8 @@
  *     (field_12a >> 1) + 3 or has its bit 7 set, a non-zero low byte of
  *     func_801b5ed8_slot04_06 knocks the object ref_other.p back
  *     (func_801b4874_slot04_06 on a halfword d = (random & 0xf) + 0x5c,
- *     ref_other.p->pos_x += d, ref_other.p->pos_y -= random & 0xf).
+ *     ref_other.p->pos_x += d with d as func_801b4874 leaves it,
+ *     ref_other.p->pos_y -= random & 0xf).
  *     Then, when bits 0 and 1 of game_state.field_1d are clear, a hit test
  *     decides whether the same knock-back (with d = 0x60) is done: with
  *     field_1c5 == 1 the test is the low byte of func_801468f4, otherwise
@@ -27,8 +28,8 @@
  *   Otherwise (field_4c negative): field_1c5 is decremented; when it is 0
  *     the state ends. When not: func_80140cd8 (object, -0xfe, 0);
  *     func_801204f4 (object, side, 8); func_80120554 (other, other's side,
- *     0x34e or 0x34f, by the sign of other's halfword field_5c; other =
- *     field_40); field_4c = 0xa0000, field_54 = -0xe000,
+ *     0x34e when other's halfword field_5c is not negative, else 0x34f;
+ *     other = field_40); field_4c = 0xa0000, field_54 = -0xe000,
  *     game_state.field_63 = 8; then sequence data_801c547c_slot04_06
  *     [field_1c5] (halfword table) is started with func_801307e0.
  *   End of the state: field_07 + 1 and func_801307e0 (object, 0x2e).
@@ -36,17 +37,19 @@
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
  *   Reads: field_3a, pos_x, field_4c, field_cd, field_12a, field_1c5,
- *     side, field_0b (by the knock-back helper), field_40 and, of that
+ *     side, field_0b (by the knock-back helper, read from the original's
+ *     listing, not tested), field_40 and, of that
  *     object, field_5c and side; game_state.field_1d; the pointer ref_other.p and that object's pos_x and pos_y;
  *     the halfword table at data_801c547c_slot04_06 (the setup fills 256).
  *   Writes: field_0b, field_4c, field_54, field_07, field_1c5, pos_x and
  *     pos_y of the ref_other.p object, game_state.field_63, plus what the
  *     callees write (the move writes the words at field_10 and
- *     field_4c).
+ *     field_4c, read from the original's listing, not tested).
  *   Callees: func_801b4818_slot04_06 (the move, 1 argument) and
  *     func_801b4874_slot04_06 (2 arguments, a halfword at a pointer) run as
  *     the original code in both runs; they touch only the object and the
- *     halfword. Replaced by recorders, in the original and in this C alike:
+ *     halfword (read from the original's listing, not tested). Replaced by
+ *     recorders, in the original and in this C alike:
  *     func_80130efc (1), func_801307e0 (2), func_80140cd8 (3), func_801204f4
  *     (3), func_80120554 (3), func_80141248 (1), func_801410c8 (1),
  *     func_801b5ed8_slot04_06 (1), func_801468f4 (1), func_80148e84 (1),
@@ -66,7 +69,8 @@
  *     the start (the original's 0x801b35f0 to 0x801b35fc: the stores of
  *     game_state.field_63 = 0x18 and the call of func_80146960). They are
  *     in the arm where field_3a == 2 is tested a second time after it was
- *     found different, so no input reaches them. They are not in this C.
+ *     found different, so no input reaches them (all read from the
+ *     original's listing, not tested). They are not in this C.
  */
 #include "../game.h"
 #include "../protos.h"

@@ -2,7 +2,8 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is 8 bytes shorter and orders some loads and stores
  * differently (the original reads field_03 once, early, and stores field_09
- * twice). The exact owner of the bytes in the PS1 build stays the raw bytes
+ * twice; read from the original's listing, not tested). The exact owner of
+ * the bytes in the PS1 build stays the raw bytes
  * of the module image; the build does not use this file. The differential test next to it
  * (difftest.py, with func_801b7bfc_slot04_02.py) compares the behavior of
  * this C with the original code on random inputs of the contract below.
@@ -10,13 +11,15 @@
  * What it does (inferred, not an original name): a state of a helper object
  * that follows another one (field_3c). It advances its state byte
  * (field_04). While game_state.field_64 is not 0 it copies the other
- * object's position-related fields, places itself at fixed coordinates
- * (x from box_margin, y from data_801aa5ea), steps field_03 up by one
+ * object's field_1c, field_90, field_98, field_9c, field_7a and field_7c,
+ * places itself at fixed coordinates (x from box_margin, y from
+ * data_801aa5ea), steps field_03 up by one
  * unless the other object's field_5c is 0x90, loads a palette copy for that
- * value (func_801b7e34), takes sequence 8 from the left or right table
- * (scratchpad words, chosen by the other object's side) and registers
- * itself (func_8011ffdc). When field_64 is 0 it only calls
- * func_801b7d58_slot04_02, which sets field_04 to 2.
+ * value (func_801b7e34), calls func_80130768 with 8 and one of two tables
+ * (the scratchpad word data_1f8000b4 when the other object's side is 0,
+ * else data_1f800164) and registers itself (func_8011ffdc). When field_64
+ * is 0 it only calls func_801b7d58_slot04_02, which sets field_04 to 2
+ * (read from the original's listing, not tested).
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
@@ -24,7 +27,8 @@
  *     field_03; the second object's field_1c, field_90, field_98, field_9c,
  *     field_7a, field_7c, field_5c and side; game_state.field_64; box_margin;
  *     data_801aa5ea; the scratchpad words data_1f8000b4 and data_1f800164
- *     (pointers to tables of sequence pointers, entry 8 is used).
+ *     (pointers to tables of sequence pointers; each is passed to
+ *     func_80130768 together with 8).
  *   Writes: field_04 (+1, or 2 in the idle arm), and in the active arm
  *     field_0f, field_0e, field_0b = 0, field_09 = 6, field_1c, field_90,
  *     field_98, field_9c, field_7a, field_7c, pos_x, field_0d = 0x1f,
@@ -35,8 +39,9 @@
  *     and func_8011ffdc run as the original code (with the setup giving them
  *     sequence tables, frame records and the object stacks). The one callee
  *     replaced is func_80137220 (2 arguments), called by func_801b7e34: it
- *     reaches the job pool and the video code of the resident image; the
- *     recorder returns a random word.
+ *     reaches the job pool and the video code of the resident image (read
+ *     from the original's listing, not tested); the recorder returns a
+ *     random word.
  *   Aliasing: the two objects, tables, steps, frame records and stacks are
  *     distinct blocks.
  *   Watched by the recorders: the whole object (0x394 bytes) and the array data_801a2bc4 (8 words) at the call of the recorder,

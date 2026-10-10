@@ -1,7 +1,9 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register choice and
- * instruction order (and the two arms are one loop here). The exact owner
+ * instruction order (and the two arms are one loop here; the original has
+ * two arms, read
+ * from the original's listing, not tested). The exact owner
  * of the bytes in the PS1 build stays the raw bytes of the module image;
  * the build does not use this file. The differential test next to it
  * (difftest.py) compares the behavior of this C with the original code on
@@ -15,8 +17,8 @@
  * texture word from the argument `tag`, the tile word from `base` plus the
  * id times 64, and the four corner positions: the pair plus (0x60, 0x50),
  * and the corners 0x10 further right and down. With `mirror` not 0 the
- * left and right corner x values are exchanged (right corner x, left corner
- * x + 0xf). The whole layout is walked twice; the second pass continues
+ * left corner gets x + 0xf and the right corner x (not an exact swap of x
+ * and x + 0x10). The whole layout is walked twice; the second pass continues
  * after the records of the first.
  *
  * Contract:
@@ -28,12 +30,14 @@
  *     id list at 4, the coordinate list at 8 (u16 pairs). The count is
  *     tested after the first entry, so a count of 0 or less still makes one
  *     entry per pass.
- *   Writes: per record, offsets 0x04 to 0x06, 0x0c to 0x0e, 0x14 to 0x16,
- *     0x1c, 0x1d, 0x24 and 0x25; nothing else.
+ *   Writes: per record, offsets 0x04 to 0x06, 0x0c to 0x0f (0x0c and 0x0d
+ *     bytes, the halfword at 0x0e), 0x14 to 0x17 (0x14 and 0x15 bytes, the
+ *     halfword at 0x16), 0x1c, 0x1d, 0x24 and 0x25; nothing else.
  *   Callee replaced by a recorder (same in both runs): func_8015c09c (one
  *     argument, Sony's library range; no result used). The log copies, at
  *     every call, the first 10 words of the record passed (the part the
- *     callee would initialise) and the whole record array, so that a field
+ *     callee would initialise, inferred) and the whole record array, so
+ *     that a field
  *     written after a call instead of before it would show.
  *   Aliasing: the object, the sequence step, the layout, the id list, the
  *     coordinate list and the record array are distinct blocks.

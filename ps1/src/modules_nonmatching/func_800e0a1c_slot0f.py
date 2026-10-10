@@ -1,16 +1,18 @@
 """Contract of func_800e0a1c_slot0f: a save-file load from the memory card.
 
 Choices of the setup:
-  - a0 (mode) is 0 in half the cases, else 0x10 or a random word;
+  - a0 (mode) is 0 in half the cases, else one of 0x10, 1 and a random
+    word (equal odds);
   - the 16 words from data_8018fef8 hold random bytes (the function
     overwrites 6 bytes at offset 0x1c); the words data_800df0f0..0fc are
     the module's own data and are not changed;
   - data_800e8504_slot0f points at a small block of the setup;
-  - func_800e0da8_slot0f answers 1, 4, 3, 0, 2 or a random word, each often;
+  - func_800e0da8_slot0f answers one of 1, 4, 3, 0, 2 and a random word,
+    each with probability 1/6;
   - func_800e11e4_slot0f answers -1 in a quarter of the cases, else a
     random positive descriptor; func_800e1250_slot0f answers a negative
     word in a quarter, else a random non-negative one; close answers -1
-    in a quarter, else 0 or a random word;
+    in a quarter, else 0 or a random non-negative 31-bit word (equal odds);
   - strcat and func_800e1348_slot0f answer 0;
   - the log watches 16 words from data_8018fef8.
 """

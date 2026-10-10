@@ -22,9 +22,11 @@
  *   Callees: func_80141f28 (2 arguments) and func_801307e0 (2 arguments) are
  *     replaced by recorders returning a random word, in the original and in
  *     this C alike; they reach the sound and sequence code of the resident
- *     image. func_801b09ac_slot04_04 (the else arm) runs as the original code;
- *     it reads field_12a, field_48, field_129 and the table data_801c4180 of
- *     the module, and calls the two recorded functions.
+ *     image (read from the original's listing, not tested).
+ *     func_801b09ac_slot04_04 (the else arm) runs as the original code; it
+ *     reads field_12a, field_48, field_129 and the table data_801c4180 of
+ *     the module, and calls the two recorded functions (read from the
+ *     original's listing, not tested).
  *   Aliasing: only the object is a block; nothing else is written.
  *   Watched by the recorders: the whole object (0x394 bytes) at every call of the two recorders,
  *     so the order of this function's stores against the calls is tested.

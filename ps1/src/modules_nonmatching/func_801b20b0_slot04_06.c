@@ -23,7 +23,8 @@
  *   Callees: func_80141f28 (2 arguments), func_80138ae8 (2 arguments) and
  *     func_801307e0 (2 arguments) are replaced by recorders returning a
  *     random word, in the original and in this C alike; they reach the
- *     sequence code and the shared state code of the resident image. The
+ *     sequence code and the shared state code of the resident image (read
+ *     from the original's listing, not tested). The
  *     second argument of func_80138ae8 is the object; the first is
  *     game_state, which this function does not write.
  *   Aliasing: the object is one block; the two tables are the module's own

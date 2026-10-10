@@ -16,9 +16,10 @@
  * a number (0 for 0x80 and 1, 1 for 0x10, 2 for 4), adds one to field_07,
  * starts the sequence 0x2b plus that number with func_801307e0, sets
  * field_0b to 1 when the opponent's position x (object->other) is not less
- * than its own, sets the velocity fields (field_4c, 0x70000 or -0x70000
- * towards that side; field_50 0x38000; field_54, -0x4000 or 0x4000; field_58
- * -0x4000), and calls func_801204f4, func_80141f28 and func_80138ae8. Then,
+ * than its own, else to 0, sets the velocity fields (when field_0b is 1:
+ * field_4c -0x70000, field_54 0x4000; when it is 0: field_4c 0x70000,
+ * field_54 -0x4000; in both cases field_50 0x38000 and field_58 -0x4000),
+ * and calls func_801204f4, func_80141f28 and func_80138ae8. Then,
  * also when no bit was set or field_50 was too large, it calls
  * func_80130efc.
  *
@@ -29,12 +30,12 @@
  *     field_12, and the byte at 0xa6 (side); game_state only by address.
  *   Writes: the object's field_07, field_0b, field_4c, field_50, field_54
  *     and field_58.
- *   Callees replaced by recorders (all of them; each steps animation or
- *     object state that would need a contract of its own):
+ *   Callees replaced by recorders (all of them; their code is outside
+ *     this test):
  *     func_801b1e04_slot04_0a (1 argument; returns 0 or a random non-zero
  *     value), func_801b30a0_slot04_0a (1), func_801307e0 (2, the second
- *     under a 16-bit mask), func_801204f4 (3, the second and third as the
- *     function passes them), func_80141f28 (2), func_80138ae8 (2, the
+ *     under a 16-bit mask), func_801204f4 (3, the second and third under
+ *     8-bit masks), func_80141f28 (2), func_80138ae8 (2, the
  *     address of game_state and the object), func_80130efc (1); all return 0
  *     except the first. The log watches the whole object and the whole
  *     opponent object, so that a field written after a call instead of

@@ -14,10 +14,11 @@
  * the right one otherwise), selected by the target's kind, it takes the
  * 6-byte record numbered by the parent's current frame's field_0b. The
  * object copies the target's field_0b; its pos_x becomes the target's
- * pos_x plus the record's first half plus the object's field_4e, with that
- * sum negated when the target's field_0b is not 0; its pos_y becomes the
- * target's pos_y minus the record's second half plus the high half of the
- * object's field_50. All position arithmetic is modulo 2^16.
+ * pos_x plus the sum of the record's first half and the object's field_4e,
+ * that sum (not the target's pos_x) negated when the target's field_0b is
+ * not 0; its pos_y becomes the target's pos_y minus the sum of the
+ * record's second half and the high half of the object's field_50. All
+ * position arithmetic is modulo 2^16.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.

@@ -3,9 +3,12 @@
 Choices of the setup:
   - the object is 0x394 bytes of random content; field_03 is 0 in half of the
     cases, else random non-zero (the two arms choose the record table);
-  - the offset table (28 halfwords) and both record tables (0x200 + 14 * 16
-    bytes each, from the table base) are random, so that the bytes the
-    function leaves alone (the tag words) are tested too;
+  - the offset table (28 halfwords) and both record tables are random, so
+    that the bytes the function leaves alone (the tag words) are tested too;
+    the first table is filled with 0x400 + 0x200 + 14 * 16 bytes from its
+    base (the second table starts 0x400 bytes after the first, so this
+    reaches into it), then the second with 0x200 + 14 * 16 bytes from its
+    base;
   - both callees are recorders (1 and 2 arguments); the log watches the two
     runs of 14 records of the table the case chooses, at every call.
 """

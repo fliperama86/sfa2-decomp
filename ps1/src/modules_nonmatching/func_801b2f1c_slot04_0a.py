@@ -2,8 +2,8 @@
 
 Reads and writes are listed in the header comment of
 func_801b2f1c_slot04_0a.c. Choices made here:
-  - the first helper returns non-zero (random 16-bit value, with random
-    bits above 16 as well) in one case of four;
+  - the first helper returns non-zero (a random 32-bit value with bit 0 set,
+    so its low 16 bits are non-zero) in one case of four, else 0;
   - field_50 is above 0x50000 in one case of four, else random up to it,
     with the values around the limit (0x50000, 0x50001, 0x4ffff) often;
   - the halfword at 0x134 has each of the bits 0x80, 0x10, 4, 1 set with

@@ -12,8 +12,8 @@
  * (16 by 16, kind 2) and a length byte that depends on game_state.field_2bd
  * (0x14 when it is 0, else 0x10), and has the resident routine
  * func_80130768 set up the object's sequence from a list of steps (the
- * first list of the table data_80028444_slot12 when field_2bd is 0, else
- * the list at entry 8). When the second argument is 1 the length byte
+ * list at entry 0 of the table data_80028444_slot12 when field_2bd is 0,
+ * else the list at entry 8). When the second argument is 1 the length byte
  * becomes 0x1d and the routine is called again with the list at entry 4.
  * The record also takes a pointer chosen by the object's field_5c, the
  * object's field_76 and field_78 minus 8 as its x and y, and the object
@@ -33,8 +33,8 @@
  *     pos_y.
  *   Valid inputs: field_03 below 8 (the flag bytes lie right before the
  *     records, and beyond 8 they would overlay record bytes); field_5c from
- *     -2 to 4 (the tables are 5 entries long as far as the code shows;
- *     negative values are kept to test the sign extension).
+ *     -2 to 4 (the window the test fills; the files do not show the tables'
+ *     lengths; negative values are kept to test the sign extension).
  *   Callee: func_80130768 (resident game code; replaced by a recorder, 3
  *     arguments: object, byte, list pointer). The log watches, at every
  *     call, the whole object (229 words), the record (16 words) and the

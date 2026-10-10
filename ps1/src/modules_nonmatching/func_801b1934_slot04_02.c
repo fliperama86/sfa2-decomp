@@ -10,7 +10,8 @@
  * What it does (inferred, not an original name): a state entry of a
  * character. It sets field_17b and field_07 to 1, clears field_12c to
  * field_12f, spends 9 points (func_80141f28), calls func_80138ae8 with the
- * game state, copies four consecutive words of a table, selected by
+ * game state and the object, copies four consecutive words of a table,
+ * selected by
  * field_12a, into field_4c, field_50, field_54 and field_58, and starts
  * sequence 0x1b (0x61 when field_49 is not 0) plus field_12a / 2.
  *
@@ -26,7 +27,8 @@
  *   Callees: func_80141f28 (2 arguments) and func_801307e0 (2 arguments) are
  *     replaced by recorders returning a random word, in the original and in
  *     this C alike; they reach the sound and sequence code of the resident
- *     image. func_80138ae8 runs as the original code: it reads the game
+ *     image (read from the original's listing, not tested). func_80138ae8
+ *     runs as the original code: it reads the game
  *     state's mode and field_2f and the object's field_cd, and adds to
  *     data_80188ec4 through func_80138838 and func_8013886c.
  *   Aliasing: only the object is a block; the table and game state are the

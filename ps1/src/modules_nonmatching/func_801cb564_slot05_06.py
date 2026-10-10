@@ -6,17 +6,21 @@ func_801cb564_slot05_06.c. Choices made here:
     a random non-zero byte other than 2; x (0x12) is chosen among the
     borders 0x200, 0x201, 0x27f, 0x280, 0x300, 0x301 half of the time,
     else random;
-  - field_4c (a word) is negative in a third of the cases, 0 in a tenth,
-    else positive, always within 30 bits; field_54 within 30 bits;
+  - field_4c (a word) is negative with probability 0.33, 0 with probability
+    0.10, else a value from 0 to 2^30 - 1; field_54 is a signed 30-bit
+    value;
   - game_state.field_63, which the function writes, is a random byte before
     the call;
   - field_cd is 0 in half of the cases; game_state.field_1d has random bits;
-  - field_1c5 is 0, 1, 2 or 0x80 or above or near (field_12a >> 1) + 3 in
-    most cases, else random; field_12a is random; field_0b is 0 or random;
-  - each recorder with a result returns 0 in 45 cases of 100, 0x100 (a
-    non-zero word with a zero low byte, which tells a test of the whole
-    word from a test of the low byte) in 10 of 100, else a non-zero word or
-    byte;
+  - field_1c5 is, with probability 0.4, one of 0, 1, 1, 2, 3 (equal odds);
+    with 0.2, (field_12a >> 1) + 3 plus -1, 0 or 1; with 0.2, 0x80 or
+    above; with 0.2, a random byte; field_12a is random; field_0b is 0 in
+    half of the cases, else a random non-zero byte;
+  - each of the five recorders with a result (func_801410c8,
+    func_801cded4_slot05_06, func_801468f4, func_80148e84, func_80148ea8)
+    returns 0 with probability 0.45, 0x100 (a non-zero word with a zero
+    low byte, which tells a test of the whole word from a test of the low
+    byte) with 0.10, else a random 32-bit word with bit 0 set;
   - the opponent (field_40) and the pushed object (ref_other.p) are blocks
     of 0x394 bytes of random content, the opponent's field_5c is negative
     in half of the cases;

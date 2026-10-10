@@ -6,8 +6,8 @@ Choices of the setup:
     else arm is also taken, including with a nonzero byte);
   - field_50 and field_58 are random 30-bit signed values, so that the sum
     is negative about half of the time and never overflows; in a quarter of
-    the cases field_58 is chosen to make the sum fall just below or just on
-    zero (edge of the signed test);
+    the cases field_58 is chosen to make the sum -1, 0 or 1 (edge of the
+    signed test);
   - field_07 and field_12a are random bytes, with 0xff in one case of eight
     (wrap of the increments);
   - func_801307e0 (2 arguments) and func_80130efc (1 argument) are

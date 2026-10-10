@@ -2,7 +2,8 @@
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is shorter (the original reloads the address of ref_other for
  * each use, repeats the advance block as two paths and widens the argument
- * of func_80140cd8 to 16 bits by shifts). The PS1 build keeps the raw bytes of the module image and does
+ * of func_80140cd8 to 16 bits by shifts; read from the original's listing,
+ * not tested). The PS1 build keeps the raw bytes of the module image and does
  * not use this file. The differential test next to it (difftest.py, with
  * func_801b37b0_slot04_03.py) compares the behavior of this C with the
  * original code on random inputs of the contract below.
@@ -31,7 +32,8 @@
  *     callees write.
  *   Callees, all replaced by recorders in the original and in this C alike
  *     (they reach the sound, sprite and sequence code of the resident
- *     image): func_801204f4 (3 arguments), func_80120554 (3), func_80146478
+ *     image, read from the original's listing, not tested): func_801204f4
+ *     (3 arguments), func_80120554 (3), func_80146478
  *     (4), func_80140cd8 (3; the result is a random word, only its low byte is
  *     used), func_80140770 (7), func_80140fe0 (1), func_801410c8 (1; random
  *     word, low byte used), func_801307e0 (2), func_80130efc (1).

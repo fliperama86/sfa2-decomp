@@ -3,12 +3,14 @@
 Choices of the setup:
   - a0 is an object block of 0x394 bytes filled with random bytes;
   - field_12a is 2 in half of the cases, otherwise random (the else arm of
-    the first condition), small values 0..15 in a third of those so that the
+    the first condition), small values 0..15 with probability 0.33 among
+    those so that the
     table of func_801b09ac is indexed within itself and its odd/even forms
     are tried;
   - the top nibble of field_130 is 4 in four cases of five when field_12a is 2,
     otherwise random;
-  - field_48 and field_129 are 0 in a third of the cases, random otherwise;
+  - field_48 and field_129 are each 0 with probability 0.33, else a random
+    non-zero byte;
   - func_80141f28 and func_801307e0 are recorders (2 arguments each) that
     return a random word;
   - every recorder copies the whole object (0x394 bytes) into its log entry at

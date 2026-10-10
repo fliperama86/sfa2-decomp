@@ -3,9 +3,10 @@
 Choices of the setup (reads and writes are in the header of the .c file):
   - the layout has a count of 1 to 6 (0 or less is excluded: the original
     would loop 2^32 times) and random u16 coordinate pairs;
-  - field_48 is 0 in half of the cases; field_20, field_22 and field_24
-    are each 0 in a third of the cases, otherwise a random halfword (field_24
-    also takes values like 0x100, non-zero with a low byte of 0);
+  - field_48 is 0 in half of the cases; field_20 and field_22 are each 0
+    with probability 1/3, otherwise a random halfword; field_24 is 0 in
+    two cases of five, 0x100 (non-zero with a low byte of 0) in one of
+    five, else a random halfword;
   - pos_x and pos_y are random halfwords, field_09 is 0 to 7;
   - the 256 entries of table_801e1fec_slot0b hold random halfwords;
   - the fourth argument is 0 in half of the cases, otherwise a random

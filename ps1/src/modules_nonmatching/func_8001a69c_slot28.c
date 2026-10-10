@@ -33,7 +33,8 @@
  *     (no argument), func_80130768 (3 arguments), func_8011f1e0 (no
  *     argument; the setup gives it, per call in turn, a new object or 0),
  *     func_8001a988_slot28 (1), func_8001a958_slot28 (2), func_80128370
- *     (0; it waits for the hardware). All results are 0 except those of
+ *     (0; it waits for the hardware, read from the original's listing, not
+ *     tested). All results are 0 except those of
  *     func_8011f1e0. The log copies, at every call, the given object, the
  *     HUD state, the three table objects and the two returned objects (each
  *     whole, 0x394 bytes) and the five table words, so that a store moved

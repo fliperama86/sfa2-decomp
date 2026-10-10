@@ -4,17 +4,18 @@ Choices of the setup:
   - mode is 0 in half of the cases, otherwise a random non-zero word;
   - data_800e8504_slot0f points at a 0x80-byte random block; the name is a
     16-byte random block; the words and halfwords at data_800df0f0 to
-    data_800df0fc and data_800df118 are random, and so is the path buffer
-    at data_8018ff14 (four words);
-  - func_800e0da8_slot0f answers 1, 4, 3 or a random other value, each
-    about a fifth of the cases (the rest random);
+    data_800df0fc and data_800df118 are random, and so are the byte at
+    data_800df11a (which this C does not read) and the path buffer at
+    data_8018ff14 (four words);
+  - func_800e0da8_slot0f answers 1, 4, 3, 0 or a random 32-bit word, each
+    with probability 1/5;
   - func_800e11e4_slot0f answers in turn: the first open -1 in half of the
     cases, else a random descriptor; the second -1 in a third of the cases,
     else a descriptor; the third a descriptor;
-  - close answers in turn: -1 or 0 for the first two calls, at random, so
-    that either call may fail;
-  - func_800e12cc_slot0f answers -1 in a third of the cases, else a random
-    value other than -1;
+  - close answers in turn: the first answer is -1 or 0, the second -1, 0 or
+    5 (each with equal odds), so that either call may fail;
+  - func_800e12cc_slot0f answers -1 in a third of the cases, else one of 0,
+    1, 0x2000 and a random 31-bit value (equal odds);
   - strcat, strcpy and func_800e13dc_slot0f are recorders returning 0.
 """
 

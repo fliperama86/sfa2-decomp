@@ -24,10 +24,11 @@
  *     its field_52; the object pointer in data_80051bd0_slot28.
  *   Writes (when field_f0 is 0): HUD state field_60 and field_52; the
  *     object of data_80051bd0_slot28 (pos_y, field_01); each object that
- *     func_8011f1e0 returns (field_00 to field_03, field_09, field_0d,
- *     pos_x and pos_y of the last one, field_7a, field_7c, box_tables,
- *     field_90, field_98, field_9c, and field_09 once more for the last
- *     one); the table words at index 0 to 9.
+ *     func_8011f1e0 returns (for each of the first nine: field_00 to
+ *     field_03, field_09, field_0d, field_7a, field_7c, box_tables,
+ *     field_90, field_98, field_9c; for the tenth: pos_x, pos_y, field_09
+ *     (set to 2 before the func_80130768 call and to 3 after it),
+ *     field_0d, field_7a, field_7c); the table words at index 0 to 9.
  *   Aliasing: the given object, the HUD state, the object of
  *     data_80051bd0_slot28 and the ten objects func_8011f1e0 returns are
  *     distinct blocks; the table is another block.
@@ -35,8 +36,11 @@
  *     (no argument), func_80130768 (3 arguments), func_8011f1e0 (no
  *     argument; the setup gives it, per call in turn, a new object or 0),
  *     func_80022c6c_slot28 (1), func_80128370 (0; it waits for the
- *     hardware), func_8014f4d4 (2; it reaches the library),
- *     func_80022c3c_slot28 (2). All other results are 0. The log copies, at
+ *     hardware, read from the original's listing, not tested),
+ *     func_8014f4d4 (2; it reaches the library, read from the original's
+ *     listing, not tested), func_80022c3c_slot28 (2). All results are 0
+ *     except those of func_8011f1e0 and the one of func_80022bf0_slot28,
+ *     which is random per case (the C does not use it). The log copies, at
  *     every call, the given object, the HUD state, the object of
  *     data_80051bd0_slot28, the ten returned objects (each whole, 0x394
  *     bytes) and the table words at index 0 to 9 and the pointer after

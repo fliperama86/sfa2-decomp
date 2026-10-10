@@ -1,8 +1,9 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code is 548 bytes against the original's 556 (the original stores
- * the tag of the previous primitive twice in its a == 0xff arm; here only
- * the final store is written). The exact owner of the bytes in the PS1
+ * the tag of the previous primitive twice in its a == 0xff arm, read from
+ * the original's listing, not tested; here only the final store is
+ * written). The exact owner of the bytes in the PS1
  * build stays the raw bytes of the module image; the build does not use
  * this file. The differential test next to it (difftest.py, with
  * func_80013224_slot12.py) compares the behavior of this C with the
@@ -10,10 +11,11 @@
  *
  * What it does (inferred, not an original name): handles a pointer
  * (data_8002b614_slot12) that walks a buffer of 20-byte primitives. Called
- * with a == 0xff it steps the pointer back by one primitive and links that
- * primitive's tag to the word that data_8002b618_slot12 points at, then
- * makes that word point at the buffer data_8002ab94_slot12 plus 0x540
- * bytes times the selector data_801a27d0. Called with any other a it
+ * with a == 0xff it steps the pointer back by one primitive and sets that
+ * primitive's tag address to the address held in the word that
+ * data_8002b618_slot12 points at, then sets the address in that word to
+ * the buffer data_8002ab94_slot12 plus 0x540 bytes times the selector
+ * data_801a27d0. Called with any other a it
  * initializes the primitive at the pointer through the library, sets its
  * position (x and y plus the object's pos_x and pos_y), looks a up in a
  * table of nine bytes and, when found, sets its texture bytes from the
@@ -44,8 +46,9 @@
  *     primitive (5 words) and the pointer word data_8002b614_slot12.
  *   Aliasing: the object, the primitive buffer and the word behind
  *     data_8002b618_slot12 are distinct blocks. (The original stores the
- *     previous tag twice in its a == 0xff arm; the first store is
- *     overwritten by the second and is seen only when the two alias.)
+ *     previous tag twice in its a == 0xff arm, read from the original's
+ *     listing, not tested; the first store is overwritten by the second
+ *     and is seen only when the two alias.)
  *   Not reached: nothing is excluded; every instruction slot is executed.
  */
 #include "../game.h"

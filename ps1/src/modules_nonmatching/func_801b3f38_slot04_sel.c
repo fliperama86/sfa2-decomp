@@ -30,16 +30,18 @@
  *   Calls through the table data_801b7df0_slot04_sel: the original table in
  *     the module image has one entry (index 0, a function of this image);
  *     the bytes after it are not pointers, so only first byte 0 is valid in
- *     the original. The contract writes four entries (indices 0 to 3), each
+ *     the original (read from the original's listing, not tested). The
+ *     contract writes four entries (indices 0 to 3), each
  *     the address of a recorder of its own (2 arguments, return 0), and
  *     gives the records' first bytes in 0 to 3, so that clearing a first
  *     byte is a difference. The log watches both records (11
  *     words; the second argument points into them, at an address that is
  *     not word aligned, so it is not a pointee), the hud state block (the
- *     pointer data_8018f5a0 is set to a block of 0x64 bytes) and the byte
- *     at data_801b9d68_slot04_sel.
- *   Callee replaced by a recorder: func_801519b4 (1 argument, draws text),
- *     return 0.
+ *     pointer data_8018f5a0 is set to a block of 0x64 bytes) and the word
+ *     at data_801b9d68_slot04_sel (4 bytes, the first of which is the
+ *     compared byte; data_801b9d6c_slot04_sel is not in it).
+ *   Callee replaced by a recorder: func_801519b4 (1 argument; draws
+ *     text, inferred), return 0.
  *   Aliasing: the records, hud block, text buffers and the player objects
  *     are distinct; the players are the game's player_left and
  *     player_right, only passed on.

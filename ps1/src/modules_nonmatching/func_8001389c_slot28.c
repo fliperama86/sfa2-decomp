@@ -22,8 +22,10 @@
  *   Aliasing: the object, the HUD state and the table are distinct blocks.
  *   Callees replaced by recorders (same in both runs): func_8011eae4 (no
  *     argument; the original also has the object in a0 at that call, which
- *     the callee does not read) and func_80013c38_slot28 (one argument, the
- *     object; it reaches the library). Both return 0. The log copies, at
+ *     the callee does not read: read from the original's listing, not
+ *     tested) and func_80013c38_slot28 (one argument, the object; it
+ *     reaches the library: read from the original's listing, not tested).
+ *     Both return 0. The log copies, at
  *     every call, the whole object (0x394 bytes), the whole HUD state
  *     (0x64 bytes) and the table (16 bytes), so that a store moved across a
  *     call is seen. The 0xad store is after both calls in the original.

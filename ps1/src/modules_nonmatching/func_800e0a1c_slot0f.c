@@ -1,8 +1,9 @@
 /*
  * Nonmatching. This function is NOT byte-identical to the original: the
  * built code differs from the original's bytes in register choice (the
- * address of data_8018fef8 is held in another register). The exact owner of
- * the bytes in the PS1 build stays the raw bytes of the module image; the
+ * address of data_8018fef8 is held in another register, read from the
+ * original's listing, not tested). The exact owner of the bytes in the PS1
+ * build stays the raw bytes of the module image; the
  * build does not use this file. The differential test next to it
  * (difftest.py) compares the behavior of this C with the original code on
  * random inputs of the contract below.
@@ -14,7 +15,9 @@
  * argument); its answers 1 and 4 are returned as they are, 3 becomes 2, any
  * other continues. The file is opened (func_800e11e4_slot0f, flag 1), 0x2000
  * bytes are read into the block that data_800e8504_slot0f points at, and the
- * file is closed. Failures return 3 (open) or 2 (read, close); success calls
+ * file is closed. Failures return 3 (open: result -1) or 2 (read: result
+ * below 0;
+ * close: result -1); success calls
  * func_800e1348_slot0f and returns 0.
  *
  * Contract (the roles named are inferred):
@@ -25,7 +28,7 @@
  *     (data_8018ff14 and data_8018ff18 are the same addresses).
  *   Callees, all replaced by recorders:
  *     strcat (2 arguments: the path and data_800df100_slot0f, whose first 6
- *       words are logged as the pointee of argument 1), result 0;
+ *       words are logged as the pointee of the second argument), result 0;
  *     func_800e0da8_slot0f (1 argument), result chosen by the setup;
  *     func_800e11e4_slot0f (2 arguments: path, 1), result chosen by the setup;
  *     func_800e1250_slot0f (3 arguments: descriptor, buffer, 0x2000), result
@@ -35,8 +38,10 @@
  *   Watched at every call: 16 words from data_8018fef8, which hold the path
  *     the function builds and the callees would read.
  *   Weakness: in the module image data_800df0f4_slot0f and
- *     data_800df0fc_slot0f hold the same value, so the test cannot tell which
- *     of the two the function stores in each arm.
+ *     data_800df0fc_slot0f hold the same value (read from the module image,
+ *     not tested here), so
+ *     the test cannot tell which of the two the function stores in each
+ *     arm.
  *   Not reached by any input: none expected; the test reports the slots.
  */
 #include "../game.h"

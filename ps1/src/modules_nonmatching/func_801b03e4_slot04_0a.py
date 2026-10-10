@@ -3,14 +3,17 @@
 Reads and writes are listed in the header comment of
 func_801b03e4_slot04_0a.c. Choices made here:
   - game_state.field_64 and field_5c are both 0 in four cases of five (the
-    arm that runs the function's body); otherwise one or both are random
-    non-zero bytes, so that each of the two tests and the other arm run;
+    arm that runs the function's body); otherwise each of the two is,
+    with equal odds, 0 or a random non-zero byte (so the body also runs in
+    a quarter of these cases, and each of the two tests and the other arm
+    run);
   - the object is a block of 0x394 bytes of random content (func_80125734
     reads fields 0xa7, 0xcd, 0x130 of it, so both its early exit and its
     search loop run), field_06 random, field_46 and field_48 random;
   - game_state.field_76, which the function writes, holds a random halfword
     before the call;
-  - the random generator state is random;
+  - the random generator state (data_80190126) is not set by the setup: it
+    keeps the value the starting memory has, the same in every case;
   - func_80130678 and func_80130efc are recorders returning 0, the log
     watches the whole object and game_state.field_76.
 """

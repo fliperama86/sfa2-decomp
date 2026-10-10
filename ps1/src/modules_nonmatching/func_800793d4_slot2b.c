@@ -10,12 +10,13 @@
  * What it does (inferred, not an original name): an update step of an
  * object that falls toward a floor line given by another object (the one
  * data_8007ef34_slot2b points at). It first calls func_800795b4_slot2b.
- * When the floor's field_70 is below the object's pos_y (signed halves)
+ * When the floor's field_70 is less than the object's pos_y (signed halves)
  * the object has landed: field_05 goes up by one, pos_y is set to the
  * floor's field_70, field_0c, field_0d and field_14 are cleared, the three
  * data pointers field_90, field_98 and field_9c are set, a sequence is
  * started (func_80130700 with data_8017c850) and func_801204f4 is called
- * with the floor object's side and 0x10. Otherwise it calls func_80131094.
+ * with the object, the floor object's side and 0x10. Otherwise it calls
+ * func_80131094.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
@@ -26,9 +27,11 @@
  *     field_0c, field_0d and pos_y of the object.
  *   Callees replaced by recorders returning 0 (their results are not
  *     used): func_800795b4_slot2b (1 argument: the object; the next
- *     function of the module), func_80130700 (2: the object and the
- *     sequence pointer), func_801204f4 (3: the object, side, 0x10; reaches
- *     the sequence tables), func_80131094 (1: the object). The log watches
+ *     function of the module, read from the original's listing, not
+ *     tested), func_80130700 (2: the object and the sequence pointer),
+ *     func_801204f4 (3: the object, side, 0x10; reaches the sequence
+ *     tables, read from the original's listing, not tested),
+ *     func_80131094 (1: the object). The log watches
  *     the object and the floor object, whole (0x394 bytes each), at every
  *     call. The sequence pointer is passed on without being read through.
  *   Aliasing: the object and the floor object are distinct blocks.

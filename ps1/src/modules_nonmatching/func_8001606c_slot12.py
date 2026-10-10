@@ -4,8 +4,8 @@ Choices of the setup:
   - the object is 0x394 random bytes with field_03 below 8 and field_5c from
     -2 to 4 (as a halfword; the upper bits are the sign);
   - game_state.field_2bd is 0 in half of the cases, else random non-zero;
-  - a1 is 1 in half of the cases, else a random value other than 1 (in some
-    cases with the low bit patterns of 1 in other bits);
+  - a1 is 1 in half of the cases, else one of 0, 2, a random 32-bit word,
+    0x101 and 0x80000000 (chosen with equal probability);
   - the record table (8 records), the flag bytes, the byte table and the
     pointer table (window of -2 to 4 entries) are random;
   - the callee is a recorder with 3 arguments; the log watches the object,
@@ -39,7 +39,9 @@ def setup(state, rng, sym):
 
 
 def control(words):
-    """Alter the second list: its address low half 0x7bac (entry 4) becomes 0x7bab."""
+    """Alter the second list: the 16-bit immediate 0x8454 (the low half of
+    the address of entry 4, as a signed value -0x7bac) becomes 0x8455
+    (-0x7bab)."""
     found = [i for i, w in enumerate(words) if w >> 26 == 9 and w & 0xFFFF == 0x8444 + 0x10]
     if len(found) != 1:
         raise ValueError(f"expected one address of the entry-4 list, found {len(found)}")

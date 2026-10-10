@@ -5,9 +5,9 @@ Choices of the setup:
     field_40 points to a second block of 0x394 bytes ("other"), also random;
   - the halfword field_3a is negative in half of the cases; field_a3, field_0b
     and field_67 are each 0 in half of the cases, otherwise random non-zero;
-    other's field_61 is 0xff in one case of three;
-  - the word at field_10 and the velocity field_4c are small (field_4c a
-    random signed 20-bit value, field_10 a random word); the setup computes
+    other's field_61 is 0xff with probability 0.33, else a random byte;
+  - the word at field_10 is a random word and the velocity field_4c a random
+    signed 20-bit value; the setup computes
     the object's pos_x after the move, and gives other a pos_x within
     -0x30 to +0x30 of it in half of the cases (so the distance test
     "below 0x48" goes both ways, edges included), a random halfword

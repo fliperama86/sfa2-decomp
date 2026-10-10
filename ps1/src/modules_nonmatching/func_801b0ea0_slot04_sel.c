@@ -36,12 +36,14 @@
  *   Calls through the table data_801b6e70_slot04_sel: the original table in
  *     the module image has three entries (functions of this image) and then
  *     data that is not made of pointers, so only first bytes 0 to 2 are
- *     valid in the original. The contract writes four entries (indices 0 to
- *     3), each the address of a recorder of its own (2 arguments, return
- *     0), and gives the records' first bytes in 0 to 3, so that clearing a
- *     first byte is a difference.
- *   Callee replaced by a recorder: func_801519b4 (1 argument, draws text),
- *     return 0. The log watches both records (13 words), the hud state
+ *     valid in the original (read from the original's listing, not
+ *     tested). The contract writes four entries (indices 0 to 3), each the
+ *     address of a recorder of its own (2 arguments, return 0), and gives
+ *     the records' first bytes in 0 to 3, so that clearing a first byte is
+ *     a difference.
+ *   Callee replaced by a recorder: func_801519b4 (1 argument; draws
+ *     text, inferred), return 0. The log watches both records (13 words),
+ *     the hud state
  *     block, and the first 16 bytes of data_801b7978_slot04_sel (the
  *     second argument of a handler points into the records at an address
  *     that is not word aligned, so it is not a pointee).

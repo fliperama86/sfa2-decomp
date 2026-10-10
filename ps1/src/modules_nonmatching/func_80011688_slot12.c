@@ -10,8 +10,10 @@
  * one step toward a target palette. data_80028aa0_slot12 is the target (16
  * halfwords of 5-5-5 colour), the table that data_80028b40_slot12 points at
  * is the current palette. For each entry that differs, each of the three
- * 5-bit channels moves up by 2, but not past the target's channel; the
- * entry is rewritten. The 16 entries are then loaded to the frame buffer
+ * channels (red and green 5 bits, blue taken from bit 10 up) becomes its
+ * current value plus 2, or the target's channel when that is not larger
+ * (so a channel above its target is set to the target); the entry is
+ * rewritten. The 16 entries are then loaded to the frame buffer
  * rectangle (x 16, y 480, 16 wide, 1 high) and the function waits for the
  * drawing to finish. It returns 1 when any entry differed, else 0.
  *
@@ -20,8 +22,9 @@
  *   Reads: the target palette (16 halfwords) and, through the pointer word
  *     data_80028b40_slot12, the current palette (16 halfwords).
  *   Writes: the current palette entries that differ from the target. The
- *     channel in bits 10 to 14 is taken from bit 10 up (6 bits, as the
- *     original does not mask it), and a result is truncated to 16 bits.
+ *     channel in bits 10 to 14 is taken from bit 10 up (6 bits; the
+ *     original does not mask it either, read from the original's listing,
+ *     not tested), and a result is truncated to 16 bits.
  *   Callees, both in Sony's library, replaced by recorders:
  *     func_80157fc4 (2 arguments: a rectangle of 4 halfwords on the stack,
  *     the pixel pointer; the log copies the 2 words of the rectangle and the

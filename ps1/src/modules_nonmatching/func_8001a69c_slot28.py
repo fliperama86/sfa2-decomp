@@ -10,10 +10,13 @@ Choices of the setup:
     the two table words data_80051998_slot28, data_8005199c_slot28 are
     random;
   - func_8011f1e0 returns, call by call, a new random object or 0 (the
-    chance of an object per case is one of 3/4, 1/4, 1, 0);
+    chance of an object per case is drawn from 3/4, 3/4, 1/4, 1 and 0, with
+    equal probability for each of the five values);
   - the six callees are recorders; the log watches the given object, the
     HUD state, the three table objects, the two returned objects and the
-    five table words (data_80051998_slot28 to data_800519c8_slot28).
+    five table words (the two words data_80051998_slot28 and
+    data_8005199c_slot28, and the three words data_800519c0_slot28 to
+    data_800519c8_slot28).
 """
 from contracts import CallLog, Contract, Setup
 

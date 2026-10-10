@@ -16,8 +16,9 @@
  * halfwords, two signed values that go to a library call. Both records get
  * the same coordinates, the position (object field_12 plus the halfword
  * data_80028a10_slot12[idx], and object field_16), texture page 0x7f07 and
- * a command word made of 0xe1000000, two bytes of the block that
- * data_801987c8 points at (at 0xa2 and 0xa3), and the low five bits of the
+ * a command word that is the sum of 0xe1000000, the byte at 0xa3
+ * of the block that data_801987c8 points at shifted left by 10, the byte
+ * at 0xa2 of that block shifted left by 9, and the low five bits of the
  * library call's result.
  *
  * Contract:
@@ -30,9 +31,10 @@
  *     and bytes 0xa2 and 0xa3 behind it.
  *   Writes: in each record: the command word at 4, x and y at 0x14 and
  *     0x16, u and v at 0x18 and 0x19, the texture page at 0x1a.
- *   Valid inputs: idx below 76 (the first table has 76 entries) and
- *     field_48 below 61 (the second has 61 entries); every list pointer
- *     is halfword aligned.
+ *   Valid inputs: idx below 76 and field_48 below 61 (the numbers of
+ *     entries the test fills in the first and the second pointer table;
+ *     the files do not show the tables' lengths); every list pointer is
+ *     halfword aligned.
  *   Callee: func_8015bd0c (Sony's library), replaced by a recorder, 4
  *     arguments (0, 0, the first value as signed halfword, the second as
  *     signed halfword); its result is random per case. The log watches the

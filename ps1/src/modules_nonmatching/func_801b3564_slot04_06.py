@@ -8,8 +8,10 @@ Choices of the setup:
     random byte other than 0 and 2; pos_x is, in four cases of ten, one of
     the edge values 0x1ff to 0x302 around 0x200, 0x280 and 0x300, in three of
     ten a value of 0x201 to 0x300, otherwise random;
-  - field_4c and field_54 are random signed 30-bit values, field_4c negative
-    in half of the cases; field_0b is 0 in half; field_cd is 0 in
+  - field_4c and field_54 are random signed 30-bit values; in half of the
+    cases field_4c is then replaced by the absolute value of another such
+    value (so it is negative in about a quarter of the cases); field_0b is
+    0 in half; field_cd is 0 in
     two cases of five; the word at field_10 and field_14 are random;
   - field_1c5 is 1 in one case of four, otherwise from a mix of small values
     (0 to 7), values with bit 7 set, and random; field_12a is random;

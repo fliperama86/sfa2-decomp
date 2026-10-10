@@ -20,8 +20,10 @@
  *   Aliasing: the object, the HUD state and the three table objects are
  *     distinct blocks.
  *   Callees replaced by recorders (same in both runs): func_80014854_slot28
- *     (two arguments, result 0; it reaches Sony's library) and
- *     func_80128370 (no argument; it waits in a loop for the hardware).
+ *     (two arguments, result 0; it reaches Sony's library, read
+ *     from the original's listing, not tested) and func_80128370 (no
+ *     argument; it waits in a loop for the hardware, read from the
+ *     original's listing, not tested).
  *     The log copies, at every call, the whole object (0x394 bytes), the
  *     whole HUD state (0x64 bytes) and the three table objects (16 bytes
  *     each), so that a store moved across a call is seen.

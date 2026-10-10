@@ -12,12 +12,13 @@
  * a grid of 16-bit cells: byte 0 columns, byte 2 rows, byte 3 a texture
  * page offset, u16 at 4 and 6 the x and y origin, then rows * columns cells
  * from offset 8. For each cell whose low 14 bits are not 0 it initialises
- * a 0x1c-byte record through func_80136d1c, fills in the position (16
- * pixels per cell, from the object's position less box_margin and the
- * origin), the texture coordinates and command word from the cell, grey
- * colour 0x80 and the texture page, and links the record into the list head
- * selected by the object. Records are taken in order from one of two
- * buffers chosen by data_801a27d0.
+ * a 0x1c-byte record through func_80136d1c, fills in the position (x:
+ * the object's pos_x less box_margin, 16 pixels per column, less the x
+ * origin; y: the object's pos_y plus data_801aa5ea less 8, 16 pixels per
+ * row, less the y origin), the texture coordinates and command word from
+ * the cell, grey colour 0x80 and the texture page, and links the record
+ * into the list head selected by the object. Records are taken in order
+ * from one of two buffers chosen by data_801a27d0.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
@@ -26,10 +27,13 @@
  *     low byte of data_801a27d0, the list base pointer data_801987c8 and
  *     the list head word.
  *   Writes: data_801e7668_slot0b (set to 0); for each drawn cell one record
- *     (offsets 4, 0x10 to 0x12, 0x14 to 0x1b; the first word is the link);
+ *     (offsets 4 to 7, 0x10 to 0x12, 0x14 to 0x1b; the first word is the
+ *     link);
  *     the list head word.
  *   Callee replaced by a recorder (same in both runs): func_80136d1c (one
- *     argument, the record; it reaches Sony's library, so it is not run).
+ *     argument, the record; it reaches Sony's library, so it is not run;
+ *     read from the
+ *     original's listing, not tested).
  *     The log copies at every call the 7 words of the record passed, the
  *     first 24 records of the buffer in use whole, the 16 list words and
  *     data_801e7668_slot0b.
@@ -39,7 +43,8 @@
  *     rows * columns to 24; the record buffers hold 336 records each).
  *   Not reached by any input: two instruction slots of the original, at
  *     offsets 0x124 and 0x144, which correct the division by 256 and by 16
- *     for a negative value; a cell is masked to 14 bits and never negative.
+ *     for a negative value (read from the original's listing, not tested);
+ *     a cell is masked to 14 bits and never negative.
  */
 #include "../game.h"
 #include "../protos.h"

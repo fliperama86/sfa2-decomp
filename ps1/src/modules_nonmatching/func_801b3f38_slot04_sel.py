@@ -5,15 +5,15 @@ func_801b3f38_slot04_sel.c. Choices made here:
   - the handler table has four entries, each a recorder of its own; the
     records' first bytes are random in 0 to 3;
   - the records are 0x2a bytes of random content (first bytes as above);
-    field_0d of each is 0 in half of the cases, random otherwise;
-  - game_state.field_07 is 0 in a quarter of the cases, else random; the
-    mode byte random;
+    field_0d of each is 0 in half of the cases, else a random non-zero byte;
+  - game_state.field_07 is 0 in a quarter of the cases, else a random
+    non-zero byte; the mode byte is random;
   - the two comparison bytes data_801b9d68_slot04_sel and
     data_801b9d6c_slot04_sel equal game_state.field_07 and mode in half of
     the cases each, else random;
   - data_8018f5a0 points to a hud block of 0x64 bytes of random content;
   - func_801519b4 is a recorder; the log watches the records, the hud block
-    and the comparison bytes.
+    and the word at data_801b9d68_slot04_sel.
 """
 
 from contracts import CallLog, Contract, Setup, fill, halfword  # noqa: F401
