@@ -66,6 +66,8 @@ func_8011f06c: built 44 bytes, original 48 bytes; cases 2000, discarded 0, equal
 func_8011f06c coverage: 12 of 12 instruction slots of the original executed
 func_8011fa50: built 128 bytes, original 144 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011fa50 coverage: 35 of 36 instruction slots of the original executed
+func_80120604: built 928 bytes, original 952 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80120604 coverage: 238 of 238 instruction slots of the original executed
 func_80120cf0: built 664 bytes, original 592 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80120cf0 coverage: 148 of 148 instruction slots of the original executed
 func_80124304: built 904 bytes, original 928 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -183,6 +185,8 @@ func_8011f06c control: different 2000 of 2000 (expected more than 0)
   altered: store of field_226 moved by one byte, instruction slot 8
 func_8011fa50 control: different 2000 of 2000 (expected more than 0)
   altered: store of field_3a moved by two bytes, instruction slot 10
+func_80120604 control: different 254 of 2000 (expected more than 0)
+  altered: volume shifted by 5 instead of 6, instruction slot 102
 func_80120cf0 control: different 1012 of 2000 (expected more than 0)
   altered: random byte masked with 0x70, instruction slot 111
 func_80124304 control: different 307 of 2000 (expected more than 0)
@@ -287,6 +291,7 @@ func_8011df3c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011eb4c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011f06c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011fa50 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80120604 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80120cf0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80124304 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801254f4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
