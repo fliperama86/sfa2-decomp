@@ -202,11 +202,14 @@ def case_the_declaration_of_the_tree_is_read():
     return None if "logo" in names else f"names {names}"
 
 
-def body_file(tmp, load=0x80012000, size=0x100, magic=b"PS-X EXE", body=b"\xBB" * 0x100, sha=None, name="ZZ.EXE", functions=FUNCTION):
-    header = (magic + bytes(16 - len(magic)) + bytes(8) + struct.pack("<II", load, size)).ljust(2048, b"\0")
+def body_file(tmp, load=0x80012000, size=0x100, magic=b"PS-X EXE", body=b"\xBB" * 0x100, sha=None, name="ZZ.EXE", functions=FUNCTION,
+              entry=0, gp=None):
+    """A program file in `tmp` and its declaration. `entry` is the header's entry address, `gp` the declared global pointer."""
+    header = (magic + bytes(16 - len(magic)) + struct.pack("<II", entry, 0) + struct.pack("<II", load, size)).ljust(2048, b"\0")
     data = header + body
     (Path(tmp) / name).write_bytes(data)
-    (Path(tmp) / "programs.toml").write_text(declaration(sha=sha or hashlib.sha256(data).hexdigest(), functions=functions))
+    (Path(tmp) / "programs.toml").write_text(declaration(sha=sha or hashlib.sha256(data).hexdigest(), functions=functions,
+                                                         extra_key="" if gp is None else f"gp = {gp:#x}\n"))
     return P.load(Path(tmp) / "programs.toml")[0]
 
 
@@ -256,6 +259,53 @@ def case_body_function_past_its_end():
         P.read_body(body_file(tmp, functions=ends))  # ends exactly at the body's end: accepted
     return body_refused(["func_800120f8_zz", "past the body"], functions=far) or \
         body_refused(["func_800120f8_zz", "past the body"], functions=four)  # four bytes past
+
+
+# The entry code of a made-up program, written out by hand: `lui gp,0x8002` then `addiu gp,gp,-0x5d4c` (0xa2b4 as a
+# signed half) give gp = 0x80020000 - 0x5d4c = 0x8001a2b4. It lies 0x40 bytes into the body, at 0x80012040.
+ENTRY = 0x80012040
+GP_CODE = struct.pack("<II", 0x3C1C8002, 0x279CA2B4)
+GP = 0x8001A2B4
+
+
+def gp_body(code=GP_CODE):
+    return b"\xBB" * 0x40 + code + b"\xBB" * (0x100 - 0x40 - len(code))
+
+
+def case_gp_is_optional_and_kept():
+    (with_gp,), _ = loaded(declaration(extra_key="gp = 0x8001a2b4\n"))
+    (without,), _ = loaded(declaration())
+    return None if (with_gp.gp, without.gp) == (0x8001A2B4, None) else f"got {with_gp.gp} and {without.gp}"
+
+
+def case_gp_forms():
+    return (refused(declaration(extra_key="gp = 5\n"), "gp is an address in RAM")
+            or refused(declaration(extra_key='gp = "0x8001a2b4"\n'), "gp is an address in RAM")
+            or refused(declaration(extra_key="gp = true\n"), "gp is an address in RAM")
+            or refused(declaration(extra_key="gp = 0x80200000\n"), "gp is an address in RAM"))
+
+
+def case_body_gp_is_checked_against_the_entry_code():
+    with tempfile.TemporaryDirectory() as tmp:
+        P.read_body(body_file(tmp, body=gp_body(), entry=ENTRY, gp=GP))  # the declared value is the code's: accepted
+    with tempfile.TemporaryDirectory() as tmp:
+        # a low half that is not negative: lui gp,0x8001; addiu gp,gp,0x1234 give 0x80011234
+        P.read_body(body_file(tmp, body=gp_body(struct.pack("<II", 0x3C1C8001, 0x279C1234)), entry=ENTRY, gp=0x80011234))
+    return (body_refused(["0x8001a2b4", "0x8001a2b8"], body=gp_body(), entry=ENTRY, gp=0x8001A2B8)
+            # the value of a reader that forgot the sign of the low half would be 0x8002a2b4
+            or body_refused(["0x8001a2b4", "0x8002a2b4"], body=gp_body(), entry=ENTRY, gp=0x8002A2B4)
+            # `lui v0,0x8002` in the first place, and `addiu gp,v0,...` in the second, are not the form
+            or body_refused(["does not begin with"], body=gp_body(struct.pack("<II", 0x3C028002, 0x279CA2B4)), entry=ENTRY, gp=GP)
+            or body_refused(["does not begin with"], body=gp_body(struct.pack("<II", 0x3C1C8002, 0x245CA2B4)), entry=ENTRY, gp=GP)
+            or body_refused(["entry address is outside the body"], body=gp_body(), entry=0, gp=GP)
+            or body_refused(["entry address is outside the body"], body=gp_body(), entry=0x800120FC, gp=GP)
+            or body_refused(["entry address is outside the body"], body=gp_body(), entry=ENTRY + 2, gp=GP))
+
+
+def case_body_without_a_declared_gp_does_not_look_at_the_entry():
+    with tempfile.TemporaryDirectory() as tmp:
+        got = P.read_body(body_file(tmp, entry=0))  # no entry address at all, no gp declared
+    return None if got == b"\xBB" * 0x100 else f"got {len(got)} bytes"
 
 
 def case_program_of():

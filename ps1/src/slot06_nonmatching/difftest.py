@@ -369,9 +369,10 @@ class InputError(Exception):
 class State:
     """RAM and scratchpad of one case, addressed by console addresses."""
 
-    def __init__(self, ram: bytes, scratch: bytes):
+    def __init__(self, ram: bytes, scratch: bytes, gp: int = 0):
         self.ram = bytearray(ram)
         self.scratch = bytearray(scratch)
+        self.gp = gp  # the global pointer register at the begin of a run: a program's own, 0 for the game
         self.arena = ARENA_BASE
         self.stop = STOP_ADDRESS  # where a run ends; a recorder that ends the run jumps there
         self.made_ram = bytearray(RAM_SIZE)  # 1 for each byte that the setup made (see `owns`)
@@ -644,6 +645,7 @@ def run_once(uc: Uc, state: State, entry: int, setup: contracts.Setup, blocks: s
         uc.reg_write(number, value)
     uc.reg_write(reg.UC_MIPS_REG_RA, STOP_ADDRESS)
     uc.reg_write(reg.UC_MIPS_REG_SP, STACK_TOP)
+    uc.reg_write(reg.UC_MIPS_REG_GP, state.gp)
     hooks = []
     entered = [0]
     if blocks is not None:
@@ -805,6 +807,14 @@ def program_for(cfg, image: str | None):
     return program
 
 
+def global_pointer(cfg, name: str) -> int:
+    """The global pointer register at the begin of a run of the function `name`: the `gp` that the declaration
+    gives the function's program (its entry code sets it before the program's main), and 0 for a program without
+    one and for every function of the game, whose code does not use the register."""
+    program = program_for(cfg, image_of(name))
+    return program.gp if program is not None and program.gp is not None else 0
+
+
 def program_symbols(program) -> dict[str, int]:
     """The names that hold inside a program: its symbols and its listed functions, each with its address."""
     if program is None:
@@ -851,7 +861,7 @@ def test_function(cfg, name: str, code: bytes, cases: int, seed: int, ram: bytes
     most = 0
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch)
+        state = State(ram, scratch, global_pointer(cfg, name))
         setup = contract.setup(state, rng, sym)
         blocks: set = set()
         steps: list = []
@@ -939,7 +949,7 @@ def audit_writes(cfg, name: str, cases: int, seed: int, ram: bytes, scratch: byt
     first = ""
     for case in range(cases):
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch)
+        state = State(ram, scratch, global_pointer(cfg, name))
         setup = contract.setup(state, rng, sym)
         final = run_once(uc, state, original, setup)
         if isinstance(final, str):
@@ -1923,7 +1933,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     def recorded(case: int) -> tuple[dict | None, int, tuple[list[str], int] | None]:
         """(fixture, bytes not made, None) of a case, or (None, 0, the lines and status that refuse the function)."""
         rng = random.Random(f"{seed}:{name}:{case}")
-        state = State(ram, scratch)
+        state = State(ram, scratch, global_pointer(cfg, name))
         setup = contract.setup(state, rng, sym)
         try:
             fixture, not_made = record_case(uc, state, original, size, setup, names)
@@ -1995,7 +2005,7 @@ def record_function(cfg, name: str, build: Build, cases: int, seed: int, cap: in
     checked = machine(build.code)
     for fixture in json.loads(text)["fixtures"]:
         try:
-            failed = replay_fixture(checked, build, fixture)
+            failed = replay_fixture(checked, build, fixture, global_pointer(cfg, name))
         except (KeyError, ValueError, TypeError, AttributeError, FixtureError) as exc:
             failed = [f"cannot be read: {type(exc).__name__}: {exc}"]
         if failed:
@@ -2061,7 +2071,7 @@ def load_fixtures(path: Path, name: str) -> dict:
     return doc
 
 
-def replay_memory(fixture: dict) -> tuple[State, dict[int, int]]:
+def replay_memory(fixture: dict, gp: int = 0) -> tuple[State, dict[int, int]]:
     """The state a replay starts from: poison, then what the fixture says was read or stored without a change.
     A byte of `writes` whose input value the fixture does not give starts as its expected value with every bit
     flipped, never as the filler, so that a store that is missing shows whatever the value. Returns the state
@@ -2085,7 +2095,7 @@ def replay_memory(fixture: dict) -> tuple[State, dict[int, int]]:
                 scratch[address - SCRATCH_BASE] = byte ^ 0xFF
             else:
                 ram[address - RAM_BASE] = byte ^ 0xFF
-    return State(bytes(ram), bytes(scratch)), writes
+    return State(bytes(ram), bytes(scratch), gp), writes
 
 
 def replay_harness(state: State, fixture: dict, writes: dict[int, int]) -> contracts.CallLog | None:
@@ -2228,9 +2238,10 @@ class StandIns:
         return None
 
 
-def replay_fixture(uc: Uc, build: Build, fixture: dict) -> list[str]:
-    """Run the build on one fixture. Returns the lines that say how it differs (empty: it passes)."""
-    state, writes = replay_memory(fixture)
+def replay_fixture(uc: Uc, build: Build, fixture: dict, gp: int = 0) -> list[str]:
+    """Run the build on one fixture, the global pointer register `gp` at its begin. Returns the lines that say how it
+    differs (empty: it passes)."""
+    state, writes = replay_memory(fixture, gp)
     log = replay_harness(state, fixture, writes)
     # The stand-in of an original callee: two words, `jr ra; nop`, and a hook (the harness's own memory).
     stubs = [(int(c["at"], 16), 8) for c in fixture.get("callees", ())]
@@ -2312,11 +2323,12 @@ def replay_fixture(uc: Uc, build: Build, fixture: dict) -> list[str]:
 def replay_function(cfg, name: str, build: Build, doc: dict) -> tuple[list[str], int]:
     """Replay every fixture of `doc` on `build`. Returns (lines to print, status)."""
     uc = machine(build.code)
+    gp = global_pointer(cfg, name)
     passed = failed = 0
     report: list[str] = []
     for number, fixture in enumerate(doc["fixtures"]):
         try:
-            lines = replay_fixture(uc, build, fixture)
+            lines = replay_fixture(uc, build, fixture, gp)
         except (KeyError, ValueError, TypeError, AttributeError) as exc:
             raise FixtureError(f"{name}.fixtures.json: fixture {number} cannot be read: {type(exc).__name__}: {exc}") from exc
         if lines:

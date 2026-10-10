@@ -4703,9 +4703,9 @@ def case_z_orig_record_is_replayed_before_it_is_written():
     seen = []
     real = D.replay_fixture
 
-    def failing(uc, build, fixture):
+    def failing(uc, build, fixture, gp=0):
         seen.append(fixture["case"])
-        return ["boom", "second"] if len(seen) == 2 else real(uc, build, fixture)
+        return ["boom", "second"] if len(seen) == 2 else real(uc, build, fixture, gp)
 
     with tempfile.TemporaryDirectory() as tmp:
         with patched(D, replay_fixture=failing):
@@ -4721,9 +4721,9 @@ def case_z_orig_self_check_replays_every_kept_fixture():
     seen = []
     real = D.replay_fixture
 
-    def counting(uc, build, fixture):
+    def counting(uc, build, fixture, gp=0):
         seen.append(fixture["case"])
-        return real(uc, build, fixture)
+        return real(uc, build, fixture, gp)
 
     with patched(D, replay_fixture=counting):
         _lines, _status, doc, _ = fx_record(FX_WORDS, fx_setup)
@@ -5179,13 +5179,15 @@ def pg_header(load=PG_ADDRESS, size=0x100, magic=b"PS-X EXE") -> bytes:
 
 
 def pg_write(tmp, *, load=PG_ADDRESS, size=0x100, magic=b"PS-X EXE", body=PG_BODY, claim=None, present=True,
-             functions='{ name = "func_80012010_zz", address = 0x80012010, size = 24 }', extra=""):
-    """A program `zz` with its file in `tmp`; returns the toml's path. `claim` replaces the file's hash in the toml."""
+             functions='{ name = "func_80012010_zz", address = 0x80012010, size = 24 }', extra="", gp=None):
+    """A program `zz` with its file in `tmp`; returns the toml's path. `claim` replaces the file's hash in the toml,
+    `gp` declares a global pointer (the made-up file has no entry code, so such a program's file is not read)."""
     data = pg_header(load, size, magic) + body
     if present:
         (Path(tmp) / "ZZ.EXE").write_bytes(data)
     toml = (f'[[program]]\nname = "zz"\nfile = "ZZ.EXE"\ndisc = "PAC/ZZ.EXE"\n'
             f'sha256 = "{claim or hashlib.sha256(data).hexdigest()}"\naddress = {PG_ADDRESS:#x}\n'
+            f'{"" if gp is None else f"gp = {gp:#x}" + chr(10)}'
             f'functions = [ {functions} ]\n[program.symbols]\ntbl_zz = 0x80012080\n{extra}')
     path = Path(tmp) / "programs.toml"
     path.write_text(toml)
@@ -5416,6 +5418,75 @@ def case_p_main_names_a_function_the_toml_does_not_list():
         status, out, err = pg_main([], tmp, seen)
     ok = status == 2 and "programs.toml lists no such function" in err and PG_NAME in err and "ram" not in seen
     return None if ok else f"{status} {out!r} {err!r}"
+
+
+PG_GP = 0x8001A2B4  # a made-up global pointer of the made-up program
+
+
+def case_p_global_pointer_of_a_program_and_of_the_game():
+    cfg = pg_cfg()
+    with pg_program(gp=PG_GP):
+        declared = (D.global_pointer(cfg, PG_NAME), D.global_pointer(cfg, "func_80012010"))
+    with pg_program():
+        undeclared = D.global_pointer(cfg, PG_NAME)
+    return None if (declared, undeclared) == ((PG_GP, 0), 0) else f"{declared} {undeclared}"
+
+
+def case_p_run_begins_with_the_states_global_pointer():
+    # `addu v0,gp,zero; jr ra; nop`: the run returns the register as it was at its begin.
+    GP_REG = 28
+    words = [addu(V0, GP_REG, ZERO), JR_RA, NOP]
+    ram, scratch, setup = made_up_ram(words), bytes(D.SCRATCH_SIZE), contracts.Setup(args=(), returns_value=True)
+    uc = D.machine(make_code([NOP]))
+    with_gp = D.run_once(uc, D.State(ram, scratch, PG_GP), ORIGINAL, setup)
+    plain = D.run_once(uc, D.State(ram, scratch), ORIGINAL, setup)  # and the register does not stay from the run before
+    ok = isinstance(with_gp, dict) and isinstance(plain, dict) and (with_gp["v0"], plain["v0"]) == (PG_GP, 0)
+    return None if ok else f"{with_gp if isinstance(with_gp, str) else hex(with_gp['v0'])} {plain if isinstance(plain, str) else hex(plain['v0'])}"
+
+
+def case_p_every_mode_begins_with_the_programs_global_pointer():
+    # The comparison, the write audit and the record make each case's state with the program's global pointer;
+    # for a function of the game they make it with 0.
+    words = [JR_RA, NOP]
+    ram, scratch = made_up_ram(words), bytes(D.SCRATCH_SIZE)
+    made: list[int] = []
+
+    class Watched(D.State):
+        def __init__(self, ram, scratch, gp=0):
+            made.append(gp)
+            super().__init__(ram, scratch, gp)
+
+    def runs(name):
+        return {"compare": lambda cfg, folder: D.test_function(cfg, name, make_code(words), 1, 1, ram, scratch),
+                "audit": lambda cfg, folder: D.audit_writes(cfg, name, 1, 1, ram, scratch),
+                "record": lambda cfg, folder: D.record_function(cfg, name, D.Build(make_code(words), 8, 0), 2, 1, 2, ram, scratch,
+                                                                Path(folder), 1)}
+    for name, want in ((PG_NAME, PG_GP), ("func_80020000", 0)):
+        for mode, run in runs(name).items():
+            made.clear()
+            with tempfile.TemporaryDirectory() as tmp, pg_program(gp=PG_GP), contract_of(name, plain_setup(False)), \
+                    patched(D, State=Watched, original_function=lambda cfg, name: (ORIGINAL, 8)):
+                run(pg_cfg(), tmp)
+            if not made or set(made) != {want}:
+                return f"{name} {mode}: the states were made with {[hex(g) for g in made]}"
+    return None
+
+
+def case_p_replay_begins_with_the_programs_global_pointer():
+    seen: list[int] = []
+
+    def replay_fixture(uc, build, fixture, gp=0):
+        seen.append(gp)
+        return []
+
+    build = D.Build(make_code([JR_RA, NOP]), 8, 0)
+    with pg_program(gp=PG_GP), patched(D, replay_fixture=replay_fixture):
+        D.replay_function(pg_cfg(), PG_NAME, build, {"fixtures": [{}, {}]})
+        D.replay_function(pg_cfg(), "func_80020000", build, {"fixtures": [{}]})
+    state, _writes = D.replay_memory({"reads": [], "same": [], "writes": []}, PG_GP)
+    plain, _writes = D.replay_memory({"reads": [], "same": [], "writes": []})
+    ok = seen == [PG_GP, PG_GP, 0] and (state.gp, plain.gp) == (PG_GP, 0)
+    return None if ok else f"{[hex(g) for g in seen]} {state.gp:#x} {plain.gp:#x}"
 
 
 def case_p_replay_needs_no_program_file():
@@ -5886,6 +5957,10 @@ CASES = [
     ("p-main-runs-a-program-function-on-the-programs-memory", case_p_main_runs_a_program_function_on_the_programs_memory),
     ("p-main-names-a-function-the-toml-does-not-list", case_p_main_names_a_function_the_toml_does_not_list),
     ("p-replay-needs-no-program-file", case_p_replay_needs_no_program_file),
+    ("p-global-pointer-of-a-program-and-of-the-game", case_p_global_pointer_of_a_program_and_of_the_game),
+    ("p-run-begins-with-the-states-global-pointer", case_p_run_begins_with_the_states_global_pointer),
+    ("p-every-mode-begins-with-the-programs-global-pointer", case_p_every_mode_begins_with_the_programs_global_pointer),
+    ("p-replay-begins-with-the-programs-global-pointer", case_p_replay_begins_with_the_programs_global_pointer),
 ]
 
 

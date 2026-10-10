@@ -4,8 +4,9 @@ C for functions of the logo's program, the stand-alone executable `PAC/LOGO.EXE`
 of the disc that the game starts with `Exec`. It is not the resident program
 and not a module of an archive. The program is declared in
 [`../programs.toml`](../programs.toml) (its name, the hash of the user's own
-copy, where its body loads, the functions that have C here, the names of its
-data); [`../programs.py`](../programs.py) reads that file and
+copy, where its body loads, the global pointer its entry code sets, the
+functions that have C here, the names of its data);
+[`../programs.py`](../programs.py) reads that file and
 [`../discfile.py`](../discfile.py) takes the program's file out of the user's
 disc image (the file is private and is never committed). The PS1 build and the
 PC build do not see this folder. How the test works and what a pass does not
@@ -45,6 +46,13 @@ runs, from the tool's folder, and at the same time (see
 
 Then put that function's lines into the blocks below, in place of its old ones
 or at its place in the order of names. No other function is run again for it.
+
+The program's code reaches its small data through the global pointer
+register. The test tool begins every run of a function of this program with
+the register at the declared value, `gp` in `programs.toml` (0x8002eafc; the
+reader checks it against the two instructions of the program's entry code when
+it reads the file). The C here names such data by address, through
+`[program.symbols]`, and does not use the register.
 
 A contract for a function that reads the program's data makes the entry it
 reads (the setup writes values of its own at the entry's address), so that no
