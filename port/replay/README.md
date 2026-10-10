@@ -22,6 +22,11 @@ copy (as in `hostbuild`). A name with no address that nothing in the link
 provides is an error that names it. The program is `BUILD/NAME.exe`; it is not
 built again when it is newer than the source, the files the source includes, the
 configuration, the symbol file, the harness, the driver and `hostbuild.py`.
+The files the source includes are what the compiler lists for it. When that
+listing fails or does not end (a header that was deleted makes it fail), what
+the source depends on is not known, and the program is built whatever is on
+disk; the build then says what is wrong. An input with the very time of the
+program is not older than it, and the program is built again.
 
 The program is a Windows program, like the port. Everything that knows the
 system (the mapping of memory, the pages without execute permission, the

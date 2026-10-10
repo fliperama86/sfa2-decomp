@@ -354,6 +354,40 @@ def build_cases(rig: Rig):
     exe = hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
     yield "a-changed-header-is-built-again", same((before, rig.run(exe, [{}])[0]["result"]), (5, 6))
 
+    # The header goes away. The compiler's listing of what the source reads then fails, and a failed listing is not an
+    # empty one: the program on disk (which still answers 6) is not handed back; the build is made and names the header.
+    (rig.src / "val.h").unlink()
+    yield "a-missing-header-is-an-error-and-not-the-program-on-disk", raises(
+        lambda: hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120), "val.h")
+    (rig.src / "val.h").write_text("#define VAL 7\n")
+    exe = hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "the-header-back-with-another-value-is-built", same(rig.run(exe, [{}])[0]["result"], 7)
+
+    # The listing does not end (a made-up compiler run that gives no answer for it): the program is built all the same.
+    again = hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    quiet, mtime = again.stat().st_mtime_ns == exe.stat().st_mtime_ns, exe.stat().st_mtime_ns
+    real, listings = hr.hb.hostcheck.compile_run, []
+
+    def no_end_for_the_listing(argv, timeout):
+        if "-M" in argv:
+            listings.append(argv)
+            return None
+        return real(argv, timeout)
+
+    hr.hb.hostcheck.compile_run = no_end_for_the_listing
+    try:
+        exe = hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    finally:
+        hr.hb.hostcheck.compile_run = real
+    yield "a-listing-that-does-not-end-means-a-build-not-the-program-on-disk", same(
+        (quiet, len(listings), exe.stat().st_mtime_ns != mtime, rig.run(exe, [{}])[0]["result"]), (True, 1, True, 7))
+
+    # An input with the very time of the program is not older than it.
+    mtime = exe.stat().st_mtime_ns
+    os.utime(rig.src / "val.h", ns=(mtime, mtime))
+    exe = hr.build_program(rig.src / "withhdr.c", "withhdr", rig.src / "build.toml", rig.build_dir, rig.cc, 120)
+    yield "an-input-of-the-same-time-as-the-program-is-built-again", same(exe.stat().st_mtime_ns != mtime, True)
+
     exe = rig.program("calc")
     mtime = exe.stat().st_mtime_ns
     exe = rig.program("calc")

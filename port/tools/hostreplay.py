@@ -272,21 +272,24 @@ def _write_if_changed(path: Path, text: str) -> None:
         path.write_text(text)
 
 
-def _headers(source: Path, cc: str, gen: Path, timeout: int) -> list[Path]:
-    """The files the compiler reads for `source` besides it, from its own dependency listing."""
+def _headers(source: Path, cc: str, gen: Path, timeout: int) -> list[Path] | None:
+    """The files the compiler reads for `source` besides it, from its own dependency listing. None when the
+    listing failed or did not end: what the source depends on is then not known, which is not the same as
+    nothing (a header that was deleted makes the listing fail)."""
     proc = hb.hostcheck.compile_run([cc, *hb.COMPILE_FLAGS, "-M", "-I", str(gen), str(source)], timeout)
     if proc is None or proc.returncode != 0:
-        return []
+        return None
     text = proc.stdout.replace("\\\n", " ").replace("\\ ", "\0")
     return [Path(x.replace("\0", " ")) for x in text.split()[2:] if x not in ("\\", ":")]
 
 
 def _up_to_date(exe: Path, inputs: list[Path]) -> bool:
+    """Whether the program is newer than every input. An input of the same time is not older: it is built again."""
     if not exe.is_file():
         return False
     newest = exe.stat().st_mtime_ns
     try:
-        return all(p.stat().st_mtime_ns <= newest for p in inputs)
+        return all(p.stat().st_mtime_ns < newest for p in inputs)
     except OSError:
         return False
 
@@ -306,7 +309,9 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
     configuration give an address is `ps1_NAME` at that address, and the references are renamed to match. A name
     that the object defines and refers to and that has no address is the host copy, as in `hostbuild`; any other
     name left is the host's (the C library, the compiler's helpers), and one that nothing resolves is an error that
-    names it. A program newer than its inputs is not built again; the result is its path."""
+    names it. A program newer than its inputs (the source, every file the compiler lists as read for it, the
+    configuration, the symbol file, the fields file, the harness, this driver and `hostbuild.py`) is not built
+    again; when that listing fails or does not end the program is built, whatever is on disk. The result is its path."""
     source, config, build = Path(source), Path(config), Path(build)
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
         raise ReplayError(f"{name!r} is not a C name")
@@ -325,7 +330,10 @@ def build_program(source, name: str, config, build, cc: str, timeout: int = 300)
             inputs.append(fields_path)
         if not source.is_file():
             raise ReplayError(f"{source} does not exist")
-        if exe.is_file() and _up_to_date(exe, inputs + _headers(source, cc, gen, timeout)):
+        # The program on disk is handed back only when everything it was built from is known and older. When
+        # the listing of what the source reads fails or does not end, the build is made, and it says what is wrong.
+        headers = _headers(source, cc, gen, timeout) if exe.is_file() else None
+        if headers is not None and _up_to_date(exe, inputs + headers):
             return exe
         for sub in ("asm", "obj", "rt", "probe"):
             (build / sub).mkdir(parents=True, exist_ok=True)

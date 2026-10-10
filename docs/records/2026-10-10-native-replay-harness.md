@@ -36,6 +36,15 @@ test (a private script); `python port/tools/test_hostbuild.py --cc ...`,
 to the new test file as it does to the port's other tests
 (`tools/ai_workflow/review.py`, with its test).
 
+A finding of the owner's review, corrected in this change: the driver
+took a failed listing of the files a source includes for an empty one,
+so after a header was deleted it handed back the program on disk, which
+still answered with the old header's value. A listing that fails or does
+not end now means the program is built, and the build names what is
+wrong; an input with the very time of the program is built again too.
+With it: 95 tests, "all 95 tests passed"; 6 more mutants of the driver,
+each failing a named test.
+
 Limits, stated: the program is a Windows program like the port; a page
 that holds a stand-in is executable as a whole, so a jump to another
 address of that page is not caught; an argument that is an address of
