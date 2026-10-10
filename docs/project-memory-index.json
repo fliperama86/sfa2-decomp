@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "c5b7565d472c7b72d6dcdfa2b8f56a160cb83abda45ba84852ca6b688169dceb",
+  "sha256": "fc7f99270520f5aa149fe7277256f29417cded78b1df9fe0d6f8ddfd60a1ae7c",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -633,6 +633,10 @@
     {
       "title": "Nonmatching C for the resident program, the rest: forty-two functions (2026-10-10)",
       "line": 9487
+    },
+    {
+      "title": "The game's main function as nonmatching C, and its frame handler as an exact unit (2026-10-10)",
+      "line": 9550
     }
   ]
 }
