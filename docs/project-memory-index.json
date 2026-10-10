@@ -1,6 +1,6 @@
 {
   "file": "project-memory-history.md",
-  "sha256": "38578ffd9f487369e451fb0bdcd1dd352a045f59cfe861afa947af8d152a56a9",
+  "sha256": "3b515a69c3282a16b7ab21e62536cde617e4a5e1f23913694b1a4061e62af340",
   "sections": [
     {
       "title": "User preferences and scope",
@@ -609,6 +609,14 @@
     {
       "title": "The port's first four overrides in C (2026-10-10)",
       "line": 9187
+    },
+    {
+      "title": "Correction: what the controls of the port's overrides alter (2026-10-10)",
+      "line": 9257
+    },
+    {
+      "title": "Correction: the review reused an override's result after the override changed (2026-10-10)",
+      "line": 9281
     }
   ]
 }

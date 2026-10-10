@@ -28,8 +28,9 @@ def setup(state, rng, sym) -> Setup:
 def control(words):
     """Alter the argument register at the call: the empty delay slot of `jalr v0` becomes `addiu a0,a0,4`.
 
-    The original code then hands the function in the pointer the object plus 4, which the recorder logs:
-    this is the alteration that shows the test sees the value the callee gets.
+    The control alters the build of this C (the tool hands it the build's code words, not the original's). The
+    altered build then hands the function in the pointer the object plus 4, which the recorder logs, while the
+    original code hands it the object: this is the alteration that shows the test sees the value the callee gets.
     """
     found = [i for i, w in enumerate(words) if w == 0x0040F809]
     if len(found) != 1 or words[found[0] + 1] != 0:

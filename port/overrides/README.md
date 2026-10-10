@@ -15,8 +15,10 @@ comment and `NAME.py`, the contract as code, tested with the tool of
 A pass is evidence for the tested inputs of a contract, not equivalence. The
 test replaces each callee by a recorder that logs its first argument, so a
 pass shows that the override hands the callee the same value as the original
-code does. Each control alters the original code so that the callee gets
-that value plus 4, and the test must then differ.
+code does. Each control alters the build of the override, not the original
+code: it puts an addition of 4 to `a0` into the empty delay slot of the
+call, so that the built C hands the callee another value, and the test
+must then differ from the original.
 
 The build of the PC program (`port/tools/hostbuild.py`, whose header is
 the contract) compiles every `NAME.c` of this folder and lets it run in
