@@ -4558,6 +4558,189 @@ def make_unit_aspsx_version_cases(config_path: Path) -> list[CacheCase]:
     ]
 
 
+def make_unit_cc1_cases(config_path: Path) -> list[CacheCase]:
+    """A unit's own compiler (`cc1 = "NAME"`, a table of [toolchain.cc1_unit]): how the key and the tables are read,
+    which compiler a unit gets, what it does to the cache key and to the pin check, and what the configuration names."""
+    import types
+
+    def reading(root: Path):
+        cases = [
+            ({}, "c", None, 0),
+            ({"cc1": "gcc-2.5.7"}, "c", "gcc-2.5.7", 0),
+            ({"cc1": 2.5}, "c", None, 1),
+            ({"cc1": ""}, "c", None, 1),
+            ({"cc1": "two words"}, "c", None, 1),
+            ({"cc1": "../cc1"}, "c", None, 1),
+            ({"cc1": "gcc-2.5.7"}, "asm", None, 1),
+            ({}, "asm", None, 0),
+        ]
+        for table, kind, want, n_errors in cases:
+            errors: list[str] = []
+            got = matchbuild.parse_unit_cc1(table, "[[unit]] 'u'", kind, errors)
+            if got != want or len(errors) != n_errors:
+                return f"{table} as kind {kind!r}: {got!r} and {len(errors)} error(s), expected {want!r} and {n_errors}: {errors}"
+        return None
+
+    def tables(root: Path):
+        good = {"kind": "local", "path": "tool/cc1", "sha256": "a" * 64}
+        errors: list[str] = []
+        got = matchbuild.parse_unit_compilers({"cc1_unit": {"gcc-2.5.7": good}}, root, errors)
+        if errors or list(got) != ["gcc-2.5.7"]:
+            return f"one good table must give one compiler and no error: {list(got)}, {errors}"
+        one = got["gcc-2.5.7"]
+        if one.name != "cc1_unit.gcc-2.5.7" or one.kind != "local" or one.sha256 != "a" * 64 or one.path != root / "tool/cc1":
+            return f"the record must carry the table's name, kind, pin and resolved path: {one}"
+        errors = []
+        if matchbuild.parse_unit_compilers({}, root, errors) != {} or errors:
+            return "a configuration without the table has no unit compilers and no error"
+        bad = [
+            ("the table is not a table", {"cc1_unit": "gcc"}),
+            ("a name with a space", {"cc1_unit": {"two words": good}}),
+            ("an entry that is not a table", {"cc1_unit": {"x": "cc1"}}),
+            ("an empty entry", {"cc1_unit": {"x": {}}}),
+            ("an entry without a pin", {"cc1_unit": {"x": {"kind": "local", "path": "tool/cc1"}}}),
+            ("an entry of an unknown kind", {"cc1_unit": {"x": {"kind": "docker", "sha256": "a" * 64}}}),
+            ("a pin that is not a hash", {"cc1_unit": {"x": {"kind": "local", "path": "tool/cc1", "sha256": "abc"}}}),
+        ]
+        for what, tool_t in bad:
+            errors = []
+            matchbuild.parse_unit_compilers(tool_t, root, errors)
+            if not errors:
+                return f"{what}: must be an error"
+        return None
+
+    def names(root: Path):
+        unit = lambda name, cc1: types.SimpleNamespace(name=name, cc1=cc1)  # noqa: E731
+        compilers = {"old": object()}
+        if matchbuild.unit_compiler_errors([unit("a", "old"), unit("b", None)], compilers):
+            return "a unit that names a configured compiler, beside one that names none, is no error"
+        errors = matchbuild.unit_compiler_errors([unit("a", "older")], compilers)
+        if len(errors) != 2 or "'older'" not in errors[0] or "old" not in errors[1]:
+            return f"an unknown name is an error, and so is the configured compiler that then has no unit: {errors}"
+        errors = matchbuild.unit_compiler_errors([unit("a", None)], compilers)
+        if len(errors) != 1 or "no unit names this compiler" not in errors[0]:
+            return f"a configured compiler that no unit names is an error: {errors}"
+        if matchbuild.unit_compiler_errors([unit("a", None)], {}):
+            return "no unit compilers and no unit that names one is no error"
+        return None
+
+    def effective(root: Path):
+        main, old = types.SimpleNamespace(name="cc1"), types.SimpleNamespace(name="cc1_unit.old")
+        cfg = types.SimpleNamespace(cc1=main, unit_compilers={"old": old})
+        tools = {"cc1": {"sha256": "b" * 64}, "cc1_unit": {"old": {"sha256": "f" * 64}}}
+        main_compiler, old_compiler = object(), object()
+        pipeline = types.SimpleNamespace(compiler=main_compiler, unit_compilers={"old": old_compiler})
+        checks = [
+            ("a unit with a compiler of its own", types.SimpleNamespace(cc1="old"), old, "f" * 64, old_compiler),
+            ("a unit without one", types.SimpleNamespace(cc1=None), main, "b" * 64, main_compiler),
+            ("an object that has no such field", types.SimpleNamespace(), main, "b" * 64, main_compiler),
+        ]
+        for what, unit, want_cfg, want_hash, want_compiler in checks:
+            if matchbuild.unit_cc1_config(cfg, unit) is not want_cfg:
+                return f"{what}: the wrong compiler table"
+            if matchbuild.unit_cc1_tool(tools, unit)["sha256"] != want_hash:
+                return f"{what}: the wrong checked record"
+            if matchbuild.pipeline_compiler(pipeline, unit) is not want_compiler:
+                return f"{what}: the wrong compiler runs"
+        declared = matchbuild.UnitDecl("u", "u.c", ("-O2",), (matchbuild.FunctionDecl("f", 0x80010000, 4),))
+        if declared.cc1 is not None or matchbuild.pipeline_compiler(pipeline, declared) is not main_compiler:
+            return "a unit declared without the key must take the configuration's compiler"
+        # Under --reference the configuration's compiler is another table; a unit's own stays what it is.
+        reference = types.SimpleNamespace(cc1=types.SimpleNamespace(name="cc1_reference"), unit_compilers={"old": old})
+        if matchbuild.unit_cc1_config(reference, types.SimpleNamespace(cc1="old")) is not old:
+            return "a unit's own compiler must not change with the configuration's"
+        return None
+
+    def key_input(root: Path):
+        def key(main_hash: str, old_hash: str, **unit_fields) -> str:
+            tools = {
+                "cc1": {"sha256": main_hash},
+                "cc1_unit": {"old": {"sha256": old_hash}},
+                "maspsx": {"pinned_commit": "c" * 40, "script": "m.py", "patches": []},
+                "as": {"version": "v", "sha256": "d" * 64},
+                "python_executable": {"version": "3", "sha256": "e" * 64},
+            }
+            cfg = types.SimpleNamespace(
+                cc1=types.SimpleNamespace(name="cc1"), unit_compilers={"old": types.SimpleNamespace(name="cc1_unit.old")},
+                aspsx_version="2.21", expand_div=False,
+            )
+            unit = types.SimpleNamespace(name="u", flags=("-O2",), **unit_fields)
+            return matchbuild.cache_key(matchbuild.cache_key_inputs(cfg, tools, unit, "a" * 64, Path("m.py")))
+
+        b, f, x = "b" * 64, "f" * 64, "1" * 64
+        plain = key(b, f)
+        if key(b, f, cc1=None) != plain:
+            return "a unit without a compiler of its own must keep the key that the configuration's compiler gives"
+        own = key(b, f, cc1="old")
+        if own == plain:
+            return "a unit with a compiler of its own is compiled by another program and must have another key"
+        if key(b, b, cc1="old") == key(b, b):
+            return "the key must tell the two tables apart even where both pin the same binary"
+        if key(x, f, cc1="old") != own:
+            return "a unit with a compiler of its own must keep its key when the configuration's compiler changes"
+        if key(b, x, cc1="old") == own:
+            return "a unit with a compiler of its own must get another key when that compiler changes"
+        if key(b, x) != plain:
+            return "a unit without one must keep its key when a unit compiler changes"
+        return None
+
+    def pin(root: Path):
+        def compiler(pinned: str, actual: str):
+            cfg = types.SimpleNamespace(name="cc1_unit.old", kind="local", sha256=pinned, no_float=False)
+            return types.SimpleNamespace(cfg=cfg, actual_hash=lambda: actual)
+
+        errors: list[str] = []
+        record = matchbuild.cc1_pin(compiler("a" * 64, "a" * 64), "cc1_unit.old", errors)
+        if errors or record["sha256"] != "a" * 64 or record["pinned_sha256"] != "a" * 64 or record["name"] != "cc1_unit.old":
+            return f"a binary with the pinned hash is no error and is recorded: {errors}, {record}"
+        errors = []
+        record = matchbuild.cc1_pin(compiler("a" * 64, "b" * 64), "cc1_unit.old", errors)
+        if len(errors) != 1 or "cc1_unit.old sha256 mismatch" not in errors[0] or record["sha256"] != "b" * 64:
+            return f"a binary with another hash is an error that names the compiler, and its real hash is recorded: {errors}"
+        return None
+
+    def configured(root: Path):
+        """What the configuration names: every unit compiler has a unit, is another binary than the configuration's
+        by its pin, and the binary on this machine has the pinned hash."""
+        parsed = tomllib.loads(config_path.read_text())
+        tool_t = parsed.get("toolchain", {})
+        errors: list[str] = []
+        compilers = matchbuild.parse_unit_compilers(tool_t, config_path.parent, errors)
+        if errors:
+            return f"the configuration's unit compilers must read without error: {errors}"
+        if not compilers:
+            return "the configuration names no unit compiler: this case has nothing to show"
+        named = [(u.get("name"), u["cc1"]) for u in parsed.get("unit", []) if "cc1" in u]
+        for name in compilers:
+            if not any(cc1 == name for _, cc1 in named):
+                return f"compiler {name!r} has no unit"
+        for unit_name, cc1 in named:
+            if cc1 not in compilers:
+                return f"unit {unit_name!r} names {cc1!r}, which is not configured"
+        main_pin = tool_t.get("cc1", {}).get("sha256")
+        for name, compiler in compilers.items():
+            if compiler.sha256 == main_pin:
+                return f"compiler {name!r} pins the configuration's own binary: the line does nothing"
+            if compiler.kind != "local":
+                continue
+            if not compiler.path.is_file():
+                return f"compiler {name!r}: no binary at {compiler.path}"
+            actual = matchbuild.sha256(compiler.path.read_bytes())
+            if actual != compiler.sha256:
+                return f"compiler {name!r}: the binary's hash is {actual}, the configuration pins {compiler.sha256}"
+        return None
+
+    return [
+        CacheCase("unit-cc1-read", reading),
+        CacheCase("unit-cc1-tables", tables),
+        CacheCase("unit-cc1-names", names),
+        CacheCase("unit-cc1-effective", effective),
+        CacheCase("unit-cc1-key", key_input),
+        CacheCase("unit-cc1-pin", pin),
+        CacheCase("unit-cc1-configured", configured),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/src/build.toml")
@@ -4585,7 +4768,8 @@ def main() -> int:
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path)
-        + make_maspsx_patch_unit_cases(config_path) + make_unit_aspsx_version_cases(config_path), args.only
+        + make_maspsx_patch_unit_cases(config_path) + make_unit_aspsx_version_cases(config_path)
+        + make_unit_cc1_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

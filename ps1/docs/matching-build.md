@@ -148,6 +148,11 @@ exec_dir = "/mnt/c/Users/x/Tools/example"  # same directory as the compiler sees
 exec_prefix = "wsl.exe -d Ubuntu --"   # command prefix on the remote host
 binary = "cc1-psx-26"
 
+[toolchain.cc1_unit."gcc-2.5.7"]  # optional, any number: a compiler that single units name
+kind = "local"                    # a table like [toolchain.cc1]
+path = "../toolchain/gcc-2.5.7-psx/cc1"
+sha256 = "<hex of the cc1 binary>"
+
 [selftest]
 unit = "metrics"
 find = "<exact source text occurring once>"
@@ -170,6 +175,9 @@ bss = { address = 0x80300000, size = 8 }
 # Optional, C units only. The assembler version that maspsx is told for this
 # unit, when its object was not assembled by the version of [toolchain].
 aspsx_version = "2.56"
+# Optional, C units only. The name of a compiler of [toolchain.cc1_unit] that
+# compiles this unit, when its object does not come out of [toolchain.cc1].
+cc1 = "gcc-2.5.7"
 
 [[unit]]
 name = "stubs"
@@ -205,6 +213,28 @@ that the unit's bytes come out with that version, not which assembler made
 the object. There is one today, `sdk_libapi_counter_p2` (`ResetRCnt`): its
 `li` of the constant 1 is an `addiu`, which maspsx leaves to the assembler
 from version 2.56 on and turns into an `ori` before that.
+
+A unit may name a compiler of its own with `cc1 = "NAME"`, where NAME is a
+table `[toolchain.cc1_unit.NAME]`. The reason is the same as for the
+assembler version: the library's objects were built at different times, and
+some of their code does not come out of the compiler of `[toolchain.cc1]`
+from any source text found. Such a table has the keys of `[toolchain.cc1]`
+and is pinned by the hash of its binary in the same way; the pin of every
+unit compiler is checked before any unit is looked up, and a wrong one fails
+the build like a wrong pin of the default compiler. A unit's own compiler is
+part of what the unit is: `--reference` changes the compiler of the units
+that name none and leaves a unit's own alone. The cache key of a unit holds
+the hash and the table name of the compiler that compiles it, so a unit
+without the key has the key it had before, a change of the default compiler
+does not touch a unit with its own, and the report names the compiler of a
+unit that has one and lists every unit compiler under `tools.cc1_unit`. A
+name that no table has, a table that no unit names and the key on an
+assembly unit are configuration errors. The line in `build.toml` says what it
+is inferred from: the build shows that the unit's bytes come out of that
+compiler, not which compiler made the object. There are two units today,
+`sdk_libapi_counter_p3` (`SetRCnt`) and `sdk_libapi_counter_p4`
+(`StartRCnt`), both with `gcc-2.5.7`; "Compilers" below says where that
+binary comes from.
 
 `maspsx_patches` lists patch files, relative to `build.toml`, for the cases
 where the original assembler does something that the pinned maspsx does not.
@@ -365,7 +395,7 @@ nothing changes.
 
 ## Compilers
 
-Both compiler tables take `kind = "local"` or `kind = "remote"`. The remote kind
+Every compiler table takes `kind = "local"` or `kind = "remote"`. The remote kind
 runs over an already authenticated SSH control master. The tool never
 authenticates and no credential is stored anywhere.
 
@@ -384,6 +414,16 @@ is data, and a version string such as `"1.71"` is not a floating constant.
 Which compiler produced a build does not weaken an exact result: identical
 bytes are identical bytes. `--reference` exists to show that the pinned binary
 reproduces the same image, and for units the native build must not compile.
+
+The unit compiler `gcc-2.5.7` is the `cc1` of the archive
+`gcc-2.5.7-psx.tar.gz` of the project old-gcc, release 0.13
+(<https://github.com/decompals/old-gcc/releases/tag/0.13>): GCC 2.5.7 built
+from source for this target by that project. The archive is not in this
+repository; `build.toml` pins the binary by its hash, and the build refuses
+any other. It is a compatible compiler, as the default one is: that two
+functions come out of it byte for byte says that it generates the code the
+library's builder generated for them, not that the library was built with
+this binary.
 
 ## Command line
 
@@ -504,7 +544,7 @@ runs is the unit object cache, described after the steps.
    magic, and that the file size equals header size plus payload size. Extract
    the payload to the build directory.
 2. Check toolchain pins. The `cc1` SHA-256 is hashed on the host where it
-   runs. For maspsx, the pinned commit is exported from the checkout's object
+   runs, and so is that of every compiler of `[toolchain.cc1_unit]`. For maspsx, the pinned commit is exported from the checkout's object
    database into the build directory and that copy is what runs. The
    checkout's working tree, its HEAD and any stale bytecode therefore cannot
    change the code that executes. A pinned commit missing from the checkout
@@ -558,8 +598,8 @@ The key is the SHA-256 of a canonical encoding of:
 - the preprocessed text (as its hash in the JSON);
 - the unit name, because the compiler may record the input file name;
 - the unit's cc1 flags;
-- the verified cc1 SHA-256 and which table is in use (`cc1` or
-  `cc1_reference`);
+- the verified SHA-256 of the compiler that compiles the unit and its table
+  (`cc1` or `cc1_reference`, or `cc1_unit.NAME` for a unit that names one);
 - the full pinned maspsx commit hash and the script path inside it;
 - the SHA-256 of each patch applied to the exported maspsx, in order (a
   patch file's name is not in the key);

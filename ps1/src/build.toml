@@ -21,6 +21,13 @@ kind = "local"
 path = "../toolchain/cc1-psx-26"
 sha256 = "c248a5272dc1a4537b177c71e3d785f48204718e36b076d5d7940b9469a0beb8"
 
+# A second pinned compiler, GCC 2.5.7, for the units that name it (`cc1 = "gcc-2.5.7"`). Inferred: two functions of
+# the library's counter object build to the original's bytes with this version and not with 2.6.3 (ps1/src/sdk/README.md).
+[toolchain.cc1_unit."gcc-2.5.7"]
+kind = "local"
+path = "../toolchain/gcc-2.5.7-psx/cc1"
+sha256 = "074902c75ae9c299535192f8a96ac5c7e8a24777102e9fcbf664fcfb034516fc"
+
 [selftest]
 unit = "metrics"
 find = "for (slot = 11; slot != -1; --slot)"
@@ -8603,11 +8610,35 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libapi_counter_p3"
+source = "sdk/libapi/counter_p3.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+# Inferred: this function builds to the original's bytes with GCC 2.5.7 and not with 2.6.3 (4 bytes longer there).
+cc1 = "gcc-2.5.7"
+# Inferred, as for counter_p2: this object's `li` of a small positive constant is an addiu.
+aspsx_version = "2.56"
+functions = [
+  { name = "SetRCnt", address = 0x8015764c, size = 156 },
+]
+
+[[unit]]
 name = "sdk_libapi_counter_p1"
 source = "sdk/libapi/counter_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "GetRCnt", address = 0x801576e8, size = 56 },
+]
+
+[[unit]]
+name = "sdk_libapi_counter_p4"
+source = "sdk/libapi/counter_p4.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+# Inferred: this function builds to the original's bytes with GCC 2.5.7 and not with 2.6.3 (one instruction stands elsewhere there).
+cc1 = "gcc-2.5.7"
+# Inferred, as for counter_p2: the assembler version of this object.
+aspsx_version = "2.56"
+functions = [
+  { name = "StartRCnt", address = 0x80157720, size = 48 },
 ]
 
 [[unit]]

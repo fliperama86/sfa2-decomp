@@ -147,6 +147,7 @@ class UnitDecl:
     kind: str = "c"  # "c", or "asm" for a unit written in assembly
     image: str = RESIDENT  # the image the unit belongs to: RESIDENT or a declared module image
     aspsx_version: str | None = None  # the assembler version of this unit's object, when it is not [toolchain]'s
+    cc1: str | None = None  # the name of this unit's compiler in [toolchain.cc1_unit], when it is not [toolchain.cc1]
 
     def loaded(self) -> list[tuple[str, RodataDecl]]:
         """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
@@ -450,6 +451,7 @@ class Config:
     expand_div: bool = False  # run maspsx with --expand-div
     maspsx_patches: tuple[Path, ...] = ()  # patch files applied to the export of the pinned maspsx commit, in order
     include_dirs: tuple[Path, ...] = ()  # extra -I directories for the preprocessor
+    unit_compilers: dict[str, Cc1Config] = dataclasses.field(default_factory=dict)  # [toolchain.cc1_unit.NAME], by name
     images: list[ImageDecl] = dataclasses.field(default_factory=list)  # module images, in declaration order
     # Filled in during validation of the baseline.
     baseline: bytes = b""
@@ -657,6 +659,44 @@ def parse_unit_aspsx_version(table: dict, where: str, kind: str, errors: list[st
 def unit_aspsx_version(cfg, unit) -> str:
     """The version that maspsx is told for this unit: the unit's own, else `[toolchain]`'s."""
     return getattr(unit, "aspsx_version", None) or cfg.aspsx_version
+
+
+UNIT_CC1_NAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*\Z")
+
+
+def parse_unit_cc1(table: dict, where: str, kind: str, errors: list[str]) -> str | None:
+    """A unit's own `cc1`, the name of a compiler of [toolchain.cc1_unit], or None when it takes [toolchain.cc1]."""
+    value = table.get("cc1")
+    if value is None:
+        return None
+    if not isinstance(value, str) or not UNIT_CC1_NAME_RE.match(value):
+        errors.append(f"{where}: 'cc1' must be the name of a compiler of [toolchain.cc1_unit]")
+        return None
+    if kind == "asm":
+        errors.append(f"{where}: an assembly unit takes no cc1")
+        return None
+    return value
+
+
+def unit_cc1_name(unit) -> str | None:
+    """The name of the unit's own compiler, or None for the configuration's."""
+    return getattr(unit, "cc1", None) or None
+
+
+def unit_cc1_config(cfg, unit):
+    """The compiler this unit is compiled with: its own of [toolchain.cc1_unit], else the configuration's.
+
+    The configuration's compiler is [toolchain.cc1], or [toolchain.cc1_reference] under --reference. A unit's
+    own compiler is the same under both: it is part of what the unit is, not of how the build is run.
+    """
+    name = unit_cc1_name(unit)
+    return cfg.unit_compilers[name] if name is not None else cfg.cc1
+
+
+def unit_cc1_tool(tools: dict, unit) -> dict:
+    """The checked record (hash, table name) of the compiler this unit is compiled with."""
+    name = unit_cc1_name(unit)
+    return tools["cc1_unit"][name] if name is not None else tools["cc1"]
 
 
 def parse_rodata(value, where: str, errors: list[str], key: str = "rodata") -> tuple[RodataDecl | None, bool]:
@@ -938,6 +978,69 @@ def read_images(images: list[ImageDecl], overlays, baseline: bytes, errors: list
     return read
 
 
+def parse_cc1_table(cc1_t: dict, cc1_where: str, name: str, directory: Path, errors: list[str]) -> Cc1Config:
+    """One compiler table: [toolchain.cc1], [toolchain.cc1_reference] or a table of [toolchain.cc1_unit]."""
+    kind = _get_str(cc1_t, "kind", cc1_where, errors)
+    cc1 = Cc1Config(kind=kind, sha256=_get_hex(cc1_t, "sha256", cc1_where, errors), name=name)
+    no_float = cc1_t.get("no_float", False)
+    if not isinstance(no_float, bool):
+        errors.append(f"{cc1_where}: 'no_float' must be a boolean")
+    else:
+        cc1.no_float = no_float
+    if kind == "remote":
+        cc1.host = _get_str(cc1_t, "host", cc1_where, errors, HOST_RE)
+        cc1.socket = _expand(_get_str(cc1_t, "socket", cc1_where, errors) or ".", directory)
+        cc1.scp_dir = _get_str(cc1_t, "scp_dir", cc1_where, errors, REMOTE_PATH_RE)
+        cc1.exec_dir = _get_str(cc1_t, "exec_dir", cc1_where, errors, REMOTE_PATH_RE)
+        cc1.exec_prefix = _get_str(cc1_t, "exec_prefix", cc1_where, errors)
+        cc1.binary = _get_str(cc1_t, "binary", cc1_where, errors, re.compile(r"[A-Za-z0-9_.-]+\Z"))
+    elif kind == "local":
+        cc1.path = _expand(_get_str(cc1_t, "path", cc1_where, errors) or ".", directory)
+    elif kind:
+        errors.append(f"{cc1_where}: kind must be 'remote' or 'local', got {kind!r}")
+    return cc1
+
+
+def parse_unit_compilers(tool_t: dict, directory: Path, errors: list[str]) -> dict[str, Cc1Config]:
+    """The compilers of [toolchain.cc1_unit.NAME], by name: each a table like [toolchain.cc1].
+
+    A unit takes one of them with `cc1 = "NAME"`. Each record's own name is `cc1_unit.NAME`, so that the
+    cache key of a unit tells its compiler's table from the configuration's.
+    """
+    tables = tool_t.get("cc1_unit", {}) if isinstance(tool_t, dict) else {}
+    if not isinstance(tables, dict):
+        errors.append("[toolchain.cc1_unit] must be a table of compiler tables")
+        return {}
+    compilers: dict[str, Cc1Config] = {}
+    for name, table in tables.items():
+        where = f"[toolchain.cc1_unit.{name}]"
+        if not UNIT_CC1_NAME_RE.match(name):
+            errors.append(f"{where}: the name must be letters, digits, '.', '_' or '-'")
+            continue
+        if not isinstance(table, dict) or not table:
+            errors.append(f"{where}: must be a compiler table")
+            continue
+        compilers[name] = parse_cc1_table(table, where, f"cc1_unit.{name}", directory, errors)
+    return compilers
+
+
+def unit_compiler_errors(units, unit_compilers: dict) -> list[str]:
+    """A unit's `cc1` must name a configured compiler, and a configured compiler must have a unit."""
+    errors = []
+    used = set()
+    for unit in units:
+        name = unit_cc1_name(unit)
+        if name is None:
+            continue
+        used.add(name)
+        if name not in unit_compilers:
+            errors.append(f"[[unit]] {unit.name!r}: cc1 {name!r} is not a compiler of [toolchain.cc1_unit]")
+    for name in unit_compilers:
+        if name not in used:
+            errors.append(f"[toolchain.cc1_unit.{name}]: no unit names this compiler")
+    return errors
+
+
 def load_config(config_path: Path, use_reference: bool = False) -> Config:
     """Read and validate the configuration. Raises ConfigError with every problem found.
 
@@ -992,24 +1095,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             else:
                 include_dirs.append(path)
 
-    kind = _get_str(cc1_t, "kind", cc1_where, errors)
-    cc1 = Cc1Config(kind=kind, sha256=_get_hex(cc1_t, "sha256", cc1_where, errors), name=cc1_key)
-    no_float = cc1_t.get("no_float", False)
-    if not isinstance(no_float, bool):
-        errors.append(f"{cc1_where}: 'no_float' must be a boolean")
-    else:
-        cc1.no_float = no_float
-    if kind == "remote":
-        cc1.host = _get_str(cc1_t, "host", cc1_where, errors, HOST_RE)
-        cc1.socket = _expand(_get_str(cc1_t, "socket", cc1_where, errors) or ".", directory)
-        cc1.scp_dir = _get_str(cc1_t, "scp_dir", cc1_where, errors, REMOTE_PATH_RE)
-        cc1.exec_dir = _get_str(cc1_t, "exec_dir", cc1_where, errors, REMOTE_PATH_RE)
-        cc1.exec_prefix = _get_str(cc1_t, "exec_prefix", cc1_where, errors)
-        cc1.binary = _get_str(cc1_t, "binary", cc1_where, errors, re.compile(r"[A-Za-z0-9_.-]+\Z"))
-    elif kind == "local":
-        cc1.path = _expand(_get_str(cc1_t, "path", cc1_where, errors) or ".", directory)
-    elif kind:
-        errors.append(f"{cc1_where}: kind must be 'remote' or 'local', got {kind!r}")
+    cc1 = parse_cc1_table(cc1_t, cc1_where, cc1_key, directory, errors)
+    unit_compilers = parse_unit_compilers(tool_t, directory, errors)
 
     # Module images: structure only. The archives are read once the baseline is known.
     overlays = raw.get("overlays")
@@ -1063,6 +1150,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         if kind == "asm" and flags:
             errors.append(f"{where}: an assembly unit takes no flags")
         unit_version = parse_unit_aspsx_version(table, where, kind, errors)
+        unit_cc1 = parse_unit_cc1(table, where, kind, errors)
         functions = []
         fn_tables = table.get("functions", [])
         if not isinstance(fn_tables, list) or not fn_tables:
@@ -1108,7 +1196,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name, unit_version))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name, unit_version, unit_cc1))
 
     errors += second_link_unit_errors(images, units)
 
@@ -1116,6 +1204,8 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     errors += geometry_errors([u for u in units if u.image == RESIDENT])
     for name in dict.fromkeys(u.image for u in units if u.image in declared):
         errors += [f"image {name!r}: {e}" for e in geometry_errors([u for u in units if u.image == name])]
+
+    errors += unit_compiler_errors(units, unit_compilers)
 
     # symbols.ld
     symbols_path = directory / "symbols.ld"
@@ -1172,6 +1262,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         aspsx_version=aspsx_version,
         binutils_prefix=prefix,
         cc1=cc1,
+        unit_compilers=unit_compilers,
         units=units,
         symbols_path=symbols_path,
         symbol_names=symbol_names,
@@ -1616,20 +1707,27 @@ def export_maspsx(cfg: Config, build: Path) -> tuple[list[str], dict, Path | Non
     return [], record, script
 
 
-def check_pins(cfg: Config, compiler: Compiler, build: Path) -> tuple[list[str], dict, Path | None]:
+def cc1_pin(compiler: Compiler, label: str, errors: list[str]) -> dict:
+    """The record of one compiler, its binary hashed where it runs; an error when the hash is not the pinned one."""
+    c = compiler.cfg
+    actual = compiler.actual_hash()
+    if actual != c.sha256:
+        errors.append(f"{label} sha256 mismatch: binary is {actual}, configuration pins {c.sha256}")
+    return {"name": c.name, "kind": c.kind, "sha256": actual, "pinned_sha256": c.sha256, "no_float": c.no_float}
+
+
+def check_pins(
+    cfg: Config, compiler: Compiler, build: Path, unit_compilers: dict[str, Compiler] | None = None
+) -> tuple[list[str], dict, Path | None]:
     tools: dict = {}
     errors, tools["maspsx"], maspsx_script = export_maspsx(cfg, build)
     # cc1 hash
-    actual = compiler.actual_hash()
-    tools["cc1"] = {
-        "name": cfg.cc1.name,
-        "kind": cfg.cc1.kind,
-        "sha256": actual,
-        "pinned_sha256": cfg.cc1.sha256,
-        "no_float": cfg.cc1.no_float,
-    }
-    if actual != cfg.cc1.sha256:
-        errors.append(f"cc1 sha256 mismatch: binary is {actual}, configuration pins {cfg.cc1.sha256}")
+    tools["cc1"] = cc1_pin(compiler, "cc1", errors)
+    # the compilers that single units name: every one is pinned and checked like the configuration's
+    if unit_compilers:
+        tools["cc1_unit"] = {
+            name: cc1_pin(unit_compiler, f"cc1_unit.{name}", errors) for name, unit_compiler in unit_compilers.items()
+        }
     return errors, tools, maspsx_script
 
 
@@ -1687,6 +1785,8 @@ def cache_key_inputs(
 
     The preprocessed text enters only as its hash. The unit name is included
     because the compiler may record the input file name, which derives from it.
+    The compiler is the one this unit is compiled with: its own of
+    [toolchain.cc1_unit] when it names one, else the configuration's.
     The maspsx script path is included because the pinned commit holds more
     than one script, and the patches applied to the export enter by their
     content hashes. The assembler and the Python interpreter that runs maspsx
@@ -1697,8 +1797,8 @@ def cache_key_inputs(
         "preprocessed_sha256": preprocessed_sha256,
         "unit": unit.name,
         "cc1_flags": list(unit.flags),
-        "cc1_sha256": tools["cc1"]["sha256"],
-        "cc1_table": cfg.cc1.name,
+        "cc1_sha256": unit_cc1_tool(tools, unit)["sha256"],
+        "cc1_table": unit_cc1_config(cfg, unit).name,
         "maspsx_commit": tools["maspsx"]["pinned_commit"],
         "maspsx_script": tools["maspsx"]["script"],
         "maspsx_patches": [patch["sha256"] for patch in tools["maspsx"].get("patches", [])],
@@ -1970,6 +2070,7 @@ def link_image(
                 "name": u.name,
                 "kind": u.kind,
                 **({"aspsx_version": u.aspsx_version} if u.aspsx_version else {}),
+                **({"cc1": u.cc1} if u.cc1 else {}),
                 "cache": cache_units[u.name]["cache"],
                 "cache_key": cache_units[u.name]["key"],
                 "range": [u.start, u.end],
@@ -2002,6 +2103,7 @@ class Pipeline:
     maspsx_script: Path
     maspsx_env: dict
     assembler: str  # the file that was hashed for the key
+    unit_compilers: dict = dataclasses.field(default_factory=dict)  # the compilers of [toolchain.cc1_unit], by name
 
 
 def prepare_pipeline(
@@ -2027,14 +2129,25 @@ def prepare_pipeline(
 
     compiler = Compiler(cfg.cc1, tag)
     compiler.check_master()
-    pin_errors, tools, maspsx_script = check_pins(cfg, compiler, build)
+    unit_compilers = {name: Compiler(unit_cfg, tag) for name, unit_cfg in cfg.unit_compilers.items()}
+    for unit_compiler in unit_compilers.values():
+        unit_compiler.check_master()
+    pin_errors, tools, maspsx_script = check_pins(cfg, compiler, build, unit_compilers)
     report["tools"] = tools
     if pin_errors:
         return None, pin_errors
     collect_versions(cfg, tools)
     # The exported copy carries no bytecode; keep it that way.
     maspsx_env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-    return Pipeline(cfg, cache_dir, include_args, compiler, tools, maspsx_script, maspsx_env, tools["as"]["path"]), []
+    return Pipeline(
+        cfg, cache_dir, include_args, compiler, tools, maspsx_script, maspsx_env, tools["as"]["path"], unit_compilers
+    ), []
+
+
+def pipeline_compiler(pipeline, unit):
+    """The compiler that compiles this unit: its own of [toolchain.cc1_unit] when it names one, else the configuration's."""
+    own = unit_cc1_name(unit)
+    return pipeline.unit_compilers[own] if own is not None else pipeline.compiler
 
 
 def unit_object(pipeline: Pipeline, unit: UnitDecl, build: Path, report: dict) -> tuple[list[str], bool]:
@@ -2058,12 +2171,13 @@ def unit_object(pipeline: Pipeline, unit: UnitDecl, build: Path, report: dict) -
     )
     # The preprocessed text covers the source and every header it includes.
     report["inputs"]["preprocessed"][unit.name] = file_sha(pre)
-    if cfg.cc1.no_float:
+    compiler = pipeline_compiler(pipeline, unit)
+    if compiler.cfg.no_float:
         token = find_float(pre.read_text(errors="replace"))
         if token:
             return [
                 f"unit {unit.name!r}: floating-point token {token!r} is not supported by "
-                f"compiler {cfg.cc1.name!r} (no_float); build with the reference compiler"
+                f"compiler {compiler.cfg.name!r} (no_float); build with the reference compiler"
             ], False
     token = find_inline_asm(pre.read_text(errors="replace"))
     if token:
@@ -2080,7 +2194,7 @@ def unit_object(pipeline: Pipeline, unit: UnitDecl, build: Path, report: dict) -
         status = "hit" if hit else "miss"
     report["cache"]["units"][unit.name] = {"cache": status, "key": key}
     if status != "hit":
-        pipeline.compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
+        compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
         converted = run(
             [sys.executable, pipeline.maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={unit_aspsx_version(cfg, unit)}"],
             input=asm.read_bytes(),

@@ -39,6 +39,14 @@ Old figures describe their own date, not today's completion.
   function does, as the last resort, under a fixed comment with the
   measurement without it. `ps1/docs/matching-guide.md`, "What is allowed",
   has the rule and what stays not allowed.
+- A unit of the library may take another pinned compiler or another
+  assembler version than the rest of the build, by the owner's decisions of
+  2026-10-11 ("patch" for the assembler side; "yes" to a second compiler
+  for single units after a private trial showed two functions exact with
+  GCC 2.5.7). Where the library's objects were built with other tools, the
+  build's toolchain follows the bytes. `ps1/docs/matching-build.md` has the
+  two unit keys; each use says in `build.toml` what it is inferred from. A
+  compiler binary never enters Git.
 - Use a branch and PR for changes. Poll owner comments every 60 seconds while
   active. Only the owner's account can approve; a plain comment is approval.
   A reviewer posts comments, not formal reviews. Check actual child exits.
