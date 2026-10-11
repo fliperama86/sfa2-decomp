@@ -56,6 +56,7 @@ DRIVER_C = r'''
 
 static unsigned long long clock_us;
 static int allowed = 1, resets;
+static unsigned tick_step = 10, ticks;   /* what one tick of a wait adds to the clock, and how many ticks there were */
 volatile int port_handler_depth;
 static void (*dma[7])(void);
 
@@ -66,6 +67,8 @@ int Psyz_MdecRead(void *data, size_t words);
 
 unsigned long long port_now_us(void) { return clock_us; }
 int port_interrupt_allowed(void) { return allowed; }
+/* The runtime's tick, as press.c's wait uses it: time passes, and the poll is made as kernel.c's port_tick makes it. */
+void port_tick(void) { ticks++; clock_us += tick_step; if (allowed) port_press_poll(); }
 void *port_h_ResetCallback(void) { resets++; return 0; }
 void *port_h_DMACallback(int d, void (*f)(void))
 {
@@ -90,9 +93,12 @@ void port_halt(int status, const char *fmt, ...)
 
 static unsigned next_addr, next_words;
 static void cb_a(void) { printf("cb A t=%llu depth=%d\n", clock_us, port_handler_depth); }
+static int chain = -1;   /* how many more times cb B starts a transfer; below 0: always */
 static void cb_b(void)
 {
     printf("cb B t=%llu depth=%d\n", clock_us, port_handler_depth);
+    if (chain == 0) return;
+    if (chain > 0) chain--;
     port_DecDCTout((unsigned long *)next_addr, (int)next_words);
     printf("cb B started the next\n");
 }
@@ -158,6 +164,13 @@ int main(void)
         } else if (!strcmp(cmd, "allowed")) {
             sscanf(line + at, "%u", &a);
             allowed = (int)a;
+        } else if (!strcmp(cmd, "step")) {
+            sscanf(line + at, "%u", &a);
+            tick_step = a;
+        } else if (!strcmp(cmd, "chain")) {
+            sscanf(line + at, "%d", &chain);
+        } else if (!strcmp(cmd, "ticks")) {
+            printf("ticks %u t=%llu\n", ticks, clock_us);
         } else if (!strcmp(cmd, "cb")) {
             char k;
             void (*f)(void), (*prev)(void);
@@ -273,6 +286,7 @@ void *port_h_ResetCallback(void) { resets++; return 0; }
 void *port_h_DMACallback(int d, void (*f)(void)) { (void)d; (void)f; return 0; }
 void (*port_iopage_dma_callback(int d))(void) { (void)d; return 0; }
 void port_target_check(const char *path, const void *target) { (void)path; (void)target; }
+void port_tick(void) {}
 void port_halt(int status, const char *fmt, ...)
 {
     va_list ap;
@@ -955,11 +969,46 @@ def completion_routine_is_the_one_of_channel_1_only():
 
 
 @case
-def completion_out_with_one_pending_and_interrupts_allowed_takes_it_first():
+def completion_out_with_one_pending_waits_for_its_due_time():
+    # The owner's review: a second DecDCTout 30 microseconds before the first transfer's due time must not deliver the first
+    # completion at that clock. The call waits; each tick of the wait adds 10 to the clock; the routine runs at the first tick at
+    # or after the due time (due - 30 + 3 * 10 = due), with the depth raised, and only then is the second transfer started.
     c = three()
-    g = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1) - 30}", "allowed 1", f"out {OUT:x} {STRIP}", "poll", f"time {due(2)}", "poll", f"time {due(2)}", "poll"])
-    # the first completion is taken inside the second out (before its due time), at the clock of that call, with the depth raised
-    return eq(cbs(g), [f"cb A t={due(1) - 30} depth=1", f"cb A t={due(2)} depth=1"])
+    g = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1) - 30}", "allowed 1", "ticks", f"out {OUT:x} {STRIP}", "ticks", "poll", "claim",
+                    f"time {due(2)}", "poll"])
+    lines = [l for grp in g for l in grp if l.startswith(("cb ", "ticks ", "claim "))]
+    return eq(lines, [f"ticks 0 t={due(1) - 30}", f"cb A t={due(1)} depth=1", f"ticks 3 t={due(1)}", "claim 0", f"cb A t={due(2)} depth=1"])
+
+
+@case
+def completion_out_with_one_pending_is_never_early_whatever_the_ticks_step():
+    # A tick that does not land on the due time: the routine runs at the first tick past it, never at the call's clock.
+    c = three()
+    got = []
+    for step in (7, 100, 1):
+        g = ok_run(c + [f"step {step}", f"out {OUT:x} {STRIP}", f"time {due(1) - 30}", f"out {OUT:x} {STRIP}"])
+        got.append(cbs(g))
+    return eq(got, [[f"cb A t={due(1) - 30 + 35} depth=1"], [f"cb A t={due(1) - 30 + 100} depth=1"], [f"cb A t={due(1)} depth=1"]])
+
+
+@case
+def completion_out_waits_through_the_transfers_its_routine_starts():
+    # The routine of the pending transfer starts the next one (twice): the waiting call waits for each in turn, and each
+    # completion comes at its own due time or after, none at the clock of the call. due(1) = t0 + 55, due(2) = t0 + 110,
+    # due(3) = t0 + 165; the call is made 30 before due(1), at t0 + 25, and the ticks of 10 fall on t0 + 35, 45, 55, ...: the
+    # first at or after due(1) is t0 + 55, after due(2) it is t0 + 115 (110 is not on the ticks), after due(3) t0 + 165.
+    c = three("B", nmb=4)
+    g = ok_run(c + ["chain 2", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(1) - 30}", f"out {OUT + 0x2000:x} {STRIP}", "ticks"])
+    lines = [l for grp in g for l in grp if l.startswith(("cb ", "ticks "))]
+    want = [f"cb B t={due(1)} depth=1", "cb B started the next", f"cb B t={due(2) + 5} depth=1", "cb B started the next",
+            f"cb B t={due(3)} depth=1", f"ticks 14 t={due(3)}"]
+    return eq(lines, want)
+
+
+@case
+def completion_out_with_one_pending_and_a_clock_that_stands_still_stops():
+    c = three()
+    return stops(c + ["step 0", f"out {OUT:x} {STRIP}", f"out {OUT:x} {STRIP}"], "DecDCTout", "did not complete")
 
 
 @case

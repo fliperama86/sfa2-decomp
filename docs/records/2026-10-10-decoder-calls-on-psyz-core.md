@@ -51,8 +51,27 @@ nothing of PsyZ. The first form of this change called the chip
 unconditionally, and the review command's build of the PC program
 without the library did not link; that run found it.
 
+A finding of the owner's review, corrected in this change: a second
+`DecDCTout` that found the transfer before still pending took its
+completion at once, at the clock of the second call, before the due
+time that the poll and the timer keep; one of the first version's
+cases even expected that. It broke the rule this record states (no
+completion before a chip could have made the data). The call now
+waits by ticking, as the runtime's other waits do, and the tick's poll
+takes the completion at its due time or at the first tick after it; if
+the routine starts a further transfer the wait goes on for that one,
+as Sony's wait does while the transfer is busy; a clock that does not
+move for a hundred thousand ticks stops the program. Four cases
+replace the old one: the completion at its due time and not at the
+call's clock, the same with ticks that do not land on the due time,
+the wait through two transfers that the routine starts, and the
+standing clock. Three mutants of the wait by hand, bounded: taking the
+completion at once fails those four cases; waiting one tick only
+fails them; a limit that never comes fails the standing clock's case
+by its time limit.
+
 What ran: `python port/tools/test_hostpress.py --cc CC --psyz-build
-DIR`, `all 61 cases behaved as required` in about 8 seconds (one-off).
+DIR`, `all 64 cases behaved as required` in about 12 seconds (one-off).
 Expected codes come from the driver's own call of the reader, expected
 pixels from its own direct calls of the chip after the same reset and
 tables; the completion's cases run on a clock the test sets. Mutants

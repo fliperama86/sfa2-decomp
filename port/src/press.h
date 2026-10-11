@@ -61,9 +61,11 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf);
 void port_DecDCTin(unsigned long *buf, int mode);
 
 /* DecDCTout(buf, words): reads the next 32 * (words >> 5) words of the decoded frame from the chip into `buf` (whole blocks of 32
- * words) and makes the transfer's completion pending. If the completion of the transfer before is still pending: when an
- * interruption is allowed (port_interrupt_allowed) it is taken first, here (the library waits for it, and on the console the
- * interrupt comes in that wait); when not (inside a handler, interrupts off) the program stops. When the chip's read fails (more
+ * words) and makes the transfer's completion pending. If the completion of the transfer before is still pending, the call waits
+ * for it first, as Sony's routine does: it ticks (port_tick), and the tick's poll takes the completion when its due time has come,
+ * never before; if the routine starts a further transfer the wait goes on for that one too. Where no interruption is allowed
+ * (inside a handler, interrupts off) the wait could never end and the program stops, as it does when the clock does not move for
+ * a hundred thousand ticks. When the chip's read fails (more
  * is asked than the frame holds, or the codes are broken) the program stops (on the console the transfer would wait for more
  * input; not modelled). */
 void port_DecDCTout(unsigned long *buf, int words);

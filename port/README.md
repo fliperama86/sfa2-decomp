@@ -2427,7 +2427,9 @@ channel 1 as an interrupt, in the pattern of the sound chip's transfer
 sound transfer's call. The due time is this project's choice, 55
 microseconds a macroblock from the frame's `DecDCTin` (a frame of 320 by 240
 done about 16.5 ms after its input); the sound transfer's poll takes its
-completion at once, this one only after the due time.
+completion at once, this one only after the due time. A `DecDCTout` that
+finds the transfer before still pending waits for it by ticking, so that
+completion too comes at its due time and not at the clock of the second call.
 
 The controls. `port/tools/test_hostpress.py --cc CC --psyz-build DIR`
 builds `press.c`, `mdec.c` and the chip core (from the source copy in the

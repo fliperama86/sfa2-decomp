@@ -59,6 +59,23 @@ static void take_here(void)
     port_handler_depth--;
 }
 
+/* Sony's routine waits for the transfer before (its MDEC_out_sync), and on the console the interrupt of that transfer's end comes
+ * in the wait. Here the wait ticks, as the runtime's other waits do: the tick's poll (port_press_poll) takes the completion when its
+ * due time has come and never before, so a completion is not delivered early because a second DecDCTout was called. If the routine
+ * starts a further transfer the wait goes on for that one too, as Sony's does while the transfer is busy. Where no interruption is
+ * allowed (inside a handler, interrupts off) the completion could never come: the program stops. */
+#define PRESS_WAIT_LIMIT 100000u   /* ticks of a wait in which no completion comes (the clock does not move) */
+static void wait_for_output(void)
+{
+    unsigned n;
+    for (n = 0; state != 0; n++) {
+        if (!port_interrupt_allowed())
+            port_halt(PORT_EXIT_OTHER, "DecDCTout: the completion of the transfer before is pending and no interruption is allowed");
+        if (n >= PRESS_WAIT_LIMIT) port_halt(PORT_EXIT_OTHER, "DecDCTout: the transfer before did not complete in %u ticks", PRESS_WAIT_LIMIT);
+        port_tick();
+    }
+}
+
 void port_DecDCTReset(int mode)
 {
     if (mode != 0 && mode != 1) port_halt(PORT_EXIT_OTHER, "DecDCTReset: mode %d is not 0 or 1", mode);
@@ -137,8 +154,7 @@ void port_DecDCTout(unsigned long *buf, int words)
     if (words < 0) port_halt(PORT_EXIT_OTHER, "DecDCTout: %d words", words);
     n = 32ull * ((unsigned)words >> 5);
     need("DecDCTout", "the strip", buf, n * 4);
-    while (state == 1 && port_interrupt_allowed() && __sync_bool_compare_and_swap(&state, 1, 3)) take_here();
-    if (state != 0) port_halt(PORT_EXIT_OTHER, "DecDCTout: the completion of the transfer before is pending and no interruption is allowed");
+    wait_for_output();
     if (Psyz_MdecRead(buf, (size_t)n) != 0)
         port_halt(PORT_EXIT_OTHER, "DecDCTout: the chip cannot give %llu words (more than the frame holds, or broken codes)", n);
     handed += n * 4;
