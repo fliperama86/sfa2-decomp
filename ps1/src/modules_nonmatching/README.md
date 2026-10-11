@@ -239,7 +239,6 @@ func_80078628_slot00 control: different 1348 of 2000 (expected more than 0)
   altered: field_06 increment changed from 1 to 2, instruction slot 26
 func_80079144_slot2b control: different 1020 of 2000 (expected more than 0)
   altered: negation turned into a doubling, instruction slot 31
-  altered: third argument 0x10 changed to 0x11, instruction slot 40
 func_800796e4_slot2b control: different 1479 of 2000 (expected more than 0)
   altered: size word 0x1e0 changed to 0x1e1, instruction slot 25
 func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
@@ -268,7 +267,6 @@ func_801b1934_slot04_02 control: different 2000 of 2000 (expected more than 0)
   altered: store of the second table word moved from field_50 to field_5c, instruction slot 39
 func_801b20b0_slot04_06 control: different 2000 of 2000 (expected more than 0)
   altered: sequence base 0x1b changed to 0x1c, instruction slot 38
-  altered: sequence base 0x32 changed to 0x33, instruction slot 24
 func_801b2f1c_slot04_0a control: different 1003 of 2000 (expected more than 0)
   altered: field_50 constant 0x38000 changed to 0x48000, instruction slot 51
 func_801b3564_slot04_06 control: different 80 of 2000 (expected more than 0)

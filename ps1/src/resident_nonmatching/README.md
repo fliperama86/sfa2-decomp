@@ -317,7 +317,6 @@ func_8013f474 control: different 323 of 2000 (expected more than 0)
   altered: first branch on v0 == 0 removed, instruction slot 4
 func_8013f8c4 control: different 1000 of 2000 (expected more than 0)
   altered: first branch on v0 == 0 removed, instruction slot 6
-  altered: first refusal branch removed, instruction slot 10
 func_80140b5c control: different 186 of 2000 (expected more than 0)
   altered: clearing store moved by one byte, instruction slot 41
 func_80140cd8 control: different 1520 of 2000 (expected more than 0)
