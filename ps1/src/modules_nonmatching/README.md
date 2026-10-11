@@ -58,7 +58,7 @@ Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_80013224_slot12`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b0904_slot04_04`.
 - The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_800e0f2c_slot0f`.
-- An original callee takes a pointer to a local of the function (the record refuses it: this is a limit of the tool, because the frames of the original and of the build differ). `func_801cb564_slot05_06`.
+- An original callee takes a pointer to a local of the function (the record refuses it: this is a limit of the tool, because the frames of the original and of the build differ). .
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -150,8 +150,6 @@ func_801b37b0_slot04_03: built 492 bytes, original 552 bytes; cases 2000, discar
 func_801b37b0_slot04_03 coverage: 138 of 138 instruction slots of the original executed
 func_801b3f38_slot04_sel: built 328 bytes, original 340 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b3f38_slot04_sel coverage: 85 of 85 instruction slots of the original executed
-func_801cb564_slot05_06: built 756 bytes, original 872 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801cb564_slot05_06 coverage: 214 of 218 instruction slots of the original executed
 func_801e0ce8_slot0b: built 304 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original executed
 func_801e0ea8_slot0b: built 320 bytes, original 372 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -211,8 +209,6 @@ func_801b37b0_slot04_03 control: different 1445 of 2000 (expected more than 0)
   altered: sound number 0x30d changed to 0x30e, instruction slot 14
 func_801b3f38_slot04_sel control: different 1101 of 2000 (expected more than 0)
   altered: increment of field_4e changed to 2, instruction slot 56
-func_801cb564_slot05_06 control: different 419 of 2000 (expected more than 0)
-  altered: field_4c constant 0xa0000 changed to 0xb0000, instruction slot 86
 func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
   altered: id shift changed from 6 to 5, instruction slot 54
 func_801e0ea8_slot0b control: different 2000 of 2000 (expected more than 0)
@@ -247,7 +243,6 @@ func_801b2f1c_slot04_0a writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801b36f8_slot04_09 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b37b0_slot04_03 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b3f38_slot04_sel writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801cb564_slot05_06 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ce8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ea8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
