@@ -63,7 +63,6 @@ func_8011eb4c replay: fixtures 1, passed 1, failed 0
 func_80124304 replay: fixtures 6, passed 6, failed 0
 func_801254f4 replay: fixtures 10, passed 10, failed 0
 func_8012f9b0 replay: fixtures 8, passed 8, failed 0
-func_8012fd80 replay: fixtures 6, passed 6, failed 0
 func_8013172c replay: fixtures 3, passed 3, failed 0
 func_80131ab4 replay: fixtures 6, passed 6, failed 0
 func_80135a10 replay: fixtures 8, passed 8, failed 0
@@ -117,8 +116,6 @@ func_801254f4: built 412 bytes, original 400 bytes; cases 2000, discarded 0, equ
 func_801254f4 coverage: 100 of 100 instruction slots of the original executed
 func_8012f9b0: built 300 bytes, original 328 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8012f9b0 coverage: 82 of 82 instruction slots of the original executed
-func_8012fd80: built 196 bytes, original 224 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8012fd80 coverage: 56 of 56 instruction slots of the original executed
 func_8013172c: built 280 bytes, original 296 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8013172c coverage: 74 of 74 instruction slots of the original executed
 func_80131ab4: built 368 bytes, original 456 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -192,8 +189,6 @@ func_801254f4 control: different 118 of 2000 (expected more than 0)
   altered: failure value 0x3c changed to 0x3d, instruction slot 32
 func_8012f9b0 control: different 1859 of 2000 (expected more than 0)
   altered: cursor stride 0xc0 changed to 0xc4, instruction slot 64
-func_8012fd80 control: different 661 of 2000 (expected more than 0)
-  altered: return value 2 changed to 3, instruction slot 41
 func_8013172c control: different 2000 of 2000 (expected more than 0)
   altered: store of field_134 moved by four bytes, instruction slot 59
 func_80131ab4 control: different 258 of 2000 (expected more than 0)
@@ -256,7 +251,6 @@ func_80120cf0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80124304 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801254f4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8012f9b0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8012fd80 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013172c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80131ab4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013245c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
