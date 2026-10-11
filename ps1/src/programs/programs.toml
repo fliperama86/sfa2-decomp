@@ -123,6 +123,7 @@ functions = [
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
   { name = "func_80011708_z2o", address = 0x80011708, size = 264 },
+  { name = "func_80011018_z2o", address = 0x80011018, size = 184 },
 ]
 
 [program.symbols]
@@ -152,6 +153,8 @@ data_8002f884_z2o = 0x8002f884
 StCdInterrupt = 0x800196e4
 DecDCTout = 0x80011c34
 func_80157fc4 = 0x800131a8
+# Callee of the next function; declared as a function by the branch that has its C (remove here then).
+func_80010c38_z2o = 0x80010c38
 data_8002f800_z2o = 0x8002f800
 data_8002f804_z2o = 0x8002f804
 StUnSetRing = 0x80018b38

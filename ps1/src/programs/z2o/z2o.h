@@ -77,5 +77,8 @@ extern int data_8002f880_z2o;
 extern int data_8002f884_z2o;
 extern void StCdInterrupt(void);
 extern void DecDCTout(u32 *buf, int size);
+/* Program functions that other functions call (prototypes from their listings' use of the argument registers; the open's are inferred). */
+extern u32 func_800119e8_z2o(int index, u32 *size);
+extern int func_80010c38_z2o(u32 a0, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9);
 
 #endif
