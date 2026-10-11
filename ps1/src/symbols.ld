@@ -4579,7 +4579,6 @@ data_80051814_slot28 = 0x80051814;
 data_80051828_slot28 = 0x80051828;
 
 /* Added by src.u_slot01_00a4. */
-func_800108d4_slot01 = 0x800108d4;
 func_80012714_slot01 = 0x80012714;
 func_80012990_slot01 = 0x80012990;
 func_80012dec_slot01 = 0x80012dec;
