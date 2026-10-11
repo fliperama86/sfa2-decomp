@@ -6,9 +6,9 @@
 void func_80013cc4_slot27(Object *obj);
 
 void func_80012d78_slot27(Object *obj) {
-    ref_first.p = (Object *)obj->accel_x;
+    ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     if (ref_other.p->field_d8 == 0) {
-        ref_first.p = (Object *)obj->accel_y;
+        ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
     }
     if ((obj->state_3 & 1) == 0) {
         int *x = (int *)data_8019045c;

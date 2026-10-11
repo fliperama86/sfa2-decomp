@@ -36,7 +36,7 @@ void func_80012b90_slot01(Object *obj) {
         obj->field_01 = 0;
         obj->field_0c = 0;
         obj->field_09 = 3;
-        func_80130768(obj, 0, (SequenceStep **)obj->accel_y);
+        func_80130768(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
         func_80012f60_slot01(obj, (Poly28 *)data_800319b8_slot01, (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
         func_80012f60_slot01(obj, (Poly28 *)(data_800319b8_slot01 + 0xf0), (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
         func_80012d08_slot01(obj);

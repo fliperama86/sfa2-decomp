@@ -46,19 +46,25 @@ Three rules keep the names honest:
 | `0x4c`, `0x50` | `vel_x`, `vel_y` | A 32-bit word that is added to, or taken from, the position word of its axis. | any character unit that moves its object |
 | `0x54`, `0x58` | `accel_x`, `accel_y` | A 32-bit word that is added to the velocity of its axis. | the same units |
 
-### Units that keep something else in these words
+## `ObjectWords`: the same words when they hold something else
 
 `Object` is also the type of records that are not fighters, and some units
 keep another value in a word that is named above for what most units keep
-there: a pointer in `vel_x`, `vel_y`, `accel_x` or `accel_y`, or a copy of
-`pos_x` in an acceleration word. In those lines the name is wrong. They are
-found by their casts:
+there: a pointer, or a copy of `pos_x`. In those functions the name would
+be wrong. They read and write the word through `ObjectWords`, a view of the
+same record that gives the four words by their offsets, `word_4c`,
+`word_50`, `word_54` and `word_58`, and claims nothing about what they
+hold.
+
+A function was moved to the view when a cast in it showed the other use:
+the word cast to a pointer, a pointer stored into it with a cast, or
+`pos_x` stored into it. Every use of that word on that object in the
+function was moved with it. This command prints such a line where one is
+left, and prints nothing now:
 
     grep -rnE '\*\) ?[a-z]+->(vel|accel)_[xy]\b|accel_[xy] = [a-z]+->pos_x;|->(vel|accel)_[xy] = \((s32|int|u32)\) ?[a-z]' ps1/src --include='*.c'
 
-They are in units of the modules `slot27`, `slot06_0a`, `slot06_12`,
-`slot0b`, `slot01`, `slot0f`, `slot12` and `slot28` and of four character
-files. The next change moves those uses to the module's own view of the
-record, where the word keeps its offset name until that view's uses show
-what it is. A unit that keeps a plain number of another meaning there has
-no cast to find it by; such a unit is corrected when it is read.
+A unit that keeps a plain number of another meaning in such a word has no
+cast to find it by; it is moved when it is read. When the records of a
+module are understood, their words get a struct of their own with names,
+and its units leave this view.
