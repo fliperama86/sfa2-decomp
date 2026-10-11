@@ -122,6 +122,7 @@ functions = [
   { name = "func_80011a24_z2o", address = 0x80011a24, size = 164 },
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
+  { name = "func_80010c38_z2o", address = 0x80010c38, size = 776 },
 ]
 
 [program.symbols]
@@ -154,5 +155,35 @@ SetDefDispEnv = 0x80015948
 ClearImage = 0x80013114
 DrawSync = 0x80012f80
 VSync = 0x8001b154
+data_8002f84c_z2o = 0x8002f84c
+data_8002f814_z2o = 0x8002f814
+data_8002f820_z2o = 0x8002f820
+data_8002f808_z2o = 0x8002f808
+data_8002f80c_z2o = 0x8002f80c
+data_8001b348_z2o = 0x8001b348
+data_8002f894_z2o = 0x8002f894
+data_8002f898_z2o = 0x8002f898
+data_8002f89c_z2o = 0x8002f89c
+data_8002f874_z2o = 0x8002f874
+data_8002f87c_z2o = 0x8002f87c
+data_8002f880_z2o = 0x8002f880
+data_8002f884_z2o = 0x8002f884
+data_8002f888_z2o = 0x8002f888
+data_8002f88c_z2o = 0x8002f88c
+data_8002f8a8_z2o = 0x8002f8a8
+data_8002f8ac_z2o = 0x8002f8ac
+data_8002f8c4_z2o = 0x8002f8c4
+DecDCTReset = 0x80011b04
+DecDCTvlc = 0x80011b68
+DecDCTin = 0x80011bb8
+DecDCTout = 0x80011c34
+StSetRing = 0x8001a27c
+StSetStream = 0x80018c34
+StGetNext = 0x8001a30c
+StFreeRing = 0x8001a438
+CdControl = 0x80016538
+CdRead2 = 0x80018b90
+# A program function that the C names and that has no C here yet (the callback's address).
+func_80011708_z2o = 0x80011708
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654

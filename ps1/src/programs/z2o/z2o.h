@@ -63,5 +63,60 @@ extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
 extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
 extern int DrawSync(int mode);
 extern int VSync(int mode);
+/* The frame header block of 32 bytes (inferred): the stream's header is copied here (word 2 is the frame number, and the two halfwords at +0x10 are the sizes that the C rounds up to a multiple of 16). */
+typedef struct {
+    u32 word0;
+    u32 word1;
+    u32 frame;
+    u32 word3;
+    u16 width;
+    u16 height;
+    u32 word5;
+    u32 word6;
+    u32 word7;
+} Z2oFrameInfo;
+/* 0x8002f84c: the copy of the latest frame's header (inferred). */
+extern Z2oFrameInfo data_8002f84c_z2o;
+/* 0x8002f814: the number of frames of the movie (inferred: set by func_80010c38_z2o from its third argument). */
+extern int data_8002f814_z2o;
+/* 0x8002f820: the index (0 or 1) of the bitstream buffer in use (inferred). */
+extern int data_8002f820_z2o;
+/* 0x8002f804, 0x8002f808: two buffer pointers in a row, (&data_8002f804_z2o)[i] is the buffer i (inferred); 0x8002f80c: the pointer the decoder's output goes to (inferred). */
+extern u32 *data_8002f808_z2o;
+extern u32 *data_8002f80c_z2o;
+/* 0x8001b348: a word of the movie's open (inferred: not 0 selects the mode word 0x1e8, else 0x168). */
+extern int data_8001b348_z2o;
+/* 0x8002f894, 0x8002f898, 0x8002f89c: three words the frame routine stores (inferred: the latest frame number, and the two sizes). */
+extern u32 data_8002f894_z2o;
+extern u32 data_8002f898_z2o;
+extern u32 data_8002f89c_z2o;
+/* 0x8002f874: a rectangle (x, y, w, h) that the frame routine fills (inferred; w is 0x10 or 0x18). */
+extern Rect data_8002f874_z2o;
+/* 0x8002f87c: the output pointer, 0x8002f880, 0x8002f884, 0x8002f888, 0x8002f88c: words the frame routine fills (inferred: sizes for the decoder). */
+extern u32 *data_8002f87c_z2o;
+extern u32 data_8002f880_z2o;
+extern u32 data_8002f884_z2o;
+extern u32 data_8002f888_z2o;
+extern u32 data_8002f88c_z2o;
+/* 0x8002f8a8: the filter's file byte (and 0x8002f8a9 its channel byte) handed to CdControl(0x0d, ...) (inferred). */
+extern u8 data_8002f8a8_z2o;
+/* 0x8002f8ac: a disc position, four bytes (inferred: CdIntToPos writes it, CdControl(2, ...) reads it). */
+extern u8 data_8002f8ac_z2o[4];
+/* 0x8002f8c4: the result bytes of CdControlB(1, ...) (inferred; bit 0x20 of the first is tested). */
+extern u8 data_8002f8c4_z2o[8];
+extern void DecDCTReset(int mode);
+extern int DecDCTvlc(u32 *bs, u32 *buf);
+extern u32 *StSetRing(u32 *ring, int size);
+extern int StSetStream(int mode, int start, int end, void (*func1)(void), void (*func2)(void));
+extern int StGetNext(u32 **addr, u32 **header);
+extern int StFreeRing(u32 *base);
+extern void DecDCTin(u32 *buf, int mode);
+extern void DecDCTout(u32 *buf, int size);
+extern int CdControl(u8 com, u8 *param, u8 *result);
+extern int CdRead2(int mode);
+/* The program's own functions that other functions call (func_80011708_z2o is written elsewhere; its prototype is read from its use here: a callback with no arguments). */
+extern void func_80011708_z2o(void);
+extern void func_80011810_z2o(void);
+extern void func_80011830_z2o(void);
 
 #endif
