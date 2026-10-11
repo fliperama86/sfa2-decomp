@@ -23,6 +23,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_structgen.py` | public | Controls for the struct generator |
 | `ps1/tools/renamefields.py` | public | Renames struct fields where they are used, located by clang |
 | `ps1/tools/test_renamefields.py` | public | Controls for the field renamer |
+| `ps1/tools/renamefuncs.py` | public | Renames functions everywhere their names are written, by whole words |
+| `ps1/tools/test_renamefuncs.py` | public | Controls for the function renamer |
 | `ps1/tools/mergeunits.py` | public | Merge per-unit work directories |
 | `ps1/tools/test_mergeunits.py` | public | Controls for the merge tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
@@ -284,6 +286,27 @@ Renaming a field. A field is renamed in its line of the field table, and
 The tool does not show that the build still gives the same bytes; the matching
 build does. The names and what each is inferred from are on the
 [names page](names.md).
+
+Renaming a function. A function is renamed in its entry of `build.toml`, and
+`ps1/tools/renamefuncs.py` rewrites the places where the name is written:
+
+- `pairs OLD NEW` lists the renames between two configurations: a function
+  that kept its image and address and changed its name.
+- `apply --old OLD --new NEW PATH...` replaces each old name by its new one,
+  as a whole word, in the files under the paths that end in `.c`, `.h`, `.s`,
+  `.ld`, `.toml`, `.py`, `.json` or `.tsv`, and in any file given by its own
+  path. Folders named `build`, `include` and `__pycache__` are not entered,
+  and the old configuration is not rewritten. `--fresh` refuses when a new
+  name is already written under the paths; without it the tool can run again
+  on a tree that has the new names, which repairs a branch from before the
+  rename. `--dry-run` counts the places and writes nothing.
+- It refuses a rename that could not be exact: a new name that another
+  function has, two functions that would get one name, a new name that is
+  not a C identifier, and a source that is linked into two images and would
+  be renamed at one of the two only.
+
+The inventory carries the names of the configuration: after a rename the
+rewritten `ps1/inventory/game.tsv` is compared with a fresh sweep.
 
 Build integration. The optional table
 
