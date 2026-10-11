@@ -1708,7 +1708,6 @@ data_80185fd4 = 0x80185fd4;
 data_8016e9a8 = 0x8016e9a8;
 data_8016ea60 = 0x8016ea60;
 data_8016e9b8 = 0x8016e9b8;
-func_801254f4 = 0x801254f4;
 
 /* Added by src.u_n125b18. */
 table_8016f520 = 0x8016f520;
