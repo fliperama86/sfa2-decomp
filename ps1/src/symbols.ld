@@ -2185,7 +2185,6 @@ func_800e0b48_slot0f = 0x800e0b48;
 func_800e0f2c_slot0f = 0x800e0f2c;
 func_800e3478_slot0f = 0x800e3478;
 func_800e4ab0_slot0f = 0x800e4ab0;
-func_800e68e8_slot0f = 0x800e68e8;
 func_800e80ec_slot0f = 0x800e80ec;
 data_800e83a8_slot0f = 0x800e83a8;
 data_800e83b4_slot0f = 0x800e83b4;
