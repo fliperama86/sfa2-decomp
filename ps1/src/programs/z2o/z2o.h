@@ -96,6 +96,8 @@ extern u8 data_8002f8a8_z2o;
 extern u8 data_8002f8ac_z2o[4];
 /* 0x8002f8c4: the result bytes of CdControlB(1, ...) (inferred; bit 0x20 of the first is tested). */
 extern u8 data_8002f8c4_z2o[8];
+/* 0x8002f8cc: a word that func_800116f8_z2o returns (inferred; nothing else in the program has C that uses it yet). */
+extern u32 data_8002f8cc_z2o;
 extern void DecDCTReset(int mode);
 extern int DecDCTvlc(u32 *bs, u32 *buf);
 extern u32 *StSetRing(u32 *ring, int size);
@@ -162,5 +164,13 @@ extern void func_800115a8_z2o(u32 volume);
 extern void func_80011630_z2o(int stereo);
 extern void func_800116c8_z2o(int channel);
 extern void func_800119b8_z2o(int value);
+extern u32 func_800116d8_z2o(void);
+extern int func_800116e8_z2o(void);
+extern u32 func_800116f8_z2o(void);
+extern void func_800119c8_z2o(u32 *value);
+extern void func_800119d8_z2o(int value);
+extern int func_80011458_z2o(void);
+extern int func_80011530_z2o(int pause);
+extern void func_80011478_z2o(u8 *src, int x, int y, u32 total, int height, int wide);
 
 #endif
