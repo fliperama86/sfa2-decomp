@@ -240,7 +240,6 @@ func_8011c724 control: different 1355 of 2000 (expected more than 0)
   altered: store of the callee's result into the quad moved by two bytes, instruction slot 185
 func_8011cf98 control: different 1595 of 2000 (expected more than 0)
   altered: store of the object's entry index moved by two bytes, instruction slot 345
-  altered: cell position byte stored one byte lower, instruction slot 193
 func_8011db78 control: different 939 of 2000 (expected more than 0)
   altered: first halfword store of a y value moved by two bytes, instruction slot 149
 func_8011df3c control: different 1141 of 2000 (expected more than 0)
