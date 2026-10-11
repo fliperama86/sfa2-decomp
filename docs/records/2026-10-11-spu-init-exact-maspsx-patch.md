@@ -69,5 +69,5 @@
     `--only cache-key` (the two controls of the key's inputs, one of
     which lists every input and now has the patches): see the pull
     request.
-  - The map's render: `overall: 5505/5600 distinct functions exact (98.3%); 12943/13072 placements (99.0%); 1744208/1809836 code bytes (96.4%) (on main at `ae125bc`)`.
+  - The map's render: `overall: 5509/5600 distinct functions exact (98.4%); 12952/13072 placements (99.1%); 1749380/1809836 code bytes (96.7%) (on main at `7a1d6ab`)`.
   No PC build, no differential test.
