@@ -23,7 +23,7 @@ void func_80135a10(void) {
                 l->bytes_d0[i] = v;
                 /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
                 do {
-                    /* Exception, not recovered source: a second do-while wrapper inside the first, around the same two statements. It adds no instruction; it raises the compiler's reference count of the two pointers once more, which the original's register choice for them (both above the byte v) needs. Without it this function differs from the original in 22 instruction lines. */
+                    /* Stand-in, not recovered source: a second do-while wrapper, nested inside the first around the same two statements, reproduces the original's choice of registers. Without it this function differs from the original in 22 instruction slots. */
                     do {
                         a = &strips[0][i];
                         b = &strips[0][i + 4];
@@ -32,7 +32,7 @@ void func_80135a10(void) {
                 func_80120554(l, 0, 0x34c);
             } else {
                 r->bytes_d0[i] = v;
-                /* Exception, not recovered source: a further do-while wrapper, around the two statements of this arm. It adds no instruction; it gives the pointers here the same register ranking as in the other arm. Without it this function differs from the original in 22 instruction lines. */
+                /* Stand-in, not recovered source: a do-while wrapper around the two statements of this arm reproduces the original's choice of registers. Without it this function differs from the original in 22 instruction slots. */
                 do {
                     a = &strips[0][i + 8];
                     b = &strips[0][i + 12];
