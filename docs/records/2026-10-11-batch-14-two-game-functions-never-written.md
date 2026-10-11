@@ -18,7 +18,7 @@
   comparison as judge, and was identical within two minutes.
 - `func_80157270` (inferred): counts the object's halfword at 0x46 down
   while a byte of the game's state is 0, and on its wrap looks at the
-  first word of the object that its word at 0x3c points to; depending
+  word at offset 4 of the object that its word at 0x3c points to; depending
   on that word, on a byte of that object and on another byte of the
   game's state it calls `func_80120028` or sets two of its own bytes.
   Two points of form, both ordinary C: the decrement is written with a
