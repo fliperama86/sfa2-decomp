@@ -173,6 +173,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d3172c_r1"
+source = "d3172c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013172c", address = 0x8013172c, size = 296 },
+]
+
+[[unit]]
 name = "post_swap"
 source = "post_swap.c"
 flags = ["-O2", "-G0"]
@@ -609,6 +617,14 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8012f8c4", address = 0x8012f8c4, size = 172 },
   { name = "func_8012f970", address = 0x8012f970, size = 64 },
+]
+
+[[unit]]
+name = "d2f9b0_r1"
+source = "d2f9b0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012f9b0", address = 0x8012f9b0, size = 328 },
 ]
 
 [[unit]]
@@ -3999,6 +4015,14 @@ source = "l134624_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80135858", address = 0x80135858, size = 440 },
+]
+
+[[unit]]
+name = "d35a10_r1"
+source = "d35a10_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80135a10", address = 0x80135a10, size = 508 },
 ]
 
 [[unit]]
@@ -10116,6 +10140,16 @@ functions = [
 ]
 
 [[unit]]
+name = "slot12_3224x_r1"
+image = "slot12"
+source = "slot12/slot12_3224x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80013224_slot12", address = 0x80013224, size = 556 },
+]
+rodata = { address = 0x80010018, size = 12 }
+
+[[unit]]
 name = "slot12_4f5cx_r1"
 image = "slot12"
 source = "slot12/slot12_4f5cx_r1.c"
@@ -11459,6 +11493,15 @@ source = "slot0f/slot0f_0bf4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800e0da8_slot0f", address = 0x800e0da8, size = 388 },
+]
+
+[[unit]]
+name = "slot0f_0f2cx_r1"
+image = "slot0f"
+source = "slot0f/slot0f_0f2cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e0f2c_slot0f", address = 0x800e0f2c, size = 232 },
 ]
 
 [[unit]]
@@ -30167,6 +30210,15 @@ source = "slot04_03/slot04_03_3284_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801b3748_slot04_03", address = 0x801b3748, size = 104 },
+]
+
+[[unit]]
+name = "slot04_03_37b0x_r1"
+image = "slot04_03"
+source = "slot04_03/slot04_03_37b0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b37b0_slot04_03", address = 0x801b37b0, size = 552 },
 ]
 
 [[unit]]
