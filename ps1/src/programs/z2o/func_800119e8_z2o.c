@@ -10,7 +10,9 @@
  * What it does (inferred, not an original name): looks an entry up in the program's table of 12 byte entries that starts
  * at 0x8001b354 (inferred: the disc's files). The first word of the entry is
  * returned and the second is stored through the pointer. What the words stand
- * for is not known here.
+ * for is not shown by this function; the parameter's name `size` is inferred
+ * from the logo's program, whose routine of this form is used for a file's
+ * sector and size.
  *
  * Contract:
  *   Arguments: a0 = the index of the entry (any int whose entry lies in

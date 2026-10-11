@@ -20,7 +20,7 @@
 #include "../../protos.h"
 #include "../../externs.h"
 
-/* 0x8002f8a9: one byte, stored by func_800116c8_z2o (inferred: a channel number, from the table's name for the function). */
+/* 0x8002f8a9: one byte, stored by func_800116c8_z2o (inferred: a channel number; its readers have no C here yet). */
 extern u8 data_8002f8a9_z2o;
 /* 0x8002f870: a word stored by func_800119b8_z2o (inferred: a parameter of the stream). */
 extern int data_8002f870_z2o;
@@ -28,7 +28,7 @@ extern int data_8002f870_z2o;
 extern int data_8002f86c_z2o;
 /* 0x8002f890: a flag word func_80011428_z2o waits on until it is 0; volatile because an interrupt changes it (inferred). */
 extern volatile int data_8002f890_z2o;
-/* 0x8002f81c and 0x8002f818: two words; the wait copies the first to the second (inferred: a count of strips, from the routine's table name). */
+/* 0x8002f81c and 0x8002f818: two words; the wait copies the first to the second (inferred: a count of strips; their other users have no C here yet). */
 extern int data_8002f81c_z2o;
 extern int data_8002f818_z2o;
 /* 0x8001b354: a table of 12 byte entries (inferred: the disc's files; the first word of an entry is returned, the second stored through a pointer). */
