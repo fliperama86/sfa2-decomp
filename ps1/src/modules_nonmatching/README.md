@@ -56,14 +56,12 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b1934_slot04_02`, `func_801b0904_slot04_04`.
-- An original callee takes a pointer to a local of the function (the record refuses it: this is a limit of the tool, because the frames of the original and of the build differ). `func_801b3564_slot04_06`, `func_801cb564_slot05_06`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b0904_slot04_04`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
 func_80011688_slot12 replay: fixtures 2, passed 2, failed 0
-func_8001188c_slot27 replay: fixtures 1, passed 1, failed 0
 func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
 func_80012dec_slot01 replay: fixtures 2, passed 2, failed 0
 func_8001389c_slot28 replay: fixtures 1, passed 1, failed 0
@@ -73,12 +71,10 @@ func_80077868_slot2b replay: fixtures 3, passed 3, failed 0
 func_80078628_slot00 replay: fixtures 2, passed 2, failed 0
 func_80079144_slot2b replay: fixtures 3, passed 3, failed 0
 func_800e0850_slot0f replay: fixtures 9, passed 9, failed 0
-func_800e0b48_slot0f replay: fixtures 4, passed 4, failed 0
 func_800e4ab0_slot0f replay: fixtures 3, passed 3, failed 0
 func_801b2f1c_slot04_0a replay: fixtures 5, passed 5, failed 0
 func_801b36f8_slot04_09 replay: fixtures 8, passed 8, failed 0
 func_801b3f38_slot04_sel replay: fixtures 3, passed 3, failed 0
-func_801e0a78_slot0b replay: fixtures 2, passed 2, failed 0
 func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
 func_801e0ea8_slot0b replay: fixtures 2, passed 2, failed 0
 ```
@@ -99,8 +95,6 @@ The test (`--cases 2000 FUNC`, seed 1):
 ```
 func_80011688_slot12: built 260 bytes, original 260 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011688_slot12 coverage: 65 of 65 instruction slots of the original executed
-func_8001188c_slot27: built 176 bytes, original 236 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8001188c_slot27 coverage: 59 of 59 instruction slots of the original executed
 func_80012714_slot01: built 568 bytes, original 636 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012714_slot01 coverage: 159 of 159 instruction slots of the original executed
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -123,28 +117,18 @@ func_800e0850_slot0f: built 412 bytes, original 460 bytes; cases 2000, discarded
 func_800e0850_slot0f coverage: 115 of 115 instruction slots of the original executed
 func_800e0a1c_slot0f: built 276 bytes, original 300 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e0a1c_slot0f coverage: 75 of 75 instruction slots of the original executed
-func_800e0b48_slot0f: built 168 bytes, original 172 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_800e0b48_slot0f coverage: 43 of 43 instruction slots of the original executed
 func_800e4ab0_slot0f: built 540 bytes, original 608 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e4ab0_slot0f coverage: 152 of 152 instruction slots of the original executed
 func_800e80ec_slot0f: built 368 bytes, original 384 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e80ec_slot0f coverage: 96 of 96 instruction slots of the original executed
 func_801b0904_slot04_04: built 164 bytes, original 168 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b0904_slot04_04 coverage: 42 of 42 instruction slots of the original executed
-func_801b1934_slot04_02: built 260 bytes, original 264 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b1934_slot04_02 coverage: 66 of 66 instruction slots of the original executed
 func_801b2f1c_slot04_0a: built 304 bytes, original 312 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b2f1c_slot04_0a coverage: 78 of 78 instruction slots of the original executed
-func_801b3564_slot04_06: built 728 bytes, original 876 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b3564_slot04_06 coverage: 215 of 219 instruction slots of the original executed
 func_801b36f8_slot04_09: built 288 bytes, original 312 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b36f8_slot04_09 coverage: 78 of 78 instruction slots of the original executed
 func_801b3f38_slot04_sel: built 328 bytes, original 340 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b3f38_slot04_sel coverage: 85 of 85 instruction slots of the original executed
-func_801cb564_slot05_06: built 756 bytes, original 872 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801cb564_slot05_06 coverage: 214 of 218 instruction slots of the original executed
-func_801e0a78_slot0b: built 556 bytes, original 624 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e0a78_slot0b coverage: 156 of 156 instruction slots of the original executed
 func_801e0ce8_slot0b: built 304 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original executed
 func_801e0ea8_slot0b: built 320 bytes, original 372 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -156,8 +140,6 @@ The control (`--cases 2000 --control FUNC`):
 ```
 func_80011688_slot12 control: different 1906 of 2000 (expected more than 0)
   altered: last channel step 2 changed to 3, instruction slot 24
-func_8001188c_slot27 control: different 2000 of 2000 (expected more than 0)
-  altered: last halfword store of the loop moved by two bytes, instruction slot 33
 func_80012714_slot01 control: different 1323 of 2000 (expected more than 0)
   altered: a shift right by 4 changed to 3, instruction slot 40
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
@@ -180,28 +162,18 @@ func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
   altered: write length changed to 0x2001, instruction slot 84
 func_800e0a1c_slot0f control: different 314 of 2000 (expected more than 0)
   altered: a returned 2 becomes 3, instruction slot 61
-func_800e0b48_slot0f control: different 678 of 2000 (expected more than 0)
-  altered: mode 0x10 becomes 0x11, instruction slot 15
 func_800e4ab0_slot0f control: different 649 of 2000 (expected more than 0)
   altered: y store moved to the x offset, instruction slot 83
 func_800e80ec_slot0f control: different 2000 of 2000 (expected more than 0)
   altered: increment by 8 changed to 9, instruction slot 81
 func_801b0904_slot04_04 control: different 563 of 2000 (expected more than 0)
   altered: sequence constant 0x1d changed to 0x1e, instruction slot 26
-func_801b1934_slot04_02 control: different 2000 of 2000 (expected more than 0)
-  altered: store of the second table word moved from field_50 to field_5c, instruction slot 39
 func_801b2f1c_slot04_0a control: different 1003 of 2000 (expected more than 0)
   altered: field_50 constant 0x38000 changed to 0x48000, instruction slot 51
-func_801b3564_slot04_06 control: different 80 of 2000 (expected more than 0)
-  altered: knock-back distance 0x60 changed to 0x61, instruction slot 174
 func_801b36f8_slot04_09 control: different 1020 of 2000 (expected more than 0)
   altered: sequence 0x33 changed to 0x34, instruction slot 42
 func_801b3f38_slot04_sel control: different 1101 of 2000 (expected more than 0)
   altered: increment of field_4e changed to 2, instruction slot 56
-func_801cb564_slot05_06 control: different 419 of 2000 (expected more than 0)
-  altered: field_4c constant 0xa0000 changed to 0xb0000, instruction slot 86
-func_801e0a78_slot0b control: different 2000 of 2000 (expected more than 0)
-  altered: first +16 changed to +17, instruction slot 93
 func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
   altered: id shift changed from 6 to 5, instruction slot 54
 func_801e0ea8_slot0b control: different 2000 of 2000 (expected more than 0)
@@ -212,7 +184,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_80011688_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8001188c_slot27 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012dec_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -224,17 +195,12 @@ func_80078628_slot00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes
 func_80079144_slot2b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0850_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0a1c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_800e0b48_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e4ab0_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e80ec_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b0904_slot04_04 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b1934_slot04_02 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b2f1c_slot04_0a writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b3564_slot04_06 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b36f8_slot04_09 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b3f38_slot04_sel writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801cb564_slot05_06 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e0a78_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ce8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ea8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
