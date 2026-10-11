@@ -6,12 +6,13 @@
   differing instruction slots: IDENTICAL`. No wrapper, no helper, no
   stand-in, no `goto`. "Lines" are instruction lines by the private
   check on the published unit.
-- What made it exact against the parked form: the cell's low byte is
+- What made it exact against the private candidate that the search
+  started from (not the published readable C): the cell's low byte is
   split as `rem = cell % 256; v = rem % 16; u = rem / 16;` with the
   remainder in a 16-bit local and `v` computed before `u` (the other
   order: 44 of 156 lines; the remainder as `int`: 12); the list link is
-  stored through `PrimTag`, where the parked form had masks written
-  out; the row's y is an `int` of the row loop and the tile's y a
+  stored through `PrimTag`, as the published readable C already had it
+  (the private candidate had the masks written out); the row's y is an `int` of the row loop and the tile's y a
   16-bit local of the column loop (as `int`: 30).
 - Two spellings that the bytes need, each commented: the cell is read
   as a sum of bytes (the plain index differs in 1 line, the operand
