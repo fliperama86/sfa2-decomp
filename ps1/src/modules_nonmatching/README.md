@@ -66,7 +66,6 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 func_80011688_slot12 replay: fixtures 2, passed 2, failed 0
 func_8001188c_slot27 replay: fixtures 1, passed 1, failed 0
 func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
-func_80012a0c_slot12 replay: fixtures 1, passed 1, failed 0
 func_80012dec_slot01 replay: fixtures 2, passed 2, failed 0
 func_8001389c_slot28 replay: fixtures 1, passed 1, failed 0
 func_800145f4_slot28 replay: fixtures 2, passed 2, failed 0
@@ -117,8 +116,6 @@ func_80012714_slot01: built 568 bytes, original 636 bytes; cases 2000, discarded
 func_80012714_slot01 coverage: 159 of 159 instruction slots of the original executed
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012990_slot01 coverage: 112 of 112 instruction slots of the original executed
-func_80012a0c_slot12: built 316 bytes, original 336 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80012a0c_slot12 coverage: 84 of 84 instruction slots of the original executed
 func_80012dec_slot01: built 320 bytes, original 372 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012dec_slot01 coverage: 93 of 93 instruction slots of the original executed
 func_80013224_slot12: built 548 bytes, original 556 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -202,8 +199,6 @@ func_80012714_slot01 control: different 1323 of 2000 (expected more than 0)
   altered: a shift right by 4 changed to 3, instruction slot 40
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a byte store of the primitive moved by one byte, instruction slot 24
-func_80012a0c_slot12 control: different 2000 of 2000 (expected more than 0)
-  altered: width constant 0xc0 changed to 0xc1, instruction slot 18
 func_80012dec_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a shift left by 4 changed to 3, instruction slot 37
 func_80013224_slot12 control: different 1313 of 2000 (expected more than 0)
@@ -282,7 +277,6 @@ func_8001188c_slot27 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes
 func_80011a14_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80012a0c_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012dec_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80013224_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8001389c_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
