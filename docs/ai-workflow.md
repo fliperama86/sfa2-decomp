@@ -50,6 +50,16 @@ results stay under ignored `local/ai-workflow/` by default.
   game's tree and `port/overrides/` are both unchanged. A replay is
   evidence for the recorded inputs: the ledger's tested status still
   asks for the wide runs in the report it is given.
+  A change under `port/` (a page aside) selects the control files of
+  `port/tools` that are about the changed file, by the table
+  `tools/ai_workflow/port_subjects.toml`: a control file is about
+  itself, about the Python files of `port/tools` that it imports, and
+  about the paths its line lists. A control file without a line is
+  always selected; a changed file that no control file names selects
+  all of them; a listed path that is not in the tree stops the review.
+  The build of the PC program is selected for every change of the port
+  that is not a control file. A new control file gets a line in the
+  table in the pull request that adds it.
   Port/tool changes select their controls.
   A plan-only mode explains commands without claiming that they ran. Results
   record the exact commit, scope, commands, exit status and evidence hashes.
