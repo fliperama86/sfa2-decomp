@@ -800,7 +800,8 @@ The names that a program adds are of four kinds:
 - a function `func_ADDR_NAME` is an alias of its C, `ps1_func_ADDR_NAME =
   impl_func_ADDR_NAME;`, with no address;
 - a symbol of the declaration that begins `data_` is its address,
-  `ps1_NAME = 0xADDRESS;`;
+  `ps1_NAME = 0xADDRESS;` (a name that the game holds at another address is
+  refused);
 - a symbol that the game's names already hold keeps the game's address, and
   the declaration's other address is skipped;
 - any other symbol is the runtime's routine from the list's library table,

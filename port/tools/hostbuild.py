@@ -948,7 +948,8 @@ def plan_program_names(listed: list[Listed], game: dict[str, int]) -> ProgramNam
     """The four kinds of names of the listed programs.
 
     A function `func_ADDR_NAME` is the alias to its impl (no address: a program's function is not at its PS1 address).
-    A symbol of the declaration that begins `data_` is its address. A symbol the game's names (`game`) hold is skipped:
+    A symbol of the declaration that begins `data_` is its address, which must be the game's own where the game's names
+    (`game`) hold the name too. Any other symbol the game's names hold is skipped:
     the game's own address stands for it. Any other symbol must be bound in the list's `library` table to a routine of
     the runtime. A name that two programs both have must lead to the same thing in both; a name leading to two things,
     or a function of a program that has a name of the game, is a Problem."""
@@ -971,6 +972,8 @@ def plan_program_names(listed: list[Listed], game: dict[str, int]) -> ProgramNam
             if name.startswith("data_"):
                 if name in item.library:
                     raise Problem(f"program {program.name}: {name} is a data name; the library table does not bind it")
+                if game.get(name, address) != address:
+                    raise Problem(f"{name} has two addresses: {game[name]:#x} (a name of the game) and {address:#x} (program {program.name})")
                 lead(name, "data", address, program.name)
             elif name in game:
                 if name in item.library:
@@ -1806,7 +1809,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     # The programs that the port's list builds in.
     programs_root = config_path.parent / "programs"
     listed = read_programs_list(args.programs, programs_root / "programs.toml")
-    program_names = plan_program_names(listed, plain)
+    program_names = plan_program_names(listed, names)
     program_jobs_all: list[Job] = []
     for item in listed:
         program_jobs_all += program_jobs(programs_root, item)

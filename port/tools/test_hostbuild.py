@@ -1753,6 +1753,8 @@ def program_plan_cases(root: Path):
         hb.read_programs_list(write(root / "pl" / "v.toml", PG_LIST + second.replace("@@", "port_lib_routine")), write(root / "pl" / "clash.toml", clash)), game),
         "data_80020000_pg", str(0x80020000), str(0x80020004))
     yield "programs-names-a-data-name-the-game-also-has-is-its-data-name", same(hb.plan_program_names(one, {"data_80020000_pg": 0x80020000, "sym_a": 1}).data, {"data_80020000_pg": 0x80020000})
+    yield "programs-names-a-data-name-the-game-has-at-another-address-is-refused", raises(
+        lambda: hb.plan_program_names(one, {"data_80020000_pg": 0x80020004, "sym_a": 1}), "data_80020000_pg", "two addresses", "0x80020004", "0x80020000", "pg")
     yield "programs-names-none-listed", same((hb.plan_program_names([], game).functions, hb.plan_program_names([], game).all()), ([], set()))
 
 
