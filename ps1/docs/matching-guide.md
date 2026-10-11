@@ -870,6 +870,16 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     (`func_801b5118_slot04_07`). The attempt had also given each block a
     pointer local of its own for the object; measured again with one
     pointer, the function is exact without that.
+  - One address reached through the register of another at a constant
+    offset (`lb v0,0(s0)` for a flag, later the rows of a table at
+    `-0x24(s0)`): the two are members of one object. This compiler takes
+    a constant address from a register that already holds another
+    address of the same object (inferred from cse.c), and not from one
+    of another name. `func_800e3478_slot0f` declares the saved block as
+    one struct under a second name and reads plain members; with the
+    table's own name for the rows it differs in 13 slots. A pointer
+    written as the other name's address minus a constant gives the
+    bytes too, but it leaves its object and is not needed.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
