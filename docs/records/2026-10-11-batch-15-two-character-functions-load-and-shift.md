@@ -34,7 +34,8 @@
   reports: 9, 8, 3, 3 and 2 slots where the earlier ones had 3, 3, 2,
   3 and 2). The sixth, on `func_801b4100_slot04_0e`, reached 5 slots
   and named the joined load; the top level put the cast in and swept
-  the positions of two statements (0 slots at the 36th form). A worker
+  the positions of two statements with both orders of the sum's
+  operands, which gave the exact form. A worker
   then carried the form to `func_801b420c_slot04_0e` within a minute.
   A third sibling, `func_801b4a3c_slot04_0e`, is in work.
 - The units' comments of what the functions do are the nonmatching
