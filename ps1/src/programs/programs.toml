@@ -121,6 +121,7 @@ functions = [
   { name = "func_800118f0_z2o", address = 0x800118f0, size = 200 },
   { name = "func_80011a24_z2o", address = 0x80011a24, size = 164 },
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
+  { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
 ]
 
 [program.symbols]
@@ -146,5 +147,12 @@ StUnSetRing = 0x80018b38
 CdReady = 0x800164d0
 CdGetSector = 0x80016934
 DecDCToutCallback = 0x80011cb8
+ResetGraph = 0x80012ae0
+SetDispMask = 0x80012ee4
+CdReadCallback = 0x8001ad58
+SetDefDispEnv = 0x80015948
+ClearImage = 0x80013114
+DrawSync = 0x80012f80
+VSync = 0x8001b154
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654

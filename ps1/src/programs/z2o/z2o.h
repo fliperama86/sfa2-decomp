@@ -56,5 +56,12 @@ extern int CdReady(int mode, u8 *result);
 extern void CdGetSector(void *madr, int size);
 extern void *DecDCToutCallback(void (*func)(void));
 extern void func_800118f0_z2o(void);
+extern int ResetGraph(int mode);
+extern void SetDispMask(int mask);
+extern void *CdReadCallback(void (*func)(void));
+extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
+extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
+extern int DrawSync(int mode);
+extern int VSync(int mode);
 
 #endif
