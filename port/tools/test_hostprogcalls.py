@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "padinit")) printf("PI %d\n", port_PadInit(atoi(rest)));
         else if (!strcmp(cmd, "padstop")) { port_PadStop(); printf("PS\n"); }
         else if (!strcmp(cmd, "padread")) printf("PR %08x\n", port_PadRead(atoi(rest)));
-        else if (!strcmp(cmd, "initgeom")) { port_InitGeom(); printf("IG\n"); }
+        else if (!strcmp(cmd, "initgeom")) { int t0 = ticks; unsigned f0 = frames; port_InitGeom(); printf("IG %d %u\n", ticks - t0, frames - f0); }
         else if (!strcmp(cmd, "vmode")) printf("VM %ld\n", port_SetVideoMode(atol(rest)));
         else { printf("unknown script command %s\n", cmd); return 64; }
     }
@@ -670,7 +670,7 @@ def video_mode_returns_the_one_before():
 
 def init_geom_does_nothing():
     rc, l = run("padmode 1\n" + frame_for((1 << 11) | 3) + "\nvmode 7\npadread 1\ninitgeom\ninitgeom\nvmode 9\nvmode 0\npadread 1\n")
-    if after(l, "IG") != ["IG", "IG"] or after(l, "VM ") != ["VM 0", "VM 7", "VM 9"] or after(l, "PR ") != ["PR 00000803"] * 2:
+    if after(l, "IG ") != ["IG 0 0", "IG 0 0"] or after(l, "VM ") != ["VM 0", "VM 7", "VM 9"] or after(l, "PR ") != ["PR 00000803"] * 2:
         return f"{l}"
 
 

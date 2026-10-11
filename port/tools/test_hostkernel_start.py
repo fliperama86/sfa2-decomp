@@ -7,7 +7,7 @@ The driver includes the real kernel.c, so it can read the file's own state (call
 stands in for the routines that the file takes from the rest of the runtime. The case: with the callbacks started (ResetCallback
 called once) and interrupts off (EnterCriticalSection, as the game has them when it calls Exec), a second ResetCallback leaves
 interrupts off and the count of vblanks where it was; after port_callbacks_program_start the same call turns interrupts on and
-the count of vblanks starts at 0, and the routine alone changes neither interrupts nor the count. NOTHING IS COMPARED WITH THE
+the count of vblanks starts at 0, and the routine alone changes neither interrupts nor the count, with interrupts off or on. NOTHING IS COMPARED WITH THE
 CONSOLE: the contract is the text of the routine's comment in kernel.c.
 
 The last line is `all 1 cases behaved as required` or the number that did not.
@@ -67,6 +67,12 @@ int main(void)
     say("program start");
     port_h_ResetCallback();
     say("reset, fresh");
+    /* with interrupts on and the callbacks running: the routine marks the layer not started and changes nothing else */
+    vcount = 31;
+    port_h_ExitCriticalSection();
+    say("interrupts on");
+    port_callbacks_program_start();
+    say("program start, interrupts on");
     return 0;
 }
 '''
@@ -77,6 +83,8 @@ WANT = [
     "reset, running: active 1, interrupts 0, vcount 57",
     "program start: active 0, interrupts 0, vcount 57",
     "reset, fresh: active 1, interrupts 1, vcount 0",
+    "interrupts on: active 1, interrupts 1, vcount 31",
+    "program start, interrupts on: active 0, interrupts 1, vcount 31",
 ]
 
 
@@ -101,8 +109,9 @@ def main() -> int:
         r = subprocess.run([str(exe)], capture_output=True, timeout=60)
         lines = r.stdout.decode(errors="replace").splitlines()
     ok = r.returncode == 0 and lines == WANT
-    print(("ok" if ok else f"FAIL: status {r.returncode}, lines {lines}, wanted {WANT}") + " callbacks_fresh_at_program_start")
-    print("all 1 cases behaved as required" if ok else "1 case(s) behaved wrongly")
+    count = 1
+    print(("ok   callbacks_fresh_at_program_start" if ok else f"FAIL callbacks_fresh_at_program_start: status {r.returncode}, lines {lines}, wanted {WANT}"))
+    print(f"all {count} cases behaved as required" if ok else f"{count} case(s) behaved wrongly")
     return 0 if ok else 1
 
 
