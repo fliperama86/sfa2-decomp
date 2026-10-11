@@ -32,6 +32,14 @@ above. It includes the game's headers (`../../game.h` and the two beside
 it) and declares what it needs of the library itself, so it needs none
 of the headers of `include/`.
 
+One function that the reference has in a file with others stands in a
+file of its own here: `libsnd/vm_alloc.c` (`SpuVmAlloc`), adapted by hand
+from the function of that name in the reference's `libsnd/vmanager.c` to
+this game's voice record, with the reference's license line. It is not
+one of the 87 files counted above either; like `sepopen.c` it includes
+the game's headers and declares its own view of the library's records,
+and needs none of the headers of `include/`.
+
 ## What is not here
 
 `include/` is not in the repository. The library files need 38 headers of
