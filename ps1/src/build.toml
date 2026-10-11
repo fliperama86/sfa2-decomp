@@ -2302,6 +2302,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s157270x_r1"
+source = "s157270x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80157270", address = 0x80157270, size = 240 },
+]
+
+[[unit]]
 name = "s156398_r6"
 source = "s156398_r6.c"
 flags = ["-O2", "-G0"]
@@ -2309,9 +2317,13 @@ functions = [
   { name = "func_80157360", address = 0x80157360, size = 32 },
 ]
 
-
-
-
+[[unit]]
+name = "s157380x_r1"
+source = "s157380x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80157380", address = 0x80157380, size = 588 },
+]
 
 [[unit]]
 name = "s158894_r4_b"

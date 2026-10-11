@@ -3812,7 +3812,6 @@ data_801c6378_slot04_14 = 0x801c6378;
 data_801c6390_slot04_14 = 0x801c6390;
 data_801c6398_slot04_14 = 0x801c6398;
 data_801c63a8_slot04_14 = 0x801c63a8;
-func_80157380 = 0x80157380;
 
 /* Added by src.u_slot04_14_3db8. */
 data_801c63c4_slot04_14 = 0x801c63c4;

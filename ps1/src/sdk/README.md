@@ -169,7 +169,7 @@ Layer 2, this project's adapted copy against the pinned commit:
 Layer 3, the changes that made them exact, each with a comment in its
 file:
 
-- `_addque2`: a store and two reads through a cast to `volatile` (one
+- `_addque2`: two stores and a read through a cast to `volatile` (one
   labelled stand-in at three places).
 - `_clr`, `_dws`, `_drs`: the rectangle is limited in place where the
   adapted copy limited a copy of it, the lower limit is 1 where the
