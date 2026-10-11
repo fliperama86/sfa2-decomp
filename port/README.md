@@ -820,7 +820,12 @@ resolve, and the tool says so (below).
 The check of plain names: after the renaming, `nm` is run on every object of
 a program, and an undefined name that is not a `ps1_` name ends the build
 naming the object and the name. Without it such a name would link against
-whatever has that name in the runtime, PsyZ or the C library. The objects of
+whatever has that name in the runtime, PsyZ or the C library. A weak
+reference counts as undefined, and is refused under a `ps1_` name as well:
+the linker gives a weak reference the address 0 where nothing defines the
+name, with no line. A weak function that the object itself defines is not a
+reference (the compiler for Windows lists both alike and gives a definition
+its own symbol; the tool reads that). The objects of
 the game's own units held no such name in one build of 2026-10-10 (read with
 `nm` over all their objects); the tool checks a program's objects only. The
 program's objects lie between the two text markers, and the end checks know the aliases and the

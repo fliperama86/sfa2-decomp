@@ -188,8 +188,10 @@ A name that two listed programs both have must lead to the same thing in both. A
 `BUILD/gen/redefine_programs.txt` (the game's redefine file plus the programs' names); the game's own objects use
 `redefine.txt` as before. After the redirection `nm` is run on every object of a program and none may be left with an
 undefined name that is not a `ps1_` name (the objects of the game's units hold none): a plain name would link against
-whatever of that name the runtime, PsyZ or the C library defines. The build stops (status 1) naming the object and the
-name. The end checks know the programs: `verify_link` checks each function alias (its `impl_` exists outside the PS1's
+whatever of that name the runtime, PsyZ or the C library defines. A weak reference (`w` or `v` in the listing) counts as
+undefined, and is refused under a `ps1_` name too: the linker gives it the address 0 where nothing defines the name, with
+no line. A weak function that the object itself defines is not a reference. The build stops (status 1) naming the object
+and the name. The end checks know the programs: `verify_link` checks each function alias (its `impl_` exists outside the PS1's
 ranges) and that each bound name lies at its routine's address, `verify_markers` that each program function lies between
 the markers. A routine that the list binds and the runtime lacks is a link error, named by the tool's line
 (`undefined symbol ... referenced in expression`).
@@ -996,18 +998,40 @@ def plan_program_names(listed: list[Listed], game: dict[str, int]) -> ProgramNam
     return names
 
 
+def object_references(nm_text: str) -> tuple[set[str], set[str]]:
+    """The symbols that one object (from `nm`) refers to and does not define, as nm spells them: the plain undefined ones
+    (`U`) and the weak ones (`w`, `v`).
+
+    A weak symbol with no value is a reference that links as 0 when nothing defines it. The compiler for Windows lists a
+    weak function that the object itself defines the same way, and gives its definition as `.weak.NAME.OTHER` with a
+    section's letter; that one is defined and is not returned. For a weak reference that symbol is absolute (`A`)."""
+    strong, weak, defaults = set(), set(), set()
+    for line in nm_text.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0] == "U":
+            strong.add(parts[1])
+        elif len(parts) == 2 and parts[0] in ("w", "v"):
+            weak.add(parts[1])
+        elif len(parts) == 3 and parts[2].startswith(".weak.") and parts[1] != "A":
+            defaults.add(parts[2])
+    return strong, {n for n in weak if not any(d.startswith(f".weak.{n}.") for d in defaults)}
+
+
 def undefined_names(nm_text: str, underscore: bool) -> list[str]:
-    """The undefined symbols of one object (from `nm`) that are not `ps1_` names, in order of name.
+    """The undefined symbols of one object (from `nm`), weak references included, that are not `ps1_` names, in order of name.
 
     A game unit's object holds no other: every reference was renamed into the `ps1_` namespace by the rename table, so a
     plain undefined name would link against whatever of that name the runtime, PsyZ or the C library defines."""
     us = "_" if underscore else ""
-    found = set()
-    for line in nm_text.splitlines():
-        parts = line.split()
-        if len(parts) == 2 and parts[0] == "U" and not parts[1].startswith(us + "ps1_"):
-            found.add(c_name(parts[1], underscore))
-    return sorted(found)
+    strong, weak = object_references(nm_text)
+    return sorted({c_name(n, underscore) for n in strong | weak if not n.startswith(us + "ps1_")})
+
+
+def weak_names(nm_text: str, underscore: bool) -> list[str]:
+    """The weak references of one object (from `nm`) to `ps1_` names, without the prefix, in order of name. The linker
+    gives such a reference the address 0 when nothing defines the name, where a plain reference is an error with a line."""
+    us = "_" if underscore else ""
+    return sorted({n[len(us + "ps1_"):] for n in object_references(nm_text)[1] if n.startswith(us + "ps1_")})
 
 
 # The second placements of `like` images.
@@ -1988,6 +2012,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             raise Failure(f"nm did not run on the object of {o.job.name}")
         stray += [f"{o.job.name}: the undefined name {n} is not a ps1_ name; it would link against whatever of that name the runtime or a library defines"
                   for n in undefined_names(nm_run.stdout, underscore)]
+        stray += [f"{o.job.name}: the reference to {n} is weak; it would link as address 0 where nothing defines the name, with no line. A program's C refers to a name plainly"
+                  for n in weak_names(nm_run.stdout, underscore)]
     if stray:
         raise Failure("\n".join(stray[:20]) + (f"\n... and {len(stray) - 20} more" if len(stray) > 20 else ""))
     tables_path = build / "gen" / "port_tables.c"

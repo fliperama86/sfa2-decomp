@@ -1792,6 +1792,19 @@ def program_pure_cases():
     yield "programs-undefined-names-a-plain-name", same(hb.undefined_names("         U _ps1_a\n         U _DecDCTout\n         U _memcpy\n", True), ["DecDCTout", "memcpy"])
     yield "programs-undefined-names-no-underscore", same(hb.undefined_names("         U ps1_a\n         U memcpy\n", False), ["memcpy"])
     yield "programs-undefined-names-a-defined-plain-name-is-no-undefined-name", same(hb.undefined_names("00000000 T _f\n00000000 D _v\n", True), [])
+    weak_coff = "         w _printf\n00000000 A .weak._printf._f\n         w _weak_obj\n00000000 A .weak._weak_obj._f\n00000006 T _f\n"
+    yield "programs-undefined-names-a-weak-reference-is-undefined", same(hb.undefined_names(weak_coff, True), ["printf", "weak_obj"])
+    yield "programs-undefined-names-a-weak-reference-without-the-compilers-helper-line", same(
+        (hb.undefined_names("         w _printf\n         v _obj\n         U _ps1_a\n", True), hb.undefined_names("         w printf\n         v ps1_obj\n", False)), (["obj", "printf"], ["printf"]))
+    defined_weak = "         w _own\n00000000 T .weak._own._f\n00000006 T _f\n"
+    yield "programs-undefined-names-a-weak-function-the-object-defines-is-no-reference", same(
+        (hb.undefined_names(defined_weak, True), hb.weak_names(defined_weak, True), hb.undefined_names("00000000 W _own\n00000000 V _obj\n", True)), ([], [], []))
+    yield "programs-undefined-names-a-default-of-another-name-does-not-define-this-one", same(
+        hb.undefined_names("         w _own\n00000000 T .weak._owner._f\n00000000 T .weak._ow._f\n", True), ["own"])
+    yield "programs-weak-names-a-weak-reference-to-a-ps1-name", same(
+        (hb.weak_names("         w _ps1_gone\n00000000 A .weak._ps1_gone._f\n         U _ps1_a\n         w _printf\n", True), hb.weak_names("         v ps1_obj\n         U ps1_a\n", False),
+         hb.undefined_names("         w _ps1_gone\n00000000 A .weak._ps1_gone._f\n", True)), (["gone"], ["obj"], []))
+    yield "programs-weak-names-none-in-a-plain-object", same(hb.weak_names("         U _ps1_a\n00000000 T _impl_f\n         U _memcpy\n", True), [])
     yield "programs-undefined-names-ps1-inside-a-name-is-plain", same(hb.undefined_names("         U _xps1_a\n         U ps1_b\n", True), ["ps1_b", "xps1_a"])
     yield "programs-names-file-binds-a-routine", same(hb.render_names({"a": 1}, ["f"], True, {"Lib": "port_x"}), "_ps1_a = 0x00000001;\n_ps1_f = _impl_f;\n_ps1_Lib = _port_x;\n")
     yield "programs-names-file-binds-routines-in-order-of-name", same(
@@ -2287,6 +2300,14 @@ def e2e_program_cases(rig: Rig):
         "programs: 1, functions with jumps: 10", "program pg pg.exe sha 203f", "setup: 0x80100800", "setup: 0x00000000", "lib: 101", "lib: 140", "teardown: 0x80100800", "end"]))
     proc, _ = rig.build_program("e2e-program-stray", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": "extern int printf(const char *, ...);\nvoid func_80010010_pg(int v) { printf(\"x\"); }\n"})
     yield "e2e-program-a-plain-library-call-stops-the-build-naming-it", same((proc.returncode, "func_80010010_pg" in proc.stderr and "printf" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    weak_plain = "extern int printf(const char *, ...) __attribute__((weak));\nvoid func_80010010_pg(int v) { if (printf) printf(\"x\"); }\n"
+    proc, _ = rig.build_program("e2e-program-weak", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": weak_plain})
+    yield "e2e-program-a-weak-plain-reference-stops-the-build-naming-it", same(
+        (proc.returncode, "func_80010010_pg" in proc.stderr and "printf" in proc.stderr and "not a ps1_ name" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    weak_bound = "extern void LibHello(int) __attribute__((weak));\nvoid func_80010010_pg(int v) { if (LibHello) LibHello(v + 100); }\n"
+    proc, _ = rig.build_program("e2e-program-weak-bound", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": weak_bound})
+    yield "e2e-program-a-weak-reference-to-a-name-of-the-names-file-stops-the-build-too", same(
+        (proc.returncode, "func_80010010_pg" in proc.stderr and "LibHello" in proc.stderr and "weak" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
 
 
 def groups(root: Path, rig: "Rig | None" = None):

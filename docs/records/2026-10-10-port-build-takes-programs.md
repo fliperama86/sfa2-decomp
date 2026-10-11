@@ -39,13 +39,15 @@ not from a run of a program):
   file's SHA-256 from the declaration, main's C and the two routines.
 
 What ran: `python port/tools/test_hostbuild.py --cc CC`, `all cases
-behaved as required`, 518 `ok` lines (408 before the change), about 40
-seconds; its new cases use made-up trees, a made-up declaration and a
-made-up list, and one of them builds a made-up program with the real
-compiler and runs its setup, main, a bound routine and teardown. The
-PC program of the tree, built with the picture library and without it:
+behaved as required`, 527 `ok` lines, 118 of them new with this change,
+about 40 seconds; its new cases use made-up trees, a made-up
+declaration and a made-up list, and three of them build a made-up
+program with the real compiler: one runs its setup, main, a bound
+routine and teardown, two are refused for a weak reference. The PC
+program of the tree, built with the picture library and without it:
 `linked: ..., verified` both times, with the lines it printed before
-plus `programs built in: 0`. `python
+plus `programs built in: 0` (before the repair below, which changed
+only what is done with a listed program's objects). `python
 tools/ai_workflow/tests/test_workflow.py`: OK.
 
 One trial that is not in the tree: with a list that named the logo (a
@@ -59,13 +61,38 @@ linked and verified. Nothing was started.
 Mutants of the new code in bounded runs by a private script (a time
 limit and a memory limit per run), without `--cc`, so the cases that
 need the real compiler did not run under them: 87 on the test file as
-it was before its last case; 86 failed a named case; 1 passed (a
-two-field test of an `nm` line that a defined symbol's three-field
-line never meets: it changes nothing an input can show); none ended
-the tester without a name; none hit the time limit; a change of
-nothing passed. For the refusal added last (below), 2 more on the
-final test file: one failed the new case by name, the other ended the
-tester's case list with the tester's own line.
+it was before the cases named below were added; 86 failed a named
+case and 1 passed; none ended the tester without a name; none hit the
+time limit; a change of nothing passed. The one that passed made the
+guard of plain names take a weak listing line too. It was written off
+as changing nothing an input can show, with the argument that a
+two-field line is always `U`. That argument was wrong, and the mutant
+pointed at the fault the review then found (below). For the refusal
+of a data name at another address, 2 more on the test file of that
+day: one failed the new case by name, the other ended the tester's
+case list with the tester's own line. For the repair below, 11 with
+`--cc` on the final test file: each failed a named case; a change of
+nothing passed.
+
+The review's finding on pull request 202, repaired. The guard of
+plain names read only the `U` lines of `nm`. A reference declared
+weak is listed as `w` (or `v`), so a program's C that declared
+`printf` or a routine of the runtime weak kept its plain name through
+the renaming, and the build linked and verified. Now a weak reference
+counts as undefined: under a plain name it is refused as a plain name
+is, and under a `ps1_` name it is refused too, because the linker
+gives a weak reference the address 0 where nothing defines the name,
+with no line, and a program's C has no use for one. A weak function
+that the object itself defines is not a reference: the compiler for
+Windows lists it like a weak reference and gives the definition a
+symbol of its own (`.weak.NAME.OTHER`, at a section's letter, where a
+reference has an absolute one), and the tool reads that; this was
+looked up by running the compiler's `nm` on such an object. Cases:
+the listing's forms (with and without the compiler's helper line, a
+weak data name, a weak function the object defines, the helper line
+of another name, a weak reference to a `ps1_` name), and two with the
+real compiler: a weak `printf` and a weak reference to a bound name
+each stop the build before the link, naming the unit and the name.
 
 Found in the top level's reading and corrected before publishing: the
 tool's header said that a program's `data_` name which the game holds
