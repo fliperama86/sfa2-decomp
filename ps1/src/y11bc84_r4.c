@@ -35,6 +35,6 @@ void func_8011cbb8(Slab172 *p) {
     } else {
         func_80119ddc(p);
     }
-    func_8011d74c(p, 0, 0, p);
+    func_8011d74c((Object *)p, 0, 0, p);
     func_8011db78(p, 0, 0, p);
 }

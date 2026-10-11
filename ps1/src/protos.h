@@ -51,7 +51,7 @@ void func_8011cd68(Block172 *block);
 void func_8011cdc0(Slab172 *p);
 void func_8011cf98(Slab172 *p, u16 *q);
 void func_8011d5b8(Slab172 *p, u32 q);
-void func_8011d74c(void *a, int b, int c, Block172 *d);
+void func_8011d74c(Object *obj, u16 column, u16 frame, Block172 *second);
 void func_8011db78(void *a, int b, int c, Block172 *d);
 void func_8011df3c(void *a, int b, u8 *c);
 void func_8011e938(int *out, int index);
