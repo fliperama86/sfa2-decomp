@@ -33,9 +33,11 @@
  *   if a round was still in flight when it returned it prints `stop: a suspension round was in flight when the stop returned`
  *   and ends with status 10; if a round began after the stop it prints `stop: a suspension round began after the stop` (status 10); and each direct ExitProcess checks that the stop was called before it, with the line
  *   `stop: the process was ended while suspensions were still allowed` (status 10). Without the option those checks are not made.
+ * Sound. A build with PsyZ opens the machine's sound output through PsyZ at start, without being asked (a device that cannot be
+ *   opened is a line, not a stop). --no-audio opens none. --audio asks for it by name: the same in a build with PsyZ, and a refusal in
+ *   a build without (which otherwise runs in silence and says nothing). --audio with --no-audio is the usage line.
  * --audio-dump FILE writes what the sound chip's model mixes to FILE: WAV, 16 bits, stereo, 44100 Hz, 735 frames at the end of every
- *   vblank (iopage.c). No audio device is opened. --audio opens the machine's sound output through PsyZ (off unless asked; a device
- *   that cannot be opened is a line, not a stop). With both, the file is written and no device is opened. Both need a build with PsyZ.
+ *   vblank (iopage.c). No audio device is opened then, with or without --audio (with it a line says so). It needs a build with PsyZ.
  * --input FILE gives the pad buttons that a run presses, on top of what PsyZ reads (input.c); a line of the file that is not
  *   valid refuses the start (status 2) with a line that names the file and the line number.
  * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
@@ -102,7 +104,7 @@ int main(int argc, char **argv)
 {
     const char *disc_path = NULL, *trace_path = NULL, *dump_path = NULL, *audio_dump = NULL;
     unsigned watchdog = 0, dump_every = 0;
-    int audio_device = 0;
+    int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
@@ -119,7 +121,8 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--audio-dump") == 0 && i + 1 < argc && !audio_dump) audio_dump = argv[++i];
-        else if (strcmp(argv[i], "--audio") == 0) audio_device = 1;
+        else if (strcmp(argv[i], "--audio") == 0 && audio_device != PORT_AUDIO_OFF) audio_device = PORT_AUDIO_ASKED;
+        else if (strcmp(argv[i], "--no-audio") == 0 && audio_device != PORT_AUDIO_ASKED) audio_device = PORT_AUDIO_OFF;
         else if (strcmp(argv[i], "--no-interrupt") == 0) no_interrupt = 1;
         else if (strcmp(argv[i], "--timer-burst") == 0) burst = 1;
         else if (strcmp(argv[i], "--dump-vram") == 0 && i + 1 < argc) dump_path = argv[++i];
@@ -135,7 +138,7 @@ int main(int argc, char **argv)
         return 0;
     }
     if (bad || list || !disc_path) {
-        printf("usage: %s [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio] DISC (a .cue or the .bin itself)\n       %s --list-library\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] DISC (a .cue or the .bin itself)\n       %s --list-library\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }

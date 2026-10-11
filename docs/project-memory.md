@@ -26,6 +26,10 @@ Old figures describe their own date, not today's completion.
 - The port stays beside the PS1 work, with no PS1 changes made for the port
   until the port runs. It runs C only, never an interpreter of missing original
   code. User-supplied disc data stays private. Read `port/README.md` first.
+- Sound is part of the port's normal build, by the owner's decision of
+  2026-10-10: a build with PsyZ has the game's sound library and plays
+  without being asked. A test or a script that starts the program gives
+  `--no-audio` or `--audio-dump`, so that it makes no sound.
 - Source written here is published by the owner's decisions of 2026-10-05
   and 2026-10-06. First publication still needs provenance/privacy review.
   Third-party source retains its license. Private headers, binaries, game
