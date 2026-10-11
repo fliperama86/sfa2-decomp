@@ -4357,6 +4357,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d1bf70_r1"
+source = "d1bf70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011bf70", address = 0x8011bf70, size = 1528 },
+]
+
+[[unit]]
 name = "y11bc84_r3"
 source = "y11bc84_r3.c"
 flags = ["-O2", "-G0"]
