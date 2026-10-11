@@ -265,20 +265,8 @@ func_801e8bd8_slot06_08 edges: constants 71, altered runs 142, unnoticed 43, all
   slot 511: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1334
   slot 516: addiu s2,s2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
 func_801e8dc4_slot06_00 edges: constants 9, altered runs 18, unnoticed 0, all discarded 0
-func_801e8dc8_slot06_05 edges: constants 20, altered runs 34, unnoticed 2, all discarded 0
-  slot 189: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1707
-  slot 194: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1738
-  slot 103: not executed by any case
-  slot 110: not executed by any case
-  slot 170: not executed by any case
 func_801e90a8_slot06_10 edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
   slot 17: not executed by any case
-func_801e9114_slot06_12 edges: constants 18, altered runs 30, unnoticed 2, all discarded 0
-  slot 186: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1748
-  slot 191: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1776
-  slot 117: not executed by any case
-  slot 124: not executed by any case
-  slot 167: not executed by any case
 func_801e96fc_slot06_0b edges: constants 35, altered runs 64, unnoticed 2, all discarded 0
   slot 231: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1724
   slot 236: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1762
@@ -305,40 +293,8 @@ func_801e98dc_slot06_07 edges: constants 2, altered runs 2, unnoticed 0, all dis
   slot 17: not executed by any case
 func_801e998c_slot06_0d edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
   slot 17: not executed by any case
-func_801e99b4_slot06_04 edges: constants 21, altered runs 36, unnoticed 4, all discarded 0
-  slot 135: ori v0,zero,0x6, immediate 0x6 -> 0x7: different 0 of 2000, discarded 0
-  slot 135: ori v0,zero,0x6, immediate 0x6 -> 0x5: different 0 of 2000, discarded 0
-  slot 182: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1697
-  slot 187: addiu t4,t4,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1736
-  slot 119: not executed by any case
-  slot 126: not executed by any case
-  slot 163: not executed by any case
-func_801e99c8_slot06_02 edges: constants 16, altered runs 26, unnoticed 2, all discarded 0
-  slot 193: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1740
-  slot 198: addiu t5,t5,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1782
-  slot 127: not executed by any case
-  slot 134: not executed by any case
-  slot 173: not executed by any case
-func_801e9bb0_slot06_0f edges: constants 15, altered runs 24, unnoticed 2, all discarded 0
-  slot 177: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1746
-  slot 182: addiu t8,t8,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1773
-  slot 124: not executed by any case
-  slot 131: not executed by any case
-  slot 157: not executed by any case
 func_801e9c80_slot06_0e edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
   slot 17: not executed by any case
-func_801e9d14_slot06_0e edges: constants 38, altered runs 70, unnoticed 2, all discarded 0
-  slot 245: addiu t1,t1,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1715
-  slot 250: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1752
-  slot 116: not executed by any case
-  slot 123: not executed by any case
-  slot 226: not executed by any case
-func_801e9ef4_slot06_10 edges: constants 14, altered runs 22, unnoticed 2, all discarded 0
-  slot 158: addiu a2,a2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1711
-  slot 163: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1740
-  slot 105: not executed by any case
-  slot 112: not executed by any case
-  slot 138: not executed by any case
 func_801e9f20_slot06_0d edges: constants 16, altered runs 26, unnoticed 3, all discarded 0
   slot 31: addiu v1,v1,0x7f, immediate 0x7f -> 0x7e: different 0 of 2000, discarded 0
   slot 174: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1713
@@ -551,20 +507,13 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 
 ```
 func_801e8dc4_slot06_00 replay: fixtures 1, passed 1, failed 0
-func_801e8dc8_slot06_05 replay: fixtures 4, passed 4, failed 0
 func_801e90a8_slot06_10 replay: fixtures 2, passed 2, failed 0
-func_801e9114_slot06_12 replay: fixtures 6, passed 6, failed 0
 func_801e96fc_slot06_0b replay: fixtures 12, passed 12, failed 0
 func_801e9798_slot06_06 replay: fixtures 12, passed 12, failed 0
 func_801e98c8_slot06_0c replay: fixtures 4, passed 4, failed 0
 func_801e98dc_slot06_07 replay: fixtures 4, passed 4, failed 0
 func_801e998c_slot06_0d replay: fixtures 3, passed 3, failed 0
-func_801e99b4_slot06_04 replay: fixtures 9, passed 9, failed 0
-func_801e99c8_slot06_02 replay: fixtures 4, passed 4, failed 0
-func_801e9bb0_slot06_0f replay: fixtures 3, passed 3, failed 0
 func_801e9c80_slot06_0e replay: fixtures 3, passed 3, failed 0
-func_801e9d14_slot06_0e replay: fixtures 12, passed 12, failed 0
-func_801e9ef4_slot06_10 replay: fixtures 5, passed 5, failed 0
 func_801e9f20_slot06_0d replay: fixtures 6, passed 6, failed 0
 func_801ea3b4_slot06_08 replay: fixtures 2, passed 2, failed 0
 ```
@@ -741,12 +690,8 @@ func_801e8bd8_slot06_08: built 1496 bytes, original 2124 bytes; cases 2000, disc
 func_801e8bd8_slot06_08 coverage: 523 of 531 instruction slots of the original executed
 func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e8dc4_slot06_00 coverage: 108 of 108 instruction slots of the original executed
-func_801e8dc8_slot06_05: built 756 bytes, original 840 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e8dc8_slot06_05 coverage: 207 of 210 instruction slots of the original executed
 func_801e90a8_slot06_10: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e90a8_slot06_10 coverage: 36 of 37 instruction slots of the original executed
-func_801e9114_slot06_12: built 704 bytes, original 828 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9114_slot06_12 coverage: 204 of 207 instruction slots of the original executed
 func_801e96fc_slot06_0b: built 820 bytes, original 996 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e96fc_slot06_0b coverage: 246 of 249 instruction slots of the original executed
 func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -759,18 +704,8 @@ func_801e98dc_slot06_07: built 136 bytes, original 148 bytes; cases 2000, discar
 func_801e98dc_slot06_07 coverage: 36 of 37 instruction slots of the original executed
 func_801e998c_slot06_0d: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e998c_slot06_0d coverage: 36 of 37 instruction slots of the original executed
-func_801e99b4_slot06_04: built 744 bytes, original 812 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e99b4_slot06_04 coverage: 200 of 203 instruction slots of the original executed
-func_801e99c8_slot06_02: built 828 bytes, original 860 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e99c8_slot06_02 coverage: 212 of 215 instruction slots of the original executed
-func_801e9bb0_slot06_0f: built 784 bytes, original 800 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9bb0_slot06_0f coverage: 197 of 200 instruction slots of the original executed
 func_801e9c80_slot06_0e: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e9c80_slot06_0e coverage: 36 of 37 instruction slots of the original executed
-func_801e9d14_slot06_0e: built 952 bytes, original 1060 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9d14_slot06_0e coverage: 262 of 265 instruction slots of the original executed
-func_801e9ef4_slot06_10: built 636 bytes, original 724 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9ef4_slot06_10 coverage: 178 of 181 instruction slots of the original executed
 func_801e9f20_slot06_0d: built 768 bytes, original 788 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e9f20_slot06_0d coverage: 194 of 197 instruction slots of the original executed
 func_801ea3b4_slot06_08: built 180 bytes, original 180 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -786,12 +721,8 @@ func_801e8bd8_slot06_08 control: different 110 of 2000 (expected more than 0)
   altered: row count limit 0x20 changed to 0x10, instruction slot 67
 func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
   altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69
-func_801e8dc8_slot06_05 control: different 1790 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 178
 func_801e90a8_slot06_10 control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
-func_801e9114_slot06_12 control: different 1820 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 168
 func_801e96fc_slot06_0b control: different 1813 of 2000 (expected more than 0)
   altered: record counter store moved by two bytes, instruction slot 193
 func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
@@ -804,18 +735,8 @@ func_801e98dc_slot06_07 control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
 func_801e998c_slot06_0d control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
-func_801e99b4_slot06_04 control: different 1788 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 176
-func_801e99c8_slot06_02 control: different 1805 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 194
-func_801e9bb0_slot06_0f control: different 1825 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 183
 func_801e9c80_slot06_0e control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
-func_801e9d14_slot06_0e control: different 1803 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 226
-func_801e9ef4_slot06_10 control: different 1793 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 148
 func_801e9f20_slot06_0d control: different 1804 of 2000 (expected more than 0)
   altered: record counter store moved by two bytes, instruction slot 179
 func_801ea3b4_slot06_08 control: different 1609 of 2000 (expected more than 0)
@@ -828,21 +749,14 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8bd8_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8dc4_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e8dc8_slot06_05 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e90a8_slot06_10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9114_slot06_12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e96fc_slot06_0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9738_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9798_slot06_06 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e98c8_slot06_0c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e98dc_slot06_07 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e998c_slot06_0d writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e99b4_slot06_04 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e99c8_slot06_02 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9bb0_slot06_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9c80_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9d14_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9ef4_slot06_10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9f20_slot06_0d writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801ea3b4_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
