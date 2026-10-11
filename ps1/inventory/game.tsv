@@ -74,7 +74,7 @@
 8011ef34	84	func_8011ef34	-	-	0	0	closed
 8011ef88	136	func_8011ef88	-	-	0	0	closed
 8011f010	92	func_8011f010	-	-	0	0	closed
-8011f06c	48	-	-	-	0	0	closed
+8011f06c	48	func_8011f06c	-	-	0	0	closed
 8011f09c	76	func_8011f09c	-	-	0	0	closed
 8011f0e8	100	func_8011f0e8	-	-	0	0	closed
 8011f14c	148	func_8011f14c	-	-	0	0	closed
@@ -724,7 +724,7 @@
 8013b004	96	func_8013b004	-	sound,unidentified	0	0	closed
 8013b064	96	func_8013b064	-	sound,unidentified	0	0	closed
 8013b0c4	1172	-	-	sound,unidentified	0	0	closed
-8013b558	608	-	-	-	0	0	open
+8013b558	608	func_8013b558	-	-	0	0	open
 8013b7b8	108	func_8013b7b8	-	-	1	0	open
 8013b824	344	func_8013b824	-	-	0	0	closed
 8013b97c	100	func_8013b97c	-	-	0	0	closed
