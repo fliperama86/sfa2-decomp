@@ -8676,6 +8676,15 @@ functions = [
 rodata = { address = 0x8016db08, size = 384 }
 
 [[unit]]
+name = "sdk_libgpu_sys_p16"
+source = "sdk/libgpu/sys_p16.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "PutDispEnv", address = 0x80158470, size = 1060 },
+]
+rodata = { address = 0x8016dc88, size = 24 }
+
+[[unit]]
 name = "sdk_libgpu_sys_p2"
 source = "sdk/libgpu/sys_p2.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -8733,6 +8742,16 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libgpu_sys_p15"
+source = "sdk/libgpu/sys_p15.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_clr", address = 0x801591a4, size = 544 },
+  { name = "_dws", address = 0x801593c4, size = 604 },
+  { name = "_drs", address = 0x80159620, size = 668 },
+]
+
+[[unit]]
 name = "sdk_libgpu_sys_p5"
 source = "sdk/libgpu/sys_p5.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -8741,6 +8760,14 @@ functions = [
   { name = "_cwc", address = 0x80159950, size = 76 },
   { name = "_param", address = 0x8015999c, size = 48 },
   { name = "_addque", address = 0x801599cc, size = 36 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p14"
+source = "sdk/libgpu/sys_p14.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_addque2", address = 0x801599f0, size = 764 },
 ]
 
 [[unit]]
