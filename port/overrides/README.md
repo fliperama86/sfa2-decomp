@@ -117,6 +117,7 @@ The ones that mask a shift count:
 | --- | --- | --- | --- | --- |
 | `func_80141534` | `ps1/src/e41534_r1.c` | `& 31` on the count of the shift in the return statement | the count is the first byte of `dir` halved, plus 6 when the second byte is not 0, plus 1 when flag 0x8000 is clear: 32 or more whenever the first byte is 64 or more | `srav` at 801415ac; the console takes the count modulo 32 (read from the listing) |
 | `func_8013bfa4` | `ps1/src/d3bfa4_r1.c` | `& 31` on the count of the shift in the test before the state bytes (`0x800000 >> field_02`) | the count is the table object's `field_02`, a byte: 32 or more whenever that byte is | `srav` at 8013c4ec; the console takes the count modulo 32 (read from the listing) |
+| `func_80120604` | `ps1/src/d20604_r1.c` | `& 31` on the count of the shift that makes the channel's bit, in the argument of the call to `func_8016a7e4` in command 0 (`1 << chan_idx`) | the count is the channel, bits 7 to 11 of the entry's second word (0 to 31), plus 4 when `alt` is not 0: 32 or more whenever the field is 28 or more and `alt` is not 0 | `sllv` at 80120708; the console takes the count modulo 32 (read from the listing) |
 
 Its test compares those inputs too: the setup draws the first byte of
 `dir` from 0 to 255, so most cases that reach the shift have a count of 32
@@ -136,6 +137,21 @@ constant 0x17 becomes 0x16. The built code is 4 bytes longer than the
 original (the one instruction that masks). Its contract was the contract
 of the readable C that stood for this function before its unit was exact;
 that C also wrote the mask.
+
+The setup of `func_80120604` draws the channel field (bits 7 to 11 of the
+entry's second word) from 0 to 31 and adds 4 when `alt` is not 0 (its
+contract, `func_80120604.py`, says so), so counts of 32 to 35 are among
+the cases that reach the shift, and on every case the override gives what
+the original code gives (the first command's lines below). Its control
+alters the build of the override: the volume shift `srl 6` becomes
+`srl 5`. The built code has the original's size, 952 bytes (inferred from
+the equal size: the console's compiler leaves the mask out); written in
+the unit, the mask changes registers (14 instruction slots by
+`fndiff.py`), so the unit keeps the plain count. Its contract was the contract of the readable C that stood
+for this function before its unit was exact; that C wrote no mask, and
+its test built it with the console's compiler, where the instruction takes
+the count modulo 32. It has no fixtures file, for the reason the list
+below gives.
 
 ## Testing one function
 
@@ -175,7 +191,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 Functions of this folder without a fixtures file, by reason:
 
 - The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_800e12cc_slot0f`, `func_801347b4` (so listed on the page of `ps1/src/resident_nonmatching/` while the function stood there; not recorded again for this folder).
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_8001385c_slot01`, `func_8001714c_slot28`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_8001385c_slot01`, `func_8001714c_slot28`, `func_80120604`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -205,8 +221,8 @@ as printed. The lines of the three result overrides are from their own
 runs on 2026-10-10 (seed 1; their seed 7 runs also printed `different 0`
 and `outside 0`). The lines of `func_801347b4` are from its own runs on
 2026-10-11 (seed 1; its seed 7 runs also printed `different 0` and
-`outside 0`), and so are the lines of `func_80141534` and of
-`func_8013bfa4`. From now on a function's lines change only when that
+`outside 0`), and so are the lines of `func_80141534`, of
+`func_8013bfa4` and of `func_80120604`. From now on a function's lines change only when that
 function is run again.
 
 The test (`--cases 2000 FUNC`, seed 1):
@@ -224,6 +240,8 @@ func_800e1250_slot0f: built 124 bytes, original 124 bytes; cases 2000, discarded
 func_800e1250_slot0f coverage: 31 of 31 instruction slots of the original executed
 func_800e12cc_slot0f: built 124 bytes, original 124 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e12cc_slot0f coverage: 31 of 31 instruction slots of the original executed
+func_80120604: built 952 bytes, original 952 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80120604 coverage: 238 of 238 instruction slots of the original executed
 func_8012126c: built 92 bytes, original 92 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8012126c coverage: 23 of 23 instruction slots of the original executed
 func_801212c8: built 32 bytes, original 32 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -259,6 +277,8 @@ func_800e1250_slot0f control: different 2000 of 2000 (expected more than 0)
   altered: the function returns its result + 1, instruction slot 30
 func_800e12cc_slot0f control: different 2000 of 2000 (expected more than 0)
   altered: the function returns its result + 1, instruction slot 30
+func_80120604 control: different 254 of 2000 (expected more than 0)
+  altered: volume shifted by 5 instead of 6, instruction slot 112
 func_8012126c control: different 1013 of 2000 (expected more than 0)
   altered: the callee gets a0 + 4, instruction slot 18
 func_801212c8 control: different 2000 of 2000 (expected more than 0)
@@ -288,6 +308,7 @@ func_800205b4_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes
 func_800e11e4_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e1250_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e12cc_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80120604 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8012126c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801212c8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801212e8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)

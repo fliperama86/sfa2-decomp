@@ -116,13 +116,18 @@ splitting or merging conditions, `if/else` versus early assignment, loop
 forms, locals versus repeated member access, and struct versus separate
 externs for globals.
 
-Not allowed: inline assembly, embedded bytes, `volatile`, `register`, dummy
-operations, or anything whose only purpose is to steer the compiler and that
-a reader could not take for ordinary code. If nothing else works, stop and
-report.
+Not allowed: inline assembly, embedded bytes, a register named for a
+variable, an attribute, a pragma, and a construct that steers the compiler
+and changes what the function does.
 
-One dummy construct is accepted, and only this one: an unused local array
-that makes the function reserve the stack space that the original reserves
+A construct whose only purpose is to steer the compiler, and that changes
+nothing the function does, is a stand-in. A stand-in is allowed as the
+last resort and with its label. The paragraphs below name some, each with
+a rule and a comment of its own; "Other stand-ins", at the end of this
+section, has the general rule for the rest and what stays not allowed.
+
+The first stand-in is an unused local array that makes the function
+reserve the stack space that the original reserves
 and never uses. It is the last resort for a function whose only difference
 is the size of its frame, after the ordinary reasons for a larger frame
 have been looked for and not found: a local whose address is taken, a
@@ -224,11 +229,30 @@ stands directly above the statement that sets it:
 ```
 
 and a comment beside it gives the measurement with the constant written
-at its uses. Not covered, and still not allowed: a local for a constant
+at its uses. Not covered by this paragraph: a local for a constant
 that the original keeps in no register (one that only changes the
 constant's type or moves a load), a local that holds an address to move a
-load, and an assignment that nothing reads. `grep -rn "The local holds a
-constant" src` lists the uses.
+load, and an assignment that nothing reads. Those are stand-ins of the
+general kind and go under "Other stand-ins" below, with its comment.
+`grep -rn "The local holds a constant" src` lists the uses.
+
+One case of its last point has a comment of its own, by the owner's
+word of 2026-10-11 ("exceptions are better than an unmatched
+function"): the original
+sometimes sets a register to a constant and never reads it, the leftover
+of a variable whose only use the compiler folded away after it had counted
+that use. Where that instruction is in the original and only a local set
+to the constant builds it, the local is allowed although no instruction
+reads it. It is written and used as the variable it stands for (passed,
+added), and carries this comment in place of the one above:
+
+```c
+/* The local holds a constant that no instruction reads: the original sets a register to this value here and never uses it. It is a stand-in for a variable of the original source, not recovered source. The name is inferred. */
+```
+
+A comment beside it quotes the original's instruction and gives the
+measurement with the constant written at the local's use, and the pull
+request says that nothing reads the register.
 
 A third stand-in is a test that is never true. It is only for a branch
 that the original's own instructions show and that can never be taken:
@@ -248,9 +272,10 @@ Rules for its use: only where the original's listing has both the
 constant and the branch on it, and the pull request quotes those
 instructions; the condition calls nothing and writes nothing; a comment
 beside the fixed one gives the measurement without the test; a C file of
-the port that repeats the unit's text carries both comments too. It is
-not a way to add control flow: a test that the original's instructions do
-not show stays not allowed, and so does a test whose result nothing uses.
+the port that repeats the unit's text carries both comments too. This
+paragraph does not cover a test that the original's instructions do not
+show, or a test whose result nothing uses: those go under "Other
+stand-ins" below, with its comment.
 `grep -rn "The test below is a stand-in" src` lists the uses.
 
 One construct is accepted for one case: a call that passes another number
@@ -283,6 +308,74 @@ parameter list. In the same module three helpers that their callers pass
 the object to, although they do not use it, got an unused parameter in
 their definition instead, and every caller is written plainly.
 `grep -rn "The call of" src` lists the uses.
+
+### Other stand-ins
+
+By the owner's instruction of 2026-10-11: "loosen it up a bit for what
+you consider good enough". The line drawn here is the project's reading
+of it, not his text. Before that day a function that was exact only with
+a construct that no paragraph above names stayed parked.
+
+A stand-in that no paragraph above names may be published when all of
+this holds:
+
+1. It is C that every compiler takes: no inline assembly, no embedded
+   bytes, no register named for a variable (`register int x asm("s0")`),
+   no attribute, no pragma.
+2. It changes nothing that the function does. It calls nothing and
+   writes to nothing but a local of the function, and with it taken out,
+   or with the plain expression in its place, the function stores, passes
+   and returns the same values on every compiler. The port compiles the
+   units' text with a PC compiler, so this point is what keeps the PC
+   program right.
+3. The function is exact with it and not without it, both measured on
+   the final text.
+4. It is the last resort, and the plainest one found. The ordinary
+   reasons come first ("When stuck" has the ways to look for them), then
+   the stand-ins named above, then this rule. Of two stand-ins that both
+   give the bytes, the one that a reader passes over more easily stays:
+   one statement before a qualifier on a declaration, a qualifier before
+   a block.
+5. This comment stands directly above it. Its first words and its last
+   sentence are fixed; what the construct is, what it reproduces and the
+   measured figure are filled in:
+
+```c
+/* Stand-in, not recovered source: <what it is> reproduces the original's <choice of registers | order of instructions | stack frame>. Without it this function differs from the original in <N> instruction slots. */
+```
+
+The forms that this admits, none of which was allowed before:
+
+- an assignment that nothing reads: a local that is set and never used, a
+  local assigned to itself, an assignment inside a `return`;
+- a local that is only a second name: a copy of a value, or a constant or
+  an address in a local where the original shows no register of its own
+  for it, or a local that only gives a constant another type;
+- an operation that has no effect and no instruction in the original: a
+  mask that the type already implies, a cast to the type that the value
+  already has;
+- a test that the original's instructions do not show: an `if` with an
+  empty body, one condition written twice, a block under `if (0)`;
+- the keyword `volatile` or `register` on a local of the function, and
+  `volatile` in a cast at one use.
+
+Still not allowed, and a function that needs one of these stays parked
+with a note that names it: what point 1 lists; a construct that changes
+what the function does (a store to a global or through a pointer, a
+call, another result); a qualifier added to a declaration that other
+units share (a global, a field, a prototype); a stand-in without its
+comment; a stand-in where a plainer form is also exact.
+
+No new paragraph of this guide is needed for a form that this rule
+admits. The pull request leads with what the stand-in is and gives the
+measurement without it, with one kind of stand-in in one pull request
+where that is possible. A match that a search found is reduced first
+("Before reporting"): a form that the search needed is often not needed
+by the reduced text. An exact build with a stand-in shows that this
+source is compatible with the original's bytes, not what the original
+source had there. A C file of the port that repeats the unit's text
+carries the comment too. `grep -rn "Stand-in, not recovered source" src`
+lists the uses.
 
 ## What this compiler does
 
@@ -732,8 +825,9 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     (`func_801b0ce4_slot04_0a`) or a local reused for the next value
     (`func_80016828_slot28`). In `func_80010840_slot27` only a statement
     that masks a byte with `0xff` after its load did it. The original
-    has no instruction for that mask: the statement is a dummy
-    operation, not allowed, and the function stays parked.
+    has no instruction for that mask: the statement is a stand-in
+    ("Other stand-ins" in "What is allowed" has the rule). The unit
+    that was published does not have it.
   - A value in a temporary where the original has an argument register.
     The value gets the argument register of the call it is passed to
     when the value itself, in a local, is the argument: `a = *p++; b =
@@ -782,7 +876,7 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     the branches and the loads are laid out. The function's comment says
     what the original does there and that its source is not known. A
     flag set to the same constant in both arms gives the same bytes and
-    is a dummy: not allowed.
+    is a stand-in too; the unit has the test.
   - Two values that tie in the allocation order: a `return` of the value
     inside the loop instead of `break` gave it one more use
     (`func_8015fd24`). A loop pointer and a table pointer in one
@@ -1025,6 +1119,11 @@ Keep a short log per stubborn block: what was tried and what changed. After
 about eight materially different attempts on the same block, stop and report
 the best candidate with its `fndiff` output and the log. Do not permute
 blindly.
+
+A function whose instructions are right and that is exact only with a
+construct that steers the compiler is not parked for that: "What is
+allowed" says which stand-ins may be published, with which comment, and
+which may not.
 
 When the instructions are right and a register, the place of a load or
 store, or one instruction more or less is not, ask the compiler which of

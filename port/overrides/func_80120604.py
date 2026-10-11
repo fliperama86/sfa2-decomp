@@ -1,5 +1,11 @@
-"""Contract of func_80120604: a0 = a, a1 = b, a2 = c, a3 = d, no result.
+"""Contract of func_80120604 in the port's C: a0 = song, a1 = alt, a2 = start, a3 = pos, no result.
 
+The reads and writes are listed in the header comment of func_80120604.c (the
+file of the override, which masks the shift count with 31; the channel of
+command 0 is 0 to 31, plus 4 when alt is not 0, so counts of 32 to 35 reach
+the shift whenever the entry's priority is below the stored one).
+The setup below names the values a, b, c, d as the readable C did: a is song,
+b is alt, c is start (the upper 16 bits are random and must not matter), d is pos.
 Choices made here:
   - a is 0 or 1 in a third of the cases, 0x80 in one case in twelve, and
     otherwise 2 to 0x7f; table_8016e6e0[a] is made to point so that the
