@@ -31,6 +31,7 @@ void func_801b34e4_slot04_11(Object *obj) {
     if (a != 0) {
         if (a & 0x80) {
             /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+            /* Without it (plain braces) this function differs from the original in 32 instruction slots. */
             do {
                 obj->field_07++;
                 ref_other.p = obj->other;
@@ -56,6 +57,7 @@ void func_801b34e4_slot04_11(Object *obj) {
         ref_other.p->field_6a++;
         j = a >> 1;
         y = data_801c7520_slot04_11[j + 3];
+        /* Stand-in, not recovered source: the local i, the index of the other arm, used here for the table's third halfword, reproduces the original's choice of registers. Without it this function differs from the original in 13 instruction slots. */
         i = data_801c7520_slot04_11[j + 2];
         func_801465b0(obj, 6, data_801c7520_slot04_11[j], data_801c7520_slot04_11[j + 1]);
         ref_other.p = obj->other;
