@@ -15,7 +15,7 @@
   fixed comment for this use (it says "order of instructions" where
   the first says "choice of registers", and "emits no instruction of
   its own" where the first says "adds no instruction", because the
-  count of instructions can differ without it), and five sentences in
+  count of instructions can differ without it), and three sentences in
   "What this compiler does".
 - `func_801254f4` (400 bytes, resident; inferred: it decodes a code
   word of the player's input log): unit `d254f4_r1`, `baseline 400
