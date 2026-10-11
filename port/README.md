@@ -2835,7 +2835,13 @@ logo's (the program's word for a sector put aside is another address) and
 the library names that the game has no routine for: the decoder's, the
 stream's, `CdRead2`, the pad calls and `InitGeom` (see "The logo program's
 small library routines"). The program has no call of the plain read or of
-`SetVideoMode`.
+`SetVideoMode`. In one start without a window, with the user's disc, the
+program ran to its end and the game went on, twice in 150 seconds (the game
+starts it again in its attract loop); the disc layer's line for the movie's
+sound came each time (`audio: a stream starts at sector 235526: file 1
+channel 1, stereo, 37800 Hz`), and video memory held the movie's frames. The
+window's own picture was not seen in that run, and nothing was compared with
+a console.
 
 The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
 `overrides.c`, the disc layer and a driver of its own, with a made-up table
