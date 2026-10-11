@@ -253,6 +253,8 @@ int main(void)
             sscanf(line + at, "%x %d", &a, &w);
             port_DecDCTout((unsigned long *)(size_t)a, w);
             printf("out\n");
+        } else if (!strcmp(cmd, "busy")) {
+            printf("busy %d\n", port_press_out_busy() != 0);
         } else if (!strcmp(cmd, "poll")) {
             port_press_poll();
         } else if (!strcmp(cmd, "claim")) {
@@ -878,6 +880,27 @@ def completion_claim_then_poll_takes_it_once():
     c = three()
     g = ok_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "claim", "poll", "deliver", "poll"])
     return eq((claims(g), cbs(g)), (["claim 1"], [f"cb A t={due(1)} depth=1"]))
+
+
+def busies(g):
+    return [l for grp in g for l in grp if l.startswith("busy ")]
+
+
+@case
+def out_busy_follows_the_completions_states():
+    # none before any output; pending after DecDCTout; still pending before the due time is passed by a poll; claimed; none once the
+    # routine has run (by the poll, and by claim and delivery); the routine itself sees it clear and the one it starts makes it busy again
+    c = three()
+    g = ok_run(c + ["busy", f"out {OUT:x} {STRIP}", "busy", f"time {due(1) - 1}", "poll", "busy", f"time {due(1)}", "claim", "busy", "deliver", "busy",
+                    f"out {OUT:x} {STRIP}", "busy", f"time {due(2)}", "poll", "busy", "reset 1", "busy"])
+    return eq(busies(g), ["busy 0", "busy 1", "busy 1", "busy 1", "busy 0", "busy 1", "busy 0", "busy 0"])
+
+
+@case
+def out_busy_is_clear_inside_the_completions_routine_and_set_by_the_next_transfer():
+    c = three(mode_cb="B")
+    g = ok_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(1)}", "poll", "busy"])
+    return eq((started(g), busies(g)), (["cb B started the next"], ["busy 1"]))
 
 
 @case
