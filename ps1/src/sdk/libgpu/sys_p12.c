@@ -1,4 +1,4 @@
-/* Part of libgpu/sys.c of the SDK reference: functions _exeque. Made by hand in the form of the parts that sdkimport.py generates; where a function differs from the reference's text its comments say so. */
+/* Part of libgpu/sys.c of the SDK reference, cut from this project's adapted copy of that file (the folder's README says what the copy changed): functions _exeque. Made by hand in the form of the parts that sdkimport.py generates; where a function differs from the adapted copy's text its comments say so. */
 #define SDK_PART 1
 // SPDX-License-Identifier: MIT
 //! PSYQ=3.3

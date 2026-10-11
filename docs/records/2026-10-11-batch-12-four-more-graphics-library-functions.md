@@ -44,9 +44,28 @@
   the function's prototype replaced by its text. `sys_p13` owns 76
   bytes of read-only data at `0x8016dca0`, the two format strings of
   `get_alarm`.
-- Where the text comes from: this folder's reference, the same file the
-  importer's parts of `libgpu/sys.c` come from. Nothing else was read
-  for these four. The forms were written at the top level.
+- Where the text comes from, corrected after the review of the first
+  head: the first form of this record and of the library page said the
+  text is the reference's with the changes listed here. It is not. The
+  parts are cut from this project's adapted copy of the reference's
+  `libgpu/sys.c`, a private working file in which earlier work of this
+  project changed bodies to this game's library version, from the
+  original's instructions. A comparison of the four functions with the
+  pinned commit's file (`git show` of that commit's file in the
+  reference's checkout, the two texts side by side) shows what that
+  copy had changed before this batch: `_getctl` returns the table's
+  entry alone (the pinned text also puts the index into the high
+  byte); `get_alarm` has another limit (0xF0000 for 0x780000), a comma
+  for the line end of its first message, and a second `printf`;
+  `_exeque` is another body altogether; `SetDrawEnv` takes its upper
+  limits from the library's state where the pinned text has constants.
+  This batch's own changes are the casts, the lower limit 1 and the
+  limit locals named above. The reference stays MIT with its notice;
+  the differences are this project's. Nothing else was read for these
+  four; the forms of this batch were written at the top level.
+- The same holds for the word "reference's text" in the lines above on
+  `_getctl`, `get_alarm` and `_exeque`: read it as the adapted copy's
+  text.
 - Other files: `symbols.ld` loses the three names that the units now
   define (`_getctl` had none) and gets two data names of the reference
   that the parts refer to, `D_last` (`0x80181a88`) and `D_intr_exeque`

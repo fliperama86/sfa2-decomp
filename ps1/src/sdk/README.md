@@ -103,16 +103,48 @@ twice. What the original source had is not known.
 
 `libgpu/sys_p10.c` (`SetDrawEnv`), `libgpu/sys_p11.c` (`_getctl`),
 `libgpu/sys_p12.c` (`_exeque`) and `libgpu/sys_p13.c` (`get_alarm`) are
-four more parts of the same file, made by hand in the same form. Their
-text is this folder's reference's (the commit named at the top), with
-these differences, each with a comment in its file. `_getctl` has none:
-the reference's text builds to this game's bytes. `_exeque` and
-`get_alarm` read or write a variable through a cast to `volatile`, at
-six places and at one (labelled stand-ins). `SetDrawEnv`
-limits the width and the height of the area from 1 where the reference
-has 0, reads each upper limit once into a local, and reads it through
-the same cast (a labelled stand-in at two places). What the original
-source had is not known.
+four more parts of the same file, made by hand in the same form.
+
+Their text is not the pinned commit's text with a few changes. It has
+three layers, and only the first is the reference's:
+
+1. The reference's `libgpu/sys.c` at the commit named at the top, MIT.
+   The license line and the notice in [`LICENSE`](LICENSE) are kept for
+   it.
+2. This project's adapted copy of that file. The game links another
+   version of the library than the reference reconstructs, so in
+   earlier work this project changed function bodies in a working copy
+   of the file to what this game's code does, from the original's
+   instructions, in the reference's names and style. That copy is a
+   private working file; the parts in this folder are cut from it, the
+   importer's parts too. Where a body here differs from the pinned
+   commit's, the difference is this project's, not the reference's.
+3. This batch's changes on top of the adapted copy.
+
+For the four functions, layer 2 against the pinned commit:
+
+- `_getctl` returns the table's entry alone. The pinned text also puts
+  the index into the result's high byte.
+- `get_alarm` has a limit of 0xF0000 for its count where the pinned text
+  has 0x780000, ends its first message with a comma where the pinned
+  text ends the line, and has a second `printf`, of the last call's
+  three words, that the pinned text does not have.
+- `_exeque` is another body. The pinned text walks the queue with labels
+  and jumps, tests each entry's function for null, and reaches the
+  callback through `CheckCallback`. The adapted body returns 1 while a
+  transfer runs, works the queue off in a `do` loop, keeps each call's
+  three words, and calls the callback when the queue is empty and the
+  pending flag is set.
+- `SetDrawEnv` takes the upper limits of the area from the library's
+  state (`gs.w - 1`, `gs.h - 1`). The pinned text has constants there.
+
+Layer 3, this batch, each with a comment in its file: `_getctl` nothing;
+`get_alarm` one read through a cast to `volatile` (a labelled
+stand-in); `_exeque` the same cast at six reads and stores (one
+labelled stand-in); `SetDrawEnv` the same cast at two reads (one
+labelled stand-in), the lower limit 1 where the adapted copy had 0, and
+each upper limit read once into a local. What the original source had
+is not known.
 
 ## What is not here
 

@@ -1,4 +1,4 @@
-/* Part of libgpu/sys.c of the SDK reference: functions SetDrawEnv. Made by hand in the form of the parts that sdkimport.py generates; where a function differs from the reference's text its comments say so. */
+/* Part of libgpu/sys.c of the SDK reference, cut from this project's adapted copy of that file (the folder's README says what the copy changed): functions SetDrawEnv. Made by hand in the form of the parts that sdkimport.py generates; where a function differs from the adapted copy's text its comments say so. */
 #define SDK_PART 1
 // SPDX-License-Identifier: MIT
 //! PSYQ=3.3
@@ -282,7 +282,7 @@ void SetDrawEnv(DR_ENV* dr_env_in, DRAWENV* env) {
         clip_rect.y = env->clip.y;
         clip_rect.w = env->clip.w;
         clip_rect.h = env->clip.h;
-        /* The lower limit is 1 and the upper limit is read once, into a local, inside the conditional. The reference's CLAMP macro has a lower limit of 0 here and names the upper limit twice. */
+        /* The lower limit is 1 and the upper limit is read once, into a local, inside the conditional. The adapted copy's text used the reference's CLAMP macro with a lower limit of 0 here; the macro names the upper limit twice. */
         /* Stand-in, not recovered source: the cast that reads gs.w as volatile, in this statement and in the next on gs.h (one stand-in at two places), reproduces the original's order of instructions. Without it this function differs from the original in 13 instruction slots. */
         /* The figure is for the two casts taken out together, not for each alone. */
         clip_rect.w = clip_rect.w < 1 ? 1 : (lim_w = *(volatile short*)&gs.w - 1, clip_rect.w > lim_w ? lim_w : clip_rect.w);
