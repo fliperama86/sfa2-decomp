@@ -35288,6 +35288,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_sel_0ea0x_r1"
+image = "slot04_sel"
+source = "slot04_sel/slot04_sel_0ea0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b0ea0_slot04_sel", address = 0x801b0ea0, size = 552 },
+]
+
+[[unit]]
 name = "slot04_sel_0ea0_r2"
 image = "slot04_sel"
 source = "slot04_sel/slot04_sel_0ea0_r2.c"
@@ -40267,4 +40276,12 @@ source = "d3f8c4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013f8c4", address = 0x8013f8c4, size = 496 },
+]
+
+[[unit]]
+name = "d38d70_r1"
+source = "d38d70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138d70", address = 0x80138d70, size = 340 },
 ]
