@@ -194,8 +194,10 @@ Each is a unified diff against the pinned commit, with what it does and why
 in the text before the diff. The build applies them to its export of that
 commit, in the listed order, and never to the checkout. A file that does not
 exist, one listed twice, or one that does not apply is an error. The files
-are in `ps1/tools/patches/maspsx/`; maspsx is MIT-licensed, and each file
-names it. There is one today:
+are in `ps1/tools/patches/maspsx/`. maspsx is MIT-licensed and each file
+names it; `LICENSE` in that folder is maspsx's own license file, copied
+unchanged from the pinned commit, and it is the license of the patch files.
+There is one today:
 
 - `0001-nop-before-li-into-loaded-register.patch`: for assembler versions
   before 2.30, a nop after a load when the next instruction is an `li` into

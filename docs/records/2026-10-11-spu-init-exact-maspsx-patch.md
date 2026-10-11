@@ -27,7 +27,9 @@
 - The patch,
   `ps1/tools/patches/maspsx/0001-nop-before-li-into-loaded-register.patch`
   (five lines of code against maspsx commit `e85ecb37`, MIT, named in
-  the file): for assembler versions before 2.30 a load followed by an
+  the file; `ps1/tools/patches/maspsx/LICENSE` is maspsx's license file
+  of that commit, copied unchanged, added after the review of this pull
+  request): for assembler versions before 2.30 a load followed by an
   `li` into the loaded register gets the nop. It is not offered to the
   maspsx project yet; that is a separate step for the owner to decide.
 - The unit. Written by this project from the listing (the readable C
@@ -69,5 +71,5 @@
     `--only cache-key` (the two controls of the key's inputs, one of
     which lists every input and now has the patches): see the pull
     request.
-  - The map's render: `overall: 5509/5600 distinct functions exact (98.4%); 12952/13072 placements (99.1%); 1749380/1809836 code bytes (96.7%) (on main at `7a1d6ab`)`.
+  - The map's render: `overall: 5509/5600 distinct functions exact (98.4%); 12952/13072 placements (99.1%); 1749380/1809836 code bytes (96.7%) (on main at `f4a543b`, the same figures as on `7a1d6ab`)`.
   No PC build, no differential test.
