@@ -40185,3 +40185,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80119444", address = 0x80119444, size = 72 },
 ]
+
+[[unit]]
+name = "d58e50_r2"
+source = "d58e50_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801427d8", address = 0x801427d8, size = 208 },
+]

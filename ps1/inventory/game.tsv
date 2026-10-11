@@ -15,7 +15,7 @@
 801193a4	88	func_801193a4	system,threads	system,threads	0	0	closed
 801193fc	36	func_801193fc	-	-	0	0	closed
 80119420	36	func_80119420	-	-	0	0	closed
-80119444	72	-	-	disc	0	0	closed
+80119444	72	func_80119444	-	disc	0	0	closed
 8011948c	104	func_8011948c	-	-	0	0	closed
 801194f4	416	func_801194f4	graphics	graphics	0	0	closed
 80119694	132	-	-	-	0	0	closed
@@ -869,7 +869,7 @@
 801425d8	320	func_801425d8	-	-	0	0	closed
 80142718	96	func_80142718	-	sound,unidentified	0	0	closed
 80142778	96	func_80142778	-	sound,unidentified	0	0	closed
-801427d8	208	-	-	-	0	0	closed
+801427d8	208	func_801427d8	-	-	0	0	closed
 801428a8	60	func_801428a8	-	-	0	0	closed
 801428e4	92	func_801428e4	-	sound,unidentified	0	0	closed
 80142940	40	func_80142940	-	sound,unidentified	0	0	closed
