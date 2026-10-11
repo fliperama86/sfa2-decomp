@@ -26,15 +26,20 @@
   either version and is left as it is.
 - The unit, `sdk/libapi/counter_p2.c`, is the second part of the
   reference's `libapi/counter.c`, made by hand in the form of the
-  importer's parts, with the reference's MIT line. One word of the
-  reference's text is changed: the pointer to the counter registers is
-  not `volatile` in this part. Measured on the unit: with the qualifier
-  56 bytes and 4 differing instruction slots (14 instructions against
-  13); `GetRCnt` in part 1 without the qualifier: 7 slots. No one
-  declaration gives both: seven were measured on both units, with the
-  qualifier on the pointer's target, on the pointer, on the field, or
-  on none.
-  What the original source declared is not known.
+  importer's parts, with the reference's MIT line and the reference's
+  declarations (the same as in part 1). One place differs from the
+  reference's text and is a labelled stand-in (order of instructions):
+  the store goes through a cast that takes `volatile` off the pointer,
+  `((Counter*)D_8002D3B8)[i].rootCounter = 0;`. With the reference's
+  plain store the unit builds to 56 bytes and 4 differing instruction
+  slots (14 instructions against 13). The first version of the pull
+  request declared the pointer without the qualifier in this part
+  only; the review pointed out that part 1 declares the same object
+  with it, that the two declarations are then incompatible, and that
+  the cast at the one use builds to the same bytes. Measured on that
+  first version and still true of the declaration: `GetRCnt` in part 1
+  needs the qualifier (7 slots without it). What the original source
+  had is not known.
 - The other three functions of that file are not exact. `StopRCnt`
   (`0x80157750`) in a trial unit: 6 slots with the toolchain's version
   and 4 with 2.56 up to 2.86; the original indexes the mask table
@@ -65,8 +70,10 @@
   - `test_matchbuild.py --only cache-key` (the two controls that build
     with real inputs; one of them is changed here, because a unit with a
     version of its own keeps its key when the toolchain's version
-    changes): running when the pull request was opened; its result is
-    in the pull request.
+    changes): `cache-key-inputs` and `cache-key-function` behave as
+    required, `all cases behaved as required`, 18 minutes 23 seconds,
+    on the pull request's first head (the tool, its controls and the
+    configuration's version lines are the same in the final one).
   - The map's render:
     `overall: 5521/5600 distinct functions exact (98.6%); 12968/13072 placements (99.2%); 1757312/1809836 code bytes (97.1%)`.
   The whole control set of the build tool was not run. No PC build, no

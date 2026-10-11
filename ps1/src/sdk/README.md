@@ -69,18 +69,18 @@ to the assembler wrapper that `ps1/docs/matching-build.md` describes
 (`maspsx_patches`).
 
 `libapi/counter_p2.c` (`ResetRCnt`) is the second part of the reference's
-`libapi/counter.c`, made by hand in the form of the importer's parts. It
-differs from the reference's text in one word: the pointer to the counter
-registers is not `volatile` there. With the qualifier the function has 14
-instructions where the original has 13; `GetRCnt` in `counter_p1.c` needs
-the qualifier (7 instruction slots differ without it). No one declaration
-gives both functions, and what the original source declared is not known.
-The unit also names an assembler version of its own in `build.toml`
-(`aspsx_version`, described in `ps1/docs/matching-build.md`): the function's
-`li` of the constant 1 is an `addiu` in the original, where the rest of the
-library has an `ori` for such a constant. `GetRCnt` builds to the same
-bytes with either version. The other three functions of that file are not
-exact with either.
+`libapi/counter.c`, made by hand in the form of the importer's parts. Its
+declarations are the reference's, the same as in `counter_p1.c`. It
+differs from the reference's text in one place, a labelled stand-in: the
+store goes through a cast that takes `volatile` off the pointer to the
+counter registers. With the reference's plain store the function has 14
+instructions where the original has 13 (4 differing instruction slots).
+What the original source had there is not known. The unit also names an
+assembler version of its own in `build.toml` (`aspsx_version`, described
+in `ps1/docs/matching-build.md`): the function's `li` of the constant 1 is
+an `addiu` in the original, where the rest of the library has an `ori` for
+such a constant. `GetRCnt` builds to the same bytes with either version.
+The other three functions of that file are not exact with either.
 
 ## What is not here
 

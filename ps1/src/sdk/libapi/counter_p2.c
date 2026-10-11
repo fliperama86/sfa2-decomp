@@ -1,5 +1,5 @@
 /* Part of libapi/counter.c of the SDK reference: functions ResetRCnt. Made by hand in the form of the parts that
-   sdkimport.py generates, with one change to the reference's text: see the note at D_8002D3B8. */
+   sdkimport.py generates, with one change to the reference's text: the cast in ResetRCnt, see the note there. */
 #define SDK_PART 2
 // SPDX-License-Identifier: MIT
 #include "common.h"
@@ -17,9 +17,7 @@ typedef struct {
 
 #ifdef SDK_PART
 extern s32* D_8002D3B4;
-/* Not volatile in this part. With the reference's `volatile` the function below has 14 instructions where the
-   original has 13. */
-extern Counter* D_8002D3B8;
+extern volatile Counter* D_8002D3B8;
 extern s32 D_8002D3BC[4];
 #else
 static s32* D_8002D3B4 = (s32*)0x1F801070; // _interrupt_status_register
@@ -40,6 +38,8 @@ long ResetRCnt(long spec) {
     if (i >= 3) {
         return 0;
     }
-    D_8002D3B8[i].rootCounter = 0;
+    /* Stand-in, not recovered source: the cast that takes `volatile` off the pointer for this store reproduces the original's order of instructions. Without it this function differs from the original in 4 instruction slots. */
+    /* The reference has `D_8002D3B8[i].rootCounter = 0;`. With it the function has 14 instructions where the original has 13. */
+    ((Counter*)D_8002D3B8)[i].rootCounter = 0;
     return 1;
 }
