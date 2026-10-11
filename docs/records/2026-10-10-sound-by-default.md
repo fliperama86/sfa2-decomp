@@ -64,6 +64,21 @@
   Three one-off starts of it with the user's disc, offscreen, one at a
   time, none audible: `port/README.md` has their lines ("One-off starts
   of the build with nothing said about sound").
+- Mutants, one run each, under a time limit, every one taken out again.
+  Seven of the program, on a copy of the runtime (`--src`), against the
+  group of `test_hostaudio.py` that covers the rule: the device not
+  opened unless asked; `--no-audio` doing nothing; a build without PsyZ
+  refusing a start with no sound option; the line about both options
+  printed when `--audio` was not given; `--audio` taken after
+  `--no-audio`; `--no-audio` taken after `--audio`; `--no-audio` with
+  the dump writing no file. Five of the build tool against
+  `test_hostbuild.py`: the library only when asked; `--no-sound-library`
+  ignored; the library compiled without `--psyz` too; both options at
+  once taken; the refusal not naming `--no-sound-library`. By kind: all
+  twelve failed at least one case by name, none ran into the time limit,
+  none ended the control, none survived. For two of the build tool's
+  (the second and the third) a group of the control also raised an
+  exception beside the cases that failed by name.
 - Not done: nobody listened to those three starts. The other control
   files that start the port's program do not link PsyZ's sound (their
   `iopage.c` is compiled without it), so nothing changes for them; that
