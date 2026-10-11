@@ -447,6 +447,7 @@ class Config:
     types_fields: Path | None = None  # [types] fields file, None when absent
     types_header: str = ""
     expand_div: bool = False  # run maspsx with --expand-div
+    maspsx_patches: tuple[Path, ...] = ()  # patch files applied to the export of the pinned maspsx commit, in order
     include_dirs: tuple[Path, ...] = ()  # extra -I directories for the preprocessor
     images: list[ImageDecl] = dataclasses.field(default_factory=list)  # module images, in declaration order
     # Filled in during validation of the baseline.
@@ -606,6 +607,25 @@ def _get_str(table: dict, key: str, where: str, errors: list[str], pattern=None)
         errors.append(f"{where}: '{key}' has unsupported characters: {value!r}")
         return ""
     return value
+
+
+def _get_patches(tool_t: dict, directory: Path, errors: list[str]) -> tuple[Path, ...]:
+    """The patch files of `[toolchain] maspsx_patches`, in the order given.
+
+    Each is a unified diff against the pinned maspsx commit. The build applies
+    them to its export of that commit, never to the checkout.
+    """
+    value = tool_t.get("maspsx_patches", [])
+    if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+        errors.append("[toolchain]: 'maspsx_patches' must be a list of non-empty strings")
+        return ()
+    paths = tuple(_expand(item, directory) for item in value)
+    for item, path in zip(value, paths):
+        if not path.is_file():
+            errors.append(f"[toolchain]: maspsx patch {item} does not exist")
+    if len(set(paths)) != len(paths):
+        errors.append("[toolchain]: 'maspsx_patches' names a file twice")
+    return paths
 
 
 def _get_hex(table: dict, key: str, where: str, errors: list[str]) -> str:
@@ -934,6 +954,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     if not isinstance(expand_div, bool):
         errors.append("[toolchain]: 'expand_div' must be a boolean")
         expand_div = False
+    maspsx_patches = _get_patches(tool_t, directory, errors)
     include_dirs: list[Path] = []
     include_t = tool_t.get("include_dirs", [])
     if not isinstance(include_t, list) or not all(isinstance(item, str) and item for item in include_t):
@@ -1134,6 +1155,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
         types_fields=types_fields,
         types_header=types_header,
         expand_div=expand_div,
+        maspsx_patches=maspsx_patches,
         include_dirs=tuple(include_dirs),
     )
 
@@ -1520,7 +1542,9 @@ def export_maspsx(cfg: Config, build: Path) -> tuple[list[str], dict, Path | Non
 
     The build runs this exported copy, never the checkout's working tree, so
     local edits, a different HEAD or stale bytecode in the checkout cannot
-    change the code that runs. Returns (errors, tool record, script path).
+    change the code that runs. The patch files of the configuration are
+    applied to the export in their order; one that does not apply is an error.
+    Returns (errors, tool record, script path).
     """
     git = ["git", "-C", cfg.maspsx.parent]
     try:
@@ -1548,6 +1572,20 @@ def export_maspsx(cfg: Config, build: Path) -> tuple[list[str], dict, Path | Non
     export_dir.mkdir()
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
         tar.extractall(export_dir, filter="data")
+    # The export lies inside this repository's work tree. The ceiling keeps git
+    # from finding that repository, so the patch paths are taken from the export.
+    apply_env = {**os.environ, "GIT_CEILING_DIRECTORIES": str(export_dir.resolve().parent)}
+    record["patches"] = []
+    for patch in cfg.maspsx_patches:
+        data = patch.read_bytes()
+        try:
+            run(["git", "apply", "--whitespace=nowarn", "-"], cwd=export_dir, input=data, env=apply_env,
+                step=f"maspsx patch {patch.name}")
+        except StepError as exc:
+            return [f"maspsx patch {patch.name} does not apply to the pinned commit {commit}: {exc}"], record, None
+        record["patches"].append({"file": patch.name, "sha256": hashlib.sha256(data).hexdigest()})
+    if record["patches"]:
+        record["executed"] = "export of the pinned commit with the listed patches applied"
     script = export_dir / script_rel
     if not script.is_file():
         return [f"maspsx script {script_rel} does not exist in pinned commit {commit}"], record, None
@@ -1626,7 +1664,8 @@ def cache_key_inputs(
     The preprocessed text enters only as its hash. The unit name is included
     because the compiler may record the input file name, which derives from it.
     The maspsx script path is included because the pinned commit holds more
-    than one script. The assembler and the Python interpreter that runs maspsx
+    than one script, and the patches applied to the export enter by their
+    content hashes. The assembler and the Python interpreter that runs maspsx
     enter by the content hash of the resolved executable plus their version.
     """
     return {
@@ -1638,6 +1677,7 @@ def cache_key_inputs(
         "cc1_table": cfg.cc1.name,
         "maspsx_commit": tools["maspsx"]["pinned_commit"],
         "maspsx_script": tools["maspsx"]["script"],
+        "maspsx_patches": [patch["sha256"] for patch in tools["maspsx"].get("patches", [])],
         "aspsx_version": cfg.aspsx_version,
         "maspsx_flags": maspsx_flags(cfg),
         "as_flags": list(AS_FLAGS),
