@@ -5156,6 +5156,15 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libsnd_sepopen"
+source = "sdk/libsnd/sepopen.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "func_80166144", address = 0x80166144, size = 304 },
+]
+rodata = { address = 0x8016e22c, size = 36 }
+
+[[unit]]
 name = "sdk_libsnd_seqinit"
 source = "sdk/libsnd/seqinit.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]

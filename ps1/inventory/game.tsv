@@ -1286,7 +1286,7 @@
 8014fc4c	220	func_8014fc4c	-	disc	0	0	closed
 8014fd28	116	func_8014fd28	-	disc	0	0	closed
 8014fd9c	388	func_8014fd9c	sound	disc,sound	0	0	closed
-8014ff20	284	func_8014ff20	sound,unidentified	disc,sound,unidentified	0	0	closed
+8014ff20	284	func_8014ff20	sound	disc,sound	0	0	closed
 8015003c	196	func_8015003c	disc	disc	0	0	closed
 80150100	128	func_80150100	disc	disc	0	0	closed
 80150180	32	func_80150180	-	-	0	0	closed
