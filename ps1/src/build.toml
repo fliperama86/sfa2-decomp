@@ -2608,6 +2608,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d20cf0_r1"
+source = "d20cf0_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120cf0", address = 0x80120cf0, size = 592 },
+]
+
+[[unit]]
 name = "s120f40_r1"
 source = "s120f40_r1.c"
 flags = ["-O2", "-G0"]
@@ -4354,6 +4362,14 @@ source = "y11bc84_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8011be18", address = 0x8011be18, size = 344 },
+]
+
+[[unit]]
+name = "d1bf70_r1"
+source = "d1bf70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011bf70", address = 0x8011bf70, size = 1528 },
 ]
 
 [[unit]]
@@ -7779,6 +7795,14 @@ source = "n12b8dc_r13.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013bdf4", address = 0x8013bdf4, size = 432 },
+]
+
+[[unit]]
+name = "d3bfa4_r1"
+source = "d3bfa4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013bfa4", address = 0x8013bfa4, size = 1800 },
 ]
 
 [[unit]]

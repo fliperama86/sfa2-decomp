@@ -111,11 +111,12 @@ code is 4 bytes longer than the original (the one instruction that sets
 this function before its unit was exact; that C also passed 0 on that
 path.
 
-The one that masks a shift count:
+The ones that mask a shift count:
 
 | Function | Unit of its exact C | What the override adds | The inputs | What the original does there |
 | --- | --- | --- | --- | --- |
 | `func_80141534` | `ps1/src/e41534_r1.c` | `& 31` on the count of the shift in the return statement | the count is the first byte of `dir` halved, plus 6 when the second byte is not 0, plus 1 when flag 0x8000 is clear: 32 or more whenever the first byte is 64 or more | `srav` at 801415ac; the console takes the count modulo 32 (read from the listing) |
+| `func_8013bfa4` | `ps1/src/d3bfa4_r1.c` | `& 31` on the count of the shift in the test before the state bytes (`0x800000 >> field_02`) | the count is the table object's `field_02`, a byte: 32 or more whenever that byte is | `srav` at 8013c4ec; the console takes the count modulo 32 (read from the listing) |
 
 Its test compares those inputs too: the setup draws the first byte of
 `dir` from 0 to 255, so most cases that reach the shift have a count of 32
@@ -125,6 +126,16 @@ override: the final `xori 1` becomes `xori 0`. The built code is 4 bytes
 longer than the original (the one instruction that masks). Its contract
 was the contract of the readable C that stood for this function before its
 unit was exact; that C also wrote the mask.
+
+The setup of `func_8013bfa4` draws `field_02` as 0x17 in one case of four
+and from 0 to 40 otherwise (its contract, `func_8013bfa4.py`, says so), so
+counts of 32 and more are among the cases that reach the shift, and on
+every case the override gives what the original code gives (the first
+command's lines below). Its control alters the build of the override: the
+constant 0x17 becomes 0x16. The built code is 4 bytes longer than the
+original (the one instruction that masks). Its contract was the contract
+of the readable C that stood for this function before its unit was exact;
+that C also wrote the mask.
 
 ## Testing one function
 
@@ -181,6 +192,9 @@ func_8014dcc0 replay: fixtures 12, passed 12, failed 0
 func_801b12bc_slot04_0f replay: fixtures 2, passed 2, failed 0
 ```
 
+The replay of `func_8013bfa4` alone, on 2026-10-11, printed
+`func_8013bfa4 replay: fixtures 10, passed 10, failed 0`.
+
 ## The recorded lines
 
 The three blocks are a record, not an instruction. They are what the
@@ -191,7 +205,8 @@ as printed. The lines of the three result overrides are from their own
 runs on 2026-10-10 (seed 1; their seed 7 runs also printed `different 0`
 and `outside 0`). The lines of `func_801347b4` are from its own runs on
 2026-10-11 (seed 1; its seed 7 runs also printed `different 0` and
-`outside 0`), and so are the lines of `func_80141534`. From now on a function's lines change only when that
+`outside 0`), and so are the lines of `func_80141534` and of
+`func_8013bfa4`. From now on a function's lines change only when that
 function is run again.
 
 The test (`--cases 2000 FUNC`, seed 1):
@@ -217,6 +232,8 @@ func_801212e8: built 32 bytes, original 32 bytes; cases 2000, discarded 0, equal
 func_801212e8 coverage: 8 of 8 instruction slots of the original executed
 func_801347b4: built 1764 bytes, original 1760 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801347b4 coverage: 436 of 440 instruction slots of the original executed
+func_8013bfa4: built 1804 bytes, original 1800 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_8013bfa4 coverage: 450 of 450 instruction slots of the original executed
 func_80141534: built 144 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80141534 coverage: 35 of 35 instruction slots of the original executed
 func_80146794: built 184 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -250,6 +267,8 @@ func_801212e8 control: different 2000 of 2000 (expected more than 0)
   altered: the callee gets a0 + 4, instruction slot 3
 func_801347b4 control: different 711 of 2000 (expected more than 0)
   altered: page word constant 0x7807 changed to 0x7809, instruction slot 124
+func_8013bfa4 control: different 147 of 2000 (expected more than 0)
+  altered: kind constant 0x17 changed to 0x16, instruction slot 297
 func_80141534 control: different 1514 of 2000 (expected more than 0)
   altered: final inversion xori 1 replaced by xori 0, instruction slot 32
 func_80146794 control: different 2000 of 2000 (expected more than 0)
@@ -273,6 +292,7 @@ func_8012126c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801212c8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801212e8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801347b4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_8013bfa4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80141534 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80146794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8014dcc0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)

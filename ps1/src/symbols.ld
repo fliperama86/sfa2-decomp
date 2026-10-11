@@ -89,6 +89,7 @@ func_80131f7c = 0x80131f7c;
 
 /* Added by src.u_post_swap. */
 data_801a8067 = 0x80198067;
+table_801a8067 = 0x80198067;
 data_801a83fb = 0x801983fb;
 data_80171b9c = 0x80171b9c;
 data_80171bf0 = 0x80171bf0;
@@ -279,6 +280,21 @@ handlers_72f4 = 0x801772f4;
 
 /* Added by src.u_s13af1c. */
 data_80188ed0 = 0x80188ed0;
+size_80188ed0 = 0x80188ed0;
+size_80188ed4 = 0x80188ed4;
+size_80188ed8 = 0x80188ed8;
+data_80188edc = 0x80188edc;
+data_80188ee0 = 0x80188ee0;
+data_80188ee4 = 0x80188ee4;
+data_80188ee8 = 0x80188ee8;
+data_80188eec = 0x80188eec;
+data_80188ef0 = 0x80188ef0;
+data_80188ef4 = 0x80188ef4;
+data_80188ef8 = 0x80188ef8;
+data_80188efc = 0x80188efc;
+data_80188f00 = 0x80188f00;
+data_80188f04 = 0x80188f04;
+data_80188f08 = 0x80188f08;
 ref_third = 0x80190478;
 kind_pair_table = 0x801773d4;
 kind_pair_handlers = 0x801773bc;
@@ -1618,16 +1634,13 @@ func_80131ab4 = 0x80131ab4;
 func_80158d28 = 0x80158d28;
 func_8015764c = 0x8015764c;
 func_8013c6ac = 0x8013c6ac;
-func_8011bf70 = 0x8011bf70;
 func_801452ec = 0x801452ec;
 func_80124304 = 0x80124304;
 func_80158fe8 = 0x80158fe8;
 func_8011c724 = 0x8011c724;
 func_80120604 = 0x80120604;
-func_8013bfa4 = 0x8013bfa4;
 func_8013f474 = 0x8013f474;
 func_80157784 = 0x80157784;
-func_80120cf0 = 0x80120cf0;
 func_80135a10 = 0x80135a10;
 func_8011eb4c = 0x8011eb4c;
 func_80141cec = 0x80141cec;
