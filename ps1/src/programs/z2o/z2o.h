@@ -63,15 +63,62 @@ extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
 extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
 extern int DrawSync(int mode);
 extern int VSync(int mode);
+/* The frame header block of 32 bytes (inferred): the stream's header is copied here (word 2 is the frame number, and the two halfwords at +0x10 are the sizes that the C rounds up to a multiple of 16). */
+typedef struct {
+    u32 word0;
+    u32 word1;
+    u32 frame;
+    u32 word3;
+    u16 width;
+    u16 height;
+    u32 word5;
+    u32 word6;
+    u32 word7;
+} Z2oFrameInfo;
+/* 0x8002f84c: the copy of the latest frame's header (inferred). */
+extern Z2oFrameInfo data_8002f84c_z2o;
+/* 0x8002f814: the number of frames of the movie (inferred: set by func_80010c38_z2o from its third argument). */
+extern int data_8002f814_z2o;
+/* 0x8002f820: the index (0 or 1) of the bitstream buffer in use (inferred). */
+extern int data_8002f820_z2o;
+/* 0x8002f804, 0x8002f808: two buffer pointers in a row, (&data_8002f804_z2o)[i] is the buffer i (inferred); 0x8002f80c: the pointer the decoder's output goes to (inferred). */
+extern u32 *data_8002f808_z2o;
+extern u32 *data_8002f80c_z2o;
+/* 0x8001b348: a word of the movie's open (inferred: not 0 selects the mode word 0x1e8, else 0x168). */
+extern int data_8001b348_z2o;
+/* 0x8002f894, 0x8002f898, 0x8002f89c: three words the frame routine stores (inferred: the latest frame number, and the two sizes). */
+extern u32 data_8002f894_z2o;
+extern u32 data_8002f898_z2o;
+extern u32 data_8002f89c_z2o;
+/* 0x8002f8a8: the filter's file byte (and 0x8002f8a9 its channel byte) handed to CdControl(0x0d, ...) (inferred). */
+extern u8 data_8002f8a8_z2o;
+/* 0x8002f8ac: a disc position, four bytes (inferred: CdIntToPos writes it, CdControl(2, ...) reads it). */
+extern u8 data_8002f8ac_z2o[4];
+/* 0x8002f8c4: the result bytes of CdControlB(1, ...) (inferred; bit 0x20 of the first is tested). */
+extern u8 data_8002f8c4_z2o[8];
+extern void DecDCTReset(int mode);
+extern int DecDCTvlc(u32 *bs, u32 *buf);
+extern u32 *StSetRing(u32 *ring, int size);
+extern int StSetStream(int mode, int start, int end, void (*func1)(void), void (*func2)(void));
+extern int StGetNext(u32 **addr, u32 **header);
+extern int StFreeRing(u32 *base);
+extern void DecDCTin(u32 *buf, int mode);
+extern int CdControl(u8 com, u8 *param, u8 *result);
+extern int CdRead2(int mode);
+extern void func_80011708_z2o(void);
+extern void func_80011810_z2o(void);
+extern void func_80011830_z2o(void);
 /* 0x8002f888 and 0x8002f88c: the count of strips handed out so far and the count at which the stream is done (inferred from func_80011708_z2o:
    the first is added 1 to at each call, and the strips go on while it is below the second, an unsigned comparison). */
 extern u32 data_8002f888_z2o;
 extern u32 data_8002f88c_z2o;
 /* 0x80031e68: a flag word (inferred: not 0 asks for StCdInterrupt, then it is cleared). */
 extern int data_80031e68_z2o;
-/* 0x8002f874: the rectangle of the picture that the next strip goes to (inferred; x is the halfword that is stepped). */
+/* 0x8002f874: the rectangle of the picture that the next strip goes to (inferred; the frame routine fills it, w is 0x10 or 0x18, and the completion
+   routine steps its x). */
 extern Rect data_8002f874_z2o;
-/* 0x8002f87c: the pointer word of the strip buffer, 0x8002f880 and 0x8002f884: the strip's length in words and the size handed to DecDCTout (inferred). */
+/* 0x8002f87c: the pointer word of the strip buffer, 0x8002f880 and 0x8002f884: the strip's length in words and the size handed to DecDCTout (inferred;
+   the frame routine sets all three and the two counts above). */
 extern u32 *data_8002f87c_z2o;
 extern int data_8002f880_z2o;
 extern int data_8002f884_z2o;
@@ -79,7 +126,7 @@ extern void StCdInterrupt(void);
 extern void DecDCTout(u32 *buf, int size);
 /* Program functions that other functions call (prototypes from their listings' use of the argument registers; the open's are inferred). */
 extern u32 func_800119e8_z2o(int index, u32 *size);
-extern int func_80010c38_z2o(u32 a0, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9);
+extern int func_80010c38_z2o(int sector, int stream, int frames, u32 *ring, int ring_size, u32 *buf0, u32 *buf1, u32 *strip, int wide, int words);
 /* 0x80031e6c, 0x80031e70, 0x80031e74: the pad words: the word the buttons newly pressed are taken against (set to 0 by the main and not written again by
    it), the last state read from PadRead and the buttons newly pressed (inferred from func_800108e8_z2o). */
 extern u32 data_80031e6c_z2o;
@@ -90,11 +137,12 @@ extern u32 data_8003de88_z2o;
 extern u32 data_80049e8c_z2o;
 /* 0x80049ea4: a rectangle (8 bytes, just before the display environments) that the main clears the picture's area with (inferred). */
 extern Rect data_80049ea4_z2o;
-/* The four areas whose addresses the main hands to the open of the movie (inferred from the use as arguments; their types are not known). */
-extern u8 data_80049ed4_z2o[];
-extern u8 data_80031e84_z2o[];
-extern u8 data_8003de8c_z2o[];
-extern u8 data_800876f8_z2o[];
+/* The four areas whose addresses the main hands to the open of the movie (inferred from what the open does with its arguments: the stream's ring, of
+   0x1e slots; the two bitstream buffers; the strip buffer). */
+extern u32 data_80049ed4_z2o[];
+extern u32 data_80031e84_z2o[];
+extern u32 data_8003de8c_z2o[];
+extern u32 data_800876f8_z2o[];
 extern void func_80011afc_z2o(void);
 extern long ResetCallback(void);
 extern void StopCallback(void);
@@ -102,10 +150,10 @@ extern void PadInit(int mode);
 extern u32 PadRead(int id);
 extern void PadStop(void);
 extern void InitGeom(void);
-extern int func_800110d0_z2o(int a0, int a1);
+extern int func_800110d0_z2o(int x, int y);
 extern void func_80010be4_z2o(void);
 extern void func_80010ae8_z2o(void);
-extern int func_80011018_z2o(int index, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9);
+extern int func_80011018_z2o(int index, int stream, int frames, u32 *ring, int ring_size, u32 *buf0, u32 *buf1, u32 *strip, int wide, int words);
 extern int func_80011a24_z2o(void);
 extern void func_8001139c_z2o(void);
 extern void func_80011428_z2o(void);

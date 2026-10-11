@@ -85,8 +85,8 @@ void func_800108e8_z2o(void) {
     func_800115a8_z2o(0x80);
     func_80011630_z2o(1);
     func_800116c8_z2o(1);
-    func_80011018_z2o(0xff, 0, 0x334, (u32)data_80049ed4_z2o, 0x1e, (u32)data_80031e84_z2o, (u32)data_8003de8c_z2o,
-                      (u32)data_800876f8_z2o, 1, 1);
+    func_80011018_z2o(0xff, 0, 0x334, data_80049ed4_z2o, 0x1e, data_80031e84_z2o, data_8003de8c_z2o, data_800876f8_z2o, 1,
+                      1);
     do {
         r = func_800110d0_z2o(0, data_80031e58_z2o != 0 ? 0xf0 : 0);
         func_80011428_z2o();

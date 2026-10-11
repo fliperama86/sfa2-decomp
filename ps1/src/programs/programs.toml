@@ -106,8 +106,8 @@ address = 0x80010000
 # No gp is declared for this program. The entry code (header entry 0x80011ac8) first clears the words from 0x8002f7f0 up
 # to 0x8008a400 and only then sets the global pointer register to 0x8002f7f0 before it jumps to the main. The reader
 # checks a declared value against the first two instructions at the entry address only, so no value is declared and the
-# test tool begins each run with the register at 0. Right only for functions that do not use the register (the six listed
-# here do not; each one's header says so).
+# test tool begins each run with the register at 0. Right only for functions that do not use the register (the functions
+# listed here do not; each one's header says so).
 functions = [
   { name = "func_800116c8_z2o", address = 0x800116c8, size = 16 },
   { name = "func_800119b8_z2o", address = 0x800119b8, size = 16 },
@@ -125,6 +125,8 @@ functions = [
   { name = "func_80011708_z2o", address = 0x80011708, size = 264 },
   { name = "func_80011018_z2o", address = 0x80011018, size = 184 },
   { name = "func_800108e8_z2o", address = 0x800108e8, size = 512 },
+  { name = "func_80010c38_z2o", address = 0x80010c38, size = 776 },
+  { name = "func_800110d0_z2o", address = 0x800110d0, size = 716 },
 ]
 
 [program.symbols]
@@ -154,9 +156,6 @@ data_8002f884_z2o = 0x8002f884
 StCdInterrupt = 0x800196e4
 DecDCTout = 0x80011c34
 func_80157fc4 = 0x800131a8
-# Callees whose C is on another branch (func_80010c38_z2o, func_800110d0_z2o): symbols here until a function entry declares them (then remove here).
-func_80010c38_z2o = 0x80010c38
-func_800110d0_z2o = 0x800110d0
 func_80011afc_z2o = 0x80011afc
 data_80031e6c_z2o = 0x80031e6c
 data_80031e70_z2o = 0x80031e70
@@ -187,5 +186,26 @@ SetDefDispEnv = 0x80015948
 ClearImage = 0x80013114
 DrawSync = 0x80012f80
 VSync = 0x8001b154
+data_8002f84c_z2o = 0x8002f84c
+data_8002f814_z2o = 0x8002f814
+data_8002f820_z2o = 0x8002f820
+data_8002f808_z2o = 0x8002f808
+data_8002f80c_z2o = 0x8002f80c
+data_8001b348_z2o = 0x8001b348
+data_8002f894_z2o = 0x8002f894
+data_8002f898_z2o = 0x8002f898
+data_8002f89c_z2o = 0x8002f89c
+data_8002f8a8_z2o = 0x8002f8a8
+data_8002f8ac_z2o = 0x8002f8ac
+data_8002f8c4_z2o = 0x8002f8c4
+DecDCTReset = 0x80011b04
+DecDCTvlc = 0x80011b68
+DecDCTin = 0x80011bb8
+StSetRing = 0x8001a27c
+StSetStream = 0x80018c34
+StGetNext = 0x8001a30c
+StFreeRing = 0x8001a438
+CdControl = 0x80016538
+CdRead2 = 0x80018b90
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654

@@ -33,8 +33,9 @@
  */
 #include "z2o.h"
 
-int func_80011018_z2o(int index, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9) {
+int func_80011018_z2o(int index, int stream, int frames, u32 *ring, int ring_size, u32 *buf0, u32 *buf1, u32 *strip,
+                      int wide, int words) {
     u32 size;
 
-    return func_80010c38_z2o(func_800119e8_z2o(index, &size), a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    return func_80010c38_z2o(func_800119e8_z2o(index, &size), stream, frames, ring, ring_size, buf0, buf1, strip, wide, words);
 }
