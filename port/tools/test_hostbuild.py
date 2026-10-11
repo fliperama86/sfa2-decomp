@@ -784,6 +784,8 @@ if name.startswith("fakenm"):
         m = re.match(r"^(\\S+) = (\\S+);$", line)
         if m and not m.group(2).startswith("0x"):
             out.append("%08x B %s" % (labels[m.group(2)], m.group(1)))
+    if args[0].endswith(".o") and Path(args[0]).stem in spec.get("nm_fail", []):
+        sys.exit(1)
     if args[0].endswith(".o"):
         out += ["         U %s" % l[4:] for l in data if l.startswith("ref ")]
     out += spec.get("nm_extra", [])
@@ -1781,12 +1783,15 @@ def program_pure_cases():
     yield "programs-undefined-names-a-defined-plain-name-is-no-undefined-name", same(hb.undefined_names("00000000 T _f\n00000000 D _v\n", True), [])
     yield "programs-undefined-names-ps1-inside-a-name-is-plain", same(hb.undefined_names("         U _xps1_a\n         U ps1_b\n", True), ["ps1_b", "xps1_a"])
     yield "programs-names-file-binds-a-routine", same(hb.render_names({"a": 1}, ["f"], True, {"Lib": "port_x"}), "_ps1_a = 0x00000001;\n_ps1_f = _impl_f;\n_ps1_Lib = _port_x;\n")
-    yield "programs-names-file-binds-a-routine-no-underscore", same(hb.render_names({}, [], False, {"Lib": "port_x", "Abc": "port_y"}), "ps1_Abc = port_y;\nps1_Lib = port_x;\n")
+    yield "programs-names-file-binds-routines-in-order-of-name", same(
+        hb.render_names({}, [], False, {"Mid": "port_m", "Abc": "port_y", "Zed": "port_z"}), "ps1_Abc = port_y;\nps1_Mid = port_m;\nps1_Zed = port_z;\n")
     yield "programs-names-file-without-bound-is-as-before", same(hb.render_names({"a": 1}, [], True, None), hb.render_names({"a": 1}, [], True))
     nm = GOOD_NM + "00403100 T _port_x\n00403100 A _ps1_Lib\n"
     yield "programs-link-bound-name-at-the-routine", same(hb.verify_link(nm, dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), [])
     yield "programs-link-bound-name-elsewhere", same(hb.verify_link(nm.replace("00403100 A _ps1_Lib", "00403104 A _ps1_Lib"), dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}),
                                                     ["Lib: ps1_Lib is at 0x403104, the routine port_x at 0x403100"])
+    yield "programs-link-bound-name-listed-twice-one-wrong", same(
+        hb.verify_link(nm + "00403104 A _ps1_Lib\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: ps1_Lib is at 0x403100, 0x403104, the routine port_x at 0x403100"])
     yield "programs-link-bound-name-missing", same(hb.verify_link(GOOD_NM + "00403100 T _port_x\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: ps1_Lib is not in the linked file"])
     yield "programs-link-bound-routine-missing", same(hb.verify_link(GOOD_NM + "00403100 A _ps1_Lib\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: port_x is not in the linked file"])
     rows = [hb.ProgramRow("pg", "pg.exe", PG_SHA, "func_80010000_pg", [hb.Call("port_a", "data_80020000_pg"), hb.Call("port_b")], [hb.Call("port_c")]),
@@ -1943,8 +1948,11 @@ def program_flow_cases(root: Path):
         "pgs2", ["func_80010000_pg", "func_80010020_pg"], calls={"func_80010000_pg": ["func_80010010_pg", "func_80010020_pg"]})
     yield "programs-run-the-plain-name-of-a-library-routine-stops-the-build", stops(
         "pgs3", ["func_80010010_pg", "DecDCTout"], calls={"func_80010010_pg": ["DecDCTout"]})
-    proc, _ = program_run(root, "pgs4", calls={"func_80010000_pg": ["a_plain_one", "another_plain"]})
-    yield "programs-run-every-plain-name-is-named-once", same((proc.returncode, proc.stderr.count("a_plain_one"), proc.stderr.count("another_plain")), (1, 1, 1))
+    proc, _ = program_run(root, "pgs4", calls={"func_80010000_pg": ["a_plain_one", "a_plain_one"], "func_80010010_pg": ["another_plain"]})
+    yield "programs-run-every-plain-name-of-every-object-is-named-once", same(
+        (proc.returncode, proc.stderr.count("a_plain_one"), proc.stderr.count("another_plain"), proc.stderr.count("func_80010010_pg: ")), (1, 1, 1, 1))
+    proc, _ = program_run(root, "pgs4b", nm_fail=["func_80010010_pg"])
+    yield "programs-run-nm-failing-on-a-program-object-stops-the-build", same((proc.returncode, "nm did not run" in proc.stderr and "func_80010010_pg" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
     yield "programs-run-a-unit-of-a-program-that-defines-another-global-stops-the-build", stops(
         "pgs5", ["func_80010010_pg", "extra_global"], defs={**PG_DEFS, "func_80010010_pg": ["func_80010010_pg", "extra_global"]})
     yield "programs-run-a-unit-that-does-not-define-its-function-stops-the-build", stops(

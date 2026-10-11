@@ -1462,7 +1462,7 @@ def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: 
         if not found or not target:
             misses.append(f"{name}: {'ps1_' + name if not found else routine} is not in the linked file")
         elif set(found) != set(target):
-            misses.append(f"{name}: ps1_{name} is at {found[0]:#x}, the routine {routine} at {target[0]:#x}")
+            misses.append(f"{name}: ps1_{name} is at {', '.join(f'{a:#x}' for a in sorted(set(found)))}, the routine {routine} at {', '.join(f'{a:#x}' for a in sorted(set(target)))}")
     return misses
 
 
