@@ -78,6 +78,8 @@
  *    returns 1 (the inner routine returns 0 always).
  *  - 8015cd98 CdMix: returns 1. 8015c6ec CdInit: returns 1 after a reset and
  *    stores the library's default handlers in the three callback variables.
+ *    Between the two it sets the sound chip's volumes and control and the
+ *    drive's mix (the library's CD_initvol; see initvol below).
  *  - 8015cec4 CdIntToPos / 8015cfc8 CdPosToInt: BCD conversions with the 150
  *    sector offset; IntToPos returns its second argument.
  *
@@ -689,6 +691,45 @@ static int issue_with_position(int com, const unsigned char *param, unsigned cha
 
 /* ---- the library functions ------------------------------------------ */
 
+/* What the library's CD_initvol does (0x8015e10c in the resident program; CdInit reaches it through CdReset(1), after the drive's
+ * reset, at 0x8015c868). It writes the sound chip itself, through the library's pointer to the chip's registers (the word at
+ * 0x80181e0c, which holds 0x1f801c00), with the offsets written here:
+ *   if the chip's current main volume reads 0, left (+0x1b8) and then right (+0x1ba), the main volume becomes 0x3fff on both sides
+ *   (+0x180, +0x182);
+ *   the CD volume becomes 0x3fff on both sides (+0x1b0, +0x1b2);
+ *   the control becomes 0xc001 (+0x1aa): the chip on, its voices not muted, the CD input on;
+ * and then it sets the drive's own mix to 0x80, 0, 0x80, 0, the four bytes of CdMix. Before the game starts its own sound nothing
+ * else lets the disc's audio through the chip: the logo's movie is heard because of this routine.
+ *
+ * One difference, stated. PsyZ's model keeps no current main volume: its two registers read what was last written to them, 0 unless
+ * a program wrote there. So the port asks the main volume itself (+0x180, then +0x182) in their place and takes "holds 0" for "the
+ * current volume is 0". For a main volume that is set and not swept that is the same question (inferred from the chip's rule for a
+ * fixed volume, not measured on a console). A main volume in a sweep mode holds a word that is not 0 and so counts as not 0 here,
+ * whatever level its sweep has reached.
+ *
+ * In a build with no model of the chip (no PsyZ) nothing of the chip is read or written; the mix is set all the same. */
+#define SPU_MAIN_L 0x180u
+#define SPU_MAIN_R 0x182u
+#define SPU_CD_L   0x1b0u
+#define SPU_CD_R   0x1b2u
+#define SPU_CTRL   0x1aau
+
+static void initvol(void)
+{
+    static unsigned char unity[4] = { 0x80, 0, 0x80, 0 };
+    unsigned v = 0;
+    if (port_iopage_chip_read(SPU_MAIN_L, &v)) {   /* 0: this build has no model of the chip */
+        if (v == 0 && port_iopage_chip_read(SPU_MAIN_R, &v) && v == 0) {
+            port_iopage_chip_write(SPU_MAIN_L, 0x3fff);
+            port_iopage_chip_write(SPU_MAIN_R, 0x3fff);
+        }
+        port_iopage_chip_write(SPU_CD_L, 0x3fff);
+        port_iopage_chip_write(SPU_CD_R, 0x3fff);
+        port_iopage_chip_write(SPU_CTRL, 0xc001);
+    }
+    port_CdMix(unity);
+}
+
 int port_CdInit(void)
 {
     need_disc();
@@ -705,6 +746,7 @@ int port_CdInit(void)
     memset(cd.ready_result, 0, sizeof cd.ready_result);
     cd.sync_result[0] = ST_IDLE;
     cd.sync = 2;
+    initvol();
     /* the library's default handlers only post events that the game never
      * waits on; none is the same as them for this program */
     lib_put32(PORT_CD_VAR_SYNC_CB, 0);

@@ -65,6 +65,9 @@ static unsigned char pad_frame[34];
 unsigned port_frames(void) { return frames; }
 void port_audio_lock(void) {}
 void port_audio_unlock(void) {}
+/* the sound chip's registers for CdInit: these rigs have no model of the chip, as a build without PsyZ has none */
+int port_iopage_chip_read(unsigned offset, unsigned *value) { (void)offset; (void)value; return 0; }
+int port_iopage_chip_write(unsigned offset, unsigned value) { (void)offset; (void)value; return 0; }
 void port_trace_line(const char *fmt, ...) { (void)fmt; }
 void port_target_check(const char *path, const void *target) { (void)path; (void)target; }
 void port_tick(void)

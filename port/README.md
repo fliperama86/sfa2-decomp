@@ -1082,6 +1082,8 @@ routines that do nothing on purpose. What is in this piece:
   sector as it arrives. The host routines serve that from the user's
   image: `CdInit`, `CdSync`, `CdReady`, `CdControl` and its two
   variants, `CdMix`, `CdGetSector` and the two position conversions,
+  (`CdInit` also sets the sound chip's volumes and control and the
+  drive's mix, as the library's does: see "The disc's streamed audio")
   with these commands of the drive: no operation, set position, read
   (both kinds), pause, set filter, set mode, get position, seek.
   Sectors are delivered at the console's rate counted by the frame (see
@@ -2173,8 +2175,63 @@ clamped to 16 bits, and no sum at all when the volumes are 127 or 128
 straight through, as PsyZ's own pull has it. The chip's model adds the
 CD frames to the mix only when the control register's CD bit is set, and
 scales them by its own CD volume registers (`psyz_spu.c`, where it
-mixes a frame). Which code of the game sets them was not looked at here;
-the control's made-up game sets them itself.
+mixes a frame).
+
+What sets them, found on 2026-10-11 when the logo's movie played silent.
+It is the library's own start of the drive, not the console's boot code
+(which this page had first inferred, with no source). The game's `CdInit`
+(`0x8015c6ec` in the resident program) calls `CdReset(1)`, which after
+the drive's reset calls the routine at `0x8015e10c`, which the SDK names
+`CD_initvol`. That routine writes
+the sound chip itself, through the library's pointer to the chip's
+registers (the word at `0x80181e0c` of the program file, `0x1f801c00`),
+read here from its instructions:
+
+- if the chip's current main volume reads 0, left (`+0x1b8`) and then
+  right (`+0x1ba`), the main volume becomes `0x3fff` on both sides
+  (`+0x180`, `+0x182`);
+- the CD volume becomes `0x3fff` on both sides (`+0x1b0`, `+0x1b2`);
+- the control becomes `0xc001` (`+0x1aa`): the chip on, its voices not
+  muted, the CD input on;
+- the drive's own mix becomes `0x80, 0, 0x80, 0`, the four bytes of
+  `CdMix`.
+
+PsyZ's library has the same routine with the same values (`CD_initvol`
+in `psyz/src/psyz/libcd.c` and in `decomp/src/libcd/bios.c` at the pin);
+the port does not link that library, so its own `CdInit` in `cd.c` now
+does this, through two routines of `iopage.c` that read and write a
+register of the chip's model under the audio lock (the game's own
+accesses come as faults of its instructions; this one has none). Two
+functions of the game call `CdInit`: `func_8014f0bc`, which then sets the
+drive's mode and seeks (read from its code: the game's start of the
+disc), and `func_8011e918`, which does nothing else. Before
+the game starts its own sound nothing else lets the disc's audio through
+the chip, so the logo's movie is heard because of it, at about half the
+stream's own level (the CD volume `0x3fff` of `0x7fff`).
+
+One difference from the console, stated. PsyZ's model keeps no current
+main volume: those two registers read what was last written to them, 0
+unless a program wrote there. So the port asks the main volume itself
+(`+0x180`, then `+0x182`) and takes "holds 0" for "the current volume is
+0". For a main volume that is set and not swept that is the same question
+(inferred from the chip's rule for a fixed volume; not measured on a
+console). A main volume in a sweep mode holds a word that is not 0 and
+counts as not 0, whatever level its sweep has reached. In a build without
+PsyZ the chip has no model: `CdInit` reads and writes nothing of it there
+and sets the mix all the same.
+
+The controls of it: `test_hostcd.py` (the native rig has a made-up file
+of the chip's registers and a record of the calls: which registers are
+read, what is written and in which order, each side of the main volume,
+a second `CdInit`, no model, the mix, the lock) and `test_hostaudio.py`
+through the whole program with PsyZ (after nothing but `CdInit` the game
+reads the five registers back, and a made-up stream reaches the dump
+through the CD volume `0x3fff`, every frame equal to the mixer's sum; a
+main volume the game set on either side stays; the trace counts
+`CdInit`'s reads and writes of the chip with the game's; `CdInit`'s reads
+and writes of the model are made with the audio lock held). The other
+made-up stream games of that file now call `CdInit` before they set the
+chip, since it writes the CD volume and the control itself.
 
 One line on the output at the start of each stream, when a sector is
 played after a read began: `audio: a stream starts at sector N: file F
@@ -2237,8 +2294,9 @@ console's own resampling filter (this is linear interpolation), 8-bit
 sectors (refused), any check against the console's output (the decoder is
 compared with a reference written from the same document, not with
 hardware), and any judgment of how it sounds: nobody has listened to a
-file of this change. Whether the game's code sets the chip's registers
-for the CD input was not looked at; the one-off start below shows that the
+file of this change. Which code sets the chip's registers for the CD input
+had not been looked at then (it is the library's `CdInit`, see "The disc's
+streamed audio"); the one-off start below shows that the
 levels of the dump changed, not why. One-off starts with the disc for the
 streamed audio, on 2026-10-10 (a private input; offscreen; one at a time;
 no command of this repository repeats them, they need the user's disc):
@@ -2717,11 +2775,24 @@ teardown call that takes it away, and the eighteen library names that the
 game has no routine for, bound to the runtime's (`press.c`, `stream.c`,
 `progcalls.c`). In one start without a window, with the user's disc, the
 program ran to its end and the game went on; video memory held the movie's
-frames. Its movie has no sound yet: the sound chip's model mixes disc audio
-only with its control register's bit 0 set and with a CD volume and a main
-volume, all 0 at the PC program's start, and neither the game nor the logo
-sets them before the movie (on the console the boot code's state is there:
-inferred, the values not sourced). The window's own picture was not seen in
+frames. Its movie was silent in that run: the sound chip's model mixes disc
+audio only with its control register's bit 0 set and with a CD volume and a
+main volume, all 0 at the PC program's start. That was a gap of the port's
+`CdInit`, closed on 2026-10-11: on the console the library's `CdInit` sets
+them, not the boot code as this paragraph first inferred ("The disc's
+streamed audio" has the routine). Two starts with the user's disc, of
+2026-10-11, without a window, with SDL's dummy audio driver and
+`--skip-programs --audio-dump FILE`, 40 seconds each (status 124), no line
+beginning `refused` or `stop` in either; no command of this repository
+repeats them. Built from main `c210be1`: the first sample that was not 0
+came 18.33 seconds into the file, with the game's own music. Built from
+the change on that commit: it came at 0.77 seconds, and the largest
+absolute sample of each of the first eleven seconds was 6625, 10059, 8198,
+9909, 12978, 15429, 13929, 8803, 2451, 249 and 8; the seven seconds after
+them were 0 and the game's music followed as before (14675 and 15330 in
+seconds 18 and 19 of both files). That is the movie's sound in the dump,
+not a judgment of it: nobody listened, and nothing was compared with a
+console. The window's own picture was not seen in
 that run. The opening movie's program and the third program have no C and
 are skipped as before.
 
