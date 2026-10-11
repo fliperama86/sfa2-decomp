@@ -60,7 +60,7 @@ extern void func_80010928_logo(void);
 extern int func_80010a80_logo(int sector);
 extern void func_80010a38_logo(void);
 extern u32 func_80011758_logo(int index, u32 *size);
-extern void func_80011794_logo(void);
+extern int func_80011794_logo(void);
 extern void func_80011838_logo(void);
 extern void func_800107e8_logo(u8 *base, int str_sector, int bin_sector, int vmode, int stereo);
 extern int func_80010c20_logo(void);
