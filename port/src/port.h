@@ -254,6 +254,13 @@ void port_iopage_deliver_claimed(void);
 /* kernel.c: the one clock, in microseconds. iopage.c: PSY-Q's DMACallback(channel, routine): keeps the routine, returns the previous. */
 unsigned long long port_now_us(void);
 void *port_h_DMACallback(int dma, void (*func)(void));
+void (*port_iopage_dma_callback(int dma))(void);   /* the routine registered for a channel (0 to 6, else null) */
+/* press.c: the movie decoder's output transfer, the completion in the pattern of the sound transfer's (see press.h). port_press_poll takes
+ * a pending completion whose due time has passed (kernel.c, port_tick, with the sound transfer's poll); claim_due and deliver_claimed are
+ * the timer thread's claim and the interruption routine's delivery. */
+void port_press_poll(void);
+int  port_press_claim_due(void);
+void port_press_deliver_claimed(void);
 
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);

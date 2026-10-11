@@ -331,6 +331,13 @@ void *port_h_DMACallback(int dma, void (*func)(void))
     return (void *)previous;
 }
 
+/* The routine registered for channel `dma` (0 to 6), or null (also for a channel outside that range): press.c's completion of an
+ * output transfer calls the one of channel 1. */
+void (*port_iopage_dma_callback(int dma))(void)
+{
+    return dma < 0 || dma > 6 ? NULL : dma_callback[dma];
+}
+
 /* The completion is taken: the state is cleared first (the routine may start a transfer), then the routine is called, its
  * address checked now. The caller has raised port_handler_depth, so a poll inside the routine does nothing. */
 static void run_completion(int how)
