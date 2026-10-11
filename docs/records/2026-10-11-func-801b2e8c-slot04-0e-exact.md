@@ -31,6 +31,10 @@
   stand.
 - It leaves `ps1/src/slot04b_nonmatching/` (its three files and its six
   lines of that folder's page) and its alias line in `symbols.ld`.
-- What ran: `fndiff.py --rebuild slot04_0e_2e8cx_r1` (the line above);
-  `matchbuild.py --image slot04_0e` and `slot05_0e`; the byte-offset scan;
-  the map's render. No whole build, no PC build, no differential test.
+- What ran, on the tree with main at `fd64ea0` merged in: `fndiff.py
+  --rebuild slot04_0e_2e8cx_r1` (the line above, and the five figures of
+  the variants, each on the unit's text with that one change, the unit
+  put back); `matchbuild.py --image slot04_0e` and `slot05_0e`: `RESULT:
+  PASS` each; the byte-offset scan: none; the map's render:
+  `overall: 5520/5600 distinct functions exact (98.6%); 12967/13072 placements (99.2%); 1757260/1809836 code bytes (97.1%)`.
+  No whole build, no PC build, no differential test.
