@@ -24,9 +24,9 @@ void func_800e675c_slot0f(Object *obj) {
     obj->field_76 = 0;
     obj->state_0++;
     obj->field_48 = table_8016e5c4[game_state.field_2b8].field_08;
-    obj->vel_y = (s32)game_state.cursor;
+    ((ObjectWords *)obj)->word_50 = (s32)game_state.cursor;
     game_state.field_308 = (Row *)((u8 *)data_80190468.p + 0x21e);
-    obj->accel_x = (s32)game_state.field_308;
+    ((ObjectWords *)obj)->word_54 = (s32)game_state.field_308;
     t = ((Object *)((u8 *)data_80190468.p + ((Slot0fObj *)data_80190468.p)->field_21e))->field_15e & 0x3f;
     /* field_5c is stored twice. The first store goes through a plain pointer:
        written as a member store, this compiler moves the load of the second

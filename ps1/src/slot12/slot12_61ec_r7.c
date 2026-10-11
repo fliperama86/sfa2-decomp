@@ -25,7 +25,7 @@ void func_80016864_slot12(Object *obj) {
         a++;
     }
     a = data_8002c528_slot12;
-    src = (u8 *)obj->vel_y;
+    src = (u8 *)((ObjectWords *)obj)->word_50;
     for (i = 0; i <= ((Slot12Obj *)obj)->field_5c; i++) {
         u8 c = *src++;
         int k = c & 0x7f;

@@ -8,9 +8,9 @@ void func_80012fd4_slot27(Object *obj);
 
 void func_800134e8_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
-    ref_first.p = (Object *)obj->accel_x;
+    ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     if (obj->field_66 != 0) {
-        ref_first.p = (Object *)obj->accel_y;
+        ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
     }
     *t = obj->vel_x;
     ref_first.p->vel_x = ref_first.p->vel_x + *t;

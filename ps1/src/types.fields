@@ -2789,3 +2789,9 @@ struct Slot04SelRec800c size=0x24
 
 struct PolyBlk size=0x1680
 0x000 Poly28 polys[144]
+
+struct ObjectWords size=0x394
+0x04c s32 word_4c
+0x050 s32 word_50
+0x054 s32 word_54
+0x058 s32 word_58

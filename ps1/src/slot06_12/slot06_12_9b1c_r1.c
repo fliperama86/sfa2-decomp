@@ -89,7 +89,7 @@ void func_801e9db4_slot06_12(Object *obj) {
 
     obj->vel_y = obj->vel_y - 1;
     if (obj->vel_y == 0) {
-        rec = (SeqRec *)obj->vel_x;
+        rec = (SeqRec *)((ObjectWords *)obj)->word_4c;
         rec++;
         if (obj->accel_x < 0) {
             func_801e9e0c_slot06_12(obj);
@@ -107,7 +107,7 @@ void func_801e9e0c_slot06_12(Object *obj) {
 void func_801e9e68_slot06_12(Object *obj, SeqRec *rec) {
     int w;
 
-    obj->vel_x = (s32)rec;
+    ((ObjectWords *)obj)->word_4c = (s32)rec;
     w = rec->header;
     obj->vel_y = w >> 16;
     obj->accel_x = (s16)w;

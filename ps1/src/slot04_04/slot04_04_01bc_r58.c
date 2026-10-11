@@ -22,10 +22,10 @@ void func_801b4c6c_slot04_04(Object *obj) {
         } else {
             obj->pos_x = obj->pos_x - 0x80;
         }
-        obj->accel_y = obj->pos_x;
+        ((ObjectWords *)obj)->word_58 = obj->pos_x;
         s = seqs_8017c7f8[15];
     } else {
-        obj->accel_y = obj->pos_x;
+        ((ObjectWords *)obj)->word_58 = obj->pos_x;
         if (p->side == 0) {
             s = *data_1f8000b4;
         } else {

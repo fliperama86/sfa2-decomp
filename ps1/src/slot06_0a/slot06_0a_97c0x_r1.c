@@ -7,7 +7,7 @@ extern SequenceStep *data_801ed400_slot06_0a[];
 extern u8 data_801ed494_slot06_0a[];
 
 void func_801e97c0_slot06_0a(Object *obj) {
-    Object *t = (Object *)obj->vel_x;
+    Object *t = (Object *)((ObjectWords *)obj)->word_4c;
 
     if (t != 0) {
         u16 a;
