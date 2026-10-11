@@ -98,7 +98,7 @@ void func_801b2c78_slot04_17(Object *o) {
     if (o->step_flags & 2) {
         o->step_flags &= 0xfffd;
         func_801483a4(o, -6, 0x4f);
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
     }
 }
 
@@ -127,7 +127,7 @@ void func_801b2e28_slot04_17(Object *o) {
     int i;
     u8 c;
 
-    func_801204f4(o, o->side, 10);
+    play_side_sound_at(o, o->side, 10);
     ref_other.p->field_290 = 0;
     i = (u8)(o->field_12a << 1);
     c = data_801ce404_slot04_17[i];
@@ -220,7 +220,7 @@ void func_801b3108_slot04_17(Object *obj) {
     if (obj->step_flags & 2) {
         obj->step_flags &= 0xfffd;
         func_801483a4(obj, 0x28, 0x66);
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
     }
     if (obj->step_flags & 4) {
         int d;

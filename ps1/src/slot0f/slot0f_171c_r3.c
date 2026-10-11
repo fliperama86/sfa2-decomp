@@ -22,11 +22,11 @@ void func_800e1964_slot0f(Object *o) {
                 o->field_01 = 1;
                 o->state_0 = 0;
             }
-            func_80120554(0, 0, 0x205);
+            play_sound_at(0, 0, 0x205);
         } else {
             o->field_01 = 1;
             o->state_0 = 0;
-            func_80120554(0, 0, 0x202);
+            play_sound_at(0, 0, 0x202);
         }
     }
 }

@@ -36,7 +36,7 @@ void func_801b24c8_slot04_01(Object *obj) {
                     i = (obj->field_12a >> 1) + 1;
                 }
                 obj->field_27b = data_801bf0b4_slot04_01[i];
-                func_801204f4(obj, obj->side, 4);
+                play_side_sound_at(obj, obj->side, 4);
             }
             if (obj->field_0b == 0) {
                 *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;

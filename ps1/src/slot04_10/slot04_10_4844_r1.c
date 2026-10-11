@@ -126,7 +126,7 @@ void func_801b4c58_slot04_10(Object *obj) {
             obj->field_165 = 0xff;
         }
         func_801483a4(obj, -0x24, 0x2b);
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
     }
     update_sequence(obj);
 }

@@ -19,7 +19,7 @@ void func_801b25fc_slot04_0a(Object *obj) {
     obj->field_46 = (s8)data_801c068b_slot04_0a[i];
     obj->field_225 = 1;
     obj->field_165 = 0;
-    func_80120554(obj, obj->side, 0x31c);
+    play_sound_at(obj, obj->side, 0x31c);
     func_80145d20(obj);
     func_801307e0(obj, (obj->field_12a >> 1) + 0x39);
 }

@@ -30,8 +30,8 @@ void func_801b1d5c_slot04_07(Object *obj) {
         obj->vel_x = 0x20000;
     }
     func_80141f28(obj, 7);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
-    func_801204f4(obj, obj->side, 7);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    play_side_sound_at(obj, obj->side, 7);
     func_801307e0(obj, 0x21);
     func_80141e5c(obj);
 }

@@ -22,8 +22,8 @@ void func_801b2a58_slot04_03(Object *obj) {
             func_801307e0(obj, 0x31);
         } else {
             obj->state_3++;
-            func_801204f4(obj, obj->side, 6);
-            func_801204f4(obj, obj->side, 0xc);
+            play_side_sound_at(obj, obj->side, 6);
+            play_side_sound_at(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2e);
         }
     } else {

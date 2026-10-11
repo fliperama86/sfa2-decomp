@@ -11,7 +11,7 @@ void func_801b151c_slot04_08(Object *obj) {
     if (((Slot04aObj *)obj)->field_3a != 0) {
         obj->state_3++;
         obj->field_46 = 0;
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;

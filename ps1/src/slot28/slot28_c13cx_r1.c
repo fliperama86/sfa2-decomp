@@ -20,7 +20,7 @@ void func_8001c13c_slot28(Object *o) {
         p = data_800519d8_slot28[1];
         p->field_48 = 0xff;
         func_8001c3ac_slot28(o);
-        func_80120554(0, 0, 0x305);
+        play_sound_at(0, 0, 0x305);
         func_8001c430_slot28(o, 5);
     }
 }

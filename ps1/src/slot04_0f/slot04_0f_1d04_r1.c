@@ -31,7 +31,7 @@ void func_801b1d64_slot04_0f(Object *o) {
     *(s32 *)&obj->field_330 = *(s32 *)&o->other->pos_x_frac;
     obj->field_339 = 0xff;
     func_801307e0(o, 0x39);
-    func_801204f4(o, o->side, 0xe);
+    play_side_sound_at(o, o->side, 0xe);
     func_801b1ddc_slot04_0f(o);
 }
 
@@ -55,7 +55,7 @@ void func_801b1e38_slot04_0f(Object *o) {
         o->state_3 = o->state_3 + 1;
         o->field_0b = o->field_158;
         func_801307e0(o, 0x3a);
-        func_801204f4(o, o->side, 0xf);
+        play_side_sound_at(o, o->side, 0xf);
     } else {
         *(s32 *)&o->pos_x_frac = *(s32 *)&o->pos_x_frac + o->vel_x;
     }
@@ -110,7 +110,7 @@ void func_801b2018_slot04_0f(Object *o) {
     o->field_17b = one;
     *(s32 *)&obj->field_330 = *(s32 *)&o->other->pos_x_frac;
     func_801307e0(o, 0x55);
-    func_801204f4(o, o->side, 0xe);
+    play_side_sound_at(o, o->side, 0xe);
     func_801b2094_slot04_0f(o);
 }
 
@@ -130,7 +130,7 @@ void func_801b20e4_slot04_0f(Object *o) {
     if (obj->field_46 == 0) {
         o->state_3 = o->state_3 + 1;
         func_801307e0(o, 0x56);
-        func_801204f4(o, o->side, 0xf);
+        play_side_sound_at(o, o->side, 0xf);
     } else {
         *(s32 *)&o->pos_x_frac = *(s32 *)&o->pos_x_frac + o->vel_x;
     }

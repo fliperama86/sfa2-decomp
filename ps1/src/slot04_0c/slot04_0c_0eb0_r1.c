@@ -169,7 +169,7 @@ void func_801b11a0_slot04_0c(Object *o) {
         a = 0x30;
     }
     func_801307e0(o, (o->field_12a >> 1) + a);
-    func_80120554(o, o->side, 0x320);
+    play_sound_at(o, o->side, 0x320);
 }
 
 void func_801b134c_slot04_0c(Object *o) {

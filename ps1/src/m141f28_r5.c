@@ -13,9 +13,9 @@ void func_801443b0(Object *object) {
             if (*(Object **)&config->field_78 != 0) {
                 ref_first.p = *(Object **)&config->field_78;
                 if (ref_first.p->field_cd != 0) {
-                    func_80120554(0, 0, 0x209);
+                    play_sound_at(0, 0, 0x209);
                 } else {
-                    func_80120554(0, 0, 0x208);
+                    play_sound_at(0, 0, 0x208);
                 }
             }
             if ((u8)func_801441c8(object)) {

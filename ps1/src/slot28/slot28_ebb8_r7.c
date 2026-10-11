@@ -51,7 +51,7 @@ void func_8001f698_slot28(Object *obj) {
             data_80051ad8_slot28[0] = p;
             ((Slot28Obj *)p)->field_6c = data_800414d4_slot28;
         }
-        func_80120554(0, 0, 0x304);
+        play_sound_at(0, 0, 0x304);
         func_80128370();
         func_8002005c_slot28(obj, 1);
     }

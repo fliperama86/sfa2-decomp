@@ -15,6 +15,11 @@ prototypes, comments, the configuration's own tables, the inventory, and the
 contracts and fixtures of nonmatching functions, which name their callees.
 A longer name that begins with an old name is another word and is left.
 
+A function that has a file named after it keeps its name, and the tool
+refuses to rename it: a nonmatching function, or an exact one that the port
+overrides (`port/overrides/func_ADDRESS.c`). The tools that build and test
+such a file read the function's address out of the file's name.
+
 What it does not do: it does not decide a name, and it does not show that
 the build still gives the same bytes; the matching build shows that. It
 does not rewrite Markdown unless a file is given by its own path: a page
@@ -122,6 +127,11 @@ def apply(args) -> int:
         print("no function was renamed between the two configurations")
         return 0
     files = [f for f in text_files(args.paths) if f.resolve() != args.old.resolve()]
+    # A file named after a function (nonmatching C, an override of the port, their contracts and fixtures) is
+    # found by that name, and the tools that test it read the address out of it.
+    held = sorted(f for f in files if f.name.split(".")[0] in pairs)
+    if held:
+        raise Refused("\n".join(f"{f.name.split('.')[0]} keeps its name: the file {f} is named after it" for f in held))
     if args.fresh:
         taken = word_pattern(pairs.values())
         hits = []

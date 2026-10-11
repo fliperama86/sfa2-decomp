@@ -14,7 +14,7 @@ void func_80148a24(Object *object) {
     if (object->field_45 != 0) {
         other = object->field_3c;
         other->field_29e = 0;
-        func_80120554(other, other->side, 0x323);
+        play_sound_at(other, other->side, 0x323);
     }
     func_8011f240(object);
 }

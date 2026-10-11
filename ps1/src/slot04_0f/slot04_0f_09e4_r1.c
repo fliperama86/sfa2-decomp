@@ -62,7 +62,7 @@ void func_801b0ac8_slot04_0f(Object *obj) {
 void func_801b0b30_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_3++;
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
     }
     update_sequence(obj);
 }

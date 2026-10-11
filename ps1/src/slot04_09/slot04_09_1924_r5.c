@@ -19,8 +19,8 @@ void func_801b1ea0_slot04_09(Object *obj) {
             if (obj->field_246 == 0) {
                 func_80141f28(obj, 7);
             }
-            func_801204f4(obj, obj->side, 5);
-            func_80120554(obj, obj->side ^ 1, 0x31a);
+            play_side_sound_at(obj, obj->side, 5);
+            play_sound_at(obj, obj->side ^ 1, 0x31a);
         } else {
             update_sequence(obj);
         }

@@ -10,7 +10,7 @@ void func_801b23c8_slot04_01(Object *o) {
     func_80145d20(o);
     func_801428e4(o);
     func_80138b38(&game_state, o);
-    func_801204f4(o, o->side, 0xd);
+    play_side_sound_at(o, o->side, 0xd);
     func_801307e0(o, (o->field_12a >> 1) + 0x28);
 }
 
@@ -22,7 +22,7 @@ void func_801b2448_slot04_01(Object *o) {
         } else {
             o->field_165 = 1;
         }
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x18, 0x1c);
     }
     update_sequence(o);

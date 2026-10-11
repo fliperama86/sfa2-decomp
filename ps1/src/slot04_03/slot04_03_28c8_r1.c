@@ -18,8 +18,8 @@ void func_801b28c8_slot04_03(Object *obj) {
             func_801307e0(obj, 0x2f);
         } else {
             obj->state_3++;
-            func_801204f4(obj, obj->side, 6);
-            func_801204f4(obj, obj->side, 0xc);
+            play_side_sound_at(obj, obj->side, 6);
+            play_side_sound_at(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2c);
         }
     } else {
@@ -46,8 +46,8 @@ void func_801b298c_slot04_03(Object *obj) {
             func_801307e0(obj, 0x30);
         } else {
             obj->state_3++;
-            func_801204f4(obj, obj->side, 6);
-            func_801204f4(obj, obj->side, 0xc);
+            play_side_sound_at(obj, obj->side, 6);
+            play_side_sound_at(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2d);
         }
     } else {

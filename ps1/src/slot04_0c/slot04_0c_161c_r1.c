@@ -48,7 +48,7 @@ void func_801b161c_slot04_0c(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            func_801204f4(obj, obj->side, 0x15);
+            play_side_sound_at(obj, obj->side, 0x15);
         }
     }
 }
@@ -177,7 +177,7 @@ void func_801b1b60_slot04_0c(Object *obj) {
             obj->field_165 = 1;
         }
         func_801483a4(obj, 0x1e, 0x57);
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
     }
     update_sequence(obj);
 }
@@ -237,7 +237,7 @@ void func_801b1c54_slot04_0c(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            func_801204f4(obj, obj->side, 0x15);
+            play_side_sound_at(obj, obj->side, 0x15);
         }
     }
 }

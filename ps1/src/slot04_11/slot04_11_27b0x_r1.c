@@ -42,7 +42,7 @@ act_b:
         return;
 act_c:
         obj->state_3++;
-        func_801204f4(obj, obj->side, 6);
+        play_side_sound_at(obj, obj->side, 6);
         if (obj->field_cd != 0) {
             ref_other.p = obj->other;
             d = ref_other.p->pos_x - obj->pos_x;

@@ -26,7 +26,7 @@ void func_801b3620_slot04_0a(Object *obj) {
         } else {
             obj->pos_x = o->pos_x - 0x28;
         }
-        func_801204f4(obj, obj->side, 0xf);
+        play_side_sound_at(obj, obj->side, 0xf);
         func_801307e0(obj, 0x4a);
     }
 }

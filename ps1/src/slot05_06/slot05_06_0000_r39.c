@@ -25,6 +25,6 @@ void func_801cb20c_slot05_06(Object *obj) {
     obj->vel_x = e[0];
     obj->accel_x = e[1];
     obj->field_67 = 0;
-    func_801204f4(obj, obj->side, 9);
+    play_side_sound_at(obj, obj->side, 9);
     func_801307e0(obj, 0x2b);
 }

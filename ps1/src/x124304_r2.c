@@ -35,7 +35,7 @@ void func_801246cc(Object *a, Triple *b) {
             data_801a6989 = data_8016e803 = data_80185fb4;
         }
         if (b->c != 0 && data_8016e800 < 4) {
-            func_80120554(0, 0, 0x34c);
+            play_sound_at(0, 0, 0x34c);
         }
     }
     for (i = 0; i < 7; i++) {

@@ -32,7 +32,7 @@ void func_8012c990(Object *object) {
     if (object->field_259 == 0) {
         object->field_259++;
         func_80152b40(object);
-        func_80120554(object, object->side, 0x321);
+        play_sound_at(object, object->side, 0x321);
         func_801376b8(object);
     }
     object->field_15b = 1;
@@ -51,7 +51,7 @@ void func_8012ca04(Object *object) {
             object->field_259++;
             func_80152b40(object);
         }
-        func_80120554(object, object->side, 0x321);
+        play_sound_at(object, object->side, 0x321);
         func_801376b8(object);
         if (object->field_61 == 0x16) func_8012c72c(object);
         else func_8012c5cc(object);
@@ -62,7 +62,7 @@ void func_8012cac8(Object *object) {
     if (object->field_258 == 0) {
         object->field_258++;
         func_80152c34(object);
-        func_80120554(object, object->side, 0x321);
+        play_sound_at(object, object->side, 0x321);
     }
     object->field_15b = 1;
     func_801376b8(object);
@@ -80,7 +80,7 @@ void func_8012cb3c(Object *object) {
         if (object->field_258 == 0) {
             object->field_258++;
             func_80152c34(object);
-            func_80120554(object, object->side, 0x321);
+            play_sound_at(object, object->side, 0x321);
         }
         object->field_15b = 1;
         if (object->field_61 == 0x17) func_8012c72c(object);

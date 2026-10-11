@@ -23,9 +23,9 @@ u8 func_801b61e8_slot04_14(Object *obj) {
         d = (t & 0x3f) - 0x60;
         func_80146478(obj, 2, d, s);
         if ((func_80151184() & 1) == 0) {
-            func_80120554(o, o->side, 0x306);
+            play_sound_at(o, o->side, 0x306);
         } else {
-            func_80120554(o, o->side, 0x30f);
+            play_sound_at(o, o->side, 0x30f);
         }
         r = 1;
     }

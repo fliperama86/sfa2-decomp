@@ -16,7 +16,7 @@ void func_801b3ef8_slot04_02(Object *o) {
             } else {
                 o->state_3++;
                 o->field_46 = (o->field_46 & 0xff00) | 0x10;
-                func_80120554(p, p->side, 0x31a);
+                play_sound_at(p, p->side, 0x31a);
                 func_801307e0(o, 0x3b);
             }
         } else {

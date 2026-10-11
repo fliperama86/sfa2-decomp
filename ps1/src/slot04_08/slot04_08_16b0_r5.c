@@ -24,8 +24,8 @@ void func_801b1df4_slot04_08(Object *obj) {
     } else if (t & 0xff) {
         if ((u8)func_8013f8c4(obj, -0x30, *(s16 *)(data_801c3c4c_slot04_08 + (obj->field_12a & 0xfe))) != 0) {
             obj->state_3++;
-            func_80120554(obj, obj->side ^ 1, 0x31a);
-            func_801204f4(obj, obj->side, 0x12);
+            play_sound_at(obj, obj->side ^ 1, 0x31a);
+            play_side_sound_at(obj, obj->side, 0x12);
             func_80141f28(obj, 0x20);
             func_801307e0(obj, 0x1c);
         } else {

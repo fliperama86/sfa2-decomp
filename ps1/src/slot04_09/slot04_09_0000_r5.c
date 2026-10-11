@@ -34,7 +34,7 @@ void func_801b05f4_slot04_09(Object *obj) {
     t = obj->step_flags;
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
-        func_801204f4(obj, obj->side, 0xf);
+        play_side_sound_at(obj, obj->side, 0xf);
     }
     u = obj->step_flags;
     if ((u & 0xff) == 2) {

@@ -48,7 +48,7 @@ def setup(state, rng, sym) -> Setup:
     log.replace(sym["func_801b1e04_slot04_0a"], 1, result)
     log.replace(sym["func_801b30a0_slot04_0a"], 1, 0)
     log.replace(sym["func_801307e0"], 2, 0, masks={1: 0xFFFF})
-    log.replace(sym["func_801204f4"], 3, 0, masks={1: 0xFF, 2: 0xFF})
+    log.replace(sym["play_side_sound_at"], 3, 0, masks={1: 0xFF, 2: 0xFF})
     log.replace(sym["func_80141f28"], 2, 0)
     log.replace(sym["func_80138ae8"], 2, 0)
     log.replace(sym["update_sequence"], 1, 0)

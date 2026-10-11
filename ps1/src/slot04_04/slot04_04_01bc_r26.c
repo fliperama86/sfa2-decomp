@@ -21,7 +21,7 @@ void func_801b2188_slot04_04(Object *obj) {
     obj->accel_x = data_801c4304_slot04_04[obj->field_12a * 2 + 1];
     obj->vel_y = data_801c4304_slot04_04[obj->field_12a * 2 + 2];
     obj->accel_y = data_801c4304_slot04_04[obj->field_12a * 2 + 3];
-    func_801204f4(obj, obj->side, 7);
+    play_side_sound_at(obj, obj->side, 7);
     if (obj->field_49 != 0) {
         a = (obj->field_12a >> 1) + 0x4c;
     } else {

@@ -46,8 +46,8 @@ void func_801b28b8_slot04_12(Object *o) {
         } else {
             o->field_165 = 0xff;
         }
-        func_801204f4(o, o->side, 6);
-        func_80120554(o, o->side, 0x31c);
+        play_side_sound_at(o, o->side, 6);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0xc, 0x30);
     }
 }
@@ -64,7 +64,7 @@ void func_801b295c_slot04_12(Object *o) {
             ((Slot04bObj *)o)->field_27b = data_801c4c58_slot04_12[o->field_12a >> 1];
         }
         o->field_165 = 0;
-        func_801204f4(o, o->side, 7);
+        play_side_sound_at(o, o->side, 7);
     }
 }
 
@@ -124,8 +124,8 @@ void func_801b2be8_slot04_12(Object *o) {
         } else {
             o->field_165 = 0xff;
         }
-        func_801204f4(o, o->side, 8);
-        func_80120554(o, o->side, 0x31c);
+        play_side_sound_at(o, o->side, 8);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x1a, 0x33);
     }
 }
@@ -145,7 +145,7 @@ void func_801b2c74_slot04_12(Object *o) {
         }
         ((Slot04bObj *)o)->field_27b = data_801c4c74_slot04_12[t];
         o->field_165 = 0;
-        func_801204f4(o, o->side, 9);
+        play_side_sound_at(o, o->side, 9);
     }
 }
 
@@ -178,7 +178,7 @@ void func_801b2d20_slot04_12(Object *obj) {
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;
-            func_801204f4(obj, obj->side, 0x11);
+            play_side_sound_at(obj, obj->side, 0x11);
         }
         func_801307e0(obj, obj->field_12a + 0x5a);
     }

@@ -16,5 +16,5 @@ void func_801209c4(Object *o) {
         a = o->side;
         c = 0x314;
     }
-    func_80120554(o, a, c);
+    play_sound_at(o, a, c);
 }

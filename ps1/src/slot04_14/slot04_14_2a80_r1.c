@@ -71,7 +71,7 @@ void func_801b2c48_slot04_14(Object *obj) {
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, 0x1e, 0x30);
         func_801482e0(obj, -0x2c, 0x30);
     }
@@ -136,7 +136,7 @@ void func_801b2d54_slot04_14(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
         }
     } else {
@@ -179,7 +179,7 @@ void func_801b2fd8_slot04_14(Object *obj) {
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x12, 0x30);
     }
     update_sequence(obj);

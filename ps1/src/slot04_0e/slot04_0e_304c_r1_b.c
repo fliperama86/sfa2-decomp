@@ -42,7 +42,7 @@ void func_801b3450_slot04_0e(Object *obj) {
         obj->vel_x = x;
         obj->accel_x = y;
         func_801307e0(obj, a);
-        func_801204f4(obj, obj->side, 9);
+        play_side_sound_at(obj, obj->side, 9);
     }
 }
 
@@ -151,7 +151,7 @@ void func_801b3810_slot04_0e(Object *o) {
         } else {
             o->field_165 = 1;
         }
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, 0xe, 0x50);
     }
 }

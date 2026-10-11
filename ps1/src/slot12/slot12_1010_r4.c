@@ -15,11 +15,11 @@ void func_8001129c_slot12(void) {
     if (k == 0x5f) {
         t = o->field_b2;
         if ((unsigned)(t - 1) < 5) {
-            func_80120554(0, 0, data_800175cc_slot12[(s16)t]);
+            play_sound_at(0, 0, data_800175cc_slot12[(s16)t]);
         } else {
-            func_801204f4(data_8002d568_slot12, data_8002d568_slot12->side, data_800175cc_slot12[(s16)t]);
+            play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, data_800175cc_slot12[(s16)t]);
         }
     } else if (k == 0x5e) {
-        func_801204f4(data_8002d568_slot12, data_8002d568_slot12->side, 7);
+        play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 7);
     }
 }

@@ -12,7 +12,7 @@ void func_801b1d58_slot04_01(Object *o) {
     if (func_801b1b58_slot04_01(o) != 0) {
         func_801b1eb8_slot04_01(o);
     } else if ((s16)o->step_flags & 0x8000) {
-        func_80120554(o, o->side, 0x320);
+        play_sound_at(o, o->side, 0x320);
         obj->field_1a4 = obj->field_1a4 - 1;
         if (obj->field_1a4 & 0x80) {
             o->state_3++;

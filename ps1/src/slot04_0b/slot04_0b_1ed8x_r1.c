@@ -14,8 +14,8 @@ void func_801b1ed8_slot04_0b(Object *o) {
     o->state_3++;
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
-    func_801204f4(o, o->side, 0xf);
-    func_801204f4(o, o->side, 6);
+    play_side_sound_at(o, o->side, 0xf);
+    play_side_sound_at(o, o->side, 6);
     o->accel_y = 0xfffe6000;
     o->accel_x = 0;
     o->vel_y = 0xa0000;

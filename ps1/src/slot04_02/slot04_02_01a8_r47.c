@@ -12,7 +12,7 @@ void func_801b5ce8_slot04_02(Object *obj) {
     int t;
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     obj->vel_x = 0x48000;
     if (obj->field_cd != 0) {

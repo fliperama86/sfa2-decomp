@@ -101,7 +101,7 @@ void func_801b63b4_slot04_0e(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     o = obj->other;
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if ((u16)(box_margin[0] + 0xc0) < obj->pos_x) {
@@ -141,7 +141,7 @@ void func_801b654c_slot04_0e(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     o = obj->other;
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if ((u16)(box_margin[0] + 0xc0) < obj->pos_x) {
@@ -236,7 +236,7 @@ void func_801b689c_slot04_0e(Object *obj) {
         o = obj->other;
         if (o->field_15b != 0) {
             func_801b6808_slot04_0e(obj);
-            func_801204f4(obj, obj->side, 7);
+            play_side_sound_at(obj, obj->side, 7);
         }
     }
 }

@@ -15,7 +15,7 @@ void func_801b4cec_slot04_07(Object *obj) {
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->pos_y = o->field_70;
-        func_80120554(obj, obj->side, 0x314);
+        play_sound_at(obj, obj->side, 0x314);
         func_801307e0(obj, 0x2e);
     }
 }

@@ -10,7 +10,7 @@ void func_801b27a4_slot04_06(Object *obj) {
     s->field_1c2 = s->field_1c2 - 1;
     if (s->field_1c2 & 0x80) {
         obj->state_3 = obj->state_3 + 1;
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
         obj->vel_y = -0x100000;
         obj->vel_x = 0;
         obj->accel_x = 0;

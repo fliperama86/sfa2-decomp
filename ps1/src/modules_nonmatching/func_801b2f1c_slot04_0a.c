@@ -19,7 +19,7 @@
  * than its own, else to 0, sets the velocity fields (when field_0b is 1:
  * vel_x -0x70000, accel_x 0x4000; when it is 0: vel_x 0x70000,
  * accel_x -0x4000; in both cases vel_y 0x38000 and accel_y -0x4000),
- * and calls func_801204f4, func_80141f28 and func_80138ae8. Then,
+ * and calls play_side_sound_at, func_80141f28 and func_80138ae8. Then,
  * also when no bit was set or vel_y was too large, it calls
  * update_sequence.
  *
@@ -34,7 +34,7 @@
  *     this test):
  *     func_801b1e04_slot04_0a (1 argument; returns 0 or a random non-zero
  *     value), func_801b30a0_slot04_0a (1), func_801307e0 (2, the second
- *     under a 16-bit mask), func_801204f4 (3, the second and third under
+ *     under a 16-bit mask), play_side_sound_at (3, the second and third under
  *     8-bit masks), func_80141f28 (2), func_80138ae8 (2, the
  *     address of game_state and the object), update_sequence (1); all return 0
  *     except the first. The log watches the whole object and the whole
@@ -90,7 +90,7 @@ void func_801b2f1c_slot04_0a(Object *obj) {
         obj->accel_x = vy;
         obj->vel_x = vx;
         obj->accel_y = -0x4000;
-        func_801204f4(obj, obj->side, 9);
+        play_side_sound_at(obj, obj->side, 9);
         func_80141f28(obj, 2);
         func_80138ae8(&game_state, obj);
     }

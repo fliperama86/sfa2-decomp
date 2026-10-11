@@ -24,7 +24,7 @@ void func_801b2310_slot04_02(Object *o) {
         }
     }
     o->vel_x += t;
-    func_80120554(o, o->side, 0x320);
+    play_sound_at(o, o->side, 0x320);
     a = 0x23;
     if (o->field_12a != 0) {
         ((Slot04aObj *)o)->field_1a4 = o->field_12a;

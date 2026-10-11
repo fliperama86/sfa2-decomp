@@ -28,7 +28,7 @@ void func_800dfd20_slot0f(GameState *state, Menu *menu) {
                 menu->field_00 = (s8)menu->field_00 + 1;
             }
         }
-        func_80120554(0, 0, 0x204);
+        play_sound_at(0, 0, 0x204);
     }
     if ((s8)menu->field_02 != (s8)menu->field_03) {
         if (((s8)menu->field_02 & 1) == 0) {
@@ -48,7 +48,7 @@ void func_800dfd20_slot0f(GameState *state, Menu *menu) {
             menu->field_01 = 2;
         }
         data_8018f5a0->field_4a++;
-        func_80120554(0, 0, 0x205);
+        play_sound_at(0, 0, 0x205);
     }
     func_800e07b8_slot0f((s8)menu->field_00);
 }

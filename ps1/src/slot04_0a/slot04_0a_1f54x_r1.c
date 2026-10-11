@@ -14,7 +14,7 @@ void func_801b1f54_slot04_0a(Object *obj) {
     func_801b2048_slot04_0a(obj);
     if (func_801b1e04_slot04_0a(obj)) {
         obj->state_3++;
-        func_80120554(obj, obj->side, 0x314);
+        play_sound_at(obj, obj->side, 0x314);
         obj->pos_y = (u16)obj->field_70;
         obj->pos_y_frac = 0;
         obj->field_17b = 0;

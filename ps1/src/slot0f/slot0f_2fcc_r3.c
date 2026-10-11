@@ -44,6 +44,6 @@ void func_800e32dc_slot0f(void) {
             table_8016e664[i][j] = data_800f8564_slot0f[i][j];
         }
     }
-    func_80120554((Object *)0, 0, 0x205);
+    play_sound_at((Object *)0, 0, 0x205);
     func_8014f4d4(6, 2);
 }

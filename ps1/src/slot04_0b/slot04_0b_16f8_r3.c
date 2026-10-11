@@ -19,8 +19,8 @@ void func_801b1938_slot04_0b(Object *obj) {
 void func_801b19b8_slot04_0b(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
         obj->state_3++;
-        func_801204f4(obj, obj->side, 0xf);
-        func_801204f4(obj, obj->side, 4);
+        play_side_sound_at(obj, obj->side, 0xf);
+        play_side_sound_at(obj, obj->side, 4);
     }
     update_sequence(obj);
 }

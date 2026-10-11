@@ -28,7 +28,7 @@ void func_800e2cdc_slot0f(void) {
             data_800e9600_slot0f[i].field_07 = 0x1b;
         }
     }
-    func_80120554(0, 0, 0x203);
+    play_sound_at(0, 0, 0x203);
 }
 
 extern u8 data_800f855a_slot0f;
@@ -41,6 +41,6 @@ void func_800e2dcc_slot0f(void) {
         p = &data_800f855a_slot0f;
         *p ^= 1;
         data_800e96a8_slot0f = &data_800e951c_slot0f[(s8)*p];
-        func_80120554(0, 0, 0x203);
+        play_sound_at(0, 0, 0x203);
     }
 }

@@ -71,5 +71,5 @@ void func_800e38b4_slot0f(void) {
         data_800e92a7_slot0f[i] = c;
     }
     data_800e92a7_slot0f[sel * 16] = 0x10;
-    func_80120554((Object *)0, 0, 0x204);
+    play_sound_at((Object *)0, 0, 0x204);
 }

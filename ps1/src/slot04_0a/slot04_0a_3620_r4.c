@@ -10,7 +10,7 @@ void func_801b3a90_slot04_0a(Object *obj) {
     } else {
         obj->field_0b = 1;
     }
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);
     func_801307e0(obj, 0x18);
 }

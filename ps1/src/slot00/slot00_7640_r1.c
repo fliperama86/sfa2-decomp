@@ -10,7 +10,7 @@ void func_80077640_slot00(Object *obj) {
     Object *p = obj->field_3c;
     obj->state_0++;
     func_800776a8_slot00(obj, 5);
-    func_801204f4(p, p->side, 0x14);
+    play_side_sound_at(p, p->side, 0x14);
 }
 
 void func_80077688_slot00(Object *obj) {

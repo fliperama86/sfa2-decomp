@@ -17,9 +17,9 @@ void func_801b249c_slot04_08(Object *obj) {
         if ((u8)func_8013f8c4(obj, -0x20, 0x30) != 0) {
             obj->state_3++;
             obj->field_46 = 0;
-            func_80120554(obj, obj->side ^ 1, 0x31a);
+            play_sound_at(obj, obj->side ^ 1, 0x31a);
             func_80145f98(obj);
-            func_801204f4(obj, obj->side, 0x12);
+            play_side_sound_at(obj, obj->side, 0x12);
             func_801b25a8_slot04_08(obj);
         } else {
             obj->state_3 = 9;

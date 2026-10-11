@@ -31,7 +31,7 @@ void func_801b0528_slot04_04(Object *obj) {
     } else {
         obj->state_3 = obj->state_3 + 1;
         if (obj->field_12a == 4) {
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
         obj->field_159 = 1;
         func_80130dc0(obj);

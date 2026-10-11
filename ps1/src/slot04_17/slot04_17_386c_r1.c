@@ -41,8 +41,8 @@ void func_801b386c_slot04_17(Object *obj) {
         }
         obj->field_165 = a;
         func_801483a4(obj, 0xc, 0x4d);
-        func_80120554(obj, obj->side, 0x31c);
-        func_801204f4(obj, obj->side, 0xa);
+        play_sound_at(obj, obj->side, 0x31c);
+        play_side_sound_at(obj, obj->side, 0xa);
     }
 }
 
@@ -77,8 +77,8 @@ void func_801b39dc_slot04_17(Object *obj) {
         if (ref_other.p->field_163 == 0) {
             if ((u8)func_8013fd98(obj, -0x20, 0x20, 0x1a, 0x1a) != 0) {
                 obj->state_3++;
-                func_80120554(obj, obj->other->side, 0x31a);
-                func_801204f4(obj, obj->side, 0xd);
+                play_sound_at(obj, obj->other->side, 0x31a);
+                play_side_sound_at(obj, obj->side, 0xd);
                 func_801307e0(obj, obj->field_12a + 0x43);
             }
         }
@@ -110,14 +110,14 @@ void func_801b3b64_slot04_17(Object *obj) {
         data_80190468.p->field_63 = 0x20;
         obj->step_flags = obj->step_flags & 0xff80;
         func_80146960(obj);
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 8);
         j = k - 1;
         if (func_80140cd8(obj, data_801ce4f4_slot04_17[j * 2], data_801ce4f4_slot04_17[j * 2 + 1]) != 0) {
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
             data_80190468.p->field_6b = 4;
             func_80147000(obj);
         } else {
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
         }
     }
     if (obj->step_flags & 0x80) {
@@ -201,7 +201,7 @@ void func_801b3ee4_slot04_17(Object *obj) {
         }
         obj->field_165 = a;
         func_801483a4(obj, -0x35, 0x37);
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
     }
 }
 

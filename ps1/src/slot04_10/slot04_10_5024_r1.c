@@ -106,13 +106,13 @@ void func_801b535c_slot04_10(Object *obj) {
         data_80190468.p->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
         update_sequence(obj);
-        func_801204f4(obj, obj->side, 0xa);
+        play_side_sound_at(obj, obj->side, 0xa);
         if ((u8)func_80140cd8(obj, 0xd, 0x1b)) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
             func_80147000(obj);
         }
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     } else {
         obj->field_45 = 1;
         obj->state_3++;
@@ -189,6 +189,6 @@ void func_801b5680_slot04_10(Object *obj) {
             data_80190468.p->field_6b = 4;
             func_80147000(obj);
         }
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     }
 }

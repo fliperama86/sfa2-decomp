@@ -7,7 +7,7 @@
 void func_80120a30(Object *o, int a, int b) {
     int c;
     if (o->field_293) {
-        func_80120554(o, o->side, 0x32a);
+        play_sound_at(o, o->side, 0x32a);
     }
     if (a == 0) {
         if ((0x10d40 >> o->kind) & 1) {
@@ -38,5 +38,5 @@ void func_80120a30(Object *o, int a, int b) {
             }
         }
     }
-    func_80120554(o, o->side, c);
+    play_sound_at(o, o->side, c);
 }

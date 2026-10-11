@@ -15,7 +15,7 @@ void func_801b1cf4_slot04_06(Object *o) {
             t = 0xff;
         }
         o->field_165 = t;
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -2, 0x5c);
     }
     if (((Slot04aObj *)o)->field_1c3 != 0) {
@@ -53,7 +53,7 @@ void func_801b1cf4_slot04_06(Object *o) {
             o->accel_x = -0x500;
         }
         o->field_46 = 0;
-        func_801204f4(o, o->side, 6);
+        play_side_sound_at(o, o->side, 6);
         func_801307e0(o, 0x37);
     } else {
         func_801312b8(o);

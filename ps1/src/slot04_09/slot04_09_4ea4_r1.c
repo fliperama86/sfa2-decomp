@@ -36,9 +36,9 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
         q = o->other;
         obj->field_334 = q->field_0c;
         obj->field_335 = q->field_0d;
-        func_80120554(o, o->side ^ 1, 0x31a);
-        func_801204f4(o, o->side, 9);
-        func_801204f4(o, o->side, 0x10);
+        play_sound_at(o, o->side ^ 1, 0x31a);
+        play_side_sound_at(o, o->side, 9);
+        play_side_sound_at(o, o->side, 0x10);
         func_801307e0(o, 0x19);
     } else {
         update_sequence(o);

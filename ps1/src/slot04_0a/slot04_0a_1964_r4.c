@@ -30,7 +30,7 @@ void func_801b1ce8_slot04_0a(Object *obj) {
         obj->accel_y = -0x2000;
         func_80141f28(obj, 2);
         func_80138ae8(&game_state, obj);
-        func_801204f4(obj, obj->side, 9);
+        play_side_sound_at(obj, obj->side, 9);
         func_801b2048_slot04_0a(obj);
         if (func_801b1e04_slot04_0a(obj)) {
             func_801b1c00_slot04_0a(obj);

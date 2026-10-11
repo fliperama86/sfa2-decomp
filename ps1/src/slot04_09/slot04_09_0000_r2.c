@@ -9,7 +9,7 @@ void func_801b019c_slot04_09(Object *obj) {
     obj->field_45 = 1;
     obj->state_2 = obj->state_2 + 1;
     func_801b5588_slot04_09(obj);
-    func_801204f4(obj, obj->side, 0x10);
+    play_side_sound_at(obj, obj->side, 0x10);
     func_80130678(obj, 0x22);
 }
 

@@ -20,7 +20,7 @@ void func_801b3d94_slot04_02(Object *o) {
         } else {
             o->vel_x = -0x48000;
         }
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x10, 0x58);
     }
     update_sequence(o);
@@ -34,7 +34,7 @@ void func_801b3e40_slot04_02(Object *o) {
         o->field_165 = 0;
         o->state_3++;
         o->field_46 = obj->field_46 | 0x400;
-        func_801204f4(o, o->side, 0xc);
+        play_side_sound_at(o, o->side, 0xc);
     }
     update_sequence(o);
 }

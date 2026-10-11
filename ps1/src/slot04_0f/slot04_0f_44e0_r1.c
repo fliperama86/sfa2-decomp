@@ -46,7 +46,7 @@ void func_801b45a8_slot04_0f(Object *obj) {
 void func_801b45e8_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->other->side, 0x31a);
+    play_sound_at(obj, obj->other->side, 0x31a);
     obj->field_0b = 0;
     if ((obj->field_c2 & 0x2000) == 0) {
         obj->field_0b = 1;

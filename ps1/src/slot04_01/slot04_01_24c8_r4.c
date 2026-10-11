@@ -27,7 +27,7 @@ void func_801b2a30_slot04_01(Object *obj) {
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_801204f4(obj, obj->side, 9);
+            play_side_sound_at(obj, obj->side, 9);
         }
         update_sequence(obj);
     }

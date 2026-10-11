@@ -13,14 +13,14 @@ void func_8012306c(GameState *g) {
             o->field_b8 = func_80155f98(o->field_b8, g->field_104 << 8);
             g->field_104 = 0;
             func_80156094();
-            func_80120554(0, 0, 0x34d);
+            play_sound_at(0, 0, 0x34d);
             func_80123504(g);
         } else {
             g->field_104 = func_80156018(g->field_104, g->field_108);
             o->field_b8 = func_80155f98(o->field_b8, g->field_108 << 8);
             func_80156094();
             if ((game_state.field_1d & 3) == 0) {
-                func_80120554(0, 0, 0x34d);
+                play_sound_at(0, 0, 0x34d);
             }
         }
     }

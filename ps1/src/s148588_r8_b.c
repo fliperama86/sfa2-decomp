@@ -30,7 +30,7 @@ void func_80149304(Object *object) {
 void func_80149348(Object *object) {
     Object *other = object->field_3c;
     object->field_09 = 6;
-    func_80120554(other, other->side, 0x326);
+    play_sound_at(other, other->side, 0x326);
     func_80130768(object, 0x27, seqs_8017c7f8);
 }
 
@@ -66,11 +66,11 @@ void func_801494e0(Object *object) {
     ref_other.p = object->field_3c;
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
-        func_80120554(ref_other.p, ref_other.p->side, 0x328);
+        play_sound_at(ref_other.p, ref_other.p->side, 0x328);
     }
     /* Byte load of the low half of step_flags. */
     if (*(u8 *)&object->step_flags != 0) {
-        func_80120554(ref_other.p, ref_other.p->side, 0x327);
+        play_sound_at(ref_other.p, ref_other.p->side, 0x327);
     }
     func_80131094(object);
 }

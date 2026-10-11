@@ -14,8 +14,8 @@ void func_801b1fd0_slot04_03(Object *obj) {
         if (t & 0x8000) {
             if (obj->field_12a != 0) {
                 obj->state_3++;
-                func_801204f4(obj, obj->side, 5);
-                func_801204f4(obj, obj->side, 0xd);
+                play_side_sound_at(obj, obj->side, 5);
+                play_side_sound_at(obj, obj->side, 0xd);
                 obj->vel_x = 0xc0000;
                 obj->accel_x = -0x8000;
                 obj->vel_y = -0x90000;

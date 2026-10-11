@@ -7,7 +7,7 @@ void func_801b3e00_slot04_0a(Object *object);
 
 void func_801b3c74_slot04_0a(Object *obj) {
     obj->state_3++;
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->vel_y = 0;
     func_80141f28(obj, 4);
     func_801307e0(obj, 0x53);
@@ -19,7 +19,7 @@ void func_801b3cd0_slot04_0a(Object *obj) {
         func_801b3e00_slot04_0a(obj);
     }
     if ((u8)obj->step_flags == 1) {
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 8);
         obj->state_3++;
         if (obj->other->field_15b != 0) {
             func_80140770(obj, 0x24, 0xd, 0x11, 0, 0, 0);

@@ -5,7 +5,7 @@ made here:
   - the log watches the whole object (0x394 bytes) at every recorded call,
     so the order of the function's stores against the calls is compared;
     no recorded callee gets a pointer to memory filled for the call;
-  - func_801204f4 is a recorder (3 arguments); func_80130184, func_801307e0
+  - play_side_sound_at is a recorder (3 arguments); func_80130184, func_801307e0
     and update_sequence run as the original code;
   - the object is a random block of 0x394 bytes; the position and the
     target field_70 are set apart by a chosen difference, so that the
@@ -75,7 +75,7 @@ def setup(state, rng, sym):
     steps, frames = _sequence_world(state, rng, sym)
     obj = state.alloc(0x394)
     log = CallLog(state, words=4096, watch=((obj, 0x394 // 4),))
-    log.replace(sym["func_801204f4"], 3)
+    log.replace(sym["play_side_sound_at"], 3)
     fill(state, obj, 0x394, rng)
     _sequence_object(state, rng, obj, steps, frames)
     state.w8(obj + 0x07, rng.choice((rng.randrange(256), 255)))
@@ -99,7 +99,7 @@ def control(words):
     """Alter the constant 0x1b of the call that plays the landing sound.
 
     The arm taken when the target is reached loads 0x1b as the third
-    argument of func_801204f4; the control makes it 0x1c, and the recorder's
+    argument of play_side_sound_at; the control makes it 0x1c, and the recorder's
     log shows it.
     """
     found = [i for i, w in enumerate(words) if w >> 26 in (0x09, 0x0D) and (w >> 21) & 31 == 0 and w & 0xFFFF == 0x1B]

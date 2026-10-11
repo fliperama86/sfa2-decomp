@@ -161,7 +161,7 @@ void func_801b1a50_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     if (obj->field_3a != 0) {
         o->state_3++;
-        func_80120554(o, o->field_02, 0x324);
+        play_sound_at(o, o->field_02, 0x324);
     }
     update_sequence(o);
 }

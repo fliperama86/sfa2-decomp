@@ -11,8 +11,8 @@ void func_801b2600_slot04_03(Object *obj) {
         func_801307e0(obj, 0x2f);
     } else if (t == 0 && (obj->field_134 & 0x95) != 0) {
         obj->state_3++;
-        func_801204f4(obj, obj->side, 6);
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 6);
+        play_side_sound_at(obj, obj->side, 0xc);
         func_801307e0(obj, 0x2c);
     } else {
         update_sequence(obj);
@@ -31,8 +31,8 @@ void func_801b26ac_slot04_03(Object *obj) {
             func_801307e0(obj, 0x30);
         } else if ((obj->field_134 & 0x95) != 0) {
             obj->state_3++;
-            func_801204f4(obj, obj->side, 6);
-            func_801204f4(obj, obj->side, 0xc);
+            play_side_sound_at(obj, obj->side, 6);
+            play_side_sound_at(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2d);
         } else {
             update_sequence(obj);

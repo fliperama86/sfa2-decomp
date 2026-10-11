@@ -30,14 +30,14 @@ void func_801b2108_slot04_01(Object *o) {
             i = (o->field_12a >> 1) + 1;
         }
         o->field_27b = data_801beffc_slot04_01[i];
-        func_801204f4(o, o->side, 5);
+        play_side_sound_at(o, o->side, 5);
     }
     w = (s16)o->step_flags;
     v = w;
     w = w & 0xff00;
     if (w == 0x100) {
         o->step_flags = v & 0xff;
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x18, 0x1c);
     }
 }

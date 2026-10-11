@@ -35,7 +35,7 @@ void func_801b3bb8_slot04_08(Object *obj) {
             }
             func_80140cd8(obj, a, 0);
             if ((s16)obj->other->field_5c < 0) {
-                func_80120554(obj, obj->side, 0x319);
+                play_sound_at(obj, obj->side, 0x319);
                 obj->field_167 = 2;
                 if (obj->field_49 != 0) {
                     obj->field_167 = 0x18;
@@ -44,7 +44,7 @@ void func_801b3bb8_slot04_08(Object *obj) {
                     func_80147000(obj);
                 }
             } else {
-                func_80120554(obj, obj->side, 0x319);
+                play_sound_at(obj, obj->side, 0x319);
             }
             func_80146960(obj);
         }

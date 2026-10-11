@@ -25,8 +25,8 @@ void func_801b3830_slot04_09(Object *obj) {
                         } else {
                             obj->vel_x = -0x80000;
                         }
-                        func_80120554(obj, obj->side ^ 1, 0x31a);
-                        func_801204f4(obj, obj->side, 5);
+                        play_sound_at(obj, obj->side ^ 1, 0x31a);
+                        play_side_sound_at(obj, obj->side, 5);
                         func_801307e0(obj, 0x21);
                         return;
                     }
@@ -41,8 +41,8 @@ void func_801b3830_slot04_09(Object *obj) {
                     } else {
                         obj->vel_x = -0x80000;
                     }
-                    func_80120554(obj, obj->side ^ 1, 0x31a);
-                    func_801204f4(obj, obj->side, 5);
+                    play_sound_at(obj, obj->side ^ 1, 0x31a);
+                    play_side_sound_at(obj, obj->side, 5);
                     func_801307e0(obj, 0x21);
                     return;
                 }

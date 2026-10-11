@@ -14,7 +14,7 @@ void func_801b0d24_slot04_07(Object *obj) {
         func_80130dc0(obj);
     } else if ((obj->field_130 & 0x8000) == 0) {
         obj->state_3 = 2;
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
         obj->vel_x = 0x90000;
         obj->accel_x = -0x8000;
         func_80130dc0(obj);

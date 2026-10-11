@@ -14,7 +14,7 @@ void func_801b1068_slot04_07(Object *obj) {
     if (obj->field_129 == 0) {
         if (obj->field_12a == 2 && (obj->field_130 & 0x4000)) {
             obj->vel_x >>= 1;
-            func_801204f4(obj, obj->side, 7);
+            play_side_sound_at(obj, obj->side, 7);
             func_801307e0(obj, 0x1f);
             return;
         }

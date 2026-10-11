@@ -10,8 +10,8 @@ void func_801b2738_slot04_0b(Object *obj) {
     if ((u8)obj->step_flags == 2) {
         obj->field_45 = 1;
         obj->state_3++;
-        func_801204f4(obj, obj->side, 0xf);
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 0xf);
+        play_side_sound_at(obj, obj->side, 8);
         if (obj->field_0b == 0) {
             obj->pos_x -= 0x28;
         } else {

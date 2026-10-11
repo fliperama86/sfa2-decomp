@@ -17,7 +17,7 @@ void func_801b4ba0_slot04_02(Object *obj) {
     obj->accel_x = 0;
     obj->state_3 = 0xc;
     func_80141f28(obj, 8);
-    func_80120554(p, p->side, 0x31a);
+    play_sound_at(p, p->side, 0x31a);
     func_801307e0(obj, 0x57);
     func_80141e5c(obj);
 }

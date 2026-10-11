@@ -24,14 +24,14 @@ void func_801b1944_slot04_06(Object *o) {
             t += 3;
         }
         if ((u8)func_80140cd8(o, data_801c535c_slot04_06[t], 0) != 0) {
-            func_80120554(o, o->side, 0x319);
+            play_sound_at(o, o->side, 0x319);
             if (o->field_49 != 0) {
                 o->field_255 = 6;
                 game_state.field_6b = 0;
                 func_80147000(o);
             }
         } else {
-            func_80120554(o, o->side, 0x319);
+            play_sound_at(o, o->side, 0x319);
         }
         o->pos_y = o->field_70;
         o->field_45 = 0;

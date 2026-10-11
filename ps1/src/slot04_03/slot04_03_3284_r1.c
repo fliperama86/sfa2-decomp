@@ -9,7 +9,7 @@ void func_801b3284_slot04_03(Object *obj) {
     if ((obj->field_c2 & 0x8000) == 0) {
         obj->field_0b = 1;
     }
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);
     func_801307e0(obj, 0x18);
 }
@@ -19,9 +19,9 @@ void func_801b32f8_slot04_03(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         game_state.field_63 = 0x30;
         if ((func_80140cd8(obj, 0x10, 0) & 0xff) != 0) {
-            func_80120554(obj, obj->side, 0x34b);
+            play_sound_at(obj, obj->side, 0x34b);
         } else {
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
         }
         func_80146960(obj);
     }

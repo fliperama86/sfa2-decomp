@@ -52,7 +52,7 @@ void func_801b675c_slot04_11(Object *obj) {
     obj->field_9c = data_80173c9c;
     func_801b6ca4_slot04_11(obj);
     o = ref_other.p->other;
-    func_801204f4(o, o->side, 0xf);
+    play_side_sound_at(o, o->side, 0xf);
     ((Slot04bObj *)obj)->field_47 = ref_other.p->field_28c;
     func_801b6cf4_slot04_11(obj);
     func_801b6f28_slot04_11(obj);

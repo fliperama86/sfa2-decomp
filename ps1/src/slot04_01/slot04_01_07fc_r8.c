@@ -12,7 +12,7 @@ void func_801b11cc_slot04_01(Object *o) {
 
     o->field_17b = 1;
     o->state_3++;
-    func_801204f4(o, obj->field_a6, 0xb);
+    play_side_sound_at(o, obj->field_a6, 0xb);
     func_80141f28(o, 9);
     func_80138ae8(&game_state, o);
     o->accel_x = -0x8000;

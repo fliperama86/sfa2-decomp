@@ -79,7 +79,7 @@ void func_801b0194_slot04_14(Object *obj) {
         if ((t & 0xff00) == 0x100) {
             obj->step_flags = t & 0x80ff;
             game_state.field_63 = 0x18;
-            func_801204f4(obj, obj->side, 0xe);
+            play_side_sound_at(obj, obj->side, 0xe);
             c = (Object *)func_8011f1e0();
             if (c != 0) {
                 c->field_00 = 1;

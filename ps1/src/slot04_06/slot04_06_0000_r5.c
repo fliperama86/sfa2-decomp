@@ -22,7 +22,7 @@ void func_801b08b4_slot04_06(Object *obj) {
         func_80131468(obj);
     } else {
         if ((s16)obj->step_flags == 3) {
-            func_80120554(obj, obj->side, 0x324);
+            play_sound_at(obj, obj->side, 0x324);
         }
         if ((s16)obj->step_flags == 2 && obj->vel_x >= 0) {
             func_801b4818_slot04_06(obj);

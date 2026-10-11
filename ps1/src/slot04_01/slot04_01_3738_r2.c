@@ -9,8 +9,8 @@ void func_801b3918_slot04_01(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->field_46 = 0xa;
     func_80141f28(obj, 4);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
-    func_801204f4(obj, obj->side, 6);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    play_side_sound_at(obj, obj->side, 6);
     if (obj->vel_x != 0) {
         obj->field_0b = (u32)obj->vel_x >> 31;
     }

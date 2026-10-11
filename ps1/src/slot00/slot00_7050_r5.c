@@ -36,5 +36,5 @@ void func_800774f0_slot00(Object *obj) {
         n->field_7c = p->field_7c;
         n->field_66 = p->side;
     }
-    func_801204f4(p, p->side, 0x15);
+    play_side_sound_at(p, p->side, 0x15);
 }

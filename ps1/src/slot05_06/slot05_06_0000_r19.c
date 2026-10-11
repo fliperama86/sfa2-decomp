@@ -27,7 +27,7 @@ void func_801c9880_slot05_06(Object *o) {
         o->vel_x = 0x18000;
         o->vel_y = -0x80000;
         o->state_3++;
-        func_801204f4(o, o->side, 4);
+        play_side_sound_at(o, o->side, 4);
         func_801307e0(o, 0x20);
     }
 }

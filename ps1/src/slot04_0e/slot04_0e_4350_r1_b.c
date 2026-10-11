@@ -45,7 +45,7 @@ void func_801b44bc_slot04_0e(Object *o) {
         o->vel_y = 0;
         o->accel_y = 0xffff4000;
         o->field_12c = o->field_12c + 1;
-        func_801204f4(o, o->side, 0x14);
+        play_side_sound_at(o, o->side, 0x14);
     }
 }
 
@@ -75,8 +75,8 @@ void func_801b45e8_slot04_0e(Object *obj) {
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
         obj->pos_y = obj->field_70;
-        func_801204f4(obj, obj->side, 0x12);
-        func_801204f4(obj, obj->side, 6);
+        play_side_sound_at(obj, obj->side, 0x12);
+        play_side_sound_at(obj, obj->side, 6);
     }
     update_sequence(obj);
 }
@@ -114,7 +114,7 @@ void func_801b4784_slot04_0e(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 2) {
         *(u8 *)&obj->step_flags = 1;
-        func_801204f4(obj, obj->side, 0x13);
+        play_side_sound_at(obj, obj->side, 0x13);
     }
     if (*(u8 *)&obj->step_flags == 0) {
         func_801b49c8_slot04_0e(obj);

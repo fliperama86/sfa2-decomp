@@ -17,10 +17,10 @@ void func_801b3530_slot04_03(Object *obj) {
         func_80146478(obj, 2, 0, 0x40);
         if ((func_80140cd8(obj, 0x10, 0) & 0xff) != 0) {
             ref_other.p = obj->other;
-            func_80120554(ref_other.p, ref_other.p->side, 0x336);
+            play_sound_at(ref_other.p, ref_other.p->side, 0x336);
         } else {
             ref_other.p = obj->other;
-            func_80120554(ref_other.p, ref_other.p->side, 0x304);
+            play_sound_at(ref_other.p, ref_other.p->side, 0x304);
         }
         func_801307e0(obj, 0x1a);
     }

@@ -23,10 +23,10 @@ void func_801b4d84_slot04_10(Object *obj) {
             obj->accel_x = 0;
             func_801307e0(obj, 0x32);
         } else if (func_8013ffe4(obj, -0x3e, 0x18, 0x40, 0x1a) != 0) {
-            func_80120554(obj, obj->side ^ 1, 0x31a);
+            play_sound_at(obj, obj->side ^ 1, 0x31a);
             func_80145f98(obj);
             if (obj->field_12a == 4) {
-                func_801204f4(obj, obj->side, 7);
+                play_side_sound_at(obj, obj->side, 7);
                 obj->state_3 = 0xe;
                 func_801307e0(obj, 0x37);
             } else if (obj->field_12a == 2) {

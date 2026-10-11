@@ -26,6 +26,6 @@ void func_800795f8_slot2b(Object *o) {
         n->field_66 = o->field_66;
         n->field_98 = o->field_98;
         n->field_9c = o->field_9c;
-        func_801204f4(o, p->side, 0xf);
+        play_side_sound_at(o, p->side, 0xf);
     }
 }

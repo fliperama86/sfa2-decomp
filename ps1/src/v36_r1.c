@@ -28,8 +28,8 @@ void func_801321e8(Object *object) {
     }
     index = table[index];
     if (index & 0xff00) {
-        func_80120554(object, object->side, index);
+        play_sound_at(object, object->side, index);
     } else {
-        func_801204f4(object, object->side, index);
+        play_side_sound_at(object, object->side, index);
     }
 }
