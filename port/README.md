@@ -773,7 +773,7 @@ function of the character module `slot04_0f` is placed a second time in its
 function on 2026-10-11, `func_801347b4`, and a fourteenth the same day,
 `func_80141534`; a build of the source with both prints
 `functions overridden in C: 15`. A fifteenth followed that day,
-`func_8013bfa4`.) The one
+`func_8013bfa4`, and a sixteenth, `func_80120604`.) The one
 function of the game and its modules that the build still counts as
 without C is the entry code (`--list` names it: `func_80118908`), which is
 hand-written assembly that the program does not run. The
