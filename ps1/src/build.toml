@@ -8,6 +8,7 @@ sha256 = "0a522fd4791edfe95150edea057ca7113b8d0e93ed085be6854c042012c4a2a2"
 cpp = "clang"
 maspsx = "~/Projects/references/maspsx/maspsx.py"
 maspsx_commit = "e85ecb373828aabea96d7e6400974d4f91ce8c74"
+maspsx_patches = ["../tools/patches/maspsx/0001-nop-before-li-into-loaded-register.patch"]
 # 2.21 or older: the original uses addiu and a nop in $at expansions.
 aspsx_version = "2.21"
 binutils_prefix = "mipsel-linux-gnu-"
@@ -8943,6 +8944,15 @@ flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "_spu_reset", address = 0x8016b6f8, size = 144 },
 ]
+
+[[unit]]
+name = "sdk_libspu_spu_init"
+source = "sdk/libspu/spu_init.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_spu_init", address = 0x8016b788, size = 1464 },
+]
+rodata = { address = 0x8016e574, size = 16 }
 
 [[unit]]
 name = "sdk_libspu_spu_p2"

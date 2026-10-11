@@ -2813,6 +2813,7 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
             "cc1_table": "cc1",
             "maspsx_commit": "c" * 40,
             "maspsx_script": "m.py",
+            "maspsx_patches": ["f" * 64],
             "aspsx_version": "2.21",
             "as_flags": list(matchbuild.AS_FLAGS),
             "as_version": "GNU assembler 1",
@@ -4235,6 +4236,205 @@ def make_runner_unit_cases(config_path: Path) -> list[CacheCase]:
     ]
 
 
+def make_maspsx_patch_unit_cases(config_path: Path) -> list[CacheCase]:
+    """The patch files of `[toolchain] maspsx_patches`: how the list is read, how the export applies them, and what
+    the configuration's own patches do to the pinned maspsx."""
+    import types
+
+    def git(cwd: Path, *args: str) -> str:
+        return subprocess.run(
+            ["git", "-c", "user.name=selftest", "-c", "user.email=selftest@example.invalid", *args],
+            cwd=cwd, capture_output=True, text=True, check=True,
+        ).stdout.strip()
+
+    def repo_with_script(root: Path, text: str) -> tuple[Path, str]:
+        repo = root / "maspsx-repo"
+        repo.mkdir()
+        git(repo, "init", "-q")
+        (repo / "tool.py").write_text(text)
+        git(repo, "add", "tool.py")
+        git(repo, "commit", "-q", "-m", "one")
+        return repo, git(repo, "rev-parse", "HEAD")
+
+    def patch_file(root: Path, name: str, old: str, new: str) -> Path:
+        path = root / name
+        path.write_text(
+            "a line of explanation before the diff\n\n"
+            f"--- a/tool.py\n+++ b/tool.py\n@@ -1,3 +1,3 @@\n first\n-{old}\n+{new}\n last\n"
+        )
+        return path
+
+    def stub(repo: Path, commit: str, patches: tuple[Path, ...]):
+        return types.SimpleNamespace(maspsx=repo / "tool.py", maspsx_commit=commit, maspsx_patches=patches)
+
+    def applied(root: Path):
+        repo, commit = repo_with_script(root, "first\nsecond\nlast\n")
+        patch = patch_file(root, "one.patch", "second", "patched")
+        build = root / "build"
+        build.mkdir()
+        errors, record, script = matchbuild.export_maspsx(stub(repo, commit, (patch,)), build)
+        if errors or script is None:
+            return f"a patch that applies must give no error: {errors}"
+        if script.read_text() != "first\npatched\nlast\n":
+            return f"the exported script is not the patched one: {script.read_text()!r}"
+        if (repo / "tool.py").read_text() != "first\nsecond\nlast\n" or git(repo, "status", "--porcelain"):
+            return "the checkout was changed"
+        want = [{"file": "one.patch", "sha256": hashlib.sha256(patch.read_bytes()).hexdigest()}]
+        if record.get("patches") != want or "patches applied" not in record.get("executed", ""):
+            return f"the record does not name the patch: {record}"
+        return None
+
+    def without_patches(root: Path):
+        repo, commit = repo_with_script(root, "first\nsecond\nlast\n")
+        build = root / "build"
+        build.mkdir()
+        errors, record, script = matchbuild.export_maspsx(stub(repo, commit, ()), build)
+        if errors or script is None or script.read_text() != "first\nsecond\nlast\n":
+            return f"an export without patches must be the commit's text: {errors}"
+        if record.get("patches") != [] or record.get("executed") != "export of the pinned commit":
+            return f"the record of an export without patches is wrong: {record}"
+        return None
+
+    def not_applying(root: Path):
+        repo, commit = repo_with_script(root, "first\nsecond\nlast\n")
+        patch = patch_file(root, "stale.patch", "not in the file", "patched")
+        build = root / "build"
+        build.mkdir()
+        errors, _record, script = matchbuild.export_maspsx(stub(repo, commit, (patch,)), build)
+        if script is not None or not errors or "stale.patch" not in errors[0] or "does not apply" not in errors[0]:
+            return f"a patch that does not apply must be an error that names it: {errors}"
+        return None
+
+    def in_order(root: Path):
+        repo, commit = repo_with_script(root, "first\nsecond\nlast\n")
+        one = patch_file(root, "one.patch", "second", "patched")
+        two = patch_file(root, "two.patch", "patched", "patched twice")
+        build = root / "build"
+        build.mkdir()
+        errors, record, script = matchbuild.export_maspsx(stub(repo, commit, (one, two)), build)
+        if errors or script is None or script.read_text() != "first\npatched twice\nlast\n":
+            return f"two patches must apply in the order given: {errors}"
+        if [entry["file"] for entry in record["patches"]] != ["one.patch", "two.patch"]:
+            return f"the record must keep the order: {record['patches']}"
+        build2 = root / "build2"
+        build2.mkdir()
+        errors2, _record2, script2 = matchbuild.export_maspsx(stub(repo, commit, (two, one)), build2)
+        if script2 is not None or not errors2:
+            return "the other order must fail: the second patch needs the first"
+        return None
+
+    def list_reading(root: Path):
+        (root / "a.patch").write_text("x")
+        cases = [
+            ({}, 0, 0),
+            ({"maspsx_patches": []}, 0, 0),
+            ({"maspsx_patches": ["a.patch"]}, 1, 0),
+            ({"maspsx_patches": "a.patch"}, 0, 1),
+            ({"maspsx_patches": [""]}, 0, 1),
+            ({"maspsx_patches": [3]}, 0, 1),
+            ({"maspsx_patches": ["missing.patch"]}, 1, 1),
+            ({"maspsx_patches": ["a.patch", "a.patch"]}, 2, 1),
+        ]
+        for table, count, n_errors in cases:
+            errors: list[str] = []
+            paths = matchbuild._get_patches(table, root, errors)
+            if len(paths) != count or len(errors) != n_errors:
+                return f"{table}: {len(paths)} path(s) and {len(errors)} error(s), expected {count} and {n_errors}: {errors}"
+        errors = []
+        (path,) = matchbuild._get_patches({"maspsx_patches": ["a.patch"]}, root, errors)
+        if path != root / "a.patch":
+            return f"a relative name must be taken from the configuration's directory: {path}"
+        return None
+
+    def key_input(root: Path):
+        cfg = types.SimpleNamespace(cc1=types.SimpleNamespace(name="cc1"), aspsx_version="2.21", expand_div=False)
+        unit = types.SimpleNamespace(name="u", flags=("-O2",))
+        def tools(patches):
+            return {
+                "cc1": {"sha256": "b" * 64},
+                "maspsx": {"pinned_commit": "c" * 40, "script": "m.py", "patches": patches},
+                "as": {"version": "v", "sha256": "d" * 64},
+                "python_executable": {"version": "3", "sha256": "e" * 64},
+            }
+        keys = [
+            matchbuild.cache_key(matchbuild.cache_key_inputs(cfg, tools(patches), unit, "a" * 64, Path("m.py")))
+            for patches in ([], [{"file": "one.patch", "sha256": "1" * 64}], [{"file": "one.patch", "sha256": "2" * 64}])
+        ]
+        if len(set(keys)) != 3:
+            return "the cache key must change with the patches' contents"
+        renamed = matchbuild.cache_key(
+            matchbuild.cache_key_inputs(cfg, tools([{"file": "other-name.patch", "sha256": "1" * 64}]), unit, "a" * 64, Path("m.py"))
+        )
+        if renamed != keys[1]:
+            return "a patch file's name must not enter the key, only its content"
+        return None
+
+    def configured(root: Path):
+        """The patches that the configuration names apply to the commit it pins, and do what their text says."""
+        cfg_errors: list[str] = []
+        parsed = tomllib.loads(config_path.read_text())
+        tool_t = parsed.get("toolchain", {})
+        patches = matchbuild._get_patches(tool_t, config_path.parent, cfg_errors)
+        if cfg_errors:
+            return f"the configuration's patch list is not valid: {cfg_errors}"
+        if not patches:
+            return "the configuration names no patch: this case has nothing to show"
+        script_path = matchbuild._expand(tool_t["maspsx"], config_path.parent)
+        build = root / "build"
+        build.mkdir()
+        cfg = types.SimpleNamespace(maspsx=script_path, maspsx_commit=tool_t["maspsx_commit"], maspsx_patches=patches)
+        errors, record, script = matchbuild.export_maspsx(cfg, build)
+        if errors or script is None:
+            return f"the configuration's patches must apply to the pinned commit: {errors}"
+        if len(record["patches"]) != len(patches):
+            return f"the record must list every patch: {record['patches']}"
+
+        def convert(lines: list[str], version: str) -> list[str]:
+            proc = subprocess.run(
+                [sys.executable, str(script), f"--aspsx-version={version}"],
+                input="\n".join(lines) + "\n", capture_output=True, text=True,
+                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+            )
+            if proc.returncode != 0:
+                raise RuntimeError(proc.stderr.strip()[-300:])
+            out = []
+            for line in proc.stdout.splitlines():
+                code = line.split("#")[0].strip()
+                if code:
+                    out.append(code.replace("\t", " "))
+            return out
+
+        def nops_between(first: str, second: str, version: str) -> int:
+            lines = ["\t.text", "\t.set\tnoreorder", "\t.ent\tf", "f:", f"\t{first}", "\t#nop", f"\t{second}", "\tj\t$31", "\t.end\tf"]
+            out = convert(lines, version)
+            a = next(i for i, line in enumerate(out) if line.startswith(first.split("\t")[0] + " "))
+            b = next(i for i, line in enumerate(out) if i > a and line.split(" ")[0] in ("li", "ori", "addiu", "lui", "addu", "move"))
+            return sum(1 for line in out[a + 1:b] if line == "nop")
+
+        load = "lhu\t$2,396($3)"
+        checks = [
+            ("an li into the loaded register, assembler 2.21", load, "li\t$2,0x0000ffff", "2.21", 1),
+            ("an li into another register, assembler 2.21", load, "li\t$4,0x0000ffff", "2.21", 0),
+            ("an li into the loaded register, assembler 2.34", load, "li\t$2,0x0000ffff", "2.34", 0),
+            ("an add that only writes the loaded register, assembler 2.21", load, "addu\t$2,$4,$5", "2.21", 0),
+        ]
+        for what, first, second, version, want in checks:
+            got = nops_between(first, second, version)
+            if got != want:
+                return f"{what}: {got} nop(s) between the two instructions, expected {want}"
+        return None
+
+    return [
+        CacheCase("unit-maspsx-patch-applied", applied),
+        CacheCase("unit-maspsx-patch-none", without_patches),
+        CacheCase("unit-maspsx-patch-not-applying", not_applying),
+        CacheCase("unit-maspsx-patch-order", in_order),
+        CacheCase("unit-maspsx-patch-list", list_reading),
+        CacheCase("unit-maspsx-patch-key", key_input),
+        CacheCase("unit-maspsx-patch-configured", configured),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/src/build.toml")
@@ -4261,7 +4461,8 @@ def main() -> int:
     caches = select_cases(make_cache_cases(parsed) + make_fndiff_cases(cfg_dir, parsed) + make_second_map_cases(cfg_dir, parsed) + make_second_fndiff_cases(cfg_dir, parsed) + make_moved_symbol_fndiff_cases(cfg_dir, parsed), args.only)
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
-        + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path), args.only
+        + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path)
+        + make_maspsx_patch_unit_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

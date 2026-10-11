@@ -1,0 +1,29 @@
+maspsx: a nop after a load when the next instruction is an li into the loaded register
+
+For the assembler versions before 2.30 only (the switch that already puts a
+nop between two loads into one register, nop_lw_lw). The original assembler
+of this game's library (version 2.21 in this project's configuration) has a
+nop between `lhu $2,396($3)` and `li $2,0xffff` in _spu_init at 0x8016bb58,
+the one place of the game where a load is followed by an li into the same
+register; the compiler prints `#nop` there and leaves the choice to the
+assembler. With this rule the function builds to the original's bytes, and
+no other unit of the build changes.
+
+This file is a change to maspsx (https://github.com/mkst/maspsx, MIT license,
+Copyright (c) 2023 Mark Street), against the commit that `build.toml` pins.
+The build applies it to its export of that commit; the checkout is not touched.
+
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ -112,6 +112,11 @@
+         if re.match(rf"^{r_source},.*$", rest):
+             return True
+ 
++    elif op == "li":
++        # ASPSX < 2.30 behaviour: li into the register that was just loaded
++        if loads_to_reg and re.match(rf"^{r_source},.*$", rest):
++            return True
++
+     elif op == "lwc2":
+         # lwc2 $5, 4( $4 )
+         if re.match(rf"^.*\(\s*{r_source}\s*\)$", rest):

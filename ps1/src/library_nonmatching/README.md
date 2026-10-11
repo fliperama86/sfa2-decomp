@@ -27,18 +27,6 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 
 ## The functions and where they come from
 
-- `func_8016b788` (`_spu_init`, the sound chip's reset): written by this
-  project from the listing of the original. The reference that the SDK files
-  come from has an `_spu_init` of another version of the library; it was read
-  for the names of the chip's registers and none of its text is used. No
-  license line. Its contract has the limits of a test without the chip; they
-  are stated in the header (the test gives both runs plain memory in place of
-  the chip's registers and models no register that answers by itself). It
-  names two variables of the library that `../symbols.ld` did not name,
-  `D_80033514` (a pointer; inferred to point at the DMA control register) and
-  `D_80033540` (a 16-byte table),
-  and the two lines that name them are added there. It is declared `void`, as
-  `../protos.h` declares it.
 - `func_80163794` (`SpuVmSetVol`, the volume of the voices of one sequence):
   adapted in outline from the function `SpuVmSetVol` of the same file of
   sotn-decomp (the call, the loop over matching voices, the two output cells);
@@ -96,7 +84,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_8016b788`.
+- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`.
 
 What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
 
@@ -130,8 +118,6 @@ func_80163794: built 960 bytes, original 964 bytes; cases 2000, discarded 0, equ
 func_80163794 coverage: 241 of 241 instruction slots of the original executed
 func_80167388: built 1124 bytes, original 1504 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80167388 coverage: 301 of 376 instruction slots of the original executed
-func_8016b788: built 1328 bytes, original 1464 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8016b788 coverage: 366 of 366 instruction slots of the original executed
 func_80165d84: built 840 bytes, original 960 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80165d84 coverage: 233 of 240 instruction slots of the original executed
 ```
@@ -143,8 +129,6 @@ func_80163794 control: different 113 of 2000 (expected more than 0)
   altered: first of 3 pan tests compares with 0x41, instruction slot 140
 func_80167388 control: different 266 of 2000 (expected more than 0)
   altered: constant 0x1e becomes 0x1f, instruction slot 53
-func_8016b788 control: different 2000 of 2000 (expected more than 0)
-  altered: control register receives 0xc001, instruction slot 320
 func_80165d84 control: different 2000 of 2000 (expected more than 0)
   altered: pan value 0x40 becomes 0x41, instruction slot 6
 ```
@@ -154,7 +138,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 ```
 func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80165d84 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
