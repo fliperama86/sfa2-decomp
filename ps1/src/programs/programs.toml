@@ -23,23 +23,30 @@ functions = [
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
   { name = "func_80011060_logo", address = 0x80011060, size = 148 },
   { name = "func_80010e28_logo", address = 0x80010e28, size = 248 },
+  { name = "func_80010a80_logo", address = 0x80010a80, size = 416 },
   { name = "func_80011794_logo", address = 0x80011794, size = 164 },
 ]
 
 [program.symbols]
 data_8001a678_logo = 0x8001a678
 data_8002eafc_logo = 0x8002eafc
+data_8002eb04_logo = 0x8002eb04
 data_8002eb08_logo = 0x8002eb08
 data_8002eb00_logo = 0x8002eb00
 data_8002eb10_logo = 0x8002eb10
 data_8002eb14_logo = 0x8002eb14
+data_8002eb20_logo = 0x8002eb20
 data_8002eb24_logo = 0x8002eb24
+data_8002eb2c_logo = 0x8002eb2c
+data_8002eb30_logo = 0x8002eb30
 data_8002eb34_logo = 0x8002eb34
 data_8002eb38_logo = 0x8002eb38
 data_8002eb3c_logo = 0x8002eb3c
 data_8002eb40_logo = 0x8002eb40
+data_8002eb44_logo = 0x8002eb44
 data_8002eb50_logo = 0x8002eb50
 data_8002eb8c_logo = 0x8002eb8c
+data_8002ebb4_logo = 0x8002ebb4
 data_8002edb8_logo = 0x8002edb8
 # The program's own copies of library routines (the game's names for them are those of the resident copies).
 DecDCTout = 0x80011990
@@ -61,3 +68,12 @@ StUnSetRing = 0x80018744
 CdReady = 0x80015fc4
 CdGetSector = 0x80016428
 DecDCToutCallback = 0x80011a14
+DecDCTReset = 0x80011860
+DecDCTvlc = 0x800118c4
+StSetRing = 0x80019480
+StSetStream = 0x80018860
+StGetNext = 0x80019510
+StFreeRing = 0x8001963c
+CdControl = 0x8001602c
+CdRead2 = 0x800187bc
+CdPosToInt = 0x80016634

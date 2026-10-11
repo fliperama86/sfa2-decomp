@@ -102,6 +102,10 @@ func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, 
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
 func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
+func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
+func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
 func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
 func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -149,6 +153,7 @@ The negative control (`--control`):
 ```
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
+func_80010a80_logo control: different 1544 of 2000 (expected more than 0)
 func_80010e28_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
@@ -168,6 +173,8 @@ func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -197,6 +204,8 @@ func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010928_logo replay: fixtures 1, passed 1, failed 0
 func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
+func_80010a80_logo fixtures: kept 8 of 2000 cases (slots 1, edges 7, results 0)
+func_80010a80_logo replay: fixtures 8, passed 8, failed 0
 func_80010e28_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010e28_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -298,3 +307,24 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   flip). All callees are recorders in the test, `CdControlB` with its results
   scripted for both loops; the recorder of the flip stores a new value in the
   index word, so that the second turn reads another value than the first.
+- `func_80010a80_logo`: starts the movie's stream at a sector and takes the
+  first frame (inferred). Clears three words (`0x8002eb20`, `0x8002eb3c`,
+  `0x8002eb2c`), then `DecDCTReset(0)`, `DecDCToutCallback` with
+  `func_80010f38_logo`, `StSetRing` with the pointer at `0x8002eb04` and 15,
+  `StSetStream(1, 1, 0x0fffffff, 0, 0)`, sets the two filter bytes at
+  `0x8002eb44` to 1 and calls `CdIntToPos(sector, 0x8002ebb4)`. Then a loop
+  that starts again when `CdControl(0x0d, ...)`, `CdControl(0x15, ...)` or
+  `CdRead2(0x1e8)` returns 0, calls `CdControlB(1, 0, res)` until it returns a
+  value that is not 0 and again while bit 0x20 of `res[0]` is clear, then
+  `CdControlB(0x11, 0, res)` until it returns a value that is not 0, and takes
+  `pos = CdPosToInt(res + 5)`; it starts again when `pos` is below
+  `sector - 100` (signed) or `sector + 5` is below `pos` (unsigned). After the
+  loop it calls `StGetNext(&addr, &hdr)` until it returns 0, stores `hdr[2]`
+  in the word at `0x8002eb30`, calls `DecDCTvlc(addr, b)` with `b` the pointer
+  of the table at `0x8002eb08` named by the word at `0x8002eb20`, then
+  `StFreeRing(addr)`, and returns 0. All callees are recorders in the test
+  with scripted results; `CdControlB` stores the status byte through `res`
+  and `StGetNext` the two pointers (fills). The pointers to the locals are
+  logged, so the test passes only while the C's frame is the size of the
+  original's: the C keeps 0x1e8 in a local for that. The fixtures file is
+  the largest of the folder after the one of `func_800111d0_logo`.

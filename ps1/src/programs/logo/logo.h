@@ -37,9 +37,19 @@ extern void StUnSetRing(void);
 extern int CdReady(int mode, u8 *result);
 extern void CdGetSector(void *madr, int size);
 extern void *DecDCToutCallback(void (*func)(void));
+extern void DecDCTReset(int mode);
+extern int DecDCTvlc(u32 *bs, u32 *buf);
+extern u32 *StSetRing(u32 *ring, int size);
+extern int StSetStream(int mode, int start, int end, void (*func1)(void), void (*func2)(void));
+extern int StGetNext(u32 **addr, u32 **header);
+extern int StFreeRing(u32 *base);
+extern int CdControl(u8 com, u8 *param, u8 *result);
+extern int CdRead2(int mode);
+extern int CdPosToInt(u8 *p);
 
 /* The program's own functions that other functions call. */
 extern void func_80010a38_logo(void);
+extern void func_80010f38_logo(void);
 extern void func_80011060_logo(void);
 
 /* The game's DispEnv (types.fields) is the 20 byte display environment of the library; the program's two
@@ -51,14 +61,21 @@ extern long SetVideoMode(long mode);
 /* gp + 0x00: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_80010e28_logo. */
 extern u8 data_8002eafc_logo;
 /* gp + 0x0c: two buffers (inferred: pointers; the first is the one CdGetSector is handed, the table is indexed by data_8002eb20_logo in func_80010a80_logo). */
-extern u8 *data_8002eb08_logo[2];
+extern u32 *data_8002eb08_logo[2];
 /* gp + 0x04: the buffer the decoder writes a strip to (inferred). */
 extern u32 *data_8002eb00_logo;
+/* gp + 0x08: the ring the stream is set up on (inferred from the call to StSetRing). */
+extern u32 *data_8002eb04_logo;
 /* gp + 0x14: where the expansion of run-length data writes (inferred); the
    still picture's three-word pattern is read from it by func_800111d0_logo. */
 extern u8 *data_8002eb10_logo;
 /* gp + 0x18: a block of memory that a picture is built in (inferred). */
 extern u32 *data_8002eb14_logo;
+/* gp + 0x24: the index (0 or 1) of the buffer in data_8002eb08_logo that the next frame is decoded into (inferred). */
+extern int data_8002eb20_logo;
+/* gp + 0x30 and gp + 0x34: the frame number of the stream's previous and current frame (inferred: 0x8002eb30 is read from word 2 of a frame's header). */
+extern int data_8002eb2c_logo;
+extern int data_8002eb30_logo;
 /* gp + 0x28: the rectangle of the picture that the next strip goes to (inferred). */
 extern Rect data_8002eb24_logo;
 /* gp + 0x38: not 0 sets the disc volume to left and right apart (inferred). */
@@ -69,10 +86,14 @@ extern int data_8002eb38_logo;
 extern volatile int data_8002eb3c_logo;
 /* gp + 0x44: the four volume bytes handed to CdMix (inferred from the call). */
 extern u8 data_8002eb40_logo[4];
+/* gp + 0x48: the filter of the disc, file and channel, both 1 (inferred from its use in CdControl(0x0d, ...)). */
+extern u8 data_8002eb44_logo[2];
 /* gp + 0x54: the index (0 or 1) of the display environment shown (inferred). */
 extern int data_8002eb50_logo;
 /* Two display environments of 20 bytes each (inferred from the stride). */
 extern u8 data_8002eb8c_logo[2][20];
+/* A disc position, four bytes (inferred: the place CdIntToPos writes and CdControl(0x15, ...) reads). */
+extern u8 data_8002ebb4_logo[4];
 /* A flag word: not 0 asks for StCdInterrupt (inferred). */
 extern int data_8002edb8_logo;
 
