@@ -787,11 +787,11 @@ A stand-alone program of the disc (an executable that the game starts with
 `Exec`, declared in `ps1/src/programs/programs.toml`) can be built into the
 PC program from its C in `ps1/src/programs/NAME/`. The build reads only the
 programs that the port's own list, [`programs.toml`](programs.toml), names;
-`--programs FILE` gives another list. The list in the tree names none, and
-says why: the logo is listed when all its functions have C and every library
-routine it calls is bound or is a name of the game. The build then prints one
-more line before `linked:`, `programs built in: 0`; with a program listed it
-adds one line per program with its name and its number of functions.
+`--programs FILE` gives another list. The list in the tree names the logo's
+program. The build prints one more line before `linked:`, `programs built
+in: 1`, and one line per program with its name and its number of functions
+(`program logo: 16 functions`); with no program listed the first says 0 and
+nothing follows it.
 
 One `[[program]]` table of the list per program holds `name`, `main` (one of
 the declaration's functions), optionally `setup` and `teardown` (arrays of
@@ -841,9 +841,8 @@ the game's own units held no such name in one build of 2026-10-10 (read with
 program's objects lie between the two text markers, and the end checks know the aliases and the
 bound names.
 
-The runtime's side (starting the program from `Exec`) is not in this change:
-`port_programs[]` in `port_tables.h` is generated, empty today, and nothing
-reads it yet.
+The runtime's side, starting the program from `Exec`, reads the generated
+`port_programs[]` of `port_tables.h`: see "Built-in programs" below.
 
 ### Running it
 
@@ -2611,10 +2610,11 @@ Sony's retries are not modelled. The read starts where the disc layer's
 drive is, which is the program's last seek because it sends one before
 every read; Sony's routine would send its last Setloc again.
 `CdReadSync(0)` waits by `port_tick` with the disc layer's limit of 600,
-counted in vblanks (`port_frames`), not in calls of the tick (which returns
-at once but for the last millisecond before a vblank, so a count of calls
-is no clock), and counted again from each sector; another mode returns the
-sectors still to come.
+counted in vblanks (`port_frames`), not in calls of the tick (which sleeps
+only while the next vblank is more than a millisecond away and returns at
+once inside that last millisecond, so a count of calls is no clock), and
+counted again from each sector; another mode returns the sectors still to
+come.
 
 `PadRead` gives the word of port 1 (the runtime's pad frame with the
 input script applied, as `kernel.c` fills the game's buffers; Start is
@@ -2693,7 +2693,7 @@ programs' own copies of the library, and no run on a console was made.
 `port/src/programs.c` (header `programs.h`) lets `Exec` start a program of
 the disc whose C is built into the PC program: a row of the generated table
 `port_programs[]` (`port_tables.h`; `hostbuild.py` writes the table always,
-empty when no program is listed, and no program is listed yet).
+empty when no program is listed; the tree lists the logo's).
 `port_h_Exec` finds the file as before and offers it to
 `port_program_exec(name, sector, size, header)`. The row is found by the
 file's base name (after the last `/` or `\`, without a `;N` suffix, case
@@ -2709,6 +2709,21 @@ a trace line before and after, and `Exec` returns 1. Nothing else is cleaned
 up after main. A file with no row is handled as before: the stop, or with
 `--skip-programs` the `skipped:` line. A built-in program runs whether or
 not `--skip-programs` is given.
+
+The logo. [`programs.toml`](programs.toml) lists the logo's program
+(`PAC/LOGO.EXE`): its main, a setup call that gives the stream calls the
+address of the program's word for a sector put aside (`port_stream_bind`), a
+teardown call that takes it away, and the eighteen library names that the
+game has no routine for, bound to the runtime's (`press.c`, `stream.c`,
+`progcalls.c`). In one start without a window, with the user's disc, the
+program ran to its end and the game went on; video memory held the movie's
+frames. Its movie has no sound yet: the sound chip's model mixes disc audio
+only with its control register's bit 0 set and with a CD volume and a main
+volume, all 0 at the PC program's start, and neither the game nor the logo
+sets them before the movie (on the console the boot code's state is there:
+inferred, the values not sourced). The window's own picture was not seen in
+that run. The opening movie's program and the third program have no C and
+are skipped as before.
 
 The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
 `overrides.c`, the disc layer and a driver of its own, with a made-up table

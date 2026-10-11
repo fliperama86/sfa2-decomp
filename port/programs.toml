@@ -1,7 +1,6 @@
 # The stand-alone programs of the disc (ps1/src/programs/programs.toml) whose C the PC program builds in.
-# Read by port/tools/hostbuild.py (--programs FILE). This list names no program on purpose: the logo is listed
-# when all its functions have C and every library routine it calls is bound below or exists as a name of the game.
-# A program not listed is not built in.
+# Read by port/tools/hostbuild.py (--programs FILE). It lists the logo's program: all its functions have C, and every
+# library routine it calls is bound below or is a name of the game. A program not listed is not built in.
 #
 # One table per program:
 #
@@ -16,3 +15,34 @@
 #
 # setup and teardown are routines of the runtime that are called before main and after it, with the address of the
 # named symbol of the program as their one argument, or with 0 when no symbol is given.
+
+# The logo (PAC/LOGO.EXE). setup gives the stream calls the address of the word that the program's own C reads and clears when
+# a sector was put aside (stream.h: the busy rule); teardown takes it away again. The library names below are the ones the game
+# itself has no routine for: the movie decoder's (press.c), the stream's (stream.c), the plain read, the simple pad calls and
+# SetVideoMode (progcalls.c). The program's other library names are names of the game: a call goes to the game's own address
+# for the name, where the runtime's routine for it stands, or its stop that names the call.
+[[program]]
+name = "logo"
+main = "func_800106fc_logo"
+setup = [ { call = "port_stream_bind", symbol = "data_8002edb8_logo" } ]
+teardown = [ { call = "port_stream_bind" } ]
+
+[program.library]
+DecDCTReset = "port_DecDCTReset"
+DecDCTin = "port_DecDCTin"
+DecDCTout = "port_DecDCTout"
+DecDCToutCallback = "port_DecDCToutCallback"
+DecDCTvlc = "port_DecDCTvlc"
+StSetRing = "port_StSetRing"
+StSetStream = "port_StSetStream"
+StGetNext = "port_StGetNext"
+StFreeRing = "port_StFreeRing"
+StUnSetRing = "port_StUnSetRing"
+StCdInterrupt = "port_StCdInterrupt"
+CdRead2 = "port_CdRead2"
+CdRead = "port_CdRead"
+CdReadSync = "port_CdReadSync"
+PadInit = "port_PadInit"
+PadRead = "port_PadRead"
+PadStop = "port_PadStop"
+SetVideoMode = "port_SetVideoMode"

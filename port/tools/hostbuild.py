@@ -159,7 +159,7 @@ The programs
 A stand-alone program of the disc (an executable that the game starts with `Exec`, declared in
 `ps1/src/programs/programs.toml`, read through `ps1/src/programs/programs.py`) can be built into the PC program. The
 port's own list, `port/programs.toml` (`--programs FILE`; a file that does not exist lists nothing), names the programs
-that are built in; the file in the tree lists none. Per program the list has `name` (a program of the declaration),
+that are built in; the file in the tree lists the logo's. Per program the list has `name` (a program of the declaration),
 `main` (the name of its main function, one of the declaration's functions), optionally `setup` and `teardown` (arrays of
 `{ call = "ROUTINE", symbol = "NAME" }` or `{ call = "ROUTINE" }`: a routine of the runtime called before main and after
 it, with the address of a symbol of the program as its one argument, or 0 without a symbol) and a table
