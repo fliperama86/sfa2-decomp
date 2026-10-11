@@ -74,6 +74,12 @@ behaved as required` (one new: the line of counts is asked for once,
 after everything else, with the program's name, and not after a failed
 check).
 
+Found by the review tool's first run: the rig of `test_hostlaunch.py`,
+which other test files use too, links `programs.c` without `press.c`, with stand-ins
+for the decoder's calls, and had none for the new one, so the first of the
+tool's checks (`test_hostaudio.py`) did not link. The rig has the stand-in
+now, a routine that does nothing.
+
 Seen and not explained: now and then a run of `test_hostprograms.py` has
 one case whose driver ends with status 1 and no line of output, ten
 seconds late (`FAIL NAME: status 1, lines []`, the run 14 seconds long
