@@ -40394,6 +40394,15 @@ functions = [
 ]
 
 [[unit]]
+name = "d1df3c_r1"
+source = "d1df3c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011df3c", address = 0x8011df3c, size = 1676 },
+]
+rodata = { address = 0x8016d920, size = 16 }
+
+[[unit]]
 name = "d20cf0_r2"
 source = "d20cf0_r2.c"
 flags = ["-O2", "-G0"]
