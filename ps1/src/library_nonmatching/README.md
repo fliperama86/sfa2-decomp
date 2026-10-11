@@ -47,15 +47,6 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 - `func_80167388` (`_SsContDataEntry`, a data entry of the sequencer): written
   by this project from the listing. The reference only declares a function of
   this name and has no definition. No license line.
-- `func_80165d84` (inferred `_SsInitSoundSep`, prepares one sequence of a
-  group): written by this project from the listing, with `_SsInitSoundSeq` of
-  `../sdk/libsnd/seqinit.c` as a reading aid and none of its text copied. No
-  license line. The original traps (a break instruction) on four divisions by
-  zero and on one overflow; the setup keeps all of them out and the header
-  says so; the seven slots they take are the ones the test does not execute.
-  Its name has a line in `../symbols.ld`: its caller, `func_80166144`
-  (inferred `SsSepOpen`), is exact C in `../sdk/libsnd/sepopen.c` and calls it
-  by that name.
 
 One file is adapted, as `../sdk/README.md` lists adapted files:
 `func_80163794.c`.
@@ -96,7 +87,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_8016b788`.
+- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_8016b788`.
 
 What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
 
@@ -116,8 +107,9 @@ region and describes it against zeros.
 The three blocks are a record, not an instruction: what the commands
 printed for each function when it was last run. As it stands that is
 the run of 2026-10-10 in which the first four were added, and the runs of the
-same day in which `func_80165d84` was added (and `func_80166144`, which has
-left the folder since: it is exact C in `../sdk/libsnd/sepopen.c`), each run
+same day in which `func_80165d84` and `func_80166144` were added (both have
+left the folder since: they are exact C in `../sdk/libsnd/sepinit.c` and
+`../sdk/libsnd/sepopen.c`), each run
 alone with the commands above (seed 1 for the test and
 the audit; seed 7 gave `different 0` and `outside 0` as well, and the control
 printed what is below). From now on a function's lines change only when that
@@ -132,8 +124,6 @@ func_80167388: built 1124 bytes, original 1504 bytes; cases 2000, discarded 0, e
 func_80167388 coverage: 301 of 376 instruction slots of the original executed
 func_8016b788: built 1328 bytes, original 1464 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8016b788 coverage: 366 of 366 instruction slots of the original executed
-func_80165d84: built 840 bytes, original 960 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80165d84 coverage: 233 of 240 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
@@ -145,8 +135,6 @@ func_80167388 control: different 266 of 2000 (expected more than 0)
   altered: constant 0x1e becomes 0x1f, instruction slot 53
 func_8016b788 control: different 2000 of 2000 (expected more than 0)
   altered: control register receives 0xc001, instruction slot 320
-func_80165d84 control: different 2000 of 2000 (expected more than 0)
-  altered: pan value 0x40 becomes 0x41, instruction slot 6
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
@@ -155,12 +143,7 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80165d84 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
-
-`func_80165d84` executes 233 of 240 slots: the other seven are the
-original's guards for a zero divisor and for an overflowing division, which
-the contract excludes.
 
 `func_80167388` has fewer slots executed than it has: the others are a loop
 over the tones for one value of a byte that an earlier test has already
