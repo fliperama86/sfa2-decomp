@@ -115,6 +115,7 @@ functions = [
   { name = "func_80011428_z2o", address = 0x80011428, size = 48 },
   { name = "func_800119e8_z2o", address = 0x800119e8, size = 60 },
   { name = "func_80010be4_z2o", address = 0x80010be4, size = 84 },
+  { name = "func_800115a8_z2o", address = 0x800115a8, size = 136 },
 ]
 
 [program.symbols]
@@ -127,5 +128,9 @@ data_8002f86c_z2o = 0x8002f86c
 data_8002f870_z2o = 0x8002f870
 data_8002f890_z2o = 0x8002f890
 data_8002f8a9_z2o = 0x8002f8a9
+data_8001b34c_z2o = 0x8001b34c
+data_8001b350_z2o = 0x8001b350
+data_8002f8a4_z2o = 0x8002f8a4
+CdMix = 0x80016910
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654

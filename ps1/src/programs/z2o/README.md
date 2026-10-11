@@ -125,6 +125,10 @@ func_800119e8_z2o: built 60 bytes, original 60 bytes; cases 2000, discarded 0, e
 func_800119e8_z2o coverage: 15 of 15 instruction slots of the original executed
 func_800119e8_z2o: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800119e8_z2o coverage: 15 of 15 instruction slots of the original executed
+func_800115a8_z2o: built 136 bytes, original 136 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800115a8_z2o coverage: 34 of 34 instruction slots of the original executed
+func_800115a8_z2o: built 136 bytes, original 136 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800115a8_z2o coverage: 34 of 34 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
@@ -136,6 +140,7 @@ func_800116c8_z2o control: different 2000 of 2000 (expected more than 0)
 func_80011810_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119b8_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119e8_z2o control: different 2000 of 2000 (expected more than 0)
+func_800115a8_z2o control: different 992 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -153,6 +158,8 @@ func_800119b8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119b8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800115a8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800115a8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -164,12 +171,14 @@ func_800116c8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011810_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800119b8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800119e8_z2o fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
+func_800115a8_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
 func_80010be4_z2o replay: fixtures 1, passed 1, failed 0
 func_80011428_z2o replay: fixtures 1, passed 1, failed 0
 func_800116c8_z2o replay: fixtures 1, passed 1, failed 0
 func_80011810_z2o replay: fixtures 1, passed 1, failed 0
 func_800119b8_z2o replay: fixtures 1, passed 1, failed 0
 func_800119e8_z2o replay: fixtures 12, passed 12, failed 0
+func_800115a8_z2o replay: fixtures 2, passed 2, failed 0
 ```
 
 ## The functions
@@ -198,3 +207,4 @@ register (see above).
   `func_80158470` (the program's copy, at `0x80013654`), then flips the index.
   The call is a recorder in the test; the index is 0 or 1 in four cases of
   five.
+- `func_800115a8_z2o`: sets the volume (inferred: the disc's). Stores its argument in the word `0x8001b34c`, reads the flag word at `0x8001b350` once, and sets the four bytes at `0x8002f8a4` to (arg, 0, arg, 0) when the flag is not 0, else all four to the argument shifted right by one (logical), then calls CdMix with them. CdMix is a recorder in the test.
