@@ -1,49 +1,4 @@
-/*
- * Nonmatching. This function is NOT byte-identical to the original: the
- * built code differs from the original's bytes in instruction scheduling
- * and register choice. The exact owner of the bytes in the PS1 build stays
- * the raw bytes of the module image; the build does not use this file.
- * The differential test next to it (difftest.py) compares the behavior of
- * this C with the original code on random inputs of the contract below.
- *
- * What it does (inferred, not an original name): draws a tile map as
- * sprite records, like func_801e9080_slot06_00 of the first stage. The
- * object selects a layer by its field_0e (8, 4 or 0xc pick one of three
- * layer blocks, any other value uses no layer). For the first layer the
- * object's position is also shifted by a fraction of the layer's own
- * motion: (layer field_12 - layer field_0a) * object field_26 / 128, in
- * signed arithmetic. A header reached through the object's sequence
- * describes a grid of 16-bit cells. For each non-zero cell (low 14 bits)
- * it takes a record from the table, fills in position, texture
- * coordinates, texture page and a command word, and links the record into
- * the list head selected by the object.
- *
- * Contract (what the code reads and writes; the roles named for the
- * fields are inferred):
- *   Argument: a0 = pointer to an object. No return value.
- *   Returns at once, writing nothing, when game_state.field_64 is not 0.
- *   Reads: the object's field_09 (list index), field_0d, field_0e, field_0f,
- *     field_12, field_16, field_26 (signed) and sequence; for field_0e 8, 4
- *     or 0xc the field_12 and field_16 of the matching layer block, and for
- *     8 also its field_0a; game_state.field_92 when field_0f is not 0; the
- *     record counter data_801adfe4 and the buffer selector data_801a27d0
- *     (byte, 0 or 1); the list base pointer data_801987c8 and the list head
- *     word it points at.
- *   Header, at object->sequence->field_04: byte 0 columns, byte 2 rows,
- *     byte 3 a texture page offset, u16 at 4 and 6 the x and y origin, then
- *     rows * columns u16 cells from offset 8. Cell value 0 (low 14 bits) is
- *     skipped.
- *   Record table data_801f6724_slot06_09: 2 buffers of 144 records of 28
- *     bytes. Counter plus the number of records written must stay within
- *     144, selector 0 or 1.
- *   Writes: for each non-zero cell one record (offsets 0, 4, 0x14 to 0x1b),
- *     the list head word, and the record counter.
- *   Aliasing: the object, header, sequence step, list array and record
- *     table are distinct blocks; nothing else is written.
- *   Not reached by any input: two instruction slots of the original, which
- *     adjust the remainder by 256 and the division by 16 for a negative
- *     value; a cell is masked to 14 bits and is never negative.
- */
+/* Reconstruction. Names/roles inferred, not original symbols. */
 #include "../game.h"
 #include "../protos.h"
 #include "../externs.h"
@@ -54,6 +9,17 @@
    the code; not an original declaration. */
 extern Slot06Tile data_801f6724_slot06_09[2][0x90];
 
+/* What it does (inferred, not an original name): draws a tile map as
+   sprite records, like func_801e9080_slot06_00 of the first stage. The
+   object selects a layer by its field_0e (8, 4 or 0xc pick one of three
+   layer blocks, any other value uses no layer). For the first layer the
+   object's position is also shifted by a fraction of the layer's own
+   motion: (layer field_12 - layer field_0a) * object field_26 / 128, in
+   signed arithmetic. A header reached through the object's sequence
+   describes a grid of 16-bit cells. For each non-zero cell (low 14 bits)
+   it takes a record from the table, fills in position, texture
+   coordinates, texture page and a command word, and links the record into
+   the list head selected by the object. */
 void func_801e9840_slot06_09(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
@@ -120,7 +86,11 @@ void func_801e9840_slot06_09(Object *object) {
                 prim->sprt.u = tu;
                 prim->sprt.clut = tpage;
                 prim->sprt.y = y + row * 16 - oy;
-                prim->sprt.v = tv;
+                /* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+                /* Without it this function differs from the original in 13 instruction slots. */
+                do {
+                    prim->sprt.v = tv;
+                } while (0);
                 cw = hi + 0xe100001c;
                 cnt++;
                 prim->mode[0] = cw;
