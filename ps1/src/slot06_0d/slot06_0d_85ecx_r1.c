@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern Slot06Tile data_801eef44_slot06_0d[2][0x145];
-extern Slot06Tile data_801f685c_slot06_0d[];
+extern Slot06Tile data_801f685c_slot06_0d[0x78][2];
 
 void func_801e85ec_slot06_0d(void) {
     int i;
@@ -30,7 +30,7 @@ void func_801e85ec_slot06_0d(void) {
     } while (i < 2);
     i = 0;
     base = (u8 *)data_801f685c_slot06_0d;
-    sp0 = &data_801f685c_slot06_0d->sprt;
+    sp0 = &data_801f685c_slot06_0d[0][0].sprt;
     c = 0x80;
     do {
         j = 0;
