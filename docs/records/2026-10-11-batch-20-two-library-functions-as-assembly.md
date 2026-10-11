@@ -16,6 +16,16 @@
   two are Sony's code; the port compiles none of the library. The
   recommendation was an assembly unit each. His answer: "ok, that sounds
   good to me."
+- A correction of what he was told, after the review of the first head:
+  "the port compiles none of the library" was too broad. The port's
+  normal build with PsyZ compiles the C of the sound library
+  (`sdk/libsnd` and `sdk/libspu`, and the files of
+  `library_nonmatching`; `port/tools/hostbuild.py` selects them, and
+  `port/README.md` has the decision that made sound part of the normal
+  build). What holds, and what his question was about: the port
+  compiles neither of these two units, with sound or without; they are
+  of the timer and memory card parts. He was told of the correction in
+  the session.
 - Why not C: the reference's C for both is known and quoted in each
   file's comment. For `StopRCnt`, GCC 2.5.7 (the compiler of this
   file's `SetRCnt` and `StartRCnt` since batch 19) writes the
@@ -42,9 +52,10 @@
   bytes), each with a comment that gives the C, what the compilers
   give and what is inferred. They carry the reference's MIT line
   because their comment quotes its text.
-- For the port: nothing changes. The PC program compiles no unit of
-  the library; `_card_clear` has a routine of the port since earlier,
-  `StopRCnt` has none.
+- For the port: nothing changes. The PC program compiles neither of
+  these two units (of the library it compiles the sound part only);
+  `_card_clear` has a routine of the port since earlier, `StopRCnt` has
+  none.
 - Other files: `symbols.ld` loses `_card_clear`, which the unit defines
   now (`StopRCnt` had no line). The inventory carries the two names.
   The library page: a line in "What is here" and a paragraph. The build

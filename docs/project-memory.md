@@ -52,9 +52,10 @@ Old figures describe their own date, not today's completion.
   "ok, that sounds good to me" to the proposal of assembly units for
   library functions whose C is known and whose bytes no compiler and
   assembler step of the build gives, after he had asked whether they are
-  Sony's code and whether the port needs them (it does not: the port
-  compiles none of the library). This is for the library's code, not a way
-  around a game function that does not match.
+  Sony's code and whether the port needs them. The port does not compile
+  these two units (of the library it compiles the sound part's C, in its
+  normal build with PsyZ, and nothing else). This is for the library's
+  code, not a way around a game function that does not match.
 - Use a branch and PR for changes. Poll owner comments every 60 seconds while
   active. Only the owner's account can approve; a plain comment is approval.
   A reviewer posts comments, not formal reviews. Check actual child exits.
