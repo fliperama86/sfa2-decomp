@@ -305,7 +305,7 @@
 801658b8	52	SsVabFakeHead	sound	0	folder
 801658ec	1096	SsVabOpenHeadWithMode	sound	0	folder
 80165d34	80	SsSetMVol	sound	2	folder
-80165d84	960	-	unidentified	0	-
+80165d84	960	func_80165d84	sound	0	folder
 80166144	304	func_80166144	sound	1	folder
 80166274	276	_SsSeqPlay	sound	0	folder
 80166388	688	_SsGetSeqData	sound	0	folder
