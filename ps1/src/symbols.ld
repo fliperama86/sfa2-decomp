@@ -2628,7 +2628,6 @@ data_801eb984_slot06_01 = 0x801eb984;
 data_801eb9ac_slot06_01 = 0x801eb9ac;
 
 /* Added by src.u_slot06_02_8000. */
-func_801e99c8_slot06_02 = 0x801e99c8;
 data_801e9f18_slot06_02 = 0x801e9f18;
 data_801ef0e8_slot06_02 = 0x801ef0e8;
 data_801f897c_slot06_02 = 0x801f897c;
@@ -2680,7 +2679,6 @@ data_801eb404_slot06_03 = 0x801eb404;
 data_801ea6b8_slot06_03 = 0x801ea6b8;
 
 /* Added by src.u_slot06_04_8000. */
-func_801e99b4_slot06_04 = 0x801e99b4;
 data_801eb348_slot06_04 = 0x801eb348;
 data_801ec348_slot06_04 = 0x801ec348;
 data_801eeb48_slot06_04 = 0x801eeb48;
@@ -2698,7 +2696,6 @@ data_801e9eac_slot06_04 = 0x801e9eac;
 data_801eb300_slot06_04 = 0x801eb300;
 
 /* Added by src.u_slot06_05_8000. */
-func_801e8dc8_slot06_05 = 0x801e8dc8;
 data_801e9938_slot06_05 = 0x801e9938;
 data_801ea938_slot06_05 = 0x801ea938;
 data_801eb938_slot06_05 = 0x801eb938;
@@ -2886,7 +2883,6 @@ data_801eb1b0_slot06_0d = 0x801eb1b0;
 /* Added by src.u_slot06_0e_8000. */
 func_801e9738_slot06_0e = 0x801e9738;
 func_801e9c80_slot06_0e = 0x801e9c80;
-func_801e9d14_slot06_0e = 0x801e9d14;
 data_801eb8ec_slot06_0e = 0x801eb8ec;
 data_801ef554_slot06_0e = 0x801ef554;
 data_801f8478_slot06_0e = 0x801f8478;
@@ -2928,7 +2924,6 @@ data_801f8474_slot06_0e = 0x801f8474;
 data_801fb1f8_slot06_0e = 0x801fb1f8;
 
 /* Added by src.u_slot06_0f_8000. */
-func_801e9bb0_slot06_0f = 0x801e9bb0;
 data_801ecbc4_slot06_0f = 0x801ecbc4;
 data_801edbc4_slot06_0f = 0x801edbc4;
 data_801ef004_slot06_0f = 0x801ef004;
@@ -2963,7 +2958,6 @@ data_1f800164 = 0x1f800164;
 
 /* Added by src.u_slot06_10_8000. */
 func_801e90a8_slot06_10 = 0x801e90a8;
-func_801e9ef4_slot06_10 = 0x801e9ef4;
 data_801ebc10_slot06_10 = 0x801ebc10;
 data_801eec10_slot06_10 = 0x801eec10;
 data_801f0ed8_slot06_10 = 0x801f0ed8;
@@ -3026,7 +3020,6 @@ data_801f6204_slot06_11 = 0x801f6204;
 data_801f6208_slot06_11 = 0x801f6208;
 
 /* Added by src.u_slot06_12_8000. */
-func_801e9114_slot06_12 = 0x801e9114;
 data_801ef340_slot06_12 = 0x801ef340;
 data_801f6070_slot06_12 = 0x801f6070;
 data_801f11e0_slot06_12 = 0x801f11e0;
