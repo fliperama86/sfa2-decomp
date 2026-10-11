@@ -448,6 +448,198 @@ class Selection(Fixture):
                 review.select_checks(self.root, [], cases, seeds)
 
 
+class PortSubjects(Fixture):
+    """The control files of the port that a change selects, by the table of what each is about."""
+
+    def table(self, controls, build=()):
+        lines = ['[controls]'] + [f'{k} = {json.dumps(v)}' for k, v in controls.items()] + ['[build]', f'only = {json.dumps(list(build))}']
+        self.put(review.PORT_SUBJECTS, '\n'.join(lines) + '\n')
+
+    def names(self, changed):
+        return [c.name for c in review.select_checks(self.root, changed, 2, (1, 7), 'cc32', 'psyzdir')]
+
+    def tree(self):
+        for name in ('a.c', 'b.c', 'c.h', 'd.c'):
+            self.put('port/src/' + name, '')
+        for name in ('test_one.py', 'test_two.py', 'test_three.py'):
+            self.put('port/tools/' + name, '')
+        self.table({'test_one': ['port/src/a.c'], 'test_two': ['port/src/b.c', 'port/src/a.c'], 'test_three': ['port/src/c.h']})
+
+    def test_a_changed_file_selects_the_control_files_that_name_it_and_the_build(self):
+        self.tree()
+        self.assertEqual(self.names(['port/src/a.c']), ['test_one', 'test_two', 'native-build'])
+        self.assertEqual(self.names(['port/src/b.c']), ['test_two', 'native-build'])
+        self.assertEqual(self.names(['port/src/c.h']), ['test_three', 'native-build'])
+        self.assertEqual(self.names(['port/src/b.c', 'port/src/c.h']), ['test_three', 'test_two', 'native-build'])
+        # a page beside it changes nothing, and a page alone selects nothing
+        self.assertEqual(self.names(['port/src/b.c', 'port/README.md', 'docs/x.md']), ['test_two', 'native-build'])
+        self.assertEqual(self.names(['port/README.md']), [])
+        # a control file among the changes does not take the build away from the runtime file beside it
+        self.assertEqual(self.names(['port/src/c.h', 'port/tools/test_one.py']), ['test_one', 'test_three', 'native-build'])
+        self.assertEqual(self.names(['port/tools/test_one.py']), ['test_one'])
+
+    def test_a_file_that_no_control_file_names_selects_every_one(self):
+        self.tree()
+        every = ['test_one', 'test_three', 'test_two', 'native-build']
+        self.assertEqual(self.names(['port/src/d.c']), every)
+        # a file whose name only begins like a listed file's is not that file
+        self.put('port/src/c.hpp', '')
+        self.assertEqual(self.names(['port/src/c.hpp']), every)
+        # also beside a file that is named, and for a tool that no control file imports
+        self.assertEqual(self.names(['port/src/b.c', 'port/src/d.c']), every)
+        self.put('port/tools/hostx.py', '')
+        self.assertEqual(self.names(['port/tools/hostx.py']), every)
+
+    def test_a_tree_without_control_files_refuses_a_change_of_the_port(self):
+        self.put('port/src/a.c', '')
+        self.put('port/rows.toml', '')
+        for with_table in (False, True):
+            if with_table:
+                self.table({}, ['port/rows.toml'])
+            for changed in (['port/src/a.c'], ['port/rows.toml']):
+                with self.subTest(with_table=with_table, changed=changed), self.assertRaises(model.Problem) as caught:
+                    self.names(changed)
+                self.assertIn('no discovered controls', str(caught.exception))
+
+    def test_without_the_table_every_control_file_is_selected(self):
+        self.tree()
+        (self.root / review.PORT_SUBJECTS).unlink()
+        self.assertEqual(self.names(['port/src/b.c']), ['test_one', 'test_three', 'test_two', 'native-build'])
+
+    def test_a_control_file_without_a_line_is_selected_by_every_change_of_the_port(self):
+        self.tree()
+        self.put('port/tools/test_new.py', '')
+        self.assertEqual(self.names(['port/src/c.h']), ['test_new', 'test_three', 'native-build'])
+        self.assertEqual(self.names(['port/tools/test_one.py']), ['test_new', 'test_one'])
+
+    def test_a_control_file_is_about_itself_and_about_what_it_imports(self):
+        self.put('port/src/a.c', '')
+        self.put('port/tools/tool.py', '')
+        self.put('port/tools/other.py', '')
+        self.put('port/tools/test_low.py', 'import os\n')
+        self.put('port/tools/test_mid.py', 'import sys\nimport test_low as L  # the rig\n')
+        self.put('port/tools/test_top.py', 'def late():\n    from test_mid import thing\n')
+        self.put('port/tools/test_tool.py', 'import json, tool\n')
+        self.put('port/tools/test_text.py', 'TEXT = "import other"\n# import other\n')
+        self.table({'test_low': [], 'test_mid': [], 'test_top': [], 'test_tool': ['port/src/a.c'], 'test_text': []})
+        # a control file alone: itself and the ones that import it, through another too; nothing is built
+        self.assertEqual(self.names(['port/tools/test_low.py']), ['test_low', 'test_mid', 'test_top'])
+        self.assertEqual(self.names(['port/tools/test_mid.py']), ['test_mid', 'test_top'])
+        self.assertEqual(self.names(['port/tools/test_top.py']), ['test_top'])
+        # a tool: the control file that imports it (the second name of one import statement), and the build
+        self.assertEqual(self.names(['port/tools/tool.py']), ['test_tool', 'native-build'])
+        # the word in a string or a comment is no import: nobody names other.py, so every control file is selected
+        self.assertEqual(self.names(['port/tools/other.py']), ['test_low', 'test_mid', 'test_text', 'test_tool', 'test_top', 'native-build'])
+
+    def test_an_entry_that_ends_in_a_slash_names_what_is_below_that_folder_only(self):
+        self.put('port/shim/deep/x.c', '')
+        self.put('port/shimmer/y.c', '')
+        self.put('port/src/a.c', '')
+        for name in ('test_shim.py', 'test_src.py'):
+            self.put('port/tools/' + name, '')
+        self.table({'test_shim': ['port/shim/'], 'test_src': ['port/src/a.c']})
+        self.assertEqual(self.names(['port/shim/deep/x.c']), ['test_shim', 'native-build'])
+        self.assertEqual(self.names(['port/shimmer/y.c']), ['test_shim', 'test_src', 'native-build'])
+
+    def test_a_build_only_path_selects_the_build_and_no_control_file(self):
+        self.tree()
+        self.put('port/rows.toml', '')
+        self.put('port/data/k.bin', '')
+        self.table({'test_one': ['port/src/a.c'], 'test_two': [], 'test_three': []}, ['port/rows.toml', 'port/data/'])
+        self.assertEqual(self.names(['port/rows.toml']), ['native-build'])
+        self.assertEqual(self.names(['port/data/k.bin']), ['native-build'])
+        self.assertEqual(self.names(['port/rows.toml', 'port/src/a.c']), ['test_one', 'native-build'])
+        # the build needs its compiler: no silent skip
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/rows.toml'], 2, (1, 7))
+
+    def test_a_table_that_names_what_is_not_there_is_refused(self):
+        for controls, build in (
+                ({'test_one': ['port/src/gone.c']}, []),            # a file that is not in the tree
+                ({'test_one': ['port/src/']}, ['port/nowhere/']),   # a folder that is not there
+                ({'test_one': ['port/src/a.c/']}, []),              # a file named as a folder
+                ({'test_one': ['port/src']}, []),                   # a folder named as a file
+                ({'test_one': ['docs/x.md']}, []),                  # outside the port
+                ({'test_one': [], 'test_gone': []}, []),            # a line for a control file that is not there
+                ({'test_one': 'port/src/a.c'}, []),                 # not a list
+                ({'test_one': [3]}, [])):
+            with self.subTest(controls=controls, build=build):
+                self.tree()
+                self.put('docs/x.md', '')
+                self.table(controls, build)
+                with self.assertRaises(model.Problem):
+                    self.names(['port/src/a.c'])
+        self.tree()
+        self.put('port/tools/test_one.py', 'def broken(:\n')
+        with self.assertRaises(model.Problem):
+            self.names(['port/src/a.c'])
+
+    def test_the_trees_own_table_is_valid_and_narrows_a_change_of_one_runtime_file(self):
+        root = Path(review.__file__).resolve().parents[2]
+        scripts = sorted(p.stem for p in (root / 'port/tools').glob('test_*.py'))
+        self.assertGreater(len(scripts), 20)
+        names = lambda changed: [c.name for c in review.select_checks(root, changed, 2, (1, 7), 'cc32', 'psyzdir')]
+        self.assertEqual(names(['port/src/press.c']), ['test_hostpress', 'native-build'])
+        self.assertEqual(names(['port/src/interrupt.c']), ['test_hostlaunch', 'native-build'])
+        # the rig's own file: the control files that run on it
+        rig = names(['port/tools/test_hostlaunch.py'])
+        self.assertIn('test_hostpads', rig)
+        self.assertNotIn('native-build', rig)
+        self.assertLess(len(rig), len(scripts))
+        # an override of the port: its own checks and the build, no control file
+        over = sorted(p.name for p in (root / 'port/overrides').glob('func_*.c'))[0]
+        self.assertFalse([n for n in names(['port/overrides/' + over]) if n.startswith('test_')])
+        self.assertIn('native-build', names(['port/overrides/' + over]))
+        # a file that no control file names: every control file runs
+        self.assertEqual(names(['port/tools/check_psyz.sh'])[:-1], scripts)
+
+    def test_the_trees_own_table_selects_each_tools_own_control_file(self):
+        # The owner's review of pull request 263: a change of hostcheck.py selected neither test_hostcheck nor
+        # test_hostcheck_stop, and a change of libgap.py not test_libgap. Those control files run their tool as a
+        # separate program, so no import names it, and other control files import the same tool through hostbuild.py,
+        # so the file was named by someone and the wide rule did not apply.
+        root = Path(review.__file__).resolve().parents[2]
+        tools = root / 'port/tools'
+        names = lambda changed: [c.name for c in review.select_checks(root, changed, 2, (1, 7), 'cc32', 'psyzdir')]
+        self.assertLessEqual({'test_hostcheck', 'test_hostcheck_stop'}, set(names(['port/tools/hostcheck.py'])))
+        self.assertIn('test_libgap', names(['port/tools/libgap.py']))
+        self.assertIn('test_hostneeds', names(['port/tools/hostneeds.py']))
+        # In general, two ways, both read from the tree. By name: the control files test_NAME.py and test_NAME_*.py
+        # of a tool NAME.py are selected by a change of the tool.
+        controls = sorted(p.stem for p in tools.glob('test_*.py'))
+        picked = lambda path: [s.stem for s in review.port_controls(root, [path])]   # the selector alone: no plan is made
+        paired = 0
+        for tool in sorted(p for p in tools.glob('*.py') if not p.name.startswith('test_')):
+            own = [c for c in controls if c == 'test_' + tool.stem or c.startswith('test_' + tool.stem + '_')]
+            got = picked('port/tools/' + tool.name)
+            for c in own:
+                paired += 1
+                with self.subTest(tool=tool.name, control=c):
+                    self.assertIn(c, got)
+        self.assertGreaterEqual(paired, 8)
+        # By the text: a file of port/ that a control file takes by a path it builds at its top (SCRIPT = TOOLS /
+        # "hostcheck.py", REAL_PATCH = TOOLS.parent / "psyz.patch") selects that control file.
+        taken = 0
+        for control in sorted(tools.glob('test_*.py')):
+            for base, name in re.findall(r'^[A-Z_]+ = (TOOLS|TOOLS\.parent|HERE|HERE\.parent) / "([\w.]+)"', control.read_text(), re.M):
+                file = (tools if base in ('TOOLS', 'HERE') else tools.parent) / name
+                if not file.is_file():
+                    continue
+                taken += 1
+                with self.subTest(control=control.name, file=name):
+                    self.assertIn(control.stem, picked(file.relative_to(root).as_posix()))
+        self.assertGreaterEqual(taken, 7)
+        # The patch of the picture library: the tool's control file, which reads it, and every control file that takes
+        # a build of the library; not every control file.
+        patch = names(['port/psyz.patch'])
+        self.assertIn('test_psyzbuild', patch)
+        needs_library = {c.name for c in review.select_checks(root, ['port/tools/check_psyz.sh'], 2, (1, 7), 'cc32', 'psyzdir')
+                         if '--psyz-build' in c.argv}
+        self.assertGreaterEqual(len(needs_library), 6)
+        self.assertLessEqual(needs_library, set(patch))
+        self.assertLess(len(patch), len(controls))
+
+
 class Results(Fixture):
     def test_complete_hit_and_force_fresh(self):
         first = self.run_job('first')
