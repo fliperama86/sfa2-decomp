@@ -197,7 +197,7 @@ a constant that is passed to the helper sits in a variable where the
 same constant written in place is folded into the address. That is the
 case it is for: a function that is exact only when a constant or an
 index is held in a variable, where a plain local for it would be a
-dummy (a local that only holds a constant stays not allowed). Rules for
+dummy (for a constant see the next paragraph). Rules for
 its use: the helper is `static inline` and stands directly above the
 function that uses it; a comment above it says what it stands for and
 that it is inferred; the function uses it at every place that does that
@@ -206,6 +206,29 @@ the measurement with the plain expression in its place. An exact build
 with the helper shows that this source is compatible with the original's
 bytes, not that the original had an inline function there. `grep -rn
 "^static inline" src` lists the uses.
+
+A local that holds a constant is ordinary code and is allowed, by the
+owner's decision of 2026-10-11 ("name local is fine"), where the
+original's instructions show that constant in a register of its own: a
+register set to the constant and then stored, compared, added or passed
+at one or more places, where the constant written at those places builds
+other code ("What this compiler does" has a measured case). Rules for its
+use: the local has a name that says what the value is (its role where the
+function shows one, else the value itself: `none`, `zero`), not a letter;
+it is set where the original sets the register and used at every place
+where the original uses that register, and at no other; this comment
+stands directly above the statement that sets it:
+
+```c
+/* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
+```
+
+and a comment beside it gives the measurement with the constant written
+at its uses. Not covered, and still not allowed: a local for a constant
+that the original keeps in no register (one that only changes the
+constant's type or moves a load), a local that holds an address to move a
+load, and an assignment that nothing reads. `grep -rn "The local holds a
+constant" src` lists the uses.
 
 One construct is accepted for one case: a call that passes another number
 of arguments than the callee's definition has. Every function of the tree
@@ -934,6 +957,16 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     lines differ, with the second formed from the first in place 19,
     with a macro of the same text 19. "What is allowed" says when the
     helper may be written.
+- A constant in a register of its own. The original sometimes keeps a
+  constant in one register across several uses: in `func_80120cf0` a
+  `move s2,zero` once and `sb s2` at eight places, and a `li v1,-1` read by
+  three stores. With the literal written at each use the compiler takes
+  `$zero`, or loads the constant where it is used, and the unit differs in
+  25 and in 12 instruction lines. A local set to the constant builds the
+  original's register. An inline helper that takes the constant as an
+  argument does not: the inlined constant is substituted at its uses
+  (tried in seven functions on 2026-10-11, none exact by it). "What is
+  allowed" says when such a local may be written.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

@@ -89,6 +89,7 @@ func_80131f7c = 0x80131f7c;
 
 /* Added by src.u_post_swap. */
 data_801a8067 = 0x80198067;
+table_801a8067 = 0x80198067;
 data_801a83fb = 0x801983fb;
 data_80171b9c = 0x80171b9c;
 data_80171bf0 = 0x80171bf0;
@@ -1626,7 +1627,6 @@ func_80120604 = 0x80120604;
 func_8013bfa4 = 0x8013bfa4;
 func_8013f474 = 0x8013f474;
 func_80157784 = 0x80157784;
-func_80120cf0 = 0x80120cf0;
 func_80135a10 = 0x80135a10;
 func_8011eb4c = 0x8011eb4c;
 func_80141cec = 0x80141cec;
