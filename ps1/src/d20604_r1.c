@@ -66,14 +66,15 @@ void func_80120604(unsigned song, int alt, unsigned short start, int pos) {
             /* The channel's priority is the byte at base + 0x748c + channel (data_80197ed0). Written as
                that symbol, the function differs in 80 lines; the same for table_80197ef8 below (73). */
             if (prio < (base + chan_idx)[0x748c]) {
+                /* The count can be 32 or more (the channel plus 4); masked with 31 this function differs from the original in 16 instruction lines. The port has its own C for that (port/overrides). */
                 if (func_8016a7e4(1 << chan_idx) == 2) {
                     break;
                 }
             }
             /* The field is read again; storing prio differs in 98 instruction lines. */
             (base + chan_idx)[0x748c] = ((*cmd)[1] >> 16) & 0x7f;
-            /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
-            /* With 0 written at its use this function differs from the original in 25 instruction lines. */
+            /* The local holds a constant that no instruction reads: the original sets a register to this value here and never uses it. It is a stand-in for a variable of the original source, not recovered source. The name is inferred. */
+            /* The original's instruction: move s0,zero at 80120728; nothing reads s0 after it. With 0 written at the local's use this function differs from the original in 25 instruction lines. */
             fine = 0;
             vab = song_data[0];
             /* Bytes 2 and 3 of the first word are read as bytes everywhere; as shifts of the word,
