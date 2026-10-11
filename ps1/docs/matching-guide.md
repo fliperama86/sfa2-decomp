@@ -880,6 +880,19 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     table's own name for the rows it differs in 13 slots. A pointer
     written as the other name's address minus a constant gives the
     bytes too, but it leaves its object and is not needed.
+  - The two operands of a sum exchanged, or a value in an argument
+    register where the original has a temporary. The allocator gives
+    the first operand of a sum a preference for the register of the
+    result (inferred from global.c, `set_preference`): with the result
+    passed as the second argument, `base + half` puts `base` into `a1`,
+    and `half + base` leaves the registers right and the operands
+    exchanged. The original has the first order and no such register
+    where the variable cannot take it. In `func_80077868_slot2b` the
+    local that holds the base held the half before, and the half was
+    copied to `a1` for an earlier call while still in use, so that local
+    conflicts with `a1`. One local for both values is exact (a stand-in
+    by the general rule); a local of its own for the base differs in 5
+    slots.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
