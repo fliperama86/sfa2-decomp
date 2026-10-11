@@ -5204,6 +5204,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libcard_card"
+kind = "asm"
+source = "sdk/libcard/card.s"
+functions = [
+  { name = "_card_clear", address = 0x8016d8a0, size = 48 },
+]
+
+[[unit]]
 name = "sdk_libcard_a78"
 kind = "asm"
 source = "sdk/libcard/a78.s"
@@ -8639,6 +8647,14 @@ cc1 = "gcc-2.5.7"
 aspsx_version = "2.56"
 functions = [
   { name = "StartRCnt", address = 0x80157720, size = 48 },
+]
+
+[[unit]]
+name = "sdk_libapi_counter_p5"
+kind = "asm"
+source = "sdk/libapi/counter_p5.s"
+functions = [
+  { name = "StopRCnt", address = 0x80157750, size = 52 },
 ]
 
 [[unit]]

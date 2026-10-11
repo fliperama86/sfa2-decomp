@@ -2198,7 +2198,6 @@ data_8018ff18 = 0x8018ff18;
 /* Added by src.u_slot0f_0bf4. */
 data_800f80a4_slot0f = 0x800f80a4;
 data_800df11c_slot0f = 0x800df11c;
-_card_clear = 0x8016d8a0;
 
 /* Added by src.u_slot0f_119c. */
 data_800f857c_slot0f = 0x800f857c;
