@@ -15,7 +15,8 @@ void func_801b27a0_slot04_17(Object *obj) {
     int vz;
     int vw;
     int q;
-    /* Stand-in, not recovered source: the local k, which holds the constant 0x2000 for the test of q below, together with the local q that keeps the masked value apart from its 16-bit copy w, reproduces the original's choice of registers. Without either of the two (the test written (q & 0x2000), or w set from the mask directly) this function differs from the original in 3 instruction slots. */
+    /* Stand-in, not recovered source: the local k, which holds the constant 0x2000 for one test, and the local q, which keeps the masked value apart from its 16-bit copy w, reproduce the original's choice of registers. Without it this function differs from the original in 3 instruction slots. */
+    /* One stand-in of two locals: with either taken out alone (the test written with the literal, or w set from the mask directly) the figure is 3 as well. Inferred: with the plain forms the compiler tests the unmasked value. */
     int k = 0x2000;
 
     if ((obj->field_3a << 16) < 0) {
