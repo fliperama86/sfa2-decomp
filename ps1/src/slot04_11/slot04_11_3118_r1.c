@@ -47,8 +47,8 @@ void func_801b3118_slot04_11(Object *obj) {
     if (obj->step_flags & 8) {
         obj->state_3++;
         obj->vel_x = data_801c74f4_slot04_11[obj->field_12a];
-        obj->accel_x = data_801c74f4_slot04_11[obj->field_12a + 1] & 0xffff0000;
-        *(u16 *)&obj->accel_x = obj->pos_x;
+        ((ObjectWords *)obj)->word_54 = data_801c74f4_slot04_11[obj->field_12a + 1] & 0xffff0000;
+        *(u16 *)&((ObjectWords *)obj)->word_54 = obj->pos_x;
         func_801b329c_slot04_11(obj);
     }
 }

@@ -51,9 +51,9 @@ void func_8001369c_slot27(Object *obj) {
         int *t;
 
         obj->state_2 = obj->state_2 + 1;
-        ref_first.p = (Object *)obj->accel_x;
+        ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
         if (obj->field_66 != 0) {
-            ref_first.p = (Object *)obj->accel_y;
+            ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
         }
         ref_first.p->field_6b = 0xff;
         t = (int *)data_8019045c;

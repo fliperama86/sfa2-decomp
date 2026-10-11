@@ -27,7 +27,7 @@ void func_801e0114_slot0b(Object *obj) {
         obj->field_01 = 0;
         obj->field_0c = 0;
         obj->field_09 = 3;
-        func_80130768(obj, 0, (SequenceStep **)obj->accel_y);
+        func_80130768(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
         s = func_8015bd0c(0, 0, 0x280, 0) & 0xffff;
         r = func_8015bdd4(0x140, 0x1e6);
         func_801e101c_slot0b(obj, (SlotCell *)(data_801e766c_slot0b + obj->field_48 * 0x1e0), s, r & 0xffff);

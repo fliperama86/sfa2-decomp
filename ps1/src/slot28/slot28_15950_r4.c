@@ -26,7 +26,7 @@ void func_8002616c_slot28(Object *obj) {
             b->field_7c = 0x1e0;
             b->field_0d = 0;
             b->field_09 = 2;
-            b->box_tables = (BoxTables *)obj->accel_y;
+            b->box_tables = (BoxTables *)((ObjectWords *)obj)->word_58;
         }
     }
 }

@@ -56,11 +56,11 @@ void func_801e934c_slot06_0a(Object *obj) {
         b = a - 1;
     }
     if (a->kind == 0xa) {
-        obj->vel_x = (s32)a;
+        ((ObjectWords *)obj)->word_4c = (s32)a;
     } else if (b->kind == 0xa) {
-        obj->vel_x = (s32)b;
+        ((ObjectWords *)obj)->word_4c = (s32)b;
     } else {
-        obj->vel_x = 0;
+        ((ObjectWords *)obj)->word_4c = 0;
     }
     func_80130700(obj, data_801ed400_slot06_0a[i]);
 }
