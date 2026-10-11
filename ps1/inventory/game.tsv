@@ -139,7 +139,7 @@
 80120b34	224	func_80120b34	-	disc,sound,threads	0	0	open
 80120c14	140	func_80120c14	-	-	0	0	closed
 80120ca0	80	func_80120ca0	-	disc,sound	0	0	open
-80120cf0	592	-	-	disc,sound	0	0	closed
+80120cf0	592	func_80120cf0	-	disc,sound	0	0	closed
 80120f40	88	func_80120f40	-	-	0	0	closed
 80120f98	108	func_80120f98	-	-	1	0	open
 80121004	84	func_80121004	-	graphics	0	0	closed
