@@ -28,8 +28,12 @@
  *     checks does from a handler); the read counts as done only after the Pause.
  *
  * CdReadSync(mode, result). Mode 0 waits until the read is done and returns 0, or -1 when it failed (or the wait ran out, with a
- * line `cd: CdReadSync timed out`). The wait is the disc layer's wait: port_tick in a loop, with the disc layer's own limit of 600
- * polls; here the count starts again whenever a sector has arrived, so a long read is not cut off while it makes progress. A mode
+ * line `cd: CdReadSync timed out`). The wait is the disc layer's wait: port_tick in a loop, with the disc layer's own limit of 600,
+ * counted in vblanks (port_frames), not in calls of port_tick. The wait goes on while the read is on and fewer than 600 vblanks have
+ * passed since the last sector came (since the call, before the first); a sector starts the count again, so a long read is not cut
+ * off while it makes progress. A count of calls is no clock: the runtime's tick sleeps only while the next vblank is more than a
+ * millisecond away and returns at once otherwise, so many hundreds of calls can pass inside one vblank, and a read that needs some
+ * 30 vblanks was given up at once when the limit counted calls. A mode
  * that is not 0 returns at once the number of sectors still to come (0 when done, -1 when failed). `result`, when not null, gets
  * the 8 result bytes of the last interrupt the handler saw (zeros before any). With no read ever started both return 0.
  *

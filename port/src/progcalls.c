@@ -7,7 +7,7 @@
 
 #define RAM_END (PORT_RAM_BASE + PORT_RAM_SIZE)
 #define WORDS 0x200
-#define WAIT_LIMIT 600   /* the disc layer's own limit for a wait (cd.c) */
+#define WAIT_LIMIT 600   /* vblanks, as the disc layer's own limit for a wait (cd.c); see progcalls.h */
 
 /* ---- the plain read ---- */
 
@@ -66,13 +66,14 @@ int port_CdRead(int sectors, void *buf, int mode)
 
 int port_CdReadSync(int mode, unsigned char *result)
 {
-    int n, seen = remaining, rc;
+    int seen = remaining, rc;
     if (mode == 0) {
-        for (n = 0; state == READING && n < WAIT_LIMIT; n++) {
+        unsigned since = port_frames();   /* the vblank count at the call, then at the last sector */
+        while (state == READING && port_frames() - since < WAIT_LIMIT) {
             port_tick();
             if (remaining != seen) {
                 seen = remaining;
-                n = 0;
+                since = port_frames();
             }
         }
         if (state == READING) {

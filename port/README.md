@@ -2607,8 +2607,11 @@ The buffer's whole span must lie in the mapped RAM and the mode's bits
 Sony's retries are not modelled. The read starts where the disc layer's
 drive is, which is the program's last seek because it sends one before
 every read; Sony's routine would send its last Setloc again.
-`CdReadSync(0)` waits by `port_tick` with the disc layer's limit, counted
-again after each sector; another mode returns the sectors still to come.
+`CdReadSync(0)` waits by `port_tick` with the disc layer's limit of 600,
+counted in vblanks (`port_frames`), not in calls of the tick (which returns
+at once but for the last millisecond before a vblank, so a count of calls
+is no clock), and counted again from each sector; another mode returns the
+sectors still to come.
 
 `PadRead` gives the word of port 1 (the runtime's pad frame with the
 input script applied, as `kernel.c` fills the game's buffers; Start is
@@ -2638,10 +2641,14 @@ read (`CdRead`, `CdReadSync`) and `SetVideoMode` are not in this part.
 What each does is in the header of `stream.h`. The ring is the game's
 memory in Sony's layout (headers of 32 bytes, then blocks of 2,016); every
 read and write of it is checked to lie in the mapped RAM, and a ring
-outside it, fewer than two slots, a pointer given to `StGetNext` or
-`StFreeRing` outside the RAM, the "old type" stream of `CdRead2`, and a call
-of the handler from inside itself stop the program with a line that names
-the call. The library's own variables are variables of `stream.c`. The
+outside it, fewer than two slots, a pointer given to `StFreeRing` outside
+the RAM, a null pointer given to `StGetNext`, the "old type" stream of
+`CdRead2`, and a call of the handler from inside itself stop the program
+with a line that names the call. `StGetNext`'s two pointers are the
+caller's own variables, on the host's stack, so they are not checked
+against the RAM; when it has no frame to give it calls `port_tick` once,
+so that a program's fixed number of polls lets the clock and the
+interrupts go, as the other polls do. The library's own variables are variables of `stream.c`. The
 handler follows the library's steps in order; where the text of the library
 left a case open the header says how it was read (a dropped sector's own
 slot is freed; `StGetNext` follows a wrap marker in the same call).

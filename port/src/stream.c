@@ -130,8 +130,9 @@ void port_StSetStream(unsigned long m, unsigned long st, unsigned long en, void 
 int port_StGetNext(unsigned long **addr, unsigned long **header)
 {
     unsigned char *h;
-    need("StGetNext", "the address pointer", addr, sizeof *addr);
-    need("StGetNext", "the header pointer", header, sizeof *header);
+    /* the two pointers are the caller's own variables (on the host's stack, not in the game's RAM): only null is refused */
+    if (!addr) port_halt(PORT_EXIT_OTHER, "StGetNext: the address pointer is null");
+    if (!header) port_halt(PORT_EXIT_OTHER, "StGetNext: the header pointer is null");
     h = hdrp("StGetNext", r);
     if (g16(h) == 1) {
         if (end != 0) s16(h, 0);
@@ -144,6 +145,7 @@ int port_StGetNext(unsigned long **addr, unsigned long **header)
         *header = (unsigned long *)h;
         return 0;
     }
+    port_tick();   /* a poll that fails lets the clock and the interrupts go, as the other polls do */
     return 1;
 }
 
