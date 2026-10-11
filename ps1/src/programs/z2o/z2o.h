@@ -170,5 +170,6 @@ extern u32 func_800116f8_z2o(void);
 extern void func_800119c8_z2o(u32 *value);
 extern void func_800119d8_z2o(int value);
 extern int func_80011458_z2o(void);
+extern int func_80011530_z2o(int pause);
 
 #endif

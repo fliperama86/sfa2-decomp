@@ -56,7 +56,7 @@ from `0x8002f7f0` up to `0x8008a400` and only then sets the register to
 against the entry code's first two instructions only, so `programs.toml`
 declares none for this program, and the test tool begins each run with the
 register at 0. That is right only for a function that does not use the
-register. The listing of each of the twenty-five functions here was read for that: no
+register. The listing of each of the twenty-six functions here was read for that: no
 instruction of them reads or writes the register or reaches data through it
 plus an offset (they build each address with `lui`), and each function's header
 says so. A function of this program that does use the register needs the
@@ -201,6 +201,10 @@ func_80011458_z2o: built 32 bytes, original 32 bytes; cases 2000, discarded 0, e
 func_80011458_z2o coverage: 8 of 8 instruction slots of the original executed
 func_80011458_z2o: built 32 bytes, original 32 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011458_z2o coverage: 8 of 8 instruction slots of the original executed
+func_80011530_z2o: built 120 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011530_z2o coverage: 30 of 30 instruction slots of the original executed
+func_80011530_z2o: built 120 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011530_z2o coverage: 30 of 30 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
@@ -231,6 +235,7 @@ func_800116f8_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119c8_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119d8_z2o control: different 2000 of 2000 (expected more than 0)
 func_80011458_z2o control: different 614 of 2000 (expected more than 0)
+func_80011530_z2o control: different 676 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -286,6 +291,8 @@ func_800119d8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119d8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011458_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011458_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011530_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011530_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -316,6 +323,7 @@ func_800116f8_z2o fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_800119c8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800119d8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011458_z2o fixtures: kept 2 of 2000 cases (slots 1, edges 0, results 1)
+func_80011530_z2o fixtures: kept 3 of 2000 cases (slots 3, edges 0, results 0)
 func_80010be4_z2o replay: fixtures 1, passed 1, failed 0
 func_80011428_z2o replay: fixtures 1, passed 1, failed 0
 func_800116c8_z2o replay: fixtures 1, passed 1, failed 0
@@ -341,11 +349,12 @@ func_800116f8_z2o replay: fixtures 12, passed 12, failed 0
 func_800119c8_z2o replay: fixtures 1, passed 1, failed 0
 func_800119d8_z2o replay: fixtures 1, passed 1, failed 0
 func_80011458_z2o replay: fixtures 2, passed 2, failed 0
+func_80011530_z2o replay: fixtures 3, passed 3, failed 0
 ```
 
 ## The functions
 
-All twenty-five are inferred roles, not original names. None uses the global pointer
+All twenty-six are inferred roles, not original names. None uses the global pointer
 register (see above).
 
 - `func_800116c8_z2o`: stores the low byte of its argument at the byte
@@ -391,3 +400,4 @@ register (see above).
 - `func_800119c8_z2o`: stores its argument in the word at `0x8002f80c` (inferred: the pointer that the decoder's output goes to). No call of it was found in the program. The test gives the argument a random 32 bit word and the bytes around the word random values, and compares the result register and memory after the call.
 - `func_800119d8_z2o`: stores its argument in the word at `0x8002f81c` (inferred: the count of strips that `func_80011428_z2o` copies). No call of it was found in the program. The test gives the argument a random 32 bit word and the bytes around the word random values, and compares the result register and memory after the call.
 - `func_80011458_z2o`: a test of the movie's end (inferred). Returns 1 when the word at `0x8002f894` (the latest frame number) is not below the word at `0x8002f814` (the number of frames), compared as unsigned numbers, else 0. No call of it was found in the program. The test sets the two words equal, one apart either way, at 0 or 0xffffffff, or random, with random bytes around them, and compares the result register and memory after the call; the control (signed instead of unsigned) differs only where the two words have different top bits.
+- `func_80011530_z2o`: pauses or resumes the disc (inferred). With the argument 1 it calls `func_800118f0_z2o` (the volume down), then `CdControlB(9, 0, 0)` until that returns a value that is not 0; with any other argument it takes the mode word 0x1e8 when the word at `0x8001b348` is not 0, else 0x168, and calls `CdRead2(mode)` until that returns a value that is not 0. It returns 0 in both cases. No call of it was found in the program. The test scripts the results of both library recorders (0 up to three times, then not 0), gives the argument 1 in half of the cases and the flag word 0 in a third of them, and compares the result register, the log of the recorders and memory after the call.
