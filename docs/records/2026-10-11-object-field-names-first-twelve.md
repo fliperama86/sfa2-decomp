@@ -44,7 +44,8 @@ The names, all in `Object`, with the uses the tool rewrote on main at
 Its last line: `12 renames, 14468 uses rewritten in 4089 files, 0 left, 30
 files not read to the end`. The 30 are C files of the port's own runtime,
 which include the host's headers; none has one of the twelve old names as
-text. The command:
+text. Run again after the merge of main, the tool rewrote nothing. The
+command:
 
     git show 29ba77c:ps1/src/types.fields > old.fields
     python ps1/tools/renamefields.py apply --old old.fields --new ps1/src/types.fields \
@@ -66,15 +67,19 @@ of this change. By hand on top of it:
 - Six passages of `ps1/docs/matching-guide.md` quote lines of functions
   whose fields were renamed; they quote the new lines now.
 
-What ran, on the tree of this change:
+What ran. The build ran twice: on the change as made on main at `29ba77c`,
+and again after the merge of main at `ae125bc` (head `a5e3de0`), with the
+same result. The comparison of the nonmatching C ran before that merge:
 
 - The matching build of every image, one run per image and eight at a time
   (`python ps1/tools/matchbuild.py --config ps1/src/build.toml --image NAME`
   for `resident` and the 77 module images): 78 of 78 end with
   `RESULT: PASS`. The first round compiled every unit that includes the
-  header again and took under three minutes for all 78.
-- Each of the 105 C files of `ps1/src/*_nonmatching/` and `port/overrides/`
-  was preprocessed and compiled as the build does it (`clang -E -P -x c
+  header again and took under three minutes for all 78; the second, after
+  the merge, under two.
+- Each of the 105 C files that `ps1/src/*_nonmatching/` and
+  `port/overrides/` had at `29ba77c` (the merge of main takes one of them
+  out, a library function that became exact) was preprocessed and compiled as the build does it (`clang -E -P -x c
   -target mipsel-none-elf -nostdinc`, then the pinned compiler with
   `-quiet -O2 -G0`) in the tree before and in the tree after. The
   compiler's output is the same for all 105 but for the `.file` line, which
