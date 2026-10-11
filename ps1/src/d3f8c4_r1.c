@@ -5,9 +5,10 @@
 
 /* What it does (inferred, not original names): for an object whose field_49
    is non-zero it returns func_8013f474(object, a, b) as a byte when its
-   halfword at offset 4 is 1 and field_06 is 7. Otherwise, with the other
-   object (ref_other) in mode 1 and with a box, it compares two x positions:
-   the object's pos_x plus a (minus a when field_0b is set), and
+   halfword at offset 4 is 1 and field_06 is 7, 0 when the halfword is 1 and
+   field_06 is not 7, and 1 when the halfword is not 1. Otherwise, with the
+   other object (ref_other) in mode 1 and with a box, it compares two x
+   positions: the object's pos_x plus a (minus a when field_0b is set), and
    game_state.field_358's pos_x plus the box's origin minus its extent
    (negated when that object's field_0b is set). It returns
    func_8013fab4(object) as a byte when they are at most b apart; b grows by
@@ -69,4 +70,6 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
             return 0;
         return func_8013fab4(object) & 0xff;
     }
+    /* The path with field_49 set and the halfword not 1 ends here. The original has no instruction for this result: it branches to the function's end with the 1 of the comparison still in the result register. The compiler adds none for this line either. Without the line the PS1 code is the same and the result is undefined in C. */
+    return 1;
 }
