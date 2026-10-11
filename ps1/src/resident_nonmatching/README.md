@@ -51,7 +51,6 @@ Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80120cf0`, `func_8013a3a8`, `func_80140b5c`, `func_80140cd8`, `func_80142030`.
 - The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011c724`, `func_8013245c`, `func_8014e890`.
-- An original callee reads only part of an argument register, and the two codes differ in the rest; the tool compares the whole register, its own check of the record fails, and none is kept. `func_8011df3c`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -105,8 +104,6 @@ func_8011cf98: built 1520 bytes, original 1568 bytes; cases 2000, discarded 0, e
 func_8011cf98 coverage: 391 of 392 instruction slots of the original executed
 func_8011db78: built 768 bytes, original 964 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011db78 coverage: 239 of 241 instruction slots of the original executed
-func_8011df3c: built 1048 bytes, original 1676 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8011df3c coverage: 419 of 419 instruction slots of the original executed
 func_8011eb4c: built 716 bytes, original 792 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011eb4c coverage: 198 of 198 instruction slots of the original executed
 func_80120604: built 928 bytes, original 952 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -180,8 +177,6 @@ func_8011cf98 control: different 1595 of 2000 (expected more than 0)
   altered: store of the object's entry index moved by two bytes, instruction slot 345
 func_8011db78 control: different 939 of 2000 (expected more than 0)
   altered: first halfword store of a y value moved by two bytes, instruction slot 149
-func_8011df3c control: different 1141 of 2000 (expected more than 0)
-  altered: address mask combined with or instead of xor, instruction slot 14
 func_8011eb4c control: different 2000 of 2000 (expected more than 0)
   altered: type byte of the third array is 0x11, instruction slot 73
 func_80120604 control: different 254 of 2000 (expected more than 0)
@@ -250,7 +245,6 @@ func_8011bf70 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011c724 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011cf98 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011db78 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8011df3c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011eb4c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80120604 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80120cf0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
