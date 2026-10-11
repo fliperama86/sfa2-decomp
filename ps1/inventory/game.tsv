@@ -859,7 +859,7 @@
 80141e34	40	func_80141e34	-	-	0	0	closed
 80141e5c	204	func_80141e5c	-	-	0	0	closed
 80141f28	264	func_80141f28	-	sound,unidentified	0	0	closed
-80142030	248	-	-	-	0	0	closed
+80142030	248	func_80142030	-	-	0	0	closed
 80142128	524	build_metrics	-	-	0	0	closed
 80142334	36	box_delta	-	-	0	0	closed
 80142358	32	wide_delta	-	-	0	0	closed

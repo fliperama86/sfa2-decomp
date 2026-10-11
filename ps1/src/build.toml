@@ -5327,6 +5327,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d39928_r2"
+source = "d39928_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80142030", address = 0x80142030, size = 248 },
+]
+
+[[unit]]
 name = "u_80142378"
 source = "u_80142378.c"
 flags = ["-O2", "-G0"]
