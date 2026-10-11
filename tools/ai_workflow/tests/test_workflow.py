@@ -806,6 +806,11 @@ class ProgramFiles(Fixture):
                 with self.assertRaises(model.Problem):
                     review.stage_inputs(self.root, self.data_root())
 
+    def test_an_absolute_path_is_refused_even_inside_the_checkout(self):
+        self.declare(DECLARATION.replace('../../extract/programs/ONE.EXE', str(self.root / self.ONE)))
+        with self.assertRaises(model.Problem):
+            review.program_inputs(self.root)
+
     def test_a_declaration_that_cannot_be_read_or_has_no_file_is_a_problem_that_names_it(self):
         for text in ('[[program\nname=', '[[program]]\nname = "one"\n', '[[program]]\nfile = 3\n', 'program = 3\n', 'program = [1]\n', '[[program]]\nfile = ""\n'):
             with self.subTest(text=text):
