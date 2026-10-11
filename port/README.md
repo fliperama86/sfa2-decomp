@@ -893,12 +893,11 @@ pad: keys: W = L2, E = R2, Q = L1, R = R1, S = triangle, D = circle, X = cross, 
 start: 0x801189c4
 ```
 
-Then, among other lines, the line of the logo's movie sound and one line
-for each module as the game first ran it (a stand-alone program without C
-prints a `skipped:` line when the game reaches it):
+Then, among other lines, the skip of the first stand-alone program and
+one line for each module as the game first ran it:
 
 ```
-audio: a stream starts at sector 179376: file 1 channel 1, stereo, 37800 Hz
+skipped: Exec of logo.exe (disc sector 211970): a program of its own for which no C exists yet; it returns at once
 module: slot0f at 0x800df000, 228 C jumps, 0 without C
 module: slot27 at 0x80010000, 212 C jumps, 0 without C
 module: slot06_08 at 0x801e8000, 43 C jumps, 0 without C
@@ -919,6 +918,14 @@ to the player select, through a first fight and into a second. Nothing
 sounds: the sound library's routines are stand-ins. This says what one
 scripted run of five minutes did, not that the game is playable to its
 end.
+
+Later, and not part of that run: since main `c210be1` (2026-10-11) the
+logo's program has C and is built in. One start of that build, 60 seconds
+without a window, printed no `skipped:` line for the logo; it printed the
+line of the logo's movie sound, `audio: a stream starts at sector 179376:
+file 1 channel 1, stereo, 37800 Hz`, and its first `skipped:` line was the
+opening movie's (`Exec of z2o.exe`). That run is in the record
+[`2026-10-11-logo-listed-in-the-pc-program.md`](../docs/records/2026-10-11-logo-listed-in-the-pc-program.md).
 
 The original's entry code is hand-written assembly and is not run: the
 program finds the game's `main` as the target of the last call before the
