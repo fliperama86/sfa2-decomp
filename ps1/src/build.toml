@@ -40367,3 +40367,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8011fa50", address = 0x8011fa50, size = 144 },
 ]
+
+[[unit]]
+name = "d347b4_r1"
+source = "d347b4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801347b4", address = 0x801347b4, size = 1760 },
+]

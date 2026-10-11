@@ -1,4 +1,4 @@
-"""Contract of func_801347b4, as code. Header comment of the .c has the text.
+"""Contract of func_801347b4 in the port's C (header comment of the .c file).
 
 Choices of the setup:
   - the map has 0 to 12 columns and 0 to 12 rows (rows are at least 1 when
