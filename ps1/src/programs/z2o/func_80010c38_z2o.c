@@ -95,8 +95,8 @@ int func_80010c38_z2o(int sector, int stream, int frames, u32 *ring, int ring_si
     data_8002f890_z2o = 0;
     data_8002f894_z2o = 0;
     data_8002f86c_z2o = 0;
-    data_8002f804_z2o = buf0;
-    data_8002f808_z2o = buf1;
+    data_8002f804_z2o[0] = buf0;
+    data_8002f804_z2o[1] = buf1;
     data_8002f80c_z2o = strip;
     data_8002f818_z2o = words;
     data_8002f81c_z2o = words;
@@ -135,7 +135,7 @@ int func_80010c38_z2o(int sector, int stream, int frames, u32 *ring, int ring_si
     data_8002f84c_z2o = *(Z2oFrameInfo *)hdr;
     data_8002f84c_z2o.width = (data_8002f84c_z2o.width + 8) / 16 * 16;
     data_8002f84c_z2o.height = (data_8002f84c_z2o.height + 8) / 16 * 16;
-    DecDCTvlc(addr, (&data_8002f804_z2o)[data_8002f820_z2o]);
+    DecDCTvlc(addr, data_8002f804_z2o[data_8002f820_z2o]);
     StFreeRing(addr);
     return 0;
 }

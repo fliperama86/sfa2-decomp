@@ -49,8 +49,9 @@ extern int CdControlB(u8 com, u8 *param, u8 *result);
 extern u8 *CdIntToPos(int i, u8 *p);
 /* 0x8002f800: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_8001139c_z2o. */
 extern u8 data_8002f800_z2o;
-/* 0x8002f804: a pointer word (inferred: the buffer that CdGetSector is handed). */
-extern u32 *data_8002f804_z2o;
+/* 0x8002f804: a table of two pointers (inferred: the two bitstream buffers; the open stores them, the frame routine takes the one of the index word
+   0x8002f820, and the movie's end hands the first to CdGetSector). */
+extern u32 *data_8002f804_z2o[2];
 extern void StUnSetRing(void);
 extern int CdReady(int mode, u8 *result);
 extern void CdGetSector(void *madr, int size);
@@ -81,8 +82,7 @@ extern Z2oFrameInfo data_8002f84c_z2o;
 extern int data_8002f814_z2o;
 /* 0x8002f820: the index (0 or 1) of the bitstream buffer in use (inferred). */
 extern int data_8002f820_z2o;
-/* 0x8002f804, 0x8002f808: two buffer pointers in a row, (&data_8002f804_z2o)[i] is the buffer i (inferred); 0x8002f80c: the pointer the decoder's output goes to (inferred). */
-extern u32 *data_8002f808_z2o;
+/* 0x8002f80c: the pointer the decoder's output goes to (inferred). */
 extern u32 *data_8002f80c_z2o;
 /* 0x8001b348: a word of the movie's open (inferred: not 0 selects the mode word 0x1e8, else 0x168). */
 extern int data_8001b348_z2o;

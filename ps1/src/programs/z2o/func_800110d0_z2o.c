@@ -119,13 +119,13 @@ int func_800110d0_z2o(int x, int y) {
         data_8002f880_z2o = data_8002f818_z2o != 0 ? data_8002f89c_z2o * 12 : data_8002f89c_z2o * 8;
     }
     DecDCTReset(1);
-    DecDCTin((&data_8002f804_z2o)[data_8002f820_z2o], data_8002f818_z2o);
+    DecDCTin(data_8002f804_z2o[data_8002f820_z2o], data_8002f818_z2o);
     DecDCTout(data_8002f80c_z2o, data_8002f884_z2o);
     data_8002f820_z2o = data_8002f820_z2o == 0;
     data_8002f84c_z2o = *(Z2oFrameInfo *)hdr;
     data_8002f84c_z2o.width = (data_8002f84c_z2o.width + 8) / 16 * 16;
     data_8002f84c_z2o.height = (data_8002f84c_z2o.height + 8) / 16 * 16;
-    DecDCTvlc(addr, (&data_8002f804_z2o)[data_8002f820_z2o]);
+    DecDCTvlc(addr, data_8002f804_z2o[data_8002f820_z2o]);
     StFreeRing(addr);
     return ret;
 }
