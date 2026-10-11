@@ -44,5 +44,8 @@ extern int data_8001b350_z2o;
 /* 0x8002f8a4: the four volume bytes handed to CdMix (inferred from the call). */
 extern u8 data_8002f8a4_z2o[4];
 extern int CdMix(u8 *vol);
+extern int CdInit(void);
+extern int CdControlB(u8 com, u8 *param, u8 *result);
+extern u8 *CdIntToPos(int i, u8 *p);
 
 #endif
