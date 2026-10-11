@@ -2555,6 +2555,64 @@ The controls. `port/tools/test_hostprogcalls.py --cc CC` builds the file
 with the disc layer, `input.c` and a driver of its own, on a made-up
 disc image, and logs what the file asks of the disc layer.
 
+### The movie's stream
+
+`port/src/stream.c` and `stream.h` give the calls of Sony's library with
+which the logo's and the opening movie's programs take a movie's sectors
+from the disc into a ring of frames: `StSetRing`, `StSetStream`,
+`StGetNext`, `StFreeRing`, `StUnSetRing`, `StCdInterrupt` and `CdRead2`,
+as `port_St...` and `port_CdRead2`. They stand on the port's own disc
+layer (`cd.c`: its paced delivery, its ready handler, its whole-sector mode,
+and the two routines that give a stream's code the FIFO's bytes and put
+bytes into the game's memory as a sector's), not on the picture library,
+whose copies of these routines have a stand-in for the sector handler and
+no sector delivery. Nothing binds the calls to a program yet, and the plain
+read (`CdRead`, `CdReadSync`) and `SetVideoMode` are not in this part.
+
+What each does is in the header of `stream.h`. The ring is the game's
+memory in Sony's layout (headers of 32 bytes, then blocks of 2,016); every
+read and write of it is checked to lie in the mapped RAM, and a ring
+outside it, fewer than two slots, a pointer given to `StGetNext` or
+`StFreeRing` outside the RAM, the "old type" stream of `CdRead2`, and a call
+of the handler from inside itself stop the program with a line that names
+the call. The library's own variables are variables of `stream.c`. The
+handler follows the library's steps in order; where the text of the library
+left a case open the header says how it was read (a dropped sector's own
+slot is freed; `StGetNext` follows a wrap marker in the same call).
+
+The decoder's busy rule. With `StSetStream`'s mode bit 0 set, the library
+leaves a sector in the drive's FIFO while the decoder's output transfer is
+busy and sets a flag, `deferred`, for the program's output routine to call
+the handler again. The port's drive hands over the sectors of a vblank in a
+row and would lose that sector, so the handler takes its 2,340 bytes into a
+queue of the runtime (16 sectors; a seventeenth stops the program), and
+works the queue off, in order, whenever it runs, for as long as the decoder
+is not busy. The busy state is asked again before every sector, queued or at
+hand, because a frame's callback may start an output transfer: what is still
+queued then stays queued, and the sector at hand goes behind it. Whenever
+the handler ends with sectors queued it writes 1 into the flag (a word of
+the game's memory whose address the program's declaration gives:
+`port_stream_bind`; with none bound that stops the program), so that the
+program's output routine calls again. `port_press_out_busy` in `press.c` is
+the decoder's side of it. The queue is emptied by `StSetRing` and `StUnSetRing`;
+that is this layer's rule, and the library has none.
+
+The controls. `port/tools/test_hoststream.py --cc CC` builds `stream.c`,
+`cd.c` and a driver of its own that maps the RAM at its address, stands in
+for the runtime and for the decoder's busy state, and reads a disc image the
+test makes: sectors of a made-up stream, sectors of the disc's compressed
+audio between them that carry a valid stream header, and sectors that break
+each rule. The expected values are worked out from the image. Most cases
+hand the sectors over one at a time (the driver's own ready handler calls
+`port_StCdInterrupt` and pauses the drive) and read the slots' states after
+each; the cases that matter for the path of the stream's own handler use
+the drive's rows of 2 and 3 sectors a vblank, and one compares both. What was
+compared with what: the ring's bytes with the image's sectors' bytes, the
+states with the rules of `stream.h`, the commands the calls sent to the disc
+layer with the text of `CdRead2`. Nothing is compared with the console's
+library or its output; the facts the header states come from reading the
+programs' own copies of the library, and no run on a console was made.
+
 ## Not decided
 
 - The port's clock following the game's progress. The guard of "The drive

@@ -5,9 +5,10 @@
  * (cd.c, cd.h) and input.c; nothing here is compared with a console's library or its output. The checks are in
  * port/tools/test_hostprogcalls.py.
  *
- * Every pointer is a game address, which is a real address in the PC program. A buffer that a call writes is checked, whole, to lie
- * inside the mapped RAM (PORT_RAM_BASE to PORT_RAM_BASE + PORT_RAM_SIZE); a range outside it, and every case below that is not
- * modelled, ends the program with a `stop:` line that names the call (port_halt, status PORT_EXIT_OTHER).
+ * Every pointer is a game address, which is a real address in the PC program. CdRead's sector buffer is checked, whole, to lie
+ * inside the mapped RAM (PORT_RAM_BASE to PORT_RAM_BASE + PORT_RAM_SIZE); a buffer outside it, and every case below that is not
+ * modelled, ends the program with a `stop:` line that names the call (port_halt, status PORT_EXIT_OTHER). CdReadSync's eight
+ * result bytes go to the pointer it is given, as it is, when that is not null: that pointer is not checked against the RAM.
  *
  * CdRead(sectors, buf, mode). In the program's own copy: a Pause first if the drive's status byte shows reading (the bits 0xe0),
  * Setmode with the mode's low byte, Setloc with the last position the program sent, its own ready handler, then ReadN. Per
