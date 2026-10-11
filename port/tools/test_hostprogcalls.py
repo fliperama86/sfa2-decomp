@@ -488,7 +488,8 @@ def a_late_sector_starts_the_count_again():
         return f"{l}"
     if f[1] - f[0] != 800:
         return f"the wait took {f[1] - f[0]} vblanks; the case needs 800 (past the limit, with sectors inside it)"
-    # and the count does start at the sector: 600 vblanks after the first sector (400) nothing came: gone at 1000, not at 600
+    # six sectors, two each at vblanks 400, 800 and 1200: more than 600 vblanks pass twice over, and the read still ends with 0
+    # at 1200, because each pair of sectors starts the count again
     rc, l = run(SETUP + "read 6 80100000 80\ndisc 400\nfr\nsync 0\nfr\n")
     f = [int(x.split()[1]) for x in after(l, "F ")]
     if after(l, "SY ")[0].split()[1] != "0" or f[1] - f[0] != 1200:
