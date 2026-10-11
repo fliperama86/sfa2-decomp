@@ -4430,6 +4430,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d1cf98_r1"
+source = "d1cf98_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011cf98", address = 0x8011cf98, size = 1568 },
+]
+
+[[unit]]
 name = "y11bc84_r6"
 source = "y11bc84_r6.c"
 flags = ["-O2", "-G0"]
