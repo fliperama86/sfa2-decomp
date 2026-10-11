@@ -18,7 +18,7 @@ void func_801b1934_slot04_02(Object *obj) {
     obj->field_12c = 0;
     func_80141f28(obj, 9);
     func_80138ae8(&game_state, obj);
-    /* Exception, not recovered source: two nested do-while wrappers around the single statement that sets the table index. Their only effect is that the compiler counts each reference to idx three times (once per loop depth), which makes idx outrank the four index temporaries when registers are chosen, as in the original (idx in v0, the temporaries in v1); they add no instruction. Without it this function differs from the original in 51 instruction lines (one wrapper alone: also 51). */
+    /* Stand-in, not recovered source: two nested do-while wrappers around the statement that sets the table index reproduce the original's choice of registers. Without it this function differs from the original in 51 instruction slots. */
     do {
         do {
             idx = obj->field_12a * 2;
