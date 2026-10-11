@@ -83,11 +83,6 @@ def stage_inputs(snapshot: Path, data_root: Path) -> list[Path]:
     comparison that needs it stops with the test tool's own line). The returned list holds the build's inputs only.
     """
     inputs = config_inputs(snapshot)
-    for target in program_inputs(snapshot):
-        original = data_root / target.relative_to(snapshot)
-        if not target.is_symlink() and not target.exists() and original.is_file():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.symlink_to(original.resolve())
     for target in inputs:
         original = data_root / target.relative_to(snapshot)
         if target.exists():
@@ -97,6 +92,11 @@ def stage_inputs(snapshot: Path, data_root: Path) -> list[Path]:
             raise Problem('private prerequisite missing: ' + target.relative_to(snapshot).as_posix())
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(original.resolve(), target_is_directory=original.is_dir())
+    for target in program_inputs(snapshot):
+        original = data_root / target.relative_to(snapshot)
+        if not target.is_symlink() and not target.exists() and original.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(original.resolve())
     return inputs
 
 
