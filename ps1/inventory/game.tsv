@@ -131,7 +131,7 @@
 801204f4	96	func_801204f4	-	sound,unidentified	0	0	closed
 80120554	112	func_80120554	-	sound,unidentified	0	0	closed
 801205c4	64	func_801205c4	-	sound,unidentified	0	0	closed
-80120604	952	-	sound,unidentified	sound,unidentified	0	0	closed
+80120604	952	func_80120604	sound,unidentified	sound,unidentified	0	0	closed
 801209bc	8	func_801209bc	-	-	0	0	closed
 801209c4	108	func_801209c4	-	sound,unidentified	0	0	closed
 80120a30	200	func_80120a30	-	sound,unidentified	0	0	closed

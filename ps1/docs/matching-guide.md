@@ -230,6 +230,23 @@ constant's type or moves a load), a local that holds an address to move a
 load, and an assignment that nothing reads. `grep -rn "The local holds a
 constant" src` lists the uses.
 
+One exception to its last point, by the owner's word of 2026-10-11
+("exceptions are better than an unmatched function"): the original
+sometimes sets a register to a constant and never reads it, the leftover
+of a variable whose only use the compiler folded away after it had counted
+that use. Where that instruction is in the original and only a local set
+to the constant builds it, the local is allowed although no instruction
+reads it. It is written and used as the variable it stands for (passed,
+added), and carries this comment in place of the one above:
+
+```c
+/* The local holds a constant that no instruction reads: the original sets a register to this value here and never uses it. It is a stand-in for a variable of the original source, not recovered source. The name is inferred. */
+```
+
+A comment beside it quotes the original's instruction and gives the
+measurement with the constant written at the local's use, and the pull
+request says that nothing reads the register.
+
 A third stand-in is a test that is never true. It is only for a branch
 that the original's own instructions show and that can never be taken:
 the compiler reduced the tested value to the constant 0 and still emitted

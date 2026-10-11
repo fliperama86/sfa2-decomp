@@ -117,7 +117,7 @@ void func_80120498(int a);
 void func_801204f4(Object *o, int b, int c);
 void func_80120554(Object *o, int b, unsigned c);
 void func_801205c4(int a, unsigned c);
-void func_80120604(int a, int b, int c, short d);
+void func_80120604(unsigned song, int alt, unsigned short start, int pos);
 void func_801209c4(Object *object);
 void func_80120a30(Object *object, int a, int b);
 void func_80120af8(Object *object);

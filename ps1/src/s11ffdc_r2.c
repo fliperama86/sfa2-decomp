@@ -45,7 +45,7 @@ void func_801204f4(Object *o, int b, int c) {
     } else if (d >= 576) {
         d = 575;
     }
-    func_80120604(b, b, c & 0xff, d);
+    func_80120604(b, b, c & 0xff, (short)d);
 }
 
 void func_80120554(Object *o, int b, unsigned c) {
@@ -60,7 +60,7 @@ void func_80120554(Object *o, int b, unsigned c) {
     } else {
         d = 192;
     }
-    func_80120604((c & 0xff00) >> 8, b, c & 0xff, d);
+    func_80120604((c & 0xff00) >> 8, b, c & 0xff, (short)d);
 }
 
 void func_801205c4(int a, unsigned c) {
@@ -70,5 +70,5 @@ void func_801205c4(int a, unsigned c) {
     } else {
         d = 320;
     }
-    func_80120604((c & 0xff00) >> 8, a, c & 0xff, d);
+    func_80120604((c & 0xff00) >> 8, a, c & 0xff, (short)d);
 }
