@@ -1667,9 +1667,9 @@ LibRoutine = "port_lib_routine"
 PG_FILES = {"pg/func_80010000_pg.c": "int x;\n", "pg/func_80010010_pg.c": "int x;\n"}
 
 
-def program_tree(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None) -> Path:
+def program_tree(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None, units: str = RUN_UNITS) -> Path:
     """A made-up game with a made-up declaration, program folder and port list; the list is root/TAG/programs-list.toml."""
-    config = run_tree(root, tag)
+    config = run_tree(root, tag, units=units)
     base = root / tag / "src" / "programs"
     write(base / "programs.toml", decl if decl is not None else declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS)))
     for rel, text in (files or PG_FILES).items():
@@ -1683,8 +1683,8 @@ PG_CALLS = {"func_80010000_pg": ["func_80010010_pg", "data_80020000_pg", "sym_a"
 PG_RT = {"main": ["_port_lib_routine"]}
 
 
-def program_run(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None, defs=None, calls=None, **spec):
-    config = program_tree(root, tag, list_text, decl, files)
+def program_run(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None, defs=None, calls=None, units: str = RUN_UNITS, **spec):
+    config = program_tree(root, tag, list_text, decl, files, units)
     cc, nm = fake(root, tag, defs=defs or PG_DEFS, calls=calls or PG_CALLS, rt_only=spec.pop("rt_only", PG_RT), **spec)
     return run(root, tag, config, cc, nm, "--programs", root / tag / "programs-list.toml"), root / tag / "build"
 
@@ -1776,6 +1776,15 @@ def program_unit_cases(root: Path):
     yield "programs-units-no-folder", raises(lambda: hb.program_jobs(root / "pu" / "nowhere", listed), "func_80010000_pg", "no file")
 
 
+def program_option_cases():
+    yield "programs-option-default-is-the-ports-list", same(
+        (hb.make_parser().parse_args([]).programs, hb.DEFAULT_PROGRAMS, hb.DEFAULT_PROGRAMS.is_file(), hb.DEFAULT_PROGRAMS.parent.name, hb.DEFAULT_PROGRAMS.name),
+        (hb.DEFAULT_PROGRAMS, hb.REPO / "port" / "programs.toml", True, "port", "programs.toml"))
+    yield "programs-option-the-ports-list-reads-against-the-declaration", same(
+        isinstance(hb.read_programs_list(hb.DEFAULT_PROGRAMS, hb.REPO / "ps1" / "src" / "programs" / "programs.toml"), list), True)
+    yield "programs-option-given", same(hb.make_parser().parse_args(["--programs", "x.toml"]).programs, Path("x.toml"))
+
+
 def program_pure_cases():
     yield "programs-undefined-names-only-ps1", same(hb.undefined_names("         U _ps1_a\n00000000 T _impl_f\n         U _ps1_b\n", True), [])
     yield "programs-undefined-names-a-plain-name", same(hb.undefined_names("         U _ps1_a\n         U _DecDCTout\n         U _memcpy\n", True), ["DecDCTout", "memcpy"])
@@ -1795,20 +1804,28 @@ def program_pure_cases():
     yield "programs-link-bound-name-missing", same(hb.verify_link(GOOD_NM + "00403100 T _port_x\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: ps1_Lib is not in the linked file"])
     yield "programs-link-bound-routine-missing", same(hb.verify_link(GOOD_NM + "00403100 A _ps1_Lib\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: port_x is not in the linked file"])
     rows = [hb.ProgramRow("pg", "pg.exe", PG_SHA, "func_80010000_pg", [hb.Call("port_a", "data_80020000_pg"), hb.Call("port_b")], [hb.Call("port_c")]),
-            hb.ProgramRow("qq", "qq.exe", PG_SHA, "func_80010020_qq")]
+            hb.ProgramRow("qq", "qq.exe", PG_SHA, "func_80010020_qq"),
+            hb.ProgramRow("rr", "rr.exe", PG_SHA, "func_80010030_rr", [hb.Call("port_d")]),
+            hb.ProgramRow("ss", "ss.exe", PG_SHA, "func_80010040_ss", [], [hb.Call("port_e")])]
     text = hb.render_tables([], [], [], SHA, None, frozenset(), rows)
     sha = ", ".join("0x%02x" % b for b in range(32, 64))
     middle = text.split("const struct port_absent port_absents[]")[0].split('#include "port_tables.h"\n\n')[1]
     yield "programs-table-externs-and-routines", same(middle, f"""
 extern void impl_func_80010000_pg(void);
 extern void impl_func_80010020_qq(void);
+extern void impl_func_80010030_rr(void);
+extern void impl_func_80010040_ss(void);
 
 static const unsigned char port_programs_sha256_0[32] = {{ {sha} }};
 static const unsigned char port_programs_sha256_1[32] = {{ {sha} }};
+static const unsigned char port_programs_sha256_2[32] = {{ {sha} }};
+static const unsigned char port_programs_sha256_3[32] = {{ {sha} }};
 
 extern void port_a(unsigned);
 extern void port_b(unsigned);
 extern void port_c(unsigned);
+extern void port_d(unsigned);
+extern void port_e(unsigned);
 extern unsigned char ps1_data_80020000_pg[];
 
 static void port_program_setup_0(void)
@@ -1820,6 +1837,16 @@ static void port_program_setup_0(void)
 static void port_program_teardown_0(void)
 {{
     port_c(0);
+}}
+
+static void port_program_setup_2(void)
+{{
+    port_d(0);
+}}
+
+static void port_program_teardown_3(void)
+{{
+    port_e(0);
 }}
 
 const struct port_image port_images[] = {{
@@ -1835,9 +1862,11 @@ const unsigned port_function_count = 0;
 """)
     yield "programs-table-rows", same(text.split("const struct port_builtin_program port_programs[] = {\n")[1].split("const unsigned port_program_count")[0], """    { "pg", "pg.exe", port_programs_sha256_0, (void *)impl_func_80010000_pg, port_program_setup_0, port_program_teardown_0 },
     { "qq", "qq.exe", port_programs_sha256_1, (void *)impl_func_80010020_qq, 0, 0 },
+    { "rr", "rr.exe", port_programs_sha256_2, (void *)impl_func_80010030_rr, port_program_setup_2, 0 },
+    { "ss", "ss.exe", port_programs_sha256_3, (void *)impl_func_80010040_ss, 0, port_program_teardown_3 },
 };
 """)
-    yield "programs-table-count", same("const unsigned port_program_count = 2;\n" in text, True)
+    yield "programs-table-count", same("const unsigned port_program_count = 4;\n" in text, True)
     empty = hb.render_tables([], [], [], SHA, None, frozenset(), [])
     yield "programs-table-empty-has-count-zero", same(("const unsigned port_program_count = 0;" in empty, "{ 0, 0, 0, 0, 0, 0 },\n};\nconst unsigned port_program_count" in empty, "port_programs_sha256" in empty), (True, True, False))
     yield "programs-table-absent-without-programs-argument", same("port_programs" in hb.render_tables([], [], [], SHA), False)
@@ -1937,6 +1966,10 @@ def program_flow_cases(root: Path):
         hb.link_errors("ld: n.ld:5: undefined symbol `_a' referenced in expression\nld: n.ld:5: undefined symbol `_a' referenced in expression\ncollect2: error: ld returned 1 exit status\n"),
         "undefined symbol `_a' referenced in expression")
 
+    proc, _ = program_run(root, "pgr10", units=RUN_UNITS + unit("func_80010000_pg", "a.c", [("zz", 0x80100300)]), defs={**PG_DEFS, "func_80010000_pg": ["zz"]})
+    yield "programs-run-a-program-unit-with-the-name-of-a-unit-of-the-configuration-refused", same(
+        (proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "func_80010000_pg" in proc.stderr and "unit" in proc.stderr), (2, "", 1, True))
+
     # Stops after compilation, status 1.
     def stops(tag, needles, **more):
         proc, _ = program_run(root, tag, **more)
@@ -1962,6 +1995,8 @@ def program_flow_cases(root: Path):
     yield "programs-run-a-unit-that-does-not-assemble-stops-the-build", stops("pgs8", ["func_80010010_pg", "assembler"], asm_fail=["func_80010010_pg"])
     yield "programs-run-a-bound-name-at-another-address-fails-the-link-check", stops(
         "pgs9", ["LibRoutine", "port_lib_routine"], nm_extra=["00500000 A _ps1_LibRoutine"])
+    yield "programs-run-a-program-function-alias-at-another-address-fails-the-link-check", stops(
+        "pgs11", ["func_80010000_pg", "host data"], nm_extra=["00700000 B _ps1_func_80010000_pg"])
     yield "programs-run-a-program-function-outside-the-markers-fails-the-check", stops(
         "pgs10", ["impl_func_80010000_pg", "outside the game's code"], nm_extra=["00900000 T _impl_func_80010000_pg"])
 
@@ -2275,6 +2310,7 @@ def groups(root: Path, rig: "Rig | None" = None):
     yield program_read_cases(root)
     yield program_plan_cases(root)
     yield program_unit_cases(root)
+    yield program_option_cases()
     yield program_pure_cases()
     yield program_flow_cases(root)
     if rig:

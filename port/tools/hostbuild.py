@@ -2062,7 +2062,10 @@ def shown(path: Path) -> str:
         return str(path)
 
 
-def main() -> int:
+DEFAULT_PROGRAMS = REPO / "port/programs.toml"
+
+
+def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build the game's C as one program with every name at its PS1 address.")
     parser.add_argument("--config", type=Path, default=REPO / "ps1/src/build.toml")
     parser.add_argument("--cc", default="i686-w64-mingw32-gcc")
@@ -2073,13 +2076,17 @@ def main() -> int:
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--overrides", type=Path, default=None)
-    parser.add_argument("--programs", type=Path, default=REPO / "port/programs.toml", help="the port's list of stand-alone programs to build in")
+    parser.add_argument("--programs", type=Path, default=DEFAULT_PROGRAMS, help="the port's list of stand-alone programs to build in")
     parser.add_argument("--psyz", type=Path, default=None)
     parser.add_argument("--sound-library", action="store_true", help="compile the game's own sound library (needs --psyz)")
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)
     parser.add_argument("--list", action="store_true")
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> int:
+    args = make_parser().parse_args()
     out: list[str] = []
     listing: list[str] = []
     try:
