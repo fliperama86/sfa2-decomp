@@ -1,6 +1,8 @@
-"""Contract of func_8013bfa4: table objects hitting a player's boxes.
+"""Contract of func_8013bfa4 in the port's C: table objects hitting a player's boxes.
 
-The reads and writes are listed in the header comment of func_8013bfa4.c.
+The reads and writes are listed in the header comment of func_8013bfa4.c (the
+file of the override, which masks the shift count with 31; the setup draws
+the kind, a byte, from 0 to 40, so counts of 32 and more reach the shift).
 Choices made by the setup:
   - count_8018f59c is 0 in one case of twenty, a negative 16-bit value in one
     case of thirty (the loop is skipped), else 1 to 6;
