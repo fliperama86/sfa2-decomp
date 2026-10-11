@@ -347,6 +347,15 @@ class Selection(Fixture):
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32')
 
+    def test_movie_stream_calls_control_gets_the_compiler_only(self):
+        self.put('port/tools/test_hoststream.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7), 'cc32', 'psyzdir')}
+        self.assertEqual(argv['test_hoststream'][-2:], ('--cc', 'cc32'))
+        self.assertNotIn('--psyz-build', argv['test_hoststream'])
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
     def test_sound_out_controls_get_the_compiler_and_psyz_or_refuse(self):
         self.put('port/tools/test_hostaudio.py', '')
         self.put('port/src/example.c', '')
