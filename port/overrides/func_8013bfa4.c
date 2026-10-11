@@ -233,11 +233,10 @@ void func_8013bfa4(void) {
             }
             func_8013af1c(ref_third.p, ref_second.p, box);
             func_80155de0((Actor *)box, ref_second.p);
-            /* The original tests a value here that the compiler reduced to the constant 0 (move
-               v0,zero; a load; bnez v0), so the branch is never taken. Which field and mask the
-               source named cannot be read from the bytes; this spelling (a mask outside the byte
-               field's width) builds the original's instructions. Without the test the unit has
-               448 instructions instead of 450 and differs in 12 instruction lines. */
+            /* The original's instructions here: move v0,zero; a load; bnez v0. The mask lies outside
+               the width of the byte field. Without the test the unit d3bfa4_r1.c has 448 instructions
+               instead of 450 and differs in 12 instruction lines. */
+            /* The test below is a stand-in, not recovered source: the original has a branch here on a value its compiler reduced to the constant 0, so it is never taken. The bytes do not say which condition the source had; this one builds the original's instructions. */
             if (ref_third.p->field_02 & 0x100) {
                 continue;
             }
