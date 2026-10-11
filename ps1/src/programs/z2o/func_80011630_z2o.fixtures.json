@@ -1,0 +1,10 @@
+{
+ "fixtures": [
+  {"args": ["0x00000000"], "calls": [{"args": ["0x8002f8a4"], "callee": "CdMix", "pointees": {"0": [[0, "88888888"]]}, "returned": "0x00000000", "watched": [[[0, "00000000"]], [[0, "88888888"]]]}], "case": 0, "ends_in_callee": false, "note": "slots: 26 new", "reads": [["0x8001b34c", "1193e341"]], "recorders": [{"arguments": 1, "at": "0x80016910", "callee": "CdMix", "pointees": {"0": 1}}], "result": null, "same": [["0x8001b350", "a7066b1e"], ["0x8002f8a4", "41299902"]], "seed": 1, "watch": [["0x8001b350", 1], ["0x8002f8a4", 1]], "writes": [["0x8001b350", "00000000"], ["0x8002f8a4", "88888888"]]},
+  {"args": ["0x7665a7b7"], "calls": [{"args": ["0x8002f8a4"], "callee": "CdMix", "pointees": {"0": [[0, "af00af00"]]}, "returned": "0x00000000", "watched": [[[0, "b7a76576"]], [[0, "af00af00"]]]}], "case": 2, "ends_in_callee": false, "note": "slots: 12 new", "reads": [["0x8001b34c", "af"]], "recorders": [{"arguments": 1, "at": "0x80016910", "callee": "CdMix", "pointees": {"0": 1}}], "result": null, "same": [["0x8001b350", "bb538268"], ["0x8002f8a4", "e1a05fb4"]], "seed": 1, "watch": [["0x8001b350", 1], ["0x8002f8a4", 1]], "writes": [["0x8001b350", "b7a76576"], ["0x8002f8a4", "af00af00"]]}
+ ],
+ "format": 1,
+ "function": "func_80011630_z2o",
+ "recorded": {"cases": 2000, "comparison": "func_80011630_z2o: built 152 bytes, original 152 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-11", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}
