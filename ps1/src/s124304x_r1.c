@@ -70,7 +70,7 @@ void func_80124304(void) {
     blank = 0;
     /* Stand-in, not recovered source: the term that is ORed to game_state.field_17 in the test below, which is 0 for every value of t, reproduces the original's choice of registers. Without it this function differs from the original in 5 instruction slots. */
     /* The original steps the pad record pointer in its own register and then copies it to the second argument register. With no later use of the pointer the compiler makes one instruction of the two; the term is such a use and leaves no instruction of its own. */
-    /* The pointer goes to the widest unsigned integer first and from there to 32 bits: the first conversion holds every pointer of a compiler with wider pointers, and the second is the defined narrowing of an unsigned integer. A direct conversion of a wider pointer to 32 bits would not be defined. */
+    /* The pointer goes to an unsigned integer of 64 bits first and from there to 32 bits: the first conversion holds every pointer of the 32-bit and 64-bit compilers this project builds with, and the second is the defined narrowing of an unsigned integer. A direct conversion of a wider pointer to 32 bits would not be defined. */
     if ((game_state.field_17 | (((u32)(unsigned long long)t << 24) & 0x100)) != 0 && (data_80185fac[0].c != 0 || data_80185fac[1].c != 0)) {
         if (data_8016e800 == 4 || data_8016e800 == 5 || data_8016e800 == 6) {
             data_80185fac[0].c = 0;

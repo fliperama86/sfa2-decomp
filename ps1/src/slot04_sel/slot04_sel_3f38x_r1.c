@@ -42,7 +42,7 @@ void func_801b3f38_slot04_sel(void) {
     data_801b7df0_slot04_sel[q->field_00](w, q);
     /* Stand-in, not recovered source: the term that is ORed to game_state.field_07 in the test below, which is 0 for every value of w, reproduces the original's choice of registers. Without it this function differs from the original in 9 instruction slots. */
     /* The original steps the player pointer in its own register and then copies it to the first argument register. With no later use of the pointer the compiler makes one instruction of the two; the term is such a use and leaves no instruction of its own. */
-    /* The pointer goes to the widest unsigned integer first and from there to 32 bits: the first conversion holds every pointer of a compiler with wider pointers, and the second is the defined narrowing of an unsigned integer. A direct conversion of a wider pointer to 32 bits would not be defined. */
+    /* The pointer goes to an unsigned integer of 64 bits first and from there to 32 bits: the first conversion holds every pointer of the 32-bit and 64-bit compilers this project builds with, and the second is the defined narrowing of an unsigned integer. A direct conversion of a wider pointer to 32 bits would not be defined. */
     if ((game_state.field_07 | (((u32)(unsigned long long)w << 24) & 0x100)) != 0) {
         if (r->field_0d != 0 || r[1].field_0d != 0) {
             r->field_00 = 0;
