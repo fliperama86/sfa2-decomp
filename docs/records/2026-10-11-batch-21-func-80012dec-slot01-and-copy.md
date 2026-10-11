@@ -46,6 +46,6 @@
   change, the unit put back. The byte-offset scan on the two units:
   none. The compiler's warnings on the two units: none. The map's
   render: `overall: 5560/5600 distinct functions exact (99.3%); 13016/13072 placements (99.6%); 1777324/1809836 code bytes (98.2%)`. The tree is made from
-  main at `723efc2` and has main at `9c5851e`, with batches 19 and 20,
-  merged in; both images were built again after the merge.
+  main at `d55ff8a` and has main at `9c5851e`, with batch 20, merged
+  in; both images were built again after the merge.
   No whole build, no PC build, no differential test.
