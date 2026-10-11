@@ -1956,10 +1956,12 @@ Sound is on unless turned off, by the owner's decision of 2026-10-10
 and no script made a sound. That is now each test's and each script's own
 care: it starts the program with `--no-audio` or `--audio-dump`, or with
 SDL's dummy audio driver as the controls below do. The two control files
-that link the program with PsyZ do all of it in their rig: the dummy
-driver in the environment of every child, a refusal of any start whose
-environment lacks it, and `--no-audio` before the arguments wherever a
-case does not name its own sound options.
+that link the program with PsyZ share one rig. It starts every child
+with the dummy driver in its environment and refuses a start whose
+environment names no driver or another one. In `test_hostiopage.py` it
+also puts `--no-audio` before the program's arguments (a case shows that
+no line about sound is then printed); `test_hostaudio.py` names the sound
+options of each case itself.
 
 None of this needs the sound library. In a build with
 `--no-sound-library` the stand-ins of `sound.c` write nothing to the

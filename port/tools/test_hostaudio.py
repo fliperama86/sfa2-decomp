@@ -290,12 +290,13 @@ wsl_env = I.sound_env
 
 
 class AudioRig(I.PsyzRig):
-    """The PsyZ rig with nothing put before a program's arguments (each case names its own sound options) and with guarded starts: a
-    start whose environment lacks a driver that cannot reach a real device is refused, whatever its arguments."""
+    """The PsyZ rig with nothing put before a program's arguments (each case names its own sound options). Its guard, the PsyZ rig's,
+    lets a child start with the dummy driver or with the name that SDL does not have, and with nothing else, whatever the arguments."""
 
     def __init__(self, cc, prefix, work, info):
         super().__init__(cc, prefix, work, info)
         self.env = wsl_env(SAMPLE)
+        self.drivers = (SAMPLE, BAD_DRIVER)
         self.first = []
 
     def program_for(self, variant, pin, old_link=False):
@@ -306,13 +307,6 @@ class AudioRig(I.PsyzRig):
         finally:
             self.libs = saved
 
-    def guard(self, args):
-        if self.env.get("SDL_AUDIODRIVER") not in (SAMPLE, BAD_DRIVER):
-            raise AssertionError("refused to start with %r: SDL_AUDIODRIVER is %r, not %r or %r" % (args, self.env.get("SDL_AUDIODRIVER"), SAMPLE, BAD_DRIVER))
-
-    def start(self, exe, args, timeout):
-        self.guard(args)
-        return super().start(exe, args, timeout)
 
 
 def split(lines: list[str]):

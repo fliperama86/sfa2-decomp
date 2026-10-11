@@ -33,12 +33,15 @@
 - The controls. Two control files link the port's program with PsyZ,
   through one rig (`PsyzRig` in `test_hostiopage.py`). The rig now gives
   every child SDL's dummy driver (`SDL_AUDIODRIVER`, under WSL through
-  `WSLENV`) and puts `--no-audio` before the arguments; a new case shows
-  that the program then prints no line about sound, and it failed when
-  the rig was changed to put nothing there (one run, the change taken
-  out again). `test_hostaudio.py` names its own sound options per case,
-  and its guard now refuses every start whose environment lacks the
-  driver, whatever the arguments. It has 28 cases; the new ones: the
+  `WSLENV`), refuses a start whose environment names no driver or
+  another one, whatever the arguments (the guard that `test_hostaudio.py`
+  had for `--audio`, moved into the rig), refuses the launch rig's
+  bounded run, which takes no environment, and in `test_hostiopage.py`
+  puts `--no-audio` before the arguments. Two new cases there: the
+  program then prints no line about sound (it failed when the rig was
+  changed to put nothing there: one run, the change taken out again),
+  and the three refusals. `test_hostaudio.py` names its own sound
+  options per case. It has 28 cases; the new ones: the
   device with no option (opened, the model pulled), `--no-audio` (no
   line, not pulled), a driver that does not exist with no option, both
   orders of `--audio` with `--no-audio`, the dump alone and with
@@ -53,7 +56,7 @@
 - What ran, on this change over main `f201b77`:
   `python3 port/tools/test_hostbuild.py` (406 cases, all as required);
   `test_hostaudio.py --cc CC --psyz-build DIR` (28); `test_hostiopage.py
-  --cc CC --psyz-build DIR` (110). PsyZ was the pin `6d01339a`, the
+  --cc CC --psyz-build DIR` (112). PsyZ was the pin `6d01339a`, the
   compiler MinGW-w64 GCC 16.2.0 for 32-bit Windows. The real build with
   `--psyz DIR` and nothing else printed `sound library: 45 units of
   sdk/libsnd, 22 of sdk/libspu, 6 of library_nonmatching` and `units:

@@ -884,19 +884,30 @@ class PsyzRig(L.Rig):
     """The launch rig with PsyZ's model of the chip: iopage.c and the made-up runtime's routines are compiled for it, and every program
     is linked with PsyZ's libraries (the build folder's psyz.json says how).
 
-    A program linked with PsyZ opens the machine's sound output unless it is told not to. NO CASE MAY OPEN A REAL DEVICE: every child
-    this rig starts gets `self.env`, which names SDL's dummy audio driver, and `run` puts `self.first` before the arguments of the
-    port's program (here --no-audio: the cases of this file use the model with nothing pulling from it)."""
+    A program linked with PsyZ opens the machine's sound output unless it is told not to. NO CASE MAY OPEN A REAL DEVICE: `start` gives
+    the child `self.env`, which names SDL's dummy audio driver, and refuses to start one when the driver named there is not among
+    `self.drivers` (`guard`); `run` puts `self.first` before the arguments of the port's program (here --no-audio: the cases of this file
+    use the model with nothing pulling from it). The launch rig's other way to start a program, `run_bounded`, takes no environment and
+    is refused here."""
 
     def __init__(self, cc, prefix, work, info):
         super().__init__(cc, prefix, work)
         self.info = info
         self.libs = [str(x) for x in info["link"]]
         self.env = sound_env()
+        self.drivers = (QUIET_DRIVER,)   # the audio drivers a child may be started with: none of them reaches a device
         self.first = ["--no-audio"]
 
+    def guard(self, args):
+        if self.env.get("SDL_AUDIODRIVER") not in self.drivers:
+            raise AssertionError("refused to start with %r: SDL_AUDIODRIVER is %r, not one of %r" % (args, self.env.get("SDL_AUDIODRIVER"), self.drivers))
+
+    def run_bounded(self, exe, arg, args, limit):
+        raise AssertionError("refused: the launch rig's bounded run would start the child without this rig's environment")
+
     def start(self, exe, args, timeout):
-        """As the launch rig's, with this rig's environment."""
+        """As the launch rig's, with this rig's environment and behind its guard."""
+        self.guard(args)
         self.last = None
         try:
             proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=timeout, env=self.env)
@@ -966,6 +977,31 @@ def launch(rig: L.Rig, only: str, psyz: bool, not_run: list[str]):
         status, lines, img, arg = rig.run("quiet", program(G[CASES[0]["fn"]]), variant="iopage", args=CASES[0]["args"], timeout=120)
         yield name, None if (any(l.startswith("start: 0x") for l in lines) and not any(l.startswith("audio:") for l in lines)
                              and rig.env.get("SDL_AUDIODRIVER") == QUIET_DRIVER) else f"SDL_AUDIODRIVER {rig.env.get('SDL_AUDIODRIVER')!r}; lines {lines!r}"
+    name = "the-rig-refuses-a-start-without-the-dummy-driver-and-the-bounded-run"
+    if psyz and (not only or only in name):
+        # the rig's own refusals: a start whose environment names no driver, or another one, and the bounded run
+        refused = {}
+        saved = rig.env
+        try:
+            for label, env in (("no-driver", {k: v for k, v in saved.items() if k != "SDL_AUDIODRIVER"}), ("another-driver", {**saved, "SDL_AUDIODRIVER": "directsound"})):
+                rig.env = env
+                try:
+                    rig.start(rig.work / "never-started.exe", [], 5)
+                    refused[label] = False
+                except AssertionError:
+                    refused[label] = True
+                except Exception:   # the guard let it through, and the start failed on the missing file
+                    refused[label] = False
+        finally:
+            rig.env = saved
+        try:
+            rig.run_bounded(rig.work / "never-started.exe", "x", [], 5)
+            refused["bounded"] = False
+        except AssertionError:
+            refused["bounded"] = True
+        except Exception:   # not refused: the launch rig's own run failed on the missing file
+            refused["bounded"] = False
+        yield name, None if refused == {"no-driver": True, "another-driver": True, "bounded": True} else f"refused {refused!r}"
     for c in CASES:
         if only and only not in c["name"]:
             continue
