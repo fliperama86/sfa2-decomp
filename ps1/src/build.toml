@@ -2329,8 +2329,13 @@ functions = [
   { name = "func_801598bc", address = 0x801598bc, size = 44 },
 ]
 
-
-
+[[unit]]
+name = "sdk_libgpu_sys_p11"
+source = "sdk/libgpu/sys_p11.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_getctl", address = 0x801598e8, size = 24 },
+]
 
 [[unit]]
 name = "s158894_r11"
@@ -8685,6 +8690,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libgpu_sys_p10"
+source = "sdk/libgpu/sys_p10.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SetDrawEnv", address = 0x80158a84, size = 676 },
+]
+
+[[unit]]
 name = "sdk_libgpu_sys_p8"
 source = "sdk/libgpu/sys_p8.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -8731,6 +8744,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libgpu_sys_p12"
+source = "sdk/libgpu/sys_p12.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_exeque", address = 0x80159cec, size = 788 },
+]
+
+[[unit]]
 name = "sdk_libgpu_sys_p6"
 source = "sdk/libgpu/sys_p6.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -8739,6 +8760,15 @@ functions = [
   { name = "_sync", address = 0x8015a13c, size = 328 },
   { name = "set_alarm", address = 0x8015a284, size = 52 },
 ]
+
+[[unit]]
+name = "sdk_libgpu_sys_p13"
+source = "sdk/libgpu/sys_p13.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "get_alarm", address = 0x8015a2b8, size = 364 },
+]
+rodata = { address = 0x8016dca0, size = 76 }
 
 [[unit]]
 name = "sdk_libgpu_sys_p7"
