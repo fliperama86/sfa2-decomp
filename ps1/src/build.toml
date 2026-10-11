@@ -14945,6 +14945,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot27_791cx_r1"
+image = "slot27"
+source = "slot27/slot27_791cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001791c_slot27", address = 0x8001791c, size = 680 },
+]
+
+[[unit]]
 name = "slot27_39a8x_r1"
 image = "slot27"
 source = "slot27/slot27_39a8x_r1.c"
