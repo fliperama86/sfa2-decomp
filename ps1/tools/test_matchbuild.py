@@ -2772,10 +2772,14 @@ def make_cache_cases(parsed: dict) -> list[CacheCase]:
         if any(u2[n]["cache"] != "hit" for n in u2 if n != first):
             return f"other units should still hit: {states(u2)}"
         old = parsed["toolchain"]["aspsx_version"]
+        # The first such line of the file is [toolchain]'s; a unit that names a version of its own does not take it.
+        own_version = {u["name"] for u in parsed["unit"] if "aspsx_version" in u}
         edit_config(ctx, r'(aspsx_version\s*=\s*)"[^"]*"', lambda m: f'{m.group(1)}"{old}.1"', "aspsx_version")
         _, _, u3 = ctx.run()
-        if any(u3[n]["key"] == u1[n]["key"] or u3[n]["cache"] != "miss" for n in u3):
-            return "a changed aspsx version must change every key and miss"
+        if any(u3[n]["key"] == u1[n]["key"] or u3[n]["cache"] != "miss" for n in u3 if n not in own_version):
+            return "a changed aspsx version must change the key of every unit that takes it, and miss"
+        if any(u3[n]["key"] != u1[n]["key"] or u3[n]["cache"] != "hit" for n in u3 if n in own_version and n != first):
+            return "a unit with a version of its own must keep its key and hit when the toolchain's version changes"
         if "expand_div" in parsed["toolchain"]:
             edit_config(
                 ctx, r"(expand_div\s*=\s*)(true|false)",
