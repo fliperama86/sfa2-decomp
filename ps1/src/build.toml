@@ -8737,6 +8737,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libsnd_vm_alloc"
+source = "sdk/libsnd/vm_alloc.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmAlloc", address = 0x8015ffc0, size = 636 },
+]
+
+[[unit]]
 name = "sdk_libsnd_vmanager_p1"
 source = "sdk/libsnd/vmanager_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
