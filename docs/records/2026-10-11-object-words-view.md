@@ -38,6 +38,10 @@ What ran, on this change at its first commit:
 - The replays of the recorded fixtures of the eight folders, at the same
   time: 123 functions, every one with `failed 0`.
 
+The build ran again at `9b336ee`, after the branch took the first change's
+merge of main's batch 5: 78 of 78 `RESULT: PASS`. The six units of that
+batch have no line that the names page's command prints.
+
 What did not run: the differential tests against the original code,
 `workflow.py review` as a whole, the port's build and its control files,
 the inventory sweep (no boundary moved).
