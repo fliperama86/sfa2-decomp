@@ -173,6 +173,14 @@ functions = [
 ]
 
 [[unit]]
+name = "v10_r4"
+source = "v10_r4.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013172c", address = 0x8013172c, size = 296 },
+]
+
+[[unit]]
 name = "post_swap"
 source = "post_swap.c"
 flags = ["-O2", "-G0"]
