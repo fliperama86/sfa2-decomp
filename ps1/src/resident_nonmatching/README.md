@@ -236,7 +236,6 @@ func_801189c4 control: different 2000 of 2000 (expected more than 0)
   altered: game_state.field_1e constant 0x1c3 changed to 0x1c4, instruction slot 177
 func_80119694 control: different 141 of 2000 (expected more than 0)
   altered: counter starts at 28, instruction slot 0
-  altered: data_80184700 receives 0x70, instruction slot 93
 func_8011a880 control: different 1996 of 2000 (expected more than 0)
   altered: part field_09 offset 4 becomes 5, instruction slot 9
 func_8011acbc control: different 2000 of 2000 (expected more than 0)
@@ -333,7 +332,6 @@ func_80141cec control: different 596 of 2000 (expected more than 0)
   altered: store of field_157 moved by one byte, instruction slot 74
 func_80142030 control: different 784 of 2000 (expected more than 0)
   altered: store of field_219 moved by one byte, instruction slot 58
-  altered: store of field_255 moved by one byte, instruction slot 45
 func_801452ec control: different 1860 of 2000 (expected more than 0)
   altered: texture byte store moved by one byte, instruction slot 184
 func_8014c4a8 control: different 2000 of 2000 (expected more than 0)
