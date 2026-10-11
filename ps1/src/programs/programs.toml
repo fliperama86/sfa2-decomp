@@ -106,8 +106,8 @@ address = 0x80010000
 # No gp is declared for this program. The entry code (header entry 0x80011ac8) first clears the words from 0x8002f7f0 up
 # to 0x8008a400 and only then sets the global pointer register to 0x8002f7f0 before it jumps to the main. The reader
 # checks a declared value against the first two instructions at the entry address only, so no value is declared and the
-# test tool begins each run with the register at 0. Right only for functions that do not use the register (the six listed
-# here do not; each one's header says so).
+# test tool begins each run with the register at 0. Right only for functions that do not use the register (the functions
+# listed here do not; each one's header says so).
 functions = [
   { name = "func_800116c8_z2o", address = 0x800116c8, size = 16 },
   { name = "func_800119b8_z2o", address = 0x800119b8, size = 16 },
@@ -122,6 +122,11 @@ functions = [
   { name = "func_80011a24_z2o", address = 0x80011a24, size = 164 },
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
+  { name = "func_80011708_z2o", address = 0x80011708, size = 264 },
+  { name = "func_80011018_z2o", address = 0x80011018, size = 184 },
+  { name = "func_800108e8_z2o", address = 0x800108e8, size = 512 },
+  { name = "func_80010c38_z2o", address = 0x80010c38, size = 776 },
+  { name = "func_800110d0_z2o", address = 0x800110d0, size = 716 },
 ]
 
 [program.symbols]
@@ -141,6 +146,33 @@ CdMix = 0x80016910
 CdInit = 0x80016264
 CdControlB = 0x800167bc
 CdIntToPos = 0x80016a3c
+data_8002f888_z2o = 0x8002f888
+data_8002f88c_z2o = 0x8002f88c
+data_80031e68_z2o = 0x80031e68
+data_8002f874_z2o = 0x8002f874
+data_8002f87c_z2o = 0x8002f87c
+data_8002f880_z2o = 0x8002f880
+data_8002f884_z2o = 0x8002f884
+StCdInterrupt = 0x800196e4
+DecDCTout = 0x80011c34
+func_80157fc4 = 0x800131a8
+func_80011afc_z2o = 0x80011afc
+data_80031e6c_z2o = 0x80031e6c
+data_80031e70_z2o = 0x80031e70
+data_80031e74_z2o = 0x80031e74
+data_8003de88_z2o = 0x8003de88
+data_80049e8c_z2o = 0x80049e8c
+data_80049ea4_z2o = 0x80049ea4
+data_80049ed4_z2o = 0x80049ed4
+data_80031e84_z2o = 0x80031e84
+data_8003de8c_z2o = 0x8003de8c
+data_800876f8_z2o = 0x800876f8
+InitGeom = 0x80016114
+PadInit = 0x8001ac78
+PadRead = 0x8001acd8
+PadStop = 0x8001ad08
+ResetCallback = 0x8001a4f4
+StopCallback = 0x8001a5e8
 data_8002f800_z2o = 0x8002f800
 data_8002f804_z2o = 0x8002f804
 StUnSetRing = 0x80018b38
@@ -154,5 +186,25 @@ SetDefDispEnv = 0x80015948
 ClearImage = 0x80013114
 DrawSync = 0x80012f80
 VSync = 0x8001b154
+data_8002f84c_z2o = 0x8002f84c
+data_8002f814_z2o = 0x8002f814
+data_8002f820_z2o = 0x8002f820
+data_8002f80c_z2o = 0x8002f80c
+data_8001b348_z2o = 0x8001b348
+data_8002f894_z2o = 0x8002f894
+data_8002f898_z2o = 0x8002f898
+data_8002f89c_z2o = 0x8002f89c
+data_8002f8a8_z2o = 0x8002f8a8
+data_8002f8ac_z2o = 0x8002f8ac
+data_8002f8c4_z2o = 0x8002f8c4
+DecDCTReset = 0x80011b04
+DecDCTvlc = 0x80011b68
+DecDCTin = 0x80011bb8
+StSetRing = 0x8001a27c
+StSetStream = 0x80018c34
+StGetNext = 0x8001a30c
+StFreeRing = 0x8001a438
+CdControl = 0x80016538
+CdRead2 = 0x80018b90
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654
