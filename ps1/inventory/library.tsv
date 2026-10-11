@@ -67,12 +67,12 @@
 80158a04	40	SetPriority	graphics	0	folder
 80158a2c	88	SetDrawMode	graphics	6	folder
 80158a84	676	-	graphics	0	place
-80158d28	92	-	graphics	0	name
-80158d84	204	-	graphics	0	name
-80158e50	204	-	graphics	0	name
-80158f1c	72	-	graphics	0	name
+80158d28	92	get_mode	graphics	0	name
+80158d84	204	get_cs	graphics	0	name
+80158e50	204	get_ce	graphics	0	name
+80158f1c	72	get_ofs	graphics	0	name
 80158f64	132	get_tw	graphics	0	folder
-80158fe8	188	-	graphics	0	place
+80158fe8	188	get_dx	graphics	0	folder
 801590a4	24	func_801590a4	graphics	0	place
 801590bc	232	_otc	graphics	0	folder
 801591a4	544	-	graphics	0	place
