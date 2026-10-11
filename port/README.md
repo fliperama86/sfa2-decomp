@@ -2453,6 +2453,37 @@ rest of what `press.c` takes from the runtime. It runs the layout of
 only, the routine that starts the next transfer), `DecDCTReset` and
 `DecDCToutCallback`. `DecDCTin`'s refusal by the chip cannot be reached
 with the checks before it, so no case gives it.
+### The logo program's small library routines
+
+`port/src/progcalls.c` (header `progcalls.h`) holds six host routines
+that the logo's stand-alone program calls: `CdRead` and `CdReadSync` (a
+plain read of sectors into memory), `PadInit`, `PadRead`, `PadStop` and
+`SetVideoMode`. No program calls them yet. They were written from what
+the program's own copies do (read in a private listing) and nothing is
+compared with a console.
+
+`CdRead` runs the program's own steps through the disc layer (a Pause if
+the drive is reading, Setmode with the mode's low byte, ReadN) with its
+own handler set as the host ready handler: per sector 0x200 words go to
+the buffer, and after the last the handler removes itself and Pauses.
+The buffer's whole span must lie in the mapped RAM and the mode's bits
+0x30 must be 0, else the program stops with a line that names the call.
+Sony's retries are not modelled. The read starts where the disc layer's
+drive is, which is the program's last seek because it sends one before
+every read; Sony's routine would send its last Setloc again.
+`CdReadSync(0)` waits by `port_tick` with the disc layer's limit, counted
+again after each sector; another mode returns the sectors still to come.
+
+`PadRead` gives the word of port 1 (the runtime's pad frame with the
+input script applied, as `kernel.c` fills the game's buffers; Start is
+bit 11, circle bit 5) and nothing for port 2. `PadInit` and `PadStop`
+keep a flag and change nothing. `SetVideoMode` keeps the word and
+returns the one before; the display is not changed. The file needs
+nothing only the library has, so `hostbuild.py` is unchanged.
+
+The controls. `port/tools/test_hostprogcalls.py --cc CC` builds the file
+with the disc layer, `input.c` and a driver of its own, on a made-up
+disc image, and logs what the file asks of the disc layer.
 
 ## Not decided
 
