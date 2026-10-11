@@ -54,7 +54,7 @@
  * The queue is also emptied by StSetRing and StUnSetRing (this layer's own rules; the library has no queue); CdRead2 does not.
  *
  * NOT MODELLED, each a stop with a line that names the call: the "old type" stream (CdRead2 with bit 0x100 and without the mode's
- * 0x20 bit); a ring of fewer than 2 slots or outside the RAM; StGetNext's and StFreeRing's pointers outside the RAM; an address given
+ * 0x20 bit); a ring of fewer than 2 slots or outside the RAM; StFreeRing's pointers outside the RAM; an address given
  * to StFreeRing that is not inside the ring's data blocks (or a frame that reaches past the ring). The emulation mode of Sony's
  * routine is not reachable from the programs and is left out. A call of the handler from inside itself returns at step 1 while the
  * transfer-end routine runs (f1) and stops the program anywhere else. */
@@ -72,7 +72,11 @@ void port_StSetStream(unsigned long mode, unsigned long start, unsigned long end
 
 /* StGetNext(&addr, &header): looks at slot r. State 1 (a wrap marker): r = 0 (the marker is cleared only when end is not 0), then
  * the slot is looked at again. State 2: it becomes 4, *addr is the data block, *header the header, the result 0. Otherwise 1.
- * r is moved only by the marker. */
+ * r is moved only by the marker. The two pointers are the caller's own variables (the program's C runs natively and its locals are on
+ * the host's stack, not in the game's RAM), so they are not checked against the RAM; a null one stops the program with a line that
+ * names the call. When there is no frame to give (the result 1) the call calls port_tick() once before it returns, so that a poll
+ * that fails lets the clock and the interrupts go, as CdReady's and CdSync's do (the programs poll a fixed number of times, seconds
+ * on the console, milliseconds on a PC); when a frame is given it does not tick. */
 int port_StGetNext(unsigned long **addr, unsigned long **header);
 
 /* StFreeRing(addr): the slot of the data block at `addr`. 1 when its state is not 4. Otherwise the states of as many slots as the

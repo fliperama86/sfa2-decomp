@@ -6,8 +6,8 @@
 
 The test compiles progcalls.c with the disc layer (cd.c, xa.c, disc.c, sha256.c) and the pads' file (input.c, with its read of the
 devices renamed so that the driver can supply a frame of its own or call it) and a driver of its own, which maps the game's RAM at
-its own address and stands in for what these files take from the runtime: port_tick (a clock the test sets: it delivers the disc's
-sectors as the vblank does, every K-th call, or never), port_halt (prints `stop: ...` and ends the driver with the status it was
+its own address and stands in for what these files take from the runtime: port_tick (a clock the test sets: it takes a vblank, which
+is the frame count and the disc's tick, at every K-th call or never; the disc can be set to move at every P-th vblank or never), port_halt (prints `stop: ...` and ends the driver with the status it was
 given; each case that stops runs in a driver of its own), the frame count, the audio lock and the trace. The calls the disc layer
 gets from progcalls.c are logged by wrappers at the link (`CMD B 9`, `CMD B e 80`, `CMD N 6`, `HOST set`, `HOST clear`), and the
 test can make one of them fail. The disc is a made-up image whose every sector says which sector it is in its first two bytes
@@ -58,7 +58,7 @@ DRIVER_C = r'''
 
 volatile int port_handler_depth;
 static unsigned frames;
-static int ticks, divider = 1, log_on, fail_what; /* fail_what: 1 Pause, 2 Setmode, 3 ReadN: that step returns 0 */
+static int ticks, divider = 1, disc_period = 1, disc_count, log_on, fail_what; /* fail_what: 1 Pause, 2 Setmode, 3 ReadN: that step returns 0 */
 static int pad_mode;                              /* 0 the runtime's own read (the idle pad), 1 the made-up frame below */
 static unsigned char pad_frame[34];
 
@@ -70,7 +70,10 @@ void port_target_check(const char *path, const void *target) { (void)path; (void
 void port_tick(void)
 {
     ticks++;
-    if (divider > 0 && ticks % divider == 0) { frames++; port_cd_tick(); }
+    if (divider > 0 && ticks % divider == 0) {   /* a vblank: only at every divider-th call */
+        frames++;
+        if (disc_period > 0 && ++disc_count % disc_period == 0) port_cd_tick();   /* the disc moves at every disc_period-th vblank */
+    }
 }
 void port_halt(int status, const char *fmt, ...)
 {
@@ -145,7 +148,9 @@ int main(int argc, char **argv)
         if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
         else if (!strcmp(cmd, "log")) log_on = atoi(rest);
         else if (!strcmp(cmd, "fail")) fail_what = atoi(rest);
-        else if (!strcmp(cmd, "div")) divider = atoi(rest);   /* port_tick delivers at every K-th call; 0 never */
+        else if (!strcmp(cmd, "div")) divider = atoi(rest);   /* port_tick takes a vblank (the frame count) at every K-th call; 0 never */
+        else if (!strcmp(cmd, "disc")) { disc_period = atoi(rest); disc_count = 0; }   /* the disc delivers at every P-th vblank; 0 never */
+        else if (!strcmp(cmd, "fr")) printf("F %u\n", frames);
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) { frames++; port_cd_tick(); } }
         else if (!strcmp(cmd, "seek")) {   /* Setloc and SeekL with a position, as the program sends it (CdControl 0x15) */
@@ -441,10 +446,52 @@ def result_of_a_refused_read_is_cleared():
 
 
 def no_sectors_arrive_the_wait_runs_out():
-    rc, l = run(SETUP + "div 0\nread 3 80100000 80\nticks\nsync 0\nticks\nsync 1\n")
-    s = after(l, "SY ")
-    t = [int(x.split()[1]) for x in after(l, "T ")]
-    if [x.split()[1] for x in s] != ["-1", "3"] or "cd: CdReadSync timed out" not in l or t[1] - t[0] != 600:
+    # the limit is 600 vblanks (port_frames), not 600 calls of the tick: for one call per vblank and for seven
+    for k in (1, 7):
+        rc, l = run(SETUP + "read 3 80100000 80\ndiv %d\ndisc 0\nfr\nticks\nsync 0\nfr\nticks\nsync 1\n" % k)
+        s = after(l, "SY ")
+        t = [int(x.split()[1]) for x in after(l, "T ")]
+        f = [int(x.split()[1]) for x in after(l, "F ")]
+        if [x.split()[1] for x in s] != ["-1", "3"] or l.count("cd: CdReadSync timed out") != 1:
+            return f"divisor {k}: {l}"
+        if f[1] - f[0] != 600:
+            return f"divisor {k}: the wait ended after {f[1] - f[0]} vblanks, not 600"
+        if t[1] % k != 0 or not 599 * k < t[1] - t[0] <= 600 * k:
+            return f"divisor {k}: the wait took {t[1] - t[0]} calls; it must end at the call that took the 600th vblank"
+
+
+def a_far_divisor_does_not_cut_a_read_off():
+    # 74 sectors need some 30 vblanks; with a vblank only at every 5,000th call the old count of calls (600) gave up at once
+    rc, l = run(SETUP + "div 5000\nread 74 80100000 80\nsync 0\nhash 80100000 %d\nfr\n" % (74 * 2048))
+    if after(l, "SY ")[0].split()[1] != "0" or "cd: CdReadSync timed out" in l:
+        return f"{l}"
+    if after(l, "H ") != [sectors_hash(10, 74)]:
+        return f"the buffer differs from sectors 10 to 83: {after(l, 'H ')}"
+
+
+def a_sector_at_the_limit_comes_in_a_sector_after_it_does_not():
+    # (set after the read, which ticks too) one sector, the disc delivering at every P-th vblank: the 600th vblank's tick is the last one the wait makes
+    for p, want in ((599, "0"), (600, "0"), (601, "-1"), (1200, "-1")):
+        rc, l = run(SETUP + "read 1 80100000 80\ndisc %d\nsync 0\nhash 80100000 2048\n" % p)
+        timed = "cd: CdReadSync timed out" in l
+        if after(l, "SY ")[0].split()[1] != want or timed != (want == "-1"):
+            return f"a sector at vblank {p}: {l}"
+        if want == "0" and after(l, "H ") != [sectors_hash(10, 1)]:
+            return f"{after(l, 'H ')}"
+
+
+def a_late_sector_starts_the_count_again():
+    # sectors at vblank 400 (two) and 800 (the third): 800 vblanks in all, but never 600 without one
+    rc, l = run(SETUP + "read 3 80100000 80\ndisc 400\nfr\nsync 0\nfr\nhash 80100000 6144\n")
+    f = [int(x.split()[1]) for x in after(l, "F ")]
+    if after(l, "SY ")[0].split()[1] != "0" or "cd: CdReadSync timed out" in l or after(l, "H ") != [sectors_hash(10, 3)]:
+        return f"{l}"
+    if f[1] - f[0] != 800:
+        return f"the wait took {f[1] - f[0]} vblanks; the case needs 800 (past the limit, with sectors inside it)"
+    # and the count does start at the sector: 600 vblanks after the first sector (400) nothing came: gone at 1000, not at 600
+    rc, l = run(SETUP + "read 6 80100000 80\ndisc 400\nfr\nsync 0\nfr\n")
+    f = [int(x.split()[1]) for x in after(l, "F ")]
+    if after(l, "SY ")[0].split()[1] != "0" or f[1] - f[0] != 1200:
         return f"{l}"
 
 
@@ -620,7 +667,8 @@ NAMES = [read_one_sector, read_three_sectors, read_many_sectors, commands_in_ord
          handler_removed_and_drive_paused_after_last, sync_before_during_after, sync_waits_by_ticking, result_bytes,
          read_past_the_end_fails, read_ending_exactly_at_the_images_end, second_read_after_a_finished_one,
          second_read_without_a_seek_goes_on_from_the_drive, read_while_one_is_on_pauses_first,
-         a_refused_step_returns_zero_and_leaves_nothing, the_drive_is_reading_by_the_status_bits_0xe0, result_of_a_refused_read_is_cleared, no_sectors_arrive_the_wait_runs_out, slow_progress_does_not_run_out,
+         a_refused_step_returns_zero_and_leaves_nothing, the_drive_is_reading_by_the_status_bits_0xe0, result_of_a_refused_read_is_cleared, no_sectors_arrive_the_wait_runs_out, a_far_divisor_does_not_cut_a_read_off,
+         a_sector_at_the_limit_comes_in_a_sector_after_it_does_not, a_late_sector_starts_the_count_again, slow_progress_does_not_run_out,
          fewer_than_one_sector_returns_zero, last_sectors_of_ram_are_accepted, *[stop_function(k) for k in STOPS],
          pad_each_button_in_the_low_half, pad_start_and_circle, pad_nothing_pressed_all_pressed,
          pad_high_half_is_a_port_with_no_controller, pad_frames_that_are_not_a_digital_pad, pad_id_is_not_used,

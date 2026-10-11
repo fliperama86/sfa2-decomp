@@ -210,6 +210,14 @@ int main(int argc, char **argv)
             *y = 0;
             r = port_StGetNext(x, y);
             printf("next %d %x %x\n", r, (unsigned)(size_t)*x, (unsigned)(size_t)*y);
+        } else if (!strcmp(cmd, "nexth") || !strcmp(cmd, "nextn")) {
+            /* the caller's own variables, on the driver's stack (not in the game's RAM), as the program's C has them; nextn gives a null
+             * pointer for the address (first number 1) and/or the header (second number 1) */
+            unsigned long *x = 0, *y = 0;
+            int na = 0, nh = 0, r, t0 = ticks;
+            if (!strcmp(cmd, "nextn")) sscanf(line + at, "%d %d", &na, &nh);
+            r = port_StGetNext(na ? 0 : &x, nh ? 0 : &y);
+            printf("nexth %d %x %x %d\n", r, (unsigned)(size_t)x, (unsigned)(size_t)y, ticks - t0);
         } else if (!strcmp(cmd, "nextp")) {
             sscanf(line + at, "%x %x", &a, &b);
             printf("nextp %d\n", port_StGetNext((unsigned long **)(size_t)a, (unsigned long **)(size_t)b));
@@ -1289,15 +1297,70 @@ def StSetRing_stops_for_fewer_than_two_slots_and_a_ring_outside_the_ram():
 
 
 @case
-def StGetNext_stops_for_pointers_outside_the_ram_and_with_no_ring():
+def StGetNext_takes_pointers_outside_the_ram_and_stops_for_a_null_one_and_with_no_ring():
+    # the two pointers are the caller's own variables: addresses outside the game's RAM (or inside it) are no fault; null is
     img = Img()
     img.pad()
-    r = [stops(img, ["cdinit", f"ring {RING:x} 4", f"nextp {BASE - 8:x} {RING:x}"], "StGetNext", "not inside"),
-         stops(img, ["cdinit", f"ring {RING:x} 4", f"nextp {RING:x} {END - 2:x}"], "StGetNext", "not inside"),
-         stops(img, ["cdinit", f"ring {RING:x} 4", f"nextp {END - 2:x} {RING:x}"], "StGetNext", "not inside"),
+    r = [stops(img, ["cdinit", f"ring {RING:x} 4", "nextn 1 0"], "StGetNext", "address pointer", "null"),
+         stops(img, ["cdinit", f"ring {RING:x} 4", "nextn 0 1"], "StGetNext", "header pointer", "null"),
+         stops(img, ["cdinit", f"ring {RING:x} 4", "nextn 1 1"], "StGetNext", "null"),
+         stops(img, ["cdinit", f"ring {RING:x} 4", f"nextp 0 {RING:x}"], "StGetNext", "address pointer", "null"),
+         stops(img, ["cdinit", f"ring {RING:x} 4", f"nextp {RING:x} 0"], "StGetNext", "header pointer", "null"),
+         stops(img, ["cdinit", "nexth"], "StGetNext", "no ring"),
+         stops(img, ["cdinit", "nextn 1 0"], "StGetNext", "address pointer", "null"),   # the null is looked at before the ring
+         stops(img, ["cdinit", "nextn 0 1"], "StGetNext", "header pointer", "null"),
          stops(img, ["cdinit", f"nextp {RING:x} {RING + 8:x}"], "StGetNext", "no ring")]
-    ok = ok_run(img, ["cdinit", f"ring {RING:x} 4", f"nextp {END - 4:x} {RING:x}"])
-    return first_bad(*r, eq(len(ok), 3))
+    ok = ok_run(img, ["cdinit", f"ring {RING:x} 4", f"nextp {BASE - 8:x} {RING:x}", f"nextp {RING:x} {END - 2:x}", f"nextp {END - 2:x} {RING:x}", "nexth"])
+    return first_bad(*r, eq(len(ok), 6), eq([l for g in ok[2:5] for l in g if l.startswith("nextp")], ["nextp 1"] * 3))
+
+
+@case
+def StGetNext_with_the_callers_own_variables_gives_what_it_gives_with_the_games():
+    img = Img()
+    img.stream(0, 2, 1)
+    img.stream(1, 2, 1)
+    img.stream(0, 1, 2)
+    img.pad()
+    data0, data2 = RING + 32 * N, RING + 32 * N + 2016 * 2
+    g = ok_run(img, setup() + ["nexth", "step 1", "nexth", "step 1", "nexth", "nexth", f"free {data0:x}", "nexth", "step 1", "nexth", "ringdump"])
+    nx = [l.split()[1:4] for l in lines_of(g, "nexth ")]
+    ra = rings(g)[0]
+    return first_bad(eq(nx, [["1", "0", "0"], ["1", "0", "0"], ["0", f"{data0:x}", f"{RING:x}"], ["1", "0", "0"], ["1", "0", "0"],
+                            ["0", f"{data2:x}", f"{RING + 64:x}"]]), eq(ra.states(), [0, 0, 4, 0] + [0] * 11))
+
+
+@case
+def StGetNext_ticks_once_when_it_has_no_frame_and_not_when_it_gives_one():
+    img = Img()
+    img.stream(0, 1, 1)
+    img.pad()
+    d0 = RING + 32 * N
+    g = ok_run(img, setup() + ["nexth", "nexth", "step 1", "nexth", "nexth", "nexth"])
+    nx = [l.split()[1:] for l in lines_of(g, "nexth ")]
+    # no frame: one tick each time; the frame: none; then the frame is in state 4 (not 2): one tick again
+    return eq(nx, [["1", "0", "0", "1"], ["1", "0", "0", "1"], ["0", f"{d0:x}", f"{RING:x}", "0"], ["1", "0", "0", "1"], ["1", "0", "0", "1"]])
+
+
+@case
+def StGetNext_ticks_once_behind_a_wrap_marker_with_nothing_at_slot_0_and_not_when_a_frame_is_there():
+    # as a_marker_is_cleared_by_getnext_only_when_end_is_set: end 0, the marker stays, slot 0 is free: one tick
+    img = Img()
+    ss = [img.stream(0, 1, k) for k in (1, 2, 3, 4, 5)]
+    img.pad()
+    dd = lambda i: RING + 32 * 5 + 2016 * i
+    g = ok_run(img, setup(n=5, end=0) + ["step 5"] + [x for i in range(4) for x in ("nexth", f"free {dd(i):x}")] + ["nexth"])
+    nx = [l.split()[1:] for l in lines_of(g, "nexth ")]
+    first = eq([x[0] for x in nx], ["0", "0", "0", "0", "1"])
+    t1 = eq([x[3] for x in nx], ["0", "0", "0", "0", "1"])
+    # and as wrap_to_slot_0_when_it_is_free: end set, the marker is followed to a frame at slot 0: no tick
+    img = Img()
+    for k in (1, 2, 3, 4, 5):
+        img.stream(0, 1, k)
+    img.pad()
+    g = ok_run(img, setup(n=5, end=0x0fffffff) + ["step 3", "nexth", f"free {dd(0):x}", "step 2", "nexth", f"free {dd(1):x}", "nexth", f"free {dd(2):x}", "nexth",
+                                                  f"free {dd(3):x}", "nexth"])
+    nx = [l.split()[1:] for l in lines_of(g, "nexth ")]
+    return first_bad(first, t1, eq([x[0] for x in nx], ["0"] * 5), eq([x[3] for x in nx], ["0"] * 5), eq(nx[4][1:3], [f"{dd(0):x}", f"{RING:x}"]))
 
 
 @case
