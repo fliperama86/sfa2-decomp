@@ -9,10 +9,10 @@ void func_801b128c_slot04_12(Object *obj);
 
 void func_801b128c_slot04_12(Object *obj) {
     ref_other.p = obj->other;
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 7;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
     obj->field_15a = 8;
     obj->field_159 = 1;
     obj->field_157 = 0;

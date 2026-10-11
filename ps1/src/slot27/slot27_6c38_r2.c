@@ -13,7 +13,7 @@ void func_80016d90_slot27(Object *obj) {
 
 void func_80016db0_slot27(Object *obj) {
     obj->field_01 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
 }
 
 void func_80016dc4_slot27(Object *obj) {
@@ -31,7 +31,7 @@ void func_80016de4_slot27(Object *obj) {
 
 void func_80016e2c_slot27(Object *obj) {
     ref_other.p = obj->field_3c;
-    data_80029064_slot27[obj->field_04](obj);
+    data_80029064_slot27[obj->state_0](obj);
 }
 
 void func_80016e7c_slot27(Object *obj) {
@@ -42,7 +42,7 @@ void func_80016e7c_slot27(Object *obj) {
     obj->field_7a = 0;
     obj->field_0d = 0;
     obj->field_48 = 0xff;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_09 = ref_other.p->field_09;
     obj->field_01 = 0;
 }

@@ -20,7 +20,7 @@ void func_8012a9a0(Object *object) {
         object->pos_y = object->field_70;
         object->field_45 = 0;
         object->field_159 = 0;
-        *(u32 *)&object->field_14 &= 0xffff0000;
+        *(u32 *)&object->pos_y_frac &= 0xffff0000;
         func_801209c4(object);
         if (object->field_cd == 0) {
             if (object->kind == 0xe && (u8)func_801320e8(object)) {
@@ -32,11 +32,11 @@ void func_8012a9a0(Object *object) {
             } else if ((u8)func_8012f898(object)) {
                 func_8012f8c4(object);
             } else {
-                object->field_07 = object->field_07 + 1;
+                object->state_3 = object->state_3 + 1;
                 func_80130678(object, 0x11);
             }
         } else {
-            object->field_07 = object->field_07 + 1;
+            object->state_3 = object->state_3 + 1;
             func_80130678(object, 0x11);
         }
     }

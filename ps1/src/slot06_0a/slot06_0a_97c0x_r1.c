@@ -7,7 +7,7 @@ extern SequenceStep *data_801ed400_slot06_0a[];
 extern u8 data_801ed494_slot06_0a[];
 
 void func_801e97c0_slot06_0a(Object *obj) {
-    Object *t = (Object *)obj->field_4c;
+    Object *t = (Object *)obj->vel_x;
 
     if (t != 0) {
         u16 a;
@@ -25,7 +25,7 @@ void func_801e97c0_slot06_0a(Object *obj) {
             a = -d;
         }
         if (a >= 0x80) {
-            obj->field_05 = 3;
+            obj->state_1 = 3;
             func_80130700(obj, data_801ed400_slot06_0a[data_801ed494_slot06_0a[obj->field_03]]);
         }
     }

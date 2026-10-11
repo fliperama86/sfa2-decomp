@@ -7,9 +7,9 @@ void func_801b3b84_slot04_0b(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 == 0) {
         obj->field_00 = 1;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
 }

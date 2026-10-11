@@ -15,7 +15,7 @@ void func_801b24f0_slot04_11(Object *obj) {
     int s;
 
     func_801b5764_slot04_11(obj);
-    if ((obj->field_3a << 16) < 0) {
+    if ((obj->step_flags << 16) < 0) {
         if (obj->field_cd != 0) {
             if (func_8014a170(obj, data_801c711c_slot04_11) != 0) {
                 goto act_b;
@@ -32,19 +32,19 @@ void func_801b24f0_slot04_11(Object *obj) {
             }
         }
 act_a:
-        obj->field_07++;
+        obj->state_3++;
         ref_other.p = obj->other;
-        a = *(s32 *)&ref_other.p->field_10 - *(s32 *)&obj->field_10;
-        obj->field_54 = 0;
-        obj->field_58 = 0;
+        a = *(s32 *)&ref_other.p->pos_x_frac - *(s32 *)&obj->pos_x_frac;
+        obj->accel_x = 0;
+        obj->accel_y = 0;
         a >>= 4;
-        obj->field_4c = a;
+        obj->vel_x = a;
         a = obj->field_70 - 0x8a;
         a <<= 16;
-        a -= *(s32 *)&obj->field_14;
+        a -= *(s32 *)&obj->pos_y_frac;
         a >>= 4;
         a -= 0x4000;
-        obj->field_50 = -a;
+        obj->vel_y = -a;
         func_801307e0(obj, 0x2c);
         return;
 not_a:
@@ -53,18 +53,18 @@ not_a:
         }
 act_b:
         a = 0x18000;
-        obj->field_07 = 7;
+        obj->state_3 = 7;
         if (obj->field_0b == 0) {
             a = -0x18000;
         }
-        obj->field_50 = 0x10000;
-        obj->field_4c = a;
-        obj->field_54 = 0;
-        obj->field_58 = -0x6000;
+        obj->vel_y = 0x10000;
+        obj->vel_x = a;
+        obj->accel_x = 0;
+        obj->accel_y = -0x6000;
         func_801307e0(obj, 0x34);
         return;
 act_c:
-        obj->field_07 = 6;
+        obj->state_3 = 6;
         obj->field_48 = 0;
         if (obj->field_cd != 0) {
             func_801b5914_slot04_11(obj);
@@ -96,10 +96,10 @@ act_c:
                 v0 <<= 1;
                 v2 <<= 1;
             }
-            obj->field_4c = v0;
-            obj->field_54 = v1;
-            obj->field_50 = v2;
-            obj->field_58 = i;
+            obj->vel_x = v0;
+            obj->accel_x = v1;
+            obj->vel_y = v2;
+            obj->accel_y = i;
             func_801307e0(obj, a + obj->field_12a);
         }
     } else {

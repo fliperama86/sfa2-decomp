@@ -4,21 +4,21 @@
 #include "../externs.h"
 
 void func_801b0c18_slot04_07(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
     obj->field_159 = 1;
     func_80130dc0(obj);
 }
 
 void func_801b0c4c_slot04_07(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;
         func_80131468(obj);
     } else {
         if ((t & 0x80) != 0 && func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }

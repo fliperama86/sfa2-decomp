@@ -8,14 +8,14 @@ extern u16 data_801dd51c_slot05_06[];
 extern ObjectFn data_801dd528_slot05_06[];
 
 void func_801cc8d8_slot05_06(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
     func_80130678(obj, 0);
 }
 
 void func_801cc90c_slot05_06(Object *obj) {
     if (game_state.field_64 == 0 && game_state.field_5c == 0) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
     }
     func_80130efc(obj);
 }
@@ -25,7 +25,7 @@ void func_801cc95c_slot05_06(Object *obj) {
     u16 v;
     u16 *p;
 
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     ((Slot04aObj *)obj)->field_47 = 0x3c;
     game_state.field_76 = 0x1e;
     obj->field_0b = obj->field_158;
@@ -46,5 +46,5 @@ void func_801cca20_slot05_06(Object *obj) {
 }
 
 void func_801cca64_slot05_06(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
 }

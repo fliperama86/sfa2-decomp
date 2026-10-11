@@ -20,21 +20,21 @@ void func_80015528_slot27(Object *obj) {
     obj->field_0d = 0x18;
     obj->field_90 = (void *)0x80038000;
     obj->field_01 = 0;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 == 0) {
         func_800158c0_slot27(obj);
         func_80015950_slot27(obj);
         func_80130768(obj, 0, data_800284e0_slot27);
     } else if (obj->field_03 == 1) {
         func_800158c0_slot27(obj);
-        obj->field_04 = 2;
+        obj->state_0 = 2;
         obj->pos_x = data_800284f8_slot27->field_d2;
         obj->pos_y = data_800284f8_slot27->field_d4;
         func_80015838_slot27(obj);
         func_80015950_slot27(obj);
         func_80130768(obj, 1, data_800284e0_slot27);
     } else if (obj->field_03 >= 2) {
-        obj->field_04 = 4;
+        obj->state_0 = 4;
         func_80130768(obj, obj->field_03, data_800284e0_slot27);
     }
 }

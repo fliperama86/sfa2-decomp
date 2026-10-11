@@ -6,8 +6,8 @@
 void func_801b5644_slot04_06(Object *obj) {
     int d = 0x18;
 
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         if (obj->field_0b == 0) {
             d = -0x18;
         }

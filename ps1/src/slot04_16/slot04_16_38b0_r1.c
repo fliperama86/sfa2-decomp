@@ -14,15 +14,15 @@ void func_801b38b0_slot04_16(Object *obj) {
     int k;
     u8 i;
 
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t == 0) {
         func_80130efc(obj);
         return;
     }
     if ((u8)t != 0xf) {
         obj->field_45 = 1;
-        obj->field_07++;
-        obj->field_3a &= 0xff00;
+        obj->state_3++;
+        obj->step_flags &= 0xff00;
         game_state.field_358 = obj->other;
         game_state.field_358->field_15b = 1;
         func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
@@ -34,15 +34,15 @@ void func_801b38b0_slot04_16(Object *obj) {
                 obj->field_255 = 6;
             }
         }
-        obj->field_4c = c[(obj->field_12a >> 1) * 4 + 0];
-        obj->field_50 = c[(obj->field_12a >> 1) * 4 + 1];
-        obj->field_58 = c[(obj->field_12a >> 1) * 4 + 3];
-        obj->field_54 = 0;
+        obj->vel_x = c[(obj->field_12a >> 1) * 4 + 0];
+        obj->vel_y = c[(obj->field_12a >> 1) * 4 + 1];
+        obj->accel_y = c[(obj->field_12a >> 1) * 4 + 3];
+        obj->accel_x = 0;
         if (obj->field_0b != 0) {
-            obj->field_4c = -obj->field_4c;
+            obj->vel_x = -obj->vel_x;
         }
     } else {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
         func_80130efc(obj);

@@ -21,7 +21,7 @@ void func_80014c1c_slot27(Object *o) {
     o->field_7c = 0x1e0;
     o->field_0d = 0;
     o->field_0b = 0;
-    o->field_3a = 0;
+    o->step_flags = 0;
     o->field_09 = data_80027d14_slot27[o->field_03].field_00;
     obj->field_12 = data_80027d14_slot27[o->field_03].field_02;
     *(u16 *)&o->pos_y = data_80027d14_slot27[o->field_03].field_04;
@@ -34,5 +34,5 @@ void func_80014cd8_slot27(Object *obj) {
 void func_80014d04_slot27(Object *obj) {
     ref_other.p = obj->field_3c;
     (*(Object **)&data_80190458) = obj->other;
-    data_80028110_slot27[obj->field_04](obj);
+    data_80028110_slot27[obj->state_0](obj);
 }

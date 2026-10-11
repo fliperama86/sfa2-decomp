@@ -18,11 +18,11 @@ void func_801b6210_slot04_09(Object *obj) {
         c->field_3c = obj;
         ((Slot04aObj *)obj)->field_30 = (u32)c;
         if (obj->field_0b != 0) {
-            c->field_4c = 0xa0000;
-            c->field_54 = 0xffff6000;
+            c->vel_x = 0xa0000;
+            c->accel_x = 0xffff6000;
         } else {
-            c->field_4c = 0xfff60000;
-            c->field_54 = 0xa000;
+            c->vel_x = 0xfff60000;
+            c->accel_x = 0xa000;
         }
         c->field_66 = obj->side;
         c->field_7a = obj->field_7a;

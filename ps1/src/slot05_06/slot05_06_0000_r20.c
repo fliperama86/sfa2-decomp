@@ -17,7 +17,7 @@ void func_801c9944_slot05_06(Object *o) {
         func_801cc814_slot05_06(o);
         func_80130efc(o);
     } else {
-        o->field_07++;
+        o->state_3++;
         func_80146960(o);
         t = o->field_12a >> 1;
         if (o->field_49 != 0) {
@@ -44,7 +44,7 @@ void func_801c9944_slot05_06(Object *o) {
 void func_801c9a88_slot05_06(Object *o) {
     ((Slot04aObj *)o)->field_1c2 += 0xff;
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
-        o->field_07++;
+        o->state_3++;
     }
     func_80130efc(o);
 }

@@ -7,9 +7,9 @@ void func_80013cc4_slot27(Object *obj);
 
 void func_80013874_slot27(Object *obj) {
     if (obj->field_22 & 0x8000) {
-        obj->field_06 = 0;
-        obj->field_07 = 0;
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
+        obj->state_1 = obj->state_1 + 1;
     }
     func_80013cc4_slot27(obj);
 }
@@ -36,7 +36,7 @@ void func_80013930_slot27(Object *obj) {
     int side;
     u16 *h;
 
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     side = game_state.field_358->side;
     *(int *)&game_state.field_354 = side;
     h = &data_8018f5a0->field_52;
@@ -44,7 +44,7 @@ void func_80013930_slot27(Object *obj) {
 }
 
 void func_80013974_slot27(Object *obj) {
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
 }
 
 void func_80013988_slot27(Object *obj) {

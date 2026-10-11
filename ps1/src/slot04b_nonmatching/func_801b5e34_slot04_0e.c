@@ -13,18 +13,18 @@
  * func_80120554), clears two velocity words, and sets a launch velocity
  * from tables indexed by the object's direction byte field_48: a byte
  * table (index field_48 / 2) gives field_47, two word tables (index
- * field_48) give the velocity words field_4c and field_54, both negated
+ * field_48) give the velocity words vel_x and accel_x, both negated
  * when field_0b is not 0. It then selects the sequence 0x27 + field_48 / 2.
  *
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_02, field_07, field_0b, field_48, side
+ *   Reads: the object's field_02, state_3, field_0b, field_48, side
  *     (field_a6); the tables data_801c6190_slot04_0e (bytes),
  *     data_801c6194_slot04_0e and data_801c6198_slot04_0e (words), left as
  *     the module image holds them; and what the callees read.
- *   Writes: field_07 (incremented), field_46 (7), field_47, field_4c,
- *     field_50 (0), field_54, field_58 (0), and what the callees write.
+ *   Writes: state_3 (incremented), field_46 (7), field_47, vel_x,
+ *     vel_y (0), accel_x, accel_y (0), and what the callees write.
  *   Callees run as original code: func_80141f28 (reads field_74, field_2a2,
  *     field_d8, field_c6 and game_state.field_47, writes field_c6),
  *     func_801307e0 (the sequence tables in the scratchpad, the sequence
@@ -55,19 +55,19 @@ extern s32 data_801c6198_slot04_0e[];
 void func_801b5e34_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 2);
     func_801204f4(o, o->side, 6);
     func_80120554(o, o->field_02, 0x324);
-    o->field_50 = 0;
-    o->field_58 = 0;
+    o->vel_y = 0;
+    o->accel_y = 0;
     obj->field_46 = 7;
     obj->field_47 = data_801c6190_slot04_0e[o->field_48 >> 1];
-    o->field_4c = data_801c6194_slot04_0e[o->field_48];
-    o->field_54 = data_801c6198_slot04_0e[o->field_48];
+    o->vel_x = data_801c6194_slot04_0e[o->field_48];
+    o->accel_x = data_801c6198_slot04_0e[o->field_48];
     if (o->field_0b != 0) {
-        o->field_4c = -o->field_4c;
-        o->field_54 = -o->field_54;
+        o->vel_x = -o->vel_x;
+        o->accel_x = -o->accel_x;
     }
     func_801307e0(o, (o->field_48 >> 1) + 0x27);
 }

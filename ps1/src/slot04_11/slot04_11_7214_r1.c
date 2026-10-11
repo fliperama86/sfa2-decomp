@@ -15,7 +15,7 @@ void func_801b725c_slot04_11(Object *obj) {
     ref_other.p = obj->field_3c;
     data_80190458.p = ref_other.p->field_3c;
     data_80190414.p = obj->other;
-    data_801c7ce0_slot04_11[obj->field_04](obj);
+    data_801c7ce0_slot04_11[obj->state_0](obj);
 }
 
 void func_801b72d8_slot04_11(Object *obj) {
@@ -25,7 +25,7 @@ void func_801b72d8_slot04_11(Object *obj) {
     obj->field_20 = 0;
     obj->field_24 = 0;
     obj->field_09 = 0;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
     func_801b73f4_slot04_11(obj);
     func_80130768(obj, 1, seqs_8017c7f8);
@@ -34,8 +34,8 @@ void func_801b72d8_slot04_11(Object *obj) {
 
 void func_801b735c_slot04_11(Object *obj) {
     func_801b73f4_slot04_11(obj);
-    if ((s16)obj->field_3a < 0) {
-        obj->field_04 += 1;
+    if ((s16)obj->step_flags < 0) {
+        obj->state_0 += 1;
     }
     func_80131094(obj);
 }

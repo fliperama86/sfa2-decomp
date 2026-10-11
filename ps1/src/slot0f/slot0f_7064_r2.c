@@ -23,7 +23,7 @@ void func_800e71ec_slot0f(Object *obj) {
     obj->field_0c = 0;
     obj->pos_x = 0;
     obj->pos_y = 0x100;   /* after the zero stores: this order gives the original's register use */
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 == 5) {
         data_800f7d34_slot0f = 0;
         i = 4;

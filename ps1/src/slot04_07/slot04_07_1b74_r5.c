@@ -13,7 +13,7 @@ void func_801b2074_slot04_07(Object *obj) {
         func_80130efc(obj);
     } else {
         obj->pos_y = y;
-        obj->field_07 = 5;
+        obj->state_3 = 5;
         obj->field_45 = 0;
         obj->field_17b = 0;
         func_801209c4(obj);

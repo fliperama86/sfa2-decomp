@@ -13,7 +13,7 @@ extern SequenceStep *data_80034530_slot28[];
 void func_800185d0_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *b = data_8005198c_slot28.p;
-    if ((s16)b->field_3a < 0) {
+    if ((s16)b->step_flags < 0) {
         data_8018f5a0->field_52++;
         b = (Object *)func_8011f1e0();
         if (b != 0) {

@@ -13,11 +13,11 @@ void func_80014c8c_slot01(Object *o) {
     Slot01Rec33bb4 *r;
     Rect rect;
 
-    o->field_50 = 0x80093000;
+    o->vel_y = 0x80093000;
     o->field_1e = 0x5800;
-    o->field_58 = 0x400;
+    o->accel_y = 0x400;
     *(u32 *)&o->field_5c = 0x100;
-    o->field_04++;
+    o->state_0++;
     obj->field_14 = 0;
     obj->field_8a = 0x10;
     for (i = 0; i < 2; i++) {

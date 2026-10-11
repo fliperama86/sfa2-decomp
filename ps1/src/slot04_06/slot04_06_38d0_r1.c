@@ -11,7 +11,7 @@ void func_801b38d0_slot04_06(Object *o) {
     Object *other;
     GameState *g = &game_state;
 
-    if ((s16)o->field_3a >= 0) {
+    if ((s16)o->step_flags >= 0) {
         func_80130efc(o);
     } else {
         other = o->other;
@@ -31,12 +31,12 @@ void func_801b38d0_slot04_06(Object *o) {
             }
         }
         other->field_247 = 0;
-        o->field_4c = 0xfffe0000;
-        o->field_58 = -0x4800;
-        o->field_50 = 0x44000;
-        o->field_54 = 0;
+        o->vel_x = 0xfffe0000;
+        o->accel_y = -0x4800;
+        o->vel_y = 0x44000;
+        o->accel_x = 0;
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
         func_801307e0(o, 0x26);
     }
 }

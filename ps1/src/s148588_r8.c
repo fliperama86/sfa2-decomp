@@ -7,14 +7,14 @@
 
 void func_801490dc(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017cef0[object->field_04](object);
+    table_8017cef0[object->state_0](object);
 }
 
 void func_8014911c(Object *object) {
     object->field_09 = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     func_8011a55c(object);
 }
 
@@ -25,7 +25,7 @@ void func_80149158(Object *object) {
         /* Signed store: a plain assignment compiles to ori 0xffff. */
         *(s16 *)&object->field_46 = -1;
         if (object->field_3c->field_7e == 0) {
-            object->field_04 = object->field_04 + 1;
+            object->state_0 = object->state_0 + 1;
         }
         func_8011ffdc(object);
     }

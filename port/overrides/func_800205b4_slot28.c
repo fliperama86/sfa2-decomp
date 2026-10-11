@@ -20,12 +20,12 @@
  * callee would read something else.
  *
  * What the function does (inferred): it runs func_80020608_slot28 on the
- * object, raises the u8 field_04 by one when the halfword pos_y (offset 0x16)
+ * object, raises the u8 state_0 by one when the halfword pos_y (offset 0x16)
  * is at least 0xd0, then calls func_80131094 with the object.
  *
  * Contract:
  *   Argument: obj (a0), a pointer to an object; no result.
- *   Reads and writes: the field_04 byte and the pos_y halfword itself; the
+ *   Reads and writes: the state_0 byte and the pos_y halfword itself; the
  *     earlier callee reads and writes the words of the object at offsets 0x10,
  *     0x14, 0x4c, 0x50, 0x54 and 0x58 (as original code, see below).
  *   Callees: func_80020608_slot28 runs as the original code of the module
@@ -46,7 +46,7 @@ void func_80020608_slot28(Object *o);
 void func_800205b4_slot28(Object *obj) {
     func_80020608_slot28(obj);
     if (obj->pos_y >= 0xd0) {
-        obj->field_04++;
+        obj->state_0++;
     }
     ((void (*)(Object *))func_80131094)(obj);
 }

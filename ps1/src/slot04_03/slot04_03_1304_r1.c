@@ -10,7 +10,7 @@ void func_801b1304_slot04_03(Object *obj) {
     int a;
     int v;
 
-    obj->field_07++;
+    obj->state_3++;
     obj->field_17b = 1;
     obj->field_45 = 1;
     func_80141f28(obj, 9);
@@ -23,9 +23,9 @@ void func_801b1304_slot04_03(Object *obj) {
     } else {
         v = 0xfffe0000;
     }
-    obj->field_4c = v | 0x8000;
-    obj->field_58 = 0x7800;
-    obj->field_50 = data_801c05e0_slot04_03[obj->field_12a >> 1];
+    obj->vel_x = v | 0x8000;
+    obj->accel_y = 0x7800;
+    obj->vel_y = data_801c05e0_slot04_03[obj->field_12a >> 1];
     a = 0x25;
     if (obj->field_49 != 0) {
         a = 0x46;

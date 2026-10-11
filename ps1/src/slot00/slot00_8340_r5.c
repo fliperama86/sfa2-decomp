@@ -16,8 +16,8 @@ void func_8007881c_slot00(Object *obj) {
 }
 
 void func_8007885c_slot00(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04 = obj->field_04 + 1;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0 = obj->state_0 + 1;
     }
     func_80131094(obj);
 }
@@ -36,8 +36,8 @@ void func_8007890c_slot00(Object *obj) {
     Object *p = obj->field_3c;
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y;
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04 = obj->field_04 + 1;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0 = obj->state_0 + 1;
     }
     func_80131094(obj);
 }

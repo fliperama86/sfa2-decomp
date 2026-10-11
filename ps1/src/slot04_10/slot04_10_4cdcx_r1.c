@@ -8,9 +8,9 @@ extern u8 data_801c6c68_slot04_10[];
 void func_801b4cdc_slot04_10(Object *obj) {
     s16 i;
     func_80130efc(obj);
-    if (((s16)obj->field_3a & 0xff00) == 0) {
+    if (((s16)obj->step_flags & 0xff00) == 0) {
         i = 0;
-        obj->field_07++;
+        obj->state_3++;
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             i = (obj->field_12a >> 1) + 1;

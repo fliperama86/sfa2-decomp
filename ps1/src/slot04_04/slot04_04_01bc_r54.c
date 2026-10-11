@@ -9,17 +9,17 @@ void func_801b49d0_slot04_04(Object *obj);
 void func_801b4878_slot04_04(Object *obj) {
     int t = 0xc;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_128 = 4;
     obj->field_159 = 1;
     if (obj->field_129 == 0) {
         if (obj->field_12a != 0) {
             if (obj->field_218 != 0 && obj->field_70 - 0x30 < obj->pos_y) {
                 if (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff) {
-                    obj->field_04 = 1;
-                    obj->field_05 = 2;
-                    obj->field_06 = 0;
-                    obj->field_07 = 0;
+                    obj->state_0 = 1;
+                    obj->state_1 = 2;
+                    obj->state_2 = 0;
+                    obj->state_3 = 0;
                     return;
                 }
             }

@@ -23,9 +23,9 @@ void func_800122cc_slot12(Object *obj) {
     u8 v;
 
     if (!(game_state.field_44 & 0x80)) {
-        v = obj->field_3a;
+        v = obj->step_flags;
         if (v != 0) {
-            obj->field_3a = obj->field_3a & 0xff00;
+            obj->step_flags = obj->step_flags & 0xff00;
             func_8001231c_slot12(v);
         }
     }

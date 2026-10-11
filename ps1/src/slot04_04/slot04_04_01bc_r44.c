@@ -12,7 +12,7 @@ void func_801b3de4_slot04_04(Object *obj) {
     Object *parent;
 
     obj->field_a0 = 0xff;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     parent = obj->field_3c;
     obj->field_09 = 0;
     obj->field_49 = parent->field_49;

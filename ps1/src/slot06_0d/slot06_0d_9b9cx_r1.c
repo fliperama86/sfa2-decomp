@@ -12,12 +12,12 @@ void func_801e9b9c_slot06_0d(Object *o) {
     w = game_state.field_74;
     v |= w;
     if (v == 0) {
-        v = o->field_3a;
+        v = o->step_flags;
         if ((v & 0xff) != 0) {
-            o->field_3a = v & 0xff00;
+            o->step_flags = v & 0xff00;
             v = func_80151184() & 0xff;
             v += 0x40;
-            o->field_38 = v;
+            o->step_timer = v;
         }
         func_80131094(o);
     }

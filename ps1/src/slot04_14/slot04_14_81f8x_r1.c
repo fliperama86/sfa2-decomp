@@ -11,7 +11,7 @@ void func_801b81f8_slot04_14(Object *obj) {
     Object *other;
     u8 palette;
 
-    obj->field_04++;
+    obj->state_0++;
     other = obj->field_3c;
     if (game_state.field_64 != 0) {
         obj->field_0f = 0;
@@ -31,7 +31,7 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->field_0d = 0x1f;
         obj->field_44 = 1;
         obj->field_46 = 0x15;
-        obj->field_54 = 6;
+        obj->accel_x = 6;
         obj->field_a0 = 0;
         palette = obj->field_03;
         if ((s16)other->field_5c != 0x90) {

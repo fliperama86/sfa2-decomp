@@ -27,16 +27,16 @@ void func_800121e0_slot01(Object *obj) {
     obj->pos_y = 0x20;
     obj->field_5c = 0x70;
     obj->field_5e = 0x60;
-    obj->field_4c = 0xc8000;
-    obj->field_54 = -0xe758;
-    obj->field_50 = 0xc0000;
-    obj->field_58 = -0xa500;
+    obj->vel_x = 0xc8000;
+    obj->accel_x = -0xe758;
+    obj->vel_y = 0xc0000;
+    obj->accel_y = -0xa500;
     obj->field_0b = side;
     if (side != 0) {
         obj->pos_x = 0xc8;
         obj->field_5c = 0xf8;
-        obj->field_4c = -obj->field_4c;
-        obj->field_54 = -obj->field_54;
+        obj->vel_x = -obj->vel_x;
+        obj->accel_x = -obj->accel_x;
     }
     func_8001231c_slot01(obj, func_800126f8_slot01(o->kind));
 }

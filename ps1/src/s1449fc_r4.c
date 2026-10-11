@@ -4,6 +4,6 @@
 #include "protos.h"
 
 void func_80144e90(Object *object) {
-    object->field_04++;
+    object->state_0++;
     game_state.config->field_6c = 0;
 }

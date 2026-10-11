@@ -10,7 +10,7 @@ void func_801b4408_slot04_0a(Object *obj, Object *parent) {
 
     obj->field_01 = 0;
     if (obj->field_03 != parent->kind) {
-        obj->field_04++;
+        obj->state_0++;
     } else {
         t = parent->frame->field_09 & 0x7f;
         if (t == 0) {
@@ -37,9 +37,9 @@ void func_801b4408_slot04_0a(Object *obj, Object *parent) {
                     int v;
 
                     t = parent->field_0d;
-                    v = obj->field_4c ^ 1;
+                    v = obj->vel_x ^ 1;
                     obj->field_46 = 3;
-                    obj->field_4c = v;
+                    obj->vel_x = v;
                     t += v;
                     obj->field_0d = t;
                 }

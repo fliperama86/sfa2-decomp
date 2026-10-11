@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 void func_801b031c_slot04_0a(Object *obj) {
-    if (((s16)obj->field_3a & 0x8000) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if (((s16)obj->step_flags & 0x8000) != 0) {
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         func_80130678(obj, 0);
     } else {
         func_80130efc(obj);

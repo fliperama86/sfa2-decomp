@@ -10,8 +10,8 @@ void func_800159bc_slot12(Object *obj, int a);
 
 void func_80015824_slot12(Object *obj) {
     if (game_state.field_2bc == 10) {
-        obj->field_05 = 0;
-        obj->field_04 += 1;
+        obj->state_1 = 0;
+        obj->state_0 += 1;
     }
 }
 

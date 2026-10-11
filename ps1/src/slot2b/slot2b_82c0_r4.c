@@ -36,7 +36,7 @@ void func_80078654_slot2b(Object *o) {
 }
 
 void func_80078734_slot2b(Object *o) {
-    o->field_04++;
+    o->state_0++;
 }
 
 void func_80078748_slot2b(Object *o) {

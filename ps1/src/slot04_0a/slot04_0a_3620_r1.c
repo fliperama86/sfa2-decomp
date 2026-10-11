@@ -9,15 +9,15 @@ void func_801b3f30_slot04_0a(Object *object);
 void func_801b3620_slot04_0a(Object *obj) {
     Object *o;
     u8 b;
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     if (t & 0xff) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         func_801b3e68_slot04_0a(obj);
     }
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         o = obj->other;
         b = o->field_0b;
         obj->field_0b = b;
@@ -32,12 +32,12 @@ void func_801b3620_slot04_0a(Object *obj) {
 }
 
 void func_801b36dc_slot04_0a(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     if (t & 0xff) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         func_801b3f30_slot04_0a(obj);
     }
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
         func_801312b8(obj);

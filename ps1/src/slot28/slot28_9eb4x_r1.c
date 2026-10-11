@@ -14,7 +14,7 @@ void func_8001a958_slot28(Object *obj, int arg);
 void func_80019eb4_slot28(Object *obj) {
     Object *p;
     p = data_800519d0_slot28.p;
-    if ((s16)p->field_3a < 0) {
+    if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;
         h->field_52++;
         h->field_60 = 0xb4;

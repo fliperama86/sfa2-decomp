@@ -8,8 +8,8 @@ extern Object *data_8007ef34_slot2b;
 void func_800795b4_slot2b(Object *obj);
 
 void func_800794a0_slot2b(Object *o) {
-    if ((s16)o->field_3a < 0) {
-        o->field_04++;
+    if ((s16)o->step_flags < 0) {
+        o->state_0++;
     }
     func_80131094(o);
 }

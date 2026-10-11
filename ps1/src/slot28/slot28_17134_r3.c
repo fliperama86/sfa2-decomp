@@ -22,8 +22,8 @@ void func_80027600_slot28(Object *obj) {
     int unused[2];
     int i = func_80151184() & 7;
     obj->field_03 = 0;
-    obj->field_50 = data_80050ca4_slot28[i].field_00;
-    obj->field_58 = data_80050ca4_slot28[i].field_04;
+    obj->vel_y = data_80050ca4_slot28[i].field_00;
+    obj->accel_y = data_80050ca4_slot28[i].field_04;
     obj->field_0b = func_80151184() & 1;
 }
 

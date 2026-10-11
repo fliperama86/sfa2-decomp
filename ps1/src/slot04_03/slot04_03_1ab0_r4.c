@@ -11,9 +11,9 @@ void func_801b1df0_slot04_03(Object *obj) {
     u8 i;
 
     func_80130efc(obj);
-    if ((s16)obj->field_3a & 0xff00) {
+    if ((s16)obj->step_flags & 0xff00) {
         i = 0;
-        obj->field_07++;
+        obj->state_3++;
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
@@ -23,7 +23,7 @@ void func_801b1df0_slot04_03(Object *obj) {
         func_801204f4(obj, obj->side, 5);
         func_801204f4(obj, obj->side, 0xd);
     }
-    if ((u8)obj->field_3a == 0) {
+    if ((u8)obj->step_flags == 0) {
         func_801b223c_slot04_03(obj);
     }
 }

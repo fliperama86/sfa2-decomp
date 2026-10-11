@@ -21,11 +21,11 @@ void func_801cabd8_slot05_06(Object *obj) {
 void func_801cac40_slot05_06(Object *obj) {
     Object *p = obj->other;
 
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_801cc814_slot05_06(obj);
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_80120554(p, p->side, 0x34e);
         func_801307e0(obj, 0x2e);
     }

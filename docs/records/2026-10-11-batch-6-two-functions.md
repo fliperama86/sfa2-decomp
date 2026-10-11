@@ -4,7 +4,12 @@
 - `func_801b248c_slot04_0f` (120 bytes, also placed in `slot05_0f`) and
   `func_801b81f8_slot04_14` (348 bytes, also placed in `slot05_14`), both
   from `slot04b_nonmatching`. Each was prepared on a branch of its own;
-  the two are merged here onto main at `7a1d6ab`.
+  the two are merged here onto main at `7a1d6ab`. After the pull
+  request was opened, main at `f4a543b` (the twelve renamed fields of
+  `Object`, pull request 273) was merged in: `renamefields.py apply`
+  with the table of `7a1d6ab` as `--old` rewrote four uses in the two
+  units (`state_3` twice, `state_0`, `accel_x`), and the checks below
+  were run again on that tree with the same results.
 - `func_801b248c_slot04_0f`: one stand-in under the guide's general
   comment: a copy `t = a` before `a` takes a constant (a local of its own
   for the constant: 3 differing instruction slots). A search found the

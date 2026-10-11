@@ -9,7 +9,7 @@ extern ObjectFn data_801dd368_slot05_06[];
 
 void func_801c9ad4_slot05_06(Object *o) {
     Object *p;
-    if ((s16)o->field_3a >= 0) {
+    if ((s16)o->step_flags >= 0) {
         func_80130efc(o);
     } else {
         p = o->other;
@@ -22,12 +22,12 @@ void func_801c9ad4_slot05_06(Object *o) {
                 o->field_167 = 0x16;
             }
         }
-        o->field_4c = -0x20000;
-        o->field_58 = -0x4800;
-        o->field_50 = 0x44000;
-        o->field_54 = 0;
+        o->vel_x = -0x20000;
+        o->accel_y = -0x4800;
+        o->vel_y = 0x44000;
+        o->accel_x = 0;
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
         func_801307e0(o, 0x26);
     }
 }
@@ -46,5 +46,5 @@ void func_801c9bb0_slot05_06(Object *o) {
 }
 
 void func_801c9c1c_slot05_06(Object *obj) {
-    data_801dd368_slot05_06[obj->field_07](obj);
+    data_801dd368_slot05_06[obj->state_3](obj);
 }

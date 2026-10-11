@@ -11,7 +11,7 @@ void func_801b4d28_slot04_02(Object *obj) {
 
     if ((game_state.field_32 & 3) == 0) {
         i = 1;
-        if ((u8)obj->field_3a != 0) {
+        if ((u8)obj->step_flags != 0) {
             i = 2;
         }
         for (; i >= 0; i--) {
@@ -20,7 +20,7 @@ void func_801b4d28_slot04_02(Object *obj) {
             if (!func_80148e84(obj)) {
                 break;
             }
-            if ((u8)obj->field_3a != 0) {
+            if ((u8)obj->step_flags != 0) {
                 a = data_801c64f8_slot04_02[i];
             } else {
                 a = data_801c64f4_slot04_02[i];
@@ -34,7 +34,7 @@ void func_801b4d28_slot04_02(Object *obj) {
 }
 
 void func_801b4e10_slot04_02(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
         func_80142adc(obj);

@@ -20,7 +20,7 @@ void func_800e18bc_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
     func_800e2348_slot0f(o);
-    b = o->field_10;
+    b = o->pos_x_frac;
     if (b & 0x860) {
         if (b & 0x820) {
             if (obj->field_0b == 2) {
@@ -28,7 +28,7 @@ void func_800e18bc_slot0f(Object *o) {
             } else {
                 obj->field_0c = 0;
                 o->field_01 += 1;
-                o->field_04 += 1;
+                o->state_0 += 1;
             }
             func_80120554(0, 0, 0x205);
         } else {

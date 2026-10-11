@@ -73,10 +73,10 @@ void func_8014ac3c(Object *object) {
     } else {
         object->field_209 = 0xb;
         object->field_208 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
     }
 }
 
@@ -89,10 +89,10 @@ void func_8014acd0(Object *object) {
     } else {
         object->field_209 = 0xc;
         object->field_208 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
     }
 }
 
@@ -110,10 +110,10 @@ void func_8014adb8(Object *object) {
     if (func_80142030(object)) {
         object->field_208 = 3;
         object->field_209 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 5;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 5;
+        object->state_3 = 0;
         object->field_159 = 1;
         object->field_21b = 0;
         object->field_0b = object->field_158;
@@ -130,11 +130,11 @@ void func_8014ae28(Object *object) {
 }
 
 void func_8014ae54(Object *object) {
-    if ((*(unsigned *)&object->field_04 & 0xffffff) != 1) {
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+    if ((*(unsigned *)&object->state_0 & 0xffffff) != 1) {
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
     }
 }
 
@@ -149,11 +149,11 @@ void func_8014aecc(Object *object) {
         func_8014c914(object);
     } else {
         object->field_208 = 1;
-        object->field_04 = 1;
+        object->state_0 = 1;
         object->field_209 = 0;
-        object->field_05 = 0;
-        object->field_06 = 2;
-        object->field_07 = 0;
+        object->state_1 = 0;
+        object->state_2 = 2;
+        object->state_3 = 0;
         object->field_48 = 0;
         object->field_21a = 0;
     }
@@ -167,10 +167,10 @@ void func_8014af50(Object *object) {
     } else {
         object->field_208 = 1;
         object->field_209 = 1;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 2;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 2;
+        object->state_3 = 0;
         object->field_48 = 1;
         object->field_21a = 1;
     }

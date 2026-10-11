@@ -5,15 +5,15 @@
 
 /* What it does (inferred, not original names): for an object whose field_49
    is non-zero it returns func_8013f474(object, a, b) as a byte when its
-   halfword at offset 4 is 1 and field_06 is 7, 0 when the halfword is 1 and
-   field_06 is not 7, and 1 when the halfword is not 1. Otherwise, with the
+   halfword at offset 4 is 1 and state_2 is 7, 0 when the halfword is 1 and
+   state_2 is not 7, and 1 when the halfword is not 1. Otherwise, with the
    other object (ref_other) in mode 1 and with a box, it compares two x
    positions: the object's pos_x plus a (minus a when field_0b is set), and
    game_state.field_358's pos_x plus the box's origin minus its extent
    (negated when that object's field_0b is set). It returns
    func_8013fab4(object) as a byte when they are at most b apart; b grows by
    4 when field_25e is set, unless the object's halfword at offset 4 is 1
-   and its field_06 is 7 or 8. */
+   and its state_2 is 7 or 8. */
 int func_8013f8c4(Object *object, int a_arg, int b_arg) {
     s16 a = a_arg; /* the shared prototype takes int */
     s16 b = b_arg;
@@ -22,8 +22,8 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
     s16 half_width, distance;
     u16 mode;
     if (object->field_49 != 0) {
-        if (*(u16 *)&object->field_04 == 1) {
-            if (object->field_06 == 7)
+        if (*(u16 *)&object->state_0 == 1) {
+            if (object->state_2 == 7)
                 return func_8013f474(object, a, b) & 0xff;
             return 0;
         }
@@ -33,7 +33,7 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
             return 0;
         if (ref_other.p->field_27b != 0)
             return 0;
-        mode = *(u16 *)&ref_other.p->field_04;
+        mode = *(u16 *)&ref_other.p->state_0;
         if (mode != 1)
             return 0;
         if (game_state.config->field_4e != 0)
@@ -48,10 +48,10 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
         a = a + object->pos_x;
         box = &((Box6 *)ref_other.p->unknown_148)[frame->field_07];
         half_width = box->origin - box->extent;
-        if (*(u16 *)&object->field_04 == mode) {
-            if (object->field_06 == 7)
+        if (*(u16 *)&object->state_0 == mode) {
+            if (object->state_2 == 7)
                 goto keep;
-            if (object->field_06 == 8)
+            if (object->state_2 == 8)
                 goto keep;
         }
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */

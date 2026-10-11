@@ -4,15 +4,15 @@
 #include "protos.h"
 
 int func_80141908(Object *object) {
-    if (*(u16 *)&object->field_04 != 1) return 0;
+    if (*(u16 *)&object->state_0 != 1) return 0;
     if (object->field_7e != 0) {
         if (object->field_17b != 0) return 0;
-    } else if (object->field_06 == 7) {
+    } else if (object->state_2 == 7) {
         return 0;
     }
-    if (object->field_06 == 8) return 0;
-    if (object->field_06 == 9) return 0;
-    if (object->field_06 == 5) {
+    if (object->state_2 == 8) return 0;
+    if (object->state_2 == 9) return 0;
+    if (object->state_2 == 5) {
         if (*(s16 *)data_8019046c != 0) {
             if (object->field_d8 != 0) return 0;
             if (object->field_29b != 0) goto go;
@@ -51,7 +51,7 @@ int func_80141a00(Object *object) {
 
 int func_80141b28(Object *object) {
     if ((s16)object->field_c6 < 0x30) return 0;
-    if (*(u16 *)&object->field_04 != 0x101) return 0;
+    if (*(u16 *)&object->state_0 != 0x101) return 0;
     if (object->field_61 != 0xff) return 0;
     if (object->field_45 != 0) return 0;
     if ((game_state.config->field_4d | game_state.config->field_4e | game_state.config->field_04) != 0) return 0;

@@ -12,10 +12,10 @@ int func_801b1320_slot04_0a(Object *obj) {
     if (obj->field_7e != 0 || obj->field_240 == 0) {
         if (func_801417cc(obj) != 0) {
             r = 1;
-            obj->field_04 = 1;
-            obj->field_05 = 0;
-            obj->field_06 = 7;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 0;
+            obj->state_2 = 7;
+            obj->state_3 = 0;
             obj->field_15a = 2;
             func_801b3e44_slot04_0a(obj);
             obj->field_159 = 1;

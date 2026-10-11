@@ -14,13 +14,13 @@ void func_80013da4_slot01(Object *obj) {
     if (obj->field_60 != 0) {
         func_80131094(obj);
         func_8011ffdc(obj);
-    } else if (obj->field_05 != 0) {
+    } else if (obj->state_1 != 0) {
         if (game_state.field_04 != 0) {
-            obj->field_04++;
+            obj->state_0++;
         }
         func_8011ffdc(obj);
     } else if (data_80055e9a_slot01 < 0) {
-        obj->field_05++;
+        obj->state_1++;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;

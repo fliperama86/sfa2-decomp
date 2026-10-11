@@ -7,7 +7,7 @@ void func_801b39ec_slot04_02(Object *obj) {
     int n;
 
     if ((u8)func_80130184(obj) == 0) {
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
         obj->pos_y = (u16)obj->field_70;
         func_801209c4(obj);

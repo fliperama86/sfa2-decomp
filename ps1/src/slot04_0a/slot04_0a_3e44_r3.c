@@ -14,9 +14,9 @@ void func_801b4054_slot04_0a(Object *obj) {
     ((Slot04aObj *)obj)->field_6c = data_801c0828_slot04_0a;
     obj->field_09 = 0;
     obj->field_45 = 0;
-    obj->field_4c = 0;
-    obj->field_50 = 0;
-    obj->field_04++;
+    obj->vel_x = 0;
+    obj->vel_y = 0;
+    obj->state_0++;
     ref_other.p = obj->field_3c;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;

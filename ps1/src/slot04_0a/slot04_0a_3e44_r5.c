@@ -9,9 +9,9 @@ void func_801b4334_slot04_0a(Object *obj) {
     int v = data_801c0854_slot04_0a[obj->field_ac >> 1];
 
     if (obj->field_0b == 0) {
-        obj->field_4c = -v;
+        obj->vel_x = -v;
     } else {
-        obj->field_4c = v;
+        obj->vel_x = v;
     }
 }
 

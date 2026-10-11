@@ -5,7 +5,7 @@
 
 void func_801b4674_slot04_01(Object *obj) {
     obj->field_44 = 1;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_3c->side == 0) {
         func_80130768(obj, obj->field_48, data_1f8000b4);
     } else {
@@ -17,8 +17,8 @@ void func_801b46dc_slot04_01(Object *obj) {
     Object *p = obj->field_3c;
     int a;
 
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04++;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0++;
     }
     a = -0x18;
     if (obj->field_48 != 7) {

@@ -14,7 +14,7 @@
  * the limit it switches to the action of func_801b2f58_slot04_0e; within
  * 0x30 below it only advances the animation (func_80130efc); otherwise, if
  * field_164 equals the selector for the facing (2 when field_0b is 0, else
- * 1), it counts up field_07, clears field_50 and field_58, starts sequence
+ * 1), it counts up state_3, clears vel_y and accel_y, starts sequence
  * 0x2e (0x60 when field_49 is not 0) and calls func_801209c4; if field_164
  * differs it only advances the animation.
  *
@@ -23,10 +23,10 @@
  *   value.
  *   Reads: the object's words at 0x10, 0x14 (field_14 together with pos_y),
  *     0x4c, 0x50, 0x54 and 0x58 (motion, through func_801b4914_slot04_0e),
- *     field_70, pos_y, field_0b, field_164, field_49, field_07.
- *   Writes: those motion words; in the last arm field_07, field_50,
- *     field_58; in the first arm what func_801b2f58_slot04_0e writes
- *     (field_07, field_45, field_14, field_17b, pos_y).
+ *     field_70, pos_y, field_0b, field_164, field_49, state_3.
+ *   Writes: those motion words; in the last arm state_3, vel_y,
+ *     accel_y; in the first arm what func_801b2f58_slot04_0e writes
+ *     (state_3, field_45, field_14, field_17b, pos_y).
  *   Callees: func_801b4914_slot04_0e and func_801b2f58_slot04_0e run as
  *     original code (the same in both runs). func_80130efc (1 argument),
  *     func_801307e0 (2 arguments) and func_801209c4 (1 argument) are
@@ -62,9 +62,9 @@ void func_801b2e8c_slot04_0e(Object *o) {
             func_80130efc(o);
         } else {
             sequence = 0x60;
-            o->field_07++;
-            o->field_50 = 0;
-            o->field_58 = 0;
+            o->state_3++;
+            o->vel_y = 0;
+            o->accel_y = 0;
             if (o->field_49 == 0) sequence = 0x2e;
             func_801307e0(o, sequence);
             func_801209c4(o);

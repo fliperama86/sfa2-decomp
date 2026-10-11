@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b4b8c_slot04_07(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     SequenceStep *s;
 
     if (t & 0x8000) {
@@ -13,17 +13,17 @@ void func_801b4b8c_slot04_07(Object *obj) {
         func_80130efc(obj);
     } else {
         if (obj->field_0b != 0) {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         } else {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         }
-        obj->field_4c = obj->field_4c + obj->field_54;
-        if (obj->field_4c < 0) {
+        obj->vel_x = obj->vel_x + obj->accel_x;
+        if (obj->vel_x < 0) {
             s = obj->sequence;
             s = s + 1;
             obj->sequence = s;
-            obj->field_38 = s->duration;
-            obj->field_3a = s->flags;
+            obj->step_timer = s->duration;
+            obj->step_flags = s->flags;
             obj->frame = obj->frames + obj->sequence->frame_index;
             obj->field_4a = obj->frame->field_0d;
         }
@@ -31,16 +31,16 @@ void func_801b4b8c_slot04_07(Object *obj) {
 }
 
 void func_801b4c78_slot04_07(Object *obj) {
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         if (obj->field_0b == 0) {
-            obj->field_4c = 0x28000;
+            obj->vel_x = 0x28000;
         } else {
-            obj->field_4c = -0x28000;
+            obj->vel_x = -0x28000;
         }
-        obj->field_50 = 0x58000;
-        obj->field_58 = -0x5000;
-        obj->field_54 = 0;
+        obj->vel_y = 0x58000;
+        obj->accel_y = -0x5000;
+        obj->accel_x = 0;
         obj->field_45 = 1;
     }
     func_80130efc(obj);

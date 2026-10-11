@@ -5,13 +5,13 @@
 
 int func_801b0ee4_slot04_06(Object *o) {
     if (!(u8)func_80141b28(o)) return 0;
-    o->field_04 = 1;
-    o->field_05 = 0;
-    o->field_07 = 0;
+    o->state_0 = 1;
+    o->state_1 = 0;
+    o->state_3 = 0;
     o->field_157 = 0;
     o->field_12a = 0;
     o->field_6b = 0;
-    o->field_06 = 7;
+    o->state_2 = 7;
     o->field_159 = 1;
     o->field_0b = o->field_158;
     o->field_15a = 8;
@@ -24,15 +24,15 @@ int func_801b0ee4_slot04_06(Object *o) {
 void func_801b0f78_slot04_06(Object *obj) {
     u8 t = 1;
 
-    obj->field_04 = t;
+    obj->state_0 = t;
     obj->field_159 = t;
     t = obj->field_158;
-    obj->field_06 = 7;
+    obj->state_2 = 7;
     obj->field_0b = t;
     obj->field_15a = 8;
     obj->field_27b = 0x1e;
-    obj->field_05 = 0;
-    obj->field_07 = 0;
+    obj->state_1 = 0;
+    obj->state_3 = 0;
     obj->field_157 = 0;
     obj->field_12a = 0;
     obj->field_6b = 0;
@@ -42,10 +42,10 @@ void func_801b0f78_slot04_06(Object *obj) {
 
 int func_801b0fe4_slot04_06(Object *obj) {
     if (func_801417cc(obj)) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 5;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;

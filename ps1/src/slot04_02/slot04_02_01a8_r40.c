@@ -5,12 +5,12 @@
 
 void func_801b4e68_slot04_02(Object *obj) {
     func_80130efc(obj);
-    if ((u8)obj->field_3a == 0) {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
-        *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-        obj->field_50 = obj->field_50 + obj->field_58;
+    if ((u8)obj->step_flags == 0) {
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+        obj->vel_y = obj->vel_y + obj->accel_y;
         if (obj->pos_y >= obj->field_70) {
-            obj->field_07 = obj->field_07 + 1;
+            obj->state_3 = obj->state_3 + 1;
             obj->field_45 = 0;
             obj->pos_y = obj->field_70;
             func_801209c4(obj);

@@ -11,7 +11,7 @@ void func_801461c4(Object *object) {
     object->field_01 = 1;
     object->field_44 = 1;
     object->field_98 = &data_80172a48;
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     object->field_90 = (void *)0x800fb100;
     object->field_09 = 0;
     object->field_9c = &data_80173c9c;

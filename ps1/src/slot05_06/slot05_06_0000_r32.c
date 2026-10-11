@@ -16,7 +16,7 @@ void func_801ca850_slot05_06(Object *obj) {
     if (obj->pos_y < obj->field_70) {
         func_801cc814_slot05_06(obj);
     } else {
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         func_80146960(obj);
         if ((s8)func_8014693c(obj) != 0) {
             t = 0x80;

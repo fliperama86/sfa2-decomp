@@ -10,7 +10,7 @@ void func_801e9cf0_slot06_01(Object *obj) {
     s16 d;
     s16 e;
     obj->field_0b = 1;
-    obj->field_05++;
+    obj->state_1++;
     e = obj->field_3c->pos_x;
     d = e - obj->pos_x;
     e = d;

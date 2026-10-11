@@ -19,7 +19,7 @@ void func_801b27b0_slot04_11(Object *obj) {
     /* One stand-in of two locals: with either taken out alone (the test written with the literal, or w set from the mask directly) the figure is 3 as well. Inferred: with the plain forms the compiler tests the unmasked value. */
     int k = 0x2000;
 
-    if ((obj->field_3a << 16) < 0) {
+    if ((obj->step_flags << 16) < 0) {
         if (obj->field_cd != 0) {
             if (func_8014a170(obj, data_801c711c_slot04_11) != 0) {
                 goto act_b;
@@ -32,16 +32,16 @@ void func_801b27b0_slot04_11(Object *obj) {
             }
         }
 act_b:
-        d = obj->field_4c >> 2;
-        obj->field_07 = 7;
-        obj->field_50 = 0x10000;
-        obj->field_54 = 0;
-        obj->field_58 = -0x6000;
-        obj->field_4c = d;
+        d = obj->vel_x >> 2;
+        obj->state_3 = 7;
+        obj->vel_y = 0x10000;
+        obj->accel_x = 0;
+        obj->accel_y = -0x6000;
+        obj->vel_x = d;
         func_801307e0(obj, 0x34);
         return;
 act_c:
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 6);
         if (obj->field_cd != 0) {
             ref_other.p = obj->other;
@@ -84,10 +84,10 @@ act_c:
             vx <<= 1;
             vy <<= 1;
         }
-        obj->field_4c = vx;
-        obj->field_54 = vz;
-        obj->field_50 = vy;
-        obj->field_58 = vw;
+        obj->vel_x = vx;
+        obj->accel_x = vz;
+        obj->vel_y = vy;
+        obj->accel_y = vw;
         func_801307e0(obj, d + obj->field_12a);
     } else {
         func_80130efc(obj);

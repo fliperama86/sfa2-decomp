@@ -6,7 +6,7 @@
 /* Same form as func_8012a194: the early return has its own call of
    func_8012a3f4, and the compiler merges only the call instruction. */
 void func_8012a3a4(Object *object) {
-    object->field_07++;
+    object->state_3++;
     if (object->field_cd == 0) {
         func_8012a3f4(object);
         return;

@@ -6,7 +6,7 @@
 void func_801218fc(Object *object) {
     int i;
     Object *o;
-    if (object->field_06 == 0) {
+    if (object->state_2 == 0) {
         data_8018f5a0->field_50++;
         data_8018f5a0->field_60 = 0x20;
         object->field_09 = 0;

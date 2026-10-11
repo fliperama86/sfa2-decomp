@@ -12,7 +12,7 @@ void func_801b74dc_slot04_02(Object *obj) {
     u8 a;
 
     obj->field_46 = 2;
-    obj->field_06++;
+    obj->state_2++;
     obj->field_0b ^= 1;
     func_801380f0(obj);
     a = data_801c7820_slot04_02[obj->field_ac];
@@ -29,8 +29,8 @@ void func_801b7580_slot04_02(Object *obj) {
     if ((s16)obj->field_46 < 0) {
         obj->field_00 = 1;
         func_801b7908_slot04_02(obj, 1, 0, 0, 0);
-        obj->field_4c = -obj->field_4c;
-        obj->field_50 = data_801c7830_slot04_02[obj->field_ac];
+        obj->vel_x = -obj->vel_x;
+        obj->vel_y = data_801c7830_slot04_02[obj->field_ac];
     }
     func_80131094(obj);
 }

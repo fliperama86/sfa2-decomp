@@ -10,7 +10,7 @@ void func_801e99c8_slot06_0f(Object *obj) {
     obj->field_0c = 0;
     obj->field_0f = 1;
     obj->field_81 = 4;
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_y += 0x58;
     if (obj->field_0b == 0) {
         obj->field_0a = 1;

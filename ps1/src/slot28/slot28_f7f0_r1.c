@@ -6,7 +6,7 @@
 extern Object *data_80051ad8_slot28[];
 
 void func_8001f7f0_slot28(Object *obj) {
-    if (data_80051ad8_slot28[0]->field_07 == 1) {
+    if (data_80051ad8_slot28[0]->state_3 == 1) {
         data_8018f5a0->field_52++;
         func_80128410();
     }

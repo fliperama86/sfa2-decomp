@@ -23,7 +23,7 @@ void func_801b3220_slot04_00(Object *obj) {
     if ((game_state.config->field_a8 | game_state.config->field_65) != 0) {
         func_8011ffdc(obj);
     } else {
-        data_801c0564_slot04_00[obj->field_06](obj);
+        data_801c0564_slot04_00[obj->state_2](obj);
         func_8011ffdc(obj);
     }
 }

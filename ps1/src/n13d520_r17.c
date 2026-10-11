@@ -4,11 +4,11 @@
 #include "protos.h"
 
 void func_80144d88(Object *object) {
-    if ((u8)object->field_3a != 0) {
+    if ((u8)object->step_flags != 0) {
         object->field_46 = 0x1f;
-        object->field_4c = 0x20000;
-        object->field_54 = 0x8000;
-        object->field_06 = object->field_06 + 1;
-        object->field_3a = object->field_3a & 0xff00;
+        object->vel_x = 0x20000;
+        object->accel_x = 0x8000;
+        object->state_2 = object->state_2 + 1;
+        object->step_flags = object->step_flags & 0xff00;
     }
 }

@@ -5,10 +5,10 @@
 
 
 void func_8012f4dc(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 6;
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 6;
+    object->state_2 = 0;
+    object->state_3 = 0;
     object->field_259 = 0;
     object->field_258 = 0;
     object->field_25a = 0;
@@ -22,14 +22,14 @@ void func_8012f4dc(Object *object) {
 
 unsigned char func_8012f56c(Object *object) {
     game_state.field_358 = object->other;
-    return *(u16 *)&game_state.field_358->field_04 == 0x601;
+    return *(u16 *)&game_state.field_358->state_0 == 0x601;
 }
 
 void func_8012f59c(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 4;
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 4;
+    object->state_2 = 0;
+    object->state_3 = 0;
     if ((s16)object->field_5c == 0x90) {
         u8 count;
 
@@ -63,10 +63,10 @@ int func_8012f618(Object *object) {
 }
 
 void func_8012f6a0(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 1;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 1;
+    object->state_3 = 0;
     object->field_157 = 0;
     func_80130678(object, 7);
 }
@@ -90,10 +90,10 @@ int func_8012f6d8(Object *object) {
 }
 
 void func_8012f784(Object *object) {
-    object->field_04 = 1;
-    object->field_06 = 1;
-    object->field_05 = 0;
-    object->field_07 = 2;
+    object->state_0 = 1;
+    object->state_2 = 1;
+    object->state_1 = 0;
+    object->state_3 = 2;
     object->field_157 = 0;
     func_80130678(object, 4);
 }
@@ -129,10 +129,10 @@ int func_8012f800(Object *object) {
 void func_8012f838(Object *object) {
     int arg;
 
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 2;
-    object->field_07 = 1;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 2;
+    object->state_3 = 1;
     func_80130038(object);
     if (object->field_130 & 0x8000) {
         arg = 2;

@@ -45,7 +45,7 @@ void func_80026e10_slot28(Object *obj) {
 
 void func_80026f18_slot28(Object *obj) {
     Object *o = data_80051cdc_slot28.p;
-    if ((s16)o->field_3a < 0) {
+    if ((s16)o->step_flags < 0) {
         data_8018f5a0->field_52++;
         func_8014f4d4(1, 0x601);
         func_80128370();

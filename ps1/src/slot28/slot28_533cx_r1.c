@@ -8,7 +8,7 @@ void func_8002533c_slot28(Object *obj) {
     *(u16 *)&obj->pos_y = t;
     if ((s16)t <= 0xa0) {
         obj->pos_y = 0xa0;
-        obj->field_05++;
+        obj->state_1++;
     }
     obj->field_01 = 1;
 }

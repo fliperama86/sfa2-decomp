@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b31b0_slot04_05(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     if ((t & 0xff) != 0) {
-        obj->field_3a = t & 0xff00;
-        obj->field_07++;
+        obj->step_flags = t & 0xff00;
+        obj->state_3++;
         func_80146998(obj);
         obj->other->field_6b = 0x14;
     }

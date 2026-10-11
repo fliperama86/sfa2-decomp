@@ -10,10 +10,10 @@ void func_801b5ba0_slot04_09(Object *obj);
 void func_801b2548_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
-    if (obj->field_50 >= 0 && (s16)obj->field_3a >= 0) {
+    if (obj->vel_y >= 0 && (s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         obj->field_0b ^= 1;
         func_801307e0(obj, 0x49);
     }
@@ -24,10 +24,10 @@ void func_801b25cc_slot04_09(Object *obj) {
 
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         o = obj->other;
         o->field_15b = 1;
         game_state.field_63 = 0x18;

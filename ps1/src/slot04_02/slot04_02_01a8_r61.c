@@ -9,7 +9,7 @@ void func_801b6ec0_slot04_02(Object *obj);
 
 void func_801b6d08_slot04_02(Object *o) {
     Object *p = o->field_3c;
-    o->field_04++;
+    o->state_0++;
     o->field_1c = p->field_1c;
     o->field_03 = p->kind;
     o->field_0c = p->field_0c;

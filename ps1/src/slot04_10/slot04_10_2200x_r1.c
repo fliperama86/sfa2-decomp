@@ -7,10 +7,10 @@ int func_80141b28(Object *object);
 
 int func_801b2200_slot04_10(Object *obj) {
     if (func_80141b28(obj) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 3;
         obj->field_159 = 1;
         obj->field_17b = 1;

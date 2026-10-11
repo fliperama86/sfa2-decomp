@@ -43,8 +43,8 @@ void func_80130088(Object *object)
       }
     }
   }
-  object->field_50 = motion_table[object->kind][index][1];
-  object->field_58 = motion_table[object->kind][index][3];
+  object->vel_y = motion_table[object->kind][index][1];
+  object->accel_y = motion_table[object->kind][index][3];
   b = motion_table[object->kind][index][2];
   a = motion_table[object->kind][index][0];
   if (object->field_0b != 0)
@@ -52,6 +52,6 @@ void func_80130088(Object *object)
     a = -a;
     b = -b;
   }
-  object->field_4c = a;
-  object->field_54 = b;
+  object->vel_x = a;
+  object->accel_x = b;
 }

@@ -6,7 +6,7 @@
 extern ObjectFn data_800797b0_slot00[];
 
 void func_80076578_slot00(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
         func_80130efc(obj);
@@ -16,7 +16,7 @@ void func_80076578_slot00(Object *obj) {
 void func_800765bc_slot00(Object *obj) {
     int t = 0xc;
     int s = 1;
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     obj->field_225 = 1;
     if (obj->field_246 == 0) {
@@ -34,5 +34,5 @@ void func_800765bc_slot00(Object *obj) {
 }
 
 void func_80076660_slot00(Object *obj) {
-    data_800797b0_slot00[obj->field_04](obj);
+    data_800797b0_slot00[obj->state_0](obj);
 }

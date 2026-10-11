@@ -23,7 +23,7 @@ void func_80012b90_slot01(Object *obj) {
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_24 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     r = obj->field_3c;
     obj->pos_x = r->pos_x;
     obj->pos_y = r->pos_y;
@@ -36,7 +36,7 @@ void func_80012b90_slot01(Object *obj) {
         obj->field_01 = 0;
         obj->field_0c = 0;
         obj->field_09 = 3;
-        func_80130768(obj, 0, (SequenceStep **)obj->field_58);
+        func_80130768(obj, 0, (SequenceStep **)obj->accel_y);
         func_80012f60_slot01(obj, (Poly28 *)data_800319b8_slot01, (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
         func_80012f60_slot01(obj, (Poly28 *)(data_800319b8_slot01 + 0xf0), (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
         func_80012d08_slot01(obj);

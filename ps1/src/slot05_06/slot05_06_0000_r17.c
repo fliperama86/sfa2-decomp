@@ -29,7 +29,7 @@ void func_801c9514_slot05_06(Object *o) {
     } else {
         if (obj->field_3a != 0) {
             obj->field_1c3 = 10;
-            o->field_07++;
+            o->state_3++;
         } else {
             func_80130efc(o);
         }
@@ -48,7 +48,7 @@ void func_801c9600_slot05_06(Object *o) {
 done:
     o->field_45 = 0;
     o->field_249 = 5;
-    o->field_07++;
+    o->state_3++;
     func_801209c4(o);
     func_80130efc(o);
 }

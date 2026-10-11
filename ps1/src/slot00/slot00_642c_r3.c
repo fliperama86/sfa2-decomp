@@ -11,7 +11,7 @@ void func_800766a0_slot00(Object *obj) {
     int speeds[4] = { 0x38000, 0x40000, 0x50000, 0x48000 };
     int a, b;
     obj->field_09 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     ref_other.p = obj->field_3c;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;
@@ -19,7 +19,7 @@ void func_800766a0_slot00(Object *obj) {
     o->field_b0 = 5;
     o->field_b2 = 0xb;
     b = 3;
-    obj->field_50 = 0;
+    obj->vel_y = 0;
     obj->field_46 = 0;
     obj->field_03 = 0;
     o->field_b1 = 0;
@@ -30,9 +30,9 @@ void func_800766a0_slot00(Object *obj) {
     }
     obj->field_a0 = b;
     if (obj->field_0b != 0) {
-        obj->field_4c = speeds[a >> 1];
+        obj->vel_x = speeds[a >> 1];
     } else {
-        obj->field_4c = -speeds[a >> 1];
+        obj->vel_x = -speeds[a >> 1];
     }
     if (ref_other.p->side == 0) {
         obj->frames = data_1f8000a8;

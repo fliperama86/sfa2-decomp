@@ -22,15 +22,15 @@ void func_801b3878_slot04_10(Object *obj) {
     int k;
     u8 i;
 
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t == 0) {
         func_80130efc(obj);
         return;
     }
     if ((u8)t != 0xf) {
         obj->field_45 = 1;
-        obj->field_07++;
-        obj->field_3a &= 0xff00;
+        obj->state_3++;
+        obj->step_flags &= 0xff00;
         game_state.field_358 = obj->other;
         game_state.field_358->field_15b = 1;
         func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
@@ -42,15 +42,15 @@ void func_801b3878_slot04_10(Object *obj) {
                 obj->field_255 = 6;
             }
         }
-        obj->field_4c = c[(obj->field_12a >> 1) * 4 + 0];
-        obj->field_50 = c[(obj->field_12a >> 1) * 4 + 1];
-        obj->field_58 = c[(obj->field_12a >> 1) * 4 + 3];
-        obj->field_54 = 0;
+        obj->vel_x = c[(obj->field_12a >> 1) * 4 + 0];
+        obj->vel_y = c[(obj->field_12a >> 1) * 4 + 1];
+        obj->accel_y = c[(obj->field_12a >> 1) * 4 + 3];
+        obj->accel_x = 0;
         if (obj->field_0b != 0) {
-            obj->field_4c = -obj->field_4c;
+            obj->vel_x = -obj->vel_x;
         }
     } else {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
         func_80130efc(obj);
@@ -73,16 +73,16 @@ void func_801b3b6c_slot04_10(Object *obj) {
         func_80130efc(obj);
     } else {
         obj->field_45 = 0;
-        obj->field_07++;
+        obj->state_3++;
         obj->pos_y = obj->field_70;
-        *(u32 *)&obj->field_14 &= 0xffff0000;
+        *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x1f);
     }
 }
 
 void func_801b3be8_slot04_10(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
         func_80130efc(obj);
     } else {
@@ -94,14 +94,14 @@ void func_801b3be8_slot04_10(Object *obj) {
 }
 
 void func_801b3c5c_slot04_10(Object *obj) {
-    data_801c6a84_slot04_10[obj->field_07](obj);
+    data_801c6a84_slot04_10[obj->state_3](obj);
 }
 
 void func_801b3c9c_slot04_10(Object *obj) {
     obj->field_17b = 1;
     game_state.field_358 = obj->other;
     game_state.field_358->field_249 = 0;
-    obj->field_07++;
+    obj->state_3++;
     func_801307e0(obj, (obj->field_12a >> 1) + 0x39);
     func_80141f28(obj, 5);
     func_80138ae8(game_state.config, obj);
@@ -118,7 +118,7 @@ void func_801b3d40_slot04_10(Object *obj) {
         obj->field_15a = 9;
         func_801b4444_slot04_10(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_80141f28(obj, 0x14);
         func_80138ae8(game_state.config, obj);
         func_80120554(obj, obj->side ^ 1, 0x31a);
@@ -136,7 +136,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
     u8 st;
 
     func_80130efc(obj);
-    st = obj->field_3a;
+    st = obj->step_flags;
     p = tbl;
     if (st != 0) {
         if (st == 1) {
@@ -145,13 +145,13 @@ void func_801b3dfc_slot04_10(Object *obj) {
             k = (obj->field_49 != 0) << 2;
             i += k;
             func_80140cd8(obj, (s16)(p[i] | m), 0);
-            obj->field_3a &= m;
+            obj->step_flags &= m;
             game_state.config->field_63 = 0x3c;
             func_80120554(obj, obj->side, 0x319);
             func_80146960(obj);
         } else if (st == 2) {
-            obj->field_07++;
-            obj->field_3a &= 0xff00;
+            obj->state_3++;
+            obj->step_flags &= 0xff00;
             d = 0x60;
             if (obj->field_0b != 0) {
                 d = -0x60;
@@ -165,16 +165,16 @@ void func_801b3f54_slot04_10(Object *obj) {
     s32 tbl[12] = { 0x24000, 0x90000, 0, -0x8000, 0x24000, 0xa0000, 0, -0x8400, 0x24000, 0xb0000, 0, -0x8800 };
 
     func_80130efc(obj);
-    if ((u8)obj->field_3a == 3) {
+    if ((u8)obj->step_flags == 3) {
         obj->field_45 = 1;
-        obj->field_07++;
-        obj->field_3a &= 0xff00;
-        obj->field_4c = tbl[obj->field_12a * 2];
-        obj->field_50 = tbl[obj->field_12a * 2 + 1];
-        obj->field_58 = tbl[obj->field_12a * 2 + 3];
-        obj->field_54 = 0;
+        obj->state_3++;
+        obj->step_flags &= 0xff00;
+        obj->vel_x = tbl[obj->field_12a * 2];
+        obj->vel_y = tbl[obj->field_12a * 2 + 1];
+        obj->accel_y = tbl[obj->field_12a * 2 + 3];
+        obj->accel_x = 0;
         if (obj->field_0b == 0) {
-            obj->field_4c = -obj->field_4c;
+            obj->vel_x = -obj->vel_x;
         }
     }
 }

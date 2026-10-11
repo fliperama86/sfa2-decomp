@@ -7,7 +7,7 @@
 void func_8012cf1c(Object *object) {
     int index;
     if (func_8012eff8(object) != 0) {
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         func_8013786c(object);
         object->field_258 = 0;
         object->field_259 = 0;
@@ -17,7 +17,7 @@ void func_8012cf1c(Object *object) {
     }
     if ((s16)object->field_5c < 0) {
         if ((s16)object->field_46 >= 8) {
-            object->field_07 = 3;
+            object->state_3 = 3;
             func_801308c4(object, 0x1b);
         }
     } else if (object->field_61 == 8 && object->field_cd != 0) {

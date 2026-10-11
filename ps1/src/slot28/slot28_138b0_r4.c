@@ -13,11 +13,11 @@ void func_80023dac_slot28(Object *obj) {
     obj->field_0e = 0;
     obj->field_0b = 0;
     obj->field_48 = 0;
-    obj->field_04 = obj->field_04 + 1;
-    obj->field_4c = data_8004aac4_slot28[obj->field_03].field_00;
-    obj->field_54 = data_8004aac4_slot28[obj->field_03].field_04;
-    obj->field_50 = data_8004aac4_slot28[obj->field_03].field_08;
-    obj->field_58 = data_8004aac4_slot28[obj->field_03].field_0c;
+    obj->state_0 = obj->state_0 + 1;
+    obj->vel_x = data_8004aac4_slot28[obj->field_03].field_00;
+    obj->accel_x = data_8004aac4_slot28[obj->field_03].field_04;
+    obj->vel_y = data_8004aac4_slot28[obj->field_03].field_08;
+    obj->accel_y = data_8004aac4_slot28[obj->field_03].field_0c;
     if (obj->field_03 != 0) {
         func_80130768(obj, data_8004aab8_slot28[obj->field_03], ((Slot28Obj *)obj)->field_6c);
     } else {

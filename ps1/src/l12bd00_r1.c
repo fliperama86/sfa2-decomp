@@ -37,5 +37,5 @@ void func_8012bd00(Object *object) {
         }
     }
 tail:
-    object->field_07 = object->field_07 + 1;
+    object->state_3 = object->state_3 + 1;
 }

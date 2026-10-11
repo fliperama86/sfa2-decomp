@@ -7,10 +7,10 @@
 
 void func_8012c06c(Object *object) {
     object->field_16a = 0;
-    table_801719f4[object->field_06](object);
+    table_801719f4[object->state_2](object);
     func_80130b10(object);
 }
 
 void func_8012c0c0(Object *object) {
-    table_80171a00[object->field_07](object);
+    table_80171a00[object->state_3](object);
 }

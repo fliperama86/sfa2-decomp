@@ -97,11 +97,11 @@ void reset_object(Object *object) {
     if (game_state.config->field_42 != 0) {
         func_801312b8(object);
     } else {
-        object->field_05 = 7;
-        object->field_04 = 1;
+        object->state_1 = 7;
+        object->state_0 = 1;
         if (object->kind != 0x0b) {
-            object->field_06 = 0;
-            object->field_07 = 0;
+            object->state_2 = 0;
+            object->state_3 = 0;
         }
         if (object->kind != 0x17) func_80130678(object, 0x22);
     }

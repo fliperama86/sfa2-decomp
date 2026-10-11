@@ -15,7 +15,7 @@ void func_801b0820_slot04_0d(Object *obj) {
 }
 
 void func_801b0840_slot04_0d(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     int d;
 
     if (t >= 0) {
@@ -37,11 +37,11 @@ void func_801b0840_slot04_0d(Object *obj) {
 
 void func_801b08bc_slot04_0d(Object *obj) {
     obj->field_157 = 1;
-    data_801c2978_slot04_0d[obj->field_07](obj);
+    data_801c2978_slot04_0d[obj->state_3](obj);
 }
 
 void func_801b0900_slot04_0d(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_159 = 1;
     func_80130dc0(obj);
 }

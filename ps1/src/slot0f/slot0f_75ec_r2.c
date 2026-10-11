@@ -8,8 +8,8 @@ void func_800e78e0_slot0f(Object *obj);
 void func_800e7748_slot0f(Object *obj) {
     Object *p;
     FrameRecord *fr;
-    u8 t = obj->field_05;
-    obj->field_05 = t + 1;
+    u8 t = obj->state_1;
+    obj->state_1 = t + 1;
     func_800e78e0_slot0f(obj);
     p = (Object *)func_8011f1e0();
     if (p != 0) {

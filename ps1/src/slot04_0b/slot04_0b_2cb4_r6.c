@@ -8,9 +8,9 @@ void func_801b3550_slot04_0b(Object *obj) {
     int a;
 
     obj->field_a2 = 0;
-    if (*(u8 *)&obj->field_3a != 0) {
+    if (*(u8 *)&obj->step_flags != 0) {
         obj->field_a2 = 1;
-        obj->field_3a = obj->field_3a & 0xff00;
+        obj->step_flags = obj->step_flags & 0xff00;
         func_80146478(obj, 1, -0x54, 0x55);
         a = 0;
         if (obj->field_a1 == 0) {
@@ -18,7 +18,7 @@ void func_801b3550_slot04_0b(Object *obj) {
             a = 9;
         }
         if (func_80140cd8(obj, a, 0) != 0) {
-            obj->field_07 = 4;
+            obj->state_3 = 4;
             func_80120554(obj, o->side, 0x340);
             func_801204f4(obj, obj->side, 0xb);
             func_801307e0(obj, 0x19);
@@ -35,7 +35,7 @@ void func_801b3550_slot04_0b(Object *obj) {
         }
         func_80120554(obj, o->side, 0x30d);
         func_801204f4(obj, obj->side, 0xb);
-        obj->field_07 = 3;
+        obj->state_3 = 3;
         func_801307e0(obj, 0x19);
     }
 check:

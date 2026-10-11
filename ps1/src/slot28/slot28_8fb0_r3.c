@@ -25,5 +25,5 @@ void func_800191fc_slot28(Object *obj) {
 }
 
 void func_800192d0_slot28(Object *object) {
-    data_80035390_slot28[object->field_04](object);
+    data_80035390_slot28[object->state_0](object);
 }

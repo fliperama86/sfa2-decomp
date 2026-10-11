@@ -13,7 +13,7 @@ void func_801b4ecc_slot04_07(Object *obj) {
     int w;
 
     obj->field_09 = 2;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     o = obj->other;
     obj->field_45 = 0;
     obj->field_0b = o->side;

@@ -32,7 +32,7 @@ void func_801b0000_slot04_04(Object *obj) {
         c->field_0d = obj->field_0d;
         c->field_0e = obj->field_0e;
         c->field_66 = obj->field_66;
-        c->field_07 = obj->kind;
+        c->state_3 = obj->kind;
         *(u32 *)&obj->field_2c = (u32)c;
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;
@@ -49,7 +49,7 @@ void func_801b0000_slot04_04(Object *obj) {
         c->field_0c = obj->field_0c;
         c->field_0d = obj->field_0d;
         c->field_0e = obj->field_0e;
-        c->field_07 = obj->kind;
+        c->state_3 = obj->kind;
         c->field_66 = obj->field_66;
         obj->field_28 = (u32)c;
         c->field_90 = obj->field_90;

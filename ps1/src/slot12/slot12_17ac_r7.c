@@ -10,6 +10,6 @@ void func_80011d08_slot12(Object *obj) {
     if (obj->field_03 & 0x80) {
         func_80012e2c_slot12(obj);
     } else {
-        table_80022e08_slot12[obj->field_04](obj);
+        table_80022e08_slot12[obj->state_0](obj);
     }
 }

@@ -12,6 +12,6 @@ void func_80014f5c_slot12(Object *obj) {
     ((PrimTag *)cell)->addr = ((PrimTag *)&ot[data_800282dc_slot12[obj->field_09]])->addr;
     ((PrimTag *)&ot[data_800282dc_slot12[obj->field_09]])->addr = (u32)cell;
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }

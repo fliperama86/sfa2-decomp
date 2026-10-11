@@ -6,18 +6,18 @@
 extern void (*data_800353a0_slot28[])(Object *);
 
 void func_80019310_slot28(Object *obj) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = 0;
     obj->field_0e = 0;
     obj->field_0b = 0;
     obj->field_48 = 0;
     if (obj->field_03 == 4) {
-        obj->field_50 = 0xfffec000;
-        obj->field_58 = 0x1000;
+        obj->vel_y = 0xfffec000;
+        obj->accel_y = 0x1000;
     }
     if (obj->field_03 == 5) {
-        obj->field_50 = 0xfffee000;
-        obj->field_58 = 0x1000;
+        obj->vel_y = 0xfffee000;
+        obj->accel_y = 0x1000;
     }
 }
 

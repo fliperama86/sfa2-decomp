@@ -15,7 +15,7 @@ void func_80144544(Object *object) {
 }
 
 void func_80144590(Object *object) {
-    handlers_b61c[object->field_06](object);
+    handlers_b61c[object->state_2](object);
     func_80131094(object);
     func_80120028(object);
 }
@@ -24,9 +24,9 @@ void func_801445ec(Object *object) {
     object->pos_x = 0x1c0;
     object->pos_y = 0x70;
     object->field_46 = 0x1f;
-    object->field_4c = -0x20000;
-    object->field_54 = -0x8000;
-    object->field_06 = object->field_06 + 1;
+    object->vel_x = -0x20000;
+    object->accel_x = -0x8000;
+    object->state_2 = object->state_2 + 1;
     func_80144ee4(object, 0xa);
 }
 
@@ -35,8 +35,8 @@ void func_80144640(Object *object) {
     object->field_46 = (s16)object->field_46 - 1;
     if (object->field_46 & 0x80) {
         object->field_46 = 0xf;
-        object->field_54 = 0x40000;
-        object->field_06 = object->field_06 + 1;
+        object->accel_x = 0x40000;
+        object->state_2 = object->state_2 + 1;
     }
 }
 
@@ -45,6 +45,6 @@ void func_8014469c(Object *object) {
     object->field_46 = (s16)object->field_46 - 1;
     if (object->field_46 & 0x80) {
         object->pos_x = 0xc0;
-        object->field_06 = object->field_06 + 1;
+        object->state_2 = object->state_2 + 1;
     }
 }

@@ -12,23 +12,23 @@ void func_801b33fc_slot04_02(Object *obj) {
         func_801b359c_slot04_02(obj);
     }
     if (obj->field_48 != 0) {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     }
-    obj->field_4c = obj->field_4c + obj->field_54;
+    obj->vel_x = obj->vel_x + obj->accel_x;
     obj->field_0b = obj->field_158;
     if (((obj->field_164 >> obj->field_48) & 1) == 0) {
         t = 0x30000;
         if (obj->field_129 != 0) {
             t = 0x24000;
         }
-        if (t < obj->field_4c) {
+        if (t < obj->vel_x) {
             func_80130efc(obj);
             return;
         }
     }
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_17b = 0;
     obj->field_46 = *(u8 *)&obj->field_46 | 0xa00;
     func_80130678(obj, 0);

@@ -21,7 +21,7 @@ void func_801b5004_slot04_07(Object *obj) {
         obj->field_45 = obj->field_45 | 2;
     }
     if (obj->field_45 == 3) {
-        obj->field_04 = obj->field_04 + 1;
+        obj->state_0 = obj->state_0 + 1;
     }
     c = game_state.field_1d + game_state.field_24;
     t = c;
@@ -29,15 +29,15 @@ void func_801b5004_slot04_07(Object *obj) {
         if ((obj->field_45 & 1) == 0) {
             obj->field_80 = 1;
             *(s32 *)&obj->sequence = *(s32 *)&obj->field_20;
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_5c;
-            *(s32 *)&obj->field_14 = *(s32 *)&obj->field_60;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->field_5c;
+            *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->field_60;
             func_8011ffdc(obj);
         }
     } else if ((obj->field_45 & 2) == 0) {
         obj->field_80 = 1;
         *(s32 *)&obj->sequence = *(s32 *)&obj->field_68;
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->box_tables;
-        *(s32 *)&obj->field_14 = *(s32 *)&obj->field_70;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->box_tables;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->field_70;
         func_8011ffdc(obj);
     }
 }

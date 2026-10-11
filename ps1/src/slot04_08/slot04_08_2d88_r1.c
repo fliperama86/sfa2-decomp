@@ -18,7 +18,7 @@ void func_801b2d88_slot04_08(Object *obj) {
     if (t == 0) {
         func_801b4298_slot04_08(obj);
     }
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     other = obj->other;
     d = (u16)obj->pos_x - data_801c3e98_slot04_08;
     if (obj->field_0b != 0) {
@@ -26,7 +26,7 @@ void func_801b2d88_slot04_08(Object *obj) {
     }
     if (d >= 0) {
         d = 2;
-        if (obj->field_4c < 0) {
+        if (obj->vel_x < 0) {
             d = 1;
         }
         if (obj->field_164 != d && obj->field_67 == 0) {
@@ -41,6 +41,6 @@ void func_801b2d88_slot04_08(Object *obj) {
             }
         }
     }
-    obj->field_07++;
+    obj->state_3++;
     func_801307e0(obj, ((Slot04aObj *)obj)->field_1c4 + 0x46 + (obj->field_12a >> 1) * 3);
 }

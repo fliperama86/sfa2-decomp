@@ -12,7 +12,7 @@ void func_8012a1e4(Object *object) {
     } else if (object->field_cd != 0) {
         if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
-        } else if ((s16)object->field_3a < 0) {
+        } else if ((s16)object->step_flags < 0) {
             func_80131468(object);
         } else {
             func_80130efc(object);
@@ -26,7 +26,7 @@ void func_8012a1e4(Object *object) {
     } else if ((u8)func_8012f618(object)) {
         if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
-        } else if ((s16)object->field_3a < 0) {
+        } else if ((s16)object->step_flags < 0) {
             func_80131468(object);
         } else {
             func_80130efc(object);
@@ -34,9 +34,9 @@ void func_8012a1e4(Object *object) {
     } else if ((u8)func_8012f7c0(object)) {
         func_8012f838(object);
     } else {
-        saved = object->field_38;
-        object->field_07++;
-        func_80130678(object, (u8)object->field_3a + 4);
-        object->field_38 = saved;
+        saved = object->step_timer;
+        object->state_3++;
+        func_80130678(object, (u8)object->step_flags + 4);
+        object->step_timer = saved;
     }
 }

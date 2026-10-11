@@ -16,9 +16,9 @@ void func_80011d28_slot01(Object *obj) {
     if (!(obj->field_03 & 0x80)) {
         if (obj->field_03 == 0) {
             if (game_state.field_ab != 0) {
-                obj->field_05 = 3;
+                obj->state_1 = 3;
             }
-            data_80015320_slot01[obj->field_05](obj);
+            data_80015320_slot01[obj->state_1](obj);
             func_80012020_slot01(obj);
         }
     }
@@ -30,8 +30,8 @@ void func_80011dc0_slot01(Object *obj) {
     obj->field_46 = t;
     if ((s16)t < 0) {
         obj->field_46 = 1;
-        obj->field_05++;
+        obj->state_1++;
         func_80011f74_slot01(obj);
     }
-    obj->pos_x = obj->pos_x + obj->field_4c;
+    obj->pos_x = obj->pos_x + obj->vel_x;
 }

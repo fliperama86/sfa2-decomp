@@ -7,9 +7,9 @@ void func_801b1c08_slot04_03(Object *obj) {
     int d;
 
     func_80130efc(obj);
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07++;
-        obj->field_3a = obj->field_3a & 0xff00;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3++;
+        obj->step_flags = obj->step_flags & 0xff00;
         d = -0x48;
         if (obj->field_0b != 0) {
             d = 0x48;

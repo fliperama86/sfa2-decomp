@@ -19,12 +19,12 @@ void func_800793d4_slot2b(Object *o) {
 
     func_800795b4_slot2b(o);
     if (data_8007ef34_slot2b->field_70 < o->pos_y) {
-        o->field_05++;
+        o->state_1++;
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
         do {
             y = data_8007ef34_slot2b->field_70;
             o->field_98 = data_80172a48;
-            o->field_14 = 0;
+            o->pos_y_frac = 0;
             o->field_0c = 0;
             o->field_0d = 0;
             o->field_90 = (void *)0x800fb100;

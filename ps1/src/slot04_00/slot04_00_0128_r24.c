@@ -7,11 +7,11 @@ extern void (*data_801c0574_slot04_00[])(Object *, Object *);
 void func_801b35d4_slot04_00(Object *obj, Object *parent);
 
 void func_801b3538_slot04_00(Object *obj) {
-    data_801c0574_slot04_00[obj->field_04](obj, obj->field_3c);
+    data_801c0574_slot04_00[obj->state_0](obj, obj->field_3c);
 }
 
 void func_801b3578_slot04_00(Object *obj, Object *parent) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = parent->field_1c;
     obj->field_03 = parent->kind;
     obj->field_0c = parent->field_0c;
@@ -26,7 +26,7 @@ void func_801b35d4_slot04_00(Object *obj, Object *parent) {
 
     obj->field_01 = 0;
     if (obj->field_03 != parent->kind) {
-        obj->field_04++;
+        obj->state_0++;
         return;
     }
     idx = parent->frame->field_09;

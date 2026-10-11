@@ -4,17 +4,17 @@
 #include "../externs.h"
 
 void func_801b26c8_slot04_05(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
     if (obj->field_0b == 0) {
-        obj->field_4c = 0xfffb0000;
+        obj->vel_x = 0xfffb0000;
     } else {
-        obj->field_4c = 0x50000;
+        obj->vel_x = 0x50000;
     }
-    obj->field_54 = 0;
-    obj->field_50 = 0x88000;
-    obj->field_58 = -0x9000;
+    obj->accel_x = 0;
+    obj->vel_y = 0x88000;
+    obj->accel_y = -0x9000;
     func_801307e0(obj, 0x2b);
 }

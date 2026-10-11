@@ -13,11 +13,11 @@ void func_800e6078_slot0f(Object *obj) {
 
     obj->field_09 = 4;
     obj->field_01 = 1;
-    obj->field_50 = 0x70000;
-    obj->field_54 = 0x500;
-    obj->field_58 = -0x5000;
-    obj->field_4c = 0xfffa8000;
-    obj->field_04++;
+    obj->vel_y = 0x70000;
+    obj->accel_x = 0x500;
+    obj->accel_y = -0x5000;
+    obj->vel_x = 0xfffa8000;
+    obj->state_0++;
     obj->field_0b = 0;
     rec = table_8016e614;
     if (obj->field_03 == 0) {
@@ -37,7 +37,7 @@ void func_800e6078_slot0f(Object *obj) {
         obj->pos_x += 0x10e;
         obj->pos_y += 0x40;
     } else {
-        obj->field_05 = 7;
+        obj->state_1 = 7;
         obj->field_46 = 10;
         func_800e6410_slot0f(obj, 0);
     }

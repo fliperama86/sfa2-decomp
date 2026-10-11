@@ -11,22 +11,22 @@ void func_80077238_slot2b(Object *obj) {
 }
 
 void func_8007727c_slot2b(Object *obj) {
-    data_80079828_slot2b[obj->field_07](obj);
+    data_80079828_slot2b[obj->state_3](obj);
 }
 
 void func_800772bc_slot2b(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
         if ((u8)func_8013f8c4(obj, -0xd, 0x14) != 0) {
-            obj->field_04 = 1;
-            obj->field_05 = 2;
-            obj->field_06 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 2;
+            obj->state_2 = 0;
+            obj->state_3 = 0;
             return;
         }
         if (obj->field_12a == 2 && obj->field_219 != 0) {
-            obj->field_07 = 2;
+            obj->state_3 = 2;
             obj->field_159 = 1;
             obj->field_157 = 0;
             obj->field_45 = 1;

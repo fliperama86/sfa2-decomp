@@ -12,11 +12,11 @@ void func_80014854_slot28(Object *obj, int arg) {
 }
 
 void func_80014884_slot28(Object *object) {
-    data_8002acb8_slot28[object->field_04](object);
+    data_8002acb8_slot28[object->state_0](object);
 }
 
 void func_800148c4_slot28(Object *obj) {
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
 }
 
 void func_800148d8_slot28(Object *obj) {
@@ -24,10 +24,10 @@ void func_800148d8_slot28(Object *obj) {
         func_80131094(obj);
     } else {
         func_80131094(obj);
-        if ((obj->field_3a & 0x7fff) == 1) {
-            obj->pos_y = *(u16 *)&obj->field_50 + 8;
+        if ((obj->step_flags & 0x7fff) == 1) {
+            obj->pos_y = *(u16 *)&obj->vel_y + 8;
         } else {
-            obj->pos_y = *(u16 *)&obj->field_50;
+            obj->pos_y = *(u16 *)&obj->vel_y;
         }
     }
 }

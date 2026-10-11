@@ -7,10 +7,10 @@
 
 
 void func_8012b0e4(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 3;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 3;
+    object->state_3 = 0;
     object->field_242 = 0;
     object->field_0b = object->field_158;
     object->field_48 = object->field_21a;
@@ -20,5 +20,5 @@ void func_8012b0e4(Object *object) {
 
 void func_8012b144(Object *object) {
     object->field_16a = 0;
-    handler_table_19d0[object->field_07](object);
+    handler_table_19d0[object->state_3](object);
 }

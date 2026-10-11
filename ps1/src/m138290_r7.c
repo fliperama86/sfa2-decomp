@@ -16,9 +16,9 @@ void func_8013bd10(void) {
         ref_third.p = tmp;
     } else {
         ref_second.p->field_00++;
-        ref_second.p->field_04 = 2;
-        ref_second.p->field_05 = 0;
-        ref_second.p->field_06 = 0;
-        ref_second.p->field_07 = 0;
+        ref_second.p->state_0 = 2;
+        ref_second.p->state_1 = 0;
+        ref_second.p->state_2 = 0;
+        ref_second.p->state_3 = 0;
     }
 }

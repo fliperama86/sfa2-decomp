@@ -12,7 +12,7 @@ void func_8001276c_slot27(Object *obj) {
     s32 *p2;
     s32 *p3;
 
-    obj->field_06++;
+    obj->state_2++;
     obj->field_46 = 0x258;
     ref_other.p->field_d8 = 0;
     obj->field_45 = 0xff;
@@ -24,7 +24,7 @@ void func_8001276c_slot27(Object *obj) {
         ref_other.p->field_03 = 0;
         ref_other.p->other = ref_second.p;
         ref_other.p->field_3c = obj;
-        obj->field_54 = (s32)ref_other.p;
+        obj->accel_x = (s32)ref_other.p;
     }
     ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
@@ -33,7 +33,7 @@ void func_8001276c_slot27(Object *obj) {
         ref_other.p->field_03 = 1;
         ref_other.p->other = ref_second.p;
         ref_other.p->field_3c = obj;
-        obj->field_58 = (s32)ref_other.p;
+        obj->accel_y = (s32)ref_other.p;
     }
     p0 = (s32 *)&data_8019045c;
     p1 = data_80190464;
@@ -52,8 +52,8 @@ void func_8001276c_slot27(Object *obj) {
     }
     obj->field_5c = *p0;
     obj->field_5e = *p1;
-    ref_first.p = (Object *)obj->field_54;
-    ref_second.p = (Object *)obj->field_58;
+    ref_first.p = (Object *)obj->accel_x;
+    ref_second.p = (Object *)obj->accel_y;
     ref_first.p->field_62 = *p2;
     ref_second.p->field_62 = *p3;
     *p0 = *p0 / 16;
@@ -65,8 +65,8 @@ void func_8001276c_slot27(Object *obj) {
     *p0 = ref_other.p->side * 2;
     data_80190464[0] = data_80026a08_slot27[data_8019045c[0]];
     data_8019046c[0] = data_80026a08_slot27[data_8019045c[0] + 1];
-    obj->field_4c = data_80190464[0];
-    obj->field_50 = data_8019046c[0];
+    obj->vel_x = data_80190464[0];
+    obj->vel_y = data_8019046c[0];
     data_80190464[0] = data_80190464[0] << 3;
     data_8019046c[0] = data_8019046c[0] - data_80190464[0];
     obj->pos_x = data_8019046c[0];

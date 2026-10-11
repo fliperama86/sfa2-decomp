@@ -13,7 +13,7 @@ void func_800283f4_slot28(Object *obj) {
     obj->field_0c = 0;
     obj->field_0b = 0;
     obj->field_48 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->pos_x = data_80051820_slot28[obj->field_03].field_00;
     obj->pos_y = data_80051820_slot28[obj->field_03].field_02;
     if (obj->field_03 == 0) {

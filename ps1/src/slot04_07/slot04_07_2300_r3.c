@@ -6,7 +6,7 @@
 extern u8 data_801c1f80_slot04_07[];
 
 void func_801b2620_slot04_07(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
@@ -20,7 +20,7 @@ void func_801b269c_slot04_07(Object *obj) {
 
     obj->field_46 = t;
     if ((t & 0xff00) == 0) {
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 5);
         obj->field_46 |= 0x3800;
         if (obj->field_4b != 0) {
@@ -39,9 +39,9 @@ void func_801b2724_slot04_07(Object *obj) {
     obj->field_46 = t;
     if ((t & 0xff00) == 0) {
         obj->field_165 = 0;
-        obj->field_4c = 0;
-        obj->field_54 = 0;
-        obj->field_07++;
+        obj->vel_x = 0;
+        obj->accel_x = 0;
+        obj->state_3++;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 10;
             i = (obj->field_12a >> 1) + 1;

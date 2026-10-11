@@ -37,7 +37,7 @@ void func_80012ad0_slot27(Object *obj) {
                 goto call;
             }
         }
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         func_801205c4(ref_other.p->side, 1);
         data_8019045c[0] = ref_other.p->field_d8;
         if (ref_other.p->field_d8 != 0) {

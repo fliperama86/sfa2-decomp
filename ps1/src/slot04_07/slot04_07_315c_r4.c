@@ -17,11 +17,11 @@ void func_801b35a8_slot04_07(Object *obj) {
     obj->field_46 = a;
     if (t == 0) {
         if (obj->field_45 != 0) {
-            obj->field_04 = 1;
+            obj->state_0 = 1;
         }
-        obj->field_06 = 3;
-        obj->field_05 = 0;
-        obj->field_07 = 1;
+        obj->state_2 = 3;
+        obj->state_1 = 0;
+        obj->state_3 = 1;
         func_8013786c(obj);
         func_80142c70(obj);
     } else {

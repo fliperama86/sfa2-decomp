@@ -8,7 +8,7 @@ void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 void func_801b0464_slot04_02(Object *obj) {
     int one = 1;
 
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b631c_slot04_02(obj, 1, 2, 0, 0);
@@ -16,16 +16,16 @@ void func_801b0464_slot04_02(Object *obj) {
         }
         if (obj->field_12a == 2 && (obj->field_130 & 0x8000) != 0) {
             obj->field_159 = one;
-            obj->field_07 = 2;
+            obj->state_3 = 2;
             obj->field_157 = 0;
             func_80141f28(obj, 1);
             if (obj->field_0b != 0) {
-                obj->field_4c = 0x36000;
+                obj->vel_x = 0x36000;
             } else {
-                obj->field_4c = -0x36000;
+                obj->vel_x = -0x36000;
             }
-            obj->field_50 = 0x40000;
-            obj->field_58 = -0x6000;
+            obj->vel_y = 0x40000;
+            obj->accel_y = -0x6000;
             func_80130ec0(obj);
             obj->field_29a = one;
             obj->field_278 = one;

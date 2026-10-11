@@ -8,8 +8,8 @@ extern void (*data_80015c00_slot01[])(Object *obj);
 
 void func_80013bac_slot01(Object *obj) {
     if (obj->field_03 & 0x80) {
-        data_80015c00_slot01[obj->field_04](obj);
+        data_80015c00_slot01[obj->state_0](obj);
     } else {
-        data_80015bf4_slot01[obj->field_04](obj);
+        data_80015bf4_slot01[obj->state_0](obj);
     }
 }

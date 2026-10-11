@@ -13,7 +13,7 @@ void func_80013d8c_slot28(Object *obj, SeqRec *rec) {
     t = rec->header;
     w = t;
     t = w >> 16;
-    obj->field_38 = t;
-    obj->field_3a = w;
+    obj->step_timer = t;
+    obj->step_flags = w;
     func_80013dc4_slot28(obj, rec);
 }

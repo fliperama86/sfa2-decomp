@@ -11,21 +11,21 @@ void func_800e1964_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
     func_800e2550_slot0f(o);
-    b = o->field_10;
+    b = o->pos_x_frac;
     if (b & 0x860) {
         if (b & 0x820) {
             if (obj->field_0c == 0) {
                 obj->field_0f = 2;
                 o->field_01 += 1;
-                o->field_04 += 1;
+                o->state_0 += 1;
             } else {
                 o->field_01 = 1;
-                o->field_04 = 0;
+                o->state_0 = 0;
             }
             func_80120554(0, 0, 0x205);
         } else {
             o->field_01 = 1;
-            o->field_04 = 0;
+            o->state_0 = 0;
             func_80120554(0, 0, 0x202);
         }
     }
@@ -46,6 +46,6 @@ void func_800e1a10_slot0f(Object *o) {
         t = -0x4c;
         o->field_0f = t;
         o->field_01 += 1;
-        o->field_04 += 1;
+        o->state_0 += 1;
     }
 }

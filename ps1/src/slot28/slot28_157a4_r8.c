@@ -7,8 +7,8 @@ void func_800262d8_slot28(Object *obj) {
 }
 
 void func_800262e0_slot28(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
-        obj->field_04 = obj->field_04 + 1;
+    if ((s16)obj->step_flags < 0) {
+        obj->state_0 = obj->state_0 + 1;
     }
     func_80131094(obj);
 }

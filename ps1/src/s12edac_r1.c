@@ -8,7 +8,7 @@
 void func_8012edac(Object *object) {
     int v;
 
-    if ((s16)object->field_3a < 0 && (v = object->field_46 - 0x100, object->field_46 = v, (s16)v < 0)) {
+    if ((s16)object->step_flags < 0 && (v = object->field_46 - 0x100, object->field_46 = v, (s16)v < 0)) {
         object->field_0b = object->field_158;
         object->field_15b = 0;
         object->field_247 = 0;
@@ -16,7 +16,7 @@ void func_8012edac(Object *object) {
         func_801312b8(object);
     } else {
         if (object->field_12a != 0) {
-            *(s32 *)&object->field_10 += object->field_4c;
+            *(s32 *)&object->pos_x_frac += object->vel_x;
         }
         func_80130efc(object);
     }
@@ -28,7 +28,7 @@ void func_8012ee3c(Object *object) {
     old = object->field_46;
     object->field_46 = old - 1;
     if ((u8)old == 0) {
-        object->field_06 = 1;
+        object->state_2 = 1;
     }
     func_80130efc(object);
 }
@@ -72,10 +72,10 @@ void func_8012ef24(Object *object) {
         a = -a;
         b = -b;
     }
-    object->field_4c = a;
-    object->field_54 = b;
-    object->field_50 = entry->c;
-    object->field_58 = entry->d;
+    object->vel_x = a;
+    object->accel_x = b;
+    object->vel_y = entry->c;
+    object->accel_y = entry->d;
 }
 
 void func_8012efa4(Object *object, Vec4 *entry) {
@@ -87,13 +87,13 @@ void func_8012efa4(Object *object, Vec4 *entry) {
         a = -a;
         b = -b;
     }
-    object->field_4c = a;
-    object->field_54 = b;
+    object->vel_x = a;
+    object->accel_x = b;
 }
 
 void func_8012efcc(Object *object, Vec4 *entry) {
-    object->field_50 = entry->c;
-    object->field_58 = entry->d;
+    object->vel_y = entry->c;
+    object->accel_y = entry->d;
 }
 
 int func_8012efe4(Object *object) {

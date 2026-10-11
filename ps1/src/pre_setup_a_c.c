@@ -6,10 +6,10 @@
 
 
 void func_80130280(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 3;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 3;
+    object->state_3 = 0;
     object->field_157 = 0;
     func_80130088(object);
     object->field_48 = 1;

@@ -7,7 +7,7 @@ void func_801b248c_slot04_0f(Object *o) {
     int a;
     int t;
 
-    o->field_07 = o->field_07 + 1;
+    o->state_3 = o->state_3 + 1;
     o->field_17b = 1;
     func_80141f28(o, 4);
     func_80138ae8((GameState *)game_state.config, o);

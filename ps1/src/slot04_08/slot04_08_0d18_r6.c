@@ -12,16 +12,16 @@ void func_801b1424_slot04_08(Object *obj) {
     int a;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 9);
     func_80138ae8(&game_state, obj);
-    obj->field_4c = data_801c3c04_slot04_08[obj->field_12a >> 1];
-    obj->field_54 = 0xffff4000;
+    obj->vel_x = data_801c3c04_slot04_08[obj->field_12a >> 1];
+    obj->accel_x = 0xffff4000;
     d = data_801c3bfc_slot04_08[obj->field_12a >> 1];
     if (obj->field_0b == 0) {
         d = -d;
-        obj->field_4c = -obj->field_4c;
-        obj->field_54 = -obj->field_54;
+        obj->vel_x = -obj->vel_x;
+        obj->accel_x = -obj->accel_x;
     }
     data_801c3e98_slot04_08 = d + (u16)obj->pos_x;
     a = 0x1d;

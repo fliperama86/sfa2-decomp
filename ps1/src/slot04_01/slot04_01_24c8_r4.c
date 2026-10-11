@@ -7,7 +7,7 @@ void func_801b29c8_slot04_01(Object *obj) {
     int a = 0x3e;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     if (obj->field_49 == 0) {
         obj->field_177--;
     }
@@ -20,13 +20,13 @@ void func_801b29c8_slot04_01(Object *obj) {
 }
 
 void func_801b2a30_slot04_01(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t & 0x8000) {
         func_801312b8(obj);
     } else {
         if (t & 0xff) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             func_801204f4(obj, obj->side, 9);
         }
         func_80130efc(obj);

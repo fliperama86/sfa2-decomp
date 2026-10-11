@@ -17,7 +17,7 @@
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
  *   Reads: field_12a, field_130, field_48.
- *   Writes (then arm): field_04 = 1, field_05 = 0, field_06 = 5, field_07 = 0,
+ *   Writes (then arm): state_0 = 1, state_1 = 0, state_2 = 5, state_3 = 0,
  *     field_12f = 0, field_67 = 0, and whatever the callees write.
  *   Callees: func_80141f28 (2 arguments) and func_801307e0 (2 arguments) are
  *     replaced by recorders returning a random word, in the original and in
@@ -40,10 +40,10 @@ void func_801b09ac_slot04_12(Object *obj);
 
 void func_801b0904_slot04_12(Object *obj) {
     if (obj->field_12a == 2 && (obj->field_130 & 0xf000) == 0x4000) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 5;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 5;
+        obj->state_3 = 0;
         func_80141f28(obj, 1);
         obj->field_12f = 0;
         obj->field_67 = 0;

@@ -12,7 +12,7 @@ void func_801b770c_slot04_14(Object *o) {
         o->field_af ^= 1;
         o->field_0d = o->field_af + obj->field_b0;
     }
-    data_801c7908_slot04_14[o->field_05](o);
+    data_801c7908_slot04_14[o->state_1](o);
 }
 
 void func_801b7778_slot04_14(Object *o) {
@@ -25,6 +25,6 @@ void func_801b7778_slot04_14(Object *o) {
 }
 
 void func_801b77f8_slot04_14(Object *o) {
-    *(s32 *)&o->field_10 += o->field_4c;
-    *(s32 *)&o->field_14 -= o->field_50;
+    *(s32 *)&o->pos_x_frac += o->vel_x;
+    *(s32 *)&o->pos_y_frac -= o->vel_y;
 }

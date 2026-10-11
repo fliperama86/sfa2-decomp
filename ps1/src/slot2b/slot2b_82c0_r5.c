@@ -16,13 +16,13 @@ void func_8007878c_slot2b(Object *o, u8 a) {
 
 void func_800787c8_slot2b(Object *o) {
     data_8007ef34_slot2b = o->field_3c;
-    data_8007ed98_slot2b[o->field_04](o);
+    data_8007ed98_slot2b[o->state_0](o);
 }
 
 void func_80078818_slot2b(Object *o) {
     Object *p;
 
-    o->field_04++;
+    o->state_0++;
     p = data_8007ef34_slot2b;
     o->field_1c = p->field_1c;
     o->field_0c = p->field_0c;

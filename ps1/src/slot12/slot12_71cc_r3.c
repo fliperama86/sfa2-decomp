@@ -10,7 +10,7 @@ void func_80014434_slot12(Object *obj, Slot12Prim *cells, int a, int b);
 void func_80014300_slot12(Object *obj, Slot12Sprite *cell);
 
 void func_80017408_slot12(Object *obj) {
-    data_80028a88_slot12[obj->field_04](obj);
+    data_80028a88_slot12[obj->state_0](obj);
 }
 
 void func_80017448_slot12(Object *o) {
@@ -27,7 +27,7 @@ void func_80017448_slot12(Object *o) {
 void func_800174bc_slot12(Object *obj) {
     func_80014300_slot12(obj, (Slot12Sprite *)(&data_8002d528_slot12[data_801a27d0]));
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }
 

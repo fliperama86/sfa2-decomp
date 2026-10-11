@@ -11,7 +11,7 @@ void func_801b4c34_slot04_02(Object *obj);
 void func_801b494c_slot04_02(Object *obj) {
     s16 d;
 
-    if (obj->field_50 < 0 && obj->field_129 == 0) {
+    if (obj->vel_y < 0 && obj->field_129 == 0) {
         if (obj->other->field_164 == 0) {
             d = obj->pos_x - obj->other->pos_x;
             if (d < 0) {
@@ -24,7 +24,7 @@ void func_801b494c_slot04_02(Object *obj) {
             obj->field_46 = obj->field_46 - 0x100;
             func_801b4b68_slot04_02(obj);
         }
-        if (obj->field_50 < 0 && obj->field_129 == 0 && obj->other->field_164 == 0) {
+        if (obj->vel_y < 0 && obj->field_129 == 0 && obj->other->field_164 == 0) {
             d = obj->pos_x - obj->other->pos_x;
             if (d < 0) {
                 d = -d;

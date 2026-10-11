@@ -9,7 +9,7 @@ void func_801b01d8_slot04_08(Object *obj) {
     u8 k;
 
     obj->field_46 = 0x3c;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     if (game_state.field_76 == 0) {
         game_state.field_76 = 0x1e;
     }

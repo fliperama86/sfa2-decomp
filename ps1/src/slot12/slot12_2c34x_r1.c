@@ -18,7 +18,7 @@ void func_80012c34_slot12(Object *obj) {
     obj->field_0b = 0;
     obj->field_0c = 0;
     obj->field_0d = 0;
-    obj->field_04++;
+    obj->state_0++;
     margin = box_margin[0];
     obj->pos_y = 0x78;
     obj->field_98 = data_80019054_slot12;

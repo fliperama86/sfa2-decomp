@@ -4,18 +4,18 @@
 #include "../externs.h"
 
 void func_801b4498_slot04_07(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0) {
         if (obj->field_218 != 0 && (func_8013f8c4(obj, -0x12, 0x14) & 0xff) != 0) {
-            obj->field_04 = 1;
-            obj->field_05 = 2;
-            obj->field_06 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 2;
+            obj->state_2 = 0;
+            obj->state_3 = 0;
         } else if (obj->field_12a == 2) {
             if (obj->field_219 != 0) {
                 obj->field_159 = 1;
-                obj->field_07 = 2;
+                obj->state_3 = 2;
                 func_80141f28(obj, 1);
                 func_801307e0(obj, 0x1e);
             } else {

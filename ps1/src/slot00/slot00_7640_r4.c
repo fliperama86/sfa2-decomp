@@ -7,10 +7,10 @@ void func_80077a18_slot00(Object *obj) {
     if ((((Slot00Obj *)obj->field_3c)->field_04 & 0xffffff) == 0x80001) {
         func_80120028(obj);
     } else {
-        obj->field_04 = 3;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 3;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
 }
 

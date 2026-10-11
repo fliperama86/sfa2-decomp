@@ -14,20 +14,20 @@ void func_801b1eb4_slot04_03(Object *obj) {
     Object *o;
 
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (!(t & 0x8000)) {
         if ((u8)t == 0) {
             func_801b223c_slot04_03(obj);
         }
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 5);
         func_801204f4(obj, obj->side, 0xd);
-        obj->field_4c = data_801c0678_slot04_03[obj->field_12a >> 1].field_00;
+        obj->vel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_00;
         o = obj;
-        o->field_54 = data_801c0678_slot04_03[obj->field_12a >> 1].field_04;
-        o->field_50 = data_801c0678_slot04_03[obj->field_12a >> 1].field_08;
-        o->field_58 = data_801c0678_slot04_03[o->field_12a >> 1].field_0c;
+        o->accel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_04;
+        o->vel_y = data_801c0678_slot04_03[obj->field_12a >> 1].field_08;
+        o->accel_y = data_801c0678_slot04_03[o->field_12a >> 1].field_0c;
         t = (o->field_12a >> 1) + 0x35;
         func_801307e0(o, t);
     }

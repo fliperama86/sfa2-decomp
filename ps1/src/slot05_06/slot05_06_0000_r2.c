@@ -12,15 +12,15 @@ void func_801c80f8_slot05_06(Object *obj) {
     Object *c;
     u8 d;
 
-    if (*((u8 *)&obj->field_3a + 1) & 0x80) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if (*((u8 *)&obj->step_flags + 1) & 0x80) {
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         func_80130678(obj, 0);
     } else {
-        if (*(u8 *)&obj->field_3a != 0) {
-            *(u8 *)&obj->field_3a = 0;
+        if (*(u8 *)&obj->step_flags != 0) {
+            *(u8 *)&obj->step_flags = 0;
             c = (Object *)func_8011f1e0();
             if (c != 0) {
                 c->field_00 = 1;

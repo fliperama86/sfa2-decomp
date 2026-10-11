@@ -10,7 +10,7 @@ void func_801b3528_slot04_0a(Object *obj) {
     int dx;
     int dy;
 
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
         o = obj->other;
@@ -24,12 +24,12 @@ void func_801b3528_slot04_0a(Object *obj) {
         }
         if (dx >= 0xa1 || dy >= 0x61 || obj->field_241 != 0) {
             func_801b3e68_slot04_0a(obj);
-            obj->field_07 = 3;
+            obj->state_3 = 3;
             obj->field_27b = 8;
             func_801307e0(obj, 0x4a);
         } else {
             obj->field_27b = 0xf;
-            obj->field_07++;
+            obj->state_3++;
             func_801204f4(obj, obj->side, 0xf);
             func_801307e0(obj, 0x49);
         }

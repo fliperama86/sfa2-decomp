@@ -7,9 +7,9 @@ u8 func_801b2510_slot04_0b(Object *object);
 
 void func_801b2738_slot04_0b(Object *obj) {
     func_80130efc(obj);
-    if ((u8)obj->field_3a == 2) {
+    if ((u8)obj->step_flags == 2) {
         obj->field_45 = 1;
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 0xf);
         func_801204f4(obj, obj->side, 8);
         if (obj->field_0b == 0) {
@@ -22,10 +22,10 @@ void func_801b2738_slot04_0b(Object *obj) {
 
 void func_801b27cc_slot04_0b(Object *obj) {
     func_801b2510_slot04_0b(obj);
-    if (obj->field_50 < 0) {
-        obj->field_58 = -0x8000;
-        obj->field_07++;
-        obj->field_4c = 0;
+    if (obj->vel_y < 0) {
+        obj->accel_y = -0x8000;
+        obj->state_3++;
+        obj->vel_x = 0;
         func_801307e0(obj, (obj->field_12a >> 1) + 0x42);
     } else {
         func_80130efc(obj);

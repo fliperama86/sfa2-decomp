@@ -8,7 +8,7 @@ extern SequenceStep **data_801c3ea0_slot04_08;
 void func_801b44a8_slot04_08(Object *obj, Object *other);
 
 void func_801b43fc_slot04_08(Object *obj, Object *other) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = other->field_1c;
     obj->field_03 = other->kind;
     obj->field_0c = other->field_0c;

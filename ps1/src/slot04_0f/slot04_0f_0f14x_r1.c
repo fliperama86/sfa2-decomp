@@ -8,10 +8,10 @@ void func_80130678(Object *object, int index);
 /* functions of other units of this module */
 
 void func_801b0f14_slot04_0f(Object *o) {
-    *(s32 *)&o->field_14 = *(s32 *)&o->field_14 + o->field_50;
-    *(s32 *)&o->field_10 = *(s32 *)&o->field_10 + o->field_4c;
+    *(s32 *)&o->pos_y_frac = *(s32 *)&o->pos_y_frac + o->vel_y;
+    *(s32 *)&o->pos_x_frac = *(s32 *)&o->pos_x_frac + o->vel_x;
     if (o->field_70 <= o->pos_y) {
-        o->field_07++;
+        o->state_3++;
         o->pos_y = (u16)o->field_70;
         func_801209c4(o);
         o->field_45 = 0;

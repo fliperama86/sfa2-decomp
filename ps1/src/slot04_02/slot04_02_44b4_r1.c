@@ -8,7 +8,7 @@ void func_801b44b4_slot04_02(Object *obj) {
     int a;
 
     obj->field_17b = one;
-    obj->field_07 = one;
+    obj->state_3 = one;
     obj->field_157 = 0;
     func_80141f28(obj, 1);
     func_80138ae8(&game_state, obj);

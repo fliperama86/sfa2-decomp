@@ -22,7 +22,7 @@ void func_801b1b00_slot04_08(Object *obj) {
     if (t == 0) {
         func_801b4298_slot04_08(obj);
     }
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     x = *(u16 *)&obj->pos_x;
     f = obj->field_0b;
     v = x - data_801c3e98_slot04_08;
@@ -32,7 +32,7 @@ void func_801b1b00_slot04_08(Object *obj) {
     }
     if ((s16)a >= 0) {
         a = 2;
-        if (obj->field_4c < 0) {
+        if (obj->vel_x < 0) {
             a = 1;
         }
         if (obj->field_164 != (s16)a) {
@@ -56,7 +56,7 @@ void func_801b1b00_slot04_08(Object *obj) {
 tail:
         n = 0x29;
         ((Slot04aObj *)obj)->field_1c8 = 8;
-        obj->field_07++;
+        obj->state_3++;
         if (obj->field_49 != 0) {
             n = 0x71;
         }

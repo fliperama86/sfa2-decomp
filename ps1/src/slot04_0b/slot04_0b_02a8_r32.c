@@ -12,5 +12,5 @@ void func_801b4638_slot04_0b(Object *o) {
 }
 
 void func_801b4678_slot04_0b(Object *obj) {
-    data_801c2ff0_slot04_0b[obj->field_05](obj);
+    data_801c2ff0_slot04_0b[obj->state_1](obj);
 }

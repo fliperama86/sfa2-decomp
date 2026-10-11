@@ -28,7 +28,7 @@ void func_800e75ec_slot0f(Object *obj) {
                 return;
             }
         } else {
-            obj->field_05 = obj->field_05 + 1;
+            obj->state_1 = obj->state_1 + 1;
             game_state.field_2bc = 4;
         }
         func_800e78e0_slot0f(obj);
@@ -48,7 +48,7 @@ void func_800e768c_slot0f(Object *obj) {
                 return;
             }
         } else {
-            obj->field_05 = 2;
+            obj->state_1 = 2;
             *p = 0xb;
         }
         func_800e78e0_slot0f(obj);
@@ -56,5 +56,5 @@ void func_800e768c_slot0f(Object *obj) {
 }
 
 void func_800e7708_slot0f(Object *obj) {
-    data_800f01bc_slot0f[obj->field_05](obj);
+    data_800f01bc_slot0f[obj->state_1](obj);
 }

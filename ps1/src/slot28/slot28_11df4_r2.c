@@ -12,7 +12,7 @@ void func_80021f74_slot28(Object *o) {
     o->field_0c = 0;
     o->field_0b = 0;
     o->field_48 = 0;
-    o->field_04++;
+    o->state_0++;
     func_80130768(o, data_800469cc_slot28[o->field_03], (SequenceStep **)o->box_tables);
 }
 
@@ -22,12 +22,12 @@ void func_80021fc8_slot28(Object *obj) {
 }
 
 void func_8002201c_slot28(Object *obj) {
-    data_800469d8_slot28[obj->field_05](obj);
+    data_800469d8_slot28[obj->state_1](obj);
     func_80131094(obj);
 }
 
 void func_80022070_slot28(Object *obj) {
     if (obj->field_48 != 0) {
-        obj->field_05 += 1;
+        obj->state_1 += 1;
     }
 }

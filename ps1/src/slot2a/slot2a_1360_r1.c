@@ -12,7 +12,7 @@ void func_801e13ac_slot2a(Object *obj);
 void func_801e1360_slot2a(Object *obj) {
     obj->field_5c = 1;
     obj->pos_y = 0x48;
-    obj->field_05++;
+    obj->state_1++;
     if (obj->field_03) {
         obj->pos_y = 0xa8;
     }
@@ -28,10 +28,10 @@ void func_801e13ac_slot2a(Object *obj) {
             func_801e1480_slot2a(obj);
         } else {
             t = sel->field_02;
-            obj->field_05 = 2;
+            obj->state_1 = 2;
             obj->field_46 = 0x13;
             if (obj->field_03 == (t >> 15)) {
-                obj->field_05 = 0;
+                obj->state_1 = 0;
             } else {
                 data_801e5160_slot2a[obj->field_03] = 1;
             }
@@ -45,14 +45,14 @@ void func_801e143c_slot2a(Object *obj) {
     t--;
     obj->field_46 = t;
     if (t < 0) {
-        obj->field_05 = 1;
+        obj->state_1 = 1;
         obj->field_46 = 0;
         obj->field_5c = 0;
         func_801e13ac_slot2a(obj);
     }
 }
 void func_801e1480_slot2a(Object *obj) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_5c = 0;
     data_801e5160_slot2a[obj->field_03] = 0;
 }

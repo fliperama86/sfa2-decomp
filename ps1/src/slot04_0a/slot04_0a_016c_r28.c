@@ -6,7 +6,7 @@
 extern void (*data_801c0840_slot04_0a[])(Object *);
 
 void func_801b4160_slot04_0a(Object *obj) {
-    data_801c0840_slot04_0a[obj->field_05](obj);
+    data_801c0840_slot04_0a[obj->state_1](obj);
 }
 
 void func_801b41a0_slot04_0a(Object *obj) {

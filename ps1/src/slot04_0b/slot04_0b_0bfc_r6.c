@@ -12,10 +12,10 @@ int func_801b140c_slot04_0b(Object *obj) {
         }
         if ((u8)func_80141788(obj)) {
             r = 1;
-            obj->field_04 = 1;
-            obj->field_05 = 0;
-            obj->field_06 = 8;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 0;
+            obj->state_2 = 8;
+            obj->state_3 = 0;
             obj->field_15a = 6;
             obj->field_159 = 1;
             obj->field_6b = 0;

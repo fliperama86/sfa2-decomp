@@ -10,8 +10,8 @@ void func_801b4048_slot04_07(Object *obj) {
     if (((Slot04aObj *)obj)->field_3a == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_50 = 0x40000;
-        obj->field_07 = obj->field_07 + 1;
+        obj->vel_y = 0x40000;
+        obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, -0x200, 0, 1, 0);
         func_801b40c8_slot04_07(obj);
     }

@@ -12,7 +12,7 @@ void func_80018cec_slot28(Object *obj) {
     Object *p;
     func_80019090_slot28(obj);
     p = data_8005198c_slot28.p;
-    if ((s16)p->field_3a < 0) {
+    if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;
         h->field_60 = 0xb4;
         h->field_52 += 1;

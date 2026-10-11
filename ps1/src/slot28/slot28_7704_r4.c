@@ -7,10 +7,10 @@ void func_80017ed0_slot28(Object *obj, Object *src);
 
 void func_80017c50_slot28(Object *obj) {
     Object *p;
-    *(u32 *)&obj->field_14 += 0x8000;
+    *(u32 *)&obj->pos_y_frac += 0x8000;
     if (obj->pos_y >= 0xa1) {
         obj->pos_y = 0xa0;
-        obj->field_05++;
+        obj->state_1++;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;

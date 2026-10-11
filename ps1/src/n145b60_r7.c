@@ -13,7 +13,7 @@ void func_80149920(Object *object) {
   object->field_09 = 0;
   object->field_20 = 0;
   object->field_24 = 0;
-  object->field_04++;
+  object->state_0++;
   ref_other.p = object->field_3c;
   if (ref_other.p->side != 0) {
     object->pos_x += 0xb4;
@@ -33,7 +33,7 @@ void func_801499c4(Object *object) {
   int t;
   other = data_80190468.p;
   b = ((u8 *) other)[0x4d] | ((u8 *) other)[0x4e];
-  a = other->field_04 | data_801ae02c;
+  a = other->state_0 | data_801ae02c;
   if (a | b) {
     func_80149aa8(object);
   } else {
@@ -48,7 +48,7 @@ void func_801499c4(Object *object) {
     if ((s16) t < 0) {
       v = ref_other.p->field_2a1;
       if (v == 0) {
-        object->field_04++;
+        object->state_0++;
       }
     }
     object->field_a0 = v;

@@ -4,5 +4,5 @@
 #include "../externs.h"
 
 void func_801b6e18_slot04_02(Object *o) {
-    o->field_04++;
+    o->state_0++;
 }

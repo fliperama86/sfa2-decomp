@@ -38,7 +38,7 @@ void func_80011aac_slot27(Object *obj) {
         obj->field_0b = 0;
         obj->field_70 = 0;
         obj->field_73 = 0;
-        obj->field_04++;
+        obj->state_0++;
         if ((game_state.field_07 & *mask) != 0) {
             *state = ref_other.p->kind;
             if (*state == 0x12) {
@@ -69,7 +69,7 @@ void func_80011aac_slot27(Object *obj) {
             *state = 0;
             func_80013b74_slot27(obj);
         } else {
-            obj->field_05 += 2;
+            obj->state_1 += 2;
         }
     }
 }

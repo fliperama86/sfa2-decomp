@@ -7,17 +7,17 @@ extern ObjectFn data_801ef0d8_slot06_02[];
 extern SequenceStep *data_801ef0c8_slot06_02[];
 
 void func_801e9d24_slot06_02(Object *obj) {
-    data_801ef0d8_slot06_02[obj->field_04](obj);
+    data_801ef0d8_slot06_02[obj->state_0](obj);
 }
 
 void func_801e9d64_slot06_02(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->field_81 = 4;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = 0;
-    obj->field_4c = *(s32 *)&obj->field_10;
-    obj->field_50 = 0x1000000 - *(s32 *)&obj->field_14;
+    obj->vel_x = *(s32 *)&obj->pos_x_frac;
+    obj->vel_y = 0x1000000 - *(s32 *)&obj->pos_y_frac;
     func_80130700(obj, data_801ef0c8_slot06_02[obj->field_03]);
 }
 
@@ -30,11 +30,11 @@ void func_801e9dd8_slot06_02(Object *obj) {
     b = a;
     a >>= 2;
     a += b;
-    *(s32 *)&obj->field_10 = obj->field_4c - a;
+    *(s32 *)&obj->pos_x_frac = obj->vel_x - a;
     a = *(s32 *)&l->field_14 - *(s32 *)&l->field_0c;
     b = a >> 2;
     a += b;
-    *(s32 *)&obj->field_14 = 0xf80000 - (obj->field_50 - a);
+    *(s32 *)&obj->pos_y_frac = 0xf80000 - (obj->vel_y - a);
     func_8011ffdc(obj);
 }
 

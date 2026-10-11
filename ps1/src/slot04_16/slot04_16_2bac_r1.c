@@ -15,10 +15,10 @@ void func_801b2bac_slot04_16(Object *obj) {
 
     obj->field_17b = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8((GameState *)data_80190468.p, obj);
-    obj->field_4c = 0xfffe8000;
+    obj->vel_x = 0xfffe8000;
     a = 0x47;
     if (obj->field_49 != 0) {
         a = 0x51;
@@ -30,7 +30,7 @@ void func_801b2bac_slot04_16(Object *obj) {
 }
 
 void func_801b2c40_slot04_16(Object *obj) {
-    data_801ca1d8_slot04_16[obj->field_07](obj);
+    data_801ca1d8_slot04_16[obj->state_3](obj);
 }
 
 void func_801b2c80_slot04_16(Object *obj) {
@@ -38,11 +38,11 @@ void func_801b2c80_slot04_16(Object *obj) {
 
     obj->field_17b = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8((GameState *)data_80190468.p, obj);
     a = 0x48;
-    obj->field_4c = 0xffff0000;
+    obj->vel_x = 0xffff0000;
     if (obj->field_49 != 0) {
         a = 0x52;
     }
@@ -78,13 +78,13 @@ void func_801b2d10_slot04_16(Object *obj, int arg) {
 }
 
 void func_801b2e64_slot04_16(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
 
     if ((u8)t == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_3a = t & 0xff00;
-        obj->field_07 = obj->field_07 + 1;
+        obj->step_flags = t & 0xff00;
+        obj->state_3 = obj->state_3 + 1;
         func_801b2eb4_slot04_16(obj);
     }
 }

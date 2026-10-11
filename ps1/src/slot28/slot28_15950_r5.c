@@ -5,7 +5,7 @@
 
 void func_8002629c_slot28(Object *obj) {
     if (obj->field_48 != 0) {
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         func_80130768(obj, 4, (SequenceStep **)obj->box_tables);
     }
 }

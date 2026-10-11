@@ -18,7 +18,7 @@ void func_801b5b4c_slot04_0f(Object *obj);
 void func_801b58b4_slot04_0f(Object *obj) {
     obj->field_09 = 0;
     obj->field_a0 = 0xff;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->field_49 = data_80190458.p->field_49;
     obj->field_1c = data_80190458.p->field_1c;
     obj->box_tables = data_801c618c_slot04_0f;
@@ -34,14 +34,14 @@ void func_801b5958_slot04_0f(Object *obj) {
     Config *config = game_state.config;
 
     if ((config->field_65 | config->field_a8) == 0) {
-        data_801c62a4_slot04_0f[obj->field_05](obj);
+        data_801c62a4_slot04_0f[obj->state_1](obj);
     }
     func_8011ffdc(obj);
 }
 
 void func_801b59c8_slot04_0f(Object *obj) {
     if (data_80190458.p->frame->field_09 == 0) {
-        obj->field_04 = obj->field_04 + 1;
+        obj->state_0 = obj->state_0 + 1;
     }
     func_80131094(obj);
     func_801b5b4c_slot04_0f(obj);
@@ -49,13 +49,13 @@ void func_801b59c8_slot04_0f(Object *obj) {
 
 void func_801b5a28_slot04_0f(Object *obj) {
     if (data_80190458.p->frame->field_09 == 0) {
-        obj->field_04 = obj->field_04 + 1;
+        obj->state_0 = obj->state_0 + 1;
     } else {
-        obj->field_04 = 1;
+        obj->state_0 = 1;
         obj->field_00 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         obj->field_5c = 0xff;
     }
     func_80131094(obj);

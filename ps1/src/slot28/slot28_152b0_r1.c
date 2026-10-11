@@ -9,6 +9,6 @@ void func_800252b0_slot28(Object *obj) {
     obj->field_0c = 0;
     obj->field_0e = 0;
     obj->field_0b = 0;
-    obj->field_04++;
+    obj->state_0++;
     func_80130768(obj, 1, (SequenceStep **)obj->box_tables);
 }

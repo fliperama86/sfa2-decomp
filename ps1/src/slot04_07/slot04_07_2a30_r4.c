@@ -11,13 +11,13 @@ void func_801b2ef4_slot04_07(Object *obj) {
     int a;
 
     func_80130efc(obj);
-    if ((u8)obj->field_3a == 0) {
+    if ((u8)obj->step_flags == 0) {
         obj->field_45 = 1;
-        *(s32 *)&obj->field_4c = 0xa0000;
-        obj->field_54 = -0x6000;
-        obj->field_50 = 0x90000;
-        obj->field_07++;
-        obj->field_58 = -0xa000;
+        *(s32 *)&obj->vel_x = 0xa0000;
+        obj->accel_x = -0x6000;
+        obj->vel_y = 0x90000;
+        obj->state_3++;
+        obj->accel_y = -0xa000;
         a = 0;
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
@@ -32,8 +32,8 @@ void func_801b2fa4_slot04_07(Object *obj) {
     int y;
 
     func_801b3274_slot04_07(obj);
-    if (obj->field_50 >= 0) {
-        obj->field_07 = 5;
+    if (obj->vel_y >= 0) {
+        obj->state_3 = 5;
         obj->field_46 = 0;
     } else {
         if (((Slot04aObj *)obj)->field_1cb == 0) {
@@ -44,7 +44,7 @@ void func_801b2fa4_slot04_07(Object *obj) {
         if (obj->pos_y < y) {
             func_80130efc(obj);
         } else {
-            obj->field_07++;
+            obj->state_3++;
             obj->pos_y = y;
             obj->field_45 = 0;
             obj->field_27b = 0;

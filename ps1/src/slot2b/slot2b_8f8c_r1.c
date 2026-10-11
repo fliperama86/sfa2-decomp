@@ -14,7 +14,7 @@ void func_80078f8c_slot2b(Object *o) {
     int d;
     obj->field_47--;
     if ((obj->field_47 & 0x80) != 0) {
-        o->field_05++;
+        o->state_1++;
         if (data_8007ef34_slot2b->other->field_15b != 0) {
             d = (func_80151184() & 0x3f) - 0x20;
             d += *(u16 *)&o->pos_x;
@@ -25,7 +25,7 @@ void func_80078f8c_slot2b(Object *o) {
             func_8007893c_slot2b(o);
             func_801204f4(o, data_8007ef34_slot2b->side, 0xf);
         } else {
-            o->field_05++;
+            o->state_1++;
             obj->field_47 = 0x18;
             func_80079208_slot2b(o);
         }
@@ -36,8 +36,8 @@ void func_80078f8c_slot2b(Object *o) {
 }
 
 void func_8007909c_slot2b(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
-        obj->field_04++;
+    if ((s16)obj->step_flags < 0) {
+        obj->state_0++;
     } else {
         func_80131094(obj);
     }

@@ -7,7 +7,7 @@ void func_801b08e0_slot04_07(Object *obj) {
     s16 t;
 
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (t & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;
         func_801312b8(obj);
@@ -18,6 +18,6 @@ void func_801b08e0_slot04_07(Object *obj) {
         } else {
             obj->pos_x += 0;
         }
-        obj->field_3a = obj->field_3a & 0xff00;
+        obj->step_flags = obj->step_flags & 0xff00;
     }
 }

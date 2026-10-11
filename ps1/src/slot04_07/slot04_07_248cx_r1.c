@@ -10,20 +10,20 @@ void func_801b248c_slot04_07(Object *obj) {
 
     t = (s16)obj->field_70;
     if (t <= obj->pos_y) {
-        obj->field_07 = 5;
+        obj->state_3 = 5;
         obj->pos_y = t;
-        obj->field_14 = 0;
+        obj->pos_y_frac = 0;
         obj->field_45 = 0;
         func_801209c4(obj);
         func_801307e0(obj, 0x39);
     } else {
-        if (*(u8 *)&obj->field_3a != 0) {
+        if (*(u8 *)&obj->step_flags != 0) {
             func_80130efc(obj);
             return;
         }
         func_801b2994_slot04_07(obj);
-        *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-        obj->field_50 = obj->field_50 + obj->field_58;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+        obj->vel_y = obj->vel_y + obj->accel_y;
         func_80130efc(obj);
     }
 }

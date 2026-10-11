@@ -12,10 +12,10 @@ void func_801b6c3c_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 void func_80130dc0(Object *object);
 
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d) {
-    obj->field_04 = a;
-    obj->field_05 = b;
-    obj->field_06 = c;
-    obj->field_07 = d;
+    obj->state_0 = a;
+    obj->state_1 = b;
+    obj->state_2 = c;
+    obj->state_3 = d;
 }
 
 void func_801b62c0_slot04_14(Object *obj) {
@@ -32,11 +32,11 @@ void func_801b6304_slot04_14(Object *obj) {
 }
 
 void func_801b6344_slot04_14(Object *obj) {
-    data_801c6554_slot04_14[obj->field_07](obj);
+    data_801c6554_slot04_14[obj->state_3](obj);
 }
 
 void func_801b6384_slot04_14(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
@@ -46,7 +46,7 @@ void func_801b6384_slot04_14(Object *obj) {
     }
     if (obj->field_12a == 2 && obj->field_219 != 0) {
         obj->field_159 = 1;
-        obj->field_07 = 2;
+        obj->state_3 = 2;
         func_80141f28(obj, 1);
         func_801307e0(obj, 0x27);
         return;

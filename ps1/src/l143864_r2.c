@@ -19,11 +19,11 @@ void func_80143c1c(Object *object) {
             object->field_46 = 0x30;
             object->field_0c = 1;
             object->sequence = seq_table_8017b50c[object->field_a0];
-            object->field_38 = object->sequence->duration;
-            object->field_3a = object->sequence->flags;
+            object->step_timer = object->sequence->duration;
+            object->step_flags = object->sequence->flags;
             object->pos_x = pos[object->field_03 * 2];
             object->pos_y = pos[object->field_03 * 2 + 1];
-            object->field_05 = 1;
+            object->state_1 = 1;
         }
     } else {
         game_state.config->field_6c = 4;

@@ -39,8 +39,8 @@ extern void (*data_80028aac_slot27[])(Object *obj);
 
 void func_80015a3c_slot27(Object *obj) {
     if (obj->field_03 & 0x80) {
-        data_80028aac_slot27[obj->field_04](obj);
+        data_80028aac_slot27[obj->state_0](obj);
     } else {
-        data_80028aa0_slot27[obj->field_04](obj);
+        data_80028aa0_slot27[obj->state_0](obj);
     }
 }

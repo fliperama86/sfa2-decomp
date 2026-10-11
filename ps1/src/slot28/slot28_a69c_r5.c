@@ -5,17 +5,17 @@
 
 void func_8001add0_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    obj->field_14 = obj->field_14 - o->field_50;
-    o->field_50 = o->field_50 + o->field_58;
+    obj->field_14 = obj->field_14 - o->vel_y;
+    o->vel_y = o->vel_y + o->accel_y;
     if (obj->field_47 != 0) {
-        if (o->field_50 >= 0) {
-            o->field_50 = 0x8000;
+        if (o->vel_y >= 0) {
+            o->vel_y = 0x8000;
             obj->field_47 = 0;
-            o->field_58 = -0x400;
+            o->accel_y = -0x400;
         }
-    } else if (o->field_50 < 0) {
-        o->field_50 = -0x8000;
-        o->field_58 = 0x400;
+    } else if (o->vel_y < 0) {
+        o->vel_y = -0x8000;
+        o->accel_y = 0x400;
         obj->field_47 = 0xff;
     }
     func_80131094(o);

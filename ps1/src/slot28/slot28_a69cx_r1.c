@@ -57,8 +57,8 @@ void func_8001a69c_slot28(Object *obj) {
                 s->field_9c = data_800357d8_slot28;
                 s->pos_x = 0xb8;
                 s->pos_y = 0x64;
-                s->field_50 = 0x8000;
-                s->field_58 = -0x400;
+                s->vel_y = 0x8000;
+                s->accel_y = -0x400;
                 s->field_7a = 0x60;
                 s->field_09 = 3;
                 s->field_00 = 1;

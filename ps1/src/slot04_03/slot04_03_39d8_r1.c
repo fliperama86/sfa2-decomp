@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 void func_801b39d8_slot04_03(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t & 0x8000) {
         func_801312b8(obj);
     } else {
         if (t & 0xff) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             func_80140770(obj, 0x1c, 5, 0, 0, 0, 1);
         }
         func_80130efc(obj);

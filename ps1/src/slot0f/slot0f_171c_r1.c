@@ -8,7 +8,7 @@ extern void (*data_800e8794_slot0f[])(Object *);
 
 void func_800e171c_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
-    u16 b = o->field_10;
+    u16 b = o->pos_x_frac;
     if (b & 0x5000) {
         if (b & 0x1000) {
             obj->field_0a -= 1;
@@ -22,7 +22,7 @@ void func_800e171c_slot0f(Object *o) {
             }
         }
         func_80120554(0, 0, 0x204);
-        b = o->field_10;
+        b = o->pos_x_frac;
     }
     if (b & 0x860) {
         if (b & 0x820) {
@@ -35,10 +35,10 @@ void func_800e171c_slot0f(Object *o) {
         o->field_03 = 0;
         o->field_02 = 0;
         o->field_01 = 0;
-        o->field_07 = 0;
-        o->field_06 = 0;
-        o->field_05 = 0;
-        o->field_04 = 0;
+        o->state_3 = 0;
+        o->state_2 = 0;
+        o->state_1 = 0;
+        o->state_0 = 0;
     }
 }
 

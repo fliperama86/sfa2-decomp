@@ -6,7 +6,7 @@
 void func_801b0d18_slot04_09(Object *obj) {
     int t = 0xc;
     int s = 1;
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80130504(obj);
     obj->field_225 = 1;

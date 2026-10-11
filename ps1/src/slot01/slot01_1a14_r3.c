@@ -13,25 +13,25 @@ void func_80011e28_slot01(Object *obj) {
     o->field_46 = t;
     if ((s16)t < 0) {
         o->field_46 = 1;
-        o->field_4c = o->field_4c + o->field_54;
-        if (o->field_4c == 0) {
-            o->field_05++;
-            ((Object *)o->field_28)->field_04 = 2;
+        o->vel_x = o->vel_x + o->accel_x;
+        if (o->vel_x == 0) {
+            o->state_1++;
+            ((Object *)o->field_28)->state_0 = 2;
         }
-        o->pos_x = (o->field_4c & 2) ? o->pos_x - o->field_4c : o->pos_x + o->field_4c;
+        o->pos_x = (o->vel_x & 2) ? o->pos_x - o->vel_x : o->pos_x + o->vel_x;
     }
 }
 
 void func_80011eb8_slot01(Object *obj) {
     if (data_80055e94_slot01.value & 0x8000) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }
 
 void func_80011ee8_slot01(Object *obj) {
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_x = box_margin[0] + 5;
-    ((Object *)obj->field_28)->field_04 = 2;
+    ((Object *)obj->field_28)->state_0 = 2;
     func_80011fe8_slot01(obj, &data_800152e4_slot01);
 }
 

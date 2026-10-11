@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* What it does (inferred, not an original name): a state of a character that is struck or held by the other object. It stores the other object (field_40) in ref_other. When the low byte of field_3a is not 0 it clears that byte, makes a sound, calls func_80146478 and func_80140cd8 (with 8 the first time field_1cf is 0, which then becomes 0xff, otherwise 0). If func_80140cd8 returns a nonzero byte it calls func_80140770, sounds 0x340 for the other object and goes to the advance. Otherwise it adds 1 to field_46 and sounds 0x30b. Then (and when the low byte of field_3a was 0) it calls func_80140fe0; if field_46 is 0 it hands over to func_80130efc; otherwise it reloads ref_other from field_40 and advances when the other object's field_15b is 0 or func_801410c8 returns a nonzero byte, else hands over to func_80130efc. The advance adds 1 to field_07, sounds 0x30d for the other object and starts sequence 0x41. */
+/* What it does (inferred, not an original name): a state of a character that is struck or held by the other object. It stores the other object (field_40) in ref_other. When the low byte of step_flags is not 0 it clears that byte, makes a sound, calls func_80146478 and func_80140cd8 (with 8 the first time field_1cf is 0, which then becomes 0xff, otherwise 0). If func_80140cd8 returns a nonzero byte it calls func_80140770, sounds 0x340 for the other object and goes to the advance. Otherwise it adds 1 to field_46 and sounds 0x30b. Then (and when the low byte of step_flags was 0) it calls func_80140fe0; if field_46 is 0 it hands over to func_80130efc; otherwise it reloads ref_other from field_40 and advances when the other object's field_15b is 0 or func_801410c8 returns a nonzero byte, else hands over to func_80130efc. The advance adds 1 to state_3, sounds 0x30d for the other object and starts sequence 0x41. */
 void func_801b37b0_slot04_03(Object *obj) {
     /* Stand-in, not recovered source: the local r, which holds the address of ref_other and is set again in three places (the original keeps it in a register of its own), reproduces the original's choice of registers. Without it this function differs from the original in 53 instruction slots. */
     ObjectRef *r;
@@ -14,8 +14,8 @@ void func_801b37b0_slot04_03(Object *obj) {
         r = &ref_other;
         r->p = obj->other;
     } while (0);
-    if ((obj->field_3a & 0xff) != 0) {
-        obj->field_3a &= 0xff00;
+    if ((obj->step_flags & 0xff) != 0) {
+        obj->step_flags &= 0xff00;
         func_801204f4(obj, obj->side, 7);
         func_80146478(obj, 1, -0x2d, 0x2b);
         if (((Slot04aObj *)obj)->field_1cf == 0) {
@@ -65,7 +65,7 @@ void func_801b37b0_slot04_03(Object *obj) {
         }
     }
 tail:
-    obj->field_07++;
+    obj->state_3++;
     /* Stand-in, not recovered source: a fourth do-while wrapper, around the single statement that sounds 0x30d, reproduces the original's choice of registers. Without it this function differs from the original in 43 instruction slots. */
     do {
         func_80120554(r->p, ref_other.p->side, 0x30d);

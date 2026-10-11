@@ -5,7 +5,7 @@
 
 void func_8001ac50_slot28(Object *o) {
     if (o->field_48 != 0) {
-        o->field_05++;
+        o->state_1++;
         o->field_48 = 0;
         func_80130768(o, 2, (SequenceStep **)o->box_tables);
     }
@@ -13,7 +13,7 @@ void func_8001ac50_slot28(Object *o) {
 
 void func_8001ac90_slot28(Object *o) {
     if (o->field_48 != 0) {
-        o->field_05++;
+        o->state_1++;
         o->field_48 = 0;
         o->field_46 = 0;
         func_80130768(o, 3, (SequenceStep **)o->box_tables);

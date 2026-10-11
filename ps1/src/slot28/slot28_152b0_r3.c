@@ -79,7 +79,7 @@ void func_80025410_slot28(Object *obj) {
         b->field_7a = 0;
         b->field_0d = 0;
         b->field_03 = one;
-        b->field_50 = 0xb8;
+        b->vel_y = 0xb8;
         b->field_09 = 0;
         func_80130768(b, 0, data_8004dd0c_slot28);
     }

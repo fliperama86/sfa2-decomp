@@ -14,7 +14,7 @@ void func_801b5874_slot04_11(Object *obj);
 Object *func_801b5914_slot04_11(Object *obj);
 
 void func_801b54c4_slot04_11(Object *obj) {
-    if ((obj->field_3a << 16) < 0) {
+    if ((obj->step_flags << 16) < 0) {
         func_801b5874_slot04_11(obj);
     } else {
         func_80130efc(obj);
@@ -22,11 +22,11 @@ void func_801b54c4_slot04_11(Object *obj) {
 }
 
 void func_801b5508_slot04_11(Object *obj) {
-    data_801c7838_slot04_11[obj->field_07](obj);
+    data_801c7838_slot04_11[obj->state_3](obj);
 }
 
 void func_801b5548_slot04_11(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 3);
     func_80120554(obj, obj->side ^ 1, 0x31a);
     func_801204f4(obj, obj->side, 8);
@@ -45,23 +45,23 @@ inc:
 
 void func_801b5614_slot04_11(Object *obj) {
     ref_other.p = obj->other;
-    if (obj->field_3a & 4) {
-        obj->field_07++;
+    if (obj->step_flags & 4) {
+        obj->state_3++;
         func_80140770(obj, 8, 5, 0xf, 0, 0, 1);
-    } else if (obj->field_3a & 2) {
-        obj->field_3a = obj->field_3a & 0xfffd;
+    } else if (obj->step_flags & 2) {
+        obj->step_flags = obj->step_flags & 0xfffd;
         func_80146478(obj, obj->field_12a >> 1, -0x59, 0x1e);
         func_80120554(obj, obj->side ^ 1, 0x30d);
         func_801204f4(obj, obj->side, 6);
     }
     func_80130efc(obj);
-    if (obj->field_3a & 1) {
+    if (obj->step_flags & 1) {
         func_80141e5c(obj);
     }
 }
 
 void func_801b56fc_slot04_11(Object *obj) {
-    if ((obj->field_3a << 16) < 0) {
+    if ((obj->step_flags << 16) < 0) {
         func_801b5874_slot04_11(obj);
     } else {
         func_80130efc(obj);

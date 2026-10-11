@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_801b45b4_slot04_03(Object *obj) {
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    *(s32 *)&obj->field_14 += obj->field_50;
-    obj->field_50 += obj->field_58;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    *(s32 *)&obj->pos_y_frac += obj->vel_y;
+    obj->vel_y += obj->accel_y;
     if (obj->field_70 > obj->pos_y) {
         func_80130efc(obj);
     } else {
         obj->field_45 = 0;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->field_70;
         func_801209c4(obj);
         func_80130efc(obj);
@@ -20,7 +20,7 @@ void func_801b45b4_slot04_03(Object *obj) {
 }
 
 void func_801b465c_slot04_03(Object *obj) {
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
         obj->other->field_249 = 8;

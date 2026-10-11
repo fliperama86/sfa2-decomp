@@ -24,7 +24,7 @@ void func_8001152c_slot27(Object *obj) {
     obj->field_7a = 0;
     obj->field_0d = 0;
     obj->field_01 = 0;
-    obj->field_05 = obj->field_05 + 1;
+    obj->state_1 = obj->state_1 + 1;
     g = (u32 *)data_80190464;
     v = p->side;
     *g = v;
@@ -45,8 +45,8 @@ void func_800115e8_slot27(Object *obj) {
     Object *p = obj->other;
 
     if (((game_state.mode | game_state.field_07) >> p->side) & 1) {
-        obj->field_05 = 0;
-        obj->field_04 = obj->field_04 + 1;
+        obj->state_1 = 0;
+        obj->state_0 = obj->state_0 + 1;
         func_80130768(obj, obj->field_48, data_800268b0_slot27);
         obj->field_01 = 1;
     }

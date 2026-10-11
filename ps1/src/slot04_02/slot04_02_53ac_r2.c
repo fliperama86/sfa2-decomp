@@ -7,8 +7,8 @@ void func_801b54f8_slot04_02(Object *obj) {
     Object *p;
     int a;
     func_80130efc(obj);
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         p = obj->other;
         p->field_15b = 1;
         func_80140770(obj, 6, 0xf, -0x200, 0, 1, 0);
@@ -21,9 +21,9 @@ void func_801b54f8_slot04_02(Object *obj) {
             }
             obj->field_167 = a;
         }
-        obj->field_4c = 0x28000;
-        obj->field_50 = 0x70000;
-        obj->field_54 = 0;
-        obj->field_58 = -0x5400;
+        obj->vel_x = 0x28000;
+        obj->vel_y = 0x70000;
+        obj->accel_x = 0;
+        obj->accel_y = -0x5400;
     }
 }

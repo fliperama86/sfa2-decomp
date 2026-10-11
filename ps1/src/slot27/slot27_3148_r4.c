@@ -7,11 +7,11 @@ void func_80013cc4_slot27(Object *obj);
 
 void func_80013628_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
-    *t = obj->field_4c;
+    *t = obj->vel_x;
     obj->pos_x = obj->pos_x + *(u16 *)t;
     *t = obj->pos_x;
-    if (obj->field_50 == *t) {
-        obj->field_06 = obj->field_06 + 1;
+    if (obj->vel_y == *t) {
+        obj->state_2 = obj->state_2 + 1;
     }
     func_80013cc4_slot27(obj);
 }

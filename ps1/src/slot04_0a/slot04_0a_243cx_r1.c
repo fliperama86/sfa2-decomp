@@ -13,7 +13,7 @@ void func_801b243c_slot04_0a(Object *obj) {
 
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 < 0) {
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 0xf);
         m = *(s16 *)box_margin;
         a = ((Slot04aObj *)obj)->field_102;

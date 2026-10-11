@@ -12,18 +12,18 @@ void func_8012f8c4(Object *object) {
     } else if (func_8012f56c(object)) {
         func_8012f59c(object);
     } else {
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 4;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 4;
+        object->state_3 = 0;
         object->field_0b = object->field_158;
         if (object->field_157 == 0) {
             arg = 10;
         } else {
-            object->field_04 = 1;
-            object->field_05 = 0;
-            object->field_06 = 4;
-            object->field_07 = 1;
+            object->state_0 = 1;
+            object->state_1 = 0;
+            object->state_2 = 4;
+            object->state_3 = 1;
             arg = 13;
         }
         func_80130678(object, arg);

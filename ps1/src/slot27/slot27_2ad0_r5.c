@@ -16,8 +16,8 @@ void func_80012fd4_slot27(Object *obj) {
         data_80190464[0] = 0;
         data_8019046c[0] = 1;
     }
-    ref_first.p = (Object *)obj->field_54;
-    ref_second.p = (Object *)obj->field_58;
+    ref_first.p = (Object *)obj->accel_x;
+    ref_second.p = (Object *)obj->accel_y;
     ref_first.p->field_62 = data_8019045c[0];
     ref_second.p->field_62 = data_80190464[0];
     if (obj->field_62 != data_8019046c[0]) {
@@ -31,10 +31,10 @@ void func_80012fd4_slot27(Object *obj) {
     if (ref_other.p->side != 0) {
         data_8019045c[0] = -t;
     }
-    ref_first.p->field_4c = data_8019045c[0];
+    ref_first.p->vel_x = data_8019045c[0];
     data_8019045c[0] = -data_8019045c[0];
-    ref_second.p->field_4c = data_8019045c[0];
-    ref_first.p->field_50 = data_80190464[0];
+    ref_second.p->vel_x = data_8019045c[0];
+    ref_first.p->vel_y = data_80190464[0];
     data_80190464[0] = -data_80190464[0];
-    ref_second.p->field_50 = data_80190464[0];
+    ref_second.p->vel_y = data_80190464[0];
 }

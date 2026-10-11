@@ -9,9 +9,9 @@ void func_801b1d40_slot04_09(Object *obj) {
     int n = 0x1f;
 
     obj->field_a2 = 0;
-    obj->field_07++;
+    obj->state_3++;
     if (obj->field_49 != 0) {
-        obj->field_07 = 9;
+        obj->state_3 = 9;
         obj->field_17b = 1;
         obj->field_225 = 1;
     }
@@ -26,16 +26,16 @@ void func_801b1d40_slot04_09(Object *obj) {
 }
 
 void func_801b1de0_slot04_09(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->field_45 = 1;
-        obj->field_54 = -0x8000;
-        obj->field_58 = -0x6000;
-        obj->field_07++;
-        obj->field_4c = data_801c7c98_slot04_09[obj->field_12a];
-        obj->field_50 = data_801c7c98_slot04_09[obj->field_12a + 1];
+        obj->accel_x = -0x8000;
+        obj->accel_y = -0x6000;
+        obj->state_3++;
+        obj->vel_x = data_801c7c98_slot04_09[obj->field_12a];
+        obj->vel_y = data_801c7c98_slot04_09[obj->field_12a + 1];
         if (obj->field_0b == 0) {
-            obj->field_4c = -obj->field_4c;
-            obj->field_54 = -obj->field_54;
+            obj->vel_x = -obj->vel_x;
+            obj->accel_x = -obj->accel_x;
         }
         func_801307e0(obj, 0x20);
     } else {

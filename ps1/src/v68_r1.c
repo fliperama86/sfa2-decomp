@@ -28,7 +28,7 @@ void func_8012c100(Object *object)
   object->field_243 = 0;
   object->field_247 = 0;
   object->field_225 = 0;
-  object->field_07 = object->field_07 + 1;
+  object->state_3 = object->state_3 + 1;
   data_80198226 = 0;
   data_801985ba = 0;
   object->field_7e = 0;
