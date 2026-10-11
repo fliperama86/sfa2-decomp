@@ -1,0 +1,18 @@
+# The stand-alone programs of the disc (ps1/src/programs/programs.toml) whose C the PC program builds in.
+# Read by port/tools/hostbuild.py (--programs FILE). This list names no program on purpose: the logo is listed
+# when all its functions have C and every library routine it calls is bound below or exists as a name of the game.
+# A program not listed is not built in.
+#
+# One table per program:
+#
+#   [[program]]
+#   name = "logo"                  # a program of the declaration
+#   main = "func_80011758_logo"    # the program's main function, one of the declaration's functions
+#   setup = [ { call = "port_x", symbol = "data_8002eb00_logo" }, { call = "port_y" } ]     # optional
+#   teardown = [ { call = "port_z" } ]                                                         # optional
+#
+#   [program.library]              # optional
+#   DecDCTout = "port_DecDCTout"   # a symbol of the declaration that the game has no name for -> the runtime's routine
+#
+# setup and teardown are routines of the runtime that are called before main and after it, with the address of the
+# named symbol of the program as their one argument, or with 0 when no symbol is given.

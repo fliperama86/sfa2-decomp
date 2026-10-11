@@ -771,6 +771,70 @@ overrides, or an empty folder for none: the default is this
 repository's folder, whose files name functions of this game. A path
 that is not a folder is refused.
 
+### Programs in the build
+
+A stand-alone program of the disc (an executable that the game starts with
+`Exec`, declared in `ps1/src/programs/programs.toml`) can be built into the
+PC program from its C in `ps1/src/programs/NAME/`. The build reads only the
+programs that the port's own list, [`programs.toml`](programs.toml), names;
+`--programs FILE` gives another list. The list in the tree names none, and
+says why: the logo is listed when all its functions have C and every library
+routine it calls is bound or is a name of the game. The build then prints one
+more line before `linked:`, `programs built in: 0`; with a program listed it
+adds one line per program with its name and its number of functions.
+
+One `[[program]]` table of the list per program holds `name`, `main` (one of
+the declaration's functions), optionally `setup` and `teardown` (arrays of
+`{ call = "ROUTINE", symbol = "NAME" }` or `{ call = "ROUTINE" }`: runtime
+routines called before main and after it, with the address of one of the
+program's symbols as their argument, or 0), and `[program.library]`, the
+runtime's routine for each name of the declaration that the game does not
+have. The files of the program's folder must be exactly the declaration's
+functions, both ways. The tool refuses an unknown key, a program the
+declaration does not have, a name twice, a `main` that is not a function of
+the program, and a symbol or a function it cannot match, with a line that
+names it.
+
+The names that a program adds are of four kinds:
+
+- a function `func_ADDR_NAME` is an alias of its C, `ps1_func_ADDR_NAME =
+  impl_func_ADDR_NAME;`, with no address;
+- a symbol of the declaration that begins `data_` is its address,
+  `ps1_NAME = 0xADDRESS;` (a name that the game holds at another address is
+  refused);
+- a symbol that the game's names already hold keeps the game's address, and
+  the declaration's other address is skipped;
+- any other symbol is the runtime's routine from the list's library table,
+  `ps1_NAME = ROUTINE;`; a symbol that is in none of the four is named and
+  the build stops.
+
+A program's functions are not placed at their PS1 addresses and no jump is
+written there. The reason (the design's, inferred): `Exec` is the only way
+into a program and the program's own data holds no pointer to one of its
+functions, so a direct alias is enough, the C of the program calls its own C
+directly, and no inventory of the program's functions (a second published
+table of the analysis) is needed. A call to a function of the program that
+has no C is therefore not a stop at an address but a name the tool cannot
+resolve, and the tool says so (below).
+
+The check of plain names: after the renaming, `nm` is run on every object of
+a program, and an undefined name that is not a `ps1_` name ends the build
+naming the object and the name. Without it such a name would link against
+whatever has that name in the runtime, PsyZ or the C library. A weak
+reference counts as undefined, and is refused under a `ps1_` name as well:
+the linker gives a weak reference the address 0 where nothing defines the
+name, with no line. A weak function that the object itself defines is not a
+reference (the compiler for Windows lists both alike and gives a definition
+its own symbol; the tool reads that). The objects of
+the game's own units held no such name in one build of 2026-10-10 (read with
+`nm` over all their objects); the tool checks a program's objects only. The
+program's objects lie between the two text markers, and the end checks know the aliases and the
+bound names.
+
+The runtime's side (starting the program from `Exec`) is not in this change:
+`port_programs[]` in `port_tables.h` is generated, empty today, and nothing
+reads it yet.
+
 ### Running it
 
 ```sh
@@ -1384,7 +1448,13 @@ a nonmatching function, a function of an unselected unit, a missing
 `NAME.py`, an option that names no folder), a build that stops (an override that does not compile,
 defines another global symbol or not NAME, or whose unit does not define
 NAME), the link check of a `replaced_` symbol, and the two output lines
-with 0 and with more. With `--cc CC` (and `--run PREFIX` as for
+with 0 and with more. Its cases for programs: the port's list (each
+refusal), the four kinds of names, the units of a program (a stem the
+declaration lacks, a declared function with no file), the generated table
+and its setup and teardown calls, the objects between the markers, a plain
+undefined name left in a program's object, a routine that the list binds
+and the runtime lacks (a link error), a name leading to two things in two
+programs, and a tree with no program listed. With `--cc CC` (and `--run PREFIX` as for
 `test_hostlaunch.py`) it also builds a made-up game of four units with
 overrides and starts the Windows program: the override runs for a call
 from another unit and for a call from the unit that defines the

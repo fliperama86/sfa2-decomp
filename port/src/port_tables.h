@@ -13,6 +13,12 @@ struct port_absent   { unsigned address; const char *name; int image; int librar
 extern const struct port_image    port_images[];    extern const unsigned port_image_count;
 extern const struct port_function port_functions[]; extern const unsigned port_function_count;
 extern const struct port_absent   port_absents[];   extern const unsigned port_absent_count;
+/* A stand-alone program of the disc whose C is built into the port (port/programs.toml). name: the program's name in the declaration; file: the base name
+ * of its file on the disc, lower case; sha256: the 32 bytes of the file's SHA-256; main: the C of the program's main function (a program's functions are not
+ * at their PS1 addresses); setup, teardown: generated routines that make the calls the list names before main and after it, null where it names none. */
+struct port_builtin_program { const char *name; const char *file; const unsigned char *sha256; void *main; void (*setup)(void); void (*teardown)(void); };
+
+extern const struct port_builtin_program port_programs[];  extern const unsigned port_program_count;
 extern const unsigned char port_program_sha256[32];  /* the executable's SHA-256 pinned by the build configuration */
 
 #endif
