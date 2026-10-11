@@ -88,6 +88,10 @@ function is in its entry and its first name follows from that.
   configuration declares and nothing else. A nonmatching function keeps
   `func_` and its address: its files are named after it, and the tool that
   tests it finds the original code by that name.
+- An exact function that the port overrides keeps its first name for the
+  same reason: the override is a file named after it
+  (`port/overrides/func_80120604.c` is one). The tool refuses to rename a
+  function that has a file of its name under the paths.
 - Markdown is rewritten only where a page describes the source as it is
   (this page, the guides), and such a page is given to the tool by its own
   path. A page that records a run, such as the page of a folder of
@@ -100,3 +104,7 @@ function is in its entry and its first name follows from that.
 | --- | --- | --- |
 | `0x80130f2c` | `advance_sequence` | Counts `step_timer` down. At zero it takes the next step of the object's `sequence`, the one at `loop_offset` when `step_flags` is negative, and loads `step_timer`, `step_flags` and `frame` from that step. |
 | `0x80130efc` | `update_sequence` | Calls `advance_sequence`, then `func_80131020`, which calls it a second time under a condition on the state bytes that is not understood yet. It is the routine that the units call to move an object's sequence on. |
+| `0x80120554` | `play_sound_at` | Takes an object or none, a side and a word. From the object's `pos_x`, less the first word of `box_margin` and held between -192 and 575, it makes a position (192 without an object) and calls `func_80120604` with the word's high byte, the side, the word's low byte and the position. `func_80120604` reads commands from the table that its first number selects, from the command that its third number selects; a command keys a voice on through the function that the build names `SsUtKeyOnV`, with a left and a right volume made from the position, or plays or stops a sequence of the sound library, or sets a volume. So the call starts a sound, chosen by table and number, placed between left and right by where the object is. |
+| `0x801204f4` | `play_side_sound_at` | The same for an object that must be there, with the side as the table's number too: the sound is taken from the side's own table. |
+
+`func_80120604` itself keeps its first name: the port overrides it.
