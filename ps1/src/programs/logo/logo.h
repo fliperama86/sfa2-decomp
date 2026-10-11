@@ -33,6 +33,14 @@ extern void SetDispMask(int mask);
 extern int DrawSync(int mode);
 extern int VSync(int mode);
 extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
+extern void StUnSetRing(void);
+extern int CdReady(int mode, u8 *result);
+extern void CdGetSector(void *madr, int size);
+extern void *DecDCToutCallback(void (*func)(void));
+
+/* The program's own functions that other functions call. */
+extern void func_80010a38_logo(void);
+extern void func_80011060_logo(void);
 
 /* The game's DispEnv (types.fields) is the 20 byte display environment of the library; the program's two
    environments are data_8002eb8c_logo, reached through a cast to it. */
@@ -40,6 +48,10 @@ extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
 
 extern long SetVideoMode(long mode);
 
+/* gp + 0x00: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_80010e28_logo. */
+extern u8 data_8002eafc_logo;
+/* gp + 0x0c: a buffer that CdGetSector fills (inferred from the call). */
+extern u8 *data_8002eb08_logo;
 /* gp + 0x04: the buffer the decoder writes a strip to (inferred). */
 extern u32 *data_8002eb00_logo;
 /* gp + 0x14: where the expansion of run-length data writes (inferred); the

@@ -102,6 +102,10 @@ func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, 
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
 func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
+func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
+func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -145,6 +149,7 @@ The negative control (`--control`):
 ```
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
+func_80010e28_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010fc4_logo control: different 991 of 2000 (expected more than 0)
@@ -163,6 +168,8 @@ func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -190,6 +197,8 @@ func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010928_logo replay: fixtures 1, passed 1, failed 0
 func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
+func_80010e28_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010e28_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010f20_logo replay: fixtures 1, passed 1, failed 0
 func_80010f38_logo fixtures: kept 4 of 2000 cases (slots 2, edges 2, results 0)
@@ -278,3 +287,14 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   success); `CdIntToPos` has a fill that stores a word of the setup's through
   its second argument, the model of what the library writes to the position,
   and the words behind the two local pointers of `CdControlB` are logged.
+- `func_80010e28_logo`: ends the movie (inferred). Calls `func_80011060_logo`
+  (the volume down), `StUnSetRing`, `CdReady(0, 0)` and `CdGetSector` with the
+  pointer in the word at `0x8002eb08` and 0x200; stores the byte 0x80 at
+  `0x8002eafc` and sends `CdControlB(0x0e, 0x8002eafc, 0)` until it returns a
+  value that is not 0, then `CdControlB(9, 0, 0)` the same way, and
+  `DecDCToutCallback(0)`. Then twice: a local rectangle (0, y, 0x1e0, 0xf0)
+  with y 0xf0 when the index word at `0x8002eb50` is not 0 and else 0, for
+  `ClearImage`, then `DrawSync(0)`, `VSync(0)` and `func_80010a38_logo` (the
+  flip). All callees are recorders in the test, `CdControlB` with its results
+  scripted for both loops; the recorder of the flip stores a new value in the
+  index word, so that the second turn reads another value than the first.

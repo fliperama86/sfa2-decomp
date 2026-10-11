@@ -22,11 +22,14 @@ functions = [
   { name = "func_800111d0_logo", address = 0x800111d0, size = 240 },
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
   { name = "func_80011060_logo", address = 0x80011060, size = 148 },
+  { name = "func_80010e28_logo", address = 0x80010e28, size = 248 },
   { name = "func_80011794_logo", address = 0x80011794, size = 164 },
 ]
 
 [program.symbols]
 data_8001a678_logo = 0x8001a678
+data_8002eafc_logo = 0x8002eafc
+data_8002eb08_logo = 0x8002eb08
 data_8002eb00_logo = 0x8002eb00
 data_8002eb10_logo = 0x8002eb10
 data_8002eb14_logo = 0x8002eb14
@@ -54,3 +57,7 @@ DrawSync = 0x80012cdc
 VSync = 0x8001a358
 ClearImage = 0x80012e70
 SetDefDispEnv = 0x800156a4
+StUnSetRing = 0x80018744
+CdReady = 0x80015fc4
+CdGetSector = 0x80016428
+DecDCToutCallback = 0x80011a14
