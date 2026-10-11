@@ -94,6 +94,14 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_800106fc_logo: built 248 bytes, original 236 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800106fc_logo coverage: 59 of 59 instruction slots of the original executed
+func_800106fc_logo: built 248 bytes, original 236 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800106fc_logo coverage: 59 of 59 instruction slots of the original executed
+func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800107e8_logo coverage: 80 of 80 instruction slots of the original executed
+func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800107e8_logo coverage: 80 of 80 instruction slots of the original executed
 func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010928_logo coverage: 68 of 68 instruction slots of the original executed
 func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -102,6 +110,18 @@ func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, 
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
 func_80010a38_logo: built 84 bytes, original 72 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010a38_logo coverage: 18 of 18 instruction slots of the original executed
+func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
+func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
+func_80010c20_logo: built 544 bytes, original 520 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010c20_logo coverage: 128 of 130 instruction slots of the original executed
+func_80010c20_logo: built 544 bytes, original 520 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010c20_logo coverage: 128 of 130 instruction slots of the original executed
+func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
+func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010f20_logo coverage: 6 of 6 instruction slots of the original executed
 func_80010f20_logo: built 28 bytes, original 24 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -130,6 +150,10 @@ func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, 
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
+func_80011794_logo: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011794_logo coverage: 41 of 41 instruction slots of the original executed
+func_80011794_logo: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011794_logo coverage: 41 of 41 instruction slots of the original executed
 func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -139,8 +163,13 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_800106fc_logo control: different 149 of 2000 (expected more than 0)
+func_800107e8_logo control: different 2000 of 2000 (expected more than 0)
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
+func_80010a80_logo control: different 1544 of 2000 (expected more than 0)
+func_80010c20_logo control: different 59 of 2000 (expected more than 0)
+func_80010e28_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010fc4_logo control: different 991 of 2000 (expected more than 0)
@@ -148,16 +177,27 @@ func_80011060_logo control: different 1001 of 2000 (expected more than 0)
 func_800110f4_logo control: different 1463 of 2000 (expected more than 0)
 func_800111d0_logo control: different 2000 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
+func_80011794_logo control: different 745 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_800106fc_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800106fc_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010c20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010c20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -172,6 +212,8 @@ func_800111d0_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800111d0_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011794_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011794_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
@@ -179,10 +221,20 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_800106fc_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_800106fc_logo replay: fixtures 2, passed 2, failed 0
+func_800107e8_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_800107e8_logo replay: fixtures 1, passed 1, failed 0
 func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010928_logo replay: fixtures 1, passed 1, failed 0
 func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
+func_80010a80_logo fixtures: kept 8 of 2000 cases (slots 1, edges 7, results 0)
+func_80010a80_logo replay: fixtures 8, passed 8, failed 0
+func_80010c20_logo fixtures: kept 12 of 2000 cases (slots 5, edges 7, results 0)
+func_80010c20_logo replay: fixtures 12, passed 12, failed 0
+func_80010e28_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010e28_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010f20_logo replay: fixtures 1, passed 1, failed 0
 func_80010f38_logo fixtures: kept 4 of 2000 cases (slots 2, edges 2, results 0)
@@ -197,6 +249,8 @@ func_800111d0_logo fixtures: kept 2 of 2000 cases (slots 1, edges 1, results 0)
 func_800111d0_logo replay: fixtures 2, passed 2, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
+func_80011794_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_80011794_logo replay: fixtures 2, passed 2, failed 0
 func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011838_logo replay: fixtures 1, passed 1, failed 0
 ```
@@ -252,10 +306,98 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
 - `func_80010928_logo`: sets up the graphics and the two display environments
   (inferred). Calls `ResetGraph(0)`, `SetDispMask(0)`, `SetVideoMode` with
   the video mode word at `0x8002eb38`, `SetDefDispEnv` for the two environments at
-  `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes and the word at
+  `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes to 1 and the word at
   `0x8002eb50` to 0, and, when the video mode word is not 0, the screen x
   and y of both to 0 and 0x18. Then `ClearImage` of a local rectangle,
   `DrawSync(0)`, `VSync(0)`, `func_80158470` on the second environment and
   `SetDispMask(1)`. The eight callees are recorders in the test; the local
   rectangle's address is part of the log, so the test also holds the local
   at the address the original places it at.
+- `func_80011794_logo`: starts the disc (inferred). Calls `CdInit` up to four
+  times until it returns a value that is not 0 (after four returns of 0 it
+  returns 0 and does nothing else); then `CdControlB(0x0e, &mode, 0)` with a
+  local mode byte of 0x80 until it returns a value that is not 0,
+  `CdIntToPos(0x10, pos)` into a local and `CdControlB(0x15, pos, 0)` until it
+  returns a value that is not 0, and returns 1. The three callees are
+  recorders in the test, their results scripted per call (failures, then a
+  success); `CdIntToPos` has a fill that stores a word of the setup's through
+  its second argument, the model of what the library writes to the position,
+  and the words behind the two local pointers of `CdControlB` are logged.
+- `func_80010e28_logo`: ends the movie (inferred). Calls `func_80011060_logo`
+  (the volume down), `StUnSetRing`, `CdReady(0, 0)` and `CdGetSector` with the
+  pointer in the word at `0x8002eb08` and 0x200; stores the byte 0x80 at
+  `0x8002eafc` and sends `CdControlB(0x0e, 0x8002eafc, 0)` until it returns a
+  value that is not 0, then `CdControlB(9, 0, 0)` the same way, and
+  `DecDCToutCallback(0)`. Then twice: a local rectangle (0, y, 0x1e0, 0xf0)
+  with y 0xf0 when the index word at `0x8002eb50` is not 0 and else 0, for
+  `ClearImage`, then `DrawSync(0)`, `VSync(0)` and `func_80010a38_logo` (the
+  flip). All callees are recorders in the test, `CdControlB` with its results
+  scripted for both loops; the recorder of the flip stores a new value in the
+  index word, so that the second turn reads another value than the first.
+- `func_80010a80_logo`: starts the movie's stream at a sector and takes the
+  first frame (inferred). Clears three words (`0x8002eb20`, `0x8002eb3c`,
+  `0x8002eb2c`), then `DecDCTReset(0)`, `DecDCToutCallback` with
+  `func_80010f38_logo`, `StSetRing` with the pointer at `0x8002eb04` and 15,
+  `StSetStream(1, 1, 0x0fffffff, 0, 0)`, sets the two filter bytes at
+  `0x8002eb44` to 1 and calls `CdIntToPos(sector, 0x8002ebb4)`. Then a loop
+  that starts again when `CdControl(0x0d, ...)`, `CdControl(0x15, ...)` or
+  `CdRead2(0x1e8)` returns 0, calls `CdControlB(1, 0, res)` until it returns a
+  value that is not 0 and again while bit 0x20 of `res[0]` is clear, then
+  `CdControlB(0x11, 0, res)` until it returns a value that is not 0, and takes
+  `pos = CdPosToInt(res + 5)`; it starts again when `pos` is below
+  `sector - 100` (signed) or `sector + 5` is below `pos` (unsigned). After the
+  loop it calls `StGetNext(&addr, &hdr)` until it returns 0, stores `hdr[2]`
+  in the word at `0x8002eb30`, calls `DecDCTvlc(addr, b)` with `b` the pointer
+  of the table at `0x8002eb08` named by the word at `0x8002eb20`, then
+  `StFreeRing(addr)`, and returns 0. All callees are recorders in the test
+  with scripted results; `CdControlB` stores the status byte through `res`
+  and `StGetNext` the two pointers (fills). The pointers to the locals are
+  logged, so the test passes only while the C's frame is the size of the
+  original's: the C keeps 0x1e8 in a local for that. The fixtures file is
+  the largest of the folder after the one of `func_800111d0_logo`.
+- `func_800107e8_logo`: sets the program's memory layout and starts graphics
+  and the stream (inferred). Takes a base address, the stream's sector, the
+  stills' file's sector, a video mode word and a stereo word (the fifth
+  argument, on the stack). Stores base and the addresses base + 0x2d00,
+  0xa500, 0xfe00, 0x15700, 0x1d500, 0x21100 (twice) and 0x21140 in the
+  program's words from `0x8002eb00` on, 0 in `0x8002eb1c`, the video mode
+  word at `0x8002eb38` and the stereo word at `0x8002eb34`. Then a loop of
+  `CdIntToPos`, `CdControl(0x15, ...)`, `CdRead(0x4a, ...)` and
+  `CdReadSync(0, ...)` that starts again when one of the first two returns 0
+  or the last returns a value that is not 0; adds the pointer in the word at
+  `0x8002eb18` to each of the 32 words behind it; and calls
+  `func_80010928_logo`, `func_80010a80_logo` with the stream's sector and
+  `func_80010fc4_logo`. All callees are recorders in the test, with scripted
+  results; fills store the position bytes and the 128 bytes the file read
+  leaves in the buffer.
+- `func_80010c20_logo`: one frame of the movie (inferred). Calls `StGetNext`
+  until it returns 0 (the time-out after 0x100000 returns is not tested, see
+  the limit in the header of the `.c`), moves the frame numbers (the word at
+  `0x8002eb30` into `0x8002eb2c`, word 2 of the header into `0x8002eb30`),
+  sets the rectangle at `0x8002eb24` to (0, y, 0x18, 0xf0) with y 0xf0 when
+  the index word at `0x8002eb50` is not 0, and calls `DecDCTReset(1)`. For a
+  frame number before the new one in 0xad to 0xfe it expands a still
+  (`func_800110f4_logo` with entries of the two tables of pointers at
+  `0x8002eb48` and `0x8002eb4c`, then `func_800111d0_logo`); else it calls
+  `DecDCTin` and `DecDCTout`. It flips the buffer index at `0x8002eb20`,
+  calls `DecDCTvlc` when the new frame number is outside 0xad to 0xfe,
+  `StFreeRing`, `func_80010f20_logo` when the frame number before is outside
+  0xad to 0xfe, `VSync` (0 when the video mode word at `0x8002eb38` is not
+  0, else 2) and `func_80010a38_logo`. Returns 1 when the frame number before
+  is at least 0x118. All callees are recorders in the test; the frame numbers
+  of the setup lie on and around each limit. The time-out exit stays
+  unreached (two slots).
+- `func_800106fc_logo`: the program's main (inferred). Calls
+  `func_80011838_logo`, `ResetCallback`, `func_80011794_logo` and
+  `PadInit(0)`; looks up the table entries 0x23 and 0x22 with
+  `func_80011758_logo` (a local for the second word); calls
+  `func_800107e8_logo(0x8002ede0, entry 0x23, entry 0x22, 0, 1)`. Then a
+  loop: `func_80010c20_logo` (the frame), `PadRead(1)`, the pad word stored at
+  `0x8002eb84` and `0x8002eb80`, the newly pressed buttons (the new word xor
+  the old, and the new) stored at `0x8002eb88`; the frame's result goes up by
+  1 for a newly pressed bit of 0x820 and by 1 more for one of 0x08200000; the
+  loop ends when the result is not 0. After it: `func_80010e28_logo`,
+  `PadStop` and `StopCallback`. All callees are recorders in the test, with
+  the frame's and the pad's results scripted per turn. The test's results end
+  with one more turn than the function makes, so that a variant that missed a
+  press does not run on without end.
