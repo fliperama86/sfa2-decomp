@@ -2712,7 +2712,6 @@ data_801ec398_slot06_05 = 0x801ec398;
 data_801ec3a8_slot06_05 = 0x801ec3a8;
 
 /* Added by src.u_slot06_06_8000. */
-func_801e9798_slot06_06 = 0x801e9798;
 data_801ea398_slot06_06 = 0x801ea398;
 data_801ec398_slot06_06 = 0x801ec398;
 data_801ee288_slot06_06 = 0x801ee288;
@@ -2760,7 +2759,6 @@ data_801ee21c_slot06_07 = 0x801ee21c;
 
 /* Added by src.u_slot06_08_8000. */
 func_801e8bd8_slot06_08 = 0x801e8bd8;
-func_801ea3b4_slot06_08 = 0x801ea3b4;
 data_801ea6d8_slot06_08 = 0x801ea6d8;
 data_801eb6d8_slot06_08 = 0x801eb6d8;
 data_801ec6d8_slot06_08 = 0x801ec6d8;
