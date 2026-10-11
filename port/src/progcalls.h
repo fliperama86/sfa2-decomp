@@ -1,6 +1,6 @@
 /* The small library routines that the logo's stand-alone program calls and the runtime had no host routine for yet, apart from the
  * movie decoder's (press.h) and the movie stream's: a plain read of sectors into memory (CdRead, CdReadSync), Sony's simple pad
- * calls (PadInit, PadRead, PadStop) and SetVideoMode. Nothing binds the calls to a program yet; a later change does. Written from
+ * calls (PadInit, PadRead, PadStop) and SetVideoMode. The port's list of programs (port/programs.toml) binds the calls for the logo's program. Written from
  * what the program's own copies of the routines do (read in a private listing, in words here) and from the disc layer's header
  * (cd.c, cd.h) and input.c; nothing here is compared with a console's library or its output. The checks are in
  * port/tools/test_hostprogcalls.py.

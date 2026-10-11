@@ -7,8 +7,9 @@ program linked from the game's unchanged C that starts the game from the
 user's disc image. In one scripted run of five minutes it went from the
 title through a first fight into a second. Its sound plays on the
 machine's output unless it is told not to, or goes to a file ("Sound out"
-below); it skips the
-stand-alone programs of the disc (the logo is the first), and a function
+below); it runs the logo's program from its C (the movie plays, without
+its sound so far) and skips the disc's other stand-alone programs, which
+have no C (the opening movie's is the first), and a function
 without C would end it with that function's name; the build counts one
 such function of the game, the entry code, which it does not run. It is
 described under "The host program" below. The library
@@ -853,8 +854,8 @@ port/build/host/sfa2.exe [--skip-programs] DISC
 DISC is the `.cue` of the user's disc image, or its `.bin`; from a Linux
 shell under WSL the path is given in Windows form. `--skip-programs` lets
 the game go on past the stand-alone programs of the disc that have no C
-(the logo is the first; see "Programs of the disc" below); without it the
-program ends at the first of them and names it. A program whose C is built
+(the opening movie's is the first; see "Programs of the disc" below);
+without it the program ends at the first of them and names it. A program whose C is built
 in runs with or without the option.
 
 Sound. A build made with `--psyz DIR` has the game's own sound library
@@ -917,6 +918,14 @@ to the player select, through a first fight and into a second. Nothing
 sounds: the sound library's routines are stand-ins. This says what one
 scripted run of five minutes did, not that the game is playable to its
 end.
+
+Later, and not part of that run: since main `c210be1` (2026-10-11) the
+logo's program has C and is built in. One start of that build, 60 seconds
+without a window, printed no `skipped:` line for the logo; it printed the
+line of the logo's movie sound, `audio: a stream starts at sector 179376:
+file 1 channel 1, stereo, 37800 Hz`, and its first `skipped:` line was the
+opening movie's (`Exec of z2o.exe`). That run is in the record
+[`2026-10-11-logo-listed-in-the-pc-program.md`](../docs/records/2026-10-11-logo-listed-in-the-pc-program.md).
 
 The original's entry code is hand-written assembly and is not run: the
 program finds the game's `main` as the target of the last call before the
@@ -1140,7 +1149,8 @@ routines that do nothing on purpose. What is in this piece:
   bounded the directories and not the files in them; the owner's review
   found that.
 - Programs of the disc. The game starts other programs from the disc
-  with `Exec`. No C exists for any of them, so the port ends there with
+  with `Exec`. The logo's has C and is built in (see "Built-in programs"
+  below). No C exists for the others, so the port ends at one of them with
   `stop: no C yet for the program NAME (disc sector N)`, as it does for
   a function without C. `--skip-programs` goes on instead as if the
   program had returned at once, and prints a line at each skip; that is
@@ -2466,9 +2476,11 @@ shows nothing either way.
 The game's logo and its attract movie are movies in the console's stream
 format. The library that the port uses in Sony's place has only empty
 stand-ins for the decoder (`DecDCT...` in its `libpress.c`, at the pin before 2026-10-10). This part is
-the core that a later change will put behind those calls; nothing calls
-it yet, and the calls themselves (`DecDCTin`, `DecDCTout`, callbacks,
-synchronisation), reading the sectors, drawing and sound are not in it.
+the port's own core, written before that library had one; of it the calls
+below use the bitstream reader and the reset tables, and its decode
+routine is not used. The calls themselves (`DecDCTin`, `DecDCTout`,
+callbacks, synchronisation) are under "Sony's calls" below; reading the
+sectors, drawing and sound are not in it.
 
 What it is. `port/src/mdec.c` and `mdec.h` are pure C (no global, no
 allocation) with three entry points. `port_mdec_vlc` turns one frame's
@@ -2554,8 +2566,8 @@ stand on the decoder chip's core that PsyZ has since the pin of
 upstream against captures from a console), with the bitstream reader
 (`port_mdec_vlc`) and the reset tables (`port_mdec_reset`) of `mdec.c`.
 The port's own decode routine in `mdec.c` is not used by them; what
-becomes of it is a later change. Nothing binds the calls to a program
-yet.
+becomes of it is a later change. The port's list of programs
+(`port/programs.toml`) binds the five for the logo's program.
 
 What each does is in the header of `press.h`. Every pointer is a game
 address; each read and write is checked to lie in the mapped RAM, and a
@@ -2596,7 +2608,8 @@ with the checks before it, so no case gives it.
 `port/src/progcalls.c` (header `progcalls.h`) holds six host routines
 that the logo's stand-alone program calls: `CdRead` and `CdReadSync` (a
 plain read of sectors into memory), `PadInit`, `PadRead`, `PadStop` and
-`SetVideoMode`. No program calls them yet. They were written from what
+`SetVideoMode`. The port's list of programs binds them for the logo's
+program. They were written from what
 the program's own copies do (read in a private listing) and nothing is
 compared with a console.
 
@@ -2638,8 +2651,9 @@ layer (`cd.c`: its paced delivery, its ready handler, its whole-sector mode,
 and the two routines that give a stream's code the FIFO's bytes and put
 bytes into the game's memory as a sector's), not on the picture library,
 whose copies of these routines have a stand-in for the sector handler and
-no sector delivery. Nothing binds the calls to a program yet, and the plain
-read (`CdRead`, `CdReadSync`) and `SetVideoMode` are not in this part.
+no sector delivery. The port's list of programs binds the calls for the
+logo's program; the plain read (`CdRead`, `CdReadSync`) and `SetVideoMode`
+are not in this part.
 
 What each does is in the header of `stream.h`. The ring is the game's
 memory in Sony's layout (headers of 32 bytes, then blocks of 2,016); every
