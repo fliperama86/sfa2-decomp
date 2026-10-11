@@ -16,7 +16,7 @@
 8015764c	156	SetRCnt	system	1	name
 801576e8	56	GetRCnt	system	1	folder
 80157720	48	StartRCnt	system	1	name
-80157750	52	-	system	0	place
+80157750	52	StopRCnt	system	0	folder
 80157784	52	ResetRCnt	system	1	name
 801577bc	12	func_801577bc	threads	3	bios
 801577cc	12	DisableEvent	system	1	folder
@@ -408,7 +408,7 @@
 8016d7cc	180	SpuSetAnyVoice	sound	0	folder
 8016d880	12	_card_load	memory card	0	folder
 8016d890	12	_card_info	memory card	0	folder
-8016d8a0	48	-	unidentified	0	-
+8016d8a0	48	_card_clear	memory card	0	folder
 8016d8d0	12	_card_write	memory card	0	folder
 8016d8e0	12	InitCARD	memory card	1	folder
 8016d8f0	12	StartCARD	memory card	1	folder
