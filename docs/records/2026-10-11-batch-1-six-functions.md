@@ -33,3 +33,18 @@
   The map's render:
   `overall: 5487/5600 distinct functions exact (98.0%); 12922/13072 placements (98.9%); 1733100/1809836 code bytes (95.8%)`. The figures in the six functions' own records are those of each
   branch alone. No whole build, no PC build, no differential test.
+- After the review of the pull request (comments and the guide only;
+  no code changed: the three touched units rebuilt IDENTICAL, the
+  images `resident` and `slot12` PASS): four general stand-in comments
+  end with the guide's fixed sentence again, their further figures in a
+  comment beside each (`d2f9b0_r1.c` twice, `d3172c_r1.c`,
+  `slot12_3224x_r1.c`). And the string constant of
+  `func_80013224_slot12` is not a stand-in for registers, order or
+  frame: it gives the unit's owned read-only words the original's
+  three bytes behind a nine-byte table (the build's tool takes a
+  unit's read-only data in whole words, so the ownership cannot end at
+  nine). The guide gets a short paragraph for that one case under
+  "Other stand-ins", with a comment of its own that counts bytes of
+  read-only data and says that no instruction reads them; it sets this
+  apart from embedded code or assets. A proposal with this pull
+  request: if it is declined, that function leaves the batch.

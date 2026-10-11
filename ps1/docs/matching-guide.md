@@ -359,6 +359,25 @@ The forms that this admits, none of which was allowed before:
 - the keyword `volatile` or `register` on a local of the function, and
   `volatile` in a cast at one use.
 
+One stand-in of this rule is about read-only data, not instructions, and
+has a comment of its own. The build takes a unit's read-only data in
+whole words, so a unit that owns a table of nine bytes owns the three
+bytes behind it too. Where the original has other values there than the
+build's zero padding, and no instruction reads them, the table's
+initializer may be written with those bytes added (a string constant
+whose first bytes are the table, the added ones written out), so that the
+words the unit owns are the original's. This is not the embedding of
+bytes that point 1 keeps out, which means code or an asset given as
+numbers in place of source: here the table stays readable C, every added
+byte stands in the source, and the function reads the table and nothing
+behind it. Points 2 to 4 hold as for the others. The measurement is in
+bytes of read-only data, because the instructions are the same with and
+without it, and the comment says so:
+
+```c
+/* Stand-in, not recovered source: the initializer's <K> extra bytes reproduce the original's read-only data behind the table, which no instruction reads. Without them the unit's read-only data differs from the original in <N> bytes. */
+```
+
 Still not allowed, and a function that needs one of these stays parked
 with a note that names it: what point 1 lists; a construct that changes
 what the function does (a store to a global or through a pointer, a

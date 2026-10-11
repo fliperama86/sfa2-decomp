@@ -11,7 +11,8 @@ void func_8012f9b0(Object *object)
     s16 i;
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. With 15 written at its use this function differs from the original in 5 instruction slots. */
     s16 limit = 15;
-    /* Stand-in, not recovered source: this local, which holds the address of the cursor ref_other.p (read and written through it at the end of the loop), reproduces the original's choice of registers: the original keeps that address in a register of its own. Without it (ref_other.p in its place, the wrappers kept) this function differs from the original in 5 instruction slots; without it and without the wrappers, in 33. */
+    /* Stand-in, not recovered source: this local, which holds the address of the cursor ref_other.p, reproduces the original's choice of registers. Without it this function differs from the original in 5 instruction slots. */
+    /* The original keeps that address in a register of its own and reads and writes the cursor through it at the end of the loop. The 5 slots are with ref_other.p written in the local's place and the wrappers kept; without the local and without the wrappers: 33. */
     Object **pp;
     Unit *unit;
     int diff;
@@ -50,7 +51,8 @@ void func_8012f9b0(Object *object)
 next:
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
         do {
-            /* Stand-in, not recovered source: two further do-while wrappers, nested inside the first (three levels in all) around the one statement, reproduce the original's choice of registers (they raise the compiler's count of references to pp). Without them this function differs from the original in 11 instruction slots; with one of them, in 8. */
+            /* Stand-in, not recovered source: a nested pair of further do-while wrappers inside the first (three levels in all), around the one statement, reproduces the original's choice of registers. Without it this function differs from the original in 11 instruction slots. */
+            /* The pair raises the compiler's count of references to pp. With one of the two wrappers: 8 slots. */
             do {
                 do {
                     *pp = (Object *) ((u8 *) *pp + 0xc0);

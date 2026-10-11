@@ -37,7 +37,8 @@ void func_8013172c(Object *object) {
     if (object->field_158 != 0) {
         object->field_150 = (object->field_150 & 0x5fff) + (c + d);
     }
-    /* Stand-in, not recovered source: the local a, used again for the two last results after serving as a mask above, reproduces the original's choice of registers. It changes no value. Without it (plain expressions in its place) this function differs from the original in 22 instruction slots. */
+    /* Stand-in, not recovered source: the local a, used again for the two last results after serving as a mask above, reproduces the original's choice of registers. Without it this function differs from the original in 22 instruction slots. */
+    /* It changes no value. The 22 slots are with plain expressions in its place. */
     a = object->field_132;
     a = ~a;
     a &= object->field_130;
