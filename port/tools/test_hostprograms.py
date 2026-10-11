@@ -9,13 +9,14 @@ address, has a made-up table port_programs (programs whose setup, main and teard
 and teardown) and stands in for what these files take from the rest of the runtime: port_halt (prints `stop: ...` and ends the
 driver with the status it was given; each case that stops runs in a driver of its own), port_trace_line (prints `trace: ...`),
 port_cd_source_at (the sector the test says; the disc layer's own record of where a word came from is tested in test_hostcd.py),
-port_disc_handle and port_skip_programs. The disc is a made-up ISO 9660 image (test_hostrun.py's Image) of made-up program files in
+port_disc_handle and port_skip_programs, port_callbacks_program_start (prints `callbacks fresh`) and port_press_report (prints
+`decoder report NAME`). The disc is a made-up ISO 9660 image (test_hostrun.py's Image) of made-up program files in
 the root and in a folder; the driver is told, by script lines, to do what the game does before Exec: the header's sector to
 0x801e0000 and the body at t_addr, taken from the file's bytes (a case may then change bytes of the RAM, or of the disc's file).
 NOTHING IS COMPARED WITH THE CONSOLE: the contract is the text of programs.h, and the cases check that the code does what it says.
 
 Groups: the run (setup, main, teardown in order and the result 1, the right one of two programs, rows without setup and teardown,
-the trace lines), the name (case, version suffix, folder, near misses that name no row), the option --skip-programs, a file that
+the trace lines, the fresh callbacks before and the decoder's report after), the name (case, version suffix, folder, near misses that name no row), the option --skip-programs, a file that
 is not in the table, a changed byte of the disc's file (header sector, body, last byte), a changed header in RAM (each field), a
 changed body in RAM (first and last byte), and the guards (t_size beyond the file, a span that leaves the RAM, a header outside
 the RAM, and the edges of each that are still valid).
@@ -123,6 +124,7 @@ static int source_sector = -1;
 
 int port_cd_source_at(unsigned address) { (void)address; return source_sector; }
 void port_callbacks_program_start(void) { printf("callbacks fresh\n"); }
+void port_press_report(const char *program) { printf("decoder report %s\n", program); }
 void port_trace_line(const char *fmt, ...)
 {
     va_list ap;
@@ -238,7 +240,7 @@ def exec_lines(name: str, *more: str, skip: bool = False) -> list[str]:
 
 def ran(name: str, setup=True, teardown=True) -> list[str]:
     return (["callbacks fresh", f"trace: program {name}: start"] + ([f"setup {name}"] if setup else []) + [f"main {name}"] + ([f"teardown {name}"] if teardown else [])
-            + [f"trace: program {name}: returned", "R 1"])
+            + [f"trace: program {name}: returned", f"decoder report {name}", "R 1"])
 
 
 def expect(rc: int, lines: list[str], want_rc: int, want: list[str]):
@@ -265,6 +267,23 @@ def callbacks_start_fresh_once_after_the_checks_and_before_setup():
         return f"a failed check: status {rc}, lines {l}"
     rc, l = run(["skip 1", f"src {Ctx.sector[OTHER[0]]}", f"exec {HDR + 0x10:x}"])
     if "callbacks fresh" in l:
+        return f"a file not in the table: {l}"
+
+
+def decoder_report_once_with_the_programs_name_after_everything_else():
+    # the stand-in prints `decoder report NAME`: once, after teardown and the trace line of the return (the whole order is in
+    # setup_main_teardown_in_order), with the name of the program that ran; not after a failed check, and not for a file that is
+    # not in the table
+    rc, l = run(exec_lines("beta"))
+    reports = [x for x in l if x.startswith("decoder report")]
+    if rc != 0 or reports != ["decoder report beta"] or l.index("decoder report beta") < l.index("trace: program beta: returned"):
+        return f"status {rc}, lines {l}"
+    path, _ = changed_file("alpha", 0x800 + 5, "report")
+    rc, l = run(exec_lines("alpha"), path)
+    if rc != EXIT_PROGRAM or any(x.startswith("decoder report") for x in l):
+        return f"a failed check: status {rc}, lines {l}"
+    rc, l = run(["skip 1", f"src {Ctx.sector[OTHER[0]]}", f"exec {HDR + 0x10:x}"])
+    if any(x.startswith("decoder report") for x in l):
         return f"a file not in the table: {l}"
 
 
@@ -718,7 +737,8 @@ def nothing_is_called_before_every_check_passed():
     return ram_body_changed("alpha", PROGRAMS["alpha"]["t_size"] - 1)
 
 
-NAMES = [setup_main_teardown_in_order, callbacks_start_fresh_once_after_the_checks_and_before_setup, the_right_one_of_two, the_first_row_of_two_is_not_taken_for_the_second, a_row_without_setup_and_teardown,
+NAMES = [setup_main_teardown_in_order, callbacks_start_fresh_once_after_the_checks_and_before_setup,
+         decoder_report_once_with_the_programs_name_after_everything_else, the_right_one_of_two, the_first_row_of_two_is_not_taken_for_the_second, a_row_without_setup_and_teardown,
          a_later_sector_of_the_file_finds_and_reads_the_whole_file, header_at_the_rams_first_bytes_runs, file_of_exactly_the_headers_fields_with_no_body_runs,
          a_second_exec_runs_again, body_ending_at_the_rams_end_runs, body_starting_at_the_rams_start_runs, header_in_the_last_16_bytes_of_the_ram_runs,
          name_in_a_folder_found_through_the_listing, name_matched_without_regard_to_case, direct_name_with_a_version_suffix, direct_name_in_a_folder,

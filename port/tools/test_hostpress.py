@@ -13,10 +13,10 @@ expected pixels from its own direct calls of the chip (Psyz_MdecCommand, Psyz_Md
 and the reader have their own tests, and this file is about the calls. NOTHING IS COMPARED WITH THE CONSOLE'S LIBRARY: the contract
 is the text of press.h, and the cases check that the calls do what it says.
 
-Groups: DecDCTvlc (layout, versions, null, broken frames, the RAM's end), DecDCTin (the four modes on two words, the count of
+Groups: DecDCTvlc (layout, versions, null, broken frames, the RAM's end, the wait for a transfer that is pending), DecDCTin (the four modes on two words, the count of
 words, each stop), DecDCTout (strips against the chip's pixels, 24 and 15 bits, the mask bit, odd word counts, too much, guards),
-the completion (due times, the poll, the timer's claim and delivery, once only, the routine that starts the next transfer, no
-routine, an output with a completion pending), DecDCTReset, DecDCToutCallback.
+the completion (due times, the poll, the timer's claim and delivery, once only, the routine that starts the next transfer and the
+ones taken in the same call, no routine, an output with a completion pending), DecDCTReset, DecDCToutCallback, the report's counts.
 
 Every case prints `ok NAME` or `FAIL NAME: why`; the last line is `all N cases behaved as required` or the number that did not.
 """
@@ -86,14 +86,25 @@ void port_halt(int status, const char *fmt, ...)
     va_start(ap, fmt);
     vprintf(fmt, ap);
     va_end(ap);
-    printf("\n");
+    printf("\nticks at the stop %u\n", ticks);
     fflush(stdout);
     exit(status);
 }
 
 static unsigned next_addr, next_words;
-static void cb_a(void) { printf("cb A t=%llu depth=%d\n", clock_us, port_handler_depth); }
+static unsigned watch;   /* not 0: cb A also prints the word it finds at this address */
+static void cb_a(void)
+{
+    printf("cb A t=%llu depth=%d\n", clock_us, port_handler_depth);
+    if (watch) printf("cb A sees %08x\n", *(unsigned *)(size_t)watch);
+}
 static int chain = -1;   /* how many more times cb B starts a transfer; below 0: always */
+static int inside;       /* what cb B does after it started the next: 1 the timer's claim (which the runtime's timer never makes
+                          * while a routine runs: the case is about what press.c does if it came), 2 the line of counts,
+                          * 3 DecDCTReset(1), 4 DecDCTReset(0), 5 DecDCToutCallback(0), 6 DecDCToutCallback(cb A),
+                          * 7 a wait of the clock (inside_arg microseconds pass), 8 DecDCTReset(1) and the frame at inside_arg
+                          * handed in again with its first transfer (once) */
+static unsigned inside_arg;
 static void cb_b(void)
 {
     printf("cb B t=%llu depth=%d\n", clock_us, port_handler_depth);
@@ -101,6 +112,20 @@ static void cb_b(void)
     if (chain > 0) chain--;
     port_DecDCTout((unsigned long *)next_addr, (int)next_words);
     printf("cb B started the next\n");
+    if (inside == 1) printf("claim inside %d\n", port_press_claim_due());
+    if (inside == 2) port_press_report("inside");
+    if (inside == 3) port_DecDCTReset(1);
+    if (inside == 4) port_DecDCTReset(0);
+    if (inside == 5) port_DecDCToutCallback(0);
+    if (inside == 6) port_DecDCToutCallback(cb_a);
+    if (inside == 7) clock_us += inside_arg;
+    if (inside == 8) {
+        port_DecDCTReset(1);
+        port_DecDCTin((unsigned long *)(size_t)inside_arg, 1);
+        port_DecDCTout((unsigned long *)next_addr, (int)next_words);
+        printf("cb B began the frame again\n");
+        inside = 0;
+    }
 }
 static char kind(void (*f)(void)) { return f == 0 ? '0' : f == cb_a ? 'A' : f == cb_b ? 'B' : '?'; }
 /* The runtime's check of an address before it is called: here it prints what it was asked about, and the order shows. */
@@ -253,6 +278,14 @@ int main(void)
             sscanf(line + at, "%x %d", &a, &w);
             port_DecDCTout((unsigned long *)(size_t)a, w);
             printf("out\n");
+        } else if (!strcmp(cmd, "inside")) {
+            inside_arg = 0;
+            sscanf(line + at, "%d %x", &inside, &inside_arg);
+        } else if (!strcmp(cmd, "watch")) {
+            sscanf(line + at, "%x", &watch);
+        } else if (!strcmp(cmd, "report")) {
+            sscanf(line + at, "%s", h);
+            port_press_report((const char *)h);
         } else if (!strcmp(cmd, "busy")) {
             printf("busy %d\n", port_press_out_busy() != 0);
         } else if (!strcmp(cmd, "poll")) {
@@ -789,6 +822,12 @@ def started(g):
     return [l for grp in g for l in grp if l == "cb B started the next"]
 
 
+def quiet_run(cmds):
+    """ok_run without the lines of the runtime's check of the routine's address (`target ...`, one before every call of a routine;
+    completion_checks_the_routines_address_before_calling_it is about those): what is left shows which command ran which routine."""
+    return [[l for l in grp if not l.startswith("target ")] for grp in ok_run(cmds)]
+
+
 @case
 def completion_not_taken_before_its_due_time():
     c = three()
@@ -939,25 +978,138 @@ def completion_due_time_does_not_hang_on_the_time_of_the_out_call():
 @case
 def completion_routine_starting_the_next_transfer_leaves_it_pending():
     c = three("B")
-    g = ok_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2) + 9}", "poll", "poll", f"time {due(2) + 9}", "poll"])
-    # the first poll takes completion 1 (due long past); B starts transfer 2 from inside; the second poll takes 2 (also past) and B
-    # starts 3, whose due time is still ahead; the third poll finds nothing due
-    return eq((len(cbs(g)), len(started(g))), (2, 2))
+    g = quiet_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2) + 9}", "poll", "busy", "poll", f"time {due(3) - 1}", "poll", "busy"])
+    # the first poll takes completion 1 (due long past); B starts transfer 2 from inside, whose due time is past too, so it is taken
+    # in the same call; B then starts 3, whose due time is still ahead: it stays pending, and the two later polls find nothing due
+    n = len(c) + 3
+    return eq(([len(cbs([x])) for x in g[n:]], len(started(g)), g[n + 1], g[n + 5]), ([2, 0, 0, 0, 0, 0], 2, ["busy 1"], ["busy 1"]))
 
 
 @case
-def completion_routine_starting_the_next_is_not_taken_in_the_same_call():
-    c = three("B")
-    g = ok_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(5)}", "poll"])
-    # the clock is past the due times of every strip, and one poll still runs the routine once (and the routine started the next)
-    return eq((len(cbs(g)), len(started(g))), (1, 1))
+def completion_poll_takes_every_one_already_due_in_the_same_call_and_no_other():
+    # Five strips; the routine always starts the next. At the due time of the third, one poll runs the routine three times (strips 1,
+    # 2, 3: each due by then), each with the depth raised by one and no more; the fourth, due 55 later, stays pending, is not taken
+    # a microsecond before its time and is taken at it, with the depth at one again (so it was lowered after the three).
+    c = three("B", nmb=5)
+    g = quiet_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(3)}", "poll", "busy", f"time {due(4) - 1}", "poll", "claim",
+                    f"time {due(4)}", "poll"])
+    n = len(c) + 3
+    want = [[f"cb B t={due(3)} depth=1", "cb B started the next"] * 3, ["busy 1"], [], [], ["claim 0"], [], [f"cb B t={due(4)} depth=1", "cb B started the next"]]
+    return eq(g[n:], want)
+
+
+@case
+def completion_started_by_the_routine_and_due_a_microsecond_later_is_not_taken_in_the_same_call():
+    c = three("B", nmb=4)
+    g = quiet_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2) - 1}", "poll", "busy", "claim", f"time {due(2)}", "poll"])
+    n = len(c) + 3
+    return eq(g[n:], [[f"cb B t={due(2) - 1} depth=1", "cb B started the next"], ["busy 1"], ["claim 0"], [],
+                      [f"cb B t={due(2)} depth=1", "cb B started the next"]])
+
+
+@case
+def completion_poll_takes_a_whole_frame_of_twenty_in_one_call_when_all_are_due():
+    c = three("B", nmb=20)
+    g = quiet_run(c + ["chain 19", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(20)}", "poll", "busy", "report x"])
+    n = len(c) + 4
+    return eq(g[n:], [[f"cb B t={due(20)} depth=1", "cb B started the next"] * 19 + [f"cb B t={due(20)} depth=1"], ["busy 0"],
+                      ["decoder: program x: 1 frames, 20 transfers, 20 completions taken, 0 dropped by a reset"]])
+
+
+@case
+def completion_claimed_from_inside_the_routine_is_left_to_the_delivery():
+    # The runtime's timer claims only where an interruption is allowed, never while a routine runs. If a claim came there all the
+    # same (the routine here makes it, after it started the next transfer, whose due time has passed): the call that runs the
+    # routine does not take the claimed completion; it stays claimed, and the delivery takes it, once.
+    c = three("B", nmb=4)
+    g = quiet_run(c + ["chain 1", "inside 1", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2)}", "poll", "busy", "poll", "claim",
+                       "deliver", "busy", "deliver"])
+    n = len(c) + 5
+    return eq(g[n:], [[f"cb B t={due(2)} depth=1", "cb B started the next", "claim inside 1"], ["busy 1"], [], ["claim 0"], [f"cb B t={due(2)} depth=1"],
+                      ["busy 0"], []])
+
+
+def inside_case(what, more=()):
+    """Four strips, the clock past every due time, one poll; the routine starts the next transfer and then does `what`."""
+    c = three("B", nmb=4)
+    cmds = c + [f"inside {what}", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(9)}", "poll", "busy"] + list(more)
+    return quiet_run(cmds)[len(c) + 4:]
+
+
+@case
+def completion_routine_that_resets_the_decoder_ends_the_call_with_nothing_pending():
+    # the routine starts the next transfer and resets the decoder (mode 1, then mode 0): the transfer's completion is dropped by
+    # the reset and counted there, the call ends, nothing is pending, and no later poll or claim takes anything
+    for mode, resets in ((3, 0), (4, 1)):
+        g = inside_case(mode, ["poll", "claim", "report x"])
+        bad = eq(g, [[f"cb B t={due(9)} depth=1", "cb B started the next"], ["busy 0"], [], ["claim 0"],
+                     ["decoder: program x: 1 frames, 2 transfers, 1 completions taken, 1 dropped by a reset"]])
+        if bad:
+            return f"inside {mode}: {bad}"
+    return None
+
+
+@case
+def completion_routine_that_removes_the_routine_has_the_next_one_dropped_in_the_same_call():
+    # the routine starts the next transfer (due already) and registers no routine: that completion is taken in the same call, where
+    # it is dropped for want of a routine and counted as taken; nothing is pending
+    g = inside_case(5, ["report x"])
+    return eq(g, [[f"cb B t={due(9)} depth=1", "cb B started the next"], ["busy 0"],
+                  ["decoder: program x: 1 frames, 2 transfers, 2 completions taken, 0 dropped by a reset"]])
+
+
+@case
+def completion_routine_that_registers_another_has_that_one_called_for_the_next():
+    g = inside_case(6)
+    return eq(g, [[f"cb B t={due(9)} depth=1", "cb B started the next", f"cb A t={due(9)} depth=1"], ["busy 0"]])
+
+
+@case
+def completion_routine_in_which_time_passes_has_the_clock_read_again():
+    # the clock stands a microsecond before the second strip's due time when the poll is made; inside the routine one microsecond
+    # passes (every time it runs): the second completion is due then and is taken in the same call, at the new clock; the third is
+    # due 55 later and stays
+    c = three("B", nmb=4)
+    g = quiet_run(c + ["inside 7 1", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2) - 1}", "poll", "busy"])
+    return eq(g[len(c) + 4:], [[f"cb B t={due(2) - 1} depth=1", "cb B started the next", f"cb B t={due(2)} depth=1", "cb B started the next"], ["busy 1"]])
+
+
+@case
+def completion_routine_that_begins_the_frame_again_gets_the_new_frames_due_time():
+    # the routine starts the next transfer, resets the decoder, hands the frame in again (at the clock of the call) and starts its
+    # first transfer: that one is due 55 after the new input, so the call ends although the old frame's due times are all past
+    c = three("B", nmb=4)
+    t = due(9)
+    g = quiet_run(c + [f"inside 8 {IN:x}", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {t}", "poll", "busy", f"time {t + US - 1}", "poll",
+                       "claim", f"time {t + US}", "poll", "report x"])
+    return eq(g[len(c) + 4:], [[f"cb B t={t} depth=1", "cb B started the next", "cb B began the frame again"], ["busy 1"], [], [], ["claim 0"], [],
+                               [f"cb B t={t + US} depth=1", "cb B started the next"],
+                               ["decoder: program x: 2 frames, 4 transfers, 2 completions taken, 1 dropped by a reset"]])
+
+
+@case
+def completion_routine_that_starts_none_ends_the_call():
+    # the routine of the second strip starts no third: the call ends there although the clock is past every due time, and nothing
+    # is pending after it
+    c = three("B", nmb=4)
+    g = quiet_run(c + ["chain 1", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(9)}", "poll", "busy", "poll", "claim"])
+    n = len(c) + 4
+    return eq(g[n:], [[f"cb B t={due(9)} depth=1", "cb B started the next", f"cb B t={due(9)} depth=1"], ["busy 0"], [], ["claim 0"]])
 
 
 @case
 def completion_routine_that_starts_the_next_by_the_timers_delivery():
+    # Four strips; the routine starts the next three times. The timer claims at the due time of the second: the delivery runs the
+    # routine for the first and, in the same call, for the second (started from inside, due by then); the third stays pending and
+    # is not claimed before its time. At the due time of the fourth the timer claims the third, and the delivery takes it and the
+    # fourth; that one's routine starts nothing.
     c = three("B", nmb=4)
-    g = ok_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(5)}", "claim", "deliver", "poll", "claim", "deliver"])
-    return eq((claims(g), len(cbs(g)), len(started(g))), (["claim 1", "claim 1"], 3, 3))
+    g = quiet_run(c + ["chain 3", f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(2)}", "claim", "deliver", "claim", f"time {due(4)}",
+                    "claim", "deliver", "claim", "busy"])
+    n = len(c) + 4
+    one = [f"cb B t={due(2)} depth=1", "cb B started the next"]
+    two = [f"cb B t={due(4)} depth=1", "cb B started the next", f"cb B t={due(4)} depth=1"]
+    return eq(g[n:], [["claim 1"], one * 2, ["claim 0"], [], ["claim 1"], two, ["claim 0"], ["busy 0"]])
 
 
 @case
@@ -1047,6 +1199,181 @@ def completion_out_inside_the_routine_is_a_new_transfer_not_a_stop():
     # the routine's own DecDCTout finds no completion pending (the state was cleared first), so it is a new transfer and not a stop,
     # although interruptions are not allowed there
     return eq((cbs(g), len(started(g))), ([f"cb B t={due(1)} depth=1"], 1))
+
+
+# ---- DecDCTvlc with an output transfer pending ----------------------------------------------------------------------------
+
+def vlc_pending(mode_cb="A", nmb=3, before=(), version=2):
+    """Commands: a frame handed in at 1000 and its first strip started (due at 1055), then DecDCTvlc of another frame, with the count
+    of ticks before and after. Returns (commands, index of the `ticks` before, the bitstream)."""
+    c = three(mode_cb, nmb=nmb)
+    fb = frame(2, 4, 3)
+    if version not in (1, 2, 3):
+        fb = fb[:6] + version.to_bytes(2, "little") + fb[8:]
+    cmds = c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"fill {BUFV:x} 2000 a5", f"put {BS:x} {fb.hex()}"] + list(before)
+    return cmds + ["ticks", f"vlc {BS:x} {BUFV:x}", "ticks", "busy", f"get {BUFV:x} 2000"], len(cmds), fb
+
+
+@case
+def vlc_with_a_transfer_pending_returns_after_its_routine_ran_at_the_due_time():
+    # each tick adds 10 to the clock: from 1000 the first at or after the due time 1055 is the sixth, at 1060. The routine runs
+    # there, inside the call, and the call's output is what it is with nothing pending.
+    cmds, n, fb = vlc_pending("A")
+    g = quiet_run(cmds)
+    rc, used, codes = refvlc(fb)
+    want = fb[:4] + codes + b"\x00\xfe" * 64 + b"\xa5" * (0x2000 - 4 - len(codes) - 128)
+    return eq((g[n], g[n + 1], g[n + 2], g[n + 3], getbytes(g[n + 4][0]) == want),
+              (["ticks 0 t=1000"], [f"cb A t={due(1) + 5} depth=1", "vlc 0"], [f"ticks 6 t={due(1) + 5}"], ["busy 0"], True))
+
+
+@case
+def vlc_with_a_transfer_pending_has_written_its_output_when_the_routine_runs():
+    # the routine reads the word after the two header halfwords: it finds the frame's first codes there, not the filler
+    cmds, n, fb = vlc_pending("A", before=[f"watch {BUFV + 4:x}"])
+    g = quiet_run(cmds)
+    rc, used, codes = refvlc(fb)
+    return eq(g[n + 1], [f"cb A t={due(1) + 5} depth=1", f"cb A sees {int.from_bytes(codes[:4], 'little'):08x}", "vlc 0"])
+
+
+@case
+def vlc_with_a_transfer_pending_is_never_early_whatever_the_ticks_step():
+    got = []
+    for step in (7, 100, 1):
+        cmds, n, fb = vlc_pending("A", before=[f"step {step}"])
+        g = quiet_run(cmds)
+        got.append(g[n + 1])
+    return eq(got, [[f"cb A t={1000 + 56} depth=1", "vlc 0"], [f"cb A t={1000 + 100} depth=1", "vlc 0"], [f"cb A t={due(1)} depth=1", "vlc 0"]])
+
+
+@case
+def vlc_with_nothing_pending_does_not_tick():
+    fb = frame(2, 4, 3)
+    g = quiet_run([f"put {BS:x} {fb.hex()}", "ticks", f"vlc {BS:x} {BUFV:x}", "ticks"])
+    bad = eq((g[1], g[2], g[3]), (["ticks 0 t=0"], ["vlc 0"], ["ticks 0 t=0"]))
+    if bad:
+        return "before any frame: " + bad
+    # and after a transfer whose completion was taken
+    c = three("A")
+    g = quiet_run(c + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "poll", f"put {BS:x} {fb.hex()}", "ticks", f"vlc {BS:x} {BUFV:x}", "ticks"])
+    return eq(g[-3:], [[f"ticks 0 t={due(1)}"], ["vlc 0"], [f"ticks 0 t={due(1)}"]])
+
+
+@case
+def vlc_waits_for_one_completion_and_not_for_the_frames_other_transfers():
+    # the routine starts the next transfer, due 55 later: the call returns with that one pending
+    cmds, n, fb = vlc_pending("B", nmb=4)
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], [f"cb B t={due(1) + 5} depth=1", "cb B started the next", "vlc 0"], [f"ticks 6 t={due(1) + 5}"], ["busy 1"]])
+
+
+@case
+def vlc_returns_after_the_ones_taken_in_the_same_call():
+    # a tick of 200 lands past the due times of three strips: the three routines run in the one tick, the fourth stays pending
+    cmds, n, fb = vlc_pending("B", nmb=5, before=["step 200"])
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], [f"cb B t=1200 depth=1", "cb B started the next"] * 3 + ["vlc 0"], ["ticks 1 t=1200"], ["busy 1"]])
+
+
+@case
+def vlc_with_a_transfer_pending_where_no_interruption_is_allowed_does_not_wait():
+    cmds, n, fb = vlc_pending("A", before=["allowed 0"])
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], ["vlc 0"], ["ticks 0 t=1000"], ["busy 1"]])
+
+
+@case
+def vlc_with_a_transfer_the_timer_has_claimed_waits_until_it_is_delivered():
+    # the state "claimed" is a completion on its way as well: the call ticks, and the driver's tick, which only polls, never takes
+    # a claimed one, so the call ends in the stop of the clock's limit; with the delivery made first, the call does not tick
+    c = three("A")
+    fb = frame(2, 4, 3)
+    head = c + [f"out {OUT:x} {STRIP}", f"put {BS:x} {fb.hex()}", f"time {due(1)}", "claim"]
+    bad = stops(head + [f"vlc {BS:x} {BUFV:x}"], "DecDCTvlc", "did not come")
+    if bad:
+        return "claimed and not delivered: " + bad
+    g = quiet_run(head + ["deliver", "ticks", f"vlc {BS:x} {BUFV:x}", "ticks"])
+    return eq(g[-4:], [[f"cb A t={due(1)} depth=1"], [f"ticks 0 t={due(1)}"], ["vlc 0"], [f"ticks 0 t={due(1)}"]])
+
+
+@case
+def vlc_with_a_transfer_pending_and_no_routine_ends_when_the_completion_is_dropped():
+    cmds, n, fb = vlc_pending(None)
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], ["vlc 0"], [f"ticks 6 t={due(1) + 5}"], ["busy 0"]])
+
+
+@case
+def vlc_unknown_version_does_not_wait():
+    cmds, n, fb = vlc_pending("A", version=9)
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], ["vlc -1"], ["ticks 0 t=1000"], ["busy 1"]])
+
+
+@case
+def vlc_with_a_transfer_pending_and_a_clock_that_stands_still_stops():
+    cmds, n, fb = vlc_pending("A", before=["step 0"])
+    bad = stops(cmds, "DecDCTvlc", "did not come", "100000 ticks")
+    if bad:
+        return bad
+    st, groups, rest = run(cmds)
+    return eq(rest[1:], ["ticks at the stop 100000"])
+
+
+@case
+def vlc_wait_is_not_changed_by_a_line_of_counts_printed_inside_the_routine():
+    # the routine prints the line of counts (which begins the counts again) after it started the next transfer: the call still
+    # returns after this one completion, with the next pending
+    cmds, n, fb = vlc_pending("B", nmb=4, before=["inside 2"])
+    g = quiet_run(cmds)
+    return eq(g[n:n + 4], [["ticks 0 t=1000"], [f"cb B t={due(1) + 5} depth=1", "cb B started the next",
+                                                "decoder: program inside: 1 frames, 2 transfers, 1 completions taken, 0 dropped by a reset", "vlc 0"],
+                           [f"ticks 6 t={due(1) + 5}"], ["busy 1"]])
+
+
+@case
+def vlc_stops_of_the_call_come_before_any_wait():
+    # a null bitstream with a transfer pending: the stop, and no tick before it (a tick would print the routine's line at 1060)
+    c = three("A")
+    st, groups, rest = run(c + [f"out {OUT:x} {STRIP}", f"vlc 0 {BUFV:x}"])
+    line = rest[0] if rest else ""
+    if st != STATUS or not line.startswith("stop: DecDCTvlc:") or "null" not in line:
+        return f"status {st}, line {line!r}"
+    return None
+
+
+# ---- the report -----------------------------------------------------------------------------------------------------------
+
+def report_of(g):
+    return [l for grp in g for l in grp if l.startswith("decoder:")]
+
+
+@case
+def report_counts_frames_transfers_completions_and_resets_and_begins_again():
+    fb = frame(2, 3, 1)
+    again = [f"mkin {IN:x} {fb.hex()}", f"in {IN:x} 1"]
+    c = three("A")                                                           # frame 1
+    cmds = c + [f"out {OUT:x} {STRIP}", f"time {due(1)}", "poll",              # transfer 1, taken by the poll
+                f"out {OUT:x} {STRIP}", f"time {due(2)}", "claim", "deliver",  # transfer 2, taken by the timer's delivery
+                f"out {OUT:x} {STRIP}", "reset 1",                             # transfer 3, pending: dropped by the reset
+                "reset 1",                                                     # nothing pending: not counted
+                "time 3000"] + again + ["reset 1",                             # frame 2, no transfer; nothing pending at the reset
+                "time 5000"] + again + [                                       # frame 3
+                f"out {OUT:x} {STRIP}", "time 5055", "claim", "reset 0",       # transfer 4, claimed: dropped by the reset
+                "time 9000"] + again + [                                       # frame 4
+                "cb 0", f"out {OUT:x} {STRIP}", "time 9055", "poll",           # transfer 5, no routine: taken (dropped for want of one)
+                f"out {OUT:x} {STRIP}",                                        # transfer 6, pending when the line is printed
+                "report alpha", "report beta", "time 9110", "poll", "report gamma"]
+    g = ok_run(cmds)
+    return eq(report_of(g), ["decoder: program alpha: 4 frames, 6 transfers, 3 completions taken, 2 dropped by a reset",
+                             "decoder: program beta: 0 frames, 0 transfers, 0 completions taken, 0 dropped by a reset",
+                             "decoder: program gamma: 0 frames, 0 transfers, 1 completions taken, 0 dropped by a reset"])
+
+
+@case
+def report_counts_the_completions_taken_in_one_call_each():
+    c = three("B", nmb=5)
+    g = ok_run(c + [f"next {OUT + 0x1000:x} {STRIP}", f"out {OUT:x} {STRIP}", f"time {due(3)}", "poll", "report x"])
+    return eq(report_of(g), ["decoder: program x: 1 frames, 4 transfers, 3 completions taken, 0 dropped by a reset"])
 
 
 # ---- DecDCTReset ----------------------------------------------------------------------------------------------------------

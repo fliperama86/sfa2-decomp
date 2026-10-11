@@ -811,10 +811,11 @@ int port_gpu_read_frame(unsigned short *pixels)
     for (i = 0; i < 1024 * 512; i++) pixels[i] = (unsigned short)((i * 7) & 0x7fff);
     return 0;
 }
-/* press.c is not part of this rig's runtime: kernel.c's three calls into it get these stand-ins */
+/* press.c is not part of this rig's runtime: kernel.c's three calls into it and programs.c's one get these stand-ins */
 void port_press_poll(void) {}
 int port_press_claim_due(void) { return 0; }
 void port_press_deliver_claimed(void) {}
+void port_press_report(const char *program) { (void)program; }
 """
 
 
