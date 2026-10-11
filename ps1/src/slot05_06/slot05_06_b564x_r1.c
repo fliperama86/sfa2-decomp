@@ -47,7 +47,7 @@ void func_801cb564_slot05_06(Object *obj) {
         func_80130efc(obj);
         return;
     }
-    /* Stand-in, not recovered source: the test of kind against 2 written a second time, which is never true here, reproduces the original's instructions at this place (a branch, a store and a call that never run). Without it this function differs from the original in 19 instruction slots. */
+    /* Stand-in, not recovered source: the test of kind against 2 written a second time, which is never true here, reproduces the original's order of instructions. Without it this function differs from the original in 19 instruction slots. */
     /* The tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to field_63 and `jal func_80146960`. The bytes do not say which condition the source had. */
     if (kind == 2) {
         game_state.field_63 = 0x18;
