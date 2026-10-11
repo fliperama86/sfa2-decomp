@@ -10,6 +10,6 @@ void func_801b364c_slot04_05(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
     }
     if (*(u8 *)&obj->step_flags != 2) {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

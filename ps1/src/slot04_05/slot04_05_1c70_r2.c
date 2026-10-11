@@ -13,7 +13,7 @@ void func_801b1d94_slot04_05(Object *o) {
             }
         }
         if (*(u8 *)&o->step_flags != 2) {
-            func_80130efc(o);
+            update_sequence(o);
         }
     } else {
         o->state_3 += 3;

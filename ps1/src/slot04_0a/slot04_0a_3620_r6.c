@@ -36,13 +36,13 @@ void func_801b3cd0_slot04_0a(Object *obj) {
         obj->accel_x = v;
         obj->vel_y = 0;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3da8_slot04_0a(Object *obj) {
     func_801b3e00_slot04_0a(obj);
     if (obj->pos_y < obj->field_70) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_80131638(obj);
     }

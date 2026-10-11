@@ -15,7 +15,7 @@ void func_801b3220_slot04_10(Object *obj);
 void func_801b2f98_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b1078_slot04_10(obj);
     }

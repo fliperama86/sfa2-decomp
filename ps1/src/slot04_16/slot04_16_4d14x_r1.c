@@ -8,7 +8,7 @@ extern u8 data_801ca3fc_slot04_16[];
 void func_801b4d14_slot04_16(Object *obj) {
     s16 i;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         i = 0;
         obj->state_3++;

@@ -9,11 +9,11 @@ void func_801b0fec_slot04_07(Object *obj) {
     int limit;
 
     if (func_801b41c4_slot04_07(obj) >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         limit = obj->field_70;
         if (limit > obj->pos_y) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             obj->state_3 = 1;
             obj->pos_y = limit;

@@ -9,9 +9,9 @@ void func_801b1e40_slot04_07(Object *obj) {
     int k;
 
     if (((Slot04aObj *)obj)->field_3a != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else if (func_801b41c4_slot04_07(obj) >= 0 || (k = obj->field_70) > obj->pos_y) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = k;

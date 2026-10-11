@@ -35,7 +35,7 @@ void func_801b304c_slot04_0e(Object *o) {
     } else if (o->field_70 < o->pos_y) {
         func_801b2f58_slot04_0e(o);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
@@ -45,14 +45,14 @@ void func_801b30fc_slot04_0e(Object *obj) {
     if (obj->field_70 < obj->pos_y) {
         func_801b2f58_slot04_0e(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b3160_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_28a = 0;
         func_801312b8(obj);

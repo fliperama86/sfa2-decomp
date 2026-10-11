@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* What it does (inferred, not an original name): a state of a character that is struck or held by the other object. It stores the other object (field_40) in ref_other. When the low byte of step_flags is not 0 it clears that byte, makes a sound, calls func_80146478 and func_80140cd8 (with 8 the first time field_1cf is 0, which then becomes 0xff, otherwise 0). If func_80140cd8 returns a nonzero byte it calls func_80140770, sounds 0x340 for the other object and goes to the advance. Otherwise it adds 1 to field_46 and sounds 0x30b. Then (and when the low byte of step_flags was 0) it calls func_80140fe0; if field_46 is 0 it hands over to func_80130efc; otherwise it reloads ref_other from field_40 and advances when the other object's field_15b is 0 or func_801410c8 returns a nonzero byte, else hands over to func_80130efc. The advance adds 1 to state_3, sounds 0x30d for the other object and starts sequence 0x41. */
+/* What it does (inferred, not an original name): a state of a character that is struck or held by the other object. It stores the other object (field_40) in ref_other. When the low byte of step_flags is not 0 it clears that byte, makes a sound, calls func_80146478 and func_80140cd8 (with 8 the first time field_1cf is 0, which then becomes 0xff, otherwise 0). If func_80140cd8 returns a nonzero byte it calls func_80140770, sounds 0x340 for the other object and goes to the advance. Otherwise it adds 1 to field_46 and sounds 0x30b. Then (and when the low byte of step_flags was 0) it calls func_80140fe0; if field_46 is 0 it hands over to update_sequence; otherwise it reloads ref_other from field_40 and advances when the other object's field_15b is 0 or func_801410c8 returns a nonzero byte, else hands over to update_sequence. The advance adds 1 to state_3, sounds 0x30d for the other object and starts sequence 0x41. */
 void func_801b37b0_slot04_03(Object *obj) {
     /* Stand-in, not recovered source: the local r, which holds the address of ref_other and is set again in three places (the original keeps it in a register of its own), reproduces the original's choice of registers. Without it this function differs from the original in 53 instruction slots. */
     ObjectRef *r;
@@ -74,7 +74,7 @@ tail:
     func_801307e0(obj, 0x41);
     return;
 idle:
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 

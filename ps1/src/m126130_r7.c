@@ -8,7 +8,7 @@ void func_8012abf0(Object *object) {
         if ((s16)object->step_flags < 0)
             func_801312b8(object);
         else
-            func_80130efc(object);
+            update_sequence(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);
     } else if ((u8)func_8012f898(object)) {
@@ -16,7 +16,7 @@ void func_8012abf0(Object *object) {
     } else if (func_8012f970(object)) {
         func_8012fe60(object);
     } else if ((s16)object->step_flags >= 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else if ((u8)func_8012f618(object)) {
         func_8012f6a0(object);
     } else {
@@ -30,7 +30,7 @@ void func_8012acf4(Object *object) {
             object->state_3 = 1;
             object->field_159 = 0;
         }
-        func_80130efc(object);
+        update_sequence(object);
         if (object->kind == 0xb) {
             if ((object->step_flags & 0xff) != 0) {
                 object->step_flags = object->step_flags & 0xff00;
@@ -62,7 +62,7 @@ void func_8012ae00(Object *object) {
         } else {
             if (func_8012f970(object) == 0)
                 object->state_3 = 1;
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else {
         object->pos_y = object->field_70;

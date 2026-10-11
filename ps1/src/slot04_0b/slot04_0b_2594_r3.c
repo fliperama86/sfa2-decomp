@@ -17,7 +17,7 @@ void func_801b28c0_slot04_0b(Object *obj) {
         obj->accel_y = data_801c260c_slot04_0b[k + 2];
         obj->field_45 = 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b296c_slot04_0b(Object *obj) {
@@ -35,5 +35,5 @@ void func_801b296c_slot04_0b(Object *obj) {
         obj->accel_x = 0;
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

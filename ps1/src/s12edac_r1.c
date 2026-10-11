@@ -18,7 +18,7 @@ void func_8012edac(Object *object) {
         if (object->field_12a != 0) {
             *(s32 *)&object->pos_x_frac += object->vel_x;
         }
-        func_80130efc(object);
+        update_sequence(object);
     }
 }
 
@@ -30,7 +30,7 @@ void func_8012ee3c(Object *object) {
     if ((u8)old == 0) {
         object->state_2 = 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_8012ee7c(Object *object) {

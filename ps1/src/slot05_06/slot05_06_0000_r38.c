@@ -11,7 +11,7 @@ void func_801cb134_slot05_06(Object *obj) {
         obj->state_3++;
         ((Slot04aObj *)obj)->field_1c3 = 0x10;
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -26,6 +26,6 @@ go:
         obj->state_3++;
         obj->field_45 = 0;
         obj->pos_y = obj->field_70;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

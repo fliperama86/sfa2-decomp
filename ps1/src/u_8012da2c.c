@@ -14,7 +14,7 @@ void func_8012da2c(Object *object)
   u8 index;
   if (((s16) object->step_flags) >= 0)
   {
-    func_80130efc(object);
+    update_sequence(object);
     return;
   }
   if (object->field_163 == 0)

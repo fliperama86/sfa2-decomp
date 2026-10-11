@@ -18,7 +18,7 @@ void func_801ca568_slot05_06(Object *obj) {
         func_80140cd8(obj, *(s16 *)(data_801dd404_slot05_06 + (obj->field_12a & 0xfe)), 0);
         func_801307e0(obj, 0x23);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -28,5 +28,5 @@ void func_801ca610_slot05_06(Object *o) {
         ((Slot04aObj *)o)->field_1c8 = 0;
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

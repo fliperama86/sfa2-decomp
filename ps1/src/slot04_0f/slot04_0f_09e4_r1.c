@@ -56,7 +56,7 @@ void func_801b0ac8_slot04_0f(Object *obj) {
     }
     obj->vel_x = x;
     obj->accel_x = y;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0b30_slot04_0f(Object *obj) {
@@ -64,7 +64,7 @@ void func_801b0b30_slot04_0f(Object *obj) {
         obj->state_3++;
         func_80120554(obj, obj->side, 0x324);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0b80_slot04_0f(Object *obj) {
@@ -74,7 +74,7 @@ void func_801b0b80_slot04_0f(Object *obj) {
         obj->state_3++;
         func_801307e0(obj, (obj->field_12a >> 1) + 0x36);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -82,7 +82,7 @@ void func_801b0bf0_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

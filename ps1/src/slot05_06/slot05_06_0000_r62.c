@@ -10,7 +10,7 @@ void func_801cd524_slot05_06(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -45,5 +45,5 @@ void func_801cd640_slot05_06(Object *obj) {
         }
         obj->pos_x = d + obj->pos_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

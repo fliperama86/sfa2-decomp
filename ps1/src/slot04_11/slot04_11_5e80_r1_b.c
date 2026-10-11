@@ -79,7 +79,7 @@ void func_801b61c4_slot04_11(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
         func_801b6628_slot04_11(obj);
     }
 }
@@ -106,7 +106,7 @@ void func_801b62d8_slot04_11(Object *obj) {
     if (func_80149b80(obj) & 0xff) {
         obj->state_3 = 0;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
     func_801b6628_slot04_11(obj);
 }
 
@@ -123,7 +123,7 @@ void func_801b633c_slot04_11(Object *obj) {
         func_801209c4(obj);
         func_801b66ec_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

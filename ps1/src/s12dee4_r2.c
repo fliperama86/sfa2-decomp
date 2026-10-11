@@ -15,7 +15,7 @@ void func_8012e04c(Object *object) {
 
     if ((u8)func_80130184(object)) {
         if (value < 0) {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else {
         a1 = 1;

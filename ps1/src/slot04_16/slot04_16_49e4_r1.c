@@ -17,7 +17,7 @@ void func_801b4b08_slot04_16(Object *object);
 
 void func_801b49e4_slot04_16(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->pos_y = obj->field_70;
@@ -34,7 +34,7 @@ void func_801b4a54_slot04_16(Object *obj) {
         func_801b10b0_slot04_16(obj);
     } else {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -43,7 +43,7 @@ void func_801b4ac4_slot04_16(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = 8;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4b08_slot04_16(Object *obj) {
@@ -94,5 +94,5 @@ void func_801b4c90_slot04_16(Object *obj) {
         func_801483a4(obj, -0x24, 0x2b);
         func_80120554(obj, obj->side, 0x31c);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

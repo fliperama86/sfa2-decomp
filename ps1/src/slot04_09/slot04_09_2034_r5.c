@@ -11,7 +11,7 @@ void func_801b2548_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
     if (obj->vel_y >= 0 && (s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_0b ^= 1;
@@ -25,7 +25,7 @@ void func_801b25cc_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         o = obj->other;

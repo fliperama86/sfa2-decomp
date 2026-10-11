@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b5290_slot04_02(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->step_flags = obj->step_flags & 0xff00;
@@ -30,6 +30,6 @@ void func_801b531c_slot04_02(Object *obj) {
         obj->accel_y = -0x9000;
         func_801307e0(obj, 0x58);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

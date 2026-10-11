@@ -42,7 +42,7 @@ void func_801b5b80_slot04_14(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0xf, 0, 1, 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5be4_slot04_14(Object *obj) {
@@ -50,7 +50,7 @@ void func_801b5be4_slot04_14(Object *obj) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -85,7 +85,7 @@ void func_801b5d34_slot04_14(Object *obj) {
         obj->field_45 = 1;
         obj->state_3 = obj->state_3 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5d74_slot04_14(Object *obj) {
@@ -133,7 +133,7 @@ void func_801b5f10_slot04_14(Object *obj) {
     if (game_state.field_64 == 0 && game_state.field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5f60_slot04_14(Object *obj) {
@@ -159,7 +159,7 @@ void func_801b5fe8_slot04_14(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b608c_slot04_14(Object *obj) {
@@ -170,7 +170,7 @@ void func_801b60cc_slot04_14(Object *obj) {
     if (game_state.field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b6108_slot04_14(Object *obj) {
@@ -193,7 +193,7 @@ void func_801b6160_slot04_14(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b61c4_slot04_14(Object *object) {

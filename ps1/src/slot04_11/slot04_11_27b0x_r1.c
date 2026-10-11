@@ -90,6 +90,6 @@ act_c:
         obj->accel_y = vw;
         func_801307e0(obj, d + obj->field_12a);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

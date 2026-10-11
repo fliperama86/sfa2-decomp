@@ -32,16 +32,16 @@ void func_80129da8(Object *object) {
                 } else if ((u8)func_8012f7c0(object)) {
                     func_8012f838(object);
                 } else {
-                    func_80130efc(object);
+                    update_sequence(object);
                 }
             } else {
-                func_80130efc(object);
+                update_sequence(object);
             }
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else {
-        func_80130efc(object);
+        update_sequence(object);
     }
 }
 

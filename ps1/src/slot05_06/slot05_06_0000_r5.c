@@ -34,12 +34,12 @@ void func_801c8598_slot05_06(Object *obj) {
         }
         obj->pos_x = d + obj->pos_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801c85f0_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

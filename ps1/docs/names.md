@@ -41,8 +41,8 @@ Three rules keep the names honest:
 | --- | --- | --- | --- |
 | `0x04` to `0x07` | `state_0` to `state_3` | Four bytes, each used as an index into tables of functions, stepped by one or set to a constant. They are numbered by offset; which of them is the outer one is not claimed. | `func_801312b8` sets the four; `func_80131020` reads them as one word |
 | `0x10`, `0x14` | `pos_x_frac`, `pos_y_frac` | The low half of the 32-bit word whose high half is `pos_x` or `pos_y`. The code takes the address of this half to add a velocity to the whole word. | any character unit that moves its object |
-| `0x38` | `step_timer` | Set from the `duration` of the current step of the object's `sequence` and counted down; when it reaches zero the next step is taken. | `func_80130f2c` |
-| `0x3a` | `step_flags` | A copy of the current step's `flags`. A negative value makes the sequence continue at the step's `loop_offset`; other bits are tested and cleared by the units. | `func_80130f2c`, `func_801307e0` |
+| `0x38` | `step_timer` | Set from the `duration` of the current step of the object's `sequence` and counted down; when it reaches zero the next step is taken. | `advance_sequence` |
+| `0x3a` | `step_flags` | A copy of the current step's `flags`. A negative value makes the sequence continue at the step's `loop_offset`; other bits are tested and cleared by the units. | `advance_sequence`, `func_801307e0` |
 | `0x4c`, `0x50` | `vel_x`, `vel_y` | A 32-bit word that is added to, or taken from, the position word of its axis. | any character unit that moves its object |
 | `0x54`, `0x58` | `accel_x`, `accel_y` | A 32-bit word that is added to the velocity of its axis. | the same units |
 

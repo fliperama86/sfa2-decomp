@@ -10,7 +10,7 @@ void func_801b2bf0_slot04_09(Object *obj) {
     func_801b2d6c_slot04_09(obj);
     func_801b2858_slot04_09(obj);
     if (obj->pos_y < obj->field_70) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
@@ -35,7 +35,7 @@ void func_801b2c90_slot04_09(Object *obj) {
         func_801312b8(obj);
     } else {
         func_801b2d6c_slot04_09(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -48,6 +48,6 @@ void func_801b2d08_slot04_09(Object *obj) {
         obj->state_3 = 0;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

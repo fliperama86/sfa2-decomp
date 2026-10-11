@@ -12,7 +12,7 @@ void func_801b2cec_slot04_08(Object *obj);
 void func_801b2bf8_slot04_08(Object *obj) {
     u16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
@@ -57,5 +57,5 @@ void func_801b2cec_slot04_08(Object *obj) {
         obj->field_46 = 0;
         func_801b4298_slot04_08(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

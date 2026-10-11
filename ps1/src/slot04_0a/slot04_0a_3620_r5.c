@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b3ba0_slot04_0a(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 2) {
         obj->state_3++;
         obj->field_0b ^= 1;
@@ -16,6 +16,6 @@ void func_801b3bf0_slot04_0a(Object *obj) {
         obj->field_73 = 0;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

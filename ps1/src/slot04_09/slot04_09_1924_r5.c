@@ -22,7 +22,7 @@ void func_801b1ea0_slot04_09(Object *obj) {
             func_801204f4(obj, obj->side, 5);
             func_80120554(obj, obj->side ^ 1, 0x31a);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3 = 7;
@@ -41,6 +41,6 @@ void func_801b1fb0_slot04_09(Object *obj) {
         obj->vel_y >>= 1;
         obj->accel_y >>= 1;
         obj->state_3++;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

@@ -37,7 +37,7 @@ void func_801b1a54_slot04_00(Object *o) {
     *(s32 *)&o->pos_y_frac = *(s32 *)&o->pos_y_frac - o->vel_y;
     o->vel_y = o->vel_y + o->accel_y;
     if (o->vel_y >= 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->state_3++;
         func_80120554(o, o->side, 0x320);

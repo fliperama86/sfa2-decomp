@@ -10,7 +10,7 @@ extern ObjectFn data_801dd368_slot05_06[];
 void func_801c9ad4_slot05_06(Object *o) {
     Object *p;
     if ((s16)o->step_flags >= 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         p = o->other;
         p->field_15b = 1;

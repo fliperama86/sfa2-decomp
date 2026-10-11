@@ -21,7 +21,7 @@
  * accel_x -0x4000; in both cases vel_y 0x38000 and accel_y -0x4000),
  * and calls func_801204f4, func_80141f28 and func_80138ae8. Then,
  * also when no bit was set or vel_y was too large, it calls
- * func_80130efc.
+ * update_sequence.
  *
  * Contract (what the code reads and writes):
  *   Argument: a0 = pointer to an object (0x394 bytes). No return value.
@@ -36,7 +36,7 @@
  *     value), func_801b30a0_slot04_0a (1), func_801307e0 (2, the second
  *     under a 16-bit mask), func_801204f4 (3, the second and third under
  *     8-bit masks), func_80141f28 (2), func_80138ae8 (2, the
- *     address of game_state and the object), func_80130efc (1); all return 0
+ *     address of game_state and the object), update_sequence (1); all return 0
  *     except the first. The log watches the whole object and the whole
  *     opponent object, so that a field written after a call instead of
  *     before it is a difference.
@@ -95,5 +95,5 @@ void func_801b2f1c_slot04_0a(Object *obj) {
         func_80138ae8(&game_state, obj);
     }
 end:
-    func_80130efc(obj);
+    update_sequence(obj);
 }

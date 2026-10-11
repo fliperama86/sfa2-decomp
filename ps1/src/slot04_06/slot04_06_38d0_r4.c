@@ -17,6 +17,6 @@ void func_801b3cf8_slot04_06(Object *o) {
             v = -0x80000;
         }
         *(s32 *)&o->pos_x_frac = v + *(s32 *)&o->pos_x_frac;
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

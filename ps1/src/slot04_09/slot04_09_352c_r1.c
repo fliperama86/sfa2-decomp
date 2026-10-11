@@ -22,7 +22,7 @@ void func_801b352c_slot04_09(Object *obj) {
 void func_801b3590_slot04_09(Object *obj) {
     u16 t;
     u8 b;
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     b = t;
     if (b == 0) {

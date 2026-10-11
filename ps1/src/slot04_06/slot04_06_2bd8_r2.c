@@ -7,7 +7,7 @@ void func_801b2cb4_slot04_06(Object *obj) {
     Object *p = obj->other;
 
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         p->field_15b = 1;
         p->field_260 = 1;

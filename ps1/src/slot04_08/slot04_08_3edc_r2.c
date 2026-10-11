@@ -17,5 +17,5 @@ void func_801b41d4_slot04_08(Object *obj, Object *unused) {
         func_801204f4(obj, obj->side, 0xd);
         func_80140770(obj, 0, 0xf, 0x12, 0, 1, 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

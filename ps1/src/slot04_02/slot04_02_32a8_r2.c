@@ -24,7 +24,7 @@ void func_801b33fc_slot04_02(Object *obj) {
             t = 0x24000;
         }
         if (t < obj->vel_x) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
     }
@@ -48,6 +48,6 @@ void func_801b34fc_slot04_02(Object *obj) {
             func_801b359c_slot04_02(obj);
         }
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

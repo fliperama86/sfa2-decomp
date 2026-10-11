@@ -8,7 +8,7 @@ extern s32 data_801c64b8_slot04_02[];
 void func_801b452c_slot04_02(Object *obj) {
     int k;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
         obj->state_3++;

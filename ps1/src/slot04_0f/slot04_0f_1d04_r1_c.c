@@ -13,7 +13,7 @@ void func_801b2504_slot04_0f(Object *o) {
     Object *p;
     s32 y;
 
-    func_80130efc(o);
+    update_sequence(o);
     if (*(u8 *)&o->step_flags != 0) {
         o->state_3 = o->state_3 + 1;
         p = func_8011f0e8(o);
@@ -63,7 +63,7 @@ void func_801b2644_slot04_0f(Object *o) {
         }
         func_80142adc(o);
     tail:
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 

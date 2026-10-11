@@ -23,7 +23,7 @@ void func_801b2fa8_slot04_0e(Object *o) {
         func_801b3284_slot04_0e(o);
     }
     if ((s16)o->step_flags >= 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->vel_x = 0x60000;
         o->vel_y = 0x90000;

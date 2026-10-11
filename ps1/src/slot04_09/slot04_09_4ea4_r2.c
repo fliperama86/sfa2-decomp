@@ -56,6 +56,6 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     if (o->field_46 & 1) {
         ((Slot04aObj *)e)->field_16 = ((Slot04aObj *)e)->field_16 - 2;
     }
-    func_80130efc(o);
+    update_sequence(o);
     func_80141e5c(o);
 }

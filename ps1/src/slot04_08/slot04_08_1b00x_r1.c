@@ -45,7 +45,7 @@ void func_801b1b00_slot04_08(Object *obj) {
             a = (a + x - *(u16 *)&p->pos_x) + 0x40;
             lim = 0x80;
             if (lim < (u16)a) {
-                func_80130efc(obj);
+                update_sequence(obj);
             } else {
                 goto tail;
             }

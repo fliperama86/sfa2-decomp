@@ -17,7 +17,7 @@ void func_801b22fc_slot04_08(Object *obj) {
 void func_801b235c_slot04_08(Object *obj) {
     s16 t;
     u8 i;
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0x8000) == 0) {
         if ((u8)t != 0) {

@@ -11,7 +11,7 @@ void func_801b3678_slot04_02(Object *obj) {
     s16 t;
     int i;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x80) {
         obj->field_165 = 0;

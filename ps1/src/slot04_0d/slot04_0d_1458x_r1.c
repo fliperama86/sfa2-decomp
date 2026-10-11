@@ -13,7 +13,7 @@ void func_801b1458_slot04_0d(Object *o) {
     u16 a;
     u16 t;
 
-    func_80130efc(o);
+    update_sequence(o);
     if ((s16)o->step_flags >= 0) {
         a = o->field_134;
         if ((a & *(u16 *)((u8 *)data_801c2768_slot04_0d + (o->field_12a & 0xfe))) != 0) {

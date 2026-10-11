@@ -25,7 +25,7 @@ void func_801b0768_slot04_07(Object *obj) {
             func_801307e0(obj, 0x2f);
             return;
         } else if ((u8)func_801412a4(obj) == 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             ((Slot04aObj *)obj)->field_1ca |= 1 << (obj->field_12a >> 1);
             if (obj->field_0b == 0) {
@@ -36,7 +36,7 @@ void func_801b0768_slot04_07(Object *obj) {
         reset:
             obj->field_25f = 0xff;
             obj->state_3 = 0;
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     }
 }

@@ -39,7 +39,7 @@ void func_801c9cf4_slot05_06(Object *o) {
         if (o->vel_x >= 0) {
             func_801cc814_slot05_06(o);
         }
-        func_80130efc(o);
+        update_sequence(o);
     } else if (o->field_12a == 4) {
         o->field_45 = 1;
         o->vel_y = 0xb0000;

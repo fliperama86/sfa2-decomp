@@ -8,5 +8,5 @@ void func_801b3b3c_slot04_0a(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0x11, 0, 1, 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

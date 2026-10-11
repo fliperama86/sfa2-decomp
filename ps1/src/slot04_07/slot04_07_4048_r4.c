@@ -17,7 +17,7 @@ void func_801b45a8_slot04_07(Object *obj) {
             }
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -26,7 +26,7 @@ void func_801b464c_slot04_07(Object *obj) {
     s16 d;
     int m;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0x8000) == 0) {
         m = t & 0xff;

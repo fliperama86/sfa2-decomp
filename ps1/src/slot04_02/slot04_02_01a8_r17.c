@@ -10,7 +10,7 @@ void func_801b1bc0_slot04_02(Object *obj) {
         func_801312b8(obj);
     } else {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -29,7 +29,7 @@ void func_801b1c30_slot04_02(Object *obj) {
             obj->step_flags = t & 0xff00;
             func_80146998(obj);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

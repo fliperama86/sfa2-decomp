@@ -9,7 +9,7 @@ void func_801cba68_slot05_06(Object *obj) {
     Object *other;
 
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         other = obj->other;
         other->field_15b = 1;

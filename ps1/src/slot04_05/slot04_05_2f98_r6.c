@@ -24,7 +24,7 @@ void func_801b37d0_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3810_slot04_05(Object *obj) {
@@ -33,7 +33,7 @@ void func_801b3810_slot04_05(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -44,6 +44,6 @@ void func_801b3864_slot04_05(Object *obj) {
         obj->pos_y = ((Slot04aObj *)obj)->field_70;
     }
     if (*(u8 *)&obj->step_flags != 3) {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

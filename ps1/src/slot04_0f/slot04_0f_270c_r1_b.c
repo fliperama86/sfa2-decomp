@@ -17,7 +17,7 @@ void func_801b2f48_slot04_0f(Object *obj) {
         obj->state_3++;
         func_80146998(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2f98_slot04_0f(Object *obj) {
@@ -26,7 +26,7 @@ void func_801b2f98_slot04_0f(Object *obj) {
         obj->state_3++;
         func_801307e0(obj, 0x49);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -34,7 +34,7 @@ void func_801b2fe8_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

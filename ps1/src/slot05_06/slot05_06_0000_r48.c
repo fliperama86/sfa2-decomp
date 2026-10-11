@@ -8,7 +8,7 @@ extern ObjectFn data_801dd4bc_slot05_06[];
 
 void func_801cc194_slot05_06(Object *obj) {
     obj->field_27c++;
-    func_80130efc(obj);
+    update_sequence(obj);
     ((Slot04bObj *)obj)->field_46--;
     if (((Slot04bObj *)obj)->field_46 != 0) {
         func_801cc228_slot05_06(obj);

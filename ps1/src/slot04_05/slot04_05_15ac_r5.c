@@ -19,7 +19,7 @@ void func_801b1b44_slot04_05(Object *obj) {
             func_80146998(obj);
             obj->other->field_6b = 0x14;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

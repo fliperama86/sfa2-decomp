@@ -41,7 +41,7 @@ void func_801b3368_slot04_02(Object *obj) {
         func_801b33fc_slot04_02(obj);
     } else {
         obj->pos_x = obj->pos_x + (s8)*(u8 *)&obj->step_flags;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
     if (obj->field_7e == 0) {
         func_801b359c_slot04_02(obj);

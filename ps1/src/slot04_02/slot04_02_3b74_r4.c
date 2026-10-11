@@ -31,7 +31,7 @@ void func_801b4050_slot04_02(Object *obj) {
 void func_801b4134_slot04_02(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 0x100;
     if ((obj->field_46 & 0xff00) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

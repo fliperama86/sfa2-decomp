@@ -16,7 +16,7 @@ void func_801b38b0_slot04_16(Object *obj) {
 
     t = obj->step_flags;
     if ((u8)t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     if ((u8)t != 0xf) {
@@ -45,7 +45,7 @@ void func_801b38b0_slot04_16(Object *obj) {
         obj->step_flags = t & 0xff00;
         game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
         k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->field_12a + k) * 2 + (u32)a);
         if ((u8)func_80140cd8(obj, p[0], p[1]) != 0) {
             obj->field_167 = 2;

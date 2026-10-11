@@ -9,7 +9,7 @@ void func_801b1fd0_slot04_03(Object *obj) {
     s16 t;
 
     if (obj->field_12a >= 3) {
-        func_80130efc(obj);
+        update_sequence(obj);
         t = obj->step_flags;
         if (t & 0x8000) {
             if (obj->field_12a != 0) {
@@ -40,9 +40,9 @@ void func_801b1fd0_slot04_03(Object *obj) {
             obj->state_3 = 6;
             func_801307e0(obj, 0x28);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

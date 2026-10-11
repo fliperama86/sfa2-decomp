@@ -46,6 +46,6 @@ void func_801b2688_slot04_04(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

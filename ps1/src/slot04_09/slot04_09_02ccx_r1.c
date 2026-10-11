@@ -34,6 +34,6 @@ void func_801b02cc_slot04_09(Object *obj) {
             func_80130678(obj, data_801c7b94_slot04_09[k]);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

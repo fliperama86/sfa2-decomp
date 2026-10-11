@@ -21,7 +21,7 @@ void func_801b5dd0_slot04_10(Object *obj);
 
 void func_801b5768_slot04_10(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->field_45 = 1;
         o->state_3++;
@@ -46,7 +46,7 @@ void func_801b5768_slot04_10(Object *o) {
 
 void func_801b588c_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = 8;
         obj->pos_y = obj->field_70;
@@ -81,11 +81,11 @@ void func_801b599c_slot04_10(Object *obj) {
         func_801483a4(obj, -0x13, 0x53);
         func_80120554(obj, obj->side, 0x31c);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5a18_slot04_10(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->state_3++;
         obj->field_165 = 0;
@@ -106,7 +106,7 @@ void func_801b5abc_slot04_10(Object *obj) {
 
     if ((u8)func_8013f8c4(obj, -0x26, (s16)(t - 0x26)) == 0) {
         obj->state_3 = 0xa;
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         if (obj->field_12a != 0) {
@@ -127,7 +127,7 @@ void func_801b5b90_slot04_10(Object *o) {
     int m;
     int d;
 
-    func_80130efc(o);
+    update_sequence(o);
     t = o->step_flags;
     if (t < 0) {
         if (o->field_12a != 0 && ((Slot04bObj *)o)->field_1a8 == 0) {
@@ -210,17 +210,17 @@ void func_801b5dd0_slot04_10(Object *obj) {
 void func_801b5e48_slot04_10(Object *obj) {
     func_80130184(obj);
     if (obj->vel_y >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->accel_y = obj->field_f4;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b5e9c_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else if (obj->field_12a == 4 && ((Slot04bObj *)obj)->field_1a8 != 2) {
         obj->state_3 = 0xb;
         obj->field_45 = 0;

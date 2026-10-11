@@ -17,7 +17,7 @@ void func_801b1e10_slot04_0c(Object *obj) {
         func_80146998(obj);
         obj->field_46 = 0x40;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1e70_slot04_0c(Object *obj) {
@@ -25,7 +25,7 @@ void func_801b1e70_slot04_0c(Object *obj) {
     if ((s16)obj->field_46 == 0) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

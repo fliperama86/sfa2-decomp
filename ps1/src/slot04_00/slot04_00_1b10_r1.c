@@ -16,7 +16,7 @@ void func_801b1b10_slot04_00(Object *obj) {
         }
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1ba4_slot04_00(Object *obj) {
@@ -28,6 +28,6 @@ void func_801b1ba4_slot04_00(Object *obj) {
         obj->state_3++;
         func_80130678(obj, 0x11);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

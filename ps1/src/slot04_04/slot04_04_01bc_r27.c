@@ -7,7 +7,7 @@ s32 func_801b3a84_slot04_04(Object *object);
 
 void func_801b230c_slot04_04(Object *obj) {
     if (func_801b3a84_slot04_04(obj) >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         if (obj->field_49 != 0) {
             obj->accel_y = 0xffff0000;
@@ -15,7 +15,7 @@ void func_801b230c_slot04_04(Object *obj) {
             obj->accel_y = -0x6000;
         }
         if (obj->pos_y < obj->field_70) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             obj->state_3++;
             obj->pos_y_frac = 0;
@@ -36,6 +36,6 @@ void func_801b23b4_slot04_04(Object *obj) {
         func_801312b8(obj);
     } else {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

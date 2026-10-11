@@ -9,7 +9,7 @@ void func_801b4cec_slot04_07(Object *obj) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
     if (func_801b41c4_slot04_07(obj) >= 0 || obj->field_70 > obj->pos_y) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = 1;
         obj->pos_y_frac = 0;

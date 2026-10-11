@@ -23,7 +23,7 @@ void func_801cac40_slot05_06(Object *obj) {
 
     if ((s16)obj->step_flags >= 0) {
         func_801cc814_slot05_06(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         func_80120554(p, p->side, 0x34e);

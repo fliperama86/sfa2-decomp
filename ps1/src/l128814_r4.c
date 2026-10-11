@@ -15,7 +15,7 @@ void func_8012a1e4(Object *object) {
         } else if ((s16)object->step_flags < 0) {
             func_80131468(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else if (func_80130470(object)) {
         func_8013047c(object);
@@ -29,7 +29,7 @@ void func_8012a1e4(Object *object) {
         } else if ((s16)object->step_flags < 0) {
             func_80131468(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else if ((u8)func_8012f7c0(object)) {
         func_8012f838(object);

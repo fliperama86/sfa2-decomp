@@ -81,7 +81,7 @@ void func_801b2e64_slot04_16(Object *obj) {
     u16 t = obj->step_flags;
 
     if ((u8)t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->step_flags = t & 0xff00;
         obj->state_3 = obj->state_3 + 1;

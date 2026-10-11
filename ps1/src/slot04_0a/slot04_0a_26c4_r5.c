@@ -11,7 +11,7 @@ void func_801b2b60_slot04_0a(Object *obj) {
     func_801b3e00_slot04_0a(obj);
     y = obj->field_70;
     if (obj->pos_y < y) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->pos_y = y;
         obj->pos_y_frac = 0;
@@ -44,7 +44,7 @@ void func_801b2bf4_slot04_0a(Object *obj) {
         obj->vel_x = a;
         obj->accel_x = b;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2c4c_slot04_0a(Object *obj) {
@@ -64,5 +64,5 @@ void func_801b2c4c_slot04_0a(Object *obj) {
         obj->field_4a = fr->field_0d;
         obj->field_80 = 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

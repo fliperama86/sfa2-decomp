@@ -21,7 +21,7 @@ void func_801b38d0_slot04_02(Object *obj) {
                 obj->accel_x = -0x280;
             }
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else if ((u8)func_80130184(obj) != 0) {
         if ((s16)obj->step_flags < 0) {
@@ -29,7 +29,7 @@ void func_801b38d0_slot04_02(Object *obj) {
             obj->state_3 = obj->state_3 + 1;
             func_80130678(obj, 0x21);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->field_45 = 0;

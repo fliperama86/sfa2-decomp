@@ -15,7 +15,7 @@ void func_801b3620_slot04_0a(Object *obj) {
         func_801b3e68_slot04_0a(obj);
     }
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         o = obj->other;
@@ -38,7 +38,7 @@ void func_801b36dc_slot04_0a(Object *obj) {
         func_801b3f30_slot04_0a(obj);
     }
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

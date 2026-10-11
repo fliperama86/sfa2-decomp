@@ -12,7 +12,7 @@
  * that first integrates the object's motion (func_801b4914_slot04_0e), then
  * looks at the object's height field_70 against its position pos_y. Above
  * the limit it switches to the action of func_801b2f58_slot04_0e; within
- * 0x30 below it only advances the animation (func_80130efc); otherwise, if
+ * 0x30 below it only advances the animation (update_sequence); otherwise, if
  * field_164 equals the selector for the facing (2 when field_0b is 0, else
  * 1), it counts up state_3, clears vel_y and accel_y, starts sequence
  * 0x2e (0x60 when field_49 is not 0) and calls func_801209c4; if field_164
@@ -28,7 +28,7 @@
  *     accel_y; in the first arm what func_801b2f58_slot04_0e writes
  *     (state_3, field_45, field_14, field_17b, pos_y).
  *   Callees: func_801b4914_slot04_0e and func_801b2f58_slot04_0e run as
- *     original code (the same in both runs). func_80130efc (1 argument),
+ *     original code (the same in both runs). update_sequence (1 argument),
  *     func_801307e0 (2 arguments) and func_801209c4 (1 argument) are
  *     replaced by recorders returning 0; they reach sequence tables and the
  *     library (func_801b2f58_slot04_0e calls the last two, so those are
@@ -54,12 +54,12 @@ void func_801b2e8c_slot04_0e(Object *o) {
     if (o->field_70 < o->pos_y) {
         func_801b2f58_slot04_0e(o);
     } else if ((s16)(o->field_70 - 0x30) < o->pos_y) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         if (o->field_0b == 0) facing = 2;
         else facing = 1;
         if (o->field_164 != facing) {
-            func_80130efc(o);
+            update_sequence(o);
         } else {
             sequence = 0x60;
             o->state_3++;

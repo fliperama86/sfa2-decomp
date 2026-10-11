@@ -21,7 +21,7 @@ void func_801cb3b8_slot05_06(Object *obj) {
             obj->state_3 += 3;
             obj->field_159 = 1;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
     set:
         obj->state_3++;

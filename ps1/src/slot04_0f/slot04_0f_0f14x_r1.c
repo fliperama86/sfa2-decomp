@@ -19,6 +19,6 @@ void func_801b0f14_slot04_0f(Object *o) {
         o->field_46 = (o->field_46 & 0xff00) | 8;
         func_80130678(o, 0x10);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

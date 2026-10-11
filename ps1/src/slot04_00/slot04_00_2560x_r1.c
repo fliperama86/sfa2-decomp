@@ -9,7 +9,7 @@
  * (vel_y) and an acceleration (accel_y). When the low byte of step_flags is
  * 0 it advances the position, and if vel_y is then negative it counts up
  * state_3, stores field_12a + 1 in field_1a4 and starts a sequence. In every
- * other case it hands over to func_80130efc.
+ * other case it hands over to update_sequence.
  */
 void func_801b2560_slot04_00(Object *obj) {
     if ((u8)obj->step_flags == 0) {
@@ -29,5 +29,5 @@ void func_801b2560_slot04_00(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

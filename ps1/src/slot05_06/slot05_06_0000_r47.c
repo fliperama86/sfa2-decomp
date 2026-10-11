@@ -41,7 +41,7 @@ void func_801cc060_slot05_06(Object *obj) {
         func_80143184(obj);
         func_801cd1f4_slot05_06(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801cc108_slot05_06(Object *obj) {
@@ -61,5 +61,5 @@ void func_801cc108_slot05_06(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }

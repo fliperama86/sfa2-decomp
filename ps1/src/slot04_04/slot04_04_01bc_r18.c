@@ -49,7 +49,7 @@ void func_801b17c4_slot04_04(Object *obj) {
         }
         obj->field_46 = 0xf;
         if (obj->field_12a == a) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
         obj->field_12a = a;

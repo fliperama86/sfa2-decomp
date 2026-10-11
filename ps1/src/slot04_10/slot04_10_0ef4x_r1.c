@@ -12,15 +12,15 @@ void func_801b0ef4_slot04_10(Object *obj) {
     }
     t = obj->field_46;
     if (t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         t -= 1;
         obj->field_46 = t;
         if (t != 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             game_state.config->field_4b |= 1 << obj->side;
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     }
 }

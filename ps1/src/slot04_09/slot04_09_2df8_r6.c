@@ -28,7 +28,7 @@ void func_801b3344_slot04_09(Object *obj) {
                     func_801204f4(obj, obj->side, 5);
                     func_801307e0(obj, 0x21);
                 } else {
-                    func_80130efc(obj);
+                    update_sequence(obj);
                 }
             } else if (func_8013fe54(obj, -0x20, 0x20, 0, 0x30) != 0) {
                 obj->field_a2 = 0xff;
@@ -43,10 +43,10 @@ void func_801b3344_slot04_09(Object *obj) {
                 func_801204f4(obj, obj->side, 5);
                 func_801307e0(obj, 0x21);
             } else {
-                func_80130efc(obj);
+                update_sequence(obj);
             }
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3 = 7;

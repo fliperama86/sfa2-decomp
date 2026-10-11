@@ -12,7 +12,7 @@ void func_801cb8cc_slot05_06(Object *o) {
     GameState *g = &game_state;
 
     if ((s16)o->step_flags >= 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         other = o->other;
         other->field_15b = 1;

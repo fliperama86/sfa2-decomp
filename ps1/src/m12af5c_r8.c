@@ -26,6 +26,6 @@ void func_8012df44(Object *object) {
             object->state_3 = 1;
             object->field_159 = 0;
         }
-        func_80130efc(object);
+        update_sequence(object);
     }
 }

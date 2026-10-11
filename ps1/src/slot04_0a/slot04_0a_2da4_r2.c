@@ -10,6 +10,6 @@ void func_801b3054_slot04_0a(Object *obj) {
     if (func_801b1e04_slot04_0a(obj)) {
         func_801b30a0_slot04_0a(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

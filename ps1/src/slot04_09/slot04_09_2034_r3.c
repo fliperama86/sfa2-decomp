@@ -5,7 +5,7 @@
 
 void func_801b231c_slot04_09(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_45 = 1;
         obj->vel_x = 0x80000;

@@ -6,7 +6,7 @@ made here:
     so the order of the function's stores against the calls is compared;
     no recorded callee gets a pointer to memory filled for the call;
   - func_801204f4 is a recorder (3 arguments); func_80130184, func_801307e0
-    and func_80130efc run as the original code;
+    and update_sequence run as the original code;
   - the object is a random block of 0x394 bytes; the position and the
     target field_70 are set apart by a chosen difference, so that the
     function takes the arm "target reached" or each of the three distances
@@ -16,7 +16,7 @@ made here:
     pos_y by the high half of field_50, so field_50 is a small word in
     three cases of four: -0x30000 to 0x30000; the other velocity words
     are random);
-  - the sequence world is built as func_801307e0 and func_80130efc need it
+  - the sequence world is built as func_801307e0 and update_sequence need it
     (four pointer tables of 192 entries in the scratchpad variables
     sequences_left, sequences_right, seqs_9c_left and seqs_14c_right, 16
     sequence steps with duration 1 in half the cases, loop offset -2 to 2,

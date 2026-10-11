@@ -12,7 +12,7 @@ void func_801b283c_slot04_0b(Object *obj) {
 
     if (func_801b2510_slot04_0b(obj)) {
         if ((u8)obj->step_flags != 4) {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         t = obj->state_3;

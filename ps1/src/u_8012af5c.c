@@ -12,7 +12,7 @@ void func_8012af5c(Object *object)
   s32 a;
   if ((object->step_flags << 16) >= 0)
   {
-    func_80130efc(object);
+    update_sequence(object);
   }
   else
   {

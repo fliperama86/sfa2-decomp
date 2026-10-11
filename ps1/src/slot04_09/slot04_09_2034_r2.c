@@ -27,7 +27,7 @@ void func_801b2224_slot04_09(Object *obj) {
     }
     func_801b2858_slot04_09(obj);
     if (obj->pos_y < obj->field_70) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         t = *(u16 *)&obj->field_70;

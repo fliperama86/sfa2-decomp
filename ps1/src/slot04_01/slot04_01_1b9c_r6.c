@@ -25,5 +25,5 @@ void func_801b2448_slot04_01(Object *o) {
         func_80120554(o, o->side, 0x31c);
         func_801483a4(o, -0x18, 0x1c);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

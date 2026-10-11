@@ -20,5 +20,5 @@ void func_801b1718_slot04_05(Object *obj) {
         obj->field_17b = 0;
         obj->pos_y = (u16)obj->field_70;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

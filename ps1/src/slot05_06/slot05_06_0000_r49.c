@@ -24,7 +24,7 @@ void func_801cc354_slot05_06(Object *obj) {
         obj->step_timer = *(u16 *)(data_801dd4d0_slot05_06 + (obj->field_12a & 0xfe));
     }
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         func_801204f4(obj, obj->side, 1);
@@ -34,7 +34,7 @@ void func_801cc354_slot05_06(Object *obj) {
 
 void func_801cc3f8_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_17b = 0;
         func_801312b8(obj);

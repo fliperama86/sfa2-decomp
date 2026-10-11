@@ -57,7 +57,7 @@ void func_801b04a0_slot04_0a(Object *obj) {
             }
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
     if (obj->step_flags & 0x80) {
         obj->step_flags = obj->step_flags & 0xff00;
     }

@@ -57,7 +57,7 @@ void func_801b16b0_slot04_08(Object *obj) {
             a = (a + x - *(u16 *)&q->pos_x) + 0x40;
             lim = 0x80;
             if (lim < (u16)a) {
-                func_80130efc(obj);
+                update_sequence(obj);
                 return;
             }
         }

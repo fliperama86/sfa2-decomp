@@ -29,7 +29,7 @@ void func_801b36e4_slot04_17(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b57f0_slot04_17(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

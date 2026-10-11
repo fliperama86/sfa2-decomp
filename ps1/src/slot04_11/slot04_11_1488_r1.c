@@ -56,7 +56,7 @@ void func_801b1544_slot04_11(Object *o) {
             func_801b1850_slot04_11(o);
         }
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
@@ -95,7 +95,7 @@ void func_801b15c4_slot04_11(Object *obj) {
             } else {
                 obj->field_46 = 0xf;
                 if (obj->field_12a == x) {
-                    func_80130efc(obj);
+                    update_sequence(obj);
                 } else {
                     obj->field_12a = x;
                     s = ((Slot04bObj *)obj)->field_3a;
@@ -120,7 +120,7 @@ void func_801b15c4_slot04_11(Object *obj) {
 void func_801b17c0_slot04_11(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b180c_slot04_11(obj);
     }
@@ -163,7 +163,7 @@ void func_801b1850_slot04_11(Object *obj) {
             goto tail;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
     return;
 tail:
     obj->state_3++;
@@ -178,7 +178,7 @@ void func_801b1984_slot04_11(Object *obj) {
         func_801b5874_slot04_11(obj);
     } else {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -221,7 +221,7 @@ void func_801b1b6c_slot04_11(Object *o) {
         o->state_3++;
         o->field_12e = data_801c73f0_slot04_11[o->field_12a & 0xfe];
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b1bcc_slot04_11(Object *obj) {
@@ -236,7 +236,7 @@ void func_801b1bcc_slot04_11(Object *obj) {
     if (func_801b57a8_slot04_11(obj) < 0) {
         func_801b1c58_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -282,7 +282,7 @@ void func_801b1c98_slot04_11(Object *o) {
                 func_801b1f54_slot04_11(o);
             }
         }
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
@@ -297,5 +297,5 @@ void func_801b1dfc_slot04_11(Object *obj) {
         }
         obj->accel_y = a;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

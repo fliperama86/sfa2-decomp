@@ -44,5 +44,5 @@ void func_801b4b78_slot04_06(Object *obj) {
             p->field_9c = obj->field_9c;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

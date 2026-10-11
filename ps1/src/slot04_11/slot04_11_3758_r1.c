@@ -41,7 +41,7 @@ void func_801b3758_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -69,7 +69,7 @@ void func_801b3884_slot04_11(Object *obj) {
 void func_801b38e0_slot04_11(Object *obj) {
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         a = -1;
         obj->state_3++;
@@ -88,7 +88,7 @@ void func_801b38e0_slot04_11(Object *obj) {
 void func_801b3970_slot04_11(Object *obj) {
     int i;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         obj->state_3++;
         if (obj->field_4b == 0) {
@@ -121,7 +121,7 @@ void func_801b3a50_slot04_11(Object *obj) {
                 func_801307e0(obj, obj->field_12a + 0x43);
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -137,7 +137,7 @@ void func_801b3b34_slot04_11(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3bd8_slot04_11(Object *obj) {
@@ -178,7 +178,7 @@ void func_801b3bd8_slot04_11(Object *obj) {
         obj->accel_y = -0x6000;
         obj->field_48 = 0;
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
         func_80141e5c(obj);
     }
 }
@@ -199,7 +199,7 @@ void func_801b3d94_slot04_11(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
         func_801307e0(obj, 0x42);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -209,7 +209,7 @@ void func_801b3e40_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -231,7 +231,7 @@ void func_801b3ee0_slot04_11(Object *obj) {
 void func_801b3f58_slot04_11(Object *obj) {
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         a = -1;
         obj->state_3++;
@@ -249,7 +249,7 @@ void func_801b3fcc_slot04_11(Object *obj) {
     int a;
     int b;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         i = 6;
         obj->state_3++;

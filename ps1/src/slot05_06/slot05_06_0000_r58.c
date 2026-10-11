@@ -12,7 +12,7 @@ void func_801ccf78_slot05_06(Object *obj) {
             game_state_second.field_4b = game_state.field_4b | (1 << obj->side);
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801ccfe8_slot05_06(Object *obj) {
@@ -29,7 +29,7 @@ void func_801cd05c_slot05_06(Object *object) {
     if (game_state.field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801cd098_slot05_06(Object *o) {

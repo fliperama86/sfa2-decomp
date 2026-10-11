@@ -18,14 +18,14 @@ void func_801b32e4_slot04_06(Object *obj) {
                 } else {
                     obj->accel_x = -0x6000;
                     obj->state_3++;
-                    func_80130efc(obj);
+                    update_sequence(obj);
                 }
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->accel_x = -0x6000;
         obj->state_3++;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
