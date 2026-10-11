@@ -9,9 +9,9 @@ u8 func_8012faf8(Object *object);
 void func_8012f9b0(Object *object)
 {
   s16 i;
-  /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. With 15 written at its use this function differs from the original in 13 instruction lines. */
+  /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. With 15 written at its use this function differs from the original in 5 instruction slots. */
   s16 limit = 15;
-  /* Exception, not recovered source: this local holds the address of the cursor ref_other.p, which the original keeps in a register of its own (it is read and written through it at the end of the loop). Without it (ref_other.p written at its uses, with no wrapper) this function differs from the original in 40 instruction lines. */
+  /* Stand-in, not recovered source: this local, which holds the address of the cursor ref_other.p (read and written through it at the end of the loop), reproduces the original's choice of registers: the original keeps that address in a register of its own. Without it (ref_other.p in its place, the wrappers kept) this function differs from the original in 5 instruction slots; without it and without the wrappers, in 33. */
   Object **pp;
   Unit *unit;
   int diff;
@@ -24,7 +24,7 @@ void func_8012f9b0(Object *object)
     if (unit->field_00 != 0 && (unit->field_74 & 0x80) == 0 && unit->field_65 != object->field_65)
     {
       diff = unit->field_12 - (u16) object->pos_x;
-      /* The distance is made positive with a conditional expression; as an if statement this function differs from the original in 4 instruction lines. */
+      /* The distance is made positive with a conditional expression; as an if statement this function differs from the original in 4 instruction slots. */
       diff = ((s16) diff < 0) ? -diff : diff;
       if ((s16) (diff + 0x50) < 0xa0)
       {
@@ -50,9 +50,8 @@ void func_8012f9b0(Object *object)
 next:
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
     do {
-      /* Exception, not recovered source: a second do-while wrapper, inside the first. It adds no instruction; it raises the reference count of the pointer pp, which the original's register choice (the pointer before the constant 1) needs. With the one wrapper only this function differs from the original in 11 instruction lines. */
+      /* Stand-in, not recovered source: two further do-while wrappers, nested inside the first (three levels in all) around the one statement, reproduce the original's choice of registers (they raise the compiler's count of references to pp). Without them this function differs from the original in 11 instruction slots; with one of them, in 8. */
       do {
-        /* Exception, not recovered source: a third do-while wrapper, inside the second, around the single statement. It adds no instruction; it raises the reference count of pp once more. With only two wrappers this function differs from the original in 8 instruction lines. */
         do {
           *pp = (Object *) ((u8 *) *pp + 0xc0);
         } while (0);
