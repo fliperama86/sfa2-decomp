@@ -40260,3 +40260,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8011f06c", address = 0x8011f06c, size = 48 },
 ]
+
+[[unit]]
+name = "d3f8c4_r1"
+source = "d3f8c4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f8c4", address = 0x8013f8c4, size = 496 },
+]
