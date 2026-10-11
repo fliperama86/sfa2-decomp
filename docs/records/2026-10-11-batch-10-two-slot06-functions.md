@@ -48,5 +48,5 @@
   The three figures of the variants are from the same command on the
   unit's text with that one change, the unit put back. The byte-offset
   scan on the two units: none. The map's render:
-  `overall: 5531/5600 distinct functions exact (98.8%); 12979/13072 placements (99.3%); 1764636/1809836 code bytes (97.5%)`.
+  `overall: 5533/5600 distinct functions exact (98.8%); 12985/13072 placements (99.3%); 1765572/1809836 code bytes (97.6%)` (with main at `0111554`, which has batch 9, merged in).
   No whole build, no PC build, no differential test.
