@@ -26,23 +26,33 @@ seeds 1 and 7 (`different 0`, `discarded 0`, 2 of 2 instruction slots
 executed), the control (`different 2000` of 2000), the write audit
 with both seeds (`outside 0`), the record with no warning and the
 replay (`failed 0`, 1 fixture). The main's five runs and replay print
-the lines the page has for it. The page's commands for the three
-functions this change touches were run again by a private script that
-compares each line with the page: 3 functions, no line missing, no
-run failed, 3 minutes 23 seconds. The folder's replay: `failed 0` for
+the lines the page has for it (its callee is declared a function
+now). The page's commands for the new function, the main and the
+open were run again by a private script that compares each line with
+the page: 3 functions, no line missing, no run failed, 3 minutes 23
+seconds. The folder's replay: `failed 0` for
 all nineteen. `python -B ../programs/test_programs.py`: `all cases
 behaved as required`. `python
 tools/ai_workflow/tests/test_workflow.py`: OK. The new fixtures file
 holds no byte at an address inside the program's body (a private
 check: the folder's count stays 229).
 
-Also here, two comments that the review of pull request 212 named,
-text only: the main's contract says that its model of the flip equals
-the real flip for the indices 0 and 1 only; and the header of the
-movie's open says what its contract does with the pointer of the
-drive's mode command (a local's address compared as it is, which
-holds only while the C's frame has the original's layout), where it
-had said the pointer was masked and its pointee logged.
+Also here, one of the two comments that the review of pull request
+212 named, text only: the header of the movie's open says what its
+contract does with the pointer of the drive's mode command (a local's
+address compared as it is, which holds only while the C's frame has
+the original's layout), where it had said the pointer was masked and
+its pointee logged.
+
+Not here, and why: the other comment is in the main's contract file
+(its model of the flip equals the real flip for the indices 0 and 1
+only). The review command asks for a fresh comparison of a function
+whose contract file changed, and it cannot run one for a function of
+a program: its frozen copy gets the private inputs that the build
+configuration names, and a program's file is named by the programs'
+declaration instead (`INPUT ERROR: program z2o: the file Z2O.EXE
+cannot be read`). The correction waits for that gap of the tool to be
+closed in a change of its own; the wording is ready.
 
 Limits: a pass is evidence for the tested inputs, not equivalence; no
 tool compares the function's bytes with the original's.

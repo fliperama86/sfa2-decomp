@@ -24,9 +24,7 @@ Choices of the setup (reads and writes are listed in func_800108e8_z2o.c):
     end;
   - the flip (func_80010be4_z2o) is a recorder with a model: at each call it
     stores the opposite of the index word's truth (0 if the word is not 0,
-    else 1); this equals the real flip (an exclusive-or with 1) for the
-    indices 0 and 1 only (index 2 becomes 3 in the real flip, 0 in the model),
-    so that the frame's second
+    else 1), as the real flip does (inferred), so that the frame's second
     argument and the rectangle's y change between turns; the stores are given
     for calls 1 to 9 (at most 5 in the loop and 2 at the end);
   - the other callees are recorders of the arguments they take:
