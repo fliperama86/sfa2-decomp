@@ -46,9 +46,14 @@ extern int StFreeRing(u32 *base);
 extern int CdControl(u8 com, u8 *param, u8 *result);
 extern int CdRead2(int mode);
 extern int CdPosToInt(u8 *p);
+extern int CdRead(int sectors, u32 *buf, int mode);
+extern int CdReadSync(int mode, u8 *result);
 
 /* The program's own functions that other functions call. */
+extern void func_80010928_logo(void);
+extern int func_80010a80_logo(int sector);
 extern void func_80010a38_logo(void);
+extern void func_80010fc4_logo(void);
 extern void func_80010f38_logo(void);
 extern void func_80011060_logo(void);
 
@@ -71,6 +76,10 @@ extern u32 *data_8002eb04_logo;
 extern u8 *data_8002eb10_logo;
 /* gp + 0x18: a block of memory that a picture is built in (inferred). */
 extern u32 *data_8002eb14_logo;
+/* gp + 0x1c: the buffer the stills' file is read into (inferred: base + 0x21100). */
+extern u32 *data_8002eb18_logo;
+/* gp + 0x20: set to 0 by func_800107e8_logo (inferred: no use found in these functions). */
+extern int data_8002eb1c_logo;
 /* gp + 0x24: the index (0 or 1) of the buffer in data_8002eb08_logo that the next frame is decoded into (inferred). */
 extern int data_8002eb20_logo;
 /* gp + 0x30 and gp + 0x34: the frame number of the stream's previous and current frame (inferred: 0x8002eb30 is read from word 2 of a frame's header). */
@@ -88,6 +97,9 @@ extern volatile int data_8002eb3c_logo;
 extern u8 data_8002eb40_logo[4];
 /* gp + 0x48: the filter of the disc, file and channel, both 1 (inferred from its use in CdControl(0x0d, ...)). */
 extern u8 data_8002eb44_logo[2];
+/* gp + 0x4c and gp + 0x50: the same buffer as data_8002eb18_logo and the address 0x40 bytes after it (inferred: base + 0x21100 and base + 0x21140). */
+extern u32 *data_8002eb48_logo;
+extern u32 *data_8002eb4c_logo;
 /* gp + 0x54: the index (0 or 1) of the display environment shown (inferred). */
 extern int data_8002eb50_logo;
 /* Two display environments of 20 bytes each (inferred from the stride). */

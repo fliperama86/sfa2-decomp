@@ -94,6 +94,10 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800107e8_logo coverage: 80 of 80 instruction slots of the original executed
+func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800107e8_logo coverage: 80 of 80 instruction slots of the original executed
 func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010928_logo coverage: 68 of 68 instruction slots of the original executed
 func_80010928_logo: built 284 bytes, original 272 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -151,6 +155,7 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_800107e8_logo control: different 2000 of 2000 (expected more than 0)
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a80_logo control: different 1544 of 2000 (expected more than 0)
@@ -169,6 +174,8 @@ func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -200,6 +207,8 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_800107e8_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_800107e8_logo replay: fixtures 1, passed 1, failed 0
 func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010928_logo replay: fixtures 1, passed 1, failed 0
 func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -328,3 +337,18 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   logged, so the test passes only while the C's frame is the size of the
   original's: the C keeps 0x1e8 in a local for that. The fixtures file is
   the largest of the folder after the one of `func_800111d0_logo`.
+- `func_800107e8_logo`: sets the program's memory layout and starts graphics
+  and the stream (inferred). Takes a base address, the stream's sector, the
+  stills' file's sector, a video mode word and a stereo word (the fifth
+  argument, on the stack). Stores base and the addresses base + 0x2d00,
+  0xa500, 0xfe00, 0x15700, 0x1d500, 0x21100 (twice) and 0x21140 in the
+  program's words from `0x8002eb00` on, 0 in `0x8002eb1c`, the video mode
+  word at `0x8002eb38` and the stereo word at `0x8002eb34`. Then a loop of
+  `CdIntToPos`, `CdControl(0x15, ...)`, `CdRead(0x4a, ...)` and
+  `CdReadSync(0, ...)` that starts again when one of the first two returns 0
+  or the last returns a value that is not 0; adds the pointer in the word at
+  `0x8002eb18` to each of the 32 words behind it; and calls
+  `func_80010928_logo`, `func_80010a80_logo` with the stream's sector and
+  `func_80010fc4_logo`. All callees are recorders in the test, with scripted
+  results; fills store the position bytes and the 128 bytes the file read
+  leaves in the buffer.

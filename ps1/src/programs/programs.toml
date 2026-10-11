@@ -23,6 +23,7 @@ functions = [
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
   { name = "func_80011060_logo", address = 0x80011060, size = 148 },
   { name = "func_80010e28_logo", address = 0x80010e28, size = 248 },
+  { name = "func_800107e8_logo", address = 0x800107e8, size = 320 },
   { name = "func_80010a80_logo", address = 0x80010a80, size = 416 },
   { name = "func_80011794_logo", address = 0x80011794, size = 164 },
 ]
@@ -35,6 +36,8 @@ data_8002eb08_logo = 0x8002eb08
 data_8002eb00_logo = 0x8002eb00
 data_8002eb10_logo = 0x8002eb10
 data_8002eb14_logo = 0x8002eb14
+data_8002eb18_logo = 0x8002eb18
+data_8002eb1c_logo = 0x8002eb1c
 data_8002eb20_logo = 0x8002eb20
 data_8002eb24_logo = 0x8002eb24
 data_8002eb2c_logo = 0x8002eb2c
@@ -44,6 +47,8 @@ data_8002eb38_logo = 0x8002eb38
 data_8002eb3c_logo = 0x8002eb3c
 data_8002eb40_logo = 0x8002eb40
 data_8002eb44_logo = 0x8002eb44
+data_8002eb48_logo = 0x8002eb48
+data_8002eb4c_logo = 0x8002eb4c
 data_8002eb50_logo = 0x8002eb50
 data_8002eb8c_logo = 0x8002eb8c
 data_8002ebb4_logo = 0x8002ebb4
@@ -77,3 +82,5 @@ StFreeRing = 0x8001963c
 CdControl = 0x8001602c
 CdRead2 = 0x800187bc
 CdPosToInt = 0x80016634
+CdRead = 0x800164b0
+CdReadSync = 0x80016490
