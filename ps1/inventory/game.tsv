@@ -68,7 +68,7 @@
 8011eadc	8	func_8011eadc	-	-	0	0	closed
 8011eae4	48	func_8011eae4	-	graphics	0	0	closed
 8011eb14	56	func_8011eb14	-	-	0	0	closed
-8011eb4c	792	-	-	-	0	0	closed
+8011eb4c	792	func_8011eb4c	-	-	0	0	closed
 8011ee64	156	func_8011ee64	-	-	0	0	closed
 8011ef00	52	func_8011ef00	-	-	0	0	closed
 8011ef34	84	func_8011ef34	-	-	0	0	closed
@@ -859,7 +859,7 @@
 80141e34	40	func_80141e34	-	-	0	0	closed
 80141e5c	204	func_80141e5c	-	-	0	0	closed
 80141f28	264	func_80141f28	-	sound,unidentified	0	0	closed
-80142030	248	-	-	-	0	0	closed
+80142030	248	func_80142030	-	-	0	0	closed
 80142128	524	build_metrics	-	-	0	0	closed
 80142334	36	box_delta	-	-	0	0	closed
 80142358	32	wide_delta	-	-	0	0	closed
