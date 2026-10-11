@@ -22,12 +22,9 @@ extern u16 data_801c547c_slot04_06[];
  * the original in 49 instruction lines.
  */
 void func_801b3564_slot04_06(Object *obj) {
-    /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
-    /* With game_state written at its use (the store of field_63 at the end) this function differs from the original in 32 instruction lines. */
     GameState *state = &game_state;
-    /* The local holds a constant: the original keeps this value in a register of its own (a second one, copied from the first). The name is inferred. */
-    /* With game_state written at its two uses (the tests of field_1d) this function differs from the original in 33 instruction lines; with game_state written at all uses, in 45. */
-    GameState *state_late = &game_state;
+    /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of field_1d through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
+    GameState *state_late = state;
     u8 kind = obj->field_3a;
     u8 hit;
     u16 d;
@@ -49,7 +46,8 @@ void func_801b3564_slot04_06(Object *obj) {
         func_80130efc(obj);
         return;
     }
-    /* Exception, not recovered source: this test can never be true (kind is not 2 here, the first test returned), but the original has the branch (bne v0,v1 with v1 still 2, then the store of 0x18 and the call). Without it this function differs from the original in 33 instruction lines. */
+    /* The test below is a stand-in, not recovered source: the original has a branch here on a value its compiler reduced to the constant 0, so it is never taken. The bytes do not say which condition the source had; this one builds the original's instructions. */
+    /* Here the tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to field_63 and `jal func_80146960`. Without the test this function differs from the original in 19 instruction slots. */
     if (kind == 2) {
         game_state.field_63 = 0x18;
         func_80146960(obj);
@@ -80,7 +78,7 @@ void func_801b3564_slot04_06(Object *obj) {
             }
         }
         if ((state_late->field_1d & 3) == 0) {
-            /* Exception, not recovered source: the four labels (b2, call, test, alt) and the gotos to them. The original shares the knock-back block (b2) and the final call between three paths; written with nested ifs and a flag the function differs from the original in 30 instruction lines. */
+            /* The knock-back block (b2) and the final call are shared by three paths through gotos, as in the original; written with nested ifs and a flag this function differs from the original in 30 instruction lines. */
             if (((Slot04aObj *)obj)->field_1c5 == 1) {
                 /* The result is read as a signed byte; without the cast this function differs from the original in 20 instruction lines. */
                 if ((s8)func_801468f4(obj) != 0) {
