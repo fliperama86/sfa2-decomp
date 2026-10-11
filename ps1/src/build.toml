@@ -4705,6 +4705,14 @@ functions = [
   { name = "func_801396e4", address = 0x801396e4, size = 236 },
 ]
 
+[[unit]]
+name = "d39928_r1"
+source = "d39928_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80139928", address = 0x80139928, size = 244 },
+]
+
 
 
 [[unit]]
