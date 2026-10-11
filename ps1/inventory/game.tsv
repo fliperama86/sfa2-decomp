@@ -581,7 +581,7 @@
 80134e94	556	func_80134e94	-	-	0	0	closed
 801350c0	1944	func_801350c0	-	-	0	0	closed
 80135858	440	func_80135858	-	-	0	0	closed
-80135a10	508	-	-	sound,unidentified	0	0	closed
+80135a10	508	func_80135a10	-	sound,unidentified	0	0	closed
 80135c0c	116	func_80135c0c	-	-	0	0	closed
 80135c80	8	func_80135c80	-	-	0	0	closed
 80135c88	616	func_80135c88	-	-	0	0	closed
