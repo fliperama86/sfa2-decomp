@@ -60,3 +60,9 @@
   `-Wuninitialized`: 0 warnings (it is `void`); the map's render on
   this branch, which does not hold pull request 256:
   `overall: 5479/5600 distinct functions exact (97.8%); 12913/13072 placements (98.8%); 1727324/1809836 code bytes (95.4%)`. No whole build, no PC build, no differential test.
+- After the merge of main at `51fa160` (it brought pull request 256;
+  the guide keeps both additions, the named local before the third
+  stand-in, and both new entries of "What this compiler does"): the
+  unit rebuilt, the same IDENTICAL line; `matchbuild.py --image
+  resident`: `RESULT: PASS`; the map's render:
+  `overall: 5480/5600 distinct functions exact (97.9%); 12914/13072 placements (98.8%); 1729124/1809836 code bytes (95.5%)`.
