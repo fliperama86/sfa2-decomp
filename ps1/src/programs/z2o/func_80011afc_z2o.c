@@ -17,8 +17,9 @@
  *     before the call and compares v0 after (see the .py), so the C must
  *     leave them alone. No result.
  *   Reads: nothing. Writes: nothing. No callee. The test fills the bytes
- *     around the program's word 0x8002f86c with random values, so that a
- *     store would show.
+ *     around the program's word 0x8002f86c (data_8002f86c_z2o, which this
+ *     function does not use) with random values, so that a store would
+ *     show.
  *   Slots no input can reach: none; both slots of the original run.
  * The global pointer register: the function does not use it (no instruction
  * of it reads or writes the register or reaches data through it plus an
