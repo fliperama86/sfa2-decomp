@@ -34,13 +34,13 @@ void func_801b30e8_slot04_0a(Object *obj) {
                 *(s32 *)&obj->pos_x_frac = t + *(s32 *)&obj->pos_x_frac;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b3198_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

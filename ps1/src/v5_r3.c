@@ -12,9 +12,9 @@ void func_8012ea94(Object *object) {
         if (t == 0) {
             Config *cfg = game_state.config;
             cfg->field_4b |= 1 << object->side;
-            func_80130efc(object);
+            update_sequence(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     }
 }

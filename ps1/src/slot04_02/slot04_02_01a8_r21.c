@@ -18,7 +18,7 @@ void func_801b2408_slot04_02(Object *obj) {
                 return;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b252c_slot04_02(obj);
     }
@@ -30,7 +30,7 @@ void func_801b24b0_slot04_02(Object *obj) {
             obj->state_3++;
             func_80130678(obj, 0x21);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         func_801b252c_slot04_02(obj);

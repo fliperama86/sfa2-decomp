@@ -23,7 +23,7 @@ void func_8012cf1c(Object *object) {
     } else if (object->field_61 == 8 && object->field_cd != 0) {
         func_8012d2ac(object);
     } else if (object->field_61 != 8 || (object->field_130 & 0x2000) == 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else {
         index = 0xc;
         object->field_60 = 1;

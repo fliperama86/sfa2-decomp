@@ -10,6 +10,6 @@ void func_801b3d68_slot04_09(Object *obj) {
         obj->field_a2 = 0;
         func_80131468(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

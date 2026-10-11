@@ -18,5 +18,5 @@ void func_801b3b4c_slot04_00(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

@@ -33,11 +33,11 @@ void func_801b2624_slot04_0b(Object *obj) {
         func_80120554(obj, obj->side, 0x31c);
         func_801204f4(obj, obj->side, 7);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b26b8_slot04_0b(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->field_165 = 0;
         obj->state_3++;

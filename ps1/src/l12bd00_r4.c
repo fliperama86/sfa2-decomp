@@ -9,17 +9,17 @@ void func_8012d4e4(Object *object) {
         if (object->field_61 == 0x13) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
-                func_80130efc(object);
+                update_sequence(object);
             } else if (object->vel_y >= 0) {
-                func_80130efc(object);
+                update_sequence(object);
             }
         } else if (object->field_61 == 0x11) {
-            func_80130efc(object);
+            update_sequence(object);
         } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 if ((s16)object->field_5c < 0 || object->field_15b != 0) {
-                    func_80130efc(object);
+                    update_sequence(object);
                 } else {
                     object->state_3 = 6;
                     if (object->field_2a3) {
@@ -55,17 +55,17 @@ void func_8012d680(Object *object) {
         if (object->field_61 == 0x13) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
-                func_80130efc(object);
+                update_sequence(object);
             } else if (object->vel_y >= 0) {
-                func_80130efc(object);
+                update_sequence(object);
             }
         } else if (object->field_61 == 0x11) {
-            func_80130efc(object);
+            update_sequence(object);
         } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 if ((s16)object->field_5c < 0 || object->field_15b != 0) {
-                    func_80130efc(object);
+                    update_sequence(object);
                 } else {
                     object->state_3 = 6;
                     if (object->field_2a3) {

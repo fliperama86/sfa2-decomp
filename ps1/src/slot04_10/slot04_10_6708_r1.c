@@ -131,7 +131,7 @@ void func_801b6a0c_slot04_10(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -161,7 +161,7 @@ void func_801b6b70_slot04_10(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -192,7 +192,7 @@ void func_801b6cb8_slot04_10(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

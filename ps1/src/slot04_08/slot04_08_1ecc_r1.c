@@ -24,5 +24,5 @@ void func_801b1ecc_slot04_08(Object *obj) {
         }
         func_80140cd8(obj, (s16)(data_801c3c54_slot04_08[i] | m), 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

@@ -16,7 +16,7 @@ void func_8007642c_slot00(Object *o) {
             o->accel_x = 0x8000;
         }
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_800764a8_slot00(Object *o) {
@@ -36,5 +36,5 @@ void func_800764a8_slot00(Object *o) {
             }
         }
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

@@ -24,6 +24,6 @@ void func_8012b184(Object *object) {
         func_801312b8(object);
     } else {
         object->field_0b = object->field_158;
-        func_80130efc(object);
+        update_sequence(object);
     }
 }

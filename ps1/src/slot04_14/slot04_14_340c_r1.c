@@ -56,7 +56,7 @@ void func_801b34e8_slot04_14(Object *obj) {
         func_801b3564_slot04_14(obj);
     } else {
         obj->pos_x = obj->pos_x + (s8)*(u8 *)&obj->step_flags;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -77,7 +77,7 @@ void func_801b3564_slot04_14(Object *obj) {
             t = 0x24000;
         }
         if (t < obj->vel_x) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
     }
@@ -117,7 +117,7 @@ void func_801b3730_slot04_14(Object *obj) {
     s16 t;
     int i;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x80) {
         ((Slot04bObj *)obj)->field_27b = 1;
@@ -146,7 +146,7 @@ void func_801b382c_slot04_14(Object *obj) {
     Object *p;
     u16 y;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 1) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x800;
@@ -200,7 +200,7 @@ void func_801b3998_slot04_14(Object *obj) {
                 obj->accel_x = 0x280;
             }
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else if ((u8)func_80130184(obj) != 0) {
         if ((s16)obj->step_flags < 0) {
@@ -208,7 +208,7 @@ void func_801b3998_slot04_14(Object *obj) {
             obj->state_3 = obj->state_3 + 1;
             func_80130678(obj, 0x21);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->field_45 = 0;
@@ -237,7 +237,7 @@ void func_801b3ab0_slot04_14(Object *obj) {
         }
         func_801307e0(obj, n);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -264,7 +264,7 @@ void func_801b3bd0_slot04_14(Object *obj) {
         n = (obj->field_12a >> 1) + n;
         func_801307e0(obj, n);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -274,7 +274,7 @@ void func_801b3c38_slot04_14(Object *obj) {
     u16 y;
     int x;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x600;

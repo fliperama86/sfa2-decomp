@@ -9,7 +9,7 @@ void func_80076578_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

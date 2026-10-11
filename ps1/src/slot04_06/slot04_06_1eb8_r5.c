@@ -15,7 +15,7 @@ void func_801b2414_slot04_06(Object *o) {
         func_801307e0(o, 0x28);
     } else if (o->vel_y >= 0) {
         func_801b4818_slot04_06(o);
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->vel_y = -0x80000;
         o->state_3++;

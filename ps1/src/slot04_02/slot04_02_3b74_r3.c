@@ -12,7 +12,7 @@ void func_801b3ef8_slot04_02(Object *o) {
         *(s32 *)&o->pos_x_frac += o->vel_x;
         if (((o->field_164 >> o->field_48) & 1) == 0) {
             if ((u8)func_8013f8c4(o, -0x10, 0x10) == 0) {
-                func_80130efc(o);
+                update_sequence(o);
             } else {
                 o->state_3++;
                 o->field_46 = (o->field_46 & 0xff00) | 0x10;
@@ -37,6 +37,6 @@ void func_801b3fec_slot04_02(Object *o) {
         o->state_3++;
         o->field_46 = o->field_46 | 0x3b;
         func_80126130();
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

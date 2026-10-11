@@ -11,7 +11,7 @@ void func_801cd3ac_slot05_06(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

@@ -16,5 +16,5 @@ void func_801b0b80_slot04_09(Object *o) {
             o->accel_x = 0xd000;
         }
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

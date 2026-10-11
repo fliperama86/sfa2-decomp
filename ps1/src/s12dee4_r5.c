@@ -41,7 +41,7 @@ void func_8012e9f8(Object *object) {
     if (game_state.config->field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_8012ea40(Object *object) {

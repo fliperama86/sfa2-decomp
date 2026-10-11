@@ -19,7 +19,7 @@ void func_801b1ab0_slot04_03(Object *obj) {
     } else if ((t & 0xff00) == 0) {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1b4c_slot04_03(Object *obj) {
@@ -29,11 +29,11 @@ void func_801b1b4c_slot04_03(Object *obj) {
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     obj->vel_x += obj->accel_x;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1bb8_slot04_03(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;

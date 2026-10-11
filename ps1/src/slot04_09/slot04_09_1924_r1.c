@@ -31,7 +31,7 @@ void func_801b19c8_slot04_09(Object *obj) {
         func_801b536c_slot04_09(obj);
         obj->field_46 = data_801c7c44_slot04_09[obj->field_12a >> 1];
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1a44_slot04_09(Object *obj) {
@@ -52,6 +52,6 @@ void func_801b1a44_slot04_09(Object *obj) {
         }
         func_80142adc(obj);
     tail:
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

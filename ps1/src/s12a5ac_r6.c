@@ -7,7 +7,7 @@
 
 void func_8012b2c4(Object *object) {
     if ((s16)object->step_flags >= 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else if (object->field_157 != 0) {
         func_80131468(object);
     } else {

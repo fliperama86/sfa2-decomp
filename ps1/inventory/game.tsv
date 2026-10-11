@@ -535,8 +535,8 @@
 80130c80	320	func_80130c80	-	-	0	0	closed
 80130dc0	256	func_80130dc0	-	sound,unidentified	0	0	closed
 80130ec0	60	func_80130ec0	-	-	0	0	closed
-80130efc	48	func_80130efc	-	-	0	0	closed
-80130f2c	244	func_80130f2c	-	-	0	0	closed
+80130efc	48	update_sequence	-	-	0	0	closed
+80130f2c	244	advance_sequence	-	-	0	0	closed
 80131020	116	func_80131020	-	-	0	0	closed
 80131094	276	func_80131094	-	-	0	0	closed
 801311a8	272	func_801311a8	-	-	0	0	closed

@@ -16,7 +16,7 @@ void func_801b06a0_slot04_03(Object *obj) {
         x = t & 0xff;
         if (x == (s16)obj->field_46) {
             if ((t & 0xff00) == 0) {
-                func_80130efc(obj);
+                update_sequence(obj);
                 return;
             }
         } else {
@@ -30,7 +30,7 @@ void func_801b06a0_slot04_03(Object *obj) {
             d = -d;
         }
         *(s32 *)&obj->pos_x_frac = d + *(s32 *)&obj->pos_x_frac;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -39,5 +39,5 @@ void func_801b075c_slot04_03(Object *obj) {
         obj->field_45 = 1;
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

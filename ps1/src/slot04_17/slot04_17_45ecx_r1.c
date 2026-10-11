@@ -70,6 +70,6 @@ void func_801b45ec_slot04_17(Object *obj) {
         obj->accel_x = y;
         func_801307e0(obj, d + data_801ce63c_slot04_17[s]);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

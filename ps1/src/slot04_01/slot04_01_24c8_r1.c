@@ -13,7 +13,7 @@ void func_801b24c8_slot04_01(Object *obj) {
     int i = 0;
     u16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x80) {
         obj->accel_x = -0x8000;

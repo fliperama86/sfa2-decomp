@@ -51,7 +51,7 @@ def setup(state, rng, sym) -> Setup:
     log.replace(sym["func_801204f4"], 3, 0, masks={1: 0xFF, 2: 0xFF})
     log.replace(sym["func_80141f28"], 2, 0)
     log.replace(sym["func_80138ae8"], 2, 0)
-    log.replace(sym["func_80130efc"], 1, 0)
+    log.replace(sym["update_sequence"], 1, 0)
     return Setup(args=(obj,), returns_value=False)
 
 

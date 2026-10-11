@@ -12,13 +12,13 @@ void func_8012b024(Object *object)
   {
     if ((s16) object->step_flags >= 0)
     {
-      func_80130efc(object);
+      update_sequence(object);
     }
     else
     {
       object->state_3 = 1;
       object->field_159 = 0;
-      func_80130efc(object);
+      update_sequence(object);
     }
   }
   else

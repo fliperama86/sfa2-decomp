@@ -8,5 +8,5 @@ void func_801b2a3c_slot04_06(Object *o) {
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

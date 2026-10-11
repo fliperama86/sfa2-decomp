@@ -8,7 +8,7 @@ void func_801b1a08_slot04_04(Object *obj);
 void func_801b19bc_slot04_04(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b1a08_slot04_04(obj);
     }

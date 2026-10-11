@@ -27,6 +27,6 @@ void func_801b324c_slot04_09(Object *obj) {
         if (obj->field_67 != 0 && obj->other->field_61 != 0xff) {
             obj->field_a3 = 0x80;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

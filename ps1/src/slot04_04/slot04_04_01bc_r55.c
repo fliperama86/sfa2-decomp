@@ -30,7 +30,7 @@ void func_801b4a40_slot04_04(Object *obj) {
             func_801209c4(obj);
             func_80131638(obj);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     }
 }

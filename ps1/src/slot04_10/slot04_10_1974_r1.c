@@ -2,7 +2,7 @@
 #include "../game.h"
 #include "../externs.h"
 
-void func_80130efc(Object *object);
+void update_sequence(Object *object);
 void func_80142b3c(Object *object);
 int func_801418bc(Object *object);
 u8 func_8013d210(Object *object);
@@ -37,7 +37,7 @@ u8 func_801b20d4_slot04_10(Object *obj);
 void func_801b1974_slot04_10(Object *obj) {
     Slot04bObj *o = (Slot04bObj *)obj;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (o->field_3a == 1) {
         if (o->field_1c0 != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, 0);
@@ -50,7 +50,7 @@ void func_801b1974_slot04_10(Object *obj) {
 
 void func_801b19f0_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b1098_slot04_10(obj);
     }

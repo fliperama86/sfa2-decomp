@@ -9,7 +9,7 @@ void func_801b252c_slot04_0a(Object *obj) {
     s16 t;
     u16 u;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0xff00) == 0x100) {
         obj->step_flags = t & 0xff;

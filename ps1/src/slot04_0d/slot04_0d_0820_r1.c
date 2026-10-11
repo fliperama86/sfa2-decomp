@@ -20,7 +20,7 @@ void func_801b0840_slot04_0d(Object *obj) {
 
     if (t >= 0) {
         if ((t & 0xff) == 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             if (obj->field_0b == 0) {
                 d = -2;
@@ -28,7 +28,7 @@ void func_801b0840_slot04_0d(Object *obj) {
                 d = 2;
             }
             obj->pos_x = d + obj->pos_x;
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         func_801312b8(obj);

@@ -21,7 +21,7 @@ void func_801cbcf4_slot05_06(Object *o) {
             v = -0x80000;
         }
         *(s32 *)&o->pos_x_frac = v + *(s32 *)&o->pos_x_frac;
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
@@ -44,7 +44,7 @@ void func_801cbdfc_slot05_06(Object *o) {
     if (obj->field_3b & 0x80) {
         func_801cc61c_slot05_06(o);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 

@@ -7,7 +7,7 @@ void func_801b6140_slot04_02(Object *object) {
     if (game_state.field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b617c_slot04_02(Object *obj) {
@@ -30,5 +30,5 @@ void func_801b61d4_slot04_02(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

@@ -20,6 +20,6 @@ void func_801b18d8_slot04_00(Object *obj) {
         }
         func_80142adc(obj);
     tail:
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

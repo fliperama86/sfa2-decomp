@@ -95,7 +95,7 @@ void func_801b0194_slot04_14(Object *obj) {
                 c->field_66 = obj->field_66;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -154,7 +154,7 @@ void func_801b0490_slot04_14(Object *obj) {
             }
             *(s32 *)&obj->pos_x_frac = d + *(s32 *)&obj->pos_x_frac;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

@@ -10,7 +10,7 @@ void func_8012a804(Object *object) {
     if ((u8)func_8012f898(object) == 0) {
         if (object->field_21a == object->field_48) {
             *(s32 *)&object->pos_x_frac += object->vel_x;
-            func_80130efc(object);
+            update_sequence(object);
             return;
         }
         object->field_48 = object->field_21a;

@@ -79,7 +79,7 @@ void func_801b01ac_slot04_0c(Object *obj) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     }
     if (obj->pos_x != data_801bd8d8_slot04_0c[obj->side]) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_46 = 0x48;
         obj->state_2 = obj->state_2 + 1;
@@ -93,7 +93,7 @@ void func_801b01ac_slot04_0c(Object *obj) {
 void func_801b0260_slot04_0c(Object *obj) {
     s16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->field_46;
     t -= 1;
     obj->field_46 = t;
@@ -186,7 +186,7 @@ void func_801b0510_slot04_0c(Object *obj) {
                 *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + d;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

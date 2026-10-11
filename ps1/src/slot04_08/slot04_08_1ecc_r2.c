@@ -32,7 +32,7 @@ void func_801b1f8c_slot04_08(Object *obj) {
             func_80120554(obj, obj->side, 0x319);
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2088_slot04_08(Object *obj) {
@@ -41,6 +41,6 @@ void func_801b2088_slot04_08(Object *obj) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801307e0(obj, 0x3c);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

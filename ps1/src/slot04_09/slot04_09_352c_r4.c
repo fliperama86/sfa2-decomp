@@ -48,7 +48,7 @@ void func_801b3830_slot04_09(Object *obj) {
                 }
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         o = obj;
         o->state_3 = 9;

@@ -37,5 +37,5 @@ reset:
     return;
 copy:
     object->field_0b = object->field_158;
-    func_80130efc(object);
+    update_sequence(object);
 }

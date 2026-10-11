@@ -16,7 +16,7 @@ void func_801b2858_slot04_09(Object *o);
    both cases. When step_flags is not negative: if field_67 is not 0 and
    other's field_61 is not 0xff it sets field_a3 to 0x80 and clears
    field_67; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
-   vel_x and accel_x; then it hands over to func_80130efc. */
+   vel_x and accel_x; then it hands over to update_sequence. */
 void func_801b36f8_slot04_09(Object *obj) {
     Object *p;
     int d;
@@ -59,6 +59,6 @@ void func_801b36f8_slot04_09(Object *obj) {
             obj->vel_x = 0;
             obj->accel_x = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

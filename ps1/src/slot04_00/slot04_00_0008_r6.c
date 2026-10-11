@@ -19,7 +19,7 @@ void func_801b0764_slot04_00(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b081c_slot04_00(Object *obj) {
@@ -27,6 +27,6 @@ void func_801b081c_slot04_00(Object *obj) {
         obj->other->field_249 = 6;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

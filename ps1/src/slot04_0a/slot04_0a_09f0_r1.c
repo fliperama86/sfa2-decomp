@@ -23,7 +23,7 @@ void func_801b0a38_slot04_0a(Object *o) {
             o->accel_x = 0x8000;
         }
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b0ab4_slot04_0a(Object *obj) {

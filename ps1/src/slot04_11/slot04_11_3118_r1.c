@@ -13,7 +13,7 @@ void func_801b3118_slot04_11(Object *obj) {
     int i;
     u8 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((obj->step_flags & 1) == 0) {
         if (obj->field_165 != 0) {
             i = 6;

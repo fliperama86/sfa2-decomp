@@ -19,7 +19,7 @@ void func_801b1e58_slot04_00(Object *obj) {
                 return;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -30,13 +30,13 @@ void func_801b1ef8_slot04_00(Object *obj) {
         obj->state_3++;
         func_80130678(obj, 0x21);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b1f70_slot04_00(Object *obj) {
     if (func_801b1c5c_slot04_00(obj) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b1fb8_slot04_00(obj);
     }

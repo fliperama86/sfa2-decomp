@@ -41,8 +41,8 @@ Three rules keep the names honest:
 | --- | --- | --- | --- |
 | `0x04` to `0x07` | `state_0` to `state_3` | Four bytes, each used as an index into tables of functions, stepped by one or set to a constant. They are numbered by offset; which of them is the outer one is not claimed. | `func_801312b8` sets the four; `func_80131020` reads them as one word |
 | `0x10`, `0x14` | `pos_x_frac`, `pos_y_frac` | The low half of the 32-bit word whose high half is `pos_x` or `pos_y`. The code takes the address of this half to add a velocity to the whole word. | any character unit that moves its object |
-| `0x38` | `step_timer` | Set from the `duration` of the current step of the object's `sequence` and counted down; when it reaches zero the next step is taken. | `func_80130f2c` |
-| `0x3a` | `step_flags` | A copy of the current step's `flags`. A negative value makes the sequence continue at the step's `loop_offset`; other bits are tested and cleared by the units. | `func_80130f2c`, `func_801307e0` |
+| `0x38` | `step_timer` | Set from the `duration` of the current step of the object's `sequence` and counted down; when it reaches zero the next step is taken. | `advance_sequence` |
+| `0x3a` | `step_flags` | A copy of the current step's `flags`. A negative value makes the sequence continue at the step's `loop_offset`; other bits are tested and cleared by the units. | `advance_sequence`, `func_801307e0` |
 | `0x4c`, `0x50` | `vel_x`, `vel_y` | A 32-bit word that is added to, or taken from, the position word of its axis. | any character unit that moves its object |
 | `0x54`, `0x58` | `accel_x`, `accel_y` | A 32-bit word that is added to the velocity of its axis. | the same units |
 
@@ -68,3 +68,35 @@ A unit that keeps a plain number of another meaning in such a word has no
 cast to find it by; it is moved when it is read. When the records of a
 module are understood, their words get a struct of their own with names,
 and its units leave this view.
+
+## How a function gets its name
+
+A function has its name and its address together in one place, its entry in
+`ps1/src/build.toml`. The name is changed there, and
+
+    python ps1/tools/renamefuncs.py apply --old OLD_CONFIGURATION --new ps1/src/build.toml \
+        ps1/src ps1/inventory port
+
+replaces the old name, as a whole word, everywhere it is written: code,
+comments, prototypes, the inventory, and the contracts and fixtures of
+nonmatching functions, which name their callees. `OLD_CONFIGURATION` is the
+file before the change. A function's first name is `func_` and its address,
+with the image after it for a module's function, so the address of a named
+function is in its entry and its first name follows from that.
+
+- Only a function of an exact unit gets a name; the tool renames what the
+  configuration declares and nothing else. A nonmatching function keeps
+  `func_` and its address: its files are named after it, and the tool that
+  tests it finds the original code by that name.
+- Markdown is rewritten only where a page describes the source as it is
+  (this page, the guides), and such a page is given to the tool by its own
+  path. A page that records a run, such as the page of a folder of
+  nonmatching functions or a record under `docs/records/`, keeps the names
+  of the day of the run.
+
+## Functions
+
+| Address | Name | What the code shows |
+| --- | --- | --- |
+| `0x80130f2c` | `advance_sequence` | Counts `step_timer` down. At zero it takes the next step of the object's `sequence`, the one at `loop_offset` when `step_flags` is negative, and loads `step_timer`, `step_flags` and `frame` from that step. |
+| `0x80130efc` | `update_sequence` | Calls `advance_sequence`, then `func_80131020`, which calls it a second time under a condition on the state bytes that is not understood yet. It is the routine that the units call to move an object's sequence on. |

@@ -24,7 +24,7 @@ void func_801b3878_slot04_10(Object *obj) {
 
     t = obj->step_flags;
     if ((u8)t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     if ((u8)t != 0xf) {
@@ -53,7 +53,7 @@ void func_801b3878_slot04_10(Object *obj) {
         obj->step_flags = t & 0xff00;
         game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
         k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->field_12a + k) * 2 + (u32)a);
         if ((u8)func_80140cd8(obj, p[0], p[1]) != 0) {
             obj->field_167 = 2;
@@ -70,7 +70,7 @@ void func_801b3878_slot04_10(Object *obj) {
 
 void func_801b3b6c_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_45 = 0;
         obj->state_3++;
@@ -84,7 +84,7 @@ void func_801b3b6c_slot04_10(Object *obj) {
 void func_801b3be8_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_17b = 0;
         game_state.field_358 = obj->other;
@@ -135,7 +135,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
     u16 *p;
     u8 st;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     st = obj->step_flags;
     p = tbl;
     if (st != 0) {
@@ -164,7 +164,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
 void func_801b3f54_slot04_10(Object *obj) {
     s32 tbl[12] = { 0x24000, 0x90000, 0, -0x8000, 0x24000, 0xa0000, 0, -0x8400, 0x24000, 0xb0000, 0, -0x8800 };
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 3) {
         obj->field_45 = 1;
         obj->state_3++;

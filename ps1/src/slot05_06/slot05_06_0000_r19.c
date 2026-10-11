@@ -12,7 +12,7 @@ void func_801c983c_slot05_06(Object *o) {
         ((Slot04aObj *)o)->field_1c8 = 0;
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801c9880_slot05_06(Object *o) {
@@ -22,7 +22,7 @@ void func_801c9880_slot05_06(Object *o) {
         func_801307e0(o, 0x28);
     } else if (o->vel_y >= 0) {
         func_801cc814_slot05_06(o);
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->vel_x = 0x18000;
         o->vel_y = -0x80000;

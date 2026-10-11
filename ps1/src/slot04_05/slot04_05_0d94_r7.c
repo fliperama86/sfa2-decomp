@@ -9,7 +9,7 @@ void func_801b253c_slot04_05(Object *obj) {
     }
     if ((u8)func_80130184(obj) != 0) {
         if (*(u8 *)&obj->step_flags != 2) {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3++;
@@ -32,7 +32,7 @@ void func_801b25f8_slot04_05(Object *obj) {
     }
     if ((u8)func_80130184(obj) != 0) {
         if ((u8)obj->step_flags != 2) {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3++;

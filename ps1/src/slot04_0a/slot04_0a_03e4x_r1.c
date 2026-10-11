@@ -11,7 +11,7 @@
  * random generator, divides it by 52, passes it to func_80125734 together
  * with the object, stores the result as a signed byte in field_48 and
  * starts the sequence numbered 0x23 plus that result with func_80130678.
- * Otherwise it only calls func_80130efc.
+ * Otherwise it only calls update_sequence.
  */
 void func_801b03e4_slot04_0a(Object *obj) {
     unsigned variant;
@@ -26,6 +26,6 @@ void func_801b03e4_slot04_0a(Object *obj) {
         obj->field_48 = variant;
         func_80130678(obj, (s16)(variant + 0x23));
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

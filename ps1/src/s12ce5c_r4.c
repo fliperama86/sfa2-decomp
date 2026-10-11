@@ -5,7 +5,7 @@
 
 void func_8012d910(Object *object) {
     if ((u8)func_80130184(object) != 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else {
         object->state_3 = object->state_3 + 1;
         func_80131d68(object);
@@ -24,7 +24,7 @@ void func_8012d910(Object *object) {
 void func_8012d9b4(Object *object) {
     object->field_46 = (s16)object->field_46 - 1;
     if ((s16)object->field_46 != 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else if ((s16)object->field_5c < 0) {
         func_8012f4dc(object);
     } else {

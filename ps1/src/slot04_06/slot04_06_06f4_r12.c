@@ -13,7 +13,7 @@ void func_801b5060_slot04_06(Object *object) {
     if (game_state.field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b509c_slot04_06(Object *o) {

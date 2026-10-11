@@ -23,14 +23,14 @@ void func_801b0568_slot04_09(Object *obj) {
         obj->step_flags = u & 0xff00;
         func_80130678(obj, 0x32);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b05f4_slot04_09(Object *obj) {
     u16 t;
     u16 u;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;

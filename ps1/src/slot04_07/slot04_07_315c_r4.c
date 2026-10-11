@@ -10,7 +10,7 @@ void func_801b35a8_slot04_07(Object *obj) {
     int b;
 
     obj->field_27c = obj->field_27c + 1;
-    func_80130efc(obj);
+    update_sequence(obj);
     w = obj->field_46;
     t = (w & 0xff) - 1;
     a = (w & 0xff00) | t;

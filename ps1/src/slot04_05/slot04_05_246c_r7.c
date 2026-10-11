@@ -7,7 +7,7 @@ int func_801b3048_slot04_05(Object *object);
 
 void func_801b2e04_slot04_05(Object *obj) {
     u8 t;
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t == 2) {
         obj->vel_x = 0xa0000;
@@ -51,7 +51,7 @@ void func_801b2e74_slot04_05(Object *o) {
                 goto c4;
             }
         }
-        func_80130efc(o);
+        update_sequence(o);
         return;
     c4:
         if (o->field_cd != 0) {

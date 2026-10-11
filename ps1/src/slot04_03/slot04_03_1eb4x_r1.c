@@ -13,7 +13,7 @@ void func_801b1eb4_slot04_03(Object *obj) {
     s16 t;
     Object *o;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (!(t & 0x8000)) {
         if ((u8)t == 0) {

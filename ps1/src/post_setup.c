@@ -113,12 +113,12 @@ void func_80130ec0(Object *object) {
     func_80142c04(object);
 }
 
-void func_80130efc(Object *object) {
-    func_80130f2c(object);
+void update_sequence(Object *object) {
+    advance_sequence(object);
     func_80131020(object);
 }
 
-void func_80130f2c(Object *object) {
+void advance_sequence(Object *object) {
     SequenceStep *next;
 
     if (--*(s16 *)&object->step_timer == 0) {
@@ -145,7 +145,7 @@ void func_80131020(Object *object) {
         w = *(u32 *)&object->state_0;
         if ((u16)w == 1) {
             if ((w & 0xffff0000) == 0x03030000 || object->state_2 == 5) {
-                if (object->field_29a == 0) func_80130f2c(object);
+                if (object->field_29a == 0) advance_sequence(object);
             }
         }
     }

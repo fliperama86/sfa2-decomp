@@ -28,7 +28,7 @@ void func_801b40c4_slot04_11(Object *obj) {
             func_801307e0(obj, 0x6f);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -76,7 +76,7 @@ void func_801b418c_slot04_11(Object *o) {
         o->accel_y = -0x6000;
         func_801307e0(o, 0x4d);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
@@ -96,6 +96,6 @@ void func_801b42f0_slot04_11(Object *obj) {
         obj->accel_y = 0;
         func_801307e0(obj, 0x4e);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

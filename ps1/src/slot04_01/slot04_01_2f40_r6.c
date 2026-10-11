@@ -24,7 +24,7 @@ void func_801b3408_slot04_01(Object *obj) {
     }
     func_80140fe0(obj);
     if ((s16)obj->field_46 == 0 || (p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     func_80146478(obj, 1, -0x3e, 0x39);

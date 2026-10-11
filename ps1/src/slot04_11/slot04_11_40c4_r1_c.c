@@ -32,7 +32,7 @@ void func_801b4824_slot04_11(Object *obj) {
             func_801307e0(obj, 0x6f);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -42,7 +42,7 @@ void func_801b4910_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

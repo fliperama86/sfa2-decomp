@@ -16,7 +16,7 @@ func_801b2e8c_slot04_0e.c. Choices made here:
   - every recorder copies the whole object (0x394 bytes) into the log at
     every call, so the order of the function's stores against its calls is
     compared; no recorded callee gets a pointer to memory filled for the call;
-  - func_80130efc, func_801307e0 and func_801209c4 are recorders returning
+  - update_sequence, func_801307e0 and func_801209c4 are recorders returning
     0; func_801b4914_slot04_0e and func_801b2f58_slot04_0e run as original.
 """
 
@@ -28,7 +28,7 @@ Q = 0xFFFFFFFF
 def setup(state, rng, sym) -> Setup:
     obj = state.alloc(0x394)
     log = CallLog(state, 2048, watch=((obj, 0x394 // 4),))
-    log.replace(sym["func_80130efc"], 1)
+    log.replace(sym["update_sequence"], 1)
     log.replace(sym["func_801307e0"], 2)
     log.replace(sym["func_801209c4"], 1)
 

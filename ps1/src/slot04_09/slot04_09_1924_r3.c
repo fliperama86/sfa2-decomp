@@ -13,6 +13,6 @@ void func_801b1c98_slot04_09(Object *obj) {
             obj->field_17b = 0;
             func_80142adc(obj);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

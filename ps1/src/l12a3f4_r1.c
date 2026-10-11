@@ -15,7 +15,7 @@ void func_8012a3f4(Object *object) {
         } else if ((s16)object->step_flags < 0) {
             func_801312b8(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else if (func_80130470(object)) {
         func_8013047c(object);
@@ -33,7 +33,7 @@ void func_8012a3f4(Object *object) {
         if ((s16)object->step_flags < 0) {
             func_801312b8(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else {
         saved = object->step_timer;

@@ -12,12 +12,12 @@ void func_80140fe0(Object *object) {
     if (object->field_cd != 0) {
         func_80141058(object);
     } else {
-        if (object->field_134 & 0xff00) func_80130efc(object);
-        if (*(u8 *)&object->field_134 != 0) func_80130efc(object);
+        if (object->field_134 & 0xff00) update_sequence(object);
+        if (*(u8 *)&object->field_134 != 0) update_sequence(object);
     }
 }
 
 void func_80141058(Object *object) {
-    if (func_8014a170(object, table_8017d618)) func_80130efc(object);
-    if (func_8014a170(object, table_8017d618)) func_80130efc(object);
+    if (func_8014a170(object, table_8017d618)) update_sequence(object);
+    if (func_8014a170(object, table_8017d618)) update_sequence(object);
 }

@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b4e68_slot04_02(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;

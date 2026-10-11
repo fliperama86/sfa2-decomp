@@ -34,7 +34,7 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
                 goto act;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     func_80140fe0(obj);
@@ -50,5 +50,5 @@ tail:
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

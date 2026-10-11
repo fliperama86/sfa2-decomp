@@ -19,7 +19,7 @@ void func_801b16f8_slot04_0b(Object *obj) {
         obj->vel_x = 0;
         obj->accel_x = 0;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b179c_slot04_0b(Object *obj) {
@@ -40,6 +40,6 @@ void func_801b179c_slot04_0b(Object *obj) {
         }
         func_801307e0(obj, a);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

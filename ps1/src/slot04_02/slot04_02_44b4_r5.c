@@ -11,7 +11,7 @@ void func_801b4f0c_slot04_02(Object *obj) {
     u16 t;
 
     p = obj->other;
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_17b = 0;

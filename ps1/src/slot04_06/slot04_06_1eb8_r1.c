@@ -27,10 +27,10 @@ void func_801b1eb8_slot04_06(Object *o) {
                 if (*(u16 *)&o->other->state_0 == 0x101) {
                     o->other->vel_y += 0x30000;
                 }
-                func_80130efc(o);
+                update_sequence(o);
             }
         } else {
-            func_80130efc(o);
+            update_sequence(o);
         }
     }
 }
@@ -49,10 +49,10 @@ void func_801b1fac_slot04_06(Object *obj) {
                 if (*(u16 *)&obj->other->state_0 == 0x101) {
                     obj->other->vel_y += 0x30000;
                 }
-                func_80130efc(obj);
+                update_sequence(obj);
             }
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         func_80131468(obj);

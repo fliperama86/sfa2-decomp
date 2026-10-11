@@ -19,7 +19,7 @@ void func_801b3300_slot04_0b(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b338c_slot04_0b(Object *o) {
@@ -27,7 +27,7 @@ void func_801b338c_slot04_0b(Object *o) {
     int t;
 
     obj->field_27c++;
-    func_80130efc(o);
+    update_sequence(o);
     o->field_46 = t = (o->field_46 & 0xff00) | ((o->field_46 & 0xff) - 1);
     if ((t & 0xff) == 0) {
         if (o->field_45 != 0) {

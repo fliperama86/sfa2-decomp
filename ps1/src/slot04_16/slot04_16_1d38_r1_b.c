@@ -89,7 +89,7 @@ void func_801b24d4_slot04_16(Object *obj) {
         func_80143184(obj);
         func_801b6434_slot04_16(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2574_slot04_16(Object *obj) {
@@ -108,7 +108,7 @@ void func_801b2574_slot04_16(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2610_slot04_16(Object *o) {
@@ -117,7 +117,7 @@ void func_801b2610_slot04_16(Object *o) {
     int t;
 
     obj->field_27c++;
-    func_80130efc(o);
+    update_sequence(o);
     a = o->field_46;
     t = a - 1;
     o->field_46 = t;
@@ -163,7 +163,7 @@ void func_801b277c_slot04_16(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801b10b0_slot04_16(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -177,7 +177,7 @@ void func_801b27fc_slot04_16(Object *obj) {
         obj->step_flags &= 0xff00;
         func_80146998(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2854_slot04_16(Object *obj) {
@@ -191,7 +191,7 @@ void func_801b2854_slot04_16(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b28e0_slot04_16(Object *obj) {
@@ -214,14 +214,14 @@ void func_801b28e0_slot04_16(Object *obj) {
             obj->field_167 = 5;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b29e4_slot04_16(Object *obj) {
     s16 t;
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t >= 0) {
         if ((u8)t == 3) {
@@ -249,12 +249,12 @@ void func_801b2ab8_slot04_16(Object *obj) {
         obj->step_flags &= 0xff00;
         func_80146998(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2b10_slot04_16(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 5;

@@ -27,7 +27,7 @@ void func_80142a14(Object *object)
   {
     if ((u8)func_801412a4(object) == 0)
     {
-      func_80130efc(object);
+      update_sequence(object);
       return;
     }
   }
@@ -35,11 +35,11 @@ void func_80142a14(Object *object)
   {
     if ((u8)func_80141618(object) == 0 && (u8)func_801412a4(object) == 0)
     {
-      func_80130efc(object);
+      update_sequence(object);
       return;
     }
   }
   object->state_3 = 0;
   object->field_25f = 0xff;
-  func_80130efc(object);
+  update_sequence(object);
 }

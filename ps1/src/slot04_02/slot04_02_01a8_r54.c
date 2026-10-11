@@ -22,5 +22,5 @@ void func_801b6560_slot04_02(Object *obj) {
             *(s32 *)&obj->pos_x_frac -= 0x20000;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

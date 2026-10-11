@@ -6,7 +6,7 @@
 
 void func_8012dbd4(Object *object) {
     if ((u8)func_80130184(object) != 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 1;
@@ -24,7 +24,7 @@ void func_8012dbd4(Object *object) {
 void func_8012dc58(Object *object) {
     if ((s16)object->step_flags >= 0 || (object->field_46 = (s16)object->field_46 - 1, (s16)object->field_46 != 0)) {
         *(s32 *)&object->pos_x_frac += object->vel_x;
-        func_80130efc(object);
+        update_sequence(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 1;

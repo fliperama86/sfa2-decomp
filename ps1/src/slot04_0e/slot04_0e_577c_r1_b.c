@@ -59,7 +59,7 @@ void func_801b5fcc_slot04_0e(Object *o) {
                 if (obj->field_46 == 0) {
                     func_80146888(o);
                 }
-                func_80130efc(o);
+                update_sequence(o);
             }
         }
     }
@@ -79,7 +79,7 @@ void func_801b6098_slot04_0e(Object *obj) {
             obj->vel_x = -obj->vel_x;
             obj->accel_x = -obj->accel_x;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

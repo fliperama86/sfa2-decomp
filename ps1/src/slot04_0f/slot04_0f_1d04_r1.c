@@ -36,7 +36,7 @@ void func_801b1d64_slot04_0f(Object *o) {
 }
 
 void func_801b1ddc_slot04_0f(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     func_801b2270_slot04_0f(o);
     if ((s16)o->step_flags < 0) {
         o->state_3 = o->state_3 + 1;
@@ -62,7 +62,7 @@ void func_801b1e38_slot04_0f(Object *o) {
 }
 
 void func_801b1ec8_slot04_0f(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     func_801b2270_slot04_0f(o);
     if ((s16)o->step_flags < 0) {
         ((Slot04bObj *)o)->field_46 = 1;
@@ -77,7 +77,7 @@ void func_801b1ec8_slot04_0f(Object *o) {
 void func_801b1f3c_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    func_80130efc(o);
+    update_sequence(o);
     obj->field_46--;
     if (obj->field_46 == 0) {
         if (o->field_45 != 0) {
@@ -115,7 +115,7 @@ void func_801b2018_slot04_0f(Object *o) {
 }
 
 void func_801b2094_slot04_0f(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     if ((s16)o->step_flags < 0) {
         ((Slot04bObj *)o)->field_46 = 0x10;
         o->state_3 = o->state_3 + 1;
@@ -137,7 +137,7 @@ void func_801b20e4_slot04_0f(Object *o) {
 }
 
 void func_801b2168_slot04_0f(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     if ((s16)o->step_flags < 0) {
         o->field_17b = 0;
         if (o->field_45 == 0) {

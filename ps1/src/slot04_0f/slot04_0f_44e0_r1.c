@@ -19,7 +19,7 @@ void func_80138c78(GameState *state, Object *object);
 void func_801b4908_slot04_0f(Object *obj);
 
 void func_801b44e0_slot04_0f(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         ref_other.p = obj->other;
@@ -35,7 +35,7 @@ void func_801b4568_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -59,7 +59,7 @@ void func_801b465c_slot04_0f(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0x12, 0, 1, 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b46c0_slot04_0f(Object *obj) {
@@ -67,7 +67,7 @@ void func_801b46c0_slot04_0f(Object *obj) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -94,7 +94,7 @@ void func_801b47c0_slot04_0f(Object *obj) {
     if (c->field_64 == 0 && c->field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4818_slot04_0f(Object *obj) {
@@ -130,7 +130,7 @@ void func_801b4908_slot04_0f(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b496c_slot04_0f(Object *obj) {
@@ -163,7 +163,7 @@ void func_801b4a3c_slot04_0f(Object *obj) {
             obj->state_3 = 0;
             obj->field_25f = 0xff;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         if (obj->field_128 == 0) {
             func_801312b8(obj);

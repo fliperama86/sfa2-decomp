@@ -28,12 +28,12 @@ void func_801b59e8_slot04_06(Object *obj) {
             }
             *(s32 *)&obj->pos_x_frac += d;
             obj->vel_x += obj->accel_x;
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             if (((Slot04aObj *)obj)->field_3a != 0 && (func_80149b80(obj) & 0xff) != 0) {
                 obj->state_3 = 0;
             }
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     }
 }

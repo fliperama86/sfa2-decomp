@@ -97,7 +97,7 @@ void func_801b0258_slot04_11(Object *obj) {
     if (game_state.config->field_64 == 0 && game_state.config->field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b02c0_slot04_11(Object *obj) {
@@ -120,7 +120,7 @@ void func_801b0350_slot04_11(Object *obj) {
             game_state.config->field_4b |= obj->side + 1;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b03c0_slot04_11(Object *obj) {
@@ -137,7 +137,7 @@ void func_801b0434_slot04_11(Object *obj) {
     if (game_state.config->field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b047c_slot04_11(Object *obj) {
@@ -158,7 +158,7 @@ void func_801b04d0_slot04_11(Object *obj) {
             game_state.config->field_4b |= obj->side + 1;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0540_slot04_11(Object *obj) {

@@ -30,5 +30,5 @@ void func_801b1e6c_slot04_0a(Object *obj) {
     if (func_801b1e04_slot04_0a(obj)) {
         func_801b1c00_slot04_0a(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

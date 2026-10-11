@@ -26,7 +26,7 @@ void func_801b5bf4_slot04_02(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0xf, 0, 1, 0);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5c58_slot04_02(Object *obj) {
@@ -34,6 +34,6 @@ void func_801b5c58_slot04_02(Object *obj) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

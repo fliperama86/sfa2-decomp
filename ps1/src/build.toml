@@ -154,8 +154,8 @@ functions = [
   { name = "func_80130c80", address = 0x80130c80, size = 320 },
   { name = "func_80130dc0", address = 0x80130dc0, size = 256 },
   { name = "func_80130ec0", address = 0x80130ec0, size = 60 },
-  { name = "func_80130efc", address = 0x80130efc, size = 48 },
-  { name = "func_80130f2c", address = 0x80130f2c, size = 244 },
+  { name = "update_sequence", address = 0x80130efc, size = 48 },
+  { name = "advance_sequence", address = 0x80130f2c, size = 244 },
   { name = "func_80131020", address = 0x80131020, size = 116 },
   { name = "func_80131094", address = 0x80131094, size = 276 },
 ]

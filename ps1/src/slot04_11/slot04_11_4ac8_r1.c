@@ -29,7 +29,7 @@ void func_801b4ac8_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -41,7 +41,7 @@ void func_801b4b0c_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -66,7 +66,7 @@ void func_801b4bf4_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
         if ((obj->step_flags & 0x80) == 0) {
             func_801b57a8_slot04_11(obj);
         }
@@ -96,7 +96,7 @@ void func_801b4cf4_slot04_11(Object *obj) {
     obj->vel_y = data_801c77d4_slot04_11[(k << 2) + 2];
     obj->accel_y = data_801c77d4_slot04_11[(k << 2) + 3];
     obj->field_45 = 1;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4d84_slot04_11(Object *obj) {
@@ -108,7 +108,7 @@ void func_801b4d84_slot04_11(Object *obj) {
         func_801209c4(obj);
         func_80130678(obj, 0x11);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4e14_slot04_11(Object *obj) {
@@ -117,7 +117,7 @@ void func_801b4e14_slot04_11(Object *obj) {
         ref_other.p->field_249 = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -152,7 +152,7 @@ void func_801b4f20_slot04_11(Object *obj) {
         func_801b51a8_slot04_11(obj);
         func_801204f4(obj, obj->side, 7);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4fb4_slot04_11(Object *obj) {
@@ -171,12 +171,12 @@ void func_801b4fb4_slot04_11(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b503c_slot04_11(Object *obj) {
     obj->field_27c++;
-    func_80130efc(obj);
+    update_sequence(obj);
     ((Slot04bObj *)obj)->field_46--;
     if (((Slot04bObj *)obj)->field_46 == 0) {
         if (obj->field_45 != 0) {

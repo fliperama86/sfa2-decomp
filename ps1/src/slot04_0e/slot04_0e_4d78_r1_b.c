@@ -87,12 +87,12 @@ void func_801b5144_slot04_0e(Object *obj) {
             p->field_9c = obj->field_9c;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5260_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags > 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_17b = 0;
         func_801312b8(obj);
@@ -113,7 +113,7 @@ void func_801b52e0_slot04_0e(Object *obj) {
 
 void func_801b532c_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         func_801b504c_slot04_0e(obj);
     } else {
         func_80131468(obj);
@@ -133,7 +133,7 @@ void func_801b53c0_slot04_0e(Object *obj) {
 }
 
 void func_801b540c_slot04_0e(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((s16)obj->step_flags < 0) {
         obj->field_45 = 1;
         obj->vel_x = 0xc0000;
@@ -203,7 +203,7 @@ void func_801b55b8_slot04_0e(Object *obj) {
         func_80143184(obj);
         func_801b6b40_slot04_0e(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b5660_slot04_0e(Object *obj) {
@@ -222,12 +222,12 @@ void func_801b5660_slot04_0e(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b56e8_slot04_0e(Object *obj) {
     obj->field_27c++;
-    func_80130efc(obj);
+    update_sequence(obj);
     ((Slot04bObj *)obj)->field_46--;
     if (((Slot04bObj *)obj)->field_46 != 0) {
         func_801b577c_slot04_0e(obj);

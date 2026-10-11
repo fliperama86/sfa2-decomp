@@ -31,7 +31,7 @@ void func_801b50e8_slot04_06(Object *obj) {
             g->field_4b |= 1 << ((Slot04aObj *)obj)->field_a6;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b51f8_slot04_06(Object *obj) {

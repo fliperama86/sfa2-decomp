@@ -9,7 +9,7 @@ void func_801b3b74_slot04_02(Object *o) {
     Object *p;
     u16 y;
 
-    func_80130efc(o);
+    update_sequence(o);
     if (obj->field_3a != 0) {
         o->state_3++;
         o->field_46 = obj->field_46 | 0x600;

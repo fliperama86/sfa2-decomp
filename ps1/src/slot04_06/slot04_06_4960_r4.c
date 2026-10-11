@@ -22,5 +22,5 @@ void func_801b4cfc_slot04_06(Object *obj) {
             ref_other.p->field_44 = 1;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

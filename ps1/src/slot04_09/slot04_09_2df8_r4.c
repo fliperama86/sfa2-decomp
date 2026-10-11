@@ -6,7 +6,7 @@
 void func_801b3190_slot04_09(Object *obj) {
     u16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((u8)t == 0) {
         obj->state_3++;

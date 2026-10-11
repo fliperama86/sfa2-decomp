@@ -8,7 +8,7 @@ void func_801b1c48_slot04_0a(Object *obj) {
     int b;
 
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         a = 0x60000;
         b = -0x4000;

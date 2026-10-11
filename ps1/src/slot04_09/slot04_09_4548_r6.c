@@ -10,7 +10,7 @@ void func_801b4c14_slot04_09(Object *obj) {
     s16 t;
     s16 a;
     obj->field_46--;
-    func_80130efc(obj);
+    update_sequence(obj);
     func_801b5c6c_slot04_09(obj);
     if (obj->step_flags & 0x80) {
         obj->state_3++;
@@ -49,6 +49,6 @@ void func_801b4cc0_slot04_09(Object *obj) {
         } else {
             func_801b5c6c_slot04_09(obj);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

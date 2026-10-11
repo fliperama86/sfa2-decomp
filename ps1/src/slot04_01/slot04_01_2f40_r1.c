@@ -18,7 +18,7 @@ void func_801b2f40_slot04_01(Object *obj) {
 }
 
 void func_801b2f9c_slot04_01(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         obj->state_3++;
         if (obj->field_0b == 0) {
@@ -33,7 +33,7 @@ void func_801b2f9c_slot04_01(Object *obj) {
 }
 
 void func_801b3030_slot04_01(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->vel_y = 0x30000;
         obj->accel_y = -0x6000;

@@ -7,7 +7,7 @@ extern ObjectFn data_801dd4ec_slot05_06[];
 
 void func_801cc61c_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->other->field_249 = 5;
         func_801312b8(obj);

@@ -24,6 +24,6 @@ void func_801b08c4_slot04_02(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

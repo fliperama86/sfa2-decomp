@@ -25,7 +25,7 @@ void func_801b16d0_slot04_04(Object *obj) {
 
 void func_801b1744_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_46 = 0xf;
         obj->state_3++;

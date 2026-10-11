@@ -22,13 +22,13 @@ void func_801b13e0_slot04_03(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b14b4_slot04_03(Object *obj) {
     func_80142adc(obj);
     if (!((s16)obj->step_flags & 0x8000)) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->other->field_249 = 5;
         func_801312b8(obj);

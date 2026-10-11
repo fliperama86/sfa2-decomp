@@ -65,7 +65,7 @@ void func_801b1254_slot04_0d(Object *obj) {
 void func_801b1294_slot04_0d(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    func_80130efc(o);
+    update_sequence(o);
     if ((s16)o->step_flags >= 0) {
         if (o->field_12a != 0) {
             obj->field_1ce = 1;

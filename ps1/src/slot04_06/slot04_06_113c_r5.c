@@ -32,7 +32,7 @@ void func_801b1514_slot04_06(Object *o) {
             obj->field_1c3 = 10;
             o->state_3++;
         } else {
-            func_80130efc(o);
+            update_sequence(o);
         }
     }
 }
@@ -51,5 +51,5 @@ done:
     o->field_249 = 5;
     o->state_3++;
     func_801209c4(o);
-    func_80130efc(o);
+    update_sequence(o);
 }

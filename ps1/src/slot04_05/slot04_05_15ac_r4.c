@@ -15,7 +15,7 @@ void func_801b19c4_slot04_05(Object *obj) {
     if (obj->vel_x < 0) {
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1be0_slot04_05(Object *obj);
@@ -24,7 +24,7 @@ void func_801b1a60_slot04_05(Object *obj) {
     func_801b1be0_slot04_05(obj);
     if (obj->field_70 >= obj->pos_y) {
         if (*(u8 *)&obj->step_flags != 3) {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3++;
@@ -32,6 +32,6 @@ void func_801b1a60_slot04_05(Object *obj) {
         obj->field_45 = 0;
         obj->field_17b = 0;
         obj->pos_y = (u16)obj->field_70;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

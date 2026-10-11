@@ -30,7 +30,7 @@ void func_801b1298_slot04_01(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->field_3a != 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->field_45 = 1;
         o->state_3++;

@@ -30,7 +30,7 @@ void func_8012eb18(Object *o)
     {
       goto tail;
     }
-      func_80130efc(o);
+      update_sequence(o);
       return;
 
     default:

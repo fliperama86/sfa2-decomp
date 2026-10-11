@@ -10,7 +10,7 @@ void func_801b2a88_slot04_06(Object *obj) {
     Object *other;
 
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else if (obj->field_12a == 4) {
         func_801b2b84_slot04_06(obj);
     } else {

@@ -5,7 +5,7 @@
 
 void func_8012a108(Object *object) {
     if (object->kind != 6 || *(u8 *)&object->step_flags == 0) {
-        func_80130efc(object);
+        update_sequence(object);
     } else {
         *(s16 *)&object->step_flags = -0x100;
     }

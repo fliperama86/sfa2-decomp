@@ -13,13 +13,13 @@ void func_801b1df8_slot04_01(Object *obj) {
         obj->state_3++;
         func_80130678(obj, 0x21);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b1e70_slot04_01(Object *obj) {
     if (func_801b1b58_slot04_01(obj) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b1eb8_slot04_01(obj);
     }

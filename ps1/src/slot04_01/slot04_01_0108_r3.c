@@ -13,5 +13,5 @@ void func_801b02bc_slot04_01(Object *object) {
             game_state.config->field_4b |= object->side + 1;
         }
     }
-    func_80130efc(object);
+    update_sequence(object);
 }

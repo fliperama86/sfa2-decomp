@@ -50,7 +50,7 @@ void func_801b329c_slot04_11(Object *obj) {
     if (!((u32)b < (u32)a)) {
         a = data_801c7514_slot04_11[obj->field_0b];
         if (!(a & obj->field_164)) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
     }

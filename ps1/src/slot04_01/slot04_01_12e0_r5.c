@@ -46,6 +46,6 @@ void func_801b1954_slot04_01(Object *o) {
         }
         func_801307e0(o, obj->field_1a4 + a - 1);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

@@ -61,7 +61,7 @@ void func_801b2190_slot04_14(Object *obj) {
         a += obj->field_12a >> 1;
         func_801307e0(obj, a);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -77,7 +77,7 @@ void func_801b225c_slot04_14(Object *obj) {
         }
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b22f4_slot04_14(Object *obj) {
@@ -89,7 +89,7 @@ void func_801b22f4_slot04_14(Object *obj) {
         s1->pos_y_frac = 0;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -140,7 +140,7 @@ void func_801b24a8_slot04_14(Object *obj) {
                 return;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b2664_slot04_14(obj);
     }
@@ -152,7 +152,7 @@ void func_801b2550_slot04_14(Object *obj) {
             obj->state_3++;
             func_80130678(obj, 0x21);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         func_801b2664_slot04_14(obj);
@@ -171,7 +171,7 @@ void func_801b25cc_slot04_14(Object *obj) {
         s1->field_249 = 5;
         func_80130678(obj, 0x11);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -211,7 +211,7 @@ void func_801b2790_slot04_14(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
         func_801b2b4c_slot04_14(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
         if ((u8)obj->step_flags == 1) {
             obj->state_3++;
             obj->step_flags = obj->step_flags & 0xff00;
@@ -256,7 +256,7 @@ void func_801b2904_slot04_14(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
         func_801b2b4c_slot04_14(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
         if ((u8)obj->step_flags == 2) {
             obj->state_3++;
             obj->step_flags = obj->step_flags & 0xff00;

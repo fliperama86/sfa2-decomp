@@ -18,7 +18,7 @@ void func_801b29ac_slot04_10(Object *obj) {
     s16 t;
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t >= 0) {
         if ((u8)t == 3) {
@@ -46,12 +46,12 @@ void func_801b2a80_slot04_10(Object *obj) {
         obj->step_flags &= 0xff00;
         func_80146998(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2ad8_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 5;
@@ -134,7 +134,7 @@ void func_801b2e2c_slot04_10(Object *obj) {
     u16 t = obj->step_flags;
 
     if ((u8)t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->step_flags = t & 0xff00;
         obj->state_3 = obj->state_3 + 1;

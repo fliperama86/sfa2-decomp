@@ -20,7 +20,7 @@ void func_801b12e0_slot04_01(Object *obj) {
     if (obj->field_12a == 4) {
         func_801b47cc_slot04_01(obj, 7);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1384_slot04_01(Object *o) {
@@ -44,5 +44,5 @@ void func_801b1384_slot04_01(Object *o) {
         o->pos_y = (u16)o->field_70;
         func_801209c4(o);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

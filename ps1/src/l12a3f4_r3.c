@@ -14,7 +14,7 @@ void func_8012a9a0(Object *object) {
         } else if (func_8012f970(object)) {
             func_8012f3e0(object);
         } else {
-            func_80130efc(object);
+            update_sequence(object);
         }
     } else {
         object->pos_y = object->field_70;

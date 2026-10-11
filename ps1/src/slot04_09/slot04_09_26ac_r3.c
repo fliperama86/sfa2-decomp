@@ -17,7 +17,7 @@ void func_801b28dc_slot04_09(Object *o) {
 }
 
 void func_801b2940_slot04_09(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (obj->step_flags & 1) {
         if (obj->field_241 != 0) {
             obj->state_3 = 6;

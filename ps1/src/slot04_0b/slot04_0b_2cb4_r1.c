@@ -8,7 +8,7 @@ void func_801b2cb4_slot04_0b(Object *obj) {
     u16 t;
     s16 y;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if ((t & 0xff) == 2) {
         obj->step_flags = t & 0xff00;
@@ -47,6 +47,6 @@ void func_801b2df0_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

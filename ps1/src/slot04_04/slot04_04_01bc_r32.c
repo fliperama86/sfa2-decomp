@@ -19,12 +19,12 @@ void func_801b2a48_slot04_04(Object *o) {
             return;
         }
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b2aec_slot04_04(Object *o) {
     if (((s16)o->step_flags & 0x8000) == 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         ref_other.p = o->other;
         ref_other.p->field_249 = 5;
