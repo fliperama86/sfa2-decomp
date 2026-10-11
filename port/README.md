@@ -2406,6 +2406,54 @@ make look like pictures. That shows the reading of the documents is
 consistent with a real stream; it does not show that the pixels are the
 console's.
 
+#### Sony's calls
+
+`port/src/press.c` and `press.h` give the five calls of Sony's movie decoder
+library that the logo's program uses (`DecDCTReset`, `DecDCTvlc`,
+`DecDCTin`, `DecDCTout`, `DecDCToutCallback`, as `port_DecDCT...`). They
+stand on the decoder chip's core that PsyZ has since the pin of
+2026-10-10 (`Psyz_MdecReset`, `Psyz_MdecCommand`, `Psyz_MdecRead`; tested
+upstream against captures from a console), with the bitstream reader
+(`port_mdec_vlc`) and the reset tables (`port_mdec_reset`) of `mdec.c`.
+The port's own decode routine in `mdec.c` is not used by them; what
+becomes of it is a later change. Nothing binds the calls to a program
+yet.
+
+What each does is in the header of `press.h`. Every pointer is a game
+address; each read and write is checked to lie in the mapped RAM, and a
+range outside it, or a case that is not modelled (a null bitstream, a
+monochrome depth, a count of words that is not a multiple of 32, a
+chip that cannot give what is asked), stops the program with a line that
+names the call. `hostbuild.py` gives `press.c` the library's define with
+`--psyz`; a program built without the library has no decoder chip, and its
+reset, input and output calls stop with a line that says so. What was compared with what: the layout that `DecDCTvlc`
+writes against the reader's own codes, and the pixels that `DecDCTout`
+hands out against direct calls of the same chip after the same reset and
+tables. Nothing is compared with the console's library or its output.
+
+The end of an output transfer is delivered to the game's routine for DMA
+channel 1 as an interrupt, in the pattern of the sound chip's transfer
+(`iopage.c`): `kernel.c` calls `port_press_poll` from `port_tick`,
+`port_press_claim_due` from `port_interrupt_take` and
+`port_press_deliver_claimed` from `port_interrupt_work`, each next to the
+sound transfer's call. The due time is this project's choice, 55
+microseconds a macroblock from the frame's `DecDCTin` (a frame of 320 by 240
+done about 16.5 ms after its input); the sound transfer's poll takes its
+completion at once, this one only after the due time. A `DecDCTout` that
+finds the transfer before still pending waits for it by ticking, so that
+completion too comes at its due time and not at the clock of the second call.
+
+The controls. `port/tools/test_hostpress.py --cc CC --psyz-build DIR`
+builds `press.c`, `mdec.c` and the chip core (from the source copy in the
+library build; the library is not changed) with a driver of its own that
+maps the RAM at its address and supplies a clock the test sets and the
+rest of what `press.c` takes from the runtime. It runs the layout of
+`DecDCTvlc`, the word after each mode of `DecDCTin`, strips of
+`DecDCTout`, the completion (due times, the poll, the timer's claim, once
+only, the routine that starts the next transfer), `DecDCTReset` and
+`DecDCToutCallback`. `DecDCTin`'s refusal by the chip cannot be reached
+with the checks before it, so no case gives it.
+
 ## Not decided
 
 - The port's clock following the game's progress. The guard of "The drive
