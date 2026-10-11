@@ -54,3 +54,7 @@
   compared, 0 differ`; the unit compiled with `-Wreturn-type` and
   `-Wuninitialized`: 0 warnings (it is `void`); the map's render:
   `overall: 5473/5600 distinct functions exact (97.7%); 12907/13072 placements (98.7%); 1722712/1809836 code bytes (95.2%)`. No whole build, no differential test.
+- After the merge of main at `61db0e1` (it brought pull request 253,
+  `func_8011db78`): the unit rebuilt, the same IDENTICAL line;
+  `matchbuild.py --image resident`: `RESULT: PASS`; the map's render:
+  `overall: 5474/5600 distinct functions exact (97.8%); 12908/13072 placements (98.7%); 1723676/1809836 code bytes (95.2%)`.
