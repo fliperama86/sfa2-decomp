@@ -1014,9 +1014,21 @@ routines that do nothing on purpose. What is in this piece:
   poll, and the game's handler is called once per sector; no vertical
   blank is delivered inside it. Sectors of compressed audio are decoded and queued when something takes sound out (`--audio` or
   `--audio-dump`, see "The disc's streamed audio"), and consumed in silence when nothing does. Any other
-  command, and the mode that asks for whole raw sectors, ends the
+  command, and the mode of 2,328 bytes (bit 0x10), ends the
   program with a line that names it. The handler's address is checked
-  at each call like the other addresses the game hands over.
+  at each call like the other addresses the game hands over. Two things
+  are new and nothing uses them yet, for the stream of a movie that a
+  later change adds: the whole-sector mode (bit 0x20 of the mode, as in
+  the logo's movie), in which `CdGetSector` serves the raw bytes 12 to
+  2351 of a sector (2,340) in place of the 2,048 from byte 24; and a
+  ready handler of the runtime's own (`port_cd_host_ready`), called
+  directly for each sector in place of the game's handler variable,
+  without the polling rule and without the ring guard.
+  Two routines let that code put a sector aside in the runtime's own
+  memory and hand it into the game's later: `port_cd_fifo_read` takes
+  the next bytes of the FIFO (same position as `CdGetSector`, no
+  record, no hook) and `port_cd_store` writes bytes into the game's
+  memory as a sector's (checked, recorded, hooked as `CdGetSector` does).
 - The disc's rate. The drive of the console reads 75 sectors a second
   at single speed (the CD's own rate) and 150 with the double-speed bit
   (0x80) of the mode set. The port delivers at that rate counted by the
