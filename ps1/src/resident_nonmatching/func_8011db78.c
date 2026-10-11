@@ -118,7 +118,7 @@ void func_8011db78(void *a, int b, int c, Block172 *d) {
     x = r->field_08 - box_margin[0];
     if (mode & 1)
         x -= 0x10;
-    rec = (Pooled *)(data_801987cc + (o->side * 320 + column * 80 + 640) * 16 + data_801a27d0 * 0x5000);
+    rec = (Pooled *)((u8 *)data_801987cc + (o->side * 320 + column * 80 + 640) * 16 + data_801a27d0 * 0x5000);
     sp = (u16 *)((u8 *)o->field_98 + (hdr->field_08 & 0xfffe));
     for (i = 0; i < count; ) {
         v = *sp++;
