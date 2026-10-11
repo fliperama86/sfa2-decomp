@@ -48,7 +48,9 @@
     the patch changes no other unit. This is the one whole build of
     this change: a change of the toolchain, not of a unit.
   - With the unit: `matchbuild.py --image resident`: `RESULT: PASS`;
-    `fndiff.py --rebuild sdk_libspu_spu_init` (the line above).
+    `fndiff.py --rebuild sdk_libspu_spu_init` (the line above); both again
+    after main at `ae125bc` (pull request 271) was merged in, with the
+    same lines.
   - `test_matchbuild.py --only unit-maspsx-patch`: seven new cases, one
     second together, `all cases behaved as required`: a patch is
     applied to the export and the checkout stays as it was; no patch
@@ -67,5 +69,5 @@
     `--only cache-key` (the two controls of the key's inputs, one of
     which lists every input and now has the patches): see the pull
     request.
-  - The map's render: `overall: 5504/5600 distinct functions exact (98.3%); 12942/13072 placements (99.0%); 1743248/1809836 code bytes (96.3%)`.
+  - The map's render: `overall: 5505/5600 distinct functions exact (98.3%); 12943/13072 placements (99.0%); 1744208/1809836 code bytes (96.4%) (on main at `ae125bc`)`.
   No PC build, no differential test.
