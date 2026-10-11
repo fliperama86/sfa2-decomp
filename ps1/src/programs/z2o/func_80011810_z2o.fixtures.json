@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  {"args": [], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 8 new; edge: slot 3, immediate 0x1 against 0x2; edge: slot 3, immediate 0x1 against 0x0", "reads": [["0x8002f86c", "d6825536"]], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": [["0x8002f86c", "d7"]]}
+ ],
+ "format": 1,
+ "function": "func_80011810_z2o",
+ "recorded": {"cases": 2000, "comparison": "func_80011810_z2o: built 32 bytes, original 32 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-11", "seed": 1},
+ "uncovered": {"edges": [], "slots": []}
+}

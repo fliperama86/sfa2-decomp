@@ -96,3 +96,36 @@ StopCallback = 0x800197ec
 PadInit = 0x80019e7c
 PadRead = 0x80019edc
 PadStop = 0x80019f0c
+
+[[program]]
+name = "z2o"
+file = "../../extract/programs/Z2O.EXE"
+disc = "PAC/Z2O.EXE"
+sha256 = "9f84ca926d27d0444cd12d0ca54bd980d1ca266211a3459a61956e3d4865fcf8"
+address = 0x80010000
+# No gp is declared for this program. The entry code (header entry 0x80011ac8) first clears the words from 0x8002f7f0 up
+# to 0x8008a400 and only then sets the global pointer register to 0x8002f7f0 before it jumps to the main. The reader
+# checks a declared value against the first two instructions at the entry address only, so no value is declared and the
+# test tool begins each run with the register at 0. Right only for functions that do not use the register (the six listed
+# here do not; each one's header says so).
+functions = [
+  { name = "func_800116c8_z2o", address = 0x800116c8, size = 16 },
+  { name = "func_800119b8_z2o", address = 0x800119b8, size = 16 },
+  { name = "func_80011810_z2o", address = 0x80011810, size = 32 },
+  { name = "func_80011428_z2o", address = 0x80011428, size = 48 },
+  { name = "func_800119e8_z2o", address = 0x800119e8, size = 60 },
+  { name = "func_80010be4_z2o", address = 0x80010be4, size = 84 },
+]
+
+[program.symbols]
+data_8001b354_z2o = 0x8001b354
+data_80031e58_z2o = 0x80031e58
+data_80049eac_z2o = 0x80049eac
+data_8002f818_z2o = 0x8002f818
+data_8002f81c_z2o = 0x8002f81c
+data_8002f86c_z2o = 0x8002f86c
+data_8002f870_z2o = 0x8002f870
+data_8002f890_z2o = 0x8002f890
+data_8002f8a9_z2o = 0x8002f8a9
+# The program's own copy of a library routine (the game's name for it is that of the resident copy).
+func_80158470 = 0x80013654
