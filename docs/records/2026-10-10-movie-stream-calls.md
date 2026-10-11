@@ -77,6 +77,12 @@ listing's letter after the worker's run (the mask is cleared only
 with a start frame); no case could tell the difference, and the 61
 cases pass with it.
 
+A correction of the header of the small library routines (the owner's
+review of that change, not blocking): `progcalls.h` said that a buffer
+a call writes is checked to lie in the mapped RAM; that holds for
+`CdRead`'s sector buffer, and `CdReadSync`'s eight result bytes go to
+the pointer it is given without that check. The header says so now.
+
 Limits, stated: nothing is compared with a console; the comparison is
 with the made-up image and with the header's text, which follows the
 reading of the listing. The handler's two ways in (from the disc
