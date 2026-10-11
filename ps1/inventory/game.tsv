@@ -577,7 +577,7 @@
 801341c4	112	func_801341c4	-	-	0	0	closed
 80134234	1008	func_80134234	graphics	graphics	0	0	open
 80134624	400	func_80134624	graphics	graphics	0	0	closed
-801347b4	1760	-	graphics	graphics	0	0	closed
+801347b4	1760	func_801347b4	graphics	graphics	0	0	closed
 80134e94	556	func_80134e94	-	-	0	0	closed
 801350c0	1944	func_801350c0	-	-	0	0	closed
 80135858	440	func_80135858	-	-	0	0	closed
