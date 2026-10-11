@@ -880,6 +880,17 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     table's own name for the rows it differs in 13 slots. A pointer
     written as the other name's address minus a constant gives the
     bytes too, but it leaves its object and is not needed.
+  - One load through the saved register where the build reads through
+    the argument register (`lw v1,64(s0)` built `lw v1,64(a0)`). After
+    the copy of the object into the argument register for a call, the
+    allocator reads the object through that register in every
+    instruction up to the object's last use in the block (inferred from
+    local-alloc.c, `optimize_reg_copy_1`). A load that keeps the saved
+    register stood before that copy when the allocator ran, so the
+    order that the first scheduling pass leaves decides it. In
+    `func_801b36f8_slot04_09` the difference of two positions written
+    in one statement, then shifted in the same local, then stored, is
+    exact; the shift written in the store differs in 5 slots.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
