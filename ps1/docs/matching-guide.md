@@ -904,6 +904,22 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     `func_801b36f8_slot04_09` the difference of two positions written
     in one statement, then shifted in the same local, then stored, is
     exact; the shift written in the store differs in 5 slots.
+  - The two instructions of a 32-bit constant several lines above the
+    sum that uses it, and the sum in another register. In
+    `func_801e9d04_slot06_03` the build has `lui v1` and `ori v1` before
+    the first of the block's five stores and the sum in `v1`; the
+    original has `lui v0`, `ori v0`, `addu v0,t0,v0` in a row after the
+    fifth store. The constant needs two instructions. The first
+    scheduling pass splits its load into the two before it orders the
+    block, and a register that is set twice does not get the place next
+    to its first use that a register set once gets (inferred from
+    sched.c, `birthing_insn_p`, and from the split of a large constant's
+    load in mips.md). In that function and in seven relatives, the
+    tile-map functions of the stage modules, the order wrapper around
+    the statement before the sum is exact; without it each of the eight
+    differs in 13 slots. The wrapper around the sum itself leaves 7
+    slots in that function: the sum's other operand is then referenced
+    inside it and gets another register.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
