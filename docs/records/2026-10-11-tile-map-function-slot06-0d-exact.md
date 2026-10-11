@@ -40,6 +40,7 @@
   - `slot06_0d_9f20x_r1`: `baseline 788 bytes at 0x801e9f20, built 788 bytes at 0x801e9f20, 0 differing instruction slots: IDENTICAL`
   - `slot06_0d_85ecx_r1`: `baseline 280 bytes at 0x801e85ec, built 280 bytes at 0x801e85ec, 0 differing instruction slots: IDENTICAL`
   The byte-offset scan on the new unit: none. The map's render:
-  `overall: 5534/5600 distinct functions exact (98.8%); 12986/13072 placements (99.3%); 1766360/1809836 code bytes (97.6%)` (main at `965702c`; the five library functions of pull request
-  289 are not in this tree).
+  `overall: 5539/5600 distinct functions exact (98.9%); 12991/13072 placements (99.4%); 1767120/1809836 code bytes (97.6%)` (with main at `4e4900e`, which has the five library functions of
+  pull request 289, merged in; before that merge the tree gave
+  5534/5600).
   No whole build, no PC build, no differential test.
