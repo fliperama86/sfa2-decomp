@@ -1,9 +1,0 @@
-{
- "fixtures": [
-  {"args": ["0x501a589f"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 4 new", "reads": [], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": [["0x8002f80c", "9f581a50"]]}
- ],
- "format": 1,
- "function": "func_800119c8_z2o",
- "recorded": {"cases": 2000, "comparison": "func_800119c8_z2o: built 16 bytes, original 16 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-11", "seed": 1},
- "uncovered": {"edges": [], "slots": []}
-}
