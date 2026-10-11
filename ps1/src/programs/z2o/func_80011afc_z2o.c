@@ -13,9 +13,10 @@
  * the main calls it first.
  *
  * Contract:
- *   Arguments: none. The test gives a0 to a3 random values and v0 a value
- *     before the call and compares v0 after (see the .py), so the C must
- *     leave them alone. No result.
+ *   Arguments: none. The test gives a0 to a3 random values; v0 is 0 at the
+ *     start of every run, as the tool sets it, and v0 and memory are compared
+ *     after the call (see the .py). The argument registers are not compared
+ *     after the call. No result.
  *   Reads: nothing. Writes: nothing. No callee. The test fills the bytes
  *     around the program's word 0x8002f86c (data_8002f86c_z2o, which this
  *     function does not use) with random values, so that a store would

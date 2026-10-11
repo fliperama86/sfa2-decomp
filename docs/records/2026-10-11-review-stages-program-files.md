@@ -50,3 +50,10 @@ Limits: the key tests call the tool's fingerprint with a scope that
 skips the compiler's part, which needs private tools; the programs'
 part does not depend on the scope. Which checks a change selects is
 unchanged.
+
+Correction, added 2026-10-11 after the review of that change: the
+sentence "the keys of all other checks are what they were" holds for
+what goes into a key (the programs' files are not added to other
+checks), not for the keys' values. The change altered `review.py`,
+whose own content is part of every key, so every saved result was
+keyed anew once.

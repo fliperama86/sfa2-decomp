@@ -1,11 +1,12 @@
-"""Contract of func_80011afc_z2o: no effect; the arguments and the result register are left alone.
+"""Contract of func_80011afc_z2o: no effect on memory or on the result register.
 
 Choices of the setup (reads and writes are listed in func_80011afc_z2o.c):
-  - a0 to a3 are random 32 bit words, so that a function that used an argument would show;
+  - a0 to a3 are random 32 bit words, so that a function whose result or stores depended on an argument would
+    show; the argument registers themselves are not compared after the call;
   - the bytes around a word of the program's data are random, so that a store there would show;
-  - the test compares v0 after the call (returns_value=True), so that the function is also shown to leave the
-    result register alone, and so that the negative control (an instruction put into the delay slot that
-    changes v0) has something to show.
+  - the test compares v0 after the call (returns_value=True). The tool starts every run with v0 at 0, so what
+    is shown is that the function leaves it 0, and the negative control (an instruction put into the delay slot
+    that sets v0 to 1) has something to show.
 """
 from contracts import Contract, Setup, fill
 
