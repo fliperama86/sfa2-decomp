@@ -712,6 +712,41 @@ def format_and_input_cases(rig: Rig):
     yield "format-2-does-not-build-the-c", same(rig.run([rig.folder({}, {"fmt2": f2})])[1], [
         "fmt2 native replay: not replayed: its fixtures hold calls of original callees (format 2)", counts(0, 0, 0, 0, 1)])
 
+    # A recorder with fills writes through an argument, which the native harness's stand-ins cannot do yet: the function
+    # is not replayed (not built and not failed either), whatever its C does, and its C is not built.
+    fills_line = ("fills native replay: not replayed: a recorder of its fixtures writes through an argument (fills); "
+                  "the native harness's stand-ins cannot write through an argument yet")
+    with_fills = doc("fills", [fx(recorders=[recorder(arguments=1, fills=[[0, 0, 0, "11"]])]), fx()])
+    folder = rig.folder({"fills": SOURCES["add"], "add": SOURCES["add"]}, {"fills": with_fills, "add": doc("add", [fx(args=["0x1", "0x2"], result="0x00000003")])})
+    status, out, err = rig.run([folder])
+    yield "fills-are-reported-and-counted-apart", same((status, out), (0, ["add native replay: fixtures 1, passed 1, failed 0", fills_line, counts(1, 1, 0, 0, 1)]))
+    yield "fills-do-not-build-the-c", same(rig.run([rig.folder({}, {"fills": with_fills})])[1], [fills_line, counts(0, 0, 0, 0, 1)])
+    yield "a-recorder-without-fills-is-replayed-as-before", same(
+        rig.run([rig.folder({"nof": SOURCES["add"].replace("add", "nof")}, {"nof": doc("nof", [fx(args=["0x1", "0x2"], result="0x00000003", recorders=[recorder(arguments=1, fills=[])])])})])[1],
+        ["nof native replay: fixtures 1, passed 1, failed 0", counts(1, 1, 0, 0, 0)])
+    for label, fixtures in (("in-the-second-fixture", [fx(), fx(recorders=[recorder(arguments=1, fills=[[0, 0, 0, "11"]])])]),
+                            ("in-the-second-recorder", [fx(recorders=[recorder(arguments=1), recorder("stub_b", "0x80100100", arguments=1, fills=[[0, 0, 0, "11"]])])])):
+        name = "later" + label.replace("-", "")
+        text = fills_line.replace("fills native", name + " native")
+        yield f"fills-{label}-are-found", same(rig.run([rig.folder({name: SOURCES["add"]}, {name: doc(name, fixtures)})])[1], [text, counts(0, 0, 0, 0, 1)])
+    # A pointee behind an argument masked to 0 (the address of a local): the file holds 0 for the address, which this
+    # tool would take for a difference, so the function is not replayed. A mask that is not 0 is replayed as before.
+    masked_line = ("zeromask native replay: not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 "
+                   "(the address of a local, which the file does not hold); this tool cannot compare such an argument yet")
+    zero = doc("zeromask", [fx(), fx(recorders=[recorder(arguments=2, masks={"1": 0}, pointees={"1": 1})])])
+    status, out, err = rig.run([rig.folder({"zeromask": SOURCES["add"]}, {"zeromask": zero})])
+    yield "a-pointee-behind-an-argument-masked-to-0-is-not-replayed", same((status, out), (0, [masked_line, counts(0, 0, 0, 0, 1)]))
+    second = doc("secondmask", [fx(recorders=[recorder(arguments=2), recorder("stub_b", "0x80100100", arguments=2, masks={"1": 0}, pointees={"1": 1})])])
+    status, out, err = rig.run([rig.folder({"secondmask": SOURCES["add"]}, {"secondmask": second})])
+    yield "a-masked-pointee-of-a-second-recorder-is-found", same((status, out), (0, [masked_line.replace("zeromask", "secondmask"), counts(0, 0, 0, 0, 1)]))
+    rec = lambda **kw: hf.Recorder(0x80100000, "stub_a", 2, kw.get("masks", {}), kw.get("pointees", {}), [], [], 0)  # noqa: E731
+    yield "masked-pointee-needs-both-a-mask-of-0-and-a-pointee", same(
+        [hf.masked_pointee(rec(masks={1: 0}, pointees={1: 1})), hf.masked_pointee(rec(masks={1: 0})), hf.masked_pointee(rec(masks={1: 255}, pointees={1: 1})),
+         hf.masked_pointee(rec(pointees={1: 1})), hf.masked_pointee(rec(masks={0: 0}, pointees={1: 1}))], [True, False, False, False, False])
+    badfills = doc("badfills", [fx(recorders=[recorder(arguments=1, fills="x")])])
+    status, out, err = rig.run([rig.folder({"badfills": SOURCES["add"]}, {"badfills": badfills})])
+    yield "fills-that-are-not-a-list-are-an-input-error", same((status, out, err.startswith("INPUT ERROR: badfills.fixtures.json: fixture 0: fills of a recorder must be a list")), (2, [], True))
+
     ok = doc("ok", [fx(args=["0x1", "0x2"], result="0x00000003")])
     bad_docs = {
         "notjson": ("{", "INPUT ERROR: notjson.fixtures.json is not JSON:"),

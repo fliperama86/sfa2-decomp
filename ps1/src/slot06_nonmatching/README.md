@@ -76,7 +76,9 @@ test unless the header says that a recorder stands for it.
 For a function that waits or never returns, a recorder can give its results
 in turn (`results`), store a word at its N-th call or count a word up at
 every call (`stores`, `counts`: what an interrupt does to memory while the
-function runs), and end the run at its N-th call (`ends_run_at`). A run
+function runs), and end the run at its N-th call (`ends_run_at`). The number
+of a call that a contract names is at most 32767 (the stand-in loads it as a
+16-bit number; a larger one is refused, it would be loaded as another). A run
 that was ended is cut inside the function: its registers are then not
 compared, its log and memory are.
 
@@ -89,6 +91,31 @@ own to run in place of its return (`tail`), for a callee that fills a
 buffer the caller hands it or returns that buffer's address: that is a
 model written by the contract's author, and the function's header says
 what it models and from what that is known.
+
+A callee that only stores given bytes through one of its pointer arguments
+needs no machine code: `fills` says it as data, `(call, argument, offset,
+data)` for each fill. At the call (0: every call; N: the N-th only, N up to
+32767) the
+recorder stores `data` (1 to 256 bytes) at the value of that argument plus
+`offset` (0 to 0x7fff), after the entry is logged and after `stores` and
+`counts`, before the run is ended or the result returned. The address is the
+argument's value at the call, so it works where the argument is the address of
+a local, which the two codes place differently and which no contract can name
+(give the argument the mask 0). Its limits: the argument is one of the four
+register arguments; the data is chosen by the contract and is not computed from
+the call (a callee that copies from one argument to another, or returns an
+argument, still needs a `tail`); and `fills` and `tail` cannot be used together.
+A fixture holds the fills, so a function with them has a record and a replay.
+
+A pointee behind an argument masked to 0 (the address of a local of the function, not in the log) is recorded
+too, when the whole block lies in the stack region of a case. The record reads the argument's real value at the
+stand-in's entry; the block is described against zeros (the region starts as zeros and is not input). If any
+byte of the block lies outside the region (a global, memory of the game, a block that straddles an end), the
+function is refused with a line naming the callee, the argument and the real address, and no file is written.
+The replay compares the block against zeros and also looks at the build's real pointer at the entry: a build
+that hands the callee a pointer outside the stack region fails (`argument K points to ADDR, and its N bytes are
+not wholly inside the stack region`). The file needs no new field: `masks` {i: 0} with `pointees` {i: n} says
+it. The native replay does not replay such a function.
 
 ## What a pass does not show
 
@@ -485,9 +512,21 @@ Choices of the tool, each of them a decision to review:
 - `same` holds bytes the original stored without changing them and did not
   read; without them such a store would look like an extra write in the replay.
 - The stand-ins' own options that stand for what a callee does to memory
-  (`stores`, `counts`, `ends_run_at`, `masks`) are part of the fixture; a stand-in
-  with a `tail` (machine code of the contract's own) cannot be described and the
-  record refuses it with status 2.
+  (`stores`, `counts`, `ends_run_at`, `masks`, `fills`) are part of the fixture; a
+  stand-in with a `tail` (machine code of the contract's own) cannot be described
+  and the record refuses it with status 2. A recorder's `fills` is a list of
+  `[call, argument, offset, hex of the data]`; the file's format number does not
+  change, and the reader refuses a `fills` that is not of that form, or out of
+  range for the recorder, naming the fixture. The bytes a fill wrote are, for
+  what the function reads afterwards, memory that something wrote earlier: they
+  are not in `reads` and not "memory the setup did not make". Like the bytes a
+  `stores` writes, they are written by the stand-in and not by the function, and
+  are found by the same hook: they are in `writes` when they lie outside the
+  function's stack region and change a byte, in the comparison and in the write
+  audit as for any other byte of memory, and the replay's recorder makes them
+  again. The native replay (`port/tools/hostfixtures.py`) does not replay a
+  function whose fixtures have `fills` (the native harness's stand-ins cannot
+  write through an argument yet) and says so.
 - The reads and writes are found by looking at each instruction before it runs,
   not with the emulator's memory hooks: with a memory hook, Unicorn 2.1.4 ends a
   run with an exception when a load or store lies in the delay slot of a
@@ -676,7 +715,23 @@ the filler value that cannot be missed, a
 stand-in at an unnamed address with its pointer cell, the options of a
 stand-in, that the replay never runs the original and reads no contract, the
 input errors of the options, and the decoding of the call log by
-`contracts.CallLog`.
+`contracts.CallLog`. Group FL checks `fills`: a local at two places of two
+frames is filled in both and a build that reads the neighbouring byte differs;
+a fill at every call against one at the N-th; a pointee that shows the bytes
+from before the fill; the later of two overlapping fills; an unaligned offset,
+an odd length, 256 bytes and the largest offset; the order against `stores`,
+`counts` and `ends_run_at`; the recorder's footprint; that a recorder without
+fills has the words it had before fills existed (listed in the test); each
+refusal by name; a fill through an argument that is not an address (a fault,
+as any wild store: the original's case is discarded, the build's is `build:
+fault (Invalid memory write (UC_ERR_WRITE_UNMAPPED))`); and the record (the
+fills in the file, no warning, the filled bytes not in `reads`), the replay of
+the right build and of builds that fail it, a file whose fill was changed by
+hand, and the reader's refusals. Group SP checks a pointee behind an argument masked to 0: a local filled by the
+function, recorded and replayed in two frames, a build that puts another value there, a pointer to a global
+(refused with its line), a build whose pointer leaves the stack (fails), the edges of the stack region, a fill
+through the same argument, and a fifth argument on the caller's stack. One case of group P shows that the
+declaration of the programs is read as often for five cases as for one.
 
 ## Controls that need the toolchain
 

@@ -26,6 +26,10 @@ replayed with the override's C, which is what the PC program runs. Output: per f
         LINE
     FUNC native replay: not built: FIRST ERROR LINE
     FUNC native replay: not replayed: its fixtures hold calls of original callees (format 2)
+    FUNC native replay: not replayed: a recorder of its fixtures writes through an argument (fills); the native
+        harness's stand-ins cannot write through an argument yet
+    FUNC native replay: not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 (the
+        address of a local, which the file does not hold); this tool cannot compare such an argument yet
 
 and a last line with the counts. Status: 0 when nothing failed and everything was built, 1 otherwise, 2 for a file
 that cannot be read or a name that no folder has (nothing is built then).
@@ -62,6 +66,10 @@ POISON = 0xA5
 FIXTURE_FIELDS = ("args", "calls", "case", "ends_in_callee", "note", "reads", "recorders", "result", "same", "seed", "watch", "writes")
 CALL_FIELDS = ("args", "callee", "pointees", "returned", "watched")
 FORMAT2_LINE = "not replayed: its fixtures hold calls of original callees (format 2)"
+FILLS_LINE = ("not replayed: a recorder of its fixtures writes through an argument (fills); "
+              "the native harness's stand-ins cannot write through an argument yet")
+MASKED_POINTEE_LINE = ("not replayed: a recorder of its fixtures has a pointee behind an argument masked to 0 (the address of a "
+                        "local, which the file does not hold); this tool cannot compare such an argument yet")
 
 
 class FixtureError(Exception):
@@ -82,6 +90,14 @@ class Recorder:
     stores: list[tuple[int, int, int]]
     counts: list[int]
     ends_at: int
+    fills: list = dataclasses.field(default_factory=list)  # [call, argument, offset, hex] as the file has them; not replayed here
+
+
+def masked_pointee(recorder: Recorder) -> bool:
+    """True when an argument of the recorder has a pointee and is masked to 0: the file holds 0 for the address, and this
+    tool, which takes an argument that the PC's stack holds as equal only for a fixture value in the PS1's stack, would
+    fail it."""
+    return any(recorder.masks.get(index) == 0 for index in recorder.pointees)
 
 
 @dataclasses.dataclass
@@ -206,7 +222,8 @@ class _Reader:
                 self.fail(f"a store of a recorder must be [call, address, value], not {item!r}")
             stores.append((self.count(item[0], "the call of a store", 1), self.word(item[1], "the address of a store"), self.word(item[2], "the value of a store")))
         counts = [self.word(x, "the address of a count") for x in self.listing(raw.get("counts", []), "counts of a recorder")]
-        return Recorder(at, raw["callee"], arguments, masks, pointees, stores, counts, self.count(raw.get("ends_run_at", 0), "ends_run_at"))
+        fills = self.listing(raw.get("fills", []), "fills of a recorder")
+        return Recorder(at, raw["callee"], arguments, masks, pointees, stores, counts, self.count(raw.get("ends_run_at", 0), "ends_run_at"), fills)
 
     def call(self, raw, recorders: dict[str, Recorder], watch: list[tuple[int, int]]) -> Call:
         if not isinstance(raw, dict):
@@ -570,6 +587,10 @@ def replay_job(job: Job, doc: Doc, config: Path, build: Path, cc: str, timeout: 
     lines = [head + f"the PC program runs the override {job.source.name} of {job.source.parent.name}; it is replayed in place of the nonmatching C"] if job.override else []
     if doc.format == 2:
         return Outcome(job.name, lines + [head + FORMAT2_LINE], "not replayed")
+    if any(r.fills for fx in doc.fixtures for r in fx.recorders):
+        return Outcome(job.name, lines + [head + FILLS_LINE], "not replayed")
+    if any(masked_pointee(r) for fx in doc.fixtures for r in fx.recorders):
+        return Outcome(job.name, lines + [head + MASKED_POINTEE_LINE], "not replayed")
     try:
         ret = return_type(job.source.read_text(), job.name)
     except OSError as err:

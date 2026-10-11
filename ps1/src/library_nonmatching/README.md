@@ -104,15 +104,21 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_80167388`.
 - The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_80166144`, `func_8016b788`.
 
-What the replay command of the folder printed on 2026-10-10, one line per function:
+What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
 
 ```
 func_8015ffc0 replay: fixtures 12, passed 12, failed 0
 func_80163794 replay: fixtures 12, passed 12, failed 0
+func_80167388 replay: fixtures 12, passed 12, failed 0
 ```
+
+The record of `func_80167388` (`--cases 2000 --jobs 4 --record`, no warning) printed
+`func_80167388 fixtures: kept 12 of 2000 cases (slots 11, edges 1, results 0)`. Its recorder of
+`SsUtSetVagAtr` has a pointee behind an argument masked to 0 (the address of a local of the function): the
+record takes the argument's real value at the stand-in's entry, requires the block to lie inside the stack
+region and describes it against zeros.
 
 ## The recorded lines
 
