@@ -1131,8 +1131,8 @@ functions = [
 ]
 
 [[unit]]
-name = "d2f9b0_r2"
-source = "d2f9b0_r2.c"
+name = "d41cec_r1"
+source = "d41cec_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80141cec", address = 0x80141cec, size = 328 },
