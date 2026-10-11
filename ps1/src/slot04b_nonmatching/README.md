@@ -43,8 +43,6 @@ func_801b4a3c_slot04_0e: built 252 bytes, original 260 bytes; cases 2000, discar
 func_801b4a3c_slot04_0e coverage: 65 of 65 instruction slots of the original executed
 func_801b5e34_slot04_0e: built 252 bytes, original 244 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b5e34_slot04_0e coverage: 61 of 61 instruction slots of the original executed
-func_801b81f8_slot04_14: built 344 bytes, original 348 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b81f8_slot04_14 coverage: 87 of 87 instruction slots of the original executed
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --control --all
@@ -76,8 +74,6 @@ func_801b4a3c_slot04_0e control: different 937 of 2000 (expected more than 0)
   altered: constant stored to field_48 changed from 0x4e to 0x4f, instruction slot 33
 func_801b5e34_slot04_0e control: different 2000 of 2000 (expected more than 0)
   altered: store of the state byte moved by one byte, instruction slot 21
-func_801b81f8_slot04_14 control: different 1484 of 2000 (expected more than 0)
-  altered: constant stored in field_46 changed from 0x15 to 0x16, instruction slot 42
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --writes --all
@@ -96,7 +92,6 @@ func_801b4374_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801b43e8_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b4a3c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b5e34_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b81f8_slot04_14 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
@@ -125,7 +120,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801b1a00_slot04_14`, `func_801b5e34_slot04_0e`, `func_801b0904_slot04_12`, `func_801b81f8_slot04_14`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801b1a00_slot04_14`, `func_801b5e34_slot04_0e`, `func_801b0904_slot04_12`.
 - A callee that runs as original code takes the address of its own stack (it hands a local of its own to a function it calls). What it then makes of that address is another value under a build, and the stand-in could not check it; `--record` refuses the function. A limit of the tool. `func_801b1b40_slot04_0e`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
