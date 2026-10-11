@@ -29,8 +29,6 @@ func_801b2270_slot04_0f: built 124 bytes, original 124 bytes; cases 2000, discar
 func_801b2270_slot04_0f coverage: 31 of 31 instruction slots of the original executed
 func_801b248c_slot04_0f: built 140 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b248c_slot04_0f coverage: 30 of 30 instruction slots of the original executed
-func_801b27a0_slot04_17: built 504 bytes, original 528 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b27a0_slot04_17 coverage: 132 of 132 instruction slots of the original executed
 func_801b27b0_slot04_11: built 504 bytes, original 528 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b27b0_slot04_11 coverage: 132 of 132 instruction slots of the original executed
 func_801b2e8c_slot04_0e: built 200 bytes, original 204 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -73,8 +71,6 @@ func_801b2270_slot04_0f control: different 756 of 2000 (expected more than 0)
 func_801b248c_slot04_0f control: different 2000 of 2000 (expected more than 0)
   altered: field_07 increment changed to 2, instruction slot 8
   altered: stop-case field_50 0x10000 changed to 0x20000, instruction slot 81
-func_801b27a0_slot04_17 control: different 840 of 2000 (expected more than 0)
-  altered: sequence base 0x2e changed to 0x2f, instruction slot 116
 func_801b27b0_slot04_11 control: different 796 of 2000 (expected more than 0)
   altered: sequence base 0x2e changed to 0x2f, instruction slot 116
 func_801b2e8c_slot04_0e control: different 328 of 2000 (expected more than 0)
@@ -110,7 +106,6 @@ func_801b1b40_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801b21f8_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b2270_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b248c_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b27a0_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b27b0_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b2e8c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b339c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -160,7 +155,6 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 func_801b21f8_slot04_0f replay: fixtures 1, passed 1, failed 0
 func_801b2270_slot04_0f replay: fixtures 2, passed 2, failed 0
 func_801b248c_slot04_0f replay: fixtures 3, passed 3, failed 0
-func_801b27a0_slot04_17 replay: fixtures 10, passed 10, failed 0
 func_801b27b0_slot04_11 replay: fixtures 9, passed 9, failed 0
 func_801b2e8c_slot04_0e replay: fixtures 7, passed 7, failed 0
 func_801b339c_slot04_0e replay: fixtures 9, passed 9, failed 0
