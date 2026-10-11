@@ -164,7 +164,8 @@ that are built in; the file in the tree lists none. Per program the list has `na
 `{ call = "ROUTINE", symbol = "NAME" }` or `{ call = "ROUTINE" }`: a routine of the runtime called before main and after
 it, with the address of a symbol of the program as its one argument, or 0 without a symbol) and a table
 `[program.library]` of `NAME = "ROUTINE"`. Every refusal names the file and the program: an unknown key, a program the
-declaration does not have, a name twice, a `main` that is not a function of the program, a call or a library entry that
+declaration does not have, a name twice, two programs whose files on the disc have one base name (the runtime finds a
+program by that name), a `main` that is not a function of the program, a call or a library entry that
 is malformed or names a symbol the program does not have.
 
 The units of a listed program are the `func_*.c` files of `programs/NAME` beside the configuration; their stems must be
@@ -202,7 +203,7 @@ per program: its name, the base name of its file on the disc in lower case, the 
 declaration, a pointer to main's impl, and the generated routines `port_program_setup_N` and `port_program_teardown_N`
 (null when the list gives none) that make the listed calls in order. Each routine called is declared by the generated
 file as `extern void ROUTINE(unsigned);`, so the runtime's headers need not know it. With no program listed the table is
-empty and the rest of the build is as before.
+still written, empty (the runtime's Exec reads it) and the rest of the build is as before.
 
 The namespace
 -------------
@@ -909,6 +910,10 @@ def read_programs_list(path: Path | None, declaration: Path) -> list[Listed]:
             raise Problem(f"{where} is not a program of the declaration {declaration}")
         if any(x.program.name == name for x in out):
             raise Problem(f"{where} is listed twice")
+        base = program.disc.rsplit("/", 1)[-1].lower()
+        other = next((x.program.name for x in out if x.program.disc.rsplit("/", 1)[-1].lower() == base), None)
+        if other is not None:
+            raise Problem(f"{where} has the file name {base} of the listed program {other}; the runtime finds a program by its file's name")
         main = entry.get("main")
         if not isinstance(main, str) or main not in {f.name for f in program.functions}:
             raise Problem(f"{where}: `main` is {main!r}, which is not a function of the program in the declaration")
@@ -1382,14 +1387,15 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
                   overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None) -> str:
     """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
     the names of the functions whose row is flagged: the C behind the row is an override of the port's own. `programs`
-    (None: no table at all) adds `port_programs`, the table of the programs that are built in, empty for an empty list."""
+    gives `port_programs`, the table of the programs that are built in; it is always written, empty for no list or an empty one
+    (the runtime's Exec reads it)."""
     archives = archives or {}
-    programs_rows = programs
+    programs_rows = programs or []
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
-    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows or []):
+    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows):
         out.append(f"extern void {impl}(void);\n")
     if programs_rows:
         out.append("\n")
@@ -1426,13 +1432,12 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
-    if programs_rows is not None:
-        table("port_builtin_program", "port_programs", [
-            "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
-                c_string(r.name), c_string(r.file), n, r.main,
-                f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
-            for n, r in enumerate(programs_rows)
-        ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
+    table("port_builtin_program", "port_programs", [
+        "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
+            c_string(r.name), c_string(r.file), n, r.main,
+            f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
+        for n, r in enumerate(programs_rows)
+    ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
     digest = bytes.fromhex(sha256)
     out.append("const unsigned char port_program_sha256[32] = {\n")
     for i in range(0, 32, 8):

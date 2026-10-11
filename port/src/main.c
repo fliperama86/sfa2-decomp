@@ -25,7 +25,7 @@
  *  11 the watchdog (--watchdog S) found no vblank for S seconds; the line says where
  *  12 an address the game handed to the runtime to call (a thread's entry, an event handler, an interrupt or
  *     vsync callback) is not a function this program installed: `refused: PATH 0xADDRESS ...`, before the call
- *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead)
+ *  13 Exec of a program of the disc, for which no C exists (--skip-programs continues instead), or a built-in program whose file, header or body is not the one its C was written from
  *  10 the program faulted (an access violation or the like); the line gives the address
  * --no-interrupt turns the timer thread off: the vblank is then taken only by the library routines that tick.
  * --timer-burst (a test mode; does nothing with --no-interrupt) makes the timer thread attempt its suspension of the game's thread
@@ -40,7 +40,8 @@
  *   vblank (iopage.c). No audio device is opened then, with or without --audio (with it a line says so). It needs a build with PsyZ.
  * --input FILE gives the pad buttons that a run presses, on top of what PsyZ reads (input.c); a line of the file that is not
  *   valid refuses the start (status 2) with a line that names the file and the line number.
- * --skip-programs lets Exec of a program of the disc return at once, with a line at each skip (off: the run ends, status 13).
+ * --skip-programs lets Exec of a program of the disc that has no C return at once, with a line at each skip (off: the run ends, status 13).
+ *   A program whose C is built in (programs.c) runs either way.
  * --watchdog S ends the run with a line saying where the program is if no vblank came for S seconds (debug.c).
  * --dump-vram PREFIX writes the video memory to PREFIX_end.ppm at the end of any run; --dump-every N
  * also every N seconds (debug.c).

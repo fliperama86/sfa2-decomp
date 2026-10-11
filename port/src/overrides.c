@@ -2,6 +2,7 @@
  * cannot run on a PC as written. Each has a note (shown by --list-library). */
 #include "port.h"
 #include "cd.h"
+#include "programs.h"
 
 /* func_80119030 (v22_r2.c): initialises the game's three task slots (table at 0x801fc200, 0x80 bytes each:
  * a u16 state at offset 0, the u32 stack pointer for OpenTh at offset 8) and, as its C does through the
@@ -22,8 +23,10 @@ static void port_o_func_80119030(void)
 /* Exec(header, argc, argv): the game runs stand-alone programs of the disc with it (PAC/LOGO.EXE at start, then from the
  * attract thread PAC/Z2O.EXE and, from the menu code, PAC/BF3.EXE: each a program of its own with its own entry,
  * for which no C exists yet). The file the game asked for is found from the disc sector that the disc layer wrote
- * into the first word of the header (0x801e0000). Not run: the program ends with a line that names the file and the
- * sector (status 13). With --skip-programs it prints a line at each skip and returns 1 at once instead. */
+ * into the first word of the header (0x801e0000). A program whose C is built in (a row of port_programs, programs.c) is
+ * verified against the disc and run, with or without --skip-programs, and Exec returns 1. Any other: the program ends with
+ * a line that names the file and the sector (status 13); with --skip-programs it prints a line at each skip and returns 1 at
+ * once instead (the option skips the programs that have no C). */
 int port_h_Exec(void *header, int argc, char **argv);
 int port_h_Exec(void *header, int argc, char **argv)
 {
@@ -32,12 +35,18 @@ int port_h_Exec(void *header, int argc, char **argv)
     char err[PORT_ERR];
     int sector = port_cd_source_at((unsigned)(size_t)header);
     const char *name = "?";
+    unsigned file_sector = 0, file_size = 0;
 
     (void)argc;
     (void)argv;
     if (sector >= 0 && port_disc_handle && port_disc_list(port_disc_handle, files, 512, &count, err, sizeof err) == 0)
         for (i = 0; i < count; i++)
-            if ((unsigned)sector >= files[i].sector && (unsigned)sector < files[i].sector + (files[i].size + 2047) / 2048) name = files[i].name;
+            if ((unsigned)sector >= files[i].sector && (unsigned)sector < files[i].sector + (files[i].size + 2047) / 2048) {
+                name = files[i].name;
+                file_sector = files[i].sector;
+                file_size = files[i].size;
+            }
+    if (port_program_exec(name, file_sector, file_size, header)) return 1;
     if (!port_skip_programs) port_halt(PORT_EXIT_PROGRAM, "no C yet for the program %s (disc sector %d)", name, sector);
     printf("skipped: Exec of %s (disc sector %d): a program of its own for which no C exists yet; it returns at once\n", name, sector);
     fflush(stdout);
@@ -56,7 +65,7 @@ const struct port_override port_game_overrides[] = {
 };
 
 const struct port_library port_system_library[] = {
-    { "Exec", (void *)port_h_Exec, "the stand-alone programs the game runs (logo, movies) have no C yet: the run ends at the first, or with --skip-programs each returns 1 at once" },
+    { "Exec", (void *)port_h_Exec, "a stand-alone program of the disc whose C is built in is verified and run; one without C ends the run, or with --skip-programs returns 1 at once" },
     { "FlushCache", (void *)port_h_FlushCache, "no instruction cache to flush on a PC" },
     { NULL, NULL, NULL }
 };

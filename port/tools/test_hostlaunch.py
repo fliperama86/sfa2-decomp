@@ -76,7 +76,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "xa", "modules", "debug", "interrupt", "mirror", "mirrorcore", "iopage", "input"]
+RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "xa", "modules", "debug", "interrupt", "mirror", "mirrorcore", "iopage", "input", "programs"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -750,6 +750,8 @@ def tables_c(functions, absents, pin: bytes, flagged=()) -> str:
         out.append(f'    {{ 0x{addr:08x}u, "{name}", -1, {lib} }},')
     out.append("};")
     out.append(f"const unsigned port_absent_count = {len(absents)};")
+    out.append("const struct port_builtin_program port_programs[] = { { 0, 0, 0, 0, 0, 0 } };")
+    out.append("const unsigned port_program_count = 0;")
     out.append(f"const unsigned char port_program_sha256[32] = {{ {sha_bytes(pin)} }};")
     return "\n".join(out) + "\n"
 

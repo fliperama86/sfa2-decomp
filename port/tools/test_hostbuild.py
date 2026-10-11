@@ -509,6 +509,7 @@ def table_cases(root: Path):
         "const struct port_absent port_absents[] = {\n"
         '    { 0x80100100u, "libf", -1, 1 },\n'
         "};\nconst unsigned port_absent_count = 1;\n\n"
+        "const struct port_builtin_program port_programs[] = {\n    { 0, 0, 0, 0, 0, 0 },\n};\nconst unsigned port_program_count = 0;\n\n"
         "const unsigned char port_program_sha256[32] = {\n"
         "    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,\n"
         "    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,\n"
@@ -1790,6 +1791,10 @@ def program_plan_cases(root: Path):
     yield "programs-names-a-data-name-the-game-also-has-is-its-data-name", same(hb.plan_program_names(one, {"data_80020000_pg": 0x80020000, "sym_a": 1}).data, {"data_80020000_pg": 0x80020000})
     yield "programs-names-a-data-name-the-game-has-at-another-address-is-refused", raises(
         lambda: hb.plan_program_names(one, {"data_80020000_pg": 0x80020004, "sym_a": 1}), "data_80020000_pg", "two addresses", "0x80020004", "0x80020000", "pg")
+    one_file = write(root / "pl" / "onefile.toml", declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS), ("qq", "B/pg.exe", [("main", 0x80010020)], {})))
+    yield "programs-list-two-programs-with-one-file-name-are-refused", raises(
+        lambda: hb.read_programs_list(write(root / "pl" / "w.toml", PG_LIST + '\n[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n'), one_file), "qq", "pg", "pg.exe", "file")
+    yield "programs-list-the-same-two-with-only-one-listed-are-read", same([x.program.name for x in hb.read_programs_list(write(root / "pl" / "w1.toml", PG_LIST), one_file)], ["pg"])
     yield "programs-names-none-listed", same((hb.plan_program_names([], game).functions, hb.plan_program_names([], game).all()), ([], set()))
 
 
@@ -1919,7 +1924,8 @@ const unsigned port_function_count = 0;
     yield "programs-table-count", same("const unsigned port_program_count = 4;\n" in text, True)
     empty = hb.render_tables([], [], [], SHA, None, frozenset(), [])
     yield "programs-table-empty-has-count-zero", same(("const unsigned port_program_count = 0;" in empty, "{ 0, 0, 0, 0, 0, 0 },\n};\nconst unsigned port_program_count" in empty, "port_programs_sha256" in empty), (True, True, False))
-    yield "programs-table-absent-without-programs-argument", same("port_programs" in hb.render_tables([], [], [], SHA), False)
+    none = hb.render_tables([], [], [], SHA)
+    yield "programs-table-empty-without-programs-argument", same(("const unsigned port_program_count = 0;" in none, none == empty), (True, True))
     program = type("P", (), {"name": "pg", "disc": "PAC/SUB/LOGO.EXE", "sha256": PG_SHA})()
     yield "programs-table-row-from-listing", same(hb.program_row(hb.Listed(program, "m")), hb.ProgramRow("pg", "logo.exe", PG_SHA, "m"))
     one = hb.ProgramRow("a", "a.exe", PG_SHA, "m", [hb.Call("r"), hb.Call("r")], [hb.Call("r")])
