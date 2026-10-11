@@ -38,16 +38,19 @@
  * number held in curframe is not cleared by a stall or a refused wrap; StGetNext follows a wrap marker and then looks at slot 0 in
  * the same call; the mask is looked at and cleared in step 6 only when a start frame is set.
  *
- * THE BUSY RULE. With StSetStream's mode bit 0 set and the decoder's output transfer busy (port_press_out_busy), the library leaves a
- * sector in the drive's FIFO and sets `deferred`, to be worked on when the program's output routine calls StCdInterrupt again. The
- * port's drive hands over the sectors of a vblank in a row and would lose that one, so here the handler takes the sector's 2,340
- * bytes from the FIFO into a queue of the runtime (16 sectors, each with its sector's number; a seventeenth stops the program with a
- * line), writes 1 in the program's deferred flag (a word of the game's memory: port_stream_bind), and returns. Whenever the handler
- * runs with the decoder not busy, from the disc layer or from the program's call, it first works off the queue in order, each
- * entry through steps 4 to 10 with its own bytes (its first 12 as the hand-read bytes, the next 32 into the header and the next
- * 2,016 into the data block, by port_cd_store with the entry's sector number), then the sector at hand if the disc layer brought
- * one. A program's call with nothing queued and no sector at hand does nothing; a busy call with no sector at hand queues nothing and
- * writes no flag. The program's own C clears the flag. With no address bound, a sector that would be queued stops the program.
+ * THE BUSY RULE. With StSetStream's mode bit 0 set and the decoder's output transfer busy (port_press_out_busy), the library leaves
+ * a sector in the drive's FIFO and sets `deferred`, to be worked on when the program's output routine calls StCdInterrupt again.
+ * The port's drive hands over the sectors of a vblank in a row and would lose that one, so here the handler takes the sector's
+ * 2,340 bytes from the FIFO into a queue of the runtime (16 sectors, each with its sector's number; a seventeenth stops the program
+ * with a line). Whenever the handler runs, from the disc layer or from the program's call, it first works off the queue in order
+ * for as long as the decoder is not busy, each entry through steps 4 to 10 with its own bytes (its first 12 as the hand-read bytes,
+ * the next 32 into the header and the next 2,016 into the data block, by port_cd_store with the entry's sector number), then takes
+ * the sector at hand if the disc layer brought one. The busy test is made again before every sector, queued or at hand, because a
+ * frame's callback (f1) may start an output transfer: from then on what is still queued stays queued, in order, and the sector at
+ * hand is put behind it. Whenever the handler ends with sectors in the queue it writes 1 in the program's deferred flag (a word of
+ * the game's memory: port_stream_bind), also when the program had cleared the flag before its call, so that the program's output
+ * routine calls again; with no address bound that stops the program. A call with nothing queued and no sector at hand does nothing
+ * and writes no flag, whether the decoder is busy or not. The program's own C clears the flag.
  * The queue is also emptied by StSetRing and StUnSetRing (this layer's own rules; the library has no queue); CdRead2 does not.
  *
  * NOT MODELLED, each a stop with a line that names the call: the "old type" stream (CdRead2 with bit 0x100 and without the mode's
@@ -89,7 +92,7 @@ void port_StCdInterrupt(void);
 int port_CdRead2(long mode);
 
 /* The address, in the game's memory, of the word that the program's copy of the library calls `deferred` (0: none). The handler
- * writes 1 there when it queues a sector. The address must lie inside the RAM, else the program stops. */
+ * writes 1 there whenever it ends with sectors in its queue. The address must lie inside the RAM, else the program stops. */
 void port_stream_bind(unsigned deferred_flag_address);
 
 #endif

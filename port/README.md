@@ -2515,12 +2515,16 @@ leaves a sector in the drive's FIFO while the decoder's output transfer is
 busy and sets a flag, `deferred`, for the program's output routine to call
 the handler again. The port's drive hands over the sectors of a vblank in a
 row and would lose that sector, so the handler takes its 2,340 bytes into a
-queue of the runtime (16 sectors; a seventeenth stops the program), writes
-1 into the flag (a word of the game's memory whose address the program's
-declaration gives: `port_stream_bind`; with none bound a sector that would
-be queued stops the program), and works the queue off, in order, whenever it
-runs with the decoder not busy. `port_press_out_busy` in `press.c` is the
-decoder's side of it. The queue is emptied by `StSetRing` and `StUnSetRing`;
+queue of the runtime (16 sectors; a seventeenth stops the program), and
+works the queue off, in order, whenever it runs, for as long as the decoder
+is not busy. The busy state is asked again before every sector, queued or at
+hand, because a frame's callback may start an output transfer: what is still
+queued then stays queued, and the sector at hand goes behind it. Whenever
+the handler ends with sectors queued it writes 1 into the flag (a word of
+the game's memory whose address the program's declaration gives:
+`port_stream_bind`; with none bound that stops the program), so that the
+program's output routine calls again. `port_press_out_busy` in `press.c` is
+the decoder's side of it. The queue is emptied by `StSetRing` and `StUnSetRing`;
 that is this layer's rule, and the library has none.
 
 The controls. `port/tools/test_hoststream.py --cc CC` builds `stream.c`,

@@ -78,16 +78,18 @@ static void callback(const char *path, void (*f)(void))
     f();
 }
 
-static void write_flag(unsigned v)
+/* 1 in the program's deferred flag: sectors are put aside, and the program's output routine is to call the handler again. */
+static void raise_flag(void)
 {
     unsigned char *p = (unsigned char *)(size_t)flag_address;
-    if (!flag_address) return;
+    if (!flag_address) port_halt(PORT_EXIT_OTHER, "StCdInterrupt: %u sectors are put aside (the decoder is busy) and no deferred flag is bound", qcount);
     need("StCdInterrupt", "the deferred flag", p, 4);
-    p[0] = (unsigned char)v;
-    p[1] = (unsigned char)(v >> 8);
-    p[2] = (unsigned char)(v >> 16);
-    p[3] = (unsigned char)(v >> 24);
+    p[0] = 1;
+    p[1] = p[2] = p[3] = 0;
 }
+
+/* The busy rule's test. It is made again before every sector, queued or at hand: a frame callback may start an output transfer. */
+static int decoder_busy(void) { return mode && port_press_out_busy(); }
 
 void port_stream_bind(unsigned deferred_flag_address)
 {
@@ -245,7 +247,7 @@ static void work(const unsigned char *qb, int qsector)
 
 static void work_off_queue(void)
 {
-    while (qcount) {
+    while (qcount && !decoder_busy()) {
         unsigned k = qhead;
         qhead = (qhead + 1) % QMAX;
         qcount--;
@@ -256,29 +258,27 @@ static void work_off_queue(void)
 void port_StCdInterrupt(void)
 {
     unsigned char res[8];
-    int rc, busy;
+    int rc;
 
     if (dmabusy == 1) return;                                                 /* 1 */
     if (active) port_halt(PORT_EXIT_OTHER, "StCdInterrupt: called from inside itself");
     need_ring("StCdInterrupt");
     active = 1;
-    busy = mode && port_press_out_busy();                                     /* 2 */
-    if (!busy) work_off_queue();
+    work_off_queue();                                                         /* 2 */
     memset(res, 0, sizeof res);
     rc = port_CdReady(1, res);                                                /* 3 */
     if (rc == 1 && !(res[0] & 4)) {
-        if (busy) {
+        if (decoder_busy()) {   /* busy from before, or since a callback of the queue's work: whatever is still queued is ahead */
             unsigned k;
-            if (!flag_address) port_halt(PORT_EXIT_OTHER, "StCdInterrupt: a sector would be put aside (the decoder is busy) and no deferred flag is bound");
             if (qcount == QMAX) port_halt(PORT_EXIT_OTHER, "StCdInterrupt: the queue of %d sectors put aside is full", QMAX);
             k = (qhead + qcount) % QMAX;
             port_cd_fifo_read(queue[k].b, SECT, &queue[k].sector);
             qcount++;
-            write_flag(1);
         } else {
             work(0, 0);
         }
     }
+    if (qcount) raise_flag();
     active = 0;
 }
 

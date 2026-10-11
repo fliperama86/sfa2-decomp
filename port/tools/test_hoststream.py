@@ -7,7 +7,8 @@ The test compiles stream.c, cd.c (with xa.c, disc.c and sha256.c) and a driver o
 address (as test_hostpress.py does) and stands in for what they take from the runtime: port_tick (counted, does nothing), the frame
 count, port_halt (prints `stop: ...` and ends the driver with the status it was given; each case that stops runs in a driver of its
 own), the check of a call target (prints what it was asked about), the audio lock, the trace, and the decoder's side of the busy rule:
-port_press_out_busy returns what the test sets. The disc is an image the test makes: sectors of a made-up stream (the 32-byte
+port_press_out_busy returns what the test sets (`busy N`), and with `f1busy 1` the frame callback sets it, as a callback that starts
+an output transfer would. The disc is an image the test makes: sectors of a made-up stream (the 32-byte
 header with 0x160 at +0, the type halfword at +2, the chunk number at +4, the chunks of the frame at +6, the frame number at +8 and
 bytes the test chooses in the rest; the 2,016 data bytes from a pattern that differs for every sector), sectors of the disc's
 compressed audio between them (which carry a valid stream header, so that one that reached the ring would be seen), and sectors that
@@ -57,7 +58,7 @@ DRIVER_C = r'''
 
 volatile int port_handler_depth;
 static unsigned frames;
-static int ticks, pbusy, ring_n, hk, hooked, reenter, failcom = -1;
+static int ticks, pbusy, ring_n, hk, hooked, reenter, f1busy, failcom = -1;
 static unsigned ring_a;
 
 void port_audio_lock(void) {}
@@ -108,6 +109,7 @@ static void cb1(void)
     printf("f1 depth=%d ", port_handler_depth);
     states("");
     if (reenter & 1) { port_StCdInterrupt(); printf("f1 re-entered returned\n"); }
+    if (f1busy) pbusy = 1;   /* as a frame callback that starts an output transfer */
 }
 static void cb2(void)
 {
@@ -198,6 +200,8 @@ int main(int argc, char **argv)
             printf("intr returned\n");
         } else if (!strcmp(cmd, "busy")) {
             sscanf(line + at, "%d", &pbusy);
+        } else if (!strcmp(cmd, "f1busy")) {
+            sscanf(line + at, "%d", &f1busy);
         } else if (!strcmp(cmd, "next")) {
             /* the program's two locals are in the game's memory, as on the console: at 0x80080000 and 0x80080004 */
             unsigned long **x = (unsigned long **)(size_t)0x80080000u, **y = (unsigned long **)(size_t)0x80080004u;
@@ -933,6 +937,68 @@ def a_busy_call_with_no_sector_at_hand_queues_nothing():
     img, ss = frames_img(3)
     g = ok_run(img, setup(hook=False) + ["busy 1", "intr", f"get {FLAG:x} 4", "busy 0", "intr", "ringdump"])
     return first_bad(eq(flag(g), [0]), eq(rings(g)[0].states(), [0] * 15))
+
+
+def f1_counts(g):
+    """How many frames were complete at each call of f1, in the order of the calls."""
+    return [s.count(2) for s in cb_states(g, "f1")]
+
+
+@case
+def a_frame_callback_that_makes_the_decoder_busy_ends_the_queues_work_and_the_rest_comes_in_order_by_the_programs_calls():
+    img, ss = frames_img(6)
+    free_call = ["busy 0", f"put {FLAG:x} 00000000", "intr", "ringdump", f"get {FLAG:x} 4"]
+    g = ok_run(img, setup(hook=False) + ["busy 1", "tick 1", "f1busy 1"] + free_call + free_call + free_call)
+    r1, r2, r3 = rings(g)
+    # tick 1: F0 and F1 queued. Each call finds the decoder free and works on ONE frame: its callback makes the decoder busy. After
+    # the first the flag is 1 again (F1 stays queued); after the second the queue is empty and the flag stays as the program left it;
+    # the third has nothing to do.
+    return first_bad(eq(r1.states()[:3], [2, 0, 0]), eq(r1.hdr(1), A5_HDR), check_slot(r1, img, 0, ss[0], 2),
+                     eq(r2.states()[:3], [2, 2, 0]), check_slot(r2, img, 0, ss[0], 2), check_slot(r2, img, 1, ss[1], 2),
+                     eq(r3.b, r2.b), eq(flag(g), [1, 0, 0]), eq(f1_counts(g), [1, 2]),
+                     eq([len(lines_of([grp], "f1 ")) for grp in g if "intr returned" in grp], [1, 1, 0]))
+
+
+@case
+def a_frame_callback_that_makes_the_decoder_busy_ends_the_queues_work_when_the_disc_layer_calls_and_its_sectors_go_behind():
+    img, ss = frames_img(6)
+    free_call = ["busy 0", f"put {FLAG:x} 00000000", "intr", "ringdump", f"get {FLAG:x} 4"]
+    g = ok_run(img, setup(hook=False) + ["busy 1", "tick 1", "f1busy 1", "busy 0", f"put {FLAG:x} 00000000", "tick 1", "ringdump", f"get {FLAG:x} 4"]
+               + free_call * 4 + ["busy 0", "intr", "ringdump"])
+    rs = rings(g)
+    # tick 1: F0 and F1 queued. tick 2 hands over F2, F3 and F4 with the decoder free at first: the first call works on F0, whose
+    # callback makes the decoder busy: F1 stays, F2 goes behind it, and F3 and F4 behind that. One callback in that whole vblank.
+    # Then four calls of the program, each with the decoder free again: F1, F2, F3, F4, one a call, in order; the flag is 1 while
+    # sectors stay queued.
+    per_command = [len(lines_of([grp], "f1 ")) for grp in g]
+    tick2 = per_command[len(setup(hook=False)) + 5]
+    return first_bad(eq(tick2, 1), eq(rs[0].states()[:6], [2, 0, 0, 0, 0, 0]), check_slot(rs[0], img, 0, ss[0], 2), eq(rs[0].hdr(1), A5_HDR),
+                     eq([r.states()[:6] for r in rs[1:5]], [[2] * k + [0] * (6 - k) for k in (2, 3, 4, 5)]),
+                     first_bad(*[check_slot(rs[4], img, i, ss[i], 2) for i in range(5)]),
+                     eq(rs[5].b, rs[4].b), eq(flag(g), [1, 1, 1, 1, 0]), eq(f1_counts(g), [1, 2, 3, 4, 5]),
+                     eq([len(lines_of([grp], "f1 ")) for grp in g if "intr returned" in grp], [1, 1, 1, 1, 0]))
+
+
+@case
+def the_sector_at_hand_is_put_aside_when_the_last_queued_frames_callback_made_the_decoder_busy():
+    img, ss = frames_img(4)
+    g = ok_run(img, setup() + ["busy 1", "step 1", f"get {FLAG:x} 4", "f1busy 1", "busy 0", f"put {FLAG:x} 00000000", "step 1", "ringdump", f"get {FLAG:x} 4",
+                               "busy 0", f"put {FLAG:x} 00000000", "hook 0", "intr", "ringdump", f"get {FLAG:x} 4"])
+    r1, r2 = rings(g)
+    # step 1: F0 queued (one sector, so the queue's work ends with nothing queued). step 2 brings F1 with the decoder free: F0 is
+    # worked on, its callback makes the decoder busy, and F1 is put aside (the flag 1), not worked on. The program's call brings it.
+    return first_bad(eq(r1.states()[:3], [2, 0, 0]), check_slot(r1, img, 0, ss[0], 2), eq(r1.hdr(1), A5_HDR),
+                     eq(r2.states()[:3], [2, 2, 0]), check_slot(r2, img, 1, ss[1], 2), eq(flag(g), [1, 1, 0]), eq(f1_counts(g), [1, 2]))
+
+
+@case
+def a_call_with_the_decoder_busy_and_sectors_queued_writes_the_flag_again_and_with_no_address_bound_stops():
+    img, ss = frames_img(3)
+    g = ok_run(img, setup(hook=False) + ["busy 1", "tick 1", f"put {FLAG:x} 00000000", "intr", f"get {FLAG:x} 4", "ringdump"])
+    return first_bad(eq(flag(g), [1]), eq(rings(g)[0].states(), [0] * 15),
+                     stops(img, setup(hook=False) + ["busy 1", "tick 1", "bind 0", "intr"], "StCdInterrupt", "2 sectors are put aside", "no deferred flag is bound"),
+                     # with the decoder free the queue is worked off and nothing stays: no flag is needed
+                     eq(rings(ok_run(img, setup(hook=False) + ["busy 1", "tick 1", "bind 0", "busy 0", "intr", "ringdump"]))[0].states()[:3], [2, 2, 0]))
 
 
 @case
