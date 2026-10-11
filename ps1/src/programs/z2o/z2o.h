@@ -47,5 +47,14 @@ extern int CdMix(u8 *vol);
 extern int CdInit(void);
 extern int CdControlB(u8 com, u8 *param, u8 *result);
 extern u8 *CdIntToPos(int i, u8 *p);
+/* 0x8002f800: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_8001139c_z2o. */
+extern u8 data_8002f800_z2o;
+/* 0x8002f804: a pointer word (inferred: the buffer that CdGetSector is handed). */
+extern u32 *data_8002f804_z2o;
+extern void StUnSetRing(void);
+extern int CdReady(int mode, u8 *result);
+extern void CdGetSector(void *madr, int size);
+extern void *DecDCToutCallback(void (*func)(void));
+extern void func_800118f0_z2o(void);
 
 #endif

@@ -145,6 +145,10 @@ func_80011a24_z2o: built 164 bytes, original 164 bytes; cases 2000, discarded 0,
 func_80011a24_z2o coverage: 41 of 41 instruction slots of the original executed
 func_80011a24_z2o: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011a24_z2o coverage: 41 of 41 instruction slots of the original executed
+func_8001139c_z2o: built 140 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_8001139c_z2o coverage: 35 of 35 instruction slots of the original executed
+func_8001139c_z2o: built 140 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_8001139c_z2o coverage: 35 of 35 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
@@ -161,6 +165,7 @@ func_80011630_z2o control: different 1039 of 2000 (expected more than 0)
 func_80011830_z2o control: different 952 of 2000 (expected more than 0)
 func_800118f0_z2o control: different 858 of 2000 (expected more than 0)
 func_80011a24_z2o control: different 827 of 2000 (expected more than 0)
+func_8001139c_z2o control: different 2000 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -188,6 +193,8 @@ func_800118f0_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800118f0_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011a24_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011a24_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_8001139c_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_8001139c_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -204,6 +211,7 @@ func_80011630_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
 func_80011830_z2o fixtures: kept 3 of 2000 cases (slots 2, edges 1, results 0)
 func_800118f0_z2o fixtures: kept 3 of 2000 cases (slots 3, edges 0, results 0)
 func_80011a24_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_8001139c_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010be4_z2o replay: fixtures 1, passed 1, failed 0
 func_80011428_z2o replay: fixtures 1, passed 1, failed 0
 func_800116c8_z2o replay: fixtures 1, passed 1, failed 0
@@ -215,6 +223,7 @@ func_80011630_z2o replay: fixtures 2, passed 2, failed 0
 func_80011830_z2o replay: fixtures 3, passed 3, failed 0
 func_800118f0_z2o replay: fixtures 3, passed 3, failed 0
 func_80011a24_z2o replay: fixtures 2, passed 2, failed 0
+func_8001139c_z2o replay: fixtures 1, passed 1, failed 0
 ```
 
 ## The functions
@@ -248,3 +257,4 @@ register (see above).
 - `func_80011830_z2o`: brings the disc's volume up in steps (inferred). Reads the flag word at `0x8001b350` once. For i = 0, 2, 4, ... (the first step always runs) while i is not above the volume word at `0x8001b34c` (an unsigned comparison): sets the four bytes at `0x8002f8a4` to (i, 0, i, 0) when the flag is not 0, else all four to i / 2 (signed), then calls CdMix with them. CdMix is a recorder in the test. The test keeps the volume word small (up to 300), since a large one would run for billions of steps.
 - `func_800118f0_z2o`: brings the disc's volume down in steps (inferred). Reads the flag word at `0x8001b350` once and the volume word at `0x8001b34c` once into a counter v. While v is 0 or more (signed; nothing runs for a negative v): sets the four bytes at `0x8002f8a4` to (v, 0, v, 0) when the flag is not 0, else all four to v / 2 (signed), calls CdMix with them, then subtracts 2 from v. CdMix is a recorder in the test. The volume word is not written.
 - `func_80011a24_z2o`: starts the disc (inferred). Calls CdInit up to 4 times until one call returns a value that is not 0 and returns 0 if none does. Otherwise calls CdControlB(0x0e, &mode, 0) (a local mode byte of 0x80) until it returns a value that is not 0, CdIntToPos(0x10, pos) (a local position), CdControlB(0x15, pos, 0) until it returns a value that is not 0, and returns 1. The three library routines are recorders in the test with scripted results; the recorder of CdIntToPos fills the position with a word of the setup. It reads and writes no memory of the program.
+- `func_8001139c_z2o`: ends the movie (inferred). Calls `func_800118f0_z2o` (the volume down), StUnSetRing(), CdReady(0, 0), CdGetSector(p, 0x200) with p the pointer word at `0x8002f804`, stores 0x80 in the byte at `0x8002f800`, calls CdControlB(0x0e, that byte, 0) until it returns a value that is not 0, then CdControlB(9, 0, 0) until it returns a value that is not 0, then DecDCToutCallback(0). All of them are recorders in the test; CdControlB has scripted results.
