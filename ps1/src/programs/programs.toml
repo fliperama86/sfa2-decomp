@@ -122,6 +122,7 @@ functions = [
   { name = "func_80011a24_z2o", address = 0x80011a24, size = 164 },
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
+  { name = "func_80011708_z2o", address = 0x80011708, size = 264 },
 ]
 
 [program.symbols]
@@ -141,6 +142,16 @@ CdMix = 0x80016910
 CdInit = 0x80016264
 CdControlB = 0x800167bc
 CdIntToPos = 0x80016a3c
+data_8002f888_z2o = 0x8002f888
+data_8002f88c_z2o = 0x8002f88c
+data_80031e68_z2o = 0x80031e68
+data_8002f874_z2o = 0x8002f874
+data_8002f87c_z2o = 0x8002f87c
+data_8002f880_z2o = 0x8002f880
+data_8002f884_z2o = 0x8002f884
+StCdInterrupt = 0x800196e4
+DecDCTout = 0x80011c34
+func_80157fc4 = 0x800131a8
 data_8002f800_z2o = 0x8002f800
 data_8002f804_z2o = 0x8002f804
 StUnSetRing = 0x80018b38

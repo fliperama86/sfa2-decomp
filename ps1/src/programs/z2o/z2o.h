@@ -63,5 +63,19 @@ extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
 extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
 extern int DrawSync(int mode);
 extern int VSync(int mode);
+/* 0x8002f888 and 0x8002f88c: the count of strips handed out so far and the count at which the stream is done (inferred from func_80011708_z2o:
+   the first is added 1 to at each call, and the strips go on while it is below the second, an unsigned comparison). */
+extern u32 data_8002f888_z2o;
+extern u32 data_8002f88c_z2o;
+/* 0x80031e68: a flag word (inferred: not 0 asks for StCdInterrupt, then it is cleared). */
+extern int data_80031e68_z2o;
+/* 0x8002f874: the rectangle of the picture that the next strip goes to (inferred; x is the halfword that is stepped). */
+extern Rect data_8002f874_z2o;
+/* 0x8002f87c: the pointer word of the strip buffer, 0x8002f880 and 0x8002f884: the strip's length in words and the size handed to DecDCTout (inferred). */
+extern u32 *data_8002f87c_z2o;
+extern int data_8002f880_z2o;
+extern int data_8002f884_z2o;
+extern void StCdInterrupt(void);
+extern void DecDCTout(u32 *buf, int size);
 
 #endif
