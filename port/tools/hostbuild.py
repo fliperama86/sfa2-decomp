@@ -163,7 +163,8 @@ that are built in; the file in the tree lists none. Per program the list has `na
 `{ call = "ROUTINE", symbol = "NAME" }` or `{ call = "ROUTINE" }`: a routine of the runtime called before main and after
 it, with the address of a symbol of the program as its one argument, or 0 without a symbol) and a table
 `[program.library]` of `NAME = "ROUTINE"`. Every refusal names the file and the program: an unknown key, a program the
-declaration does not have, a name twice, a `main` that is not a function of the program, a call or a library entry that
+declaration does not have, a name twice, two programs whose files on the disc have one base name (the runtime finds a
+program by that name), a `main` that is not a function of the program, a call or a library entry that
 is malformed or names a symbol the program does not have.
 
 The units of a listed program are the `func_*.c` files of `programs/NAME` beside the configuration; their stems must be
@@ -903,6 +904,10 @@ def read_programs_list(path: Path | None, declaration: Path) -> list[Listed]:
             raise Problem(f"{where} is not a program of the declaration {declaration}")
         if any(x.program.name == name for x in out):
             raise Problem(f"{where} is listed twice")
+        base = program.disc.rsplit("/", 1)[-1].lower()
+        other = next((x.program.name for x in out if x.program.disc.rsplit("/", 1)[-1].lower() == base), None)
+        if other is not None:
+            raise Problem(f"{where} has the file name {base} of the listed program {other}; the runtime finds a program by its file's name")
         main = entry.get("main")
         if not isinstance(main, str) or main not in {f.name for f in program.functions}:
             raise Problem(f"{where}: `main` is {main!r}, which is not a function of the program in the declaration")

@@ -1756,6 +1756,10 @@ def program_plan_cases(root: Path):
     yield "programs-names-a-data-name-the-game-also-has-is-its-data-name", same(hb.plan_program_names(one, {"data_80020000_pg": 0x80020000, "sym_a": 1}).data, {"data_80020000_pg": 0x80020000})
     yield "programs-names-a-data-name-the-game-has-at-another-address-is-refused", raises(
         lambda: hb.plan_program_names(one, {"data_80020000_pg": 0x80020004, "sym_a": 1}), "data_80020000_pg", "two addresses", "0x80020004", "0x80020000", "pg")
+    one_file = write(root / "pl" / "onefile.toml", declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS), ("qq", "B/pg.exe", [("main", 0x80010020)], {})))
+    yield "programs-list-two-programs-with-one-file-name-are-refused", raises(
+        lambda: hb.read_programs_list(write(root / "pl" / "w.toml", PG_LIST + '\n[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n'), one_file), "qq", "pg", "pg.exe", "file")
+    yield "programs-list-the-same-two-with-only-one-listed-are-read", same([x.program.name for x in hb.read_programs_list(write(root / "pl" / "w1.toml", PG_LIST), one_file)], ["pg"])
     yield "programs-names-none-listed", same((hb.plan_program_names([], game).functions, hb.plan_program_names([], game).all()), ([], set()))
 
 
