@@ -1000,7 +1000,7 @@ def flow_cases(root: Path):
     cc, nm = fake(root, "flow", defs=DEFS)
     rel = subprocess.run(
         [sys.executable, str(SCRIPT), "--config", "flow/src/build.toml", "--cc", str(cc), "--nm", str(nm),
-         "--objcopy", str(root / "fakeobjcopy-flow"), "--build", "relbuild", "--runtime", "flow/runtime", "--jobs", "2", "--sweep-rows", "none.toml"],
+         "--objcopy", str(root / "fakeobjcopy-flow"), "--build", "relbuild", "--runtime", "flow/runtime", "--jobs", "2", "--sweep-rows", "none.toml", "--programs", "none.toml"],
         capture_output=True, text=True, cwd=root, timeout=300)
     yield "flow-relative-paths", same((rel.returncode, rel.stdout.splitlines()[-1] if rel.stdout else None), (0, "linked: relbuild/sfa2.exe, verified"))
 
@@ -2258,7 +2258,7 @@ class Rig:
             write(root / tag / "overrides" / f"{name}.py", "# the contract of the differential test, made up\n")
         proc = subprocess.run(
             [sys.executable, str(SCRIPT), "--config", str(base / "build.toml"), "--cc", self.cc, "--build", str(root / tag / "build"),
-             "--runtime", str(runtime), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml")],
+             "--runtime", str(runtime), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml"), "--programs", str(root / "no-programs.toml")],
             capture_output=True, text=True, timeout=900)
         return proc, root / tag / "build" / "sfa2.exe"
 

@@ -56,6 +56,16 @@ Not right yet, stated:
 - The opening movie's program and the third program of the disc have
   no C and are skipped as before.
 
+Found by the tool's own test once a program was listed: two of its
+invocations started the build on a made-up tree without naming a
+list (one case with relative paths, and the rig of the cases that use
+the real compiler), so they read the tree's list against the made-up
+tree's declaration and stopped. Both name their own empty list now,
+as the test's other invocations did, and the tool's header says that
+a build of another tree names its list. `python
+port/tools/test_hostbuild.py --cc CC`: `all cases behaved as
+required`, 535 `ok` lines.
+
 Also here, two wordings that the review of pull request 204 named:
 the page said that the tick "returns at once but for the last
 millisecond", the reverse of what it does (it sleeps while the next
