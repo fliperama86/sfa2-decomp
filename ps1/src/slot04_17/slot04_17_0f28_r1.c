@@ -396,7 +396,7 @@ void func_801b1a28_slot04_17(Object *o) {
         d = -0x10;
     }
     o->pos_x = o->pos_x + d;
-    func_801204f4(o, obj->field_a6, 5);
+    play_side_sound_at(o, obj->field_a6, 5);
     if (o->field_49 == 0) {
         func_801b1f44_slot04_17(o);
     } else {

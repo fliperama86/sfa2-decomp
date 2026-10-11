@@ -30,7 +30,7 @@ void func_801b3528_slot04_0a(Object *obj) {
         } else {
             obj->field_27b = 0xf;
             obj->state_3++;
-            func_801204f4(obj, obj->side, 0xf);
+            play_side_sound_at(obj, obj->side, 0xf);
             func_801307e0(obj, 0x49);
         }
     }

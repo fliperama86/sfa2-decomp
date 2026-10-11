@@ -151,7 +151,7 @@ void func_801b0430_slot04_0c(Object *obj) {
     t = obj->step_flags;
     if ((t & 0x7f00) != 0) {
         obj->step_flags = t & 0x80ff;
-        func_80120554(obj, obj->side, 0x31f);
+        play_sound_at(obj, obj->side, 0x31f);
     }
 }
 

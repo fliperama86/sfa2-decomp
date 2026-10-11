@@ -6,7 +6,7 @@
 void func_801b3538_slot04_05(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->field_45 = 1;
     obj->field_0b = 0;
     if ((obj->field_c2 & 0x8000) == 0) {

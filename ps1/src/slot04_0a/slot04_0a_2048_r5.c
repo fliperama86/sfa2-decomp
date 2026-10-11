@@ -11,7 +11,7 @@ void func_801b235c_slot04_0a(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 2);
     func_80138ae8(&game_state, obj);
-    func_801204f4(obj, obj->side, 0xf);
+    play_side_sound_at(obj, obj->side, 0xf);
     a = 0x2e;
     if (obj->field_49 != 0) {
         a = 0x4b;

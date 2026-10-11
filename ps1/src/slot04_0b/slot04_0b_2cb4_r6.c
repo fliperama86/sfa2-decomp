@@ -19,8 +19,8 @@ void func_801b3550_slot04_0b(Object *obj) {
         }
         if (func_80140cd8(obj, a, 0) != 0) {
             obj->state_3 = 4;
-            func_80120554(obj, o->side, 0x340);
-            func_801204f4(obj, obj->side, 0xb);
+            play_sound_at(obj, o->side, 0x340);
+            play_side_sound_at(obj, obj->side, 0xb);
             func_801307e0(obj, 0x19);
         }
         obj->field_46 = obj->field_46 + 1;
@@ -33,15 +33,15 @@ void func_801b3550_slot04_0b(Object *obj) {
             }
             func_80146478(obj, 1, -0x54, 0x55);
         }
-        func_80120554(obj, o->side, 0x30d);
-        func_801204f4(obj, obj->side, 0xb);
+        play_sound_at(obj, o->side, 0x30d);
+        play_side_sound_at(obj, obj->side, 0xb);
         obj->state_3 = 3;
         func_801307e0(obj, 0x19);
     }
 check:
     if (obj->field_a2 != 0) {
-        func_80120554(obj, o->side, 0x309);
-        func_801204f4(obj, obj->side, 0xa);
+        play_sound_at(obj, o->side, 0x309);
+        play_side_sound_at(obj, obj->side, 0xa);
     }
     update_sequence(obj);
 }

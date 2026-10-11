@@ -23,7 +23,7 @@ void func_801b2db8_slot04_02(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x12, 0x30);
     }
     update_sequence(obj);

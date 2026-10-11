@@ -13,7 +13,7 @@ void func_801c9514_slot05_06(Object *o) {
 
     if (obj->field_1c3 != 0) {
         if (obj->field_1c3 == 0x31) {
-            func_80120554(o, o->side, 0x31c);
+            play_sound_at(o, o->side, 0x31c);
             func_801483a4(o, -0x26, 0x62);
         }
         obj->field_1c3--;

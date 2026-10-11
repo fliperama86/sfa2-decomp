@@ -28,8 +28,8 @@ void func_801b5250_slot04_11(Object *obj) {
 void func_801b5290_slot04_11(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
-    func_801204f4(obj, obj->side, 8);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    play_side_sound_at(obj, obj->side, 8);
     obj->field_0b = 0;
     if (!(obj->field_cd != 0 ? (s16)((u16)func_801b5914_slot04_11(obj)->pos_x + 0xc0) < obj->pos_x : (obj->field_c2 & 0x8000) != 0)) {
         obj->field_0b++;
@@ -55,11 +55,11 @@ void func_801b535c_slot04_11(Object *obj) {
         d = *(u16 *)(data_801c7818_slot04_11 + i + 12);
         func_80146478(obj, obj->field_12a >> 1, *(s16 *)(data_801c7818_slot04_11 + i), *(s16 *)(data_801c7818_slot04_11 + i + 4));
         if (func_80140cd8(obj, c, d)) {
-            func_80120554(obj, obj->side, 0x336);
+            play_sound_at(obj, obj->side, 0x336);
             obj->state_3++;
             func_80140770(obj, 0, 5, -0x200, 0, 0, 1);
         } else {
-            func_80120554(obj, obj->side, 0x304);
+            play_sound_at(obj, obj->side, 0x304);
             ref_other.p = obj->other;
             if (ref_other.p->field_15b == 0) {
                 obj->state_3++;

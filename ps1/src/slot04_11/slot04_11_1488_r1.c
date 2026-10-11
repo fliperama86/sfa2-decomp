@@ -205,7 +205,7 @@ void func_801b1a38_slot04_11(Object *o) {
         d = -0x10;
     }
     o->pos_x = o->pos_x + d;
-    func_801204f4(o, obj->field_a6, 5);
+    play_side_sound_at(o, obj->field_a6, 5);
     if (o->field_49 == 0) {
         func_801b1f54_slot04_11(o);
     } else {
@@ -269,7 +269,7 @@ void func_801b1c98_slot04_11(Object *o) {
                     t--;
                 }
                 ((Slot04bObj *)o)->field_47 = t;
-                func_801204f4(o, o->side, 6);
+                play_side_sound_at(o, o->side, 6);
                 ((Slot04bObj *)o)->field_46 = 0;
                 o->field_67 = 0;
                 if (o->field_12f == o->field_12e) {

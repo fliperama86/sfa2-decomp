@@ -21,16 +21,16 @@ void func_800e171c_slot0f(Object *o) {
                 o->field_0a = 0;
             }
         }
-        func_80120554(0, 0, 0x204);
+        play_sound_at(0, 0, 0x204);
         b = o->pos_x_frac;
     }
     if (b & 0x860) {
         if (b & 0x820) {
             o->field_00 = data_800e8790_slot0f[(s8)o->field_0a];
-            func_80120554(0, 0, 0x205);
+            play_sound_at(0, 0, 0x205);
         } else {
             o->field_00 = 5;
-            func_80120554(0, 0, 0x202);
+            play_sound_at(0, 0, 0x202);
         }
         o->field_03 = 0;
         o->field_02 = 0;

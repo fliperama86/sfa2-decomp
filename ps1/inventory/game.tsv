@@ -128,8 +128,8 @@
 80120408	60	func_80120408	sound	sound	0	0	closed
 80120444	84	func_80120444	sound	sound	0	0	closed
 80120498	92	func_80120498	sound	sound	0	0	closed
-801204f4	96	func_801204f4	-	sound,unidentified	0	0	closed
-80120554	112	func_80120554	-	sound,unidentified	0	0	closed
+801204f4	96	play_side_sound_at	-	sound,unidentified	0	0	closed
+80120554	112	play_sound_at	-	sound,unidentified	0	0	closed
 801205c4	64	func_801205c4	-	sound,unidentified	0	0	closed
 80120604	952	func_80120604	sound,unidentified	sound,unidentified	0	0	closed
 801209bc	8	func_801209bc	-	-	0	0	closed

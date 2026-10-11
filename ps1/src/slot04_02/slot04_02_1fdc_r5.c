@@ -50,7 +50,7 @@ void func_801b2660_slot04_02(Object *obj) {
                 obj->field_14c = (s32)p;
                 obj->accel_y = -0x2800;
                 obj->field_240++;
-                func_801204f4(obj, obj->side, 0xb);
+                play_side_sound_at(obj, obj->side, 0xb);
             }
         }
     }

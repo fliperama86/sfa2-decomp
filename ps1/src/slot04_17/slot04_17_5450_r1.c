@@ -59,8 +59,8 @@ void func_801b5494_slot04_17(Object *obj) {
 void func_801b54d4_slot04_17(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
-    func_801204f4(obj, obj->side, 8);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    play_side_sound_at(obj, obj->side, 8);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if (func_801b5890_slot04_17(obj)->pos_x + 0xc0 >= obj->pos_x) {
@@ -81,8 +81,8 @@ void func_801b55a0_slot04_17(Object *obj) {
     } else if (obj->step_flags & 2) {
         obj->step_flags = obj->step_flags & 0xfffd;
         func_80146478(obj, obj->field_12a >> 1, -0x59, 0x1e);
-        func_80120554(obj, obj->side ^ 1, 0x30d);
-        func_801204f4(obj, obj->side, 6);
+        play_sound_at(obj, obj->side ^ 1, 0x30d);
+        play_side_sound_at(obj, obj->side, 6);
     }
     update_sequence(obj);
     if (obj->step_flags & 1) {
@@ -371,7 +371,7 @@ void func_801b6038_slot04_17(Object *obj) {
     obj->field_9c = data_80173c9c;
     func_801b656c_slot04_17(obj);
     o = ref_other.p->other;
-    func_801204f4(o, o->side, 0xf);
+    play_side_sound_at(o, o->side, 0xf);
     ((Slot04bObj *)obj)->field_47 = ref_other.p->field_28c;
     func_801b65bc_slot04_17(obj);
     func_801b67f0_slot04_17(obj);

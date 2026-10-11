@@ -9,7 +9,7 @@ void func_801b5b44_slot04_02(Object *obj) {
     Object *o = obj->other;
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if (func_801b5ef0_slot04_02(obj) != 0) {

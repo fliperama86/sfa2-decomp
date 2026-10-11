@@ -16,7 +16,7 @@ void func_8013ca3c(Object *a, Object *b) {
     b->field_225 = 0;
     a->field_6b = 16;
     b->field_6b = 12;
-    func_80120554(b, b->side, 0x313);
+    play_sound_at(b, b->side, 0x313);
     func_801465b0(a, 2, -0x40, 0x51);
 }
 

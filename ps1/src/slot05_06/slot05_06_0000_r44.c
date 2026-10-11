@@ -22,7 +22,7 @@ void func_801cbb6c_slot05_06(Object *o) {
         o->pos_y = (u16)o->field_70;
         obj->field_1c2 = 0xa;
         game_state.field_63 = 0xa;
-        func_801204f4(o, o->side, 0xa);
+        play_side_sound_at(o, o->side, 0xa);
     } else {
         *(s32 *)&o->pos_x_frac += o->vel_x;
         o->vel_x += o->accel_x;

@@ -23,7 +23,7 @@ Choices of the setup:
     index can reach (table_8017736c up to 0x24 + 512 bytes in one fill,
     which also covers table_80177390 since that starts 0x24 bytes in;
     table_80197ef8, 512 bytes);
-  - func_80120554 and func_801204f4 (3 arguments) and func_80120444 (2)
+  - play_sound_at and play_side_sound_at (3 arguments) and func_80120444 (2)
     are recorders that return 0; the second argument of func_80120444 is
     logged as its low byte (the callee masks it, see MaskedLog);
   - the log watches, at every call: other (0x400 bytes), the first 0x100
@@ -85,8 +85,8 @@ def setup(state, rng, sym):
     fill(state, sym["table_80197ef8"], 512, rng)
 
     log.replace(sym["func_8011f1e0"], 0, fx)
-    log.replace(sym["func_80120554"], 3, 0)
-    log.replace(sym["func_801204f4"], 3, 0)
+    log.replace(sym["play_sound_at"], 3, 0)
+    log.replace(sym["play_side_sound_at"], 3, 0)
     log.masks = {1: 0xFF}
     log.replace(sym["func_80120444"], 2, 0)
     log.masks = {}

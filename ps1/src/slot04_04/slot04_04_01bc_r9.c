@@ -14,7 +14,7 @@ void func_801b0adc_slot04_04(Object *obj) {
     obj->state_2 = 3;
     obj->state_3 = 1;
     obj->field_159 = 0;
-    func_801204f4(obj, obj->side, 0xb);
+    play_side_sound_at(obj, obj->side, 0xb);
     vel = 0x40000;
     obj->vel_y = 0x60000;
     obj->accel_y = -0x4800;

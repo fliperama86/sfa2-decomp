@@ -45,7 +45,7 @@ void func_8001a530_slot28(Object *obj) {
             func_80130768(p, 4, data_800366a8_slot28);
             data_80051998_slot28[0] = p;
         }
-        func_80120554(0, 0, 0x302);
+        play_sound_at(0, 0, 0x302);
         func_8001a958_slot28(obj, 3);
         func_80128370();
     }

@@ -42,7 +42,7 @@ void func_801b6438_slot04_17(Object *o) {
         o->state_1 = 0;
         obj->field_47 = k;
         func_801b66d0_slot04_17(o);
-        func_801204f4(ref_other.p->other, ref_other.p->other->side, 0xf);
+        play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
         func_801b65bc_slot04_17(o);
     }
 }

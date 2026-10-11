@@ -22,8 +22,8 @@ void func_801b2be8_slot04_04(Object *o) {
         } else {
             o->field_165 = 0xff;
         }
-        func_801204f4(o, o->side, 8);
-        func_80120554(o, o->side, 0x31c);
+        play_side_sound_at(o, o->side, 8);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x1a, 0x33);
     }
 }
@@ -43,6 +43,6 @@ void func_801b2c74_slot04_04(Object *o) {
         }
         ((Slot04bObj *)o)->field_27b = data_801c43dc_slot04_04[t];
         o->field_165 = 0;
-        func_801204f4(o, o->side, 9);
+        play_side_sound_at(o, o->side, 9);
     }
 }

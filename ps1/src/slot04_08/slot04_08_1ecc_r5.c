@@ -21,7 +21,7 @@ void func_801b235c_slot04_08(Object *obj) {
     t = obj->step_flags;
     if ((t & 0x8000) == 0) {
         if ((u8)t != 0) {
-            func_80120554(obj, obj->side, 0x31c);
+            play_sound_at(obj, obj->side, 0x31c);
             obj->step_flags = obj->step_flags & 0xff00;
             if (obj->field_4b == 0) {
                 obj->field_165 = 0xff;

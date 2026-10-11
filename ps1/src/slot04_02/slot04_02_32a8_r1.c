@@ -37,7 +37,7 @@ void func_801b32a8_slot04_02(Object *obj) {
 void func_801b3368_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 0xc);
         func_801b33fc_slot04_02(obj);
     } else {
         obj->pos_x = obj->pos_x + (s8)*(u8 *)&obj->step_flags;

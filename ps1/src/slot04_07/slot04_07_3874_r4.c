@@ -51,8 +51,8 @@ void func_801b3b50_slot04_07(Object *obj) {
     }
     if (*(u8 *)&obj->step_flags != 0) {
         func_80146478(obj, 1, -0x1a, 0x3a);
-        func_80120554(obj, obj->side ^ 1, 0x30b);
-        func_801204f4(obj, obj->side, 9);
+        play_sound_at(obj, obj->side ^ 1, 0x30b);
+        play_side_sound_at(obj, obj->side, 9);
         k = 0;
         obj->step_flags = obj->step_flags & 0xff00;
         if (((Slot04aObj *)obj)->field_1ce == 0) {

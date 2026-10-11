@@ -12,7 +12,7 @@ void func_801b20d4_slot04_02(Object *o) {
     o->vel_y += o->accel_y;
     if (o->vel_y < 0) {
         o->state_3++;
-        func_80120554(o, o->side, 0x320);
+        play_sound_at(o, o->side, 0x320);
         if (o->field_49 != 0) {
             a = 0x70;
         } else {

@@ -16,7 +16,7 @@ void func_800e2e44_slot0f(void) {
         p = &data_800f855b_slot0f;
         *p ^= 1;
         data_800e96b8_slot0f = &data_800e951c_slot0f[(s8)*p];
-        func_80120554(0, 0, 0x203);
+        play_sound_at(0, 0, 0x203);
     }
 }
 
@@ -26,6 +26,6 @@ void func_800e2ebc_slot0f(void) {
         p = &data_800f8559_slot0f;
         *p ^= 1;
         data_800e96c8_slot0f = &data_800e950c_slot0f[(s8)*p];
-        func_80120554(0, 0, 0x203);
+        play_sound_at(0, 0, 0x203);
     }
 }

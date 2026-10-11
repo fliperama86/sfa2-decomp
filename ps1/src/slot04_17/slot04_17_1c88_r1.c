@@ -40,7 +40,7 @@ void func_801b1c88_slot04_17(Object *o) {
                     t--;
                 }
                 ((Slot04bObj *)o)->field_47 = t;
-                func_801204f4(o, o->side, 6);
+                play_side_sound_at(o, o->side, 6);
                 ((Slot04bObj *)o)->field_46 = 0;
                 o->field_67 = 0;
                 if (o->field_12f == o->field_12e) {

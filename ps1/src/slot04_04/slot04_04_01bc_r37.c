@@ -13,7 +13,7 @@ void func_801b3294_slot04_04(Object *obj) {
     if (obj->field_45 != 0) {
         func_80130678(obj, 0x2f);
     } else {
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 8);
         func_80130678(obj, 0x2b);
     }
 }

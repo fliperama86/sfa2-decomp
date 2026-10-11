@@ -31,7 +31,7 @@ void func_800dfa40_slot0f(GameState *state, int flag) {
     func_80120498(0x200);
     func_8014f4d4(4, 0);
     if (flag != 0) {
-        func_80120554(0, 0, 0x205);
+        play_sound_at(0, 0, 0x205);
     }
     func_80119198(6);
 }

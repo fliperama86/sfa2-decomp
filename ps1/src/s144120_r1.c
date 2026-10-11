@@ -13,7 +13,7 @@ void func_80144120(Object *object) {
         if (object->field_46 & 0x80) {
             object->pos_x = 0xc0;
             object->state_2 = object->state_2 + 1;
-            func_80120554(0, 0, 0x20a);
+            play_sound_at(0, 0, 0x20a);
         }
     }
 }

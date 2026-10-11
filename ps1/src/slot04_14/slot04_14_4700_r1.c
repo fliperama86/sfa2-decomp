@@ -48,7 +48,7 @@ void func_801b4700_slot04_14(Object *obj) {
             a += 0x4d;
         }
         func_801307e0(obj, a);
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
     } else if (obj->field_cd != 0) {
         func_801b4968_slot04_14(obj);
     } else {
@@ -121,7 +121,7 @@ void func_801b4af4_slot04_14(Object *obj) {
     }
     obj->accel_x = 0;
     func_80141f28(obj, 8);
-    func_80120554(p, p->side, 0x31a);
+    play_sound_at(p, p->side, 0x31a);
     func_801307e0(obj, 0x4a);
     func_80141e5c(obj);
 }
@@ -145,7 +145,7 @@ void func_801b4bc0_slot04_14(Object *obj) {
     obj->accel_x = 0;
     obj->state_3 = 0xc;
     func_80141f28(obj, 8);
-    func_80120554(p, p->side, 0x31a);
+    play_sound_at(p, p->side, 0x31a);
     func_801307e0(obj, 0x57);
     func_80141e5c(obj);
 }
@@ -254,7 +254,7 @@ void func_801b4f1c_slot04_14(Object *obj) {
     if ((u8)t != 0) {
         obj->step_flags = t & 0xff00;
         func_80146478(obj, 2, -0x17, 0x26);
-        func_80120554(p, p->side, 0x306);
+        play_sound_at(p, p->side, 0x306);
         if (game_state.field_5c == 0) {
             game_state.field_5c = 0xa;
             game_state.field_5d = 2;

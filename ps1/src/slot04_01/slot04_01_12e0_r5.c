@@ -12,7 +12,7 @@ void func_801b1870_slot04_01(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8(&game_state, obj);
-    func_801204f4(obj, obj->side, 0xc);
+    play_side_sound_at(obj, obj->side, 0xc);
     obj->vel_y = 0x40000;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
     obj->field_45 = 1;
@@ -39,7 +39,7 @@ void func_801b1954_slot04_01(Object *o) {
     o->vel_y = o->vel_y + o->accel_y;
     if (o->vel_y < 0) {
         o->state_3++;
-        func_80120554(o, o->side, 0x320);
+        play_sound_at(o, o->side, 0x320);
         obj->field_1a4 = (o->field_12a >> 1) + 1;
         if (o->field_49 != 0) {
             a = 0x4a;

@@ -125,7 +125,7 @@ void func_801b2c88_slot04_11(Object *o) {
     if (o->step_flags & 2) {
         o->step_flags &= 0xfffd;
         func_801483a4(o, -6, 0x4f);
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
     }
 }
 
@@ -154,7 +154,7 @@ void func_801b2e38_slot04_11(Object *o) {
     int i;
     u8 c;
 
-    func_801204f4(o, o->side, 10);
+    play_side_sound_at(o, o->side, 10);
     ref_other.p->field_290 = 0;
     i = (u8)(o->field_12a << 1);
     c = data_801c74d0_slot04_11[i];

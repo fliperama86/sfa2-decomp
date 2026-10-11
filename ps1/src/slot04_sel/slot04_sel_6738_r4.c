@@ -14,19 +14,19 @@ void func_801b6bc4_slot04_sel(Object *obj, u8 *rec) {
     }
     if (data_801b9db4_slot04_sel == 0) {
         if ((*data_801b9c40_slot04_sel[obj->side] & 0x8000) != 0) {
-            func_80120554(0, obj->side, 0);
+            play_sound_at(0, obj->side, 0);
             data_801b9db0_slot04_sel = 2;
         }
         if ((*data_801b9c40_slot04_sel[obj->side] & 0x2000) != 0) {
-            func_80120554(0, obj->side, 0);
+            play_sound_at(0, obj->side, 0);
             data_801b9db0_slot04_sel = 1;
         }
         if ((*data_801b9c40_slot04_sel[obj->side] & 0x1000) != 0) {
-            func_80120554(0, obj->side, 0);
+            play_sound_at(0, obj->side, 0);
             data_801b9db0_slot04_sel = 4;
         }
         if ((*data_801b9c40_slot04_sel[obj->side] & 0x4000) != 0) {
-            func_80120554(0, obj->side, 0);
+            play_sound_at(0, obj->side, 0);
             data_801b9db0_slot04_sel = 3;
         }
     }

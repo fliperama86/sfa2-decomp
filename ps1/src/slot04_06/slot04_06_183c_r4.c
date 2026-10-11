@@ -11,7 +11,7 @@ void func_801b1c5c_slot04_06(Object *o) {
     func_801428e4(o);
     func_80138b38(&game_state, o);
     func_80145d20(o);
-    func_801204f4(o, o->side, 7);
+    play_side_sound_at(o, o->side, 7);
     o->field_12c = 0;
     o->field_12d = 0;
     o->field_12e = 0;

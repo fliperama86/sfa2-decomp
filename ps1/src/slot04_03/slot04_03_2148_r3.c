@@ -23,7 +23,7 @@ void func_801b2394_slot04_03(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, 0x34, 0x4c);
     }
 }
@@ -40,7 +40,7 @@ void func_801b2410_slot04_03(Object *obj) {
             i = (obj->field_12a >> 1) + 1;
         }
         obj->field_27b = data_801c0708_slot04_03[i];
-        func_801204f4(obj, obj->side, 6);
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 6);
+        play_side_sound_at(obj, obj->side, 0xc);
     }
 }

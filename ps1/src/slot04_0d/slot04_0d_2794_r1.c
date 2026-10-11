@@ -99,7 +99,7 @@ void func_801b2b88_slot04_0d(Object *obj) {
             a = 1;
         }
         obj->field_165 = a;
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x1a, 0x44);
     }
 }
@@ -196,7 +196,7 @@ void func_801b2edc_slot04_0d(Object *obj) {
     ((Slot04bObj *)obj)->field_1cd = 0;
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x18);
     func_80141e5c(obj);
 }

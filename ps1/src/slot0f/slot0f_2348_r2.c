@@ -46,6 +46,6 @@ void func_800e2550_slot0f(Object *o) {
                 ((Slot0fObj *)o)->field_0c = 0;
             }
         }
-        func_80120554((Object *)0, 0, 0x204);
+        play_sound_at((Object *)0, 0, 0x204);
     }
 }

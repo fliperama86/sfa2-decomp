@@ -21,7 +21,7 @@ void func_801cc660_slot05_06(Object *obj) {
 void func_801cc6a0_slot05_06(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj->other, obj->other->side, 0x31a);
+    play_sound_at(obj->other, obj->other->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if ((s16)(box_margin[0] + 0xc0) < obj->pos_x) {

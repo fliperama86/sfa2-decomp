@@ -31,7 +31,7 @@
  *     field_c6 and game_state.field_47, writes field_c6), func_801307e0 (the
  *     sequence tables in the scratchpad, the steps and frame records; writes
  *     the object's sequence, field_38, field_3a, field_80, frame, field_4a).
- *   Callee replaced by a recorder (no result, log in RAM): func_80120554
+ *   Callee replaced by a recorder (no result, log in RAM): play_sound_at
  *     (3 arguments), reached from func_80141f28; it ends in sound routines
  *     of Sony's library.
  *   Watched by the recorders: the whole object (0x394 bytes), copied at every

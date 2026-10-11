@@ -65,7 +65,7 @@ void func_80123ac4(ObjectView *entity, s16 count) {
 
 void func_80123b20(ObjectView *entity, ObjectView *other) {
     other->field_116 = 0xff;
-    func_801204f4((Object *)entity, entity->side, 3);
+    play_side_sound_at((Object *)entity, entity->side, 3);
 }
 
 void func_80123b4c(ObjectView *entity, Object *other) {

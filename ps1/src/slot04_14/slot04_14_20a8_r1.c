@@ -48,7 +48,7 @@ void func_801b2190_slot04_14(Object *obj) {
     obj->vel_y += obj->accel_y;
     if (obj->vel_y < 0) {
         obj->state_3++;
-        func_80120554(obj, obj->side, 0x320);
+        play_sound_at(obj, obj->side, 0x320);
         if (obj->field_49 != 0) {
             a = 0x70;
         } else {
@@ -68,7 +68,7 @@ void func_801b2190_slot04_14(Object *obj) {
 void func_801b225c_slot04_14(Object *obj) {
 
     if ((s16)obj->step_flags & 0x8000) {
-        func_80120554(obj, obj->side, 0x320);
+        play_sound_at(obj, obj->side, 0x320);
         ((Slot04bObj *)obj)->field_1a4--;
         if (((Slot04bObj *)obj)->field_1a4 == 0) {
             obj->state_3++;
@@ -120,7 +120,7 @@ void func_801b23a4_slot04_14(Object *obj) {
         }
     }
     obj->vel_x = d + obj->vel_x;
-    func_80120554(obj, obj->side, 0x320);
+    play_sound_at(obj, obj->side, 0x320);
     ((Slot04bObj *)obj)->field_1a4 = 1;
     if (obj->field_12a != 0) {
         ((Slot04bObj *)obj)->field_1a4 = obj->field_12a;
@@ -132,7 +132,7 @@ void func_801b24a8_slot04_14(Object *obj) {
 
     if (func_801b26bc_slot04_14(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
-            func_80120554(obj, obj->side, 0x320);
+            play_sound_at(obj, obj->side, 0x320);
             ((Slot04bObj *)obj)->field_1a4--;
             if (((Slot04bObj *)obj)->field_1a4 == 0) {
                 obj->state_3++;
@@ -242,7 +242,7 @@ void func_801b2790_slot04_14(Object *obj) {
                 p->field_9c = obj->field_9c;
                 obj->field_14c = (s32)p;
                 obj->field_240++;
-                func_801204f4(obj, obj->side, 0xb);
+                play_side_sound_at(obj, obj->side, 0xb);
             }
         }
     }
@@ -287,7 +287,7 @@ void func_801b2904_slot04_14(Object *obj) {
                 p->field_9c = obj->field_9c;
                 obj->field_14c = (s32)p;
                 obj->field_240++;
-                func_801204f4(obj, obj->side, 0xb);
+                play_side_sound_at(obj, obj->side, 0xb);
             }
         }
     }

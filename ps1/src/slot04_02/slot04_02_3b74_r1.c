@@ -40,7 +40,7 @@ void func_801b3b74_slot04_02(Object *o) {
             p->field_9c = o->field_9c;
             o->field_14c = (s32)p;
             o->field_240++;
-            func_801204f4(o, o->side, 0xb);
+            play_side_sound_at(o, o->side, 0xb);
         }
     }
 }

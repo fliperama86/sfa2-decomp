@@ -187,6 +187,21 @@ def case_both_placements(tmp: Path) -> str | None:
     return None if "void step(void);" in (tmp / "src/a.c").read_text() and "func_80010000();" in (tmp / "src/a.c").read_text() else "the module's function was not renamed alone"
 
 
+def case_function_with_a_file_of_its_name(tmp: Path) -> str | None:
+    override = "void func_80010000(void) {}\n"
+    tree(tmp, {"src/a.c": SOURCE, "port/overrides/func_80010000.c": override, "port/overrides/func_80010000.fixtures.json": "{}\n"})
+    problem = expect(apply(tmp, "src", "port"), 1, "refused", "func_80010000 keeps its name", "func_80010000.c is named after it", "func_80010000.fixtures.json is named after it")
+    if problem:
+        return problem
+    if (tmp / "src/a.c").read_text() != SOURCE or (tmp / "port/overrides/func_80010000.c").read_text() != override:
+        return "a refused run rewrote a file"
+    # The module's function of the same address has another name, so its file does not hold the resident one.
+    (tmp / "port/overrides/func_80010000.c").unlink()
+    (tmp / "port/overrides/func_80010000.fixtures.json").unlink()
+    (tmp / "port/overrides/func_80010000_slot01.c").write_text("void func_80010000_slot01(void) {}\n")
+    return expect(apply(tmp, "src", "port"), 0, "func_80010000 -> advance: 4 places")
+
+
 def case_not_an_identifier(tmp: Path) -> str | None:
     tree(tmp, {"src/a.c": SOURCE}, new=OLD.replace('name = "func_80010000", address', 'name = "9lives", address'))
     return expect(apply(tmp, "src"), 1, "refused", "not a C identifier")
@@ -223,6 +238,7 @@ CASES = [
     Case("two-functions-into-one-name-is-refused", case_two_into_one_name),
     Case("one-of-two-placements-is-refused", case_one_of_two_placements),
     Case("both-placements-renamed-together", case_both_placements),
+    Case("function-with-a-file-of-its-name-is-refused", case_function_with_a_file_of_its_name),
     Case("not-an-identifier-is-refused", case_not_an_identifier),
     Case("no-rename-changes-nothing", case_no_rename),
     Case("bad-configuration-is-refused", case_bad_configuration),

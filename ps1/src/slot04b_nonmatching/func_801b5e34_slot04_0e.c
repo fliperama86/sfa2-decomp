@@ -9,8 +9,8 @@
  *
  * What it does (inferred, not an original name): the start of a character
  * action. It advances the object's state byte, takes 2 points off a
- * counter (func_80141f28), plays two sounds (func_801204f4,
- * func_80120554), clears two velocity words, and sets a launch velocity
+ * counter (func_80141f28), plays two sounds (play_side_sound_at,
+ * play_sound_at), clears two velocity words, and sets a launch velocity
  * from tables indexed by the object's direction byte field_48: a byte
  * table (index field_48 / 2) gives field_47, two word tables (index
  * field_48) give the velocity words vel_x and accel_x, both negated
@@ -30,9 +30,9 @@
  *     func_801307e0 (the sequence tables in the scratchpad, the sequence
  *     steps and frame records; writes the object's sequence, field_38,
  *     field_3a, field_80, frame, field_4a; may step the sequence further).
- *   Callees replaced by recorders (no result, log in RAM): func_801204f4
- *     (3 arguments) and func_80120554 (3 arguments); both end in sound
- *     routines of Sony's library. func_80141f28 also calls func_80120554,
+ *   Callees replaced by recorders (no result, log in RAM): play_side_sound_at
+ *     (3 arguments) and play_sound_at (3 arguments); both end in sound
+ *     routines of Sony's library. func_80141f28 also calls play_sound_at,
  *     so that call is recorded too.
  *   Watched by the recorders: the whole object (0x394 bytes), copied at every
  *     recorded call. No recorded callee takes a pointer to memory the
@@ -57,8 +57,8 @@ void func_801b5e34_slot04_0e(Object *o) {
 
     o->state_3++;
     func_80141f28(o, 2);
-    func_801204f4(o, o->side, 6);
-    func_80120554(o, o->field_02, 0x324);
+    play_side_sound_at(o, o->side, 6);
+    play_sound_at(o, o->field_02, 0x324);
     o->vel_y = 0;
     o->accel_y = 0;
     obj->field_46 = 7;

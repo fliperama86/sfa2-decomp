@@ -322,6 +322,10 @@ Renaming a function. A function is renamed in its entry of `build.toml`, and
   function has, two functions that would get one name, a new name that is
   not a C identifier, and a source that is linked into two images and would
   be renamed at one of the two only.
+- It refuses to rename a function that has a file named after it under the
+  paths (`NAME.c`, `NAME.py`, `NAME.fixtures.json`): a nonmatching function's
+  files and an override of the port are found by that name, and their tools
+  read the address out of it.
 
 The inventory carries the names of the configuration: after a rename the
 rewritten `ps1/inventory/game.tsv` is compared with a fresh sweep.

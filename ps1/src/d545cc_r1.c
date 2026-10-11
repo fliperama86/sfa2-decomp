@@ -9,7 +9,7 @@
  * (field_52 of data_8018f5a0) when game_state.field_30 is not 0, or calls
  * func_801519b4 with one of two blocks (chosen by game_state.field_31) and,
  * if the player selected by field_31 has bit 0x100 in field_c2, advances the
- * counter and calls func_80120554. Then it clears the cursor bytes, sets
+ * counter and calls play_sound_at. Then it clears the cursor bytes, sets
  * data_8018d264 to 1, copies two rows of 8 ids into the 5-byte entries of two
  * tables and gives each entry a kind byte (0x1a for the ids 0x94 to 0x97,
  * else 0x1d), and marks the cursor entries of the other tables (0x14 current,
@@ -30,7 +30,7 @@ void func_801545cc(void) {
         }
         if ((g->field_31 == 1 && (player_left.field_c2 & 0x100)) || (g->field_31 == 2 && (player_right.field_c2 & 0x100))) {
             data_8018f5a0->field_52++;
-            func_80120554(0, 0, 0x34c);
+            play_sound_at(0, 0, 0x34c);
         }
     } else {
         data_8018f5a0->field_52++;

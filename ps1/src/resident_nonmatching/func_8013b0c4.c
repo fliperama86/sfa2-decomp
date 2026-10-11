@@ -18,12 +18,12 @@
  * bit 0x80 and the pool is still not empty, a second effect is made the
  * same way, without the position and without masking field_03. Afterwards,
  * if other's field_61 has bit 0x80 the function starts an animation on
- * other (func_80120554, or func_801204f4 when other's kind is 6) from the
+ * other (play_sound_at, or play_side_sound_at when other's kind is 6) from the
  * tables at 0x80177390; else, unless g->field_10 has bit 0x80, it starts
  * one chosen by an index from g->field_10 (doubled, with bit 0 set when
  * other's field_5c is negative): for an index below 16 one animation
- * (func_80120554 with other's side and table_8017736c[index]), otherwise
- * two (func_80120554 with other's side and 0x32e, then func_801204f4 with
+ * (play_sound_at with other's side and table_8017736c[index]), otherwise
+ * two (play_sound_at with other's side and 0x32e, then play_side_sound_at with
  * the other side value, side ^ 1, and table_8017736c[index]); then a
  * follow-up step from a table by other's field_66 (func_80120444), left
  * out when the table entry is 3.
@@ -47,7 +47,7 @@
  *     func_8011f1e0 (0 arguments) returns the effect object, or 0 in one
  *     case of five; because it is a recorder it returns the same value
  *     both times it is called, so the second effect overwrites the first
- *     when both are made. func_80120554 and func_801204f4 (3 arguments),
+ *     when both are made. play_sound_at and play_side_sound_at (3 arguments),
  *     func_80120444 (2 arguments) return 0; the function ignores their
  *     results. The second argument of func_80120444 is a byte that the
  *     callee masks (inferred); the original passes a sign-extended halfword
@@ -131,11 +131,11 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
   {
     if (other->kind != 6)
     {
-      func_80120554(other, other->field_66, table_80177390[other->kind]);
+      play_sound_at(other, other->field_66, table_80177390[other->kind]);
     }
     else
     {
-      func_801204f4(other, other->field_66, table_80177390[6]);
+      play_side_sound_at(other, other->field_66, table_80177390[6]);
     }
   }
   else if (!(g->field_10 & 0x80))
@@ -147,12 +147,12 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
     }
     if (index >= 16)
     {
-      func_80120554(other, other->side, 0x32e);
-      func_801204f4(other, other->side ^ 1, table_8017736c[index]);
+      play_sound_at(other, other->side, 0x32e);
+      play_side_sound_at(other, other->side ^ 1, table_8017736c[index]);
     }
     else
     {
-      func_80120554(other, other->side, table_8017736c[index]);
+      play_sound_at(other, other->side, table_8017736c[index]);
     }
     k = other->field_66;
     step = table_80197ef8[k];

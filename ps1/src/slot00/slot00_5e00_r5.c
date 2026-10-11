@@ -14,7 +14,7 @@ void func_8007632c_slot00(Object *obj) {
             obj->field_225 = 0;
             func_80141f28(obj, 1);
         }
-        func_801204f4(obj, obj->side, 9);
+        play_side_sound_at(obj, obj->side, 9);
         func_801307e0(obj, 0x2b);
     } else {
         func_80130dc0(obj);

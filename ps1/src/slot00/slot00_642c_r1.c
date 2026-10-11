@@ -7,7 +7,7 @@ void func_8007642c_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     if (obj->field_3a != 0) {
         o->state_3++;
-        func_80120554(o, o->side, 0x324);
+        play_sound_at(o, o->side, 0x324);
         if (o->field_0b != 0) {
             o->vel_x = 0xa0000;
             o->accel_x = -0x8000;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80120554(Object *o, int b, unsigned c);
+void play_sound_at(Object *o, int b, unsigned c);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 
 void func_801b4390_slot04_0e(Object *o) {
@@ -19,5 +19,5 @@ void func_801b4390_slot04_0e(Object *o) {
         a = -a;
     }
     func_80146478(o, 6, a, 0);
-    func_80120554(p, p->side, 0x306);
+    play_sound_at(p, p->side, 0x306);
 }

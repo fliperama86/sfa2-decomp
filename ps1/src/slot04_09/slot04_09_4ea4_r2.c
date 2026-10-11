@@ -22,7 +22,7 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
         o->field_46 = o->field_46 + 0x100;
         if (func_80140cd8(o, 0, 0) != 0) {
             func_80140770(o, 0, 0xd, 0, 0, 1, 1);
-            func_801204f4(o, o->side, 0xb);
+            play_side_sound_at(o, o->side, 0xb);
             func_801b51e0_slot04_09(o);
             return;
         }
@@ -36,7 +36,7 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
         }
         if ((u8)func_801410c8(o) != 0) {
             func_80140770(o, 0, 0xd, 7, 0, 1, 1);
-            func_801204f4(o, o->side, 0xb);
+            play_side_sound_at(o, o->side, 0xb);
             func_801b51e0_slot04_09(o);
             return;
         }

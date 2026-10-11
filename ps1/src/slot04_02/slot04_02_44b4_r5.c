@@ -33,7 +33,7 @@ void func_801b4f0c_slot04_02(Object *obj) {
     if ((u8)t != 0) {
         obj->step_flags = t & 0xff00;
         func_80146478(obj, 2, -0x17, 0x26);
-        func_80120554(p, p->side, 0x306);
+        play_sound_at(p, p->side, 0x306);
         if (game_state.field_5c == 0) {
             game_state.field_5c = 0xa;
             game_state.field_5d = 2;

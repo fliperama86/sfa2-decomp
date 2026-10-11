@@ -16,9 +16,9 @@ void func_80011010_slot12(void) {
         game_state.field_ab = 0xff;
         *t = 0x1f;
         if (game_state.field_44 & 0x80) {
-            func_801204f4(data_8002d56c_slot12, game_state.field_227 ^ 1, 6);
+            play_side_sound_at(data_8002d56c_slot12, game_state.field_227 ^ 1, 6);
         } else {
-            func_801204f4(data_8002d568_slot12, data_8002d568_slot12->side, 6);
+            play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 6);
         }
     }
 }

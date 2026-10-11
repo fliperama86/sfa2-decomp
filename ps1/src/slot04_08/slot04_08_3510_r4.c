@@ -26,8 +26,8 @@ void func_801b3abc_slot04_08(Object *obj) {
         obj->state_3++;
         obj->field_46 = data_801c3d8c_slot04_08[(obj->field_12a >> 1) * 2];
         func_80141f28(obj, 0x15);
-        func_80120554(obj, obj->side ^ 1, 0x31a);
-        func_801204f4(obj, obj->side, 0x12);
+        play_sound_at(obj, obj->side ^ 1, 0x31a);
+        play_side_sound_at(obj, obj->side, 0x12);
         func_801307e0(obj, 0x5d);
     } else {
         update_sequence(obj);

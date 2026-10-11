@@ -44,8 +44,8 @@ void func_801b3b2c_slot04_0f(Object *obj) {
                 i += 2;
             }
             func_80140cd8(obj, (s16)(*(u16 *)((u8 *)data_801c5b98_slot04_0f + i) | m), 0);
-            func_801204f4(obj, obj->side, 0xb);
-            func_80120554(obj, obj->side, 0x319);
+            play_side_sound_at(obj, obj->side, 0xb);
+            play_sound_at(obj, obj->side, 0x319);
         }
     }
 }
@@ -66,12 +66,12 @@ void func_801b3c14_slot04_0f(Object *obj) {
     obj->field_45 = one;
     obj->accel_y = 0x3000;
     if ((s16)o->field_5c < 0) {
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
         obj->field_167 = (obj->field_12a >> 1) + 0xc;
         game_state.config->field_6b = 4;
         func_80147000(obj);
     } else {
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     }
 }
 
@@ -133,7 +133,7 @@ void func_801b3e54_slot04_0f(Object *obj) {
 void func_801b3ec8_slot04_0f(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
     }
     update_sequence(obj);
 }
@@ -249,7 +249,7 @@ void func_801b4290_slot04_0f(Object *obj) {
 void func_801b42f0_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->field_160 = 0xb4;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_336 = 0;
@@ -274,11 +274,11 @@ void func_801b4358_slot04_0f(Object *obj) {
         }
         if (func_80140cd8(obj, k, 0) != 0) {
             func_80140770(obj, 1, 5, -0x200, 0, 0, 0);
-            func_80120554(o, o->side, 0x333);
+            play_sound_at(o, o->side, 0x333);
             goto tail;
         }
         obj->field_46 = obj->field_46 + 1;
-        func_80120554(o, o->side, 0x302);
+        play_sound_at(o, o->side, 0x302);
     }
     func_80140fe0(obj);
     if ((s16)obj->field_46 != 0 && (o->field_15b == 0 || func_801410c8(obj) != 0)) {
@@ -286,7 +286,7 @@ void func_801b4358_slot04_0f(Object *obj) {
         func_80140770(obj, 1, 5, 0, 0, 0, 1);
 tail:
         obj->state_3 = obj->state_3 + 1;
-        func_80120554(o, o->side, 0x306);
+        play_sound_at(o, o->side, 0x306);
         func_801307e0(obj, 0x54);
     } else {
         update_sequence(obj);

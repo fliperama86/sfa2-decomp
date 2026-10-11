@@ -17,10 +17,10 @@ void func_801b1c28_slot04_01(Object *o) {
     obj->field_1a5 = 0;
     t = o->vel_y;
     if (t >= 0) {
-        func_801204f4(o, o->side, 0xc);
+        play_side_sound_at(o, o->side, 0xc);
     } else if (o->pos_y - o->field_70 < -0x2f) {
         obj->field_1a5 = 1;
-        func_801204f4(o, o->side, 0xc);
+        play_side_sound_at(o, o->side, 0xc);
     }
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
@@ -36,7 +36,7 @@ void func_801b1c28_slot04_01(Object *o) {
         }
     }
     o->vel_x = a3 + o->vel_x;
-    func_80120554(o, o->side, 0x320);
+    play_sound_at(o, o->side, 0x320);
     a3 = o->field_12a >> 1;
     ((Slot04aObj *)o)->field_1a4 = a3 + 1;
     func_801307e0(o, a3 + 0x25);

@@ -19,7 +19,7 @@ void func_801cd9e4_slot05_06(Object *obj) {
         func_80131468(obj);
     } else {
         if ((s16)obj->step_flags == 3) {
-            func_80120554(obj, ((Slot04aObj *)obj)->field_a6, 0x324);
+            play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x324);
         }
         if ((s16)obj->step_flags == 2 && (s32)obj->vel_x >= 0) {
             d = obj->vel_x;

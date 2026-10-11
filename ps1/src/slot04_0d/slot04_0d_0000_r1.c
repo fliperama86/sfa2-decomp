@@ -81,7 +81,7 @@ void func_801b0180_slot04_0d(Object *obj) {
     *(s32 *)&obj->pos_x_frac = d + *(s32 *)&obj->pos_x_frac;
     if (obj->pos_x == 0x280) {
         obj->state_2 = obj->state_2 + 1;
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
         func_80130678(obj, 0x30);
     } else {
         update_sequence(obj);

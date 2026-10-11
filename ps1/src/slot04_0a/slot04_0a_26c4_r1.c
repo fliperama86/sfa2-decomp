@@ -12,7 +12,7 @@ void func_801b26c4_slot04_0a(Object *obj) {
     t = (s16)obj->step_flags;
     if (t & 0x80) {
         obj->state_3++;
-        func_801204f4(obj, obj->side, 0xd);
+        play_side_sound_at(obj, obj->side, 0xd);
         obj->field_45 = 1;
         obj->field_67 = 0;
         obj->accel_x = 0;
@@ -33,7 +33,7 @@ void func_801b26c4_slot04_0a(Object *obj) {
             t = (obj->field_12a >> 1) + 1;
         }
         obj->field_27b = data_801c0690_slot04_0a[t];
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
     } else if (t == 1) {
         if (obj->field_4b == 0) {
             t = -1;

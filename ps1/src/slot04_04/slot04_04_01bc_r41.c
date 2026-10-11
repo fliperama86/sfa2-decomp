@@ -5,7 +5,7 @@
 
 void func_801b377c_slot04_04(Object *obj) {
     obj->state_3++;
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 4);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {

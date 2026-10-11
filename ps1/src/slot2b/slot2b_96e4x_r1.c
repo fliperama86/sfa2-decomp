@@ -11,7 +11,7 @@ extern u16 data_8007ee64_slot2b[];
  * fills it in with fixed values and copies of the spawning object's fields.
  * The child's position is the spawning object's position plus an offset pair
  * from data_8007ee64_slot2b, chosen by a random even index below 32. Then it
- * calls func_801204f4 with the spawning object, the parent's side and 0xf.
+ * calls play_side_sound_at with the spawning object, the parent's side and 0xf.
  */
 void func_800796e4_slot2b(Object *obj) {
     Object *parent = obj->field_3c;
@@ -51,6 +51,6 @@ void func_800796e4_slot2b(Object *obj) {
         child->field_66 = obj->field_66;
         child->field_98 = obj->field_98;
         child->field_9c = obj->field_9c;
-        func_801204f4(obj, parent->side, 0xf);
+        play_side_sound_at(obj, parent->side, 0xf);
     }
 }

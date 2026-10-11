@@ -14,7 +14,7 @@ void func_800e4988_slot0f(void) {
     Chan *c;
     data_800f7268_slot0f--;
     if (data_800f7268_slot0f == 0) {
-        func_80120554(0, 0, 0x200);
+        play_sound_at(0, 0, 0x200);
         data_800f7268_slot0f = 0xe10;
     }
     func_800e05a0_slot0f(0, 1);

@@ -8,6 +8,6 @@ void func_80144364(Object *object) {
     if (*(u8 *)&object->step_flags != 0) {
         object->state_2 = object->state_2 + 1;
         object->step_flags = object->step_flags & 0xff00;
-        func_80120554(0, 0, 0x20b);
+        play_sound_at(0, 0, 0x20b);
     }
 }

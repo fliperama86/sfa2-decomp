@@ -56,6 +56,6 @@ void func_80141f28(Object *object, short delta)
   }
   if ((((s16) object->field_c6) != old) && (((s16) object->field_c6) >= 0x90))
   {
-    func_80120554(0, 0, 0x325);
+    play_sound_at(0, 0, 0x325);
   }
 }

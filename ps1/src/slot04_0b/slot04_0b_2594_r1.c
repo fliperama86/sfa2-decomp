@@ -30,8 +30,8 @@ void func_801b2624_slot04_0b(Object *obj) {
             obj->field_165 = 0xff;
         }
         func_801483a4(obj, -0x28, 0x62);
-        func_80120554(obj, obj->side, 0x31c);
-        func_801204f4(obj, obj->side, 7);
+        play_sound_at(obj, obj->side, 0x31c);
+        play_side_sound_at(obj, obj->side, 7);
     }
     update_sequence(obj);
 }

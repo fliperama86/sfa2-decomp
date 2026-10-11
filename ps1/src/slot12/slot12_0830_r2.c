@@ -10,7 +10,7 @@ void func_80010978_slot12(void) {
     func_8014f4d4(6, 2);
     game_state.field_c8 = 0x3c;
     game_state.field_ab = 0xff;
-    func_801204f4(data_8002d568_slot12, data_8002d568_slot12->side, 8);
+    play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 8);
 }
 
 void func_800109dc_slot12(void) {

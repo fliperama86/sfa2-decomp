@@ -64,7 +64,7 @@ void func_801b3878_slot04_10(Object *obj) {
                 func_80147000(obj);
             }
         }
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     }
 }
 
@@ -121,7 +121,7 @@ void func_801b3d40_slot04_10(Object *obj) {
         obj->state_3++;
         func_80141f28(obj, 0x14);
         func_80138ae8(game_state.config, obj);
-        func_80120554(obj, obj->side ^ 1, 0x31a);
+        play_sound_at(obj, obj->side ^ 1, 0x31a);
         func_801307e0(obj, 0x22);
     }
 }
@@ -147,7 +147,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
             func_80140cd8(obj, (s16)(p[i] | m), 0);
             obj->step_flags &= m;
             game_state.config->field_63 = 0x3c;
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
             func_80146960(obj);
         } else if (st == 2) {
             obj->state_3++;

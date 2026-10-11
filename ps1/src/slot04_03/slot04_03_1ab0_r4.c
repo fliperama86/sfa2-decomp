@@ -20,8 +20,8 @@ void func_801b1df0_slot04_03(Object *obj) {
             i = (obj->field_12a >> 1) + 1;
         }
         obj->field_27b = data_801c0674_slot04_03[i];
-        func_801204f4(obj, obj->side, 5);
-        func_801204f4(obj, obj->side, 0xd);
+        play_side_sound_at(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 0xd);
     }
     if ((u8)obj->step_flags == 0) {
         func_801b223c_slot04_03(obj);

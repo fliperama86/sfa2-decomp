@@ -20,13 +20,13 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
         }
         if ((u8)func_80140cd8(obj, a, 0) != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, 1);
-            func_80120554(game_state.field_358, ref_other.p->side, 0x336);
+            play_sound_at(game_state.field_358, ref_other.p->side, 0x336);
             goto tail;
         }
         obj->field_46++;
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 0xc);
         q = &game_state.field_358;
-        func_80120554(*q, ref_other.p->side, 0x304);
+        play_sound_at(*q, ref_other.p->side, 0x304);
         func_80140fe0(obj);
         if ((s16)obj->field_46 != 0) {
             *q = obj->other;
@@ -43,7 +43,7 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
         if (ref_other.p->field_15b == 0 || (u8)func_801410c8(obj) != 0) {
 act:
             func_80140770(obj, 0, 5, 0, 0, 0, 1);
-            func_801204f4(obj, obj->side, 0xd);
+            play_side_sound_at(obj, obj->side, 0xd);
 tail:
             obj->state_3++;
             func_801307e0(obj, 0x1b);

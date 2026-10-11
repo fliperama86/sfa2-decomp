@@ -21,7 +21,7 @@ void func_800e2348_slot0f(Object *o) {
             }
         }
         if (obj->field_0d != 0) {
-            func_80120554((Object *)0, 0, 0x204);
+            play_sound_at((Object *)0, 0, 0x204);
         }
     }
     if (obj->field_0b != 2) {

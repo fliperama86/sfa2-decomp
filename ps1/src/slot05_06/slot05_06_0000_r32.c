@@ -40,12 +40,12 @@ void func_801ca850_slot05_06(Object *obj) {
         if ((u8)func_80140cd8(obj, *(s16 *)(data_801dd40c_slot05_06 + (obj->field_12a & 0xfe)), 0) != 0 && obj->field_12a != 4) {
             g->field_6b = 4;
             func_80147000(obj);
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
             ((Slot04aObj *)obj)->field_1c2 = 0x30;
             g->field_63 = 0x20;
             func_801307e0(obj, 0x25);
         } else {
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
             func_801307e0(obj, 0x25);
         }
     }

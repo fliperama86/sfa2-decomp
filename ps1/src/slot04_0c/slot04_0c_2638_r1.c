@@ -148,7 +148,7 @@ void func_801b2a98_slot04_0c(Object *o) {
             o->field_165 = 1;
         }
         func_801483a4(o, 3, 0x55);
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
     }
     update_sequence(o);
 }
@@ -183,7 +183,7 @@ void func_801b2bec_slot04_0c(Object *o) {
     if ((a & 0xff) == 2) {
         o->step_flags = (a & 0xff00) | 1;
         if (((Slot04bObj *)o->other)->field_a7 == 0xb) {
-            func_801204f4(o, o->side, 0x12);
+            play_side_sound_at(o, o->side, 0x12);
             o->field_4a = 0;
         }
     }

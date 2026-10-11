@@ -29,7 +29,7 @@ void func_801b3154_slot04_15(Object *obj) {
         func_80146478(obj, 1, 0x18, 0x47);
         o = obj->other;
         ref_other.p = o;
-        func_80120554(o, ref_other.p->side, 0x306);
+        play_sound_at(o, ref_other.p->side, 0x306);
         func_801307e0(obj, 0x1a);
     }
 }
@@ -47,7 +47,7 @@ void func_801b31f0_slot04_15(Object *obj) {
         o = obj->other;
         if (o->field_15b != 0) {
             o->field_243 = 0;
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
     }
 }
@@ -95,7 +95,7 @@ void func_801b33c8_slot04_15(Object *obj) {
 void func_801b3408_slot04_15(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->field_0b = 0;
     if ((obj->field_c2 & 0x8000) == 0) {
         obj->field_0b = 1;
@@ -126,9 +126,9 @@ void func_801b3484_slot04_15(Object *obj) {
         o = obj->other;
         ref_other.p = o;
         if ((s16)obj->field_5c >= 0) {
-            func_80120554(o, ref_other.p->side, 0x30f);
+            play_sound_at(o, ref_other.p->side, 0x30f);
         } else {
-            func_80120554(o, ref_other.p->side, 0x346);
+            play_sound_at(o, ref_other.p->side, 0x346);
         }
     }
 }

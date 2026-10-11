@@ -35,7 +35,7 @@ void func_801b46d4_slot04_02(Object *obj) {
             a += 0x4d;
         }
         func_801307e0(obj, a);
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
     } else if (obj->field_cd != 0) {
         func_801b494c_slot04_02(obj);
     } else {

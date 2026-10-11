@@ -19,7 +19,7 @@ void func_801b2414_slot04_06(Object *o) {
     } else {
         o->vel_y = -0x80000;
         o->state_3++;
-        func_801204f4(o, o->side, 8);
+        play_side_sound_at(o, o->side, 8);
         func_801307e0(o, 0x20);
     }
 }
@@ -34,7 +34,7 @@ void func_801b24cc_slot04_06(Object *o) {
         o->state_3++;
         func_80146960(o);
         o->field_45 = 0;
-        func_80120554(o, o->side, 0x319);
+        play_sound_at(o, o->side, 0x319);
         obj->field_1c2 = 0xa;
         o->pos_y = obj->field_70;
         game_state.field_63 = 0xa;

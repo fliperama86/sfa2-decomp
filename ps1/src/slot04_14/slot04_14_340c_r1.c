@@ -52,7 +52,7 @@ void func_801b340c_slot04_14(Object *obj) {
 void func_801b34e8_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 0xc);
         func_801b3564_slot04_14(obj);
     } else {
         obj->pos_x = obj->pos_x + (s8)*(u8 *)&obj->step_flags;
@@ -134,7 +134,7 @@ void func_801b3730_slot04_14(Object *obj) {
                 obj->field_165 = 1;
             }
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         i = (((u8)obj->step_flags - 1) << 2) & 0x1fc;
         obj->step_flags = obj->step_flags & 0xff00;
         func_801482e0(obj, *(s16 *)((u8 *)data_801c6390_slot04_14 + i), *(s16 *)((u8 *)data_801c6390_slot04_14 + i + 2));
@@ -178,7 +178,7 @@ void func_801b382c_slot04_14(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240 = obj->field_240 + 1;
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
     }
 }
@@ -304,7 +304,7 @@ void func_801b3c38_slot04_14(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240 = obj->field_240 + 1;
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
     }
 }

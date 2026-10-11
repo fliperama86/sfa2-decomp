@@ -13,5 +13,5 @@ void func_801b0190_slot04_07(Object *obj) {
     obj->vel_y = 0x10000;
     obj->accel_x = 0;
     obj->accel_y = -0x2a00;
-    func_801204f4(obj, obj->side, 6);
+    play_side_sound_at(obj, obj->side, 6);
 }
