@@ -58,3 +58,9 @@
   `func_8011db78`): the unit rebuilt, the same IDENTICAL line;
   `matchbuild.py --image resident`: `RESULT: PASS`; the map's render:
   `overall: 5474/5600 distinct functions exact (97.8%); 12908/13072 placements (98.7%); 1723676/1809836 code bytes (95.2%)`.
+- After the merge of main at `88bb39e` (it brought pull request 224,
+  the inline helpers; the guide keeps both additions, the wrapper's
+  second use first, then the inline function): the unit rebuilt, the
+  same IDENTICAL line; `matchbuild.py --image resident`: `RESULT:
+  PASS`; the map's render:
+  `overall: 5476/5600 distinct functions exact (97.8%); 12910/13072 placements (98.8%); 1724568/1809836 code bytes (95.3%)`.
