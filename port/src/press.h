@@ -2,7 +2,7 @@
  * (DecDCTReset, DecDCTvlc, DecDCTin, DecDCTout, DecDCToutCallback), on top of the decoder chip's core that the picture library
  * (PsyZ) has since the port's pin of 2026-10-10 (Psyz_MdecReset, Psyz_MdecCommand, Psyz_MdecRead), with the bitstream reader and
  * the reset tables of the port's own mdec.c (port_mdec_vlc, port_mdec_reset). The port's own decode routine in mdec.c is NOT used
- * here. Nothing binds the calls to a program yet; a later change does. Written from what the logo program's own copy of the library
+ * here. The port's list of programs (port/programs.toml) binds the calls for the logo's program. Written from what the logo program's own copy of the library
  * does (read in a private listing) and from mdec.h; nothing here is compared with a console's library or its output. The chip's
  * pixels are the library's (tested upstream against captures from a console); what this file adds is tested in
  * port/tools/test_hostpress.py against direct calls of the same core.

@@ -1,7 +1,7 @@
 /* Sony's movie stream calls, as the PC program has them: the routines with which the logo's and the opening movie's programs take a
  * movie's sectors from the disc into a ring of frames (StSetRing, StSetStream, StGetNext, StFreeRing, StUnSetRing, StCdInterrupt,
- * CdRead2), on top of the port's disc layer (cd.c) and the decoder calls' busy rule (press.c). Nothing binds them to a program yet; a
- * later change does. Written from what the programs' own copies of the library do, as a private note of the project states it;
+ * CdRead2), on top of the port's disc layer (cd.c) and the decoder calls' busy rule (press.c). The port's list of programs
+ * (port/programs.toml) binds them for the logo's program. Written from what the programs' own copies of the library do, as a private note of the project states it;
  * nothing here is compared with a console's library or with its output. What stream.c adds is tested in port/tools/test_hoststream.py
  * by what the calls do on a made-up disc image, against values worked out from that image.
  *
