@@ -36,7 +36,7 @@ void func_8001139c_z2o(void) {
     func_800118f0_z2o();
     StUnSetRing();
     CdReady(0, 0);
-    CdGetSector(data_8002f804_z2o, 0x200);
+    CdGetSector(data_8002f804_z2o[0], 0x200);
     data_8002f800_z2o = 0x80;
     while (CdControlB(0x0e, &data_8002f800_z2o, 0) == 0) {
     }
