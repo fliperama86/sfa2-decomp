@@ -231,7 +231,6 @@ func_80016af0_slot12 control: different 2000 of 2000 (expected more than 0)
   altered: texture page constant 0x7f07 changed to 0x7f08, instruction slot 51
 func_8001791c_slot27 control: different 1192 of 2000 (expected more than 0)
   altered: texture page constant changed, instruction slot 121
-  altered: store of field_60 moved by two bytes, instruction slot 18
 func_80022944_slot28 control: different 1607 of 2000 (expected more than 0)
   altered: store of field_60 moved by two bytes, instruction slot 19
 func_80077868_slot2b control: different 824 of 2000 (expected more than 0)
