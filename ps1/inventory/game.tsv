@@ -693,7 +693,7 @@
 801395f8	236	func_801395f8	-	-	0	0	closed
 801396e4	236	func_801396e4	-	-	0	0	closed
 801397d0	344	-	-	-	0	0	closed
-80139928	244	-	-	-	0	0	closed
+80139928	244	func_80139928	-	-	0	0	closed
 80139a1c	92	func_80139a1c	-	-	0	0	closed
 80139a78	652	func_80139a78	-	-	0	0	open
 80139d04	72	func_80139d04	-	-	1	0	open
