@@ -50,7 +50,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80120cf0`, `func_8013a3a8`, `func_80140b5c`, `func_80140cd8`, `func_80142030`.
-- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011c724`, `func_8013245c`, `func_801347b4`, `func_8014e890`.
+- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011c724`, `func_8013245c`, `func_8014e890`.
 - An original callee reads only part of an argument register, and the two codes differ in the rest; the tool compares the whole register, its own check of the record fails, and none is kept. `func_8011df3c`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
@@ -134,8 +134,6 @@ func_80131ab4: built 368 bytes, original 456 bytes; cases 2000, discarded 0, equ
 func_80131ab4 coverage: 114 of 114 instruction slots of the original executed
 func_8013245c: built 1736 bytes, original 1748 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8013245c coverage: 437 of 437 instruction slots of the original executed
-func_801347b4: built 940 bytes, original 1760 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801347b4 coverage: 436 of 440 instruction slots of the original executed
 func_80135a10: built 524 bytes, original 508 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80135a10 coverage: 127 of 127 instruction slots of the original executed
 func_80136744: built 344 bytes, original 340 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -221,8 +219,6 @@ func_80131ab4 control: different 258 of 2000 (expected more than 0)
   altered: flag value 1 changed to 2, instruction slot 21
 func_8013245c control: different 2000 of 2000 (expected more than 0)
   altered: constant 0x7807 changed to 0x7806, instruction slot 410
-func_801347b4 control: different 711 of 2000 (expected more than 0)
-  altered: page word constant 0x7807 changed to 0x7809, instruction slot 84
 func_80135a10 control: different 749 of 2000 (expected more than 0)
   altered: mode 2 code 0x20 changed to 0x21, instruction slot 94
 func_80136744 control: different 929 of 2000 (expected more than 0)
@@ -291,7 +287,6 @@ func_8012fd80 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013172c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80131ab4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013245c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801347b4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80135a10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80136744 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013902c writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
