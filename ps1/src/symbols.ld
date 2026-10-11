@@ -1655,7 +1655,6 @@ func_80157720 = 0x80157720;
 func_8013db48 = 0x8013db48;
 func_8014c4a8 = 0x8014c4a8;
 func_8013f3e8 = 0x8013f3e8;
-func_8012f9b0 = 0x8012f9b0;
 
 /* Added by src.u_slot2a_0020. */
 data_801e1c8c_slot2a = 0x801e1c8c;
