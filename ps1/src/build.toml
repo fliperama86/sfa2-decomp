@@ -40326,3 +40326,27 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801545cc", address = 0x801545cc, size = 940 },
 ]
+
+[[unit]]
+name = "d3ed90_r1"
+source = "d3ed90_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ed90", address = 0x8013ed90, size = 240 },
+]
+
+[[unit]]
+name = "d3eb28_r1"
+source = "d3eb28_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013eb28", address = 0x8013eb28, size = 204 },
+]
+
+[[unit]]
+name = "d3ec50_r1"
+source = "d3ec50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ec50", address = 0x8013ec50, size = 204 },
+]
