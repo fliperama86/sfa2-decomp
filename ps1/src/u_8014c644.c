@@ -14,11 +14,11 @@ void func_8014c644(Object *object)
   if (func_80149d48(object))
   {
     object->field_208 = 6;
-    object->field_04 = 1;
-    object->field_06 = 6;
+    object->state_0 = 1;
+    object->state_2 = 6;
     object->field_209 = 0;
-    object->field_05 = 0;
-    object->field_07 = 4;
+    object->state_1 = 0;
+    object->state_3 = 4;
     object->field_221 = object->field_20f;
     if (object->field_20f != 0)
     {

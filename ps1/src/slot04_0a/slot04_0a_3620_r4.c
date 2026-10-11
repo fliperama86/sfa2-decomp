@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b3a90_slot04_0a(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     if (obj->field_cd != 0 ? (u16)(box_margin[0] + 0xc0) < obj->pos_x : (obj->field_c2 & 0x8000) == 0) {
         obj->field_0b = 0;
     } else {

@@ -6,5 +6,5 @@
 extern ObjectFn table_80022dcc_slot12[];
 
 void func_800117ac_slot12(Object *obj) {
-    table_80022dcc_slot12[obj->field_04](obj);
+    table_80022dcc_slot12[obj->state_0](obj);
 }

@@ -16,7 +16,7 @@ void func_80013dc4_slot28(Object *obj, SeqRec *rec) {
         r->field_09 = 0x10;
         r->field_0a = 1;
         r->field_0b = 0x10;
-        if (obj->field_3a & 1) {
+        if (obj->step_flags & 1) {
             r->field_04 = 0x26;
             r->field_06 = 0xba;
         } else {

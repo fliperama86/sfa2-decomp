@@ -21,7 +21,7 @@ void func_801b7590_slot04_14(Object *o) {
     int k;
     int t;
     ((Slot04bObj *)o)->field_6c = data_801c7644_slot04_14;
-    o->field_04++;
+    o->state_0++;
     ((Slot04bObj *)o)->field_b0 = o->field_0d;
     p = o->field_3c;
     o->field_09 = 0;
@@ -33,15 +33,15 @@ void func_801b7590_slot04_14(Object *o) {
     k = o->field_03 >> 1;
     t = data_801c7884_slot04_14[k];
     v = data_801c78cc_slot04_14[o->field_ac];
-    o->field_50 = v;
+    o->vel_y = v;
     o->pos_y = o->pos_y - t;
     if (o->field_0b != 0) {
         a = data_801c7878_slot04_14[o->field_03 >> 1];
-        o->field_4c = data_801c7890_slot04_14[o->field_ac];
+        o->vel_x = data_801c7890_slot04_14[o->field_ac];
     } else {
         a = data_801c7878_slot04_14[o->field_03 >> 1];
         a = -a;
-        o->field_4c = -data_801c7890_slot04_14[o->field_ac];
+        o->vel_x = -data_801c7890_slot04_14[o->field_ac];
     }
     o->pos_x = a + o->pos_x;
     if (p->side == 0) {

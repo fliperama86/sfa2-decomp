@@ -9,7 +9,7 @@ extern u8 data_801c068b_slot04_0a[];
 void func_801b25fc_slot04_0a(Object *obj) {
     int i;
 
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     obj->field_29c = 2;

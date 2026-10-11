@@ -18,7 +18,7 @@ void func_800e64b0_slot0f(Object *obj) {
         rec = table_8016e5c4;
     }
     obj->field_01 = 0;
-    obj->field_04++;
+    obj->state_0++;
     rec += ((Slot0fObj *)obj)->field_5c;
     switch (obj->field_48) {
     case 0:

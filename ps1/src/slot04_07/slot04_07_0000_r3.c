@@ -6,12 +6,12 @@
 int func_801b41c4_slot04_07(Object *obj);
 
 void func_801b01ec_slot04_07(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     int i;
     Object *c;
 
     if ((t & 0xff) != 0) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         for (i = 0; i < 3; i++) {
             c = (Object *)func_8011f1e0();
             if (c != 0) {
@@ -31,21 +31,21 @@ void func_801b01ec_slot04_07(Object *obj) {
         }
     }
     func_801b41c4_slot04_07(obj);
-    if (obj->field_50 >= 0 || (i = obj->field_70, obj->pos_y < i)) {
+    if (obj->vel_y >= 0 || (i = obj->field_70, obj->pos_y < i)) {
         func_80130efc(obj);
     } else {
-        obj->field_06 += 1;
+        obj->state_2 += 1;
         obj->pos_y = i;
         if (obj->side == 0) {
             obj->pos_x = 0x220;
         } else {
             obj->pos_x = 0x2e0;
         }
-        obj->field_4c = 0;
-        obj->field_50 = 0;
-        obj->field_54 = 0;
-        obj->field_58 = 0;
-        obj->field_10 = 0;
-        obj->field_14 = 0;
+        obj->vel_x = 0;
+        obj->vel_y = 0;
+        obj->accel_x = 0;
+        obj->accel_y = 0;
+        obj->pos_x_frac = 0;
+        obj->pos_y_frac = 0;
     }
 }

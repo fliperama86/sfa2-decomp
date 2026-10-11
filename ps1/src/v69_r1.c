@@ -8,8 +8,8 @@
 void func_80144830(Object *object)
 {
   u16 margin;
-  u8 t = object->field_06;
-  object->field_06 = t + 1;
+  u8 t = object->state_2;
+  object->state_2 = t + 1;
   margin = box_margin[0];
   object->pos_y = 0x70;
   object->field_01 = 2;

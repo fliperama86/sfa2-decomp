@@ -83,11 +83,11 @@ void func_801b00d0_slot04_11(Object *obj) {
 }
 
 void func_801b01e4_slot04_11(Object *obj) {
-    data_801c72e4_slot04_11[obj->field_06](obj);
+    data_801c72e4_slot04_11[obj->state_2](obj);
 }
 
 void func_801b0224_slot04_11(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
     func_80130678(obj, 0);
 }
@@ -95,7 +95,7 @@ void func_801b0224_slot04_11(Object *obj) {
 void func_801b0258_slot04_11(Object *obj) {
     game_state.config = &game_state_second;
     if (game_state.config->field_64 == 0 && game_state.config->field_5c == 0) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
     }
     func_80130efc(obj);
 }
@@ -104,7 +104,7 @@ void func_801b02c0_slot04_11(Object *obj) {
     int v;
 
     ((Slot04bObj *)obj)->field_47 = 0x3c;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     if (game_state.config->field_76 == 0) {
         game_state.config->field_76 = 0x1e;
     }
@@ -124,18 +124,18 @@ void func_801b0350_slot04_11(Object *obj) {
 }
 
 void func_801b03c0_slot04_11(Object *obj) {
-    data_801c7304_slot04_11[obj->field_06](obj);
+    data_801c7304_slot04_11[obj->state_2](obj);
 }
 
 void func_801b0400_slot04_11(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
     func_80130678(obj, 0);
 }
 
 void func_801b0434_slot04_11(Object *obj) {
     if (game_state.config->field_5c == 0) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
     }
     func_80130efc(obj);
 }
@@ -144,7 +144,7 @@ void func_801b047c_slot04_11(Object *obj) {
     int arg = 0x28;
 
     ((Slot04bObj *)obj)->field_47 = 0x78;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     if (game_state.config->field_a6 != 0) {
         arg = 0x29;
     }
@@ -171,21 +171,21 @@ void func_801b0540_slot04_11(Object *obj) {
 
 void func_801b0580_slot04_11(Object *obj) {
     obj->field_157 = 0;
-    data_801c7314_slot04_11[obj->field_07](obj);
+    data_801c7314_slot04_11[obj->state_3](obj);
 }
 
 void func_801b05c0_slot04_11(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a == 0) {
         func_801b5740_slot04_11(obj);
     } else if (obj->field_25f != 0 || (obj->field_130 & 0xa000) == 0 ||
                (u8)func_8013f8c4(obj, -0x14, 0xe) == 0) {
         func_801b5740_slot04_11(obj);
     } else {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
 }
 
@@ -195,11 +195,11 @@ void func_801b0668_slot04_11(Object *obj) {
 
 void func_801b0688_slot04_11(Object *obj) {
     obj->field_157 = 1;
-    data_801c731c_slot04_11[obj->field_07](obj);
+    data_801c731c_slot04_11[obj->state_3](obj);
 }
 
 void func_801b06cc_slot04_11(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_801b5740_slot04_11(obj);
 }
 
@@ -210,7 +210,7 @@ void func_801b06f8_slot04_11(Object *obj) {
 void func_801b0718_slot04_11(Object *obj) {
     int v;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_128 = 4;
     obj->field_159 = 1;
     func_80130504(obj);

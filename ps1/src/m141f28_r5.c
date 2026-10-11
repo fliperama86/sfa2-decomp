@@ -5,7 +5,7 @@
 
 void func_801443b0(Object *object) {
     Config *config;
-    if ((s16)object->field_3a < 0) {
+    if ((s16)object->step_flags < 0) {
         config = game_state.config;
         if (config->field_a6 != 0) {
             func_8014448c(object);

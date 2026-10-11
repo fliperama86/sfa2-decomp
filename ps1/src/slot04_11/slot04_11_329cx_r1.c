@@ -17,18 +17,18 @@ void func_801b329c_slot04_11(Object *obj) {
     s16 ox;
     int n;
 
-    a = obj->field_4c;
+    a = obj->vel_x;
     if (obj->field_0b == 0) {
         a = -a;
     }
-    *(s32 *)&obj->field_10 += a;
+    *(s32 *)&obj->pos_x_frac += a;
     if (obj->field_67 != 0) {
         ref_other.p = obj->other;
-        if (ref_other.p->field_163 == 0 && *(u16 *)&ref_other.p->field_04 == 0x101
+        if (ref_other.p->field_163 == 0 && *(u16 *)&ref_other.p->state_0 == 0x101
             && (u8)func_8013fd98(obj, 0, 0x40, 8, 8)) {
-            obj->field_4c = 0xc0000;
-            obj->field_07++;
-            obj->field_54 = -0x8000;
+            obj->vel_x = 0xc0000;
+            obj->state_3++;
+            obj->accel_x = -0x8000;
             ref_other.p->field_261 = 1;
             ((Slot04bObj *)obj)->field_52 = obj->pos_x;
             ref_other.p->pos_y = obj->pos_y;
@@ -43,8 +43,8 @@ void func_801b329c_slot04_11(Object *obj) {
         }
     }
     a = obj->pos_x;
-    a -= *(s16 *)&obj->field_54;
-    b = *(s16 *)((u8 *)&obj->field_54 + 2);
+    a -= *(s16 *)&obj->accel_x;
+    b = *(s16 *)((u8 *)&obj->accel_x + 2);
     a += b;
     b <<= 1;
     if (!((u32)b < (u32)a)) {
@@ -55,7 +55,7 @@ void func_801b329c_slot04_11(Object *obj) {
         }
     }
     b = -1;
-    obj->field_07 += 2;
+    obj->state_3 += 2;
     ref_other.p = obj->other;
     lo = obj->pos_x;
     ox = ref_other.p->pos_x;
@@ -71,7 +71,7 @@ void func_801b329c_slot04_11(Object *obj) {
         ref_other.p->pos_x = ox + b;
         ref_other.p->field_164 = 0;
     }
-    obj->field_4c = 0x80000;
-    obj->field_54 = 0xffff0000;
+    obj->vel_x = 0x80000;
+    obj->accel_x = 0xffff0000;
     func_801307e0(obj, 0x59);
 }

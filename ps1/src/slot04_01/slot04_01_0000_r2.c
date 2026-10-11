@@ -10,7 +10,7 @@ void func_801b0220_slot04_01(Object *obj) {
     int v;
 
     obj->field_46 = 0x3c;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     if (game_state.config->field_76 == 0) {
         game_state.config->field_76 = 0x1e;
     }

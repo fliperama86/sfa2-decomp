@@ -9,10 +9,10 @@ void func_801b4adc_slot04_04(Object *obj);
 void func_801b49d0_slot04_04(Object *obj) {
     int t = 0x1c;
 
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 5;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 5;
+    obj->state_3 = 0;
     func_80141f28(obj, 1);
     obj->field_12f = 0;
     obj->field_67 = 0;

@@ -14,10 +14,10 @@ void func_801e9e7c_slot06_08(Object *obj) {
     obj->field_0c = 0;
     obj->field_0a = t;
     obj->field_0f = t;
-    obj->field_04 = t;
+    obj->state_0 = t;
     t = *(u8 *)&game_state.field_42;
     if (g != 0) t = ~t;
-    if (t & 1) obj->field_04 = 2;
+    if (t & 1) obj->state_0 = 2;
     t = 6;
     if (obj->field_03 != 0) t = 7;
     func_80130700(obj, data_801ed480_slot06_08[t]);

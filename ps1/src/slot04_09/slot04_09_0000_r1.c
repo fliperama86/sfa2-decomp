@@ -37,8 +37,8 @@ void func_801b0000_slot04_09(Object *o) {
         c->field_02 = 9;
         c->field_3c = o;
         *(u32 *)&o->field_2c = (u32)c;
-        *(u32 *)&c->field_10 = *(u32 *)&o->field_10;
-        *(u32 *)&c->field_14 = *(u32 *)&o->field_14;
+        *(u32 *)&c->pos_x_frac = *(u32 *)&o->pos_x_frac;
+        *(u32 *)&c->pos_y_frac = *(u32 *)&o->pos_y_frac;
         c->field_0b = o->field_0b;
         c->field_0e = o->field_0e;
         c->field_0c = o->field_0c;

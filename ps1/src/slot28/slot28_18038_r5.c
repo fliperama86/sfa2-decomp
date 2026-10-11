@@ -10,7 +10,7 @@ void func_80028514_slot28(Object *obj) {
     obj->field_0b = 0;
     obj->field_48 = 0;
     obj->field_01 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_80130768(obj, 3, (SequenceStep **)obj->box_tables);
 }
 

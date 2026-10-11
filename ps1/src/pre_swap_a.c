@@ -6,10 +6,10 @@
 void func_801312b8(Object *object) {
     func_80131f7c(object);
     func_80130678(object, 0);
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 0;
+    object->state_3 = 0;
     object->field_157 = 0;
     func_8013151c(object);
     func_80155f30(object);
@@ -34,10 +34,10 @@ void func_8013136c(Object *object) {
 
 void func_801313bc(Object *object, unsigned short arg) {
     func_80130678(object, arg);
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 0;
+    object->state_3 = 0;
     object->field_157 = 0;
     func_8013151c(object);
     func_80155f30(object);
@@ -54,10 +54,10 @@ void func_801313bc(Object *object, unsigned short arg) {
 
 void func_80131468(Object *object) {
     func_80131f7c(object);
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 0;
-    object->field_07 = 2;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 0;
+    object->state_3 = 2;
     object->field_157 = 1;
     func_8013151c(object);
     func_80155f30(object);
@@ -104,7 +104,7 @@ void func_8013151c(Object *object) {
     object->flags_28b = 0;
     object->field_28f = 0;
     object->pos_y = object->field_70;
-    *(unsigned int *)&object->field_14 &= 0xffff0000;
+    *(unsigned int *)&object->pos_y_frac &= 0xffff0000;
     object->field_295 = 0;
     object->field_0b = object->field_158;
     object->field_49 = 0;
@@ -133,10 +133,10 @@ void func_8013151c(Object *object) {
 
 void func_80131638(Object *object) {
     func_80131f7c(object);
-    object->field_04 = 1;
-    object->field_06 = 3;
-    object->field_05 = 0;
-    object->field_07 = 2;
+    object->state_0 = 1;
+    object->state_2 = 3;
+    object->state_1 = 0;
+    object->state_3 = 2;
     object->pos_y = object->field_70;
     func_8013151c(object);
     if (object->field_cd == 0) {

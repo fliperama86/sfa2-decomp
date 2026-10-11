@@ -18,12 +18,12 @@ void func_800786f0_slot00(Object *obj) {
             obj->field_0d = obj->field_0d + 1;
         }
     }
-    data_8007a110_slot00[obj->field_06](obj);
+    data_8007a110_slot00[obj->state_2](obj);
 }
 
 void func_80078790_slot00(Object *obj) {
     obj->field_46 = 0xa;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     func_80131094(obj);
 }
 
@@ -33,7 +33,7 @@ void func_800787c0_slot00(Object *obj) {
         obj->field_60 = 0x13;
         obj->field_61 = 0xf;
         obj->field_45 = 0x1d;
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
     }
     func_80131094(obj);
 }

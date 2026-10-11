@@ -60,7 +60,7 @@ void func_801e8dc4_slot06_00(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->field_0c = 0;
-    obj->field_04++;
+    obj->state_0++;
     r = &data_801f3010_slot06_00[obj->field_03];
     i = obj->field_03 << 2;
     r->field_10 = data_801e9f60_slot06_00[i];

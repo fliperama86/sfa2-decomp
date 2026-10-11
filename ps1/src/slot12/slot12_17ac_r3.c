@@ -9,7 +9,7 @@ void func_800119cc_slot12(Object *obj);
 void func_80011bd8_slot12(Object *obj, Slot12List *list);
 
 void func_800118f0_slot12(Object *obj) {
-    table_80022dd8_slot12[obj->field_05](obj);
+    table_80022dd8_slot12[obj->state_1](obj);
     if (obj->field_03 != 0) {
         func_8011ffdc(obj);
     } else {
@@ -28,13 +28,13 @@ void func_8001196c_slot12(Object *obj) {
     if ((u16)y != 0) {
         func_800119cc_slot12(obj);
     } else {
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 
 void func_800119cc_slot12(Object *obj) {
     if (game_state.field_ab != 0) {
         obj->field_46 = 0x1f;
-        obj->field_05++;
+        obj->state_1++;
     }
 }

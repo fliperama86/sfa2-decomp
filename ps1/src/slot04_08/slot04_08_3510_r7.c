@@ -6,7 +6,7 @@
 void func_801b3e74_slot04_08(Object *obj, Object *unused) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     func_80120554(obj, obj->side ^ 1, 0x31a);
     obj->field_160 = 0x60;

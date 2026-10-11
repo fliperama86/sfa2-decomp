@@ -6,12 +6,12 @@
 void func_801b0510_slot04_06(Object *obj) {
     int one;
 
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if ((obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     } else {
         one = 1;
         obj->field_159 = one;
@@ -23,8 +23,8 @@ void func_801b0510_slot04_06(Object *obj) {
 void func_801b0598_slot04_06(Object *obj) {
     int d = -0x10;
 
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         if (obj->field_0b != 0) {
             d = 0x10;
         }

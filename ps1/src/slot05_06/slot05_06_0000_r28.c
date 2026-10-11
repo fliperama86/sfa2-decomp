@@ -10,15 +10,15 @@ void func_801ca414_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     func_801cc84c_slot05_06(o);
-    if (o->field_50 <= 0x1ffff && obj->field_1c8 == 0) {
+    if (o->vel_y <= 0x1ffff && obj->field_1c8 == 0) {
         obj->field_1c8 = 1;
         func_801307e0(o, 0x28);
-    } else if (o->field_50 >= 0) {
+    } else if (o->vel_y >= 0) {
         func_801cc814_slot05_06(o);
         func_80130efc(o);
     } else {
-        o->field_50 = -0x80000;
-        o->field_07++;
+        o->vel_y = -0x80000;
+        o->state_3++;
         func_801204f4(o, o->side, 8);
         func_801307e0(o, 0x20);
     }
@@ -31,7 +31,7 @@ void func_801ca4cc_slot05_06(Object *o) {
     if (o->pos_y < (s16)obj->field_70) {
         func_801cc814_slot05_06(o);
     } else {
-        o->field_07++;
+        o->state_3++;
         func_80146960(o);
         o->field_45 = 0;
         func_80120554(o, o->side, 0x319);

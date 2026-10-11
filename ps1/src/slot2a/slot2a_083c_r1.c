@@ -4,5 +4,5 @@
 #include "../externs.h"
 
 void func_801e083c_slot2a(Object *obj) {
-    obj->field_05++;
+    obj->state_1++;
 }

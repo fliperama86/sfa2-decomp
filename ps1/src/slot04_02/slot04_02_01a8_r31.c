@@ -7,7 +7,7 @@ void func_801b3d14_slot04_02(Object *obj) {
     obj->field_12a = 4;
     obj->field_255 = 4;
     obj->field_159 = 0;
-    obj->field_07++;
+    obj->state_3++;
     obj->field_46 = (u8)obj->field_46 | 0x3200;
     obj->field_48 = obj->field_0b;
     func_80145e70(obj);

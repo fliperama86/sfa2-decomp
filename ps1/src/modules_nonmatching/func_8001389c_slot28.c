@@ -49,7 +49,7 @@ void func_8001389c_slot28(Object *obj) {
     data_8018f5a0->field_54 = 0;
     data_8018f5a0->field_4e++;
     /* The byte at 0x4f is the last byte of field_4c. */
-    ((u8 *)&obj->field_4c)[3] = 0;
+    ((u8 *)&obj->vel_x)[3] = 0;
     obj->field_64 = 0;
     for (i = 15; i >= 0; i--) {
         data_80051ea8_slot28[i] = 0;

@@ -10,7 +10,7 @@ void func_801b3510_slot04_08(Object *obj) {
     obj->field_17b = 1;
     obj->field_159 = 1;
     obj->field_157 = 0;
-    obj->field_07++;
+    obj->state_3++;
     if (obj->field_49 == 0) {
         obj->field_177--;
     }

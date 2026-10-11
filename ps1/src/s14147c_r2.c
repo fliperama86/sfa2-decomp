@@ -22,7 +22,7 @@ u8 func_801417cc(Object *object) {
     s32 *flag = data_80190464;
     data_8019046c[0] = 0;
     *flag = 0;
-    if (*(u32 *)&object->field_04 == 0x20101) return func_80141a00(object);
+    if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
     *flag = 1;
     if (object->field_45 != 0) return 0;
     return func_80141908(object);
@@ -31,7 +31,7 @@ u8 func_801417cc(Object *object) {
 u8 func_80141848(Object *object) {
     s32 *flag = data_80190464;
     *flag = 0;
-    if (*(u32 *)&object->field_04 == 0x20101) return func_80141a00(object);
+    if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
     *flag = 1;
     if (object->field_45 != 0) return 0;
     return func_80141908(object);
@@ -39,7 +39,7 @@ u8 func_80141848(Object *object) {
 
 int func_801418bc(Object *object) {
     game_state.field_35c = 1;
-    if (*(u32 *)&object->field_04 == 0x3030001) {
+    if (*(u32 *)&object->state_0 == 0x3030001) {
         return 0;
     }
     return (u8)func_80141908(object);

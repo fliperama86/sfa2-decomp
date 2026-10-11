@@ -18,7 +18,7 @@ void func_801b6a40_slot04_02(Object *obj) {
 void func_801b6a84_slot04_02(Object *obj) {
     int t;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_128 = 4;
     obj->field_159 = 1;
     func_80120af8(obj);

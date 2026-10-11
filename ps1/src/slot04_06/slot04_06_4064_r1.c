@@ -13,7 +13,7 @@ void func_801b4064_slot04_06(Object *obj) {
         obj->field_165 = 0xff;
         ((Slot04aObj *)obj)->field_47 = 0x1e;
         ((Slot04aObj *)obj)->field_46 = 1;
-        obj->field_07++;
+        obj->state_3++;
         if (obj->field_45 == 0) {
             a = -8;
             b = 0x51;
@@ -35,7 +35,7 @@ void func_801b410c_slot04_06(Object *obj) {
     ((Slot04aObj *)obj)->field_47--;
     if (((Slot04aObj *)obj)->field_47 == 0) {
         ((Slot04aObj *)obj)->field_47 = 0x14;
-        obj->field_07++;
+        obj->state_3++;
         obj->field_27c = 0;
         ((Slot04aObj *)obj)->field_27d = 0;
         if (obj->field_4b == 0) {

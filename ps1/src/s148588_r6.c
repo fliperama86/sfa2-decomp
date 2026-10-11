@@ -7,18 +7,18 @@
 
 void func_80148c8c(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017cebc[object->field_04](object);
+    table_8017cebc[object->state_0](object);
 }
 
 void func_80148ccc(Object *object) {
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     object->field_0c = 0;
-    object->field_4c = *(s32 *)&object->field_10;
-    object->field_50 = 0;
-    object->field_58 = 0;
+    object->vel_x = *(s32 *)&object->pos_x_frac;
+    object->vel_y = 0;
+    object->accel_y = 0;
     object->pos_y = object->pos_y - 8;
-    object->field_58 = func_80151184() & 0x30;
-    object->field_54 = 0;
+    object->accel_y = func_80151184() & 0x30;
+    object->accel_x = 0;
     object->field_46 = 0;
     func_80130768(object, object->field_48, seqs_8017c7f8);
 }

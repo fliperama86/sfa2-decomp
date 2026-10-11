@@ -15,7 +15,7 @@ int func_8014e368(Object *object)
   if (ok != 0)
   {
     other = object->other;
-    if (*((u32 *) (&other->field_04)) == 0x1010101)
+    if (*((u32 *) (&other->state_0)) == 0x1010101)
     {
       if (other->field_60 == 2)
       {

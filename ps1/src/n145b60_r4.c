@@ -9,8 +9,8 @@ void func_801486a4(Object *object) {
     if ((((u32 *) ref_other.p)[1] & 0xffffff) == 0x80001) {
       func_80131094(object);
     } else {
-      object->field_05 = 0;
-      object->field_04++;
+      object->state_1 = 0;
+      object->state_0++;
       return;
     }
   }

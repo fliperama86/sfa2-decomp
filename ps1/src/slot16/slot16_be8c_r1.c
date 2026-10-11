@@ -27,7 +27,7 @@ void func_8007be8c_slot16(Object *object) {
     if (object->field_211 & 1) {
         object->field_129 = 2;
     }
-    object->field_07 = 3;
+    object->state_3 = 3;
     object->field_128 = 4;
     object->field_159 = 1;
     func_80141f28(object, *(s16 *) ((char *) data_8007e878_slot16 + (object->field_12a & 0xfe)));

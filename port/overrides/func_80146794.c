@@ -63,11 +63,11 @@ void func_80146794(Object *object) {
             object->pos_x = object->pos_x - 4;
         }
     }
-    if ((s16)object->field_3a < 0) {
-        object->field_04 = object->field_04 + 1;
+    if ((s16)object->step_flags < 0) {
+        object->state_0 = object->state_0 + 1;
     }
     arg = object;
-    if ((u16)(object->field_38 - 1) == 0 && (s16)object->field_3a < 0) {
+    if ((u16)(object->step_timer - 1) == 0 && (s16)object->step_flags < 0) {
         arg = (Object *)object->sequence;
     }
     func_80131094(object);

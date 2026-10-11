@@ -32,5 +32,5 @@ void func_80077080_slot2b(Object *obj) {
 }
 
 void func_800770c4_slot2b(Object *obj) {
-    data_80079810_slot2b[obj->field_07](obj);
+    data_80079810_slot2b[obj->state_3](obj);
 }

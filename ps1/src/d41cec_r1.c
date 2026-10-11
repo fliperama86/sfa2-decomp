@@ -18,18 +18,18 @@ u8 func_80141cec(Object *object) {
     u32 partial;
     u32 idle;
     u32 stand_in;
-    u32 w = *(u32 *)&object->field_04;
+    u32 w = *(u32 *)&object->state_0;
 
     if (w != 0x20101) {
         checked = 1;
         partial = (u16)w;
 
         partial = object->field_7e | object->field_45 | (partial != 1);
-        idle = partial | (object->field_06 == 7);
-        partial = idle | (object->field_06 == 8);
+        idle = partial | (object->state_2 == 7);
+        partial = idle | (object->state_2 == 8);
         /* Stand-in, not recovered source: this copy local reproduces the original's choice of registers. Without it this function differs from the original in 2 instruction slots. */
         stand_in = partial;
-        if (object->field_06 == 9) return 0;
+        if (object->state_2 == 9) return 0;
         if (stand_in != 0) return 0;
     }
     object->field_69 = 0;

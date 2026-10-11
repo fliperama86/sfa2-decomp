@@ -31,7 +31,7 @@ void func_80014e24_slot01(Object *obj) {
     for (i = 0; i < 10; i++) {
         x = x0;
         if (row >= 0 && row < w) {
-            base = (u8 *)(o->field_50 + ((u16)row >> 5) * ((((Slot01Obj *)o)->field_58 >> 9) << 12) * 2 + ((row & 0x1f) << 8));
+            base = (u8 *)(o->vel_y + ((u16)row >> 5) * ((((Slot01Obj *)o)->field_58 >> 9) << 12) * 2 + ((row & 0x1f) << 8));
             for (j = 0; j < 0x30; j++, x++) {
                 if ((u16)x < 0x40) {
                     src = (u16 *)(base + ((s16)x / 64 << 13) + ((x & 0x3f) << 2));

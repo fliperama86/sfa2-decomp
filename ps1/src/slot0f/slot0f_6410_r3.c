@@ -28,8 +28,8 @@ void func_800e6620_slot0f(Object *obj) {
     func_800e5be4_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->field_03 * 64 + (data_801a27d0 * 32 + (u32)t))));
 skip:
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
-        obj->field_05 = 0;
+        obj->state_0++;
+        obj->state_1 = 0;
     }
 }
 
@@ -39,5 +39,5 @@ void func_800e66ec_slot0f(Object *obj) {
 
 void func_800e670c_slot0f(Object *obj) {
     data_80190468.p = (Object *)&game_state;
-    data_800eff4c_slot0f[obj->field_04](obj);
+    data_800eff4c_slot0f[obj->state_0](obj);
 }

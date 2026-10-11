@@ -10,7 +10,7 @@ void func_80020608_slot28(Object *o);
 void func_800205b4_slot28(Object *obj) {
     func_80020608_slot28(obj);
     if (obj->pos_y >= 0xd0) {
-        obj->field_04++;
+        obj->state_0++;
     }
     ((void (*)(void))func_80131094)();
 }

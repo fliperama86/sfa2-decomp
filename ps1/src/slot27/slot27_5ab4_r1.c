@@ -26,7 +26,7 @@ void func_80015ab4_slot27(Object *obj) {
     obj->field_9c = data_8001aa14_slot27;
     obj->field_90 = (void *)0x80038000;
     obj->field_0b = 0;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_60 != 0) {
         obj->pos_x = data_80028b38_slot27[obj->field_03].first + data_80055f30;
         obj->pos_y = -data_80028b38_slot27[obj->field_03].second + data_80055f34 + 0x200;

@@ -15,10 +15,10 @@ void func_80012344_slot01(Object *o) {
         func_80012438_slot01(o);
     } else {
         int t;
-        obj->field_10 += o->field_4c;
-        o->field_4c += o->field_54;
-        obj->field_14 += o->field_50;
-        o->field_50 += o->field_58;
+        obj->field_10 += o->vel_x;
+        o->vel_x += o->accel_x;
+        obj->field_14 += o->vel_y;
+        o->vel_y += o->accel_y;
         o->field_24 += 8;
         if (o->field_46 & 1) {
             o->field_20++;
@@ -37,7 +37,7 @@ void func_80012438_slot01(Object *obj) {
     obj->field_24 = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_x = obj->field_5c;
     obj->pos_y = obj->field_5e;
     func_800124f4_slot01(obj);
@@ -46,9 +46,9 @@ void func_80012438_slot01(Object *obj) {
 void func_8001247c_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
     Object *child = obj->field_30;
-    o->field_04 = 3;
+    o->state_0 = 3;
     if (child != 0) {
-        child->field_04 = 2;
+        child->state_0 = 2;
     }
 }
 

@@ -14,8 +14,8 @@ void func_801b37b0_slot04_03(Object *obj) {
         r = &ref_other;
         r->p = obj->other;
     } while (0);
-    if ((obj->field_3a & 0xff) != 0) {
-        obj->field_3a &= 0xff00;
+    if ((obj->step_flags & 0xff) != 0) {
+        obj->step_flags &= 0xff00;
         func_801204f4(obj, obj->side, 7);
         func_80146478(obj, 1, -0x2d, 0x2b);
         if (((Slot04aObj *)obj)->field_1cf == 0) {
@@ -65,7 +65,7 @@ void func_801b37b0_slot04_03(Object *obj) {
         }
     }
 tail:
-    obj->field_07++;
+    obj->state_3++;
     /* Stand-in, not recovered source: a fourth do-while wrapper, around the single statement that sounds 0x30d, reproduces the original's choice of registers. Without it this function differs from the original in 43 instruction slots. */
     do {
         func_80120554(r->p, ref_other.p->side, 0x30d);

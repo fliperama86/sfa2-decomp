@@ -10,7 +10,7 @@ void func_8012aef8(Object *object) {
         func_80130304(object);
     } else {
         if (!func_80149d48(object)) {
-            object->field_07 = 1;
+            object->state_3 = 1;
         }
         func_80130efc(object);
     }

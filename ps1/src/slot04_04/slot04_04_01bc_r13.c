@@ -15,10 +15,10 @@ u8 func_801b11b0_slot04_04(Object *obj) {
     }
     if (func_801417cc(obj)) {
         r++;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 7;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;
@@ -38,10 +38,10 @@ int func_801b123c_slot04_04(Object *obj) {
 
 void func_801b128c_slot04_04(Object *obj) {
     ref_other.p = obj->other;
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 7;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
     obj->field_15a = 8;
     obj->field_159 = 1;
     obj->field_157 = 0;

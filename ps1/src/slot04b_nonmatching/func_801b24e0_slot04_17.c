@@ -82,7 +82,7 @@ void func_801b24e0_slot04_17(Object *obj) {
     int speed_w;
 
     func_801b56e0_slot04_17(obj);
-    if ((obj->field_3a & 0x8000) == 0) {
+    if ((obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
         return;
     }
@@ -106,32 +106,32 @@ void func_801b24e0_slot04_17(Object *obj) {
         }
     }
     if (move == MOVE_APPROACH) {
-        obj->field_07++;
+        obj->state_3++;
         ref_other.p = obj->other;
-        dist = *(s32 *)&ref_other.p->field_10 - *(s32 *)&obj->field_10;
-        obj->field_54 = 0;
-        obj->field_58 = 0;
-        obj->field_4c = dist >> 4;
-        dist = ((obj->field_70 - 0x8a) << 16) - *(s32 *)&obj->field_14;
+        dist = *(s32 *)&ref_other.p->pos_x_frac - *(s32 *)&obj->pos_x_frac;
+        obj->accel_x = 0;
+        obj->accel_y = 0;
+        obj->vel_x = dist >> 4;
+        dist = ((obj->field_70 - 0x8a) << 16) - *(s32 *)&obj->pos_y_frac;
         dist = (dist >> 4) - 0x4000;
-        obj->field_50 = -dist;
+        obj->vel_y = -dist;
         func_801307e0(obj, 0x2c);
         return;
     }
     if (move == MOVE_STOP) {
         speed_x = 0x18000;
-        obj->field_07 = 7;
+        obj->state_3 = 7;
         if (obj->field_0b == 0) {
             speed_x = -0x18000;
         }
-        obj->field_50 = 0x10000;
-        obj->field_4c = speed_x;
-        obj->field_54 = 0;
-        obj->field_58 = -0x6000;
+        obj->vel_y = 0x10000;
+        obj->vel_x = speed_x;
+        obj->accel_x = 0;
+        obj->accel_y = -0x6000;
         func_801307e0(obj, 0x34);
         return;
     }
-    obj->field_07 = 6;
+    obj->state_3 = 6;
     obj->field_48 = 0;
     if (obj->field_cd != 0) {
         func_801b5890_slot04_17(obj);
@@ -156,9 +156,9 @@ void func_801b24e0_slot04_17(Object *obj) {
         speed_x <<= 1;
         speed_z <<= 1;
     }
-    obj->field_4c = speed_x;
-    obj->field_54 = speed_y;
-    obj->field_50 = speed_z;
-    obj->field_58 = speed_w;
+    obj->vel_x = speed_x;
+    obj->accel_x = speed_y;
+    obj->vel_y = speed_z;
+    obj->accel_y = speed_w;
     func_801307e0(obj, seq + obj->field_12a);
 }

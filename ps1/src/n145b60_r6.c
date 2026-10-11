@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_801495c4(Object *object) {
-  object->field_04++;
+  object->state_0++;
 }

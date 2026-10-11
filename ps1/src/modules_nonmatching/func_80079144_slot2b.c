@@ -59,5 +59,5 @@ void func_80079144_slot2b(Object *obj) {
         dx = -dx;
     }
     obj->pos_x = dx + (u16)target->pos_x;
-    obj->pos_y = (u16)target->pos_y - (record->field_02 + ((u32)obj->field_50 >> 16));
+    obj->pos_y = (u16)target->pos_y - (record->field_02 + ((u32)obj->vel_y >> 16));
 }

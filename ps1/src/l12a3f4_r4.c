@@ -14,13 +14,13 @@ void func_8012b184(Object *object) {
     } else if ((u8)func_8012f7c0(object)) {
         func_8012f838(object);
     } else if ((u8)func_8012f618(object)) {
-        object->field_07 = object->field_07 + 1;
-        saved = object->field_38;
-        func_80130678(object, (u8)object->field_3a + 0xd);
-        object->field_38 = saved;
+        object->state_3 = object->state_3 + 1;
+        saved = object->step_timer;
+        func_80130678(object, (u8)object->step_flags + 0xd);
+        object->step_timer = saved;
     } else if (func_8012f970(object)) {
         func_8012fe60(object);
-    } else if ((s16)object->field_3a < 0) {
+    } else if ((s16)object->step_flags < 0) {
         func_801312b8(object);
     } else {
         object->field_0b = object->field_158;

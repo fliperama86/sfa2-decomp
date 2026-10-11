@@ -12,7 +12,7 @@ void func_801b02cc_slot04_09(Object *obj) {
     if (game_state.field_64 == 0) {
         if (game_state.field_5c == 0) {
             obj->field_46 = 0x3c;
-            obj->field_06++;
+            obj->state_2++;
             game_state.field_76 = 0x1e;
             t = obj->field_5c;
             if (t < 0x1c) {

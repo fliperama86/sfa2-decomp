@@ -5,7 +5,7 @@
 void func_801b49bc_slot04_08(Object *obj) {
     int s = 0xc;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80141f28(obj, obj->field_12a >> 1);
     if (obj->field_48 != 0) {

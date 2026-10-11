@@ -13,22 +13,22 @@ void func_801b46d4_slot04_02(Object *obj) {
 
     func_80130efc(obj);
     if (obj->field_0b != 0) {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     }
-    obj->field_4c = obj->field_4c + obj->field_54;
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y >= obj->field_70) {
         obj->field_157 = 1;
         obj->field_159 = 1;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
         obj->pos_y = obj->field_70;
         func_801209c4(obj);
         a = obj->field_12a >> 1;
-        obj->field_54 = data_801c64e8_slot04_02[a];
+        obj->accel_x = data_801c64e8_slot04_02[a];
         if (obj->field_49 != 0 && obj->field_cd == 0) {
             a += 0x6d;
         } else {

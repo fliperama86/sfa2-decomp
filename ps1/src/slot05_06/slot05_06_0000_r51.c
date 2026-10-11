@@ -6,7 +6,7 @@
 extern ObjectFn data_801dd4ec_slot05_06[];
 
 void func_801cc61c_slot05_06(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         obj->other->field_249 = 5;
@@ -15,11 +15,11 @@ void func_801cc61c_slot05_06(Object *obj) {
 }
 
 void func_801cc660_slot05_06(Object *obj) {
-    data_801dd4ec_slot05_06[obj->field_07](obj);
+    data_801dd4ec_slot05_06[obj->state_3](obj);
 }
 
 void func_801cc6a0_slot05_06(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 3);
     func_80120554(obj->other, obj->other->side, 0x31a);
     obj->field_0b = 0;

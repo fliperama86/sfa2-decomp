@@ -31,7 +31,7 @@ void func_801e9af0_slot06_03(Slot06Cursor *cur);
 void func_801e9b44_slot06_03(Slot06Cursor *cur, SeqRec *rec);
 
 void func_801e960c_slot06_03(Object *obj) {
-    data_801ea5f4_slot06_03[obj->field_04](obj);
+    data_801ea5f4_slot06_03[obj->state_0](obj);
 }
 
 void func_801e964c_slot06_03(Object *obj) {
@@ -44,7 +44,7 @@ void func_801e964c_slot06_03(Object *obj) {
     obj->field_0c = 0;
     obj->field_0d = 0;
     obj->field_81 = 4;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_801e9790_slot06_03(obj);
     func_801e9810_slot06_03(obj);
     func_801e9870_slot06_03(obj);
@@ -52,9 +52,9 @@ void func_801e964c_slot06_03(Object *obj) {
 
 void func_801e96cc_slot06_03(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        *(u32 *)&obj->field_10 += obj->field_4c;
-        *(u32 *)&obj->field_14 += obj->field_50;
-        obj->field_4c += obj->field_54;
+        *(u32 *)&obj->pos_x_frac += obj->vel_x;
+        *(u32 *)&obj->pos_y_frac += obj->vel_y;
+        obj->vel_x += obj->accel_x;
         if (obj->pos_y < 0) {
             func_801e9790_slot06_03(obj);
             func_801e9810_slot06_03(obj);
@@ -72,11 +72,11 @@ void func_801e9770_slot06_03(Object *obj) {
 
 void func_801e9790_slot06_03(Object *obj) {
     u8 r;
-    obj->field_50 = -*(s32 *)(data_801ea604_slot06_03 + ((obj->field_03 << 3) & 0x3f8));
+    obj->vel_y = -*(s32 *)(data_801ea604_slot06_03 + ((obj->field_03 << 3) & 0x3f8));
     r = func_80151184() & 1;
     if (r != 0) {
-        obj->field_4c = -obj->field_4c;
-        obj->field_54 = -obj->field_54;
+        obj->vel_x = -obj->vel_x;
+        obj->accel_x = -obj->accel_x;
     }
     obj->field_0b = r;
 }
@@ -97,12 +97,12 @@ void func_801e98e0_slot06_03(Object *obj) {
 }
 
 void func_801e9938_slot06_03(Object *obj) {
-    data_801ea698_slot06_03[obj->field_04](obj);
+    data_801ea698_slot06_03[obj->state_0](obj);
 }
 
 void func_801e9978_slot06_03(Object *obj) {
     obj->field_01 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_801e9a2c_slot06_03(data_801ea2cc_slot06_03, (Slot06Cursor *)((u8 *)obj + 0x3c));
     func_801e9a2c_slot06_03(data_801ea310_slot06_03, (Slot06Cursor *)((u8 *)obj + 0x10));
     func_801e9a2c_slot06_03(data_801ea324_slot06_03, (Slot06Cursor *)((u8 *)obj + 0x18));
@@ -170,7 +170,7 @@ void func_801e9b44_slot06_03(Slot06Cursor *cur, SeqRec *rec) {
 }
 
 void func_801e9b80_slot06_03(Object *obj) {
-    data_801ea6a8_slot06_03[obj->field_04](obj);
+    data_801ea6a8_slot06_03[obj->state_0](obj);
 }
 
 void func_801e9bc0_slot06_03(Object *obj) {
@@ -183,7 +183,7 @@ void func_801e9bc0_slot06_03(Object *obj) {
     obj->field_0d = 0;
     obj->field_0c = 0;
     obj->field_0d = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_80130700(obj, data_801eb404_slot06_03[obj->field_03]);
 }
 

@@ -73,12 +73,12 @@ void func_801b4374_slot04_17(Object *obj) {
     int speed_y;
 
     func_801b48fc_slot04_17(obj);
-    if ((obj->field_3a & 0x8000) == 0) {
+    if ((obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
         return;
     }
     code = *(u16 *)&((Slot04bObj *)obj)->field_1c0;
-    obj->field_07 += 3;
+    obj->state_3 += 3;
     if (obj->field_cd != 0) {
         if (func_8014a170(obj, data_801ce0d0_slot04_17) != 0) {
             code = func_801b4974_slot04_17(obj);
@@ -108,14 +108,14 @@ void func_801b4374_slot04_17(Object *obj) {
     obj->field_12e++;
     speed_x = data_801ce57c_slot04_17[row + variant * 4];
     speed_y = data_801ce57c_slot04_17[row + variant * 4 + 1];
-    obj->field_50 = data_801ce57c_slot04_17[row + variant * 4 + 2];
-    obj->field_58 = data_801ce57c_slot04_17[row + variant * 4 + 3];
+    obj->vel_y = data_801ce57c_slot04_17[row + variant * 4 + 2];
+    obj->accel_y = data_801ce57c_slot04_17[row + variant * 4 + 3];
     if (obj->field_0b == 0) {
         speed_x = -speed_x;
         speed_y = -speed_y;
     }
     *(u16 *)&((Slot04bObj *)obj)->field_1c0 = 0;
-    obj->field_4c = speed_x;
-    obj->field_54 = speed_y;
+    obj->vel_x = speed_x;
+    obj->accel_x = speed_y;
     func_801307e0(obj, variant + data_801ce57c_slot04_17[seq]);
 }

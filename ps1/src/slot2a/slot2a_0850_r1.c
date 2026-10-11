@@ -15,10 +15,10 @@ void func_801e0850_slot2a(Object *obj) {
     if (game_state.field_ab != 0) {
         in = (SlotInput *)data_801e52c8_slot2a;
         if (in->buttons & 0x8000) {
-            obj->field_04++;
+            obj->state_0++;
         } else if ((k = obj->field_03) == (in->field_02 >> 15)) {
             if (data_801e25d8_slot2a[k] == 0) {
-                obj->field_05 = 0;
+                obj->state_1 = 0;
             }
         }
     }

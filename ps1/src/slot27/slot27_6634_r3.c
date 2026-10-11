@@ -21,7 +21,7 @@ void func_800168e8_slot27(Object *obj) {
     obj->field_0b = 0;
     obj->field_7a = 0;
     obj->field_0d = 0x1c;
-    obj->field_04++;
+    obj->state_0++;
     if (game_state.field_40 == 0x12) {
         func_80130768(obj, 0x14, data_80028e10_slot27);
     } else {

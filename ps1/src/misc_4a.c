@@ -28,17 +28,17 @@ int func_80149f20(Object *object, Object *unused) {
 void func_80149fc4(Object *object) {
     Object *other = object->other;
     int arg;
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 6;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 6;
     if (other->field_45 == 0 && other->field_157 != 0) {
         arg = 0x18;
         object->field_157 = 1;
-        object->field_07 = 2;
+        object->state_3 = 2;
     } else {
         arg = 0x15;
         object->field_157 = 0;
-        object->field_07 = 0;
+        object->state_3 = 0;
     }
     func_80130678(object, arg);
 }
@@ -53,8 +53,8 @@ int func_8014a058(Object *object) {
     if (!(object->pos_y < (s16)(object->field_70 - 0x20))) return 0;
     if (object->field_48 == 0) return 0;
     if (object->field_164 == 0) return 0;
-    if (object->field_4c == 0) return 0;
-    if (object->field_4c < 0) {
+    if (object->vel_x == 0) return 0;
+    if (object->vel_x < 0) {
         return object->field_164 == 1;
     }
     return object->field_164 == 2;

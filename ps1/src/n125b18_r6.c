@@ -13,5 +13,5 @@ void func_80129c90(Object *object) {
         object->field_c2 = 0x1000;
     }
     object->field_16a = 0;
-    table_80171988[object->field_07](object);
+    table_80171988[object->state_3](object);
 }

@@ -22,8 +22,8 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
     s16 half_width, distance;
     u16 mode;
     if (object->field_49 != 0) {
-        if (*(u16 *)&object->field_04 == 1) {
-            if (object->field_06 == 7)
+        if (*(u16 *)&object->state_0 == 1) {
+            if (object->state_2 == 7)
                 return func_8013f474(object, a, b) & 0xff;
             return 0;
         }
@@ -33,7 +33,7 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
             return 0;
         if (ref_other.p->field_27b != 0)
             return 0;
-        mode = *(u16 *)&ref_other.p->field_04;
+        mode = *(u16 *)&ref_other.p->state_0;
         if (mode != 1)
             return 0;
         if (game_state.config->field_4e != 0)
@@ -48,10 +48,10 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
         a = a + object->pos_x;
         box = &((Box6 *)ref_other.p->unknown_148)[frame->field_07];
         half_width = box->origin - box->extent;
-        if (*(u16 *)&object->field_04 == mode) {
-            if (object->field_06 == 7)
+        if (*(u16 *)&object->state_0 == mode) {
+            if (object->state_2 == 7)
                 goto keep;
-            if (object->field_06 == 8)
+            if (object->state_2 == 8)
                 goto keep;
         }
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */

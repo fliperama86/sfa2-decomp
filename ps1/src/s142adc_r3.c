@@ -14,5 +14,5 @@ void func_8014371c(Object *p) {
 }
 
 void func_8014373c(Object *object) {
-    table_8017b58c[object->field_05](object);
+    table_8017b58c[object->state_1](object);
 }

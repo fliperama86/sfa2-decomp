@@ -12,18 +12,18 @@
  * other case it hands over to func_80130efc.
  */
 void func_801b2560_slot04_00(Object *obj) {
-    if ((u8)obj->field_3a == 0) {
+    if ((u8)obj->step_flags == 0) {
         u8 count;
         u16 seq;
         obj->field_45 = 1;
         /* The word at field_14 is a 32-bit value (inferred); the plain
            member access differs in 3 instruction lines. */
-        *(s32 *)&obj->field_14 -= obj->field_50;
-        obj->field_50 += obj->field_58;
-        if (obj->field_50 < 0) {
-            count = obj->field_07 + 1;
+        *(s32 *)&obj->pos_y_frac -= obj->vel_y;
+        obj->vel_y += obj->accel_y;
+        if (obj->vel_y < 0) {
+            count = obj->state_3 + 1;
             seq = (obj->field_12a >> 1) + 0x32;
-            obj->field_07 = count;
+            obj->state_3 = count;
             ((Slot04aObj *)obj)->field_1a4 = obj->field_12a + 1;
             func_801307e0(obj, seq);
             return;

@@ -9,16 +9,16 @@ extern u16 data_801c3e98_slot04_08;
 void func_801b3260_slot04_08(Object *obj) {
     int x;
 
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_4c = 0x80000;
-        obj->field_07++;
-        obj->field_54 = -0xc000;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->vel_x = 0x80000;
+        obj->state_3++;
+        obj->accel_x = -0xc000;
         x = 0x160;
         obj->field_67 = 0;
         if (obj->field_0b == 0) {
             x = -0x160;
-            obj->field_4c = -obj->field_4c;
-            obj->field_54 = -obj->field_54;
+            obj->vel_x = -obj->vel_x;
+            obj->accel_x = -obj->accel_x;
         }
         obj->field_46 = 0;
         data_801c3e98_slot04_08 = x + obj->pos_x;
@@ -32,14 +32,14 @@ void func_801b3304_slot04_08(Object *obj) {
     u16 lim = 0xa0;
     Object *other;
 
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     d = (u16)obj->pos_x - data_801c3e98_slot04_08;
     if (obj->field_0b != 0) {
         d = -d;
     }
     if (d >= 0) {
         d = 2;
-        if (obj->field_4c < 0) {
+        if (obj->vel_x < 0) {
             d = 1;
         }
         if (obj->field_164 != d) {
@@ -55,6 +55,6 @@ void func_801b3304_slot04_08(Object *obj) {
             }
         }
     }
-    obj->field_07++;
+    obj->state_3++;
     func_801307e0(obj, 0x54);
 }

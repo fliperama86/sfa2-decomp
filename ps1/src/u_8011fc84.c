@@ -14,7 +14,7 @@ void func_8011fc84(Object *object, SeqRec *rec)
   new_var = rec->header;
   w = new_var;
   new_var = w >> 16;
-  object->field_38 = new_var;
-  object->field_3a = w;
+  object->step_timer = new_var;
+  object->step_flags = w;
   func_8011fcc0(rec);
 }

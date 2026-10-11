@@ -19,7 +19,7 @@ void func_80011d6c_slot12(Object *obj) {
     obj->field_0b = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 == 0) {
         obj->field_09 = 9;
         obj->pos_x = 0x90;
@@ -40,7 +40,7 @@ void func_80011d6c_slot12(Object *obj) {
 
 void func_80011e58_slot12(Object *obj) {
     if (game_state.field_ab != 0 && obj->field_03 == 0) {
-        obj->field_04++;
+        obj->state_0++;
     }
     func_80120028(obj);
 }

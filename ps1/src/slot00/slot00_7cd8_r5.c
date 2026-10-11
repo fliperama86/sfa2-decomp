@@ -13,8 +13,8 @@ void func_800781d8_slot00(Object *obj) {
     } else {
         obj->sequence = seqs_154_right[4];
     }
-    obj->field_38 = obj->sequence->duration;
-    obj->field_3a = obj->sequence->flags;
+    obj->step_timer = obj->sequence->duration;
+    obj->step_flags = obj->sequence->flags;
     obj->field_80 = 1;
 }
 

@@ -13,7 +13,7 @@ void func_801b20a8_slot04_04(Object *obj) {
             obj->field_17b = 0;
         }
     }
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 5;
         func_801312b8(obj);

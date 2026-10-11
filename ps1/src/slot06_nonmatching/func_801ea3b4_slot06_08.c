@@ -41,17 +41,17 @@ void func_801ea3b4_slot06_08(Object *obj) {
     Object *target = obj->field_3c;
 
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        if (obj->field_4c != 0) {
+        if (obj->vel_x != 0) {
             func_80120028(obj);
             return;
         }
-        if ((u8)obj->field_3a == 0) {
+        if ((u8)obj->step_flags == 0) {
             func_80131094(obj);
-        } else if (target->field_06 != (u8)obj->field_54 && target->field_06 == 8) {
-            obj->field_3a &= 0xff00;
+        } else if (target->state_2 != (u8)obj->accel_x && target->state_2 == 8) {
+            obj->step_flags &= 0xff00;
             func_80131094(obj);
         }
     }
-    obj->field_54 = target->field_06;
+    obj->accel_x = target->state_2;
     func_80120028(obj);
 }

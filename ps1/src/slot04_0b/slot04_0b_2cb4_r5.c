@@ -6,7 +6,7 @@
 void func_801b3550_slot04_0b(Object *obj);
 
 void func_801b349c_slot04_0b(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     func_80120554(obj, obj->side ^ 1, 0x31a);
     obj->field_160 = 0x64;
@@ -16,10 +16,10 @@ void func_801b349c_slot04_0b(Object *obj) {
 }
 
 void func_801b3504_slot04_0b(Object *obj) {
-    if ((u8)obj->field_3a != 2) {
+    if ((u8)obj->step_flags != 2) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_801b3550_slot04_0b(obj);
     }
 }

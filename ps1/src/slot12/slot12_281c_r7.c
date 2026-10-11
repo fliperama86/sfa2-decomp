@@ -14,7 +14,7 @@ void func_80012eb0_slot12(Object *obj) {
             obj->field_5e = obj->field_5c - 1;
         }
     } else {
-        obj->field_04++;
+        obj->state_0++;
     }
 }
 

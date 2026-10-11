@@ -26,18 +26,18 @@ void func_8007bc00_slot16(Object *obj) {
 
 void func_8007bc84_slot16(Object *obj) {
     obj->field_157 = 0;
-    data_8007e868_slot16[obj->field_07](obj);
+    data_8007e868_slot16[obj->state_3](obj);
 }
 
 void func_8007bcc4_slot16(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a == 0 || obj->field_218 == 0 || (u8)func_8013f8c4(obj, -0x17, 0x14) == 0) {
         func_8007bf74_slot16(obj);
     } else {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
 }

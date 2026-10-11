@@ -6,7 +6,7 @@
 int func_801b3048_slot04_05(Object *object);
 
 void func_801b2bac_slot04_05(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     if (t & 0x8000) {
         obj->other->field_249 = 5;
         func_801312b8(obj);
@@ -15,13 +15,13 @@ void func_801b2bac_slot04_05(Object *obj) {
         case 0:
             break;
         default:
-            if (obj->field_4c >= 0) {
+            if (obj->vel_x >= 0) {
                 func_801b3048_slot04_05(obj);
             }
             break;
         case 3:
-            obj->field_4c = 0x40000;
-            obj->field_54 = 0xffff0000;
+            obj->vel_x = 0x40000;
+            obj->accel_x = 0xffff0000;
             break;
         }
         func_80130efc(obj);

@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b605c_slot04_02(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     s16 c;
     if ((t & 0xff) == 1) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         game_state.field_63 = 0x18;
         func_801204f4(obj, obj->side, 0xe);
     }

@@ -11,7 +11,7 @@ void func_80143b3c(Object *object) {
     if ((s16)t < 0) {
         object->field_0c = 1;
         object->field_0d = 0xd;
-        object->field_05 = object->field_05 + 1;
+        object->state_1 = object->state_1 + 1;
     }
 }
 
@@ -25,7 +25,7 @@ void func_80143b90(Object *object) {
         object->pos_x = object->pos_x + 0x13;
         if (object->pos_x >= 0x1c3) {
 inc:
-            object->field_05 = object->field_05 + 1;
+            object->state_1 = object->state_1 + 1;
         }
     }
 }

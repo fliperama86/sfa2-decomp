@@ -9,8 +9,8 @@ void func_801ce770_slot05_06(Object *obj);
 void func_801ce638_slot05_06(Object *obj) {
     if ((func_801ce6f8_slot05_06(obj) << 16) > 0) {
         ((Slot04aObj *)obj)->field_47 = 8;
-        obj->field_38 = 1;
-        obj->field_05++;
+        obj->step_timer = 1;
+        obj->state_1++;
         obj->pos_y = obj->field_70;
         func_80131094(obj);
     }
@@ -19,7 +19,7 @@ void func_801ce638_slot05_06(Object *obj) {
 void func_801ce694_slot05_06(Object *obj) {
     ((Slot04aObj *)obj)->field_47--;
     if (((Slot04aObj *)obj)->field_47 & 0x80) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }
 
@@ -29,10 +29,10 @@ void func_801ce6c8_slot05_06(Object *obj) {
 }
 
 int func_801ce6f8_slot05_06(Object *obj) {
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    obj->field_4c += obj->field_54;
-    *(s32 *)&obj->field_14 -= obj->field_50;
-    obj->field_50 += obj->field_58;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    obj->vel_x += obj->accel_x;
+    *(s32 *)&obj->pos_y_frac -= obj->vel_y;
+    obj->vel_y += obj->accel_y;
     return (s16)(obj->pos_y - obj->field_70);
 }
 

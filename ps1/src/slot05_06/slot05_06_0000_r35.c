@@ -9,7 +9,7 @@ void func_801cc84c_slot05_06(Object *obj);
 void func_801cacb4_slot05_06(Object *obj) {
     Object *p = obj->other;
 
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         p->field_15b = 1;
@@ -23,11 +23,11 @@ void func_801cacb4_slot05_06(Object *obj) {
         } else {
             func_80120554(p, p->side, 0x34e);
         }
-        obj->field_4c = 0xfffe0000;
-        obj->field_50 = 0x44000;
-        obj->field_54 = 0;
-        obj->field_58 = -0x4800;
-        obj->field_07++;
+        obj->vel_x = 0xfffe0000;
+        obj->vel_y = 0x44000;
+        obj->accel_x = 0;
+        obj->accel_y = -0x4800;
+        obj->state_3++;
         obj->field_45 = 1;
         func_801307e0(obj, 0x26);
     }

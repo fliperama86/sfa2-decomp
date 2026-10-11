@@ -9,10 +9,10 @@ void func_8014b08c(Object *object) {
     object->field_21c = value;
     object->field_208 = 1;
     object->field_209 = 3;
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 2;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 2;
+    object->state_3 = 0;
     object->field_48 = 0;
     object->field_21a = 0;
 }

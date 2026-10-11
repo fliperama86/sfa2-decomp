@@ -31,26 +31,26 @@ void func_801b1cf4_slot04_06(Object *o) {
         }
         o->field_27b = data_801c537c_slot04_06[t];
     }
-    if ((s16)o->field_3a >= 0) {
-        if (*(u8 *)&o->field_3a != 0) {
-            *(u8 *)&o->field_3a = 0;
+    if ((s16)o->step_flags >= 0) {
+        if (*(u8 *)&o->step_flags != 0) {
+            *(u8 *)&o->step_flags = 0;
             func_801b2048_slot04_06(o);
         }
-        if (o->field_4c >= 0) {
+        if (o->vel_x >= 0) {
             func_801b4818_slot04_06(o);
         }
         func_80130efc(o);
     } else if (o->field_12a == 4) {
         o->field_45 = 1;
-        o->field_50 = 0xb0000;
-        o->field_58 = -0xe000;
-        o->field_07++;
+        o->vel_y = 0xb0000;
+        o->accel_y = -0xe000;
+        o->state_3++;
         if (o->field_0b == 0) {
-            o->field_4c = -0x40000;
-            o->field_54 = 0x500;
+            o->vel_x = -0x40000;
+            o->accel_x = 0x500;
         } else {
-            o->field_4c = 0x40000;
-            o->field_54 = -0x500;
+            o->vel_x = 0x40000;
+            o->accel_x = -0x500;
         }
         o->field_46 = 0;
         func_801204f4(o, o->side, 6);

@@ -6,9 +6,9 @@
 void func_801b5c6c_slot04_09(Object *obj);
 
 void func_801b4d84_slot04_09(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     if (t & 0x8000) {
-        obj->field_10 = 0;
+        obj->pos_x_frac = 0;
         func_801312b8(obj);
     } else {
         if ((u8)t != 0) {

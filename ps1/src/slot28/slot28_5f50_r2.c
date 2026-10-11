@@ -12,8 +12,8 @@ void func_80015ffc_slot28(Object *obj, SequenceStep *step) {
     t = *(int *)step;
     w = t;
     t = w >> 16;
-    obj->field_38 = t;
-    obj->field_3a = w;
+    obj->step_timer = t;
+    obj->step_flags = w;
 }
 
 void func_8001601c_slot28(SequenceStep *step) {

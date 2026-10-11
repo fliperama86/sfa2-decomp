@@ -12,7 +12,7 @@ void func_80129678(Object *object)
   int cnt;
   new_var = 0;
   game_state.field_358 = object->other;
-  if (((((((game_state.config->field_4d | game_state.config->field_4e) | game_state.config->field_04) == new_var) && ((*((u16 *) (&object->field_04))) != 0x301)) && ((*((u16 *) (&object->field_04))) != 0x201)) && (object->field_165 == new_var)) && ((object->field_28d & 0x80) == new_var))
+  if (((((((game_state.config->field_4d | game_state.config->field_4e) | game_state.config->field_04) == new_var) && ((*((u16 *) (&object->state_0))) != 0x301)) && ((*((u16 *) (&object->state_0))) != 0x201)) && (object->field_165 == new_var)) && ((object->field_28d & 0x80) == new_var))
   {
     object->field_28d--;
     if (object->field_28d == new_var)
@@ -25,10 +25,10 @@ void func_80129678(Object *object)
       object->field_28c = new_var;
       object->field_28d = new_var;
       object->field_297 = new_var;
-      object->field_04 = 1;
-      object->field_05 = 1;
-      object->field_06 = new_var;
-      object->field_07 = new_var;
+      object->state_0 = 1;
+      object->state_1 = 1;
+      object->state_2 = new_var;
+      object->state_3 = new_var;
       object->field_62 = 2;
       object->field_61 = 3;
       object->field_15b = 1;

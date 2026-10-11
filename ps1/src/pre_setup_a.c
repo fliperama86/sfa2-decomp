@@ -11,27 +11,27 @@ void func_8012fe60(Object *object) {
         ref_other.p = object->other;
         if (object->field_1a0 != 0 && ref_other.p->field_157 != 0) {
             object->field_157 = 1;
-            object->field_04 = 1;
-            object->field_06 = 6;
-            object->field_05 = 0;
-            object->field_07 = 2;
+            object->state_0 = 1;
+            object->state_2 = 6;
+            object->state_1 = 0;
+            object->state_3 = 2;
             func_80130678(object, 0x18);
             return;
         }
     }
     if (object->field_29f == 0 && (object->field_130 & 0x4000)) {
         object->field_157 = 1;
-        object->field_04 = 1;
-        object->field_06 = 6;
-        object->field_05 = 0;
-        object->field_07 = 2;
+        object->state_0 = 1;
+        object->state_2 = 6;
+        object->state_1 = 0;
+        object->state_3 = 2;
         func_80130678(object, 0x18);
     } else {
-        object->field_04 = 1;
+        object->state_0 = 1;
         object->field_157 = 0;
-        object->field_05 = 0;
-        object->field_06 = 6;
-        object->field_07 = 0;
+        object->state_1 = 0;
+        object->state_2 = 6;
+        object->state_3 = 0;
         func_80130678(object, 0x15);
     }
 }
@@ -44,8 +44,8 @@ void func_8012ff80(Object *object) {
     hp = object->field_5c;
     if ((s16)game_state.field_358->field_5c >= hp) {
         index = 0;
-        object->field_04 = 1;
-        object->field_05 = 5;
+        object->state_0 = 1;
+        object->state_1 = 5;
     } else {
         v = 4;
         if (hp == 0x90) {
@@ -55,11 +55,11 @@ void func_8012ff80(Object *object) {
         index = 0;
         object->field_167 = v;
         *((u8 *)object + object->field_ce + 0xcf) = v;
-        object->field_04 = 1;
-        object->field_05 = 4;
+        object->state_0 = 1;
+        object->state_1 = 4;
     }
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_2 = 0;
+    object->state_3 = 0;
     object->field_7e = 0;
     object->field_2a2 = 0;
     object->field_2a1 = 0;
@@ -74,5 +74,5 @@ void func_80130038(Object *object) {
     object->field_48 = held == 0;
     speed = motion_speed_table[object->kind * 2 + object->field_48];
     if (object->field_0b != 0) speed = -speed;
-    object->field_4c = speed;
+    object->vel_x = speed;
 }

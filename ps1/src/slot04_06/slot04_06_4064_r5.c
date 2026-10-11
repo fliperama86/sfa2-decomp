@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b46a4_slot04_06(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 3);
     func_80120554(obj->other, obj->other->side, 0x31a);
     obj->field_0b = 0;
@@ -20,7 +20,7 @@ void func_801b46a4_slot04_06(Object *obj) {
 
 void func_801b4754_slot04_06(Object *obj) {
     if (((Slot04aObj *)obj)->field_3a != 0) {
-        obj->field_07++;
+        obj->state_3++;
         if (obj->field_129 == 0) {
             func_80140770(obj, 0x26, 5, 0x11, 0, 0, 1);
         } else {

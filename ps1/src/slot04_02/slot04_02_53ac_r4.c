@@ -9,7 +9,7 @@ void func_801b591c_slot04_02(Object *obj) {
     int a;
     obj->field_46 = (s16)obj->field_46 - 0x100;
     if ((obj->field_46 & 0xff00) == 0) {
-        obj->field_07++;
+        obj->state_3++;
         ((Slot04aObj *)obj)->field_27d = 0;
         obj->field_27c = 0;
         obj->field_46 = obj->field_46 | 0x1400;
@@ -39,10 +39,10 @@ void func_801b59ac_slot04_02(Object *obj) {
         } else {
             p = obj->field_3c;
             if (p->field_02 == 9) {
-                p->field_04 = 2;
-                p->field_05 = 0;
-                p->field_06 = 0;
-                p->field_07 = 0;
+                p->state_0 = 2;
+                p->state_1 = 0;
+                p->state_2 = 0;
+                p->state_3 = 0;
             }
         }
         func_80142c70(obj);

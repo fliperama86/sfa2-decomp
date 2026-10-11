@@ -10,7 +10,7 @@ void func_801cb20c_slot05_06(Object *obj) {
     s16 d;
     s32 *e;
 
-    obj->field_07++;
+    obj->state_3++;
     obj->field_12c = 0;
     obj->field_12d = 0;
     obj->field_12e = 0;
@@ -22,8 +22,8 @@ void func_801cb20c_slot05_06(Object *obj) {
         ref_other.p->pos_y = ref_other.p->pos_y;
     }
     e = &data_801dd45c_slot05_06[obj->field_12a];
-    obj->field_4c = e[0];
-    obj->field_54 = e[1];
+    obj->vel_x = e[0];
+    obj->accel_x = e[1];
     obj->field_67 = 0;
     func_801204f4(obj, obj->side, 9);
     func_801307e0(obj, 0x2b);

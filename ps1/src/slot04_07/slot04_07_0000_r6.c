@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b0768_slot04_07(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if ((t & 0x8000) != 0) {
         ((Slot04aObj *)obj)->field_1ca = 0;
@@ -13,7 +13,7 @@ void func_801b0768_slot04_07(Object *obj) {
         if ((t & 0x80) != 0 && func_80141618(obj) != 0) {
             goto reset;
         } else if (((Slot04aObj *)obj)->field_1ca == 7 && obj->field_12a == 4 && (obj->field_130 & 0x4000) == 0 && (obj->field_134 & 8) != 0) {
-            obj->field_07 = 2;
+            obj->state_3 = 2;
             obj->field_129 = 2;
             func_80142c04(obj);
             if (obj->field_0b == 0) {
@@ -35,7 +35,7 @@ void func_801b0768_slot04_07(Object *obj) {
             }
         reset:
             obj->field_25f = 0xff;
-            obj->field_07 = 0;
+            obj->state_3 = 0;
             func_80130efc(obj);
         }
     }

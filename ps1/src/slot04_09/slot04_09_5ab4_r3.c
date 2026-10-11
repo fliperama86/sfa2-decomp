@@ -50,7 +50,7 @@ void func_801b5d3c_slot04_09(Object *obj) {
             c->field_65 = obj->field_65;
             c->field_49 = obj->field_49;
             c->field_4b = obj->field_4b;
-            c->field_4c = side;
+            c->vel_x = side;
             c->field_46 = 8;
             c->field_20 = 8;
             c->field_3c = obj;
@@ -73,7 +73,7 @@ void func_801b5d3c_slot04_09(Object *obj) {
             b->field_65 = obj->field_65;
             b->field_49 = obj->field_49;
             b->field_4b = obj->field_4b;
-            b->field_4c = side;
+            b->vel_x = side;
             b->field_46 = 0x10;
             b->field_20 = 0x10;
             b->field_3c = obj;
@@ -96,7 +96,7 @@ void func_801b5d3c_slot04_09(Object *obj) {
             a->field_65 = obj->field_65;
             a->field_49 = obj->field_49;
             a->field_4b = obj->field_4b;
-            a->field_4c = side;
+            a->vel_x = side;
             a->field_46 = 0x18;
             a->field_20 = 0x18;
             a->field_3c = obj;

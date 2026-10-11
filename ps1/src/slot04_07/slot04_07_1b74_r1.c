@@ -11,13 +11,13 @@ void func_801b1dfc_slot04_07(Object *obj);
 void func_801b1b74_slot04_07(Object *obj) {
     if (func_801b41c4_slot04_07(obj) < 0 && obj->pos_y >= obj->field_70) {
         obj->pos_y = obj->field_70;
-        obj->field_07 = 5;
+        obj->state_3 = 5;
         obj->field_45 = 0;
         obj->field_17b = 0;
         func_801209c4(obj);
         func_801307e0(obj, 0x3b);
     } else {
-        if (obj->field_50 >= 0) {
+        if (obj->vel_y >= 0) {
             func_80130efc(obj);
         } else if (obj->field_cd != 0) {
             func_801b1cac_slot04_07(obj);

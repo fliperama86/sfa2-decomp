@@ -10,14 +10,14 @@ void func_80145be0(Object *p) {
 
 void func_80145c00(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017c9d0[object->field_04](object);
+    table_8017c9d0[object->state_0](object);
 }
 
 void func_80145c40(Object *object) {
     object->field_09 = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
-    object->field_04++;
+    object->state_0++;
     func_8011a55c(object);
 }
 
@@ -28,8 +28,8 @@ void func_80145c7c(Object *object) {
     if ((s16)old < 0) {
         v = -1;
         object->field_46 = v;
-        if (object->field_50 != (object->field_3c->field_04 << 24) + (object->field_3c->field_05 << 16) + (object->field_3c->field_06 << 8)) {
-            object->field_04++;
+        if (object->vel_y != (object->field_3c->state_0 << 24) + (object->field_3c->state_1 << 16) + (object->field_3c->state_2 << 8)) {
+            object->state_0++;
         }
         func_8011ffdc(object);
     }

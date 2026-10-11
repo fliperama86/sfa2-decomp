@@ -18,15 +18,15 @@ void func_80077b3c_slot2b(Object *obj) {
         }
         obj->pos_y = limit;
     }
-    obj->field_04 = 2;
-    obj->field_05 = 0;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 2;
+    obj->state_1 = 0;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
 move:
     {
         Slot2bObj *o = (Slot2bObj *)obj;
-        o->field_10 += obj->field_4c;
-        o->field_14 -= obj->field_50;
+        o->field_10 += obj->vel_x;
+        o->field_14 -= obj->vel_y;
     }
     func_80131094(obj);
     func_8011ff74(obj);

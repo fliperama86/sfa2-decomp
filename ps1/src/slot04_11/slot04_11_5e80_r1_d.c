@@ -39,7 +39,7 @@ void func_801b66ec_slot04_11(Object *obj) {
 
 void func_801b670c_slot04_11(Object *obj) {
     ref_other.p = obj->other;
-    data_801c7be0_slot04_11[obj->field_04](obj);
+    data_801c7be0_slot04_11[obj->state_0](obj);
 }
 
 void func_801b675c_slot04_11(Object *obj) {
@@ -48,7 +48,7 @@ void func_801b675c_slot04_11(Object *obj) {
     obj->field_01 = 1;
     obj->field_98 = data_80172a48;
     obj->field_90 = (void *)0x800fb100;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_9c = data_80173c9c;
     func_801b6ca4_slot04_11(obj);
     o = ref_other.p->other;

@@ -55,7 +55,7 @@ void func_801b1b40_slot04_0e(Object *obj) {
     int t;
     int index;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80130504(obj);
     if (func_801b6a7c_slot04_0e(obj) != 0) {

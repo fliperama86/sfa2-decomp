@@ -63,7 +63,7 @@ void func_801b21f8_slot04_0f(Object *o) {
     if (o->field_0b != 0) {
         delta = -delta;
     }
-    o->field_10 = 0;
+    o->pos_x_frac = 0;
     x = (s16)(obj->field_332 + delta) - (u16)o->pos_x;
-    o->field_4c = (int)((u32)x << 16) >> 4;
+    o->vel_x = (int)((u32)x << 16) >> 4;
 }

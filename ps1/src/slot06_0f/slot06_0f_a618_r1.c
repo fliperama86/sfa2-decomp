@@ -12,14 +12,14 @@ void func_801ea96c_slot06_0f(Object *obj);
 extern ObjectFn data_801eeffc_slot06_0f[];
 
 void func_801ea618_slot06_0f(Object *obj) {
-    data_801eeffc_slot06_0f[obj->field_06](obj);
+    data_801eeffc_slot06_0f[obj->state_2](obj);
 }
 
 void func_801ea658_slot06_0f(Object *obj) {
     int idx;
 
     if (game_state.config->field_5c == 0) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         idx = 5;
         if (*(s32 *)&game_state.config->field_78 == (s32)game_state.field_358) {
             func_801204f4(obj, obj->field_66, 0x12);
@@ -35,10 +35,10 @@ void func_801ea6e4_slot06_0f(Object *obj) {
 }
 
 void func_801ea704_slot06_0f(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
     func_801ea96c_slot06_0f(obj);
 }
 
@@ -52,7 +52,7 @@ void func_801ea734_slot06_0f(Object *obj) {
 }
 
 int func_801ea77c_slot06_0f(Object *obj) {
-    s16 v = *(s16 *)&game_state.field_358->other->field_04;
+    s16 v = *(s16 *)&game_state.field_358->other->state_0;
 
     if (v != 0x101) {
         return v == 0x103;
@@ -61,15 +61,15 @@ int func_801ea77c_slot06_0f(Object *obj) {
 }
 
 void func_801ea7b4_slot06_0f(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 1;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 1;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
     func_801ea96c_slot06_0f(obj);
 }
 
 int func_801ea7e4_slot06_0f(Object *obj) {
-    s16 v = *(s16 *)&game_state.field_358->field_04;
+    s16 v = *(s16 *)&game_state.field_358->state_0;
 
     if (v == 0x101) {
         if (obj->field_61 != 0xff) {
@@ -82,10 +82,10 @@ int func_801ea7e4_slot06_0f(Object *obj) {
 }
 
 void func_801ea828_slot06_0f(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 2;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 2;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
     func_801ea96c_slot06_0f(obj);
 }
 
@@ -97,10 +97,10 @@ int func_801ea85c_slot06_0f(Object *obj) {
 }
 
 void func_801ea898_slot06_0f(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 1;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 1;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
     func_801ea96c_slot06_0f(obj);
 }
 
@@ -109,10 +109,10 @@ int func_801ea8c8_slot06_0f(Object *obj) {
 }
 
 void func_801ea8e0_slot06_0f(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 3;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 3;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
 }
 
 void func_801ea8fc_slot06_0f(Object *obj) {

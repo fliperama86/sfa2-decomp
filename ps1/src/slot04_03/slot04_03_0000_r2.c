@@ -7,7 +7,7 @@ extern u8 data_801c0510_slot04_03[];
 extern s8 data_801c0520_slot04_03[];
 
 void func_801b01c0_slot04_03(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_46 = 0x3c;
     if (game_state.field_76 == 0) {
         game_state.field_76 = 0x1e;

@@ -18,7 +18,7 @@ void func_801b03e4_slot04_0a(Object *obj) {
 
     if (game_state.field_64 == 0 && game_state.field_5c == 0) {
         obj->field_46 = 0x3c00;
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         game_state.field_76 = 0x1e;
         /* One local holds the random number and then the callee's result: with a local for each, 14 instruction lines differ. */
         variant = func_80151184();

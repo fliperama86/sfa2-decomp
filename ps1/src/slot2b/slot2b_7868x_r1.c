@@ -17,7 +17,7 @@ void func_80077868_slot2b(Object *obj) {
     u16 t;
     u16 half;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     if (obj->field_219 != 0) {
         func_80077908_slot2b(obj);

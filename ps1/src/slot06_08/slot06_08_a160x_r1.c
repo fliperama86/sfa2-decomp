@@ -14,10 +14,10 @@ void func_801ea160_slot06_08(Object *obj) {
     int v = game_state.field_65;
     v |= game_state.field_74;
     if (v == 0) {
-        if (obj->field_05 != 0) {
-            if ((s16)obj->field_3a & 0x8000) {
+        if (obj->state_1 != 0) {
+            if ((s16)obj->step_flags & 0x8000) {
                 v = 10;
-                obj->field_05 = 0;
+                obj->state_1 = 0;
                 if (obj->field_03 != 0) {
                     v = 12;
                 }

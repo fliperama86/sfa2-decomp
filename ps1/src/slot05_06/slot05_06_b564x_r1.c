@@ -26,7 +26,7 @@ void func_801cb564_slot05_06(Object *obj) {
     GameState *state = &game_state;
     /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of field_1d through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
     GameState *state_late = state;
-    u8 kind = obj->field_3a;
+    u8 kind = obj->step_flags;
     u8 hit;
     u16 d;
     if (kind == 2) {
@@ -53,13 +53,13 @@ void func_801cb564_slot05_06(Object *obj) {
         game_state.field_63 = 0x18;
         func_80146960(obj);
     }
-    if (obj->field_4c >= 0) {
+    if (obj->vel_x >= 0) {
         func_801cc814_slot05_06(obj);
         if (obj->field_cd != 0) {
             func_80141248(obj);
             /* The result is masked to a byte; without the cast this function differs from the original in 25 instruction lines. */
             if ((u8)func_801410c8(obj) != 0) {
-                obj->field_07++;
+                obj->state_3++;
                 func_801307e0(obj, 0x2e);
                 return;
             }
@@ -120,13 +120,13 @@ call:
             } else {
                 func_80120554(obj->other, obj->other->side, 0x34f);
             }
-            obj->field_4c = 0xa0000;
-            obj->field_54 = -0xe000;
+            obj->vel_x = 0xa0000;
+            obj->accel_x = -0xe000;
             state->field_63 = 8;
             d = data_801dd478_slot05_06[((Slot04aObj *)obj)->field_1c5];
             func_801307e0(obj, d);
         } else {
-            obj->field_07++;
+            obj->state_3++;
             func_801307e0(obj, 0x2e);
         }
     }

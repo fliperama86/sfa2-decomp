@@ -51,10 +51,10 @@ void func_801b339c_slot04_0e(Object *o) {
     s16 d;
 
     if (func_80130184(o) == 0) {
-        o->field_10 = 0;
+        o->pos_x_frac = 0;
         o->field_45 = 0;
         o->field_159 = 0;
-        o->field_07++;
+        o->state_3++;
         o->pos_y = obj->field_70;
         func_801204f4(o, o->side, 0x1b);
         func_801307e0(o, 0x36);

@@ -25,11 +25,11 @@ void func_801b6604_slot04_11(Object *obj) {
 }
 
 void func_801b6628_slot04_11(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     int d = t & 0x7f;
 
     if (d != 0) {
-        obj->field_3a = t & 0xff80;
+        obj->step_flags = t & 0xff80;
         if (obj->field_0b == 0) {
             d = -d;
         }

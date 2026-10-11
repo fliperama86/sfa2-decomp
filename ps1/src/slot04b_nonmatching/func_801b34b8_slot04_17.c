@@ -68,21 +68,21 @@ void func_801b34b8_slot04_17(Object *obj) {
     u16 flags;
     int code;
 
-    delta = obj->field_4c;
+    delta = obj->vel_x;
     if (obj->field_0b == 0) {
         delta = -delta;
     }
-    *(s32 *)&obj->field_10 = delta + *(s32 *)&obj->field_10;
-    obj->field_4c = obj->field_4c + obj->field_54;
-    if ((s32)obj->field_4c < 0) {
-        obj->field_4c = 0;
-        obj->field_54 = 0;
+    *(s32 *)&obj->pos_x_frac = delta + *(s32 *)&obj->pos_x_frac;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    if ((s32)obj->vel_x < 0) {
+        obj->vel_x = 0;
+        obj->accel_x = 0;
     }
-    flags = obj->field_3a;
+    flags = obj->step_flags;
     code = flags & 0xff;
     if (code != 0) {
         if (code & 0x80) {
-            obj->field_07++;
+            obj->state_3++;
             obj->other->field_6a++;
             func_801465b0(obj, 6, 4, 0x3c);
             obj->other->field_15b = 1;
@@ -97,7 +97,7 @@ void func_801b34b8_slot04_17(Object *obj) {
             return;
         }
         code -= 8;
-        obj->field_3a = flags >> 8;
+        obj->step_flags = flags >> 8;
         ref_other.p = obj->other;
         ref_other.p->field_6a++;
         j = code >> 1;

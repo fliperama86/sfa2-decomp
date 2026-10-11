@@ -27,5 +27,5 @@ void func_8012bc24(Object *object) {
 }
 
 void func_8012bcc0(Object *object) {
-    handler_table_19ec[object->field_07](object);
+    handler_table_19ec[object->state_3](object);
 }

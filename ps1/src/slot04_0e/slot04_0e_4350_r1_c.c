@@ -56,7 +56,7 @@ void func_801b4b40_slot04_0e(Object *obj) {
 }
 
 void func_801b4cb0_slot04_0e(Object *obj) {
-    data_801c60e8_slot04_0e[obj->field_07](obj);
+    data_801c60e8_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b4cf0_slot04_0e(Object *o) {
@@ -66,7 +66,7 @@ void func_801b4cf0_slot04_0e(Object *o) {
     obj->field_47 = 0x3c;
     o->field_17b = 1;
     obj->field_1de = 0;
-    o->field_07 = o->field_07 + 1;
+    o->state_3 = o->state_3 + 1;
     func_801b5088_slot04_0e(o);
     func_80141f28(o, 4);
     func_80138ae8(&game_state, o);

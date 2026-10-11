@@ -6,11 +6,11 @@
 void func_801b05bc_slot04_0b(Object *obj);
 
 void func_801b04e8_slot04_0b(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         func_801b05bc_slot04_0b(obj);
         func_80130678(obj, 0);
     } else {

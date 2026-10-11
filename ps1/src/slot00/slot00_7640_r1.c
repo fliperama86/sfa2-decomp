@@ -8,7 +8,7 @@ void func_800776a8_slot00(Object *obj, short delta);
 
 void func_80077640_slot00(Object *obj) {
     Object *p = obj->field_3c;
-    obj->field_04++;
+    obj->state_0++;
     func_800776a8_slot00(obj, 5);
     func_801204f4(p, p->side, 0x14);
 }
@@ -25,5 +25,5 @@ void func_800776a8_slot00(Object *obj, short delta) {
 }
 
 void func_800776e0_slot00(Object *obj) {
-    data_80079ff8_slot00[obj->field_04](obj);
+    data_80079ff8_slot00[obj->state_0](obj);
 }

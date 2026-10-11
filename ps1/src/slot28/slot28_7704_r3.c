@@ -13,7 +13,7 @@ void func_80017b54_slot28(Object *obj) {
     obj->field_0c = 0;
     obj->field_0b = 0;
     obj->field_48 = 0;
-    obj->field_04++;
+    obj->state_0++;
     arg = 1;
     if (obj->field_03 == 1) {
         arg = 3;
@@ -27,6 +27,6 @@ void func_80017bac_slot28(Object *obj) {
 }
 
 void func_80017bfc_slot28(Object *obj) {
-    data_80032a54_slot28[obj->field_05](obj);
+    data_80032a54_slot28[obj->state_1](obj);
     obj->field_01 = 1;
 }

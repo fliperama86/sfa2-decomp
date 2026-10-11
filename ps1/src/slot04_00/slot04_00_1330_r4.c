@@ -7,7 +7,7 @@ void func_801b172c_slot04_00(Object *obj) {
     int a = 0x2b;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 4);
     func_80138ae8(&game_state, obj);
     if (obj->field_49 != 0) {

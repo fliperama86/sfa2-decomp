@@ -12,10 +12,10 @@ int func_801b0b9c_slot04_03(Object *obj) {
                 if ((u8)func_80141e34(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
-                        obj->field_04 = 1;
-                        obj->field_05 = 0;
-                        obj->field_06 = 8;
-                        obj->field_07 = 0;
+                        obj->state_0 = 1;
+                        obj->state_1 = 0;
+                        obj->state_2 = 8;
+                        obj->state_3 = 0;
                         obj->field_15a = 8;
                         obj->field_0b = obj->field_158;
                     }
@@ -23,10 +23,10 @@ int func_801b0b9c_slot04_03(Object *obj) {
             } else if (obj->field_7e == 0) {
                 if ((u8)func_801418bc(obj)) {
                     r = 1;
-                    obj->field_04 = 1;
-                    obj->field_05 = 0;
-                    obj->field_06 = 8;
-                    obj->field_07 = 0;
+                    obj->state_0 = 1;
+                    obj->state_1 = 0;
+                    obj->state_2 = 8;
+                    obj->state_3 = 0;
                     obj->field_15a = 8;
                 }
             }

@@ -6,19 +6,19 @@
 void func_801b08c4_slot04_02(Object *obj);
 
 void func_801b0878_slot04_02(Object *obj) {
-    obj->field_50 = -0x4c000;
-    obj->field_07 = obj->field_07 + 1;
+    obj->vel_y = -0x4c000;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_0b != 0) {
-        obj->field_4c = 0x40000;
+        obj->vel_x = 0x40000;
     } else {
-        obj->field_4c = -0x40000;
+        obj->vel_x = -0x40000;
     }
     func_801b08c4_slot04_02(obj);
 }
 
 void func_801b08c4_slot04_02(Object *obj) {
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    *(s32 *)&obj->field_14 -= obj->field_50;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     if (obj->field_70 <= (u16)obj->pos_y) {
         func_801209c4(obj);
         obj->pos_y = (u16)obj->field_70;

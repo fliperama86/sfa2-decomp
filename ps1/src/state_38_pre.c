@@ -96,7 +96,7 @@ void func_80138be4(GameState *state, Object *object) {
     if ((state->mode != 3 || state->field_2f != 0) && object->field_cd == 0 &&
         object->field_6a >= 2) {
         Object *other = object->other;
-        if (*(u16 *)&other->field_04 == 2 && (u8)(other->field_06 - 5) < 2)
+        if (*(u16 *)&other->state_0 == 2 && (u8)(other->state_2 - 5) < 2)
             func_80138838(state, 1);
     }
 }

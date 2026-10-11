@@ -20,13 +20,13 @@ void func_801299f8(Object *object) {
         func_80129c68(object);
         if (object->field_cd != 0 && object->field_256 == 0 &&
             (game_state.config->field_4e | game_state.config->field_04) == 0 &&
-            object->field_06 != 9) {
-            if (*(u16 *)&object->field_04 != 1 || object->field_06 != 7 ||
+            object->state_2 != 9) {
+            if (*(u16 *)&object->state_0 != 1 || object->state_2 != 7 ||
                 ((object->kind != 6 && object->kind != 0xf) || object->field_15a != 6)) {
                 func_8014a1ec(object);
             }
         }
-        handler_table_1960[object->field_06](object);
+        handler_table_1960[object->state_2](object);
     }
     func_80130b10(object);
 }

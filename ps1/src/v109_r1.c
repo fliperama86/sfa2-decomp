@@ -8,7 +8,7 @@
 void func_8012e168(Object *o) {
     u16 state;
     if (func_8012eff8(o)) {
-        o->field_07++;
+        o->state_3++;
         o->field_0b = (o->field_72 ^ 1) & 1;
         func_8012e334(o);
         return;

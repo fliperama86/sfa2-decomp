@@ -41,5 +41,5 @@ void func_800146a8_slot27(Object *o) {
 
 void func_80014730_slot27(Object *obj) {
     obj->field_01 = 0;
-    obj->field_05 = obj->field_05 + 1;
+    obj->state_1 = obj->state_1 + 1;
 }

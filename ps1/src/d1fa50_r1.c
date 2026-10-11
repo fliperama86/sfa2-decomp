@@ -34,8 +34,8 @@ void func_8011fa50(Object *object, SeqRec *rec) {
     do {
         word = half;
         half = word >> 16;
-        object->field_38 = half;
-        object->field_3a = word;
+        object->step_timer = half;
+        object->step_flags = word;
         bits = pos_x & 0xe00;
         /* The original adds 31 to the masked value before dividing by 32 for a negative value; the value (pos_x & 0x1e0) is never negative, so that slot is never reached. Without the (s16) cast the unit differs in 26 instruction lines. */
         col = (s16)(pos_x & 0x1e0) / 32 * 4;

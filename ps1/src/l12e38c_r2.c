@@ -9,13 +9,13 @@ void func_8012ec50(Object *object) {
         s32 speed;
         int arg;
 
-        object->field_06 = 2;
+        object->state_2 = 2;
         object->field_249 = 5;
         object->field_45 = 0;
         object->field_159 = 0;
         object->field_6a = 0;
         object->pos_y = object->field_70;
-        *(u32 *)&object->field_14 &= 0xffff0000;
+        *(u32 *)&object->pos_y_frac &= 0xffff0000;
         object->field_0b = object->field_158;
         if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
             u8 count;
@@ -43,7 +43,7 @@ void func_8012ec50(Object *object) {
             speed = -speed;
             arg = 0x1f;
         }
-        object->field_4c = speed;
+        object->vel_x = speed;
         func_80130678(object, arg);
     } else {
         func_80130efc(object);

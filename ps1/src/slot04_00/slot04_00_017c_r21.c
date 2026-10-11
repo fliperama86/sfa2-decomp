@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b340c_slot04_00(Object *o) {
-    if ((s16)o->field_3a >= 0) {
+    if ((s16)o->step_flags >= 0) {
         func_80131094(o);
     } else {
-        o->field_04 = 3;
-        o->field_05 = 0;
-        o->field_06 = 0;
-        o->field_07 = 0;
+        o->state_0 = 3;
+        o->state_1 = 0;
+        o->state_2 = 0;
+        o->state_3 = 0;
     }
 }

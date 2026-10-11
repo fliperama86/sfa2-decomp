@@ -14,12 +14,12 @@ void func_800148f4_slot12(Object *obj) {
     int k;
     obj->field_09 = 3;
     obj->field_01 = 1;
-    obj->field_50 = 0x70000;
-    obj->field_54 = 0x500;
-    obj->field_58 = -0x5000;
-    obj->field_4c = 0xfffa7000;
+    obj->vel_y = 0x70000;
+    obj->accel_x = 0x500;
+    obj->accel_y = -0x5000;
+    obj->vel_x = 0xfffa7000;
     obj->field_0b = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     if (obj->field_03 == 0) {
         k = game_state.field_2b8;
         rec = table_8016e5c4 + k;

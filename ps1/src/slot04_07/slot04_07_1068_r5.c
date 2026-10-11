@@ -10,10 +10,10 @@ int func_801b18e8_slot04_07(Object *obj) {
     if (func_801417cc(obj) != 0) {
         r = 1;
         one = 1;
-        obj->field_04 = one;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = one;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 9;
         obj->field_159 = one;
         obj->field_0b = obj->field_158;

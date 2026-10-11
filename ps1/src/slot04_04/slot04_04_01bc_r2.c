@@ -6,14 +6,14 @@
 extern u8 data_801c4164_slot04_04[];
 
 void func_801b0250_slot04_04(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
     func_80130678(obj, 0);
 }
 
 void func_801b0284_slot04_04(Object *obj) {
     if (game_state.field_64 == 0 || game_state.field_5c == 0) {
-        obj->field_06++;
+        obj->state_2++;
     }
     func_80130efc(obj);
 }
@@ -22,7 +22,7 @@ void func_801b02d4_slot04_04(Object *obj) {
     s16 k;
 
     obj->field_46 = 0x3c;
-    obj->field_06++;
+    obj->state_2++;
     game_state.field_76 = 0x1e;
     k = 3;
     if ((s16)obj->field_5c != 0x90) {

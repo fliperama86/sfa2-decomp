@@ -6,7 +6,7 @@
 void func_801b18d8_slot04_00(Object *obj) {
     s16 t;
 
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         t = obj->field_46;

@@ -10,7 +10,7 @@ extern SequenceStep **data_1f800164;
 void func_801b460c_slot04_0c(Object *obj) {
     Object *p = obj->field_3c;
 
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = p->field_0c;
     obj->field_0e = p->field_0e;
     obj->field_09 = 4;
@@ -24,7 +24,7 @@ void func_801b460c_slot04_0c(Object *obj) {
     } else {
         obj->pos_x += 0;
     }
-    obj->field_50 = 0xfffd8000;
+    obj->vel_y = 0xfffd8000;
     if (p->side == 0) {
         func_80130768(obj, 1, data_1f8000b4);
     } else {

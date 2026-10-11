@@ -28,18 +28,18 @@ void func_8012e8d4(Object *object) {
 }
 
 void func_8012e984(Object *object) {
-    handlers_1a80[object->field_06](object);
+    handlers_1a80[object->state_2](object);
 }
 
 void func_8012e9c4(Object *object) {
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
     func_80130678(object, 0);
 }
 
 void func_8012e9f8(Object *object) {
     if (game_state.config->field_5c == 0) {
-        object->field_06 = object->field_06 + 1;
+        object->state_2 = object->state_2 + 1;
     }
     func_80130efc(object);
 }
@@ -48,7 +48,7 @@ void func_8012ea40(Object *object) {
     int arg = 0x28;
 
     object->field_46 = 0x78;
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     if (game_state.config->field_a6 != 0) {
         arg = 0x29;
     }

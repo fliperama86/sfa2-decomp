@@ -9,13 +9,13 @@ void func_800e2348_slot0f(Object *o);
 
 void func_800e1a98_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
-    if (o->field_10 & 0x860) {
+    if (o->pos_x_frac & 0x860) {
         obj->field_0f = 1;
     }
     obj->field_0f -= 1;
     if (obj->field_0f == 0) {
         o->field_01 = 0;
-        o->field_04 = 0;
+        o->state_0 = 0;
         if (obj->field_0e == 4) {
             o->field_00 = 4;
             o->field_09 = 3;

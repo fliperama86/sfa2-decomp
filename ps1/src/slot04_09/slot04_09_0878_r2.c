@@ -9,11 +9,11 @@ void func_801b24c4_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 < 0) {
-        obj->field_4c >>= 1;
-        obj->field_54 >>= 1;
-        obj->field_50 >>= 1;
-        obj->field_58 >>= 1;
-        obj->field_07++;
+        obj->vel_x >>= 1;
+        obj->accel_x >>= 1;
+        obj->vel_y >>= 1;
+        obj->accel_y >>= 1;
+        obj->state_3++;
         func_80130efc(obj);
     }
 }

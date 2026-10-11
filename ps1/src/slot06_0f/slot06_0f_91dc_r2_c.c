@@ -11,7 +11,7 @@ extern Slot06_0fRecb4e4 data_801eb4e4_slot06_0f[];
 
 void func_801e9a24_slot06_0f(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        data_801eb4d8_slot06_0f[obj->field_05](obj);
+        data_801eb4d8_slot06_0f[obj->state_1](obj);
         func_80131094(obj);
     }
     func_80120028(obj);
@@ -20,7 +20,7 @@ void func_801e9a24_slot06_0f(Object *obj) {
 void func_801e9a98_slot06_0f(Object *obj) {
     if (game_state.field_47 != 0 && game_state.field_5c == 0) {
         Slot06Obj *s = (Slot06Obj *)obj;
-        obj->field_05++;
+        obj->state_1++;
         func_80130700(obj, s->field_6c[obj->field_48]);
     }
 }

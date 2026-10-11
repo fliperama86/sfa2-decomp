@@ -18,7 +18,7 @@ void func_801b5b4c_slot04_0f(Object *obj) {
     int dy;
 
     if (((game_state.config->field_33 + data_80190458.p->side) & 3) == 0) {
-        t = obj->field_3a;
+        t = obj->step_flags;
         a = -3;
         if ((t & 0xff) != 0) {
             if (t & 0x80) {
@@ -63,10 +63,10 @@ void func_801b5b4c_slot04_0f(Object *obj) {
                     x = -x;
                     dx = -dx;
                 }
-                p->field_4c = x;
-                p->field_50 = y;
-                *(s32 *)&p->field_10 += dx;
-                *(s32 *)&p->field_14 += dy;
+                p->vel_x = x;
+                p->vel_y = y;
+                *(s32 *)&p->pos_x_frac += dx;
+                *(s32 *)&p->pos_y_frac += dy;
             }
         }
     }

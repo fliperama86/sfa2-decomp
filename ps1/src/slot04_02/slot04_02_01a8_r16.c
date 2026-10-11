@@ -6,9 +6,9 @@
 void func_801b1cc0_slot04_02(Object *obj);
 
 void func_801b1a3c_slot04_02(Object *o) {
-    if (*(u8 *)&o->field_3a == 0) {
+    if (*(u8 *)&o->step_flags == 0) {
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
     }
     func_80130efc(o);
 }
@@ -17,13 +17,13 @@ void func_801b1a7c_slot04_02(Object *obj) {
     func_801b1cc0_slot04_02(obj);
     if (obj->pos_y < obj->field_70) {
         if (obj->field_0b != 0) {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         } else {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         }
-        obj->field_4c = obj->field_4c + obj->field_54;
-        if (obj->field_4c < 0) {
-            obj->field_07++;
+        obj->vel_x = obj->vel_x + obj->accel_x;
+        if (obj->vel_x < 0) {
+            obj->state_3++;
         }
     } else {
         obj->field_17b = 0;
@@ -46,7 +46,7 @@ void func_801b1b3c_slot04_02(Object *o) {
             return;
         }
     } else {
-        o->field_07++;
+        o->state_3++;
         o->pos_y = y;
         o->field_17b = 0;
         o->field_159 = 0;

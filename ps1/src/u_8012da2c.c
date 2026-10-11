@@ -12,17 +12,17 @@ void func_8012da2c(Object *object)
   int t;
   unsigned short new_var;
   u8 index;
-  if (((s16) object->field_3a) >= 0)
+  if (((s16) object->step_flags) >= 0)
   {
     func_80130efc(object);
     return;
   }
   if (object->field_163 == 0)
   {
-    object->field_04 = 1;
-    object->field_05 = 1;
-    object->field_06 = 2;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 1;
+    object->state_2 = 2;
+    object->state_3 = 0;
     object->field_15b = 0;
     object->field_247 = 0;
     if ((game_state.field_30 != 0) && (game_state.mode != (object->side + 1)))
@@ -32,10 +32,10 @@ void func_8012da2c(Object *object)
     return;
   }
   w = object->field_162;
-  object->field_04 = 1;
-  object->field_05 = 0;
-  object->field_06 = 9;
-  object->field_07 = 0;
+  object->state_0 = 1;
+  object->state_1 = 0;
+  object->state_2 = 9;
+  object->state_3 = 0;
   object->field_15d = 0;
   object->field_15e = 0;
   object->field_163 = 0;

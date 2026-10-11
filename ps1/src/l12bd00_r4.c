@@ -10,18 +10,18 @@ void func_8012d4e4(Object *object) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 func_80130efc(object);
-            } else if (object->field_50 >= 0) {
+            } else if (object->vel_y >= 0) {
                 func_80130efc(object);
             }
         } else if (object->field_61 == 0x11) {
             func_80130efc(object);
-        } else if (object->field_50 < 0) {
+        } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 if ((s16)object->field_5c < 0 || object->field_15b != 0) {
                     func_80130efc(object);
                 } else {
-                    object->field_07 = 6;
+                    object->state_3 = 6;
                     if (object->field_2a3) {
                         object->field_2a3 = 0;
                     }
@@ -30,7 +30,7 @@ void func_8012d4e4(Object *object) {
             }
         }
     } else {
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         if ((s16)object->field_5c < 0) {
             func_80120a30(object, 0, 1);
         } else {
@@ -56,18 +56,18 @@ void func_8012d680(Object *object) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 func_80130efc(object);
-            } else if (object->field_50 >= 0) {
+            } else if (object->vel_y >= 0) {
                 func_80130efc(object);
             }
         } else if (object->field_61 == 0x11) {
             func_80130efc(object);
-        } else if (object->field_50 < 0) {
+        } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
                 if ((s16)object->field_5c < 0 || object->field_15b != 0) {
                     func_80130efc(object);
                 } else {
-                    object->field_07 = 6;
+                    object->state_3 = 6;
                     if (object->field_2a3) {
                         object->field_2a3 = 0;
                     }
@@ -77,7 +77,7 @@ void func_8012d680(Object *object) {
         }
     } else {
         object->field_45 = 0xff;
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         func_8012ef24(object);
         func_801308c4(object, 0x15);
     }

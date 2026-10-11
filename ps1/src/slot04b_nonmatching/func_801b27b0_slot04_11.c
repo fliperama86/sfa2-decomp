@@ -67,7 +67,7 @@ void func_801b27b0_slot04_11(Object *obj) {
     int dx;
     s16 dir;
 
-    if ((obj->field_3a << 16) >= 0) {
+    if ((obj->step_flags << 16) >= 0) {
         func_80130efc(obj);
         return;
     }
@@ -78,16 +78,16 @@ void func_801b27b0_slot04_11(Object *obj) {
         stop = (input & 0x1000) != 0;
     }
     if (stop) {
-        speed_4c = obj->field_4c >> 2;
-        obj->field_07 = 7;
-        obj->field_50 = 0x10000;
-        obj->field_54 = 0;
-        obj->field_58 = -0x6000;
-        obj->field_4c = speed_4c;
+        speed_4c = obj->vel_x >> 2;
+        obj->state_3 = 7;
+        obj->vel_y = 0x10000;
+        obj->accel_x = 0;
+        obj->accel_y = -0x6000;
+        obj->vel_x = speed_4c;
         func_801307e0(obj, 0x34);
         return;
     }
-    obj->field_07++;
+    obj->state_3++;
     func_801204f4(obj, obj->side, 6);
     if (obj->field_cd != 0) {
         ref_other.p = obj->other;
@@ -124,9 +124,9 @@ void func_801b27b0_slot04_11(Object *obj) {
         speed_4c <<= 1;
         speed_50 <<= 1;
     }
-    obj->field_4c = speed_4c;
-    obj->field_54 = 0;
-    obj->field_50 = speed_50;
-    obj->field_58 = speed_58;
+    obj->vel_x = speed_4c;
+    obj->accel_x = 0;
+    obj->vel_y = speed_50;
+    obj->accel_y = speed_58;
     func_801307e0(obj, walk + 0x2e + obj->field_12a);
 }

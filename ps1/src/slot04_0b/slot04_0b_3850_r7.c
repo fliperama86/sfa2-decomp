@@ -7,7 +7,7 @@ void func_801b4638_slot04_0b(Object *o);
 
 void func_801b454c_slot04_0b(Object *o) {
     o->field_09 = 1;
-    o->field_04++;
+    o->state_0++;
     o->field_0b = ref_other.p->field_0b;
     o->field_0c = ref_other.p->field_0c;
     o->field_0d = ref_other.p->field_0d;

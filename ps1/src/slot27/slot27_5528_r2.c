@@ -7,7 +7,7 @@ extern void (*data_80028510_slot27[])(Object *obj);
 void func_80015838_slot27(Object *obj);
 
 void func_80015650_slot27(Object *object) {
-    data_80028510_slot27[object->field_05](object);
+    data_80028510_slot27[object->state_1](object);
     func_8011ffdc(object);
 }
 
@@ -23,7 +23,7 @@ void func_800156a4_slot27(Object *obj) {
             return;
         }
     }
-    obj->field_05++;
+    obj->state_1++;
     obj->pos_y = a;
 }
 
@@ -41,7 +41,7 @@ void func_80015708_slot27(Object *obj) {
             return;
         }
     }
-    obj->field_05++;
+    obj->state_1++;
     obj->pos_x = *p;
     func_80015838_slot27(obj);
 }

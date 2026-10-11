@@ -9,7 +9,7 @@ extern SequenceStep **data_801c0aac_slot04_03;
 void func_801b3f8c_slot04_03(Object *obj, Object *p);
 
 void func_801b3eec_slot04_03(Object *obj, Object *p) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = p->field_1c;
     obj->field_0c = p->field_0c;
     obj->field_0d = p->field_0d;
@@ -27,8 +27,8 @@ void func_801b3f8c_slot04_03(Object *obj, Object *p) {
     obj->field_01 = 0;
     if (p->kind == obj->field_03) {
         if (p->frame->field_09 != 0) {
-            *(s32 *)&obj->field_10 = *(s32 *)&p->field_10;
-            *(s32 *)&obj->field_14 = *(s32 *)&p->field_14;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&p->pos_x_frac;
+            *(s32 *)&obj->pos_y_frac = *(s32 *)&p->pos_y_frac;
             obj->field_0b = p->field_0b;
             obj->field_01 = 1;
             if (obj->field_48 != p->frame->field_09) {
@@ -45,6 +45,6 @@ void func_801b3f8c_slot04_03(Object *obj, Object *p) {
             obj->field_48 = 0;
         }
     } else {
-        obj->field_04++;
+        obj->state_0++;
     }
 }

@@ -11,7 +11,7 @@ void func_801e12fc_slot2a(Object *obj);
 void func_801e16a8_slot2a(Object *obj);
 
 void func_801e12fc_slot2a(Object *obj) {
-    data_801e230c_slot2a[obj->field_05](obj);
+    data_801e230c_slot2a[obj->state_1](obj);
     if ((s16)obj->field_5c != 0) {
         func_801e16a8_slot2a(obj);
     }

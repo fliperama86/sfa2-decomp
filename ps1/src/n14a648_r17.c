@@ -5,9 +5,9 @@
 
 void func_80152700(Object *object) {
     if (game_state.field_6a != 0) {
-        object->field_04++;
+        object->state_0++;
     } else {
-        table_801802c0[object->field_05](object);
+        table_801802c0[object->state_1](object);
         func_80120028(object);
     }
 }

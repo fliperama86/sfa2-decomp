@@ -8,14 +8,14 @@ extern u8 data_801c3c60_slot04_08[];
 void func_801b1f8c_slot04_08(Object *obj) {
     u16 t;
     Object *p;
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t != 0) {
         if ((t & 0x80) == 0) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             game_state.field_63 = 0x18;
             func_80146960(obj);
         }
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         func_80140cd8(obj, *(s16 *)(data_801c3c60_slot04_08 + (obj->field_12a & 0xfe)), 0);
         p = obj->other;
         obj->field_46 = 0x18;
@@ -36,8 +36,8 @@ void func_801b1f8c_slot04_08(Object *obj) {
 }
 
 void func_801b2088_slot04_08(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_3 = obj->state_3 + 1;
         obj->field_0b = obj->field_0b ^ 1;
         func_801307e0(obj, 0x3c);
     } else {

@@ -8,8 +8,8 @@ void func_801b15f4_slot04_03(Object *obj) {
     s16 y;
 
     func_80130efc(obj);
-    if (obj->field_3a != 0) {
-        obj->field_07++;
+    if (obj->step_flags != 0) {
+        obj->state_3++;
         p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;
@@ -42,13 +42,13 @@ void func_801b15f4_slot04_03(Object *obj) {
 }
 
 void func_801b171c_slot04_03(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t == 0x100) {
-        obj->field_3a = (u8)t;
+        obj->step_flags = (u8)t;
         obj->field_17b = 0;
     }
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         func_80142adc(obj);

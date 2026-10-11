@@ -14,7 +14,7 @@ void func_800164d8_slot12(Object *obj) {
     Object *o;
     int t;
 
-    data_800287b4_slot12[obj->field_05](obj);
+    data_800287b4_slot12[obj->state_1](obj);
     switch (obj->field_48) {
     case 0:
         base = data_8002bfe8_slot12;

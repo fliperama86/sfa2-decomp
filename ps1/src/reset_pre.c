@@ -92,7 +92,7 @@ void func_80128edc(Object *object) {
 }
 
 void func_80128fc4(Object *object) {
-    handlers_04[object->field_04](object);
+    handlers_04[object->state_0](object);
     func_801321e8(object);
 }
 

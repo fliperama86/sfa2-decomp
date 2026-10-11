@@ -9,7 +9,7 @@ void func_801cc814_slot05_06(Object *obj);
    unit has the measured variants. The two differ in their addresses only. */
 void func_801cb3b8_slot05_06(Object *obj) {
     int v;
-    if (obj->field_4c >= 0) {
+    if (obj->vel_x >= 0) {
         Object *other;
         func_801cc814_slot05_06(obj);
         other = obj->other;
@@ -18,13 +18,13 @@ void func_801cb3b8_slot05_06(Object *obj) {
             if ((s16)other->field_5c < 0) {
                 goto set;
             }
-            obj->field_07 += 3;
+            obj->state_3 += 3;
             obj->field_159 = 1;
         }
         func_80130efc(obj);
     } else {
     set:
-        obj->field_07++;
+        obj->state_3++;
         v = obj->field_12a >> 1;
         func_801307e0(obj, v + 0x45);
     }

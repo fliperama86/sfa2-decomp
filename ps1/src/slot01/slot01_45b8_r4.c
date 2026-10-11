@@ -16,7 +16,7 @@ void func_800149c8_slot01(Object *obj) {
         obj->field_48 = data_80033ba8_slot01.p->kind;
         func_80014b28_slot01(obj, 0);
     } else if ((game_state.mode >> data_80033ba8_slot01.p->side) & 1) {
-        obj->field_05++;
+        obj->state_1++;
         obj->field_45 = data_80033ba8_slot01.p->field_d4;
         func_80014b28_slot01(obj, 1);
     }
@@ -28,7 +28,7 @@ void func_80014a8c_slot01(Object *obj) {
     if (p->field_d4 != obj->field_45) {
         obj->field_45 = p->field_d4;
     }
-    if ((obj->field_3a << 16) < 0) {
+    if ((obj->step_flags << 16) < 0) {
         obj->field_5c = 0;
     }
     if (*(s16 *)&obj->field_5c == 0) {

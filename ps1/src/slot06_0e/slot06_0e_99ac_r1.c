@@ -12,7 +12,7 @@ void func_801e9bc8_slot06_0e(Object *obj);
 void func_801e9c44_slot06_0e(Slot06Pal *pal);
 
 void func_801e99ac_slot06_0e(Object *obj) {
-    data_801eb8dc_slot06_0e[obj->field_04](obj);
+    data_801eb8dc_slot06_0e[obj->state_0](obj);
 }
 
 void func_801e99ec_slot06_0e(Object *o) {
@@ -42,9 +42,9 @@ void func_801e99ec_slot06_0e(Object *o) {
 }
 
 void func_801e9ab0_slot06_0e(Object *obj) {
-    if (obj->field_05 == 0) {
+    if (obj->state_1 == 0) {
         func_801e9af8_slot06_0e(obj);
-    } else if (obj->field_05 == 1) {
+    } else if (obj->state_1 == 1) {
         func_801e9bc8_slot06_0e(obj);
     }
 }

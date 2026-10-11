@@ -14,7 +14,7 @@ void func_801e9708_slot06_0f(Object *obj) {
     obj->field_0a = 1;
     obj->field_0c = 0;
     obj->field_81 = 4;
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_y += 0x70;
     if (obj->field_03 != 0) {
         idx = 4;

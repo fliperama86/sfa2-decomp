@@ -49,7 +49,7 @@ void func_80142c70(Object *object) {
         o->field_03 = 1;
         o->field_0e = object->field_0e;
         o->field_48 = s2;
-        o->field_4c = s3;
+        o->vel_x = s3;
         o->field_46 = 8;
         o->field_3c = object;
         o->field_0d = object->field_0d + 3;
@@ -66,7 +66,7 @@ void func_80142c70(Object *object) {
         o->field_03 = 2;
         o->field_0e = object->field_0e;
         o->field_48 = s2;
-        o->field_4c = s3;
+        o->vel_x = s3;
         o->field_46 = 0x10;
         o->field_3c = object;
         if (object->kind == 0xe) o->field_0d = object->field_0d + 3;
@@ -84,7 +84,7 @@ void func_80142c70(Object *object) {
         o->field_03 = 3;
         o->field_0e = object->field_0e;
         o->field_48 = s2;
-        o->field_4c = s3;
+        o->vel_x = s3;
         o->field_46 = 0x18;
         o->field_3c = object;
         if (object->kind == 0xe) o->field_0d = object->field_0d + 3;

@@ -15,7 +15,7 @@ void func_801e17a4_slot0b(Object *obj) {
     obj->pos_x = -0xb8;
     obj->pos_y = 0xc9;
     obj->field_5c = 0x48;
-    obj->field_4c = 0x80000;
+    obj->vel_x = 0x80000;
     obj->field_0e = 0;
     obj->field_09 = 0;
     obj->field_24 = 0;
@@ -23,13 +23,13 @@ void func_801e17a4_slot0b(Object *obj) {
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_0c = 0;
-    obj->field_54 = 0;
-    obj->field_04++;
+    obj->accel_x = 0;
+    obj->state_0++;
     if (obj->field_48 != 0) {
         obj->pos_x = 0x228;
         obj->field_5c = 0x128;
-        obj->field_4c = -obj->field_4c;
-        obj->field_54 = -obj->field_54;
+        obj->vel_x = -obj->vel_x;
+        obj->accel_x = -obj->accel_x;
     }
     o = obj->field_3c;
     ref_other.p = o;

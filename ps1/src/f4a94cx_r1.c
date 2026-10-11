@@ -26,7 +26,7 @@ void func_8014a94c(Object *object) {
         goto none;
     }
     ref_other.p = other->field_14c;
-    if (ref_other.p->field_04 != 1) {
+    if (ref_other.p->state_0 != 1) {
         goto none;
     }
     ref_second.p = other->field_14c;
@@ -39,9 +39,9 @@ void func_8014a94c(Object *object) {
     } else {
         object->field_209 = 7;
         object->field_208 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
     }
 }

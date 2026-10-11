@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_801b21d0_slot04_0b(Object *o) {
-    o->field_07++;
-    o->field_54 = 0;
-    o->field_58 = 0;
-    o->field_50 = 0;
+    o->state_3++;
+    o->accel_x = 0;
+    o->accel_y = 0;
+    o->vel_y = 0;
     if (o->field_0b == 0) {
-        o->field_4c = 0xfffe0000;
+        o->vel_x = 0xfffe0000;
     } else {
-        o->field_4c = 0x20000;
+        o->vel_x = 0x20000;
     }
     func_801428e4(o);
     func_80138ae8(&game_state, o);
@@ -20,8 +20,8 @@ void func_801b21d0_slot04_0b(Object *o) {
 }
 
 void func_801b2258_slot04_0b(Object *o) {
-    if ((s16)o->field_3a & 0xff00) {
-        o->field_07++;
+    if ((s16)o->step_flags & 0xff00) {
+        o->state_3++;
         if (o->field_4b != 0) {
             o->field_165 = 1;
         } else {

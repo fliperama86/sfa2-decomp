@@ -22,7 +22,7 @@ void func_80128778(Object *object)
       {
         d = -d;
       }
-      *((s32 *) (&object->field_10)) = d + (*((s32 *) (&object->field_10)));
+      *((s32 *) (&object->pos_x_frac)) = d + (*((s32 *) (&object->pos_x_frac)));
     }
   }
 }

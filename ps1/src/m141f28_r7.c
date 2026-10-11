@@ -9,8 +9,8 @@ void func_80147238(Object *object) {
     u8 key;
     data_80189458 = 0;
     data_8018945c = 0;
-    phase = object->field_04;
-    object->field_04 = phase + 1;
+    phase = object->state_0;
+    object->state_0 = phase + 1;
     if (game_state.field_64 != 0) {
         func_80120554(0, 0, 0x32c);
         func_8014f604(2);
@@ -33,6 +33,6 @@ void func_80147238(Object *object) {
         }
         func_801477ac(object, bytes_8017cb18.first, bytes_8017cb18.second);
     } else {
-        object->field_04 = phase + 3;
+        object->state_0 = phase + 3;
     }
 }

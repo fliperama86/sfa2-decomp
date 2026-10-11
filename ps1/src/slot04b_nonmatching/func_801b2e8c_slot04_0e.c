@@ -62,9 +62,9 @@ void func_801b2e8c_slot04_0e(Object *o) {
             func_80130efc(o);
         } else {
             sequence = 0x60;
-            o->field_07++;
-            o->field_50 = 0;
-            o->field_58 = 0;
+            o->state_3++;
+            o->vel_y = 0;
+            o->accel_y = 0;
             if (o->field_49 == 0) sequence = 0x2e;
             func_801307e0(o, sequence);
             func_801209c4(o);

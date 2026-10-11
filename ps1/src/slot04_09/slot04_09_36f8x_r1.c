@@ -22,18 +22,18 @@ void func_801b36f8_slot04_09(Object *obj) {
     int d;
 
     func_801b2858_slot04_09(obj);
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->field_45 = 1;
-        obj->field_50 = 0x90000;
-        obj->field_58 = -0x6000;
-        obj->field_07++;
+        obj->vel_y = 0x90000;
+        obj->accel_y = -0x6000;
+        obj->state_3++;
         if (obj->field_a3 == 0) {
             if (obj->field_0b != 0) {
-                obj->field_4c = 0xe0000;
-                obj->field_54 = -0x8000;
+                obj->vel_x = 0xe0000;
+                obj->accel_x = -0x8000;
             } else {
-                obj->field_4c = 0xfff20000;
-                obj->field_54 = 0x8000;
+                obj->vel_x = 0xfff20000;
+                obj->accel_x = 0x8000;
             }
             func_801307e0(obj, 0x33);
         } else {
@@ -41,8 +41,8 @@ void func_801b36f8_slot04_09(Object *obj) {
             d = p->pos_x - obj->pos_x;
             /* The value is shifted in d before the store: with the expression written in the store this function differs from the original in 5 instruction slots (the load of other then reads through the argument register). */
             d = (d >> 4) << 16;
-            obj->field_4c = d;
-            obj->field_54 = 0;
+            obj->vel_x = d;
+            obj->accel_x = 0;
             func_801307e0(obj, 0x33);
         }
     } else {
@@ -56,8 +56,8 @@ void func_801b36f8_slot04_09(Object *obj) {
             p = obj->other;
         }
         if (p->pos_x - obj->pos_x + 0x24 < 0x48) {
-            obj->field_4c = 0;
-            obj->field_54 = 0;
+            obj->vel_x = 0;
+            obj->accel_x = 0;
         }
         func_80130efc(obj);
     }

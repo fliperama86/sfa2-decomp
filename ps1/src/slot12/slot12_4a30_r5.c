@@ -8,14 +8,14 @@ extern u16 data_800282d4_slot12[];
 extern Slot12Cell data_8002bc38_slot12[];
 
 void func_80014e30_slot12(Object *obj) {
-    data_800282c4_slot12[obj->field_04](obj);
+    data_800282c4_slot12[obj->state_0](obj);
 }
 
 void func_80014e70_slot12(Object *obj) {
     Slot12Cell *c;
     int i;
     obj->field_09 = 2;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 == 0) {
         obj->pos_x = data_800282d4_slot12[0];
         obj->pos_y = data_800282d4_slot12[1];

@@ -12,8 +12,8 @@ int func_8014de94(Object *object) {
     other = object->other;
     if (other->field_240 == 0 && other->field_159 == 0) return 0;
     if (other->frame->field_0c == 0xff) return 0;
-    if (*(u16 *)&object->field_04 != 1) return 0;
-    if (object->field_06 == 5 || object->field_06 == 7 || object->field_06 == 8 || object->field_06 == 9) return 0;
+    if (*(u16 *)&object->state_0 != 1) return 0;
+    if (object->state_2 == 5 || object->state_2 == 7 || object->state_2 == 8 || object->state_2 == 9) return 0;
     if (player_left.kind == 0xd && player_right.kind == player_left.kind) {
         table = data_8017d524;
     } else if (player_left.kind == 0x10 && player_right.kind == player_left.kind) {

@@ -9,15 +9,15 @@ void func_801b1ecc_slot04_08(Object *obj) {
     u16 t;
     int i;
     int m = -0x100;
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t != 0) {
         if ((t & 0x80) == 0) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             game_state.field_63 = 0x18;
             func_80146960(obj);
             func_80120554(obj, obj->side, 0x319);
         }
-        obj->field_07++;
+        obj->state_3++;
         i = obj->field_12a >> 1;
         if (obj->field_49 != 0) {
             i += 3;

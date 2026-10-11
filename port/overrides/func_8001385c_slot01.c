@@ -50,6 +50,6 @@
 extern void (*data_80015a64_slot01[])(Object *obj);
 
 void func_8001385c_slot01(Object *obj) {
-    data_80015a64_slot01[obj->field_05](obj);
+    data_80015a64_slot01[obj->state_1](obj);
     ((void (*)(Object *))func_8011ffdc)(obj);
 }

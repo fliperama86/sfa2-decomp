@@ -4,25 +4,25 @@
 #include "../externs.h"
 
 void func_801b2720_slot04_01(Object *obj) {
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
-    if (obj->field_50 < 0) {
-        obj->field_07++;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
+    if (obj->vel_y < 0) {
+        obj->state_3++;
     }
     func_80130efc(obj);
 }
 
 void func_801b2778_slot04_01(Object *obj) {
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y < obj->field_70) {
-        if ((u8)obj->field_3a != 0) {
+        if ((u8)obj->step_flags != 0) {
             return;
         }
     } else {
         obj->field_45 = 0;
         obj->field_159 = 0;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->field_70;
         func_801209c4(obj);
     }
@@ -30,7 +30,7 @@ void func_801b2778_slot04_01(Object *obj) {
 }
 
 void func_801b2810_slot04_01(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->other->field_249 = 5;
         func_801312b8(obj);
     } else {

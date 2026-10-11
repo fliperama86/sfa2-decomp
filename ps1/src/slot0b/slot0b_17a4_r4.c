@@ -11,8 +11,8 @@ void func_801e1b20_slot0b(Object *obj) {
 }
 
 void func_801e1b40_slot0b(Object *obj) {
-    *(int *)&obj->field_10 = *(int *)&obj->field_10 + obj->field_4c;
-    *(int *)&obj->field_14 = *(int *)&obj->field_14 + obj->field_54;
+    *(int *)&obj->pos_x_frac = *(int *)&obj->pos_x_frac + obj->vel_x;
+    *(int *)&obj->pos_y_frac = *(int *)&obj->pos_y_frac + obj->accel_x;
 }
 
 void func_801e1b64_slot0b(void) {
@@ -23,5 +23,5 @@ void func_801e1b64_slot0b(void) {
 }
 
 void func_801e1bc0_slot0b(Object *obj) {
-    data_801e4d78_slot0b[obj->field_04](obj);
+    data_801e4d78_slot0b[obj->state_0](obj);
 }

@@ -21,12 +21,12 @@ void func_801b20b0_slot04_06(Object *obj) {
     obj->field_12e = 0;
     obj->field_12f = 0;
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 7);
     func_80138ae8(&game_state, obj);
     obj->field_225 = 1;
-    obj->field_4c = data_801c5398_slot04_06[obj->field_12a];
-    obj->field_54 = data_801c539c_slot04_06[obj->field_12a];
+    obj->vel_x = data_801c5398_slot04_06[obj->field_12a];
+    obj->accel_x = data_801c539c_slot04_06[obj->field_12a];
     /* The second argument is narrowed at the call, as the callers of func_801307e0 that mask it do: without the cast this function differs from the original in 7 instruction lines. */
     func_801307e0(obj, (u16)((obj->field_12a >> 1) + 0x1b));
 }

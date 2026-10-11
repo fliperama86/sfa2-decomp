@@ -29,5 +29,5 @@ void func_800135cc_slot01(Object *obj) {
 }
 
 void func_800136c0_slot01(Object *obj) {
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
 }

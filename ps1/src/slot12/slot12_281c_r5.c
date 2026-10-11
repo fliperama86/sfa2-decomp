@@ -11,10 +11,10 @@ extern int data_8002d57c_slot12;
 void func_80012cdc_slot12(Object *obj) {
     u16 *in = &data_801ae066;
 
-    *in = obj->field_3a;
+    *in = obj->step_flags;
     if (*in & 0x8000) {
         obj->field_01 = 0;
-        obj->field_04++;
+        obj->state_0++;
         game_state.field_06 = 0;
         data_801ae02c = 0;
     }

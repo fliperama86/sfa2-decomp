@@ -12,7 +12,7 @@ void func_80143864(Object *object) {
         if (object->pos_x < 0xc1) {
             object->pos_x = 0xc0;
             object->pos_y = 0x70;
-            object->field_05 = object->field_05 + 1;
+            object->state_1 = object->state_1 + 1;
             object->field_5c = 0;
             object->field_0d = 0;
             if (object->field_a0 == 7) {
@@ -24,7 +24,7 @@ void func_80143864(Object *object) {
         if (object->pos_x >= 0xc0) {
             object->pos_x = 0xc0;
             object->pos_y = 0x70;
-            object->field_05 = object->field_05 + 1;
+            object->state_1 = object->state_1 + 1;
             object->field_5c = 0;
             object->field_0d = 0;
             if (object->field_a0 == 2) func_80120554(0, 0, 0x200);

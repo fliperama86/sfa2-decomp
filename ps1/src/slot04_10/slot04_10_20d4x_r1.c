@@ -9,10 +9,10 @@ u8 func_801b20d4_slot04_10(Object *obj);
 
 u8 func_801b20d4_slot04_10(Object *obj) {
     if (func_80141b28(obj)) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 2;
         obj->field_159 = 1;
         obj->field_17b = 1;

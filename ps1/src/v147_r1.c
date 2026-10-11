@@ -80,6 +80,6 @@ void func_8012e600(Object *object)
     object->sequence = next;
   }
   object->frame = object->frames + object->sequence->frame_index;
-  object->field_3a = 0;
+  object->step_flags = 0;
   func_80130c80(object);
 }

@@ -4,17 +4,17 @@
 #include "../externs.h"
 
 int func_801b57a8_slot04_11(Object *obj) {
-    s32 a = obj->field_4c;
+    s32 a = obj->vel_x;
 
     if (obj->field_0b == 0) {
         a = -a;
     }
-    *(s32 *)&obj->field_10 = a + *(s32 *)&obj->field_10;
-    obj->field_4c = obj->field_4c + obj->field_54;
-    if (obj->field_4c < 0) {
-        obj->field_4c = 0;
-        obj->field_54 = 0;
+    *(s32 *)&obj->pos_x_frac = a + *(s32 *)&obj->pos_x_frac;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    if (obj->vel_x < 0) {
+        obj->vel_x = 0;
+        obj->accel_x = 0;
     }
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    return obj->field_50 = obj->field_50 + obj->field_58;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    return obj->vel_y = obj->vel_y + obj->accel_y;
 }

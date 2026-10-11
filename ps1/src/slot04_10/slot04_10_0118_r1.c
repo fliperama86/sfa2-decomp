@@ -80,14 +80,14 @@ void func_801b02f4_slot04_10(Object *obj) {
 }
 
 void func_801b0334_slot04_10(Object *obj) {
-    data_801c695c_slot04_10[obj->field_07](obj);
+    data_801c695c_slot04_10[obj->state_3](obj);
 }
 
 void func_801b0374_slot04_10(Object *obj) {
     int one;
 
     obj->field_67 = 0;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x25, 0x14) != 0) {
         func_801b0414_slot04_10(obj);
     } else {
@@ -101,14 +101,14 @@ void func_801b0374_slot04_10(Object *obj) {
 }
 
 void func_801b0414_slot04_10(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 2;
-    obj->field_06 = 0;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 2;
+    obj->state_2 = 0;
+    obj->state_3 = 0;
 }
 
 void func_801b0430_slot04_10(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t < 0) {
         func_801b1078_slot04_10(obj);
@@ -120,20 +120,20 @@ void func_801b0430_slot04_10(Object *obj) {
             }
             obj->pos_x = d + obj->pos_x;
         }
-        if ((obj->field_3a & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
-            obj->field_07 = 0;
+        if ((obj->step_flags & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }
 }
 
 void func_801b04ec_slot04_10(Object *obj) {
-    data_801c6964_slot04_10[obj->field_07](obj);
+    data_801c6964_slot04_10[obj->state_3](obj);
 }
 
 void func_801b052c_slot04_10(Object *obj) {
     obj->field_67 = 0;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a != 0 && (obj->field_130 & 0xa000) == 0) {
         obj->field_159 = 1;
         func_80130dc0(obj);
@@ -148,13 +148,13 @@ void func_801b052c_slot04_10(Object *obj) {
 }
 
 void func_801b05c4_slot04_10(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t < 0) {
         func_801b1078_slot04_10(obj);
     } else {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }
@@ -170,12 +170,12 @@ void func_801b0648_slot04_10(Object *obj) {
 }
 
 void func_801b0688_slot04_10(Object *obj) {
-    data_801c696c_slot04_10[obj->field_07](obj);
+    data_801c696c_slot04_10[obj->state_3](obj);
 }
 
 void func_801b06c8_slot04_10(Object *obj) {
     obj->field_67 = 0;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a == 0) {
         obj->field_159 = 1;
         func_80130dc0(obj);
@@ -192,27 +192,27 @@ void func_801b06c8_slot04_10(Object *obj) {
 }
 
 void func_801b0760_slot04_10(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t < 0) {
         func_80131468(obj);
     } else {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }
 }
 
 void func_801b07e4_slot04_10(Object *obj) {
-    data_801c6974_slot04_10[obj->field_07](obj);
+    data_801c6974_slot04_10[obj->state_3](obj);
 }
 
 void func_801b0824_slot04_10(Object *obj) {
     unsigned a;
 
     obj->field_159 = 1;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     a = obj->field_12a;
     obj->field_67 = 0;
     if (a == 0 || (obj->field_130 & 0x2000) == 0) {
@@ -223,13 +223,13 @@ void func_801b0824_slot04_10(Object *obj) {
 }
 
 void func_801b0888_slot04_10(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t < 0) {
         func_80131468(obj);
     } else {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }

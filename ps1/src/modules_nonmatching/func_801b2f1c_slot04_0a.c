@@ -62,7 +62,7 @@ void func_801b2f1c_slot04_0a(Object *obj) {
         func_801b30a0_slot04_0a(obj);
         return;
     }
-    if (obj->field_50 <= 0x50000) {
+    if (obj->vel_y <= 0x50000) {
         buttons = obj->field_134;
         if (buttons & 0x80) {
             variant = 0;
@@ -75,7 +75,7 @@ void func_801b2f1c_slot04_0a(Object *obj) {
         } else {
             goto end;
         }
-        obj->field_07++;
+        obj->state_3++;
         func_801307e0(obj, variant + 0x2b);
         facing = !(obj->other->pos_x < obj->pos_x);
         obj->field_0b = facing;
@@ -86,10 +86,10 @@ void func_801b2f1c_slot04_0a(Object *obj) {
             vx = 0x70000;
             vy = -0x4000;
         }
-        obj->field_50 = 0x38000;
-        obj->field_54 = vy;
-        obj->field_4c = vx;
-        obj->field_58 = -0x4000;
+        obj->vel_y = 0x38000;
+        obj->accel_x = vy;
+        obj->vel_x = vx;
+        obj->accel_y = -0x4000;
         func_801204f4(obj, obj->side, 9);
         func_80141f28(obj, 2);
         func_80138ae8(&game_state, obj);

@@ -37,10 +37,10 @@ int func_801b12bc_slot04_0f(Object *obj) {
         return 0;
     }
     if (((int (*)(Object *))func_80141c4c)(obj)) {
-        obj->field_04 = 1;
-        obj->field_06 = 7;
-        obj->field_05 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_2 = 7;
+        obj->state_1 = 0;
+        obj->state_3 = 0;
         obj->field_15a = 6;
         obj->field_159 = 0;
         return 1;

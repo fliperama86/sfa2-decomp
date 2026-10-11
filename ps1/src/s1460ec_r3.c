@@ -6,7 +6,7 @@
 
 void func_801466ec(Block172 *block) {
     Object *object = (Object *)block;
-    fn_table_8017ca28[object->field_04](object);
+    fn_table_8017ca28[object->state_0](object);
 }
 
 void func_8014672c(Object *object) {
@@ -15,7 +15,7 @@ void func_8014672c(Object *object) {
     object->field_90 = (void *)0x800fb100;
     object->field_98 = data_80172a48;
     object->field_9c = data_80173c9c;
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     func_80130768(object, object->field_48, (SequenceStep **)table_8017c7f8);
 }
 
@@ -28,8 +28,8 @@ void func_80146794(Object *object) {
             object->pos_x = object->pos_x - 4;
         }
     }
-    if ((s16)object->field_3a < 0) {
-        object->field_04 = object->field_04 + 1;
+    if ((s16)object->step_flags < 0) {
+        object->state_0 = object->state_0 + 1;
     }
     func_80131094(object);
     ((void (*)(void))func_80120028)();

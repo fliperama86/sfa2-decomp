@@ -11,7 +11,7 @@ void func_800119f8_slot12(Object *obj) {
     n = obj->field_46 - 1;
     obj->field_46 = n;
     if ((s16)n < 0) {
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 

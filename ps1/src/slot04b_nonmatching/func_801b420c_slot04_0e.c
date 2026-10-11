@@ -47,7 +47,7 @@ void func_801b420c_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *record;
     Object *slot;
 
-    obj->field_07 = 4;
+    obj->state_3 = 4;
     record = &data_801c62b4_slot04_0e[obj->side];
     slot = (Object *)func_8011f1e0();
     if (slot != 0) {

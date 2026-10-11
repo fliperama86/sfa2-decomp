@@ -19,20 +19,20 @@ void func_801b2a38_slot04_0a(Object *obj) {
     f = ((Slot04aObj *)obj)->field_3a;
     if (f == 0) {
         obj->field_165 = 0;
-        if (((s16)obj->field_3a & 0xff00) != 0x100) {
+        if (((s16)obj->step_flags & 0xff00) != 0x100) {
             func_801b3e00_slot04_0a(obj);
             if (!(obj->pos_y < obj->field_70)) {
                 k = 0xa0000;
                 b = -0x1000;
-                obj->field_50 = 0x28000;
-                obj->field_58 = -0x3000;
-                obj->field_07++;
+                obj->vel_y = 0x28000;
+                obj->accel_y = -0x3000;
+                obj->state_3++;
                 if (obj->field_0b == 0) {
                     k = 0xfff60000;
                     b = 0x1000;
                 }
-                obj->field_4c = k;
-                obj->field_54 = b;
+                obj->vel_x = k;
+                obj->accel_x = b;
                 func_801307e0(obj, (obj->field_12a >> 1) + 0x33);
             }
         }

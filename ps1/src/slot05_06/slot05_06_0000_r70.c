@@ -12,13 +12,13 @@ void func_801ce2c0_slot05_06(Object *obj);
 
 void func_801ce050_slot05_06(Object *obj) {
     data_801dd758_slot05_06 = obj->field_3c;
-    data_801dd5d0_slot05_06[obj->field_04](obj);
+    data_801dd5d0_slot05_06[obj->state_0](obj);
 }
 
 void func_801ce0a0_slot05_06(Object *obj) {
     Object *p;
 
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = data_801dd758_slot05_06->field_0c;
     obj->field_0d = data_801dd758_slot05_06->field_0d;
     p = data_801dd758_slot05_06;

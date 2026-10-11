@@ -30,7 +30,7 @@ void func_80026f70_slot28(Object *obj) {
             p->field_09 = 4;
             p->field_01 = 1;
             func_80130768(p, 3, data_800502d4_slot28);
-            p->field_50 = 0x2000;
+            p->vel_y = 0x2000;
             p = (Object *)func_8011f1e0();
             if (p != 0) {
                 p->field_00 = 1;

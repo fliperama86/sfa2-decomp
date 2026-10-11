@@ -8,7 +8,7 @@ void func_801b1458_slot04_06(Object *o) {
 
     obj->field_1c3 = 0;
     o->field_17b = 1;
-    o->field_07++;
+    o->state_3++;
     if (o->field_49 != 0) {
         o->field_225 = 1;
     }
@@ -18,14 +18,14 @@ void func_801b1458_slot04_06(Object *o) {
 }
 
 void func_801b14c8_slot04_06(Object *obj) {
-    obj->field_4c = 0x40000;
-    obj->field_50 = 0x28000;
+    obj->vel_x = 0x40000;
+    obj->vel_y = 0x28000;
     obj->field_12c = 0;
     obj->field_12d = 0;
     obj->field_12e = 0;
     obj->field_12f = 0;
-    obj->field_54 = 0;
-    obj->field_58 = -0xa000;
+    obj->accel_x = 0;
+    obj->accel_y = -0xa000;
     obj->field_45 = 1;
-    obj->field_07++;
+    obj->state_3++;
 }

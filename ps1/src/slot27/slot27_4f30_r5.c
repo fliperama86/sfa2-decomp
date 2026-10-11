@@ -30,7 +30,7 @@ void func_800153c0_slot27(Object *obj) {
 }
 
 void func_800154b4_slot27(Object *obj) {
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
 }
 
 void func_800154c8_slot27(Object *obj) {
@@ -38,5 +38,5 @@ void func_800154c8_slot27(Object *obj) {
 }
 
 void func_800154e8_slot27(Object *obj) {
-    data_800284fc_slot27[obj->field_04](obj);
+    data_800284fc_slot27[obj->state_0](obj);
 }

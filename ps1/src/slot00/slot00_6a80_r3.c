@@ -10,7 +10,7 @@ void func_80076d88_slot00(Object *o) {
     Config *config = game_state.config;
 
     if (config->field_65 == 0 && config->field_a8 == 0) {
-        data_800797f4_slot00[o->field_06](o);
+        data_800797f4_slot00[o->state_2](o);
     }
     func_8011ffdc(o);
 }

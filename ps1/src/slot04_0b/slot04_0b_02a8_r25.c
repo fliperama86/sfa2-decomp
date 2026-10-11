@@ -6,6 +6,6 @@
 extern void (*data_801c2f24_slot04_0b[])(Object *, Object *);
 
 void func_801b3d44_slot04_0b(Object *o, Object *p) {
-    data_801c2f24_slot04_0b[o->field_05](o, p);
+    data_801c2f24_slot04_0b[o->state_1](o, p);
     func_8011ffdc(o);
 }

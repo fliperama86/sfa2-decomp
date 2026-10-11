@@ -49,7 +49,7 @@ void func_80078628_slot00(Object *obj) {
         func_80078d78_slot00(obj);
         func_80131094(obj);
     } else {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         func_80078458_slot00(obj, 8);
     }
 }

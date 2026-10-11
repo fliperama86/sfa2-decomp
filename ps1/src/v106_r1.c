@@ -18,7 +18,7 @@ void func_8014d7d4(Object *object)
   }
   else
   {
-    lo = object->field_06 == 0;
+    lo = object->state_2 == 0;
     if (lo || (object->field_21c == 0) || ((object->field_21c--, object->field_164 != 0)))
     {
       func_8014d99c(object);

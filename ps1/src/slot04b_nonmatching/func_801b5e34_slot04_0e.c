@@ -55,19 +55,19 @@ extern s32 data_801c6198_slot04_0e[];
 void func_801b5e34_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 2);
     func_801204f4(o, o->side, 6);
     func_80120554(o, o->field_02, 0x324);
-    o->field_50 = 0;
-    o->field_58 = 0;
+    o->vel_y = 0;
+    o->accel_y = 0;
     obj->field_46 = 7;
     obj->field_47 = data_801c6190_slot04_0e[o->field_48 >> 1];
-    o->field_4c = data_801c6194_slot04_0e[o->field_48];
-    o->field_54 = data_801c6198_slot04_0e[o->field_48];
+    o->vel_x = data_801c6194_slot04_0e[o->field_48];
+    o->accel_x = data_801c6198_slot04_0e[o->field_48];
     if (o->field_0b != 0) {
-        o->field_4c = -o->field_4c;
-        o->field_54 = -o->field_54;
+        o->vel_x = -o->vel_x;
+        o->accel_x = -o->accel_x;
     }
     func_801307e0(o, (o->field_48 >> 1) + 0x27);
 }

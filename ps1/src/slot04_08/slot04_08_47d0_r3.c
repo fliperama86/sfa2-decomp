@@ -10,7 +10,7 @@ void func_801b4ac0_slot04_08(Object *obj, Object *other) {
     u8 b;
     u16 h;
 
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = other->field_1c;
     obj->field_09 = 3;
     obj->field_0c = other->field_0c;

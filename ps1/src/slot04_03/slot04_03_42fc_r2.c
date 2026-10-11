@@ -6,14 +6,14 @@
 extern s32 data_801c0a08_slot04_03[];
 
 void func_801b445c_slot04_03(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t & 0x8000) {
         func_801312b8(obj);
     } else {
         if (t & 0xff) {
             if (func_80149b80(obj) & 0xff) {
-                obj->field_07 = 0;
+                obj->state_3 = 0;
             }
         }
         func_80130efc(obj);
@@ -21,7 +21,7 @@ void func_801b445c_slot04_03(Object *obj) {
 }
 
 void func_801b44d0_slot04_03(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     s16 a;
     int v;
 
@@ -41,7 +41,7 @@ void func_801b44d0_slot04_03(Object *obj) {
         if (obj->field_0b == 0) {
             v = -v;
         }
-        *(s32 *)&obj->field_10 += v;
+        *(s32 *)&obj->pos_x_frac += v;
         func_80130efc(obj);
     }
 }

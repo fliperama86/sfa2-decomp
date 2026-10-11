@@ -11,7 +11,7 @@ extern u8 data_8003a5d4_slot28[];
 extern Object *data_80051a18_slot28[];
 
 void func_8001d468_slot28(Object *obj) {
-    if ((s16)data_80051a50_slot28.p->field_3a < 0) {
+    if ((s16)data_80051a50_slot28.p->step_flags < 0) {
         data_8018f5a0->field_60 = 0xb4;
         data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
     }

@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 int func_801b66fc_slot04_06(Object *obj) {
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    obj->field_4c += obj->field_54;
-    *(s32 *)&obj->field_14 -= obj->field_50;
-    obj->field_50 += obj->field_58;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    obj->vel_x += obj->accel_x;
+    *(s32 *)&obj->pos_y_frac -= obj->vel_y;
+    obj->vel_y += obj->accel_y;
     return (s16)(obj->pos_y - obj->field_70);
 }
