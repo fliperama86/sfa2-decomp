@@ -86,10 +86,20 @@ same result. The comparison of the nonmatching C ran before that merge:
   compiler's output is the same for all 105 but for the `.file` line, which
   carries the path of the input. Their differential tests and replays were
   therefore not run again: what they test did not change.
+- The replays of the recorded fixtures, one run per folder and the eight
+  folders at the same time, at `3669d38`
+  (`python ps1/src/slot06_nonmatching/difftest.py --config ps1/src/build.toml --folder FOLDER --replay FUNC...`
+  for the five nonmatching folders, the two programs and the port's
+  overrides, with the functions the review command lists for each): 123
+  functions, every one with `failed 0`, in under half a minute.
 - `python ps1/tools/test_renamefields.py`: all 12 cases behaved as required.
 
-What did not run: the differential tests, the port's build and its control
-files, the inventory sweep (no boundary moved).
+What did not run: the differential tests against the original code (also
+for the functions that have no fixtures; the comparison of the compiler's
+output covers those), `python tools/ai_workflow/workflow.py review` as a
+whole (its plan for this change is the whole build, every tool's tests and
+every folder's differential runs), the port's build and its control files,
+the inventory sweep (no boundary moved).
 
 Known and left for the next change. `Object` is also the type of records
 that are not fighters. In 37 lines of 22 units, found by their casts with
