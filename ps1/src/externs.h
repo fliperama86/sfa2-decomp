@@ -744,7 +744,7 @@ extern u8 data_801aa6ee[];
 extern u16 data_801abef8;
 extern u16 data_801abefc;
 extern u8 data_801abf08;
-extern short data_801ac314;
+extern u16 data_801ac314;
 extern LogRec table_801ac318[][32];
 extern u16 data_801ac618;
 extern u8 data_801ac61c;

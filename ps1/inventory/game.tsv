@@ -1,6 +1,6 @@
 80118900	8	func_80118900	-	-	0	0	closed
 80118908	188	func_80118908	system	disc,graphics,memory card,pads,sound,system,threads,unidentified	0	0	open
-801189c4	844	-	graphics,system	disc,graphics,memory card,pads,sound,system,threads,unidentified	0	0	open
+801189c4	844	func_801189c4	graphics,system	disc,graphics,memory card,pads,sound,system,threads,unidentified	0	0	open
 80118d10	328	func_80118d10	graphics,pads,system,unidentified	disc,graphics,memory card,pads,sound,system,unidentified	0	0	open
 80118e58	368	func_80118e58	graphics	graphics	0	0	closed
 80118fc8	104	func_80118fc8	-	-	0	0	closed
@@ -601,7 +601,7 @@
 801364a0	456	func_801364a0	-	-	0	0	closed
 80136668	108	func_80136668	-	-	0	0	closed
 801366d4	112	func_801366d4	-	-	0	0	closed
-80136744	340	-	-	-	0	0	closed
+80136744	340	func_80136744	-	-	0	0	closed
 80136898	20	func_80136898	-	-	0	0	closed
 801368ac	20	func_801368ac	-	-	0	0	closed
 801368c0	60	func_801368c0	-	-	0	0	closed
