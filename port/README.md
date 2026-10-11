@@ -770,8 +770,9 @@ each under its own name. The thirteen of the line
 [`overrides/`](overrides/README.md) (see "Overrides in C" below); the
 function of the character module `slot04_0f` is placed a second time in its
 `like` image `slot05_0f` and counted again. (The folder got a thirteenth
-function on 2026-10-11, `func_801347b4`; a build of that day's source
-prints `functions overridden in C: 14`.) The one
+function on 2026-10-11, `func_801347b4`, and a fourteenth the same day,
+`func_80141534`; a build of the source with both prints
+`functions overridden in C: 15`.) The one
 function of the game and its modules that the build still counts as
 without C is the entry code (`--list` names it: `func_80118908`), which is
 hand-written assembly that the program does not run. The
