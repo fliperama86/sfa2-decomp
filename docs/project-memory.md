@@ -34,6 +34,11 @@ Old figures describe their own date, not today's completion.
   and 2026-10-06. First publication still needs provenance/privacy review.
   Third-party source retains its license. Private headers, binaries, game
   assets, analysis and credentials never enter Git.
+- A construct that only steers the compiler may stand in an exact unit, by
+  the owner's instruction of 2026-10-11: plain C that changes nothing the
+  function does, as the last resort, under a fixed comment with the
+  measurement without it. `ps1/docs/matching-guide.md`, "What is allowed",
+  has the rule and what stays not allowed.
 - Use a branch and PR for changes. Poll owner comments every 60 seconds while
   active. Only the owner's account can approve; a plain comment is approval.
   A reviewer posts comments, not formal reviews. Check actual child exits.
