@@ -44,6 +44,11 @@ extern int StSetStream(int mode, int start, int end, void (*func1)(void), void (
 extern int StGetNext(u32 **addr, u32 **header);
 extern int StFreeRing(u32 *base);
 extern void DecDCTin(u32 *buf, int mode);
+extern long ResetCallback(void);
+extern void StopCallback(void);
+extern void PadInit(int mode);
+extern u32 PadRead(int id);
+extern void PadStop(void);
 extern int CdControl(u8 com, u8 *param, u8 *result);
 extern int CdRead2(int mode);
 extern int CdPosToInt(u8 *p);
@@ -54,6 +59,12 @@ extern int CdReadSync(int mode, u8 *result);
 extern void func_80010928_logo(void);
 extern int func_80010a80_logo(int sector);
 extern void func_80010a38_logo(void);
+extern u32 func_80011758_logo(int index, u32 *size);
+extern void func_80011794_logo(void);
+extern void func_80011838_logo(void);
+extern void func_800107e8_logo(u8 *base, int str_sector, int bin_sector, int vmode, int stereo);
+extern int func_80010c20_logo(void);
+extern void func_80010e28_logo(void);
 extern void func_80010f20_logo(void);
 extern void func_80010fc4_logo(void);
 extern void func_800110f4_logo(u8 *table, u16 *codes);
@@ -112,6 +123,13 @@ extern int data_8002eb50_logo;
 extern u8 data_8002eb8c_logo[2][20];
 /* A disc position, four bytes (inferred: the place CdIntToPos writes and CdControl(0x15, ...) reads). */
 extern u8 data_8002ebb4_logo[4];
+/* gp + 0x84, gp + 0x88, gp + 0x8c: the pad words: the last state read from PadRead, a copy of it and the buttons newly pressed (inferred from
+   func_800106fc_logo). */
+extern u32 data_8002eb80_logo;
+extern u32 data_8002eb84_logo;
+extern u32 data_8002eb88_logo;
+/* The start of the program's big buffer (inferred: base is passed to func_800107e8_logo, which places its areas from it). */
+extern u8 data_8002ede0_logo[];
 /* A flag word: not 0 asks for StCdInterrupt (inferred). */
 extern int data_8002edb8_logo;
 

@@ -23,6 +23,7 @@ functions = [
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
   { name = "func_80011060_logo", address = 0x80011060, size = 148 },
   { name = "func_80010e28_logo", address = 0x80010e28, size = 248 },
+  { name = "func_800106fc_logo", address = 0x800106fc, size = 236 },
   { name = "func_80010c20_logo", address = 0x80010c20, size = 520 },
   { name = "func_800107e8_logo", address = 0x800107e8, size = 320 },
   { name = "func_80010a80_logo", address = 0x80010a80, size = 416 },
@@ -51,9 +52,13 @@ data_8002eb44_logo = 0x8002eb44
 data_8002eb48_logo = 0x8002eb48
 data_8002eb4c_logo = 0x8002eb4c
 data_8002eb50_logo = 0x8002eb50
+data_8002eb80_logo = 0x8002eb80
+data_8002eb84_logo = 0x8002eb84
+data_8002eb88_logo = 0x8002eb88
 data_8002eb8c_logo = 0x8002eb8c
 data_8002ebb4_logo = 0x8002ebb4
 data_8002edb8_logo = 0x8002edb8
+data_8002ede0_logo = 0x8002ede0
 # The program's own copies of library routines (the game's names for them are those of the resident copies).
 DecDCTout = 0x80011990
 StCdInterrupt = 0x800188e8
@@ -86,3 +91,8 @@ CdRead2 = 0x800187bc
 CdPosToInt = 0x80016634
 CdRead = 0x800164b0
 CdReadSync = 0x80016490
+ResetCallback = 0x800196f8
+StopCallback = 0x800197ec
+PadInit = 0x80019e7c
+PadRead = 0x80019edc
+PadStop = 0x80019f0c

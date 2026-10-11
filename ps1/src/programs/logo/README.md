@@ -94,6 +94,10 @@ function when it was added or last changed. They were printed on 2026-10-10.
 The test (`--cases 2000 FUNC`, seed 1, then `--seed 7`):
 
 ```
+func_800106fc_logo: built 248 bytes, original 236 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800106fc_logo coverage: 59 of 59 instruction slots of the original executed
+func_800106fc_logo: built 248 bytes, original 236 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800106fc_logo coverage: 59 of 59 instruction slots of the original executed
 func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800107e8_logo coverage: 80 of 80 instruction slots of the original executed
 func_800107e8_logo: built 388 bytes, original 320 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -159,6 +163,7 @@ func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 The negative control (`--control`):
 
 ```
+func_800106fc_logo control: different 149 of 2000 (expected more than 0)
 func_800107e8_logo control: different 2000 of 2000 (expected more than 0)
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
@@ -179,6 +184,8 @@ func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 The write audit (`--writes`, seed 1, then `--seed 7`):
 
 ```
+func_800106fc_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800106fc_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800107e8_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010928_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -214,6 +221,8 @@ func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 The record (`--record`) and the replay (`--replay`):
 
 ```
+func_800106fc_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_800106fc_logo replay: fixtures 2, passed 2, failed 0
 func_800107e8_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800107e8_logo replay: fixtures 1, passed 1, failed 0
 func_80010928_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -378,3 +387,17 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   is at least 0x118. All callees are recorders in the test; the frame numbers
   of the setup lie on and around each limit. The time-out exit stays
   unreached (two slots).
+- `func_800106fc_logo`: the program's main (inferred). Calls
+  `func_80011838_logo`, `ResetCallback`, `func_80011794_logo` and
+  `PadInit(0)`; looks up the table entries 0x23 and 0x22 with
+  `func_80011758_logo` (a local for the second word); calls
+  `func_800107e8_logo(0x8002ede0, entry 0x23, entry 0x22, 0, 1)`. Then a
+  loop: `func_80010c20_logo` (the frame), `PadRead(1)`, the pad word stored at
+  `0x8002eb84` and `0x8002eb80`, the newly pressed buttons (the new word xor
+  the old, and the new) stored at `0x8002eb88`; the frame's result goes up by
+  1 for a newly pressed bit of 0x820 and by 1 more for one of 0x08200000; the
+  loop ends when the result is not 0. After it: `func_80010e28_logo`,
+  `PadStop` and `StopCallback`. All callees are recorders in the test, with
+  the frame's and the pad's results scripted per turn. The test's results end
+  with one more turn than the function makes, so that a variant that missed a
+  press does not run on without end.
