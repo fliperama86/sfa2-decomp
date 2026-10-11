@@ -7790,6 +7790,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d3bfa4_r1"
+source = "d3bfa4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013bfa4", address = 0x8013bfa4, size = 1800 },
+]
+
+[[unit]]
 name = "n12b8dc_r14"
 source = "n12b8dc_r14.c"
 flags = ["-O2", "-G0"]

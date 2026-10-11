@@ -733,7 +733,7 @@
 8013bc64	172	func_8013bc64	-	-	0	0	closed
 8013bd10	228	func_8013bd10	-	-	0	0	closed
 8013bdf4	432	func_8013bdf4	-	-	0	0	closed
-8013bfa4	1800	-	-	sound,unidentified	0	0	open
+8013bfa4	1800	func_8013bfa4	-	sound,unidentified	0	0	open
 8013c6ac	708	-	-	-	0	0	closed
 8013c970	204	func_8013c970	-	-	0	0	closed
 8013ca3c	140	func_8013ca3c	-	sound,unidentified	0	0	closed

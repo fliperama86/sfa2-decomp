@@ -207,6 +207,29 @@ with the helper shows that this source is compatible with the original's
 bytes, not that the original had an inline function there. `grep -rn
 "^static inline" src` lists the uses.
 
+A third stand-in is a test that is never true. It is only for a branch
+that the original's own instructions show and that can never be taken:
+the compiler reduced the tested value to the constant 0 and still emitted
+the branch (`move v0,zero` and, after it, `bnez v0,...`; "What this
+compiler does" has the rule). The original's source had a condition
+there; the bytes do not say which. The unit writes a condition that
+builds exactly those instructions, in the plainest spelling found (a mask
+outside the width of a field of the object at hand), with this comment
+directly above it:
+
+```c
+/* The test below is a stand-in, not recovered source: the original has a branch here on a value its compiler reduced to the constant 0, so it is never taken. The bytes do not say which condition the source had; this one builds the original's instructions. */
+```
+
+Rules for its use: only where the original's listing has both the
+constant and the branch on it, and the pull request quotes those
+instructions; the condition calls nothing and writes nothing; a comment
+beside the fixed one gives the measurement without the test; a C file of
+the port that repeats the unit's text carries both comments too. It is
+not a way to add control flow: a test that the original's instructions do
+not show stays not allowed, and so does a test whose result nothing uses.
+`grep -rn "The test below is a stand-in" src` lists the uses.
+
 One construct is accepted for one case: a call that passes another number
 of arguments than the callee's definition has. Every function of the tree
 is declared with a prototype, so such a call cannot be written plainly. It
@@ -934,6 +957,16 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     lines differ, with the second formed from the first in place 19,
     with a macro of the same text 19. "What is allowed" says when the
     helper may be written.
+- A condition that only the combine pass can decide stays as code. cse and
+  the first jump pass remove a test they can see through. When the value is
+  found constant later, by the bits a narrower value cannot have (a byte
+  masked with 0x100, or shifted right by 8), `combine.c` sets the register
+  to the constant and cannot remove the branch. Measured in one function,
+  `func_8013bfa4`: `if (p->field_02 & 0x100)` on a byte field builds `move
+  v0,zero` and `bnez v0`, which the original has; `>> 8` and the masks
+  0xff00 and 0x8000 on the same field build the same bytes; without the
+  test the unit has 2 instructions fewer. "What is allowed" says when such
+  a test may be written.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
