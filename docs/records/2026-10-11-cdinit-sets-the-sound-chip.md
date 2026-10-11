@@ -16,7 +16,11 @@
   (`+0x1ba`), the main volume is set to `0x3fff` on both sides
   (`+0x180`, `+0x182`); the CD volume is set to `0x3fff` on both sides
   (`+0x1b0`, `+0x1b2`); the control is set to `0xc001` (`+0x1aa`); the
-  drive's mix is set to `0x80, 0, 0x80, 0`. PsyZ's own library has the
+  drive's mix is set to `0x80, 0, 0x80, 0`. No other routine of the
+  resident program reads that pointer (the references of the private
+  Ghidra project: two reads, both in this routine). Two functions of the
+  game call `CdInit`: `func_8014f0bc` and `func_8011e918`. The routine
+  was read, not run. PsyZ's own library has the
   routine with the same values; the port does not link it. The port's
   `CdInit` is a host routine and did none of this.
 - The change: `port_CdInit` in `port/src/cd.c` does it (`initvol`),
