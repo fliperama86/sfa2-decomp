@@ -113,8 +113,10 @@ int port_press_out_busy(void);
  *     decoder: program NAME: F frames, T transfers, C completions taken, R dropped by a reset
  * F: calls of DecDCTin that handed the chip a frame. T: transfers that DecDCTout started. C: completions taken (the routine was called,
  * or there was none and the completion was dropped). R: completions that a DecDCTReset found pending or claimed and dropped; the
- * frame they belong to was not handed out to its end. T - C - R is what was pending when the line was printed. programs.c calls it
- * when a built-in program has returned, with the program's name. */
+ * frame they belong to was not handed out to its end. T - C - R is what was pending when the line was printed only if nothing was
+ * pending when these counts began (at the program's start, or at the line before): a transfer that was pending then is counted
+ * in C or R when it is taken or dropped, and its start was counted in the line before, so the difference is then one too small.
+ * programs.c calls it when a built-in program has returned, with the program's name. */
 void port_press_report(const char *program);
 
 #endif
