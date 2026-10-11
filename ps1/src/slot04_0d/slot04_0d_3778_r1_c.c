@@ -25,7 +25,7 @@ void func_801b40bc_slot04_0d(Object *object);
 
 void func_801b3990_slot04_0d(Object *object) {
     func_801b39c8_slot04_0d(object, &game_state);
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b39c8_slot04_0d(Object *object, GameState *g) {
@@ -43,7 +43,7 @@ void func_801b3a14_slot04_0d(Object *object) {
     u16 e;
     u8 d;
 
-    func_80130efc(object);
+    update_sequence(object);
     if (object->step_flags & 0xff) {
         object->step_flags = object->step_flags & 0xff00;
         p = (Object *)func_8011f1e0();

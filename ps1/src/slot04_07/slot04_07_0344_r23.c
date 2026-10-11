@@ -10,6 +10,6 @@ void func_801b4b24_slot04_07(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

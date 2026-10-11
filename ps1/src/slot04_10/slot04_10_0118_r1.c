@@ -123,7 +123,7 @@ void func_801b0430_slot04_10(Object *obj) {
         if ((obj->step_flags & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -156,7 +156,7 @@ void func_801b05c4_slot04_10(Object *obj) {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -200,7 +200,7 @@ void func_801b0760_slot04_10(Object *obj) {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -231,7 +231,7 @@ void func_801b0888_slot04_10(Object *obj) {
         if ((t & 0x80) != 0 && (u8)func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

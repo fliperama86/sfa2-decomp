@@ -103,6 +103,6 @@ act_c:
             func_801307e0(obj, a + obj->field_12a);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

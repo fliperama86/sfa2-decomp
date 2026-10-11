@@ -23,5 +23,5 @@ void func_801b2d0c_slot04_01(Object *obj) {
         func_80143184(obj);
         func_801b3b28_slot04_01(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

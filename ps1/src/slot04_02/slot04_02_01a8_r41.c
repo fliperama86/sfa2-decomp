@@ -6,7 +6,7 @@
 extern s32 data_801c650c_slot04_02[];
 
 void func_801b5090_slot04_02(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (obj->field_0b != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

@@ -9,7 +9,7 @@ void func_8012a684(Object *object) {
     } else if (func_8012f56c(object)) {
         func_8012f59c(object);
     } else if ((u8)func_8012f408(object)) {
-        func_80130efc(object);
+        update_sequence(object);
     } else if (object->field_cd != 0) {
         func_8012a804(object);
     } else if (func_80130470(object)) {
@@ -26,6 +26,6 @@ void func_8012a684(Object *object) {
         func_8012f8c4(object);
     } else {
         func_801301d8(object);
-        func_80130efc(object);
+        update_sequence(object);
     }
 }

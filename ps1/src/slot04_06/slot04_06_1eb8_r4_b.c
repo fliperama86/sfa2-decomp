@@ -27,6 +27,6 @@ void func_801b23ac_slot04_06(Object *o) {
             obj->field_1c8 = 0;
             o->state_3++;
         }
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

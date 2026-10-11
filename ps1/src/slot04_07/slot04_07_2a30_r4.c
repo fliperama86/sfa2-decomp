@@ -10,7 +10,7 @@ void func_801b3274_slot04_07(Object *obj);
 void func_801b2ef4_slot04_07(Object *obj) {
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         obj->field_45 = 1;
         *(s32 *)&obj->vel_x = 0xa0000;
@@ -42,7 +42,7 @@ void func_801b2fa4_slot04_07(Object *obj) {
         }
         y = obj->field_70;
         if (obj->pos_y < y) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             obj->state_3++;
             obj->pos_y = y;

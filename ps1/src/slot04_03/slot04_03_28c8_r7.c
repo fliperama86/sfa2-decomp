@@ -10,7 +10,7 @@ void func_801b3130_slot04_03(Object *o) {
     int t;
 
     o->field_27c++;
-    func_80130efc(o);
+    update_sequence(o);
     o->field_46 = t = (o->field_46 & 0xff00) | ((o->field_46 & 0xff) - 1);
     if ((t & 0xff) == 0) {
         if (o->field_45 != 0) {

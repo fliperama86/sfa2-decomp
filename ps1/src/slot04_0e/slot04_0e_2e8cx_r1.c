@@ -8,14 +8,14 @@ void func_801b4914_slot04_0e(Object *obj);
 
 void func_801b2e8c_slot04_0e(Object *o) {
     /* Stand-in, not recovered source: the one 8-bit local a, which holds the field, then the facing, then the sequence number, reproduces the original's choice of registers. Without it this function differs from the original in 9 instruction slots. */
-    /* Measured with a kept as one variable: as an int it differs in 2 slots, and without the (s8) cast below in 7. */
+    /* The figure is for each of the three values in a u8 local of its own. Only the sequence number in a local of its own: 3 slots. The one local as an int: 2 slots; without the (s8) cast below: 7. */
     u8 a;
 
     func_801b4914_slot04_0e(o);
     if (o->field_70 < o->pos_y) {
         func_801b2f58_slot04_0e(o);
     } else if ((s16)(o->field_70 - 0x30) < o->pos_y) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         a = o->field_0b;
         if (a == 0) {
@@ -24,7 +24,7 @@ void func_801b2e8c_slot04_0e(Object *o) {
             a = 1;
         }
         if (o->field_164 != (s8)a) {
-            func_80130efc(o);
+            update_sequence(o);
         } else {
             a = 0x60;
             o->state_3++;

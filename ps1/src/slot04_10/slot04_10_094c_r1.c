@@ -23,7 +23,7 @@ void func_801b094c_slot04_10(Object *obj) {
         func_801209c4(obj);
         func_801b10b8_slot04_10(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -39,7 +39,7 @@ void func_801b09c0_slot04_10(Object *obj) {
             func_801307e0(obj, 0x43);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -55,7 +55,7 @@ void func_801b0a50_slot04_10(Object *obj) {
             func_801307e0(obj, 0x44);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -147,7 +147,7 @@ void func_801b0dbc_slot04_10(Object *obj) {
     if (c->field_64 == 0 && c->field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0e14_slot04_10(Object *o) {

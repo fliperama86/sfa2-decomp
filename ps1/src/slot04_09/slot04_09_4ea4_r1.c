@@ -41,7 +41,7 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
         func_801204f4(o, o->side, 0x10);
         func_801307e0(o, 0x19);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
     func_80141e5c(o);
 }

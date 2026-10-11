@@ -96,6 +96,6 @@ void func_801b59f0_slot04_11(Object *obj) {
     if ((u8)func_8012f898(obj)) {
         func_8012f8c4(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

@@ -12,6 +12,6 @@ void func_8012ab5c(Object *object) {
     } else if ((u8)func_8014a0fc(object)) {
         func_8012f3e0(object);
     } else {
-        func_80130efc(object);
+        update_sequence(object);
     }
 }

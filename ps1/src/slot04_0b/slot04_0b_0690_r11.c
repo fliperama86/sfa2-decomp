@@ -18,5 +18,5 @@ void func_801b2f74_slot04_0b(Object *obj) {
         obj->accel_x = 0;
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

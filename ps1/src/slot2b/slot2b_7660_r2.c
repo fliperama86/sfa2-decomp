@@ -13,12 +13,12 @@ void func_800777c8_slot2b(Object *obj) {
         obj->state_3++;
         obj->pos_x_frac = 0;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_80077828_slot2b(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_80131468(obj);
     }

@@ -24,13 +24,13 @@ void func_801b2104_slot04_00(Object *obj) {
         func_80120554(obj, obj->side, 0x31c);
         func_80148494(obj, 0x1b, 0x3c);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2188_slot04_00(Object *obj) {
     int i = 0;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->state_3++;
         obj->field_165 = 0;

@@ -20,6 +20,6 @@ void func_801b3e00_slot04_06(Object *o) {
     if (obj->field_3b & 0x80) {
         func_801b4620_slot04_06(o);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

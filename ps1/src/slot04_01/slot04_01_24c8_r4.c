@@ -29,6 +29,6 @@ void func_801b2a30_slot04_01(Object *obj) {
             obj->step_flags = t & 0xff00;
             func_801204f4(obj, obj->side, 9);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

@@ -23,7 +23,7 @@ void func_801b3538_slot04_05(Object *obj) {
 }
 
 void func_801b35d8_slot04_05(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0xf, 0, 0, 1);

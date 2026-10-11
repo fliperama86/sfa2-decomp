@@ -11,7 +11,7 @@ void func_801b4ec0_slot04_10(Object *object);
 
 void func_801b4d84_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 0;
@@ -58,7 +58,7 @@ void func_801b4ec0_slot04_10(Object *obj) {
 
 void func_801b4f48_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
@@ -72,7 +72,7 @@ void func_801b4f48_slot04_10(Object *obj) {
 
 void func_801b4fc8_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 5;

@@ -8,6 +8,6 @@ void func_801b3934_slot04_05(Object *obj) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

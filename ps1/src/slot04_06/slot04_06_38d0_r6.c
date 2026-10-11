@@ -12,7 +12,7 @@ void func_801b3ed4_slot04_06(Object *obj) {
         obj->accel_x = -0xc000;
         func_801307e0(obj, 0x1a);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -28,6 +28,6 @@ void func_801b3f30_slot04_06(Object *obj) {
         if ((s16)obj->step_flags == 2 && obj->vel_x >= 0) {
             func_801b4818_slot04_06(obj);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

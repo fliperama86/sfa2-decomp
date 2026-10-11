@@ -20,5 +20,5 @@ void func_801b265c_slot04_01(Object *obj) {
         }
         obj->vel_x = obj->vel_x + obj->accel_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

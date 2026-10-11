@@ -18,6 +18,6 @@ void func_801b2568_slot04_06(Object *obj) {
         func_80140cd8(obj, *(s16 *)(data_801c5408_slot04_06 + (obj->field_12a & 0xfe)), 0);
         func_801307e0(obj, 0x23);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

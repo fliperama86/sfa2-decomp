@@ -6,7 +6,7 @@
 u8 func_801b2510_slot04_0b(Object *object);
 
 void func_801b2738_slot04_0b(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 2) {
         obj->field_45 = 1;
         obj->state_3++;
@@ -28,6 +28,6 @@ void func_801b27cc_slot04_0b(Object *obj) {
         obj->vel_x = 0;
         func_801307e0(obj, (obj->field_12a >> 1) + 0x42);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

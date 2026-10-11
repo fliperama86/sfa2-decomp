@@ -27,7 +27,7 @@ void func_801b4b40_slot04_0e(Object *obj);
 void func_801b3950_slot04_0e(Object *obj) {
     u8 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         obj->vel_x = 0x50000;
         obj->state_3++;
@@ -80,12 +80,12 @@ void func_801b3aa0_slot04_0e(Object *obj) {
         ((Slot04bObj *)obj)->field_3a = 0;
         func_801b3b80_slot04_0e(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3b40_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -147,7 +147,7 @@ void func_801b3d68_slot04_0e(Object *obj) {
     int a;
     int v;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         ((Slot04bObj *)obj)->field_3a = 0;
         obj->field_165 = 0;
@@ -197,7 +197,7 @@ void func_801b3eb0_slot04_0e(Object *obj) {
 
     r = &data_801c62b4_slot04_0e[obj->side];
     if ((u8)obj->step_flags == 0x80) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     r->field_10 += obj->vel_x;
@@ -226,7 +226,7 @@ void func_801b3eb0_slot04_0e(Object *obj) {
     }
     res = func_8013fc18(obj, pos >> 16, *(s16 *)(data_801c60ac_slot04_0e + (obj->field_12a & 0xfe)));
     if (res == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     if (res < 0) {

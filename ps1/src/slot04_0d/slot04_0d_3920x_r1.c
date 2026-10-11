@@ -21,5 +21,5 @@ void func_801b3920_slot04_0d(Object *object) {
         func_80130678(object, (u8)a);
     }
     func_801b39c8_slot04_0d(object, &game_state);
-    func_80130efc(object);
+    update_sequence(object);
 }

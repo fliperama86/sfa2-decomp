@@ -43,7 +43,7 @@ void func_801b212c_slot04_0d(Object *obj) {
     s32 *t = data_801c27d4_slot04_0d;
     s32 *p;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
         obj->state_3++;

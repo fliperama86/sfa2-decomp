@@ -34,12 +34,12 @@ void func_801cc50c_slot05_06(Object *obj) {
             }
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801cc5dc_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->field_17b = 0;
         func_801312b8(obj);

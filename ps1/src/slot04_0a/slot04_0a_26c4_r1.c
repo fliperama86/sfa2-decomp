@@ -8,7 +8,7 @@ void func_801b3e68_slot04_0a(Object *obj);
 
 void func_801b26c4_slot04_0a(Object *obj) {
     int t;
-    func_80130efc(obj);
+    update_sequence(obj);
     t = (s16)obj->step_flags;
     if (t & 0x80) {
         obj->state_3++;

@@ -22,7 +22,7 @@ void func_801b591c_slot04_02(Object *obj) {
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b59ac_slot04_02(Object *obj) {
@@ -30,7 +30,7 @@ void func_801b59ac_slot04_02(Object *obj) {
     s16 t;
     u16 u;
     obj->field_27c = obj->field_27c + 1;
-    func_80130efc(obj);
+    update_sequence(obj);
     u = obj->field_46 - 1;
     obj->field_46 = u;
     if ((u8)u == 0) {

@@ -16,6 +16,6 @@ void func_801b0614_slot04_01(Object *obj) {
                 obj->pos_x += 2;
             }
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

@@ -15,7 +15,7 @@ void func_801b3a5c_slot04_09(Object *obj) {
             o = obj;
             goto next;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         o = obj;
 next:

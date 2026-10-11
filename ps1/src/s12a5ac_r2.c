@@ -12,7 +12,7 @@ void func_8012a8dc(Object *object) {
 void func_8012a91c(Object *object) {
     int index;
     if ((s16)object->step_flags >= 0) {
-        func_80130efc(object);
+        update_sequence(object);
         return;
     }
     object->state_3 = object->state_3 + 1;

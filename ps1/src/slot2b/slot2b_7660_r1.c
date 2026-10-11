@@ -12,7 +12,7 @@ void func_80077660_slot2b(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -39,5 +39,5 @@ void func_80077778_slot2b(Object *o) {
         o->state_3++;
         func_80120554(o, o->side, 0x324);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

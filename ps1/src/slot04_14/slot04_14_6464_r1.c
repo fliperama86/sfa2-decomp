@@ -31,7 +31,7 @@ void func_801b6464_slot04_14(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -54,7 +54,7 @@ void func_801b64ec_slot04_14(Object *obj) {
             *(s32 *)&obj->pos_x_frac -= 0x20000;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b657c_slot04_14(Object *obj) {
@@ -105,14 +105,14 @@ void func_801b66d4_slot04_14(Object *obj) {
             return;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b678c_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -227,7 +227,7 @@ void func_801b6bcc_slot04_14(Object *obj) {
         obj->pos_y = t;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

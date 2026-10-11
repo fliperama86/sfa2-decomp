@@ -10,7 +10,7 @@ void func_801caa3c_slot05_06(Object *o) {
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801caa88_slot05_06(Object *obj) {
@@ -18,7 +18,7 @@ void func_801caa88_slot05_06(Object *obj) {
     Object *other;
 
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else if (obj->field_12a == 4) {
         func_801cab84_slot05_06(obj);
     } else {

@@ -34,7 +34,7 @@ void func_801b374c_slot04_0c(Object *object) {
             game_state.config->field_4b |= object->side + 1;
         }
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b37b0_slot04_0c(Object *object) {
@@ -51,7 +51,7 @@ void func_801b3824_slot04_0c(Object *object) {
     if (game_state.config->field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b386c_slot04_0c(Object *object) {
@@ -94,7 +94,7 @@ void func_801b38c0_slot04_0c(Object *object) {
             game_state.config->field_4b |= object->side + 1;
         }
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b39bc_slot04_0c(Object *object) {

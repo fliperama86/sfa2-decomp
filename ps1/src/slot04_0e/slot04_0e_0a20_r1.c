@@ -35,7 +35,7 @@ void func_801b0a20_slot04_0e(Object *o) {
         obj->field_3a = 0;
         func_801204f4(o, o->field_02, 0x15);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 
@@ -133,7 +133,7 @@ void func_801b0db8_slot04_0e(Object *object) {
     if (game_state.field_5c == 0) {
         object->state_2 = object->state_2 + 1;
     }
-    func_80130efc(object);
+    update_sequence(object);
 }
 
 void func_801b0df4_slot04_0e(Object *o) {
@@ -160,7 +160,7 @@ void func_801b0e40_slot04_0e(Object *o) {
         }
     }
     data_801c5f0c_slot04_0e[o->state_3](o);
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b0edc_slot04_0e(Object *o) {
@@ -320,7 +320,7 @@ void func_801b13bc_slot04_0e(Object *o) {
         if ((obj->field_3a & 0x80) != 0 && (u8)func_80141618(o) != 0 || (u8)func_801412a4(o) != 0) {
             o->state_3 = 0;
         }
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         func_801312b8(o);
     }

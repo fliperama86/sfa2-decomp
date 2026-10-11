@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b26d0_slot04_00(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     }

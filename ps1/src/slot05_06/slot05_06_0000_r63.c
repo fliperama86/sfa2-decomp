@@ -10,7 +10,7 @@ extern ObjectFn data_801dd58c_slot05_06[];
 
 void func_801cd698_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -45,7 +45,7 @@ void func_801cd7d4_slot05_06(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_80131468(obj);
     }

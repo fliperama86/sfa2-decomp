@@ -46,7 +46,7 @@ void func_8012ec50(Object *object) {
         object->vel_x = speed;
         func_80130678(object, arg);
     } else {
-        func_80130efc(object);
+        update_sequence(object);
         func_801376b8(object);
     }
 }

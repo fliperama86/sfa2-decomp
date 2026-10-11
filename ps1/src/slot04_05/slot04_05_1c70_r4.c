@@ -8,13 +8,13 @@ void func_801b2068_slot04_05(Object *obj) {
         obj->field_46 = 0x1e;
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b20a8_slot04_05(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         func_801307e0(obj, 0x26);

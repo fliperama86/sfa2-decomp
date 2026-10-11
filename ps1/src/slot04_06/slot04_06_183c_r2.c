@@ -15,7 +15,7 @@ void func_801b1944_slot04_06(Object *o) {
     g = &game_state;
     if (o->pos_y < o->field_70) {
         func_801b4818_slot04_06(o);
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->state_3++;
         func_80146960(o);
@@ -46,5 +46,5 @@ void func_801b1a88_slot04_06(Object *o) {
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

@@ -18,11 +18,11 @@ void func_801b1b74_slot04_07(Object *obj) {
         func_801307e0(obj, 0x3b);
     } else {
         if (obj->vel_y >= 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else if (obj->field_cd != 0) {
             func_801b1cac_slot04_07(obj);
         } else if (!((obj->field_134 | obj->field_136) & 0x94)) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else if (obj->other->field_164 != 0 || obj->other->field_157 != 0 || (u8)func_8014025c(obj, -8, 0x24, -0x24, 0x18) == 0) {
             func_801b1dfc_slot04_07(obj);
         } else {

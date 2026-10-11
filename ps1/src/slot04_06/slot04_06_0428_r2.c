@@ -9,5 +9,5 @@ void func_801b2610_slot04_06(Object *o) {
         ((Slot04aObj *)o)->field_1c8 = 0;
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

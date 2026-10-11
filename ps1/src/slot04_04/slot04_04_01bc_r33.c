@@ -14,7 +14,7 @@ void func_801b2b8c_slot04_04(Object *o) {
 }
 
 void func_801b2be8_slot04_04(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     if (*(u8 *)&o->step_flags != 0) {
         o->state_3++;
         if (o->field_4b != 0) {
@@ -31,7 +31,7 @@ void func_801b2be8_slot04_04(Object *o) {
 void func_801b2c74_slot04_04(Object *o) {
     u8 t;
 
-    func_80130efc(o);
+    update_sequence(o);
     if (*(u8 *)&o->step_flags == 0) {
         o->state_3++;
         if (o->field_4b != 0) {

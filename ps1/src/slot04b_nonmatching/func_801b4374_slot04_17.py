@@ -2,7 +2,7 @@
 
 Choices of the setup:
   - field_3a has bit 15 set in five cases of six (otherwise the function
-    only calls func_80130efc, which is recorded);
+    only calls update_sequence, which is recorded);
   - field_cd is 0 in half of the cases, a non-zero byte otherwise;
   - field_1c0 is zero, a single key bit (8, 0x20, 0x40) or random, so that
     the collector (func_801b48fc, original code) both keeps and replaces it;
@@ -23,7 +23,7 @@ Choices of the setup:
     byte; the words of data_801ce57c_slot04_17 that the function reads (the
     four of the row entry of each variant and the sequence word) are random;
   - every other field is random;
-  - func_801307e0 and func_80130efc are recorders; their arguments are
+  - func_801307e0 and update_sequence are recorders; their arguments are
     compared through the log, and each call also copies the whole object
     block (0x100 words), the word ref_other and the word that holds the seed
     data_80190126, so that a store made on the other side of a call differs.
@@ -100,7 +100,7 @@ def setup(state, rng, sym) -> Setup:
     state.w32(sym["ref_other"], rng.getrandbits(32))
     log = CallLog(state, 1024, watch=((obj, 0x100), (sym["ref_other"], 1), (seed, 1)))
     log.replace(sym["func_801307e0"], 2)
-    log.replace(sym["func_80130efc"], 1)
+    log.replace(sym["update_sequence"], 1)
     return Setup(args=(obj,), returns_value=False)
 
 

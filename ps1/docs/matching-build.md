@@ -23,6 +23,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_structgen.py` | public | Controls for the struct generator |
 | `ps1/tools/renamefields.py` | public | Renames struct fields where they are used, located by clang |
 | `ps1/tools/test_renamefields.py` | public | Controls for the field renamer |
+| `ps1/tools/renamefuncs.py` | public | Renames functions everywhere their names are written, by whole words |
+| `ps1/tools/test_renamefuncs.py` | public | Controls for the function renamer |
 | `ps1/tools/mergeunits.py` | public | Merge per-unit work directories |
 | `ps1/tools/test_mergeunits.py` | public | Controls for the merge tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
@@ -127,6 +129,7 @@ maspsx_commit = "<git commit>"
 aspsx_version = "2.34"
 binutils_prefix = "mipsel-linux-gnu-"
 expand_div = true          # optional, default false: run maspsx with --expand-div
+maspsx_patches = ["../tools/patches/maspsx/0001-example.patch"] # optional: patch files for the exported maspsx, in order
 include_dirs = ["include"] # optional: extra include directories for every unit
 
 [toolchain.cc1]            # default compiler
@@ -186,6 +189,23 @@ expands a division into the divide instruction plus checks for a zero divisor
 and for overflow. With `expand_div = true` maspsx writes that expansion; without
 it the GNU assembler emits the bare instruction and a function that divides
 cannot match. The option applies to every unit and is part of the cache key.
+
+`maspsx_patches` lists patch files, relative to `build.toml`, for the cases
+where the original assembler does something that the pinned maspsx does not.
+Each is a unified diff against the pinned commit, with what it does and why
+in the text before the diff. The build applies them to its export of that
+commit, in the listed order, and never to the checkout. A file that does not
+exist, one listed twice, or one that does not apply is an error. The files
+are in `ps1/tools/patches/maspsx/`. maspsx is MIT-licensed and each file
+names it; `LICENSE` in that folder is maspsx's own license file, copied
+unchanged from the pinned commit, and it is the license of the patch files.
+There is one today:
+
+- `0001-nop-before-li-into-loaded-register.patch`: for assembler versions
+  before 2.30, a nop after a load when the next instruction is an `li` into
+  the loaded register. The game has one such place, in the sound library's
+  `_spu_init`; the compiler prints `#nop` there and leaves the choice to the
+  assembler.
 
 `include_dirs` lists directories, relative to `build.toml`, that are passed to
 the preprocessor with `-I` for every unit, after the generated types directory
@@ -284,6 +304,27 @@ Renaming a field. A field is renamed in its line of the field table, and
 The tool does not show that the build still gives the same bytes; the matching
 build does. The names and what each is inferred from are on the
 [names page](names.md).
+
+Renaming a function. A function is renamed in its entry of `build.toml`, and
+`ps1/tools/renamefuncs.py` rewrites the places where the name is written:
+
+- `pairs OLD NEW` lists the renames between two configurations: a function
+  that kept its image and address and changed its name.
+- `apply --old OLD --new NEW PATH...` replaces each old name by its new one,
+  as a whole word, in the files under the paths that end in `.c`, `.h`, `.s`,
+  `.ld`, `.toml`, `.py`, `.json` or `.tsv`, and in any file given by its own
+  path. Folders named `build`, `include` and `__pycache__` are not entered,
+  and the old configuration is not rewritten. `--fresh` refuses when a new
+  name is already written under the paths; without it the tool can run again
+  on a tree that has the new names, which repairs a branch from before the
+  rename. `--dry-run` counts the places and writes nothing.
+- It refuses a rename that could not be exact: a new name that another
+  function has, two functions that would get one name, a new name that is
+  not a C identifier, and a source that is linked into two images and would
+  be renamed at one of the two only.
+
+The inventory carries the names of the configuration: after a rename the
+rewritten `ps1/inventory/game.tsv` is compared with a fresh sweep.
 
 Build integration. The optional table
 
@@ -447,8 +488,11 @@ runs is the unit object cache, described after the steps.
    database into the build directory and that copy is what runs. The
    checkout's working tree, its HEAD and any stale bytecode therefore cannot
    change the code that executes. A pinned commit missing from the checkout
-   fails the build. The report records whether the checkout was dirty. Record
-   tool versions.
+   fails the build. The patch files that `maspsx_patches` names are then
+   applied to that copy with `git apply`, in the order given; a patch that
+   does not apply fails the build, and the checkout is never changed. The
+   report records whether the checkout was dirty and lists each patch with
+   its SHA-256. Record tool versions.
 3. Per unit: preprocess with
    `clang -E -P -x c -target mipsel-none-elf -nostdinc` plus one `-I` per
    include directory, compile with
@@ -497,6 +541,8 @@ The key is the SHA-256 of a canonical encoding of:
 - the verified cc1 SHA-256 and which table is in use (`cc1` or
   `cc1_reference`);
 - the full pinned maspsx commit hash and the script path inside it;
+- the SHA-256 of each patch applied to the exported maspsx, in order (a
+  patch file's name is not in the key);
 - the aspsx version and the other maspsx options (`--expand-div` or none);
 - the assembler flags;
 - the assembler's first banner line and the SHA-256 of the executable file
@@ -507,7 +553,7 @@ The key is the SHA-256 of a canonical encoding of:
   SHA-256 of the resolved executable. Its standard library is not hashed.
 
 The compiler is covered by its pinned SHA-256 and maspsx by the pinned commit
-that is exported and run. The preprocessor runs before the key, so its effect
+that is exported and run, together with the patches applied to that export. The preprocessor runs before the key, so its effect
 is already in the preprocessed text. The linker and objcopy run after the
 cache and do not touch cached objects. The report records the path and SHA-256
 of the assembler, linker, objcopy and interpreter.

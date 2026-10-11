@@ -18,14 +18,14 @@ void func_801b21a4_slot04_02(Object *obj) {
         }
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b223c_slot04_02(Object *obj) {
     if (func_801b2584_slot04_02(obj) == 0) {
         func_801b252c_slot04_02(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -34,6 +34,6 @@ void func_801b2288_slot04_02(Object *obj) {
         obj->other->field_249 = 5;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

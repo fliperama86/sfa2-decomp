@@ -9,7 +9,7 @@ void func_801b3120_slot04_07(Object *obj);
 
 void func_801b3054_slot04_07(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->other->field_249 = 5;
         func_80131468(obj);

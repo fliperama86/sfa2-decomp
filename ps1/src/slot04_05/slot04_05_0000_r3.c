@@ -37,7 +37,7 @@ void func_801b03d0_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->state_3 = obj->state_3 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0410_slot04_05(Object *obj) {
@@ -47,7 +47,7 @@ void func_801b0410_slot04_05(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
     }
     if (*(u8 *)&obj->step_flags != 2) {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -55,5 +55,5 @@ void func_801b0474_slot04_05(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         game_state.field_4b |= 1 << obj->side;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

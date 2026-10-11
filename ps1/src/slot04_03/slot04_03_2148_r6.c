@@ -19,9 +19,9 @@ void func_801b2774_slot04_03(Object *obj) {
             func_801204f4(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2e);
         } else {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

@@ -15,7 +15,7 @@ void func_801b0284_slot04_04(Object *obj) {
     if (game_state.field_64 == 0 || game_state.field_5c == 0) {
         obj->state_2++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b02d4_slot04_04(Object *obj) {
@@ -42,5 +42,5 @@ void func_801b0370_slot04_04(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

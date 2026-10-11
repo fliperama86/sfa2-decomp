@@ -22,6 +22,6 @@ void func_801b27a4_slot04_06(Object *obj) {
         }
         *(s32 *)&obj->pos_x_frac += a;
         *(s32 *)&obj->pos_y_frac += -0x4000;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

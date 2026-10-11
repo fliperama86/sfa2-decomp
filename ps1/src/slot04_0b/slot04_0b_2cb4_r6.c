@@ -43,5 +43,5 @@ check:
         func_80120554(obj, o->side, 0x309);
         func_801204f4(obj, obj->side, 0xa);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

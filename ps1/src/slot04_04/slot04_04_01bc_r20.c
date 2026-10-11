@@ -14,7 +14,7 @@ void func_801b1a54_slot04_04(Object *obj) {
     }
     t = obj->step_flags;
     if ((t & 0x7f00) == 0 || (t & 0x7f00) != 0x100) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     obj->step_flags = t & 0x80ff;
@@ -26,12 +26,12 @@ void func_801b1a54_slot04_04(Object *obj) {
     if (obj->field_129 != 0) {
         obj->field_46 = (s16)obj->field_46 - 1;
         if ((s16)obj->field_46 != 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
     } else {
         if (!(u8)func_8014a170(obj, data_801c4224_slot04_04)) {
-            func_80130efc(obj);
+            update_sequence(obj);
             return;
         }
     }

@@ -18,9 +18,9 @@ void func_801b1d58_slot04_01(Object *o) {
             o->state_3++;
             func_801307e0(o, 0x21);
         } else {
-            func_80130efc(o);
+            update_sequence(o);
         }
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

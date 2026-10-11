@@ -13,5 +13,5 @@ void func_801b5644_slot04_06(Object *obj) {
         }
         obj->pos_x = d + obj->pos_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

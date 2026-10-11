@@ -98,7 +98,7 @@ void func_801b47cc_slot04_15(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -139,7 +139,7 @@ void func_801b48f4_slot04_15(Object *obj) {
     if (func_80149b80(obj) & 0xff) {
         obj->state_3 = 0;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4974_slot04_15(Object *obj) {
@@ -147,7 +147,7 @@ void func_801b4974_slot04_15(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -195,7 +195,7 @@ void func_801b4b38_slot04_15(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -211,7 +211,7 @@ void func_801b4b9c_slot04_15(Object *obj) {
             }
             *(s32 *)&obj->pos_x_frac += d;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -238,7 +238,7 @@ void func_801b4cd0_slot04_15(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_80131468(obj);
     }

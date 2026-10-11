@@ -21,7 +21,7 @@ void func_801b2804_slot04_0a(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 >= 0 && obj->field_0b != obj->field_164 - 1) {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         func_801b3f10_slot04_0a(obj);
@@ -31,7 +31,7 @@ void func_801b2804_slot04_0a(Object *obj) {
 
 void func_801b28e0_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->pos_y_frac = 0;
         obj->field_45 = 0;

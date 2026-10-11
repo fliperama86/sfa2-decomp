@@ -70,5 +70,5 @@ void func_801b34b8_slot04_17(Object *obj) {
             func_80120554(p, p->side, 0x306);
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

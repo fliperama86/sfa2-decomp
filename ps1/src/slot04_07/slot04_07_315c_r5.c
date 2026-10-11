@@ -31,7 +31,7 @@ void func_801b36d4_slot04_07(Object *obj) {
 void func_801b3784_slot04_07(Object *obj) {
     int a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     func_801b3874_slot04_07(obj);
     if (((Slot04aObj *)obj)->field_3a == 0) {
         obj->state_3++;
@@ -48,7 +48,7 @@ void func_801b3804_slot04_07(Object *obj) {
         func_801312b8(obj);
     } else {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
         if (((Slot04aObj *)obj)->field_3a != 0) {
             obj->field_17b = 0;
         }

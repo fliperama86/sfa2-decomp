@@ -17,7 +17,7 @@ void func_801b349c_slot04_0b(Object *obj) {
 
 void func_801b3504_slot04_0b(Object *obj) {
     if ((u8)obj->step_flags != 2) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         func_801b3550_slot04_0b(obj);

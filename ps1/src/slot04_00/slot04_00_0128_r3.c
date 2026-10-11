@@ -12,5 +12,5 @@ void func_801b02d8_slot04_00(Object *obj) {
             game_state.field_4b |= 1 << obj->side;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

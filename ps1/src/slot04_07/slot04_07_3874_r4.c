@@ -73,7 +73,7 @@ void func_801b3b50_slot04_07(Object *obj) {
         }
     }
     if ((*(s16 *)&obj->field_46 & 0xff00) == 0 || (obj->other->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 3;
         func_801307e0(obj, 0x1a);

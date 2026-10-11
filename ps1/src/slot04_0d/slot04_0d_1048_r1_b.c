@@ -33,7 +33,7 @@ void func_801b15a4_slot04_0d(Object *obj) {
     Object *p;
     s16 y;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         ((Slot04bObj *)obj)->field_46 = 5;
         obj->state_3++;
@@ -87,7 +87,7 @@ void func_801b16f8_slot04_0d(Object *o) {
         }
         func_80142adc(o);
     tail:
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 

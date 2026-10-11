@@ -32,7 +32,7 @@ void func_801b0fb8_slot04_0f(Object *o) {
     if (obj->field_46 != 0) {
         func_801312b8(o);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 

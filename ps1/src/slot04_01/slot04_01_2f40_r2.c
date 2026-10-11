@@ -9,7 +9,7 @@ void func_801b3098_slot04_01(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     obj->vel_y = t;
     if (obj->pos_y < obj->field_70) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->pos_y_frac = 0;

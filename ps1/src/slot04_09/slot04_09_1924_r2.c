@@ -25,7 +25,7 @@ void func_801b1b04_slot04_09(Object *obj) {
 void func_801b1bb8_slot04_09(Object *obj) {
     Object *p;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(s16 *)&obj->step_flags != 0) {
         p = func_8011f0e8(obj);
         if (p != 0) {

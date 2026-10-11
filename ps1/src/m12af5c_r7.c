@@ -17,7 +17,7 @@ void func_8012d170(Object *object) {
     } else {
         index = 0xc;
         if ((object->field_130 & 0x2000) == 0) {
-            func_80130efc(object);
+            update_sequence(object);
         } else {
             object->field_157 = 0;
             if (object->field_29f != 0) {

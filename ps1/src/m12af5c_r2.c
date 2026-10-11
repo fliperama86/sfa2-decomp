@@ -35,5 +35,5 @@ void func_8012b7b8(Object *object) {
         }
     }
     object->field_0b = object->field_158;
-    func_80130efc(object);
+    update_sequence(object);
 }

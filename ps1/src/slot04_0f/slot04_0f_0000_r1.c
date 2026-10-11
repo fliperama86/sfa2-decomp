@@ -100,7 +100,7 @@ void func_801b01f4_slot04_0f(Object *obj) {
         obj->state_3 = 0;
         func_80130678(obj, 0);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -176,7 +176,7 @@ void func_801b0458_slot04_0f(Object *o) {
         o->field_29b = data_801c59a0_slot04_0f;
         func_801307e0(o, 0x1a);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 

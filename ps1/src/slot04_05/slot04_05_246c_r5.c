@@ -24,6 +24,6 @@ void func_801b2bac_slot04_05(Object *obj) {
             obj->accel_x = 0xffff0000;
             break;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

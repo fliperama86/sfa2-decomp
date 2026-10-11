@@ -6,7 +6,7 @@
 extern u8 data_801c25dc_slot04_0b[];
 
 void func_801b22ec_slot04_0b(Object *o) {
-    func_80130efc(o);
+    update_sequence(o);
     if (((s16)o->step_flags & 0xff00) == 0) {
         o->state_3++;
         func_801204f4(o, o->side, 0xf);
@@ -22,7 +22,7 @@ void func_801b22ec_slot04_0b(Object *o) {
 void func_801b2384_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    func_80130efc(o);
+    update_sequence(o);
     if (obj->field_3a == 3) {
         o->field_45 = 1;
         o->state_3++;
@@ -46,5 +46,5 @@ void func_801b23f8_slot04_0b(Object *o) {
     if (obj->field_3a == 0x16) {
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

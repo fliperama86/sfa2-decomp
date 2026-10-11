@@ -15,12 +15,12 @@ void func_801cae68_slot05_06(Object *obj) {
         func_80146998(obj);
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801caebc_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->vel_x = 0xc0000;
         obj->field_12c = 0;
@@ -39,13 +39,13 @@ void func_801caf24_slot05_06(Object *obj) {
     if (t != 0) {
         if (t != 2 && obj->vel_x >= 0) {
             func_801cc814_slot05_06(obj);
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             obj->accel_x = -0x6000;
             obj->state_3++;
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

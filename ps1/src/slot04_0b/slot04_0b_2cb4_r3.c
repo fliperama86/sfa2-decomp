@@ -7,7 +7,7 @@ u8 func_801b2510_slot04_0b(Object *obj);
 
 void func_801b3024_slot04_0b(Object *obj) {
     if ((u8)func_801b2510_slot04_0b(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;

@@ -12,7 +12,7 @@ void func_801b2168_slot04_06(Object *o) {
         o->state_3++;
         obj->field_3a = 0;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b21a8_slot04_06(Object *o) {
@@ -30,6 +30,6 @@ void func_801b21a8_slot04_06(Object *o) {
             func_801b4818_slot04_06(o);
         }
         func_80142adc(o);
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

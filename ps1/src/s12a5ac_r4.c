@@ -12,6 +12,6 @@ void func_8012aef8(Object *object) {
         if (!func_80149d48(object)) {
             object->state_3 = 1;
         }
-        func_80130efc(object);
+        update_sequence(object);
     }
 }

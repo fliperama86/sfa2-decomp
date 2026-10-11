@@ -7,7 +7,7 @@ void func_801b422c_slot04_06(Object *obj);
 
 void func_801b4198_slot04_06(Object *obj) {
     obj->field_27c++;
-    func_80130efc(obj);
+    update_sequence(obj);
     ((Slot04bObj *)obj)->field_46--;
     if (((Slot04bObj *)obj)->field_46 != 0) {
         func_801b422c_slot04_06(obj);

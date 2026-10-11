@@ -61,6 +61,6 @@ void func_801b2428_slot04_07(Object *obj) {
         if ((t & 0xff) == 0) {
             func_801b2994_slot04_07(obj);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

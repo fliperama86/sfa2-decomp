@@ -11,7 +11,7 @@ void func_801b494c_slot04_02(Object *obj);
 void func_801b46d4_slot04_02(Object *obj) {
     u16 a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (obj->field_0b != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

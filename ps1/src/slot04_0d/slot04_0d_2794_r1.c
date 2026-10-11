@@ -36,7 +36,7 @@ void func_801b28f8_slot04_0d(Object *obj) {
     } else {
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b29a4_slot04_0d(Object *obj) {
@@ -45,7 +45,7 @@ void func_801b29a4_slot04_0d(Object *obj) {
     if (obj->vel_y > 0) {
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b29fc_slot04_0d(Object *obj) {
@@ -64,12 +64,12 @@ void func_801b29fc_slot04_0d(Object *obj) {
     } else if ((u8)obj->step_flags != 0) {
         return;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b2a9c_slot04_0d(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->other->field_249 = 5;
         func_801312b8(obj);
@@ -90,7 +90,7 @@ void func_801b2b20_slot04_0d(Object *obj) {
 }
 
 void func_801b2b88_slot04_0d(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         int a = -1;
 
@@ -105,7 +105,7 @@ void func_801b2b88_slot04_0d(Object *obj) {
 }
 
 void func_801b2bfc_slot04_0d(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         u8 i = 0;
 
@@ -124,7 +124,7 @@ void func_801b2bfc_slot04_0d(Object *obj) {
 void func_801b2c8c_slot04_0d(Object *obj) {
     u16 a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     a = obj->step_flags;
     if ((a & 0xff) != 0) {
         obj->step_flags = a & 0xff00;
@@ -135,7 +135,7 @@ void func_801b2c8c_slot04_0d(Object *obj) {
 }
 
 void func_801b2ce8_slot04_0d(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((s16)obj->step_flags >= 0) {
         func_801b2d40_slot04_0d(obj);
     } else {
@@ -172,7 +172,7 @@ void func_801b2dcc_slot04_0d(Object *obj) {
 
 void func_801b2e1c_slot04_0d(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

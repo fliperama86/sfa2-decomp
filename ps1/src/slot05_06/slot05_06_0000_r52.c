@@ -14,12 +14,12 @@ void func_801cc750_slot05_06(Object *obj) {
             func_80140770(obj, 0x29, 5, 1, 0, 0, 1);
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801cc7d4_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

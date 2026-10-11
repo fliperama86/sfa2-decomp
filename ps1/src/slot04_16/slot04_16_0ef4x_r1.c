@@ -3,7 +3,7 @@
 #include "../externs.h"
 
 void func_801204f4(Object *o, int b, int c);
-void func_80130efc(Object *object);
+void update_sequence(Object *object);
 
 /* functions of other units of this module */
 
@@ -16,15 +16,15 @@ void func_801b0ef4_slot04_16(Object *obj) {
     }
     t = obj->field_46;
     if (t == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         t -= 1;
         obj->field_46 = t;
         if (t != 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             game_state.config->field_4b |= 1 << obj->side;
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     }
 }

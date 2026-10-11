@@ -6,7 +6,7 @@
 void func_801b04c8_slot04_05(Object *obj) {
     int d = 0x2a;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_2 = obj->state_2 + 1;
         if (obj->field_0b == 0) {

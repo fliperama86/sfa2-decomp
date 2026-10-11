@@ -17,7 +17,7 @@ void func_8012e168(Object *o) {
         if (o->field_cd) {
             func_8012e264(o);
         } else if ((o->field_130 & 0x2000) == 0) {
-            func_80130efc(o);
+            update_sequence(o);
         } else {
             o->field_157 = 0;
             state = 0xc;

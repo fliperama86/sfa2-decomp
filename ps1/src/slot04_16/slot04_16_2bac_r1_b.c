@@ -20,7 +20,7 @@ void func_801b34f8_slot04_16(Object *obj);
 void func_801b2fd0_slot04_16(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b10b0_slot04_16(obj);
     }
@@ -50,7 +50,7 @@ void func_801b3064_slot04_16(Object *obj) {
 void func_801b30ec_slot04_16(Object *obj) {
     u8 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = *(u8 *)&obj->step_flags;
     if (t == 0) {
         return;
@@ -92,7 +92,7 @@ void func_801b3258_slot04_16(Object *obj) {
 }
 
 void func_801b3374_slot04_16(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 4) {
         obj->field_17b = 0;
         obj->state_3 = obj->state_3 + 1;
@@ -103,7 +103,7 @@ void func_801b3374_slot04_16(Object *obj) {
 void func_801b33c0_slot04_16(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b10b0_slot04_16(obj);
     }
@@ -146,7 +146,7 @@ void func_801b34f8_slot04_16(Object *obj) {
     d += 0x26;
     if ((u8)func_8013f8c4(obj, -0x26, (s16)(x - d)) == 0) {
         obj->state_3 = 7;
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         func_80141f28(obj, 0x14);
@@ -163,7 +163,7 @@ void func_801b362c_slot04_16(Object *obj) {
     s32 tbl[3][4] = { { 0x11000, 0x98000, 0x2000, -0x8000 }, { 0x14000, 0xac000, 0x1000, -0x6000 }, { 0x14000, 0xa8000, 0x1000, -0x4000 } };
 
     if (*(u8 *)&obj->step_flags != 1) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     obj->state_3 = obj->state_3 + 1;
@@ -192,18 +192,18 @@ void func_801b379c_slot04_16(Object *obj) {
 
     func_80130184(obj);
     if (obj->vel_y >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->accel_y = tbl[obj->field_12a >> 1];
         obj->accel_x = 0;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b383c_slot04_16(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;

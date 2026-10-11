@@ -9,7 +9,7 @@ void func_801b2994_slot04_07(Object *obj);
 void func_801b279c_slot04_07(Object *obj) {
     s16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x8000) {
         obj->state_3 = 5;
@@ -37,7 +37,7 @@ void func_801b279c_slot04_07(Object *obj) {
 
 void func_801b2874_slot04_07(Object *obj) {
     if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->field_70) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->pos_y = obj->field_70;
         obj->pos_y_frac = 0;
@@ -53,5 +53,5 @@ void func_801b28f4_slot04_07(Object *obj) {
         obj->accel_x = -0x6000;
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

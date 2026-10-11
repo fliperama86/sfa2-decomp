@@ -11,7 +11,7 @@ void func_801b3528_slot04_0a(Object *obj) {
     int dy;
 
     if (((s16)obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         o = obj->other;
         dx = obj->pos_x - o->pos_x;

@@ -17,7 +17,7 @@
  * played and sequence 0x36 starts. Otherwise the remaining distance
  * (target minus pos_y, as a signed halfword) picks a sequence: 0x3b below
  * 0x11, 0x3a below 0x21, and for a larger distance the current sequence
- * simply steps on (func_80130efc).
+ * simply steps on (update_sequence).
  *
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
@@ -28,7 +28,7 @@
  *     pos_y; otherwise only what the callees write.
  *   Callees run as original code: func_80130184 (reads and writes the
  *     velocity words and fractions at pos_x_frac to field_58, reads pos_y and
- *     field_70), func_801307e0 and func_80130efc (the sequence tables in the
+ *     field_70), func_801307e0 and update_sequence (the sequence tables in the
  *     scratchpad, the sequence steps and frame records; they write the
  *     object's sequence, field_38, field_3a, field_80, frame, field_4a and
  *     may step the sequence further).
@@ -65,7 +65,7 @@ void func_801b339c_slot04_0e(Object *o) {
         } else if (d < 0x21) {
             func_801307e0(o, 0x3a);
         } else {
-            func_80130efc(o);
+            update_sequence(o);
         }
     }
 }

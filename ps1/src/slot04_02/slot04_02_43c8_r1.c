@@ -13,6 +13,6 @@ void func_801b43c8_slot04_02(Object *obj) {
         if ((t & 0xff) == 0) {
             *(s32 *)&obj->pos_x_frac += obj->vel_x;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

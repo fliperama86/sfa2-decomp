@@ -10,6 +10,6 @@ void func_801b2460_slot04_0b(Object *o) {
         func_801209c4(o);
         func_801307e0(o, 0x30);
     } else {
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

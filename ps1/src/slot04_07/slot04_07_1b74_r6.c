@@ -52,5 +52,5 @@ call_x:
     func_801b22bc_slot04_07(obj);
     return;
 fail:
-    func_80130efc(obj);
+    update_sequence(obj);
 }

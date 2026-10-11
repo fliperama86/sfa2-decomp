@@ -20,6 +20,6 @@ void func_801b0c4c_slot04_07(Object *obj) {
         if ((t & 0x80) != 0 && func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

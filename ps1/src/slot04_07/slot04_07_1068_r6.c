@@ -39,5 +39,5 @@ void func_801b1b2c_slot04_07(Object *obj) {
         obj->state_3++;
         obj->field_46 = 0x1000;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

@@ -13,5 +13,5 @@ void func_801b01d4_slot04_05(Object *obj) {
     if (game_state.field_64 == 0 && game_state.field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

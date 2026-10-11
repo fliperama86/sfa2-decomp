@@ -10,7 +10,7 @@ void func_801b4b8c_slot04_07(Object *obj) {
     if (t & 0x8000) {
         func_80131468(obj);
     } else if ((t & 0xff) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         if (obj->field_0b != 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -43,5 +43,5 @@ void func_801b4c78_slot04_07(Object *obj) {
         obj->accel_x = 0;
         obj->field_45 = 1;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

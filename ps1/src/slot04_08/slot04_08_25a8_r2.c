@@ -41,5 +41,5 @@ void func_801b27a4_slot04_08(Object *obj) {
         obj->state_3++;
         func_80120554(obj, ((Slot04aObj *)obj)->field_a6, 0x319);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

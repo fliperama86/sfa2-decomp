@@ -12,7 +12,7 @@ void func_801b1cac_slot04_07(Object *obj) {
     } else {
         obj->field_46 = (s16)obj->field_46 - 0x100;
         if ((s16)obj->field_46 != 0) {
-            func_80130efc(obj);
+            update_sequence(obj);
         } else {
             func_801b1dfc_slot04_07(obj);
         }

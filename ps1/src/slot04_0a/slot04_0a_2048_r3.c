@@ -37,5 +37,5 @@ void func_801b2158_slot04_0a(Object *obj) {
             obj->field_240++;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

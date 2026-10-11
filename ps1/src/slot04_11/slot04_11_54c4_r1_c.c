@@ -78,6 +78,6 @@ void func_801b5dbc_slot04_11(Object *obj) {
         func_801b604c_slot04_11(obj);
         func_801209c4(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

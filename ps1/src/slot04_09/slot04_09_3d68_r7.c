@@ -15,7 +15,7 @@ void func_801b43f0_slot04_09(Object *obj) {
         obj->step_flags = obj->step_flags & 0xff00;
         func_801204f4(obj, ((Slot04aObj *)obj)->field_a6, 4);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b4470_slot04_09(Object *obj) {
@@ -23,5 +23,5 @@ void func_801b4470_slot04_09(Object *obj) {
         obj->state_3++;
         func_801b5478_slot04_09(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

@@ -8,7 +8,7 @@ void func_801b2048_slot04_0a(Object *obj);
 
 void func_801b1f54_slot04_0a(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     func_801b2048_slot04_0a(obj);
@@ -22,5 +22,5 @@ void func_801b1f54_slot04_0a(Object *obj) {
         func_801307e0(obj, 0x48);
         return;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

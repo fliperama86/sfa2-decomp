@@ -6,7 +6,7 @@
 void func_801b36d8_slot04_0b(Object *obj) {
     u8 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t == 1) {
         func_80140770(obj, 0, 5, obj->field_a1 == 0 ? 9 : 0, 0, 0, t);
@@ -15,7 +15,7 @@ void func_801b36d8_slot04_0b(Object *obj) {
 }
 
 void func_801b3740_slot04_0b(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 1) {
         func_80140770(obj, 0, 5, obj->field_a1 == 0 ? 9 : 0, 0, 0, 0);
         obj->state_3 = 5;

@@ -15,24 +15,24 @@ void func_8012bd00(Object *object) {
         object->field_46 = v;
         if ((s16)v != -1) {
             if ((u8)func_8012be70(object)) {
-                func_80130efc(object);
+                update_sequence(object);
                 v = object->field_46 - 1;
                 object->field_46 = v;
                 if ((s16)v == -1) goto tail;
                 if ((u8)func_8012bec0(object)) {
-                    func_80130efc(object);
+                    update_sequence(object);
                     v = object->field_46 - 1;
                     object->field_46 = v;
                     if ((s16)v == -1) goto tail;
                 }
             }
             if ((u8)func_8012bf00(object)) {
-                func_80130efc(object);
+                update_sequence(object);
                 v = object->field_46 - 1;
                 object->field_46 = v;
                 if ((s16)v == -1) goto tail;
             }
-            func_80130efc(object);
+            update_sequence(object);
             return;
         }
     }

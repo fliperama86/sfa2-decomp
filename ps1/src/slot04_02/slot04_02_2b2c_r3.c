@@ -14,7 +14,7 @@ void func_801b2e38_slot04_02(Object *obj) {
     u16 t;
 
     obj->field_249 = 2;
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x80) {
         obj->accel_x = -0x8000;

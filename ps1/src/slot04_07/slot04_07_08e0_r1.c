@@ -6,7 +6,7 @@
 void func_801b08e0_slot04_07(Object *obj) {
     s16 t;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;

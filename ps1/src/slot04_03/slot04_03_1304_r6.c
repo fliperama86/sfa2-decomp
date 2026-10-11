@@ -15,12 +15,12 @@ void func_801b1938_slot04_03(Object *obj) {
         func_80120554(obj, obj->side, 0x31c);
         func_801483a4(obj, 0xf, 0x4e);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b19d0_slot04_03(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags &= 0xff00;
@@ -34,7 +34,7 @@ void func_801b19d0_slot04_03(Object *obj) {
 
 void func_801b1a3c_slot04_03(Object *obj) {
     if ((u8)obj->step_flags == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
         obj->step_flags &= 0xff00;

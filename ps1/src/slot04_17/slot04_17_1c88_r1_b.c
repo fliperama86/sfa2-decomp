@@ -33,6 +33,6 @@ void func_801b29b0_slot04_17(Object *obj) {
         obj->field_48 |= 0x80;
         func_801307e0(obj, a);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

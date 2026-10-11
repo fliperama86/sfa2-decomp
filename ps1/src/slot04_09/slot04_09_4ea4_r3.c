@@ -35,7 +35,7 @@ void func_801b51e0_slot04_09(Object *o) {
 void func_801b5288_slot04_09(Object *o, Object *unused) {
     func_801b2858_slot04_09(o);
     if (o->pos_y < o->field_70) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->state_3++;
         o->pos_y_frac = 0;
@@ -50,6 +50,6 @@ void func_801b52f8_slot04_09(Object *obj, Object *unused) {
         obj->field_73 = 0;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

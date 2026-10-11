@@ -34,7 +34,7 @@ void func_801b5da8_slot04_02(Object *o) {
         o->field_45 = 1;
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b5de8_slot04_02(Object *obj) {

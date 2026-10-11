@@ -33,14 +33,14 @@ void func_801b2c84_slot04_05(Object *obj) {
             obj->accel_x = 0xffff0000;
             break;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801b2d58_slot04_05(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
         if ((u8)obj->step_flags != 1) {
-            func_80130efc(obj);
+            update_sequence(obj);
         }
     } else {
         obj->state_3++;

@@ -15,7 +15,7 @@ void func_800773a0_slot2b(Object *obj) {
         if (func_80149b80(obj) & 0xff) {
             obj->state_3 = 0;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -24,7 +24,7 @@ void func_80077404_slot2b(Object *obj) {
         obj->field_45 = 0;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 

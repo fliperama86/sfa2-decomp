@@ -25,7 +25,7 @@ void func_801b01ac_slot04_0a(Object *obj) {
             c->field_9c = obj->field_9c;
         }
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b0290_slot04_0a(Object *obj) {
@@ -38,6 +38,6 @@ void func_801b0290_slot04_0a(Object *obj) {
         obj->pos_y = obj->field_70;
         func_80130678(obj, 0x31);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

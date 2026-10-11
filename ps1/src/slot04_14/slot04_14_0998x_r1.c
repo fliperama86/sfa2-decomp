@@ -13,6 +13,6 @@ void func_801b0998_slot04_14(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

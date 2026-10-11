@@ -9,7 +9,7 @@ void func_801b3074_slot04_02(Object *obj) {
     if (obj->vel_y < 0) {
         obj->state_3++;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b30cc_slot04_02(Object *obj) {
@@ -26,5 +26,5 @@ void func_801b30cc_slot04_02(Object *obj) {
         obj->pos_y = obj->field_70;
         func_801209c4(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }

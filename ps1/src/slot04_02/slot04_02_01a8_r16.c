@@ -10,7 +10,7 @@ void func_801b1a3c_slot04_02(Object *o) {
         o->field_45 = 1;
         o->state_3++;
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b1a7c_slot04_02(Object *obj) {
@@ -32,7 +32,7 @@ void func_801b1a7c_slot04_02(Object *obj) {
         obj->pos_y = (u16)obj->field_70;
         func_801209c4(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1b3c_slot04_02(Object *o) {
@@ -53,5 +53,5 @@ void func_801b1b3c_slot04_02(Object *o) {
         o->field_45 = 0;
         func_801209c4(o);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }

@@ -24,7 +24,7 @@ void func_801b3260_slot04_08(Object *obj) {
         data_801c3e98_slot04_08 = x + obj->pos_x;
         func_801b4298_slot04_08(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3304_slot04_08(Object *obj) {
@@ -50,7 +50,7 @@ void func_801b3304_slot04_08(Object *obj) {
             }
             d = d + (u16)obj->pos_x - other->pos_x + 0x50;
             if (lim < (u16)d) {
-                func_80130efc(obj);
+                update_sequence(obj);
                 return;
             }
         }

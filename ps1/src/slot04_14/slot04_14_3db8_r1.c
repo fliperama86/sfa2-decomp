@@ -52,7 +52,7 @@ void func_801b3e38_slot04_14(Object *obj) {
         func_80120554(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x10, 0x58);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3ee4_slot04_14(Object *obj) {
@@ -62,7 +62,7 @@ void func_801b3ee4_slot04_14(Object *obj) {
         obj->state_3++;
         func_801204f4(obj, obj->side, 0xc);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3f44_slot04_14(Object *obj) {
@@ -73,7 +73,7 @@ void func_801b3f44_slot04_14(Object *obj) {
             if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
                 func_801b3fec_slot04_14(obj);
             } else {
-                func_80130efc(obj);
+                update_sequence(obj);
             }
             return;
         }
@@ -93,7 +93,7 @@ void func_801b4048_slot04_14(Object *obj) {
     if ((obj->field_46 & 0xff) == 0) {
         obj->state_3++;
         obj->field_46 = (obj->field_46 & 0xff00) | 0x3b;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -122,7 +122,7 @@ void func_801b4178_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -164,7 +164,7 @@ void func_801b42cc_slot04_14(Object *obj) {
             game_state.field_63 = 0x18;
             func_801204f4(obj, obj->side, 0xe);
         }
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -193,7 +193,7 @@ void func_801b440c_slot04_14(Object *obj) {
         func_80131468(obj);
     } else {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
@@ -225,7 +225,7 @@ void func_801b44e4_slot04_14(Object *obj) {
 void func_801b4558_slot04_14(Object *obj) {
     int k;
 
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
         obj->state_3++;
@@ -239,7 +239,7 @@ void func_801b4558_slot04_14(Object *obj) {
 }
 
 void func_801b4634_slot04_14(Object *obj) {
-    func_80130efc(obj);
+    update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         obj->pos_y = obj->pos_y - 0x28;

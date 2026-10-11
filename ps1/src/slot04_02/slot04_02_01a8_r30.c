@@ -22,6 +22,6 @@ void func_801b3b0c_slot04_02(Object *obj) {
         n = (obj->field_12a >> 1) + n;
         func_801307e0(obj, n);
     } else {
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }

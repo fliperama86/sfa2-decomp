@@ -96,7 +96,7 @@ void func_801b285c_slot04_0e(Object *o) {
         o->vel_y = data_801c601c_slot04_0e[o->field_12a >> 1];
         o->accel_y = data_801c6028_slot04_0e[o->field_12a >> 1];
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b2910_slot04_0e(Object *o) {
@@ -110,7 +110,7 @@ void func_801b2910_slot04_0e(Object *o) {
     if (o->field_70 < o->pos_y) {
         func_801b2c00_slot04_0e(o);
     } else if (o->pos_y >= (s16)(o->field_70 - 0x18) || obj->field_1de == 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         a = 0x5b;
         o->state_3++;
@@ -162,7 +162,7 @@ void func_801b29e0_slot04_0e(Object *o) {
         func_801204f4(o, o->field_02, 0x16);
         func_801204f4(o, o->field_02, 9);
     }
-    func_80130efc(o);
+    update_sequence(o);
 }
 
 void func_801b2b40_slot04_0e(Object *o) {
@@ -177,14 +177,14 @@ void func_801b2b40_slot04_0e(Object *o) {
         if (o->field_49 != 0) {
             o->accel_y = 0xfffe0000;
         }
-        func_80130efc(o);
+        update_sequence(o);
     }
 }
 
 void func_801b2ba8_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
     if (obj->field_70 >= obj->pos_y) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801b2c00_slot04_0e(obj);
     }
@@ -203,7 +203,7 @@ void func_801b2c00_slot04_0e(Object *obj) {
 void func_801b2c50_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }
@@ -253,7 +253,7 @@ void func_801b2dd4_slot04_0e(Object *o) {
     int a;
 
     if ((s16)o->step_flags >= 0) {
-        func_80130efc(o);
+        update_sequence(o);
     } else {
         o->field_45 = 1;
         o->accel_y = -0x4800;

@@ -9,7 +9,7 @@
  * What it does (inferred, not an original name): a character's step handler
  * of a one-key move. It first lets the input collector (func_801b4970) run.
  * While the current animation step is not the last one (bit 15 of step_flags
- * clear) it only calls func_80130efc. Otherwise it advances state_3 by 3
+ * clear) it only calls update_sequence. Otherwise it advances state_3 by 3
  * and forms a direction code. For an object with field_cd clear the code
  * is the halfword field_1c0 (the collector's result). For one with
  * field_cd set the code comes from a table test (func_8014a170): when it
@@ -38,7 +38,7 @@
  *   Writes: state_3, field_12e, field_1c0, vel_x, vel_y, accel_x,
  *     accel_y, ref_other (when field_cd is set), the seed data_80190126.
  *   Callees replaced by recorders: func_801307e0 (2 arguments) and
- *     func_80130efc (1); they reach the sequence tables and the library,
+ *     update_sequence (1); they reach the sequence tables and the library,
  *     their results are unused.
  *   Callees run as original code: func_801b4970, func_801b49b8,
  *     func_801b49e8, func_801b5914, func_8014a170, func_80151184.
@@ -74,7 +74,7 @@ void func_801b43e8_slot04_11(Object *obj) {
 
     func_801b4970_slot04_11(obj);
     if ((obj->step_flags & 0x8000) == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     code = *(u16 *)&((Slot04bObj *)obj)->field_1c0;

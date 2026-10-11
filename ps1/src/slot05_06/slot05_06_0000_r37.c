@@ -9,16 +9,16 @@ extern ObjectFn data_801dd428_slot05_06[];
 void func_801cafa8_slot05_06(Object *obj) {
     if (obj->vel_x >= 0) {
         func_801cc814_slot05_06(obj);
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         obj->state_3++;
-        func_80130efc(obj);
+        update_sequence(obj);
     }
 }
 
 void func_801cb004_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         func_801312b8(obj);
     }

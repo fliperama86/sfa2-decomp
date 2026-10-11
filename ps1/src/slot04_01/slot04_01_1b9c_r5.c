@@ -22,6 +22,6 @@ void func_801b21fc_slot04_01(Object *o) {
         if (t != 0) {
             o->step_timer = 1;
         }
-        func_80130efc(o);
+        update_sequence(o);
     }
 }

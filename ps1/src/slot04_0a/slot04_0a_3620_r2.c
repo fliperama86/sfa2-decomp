@@ -23,7 +23,7 @@ void func_801b37fc_slot04_0a(Object *obj) {
         func_80143184(obj);
         func_801b3f58_slot04_0a(obj);
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b3894_slot04_0a(Object *o) {
@@ -42,5 +42,5 @@ void func_801b3894_slot04_0a(Object *o) {
         o->field_180 = 0;
     }
     func_80142fe8(o);
-    func_80130efc(o);
+    update_sequence(o);
 }

@@ -10,7 +10,7 @@ void func_801b2a38_slot04_0a(Object *obj) {
     int k;
     int b;
     u8 f;
-    func_80130efc(obj);
+    update_sequence(obj);
     k = -1;
     if (obj->field_4b != 0) {
         k = 1;

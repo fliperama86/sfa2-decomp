@@ -14,7 +14,7 @@ extern u16 data_801dd478_slot05_06[];
  * What it does (inferred, not an original name): a per-frame update of a
  * character state chosen by step_flags. State 2 sets field_0b from pos_x;
  * state 0 does nothing; otherwise, with vel_x >= 0, it runs the move,
- * may knock back ref_other.p, then func_80130efc. With vel_x negative
+ * may knock back ref_other.p, then update_sequence. With vel_x negative
  * it counts field_1c5 down and either ends the state (state_3 + 1,
  * sequence 0x2e) or starts the sequence from data_801dd478_slot05_06.
  * The twin of func_801b3564_slot04_06 on the second side (same code, a callee that returns an int).
@@ -32,7 +32,7 @@ void func_801cb564_slot05_06(Object *obj) {
     if (kind == 2) {
         if (obj->pos_x > 0x200) {
             if (obj->pos_x < 0x301) {
-                func_80130efc(obj);
+                update_sequence(obj);
                 return;
             }
         }
@@ -40,11 +40,11 @@ void func_801cb564_slot05_06(Object *obj) {
         if (obj->pos_x < 0x280) {
             obj->field_0b = 1;
         }
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     if (kind == 0) {
-        func_80130efc(obj);
+        update_sequence(obj);
         return;
     }
     /* Stand-in, not recovered source: the test of kind against 2 written a second time, which is never true here, reproduces the original's order of instructions. Without it this function differs from the original in 19 instruction slots. */
@@ -108,7 +108,7 @@ b2:
             ref_other.p->pos_y -= d;
         }
 call:
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ((Slot04aObj *)obj)->field_1c5--;
         if (((Slot04aObj *)obj)->field_1c5 != 0) {

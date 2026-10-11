@@ -19,7 +19,7 @@ void func_801b1d44_slot04_04(Object *obj) {
         }
         obj->vel_x = obj->vel_x + obj->accel_x;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1de8_slot04_04(Object *obj) {
@@ -30,12 +30,12 @@ void func_801b1de8_slot04_04(Object *obj) {
         obj->vel_x = obj->vel_y;
         obj->accel_x = obj->accel_y;
     }
-    func_80130efc(obj);
+    update_sequence(obj);
 }
 
 void func_801b1e50_slot04_04(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
-        func_80130efc(obj);
+        update_sequence(obj);
     } else {
         ref_other.p = obj->other;
         ref_other.p->field_249 = 5;
