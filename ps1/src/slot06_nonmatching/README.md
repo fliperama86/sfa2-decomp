@@ -271,11 +271,6 @@ func_801e8dc8_slot06_05 edges: constants 20, altered runs 34, unnoticed 2, all d
   slot 103: not executed by any case
   slot 110: not executed by any case
   slot 170: not executed by any case
-func_801e9080_slot06_00 edges: constants 12, altered runs 20, unnoticed 2, all discarded 0
-  slot 154: addiu a3,a3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1721
-  slot 159: addiu t7,t7,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1751
-  slot 107: not executed by any case
-  slot 115: not executed by any case
 func_801e90a8_slot06_10 edges: constants 2, altered runs 2, unnoticed 0, all discarded 0
   slot 17: not executed by any case
 func_801e9114_slot06_12 edges: constants 18, altered runs 30, unnoticed 2, all discarded 0
@@ -557,7 +552,6 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 ```
 func_801e8dc4_slot06_00 replay: fixtures 1, passed 1, failed 0
 func_801e8dc8_slot06_05 replay: fixtures 4, passed 4, failed 0
-func_801e9080_slot06_00 replay: fixtures 4, passed 4, failed 0
 func_801e90a8_slot06_10 replay: fixtures 2, passed 2, failed 0
 func_801e9114_slot06_12 replay: fixtures 6, passed 6, failed 0
 func_801e96fc_slot06_0b replay: fixtures 12, passed 12, failed 0
@@ -687,8 +681,10 @@ declaration of the programs is read as often for five cases as for one.
 
     python test_difftest_build.py --config ../build.toml
 
-These controls build small units made from `func_801e9080_slot06_00.c` by text
-edits, in a folder of the run's own under `ps1/build/`, which the repository
+These controls build small units made from `control_base.c` by text
+edits (the nonmatching C of `func_801e9080_slot06_00` as it stood before that
+function became exact; the file is kept as their base and is no function of
+this folder), in a folder of the run's own under `ps1/build/`, which the repository
 ignores. A run removes its own folder and no other, so two runs side by side
 do not disturb each other; two cases check that, and that Git ignores the
 folder. They need
@@ -708,11 +704,11 @@ From this folder, with a Python that has the packages of the repository's
 `requirements.txt` (Unicorn is one of them) and with the private inputs of
 the matching build in place:
 
-    python difftest.py --config ../build.toml --cases 2000 func_801e9080_slot06_00
-    python difftest.py --config ../build.toml --cases 2000 --seed 7 func_801e9080_slot06_00
-    python difftest.py --config ../build.toml --cases 2000 --control func_801e9080_slot06_00
-    python difftest.py --config ../build.toml --cases 2000 --writes func_801e9080_slot06_00
-    python difftest.py --config ../build.toml --cases 2000 --writes --seed 7 func_801e9080_slot06_00
+    python difftest.py --config ../build.toml --cases 2000 FUNC
+    python difftest.py --config ../build.toml --cases 2000 --seed 7 FUNC
+    python difftest.py --config ../build.toml --cases 2000 --control FUNC
+    python difftest.py --config ../build.toml --cases 2000 --writes FUNC
+    python difftest.py --config ../build.toml --cases 2000 --writes --seed 7 FUNC
 
 A function is tested alone: these five runs for the function that was added
 or changed, at the same time. No other function is run again for it, and a
@@ -747,8 +743,6 @@ func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discar
 func_801e8dc4_slot06_00 coverage: 108 of 108 instruction slots of the original executed
 func_801e8dc8_slot06_05: built 756 bytes, original 840 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e8dc8_slot06_05 coverage: 207 of 210 instruction slots of the original executed
-func_801e9080_slot06_00: built 700 bytes, original 700 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9080_slot06_00 coverage: 173 of 175 instruction slots of the original executed
 func_801e90a8_slot06_10: built 136 bytes, original 148 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e90a8_slot06_10 coverage: 36 of 37 instruction slots of the original executed
 func_801e9114_slot06_12: built 704 bytes, original 828 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -794,8 +788,6 @@ func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
   altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69
 func_801e8dc8_slot06_05 control: different 1790 of 2000 (expected more than 0)
   altered: record counter store moved by two bytes, instruction slot 178
-func_801e9080_slot06_00 control: different 1797 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 164
 func_801e90a8_slot06_10 control: different 2000 of 2000 (expected more than 0)
   altered: low half stored at field_04, instruction slot 10
 func_801e9114_slot06_12 control: different 1820 of 2000 (expected more than 0)
@@ -837,7 +829,6 @@ func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801e8bd8_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8dc4_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8dc8_slot06_05 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9080_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e90a8_slot06_10 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9114_slot06_12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e96fc_slot06_0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
