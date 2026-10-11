@@ -182,3 +182,8 @@ void port_press_deliver_claimed(void)
 {
     if (state == 2) take_here();
 }
+
+int port_press_out_busy(void)
+{
+    return state != 0;
+}

@@ -80,4 +80,9 @@ void port_press_poll(void);
 int  port_press_claim_due(void);
 void port_press_deliver_claimed(void);
 
+/* Not 0 while an output transfer's completion is pending (DecDCTout made it, nothing has taken it), claimed by the timer thread, or
+ * taken and about to run; 0 otherwise, and 0 while the completion's routine runs (the state is cleared before the call). The movie's
+ * stream calls (stream.c) ask it for their busy rule. */
+int port_press_out_busy(void);
+
 #endif
