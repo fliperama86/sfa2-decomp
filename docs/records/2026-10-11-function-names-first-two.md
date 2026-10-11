@@ -74,6 +74,14 @@ units of batch 6 use neither first name. On that head, `5298d9b`: 78 of 78
 images `RESULT: PASS`, and the replays of the eight folders, 116 functions
 (one more left its folder with batch 6), every one with `failed 0`.
 
+Main moved once more while that was pushed (`50ac55b`, a library function
+exact and a change of the build tool). Merged again at `4dbd515`, again
+without a conflict and with nothing for the tools to rewrite. git merged
+`build.toml` and `protos.h` from both sides; each is main's file with the
+two names replaced and nothing else, which `cmp` showed. On that head: 78
+of 78 images `RESULT: PASS`; the replays, 116 functions, every one with
+`failed 0`.
+
 For work in flight in other checkouts: a branch from before this change
 that calls one of the two by its first name does not link after merging
 main. The tool repairs it, without `--fresh`, with the merge base's
