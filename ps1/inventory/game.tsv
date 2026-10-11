@@ -793,11 +793,11 @@
 8013e84c	248	func_8013e84c	-	-	0	0	closed
 8013e944	400	func_8013e944	-	-	0	0	closed
 8013ead4	84	func_8013ead4	-	-	1	0	open
-8013eb28	204	-	-	-	0	0	closed
+8013eb28	204	func_8013eb28	-	-	0	0	closed
 8013ebf4	92	func_8013ebf4	-	-	0	0	closed
-8013ec50	204	-	-	-	0	0	closed
+8013ec50	204	func_8013ec50	-	-	0	0	closed
 8013ed1c	116	func_8013ed1c	-	-	0	0	closed
-8013ed90	240	-	-	-	0	0	closed
+8013ed90	240	func_8013ed90	-	-	0	0	closed
 8013ee80	84	func_8013ee80	-	-	1	0	open
 8013eed4	84	func_8013eed4	-	-	0	0	closed
 8013ef28	292	func_8013ef28	-	-	0	0	closed
