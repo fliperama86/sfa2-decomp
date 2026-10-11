@@ -6485,6 +6485,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d36744_r1"
+source = "d36744_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80136744", address = 0x80136744, size = 340 },
+]
+
+[[unit]]
 name = "v120_r1"
 source = "v120_r1.c"
 flags = ["-O2", "-G0"]
