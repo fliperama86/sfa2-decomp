@@ -1,7 +1,7 @@
 # Nonmatching C: the sound library
 
 C for functions of the PS1 game's sound library (the Sony library part of the
-resident executable, `SLPS_004.15`) that have no exact C: the five functions
+resident executable, `SLPS_004.15`) that have no exact C: the four functions
 below. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
@@ -39,12 +39,6 @@ the tool reads (it looks a resident function up in `game.tsv` and in
   `D_80033540` (a 16-byte table),
   and the two lines that name them are added there. It is declared `void`, as
   `../protos.h` declares it.
-- `func_8015ffc0` (`SpuVmAlloc`, the voice search): adapted from the function
-  `SpuVmAlloc` of `src/main/psxsdk/libsnd/vmanager.c` of sotn-decomp, with the
-  offsets, widths and compares changed to follow the listing. MIT, by the
-  `SPDX-License-Identifier: MIT` line that the file keeps as its first line;
-  commit and license text as [`../sdk/README.md`](../sdk/README.md) and
-  [`../sdk/LICENSE`](../sdk/LICENSE) state them.
 - `func_80163794` (`SpuVmSetVol`, the volume of the voices of one sequence):
   adapted in outline from the function `SpuVmSetVol` of the same file of
   sotn-decomp (the call, the loop over matching voices, the two output cells);
@@ -63,8 +57,8 @@ the tool reads (it looks a resident function up in `game.tsv` and in
   (inferred `SsSepOpen`), is exact C in `../sdk/libsnd/sepopen.c` and calls it
   by that name.
 
-Adapted files, as `../sdk/README.md` lists adapted files: `func_8015ffc0.c`
-and `func_80163794.c`.
+One file is adapted, as `../sdk/README.md` lists adapted files:
+`func_80163794.c`.
 
 ## Testing one function
 
@@ -107,7 +101,6 @@ Functions of this folder without a fixtures file, by reason:
 What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
 
 ```
-func_8015ffc0 replay: fixtures 12, passed 12, failed 0
 func_80163794 replay: fixtures 12, passed 12, failed 0
 func_80167388 replay: fixtures 12, passed 12, failed 0
 ```
@@ -133,8 +126,6 @@ function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_8015ffc0: built 628 bytes, original 636 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8015ffc0 coverage: 159 of 159 instruction slots of the original executed
 func_80163794: built 960 bytes, original 964 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80163794 coverage: 241 of 241 instruction slots of the original executed
 func_80167388: built 1124 bytes, original 1504 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -148,8 +139,6 @@ func_80165d84 coverage: 233 of 240 instruction slots of the original executed
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_8015ffc0 control: different 240 of 2000 (expected more than 0)
-  altered: noise call argument 0xfeffff, instruction slot 147
 func_80163794 control: different 113 of 2000 (expected more than 0)
   altered: first of 3 pan tests compares with 0x41, instruction slot 140
 func_80167388 control: different 266 of 2000 (expected more than 0)
@@ -163,7 +152,6 @@ func_80165d84 control: different 2000 of 2000 (expected more than 0)
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_8015ffc0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
