@@ -144,8 +144,6 @@ func_8016b788: built 1328 bytes, original 1464 bytes; cases 2000, discarded 0, e
 func_8016b788 coverage: 366 of 366 instruction slots of the original executed
 func_80165d84: built 840 bytes, original 960 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80165d84 coverage: 233 of 240 instruction slots of the original executed
-func_80166144: built 304 bytes, original 304 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80166144 coverage: 76 of 76 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
@@ -161,8 +159,6 @@ func_8016b788 control: different 2000 of 2000 (expected more than 0)
   altered: control register receives 0xc001, instruction slot 320
 func_80165d84 control: different 2000 of 2000 (expected more than 0)
   altered: pan value 0x40 becomes 0x41, instruction slot 6
-func_80166144 control: different 1717 of 2000 (expected more than 0)
-  altered: bit mask 1 becomes 2, instruction slot 22
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
@@ -173,7 +169,6 @@ func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80165d84 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80166144 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 `func_80166144` is 304 bytes in the build and in the original, and is not
