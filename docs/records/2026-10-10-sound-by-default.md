@@ -56,7 +56,13 @@
 - What ran, on this change over main `f201b77`:
   `python3 port/tools/test_hostbuild.py` (406 cases, all as required);
   `test_hostaudio.py --cc CC --psyz-build DIR` (28); `test_hostiopage.py
-  --cc CC --psyz-build DIR` (112). PsyZ was the pin `6d01339a`, the
+  --cc CC --psyz-build DIR` (112). These three are of the change's last
+  commit that touches a file under `port/`. `python
+  tools/ai_workflow/workflow.py review` ran once, on the change's first
+  commit: 24 checks, all passed (every control file of the port, and the
+  build without `--psyz`), in ten and a half minutes. What came after
+  that commit is the guard's move into the rig, in the two control files
+  named above, and text; the review was not run a second time for it. PsyZ was the pin `6d01339a`, the
   compiler MinGW-w64 GCC 16.2.0 for 32-bit Windows. The real build with
   `--psyz DIR` and nothing else printed `sound library: 45 units of
   sdk/libsnd, 22 of sdk/libspu, 6 of library_nonmatching` and `units:
