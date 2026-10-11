@@ -26,13 +26,15 @@ void func_80022944_slot28(Object *obj)
 {
     Object *o;
     int i;
-    /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. With 1 written at its uses (the two stores of field_00 and field_01) this function differs from the original in 4 instruction slots. */
+    /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
+    /* With 1 written at its uses (the two stores of field_00 and field_01) this function differs from the original in 4 instruction slots. */
     int active;
     /* Stand-in, not recovered source: the local mode, a second name for the constant 2 passed to the last func_80130768 call (the original loads it into a1 at the call, no register of its own), reproduces the original's order of instructions. Without it this function differs from the original in 2 instruction slots. */
     int mode;
     Object **slot;
     if (obj->field_f0 == 0) {
-        /* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. Without it this function differs from the original in 3 instruction slots. */
+        /* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+        /* Without it this function differs from the original in 3 instruction slots. */
         do {
             i = 1;
             active = 1;
