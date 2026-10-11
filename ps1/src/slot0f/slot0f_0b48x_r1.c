@@ -28,7 +28,7 @@ int func_800e0b48_slot0f(void) {
         r = func_800e0bf4_slot0f(3, data_800df100_slot0f);
         if (r != 0) {
             mode = 0x10;
-            /* Written as the two tests r == 1 and r == 3 in one, this function differs from the original in 7 instruction lines. */
+            /* Stand-in, not recovered source: the assignment r = 1 (the two tests r == 3 and r == 1 in one, r == 1 || r == 3, are the plain form) reproduces the original's choice of registers (the compare against the register that holds 1). Without it this function differs from the original in 6 instruction slots. */
             if (r == 3) {
                 r = 1;
             }
@@ -36,7 +36,7 @@ int func_800e0b48_slot0f(void) {
                 mode = 0;
             }
             r = func_800e0a1c_slot0f(mode);
-            /* Exception, not recovered source: the test below is never true (a byte has no bit 8); the original keeps the answer r in a register of its own after the branch (move v1,v0 before bnez v1), which only a later read of r gives, and combine reduces that read to nothing. Without it this function differs from the original in 4 instruction lines. */
+            /* Stand-in, not recovered source: the test below, never true and not shown by the original's instructions, reproduces the original's choice of registers (the answer r stays in a register of its own after the branch). Without it this function differs from the original in 4 instruction slots. */
             if (r == 0) {
                 func_800e1348_slot0f();
                 ret = 0;
