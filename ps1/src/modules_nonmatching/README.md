@@ -56,7 +56,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_80013224_slot12`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b1934_slot04_02`, `func_801b0904_slot04_04`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_800e0a1c_slot0f`, `func_800e80ec_slot0f`, `func_801b1934_slot04_02`, `func_801b0904_slot04_04`.
 - The contract has a recorder with a tail, machine code of its own that stands for the callee. Fixtures cannot describe what it returns; `--record` refuses it. `func_800e0f2c_slot0f`.
 - An original callee takes a pointer to a local of the function (the record refuses it: this is a limit of the tool, because the frames of the original and of the build differ). `func_801b3564_slot04_06`, `func_801cb564_slot05_06`.
 
@@ -111,8 +111,6 @@ func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded
 func_80012990_slot01 coverage: 112 of 112 instruction slots of the original executed
 func_80012dec_slot01: built 320 bytes, original 372 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012dec_slot01 coverage: 93 of 93 instruction slots of the original executed
-func_80013224_slot12: built 548 bytes, original 556 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80013224_slot12 coverage: 139 of 139 instruction slots of the original executed
 func_8001389c_slot28: built 140 bytes, original 144 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8001389c_slot28 coverage: 36 of 36 instruction slots of the original executed
 func_800145f4_slot28: built 132 bytes, original 132 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -178,8 +176,6 @@ func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a byte store of the primitive moved by one byte, instruction slot 24
 func_80012dec_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a shift left by 4 changed to 3, instruction slot 37
-func_80013224_slot12 control: different 1313 of 2000 (expected more than 0)
-  altered: grey level 0x80 changed to 0x81, instruction slot 49
 func_8001389c_slot28 control: different 2000 of 2000 (expected more than 0)
   altered: store of field_ad moved by one byte, instruction slot 29
 func_800145f4_slot28 control: different 1193 of 2000 (expected more than 0)
@@ -240,7 +236,6 @@ func_8001188c_slot27 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes
 func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012dec_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80013224_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8001389c_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800145f4_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8001606c_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
