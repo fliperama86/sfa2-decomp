@@ -23,7 +23,7 @@ void func_8013ed90(Object *object, int index, int arg) {
     int bit0;
     int bit1;
     /* First the table entry, then its low byte. A separate local for the
-       entry differs in 21 instruction lines. */
+       entry differs in 18 instruction lines. */
     u16 mask;
 
     arg &= 0xff;
@@ -51,18 +51,20 @@ void func_8013ed90(Object *object, int index, int arg) {
         return;
     }
     if (entry & 0x100) {
-        if (mask == flags || bit0 == 1)
-            goto ok;
-        goto fail;
+        if (mask != flags && bit0 != 1) {
+            func_8013f2fc(object, index);
+        } else {
+            (*cnt)++;
+            ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
+        }
+        return;
     }
     if (entry & 0x800) {
-        if (mask == flags || bit1 == 2)
-            goto ok;
-    fail:
-        func_8013f2fc(object, index);
+        if (mask != flags && bit1 != 2) {
+            func_8013f2fc(object, index);
+        } else {
+            (*cnt)++;
+            ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
+        }
     }
-    return;
-ok:
-    (*cnt)++;
-    ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
 }

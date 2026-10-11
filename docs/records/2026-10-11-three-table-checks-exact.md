@@ -2,7 +2,7 @@
 
 The three check an object's flag halfword against an entry of the same
 table and call one function for a pass and one for a failure. No
-wrapper and no `goto` in the first two; the third keeps two labels.
+wrapper and no `goto` in any of them.
 "Lines" are instruction lines by the private check on the published
 units; "slots" are `fndiff`'s.
 
@@ -31,15 +31,15 @@ units; "slots" are `fndiff`'s.
   worker's earlier exact form had the pass first, three labels and a
   do-while wrapper; with the test turned round neither is needed.
 - `func_8013ed90` reads the entry the same way (a separate local for
-  the entry: 21 of 60 lines; the bits straight from the flags: 26). Its
+  the entry: 18 of 60 lines; the bits straight from the flags: 26). Its
   pass increments the slot's counter as a halfword through a cast of
   the byte field's address, as the readable version had it and with its
   note. It calls `func_8013f2c8` with three arguments, although that
   function is defined with one and its 19 other callers pass one: the
   call is written through a cast of the callee with the guide's comment
-  above the function; with one argument 22 slots differ. Two labels
-  stay (`fail`, `ok`): every structured form measured differs in 22 to
-  63 lines.
+  above the function; with one argument 22 slots differ. Its last two
+  arms test for the failure first as well: with the pass first and no
+  label, 58 of 60 lines differ.
 - All three leave `ps1/src/resident_nonmatching/` (three files each and
   their README lines), and their lines leave `symbols.ld`.
 - What ran: `fndiff.py --rebuild` on the three units (the lines above);
