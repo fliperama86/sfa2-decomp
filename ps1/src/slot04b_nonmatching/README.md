@@ -41,8 +41,6 @@ func_801b2e8c_slot04_0e: built 200 bytes, original 204 bytes; cases 2000, discar
 func_801b2e8c_slot04_0e coverage: 51 of 51 instruction slots of the original executed
 func_801b339c_slot04_0e: built 196 bytes, original 180 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b339c_slot04_0e coverage: 45 of 45 instruction slots of the original executed
-func_801b34b8_slot04_17: built 552 bytes, original 556 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b34b8_slot04_17 coverage: 139 of 139 instruction slots of the original executed
 func_801b34e4_slot04_11: built 628 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b34e4_slot04_11 coverage: 157 of 157 instruction slots of the original executed
 func_801b4100_slot04_0e: built 264 bytes, original 268 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -88,8 +86,6 @@ func_801b2e8c_slot04_0e control: different 328 of 2000 (expected more than 0)
   altered: store of zero to field_50 moved to field_54, instruction slot 35
 func_801b339c_slot04_0e control: different 581 of 2000 (expected more than 0)
   altered: sound argument 0x1b made 0x1c, instruction slot 10
-func_801b34b8_slot04_17 control: different 2000 of 2000 (expected more than 0)
-  altered: bgez changed to bltz, instruction slot 17
 func_801b34e4_slot04_11 control: different 2000 of 2000 (expected more than 0)
   altered: bgez changed to bltz, instruction slot 18
 func_801b4100_slot04_0e control: different 1615 of 2000 (expected more than 0)
@@ -123,7 +119,6 @@ func_801b27a0_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801b27b0_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b2e8c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b339c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b34b8_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b34e4_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b4100_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b420c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -175,7 +170,6 @@ func_801b27a0_slot04_17 replay: fixtures 10, passed 10, failed 0
 func_801b27b0_slot04_11 replay: fixtures 9, passed 9, failed 0
 func_801b2e8c_slot04_0e replay: fixtures 7, passed 7, failed 0
 func_801b339c_slot04_0e replay: fixtures 9, passed 9, failed 0
-func_801b34b8_slot04_17 replay: fixtures 4, passed 4, failed 0
 func_801b34e4_slot04_11 replay: fixtures 6, passed 6, failed 0
 func_801b4100_slot04_0e replay: fixtures 1, passed 1, failed 0
 func_801b420c_slot04_0e replay: fixtures 2, passed 2, failed 0

@@ -3661,7 +3661,6 @@ data_801c4e70_slot04_12 = 0x801c4e70;
 data_801c4ef8_slot04_12 = 0x801c4ef8;
 func_801b24e0_slot04_17 = 0x801b24e0;
 func_801b27a0_slot04_17 = 0x801b27a0;
-func_801b34b8_slot04_17 = 0x801b34b8;
 func_801b4374_slot04_17 = 0x801b4374;
 data_801b778c_slot04_17 = 0x801b778c;
 data_801baddc_slot04_17 = 0x801baddc;
