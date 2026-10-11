@@ -7,7 +7,7 @@ u8 func_801b5ef0_slot04_02(Object *obj);
 
 void func_801b5b44_slot04_02(Object *obj) {
     Object *o = obj->other;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     func_80120554(o, o->side, 0x31a);
     obj->field_0b = 0;
@@ -22,15 +22,15 @@ void func_801b5b44_slot04_02(Object *obj) {
 }
 
 void func_801b5bf4_slot04_02(Object *obj) {
-    if (*(u8 *)&obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if (*(u8 *)&obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0xf, 0, 1, 0);
     }
     func_80130efc(obj);
 }
 
 void func_801b5c58_slot04_02(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->field_0b = obj->field_0b ^ 1;
         func_801312b8(obj);
     } else {

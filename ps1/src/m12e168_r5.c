@@ -10,10 +10,10 @@ int func_8012f408(Object *o) {
     if (game_state.config->field_04 == 0) return 0;
     side = o->field_158;
     k = o->kind;
-    o->field_04 = 1;
-    o->field_07 = 3;
-    o->field_05 = 0;
-    o->field_06 = 0;
+    o->state_0 = 1;
+    o->state_3 = 3;
+    o->state_1 = 0;
+    o->state_2 = 0;
     o->field_0b = side;
     if (k == 2) o->field_0b = side ^ 1;
     ref_other.p = o->other;

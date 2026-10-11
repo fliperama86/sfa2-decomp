@@ -5,14 +5,14 @@
 
 void func_801b6140_slot04_02(Object *object) {
     if (game_state.field_5c == 0) {
-        object->field_06 = object->field_06 + 1;
+        object->state_2 = object->state_2 + 1;
     }
     func_80130efc(object);
 }
 
 void func_801b617c_slot04_02(Object *obj) {
     int idx = 0x28;
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->other->field_0b;
     obj->field_46 = 0x78;
     if (game_state.field_a6 != 0) {

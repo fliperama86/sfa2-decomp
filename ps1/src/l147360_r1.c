@@ -9,7 +9,7 @@ void func_80147360(Object *object) {
     u8 b;
     func_80147968(object);
     if (game_state.field_64 != 0) {
-        if (*(u8 *)&object->field_3a != 0) return;
+        if (*(u8 *)&object->step_flags != 0) return;
         game_state.field_dc = 0;
         if (data_8018945c != 0) {
             int v = object->field_45 >> 1;
@@ -32,7 +32,7 @@ void func_80147360(Object *object) {
         }
     } else {
         game_state.field_dc = data_80189454;
-        object->field_04 = object->field_04 + 1;
+        object->state_0 = object->state_0 + 1;
     }
     data_8018945c = (data_8018945c + 1) & 1;
 }

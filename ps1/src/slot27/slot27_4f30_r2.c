@@ -14,8 +14,8 @@ void func_80015070_slot27(Object *obj) {
     *y = data_80028128_slot27[data_80190464[0] + 1];
     *x = ref_other.p->pos_x + *x;
     *y = ref_other.p->pos_y + *y;
-    *x += obj->field_4c;
-    *y += obj->field_50;
+    *x += obj->vel_x;
+    *y += obj->vel_y;
     obj->pos_x = *x;
     obj->pos_y = *y;
 }

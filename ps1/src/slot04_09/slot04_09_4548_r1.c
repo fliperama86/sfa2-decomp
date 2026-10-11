@@ -6,7 +6,7 @@
 void func_801b5d3c_slot04_09(Object *obj);
 
 void func_801b4548_slot04_09(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_801b5d3c_slot04_09(obj);
@@ -16,13 +16,13 @@ void func_801b4548_slot04_09(Object *obj) {
 void func_801b45a4_slot04_09(Object *obj) {
     u16 t;
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t == 0) {
         obj->field_165 = 0;
-        obj->field_07++;
+        obj->state_3++;
         func_801312b8(obj);
     } else if ((u8)t != 2) {
-        obj->field_3a = (t & 0xff00) | 2;
+        obj->step_flags = (t & 0xff00) | 2;
         obj->field_165 = 0xff;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;

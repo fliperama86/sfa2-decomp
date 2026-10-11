@@ -9,10 +9,10 @@ void func_801b3268_slot04_0b(Object *obj) {
     int a = -0x24;
     int b = 0x64;
 
-    if ((s16)obj->field_3a & 0xff00) {
+    if ((s16)obj->step_flags & 0xff00) {
         obj->field_165 = 0xff;
         obj->field_46 = 0x1e01;
-        obj->field_07++;
+        obj->state_3++;
         if (obj->field_45 != 0) {
             a = -7;
             b = 0x5f;

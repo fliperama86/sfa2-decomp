@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b4390_slot04_01(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     int d = 0x20000;
 
     if ((t & 0x8000) != 0) {
@@ -12,9 +12,9 @@ void func_801b4390_slot04_01(Object *obj) {
     } else {
         if ((t & 0xff) != 0) {
             if (obj->field_0b == 0) {
-                *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - d;
+                *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - d;
             } else {
-                *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + d;
+                *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + d;
             }
         }
         func_80130efc(obj);

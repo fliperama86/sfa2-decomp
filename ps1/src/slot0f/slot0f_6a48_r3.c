@@ -56,5 +56,5 @@ void func_800e6db4_slot0f(Object *obj) {
 }
 
 void func_800e6dbc_slot0f(Object *object) {
-    data_800eff78_slot0f[object->field_05](object);
+    data_800eff78_slot0f[object->state_1](object);
 }

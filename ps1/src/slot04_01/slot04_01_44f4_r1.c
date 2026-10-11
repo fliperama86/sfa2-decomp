@@ -10,24 +10,24 @@ void func_801b44f4_slot04_01(Object *obj) {
     int one;
 
     if (obj->field_211 & 1) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 3;
         obj->field_159 = 1;
         func_801b1138_slot04_01(obj);
         return;
     }
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     one = 1;
     obj->field_159 = one;
     if (obj->field_218 != 0 && obj->pos_y - obj->field_70 < -0x2f
         && (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff)) {
-        obj->field_05 = 2;
-        obj->field_04 = one;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_1 = 2;
+        obj->state_0 = one;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         obj->field_128 = 4;
         return;
     }

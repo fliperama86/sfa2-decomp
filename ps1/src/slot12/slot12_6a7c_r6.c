@@ -54,6 +54,6 @@ void func_80016f38_slot12(Object *o) {
 }
 
 void func_80016fa0_slot12(Object *obj) {
-    data_80028a30_slot12[obj->field_05](obj);
+    data_80028a30_slot12[obj->state_1](obj);
     func_80016ff4_slot12(obj);
 }

@@ -4,5 +4,5 @@
 #include "../externs.h"
 
 void func_80019774_slot28(Object *obj) {
-    *(s32 *)&obj->field_10 += 0xffff8000;
+    *(s32 *)&obj->pos_x_frac += 0xffff8000;
 }

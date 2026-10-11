@@ -8,14 +8,14 @@ void func_801b3e8c_slot04_07(Object *obj);
 
 void func_801b3874_slot04_07(Object *obj) {
     if (obj->field_48 == 0) {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     }
-    obj->field_4c = obj->field_4c + obj->field_54;
-    if (obj->field_4c < 0) {
-        obj->field_4c = 0;
-        obj->field_54 = 0;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    if (obj->vel_x < 0) {
+        obj->vel_x = 0;
+        obj->accel_x = 0;
     }
 }
 

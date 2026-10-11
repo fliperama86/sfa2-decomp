@@ -12,7 +12,7 @@ void func_801b4050_slot04_02(Object *obj) {
     func_80126130();
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((obj->field_46 & 0xff) == 0) {
-        obj->field_07++;
+        obj->state_3++;
         func_80120554(p, p->side, 0x306);
         func_8013788c(obj);
         func_80126244();

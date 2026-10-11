@@ -19,6 +19,6 @@ void func_8012dee4(Object *object) {
         func_8012df44(object);
         return;
     }
-    object->field_07++;
+    object->state_3++;
     func_8012df44(object);
 }

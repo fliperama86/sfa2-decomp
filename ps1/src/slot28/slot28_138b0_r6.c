@@ -7,7 +7,7 @@ void func_80023fe8_slot28(Object *obj) {
     if (obj->field_48 != 0) {
         obj->field_48 = 0;
         obj->field_46 = 0x30;
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         func_80130768(obj, 2, ((Slot28Obj *)obj)->field_6c);
     }
 }
@@ -23,6 +23,6 @@ void func_80024030_slot28(Object *obj) {
     ((Slot28Obj *)obj)->field_46--;
     ((Slot28Obj *)obj)->field_47 = ((Slot28Obj *)obj)->field_47 ^ 1;
     if (((Slot28Obj *)obj)->field_46 == 0) {
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
     }
 }

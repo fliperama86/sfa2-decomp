@@ -7,5 +7,5 @@
 
 void func_80148588(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017cd28[object->field_04](object);
+    table_8017cd28[object->state_0](object);
 }

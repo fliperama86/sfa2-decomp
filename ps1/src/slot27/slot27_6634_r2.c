@@ -40,6 +40,6 @@ void func_80016810_slot27(Object *obj) {
 }
 
 void func_800168a0_slot27(Object *obj) {
-    data_80028e68_slot27[obj->field_04](obj);
+    data_80028e68_slot27[obj->state_0](obj);
     func_8001791c_slot27();
 }

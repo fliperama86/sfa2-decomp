@@ -11,12 +11,12 @@ void func_8001175c_slot27(Object *obj) {
     int k;
 
     if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
-        obj->field_04 = obj->field_04 + 1;
+        obj->state_0 = obj->state_0 + 1;
         v = 8;
         if (p->side == 0) {
             v = -8;
         }
-        obj->field_4c = v;
+        obj->vel_x = v;
     }
     k = p->field_d4;
     if (k != obj->field_45) {

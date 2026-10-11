@@ -11,7 +11,7 @@ void func_801b1750_slot04_0a(Object *obj) {
     s32 v;
     s32 a;
 
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 5);
     func_80138ae8(&game_state, obj);
     obj->field_45 = 1;
@@ -22,10 +22,10 @@ void func_801b1750_slot04_0a(Object *obj) {
         v = -v;
         a = 0x2000;
     }
-    obj->field_4c = v;
-    obj->field_50 = 0x20000;
-    obj->field_54 = a;
-    obj->field_58 = -0x3000;
+    obj->vel_x = v;
+    obj->vel_y = 0x20000;
+    obj->accel_x = a;
+    obj->accel_y = -0x3000;
     if (obj->field_49 == 0) {
         func_801307e0(obj, 0x1f);
     } else {
@@ -37,10 +37,10 @@ void func_801b1810_slot04_0a(Object *obj) {
     if (((Slot04aObj *)obj)->field_3a == 0) {
         func_801b3e00_slot04_0a(obj);
         if (obj->pos_y > obj->field_70) {
-            obj->field_14 = 0;
+            obj->pos_y_frac = 0;
             obj->field_45 = 0;
             obj->field_17b = 0;
-            obj->field_07++;
+            obj->state_3++;
             obj->pos_y = obj->field_70;
         }
     }

@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_80076e00_slot00(Object *o) {
-    o->field_06++;
+    o->state_2++;
     o->field_0b ^= 1;
     func_801380f0(o);
     o->field_46 = 2;

@@ -6,16 +6,16 @@
 void func_801b4ba0_slot04_02(Object *obj) {
     Object *p;
 
-    obj->field_50 = 0x58000;
-    obj->field_58 = -0x1800;
+    obj->vel_y = 0x58000;
+    obj->accel_y = -0x1800;
     p = obj->other;
     if (obj->field_0b != 0) {
-        obj->field_4c = 0x20000;
+        obj->vel_x = 0x20000;
     } else {
-        obj->field_4c = -0x20000;
+        obj->vel_x = -0x20000;
     }
-    obj->field_54 = 0;
-    obj->field_07 = 0xc;
+    obj->accel_x = 0;
+    obj->state_3 = 0xc;
     func_80141f28(obj, 8);
     func_80120554(p, p->side, 0x31a);
     func_801307e0(obj, 0x57);

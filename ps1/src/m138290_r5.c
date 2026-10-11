@@ -12,11 +12,11 @@ s32 func_80139f84(Object *a, Object *b, Box32 *unused) {
     int side;
 
     if (data_80188f30 & 1) {
-        if (a->field_45 != 0 && a->field_06 != 8) {
-            if (a->field_06 == 7) {
+        if (a->field_45 != 0 && a->state_2 != 8) {
+            if (a->state_2 == 7) {
                 return 0;
             }
-            if (a->field_50 >= 0) {
+            if (a->vel_y >= 0) {
                 return 0;
             }
             x0 = a->pos_x;

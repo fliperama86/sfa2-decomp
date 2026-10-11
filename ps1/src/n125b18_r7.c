@@ -34,7 +34,7 @@ void func_8012b628(Object *object) {
             return;
         }
         if (!func_8012f970(object)) {
-            object->field_07 = object->field_07 + 1;
+            object->state_3 = object->state_3 + 1;
             object->field_0b = object->field_158;
             func_80130678(object, 0x17);
             return;
@@ -42,7 +42,7 @@ void func_8012b628(Object *object) {
         t = (u8)func_8012f6d8(object);
 test:
         if (t) {
-            object->field_07 = 2;
+            object->state_3 = 2;
             object->field_157 = 1;
             object->field_0b = object->field_158;
             func_80130678(object, 0x19);

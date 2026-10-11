@@ -20,8 +20,8 @@ void func_80130678(Object *object, int arg) {
     u16 index = arg;
     if (object->side == 0) object->sequence = seqs_60_left[index];
     else object->sequence = seqs_110_right[index];
-    object->field_38 = object->sequence->duration;
-    object->field_3a = object->sequence->flags;
+    object->step_timer = object->sequence->duration;
+    object->step_flags = object->sequence->flags;
     object->field_80 = 1;
     object->frame = object->frames + object->sequence->frame_index;
     object->field_4a = object->frame->field_0d;
@@ -29,8 +29,8 @@ void func_80130678(Object *object, int arg) {
 
 void func_80130700(Object *object, SequenceStep *entry) {
     object->sequence = entry;
-    object->field_38 = entry->duration;
-    object->field_3a = object->sequence->flags;
+    object->step_timer = entry->duration;
+    object->step_flags = object->sequence->flags;
     object->field_80 = 1;
     if (object->field_08 == 0 || object->field_08 == 8) {
         object->frame = object->frames + object->sequence->frame_index;
@@ -43,8 +43,8 @@ void func_80130700(Object *object, SequenceStep *entry) {
 void func_80130768(Object *object, int arg, SequenceStep **table) {
     s16 index = arg;
     object->sequence = table[index];
-    object->field_38 = object->sequence->duration;
-    object->field_3a = object->sequence->flags;
+    object->step_timer = object->sequence->duration;
+    object->step_flags = object->sequence->flags;
     object->field_80 = 1;
     if (object->field_08 == 0 || object->field_08 == 8) {
         object->frame = object->frames + object->sequence->frame_index;
@@ -63,8 +63,8 @@ void func_801307e0(Object *object, int arg) {
         if (object->side == 0) object->sequence = seqs_9c_left[index];
         else object->sequence = seqs_14c_right[index];
     }
-    object->field_38 = object->sequence->duration;
-    object->field_3a = object->sequence->flags;
+    object->step_timer = object->sequence->duration;
+    object->step_flags = object->sequence->flags;
     object->field_80 = 1;
     object->frame = object->frames + object->sequence->frame_index;
     object->field_4a = object->frame->field_0d;
@@ -82,8 +82,8 @@ void func_801308c4(Object *object, u16 index) {
     }
     if (object->sequence != entry) object->field_80 = 1;
     object->sequence = entry;
-    object->field_38 = entry->duration;
-    object->field_3a = object->sequence->flags;
+    object->step_timer = entry->duration;
+    object->step_flags = object->sequence->flags;
     object->frame = object->frames + object->sequence->frame_index;
     object->field_4a = object->frame->field_0d;
 }

@@ -23,7 +23,7 @@ void func_80145e70(Object *object) {
     o->field_0e = e;
     o->field_0d = object->field_0d + 3;
     o->field_44 = 1;
-    o->field_50 = 0x1000800;
+    o->vel_y = 0x1000800;
     o->field_7a = 0x60;
     o->field_7c = 0x1e0;
     o = p[1];
@@ -37,7 +37,7 @@ void func_80145e70(Object *object) {
     o->field_0e = e2;
     o->field_0d = object->field_0d + 4;
     o->field_44 = 1;
-    o->field_50 = 0x1000800;
+    o->vel_y = 0x1000800;
     o->field_7a = 0x60;
     o->field_7c = 0x1e0;
     o = p[2];
@@ -51,7 +51,7 @@ void func_80145e70(Object *object) {
     o->field_0e = e3;
     o->field_0d = object->field_0d + 4;
     o->field_44 = 1;
-    o->field_50 = 0x1000800;
+    o->vel_y = 0x1000800;
     o->field_7a = 0x60;
     o->field_7c = 0x1e0;
   }

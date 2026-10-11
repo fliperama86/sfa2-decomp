@@ -17,9 +17,9 @@ void func_801b29b0_slot04_17(Object *obj) {
             func_801209c4(obj);
             a = 0x37;
             s = obj->field_48;
-            obj->field_14 = 0;
+            obj->pos_y_frac = 0;
             obj->field_45 = 0;
-            obj->field_07 = 8;
+            obj->state_3 = 8;
             obj->field_17b = 0;
             if (!(s & 0x80)) {
                 a = (s & 0x7f) + 0x38;

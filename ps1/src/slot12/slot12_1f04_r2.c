@@ -13,10 +13,10 @@ void func_800124fc_slot12(Object *obj, FrameRecord *f);
 
 void func_800120bc_slot12(Object *obj) {
     if (game_state.field_44 != 0 && data_8002d578_slot12 == 0) {
-        obj->field_05 = 3;
+        obj->state_1 = 3;
         func_800121ec_slot12(obj, 1);
     } else if (game_state.field_ab & 0x80) {
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         func_800121ec_slot12(obj, 2);
     }
 }

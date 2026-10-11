@@ -8,7 +8,7 @@
  * the contract below.
  *
  * What it does (inferred, not an original name): a character action handler
- * that sets the object's field_07 to 4, asks for a free object slot and, if
+ * that sets the object's state_3 to 4, asks for a free object slot and, if
  * it gets one, fills it as an effect object that follows this one
  * (field_3c points back at the object, the position is the object's plus the
  * record's x offset), then starts sequence 0x49 on the object.
@@ -20,7 +20,7 @@
  *     data_801c62b4_slot04_0e, whose field_10 is the x offset in its high
  *     half), pos_x, field_70, field_0d, field_90, field_66, field_98,
  *     field_9c.
- *   Writes: the object's field_07; if the slot is not 0, the slot's field_00,
+ *   Writes: the object's state_3; if the slot is not 0, the slot's field_00,
  *     field_02, field_03, field_08, field_09, field_0d, pos_x, pos_y,
  *     field_3c, field_48, field_66, field_7a, field_7c, field_90, field_98,
  *     field_9c. The original writes field_02 twice (0x3b, then 0x14); only
@@ -47,7 +47,7 @@ void func_801b420c_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *record;
     Object *slot;
 
-    obj->field_07 = 4;
+    obj->state_3 = 4;
     record = &data_801c62b4_slot04_0e[obj->side];
     slot = (Object *)func_8011f1e0();
     if (slot != 0) {

@@ -10,11 +10,11 @@ void func_801b1e58_slot04_00(Object *obj) {
     if (func_801b1c5c_slot04_00(obj) != 0) {
         func_801b1fb8_slot04_00(obj);
     } else {
-        if ((s16)obj->field_3a & 0x8000) {
+        if ((s16)obj->step_flags & 0x8000) {
             func_80120554(obj, obj->side, 0x320);
             ((Slot04aObj *)obj)->field_1a4--;
             if (((Slot04aObj *)obj)->field_1a4 & 0x80) {
-                obj->field_07++;
+                obj->state_3++;
                 func_801307e0(obj, 0x31);
                 return;
             }
@@ -26,8 +26,8 @@ void func_801b1e58_slot04_00(Object *obj) {
 void func_801b1ef8_slot04_00(Object *obj) {
     if (func_801b1c5c_slot04_00(obj) != 0) {
         func_801b1fb8_slot04_00(obj);
-    } else if ((s16)obj->field_3a & 0x8000) {
-        obj->field_07++;
+    } else if ((s16)obj->step_flags & 0x8000) {
+        obj->state_3++;
         func_80130678(obj, 0x21);
     } else {
         func_80130efc(obj);

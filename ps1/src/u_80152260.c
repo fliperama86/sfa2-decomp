@@ -11,7 +11,7 @@ void func_80152260(Object *object)
   t = data_8016da38;
   object->field_7a = 0x60;
   object->field_7c = 0x1e0;
-  object->field_04++;
+  object->state_0++;
   object->field_0c = 0;
   object->field_0f = 1;
   object->field_0d = 0;

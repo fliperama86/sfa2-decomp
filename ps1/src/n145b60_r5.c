@@ -13,7 +13,7 @@ void func_8014894c(Object *object) {
       func_80148a74(object);
       func_801488ec(object);
     } else {
-      object->field_04++;
+      object->state_0++;
       return;
     }
   }

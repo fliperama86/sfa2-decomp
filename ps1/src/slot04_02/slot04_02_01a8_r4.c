@@ -6,7 +6,7 @@
 void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 void func_801b06e4_slot04_02(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_159 = 1;
     func_80130dc0(obj);
 }
@@ -15,7 +15,7 @@ void func_801b0714_slot04_02(Object *obj) {
     u16 x;
 
     obj->field_128 = 4;
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80130504(obj);
     func_80141f28(obj, obj->field_12a >> 1);

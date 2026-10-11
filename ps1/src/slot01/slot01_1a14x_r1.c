@@ -33,14 +33,14 @@ void func_80011a14_slot01(Object *obj) {
     obj->field_98 = data_80019330_slot01;
     obj->field_9c = data_800195b8_slot01;
     obj->field_90 = (void *)0x80059000;
-    obj->field_05 = 0;
+    obj->state_1 = 0;
     obj->field_0c = 0;
     obj->field_0d = 0;
     obj->field_0e = 0;
     obj->field_20 = 0;
     obj->field_24 = 0;
     obj->field_0b = 0;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 & 0x80) {
         /* The store to game_state.field_112 is written in each arm; one store after the join through a local differs in 19 instruction lines. */
         if (other->field_2ac < 0 && game_state.field_0c != 0) {
@@ -82,14 +82,14 @@ void func_80011a14_slot01(Object *obj) {
         } else {
             obj->pos_x = box_margin[0] + 0x17f;
             obj->pos_y = 0x90;
-            obj->field_4c = -0xc;
-            obj->field_54 = 2;
+            obj->vel_x = -0xc;
+            obj->accel_x = 2;
             obj->field_46 = 0x1f;
             if (obj->field_48 != 0) {
                 obj->pos_x = box_margin[0] - 0x175;
                 /* The mirrored values are negated from the fields; the constants 0xc and -2 differ in 10 and 12 instruction lines. */
-                obj->field_4c = -obj->field_4c;
-                obj->field_54 = -obj->field_54;
+                obj->vel_x = -obj->vel_x;
+                obj->accel_x = -obj->accel_x;
             }
             func_80011fe8_slot01(obj, &data_800152ec_slot01);
         }

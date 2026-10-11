@@ -6,7 +6,7 @@
 
 
 void func_80132070(Object *object) {
-    if ((*(u32 *)&object->field_04 & 0xffffff) == 0x70001 &&
+    if ((*(u32 *)&object->state_0 & 0xffffff) == 0x70001 &&
         object->field_15a == 1 && object->field_7e == 0 &&
         object->field_67 != 0) {
         object->field_67 = 0;
@@ -31,10 +31,10 @@ void func_80132140(Object *object) {
     if (!(object->field_130 & 0x8000)) object->field_48 = 0xff;
     object->field_15a = 2;
     object->field_159 = 0;
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 7;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 7;
+    object->state_3 = 0;
     func_80132198(object);
 }
 

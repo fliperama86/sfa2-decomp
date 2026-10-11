@@ -7,13 +7,13 @@ void func_801b038c_slot04_03(Object *obj) {
     int one = 1;
 
     obj->field_159 = one;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x18, 0x10) != 0) {
-            obj->field_04 = one;
-            obj->field_05 = 2;
-            obj->field_06 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = one;
+            obj->state_1 = 2;
+            obj->state_2 = 0;
+            obj->state_3 = 0;
             obj->field_128 = 0;
         } else if (obj->field_12a == 4 && (obj->field_130 & 0x8000) != 0) {
             func_80141f28(obj, 2);

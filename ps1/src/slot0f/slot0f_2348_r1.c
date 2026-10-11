@@ -7,8 +7,8 @@ void func_800e2348_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     int up = 0;
     int i;
-    if (o->field_10 & 0x5000) {
-        if (o->field_10 & 0x1000) {
+    if (o->pos_x_frac & 0x5000) {
+        if (o->pos_x_frac & 0x1000) {
             up = 1;
             obj->field_0b--;
             if (obj->field_0b < 0) {

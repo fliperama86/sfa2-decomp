@@ -14,7 +14,7 @@ void func_80013440_slot01(Object *obj) {
     obj->field_01 = 0;
     obj->field_5c = 0;
     ((Slot01Obj *)obj)->field_5e = -0x1f;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 3; j++) {
             func_8015c100(a);

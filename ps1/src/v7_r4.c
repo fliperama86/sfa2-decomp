@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-/* 0x4e is the high half of field_4c (s32 in the table); accessed as s16. */
+/* 0x4e is the high half of vel_x (s32 in the table); accessed as s16. */
 /* The shared tail via goto reproduces the block order of the original. */
 int func_8012f2b8(Object *o) {
     int side;
@@ -13,7 +13,7 @@ int func_8012f2b8(Object *o) {
         if (o->pos_y < (s16)(o->field_70 - 0x20) && o->field_48 != 0 && (o->field_130 & 0x4000) == 0) {
             side = o->field_164;
             if (side == 0) return 0;
-            v = ((s16 *)&o->field_4c)[1];
+            v = ((s16 *)&o->vel_x)[1];
             if (v == 0) return 0;
             if (v >= 0) {
                 if (side == 2) return o->field_c2 >> 15;

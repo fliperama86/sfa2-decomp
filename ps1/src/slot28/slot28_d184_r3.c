@@ -5,10 +5,10 @@
 
 void func_8001d86c_slot28(Object *obj) {
     Object *p;
-    *(int *)&obj->field_10 = *(int *)&obj->field_10 + 0x80000;
+    *(int *)&obj->pos_x_frac = *(int *)&obj->pos_x_frac + 0x80000;
     if (obj->pos_x >= 0x98) {
         obj->pos_x = 0x90;
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;

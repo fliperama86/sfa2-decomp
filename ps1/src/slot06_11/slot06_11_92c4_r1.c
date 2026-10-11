@@ -22,16 +22,16 @@ void func_801e99ac_slot06_11(Object *obj, int arg);
 void func_801e9a64_slot06_11(Object *obj, int arg);
 
 void func_801e92c4_slot06_11(Object *obj) {
-    data_801ee170_slot06_11[obj->field_04](obj);
+    data_801ee170_slot06_11[obj->state_0](obj);
 }
 
 void func_801e9304_slot06_11(Object *obj) {
-    obj->field_04 = 1;
+    obj->state_0 = 1;
     obj->field_0a = 1;
     obj->field_0d = 0;
     obj->field_0c = 0;
     obj->field_81 = 4;
-    obj->field_54 = 0x6d26cadb;
+    obj->accel_x = 0x6d26cadb;
     func_80130700(obj, data_801ee160_slot06_11[obj->field_03]);
 }
 
@@ -65,14 +65,14 @@ void func_801e93f0_slot06_11(Object *obj) {
         if (dir & 2) {
             y = -y;
         }
-        *(u32 *)&obj->field_10 = x + *(u32 *)&obj->field_10;
-        *(u32 *)&obj->field_14 = *(u32 *)&obj->field_14 - y;
+        *(u32 *)&obj->pos_x_frac = x + *(u32 *)&obj->pos_x_frac;
+        *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac - y;
         func_80131094(obj);
-        x = obj->field_54;
+        x = obj->accel_x;
         y = x << 31;
         x >>= 1;
         y |= x;
-        obj->field_54 = y;
+        obj->accel_x = y;
         if ((y & 1) == 0) {
             return;
         }
@@ -85,16 +85,16 @@ void func_801e94dc_slot06_11(Object *obj) {
 }
 
 void func_801e94fc_slot06_11(Object *obj) {
-    data_801ee2f0_slot06_11[obj->field_04](obj);
+    data_801ee2f0_slot06_11[obj->state_0](obj);
 }
 
 void func_801e953c_slot06_11(Object *obj) {
     u8 t;
 
     obj->field_81 = 4;
-    t = obj->field_04;
+    t = obj->state_0;
     obj->field_0c = 0;
-    obj->field_04 = t + 1;
+    obj->state_0 = t + 1;
     data_801ee300_slot06_11[obj->field_03](obj);
 }
 
@@ -105,13 +105,13 @@ void func_801e9590_slot06_11(Object *obj) {
     data_801f6200_slot06_11 = (Slot06_11Rec0028 *)((u8 *)obj + 0x5c);
     obj->field_61 = 0;
     data_801f6200_slot06_11->field_06 = 0;
-    data_801f6200_slot06_11->field_00 = *(u32 *)&((Object *)game_state.field_30c)->field_10;
+    data_801f6200_slot06_11->field_00 = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
     data_801f6200_slot06_11->field_04 = ((Object *)game_state.field_30c)->field_45;
     game_state.field_30c = (Pair *)(&player_left + 1);
     data_801f6200_slot06_11 = (Slot06_11Rec0028 *)((u8 *)obj + 0x28);
     *((u8 *)obj + 0x2d) = 0;
     data_801f6200_slot06_11->field_06 = 0;
-    data_801f6200_slot06_11->field_00 = *(u32 *)&((Object *)game_state.field_30c)->field_10;
+    data_801f6200_slot06_11->field_00 = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
     data_801f6200_slot06_11->field_04 = ((Object *)game_state.field_30c)->field_45;
 }
 
@@ -159,7 +159,7 @@ void func_801e97e8_slot06_11(Object *obj, Object *other, Slot06_11Rec0028 *rec) 
     data_801f6204_slot06_11 = data_801f6204_slot06_11 >> data_801f6208_slot06_11;
     if (data_801f6204_slot06_11 != 0) {
         other->field_293 = 0xff;
-        if (*(u16 *)&other->field_04 != 0x301) {
+        if (*(u16 *)&other->state_0 != 0x301) {
             u8 e = other->field_45;
             u8 r = rec->field_04;
 
@@ -169,7 +169,7 @@ void func_801e97e8_slot06_11(Object *obj, Object *other, Slot06_11Rec0028 *rec) 
                     rec->field_06 = 0;
                     func_801e9a64_slot06_11(other, 1);
                     func_801e99ac_slot06_11(other, 1);
-                } else if (*(u32 *)&other->field_10 == rec->field_00) {
+                } else if (*(u32 *)&other->pos_x_frac == rec->field_00) {
                     rec->field_05 -= 1;
                     if ((rec->field_05 & 0x80) != 0) {
                         rec->field_05 = 0x2a;
@@ -181,7 +181,7 @@ void func_801e97e8_slot06_11(Object *obj, Object *other, Slot06_11Rec0028 *rec) 
                     if ((rec->field_06 & 0x80) != 0) {
                         rec->field_05 = 8;
                         rec->field_06 = 0xb;
-                        if (*(u16 *)&other->field_04 == 0x101) {
+                        if (*(u16 *)&other->state_0 == 0x101) {
                             func_801e9a64_slot06_11(other, 2);
                         } else {
                             func_801e9a64_slot06_11(other, 0);
@@ -194,6 +194,6 @@ void func_801e97e8_slot06_11(Object *obj, Object *other, Slot06_11Rec0028 *rec) 
             }
         }
     }
-    rec->field_00 = *(u32 *)&other->field_10;
+    rec->field_00 = *(u32 *)&other->pos_x_frac;
     rec->field_04 = other->field_45;
 }

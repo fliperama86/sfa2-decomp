@@ -19,7 +19,7 @@ void func_801e05e0_slot0b(ModObj *obj) {
 
 void func_801e05e8_slot0b(ModObj *obj) {
     ref_other.p = obj->field_3c;
-    if (data_80190468.p->field_04 == 0) {
+    if (data_80190468.p->state_0 == 0) {
         data_801e471c_slot0b[obj->field_05](obj);
         if (data_80190a40 != 1) {
             func_801e0a78_slot0b(obj, data_801e46b4_slot0b[ref_other.p->side], ref_other.p->side, data_801a27d0);

@@ -9,7 +9,7 @@ void func_801b2168_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->field_3a != 0) {
-        o->field_07++;
+        o->state_3++;
         obj->field_3a = 0;
     }
     func_80130efc(o);
@@ -26,7 +26,7 @@ void func_801b21a8_slot04_06(Object *o) {
             obj->field_3a = 0;
             o->field_17b = 0;
         }
-        if (o->field_4c >= 0) {
+        if (o->vel_x >= 0) {
             func_801b4818_slot04_06(o);
         }
         func_80142adc(o);

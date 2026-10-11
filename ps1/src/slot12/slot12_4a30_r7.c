@@ -15,7 +15,7 @@ void func_8001505c_slot12(Object *obj) {
     int i;
     int k;
     data_80190468.p = (Object *)&game_state;
-    data_80028474_slot12[obj->field_04](obj);
+    data_80028474_slot12[obj->state_0](obj);
     k = obj->field_03;
     if (k == 5) {
         i = 0;

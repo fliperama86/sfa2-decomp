@@ -15,7 +15,7 @@ void func_8014bc08(Object *object)
   new_var = ((s16) value) >> 8;
   object->field_212 = new_var;
   object->field_213 = value;
-  if (((other->field_14c == 0) || ((ref_other.p = (Object *) other->field_14c, ref_other.p->field_04 == 0))) || ((ref_second.p = (Object *) other->field_14c, func_8014c4a8(object), object->field_213 <= ((s16) data_80189464))))
+  if (((other->field_14c == 0) || ((ref_other.p = (Object *) other->field_14c, ref_other.p->state_0 == 0))) || ((ref_second.p = (Object *) other->field_14c, func_8014c4a8(object), object->field_213 <= ((s16) data_80189464))))
   {
     func_8014c914(object);
   }

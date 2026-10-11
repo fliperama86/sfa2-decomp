@@ -15,21 +15,21 @@ void func_801b1308_slot04_10(Object *obj);
 void func_801b16c8_slot04_10(Object *obj);
 
 void func_801b0fb0_slot04_10(Object *obj) {
-    data_801c6998_slot04_10[obj->field_06](obj);
+    data_801c6998_slot04_10[obj->state_2](obj);
 }
 
 void func_801b0ff0_slot04_10(Object *obj) {
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     func_80130678(obj, 0x22);
     func_801204f4(obj, obj->side, 0xb);
 }
 
 void func_801b1038_slot04_10(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if ((s16)obj->step_flags < 0) {
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
     func_80130efc(obj);
 }
@@ -52,6 +52,6 @@ void func_801b10d8_slot04_10(Object *obj) {
     } else if (obj->field_129 != 0) {
         func_801b1308_slot04_10(obj);
     } else {
-        data_801c69a0_slot04_10[obj->field_07](obj);
+        data_801c69a0_slot04_10[obj->state_3](obj);
     }
 }

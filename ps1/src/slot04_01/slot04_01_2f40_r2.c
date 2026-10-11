@@ -4,15 +4,15 @@
 #include "../externs.h"
 
 void func_801b3098_slot04_01(Object *obj) {
-    s32 t = obj->field_50 + obj->field_58;
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - t;
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
-    obj->field_50 = t;
+    s32 t = obj->vel_y + obj->accel_y;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - t;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
+    obj->vel_y = t;
     if (obj->pos_y < obj->field_70) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
-        obj->field_14 = 0;
+        obj->state_3++;
+        obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->pos_y = ((Slot04aObj *)obj)->field_70;
         func_801209c4(obj);

@@ -23,14 +23,14 @@ void func_80130b10(Object *object) {
     if (d <= 0) {
         object->pos_x = x - d;
         object->field_164 = 1;
-        if (*(u16 *)&object->field_04 == 0x101 && object->field_241 == 0 && object->field_45 == 0 && dist < limit) goto push;
+        if (*(u16 *)&object->state_0 == 0x101 && object->field_241 == 0 && object->field_45 == 0 && dist < limit) goto push;
     } else {
         d += span * 2;
         d -= 0x180;
         if (d >= 0) {
             object->pos_x = x - d;
             object->field_164 = 2;
-            if (*(u16 *)&object->field_04 == 0x101 && object->field_241 == 0 && object->field_45 == 0 && dist < limit) {
+            if (*(u16 *)&object->state_0 == 0x101 && object->field_241 == 0 && object->field_45 == 0 && dist < limit) {
 push:
                 if (object->field_166 == 0 && ref_other.p->field_45 == 0) {
                     ref_other.p->pos_x = ref_other.p->pos_x - d;
@@ -121,8 +121,8 @@ void func_80130efc(Object *object) {
 void func_80130f2c(Object *object) {
     SequenceStep *next;
 
-    if (--*(s16 *)&object->field_38 == 0) {
-        if ((s16)object->field_3a < 0) {
+    if (--*(s16 *)&object->step_timer == 0) {
+        if ((s16)object->step_flags < 0) {
             next = object->sequence + object->sequence->loop_offset;
             if (next != object->sequence) object->field_80 = 1;
             object->sequence = object->sequence + object->sequence->loop_offset;
@@ -131,8 +131,8 @@ void func_80130f2c(Object *object) {
             if (next != object->sequence) object->field_80 = 1;
             object->sequence = object->sequence + 1;
         }
-        object->field_38 = object->sequence->duration;
-        object->field_3a = object->sequence->flags;
+        object->step_timer = object->sequence->duration;
+        object->step_flags = object->sequence->flags;
         object->frame = object->frames + object->sequence->frame_index;
         object->field_4a = object->frame->field_0d;
     }
@@ -142,9 +142,9 @@ void func_80131020(Object *object) {
     u32 w;
 
     if (object->field_7e != 0) {
-        w = *(u32 *)&object->field_04;
+        w = *(u32 *)&object->state_0;
         if ((u16)w == 1) {
-            if ((w & 0xffff0000) == 0x03030000 || object->field_06 == 5) {
+            if ((w & 0xffff0000) == 0x03030000 || object->state_2 == 5) {
                 if (object->field_29a == 0) func_80130f2c(object);
             }
         }
@@ -154,8 +154,8 @@ void func_80131020(Object *object) {
 void func_80131094(Object *object) {
     SequenceStep *next;
 
-    if (--*(s16 *)&object->field_38 == 0) {
-        if ((s16)object->field_3a < 0) {
+    if (--*(s16 *)&object->step_timer == 0) {
+        if ((s16)object->step_flags < 0) {
             next = object->sequence + object->sequence->loop_offset;
             if (next != object->sequence) object->field_80 = 1;
             object->sequence = object->sequence + object->sequence->loop_offset;
@@ -164,8 +164,8 @@ void func_80131094(Object *object) {
             if (next != object->sequence) object->field_80 = 1;
             object->sequence = object->sequence + 1;
         }
-        object->field_38 = object->sequence->duration;
-        object->field_3a = object->sequence->flags;
+        object->step_timer = object->sequence->duration;
+        object->step_flags = object->sequence->flags;
         if (object->field_08 == 0 || object->field_08 == 8) {
             object->frame = object->frames + object->sequence->frame_index;
             object->field_4a = object->frame->field_0d;

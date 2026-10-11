@@ -12,10 +12,10 @@ void func_8014b59c(Object *object) {
         u8 v;
         object->field_208 = 3;
         object->field_209 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 5;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 5;
+        object->state_3 = 0;
         object->field_159 = 1;
         object->field_21b = 0;
         v = object->field_158;
@@ -27,10 +27,10 @@ void func_8014b59c(Object *object) {
         u8 v;
         object->field_208 = 3;
         object->field_209 = 1;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 5;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 5;
+        object->state_3 = 0;
         object->field_159 = 1;
         object->field_21b = 1;
         v = object->field_158;
@@ -46,15 +46,15 @@ void func_8014b650(Object *object) {
         func_8014e7ec(object);
         func_8014dd14(object);
         if (func_8014dcc0(object)) {
-            if (*(u32 *)&object->field_04 == 0x20101) {
+            if (*(u32 *)&object->state_0 == 0x20101) {
                 object->field_bd = 2;
             }
             object->field_208 = 4;
             object->field_209 = 0;
-            object->field_04 = 1;
-            object->field_05 = 0;
-            object->field_06 = 7;
-            object->field_07 = 0;
+            object->state_0 = 1;
+            object->state_1 = 0;
+            object->state_2 = 7;
+            object->state_3 = 0;
             object->field_159 = 1;
             object->field_67 = 0;
             object->field_157 = 0;
@@ -70,15 +70,15 @@ void func_8014b704(Object *object) {
         func_8014e7ec(object);
         func_8014dd14(object);
         if (func_8014dcc0(object)) {
-            if (*(u32 *)&object->field_04 == 0x20101) {
+            if (*(u32 *)&object->state_0 == 0x20101) {
                 object->field_bd = 2;
             }
             object->field_208 = 5;
             object->field_209 = 0;
-            object->field_04 = 1;
-            object->field_05 = 0;
-            object->field_06 = 8;
-            object->field_07 = 0;
+            object->state_0 = 1;
+            object->state_1 = 0;
+            object->state_2 = 8;
+            object->state_3 = 0;
             object->field_159 = 1;
             object->field_67 = 0;
             object->field_157 = 0;

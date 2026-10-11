@@ -6,7 +6,7 @@
 void func_8001ca7c_slot28(Object *o) {
     o->field_01 = 0;
     if (((Slot28Obj *)o)->field_3a < 0) {
-        o->field_04++;
+        o->state_0++;
     }
     func_80131094(o);
     func_80131094(o);

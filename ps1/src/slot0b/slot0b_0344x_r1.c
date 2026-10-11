@@ -22,7 +22,7 @@ void func_801e0344_slot0b(Object *obj) {
     obj->field_0e = 0;
     obj->field_09 = 0;
     obj->field_24 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     data_801e4704_slot0b[obj->field_03](obj);
     ref_other.p = obj->field_3c;
     s = ref_other.p->field_d4;

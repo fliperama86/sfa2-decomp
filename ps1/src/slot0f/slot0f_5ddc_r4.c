@@ -22,12 +22,12 @@ void func_800e61c4_slot0f(Object *obj) {
 }
 
 void func_800e6240_slot0f(Object *object) {
-    data_800efad8_slot0f[object->field_05](object);
+    data_800efad8_slot0f[object->state_1](object);
 }
 
 void func_800e6280_slot0f(Object *obj) {
     if (game_state.field_2bc == 2) {
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 

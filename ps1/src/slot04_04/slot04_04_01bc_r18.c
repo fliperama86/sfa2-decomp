@@ -16,7 +16,7 @@ void func_801b17c4_slot04_04(Object *obj) {
     u8 u;
     FrameRecord *fr;
 
-    s = (obj->field_3a << 16) >> 24;
+    s = (obj->step_flags << 16) >> 24;
     if (obj->field_cd != 0) {
         func_801b1a54_slot04_04(obj);
     } else {
@@ -25,7 +25,7 @@ void func_801b17c4_slot04_04(Object *obj) {
             return;
         }
         if ((s & 0x7f) != 0) {
-            obj->field_3a = obj->field_3a & 0x80ff;
+            obj->step_flags = obj->step_flags & 0x80ff;
             func_80142c04(obj);
             func_80138ae8(&game_state, obj);
             if (obj->field_254 == 0) {
@@ -53,7 +53,7 @@ void func_801b17c4_slot04_04(Object *obj) {
             return;
         }
         obj->field_12a = a;
-        u = obj->field_3a;
+        u = obj->step_flags;
         g = obj->field_49;
         if (g != 0) {
             a += 0x40;
@@ -62,8 +62,8 @@ void func_801b17c4_slot04_04(Object *obj) {
         }
         func_801307e0(obj, a);
         obj->sequence = &obj->sequence[u];
-        obj->field_3a = obj->sequence->flags;
-        obj->field_38 = obj->sequence->duration;
+        obj->step_flags = obj->sequence->flags;
+        obj->step_timer = obj->sequence->duration;
         fr = obj->frames + obj->sequence->frame_index;
         obj->frame = fr;
         t = fr->field_0d;

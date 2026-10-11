@@ -9,8 +9,8 @@ void func_8014630c(Object *object) {
         func_8011ffdc(object);
         return;
     }
-    if ((s16)object->field_3a < 0) {
-        object->field_04 = 2;
+    if ((s16)object->step_flags < 0) {
+        object->state_0 = 2;
     }
     func_80146394(object);
     func_80131094(object);

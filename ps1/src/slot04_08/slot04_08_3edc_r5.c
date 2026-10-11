@@ -11,8 +11,8 @@ void func_801b44a8_slot04_08(Object *obj, Object *other) {
     obj->field_01 = 0;
     if (other->kind == obj->field_03) {
         if (other->frame->field_09 != 0) {
-            *(s32 *)&obj->field_10 = *(s32 *)&other->field_10;
-            *(s32 *)&obj->field_14 = *(s32 *)&other->field_14;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&other->pos_x_frac;
+            *(s32 *)&obj->pos_y_frac = *(s32 *)&other->pos_y_frac;
             obj->field_0b = other->field_0b;
             obj->field_01 = 1;
             if (obj->field_48 != other->frame->field_09) {

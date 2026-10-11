@@ -4,9 +4,9 @@
 #include "protos.h"
 
 void func_801440e4(Object *object) {
-    object->field_38 = 0xfff;
+    object->step_timer = 0xfff;
     if (game_state.config->field_76 != 0) {
-        object->field_38 = 0x20;
-        object->field_06 = object->field_06 + 1;
+        object->step_timer = 0x20;
+        object->state_2 = object->state_2 + 1;
     }
 }

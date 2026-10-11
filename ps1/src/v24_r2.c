@@ -11,10 +11,10 @@ void func_8011ef88(Object *o) {
     u8 *p;
     u8 z;
     func_80119b34(o);
-    o->field_04 = 0;
-    o->field_05 = 0;
-    o->field_06 = 0;
-    o->field_07 = 0;
+    o->state_0 = 0;
+    o->state_1 = 0;
+    o->state_2 = 0;
+    o->state_3 = 0;
     o->field_28 = 0;
     *(u32 *)&o->field_2c = 0;
     *(u32 *)((u8 *)o + 0x30) = 0;

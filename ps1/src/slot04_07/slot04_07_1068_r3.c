@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b1548_slot04_07(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 7;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
     obj->field_15a = 6;
     obj->field_159 = 1;
     obj->field_0b = obj->field_158;

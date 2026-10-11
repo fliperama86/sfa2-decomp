@@ -15,7 +15,7 @@ void func_800e7064_slot0f(Object *obj) {
     int i;
     int k;
     data_80190468.p = (Object *)&game_state;
-    data_800f012c_slot0f[obj->field_04](obj);
+    data_800f012c_slot0f[obj->state_0](obj);
     k = obj->field_03;
     if (k == 5) {
         i = 0;

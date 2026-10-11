@@ -7,11 +7,11 @@
 
 void func_80149238(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017cf00[object->field_04](object);
+    table_8017cf00[object->state_0](object);
 }
 
 void func_80149278(Object *object) {
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     table_8017cf10[object->field_03](object);
 }
 
@@ -53,7 +53,7 @@ void func_80149410(Object *object) {
 void func_80149464(Object *object) {
     ref_other.p = object->field_3c;
     if (ref_other.p->field_165 == 0) {
-        object->field_04 = object->field_04 + 1;
+        object->state_0 = object->state_0 + 1;
     }
     func_80131094(object);
 }
@@ -64,20 +64,20 @@ void func_801494c0(Object *object) {
 
 void func_801494e0(Object *object) {
     ref_other.p = object->field_3c;
-    if ((s16)object->field_3a < 0) {
-        object->field_04 = object->field_04 + 1;
+    if ((s16)object->step_flags < 0) {
+        object->state_0 = object->state_0 + 1;
         func_80120554(ref_other.p, ref_other.p->side, 0x328);
     }
-    /* Byte load of the low half of field_3a. */
-    if (*(u8 *)&object->field_3a != 0) {
+    /* Byte load of the low half of step_flags. */
+    if (*(u8 *)&object->step_flags != 0) {
         func_80120554(ref_other.p, ref_other.p->side, 0x327);
     }
     func_80131094(object);
 }
 
 void func_80149584(Object *object) {
-    if ((s16)object->field_3a < 0) {
-        object->field_04 = object->field_04 + 1;
+    if ((s16)object->step_flags < 0) {
+        object->state_0 = object->state_0 + 1;
     }
     func_80131094(object);
 }

@@ -4,46 +4,46 @@
 #include "../externs.h"
 
 void func_801b3734_slot04_05(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     func_80120554(obj, obj->side ^ 1, 0x31a);
     obj->field_0b = 0;
     if ((obj->field_c2 & 0x8000) != 0) {
         obj->field_0b = 1;
-        obj->field_4c = -0x30000;
+        obj->vel_x = -0x30000;
     } else {
-        obj->field_4c = 0x30000;
+        obj->vel_x = 0x30000;
     }
-    obj->field_54 = 0;
-    obj->field_50 = 0x40000;
-    obj->field_58 = -0xe000;
+    obj->accel_x = 0;
+    obj->vel_y = 0x40000;
+    obj->accel_y = -0xe000;
     func_801307e0(obj, 0x19);
 }
 
 void func_801b37d0_slot04_05(Object *obj) {
-    if (*(u8 *)&obj->field_3a != 0) {
-        obj->field_07++;
+    if (*(u8 *)&obj->step_flags != 0) {
+        obj->state_3++;
     }
     func_80130efc(obj);
 }
 
 void func_801b3810_slot04_05(Object *obj) {
-    if (*(u8 *)&obj->field_3a == 2) {
+    if (*(u8 *)&obj->step_flags == 2) {
         obj->field_45 = 1;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         func_80130efc(obj);
     }
 }
 
 void func_801b3864_slot04_05(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
         obj->pos_y = ((Slot04aObj *)obj)->field_70;
     }
-    if (*(u8 *)&obj->field_3a != 3) {
+    if (*(u8 *)&obj->step_flags != 3) {
         func_80130efc(obj);
     }
 }

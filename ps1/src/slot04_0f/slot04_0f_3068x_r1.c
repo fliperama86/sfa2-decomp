@@ -4,16 +4,16 @@
 #include "../externs.h"
 
 void func_801b3068_slot04_0f(Object *obj) {
-    if (obj->field_50 >= 0) {
-        *(s32 *)&obj->field_14 -= obj->field_50;
-        obj->field_50 += obj->field_58;
+    if (obj->vel_y >= 0) {
+        *(s32 *)&obj->pos_y_frac -= obj->vel_y;
+        obj->vel_y += obj->accel_y;
         if (obj->field_70 <= obj->pos_y) {
-            *(s32 *)&obj->field_10 += obj->field_4c;
-            obj->field_4c += obj->field_54;
+            *(s32 *)&obj->pos_x_frac += obj->vel_x;
+            obj->vel_x += obj->accel_x;
             return;
         }
     }
-    obj->field_07++;
+    obj->state_3++;
     obj->field_259 = 0;
     obj->field_258 = 0;
     obj->field_25a = 0;

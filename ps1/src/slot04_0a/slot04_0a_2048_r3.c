@@ -6,9 +6,9 @@
 void func_801b2158_slot04_0a(Object *obj) {
     Object *n;
 
-    if (*(u8 *)&obj->field_3a != 0) {
-        obj->field_07++;
-        obj->field_3a = obj->field_3a & 0xff00;
+    if (*(u8 *)&obj->step_flags != 0) {
+        obj->state_3++;
+        obj->step_flags = obj->step_flags & 0xff00;
         func_801204f4(obj, obj->side, 0xa);
         func_801204f4(obj, obj->side, 0xe);
         n = func_8011f0e8(obj);

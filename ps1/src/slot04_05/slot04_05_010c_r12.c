@@ -10,7 +10,7 @@ void func_801b335c_slot04_05(Object *obj) {
     int a;
     obj->field_46 = (s16)obj->field_46 - 0x100;
     if ((obj->field_46 & 0xff00) == 0) {
-        obj->field_07++;
+        obj->state_3++;
         a = ((Slot04bObj *)obj)->field_c6 + 0x1e;
         obj->field_27c = 0;
         ((Slot04bObj *)obj)->field_27d = 0;

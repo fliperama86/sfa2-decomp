@@ -10,11 +10,11 @@ void func_801b2a1c_slot04_0b(Object *obj) {
         func_80130efc(obj);
     } else {
         if (obj->field_12a == 4 && obj->field_a0 == 0) {
-            obj->field_07 = 6;
+            obj->state_3 = 6;
             obj->field_a0 = 3;
             func_801307e0(obj, 0x48);
         } else {
-            obj->field_07++;
+            obj->state_3++;
             obj->field_45 = 0;
             obj->pos_y = ((Slot04aObj *)obj)->field_70;
             func_801209c4(obj);

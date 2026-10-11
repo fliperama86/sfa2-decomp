@@ -26,8 +26,8 @@ void func_801ea900_slot06_0e(Object *obj) {
         obj->field_46 += 2;
     }
     if (((Slot06Layer *)data_801aa544)->field_05 == 2) {
-        obj->field_04++;
-        c->field_04 = 2;
+        obj->state_0++;
+        c->state_0 = 2;
     }
     func_80120028(obj);
 }

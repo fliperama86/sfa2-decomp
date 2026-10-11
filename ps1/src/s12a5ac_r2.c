@@ -6,16 +6,16 @@
 
 
 void func_8012a8dc(Object *object) {
-    handler_table_19b0[object->field_07](object);
+    handler_table_19b0[object->state_3](object);
 }
 
 void func_8012a91c(Object *object) {
     int index;
-    if ((s16)object->field_3a >= 0) {
+    if ((s16)object->step_flags >= 0) {
         func_80130efc(object);
         return;
     }
-    object->field_07 = object->field_07 + 1;
+    object->state_3 = object->state_3 + 1;
     object->field_157 = 0;
     object->field_45 = 1;
     if (object->field_48 == 1) {

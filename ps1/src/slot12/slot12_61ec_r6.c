@@ -19,7 +19,7 @@ void func_800166d0_slot12(Object *obj) {
     obj->pos_x = 0;
     obj->pos_y = 0;
     obj->field_0c = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     data_8002c3a8_slot12[0].value = 0;
     data_8002c3a8_slot12[1].value = 0;
     data_8002c3a8_slot12[2].value = 0;
@@ -30,13 +30,13 @@ void func_800166d0_slot12(Object *obj) {
     obj->field_76 = 0;
     obj->field_48 = table_8016e5c4[game_state.field_2b8].field_08;
     if (game_state.field_2bf == 0) {
-        obj->field_50 = (int)game_state.config + 0x19e;
-        obj->field_54 = *(s16 *)((u8 *)game_state.config + 0x220);
+        obj->vel_y = (int)game_state.config + 0x19e;
+        obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x220);
     } else {
-        obj->field_50 = (int)game_state.config + 0x1de;
-        obj->field_54 = *(s16 *)((u8 *)game_state.config + 0x222);
+        obj->vel_y = (int)game_state.config + 0x1de;
+        obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x222);
     }
-    t = obj->field_54;
+    t = obj->accel_x;
     obj->field_5c = t;
     if (t >= 0) {
         obj->field_5c = t & 0x3f;
@@ -48,7 +48,7 @@ void func_800166d0_slot12(Object *obj) {
         func_80016864_slot12(obj);
     } else {
         game_state.field_2bf = 0;
-        obj->field_4c = 0xb0;
+        obj->vel_x = 0xb0;
         func_80016a7c_slot12(obj);
         func_80016c50_slot12(obj);
     }

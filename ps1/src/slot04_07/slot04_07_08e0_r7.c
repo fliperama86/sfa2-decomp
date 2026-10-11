@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b0e8c_slot04_07(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     u16 *q;
     FrameRecord *fr;
 
@@ -13,17 +13,17 @@ void func_801b0e8c_slot04_07(Object *obj) {
     } else {
         if ((t & 0xff) != 0) {
             if (obj->field_0b == 0) {
-                *(s32 *)&obj->field_10 -= obj->field_4c;
+                *(s32 *)&obj->pos_x_frac -= obj->vel_x;
             } else {
-                *(s32 *)&obj->field_10 += obj->field_4c;
+                *(s32 *)&obj->pos_x_frac += obj->vel_x;
             }
-            obj->field_4c += obj->field_54;
-            if (obj->field_4c < 0) {
+            obj->vel_x += obj->accel_x;
+            if (obj->vel_x < 0) {
                 q = (u16 *)obj->sequence;
                 q += 6;
                 obj->sequence = (SequenceStep *)q;
-                obj->field_38 = q[0];
-                obj->field_3a = q[1];
+                obj->step_timer = q[0];
+                obj->step_flags = q[1];
                 fr = obj->frames + obj->sequence->frame_index;
                 obj->frame = fr;
                 obj->field_4a = fr->field_0d;
@@ -35,14 +35,14 @@ void func_801b0e8c_slot04_07(Object *obj) {
 }
 
 void func_801b0f74_slot04_07(Object *obj) {
-    if ((obj->field_3a & 0xff) != 0) {
-        obj->field_4c = 0xfffd8000;
-        obj->field_58 = -0x5000;
-        obj->field_50 = 0x58000;
-        obj->field_54 = 0;
-        obj->field_07++;
+    if ((obj->step_flags & 0xff) != 0) {
+        obj->vel_x = 0xfffd8000;
+        obj->accel_y = -0x5000;
+        obj->vel_y = 0x58000;
+        obj->accel_x = 0;
+        obj->state_3++;
         if (obj->field_0b == 0) {
-            obj->field_4c = 0x28000;
+            obj->vel_x = 0x28000;
         }
         obj->field_45 = 1;
     }

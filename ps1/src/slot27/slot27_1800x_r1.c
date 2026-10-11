@@ -14,7 +14,7 @@ void func_80011800_slot27(Object *o) {
     x -= 0xe8;
     obj->field_12 = sum;
     if ((u32)x >= 0x240) {
-        o->field_04 = o->field_04 + 1;
+        o->state_0 = o->state_0 + 1;
     }
     func_80131094(o);
     func_8011ffdc(o);

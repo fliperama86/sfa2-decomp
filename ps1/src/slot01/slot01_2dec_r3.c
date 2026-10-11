@@ -18,7 +18,7 @@ void func_800130a8_slot01(Object *obj) {
     obj->field_0f = 0;
     obj->field_26 = 0;
     obj->field_0a = 1;
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_x = box_margin[0];
     obj->pos_y = 0x2c;
     obj->field_90 = (void *)0x80059000;

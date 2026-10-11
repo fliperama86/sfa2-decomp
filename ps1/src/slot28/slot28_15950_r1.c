@@ -74,7 +74,7 @@ void func_80025950_slot28(Object *obj) {
             b->box_tables = (BoxTables *)data_8004dce8_slot28;
             prev = data_80051c64_slot28[1];
             data_80051c64_slot28[0] = b;
-            b->field_58 = (s32)data_8004dd1c_slot28;
+            b->accel_y = (s32)data_8004dd1c_slot28;
             b->field_3c = prev;
         }
         for (i = 0; i < 6; i++) {

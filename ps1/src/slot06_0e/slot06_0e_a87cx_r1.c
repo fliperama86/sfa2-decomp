@@ -20,7 +20,7 @@ void func_801ea87c_slot06_0e(Object *obj) {
         obj->field_46 = 0;
         obj->field_0d = 0;
         obj->field_0c = 0;
-        obj->field_04 = 1;
+        obj->state_0 = 1;
         obj->field_0a = 1;
         obj->field_81 = 4;
         obj->field_0f = 1;

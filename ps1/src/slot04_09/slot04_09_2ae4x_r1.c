@@ -13,13 +13,13 @@ void func_801b2ae4_slot04_09(Object *obj) {
 
     func_801b2d6c_slot04_09(obj);
     func_801b2858_slot04_09(obj);
-    if (obj->field_3a & 1) {
-        obj->field_07++;
+    if (obj->step_flags & 1) {
+        obj->state_3++;
         p = obj->other;
-        p->field_04 = 1;
-        p->field_05 = 1;
-        p->field_06 = 0;
-        p->field_07 = 0;
+        p->state_0 = 1;
+        p->state_1 = 1;
+        p->state_2 = 0;
+        p->state_3 = 0;
         p->field_63 = 0;
         p->field_60 = 0;
         p->field_61 = 1;
@@ -33,13 +33,13 @@ void func_801b2ae4_slot04_09(Object *obj) {
         p->field_45 = 0xff;
         p->field_72 = t ^ 1;
         p->pos_y = obj->field_70;
-        p->field_14 = 0;
+        p->pos_y_frac = 0;
         p->field_261 = 0;
         p->field_27a = 0;
         obj->field_292 = 0x1e;
         p->field_292 = 0x1e;
-        obj->field_50 += 0x3c000;
-        obj->field_4c <<= 1;
+        obj->vel_y += 0x3c000;
+        obj->vel_x <<= 1;
         obj->field_0b ^= 1;
         p->field_0b = obj->field_0b;
         func_801307e0(obj, 0x23);

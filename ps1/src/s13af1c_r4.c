@@ -23,9 +23,9 @@ void func_8013bc64(void) {
         func_8013b9e0();
     } else {
         ref_third.p->field_00 = ref_third.p->field_00 + 1;
-        ref_third.p->field_04 = 2;
-        ref_third.p->field_05 = 0;
-        ref_third.p->field_06 = 0;
-        ref_third.p->field_07 = 0;
+        ref_third.p->state_0 = 2;
+        ref_third.p->state_1 = 0;
+        ref_third.p->state_2 = 0;
+        ref_third.p->state_3 = 0;
     }
 }

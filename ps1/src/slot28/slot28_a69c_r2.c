@@ -10,6 +10,6 @@ void func_8001ab68_slot28(Object *o) {
     o->field_0c = 0;
     o->field_0b = 0;
     o->field_48 = 0;
-    o->field_04++;
+    o->state_0++;
     func_80130768(o, data_8003743c_slot28[o->field_03], (SequenceStep **)o->box_tables);
 }

@@ -9,13 +9,13 @@ extern u8 data_8007a008_slot00[];
 void func_80077720_slot00(Object *obj) {
     Object *p;
     obj->field_09 = 2;
-    obj->field_50 = 0;
+    obj->vel_y = 0;
     obj->field_5c = 0xfff;
-    obj->field_50 = 0x20;
-    obj->field_58 = 0xff;
+    obj->vel_y = 0x20;
+    obj->accel_y = 0xff;
     obj->field_a0 = 0xff;
-    obj->field_04++;
-    obj->field_54 = obj->field_0d;
+    obj->state_0++;
+    obj->accel_x = obj->field_0d;
     p = obj->field_3c;
     obj->field_67 = 0;
     obj->field_60 = 0;

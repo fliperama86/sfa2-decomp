@@ -12,7 +12,7 @@ void func_801b63c4_slot04_09(Object *obj, Object *parent) {
     SequenceStep **t;
     obj->field_01 = 0;
     if (obj->field_03 != parent->kind) {
-        obj->field_04++;
+        obj->state_0++;
         return;
     }
     n = parent->frame->field_09;

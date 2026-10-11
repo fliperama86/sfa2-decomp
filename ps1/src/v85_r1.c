@@ -16,8 +16,8 @@ void func_8012cca8(Object *object) {
     v = object->field_6b + 0xff;
     object->field_6b = v;
     if (v & 0x80) {
-        object->field_06++;
-        object->field_07 = 0;
+        object->state_2++;
+        object->state_3 = 0;
         if (object->field_24e) {
             object->field_24e = 0;
         }

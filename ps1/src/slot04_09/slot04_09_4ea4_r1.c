@@ -8,7 +8,7 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
     Object *p;
     Object *q;
 
-    if ((s16)o->field_3a & 0x8000) {
+    if ((s16)o->step_flags & 0x8000) {
         p = (Object *)func_8011f1e0();
         if (p == 0) {
             return;
@@ -32,7 +32,7 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
         o->field_160 = 0x3c;
         obj->field_330 = (u32)p;
         o->field_46 = 0;
-        o->field_07++;
+        o->state_3++;
         q = o->other;
         obj->field_334 = q->field_0c;
         obj->field_335 = q->field_0d;

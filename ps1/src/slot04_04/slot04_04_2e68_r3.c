@@ -6,10 +6,10 @@
 void func_801b3d18_slot04_04(Object *obj);
 
 void func_801b3cb0_slot04_04(Object *obj) {
-    if (obj->field_05 != 0) {
+    if (obj->state_1 != 0) {
         func_801b3d18_slot04_04(obj);
     } else {
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         obj->field_3c->field_14c = 0;
         func_80138070(obj, 3);
     }

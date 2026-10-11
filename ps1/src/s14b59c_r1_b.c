@@ -51,7 +51,7 @@ void func_8014ba78(Object *object) {
 
 void func_8014bac0(Object *object) {
     Object *other = object->other;
-    if (other->field_240 == 0 || other->field_14c == 0 || ((Object *)other->field_14c)->field_04 != 1) {
+    if (other->field_240 == 0 || other->field_14c == 0 || ((Object *)other->field_14c)->state_0 != 1) {
         func_8014c528(object);
     } else {
         func_8014c914(object);

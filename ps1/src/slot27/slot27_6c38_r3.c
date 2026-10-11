@@ -9,7 +9,7 @@ void func_80016f5c_slot27(Object *obj);
 void func_80016ee0_slot27(Object *obj) {
     func_80016f5c_slot27(obj);
     if (obj->field_00 == 2) {
-        obj->field_04++;
+        obj->state_0++;
     }
     if (ref_other.p->field_01 != 0) {
         if ((obj->field_48 & 0x80) == 0) {
@@ -31,5 +31,5 @@ void func_80016f5c_slot27(Object *obj) {
 }
 
 void func_80017028_slot27(Object *obj) {
-    obj->field_04++;
+    obj->state_0++;
 }

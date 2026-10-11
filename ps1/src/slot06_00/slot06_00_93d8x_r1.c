@@ -10,12 +10,12 @@ void func_801e93d8_slot06_00(Object *object) {
     d = layer->field_0a;
     d -= layer->field_22;
     d -= d >> 2;
-    d += object->field_10;
+    d += object->pos_x_frac;
     object->pos_x = d;
     d = layer->field_0e;
     d -= layer->field_26;
     d -= d >> 2;
-    d -= object->field_14 + 0xff08;
+    d -= object->pos_y_frac + 0xff08;
     object->pos_y = 0xf8 - d;
     func_80120028(object);
 }

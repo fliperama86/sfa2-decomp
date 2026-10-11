@@ -9,14 +9,14 @@ void func_801b22bc_slot04_07(Object *obj);
 
 void func_801b213c_slot04_07(Object *obj) {
     obj->field_17b = 1;
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 5);
     func_80138ae8(&game_state, obj);
-    obj->field_4c = 0x80000;
+    obj->vel_x = 0x80000;
     obj->field_46 = 0x1e;
-    obj->field_54 = 0;
-    obj->field_50 = 0;
-    obj->field_58 = 0;
+    obj->accel_x = 0;
+    obj->vel_y = 0;
+    obj->accel_y = 0;
     *(s32 *)&((Slot04aObj *)obj)->field_1c0 = -0x8000;
     func_801307e0(obj, 0x23);
 }
@@ -32,12 +32,12 @@ void func_801b21bc_slot04_07(Object *obj) {
             goto fail;
         }
 reset:
-        obj->field_07 = 4;
+        obj->state_3 = 4;
         if (obj->field_cd != 0) {
-            obj->field_07 = 2;
+            obj->state_3 = 2;
         }
         obj->field_46 = 8;
-        obj->field_54 = *(s32 *)&((Slot04aObj *)obj)->field_1c0;
+        obj->accel_x = *(s32 *)&((Slot04aObj *)obj)->field_1c0;
         func_801307e0(obj, 0x24);
         return;
     }

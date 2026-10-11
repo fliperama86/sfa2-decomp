@@ -9,7 +9,7 @@ void func_801b151c_slot04_08(Object *obj) {
     Object *p;
 
     if (((Slot04aObj *)obj)->field_3a != 0) {
-        obj->field_07++;
+        obj->state_3++;
         obj->field_46 = 0;
         func_80120554(obj, obj->side, 0x324);
         p = (Object *)func_8011f1e0();

@@ -8,9 +8,9 @@ void func_801b1a18_slot04_0b(Object *obj) {
     s16 y;
 
     func_80130efc(obj);
-    if (*(u8 *)&obj->field_3a == 2) {
+    if (*(u8 *)&obj->step_flags == 2) {
         obj->field_46 = 5;
-        obj->field_07++;
+        obj->state_3++;
         p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;

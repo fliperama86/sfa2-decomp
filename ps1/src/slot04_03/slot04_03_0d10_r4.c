@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b4574_slot04_03(Object *obj) {
-    if (*(u8 *)&obj->field_3a != 0) {
+    if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
-        obj->field_07++;
+        obj->state_3++;
     }
     func_80130efc(obj);
 }

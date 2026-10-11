@@ -6,7 +6,7 @@
 void func_80017768_slot27(Object *obj) {
     Rect r;
 
-    *(int *)&obj->field_14 = 0x4000000;
+    *(int *)&obj->pos_y_frac = 0x4000000;
     *(s16 *)&obj->sequence = 0x2;
     r.x = 0x260;
     r.y = 0x100;
@@ -18,7 +18,7 @@ void func_80017768_slot27(Object *obj) {
 void func_800177c0_slot27(Object *obj) {
     Rect r;
 
-    *(int *)&obj->field_14 = 0x4400000;
+    *(int *)&obj->pos_y_frac = 0x4400000;
     *(s16 *)&obj->sequence = 0x802;
     r.x = 0x260;
     r.y = 0x120;
@@ -30,7 +30,7 @@ void func_800177c0_slot27(Object *obj) {
 void func_80017818_slot27(Object *obj) {
     Rect r;
 
-    *(int *)&obj->field_14 = 0x4800000;
+    *(int *)&obj->pos_y_frac = 0x4800000;
     *(s16 *)&obj->sequence = 0x1002;
     r.x = 0x260;
     r.y = 0x140;
@@ -42,7 +42,7 @@ void func_80017818_slot27(Object *obj) {
 void func_80017870_slot27(Object *obj) {
     Rect r;
 
-    *(int *)&obj->field_14 = 0x4c00000;
+    *(int *)&obj->pos_y_frac = 0x4c00000;
     *(s16 *)&obj->sequence = 0x1802;
     r.x = 0x260;
     r.y = 0x160;

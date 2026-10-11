@@ -28,7 +28,7 @@ void func_801b0000_slot04_08(Object *obj) {
         c->field_00 = 1;
         c->field_02 = 8;
         c->field_03 = 0;
-        c->field_0b = obj->field_3a;
+        c->field_0b = obj->step_flags;
         c->field_3c = obj;
         s = obj->field_66;
         obj->field_28 = (u32)c;

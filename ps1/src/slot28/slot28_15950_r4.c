@@ -5,9 +5,9 @@
 
 void func_8002616c_slot28(Object *obj) {
     Object *b;
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + 0x60000;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + 0x60000;
     if (obj->pos_x >= 0x88) {
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
         b = obj->field_3c;
         b->field_48 = 0xff;
         func_80130768(obj, 2, (SequenceStep **)obj->box_tables);
@@ -26,7 +26,7 @@ void func_8002616c_slot28(Object *obj) {
             b->field_7c = 0x1e0;
             b->field_0d = 0;
             b->field_09 = 2;
-            b->box_tables = (BoxTables *)obj->field_58;
+            b->box_tables = (BoxTables *)obj->accel_y;
         }
     }
 }

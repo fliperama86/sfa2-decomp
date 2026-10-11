@@ -5,10 +5,10 @@
 
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
     ref_other.p = object->other;
-    ref_other.p->field_04 = 1;
-    ref_other.p->field_05 = 1;
-    ref_other.p->field_06 = 1;
-    ref_other.p->field_07 = 0;
+    ref_other.p->state_0 = 1;
+    ref_other.p->state_1 = 1;
+    ref_other.p->state_2 = 1;
+    ref_other.p->state_3 = 0;
     ref_other.p->field_63 = a;
     ref_other.p->field_60 = 2;
     ref_other.p->field_61 = b;

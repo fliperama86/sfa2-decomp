@@ -12,7 +12,7 @@ void func_800774f0_slot00(Object *obj) {
     if (p->field_a0 != 7) {
         p->field_a0 = p->field_a0 + 1;
     }
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_800776a8_slot00(obj, 0x12);
     q = ((Slot00Obj *)obj)->field_a8;
     n = (Object *)func_8011f1e0();

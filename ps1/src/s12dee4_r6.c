@@ -7,6 +7,6 @@
 
 
 void func_8012ebfc(Object *object) {
-    handlers_1a90[object->field_06](object);
+    handlers_1a90[object->state_2](object);
     func_80130b10(object);
 }

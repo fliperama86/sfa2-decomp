@@ -6,7 +6,7 @@
 extern s32 data_801c4390_slot04_04[];
 
 void func_801b27ac_slot04_04(Object *o) {
-    o->field_07++;
+    o->state_3++;
     o->field_46 = ((Slot04bObj *)o)->field_46 + 0x400;
     func_801428e4(o);
     func_80138b38(&game_state, o);
@@ -16,9 +16,9 @@ void func_801b27ac_slot04_04(Object *o) {
     } else {
         o->pos_x = o->pos_x - 0x18;
     }
-    o->field_4c = data_801c4390_slot04_04[o->field_12a * 2];
-    o->field_54 = data_801c4390_slot04_04[o->field_12a * 2 + 1];
-    o->field_50 = data_801c4390_slot04_04[o->field_12a * 2 + 2];
-    o->field_58 = data_801c4390_slot04_04[o->field_12a * 2 + 3];
+    o->vel_x = data_801c4390_slot04_04[o->field_12a * 2];
+    o->accel_x = data_801c4390_slot04_04[o->field_12a * 2 + 1];
+    o->vel_y = data_801c4390_slot04_04[o->field_12a * 2 + 2];
+    o->accel_y = data_801c4390_slot04_04[o->field_12a * 2 + 3];
     func_801307e0(o, o->field_12a + 0x53);
 }

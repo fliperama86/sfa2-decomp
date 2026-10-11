@@ -60,24 +60,24 @@ int func_801b11e4_slot04_0f(Object *obj) {
     }
     if (obj->field_45 == 0) {
         if (func_801417cc(obj)) {
-            obj->field_04 = 1;
-            obj->field_06 = 7;
-            obj->field_05 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_2 = 7;
+            obj->state_1 = 0;
+            obj->state_3 = 0;
             obj->field_15a = 0xa;
             obj->field_0b = obj->field_158;
             return 1;
         }
         return 0;
     }
-    if (obj->field_50 < 0) {
+    if (obj->vel_y < 0) {
         return 0;
     }
     if ((u8)func_801418bc(obj)) {
-        obj->field_04 = 1;
-        obj->field_06 = 7;
-        obj->field_05 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_2 = 7;
+        obj->state_1 = 0;
+        obj->state_3 = 0;
         obj->field_15a = 0xb;
         obj->field_0b = obj->field_158;
         return 1;
@@ -91,10 +91,10 @@ int func_801b12bc_slot04_0f(Object *obj) {
         return 0;
     }
     if (((int (*)(void))func_80141c4c)()) {
-        obj->field_04 = 1;
-        obj->field_06 = 7;
-        obj->field_05 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_2 = 7;
+        obj->state_1 = 0;
+        obj->state_3 = 0;
         obj->field_15a = 6;
         obj->field_159 = 0;
         return 1;

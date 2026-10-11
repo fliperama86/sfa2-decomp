@@ -12,21 +12,21 @@ void func_801b2a30_slot04_07(Object *obj) {
     s32 b;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     func_801204f4(obj, obj->side, 6);
     func_80141f28(obj, 9);
     func_80138ae8(&game_state, obj);
     p = &data_801c1f94_slot04_07[(obj->field_12a >> 1) * 4];
     a = *p++;
     b = *p++;
-    obj->field_50 = p[0];
-    obj->field_58 = p[1];
+    obj->vel_y = p[0];
+    obj->accel_y = p[1];
     if (obj->field_0b == 0) {
-        obj->field_4c = -a;
-        obj->field_54 = -b;
+        obj->vel_x = -a;
+        obj->accel_x = -b;
     } else {
-        obj->field_4c = a;
-        obj->field_54 = b;
+        obj->vel_x = a;
+        obj->accel_x = b;
     }
     a = 0;
     if (obj->field_49 != 0) {

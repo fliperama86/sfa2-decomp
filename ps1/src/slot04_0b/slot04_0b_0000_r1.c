@@ -45,7 +45,7 @@ void func_801b0000_slot04_0b(Object *obj) {
     if (game_state.field_42 == 0) {
         if (obj->other->kind == 0) {
             if (obj->field_cd != 0) {
-                obj->field_06 = 1;
+                obj->state_2 = 1;
                 if (obj->side == 0) {
                     obj->pos_x = obj->pos_x + 0x50;
                 } else {
@@ -86,13 +86,13 @@ void func_801b0000_slot04_0b(Object *obj) {
                 }
                 func_80130678(obj, 0x30);
             } else {
-                obj->field_06 = 2;
+                obj->state_2 = 2;
                 func_80130678(obj, 0x32);
             }
         } else {
-            obj->field_06 = 0;
+            obj->state_2 = 0;
         }
     } else {
-        obj->field_06 = 0;
+        obj->state_2 = 0;
     }
 }

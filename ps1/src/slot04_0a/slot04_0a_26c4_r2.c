@@ -20,20 +20,20 @@ void func_801b2804_slot04_0a(Object *obj) {
     }
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 >= 0 && obj->field_0b != obj->field_164 - 1) {
-        *(s32 *)&obj->field_10 += obj->field_4c;
+        *(s32 *)&obj->pos_x_frac += obj->vel_x;
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_801b3f10_slot04_0a(obj);
         func_801307e0(obj, (obj->field_12a >> 1) + 0x43);
     }
 }
 
 void func_801b28e0_slot04_0a(Object *obj) {
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_14 = 0;
+        obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->pos_y = ((Slot04aObj *)obj)->field_70;
         func_801312b8(obj);

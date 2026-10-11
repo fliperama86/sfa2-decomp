@@ -6,7 +6,7 @@
 extern void (*data_801c3dc8_slot04_08[])(Object *, Object *);
 
 void func_801b40fc_slot04_08(Object *obj, Object *unused) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         func_80130efc(obj);
@@ -14,5 +14,5 @@ void func_801b40fc_slot04_08(Object *obj, Object *unused) {
 }
 
 void func_801b4140_slot04_08(Object *obj, Object *p) {
-    data_801c3dc8_slot04_08[obj->field_07](obj, p);
+    data_801c3dc8_slot04_08[obj->state_3](obj, p);
 }

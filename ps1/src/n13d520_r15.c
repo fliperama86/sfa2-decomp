@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_801449d4(Object *object) {
-    if ((s16)object->field_3a < 0) {
+    if ((s16)object->step_flags < 0) {
         object->field_09 = 0;
-        object->field_04 = object->field_04 + 1;
+        object->state_0 = object->state_0 + 1;
     }
 }

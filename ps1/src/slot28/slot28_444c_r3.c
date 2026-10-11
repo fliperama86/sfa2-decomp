@@ -23,7 +23,7 @@ void func_800146dc_slot28(Object *obj) {
 }
 
 void func_80014764_slot28(Object *obj) {
-    if (obj->field_f0 == 0 && (s16)data_8005187c_slot28[3]->field_3a < 0) {
+    if (obj->field_f0 == 0 && (s16)data_8005187c_slot28[3]->step_flags < 0) {
         data_8018f5a0->field_60 = 0xb4;
         data_8018f5a0->field_52 += 1;
     }

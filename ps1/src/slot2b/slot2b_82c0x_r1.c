@@ -12,7 +12,7 @@ void func_800782c0_slot2b(Object *o) {
         func_8011ffdc(o);
         return;
     }
-    data_80079a2c_slot2b[o->field_06](o);
+    data_80079a2c_slot2b[o->state_2](o);
     func_8011ff74(o);
     func_8011ffdc(o);
 }

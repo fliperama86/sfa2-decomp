@@ -5,7 +5,7 @@
 
 void func_8001c998_slot28(Object *o) {
     if (((Slot28Obj *)o)->field_3a < 0) {
-        o->field_04++;
+        o->state_0++;
     }
     o->field_01 = 0;
     func_80131094(o);

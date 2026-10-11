@@ -6,5 +6,5 @@
 extern void (*data_80048cbc_slot28[])(Object *);
 
 void func_80022e0c_slot28(Object *object) {
-    data_80048cbc_slot28[object->field_04](object);
+    data_80048cbc_slot28[object->state_0](object);
 }

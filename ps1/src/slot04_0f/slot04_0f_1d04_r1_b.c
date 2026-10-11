@@ -60,5 +60,5 @@ void func_801b2340_slot04_0f(Object *o, u16 *src) {
 }
 
 void func_801b244c_slot04_0f(Object *obj) {
-    data_801c5aec_slot04_0f[obj->field_07](obj);
+    data_801c5aec_slot04_0f[obj->state_3](obj);
 }

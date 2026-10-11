@@ -6,7 +6,7 @@
 void func_8001c720_slot28(Object *o) {
     if (o->field_48 != 0) {
         o->field_48 = 0;
-        o->field_05++;
+        o->state_1++;
         func_80130768(o, 9, ((Slot28Obj *)o)->field_6c);
     }
 }
@@ -16,7 +16,7 @@ void func_8001c760_slot28(Object *o) {
     if (o->field_48 != 0) {
         o->field_48 = 0;
         o->field_09 = 4;
-        o->field_05++;
+        o->state_1++;
         func_80130768(o, 5, ((Slot28Obj *)o)->field_6c);
     } else {
         int v = ((Slot28Obj *)o)->field_3a;
@@ -27,7 +27,7 @@ void func_8001c760_slot28(Object *o) {
 void func_8001c7dc_slot28(Object *o) {
     if (o->field_48 != 0xff) {
         o->field_48 = 0;
-        o->field_05++;
+        o->state_1++;
         func_80130768(o, 10, ((Slot28Obj *)o)->field_6c);
     }
 }

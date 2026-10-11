@@ -10,7 +10,7 @@ void func_8002603c_slot28(Object *obj) {
     obj->field_0e = 0;
     obj->field_0c = 0;
     obj->field_0b = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     switch (t) {
     case 3:
         func_80026368_slot28(obj);

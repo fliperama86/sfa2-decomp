@@ -24,6 +24,6 @@ void func_8011ff24(void) {
 void func_8011ff74(Object *object) {
     int margin = box_margin[0];
     if ((u16)((u16)object->pos_x - margin + 0x40) > 0x200) {
-        object->field_04 = 3;
+        object->state_0 = 3;
     }
 }

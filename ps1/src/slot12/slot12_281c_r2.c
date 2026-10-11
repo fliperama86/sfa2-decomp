@@ -6,14 +6,14 @@
 extern void (*data_80022e98_slot12[])(Object *);
 
 void func_80012944_slot12(Object *obj) {
-    data_80022e98_slot12[obj->field_05](obj);
+    data_80022e98_slot12[obj->state_1](obj);
 }
 
 void func_80012984_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int v;
 
-    *(s32 *)&o->field_14 += obj->field_50;
+    *(s32 *)&o->pos_y_frac += obj->field_50;
     obj->field_50 += obj->field_58;
     v = obj->field_46 - 1;
     obj->field_46 = v;

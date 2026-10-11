@@ -29,7 +29,7 @@ int func_801c9354_slot05_06(Object *obj) {
 }
 
 int func_801c9368_slot05_06(Object *obj) {
-    if (*(u32 *)&obj->field_04 == 0x1010101) {
+    if (*(u32 *)&obj->state_0 == 0x1010101) {
         if (obj->field_45 == 0) {
             if (obj->field_163 == 0) {
                 if (*(s16 *)&obj->field_5c >= 0) goto yes;
@@ -54,5 +54,5 @@ void func_801c93d8_slot05_06(Object *obj) {
 }
 
 void func_801c9418_slot05_06(Object *obj) {
-    data_801dd2e4_slot05_06[obj->field_07](obj);
+    data_801dd2e4_slot05_06[obj->state_3](obj);
 }

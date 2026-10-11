@@ -20,14 +20,14 @@ void func_801b1cac_slot04_07(Object *obj) {
 }
 
 void func_801b1d5c_slot04_07(Object *obj) {
-    obj->field_50 = 0x40000;
-    obj->field_58 = -0x5800;
-    obj->field_07 = obj->field_07 + 1;
-    obj->field_54 = 0;
+    obj->vel_y = 0x40000;
+    obj->accel_y = -0x5800;
+    obj->state_3 = obj->state_3 + 1;
+    obj->accel_x = 0;
     if (obj->field_0b == 0) {
-        obj->field_4c = -0x20000;
+        obj->vel_x = -0x20000;
     } else {
-        obj->field_4c = 0x20000;
+        obj->vel_x = 0x20000;
     }
     func_80141f28(obj, 7);
     func_80120554(obj, obj->side ^ 1, 0x31a);
@@ -37,11 +37,11 @@ void func_801b1d5c_slot04_07(Object *obj) {
 }
 
 void func_801b1dfc_slot04_07(Object *obj) {
-    obj->field_07 = 6;
-    obj->field_58 = -0x5800;
-    obj->field_4c = 0;
-    obj->field_54 = 0;
-    obj->field_50 = 0;
+    obj->state_3 = 6;
+    obj->accel_y = -0x5800;
+    obj->vel_x = 0;
+    obj->accel_x = 0;
+    obj->vel_y = 0;
     obj->field_159 = 1;
     func_801307e0(obj, 0x3a);
 }

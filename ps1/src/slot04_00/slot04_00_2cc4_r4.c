@@ -14,7 +14,7 @@ void func_801b2f8c_slot04_00(Object *obj) {
     int v;
     int x;
 
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->field_09 = 0;
     ref_other.p = obj->field_3c;
     obj->field_49 = ref_other.p->field_49;
@@ -25,7 +25,7 @@ void func_801b2f8c_slot04_00(Object *obj) {
     }
     obj->field_af = 5;
     obj->field_45 = 0;
-    obj->field_50 = 0;
+    obj->vel_y = 0;
     if (obj->field_ac == 4) {
         obj->field_0d = obj->field_0d + 1;
     }
@@ -36,7 +36,7 @@ void func_801b2f8c_slot04_00(Object *obj) {
         v = -v;
         x = -0x59;
     }
-    obj->field_4c = v;
+    obj->vel_x = v;
     obj->pos_x = obj->pos_x + x;
     obj->pos_y = obj->pos_y - 0x36;
     if (ref_other.p->side == 0) {

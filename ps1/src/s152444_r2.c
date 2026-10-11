@@ -6,7 +6,7 @@
 
 
 void func_80152774(Object *object) {
-    object->field_05++;
+    object->state_1++;
     func_80152ad8(object, 0);
     func_801528e0(object);
 }
@@ -14,7 +14,7 @@ void func_80152774(Object *object) {
 void func_801527b4(Object *object) {
     ref_other.p = object->field_3c;
     if (ref_other.p->field_45 == 0) {
-        object->field_05++;
+        object->state_1++;
         func_80130768(object, 0x33, (SequenceStep **)table_8017c7f8);
     }
     func_801528e0(object);
@@ -22,8 +22,8 @@ void func_801527b4(Object *object) {
 }
 
 void func_8015282c(Object *object) {
-    if ((s16)object->field_3a < 0) {
-        object->field_04++;
+    if ((s16)object->step_flags < 0) {
+        object->state_0++;
     } else {
         func_80131094(object);
     }

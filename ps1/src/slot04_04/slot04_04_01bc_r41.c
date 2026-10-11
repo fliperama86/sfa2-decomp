@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b377c_slot04_04(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80120554(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 4);
     obj->field_0b = 0;
@@ -22,6 +22,6 @@ void func_801b377c_slot04_04(Object *obj) {
 void func_801b3838_slot04_04(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 0x100;
     if ((obj->field_46 & 0xff00) == 0) {
-        obj->field_07++;
+        obj->state_3++;
     }
 }

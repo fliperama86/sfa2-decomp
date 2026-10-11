@@ -18,16 +18,16 @@ void func_80076948_slot00(Object *o) {
     lim = data_800797dc_slot00[i];
     o->field_46++;
     if ((s16)o->field_46 >= lim) {
-        o->field_06++;
+        o->state_2++;
         func_80138070(o, o->field_ad);
         func_80077050_slot00(o);
     } else {
         ref_other.p = o->field_3c;
-        if (((Slot00Obj *)o)->field_a4 != ((ref_other.p->field_04 << 24) | (ref_other.p->field_05 << 16) | (ref_other.p->field_06 << 8))) {
-            o->field_04 = 3;
-            o->field_05 = 0;
-            o->field_06 = 0;
-            o->field_07 = 0;
+        if (((Slot00Obj *)o)->field_a4 != ((ref_other.p->state_0 << 24) | (ref_other.p->state_1 << 16) | (ref_other.p->state_2 << 8))) {
+            o->state_0 = 3;
+            o->state_1 = 0;
+            o->state_2 = 0;
+            o->state_3 = 0;
         }
         if (game_state.field_47 != 0) {
             o->field_00 = 2;

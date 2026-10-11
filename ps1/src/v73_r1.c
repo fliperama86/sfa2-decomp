@@ -31,8 +31,8 @@ void func_80148220(Object *object)
   new_var3 = object;
   y = parent->pos_y - y;
   x = (((u32) x) >> 16) + (x << 16);
-  new_var2 = (s32 *) (&object->field_10);
+  new_var2 = (s32 *) (&object->pos_x_frac);
   *new_var2 = x + offsets_cc28[new_var3->field_a0].x;
   y = (((u32) y) >> 16) + (y << 16);
-  *((s32 *) (&object->field_14)) = y + offsets_cc28[object->field_a0].y;
+  *((s32 *) (&object->pos_y_frac)) = y + offsets_cc28[object->field_a0].y;
 }

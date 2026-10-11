@@ -9,7 +9,7 @@ void func_801b1b4c_slot04_0b(Object *obj) {
         obj->field_17b = 0;
         func_80142adc(obj);
     }
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         func_80130efc(obj);

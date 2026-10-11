@@ -9,13 +9,13 @@ void func_801b1330_slot04_00(Object *obj) {
     int a = 0x1b;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 9);
     func_80138ae8(&game_state, obj);
-    obj->field_54 = -0x8000;
-    obj->field_58 = -0x6000;
-    obj->field_4c = data_801bfe08_slot04_00[obj->field_12a];
-    obj->field_50 = data_801bfe08_slot04_00[obj->field_12a + 1];
+    obj->accel_x = -0x8000;
+    obj->accel_y = -0x6000;
+    obj->vel_x = data_801bfe08_slot04_00[obj->field_12a];
+    obj->vel_y = data_801bfe08_slot04_00[obj->field_12a + 1];
     if (obj->field_49 != 0) {
         a = 0x3b;
     }

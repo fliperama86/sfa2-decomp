@@ -42,9 +42,9 @@ void func_801e93f0_slot06_02(void) {
 }
 
 void func_801e9490_slot06_02(Object *obj) {
-    if (obj->field_04 == 0) {
+    if (obj->state_0 == 0) {
         func_801e94d8_slot06_02(obj);
-    } else if (obj->field_04 == 1) {
+    } else if (obj->state_0 == 1) {
         func_801e9530_slot06_02(obj);
     }
 }
@@ -54,7 +54,7 @@ void func_801e94d8_slot06_02(Object *obj) {
     if (obj->field_01 != 0) {
         obj->field_01 = 0;
         ((Slot06Obj *)obj)->field_88 = 0;
-        obj->field_04++;
+        obj->state_0++;
         func_801e9604_slot06_02(obj);
     }
 }

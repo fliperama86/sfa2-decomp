@@ -14,5 +14,5 @@ void func_80014734_slot01(Object *obj) {
 }
 
 void func_80014754_slot01(Object *object) {
-    data_80015dc0_slot01[object->field_04](object);
+    data_80015dc0_slot01[object->state_0](object);
 }

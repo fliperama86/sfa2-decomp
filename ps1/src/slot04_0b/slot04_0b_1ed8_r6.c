@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 u8 func_801b2510_slot04_0b(Object *o) {
-    *(s32 *)&o->field_10 += o->field_4c;
-    *(s32 *)&o->field_14 -= o->field_50;
-    o->field_50 += o->field_58;
+    *(s32 *)&o->pos_x_frac += o->vel_x;
+    *(s32 *)&o->pos_y_frac -= o->vel_y;
+    o->vel_y += o->accel_y;
     return o->pos_y <= o->field_70;
 }

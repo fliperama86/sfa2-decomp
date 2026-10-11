@@ -20,7 +20,7 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
     u8 unused[8];
 
     o->field_a0 = 0xff;
-    o->field_04++;
+    o->state_0++;
     o->field_09 = 0;
     ref_other.p = o->field_3c;
     o->field_49 = ref_other.p->field_49;
@@ -31,7 +31,7 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
         func_801b3e88_slot04_0b(o);
     }
     o->field_45 = 0;
-    o->field_50 = 0;
+    o->vel_y = 0;
     if (o->field_ac == 4) {
         o->field_0d++;
     }
@@ -43,7 +43,7 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
         vx = -vx;
         dx = -dx;
     }
-    o->field_4c = vx;
+    o->vel_x = vx;
     o->pos_x = o->pos_x + dx;
     if (ref_other.p->side == 0) {
         ((Slot04aObj *)o)->field_8c = *(int *)0x1f8000a8;

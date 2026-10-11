@@ -11,7 +11,7 @@ void func_80130678(Object *object, int arg);
 void func_801b37e8_slot04_0d(Object *object) {
     u16 a;
     ((Slot04bObj *)object)->field_46 = 0x3c;
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     if (game_state.field_76 == 0) {
         game_state.field_76 = 0x1e;
     }

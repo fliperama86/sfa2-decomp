@@ -49,7 +49,7 @@ int func_801b6c60_slot04_0e(Object *obj) {
 }
 
 int func_801b6c68_slot04_0e(Object *obj) {
-    return obj->field_50 < 0;
+    return obj->vel_y < 0;
 }
 
 int func_801b6c74_slot04_0e(Object *o) {

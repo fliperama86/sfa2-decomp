@@ -39,10 +39,10 @@ void func_80139a78(Object *a, Object *b)
   }
   a->field_67 = 1;
   data_80188f34 = 0;
-  b->field_04 = 1;
-  b->field_05 = 1;
-  b->field_06 = 0;
-  b->field_07 = 0;
+  b->state_0 = 1;
+  b->state_1 = 1;
+  b->state_2 = 0;
+  b->state_3 = 0;
   b->field_62 = box->field_09 & 0xf;
   if (b->field_295 == 0)
   {

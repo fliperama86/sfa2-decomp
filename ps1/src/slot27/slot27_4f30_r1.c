@@ -9,12 +9,12 @@ void func_80015148_slot27(Object *obj);
 void func_80015070_slot27(Object *obj);
 
 void func_80014f30_slot27(Object *obj) {
-    data_80028120_slot27[obj->field_05](obj);
+    data_80028120_slot27[obj->state_1](obj);
 }
 
 void func_80014f70_slot27(Object *obj) {
-    if (ref_other.p->field_04 >= 2) {
-        obj->field_04 = obj->field_04 + 1;
+    if (ref_other.p->state_0 >= 2) {
+        obj->state_0 = obj->state_0 + 1;
     }
     func_80015148_slot27(obj);
     func_80015070_slot27(obj);
@@ -22,19 +22,19 @@ void func_80014f70_slot27(Object *obj) {
 }
 
 void func_80014fd4_slot27(Object *obj) {
-    obj->field_05 = 0;
+    obj->state_1 = 0;
     func_80014dec_slot27(obj);
 }
 
 void func_80014ff4_slot27(Object *o) {
-    o->field_04 = o->field_04 + 1;
+    o->state_0 = o->state_0 + 1;
     ref_first.p = o->field_28;
     if (ref_first.p != 0) {
-        ref_first.p->field_04 = 2;
+        ref_first.p->state_0 = 2;
     }
     ref_first.p = ((Slot27Obj *)o)->field_2c;
     if (ref_first.p != 0) {
-        ref_first.p->field_04 = 2;
+        ref_first.p->state_0 = 2;
     }
 }
 

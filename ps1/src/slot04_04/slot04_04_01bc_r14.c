@@ -17,10 +17,10 @@ int func_801b1328_slot04_04(Object *obj) {
 
 void func_801b1378_slot04_04(Object *obj) {
     ref_other.p = obj->other;
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 7;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
     obj->field_15a = 9;
     obj->field_159 = 1;
     obj->field_157 = 0;

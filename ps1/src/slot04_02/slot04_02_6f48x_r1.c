@@ -19,7 +19,7 @@ void func_801b6f48_slot04_02(Object *object) {
     int t;
 
     ((Slot04aObj *)object)->field_6c = data_801c7514_slot04_02;
-    object->field_04++;
+    object->state_0++;
     ((Slot04aObj *)object)->field_b0 = object->field_0d;
     parent = object->field_3c;
     object->field_09 = 0;
@@ -29,15 +29,15 @@ void func_801b6f48_slot04_02(Object *object) {
         func_801b772c_slot04_02(object, parent);
     }
     t = data_801c7754_slot04_02[object->field_03 >> 1];
-    object->field_50 = data_801c779c_slot04_02[object->field_ac];
+    object->vel_y = data_801c779c_slot04_02[object->field_ac];
     object->pos_y -= t;
     if (object->field_0b != 0) {
         d = data_801c7748_slot04_02[object->field_03 >> 1];
-        object->field_4c = data_801c7760_slot04_02[object->field_ac];
+        object->vel_x = data_801c7760_slot04_02[object->field_ac];
     } else {
         d = data_801c7748_slot04_02[object->field_03 >> 1];
         d = -d;
-        object->field_4c = -data_801c7760_slot04_02[object->field_ac];
+        object->vel_x = -data_801c7760_slot04_02[object->field_ac];
     }
     object->pos_x += d;
     if (parent->side == 0) {
@@ -48,9 +48,9 @@ void func_801b6f48_slot04_02(Object *object) {
     func_801b7920_slot04_02(object, object->field_ac);
     if (object->field_03 == 2 && ((Slot04aObj *)parent)->field_48 == -1) {
         if (parent->field_0b != 0) {
-            object->field_4c -= 0x10000;
+            object->vel_x -= 0x10000;
         } else {
-            object->field_4c += 0x10000;
+            object->vel_x += 0x10000;
         }
     }
 }

@@ -8,6 +8,6 @@ void func_8001948c_slot28(Object *obj) {
     obj->pos_x = t;
     if ((s16)t < 0xf8) {
         obj->pos_x = 0xf8;
-        obj->field_05++;
+        obj->state_1++;
     }
 }

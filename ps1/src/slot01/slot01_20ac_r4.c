@@ -16,9 +16,9 @@ void func_800124f4_slot01(Object *o) {
         p->field_03 = 0;
         p->field_48 = s->side;
         p->field_66 = 0;
-        p->field_58 = (s32)data_80023d9c_slot01;
-        p->field_4c = 0;
-        p->field_50 = 0;
+        p->accel_y = (s32)data_80023d9c_slot01;
+        p->vel_x = 0;
+        p->vel_y = 0;
         p->field_0b = 0;
         p->field_3c = o;
         obj->field_30 = p;

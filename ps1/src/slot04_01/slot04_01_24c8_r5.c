@@ -8,7 +8,7 @@ void func_801b2ae0_slot04_01(Object *obj) {
 
     obj->field_159 = 0;
     obj->field_157 = 0;
-    obj->field_07++;
+    obj->state_3++;
     obj->field_177--;
     if (obj->field_219 != 0) {
         a = 0x3f;

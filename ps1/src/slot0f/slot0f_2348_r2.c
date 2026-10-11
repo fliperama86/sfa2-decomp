@@ -34,8 +34,8 @@ void func_800e2498_slot0f(Object *o) {
 }
 
 void func_800e2550_slot0f(Object *o) {
-    if (o->field_10 & 0x5000) {
-        if (o->field_10 & 0x1000) {
+    if (o->pos_x_frac & 0x5000) {
+        if (o->pos_x_frac & 0x1000) {
             ((Slot0fObj *)o)->field_0c--;
             if (((Slot0fObj *)o)->field_0c < 0) {
                 ((Slot0fObj *)o)->field_0c = 1;

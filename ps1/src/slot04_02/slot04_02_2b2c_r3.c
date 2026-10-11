@@ -15,20 +15,20 @@ void func_801b2e38_slot04_02(Object *obj) {
 
     obj->field_249 = 2;
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (t & 0x80) {
-        obj->field_54 = -0x8000;
-        obj->field_58 = -0x6000;
-        obj->field_07++;
-        obj->field_4c = data_801c6380_slot04_02[obj->field_12a];
-        obj->field_50 = data_801c6384_slot04_02[obj->field_12a];
+        obj->accel_x = -0x8000;
+        obj->accel_y = -0x6000;
+        obj->state_3++;
+        obj->vel_x = data_801c6380_slot04_02[obj->field_12a];
+        obj->vel_y = data_801c6384_slot04_02[obj->field_12a];
     } else {
         if ((t & 0xff) == 2) {
-            obj->field_3a = t & 0xff00;
-            obj->field_4c = 0x80000;
-            obj->field_54 = -0x8000;
+            obj->step_flags = t & 0xff00;
+            obj->vel_x = 0x80000;
+            obj->accel_x = -0x8000;
         }
-        if (*(u8 *)&obj->field_3a == 0) {
+        if (*(u8 *)&obj->step_flags == 0) {
             if (obj->field_165 != 0) {
                 i = 0;
                 obj->field_165 = 0;
@@ -39,14 +39,14 @@ void func_801b2e38_slot04_02(Object *obj) {
                 obj->field_27b = data_801c6398_slot04_02[i];
             } else {
                 if (obj->field_0b != 0) {
-                    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+                    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
                 } else {
-                    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+                    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
                 }
-                obj->field_4c = obj->field_4c + obj->field_54;
-                if (obj->field_4c < 0) {
-                    obj->field_54 = 0;
-                    obj->field_4c = 0;
+                obj->vel_x = obj->vel_x + obj->accel_x;
+                if (obj->vel_x < 0) {
+                    obj->accel_x = 0;
+                    obj->vel_x = 0;
                 }
             }
         }

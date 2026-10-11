@@ -8,7 +8,7 @@ extern int data_8004ea74_slot28[];
 void func_80026368_slot28(Object *obj);
 
 void func_80026320_slot28(Object *obj) {
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     if (obj->pos_x >= 0x140) {
         func_80026368_slot28(obj);
     }
@@ -20,6 +20,6 @@ void func_80026368_slot28(Object *obj) {
     int row = k - 6;
     obj->pos_x = r & 0x3f;
     obj->pos_y = 0x98 - (r & 0x7f);
-    obj->field_4c = data_8004ea74_slot28[row * 8 + (r & 7)];
+    obj->vel_x = data_8004ea74_slot28[row * 8 + (r & 7)];
     func_80130768(obj, k, (SequenceStep **)obj->box_tables);
 }

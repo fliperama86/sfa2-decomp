@@ -10,22 +10,22 @@ void func_801b1998_slot04_00(Object *o) {
     s32 v;
 
     o->field_17b = t;
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
-    o->field_14 = 0;
-    o->field_50 = 0x40000;
+    o->pos_y_frac = 0;
+    o->vel_y = 0x40000;
     o->field_45 = t;
     if (o->field_49 == 0) {
-        o->field_58 = -0x6000;
+        o->accel_y = -0x6000;
     } else {
-        o->field_58 = 0xfffe8000;
+        o->accel_y = 0xfffe8000;
     }
     v = data_801bfe40_slot04_00[o->field_12a >> 1];
     if (o->field_0b == 0) {
         v = -v;
     }
-    o->field_4c = v;
+    o->vel_x = v;
     func_801307e0(o, 0x1e);
 }
 
@@ -33,13 +33,13 @@ void func_801b1a54_slot04_00(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int a = 0x20;
 
-    *(s32 *)&o->field_10 = *(s32 *)&o->field_10 + o->field_4c;
-    *(s32 *)&o->field_14 = *(s32 *)&o->field_14 - o->field_50;
-    o->field_50 = o->field_50 + o->field_58;
-    if (o->field_50 >= 0) {
+    *(s32 *)&o->pos_x_frac = *(s32 *)&o->pos_x_frac + o->vel_x;
+    *(s32 *)&o->pos_y_frac = *(s32 *)&o->pos_y_frac - o->vel_y;
+    o->vel_y = o->vel_y + o->accel_y;
+    if (o->vel_y >= 0) {
         func_80130efc(o);
     } else {
-        o->field_07++;
+        o->state_3++;
         func_80120554(o, o->side, 0x320);
         obj->field_1a4 = o->field_12a >> 1;
         if (o->field_49 != 0) {

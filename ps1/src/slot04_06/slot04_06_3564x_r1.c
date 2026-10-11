@@ -12,10 +12,10 @@ extern u16 data_801c547c_slot04_06[];
 
 /*
  * What it does (inferred, not an original name): a per-frame update of a
- * character state chosen by field_3a. State 2 sets field_0b from pos_x;
- * state 0 does nothing; otherwise, with field_4c >= 0, it runs the move,
- * may knock back ref_other.p, then func_80130efc. With field_4c negative
- * it counts field_1c5 down and either ends the state (field_07 + 1,
+ * character state chosen by step_flags. State 2 sets field_0b from pos_x;
+ * state 0 does nothing; otherwise, with vel_x >= 0, it runs the move,
+ * may knock back ref_other.p, then func_80130efc. With vel_x negative
+ * it counts field_1c5 down and either ends the state (state_3 + 1,
  * sequence 0x2e) or starts the sequence from data_801c547c_slot04_06.
  * Casts to Slot04aObj: field_1c5 is a member of the module's record type
  * only; a local pointer of that type instead of the casts differs from
@@ -25,7 +25,7 @@ void func_801b3564_slot04_06(Object *obj) {
     GameState *state = &game_state;
     /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of field_1d through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
     GameState *state_late = state;
-    u8 kind = obj->field_3a;
+    u8 kind = obj->step_flags;
     u8 hit;
     u16 d;
     if (kind == 2) {
@@ -52,13 +52,13 @@ void func_801b3564_slot04_06(Object *obj) {
         game_state.field_63 = 0x18;
         func_80146960(obj);
     }
-    if (obj->field_4c >= 0) {
+    if (obj->vel_x >= 0) {
         func_801b4818_slot04_06(obj);
         if (obj->field_cd != 0) {
             func_80141248(obj);
             /* The result is masked to a byte; without the cast this function differs from the original in 25 instruction lines. */
             if ((u8)func_801410c8(obj) != 0) {
-                obj->field_07++;
+                obj->state_3++;
                 func_801307e0(obj, 0x2e);
                 return;
             }
@@ -120,13 +120,13 @@ call:
             } else {
                 func_80120554(obj->other, obj->other->side, 0x34f);
             }
-            obj->field_4c = 0xa0000;
-            obj->field_54 = -0xe000;
+            obj->vel_x = 0xa0000;
+            obj->accel_x = -0xe000;
             state->field_63 = 8;
             d = data_801c547c_slot04_06[((Slot04aObj *)obj)->field_1c5];
             func_801307e0(obj, d);
         } else {
-            obj->field_07++;
+            obj->state_3++;
             func_801307e0(obj, 0x2e);
         }
     }

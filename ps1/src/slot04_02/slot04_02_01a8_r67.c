@@ -17,7 +17,7 @@ void func_801b78ec_slot04_02(Object *obj, void **tbl);
 void func_801b7660_slot04_02(Object *obj) {
     int a = 0x10;
 
-    obj->field_05++;
+    obj->state_1++;
     if (obj->field_03 != 2 && obj->field_03 != 8) {
         a = 0xf;
     }
@@ -25,7 +25,7 @@ void func_801b7660_slot04_02(Object *obj) {
 }
 
 void func_801b76ac_slot04_02(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         func_801b7908_slot04_02(obj, 3, 0, 0, 0);
     }
     func_80131094(obj);

@@ -4,11 +4,11 @@
 #include "protos.h"
 
 void func_8013ca3c(Object *a, Object *b) {
-    b->field_04 = 1;
-    b->field_06 = 7;
+    b->state_0 = 1;
+    b->state_2 = 7;
     b->field_15a = 11;
-    b->field_05 = 0;
-    b->field_07 = 0;
+    b->state_1 = 0;
+    b->state_3 = 0;
     a->field_29d = 1;
     a->field_159 = 0;
     b->field_159 = 0;

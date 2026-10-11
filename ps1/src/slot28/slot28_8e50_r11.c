@@ -5,6 +5,6 @@
 
 void func_800198d0_slot28(Object *obj) {
     if (obj->field_48 != 0) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }

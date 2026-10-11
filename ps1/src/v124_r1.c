@@ -26,7 +26,7 @@ void func_8012eb18(Object *o)
     case 18:
 
     case 19:
-      if (((s16) o->field_3a) < 0)
+      if (((s16) o->step_flags) < 0)
     {
       goto tail;
     }
@@ -47,10 +47,10 @@ void func_8012eb18(Object *o)
   }
 
   tail:
-  o->field_04 = 1;
+  o->state_0 = 1;
 
-  o->field_05 = 0;
-  o->field_06 = 0;
-  o->field_07 = 0;
+  o->state_1 = 0;
+  o->state_2 = 0;
+  o->state_3 = 0;
   func_80130678(o, 0);
 }

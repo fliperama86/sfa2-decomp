@@ -7,11 +7,11 @@ void func_801b20d4_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u16 a;
 
-    *(s32 *)&o->field_10 += o->field_4c;
-    *(s32 *)&o->field_14 -= o->field_50;
-    o->field_50 += o->field_58;
-    if (o->field_50 < 0) {
-        o->field_07++;
+    *(s32 *)&o->pos_x_frac += o->vel_x;
+    *(s32 *)&o->pos_y_frac -= o->vel_y;
+    o->vel_y += o->accel_y;
+    if (o->vel_y < 0) {
+        o->state_3++;
         func_80120554(o, o->side, 0x320);
         if (o->field_49 != 0) {
             a = 0x70;

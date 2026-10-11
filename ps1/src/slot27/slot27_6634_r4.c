@@ -29,5 +29,5 @@ void func_80016a54_slot27(Object *obj) {
 void func_80016a74_slot27(Object *obj) {
     ref_other.p = obj->field_3c;
     (*(Object **)&data_80190458) = obj->other;
-    data_80028e74_slot27[obj->field_04](obj);
+    data_80028e74_slot27[obj->state_0](obj);
 }

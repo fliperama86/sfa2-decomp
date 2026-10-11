@@ -12,16 +12,16 @@ void func_8012bbac(Object *object)
   ref_other.p = object->other;
   if (ref_other.p->field_157 == 0)
   {
-    object->field_07 = 0;
+    object->state_3 = 0;
     func_80130678(object, 0x15);
     return;
   }
   if (ref_other.p->field_45 != 0)
   {
-    object->field_07 = 0;
+    object->state_3 = 0;
     func_80130678(object, 0x15);
     return;
   }
-  object->field_07 = 2;
+  object->state_3 = 2;
   func_80130678(object, 0x18);
 }

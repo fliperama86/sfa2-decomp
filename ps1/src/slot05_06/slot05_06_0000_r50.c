@@ -6,7 +6,7 @@
 extern u8 data_801dd4e4_slot05_06[];
 
 void func_801cc478_slot05_06(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_17b = 1;
     ref_other.p = obj->other;
     func_8013fab4(obj);
@@ -20,7 +20,7 @@ void func_801cc50c_slot05_06(Object *obj) {
     Object *p;
 
     if (((Slot04aObj *)obj)->field_3a != 0) {
-        obj->field_07++;
+        obj->state_3++;
         p = obj->other;
         p->field_15b = 1;
         func_80140770(obj, 0x26, 5, *(s16 *)(data_801dd4e4_slot05_06 + (obj->field_12a & 0xfe)), 4, 0, 1);
@@ -38,7 +38,7 @@ void func_801cc50c_slot05_06(Object *obj) {
 }
 
 void func_801cc5dc_slot05_06(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         obj->field_17b = 0;

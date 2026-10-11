@@ -17,11 +17,11 @@ void func_801297b8(Object *object)
   object->field_5c = object->field_5c - t;
   if (((s16) object->field_5c) < 0)
   {
-    object->field_04 = 1;
-    object->field_05 = 1;
+    object->state_0 = 1;
+    object->state_1 = 1;
     new_var = 0;
-    object->field_06 = new_var;
-    object->field_07 = 0;
+    object->state_2 = new_var;
+    object->state_3 = 0;
     t = 2;
     object->field_62 = t;
     object->field_61 = 7;
@@ -29,10 +29,10 @@ void func_801297b8(Object *object)
     game_state.field_358->field_167 = object->field_28e;
     if (object->field_73 != 0)
     {
-      game_state.field_358->field_04 = 1;
-      game_state.field_358->field_05 = 1;
-      game_state.field_358->field_06 = 1;
-      game_state.field_358->field_07 = 0;
+      game_state.field_358->state_0 = 1;
+      game_state.field_358->state_1 = 1;
+      game_state.field_358->state_2 = 1;
+      game_state.field_358->state_3 = 0;
       game_state.field_358->field_63 = 0;
       game_state.field_358->field_60 = t;
       game_state.field_358->field_61 = 5;
@@ -55,11 +55,11 @@ void func_801297b8(Object *object)
     object->field_28c = 0;
     object->field_28d = 0;
     object->field_297 = 0;
-    object->field_04 = 1;
+    object->state_0 = 1;
     object->field_62 = 2;
-    object->field_05 = 1;
-    object->field_06 = 0;
-    object->field_07 = 0;
+    object->state_1 = 1;
+    object->state_2 = 0;
+    object->state_3 = 0;
     object->field_61 = 3;
     object->field_15b = 1;
     object->field_163 = 1;

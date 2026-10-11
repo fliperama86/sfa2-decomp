@@ -19,7 +19,7 @@ int func_80128814(Object *object)
   {
     return 0;
   }
-  if (object->field_06 == 0)
+  if (object->state_2 == 0)
   {
     return 0x60000;
   }

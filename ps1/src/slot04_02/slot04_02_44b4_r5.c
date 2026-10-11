@@ -12,8 +12,8 @@ void func_801b4f0c_slot04_02(Object *obj) {
 
     p = obj->other;
     func_80130efc(obj);
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_07 = obj->field_07 + 1;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_3 = obj->state_3 + 1;
         obj->field_17b = 0;
         p->field_15b = 1;
         func_80140770(obj, 0, 0xf, *(s16 *)(data_801c6500_slot04_02 + (obj->field_12a & 0xfe)), 0, 0, 1);
@@ -29,9 +29,9 @@ void func_801b4f0c_slot04_02(Object *obj) {
             }
         }
     }
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t != 0) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         func_80146478(obj, 2, -0x17, 0x26);
         func_80120554(p, p->side, 0x306);
         if (game_state.field_5c == 0) {

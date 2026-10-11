@@ -42,12 +42,12 @@ void func_801b6264_slot04_06(Object *obj) {
 void func_801b62c4_slot04_06(Object *obj) {
     s32 *p = (s32 *)((u8 *)data_801c5624_slot04_06 + ((obj->field_03 << 4) & 0x3f0));
 
-    obj->field_4c = *p++;
-    obj->field_54 = *p++;
-    obj->field_50 = p[0];
-    obj->field_58 = p[1];
+    obj->vel_x = *p++;
+    obj->accel_x = *p++;
+    obj->vel_y = p[0];
+    obj->accel_y = p[1];
     if (obj->field_0b != 0) {
-        obj->field_4c = -obj->field_4c;
-        obj->field_54 = -obj->field_54;
+        obj->vel_x = -obj->vel_x;
+        obj->accel_x = -obj->accel_x;
     }
 }

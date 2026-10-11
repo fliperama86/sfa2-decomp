@@ -27,17 +27,17 @@ void func_80075e50_slot00(Object *obj) {
 }
 
 void func_80075e90_slot00(Object *obj) {
-    data_80079140_slot00[obj->field_07](obj);
+    data_80079140_slot00[obj->state_3](obj);
 }
 
 void func_80075ed0_slot00(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x11, 0x14) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     } else {
         obj->field_159 = 1;
         func_80130dc0(obj);

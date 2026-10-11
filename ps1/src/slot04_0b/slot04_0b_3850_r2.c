@@ -7,8 +7,8 @@ void func_801b3a30_slot04_0b(Object *o) {
     Config *config = game_state.config;
 
     if ((config->field_a8 | config->field_65) == 0) {
-        *(s32 *)&o->field_10 += o->field_4c;
-        *(s32 *)&o->field_14 += o->field_50;
+        *(s32 *)&o->pos_x_frac += o->vel_x;
+        *(s32 *)&o->pos_y_frac += o->vel_y;
         func_80131094(o);
         if (o->field_ac >= 0xc) {
             func_8011ffa8(o);

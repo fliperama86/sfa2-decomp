@@ -6,10 +6,10 @@
 /* The form of func_801b1548_slot04_07 of another character file, with four
    other constants and three of its statements in another order. */
 void func_801b1008_slot04_01(Object *obj) {
-    obj->field_04 = 1;
-    obj->field_05 = 0;
-    obj->field_06 = 7;
-    obj->field_07 = 0;
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
     obj->field_15a = 8;
     obj->field_0b = obj->field_158;
     obj->field_157 = 0;

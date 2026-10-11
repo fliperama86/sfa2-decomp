@@ -13,10 +13,10 @@ int func_801b1150_slot04_0b(Object *obj) {
     }
     if (func_801417cc(obj)) {
         r++;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 1;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;

@@ -15,5 +15,5 @@ void func_800e6410_slot0f(Object *obj, int a) {
 }
 
 void func_800e6470_slot0f(Object *obj) {
-    data_800efd8c_slot0f[obj->field_04](obj);
+    data_800efd8c_slot0f[obj->state_0](obj);
 }

@@ -16,7 +16,7 @@ void func_801b1b08_slot04_14(Object *o) {
 
     if (obj->field_3a == 0) {
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
     }
     func_80130efc(o);
 }
@@ -25,13 +25,13 @@ void func_801b1b48_slot04_14(Object *obj) {
     func_801b1d8c_slot04_14(obj);
     if (obj->pos_y < obj->field_70) {
         if (obj->field_0b != 0) {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         } else {
-            *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         }
-        obj->field_4c = obj->field_4c + obj->field_54;
-        if (obj->field_4c < 0) {
-            obj->field_07++;
+        obj->vel_x = obj->vel_x + obj->accel_x;
+        if (obj->vel_x < 0) {
+            obj->state_3++;
         }
     } else {
         obj->field_17b = 0;
@@ -54,7 +54,7 @@ void func_801b1c08_slot04_14(Object *o) {
             return;
         }
     } else {
-        o->field_07++;
+        o->state_3++;
         o->pos_y = y;
         o->field_17b = 0;
         o->field_159 = 0;
@@ -65,9 +65,9 @@ void func_801b1c08_slot04_14(Object *o) {
 }
 
 void func_801b1c8c_slot04_14(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->other->field_249 = 5;
-        *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 & 0xffff0000;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
         func_801312b8(obj);
     } else {
         func_80142adc(obj);
@@ -76,18 +76,18 @@ void func_801b1c8c_slot04_14(Object *obj) {
 }
 
 void func_801b1cfc_slot04_14(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        obj->field_07 = 1;
-        obj->field_4c = 0x80000;
-        obj->field_54 = -0x8000;
-        obj->field_50 = 0x90000;
-        obj->field_58 = -0x6000;
+        obj->state_3 = 1;
+        obj->vel_x = 0x80000;
+        obj->accel_x = -0x8000;
+        obj->vel_y = 0x90000;
+        obj->accel_y = -0x6000;
         func_801307e0(obj, 0x60);
     } else {
         if (t & 0xff) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             func_80146998(obj);
         }
         func_80130efc(obj);
@@ -95,22 +95,22 @@ void func_801b1cfc_slot04_14(Object *obj) {
 }
 
 void func_801b1d8c_slot04_14(Object *obj) {
-    if (obj->field_49 != 0 && obj->field_50 < 0) {
-        obj->field_58 = 0xffff0000;
+    if (obj->field_49 != 0 && obj->vel_y < 0) {
+        obj->accel_y = 0xffff0000;
     }
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
 }
 
 void func_801b1dd8_slot04_14(Object *obj) {
-    data_801c62b8_slot04_14[obj->field_07](obj);
+    data_801c62b8_slot04_14[obj->state_3](obj);
 }
 
 void func_801b1e18_slot04_14(Object *obj) {
     u16 a;
 
     obj->field_17b = 1;
-    obj->field_07 = 1;
+    obj->state_3 = 1;
     func_80141f28(obj, 4);
     func_80138ae8(&game_state, obj);
     a = 0x2e;
@@ -129,7 +129,7 @@ void func_801b1e8c_slot04_14(Object *o) {
 
     func_80130efc(o);
     if (obj->field_3a != 0) {
-        o->field_07++;
+        o->state_3++;
         o->field_46 = obj->field_46 | 0x400;
         p = ((Object *(*)(void))func_8011f0e8)();
         if (p != 0) {
@@ -166,7 +166,7 @@ void func_801b1e8c_slot04_14(Object *o) {
 void func_801b1fdc_slot04_14(Object *obj) {
     s16 t;
 
-    if (!((s16)obj->field_3a & 0x8000)) {
+    if (!((s16)obj->step_flags & 0x8000)) {
         t = obj->field_46;
         if (t & 0xff00) {
             t = t - 0x100;
@@ -185,5 +185,5 @@ void func_801b1fdc_slot04_14(Object *obj) {
 }
 
 void func_801b2068_slot04_14(Object *obj) {
-    data_801c62c4_slot04_14[obj->field_07](obj);
+    data_801c62c4_slot04_14[obj->state_3](obj);
 }

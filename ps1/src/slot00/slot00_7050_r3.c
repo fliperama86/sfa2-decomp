@@ -10,12 +10,12 @@ extern FrameRecord data_80079908_slot00[];
 extern void func_800773b8_slot00(Object *obj);
 
 void func_800772c0_slot00(Object *obj) {
-    data_80079938_slot00[obj->field_04](obj);
+    data_80079938_slot00[obj->state_0](obj);
 }
 
 void func_80077300_slot00(Object *obj) {
     Object *p = obj->field_3c;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->field_09 = 0;
     obj->field_1c = p->field_1c;
     obj->field_1e = p->field_1e;

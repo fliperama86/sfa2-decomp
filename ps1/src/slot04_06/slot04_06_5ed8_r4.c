@@ -7,7 +7,7 @@ extern ObjectFn data_801c56a4_slot04_06[];
 
 void func_801b6334_slot04_06(Object *obj) {
     if (game_state.field_6a != 0) {
-        obj->field_04 = 2;
+        obj->state_0 = 2;
     } else {
         data_801c56a4_slot04_06[obj->field_03](obj);
     }

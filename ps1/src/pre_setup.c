@@ -9,10 +9,10 @@ u16 func_80130470(Object *object) {
 
 
 void func_8013047c(Object *object) {
-    object->field_04 = 1;
-    object->field_05 = 0;
-    object->field_06 = 5;
-    object->field_07 = 0;
+    object->state_0 = 1;
+    object->state_1 = 0;
+    object->state_2 = 5;
+    object->state_3 = 0;
     if (object->field_7e == 0) object->field_0b = object->field_158;
     func_80142c04(object);
     object->field_67 = 0;

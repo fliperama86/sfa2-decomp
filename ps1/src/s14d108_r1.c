@@ -60,7 +60,7 @@ void func_8014d3a8(Object *object) {
 void func_8014d3e8(Object *object) {
     if ((u8)func_8014de94(object)) {
         func_8014e080(object);
-    } else if (object->field_06 == 0
+    } else if (object->state_2 == 0
         || (u16)(object->field_211 | (object->field_210 << 8)) >= object->field_21e
         || (object->field_48 != 0 && object->field_164 != 0)) {
         func_8014d99c(object);
@@ -70,7 +70,7 @@ void func_8014d3e8(Object *object) {
 void func_8014d484(Object *object) {
     if ((u8)func_8014de94(object)) {
         func_8014e080(object);
-    } else if (object->field_06 == 0
+    } else if (object->state_2 == 0
         || (u16)(object->field_211 | (object->field_210 << 8)) < object->field_21e
         || (object->field_48 != 0 && object->field_164 != 0)) {
         func_8014d99c(object);

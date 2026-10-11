@@ -5,7 +5,7 @@
 
 void func_800171a8_slot28(Object *obj) {
     if (obj->field_48 != 0) {
-        obj->field_05 += 1;
+        obj->state_1 += 1;
     }
 }
 

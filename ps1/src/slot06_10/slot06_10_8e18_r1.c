@@ -15,7 +15,7 @@ void func_801e90a8_slot06_10(Slot06Pal *pal, SeqRec *rec);
 void func_801e913c_slot06_10(Slot06Cursor *cur);
 
 void func_801e8e18_slot06_10(Object *obj) {
-    data_801ea958_slot06_10[obj->field_04](obj);
+    data_801ea958_slot06_10[obj->state_0](obj);
 }
 
 void func_801e8e58_slot06_10(Object *o) {

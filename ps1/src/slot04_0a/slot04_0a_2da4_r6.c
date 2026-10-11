@@ -9,7 +9,7 @@ void func_801b3424_slot04_0a(Object *obj) {
     a = 0x46;
     obj->field_159 = 0;
     obj->field_157 = 0;
-    obj->field_07++;
+    obj->state_3++;
     obj->field_177--;
     if (obj->field_219 != 0) {
         a = 0x47;
