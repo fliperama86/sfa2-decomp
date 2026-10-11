@@ -101,6 +101,17 @@ whole (its plan for this change is the whole build, every tool's tests and
 every folder's differential runs), the port's build and its control files,
 the inventory sweep (no boundary moved).
 
+After the review. The pull request was approved at `d57b426`; before it
+could be merged, main gained batch 5 (`7a1d6ab`): six functions left
+`slot04b_nonmatching` and became units of `slot04_11` and `slot04_17`,
+written with the old names. The merge of main had six conflicts of one
+kind, a file that this change modified and main deleted, and each was
+settled by taking the deletion. The tool, run on the merged tree with the
+same command, rewrote 86 uses in the six new units and left nothing; their
+comments name none of the twelve fields. On that head, `3c49872`: 78 of 78
+images `RESULT: PASS`, and the replays of the eight folders, 117 functions
+(the six are gone from their folder), every one with `failed 0`.
+
 Known and left for the next change. `Object` is also the type of records
 that are not fighters. In 37 lines of 22 units, found by their casts with
 the command on the names page, one of the four words `vel_x`, `vel_y`,
