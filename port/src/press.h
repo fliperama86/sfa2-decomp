@@ -85,4 +85,12 @@ void port_press_deliver_claimed(void);
  * stream calls (stream.c) ask it for their busy rule. */
 int port_press_out_busy(void);
 
+/* One line on the output, then the four counts begin again at 0:
+ *     decoder: program NAME: F frames, T transfers, C completions taken, R dropped by a reset
+ * F: calls of DecDCTin that handed the chip a frame. T: transfers that DecDCTout started. C: completions taken (the routine was called,
+ * or there was none and the completion was dropped). R: completions that a DecDCTReset found pending or claimed and dropped; the
+ * frame they belong to was not handed out to its end. T - C - R is what was pending when the line was printed. programs.c calls it
+ * when a built-in program has returned, with the program's name. */
+void port_press_report(const char *program);
+
 #endif

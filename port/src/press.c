@@ -31,6 +31,9 @@ static unsigned long long in_us;        /* the time of the frame's DecDCTin */
 static unsigned long long handed;       /* bytes of the frame handed out so far */
 static unsigned mb_bytes;               /* a macroblock's bytes at the depth of the frame's DecDCTin */
 static unsigned dropped;                /* completions dropped for want of a routine */
+/* The counts of port_press_report, since the report before: frames handed in, transfers out, completions taken, and completions
+ * that a DecDCTReset dropped while they were pending. */
+static unsigned n_frames, n_transfers, n_taken, n_reset;
 
 /* The span [p, p + n) must lie inside the mapped RAM, else the program stops with the call's name. */
 static void need(const char *call, const char *what, const void *p, unsigned long long n)
@@ -44,6 +47,7 @@ static void run_completion(void)
 {
     void (*f)(void) = port_iopage_dma_callback(1);
     state = 0;
+    n_taken++;
     if (f) {
         port_target_check("decoder output callback", (const void *)f);   /* its address checked now, as iopage.c does for its own */
         f();
@@ -82,6 +86,7 @@ void port_DecDCTReset(int mode)
     NEED_CHIP("DecDCTReset");
     if (mode == 0) port_h_ResetCallback();
     Psyz_MdecReset();
+    if (state != 0) n_reset++;
     state = 0;
     if (mode == 0) {
         struct port_mdec t;
@@ -144,6 +149,7 @@ void port_DecDCTin(unsigned long *buf, int mode)
     mb_bytes = depth == 2 ? 768 : 512;
     handed = 0;
     in_us = port_now_us();
+    n_frames++;
 }
 
 void port_DecDCTout(unsigned long *buf, int words)
@@ -160,6 +166,7 @@ void port_DecDCTout(unsigned long *buf, int words)
     handed += n * 4;
     blocks = mb_bytes ? (handed + mb_bytes - 1) / mb_bytes : 0;
     due_us = in_us + blocks * PORT_PRESS_US_PER_MACROBLOCK;
+    n_transfers++;
     state = 1;
 }
 
@@ -186,4 +193,12 @@ void port_press_deliver_claimed(void)
 int port_press_out_busy(void)
 {
     return state != 0;
+}
+
+void port_press_report(const char *program)
+{
+    printf("decoder: program %s: %u frames, %u transfers, %u completions taken, %u dropped by a reset\n", program, n_frames, n_transfers, n_taken,
+           n_reset);
+    fflush(stdout);
+    n_frames = n_transfers = n_taken = n_reset = 0;
 }

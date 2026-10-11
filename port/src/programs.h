@@ -15,7 +15,8 @@
  *     to t_addr + t_size must lie in the mapped RAM, and the RAM there must equal the file's bytes (the line names what failed;
  *     for a difference the first address and both bytes). The program's C reads its data at these addresses.
  * Then, in this order: the row's setup when it is not null, main (called as void (*)(void)), the row's teardown when it is not
- * null; one trace line before and one after, each naming the program. The result is 1. Nothing else is cleaned up after main.
+ * null; one trace line before and one after, each naming the program; and last port_press_report with the program's name (the
+ * movie decoder's line of counts, press.h). The result is 1. Nothing else is cleaned up after main.
  * The checks are in port/tools/test_hostprograms.py. Nothing here is compared with a console. */
 #ifndef PORT_PROGRAMS_H
 #define PORT_PROGRAMS_H
