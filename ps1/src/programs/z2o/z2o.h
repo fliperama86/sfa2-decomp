@@ -163,5 +163,6 @@ extern void func_80011630_z2o(int stereo);
 extern void func_800116c8_z2o(int channel);
 extern void func_800119b8_z2o(int value);
 extern u32 func_800116d8_z2o(void);
+extern int func_800116e8_z2o(void);
 
 #endif
