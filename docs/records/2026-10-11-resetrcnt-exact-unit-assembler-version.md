@@ -53,7 +53,7 @@
   `func_80157784` stays there as the name its caller in the game uses.
   The inventory sweep now carries the name, and it marks the function
   before it (`0x80157750`) as a library function by its place.
-- What ran, on the tree with main at `c774d77` merged in unless said:
+- What ran, on the tree with main at `162272e` merged in unless said:
   - `fndiff.py --rebuild sdk_libapi_counter_p2`:
     `baseline 52 bytes at 0x80157784, built 52 bytes at 0x80157784, 0 differing instruction slots: IDENTICAL`;
     without the unit's `aspsx_version`: 1 differing instruction slot.
@@ -75,6 +75,6 @@
     on the pull request's first head (the tool, its controls and the
     configuration's version lines are the same in the final one).
   - The map's render:
-    `overall: 5521/5600 distinct functions exact (98.6%); 12968/13072 placements (99.2%); 1757312/1809836 code bytes (97.1%)`.
+    `overall: 5528/5600 distinct functions exact (98.7%); 12975/13072 placements (99.3%); 1763236/1809836 code bytes (97.4%)` (with main at `162272e` merged in).
   The whole control set of the build tool was not run. No PC build, no
   differential test, no game.
