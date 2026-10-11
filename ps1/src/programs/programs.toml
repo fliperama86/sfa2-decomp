@@ -75,6 +75,7 @@ CdGetSector = 0x80016428
 DecDCToutCallback = 0x80011a14
 DecDCTReset = 0x80011860
 DecDCTvlc = 0x800118c4
+DecDCTin = 0x80011914
 StSetRing = 0x80019480
 StSetStream = 0x80018860
 StGetNext = 0x80019510

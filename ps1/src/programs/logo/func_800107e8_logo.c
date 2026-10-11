@@ -63,10 +63,10 @@ void func_800107e8_logo(u8 *base, int str_sector, int bin_sector, int vmode, int
     data_8002eb14_logo = (u32 *)(base + 0x1d500);
     data_8002eb00_logo = (u32 *)base;
     data_8002eb18_logo = (u32 *)(base + 0x21100);
-    data_8002eb48_logo = (u32 *)(base + 0x21100);
+    data_8002eb48_logo = (u8 **)(base + 0x21100);
     data_8002eb1c_logo = 0;
     data_8002eb38_logo = vmode;
-    data_8002eb4c_logo = (u32 *)(base + 0x21140);
+    data_8002eb4c_logo = (u16 **)(base + 0x21140);
     data_8002eb34_logo = stereo;
     do {
         CdIntToPos(bin_sector, data_8002ebb4_logo);

@@ -43,6 +43,7 @@ extern u32 *StSetRing(u32 *ring, int size);
 extern int StSetStream(int mode, int start, int end, void (*func1)(void), void (*func2)(void));
 extern int StGetNext(u32 **addr, u32 **header);
 extern int StFreeRing(u32 *base);
+extern void DecDCTin(u32 *buf, int mode);
 extern int CdControl(u8 com, u8 *param, u8 *result);
 extern int CdRead2(int mode);
 extern int CdPosToInt(u8 *p);
@@ -53,7 +54,10 @@ extern int CdReadSync(int mode, u8 *result);
 extern void func_80010928_logo(void);
 extern int func_80010a80_logo(int sector);
 extern void func_80010a38_logo(void);
+extern void func_80010f20_logo(void);
 extern void func_80010fc4_logo(void);
+extern void func_800110f4_logo(u8 *table, u16 *codes);
+extern void func_800111d0_logo(int x, int y);
 extern void func_80010f38_logo(void);
 extern void func_80011060_logo(void);
 
@@ -97,9 +101,11 @@ extern volatile int data_8002eb3c_logo;
 extern u8 data_8002eb40_logo[4];
 /* gp + 0x48: the filter of the disc, file and channel, both 1 (inferred from its use in CdControl(0x0d, ...)). */
 extern u8 data_8002eb44_logo[2];
-/* gp + 0x4c and gp + 0x50: the same buffer as data_8002eb18_logo and the address 0x40 bytes after it (inferred: base + 0x21100 and base + 0x21140). */
-extern u32 *data_8002eb48_logo;
-extern u32 *data_8002eb4c_logo;
+/* gp + 0x4c and gp + 0x50: two tables of pointers in the stills' file, the first the same buffer as data_8002eb18_logo and the second 0x40 bytes
+   after it (inferred: base + 0x21100 and base + 0x21140). The first table's pointers go to the colors of a still, the second's to its codes, as
+   func_800110f4_logo takes them; the pointers are relocated after the file is read. */
+extern u8 **data_8002eb48_logo;
+extern u16 **data_8002eb4c_logo;
 /* gp + 0x54: the index (0 or 1) of the display environment shown (inferred). */
 extern int data_8002eb50_logo;
 /* Two display environments of 20 bytes each (inferred from the stride). */
