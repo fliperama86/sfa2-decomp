@@ -50,8 +50,8 @@ extern long SetVideoMode(long mode);
 
 /* gp + 0x00: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_80010e28_logo. */
 extern u8 data_8002eafc_logo;
-/* gp + 0x0c: a buffer that CdGetSector fills (inferred from the call). */
-extern u8 *data_8002eb08_logo;
+/* gp + 0x0c: two buffers (inferred: pointers; the first is the one CdGetSector is handed, the table is indexed by data_8002eb20_logo in func_80010a80_logo). */
+extern u8 *data_8002eb08_logo[2];
 /* gp + 0x04: the buffer the decoder writes a strip to (inferred). */
 extern u32 *data_8002eb00_logo;
 /* gp + 0x14: where the expansion of run-length data writes (inferred); the

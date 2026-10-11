@@ -9,7 +9,7 @@
  *
  * What it does (inferred, not an original name): ends the movie. In order:
  *   1. func_80011060_logo() (the volume down), StUnSetRing(), CdReady(0, 0);
- *   2. CdGetSector(p, 0x200) with p the pointer in the word at 0x8002eb08;
+ *   2. CdGetSector(p, 0x200) with p the first pointer of the table of two at 0x8002eb08;
  *   3. stores the byte 0x80 at 0x8002eafc (the disc mode byte) and sends
  *      CdControlB(0x0e, 0x8002eafc, 0) until it returns a value that is
  *      not 0;
@@ -23,7 +23,8 @@
  *
  * Contract:
  *   Arguments: none. No result.
- *   Reads: the word at 0x8002eb08 (any word in the test, only passed on),
+ *   Reads: the word at 0x8002eb08 (the first of the two pointers; any word in
+ *     the test, only passed on),
  *     the index word at 0x8002eb50 (once at each turn of the last loop),
  *     the results of the callees.
  *   Writes: the byte at 0x8002eafc (0x80), the local rectangle.
@@ -50,7 +51,7 @@ void func_80010e28_logo(void) {
     func_80011060_logo();
     StUnSetRing();
     CdReady(0, 0);
-    CdGetSector(data_8002eb08_logo, 0x200);
+    CdGetSector(data_8002eb08_logo[0], 0x200);
     data_8002eafc_logo = 0x80;
     while (CdControlB(0x0e, &data_8002eafc_logo, 0) == 0) {
     }

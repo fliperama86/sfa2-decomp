@@ -5,7 +5,7 @@ Choices of the setup (reads and writes are listed in func_80010e28_logo.c):
     non-zero word; the recorder of the flip stores a second word of the same
     kind in it at its first call (the flip changes the index), so that the
     second turn of the last loop reads another value than the first;
-  - the word at 0x8002eb08 (the pointer handed to CdGetSector) is a random
+  - the word at 0x8002eb08 (the first of the two pointers, the one handed to CdGetSector) is a random
     word, and so are the bytes around it, around the index word and around
     the mode byte at 0x8002eafc (the three bytes after the mode byte are
     inside the watched word), so that a neighbouring read or write, a store
