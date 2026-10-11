@@ -11,9 +11,9 @@
  *     and both hashes: the C was written from another file);
  *   - the header: `header` and its 16 bytes must lie in the mapped RAM and equal the file's bytes 0x10 to 0x1f (the line names the
  *     first field that differs, with both values);
- *   - the body: t_size bytes from file offset 0x800 must exist in the file (none are needed when t_size is 0), the span t_addr to t_addr + t_size must lie in the
- *     mapped RAM, and the RAM there must equal the file's bytes (the line names what failed; for a difference the first address
- *     and both bytes). The program's C reads its data at these addresses.
+ *   - the body: t_size bytes from file offset 0x800 must exist in the file (none are needed when t_size is 0), the span t_addr
+ *     to t_addr + t_size must lie in the mapped RAM, and the RAM there must equal the file's bytes (the line names what failed;
+ *     for a difference the first address and both bytes). The program's C reads its data at these addresses.
  * Then, in this order: the row's setup when it is not null, main (called as void (*)(void)), the row's teardown when it is not
  * null; one trace line before and one after, each naming the program. The result is 1. Nothing else is cleaned up after main.
  * The checks are in port/tools/test_hostprograms.py. Nothing here is compared with a console. */
