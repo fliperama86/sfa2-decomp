@@ -123,6 +123,7 @@ functions = [
   { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
   { name = "func_80010c38_z2o", address = 0x80010c38, size = 776 },
+  { name = "func_800110d0_z2o", address = 0x800110d0, size = 716 },
 ]
 
 [program.symbols]
