@@ -2,7 +2,7 @@
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
-/* Historical note, from before this unit was exact or about a function that is no longer in this unit: RESIDUAL func_8012bbac: original keeps the two "field_07 = 0" arms apart (no cross-jump merge); built merges them (-8 bytes). 3 source shapes tried. */
+/* Historical note, from before this unit was exact or about a function that is no longer in this unit: RESIDUAL func_8012bbac: original keeps the two "state_3 = 0" arms apart (no cross-jump merge); built merges them (-8 bytes). 3 source shapes tried. */
 
 
 

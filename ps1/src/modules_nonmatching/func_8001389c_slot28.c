@@ -48,7 +48,7 @@ void func_8001389c_slot28(Object *obj) {
     data_8018f5a0->field_52 = 0;
     data_8018f5a0->field_54 = 0;
     data_8018f5a0->field_4e++;
-    /* The byte at 0x4f is the last byte of field_4c. */
+    /* The byte at 0x4f is the last byte of vel_x. */
     ((u8 *)&obj->vel_x)[3] = 0;
     obj->field_64 = 0;
     for (i = 15; i >= 0; i--) {

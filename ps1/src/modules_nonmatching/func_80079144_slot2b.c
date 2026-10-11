@@ -17,12 +17,12 @@
  * pos_x plus the sum of the record's first half and the object's field_4e,
  * that sum (not the target's pos_x) negated when the target's field_0b is
  * not 0; its pos_y becomes the target's pos_y minus the sum of the
- * record's second half and the high half of the object's field_50. All
+ * record's second half and the high half of the object's vel_y. All
  * position arithmetic is modulo 2^16.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_3c, field_4e, field_50; the parent's side
+ *   Reads: the object's field_3c, field_4e, vel_y; the parent's side
  *     (field_a6), other (field_40) and frame (field_88); the frame's
  *     field_0b; the target's kind (field_a7), field_0b, pos_x and pos_y;
  *     the scratchpad words boxes_74_left and boxes_124_right (pointers to

@@ -29,13 +29,13 @@
  * Compiled for a PC, the callee would read something else.
  *
  * What the function does (inferred): it moves pos_x by 4 for the field_03
- * values 0x10 and 0x11, raises field_04 when the halfword at 0x3a is
+ * values 0x10 and 0x11, raises state_0 when the halfword at 0x3a is
  * negative, calls func_80131094 with the object, then func_80120028.
  *
  * Contract:
  *   Argument: object (a0), a pointer to an object; no result.
- *   Reads: field_03, field_04, the halfword pos_x (0x12), the halfwords at
- *     0x38 and 0x3a, and the word at 0x18. Writes: pos_x, field_04.
+ *   Reads: field_03, state_0, the halfword pos_x (0x12), the halfwords at
+ *     0x38 and 0x3a, and the word at 0x18. Writes: pos_x, state_0.
  *   Callees: func_80131094 runs as the original code in the test (a leaf; it
  *     reads and writes the object at 0x08, 0x18, 0x38, 0x3a, 0x4a, 0x80, 0x88
  *     and 0x8c, reads three records of the sequence block that the pointer

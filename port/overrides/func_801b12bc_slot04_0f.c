@@ -15,7 +15,7 @@
  *
  * What the function does (inferred): when the u8 field_260 is 0 and
  * func_80141c4c returns a value that is not 0, it sets a few fields of the
- * object (field_04 = 1, field_06 = 7, field_05 = 0, field_07 = 0,
+ * object (state_0 = 1, state_2 = 7, state_1 = 0, state_3 = 0,
  * field_15a = 6, field_159 = 0) and returns 1; otherwise it returns 0.
  *
  * Contract:

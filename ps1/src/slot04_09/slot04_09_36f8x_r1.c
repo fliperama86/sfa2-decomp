@@ -7,16 +7,16 @@ void func_801b2858_slot04_09(Object *o);
 
 /* What it does (inferred, not an original name): a per-frame update of a
    character state that has another object (field_40, "other") in view. It
-   first runs func_801b2858_slot04_09 (the move). Then, when field_3a is
-   negative as a halfword: it sets field_45 to 1, field_50 to 0x90000 and
-   field_58 to -0x6000, adds 1 to field_07, and sets a velocity (field_4c,
-   field_54): when field_a3 is 0 a fixed one whose sign follows field_0b;
-   when field_a3 is not 0 a velocity toward other, field_4c = ((other's
-   pos_x - pos_x) >> 4) << 16 and field_54 = 0. It starts sequence 0x33 in
-   both cases. When field_3a is not negative: if field_67 is not 0 and
+   first runs func_801b2858_slot04_09 (the move). Then, when step_flags is
+   negative as a halfword: it sets field_45 to 1, vel_y to 0x90000 and
+   accel_y to -0x6000, adds 1 to state_3, and sets a velocity (vel_x,
+   accel_x): when field_a3 is 0 a fixed one whose sign follows field_0b;
+   when field_a3 is not 0 a velocity toward other, vel_x = ((other's
+   pos_x - pos_x) >> 4) << 16 and accel_x = 0. It starts sequence 0x33 in
+   both cases. When step_flags is not negative: if field_67 is not 0 and
    other's field_61 is not 0xff it sets field_a3 to 0x80 and clears
    field_67; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
-   field_4c and field_54; then it hands over to func_80130efc. */
+   vel_x and accel_x; then it hands over to func_80130efc. */
 void func_801b36f8_slot04_09(Object *obj) {
     Object *p;
     int d;

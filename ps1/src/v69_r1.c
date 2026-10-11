@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-/* box_margin is declared as an array (externs.h) so that the load is treated as a member access and orders after the field_06 store. */
+/* box_margin is declared as an array (externs.h) so that the load is treated as a member access and orders after the state_2 store. */
 
 void func_80144830(Object *object)
 {

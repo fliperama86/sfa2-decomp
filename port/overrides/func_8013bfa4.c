@@ -33,7 +33,7 @@
  *     data_801904c0, the overlap record at 80188ed0 (its in_ and f_ words,
  *     and the out_ fields through func_801397d0), data_80188f30; the
  *     player's field_241 and field_61; the table object's field_00,
- *     field_04 to field_07, field_5c; three bytes at data_80190468 + 0x5c.
+ *     state_0 to state_3, field_5c; three bytes at data_80190468 + 0x5c.
  *   Callees that run as the original code: func_80139a1c (clears the
  *     overlap record; inferred) and func_801397d0 (computes the overlap).
  *     Callees replaced by recorders, which return 0: func_80139a78 (a, b),

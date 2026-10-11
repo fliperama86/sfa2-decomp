@@ -28,7 +28,7 @@ void func_801e970c_slot06_0c(Object *obj) {
     p0->field_0a = 0x60;
     p1->field_0a = 0x60;
     p2->field_0a = 0x60;
-    /* The listing stores field_04 twice: the incremented value above, then 1. */
+    /* The listing stores state_0 twice: the incremented value above, then 1. */
     obj->state_0 = 1;
     func_801e988c_slot06_0c(p0);
     func_801e988c_slot06_0c(p1);

@@ -7,7 +7,7 @@
  * this C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): a state routine of a
- * character object. It counts the object's field_07 up by one, sets field_17b
+ * character object. It counts the object's state_3 up by one, sets field_17b
  * to 1, applies a change of 4 to the object's field_c6 (func_80141f28), lets
  * the state of the game react to the object (func_80138ae8, passing the
  * pointer at game_state.config), and selects a sequence for the object
@@ -16,8 +16,8 @@
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_07, field_12a and field_49; game_state.config.
- *   Writes: the object's field_07 and field_17b, and what func_80141f28 and
+ *   Reads: the object's state_3, field_12a and field_49; game_state.config.
+ *   Writes: the object's state_3 and field_17b, and what func_80141f28 and
  *     func_80138ae8 write.
  *   Callees:
  *     func_80141f28 (object, 4) runs as the original code. It reads and

@@ -96,7 +96,7 @@ both:
         tmp = dist;
         dist = -dist;
     }
-    /* a word write: the word at offset 0x10 holds field_10 and the field after it */
+    /* a word write: the word at offset 0x10 holds pos_x_frac and the field after it */
     *(s32 *)&ref_third.p->pos_x_frac += tmp;
     target = ref_other.p;
     goto add;

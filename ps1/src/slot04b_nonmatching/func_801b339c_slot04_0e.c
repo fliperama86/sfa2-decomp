@@ -12,8 +12,8 @@
  * What it does (inferred, not an original name): one step of a jump or fall
  * toward a target height, field_70. func_80130184 moves the object by its
  * velocity words and reports whether pos_y has reached field_70. When it
- * has, the object lands: field_10, field_45 and field_159 are cleared, the
- * state byte field_07 advances, pos_y is set to the target, a sound is
+ * has, the object lands: pos_x_frac, field_45 and field_159 are cleared, the
+ * state byte state_3 advances, pos_y is set to the target, a sound is
  * played and sequence 0x36 starts. Otherwise the remaining distance
  * (target minus pos_y, as a signed halfword) picks a sequence: 0x3b below
  * 0x11, 0x3a below 0x21, and for a larger distance the current sequence
@@ -22,12 +22,12 @@
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's side (field_a6), field_07, pos_y, field_70, and
+ *   Reads: the object's side (field_a6), state_3, pos_y, field_70, and
  *     what the callees read.
- *   Writes: in the landing arm field_10, field_45, field_159, field_07,
+ *   Writes: in the landing arm pos_x_frac, field_45, field_159, state_3,
  *     pos_y; otherwise only what the callees write.
  *   Callees run as original code: func_80130184 (reads and writes the
- *     velocity words and fractions at field_10 to field_58, reads pos_y and
+ *     velocity words and fractions at pos_x_frac to field_58, reads pos_y and
  *     field_70), func_801307e0 and func_80130efc (the sequence tables in the
  *     scratchpad, the sequence steps and frame records; they write the
  *     object's sequence, field_38, field_3a, field_80, frame, field_4a and

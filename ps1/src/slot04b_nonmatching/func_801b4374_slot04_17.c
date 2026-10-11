@@ -8,8 +8,8 @@
  *
  * What it does (inferred, not an original name): a character's step handler
  * of a one-key move. It first lets the input collector (func_801b48fc) run.
- * While the current animation step is not the last one (bit 15 of field_3a
- * clear) it only calls func_80130efc. Otherwise it advances field_07 by 3
+ * While the current animation step is not the last one (bit 15 of step_flags
+ * clear) it only calls func_80130efc. Otherwise it advances state_3 by 3
  * and forms a direction code. For an object with field_cd clear the code
  * is the halfword field_1c0 (the collector's result). For one with
  * field_cd set the code comes from a table test (func_8014a170): when it
@@ -19,15 +19,15 @@
  * code goes through func_801b4944 (which mirrors it when field_0b is set).
  * A variant k is then 0 when bit 3 (value 8) of the code is set, 2 when 0x40 is
  * set, else 1. The move reads four words of a table at row field_12a, entry
- * k (eight words to a row): speed words for field_4c, field_54, field_50,
- * field_58, with the first two negated when field_0b is clear. It counts
+ * k (eight words to a row): speed words for vel_x, accel_x, vel_y,
+ * accel_y, with the first two negated when field_0b is clear. It counts
  * field_12e up, clears field_1c0, and starts the sequence k plus the table
  * word at row field_12a, offset field_12e (old value) plus 12.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_07, field_0b, field_0e (cd set), field_12
- *     (s16), field_3a, field_40 (cd set), field_cd, field_cf (cd set),
+ *   Reads: the object's state_3, field_0b, field_0e (cd set), field_12
+ *     (s16), step_flags, field_40 (cd set), field_cd, field_cf (cd set),
  *     field_12a, field_12e, field_134 and field_1c0 (halfword, through
  *     func_801b48fc); the other object's field_12; the module tables
  *     data_801ce0d0_slot04_17 at field_cf, data_801ce6cc_slot04_17 at the
@@ -35,8 +35,8 @@
  *     data_801ce778_slot04_17 at field_0e, data_801ce57c_slot04_17 at the
  *     entries named above; the seed data_80190126 (func_8014a170 and
  *     func_801b4974 run func_80151184).
- *   Writes: field_07, field_12e, field_1c0, field_4c, field_50, field_54,
- *     field_58, ref_other (when field_cd is set), the seed data_80190126.
+ *   Writes: state_3, field_12e, field_1c0, vel_x, vel_y, accel_x,
+ *     accel_y, ref_other (when field_cd is set), the seed data_80190126.
  *   Callees replaced by recorders: func_801307e0 (2 arguments) and
  *     func_80130efc (1); they reach the sequence tables and the library,
  *     their results are unused.

@@ -11,25 +11,25 @@
  * object that starts a jump away from or towards the opponent. When
  * func_801b1e04_slot04_0a returns non-zero (low 16 bits) it calls
  * func_801b30a0_slot04_0a and returns. Otherwise, when the object's
- * field_50 is not above 0x50000 (signed) and one of the bits 0x80, 0x10, 4
+ * vel_y is not above 0x50000 (signed) and one of the bits 0x80, 0x10, 4
  * or 1 (tested in that order) of its halfword at 0x134 is set, it selects
- * a number (0 for 0x80 and 1, 1 for 0x10, 2 for 4), adds one to field_07,
+ * a number (0 for 0x80 and 1, 1 for 0x10, 2 for 4), adds one to state_3,
  * starts the sequence 0x2b plus that number with func_801307e0, sets
  * field_0b to 1 when the opponent's position x (object->other) is not less
  * than its own, else to 0, sets the velocity fields (when field_0b is 1:
- * field_4c -0x70000, field_54 0x4000; when it is 0: field_4c 0x70000,
- * field_54 -0x4000; in both cases field_50 0x38000 and field_58 -0x4000),
+ * vel_x -0x70000, accel_x 0x4000; when it is 0: vel_x 0x70000,
+ * accel_x -0x4000; in both cases vel_y 0x38000 and accel_y -0x4000),
  * and calls func_801204f4, func_80141f28 and func_80138ae8. Then,
- * also when no bit was set or field_50 was too large, it calls
+ * also when no bit was set or vel_y was too large, it calls
  * func_80130efc.
  *
  * Contract (what the code reads and writes):
  *   Argument: a0 = pointer to an object (0x394 bytes). No return value.
- *   Reads: the object's field_50, the halfword at 0x134, field_07, field_12
+ *   Reads: the object's vel_y, the halfword at 0x134, state_3, field_12
  *     (position x), the pointer at 0x40 (the opponent object) and its
  *     field_12, and the byte at 0xa6 (side); game_state only by address.
- *   Writes: the object's field_07, field_0b, field_4c, field_50, field_54
- *     and field_58.
+ *   Writes: the object's state_3, field_0b, vel_x, vel_y, accel_x
+ *     and accel_y.
  *   Callees replaced by recorders (all of them; their code is outside
  *     this test):
  *     func_801b1e04_slot04_0a (1 argument; returns 0 or a random non-zero

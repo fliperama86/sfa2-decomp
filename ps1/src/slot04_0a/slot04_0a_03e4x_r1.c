@@ -7,7 +7,7 @@
  * What it does (inferred, not an original name): a state of a character
  * object that picks a random variant. When game_state.field_64 and
  * field_5c are both 0 it sets the object's field_46 to 0x3c00, adds one to
- * its field_06, sets game_state.field_76 to 0x1e, draws a number from the
+ * its state_2, sets game_state.field_76 to 0x1e, draws a number from the
  * random generator, divides it by 52, passes it to func_80125734 together
  * with the object, stores the result as a signed byte in field_48 and
  * starts the sequence numbered 0x23 plus that result with func_80130678.

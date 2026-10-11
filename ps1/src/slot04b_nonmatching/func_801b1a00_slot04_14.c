@@ -8,10 +8,10 @@
  * this C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): a state entry of a
- * character. It sets field_17b and field_07 to 1, clears field_12c to
+ * character. It sets field_17b and state_3 to 1, clears field_12c to
  * field_12f, spends 9 points (func_80141f28), calls func_80138ae8 with the
  * game state, copies four consecutive words of a table, selected by
- * field_12a, into field_4c, field_50, field_54 and field_58, and starts
+ * field_12a, into vel_x, vel_y, accel_x and accel_y, and starts
  * sequence 0x1b (0x61 when field_49 is not 0) plus field_12a / 2.
  *
  * Contract:
@@ -20,8 +20,8 @@
  *     indexes 2 * field_12a + 0 to 3, each taken modulo 256 (the index is a
  *     byte); game_state.mode and game_state.field_2f, object.field_cd and the
  *     counter data_80188ec4 through func_80138ae8.
- *   Writes: field_17b = 1, field_07 = 1, field_12c to field_12f = 0, field_4c,
- *     field_50, field_54, field_58 (the four table words), and what the
+ *   Writes: field_17b = 1, state_3 = 1, field_12c to field_12f = 0, vel_x,
+ *     vel_y, accel_x, accel_y (the four table words), and what the
  *     callees write.
  *   Callees: func_80141f28 (2 arguments) and func_801307e0 (2 arguments) are
  *     replaced by recorders returning a random word, in the original and in

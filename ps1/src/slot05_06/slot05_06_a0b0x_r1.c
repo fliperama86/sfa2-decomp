@@ -7,9 +7,9 @@ extern s32 data_801dd394_slot05_06[];
 extern s32 data_801dd398_slot05_06[];
 
 /* What it does (inferred): enters a character state. It clears the bytes
-   field_12c to field_12f, sets field_17b to 1, adds 1 to field_07, calls
+   field_12c to field_12f, sets field_17b to 1, adds 1 to state_3, calls
    func_80141f28 (object, 7) and func_80138ae8 (&game_state, object), sets
-   field_225 to 1, loads field_4c and field_54 from two word tables indexed
+   field_225 to 1, loads vel_x and accel_x from two word tables indexed
    by the byte field_12a (they lie one word apart), and starts sequence
    (field_12a >> 1) + 0x1b. */
 void func_801ca0b0_slot05_06(Object *obj) {

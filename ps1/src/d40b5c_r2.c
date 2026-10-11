@@ -25,7 +25,7 @@ s16 func_8013fc18(Object *object, int arg_offset, int arg_reach) {
         return 0;
     if (other_ref.p->field_27b != 0)
         return 0;
-    /* a halfword at offset 4; field_04 is a byte: the plain spelling differs in 1 instruction line */
+    /* a halfword at offset 4; state_0 is a byte: the plain spelling differs in 1 instruction line */
     if (*(u16 *)&other_ref.p->state_0 != 1)
         return 0;
     if (game_state.config->field_4e != 0)

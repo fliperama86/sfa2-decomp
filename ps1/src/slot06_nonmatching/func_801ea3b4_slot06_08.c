@@ -9,21 +9,21 @@
  *
  * What it does (inferred, not an original name): a per-frame update of an
  * object that follows another object (field_3c). While the two game_state
- * bytes field_65 and field_74 are both 0 and the object's field_4c is 0, it
- * calls func_80131094 when the low byte of the object's field_3a is 0, or,
- * when that byte is not 0, the followed object's field_06 differs from the
- * low byte of the object's field_54 and equals 8; in that second case it
- * first clears the low byte of field_3a. Unless field_4c was not 0, it then
- * copies the followed object's field_06 to field_54. It always ends with
+ * bytes field_65 and field_74 are both 0 and the object's vel_x is 0, it
+ * calls func_80131094 when the low byte of the object's step_flags is 0, or,
+ * when that byte is not 0, the followed object's state_2 differs from the
+ * low byte of the object's accel_x and equals 8; in that second case it
+ * first clears the low byte of step_flags. Unless vel_x was not 0, it then
+ * copies the followed object's state_2 to accel_x. It always ends with
  * func_80120028 on the object.
  *
  * Contract (what the code reads and writes; the roles named for the fields
  * are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: game_state.field_65 and field_74; the object's field_3a, field_3c,
- *     field_4c and field_54; the followed object's field_06.
- *   Writes: the object's field_3a (high byte kept, low byte cleared) and
- *     field_54 (whole word, set from a byte).
+ *   Reads: game_state.field_65 and field_74; the object's step_flags, field_3c,
+ *     vel_x and accel_x; the followed object's state_2.
+ *   Writes: the object's step_flags (high byte kept, low byte cleared) and
+ *     accel_x (whole word, set from a byte).
  *   Callees replaced by recorders (the same in both runs): func_80131094
  *     with one argument (the object) and func_80120028 with one argument;
  *     both are recorded with their arguments and return 0, and each

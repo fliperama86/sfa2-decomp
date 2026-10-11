@@ -9,32 +9,32 @@
  *
  * What it does (inferred, not an original name): a character's action
  * handler. While the current animation step is not the last one (bit 15
- * of field_3a clear) it only calls func_80130efc. Otherwise it first tests
+ * of step_flags clear) it only calls func_80130efc. Otherwise it first tests
  * for a "stop" input: for an object with field_cd set a table test
  * (func_8014a170), for one with field_cd clear bit 0x1000 of field_130.
- * A stop ends the move: field_07 = 7, fixed velocity words, a quarter of
- * the old field_4c, and sequence 0x34. Without a stop it advances field_07
+ * A stop ends the move: state_3 = 7, fixed velocity words, a quarter of
+ * the old vel_x, and sequence 0x34. Without a stop it advances state_3
  * and calls func_801204f4. A direction input is then formed: from
  * field_130 when field_cd is clear, and when field_cd is set from the sign
  * of the other object's field_12 minus this one's (inside a dead zone of
  * about 16 units, none; field_0b flips the sides). A direction bit (0x8000
- * or 0x2000) selects the walking speed words, the sign of field_4c taken
+ * or 0x2000) selects the walking speed words, the sign of vel_x taken
  * from a two-word table by field_0b, and flips field_0b when bit 0x2000 is
- * set; no direction selects the standing words. field_4c and field_50
+ * set; no direction selects the standing words. vel_x and vel_y
  * double when field_49 is set. Then it starts sequence 0x2e or 0x2f plus
  * field_12a.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_07, field_0b, field_12 (s16), field_3a,
- *     field_40 (other object), field_49, field_4c, field_a6, field_cd,
+ *   Reads: the object's state_3, field_0b, field_12 (s16), step_flags,
+ *     field_40 (other object), field_49, vel_x, field_a6, field_cd,
  *     field_cf (when field_cd is set), field_12a, field_130; the other
  *     object's field_12; the word of data_801ce050_slot04_17 at index
  *     field_cf and the word of data_801ce3e4_slot04_17 at index field_0b
  *     (both fixed tables of the module); the random seed word
  *     data_80190126 (through func_8014a170, which runs as original code).
- *   Writes: field_07, field_0b, field_48, field_4c, field_50, field_54,
- *     field_58, ref_other (set to field_40 when field_cd is set), and the
+ *   Writes: state_3, field_0b, field_48, vel_x, vel_y, accel_x,
+ *     accel_y, ref_other (set to field_40 when field_cd is set), and the
  *     seed data_80190126.
  *   Callees replaced by recorders (they reach sequence tables and the
  *     library's sound): func_801204f4 (3 arguments), func_801307e0 (2),

@@ -8,31 +8,31 @@
  * of the contract below.
  *
  * What it does (inferred, not an original name): the update of a thrown
- * or knocked-back character. It moves the object by field_4c (the sign
- * follows field_0b) into the word at field_10, accelerates field_4c by
- * field_54 and stops both when field_4c would go negative. The low byte
- * of field_3a is a pending event code. With no code it calls
+ * or knocked-back character. It moves the object by vel_x (the sign
+ * follows field_0b) into the word at pos_x_frac, accelerates vel_x by
+ * accel_x and stops both when vel_x would go negative. The low byte
+ * of step_flags is a pending event code. With no code it calls
  * func_80130efc. With bit 0x80 set it hits the other object (field_40):
- * it advances field_07, counts a hit in the other's field_6a, spawns an
+ * it advances state_3, counts a hit in the other's field_6a, spawns an
  * effect (func_801465b0), marks the other's field_15b, starts a reaction
  * (func_80140770) with parameters from a byte table indexed by field_12a,
  * and plays one of two sounds (func_80120554) depending on the sign of
  * the other's field_5c, calling func_801b3784_slot04_17 in the negative
  * case; it returns without func_80130efc. With a smaller code it consumes
- * the code (field_3a shifts down a byte), counts the hit, spawns the
+ * the code (step_flags shifts down a byte), counts the hit, spawns the
  * effect and the reaction check (func_80140cd8) with parameters from a
  * table of halfwords indexed by (code - 8) / 2, picks the same two
  * sounds by that check's result, then calls func_80130efc.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_07, field_0b, field_10 (word), field_3a,
- *     field_40 (other object), field_4c, field_54, field_12a; the other
+ *   Reads: the object's state_3, field_0b, pos_x_frac (word), step_flags,
+ *     field_40 (other object), vel_x, accel_x, field_12a; the other
  *     object's field_5c (s16) and field_a6 (side); the byte table
  *     data_801ce44c_slot04_17 at field_12a and field_12a + 1, and the
  *     halfword table data_801ce454_slot04_17 at (code - 8) / 2 .. + 3
  *     (arithmetic shift, so a code of 1 to 7 reads below the table).
- *   Writes: field_07, field_10 (word), field_3a, field_4c, field_54;
+ *   Writes: state_3, pos_x_frac (word), step_flags, vel_x, accel_x;
  *     ref_other (set to field_40, only on the path with a code below 0x80);
  *     the other object's field_6a, field_15b.
  *   Callees replaced by recorders (they spawn objects, reach the sound

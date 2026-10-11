@@ -12,9 +12,9 @@
  * selects a signed halfword of a table (data_801c5ae4_slot04_0f, the byte
  * with its lowest bit cleared is the byte offset) and is cleared. The
  * halfword is negated when the object's field_0b is not 0. The object's
- * field_10 is cleared. A 32-bit value is then made whose high half is
+ * pos_x_frac is cleared. A 32-bit value is then made whose high half is
  * (field_332 + that halfword) minus the object's field_12 (position x), as a
- * 16-bit quantity. The object's field_4c receives that value shifted right
+ * 16-bit quantity. The object's vel_x receives that value shifted right
  * by 4, arithmetically.
  *
  * A stated difference from the original. The original keeps the low half of
@@ -22,13 +22,13 @@
  * entry. Its two callers in the image pass one argument, the object, and do
  * not set that register: the original uses what earlier code left there (its
  * source most likely had a local whose low half it never assigned;
- * inferred). So the low 12 bits of field_4c depend, in the original, on the
+ * inferred). So the low 12 bits of vel_x depend, in the original, on the
  * code that ran before the call. C cannot name such a value, and the callers
  * are exact units that pass one argument. This C takes one parameter, as its
  * callers declare it, and makes the low half 0. With a2 = 0 on entry the two
  * behave alike on the tested inputs. What the original writes for another a2
  * is outside this contract: by its listing (read, not tested) only the low
- * 12 bits of field_4c depend on it.
+ * 12 bits of vel_x depend on it.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. The register a2 holds 0 on entry;
@@ -38,7 +38,7 @@
  *   No return value.
  *   Reads: the object's field_338, field_0b, field_332 and field_12; the
  *     table's halfword.
- *   Writes: the object's field_338 (to 0), field_10 (to 0) and field_4c.
+ *   Writes: the object's field_338 (to 0), pos_x_frac (to 0) and vel_x.
  *   Callees: none.
  *   Aliasing: the table and the object do not overlap.
  *   Excluded inputs: a2 other than 0 on entry (the stated difference).

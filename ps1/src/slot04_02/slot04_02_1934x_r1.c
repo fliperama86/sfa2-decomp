@@ -5,7 +5,7 @@
 
 extern s32 data_801c62b0_slot04_02[];
 
-/* What it does (inferred): a state entry of a character. It sets field_17b and field_07 to 1, clears field_12c to field_12f, spends 9 points, calls func_80138ae8 with the game state and the object, copies four consecutive words of a table, selected by field_12a, into field_4c, field_50, field_54 and field_58, and starts sequence 0x1b (0x61 when field_49 is not 0) plus field_12a / 2. */
+/* What it does (inferred): a state entry of a character. It sets field_17b and state_3 to 1, clears field_12c to field_12f, spends 9 points, calls func_80138ae8 with the game state and the object, copies four consecutive words of a table, selected by field_12a, into vel_x, vel_y, accel_x and accel_y, and starts sequence 0x1b (0x61 when field_49 is not 0) plus field_12a / 2. */
 void func_801b1934_slot04_02(Object *obj) {
     u16 n;
     int idx;

@@ -5,15 +5,15 @@
 
 /* What it does (inferred, not original names): for an object whose field_49
    is non-zero it returns func_8013f474(object, a, b) as a byte when its
-   halfword at offset 4 is 1 and field_06 is 7, 0 when the halfword is 1 and
-   field_06 is not 7, and 1 when the halfword is not 1. Otherwise, with the
+   halfword at offset 4 is 1 and state_2 is 7, 0 when the halfword is 1 and
+   state_2 is not 7, and 1 when the halfword is not 1. Otherwise, with the
    other object (ref_other) in mode 1 and with a box, it compares two x
    positions: the object's pos_x plus a (minus a when field_0b is set), and
    game_state.field_358's pos_x plus the box's origin minus its extent
    (negated when that object's field_0b is set). It returns
    func_8013fab4(object) as a byte when they are at most b apart; b grows by
    4 when field_25e is set, unless the object's halfword at offset 4 is 1
-   and its field_06 is 7 or 8. */
+   and its state_2 is 7 or 8. */
 int func_8013f8c4(Object *object, int a_arg, int b_arg) {
     s16 a = a_arg; /* the shared prototype takes int */
     s16 b = b_arg;

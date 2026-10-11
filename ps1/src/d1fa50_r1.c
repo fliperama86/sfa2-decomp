@@ -5,7 +5,7 @@
 
 /*
  * Makes a record the object's current sequence, copies the record's header
- * word into the object (high half to field_38, low half to field_3a), then
+ * word into the object (high half to step_timer, low half to step_flags), then
  * copies the record's data block into a grid of cells at a place derived from
  * the object's position: pos_x selects a column (bits 9 to 11 and bits 5 to
  * 8) and pos_y / 32 a row, in the buffer that cam_f50 points to (inferred,

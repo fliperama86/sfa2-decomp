@@ -68,7 +68,7 @@ void func_801494e0(Object *object) {
         object->state_0 = object->state_0 + 1;
         func_80120554(ref_other.p, ref_other.p->side, 0x328);
     }
-    /* Byte load of the low half of field_3a. */
+    /* Byte load of the low half of step_flags. */
     if (*(u8 *)&object->step_flags != 0) {
         func_80120554(ref_other.p, ref_other.p->side, 0x327);
     }

@@ -13,7 +13,7 @@
  * this C leaves them out.
  *
  * What it does (inferred, not an original name): initializes an object for
- * its first frame. It sets a few flag bytes, counts up field_04, and fills
+ * its first frame. It sets a few flag bytes, counts up state_0, and fills
  * the 0x20-byte record of data_801f3010_slot06_00 selected by the object's
  * field_03 from four consecutive entries of the word table
  * data_801e9f60_slot06_00 (entries 4*n to 4*n+3, n = field_03; the index is
@@ -27,10 +27,10 @@
  * Contract (what the code reads and writes; the roles named for the fields
  * are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_03, field_04 and pos_y; four entries of
+ *   Reads: the object's field_03, state_0 and pos_y; four entries of
  *     data_801e9f60_slot06_00 (word index (4*field_03 + k) & 0xff, k 0 to 3);
  *     the pointer data_801e9f48_slot06_00.
- *   Writes: the object's field_04, field_0a, field_0c, field_0d, field_0f,
+ *   Writes: the object's state_0, field_0a, field_0c, field_0d, field_0f,
  *     sequence, field_76, field_78, field_7a, field_7c, field_81 and pos_y;
  *     all 0x20 bytes of record field_03 of data_801f3010_slot06_00.
  *   Aliasing: the object, the record table, the word table and the

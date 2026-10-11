@@ -290,7 +290,7 @@ second gives what was measured:
 void func_800205b4_slot28(Object *obj) {
     func_80020608_slot28(obj);
     if (obj->pos_y >= 0xd0) {
-        obj->field_04++;
+        obj->state_0++;
     }
     ((void (*)(void))func_80131094)();
 }
@@ -674,11 +674,11 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   buffer at an offset to two calls.
 - The places of a few statements, tried exhaustively. In
   `func_800121e0_slot01` a run of thirteen statements sets up an object;
-  four of them store constants to `field_4c`, `field_50`, `field_54` and
-  `field_58`. A candidate with three of the four written first differed
+  four of them store constants to `vel_x`, `vel_y`, `accel_x` and
+  `accel_y`. A candidate with three of the four written first differed
   in 5 slots; with the four written near the end in the order of the
   fields, in 12. It is exact with the four near the end in the order
-  `field_4c`, `field_54`, `field_50`, `field_58`. That was found by
+  `vel_x`, `accel_x`, `vel_y`, `accel_y`. That was found by
   building every order of the four, put before or after a run of eight of
   the other statements at each of the five ways to split them, at most
   120 arrangements, and stopping at the first exact one. About a dozen
@@ -726,7 +726,7 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     and of its two loads: `obj->field_70 > obj->pos_y` and
     `obj->pos_y < obj->field_70` build differently
     (`func_801b079c_slot04_03`, 11 slots by the report).
-  - A state byte that is advanced is `obj->field_07++;`, and its place
+  - A state byte that is advanced is `obj->state_3++;`, and its place
     among the statements decides the order of the loads around it
     (`func_801b1ecc_slot04_08`); a byte counter is `field--`.
   - A half that is decremented where the listing has `addiu` with a
@@ -991,8 +991,8 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   or without a local for the repeated constant, the registers of the
   character blocks' state setters came out swapped. Written as plain
   statements with literal constants in ascending field order, as the
-  sibling functions set a state (`field_04 = 1; field_05 = 0; field_06 =
-  7; field_07 = 0; ...`), they were exact: the repeated constant then
+  sibling functions set a state (`state_0 = 1; state_1 = 0; state_2 =
+  7; state_3 = 0; ...`), they were exact: the repeated constant then
   lives across the others and takes the second register. Where that
   order is still off, the zero stores are the ones to move: they bind
   no register, so only their place among the others matters. Measured
@@ -1011,7 +1011,7 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   way round: `if (obj->field_70 <= obj->pos_y)` was exact where `pos_y >=
   field_70` was not. Try the operand order of the listing's `slt` before
   anything else. Some of these functions are exact only when they return
-  their last update, `return obj->field_50 += obj->field_58;`, and their
+  their last update, `return obj->vel_y += obj->accel_y;`, and their
   callers test the result.
 - The types of the locals come before the statements. Where the
   instructions are right and a register or the order of two of them is

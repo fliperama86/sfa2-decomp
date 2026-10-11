@@ -9,7 +9,7 @@
  * contract below.
  *
  * What it does (inferred, not an original name): enters a character
- * action. It sets the state byte field_07 to 3 and field_159 to 1, then
+ * action. It sets the state byte state_3 to 3 and field_159 to 1, then
  * func_80130504 derives the direction pair field_12a, field_129 from the
  * input word field_134. When func_801b6a7c_slot04_0e reports a condition
  * (field_129 not 0 and field_12a equal to 2, and then either field_219 or
@@ -23,7 +23,7 @@
  *   Argument: a0 = pointer to an object. No return value.
  *   Reads: the object's field_48, field_129, field_12a (the last two
  *     written by func_80130504 first), and what the callees read.
- *   Writes: field_07 (3), field_159 (1), and what the callees write.
+ *   Writes: state_3 (3), field_159 (1), and what the callees write.
  *   Callees run as original code: func_80130504 (reads field_134, writes
  *     field_129 and field_12a), func_801b6a7c_slot04_0e (reads field_129,
  *     field_12a, field_cd, field_219, field_130), func_801b6afc_slot04_0e

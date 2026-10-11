@@ -2,7 +2,7 @@
 
 Primary working target: Japanese Street Fighter Zero 2, `SLPS_004.15`.
 See the [matching build](docs/matching-build.md), the
-[matching guide](docs/matching-guide.md), the [overlay map](docs/overlays.md), the [matching pilot](docs/matching-pilot.md)
+[matching guide](docs/matching-guide.md), the [names page](docs/names.md), the [overlay map](docs/overlays.md), the [matching pilot](docs/matching-pilot.md)
 and the root [plan](../PLAN.md).
 
 Public tools, free of game data:

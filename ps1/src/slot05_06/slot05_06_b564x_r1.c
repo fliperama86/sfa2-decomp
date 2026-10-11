@@ -12,10 +12,10 @@ extern u16 data_801dd478_slot05_06[];
 
 /*
  * What it does (inferred, not an original name): a per-frame update of a
- * character state chosen by field_3a. State 2 sets field_0b from pos_x;
- * state 0 does nothing; otherwise, with field_4c >= 0, it runs the move,
- * may knock back ref_other.p, then func_80130efc. With field_4c negative
- * it counts field_1c5 down and either ends the state (field_07 + 1,
+ * character state chosen by step_flags. State 2 sets field_0b from pos_x;
+ * state 0 does nothing; otherwise, with vel_x >= 0, it runs the move,
+ * may knock back ref_other.p, then func_80130efc. With vel_x negative
+ * it counts field_1c5 down and either ends the state (state_3 + 1,
  * sequence 0x2e) or starts the sequence from data_801dd478_slot05_06.
  * The twin of func_801b3564_slot04_06 on the second side (same code, a callee that returns an int).
  * Casts to Slot04aObj: field_1c5 is a member of the module's record type

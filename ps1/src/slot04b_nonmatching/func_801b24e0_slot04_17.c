@@ -10,40 +10,40 @@
  * What it does (inferred, not an original name): a character's step
  * handler of a move that can end in one of three ways. It first moves the
  * object by its speed words (func_801b56e0). While the current animation
- * step is not the last one (bit 15 of field_3a clear) it only calls
+ * step is not the last one (bit 15 of step_flags clear) it only calls
  * func_80130efc. Otherwise it picks a case. For an object with field_cd
  * set: a table test (func_8014a170) that answers yes gives the "stop"
  * case; otherwise bit 0 of the random generator (func_80151184) gives the
  * "approach" case when clear and the "walk" case when set. For one with
  * field_cd clear the input field_130 gives "approach" when bit 0x1000 is
  * set, else "stop" when bit 0x2000 is set, else "walk".
- *   Approach: field_07 advances; the other object's (field_40) position
- *   word at field_10 minus this one's, over 16, becomes field_4c, a value
- *   from field_70 and field_14 becomes field_50, field_54 and field_58 are
+ *   Approach: state_3 advances; the other object's (field_40) position
+ *   word at pos_x_frac minus this one's, over 16, becomes vel_x, a value
+ *   from field_70 and pos_y_frac becomes vel_y, accel_x and accel_y are
  *   cleared, sequence 0x2c starts.
- *   Stop: field_07 = 7; field_50 = 0x10000, field_54 = 0, field_58 =
- *   -0x6000, field_4c = 0x18000 (negated when field_0b is clear); sequence
+ *   Stop: state_3 = 7; vel_y = 0x10000, accel_x = 0, accel_y =
+ *   -0x6000, vel_x = 0x18000 (negated when field_0b is clear); sequence
  *   0x34 starts.
- *   Walk: field_07 = 6, field_48 = 0. A side is chosen: for field_cd set
+ *   Walk: state_3 = 6, field_48 = 0. A side is chosen: for field_cd set
  *   (after func_801b5890) the right side when field_0b is clear, else bit
  *   0x8000 of field_130. Four words of the table at row field_12a (two
- *   words to a row, twelve more for the right side) become field_4c
- *   (negated when field_0b is clear), field_54, field_50, field_58; when
- *   field_49 is set field_4c and field_50 double. Sequence 0x26 (0x27 for
+ *   words to a row, twelve more for the right side) become vel_x
+ *   (negated when field_0b is clear), accel_x, vel_y, accel_y; when
+ *   field_49 is set vel_x and vel_y double. Sequence 0x26 (0x27 for
  *   the right side) plus field_12a starts.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_0b, field_10 (word), field_14 (word), field_3a,
+ *   Reads: the object's field_0b, pos_x_frac (word), pos_y_frac (word), step_flags,
  *     field_40 (other object), field_49, field_70, field_cd, field_cf
  *     (cd set), field_12a, field_130 (cd clear), and what func_801b56e0
- *     reads (field_4c, field_50, field_54, field_58); the other object's
- *     field_10 and, through func_801b5890, its table entry
+ *     reads (vel_x, vel_y, accel_x, accel_y); the other object's
+ *     pos_x_frac and, through func_801b5890, its table entry
  *     (data_801ce778_slot04_17 at field_0e); the table words
  *     data_801ce050_slot04_17 at field_cf and data_801ce384_slot04_17 at the
  *     rows named above; the seed data_80190126.
- *   Writes: field_07, field_48, field_10, field_14, field_4c, field_50,
- *     field_54, field_58, ref_other (approach case), the seed.
+ *   Writes: state_3, field_48, pos_x_frac, pos_y_frac, vel_x, vel_y,
+ *     accel_x, accel_y, ref_other (approach case), the seed.
  *   Callees replaced by recorders: func_801307e0 (2 arguments) and
  *     func_80130efc (1); they reach the sequence tables and the library,
  *     their results are unused.

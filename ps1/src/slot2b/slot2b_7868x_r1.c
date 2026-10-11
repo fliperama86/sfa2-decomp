@@ -5,7 +5,7 @@
 
 void func_80077908_slot2b(Object *obj);
 
-/* What it does (inferred, not an original name): sets field_07 to 3 and
+/* What it does (inferred, not an original name): sets state_3 to 3 and
    field_159 to 1. When field_219 is not 0 it calls func_80077908_slot2b
    and ends. Otherwise it takes half of field_12a, passes it to
    func_80141f28, and then calls func_801307e0 with that half plus a base,
