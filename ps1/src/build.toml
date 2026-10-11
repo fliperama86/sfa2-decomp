@@ -40244,3 +40244,19 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8011d74c", address = 0x8011d74c, size = 1068 },
 ]
+
+[[unit]]
+name = "d20cf0_r2"
+source = "d20cf0_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013b558", address = 0x8013b558, size = 608 },
+]
+
+[[unit]]
+name = "d1f06c_r1"
+source = "d1f06c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011f06c", address = 0x8011f06c, size = 48 },
+]

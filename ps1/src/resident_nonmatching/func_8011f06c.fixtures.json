@@ -1,9 +1,0 @@
-{
- "fixtures": [
-  {"args": [], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 12 new; edge: slot 4, immediate 0x1 against 0x2; edge: slot 5, immediate 0x80 against 0x81; edge: slot 5, immediate 0x80 against 0x7f; edge: slot 7, immediate 0x1 against 0x2; edge: slot 7, immediate 0x1 against 0x0", "reads": [], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": [["0x80190148", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"], ["0x8019032e", "00"]]}
- ],
- "format": 1,
- "function": "func_8011f06c",
- "recorded": {"cases": 2000, "comparison": "func_8011f06c: built 44 bytes, original 48 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
- "uncovered": {"edges": ["slot 4: addiu a0,a0,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 2000"], "slots": []}
-}
