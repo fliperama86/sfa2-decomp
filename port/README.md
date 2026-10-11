@@ -2814,7 +2814,8 @@ them were 0 and the game's music followed as before (14675 and 15330 in
 seconds 18 and 19 of both files). That is the movie's sound in the dump,
 not a judgment of it: nobody listened, and nothing was compared with a
 console. The window's own picture was not seen in
-that run. The third program has no C and is skipped as before.
+that run. In that run the opening movie's program and the third program had
+no C and were skipped.
 
 The fresh callback state. A stand-alone program carries its own copy of the
 library, so on the console its interrupt handling starts fresh each time the
@@ -2841,7 +2842,8 @@ starts it again in its attract loop); the disc layer's line for the movie's
 sound came each time (`audio: a stream starts at sector 235526: file 1
 channel 1, stereo, 37800 Hz`), and video memory held the movie's frames. The
 window's own picture was not seen in that run, and nothing was compared with
-a console.
+a console. The third program of the disc has no C and is skipped as
+before.
 
 The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
 `overrides.c`, the disc layer and a driver of its own, with a made-up table
