@@ -268,6 +268,7 @@ void (*port_iopage_dma_callback(int dma))(void);   /* the routine registered for
 void port_press_poll(void);
 int  port_press_claim_due(void);
 void port_press_deliver_claimed(void);
+void port_press_report(const char *program);   /* programs.c, when a built-in program has returned: one line of counts (press.h) */
 
 /* library.c: one line into the trace file, if tracing */
 void port_trace_line(const char *fmt, ...);

@@ -19,6 +19,18 @@
  * (port_press_deliver_claimed); the state is cleared before the routine is called, because the routine starts the next transfer;
  * port_handler_depth is raised around the routine. With no routine registered the completion is dropped and counted.
  *
+ * SEVERAL IN ONE CALL. When the routine has started the next transfer and that one's due time has passed too, its completion is
+ * taken in the same call, by the poll or by the delivery alike, and so on until a transfer's due time is still ahead or the
+ * routine starts none; port_handler_depth stays raised by one for all of them. (A completion that the timer has claimed is not
+ * taken this way: it is left to the delivery.) On the console the interrupt of a transfer that is
+ * done is taken as soon as the routine before returns, and nothing of the interrupted code runs in between (inferred from how the
+ * console takes a pending interrupt; not measured on one). Here the poll comes after a sleep of up to 2 ms (port_tick) and the
+ * timer's round waits 1 ms (interrupt.c), while the transfers of a frame of the logo's are due 0.8 ms apart: with one completion
+ * a round the 20 transfers of a frame were not done within the frame's time, and the logo's program reset the decoder with
+ * transfers of the frame still to come (the port's page has the counts of a run). A completion is still never taken before its
+ * due time. Whatever the routine did is read again before each further one: the state, the due time, the clock and the routine
+ * that is registered.
+ *
  * THE DUE TIME is THIS PROJECT'S choice and not the chip's known pace. A completion must not come sooner than a chip could have
  * made the data (the logo's program relies on the routine not running inside DecDCTout). The completion of a transfer is due at
  * (the time of the frame's DecDCTin) + (the number of macroblocks of the frame handed out up to and including this transfer, rounded
@@ -48,7 +60,19 @@ void port_DecDCTReset(int mode);
  * halfwords are written, nothing else, and the result is -1. A null `bs` (the library's continuation of a decode in parts): the
  * program stops. Any other failure of port_mdec_vlc: the program stops with the call's name and the reader's result (the console's
  * library would go on with what it decoded; not modelled). The reader is given the end of the mapped RAM as the limit of both
- * pointers; the codes and the 64 halfwords must fit before it. */
+ * pointers; the codes and the 64 halfwords must fit before it.
+ *
+ * THE TIME THE DECODE TAKES. On the console an output transfer that was under way when this call was made is done, with its
+ * routine run, before the call returns: INFERRED from the sizes (a frame of 300 macroblocks is 1,800 blocks, each with a DC value
+ * and an end code at least, so 3,600 codes or more to read in software, against one transfer of 15 macroblocks by the chip); not
+ * measured on a console. Both movie programs rely on it: each starts a frame's first transfer, calls DecDCTvlc for the next
+ * frame, and then waits while a flag is not 0 that the transfers' routine sets to 1 when it starts a further transfer and to 0
+ * after the last. On a PC the decode takes microseconds and the flag is still 0 from the frame before. So when the call has written its output and a completion is pending or claimed,
+ * it ticks (port_tick) until one completion has been taken (the pending one at its due time, never before; with the ones that are
+ * taken in the same call) or none is pending any more, and returns then; it does not wait for the frame's other transfers. It
+ * does not wait: with nothing pending; where no interruption is allowed (inside a handler, interrupts off: the console's call
+ * is not interrupted there either); when the result is -1. If no completion comes in a hundred thousand ticks (the clock does
+ * not move) the program stops. No time is modelled beyond this. */
 int port_DecDCTvlc(unsigned long *bs, unsigned long *buf);
 
 /* DecDCTin(buf, mode): first changes the word at `buf` and writes it back: bit 27 cleared when `mode` has bit 0, set otherwise;
@@ -84,5 +108,13 @@ void port_press_deliver_claimed(void);
  * taken and about to run; 0 otherwise, and 0 while the completion's routine runs (the state is cleared before the call). The movie's
  * stream calls (stream.c) ask it for their busy rule. */
 int port_press_out_busy(void);
+
+/* One line on the output, then the four counts begin again at 0:
+ *     decoder: program NAME: F frames, T transfers, C completions taken, R dropped by a reset
+ * F: calls of DecDCTin that handed the chip a frame. T: transfers that DecDCTout started. C: completions taken (the routine was called,
+ * or there was none and the completion was dropped). R: completions that a DecDCTReset found pending or claimed and dropped; the
+ * frame they belong to was not handed out to its end. T - C - R is what was pending when the line was printed. programs.c calls it
+ * when a built-in program has returned, with the program's name. */
+void port_press_report(const char *program);
 
 #endif

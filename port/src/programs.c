@@ -98,5 +98,6 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
     ((void (*)(void))row->main)();
     if (row->teardown) row->teardown();
     port_trace_line("program %s: returned", row->name);
+    port_press_report(row->name);   /* one line: what the program's movie made of the decoder */
     return 1;
 }

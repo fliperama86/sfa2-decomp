@@ -31,6 +31,10 @@ static unsigned long long in_us;        /* the time of the frame's DecDCTin */
 static unsigned long long handed;       /* bytes of the frame handed out so far */
 static unsigned mb_bytes;               /* a macroblock's bytes at the depth of the frame's DecDCTin */
 static unsigned dropped;                /* completions dropped for want of a routine */
+/* The counts of port_press_report, since the report before: frames handed in, transfers out, completions taken, and completions
+ * that a DecDCTReset dropped while they were pending. */
+static unsigned n_frames, n_transfers, n_taken, n_reset;
+static unsigned takes;                  /* completions taken since the start: DecDCTvlc's wait watches it */
 
 /* The span [p, p + n) must lie inside the mapped RAM, else the program stops with the call's name. */
 static void need(const char *call, const char *what, const void *p, unsigned long long n)
@@ -44,6 +48,8 @@ static void run_completion(void)
 {
     void (*f)(void) = port_iopage_dma_callback(1);
     state = 0;
+    n_taken++;
+    takes++;
     if (f) {
         port_target_check("decoder output callback", (const void *)f);   /* its address checked now, as iopage.c does for its own */
         f();
@@ -52,10 +58,15 @@ static void run_completion(void)
     }
 }
 
+/* Takes the completion that the caller has marked as taken or that the timer claimed, and after it every completion that the
+ * routine's own DecDCTout made pending with a due time that has passed already (press.h, SEVERAL IN ONE CALL). The state, the due
+ * time and the clock are read after each call of the routine, and run_completion reads the registered routine each time. A
+ * completion whose due time is still ahead stays pending, and one that the timer claimed is left to the delivery. */
 static void take_here(void)
 {
     port_handler_depth++;
-    run_completion();
+    do run_completion();
+    while (state == 1 && port_now_us() >= due_us && __sync_bool_compare_and_swap(&state, 1, 3));
     port_handler_depth--;
 }
 
@@ -76,12 +87,25 @@ static void wait_for_output(void)
     }
 }
 
+/* The time a decode of a frame's bitstream takes, as far as a program can tell: see press.h at DecDCTvlc. */
+static void decode_lasts_past_a_pending_transfer(void)
+{
+    unsigned before = takes, n;
+    if (!port_interrupt_allowed()) return;
+    for (n = 0; state != 0 && takes == before; n++) {
+        if (n >= PRESS_WAIT_LIMIT)
+            port_halt(PORT_EXIT_OTHER, "DecDCTvlc: the completion of the output transfer that was pending did not come in %u ticks", PRESS_WAIT_LIMIT);
+        port_tick();
+    }
+}
+
 void port_DecDCTReset(int mode)
 {
     if (mode != 0 && mode != 1) port_halt(PORT_EXIT_OTHER, "DecDCTReset: mode %d is not 0 or 1", mode);
     NEED_CHIP("DecDCTReset");
     if (mode == 0) port_h_ResetCallback();
     Psyz_MdecReset();
+    if (state != 0) n_reset++;
     state = 0;
     if (mode == 0) {
         struct port_mdec t;
@@ -121,6 +145,7 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf)
         unsigned i;
         for (i = 0; i < 64; i++) end[i] = 0xFE00;
     }
+    decode_lasts_past_a_pending_transfer();
     return 0;
 }
 
@@ -144,6 +169,7 @@ void port_DecDCTin(unsigned long *buf, int mode)
     mb_bytes = depth == 2 ? 768 : 512;
     handed = 0;
     in_us = port_now_us();
+    n_frames++;
 }
 
 void port_DecDCTout(unsigned long *buf, int words)
@@ -160,6 +186,7 @@ void port_DecDCTout(unsigned long *buf, int words)
     handed += n * 4;
     blocks = mb_bytes ? (handed + mb_bytes - 1) / mb_bytes : 0;
     due_us = in_us + blocks * PORT_PRESS_US_PER_MACROBLOCK;
+    n_transfers++;
     state = 1;
 }
 
@@ -186,4 +213,12 @@ void port_press_deliver_claimed(void)
 int port_press_out_busy(void)
 {
     return state != 0;
+}
+
+void port_press_report(const char *program)
+{
+    printf("decoder: program %s: %u frames, %u transfers, %u completions taken, %u dropped by a reset\n", program, n_frames, n_transfers, n_taken,
+           n_reset);
+    fflush(stdout);
+    n_frames = n_transfers = n_taken = n_reset = 0;
 }
