@@ -91,7 +91,6 @@ func_801ca0b0_slot05_06 replay: fixtures 1, passed 1, failed 0
 func_801e0a78_slot0b replay: fixtures 2, passed 2, failed 0
 func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
 func_801e0ea8_slot0b replay: fixtures 2, passed 2, failed 0
-func_801e1d6c_slot0b replay: fixtures 2, passed 2, failed 0
 ```
 
 ## The recorded lines
@@ -188,8 +187,6 @@ func_801e0ce8_slot0b: built 304 bytes, original 448 bytes; cases 2000, discarded
 func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original executed
 func_801e0ea8_slot0b: built 320 bytes, original 372 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e0ea8_slot0b coverage: 93 of 93 instruction slots of the original executed
-func_801e1d6c_slot0b: built 540 bytes, original 624 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e1d6c_slot0b coverage: 154 of 156 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
@@ -275,8 +272,6 @@ func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
   altered: id shift changed from 6 to 5, instruction slot 54
 func_801e0ea8_slot0b control: different 2000 of 2000 (expected more than 0)
   altered: first corner store moved by 0x10 bytes, instruction slot 37
-func_801e1d6c_slot0b control: different 1847 of 2000 (expected more than 0)
-  altered: command word constant changed, instruction slot 75
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
@@ -322,7 +317,6 @@ func_801cb564_slot05_06 writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801e0a78_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ce8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ea8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e1d6c_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
