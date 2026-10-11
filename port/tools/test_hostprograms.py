@@ -122,6 +122,7 @@ int port_skip_programs;
 static int source_sector = -1;
 
 int port_cd_source_at(unsigned address) { (void)address; return source_sector; }
+void port_callbacks_program_start(void) { printf("callbacks fresh\n"); }
 void port_trace_line(const char *fmt, ...)
 {
     va_list ap;
@@ -236,7 +237,7 @@ def exec_lines(name: str, *more: str, skip: bool = False) -> list[str]:
 
 
 def ran(name: str, setup=True, teardown=True) -> list[str]:
-    return ([f"trace: program {name}: start"] + ([f"setup {name}"] if setup else []) + [f"main {name}"] + ([f"teardown {name}"] if teardown else [])
+    return (["callbacks fresh", f"trace: program {name}: start"] + ([f"setup {name}"] if setup else []) + [f"main {name}"] + ([f"teardown {name}"] if teardown else [])
             + [f"trace: program {name}: returned", "R 1"])
 
 
@@ -250,6 +251,21 @@ def expect(rc: int, lines: list[str], want_rc: int, want: list[str]):
 def setup_main_teardown_in_order():
     rc, l = run(exec_lines("alpha"))
     return expect(rc, l, 0, ran("alpha"))
+
+
+def callbacks_start_fresh_once_after_the_checks_and_before_setup():
+    # the stand-in prints `callbacks fresh`: once, after the checks (so a failed check, a file not in the table and a skipped
+    # file print no such line: see the cases of those below) and before setup
+    rc, l = run(exec_lines("alpha"))
+    if rc != 0 or l.count("callbacks fresh") != 1 or l.index("callbacks fresh") >= l.index("setup alpha"):
+        return f"status {rc}, lines {l}"
+    path, _ = changed_file("alpha", 0x800 + 5, "fresh")
+    rc, l = run(exec_lines("alpha"), path)
+    if rc != EXIT_PROGRAM or "callbacks fresh" in l:
+        return f"a failed check: status {rc}, lines {l}"
+    rc, l = run(["skip 1", f"src {Ctx.sector[OTHER[0]]}", f"exec {HDR + 0x10:x}"])
+    if "callbacks fresh" in l:
+        return f"a file not in the table: {l}"
 
 
 def the_right_one_of_two():
@@ -702,7 +718,7 @@ def nothing_is_called_before_every_check_passed():
     return ram_body_changed("alpha", PROGRAMS["alpha"]["t_size"] - 1)
 
 
-NAMES = [setup_main_teardown_in_order, the_right_one_of_two, the_first_row_of_two_is_not_taken_for_the_second, a_row_without_setup_and_teardown,
+NAMES = [setup_main_teardown_in_order, callbacks_start_fresh_once_after_the_checks_and_before_setup, the_right_one_of_two, the_first_row_of_two_is_not_taken_for_the_second, a_row_without_setup_and_teardown,
          a_later_sector_of_the_file_finds_and_reads_the_whole_file, header_at_the_rams_first_bytes_runs, file_of_exactly_the_headers_fields_with_no_body_runs,
          a_second_exec_runs_again, body_ending_at_the_rams_end_runs, body_starting_at_the_rams_start_runs, header_in_the_last_16_bytes_of_the_ram_runs,
          name_in_a_folder_found_through_the_listing, name_matched_without_regard_to_case, direct_name_with_a_version_suffix, direct_name_in_a_folder,

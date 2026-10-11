@@ -66,4 +66,10 @@ unsigned      port_PadRead(int id);
 void          port_PadStop(void);
 long          port_SetVideoMode(long mode);
 
+/* InitGeom(). Does nothing. Sony's routine sets up the console's geometry coprocessor; the PC program has none, the port's picture
+ * calls use none, and the opening movie's program holds no coprocessor instruction in its own functions (a private scan of the
+ * eighteen functions of the program that have a caller counted 0). The port's list of programs binds the program's call to this
+ * routine. */
+void          port_InitGeom(void);
+
 #endif

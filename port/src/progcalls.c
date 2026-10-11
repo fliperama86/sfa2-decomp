@@ -125,3 +125,9 @@ long port_SetVideoMode(long mode)
     video_mode = mode;
     return before;
 }
+
+/* ---- the geometry coprocessor ---- */
+
+void port_InitGeom(void)
+{
+}

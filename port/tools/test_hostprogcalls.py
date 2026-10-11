@@ -200,6 +200,7 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "padinit")) printf("PI %d\n", port_PadInit(atoi(rest)));
         else if (!strcmp(cmd, "padstop")) { port_PadStop(); printf("PS\n"); }
         else if (!strcmp(cmd, "padread")) printf("PR %08x\n", port_PadRead(atoi(rest)));
+        else if (!strcmp(cmd, "initgeom")) { port_InitGeom(); printf("IG\n"); }
         else if (!strcmp(cmd, "vmode")) printf("VM %ld\n", port_SetVideoMode(atol(rest)));
         else { printf("unknown script command %s\n", cmd); return 64; }
     }
@@ -667,6 +668,12 @@ def video_mode_returns_the_one_before():
         return f"{after(l, 'VM ')}, wanted {want}"
 
 
+def init_geom_does_nothing():
+    rc, l = run("padmode 1\n" + frame_for((1 << 11) | 3) + "\nvmode 7\npadread 1\ninitgeom\ninitgeom\nvmode 9\nvmode 0\npadread 1\n")
+    if after(l, "IG") != ["IG", "IG"] or after(l, "VM ") != ["VM 0", "VM 7", "VM 9"] or after(l, "PR ") != ["PR 00000803"] * 2:
+        return f"{l}"
+
+
 NAMES = [read_one_sector, read_three_sectors, read_many_sectors, commands_in_order, mode_low_byte_is_sent,
          handler_removed_and_drive_paused_after_last, sync_before_during_after, sync_waits_by_ticking, result_bytes,
          read_past_the_end_fails, read_ending_exactly_at_the_images_end, second_read_after_a_finished_one,
@@ -678,7 +685,7 @@ NAMES = [read_one_sector, read_three_sectors, read_many_sectors, commands_in_ord
          pad_high_half_is_a_port_with_no_controller, pad_frames_that_are_not_a_digital_pad, pad_id_is_not_used,
          pad_runtime_read_with_no_button_gives_zero, pad_input_script_is_seen, pad_input_script_over_a_made_up_frame,
          pad_input_script_not_applied_to_no_controller, pad_init_and_stop_change_nothing, pad_read_before_init_works,
-         video_mode_returns_the_one_before]
+         video_mode_returns_the_one_before, init_geom_does_nothing]
 
 
 def main() -> int:

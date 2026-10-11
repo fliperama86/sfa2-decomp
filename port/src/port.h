@@ -188,6 +188,8 @@ int  port_library_list(char *err, size_t errsize);
 void port_tick(void);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
 void port_callbacks_reset(void);
+/* Marks the callback layer as not started (see kernel.c); port_program_exec calls it before a built-in program's setup. */
+void port_callbacks_program_start(void);
 /* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
  * handler called, or are marked ready for TestEvent. */
 void port_deliver_event(unsigned event_class, unsigned spec);

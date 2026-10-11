@@ -7,9 +7,9 @@ program linked from the game's unchanged C that starts the game from the
 user's disc image. In one scripted run of five minutes it went from the
 title through a first fight into a second. Its sound plays on the
 machine's output unless it is told not to, or goes to a file ("Sound out"
-below); it runs the logo's program from its C (the movie plays, without
-its sound so far) and skips the disc's other stand-alone programs, which
-have no C (the opening movie's is the first), and a function
+below); it runs the logo's program and the opening movie's program from their C
+(the logo's movie plays, without its sound so far) and skips the disc's
+other stand-alone programs, which have no C, and a function
 without C would end it with that function's name; the build counts one
 such function of the game, the entry code, which it does not run. It is
 described under "The host program" below. The library
@@ -854,7 +854,7 @@ port/build/host/sfa2.exe [--skip-programs] DISC
 DISC is the `.cue` of the user's disc image, or its `.bin`; from a Linux
 shell under WSL the path is given in Windows form. `--skip-programs` lets
 the game go on past the stand-alone programs of the disc that have no C
-(the opening movie's is the first; see "Programs of the disc" below);
+(see "Programs of the disc" below);
 without it the program ends at the first of them and names it. A program whose C is built
 in runs with or without the option.
 
@@ -1151,8 +1151,8 @@ routines that do nothing on purpose. What is in this piece:
   bounded the directories and not the files in them; the owner's review
   found that.
 - Programs of the disc. The game starts other programs from the disc
-  with `Exec`. The logo's has C and is built in (see "Built-in programs"
-  below). No C exists for the others, so the port ends at one of them with
+  with `Exec`. The logo's and the opening movie's have C and are built in
+  (see "Built-in programs" below). No C exists for the others, so the port ends at one of them with
   `stop: no C yet for the program NAME (disc sector N)`, as it does for
   a function without C. `--skip-programs` goes on instead as if the
   program had returned at once, and prints a line at each skip; that is
@@ -2625,7 +2625,8 @@ upstream against captures from a console), with the bitstream reader
 (`port_mdec_vlc`) and the reset tables (`port_mdec_reset`) of `mdec.c`.
 The port's own decode routine in `mdec.c` is not used by them; what
 becomes of it is a later change. The port's list of programs
-(`port/programs.toml`) binds the five for the logo's program.
+(`port/programs.toml`) binds the five for the logo's program and the
+opening movie's.
 
 What each does is in the header of `press.h`. Every pointer is a game
 address; each read and write is checked to lie in the mapped RAM, and a
@@ -2667,7 +2668,11 @@ with the checks before it, so no case gives it.
 that the logo's stand-alone program calls: `CdRead` and `CdReadSync` (a
 plain read of sectors into memory), `PadInit`, `PadRead`, `PadStop` and
 `SetVideoMode`. The port's list of programs binds them for the logo's
-program. They were written from what
+program. `port_InitGeom` is a seventh: it does nothing (Sony's routine sets
+up the console's geometry coprocessor; the PC program has none, the port's
+picture calls use none, and the opening movie's own functions hold no
+coprocessor instruction), and the opening movie's program is bound to it.
+The six were written from what
 the program's own copies do (read in a private listing) and nothing is
 compared with a console.
 
@@ -2710,8 +2715,8 @@ and the two routines that give a stream's code the FIFO's bytes and put
 bytes into the game's memory as a sector's), not on the picture library,
 whose copies of these routines have a stand-in for the sector handler and
 no sector delivery. The port's list of programs binds the calls for the
-logo's program; the plain read (`CdRead`, `CdReadSync`) and `SetVideoMode`
-are not in this part.
+logo's program and the opening movie's; the plain read (`CdRead`,
+`CdReadSync`) and `SetVideoMode` are not in this part.
 
 What each does is in the header of `stream.h`. The ring is the game's
 memory in Sony's layout (headers of 32 bytes, then blocks of 2,016); every
@@ -2765,7 +2770,8 @@ programs' own copies of the library, and no run on a console was made.
 `port/src/programs.c` (header `programs.h`) lets `Exec` start a program of
 the disc whose C is built into the PC program: a row of the generated table
 `port_programs[]` (`port_tables.h`; `hostbuild.py` writes the table always,
-empty when no program is listed; the tree lists the logo's).
+empty when no program is listed; the tree lists the logo's and the opening
+movie's).
 `port_h_Exec` finds the file as before and offers it to
 `port_program_exec(name, sector, size, header)`. The row is found by the
 file's base name (after the last `/` or `\`, without a `;N` suffix, case
@@ -2775,7 +2781,8 @@ file on the disc against the row's (the C was written from another file);
 the 16 bytes of the header at `Exec`'s argument (the fields `pc0`, `gp0`,
 `t_addr`, `t_size`) against the file, and that they lie in the mapped RAM;
 the body, `t_size` bytes from file offset 0x800, which must exist in the
-file, lie in the RAM and equal the RAM at `t_addr`. Then the row's setup
+file, lie in the RAM and equal the RAM at `t_addr`. Then the callback layer is marked as not started
+(`port_callbacks_program_start`, `kernel.c`; see below), the row's setup
 routine, main (called as `void (*)(void)`), the row's teardown routine, with
 a trace line before and after, and `Exec` returns 1. Nothing else is cleaned
 up after main. A file with no row is handled as before: the stop, or with
@@ -2807,14 +2814,36 @@ them were 0 and the game's music followed as before (14675 and 15330 in
 seconds 18 and 19 of both files). That is the movie's sound in the dump,
 not a judgment of it: nobody listened, and nothing was compared with a
 console. The window's own picture was not seen in
-that run. The opening movie's program and the third program have no C and
-are skipped as before.
+that run. The third program has no C and is skipped as before.
+
+The fresh callback state. A stand-alone program carries its own copy of the
+library, so on the console its interrupt handling starts fresh each time the
+program is started, and its first `ResetCallback` hooks the interrupts and
+turns them on (inferred from the programs' own copies; nothing was compared
+with a console). The runtime serves a program's `ResetCallback` with the
+game's routine, which does nothing while the game's callbacks are running,
+and the game calls `Exec` with interrupts off, so they would stay off for
+the whole program. So `port_program_exec` calls
+`port_callbacks_program_start` once, after the three checks and before the
+row's setup: it marks the callback layer as not started and does nothing
+else. The logo's program ran without it because the game's callbacks were
+stopped when it was started.
+
+The opening movie. [`programs.toml`](programs.toml) lists the opening
+movie's program (`PAC/Z2O.EXE`) with the same setup and teardown as the
+logo's (the program's word for a sector put aside is another address) and
+the library names that the game has no routine for: the decoder's, the
+stream's, `CdRead2`, the pad calls and `InitGeom` (see "The logo program's
+small library routines"). The program has no call of the plain read or of
+`SetVideoMode`.
 
 The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
 `overrides.c`, the disc layer and a driver of its own, with a made-up table
 and a made-up disc image of made-up program files, and does through
-`port_h_Exec` what the game does before `Exec`. Nothing is compared with a
-console.
+`port_h_Exec` what the game does before `Exec`; its stand-in for
+`port_callbacks_program_start` prints a line. The effect of the routine is
+checked by `port/tools/test_hostkernel_start.py --cc CC`, which includes the
+real `kernel.c`. Nothing is compared with a console.
 
 ## Not decided
 
