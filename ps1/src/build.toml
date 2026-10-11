@@ -2583,6 +2583,15 @@ functions = [
 ]
 
 [[unit]]
+name = "d20604_r1"
+source = "d20604_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80120604", address = 0x80120604, size = 952 },
+]
+rodata = { address = 0x8016d930, size = 48 }
+
+[[unit]]
 name = "s11ffdc_r3"
 source = "s11ffdc_r3.c"
 flags = ["-O2", "-G0"]
