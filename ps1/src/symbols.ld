@@ -1474,7 +1474,6 @@ func_801633ac = 0x801633ac;
 func_8016310c = 0x8016310c;
 SetRCnt = 0x8015764c;
 StartRCnt = 0x80157720;
-ResetRCnt = 0x80157784;
 get_mode = 0x80158d28;
 get_cs = 0x80158d84;
 get_ce = 0x80158e50;
