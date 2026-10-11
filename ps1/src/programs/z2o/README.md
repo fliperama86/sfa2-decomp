@@ -56,7 +56,7 @@ from `0x8002f7f0` up to `0x8008a400` and only then sets the register to
 against the entry code's first two instructions only, so `programs.toml`
 declares none for this program, and the test tool begins each run with the
 register at 0. That is right only for a function that does not use the
-register. The listing of each of the fifteen functions here was read for that: no
+register. The listing of each of the sixteen functions here was read for that: no
 instruction of them reads or writes the register or reaches data through it
 plus an offset (they build each address with `lui`), and each function's header
 says so. A function of this program that does use the register needs the
@@ -161,6 +161,10 @@ func_80011018_z2o: built 184 bytes, original 184 bytes; cases 2000, discarded 0,
 func_80011018_z2o coverage: 46 of 46 instruction slots of the original executed
 func_80011018_z2o: built 184 bytes, original 184 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011018_z2o coverage: 46 of 46 instruction slots of the original executed
+func_800108e8_z2o: built 512 bytes, original 512 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800108e8_z2o coverage: 128 of 128 instruction slots of the original executed
+func_800108e8_z2o: built 512 bytes, original 512 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800108e8_z2o coverage: 128 of 128 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
@@ -181,6 +185,7 @@ func_8001139c_z2o control: different 2000 of 2000 (expected more than 0)
 func_80010ae8_z2o control: different 2000 of 2000 (expected more than 0)
 func_80011708_z2o control: different 384 of 2000 (expected more than 0)
 func_80011018_z2o control: different 2000 of 2000 (expected more than 0)
+func_800108e8_z2o control: different 181 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -216,6 +221,8 @@ func_80011708_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011708_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011018_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011018_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800108e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800108e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -236,6 +243,7 @@ func_8001139c_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010ae8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011708_z2o fixtures: kept 3 of 2000 cases (slots 2, edges 1, results 0)
 func_80011018_z2o fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
+func_800108e8_z2o fixtures: kept 2 of 2000 cases (slots 1, edges 1, results 0)
 func_80010be4_z2o replay: fixtures 1, passed 1, failed 0
 func_80011428_z2o replay: fixtures 1, passed 1, failed 0
 func_800116c8_z2o replay: fixtures 1, passed 1, failed 0
@@ -251,11 +259,12 @@ func_8001139c_z2o replay: fixtures 1, passed 1, failed 0
 func_80010ae8_z2o replay: fixtures 1, passed 1, failed 0
 func_80011708_z2o replay: fixtures 3, passed 3, failed 0
 func_80011018_z2o replay: fixtures 12, passed 12, failed 0
+func_800108e8_z2o replay: fixtures 2, passed 2, failed 0
 ```
 
 ## The functions
 
-All fifteen are inferred roles, not original names. None uses the global pointer
+All sixteen are inferred roles, not original names. None uses the global pointer
 register (see above).
 
 - `func_800116c8_z2o`: stores the low byte of its argument at the byte
@@ -290,3 +299,5 @@ register (see above).
 - `func_80011708_z2o`: the decoder's completion routine (inferred). Adds 1 to the count word at `0x8002f888`; if the flag word at `0x80031e68` is not 0 calls StCdInterrupt and clears it; if the word at `0x8002f870` is 0 calls LoadImage (the game's name `func_80157fc4`, the program's copy at `0x800131a8`) with the rectangle at `0x8002f874` and the buffer pointer at `0x8002f87c`. While the count is below the limit word at `0x8002f88c` (unsigned) it adds 0x18 (when the word at `0x8002f818` is not 0, else 0x10) to the rectangle's x, adds the word at `0x8002f880` to the buffer pointer (in words), calls DecDCTout with it and the word at `0x8002f884`, and sets the word at `0x8002f890` to 1; otherwise sets that word to 0. StCdInterrupt, LoadImage and DecDCTout are recorders in the test; the rectangle and the words up to `0x8002f890`, and the flag word, are watched.
 
 - `func_80011018_z2o`: opens a movie by its index (inferred). Calls `func_800119e8_z2o(index, &size)` (size is a local the callee fills, never read) and passes its result as the first argument of `func_80010c38_z2o` (the open of a movie; inferred) together with its own other nine arguments unchanged (a1 to a3 and six words from the caller's stack), and returns what that returns. Both callees are recorders in the test; the second takes ten arguments, the setup writes the six stack words. The prototype of `func_80010c38_z2o` in `z2o.h` is the author's, from the use of the argument registers in its listing; the symbol is in `[program.symbols]` until the branch that has its C declares it as a function.
+
+- `func_800108e8_z2o`: the program's main (inferred). Calls the empty library function, ResetCallback, ResetGraph(0), the disc start, PadInit(0), InitGeom and the graphics set-up; stores 0 in the word at `0x80031e6c`; sets the parameter word, the volume (0x80), stereo (1) and the channel (1); opens the movie with `func_80011018_z2o` (ten arguments). Then a loop: the frame routine `func_800110d0_z2o(0, y)` (y 0xf0 when the index word at `0x80031e58` is not 0), the wait, VSync(0), the flip, PadRead(1); stores the pad word at `0x80031e70`, the buttons newly pressed (against the word at `0x80031e6c`) at `0x80031e74`, their low half at `0x8003de88` and their high half at `0x80049e8c`; when a bit of 0x820 is set in either half it stores 1 at the scratchpad word `0x1f80000c` and leaves the loop; otherwise it goes on while the frame routine returned 0. Then `func_8001139c_z2o`, twice the rectangle at `0x80049ea4` set to (0, y, 0x1e0, 0xf0), ClearImage, DrawSync(0), VSync(0) and the flip, then PadStop and StopCallback. All callees are recorders in the test, with the results of the frame routine and PadRead scripted per call; the flip's recorder stores the opposite truth value into the index word at each call (a model by the contract's author). The pad words, the index word, the two halves, the rectangle and the scratchpad word are watched. The prototypes of `func_800110d0_z2o` and `func_80010c38_z2o` in `z2o.h` are the author's, from the use of the argument registers in their listings; their symbols are in `[program.symbols]` until the branch that has their C declares them as functions.

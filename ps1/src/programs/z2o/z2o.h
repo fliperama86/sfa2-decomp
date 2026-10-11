@@ -80,5 +80,38 @@ extern void DecDCTout(u32 *buf, int size);
 /* Program functions that other functions call (prototypes from their listings' use of the argument registers; the open's are inferred). */
 extern u32 func_800119e8_z2o(int index, u32 *size);
 extern int func_80010c38_z2o(u32 a0, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9);
+/* 0x80031e6c, 0x80031e70, 0x80031e74: the pad words: the word the buttons newly pressed are taken against (set to 0 by the main and not written again by
+   it), the last state read from PadRead and the buttons newly pressed (inferred from func_800108e8_z2o). */
+extern u32 data_80031e6c_z2o;
+extern u32 data_80031e70_z2o;
+extern u32 data_80031e74_z2o;
+/* 0x8003de88 and 0x80049e8c: the low and the high half of the buttons newly pressed (inferred). */
+extern u32 data_8003de88_z2o;
+extern u32 data_80049e8c_z2o;
+/* 0x80049ea4: a rectangle (8 bytes, just before the display environments) that the main clears the picture's area with (inferred). */
+extern Rect data_80049ea4_z2o;
+/* The four areas whose addresses the main hands to the open of the movie (inferred from the use as arguments; their types are not known). */
+extern u8 data_80049ed4_z2o[];
+extern u8 data_80031e84_z2o[];
+extern u8 data_8003de8c_z2o[];
+extern u8 data_800876f8_z2o[];
+extern void func_80011afc_z2o(void);
+extern long ResetCallback(void);
+extern void StopCallback(void);
+extern void PadInit(int mode);
+extern u32 PadRead(int id);
+extern void PadStop(void);
+extern void InitGeom(void);
+extern int func_800110d0_z2o(int a0, int a1);
+extern void func_80010be4_z2o(void);
+extern void func_80010ae8_z2o(void);
+extern int func_80011018_z2o(int index, u32 a1, u32 a2, u32 a3, u32 a4, u32 a5, u32 a6, u32 a7, u32 a8, u32 a9);
+extern int func_80011a24_z2o(void);
+extern void func_8001139c_z2o(void);
+extern void func_80011428_z2o(void);
+extern void func_800115a8_z2o(u32 volume);
+extern void func_80011630_z2o(int stereo);
+extern void func_800116c8_z2o(int channel);
+extern void func_800119b8_z2o(int value);
 
 #endif

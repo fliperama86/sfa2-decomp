@@ -124,6 +124,7 @@ functions = [
   { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
   { name = "func_80011708_z2o", address = 0x80011708, size = 264 },
   { name = "func_80011018_z2o", address = 0x80011018, size = 184 },
+  { name = "func_800108e8_z2o", address = 0x800108e8, size = 512 },
 ]
 
 [program.symbols]
@@ -153,8 +154,26 @@ data_8002f884_z2o = 0x8002f884
 StCdInterrupt = 0x800196e4
 DecDCTout = 0x80011c34
 func_80157fc4 = 0x800131a8
-# Callee of the next function; declared as a function by the branch that has its C (remove here then).
+# Callees whose C is on another branch (func_80010c38_z2o, func_800110d0_z2o): symbols here until a function entry declares them (then remove here).
 func_80010c38_z2o = 0x80010c38
+func_800110d0_z2o = 0x800110d0
+func_80011afc_z2o = 0x80011afc
+data_80031e6c_z2o = 0x80031e6c
+data_80031e70_z2o = 0x80031e70
+data_80031e74_z2o = 0x80031e74
+data_8003de88_z2o = 0x8003de88
+data_80049e8c_z2o = 0x80049e8c
+data_80049ea4_z2o = 0x80049ea4
+data_80049ed4_z2o = 0x80049ed4
+data_80031e84_z2o = 0x80031e84
+data_8003de8c_z2o = 0x8003de8c
+data_800876f8_z2o = 0x800876f8
+InitGeom = 0x80016114
+PadInit = 0x8001ac78
+PadRead = 0x8001acd8
+PadStop = 0x8001ad08
+ResetCallback = 0x8001a4f4
+StopCallback = 0x8001a5e8
 data_8002f800_z2o = 0x8002f800
 data_8002f804_z2o = 0x8002f804
 StUnSetRing = 0x80018b38
