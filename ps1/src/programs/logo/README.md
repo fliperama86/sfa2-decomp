@@ -363,8 +363,9 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   program's words from `0x8002eb00` on, 0 in `0x8002eb1c`, the video mode
   word at `0x8002eb38` and the stereo word at `0x8002eb34`. Then a loop of
   `CdIntToPos`, `CdControl(0x15, ...)`, `CdRead(0x4a, ...)` and
-  `CdReadSync(0, ...)` that starts again when one of the first two returns 0
-  or the last returns a value that is not 0; adds the pointer in the word at
+  `CdReadSync(0, ...)` that starts again when `CdControl` or `CdRead`
+  returns 0 or `CdReadSync` returns a value that is not 0 (`CdIntToPos`
+  returns nothing that is looked at); adds the pointer in the word at
   `0x8002eb18` to each of the 32 words behind it; and calls
   `func_80010928_logo`, `func_80010a80_logo` with the stream's sector and
   `func_80010fc4_logo`. All callees are recorders in the test, with scripted
