@@ -10,7 +10,7 @@ void func_8011ef34(void);
 
 /* A second name for ref_third (the shared header declares it as a one-member struct, ObjectRef), here as a plain pointer: the
    allocation pointer that the function moves over the records. With ref_third.p written in its place this function differs from
-   the original in 30 instruction lines (inferred: cse then reads the pointer through the cursor's register). The name is inferred. */
+   the original in 23 instruction slots (inferred: cse then reads the pointer through the cursor's register). The name is inferred. */
 extern Object *alloc_cursor_80190478;
 
 /* Resets the object pools (inferred): clears and numbers the records of the
@@ -32,7 +32,7 @@ void func_8011eb4c(void) {
     /* fill is the byte the clearing loops store; the original copies it from the zero register in loops 2 and 3. */
     u8 fill;
     /* The local holds a constant: the original keeps these values (8, 0xc, 0x10 of the three loops) in a register of its own. The name is inferred. */
-    /* With the constants written at its uses this function differs from the original in 32 instruction lines. */
+    /* With the constants written at its uses this function differs from the original in 20 instruction slots. */
     u8 kind;
     Object *rt;
     Pooled **q;
@@ -42,7 +42,7 @@ void func_8011eb4c(void) {
 
     func_8011ef34();
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
-    /* With 0 written at its uses (and in fill) this function differs from the original in 17 instruction lines. */
+    /* With 0 written at its uses (and in fill) this function differs from the original in 5 instruction slots. */
     blank = 0;
     i = 0;
     cursor = &alloc_cursor_80190478;
