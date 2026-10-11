@@ -40236,3 +40236,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013fc18", address = 0x8013fc18, size = 384 },
 ]
+
+[[unit]]
+name = "e1d74c_r1"
+source = "e1d74c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011d74c", address = 0x8011d74c, size = 1068 },
+]
