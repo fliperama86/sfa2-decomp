@@ -5448,6 +5448,14 @@ functions = [
 ]
 
 [[unit]]
+name = "e41534_r1"
+source = "e41534_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80141534", address = 0x80141534, size = 140 },
+]
+
+[[unit]]
 name = "u_801415c0"
 source = "u_801415c0.c"
 flags = ["-O2", "-G0"]
