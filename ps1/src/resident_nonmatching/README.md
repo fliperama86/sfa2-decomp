@@ -240,7 +240,6 @@ func_8011df3c control: different 1141 of 2000 (expected more than 0)
   altered: address mask combined with or instead of xor, instruction slot 14
 func_8011eb4c control: different 2000 of 2000 (expected more than 0)
   altered: type byte of the third array is 0x11, instruction slot 73
-  altered: store of field_226 moved by one byte, instruction slot 8
 func_8011fa50 control: different 2000 of 2000 (expected more than 0)
   altered: store of field_3a moved by two bytes, instruction slot 10
 func_80120604 control: different 254 of 2000 (expected more than 0)
@@ -283,7 +282,6 @@ func_8013a3a8 control: different 418 of 2000 (expected more than 0)
   altered: store to field_260 moved by one byte, instruction slot 327
 func_8013b0c4 control: different 1445 of 2000 (expected more than 0)
   altered: store to field_17f moved by one byte, instruction slot 49
-  altered: kind constant 0x17 changed to 0x16, instruction slot 29
 func_8013bfa4 control: different 147 of 2000 (expected more than 0)
   altered: kind constant 0x17 changed to 0x16, instruction slot 244
 func_8013c6ac control: different 1546 of 2000 (expected more than 0)
