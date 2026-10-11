@@ -214,7 +214,7 @@
 8012411c	188	func_8012411c	-	-	0	0	closed
 801241d8	72	func_801241d8	-	-	1	0	open
 80124220	228	func_80124220	-	disc,sound,unidentified	0	0	closed
-80124304	928	-	-	graphics,sound,unidentified	0	0	closed
+80124304	928	func_80124304	-	graphics,sound,unidentified	0	0	closed
 801246a4	40	func_801246a4	-	-	0	0	closed
 801246cc	944	func_801246cc	-	sound,unidentified	0	0	closed
 80124a7c	108	func_80124a7c	-	-	0	0	closed
