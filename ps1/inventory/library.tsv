@@ -13,9 +13,9 @@
 8015761c	12	EnableEvent	system	2	folder
 8015762c	12	func_8015762c	pads	1	bios
 8015763c	12	format	files	0	name
-8015764c	156	-	system	1	name
+8015764c	156	SetRCnt	system	1	name
 801576e8	56	GetRCnt	system	1	folder
-80157720	48	-	system	1	name
+80157720	48	StartRCnt	system	1	name
 80157750	52	-	system	0	place
 80157784	52	ResetRCnt	system	1	name
 801577bc	12	func_801577bc	threads	3	bios
