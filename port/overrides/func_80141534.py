@@ -1,4 +1,4 @@
-"""Contract of func_80141534 (header comment of the .c file lists reads and writes).
+"""Contract of func_80141534 in the port's C (header comment of the .c file lists reads and writes).
 
 Choices of the setup:
   - table_8017179c[0..7] are overwritten with pointers to eight blocks of
