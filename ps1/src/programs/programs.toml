@@ -130,6 +130,7 @@ functions = [
   { name = "func_80011afc_z2o", address = 0x80011afc, size = 8 },
   { name = "func_800116d8_z2o", address = 0x800116d8, size = 16 },
   { name = "func_800116e8_z2o", address = 0x800116e8, size = 16 },
+  { name = "func_800116f8_z2o", address = 0x800116f8, size = 16 },
 ]
 
 [program.symbols]
@@ -199,6 +200,7 @@ data_8002f89c_z2o = 0x8002f89c
 data_8002f8a8_z2o = 0x8002f8a8
 data_8002f8ac_z2o = 0x8002f8ac
 data_8002f8c4_z2o = 0x8002f8c4
+data_8002f8cc_z2o = 0x8002f8cc
 DecDCTReset = 0x80011b04
 DecDCTvlc = 0x80011b68
 DecDCTin = 0x80011bb8
