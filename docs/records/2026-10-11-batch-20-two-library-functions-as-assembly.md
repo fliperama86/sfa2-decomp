@@ -32,6 +32,10 @@
   compiler versions (2.5.7 to 2.8.1) and eleven sets of options on the
   best form gave nothing nearer. All of this is from the private trial
   of this evening; none of its tools is in the repository.
+- These are the first assembly units for code that the reference has
+  as C. The assembly units before them are code that was assembly in
+  the original: the library's generated stubs and the routines under
+  `asm/`. The build page says so under "Assembly units".
 - The units: `sdk/libapi/counter_p5.s` and `sdk/libcard/card.s`,
   `kind = "asm"`, in the form of the library's generated stubs (the
   instructions written out with the names of what they refer to, no

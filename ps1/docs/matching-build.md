@@ -275,11 +275,14 @@ assembly unit may declare `rodata`, `data` and `bss` like a C unit.
 
 Assembly units are not cached. They take one assembler run.
 
-Nearly all assembly units are the library's stubs for BIOS and system calls,
-generated from the reference's one-line files. Two are written by hand,
+All assembly units but two are code that was assembly in the original: the
+library's stubs for BIOS and system calls, generated from the reference's
+one-line files, and the few routines under `asm/` (the entry, the host
+calls, five more stubs), written from the disassembly. The two others,
 `sdk_libapi_counter_p5` (`StopRCnt`) and `sdk_libcard_card`
-(`_card_clear`): functions of the library whose C is known and whose
-instructions no compiler and assembler step of this build gives. Each file's
+(`_card_clear`), are functions of the library that the reference has as C:
+their C is known, and no compiler and assembler step of this build gives
+their instructions. Each file's
 comment has the C and says what differs; `ps1/src/sdk/README.md` has the
 account. They are exceptions for the library's own code, by the owner's
 decision of 2026-10-11, and not a way around a function of the game that
