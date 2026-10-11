@@ -70,6 +70,19 @@
   Three one-off starts of it with the user's disc, offscreen, one at a
   time, none audible: `port/README.md` has their lines ("One-off starts
   of the build with nothing said about sound").
+- After the owner's review: main `85ea4a2` (the build that takes the C
+  of a listed stand-alone program) was merged in. One conflict, the
+  usage line of `hostbuild.py`, which now names `--programs` and
+  `--no-sound-library`; the rest merged by itself. The page's opening
+  paragraph still said sound came "only when asked" and was corrected.
+  On the merge commit: `test_hostbuild.py` 519 cases, all as required
+  (main's program cases and this change's); `test_hostaudio.py` 28 and
+  `test_hostiopage.py` 112, as before; the real build with `--psyz DIR`
+  and nothing else printed the same line of the sound library and the
+  same counts, `programs built in: 0`, and linked verified; one start of
+  it (the dummy driver, offscreen, 20 seconds, `--skip-programs`)
+  printed `audio: sound output open, 44100 Hz stereo` and no line that
+  began `refused` or `stop`. The review command was not run again.
 - Mutants, one run each, under a time limit, every one taken out again.
   Seven of the program, on a copy of the runtime (`--src`), against the
   group of `test_hostaudio.py` that covers the rule: the device not
