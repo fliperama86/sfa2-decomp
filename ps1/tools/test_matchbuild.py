@@ -4435,6 +4435,125 @@ def make_maspsx_patch_unit_cases(config_path: Path) -> list[CacheCase]:
     ]
 
 
+def make_unit_aspsx_version_cases(config_path: Path) -> list[CacheCase]:
+    """A unit's own `aspsx_version`: how it is read, which version a unit gets, what it does to the cache key, and
+    what the versions that the configuration names do with the pinned maspsx."""
+    import types
+
+    def reading(root: Path):
+        cases = [
+            ({}, "c", None, 0),
+            ({"aspsx_version": "2.56"}, "c", "2.56", 0),
+            ({"aspsx_version": 2.56}, "c", None, 1),
+            ({"aspsx_version": ""}, "c", None, 1),
+            ({"aspsx_version": "2.56a"}, "c", None, 1),
+            ({"aspsx_version": "2.56"}, "asm", None, 1),
+            ({}, "asm", None, 0),
+        ]
+        for table, kind, want, n_errors in cases:
+            errors: list[str] = []
+            got = matchbuild.parse_unit_aspsx_version(table, "[[unit]] 'u'", kind, errors)
+            if got != want or len(errors) != n_errors:
+                return f"{table} as kind {kind!r}: {got!r} and {len(errors)} error(s), expected {want!r} and {n_errors}: {errors}"
+        return None
+
+    def effective(root: Path):
+        cfg = types.SimpleNamespace(aspsx_version="2.21")
+        checks = [
+            ("a unit with a version of its own", types.SimpleNamespace(aspsx_version="2.56"), "2.56"),
+            ("a unit without one", types.SimpleNamespace(aspsx_version=None), "2.21"),
+            ("an object that has no such field", types.SimpleNamespace(), "2.21"),
+        ]
+        for what, unit, want in checks:
+            got = matchbuild.unit_aspsx_version(cfg, unit)
+            if got != want:
+                return f"{what}: version {got!r}, expected {want!r}"
+        declared = matchbuild.UnitDecl("u", "u.c", ("-O2",), (matchbuild.FunctionDecl("f", 0x80010000, 4),))
+        if declared.aspsx_version is not None or matchbuild.unit_aspsx_version(cfg, declared) != "2.21":
+            return "a unit declared without the key must take the toolchain's version"
+        return None
+
+    def key_input(root: Path):
+        tools = {
+            "cc1": {"sha256": "b" * 64},
+            "maspsx": {"pinned_commit": "c" * 40, "script": "m.py", "patches": []},
+            "as": {"version": "v", "sha256": "d" * 64},
+            "python_executable": {"version": "3", "sha256": "e" * 64},
+        }
+
+        def key(toolchain_version: str, **unit_fields) -> str:
+            cfg = types.SimpleNamespace(cc1=types.SimpleNamespace(name="cc1"), aspsx_version=toolchain_version, expand_div=False)
+            unit = types.SimpleNamespace(name="u", flags=("-O2",), **unit_fields)
+            return matchbuild.cache_key(matchbuild.cache_key_inputs(cfg, tools, unit, "a" * 64, Path("m.py")))
+
+        plain = key("2.21")
+        if key("2.21", aspsx_version=None) != plain:
+            return "a unit without a version of its own must keep the key that the toolchain's version gives"
+        if key("2.21", aspsx_version="2.21") != plain:
+            return "a unit that names the toolchain's version is converted the same way and must have the same key"
+        own = key("2.21", aspsx_version="2.56")
+        if own == plain:
+            return "a unit with another version is converted another way and must have another key"
+        if key("2.56") != own:
+            return "the key must hold the version that the unit is converted with, wherever it is named"
+        return None
+
+    def configured(root: Path):
+        """The versions that units of the configuration name differ from the toolchain's, and the pinned maspsx
+        (with the configuration's patches) converts a small positive `li` differently under the two."""
+        parsed = tomllib.loads(config_path.read_text())
+        tool_t = parsed.get("toolchain", {})
+        named = [(u.get("name"), u["aspsx_version"]) for u in parsed.get("unit", []) if "aspsx_version" in u]
+        if not named:
+            return "no unit of the configuration names a version: this case has nothing to show"
+        for name, version in named:
+            if version == tool_t.get("aspsx_version"):
+                return f"unit {name!r} names the toolchain's own version: the line does nothing"
+        cfg_errors: list[str] = []
+        patches = matchbuild._get_patches(tool_t, config_path.parent, cfg_errors)
+        if cfg_errors:
+            return f"the configuration's patch list is not valid: {cfg_errors}"
+        build = root / "build"
+        build.mkdir()
+        cfg = types.SimpleNamespace(
+            maspsx=matchbuild._expand(tool_t["maspsx"], config_path.parent), maspsx_commit=tool_t["maspsx_commit"], maspsx_patches=patches
+        )
+        errors, _record, script = matchbuild.export_maspsx(cfg, build)
+        if errors or script is None:
+            return f"the pinned maspsx must export: {errors}"
+
+        def first_word(version: str) -> str:
+            lines = ["\t.text", "\t.set\tnoreorder", "\t.ent\tf", "f:", "\tli\t$2,0x00000001\t\t# 1", "\tj\t$31", "\t.end\tf"]
+            proc = subprocess.run(
+                [sys.executable, str(script), f"--aspsx-version={version}"],
+                input="\n".join(lines) + "\n", capture_output=True, text=True,
+                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+            )
+            if proc.returncode != 0:
+                raise RuntimeError(proc.stderr.strip()[-300:])
+            for line in proc.stdout.splitlines():
+                code = line.split("#")[0].split()
+                if code and code[0] in ("li", "ori", "addiu"):
+                    return code[0]
+            return ""
+
+        base = first_word(tool_t["aspsx_version"])
+        if base != "ori":
+            return f"under the toolchain's version a small positive li must become an ori, got {base!r}"
+        for name, version in named:
+            got = first_word(version)
+            if got != "li":
+                return f"unit {name!r}: under version {version} the li must be left to the assembler, got {got!r}"
+        return None
+
+    return [
+        CacheCase("unit-aspsx-version-read", reading),
+        CacheCase("unit-aspsx-version-effective", effective),
+        CacheCase("unit-aspsx-version-key", key_input),
+        CacheCase("unit-aspsx-version-configured", configured),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Controls for matchbuild.py")
     parser.add_argument("--config", type=Path, default=ROOT / "ps1/src/build.toml")
@@ -4462,7 +4581,7 @@ def main() -> int:
     units = select_cases(
         make_cache_unit_cases() + make_rodata_unit_cases(parsed) + make_symbol_unit_cases(parsed)
         + make_comparison_unit_cases() + make_publish_unit_cases() + make_runner_unit_cases(config_path)
-        + make_maspsx_patch_unit_cases(config_path), args.only
+        + make_maspsx_patch_unit_cases(config_path) + make_unit_aspsx_version_cases(config_path), args.only
     )
     if not builds and not caches and not units:
         print(f"no case matches --only {args.only!r}: nothing ran", file=sys.stderr)

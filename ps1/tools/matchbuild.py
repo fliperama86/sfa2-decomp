@@ -146,6 +146,7 @@ class UnitDecl:
     bss: RodataDecl | None = None  # where the uninitialised data lives, if declared
     kind: str = "c"  # "c", or "asm" for a unit written in assembly
     image: str = RESIDENT  # the image the unit belongs to: RESIDENT or a declared module image
+    aspsx_version: str | None = None  # the assembler version of this unit's object, when it is not [toolchain]'s
 
     def loaded(self) -> list[tuple[str, RodataDecl]]:
         """The declared ranges that hold payload bytes: (kind, decl) for rodata and data."""
@@ -636,6 +637,28 @@ def _get_hex(table: dict, key: str, where: str, errors: list[str]) -> str:
     return value
 
 
+ASPSX_VERSION_RE = re.compile(r"[0-9.]+\Z")
+
+
+def parse_unit_aspsx_version(table: dict, where: str, kind: str, errors: list[str]) -> str | None:
+    """A unit's own `aspsx_version`, or None when it has none and takes `[toolchain]`'s."""
+    value = table.get("aspsx_version")
+    if value is None:
+        return None
+    if not isinstance(value, str) or not ASPSX_VERSION_RE.match(value):
+        errors.append(f"{where}: 'aspsx_version' must be a version string such as \"2.56\"")
+        return None
+    if kind == "asm":
+        errors.append(f"{where}: an assembly unit takes no aspsx_version")
+        return None
+    return value
+
+
+def unit_aspsx_version(cfg, unit) -> str:
+    """The version that maspsx is told for this unit: the unit's own, else `[toolchain]`'s."""
+    return getattr(unit, "aspsx_version", None) or cfg.aspsx_version
+
+
 def parse_rodata(value, where: str, errors: list[str], key: str = "rodata") -> tuple[RodataDecl | None, bool]:
     """Parse the optional `rodata`, `data` or `bss` key `{ address = .., size = .. }`. Returns (decl, ok)."""
     if value is None:
@@ -948,7 +971,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
     cpp = _get_str(tool_t, "cpp", "[toolchain]", errors)
     maspsx = _get_str(tool_t, "maspsx", "[toolchain]", errors)
     maspsx_commit = _get_str(tool_t, "maspsx_commit", "[toolchain]", errors, re.compile(r"[0-9a-f]{7,40}\Z"))
-    aspsx_version = _get_str(tool_t, "aspsx_version", "[toolchain]", errors, re.compile(r"[0-9.]+\Z"))
+    aspsx_version = _get_str(tool_t, "aspsx_version", "[toolchain]", errors, ASPSX_VERSION_RE)
     prefix = _get_str(tool_t, "binutils_prefix", "[toolchain]", errors, re.compile(r"[A-Za-z0-9_.-]+\Z"))
     expand_div = tool_t.get("expand_div", False)
     if not isinstance(expand_div, bool):
@@ -1039,6 +1062,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
             flags = []
         if kind == "asm" and flags:
             errors.append(f"{where}: an assembly unit takes no flags")
+        unit_version = parse_unit_aspsx_version(table, where, kind, errors)
         functions = []
         fn_tables = table.get("functions", [])
         if not isinstance(fn_tables, list) or not fn_tables:
@@ -1084,7 +1108,7 @@ def load_config(config_path: Path, use_reference: bool = False) -> Config:
                 )
                 contiguous = False
         if contiguous:
-            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name))
+            units.append(UnitDecl(name, source, tuple(flags), tuple(functions), rodata, data, bss, kind, image_name, unit_version))
 
     errors += second_link_unit_errors(images, units)
 
@@ -1678,7 +1702,7 @@ def cache_key_inputs(
         "maspsx_commit": tools["maspsx"]["pinned_commit"],
         "maspsx_script": tools["maspsx"]["script"],
         "maspsx_patches": [patch["sha256"] for patch in tools["maspsx"].get("patches", [])],
-        "aspsx_version": cfg.aspsx_version,
+        "aspsx_version": unit_aspsx_version(cfg, unit),
         "maspsx_flags": maspsx_flags(cfg),
         "as_flags": list(AS_FLAGS),
         "as_version": tools["as"]["version"],
@@ -1945,6 +1969,7 @@ def link_image(
             {
                 "name": u.name,
                 "kind": u.kind,
+                **({"aspsx_version": u.aspsx_version} if u.aspsx_version else {}),
                 "cache": cache_units[u.name]["cache"],
                 "cache_key": cache_units[u.name]["key"],
                 "range": [u.start, u.end],
@@ -2057,7 +2082,7 @@ def unit_object(pipeline: Pipeline, unit: UnitDecl, build: Path, report: dict) -
     if status != "hit":
         pipeline.compiler.compile(unit.name, unit.flags, pre, asm, build / f"unit-{unit.name}.compiler.log")
         converted = run(
-            [sys.executable, pipeline.maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={cfg.aspsx_version}"],
+            [sys.executable, pipeline.maspsx_script, *maspsx_flags(cfg), f"--aspsx-version={unit_aspsx_version(cfg, unit)}"],
             input=asm.read_bytes(),
             env=pipeline.maspsx_env,
             step=f"maspsx {unit.name}",
