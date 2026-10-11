@@ -2811,6 +2811,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d254f4_r1"
+source = "d254f4_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801254f4", address = 0x801254f4, size = 400 },
+]
+
+[[unit]]
 name = "s1257d0_r1"
 source = "s1257d0_r1.c"
 flags = ["-O2", "-G0"]
@@ -8718,6 +8726,14 @@ source = "sdk/libsnd/vm_don_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "SpuVmDamperOn", address = 0x801688f4, size = 20 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vm_alloc"
+source = "sdk/libsnd/vm_alloc.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmAlloc", address = 0x8015ffc0, size = 636 },
 ]
 
 [[unit]]
@@ -35443,6 +35459,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_sel_0ea0x_r1"
+image = "slot04_sel"
+source = "slot04_sel/slot04_sel_0ea0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b0ea0_slot04_sel", address = 0x801b0ea0, size = 552 },
+]
+
+[[unit]]
 name = "slot04_sel_0ea0_r2"
 image = "slot04_sel"
 source = "slot04_sel/slot04_sel_0ea0_r2.c"
@@ -40537,4 +40562,12 @@ source = "d347b4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801347b4", address = 0x801347b4, size = 1760 },
+]
+
+[[unit]]
+name = "d38d70_r1"
+source = "d38d70_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80138d70", address = 0x80138d70, size = 340 },
 ]

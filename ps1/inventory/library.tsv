@@ -232,7 +232,7 @@
 8015fe28	16	func_8015fe28	unidentified	1	-
 8015fe38	24	func_8015fe38	unidentified	0	-
 8015fe50	368	SsVabTransBodyPartly	sound	2	folder
-8015ffc0	636	-	sound	0	name
+8015ffc0	636	SpuVmAlloc	sound	0	name
 8016023c	1248	SpuVmKeyOnNow	sound	0	folder
 8016071c	564	SpuVmDoAllocate	sound	0	folder
 80160950	1220	vmNoiseOn	sound	0	folder

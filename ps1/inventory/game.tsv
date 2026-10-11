@@ -233,7 +233,7 @@
 8012543c	24	func_8012543c	-	-	0	0	closed
 80125454	24	func_80125454	-	-	0	0	closed
 8012546c	136	func_8012546c	-	-	1	0	open
-801254f4	400	-	-	-	0	0	closed
+801254f4	400	func_801254f4	-	-	0	0	closed
 80125684	168	func_80125684	-	-	0	0	closed
 8012572c	8	func_8012572c	-	-	0	0	closed
 80125734	148	func_80125734	-	-	0	0	closed
@@ -684,7 +684,7 @@
 80138c78	32	func_80138c78	-	-	0	0	closed
 80138c98	72	func_80138c98	-	-	0	0	closed
 80138ce0	144	func_80138ce0	-	-	0	0	closed
-80138d70	340	-	-	-	0	0	closed
+80138d70	340	func_80138d70	-	-	0	0	closed
 80138ec4	176	func_80138ec4	-	sound,unidentified	0	0	open
 80138f74	184	func_80138f74	-	sound,unidentified	0	0	open
 8013902c	728	func_8013902c	-	-	0	0	closed
