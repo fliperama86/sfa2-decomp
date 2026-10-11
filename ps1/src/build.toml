@@ -20232,6 +20232,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot28_a69cx_r1"
+image = "slot28"
+source = "slot28/slot28_a69cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001a69c_slot28", address = 0x8001a69c, size = 476 },
+]
+
+[[unit]]
 name = "slot28_a69c_r2"
 image = "slot28"
 source = "slot28/slot28_a69c_r2.c"
