@@ -50,7 +50,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80120604`, `func_80120cf0`, `func_8013a3a8`, `func_80140b5c`, `func_80140cd8`, `func_80142030`.
-- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011a018`, `func_8011c724`, `func_8013245c`, `func_801347b4`, `func_8014e890`.
+- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011c724`, `func_8013245c`, `func_801347b4`, `func_8014e890`.
 - An original callee reads only part of an argument register, and the two codes differ in the rest; the tool compares the whole register, its own check of the record fails, and none is kept. `func_8011df3c`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
@@ -119,8 +119,6 @@ func_801189c4: built 884 bytes, original 844 bytes; cases 2000, discarded 0, equ
 func_801189c4 coverage: 204 of 211 instruction slots of the original executed
 func_80119694: built 132 bytes, original 132 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80119694 coverage: 33 of 33 instruction slots of the original executed
-func_8011a018: built 788 bytes, original 1016 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8011a018 coverage: 254 of 254 instruction slots of the original executed
 func_8011a880: built 536 bytes, original 868 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011a880 coverage: 217 of 217 instruction slots of the original executed
 func_8011acbc: built 1080 bytes, original 2264 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -238,7 +236,6 @@ func_801189c4 control: different 2000 of 2000 (expected more than 0)
   altered: game_state.field_1e constant 0x1c3 changed to 0x1c4, instruction slot 177
 func_80119694 control: different 141 of 2000 (expected more than 0)
   altered: counter starts at 28, instruction slot 0
-func_8011a018 control: different 2000 of 2000 (expected more than 0)
   altered: data_80184700 receives 0x70, instruction slot 93
 func_8011a880 control: different 1996 of 2000 (expected more than 0)
   altered: part field_09 offset 4 becomes 5, instruction slot 9
@@ -356,7 +353,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 ```
 func_801189c4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80119694 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8011a018 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011a880 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011acbc writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8011bf70 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)

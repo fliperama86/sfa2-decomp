@@ -29,7 +29,7 @@
 80119d88	84	func_80119d88	-	-	0	0	closed
 80119ddc	152	func_80119ddc	-	-	0	0	closed
 80119e74	420	func_80119e74	-	-	0	0	closed
-8011a018	1016	-	graphics	graphics	0	0	closed
+8011a018	1016	func_8011a018	graphics	graphics	0	0	closed
 8011a410	332	func_8011a410	-	-	0	0	closed
 8011a55c	152	func_8011a55c	-	-	0	0	closed
 8011a5f4	16	func_8011a5f4	-	-	0	0	closed

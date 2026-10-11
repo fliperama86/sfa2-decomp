@@ -6,10 +6,10 @@
 
 void func_8011a784(void) {
     int n = data_801a27d0;
-    data_801a4fe8 = data_801987cc + n * 0x5000;
-    data_801a697c = data_8018db18 + n * 0x540;
-    data_801ad3dc = &data_801987cc[0x2800] + n * 0x5000;
-    data_801ae118 = data_8019056c + n * 0x1e0;
+    data_801a4fe8 = (u8 *)data_801987cc[n];
+    data_801a697c = (u8 *)data_8018db18[n];
+    data_801ad3dc = (u8 *)&data_801987cc[n][0x280];
+    data_801ae118 = (u8 *)data_8019056c[n];
     if (game_state.field_b6 == 0) {
         func_80134234();
         func_8011a880();

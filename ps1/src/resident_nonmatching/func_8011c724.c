@@ -170,7 +170,7 @@ void func_8011c724(Slab172 *p) {
             cur++;
             part = (part + 1) & 15;
             if (part == 0) {
-                func_8015bf34(seq, (Cmd *)(data_8018db18 + data_801a27d0 * 0x540 + tile * 12));
+                func_8015bf34(seq, (Cmd *)((u8 *)data_8018db18 + data_801a27d0 * 0x540 + tile * 12));
                 tile = data_80183c90[tile];
             }
         }
@@ -184,7 +184,7 @@ void func_8011c724(Slab172 *p) {
         }
     } while (i < count);
     if (part != 0) {
-        func_8015bf34(seq, (Cmd *)(data_8018db18 + data_801a27d0 * 0x540 + tile * 12));
+        func_8015bf34(seq, (Cmd *)((u8 *)data_8018db18 + data_801a27d0 * 0x540 + tile * 12));
     }
     data_801a4fe8 = (u8 *)cur;
 }

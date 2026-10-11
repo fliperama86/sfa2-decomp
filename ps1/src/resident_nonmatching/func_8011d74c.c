@@ -123,8 +123,8 @@ void func_8011d74c(void *a, int b, int c, Block172 *d) {
     data_80185cc4[o->side][column][sel] = size;
     data_80185ce4[o->side][column][sel] = d->field_0d;
     list = &data_80185c04[sel][o->side * 4 + column];
-    cell = (Cell16 *)(data_801987cc + (o->side * 320 + column * 80 + 640) * 16 + sel * 0x5000);
-    prim = (Prim *)(data_8019056c + sel * 0x1e0) + (o->side * 320 + column * 80) / 16;
+    cell = (Cell16 *)((u8 *)data_801987cc + (o->side * 320 + column * 80 + 640) * 16 + sel * 0x5000);
+    prim = (Prim *)((u8 *)data_8019056c + sel * 0x1e0) + (o->side * 320 + column * 80) / 16;
     func_80158150(list, 2);
     col = 0;
     for (i = 0; i < count; i++) {
