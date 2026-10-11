@@ -68,7 +68,7 @@
 8011eadc	8	func_8011eadc	-	-	0	0	closed
 8011eae4	48	func_8011eae4	-	graphics	0	0	closed
 8011eb14	56	func_8011eb14	-	-	0	0	closed
-8011eb4c	792	-	-	-	0	0	closed
+8011eb4c	792	func_8011eb4c	-	-	0	0	closed
 8011ee64	156	func_8011ee64	-	-	0	0	closed
 8011ef00	52	func_8011ef00	-	-	0	0	closed
 8011ef34	84	func_8011ef34	-	-	0	0	closed

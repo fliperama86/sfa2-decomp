@@ -2502,6 +2502,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d1eb4c_r1"
+source = "d1eb4c_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011eb4c", address = 0x8011eb4c, size = 792 },
+]
+
+[[unit]]
 name = "s11f674_r1"
 source = "s11f674_r1.c"
 flags = ["-O2", "-G0"]
