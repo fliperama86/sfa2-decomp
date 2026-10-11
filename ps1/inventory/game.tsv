@@ -1181,7 +1181,7 @@
 8014c3ac	96	func_8014c3ac	-	-	0	0	open
 8014c40c	92	func_8014c40c	-	-	0	0	open
 8014c468	64	func_8014c468	-	-	0	0	open
-8014c4a8	128	-	-	-	0	0	closed
+8014c4a8	128	func_8014c4a8	-	-	0	0	closed
 8014c528	80	func_8014c528	-	-	0	0	open
 8014c578	128	func_8014c578	-	-	0	0	open
 8014c5f8	76	func_8014c5f8	-	-	0	0	open
