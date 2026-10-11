@@ -1,11 +1,13 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "game.h"
+#include "protos.h"
+#include "externs.h"
+
+extern u8 data_80185504[][16];
+u16 func_8011a5f4(void);
+u16 func_8011a604(int a, u16 b);
+
 /*
- * Nonmatching. This function is NOT byte-identical to the original: the
- * build of this C is 1,480 bytes (the original has 1,528); the bytes differ.
- * The exact owner of the bytes in the PS1 build stays the raw bytes of the
- * resident executable; the build does not use this file. The differential test next to it (difftest.py, with
- * func_8011bf70.py as the contract) compares the behavior of this C with the
- * original code on random inputs of the contract below.
- *
  * What it does (inferred, not an original name): unpacks a compressed list
  * of 16-bit texture cells (q) into the cell tables, for the entry p->field_94
  * of the sprite entry tables. The cells go into blocks of 16 taken from a
@@ -25,74 +27,42 @@
  * entry taken with func_8011a5f4) records three fields of the old entry
  * (column 0 of data_80183ffc, data_801841bc and data_8018437c, into
  * column 1), q, the number of blocks used and the number of cells
- * written; p->field_94 then points at it. When the free blocks plus the entry's own are fewer
- * than (n + 15) / 16 + 1, the work is left to func_8011c568.
- *
- * Contract (the roles named for fields are inferred):
- *   Arguments: a0 = p (the object, field_0b and field_94), a1 = q (halfwords).
- *   No return value.
- *   Reads: p->field_0b and p->field_94; q; the entry tables data_80183ffc,
- *     data_801841bc, data_8018437c (the entry's own fields); the free list
- *     state in data_801846fc (head), data_80184700 (free count) and the
- *     next-link table data_80183c90.
- *   Writes: the cell tables data_80184704 (halfwords, 16 per block) and
- *     data_80185504 (bytes, 16 per block); the new entry in data_80183ffc,
- *     data_801841bc, data_8018437c, data_80183910, data_801839f0,
- *     data_80183ad0, data_80183bb0; p->field_94; the free list.
- *   Callees run as the original code, the same in both runs (game code with
- *     no hardware): func_8011a5f4, func_8011a604, func_8011a6b8,
- *     func_8011c568. The setup gives them a valid free list.
- *   Aliasing: p, q and the free-list nodes (ids below 64) are distinct; q is
- *     never inside the tables.
- *   Excluded inputs: the free list must hold enough blocks for every cell
- *     written (the original takes 0xffff for a block when it runs dry and
- *     then writes far outside the tables); run counts are bounded.
- *   Not reached by any input (read from the listing): one instruction
- *     slot of the original, at offset 0x48, which adjusts the sum for a negative value before the
- *     division by 16; the count is a 16-bit unsigned value.
+ * written; p->field_94 then points at it. When the free blocks plus the
+ * entry's own are fewer than (n + 15) / 16 + 1, the work is left to
+ * func_8011c568.
  */
-#include "../game.h"
-#include "../protos.h"
-#include "../externs.h"
-
-u16 func_8011a5f4(void);
-u16 func_8011a604(int a, u16 b);
-void func_8011c568(Slab172 *p, u16 *q);
-
-extern u8 data_80185504[][16];
-
 void func_8011bf70(Slab172 *p, u16 *q) {
-    u16 *src;
     u16 count;
-    u16 blocks;
+    u16 mask;
+    u16 base;
+    u16 n;
     u16 entry;
     u16 slot;
     u16 k;
-    u16 mask;
-    u16 base;
-    u16 word;
-    u16 flags;
     u16 reps;
-    u16 n;
-    u16 mode;
-    unsigned i;
-    unsigned j;
+    u16 flags;
+    u16 word;
+    u16 blocks;
+    u16 *src;
+    unsigned int i;
+    unsigned int j;
 
     if ((q[0] + 15) / 16 + 1 > data_80184700 + data_801841bc[p->field_94][1]) {
         func_8011c568(p, q);
         return;
     }
-    count = 0;
     k = 0;
+    count = 0;
     src = q + 5;
     func_8011a6b8(data_80183ffc[p->field_94][1], data_801841bc[p->field_94][1]);
     blocks = 0;
     entry = func_8011a5f4();
     n = q[0];
-    mode = q[1];
     base = ((p->field_0b & 1) << 15) | ((p->field_0b & 2) << 13);
+    /* slot gets a first value here: the compiler cannot see that the first cell always sets it (k is 0 there). Without this store the build has 2 instructions more and differs in 48 instruction lines. */
     slot = 0;
-    if (mode == 0) {
+    if (q[1] == 0) {
+        mask = base;
         flags = q[2] & 0x1f;
         for (i = 0; i < n; i++) {
             word = *src++;
@@ -100,16 +70,18 @@ void func_8011bf70(Slab172 *p, u16 *q) {
                 slot = func_8011a604(entry, blocks);
                 blocks++;
             }
-            data_80184704[slot][k] = word ^ base;
+            data_80184704[slot][k] = word ^ mask;
             data_80185504[slot][k] = flags;
             k = (k + 1) & 0xf;
             count++;
         }
-    } else if (mode == 2) {
+    }
+    if (q[1] == 2) {
         for (i = 0; i < n; i++) {
             word = *src++;
             flags = *src++;
-            mask = base ^ (((flags & 0x20) << 10) | ((flags & 0x40) << 8));
+            /* The (u8) changes no value: bit 0x20 lies in the low byte. Without it the build differs in 69 instruction lines (flags declared u8: 6; the cast on the read of flags: 70). */
+            mask = base ^ ((((u8) flags & 0x20) << 10) | ((flags & 0x40) << 8));
             flags &= 0x1f;
             if (k == 0) {
                 slot = func_8011a604(entry, blocks);
@@ -120,30 +92,39 @@ void func_8011bf70(Slab172 *p, u16 *q) {
             k = (k + 1) & 0xf;
             count++;
         }
-    } else if (mode == 4) {
+    }
+    if (q[1] == 4) {
+        mask = base;
         flags = q[2] & 0x1f;
-        for (i = 0; i < n; i += reps) {
+        for (i = 0; i < n; i++) {
             word = *src++;
             reps = *src++ + 1;
+            /* The outer counter counts the entries read: it is stepped back by one here and forward once per repeat below. */
+            i--;
             for (j = 0; j < reps; j++) {
+                i++;
                 if (k == 0) {
                     slot = func_8011a604(entry, blocks);
                     blocks++;
                 }
-                data_80184704[slot][k] = word++ ^ base;
+                data_80184704[slot][k] = word++ ^ mask;
                 data_80185504[slot][k] = flags;
                 k = (k + 1) & 0xf;
                 count++;
             }
         }
-    } else if (mode == 6) {
-        for (i = 0; i < n; i += reps) {
+    }
+    if (q[1] == 6) {
+        for (i = 0; i < n; i++) {
             word = *src++;
             flags = *src++;
             mask = base ^ (((flags & 0x20) << 10) | ((flags & 0x40) << 8));
             flags &= 0x1f;
             reps = *src++ + 1;
+            /* The outer counter counts the entries read: it is stepped back by one here and forward once per repeat below. */
+            i--;
             for (j = 0; j < reps; j++) {
+                i++;
                 if (k == 0) {
                     slot = func_8011a604(entry, blocks);
                     blocks++;
@@ -158,7 +139,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
     data_80183ffc[entry][1] = data_80183ffc[p->field_94][0];
     data_801841bc[entry][1] = data_801841bc[p->field_94][0];
     data_8018437c[entry][1] = data_8018437c[p->field_94][0];
-    data_8018437c[entry][0] = (u32)q;
+    data_8018437c[entry][0] = (u32) q;
     data_80183ffc[entry][0] = entry;
     data_801841bc[entry][0] = blocks;
     p->field_94 = entry;
