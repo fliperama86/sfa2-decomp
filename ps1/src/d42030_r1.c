@@ -12,7 +12,8 @@
    field_12a and field_219 and returns 1. */
 u8 func_80142030(Object *object)
 {
-  /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. Without it this function differs from the original in 7 instruction slots. */
+  /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
+  /* Without it this function differs from the original in 7 instruction slots. */
   u8 unused[24];
   /* Stand-in, not recovered source: the local x holds the column and, after the column is used, the cell's index byte (a second meaning in one local) reproduces the original's choice of registers. Without it this function differs from the original in 11 instruction slots. */
   u16 x;
