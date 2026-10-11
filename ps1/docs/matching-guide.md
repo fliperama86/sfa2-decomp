@@ -920,6 +920,32 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     differs in 13 slots. The wrapper around the sum itself leaves 7
     slots in that function: the sum's other operand is then referenced
     inside it and gets another register.
+  - A quotient in a temporary that is copied into the variable's
+    register afterwards (`sra a0,v0,4`, then its uses, then
+    `move t9,a0`), where the build computes it in the variable's
+    register at once and the registers around it differ. The statement
+    that uses the quotient stands first, with the division written in
+    it, and the assignment of the quotient second:
+    `nib2 = lo - (lo / 16) * 16; nib = lo / 16;`. The compiler finds the
+    second division again and makes the assignment a copy (inferred
+    from cse.c). With the assignment first (`nib = lo / 16;
+    nib2 = lo - nib * 16;`) seven tile-map functions of the stage
+    modules (`func_801e9d14_slot06_0e` and six relatives) differ in 22
+    to 91 slots, and in size by 4 to 16 bytes.
+  - A `nop` in the delay slot of a branch where the build has a copy of
+    the first instruction at the branch's target. It can be a
+    consequence of a register and not a difference of its own. When
+    the pass that fills delay slots has moved an instruction into the
+    slot of the NEXT branch, it treats the register that this
+    instruction sets as live on the fall-through path of the branch
+    before it (inferred from reorg.c, `update_block` and
+    `mark_target_live_regs`), and an instruction at the target that
+    sets the same register may not be copied. In
+    `func_801e9d14_slot06_0e` the original has `bgez a1` with a `nop`,
+    the target `andi v0,v0,0x7f00`, and `move v0,v1` in the slot of the
+    next branch; an earlier form of the unit with that later value in
+    `v1` had the `andi` in the first slot. With the registers right the
+    `nop` is there.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
