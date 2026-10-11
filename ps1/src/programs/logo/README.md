@@ -110,6 +110,10 @@ func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0
 func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
 func_80010a80_logo: built 448 bytes, original 416 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010a80_logo coverage: 104 of 104 instruction slots of the original executed
+func_80010c20_logo: built 544 bytes, original 520 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010c20_logo coverage: 128 of 130 instruction slots of the original executed
+func_80010c20_logo: built 544 bytes, original 520 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010c20_logo coverage: 128 of 130 instruction slots of the original executed
 func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80010e28_logo coverage: 62 of 62 instruction slots of the original executed
 func_80010e28_logo: built 260 bytes, original 248 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -159,6 +163,7 @@ func_800107e8_logo control: different 2000 of 2000 (expected more than 0)
 func_80010928_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a38_logo control: different 2000 of 2000 (expected more than 0)
 func_80010a80_logo control: different 1544 of 2000 (expected more than 0)
+func_80010c20_logo control: different 59 of 2000 (expected more than 0)
 func_80010e28_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f20_logo control: different 2000 of 2000 (expected more than 0)
 func_80010f38_logo control: different 2000 of 2000 (expected more than 0)
@@ -182,6 +187,8 @@ func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a38_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010a80_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010c20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010c20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010e28_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80010f20_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
@@ -215,6 +222,8 @@ func_80010a38_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010a38_logo replay: fixtures 1, passed 1, failed 0
 func_80010a80_logo fixtures: kept 8 of 2000 cases (slots 1, edges 7, results 0)
 func_80010a80_logo replay: fixtures 8, passed 8, failed 0
+func_80010c20_logo fixtures: kept 12 of 2000 cases (slots 5, edges 7, results 0)
+func_80010c20_logo replay: fixtures 12, passed 12, failed 0
 func_80010e28_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010e28_logo replay: fixtures 1, passed 1, failed 0
 func_80010f20_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
@@ -352,3 +361,20 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
   `func_80010fc4_logo`. All callees are recorders in the test, with scripted
   results; fills store the position bytes and the 128 bytes the file read
   leaves in the buffer.
+- `func_80010c20_logo`: one frame of the movie (inferred). Calls `StGetNext`
+  until it returns 0 (the time-out after 0x100000 returns is not tested, see
+  the limit in the header of the `.c`), moves the frame numbers (the word at
+  `0x8002eb30` into `0x8002eb2c`, word 2 of the header into `0x8002eb30`),
+  sets the rectangle at `0x8002eb24` to (0, y, 0x18, 0xf0) with y 0xf0 when
+  the index word at `0x8002eb50` is not 0, and calls `DecDCTReset(1)`. For a
+  frame number before the new one in 0xad to 0xfe it expands a still
+  (`func_800110f4_logo` with entries of the two tables of pointers at
+  `0x8002eb48` and `0x8002eb4c`, then `func_800111d0_logo`); else it calls
+  `DecDCTin` and `DecDCTout`. It flips the buffer index at `0x8002eb20`,
+  calls `DecDCTvlc` when the new frame number is outside 0xad to 0xfe,
+  `StFreeRing`, `func_80010f20_logo` when the frame number before is outside
+  0xad to 0xfe, `VSync` (0 when the video mode word at `0x8002eb38` is not
+  0, else 2) and `func_80010a38_logo`. Returns 1 when the frame number before
+  is at least 0x118. All callees are recorders in the test; the frame numbers
+  of the setup lie on and around each limit. The time-out exit stays
+  unreached (two slots).

@@ -23,6 +23,7 @@ functions = [
   { name = "func_80010fc4_logo", address = 0x80010fc4, size = 156 },
   { name = "func_80011060_logo", address = 0x80011060, size = 148 },
   { name = "func_80010e28_logo", address = 0x80010e28, size = 248 },
+  { name = "func_80010c20_logo", address = 0x80010c20, size = 520 },
   { name = "func_800107e8_logo", address = 0x800107e8, size = 320 },
   { name = "func_80010a80_logo", address = 0x80010a80, size = 416 },
   { name = "func_80011794_logo", address = 0x80011794, size = 164 },
