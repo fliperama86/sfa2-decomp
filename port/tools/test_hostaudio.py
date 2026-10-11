@@ -33,7 +33,10 @@ lines it must print and the status, checks the status first, and fails on a miss
 - the lock: with the device open the mutex exists, and every access of iopage.c to the model is probed (the link wraps PsyZ's routines; inside each locked call a
   worker thread tries the audio lock and must NOT get it during the call; after the game's accesses have returned, so after every unlock, the
   game joins all workers: each must finish within 2 s with exit code 0; a thread not created, a wait that fails or times out, or a handle that
-  does not close is a failure with its reason);
+  does not close is a failure with its reason); the same with CdInit called first, whose own reads and writes of the model are probed too;
+- the disc's streamed audio through the whole program: the stream in the dump through the game's volumes; after nothing but CdInit the
+  chip's registers as the library's CD_initvol leaves them (written out by hand) and the stream in the dump through them; no sink; a dump
+  that fails while a stream plays; one definition of Psyz_CdPullSamples in the program;
 - a build without PsyZ: --audio-dump and --audio each refused with its line, status 2, no file; with no option and with --no-audio the
   program runs, prints no line about sound, and both runs print the same.
 
@@ -120,23 +123,32 @@ game("a_device", "int i;\n" + VOICE0 + r"""
     SAY("envelope not zero %d\n", R16(0x1f801c0cu) != 0);
     ps1_lock_collect();
     SAY("lock probes: %d calls, %d where the worker got the lock during the call, %d not clean after the release\n", ps1_lock_calls(), ps1_lock_viol(), ps1_lock_bad());""")
+# the same with CdInit first, which reads and writes the model itself (the library's CD_initvol): for the probes of the lock
+game("a_device_init", "int i;\n    ps1_CdInit();\n" + VOICE0 + r"""
+    W16(0x1f801d88u, 1u);
+    for (i = 0; i < 20; i++) ps1_VSync(0);
+    SAY("device paused %d\n", ps1_audio_paused());
+    SAY("envelope not zero %d\n", R16(0x1f801c0cu) != 0);
+    ps1_lock_collect();
+    SAY("lock probes: %d calls, %d where the worker got the lock during the call, %d not clean after the release\n", ps1_lock_calls(), ps1_lock_viol(), ps1_lock_bad());""")
 game("a_wfail", "int i;\n" + VOICE0 + r"""
     for (i = 0; i < 6; i++) ps1_VSync(0);
     SAY("the game goes on at vblank %d\n", ps1_VSync(-1));""")
 
-# The disc's streamed audio on the real path: the chip is set to mix the CD input at full volume, the disc layer is told the filter (file 1,
+# The disc's streamed audio on the real path: CdInit, then the chip is set to mix the CD input at full volume (after CdInit, which writes
+# the CD volume and the control itself), the disc layer is told the filter (file 1,
 # channel 3), the mode (double speed, XA on, filter on) and the CdMix volumes, ReadS starts at the sector AUDIO_LBA of the made-up image, and the
 # game waits 40 vblanks (29,400 frames of the dump; the 8 sectors played make 18,816). It prints the counts of the disc layer.
 AUDIO_LBA = 200
 XA_BODY = r"""
     unsigned char pos[4], res[8], vol[4] = { %s }, mode[1] = { 0xc8 }, filt[2] = { 1, 3 };
     int i;
+    ps1_CdInit();
     W16(0x1f801daau, 0xc001u);
     W16(0x1f801d80u, 0x3fffu);
     W16(0x1f801d82u, 0x3fffu);
     W16(0x1f801db0u, 0x7fffu);
     W16(0x1f801db2u, 0x7fffu);
-    ps1_CdInit();
     ps1_CdControl(0xd, filt, res);
     ps1_CdControl(0xe, mode, res);
     ps1_CdMix(vol);
@@ -148,6 +160,40 @@ XA_BODY = r"""
 """
 for _name, _vol in (("a_xa_wfail", "128, 0, 128, 0"), ("a_xa", "128, 0, 128, 0"), ("a_xa_half", "64, 0, 64, 0"), ("a_xa_mixed", "100, 30, 90, 20")):
     game(_name, XA_BODY % (_vol, AUDIO_LBA))
+
+# The same stream with nothing but CdInit between the program's start and the read: no register of the chip is written by the game and
+# CdMix is not called, as before the game's logo. What lets the stream through the chip is what CdInit does (the library's CD_initvol).
+# The game prints the chip's registers before CdInit and after it, read as the game reads them.
+XA_INIT_BODY = r"""
+    unsigned char pos[4], res[8], mode[1] = { 0xc8 }, filt[2] = { 1, 3 };
+    int i;
+    SAY("chip before: main %%04x %%04x cd %%04x %%04x control %%04x\n", R16(0x1f801d80u), R16(0x1f801d82u), R16(0x1f801db0u), R16(0x1f801db2u), R16(0x1f801daau));
+    ps1_CdInit();
+    SAY("chip after: main %%04x %%04x cd %%04x %%04x control %%04x\n", R16(0x1f801d80u), R16(0x1f801d82u), R16(0x1f801db0u), R16(0x1f801db2u), R16(0x1f801daau));
+    ps1_CdControl(0xd, filt, res);
+    ps1_CdControl(0xe, mode, res);
+    ps1_CdIntToPos(%d, pos);
+    ps1_CdControl(0x1b, pos, res);
+    for (i = 0; i < 40; i++) ps1_VSync(0);
+    SAY("sectors: played %%d held %%d refused %%d skipped %%d silent %%d\n", ps1_xa_count(0), ps1_xa_count(1), ps1_xa_count(2), ps1_xa_count(3), ps1_xa_count(4));
+    SAY("frames: queued in all %%d pulled %%d in the queue %%d\n", ps1_xa_count(5), ps1_xa_count(6), ps1_xa_count(7));
+"""
+game("a_xa_init", XA_INIT_BODY % AUDIO_LBA)
+# CdInit with a main volume that the game set before it, on one side and then on the other: through the model, CdInit must read the two
+# registers of the main volume and no others
+game("a_init_main", r"""
+    W16(0x1f801d80u, 0x1234u);
+    ps1_CdInit();
+    SAY("left set: main %04x %04x cd %04x %04x control %04x\n", R16(0x1f801d80u), R16(0x1f801d82u), R16(0x1f801db0u), R16(0x1f801db2u), R16(0x1f801daau));
+    W16(0x1f801d80u, 0u);
+    W16(0x1f801d82u, 2u);
+    W16(0x1f801db0u, 0x0111u);
+    W16(0x1f801daau, 0x8000u);
+    ps1_CdInit();
+    SAY("right set: main %04x %04x cd %04x %04x control %04x\n", R16(0x1f801d80u), R16(0x1f801d82u), R16(0x1f801db0u), R16(0x1f801db2u), R16(0x1f801daau));
+    W16(0x1f801d82u, 0u);
+    ps1_CdInit();
+    SAY("neither set: main %04x %04x cd %04x %04x control %04x\n", R16(0x1f801d80u), R16(0x1f801d82u), R16(0x1f801db0u), R16(0x1f801db2u), R16(0x1f801daau));""")
 
 FUN = FUN_BASE + [(n, RAM + 0x101100 + 0x10 * i, n) for i, (n, _) in enumerate(GAMES)]
 G = {n: a for n, a, _ in FUN}
@@ -524,6 +570,10 @@ def cases(rig, only: str, rig_nopsyz):
         # every access to the model is made with the lock held: 19 writes of the game and 1 read (counted by hand)
         status, lines = run(rig, "a_device", [NI], tag="lock", variant="lock")
         yield "with-the-device-open-every-access-of-iopage-to-the-model-is-made-with-the-audio-lock-held", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 20 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
+        # the same game with CdInit before it. CdInit's accesses to the model, counted by hand from the library's routine: the main volume holds
+        # 0 on both sides at the start, so 2 reads (its two sides) and 5 writes (the main volume, the CD volume, the control): 7 more, 27
+        status, lines = run(rig, "a_device_init", [NI], tag="lockinit", variant="lock")
+        yield "the-accesses-of-cdinit-to-the-model-are-made-with-the-audio-lock-held-too", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 27 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
 
     # ---- the disc's streamed audio ----
     if want("stream"):
@@ -577,11 +627,12 @@ XW_SECTORS = "sectors: played 7 held 0 refused 0 skipped 0 silent 33"
 XW_FRAMES = "frames: queued in all 16464 pulled 4096 in the queue 0"
 
 
-def chip_out(frames):
-    """What the model's mixer makes of CD frames with the registers the game sets (CD input on, volumes 0x7fff, main volume 0x3fff, no voice,
-    no reverb), by the sums in PsyZ's psyz_spu.c: (cd * 0x7fff) >> 15, then (sum * 0x3fff) >> 14, clamped to 16 bits."""
+def chip_out(frames, cd=0x7fff):
+    """What the model's mixer makes of CD frames with the CD input on, the CD volume `cd` on both sides (0x7fff: what the games above set),
+    the main volume 0x3fff, no voice and no reverb, by the sums in PsyZ's psyz_spu.c: (frame * cd) >> 15, then (sum * 0x3fff) >> 14, clamped
+    to 16 bits."""
     def one(v):
-        a = (v * 0x7fff) >> 15
+        a = (v * cd) >> 15
         return max(-32768, min(32767, (a * 0x3fff) >> 14))
     return [(one(l), one(r)) for l, r in frames]
 
@@ -627,6 +678,46 @@ def stream_cases(rig, work):
                 if any(fr != (0, 0) for fr in frames[first + n:]):
                     why = "a frame after the stream's end is not zero"
         yield f"the-streamed-audio-reaches-the-dump-as-the-reference-frames-through-the-volumes-({label})", why
+
+    # nothing but CdInit: the chip's registers before and after it, written out by hand from the library's CD_initvol, and the stream in the
+    # dump through the CD volume 0x3fff and the main volume 0x3fff that it leaves (about half the stream's own level)
+    f = work / "x_init.wav"
+    f.unlink(missing_ok=True)
+    status, lines, played = go("a_xa_init", [NI, "--audio-dump", rig.native(f)], "x_init")
+    want = C.expected_frames(played)
+    mixed = chip_out(want, cd=0x3fff)
+    n = len(want)
+    why = expect(rig, status, lines, 0, [], ["chip before: main 0000 0000 cd 0000 0000 control 0000", "chip after: main 3fff 3fff cd 3fff 3fff control c001",
+                                             f"audio: a stream starts at sector {AUDIO_LBA}: file 1 channel 3, stereo, 37800 Hz", "sectors: played 8 held 0 refused 0 skipped 4 silent 0",
+                                             f"frames: queued in all {n} pulled {n} in the queue 0", MAIN])
+    if why is None:
+        data = f.read_bytes()[44:]
+        frames = list(struct.iter_unpack("<hh", data[: len(data) // 4 * 4]))
+        first = next((i for i, fr in enumerate(frames) if fr != (0, 0)), None)
+        loud = max(abs(x) for fr in mixed for x in fr)
+        if first is None:
+            why = "the dump is all zero: the stream did not get through the chip"
+        elif mixed[0] == (0, 0) or loud < 1000:
+            why = f"the expected frames are too quiet to show anything (first {mixed[0]}, largest {loud})"
+        elif frames[first:first + n] != mixed:
+            k = next((i for i in range(n) if first + i >= len(frames) or frames[first + i] != mixed[i]), None)
+            why = f"the dump differs from the expected frames at frame {k} of {n}: {frames[first + k] if k is not None and first + k < len(frames) else None} vs {mixed[k] if k is not None else None}"
+        elif mixed == chip_out(want):
+            why = "the expected frames are the ones of the CD volume 0x7fff too, so the case cannot tell the two apart"
+        else:
+            print("     nothing but CdInit: %d frames of the stream found in the dump at frame %d, all equal to the mixer's sums with the CD volume 0x3fff; the largest sample is %d" % (n, first, loud), flush=True)
+    yield "after-nothing-but-cdinit-the-chip-holds-the-librarys-values-and-the-stream-reaches-the-dump-through-them", why
+    # a main volume the game set stays, whichever side holds it; with neither it is written (every value by hand)
+    trace = work / "x_main.trace"
+    trace.unlink(missing_ok=True)
+    status, lines, _ = go("a_init_main", [NI, "--no-audio", "--trace", "--trace-file", rig.native(trace)], "x_main")
+    yield "cdinit-leaves-a-main-volume-that-the-game-set-on-either-side-and-writes-it-when-both-hold-0-through-the-model", expect(rig, status, lines, 0, [], [
+        "left set: main 1234 0000 cd 3fff 3fff control c001", "right set: main 0000 0002 cd 3fff 3fff control c001", "neither set: main 3fff 3fff cd 3fff 3fff control c001", MAIN])
+    # the trace counts CdInit's accesses with the game's. By hand: the game reads 15 registers (5 after each CdInit) and writes 6; the first
+    # CdInit reads 1 (the left side holds a value) and writes 3, the second reads 2 and writes 3, the third reads 2 and writes 5: 20 and 17
+    counts = [l for l in (trace.read_text().splitlines() if trace.exists() else []) if l.startswith("iopage: chip ")]
+    yield "the-trace-counts-the-reads-and-writes-of-cdinit-with-the-games", (
+        None if status == 0 and len(counts) == 1 and counts[0].startswith("iopage: chip 20 reads 17 writes; ") else f"status {status}; the trace's lines of the chip's counts: {counts!r}")
 
     status, lines, _ = go("a_xa", [NI, "--no-audio"], "x_nosink")
     yield "with-no-sink-the-audio-sectors-are-consumed-in-silence-and-nothing-is-queued", expect(rig, status, lines, 0, [], ["sectors: played 0 held 0 refused 0 skipped 4 silent 8", "frames: queued in all 0 pulled 0 in the queue 0", MAIN])

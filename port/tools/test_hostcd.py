@@ -18,7 +18,8 @@ conversions at their borders; the word record; the polling reader (no
 handler: one sector waits for CdReady); the implied Setloc of SeekL and
 ReadS and its second response; GetlocP; XA audio sectors: consumed in silence with no sink, and with a sink decoded and queued
 (the filter on and off, the file and channel, the volumes of CdMix, the hold when the queue is full and its release, the reset at a
-read's start, refused sectors, the lock calls); the
+read's start, refused sectors, the lock calls); what CdInit does to the sound chip and to the drive's mix (the library's CD_initvol: the
+rig's seam is a made-up file of the chip's registers and a record of the calls, with and without a model of the chip); the
 library variables the game's C reads; an unknown command's stop and a
 Setmode with the 2,328-byte bit (0x10); the whole-sector mode (bit 0x20) on
 an image whose every byte is a pattern (a sector as one piece of 2,340 bytes and
@@ -85,6 +86,34 @@ volatile int port_handler_depth;   /* the driver's counter; cd.c raises it aroun
 static int lock_calls, lock_depth, lock_bad;
 void port_audio_lock(void) { lock_calls++; lock_depth++; }
 void port_audio_unlock(void) { if (--lock_depth < 0) lock_bad++; }
+/* The seam of the sound chip (iopage.c's two routines for CdInit): a made-up file of the chip's 256 registers, all 0 at start, and a
+ * record of every call in order ("r180" a read, "w180=3fff" a write). With chip_on 0 it stands for a build with no model of the chip:
+ * the call is recorded with a "-" behind it, nothing is read or written, and the return is 0. An offset that is odd or not below
+ * 0x200 is recorded with a "!" and refused the same way. */
+static unsigned short chip[0x100];
+static int chip_on = 1;
+static char chip_log[1024];
+static void chip_note(const char *fmt, unsigned a, unsigned b)
+{
+    size_t n = strlen(chip_log);
+    if (n + 24 < sizeof chip_log) snprintf(chip_log + n, sizeof chip_log - n, fmt, a, b);
+}
+int port_iopage_chip_read(unsigned offset, unsigned *value)
+{
+    if ((offset & 1) || offset >= 0x200) { chip_note(" r%x!", offset, 0); return 0; }
+    if (!chip_on) { chip_note(" r%x-", offset, 0); return 0; }
+    chip_note(" r%x", offset, 0);
+    *value = chip[offset >> 1];
+    return 1;
+}
+int port_iopage_chip_write(unsigned offset, unsigned value)
+{
+    if ((offset & 1) || offset >= 0x200) { chip_note(" w%x=%x!", offset, value); return 0; }
+    if (!chip_on) { chip_note(" w%x=%x-", offset, value); return 0; }
+    chip_note(" w%x=%x", offset, value);
+    chip[offset >> 1] = (unsigned short)value;
+    return 1;
+}
 static unsigned frames;
 unsigned port_frames(void) { return frames; }
 void port_trace_line(const char *fmt, ...) { va_list ap; va_start(ap, fmt); fputs("T ", stderr); vfprintf(stderr, fmt, ap); fputc('\n', stderr); va_end(ap); }
@@ -271,6 +300,11 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "mix")) { printf("X %d\n", port_CdMix(0)); }
         else if (!strcmp(cmd, "mixv")) { unsigned char v[4]; unsigned a, b, c, d; if (sscanf(rest, "%u %u %u %u", &a, &b, &c, &d) != 4) return 64; v[0] = (unsigned char)a; v[1] = (unsigned char)b; v[2] = (unsigned char)c; v[3] = (unsigned char)d; printf("X %d\n", port_CdMix(v)); }
         else if (!strcmp(cmd, "sink")) port_xa_set_sink(atoi(rest));
+        else if (!strcmp(cmd, "chip")) chip_on = atoi(rest);   /* 0: no model of the chip */
+        else if (!strcmp(cmd, "chipset")) { unsigned o, v; if (sscanf(rest, "%x %x", &o, &v) != 2 || (o & 1) || o >= 0x200) return 64; chip[o >> 1] = (unsigned short)v; }
+        else if (!strcmp(cmd, "chiplog")) { printf("CL%s\n", chip_log); chip_log[0] = 0; }   /* the calls since the last chiplog, in order */
+        else if (!strcmp(cmd, "chipregs")) printf("CR main %04x %04x cd %04x %04x control %04x current %04x %04x\n", chip[0x180 >> 1], chip[0x182 >> 1], chip[0x1b0 >> 1], chip[0x1b2 >> 1], chip[0x1aa >> 1], chip[0x1b8 >> 1], chip[0x1ba >> 1]);
+        else if (!strcmp(cmd, "chipsum")) { unsigned i, s = 0, nz = 0; for (i = 0; i < 0x100; i++) { s += chip[i]; nz += chip[i] != 0; } printf("CS %u registers not 0, sum %u\n", nz, s); }
         else if (!strcmp(cmd, "xac")) { struct port_xa_counts c; port_xa_counts_get(&c); printf("XC played %u held %u refused %u skipped %u silent %u frames %u pulled %u queued %u\n", c.played, c.held, c.refused, c.skipped, c.silent, c.frames, c.pulled, c.queued); }
         else if (!strcmp(cmd, "locks")) printf("LK calls %d depth %d bad %d\n", lock_calls, lock_depth, lock_bad);
         else if (!strcmp(cmd, "pull")) {   /* what PsyZ does: the pull is called with the lock held, so it takes none itself */
@@ -892,6 +926,65 @@ def stream_cases(root: Path, exe: Path):
     yield check("without a sink nothing is held, however many sectors", rc == 0 and c[0]["held"] == 0 and c[0]["silent"] >= 40 and c[0]["played"] == 0, f"{c}")
 
 
+def initvol_cases(root: Path, exe: Path):
+    """CdInit does what the library's CD_initvol does: the chip's main volume if it holds 0 on both sides, the CD volume, the control,
+    and the drive's mix. Every expected line is written out by hand from the routine at 0x8015e10c of the resident program."""
+    sa, sb = xa_sector(1), xa_sector(2)
+    img = root / "iv.bin"
+    make_xa_image(img, 24, {6: sa, 7: sb})
+    WRITES = " w1b0=3fff w1b2=3fff w1aa=c001"   # the CD volume, left and right, then the control: always, in this order
+    MAIN = " w180=3fff w182=3fff"               # the main volume, left and right: only when it holds 0 on both sides
+
+    def go(script):
+        rc, lines = run(exe, img, script)
+        return rc, [l for l in lines if l.startswith(("R ", "CL", "CR ", "CS "))]
+
+    rc, got = go("chiplog\ncdinit\nchiplog\nchipregs\nchipsum\n")
+    yield check("a chip whose registers all hold 0: both main volume registers are read, then the main volume, the CD volume and the control are written",
+                rc == 0 and got == ["CL", "R 1", "CL r180 r182" + MAIN + WRITES, "CR main 3fff 3fff cd 3fff 3fff control c001 current 0000 0000", "CS 5 registers not 0, sum 114685"], f"{rc} {got}")
+    # 0x3fff * 4 + 0xc001 = 65532 + 49153 = 114685: no other register was written
+    rc, got = go("chipset 180 1234\ncdinit\nchiplog\nchipregs\n")
+    yield check("the main volume's left side holds a value: the right side is not read, the main volume is left alone, the rest is written",
+                rc == 0 and got == ["R 1", "CL r180" + WRITES, "CR main 1234 0000 cd 3fff 3fff control c001 current 0000 0000"], f"{rc} {got}")
+    rc, got = go("chipset 182 1\ncdinit\nchiplog\nchipregs\n")
+    yield check("only the right side holds a value: both are read and the main volume is left alone",
+                rc == 0 and got == ["R 1", "CL r180 r182" + WRITES, "CR main 0000 0001 cd 3fff 3fff control c001 current 0000 0000"], f"{rc} {got}")
+    rc, got = go("chipset 180 8000\ncdinit\nchiplog\nchipregs\n")
+    yield check("a main volume in a sweep mode with no level bits (0x8000) counts as not 0 and is left alone",
+                rc == 0 and got == ["R 1", "CL r180" + WRITES, "CR main 8000 0000 cd 3fff 3fff control c001 current 0000 0000"], f"{rc} {got}")
+    rc, got = go("chipset 1b8 7ffe\nchipset 1ba 7ffe\ncdinit\nchiplog\nchipregs\n")
+    yield check("the two registers of the current main volume are not what is asked: with a value there and 0 in the main volume, the main volume is written",
+                rc == 0 and got == ["R 1", "CL r180 r182" + MAIN + WRITES, "CR main 3fff 3fff cd 3fff 3fff control c001 current 7ffe 7ffe"], f"{rc} {got}")
+    rc, got = go("chipset 1b0 111\nchipset 1b2 222\nchipset 1aa ffff\nchipset 180 2000\nchipset 182 2000\ncdinit\nchiplog\nchipregs\n")
+    yield check("the CD volume and the control are written whatever they held",
+                rc == 0 and got == ["R 1", "CL r180" + WRITES, "CR main 2000 2000 cd 3fff 3fff control c001 current 0000 0000"], f"{rc} {got}")
+    rc, got = go("cdinit\nchiplog\nchipset 180 0\nchipset 182 0\ncdinit\nchiplog\ncdinit\nchiplog\n")
+    yield check("a second CdInit asks again: after the main volume went back to 0 it is written again, and with 0x3fff there it is not",
+                rc == 0 and got == ["R 1", "CL r180 r182" + MAIN + WRITES, "R 1", "CL r180 r182" + MAIN + WRITES, "R 1", "CL r180" + WRITES], f"{rc} {got}")
+    # no model of the chip (a build without PsyZ): one read is tried, nothing is written, CdInit returns 1 all the same
+    rc, got = go("chipset 1b0 111\nchip 0\ncdinit\nchiplog\nchipregs\n")
+    yield check("with no model of the chip CdInit tries one read, writes nothing and returns 1",
+                rc == 0 and got == ["R 1", "CL r180-", "CR main 0000 0000 cd 0111 0000 control 0000 current 0000 0000"], f"{rc} {got}")
+
+    # the drive's mix: CdInit sets it to 0x80, 0, 0x80, 0, so the frames of a stream played after it are the reference's own
+    start = "sink 1\ncb 1\nhandler 80100000 512\nctl N d 01 03\nctl N e c8\n"
+    play = "readn 4\ntick 2\npull 48000\n"
+    base = expected_frames([sa, sb])
+    for label, pre in (("with the chip's model", ""), ("with no model of the chip", "chip 0\n")):
+        rc, lines = run(exe, img, pre + "cdinit\n" + start + "mixv 10 20 30 40\ncdinit\n" + start + play)
+        pl = parse_pull(lines)
+        yield check(f"CdInit after a CdMix of 10, 20, 30, 40 sets the mix back to 0x80, 0, 0x80, 0 ({label}): every pulled frame is the reference's",
+                    rc == 0 and pl and pl[0] == base and base != volumes(base, (10, 20, 30, 40)), f"{rc} {len(pl[0]) if pl else None} of {len(base)}")
+    rc, lines = run(exe, img, "cdinit\n" + start + "mixv 10 20 30 40\n" + play)
+    pl = parse_pull(lines)
+    yield check("the same stream without the second CdInit keeps the mix of 10, 20, 30, 40 (so that the cases above mean something)",
+                rc == 0 and pl and pl[0] == volumes(base, (10, 20, 30, 40)), f"{rc} {len(pl[0]) if pl else None}")
+    # the lock: the mix that CdInit sets is written under the audio lock, like CdMix's (one lock and one unlock, none left open)
+    rc, lines = run(exe, img, "locks\ncdinit\nlocks\n")
+    lk = [l for l in lines if l.startswith("LK")]
+    yield check("CdInit takes the audio lock once for the mix and leaves it closed", rc == 0 and lk == ["LK calls 0 depth 0 bad 0", "LK calls 1 depth 0 bad 0"], f"{rc} {lk}")
+
+
 def stop_cases(root: Path, exe: Path):
     img = root / "s.bin"
     make_image(img, 10)
@@ -1435,6 +1528,7 @@ def groups(root: Path, exe: Path):
     yield command_cases(root, exe)
     yield audio_cases(root, exe)
     yield stream_cases(root, exe)
+    yield initvol_cases(root, exe)
     yield stop_cases(root, exe)
     yield buffer_cases(root, exe)
     yield whole_cases(root, exe)

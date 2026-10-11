@@ -150,9 +150,34 @@ size_t Psyz_CdPullSamples(short *out, size_t num_frames)
 {
     return port_xa_pull(out, num_frames);
 }
+
+/* The chip's registers for a host routine that stands for library code which writes them itself, with no instruction of the game
+ * to fault on: cd.c's CdInit stands for the library's CD_initvol. `offset` is the register's, counted from 0x1F801C00; the caller
+ * gives an even one below 0x200 (PsyZ leaves another alone). With PsyZ: the model's register under the audio lock, as a 16-bit
+ * access of the game's is served, and counted with the game's reads and writes of the chip in the trace; the return is 1. Without
+ * PsyZ the chip has no model: nothing is read or written and the return is 0. */
+int port_iopage_chip_read(unsigned offset, unsigned *value)
+{
+    LOCK();
+    *value = Psyz_SpuRead(offset);
+    UNLOCK();
+    chip_reads++;
+    return 1;
+}
+
+int port_iopage_chip_write(unsigned offset, unsigned value)
+{
+    LOCK();
+    Psyz_SpuWrite(offset, (unsigned short)value);
+    UNLOCK();
+    chip_writes++;
+    return 1;
+}
 #else
 void port_audio_lock(void) {}
 void port_audio_unlock(void) {}
+int port_iopage_chip_read(unsigned offset, unsigned *value) { (void)offset; (void)value; return 0; }
+int port_iopage_chip_write(unsigned offset, unsigned value) { (void)offset; (void)value; return 0; }
 #endif
 
 /* The cell at exactly this address, or -1. */

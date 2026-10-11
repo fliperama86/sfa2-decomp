@@ -85,6 +85,11 @@ size_t port_xa_pull(short *out, size_t num_frames);
 void   port_xa_counts_get(struct port_xa_counts *out);
 void   port_audio_lock(void);
 void   port_audio_unlock(void);
+/* The sound chip's registers for port_CdInit, which stands for library code that writes them itself (iopage.c has the two and says
+ * what they do). `offset` is the register's, counted from 0x1F801C00. The return is 1, or 0 in a build with no model of the chip,
+ * where nothing is read or written. */
+int    port_iopage_chip_read(unsigned offset, unsigned *value);
+int    port_iopage_chip_write(unsigned offset, unsigned value);
 
 /* Test hooks; null in the port. port_cd_ram: where the 2 MB of the PS1's RAM
  * lives, when it is not at its own addresses (a 64-bit test). port_cd_call:
