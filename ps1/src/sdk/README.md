@@ -24,7 +24,13 @@ project.
   project's importer from the reference's one-line stub files.
 
 A few functions that the reference does not have were written by this
-project. They are in the same files.
+project. They are in the same files, except one that has a file of its
+own: `libsnd/sepopen.c` (`func_80166144`, inferred `SsSepOpen`), written
+by this project from the listing of the original, with no text of the
+reference and no license line. It is not one of the 87 files counted
+above. It includes the game's headers (`../../game.h` and the two beside
+it) and declares what it needs of the library itself, so it needs none
+of the headers of `include/`.
 
 ## What is not here
 

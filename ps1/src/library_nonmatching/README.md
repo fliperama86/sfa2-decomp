@@ -1,7 +1,7 @@
 # Nonmatching C: the sound library
 
 C for functions of the PS1 game's sound library (the Sony library part of the
-resident executable, `SLPS_004.15`) that have no exact C: the six functions
+resident executable, `SLPS_004.15`) that have no exact C: the five functions
 below. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
@@ -53,17 +53,15 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 - `func_80167388` (`_SsContDataEntry`, a data entry of the sequencer): written
   by this project from the listing. The reference only declares a function of
   this name and has no definition. No license line.
-- `func_80166144` (inferred `SsSepOpen`, opens a group of sequences): written
-  by this project from the listing. The reference has no such function; the
-  single-sequence twin `SsSeqOpen` of `../sdk/libsnd/seqinit.c` was read as an
-  aid and none of its text is copied. No license line. Its test replaces the
-  callee `func_80165d84`, which is why that name has a line in `../symbols.ld`.
 - `func_80165d84` (inferred `_SsInitSoundSep`, prepares one sequence of a
   group): written by this project from the listing, with `_SsInitSoundSeq` of
   `../sdk/libsnd/seqinit.c` as a reading aid and none of its text copied. No
   license line. The original traps (a break instruction) on four divisions by
   zero and on one overflow; the setup keeps all of them out and the header
   says so; the seven slots they take are the ones the test does not execute.
+  Its name has a line in `../symbols.ld`: its caller, `func_80166144`
+  (inferred `SsSepOpen`), is exact C in `../sdk/libsnd/sepopen.c` and calls it
+  by that name.
 
 Adapted files, as `../sdk/README.md` lists adapted files: `func_8015ffc0.c`
 and `func_80163794.c`.
@@ -104,7 +102,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_80166144`, `func_8016b788`.
+- The original reads address 0, which is outside RAM and the scratchpad. `--record` refuses it. `func_80165d84`, `func_8016b788`.
 
 What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
 
@@ -125,7 +123,8 @@ region and describes it against zeros.
 The three blocks are a record, not an instruction: what the commands
 printed for each function when it was last run. As it stands that is
 the run of 2026-10-10 in which the first four were added, and the runs of the
-same day in which `func_80166144` and `func_80165d84` were added, each run
+same day in which `func_80165d84` was added (and `func_80166144`, which has
+left the folder since: it is exact C in `../sdk/libsnd/sepopen.c`), each run
 alone with the commands above (seed 1 for the test and
 the audit; seed 7 gave `different 0` and `outside 0` as well, and the control
 printed what is below). From now on a function's lines change only when that
@@ -171,8 +170,7 @@ func_8016b788 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80165d84 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
-`func_80166144` is 304 bytes in the build and in the original, and is not
-byte-identical; it stays here. `func_80165d84` executes 233 of 240 slots: the other seven are the
+`func_80165d84` executes 233 of 240 slots: the other seven are the
 original's guards for a zero divisor and for an overflowing division, which
 the contract excludes.
 
