@@ -9,6 +9,14 @@ copyright as:
 
     Copyright (C) 2024  Luciano Ciccariello and all the contributors
 
+One file, libsnd/sepinit.c, also has the PSY-Q decompilation of the PsyZ
+project as a source, https://github.com/Xeeynamo/psyz, folder decomp, commit
+4e4b3e8dc7ae740c085fd190d635f54142d2d552, which is under the MIT license too
+(decomp/LICENSE there). That folder states its copyright as:
+
+    Copyright (c) 2024 github.com/psyqz members
+    Copyright (c) 2025 github.com/xeeynamo/sotn-decomp contributors
+
 The adaptations made in this repository, the files cut from reference files
 and the generated stubs are provided under the same terms. README.md in this
 folder lists which files are which.
