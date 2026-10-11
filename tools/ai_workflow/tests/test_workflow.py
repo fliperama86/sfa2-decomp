@@ -768,6 +768,30 @@ class ProgramFiles(Fixture):
         self.assertEqual((self.root / self.ONE).read_text(), 'tracked')
         self.assertTrue((self.root / self.TWO).is_symlink())
 
+    def test_a_dangling_link_and_a_directory_at_a_program_path_are_not_replaced_or_linked(self):
+        self.declare()
+        data = self.data_root(self.TWO)
+        (data / self.ONE).mkdir(parents=True)
+        dangling = self.root / self.TWO
+        dangling.parent.mkdir(parents=True, exist_ok=True)
+        dangling.symlink_to(Path(self.tmp.name) / 'nowhere')
+        review.stage_inputs(self.root, data)
+        self.assertFalse((self.root / self.ONE).is_symlink() or (self.root / self.ONE).exists())
+        self.assertEqual(dangling.readlink(), Path(self.tmp.name) / 'nowhere')
+
+    def test_a_relative_data_root_gives_a_link_that_leads_to_the_file(self):
+        self.declare()
+        data = self.data_root(self.ONE)
+        import os
+        here = os.getcwd()
+        os.chdir(data.parent)
+        try:
+            review.stage_inputs(self.root, Path('inputs'))
+        finally:
+            os.chdir(here)
+        self.assertTrue(Path((self.root / self.ONE).readlink()).is_absolute())
+        self.assertEqual((self.root / self.ONE).read_text(), 'made-up program ' + self.ONE)
+
     def test_a_missing_build_input_still_refuses_with_programs_declared(self):
         self.declare()
         with self.assertRaises(model.Problem):
@@ -783,7 +807,7 @@ class ProgramFiles(Fixture):
                     review.stage_inputs(self.root, self.data_root())
 
     def test_a_declaration_that_cannot_be_read_or_has_no_file_is_a_problem_that_names_it(self):
-        for text in ('[[program\nname=', '[[program]]\nname = "one"\n', '[[program]]\nfile = 3\n', 'program = 3\n'):
+        for text in ('[[program\nname=', '[[program]]\nname = "one"\n', '[[program]]\nfile = 3\n', 'program = 3\n', 'program = [1]\n', '[[program]]\nfile = ""\n'):
             with self.subTest(text=text):
                 self.declare(text)
                 with self.assertRaises(model.Problem) as raised:
@@ -822,6 +846,24 @@ class ProgramFiles(Fixture):
         self.assertEqual(self.key(), second)
         target.write_text('moved')
         self.assertNotEqual(self.key(), second)
+
+    def test_the_key_tells_the_files_apart_by_name_and_a_directory_is_no_file(self):
+        self.declare()
+        self.put(self.ONE, 'a')
+        self.put(self.TWO, 'b')
+        before = self.key()
+        self.put(self.ONE, 'b')
+        self.put(self.TWO, 'a')
+        self.assertNotEqual(self.key(), before)
+        (self.root / self.ONE).unlink()
+        (self.root / self.TWO).unlink()
+        absent = self.key()
+        # An empty file is a file, not an absence; a directory at the path is read as an absence.
+        self.put(self.ONE, '')
+        self.assertNotEqual(self.key(), absent)
+        (self.root / self.ONE).unlink()
+        (self.root / self.ONE).mkdir()
+        self.assertEqual(self.key(), absent)
 
     def test_the_key_of_a_check_that_reads_no_program_does_not_hold_them(self):
         bare = self.key('matching')
