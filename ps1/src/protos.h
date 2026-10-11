@@ -972,7 +972,6 @@ void func_8016a730(unsigned char a, unsigned char b, unsigned char c);
 void func_8016a878(int *p);
 int func_8016b2c8(int a);
 void func_8016b364(PadReq *);
-void func_8016b788(int a);
 void func_8016c20c(void);
 void func_8016c850(int a, int b);
 void func_8016c940(int a, int b, int c);

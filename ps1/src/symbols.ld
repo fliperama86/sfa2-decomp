@@ -981,7 +981,6 @@ data_801831b0 = 0x801831b0;
 data_801831f4 = 0x801831f4;
 data_801831f8 = 0x801831f8;
 table_8018360c = 0x8018360c;
-func_8016b788 = 0x8016b788;
 
 /* Added by src.u_l121058. */
 data_8016e68b = 0x8016e68b;
@@ -1486,7 +1485,6 @@ GetVideoMode = 0x8015f74c;
 SpuVmSetVol = 0x80163794;
 _SsContDataEntry = 0x80167388;
 SpuInitHot = 0x8016a7c4;
-_spu_init = 0x8016b788;
 D_8002D3B8 = 0x80181930;
 D_8002C220 = 0x8018194c;
 D_8002C260 = 0x8018198c;
