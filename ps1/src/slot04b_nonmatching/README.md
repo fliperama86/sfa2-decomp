@@ -29,8 +29,6 @@ func_801b4374_slot04_17: built 444 bytes, original 448 bytes; cases 2000, discar
 func_801b4374_slot04_17 coverage: 112 of 112 instruction slots of the original executed
 func_801b43e8_slot04_11: built 444 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b43e8_slot04_11 coverage: 112 of 112 instruction slots of the original executed
-func_801b4a3c_slot04_0e: built 252 bytes, original 260 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b4a3c_slot04_0e coverage: 65 of 65 instruction slots of the original executed
 func_801b5e34_slot04_0e: built 252 bytes, original 244 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b5e34_slot04_0e coverage: 61 of 61 instruction slots of the original executed
 ```
@@ -50,8 +48,6 @@ func_801b4374_slot04_17 control: different 56 of 2000 (expected more than 0)
   altered: distance cutoff 0x100 changed to 0x101, instruction slot 44
 func_801b43e8_slot04_11 control: different 70 of 2000 (expected more than 0)
   altered: distance cutoff 0x100 changed to 0x101, instruction slot 44
-func_801b4a3c_slot04_0e control: different 937 of 2000 (expected more than 0)
-  altered: constant stored to field_48 changed from 0x4e to 0x4f, instruction slot 33
 func_801b5e34_slot04_0e control: different 2000 of 2000 (expected more than 0)
   altered: store of the state byte moved by one byte, instruction slot 21
 ```
@@ -65,7 +61,6 @@ func_801b21f8_slot04_0f writes: cases 2000, discarded 0, outside 0 (largest 0 by
 func_801b339c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b4374_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b43e8_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b4a3c_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801b5e34_slot04_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
@@ -105,5 +100,4 @@ func_801b21f8_slot04_0f replay: fixtures 1, passed 1, failed 0
 func_801b339c_slot04_0e replay: fixtures 9, passed 9, failed 0
 func_801b4374_slot04_17 replay: fixtures 9, passed 9, failed 0
 func_801b43e8_slot04_11 replay: fixtures 8, passed 8, failed 0
-func_801b4a3c_slot04_0e replay: fixtures 3, passed 3, failed 0
 ```
