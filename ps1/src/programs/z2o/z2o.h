@@ -143,6 +143,7 @@ extern u32 data_80049ed4_z2o[];
 extern u32 data_80031e84_z2o[];
 extern u32 data_8003de8c_z2o[];
 extern u32 data_800876f8_z2o[];
+/* 0x80011afc: a function of this folder (func_80011afc_z2o.c); inferred: the program's own copy of a library routine that does nothing, called first by the main. */
 extern void func_80011afc_z2o(void);
 extern long ResetCallback(void);
 extern void StopCallback(void);

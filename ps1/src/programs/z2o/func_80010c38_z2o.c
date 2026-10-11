@@ -65,8 +65,10 @@
  *     setup's through p), CdControl(com, param, result) (three arguments,
  *     one word behind the second logged, results scripted), CdControlB(com,
  *     param, result) (three arguments; the pointer of the first call is the
- *     address of a local and is masked, the word behind it logged; its
- *     results and the byte it stores in res[0] are scripted per call),
+ *     address of a local and is compared as it is, at its actual stack
+ *     address, so that part of the contract holds only while the C's frame
+ *     has the original's layout; its results and the byte it stores in
+ *     res[0] are scripted per call),
  *     VSync(mode), CdRead2(mode) (results scripted), func_80011830_z2o(),
  *     StGetNext(a, h) (two arguments, both the address of a local, masked
  *     to 0; the fills store the pointers through them), DecDCTvlc(bs, buf),
