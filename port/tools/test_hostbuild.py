@@ -784,6 +784,10 @@ if name.startswith("fakenm"):
         m = re.match(r"^(\\S+) = (\\S+);$", line)
         if m and not m.group(2).startswith("0x"):
             out.append("%08x B %s" % (labels[m.group(2)], m.group(1)))
+    if args[0].endswith(".o") and Path(args[0]).stem in spec.get("nm_fail", []):
+        sys.exit(1)
+    if args[0].endswith(".o"):
+        out += ["         U %s" % l[4:] for l in data if l.startswith("ref ")]
     out += spec.get("nm_extra", [])
     print("\\n".join(out))
     sys.exit(0)
@@ -831,7 +835,7 @@ if "-c" in args:
         if source.stem in spec.get("rt_fail", []):
             sys.stderr.write("%s:1:1: error: nope\\n" % source.name)
             sys.exit(1)
-        out.write_text("".join("def %s\\n" % d for d in spec.get("rt_defs", [])))
+        out.write_text("".join("def %s\\n" % d for d in spec.get("rt_defs", []) + spec.get("rt_only", {{}}).get(source.stem, [])))
     sys.exit(0)
 rsp = Path(args[0][1:]).read_text().splitlines()
 text = "".join("def %s\\n" % h for h in spec.get("host", []))
@@ -846,6 +850,10 @@ for l in text.splitlines():
 for n in ldn & defs:
     sys.stderr.write("ld: multiple definition of `%s'\\n" % n)
     sys.exit(1)
+for m in re.finditer(r"^(\\S+) = (_\\S+);$", text, re.M):
+    if m.group(2) not in defs:
+        sys.stderr.write("ld: names.ld:1: undefined symbol `%s' referenced in expression\\ncollect2: error: ld returned 1 exit status\\n" % m.group(2))
+        sys.exit(1)
 if spec.get("link_fail"):
     sys.stderr.write("x.o: undefined reference to `gone'\\nx.o: undefined reference to `gone'\\ncollect2: error: ld returned 1 exit status\\n")
     sys.exit(1)
@@ -901,7 +909,7 @@ DEFS = {"ua": ["fa", "fb"], "ub": ["fc"], "uc": ["fd"], "um": ["mf"]}
 def run(root: Path, tag: str, config: Path, cc: Path, nm: Path, *more) -> subprocess.CompletedProcess:
     argv = [
         sys.executable, str(SCRIPT), "--config", str(config), "--cc", str(cc), "--nm", str(nm), "--objcopy", str(nm).replace("fakenm", "fakeobjcopy"), "--build", str(root / tag / "build"),
-        "--runtime", str(root / tag / "runtime"), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml"), *map(str, more),
+        "--runtime", str(root / tag / "runtime"), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml"), "--programs", str(root / "no-programs.toml"), *map(str, more),
     ]
     return subprocess.run(argv, capture_output=True, text=True, timeout=300)
 
@@ -929,6 +937,7 @@ def flow_cases(root: Path):
         "sweep rows that are not functions: 0\n"
         "names at PS1 addresses: 11\n"
         "data defined in C, at host addresses: 0\n"
+        "programs built in: 0\n"
         f"linked: {exe}, verified\n"
     )
     yield "flow-stdout-exact", same((proc.returncode, proc.stdout, proc.stderr), (0, want, ""))
@@ -1014,15 +1023,15 @@ def flow_cases(root: Path):
         "units: 5 compiled, 1 of them nonmatching, 1 failed", "like images built: 1", "functions with C: 6", "functions overridden in C: 0",
         "functions without C: 5, library 2, game and modules 3"])
     yield "flow-failed-names-count", same(out[7], "names at PS1 addresses: 12")
-    yield "flow-failed-link-still-made", same(out[9], f"linked: {exe}, verified")
-    yield "flow-list-failed", same(out[10], "failed: ub: b.c:3:5: error: boom in ub")
-    yield "flow-list-absent-lines", same(out[12:], [
+    yield "flow-failed-link-still-made", same(out[10], f"linked: {exe}, verified")
+    yield "flow-list-failed", same(out[11], "failed: ub: b.c:3:5: error: boom in ub")
+    yield "flow-list-absent-lines", same(out[13:], [
         "absent: fc 0x80100020 -", "absent: asmf 0x80100200 -", "absent: func_801e0010_mod 0x801e0010 mod"])
-    absent = out[12:]
+    absent = out[13:]
     yield "flow-list-absent-count-and-no-library", same((len(absent), any("libf" in x for x in absent)), (3, False))
     yield "flow-failed-table", same(read(root / "flow2" / "build" / "failed.tsv"), "ub\tb.c:3:5: error: boom in ub\n")
     yield "flow-nonmatching-is-function-with-c", same("func_80100040" in read(root / "flow2" / "build" / "gen" / "port_tables.c"), True)
-    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 10)
+    yield "flow-without-list-nothing-extra", same(len(run(root, "flow2", config, cc, nm).stdout.splitlines()), 11)
 
     # Data defined in C.
     cc, nm = fake(root, "flow3", defs={**DEFS, "ub": ["fc", "hostvar"]})
@@ -1404,7 +1413,7 @@ def like_cases(root: Path):
     proc = run(root, "like", config, cc, nm, "--list")
     build = root / "like" / "build"
     out = proc.stdout.splitlines()
-    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[9]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
+    yield "like-run-verifies", same((proc.returncode, proc.stderr, out[2], out[-1] if False else out[10]), (0, "", "like images built: 1", f"linked: {build / 'sfa2.exe'}, verified"))
     names = read(build / "gen" / "names.ld").splitlines()
     yield "like-moved-names-in-the-names-file", same([l for l in names if "__mod2" in l], [
         "_ps1_mf__mod2 = 0x801f0000;", "_ps1_mg__mod2 = 0x801f0010;", "_ps1_sym_in__mod2 = 0x801f0100;",
@@ -1546,7 +1555,7 @@ def override_flow_cases(root: Path):
     rsp = [Path(json.loads(x)).name for x in read(b / "link.rsp").splitlines()]
     yield "override-its-object-is-linked-between-the-markers", same(rsp[:7], ["hole.o", "port_game_text_begin.o", "ovr_fa.o", "ua.o", "ub.o", "uc.o", "um.o"])
     yield "override-the-output-without-list-has-no-extra-line", same(
-        len(run(root, "ov1", *start("ov1", ["fa"], defs=defs, calls=calls)).stdout.splitlines()), 10)
+        len(run(root, "ov1", *start("ov1", ["fa"], defs=defs, calls=calls)).stdout.splitlines()), 11)
 
     # A folder that does not exist, or one that holds nothing that is a C file, is no override.
     proc, b = stage("ov0", [], defs=DEFS)
@@ -1664,6 +1673,398 @@ def override_flow_cases(root: Path):
     yield "override-replaced-symbol-at-a-ps1-address-fails-the-link-check", same((proc.returncode, "replaced_fa: at a PS1 address 0x80100040" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
 
 
+# The programs that the port builds in.
+
+PG_SHA = bytes(range(32, 64)).hex()
+
+
+def declaration(*programs: tuple[str, str, list[tuple[str, int]], dict[str, int]]) -> str:
+    """A made-up programs.toml: (name, disc path, functions with addresses, symbols)."""
+    text = ""
+    for name, disc, functions, symbols in programs:
+        text += (f'\n[[program]]\nname = "{name}"\nfile = "../../extract/{name}.exe"\ndisc = "{disc}"\nsha256 = "{PG_SHA}"\naddress = 0x80010000\nfunctions = [\n'
+                 + "".join(f'  {{ name = "func_{a:08x}_{name}", address = {a:#x}, size = 16 }},\n' for _, a in functions) + "]\n"
+                 + "[program.symbols]\n" + "".join(f"{k} = {v:#x}\n" for k, v in symbols.items()))
+    return text
+
+
+PG_SYMBOLS = {"data_80020000_pg": 0x80020000, "sym_a": 0x80012345, "LibRoutine": 0x80011000}
+PG_FUNCTIONS = [("main", 0x80010000), ("helper", 0x80010010)]
+PG_LIST = """[[program]]
+name = "pg"
+main = "func_80010000_pg"
+setup = [ { call = "port_a", symbol = "data_80020000_pg" }, { call = "port_b" } ]
+teardown = [ { call = "port_c" } ]
+
+[program.library]
+LibRoutine = "port_lib_routine"
+"""
+PG_FILES = {"pg/func_80010000_pg.c": "int x;\n", "pg/func_80010010_pg.c": "int x;\n"}
+
+
+def program_tree(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None, units: str = RUN_UNITS) -> Path:
+    """A made-up game with a made-up declaration, program folder and port list; the list is root/TAG/programs-list.toml."""
+    config = run_tree(root, tag, units=units)
+    base = root / tag / "src" / "programs"
+    write(base / "programs.toml", decl if decl is not None else declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS)))
+    for rel, text in (files or PG_FILES).items():
+        write(base / rel, text)
+    write(root / tag / "programs-list.toml", list_text)
+    return config
+
+
+PG_DEFS = {**DEFS, "func_80010000_pg": ["func_80010000_pg"], "func_80010010_pg": ["func_80010010_pg"]}
+PG_CALLS = {"func_80010000_pg": ["func_80010010_pg", "data_80020000_pg", "sym_a", "LibRoutine"]}
+PG_RT = {"main": ["_port_lib_routine"]}
+
+
+def program_run(root: Path, tag: str, list_text: str = PG_LIST, decl: str | None = None, files: dict[str, str] | None = None, defs=None, calls=None, units: str = RUN_UNITS, **spec):
+    config = program_tree(root, tag, list_text, decl, files, units)
+    cc, nm = fake(root, tag, defs=defs or PG_DEFS, calls=calls or PG_CALLS, rt_only=spec.pop("rt_only", PG_RT), **spec)
+    return run(root, tag, config, cc, nm, "--programs", root / tag / "programs-list.toml"), root / tag / "build"
+
+
+def program_read_cases(root: Path):
+    """The port's list: every refusal names the file or the program."""
+    decl = write(root / "rd" / "programs.toml", declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS), ("qq", "PAC/QQ.EXE", [("main", 0x80010020)], {"data_80020010_qq": 0x80020010})))
+
+    def read_list(text: str, name: str = "list.toml"):
+        return hb.read_programs_list(write(root / "rd" / name, text), decl)
+
+    good = read_list(PG_LIST)
+    yield "programs-list-read", same(
+        [(x.program.name, x.main, [(c.routine, c.symbol) for c in x.setup], [(c.routine, c.symbol) for c in x.teardown], x.library) for x in good],
+        [("pg", "func_80010000_pg", [("port_a", "data_80020000_pg"), ("port_b", None)], [("port_c", None)], {"LibRoutine": "port_lib_routine"})])
+    yield "programs-list-without-setup-or-library", same(
+        [(x.setup, x.teardown, x.library) for x in read_list('[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n')], [([], [], {})])
+    yield "programs-list-missing-file-is-no-program", same(hb.read_programs_list(root / "rd" / "nowhere.toml", decl), [])
+    yield "programs-list-without-programs-does-not-read-the-declaration", same(hb.read_programs_list(write(root / "rd" / "none.toml", "# none\n"), root / "rd" / "nodecl.toml"), [])
+    two = PG_LIST + '\n[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n'
+    yield "programs-list-two-programs", same([x.program.name for x in read_list(two)], ["pg", "qq"])
+    yield "programs-list-unknown-top-level-key", raises(lambda: read_list("extra = 1\n" + PG_LIST), "list.toml", "extra")
+    yield "programs-list-unknown-program-key", raises(lambda: read_list(PG_LIST.replace('name = "pg"', 'name = "pg"\nextra = 1')), "pg", "extra")
+    yield "programs-list-unknown-call-key", raises(lambda: read_list(PG_LIST.replace('{ call = "port_b" }', '{ call = "port_b", arg = 1 }')), "setup", "arg")
+    yield "programs-list-unknown-program", raises(lambda: read_list(PG_LIST.replace('"pg"', '"zz"', 1)), "zz", "declaration")
+    yield "programs-list-name-twice", raises(lambda: read_list(PG_LIST + PG_LIST), "pg", "twice")
+    yield "programs-list-name-missing", raises(lambda: read_list('[[program]]\nmain = "x"\n'), "name")
+    yield "programs-list-main-missing", raises(lambda: read_list('[[program]]\nname = "pg"\n'), "pg", "main")
+    yield "programs-list-main-not-a-function-of-the-program", raises(lambda: read_list(PG_LIST.replace("func_80010000_pg", "func_80010020_qq")), "pg", "main", "func_80010020_qq")
+    yield "programs-list-main-by-a-short-name", raises(lambda: read_list(PG_LIST.replace("func_80010000_pg", "main")), "pg", "main")
+    yield "programs-list-call-symbol-not-a-symbol", raises(lambda: read_list(PG_LIST.replace('symbol = "data_80020000_pg"', 'symbol = "nothere"')), "setup", "nothere")
+    yield "programs-list-call-without-routine", raises(lambda: read_list(PG_LIST.replace('{ call = "port_b" }', '{ symbol = "sym_a" }')), "setup", "call")
+    yield "programs-list-call-not-a-name", raises(lambda: read_list(PG_LIST.replace('"port_c"', '"port c"')), "teardown", "call")
+    yield "programs-list-setup-not-an-array", raises(lambda: read_list(PG_LIST.replace("setup = [", "setup = 3 #[")), "setup")
+    yield "programs-list-library-name-not-a-symbol", raises(lambda: read_list(PG_LIST.replace("LibRoutine =", "Other =")), "pg", "Other")
+    yield "programs-list-library-routine-not-a-name", raises(lambda: read_list(PG_LIST.replace('"port_lib_routine"', "3")), "pg", "LibRoutine")
+    yield "programs-list-not-toml", raises(lambda: read_list("[[program\n"), "list.toml")
+    yield "programs-list-declaration-with-a-fault", raises(lambda: hb.read_programs_list(write(root / "rd" / "l2.toml", PG_LIST), write(root / "rd" / "bad.toml", "[[program]]\nname = 3\n")), "bad.toml")
+    yield "programs-list-declaration-missing", raises(lambda: hb.read_programs_list(write(root / "rd" / "l3.toml", PG_LIST), root / "rd" / "absent.toml"), "absent.toml")
+
+
+def program_plan_cases(root: Path):
+    decl = write(root / "pl" / "programs.toml", declaration(
+        ("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS),
+        ("qq", "PAC/QQ.EXE", [("main", 0x80010020)], {"data_80020000_pg": 0x80020000, "LibRoutine": 0x80011004, "sym_a": 0x80099999})))
+    one = hb.read_programs_list(write(root / "pl" / "one.toml", PG_LIST), decl)
+    game = {"sym_a": 0x80190000, "other": 1}
+    names = hb.plan_program_names(one, game)
+    yield "programs-names-the-four-kinds", same((names.functions, names.data, names.bound),
+                                              (["func_80010000_pg", "func_80010010_pg"], {"data_80020000_pg": 0x80020000}, {"LibRoutine": "port_lib_routine"}))
+    yield "programs-names-a-game-name-is-skipped-whatever-its-address", same("sym_a" in names.all(), False)
+    yield "programs-names-a-symbol-nothing-binds-is-refused", raises(lambda: hb.plan_program_names(
+        hb.read_programs_list(write(root / "pl" / "u.toml", PG_LIST.replace('LibRoutine = "port_lib_routine"', "")), decl), game), "pg", "LibRoutine", "library")
+    yield "programs-names-a-binding-for-a-game-name-is-refused", raises(lambda: hb.plan_program_names(
+        hb.read_programs_list(write(root / "pl" / "g.toml", PG_LIST + 'sym_a = "port_sym"\n'), decl), game), "sym_a", "game")
+    yield "programs-names-a-binding-for-a-data-name-is-refused", raises(lambda: hb.plan_program_names(
+        hb.read_programs_list(write(root / "pl" / "d.toml", PG_LIST + 'data_80020000_pg = "port_d"\n'), decl), game), "data_80020000_pg")
+    yield "programs-names-a-function-with-the-name-of-a-game-name-is-refused", raises(lambda: hb.plan_program_names(one, {**game, "func_80010010_pg": 5}), "func_80010010_pg")
+    second = '\n[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n[program.library]\nLibRoutine = "@@"\n'
+    same_target = hb.plan_program_names(hb.read_programs_list(write(root / "pl" / "s.toml", PG_LIST + second.replace("@@", "port_lib_routine")), decl), game)
+    yield "programs-names-a-name-in-two-programs-with-the-same-target-is-fine", same((same_target.bound, same_target.data), ({"LibRoutine": "port_lib_routine"}, {"data_80020000_pg": 0x80020000}))
+    yield "programs-names-a-name-in-two-programs-leading-to-two-things-is-refused", raises(lambda: hb.plan_program_names(
+        hb.read_programs_list(write(root / "pl" / "t.toml", PG_LIST + second.replace("@@", "port_other")), decl), game), "LibRoutine", "port_lib_routine", "port_other", "pg", "qq")
+    clash = declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS), ("qq", "PAC/QQ.EXE", [("main", 0x80010020)], {"data_80020000_pg": 0x80020004, "LibRoutine": 0x80011004}))
+    yield "programs-names-a-data-name-at-two-addresses-is-refused", raises(lambda: hb.plan_program_names(
+        hb.read_programs_list(write(root / "pl" / "v.toml", PG_LIST + second.replace("@@", "port_lib_routine")), write(root / "pl" / "clash.toml", clash)), game),
+        "data_80020000_pg", str(0x80020000), str(0x80020004))
+    yield "programs-names-a-data-name-the-game-also-has-is-its-data-name", same(hb.plan_program_names(one, {"data_80020000_pg": 0x80020000, "sym_a": 1}).data, {"data_80020000_pg": 0x80020000})
+    yield "programs-names-a-data-name-the-game-has-at-another-address-is-refused", raises(
+        lambda: hb.plan_program_names(one, {"data_80020000_pg": 0x80020004, "sym_a": 1}), "data_80020000_pg", "two addresses", "0x80020004", "0x80020000", "pg")
+    yield "programs-names-none-listed", same((hb.plan_program_names([], game).functions, hb.plan_program_names([], game).all()), ([], set()))
+
+
+def program_unit_cases(root: Path):
+    decl = write(root / "pu" / "programs" / "programs.toml", declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS)))
+    listed = hb.read_programs_list(write(root / "pu" / "l.toml", PG_LIST), decl)[0]
+    folder = root / "pu" / "programs"
+    for stem in ("func_80010000_pg", "func_80010010_pg"):
+        write(folder / "pg" / f"{stem}.c", "int x;\n")
+    write(folder / "pg" / "pg.h", "/* not a unit */\n")
+    jobs = hb.program_jobs(folder, listed)
+    yield "programs-units-are-the-func-files", same([(j.name, j.source.name, j.functions[0].address, j.image) for j in jobs],
+                                                  [("func_80010000_pg", "func_80010000_pg.c", 0x80010000, None), ("func_80010010_pg", "func_80010010_pg.c", 0x80010010, None)])
+    write(folder / "pg" / "func_80010020_pg.c", "int x;\n")
+    yield "programs-units-a-stem-not-in-the-declaration", raises(lambda: hb.program_jobs(folder, listed), "program pg", "func_80010020_pg.c")
+    (folder / "pg" / "func_80010020_pg.c").unlink()
+    (folder / "pg" / "func_80010010_pg.c").unlink()
+    yield "programs-units-a-declared-function-without-a-file", raises(lambda: hb.program_jobs(folder, listed), "program pg", "func_80010010_pg", "no file")
+    write(folder / "pg" / "func_80010030_pg.c", "int x;\n")
+    yield "programs-units-both-ways-are-named", raises(lambda: hb.program_jobs(folder, listed), "func_80010030_pg.c", "func_80010010_pg")
+    yield "programs-units-no-folder", raises(lambda: hb.program_jobs(root / "pu" / "nowhere", listed), "func_80010000_pg", "no file")
+
+
+def program_option_cases():
+    yield "programs-option-default-is-the-ports-list", same(
+        (hb.make_parser().parse_args([]).programs, hb.DEFAULT_PROGRAMS, hb.DEFAULT_PROGRAMS.is_file(), hb.DEFAULT_PROGRAMS.parent.name, hb.DEFAULT_PROGRAMS.name),
+        (hb.DEFAULT_PROGRAMS, hb.REPO / "port" / "programs.toml", True, "port", "programs.toml"))
+    yield "programs-option-the-ports-list-reads-against-the-declaration", same(
+        isinstance(hb.read_programs_list(hb.DEFAULT_PROGRAMS, hb.REPO / "ps1" / "src" / "programs" / "programs.toml"), list), True)
+    yield "programs-option-given", same(hb.make_parser().parse_args(["--programs", "x.toml"]).programs, Path("x.toml"))
+
+
+def program_pure_cases():
+    yield "programs-undefined-names-only-ps1", same(hb.undefined_names("         U _ps1_a\n00000000 T _impl_f\n         U _ps1_b\n", True), [])
+    yield "programs-undefined-names-a-plain-name", same(hb.undefined_names("         U _ps1_a\n         U _DecDCTout\n         U _memcpy\n", True), ["DecDCTout", "memcpy"])
+    yield "programs-undefined-names-no-underscore", same(hb.undefined_names("         U ps1_a\n         U memcpy\n", False), ["memcpy"])
+    yield "programs-undefined-names-a-defined-plain-name-is-no-undefined-name", same(hb.undefined_names("00000000 T _f\n00000000 D _v\n", True), [])
+    weak_coff = "         w _printf\n00000000 A .weak._printf._f\n         w _weak_obj\n00000000 A .weak._weak_obj._f\n00000006 T _f\n"
+    yield "programs-undefined-names-a-weak-reference-is-undefined", same(hb.undefined_names(weak_coff, True), ["printf", "weak_obj"])
+    yield "programs-undefined-names-a-weak-reference-without-the-compilers-helper-line", same(
+        (hb.undefined_names("         w _printf\n         v _obj\n         U _ps1_a\n", True), hb.undefined_names("         w printf\n         v ps1_obj\n", False)), (["obj", "printf"], ["printf"]))
+    defined_weak = "         w _own\n00000000 T .weak._own._f\n00000006 T _f\n"
+    yield "programs-undefined-names-a-weak-function-the-object-defines-is-no-reference", same(
+        (hb.undefined_names(defined_weak, True), hb.weak_names(defined_weak, True), hb.undefined_names("00000000 W _own\n00000000 V _obj\n", True)), ([], [], []))
+    yield "programs-undefined-names-a-default-of-another-name-does-not-define-this-one", same(
+        hb.undefined_names("         w _own\n00000000 T .weak._owner._f\n00000000 T .weak._ow._f\n", True), ["own"])
+    yield "programs-weak-names-a-weak-reference-to-a-ps1-name", same(
+        (hb.weak_names("         w _ps1_gone\n00000000 A .weak._ps1_gone._f\n         U _ps1_a\n         w _printf\n", True), hb.weak_names("         v ps1_obj\n         U ps1_a\n", False),
+         hb.undefined_names("         w _ps1_gone\n00000000 A .weak._ps1_gone._f\n", True)), (["gone"], ["obj"], []))
+    yield "programs-weak-names-none-in-a-plain-object", same(hb.weak_names("         U _ps1_a\n00000000 T _impl_f\n         U _memcpy\n", True), [])
+    yield "programs-undefined-names-ps1-inside-a-name-is-plain", same(hb.undefined_names("         U _xps1_a\n         U ps1_b\n", True), ["ps1_b", "xps1_a"])
+    yield "programs-names-file-binds-a-routine", same(hb.render_names({"a": 1}, ["f"], True, {"Lib": "port_x"}), "_ps1_a = 0x00000001;\n_ps1_f = _impl_f;\n_ps1_Lib = _port_x;\n")
+    yield "programs-names-file-binds-routines-in-order-of-name", same(
+        hb.render_names({}, [], False, {"Mid": "port_m", "Abc": "port_y", "Zed": "port_z"}), "ps1_Abc = port_y;\nps1_Mid = port_m;\nps1_Zed = port_z;\n")
+    yield "programs-names-file-without-bound-is-as-before", same(hb.render_names({"a": 1}, [], True, None), hb.render_names({"a": 1}, [], True))
+    nm = GOOD_NM + "00403100 T _port_x\n00403100 A _ps1_Lib\n"
+    yield "programs-link-bound-name-at-the-routine", same(hb.verify_link(nm, dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), [])
+    yield "programs-link-bound-name-elsewhere", same(hb.verify_link(nm.replace("00403100 A _ps1_Lib", "00403104 A _ps1_Lib"), dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}),
+                                                    ["Lib: ps1_Lib is at 0x403104, the routine port_x at 0x403100"])
+    yield "programs-link-bound-name-listed-twice-one-wrong", same(
+        hb.verify_link(nm + "00403104 A _ps1_Lib\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: ps1_Lib is at 0x403100, 0x403104, the routine port_x at 0x403100"])
+    yield "programs-link-bound-name-missing", same(hb.verify_link(GOOD_NM + "00403100 T _port_x\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: ps1_Lib is not in the linked file"])
+    yield "programs-link-bound-routine-missing", same(hb.verify_link(GOOD_NM + "00403100 A _ps1_Lib\n", dict(NAMES), ["host"], ["fa"], True, [], {"Lib": "port_x"}), ["Lib: port_x is not in the linked file"])
+    rows = [hb.ProgramRow("pg", "pg.exe", PG_SHA, "func_80010000_pg", [hb.Call("port_a", "data_80020000_pg"), hb.Call("port_b")], [hb.Call("port_c")]),
+            hb.ProgramRow("qq", "qq.exe", PG_SHA, "func_80010020_qq"),
+            hb.ProgramRow("rr", "rr.exe", PG_SHA, "func_80010030_rr", [hb.Call("port_d")]),
+            hb.ProgramRow("ss", "ss.exe", PG_SHA, "func_80010040_ss", [], [hb.Call("port_e")])]
+    text = hb.render_tables([], [], [], SHA, None, frozenset(), rows)
+    sha = ", ".join("0x%02x" % b for b in range(32, 64))
+    middle = text.split("const struct port_absent port_absents[]")[0].split('#include "port_tables.h"\n\n')[1]
+    yield "programs-table-externs-and-routines", same(middle, f"""
+extern void impl_func_80010000_pg(void);
+extern void impl_func_80010020_qq(void);
+extern void impl_func_80010030_rr(void);
+extern void impl_func_80010040_ss(void);
+
+static const unsigned char port_programs_sha256_0[32] = {{ {sha} }};
+static const unsigned char port_programs_sha256_1[32] = {{ {sha} }};
+static const unsigned char port_programs_sha256_2[32] = {{ {sha} }};
+static const unsigned char port_programs_sha256_3[32] = {{ {sha} }};
+
+extern void port_a(unsigned);
+extern void port_b(unsigned);
+extern void port_c(unsigned);
+extern void port_d(unsigned);
+extern void port_e(unsigned);
+extern unsigned char ps1_data_80020000_pg[];
+
+static void port_program_setup_0(void)
+{{
+    port_a((unsigned)(unsigned long)ps1_data_80020000_pg);
+    port_b(0);
+}}
+
+static void port_program_teardown_0(void)
+{{
+    port_c(0);
+}}
+
+static void port_program_setup_2(void)
+{{
+    port_d(0);
+}}
+
+static void port_program_teardown_3(void)
+{{
+    port_e(0);
+}}
+
+const struct port_image port_images[] = {{
+    {{ 0, 0, 0, 0, 0, 0 }},
+}};
+const unsigned port_image_count = 0;
+
+const struct port_function port_functions[] = {{
+    {{ 0, 0, 0, 0, 0 }},
+}};
+const unsigned port_function_count = 0;
+
+""")
+    yield "programs-table-rows", same(text.split("const struct port_builtin_program port_programs[] = {\n")[1].split("const unsigned port_program_count")[0], """    { "pg", "pg.exe", port_programs_sha256_0, (void *)impl_func_80010000_pg, port_program_setup_0, port_program_teardown_0 },
+    { "qq", "qq.exe", port_programs_sha256_1, (void *)impl_func_80010020_qq, 0, 0 },
+    { "rr", "rr.exe", port_programs_sha256_2, (void *)impl_func_80010030_rr, port_program_setup_2, 0 },
+    { "ss", "ss.exe", port_programs_sha256_3, (void *)impl_func_80010040_ss, 0, port_program_teardown_3 },
+};
+""")
+    yield "programs-table-count", same("const unsigned port_program_count = 4;\n" in text, True)
+    empty = hb.render_tables([], [], [], SHA, None, frozenset(), [])
+    yield "programs-table-empty-has-count-zero", same(("const unsigned port_program_count = 0;" in empty, "{ 0, 0, 0, 0, 0, 0 },\n};\nconst unsigned port_program_count" in empty, "port_programs_sha256" in empty), (True, True, False))
+    yield "programs-table-absent-without-programs-argument", same("port_programs" in hb.render_tables([], [], [], SHA), False)
+    program = type("P", (), {"name": "pg", "disc": "PAC/SUB/LOGO.EXE", "sha256": PG_SHA})()
+    yield "programs-table-row-from-listing", same(hb.program_row(hb.Listed(program, "m")), hb.ProgramRow("pg", "logo.exe", PG_SHA, "m"))
+    one = hb.ProgramRow("a", "a.exe", PG_SHA, "m", [hb.Call("r"), hb.Call("r")], [hb.Call("r")])
+    yield "programs-table-a-routine-is-declared-once", same(hb.render_tables([], [], [], SHA, None, frozenset(), [one]).count("extern void r(unsigned);"), 1)
+
+
+def program_flow_cases(root: Path):
+    proc, build = program_run(root, "pg1")
+    exe = build / "sfa2.exe"
+    want = (
+        "compiler: fakecc 1.0\n"
+        "units: 4 compiled, 0 of them nonmatching, 0 failed\n"
+        "like images built: 1\n"
+        "functions with C: 6\n"
+        "functions overridden in C: 0\n"
+        "functions without C: 5, library 2, game and modules 3\n"
+        "sweep rows that are not functions: 0\n"
+        "names at PS1 addresses: 11\n"
+        "data defined in C, at host addresses: 0\n"
+        "programs built in: 1\n"
+        "program pg: 2 functions\n"
+        f"linked: {exe}, verified\n"
+    )
+    yield "programs-flow-stdout-exact", same((proc.returncode, proc.stdout, proc.stderr), (0, want, ""))
+    names = read(build / "gen" / "names.ld").splitlines()
+    yield "programs-flow-names-file-holds-the-four-kinds", same([l for l in names if any(k in l for k in ("_pg", "LibRoutine"))], [
+        "_ps1_data_80020000_pg = 0x80020000;", "_ps1_func_80010000_pg = _impl_func_80010000_pg;", "_ps1_func_80010010_pg = _impl_func_80010010_pg;", "_ps1_LibRoutine = _port_lib_routine;"])
+    yield "programs-flow-a-name-the-game-has-keeps-the-games-address", same(
+        ([l for l in names if l.startswith("_ps1_sym_a ")], "0x80012345" in read(build / "gen" / "names.ld")), (["_ps1_sym_a = 0x80190000;"], False))
+    yield "programs-flow-functions-have-no-address", same([l for l in names if "func_8001" in l and "0x" in l], [])
+    tables = read(build / "gen" / "port_tables.c")
+    yield "programs-flow-table-holds-the-program", same(
+        [l.strip() for l in tables.split("const struct port_builtin_program port_programs[] = {")[1].splitlines()[1:3]],
+        ['{ "pg", "pg.exe", port_programs_sha256_0, (void *)impl_func_80010000_pg, port_program_setup_0, port_program_teardown_0 },', "};"])
+    yield "programs-flow-table-carries-the-hash-bytes", same(
+        ("static const unsigned char port_programs_sha256_0[32] = { " + ", ".join("0x%02x" % b for b in range(32, 64)) + " };") in tables, True)
+    yield "programs-flow-setup-and-teardown-call-in-order", same(
+        tables.split("static void port_program_setup_0(void)")[1].split("}")[0].split() + tables.split("static void port_program_teardown_0(void)")[1].split("}")[0].split(),
+        ["{", "port_a((unsigned)(unsigned", "long)ps1_data_80020000_pg);", "port_b(0);", "{", "port_c(0);"])
+    yield "programs-flow-functions-are-not-rows-of-the-function-table", same(
+        [l for l in tables.splitlines() if l.strip().startswith("{ 0x") and "_pg" in l], [])
+    rsp = [Path(json.loads(x)).name for x in read(build / "link.rsp").splitlines()]
+    first, last = rsp.index("port_game_text_begin.o"), rsp.index("port_game_text_end.o")
+    yield "programs-flow-objects-lie-between-the-markers", same(
+        ([n for n in rsp[first:last] if n.endswith("_pg.o")], [n for n in rsp[:first] + rsp[last:] if n.endswith("_pg.o")]), (["func_80010000_pg.o", "func_80010010_pg.o"], []))
+    obj = read(build / "obj" / "func_80010000_pg.o")
+    yield "programs-flow-references-are-renamed", same(sorted(l for l in obj.splitlines() if l.startswith("ref ")), sorted([
+        "ref _ps1_callee", "ref _ps1_func_80010010_pg", "ref _ps1_data_80020000_pg", "ref _ps1_sym_a", "ref _ps1_LibRoutine"]))
+    yield "programs-flow-definitions-are-impl", same([l for l in obj.splitlines() if l.startswith("def ")], ["def _impl_func_80010000_pg"])
+    yield "programs-flow-games-redefine-file-is-as-before", same(
+        read(build / "gen" / "redefine.txt"), "".join(f"_{n} _ps1_{n}\n" for n in sorted(["sym_a", "sym_b", "fa", "fb", "fc", "fd", "mf", "libf", "asmf", "callee"])))
+    yield "programs-flow-programs-redefine-file-adds-their-names", same(
+        [l for l in read(build / "gen" / "redefine_programs.txt").splitlines() if "pg" in l or "Lib" in l],
+        ["_LibRoutine _ps1_LibRoutine", "_data_80020000_pg _ps1_data_80020000_pg", "_func_80010000_pg _ps1_func_80010000_pg", "_func_80010010_pg _ps1_func_80010010_pg"])
+    flags = hb.COMPILE_FLAGS
+    compiled = [x.split() for x in read(root / "pg1.log").splitlines() if " -S " in f" {x} " and x.split()[-1].endswith(("func_80010000_pg.c", "func_80010010_pg.c"))]
+    yield "programs-flow-the-programs-units-are-compiled-like-nonmatching-ones", same(
+        (len(compiled), all(c[:len(flags)] == flags and c[len(flags):len(flags) + 3] == ["-S", "-I", str(build / "gen")] for c in compiled)), (2, True))
+
+    # The same tree without a list: nothing of the programs is built.
+    config = program_tree(root, "pg0")
+    cc, nm = fake(root, "pg0", defs=PG_DEFS, calls=PG_CALLS)
+    plain = run(root, "pg0", config, cc, nm)
+    yield "programs-flow-no-program-listed-builds-none", same(
+        (plain.returncode, plain.stdout.splitlines()[-2], "func_80010000_pg" in read(root / "pg0" / "build" / "gen" / "names.ld")), (0, "programs built in: 0", False))
+    yield "programs-flow-the-empty-table-is-there", same(
+        "const struct port_builtin_program port_programs[] = {\n    { 0, 0, 0, 0, 0, 0 },\n};\nconst unsigned port_program_count = 0;" in read(root / "pg0" / "build" / "gen" / "port_tables.c"), True)
+    yield "programs-flow-the-link-response-is-as-without-programs", same(
+        [Path(json.loads(x)).name for x in read(root / "pg0" / "build" / "link.rsp").splitlines()],
+        ["hole.o", "port_game_text_begin.o", "ua.o", "ub.o", "uc.o", "um.o", "um__mod2.o", "port_game_text_end.o", "main.o", "port_tables.o", "names.ld"])
+    yield "programs-flow-the-programs-redefine-file-without-programs-is-the-games", same(
+        read(root / "pg0" / "build" / "gen" / "redefine_programs.txt"), read(root / "pg0" / "build" / "gen" / "redefine.txt"))
+
+    # Refusals before any compilation: status 2, one line.
+    def refused(tag, needles, **more):
+        proc, _ = program_run(root, tag, **more)
+        return same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), all(n in proc.stderr for n in needles), (root / f"{tag}.log").exists()), (2, "", 1, True, False))
+
+    yield "programs-run-unknown-key-refused", refused("pgr1", ["programs-list.toml", "extra"], list_text="extra = 1\n" + PG_LIST)
+    yield "programs-run-unknown-program-refused", refused("pgr2", ["zz", "declaration"], list_text=PG_LIST.replace('"pg"', '"zz"', 1))
+    yield "programs-run-main-not-a-function-refused", refused("pgr3", ["main", "func_80010099_pg"], list_text=PG_LIST.replace("func_80010000_pg", "func_80010099_pg"))
+    yield "programs-run-name-twice-refused", refused("pgr4", ["pg", "twice"], list_text=PG_LIST + PG_LIST)
+    yield "programs-run-stem-not-in-the-declaration-refused", refused(
+        "pgr5", ["program pg", "func_80010020_pg.c", "no declared function"], files={**PG_FILES, "pg/func_80010020_pg.c": "int x;\n"})
+    yield "programs-run-declared-function-without-file-refused", refused(
+        "pgr6", ["program pg", "func_80010010_pg", "no file"], files={"pg/func_80010000_pg.c": "int x;\n"})
+    yield "programs-run-library-name-not-bound-refused", refused("pgr7", ["pg", "LibRoutine", "library"], list_text=PG_LIST.replace('LibRoutine = "port_lib_routine"', ""))
+    yield "programs-run-declaration-with-a-fault-refused", refused("pgr8", ["programs.toml"], decl="[[program]]\nname = 3\n")
+
+    proc, _ = program_run(root, "pgl1", rt_only={})
+    yield "programs-run-a-bound-routine-that-the-runtime-lacks-is-a-link-error-that-names-it", same(
+        (proc.returncode, "undefined symbol `_port_lib_routine' referenced in expression" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    yield "programs-link-errors-name-a-name-the-names-file-uses", same(
+        hb.link_errors("ld: n.ld:5: undefined symbol `_a' referenced in expression\nld: n.ld:5: undefined symbol `_a' referenced in expression\ncollect2: error: ld returned 1 exit status\n"),
+        "undefined symbol `_a' referenced in expression")
+
+    proc, _ = program_run(root, "pgr10", units=RUN_UNITS + unit("func_80010000_pg", "a.c", [("zz", 0x80100300)]), defs={**PG_DEFS, "func_80010000_pg": ["zz"]})
+    yield "programs-run-a-program-unit-with-the-name-of-a-unit-of-the-configuration-refused", same(
+        (proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "func_80010000_pg" in proc.stderr and "unit" in proc.stderr), (2, "", 1, True))
+
+    # Stops after compilation, status 1.
+    def stops(tag, needles, **more):
+        proc, _ = program_run(root, tag, **more)
+        return same((proc.returncode, all(n in proc.stderr for n in needles), "linked:" in proc.stdout), (1, True, False))
+
+    yield "programs-run-a-plain-undefined-name-in-a-program-object-stops-the-build", stops(
+        "pgs1", ["func_80010000_pg", "stray_plain", "ps1_"], calls={"func_80010000_pg": ["stray_plain"]})
+    yield "programs-run-a-call-to-a-function-of-the-program-without-c-stops-the-build-naming-it", stops(
+        "pgs2", ["func_80010000_pg", "func_80010020_pg"], calls={"func_80010000_pg": ["func_80010010_pg", "func_80010020_pg"]})
+    yield "programs-run-the-plain-name-of-a-library-routine-stops-the-build", stops(
+        "pgs3", ["func_80010010_pg", "DecDCTout"], calls={"func_80010010_pg": ["DecDCTout"]})
+    proc, _ = program_run(root, "pgs4", calls={"func_80010000_pg": ["a_plain_one", "a_plain_one"], "func_80010010_pg": ["another_plain"]})
+    yield "programs-run-every-plain-name-of-every-object-is-named-once", same(
+        (proc.returncode, proc.stderr.count("a_plain_one"), proc.stderr.count("another_plain"), proc.stderr.count("func_80010010_pg: ")), (1, 1, 1, 1))
+    proc, _ = program_run(root, "pgs4b", nm_fail=["func_80010010_pg"])
+    yield "programs-run-nm-failing-on-a-program-object-stops-the-build", same((proc.returncode, "nm did not run" in proc.stderr and "func_80010010_pg" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    yield "programs-run-a-unit-of-a-program-that-defines-another-global-stops-the-build", stops(
+        "pgs5", ["func_80010010_pg", "extra_global"], defs={**PG_DEFS, "func_80010010_pg": ["func_80010010_pg", "extra_global"]})
+    yield "programs-run-a-unit-that-does-not-define-its-function-stops-the-build", stops(
+        "pgs6", ["func_80010010_pg", "does not define"], defs={**PG_DEFS, "func_80010010_pg": []})
+    yield "programs-run-a-unit-that-does-not-compile-stops-the-build-with-its-first-error", stops(
+        "pgs7", ["func_80010010_pg", "boom in func_80010010_pg"], fail=["func_80010010_pg"])
+    yield "programs-run-a-unit-that-does-not-assemble-stops-the-build", stops("pgs8", ["func_80010010_pg", "assembler"], asm_fail=["func_80010010_pg"])
+    yield "programs-run-a-bound-name-at-another-address-fails-the-link-check", stops(
+        "pgs9", ["LibRoutine", "port_lib_routine"], nm_extra=["00500000 A _ps1_LibRoutine"])
+    yield "programs-run-a-program-function-alias-at-another-address-fails-the-link-check", stops(
+        "pgs11", ["func_80010000_pg", "host data"], nm_extra=["00700000 B _ps1_func_80010000_pg"])
+    yield "programs-run-a-program-function-outside-the-markers-fails-the-check", stops(
+        "pgs10", ["impl_func_80010000_pg", "outside the game's code"], nm_extra=["00900000 T _impl_func_80010000_pg"])
+
+    # Two programs: a name in both with one target builds; with two targets it is refused.
+    decl = declaration(("pg", "PAC/PG.EXE", PG_FUNCTIONS, PG_SYMBOLS),
+                       ("qq", "PAC/QQ.EXE", [("main", 0x80010020)], {"LibRoutine": 0x80011004, "data_80020000_pg": 0x80020000}))
+    both = PG_LIST + '\n[[program]]\nname = "qq"\nmain = "func_80010020_qq"\n[program.library]\nLibRoutine = "@@"\n'
+    files = {**PG_FILES, "qq/func_80010020_qq.c": "int x;\n"}
+    defs = {**PG_DEFS, "func_80010020_qq": ["func_80010020_qq"]}
+    proc, build = program_run(root, "pgt1", list_text=both.replace("@@", "port_lib_routine"), decl=decl, files=files, defs=defs)
+    yield "programs-run-two-programs-with-a-shared-name-build", same(
+        (proc.returncode, proc.stdout.splitlines()[-4:-1], proc.stderr), (0, ["programs built in: 2", "program pg: 2 functions", "program qq: 1 functions"], ""))
+    yield "programs-run-the-shared-name-is-defined-once", same(read(build / "gen" / "names.ld").count("_ps1_LibRoutine ="), 1)
+    proc, _ = program_run(root, "pgt2", list_text=both.replace("@@", "port_other"), decl=decl, files=files, defs=defs)
+    yield "programs-run-a-name-leading-to-two-things-in-two-programs-refused", same(
+        (proc.returncode, proc.stdout, len(proc.stderr.splitlines()), all(n in proc.stderr for n in ("LibRoutine", "port_lib_routine", "port_other"))), (2, "", 1, True))
+
+
 # The overrides built and run for real (needs --cc).
 
 E2E_UNITS = (
@@ -1759,6 +2160,62 @@ int main(int argc, char **argv)
 """
 
 
+E2E_PROGRAM_DECLARATION = declaration(("pg", "PAC/PG.EXE", [("main", 0x80010000), ("helper", 0x80010010)],
+                                      {"data_80100800_pg": 0x80100800, "LibHello": 0x80011000, "sym_in": 0x801e0104}))
+E2E_PROGRAM_LIST = """[[program]]
+name = "pg"
+main = "func_80010000_pg"
+setup = [ { call = "port_setup_hook", symbol = "data_80100800_pg" }, { call = "port_setup_hook" } ]
+teardown = [ { call = "port_teardown_hook", symbol = "data_80100800_pg" } ]
+
+[program.library]
+LibHello = "port_lib_hello"
+"""
+E2E_PROGRAM_FILES = {
+    "pg/func_80010000_pg.c": """extern int data_80100800_pg;
+extern void func_80010010_pg(int v);
+extern int sym_in;
+void func_80010000_pg(void)
+{
+    func_80010010_pg(1);
+    func_80010010_pg(data_80100800_pg);
+}
+""",
+    "pg/func_80010010_pg.c": """extern void LibHello(int v);
+void func_80010010_pg(int v) { LibHello(v + 100); }
+""",
+}
+E2E_PROGRAM_MAIN = r"""
+#include "port_tables.h"
+#include <windows.h>
+#include <stdio.h>
+#include <string.h>
+
+void port_lib_hello(int v) { printf("lib: %d\n", v); }
+void port_setup_hook(unsigned address) { printf("setup: 0x%08x\n", address); }
+void port_teardown_hook(unsigned address) { printf("teardown: 0x%08x\n", address); }
+
+int main(void)
+{
+    unsigned i;
+    unsigned char *ram = VirtualAlloc((void *)0x80100000u, 0x100000u, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (!ram) { printf("no memory\n"); return 3; }
+    *(int *)(size_t)0x80100800u = 40;
+    printf("programs: %u, functions with jumps: %u\n", port_program_count, port_function_count);
+    for (i = 0; i < port_program_count; i++) {
+        const struct port_builtin_program *p = &port_programs[i];
+        printf("program %s %s sha %02x%02x\n", p->name, p->file, p->sha256[0], p->sha256[31]);
+        if (p->setup) p->setup();
+        ((void (*)(void))p->main)();
+        if (p->teardown) p->teardown();
+    }
+    printf("end\n");
+    fflush(stdout);
+    return 0;
+}
+"""
+
+
 class Rig:
     """Builds the made-up game with hostbuild.py and the real compiler and starts the Windows programs."""
 
@@ -1796,6 +2253,27 @@ class Rig:
         proc = subprocess.run(
             [sys.executable, str(SCRIPT), "--config", str(base / "build.toml"), "--cc", self.cc, "--build", str(root / tag / "build"),
              "--runtime", str(runtime), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml")],
+            capture_output=True, text=True, timeout=900)
+        return proc, root / tag / "build" / "sfa2.exe"
+
+    def build_program(self, tag: str, list_text: str, files: dict[str, str]) -> tuple[subprocess.CompletedProcess, Path]:
+        """hostbuild.py on the made-up game with a made-up program built in, with the real compiler."""
+        root = self.work
+        run_tree(root, tag, units=E2E_UNITS, symbols=E2E_SYMBOLS)
+        base = root / tag / "src"
+        write(base / "game.h", E2E_HEADER)
+        for name, text in E2E_SOURCES.items():
+            write(base / name, text)
+        write(base / "programs" / "programs.toml", E2E_PROGRAM_DECLARATION)
+        for rel, text in files.items():
+            write(base / "programs" / rel, text)
+        write(root / tag / "programs-list.toml", list_text)
+        runtime = root / tag / "runtime"
+        write(runtime / "port_tables.h", (TOOLS.parent / "src" / "port_tables.h").read_text())
+        write(runtime / "main.c", E2E_PROGRAM_MAIN)
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPT), "--config", str(base / "build.toml"), "--cc", self.cc, "--build", str(root / tag / "build"),
+             "--runtime", str(runtime), "--jobs", "2", "--sweep-rows", str(root / "no-sweep-rows.toml"), "--programs", str(root / tag / "programs-list.toml")],
             capture_output=True, text=True, timeout=900)
         return proc, root / tag / "build" / "sfa2.exe"
 
@@ -1845,6 +2323,28 @@ def e2e_cases(rig: Rig):
     # whatever lies in the stack slot, which this file does not control, so no case states it.
 
 
+def e2e_program_cases(rig: Rig):
+    """A made-up program built in with the real compiler and linker; the program's main runs its helper, reads its
+    data by the absolute address, calls a bound routine of the runtime, and the generated setup and teardown run."""
+    proc, exe = rig.build_program("e2e-program", E2E_PROGRAM_LIST, E2E_PROGRAM_FILES)
+    yield "e2e-program-build-verifies", same((proc.returncode, proc.stderr, proc.stdout.splitlines()[-3:-1]), (0, "", ["programs built in: 1", "program pg: 2 functions"]))
+    if proc.returncode != 0:
+        return
+    status, lines = rig.run(exe)
+    yield "e2e-program-runs-with-setup-main-and-teardown", same((status, lines), (0, [
+        "programs: 1, functions with jumps: 10", "program pg pg.exe sha 203f", "setup: 0x80100800", "setup: 0x00000000", "lib: 101", "lib: 140", "teardown: 0x80100800", "end"]))
+    proc, _ = rig.build_program("e2e-program-stray", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": "extern int printf(const char *, ...);\nvoid func_80010010_pg(int v) { printf(\"x\"); }\n"})
+    yield "e2e-program-a-plain-library-call-stops-the-build-naming-it", same((proc.returncode, "func_80010010_pg" in proc.stderr and "printf" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    weak_plain = "extern int printf(const char *, ...) __attribute__((weak));\nvoid func_80010010_pg(int v) { if (printf) printf(\"x\"); }\n"
+    proc, _ = rig.build_program("e2e-program-weak", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": weak_plain})
+    yield "e2e-program-a-weak-plain-reference-stops-the-build-naming-it", same(
+        (proc.returncode, "func_80010010_pg" in proc.stderr and "printf" in proc.stderr and "not a ps1_ name" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+    weak_bound = "extern void LibHello(int) __attribute__((weak));\nvoid func_80010010_pg(int v) { if (LibHello) LibHello(v + 100); }\n"
+    proc, _ = rig.build_program("e2e-program-weak-bound", E2E_PROGRAM_LIST, {**E2E_PROGRAM_FILES, "pg/func_80010010_pg.c": weak_bound})
+    yield "e2e-program-a-weak-reference-to-a-name-of-the-names-file-stops-the-build-too", same(
+        (proc.returncode, "func_80010010_pg" in proc.stderr and "LibHello" in proc.stderr and "weak" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+
 def groups(root: Path, rig: "Rig | None" = None):
     yield rename_cases()
     yield sweep_table_cases(root)
@@ -1865,8 +2365,15 @@ def groups(root: Path, rig: "Rig | None" = None):
     yield override_rename_cases()
     yield override_check_cases()
     yield override_flow_cases(root)
+    yield program_read_cases(root)
+    yield program_plan_cases(root)
+    yield program_unit_cases(root)
+    yield program_option_cases()
+    yield program_pure_cases()
+    yield program_flow_cases(root)
     if rig:
         yield e2e_cases(rig)
+        yield e2e_program_cases(rig)
 
 
 def main() -> int:

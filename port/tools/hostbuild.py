@@ -9,7 +9,8 @@ touched, and nothing is run. Python 3.11 or later, standard library only,
 and this repository's modules `hostcheck.py` (the reading of the
 configuration, the units, the shared-struct header and the compiler runs),
 `ps1/tools/coveragemap.py` (the reading of the inventory) and
-`ps1/tools/structgen.py`, used as modules and not changed.
+`ps1/tools/structgen.py` and `ps1/src/programs/programs.py` (the reading of the declaration of the disc's stand-alone
+programs), used as modules and not changed.
 
 The mechanism
 -------------
@@ -151,6 +152,57 @@ PS1's ranges) and refuses a row of `port_functions` that points at a `replaced_`
 What this tool does not check: that the override's C has the parameters and the result type of the unit's C (it
 does not read C), and that the test of `NAME.py` passes or was ever run (it has none of the game's files). Both
 belong to the differential test, which is run where the game's files are.
+
+The programs
+------------
+
+A stand-alone program of the disc (an executable that the game starts with `Exec`, declared in
+`ps1/src/programs/programs.toml`, read through `ps1/src/programs/programs.py`) can be built into the PC program. The
+port's own list, `port/programs.toml` (`--programs FILE`; a file that does not exist lists nothing), names the programs
+that are built in; the file in the tree lists none. Per program the list has `name` (a program of the declaration),
+`main` (the name of its main function, one of the declaration's functions), optionally `setup` and `teardown` (arrays of
+`{ call = "ROUTINE", symbol = "NAME" }` or `{ call = "ROUTINE" }`: a routine of the runtime called before main and after
+it, with the address of a symbol of the program as its one argument, or 0 without a symbol) and a table
+`[program.library]` of `NAME = "ROUTINE"`. Every refusal names the file and the program: an unknown key, a program the
+declaration does not have, a name twice, a `main` that is not a function of the program, a call or a library entry that
+is malformed or names a symbol the program does not have.
+
+The units of a listed program are the `func_*.c` files of `programs/NAME` beside the configuration; their stems must be
+exactly the declaration's `functions` for the program, both ways, else the build stops (status 2) naming what differs.
+They are compiled like the files of a `*_nonmatching` folder (alone, renamed `impl_NAME`, referenced names redirected
+into `ps1_`), but are kept apart from the game's units: they are not counted in the `units:` line, a unit that does not
+compile or assemble ends the build with status 1 naming it, and a unit may define only its function (no other global).
+Their objects lie between the game-code markers. The names that they add to the names file are of four kinds:
+
+  - a function `func_ADDR_NAME`: `ps1_func_ADDR_NAME = impl_func_ADDR_NAME;` with no PS1 address. A program is
+    started through `Exec` and nothing else enters its functions, so its functions are not placed at their addresses,
+    no jump is written there and they are not rows of `port_functions` or `port_absents`;
+  - a symbol of the declaration that begins `data_`: `ps1_NAME = 0xADDRESS;`, the address of the declaration (a name of
+    the game with another address is the usual error of two addresses);
+  - a symbol the game's names already hold (the symbol file, a declared function): skipped. The game's own address
+    stands for it, and the declaration's other address is not an error;
+  - any other symbol: it must be in the list's `[program.library]`, and becomes `ps1_NAME = ROUTINE;`. A symbol that is
+    in none of the kinds ends the build (status 2) naming every such symbol; a binding for a `data_` name or a name of
+    the game is refused.
+
+A name that two listed programs both have must lead to the same thing in both. A program's objects are redirected with
+`BUILD/gen/redefine_programs.txt` (the game's redefine file plus the programs' names); the game's own objects use
+`redefine.txt` as before. After the redirection `nm` is run on every object of a program and none may be left with an
+undefined name that is not a `ps1_` name (the objects of the game's units hold none): a plain name would link against
+whatever of that name the runtime, PsyZ or the C library defines. A weak reference (`w` or `v` in the listing) counts as
+undefined, and is refused under a `ps1_` name too: the linker gives it the address 0 where nothing defines the name, with
+no line. A weak function that the object itself defines is not a reference. The build stops (status 1) naming the object
+and the name. The end checks know the programs: `verify_link` checks each function alias (its `impl_` exists outside the PS1's
+ranges) and that each bound name lies at its routine's address, `verify_markers` that each program function lies between
+the markers. A routine that the list binds and the runtime lacks is a link error, named by the tool's line
+(`undefined symbol ... referenced in expression`).
+
+The tables get `port_programs[]` (with `port_program_count`; `struct port_builtin_program` in `port_tables.h`), one row
+per program: its name, the base name of its file on the disc in lower case, the 32 bytes of the file's SHA-256 from the
+declaration, a pointer to main's impl, and the generated routines `port_program_setup_N` and `port_program_teardown_N`
+(null when the list gives none) that make the listed calls in order. Each routine called is declared by the generated
+file as `extern void ROUTINE(unsigned);`, so the runtime's headers need not know it. With no program listed the table is
+empty and the rest of the build is as before.
 
 The namespace
 -------------
@@ -358,6 +410,8 @@ Standard output, in this order, with nothing else:
     sweep rows that are not functions: N
     names at PS1 addresses: P
     data defined in C, at host addresses: D
+    programs built in: N
+    program NAME: F functions        (one for each program built in)
     linked: PATH, verified
 
 With `--psyz` the line `psyz: COMMIT` follows `compiler:`. When the sound library is compiled the line
@@ -390,7 +444,7 @@ compiler cannot be run, with one line on standard error that names it.
 
 usage:
   hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
-               [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--psyz DIR] [--no-sound-library] [--sound-library] [--jobs N]
+               [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--programs FILE] [--psyz DIR] [--no-sound-library] [--sound-library] [--jobs N]
                [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
@@ -413,10 +467,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "ps1" / "tools"))
+sys.path.insert(0, str(REPO / "ps1" / "src" / "programs"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import coveragemap  # noqa: E402
 import hostcheck  # noqa: E402
+import programs as program_reader  # noqa: E402
 import structgen  # noqa: E402
 
 Problem = hostcheck.Problem
@@ -764,6 +820,226 @@ def merge_names(entries: list[tuple[str, int, str]]) -> dict[str, int]:
     return names
 
 
+# The programs.
+
+
+PORT_LIST_KEYS = {"name", "main", "setup", "teardown", "library"}
+CALL_KEYS = {"call", "symbol"}
+C_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+@dataclass
+class Call:
+    """A call of the runtime that a program's setup or teardown makes: the routine, and the program symbol whose address it gets (None: 0)."""
+
+    routine: str
+    symbol: str | None = None
+
+
+@dataclass
+class Listed:
+    """A stand-alone program that the port builds in (a `[[program]]` of the port's list), with its declaration."""
+
+    program: "program_reader.Program"
+    main: str
+    setup: list[Call] = field(default_factory=list)
+    teardown: list[Call] = field(default_factory=list)
+    library: dict[str, str] = field(default_factory=dict)  # a name of the declaration's symbols -> the runtime's routine
+
+
+def read_calls(raw, where: str, symbols: dict[str, int]) -> list[Call]:
+    if not isinstance(raw, list):
+        raise Problem(f"{where} is not an array of tables")
+    calls = []
+    for number, item in enumerate(raw, 1):
+        label = f"{where}, call {number}"
+        if not isinstance(item, dict):
+            raise Problem(f"{label} is not a table")
+        unknown = sorted(set(item) - CALL_KEYS)
+        if unknown:
+            raise Problem(f"{label} has an unknown key `{unknown[0]}`")
+        routine, symbol = item.get("call"), item.get("symbol")
+        if not isinstance(routine, str) or not C_NAME.fullmatch(routine):
+            raise Problem(f"{label} needs `call`, the name of a routine of the runtime")
+        if symbol is not None and (not isinstance(symbol, str) or symbol not in symbols):
+            raise Problem(f"{label}: symbol {symbol!r} is not a symbol of the program in the declaration")
+        calls.append(Call(routine, symbol))
+    return calls
+
+
+def read_programs_list(path: Path | None, declaration: Path) -> list[Listed]:
+    """The port's list of programs that are built in (`port/programs.toml`); none when the file does not exist.
+
+    Every refusal is a Problem that names the file and the program: an unreadable file, an unknown key, a program the
+    declaration (`declaration`, read only when the list names a program) does not have or a name listed twice, a `main`
+    that is not a function of the program, a call or a library entry that is malformed or names a symbol the program
+    does not have."""
+    if path is None or not path.is_file():
+        return []
+    try:
+        with open(path, "rb") as handle:
+            table = tomllib.load(handle)
+    except (OSError, tomllib.TOMLDecodeError) as err:
+        raise Problem(f"cannot read {path}: {err}")
+    unknown = sorted(set(table) - {"program"})
+    if unknown:
+        raise Problem(f"{path}: unknown top-level key `{unknown[0]}`")
+    entries = table.get("program", [])
+    if not isinstance(entries, list):
+        raise Problem(f"{path}: `program` is not an array of tables")
+    if not entries:
+        return []
+    try:
+        declared = program_reader.load(declaration)
+    except program_reader.ProgramError as err:
+        raise Problem(f"{declaration}: {err}")
+    out: list[Listed] = []
+    for number, entry in enumerate(entries, 1):
+        if not isinstance(entry, dict):
+            raise Problem(f"{path}: program {number} is not a table")
+        name = entry.get("name")
+        where = f"{path}: program {name if isinstance(name, str) else number}"
+        unknown = sorted(set(entry) - PORT_LIST_KEYS)
+        if unknown:
+            raise Problem(f"{where} has an unknown key `{unknown[0]}`")
+        if not isinstance(name, str):
+            raise Problem(f"{where} needs `name`, a program of the declaration")
+        program = next((p for p in declared if p.name == name), None)
+        if program is None:
+            raise Problem(f"{where} is not a program of the declaration {declaration}")
+        if any(x.program.name == name for x in out):
+            raise Problem(f"{where} is listed twice")
+        main = entry.get("main")
+        if not isinstance(main, str) or main not in {f.name for f in program.functions}:
+            raise Problem(f"{where}: `main` is {main!r}, which is not a function of the program in the declaration")
+        library = entry.get("library", {})
+        if not isinstance(library, dict):
+            raise Problem(f"{where}: `library` is not a table")
+        for symbol, routine in library.items():
+            if symbol not in program.symbols:
+                raise Problem(f"{where}: library name {symbol} is not a symbol of the program in the declaration")
+            if not isinstance(routine, str) or not C_NAME.fullmatch(routine):
+                raise Problem(f"{where}: library name {symbol} needs the name of a routine of the runtime")
+        out.append(Listed(program, main,
+                          read_calls(entry.get("setup", []), f"{where}: setup", program.symbols),
+                          read_calls(entry.get("teardown", []), f"{where}: teardown", program.symbols),
+                          dict(library)))
+    return out
+
+
+def program_jobs(root: Path, listed: Listed) -> list[Job]:
+    """The units of a listed program: every `func_*.c` of `root/NAME`, which must be exactly the functions of the declaration."""
+    program = listed.program
+    folder = root / program.name
+    files = {f.stem: f for f in sorted(folder.glob("func_*.c"))} if folder.is_dir() else {}
+    declared = {f.name: f for f in program.functions}
+    extra, missing = sorted(set(files) - set(declared)), sorted(set(declared) - set(files))
+    if extra or missing:
+        parts = [f"{files[s].name} is no declared function" for s in extra] + [f"the declared function {s} has no file in {folder}" for s in missing]
+        raise Problem(f"program {program.name}: " + "; ".join(parts))
+    return [Job(stem, files[stem], True, [Function(stem, declared[stem].address, None, stem, declared[stem].size)], None) for stem in sorted(files)]
+
+
+@dataclass
+class ProgramNames:
+    """What the listed programs add to the names file: function aliases, data addresses and library bindings."""
+
+    functions: list[str] = field(default_factory=list)  # `ps1_NAME = impl_NAME`
+    data: dict[str, int] = field(default_factory=dict)  # `ps1_NAME = ADDRESS`
+    bound: dict[str, str] = field(default_factory=dict)  # `ps1_NAME = ROUTINE`
+
+    def all(self) -> set[str]:
+        return set(self.functions) | set(self.data) | set(self.bound)
+
+
+def plan_program_names(listed: list[Listed], game: dict[str, int]) -> ProgramNames:
+    """The four kinds of names of the listed programs.
+
+    A function `func_ADDR_NAME` is the alias to its impl (no address: a program's function is not at its PS1 address).
+    A symbol of the declaration that begins `data_` is its address, which must be the game's own where the game's names
+    (`game`) hold the name too. Any other symbol the game's names hold is skipped:
+    the game's own address stands for it. Any other symbol must be bound in the list's `library` table to a routine of
+    the runtime. A name that two programs both have must lead to the same thing in both; a name leading to two things,
+    or a function of a program that has a name of the game, is a Problem."""
+    names = ProgramNames()
+    leads: dict[str, tuple[str, object, str]] = {}  # name -> (kind, target, program)
+
+    def lead(name: str, kind: str, target: object, program: str):
+        if name in leads and leads[name][:2] != (kind, target):
+            raise Problem(f"{name} leads to two things: {leads[name][0]} {leads[name][1]} (program {leads[name][2]}) and {kind} {target} (program {program})")
+        leads.setdefault(name, (kind, target, program))
+
+    unbound: list[str] = []
+    for item in listed:
+        program = item.program
+        for fn in program.functions:
+            if fn.name in game:
+                raise Problem(f"program {program.name}: the function {fn.name} has the name of a name of the game")
+            lead(fn.name, "function", fn.name, program.name)
+        for name, address in program.symbols.items():
+            if name.startswith("data_"):
+                if name in item.library:
+                    raise Problem(f"program {program.name}: {name} is a data name; the library table does not bind it")
+                if game.get(name, address) != address:
+                    raise Problem(f"{name} has two addresses: {game[name]:#x} (a name of the game) and {address:#x} (program {program.name})")
+                lead(name, "data", address, program.name)
+            elif name in game:
+                if name in item.library:
+                    raise Problem(f"program {program.name}: {name} is a name of the game, whose own address stands for it; the library table does not bind it")
+                lead(name, "game", game[name], program.name)
+            elif name in item.library:
+                lead(name, "bound", item.library[name], program.name)
+            else:
+                unbound.append(f"{program.name}: {name}")
+    if unbound:
+        raise Problem("these symbols of the declaration are not a data_ name, not a name of the game and not bound in the library table of the port's list: "
+                      + ", ".join(unbound))
+    for name, (kind, target, _) in sorted(leads.items()):
+        if kind == "function":
+            names.functions.append(name)
+        elif kind == "data":
+            names.data[name] = target
+        elif kind == "bound":
+            names.bound[name] = target
+    return names
+
+
+def object_references(nm_text: str) -> tuple[set[str], set[str]]:
+    """The symbols that one object (from `nm`) refers to and does not define, as nm spells them: the plain undefined ones
+    (`U`) and the weak ones (`w`, `v`).
+
+    A weak symbol with no value is a reference that links as 0 when nothing defines it. The compiler for Windows lists a
+    weak function that the object itself defines the same way, and gives its definition as `.weak.NAME.OTHER` with a
+    section's letter; that one is defined and is not returned. For a weak reference that symbol is absolute (`A`)."""
+    strong, weak, defaults = set(), set(), set()
+    for line in nm_text.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0] == "U":
+            strong.add(parts[1])
+        elif len(parts) == 2 and parts[0] in ("w", "v"):
+            weak.add(parts[1])
+        elif len(parts) == 3 and parts[2].startswith(".weak.") and parts[1] != "A":
+            defaults.add(parts[2])
+    return strong, {n for n in weak if not any(d.startswith(f".weak.{n}.") for d in defaults)}
+
+
+def undefined_names(nm_text: str, underscore: bool) -> list[str]:
+    """The undefined symbols of one object (from `nm`), weak references included, that are not `ps1_` names, in order of name.
+
+    A game unit's object holds no other: every reference was renamed into the `ps1_` namespace by the rename table, so a
+    plain undefined name would link against whatever of that name the runtime, PsyZ or the C library defines."""
+    us = "_" if underscore else ""
+    strong, weak = object_references(nm_text)
+    return sorted({c_name(n, underscore) for n in strong | weak if not n.startswith(us + "ps1_")})
+
+
+def weak_names(nm_text: str, underscore: bool) -> list[str]:
+    """The weak references of one object (from `nm`) to `ps1_` names, without the prefix, in order of name. The linker
+    gives such a reference the address 0 when nothing defines the name, where a plain reference is an error with a line."""
+    us = "_" if underscore else ""
+    return sorted({n[len(us + "ps1_"):] for n in object_references(nm_text)[1] if n.startswith(us + "ps1_")})
+
+
 # The second placements of `like` images.
 
 
@@ -826,11 +1102,13 @@ def plan_placements(images: list[dict], declared: list[Function], symbols: list[
     return out
 
 
-def render_names(names: dict[str, int], aliases: list[str], underscore: bool) -> str:
-    """The names file: it defines `ps1_NAME`, never the plain name."""
+def render_names(names: dict[str, int], aliases: list[str], underscore: bool, bound: dict[str, str] | None = None) -> str:
+    """The names file: it defines `ps1_NAME`, never the plain name. `bound` (name to routine of the runtime) adds
+    `ps1_NAME = ROUTINE;` for the library names of the programs."""
     us = "_" if underscore else ""
     lines = [f"{us}ps1_{n} = 0x{names[n]:08x};\n" for n in sorted(names)]
     lines += [f"{us}ps1_{n} = {us}impl_{n};\n" for n in sorted(aliases)]
+    lines += [f"{us}ps1_{n} = {us}{bound[n]};\n" for n in sorted(bound or {})]
     return "".join(lines)
 
 
@@ -1065,15 +1343,60 @@ def read_baseline_hash(config: dict, path: Path) -> str:
     return value.lower()
 
 
+@dataclass
+class ProgramRow:
+    """One row of `port_programs`: what the runtime needs to start a program that is built in."""
+
+    name: str
+    file: str  # the base name of the program's file on the disc, lower case
+    sha256: str  # the file's hash, 64 hex digits
+    main: str  # the C name of main's function; its impl is `impl_NAME`
+    setup: list[Call] = field(default_factory=list)
+    teardown: list[Call] = field(default_factory=list)
+
+
+def program_row(item: Listed) -> ProgramRow:
+    program = item.program
+    return ProgramRow(program.name, program.disc.rsplit("/", 1)[-1].lower(), program.sha256, item.main, item.setup, item.teardown)
+
+
+def render_calls(rows: list[ProgramRow]) -> list[str]:
+    """The declarations and the generated routines `port_program_setup_N` and `port_program_teardown_N` of the programs
+    (N: the program's place in the table) that make the listed calls in order, a symbol's address or 0 as the one argument."""
+    routines = sorted({c.routine for r in rows for c in r.setup + r.teardown})
+    symbols = sorted({c.symbol for r in rows for c in r.setup + r.teardown if c.symbol})
+    out = [f"extern void {x}(unsigned);\n" for x in routines] + [f"extern unsigned char ps1_{x}[];\n" for x in symbols]
+    if out:
+        out.append("\n")
+    for n, row in enumerate(rows):
+        for kind, calls in (("setup", row.setup), ("teardown", row.teardown)):
+            if not calls:
+                continue
+            out.append(f"static void port_program_{kind}_{n}(void)\n{{\n")
+            out.extend(f"    {c.routine}(" + (f"(unsigned)(unsigned long)ps1_{c.symbol}" if c.symbol else "0") + ");\n" for c in calls)
+            out.append("}\n\n")
+    return out
+
+
 def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None,
-                  overridden: frozenset[str] | set[str] = frozenset()) -> str:
+                  overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None) -> str:
     """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
-    the names of the functions whose row is flagged: the C behind the row is an override of the port's own."""
+    the names of the functions whose row is flagged: the C behind the row is an override of the port's own. `programs`
+    (None: no table at all) adds `port_programs`, the table of the programs that are built in, empty for an empty list."""
     archives = archives or {}
+    programs_rows = programs
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
+    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows or []):
+        out.append(f"extern void {impl}(void);\n")
+    if programs_rows:
+        out.append("\n")
+        for n, r in enumerate(programs_rows):
+            out.append(f"static const unsigned char port_programs_sha256_{n}[32] = {{ " + ", ".join("0x%02x" % b for b in bytes.fromhex(r.sha256)) + " };\n")
+        out.append("\n")
+        out.extend(render_calls(programs_rows))
     for n, i in enumerate(images):
         out.append(f"static const unsigned char port_sha256_{n}[32] = {{ " + ", ".join("0x%02x" % b for b in bytes.fromhex(i["sha256"])) + " };\n")
     if images:
@@ -1084,13 +1407,13 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
     if archives:
         out.append("\n")
 
-    def table(kind: str, name: str, rows: list[str], zero: str):
+    def table(kind: str, name: str, rows: list[str], zero: str, count: str | None = None):
         out.append(f"const struct {kind} {name}[] = {{\n")
         out.extend(f"    {r},\n" for r in rows)
         if not rows:
             out.append(f"    {zero},\n")
         out.append("};\n")
-        out.append(f"const unsigned {kind}_count = {len(rows)};\n\n")
+        out.append(f"const unsigned {count or kind + '_count'} = {len(rows)};\n\n")
 
     table("port_image", "port_images", [
         "{ %s, 0x%08xu, %s, 0x%xu, %s, port_sha256_%d }" % (c_string(i["name"]), i["address"], c_string(i["like"]) if "like" in i else "0", i["slot"],
@@ -1103,6 +1426,13 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
+    if programs_rows is not None:
+        table("port_builtin_program", "port_programs", [
+            "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
+                c_string(r.name), c_string(r.file), n, r.main,
+                f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
+            for n, r in enumerate(programs_rows)
+        ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
     digest = bytes.fromhex(sha256)
     out.append("const unsigned char port_program_sha256[32] = {\n")
     for i in range(0, 32, 8):
@@ -1121,9 +1451,11 @@ def in_ps1(address: int) -> bool:
     return any(low <= address <= high for low, high in PS1_RANGES)
 
 
-def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: list[str], underscore: bool, replaced: list[str] = ()) -> list[str]:
+def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: list[str], underscore: bool, replaced: list[str] = (),
+                bound: dict[str, str] | None = None) -> list[str]:
     """The misses of the linked file, from the text of `nm`; empty when none. `replaced` are the functions whose
-    definition in a unit is `replaced_NAME` (an override stands in for it): each must exist outside the PS1's ranges."""
+    definition in a unit is `replaced_NAME` (an override stands in for it): each must exist outside the PS1's ranges.
+    `bound` (name to routine of the runtime) are the library names of the programs: `ps1_NAME` must be at the routine's address."""
     us = "_" if underscore else ""
     seen: dict[str, list[int]] = {}
     for line in nm_text.splitlines():
@@ -1158,6 +1490,12 @@ def verify_link(nm_text: str, names: dict[str, int], aliases: list[str], impls: 
             misses.append(f"{name}: host data or its copy is not in the linked file")
         elif set(plain) != set(copy) or any(in_ps1(a) for a in plain + copy):
             misses.append(f"{name}: host data at {plain[0]:#x}, its copy at {copy[0]:#x}")
+    for name, routine in sorted((bound or {}).items()):
+        found, target = seen.get(us + "ps1_" + name), seen.get(us + routine)
+        if not found or not target:
+            misses.append(f"{name}: {'ps1_' + name if not found else routine} is not in the linked file")
+        elif set(found) != set(target):
+            misses.append(f"{name}: ps1_{name} is at {', '.join(f'{a:#x}' for a in sorted(set(found)))}, the routine {routine} at {', '.join(f'{a:#x}' for a in sorted(set(target)))}")
     return misses
 
 
@@ -1390,8 +1728,10 @@ def detect_underscore(cc: str, probe: Path, timeout: int) -> bool:
 
 
 def link_errors(stderr: str) -> str:
-    """The linker's complaints, each symbol once, at most twenty."""
-    found = sorted(set(re.findall(r"(?:undefined reference to|multiple definition of) `[^']*'", stderr)))
+    """The linker's complaints, each symbol once, at most twenty: an undefined or doubly defined name, or a name that the
+    names file uses in an expression (`ps1_NAME = ROUTINE;`) and nothing defines."""
+    found = sorted(set(re.findall(r"(?:undefined reference to|multiple definition of) `[^']*'", stderr))
+                   | set(re.findall(r"undefined symbol `[^']*' referenced in expression", stderr)))
     if found:
         return "\n".join(found[:20]) + (f"\n... and {len(found) - 20} more" if len(found) > 20 else "")
     return first_error(stderr)
@@ -1499,6 +1839,18 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     names = merge_names(entries + [(f.name, f.address, f"unit {f.unit} placed in {f.image}") for f in moved_functions]
                         + [(n + pl.suffix, a, f"{pl.image} placed") for pl in placements for n, a in pl.moved.items()])
 
+    # The programs that the port's list builds in.
+    programs_root = config_path.parent / "programs"
+    listed = read_programs_list(args.programs, programs_root / "programs.toml")
+    program_names = plan_program_names(listed, names)
+    program_jobs_all: list[Job] = []
+    for item in listed:
+        program_jobs_all += program_jobs(programs_root, item)
+    taken = {j.name for j in selection.jobs}
+    for job in program_jobs_all:
+        if job.name in taken:
+            raise Problem(f"program unit {job.name} has the name of a unit of {config_path}")
+
     if args.overrides is not None and not args.overrides.is_dir():
         raise Problem(f"--overrides {args.overrides}: not a folder (give an empty folder for no override)")
     overrides = read_overrides(args.overrides or runtime.parent / "overrides", selection)
@@ -1534,7 +1886,9 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout, placements,
                                frozenset(ov.name for ov in overrides if ov.job is j), library_inc, prefix) for j in selection.jobs]
+        program_futures = [pool.submit(build_unit, j, args.cc, build, underscore, args.timeout) for j in program_jobs_all]
         outcomes = sorted((f.result() for f in futures), key=lambda o: o.job.name)
+        program_outcomes = sorted((f.result() for f in program_futures), key=lambda o: o.job.name)
     failed = [o for o in outcomes if not o.ok]
     write_text(build / "failed.tsv", "".join(f"{o.job.name}\t{o.reason}\n" for o in failed))
     listing.extend(f"failed: {o.job.name}: {o.reason}" for o in failed)
@@ -1626,13 +1980,24 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             elif o.ok:
                 pl.data |= data
                 second_aliases.extend(n + pl.suffix for n in sorted(data))
+    # Each unit of a program must have compiled and defines its function and nothing else.
+    for o in program_outcomes:
+        if not o.ok:
+            raise Failure(f"program unit {o.job.name}: {o.reason}")
+        if o.defined != {o.job.name}:
+            extra = sorted(o.defined - {o.job.name})
+            raise Failure(f"program unit {o.job.name}: " + (f"it defines the global symbol {extra[0]}; a program's C defines only its function" if extra else f"it does not define {o.job.name}"))
     out.append(f"names at PS1 addresses: {len(names)}")
     out.append(f"data defined in C, at host addresses: {len(aliases)}")
     listing.extend(f"data: {n}" for n in aliases)
+    out.append(f"programs built in: {len(listed)}")
+    out.extend(f"program {item.program.name}: {len(item.program.functions)} functions" for item in listed)
     names_path = build / "gen" / "names.ld"
     all_aliases = aliases + second_aliases
-    write_text(names_path, render_names(names, all_aliases, underscore))
+    link_names = {**names, **program_names.data}
+    write_text(names_path, render_names(link_names, all_aliases + program_names.functions, underscore, program_names.bound))
     write_text(build / "gen" / "redefine.txt", render_redefine(plain, aliases, underscore))
+    write_text(build / "gen" / "redefine_programs.txt", render_redefine(set(plain) | program_names.all(), aliases, underscore))
     for pl in placements:
         write_text(build / "gen" / f"redefine{pl.suffix}.txt",
                    render_redefine(plain, aliases, underscore, moved=set(pl.moved) | pl.data, suffix=pl.suffix))
@@ -1640,16 +2005,31 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     built = [o for o in outcomes if o.ok] + ov_outcomes
     todo = [(o.job.name, "redefine.txt") for o in built]
     todo += [(f"{o.job.name}{pl.suffix}", f"redefine{pl.suffix}.txt") for o in built for pl in o.seconds]
+    todo += [(o.job.name, "redefine_programs.txt") for o in program_outcomes]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         reasons = list(pool.map(lambda t: redefine(t[0], objcopy, build, args.timeout, t[1]), todo))
     broken = [(t[0], r) for t, r in zip(todo, reasons) if r]
     if broken:
         raise Failure("\n".join(f"{n}: {r}" for n, r in broken[:20]))
+    # No object of a program may be left with an undefined name that is not a `ps1_` name: it would link against whatever has that name.
+    nm_tool = args.nm or default_nm(args.cc)
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        listings = list(pool.map(lambda o: hostcheck.compile_run([nm_tool, str(build / "obj" / f"{o.job.name}.o")], args.timeout), program_outcomes))
+    stray = []
+    for o, nm_run in zip(program_outcomes, listings):
+        if nm_run is None or nm_run.returncode != 0:
+            raise Failure(f"nm did not run on the object of {o.job.name}")
+        stray += [f"{o.job.name}: the undefined name {n} is not a ps1_ name; it would link against whatever of that name the runtime or a library defines"
+                  for n in undefined_names(nm_run.stdout, underscore)]
+        stray += [f"{o.job.name}: the reference to {n} is weak; it would link as address 0 where nothing defines the name, with no line. A program's C refers to a name plainly"
+                  for n in weak_names(nm_run.stdout, underscore)]
+    if stray:
+        raise Failure("\n".join(stray[:20]) + (f"\n... and {len(stray) - 20} more" if len(stray) > 20 else ""))
     tables_path = build / "gen" / "port_tables.c"
-    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives, overridden))
+    write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives, overridden, [program_row(x) for x in listed]))
 
     # The runtime, the tables and the link.
-    objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds])
+    objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds] + [o.job.name for o in program_outcomes])
     rt_objects: list[Path] = []
     for source in [*runtime_sources, tables_path]:
         obj = build / "rt" / f"{source.stem}.o"
@@ -1697,8 +2077,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         runtime_symbols += text_symbols(listing_nm.stdout)
     misses = verify_image(exe.read_bytes())
     misses += verify_rows(functions)
-    misses += verify_link(nm.stdout, names, all_aliases, [f[3] for f in functions], underscore, replaced_names)
-    misses += verify_markers(nm.stdout, [f[3] for f in functions], runtime_symbols, underscore, replaced_names)
+    misses += verify_link(nm.stdout, link_names, all_aliases + program_names.functions, [f[3] for f in functions], underscore, replaced_names, program_names.bound)
+    misses += verify_markers(nm.stdout, [f[3] for f in functions] + program_names.functions, runtime_symbols, underscore, replaced_names)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
     out.append(f"linked: {shown(exe)}, verified")
@@ -1720,7 +2100,10 @@ def shown(path: Path) -> str:
         return str(path)
 
 
-def main() -> int:
+DEFAULT_PROGRAMS = REPO / "port/programs.toml"
+
+
+def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build the game's C as one program with every name at its PS1 address.")
     parser.add_argument("--config", type=Path, default=REPO / "ps1/src/build.toml")
     parser.add_argument("--cc", default="i686-w64-mingw32-gcc")
@@ -1731,13 +2114,18 @@ def main() -> int:
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--overrides", type=Path, default=None)
+    parser.add_argument("--programs", type=Path, default=DEFAULT_PROGRAMS, help="the port's list of stand-alone programs to build in")
     parser.add_argument("--psyz", type=Path, default=None)
     parser.add_argument("--sound-library", action="store_true", help="compile the game's own sound library (needs --psyz, which does so without being asked)")
     parser.add_argument("--no-sound-library", action="store_true", help="with --psyz: leave the game's own sound library out")
     parser.add_argument("--timeout", type=positive, default=300)
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)
     parser.add_argument("--list", action="store_true")
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> int:
+    args = make_parser().parse_args()
     out: list[str] = []
     listing: list[str] = []
     try:
