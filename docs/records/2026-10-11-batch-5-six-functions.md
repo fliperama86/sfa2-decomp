@@ -31,11 +31,12 @@
   instructions do; the readable C it replaces read the field again.
 - Every figure above was measured again at the top level on each
   branch's final text (`fndiff.py --rebuild`, the unit put back).
-- In the second pair a local is read without a first value on one way:
-  when `field_cd` is not 0 at the first test and 0 at the second, after
-  the call of `func_8014a170` between them. The original's instructions
-  do the same with a register. `func_8014a170` itself does not write
-  `field_cd`; what it calls was not followed.
+- In the first and the second pair a local (`s`) is read without a
+  first value on one way: when `field_cd` is not 0 at the first test and
+  0 at the later one, after the calls between them. The original's
+  instructions do the same with a register. Whether that way can be
+  taken was not examined (`func_8014a170`, called on it in both pairs,
+  does not write `field_cd` itself; what it calls was not followed).
 - The conflicts between the branches were of the known kind (each took
   its own lines out of the same place of `slot04b_nonmatching/README.md`
   and of `symbols.ld`), resolved by taking both removals.

@@ -64,8 +64,6 @@ func_801b2270_slot04_0f control: different 756 of 2000 (expected more than 0)
   altered: bit test 0x80 changed to 0x40, instruction slot 10
 func_801b248c_slot04_0f control: different 2000 of 2000 (expected more than 0)
   altered: field_07 increment changed to 2, instruction slot 8
-  altered: stop-case field_50 0x10000 changed to 0x20000, instruction slot 81
-  altered: sequence base 0x2e changed to 0x2f, instruction slot 116
 func_801b2e8c_slot04_0e control: different 328 of 2000 (expected more than 0)
   altered: store of zero to field_50 moved to field_54, instruction slot 35
 func_801b339c_slot04_0e control: different 581 of 2000 (expected more than 0)
