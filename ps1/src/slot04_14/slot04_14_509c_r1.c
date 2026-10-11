@@ -46,7 +46,7 @@ void func_801b509c_slot04_14(Object *obj) {
         obj->pos_y = obj->field_70;
         obj->accel_x = data_801c64c0_slot04_14[obj->field_12a >> 1];
         func_801307e0(obj, 0x55);
-        func_80120554(obj, obj->side, 0x324);
+        play_sound_at(obj, obj->side, 0x324);
     }
 }
 
@@ -118,7 +118,7 @@ void func_801b5394_slot04_14(Object *obj) {
         func_801209c4(obj);
         func_80146960(obj);
         game_state.field_63 = data_801c64cc_slot04_14[obj->field_12a & 0xfe];
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
         func_801307e0(obj, 0x59);
     } else {
         update_sequence(obj);
@@ -172,7 +172,7 @@ void func_801b5614_slot04_14(Object *obj) {
     t = obj->step_flags;
     if ((u8)t != 0) {
         obj->step_flags = t & 0xff00;
-        func_80120554(obj, obj->side, 0x320);
+        play_sound_at(obj, obj->side, 0x320);
     }
     if (obj->field_0b != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;

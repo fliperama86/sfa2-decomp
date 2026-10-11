@@ -22,15 +22,15 @@ void func_801b169c_slot04_06(Object *o) {
         o->field_159 = 1;
         o->state_3 += 2;
         o->pos_y = obj->field_70;
-        func_801204f4(o, o->side, 9);
-        func_80120554(o->other, o->other->side, 0x31a);
+        play_side_sound_at(o, o->side, 9);
+        play_sound_at(o->other, o->other->side, 0x31a);
         if (o->state_2 == 8) {
             func_80145f98(o);
         }
         func_801307e0(o, 0x1f);
     } else {
         o->state_3++;
-        func_801204f4(o, o->side, 1);
+        play_side_sound_at(o, o->side, 1);
         func_801307e0(o, 0x27);
     }
 }

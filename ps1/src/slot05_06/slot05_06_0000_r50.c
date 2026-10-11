@@ -12,7 +12,7 @@ void func_801cc478_slot05_06(Object *obj) {
     func_8013fab4(obj);
     func_80141f28(obj, 6);
     func_80138ae8(&game_state, obj);
-    func_80120554(ref_other.p, ref_other.p->side, 0x31a);
+    play_sound_at(ref_other.p, ref_other.p->side, 0x31a);
     func_801307e0(obj, 0x19);
 }
 

@@ -44,7 +44,7 @@ void func_801b2504_slot04_0f(Object *o) {
             obj->field_47 = 5;
             o->field_240++;
         }
-        func_801204f4(o, o->side, 0x10);
+        play_side_sound_at(o, o->side, 0x10);
     }
 }
 

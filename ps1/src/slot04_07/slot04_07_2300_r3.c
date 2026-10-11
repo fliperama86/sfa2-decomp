@@ -11,7 +11,7 @@ void func_801b2620_slot04_07(Object *obj) {
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
     obj->field_46 = 0x400;
-    func_80120554(obj, obj->side, 0x31c);
+    play_sound_at(obj, obj->side, 0x31c);
     func_801307e0(obj, (obj->field_12a >> 1) + 0x49);
 }
 
@@ -21,7 +21,7 @@ void func_801b269c_slot04_07(Object *obj) {
     obj->field_46 = t;
     if ((t & 0xff00) == 0) {
         obj->state_3++;
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
         obj->field_46 |= 0x3800;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;

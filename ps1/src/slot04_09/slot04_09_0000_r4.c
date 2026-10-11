@@ -11,7 +11,7 @@ void func_801b0438_slot04_09(Object *obj) {
 
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
-        func_801204f4(obj, obj->side, 0xd);
+        play_side_sound_at(obj, obj->side, 0xd);
     }
     update_sequence(obj);
 }
@@ -22,7 +22,7 @@ void func_801b0488_slot04_09(Object *obj) {
 
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
-        func_801204f4(obj, obj->side, 0xe);
+        play_side_sound_at(obj, obj->side, 0xe);
     }
     u = obj->step_flags;
     if ((u & 0xff) == 2) {
@@ -38,7 +38,7 @@ void func_801b04f8_slot04_09(Object *obj) {
 
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
-        func_801204f4(obj, obj->side, 0xc);
+        play_side_sound_at(obj, obj->side, 0xc);
     }
     u = obj->step_flags;
     if ((u & 0xff) == 2) {

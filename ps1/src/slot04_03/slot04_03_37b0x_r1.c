@@ -16,7 +16,7 @@ void func_801b37b0_slot04_03(Object *obj) {
     } while (0);
     if ((obj->step_flags & 0xff) != 0) {
         obj->step_flags &= 0xff00;
-        func_801204f4(obj, obj->side, 7);
+        play_side_sound_at(obj, obj->side, 7);
         func_80146478(obj, 1, -0x2d, 0x2b);
         if (((Slot04aObj *)obj)->field_1cf == 0) {
             ((Slot04aObj *)obj)->field_1cf = 0xff;
@@ -29,7 +29,7 @@ void func_801b37b0_slot04_03(Object *obj) {
             /* Stand-in, not recovered source: a second do-while wrapper, around the reload of r and the call that sounds 0x340, reproduces the original's choice of registers. Without it this function differs from the original in 43 instruction slots. */
             do {
                 r = &ref_other;
-                func_80120554(r->p, ref_other.p->side, 0x340);
+                play_sound_at(r->p, ref_other.p->side, 0x340);
             } while (0);
             goto tail;
         }
@@ -37,7 +37,7 @@ void func_801b37b0_slot04_03(Object *obj) {
         do {
             r = &ref_other;
             obj->field_46++;
-            func_80120554(r->p, ref_other.p->side, 0x30b);
+            play_sound_at(r->p, ref_other.p->side, 0x30b);
         } while (0);
         func_80140fe0(obj);
         if ((s16)obj->field_46 == 0) {
@@ -68,9 +68,9 @@ tail:
     obj->state_3++;
     /* Stand-in, not recovered source: a fourth do-while wrapper, around the single statement that sounds 0x30d, reproduces the original's choice of registers. Without it this function differs from the original in 43 instruction slots. */
     do {
-        func_80120554(r->p, ref_other.p->side, 0x30d);
+        play_sound_at(r->p, ref_other.p->side, 0x30d);
     } while (0);
-    func_801204f4(obj, obj->side, 7);
+    play_side_sound_at(obj, obj->side, 7);
     func_801307e0(obj, 0x41);
     return;
 idle:

@@ -2618,8 +2618,8 @@ functions = [
   { name = "func_80120408", address = 0x80120408, size = 60 },
   { name = "func_80120444", address = 0x80120444, size = 84 },
   { name = "func_80120498", address = 0x80120498, size = 92 },
-  { name = "func_801204f4", address = 0x801204f4, size = 96 },
-  { name = "func_80120554", address = 0x80120554, size = 112 },
+  { name = "play_side_sound_at", address = 0x801204f4, size = 96 },
+  { name = "play_sound_at", address = 0x80120554, size = 112 },
   { name = "func_801205c4", address = 0x801205c4, size = 64 },
 ]
 

@@ -29,7 +29,7 @@ void func_801b1158_slot04_10(Object *obj) {
     if (t) {
         obj->field_0b = 1;
     }
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x1c);
 }
 
@@ -50,7 +50,7 @@ void func_801b11f8_slot04_10(Object *obj) {
         func_80146960(obj);
         update_sequence(obj);
         func_80140cd8(obj, 0x12, 0);
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     }
 }
 
@@ -72,7 +72,7 @@ void func_801b1348_slot04_10(Object *obj) {
     obj->field_160 = 0x64;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_1c0 = 0;
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x18);
 }
 
@@ -98,11 +98,11 @@ void func_801b13b0_slot04_10(Object *obj) {
             ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
         }
         if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
-            func_801204f4(obj, obj->side, 0x15);
+            play_side_sound_at(obj, obj->side, 0x15);
             obj->state_3 = 3;
             func_801307e0(obj, 0x19);
         } else {
-            func_801204f4(obj, obj->side, 0x13);
+            play_side_sound_at(obj, obj->side, 0x13);
             obj->field_46 = obj->field_46 + 1;
             func_80140fe0(obj);
         if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
@@ -168,7 +168,7 @@ void func_801b1708_slot04_10(Object *obj) {
     obj->field_160 = 0x64;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_1c0 = 0;
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x1a);
 }
 
@@ -187,11 +187,11 @@ void func_801b1770_slot04_10(Object *obj) {
             ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
         }
         if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
-            func_801204f4(obj, obj->side, 0x16);
+            play_side_sound_at(obj, obj->side, 0x16);
             obj->state_3 = 3;
             func_801307e0(obj, 0x1b);
         } else {
-            func_801204f4(obj, obj->side, 0x14);
+            play_side_sound_at(obj, obj->side, 0x14);
             obj->field_46 = obj->field_46 + 1;
             func_80140fe0(obj);
         if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {

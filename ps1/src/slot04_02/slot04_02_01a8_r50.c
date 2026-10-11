@@ -9,7 +9,7 @@ void func_801b605c_slot04_02(Object *obj) {
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
         game_state.field_63 = 0x18;
-        func_801204f4(obj, obj->side, 0xe);
+        play_side_sound_at(obj, obj->side, 0xe);
     }
     c = obj->field_46;
     if (c != 0) {

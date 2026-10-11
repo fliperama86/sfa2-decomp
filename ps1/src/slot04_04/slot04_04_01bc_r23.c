@@ -26,7 +26,7 @@ void func_801b1de8_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->field_45 = 1;
         obj->state_3++;
-        func_801204f4(obj, obj->side, 0xb);
+        play_side_sound_at(obj, obj->side, 0xb);
         obj->vel_x = obj->vel_y;
         obj->accel_x = obj->accel_y;
     }

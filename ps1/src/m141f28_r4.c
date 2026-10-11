@@ -17,7 +17,7 @@ void func_8014377c(Object *object) {
         if (object->field_a0 == 1) {
             object->state_1 = 7;
             object->field_5c = 0;
-            func_80120554(0, 0, 0x205);
+            play_sound_at(0, 0, 0x205);
         }
         if (object->field_a0 == 0 && object->field_a4 == 1) {
             object->field_5c = 0;

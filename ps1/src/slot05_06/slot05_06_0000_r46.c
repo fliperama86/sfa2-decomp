@@ -32,7 +32,7 @@ void func_801cbf2c_slot05_06(Object *obj) {
         func_80131468(obj);
     } else {
         if (t == 3) {
-            func_80120554(obj, obj->side, 0x324);
+            play_sound_at(obj, obj->side, 0x324);
         }
         if ((s16)obj->step_flags == 2 && obj->vel_x >= 0) {
             func_801cc814_slot05_06(obj);

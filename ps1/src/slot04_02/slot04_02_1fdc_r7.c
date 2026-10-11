@@ -12,7 +12,7 @@ void func_801b2a20_slot04_02(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, 0x1e, 0x30);
         func_801482e0(obj, -0x2c, 0x30);
     }

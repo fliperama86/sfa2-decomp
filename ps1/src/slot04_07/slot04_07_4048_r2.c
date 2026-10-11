@@ -14,9 +14,9 @@ void func_801b414c_slot04_07(Object *obj) {
         obj->step_flags = t & 0x80ff;
         v = data_801c1d70_slot04_07[x >> 8];
         if ((v & 0xff00) != 0) {
-            func_80120554(obj, obj->side, v);
+            play_sound_at(obj, obj->side, v);
         } else {
-            func_801204f4(obj, obj->side, v);
+            play_side_sound_at(obj, obj->side, v);
         }
     }
 }

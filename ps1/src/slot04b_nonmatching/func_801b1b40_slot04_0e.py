@@ -5,7 +5,7 @@ made here:
   - the log watches the whole object (0x394 bytes) at every recorded call,
     so the order of the function's stores against the calls is compared;
     no recorded callee gets a pointer to memory filled for the call;
-  - func_80120554 is a recorder (3 arguments; only func_80141f28 reaches
+  - play_sound_at is a recorder (3 arguments; only func_80141f28 reaches
     it); func_80130504, func_80141f28, func_801307e0, func_801b6a7c_slot04_0e
     and func_801b6afc_slot04_0e run as the original code;
   - the object is a random block of 0x394 bytes; func_80130504 overwrites
@@ -79,7 +79,7 @@ def setup(state, rng, sym):
     steps, frames = _sequence_world(state, rng, sym)
     obj = state.alloc(0x394)
     log = CallLog(state, words=4096, watch=((obj, 0x394 // 4),))
-    log.replace(sym["func_80120554"], 3)
+    log.replace(sym["play_sound_at"], 3)
     fill(state, obj, 0x394, rng)
     _sequence_object(state, rng, obj, steps, frames)
 

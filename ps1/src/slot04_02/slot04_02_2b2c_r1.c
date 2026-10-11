@@ -42,7 +42,7 @@ void func_801b2b2c_slot04_02(Object *obj) {
                 p->field_9c = obj->field_9c;
                 obj->field_14c = (s32)p;
                 obj->field_240++;
-                func_801204f4(obj, obj->side, 0xb);
+                play_side_sound_at(obj, obj->side, 0xb);
             }
         }
     } else {

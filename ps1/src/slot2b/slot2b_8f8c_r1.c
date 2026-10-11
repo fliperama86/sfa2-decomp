@@ -23,7 +23,7 @@ void func_80078f8c_slot2b(Object *o) {
             *(u16 *)&o->pos_y -= d;
             o->field_48 = (game_state.field_24 & 1) + 0x51;
             func_8007893c_slot2b(o);
-            func_801204f4(o, data_8007ef34_slot2b->side, 0xf);
+            play_side_sound_at(o, data_8007ef34_slot2b->side, 0xf);
         } else {
             o->state_1++;
             obj->field_47 = 0x18;

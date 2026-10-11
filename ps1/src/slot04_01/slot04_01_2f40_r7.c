@@ -10,8 +10,8 @@ void func_801b3640_slot04_01(Object *obj) {
 
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj, ((Slot04aObj *)obj)->field_a6 ^ 1, 0x31a);
-    func_801204f4(obj, ((Slot04aObj *)obj)->field_a6, 6);
+    play_sound_at(obj, ((Slot04aObj *)obj)->field_a6 ^ 1, 0x31a);
+    play_side_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 6);
     if (obj->field_cd == 0) {
         i = obj->field_c2 >> 15;
     }

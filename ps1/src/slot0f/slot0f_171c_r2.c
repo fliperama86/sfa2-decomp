@@ -30,10 +30,10 @@ void func_800e18bc_slot0f(Object *o) {
                 o->field_01 += 1;
                 o->state_0 += 1;
             }
-            func_80120554(0, 0, 0x205);
+            play_sound_at(0, 0, 0x205);
         } else {
             func_800e2328_slot0f(o);
-            func_80120554(0, 0, 0x202);
+            play_sound_at(0, 0, 0x202);
         }
     }
 }

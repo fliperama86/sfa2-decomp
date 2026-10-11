@@ -17,7 +17,7 @@ void func_801b25dc_slot04_04(Object *obj) {
             obj->field_27b = data_801c4374_slot04_04[obj->field_12a >> 1];
         }
         obj->field_165 = 0;
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
     }
 }
 

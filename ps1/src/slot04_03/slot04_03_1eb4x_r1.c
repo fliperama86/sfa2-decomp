@@ -21,8 +21,8 @@ void func_801b1eb4_slot04_03(Object *obj) {
         }
     } else {
         obj->state_3++;
-        func_801204f4(obj, obj->side, 5);
-        func_801204f4(obj, obj->side, 0xd);
+        play_side_sound_at(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 0xd);
         obj->vel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_00;
         o = obj;
         o->accel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_04;

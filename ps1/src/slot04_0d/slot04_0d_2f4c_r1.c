@@ -29,7 +29,7 @@ void func_801b2f4c_slot04_0d(Object *obj) {
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
         obj->field_45 = 1;
-        func_801204f4(obj, obj->side, 0x15);
+        play_side_sound_at(obj, obj->side, 0x15);
         func_80146478(obj, 1, 0, 0x4e);
         k = 0;
         if (o->field_1cd == 0) {
@@ -37,7 +37,7 @@ void func_801b2f4c_slot04_0d(Object *obj) {
             k = 6;
         }
         if ((u8)func_80140cd8(obj, k, 0) != 0) {
-            func_801204f4(obj, obj->side, 0x16);
+            play_side_sound_at(obj, obj->side, 0x16);
             func_801b30c0_slot04_0d(obj, -0x200);
         } else {
             o->field_46 = o->field_46 + 1;
@@ -88,7 +88,7 @@ void func_801b314c_slot04_0d(Object *obj) {
         func_80146478(obj, 1, 0x18, 0x47);
         o = obj->other;
         ref_other.p = o;
-        func_80120554(o, ref_other.p->side, 0x306);
+        play_sound_at(o, ref_other.p->side, 0x306);
         func_801307e0(obj, 0x1a);
     }
 }
@@ -106,7 +106,7 @@ void func_801b31e8_slot04_0d(Object *obj) {
         o = obj->other;
         if (o->field_15b != 0) {
             o->field_243 = 0;
-            func_801204f4(obj, obj->side, 0xb);
+            play_side_sound_at(obj, obj->side, 0xb);
         }
     }
 }
@@ -154,7 +154,7 @@ void func_801b33c0_slot04_0d(Object *obj) {
 void func_801b3400_slot04_0d(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->field_0b = 0;
     if ((obj->field_c2 & 0x8000) == 0) {
         obj->field_0b = 1;
@@ -185,9 +185,9 @@ void func_801b347c_slot04_0d(Object *obj) {
         o = obj->other;
         ref_other.p = o;
         if ((s16)obj->field_5c >= 0) {
-            func_80120554(o, ref_other.p->side, 0x30f);
+            play_sound_at(o, ref_other.p->side, 0x30f);
         } else {
-            func_80120554(o, ref_other.p->side, 0x346);
+            play_sound_at(o, ref_other.p->side, 0x346);
         }
     }
 }

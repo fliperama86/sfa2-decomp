@@ -77,9 +77,9 @@ void func_801b15ac_slot04_15(Object *obj) {
             obj->field_14c = (s32)p;
             obj->field_240++;
             if (obj->field_12a == 0) {
-                func_801204f4(obj, obj->side, 0x13);
+                play_side_sound_at(obj, obj->side, 0x13);
             } else {
-                func_801204f4(obj, obj->side, 0x14);
+                play_side_sound_at(obj, obj->side, 0x14);
             }
         }
     }

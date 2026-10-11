@@ -79,7 +79,7 @@ void func_801b599c_slot04_10(Object *obj) {
         }
         obj->field_165 = t;
         func_801483a4(obj, -0x13, 0x53);
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
     }
     update_sequence(obj);
 }
@@ -110,11 +110,11 @@ void func_801b5abc_slot04_10(Object *obj) {
     } else {
         obj->state_3++;
         if (obj->field_12a != 0) {
-            func_801204f4(obj, obj->side, 8);
+            play_side_sound_at(obj, obj->side, 8);
         } else {
-            func_801204f4(obj, obj->side, 4);
+            play_side_sound_at(obj, obj->side, 4);
         }
-        func_80120554(obj, obj->side ^ 1, 0x31a);
+        play_sound_at(obj, obj->side ^ 1, 0x31a);
         func_80145f98(obj);
         func_801307e0(obj, 0x2a);
     }
@@ -151,12 +151,12 @@ void func_801b5b90_slot04_10(Object *o) {
         if ((t & 0xff00) != 0x100) {
             o->step_flags = t & 0xff;
             if (o->field_12a == 2) {
-                func_801204f4(o, o->side, 4);
+                play_side_sound_at(o, o->side, 4);
             }
         } else {
             o->step_flags = t & 0xff;
             if (o->field_12a == 0) {
-                func_801204f4(o, o->side, 5);
+                play_side_sound_at(o, o->side, 5);
             }
         }
     }
@@ -169,15 +169,15 @@ void func_801b5b90_slot04_10(Object *o) {
         func_80140cd8(o, (s16)(*(u16 *)((u8 *)data_801c6ca4_slot04_10 + ((((Slot04bObj *)o)->field_1a8 + o->field_12a) << 1)) | m), 0);
         o->step_flags = o->step_flags & m;
         game_state.config->field_63 = 0x3c;
-        func_80120554(o, o->side, 0x319);
+        play_sound_at(o, o->side, 0x319);
         if (o->field_12a != 0) {
             if (((Slot04bObj *)o)->field_1a8 == 0) {
                 if (o->field_12a != 4) {
                     return;
                 }
-                func_801204f4(o, o->side, 4);
+                play_side_sound_at(o, o->side, 4);
             } else {
-                func_801204f4(o, o->side, 5);
+                play_side_sound_at(o, o->side, 5);
             }
         }
         func_80146960(o);

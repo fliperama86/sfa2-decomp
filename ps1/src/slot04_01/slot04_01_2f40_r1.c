@@ -26,7 +26,7 @@ void func_801b2f9c_slot04_01(Object *obj) {
         } else {
             obj->pos_x += 0x14;
         }
-        func_80120554(obj, ((Slot04aObj *)obj)->field_a6, 0x317);
+        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x317);
         func_80131d68(obj);
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;

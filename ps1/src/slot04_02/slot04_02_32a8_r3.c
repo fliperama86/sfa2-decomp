@@ -29,7 +29,7 @@ void func_801b3678_slot04_02(Object *obj) {
                 obj->field_165 = 0xff;
             }
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         i = (((u8)obj->step_flags - 1) << 2) & 0x1fc;
         obj->step_flags = obj->step_flags & 0xff00;
         func_801482e0(obj, *(s16 *)((u8 *)data_801c63d4_slot04_02 + i), *(s16 *)((u8 *)data_801c63d4_slot04_02 + i + 2));

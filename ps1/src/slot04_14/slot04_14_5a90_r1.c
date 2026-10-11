@@ -25,7 +25,7 @@ void func_801b5ad0_slot04_14(Object *obj) {
     Object *o = obj->other;
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if (func_801b5e7c_slot04_14(obj) != 0) {
@@ -63,7 +63,7 @@ void func_801b5c74_slot04_14(Object *obj) {
     int t;
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(o, o->side, 0x31a);
+    play_sound_at(o, o->side, 0x31a);
     obj->field_0b = 0;
     obj->vel_x = 0x48000;
     if (obj->field_cd != 0) {
@@ -149,7 +149,7 @@ void func_801b5fe8_slot04_14(Object *obj) {
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
         game_state.field_63 = 0x18;
-        func_801204f4(obj, obj->side, 0xe);
+        play_side_sound_at(obj, obj->side, 0xe);
     }
     c = obj->field_46;
     if (c != 0) {

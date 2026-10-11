@@ -28,5 +28,5 @@ void func_800e2964_slot0f(void) {
             data_800e9540_slot0f[i].field_07 = 0x1b;
         }
     }
-    func_80120554(0, 0, 0x203);
+    play_sound_at(0, 0, 0x203);
 }

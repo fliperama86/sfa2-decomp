@@ -31,6 +31,6 @@ void func_80148b60(Object *object) {
             i++;
         } while (i < 3);
         object->field_29e = 1;
-        func_80120554(object, object->side, 0x322);
+        play_sound_at(object, object->side, 0x322);
     }
 }

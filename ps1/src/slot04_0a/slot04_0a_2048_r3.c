@@ -9,8 +9,8 @@ void func_801b2158_slot04_0a(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
-        func_801204f4(obj, obj->side, 0xa);
-        func_801204f4(obj, obj->side, 0xe);
+        play_side_sound_at(obj, obj->side, 0xa);
+        play_side_sound_at(obj, obj->side, 0xe);
         n = func_8011f0e8(obj);
         if (n != 0) {
             n->field_00 = 1;

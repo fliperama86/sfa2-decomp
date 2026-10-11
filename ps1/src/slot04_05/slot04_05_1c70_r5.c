@@ -27,7 +27,7 @@ void func_801b2260_slot04_05(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x10, 0x43);
     }
     update_sequence(obj);

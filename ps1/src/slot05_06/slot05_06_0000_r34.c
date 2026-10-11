@@ -26,7 +26,7 @@ void func_801cac40_slot05_06(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        func_80120554(p, p->side, 0x34e);
+        play_sound_at(p, p->side, 0x34e);
         func_801307e0(obj, 0x2e);
     }
 }

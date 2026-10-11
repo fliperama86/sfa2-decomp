@@ -12,7 +12,7 @@
  * effect object tied to the object's partner (obj->other): the slot copies
  * the partner's field_0e and field_0b and takes the partner's height as its
  * pos_y, the position x is the object's plus the record's x offset, and
- * field_3c points at the partner; it then calls func_80120554 for the
+ * field_3c points at the partner; it then calls play_sound_at for the
  * partner. In every case it ends by calling func_801b420c_slot04_0e on the
  * object.
  *
@@ -29,7 +29,7 @@
  *     pos_y, field_3c, field_48, field_65, field_7a, field_7c, field_90,
  *     field_98, field_9c.
  *   Callees, replaced by recorders: func_8011f1e0 (0 arguments) returns
- *     either 0 or a slot block of the case; func_80120554 (3 arguments:
+ *     either 0 or a slot block of the case; play_sound_at (3 arguments:
  *     the partner, its side, 0x312) returns 0; func_801b420c_slot04_0e
  *     (1 argument) returns 0. The last is a function of this image with
  *     its own test; recorded here so that this test sees what is passed.
@@ -75,7 +75,7 @@ void func_801b4100_slot04_0e(Object *obj) {
         slot->field_90 = obj->field_90;
         slot->field_98 = obj->field_98;
         slot->field_9c = obj->field_9c;
-        func_80120554(other, other->side, 0x312);
+        play_sound_at(other, other->side, 0x312);
     }
     func_801b420c_slot04_0e(obj);
 }

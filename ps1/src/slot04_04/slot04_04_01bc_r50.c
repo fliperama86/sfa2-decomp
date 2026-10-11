@@ -19,7 +19,7 @@ void func_801b449c_slot04_04(Object *obj) {
     obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a == 4) {
-        func_801204f4(obj, obj->side, 0xb);
+        play_side_sound_at(obj, obj->side, 0xb);
     }
     func_801b4bc4_slot04_04(obj);
 }

@@ -150,7 +150,7 @@ void func_801b4f20_slot04_11(Object *obj) {
         func_80149af8(obj);
         func_80143184(obj);
         func_801b51a8_slot04_11(obj);
-        func_801204f4(obj, obj->side, 7);
+        play_side_sound_at(obj, obj->side, 7);
     }
     update_sequence(obj);
 }

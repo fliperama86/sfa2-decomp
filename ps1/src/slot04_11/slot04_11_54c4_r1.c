@@ -28,8 +28,8 @@ void func_801b5508_slot04_11(Object *obj) {
 void func_801b5548_slot04_11(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
-    func_801204f4(obj, obj->side, 8);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    play_side_sound_at(obj, obj->side, 8);
     obj->field_0b = 0;
     if (obj->field_cd != 0) {
         if (func_801b5914_slot04_11(obj)->pos_x + 0xc0 >= obj->pos_x) {
@@ -51,8 +51,8 @@ void func_801b5614_slot04_11(Object *obj) {
     } else if (obj->step_flags & 2) {
         obj->step_flags = obj->step_flags & 0xfffd;
         func_80146478(obj, obj->field_12a >> 1, -0x59, 0x1e);
-        func_80120554(obj, obj->side ^ 1, 0x30d);
-        func_801204f4(obj, obj->side, 6);
+        play_sound_at(obj, obj->side ^ 1, 0x30d);
+        play_side_sound_at(obj, obj->side, 6);
     }
     update_sequence(obj);
     if (obj->step_flags & 1) {

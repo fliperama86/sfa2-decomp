@@ -25,6 +25,6 @@ void func_80077f3c_slot2b(Object *o) {
         o->vel_y = 0xa0000;
         o->accel_y = 0xffff0000;
         func_80138070(o, 3);
-        func_801204f4(o, p->side, 0x17);
+        play_side_sound_at(o, p->side, 0x17);
     }
 }

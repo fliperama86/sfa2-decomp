@@ -9,8 +9,8 @@ void func_801b22ec_slot04_0b(Object *o) {
     update_sequence(o);
     if (((s16)o->step_flags & 0xff00) == 0) {
         o->state_3++;
-        func_801204f4(o, o->side, 0xf);
-        func_801204f4(o, o->side, 9);
+        play_side_sound_at(o, o->side, 0xf);
+        play_side_sound_at(o, o->side, 9);
         o->field_165 = 0;
         o->field_27b = data_801c25dc_slot04_0b[o->field_12a >> 1];
         if (o->field_4b == 0) {

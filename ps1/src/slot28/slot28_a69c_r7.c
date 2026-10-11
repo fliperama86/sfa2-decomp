@@ -25,7 +25,7 @@ void func_8001af9c_slot28(Object *o) {
     func_8001b1c4_slot28(o);
     if (o->pos_y >= o->field_70) {
         o->state_1++;
-        func_80120554(0, 0, 0x301);
+        play_sound_at(0, 0, 0x301);
         obj->field_47 = 2;
         o->vel_x = 0x48000;
         o->accel_x = 0x1000;

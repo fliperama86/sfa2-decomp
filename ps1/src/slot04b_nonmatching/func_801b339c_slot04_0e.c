@@ -32,7 +32,7 @@
  *     scratchpad, the sequence steps and frame records; they write the
  *     object's sequence, field_38, field_3a, field_80, frame, field_4a and
  *     may step the sequence further).
- *   Callee replaced by a recorder (no result, log in RAM): func_801204f4
+ *   Callee replaced by a recorder (no result, log in RAM): play_side_sound_at
  *     (3 arguments), which ends in sound routines of Sony's library.
  *   Watched by the recorders: the whole object (0x394 bytes), copied at every
  *     recorded call. No recorded callee takes a pointer to memory the
@@ -56,7 +56,7 @@ void func_801b339c_slot04_0e(Object *o) {
         o->field_159 = 0;
         o->state_3++;
         o->pos_y = obj->field_70;
-        func_801204f4(o, o->side, 0x1b);
+        play_side_sound_at(o, o->side, 0x1b);
         func_801307e0(o, 0x36);
     } else {
         d = obj->field_70 - (u16)o->pos_y;

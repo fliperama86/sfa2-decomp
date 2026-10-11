@@ -15,9 +15,9 @@ void func_80010efc_slot12(void) {
         data_8018f5a0->field_4c = data_8018f5a0->field_4c + 1;
         *p = 0x2f;
         if (game_state.field_44 & 0x80) {
-            func_801204f4(data_8002d56c_slot12, game_state.field_227 ^ 1, 5);
+            play_side_sound_at(data_8002d56c_slot12, game_state.field_227 ^ 1, 5);
         } else {
-            func_801204f4(data_8002d568_slot12, data_8002d568_slot12->side, 5);
+            play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 5);
         }
         b = func_8011f1e0();
         if (b != 0) {

@@ -19,9 +19,9 @@ void func_801cacb4_slot05_06(Object *obj) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             game_state.field_6b = 4;
             func_80147000(obj);
-            func_80120554(p, p->side, 0x34f);
+            play_sound_at(p, p->side, 0x34f);
         } else {
-            func_80120554(p, p->side, 0x34e);
+            play_sound_at(p, p->side, 0x34e);
         }
         obj->vel_x = 0xfffe0000;
         obj->vel_y = 0x44000;

@@ -20,7 +20,7 @@ void func_801b6738_slot04_sel(Object *obj, u8 *rec) {
         data_801b9c20_slot04_sel = data_801b9db0_slot04_sel;
         *rec = data_801b9db4_slot04_sel;
         if (*rec != 0) {
-            func_80120554(0, obj->side, 1);
+            play_sound_at(0, obj->side, 1);
         }
     }
     t[3][data_801b9c28_slot04_sel[0]] = 0x1a;

@@ -56,6 +56,6 @@ void func_801b38b0_slot04_16(Object *obj) {
                 func_80147000(obj);
             }
         }
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     }
 }

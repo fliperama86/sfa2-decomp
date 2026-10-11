@@ -9,7 +9,7 @@ void func_801b252c_slot04_02(Object *object);
 void func_801b21a4_slot04_02(Object *obj) {
 
     if ((s16)obj->step_flags & 0x8000) {
-        func_80120554(obj, obj->side, 0x320);
+        play_sound_at(obj, obj->side, 0x320);
         ((Slot04bObj *)obj)->field_1a4--;
         if (((Slot04bObj *)obj)->field_1a4 == 0) {
             obj->state_3++;

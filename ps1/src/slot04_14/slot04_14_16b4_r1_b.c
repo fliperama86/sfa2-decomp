@@ -158,7 +158,7 @@ void func_801b1e8c_slot04_14(Object *o) {
             p->field_9c = o->field_9c;
             o->field_14c = (s32)p;
             o->field_240++;
-            func_801204f4(o, o->side, 0xb);
+            play_side_sound_at(o, o->side, 0xb);
         }
     }
 }

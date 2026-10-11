@@ -25,7 +25,7 @@ void func_801b2a9c_slot04_05(Object *o) {
             o->field_165 = 1;
         }
         o->state_3++;
-        func_80120554(o, o->side, 0x31c);
+        play_sound_at(o, o->side, 0x31c);
         func_801483a4(o, -0x10, 0x43);
     }
     update_sequence(o);

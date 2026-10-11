@@ -40,7 +40,7 @@ void func_801b1a54_slot04_00(Object *o) {
         update_sequence(o);
     } else {
         o->state_3++;
-        func_80120554(o, o->side, 0x320);
+        play_sound_at(o, o->side, 0x320);
         obj->field_1a4 = o->field_12a >> 1;
         if (o->field_49 != 0) {
             a = 0x42;

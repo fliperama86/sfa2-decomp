@@ -21,7 +21,7 @@ void func_800e31d4_slot0f(void) {
 
     if (pad & 0x20) {
         data_800f8578_slot0f = 1;
-        func_80120554((Object *)0, 0, 0x205);
+        play_sound_at((Object *)0, 0, 0x205);
     }
     cnt = data_800f0204_slot0f + 1;
     data_800f0204_slot0f = cnt;

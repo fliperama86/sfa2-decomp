@@ -9,7 +9,7 @@ void func_80149aa8(Object *object) {
 }
 
 void func_80149ab8(Object *object) {
-    func_80120554(object->field_3c, object->field_3c->side, 0x329);
+    play_sound_at(object->field_3c, object->field_3c->side, 0x329);
     func_8011f240(object);
 }
 

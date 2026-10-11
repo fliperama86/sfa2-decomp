@@ -32,13 +32,13 @@ void func_801b5f64_slot04_10(Object *obj) {
         data_80190468.p->field_63 = obj->field_12a * 4 + 0x3c;
         func_80146960(obj);
         update_sequence(obj);
-        func_801204f4(obj, obj->side, 6);
+        play_side_sound_at(obj, obj->side, 6);
         if ((u8)func_80140cd8(obj, *(s16 *)((u8 *)data_801c6ce0_slot04_10 + (obj->field_12a & 0xfe)), 0) != 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
             func_80147000(obj);
         }
-        func_80120554(obj, obj->side, 0x319);
+        play_sound_at(obj, obj->side, 0x319);
     } else {
         obj->field_45 = 1;
         obj->state_3 = obj->state_3 + 1;
@@ -101,7 +101,7 @@ void func_801b6270_slot04_10(Object *obj) {
             func_80140cd8(obj, -0xed, 0);
             obj->step_flags = obj->step_flags & 0xff00;
             data_80190468.p->field_63 = obj->field_12a * 4 + 0x3c;
-            func_80120554(obj, obj->side, 0x319);
+            play_sound_at(obj, obj->side, 0x319);
             func_80146960(obj);
         }
         update_sequence(obj);

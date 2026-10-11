@@ -182,7 +182,7 @@ void func_801b281c_slot04_10(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         if ((u8)func_8013f8c4(obj, -0x26, 0x3a) != 0) {
             obj->state_3++;
-            func_80120554(obj, obj->side ^ 1, 0x31a);
+            play_sound_at(obj, obj->side ^ 1, 0x31a);
         } else {
             obj->state_3 = 3;
             func_801307e0(obj, 0x21);
@@ -198,7 +198,7 @@ void func_801b28a8_slot04_10(Object *obj) {
     if ((t & 0xff) == 2) {
         obj->step_flags = t & 0xff00;
         func_80146478(obj, 1, -0x46, 0x45);
-        func_80120554(obj, obj->side ^ 1, 0x304);
+        play_sound_at(obj, obj->side ^ 1, 0x304);
     }
     u = obj->step_flags;
     if (u == 1) {

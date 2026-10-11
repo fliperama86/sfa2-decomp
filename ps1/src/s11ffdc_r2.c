@@ -38,7 +38,7 @@ void func_80120498(int a) {
     func_8016936c(data_80190a44[hi + 8], table_8016e6e0[hi][(a & 0xff) * 2] & 0xfff);
 }
 
-void func_801204f4(Object *o, int b, int c) {
+void play_side_sound_at(Object *o, int b, int c) {
     int d = o->pos_x - (s16)box_margin[0];
     if (d < -192) {
         d = -192;
@@ -48,7 +48,7 @@ void func_801204f4(Object *o, int b, int c) {
     func_80120604(b, b, c & 0xff, (short)d);
 }
 
-void func_80120554(Object *o, int b, unsigned c) {
+void play_sound_at(Object *o, int b, unsigned c) {
     int d;
     if (o != 0) {
         d = o->pos_x - (s16)box_margin[0];

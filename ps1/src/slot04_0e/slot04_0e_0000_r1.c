@@ -194,7 +194,7 @@ void func_801b04c8_slot04_0e(Object *obj) {
         func_801b0cd0_slot04_0e(obj);
     } else if (((Slot04bObj *)obj)->field_3a == 3) {
         ((Slot04bObj *)obj)->field_3a = 0;
-        func_801204f4(obj, obj->field_02, 0x15);
+        play_side_sound_at(obj, obj->field_02, 0x15);
     }
     update_sequence(obj);
 }
@@ -255,7 +255,7 @@ void func_801b07bc_slot04_0e(Object *obj) {
         obj->state_3++;
         o = obj->other;
         func_80152df4(o);
-        func_80120554(o, o->field_02, 0x321);
+        play_sound_at(o, o->field_02, 0x321);
         obj->vel_y = 0x5c000;
         obj->accel_y = -0x5400;
         o->field_45 = 1;

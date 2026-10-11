@@ -11,7 +11,7 @@ void func_801439e8(Object *object) {
             object->field_01 = 0;
             func_801373e8();
             object->state_1 = object->state_1 + 1;
-            if (object->field_a3 == 0) func_80120554(0, 0, 0x206);
+            if (object->field_a3 == 0) play_sound_at(0, 0, 0x206);
         }
     } else {
         object->state_1 = object->state_1 + 1;

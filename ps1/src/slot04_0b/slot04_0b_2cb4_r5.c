@@ -8,7 +8,7 @@ void func_801b3550_slot04_0b(Object *obj);
 void func_801b349c_slot04_0b(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    func_80120554(obj, obj->side ^ 1, 0x31a);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->field_160 = 0x64;
     obj->field_46 = 0;
     obj->field_a1 = 0;

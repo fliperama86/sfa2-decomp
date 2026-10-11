@@ -113,12 +113,12 @@ call:
         ((Slot04aObj *)obj)->field_1c5--;
         if (((Slot04aObj *)obj)->field_1c5 != 0) {
             func_80140cd8(obj, -0xfe, 0);
-            func_801204f4(obj, obj->side, 8);
+            play_side_sound_at(obj, obj->side, 8);
             /* Without the signed cast the compiler warns and this function differs from the original in 45 instruction lines. */
             if ((s16)obj->other->field_5c >= 0) {
-                func_80120554(obj->other, obj->other->side, 0x34e);
+                play_sound_at(obj->other, obj->other->side, 0x34e);
             } else {
-                func_80120554(obj->other, obj->other->side, 0x34f);
+                play_sound_at(obj->other, obj->other->side, 0x34f);
             }
             obj->vel_x = 0xa0000;
             obj->accel_x = -0xe000;

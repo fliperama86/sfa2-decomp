@@ -6,7 +6,7 @@
 
 void func_8012bf74(Object *object) {
     func_80155f30(object);
-    func_80120554(object, object->side, 0x323);
+    play_sound_at(object, object->side, 0x323);
     object->field_69 = 0;
     object->field_6a = 0;
     if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {

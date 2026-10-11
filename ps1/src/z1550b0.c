@@ -26,14 +26,14 @@ void func_801550b0(void) {
         data_80181094[data_8018d250 * 14 + 1] = 0x1b;
         data_8018d250 = (data_8018d250 + 1) & 7;
         data_80181094[data_8018d250 * 14 + 1] = 0x1a;
-        func_80120554(0, 0, 0x34d);
+        play_sound_at(0, 0, 0x34d);
     }
     if (*pad & 0x1000) {
         data_8018125e[data_8018d250 * 5 + 1] = *(tab + data_8018d250 + 0x10);
         data_80181094[data_8018d250 * 14 + 1] = 0x1b;
         data_8018d250 = (data_8018d250 - 1) & 7;
         data_80181094[data_8018d250 * 14 + 1] = 0x1a;
-        func_80120554(0, 0, 0x34d);
+        play_sound_at(0, 0, 0x34d);
     }
     if (*pad & 0xff) {
         if (*pad & 0x80) { sel = 0x90; k = 0; }
@@ -68,7 +68,7 @@ void func_801550b0(void) {
         data_8018125e[data_8018d258 * 5 + 1] = *(tab + data_8018d258 + 0x10);
         data_8018125e[data_8018d250 * 5 + 1] = *(tab + data_8018d250 + 0x10);
         data_8018d258 = data_8018d250;
-        func_80120554(0, 0, 0x34c);
+        play_sound_at(0, 0, 0x34c);
     }
 
     pad2 = &data_801a6976;
@@ -77,14 +77,14 @@ void func_801550b0(void) {
         data_80181138[data_8018d254 * 14 + 1] = 0x1b;
         data_8018d254 = (data_8018d254 + 1) & 7;
         data_80181138[data_8018d254 * 14 + 1] = 0x1a;
-        func_80120554(0, 0, 0x34d);
+        play_sound_at(0, 0, 0x34d);
     }
     if (*pad2 & 0x1000) {
         data_8018128a[data_8018d254 * 5 + 1] = *(tab + data_8018d254 + 0x18);
         data_80181138[data_8018d254 * 14 + 1] = 0x1b;
         data_8018d254 = (data_8018d254 - 1) & 7;
         data_80181138[data_8018d254 * 14 + 1] = 0x1a;
-        func_80120554(0, 0, 0x34d);
+        play_sound_at(0, 0, 0x34d);
     }
     if (*pad2 & 0xff) {
         if (*pad2 & 0x80) { sel = 0x90; k = 0; }
@@ -119,6 +119,6 @@ void func_801550b0(void) {
         data_8018128a[data_8018d25c * 5 + 1] = *(tab + data_8018d25c + 0x18);
         data_8018128a[data_8018d254 * 5 + 1] = *(tab + data_8018d254 + 0x18);
         data_8018d25c = data_8018d254;
-        func_80120554(0, 0, 0x34c);
+        play_sound_at(0, 0, 0x34c);
     }
 }

@@ -159,8 +159,8 @@ void func_801b29e0_slot04_0e(Object *o) {
         obj->field_3a = 0;
         obj->field_47 = 2;
         o->state_3++;
-        func_801204f4(o, o->field_02, 0x16);
-        func_801204f4(o, o->field_02, 9);
+        play_side_sound_at(o, o->field_02, 0x16);
+        play_side_sound_at(o, o->field_02, 9);
     }
     update_sequence(o);
 }
@@ -245,7 +245,7 @@ void func_801b2d4c_slot04_0e(Object *o) {
         a = 0x2c;
     }
     func_801307e0(o, a);
-    func_801204f4(o, obj->field_a6, 9);
+    play_side_sound_at(o, obj->field_a6, 9);
 }
 
 void func_801b2dd4_slot04_0e(Object *o) {

@@ -41,7 +41,7 @@ void func_801b1de8_slot04_12(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->field_45 = 1;
         obj->state_3++;
-        func_801204f4(obj, obj->side, 0xb);
+        play_side_sound_at(obj, obj->side, 0xb);
         obj->vel_x = obj->vel_y;
         obj->accel_x = obj->accel_y;
     }
@@ -157,7 +157,7 @@ void func_801b2188_slot04_12(Object *obj) {
     obj->accel_x = data_801c4b9c_slot04_12[obj->field_12a * 2 + 1];
     obj->vel_y = data_801c4b9c_slot04_12[obj->field_12a * 2 + 2];
     obj->accel_y = data_801c4b9c_slot04_12[obj->field_12a * 2 + 3];
-    func_801204f4(obj, obj->side, 7);
+    play_side_sound_at(obj, obj->side, 7);
     if (obj->field_49 != 0) {
         a = (obj->field_12a >> 1) + 0x4c;
     } else {
@@ -239,7 +239,7 @@ void func_801b2548_slot04_12(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -6, 0x4a);
     }
 }
@@ -256,7 +256,7 @@ void func_801b25dc_slot04_12(Object *obj) {
             obj->field_27b = data_801c4c0c_slot04_12[obj->field_12a >> 1];
         }
         obj->field_165 = 0;
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
     }
 }
 

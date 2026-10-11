@@ -32,7 +32,7 @@ void func_800793d4_slot2b(Object *o) {
             o->field_9c = data_80173c9c;
         } while (0);
         func_80130700(o, data_8017c850);
-        func_801204f4(o, data_8007ef34_slot2b->side, 0x10);
+        play_side_sound_at(o, data_8007ef34_slot2b->side, 0x10);
     } else {
         func_80131094(o);
     }

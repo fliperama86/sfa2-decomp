@@ -154,7 +154,7 @@ void func_801b34f8_slot04_16(Object *obj) {
         if (obj->field_49 != 0) {
             func_80145f98(obj);
         }
-        func_80120554(obj, obj->side ^ 1, 0x31a);
+        play_sound_at(obj, obj->side ^ 1, 0x31a);
         func_801307e0(obj, 0x1d);
     }
 }

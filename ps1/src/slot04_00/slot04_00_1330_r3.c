@@ -22,7 +22,7 @@ void func_801b1600_slot04_00(Object *obj) {
         obj->accel_x = -0x8000;
         obj->vel_y = 0x90000;
         obj->accel_y = -0x6000;
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 8);
         func_801307e0(obj, 0x2e);
     } else {
         if (t & 0xff) {

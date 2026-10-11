@@ -21,7 +21,7 @@ void func_801b0fb0_slot04_10(Object *obj) {
 void func_801b0ff0_slot04_10(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     func_80130678(obj, 0x22);
-    func_801204f4(obj, obj->side, 0xb);
+    play_side_sound_at(obj, obj->side, 0xb);
 }
 
 void func_801b1038_slot04_10(Object *obj) {

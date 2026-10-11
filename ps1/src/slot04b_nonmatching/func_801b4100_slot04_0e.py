@@ -13,7 +13,7 @@ func_801b4100_slot04_0e.c. Choices made here:
     filled for the call;
   - func_8011f1e0 returns the slot in four cases of five, else 0 (the arm
     without a slot);
-  - func_8011f1e0 (0 arguments), func_80120554 (3 arguments) and
+  - func_8011f1e0 (0 arguments), play_sound_at (3 arguments) and
     func_801b420c_slot04_0e (1 argument) are recorders; the log of their
     calls is part of the compared memory.
 """
@@ -28,7 +28,7 @@ def setup(state, rng, sym) -> Setup:
     obj = state.alloc(0x394)
     log = CallLog(state, 4096, watch=((obj, 0x394 // 4), (other, 0x394 // 4), (slot, 0x394 // 4)))
     log.replace(sym["func_8011f1e0"], 0, slot if rng.random() < 0.8 else 0)
-    log.replace(sym["func_80120554"], 3, 0)
+    log.replace(sym["play_sound_at"], 3, 0)
     log.replace(sym["func_801b420c_slot04_0e"], 1, 0)
 
     state.write(other, bytes(rng.getrandbits(8) for _ in range(0x394)))

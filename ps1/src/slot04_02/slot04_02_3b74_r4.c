@@ -13,7 +13,7 @@ void func_801b4050_slot04_02(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((obj->field_46 & 0xff) == 0) {
         obj->state_3++;
-        func_80120554(p, p->side, 0x306);
+        play_sound_at(p, p->side, 0x306);
         func_8013788c(obj);
         func_80126244();
         func_801b4180_slot04_02(obj);

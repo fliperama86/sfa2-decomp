@@ -16,7 +16,7 @@ void func_801b386c_slot04_04(Object *obj) {
     } else {
         if (((Slot04bObj *)obj)->field_3a != 0) {
             obj->state_3 = obj->state_3 + 1;
-            func_801204f4(obj, obj->side, 0xc);
+            play_side_sound_at(obj, obj->side, 0xc);
             func_80140770(obj, 4, 0xa, 0x12, 0, 0, 1);
         }
         update_sequence(obj);
@@ -33,7 +33,7 @@ void func_801b3934_slot04_04(Object *obj) {
 
 void func_801b3994_slot04_04(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_801204f4(obj, obj->side, 0xc);
+    play_side_sound_at(obj, obj->side, 0xc);
     func_80140770(obj, 4, 0xa, 0xf, 0, 0, 1);
     func_801b39fc_slot04_04(obj);
 }

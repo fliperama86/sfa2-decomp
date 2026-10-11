@@ -57,7 +57,7 @@ void func_8012da2c(Object *object)
   t = func_80151184() & 0x1e;
   index = t;
   new_var = index;
-  func_801204f4(object, object->side, 2);
+  play_side_sound_at(object, object->side, 2);
   if (object->kind == 9)
   {
     object->field_46 = table_80171194[new_var];

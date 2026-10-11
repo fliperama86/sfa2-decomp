@@ -68,7 +68,7 @@ void func_801297b8(Object *object)
     object->field_72 = game_state.field_358->field_0b;
     object->field_63 = 0;
     object->field_01 = 1;
-    func_801204f4(object, object->side ^ 1, 0xf);
+    play_side_sound_at(object, object->side ^ 1, 0xf);
   }
   object->field_28d = object->field_297;
 }

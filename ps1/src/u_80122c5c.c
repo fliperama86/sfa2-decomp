@@ -41,11 +41,11 @@ int func_80122c5c(Entity *entity)
         s0 = entity->field_78;
         if (s0->field_cd == new_var)
         {
-          func_80120554(0, 0, 0x208);
+          play_sound_at(0, 0, 0x208);
         }
         else
         {
-          func_80120554(new_var, new_var, 0x209);
+          play_sound_at(new_var, new_var, 0x209);
         }
       }
     }

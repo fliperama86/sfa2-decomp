@@ -38,7 +38,7 @@ void func_801b1660_slot04_01(Object *obj) {
             p->field_9c = obj->field_9c;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            func_801204f4(obj, obj->side, 0xe);
+            play_side_sound_at(obj, obj->side, 0xe);
             obj->field_46 = 5;
         }
     }

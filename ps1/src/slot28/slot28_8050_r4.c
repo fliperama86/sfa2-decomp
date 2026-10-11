@@ -52,6 +52,6 @@ void func_800185d0_slot28(Object *o) {
             func_80130768(b, 0xa, data_80034530_slot28);
             data_80051968_slot28.p = b;
         }
-        func_80120554(0, obj->field_227, 0x300);
+        play_sound_at(0, obj->field_227, 0x300);
     }
 }

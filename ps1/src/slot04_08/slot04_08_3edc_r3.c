@@ -34,6 +34,6 @@ void func_801b4354_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
     if ((t & 0x8000) == 0 && (t & 0xff00) != 0 && (t & 0xff00) == 0x300 && game_state.field_48 == obj->field_ce) {
         obj->step_flags = t & 0xff;
-        func_801204f4(obj, obj->side, 0x11);
+        play_side_sound_at(obj, obj->side, 0x11);
     }
 }

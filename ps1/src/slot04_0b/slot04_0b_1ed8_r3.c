@@ -28,8 +28,8 @@ void func_801b2258_slot04_0b(Object *o) {
             o->field_165 = 0xff;
         }
         func_801483a4(o, -0x28, 0x61);
-        func_80120554(o, o->side, 0x31c);
-        func_801204f4(o, o->side, 7);
+        play_sound_at(o, o->side, 0x31c);
+        play_side_sound_at(o, o->side, 7);
     }
     update_sequence(o);
 }

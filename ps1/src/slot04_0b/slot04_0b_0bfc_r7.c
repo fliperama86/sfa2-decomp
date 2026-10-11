@@ -13,8 +13,8 @@ void func_801b15d0_slot04_0b(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 7);
     func_80138ae8(&game_state, obj);
-    func_801204f4(obj, obj->side, 0xf);
-    func_801204f4(obj, obj->side, 5);
+    play_side_sound_at(obj, obj->side, 0xf);
+    play_side_sound_at(obj, obj->side, 5);
     obj->accel_x = -0x8000;
     obj->accel_y = -0x6000;
     obj->vel_x = data_801c2568_slot04_0b[obj->field_12a];

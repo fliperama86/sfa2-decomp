@@ -22,7 +22,7 @@ void func_801ea658_slot06_0f(Object *obj) {
         obj->state_2 = obj->state_2 + 1;
         idx = 5;
         if (*(s32 *)&game_state.config->field_78 == (s32)game_state.field_358) {
-            func_801204f4(obj, obj->field_66, 0x12);
+            play_side_sound_at(obj, obj->field_66, 0x12);
             idx = 4;
         }
         func_801ea91c_slot06_0f(obj, idx);

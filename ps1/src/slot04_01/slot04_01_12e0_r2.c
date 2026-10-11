@@ -12,7 +12,7 @@ void func_801b14a0_slot04_01(Object *obj) {
         obj->accel_x = -0x8000;
         obj->vel_y = 0xa0000;
         obj->accel_y = -0x6000;
-        func_801204f4(obj, obj->side, 0xb);
+        play_side_sound_at(obj, obj->side, 0xb);
         func_801307e0(obj, 0x30);
     } else {
         if (t & 0xff) {

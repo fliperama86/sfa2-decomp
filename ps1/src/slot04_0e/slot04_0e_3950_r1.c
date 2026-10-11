@@ -59,9 +59,9 @@ void func_801b3950_slot04_0e(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x25, 0x3a);
-        func_801204f4(obj, obj->side, 8);
+        play_side_sound_at(obj, obj->side, 8);
     }
 }
 
@@ -69,7 +69,7 @@ void func_801b3aa0_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
     if ((u8)obj->step_flags == 1) {
         if (((Slot04bObj *)obj)->field_46 == 2) {
-            func_801204f4(obj, obj->side, 7);
+            play_side_sound_at(obj, obj->side, 7);
         }
         ((Slot04bObj *)obj)->field_47 -= 1;
         if (((Slot04bObj *)obj)->field_47 & 0x80) {
@@ -168,7 +168,7 @@ void func_801b3d68_slot04_0e(Object *obj) {
             t = 3;
         }
         obj->field_27b = data_801c60a8_slot04_0e[t];
-        func_801204f4(obj, obj->side, 0x11);
+        play_side_sound_at(obj, obj->side, 0x11);
     } else if ((u8)obj->step_flags != 2) {
         ((Slot04bObj *)obj)->field_3a = 2;
         if (obj->field_4b == 0) {
@@ -176,9 +176,9 @@ void func_801b3d68_slot04_0e(Object *obj) {
         } else {
             obj->field_165 = 1;
         }
-        func_80120554(obj, obj->side, 0x31c);
+        play_sound_at(obj, obj->side, 0x31c);
         func_801483a4(obj, -0x1d, 5);
-        func_801204f4(obj, obj->side, 5);
+        play_side_sound_at(obj, obj->side, 5);
     }
 }
 

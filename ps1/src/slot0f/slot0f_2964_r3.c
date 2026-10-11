@@ -19,5 +19,5 @@ void func_800e2b24_slot0f(void) {
         return;
     }
     data_800e9698_slot0f = &data_800e94ec_slot0f[data_800f8556_slot0f];
-    func_80120554(0, 0, 0x203);
+    play_sound_at(0, 0, 0x203);
 }

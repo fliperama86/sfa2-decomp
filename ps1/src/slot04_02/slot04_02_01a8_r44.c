@@ -9,7 +9,7 @@ void func_801b567c_slot04_02(Object *obj) {
     t = obj->step_flags;
     if ((u8)t != 0) {
         obj->step_flags = t & 0xff00;
-        func_80120554(obj, obj->side, 0x320);
+        play_sound_at(obj, obj->side, 0x320);
     }
     if (obj->field_0b != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;

@@ -12,7 +12,7 @@ void func_801474b8(Object *object) {
     object->field_a1 = 0x10;
     object->field_a2 = 0;
     if (game_state.field_64 != 0) {
-        func_801204f4(object->field_3c, object->field_3c->side, 0xd);
+        play_side_sound_at(object->field_3c, object->field_3c->side, 0xd);
         func_8014f604(2);
         object->field_01 = 1;
         func_801476f8(object);

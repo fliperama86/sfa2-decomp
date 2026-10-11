@@ -13,9 +13,9 @@ void func_80146998(Object *object) {
         }
         spawned->pos_y = spawned->pos_y - table_8017ca64[object->kind].second;
     }
-    func_80120554(object, object->side, 0x313);
+    play_sound_at(object, object->side, 0x313);
     if (table_8017ca38[object->kind] != -1) {
-        func_801204f4(object, object->side, table_8017ca38[object->kind]);
+        play_side_sound_at(object, object->side, table_8017ca38[object->kind]);
     }
 }
 

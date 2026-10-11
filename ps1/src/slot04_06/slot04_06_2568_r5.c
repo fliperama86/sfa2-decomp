@@ -37,6 +37,6 @@ void func_801b2b84_slot04_06(Object *obj) {
     obj->state_3 = 0x13;
     obj->vel_x = 0x80000;
     obj->accel_x = 0;
-    func_80120554((Object *)&obj->other, s->field_e6, 0x34e);
+    play_sound_at((Object *)&obj->other, s->field_e6, 0x34e);
     func_801307e0(obj, 0x38);
 }
