@@ -1475,7 +1475,6 @@ func_8016310c = 0x8016310c;
 SetRCnt = 0x8015764c;
 StartRCnt = 0x80157720;
 _addque2 = 0x801599f0;
-get_alarm = 0x8015a2b8;
 GetVideoMode = 0x8015f74c;
 SpuVmSetVol = 0x80163794;
 _SsContDataEntry = 0x80167388;
@@ -1519,9 +1518,10 @@ _svm_vcf = 0x801a6930;
 _snd_tick_mode = 0x801a89a4;
 func_8015a284 = 0x8015a284;
 func_8015a504 = 0x8015a504;
-_exeque = 0x80159cec;
 _qin = 0x80181a98;
 _qout = 0x80181a9c;
+D_last = 0x80181a88;
+D_intr_exeque = 0x80181aa4;
 D_intr_reset = 0x80181aa8;
 D_80039254 = 0x80181aac;
 D_80039258 = 0x80181ab0;
@@ -5796,7 +5796,6 @@ data_80051c54_slot28 = 0x80051c54;
 
 data_801c25b4_slot04_0b = 0x801c25b4;
 func_80158374 = 0x80158374;
-SetDrawEnv = 0x80158a84;
 
 /* Data that the nonmatching functions name. */
 data_801e9f48_slot06_00 = 0x801e9f48;
