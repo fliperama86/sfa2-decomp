@@ -130,6 +130,10 @@ func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, 
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
 func_80011758_logo: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011758_logo coverage: 15 of 15 instruction slots of the original executed
+func_80011794_logo: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011794_logo coverage: 41 of 41 instruction slots of the original executed
+func_80011794_logo: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011794_logo coverage: 41 of 41 instruction slots of the original executed
 func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80011838_logo coverage: 2 of 2 instruction slots of the original executed
 func_80011838_logo: built 8 bytes, original 8 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -148,6 +152,7 @@ func_80011060_logo control: different 1001 of 2000 (expected more than 0)
 func_800110f4_logo control: different 1463 of 2000 (expected more than 0)
 func_800111d0_logo control: different 2000 of 2000 (expected more than 0)
 func_80011758_logo control: different 2000 of 2000 (expected more than 0)
+func_80011794_logo control: different 745 of 2000 (expected more than 0)
 func_80011838_logo control: different 2000 of 2000 (expected more than 0)
 ```
 
@@ -172,6 +177,8 @@ func_800111d0_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800111d0_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011758_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011794_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011794_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80011838_logo writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
@@ -197,6 +204,8 @@ func_800111d0_logo fixtures: kept 2 of 2000 cases (slots 1, edges 1, results 0)
 func_800111d0_logo replay: fixtures 2, passed 2, failed 0
 func_80011758_logo fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
 func_80011758_logo replay: fixtures 12, passed 12, failed 0
+func_80011794_logo fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_80011794_logo replay: fixtures 2, passed 2, failed 0
 func_80011838_logo fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011838_logo replay: fixtures 1, passed 1, failed 0
 ```
@@ -252,10 +261,20 @@ func_80011838_logo replay: fixtures 1, passed 1, failed 0
 - `func_80010928_logo`: sets up the graphics and the two display environments
   (inferred). Calls `ResetGraph(0)`, `SetDispMask(0)`, `SetVideoMode` with
   the video mode word at `0x8002eb38`, `SetDefDispEnv` for the two environments at
-  `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes and the word at
+  `0x8002eb8c` (y 0 and y 240), sets their `isrgb24` bytes to 1 and the word at
   `0x8002eb50` to 0, and, when the video mode word is not 0, the screen x
   and y of both to 0 and 0x18. Then `ClearImage` of a local rectangle,
   `DrawSync(0)`, `VSync(0)`, `func_80158470` on the second environment and
   `SetDispMask(1)`. The eight callees are recorders in the test; the local
   rectangle's address is part of the log, so the test also holds the local
   at the address the original places it at.
+- `func_80011794_logo`: starts the disc (inferred). Calls `CdInit` up to four
+  times until it returns a value that is not 0 (after four returns of 0 it
+  returns 0 and does nothing else); then `CdControlB(0x0e, &mode, 0)` with a
+  local mode byte of 0x80 until it returns a value that is not 0,
+  `CdIntToPos(0x10, pos)` into a local and `CdControlB(0x15, pos, 0)` until it
+  returns a value that is not 0, and returns 1. The three callees are
+  recorders in the test, their results scripted per call (failures, then a
+  success); `CdIntToPos` has a fill that stores a word of the setup's through
+  its second argument, the model of what the library writes to the position,
+  and the words behind the two local pointers of `CdControlB` are logged.
