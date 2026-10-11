@@ -43,3 +43,10 @@ of this change:
 
 What did not run: any differential test, the port's build, the whole
 review.
+
+After the review. Approved at `008f4b2`; main had moved by then
+(`fd64ea0`). Merged at `9ff22fad` without a conflict; both rename tools,
+run on the merged tree against the tables of before the first rename,
+found no old name. On that head: 78 of 78 images `RESULT: PASS`; the
+replays, 107 functions (one more left its folder on main), every one with
+`failed 0`.
