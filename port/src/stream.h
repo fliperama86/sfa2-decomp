@@ -33,10 +33,10 @@
  * console they never were in the game's memory either); the 32 and 2,016 bytes come from the disc layer's FIFO routine
  * (port_CdGetSector) straight into the ring; the 4 kept ones are written with port_cd_store. A callback (f1, f2) is called through
  * the runtime's check of a call target.
- * Readings of the library's text that left a case open, as taken here: in step 8 and step 9's end-frame case the dropped sector's own
- * slot is also set to state 0 (otherwise the slot would keep the header's id and the ring would stall); the frame number held in
- * curframe is not cleared by a stall or a refused wrap; StGetNext follows a wrap marker and then looks at slot 0 in the same call; the
- * mask is cleared at step 6 also when start is 0 (it cannot be seen).
+ * Points the steps above do not spell out, done here as the library's own code does them (read at its listing): in step 8 and in
+ * step 9's end-frame case the dropped sector's own slot is set to state 0 too (it would keep the header's id otherwise); the frame
+ * number held in curframe is not cleared by a stall or a refused wrap; StGetNext follows a wrap marker and then looks at slot 0 in
+ * the same call; the mask is looked at and cleared in step 6 only when a start frame is set.
  *
  * THE BUSY RULE. With StSetStream's mode bit 0 set and the decoder's output transfer busy (port_press_out_busy), the library leaves a
  * sector in the drive's FIFO and sets `deferred`, to be worked on when the program's output routine calls StCdInterrupt again. The

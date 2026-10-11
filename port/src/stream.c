@@ -187,10 +187,10 @@ static void work(const unsigned char *qb, int qsector)
     }
     port_cd_store(h + 28, first, 4, sector);                  /* the 4 kept bytes over header bytes 28 to 31 */
     fr = g16(h + 8);
-    if (mask == 1 && start != 0) {                            /* 6 */
+    if (mask == 1 && start != 0) {                            /* 6: the mask is looked at, and cleared, only with a start frame */
         if (fr != start) { s16(h, 0); return; }
+        mask = 0;
     }
-    if (mask == 1) mask = 0;
     if (g16(h) != 0x160 || ((g16(h + 2) >> 10) & 0x1f) != 0) { s16(h, 0); return; }   /* 7: type 0 */
     chunk = g16(h + 4);
     if (chunk != nextchunk || (curframe != 0 && curframe != fr)) {                       /* 8 */
