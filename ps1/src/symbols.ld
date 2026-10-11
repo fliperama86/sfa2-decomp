@@ -853,7 +853,6 @@ scr_17c_right = 0x1f80017c;
 data_8017e9d4 = 0x8017e9d4;
 
 /* Added by src.u_m14ff20. */
-func_80165d84 = 0x80165d84;
 data_8017eb44 = 0x8017eb44;
 func_8015cb08 = 0x8015cb08;
 data_8017eb34 = 0x8017eb34;

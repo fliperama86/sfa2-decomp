@@ -40,6 +40,20 @@ one of the 87 files counted above either; like `sepopen.c` it includes
 the game's headers and declares its own view of the library's records,
 and needs none of the headers of `include/`.
 
+One function has a second source: `libsnd/sepinit.c` (`func_80165d84`,
+inferred `_SsInitSoundSep`). It was written by this project from the listing
+of the original, with `_SsInitSoundSeq` of `seqinit.c` as an aid; the form
+that builds the original's bytes was reached after the same function had
+been read in the PSY-Q decompilation that the PsyZ project carries,
+<https://github.com/Xeeynamo/psyz>, file `decomp/src/libsnd/sepinit.c`, as of
+commit `4e4b3e8dc7ae740c085fd190d635f54142d2d552` (the file's last change
+there is commit `d0a56bb028f834d10a495c1352279727c7cf7040`). That folder's
+license is MIT (`decomp/LICENSE` there). The file here carries the MIT
+license line, and [`LICENSE`](LICENSE) has that project's copyright lines.
+It is not one of the 87 files counted above; like `sepopen.c` it includes
+the game's headers and declares its own view of the library's records, and
+needs none of the headers of `include/`.
+
 ## What is not here
 
 `include/` is not in the repository. The library files need 38 headers of
