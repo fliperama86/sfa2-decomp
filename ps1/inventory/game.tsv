@@ -687,7 +687,7 @@
 80138d70	340	func_80138d70	-	-	0	0	closed
 80138ec4	176	func_80138ec4	-	sound,unidentified	0	0	open
 80138f74	184	func_80138f74	-	sound,unidentified	0	0	open
-8013902c	728	-	-	-	0	0	closed
+8013902c	728	func_8013902c	-	-	0	0	closed
 80139304	520	func_80139304	-	sound,unidentified	0	0	open
 8013950c	236	func_8013950c	-	-	0	0	closed
 801395f8	236	func_801395f8	-	-	0	0	closed
