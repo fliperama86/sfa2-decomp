@@ -57,7 +57,7 @@ its stand-ins cannot write through an argument, and its rule for an
 address of the PC's stack does not give this meaning.
 
 What ran: `python -B test_difftest.py`, `all cases behaved as
-required`, 471 cases (446 before); `python -B test_difftest_build.py
+required`, 472 cases (446 before); `python -B test_difftest_build.py
 --config ../build.toml`, the same line; `python
 port/tools/test_hostfixtures.py --cc CC`, `all 180 tests passed`
 (171 before); `python tools/ai_workflow/tests/test_workflow.py`, OK.
@@ -69,6 +69,25 @@ failing a named case; of the native reader 15, each failing a named
 case; a change of nothing passed in each group; none ended a tester
 without a name, none hit a time limit. Three lines that no input
 could tell from their absence were taken out instead of tested.
+
+A finding of the owner's review, corrected in this change: the
+stand-in loads the number of a call that a contract names as a 16-bit
+immediate, which the processor sign-extends, and nothing refused a
+larger number: a fill declared for call 65537 ran at call 1. The same
+held, from before this change, for the call of a `stores` entry and
+for `ends_run_at`, and a pointee of more than 8,191 words would have
+wrapped its copy's end in the same way. All four are now refused
+above what can be loaded (a call's number up to 32767, a pointee up
+to 8,191 words), by the contract's call and, for fills, by the
+fixtures' reader, each with a line that names the number. One new
+case: a fill at call 32767 is accepted and does not run at calls 1
+and 2; 32768, 65535, 65536, 65537 and a number beyond 32 bits are
+refused for a fill, 32768 and 65537 for a store and for the run's
+end, 8,192 words for a pointee, and each limit itself is accepted;
+the reader refuses a fixtures file whose fill names call 32768 or
+65537. Ten mutants of the four limits in bounded runs (unbounded, one
+too high, one too low, the limit doubled), each failing a named case;
+a change of nothing passed.
 
 Limits, stated: fills serve the four register arguments only; a
 callee whose result is one of its arguments, or that copies from one

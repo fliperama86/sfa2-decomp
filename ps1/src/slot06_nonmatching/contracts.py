@@ -84,6 +84,13 @@ def _addiu(rt: int, rs: int, value: int) -> int:
     return 0x24000000 | rs << 21 | rt << 16 | value & 0xFFFF
 
 
+# The stand-in compares its count of calls with the number of a call that a contract names (a fill's call, a
+# store's, the call that ends the run) by loading that number as a 16-bit immediate, which the processor
+# sign-extends: a number above 32767 would be loaded as another one (65537 as 1). Such a number is refused.
+CALL_LIMIT = 0x7FFF
+WORD_LIMIT = 0x7FFF  # likewise the largest byte offset an `addiu` reaches
+
+
 def _sb(rt: int, offset: int, base: int) -> int:
     return 0xA0000000 | base << 21 | rt << 16 | offset & 0xFFFF
 
@@ -232,20 +239,23 @@ class CallLog:
         """
         pointees = dict(sorted((pointees or {}).items()))
         for index, count in pointees.items():
-            if not 0 <= index < arguments or count < 1:
-                raise ValueError(f"argument {index} of {arguments} cannot have a pointee of {count} words")
+            # The copy's end is the pointer plus 4 * count as a 16-bit immediate: more words than that would wrap.
+            if not 0 <= index < arguments or not 1 <= count <= WORD_LIMIT // 4:
+                raise ValueError(f"argument {index} of {arguments} cannot have a pointee of {count} words "
+                                 f"(1 to {WORD_LIMIT // 4})")
         masks = masks or {}
         for index, mask in masks.items():
             if not 0 <= index < arguments or not 0 <= mask <= 0xFFFF:
                 raise ValueError(f"argument {index} of {arguments} cannot have the mask {mask:#x}")
-        if ends_run_at < 0:
-            raise ValueError("ends_run_at counts calls from 1")
+        if not 0 <= ends_run_at <= CALL_LIMIT:
+            raise ValueError(f"ends_run_at counts calls from 1 to {CALL_LIMIT}, not {ends_run_at}")
         fills = self._checked_fills(fills, arguments)
         if fills and tail is not None:
             raise ValueError("fills and a tail cannot be used together: a tail is machine code of the contract's own")
         for number, target, _ in stores:
-            if number < 1 or target % 4:
-                raise ValueError(f"a store needs a call number from 1 and a word-aligned address, not {number}, {target:#x}")
+            if not 1 <= number <= CALL_LIMIT or target % 4:
+                raise ValueError(f"a store needs a call number from 1 to {CALL_LIMIT} and a word-aligned address, "
+                                 f"not {number}, {target:#x}")
         for target in counts:
             if target % 4:
                 raise ValueError(f"a counted word needs a word-aligned address, not {target:#x}")
@@ -330,8 +340,8 @@ class CallLog:
             call, argument, offset, data = fill
             if any(not isinstance(v, int) or isinstance(v, bool) for v in (call, argument, offset)):
                 raise ValueError(f"a fill needs whole numbers for the call, the argument and the offset, not {fill[:3]!r}")
-            if call < 0:
-                raise ValueError(f"a fill's call is 0 (every call) or the number of a call from 1, not {call}")
+            if not 0 <= call <= CALL_LIMIT:
+                raise ValueError(f"a fill's call is 0 (every call) or the number of a call from 1 to {CALL_LIMIT}, not {call}")
             if not 0 <= argument < min(arguments, 4):
                 raise ValueError(f"a fill goes through a register argument (0 to 3) that the callee takes: "
                                  f"argument {argument} of {arguments}")

@@ -76,7 +76,9 @@ test unless the header says that a recorder stands for it.
 For a function that waits or never returns, a recorder can give its results
 in turn (`results`), store a word at its N-th call or count a word up at
 every call (`stores`, `counts`: what an interrupt does to memory while the
-function runs), and end the run at its N-th call (`ends_run_at`). A run
+function runs), and end the run at its N-th call (`ends_run_at`). The number
+of a call that a contract names is at most 32767 (the stand-in loads it as a
+16-bit number; a larger one is refused, it would be loaded as another). A run
 that was ended is cut inside the function: its registers are then not
 compared, its log and memory are.
 
@@ -92,7 +94,8 @@ what it models and from what that is known.
 
 A callee that only stores given bytes through one of its pointer arguments
 needs no machine code: `fills` says it as data, `(call, argument, offset,
-data)` for each fill. At the call (0: every call; N: the N-th only) the
+data)` for each fill. At the call (0: every call; N: the N-th only, N up to
+32767) the
 recorder stores `data` (1 to 256 bytes) at the value of that argument plus
 `offset` (0 to 0x7fff), after the entry is logged and after `stores` and
 `counts`, before the run is ended or the result returned. The address is the

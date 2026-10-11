@@ -5602,6 +5602,42 @@ def case_fl_call_zero_against_call_n():
     return None if (read(FLAG), read(FLAG + 4)) == (0x21, 0x2221) else f"calls 1 and 2: {read(FLAG):#x}, {read(FLAG + 4):#x}"
 
 
+def case_fl_a_calls_number_is_kept_whole_or_refused():
+    # The owner's review: the stand-in loads the number of a call as a 16-bit immediate, so a fill declared for call
+    # 65537 ran at call 1. The largest number that can be loaded, 32767, is accepted and is not call 1 or call 2: the
+    # local stays as it was through both calls. Every number above it is refused, for a fill, for a store and for the
+    # call that ends the run; a wrapped number never reaches the stand-in.
+    entries, _, read = logged(twice_caller(), [R(CALLEE, 1, 0, masks={0: 0}, fills=((32767, 0, 0, b"\x77"),))])
+    if (read(FLAG), read(FLAG + 4)) != (0, 0) or entries != [CALLEE, 0, CALLEE, 0]:
+        return f"a fill of call 32767 ran: {read(FLAG):#x}, {read(FLAG + 4):#x}"
+    state = D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE))
+    log = contracts.CallLog(state)
+    cell = state.alloc(4)
+    refused = [({"fills": ((65537, 0, 0, b"\x77"),)}, "not 65537"), ({"fills": ((32768, 0, 0, b"\x77"),)}, "not 32768"),
+               ({"stores": ((65537, cell, 5),)}, "from 1 to 32767"), ({"stores": ((32768, cell, 5),)}, "from 1 to 32767"),
+               ({"stores": ((0, cell, 5),)}, "from 1 to 32767"),
+               ({"ends_run_at": 65537}, "not 65537"), ({"ends_run_at": 32768}, "not 32768"), ({"ends_run_at": -1}, "not -1"),
+               ({"pointees": {0: 8192}}, "pointee of 8192 words"), ({"pointees": {0: 0}}, "pointee of 0 words")]
+    for option, word in refused:
+        try:
+            log.replace(CALLEE, 1, 0, **option)
+        except ValueError as exc:
+            if word not in str(exc):
+                return f"{option}: the message {str(exc)!r} lacks {word!r}"
+            continue
+        return f"{option} was accepted"
+    if CALLEE in log.recorders:
+        return "a refused option left a recorder behind"
+    # the limits themselves are accepted
+    for option in ({"stores": ((32767, cell, 5),)}, {"ends_run_at": 32767}, {"pointees": {0: 8191}}, {"fills": ((32767, 0, 0, b"\x01"),)}):
+        fresh = contracts.CallLog(D.State(bytes(D.RAM_SIZE), bytes(D.SCRATCH_SIZE)), words=9000)
+        try:
+            fresh.replace(CALLEE, 1, 0, **option)
+        except ValueError as exc:
+            return f"{option} at the limit was refused: {exc}"
+    return None
+
+
 def case_fl_pointee_shows_the_bytes_from_before_the_fill():
     words = program(("st", BUF, 0x11111111), ("call", CALLEE, [BUF], []))
     entries, _, read = logged(words, [R(CALLEE, 1, 0, pointees={0: 1}, fills=((0, 0, 0, bytes([0xDD, 0xCC, 0xBB, 0xAA])),))])
@@ -5761,6 +5797,11 @@ def case_fl_bad_fills_are_refused_by_name():
     refused = [
         ({"fills": (ok,), "tail": (contracts.JR_RA, 0)}, "tail"),
         ({"fills": ((-1, 0, 0, b"\x01"),)}, "call"),
+        ({"fills": ((32768, 0, 0, b"\x01"),)}, "from 1 to 32767, not 32768"),
+        ({"fills": ((65535, 0, 0, b"\x01"),)}, "from 1 to 32767, not 65535"),
+        ({"fills": ((65536, 0, 0, b"\x01"),)}, "from 1 to 32767, not 65536"),
+        ({"fills": ((65537, 0, 0, b"\x01"),)}, "from 1 to 32767, not 65537"),
+        ({"fills": ((1 << 32 | 1, 0, 0, b"\x01"),)}, "from 1 to 32767"),
         ({"fills": ((0, -1, 0, b"\x01"),)}, "argument"),
         ({"fills": ((0, 4, 0, b"\x01"),)}, "argument"),
         ({"fills": ((0, 2, 0, b"\x01"),)}, "argument 2 of 2"),
@@ -5949,6 +5990,8 @@ def case_fl_reader_refuses_a_fills_that_is_not_of_the_form():
         "data that is not text": ([[0, 0, 0, 1]], "[call, argument, offset, hex of the data]"),
         "257 bytes": ([[0, 0, 0, "00" * 257]], "257 bytes"),
         "call below 0": ([[-1, 0, 0, "01"]], "call"),
+        "call 32768": ([[32768, 0, 0, "01"]], "from 1 to 32767, not 32768"),
+        "call 65537": ([[65537, 0, 0, "01"]], "from 1 to 32767, not 65537"),
         "call that is text": ([["1", 0, 0, "01"]], "whole numbers"),
         "argument 4": ([[0, 4, 0, "01"]], "argument 4 of 1"),
         "argument -1": ([[0, -1, 0, "01"]], "argument -1 of 1"),
@@ -6618,6 +6661,7 @@ CASES = [
     ("p-the-declaration-is-read-once-for-several-cases", case_p_the_declaration_is_read_once_for_several_cases),
     ("fl-local-at-two-places-of-two-frames", case_fl_local_at_two_places_of_two_frames),
     ("fl-call-zero-against-call-n", case_fl_call_zero_against_call_n),
+    ("fl-a-calls-number-is-kept-whole-or-refused", case_fl_a_calls_number_is_kept_whole_or_refused),
     ("fl-pointee-shows-the-bytes-from-before-the-fill", case_fl_pointee_shows_the_bytes_from_before_the_fill),
     ("fl-later-fill-of-a-call-wins", case_fl_later_fill_of_a_call_wins),
     ("fl-unaligned-odd-and-long-fills", case_fl_unaligned_odd_and_long_fills),
