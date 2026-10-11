@@ -40318,3 +40318,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8011a880", address = 0x8011a880, size = 868 },
 ]
+
+[[unit]]
+name = "d545cc_r1"
+source = "d545cc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801545cc", address = 0x801545cc, size = 940 },
+]

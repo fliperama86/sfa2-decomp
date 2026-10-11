@@ -1400,7 +1400,7 @@
 80154364	324	func_80154364	system	system	0	0	closed
 801544a8	220	func_801544a8	system	system	0	0	closed
 80154584	72	func_80154584	-	-	1	0	open
-801545cc	940	-	-	sound,unidentified	0	0	closed
+801545cc	940	func_801545cc	-	sound,unidentified	0	0	closed
 80154978	32	func_80154978	-	-	0	0	closed
 80154998	1776	func_80154998	-	disc,graphics,sound,unidentified	0	0	open
 80155088	40	func_80155088	-	disc,sound,unidentified	0	0	closed

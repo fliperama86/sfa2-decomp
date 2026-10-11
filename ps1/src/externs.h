@@ -67,7 +67,7 @@ extern FrameRecord table_8016e5c4[];
 extern ScoreRec table_8016e604[];
 extern FrameRecord table_8016e614[];
 extern ScoreRec table_8016e654[];
-extern u8 table_8016e664[2][8];
+extern u8 table_8016e664[4][8];
 extern u8 data_8016e674[];
 extern u8 data_8016e67c[];
 extern u8 data_8016e685;
