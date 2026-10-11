@@ -204,18 +204,26 @@ def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
         if not entry.startswith('port/') or not there:
             raise Problem(f'{PORT_SUBJECTS} names {entry}, which is not a {"folder" if entry.endswith("/") else "file"} of port/ in this tree')
 
+    direct: dict[Path, list[Path]] = {}
+
+    def imports(script: Path) -> list[Path]:
+        # The Python files of port/tools that `script` imports: every import statement of the file, wherever it stands.
+        # (An import made by a call, such as importlib's, is not seen.) Each file is read once.
+        if script not in direct:
+            try:
+                tree = ast.parse(script.read_text())
+            except SyntaxError as e:
+                raise Problem(f'{script.relative_to(root).as_posix()} is not Python that can be read: {e.msg}') from e
+            modules = [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names] \
+                + [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and n.level == 0]
+            found = [tools / (name.split('.')[0] + '.py') for name in modules]
+            direct[script] = [f for f in found if f.is_file()]
+        return direct[script]
+
     def imported(script: Path, seen: set[Path]) -> set[Path]:
-        # The Python files of port/tools that `script` imports, and what those import: every import statement of the
-        # file, wherever it stands. (An import made by a call, such as importlib's, is not seen.)
-        try:
-            tree = ast.parse(script.read_text())
-        except SyntaxError as e:
-            raise Problem(f'{script.relative_to(root).as_posix()} is not Python that can be read: {e.msg}') from e
-        modules = [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names] \
-            + [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and n.level == 0]
-        for name in modules:
-            other = tools / (name.split('.')[0] + '.py')
-            if other.is_file() and other not in seen:
+        # `script`, what it imports, and what those import.
+        for other in imports(script):
+            if other not in seen:
                 seen.add(other)
                 imported(other, seen)
         return seen

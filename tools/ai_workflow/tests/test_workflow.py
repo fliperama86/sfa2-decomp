@@ -590,8 +590,54 @@ class PortSubjects(Fixture):
         over = sorted(p.name for p in (root / 'port/overrides').glob('func_*.c'))[0]
         self.assertFalse([n for n in names(['port/overrides/' + over]) if n.startswith('test_')])
         self.assertIn('native-build', names(['port/overrides/' + over]))
-        # the patch of the picture library: nobody names it, every control file runs
-        self.assertEqual(names(['port/psyz.patch'])[:-1], scripts)
+        # a file that no control file names: every control file runs
+        self.assertEqual(names(['port/tools/check_psyz.sh'])[:-1], scripts)
+
+    def test_the_trees_own_table_selects_each_tools_own_control_file(self):
+        # The owner's review of pull request 263: a change of hostcheck.py selected neither test_hostcheck nor
+        # test_hostcheck_stop, and a change of libgap.py not test_libgap. Those control files run their tool as a
+        # separate program, so no import names it, and other control files import the same tool through hostbuild.py,
+        # so the file was named by someone and the wide rule did not apply.
+        root = Path(review.__file__).resolve().parents[2]
+        tools = root / 'port/tools'
+        names = lambda changed: [c.name for c in review.select_checks(root, changed, 2, (1, 7), 'cc32', 'psyzdir')]
+        self.assertLessEqual({'test_hostcheck', 'test_hostcheck_stop'}, set(names(['port/tools/hostcheck.py'])))
+        self.assertIn('test_libgap', names(['port/tools/libgap.py']))
+        self.assertIn('test_hostneeds', names(['port/tools/hostneeds.py']))
+        # In general, two ways, both read from the tree. By name: the control files test_NAME.py and test_NAME_*.py
+        # of a tool NAME.py are selected by a change of the tool.
+        controls = sorted(p.stem for p in tools.glob('test_*.py'))
+        picked = lambda path: [s.stem for s in review.port_controls(root, [path])]   # the selector alone: no plan is made
+        paired = 0
+        for tool in sorted(p for p in tools.glob('*.py') if not p.name.startswith('test_')):
+            own = [c for c in controls if c == 'test_' + tool.stem or c.startswith('test_' + tool.stem + '_')]
+            got = picked('port/tools/' + tool.name)
+            for c in own:
+                paired += 1
+                with self.subTest(tool=tool.name, control=c):
+                    self.assertIn(c, got)
+        self.assertGreaterEqual(paired, 8)
+        # By the text: a file of port/ that a control file takes by a path it builds at its top (SCRIPT = TOOLS /
+        # "hostcheck.py", REAL_PATCH = TOOLS.parent / "psyz.patch") selects that control file.
+        taken = 0
+        for control in sorted(tools.glob('test_*.py')):
+            for base, name in re.findall(r'^[A-Z_]+ = (TOOLS|TOOLS\.parent|HERE|HERE\.parent) / "([\w.]+)"', control.read_text(), re.M):
+                file = (tools if base in ('TOOLS', 'HERE') else tools.parent) / name
+                if not file.is_file():
+                    continue
+                taken += 1
+                with self.subTest(control=control.name, file=name):
+                    self.assertIn(control.stem, picked(file.relative_to(root).as_posix()))
+        self.assertGreaterEqual(taken, 7)
+        # The patch of the picture library: the tool's control file, which reads it, and every control file that takes
+        # a build of the library; not every control file.
+        patch = names(['port/psyz.patch'])
+        self.assertIn('test_psyzbuild', patch)
+        needs_library = {c.name for c in review.select_checks(root, ['port/tools/check_psyz.sh'], 2, (1, 7), 'cc32', 'psyzdir')
+                         if '--psyz-build' in c.argv}
+        self.assertGreaterEqual(len(needs_library), 6)
+        self.assertLessEqual(needs_library, set(patch))
+        self.assertLess(len(patch), len(controls))
 
 
 class Results(Fixture):

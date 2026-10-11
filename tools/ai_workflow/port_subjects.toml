@@ -6,6 +6,8 @@
 #   - a control file is always about itself and about every Python file of `port/tools` that it imports, directly or
 #     through another (the tool it tests, a rig or a made-up image of another control file): those are read from its
 #     text and are not listed here;
+#   - a tool that a control file runs as a separate program and does not import, and a file of the tree that it reads,
+#     ARE listed here: nothing reads those from its text (`test_hostcheck.py` runs `hostcheck.py` by its path);
 #   - an entry that ends in `/` names everything below that folder;
 #   - a control file that has no line here is selected by every change of the port;
 #   - a changed file that no control file names, and that is not under [build], selects every control file;
@@ -17,14 +19,14 @@
 # listed only for the files their own cases are about.
 
 [controls]
-test_hostaudio = ["port/src/iopage.c", "port/src/cd.c", "port/src/cd.h", "port/src/main.c"]
+test_hostaudio = ["port/src/iopage.c", "port/src/cd.c", "port/src/cd.h", "port/src/main.c", "port/psyz.patch"]
 test_hostbuild = ["port/programs.toml", "port/src/port_tables.h"]
 test_hostcd = ["port/src/cd.c", "port/src/cd.h", "port/src/disc.c", "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h"]
-test_hostcheck = []
-test_hostcheck_stop = []
+test_hostcheck = ["port/tools/hostcheck.py"]
+test_hostcheck_stop = ["port/tools/hostcheck.py"]
 test_hostfixtures = ["port/replay/"]
-test_hostgpu = ["port/src/gpu.c", "port/src/gpu.h"]
-test_hostiopage = ["port/src/iopage.c", "port/src/mirror.c"]
+test_hostgpu = ["port/src/gpu.c", "port/src/gpu.h", "port/psyz.patch"]
+test_hostiopage = ["port/src/iopage.c", "port/src/mirror.c", "port/psyz.patch"]
 test_hostkernel_start = ["port/src/kernel.c"]
 test_hostlaunch = [
     "port/src/port.h", "port/src/port_tables.h",
@@ -37,9 +39,9 @@ test_hostlaunch = [
 test_hostmdec = ["port/src/mdec.c", "port/src/mdec.h"]
 test_hostmirror = ["port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c", "port/tools/mirror_native_test.c"]
 test_hostmodules = ["port/src/modules.c", "port/src/modules.h"]
-test_hostneeds = []
-test_hostpads = ["port/src/input.c", "port/src/kernel.c"]
-test_hostpress = ["port/src/press.c", "port/src/press.h", "port/src/mdec.c", "port/src/mdec.h"]
+test_hostneeds = ["port/tools/hostneeds.py"]
+test_hostpads = ["port/src/input.c", "port/src/kernel.c", "port/psyz.patch"]
+test_hostpress = ["port/src/press.c", "port/src/press.h", "port/src/mdec.c", "port/src/mdec.h", "port/psyz.patch"]
 test_hostprogcalls = [
     "port/src/progcalls.c", "port/src/progcalls.h", "port/src/cd.c", "port/src/cd.h", "port/src/disc.c", "port/src/input.c",
     "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h",
@@ -55,9 +57,11 @@ test_hoststream = [
     "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h",
 ]
 test_hostxa = ["port/src/xa.c", "port/src/xa.h"]
-test_libgap = []
-test_psyzbuild = []
-test_sdkshim = ["port/sdkshim/"]
+test_libgap = ["port/tools/libgap.py"]
+# The patch of the picture library: the control file of the tool that applies it reads the tree's own copy, and the six
+# control files that take a build of the library (`--psyz-build`) run on what the patch made.
+test_psyzbuild = ["port/psyz.patch"]
+test_sdkshim = ["port/sdkshim/", "port/psyz.patch"]
 
 # Files of the port whose check is the build of the PC program alone (`native-build`, which every change of the port that
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks
