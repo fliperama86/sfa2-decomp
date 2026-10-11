@@ -22,14 +22,16 @@
   bytes at 0x801254f4, built 400 bytes at 0x801254f4, 0 differing
   instruction slots: IDENTICAL`. "Lines" are instruction lines by the
   private check on the published unit.
-  - The wrapper stands around the whole setup of the two words (the
-    choice of the code word by the side, the store of its low byte, the
-    store of its top nibble). Without it: 26 of 100 lines, 2
+  - The wrapper stands around the two output stores (the store of the
+    code word's low byte and the store of its top nibble). The choice
+    of the code word by the side stands before it, outside: changed on
+    review, because the two stores are the smallest group that belongs
+    together and is exact. Without the wrapper: 26 of 100 lines, 2
     instructions fewer: the load that reads the first word back stands
     before the two stores and fills a delay slot, where the original
     has it after them. Three other placements were built: around the
-    last two statements of the group it is exact too; around the first
-    two: 25 lines; around the choice alone: 35.
+    choice and the two stores together it is exact too; around the
+    choice and the first store: 25 lines; around the choice alone: 35.
   - What was looked for before the stand-in, each built: the read back
     as the first statement of the blocks that follow (26 lines), the
     stores moved into the two arms (26), the value taken from the local

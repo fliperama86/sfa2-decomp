@@ -20,17 +20,17 @@ void func_801254f4(void) {
     u16 *code;
     u8 byte;
     u16 nib;
+    if (game_state.field_78->side) {
+        code = &data_801a6972;
+        byte = *code & 0xff;
+        nib = *code;
+    } else {
+        code = &data_801a6966;
+        byte = *code & 0xff;
+        nib = *code;
+    }
     /* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
     do {
-        if (game_state.field_78->side) {
-            code = &data_801a6972;
-            byte = *code & 0xff;
-            nib = *code;
-        } else {
-            code = &data_801a6966;
-            byte = *code & 0xff;
-            nib = *code;
-        }
         data_80185fc8 = byte;
         data_80185fcc = nib >> 12;
     } while (0);
