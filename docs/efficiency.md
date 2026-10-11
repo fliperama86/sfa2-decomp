@@ -155,6 +155,11 @@ the table are the way around it.
   port's control files for any change under `port/`. Its results are
   keyed by the whole tree under `ps1/`, so one changed file ends every
   reuse.
+  Since 2026-10-11 the port's part of that is done: a change under
+  `port/` selects the control files that name the changed file in
+  `tools/ai_workflow/port_subjects.toml` (and all of them for a file
+  that none names), and a change of control files alone no longer
+  builds the PC program.
 - A case of `difftest.py` costs about the same whatever the size of
   the function: the tool handles the whole of the console's memory for
   every case. (Measured once, on 2026-10-10; not yet profiled in

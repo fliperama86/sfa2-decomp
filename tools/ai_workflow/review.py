@@ -1,6 +1,7 @@
 """Frozen-head check selection and conservative, integrity-checked result reuse."""
 from __future__ import annotations
 
+import ast
 import dataclasses
 import hashlib
 import importlib.metadata
@@ -167,6 +168,79 @@ def function_checks(root: Path, label: str, rel: str, scope: str, changed: list[
     return checks
 
 
+# The control files of the port, and the table that says which files each is about (its header has the rules).
+PORT_CONTROL = re.compile(r'port/tools/test_\w+\.py')
+PORT_SUBJECTS = 'tools/ai_workflow/port_subjects.toml'
+
+
+def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
+    """The control files of the port that a change of `port_changed` (files of `port/`, no page among them) selects.
+
+    Every control file, when the tree has no table; else by the table: the control files that name a changed file (the
+    file itself, a Python file of port/tools it imports, a listed path, or a listed folder above it), the control files
+    that have no line in the table, and every control file as soon as one changed file is named by none and is not one of
+    the table's build-only paths. A listed path that is not in the tree, a listed folder that is not a folder, and a line
+    for a control file that is not there are refused, and so is a tree that has no control file at all."""
+    tools = root / 'port/tools'
+    scripts = sorted(tools.glob('test_*.py'))
+    if not scripts:
+        raise Problem('port code has no discovered controls')
+    table_file = root / PORT_SUBJECTS
+    if not table_file.is_file():
+        return scripts
+    table = tomllib.loads(table_file.read_text())
+    listed = table.get('controls', {})
+    build_only = table.get('build', {}).get('only', [])
+    stems = {s.stem for s in scripts}
+    for stem, entries in listed.items():
+        if stem not in stems:
+            raise Problem(f'{PORT_SUBJECTS} has a line for {stem}, which is not a control file of port/tools')
+        if not isinstance(entries, list) or not all(isinstance(e, str) for e in entries):
+            raise Problem(f'{PORT_SUBJECTS}: the line of {stem} is not a list of paths')
+    if not isinstance(build_only, list) or not all(isinstance(e, str) for e in build_only):
+        raise Problem(f'{PORT_SUBJECTS}: the build-only paths are not a list of paths')
+    for entry in [e for entries in listed.values() for e in entries] + build_only:
+        there = (root / entry).is_dir() if entry.endswith('/') else (root / entry).is_file()
+        if not entry.startswith('port/') or not there:
+            raise Problem(f'{PORT_SUBJECTS} names {entry}, which is not a {"folder" if entry.endswith("/") else "file"} of port/ in this tree')
+
+    direct: dict[Path, list[Path]] = {}
+
+    def imports(script: Path) -> list[Path]:
+        # The Python files of port/tools that `script` imports: every import statement of the file, wherever it stands.
+        # (An import made by a call, such as importlib's, is not seen.) Each file is read once.
+        if script not in direct:
+            try:
+                tree = ast.parse(script.read_text())
+            except SyntaxError as e:
+                raise Problem(f'{script.relative_to(root).as_posix()} is not Python that can be read: {e.msg}') from e
+            modules = [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names] \
+                + [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and n.level == 0]
+            found = [tools / (name.split('.')[0] + '.py') for name in modules]
+            direct[script] = [f for f in found if f.is_file()]
+        return direct[script]
+
+    def imported(script: Path, seen: set[Path]) -> set[Path]:
+        # `script`, what it imports, and what those import.
+        for other in imports(script):
+            if other not in seen:
+                seen.add(other)
+                imported(other, seen)
+        return seen
+
+    def names(entry: str, path: str) -> bool:
+        return path.startswith(entry) if entry.endswith('/') else path == entry
+
+    about = {s: [q.relative_to(root).as_posix() for q in imported(s, {s})] + listed[s.stem] for s in scripts if s.stem in listed}
+    selected = {s for s in scripts if s.stem not in listed}
+    for path in port_changed:
+        hit = {s for s, entries in about.items() if any(names(e, path) for e in entries)}
+        if not hit and not any(names(e, path) for e in build_only):
+            return scripts
+        selected |= hit
+    return [s for s in scripts if s in selected]
+
+
 def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, ...], cc: str | None = None,
                   psyz: str | None = None) -> list[Check]:
     if cases < 1 or len(set(seeds)) < 2:
@@ -216,8 +290,9 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     if harness or reader:
         checks.extend([Check('difftest-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest.py'), 'ps1'),
                        Check('difftest-build-tools', (sys.executable, 'ps1/src/slot06_nonmatching/test_difftest_build.py', '--config', 'ps1/src/build.toml'), 'ps1')])
-    if any(p.startswith('port/') and not p.endswith('.md') for p in changed):
-        for script in sorted((root / 'port/tools').glob('test_*.py')):
+    port_changed = [p for p in changed if p.startswith('port/') and not p.endswith('.md')]
+    if port_changed:
+        for script in port_controls(root, port_changed):
             argv = (sys.executable, script.relative_to(root).as_posix())
             if script.name in ('test_hostlaunch.py', 'test_hostmodules.py', 'test_hostgpu.py', 'test_hostmirror.py', 'test_hostiopage.py', 'test_hostaudio.py', 'test_hostpads.py', 'test_hostbuild.py', 'test_sdkshim.py', 'test_hostreplay.py', 'test_hostfixtures.py', 'test_hostmdec.py', 'test_hostpress.py', 'test_hostprogcalls.py', 'test_hoststream.py', 'test_hostprograms.py', 'test_hostkernel_start.py'):
                 if not cc:
@@ -228,10 +303,9 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
                     raise Problem('graphics, pad and sound chip controls require --psyz-build, not a silent skip')
                 argv += ('--psyz-build', psyz)
             checks.append(Check(script.stem, argv, 'port'))
-        if not checks:
-            raise Problem('port code has no discovered controls')
     game_changed = broad or any(p in owned or any(p.startswith('ps1/src/' + f.name + '/') and p.endswith('.c') for f in folders) for p in changed)
-    if game_changed or any(p.startswith('port/') and not p.endswith('.md') for p in changed):
+    # A control file of the port is no input of the PC program's build: a change of control files alone does not build it.
+    if game_changed or any(not PORT_CONTROL.fullmatch(p) for p in port_changed):
         if not cc:
             raise Problem('native integration requires explicit --cc (32-bit compiler), not a silent skip')
         checks.append(Check('native-build', (sys.executable, 'port/tools/hostbuild.py', '--config', 'ps1/src/build.toml', '--cc', cc, '--build', 'local/ai-native-build'), 'port'))
