@@ -430,6 +430,8 @@ def tables_c(pin: bytes, unpinned: str | None = None) -> str:
         out.append(f'    {{ 0x{a:08x}u, "{name}", {image}, {lib} }},')
     out.append("};")
     out.append(f"const unsigned port_absent_count = {len(abs_)};")
+    out.append("const struct port_builtin_program port_programs[] = { { 0, 0, 0, 0, 0, 0 } };")
+    out.append("const unsigned port_program_count = 0;")
     out.append(f"const unsigned char port_program_sha256[32] = {{ {tl.sha_bytes(pin)} }};")
     return "\n".join(out) + "\n"
 

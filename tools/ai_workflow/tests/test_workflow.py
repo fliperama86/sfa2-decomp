@@ -331,6 +331,14 @@ class Selection(Fixture):
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
 
+    def test_built_in_programs_control_gets_the_compiler_or_refuses(self):
+        self.put('port/tools/test_hostprograms.py', '')
+        self.put('port/src/example.c', '')
+        argv = {c.name: c.argv for c in self.selected(['port/src/example.c'])}
+        self.assertEqual(argv['test_hostprograms'][-2:], ('--cc', 'cc32'))
+        with self.assertRaises(model.Problem):
+            review.select_checks(self.root, ['port/src/example.c'], 2, (1, 7))
+
     def test_sound_chip_controls_get_the_compiler_and_psyz_or_refuse(self):
         self.put('port/tools/test_hostiopage.py', '')
         self.put('port/src/example.c', '')

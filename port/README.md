@@ -843,9 +843,10 @@ port/build/host/sfa2.exe [--skip-programs] DISC
 
 DISC is the `.cue` of the user's disc image, or its `.bin`; from a Linux
 shell under WSL the path is given in Windows form. `--skip-programs` lets
-the game go on past the stand-alone programs of the disc for which no C
-exists (the logo is the first; see "Programs of the disc" below); without
-it the program ends at the first of them and names it.
+the game go on past the stand-alone programs of the disc that have no C
+(the logo is the first; see "Programs of the disc" below); without it the
+program ends at the first of them and names it. A program whose C is built
+in runs with or without the option.
 
 With sound (a build made with `--psyz DIR`; the game's sequenced sound
 needs `--sound-library` as well, see "Sound out"):
@@ -1133,7 +1134,9 @@ routines that do nothing on purpose. What is in this piece:
   `stop: no C yet for the program NAME (disc sector N)`, as it does for
   a function without C. `--skip-programs` goes on instead as if the
   program had returned at once, and prints a line at each skip; that is
-  not what the game does, and it is off unless asked for.
+  not what the game does, and it is off unless asked for. It skips the
+  programs that have no C: a program whose C is built in runs (see
+  "Built-in programs" below).
 
 - The modules. The game loads its modules from the disc into RAM and
   calls into them. The runtime cannot know at start which module will
@@ -2612,6 +2615,33 @@ states with the rules of `stream.h`, the commands the calls sent to the disc
 layer with the text of `CdRead2`. Nothing is compared with the console's
 library or its output; the facts the header states come from reading the
 programs' own copies of the library, and no run on a console was made.
+### Built-in programs
+
+`port/src/programs.c` (header `programs.h`) lets `Exec` start a program of
+the disc whose C is built into the PC program: a row of the generated table
+`port_programs[]` (`port_tables.h`; `hostbuild.py` writes the table always,
+empty when no program is listed, and no program is listed yet).
+`port_h_Exec` finds the file as before and offers it to
+`port_program_exec(name, sector, size, header)`. The row is found by the
+file's base name (after the last `/` or `\`, without a `;N` suffix, case
+ignored). Three checks come before any C of the program runs, and a failed
+check ends the program (status 13) with a line: the SHA-256 of the whole
+file on the disc against the row's (the C was written from another file);
+the 16 bytes of the header at `Exec`'s argument (the fields `pc0`, `gp0`,
+`t_addr`, `t_size`) against the file, and that they lie in the mapped RAM;
+the body, `t_size` bytes from file offset 0x800, which must exist in the
+file, lie in the RAM and equal the RAM at `t_addr`. Then the row's setup
+routine, main (called as `void (*)(void)`), the row's teardown routine, with
+a trace line before and after, and `Exec` returns 1. Nothing else is cleaned
+up after main. A file with no row is handled as before: the stop, or with
+`--skip-programs` the `skipped:` line. A built-in program runs whether or
+not `--skip-programs` is given.
+
+The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
+`overrides.c`, the disc layer and a driver of its own, with a made-up table
+and a made-up disc image of made-up program files, and does through
+`port_h_Exec` what the game does before `Exec`. Nothing is compared with a
+console.
 
 ## Not decided
 

@@ -201,7 +201,7 @@ per program: its name, the base name of its file on the disc in lower case, the 
 declaration, a pointer to main's impl, and the generated routines `port_program_setup_N` and `port_program_teardown_N`
 (null when the list gives none) that make the listed calls in order. Each routine called is declared by the generated
 file as `extern void ROUTINE(unsigned);`, so the runtime's headers need not know it. With no program listed the table is
-empty and the rest of the build is as before.
+still written, empty (the runtime's Exec reads it) and the rest of the build is as before.
 
 The namespace
 -------------
@@ -1376,14 +1376,15 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
                   overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None) -> str:
     """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
     the names of the functions whose row is flagged: the C behind the row is an override of the port's own. `programs`
-    (None: no table at all) adds `port_programs`, the table of the programs that are built in, empty for an empty list."""
+    gives `port_programs`, the table of the programs that are built in; it is always written, empty for no list or an empty one
+    (the runtime's Exec reads it)."""
     archives = archives or {}
-    programs_rows = programs
+    programs_rows = programs or []
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions):
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
-    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows or []):
+    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows):
         out.append(f"extern void {impl}(void);\n")
     if programs_rows:
         out.append("\n")
@@ -1420,13 +1421,12 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
-    if programs_rows is not None:
-        table("port_builtin_program", "port_programs", [
-            "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
-                c_string(r.name), c_string(r.file), n, r.main,
-                f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
-            for n, r in enumerate(programs_rows)
-        ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
+    table("port_builtin_program", "port_programs", [
+        "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
+            c_string(r.name), c_string(r.file), n, r.main,
+            f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
+        for n, r in enumerate(programs_rows)
+    ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
     digest = bytes.fromhex(sha256)
     out.append("const unsigned char port_program_sha256[32] = {\n")
     for i in range(0, 32, 8):

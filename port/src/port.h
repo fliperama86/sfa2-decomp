@@ -137,7 +137,7 @@ void port_stop_main_returned(void);
 #define PORT_EXIT_CRASH   10    /* an unhandled fault (main.c prints where) */
 #define PORT_EXIT_HANG    11    /* the watchdog found no vblank for its time limit */
 #define PORT_EXIT_TARGET  12    /* refused: an address the game handed over is not an installed function */
-#define PORT_EXIT_PROGRAM 13    /* Exec of a program of the disc for which no C exists (--skip-programs continues) */
+#define PORT_EXIT_PROGRAM 13    /* Exec of a program of the disc for which no C exists (--skip-programs continues), or a built-in program that fails its checks (programs.c) */
 #define PORT_EXIT_OTHER   9     /* a library call whose arguments a host routine does not serve */
 
 /* Print `stop: ` and the formatted line, flush, end the program with `status`.
