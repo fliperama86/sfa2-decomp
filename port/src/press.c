@@ -34,6 +34,7 @@ static unsigned dropped;                /* completions dropped for want of a rou
 /* The counts of port_press_report, since the report before: frames handed in, transfers out, completions taken, and completions
  * that a DecDCTReset dropped while they were pending. */
 static unsigned n_frames, n_transfers, n_taken, n_reset;
+static unsigned takes;                  /* completions taken since the start: DecDCTvlc's wait watches it */
 
 /* The span [p, p + n) must lie inside the mapped RAM, else the program stops with the call's name. */
 static void need(const char *call, const char *what, const void *p, unsigned long long n)
@@ -48,6 +49,7 @@ static void run_completion(void)
     void (*f)(void) = port_iopage_dma_callback(1);
     state = 0;
     n_taken++;
+    takes++;
     if (f) {
         port_target_check("decoder output callback", (const void *)f);   /* its address checked now, as iopage.c does for its own */
         f();
@@ -56,10 +58,15 @@ static void run_completion(void)
     }
 }
 
+/* Takes the completion that the caller has marked as taken or that the timer claimed, and after it every completion that the
+ * routine's own DecDCTout made pending with a due time that has passed already (press.h, SEVERAL IN ONE CALL). The state, the due
+ * time and the clock are read after each call of the routine, and run_completion reads the registered routine each time. A
+ * completion whose due time is still ahead stays pending, and one that the timer claimed is left to the delivery. */
 static void take_here(void)
 {
     port_handler_depth++;
-    run_completion();
+    do run_completion();
+    while (state == 1 && port_now_us() >= due_us && __sync_bool_compare_and_swap(&state, 1, 3));
     port_handler_depth--;
 }
 
@@ -76,6 +83,18 @@ static void wait_for_output(void)
         if (!port_interrupt_allowed())
             port_halt(PORT_EXIT_OTHER, "DecDCTout: the completion of the transfer before is pending and no interruption is allowed");
         if (n >= PRESS_WAIT_LIMIT) port_halt(PORT_EXIT_OTHER, "DecDCTout: the transfer before did not complete in %u ticks", PRESS_WAIT_LIMIT);
+        port_tick();
+    }
+}
+
+/* The time a decode of a frame's bitstream takes, as far as a program can tell: see press.h at DecDCTvlc. */
+static void decode_lasts_past_a_pending_transfer(void)
+{
+    unsigned before = takes, n;
+    if (!port_interrupt_allowed()) return;
+    for (n = 0; state != 0 && takes == before; n++) {
+        if (n >= PRESS_WAIT_LIMIT)
+            port_halt(PORT_EXIT_OTHER, "DecDCTvlc: the completion of the output transfer that was pending did not come in %u ticks", PRESS_WAIT_LIMIT);
         port_tick();
     }
 }
@@ -126,6 +145,7 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf)
         unsigned i;
         for (i = 0; i < 64; i++) end[i] = 0xFE00;
     }
+    decode_lasts_past_a_pending_transfer();
     return 0;
 }
 
