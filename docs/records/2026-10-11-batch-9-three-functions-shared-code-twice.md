@@ -1,8 +1,8 @@
 
 ## Batch 9: three functions exact, the shared code written once per path (2026-10-11)
 
-- `func_80078628_slot00` (132 bytes, one placement), from
-  `modules_nonmatching`; `func_801b0904_slot04_04` (168 bytes, second
+- `func_80078628_slot00` (132 bytes, second placement in `slot08` at
+  `0x8008e728`), from `modules_nonmatching`; `func_801b0904_slot04_04` (168 bytes, second
   placement in `slot05_04` at `0x801c8904`), from `modules_nonmatching`;
   its twin `func_801b0904_slot04_12` (168 bytes, second placement in
   `slot05_12` at `0x801c8904`), from `slot04b_nonmatching`. No stand-in.
@@ -49,7 +49,8 @@
   - `slot00_8628x_r1`: `baseline 132 bytes at 0x80078628, built 132 bytes at 0x80078628, 0 differing instruction slots: IDENTICAL`
   - `slot04_04_0904x_r1`: `baseline 168 bytes at 0x801b0904, built 168 bytes at 0x801b0904, 0 differing instruction slots: IDENTICAL`
   - `slot04_12_0904x_r1`: `baseline 168 bytes at 0x801b0904, built 168 bytes at 0x801b0904, 0 differing instruction slots: IDENTICAL`
-  `matchbuild.py --image` for `slot00`, `slot04_04`, `slot05_04`,
+  `matchbuild.py --image` for `slot00`, `slot08` (run after the review named that placement, on
+  the final tree), `slot04_04`, `slot05_04`,
   `slot04_12`, `slot05_12`: `RESULT: PASS` each (on the tree before
   main's `b1b6a44` was merged in; that merge adds one library unit and
   a tool option and changes none of these images' inputs). The
