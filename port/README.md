@@ -2655,6 +2655,81 @@ completion at once, this one only after the due time. A `DecDCTout` that
 finds the transfer before still pending waits for it by ticking, so that
 completion too comes at its due time and not at the clock of the second call.
 
+Several completions in one call, since 2026-10-11. The routine of a
+completion starts the frame's next transfer. When that transfer's due time
+has passed as well, its completion is taken in the same call, by the poll
+and by the timer's delivery alike, and so on until a due time is still
+ahead or the routine starts nothing; no completion is taken before its due
+time, and one that the timer has claimed is left to the delivery. The
+state, the due time, the clock and the registered routine are read again
+after every call of the routine. On the console the interrupt of a transfer
+that is done is taken as soon as the routine before returns (inferred from
+how the console takes a pending interrupt; not measured on one). Here the
+poll comes after a sleep of up to 2 ms (`port_tick`) and the timer's round
+waits 1 ms (`interrupt.c`), while the transfers of a frame of the logo's
+are due 0.8 ms apart (15 macroblocks each), so with one completion a round
+the 20 transfers of a frame were not done within the frame's time.
+`interrupt.c` and the tick of `kernel.c` are as they were.
+
+The time of the bitstream decode, since 2026-10-11. Both movie programs
+start a frame's first transfer, call `DecDCTvlc` for the next frame, and
+then wait while a flag is not 0, which the transfers' routine sets to 1
+when it starts a further transfer and to 0 after the last. On the console
+that call lasts long enough for the first transfer's routine to have run
+(inferred from the sizes: a frame of 300 macroblocks is 1,800 blocks with a
+DC value and an end code each at least, read in software, against one
+transfer of 15 macroblocks by the chip; not measured on a console). On a PC
+it takes microseconds: the flag was still 0, the logo's program did not
+wait, and its next `DecDCTReset` came while transfers of the frame were
+still to come. So `port_DecDCTvlc`, once its output is written, ticks until
+one completion has been taken, when one is pending and an interruption is
+allowed. It does not wait for the frame's other transfers, nor where no
+interruption is allowed, nor when its result is -1; if no completion comes
+in 100,000 ticks the program stops with a line that names the call. No
+other time is modelled.
+
+The line of counts. When a built-in program has returned the output has one
+line, `decoder: program NAME: F frames, T transfers, C completions taken, R
+dropped by a reset` (`port_press_report`; the counts begin again at 0): the
+frames handed to the chip, the transfers started, the completions taken,
+and the completions that a `DecDCTReset` found pending and dropped. A frame
+of the logo's is 20 transfers.
+
+What was measured, 2026-10-11, with the user's disc: 14 starts without a
+window and with `--skip-programs --audio-dump FILE`, one at a time, each
+ended by its time limit (status 124), none with a line beginning `stop` or
+`refused`. Seven were of a build of this change's first commit `aaf2a5c`,
+which has the line of counts and nothing else ("before"), and seven of a
+build of commit `804ebf7`, the whole change merged with main `293de95`
+("after"). One start of each was 150 seconds long, two were 16 seconds
+(past the logo's end) and four were 7 seconds (for the sound's start only).
+- The logo, before, in the three starts that reached its end: `196 frames,
+  3709 transfers, 3667 completions taken, 42 dropped by a reset`, then 198
+  frames with 47 dropped and 194 frames with 56. After: `195 frames, 3900
+  transfers, 3900 completions taken, 0 dropped by a reset`, then twice `198
+  frames, 3960 transfers, 3960 completions taken, 0 dropped by a reset`:
+  20 transfers for every frame each time.
+- The count of frames differs from start to start in both builds. By the
+  program's C a run that takes every frame from 1 to 280 hands 198 to the
+  chip (for frames 173 to 254 it expands a stored picture instead; that
+  the stream numbers its frames from 1 is inferred from this count). Why a
+  start takes fewer was not looked at.
+- The opening movie, which the game starts twice in 150 seconds. Before:
+  `820 frames, 16399 transfers, 16399 completions taken, 0 dropped by a
+  reset` and `820 frames, 16391 transfers, 16391 completions taken, 0
+  dropped by a reset`. After, both times: `820 frames, 16400 transfers,
+  16400 completions taken, 0 dropped by a reset`.
+- The sound, read from the dumps by a private script (no command of this
+  repository repeats it). The first sample that is not 0 came in vblank 42
+  to 49 of the dump in the seven starts before and in vblank 42 to 50 in
+  the seven after: the logo's start varies from start to start, with the
+  change and without it. From that sample on, every dump equals the first
+  one sample for sample for 9.26 seconds or more, or up to its own last
+  0.03 seconds when it is shorter than that; the logo's sound lasts about
+  9.28 seconds.
+Nobody watched or listened, the window's own picture was not seen, and
+nothing was compared with a console.
+
 The controls. `port/tools/test_hostpress.py --cc CC --psyz-build DIR`
 builds `press.c`, `mdec.c` and the chip core (from the source copy in the
 library build; the library is not changed) with a driver of its own that
@@ -2662,8 +2737,9 @@ maps the RAM at its address and supplies a clock the test sets and the
 rest of what `press.c` takes from the runtime. It runs the layout of
 `DecDCTvlc`, the word after each mode of `DecDCTin`, strips of
 `DecDCTout`, the completion (due times, the poll, the timer's claim, once
-only, the routine that starts the next transfer), `DecDCTReset` and
-`DecDCToutCallback`. `DecDCTin`'s refusal by the chip cannot be reached
+only, the routine that starts the next transfer, the ones taken in the same
+call), the wait of `DecDCTvlc` for a transfer that is pending, the line of
+counts, `DecDCTReset` and `DecDCToutCallback`. `DecDCTin`'s refusal by the chip cannot be reached
 with the checks before it, so no case gives it.
 ### The logo program's small library routines
 
@@ -2787,7 +2863,8 @@ the body, `t_size` bytes from file offset 0x800, which must exist in the
 file, lie in the RAM and equal the RAM at `t_addr`. Then the callback layer is marked as not started
 (`port_callbacks_program_start`, `kernel.c`; see below), the row's setup
 routine, main (called as `void (*)(void)`), the row's teardown routine, with
-a trace line before and after, and `Exec` returns 1. Nothing else is cleaned
+a trace line before and after, then the movie decoder's line of counts
+(`port_press_report`, see "Sony's calls"), and `Exec` returns 1. Nothing else is cleaned
 up after main. A file with no row is handled as before: the stop, or with
 `--skip-programs` the `skipped:` line. A built-in program runs whether or
 not `--skip-programs` is given.
@@ -2852,7 +2929,8 @@ The controls. `port/tools/test_hostprograms.py --cc CC` builds the file with
 `overrides.c`, the disc layer and a driver of its own, with a made-up table
 and a made-up disc image of made-up program files, and does through
 `port_h_Exec` what the game does before `Exec`; its stand-in for
-`port_callbacks_program_start` prints a line. The effect of the routine is
+`port_callbacks_program_start` prints a line, as does its stand-in for
+`port_press_report`. The effect of the first routine is
 checked by `port/tools/test_hostkernel_start.py --cc CC`, which includes the
 real `kernel.c`. Nothing is compared with a console.
 
