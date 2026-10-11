@@ -5817,6 +5817,14 @@ functions = [
 ]
 
 [[unit]]
+name = "d2fd80_r1"
+source = "d2fd80_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8012fd80", address = 0x8012fd80, size = 224 },
+]
+
+[[unit]]
 name = "v22_r2"
 source = "v22_r2.c"
 flags = ["-O2", "-G0"]
