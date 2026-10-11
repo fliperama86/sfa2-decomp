@@ -8685,11 +8685,30 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libgpu_sys_p8"
+source = "sdk/libgpu/sys_p8.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "get_mode", address = 0x80158d28, size = 92 },
+  { name = "get_cs", address = 0x80158d84, size = 204 },
+  { name = "get_ce", address = 0x80158e50, size = 204 },
+  { name = "get_ofs", address = 0x80158f1c, size = 72 },
+]
+
+[[unit]]
 name = "sdk_libgpu_sys_p3"
 source = "sdk/libgpu/sys_p3.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
 functions = [
   { name = "get_tw", address = 0x80158f64, size = 132 },
+]
+
+[[unit]]
+name = "sdk_libgpu_sys_p9"
+source = "sdk/libgpu/sys_p9.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "get_dx", address = 0x80158fe8, size = 188 },
 ]
 
 [[unit]]
