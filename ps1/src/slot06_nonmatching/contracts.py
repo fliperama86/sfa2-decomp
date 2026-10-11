@@ -408,8 +408,9 @@ def fill(state, address: int, size: int, rng) -> None:
 def setup_func_801e9080_slot06_00(state, rng, sym) -> Setup:
     """a0 is an object that selects a layer, and a grid of cells to draw.
 
-    Reads and writes are listed in the header comment of
-    func_801e9080_slot06_00.c. Choices made here:
+    Reads and writes are listed in the header comment of control_base.c
+    (the function is exact now; the build controls use this contract with
+    that file's text). Choices made here:
       - game_state.field_64 is 0 in nine cases of ten and random otherwise
         (the function returns at once when it is not 0);
       - the layer blocks hold random field_12 and field_16;
