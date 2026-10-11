@@ -16,8 +16,9 @@
   The original's instructions show no such use.
 - What closed it: a use that the same pass then removes. The first test
   behind the two calls reads `game_state.field_17`; with a term ORed to
-  it that is 0 for every value of the pointer, `(((u32)t << 24) &
-  0x100)`, the step and the copy stay two instructions, and the term
+  it that is 0 for every value of the pointer,
+  `(((u32)(unsigned long long)t << 24) & 0x100)`, the step and the
+  copy stay two instructions, and the term
   leaves no instruction (the pass reduces it to 0 after it has left the
   step alone). Read under the guide's "an operation that has no effect
   and no instruction in the original", with the general label (choice
@@ -36,8 +37,20 @@
   holds the constant 0 that the loop stores, under the guide's comment
   for a local that holds a constant. Without it (0 written in the
   loop): 916 bytes, 14 slots.
-- For the PC program: the term is 0 for every value, with an unsigned
-  shift, so the test is the plain one on any compiler.
+- For the PC program, corrected after the review of the first head:
+  the first form converted the pointer straight to 32 bits. Where
+  pointers are wider than that, such a conversion is not defined, so
+  the claim that the term is 0 on every compiler did not hold for a
+  64-bit PC. The pointer now goes to the widest unsigned integer first
+  and from there to 32 bits (the defined narrowing of an unsigned
+  integer); the shift is unsigned. The reviewer found that form
+  identical; the unit was built again with it and is identical, and
+  the figure without the term is the same (924 bytes, 5 slots). A
+  comment in the unit explains the intermediate conversion.
+- The comment of the constant local `blank` stood at its declaration.
+  It stands directly above the statement that sets it now, as the
+  guide's rule for such a local says, with the measurement in a
+  comment beside it (14 slots, measured again on this text).
 - Against the candidate, to stand on the published headers: the input
   block is taken through a cast of the declared array, and
   `func_801246a4` gets its first argument through a cast to the
