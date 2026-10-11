@@ -946,6 +946,23 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     next branch; an earlier form of the unit with that later value in
     `v1` had the `andi` in the first slot. With the registers right the
     `nop` is there.
+  - An argument copy (`move a0,s0`) before the first call of a block
+    where the build has none, the code of the other path reading the
+    object through `a0` without a copy of its own, and the copy in the
+    delay slot of the second of two tests. The same code stood twice
+    in the source, once for each test that leads to it:
+    `if (!a) { other } else if (b) { block } else { other }`. After
+    register allocation the compiler deletes a copy `a0 = s0` when it
+    finds the entry copy `s0 = a0` behind it with no label, no set of
+    either register and no call between (inferred from jump.c, the
+    no-op move deletion, and reload.c, `find_equiv_reg`). The first
+    `other` is the fall-through of the first test, so its copy goes and
+    it reads `a0`; the block stands behind a label and keeps its copy;
+    the two copies of `other` are then merged into one (cross-jumping),
+    and the pass that fills delay slots puts the second one's copy into
+    the second branch's slot. With one arm for both tests
+    (`if (a && b) { block } else { other }`), `func_80078628_slot00`
+    differs in 5 slots and `func_801b0904_slot04_04` and its twin in 6.
   - A third argument and the object in one register, or a flag that the
     build turns into a compare: the call written once in each arm of the
     test with its literal argument, no flag local
