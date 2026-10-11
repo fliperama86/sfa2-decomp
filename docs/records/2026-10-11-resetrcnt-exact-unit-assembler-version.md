@@ -75,6 +75,6 @@
     on the pull request's first head (the tool, its controls and the
     configuration's version lines are the same in the final one).
   - The map's render:
-    `overall: 5528/5600 distinct functions exact (98.7%); 12975/13072 placements (99.3%); 1763236/1809836 code bytes (97.4%)` (with main at `162272e` merged in).
+    `overall: 5529/5600 distinct functions exact (98.7%); 12977/13072 placements (99.3%); 1763484/1809836 code bytes (97.4%)` (with main at `cc331a8` merged in).
   The whole control set of the build tool was not run. No PC build, no
   differential test, no game.
