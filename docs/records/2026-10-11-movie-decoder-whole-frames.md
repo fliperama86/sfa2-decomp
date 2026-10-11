@@ -80,7 +80,7 @@ for the decoder's calls, and had none for the new one, so the first of the
 tool's checks (`test_hostaudio.py`) did not link. The rig has the stand-in
 now, a routine that does nothing.
 
-Seen and not explained: now and then a run of `test_hostprograms.py` has
+Seen, and what it is: now and then a run of `test_hostprograms.py` has
 one case whose driver ends with status 1 and no line of output, ten
 seconds late (`FAIL NAME: status 1, lines []`, the run 14 seconds long
 and not 4). Here that was 4 of the first 16 runs, a different case each
@@ -88,26 +88,18 @@ time (the first one's name was not kept; the others were
 `ram_body_first_difference_is_named`,
 `decoder_report_once_with_the_programs_name_after_everything_else` and
 `disc_changed_file_stops_before_the_header_is_compared`), and none of 48
-runs after them, which were of a copy of the test that would have kept
-the driver's error output. Status 1 is not one that the driver's own code
-gives (0, 2, 3, 64, or the status of a stop, with its line), which points
-at the start of the Windows program from the Linux side; that is not
-confirmed. The mutant that ran into the time limit above may be the same
-thing. Whether main has it was not tried.
-
-Changes made on purpose, by a private script: 53 of `press.c` and
-`programs.c`, one at a time on a scratch copy of `port/src`, each run of
-a test under a time limit of 150 seconds and a memory limit. In the last
-run of all 53: 52 failed a named case; 1 (the line of counts asked for
-with the first row's name instead of the program's) ran into the time
-limit with no case named. That one, run alone three more times, failed
-the named case `decoder_report_once_with_the_programs_name_after_
-everything_else` each time. A first run of 46 had left 5 that no case
-noticed (a call that takes three completions and no more; a claimed
-completion taken by the call; the wait's limit ten times as long; the
-wait's count set to 0 by the line of counts; frames counted at the first
-transfer) and 4 that did not build; a case was written for each of the 5,
-and the 4 were repaired.
+runs after them. Status 1 is not one that the driver's own code gives.
+Two later runs of the review tool stopped at other tests in the same way
+(`test_hostfixtures.py` with cases that got no answer in their time, then
+`test_hostaudio.py`), and the second one's log has the error output of
+its two cases: `WSL (...) ERROR: UtilAcceptVsock:271: accept4 failed
+110`. That is the start of a Windows program from the Linux side timing
+out (110 is the system's number for a time-out), before any code of the
+test's program runs. Run alone after that, `test_hostaudio.py` passed
+three times, and `test_hostfixtures.py` failed once more, with four other
+cases, and then passed. 60 starts of an empty Windows command in a row,
+made after them, all worked in 2 seconds. Why the starts time out in bursts was not found. The
+mutant that ran into the time limit above may be the same thing.
 
 Not right, or not known:
 
