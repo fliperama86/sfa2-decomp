@@ -14945,6 +14945,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot27_791cx_r1"
+image = "slot27"
+source = "slot27/slot27_791cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001791c_slot27", address = 0x8001791c, size = 680 },
+]
+
+[[unit]]
 name = "slot27_39a8x_r1"
 image = "slot27"
 source = "slot27/slot27_39a8x_r1.c"
@@ -23814,6 +23823,15 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80010838_slot01", address = 0x80010838, size = 56 },
   { name = "func_80010870_slot01", address = 0x80010870, size = 100 },
+]
+
+[[unit]]
+name = "slot01_08d4x_r1"
+image = "slot01"
+source = "slot01/slot01_08d4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800108d4_slot01", address = 0x800108d4, size = 796 },
 ]
 
 [[unit]]
@@ -38521,6 +38539,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_0a_03e4x_r1"
+image = "slot04_0a"
+source = "slot04_0a/slot04_0a_03e4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b03e4_slot04_0a", address = 0x801b03e4, size = 188 },
+]
+
+[[unit]]
 name = "slot04_0a_031c_r3"
 image = "slot04_0a"
 source = "slot04_0a/slot04_0a_031c_r3.c"
@@ -40276,6 +40303,78 @@ source = "d3f8c4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013f8c4", address = 0x8013f8c4, size = 496 },
+]
+
+[[unit]]
+name = "v3_r5"
+source = "v3_r5.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801364a0", address = 0x801364a0, size = 456 },
+]
+
+[[unit]]
+name = "d34234_r1"
+source = "d34234_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80134234", address = 0x80134234, size = 1008 },
+]
+
+[[unit]]
+name = "v7_r3"
+source = "v7_r3.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80119694", address = 0x80119694, size = 132 },
+]
+
+[[unit]]
+name = "d189c4_r2"
+source = "d189c4_r2.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011a880", address = 0x8011a880, size = 868 },
+]
+
+[[unit]]
+name = "d545cc_r1"
+source = "d545cc_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801545cc", address = 0x801545cc, size = 940 },
+]
+
+[[unit]]
+name = "d3ed90_r1"
+source = "d3ed90_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ed90", address = 0x8013ed90, size = 240 },
+]
+
+[[unit]]
+name = "d3eb28_r1"
+source = "d3eb28_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013eb28", address = 0x8013eb28, size = 204 },
+]
+
+[[unit]]
+name = "d3ec50_r1"
+source = "d3ec50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013ec50", address = 0x8013ec50, size = 204 },
+]
+
+[[unit]]
+name = "d1fa50_r1"
+source = "d1fa50_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011fa50", address = 0x8011fa50, size = 144 },
 ]
 
 [[unit]]

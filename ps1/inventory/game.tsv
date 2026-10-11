@@ -18,7 +18,7 @@
 80119444	72	func_80119444	-	disc	0	0	closed
 8011948c	104	func_8011948c	-	-	0	0	closed
 801194f4	416	func_801194f4	graphics	graphics	0	0	closed
-80119694	132	-	-	-	0	0	closed
+80119694	132	func_80119694	-	-	0	0	closed
 80119718	292	func_80119718	-	-	0	0	closed
 8011983c	432	func_8011983c	graphics	disc,graphics,sound,system,threads,unidentified	0	0	open
 801199ec	328	func_801199ec	graphics	disc,graphics,sound,threads	0	0	closed
@@ -38,7 +38,7 @@
 8011a744	56	func_8011a744	-	graphics	0	0	closed
 8011a77c	8	func_8011a77c	-	-	0	0	closed
 8011a784	252	func_8011a784	-	graphics	0	0	open
-8011a880	868	-	-	graphics	0	0	closed
+8011a880	868	func_8011a880	-	graphics	0	0	closed
 8011abe4	216	func_8011abe4	-	graphics	0	0	closed
 8011acbc	2264	-	-	graphics	0	19	open
 8011b594	228	func_8011b594	-	graphics	0	0	closed
@@ -102,7 +102,7 @@
 8011f96c	40	func_8011f96c	-	-	0	0	closed
 8011f994	140	func_8011f994	-	-	0	0	closed
 8011fa20	48	func_8011fa20	-	-	0	0	closed
-8011fa50	144	-	-	-	0	0	closed
+8011fa50	144	func_8011fa50	-	-	0	0	closed
 8011fae0	144	func_8011fae0	-	-	0	0	closed
 8011fb70	144	func_8011fb70	-	-	0	0	closed
 8011fc00	84	func_8011fc00	-	graphics	0	0	closed
@@ -575,7 +575,7 @@
 8013411c	56	func_8013411c	-	-	0	0	closed
 80134154	112	func_80134154	-	-	0	0	closed
 801341c4	112	func_801341c4	-	-	0	0	closed
-80134234	1008	-	graphics	graphics	0	0	open
+80134234	1008	func_80134234	graphics	graphics	0	0	open
 80134624	400	func_80134624	graphics	graphics	0	0	closed
 801347b4	1760	-	graphics	graphics	0	0	closed
 80134e94	556	func_80134e94	-	-	0	0	closed
@@ -598,7 +598,7 @@
 8013635c	80	func_8013635c	-	-	0	0	closed
 801363ac	88	func_801363ac	-	-	0	0	closed
 80136404	156	func_80136404	-	-	0	0	closed
-801364a0	456	-	-	-	0	0	closed
+801364a0	456	func_801364a0	-	-	0	0	closed
 80136668	108	func_80136668	-	-	0	0	closed
 801366d4	112	func_801366d4	-	-	0	0	closed
 80136744	340	-	-	-	0	0	closed
@@ -793,11 +793,11 @@
 8013e84c	248	func_8013e84c	-	-	0	0	closed
 8013e944	400	func_8013e944	-	-	0	0	closed
 8013ead4	84	func_8013ead4	-	-	1	0	open
-8013eb28	204	-	-	-	0	0	closed
+8013eb28	204	func_8013eb28	-	-	0	0	closed
 8013ebf4	92	func_8013ebf4	-	-	0	0	closed
-8013ec50	204	-	-	-	0	0	closed
+8013ec50	204	func_8013ec50	-	-	0	0	closed
 8013ed1c	116	func_8013ed1c	-	-	0	0	closed
-8013ed90	240	-	-	-	0	0	closed
+8013ed90	240	func_8013ed90	-	-	0	0	closed
 8013ee80	84	func_8013ee80	-	-	1	0	open
 8013eed4	84	func_8013eed4	-	-	0	0	closed
 8013ef28	292	func_8013ef28	-	-	0	0	closed
@@ -1400,7 +1400,7 @@
 80154364	324	func_80154364	system	system	0	0	closed
 801544a8	220	func_801544a8	system	system	0	0	closed
 80154584	72	func_80154584	-	-	1	0	open
-801545cc	940	-	-	sound,unidentified	0	0	closed
+801545cc	940	func_801545cc	-	sound,unidentified	0	0	closed
 80154978	32	func_80154978	-	-	0	0	closed
 80154998	1776	func_80154998	-	disc,graphics,sound,unidentified	0	0	open
 80155088	40	func_80155088	-	disc,sound,unidentified	0	0	closed
