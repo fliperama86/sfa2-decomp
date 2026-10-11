@@ -165,6 +165,29 @@ loses that first; and the pull request gives the measurement without the
 wrapper. `grep -rn "while (0)" src` lists the uses (and one of the SDK
 library's own, in `sdk/libsnd/vmanager_p1.c`).
 
+The same wrapper does a second thing, and for that use it has a comment
+of its own. Its two ends are places that the compiler's scheduling
+passes do not move an instruction across ("What this compiler does" has
+the rule). So it can also stand in a function whose only difference from
+the original is the order of instructions in one block: an instruction
+that the build puts before a group of others where the original has it
+after them, or the reverse. It is the last resort there too, after the
+ordinary reasons were looked for and not found: the order of the
+statements, a store written at the end of each arm of an `if` instead of
+once after it, a value read at its use or into a local, a local assigned
+at one place or at two. This comment stands directly above it:
+
+```c
+/* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+```
+
+The rules are the ones above: the smallest group of whole statements
+that belongs together, the plainest form inside and around it, and the
+measurement without the wrapper in the pull request, which also says
+which of the two comments the wrapper carries and why. The count of
+instructions may differ without it (the compiler fills or empties a
+delay slot when the order changes); the wrapper itself emits none.
+
 One construct is accepted for one case: a call that passes another number
 of arguments than the callee's definition has. Every function of the tree
 is declared with a prototype, so such a call cannot be written plainly. It
@@ -856,6 +879,17 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     loop_depth`). A `do { } while (0)` makes no loop code, but its loop
     note stays (`NOTE_INSN_LOOP_BEG` in the `.lreg` dump), and the
     references inside it counted twice in the two functions measured.
+    The same loop note is a barrier for the two scheduling passes
+    (`sched.c`, `sched_analyze_insn`: with a loop note in the middle of
+    a block, the instruction after the note is made to depend on every
+    earlier one, and every later one on it, "to be sure that no
+    instructions are scheduled across it"). So the wrapper also fixes
+    which instructions stand before and after its two ends. Measured in
+    one function, `func_801254f4`: without the wrapper the load that
+    reads a word back stands before the two stores of the group, where
+    the original has it after them, and 26 of 100 instruction lines
+    differ; the dumps `-dS` and `-dR` (files `.sched` and `.sched2`)
+    list every choice the scheduler makes, block by block.
     The dump's lines `Register N used R times across L insns` give both
     numbers: read them and do the division before trying forms.
     `func_801427d8`: without the wrapper the limit has 7 references over
