@@ -139,6 +139,32 @@ The comment means what it says. An exact build with the array shows that
 this source is compatible with the original's bytes, not what the original
 source had there. `grep -rn "unused\[" src` lists the uses.
 
+A second stand-in is accepted, by the owner's decision of 2026-10-11: a
+`do { ... } while (0)` around a group of whole statements. It adds no
+instruction. What it changes is the compiler's count of references, and
+with it the order in which values get their registers ("What this
+compiler does" has the rule). It is for a function whose only difference
+from the original is which register holds which value, after the
+ordinary reasons were looked for and not found: the types of the locals,
+the order of statements, a value kept in a local or computed again, one
+local or two. This comment stands directly above it:
+
+```c
+/* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+```
+
+The comment means what it says. A macro of several statements expands to
+this form, and that is the ordinary code a reader may take it for. An
+exact build with the wrapper shows that this source is compatible with
+the original's bytes, not that the original had a macro there. Rules for
+its use: it goes around the smallest group of whole statements that
+belongs together and gives the bytes (the choice of one value, the setup
+of one object); the function is in its plainest form inside and around
+it, so a candidate that held another workaround for the same registers
+loses that first; and the pull request gives the measurement without the
+wrapper. `grep -rn "while (0)" src` lists the uses (and one of the SDK
+library's own, in `sdk/libsnd/vmanager_p1.c`).
+
 One construct is accepted for one case: a call that passes another number
 of arguments than the callee's definition has. Every function of the tree
 is declared with a prototype, so such a call cannot be written plainly. It
@@ -812,6 +838,33 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
     operands are tried in order. In the drawing functions a difference
     written `t = a - t` landed in the register of `t`; written into a
     local of its own it landed in the register of `a`.
+  - Global allocation, for the values that live across basic blocks,
+    takes them in the order of `floor(log2(refs)) * refs / length of
+    life` (times the size), the highest first, each getting the lowest
+    free register it may have; equal values go by the number of the
+    pseudo-register (`global.c`, `allocno_compare`). Two rules move that
+    order without changing one instruction. A register that is set
+    exactly once, by an instruction that carries a constant `REG_EQUAL`
+    note, gets its length of life doubled before the ordering
+    (`local-alloc.c`, `update_equiv_regs`), so a constant kept in a
+    register ranks at half of what its uses suggest. That is read in
+    the source; in the one function where it was looked at, the two
+    constants kept in saved registers both carried the note, with
+    lengths of 144 and 104 in the dump, and their halves were not
+    measured apart. And a reference is
+    counted once per loop depth (`flow.c`: `reg_n_refs[regno] +=
+    loop_depth`). A `do { } while (0)` makes no loop code, but its loop
+    note stays (`NOTE_INSN_LOOP_BEG` in the `.lreg` dump), and the
+    references inside it counted twice in the two functions measured.
+    The dump's lines `Register N used R times across L insns` give both
+    numbers: read them and do the division before trying forms.
+    `func_801427d8`: without the wrapper the limit has 7 references over
+    40 instructions (2 x 7 / 40 = 0.35) and the halfword read from the
+    object 3 over 6 (0.5), so the halfword gets the lower register, and
+    10 instruction slots differ; with the wrapper around the choice of
+    the limit, its two assignments there count twice, 9 references (3 x
+    9 / 40 = 0.675), the order turns, and the function is exact. "What
+    is allowed" says when the wrapper may be written.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
