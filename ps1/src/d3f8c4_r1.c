@@ -1,0 +1,75 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "game.h"
+#include "protos.h"
+#include "externs.h"
+
+/* What it does (inferred, not original names): for an object whose field_49
+   is non-zero it returns func_8013f474(object, a, b) as a byte when its
+   halfword at offset 4 is 1 and field_06 is 7, 0 when the halfword is 1 and
+   field_06 is not 7, and 1 when the halfword is not 1. Otherwise, with the
+   other object (ref_other) in mode 1 and with a box, it compares two x
+   positions: the object's pos_x plus a (minus a when field_0b is set), and
+   game_state.field_358's pos_x plus the box's origin minus its extent
+   (negated when that object's field_0b is set). It returns
+   func_8013fab4(object) as a byte when they are at most b apart; b grows by
+   4 when field_25e is set, unless the object's halfword at offset 4 is 1
+   and its field_06 is 7 or 8. */
+int func_8013f8c4(Object *object, int a_arg, int b_arg) {
+    s16 a = a_arg; /* the shared prototype takes int */
+    s16 b = b_arg;
+    FrameRecord *frame;
+    Box6 *box;
+    s16 half_width, distance;
+    u16 mode;
+    if (object->field_49 != 0) {
+        if (*(u16 *)&object->field_04 == 1) {
+            if (object->field_06 == 7)
+                return func_8013f474(object, a, b) & 0xff;
+            return 0;
+        }
+    } else {
+        ref_other.p = object->other;
+        if (ref_other.p->field_249 != 0)
+            return 0;
+        if (ref_other.p->field_27b != 0)
+            return 0;
+        mode = *(u16 *)&ref_other.p->field_04;
+        if (mode != 1)
+            return 0;
+        if (game_state.config->field_4e != 0)
+            return 0;
+        if (ref_other.p->field_45 != 0)
+            return 0;
+        frame = ref_other.p->frame;
+        if ((frame->box_a | frame->box_b | frame->box_c) == 0)
+            return 0;
+        if (object->field_0b != 0)
+            a = -a;
+        a = a + object->pos_x;
+        box = &((Box6 *)ref_other.p->unknown_148)[frame->field_07];
+        half_width = box->origin - box->extent;
+        if (*(u16 *)&object->field_04 == mode) {
+            if (object->field_06 == 7)
+                goto keep;
+            if (object->field_06 == 8)
+                goto keep;
+        }
+        /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
+        do {
+            if (object->field_25e != 0)
+                b = b + 4;
+        } while (0);
+    keep:
+        if (game_state.field_358->field_0b != 0)
+            half_width = -half_width;
+        distance = half_width + game_state.field_358->pos_x;
+        a = a - distance;
+        if (a < 0)
+            a = -a;
+        if (b < a)
+            return 0;
+        return func_8013fab4(object) & 0xff;
+    }
+    /* The path with field_49 set and the halfword not 1 ends here. The original has no instruction for this result: it branches to the function's end with the 1 of the comparison still in the result register. The compiler adds none for this line either. Without the line the PS1 code is the same and the result is undefined in C. */
+    return 1;
+}
