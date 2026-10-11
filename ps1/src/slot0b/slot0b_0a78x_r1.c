@@ -45,7 +45,7 @@ void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) 
             y = (-c * (s16)(x + 8) >> 8) + (s * (s16)(y + 8) >> 8) - 8;
             x = nx;
         }
-        /* Exception, not recovered source: the group of whole statements below stands in two nested do-while wrappers. A wrapper makes the compiler count each reference inside it twice, which gives the original's registers for the loop's values; the second, nested wrapper is not one of the two uses the guide accepts. It adds no instruction. Without the nested one this function differs from the original in 18 instruction lines. */
+        /* Stand-in, not recovered source: the pair of nested do-while wrappers (the compiler counts each reference inside twice, and the two levels together give the original's order of the loop's values; one level alone changes nothing) reproduces the original's choice of registers. Without it this function differs from the original in 18 instruction slots. */
         do {
             do {
                 p->field_08 = x + obj->pos_x;
