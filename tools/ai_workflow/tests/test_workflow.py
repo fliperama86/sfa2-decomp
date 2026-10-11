@@ -703,6 +703,189 @@ class StagingAndContext(Fixture):
         with self.assertRaises(model.Problem): model.import_evidence(self.root,[],report)
 
 
+DECLARATION = '''[[program]]
+name = "one"
+file = "../../extract/programs/ONE.EXE"
+disc = "PAC/ONE.EXE"
+[[program]]
+name = "two"
+file = "../../extract/programs/TWO.EXE"
+disc = "PAC/TWO.EXE"
+'''
+
+
+class ProgramFiles(Fixture):
+    """The private file of each stand-alone program: staged when the data root has it, and part of the key."""
+    ONE, TWO = 'ps1/extract/programs/ONE.EXE', 'ps1/extract/programs/TWO.EXE'
+
+    def declare(self, text=DECLARATION):
+        self.put('ps1/src/programs/programs.toml', text)
+
+    def data_root(self, *programs):
+        data = Path(self.tmp.name) / 'inputs'
+        for p in review.config_inputs(self.root):
+            original = data / p.relative_to(self.root)
+            original.parent.mkdir(parents=True, exist_ok=True)
+            if p.name == 'include':
+                original.mkdir(exist_ok=True)
+            else:
+                original.write_text('private fixture')
+        for name in programs:
+            (data / name).parent.mkdir(parents=True, exist_ok=True)
+            (data / name).write_text('made-up program ' + name)
+        return data
+
+    def test_the_declared_files_are_listed_inside_the_checkout(self):
+        self.declare()
+        self.assertEqual(review.program_inputs(self.root), [self.root / self.ONE, self.root / self.TWO])
+
+    def test_a_tree_without_a_declaration_lists_nothing_and_stages_as_before(self):
+        self.assertEqual(review.program_inputs(self.root), [])
+        inputs = review.stage_inputs(self.root, self.data_root())
+        self.assertTrue(all(p.is_symlink() for p in inputs))
+        self.assertFalse((self.root / 'ps1/extract').exists())
+
+    def test_a_program_file_is_linked_when_the_data_root_has_it_and_left_out_when_not(self):
+        self.declare()
+        data = self.data_root(self.ONE)
+        inputs = review.stage_inputs(self.root, data)
+        # The build's inputs are staged as before and are all that is returned.
+        self.assertEqual(inputs, review.config_inputs(self.root))
+        self.assertTrue(all(p.is_symlink() for p in inputs))
+        linked = self.root / self.ONE
+        self.assertTrue(linked.is_symlink())
+        self.assertEqual(linked.read_text(), 'made-up program ' + self.ONE)
+        other = self.root / self.TWO
+        self.assertFalse(other.exists() or other.is_symlink())
+        self.assertFalse((data / self.ONE).is_symlink())
+
+    def test_a_tracked_file_is_never_replaced(self):
+        self.declare()
+        self.put(self.ONE, 'tracked')
+        self.git('add', '-f', self.ONE)
+        review.stage_inputs(self.root, self.data_root(self.ONE, self.TWO))
+        self.assertFalse((self.root / self.ONE).is_symlink())
+        self.assertEqual((self.root / self.ONE).read_text(), 'tracked')
+        self.assertTrue((self.root / self.TWO).is_symlink())
+
+    def test_a_dangling_link_and_a_directory_at_a_program_path_are_not_replaced_or_linked(self):
+        self.declare()
+        data = self.data_root(self.TWO)
+        (data / self.ONE).mkdir(parents=True)
+        dangling = self.root / self.TWO
+        dangling.parent.mkdir(parents=True, exist_ok=True)
+        dangling.symlink_to(Path(self.tmp.name) / 'nowhere')
+        review.stage_inputs(self.root, data)
+        self.assertFalse((self.root / self.ONE).is_symlink() or (self.root / self.ONE).exists())
+        self.assertEqual(dangling.readlink(), Path(self.tmp.name) / 'nowhere')
+
+    def test_a_relative_data_root_gives_a_link_that_leads_to_the_file(self):
+        self.declare()
+        data = self.data_root(self.ONE)
+        import os
+        here = os.getcwd()
+        os.chdir(data.parent)
+        try:
+            review.stage_inputs(self.root, Path('inputs'))
+        finally:
+            os.chdir(here)
+        self.assertTrue(Path((self.root / self.ONE).readlink()).is_absolute())
+        self.assertEqual((self.root / self.ONE).read_text(), 'made-up program ' + self.ONE)
+
+    def test_a_missing_build_input_still_refuses_with_programs_declared(self):
+        self.declare()
+        with self.assertRaises(model.Problem):
+            review.stage_inputs(self.root, self.root / 'absent')
+
+    def test_absolute_home_and_outside_paths_are_refused(self):
+        for ref in ('/etc/passwd', '~/x', '~', '../../../../outside/X.EXE', '../../../..'):
+            with self.subTest(ref=ref):
+                self.declare(DECLARATION.replace('../../extract/programs/ONE.EXE', ref))
+                with self.assertRaises(model.Problem):
+                    review.program_inputs(self.root)
+                with self.assertRaises(model.Problem):
+                    review.stage_inputs(self.root, self.data_root())
+
+    def test_an_absolute_path_is_refused_even_inside_the_checkout(self):
+        self.declare(DECLARATION.replace('../../extract/programs/ONE.EXE', str(self.root / self.ONE)))
+        with self.assertRaises(model.Problem):
+            review.program_inputs(self.root)
+
+    def test_a_declaration_that_cannot_be_read_or_has_no_file_is_a_problem_that_names_it(self):
+        for text in ('[[program\nname=', '[[program]]\nname = "one"\n', '[[program]]\nfile = 3\n', 'program = 3\n', 'program = [1]\n', '[[program]]\nfile = ""\n'):
+            with self.subTest(text=text):
+                self.declare(text)
+                with self.assertRaises(model.Problem) as raised:
+                    review.program_inputs(self.root)
+                self.assertIn('programs.toml', str(raised.exception))
+        self.declare('')
+        self.assertEqual(review.program_inputs(self.root), [])
+
+    def key(self, name='programs-one-diff-1'):
+        # The key as the tool builds it. The scope `workflow` keeps the build's tools out of it: the programs'
+        # part is added before them and does not depend on the scope.
+        check = review.Check(name, ('python', '--cases', '2', '--seed', '1'), 'workflow', ('f',), 'differential')
+        return review.key_of(review.fingerprint(self.root, check))
+
+    def test_the_key_of_a_programs_check_follows_the_files_content_and_presence(self):
+        self.declare()
+        absent = self.key()
+        self.put(self.ONE, 'first')
+        first = self.key()
+        self.assertNotEqual(first, absent)
+        self.assertEqual(self.key(), first)
+        self.put(self.ONE, 'second')
+        second = self.key()
+        self.assertNotEqual(second, first)
+        # The other program's file counts as well, and a file that goes away makes the first key again.
+        self.put(self.TWO, 'other')
+        self.assertNotEqual(self.key(), second)
+        (self.root / self.TWO).unlink()
+        self.assertEqual(self.key(), second)
+        (self.root / self.ONE).unlink()
+        self.assertEqual(self.key(), absent)
+        # A staged link counts by the content it leads to.
+        target = Path(self.tmp.name) / 'elsewhere'
+        target.write_text('second')
+        (self.root / self.ONE).symlink_to(target)
+        self.assertEqual(self.key(), second)
+        target.write_text('moved')
+        self.assertNotEqual(self.key(), second)
+
+    def test_the_key_tells_the_files_apart_by_name_and_a_directory_is_no_file(self):
+        self.declare()
+        self.put(self.ONE, 'a')
+        self.put(self.TWO, 'b')
+        before = self.key()
+        self.put(self.ONE, 'b')
+        self.put(self.TWO, 'a')
+        self.assertNotEqual(self.key(), before)
+        (self.root / self.ONE).unlink()
+        (self.root / self.TWO).unlink()
+        absent = self.key()
+        # An empty file is a file, not an absence; a directory at the path is read as an absence.
+        self.put(self.ONE, '')
+        self.assertNotEqual(self.key(), absent)
+        (self.root / self.ONE).unlink()
+        (self.root / self.ONE).mkdir()
+        self.assertEqual(self.key(), absent)
+
+    def test_the_key_of_a_check_that_reads_no_program_does_not_hold_them(self):
+        bare = self.key('matching')
+        self.declare()
+        self.assertEqual(self.key('matching'), bare)
+        self.put(self.ONE, 'first')
+        self.assertEqual(self.key('matching'), bare)
+        self.put(self.ONE, 'second')
+        self.assertEqual(self.key('matching'), bare)
+        # With no declaration the key of a programs check is what it was before: no programs part.
+        (self.root / 'ps1/src/programs/programs.toml').unlink()
+        self.assertEqual(review.program_state(self.root, review.Check('programs-one-diff-1', ('x',), 'ps1')), [])
+        with patch.object(review, 'program_state', lambda root, check: []):
+            before_the_change = self.key('programs-one-diff-1')
+        self.assertEqual(self.key('programs-one-diff-1'), before_the_change)
+
+
 class LedgerFixture(Fixture):
     def test_categories_data_and_partial_ranges(self):
         config=CFG+'\n[[unit]]\nname="data"\nsource="data.c"\nrodata={address=2148532240,size=8}\n[[unit]]\nname="assembly"\nsource="entry.s"\nkind="asm"\nfunctions=[{name="entry",address=2148532256,size=8}]\n[[unit]]\nname="partial"\nsource="part.c"\nfunctions=[{name="part",address=2148532276,size=4}]\n[[unit]]\nname="sdk"\nsource="sdk/lib.c"\nfunctions=[{name="sdk",address=2148532288,size=8}]\n'

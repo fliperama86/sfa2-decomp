@@ -29,8 +29,12 @@ results stay under ignored `local/ai-workflow/` by default.
   tested nonmatching C. Second placements and raw/assembly/data exceptions
   remain distinct. No original bytes enter the ledger.
 - `review --base REF --head REF` (or `--pr NUMBER`): freeze the head, resolve
-  private inputs from the supplied local input repository, and select checks
-  from the diff. Matching-input changes use the authoritative matching build.
+  private inputs from the supplied local input repository (the file of each
+  stand-alone program that `ps1/src/programs/programs.toml` names is staged
+  too when that repository has it; a missing one is left out, and the
+  comparison of that program's functions stops with the test tool's own line;
+  the content of each such file is part of the key of those checks), and
+  select checks from the diff. Matching-input changes use the authoritative matching build.
   A changed nonmatching function that has a fixtures file
   (`FUNC.fixtures.json`) gets the replay of its fixtures, which runs no
   original code; one without a file, and one whose contract changed

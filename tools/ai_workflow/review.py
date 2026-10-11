@@ -47,7 +47,41 @@ def config_inputs(root: Path) -> list[Path]:
     return sorted(set(inside(root, directory / ref) for ref in refs))
 
 
+PROGRAM_TOML = 'ps1/src/programs/programs.toml'
+
+
+def program_inputs(root: Path) -> list[Path]:
+    """The private files that the programs' declaration names, as paths inside `root`.
+
+    A `file` is a path relative to the declaration's folder. The list is empty when the tree has no declaration.
+    Whether a file exists is not asked here: the user's copy of a program's file is optional for a review.
+    """
+    declaration = root / PROGRAM_TOML
+    if not declaration.is_file():
+        return []
+    try:
+        programs = tomllib.loads(declaration.read_text()).get('program', [])
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError) as exc:
+        raise Problem(f'{PROGRAM_TOML} cannot be parsed: {exc}')
+    if not isinstance(programs, list):
+        raise Problem(f'{PROGRAM_TOML}: program must be an array of tables')
+    refs = []
+    for entry in programs:
+        ref = entry.get('file') if isinstance(entry, dict) else None
+        if not isinstance(ref, str) or not ref:
+            raise Problem(f'{PROGRAM_TOML}: a program has no file')
+        if Path(ref).is_absolute() or '~' in ref:
+            raise Problem('private input must use a repository-relative declaration path')
+        refs.append(ref)
+    return sorted(set(inside(root, declaration.parent / ref) for ref in refs))
+
+
 def stage_inputs(snapshot: Path, data_root: Path) -> list[Path]:
+    """Link the private files a review reads into the frozen copy; returns the build's inputs.
+
+    A program's file is linked when the data root has it and left out when it has not (a replay needs none; a
+    comparison that needs it stops with the test tool's own line). The returned list holds the build's inputs only.
+    """
     inputs = config_inputs(snapshot)
     for target in inputs:
         original = data_root / target.relative_to(snapshot)
@@ -58,6 +92,11 @@ def stage_inputs(snapshot: Path, data_root: Path) -> list[Path]:
             raise Problem('private prerequisite missing: ' + target.relative_to(snapshot).as_posix())
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(original.resolve(), target_is_directory=original.is_dir())
+    for target in program_inputs(snapshot):
+        original = data_root / target.relative_to(snapshot)
+        if not target.is_symlink() and not target.exists() and original.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(original.resolve())
     return inputs
 
 
@@ -368,13 +407,21 @@ def source_files(root: Path, scope: str) -> dict[str, str]:
     return dict(sorted(result.items()))
 
 
+def program_state(root: Path, check: Check) -> list[tuple[str, str]]:
+    """What a check of a program's functions reads of the programs' files: the content of each that exists, and
+    the absence of each that does not. Other checks read none of them and their key does not hold these."""
+    if not check.name.startswith('programs-'):
+        return []
+    return [(p.relative_to(Path(os.path.abspath(root))).as_posix(), digest(p) if p.is_file() else 'absent') for p in program_inputs(root)]
+
+
 def fingerprint(root: Path, check: Check) -> dict:
     """Conservative scope: over-invalidation is preferable to false reuse."""
     if check.scope == 'port':
         raise Problem('native/PsyZ subprocess and platform closure is not resolved; run fresh')
     if any(os.environ.get(k) for k in ('LD_PRELOAD', 'LD_LIBRARY_PATH', 'PYTHONPATH')):
         raise Problem('external loader/import overrides disable result reuse')
-    files = list(source_files(root, check.scope).items())
+    files = list(source_files(root, check.scope).items()) + program_state(root, check)
     implementation = hash_tree(Path(__file__).parent)
     tools = [tool_identity(sys.executable), tool_identity('git')]
     if check.scope in GAME_SCOPES:
