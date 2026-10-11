@@ -61,7 +61,8 @@ void func_800e3478_slot0f(void) {
     data_800f8554_slot0f[6] = opts_8016e685.field_0a;
     data_800f8554_slot0f[7] = opts_8016e685.field_0b;
     {
-        /* Stand-in, not recovered source: the address of the 16 bytes as flag_8016e688 - 0x24 (a distance from another object; table_8016e664 is the object that holds them) reproduces the original's choice of registers (inferred: the register that holds flag_8016e688 is reused as the base). Without it (table_8016e664 written directly) this function differs from the original in 13 instruction slots. */
+        /* Stand-in, not recovered source: the address of the 16 bytes written as flag_8016e688 - 0x24 reproduces the original's choice of registers. Without it this function differs from the original in 13 instruction slots. */
+        /* The 16 bytes are the first two rows of table_8016e664, another object, which lies 0x24 bytes below the flag. The figure is measured with table_8016e664 written directly. Inferred: the original reuses the register that holds the flag's address as the base. */
         u8 (*src)[8] = (u8 (*)[8])((u8 *)q - 0x24);
         for (i = 0; i < 2; i++) {
             for (j = 0; j < 8; j++) {
