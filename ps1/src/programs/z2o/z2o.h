@@ -37,5 +37,31 @@ extern u32 data_8001b354_z2o[][3];
 extern int data_80031e58_z2o;
 /* 0x80049eac: two display environments of 20 bytes each (inferred from the stride). */
 extern u8 data_80049eac_z2o[2][20];
+/* 0x8001b34c: the volume word (inferred: the disc's volume, 0 to 255; set by func_800115a8_z2o; func_80011630_z2o reads its low byte). */
+extern u32 data_8001b34c_z2o;
+/* 0x8001b350: the stereo flag word (inferred: not 0 sets the disc volume to left and right apart; set by func_80011630_z2o). */
+extern int data_8001b350_z2o;
+/* 0x8002f8a4: the four volume bytes handed to CdMix (inferred from the call). */
+extern u8 data_8002f8a4_z2o[4];
+extern int CdMix(u8 *vol);
+extern int CdInit(void);
+extern int CdControlB(u8 com, u8 *param, u8 *result);
+extern u8 *CdIntToPos(int i, u8 *p);
+/* 0x8002f800: the disc mode byte handed to CdControlB(0x0e, ...), the library's CdlSetmode (inferred); set to 0x80 by func_8001139c_z2o. */
+extern u8 data_8002f800_z2o;
+/* 0x8002f804: a pointer word (inferred: the buffer that CdGetSector is handed). */
+extern u32 *data_8002f804_z2o;
+extern void StUnSetRing(void);
+extern int CdReady(int mode, u8 *result);
+extern void CdGetSector(void *madr, int size);
+extern void *DecDCToutCallback(void (*func)(void));
+extern void func_800118f0_z2o(void);
+extern int ResetGraph(int mode);
+extern void SetDispMask(int mask);
+extern void *CdReadCallback(void (*func)(void));
+extern DispEnv *SetDefDispEnv(DispEnv *env, int x, int y, int w, int h);
+extern int ClearImage(Rect *rect, u8 r, u8 g, u8 b);
+extern int DrawSync(int mode);
+extern int VSync(int mode);
 
 #endif

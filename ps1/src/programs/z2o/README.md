@@ -56,7 +56,7 @@ from `0x8002f7f0` up to `0x8008a400` and only then sets the register to
 against the entry code's first two instructions only, so `programs.toml`
 declares none for this program, and the test tool begins each run with the
 register at 0. That is right only for a function that does not use the
-register. The listing of each of the six functions here was read for that: no
+register. The listing of each of the thirteen functions here was read for that: no
 instruction of them reads or writes the register or reaches data through it
 plus an offset (they build each address with `lui`), and each function's header
 says so. A function of this program that does use the register needs the
@@ -125,6 +125,34 @@ func_800119e8_z2o: built 60 bytes, original 60 bytes; cases 2000, discarded 0, e
 func_800119e8_z2o coverage: 15 of 15 instruction slots of the original executed
 func_800119e8_z2o: built 60 bytes, original 60 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800119e8_z2o coverage: 15 of 15 instruction slots of the original executed
+func_800115a8_z2o: built 136 bytes, original 136 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800115a8_z2o coverage: 34 of 34 instruction slots of the original executed
+func_800115a8_z2o: built 136 bytes, original 136 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800115a8_z2o coverage: 34 of 34 instruction slots of the original executed
+func_80011630_z2o: built 152 bytes, original 152 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011630_z2o coverage: 38 of 38 instruction slots of the original executed
+func_80011630_z2o: built 152 bytes, original 152 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011630_z2o coverage: 38 of 38 instruction slots of the original executed
+func_80011830_z2o: built 192 bytes, original 192 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011830_z2o coverage: 48 of 48 instruction slots of the original executed
+func_80011830_z2o: built 192 bytes, original 192 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011830_z2o coverage: 48 of 48 instruction slots of the original executed
+func_800118f0_z2o: built 200 bytes, original 200 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800118f0_z2o coverage: 50 of 50 instruction slots of the original executed
+func_800118f0_z2o: built 200 bytes, original 200 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_800118f0_z2o coverage: 50 of 50 instruction slots of the original executed
+func_80011a24_z2o: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011a24_z2o coverage: 41 of 41 instruction slots of the original executed
+func_80011a24_z2o: built 164 bytes, original 164 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80011a24_z2o coverage: 41 of 41 instruction slots of the original executed
+func_8001139c_z2o: built 140 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_8001139c_z2o coverage: 35 of 35 instruction slots of the original executed
+func_8001139c_z2o: built 140 bytes, original 140 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_8001139c_z2o coverage: 35 of 35 instruction slots of the original executed
+func_80010ae8_z2o: built 252 bytes, original 252 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010ae8_z2o coverage: 63 of 63 instruction slots of the original executed
+func_80010ae8_z2o: built 252 bytes, original 252 bytes; cases 2000, discarded 0, equal 2000, different 0
+func_80010ae8_z2o coverage: 63 of 63 instruction slots of the original executed
 ```
 
 The negative control (`--control`):
@@ -136,6 +164,13 @@ func_800116c8_z2o control: different 2000 of 2000 (expected more than 0)
 func_80011810_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119b8_z2o control: different 2000 of 2000 (expected more than 0)
 func_800119e8_z2o control: different 2000 of 2000 (expected more than 0)
+func_800115a8_z2o control: different 992 of 2000 (expected more than 0)
+func_80011630_z2o control: different 1039 of 2000 (expected more than 0)
+func_80011830_z2o control: different 952 of 2000 (expected more than 0)
+func_800118f0_z2o control: different 858 of 2000 (expected more than 0)
+func_80011a24_z2o control: different 827 of 2000 (expected more than 0)
+func_8001139c_z2o control: different 2000 of 2000 (expected more than 0)
+func_80010ae8_z2o control: different 2000 of 2000 (expected more than 0)
 ```
 
 The write audit (`--writes`, seed 1, then `--seed 7`):
@@ -153,6 +188,20 @@ func_800119b8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119b8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800119e8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800115a8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800115a8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011630_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011630_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011830_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011830_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800118f0_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_800118f0_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011a24_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80011a24_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_8001139c_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_8001139c_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010ae8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
+func_80010ae8_z2o writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The record (`--record`) and the replay (`--replay`):
@@ -164,17 +213,31 @@ func_800116c8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80011810_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800119b8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_800119e8_z2o fixtures: kept 12 of 2000 cases (slots 1, edges 0, results 11)
+func_800115a8_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_80011630_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_80011830_z2o fixtures: kept 3 of 2000 cases (slots 2, edges 1, results 0)
+func_800118f0_z2o fixtures: kept 3 of 2000 cases (slots 3, edges 0, results 0)
+func_80011a24_z2o fixtures: kept 2 of 2000 cases (slots 2, edges 0, results 0)
+func_8001139c_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
+func_80010ae8_z2o fixtures: kept 1 of 2000 cases (slots 1, edges 0, results 0)
 func_80010be4_z2o replay: fixtures 1, passed 1, failed 0
 func_80011428_z2o replay: fixtures 1, passed 1, failed 0
 func_800116c8_z2o replay: fixtures 1, passed 1, failed 0
 func_80011810_z2o replay: fixtures 1, passed 1, failed 0
 func_800119b8_z2o replay: fixtures 1, passed 1, failed 0
 func_800119e8_z2o replay: fixtures 12, passed 12, failed 0
+func_800115a8_z2o replay: fixtures 2, passed 2, failed 0
+func_80011630_z2o replay: fixtures 2, passed 2, failed 0
+func_80011830_z2o replay: fixtures 3, passed 3, failed 0
+func_800118f0_z2o replay: fixtures 3, passed 3, failed 0
+func_80011a24_z2o replay: fixtures 2, passed 2, failed 0
+func_8001139c_z2o replay: fixtures 1, passed 1, failed 0
+func_80010ae8_z2o replay: fixtures 1, passed 1, failed 0
 ```
 
 ## The functions
 
-All six are inferred roles, not original names. None uses the global pointer
+All thirteen are inferred roles, not original names. None uses the global pointer
 register (see above).
 
 - `func_800116c8_z2o`: stores the low byte of its argument at the byte
@@ -198,3 +261,10 @@ register (see above).
   `func_80158470` (the program's copy, at `0x80013654`), then flips the index.
   The call is a recorder in the test; the index is 0 or 1 in four cases of
   five.
+- `func_800115a8_z2o`: sets the volume (inferred: the disc's). Stores its argument in the word `0x8001b34c`, reads the flag word at `0x8001b350` once, and sets the four bytes at `0x8002f8a4` to (arg, 0, arg, 0) when the flag is not 0, else all four to the argument shifted right by one (logical), then calls CdMix with them. CdMix is a recorder in the test.
+- `func_80011630_z2o`: sets stereo or mono (inferred). Stores its argument in the flag word at `0x8001b350`; when it is not 0 the four bytes at `0x8002f8a4` become (v, 0, v, 0) with v the low byte of the volume word at `0x8001b34c` (a byte load), else all four become the volume word shifted right by one (logical); then calls CdMix with them. CdMix is a recorder in the test.
+- `func_80011830_z2o`: brings the disc's volume up in steps (inferred). Reads the flag word at `0x8001b350` once. For i = 0, 2, 4, ... (the first step always runs) while i is not above the volume word at `0x8001b34c` (an unsigned comparison): sets the four bytes at `0x8002f8a4` to (i, 0, i, 0) when the flag is not 0, else all four to i / 2 (signed), then calls CdMix with them. CdMix is a recorder in the test. The test keeps the volume word small (up to 300), since a large one would run for billions of steps.
+- `func_800118f0_z2o`: brings the disc's volume down in steps (inferred). Reads the flag word at `0x8001b350` once and the volume word at `0x8001b34c` once into a counter v. While v is 0 or more (signed; nothing runs for a negative v): sets the four bytes at `0x8002f8a4` to (v, 0, v, 0) when the flag is not 0, else all four to v / 2 (signed), calls CdMix with them, then subtracts 2 from v. CdMix is a recorder in the test. The volume word is not written.
+- `func_80011a24_z2o`: starts the disc (inferred). Calls CdInit up to 4 times until one call returns a value that is not 0 and returns 0 if none does. Otherwise calls CdControlB(0x0e, &mode, 0) (a local mode byte of 0x80) until it returns a value that is not 0, CdIntToPos(0x10, pos) (a local position), CdControlB(0x15, pos, 0) until it returns a value that is not 0, and returns 1. The three library routines are recorders in the test with scripted results; the recorder of CdIntToPos fills the position with a word of the setup. It reads and writes no memory of the program.
+- `func_8001139c_z2o`: ends the movie (inferred). Calls `func_800118f0_z2o` (the volume down), StUnSetRing(), CdReady(0, 0), CdGetSector(p, 0x200) with p the pointer word at `0x8002f804`, stores 0x80 in the byte at `0x8002f800`, calls CdControlB(0x0e, that byte, 0) until it returns a value that is not 0, then CdControlB(9, 0, 0) until it returns a value that is not 0, then DecDCToutCallback(0). All of them are recorders in the test; CdControlB has scripted results.
+- `func_80010ae8_z2o`: sets up the graphics and the two display environments (inferred; 20 bytes each from `0x80049eac`). Calls ResetGraph(0), SetDispMask(0), CdReadCallback(0), SetDefDispEnv for the first environment (0, 0, 320, 240) and the second (0, 240, 320, 240), sets isrgb24 of both to 1 and the screen width of both to 0xfa, stores 0 in the index word at `0x80031e58`, makes the rectangle (0, 0, 0x3c0, 0x1e0) in a local for ClearImage, then DrawSync(0), VSync(0), `func_80158470` (the program's copy, with the second environment) and SetDispMask(1). All the library routines are recorders in the test; the pointer to the local rectangle is masked and the two words behind it logged.

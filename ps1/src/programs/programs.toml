@@ -115,6 +115,13 @@ functions = [
   { name = "func_80011428_z2o", address = 0x80011428, size = 48 },
   { name = "func_800119e8_z2o", address = 0x800119e8, size = 60 },
   { name = "func_80010be4_z2o", address = 0x80010be4, size = 84 },
+  { name = "func_800115a8_z2o", address = 0x800115a8, size = 136 },
+  { name = "func_80011630_z2o", address = 0x80011630, size = 152 },
+  { name = "func_80011830_z2o", address = 0x80011830, size = 192 },
+  { name = "func_800118f0_z2o", address = 0x800118f0, size = 200 },
+  { name = "func_80011a24_z2o", address = 0x80011a24, size = 164 },
+  { name = "func_8001139c_z2o", address = 0x8001139c, size = 140 },
+  { name = "func_80010ae8_z2o", address = 0x80010ae8, size = 252 },
 ]
 
 [program.symbols]
@@ -127,5 +134,25 @@ data_8002f86c_z2o = 0x8002f86c
 data_8002f870_z2o = 0x8002f870
 data_8002f890_z2o = 0x8002f890
 data_8002f8a9_z2o = 0x8002f8a9
+data_8001b34c_z2o = 0x8001b34c
+data_8001b350_z2o = 0x8001b350
+data_8002f8a4_z2o = 0x8002f8a4
+CdMix = 0x80016910
+CdInit = 0x80016264
+CdControlB = 0x800167bc
+CdIntToPos = 0x80016a3c
+data_8002f800_z2o = 0x8002f800
+data_8002f804_z2o = 0x8002f804
+StUnSetRing = 0x80018b38
+CdReady = 0x800164d0
+CdGetSector = 0x80016934
+DecDCToutCallback = 0x80011cb8
+ResetGraph = 0x80012ae0
+SetDispMask = 0x80012ee4
+CdReadCallback = 0x8001ad58
+SetDefDispEnv = 0x80015948
+ClearImage = 0x80013114
+DrawSync = 0x80012f80
+VSync = 0x8001b154
 # The program's own copy of a library routine (the game's name for it is that of the resident copy).
 func_80158470 = 0x80013654
