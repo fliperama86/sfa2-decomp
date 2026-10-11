@@ -133,6 +133,11 @@ Before any compilation a file is refused (status 2, one line that names the file
 nonmatching function, when NAME is no function that a unit of the configuration declares (two messages), when NAME is
 declared by a unit that `hostcheck` does not select, and when `NAME.py` is not beside `NAME.c`. That file is the
 contract of the override's differential test; this tool does not read or run it, it requires it to exist.
+One case of "a unit that hostcheck does not select" is not refused: NAME is declared by a .c unit under sdk/libsnd/ or
+sdk/libspu/ and this run does not compile the sound library (no `--psyz`, or `--no-sound-library`). The override is
+then left out (not compiled, not linked, not counted in O, no `override:` line with `--list`) and the line
+`override left out: NAME at PATH, its unit UNIT is of the sound library, which this run does not compile` follows the
+line of O, one for each, in the order of the file names; the check for `NAME.py` still comes first.
 
 An override is compiled alone with the command of a unit (it includes the game's headers by a path relative to its
 own folder). Its assembly must define exactly one global symbol, NAME (static functions and data are allowed). An
@@ -409,6 +414,7 @@ Standard output, in this order, with nothing else:
     like images built: L
     functions with C: C
     functions overridden in C: O
+    override left out: NAME at PATH, its unit UNIT is of the sound library, which this run does not compile    (one for each, see "The overrides")
     functions without C: A, library L2, game and modules G
     sweep rows that are not functions: N
     names at PS1 addresses: P
@@ -623,6 +629,7 @@ class Selection:
     images: list[dict]
     unit_names: dict[str | None, list[str]] = field(default_factory=dict)  # every unit of the configuration, by image
     sound_counts: tuple[int, int, int] = (0, 0, 0)  # the sound library: units of sdk/libsnd, of sdk/libspu, files of library_nonmatching
+    sound_skipped: frozenset[str] = frozenset()  # the .c units of sdk/libsnd and sdk/libspu that a run without the sound library does not select
 
 
 def read_images(config: dict, path: Path) -> list[dict]:
@@ -666,6 +673,9 @@ def select_units(config: dict, path: Path, sound_library: bool = False) -> Selec
     units, _, _ = hostcheck.read_units(config, path)
     compiled = {u.name for u in units}
     library_units: list[tuple[hostcheck.Unit, str]] = []
+    sound_skipped = frozenset(
+        e["name"] for e in config.get("unit", [])
+        if not sound_library and e.get("source", "").endswith(".c") and any(e.get("source", "").startswith(f"sdk/{f}/") for f in SOUND_FOLDERS))
     if sound_library:
         for entry in config.get("unit", []):
             source = entry.get("source", "")
@@ -726,7 +736,7 @@ def select_units(config: dict, path: Path, sound_library: bool = False) -> Selec
             jobs.append(Job(stem, file, True, [fn], image, library))
             library_files += library
     counts = (sum(1 for _, f in library_units if f == "libsnd"), sum(1 for _, f in library_units if f == "libspu"), library_files)
-    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names, counts)
+    return Selection(jobs, declared, sum(1 for i in images if "like" in i), images, unit_names, counts, sound_skipped)
 
 
 # The overrides.
@@ -745,14 +755,25 @@ class Override:
         return f"ovr_{self.name}"
 
 
-def read_overrides(folder: Path | None, selection: Selection) -> list[Override]:
+@dataclass
+class LeftOut:
+    """An override of a function of a sound library unit, in a run that does not compile the sound library."""
+
+    name: str
+    source: Path
+    unit: str
+
+
+def read_overrides(folder: Path | None, selection: Selection) -> tuple[list[Override], list[LeftOut]]:
     """The overrides of `folder` (every `*.c` file of it, not of its subfolders; none when the folder does not exist).
 
     A file is refused, with its name and the reason, when its stem is not a function that a selected unit declares
     (a nonmatching function and an unknown name each have their message), when it names a function of a unit that
-    `hostcheck` does not select, or when `NAME.py`, the file of its differential test, is not beside it."""
+    `hostcheck` does not select, or when `NAME.py`, the file of its differential test, is not beside it. The
+    exception is a function of a .c unit of the sound library (`selection.sound_skipped`): its override is not
+    refused but left out, and comes back in the second list (after the check for `NAME.py`)."""
     if folder is None or not folder.is_dir():
-        return []
+        return [], []
     nonmatching = {j.name for j in selection.jobs if j.nonmatching}
     selected = {j.name for j in selection.jobs}
     declared_in: dict[str, Job] = {}
@@ -762,18 +783,24 @@ def read_overrides(folder: Path | None, selection: Selection) -> list[Override]:
                 declared_in.setdefault(fn.name, job)
     unselected = {fn.name: fn.unit for fn in selection.declared if fn.unit not in selected}
     out: list[Override] = []
+    left_out: list[LeftOut] = []
     for file in sorted(x for x in folder.glob("*.c") if x.is_file()):
         name = file.stem
         if name in nonmatching:
             raise Problem(f"{file}: {name} is a nonmatching function; an override stands in for a function that a unit of the configuration has C for")
         if name not in declared_in:
+            if name in unselected and unselected[name] in selection.sound_skipped:
+                if not file.with_suffix(".py").is_file():
+                    raise Problem(f"{file}: there is no {name}.py beside it, the file of its differential test")
+                left_out.append(LeftOut(name, file, unselected[name]))
+                continue
             if name in unselected:
                 raise Problem(f"{file}: {name} belongs to the unit {unselected[name]}, which hostcheck does not select")
             raise Problem(f"{file}: {name} is not a function that a unit of the configuration declares; an override is not a way to supply a function")
         if not file.with_suffix(".py").is_file():
             raise Problem(f"{file}: there is no {name}.py beside it, the file of its differential test")
         out.append(Override(name, file, declared_in[name]))
-    return out
+    return out, left_out
 
 
 # The prefix files.
@@ -1860,7 +1887,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
 
     if args.overrides is not None and not args.overrides.is_dir():
         raise Problem(f"--overrides {args.overrides}: not a folder (give an empty folder for no override)")
-    overrides = read_overrides(args.overrides or runtime.parent / "overrides", selection)
+    overrides, overrides_left_out = read_overrides(args.overrides or runtime.parent / "overrides", selection)
     for ov in overrides:
         if any(j.name == ov.object for j in selection.jobs):
             raise Problem(f"{ov.source}: the unit {ov.object} has the name that its object would have")
@@ -1954,6 +1981,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     functions, absents = build_tables(selection.images, with_c, kept_rows, selection.declared + moved_functions)
     out.append(f"functions with C: {len(functions)}")
     out.append(f"functions overridden in C: {sum(1 for f in functions if f[3] in overridden)}")
+    out.extend(f"override left out: {o.name} at {shown(o.source)}, its unit {o.unit} is of the sound library, which this run does not compile"
+               for o in overrides_left_out)
     library = sum(1 for a in absents if a[3])
     out.append(f"functions without C: {len(absents)}, library {library}, game and modules {len(absents) - library}")
     out.append(f"sweep rows that are not functions: {len(sweep_entries) + len(span_rows)}")

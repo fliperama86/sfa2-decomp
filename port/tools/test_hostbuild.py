@@ -2351,6 +2351,98 @@ def e2e_program_cases(rig: Rig):
         (proc.returncode, "func_80010010_pg" in proc.stderr and "LibHello" in proc.stderr and "weak" in proc.stderr, "linked:" in proc.stdout), (1, True, False))
 
 
+def override_sound_cases(root: Path):
+    """An override of a sound library function: left out in a run that does not compile the library, used in one that does."""
+    NS = "--no-sound-library"
+    defs = {**SOUND_DEFS, "ovr_snf": ["snf"], "ovr_spf": ["spf"], "ovr_fa": ["fa"]}
+    left = lambda tag, name: (f"override left out: {name} at {hb.shown(root / tag / 'overrides' / (name + '.c'))}, "
+                              f"its unit {'sn1' if name == 'snf' else 'sp1'} is of the sound library, which this run does not compile")
+
+    def go(tag, over, psyz=False, *more, py=True):
+        config, folder = sound_tree(root, tag)
+        override_files(root, tag, *over, py=py)
+        cc, nm = fake(root, tag, defs=defs)
+        return run(root, tag, config, cc, nm, *(["--psyz", folder] if psyz else []), *more)
+
+    # Without --psyz, and with --psyz and --no-sound-library: left out, the run is fine.
+    for tag, psyz, more in (("ovs1", False, []), ("ovs2", True, [NS])):
+        proc = go(tag, ["snf"], psyz, *more, "--list")
+        out = proc.stdout.splitlines()
+        count = out.index("functions overridden in C: 0") if "functions overridden in C: 0" in out else -1
+        b = root / tag / "build"
+        yield f"override-sound-left-out-{tag}-status", same((proc.returncode, proc.stderr), (0, ""))
+        yield f"override-sound-left-out-{tag}-count-and-line", same(out[count:count + 2] if count >= 0 else None, ["functions overridden in C: 0", left(tag, "snf")])
+        yield f"override-sound-left-out-{tag}-not-compiled-not-listed", same(((b / "obj" / "ovr_snf.o").exists(), any(l.startswith("override:") for l in out)), (False, False))
+        yield f"override-sound-left-out-{tag}-linked", same(([l for l in out if l.startswith("linked:")], (b / "sfa2.exe").exists()), ([f"linked: {b / 'sfa2.exe'}, verified"], True))
+    proc = go("ovs3", ["snf"])
+    yield "override-sound-left-out-line-is-printed-without-list", same((proc.returncode, left("ovs3", "snf") in proc.stdout.splitlines()), (0, True))
+
+    # With the library the override is used as any other.
+    proc = go("ovs4", ["snf"], True, "--list")
+    out = proc.stdout.splitlines()
+    b = root / "ovs4" / "build"
+    yield "override-sound-used-with-the-library-status", same((proc.returncode, proc.stderr), (0, ""))
+    yield "override-sound-used-with-the-library-count", same(([l for l in out if l.startswith("functions overridden")], any(l.startswith("override left out") for l in out)), (["functions overridden in C: 1"], False))
+    yield "override-sound-used-with-the-library-unit-replaced", same(("def _replaced_snf" in read(b / "obj" / "sn1.o"), (b / "obj" / "ovr_snf.o").exists()), (True, True))
+    yield "override-sound-used-with-the-library-is-listed", same(any(l.startswith("override: snf at ") and l.endswith("in place of the C of unit sn1") for l in out), True)
+
+    # One ordinary override and one left out in the same run.
+    proc = go("ovs5", ["fa", "snf"], False, "--list")
+    out = proc.stdout.splitlines()
+    i = out.index("functions overridden in C: 1") if "functions overridden in C: 1" in out else -1
+    yield "override-sound-mixed-status", same((proc.returncode, proc.stderr), (0, ""))
+    yield "override-sound-mixed-count-and-line", same(out[i:i + 2] if i >= 0 else None, ["functions overridden in C: 1", left("ovs5", "snf")])
+    yield "override-sound-mixed-lists-only-the-first", same([l.split(" at ")[0] for l in out if l.startswith("override:")], ["override: fa"])
+
+    # Two left out: in the order of the file names.
+    proc = go("ovs6", ["spf", "snf"], False)
+    out = proc.stdout.splitlines()
+    i = out.index("functions overridden in C: 0") if "functions overridden in C: 0" in out else -1
+    yield "override-sound-two-left-out-in-the-order-of-the-names", same((proc.returncode, out[i:i + 3] if i >= 0 else None), (0, ["functions overridden in C: 0", left("ovs6", "snf"), left("ovs6", "spf")]))
+
+    # Still refused, with and without the library: a .c unit of another folder of sdk/, and an assembly unit of sdk/libsnd/.
+    for name, unit_name in (("of", "so"), ("saf", "sa")):
+        for psyz in (False, True):
+            tag = f"ovs7{name}{int(psyz)}"
+            proc = go(tag, [name], psyz)
+            file = root / tag / "overrides" / f"{name}.c"
+            yield f"override-sound-refused-{name}-{'with' if psyz else 'without'}-the-library", same(
+                (proc.returncode, proc.stdout, proc.stderr.splitlines() == [f"hostbuild.py: {file}: {name} belongs to the unit {unit_name}, which hostcheck does not select"] or proc.stderr.splitlines()),
+                (2, "", True))
+
+    # A left-out override without its NAME.py is refused as today, in both kinds of run.
+    for tag, psyz in (("ovs8", False), ("ovs9", True)):
+        proc = go(tag, ["snf"], psyz, py=False) if not psyz else go(tag, ["snf"], psyz, NS, py=False)
+        file = root / tag / "overrides" / "snf.c"
+        yield f"override-sound-no-py-{tag}-refused", same(
+            (proc.returncode, proc.stdout, "no snf.py beside it" in proc.stderr and str(file) in proc.stderr and "differential test" in proc.stderr), (2, "", True))
+
+    # The function read_overrides, called directly.
+    config, path = config_tree(root, "ovsd", SOUND_UNITS, "", SOUND_NONMATCHING)
+    for rel in ("sdk/libsnd/sn1.c", "sdk/libsnd/sn2.c", "sdk/libspu/sp1.c", "sdk/other/o.c", "sdk/libsnd/sa.s"):
+        write(path.parent / rel, "int x;\n")
+    folder = override_files(root, "ovsd", "snf", "spf", "fa")
+    sel = hb.select_units(config, path)
+    used, out_ = hb.read_overrides(folder, sel)
+    yield "override-sound-direct-without-the-library", same(([o.name for o in used], [(o.name, o.source.name, o.unit) for o in out_]), (["fa"], [("snf", "snf.c", "sn1"), ("spf", "spf.c", "sp1")]))
+    sel = hb.select_units(config, path, True)
+    used, out_ = hb.read_overrides(folder, sel)
+    yield "override-sound-direct-with-the-library", same(([o.name for o in used], [o.job.name for o in used], out_), (["fa", "snf", "spf"], ["ua", "sn1", "sp1"], []))
+    sel = hb.select_units(config, path)
+    for name, unit_name in (("of", "so"), ("saf", "sa")):
+        folder = override_files(root, f"ovsd{name}", name)
+        yield f"override-sound-direct-refused-{name}", raises(lambda: hb.read_overrides(folder, sel), f"{name}.c", f"{name} belongs to the unit {unit_name}, which hostcheck does not select")
+    folder = override_files(root, "ovsdp", "snf", py=False)
+    yield "override-sound-direct-refused-without-py", raises(lambda: hb.read_overrides(folder, sel), "no snf.py beside it")
+    folder = override_files(root, "ovsdn", "nothere", "snf")
+    yield "override-sound-direct-refused-unknown-name", raises(lambda: hb.read_overrides(folder, sel), "nothere", "not a function that a unit of the configuration declares")
+    yield "override-sound-direct-no-folder", same(hb.read_overrides(None, sel), ([], []))
+
+    # Negative control: a run with no override left out prints what it printed before (no new line).
+    proc = go("ovs10", ["fa"], False)
+    yield "override-sound-nothing-left-out-no-new-line", same((proc.returncode, any("left out" in l for l in proc.stdout.splitlines()), len(proc.stdout.splitlines())), (0, False, 11))
+
+
 def groups(root: Path, rig: "Rig | None" = None):
     yield rename_cases()
     yield sweep_table_cases(root)
@@ -2371,6 +2463,7 @@ def groups(root: Path, rig: "Rig | None" = None):
     yield override_rename_cases()
     yield override_check_cases()
     yield override_flow_cases(root)
+    yield override_sound_cases(root)
     yield program_read_cases(root)
     yield program_plan_cases(root)
     yield program_unit_cases(root)

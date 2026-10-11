@@ -1024,7 +1024,14 @@ routines that do nothing on purpose. What is in this piece:
   refused with their own message and the file's name, before any
   compilation, and so is a file without `NAME.py`, which is the contract
   of the override's differential test (the tool requires the file and does
-  not read it). The override is compiled alone with the flags of a unit,
+  not read it). One case of an unselected unit is not refused: a
+  function of the game's own sound library (a `.c` unit under
+  `sdk/libsnd/` or `sdk/libspu/`) in a build that does not compile that
+  library (without `--psyz`, or with `--no-sound-library`). Its override
+  is left out of that build, not compiled and not counted, and the
+  line `override left out: NAME at PATH, its unit UNIT is of the sound
+  library, which this run does not compile` follows the count line;
+  its `NAME.py` is required all the same. The override is compiled alone with the flags of a unit,
   includes the game's headers by a path relative to its own folder, and may
   define exactly one global symbol, NAME; static functions and data are
   fine. In the unit that defines NAME the one definition is renamed
