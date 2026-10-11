@@ -26,12 +26,12 @@ void func_80013198_slot27(Object *obj) {
         game_state.field_56 = data_80026a94_slot27[data_8019045c[0]];
         game_state.field_56 = (s8)data_8016e68c;
         if (obj->field_45 != 0) {
-            p = (Object *)obj->accel_x;
+            p = (Object *)((ObjectWords *)obj)->word_54;
             *t = -2;
             data_80190464[0] = 0;
             ref_first.p = p;
             if (ref_other.p->field_d8 == 0) {
-                p = (Object *)obj->accel_y;
+                p = (Object *)((ObjectWords *)obj)->word_58;
                 *t = 2;
                 data_80190464[0] = 1;
                 ref_first.p = p;
@@ -55,7 +55,7 @@ void func_80013198_slot27(Object *obj) {
                 ref_other.p->field_03 = 2;
                 ref_other.p->other = ref_second.p;
                 ref_other.p->field_3c = obj;
-                obj->accel_x = (s32)ref_other.p;
+                ((ObjectWords *)obj)->word_54 = (s32)ref_other.p;
                 ref_other.p->field_62 = 0;
             }
             p = obj->other;

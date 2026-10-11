@@ -30,10 +30,10 @@ void func_800166d0_slot12(Object *obj) {
     obj->field_76 = 0;
     obj->field_48 = table_8016e5c4[game_state.field_2b8].field_08;
     if (game_state.field_2bf == 0) {
-        obj->vel_y = (int)game_state.config + 0x19e;
+        ((ObjectWords *)obj)->word_50 = (int)game_state.config + 0x19e;
         obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x220);
     } else {
-        obj->vel_y = (int)game_state.config + 0x1de;
+        ((ObjectWords *)obj)->word_50 = (int)game_state.config + 0x1de;
         obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x222);
     }
     t = obj->accel_x;
