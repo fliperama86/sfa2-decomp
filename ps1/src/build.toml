@@ -8586,6 +8586,16 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libapi_counter_p2"
+source = "sdk/libapi/counter_p2.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+# Inferred: this object's `li` of a small positive constant is an addiu, as maspsx renders it from version 2.56 on.
+aspsx_version = "2.56"
+functions = [
+  { name = "ResetRCnt", address = 0x80157784, size = 52 },
+]
+
+[[unit]]
 name = "sdk_libcd_sys_p1"
 source = "sdk/libcd/sys_p1.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]

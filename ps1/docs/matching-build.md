@@ -167,6 +167,9 @@ rodata = { address = 0x80001000, size = 24 }
 # data (.bss, .sbss) lives. Same form and alignment rules as rodata.
 data = { address = 0x80002000, size = 16 }
 bss = { address = 0x80300000, size = 8 }
+# Optional, C units only. The assembler version that maspsx is told for this
+# unit, when its object was not assembled by the version of [toolchain].
+aspsx_version = "2.56"
 
 [[unit]]
 name = "stubs"
@@ -189,6 +192,19 @@ expands a division into the divide instruction plus checks for a zero divisor
 and for overflow. With `expand_div = true` maspsx writes that expansion; without
 it the GNU assembler emits the bare instruction and a function that divides
 cannot match. The option applies to every unit and is part of the cache key.
+
+A unit may name an `aspsx_version` of its own. The library part of the
+executable is made of objects that were assembled at different times, and
+one of them does not have the instructions that the version of `[toolchain]`
+gives. maspsx is then run for that unit with the unit's version; every other
+unit keeps the toolchain's. The cache key holds the version that the unit is
+converted with, so a unit without the key has the key it had before, and the
+report names the version of a unit that has one. An assembly unit takes
+none. The line in `build.toml` says what it is inferred from: the build shows
+that the unit's bytes come out with that version, not which assembler made
+the object. There is one today, `sdk_libapi_counter_p2` (`ResetRCnt`): its
+`li` of the constant 1 is an `addiu`, which maspsx leaves to the assembler
+from version 2.56 on and turns into an `ori` before that.
 
 `maspsx_patches` lists patch files, relative to `build.toml`, for the cases
 where the original assembler does something that the pinned maspsx does not.
