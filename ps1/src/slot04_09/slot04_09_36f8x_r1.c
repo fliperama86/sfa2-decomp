@@ -1,0 +1,64 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../game.h"
+#include "../protos.h"
+#include "../externs.h"
+
+void func_801b2858_slot04_09(Object *o);
+
+/* What it does (inferred, not an original name): a per-frame update of a
+   character state that has another object (field_40, "other") in view. It
+   first runs func_801b2858_slot04_09 (the move). Then, when field_3a is
+   negative as a halfword: it sets field_45 to 1, field_50 to 0x90000 and
+   field_58 to -0x6000, adds 1 to field_07, and sets a velocity (field_4c,
+   field_54): when field_a3 is 0 a fixed one whose sign follows field_0b;
+   when field_a3 is not 0 a velocity toward other, field_4c = ((other's
+   pos_x - pos_x) >> 4) << 16 and field_54 = 0. It starts sequence 0x33 in
+   both cases. When field_3a is not negative: if field_67 is not 0 and
+   other's field_61 is not 0xff it sets field_a3 to 0x80 and clears
+   field_67; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
+   field_4c and field_54; then it hands over to func_80130efc. */
+void func_801b36f8_slot04_09(Object *obj) {
+    Object *p;
+    int d;
+
+    func_801b2858_slot04_09(obj);
+    if ((s16)obj->field_3a & 0x8000) {
+        obj->field_45 = 1;
+        obj->field_50 = 0x90000;
+        obj->field_58 = -0x6000;
+        obj->field_07++;
+        if (obj->field_a3 == 0) {
+            if (obj->field_0b != 0) {
+                obj->field_4c = 0xe0000;
+                obj->field_54 = -0x8000;
+            } else {
+                obj->field_4c = 0xfff20000;
+                obj->field_54 = 0x8000;
+            }
+            func_801307e0(obj, 0x33);
+        } else {
+            p = obj->other;
+            d = p->pos_x - obj->pos_x;
+            /* The value is shifted in d before the store: with the expression written in the store this function differs from the original in 5 instruction slots (the load of other then reads through the argument register). */
+            d = (d >> 4) << 16;
+            obj->field_4c = d;
+            obj->field_54 = 0;
+            func_801307e0(obj, 0x33);
+        }
+    } else {
+        p = obj->other;
+        if (obj->field_67 != 0) {
+            if (p->field_61 != 0xff) {
+                obj->field_a3 = 0x80;
+                obj->field_67 = 0;
+            }
+            /* The original loads the pointer again here: without this statement this function differs from the original in 10 instruction slots. */
+            p = obj->other;
+        }
+        if (p->pos_x - obj->pos_x + 0x24 < 0x48) {
+            obj->field_4c = 0;
+            obj->field_54 = 0;
+        }
+        func_80130efc(obj);
+    }
+}

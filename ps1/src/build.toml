@@ -32707,6 +32707,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_09_36f8x_r1"
+image = "slot04_09"
+source = "slot04_09/slot04_09_36f8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b36f8_slot04_09", address = 0x801b36f8, size = 312 },
+]
+
+[[unit]]
 name = "slot04_09_352c_r4"
 image = "slot04_09"
 source = "slot04_09/slot04_09_352c_r4.c"
