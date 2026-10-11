@@ -210,9 +210,11 @@ converted with, so a unit without the key has the key it had before, and the
 report names the version of a unit that has one. An assembly unit takes
 none. The line in `build.toml` says what it is inferred from: the build shows
 that the unit's bytes come out with that version, not which assembler made
-the object. There is one today, `sdk_libapi_counter_p2` (`ResetRCnt`): its
-`li` of the constant 1 is an `addiu`, which maspsx leaves to the assembler
-from version 2.56 on and turns into an `ori` before that.
+the object. There are three today, the C units of the library's counter
+file: `sdk_libapi_counter_p2` (`ResetRCnt`), whose `li` of the constant 1 is
+an `addiu`, which maspsx leaves to the assembler from version 2.56 on and
+turns into an `ori` before that, and `sdk_libapi_counter_p3` and
+`sdk_libapi_counter_p4`, which name the same version.
 
 A unit may name a compiler of its own with `cc1 = "NAME"`, where NAME is a
 table `[toolchain.cc1_unit.NAME]`. The reason is the same as for the
@@ -272,6 +274,19 @@ declared address, the comparison with the baseline and the controls. An
 assembly unit may declare `rodata`, `data` and `bss` like a C unit.
 
 Assembly units are not cached. They take one assembler run.
+
+All assembly units but two are code that was assembly in the original: the
+library's stubs for BIOS and system calls, generated from the reference's
+one-line files, and the few routines under `asm/` (the entry, the host
+calls, five more stubs), written from the disassembly. The two others,
+`sdk_libapi_counter_p5` (`StopRCnt`) and `sdk_libcard_card`
+(`_card_clear`), are functions of the library that the reference has as C:
+their C is known, and no compiler and assembler step of this build gives
+their instructions. Each file's
+comment has the C and says what differs; `ps1/src/sdk/README.md` has the
+account. They are exceptions for the library's own code, by the owner's
+decision of 2026-10-11, and not a way around a function of the game that
+does not match.
 
 Accounting keeps the two kinds apart. The functions and bytes of assembly
 units are reported as `asm_functions` and `asm_bytes` and are not part of
