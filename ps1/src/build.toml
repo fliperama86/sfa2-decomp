@@ -173,8 +173,8 @@ functions = [
 ]
 
 [[unit]]
-name = "v10_r4"
-source = "v10_r4.c"
+name = "d3172c_r1"
+source = "d3172c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013172c", address = 0x8013172c, size = 296 },
