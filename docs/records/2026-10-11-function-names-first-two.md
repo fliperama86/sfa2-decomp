@@ -67,6 +67,13 @@ What did not run: the differential tests against the original code,
 `workflow.py review` as a whole, the port's build and its control files (no
 file of the port names either function).
 
+After the review. The pull request was approved at `5db0db2`; main had
+gained batch 6 (`f9c69b1`) by then. The merge of main had no conflict, and
+both rename tools, run on the merged tree, found nothing to rewrite: the
+units of batch 6 use neither first name. On that head, `5298d9b`: 78 of 78
+images `RESULT: PASS`, and the replays of the eight folders, 116 functions
+(one more left its folder with batch 6), every one with `failed 0`.
+
 For work in flight in other checkouts: a branch from before this change
 that calls one of the two by its first name does not link after merging
 main. The tool repairs it, without `--fresh`, with the merge base's
