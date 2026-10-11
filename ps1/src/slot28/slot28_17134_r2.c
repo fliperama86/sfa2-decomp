@@ -10,7 +10,7 @@ void func_80027600_slot28(Object *obj);
 
 void func_8002746c_slot28(Object *obj) {
     obj->field_0f = 1;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     func_80027600_slot28(obj);
     func_800275c4_slot28(obj);
     func_800274b8_slot28(obj);
@@ -21,9 +21,9 @@ void func_800274b8_slot28(Object *obj) {
 }
 
 void func_80027500_slot28(Object *obj) {
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y >= 0xb0) {
         func_80027600_slot28(obj);
         func_800275c4_slot28(obj);

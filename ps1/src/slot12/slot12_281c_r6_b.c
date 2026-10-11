@@ -7,7 +7,7 @@ extern void (*data_80023170_slot12[])(Object *);
 void func_8001281c_slot12(Object *obj);
 
 void func_80012e2c_slot12(Object *obj) {
-    data_80023170_slot12[obj->field_04](obj);
+    data_80023170_slot12[obj->state_0](obj);
 }
 
 void func_80012e6c_slot12(Object *obj) {
@@ -20,5 +20,5 @@ void func_80012e6c_slot12(Object *obj) {
     obj->field_22 = 0;
     obj->field_24 = 0;
     obj->pos_y = 0x80;
-    obj->field_04++;
+    obj->state_0++;
 }

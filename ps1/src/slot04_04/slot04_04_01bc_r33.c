@@ -6,7 +6,7 @@
 extern u8 data_801c43dc_slot04_04[];
 
 void func_801b2b8c_slot04_04(Object *o) {
-    o->field_07++;
+    o->state_3++;
     func_801428e4(o);
     func_80138b38(&game_state, o);
     func_80145d20(o);
@@ -15,8 +15,8 @@ void func_801b2b8c_slot04_04(Object *o) {
 
 void func_801b2be8_slot04_04(Object *o) {
     func_80130efc(o);
-    if (*(u8 *)&o->field_3a != 0) {
-        o->field_07++;
+    if (*(u8 *)&o->step_flags != 0) {
+        o->state_3++;
         if (o->field_4b != 0) {
             o->field_165 = 1;
         } else {
@@ -32,8 +32,8 @@ void func_801b2c74_slot04_04(Object *o) {
     u8 t;
 
     func_80130efc(o);
-    if (*(u8 *)&o->field_3a == 0) {
-        o->field_07++;
+    if (*(u8 *)&o->step_flags == 0) {
+        o->state_3++;
         if (o->field_4b != 0) {
             t = 3;
         } else {

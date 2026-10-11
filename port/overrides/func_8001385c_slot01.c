@@ -10,7 +10,7 @@
  * a0 holds at that call (jal at 8001388c) what the earlier call left in it,
  * and that is this function's own first parameter. The earlier call is
  * through the table data_80015a64_slot01 of the module slot01 (jalr v0 at
- * 80013884), indexed by the u8 field_05. The table has three entries (the
+ * 80013884), indexed by the u8 state_1. The table has three entries (the
  * word after them, at 80015a70, is not a code address of the module; inferred:
  * the table ends there). Each entry was read to its return in the listing:
  *   800138a4: one return, `jr ra` at 80013900; it writes a1, v0, v1 and a2,
@@ -24,11 +24,11 @@
  * for a PC, the callee would read something else.
  *
  * What the function does (inferred): it calls the entry of the table that
- * field_05 selects with the object, then func_8011ffdc with the object.
+ * state_1 selects with the object, then func_8011ffdc with the object.
  *
  * Contract:
  *   Argument: obj (a0), a pointer to an object; no result.
- *   Reads: the u8 field_05 (index; the setup keeps it 0 to 2). The entries
+ *   Reads: the u8 state_1 (index; the setup keeps it 0 to 2). The entries
  *     read and write fields of the object (offsets 0x04, 0x05, 0x12, 0x16,
  *     0x3c) and read the halfwords at 0x801901dc (entry 0) and 0x801901da
  *     (entry 1), the pointer at 0x3c of the object and the halfword at 4
@@ -39,7 +39,7 @@
  *     the test by a recorder that logs its argument and returns 0. What it
  *     does is outside the test. The test watches the whole object at the
  *     recorder's call.
- *   Excluded inputs: a null obj; a field_05 of 3 or more (the original would
+ *   Excluded inputs: a null obj; a state_1 of 3 or more (the original would
  *     read past the table).
  *   Not reached by any input: none known (see the coverage line).
  */
@@ -50,6 +50,6 @@
 extern void (*data_80015a64_slot01[])(Object *obj);
 
 void func_8001385c_slot01(Object *obj) {
-    data_80015a64_slot01[obj->field_05](obj);
+    data_80015a64_slot01[obj->state_1](obj);
     ((void (*)(Object *))func_8011ffdc)(obj);
 }

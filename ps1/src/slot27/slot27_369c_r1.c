@@ -50,10 +50,10 @@ void func_8001369c_slot27(Object *obj) {
     {
         int *t;
 
-        obj->field_06 = obj->field_06 + 1;
-        ref_first.p = (Object *)obj->field_54;
+        obj->state_2 = obj->state_2 + 1;
+        ref_first.p = (Object *)obj->accel_x;
         if (obj->field_66 != 0) {
-            ref_first.p = (Object *)obj->field_58;
+            ref_first.p = (Object *)obj->accel_y;
         }
         ref_first.p->field_6b = 0xff;
         t = (int *)data_8019045c;

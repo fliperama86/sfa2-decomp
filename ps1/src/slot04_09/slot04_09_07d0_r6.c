@@ -12,10 +12,10 @@ int func_801b0f78_slot04_09(Object *obj) {
                 if ((u8)func_80141e34(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
-                        obj->field_04 = 1;
-                        obj->field_05 = 0;
-                        obj->field_06 = 8;
-                        obj->field_07 = 0;
+                        obj->state_0 = 1;
+                        obj->state_1 = 0;
+                        obj->state_2 = 8;
+                        obj->state_3 = 0;
                         obj->field_15a = 9;
                         obj->field_159 = 1;
                     }
@@ -23,10 +23,10 @@ int func_801b0f78_slot04_09(Object *obj) {
             } else if (obj->field_7e == 0) {
                 if ((u8)func_801418bc(obj)) {
                     r = 1;
-                    obj->field_04 = 1;
-                    obj->field_05 = 0;
-                    obj->field_06 = 8;
-                    obj->field_07 = 0;
+                    obj->state_0 = 1;
+                    obj->state_1 = 0;
+                    obj->state_2 = 8;
+                    obj->state_3 = 0;
                     obj->field_15a = 9;
                 }
             }
@@ -45,10 +45,10 @@ int func_801b1070_slot04_09(Object *obj) {
     }
     if (func_801417cc(obj) != 0) {
         r++;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_15a = 7;
         obj->field_159 = 0;
         obj->field_12c = 0;

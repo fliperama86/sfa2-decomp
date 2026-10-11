@@ -104,7 +104,7 @@ int func_80147000(Object *object) {
         data_80189454 = v;
         o->field_0d = 0;
         if (game_state.field_6b == 6) {
-            o->field_04 = 4;
+            o->state_0 = 4;
         }
         return 1;
     }

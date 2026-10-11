@@ -14,11 +14,11 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     u16 f;
 
     w = (Object *)obj->field_330;
-    f = w->field_3a;
+    f = w->step_flags;
     e = o->other;
     s = (u8 *)&obj->field_330;
     if (f & 2) {
-        w->field_3a = f & 0xfffd;
+        w->step_flags = f & 0xfffd;
         o->field_46 = o->field_46 + 0x100;
         if (func_80140cd8(o, 0, 0) != 0) {
             func_80140770(o, 0, 0xd, 0, 0, 1, 1);
@@ -45,7 +45,7 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     w = *(Object **)s;
     e->field_0c = s[4];
     e->field_0d = s[5];
-    if ((u8)w->field_3a != 0) {
+    if ((u8)w->step_flags != 0) {
         e->field_0c = 0xff;
         e->field_80 = 1;
         e->field_0d = e->field_0d + 3;

@@ -31,9 +31,9 @@ Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
 
 void func_8001301c_slot01(Object *obj) {
     if (obj->field_03 & 0x80) {
-        data_8001587c_slot01[obj->field_04](obj);
+        data_8001587c_slot01[obj->state_0](obj);
     } else {
-        data_80015870_slot01[obj->field_04](obj);
+        data_80015870_slot01[obj->state_0](obj);
         func_80014c3c_slot01();
     }
 }

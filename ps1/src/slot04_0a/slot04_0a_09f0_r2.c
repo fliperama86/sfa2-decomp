@@ -6,7 +6,7 @@
 void func_801b0b74_slot04_0a(Object *obj) {
     int a;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80130504(obj);
     func_80141f28(obj, obj->field_12a >> 1);
@@ -17,10 +17,10 @@ void func_801b0b74_slot04_0a(Object *obj) {
     if (obj->field_129 == 0) {
         a -= 3;
         if (obj->field_12a != 0 && obj->pos_y < obj->field_70 - 0x30 && (obj->field_130 & 0xe000) != 0 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) != 0) {
-            obj->field_04 = 1;
-            obj->field_05 = 2;
-            obj->field_06 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 2;
+            obj->state_2 = 0;
+            obj->state_3 = 0;
             obj->field_128 = 4;
             return;
         }

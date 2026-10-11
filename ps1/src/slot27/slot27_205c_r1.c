@@ -93,7 +93,7 @@ setb:
         (*(s32 *)&game_state.field_354) = (*(s32 *)data_80190464) & (*(s32 *)&game_state.field_354) & 0xf0;
         if ((*(s32 *)&game_state.field_354) == 0) goto done;
     }
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     func_801205c4(ref_other.p->side, 1);
     k = (*(s32 *)&game_state.field_354);
     (*(s32 *)data_8019046c) = 0;

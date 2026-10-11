@@ -6,7 +6,7 @@
 extern u8 data_801c54e8_slot04_06[];
 
 void func_801b447c_slot04_06(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_17b = 1;
     ref_other.p = obj->other;
     func_8013fab4(obj);
@@ -20,7 +20,7 @@ void func_801b4510_slot04_06(Object *obj) {
     Object *p;
 
     if (((Slot04aObj *)obj)->field_3a != 0) {
-        obj->field_07++;
+        obj->state_3++;
         p = obj->other;
         p->field_15b = 1;
         func_80140770(obj, 0x26, 5, *(s16 *)(data_801c54e8_slot04_06 + (obj->field_12a & 0xfe)), 4, 0, 1);

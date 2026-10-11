@@ -6,6 +6,6 @@
 extern void (*data_80026a7c_slot27[])(Object *);
 
 void func_80013148_slot27(Object *obj) {
-    data_80026a7c_slot27[obj->field_06](obj);
+    data_80026a7c_slot27[obj->state_2](obj);
     obj->field_01 = 0;
 }

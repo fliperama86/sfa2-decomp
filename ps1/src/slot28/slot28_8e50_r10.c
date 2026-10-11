@@ -6,29 +6,29 @@
 void func_800197d8_slot28(Object *obj) {
     if (obj->field_48 != 0) {
         obj->field_48 = 0;
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 
 void func_80019800_slot28(Object *obj) {
-    *(s32 *)&obj->field_10 += 0xffff8000;
+    *(s32 *)&obj->pos_x_frac += 0xffff8000;
     if (obj->pos_x <= 0xc0) {
         obj->pos_x = 0xc0;
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 
 void func_8001983c_slot28(Object *obj) {
     if (obj->field_48 != 0) {
         obj->field_48 = 0;
-        obj->field_05++;
+        obj->state_1++;
         func_80130768(obj, 7, (SequenceStep **)obj->box_tables);
     }
 }
 
 void func_8001987c_slot28(Object *obj) {
     if (obj->pos_x - obj->field_3c->pos_x >= 0x30) {
-        obj->field_05++;
+        obj->state_1++;
         func_80130768(obj, 8, (SequenceStep **)obj->box_tables);
     }
 }

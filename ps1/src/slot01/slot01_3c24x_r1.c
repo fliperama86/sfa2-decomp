@@ -27,7 +27,7 @@ void func_80013c24_slot01(Object *obj) {
     obj->field_0d = 0;
     obj->field_0f = 0;
     obj->field_90 = (void *)0x80059000;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_60 != 0) {
         Object *p = obj;
         p->pos_x = data_80015c8c_slot01[p->field_03].first + data_80055f30_slot01;

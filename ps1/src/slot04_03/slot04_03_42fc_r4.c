@@ -6,13 +6,13 @@
 void func_801b4788_slot04_03(Object *obj) {
     int k = 0xc;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     if (obj->field_218 != 0 && obj->field_70 - obj->pos_y >= 0x30 && func_8013ffe4(obj, -0x30, 0x10, 0x20, 0x10) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         obj->field_128 = 1;
     } else {
         func_80141f28(obj, obj->field_12a >> 1);

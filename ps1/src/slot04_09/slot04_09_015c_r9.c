@@ -5,11 +5,11 @@
 
 void func_801b0c04_slot04_09(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
-    obj->field_10 += o->field_4c;
-    o->field_4c += o->field_54;
-    if (o->field_4c == 0) {
-        o->field_07++;
-        o->field_10 = 0;
+    obj->field_10 += o->vel_x;
+    o->vel_x += o->accel_x;
+    if (o->vel_x == 0) {
+        o->state_3++;
+        o->pos_x_frac = 0;
     }
     if ((game_state.field_1d & 3) == 0) {
         if (func_80148e84(o) & 0xff) {
@@ -24,7 +24,7 @@ void func_801b0c04_slot04_09(Object *o) {
 }
 
 void func_801b0cd4_slot04_09(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
         func_80130efc(obj);

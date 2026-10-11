@@ -10,5 +10,5 @@ void func_80011ea4_slot12(Object *obj) {
 }
 
 void func_80011ec4_slot12(Object *obj) {
-    table_80022e14_slot12[obj->field_04](obj);
+    table_80022e14_slot12[obj->state_0](obj);
 }

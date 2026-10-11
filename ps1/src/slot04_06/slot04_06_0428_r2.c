@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b2610_slot04_06(Object *o) {
-    if (*(u8 *)&o->field_3a != 0) {
+    if (*(u8 *)&o->step_flags != 0) {
         o->field_45 = 1;
         ((Slot04aObj *)o)->field_1c8 = 0;
-        o->field_07++;
+        o->state_3++;
     }
     func_80130efc(o);
 }

@@ -5,10 +5,10 @@
 
 void func_80145b60(Object *object) {
   if (game_state.field_65 == 0 && game_state.field_74 == 0 && data_8018f598 == 0) {
-    if ((object->field_3a & 0x80) == 0) {
+    if ((object->step_flags & 0x80) == 0) {
       func_8011fc00(object);
     } else {
-      object->field_04++;
+      object->state_0++;
     }
   }
 }

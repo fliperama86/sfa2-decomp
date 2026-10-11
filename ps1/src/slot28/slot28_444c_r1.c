@@ -32,7 +32,7 @@ void func_8001444c_slot28(Object *obj) {
 }
 
 void func_80014514_slot28(Object *obj) {
-    if (obj->field_f0 == 0 && (s16)data_8005187c_slot28[3]->field_3a < 0) {
+    if (obj->field_f0 == 0 && (s16)data_8005187c_slot28[3]->step_flags < 0) {
         data_8018f5a0->field_52 += 1;
         func_80130768(data_8005187c_slot28[2], 3, data_80029ee4_slot28);
         func_80014854_slot28(obj, 3);

@@ -25,7 +25,7 @@ void func_801b5e80_slot04_11(Object *obj) {
     s16 n;
     s16 t;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_128 = 4;
     obj->field_159 = 1;
     func_80130504(obj);
@@ -41,10 +41,10 @@ void func_801b5e80_slot04_11(Object *obj) {
     t += n;
     func_801307e0(obj, t);
     if (obj->field_129 != 0 && obj->field_12a == 4) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 5;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 5;
+        obj->state_3 = 0;
         obj->field_67 = 0;
     }
 }
@@ -55,12 +55,12 @@ void func_801b5f64_slot04_11(Object *obj) {
 }
 
 void func_801b5f88_slot04_11(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     s16 d = t & 0x7f;
     s16 e = d;
 
     if (d != 0) {
-        obj->field_3a = t & 0xff80;
+        obj->step_flags = t & 0xff80;
         if (obj->field_0b == 0) {
             e = -d;
         }

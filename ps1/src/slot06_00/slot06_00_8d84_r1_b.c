@@ -14,12 +14,12 @@ void func_801e8f74_slot06_00(Object *obj) {
         r->field_08 = (r->field_08 + r->field_14) & m;
     }
     if (((game_state.field_32 + game_state.field_24) & 1) != 0) {
-        *(u32 *)&obj->field_10 = r->field_08;
-        *(u32 *)&obj->field_14 = r->field_0c;
+        *(u32 *)&obj->pos_x_frac = r->field_08;
+        *(u32 *)&obj->pos_y_frac = r->field_0c;
         obj->sequence = r->field_1c;
     } else {
-        *(u32 *)&obj->field_10 = r->field_00;
-        *(u32 *)&obj->field_14 = r->field_04;
+        *(u32 *)&obj->pos_x_frac = r->field_00;
+        *(u32 *)&obj->pos_y_frac = r->field_04;
         obj->sequence = r->field_18;
     }
     func_8011ffdc(obj);

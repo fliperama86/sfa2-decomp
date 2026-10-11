@@ -5,11 +5,11 @@
 
 void func_80144320(Object *object) {
     int t;
-    *(int *)&object->field_10 = *(int *)&object->field_10 + object->field_4c;
+    *(int *)&object->pos_x_frac = *(int *)&object->pos_x_frac + object->vel_x;
     t = object->field_46 - 1;
     object->field_46 = t;
     if ((t & 0x80) != 0) {
         object->pos_x = 0xc0;
-        object->field_06 = object->field_06 + 1;
+        object->state_2 = object->state_2 + 1;
     }
 }

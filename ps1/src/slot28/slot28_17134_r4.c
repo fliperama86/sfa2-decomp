@@ -12,14 +12,14 @@ void func_80027748_slot28(int *p) {
     u16 *b = &data_801a6972;
     Object *o = data_80051df0_slot28.p;
     p[1] += p[0];
-    *(s32 *)&o->field_14 -= p[0];
+    *(s32 *)&o->pos_y_frac -= p[0];
     if (((*a | *b) & 0x40) != 0) {
         p[1] += p[0];
         p[1] += p[0];
         p[1] += p[0];
-        *(s32 *)&o->field_14 -= p[0];
-        *(s32 *)&o->field_14 -= p[0];
-        *(s32 *)&o->field_14 -= p[0];
+        *(s32 *)&o->pos_y_frac -= p[0];
+        *(s32 *)&o->pos_y_frac -= p[0];
+        *(s32 *)&o->pos_y_frac -= p[0];
     }
     if (o->field_48 == 0xff) {
         if (((*a | *b) & 0x40) != 0) {

@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 void func_801b2a58_slot04_03(Object *obj) {
-    s16 t = obj->field_3a;
+    s16 t = obj->step_flags;
     u8 c;
 
     if (t & 0x8000) {
-        obj->field_07 = 0xb;
+        obj->state_3 = 0xb;
         func_801307e0(obj, 0x31);
     } else if (t != 0) {
         if (obj->field_12a < 3) {
@@ -18,10 +18,10 @@ void func_801b2a58_slot04_03(Object *obj) {
         obj->field_129 = c;
         if (c & 0x80) {
         set:
-            obj->field_07 = 0xb;
+            obj->state_3 = 0xb;
             func_801307e0(obj, 0x31);
         } else {
-            obj->field_07++;
+            obj->state_3++;
             func_801204f4(obj, obj->side, 6);
             func_801204f4(obj, obj->side, 0xc);
             func_801307e0(obj, 0x2e);

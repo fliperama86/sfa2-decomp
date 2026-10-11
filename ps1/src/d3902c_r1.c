@@ -96,8 +96,8 @@ both:
         tmp = dist;
         dist = -dist;
     }
-    /* a word write: the word at offset 0x10 holds field_10 and the field after it */
-    *(s32 *)&ref_third.p->field_10 += tmp;
+    /* a word write: the word at offset 0x10 holds pos_x_frac and the field after it */
+    *(s32 *)&ref_third.p->pos_x_frac += tmp;
     target = ref_other.p;
     goto add;
 o1_still:
@@ -105,12 +105,12 @@ o1_still:
         goto both;
     if (far == 0)
         dist = -dist;
-    *(s32 *)&o1->field_10 += dist;
+    *(s32 *)&o1->pos_x_frac += dist;
     return;
 o2_only:
     if (far)
         dist = -dist;
-    *(s32 *)&o2->field_10 += dist;
+    *(s32 *)&o2->pos_x_frac += dist;
     return;
 o1_set:
     if (o2->field_164 != 0)
@@ -130,5 +130,5 @@ move_left:
         dist = -dist;
     target = ref_third.p;
 add:
-    *(s32 *)&target->field_10 += dist;
+    *(s32 *)&target->pos_x_frac += dist;
 }

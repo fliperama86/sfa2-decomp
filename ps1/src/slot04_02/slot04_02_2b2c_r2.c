@@ -5,9 +5,9 @@
 
 void func_801b2d40_slot04_02(Object *obj) {
     obj->field_249 = 2;
-    *(s32 *)&obj->field_4c = 0x80000;
-    obj->field_54 = -0x8000;
-    obj->field_07++;
+    *(s32 *)&obj->vel_x = 0x80000;
+    obj->accel_x = -0x8000;
+    obj->state_3++;
     func_80145d20(obj);
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
@@ -16,8 +16,8 @@ void func_801b2d40_slot04_02(Object *obj) {
 
 void func_801b2db8_slot04_02(Object *obj) {
     obj->field_249 = 2;
-    if (*(u8 *)&obj->field_3a != 0) {
-        obj->field_07++;
+    if (*(u8 *)&obj->step_flags != 0) {
+        obj->state_3++;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         } else {

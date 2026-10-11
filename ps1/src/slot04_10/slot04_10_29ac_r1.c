@@ -19,11 +19,11 @@ void func_801b29ac_slot04_10(Object *obj) {
     int a;
 
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (t >= 0) {
         if ((u8)t == 3) {
             a = 0x30;
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             if (obj->field_0b == 0) {
                 a = -0x30;
             }
@@ -37,20 +37,20 @@ void func_801b29ac_slot04_10(Object *obj) {
 }
 
 void func_801b2a40_slot04_10(Object *obj) {
-    data_801c6a2c_slot04_10[obj->field_07](obj);
+    data_801c6a2c_slot04_10[obj->state_3](obj);
 }
 
 void func_801b2a80_slot04_10(Object *obj) {
-    if ((u8)obj->field_3a) {
-        obj->field_07 = obj->field_07 + 1;
-        obj->field_3a &= 0xff00;
+    if ((u8)obj->step_flags) {
+        obj->state_3 = obj->state_3 + 1;
+        obj->step_flags &= 0xff00;
         func_80146998(obj);
     }
     func_80130efc(obj);
 }
 
 void func_801b2ad8_slot04_10(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         ref_other.p = obj->other;
@@ -60,7 +60,7 @@ void func_801b2ad8_slot04_10(Object *obj) {
 }
 
 void func_801b2b34_slot04_10(Object *obj) {
-    data_801c6a34_slot04_10[obj->field_07](obj);
+    data_801c6a34_slot04_10[obj->state_3](obj);
 }
 
 void func_801b2b74_slot04_10(Object *obj) {
@@ -68,10 +68,10 @@ void func_801b2b74_slot04_10(Object *obj) {
 
     obj->field_17b = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8((GameState *)data_80190468.p, obj);
-    obj->field_4c = 0xfffe8000;
+    obj->vel_x = 0xfffe8000;
     a = 0x47;
     if (obj->field_49 != 0) {
         a = 0x51;
@@ -83,7 +83,7 @@ void func_801b2b74_slot04_10(Object *obj) {
 }
 
 void func_801b2c08_slot04_10(Object *obj) {
-    data_801c6a44_slot04_10[obj->field_07](obj);
+    data_801c6a44_slot04_10[obj->state_3](obj);
 }
 
 void func_801b2c48_slot04_10(Object *obj) {
@@ -91,11 +91,11 @@ void func_801b2c48_slot04_10(Object *obj) {
 
     obj->field_17b = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
-    obj->field_07++;
+    obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8((GameState *)data_80190468.p, obj);
     a = 0x48;
-    obj->field_4c = 0xffff0000;
+    obj->vel_x = 0xffff0000;
     if (obj->field_49 != 0) {
         a = 0x52;
     }
@@ -131,13 +131,13 @@ void func_801b2cd8_slot04_10(Object *obj, int arg) {
 }
 
 void func_801b2e2c_slot04_10(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
 
     if ((u8)t == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_3a = t & 0xff00;
-        obj->field_07 = obj->field_07 + 1;
+        obj->step_flags = t & 0xff00;
+        obj->state_3 = obj->state_3 + 1;
         func_801b2e7c_slot04_10(obj);
     }
 }

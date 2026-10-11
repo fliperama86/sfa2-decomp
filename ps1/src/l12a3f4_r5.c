@@ -16,11 +16,11 @@ void func_8012b324(Object *object) {
     } else if ((u8)func_8012f800(object)) {
         func_8012f838(object);
     } else if (!(u8)func_8012f618(object)) {
-        saved = object->field_38;
-        object->field_07 = 0;
-        func_80130678(object, (u8)object->field_3a + 10);
-        object->field_38 = saved;
-    } else if ((s16)object->field_3a < 0) {
+        saved = object->step_timer;
+        object->state_3 = 0;
+        func_80130678(object, (u8)object->step_flags + 10);
+        object->step_timer = saved;
+    } else if ((s16)object->step_flags < 0) {
         func_80131468(object);
     } else {
         object->field_0b = object->field_158;

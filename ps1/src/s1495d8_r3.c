@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_80149aa8(Object *object) {
-    object->field_04 = 2;
+    object->state_0 = 2;
     object->field_01 = 0;
 }
 

@@ -12,7 +12,7 @@ void func_801b4960_slot04_06(Object *obj) {
     u16 v;
     u16 *p;
 
-    obj->field_06 = obj->field_06 + 1;
+    obj->state_2 = obj->state_2 + 1;
     ((Slot04aObj *)obj)->field_47 = 0x3c;
     game_state.field_76 = 0x1e;
     obj->field_0b = obj->field_158;

@@ -33,7 +33,7 @@
  *     data_801904c0, the overlap record at 80188ed0 (its in_ and f_ words,
  *     and the out_ fields through func_801397d0), data_80188f30; the
  *     player's field_241 and field_61; the table object's field_00,
- *     field_04 to field_07, field_5c; three bytes at data_80190468 + 0x5c.
+ *     state_0 to state_3, field_5c; three bytes at data_80190468 + 0x5c.
  *   Callees that run as the original code: func_80139a1c (clears the
  *     overlap record; inferred) and func_801397d0 (computes the overlap).
  *     Callees replaced by recorders, which return 0: func_80139a78 (a, b),
@@ -241,16 +241,16 @@ void func_8013bfa4(void) {
                 continue;
             }
             ref_third.p->field_00 += 1;
-            ref_third.p->field_04 = 1;
-            ref_third.p->field_05 = 1;
-            ref_third.p->field_06 = 0;
-            ref_third.p->field_07 = 0;
+            ref_third.p->state_0 = 1;
+            ref_third.p->state_1 = 1;
+            ref_third.p->state_2 = 0;
+            ref_third.p->state_3 = 0;
             ref_third.p->field_5c -= 1;
             if ((s16)ref_third.p->field_5c < 0) {
-                ref_third.p->field_04 = 2;
-                ref_third.p->field_05 = 0;
-                ref_third.p->field_06 = 0;
-                ref_third.p->field_07 = 0;
+                ref_third.p->state_0 = 2;
+                ref_third.p->state_1 = 0;
+                ref_third.p->state_2 = 0;
+                ref_third.p->state_3 = 0;
             }
         } while (0);
     }

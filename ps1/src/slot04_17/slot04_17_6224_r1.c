@@ -24,7 +24,7 @@ void func_801b6224_slot04_17(Object *o) {
         obj->field_46--;
         if (obj->field_46 == 0 && data_801a4fec != 0) {
             obj->field_46 = 0xc;
-            o->field_05++;
+            o->state_1++;
             n = func_8011f32c();
             if (n != 0) {
                 n->field_00 = 1;
@@ -54,7 +54,7 @@ void func_801b6370_slot04_17(Object *o) {
     u8 k = ref_other.p->field_28c;
 
     if (obj->field_47 != k) {
-        o->field_05 = 0;
+        o->state_1 = 0;
         obj->field_47 = k;
         func_801b66d0_slot04_17(o);
         func_801204f4(ref_other.p->other, ref_other.p->other->side, 0xf);
@@ -62,7 +62,7 @@ void func_801b6370_slot04_17(Object *o) {
     } else {
         obj->field_46--;
         if (obj->field_46 == 0) {
-            o->field_05++;
+            o->state_1++;
             func_801b6654_slot04_17(o);
         } else {
             func_801b6430_slot04_17(o);

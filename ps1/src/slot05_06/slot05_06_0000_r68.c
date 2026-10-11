@@ -9,15 +9,15 @@ void func_801cddec_slot05_06(Object *obj) {
     obj->field_44 = 1;
     obj->field_0c = 0;
     obj->field_0d = 0;
-    obj->field_50 = 0x40000;
-    obj->field_04++;
+    obj->vel_y = 0x40000;
+    obj->state_0++;
     func_80130768(obj, 0x23, seqs_8017c7f8);
 }
 
 void func_801cde38_slot05_06(Object *obj) {
-    *(s32 *)&obj->field_14 -= obj->field_50;
-    if ((s16)obj->field_3a < 0) {
-        obj->field_04++;
+    *(s32 *)&obj->pos_y_frac -= obj->vel_y;
+    if ((s16)obj->step_flags < 0) {
+        obj->state_0++;
     }
     func_80131094(obj);
     func_8011ffdc(obj);

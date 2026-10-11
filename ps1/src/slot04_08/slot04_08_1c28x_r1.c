@@ -11,17 +11,17 @@ void func_801b1c28_slot04_08(Object *obj) {
     if (((Slot04aObj *)obj)->field_1c8 == 0) {
         obj->field_17b = 0;
     }
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    obj->field_4c += obj->field_54;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    obj->vel_x += obj->accel_x;
     if (obj->field_0b == 0) {
-        below = -obj->field_4c < 0;
+        below = -obj->vel_x < 0;
         if (below) {
-            obj->field_07++;
+            obj->state_3++;
         }
     } else {
-        below = obj->field_4c < 0;
+        below = obj->vel_x < 0;
         if (below) {
-            obj->field_07++;
+            obj->state_3++;
         }
     }
     func_80130efc(obj);

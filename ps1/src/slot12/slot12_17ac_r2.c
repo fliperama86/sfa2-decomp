@@ -14,7 +14,7 @@ void func_800117ec_slot12(Object *obj) {
     obj->field_0e = 0;
     obj->field_24 = 0;
     obj->field_0b = 0;
-    obj->field_04++;
+    obj->state_0++;
     if (obj->field_03 == 0) {
         obj->field_20 = 0x80;
         obj->field_22 = 0x80;

@@ -8,7 +8,7 @@ extern Object *data_80033b98_slot01;
 void func_80014bd8_slot01(Object *obj);
 
 void func_80014794_slot01(Object *object) {
-    data_80015dcc_slot01[object->field_05](object);
+    data_80015dcc_slot01[object->state_1](object);
 }
 
 void func_800147d4_slot01(Object *obj) {
@@ -16,7 +16,7 @@ void func_800147d4_slot01(Object *obj) {
     data_80033b98_slot01 = obj->field_3c;
     obj->field_01 = 0;
     obj->field_0c = 1;
-    obj->field_05++;
+    obj->state_1++;
     obj->field_0d = data_80033b98_slot01->field_0d;
     obj->field_0e = 0;
     obj->field_09 = 0;

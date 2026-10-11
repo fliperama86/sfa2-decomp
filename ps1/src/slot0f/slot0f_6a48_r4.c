@@ -15,7 +15,7 @@ void func_800e6dfc_slot0f(Object *obj) {
         ((PrimTag *)data_801987c8)->addr = (u32)((u8 *)data_800f7b94_slot0f + (i << 6) + (data_801a27d0 << 5));
     }
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }
 

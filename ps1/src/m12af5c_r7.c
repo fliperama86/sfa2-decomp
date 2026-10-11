@@ -7,7 +7,7 @@
 void func_8012d170(Object *object) {
     int index;
     if (func_8012eff8(object) != 0) {
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         object->field_0b = (object->field_72 ^ 1) & 1;
         func_8012d394(object);
     } else if ((s16)object->field_5c < 0) {

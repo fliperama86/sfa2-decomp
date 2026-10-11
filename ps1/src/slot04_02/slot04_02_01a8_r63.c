@@ -14,7 +14,7 @@ void func_801b7110_slot04_02(Object *o) {
         o->field_af ^= 1;
         o->field_0d = o->field_af + obj->field_b0;
     }
-    data_801c77d8_slot04_02[o->field_05](o);
+    data_801c77d8_slot04_02[o->state_1](o);
 }
 
 void func_801b717c_slot04_02(Object *o) {
@@ -27,8 +27,8 @@ void func_801b717c_slot04_02(Object *o) {
 }
 
 void func_801b71fc_slot04_02(Object *o) {
-    *(s32 *)&o->field_10 += o->field_4c;
-    *(s32 *)&o->field_14 -= o->field_50;
+    *(s32 *)&o->pos_x_frac += o->vel_x;
+    *(s32 *)&o->pos_y_frac -= o->vel_y;
 }
 
 void func_801b7220_slot04_02(Object *obj) {
@@ -37,7 +37,7 @@ void func_801b7220_slot04_02(Object *obj) {
         obj->pos_y = obj->field_70;
         func_801b7920_slot04_02(obj, 0x10);
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
-        *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     }
 }

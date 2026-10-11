@@ -8,7 +8,7 @@ extern u8 data_801c43c0_slot04_04[];
 void func_801b28b8_slot04_04(Object *o) {
     o->field_46 = (s16)o->field_46 - 0x100;
     if (o->field_46 & 0xff00) {
-        o->field_07++;
+        o->state_3++;
         o->field_46 = ((Slot04bObj *)o)->field_46 + 0x3800;
         if (o->field_4b != 0) {
             o->field_165 = 1;
@@ -24,7 +24,7 @@ void func_801b28b8_slot04_04(Object *o) {
 void func_801b295c_slot04_04(Object *o) {
     o->field_46 = (s16)o->field_46 - 0x100;
     if ((o->field_46 & 0xff00) == 0) {
-        o->field_07++;
+        o->state_3++;
         if (o->field_4b != 0) {
             ((Slot04bObj *)o)->field_27b = data_801c43c0_slot04_04[3];
         } else {
@@ -38,9 +38,9 @@ void func_801b295c_slot04_04(Object *o) {
 }
 
 void func_801b2a08_slot04_04(Object *o) {
-    if (*(u8 *)&o->field_3a == 0) {
+    if (*(u8 *)&o->step_flags == 0) {
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
     }
     func_80130efc(o);
 }

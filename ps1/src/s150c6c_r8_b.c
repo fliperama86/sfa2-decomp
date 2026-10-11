@@ -24,5 +24,5 @@ void func_801521a0(int a, u8 b, s16 c, s16 d) {
 
 void func_80152220(Block172 *block) {
     Object *object = (Object *)block;
-    table_8018023c[object->field_04](object);
+    table_8018023c[object->state_0](object);
 }

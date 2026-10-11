@@ -20,21 +20,21 @@ void func_80078518_slot2b(Object *o) {
 void func_80078554_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
 
-    obj->field_10 += o->field_4c;
-    o->field_4c += o->field_54;
-    obj->field_14 -= o->field_50;
-    o->field_50 += o->field_58;
+    obj->field_10 += o->vel_x;
+    o->vel_x += o->accel_x;
+    obj->field_14 -= o->vel_y;
+    o->vel_y += o->accel_y;
 }
 
 void func_80078598_slot2b(Object *o) {
     data_8007ef30_slot2b = o->field_3c;
-    data_8007ed88_slot2b[o->field_04](o);
+    data_8007ed88_slot2b[o->state_0](o);
 }
 
 void func_800785e8_slot2b(Object *o) {
     Object *p;
 
-    o->field_04++;
+    o->state_0++;
     p = data_8007ef30_slot2b;
     o->field_1c = p->field_1c;
     o->field_03 = p->kind;

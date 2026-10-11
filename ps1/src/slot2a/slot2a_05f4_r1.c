@@ -18,13 +18,13 @@ void func_801e114c_slot2a(Object *obj);
 
 void func_801e05f4_slot2a(Object *obj) {
     u8 t;
-    obj->field_05 = 2;
+    obj->state_1 = 2;
     obj->field_01 = 0;
     obj->field_0e = 0;
     obj->field_09 = 0;
     obj->field_0f = 0;
     obj->field_26 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     data_801e25d8_slot2a[obj->field_03] = 0;
     obj->pos_y = 0x40;
     if (obj->field_03 != 0) {
@@ -41,7 +41,7 @@ void func_801e05f4_slot2a(Object *obj) {
 }
 
 void func_801e06a0_slot2a(Object *obj) {
-    table_801e225c_slot2a[obj->field_05](obj);
+    table_801e225c_slot2a[obj->state_1](obj);
     if (data_801e25d8_slot2a[obj->field_03] != 0) {
         func_801e0958_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->field_03 * 0x500 + data_801a27d0 * 0x280));
     }
@@ -49,7 +49,7 @@ void func_801e06a0_slot2a(Object *obj) {
 }
 
 void func_801e074c_slot2a(Object *obj) {
-    obj->field_05++;
+    obj->state_1++;
     if (obj->field_45 != (*data_801e52c8_slot2a >> 8)) {
         obj->field_3c = &player_right;
     } else {

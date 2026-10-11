@@ -9,26 +9,26 @@
  *
  * What it does (inferred, not an original name): a state of a helper object
  * that follows another one (field_3c). It advances its state byte
- * (field_04). While game_state.field_64 is not 0 it copies the other
+ * (state_0). While game_state.field_64 is not 0 it copies the other
  * object's position-related fields, places itself at fixed coordinates
  * (x from box_margin, y from data_801aa5ea), steps field_03 up by one
  * unless the other object's field_5c is 0x90, loads a palette copy for that
  * value (func_801b8430), takes sequence 8 from the left or right table
  * (scratchpad words, chosen by the other object's side) and registers
  * itself (func_8011ffdc). When field_64 is 0 it only calls
- * func_801b8354_slot04_14, which sets field_04 to 2.
+ * func_801b8354_slot04_14, which sets state_0 to 2.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: field_04, field_3c (a second object, distinct from the first),
+ *   Reads: state_0, field_3c (a second object, distinct from the first),
  *     field_03; the second object's field_1c, field_90, field_98, field_9c,
  *     field_7a, field_7c, field_5c and side; game_state.field_64; box_margin;
  *     data_801aa5ea; the scratchpad words data_1f8000b4 and data_1f800164
  *     (pointers to tables of sequence pointers, entry 8 is used).
- *   Writes: field_04 (+1, or 2 in the idle arm), and in the active arm
+ *   Writes: state_0 (+1, or 2 in the idle arm), and in the active arm
  *     field_0f, field_0e, field_0b = 0, field_09 = 6, field_1c, field_90,
  *     field_98, field_9c, field_7a, field_7c, pos_x, field_0d = 0x1f,
- *     field_44 = 1, field_46 = 0x15, field_54 = 6, field_a0 = 0, pos_y,
+ *     field_44 = 1, field_46 = 0x15, accel_x = 6, field_a0 = 0, pos_y,
  *     field_03, and what the callees write.
  *   Callees: func_801b8354_slot04_14, func_801b8430_slot04_14, func_80130768
  *     and func_8011ffdc run as the original code (with the setup giving them
@@ -55,7 +55,7 @@ void func_801b81f8_slot04_14(Object *obj) {
     Object *other;
     u8 palette;
 
-    obj->field_04++;
+    obj->state_0++;
     other = obj->field_3c;
     if (game_state.field_64 != 0) {
         obj->field_0f = 0;
@@ -72,7 +72,7 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->field_0d = 0x1f;
         obj->field_44 = 1;
         obj->field_46 = 0x15;
-        obj->field_54 = 6;
+        obj->accel_x = 6;
         obj->field_a0 = 0;
         obj->pos_y = 0x78 - data_801aa5ea[0];
         palette = obj->field_03;

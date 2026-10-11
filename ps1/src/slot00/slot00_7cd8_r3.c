@@ -20,22 +20,22 @@ void func_80077ef0_slot00(Object *obj) {
             rec = (Slot00Rec7ef0 *)((u8 *)obj + 0x20);
         }
         obj->sequence = rec->seq;
-        obj->field_38 = rec->field_04;
-        obj->field_3a = rec->field_06;
+        obj->step_timer = rec->field_04;
+        obj->step_flags = rec->field_06;
         obj->sequence = obj->sequence + 1;
         if ((s16)rec->field_06 >= 0) goto ok;
     }
 fail:
-    obj->field_04 = 2;
+    obj->state_0 = 2;
     obj->field_01 = 0;
     return;
 ok:
     {
-            obj->field_38 = obj->sequence->duration;
-            obj->field_3a = obj->sequence->flags;
+            obj->step_timer = obj->sequence->duration;
+            obj->step_flags = obj->sequence->flags;
             rec->seq = obj->sequence;
-            rec->field_04 = obj->field_38;
-            rec->field_06 = obj->field_3a;
+            rec->field_04 = obj->step_timer;
+            rec->field_06 = obj->step_flags;
             obj->field_80 = 1;
             rec->field_0c += rec->field_08;
             rec->field_0e -= rec->field_0a;

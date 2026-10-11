@@ -9,7 +9,7 @@ void func_801b13fc_slot04_15(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     o->field_17b = 1;
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 4);
     func_80138ae8(&game_state, o);
     obj->field_1ce = 0;

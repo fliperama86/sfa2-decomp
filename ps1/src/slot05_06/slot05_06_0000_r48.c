@@ -14,10 +14,10 @@ void func_801cc194_slot05_06(Object *obj) {
         func_801cc228_slot05_06(obj);
     } else {
         if (obj->field_45 != 0) {
-            obj->field_04 = 1;
-            obj->field_05 = 0;
-            obj->field_06 = 3;
-            obj->field_07 = 1;
+            obj->state_0 = 1;
+            obj->state_1 = 0;
+            obj->state_2 = 3;
+            obj->state_3 = 1;
         }
         func_80142c70(obj);
     }
@@ -37,5 +37,5 @@ void func_801cc228_slot05_06(Object *o) {
 }
 
 void func_801cc294_slot05_06(Object *obj) {
-    data_801dd4bc_slot05_06[obj->field_07](obj);
+    data_801dd4bc_slot05_06[obj->state_3](obj);
 }

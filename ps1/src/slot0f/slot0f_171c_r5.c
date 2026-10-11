@@ -21,7 +21,7 @@ void func_800e1b84_slot0f(Object *o) {
         t = -0x4c;
         o->field_0f = t;
         o->field_01 += 1;
-        o->field_04 += 1;
+        o->state_0 += 1;
     }
 }
 

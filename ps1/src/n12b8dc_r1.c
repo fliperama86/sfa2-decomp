@@ -22,7 +22,7 @@ void func_8012b8dc(Object *object) {
     } else if ((u8)func_80130258(object)) {
         func_80130280(object);
     } else if (!func_8012f970(object)) {
-        object->field_07++;
+        object->state_3++;
         object->field_0b = object->field_158;
         func_80130678(object, 0x1a);
     } else if ((u8)func_8012f618(object)) {
@@ -30,7 +30,7 @@ void func_8012b8dc(Object *object) {
     } else {
 reset:
         object->field_0b = object->field_158;
-        object->field_07 = 0;
+        object->state_3 = 0;
         object->field_157 = 0;
         func_80130678(object, 0x16);
     }

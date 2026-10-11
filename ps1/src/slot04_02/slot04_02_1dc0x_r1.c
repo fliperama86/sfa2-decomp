@@ -11,7 +11,7 @@ void func_801b1dc0_slot04_02(Object *o) {
 
     func_80130efc(o);
     if (obj->field_3a != 0) {
-        o->field_07++;
+        o->state_3++;
         o->field_46 = obj->field_46 | 0x400;
         p = ((Object *(*)(void))func_8011f0e8)();
         if (p != 0) {

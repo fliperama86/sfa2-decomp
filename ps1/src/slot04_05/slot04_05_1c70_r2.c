@@ -4,19 +4,19 @@
 #include "../externs.h"
 
 void func_801b1d94_slot04_05(Object *o) {
-    *(s32 *)&o->field_10 = data_801aa5e4[0] - ((Slot04aObj *)o)->field_a0 + *(s32 *)&o->field_10;
+    *(s32 *)&o->pos_x_frac = data_801aa5e4[0] - ((Slot04aObj *)o)->field_a0 + *(s32 *)&o->pos_x_frac;
     ((Slot04aObj *)o)->field_a0 = data_801aa5e4[0];
     if ((u8)func_80130184(o) != 0) {
-        if (o->field_50 < 0 || o->pos_y <= 0x50) {
+        if (o->vel_y < 0 || o->pos_y <= 0x50) {
             if (o->field_164 != 0) {
-                o->field_07++;
+                o->state_3++;
             }
         }
-        if (*(u8 *)&o->field_3a != 2) {
+        if (*(u8 *)&o->step_flags != 2) {
             func_80130efc(o);
         }
     } else {
-        o->field_07 += 3;
+        o->state_3 += 3;
         o->field_45 = 0;
         o->pos_y = o->field_70;
         func_801307e0(o, 0x32);

@@ -15,21 +15,21 @@ void func_801b51dc_slot04_07(Object *obj) {
     if (obj->field_0b == 0) {
         v = *p++;
         k = -8;
-        *(s16 *)&obj->field_54 = k;
-        *(u16 *)&obj->field_4c = v;
+        *(s16 *)&obj->accel_x = k;
+        *(u16 *)&obj->vel_x = v;
         v = *p++;
-        *(s16 *)((u8 *)&obj->field_54 + 2) = 0;
+        *(s16 *)((u8 *)&obj->accel_x + 2) = 0;
     } else {
         v = *p++;
         k = 8;
-        *(s16 *)&obj->field_54 = k;
-        *(u16 *)&obj->field_4c = -v;
+        *(s16 *)&obj->accel_x = k;
+        *(u16 *)&obj->vel_x = -v;
         v = -*p++;
-        *(s16 *)((u8 *)&obj->field_54 + 2) = 0;
+        *(s16 *)((u8 *)&obj->accel_x + 2) = 0;
     }
-    *(u16 *)((u8 *)&obj->field_4c + 2) = v;
-    *(u16 *)&obj->field_50 = p[0];
-    *(s16 *)&obj->field_58 = -0x30;
-    *(u16 *)((u8 *)&obj->field_50 + 2) = p[1];
-    *(s16 *)((u8 *)&obj->field_58 + 2) = -0x38;
+    *(u16 *)((u8 *)&obj->vel_x + 2) = v;
+    *(u16 *)&obj->vel_y = p[0];
+    *(s16 *)&obj->accel_y = -0x30;
+    *(u16 *)((u8 *)&obj->vel_y + 2) = p[1];
+    *(s16 *)((u8 *)&obj->accel_y + 2) = -0x38;
 }

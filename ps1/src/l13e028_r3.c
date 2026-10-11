@@ -8,10 +8,10 @@ int func_8013fab4(Object *object) {
         ref_other.p->field_c6 -= 0x30;
         if (*(s16 *)&ref_other.p->field_c6 < 0) ref_other.p->field_c6 = 0;
     }
-    ref_other.p->field_04 = 1;
-    ref_other.p->field_05 = 3;
-    ref_other.p->field_06 = 0;
-    ref_other.p->field_07 = 0;
+    ref_other.p->state_0 = 1;
+    ref_other.p->state_1 = 3;
+    ref_other.p->state_2 = 0;
+    ref_other.p->state_3 = 0;
     ref_other.p->field_73 = 0xff;
     object->field_73 = 1;
     ref_other.p->field_15b = 1;

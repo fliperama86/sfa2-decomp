@@ -8,7 +8,7 @@ void func_801b5154_slot04_0a(Object *obj);
 void func_801b5048_slot04_0a(Object *obj) {
     Object *p;
     SequenceStep **t;
-    obj->field_04++;
+    obj->state_0++;
     p = obj->field_3c;
     obj->pos_x = p->pos_x;
     *(u16 *)&obj->pos_y = ((Slot04aObj *)p)->field_70;
@@ -26,7 +26,7 @@ void func_801b5048_slot04_0a(Object *obj) {
 }
 
 void func_801b50f4_slot04_0a(Object *obj) {
-    if (obj->field_3c->field_06 >= 2) {
+    if (obj->field_3c->state_2 >= 2) {
         func_801b5154_slot04_0a(obj);
     } else {
         func_80131094(obj);

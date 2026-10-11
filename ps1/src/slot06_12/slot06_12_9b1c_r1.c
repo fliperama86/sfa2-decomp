@@ -38,7 +38,7 @@ void func_801e9be8_slot06_12(Object *obj) {
     s16 *c = &data_801904cc;
 
     *c = 0;
-    *c = (obj->field_54 >> 8) & 0x7f;
+    *c = (obj->accel_x >> 8) & 0x7f;
     obj->field_03 = *(u8 *)c;
 }
 
@@ -60,19 +60,19 @@ void func_801e9c80_slot06_12(Object *obj) {
 }
 
 void func_801e9ccc_slot06_12(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         func_801e9be8_slot06_12(obj);
         func_801e9b1c_slot06_12(obj);
     }
     func_80131094(obj);
-    if ((s16)obj->field_3a != 0) {
+    if ((s16)obj->step_flags != 0) {
         obj->pos_x += 8;
     }
     func_80120028(obj);
 }
 
 void func_801e9d40_slot06_12(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         func_801e9be8_slot06_12(obj);
         func_801e9b1c_slot06_12(obj);
     }
@@ -87,11 +87,11 @@ void func_801e9d94_slot06_12(Object *obj) {
 void func_801e9db4_slot06_12(Object *obj) {
     SeqRec *rec;
 
-    obj->field_50 = obj->field_50 - 1;
-    if (obj->field_50 == 0) {
-        rec = (SeqRec *)obj->field_4c;
+    obj->vel_y = obj->vel_y - 1;
+    if (obj->vel_y == 0) {
+        rec = (SeqRec *)obj->vel_x;
         rec++;
-        if (obj->field_54 < 0) {
+        if (obj->accel_x < 0) {
             func_801e9e0c_slot06_12(obj);
         } else {
             func_801e9e68_slot06_12(obj, rec);
@@ -100,16 +100,16 @@ void func_801e9db4_slot06_12(Object *obj) {
 }
 
 void func_801e9e0c_slot06_12(Object *obj) {
-    obj->field_58 = (obj->field_58 + 1) & 0x3f;
-    func_801e9e68_slot06_12(obj, data_801ef2f4_slot06_12[data_801eef00_slot06_12[obj->field_58]]);
+    obj->accel_y = (obj->accel_y + 1) & 0x3f;
+    func_801e9e68_slot06_12(obj, data_801ef2f4_slot06_12[data_801eef00_slot06_12[obj->accel_y]]);
 }
 
 void func_801e9e68_slot06_12(Object *obj, SeqRec *rec) {
     int w;
 
-    obj->field_4c = (s32)rec;
+    obj->vel_x = (s32)rec;
     w = rec->header;
-    obj->field_50 = w >> 16;
-    obj->field_54 = (s16)w;
+    obj->vel_y = w >> 16;
+    obj->accel_x = (s16)w;
     func_8011fcc0(rec);
 }

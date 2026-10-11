@@ -11,7 +11,7 @@ void func_801e12fc_slot2a(Object *obj);
 void func_801e16a8_slot2a(Object *obj);
 
 void func_801e1244_slot2a(Object *obj) {
-    data_801e2300_slot2a[obj->field_04](obj);
+    data_801e2300_slot2a[obj->state_0](obj);
 }
 
 void func_801e1284_slot2a(Object *obj) {
@@ -23,8 +23,8 @@ void func_801e1284_slot2a(Object *obj) {
     obj->field_22 = 0;
     obj->field_24 = 0;
     obj->field_0c = 0;
-    obj->field_04++;
-    obj->field_05++;
+    obj->state_0++;
+    obj->state_1++;
     if (obj->field_45 != obj->field_03) {
         obj->pos_x = 0x10;
     }

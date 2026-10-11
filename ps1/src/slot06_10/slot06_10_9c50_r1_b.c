@@ -13,12 +13,12 @@ void func_801e9de8_slot06_10(Object *obj) {
 }
 
 void func_801e9e08_slot06_10(Object *obj) {
-    data_801ea9d0_slot06_10[obj->field_04](obj);
+    data_801ea9d0_slot06_10[obj->state_0](obj);
 }
 
 void func_801e9e48_slot06_10(Object *obj) {
     obj->field_0a = 1;
-    obj->field_04 = 1;
+    obj->state_0 = 1;
     obj->field_76 = 0x340;
     obj->field_78 = 0x100;
     obj->field_7a = 0x70;

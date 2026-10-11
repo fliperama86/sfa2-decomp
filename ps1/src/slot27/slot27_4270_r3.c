@@ -18,7 +18,7 @@ void func_80014540_slot27(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 == 0) {
         obj->field_01 = 0;
-        obj->field_05 = obj->field_05 + 1;
+        obj->state_1 = obj->state_1 + 1;
     }
 }
 
@@ -27,11 +27,11 @@ void func_80014574_slot27(Object *obj) {
 }
 
 void func_80014594_slot27(Object *obj) {
-    data_80027cbc_slot27[obj->field_05](obj);
+    data_80027cbc_slot27[obj->state_1](obj);
 }
 
 void func_800145d4_slot27(Object *obj) {
     obj->field_01 = 1;
-    obj->field_50 = 8;
-    obj->field_05 = obj->field_05 + 1;
+    obj->vel_y = 8;
+    obj->state_1 = obj->state_1 + 1;
 }

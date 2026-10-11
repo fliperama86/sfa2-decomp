@@ -29,13 +29,13 @@ void func_80017090_slot28(Object *obj) {
 }
 
 void func_800170c0_slot28(Object *obj) {
-    data_800306c4_slot28[obj->field_05](obj);
+    data_800306c4_slot28[obj->state_1](obj);
     func_80131094(obj);
     obj->field_01 = 1;
 }
 
 void func_8001711c_slot28(Object *obj) {
     if (obj->field_48 != 0) {
-        obj->field_05 += 1;
+        obj->state_1 += 1;
     }
 }

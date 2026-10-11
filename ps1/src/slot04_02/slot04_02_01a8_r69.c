@@ -11,7 +11,7 @@ void func_801b7b74_slot04_02(Object *obj);
 void func_801b79b4_slot04_02(Object *obj) {
     Object *p = obj->field_3c;
 
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = p->field_1c;
     obj->field_03 = p->kind;
     obj->field_0c = p->field_0c;
@@ -36,7 +36,7 @@ void func_801b7a4c_slot04_02(Object *obj) {
     if (obj->field_03 != p->kind) {
         func_801b7b10_slot04_02(obj);
     } else {
-        w = p->field_3a;
+        w = p->step_flags;
         t = w & 0xff;
         u = t;
         if (u == 0) {

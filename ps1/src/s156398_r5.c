@@ -23,13 +23,13 @@ void func_80157174(Object *dest, Object *object) {
 
 void func_801571f4(Block172 *block) {
     Object *object = (Object *)block;
-    table_8018191c[object->field_04](object);
+    table_8018191c[object->state_0](object);
 }
 
 void func_80157234(Object *object) {
     object->field_09 = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
-    object->field_04++;
+    object->state_0++;
     func_8011a55c(object);
 }

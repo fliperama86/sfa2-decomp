@@ -7,8 +7,8 @@ extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
 
 void func_8001578c_slot27(Object *obj) {
-    if (*(u16 *)&obj->field_3c->field_04 == 0x101) {
-        obj->field_04++;
+    if (*(u16 *)&obj->field_3c->state_0 == 0x101) {
+        obj->state_0++;
     }
     game_state.field_c8 |= 2;
 }

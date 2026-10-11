@@ -6,5 +6,5 @@
 extern ObjectFn data_801c0704_slot04_0a[];
 
 void func_801b3748_slot04_0a(Object *obj) {
-    data_801c0704_slot04_0a[obj->field_07](obj);
+    data_801c0704_slot04_0a[obj->state_3](obj);
 }

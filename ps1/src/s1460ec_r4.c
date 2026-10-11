@@ -26,5 +26,5 @@ u16 func_80147158(Object *object) {
 
 void func_801471f8(Block172 *block) {
     Object *object = (Object *)block;
-    fn_table_8017cb00[object->field_04](object);
+    fn_table_8017cb00[object->state_0](object);
 }

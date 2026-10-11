@@ -12,13 +12,13 @@ void func_80144734(Object *object) {
 }
 
 void func_80144780(Object *object) {
-    handlers_b630[object->field_05](object);
+    handlers_b630[object->state_1](object);
 }
 
 void func_801447c0(Object *object) {
-    handlers_b640[object->field_06](object);
+    handlers_b640[object->state_2](object);
     func_80131094(object);
-    if (object->field_06 >= 2) {
+    if (object->state_2 >= 2) {
         func_80120028(object);
     }
 }

@@ -6,16 +6,16 @@
 extern ObjectFn data_801c09f0_slot04_03[];
 
 void func_801b4254_slot04_03(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         if (func_80149b80(obj) & 0xff) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
     }
 }
 
 void func_801b42bc_slot04_03(Object *obj) {
-    data_801c09f0_slot04_03[obj->field_07](obj);
+    data_801c09f0_slot04_03[obj->state_3](obj);
 }

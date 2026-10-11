@@ -7,17 +7,17 @@ void func_80077908_slot2b(Object *obj);
 
 void func_800777c8_slot2b(Object *obj) {
     Slot2bObj *o = (Slot2bObj *)obj;
-    o->field_10 += obj->field_4c;
-    obj->field_4c += obj->field_54;
+    o->field_10 += obj->vel_x;
+    obj->vel_x += obj->accel_x;
     if (o->field_3a == 0) {
-        obj->field_07++;
-        obj->field_10 = 0;
+        obj->state_3++;
+        obj->pos_x_frac = 0;
     }
     func_80130efc(obj);
 }
 
 void func_80077828_slot2b(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         func_80131468(obj);

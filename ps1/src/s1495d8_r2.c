@@ -16,5 +16,5 @@ void func_80149888(Object *object) {
 
 void func_801498e0(Block172 *block) {
     Object *object = (Object *)block;
-    data_8017cf6c[object->field_04](object);
+    data_8017cf6c[object->state_0](object);
 }

@@ -19,12 +19,12 @@ void func_8012d7e4(Object *object) {
         func_8012f56c(object) || !func_8014a170(object, data_8017d898)) {
         func_801308c4(object, 0x14);
     } else {
-        object->field_04 = 1;
-        object->field_06 = 7;
+        object->state_0 = 1;
+        object->state_2 = 7;
         object->field_12a = 2;
         object->field_15a = 6;
-        object->field_05 = 0;
-        object->field_07 = 0;
+        object->state_1 = 0;
+        object->state_3 = 0;
         object->field_258 = 0;
         object->field_259 = 0;
         object->field_25a = 0;

@@ -11,15 +11,15 @@ void func_801b2e68_slot04_12(Object *obj) {
     u16 f;
 
     p = (Object *)obj->field_28;
-    if ((s16)p->field_3a & 0x8000) {
-        t = obj->field_3a;
+    if ((s16)p->step_flags & 0x8000) {
+        t = obj->step_flags;
         if (t & 0x8000) {
-            obj->field_07++;
+            obj->state_3++;
             func_801307e0(obj, obj->field_12a + 0x5b);
             return;
         }
         if (t & 0xff) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             p = (Object *)func_8011f1e0();
             if (p != 0) {
                 p->field_00 = 1;
@@ -69,8 +69,8 @@ void func_801b2e68_slot04_12(Object *obj) {
             }
         }
         obj->sequence = obj->sequence + 1;
-        obj->field_38 = obj->sequence->duration;
-        obj->field_3a = obj->sequence->flags;
+        obj->step_timer = obj->sequence->duration;
+        obj->step_flags = obj->sequence->flags;
         obj->frame = obj->frames + obj->sequence->frame_index;
     }
 }

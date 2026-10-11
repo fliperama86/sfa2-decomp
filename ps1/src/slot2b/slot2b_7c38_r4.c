@@ -10,10 +10,10 @@ void func_80077fcc_slot2b(Object *o) {
     s->field_14 -= s->field_50;
     s->field_50 += s->field_58;
     if (data_8007ef24_slot2b <= o->pos_y) {
-        o->field_05++;
-        o->field_14 = 0;
-        o->field_50 = 0x20000;
-        o->field_58 = -0x4000;
+        o->state_1++;
+        o->pos_y_frac = 0;
+        o->vel_y = 0x20000;
+        o->accel_y = -0x4000;
         o->pos_y = data_8007ef24_slot2b;
     }
     func_80131094(o);
@@ -24,11 +24,11 @@ void func_80078050_slot2b(Object *o) {
     s->field_14 -= s->field_50;
     s->field_50 += s->field_58;
     if (data_8007ef24_slot2b <= o->pos_y) {
-        o->field_04 = 3;
-        o->field_05 = 0;
-        o->field_06 = 0;
-        o->field_07 = 0;
-        o->field_14 = 0;
+        o->state_0 = 3;
+        o->state_1 = 0;
+        o->state_2 = 0;
+        o->state_3 = 0;
+        o->pos_y_frac = 0;
     }
     func_80131094(o);
 }

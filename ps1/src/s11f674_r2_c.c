@@ -7,12 +7,12 @@
 
 void func_8011fc00(Object *object) {
     SeqRec *rec;
-    int v = object->field_38 - 1;
-    object->field_38 = v;
+    int v = object->step_timer - 1;
+    object->step_timer = v;
     if ((s16)v == 0) {
         rec = (SeqRec *)object->sequence;
         rec++;
-        if ((s16)object->field_3a < 0) {
+        if ((s16)object->step_flags < 0) {
             rec = (SeqRec *)rec->header;
         }
         func_8011fc84(object, rec);

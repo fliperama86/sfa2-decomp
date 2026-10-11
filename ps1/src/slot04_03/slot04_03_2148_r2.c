@@ -4,17 +4,17 @@
 #include "../externs.h"
 
 void func_801b223c_slot04_03(Object *obj) {
-    if (obj->field_50 >= 0) {
-        obj->field_58 = 0x8000;
+    if (obj->vel_y >= 0) {
+        obj->accel_y = 0x8000;
     }
     if (obj->field_0b != 0) {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
-        *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 - obj->field_4c;
+        *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     }
-    obj->field_4c = obj->field_4c + obj->field_54;
-    if (obj->field_4c < 0) {
-        obj->field_4c = 0;
-        obj->field_54 = 0;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    if (obj->vel_x < 0) {
+        obj->vel_x = 0;
+        obj->accel_x = 0;
     }
 }

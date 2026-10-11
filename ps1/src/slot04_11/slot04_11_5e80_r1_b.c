@@ -55,17 +55,17 @@ void func_801b606c_slot04_11(Object *obj) {
 
 void func_801b60f4_slot04_11(Object *obj) {
     obj->field_157 = 0;
-    data_801c7a40_slot04_11[obj->field_07](obj);
+    data_801c7a40_slot04_11[obj->state_3](obj);
 }
 
 void func_801b6134_slot04_11(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 2;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 2;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     } else {
         func_801b6604_slot04_11(obj);
         func_801b6628_slot04_11(obj);
@@ -73,11 +73,11 @@ void func_801b6134_slot04_11(Object *obj) {
 }
 
 void func_801b61c4_slot04_11(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         func_801b66ac_slot04_11(obj);
     } else {
         if (func_80149b80(obj) & 0xff) {
-            obj->field_07 = 0;
+            obj->state_3 = 0;
         }
         func_80130efc(obj);
         func_801b6628_slot04_11(obj);
@@ -86,11 +86,11 @@ void func_801b61c4_slot04_11(Object *obj) {
 
 void func_801b6230_slot04_11(Object *obj) {
     obj->field_157 = 1;
-    data_801c7a48_slot04_11[obj->field_07](obj);
+    data_801c7a48_slot04_11[obj->state_3](obj);
 }
 
 void func_801b6274_slot04_11(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     obj->field_0b = obj->field_158;
     if (obj->field_129 != 0 && obj->field_12a == 4) {
         obj->field_29c = 1;
@@ -100,11 +100,11 @@ void func_801b6274_slot04_11(Object *obj) {
 }
 
 void func_801b62d8_slot04_11(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         func_801b66cc_slot04_11(obj);
     }
     if (func_80149b80(obj) & 0xff) {
-        obj->field_07 = 0;
+        obj->state_3 = 0;
     }
     func_80130efc(obj);
     func_801b6628_slot04_11(obj);
@@ -113,7 +113,7 @@ void func_801b62d8_slot04_11(Object *obj) {
 void func_801b633c_slot04_11(Object *obj) {
     int n;
 
-    if (obj->field_67 != 0 && *(u8 *)&obj->field_3a != 0 && obj->field_218 != 0) {
+    if (obj->field_67 != 0 && *(u8 *)&obj->step_flags != 0 && obj->field_218 != 0) {
         n = 0x18;
         if (obj->field_48 != 0) {
             n = 0x19;
@@ -145,7 +145,7 @@ void func_801b6480_slot04_11(Object *obj) {
     s16 n;
     s16 t;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_128 = 4;
     obj->field_159 = 1;
     func_80141f28(obj, *(s16 *)((u8 *)data_801c7a50_slot04_11 + (obj->field_12a & 0xfe)));
@@ -160,10 +160,10 @@ void func_801b6480_slot04_11(Object *obj) {
     t += n;
     func_801307e0(obj, t);
     if (obj->field_129 != 0 && obj->field_12a == 4) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 5;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 5;
+        obj->state_3 = 0;
         obj->field_67 = 0;
     }
 }

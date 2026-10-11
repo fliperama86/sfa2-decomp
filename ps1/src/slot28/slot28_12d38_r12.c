@@ -9,5 +9,5 @@ void func_80024088_slot28(Object *obj) {
 }
 
 void func_80024090_slot28(Object *object) {
-    data_8004ab28_slot28[object->field_05](object);
+    data_8004ab28_slot28[object->state_1](object);
 }

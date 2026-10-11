@@ -5,7 +5,7 @@
 
 void func_801b360c_slot04_02(Object *obj) {
     obj->field_225 = 1;
-    obj->field_07 = 1;
+    obj->state_3 = 1;
     if (obj->field_7e == 0) {
         func_80145d20(obj);
     }

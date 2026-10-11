@@ -8,7 +8,7 @@ extern ObjectFn data_801ed444_slot06_0a[];
 extern void (*data_801ed454_slot06_0a[])(Object *, int, int);
 
 void func_801e90f0_slot06_0a(Object *obj) {
-    data_801ed444_slot06_0a[obj->field_04](obj);
+    data_801ed444_slot06_0a[obj->state_0](obj);
 }
 
 void func_801e9130_slot06_0a(Object *obj) {
@@ -16,10 +16,10 @@ void func_801e9130_slot06_0a(Object *obj) {
     obj->field_0f = 1;
     obj->field_0a = 1;
     obj->field_81 = 4;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = 0;
-    obj->field_4c = *(s32 *)&obj->field_10;
-    obj->field_50 = 0xf80000 - *(s32 *)&obj->field_14;
+    obj->vel_x = *(s32 *)&obj->pos_x_frac;
+    obj->vel_y = 0xf80000 - *(s32 *)&obj->pos_y_frac;
     func_80130700(obj, data_801ed400_slot06_0a[2 + obj->field_03]);
 }
 

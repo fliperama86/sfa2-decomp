@@ -17,13 +17,13 @@ void func_80014b1c_slot27(Object *o) {
         *(u16 *)&o->pos_y += 8;
         if (*(u16 *)&o->pos_y >= 0x2c1) {
             o->field_01 = 0;
-            o->field_04++;
+            o->state_0++;
         }
     }
 }
 
 void func_80014be8_slot27(Object *obj) {
-    obj->field_04++;
+    obj->state_0++;
 }
 
 void func_80014bfc_slot27(Object *obj) {

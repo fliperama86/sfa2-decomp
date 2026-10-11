@@ -7,9 +7,9 @@ void func_80019a74_slot28(Object *obj);
 
 void func_800199dc_slot28(Object *obj) {
     int sum;
-    ((Slot28Obj *)obj)->field_14 -= obj->field_50;
-    sum = obj->field_50 + obj->field_58;
-    obj->field_50 = sum;
+    ((Slot28Obj *)obj)->field_14 -= obj->vel_y;
+    sum = obj->vel_y + obj->accel_y;
+    obj->vel_y = sum;
     if (((Slot28Obj *)obj)->field_47 != 0) {
         if (sum >= 0) {
             ((Slot28Obj *)obj)->field_47 = 0;
@@ -18,16 +18,16 @@ void func_800199dc_slot28(Object *obj) {
     } else if (sum < 0) {
         ((Slot28Obj *)obj)->field_47 = 0xff;
         func_80019a74_slot28(obj);
-        obj->field_50 = -obj->field_50;
-        obj->field_58 = -obj->field_58;
+        obj->vel_y = -obj->vel_y;
+        obj->accel_y = -obj->accel_y;
     }
 }
 
 void func_80019a74_slot28(Object *obj) {
     if (obj->field_03 == 4) {
-        obj->field_50 = 0x14000;
+        obj->vel_y = 0x14000;
     } else {
-        obj->field_50 = 0x12000;
+        obj->vel_y = 0x12000;
     }
-    obj->field_58 = -0x1000;
+    obj->accel_y = -0x1000;
 }

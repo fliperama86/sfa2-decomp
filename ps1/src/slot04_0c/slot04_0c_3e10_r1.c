@@ -12,17 +12,17 @@ void func_801b3ff0_slot04_0c(Object *obj, Object *parent);
 void func_8011f14c(Slab172 *o);
 
 void func_801b3e10_slot04_0c(Object *obj) {
-    obj->field_05++;
+    obj->state_1++;
     obj->field_3c->field_14c = 0;
     func_80138070(obj, 6);
 }
 
 void func_801b3e44_slot04_0c(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04 = 3;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0 = 3;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
     func_80131094(obj);
 }
@@ -48,11 +48,11 @@ void func_801b3ed0_slot04_0c(Object *obj) {
 }
 
 void func_801b3f54_slot04_0c(Object *obj) {
-    data_801be1e0_slot04_0c[obj->field_04](obj, obj->field_3c);
+    data_801be1e0_slot04_0c[obj->state_0](obj, obj->field_3c);
 }
 
 void func_801b3f94_slot04_0c(Object *obj, Object *parent) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = parent->field_1c;
     obj->field_03 = parent->kind;
     obj->field_0c = parent->field_0c;

@@ -37,7 +37,7 @@ void func_80121780(Object *object) {
     object->field_ab = 0;
     func_801285e0();
     func_801e1d0c(0);
-    object->field_06 = 0xff;
+    object->state_2 = 0xff;
     object->field_65 = 0xff;
 }
 

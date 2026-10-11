@@ -27,7 +27,7 @@ void func_80026acc_slot28(Object *obj) {
         p->field_09 = 8;
         p->field_01 = 1;
         func_80130768(p, 2, data_800502d4_slot28);
-        p->field_50 = 0x40000;
+        p->vel_y = 0x40000;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             func_8002728c_slot28(p);
@@ -40,7 +40,7 @@ void func_80026acc_slot28(Object *obj) {
             func_80130768(p, 3, data_800502e8_slot28);
             data_80051ca4_slot28[4] = p;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
-            p->field_50 = 0x40000;
+            p->vel_y = 0x40000;
         }
         p = (Object *)func_8011f1e0();
         if (p != 0) {
@@ -54,7 +54,7 @@ void func_80026acc_slot28(Object *obj) {
             func_80130768(p, 5, data_800502e8_slot28);
             data_80051ca4_slot28[5] = p;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
-            p->field_50 = 0x40000;
+            p->vel_y = 0x40000;
         }
         p = (Object *)func_8011f1e0();
         if (p != 0) {

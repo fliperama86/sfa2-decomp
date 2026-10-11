@@ -12,17 +12,17 @@ void func_801e1c00_slot0b(Object *obj) {
     obj->field_0e = 0;
     obj->field_0f = 0;
     obj->field_26 = 0;
-    obj->field_04++;
+    obj->state_0++;
     obj->pos_x = box_margin[0];
     obj->pos_y = data_801aa5ea[0] + 8;
     func_80130768(obj, obj->field_02, data_801e7630_slot0b);
 }
 
 void func_801e1c6c_slot0b(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         obj->field_01 = 0;
-        obj->field_04++;
-        data_80190468.p->field_06 = 0;
+        obj->state_0++;
+        data_80190468.p->state_2 = 0;
     }
     obj->pos_x = box_margin[0];
     obj->pos_y = data_801aa5ea[0] + 8;

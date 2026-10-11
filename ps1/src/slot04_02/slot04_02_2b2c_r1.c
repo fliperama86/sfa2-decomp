@@ -10,10 +10,10 @@ void func_801b2b2c_slot04_02(Object *obj) {
     u16 y;
 
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (!(t & 0x8000)) {
         if ((t & 0xff) != 0) {
-            obj->field_3a = t & 0xff00;
+            obj->step_flags = t & 0xff00;
             p = ((Object *(*)(void))func_8011f0e8)();
             if (p != 0) {
                 p->field_00 = 1;

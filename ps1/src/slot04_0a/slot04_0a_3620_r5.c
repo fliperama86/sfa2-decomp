@@ -5,14 +5,14 @@
 
 void func_801b3ba0_slot04_0a(Object *obj) {
     func_80130efc(obj);
-    if ((u8)obj->field_3a == 2) {
-        obj->field_07++;
+    if ((u8)obj->step_flags == 2) {
+        obj->state_3++;
         obj->field_0b ^= 1;
     }
 }
 
 void func_801b3bf0_slot04_0a(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         obj->field_73 = 0;
         func_801312b8(obj);
     } else {

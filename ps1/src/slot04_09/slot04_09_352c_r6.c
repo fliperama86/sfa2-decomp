@@ -12,12 +12,12 @@ void func_801b3ad8_slot04_09(Object *obj) {
     u8 one = 1;
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
         return;
     }
     other = obj->other;
-    obj->field_07++;
+    obj->state_3++;
     obj->field_48 = 0;
     other->field_15b = one;
     other->field_260 = one;
@@ -37,12 +37,12 @@ void func_801b3ad8_slot04_09(Object *obj) {
             func_80147000(obj);
         }
     }
-    obj->field_50 = 0x40000;
-    obj->field_54 = 0;
-    obj->field_58 = -0x4000;
+    obj->vel_y = 0x40000;
+    obj->accel_x = 0;
+    obj->accel_y = -0x4000;
     if (obj->field_0b != 0) {
-        obj->field_4c = 0x20000;
+        obj->vel_x = 0x20000;
     } else {
-        obj->field_4c = -0x20000;
+        obj->vel_x = -0x20000;
     }
 }

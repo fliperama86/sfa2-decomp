@@ -5,9 +5,9 @@
 
 void func_801b5290_slot04_02(Object *obj) {
     func_80130efc(obj);
-    if ((u8)obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
-        obj->field_3a = obj->field_3a & 0xff00;
+    if ((u8)obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
+        obj->step_flags = obj->step_flags & 0xff00;
         obj->field_0b = obj->field_0b ^ 1;
         obj->pos_y = obj->pos_y + 0x27;
         if (obj->field_0b != 0) {
@@ -19,15 +19,15 @@ void func_801b5290_slot04_02(Object *obj) {
 }
 
 void func_801b531c_slot04_02(Object *obj) {
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
-    if (obj->field_50 < 0) {
-        obj->field_07 = obj->field_07 + 1;
-        obj->field_50 = 0;
-        obj->field_54 = 0;
-        obj->field_4c = 0;
-        obj->field_58 = -0x9000;
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
+    if (obj->vel_y < 0) {
+        obj->state_3 = obj->state_3 + 1;
+        obj->vel_y = 0;
+        obj->accel_x = 0;
+        obj->vel_x = 0;
+        obj->accel_y = -0x9000;
         func_801307e0(obj, 0x58);
     } else {
         func_80130efc(obj);

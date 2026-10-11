@@ -9,14 +9,14 @@ extern SequenceStep *data_801eb1b0_slot06_0d[];
 Object *func_8011f32c(void);
 
 void func_801e9a20_slot06_0d(Object *obj) {
-    data_801ea530_slot06_0d[obj->field_04](obj);
+    data_801ea530_slot06_0d[obj->state_0](obj);
 }
 
 void func_801e9a60_slot06_0d(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     Object *c;
     int one = 1;
-    o->field_04 = o->field_04 + 1;
+    o->state_0 = o->state_0 + 1;
     c = func_8011f32c();
     if (c != 0) {
         c->field_02 = 0x19;

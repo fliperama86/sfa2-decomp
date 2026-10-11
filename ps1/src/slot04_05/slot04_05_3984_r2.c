@@ -6,7 +6,7 @@
 void func_801b3c0c_slot04_05(Object *obj, Object *parent);
 
 void func_801b3b78_slot04_05(Object *obj, Object *p) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = p->field_1c;
     obj->field_03 = ((Slot04aObj *)p)->field_a7;
     obj->field_0c = p->field_0c;

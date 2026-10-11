@@ -13,9 +13,9 @@ void func_801e9bd0_slot06_09(Object *o) {
     if (game_state.field_65 == 0) {
         o->field_46 = (s16)o->field_46 - 1;
         if ((s16)o->field_46 == 0) {
-            o->field_4c += 4;
-            if (o->field_4c >= 0x20) {
-                o->field_4c = 0;
+            o->vel_x += 4;
+            if (o->vel_x >= 0x20) {
+                o->vel_x = 0;
             }
             func_801e9cc0_slot06_09(o);
         }

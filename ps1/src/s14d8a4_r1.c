@@ -5,7 +5,7 @@
 
 
 void func_8014d8a4(Object *object) {
-    if (object->field_06 == 0) func_8014d99c(object);
+    if (object->state_2 == 0) func_8014d99c(object);
 }
 
 void func_8014d8d4(Object *object) {
@@ -17,11 +17,11 @@ void func_8014d8d4(Object *object) {
 }
 
 void func_8014d91c(Object *object) {
-    if (object->field_06 == 0 || object->field_21b == 0) func_8014d99c(object);
+    if (object->state_2 == 0 || object->field_21b == 0) func_8014d99c(object);
 }
 
 void func_8014d95c(Object *object) {
-    if (*(u16 *)&object->field_04 == 1 && object->field_06 == 0) func_8014d99c(object);
+    if (*(u16 *)&object->state_0 == 1 && object->state_2 == 0) func_8014d99c(object);
 }
 
 void func_8014d99c(Object *object) {

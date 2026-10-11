@@ -7,5 +7,5 @@ extern void (*table_801e4cd0_slot0b[])(Object *);
 
 void func_801e10f4_slot0b(Object *obj) {
     data_80190468.p = (Object *)&game_state;
-    table_801e4cd0_slot0b[obj->field_04](obj);
+    table_801e4cd0_slot0b[obj->state_0](obj);
 }

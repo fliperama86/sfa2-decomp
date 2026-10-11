@@ -10,13 +10,13 @@ void func_8012b024(Object *object)
 {
   if ((u8) func_80130184(object))
   {
-    if ((s16) object->field_3a >= 0)
+    if ((s16) object->step_flags >= 0)
     {
       func_80130efc(object);
     }
     else
     {
-      object->field_07 = 1;
+      object->state_3 = 1;
       object->field_159 = 0;
       func_80130efc(object);
     }
@@ -33,7 +33,7 @@ void func_8012b024(Object *object)
     }
     else
     {
-      object->field_07 = 2;
+      object->state_3 = 2;
       func_80130678(object, 0x11);
     }
   }

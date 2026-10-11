@@ -9,21 +9,21 @@ void func_801b2310_slot04_02(Object *o) {
     s32 t;
     u16 a;
 
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
-    o->field_58 = -0x3000;
+    o->accel_y = -0x3000;
     t = data_801c6334_slot04_02[o->field_12a >> 1];
     if (o->field_0b != 0) {
-        if (o->field_4c < 0) {
+        if (o->vel_x < 0) {
             t = -t;
         }
     } else {
-        if (o->field_4c <= 0) {
+        if (o->vel_x <= 0) {
             t = -t;
         }
     }
-    o->field_4c += t;
+    o->vel_x += t;
     func_80120554(o, o->side, 0x320);
     a = 0x23;
     if (o->field_12a != 0) {

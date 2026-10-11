@@ -9,11 +9,11 @@ void func_801b2218_slot04_00(Object *obj) {
     s16 y;
 
     func_80130efc(obj);
-    t = obj->field_3a;
+    t = obj->step_flags;
     if (t & 0x8000) {
         func_801312b8(obj);
     } else if ((t & 0xff00) == 0 && (t & 0xff) != 0) {
-        obj->field_3a = 0;
+        obj->step_flags = 0;
         p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;

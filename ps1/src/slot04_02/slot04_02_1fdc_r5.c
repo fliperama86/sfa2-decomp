@@ -19,9 +19,9 @@ void func_801b2660_slot04_02(Object *obj) {
         func_80130678(obj, 0x11);
     } else {
         func_80130efc(obj);
-        if ((u8)obj->field_3a == 1) {
-            obj->field_07++;
-            obj->field_3a = obj->field_3a & 0xff00;
+        if ((u8)obj->step_flags == 1) {
+            obj->state_3++;
+            obj->step_flags = obj->step_flags & 0xff00;
             p = ((Object *(*)(void))func_8011f0e8)();
             if (p != 0) {
                 p->field_00 = 1;
@@ -48,7 +48,7 @@ void func_801b2660_slot04_02(Object *obj) {
                 p->field_98 = obj->field_98;
                 p->field_9c = obj->field_9c;
                 obj->field_14c = (s32)p;
-                obj->field_58 = -0x2800;
+                obj->accel_y = -0x2800;
                 obj->field_240++;
                 func_801204f4(obj, obj->side, 0xb);
             }

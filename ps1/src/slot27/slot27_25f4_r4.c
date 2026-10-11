@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 void func_80012a90_slot27(Object *obj) {
-    obj->pos_x += (u16)obj->field_4c;
-    if (obj->field_50 == obj->pos_x) {
-        obj->field_06++;
+    obj->pos_x += (u16)obj->vel_x;
+    if (obj->vel_y == obj->pos_x) {
+        obj->state_2++;
     }
 }

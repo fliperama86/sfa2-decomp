@@ -10,10 +10,10 @@ int func_801b0d18_slot04_08(Object *obj) {
     if (func_801417cc(obj) != 0) {
         r = 1;
         one = 1;
-        obj->field_04 = one;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = one;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_129 = 2;
         obj->field_159 = one;
         obj->field_15a = one;
@@ -30,10 +30,10 @@ int func_801b0d94_slot04_08(Object *obj) {
     if (func_801417cc(obj) != 0) {
         r = 1;
         one = 1;
-        obj->field_04 = one;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = one;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_129 = 4;
         obj->field_159 = one;
         obj->field_15a = one;
@@ -46,10 +46,10 @@ int func_801b0d94_slot04_08(Object *obj) {
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
 int func_801b0e10_slot04_08(Object *obj) {
     if (func_801417cc(obj) != 0) {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 7;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 7;
+        obj->state_3 = 0;
         obj->field_0b = obj->field_158;
         if (((obj->field_134 | obj->field_136) & 0x6a) != 0) {
             obj->field_15a = 9;

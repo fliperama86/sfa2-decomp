@@ -10,7 +10,7 @@ int func_8014e758(Object *object) {
 u8 func_8014e784(Object *object) {
     FrameRecord *frame;
     u8 a, b, c;
-    if (*(u16 *)&object->field_04 != 1) return 0;
+    if (*(u16 *)&object->state_0 != 1) return 0;
     if (object->field_45 != 0) return 0;
     if (object->field_27b != 0) return 0;
     frame = object->frame;

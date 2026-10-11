@@ -22,12 +22,12 @@ void func_80076810_slot00(Object *o) {
             o->field_0d++;
         }
     }
-    data_800797c0_slot00[o->field_05](o);
+    data_800797c0_slot00[o->state_1](o);
 }
 
 void func_800768d4_slot00(Object *obj) {
     if (game_state.field_65 == 0 && game_state.field_a8 == 0) {
-        data_800797d4_slot00[obj->field_06](obj);
+        data_800797d4_slot00[obj->state_2](obj);
     }
     func_8011ffdc(obj);
 }

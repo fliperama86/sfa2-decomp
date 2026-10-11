@@ -11,7 +11,7 @@ void func_800e62dc_slot0f(Object *obj) {
         obj->field_46 = t;
         if ((s16)t < 0) {
             obj->field_46 = 10;
-            obj->field_05++;
+            obj->state_1++;
             func_800e6410_slot0f(obj, 1);
             return;
         }
@@ -20,11 +20,11 @@ void func_800e62dc_slot0f(Object *obj) {
 }
 
 void func_800e6348_slot0f(Object *obj) {
-    if ((s16)obj->field_3a < 0) {
+    if ((s16)obj->step_flags < 0) {
         int t = obj->field_46 - 1;
         obj->field_46 = t;
         if ((s16)t < 0) {
-            obj->field_05++;
+            obj->state_1++;
             game_state.field_2bc = 9;
         }
     }
@@ -33,7 +33,7 @@ void func_800e6348_slot0f(Object *obj) {
 
 void func_800e63b0_slot0f(Object *obj) {
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
+        obj->state_0++;
     }
     func_80131094(obj);
 }

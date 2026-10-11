@@ -8,7 +8,7 @@ void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
 
 void func_801b47b8_slot04_0b(Object *obj) {
     obj->field_0d = 0x10;
-    obj->field_05++;
+    obj->state_1++;
     func_801b4e0c_slot04_0b(obj, 6, 0);
     func_801b4db8_slot04_0b(obj, 0x16);
     func_8011ffdc(obj);
@@ -16,8 +16,8 @@ void func_801b47b8_slot04_0b(Object *obj) {
 
 void func_801b4810_slot04_0b(Object *obj) {
     Object *n;
-    if (ref_other.p->field_3a & 1) {
-        obj->field_05++;
+    if (ref_other.p->step_flags & 1) {
+        obj->state_1++;
         func_801b4e0c_slot04_0b(obj, -0x19, -3);
         func_801b4db8_slot04_0b(obj, 0x17);
         n = (Object *)func_8011f1e0();

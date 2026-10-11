@@ -6,10 +6,10 @@
 void func_801b2d20_slot04_04(Object *obj) {
     Object *p;
 
-    if (((s16)obj->field_3a & 0x8000) == 0) {
+    if (((s16)obj->step_flags & 0x8000) == 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         p = func_8011f0e8(obj);
         if (p != 0) {
             p->field_00 = 1;

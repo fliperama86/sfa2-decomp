@@ -11,8 +11,8 @@ void func_801b2194_slot04_09(Object *obj) {
         game_state.field_63 = 0x18;
     }
     func_801b2858_slot04_09(obj);
-    if (obj->field_50 < 0) {
-        obj->field_07++;
+    if (obj->vel_y < 0) {
+        obj->state_3++;
         obj->field_0b ^= 1;
         func_801307e0(obj, 0x23);
     }
@@ -29,10 +29,10 @@ void func_801b2224_slot04_09(Object *obj) {
     if (obj->pos_y < obj->field_70) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         t = *(u16 *)&obj->field_70;
         obj->field_45 = 0;
-        obj->field_14 = 0;
+        obj->pos_y_frac = 0;
         obj->pos_y = t;
         func_801209c4(obj);
         func_801307e0(obj, 0x24);

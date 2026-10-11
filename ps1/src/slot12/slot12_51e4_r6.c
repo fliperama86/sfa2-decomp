@@ -5,7 +5,7 @@
 
 void func_8001569c_slot12(Object *obj) {
     Object *a;
-    obj->field_05 = obj->field_05 + 1;
+    obj->state_1 = obj->state_1 + 1;
     a = (Object *)func_8011f1e0();
     if (a != 0) {
         a->field_00 = 1;

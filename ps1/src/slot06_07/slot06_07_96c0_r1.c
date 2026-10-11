@@ -10,7 +10,7 @@ void func_801e98a0_slot06_07(Slot06Pal *pal);
 void func_801e98dc_slot06_07(Slot06Pal *pal, SeqRec *rec);
 
 void func_801e96c0_slot06_07(Object *obj) {
-    data_801eaec0_slot06_07[obj->field_04](obj);
+    data_801eaec0_slot06_07[obj->state_0](obj);
 }
 
 void func_801e9700_slot06_07(Object *o) {

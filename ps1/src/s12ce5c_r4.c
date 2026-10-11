@@ -7,7 +7,7 @@ void func_8012d910(Object *object) {
     if ((u8)func_80130184(object) != 0) {
         func_80130efc(object);
     } else {
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         func_80131d68(object);
         object->field_45 = 0;
         object->field_46 = 8;
@@ -28,7 +28,7 @@ void func_8012d9b4(Object *object) {
     } else if ((s16)object->field_5c < 0) {
         func_8012f4dc(object);
     } else {
-        object->field_07 = object->field_07 + 1;
+        object->state_3 = object->state_3 + 1;
         func_801308c4(object, 0x19);
     }
 }

@@ -7,11 +7,11 @@ extern void (*data_801bf270_slot04_01[])(Object *, Object *);
 void func_801b3eec_slot04_01(Object *obj, Object *parent);
 
 void func_801b3dc4_slot04_01(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_04 = 3;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_0 = 3;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
     }
     func_80131094(obj);
 }
@@ -27,11 +27,11 @@ void func_801b3e08_slot04_01(Object *o) {
 }
 
 void func_801b3e50_slot04_01(Object *obj) {
-    data_801bf270_slot04_01[obj->field_04](obj, obj->field_3c);
+    data_801bf270_slot04_01[obj->state_0](obj, obj->field_3c);
 }
 
 void func_801b3e90_slot04_01(Object *obj, Object *parent) {
-    obj->field_04++;
+    obj->state_0++;
     obj->field_1c = parent->field_1c;
     obj->field_03 = parent->kind;
     obj->field_0c = parent->field_0c;

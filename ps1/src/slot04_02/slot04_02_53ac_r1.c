@@ -8,12 +8,12 @@ extern u8 data_801c6520_slot04_02[];
 
 void func_801b53ac_slot04_02(Object *obj) {
     int i;
-    *(s32 *)&obj->field_10 = *(s32 *)&obj->field_10 + obj->field_4c;
-    *(s32 *)&obj->field_14 = *(s32 *)&obj->field_14 - obj->field_50;
-    obj->field_50 = obj->field_50 + obj->field_58;
-    if (obj->field_50 < 0 && obj->pos_y >= obj->field_70) {
+    *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
+    *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
+    obj->vel_y = obj->vel_y + obj->accel_y;
+    if (obj->vel_y < 0 && obj->pos_y >= obj->field_70) {
         obj->field_45 = 0;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->field_70;
         func_801209c4(obj);
         func_80146960(obj);

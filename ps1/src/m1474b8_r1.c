@@ -5,7 +5,7 @@
 
 
 void func_801474b8(Object *object) {
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     data_80189458 = 0;
     data_8018945c = 0;
     object->field_a0 = 1;
@@ -19,6 +19,6 @@ void func_801474b8(Object *object) {
         func_80130768(object, game_state.field_6b, seqs_8017cbac);
         func_801477ac(object, 1, 0x10);
     } else {
-        object->field_04 = 2;
+        object->state_0 = 2;
     }
 }

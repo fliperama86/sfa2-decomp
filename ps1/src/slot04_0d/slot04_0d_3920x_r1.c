@@ -10,7 +10,7 @@ void func_801b3920_slot04_0d(Object *object) {
     int a;
     s8 r;
 
-    if ((s16)object->field_3a < 0) {
+    if ((s16)object->step_flags < 0) {
         r = func_80151184();
         a = r;
         if ((a & 3) != 0) {

@@ -7,8 +7,8 @@ void func_801b1fb8_slot04_00(Object *obj) {
     if (obj->field_45 != 0) {
         func_801209c4(obj);
     }
-    obj->field_07++;
-    obj->field_14 = 0;
+    obj->state_3++;
+    obj->pos_y_frac = 0;
     obj->field_45 = 0;
     obj->field_159 = 0;
     obj->pos_y = obj->field_70;

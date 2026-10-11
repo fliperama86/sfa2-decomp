@@ -55,5 +55,5 @@ void func_801e0518_slot2a(void) {
 }
 
 void func_801e05b4_slot2a(Object *obj) {
-    data_801e2250_slot2a[obj->field_04](obj);
+    data_801e2250_slot2a[obj->state_0](obj);
 }

@@ -14,10 +14,10 @@ u8 func_801b107c_slot04_04(Object *obj) {
     if ((u8)func_80141788(obj)) {
         r = 1;
         func_801b1510_slot04_04(obj);
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 8;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 8;
+        obj->state_3 = 0;
         obj->field_15a = 5;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;
@@ -34,10 +34,10 @@ u8 func_801b111c_slot04_04(Object *obj) {
     }
     if ((u8)func_80141788(obj)) {
         r = 1;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 8;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 8;
+        obj->state_3 = 0;
         obj->field_15a = 6;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;

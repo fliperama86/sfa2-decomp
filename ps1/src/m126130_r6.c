@@ -9,7 +9,7 @@ void func_8012a804(Object *object) {
     s32 speed;
     if ((u8)func_8012f898(object) == 0) {
         if (object->field_21a == object->field_48) {
-            *(s32 *)&object->field_10 += object->field_4c;
+            *(s32 *)&object->pos_x_frac += object->vel_x;
             func_80130efc(object);
             return;
         }
@@ -25,6 +25,6 @@ void func_8012a804(Object *object) {
     if (object->field_0b != 0) {
         speed = -speed;
     }
-    object->field_4c = speed;
+    object->vel_x = speed;
     func_8012a684(object);
 }

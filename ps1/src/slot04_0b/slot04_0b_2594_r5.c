@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b2b50_slot04_0b(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
@@ -12,8 +12,8 @@ void func_801b2b50_slot04_0b(Object *obj) {
 }
 
 void func_801b2bac_slot04_0b(Object *obj) {
-    if ((s16)obj->field_3a & 0xff00) {
-        obj->field_07++;
+    if ((s16)obj->step_flags & 0xff00) {
+        obj->state_3++;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         } else {
@@ -27,9 +27,9 @@ void func_801b2bac_slot04_0b(Object *obj) {
 
 void func_801b2c30_slot04_0b(Object *obj) {
     func_80130efc(obj);
-    if (((s16)obj->field_3a & 0xff00) == 0) {
+    if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->field_165 = 0;
-        obj->field_07++;
+        obj->state_3++;
         func_801204f4(obj, obj->side, 0xf);
         func_801204f4(obj, obj->side, 4);
         obj->field_27b = 3;

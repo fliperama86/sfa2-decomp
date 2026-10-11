@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b35d4_slot04_04(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80120554(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);
     obj->field_0b = 0;
@@ -19,8 +19,8 @@ void func_801b35d4_slot04_04(Object *obj) {
 }
 
 void func_801b3684_slot04_04(Object *obj) {
-    if (*(u8 *)&obj->field_3a != 0) {
-        obj->field_07 = obj->field_07 + 1;
+    if (*(u8 *)&obj->step_flags != 0) {
+        obj->state_3 = obj->state_3 + 1;
         func_801204f4(obj, obj->side, 0xc);
         func_80140770(obj, 4, 0xa, 0xf, 0, 0, 1);
     }

@@ -6,7 +6,7 @@
 void func_801b4db8_slot04_0b(Object *o, int index);
 
 void func_801b46b8_slot04_0b(Object *o) {
-    o->field_05++;
+    o->state_1++;
     o->field_09 = 0;
     o->pos_x = ref_other.p->pos_x;
     o->pos_y = ref_other.p->pos_y;
@@ -15,9 +15,9 @@ void func_801b46b8_slot04_0b(Object *o) {
 }
 
 void func_801b4728_slot04_0b(Object *o) {
-    if (ref_other.p->field_3a & 1) {
-        o->field_05 = 0;
-        o->field_04++;
+    if (ref_other.p->step_flags & 1) {
+        o->state_1 = 0;
+        o->state_0++;
     } else {
         func_8011ffdc(o);
     }

@@ -6,12 +6,12 @@
 void func_801b6c40_slot04_02(Object *obj);
 
 void func_801b6bf4_slot04_02(Object *obj) {
-    obj->field_50 = -0x4c000;
-    obj->field_07 = obj->field_07 + 1;
+    obj->vel_y = -0x4c000;
+    obj->state_3 = obj->state_3 + 1;
     if (obj->field_0b != 0) {
-        obj->field_4c = 0x40000;
+        obj->vel_x = 0x40000;
     } else {
-        obj->field_4c = -0x40000;
+        obj->vel_x = -0x40000;
     }
     func_801b6c40_slot04_02(obj);
 }
@@ -19,8 +19,8 @@ void func_801b6bf4_slot04_02(Object *obj) {
 void func_801b6c40_slot04_02(Object *obj) {
     s16 t;
 
-    *(s32 *)&obj->field_10 += obj->field_4c;
-    *(s32 *)&obj->field_14 -= obj->field_50;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     t = obj->field_70;
     if (t <= obj->pos_y) {
         obj->pos_y = t;
@@ -31,8 +31,8 @@ void func_801b6c40_slot04_02(Object *obj) {
 }
 
 void func_801b6cb0_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
-    obj->field_04 = a;
-    obj->field_05 = b;
-    obj->field_06 = c;
-    obj->field_07 = d;
+    obj->state_0 = a;
+    obj->state_1 = b;
+    obj->state_2 = c;
+    obj->state_3 = d;
 }

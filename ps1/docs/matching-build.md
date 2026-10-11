@@ -21,6 +21,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_matchbuild.py` | public | Controls for the build tool and the diff |
 | `ps1/tools/structgen.py` | public | Struct-layout generator, layout check, field-file merge |
 | `ps1/tools/test_structgen.py` | public | Controls for the struct generator |
+| `ps1/tools/renamefields.py` | public | Renames struct fields where they are used, located by clang |
+| `ps1/tools/test_renamefields.py` | public | Controls for the field renamer |
 | `ps1/tools/mergeunits.py` | public | Merge per-unit work directories |
 | `ps1/tools/test_mergeunits.py` | public | Controls for the merge tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |
@@ -278,6 +280,26 @@ Commands of `ps1/tools/structgen.py`:
   merged text is parsed and validated again before it is written, so an
   invalid result is an error, not a file. Output is deterministic: structs in first-seen order (a struct used by value moves after
   the struct it embeds), fields sorted by offset.
+
+Renaming a field. A field is renamed in its line of the field table, and
+`ps1/tools/renamefields.py` rewrites the uses:
+
+- `pairs OLD NEW` lists the renames between two tables: a field that kept its
+  struct and offset and changed its name. A field that moved is not one.
+- `apply --old OLD --new NEW [-I DIR ...] PATH...` generates the header of the
+  new table in a scratch folder and has clang check the syntax of every C file
+  under the paths against it. Each use of an old name is then an error with
+  its line and column, and the tool replaces the token there. It repeats until
+  no such error is left. A field of the same name in another struct, a
+  comment and a string are not touched. Exit status 1 and a `LEFT:` line mean
+  a use it did not rewrite: a use inside a macro, a use in a file outside the
+  paths, or a file that clang could not read to the end and that has the old
+  name as text. `--dry-run` counts the uses of the first pass and writes
+  nothing.
+
+The tool does not show that the build still gives the same bytes; the matching
+build does. The names and what each is inferred from are on the
+[names page](names.md).
 
 Build integration. The optional table
 

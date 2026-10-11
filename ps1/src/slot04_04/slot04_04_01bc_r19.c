@@ -17,7 +17,7 @@ void func_801b19bc_slot04_04(Object *obj) {
 void func_801b1a08_slot04_04(Object *obj) {
     u16 a;
 
-    obj->field_07++;
+    obj->state_3++;
     a = 0x21;
     obj->field_17b = 0;
     if (obj->field_49 != 0) {

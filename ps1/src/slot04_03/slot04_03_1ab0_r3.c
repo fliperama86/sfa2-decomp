@@ -4,18 +4,18 @@
 #include "../externs.h"
 
 void func_801b1cfc_slot04_03(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_80145d20(obj);
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
-    obj->field_4c = 0x60000;
-    obj->field_54 = -0x8000;
+    obj->vel_x = 0x60000;
+    obj->accel_x = -0x8000;
     func_801307e0(obj, (obj->field_12a >> 1) + 0x32);
 }
 
 void func_801b1d70_slot04_03(Object *obj) {
-    if (obj->field_3a != 0) {
-        obj->field_07++;
+    if (obj->step_flags != 0) {
+        obj->state_3++;
         if (obj->field_4b == 0) {
             obj->field_165 = 0xff;
         } else {

@@ -19,13 +19,13 @@ void func_801b3450_slot04_0e(Object *obj) {
     int x;
     int y;
 
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         obj->field_45 = 1;
-        obj->field_50 = 0x50000;
-        obj->field_58 = -0x5000;
-        obj->field_07++;
+        obj->vel_y = 0x50000;
+        obj->accel_y = -0x5000;
+        obj->state_3++;
         if (obj->field_48 == 1) {
             a = 0x37;
             x = -0x38000;
@@ -39,8 +39,8 @@ void func_801b3450_slot04_0e(Object *obj) {
             x = -x;
             y = -y;
         }
-        obj->field_4c = x;
-        obj->field_54 = y;
+        obj->vel_x = x;
+        obj->accel_x = y;
         func_801307e0(obj, a);
         func_801204f4(obj, obj->side, 9);
     }
@@ -50,11 +50,11 @@ void func_801b3514_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if ((u8)func_80130184(o) == 0) {
-        o->field_14 = 0;
+        o->pos_y_frac = 0;
         o->field_45 = 0;
         o->field_159 = 0;
         o->field_17b = 0;
-        o->field_07++;
+        o->state_3++;
         o->pos_y = obj->field_70;
         func_801209c4(o);
         func_801307e0(o, 0x39);
@@ -64,7 +64,7 @@ void func_801b3514_slot04_0e(Object *o) {
 }
 
 void func_801b358c_slot04_0e(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
         func_801312b8(obj);
@@ -72,14 +72,14 @@ void func_801b358c_slot04_0e(Object *obj) {
 }
 
 void func_801b35cc_slot04_0e(Object *obj) {
-    data_801c6064_slot04_0e[obj->field_07](obj);
+    data_801c6064_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b360c_slot04_0e(Object *obj) {
     int a;
 
     obj->field_17b = 1;
-    obj->field_07++;
+    obj->state_3++;
     if (obj->field_cd != 0) {
         obj->field_48 = obj->field_21a;
     }
@@ -95,43 +95,43 @@ void func_801b360c_slot04_0e(Object *obj) {
 void func_801b3690_slot04_0e(Object *obj) {
     int a;
 
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 3;
-        obj->field_07 = 1;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 3;
+        obj->state_3 = 1;
         obj->field_45 = 1;
         obj->field_157 = 0;
         obj->field_17b = 0;
         if (obj->field_48 & 0x80) {
-            obj->field_4c = 0x78000;
-            obj->field_50 = 0x74000;
-            obj->field_54 = -0x500;
-            obj->field_58 = -0x5a00;
+            obj->vel_x = 0x78000;
+            obj->vel_y = 0x74000;
+            obj->accel_x = -0x500;
+            obj->accel_y = -0x5a00;
             a = 0x3f;
         } else {
-            obj->field_4c = -0x78000;
-            obj->field_50 = 0x70000;
-            obj->field_54 = 0x500;
-            obj->field_58 = -0x5a00;
+            obj->vel_x = -0x78000;
+            obj->vel_y = 0x70000;
+            obj->accel_x = 0x500;
+            obj->accel_y = -0x5a00;
             a = 0x3e;
         }
         if (obj->field_0b != 0) {
-            obj->field_4c = -obj->field_4c;
-            obj->field_54 = -obj->field_54;
+            obj->vel_x = -obj->vel_x;
+            obj->accel_x = -obj->accel_x;
         }
         func_801307e0(obj, a);
     }
 }
 
 void func_801b377c_slot04_0e(Object *obj) {
-    data_801c606c_slot04_0e[obj->field_07](obj);
+    data_801c606c_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b37bc_slot04_0e(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_801307e0(obj, 0x32);
@@ -157,11 +157,11 @@ void func_801b3810_slot04_0e(Object *o) {
 }
 
 void func_801b38a4_slot04_0e(Object *obj) {
-    data_801c6074_slot04_0e[obj->field_07](obj);
+    data_801c6074_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b38e4_slot04_0e(Object *obj) {
-    obj->field_07++;
+    obj->state_3++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     if (((Slot04bObj *)obj)->field_1da == 0) {

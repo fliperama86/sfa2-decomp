@@ -10,7 +10,7 @@
  * v2_r3. */
 void func_80142a14(Object *object)
 {
-  s16 state = object->field_3a;
+  s16 state = object->step_flags;
   if (state < 0)
   {
     if (object->field_128 != 0)
@@ -39,7 +39,7 @@ void func_80142a14(Object *object)
       return;
     }
   }
-  object->field_07 = 0;
+  object->state_3 = 0;
   object->field_25f = 0xff;
   func_80130efc(object);
 }

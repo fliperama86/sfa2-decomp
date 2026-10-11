@@ -6,7 +6,7 @@
 void func_8012f384(Object *object) {
     u8 flag;
 
-    object->field_07 = 5;
+    object->state_3 = 5;
     flag = object->field_164 != 1;
     func_80120554(object, object->side, 0x314);
     object->field_0b = flag;
@@ -14,6 +14,6 @@ void func_8012f384(Object *object) {
 }
 
 void func_8012f3e0(Object *object) {
-    object->field_07 = 4;
+    object->state_3 = 4;
     func_80130678(object, 0x1c);
 }

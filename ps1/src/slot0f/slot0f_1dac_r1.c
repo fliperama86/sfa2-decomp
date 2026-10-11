@@ -11,7 +11,7 @@ extern ObjectFn data_800e87cc_slot0f[];
 void func_800e1dac_slot0f(Object *obj) {
     s8 t;
 
-    if (obj->field_10 & 0x860) {
+    if (obj->pos_x_frac & 0x860) {
         obj->field_0f = 1;
     }
     t = obj->field_0f;
@@ -21,7 +21,7 @@ void func_800e1dac_slot0f(Object *obj) {
         obj->field_00 = 1;
         obj->field_01 = 0;
         obj->field_09 = 0;
-        obj->field_04 = 0;
+        obj->state_0 = 0;
     }
 }
 

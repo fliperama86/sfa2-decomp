@@ -13,7 +13,7 @@ void func_80015de0_slot27(Object *obj) {
     obj->pos_y = 0x54;
     obj->field_48 = 0;
     obj->field_46 = 0x1f;
-    obj->field_04++;
+    obj->state_0++;
     if ((game_state.mode & 1) == 0) {
         obj->field_48 = 1;
         obj->pos_x = 0x2e0;

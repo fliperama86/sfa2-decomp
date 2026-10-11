@@ -8,10 +8,10 @@ int func_801b0b4c_slot04_01(Object *obj) {
 
     if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
-        obj->field_04 = 1;
-        obj->field_05 = 0;
-        obj->field_06 = 8;
-        obj->field_07 = 0;
+        obj->state_0 = 1;
+        obj->state_1 = 0;
+        obj->state_2 = 8;
+        obj->state_3 = 0;
         obj->field_15a = 4;
         obj->field_159 = 1;
         obj->field_0b = obj->field_158;

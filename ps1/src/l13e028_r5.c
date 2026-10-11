@@ -6,10 +6,10 @@
 /* The seventh parameter is unused here. It is declared because a caller in a character module passes seven arguments; that is compatible with a parameter and does not prove one. */
 void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
     ref_other.p = object->other;
-    ref_other.p->field_04 = 1;
-    ref_other.p->field_05 = 1;
-    ref_other.p->field_06 = 1;
-    ref_other.p->field_07 = 8;
+    ref_other.p->state_0 = 1;
+    ref_other.p->state_1 = 1;
+    ref_other.p->state_2 = 1;
+    ref_other.p->state_3 = 8;
     ref_other.p->field_63 = a;
     ref_other.p->field_60 = 2;
     ref_other.p->field_61 = b;

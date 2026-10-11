@@ -19,8 +19,8 @@ void func_801b6068_slot04_09(Object *obj) {
         c->field_3c = obj;
         c->field_0b = f;
         ((Slot04aObj *)obj)->field_30 = (u32)c;
-        c->field_4c = 0x50000;
-        c->field_54 = -0x5000;
+        c->vel_x = 0x50000;
+        c->accel_x = -0x5000;
         c->field_66 = obj->side;
         c->field_7a = obj->field_7a;
         c->field_7c = obj->field_7c;
@@ -42,8 +42,8 @@ void func_801b6068_slot04_09(Object *obj) {
         c->field_3c = obj;
         c->field_0b = f;
         ((Slot04aObj *)obj)->field_34 = (u32)c;
-        c->field_4c = 0xfffb0000;
-        c->field_54 = 0x5000;
+        c->vel_x = 0xfffb0000;
+        c->accel_x = 0x5000;
         c->field_66 = obj->side;
         c->field_7a = obj->field_7a;
         c->field_7c = obj->field_7c;

@@ -11,19 +11,19 @@ void func_801b1ed8_slot04_0b(Object *o) {
 
     k = 0x20;
     o->field_17b = 1;
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
     func_801204f4(o, o->side, 0xf);
     func_801204f4(o, o->side, 6);
-    o->field_58 = 0xfffe6000;
-    o->field_54 = 0;
-    o->field_50 = 0xa0000;
+    o->accel_y = 0xfffe6000;
+    o->accel_x = 0;
+    o->vel_y = 0xa0000;
     i = data_801c25b4_slot04_0b[o->field_12a >> 1];
     if (o->field_0b == 0) {
-        o->field_4c = -i;
+        o->vel_x = -i;
     } else {
-        o->field_4c = i;
+        o->vel_x = i;
     }
     if (o->field_49 != 0) {
         k = 0x36;

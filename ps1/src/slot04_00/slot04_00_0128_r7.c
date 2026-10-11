@@ -6,7 +6,7 @@
 void func_801b08f8_slot04_00(Object *obj) {
     int x = 0xc;
 
-    obj->field_07 = 3;
+    obj->state_3 = 3;
     obj->field_159 = 1;
     func_80130504(obj);
     func_80141f28(obj, obj->field_12a >> 1);

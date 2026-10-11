@@ -55,7 +55,7 @@ void func_8014cd30(Object *object) {
 void func_8014cda0(Object *object) {
     if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
-    } else if (object->field_06 == 0 || object->field_157 != 0) {
+    } else if (object->state_2 == 0 || object->field_157 != 0) {
         func_8014d99c(object);
     }
 }
@@ -63,7 +63,7 @@ void func_8014cda0(Object *object) {
 void func_8014ce0c(Object *object) {
     if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
-    } else if (object->field_06 == 0 || object->field_157 == 0) {
+    } else if (object->state_2 == 0 || object->field_157 == 0) {
         func_8014d99c(object);
     }
 }
@@ -84,7 +84,7 @@ void func_8014cedc(Object *object) {
         other = object->other;
         if (other->field_45 != 1
             || ((s16)other->pos_y >= (s16)(other->field_70 - (object->field_211 + (object->field_210 << 8)))
-                && other->field_50 > 0)) {
+                && other->vel_y > 0)) {
             func_8014d99c(object);
         }
     }
@@ -98,10 +98,10 @@ void func_8014cf80(Object *object) {
     } else if (func_80142378(object) != 0) {
         object->field_208 = 3;
         object->field_209 = 0;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 5;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 5;
+        object->state_3 = 0;
         object->field_159 = 1;
         object->field_21b = 0;
         object->field_0b = object->field_158;

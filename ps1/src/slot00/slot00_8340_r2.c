@@ -8,7 +8,7 @@ extern ObjectFn data_8007a104_slot00[];
 
 void func_800784a4_slot00(Object *obj) {
     if (game_state.field_6a != 0) {
-        obj->field_04 = 2;
+        obj->state_0 = 2;
         obj->field_01 = 0;
     } else {
         if (game_state.field_65 == 0) {
@@ -34,6 +34,6 @@ void func_8007853c_slot00(Object *obj) {
                 obj->field_0d = obj->field_0d + 1;
             }
         }
-        data_8007a104_slot00[obj->field_06](obj);
+        data_8007a104_slot00[obj->state_2](obj);
     }
 }

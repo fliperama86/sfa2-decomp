@@ -6,7 +6,7 @@
 extern ObjectRef data_8005198c_slot28;
 
 void func_80018fb0_slot28(Object *obj) {
-    if ((s16)data_8005198c_slot28.p->field_3a < 0) {
+    if ((s16)data_8005198c_slot28.p->step_flags < 0) {
         data_8018f5a0->field_60 = 0xb4;
         data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
     }

@@ -46,7 +46,7 @@ void func_80077808_slot00(Object *obj) {
             v = ((Slot00Obj *)obj)->field_50;
             k = (v + 1) & 7;
             i = obj->field_66;
-            obj->field_50 = k;
+            obj->vel_y = k;
             obj->field_46 = 0;
             obj->field_0d = p->field_0d + data_8007a010_slot00[k];
             v = (table_801aa4d8[i] - obj->field_03 * 8) & 0x1f;
@@ -63,10 +63,10 @@ void func_80077808_slot00(Object *obj) {
         }
     } else {
         obj->field_00 = 2;
-        obj->field_04 = 2;
-        obj->field_05 = 0;
-        obj->field_06 = 0;
-        obj->field_07 = 0;
+        obj->state_0 = 2;
+        obj->state_1 = 0;
+        obj->state_2 = 0;
+        obj->state_3 = 0;
         obj->field_74 = 0;
         obj->field_0d = ((Slot00Obj *)obj)->field_54;
     }

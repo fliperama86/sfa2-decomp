@@ -15,7 +15,7 @@ void func_8001562c_slot12(Object *obj) {
             obj->field_76 = v - 8;
             func_80015850_slot12(obj);
         } else {
-            obj->field_05 = obj->field_05 + 1;
+            obj->state_1 = obj->state_1 + 1;
             if (obj->field_03 == a) {
                 *p = 6;
             }

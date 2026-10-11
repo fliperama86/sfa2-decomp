@@ -20,8 +20,8 @@ void func_8011f994(Object *object, SeqRec *rec, u8 *base) {
     t = rec->header;
     v = t;
     t = v >> 16;
-    object->field_38 = t;
-    object->field_3a = v;
+    object->step_timer = t;
+    object->step_flags = v;
     q = (object->pos_x & 0xe00) * 4;
     p = (object->pos_x & 0x1f0) / 16 * 4;
     offset = p + q + (((object->pos_y / 16) << 23) >> 16);

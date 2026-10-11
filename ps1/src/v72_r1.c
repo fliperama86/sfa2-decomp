@@ -12,11 +12,11 @@ void func_8014b340(Object *object) {
     u16 t;
     if (object->field_20f == 0) {
         object->field_208 = 2;
-        object->field_04 = 1;
-        object->field_06 = 3;
+        object->state_0 = 1;
+        object->state_2 = 3;
         object->field_209 = 0;
-        object->field_05 = 0;
-        object->field_07 = 7;
+        object->state_1 = 0;
+        object->state_3 = 7;
         v = *data_80189460++;
         data_80189464 = v;
         w = v;
@@ -61,15 +61,15 @@ void func_8014b340(Object *object) {
         func_8014dd14(object);
         object->field_15a = 3;
         if ((u8)func_8014dcc0(object) != 0) {
-        if (*(u32 *)&object->field_04 == 0x20101) {
+        if (*(u32 *)&object->state_0 == 0x20101) {
             object->field_bd = 2;
         }
         object->field_208 = 2;
-        object->field_04 = 1;
-        object->field_06 = 7;
+        object->state_0 = 1;
+        object->state_2 = 7;
         object->field_209 = 0;
-        object->field_05 = 0;
-        object->field_07 = 0;
+        object->state_1 = 0;
+        object->state_3 = 0;
         object->field_159 = 0;
         object->field_67 = 0;
         object->field_157 = 0;

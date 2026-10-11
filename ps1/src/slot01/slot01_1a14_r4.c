@@ -18,8 +18,8 @@ void func_80011f74_slot01(Object *obj) {
         if (t != 0) {
             p->field_03 = 0x86;
         }
-        p->field_4c = 0;
-        p->field_50 = 0;
+        p->vel_x = 0;
+        p->vel_y = 0;
         p->field_3c = obj;
         obj->field_28 = (u32)p;
     }

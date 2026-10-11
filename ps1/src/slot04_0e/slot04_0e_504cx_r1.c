@@ -8,12 +8,12 @@
 void func_801b504c_slot04_0e(Object *obj) {
     s16 t;
     s16 a;
-    t = *(u8 *)&obj->field_3a;
+    t = *(u8 *)&obj->step_flags;
     if (t != 0) {
         a = t & 0xff;
         t = a;
         if (obj->field_0b == 0) t = -a;
-        *(u8 *)&obj->field_3a = 0;
+        *(u8 *)&obj->step_flags = 0;
         obj->pos_x = t + obj->pos_x;
     }
 }

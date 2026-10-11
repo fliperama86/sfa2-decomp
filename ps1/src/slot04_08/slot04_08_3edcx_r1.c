@@ -9,9 +9,9 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
     Object **r = &ref_other.p;
     u16 t;
     *r = obj->other;
-    t = obj->field_3a;
+    t = obj->step_flags;
     if ((u8)t != 0) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         func_80146478(obj, 1, -0x1d, 0x52);
         a = 1;
         if (((Slot04aObj *)obj)->field_1c7 == 0) {
@@ -45,7 +45,7 @@ act:
             func_80140770(obj, 0, 5, 0, 0, 0, 1);
             func_801204f4(obj, obj->side, 0xd);
 tail:
-            obj->field_07++;
+            obj->state_3++;
             func_801307e0(obj, 0x1b);
             return;
         }

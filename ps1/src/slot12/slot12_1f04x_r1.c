@@ -41,14 +41,14 @@ void func_80011f04_slot12(Object *obj) {
     obj->field_09 = 9;
     obj->field_0f = 0;
     obj->field_0b = one;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->field_7c = 0x1e0;
     obj->field_98 = data_80021b34_slot12[data_80029348_slot12][0];
     data_8002a390_slot12 = 1;
     obj->field_9c = data_80021b34_slot12[data_80029348_slot12][1];
     data_8002934c_slot12 = 2;
     if (data_8002d578_slot12 != 0) {
-        obj->field_05 = one;
+        obj->state_1 = one;
         a = 2;
     }
     func_800121ec_slot12(obj, a);

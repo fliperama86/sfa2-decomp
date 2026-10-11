@@ -187,16 +187,16 @@ void func_8013bfa4(void) {
                 continue;
             }
             ref_third.p->field_00 += 1;
-            ref_third.p->field_04 = 1;
-            ref_third.p->field_05 = 1;
-            ref_third.p->field_06 = 0;
-            ref_third.p->field_07 = 0;
+            ref_third.p->state_0 = 1;
+            ref_third.p->state_1 = 1;
+            ref_third.p->state_2 = 0;
+            ref_third.p->state_3 = 0;
             ref_third.p->field_5c -= 1;
             if ((s16)ref_third.p->field_5c < 0) {
-                ref_third.p->field_04 = 2;
-                ref_third.p->field_05 = 0;
-                ref_third.p->field_06 = 0;
-                ref_third.p->field_07 = 0;
+                ref_third.p->state_0 = 2;
+                ref_third.p->state_1 = 0;
+                ref_third.p->state_2 = 0;
+                ref_third.p->state_3 = 0;
             }
         } while (0);
     }

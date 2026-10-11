@@ -8,24 +8,24 @@
 int func_8014e310(Object *object)
 {
   int new_var;
-  if ((*((u16 *) (&object->field_04))) != 1)
+  if ((*((u16 *) (&object->state_0))) != 1)
   {
     return 0;
   }
-  if (object->field_06 == 3)
+  if (object->state_2 == 3)
   {
     return 0;
   }
-  if (object->field_06 == 5)
+  if (object->state_2 == 5)
   {
     return 0;
   }
-  if (((u8) (object->field_06 - 7)) < 2)
+  if (((u8) (object->state_2 - 7)) < 2)
   {
     return 0;
   }
   new_var = 9;
-  if (object->field_06 == new_var)
+  if (object->state_2 == new_var)
   {
     return 0;
   }

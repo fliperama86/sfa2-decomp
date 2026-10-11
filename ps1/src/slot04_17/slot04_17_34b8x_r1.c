@@ -17,25 +17,25 @@ void func_801b34b8_slot04_17(Object *obj) {
     int y;
     u16 t;
 
-    a = obj->field_4c;
+    a = obj->vel_x;
     p = obj->other;
     if (obj->field_0b == 0) {
         a = -a;
     }
-    *(s32 *)&obj->field_10 = a + *(s32 *)&obj->field_10;
-    obj->field_4c = obj->field_4c + obj->field_54;
-    if ((s32)obj->field_4c < 0) {
-        obj->field_4c = 0;
-        obj->field_54 = 0;
+    *(s32 *)&obj->pos_x_frac = a + *(s32 *)&obj->pos_x_frac;
+    obj->vel_x = obj->vel_x + obj->accel_x;
+    if ((s32)obj->vel_x < 0) {
+        obj->vel_x = 0;
+        obj->accel_x = 0;
     }
-    t = obj->field_3a;
+    t = obj->step_flags;
     a = t & 0xff;
     if (a != 0) {
         if (a & 0x80) {
             /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
             /* Without it (plain braces) this function differs from the original in 34 instruction slots. */
             do {
-                obj->field_07++;
+                obj->state_3++;
                 p = obj->other;
                 p->field_6a++;
                 func_801465b0(obj, 6, 4, 0x3c);
@@ -54,7 +54,7 @@ void func_801b34b8_slot04_17(Object *obj) {
             return;
         }
         a -= 8;
-        obj->field_3a = t >> 8;
+        obj->step_flags = t >> 8;
         ref_other.p = obj->other;
         ref_other.p->field_6a++;
         j = a >> 1;

@@ -8,7 +8,7 @@ extern Slot27Rec9338 data_80029338_slot27[];
 
 void func_800119c8_slot27(Object *obj) {
     ref_other.p = obj->other;
-    data_80026908_slot27[obj->field_04](obj);
+    data_80026908_slot27[obj->state_0](obj);
 }
 
 void func_80011a18_slot27(Object *obj) {
@@ -21,8 +21,8 @@ void func_80011a18_slot27(Object *obj) {
     obj->field_66 = 0;
     obj->field_5c = 0;
     obj->field_5e = 0;
-    obj->field_54 = 0;
-    obj->field_58 = 0;
+    obj->accel_x = 0;
+    obj->accel_y = 0;
     obj->field_62 = 0;
     obj->field_63 = 0;
     obj->field_70 = 0;

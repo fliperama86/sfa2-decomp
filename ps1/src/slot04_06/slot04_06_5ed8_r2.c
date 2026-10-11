@@ -11,7 +11,7 @@ void func_801b6218_slot04_06(Object *obj);
 void func_801b60a4_slot04_06(Object *obj) {
     Object *p;
 
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0c = data_801c575c_slot04_06->field_0c;
     obj->field_0d = data_801c575c_slot04_06->field_0d;
     p = data_801c575c_slot04_06;

@@ -35,7 +35,7 @@ int func_8014e0b4(Object *object)
   data_8018946c = 1;
   if (flags & 2)
   {
-    if (((*((u32 *) (&object->field_04))) == 0x20101) && (object->field_21e < 0x40))
+    if (((*((u32 *) (&object->state_0))) == 0x20101) && (object->field_21e < 0x40))
     {
       other = object->other;
       frame = other->frame;
@@ -76,7 +76,7 @@ int func_8014e0b4(Object *object)
       {
         goto done;
       }
-      if (((*((u32 *) (&other->field_04))) & 0xffffff) == 0x90001)
+      if (((*((u32 *) (&other->state_0))) & 0xffffff) == 0x90001)
       {
         done:
         object->field_244 = data_8018946c;

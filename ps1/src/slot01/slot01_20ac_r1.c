@@ -15,7 +15,7 @@ void func_800120ac_slot01(Object *obj) {
     if (obj->field_03 & 0x80) {
         func_80012b50_slot01(obj);
     } else {
-        data_80015408_slot01[obj->field_04](obj);
+        data_80015408_slot01[obj->state_0](obj);
     }
 }
 
@@ -27,7 +27,7 @@ void func_80012120_slot01(Object *obj) {
     obj->field_24 = 0;
     obj->field_20 = 0xfff0;
     obj->field_22 = 0xfff0;
-    obj->field_04++;
+    obj->state_0++;
     func_800121e0_slot01(obj);
     ref_other.p = obj->field_3c;
     a = (u16)func_8015bd0c(0, 0, data_80015418_slot01[0], data_80015418_slot01[1]);

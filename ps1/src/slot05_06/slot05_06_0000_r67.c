@@ -35,7 +35,7 @@ void func_801cdc58_slot05_06(Object *obj) {
 }
 
 void func_801cdd0c_slot05_06(Object *o) {
-    o->field_04++;
+    o->state_0++;
 }
 
 void func_801cdd20_slot05_06(Object *o) {
@@ -64,5 +64,5 @@ void func_801cdd64_slot05_06(Object *obj, int idx) {
 }
 
 void func_801cddac_slot05_06(Object *obj) {
-    data_801dd5c0_slot05_06[obj->field_04](obj);
+    data_801dd5c0_slot05_06[obj->state_0](obj);
 }

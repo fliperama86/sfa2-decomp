@@ -55,7 +55,7 @@ void func_801b274c_slot04_0e(Object *obj) {
 }
 
 void func_801b278c_slot04_0e(Object *obj) {
-    data_801c6000_slot04_0e[obj->field_07](obj);
+    data_801c6000_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b27cc_slot04_0e(Object *o) {
@@ -64,9 +64,9 @@ void func_801b27cc_slot04_0e(Object *o) {
 
     o->field_17b = 1;
     obj->field_1de = 0;
-    o->field_50 = 0;
-    o->field_58 = 0;
-    o->field_07++;
+    o->vel_y = 0;
+    o->accel_y = 0;
+    o->state_3++;
     func_80141f28(o, 3);
     func_80138ae8(&game_state, o);
     func_801b6d7c_slot04_0e((Slot04bObj *)o);
@@ -89,12 +89,12 @@ void func_801b285c_slot04_0e(Object *o) {
     }
     if (obj->field_3a == 0) {
         o->field_45 = 1;
-        o->field_07++;
+        o->state_3++;
         obj->field_3a = 0;
-        o->field_4c = 0;
-        o->field_54 = 0;
-        o->field_50 = data_801c601c_slot04_0e[o->field_12a >> 1];
-        o->field_58 = data_801c6028_slot04_0e[o->field_12a >> 1];
+        o->vel_x = 0;
+        o->accel_x = 0;
+        o->vel_y = data_801c601c_slot04_0e[o->field_12a >> 1];
+        o->accel_y = data_801c6028_slot04_0e[o->field_12a >> 1];
     }
     func_80130efc(o);
 }
@@ -113,7 +113,7 @@ void func_801b2910_slot04_0e(Object *o) {
         func_80130efc(o);
     } else {
         a = 0x5b;
-        o->field_07++;
+        o->state_3++;
         if (o->field_49 == 0) {
             a = 0x52;
         }
@@ -158,7 +158,7 @@ void func_801b29e0_slot04_0e(Object *o) {
         }
         obj->field_3a = 0;
         obj->field_47 = 2;
-        o->field_07++;
+        o->state_3++;
         func_801204f4(o, o->field_02, 0x16);
         func_801204f4(o, o->field_02, 9);
     }
@@ -170,12 +170,12 @@ void func_801b2b40_slot04_0e(Object *o) {
 
     obj->field_47 -= 1;
     if (obj->field_47 & 0x80) {
-        o->field_58 = -0x8000;
-        o->field_38 = 1;
-        o->field_07++;
-        o->field_50 = 0;
+        o->accel_y = -0x8000;
+        o->step_timer = 1;
+        o->state_3++;
+        o->vel_y = 0;
         if (o->field_49 != 0) {
-            o->field_58 = 0xfffe0000;
+            o->accel_y = 0xfffe0000;
         }
         func_80130efc(o);
     }
@@ -191,9 +191,9 @@ void func_801b2ba8_slot04_0e(Object *obj) {
 }
 
 void func_801b2c00_slot04_0e(Object *obj) {
-    obj->field_07 = 6;
+    obj->state_3 = 6;
     obj->field_45 = 0;
-    obj->field_14 = 0;
+    obj->pos_y_frac = 0;
     obj->field_17b = 0;
     obj->pos_y = (u16)obj->field_70;
     func_801209c4(obj);
@@ -201,7 +201,7 @@ void func_801b2c00_slot04_0e(Object *obj) {
 }
 
 void func_801b2c50_slot04_0e(Object *obj) {
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80142adc(obj);
         func_80130efc(obj);
     } else {
@@ -226,7 +226,7 @@ void func_801b2ca4_slot04_0e(Object *o) {
 }
 
 void func_801b2d0c_slot04_0e(Object *obj) {
-    data_801c6034_slot04_0e[obj->field_07](obj);
+    data_801c6034_slot04_0e[obj->state_3](obj);
 }
 
 void func_801b2d4c_slot04_0e(Object *o) {
@@ -235,7 +235,7 @@ void func_801b2d4c_slot04_0e(Object *o) {
 
     obj->field_1de = 0;
     o->field_17b = 1;
-    o->field_07++;
+    o->state_3++;
     func_80141f28(o, 2);
     func_80138ae8(&game_state, o);
     func_801b6d7c_slot04_0e((Slot04bObj *)o);
@@ -252,15 +252,15 @@ void func_801b2dd4_slot04_0e(Object *o) {
     int d;
     int a;
 
-    if ((s16)o->field_3a >= 0) {
+    if ((s16)o->step_flags >= 0) {
         func_80130efc(o);
     } else {
         o->field_45 = 1;
-        o->field_58 = -0x4800;
-        o->field_07++;
-        o->field_50 = 0x68000;
-        d = *(s32 *)&o->other->field_10;
-        d -= *(s32 *)&o->field_10;
+        o->accel_y = -0x4800;
+        o->state_3++;
+        o->vel_y = 0x68000;
+        d = *(s32 *)&o->other->pos_x_frac;
+        d -= *(s32 *)&o->pos_x_frac;
         if (d > 0) {
             d = -d;
         }
@@ -274,8 +274,8 @@ void func_801b2dd4_slot04_0e(Object *o) {
             a = 0x2d;
             d >>= 1;
         }
-        o->field_4c = d;
-        o->field_54 = 0;
+        o->vel_x = d;
+        o->accel_x = 0;
         func_801307e0(o, a);
     }
 }

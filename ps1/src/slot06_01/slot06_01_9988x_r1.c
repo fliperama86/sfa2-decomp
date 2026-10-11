@@ -15,11 +15,11 @@ void func_801e9988_slot06_01(Object *obj) {
     obj->field_78 = 0x100;
     obj->field_7a = 0x60;
     obj->field_7c = 0x1e0;
-    t = obj->field_04;
-    obj->field_58 = 0;
+    t = obj->state_0;
+    obj->accel_y = 0;
     obj->field_0d = 0;
     obj->field_81 = 4;
-    obj->field_04 = t + 1;
+    obj->state_0 = t + 1;
     *(u16 *)&obj->pos_y = 0xf8 - (u16)obj->pos_y;
     if (obj->field_03 != 0) {
         Object *p = &player_left;
@@ -33,7 +33,7 @@ void func_801e9988_slot06_01(Object *obj) {
         }
         index = 0x11;
         obj->field_3c = p;
-        obj->field_58 = 1;
+        obj->accel_y = 1;
     }
     func_801e9a84_slot06_01(obj, index);
 }

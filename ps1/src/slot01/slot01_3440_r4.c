@@ -17,7 +17,7 @@ void func_800138a4_slot01(Object *obj) {
             return;
         }
     }
-    obj->field_05++;
+    obj->state_1++;
     obj->pos_y = a;
 }
 
@@ -35,14 +35,14 @@ void func_80013908_slot01(Object *obj) {
             return;
         }
     }
-    obj->field_05++;
+    obj->state_1++;
     obj->pos_x = *p;
     func_80013a24_slot01(obj);
 }
 
 void func_8001398c_slot01(Object *obj) {
-    if (*(u16 *)&obj->field_3c->field_04 == 0x101) {
-        obj->field_04++;
+    if (*(u16 *)&obj->field_3c->state_0 == 0x101) {
+        obj->state_0++;
     }
 }
 

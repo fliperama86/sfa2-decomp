@@ -24,20 +24,20 @@ void func_80142fe8(Object *object) {
     if (object->field_2a0 != 0) return;
     if ((object->field_45 | ref_other.p->field_45) != 0) return;
     {
-        s32 delta = object->field_4c;
+        s32 delta = object->vel_x;
         if (object->field_0b != 0) delta = -delta;
-        *(s32 *)&ref_other.p->field_10 = delta + *(s32 *)&ref_other.p->field_10;
+        *(s32 *)&ref_other.p->pos_x_frac = delta + *(s32 *)&ref_other.p->pos_x_frac;
     }
-    if (object->field_4c > 0x1000) {
+    if (object->vel_x > 0x1000) {
         if (ref_other.p->field_cd == 0 && (z = *(s16 *)&ref_other.p->field_132 == 0, ref_other.p->field_130 & z)) {
-            object->field_4c = object->field_4c - 0x10000;
-            if (object->field_4c < 0) object->field_4c = 0;
-            object->field_54 = object->field_54 - 0x6000;
-            if (object->field_54 < 0) {
-                object->field_4c = 0;
-                object->field_54 = 0;
+            object->vel_x = object->vel_x - 0x10000;
+            if (object->vel_x < 0) object->vel_x = 0;
+            object->accel_x = object->accel_x - 0x6000;
+            if (object->accel_x < 0) {
+                object->vel_x = 0;
+                object->accel_x = 0;
             }
         }
-        object->field_4c = object->field_4c + object->field_54;
+        object->vel_x = object->vel_x + object->accel_x;
     }
 }

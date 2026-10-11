@@ -38,18 +38,18 @@ void func_801b374c_slot04_0c(Object *object) {
 }
 
 void func_801b37b0_slot04_0c(Object *object) {
-    data_801bdb88_slot04_0c[object->field_06](object);
+    data_801bdb88_slot04_0c[object->state_2](object);
 }
 
 void func_801b37f0_slot04_0c(Object *object) {
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
     func_80130678(object, 0);
 }
 
 void func_801b3824_slot04_0c(Object *object) {
     if (game_state.config->field_5c == 0) {
-        object->field_06 = object->field_06 + 1;
+        object->state_2 = object->state_2 + 1;
     }
     func_80130efc(object);
 }
@@ -58,7 +58,7 @@ void func_801b386c_slot04_0c(Object *object) {
     int arg = 0x28;
 
     object->field_46 = 0x78;
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     if (game_state.config->field_a6 != 0) {
         arg = 0x29;
     }
@@ -69,8 +69,8 @@ void func_801b38c0_slot04_0c(Object *object) {
     Object *p;
     s16 t;
 
-    if (object->field_3a & 0xff) {
-        object->field_3a = object->field_3a & 0xff00;
+    if (object->step_flags & 0xff) {
+        object->step_flags = object->step_flags & 0xff00;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;
@@ -108,7 +108,7 @@ void func_801b39bc_slot04_0c(Object *object) {
 }
 
 void func_801b39e0_slot04_0c(Object *object) {
-    data_801be19c_slot04_0c[object->field_04](object);
+    data_801be19c_slot04_0c[object->state_0](object);
 }
 
 void func_801b3a20_slot04_0c(Object *object) {
@@ -116,22 +116,22 @@ void func_801b3a20_slot04_0c(Object *object) {
     int speed = 0x30000;
 
     object->field_a0 = 0xff;
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     parent = object->field_3c;
     object->field_09 = 0;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
     ((Slot04bObj *)object)->field_6c = data_801be104_slot04_0c;
     object->field_45 = 0;
-    object->field_50 = 0;
+    object->vel_y = 0;
     if (object->field_03 == 2) {
         func_801b3ed0_slot04_0c(object);
     }
     if (object->field_0b == 0) {
-        object->field_4c = 0xfffd0000;
+        object->vel_x = 0xfffd0000;
         object->pos_x = object->pos_x - 0x5a;
     } else {
-        object->field_4c = speed;
+        object->vel_x = speed;
         object->pos_x = object->pos_x + 0x5a;
     }
     object->pos_y = object->pos_y - 0x44;
@@ -151,17 +151,17 @@ void func_801b3b58_slot04_0c(Object *object) {
 }
 
 void func_801b3b7c_slot04_0c(Object *object) {
-    data_801be1bc_slot04_0c[object->field_05](object);
+    data_801be1bc_slot04_0c[object->state_1](object);
 }
 
 void func_801b3bbc_slot04_0c(Object *object) {
     Config *config = game_state.config;
 
     if ((config->field_65 | config->field_a8) == 0 && --object->field_af == 0) {
-        object->field_04 = 2;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+        object->state_0 = 2;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
         func_801b3dbc_slot04_0c(object);
     } else {
         func_80137b64(object);
@@ -172,13 +172,13 @@ void func_801b3c34_slot04_0c(Object *object) {
     Config *config = game_state.config;
 
     if ((config->field_65 | config->field_a8) == 0) {
-        data_801be1d0_slot04_0c[object->field_06](object);
+        data_801be1d0_slot04_0c[object->state_2](object);
     }
     func_8011ffdc(object);
 }
 
 void func_801b3ca4_slot04_0c(Object *object) {
-    object->field_06 = object->field_06 + 1;
+    object->state_2 = object->state_2 + 1;
     func_801b3ed0_slot04_0c(object);
     object->field_46 = 2;
     func_80131094(object);
@@ -188,10 +188,10 @@ void func_801b3cec_slot04_0c(Object *object) {
     object->field_46 = (s16)object->field_46 - 1;
     if ((s16)object->field_46 == 0) {
         object->field_00 = 1;
-        object->field_04 = 1;
-        object->field_05 = 0;
-        object->field_06 = 0;
-        object->field_07 = 0;
+        object->state_0 = 1;
+        object->state_1 = 0;
+        object->state_2 = 0;
+        object->state_3 = 0;
     }
     func_80131094(object);
 }
@@ -211,6 +211,6 @@ void func_801b3d8c_slot04_0c(Object *object) {
 }
 
 void func_801b3dbc_slot04_0c(Object *object) {
-    data_801be1d8_slot04_0c[object->field_05](object);
+    data_801be1d8_slot04_0c[object->state_1](object);
     func_8011ffdc(object);
 }

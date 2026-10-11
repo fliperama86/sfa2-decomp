@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_80015b50_slot28(Object *obj) {
-    if (--obj->field_4c == 0) {
-        obj->field_4c = 0x20;
-        obj->field_05 = 0;
+    if (--obj->vel_x == 0) {
+        obj->vel_x = 0x20;
+        obj->state_1 = 0;
         if (((u8 *)&obj->field_46)[1] == 2) {
             obj->field_01 = 0;
-            obj->field_04++;
+            obj->state_0++;
         } else {
             ((u8 *)&obj->field_46)[1]++;
             if (((u8 *)&obj->field_46)[1] == 2) {
@@ -28,9 +28,9 @@ void func_80015b50_slot28(Object *obj) {
 }
 
 void func_80015c1c_slot28(Object *obj) {
-    *(int *)&obj->field_10 += 0x4000;
+    *(int *)&obj->pos_x_frac += 0x4000;
     if (obj->pos_x > 0x180) {
-        obj->field_04++;
+        obj->state_0++;
     }
     obj->field_48 = obj->field_48 ^ 1;
     if (obj->field_48 != 0) {

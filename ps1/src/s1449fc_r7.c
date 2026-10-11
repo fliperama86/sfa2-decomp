@@ -11,7 +11,7 @@ void func_80145aa0(Object *p) {
 
 void func_80145ac0(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017c9c0[object->field_04](object);
+    table_8017c9c0[object->state_0](object);
 }
 
 void func_80145b00(Object *object) {
@@ -19,7 +19,7 @@ void func_80145b00(Object *object) {
         func_8011f240((Slab172 *)object);
     } else {
         object->field_01 = 0;
-        object->field_04++;
+        object->state_0++;
         func_8011fc54(object, (SeqRec **)table_8017c988, object->field_03);
     }
 }

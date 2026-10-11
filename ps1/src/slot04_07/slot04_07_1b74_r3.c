@@ -13,9 +13,9 @@ void func_801b1e40_slot04_07(Object *obj) {
     } else if (func_801b41c4_slot04_07(obj) >= 0 || (k = obj->field_70) > obj->pos_y) {
         func_80130efc(obj);
     } else {
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         obj->pos_y = k;
-        obj->field_14 = 0;
+        obj->pos_y_frac = 0;
         obj->field_45 = 0;
         game_state.field_63 = 0x40;
         func_801204f4(obj, obj->side, 8);

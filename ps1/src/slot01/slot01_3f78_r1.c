@@ -16,7 +16,7 @@ void func_80013f78_slot01(Object *obj) {
     u8 *base;
     u16 t12;
     int v9;
-    obj->field_04 = 2;
+    obj->state_0 = 2;
     base = (u8 *)&game_state.field_54;
     i = 0;
     if (*(s16 *)base >= 0) {
@@ -29,7 +29,7 @@ void func_80013f78_slot01(Object *obj) {
             a->field_03 = 0x80;
             v9 = *(u8 *)&game_state.field_54 - i + 1;
             a->field_0d = 0;
-            a->field_04 = 1;
+            a->state_0 = 1;
             a->field_46 = 0x1f;
             a->field_09 = v9;
             t12 = obj->pos_x;
@@ -50,7 +50,7 @@ void func_80013f78_slot01(Object *obj) {
             b->field_01 = 1;
             b->field_03 = 0x80;
             b->field_09 = a->field_09;
-            b->field_04 = 1;
+            b->state_0 = 1;
             b->field_0d = 0;
             b->field_46 = a->field_46;
             b->pos_x = a->pos_x + 2;
@@ -92,7 +92,7 @@ void func_80013f78_slot01(Object *obj) {
         b->field_03 = 0x80;
         b->field_09 = 0;
         b->field_0d = 0;
-        b->field_04 = 1;
+        b->state_0 = 1;
         c = b;
         c->field_46 = a->field_46;
         c->pos_x = a->pos_x + 2;
@@ -113,7 +113,7 @@ void func_80013f78_slot01(Object *obj) {
         b->field_03 = 0x80;
         b->field_09 = 0;
         b->field_0d = 0;
-        b->field_04 = 1;
+        b->state_0 = 1;
         b->field_46 = a->field_46;
         b->pos_x = a->pos_x + 2;
         c = b;
@@ -136,7 +136,7 @@ void func_80013f78_slot01(Object *obj) {
                 a->field_03 = 0x80;
                 v9 = i - *(u8 *)&game_state.field_54 + 2;
                 a->field_0d = 0;
-                a->field_04 = 1;
+                a->state_0 = 1;
                 a->field_46 = 0x1f;
                 a->field_09 = v9;
                 t12 = obj->pos_x;
@@ -158,12 +158,12 @@ void func_80013f78_slot01(Object *obj) {
                 b->field_03 = 0x80;
                 b->field_09 = a->field_09;
                 b->field_0d = 0;
-                b->field_04 = 1;
+                b->state_0 = 1;
                 b->field_46 = a->field_46;
                 b->pos_x = a->pos_x + 2;
                 b->pos_y = a->pos_y - 2;
                 b->field_5c = a->field_5c;
-                b->field_3a = (&game_state.field_11f)[i + 1];
+                b->step_flags = (&game_state.field_11f)[i + 1];
                 b->field_7a = 0x70;
                 if (((game_state.field_50 >> (&game_state.field_11f)[i + 1]) & 1) && i < 7) {
                     func_80130768(b, (&game_state.field_11f)[i + 1], data_800240f8_slot01);

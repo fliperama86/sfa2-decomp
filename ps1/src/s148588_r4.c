@@ -7,11 +7,11 @@
 
 void func_8014886c(Block172 *block) {
     Object *object = (Object *)block;
-    table_8017cd44[object->field_04](object);
+    table_8017cd44[object->state_0](object);
 }
 
 void func_801488ac(Object *object) {
-    object->field_04 = object->field_04 + 1;
+    object->state_0 = object->state_0 + 1;
     func_80148a74(object);
     func_801488ec(object);
 }

@@ -20,7 +20,7 @@ void func_80026a34_slot28(Object *obj) {
         p->pos_x = y - 1;
     }
     p = data_80051cdc_slot28.p;
-    if ((s16)p->field_3a < 0) {
+    if ((s16)p->step_flags < 0) {
         p = (Object *)data_8018f5a0;
         ((HudState *)p)->field_52++;
         func_80128370();

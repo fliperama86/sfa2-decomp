@@ -30,9 +30,9 @@ void func_800113d8_slot27(void) {
 }
 
 void func_800114ac_slot27(Object *object) {
-    data_800267a4_slot27[object->field_04](object);
+    data_800267a4_slot27[object->state_0](object);
 }
 
 void func_800114ec_slot27(Object *object) {
-    data_800267b4_slot27[object->field_05](object);
+    data_800267b4_slot27[object->state_1](object);
 }

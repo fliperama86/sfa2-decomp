@@ -8,11 +8,11 @@ void func_801b2350_slot04_06(Object *obj) {
     obj->field_12d = 0;
     obj->field_12e = 0;
     obj->field_12f = 0;
-    obj->field_54 = 0;
-    obj->field_07++;
-    obj->field_4c = 0x20000;
-    obj->field_50 = 0x78000;
-    obj->field_58 = -0x6000;
+    obj->accel_x = 0;
+    obj->state_3++;
+    obj->vel_x = 0x20000;
+    obj->vel_y = 0x78000;
+    obj->accel_y = -0x6000;
     func_801307e0(obj, 0x1f);
 }
 
@@ -25,7 +25,7 @@ void func_801b23ac_slot04_06(Object *o) {
         if (obj->field_3a != 0) {
             o->field_45 = 1;
             obj->field_1c8 = 0;
-            o->field_07++;
+            o->state_3++;
         }
         func_80130efc(o);
     }

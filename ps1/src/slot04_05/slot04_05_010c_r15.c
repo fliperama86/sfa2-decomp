@@ -9,7 +9,7 @@ void func_801b3c0c_slot04_05(Object *obj, Object *parent) {
 
     obj->field_01 = 0;
     if (obj->field_03 != parent->kind) {
-        obj->field_04++;
+        obj->state_0++;
         return;
     }
     idx = parent->frame->field_09;

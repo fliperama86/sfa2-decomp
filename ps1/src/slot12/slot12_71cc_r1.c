@@ -8,7 +8,7 @@ void func_80017334_slot12(Object *o);
 
 void func_800171cc_slot12(Object *obj) {
     if (game_state.field_2bc == 5) {
-        obj->field_05++;
+        obj->state_1++;
     }
 }
 
@@ -24,7 +24,7 @@ void func_800171f8_slot12(Object *o) {
 }
 
 void func_80017258_slot12(Object *obj) {
-    obj->field_05++;
+    obj->state_1++;
     game_state.field_2bc = 3;
 }
 
@@ -32,6 +32,6 @@ void func_8001727c_slot12(Object *obj) {
     func_80017334_slot12(obj);
     func_800172d0_slot12(obj);
     if (game_state.field_2bc == 10) {
-        obj->field_04++;
+        obj->state_0++;
     }
 }

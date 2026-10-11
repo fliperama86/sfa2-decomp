@@ -11,5 +11,5 @@ void func_801523a4(Object *p) {
 
 void func_801523c4(Block172 *block) {
     Object *object = (Object *)block;
-    table_80180274[object->field_04](object);
+    table_80180274[object->state_0](object);
 }

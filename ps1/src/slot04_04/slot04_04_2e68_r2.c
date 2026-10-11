@@ -18,19 +18,19 @@ void func_801b3b40_slot04_04(Object *obj) {
     i = obj->field_ac;
     i >>= 1;
     obj->field_09 = 0;
-    obj->field_04 = obj->field_04 + 1;
+    obj->state_0 = obj->state_0 + 1;
     obj->field_49 = parent->field_49;
     obj->field_1c = parent->field_1c;
     ((Slot04aObj *)obj)->field_6c = data_801c4508_slot04_04;
     obj->field_45 = 0;
-    obj->field_50 = 0;
+    obj->vel_y = 0;
     k = data_801c4520_slot04_04[i];
     if (obj->field_0b != 0) {
-        obj->field_4c = k;
+        obj->vel_x = k;
         obj->pos_x = obj->pos_x + 0x58;
     } else {
         k = -k;
-        obj->field_4c = k;
+        obj->vel_x = k;
         obj->pos_x = obj->pos_x - 0x58;
     }
     obj->pos_y = obj->pos_y - 0x38;

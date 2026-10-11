@@ -6,9 +6,9 @@
 void func_801b01ac_slot04_0a(Object *obj) {
     Object *c;
 
-    *(u32 *)&obj->field_14 = *(u32 *)&obj->field_14 + 0xc000;
+    *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac + 0xc000;
     if (obj->pos_y + 0x20 >= obj->field_70) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         c = (Object *)func_8011f1e0();
         if (c != 0) {
             c->field_00 = c->field_00 + 1;
@@ -29,11 +29,11 @@ void func_801b01ac_slot04_0a(Object *obj) {
 }
 
 void func_801b0290_slot04_0a(Object *obj) {
-    *(u32 *)&obj->field_14 = *(u32 *)&obj->field_14 + 0xc000;
+    *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac + 0xc000;
     if (obj->pos_y + 0x10 >= obj->field_70) {
-        obj->field_06 = obj->field_06 + 1;
+        obj->state_2 = obj->state_2 + 1;
         func_801209c4(obj);
-        obj->field_14 = 0;
+        obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->pos_y = obj->field_70;
         func_80130678(obj, 0x31);

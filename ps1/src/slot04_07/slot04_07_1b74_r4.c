@@ -8,7 +8,7 @@ void func_801b1f78_slot04_07(Object *obj) {
 
     if (((Slot04aObj *)obj)->field_3a != 0) {
         o = obj->other;
-        obj->field_07 = obj->field_07 + 1;
+        obj->state_3 = obj->state_3 + 1;
         o->field_15b = 1;
         func_80140770(obj, 0, 5, -0x200, 0, 0, 1);
         if (((Slot04aObj *)o)->field_5c < 0) {

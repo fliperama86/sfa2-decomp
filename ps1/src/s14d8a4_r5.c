@@ -13,7 +13,7 @@ int func_8014e25c(Object *object) {
     if (other->field_45 != 0) return 0;
     if (object->field_21e >= 0x30) return 0;
     if (other->field_159 == 0) return 0;
-    if (*(u16 *)&other->field_04 != 1) return 0;
+    if (*(u16 *)&other->state_0 != 1) return 0;
     frame = other->frame;
     b = frame->box_b;
     a = frame->box_a;

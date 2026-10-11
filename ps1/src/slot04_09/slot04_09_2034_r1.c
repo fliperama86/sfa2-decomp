@@ -10,10 +10,10 @@ void func_801b5ba0_slot04_09(Object *obj);
 void func_801b2034_slot04_09(Object *obj) {
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
-    if (obj->field_50 >= 0 && (s16)obj->field_3a >= 0) {
+    if (obj->vel_y >= 0 && (s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         func_801307e0(obj, 0x22);
     }
 }
@@ -22,10 +22,10 @@ void func_801b20ac_slot04_09(Object *obj) {
     Object *o;
     func_801b27f8_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
-    if ((s16)obj->field_3a >= 0) {
+    if ((s16)obj->step_flags >= 0) {
         func_80130efc(obj);
     } else {
-        obj->field_07++;
+        obj->state_3++;
         o = obj->other;
         o->field_15b = 1;
         o->field_260 = 1;
@@ -34,12 +34,12 @@ void func_801b20ac_slot04_09(Object *obj) {
         if ((s16)o->field_5c < 0) {
             obj->field_167 = 2;
         }
-        obj->field_4c = 0x20000;
-        obj->field_50 = 0x40000;
-        obj->field_54 = 0;
-        obj->field_58 = -0x4000;
+        obj->vel_x = 0x20000;
+        obj->vel_y = 0x40000;
+        obj->accel_x = 0;
+        obj->accel_y = -0x4000;
         if (obj->field_0b == 0) {
-            obj->field_4c = 0xfffe0000;
+            obj->vel_x = 0xfffe0000;
         }
     }
 }

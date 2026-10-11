@@ -38,5 +38,5 @@ void func_80078e44_slot00(Object *o) {
 }
 
 void func_80078f50_slot00(Object *obj) {
-    data_8007a12c_slot00[obj->field_04](obj);
+    data_8007a12c_slot00[obj->state_0](obj);
 }

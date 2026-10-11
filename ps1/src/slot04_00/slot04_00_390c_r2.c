@@ -4,26 +4,26 @@
 #include "../externs.h"
 
 void func_801b39dc_slot04_00(Object *obj) {
-    obj->field_07 = obj->field_07 + 1;
+    obj->state_3 = obj->state_3 + 1;
     obj->field_0b = obj->field_158;
     if (obj->field_12a != 0 && obj->field_218 != 0) {
         if (func_8013f8c4(obj, -0x14, 0x14) & 0xff) {
-            obj->field_04 = 1;
-            obj->field_05 = 2;
-            obj->field_06 = 0;
-            obj->field_07 = 0;
+            obj->state_0 = 1;
+            obj->state_1 = 2;
+            obj->state_2 = 0;
+            obj->state_3 = 0;
             return;
         }
         if (obj->field_12a == 2 && obj->field_219 != 0) {
-            obj->field_07 = 2;
+            obj->state_3 = 2;
             func_80141f28(obj, 1);
             if (obj->field_0b == 0) {
-                obj->field_4c = -0x36000;
+                obj->vel_x = -0x36000;
             } else {
-                obj->field_4c = 0x36000;
+                obj->vel_x = 0x36000;
             }
-            obj->field_50 = 0x40000;
-            obj->field_58 = -0x6000;
+            obj->vel_y = 0x40000;
+            obj->accel_y = -0x6000;
             func_801307e0(obj, 0x2f);
             return;
         }

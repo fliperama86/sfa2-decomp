@@ -6,7 +6,7 @@
 extern ObjectFn data_801c3d64_slot04_08[];
 
 void func_801b367c_slot04_08(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
+    if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     } else {
         func_80130efc(obj);
@@ -14,5 +14,5 @@ void func_801b367c_slot04_08(Object *obj) {
 }
 
 void func_801b36c0_slot04_08(Object *obj) {
-    data_801c3d64_slot04_08[obj->field_07](obj);
+    data_801c3d64_slot04_08[obj->state_3](obj);
 }

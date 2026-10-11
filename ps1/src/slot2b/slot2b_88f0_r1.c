@@ -23,10 +23,10 @@ void func_8007893c_slot2b(Object *o) {
 
 void func_80078978_slot2b(Object *o) {
     o->field_0e = data_8007ef34_slot2b->field_0e;
-    o->field_4c = (((Slot2bObj *)data_8007ef34_slot2b->other)->field_10 - ((Slot2bObj *)data_8007ef34_slot2b)->field_10) >> 6;
-    o->field_54 = 0;
-    o->field_50 = 0x30000;
-    o->field_58 = 0xffff6000;
+    o->vel_x = (((Slot2bObj *)data_8007ef34_slot2b->other)->field_10 - ((Slot2bObj *)data_8007ef34_slot2b)->field_10) >> 6;
+    o->accel_x = 0;
+    o->vel_y = 0x30000;
+    o->accel_y = 0xffff6000;
     func_80138070(o, 4);
 }
 

@@ -11,7 +11,7 @@ extern ObjectFn data_80028e84_slot27[];
 void func_80016ad4_slot27(Object *obj) {
     int idx;
     obj->field_01 = 1;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0b = ref_other.p->field_0b;
     obj->pos_x = ref_other.p->pos_x;
     obj->pos_y = ref_other.p->pos_y;

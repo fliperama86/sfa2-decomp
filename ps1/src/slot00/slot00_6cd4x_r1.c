@@ -15,14 +15,14 @@ void func_80076cd4_slot00(Object *o) {
     o->field_46 = (s16)o->field_46 - 1;
     if ((s16)o->field_46 == 0) {
         o->field_00 = 1;
-        o->field_04 = 1;
-        o->field_06 = 1;
-        o->field_05 = 0;
-        o->field_07 = 0;
-        v = -o->field_4c;
-        o->field_4c = v;
+        o->state_0 = 1;
+        o->state_2 = 1;
+        o->state_1 = 0;
+        o->state_3 = 0;
+        v = -o->vel_x;
+        o->vel_x = v;
         if (!(obj->field_b3 & 1)) {
-            o->field_4c = (v >> 1) + v;
+            o->vel_x = (v >> 1) + v;
             if (o->field_ad == 0) {
                 w = o->field_ae + 1;
                 t = w;

@@ -29,8 +29,8 @@ void func_801b0000_slot04_0a(Object *obj) {
         c->field_03 = obj->kind;
         c->field_3c = obj;
         obj->field_28 = (u32)c;
-        *(u32 *)&c->field_10 = *(u32 *)&obj->field_10;
-        *(u32 *)&c->field_14 = *(u32 *)&obj->field_14;
+        *(u32 *)&c->pos_x_frac = *(u32 *)&obj->pos_x_frac;
+        *(u32 *)&c->pos_y_frac = *(u32 *)&obj->pos_y_frac;
         c->field_48 = 0xff;
         c->field_0b = obj->field_0b;
         c->field_0e = obj->field_0e;

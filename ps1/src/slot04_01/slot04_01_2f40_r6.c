@@ -4,16 +4,16 @@
 #include "../externs.h"
 
 void func_801b3408_slot04_01(Object *obj) {
-    u16 t = obj->field_3a;
+    u16 t = obj->step_flags;
     Object *p = obj->other;
 
     if ((u8)t != 0) {
-        obj->field_3a = t & 0xff00;
+        obj->step_flags = t & 0xff00;
         func_80146478(obj, 1, -0x3e, 0x39);
         func_801204f4(obj, ((Slot04aObj *)obj)->field_a6, 8);
         if ((u8)func_80140cd8(obj, 0, 0) != 0) {
             func_80140770(obj, 1, 5, 0, 0, 0, 0);
-            obj->field_07++;
+            obj->state_3++;
             func_80120554(p, ((Slot04aObj *)p)->field_a6, 0x30b);
             func_801204f4(obj, ((Slot04aObj *)obj)->field_a6, 7);
             func_801307e0(obj, 0x2f);
@@ -30,7 +30,7 @@ void func_801b3408_slot04_01(Object *obj) {
     func_80146478(obj, 1, -0x3e, 0x39);
     func_80140770(obj, 1, 5, 0, 0, 0, 1);
     func_80120554(p, ((Slot04aObj *)p)->field_a6, 0x30d);
-    obj->field_07++;
+    obj->state_3++;
     func_801204f4(obj, ((Slot04aObj *)obj)->field_a6, 7);
     func_801307e0(obj, 0x2f);
 }

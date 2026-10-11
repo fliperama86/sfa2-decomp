@@ -8,20 +8,20 @@ extern SequenceStep *data_801eb984_slot06_01[];
 extern SequenceStep *data_801eb9ac_slot06_01;
 
 void func_801e9d78_slot06_01(Object *obj) {
-    if (player_left.field_06 == 5 || player_right.field_06 == 8) {
-        obj->field_05++;
+    if (player_left.state_2 == 5 || player_right.state_2 == 8) {
+        obj->state_1++;
         func_80130700(obj, data_801eb9ac_slot06_01);
     } else {
-        if ((s16)obj->field_3a & 0x8000) {
-            obj->field_05 = 1;
+        if ((s16)obj->step_flags & 0x8000) {
+            obj->state_1 = 1;
         }
         func_80131094(obj);
     }
 }
 
 void func_801e9dfc_slot06_01(Object *obj) {
-    if ((s16)obj->field_3a & 0x8000) {
-        obj->field_05 = 1;
+    if ((s16)obj->step_flags & 0x8000) {
+        obj->state_1 = 1;
     }
     func_80131094(obj);
 }
@@ -31,7 +31,7 @@ void func_801e9e34_slot06_01(Object *obj) {
 }
 
 void func_801e9e54_slot06_01(Object *obj) {
-    data_801ea998_slot06_01[obj->field_04](obj);
+    data_801ea998_slot06_01[obj->state_0](obj);
 }
 
 void func_801e9e94_slot06_01(Object *obj) {
@@ -43,7 +43,7 @@ void func_801e9e94_slot06_01(Object *obj) {
     obj->field_78 = 0x100;
     obj->field_7a = 0x60;
     obj->field_7c = 0x1e0;
-    obj->field_04++;
+    obj->state_0++;
     obj->field_0d = 0;
     obj->field_81 = 4;
     y = obj->pos_y;
