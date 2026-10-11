@@ -8,9 +8,10 @@ inferred from the uses, and `ps1/docs/names.md` says where to read them.
 What was checked before any name was given. The record of 0x394 bytes has
 fifteen structs of that size in the field table
 (`grep -c "size=0x394" ps1/src/types.fields` prints 15): `Object` and
-fourteen views that modules declare. A comparison of the fifteen, offset by
-offset, found 15 offsets where one of them declares a pointer and another
-does not. So a field is named per struct, from that struct's own uses.
+fourteen views that modules declare. They do not agree on what an offset
+holds: at `0x18`, `0x40` and `0x88`, for three, `Object` declares a pointer
+and a view declares a 16-bit number. So a field is named per struct, from
+that struct's own uses.
 
 The tool, `ps1/tools/renamefields.py`. It compares the table before and
 after, takes a field that kept its struct and offset and changed its name
