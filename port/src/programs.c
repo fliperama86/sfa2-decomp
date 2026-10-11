@@ -92,6 +92,7 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
                       (unsigned)(t_addr + at), ram[at], file[0x800 + at]);
     free(file);
 
+    port_callbacks_program_start();
     port_trace_line("program %s: start", row->name);
     if (row->setup) row->setup();
     ((void (*)(void))row->main)();

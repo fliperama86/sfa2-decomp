@@ -1,6 +1,6 @@
 # The stand-alone programs of the disc (ps1/src/programs/programs.toml) whose C the PC program builds in.
-# Read by port/tools/hostbuild.py (--programs FILE). It lists the logo's program: all its functions have C, and every
-# library routine it calls is bound below or is a name of the game. A program not listed is not built in.
+# Read by port/tools/hostbuild.py (--programs FILE). It lists the logo's program and the opening movie's: all their functions have C, and every
+# library routine they call is bound below or is a name of the game. A program not listed is not built in.
 #
 # One table per program:
 #
@@ -46,3 +46,34 @@ PadInit = "port_PadInit"
 PadRead = "port_PadRead"
 PadStop = "port_PadStop"
 SetVideoMode = "port_SetVideoMode"
+
+# The opening movie (PAC/Z2O.EXE). The same setup and teardown as the logo's: the program's own C reads and clears the word at
+# data_80031e68_z2o when a sector was put aside. The library names are the ones the game has no routine for: the movie decoder's
+# (press.c), the stream's (stream.c), the plain read of sectors, the simple pad calls (progcalls.c) and InitGeom, which does
+# nothing here (the PC program has no geometry coprocessor). The program does not call the logo's CdRead, CdReadSync or
+# SetVideoMode. Its other library names are names of the game, as the logo's are. Before its setup the runtime marks the
+# callback layer as not started (port_callbacks_program_start, kernel.c), so that the program's first ResetCallback turns
+# interrupts on.
+[[program]]
+name = "z2o"
+main = "func_800108e8_z2o"
+setup = [ { call = "port_stream_bind", symbol = "data_80031e68_z2o" } ]
+teardown = [ { call = "port_stream_bind" } ]
+
+[program.library]
+DecDCTReset = "port_DecDCTReset"
+DecDCTin = "port_DecDCTin"
+DecDCTout = "port_DecDCTout"
+DecDCToutCallback = "port_DecDCToutCallback"
+DecDCTvlc = "port_DecDCTvlc"
+StSetRing = "port_StSetRing"
+StSetStream = "port_StSetStream"
+StGetNext = "port_StGetNext"
+StFreeRing = "port_StFreeRing"
+StUnSetRing = "port_StUnSetRing"
+StCdInterrupt = "port_StCdInterrupt"
+CdRead2 = "port_CdRead2"
+PadInit = "port_PadInit"
+PadRead = "port_PadRead"
+PadStop = "port_PadStop"
+InitGeom = "port_InitGeom"

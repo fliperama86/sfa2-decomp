@@ -404,6 +404,20 @@ void port_callbacks_reset(void)
     interrupts_enabled = 1;
 }
 
+/* Marks the callback layer as not started and does nothing else. port_program_exec calls it once for each built-in program,
+ * after its checks and before its setup. Why (inferred, not read from a console): a stand-alone program carries its own copy of
+ * the library, so on the console its interrupt handling starts fresh each time the program is started, and its first
+ * ResetCallback hooks the interrupts and turns them on. The runtime serves a program's ResetCallback with the game's routine
+ * below (the name is a name of the game), which does nothing while the game's callbacks are running; the game calls Exec with
+ * interrupts off (EnterCriticalSection), so they would stay off for the whole program. Measured with the opening movie's program:
+ * no completion of the decoder's output was ever delivered and sectors were put aside until the stream stopped with `the queue of
+ * 16 sectors put aside is full`. (The logo's program ran without this because the game's callbacks were stopped when it was
+ * started.) The effect is checked in port/tools/test_hostkernel_start.py. */
+void port_callbacks_program_start(void)
+{
+    callbacks_active = 0;
+}
+
 void *port_h_ResetCallback(void);
 void *port_h_ResetCallback(void)
 {
