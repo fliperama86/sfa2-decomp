@@ -54,6 +54,19 @@ It is not one of the 87 files counted above; like `sepopen.c` it includes
 the game's headers and declares its own view of the library's records, and
 needs none of the headers of `include/`.
 
+One function stands between the two parts of the reference's `libspu/spu.c`
+in a file of its own: `libspu/spu_init.c` (`_spu_init`, the reset of the
+sound chip). It was written by this project from the listing of the
+original: the reference's `_spu_init` is of another version of the library,
+with another order of stores, and was read for the names of the chip's
+registers. Its idle loop is the reference's (`waste_time`, as in
+`spu_p1.c`), so the file carries the reference's license line. It is not
+one of the 87 files counted above; it includes the game's headers and
+declares its own view of the chip's registers, and needs none of the
+headers of `include/`. It builds to the original's bytes with the one patch
+to the assembler wrapper that `ps1/docs/matching-build.md` describes
+(`maspsx_patches`).
+
 ## What is not here
 
 `include/` is not in the repository. The library files need 38 headers of

@@ -375,7 +375,7 @@
 8016b340	36	SpuSetNoiseVoice	sound	0	folder
 8016b364	916	SpuSetCommonAttr	sound	0	folder
 8016b6f8	144	_spu_reset	sound	0	folder
-8016b788	1464	-	sound	0	name
+8016b788	1464	_spu_init	sound	0	name
 8016bd40	392	_spu_setVoiceRegs	sound	0	folder
 8016bec8	836	_spu_writeByIO	sound	0	folder
 8016c20c	428	_spu_FiDMA	sound	0	folder
