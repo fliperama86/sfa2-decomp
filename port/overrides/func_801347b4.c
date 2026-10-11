@@ -30,7 +30,7 @@
  *   Reads: the header and cells; data_801a27d0 (low halfword);
  *     data_80188d04; data_80188d28 after func_80134e94; data_801987c8.
  *   Writes: for each non-zero tile, the page word and the corner and
- *     texture fields of one record (offsets 0x0c to 0x25), data_80188d28
+ *     texture fields of one record (offsets 0x08 to 0x25), data_80188d28
  *     (set to 0), data_80188d04 (plus 1); whatever func_80134e94 and
  *     func_801350c0 write.
  *   Variables the callees reach by address (the function's own text names
