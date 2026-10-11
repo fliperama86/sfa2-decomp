@@ -17,17 +17,17 @@ void func_801b2340_slot04_0f(Object *obj, u16 *src);
    field_d4. When the two bytes are equal it does nothing. */
 void func_801b2270_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
-    u16 *p;
+    u16 (*p)[0x10];
 
     if (obj->field_3a != obj->field_339) {
         obj->field_339 = obj->field_3a;
         if (obj->field_339 & 0x80) {
             func_801b22ec_slot04_0f(o);
         } else {
-            /* The row is reached from the table's first row in two statements. With the row taken by its index in one expression (data_801c5500_slot04_0f[obj->field_339 + o->field_d4 * 5]) this function differs from the original in 8 instruction slots. */
-            p = data_801c5500_slot04_0f[0];
-            p += (obj->field_339 + o->field_d4 * 5) * 16;
-            func_801b2340_slot04_0f(o, p);
+            /* A pointer to a row is set to the table's first row and then stepped by the row's number, in two statements. With the row taken by its index in one expression (data_801c5500_slot04_0f[obj->field_339 + o->field_d4 * 5]) this function differs from the original in 8 instruction slots. */
+            p = data_801c5500_slot04_0f;
+            p += obj->field_339 + o->field_d4 * 5;
+            func_801b2340_slot04_0f(o, *p);
         }
     }
 }
