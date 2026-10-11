@@ -23,12 +23,12 @@
  *
  * The audio lock. Every access to PsyZ's model of the chip is made between Psyz_AudioLock and Psyz_AudioUnlock. They are
  * harmless while no audio layer runs: in PsyZ's src/platform/sdl3_audio.c the mutex they take is created by Psyz_AudioInit
- * and both routines do nothing while it does not exist ("if (mutex)"). With --audio the mutex exists and PsyZ's audio thread
+ * and both routines do nothing while it does not exist ("if (mutex)"). With the device open the mutex exists and PsyZ's audio thread
  * pulls frames from the model under it, so these calls then exclude that thread. The lock is held only around the one PsyZ
  * call it names, never across a call into the game, the completion's routine or a fault. Psyz_SpuInit runs once, at start,
  * before the first access.
  *
- * Sound out (PORT_HAVE_PSYZ). Two options, both off unless asked:
+ * Sound out (PORT_HAVE_PSYZ). The machine's sound output is opened at start unless --no-audio or --audio-dump is given:
  *   --audio-dump FILE  no device. At the end of every vblank (port_iopage_vblank, on the game's thread) 735 stereo frames
  *                      (44,100 a second at 60 vblanks) are pulled from the model under the lock and appended to FILE as a
  *                      WAV file (16 bits, stereo, 44,100 Hz, little endian). The header's two lengths are rewritten and the
@@ -37,16 +37,19 @@
  *                      header is then at most 59 vblanks behind the frames that reached the file. A file that cannot be opened
  *                      refuses the start. A write that fails later prints one line, `audio: writing the dump failed, ...`, closes
  *                      the file, and the game goes on; nothing is pulled after that.
- *   --audio            Psyz_AudioInit() once, in port_iopage_init, after Psyz_SpuInit and before the game runs. PsyZ opens its
+ *   the device         Psyz_AudioInit() once, in port_iopage_init, after Psyz_SpuInit and before the game runs. PsyZ opens its
  *                      default device and its thread pulls from the model. Psyz_AudioInit calls Psyz_SpuInit again, which returns
  *                      at once when the model is started (src/psyz/psyz_spu.c, "if (spu.initialized) return"), so it clears
- *                      nothing. A device that cannot be opened prints one line and the game runs without sound.
- * With both, the file is written and no device is opened (one line says so).
+ *                      nothing. A device that cannot be opened prints one line and the game runs without sound. --audio asks
+ *                      for the device by name and changes nothing here.
+ *   --no-audio         no device and no file: the model is started and nothing pulls from it.
+ * With --audio-dump and --audio, the file is written and no device is opened (one line says so).
  *
  * The disc's streamed audio. In a build with PsyZ this file defines Psyz_CdPullSamples (PsyZ's own is in its libcd, which the
  * program does not link) over the queue of cd.c, and port_audio_lock / port_audio_unlock, the same lock for cd.c. Once something
  * takes sound out (the dump, or a device that opened) port_xa_set_sink(1) is called, and only then does cd.c decode and queue the
- * audio sectors; without it they are consumed in silence. Without PsyZ either option refuses the start.
+ * audio sectors; without it they are consumed in silence. Without PsyZ --audio-dump and --audio each refuse the start, and with
+ * neither of them the program runs in silence and says nothing about sound.
  *
  * The transfer. The library's start of a transfer (the sound library's _spu_t in libspu/spu_p2.c) writes the address, the
  * block control (blocks of 16 words, so a multiple of 64 bytes) and the control 0x01000201 (to the chip) or 0x01000200 (from
@@ -487,7 +490,7 @@ static void report(void)
 int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *err, size_t errsize)
 {
 #ifndef PORT_HAVE_PSYZ
-    if (audio_dump || audio_device) {
+    if (audio_dump || audio_device == PORT_AUDIO_ASKED) {
         snprintf(err, errsize, "%s needs a build with PsyZ (sound out is PsyZ's model of the chip)", audio_dump ? "--audio-dump" : "--audio");
         return -1;
     }
@@ -521,12 +524,12 @@ int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *
         }
         atexit(wav_end);
         port_xa_set_sink(1);
-        if (audio_device) {
+        if (audio_device == PORT_AUDIO_ASKED) {
             printf("audio: --audio-dump and --audio together: the file is written and no sound device is opened\n");
             fflush(stdout);
         }
-    } else if (audio_device) {
-        /* The machine's sound output: PsyZ opens the default device and its thread pulls from the model under the lock. */
+    } else if (audio_device != PORT_AUDIO_OFF) {
+        /* The machine's sound output, asked for or not: PsyZ opens the default device and its thread pulls from the model under the lock. */
         if (Psyz_AudioInit() != 0) {
             printf("audio: the machine's sound output could not be opened; the game runs without sound\n");
         } else {

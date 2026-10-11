@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Controls for the port's sound out (iopage.c): --audio-dump FILE and --audio.
+"""Controls for the port's sound out (iopage.c): the device that opens unless told not to, --no-audio, --audio and --audio-dump FILE.
 
     python3 test_hostaudio.py --cc CROSS_CC --psyz-build DIR [--run PREFIX] [--src DIR] [--only GROUP]
 
---audio-dump FILE appends 735 stereo frames of PsyZ's model of the sound chip to a WAV file at the end of every vblank, with no audio
-device. --audio opens the machine's sound output through PsyZ (Psyz_AudioInit, once, at start). Both are off unless asked. With both the
-file is written and no device is opened. Without PsyZ in the build either is refused at start.
+A program linked with PsyZ opens the machine's sound output through PsyZ (Psyz_AudioInit, once, at start) without being asked.
+--no-audio opens none. --audio asks for the device by name and changes nothing in such a program. --audio-dump FILE appends 735 stereo
+frames of PsyZ's model of the sound chip to a WAV file at the end of every vblank, with no audio device (with --audio as well a line
+says so). Without PsyZ in the build --audio and --audio-dump are each refused at start, and a start with neither runs in silence.
 
-NO CASE MAY OPEN A REAL DEVICE. Every child that this file starts gets SDL_AUDIODRIVER in its environment, set here: `dummy`, or for the
-case of a device that cannot be opened a name that SDL does not have. The route into the child from a Linux shell under WSL is WSLENV,
-which is set here too. A start with --audio whose environment lacks the variable is refused by the control itself (a case shows that).
+NO CASE MAY OPEN A REAL DEVICE. Every child that this file starts gets SDL_AUDIODRIVER in its environment, set by the rig (the one of
+test_hostiopage.py): `dummy`, or for the case of a device that cannot be opened a name that SDL does not have. The route into the child
+from a Linux shell under WSL is WSLENV, which is set there too. Any start whose environment lacks the variable is refused by the control
+itself, whatever its arguments (two cases show that).
 
 The cases build the runtime with a made-up game (the rig of test_hostiopage.py, linked with PsyZ) and run the whole program. Each lists the
 lines it must print and the status, checks the status first, and fails on a missing line, a line more or another status. The groups:
@@ -22,15 +24,18 @@ lines it must print and the status, checks the status first, and fails on a miss
   outside by its handle after a known time (the same bound, checked as a bound);
 - a file in a folder that does not exist (the refusal line, status 2, nothing created); a write that fails (one line, the dump stops with
   the lengths of what reached the file, the game goes on, status 0);
-- --audio with SDL's dummy device: the line that the output is open, the game runs to its end, the model was pulled (the voice's envelope
-  register, which only a pulled frame changes, is not zero) and PsyZ's own state says a device is open (Psyz_AudioIsPaused is 0); the
-  same game with no option: envelope 0 and no device; --audio with a driver that does not exist: the line, status 0, no device;
-  both options: the file is written, the line, no device (PsyZ says so), the model pulled by the dump;
-- the lock: with --audio the mutex exists, and every access of iopage.c to the model is probed (the link wraps PsyZ's routines; inside each locked call a
+- the device, with SDL's dummy driver: with no option, and with --audio, the line that the output is open, the game runs to its end, the
+  model was pulled (the voice's envelope register, which only a pulled frame changes, is not zero) and PsyZ's own state says a device is
+  open (Psyz_AudioIsPaused is 0); the same game with --no-audio: no line, envelope 0 and no device; a driver that does not exist, with no
+  option and with --audio: the line, status 0, no device; --audio and --audio-dump: the file is written, the line, no device (PsyZ says
+  so), the model pulled by the dump; --no-audio and --audio-dump: the same without the line; --audio and --no-audio, in either order:
+  the usage line, status 2;
+- the lock: with the device open the mutex exists, and every access of iopage.c to the model is probed (the link wraps PsyZ's routines; inside each locked call a
   worker thread tries the audio lock and must NOT get it during the call; after the game's accesses have returned, so after every unlock, the
   game joins all workers: each must finish within 2 s with exit code 0; a thread not created, a wait that fails or times out, or a handle that
   does not close is a failure with its reason);
-- a build without PsyZ: each option refused with its line, status 2, no file.
+- a build without PsyZ: --audio-dump and --audio each refused with its line, status 2, no file; with no option and with --no-audio the
+  program runs, prints no line about sound, and both runs print the same.
 
 Every case prints `ok NAME` or `FAIL NAME: why`; the last line is `all N cases that ran behaved as required` or the number that did not.
 --src names another copy of the runtime's folder (the mutants of the controls run on a scratch copy).
@@ -281,22 +286,18 @@ VARIANT_C = {"audio": domains(NOPROBE), "lock": domains(PROBE + PROBE_ACCESSORS)
 VARIANT_FLAGS = {"lock": [f"-Wl,--wrap={n}" for n in WRAPPED], "wfail": ["-Wl,--wrap=fwrite"]}
 
 
-def wsl_env(driver: str) -> dict:
-    env = dict(os.environ)
-    env["SDL_AUDIODRIVER"] = driver
-    if shutil.which("wslpath"):
-        parts = [p for p in env.get("WSLENV", "").split(":") if p and p.split("/")[0] != "SDL_AUDIODRIVER"]
-        env["WSLENV"] = ":".join(parts + ["SDL_AUDIODRIVER"])
-    return env
+wsl_env = I.sound_env
 
 
 class AudioRig(I.PsyzRig):
-    """The PsyZ rig whose children carry SDL_AUDIODRIVER (set here) and whose starts are guarded: a start with --audio whose environment
-    lacks a driver that cannot reach a real device is refused."""
+    """The PsyZ rig with nothing put before a program's arguments (each case names its own sound options). Its guard, the PsyZ rig's,
+    lets a child start with the dummy driver or with the name that SDL does not have, and with nothing else, whatever the arguments."""
 
     def __init__(self, cc, prefix, work, info):
         super().__init__(cc, prefix, work, info)
         self.env = wsl_env(SAMPLE)
+        self.drivers = (SAMPLE, BAD_DRIVER)
+        self.first = []
 
     def program_for(self, variant, pin, old_link=False):
         saved = self.libs
@@ -306,20 +307,6 @@ class AudioRig(I.PsyzRig):
         finally:
             self.libs = saved
 
-    def guard(self, args):
-        if "--audio" in args and self.env.get("SDL_AUDIODRIVER") not in (SAMPLE, BAD_DRIVER):
-            raise AssertionError("refused to start with --audio: SDL_AUDIODRIVER is %r, not %r or %r" % (self.env.get("SDL_AUDIODRIVER"), SAMPLE, BAD_DRIVER))
-
-    def start(self, exe, args, timeout):
-        self.guard(args)
-        self.last = None
-        try:
-            proc = subprocess.run([*self.prefix, str(exe), *args], capture_output=True, text=True, timeout=timeout, env=self.env)
-        except subprocess.TimeoutExpired as err:
-            self.record(None, err.stdout, err.stderr, timed_out=True)
-            raise
-        self.record(proc.returncode, proc.stdout, proc.stderr)
-        return proc.returncode, proc.stdout
 
 
 def split(lines: list[str]):
@@ -389,16 +376,20 @@ def cases(rig, only: str, rig_nopsyz):
         bad = wsl_env(BAD_DRIVER)["SDL_AUDIODRIVER"] == BAD_DRIVER
         saved, rig.env = rig.env, dict(os.environ)
         rig.env.pop("SDL_AUDIODRIVER", None)
+        raised = {}
         try:
-            rig.guard(["--audio"])
-            raised = False
-        except AssertionError:
-            raised = True
+            for name, a in (("asked", ["--audio"]), ("plain", [])):
+                try:
+                    rig.guard(a)
+                    raised[name] = False
+                except AssertionError:
+                    raised[name] = True
         finally:
             rig.env = saved
         print("     the child's environment: SDL_AUDIODRIVER=%s WSLENV=%s" % (rig.env.get("SDL_AUDIODRIVER"), rig.env.get("WSLENV")), flush=True)
         yield "the-environment-of-every-child-has-the-dummy-driver-and-the-route-through-wslenv", None if (ok and bad and rig.env["SDL_AUDIODRIVER"] == SAMPLE) else f"environment {e.get('SDL_AUDIODRIVER')!r} {e.get('WSLENV')!r}"
-        yield "the-control-refuses-to-start-with-audio-when-the-driver-is-not-set", None if raised else "the guard let a start with --audio and no driver through"
+        yield "the-control-refuses-to-start-with-audio-when-the-driver-is-not-set", None if raised["asked"] else "the guard let a start with --audio and no driver through"
+        yield "the-control-refuses-to-start-with-no-option-when-the-driver-is-not-set", None if raised["plain"] else "the guard let a start with no option and no driver through"
 
     # ---- the dump ----
     if want("dump"):
@@ -495,12 +486,23 @@ def cases(rig, only: str, rig_nopsyz):
 
     # ---- the device ----
     if want("device"):
-        status, lines = run(rig, "a_device", [NI], tag="nodev")
-        yield "with-no-option-no-device-is-open-and-the-model-is-not-pulled", expect(rig, status, lines, 0, [], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
+        idle = ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN]
+        play = ["device paused 0", "envelope not zero 1", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN]
+        status, lines = run(rig, "a_device", [NI], tag="plain")
+        yield "with-no-option-the-dummy-device-is-opened-and-the-model-is-pulled", expect(rig, status, lines, 0, [OPEN], play)
+        status, lines = run(rig, "a_device", [NI, "--no-audio"], tag="nodev")
+        yield "with-no-audio-no-device-is-open-no-line-is-printed-and-the-model-is-not-pulled", expect(rig, status, lines, 0, [], idle)
         status, lines = run(rig, "a_device", [NI, "--audio"], tag="dummy")
-        yield "audio-with-the-dummy-device-opens-it-and-the-model-is-pulled", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
+        yield "audio-with-the-dummy-device-opens-it-and-the-model-is-pulled", expect(rig, status, lines, 0, [OPEN], play)
+        status, lines = run(rig, "a_device", [NI], env=wsl_env(BAD_DRIVER), tag="plainbad")
+        yield "with-no-option-a-driver-that-does-not-exist-is-a-line-and-the-game-runs-without-sound", expect(rig, status, lines, 0, [FAILED_OPEN], idle)
         status, lines = run(rig, "a_device", [NI, "--audio"], env=wsl_env(BAD_DRIVER), tag="baddev")
-        yield "audio-with-a-driver-that-does-not-exist-is-a-line-and-the-game-runs-without-sound", expect(rig, status, lines, 0, [FAILED_OPEN], ["device paused 1", "envelope not zero 0", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
+        yield "audio-with-a-driver-that-does-not-exist-is-a-line-and-the-game-runs-without-sound", expect(rig, status, lines, 0, [FAILED_OPEN], idle)
+        for order in (["--audio", "--no-audio"], ["--no-audio", "--audio"]):
+            status, lines = run(rig, "a_device", [NI, *order], tag="clash")
+            yield ("audio-and-no-audio-together-are-the-usage-line-(%s-first)" % order[0].lstrip("-")), (
+                f"status {status}, wanted 2; lines {lines!r}" if status != 2 else
+                (None if len(lines) == 2 and lines[0].startswith("usage: ") and "[--audio | --no-audio]" in lines[0] else f"lines {lines!r}, wanted the two usage lines"))
         f = work / "b.wav"
         f.unlink(missing_ok=True)
         status, lines = run(rig, "a_device", [NI, "--audio", "--audio-dump", native(f)], tag="both")
@@ -510,8 +512,17 @@ def cases(rig, only: str, rig_nopsyz):
             dlen = len(b) - 44
             why = header_problem(b, dlen) or (None if dlen > 0 and dlen % FRAME_BYTES == 0 else f"data length {dlen} is not a whole number of vblanks")
         yield "both-options-write-the-file-and-open-no-device-and-say-so", why
+        for label, more in (("the-dump-alone", []), ("no-audio-and-the-dump", ["--no-audio"])):
+            f.unlink(missing_ok=True)
+            status, lines = run(rig, "a_device", [NI, *more, "--audio-dump", native(f)], tag="dumpdev")
+            why = expect(rig, status, lines, 0, [], ["device paused 1", "envelope not zero 1", "lock probes: 0 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
+            if why is None:
+                b = f.read_bytes()
+                dlen = len(b) - 44
+                why = header_problem(b, dlen) or (None if dlen > 0 and dlen % FRAME_BYTES == 0 else f"data length {dlen} is not a whole number of vblanks")
+            yield f"{label}-writes-the-file-opens-no-device-and-prints-no-line-about-it", why
         # every access to the model is made with the lock held: 19 writes of the game and 1 read (counted by hand)
-        status, lines = run(rig, "a_device", [NI, "--audio"], tag="lock", variant="lock")
+        status, lines = run(rig, "a_device", [NI], tag="lock", variant="lock")
         yield "with-the-device-open-every-access-of-iopage-to-the-model-is-made-with-the-audio-lock-held", expect(rig, status, lines, 0, [OPEN], ["device paused 0", "envelope not zero 1", "lock probes: 20 calls, 0 where the worker got the lock during the call, 0 not clean after the release", MAIN])
 
     # ---- the disc's streamed audio ----
@@ -526,6 +537,12 @@ def cases(rig, only: str, rig_nopsyz):
             status, lines, _, _ = rig_nopsyz.run("nopsyz", program(L.ENTRY_C), args=args, timeout=60)
             line = f"refused: {opt} needs a build with PsyZ (sound out is PsyZ's model of the chip)"
             yield ("a-build-without-psyz-refuses-%s" % opt.lstrip("-")), (f"status {status}, wanted 2; lines {lines!r}" if status != 2 else (None if lines == [line] and not f.exists() else f"lines {lines!r}, wanted {[line]!r}; file exists {f.exists()}"))
+        # with no option, and with --no-audio, a build without PsyZ runs and says nothing about sound (the disc's name differs, so one tag)
+        runs = [rig_nopsyz.run("nopsyzq", program(L.ENTRY_C), args=a, timeout=60)[:2] for a in ([], ["--no-audio"])]
+        started = [any(l.startswith("start: 0x") for l in lines) for _, lines in runs]
+        said = [l for _, lines in runs for l in lines if l.startswith(("audio:", "refused:", "usage:"))]
+        yield "a-build-without-psyz-runs-in-silence-with-no-option-and-with-no-audio-and-prints-the-same", (
+            None if runs[0] == runs[1] and all(started) and not said else f"no option: {runs[0]!r}; --no-audio: {runs[1]!r}")
 
 
 # ---- the disc's streamed audio on the real path ----
@@ -611,7 +628,7 @@ def stream_cases(rig, work):
                     why = "a frame after the stream's end is not zero"
         yield f"the-streamed-audio-reaches-the-dump-as-the-reference-frames-through-the-volumes-({label})", why
 
-    status, lines, _ = go("a_xa", [NI], "x_nosink")
+    status, lines, _ = go("a_xa", [NI, "--no-audio"], "x_nosink")
     yield "with-no-sink-the-audio-sectors-are-consumed-in-silence-and-nothing-is-queued", expect(rig, status, lines, 0, [], ["sectors: played 0 held 0 refused 0 skipped 4 silent 8", "frames: queued in all 0 pulled 0 in the queue 0", MAIN])
 
     # a dump that fails while a stream plays: the sink goes off, the queue is emptied, and the audio sectors that follow are consumed in silence (no

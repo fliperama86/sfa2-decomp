@@ -227,8 +227,8 @@ static struct {
  * bit 0x08 only the file and channel of the last Setfilter) is decoded by xa.c, resampled to 44,100 Hz and put in a queue one
  * second deep. The sound chip's model takes frames from the queue through Psyz_CdPullSamples (iopage.c defines it, in a build with
  * PsyZ, and calls port_xa_pull). When the queue lacks room for a sector the sector is not consumed (see the header). Without a
- * consumer (no --audio and no --audio-dump, or a build without PsyZ: port_xa_set_sink was not called) nothing would empty the
- * queue, so the sector is consumed in silence, as before.
+ * consumer (--no-audio and no --audio-dump, a device that did not open, or a build without PsyZ: port_xa_set_sink was not called)
+ * nothing would empty the queue, so the sector is consumed in silence, as before.
  * A consumer that is gone. The drive waits for sound that is being played, without a bound. It must not wait for a consumer that has
  * stopped: the layer counts pulls (port_xa_pull). When an audio sector has been held for XA_GONE_VBLANKS vblanks in a row (by
  * port_frames) and no pull happened in that time, the sink is taken as gone: one line on the output, the queue emptied, and audio

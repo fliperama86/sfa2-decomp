@@ -1093,7 +1093,9 @@ def flow_cases(root: Path):
 
 
 def psyz_cases(root: Path):
-    """--psyz: gpu.c, input.c, iopage.c and press.c alone see PsyZ's headers, the link line gets its libraries, and a bad folder is refused."""
+    """--psyz: gpu.c, input.c, iopage.c and press.c alone see PsyZ's headers, the link line gets its libraries, and a bad folder is refused.
+    The made-up game of these cases has no sound library, so each run with --psyz leaves it out by name (sound_cases has the rest)."""
+    NS = "--no-sound-library"
     def tree(tag: str):
         config = run_tree(root, tag)
         write(root / tag / "runtime" / "gpu.c", "int gpu;\n")
@@ -1108,7 +1110,7 @@ def psyz_cases(root: Path):
 
     config, folder, libs = tree("ps")
     cc, nm = fake(root, "ps", defs=DEFS)
-    proc = run(root, "ps", config, cc, nm, "--psyz", folder)
+    proc = run(root, "ps", config, cc, nm, "--psyz", folder, NS)
     out = proc.stdout.splitlines()
     yield "psyz-run-ok-and-psyz-line-after-compiler", same((proc.returncode, out[:2], proc.stderr), (0, ["compiler: fakecc 1.0", "psyz: abc123"], ""))
     calls = [x.split() for x in read(root / "ps.log").splitlines()]
@@ -1134,19 +1136,19 @@ def psyz_cases(root: Path):
     config, folder, libs = tree("ps3")
     cc, nm = fake(root, "ps3", defs=DEFS)
     (folder / "psyz.json").unlink()
-    proc = run(root, "ps3", config, cc, nm, "--psyz", folder)
+    proc = run(root, "ps3", config, cc, nm, "--psyz", folder, NS)
     yield "psyz-folder-without-psyz-json-is-refused", same((proc.returncode, proc.stdout, "psyz.json" in proc.stderr and "psyzbuild.py" in proc.stderr, len(proc.stderr.strip().splitlines())), (2, "", True, 1))
 
     config, folder, libs = tree("ps4")
     cc, nm = fake(root, "ps4", defs=DEFS)
     libs[1].unlink()
-    proc = run(root, "ps4", config, cc, nm, "--psyz", folder)
+    proc = run(root, "ps4", config, cc, nm, "--psyz", folder, NS)
     yield "psyz-missing-library-is-refused", same((proc.returncode, proc.stdout, str(libs[1]) in proc.stderr), (2, "", True))
 
     config, folder, libs = tree("ps5")
     cc, nm = fake(root, "ps5", defs=DEFS)
     (folder / "psyz.json").write_text('{"include": 3}')
-    proc = run(root, "ps5", config, cc, nm, "--psyz", folder)
+    proc = run(root, "ps5", config, cc, nm, "--psyz", folder, NS)
     yield "psyz-malformed-psyz-json-is-refused", same((proc.returncode, proc.stdout, "psyz.json" in proc.stderr), (2, "", True))
 
 
@@ -1195,8 +1197,9 @@ def sound_calls(root: Path, tag: str):
 
 
 def sound_cases(root: Path):
-    """--sound-library and the prefix folder."""
+    """The sound library (compiled with --psyz unless --no-sound-library), --sound-library and the prefix folder."""
     flags = hb.COMPILE_FLAGS
+    NS = "--no-sound-library"
 
     # The selection, called directly: the units of sdk/libsnd and sdk/libspu whose source is .c, and the library folder.
     config, path = config_tree(root, "snd-sel", SOUND_UNITS, "", SOUND_NONMATCHING)
@@ -1210,14 +1213,15 @@ def sound_cases(root: Path):
     yield "sound-select-without-the-option", same(sorted((j.name, j.library) for j in sel.jobs), [("func_80100310", False), ("ua", False), ("ub", False)])
     yield "sound-select-without-the-option-counts-nothing", same(sel.sound_counts, (0, 0, 0))
     config, path = config_tree(root, "snd-sel2", unit("ua", "a.c", [("fa", 0x80100000)]) + unit("so", "sdk/other/o.c", [("of", 0x80100130)]) + unit("sa", "sdk/libsnd/sa.s", kind="asm"))
-    yield "sound-select-no-library-unit-is-refused", raises(lambda: hb.select_units(config, path, True), "--sound-library", "sdk/libsnd")
+    yield "sound-select-no-library-unit-is-refused", raises(lambda: hb.select_units(config, path, True), "--no-sound-library", "sdk/libsnd")
     yield "sound-select-no-library-unit-is-fine-without-the-option", same([j.name for j in hb.select_units(config, path).jobs], ["ua"])
 
-    # A whole run with the option.
+    # A whole run with --psyz and nothing said about sound: the library is compiled.
     config, folder = sound_tree(root, "snd")
     cc, nm = fake(root, "snd", defs=SOUND_DEFS)
-    proc = run(root, "snd", config, cc, nm, "--sound-library", "--psyz", folder)
+    proc = run(root, "snd", config, cc, nm, "--psyz", folder)
     out = proc.stdout.splitlines()
+    plain = (proc.returncode, proc.stdout, proc.stderr, sorted(read(root / "snd.log").splitlines()))   # two jobs at a time: the log's order is not fixed
     exe = root / "snd" / "build" / "sfa2.exe"
     yield "sound-run-ends-verified", same((proc.returncode, proc.stderr, out[-1]), (0, "", f"linked: {exe}, verified"))
     yield "sound-line-after-the-psyz-line", same(out[:3], ["compiler: fakecc 1.0", "psyz: abc123", "sound library: 2 units of sdk/libsnd, 1 of sdk/libspu, 1 of library_nonmatching"])
@@ -1251,19 +1255,38 @@ def sound_cases(root: Path):
     yield "sound-define-follows-psyz-flags-on-gpu-c", same(rt["gpu.c"][:10], ["-O1", "-Wall", "-Wextra", "-c", "-DPORT_HAVE_PSYZ", "-D__psyz", "-DEXTRA=1", "-isystem", inc, d])
     yield "sound-define-not-on-the-tables", same(rt["port_tables.c"], ["-O1", "-Wall", "-Wextra", "-c", "-I", rtd, "-o", obj("port_tables"), str(root / "snd" / "build" / "gen" / "port_tables.c")])
 
-    # The same tree without the option.
+    # The same tree with the library asked for by name: the same run (the tree's name in the paths apart).
+    config, folder = sound_tree(root, "sndx")
+    cc, nm = fake(root, "sndx", defs=SOUND_DEFS)
+    proc = run(root, "sndx", config, cc, nm, "--sound-library", "--psyz", folder)
+    named = (proc.returncode, proc.stdout.replace("sndx", "snd"), proc.stderr, sorted(read(root / "sndx.log").replace("sndx", "snd").splitlines()))
+    yield "sound-asked-for-by-name-is-the-same-run", same((named, plain[0], "sound library: " in plain[1]), (plain, 0, True))
+
+    # The same tree with the library left out.
     config, folder = sound_tree(root, "snd0")
     cc, nm = fake(root, "snd0", defs=SOUND_DEFS)
-    proc = run(root, "snd0", config, cc, nm, "--psyz", folder)
+    proc = run(root, "snd0", config, cc, nm, "--psyz", folder, NS)
     out = proc.stdout.splitlines()
     units, rt = sound_calls(root, "snd0")
-    yield "sound-without-the-option-no-added-line", same((proc.returncode, out[:3]), (0, ["compiler: fakecc 1.0", "psyz: abc123", "units: 3 compiled, 1 of them nonmatching, 0 failed"]))
-    yield "sound-without-the-option-sources", same(sorted(units), ["a.c", "b.c", "func_80100310.c"])
-    yield "sound-without-the-option-library-folder-left-out", same(("func_80100300" in read(root / "snd0" / "build" / "gen" / "port_tables.c"), "func_80100300.c" in units), (False, False))
-    yield "sound-without-the-option-no-define-no-shim", same(("-DPORT_SOUND_LIBRARY_C" in " ".join(sum(rt.values(), [])), "sdkshim" in read(root / "snd0.log")), (False, False))
-    yield "sound-without-the-option-main-c-as-before", same(rt["main.c"], ["-O1", "-Wall", "-Wextra", "-c", "-I", str(root / "snd0" / "runtime"), "-o", str(root / "snd0" / "build" / "rt" / "main.o"), str(root / "snd0" / "runtime" / "main.c")])
+    yield "sound-left-out-no-added-line", same((proc.returncode, out[:3]), (0, ["compiler: fakecc 1.0", "psyz: abc123", "units: 3 compiled, 1 of them nonmatching, 0 failed"]))
+    yield "sound-left-out-sources", same(sorted(units), ["a.c", "b.c", "func_80100310.c"])
+    yield "sound-left-out-library-folder-left-out", same(("func_80100300" in read(root / "snd0" / "build" / "gen" / "port_tables.c"), "func_80100300.c" in units), (False, False))
+    yield "sound-left-out-no-define-no-shim", same(("-DPORT_SOUND_LIBRARY_C" in " ".join(sum(rt.values(), [])), "sdkshim" in read(root / "snd0.log")), (False, False))
+    yield "sound-left-out-main-c-as-before", same(rt["main.c"], ["-O1", "-Wall", "-Wextra", "-c", "-I", str(root / "snd0" / "runtime"), "-o", str(root / "snd0" / "build" / "rt" / "main.o"), str(root / "snd0" / "runtime" / "main.c")])
 
-    # The refusals of the option.
+    # Without --psyz there is no sound library, whatever --no-sound-library says: two runs that differ in nothing but the tree's name.
+    got = []
+    for tag, more in (("sndn", []), ("sndm", [NS])):
+        config, folder = sound_tree(root, tag)
+        cc, nm = fake(root, tag, defs=SOUND_DEFS)
+        proc = run(root, tag, config, cc, nm, *more)
+        units, rt = sound_calls(root, tag)
+        got.append((proc.returncode, proc.stderr, proc.stdout.replace(tag, "T"), sorted(read(root / f"{tag}.log").replace(tag, "T").splitlines()), sorted(units), "-DPORT_SOUND_LIBRARY_C" in " ".join(sum(rt.values(), []))))
+    yield "sound-without-psyz-nothing-of-the-library-is-compiled", same((got[0][0], got[0][1], got[0][2].splitlines()[:2], got[0][4], got[0][5]),
+                                                                        (0, "", ["compiler: fakecc 1.0", "units: 3 compiled, 1 of them nonmatching, 0 failed"], ["a.c", "b.c", "func_80100310.c"], False))
+    yield "sound-left-out-by-name-without-psyz-changes-nothing", same(got[1], got[0])
+
+    # The refusals.
     config, folder = sound_tree(root, "snd1")
     cc, nm = fake(root, "snd1", defs=SOUND_DEFS)
     proc = run(root, "snd1", config, cc, nm, "--sound-library")
@@ -1272,6 +1295,18 @@ def sound_cases(root: Path):
     cc, nm = fake(root, "snd2", defs=SOUND_DEFS)
     proc = run(root, "snd2", config, cc, nm, "--sound-library", "--psyz", folder)
     yield "sound-no-library-unit-is-refused", same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "sdk/libsnd" in proc.stderr, read(root / "snd2.log")), (2, "", 1, True, "(missing)"))
+    cc, nm = fake(root, "snd2", defs=SOUND_DEFS)
+    proc = run(root, "snd2", config, cc, nm, "--psyz", folder)
+    yield "sound-no-library-unit-is-refused-also-when-nothing-was-said-and-the-line-names-the-way-out", same(
+        (proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "sdk/libsnd" in proc.stderr and NS in proc.stderr, read(root / "snd2.log")), (2, "", 1, True, "(missing)"))
+    cc, nm = fake(root, "snd2", defs=SOUND_DEFS)
+    proc = run(root, "snd2", config, cc, nm, "--psyz", folder, NS)
+    yield "sound-no-library-unit-is-fine-when-the-library-is-left-out", same((proc.returncode, proc.stderr, any(l.startswith("sound library:") for l in proc.stdout.splitlines())), (0, "", False))
+    config, folder = sound_tree(root, "snd9")
+    cc, nm = fake(root, "snd9", defs=SOUND_DEFS)
+    proc = run(root, "snd9", config, cc, nm, "--sound-library", NS, "--psyz", folder)
+    yield "sound-asked-for-and-left-out-at-once-is-refused", same(
+        (proc.returncode, proc.stdout, len(proc.stderr.splitlines()), "--sound-library" in proc.stderr and NS in proc.stderr, read(root / "snd9.log")), (2, "", 1, True, "(missing)"))
 
     # The prefix folder.
     config, folder = sound_tree(root, "snd3", prefix={"sn1.h": "int p1;\n", "ua.h": "int p2;\n", "so.h": "int p3;\n"})
@@ -1287,7 +1322,7 @@ def sound_cases(root: Path):
     yield "prefix-file-of-an-uncompiled-unit-is-no-error", same((proc.returncode, proc.stderr, "so.h" in read(root / "snd3.log")), (0, "", False))
     config, folder = sound_tree(root, "snd4", prefix={"sn1.h": "int p1;\n"})
     cc, nm = fake(root, "snd4", defs=SOUND_DEFS)
-    proc = run(root, "snd4", config, cc, nm, "--psyz", folder)
+    proc = run(root, "snd4", config, cc, nm, "--psyz", folder, NS)
     yield "prefix-file-of-a-unit-not-compiled-in-this-run-is-not-used", same((proc.returncode, proc.stderr, "-include" in read(root / "snd4.log")), (0, "", False))
     for tag, rel, text, named in (("snd5", "zz.h", "int z;\n", "zz.h"), ("snd6", "sn1.txt", "int z;\n", "sn1.txt"), ("snd7", "sn1.h/inner.h", "int z;\n", "sn1.h")):
         config, folder = sound_tree(root, tag, prefix={rel: text})
@@ -1296,8 +1331,8 @@ def sound_cases(root: Path):
         yield f"prefix-refusal-{named}", same((proc.returncode, proc.stdout, len(proc.stderr.splitlines()), named in proc.stderr, read(root / f"{tag}.log")), (2, "", 1, True, "(missing)"))
     config, folder = sound_tree(root, "snd8", prefix={"zz.h": "int z;\n"})
     cc, nm = fake(root, "snd8", defs=SOUND_DEFS)
-    proc = run(root, "snd8", config, cc, nm, "--psyz", folder)
-    yield "prefix-refusal-also-without-the-option", same((proc.returncode, proc.stdout, "zz.h" in proc.stderr), (2, "", True))
+    proc = run(root, "snd8", config, cc, nm, "--psyz", folder, NS)
+    yield "prefix-refusal-also-with-the-library-left-out", same((proc.returncode, proc.stdout, "zz.h" in proc.stderr), (2, "", True))
 
 
 IMAGES_SYM = IMAGES + "\n[image.symbols]\nsym_own = 0x801f0200\n"
