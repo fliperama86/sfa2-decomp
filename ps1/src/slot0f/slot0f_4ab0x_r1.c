@@ -20,7 +20,7 @@ the cell, the command word from its top bits (arithmetic shift), the
 texture page from the second halfword, increments the record counter
 data_800f7264_slot0f (16 bits), and links the record into the list head
 selected by c->field_8a in the array data_801987c8 points at. */
-/* count is an int: the original does not narrow it at entry, and with an s16 parameter this function differs from the original in 11 instruction slots. */
+/* count is an int: the original does not narrow it at entry. With an s16 parameter this function is 604 bytes and differs from the original in 43 instruction slots. */
 void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, int count) {
     int row;
     int n;
@@ -72,9 +72,9 @@ void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, int count) {
                 buf->field_14 = col * 16 - xoff;
                 buf->field_16 = yy;
                 buf->field_18 = (cell << 3) & (-8);
-                buf->field_19 = (((int)(cell << 16)) >> 18) & (-8);
+                buf->field_19 = ((s16)cell >> 2) & (-8);
                 buf->field_1a = p[1];
-                buf->field_04 = (((int)(cell << 16)) >> 26) + 0xe1000000;
+                buf->field_04 = ((s16)cell >> 10) + 0xe1000000;
                 data_800f7264_slot0f = data_800f7264_slot0f + 1;
                 ((PrimTag *)buf)->addr = ((PrimTag *)ot)->addr;
                 ((PrimTag *)ot)->addr = (u32)buf;
