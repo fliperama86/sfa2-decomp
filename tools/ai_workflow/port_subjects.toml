@@ -58,6 +58,13 @@ test_hoststream = [
     "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h",
 ]
 test_hostxa = ["port/src/xa.c", "port/src/xa.h"]
+# The macOS guest image: the control file is about its own tool (guestlink.py) and what it imports (hostbuild.py), read from its text.
+test_guestlink = []
+# The machine of the macOS build (it runs on Apple Silicon only: MAC_ONLY in review.py). The tools it imports are read from its text.
+test_vm = [
+    "port/mac/vm.c", "port/mac/vm.h", "port/mac/elf.c", "port/mac/elf.h", "port/mac/vm.entitlements",
+    "port/mac/test/guest.c", "port/mac/test/vmtest.c",
+]
 test_libgap = ["port/tools/libgap.py"]
 # The patch of the picture library: the control file of the tool that applies it reads the tree's own copy, and the six
 # control files that take a build of the library (`--psyz-build`) run on what the patch made.

@@ -553,6 +553,27 @@ class PortSubjects(Fixture):
         with self.assertRaises(model.Problem):
             review.select_checks(self.root, ['port/rows.toml'], 2, (1, 7))
 
+    def test_a_control_file_that_runs_only_on_macos_is_selected_only_by_the_files_it_names(self):
+        # The review of the VM pull request: test_vm.py had no line, so every change of the port selected it, and on Windows or Linux it
+        # cannot run. It has a line now and is selected only by a file it names; where it cannot run the review refuses, it does not skip.
+        self.tree()
+        self.put('port/mac/vm.c', '')
+        self.put('port/src/zz_unnamed.c', '')
+        self.put('port/tools/test_mac.py', '')
+        self.table({'test_one': ['port/src/a.c'], 'test_two': ['port/src/b.c', 'port/src/a.c'], 'test_three': ['port/src/c.h'], 'test_mac': ['port/mac/vm.c']})
+        with patch.object(review, 'MAC_ONLY', ('test_mac',)):
+            with patch.object(review, 'on_macos', lambda: True):
+                self.assertEqual(self.names(['port/mac/vm.c']), ['test_mac', 'native-build'])
+                self.assertNotIn('test_mac', self.names(['port/src/a.c']))
+                self.assertEqual(self.names(['port/src/zz_unnamed.c'])[:-1], ['test_one', 'test_three', 'test_two'])   # the wide rule leaves it out
+            with patch.object(review, 'on_macos', lambda: False):
+                with self.assertRaises(model.Problem):
+                    self.names(['port/mac/vm.c'])
+                self.assertNotIn('test_mac', self.names(['port/src/a.c']))
+            self.table({'test_one': ['port/src/a.c'], 'test_two': [], 'test_three': []})   # no line for test_mac
+            with self.assertRaises(model.Problem):
+                self.names(['port/src/a.c'])
+
     def test_a_table_that_names_what_is_not_there_is_refused(self):
         for controls, build in (
                 ({'test_one': ['port/src/gone.c']}, []),            # a file that is not in the tree
@@ -591,7 +612,7 @@ class PortSubjects(Fixture):
         self.assertFalse([n for n in names(['port/overrides/' + over]) if n.startswith('test_')])
         self.assertIn('native-build', names(['port/overrides/' + over]))
         # a file that no control file names: every control file runs
-        self.assertEqual(names(['port/tools/check_psyz.sh'])[:-1], scripts)
+        self.assertEqual(names(['port/tools/check_psyz.sh'])[:-1], [c for c in scripts if c not in review.MAC_ONLY])   # the ones that run only on macOS are left out
 
     def test_the_trees_own_table_selects_each_tools_own_control_file(self):
         # The owner's review of pull request 263: a change of hostcheck.py selected neither test_hostcheck nor

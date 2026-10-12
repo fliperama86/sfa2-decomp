@@ -155,7 +155,8 @@ def main() -> int:
             print(f"FAIL {name}: {type(err).__name__}: {err}")
         else:
             print(f"ok   {name}")
-    print(f"{failed} case(s) behaved wrongly" if failed else f"all {len(CASES)} cases behaved as required")
+    total = len(CASES)
+    print(f"{failed} case(s) behaved wrongly" if failed else f"all {total} cases behaved as required")
     return 1 if failed else 0
 
 
