@@ -32,7 +32,7 @@ evidence = "Two small tables of three words each, then the function's first inst
 [[row]]
 image = "slot05_00"
 address = 0x801c8008
-function = "func_801b0020_slot04_00__slot05_00"
+function = "init_object_and_spawn_linked_child_slot04_00__slot05_00"
 function_address = 0x801c8020
 data_bytes = 24
 evidence = "The second side of slot04_00, the same two tables of three words each and the same function after them. Code of the module builds this address as a data address; nothing branches or jumps into it."
@@ -48,7 +48,7 @@ evidence = "The last two words of a table of words that runs from 0x801b0000 and
 [[row]]
 image = "slot05_11"
 address = 0x801c80c8
-function = "func_801b00d0_slot04_11__slot05_11"
+function = "init_object_copy_table_spawn_child_slot04_11__slot05_11"
 function_address = 0x801c80d0
 data_bytes = 8
 evidence = "The second side of slot04_11: the last two words of the same table, then the function. A pointer to this address stands in a data table of the module and nothing branches into it."
@@ -73,7 +73,7 @@ evidence = "Four words of table data that the symbol file names as data (data_80
 [[row]]
 image = "slot08"
 address = 0x8008bf00
-function = "func_80075e10_slot00__slot08"
+function = "call_handler_by_input_dir_0_slot00__slot08"
 function_address = 0x8008bf10
 data_bytes = 16
 evidence = "The second side of slot00: the same four words of data, then the same function. Code of the module builds this address as a data address and nothing branches into it."

@@ -43,7 +43,7 @@ int main(void)
     void *(*drawdef)(void *,int,int,int,int)=library("SetDefDrawEnv");
     void *(*dispdef)(void *,int,int,int,int)=library("SetDefDispEnv");
     void (*drawput)(void *)=library("PutDrawEnv");
-    void *(*dispput)(void *)=library("func_80158470");
+    void *(*dispput)(void *)=library("PutDispEnv");
     void (*drawlist)(void *)=library("DrawOTag");
     unsigned frame,flags,i,x,y;unsigned long checked=0;void *ram;
     unsigned short palette[16]={0,0x7fff},packed[64],pixels[384*224];

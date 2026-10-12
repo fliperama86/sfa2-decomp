@@ -343,13 +343,13 @@ static void semantics(void)
         memset(env, 0, 0x5c);
         ((f_ppiiii)lib("SetDefDrawEnv"))(env, 0, 0, 320, 240);
         W(0x80107000 + 0x1c)[0] = 0x00123456u;    /* the packet's link, to be kept */
-        ((f_vpp)lib("func_80158a84"))(env + 0x1c, env);
+        ((f_vpp)lib("SetDrawEnv"))(env + 0x1c, env);
         dump("SetDrawEnv-packet", 0x80107000 + 0x1c, 8);
         /* with a background colour */
         ((f_ppiiii)lib("SetDefDrawEnv"))(env, 0, 240, 320, 240);
         env[0x18] = 1; env[0x19] = 16; env[0x1a] = 40; env[0x1b] = 88;
         W(0x80107000 + 0x1c)[0] = 0;
-        ((f_vpp)lib("func_80158a84"))(env + 0x1c, env);
+        ((f_vpp)lib("SetDrawEnv"))(env + 0x1c, env);
         dump("SetDrawEnv-packet-isbg", 0x80107000 + 0x1c, 10);
     }
     printf("t: ticks %u\n", ticks);
@@ -383,7 +383,7 @@ static void scene(int unknown, const char *file, int hold_ms)
     B(env)[0x18] = 1; B(env)[0x19] = 16; B(env)[0x1a] = 40; B(env)[0x1b] = 88;
     ((f_pp)lib("PutDrawEnv"))(W(env));
     ((f_ppiiii)lib("SetDefDispEnv"))(W(disp), 0, 240, 320, 240);
-    ((f_pp)lib("func_80158470"))(W(disp));
+    ((f_pp)lib("PutDispEnv"))(W(disp));
     ((f_vi)lib("SetDispMask"))(1);
 
     ((f_ppi)lib("ClearOTagR"))(W(ot), 8);
@@ -427,7 +427,7 @@ static void scene(int unknown, const char *file, int hold_ms)
 
     /* show the drawn page */
     ((f_ppiiii)lib("SetDefDispEnv"))(W(disp), 0, 0, 320, 240);
-    ((f_pp)lib("func_80158470"))(W(disp));
+    ((f_pp)lib("PutDispEnv"))(W(disp));
 
     for (t = 0; t * 16 < (unsigned)hold_ms; t++) ((f_ii)lib("DrawSync"))(1);
     printf("t: ticks %u\n", ticks);
@@ -460,7 +460,7 @@ static void closed(void)
 {
     ((f_ii)lib("ResetGraph"))(0);
     ((f_ppiiii)lib("SetDefDispEnv"))(W(0x80120100), 0, 0, 320, 240);
-    ((f_pp)lib("func_80158470"))(W(0x80120100));
+    ((f_pp)lib("PutDispEnv"))(W(0x80120100));
     ((f_vi)lib("SetDispMask"))(1);
     port_gpu_present();
     port_gpu_present();
@@ -642,7 +642,7 @@ static void script(int argc, char **argv)
             ((f_ppiiii)lib("SetDefDrawEnv"))(W(at), 0, 240, 320, 240);
             B(at)[0x18] = (uint8_t)num(a[2]); B(at)[0x19] = 1; B(at)[0x1a] = 2; B(at)[0x1b] = 3;
             W(at + 0x5c)[0] = 0xcafecafeu;
-            ((f_vpp)lib("func_80158a84"))(W(at + 0x1c), W(at));
+            ((f_vpp)lib("SetDrawEnv"))(W(at + 0x1c), W(at));
             printf("t: senv words %u canary %08x\n", W(at + 0x1c)[0] >> 24, W(at + 0x5c)[0]);
         } else if (!strcmp(a[0], "pixel")) {
             ((f_ii)lib("DrawSync"))(0);
@@ -824,7 +824,7 @@ static void presents(void)
     DWORD start;
     ((f_ii)lib("ResetGraph"))(0);
     ((f_ppiiii)lib("SetDefDispEnv"))(W(0x80120100), 0, 0, 320, 240);
-    ((f_pp)lib("func_80158470"))(W(0x80120100));
+    ((f_pp)lib("PutDispEnv"))(W(0x80120100));
     ((f_vi)lib("SetDispMask"))(1);
     port_gpu_present();
     start = GetTickCount();
@@ -1208,7 +1208,7 @@ def program_cases(rig: Rig, work: Path):
     status, lines, _ = rig.run("names")
     listed = [l.split()[2] for l in lines if l.startswith("t: name ")]
     served = ["ResetGraph", "GetGraphDebug", "SetDispMask", "DrawSync", "ClearImage", "LoadImage", "StoreImage", "MoveImage", "ClearOTag", "ClearOTagR",
-              "DrawOTag", "func_80158470", "PutDrawEnv", "func_80158a84", "SetDrawMode", "GetTPage", "GetClut", "AddPrim", "AddPrims", "MargePrim",
+              "DrawOTag", "PutDispEnv", "PutDrawEnv", "SetDrawEnv", "SetDrawMode", "GetTPage", "GetClut", "AddPrim", "AddPrims", "MargePrim",
               "SetSemiTrans", "SetPolyFT4", "SetSprt16", "SetSprt", "SetTile", "SetDefDrawEnv", "SetDefDispEnv"]
     yield "the-table-lists-the-served-graphics-routines", same((status, listed), (0, served))
     yield "no-routine-of-the-table-takes-a-callback-so-nothing-is-stored-to-call-later", same([n for n in listed if "Callback" in n], [])
