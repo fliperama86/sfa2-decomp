@@ -71,7 +71,7 @@ void func_80151324(Object *object, FrameRecord *table) {
     for (row = 0; row < width; row++) {
         /* Stand-in, not recovered source: the sum written in two halves below, which has the value y1 + row * 16, reproduces the original's order of instructions. Without it this function differs from the original in 10 instruction slots. */
         ycur = (y1 + row * 8) + row * 8;
-        /* pb holds a loaded address: the address of data_8018947c, set in the head of this loop. With the symbol at its use instead and the list without pb, this function differs from the original in 4 instruction slots. */
+        /* Stand-in, not recovered source: the local pb, which is only a second name of the address of data_8018947c, reproduces the original's order of instructions. Without it this function differs from the original in 4 instruction slots. */
         for (pb = (u8 *)data_8018947c, col = 0, base = f2 * 65; col < height; col++) {
             int off = base << 5;
             u16 yy;
