@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6c40_slot04_02(Object *obj);
+void move_until_ground_then_reset_state_slot04_02(Object *obj);
 
 void func_801b6bf4_slot04_02(Object *obj) {
     obj->vel_y = -0x4c000;
@@ -13,10 +13,10 @@ void func_801b6bf4_slot04_02(Object *obj) {
     } else {
         obj->vel_x = -0x40000;
     }
-    func_801b6c40_slot04_02(obj);
+    move_until_ground_then_reset_state_slot04_02(obj);
 }
 
-void func_801b6c40_slot04_02(Object *obj) {
+void move_until_ground_then_reset_state_slot04_02(Object *obj) {
     s16 t;
 
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
@@ -24,13 +24,13 @@ void func_801b6c40_slot04_02(Object *obj) {
     t = obj->ground_y;
     if (t <= obj->pos_y) {
         obj->pos_y = t;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b6cb0_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
+void set_object_states_0_to_3_2_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
     obj->state_0 = a;
     obj->state_1 = b;
     obj->state_2 = c;

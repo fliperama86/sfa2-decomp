@@ -8,7 +8,7 @@ extern u8 data_8001aa14_slot27[];
 extern SequenceStep *data_8002904c_slot27[];
 extern ObjectFn data_80028e84_slot27[];
 
-void func_80016ad4_slot27(Object *obj) {
+void init_object_from_other_and_set_sequence_slot27(Object *obj) {
     int idx;
     obj->field_01 = 1;
     obj->state_0++;
@@ -24,5 +24,5 @@ void func_80016ad4_slot27(Object *obj) {
     obj->image_row = 0;
     data_80028e84_slot27[obj->table_index](obj);
     idx = data_8019045c[0];
-    func_80130768(obj, idx, data_8002904c_slot27);
+    set_sequence_from_table_5(obj, idx, data_8002904c_slot27);
 }

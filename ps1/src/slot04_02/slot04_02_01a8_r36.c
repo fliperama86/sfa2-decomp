@@ -6,9 +6,9 @@
 void func_801b4ad8_slot04_02(Object *obj);
 void func_801b4b68_slot04_02(Object *obj);
 void func_801b4ba0_slot04_02(Object *obj);
-void func_801b4c34_slot04_02(Object *obj);
+void set_state_3_9_direction_sequence_slot04_02(Object *obj);
 
-void func_801b494c_slot04_02(Object *obj) {
+void choose_air_attack_branch_by_distance_slot04_02(Object *obj) {
     s16 d;
 
     if (obj->vel_y < 0 && obj->input_dir_second == 0) {
@@ -33,7 +33,7 @@ void func_801b494c_slot04_02(Object *obj) {
                 func_801b4ba0_slot04_02(obj);
             } else {
                 obj->countdown = obj->countdown - 0x100;
-                func_801b4c34_slot04_02(obj);
+                set_state_3_9_direction_sequence_slot04_02(obj);
             }
         }
     }

@@ -6,7 +6,7 @@
 extern SequenceStep *data_801ed400_slot06_0a[];
 extern u8 data_801ed490_slot06_0a[];
 
-void func_801e9720_slot06_0a(Object *obj) {
+void start_sequence_when_target_near_x_slot06_0a(Object *obj) {
     Object *t = (Object *)((ObjectWords *)obj)->word_4c;
 
     if (t != 0) {
@@ -26,7 +26,7 @@ void func_801e9720_slot06_0a(Object *obj) {
         }
         if (a < 0x81) {
             obj->state_1 = 1;
-            func_80130700(obj, data_801ed400_slot06_0a[data_801ed490_slot06_0a[obj->table_index]]);
+            set_sequence_entry(obj, data_801ed400_slot06_0a[data_801ed490_slot06_0a[obj->table_index]]);
         }
     }
 }

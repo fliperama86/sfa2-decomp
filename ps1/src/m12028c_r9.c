@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80125144(Object *o) {
+void log_object_history(Object *o) {
     LogRec *rec;
     LogRec *row;
     if (o->sequence_changed_flag != 0 && game_state.setup_done_flag == 0) {

@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80155a24(void) {
+void update_two_option_menu_selection(void) {
     GameState *g;
-    func_801519b4(&data_801812f4);
+    add_item_to_table(&data_801812f4);
     g = &game_state;
     if ((game_state.field_31 == 1 && (data_801a696a & 0x4000)) ||
         (game_state.field_31 == 2 && (data_801a6976 & 0x4000))) {
@@ -32,7 +32,7 @@ void func_80155a24(void) {
             g->versus_flag = 0;
             g->field_31 = 0;
             *(u32 *)0x1f80000c = 1;
-            func_80152ee8();
+            switch_to_next_table_entry_and_wait();
         }
     }
 }

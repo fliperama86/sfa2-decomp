@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 void func_801b4098_slot04_09(Object *obj);
 
-void func_801b4040_slot04_09(Object *obj) {
+void start_horizontal_slide_by_facing_slot04_09(Object *obj) {
     obj->state_3++;
     obj->vel_y = 0;
     obj->accel_y = 0;
@@ -41,12 +41,12 @@ void func_801b4098_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
-        func_801483a4(obj, -0xc, 0x3f);
+        spawn_children_per_direction_index(obj, -0xc, 0x3f);
     }
 }
 
-void func_801b415c_slot04_09(Object *obj) {
-    func_801b2858_slot04_09(obj);
+void move_and_play_side_sound_on_step_flag_slot04_09(Object *obj) {
+    apply_velocity_and_acceleration_slot04_09(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;

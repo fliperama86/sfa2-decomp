@@ -12,7 +12,7 @@ void func_80077ed0_slot2b(Object *o) {
     }
 }
 
-void func_80077f3c_slot2b(Object *o) {
+void release_from_parent_and_launch_or_reset_slot2b(Object *o) {
     Object *p = o->parent;
     o->state_1++;
     p->linked_object_3 = 0;

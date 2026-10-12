@@ -6,15 +6,15 @@
 extern s32 data_801c1598_slot04_05[];
 extern u8 data_801c1590_slot04_05[];
 
-void func_801b29e4_slot04_05(Object *o) {
+void start_move_from_direction_tables_slot04_05(Object *o) {
     o->field_225 = 1;
     o->state_3++;
     func_801428e4(o);
-    func_80138b38(&game_state, o);
+    set_flag_225_add_direction_to_counter(&game_state, o);
     func_80145d20(o);
     o->vel_x = data_801c1598_slot04_05[o->direction_index];
     o->accel_x = data_801c1598_slot04_05[o->direction_index + 1];
-    func_801307e0(o, *(s16 *)((u8 *)data_801c1590_slot04_05 + (o->direction_index & 0xfe)));
+    set_sequence_by_side_and_mode(o, *(s16 *)((u8 *)data_801c1590_slot04_05 + (o->direction_index & 0xfe)));
 }
 
 void func_801b2a9c_slot04_05(Object *o) {
@@ -26,7 +26,7 @@ void func_801b2a9c_slot04_05(Object *o) {
         }
         o->state_3++;
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0x10, 0x43);
+        spawn_children_per_direction_index(o, -0x10, 0x43);
     }
     update_sequence(o);
 }

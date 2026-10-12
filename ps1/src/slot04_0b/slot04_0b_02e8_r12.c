@@ -9,7 +9,7 @@ void func_801b14ac_slot04_0b(Object *obj) {
     data_801ad398 = data_801c24fc_slot04_0b[obj->field_15a](obj);
 }
 
-int func_801b14f4_slot04_0b(Object *obj) {
+int has_remaining_count_slot04_0b(Object *obj) {
     return obj->remaining_count != 0;
 }
 

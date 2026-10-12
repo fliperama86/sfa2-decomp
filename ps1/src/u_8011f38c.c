@@ -5,7 +5,7 @@
 
 
 void func_8011f38c(Object *o) {
-    func_80119b3c(o);
+    release_stream_pair_cells(o);
     clear_bytes(o, 0xac);
     o->spawn_flag = 0;
     o->mode_id = 0x10;

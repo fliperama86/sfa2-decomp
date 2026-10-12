@@ -3,23 +3,23 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80122f6c(GameState *state) {
+void call_hud_handler_by_state_index_2(GameState *state) {
     table_8016e7e8[((HudBig *)data_8018f5a0)->state_index](state);
-    func_8012546c();
+    call_input_step_handler();
 }
 
-void func_80122fbc(GameState *state) {
+void advance_state_by_mode_flag_a(GameState *state) {
     Entity *entity = (Entity *)state;
     if (entity->mode_flag_a == 0) {
         ((HudBig *)data_8018f5a0)->state_index++;
         entity->countdown_timer = 0x1e;
         func_80156084();
-        func_80156094();
+        call_handler_by_data_index();
         func_8012304c(entity);
     } else {
         ((HudBig *)data_8018f5a0)->state_index = 5;
         entity->countdown_timer = 0xa0;
-        func_8012332c(state);
+        finish_countdown_and_start_next_round(state);
     }
 }
 

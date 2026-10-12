@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8013d1a8(Object *object) {
+int is_pressed_bits_in_table(Object *object) {
     u16 v = object->pressed_bits;
     u16 i;
     if (v == 0xff || v == 0x95 || v == 0x6a) {

@@ -7,7 +7,7 @@
 
 void func_8012d394(Object *object) {
     if ((s16)object->health < 0) {
-        func_8012f4dc(object);
+        enter_state_1_6_and_set_sequence(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 1;
@@ -18,31 +18,31 @@ void func_8012d394(Object *object) {
     }
 }
 
-void func_8012d3e8(Object *object) {
+void call_state_3_table_function_4(Object *object) {
     table_80171a3c[object->state_3](object);
 }
 
-void func_8012d428(Object *object) {
+void advance_state_3_and_start_hit_reaction(Object *object) {
     object->state_3 = object->state_3 + 1;
     object->active_flag_3 = 0;
     object->field_157 = 0;
-    func_8012ee7c(object);
+    set_motion_from_vec_table(object);
     object->active_state = 0xff;
-    func_801376b8(object);
+    store_image_row_for_hit_type(object);
     if (object->field_243 != 0) {
-        func_8012c494(object);
+        start_hit_sequence_from_pairs_table(object);
         if (object->field_15b == 0) {
             object->vec_table_index = 6;
-            func_8012ee7c(object);
+            set_motion_from_vec_table(object);
         } else {
-            func_80141f28(object, 3);
-            func_8012d0e0(object);
+            add_to_meter_clamped(object, 3);
+            play_side_sound_1(object);
         }
     } else {
-        func_8012d0e0(object);
+        play_side_sound_1(object);
     }
     if (object->field_163 != 0) {
-        func_80148b60(object);
+        spawn_three_effect_objects_with_sound(object);
     }
-    func_8012d4e4(object);
+    update_airborne_fall_and_land(object);
 }

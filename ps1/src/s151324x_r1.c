@@ -19,7 +19,7 @@ extern u8 *data_8017ff68[];
  * Each record is handed to func_8015bf34 together with the list head 0x38
  * bytes into data_801987c8.
  */
-void func_80151324(Object *object, FrameRecord *table) {
+void draw_object_tile_grid_prims(Object *object, FrameRecord *table) {
     u16 x0, x1, x2, x3;
     u8 flags;
     u16 width;

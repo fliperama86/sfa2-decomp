@@ -21,7 +21,7 @@ void func_80155de0(Actor *a, Object *b)
     o->field_bf = 0xff;
     idx = new_var;
     o->sound_index = idx;
-    func_80155d4c(table_80181510[idx], side);
-    func_80155eac(table_80181510[a->text_index & 0x1f], side);
+    add_table_bcd_score_to_player(table_80181510[idx], side);
+    add_table_bcd_to_player_total(table_80181510[a->text_index & 0x1f], side);
   }
 }

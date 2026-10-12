@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015f00_slot12(u8 *src, u8 *dst, int mode) {
+void copy_string_with_suffix_by_mode_slot12(u8 *src, u8 *dst, int mode) {
     while (*src != 0) {
         *dst++ = *src++;
     }

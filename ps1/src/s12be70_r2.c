@@ -5,12 +5,12 @@
 
 
 
-void func_8012c06c(Object *object) {
+void call_state_2_handler_then_bound_x(Object *object) {
     object->field_16a = 0;
     table_801719f4[object->state_2](object);
-    func_80130b10(object);
+    clamp_pos_x_to_bounds_and_push_other(object);
 }
 
-void func_8012c0c0(Object *object) {
+void call_state_3_table_function(Object *object) {
     table_80171a00[object->state_3](object);
 }

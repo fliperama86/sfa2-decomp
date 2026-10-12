@@ -6,7 +6,7 @@
 extern u32 data_800ebca0_slot0f[];
 
 /* The locals m and t hold the two shifted bytes of the tag and r holds the result of func_8015bd0c before they are read: with the expression of m in the sum 4 instruction slots differ, with that of t in parentheses in the sum 2, with the call in the sum 52. The read of the table entry idx stays before the stores to s: moved after the store to arg_a, 10 instruction slots differ. */
-void func_800e5be4_slot0f(Object *obj, Slot12Sprite *s) {
+void fill_sprite_from_sequence_and_link_slot0f(Object *obj, Slot12Sprite *s) {
     u16 *p = (u16 *)obj->sequence->data_ptr;
     u16 a = *p++;
     u16 b;

@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80151018(GameState *state) {
+void clear_wait_flag_2(GameState *state) {
     state->wait_flag = 0;
 }

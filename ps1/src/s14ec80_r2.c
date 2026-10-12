@@ -5,25 +5,25 @@
 
 
 void func_8014f3b8(int a, int b) {
-    func_8014f690(&ctl_80190948, a, b);
-    while (!func_8014f4bc()) {
-        func_801192bc(1);
+    start_cd_track_from_table(&ctl_80190948, a, b);
+    while (!is_cd_ctl_mode_3()) {
+        request_sound_command_and_switch_thread(1);
     }
 }
 
 void func_8014f408(int a, int b) {
     GameState *g = &game_state;
-    func_8014f690(&ctl_80190948, a, b);
-    while (!func_8014f4bc()) {
+    start_cd_track_from_table(&ctl_80190948, a, b);
+    while (!is_cd_ctl_mode_3()) {
         if (g->loop_mode == 2) {
             data_801ac620 |= 0x8000;
         }
-        func_8014f59c();
+        update_cd_control();
         func_8015fb30(0);
     }
     data_801ac620 &= 0x1f;
 }
 
-int func_8014f4bc(void) {
+int is_cd_ctl_mode_3(void) {
     return ctl_80190948.mode == 3;
 }

@@ -5,13 +5,13 @@
 
 extern void (*data_80017bf0_slot27[])(void);
 extern u8 data_80029324_slot27;
-void func_80010ed0_slot27(void);
+void spawn_five_pool_objects_10_indexed_slot27(void);
 
-void func_800105ec_slot27(void) {
+void call_handler_by_hud_step_index_2_2_slot27(void) {
     data_80017bf0_slot27[data_8018f5a0->step_index_2]();
 }
 
-void func_80010634_slot27(void) {
+void advance_step_and_reset_selection_b0_set_slot27(void) {
     HudState *h = data_8018f5a0;
     h->step_index_2++;
     h->pass_index = 0;
@@ -29,18 +29,18 @@ void func_80010694_slot27(void) {
     Block172 *b;
     data_80029324_slot27 = 0xff;
     h->step_index_2++;
-    b = func_8011f1e0();
+    b = pop_block_from_pool();
     if (b != 0) {
         b->active_flag = 1;
         b->handler_index = 0xa8;
         b->block_mode = 0;
     }
-    b = func_8011f1e0();
+    b = pop_block_from_pool();
     if (b != 0) {
         b->active_flag = 1;
         b->handler_index = 0x10;
         b->block_mode = 7;
     }
-    func_80010ed0_slot27();
+    spawn_five_pool_objects_10_indexed_slot27();
     game_state.timer_or_bits = 8;
 }

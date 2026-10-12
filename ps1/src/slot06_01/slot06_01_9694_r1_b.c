@@ -8,11 +8,11 @@ extern ObjectFn data_801ea94c_slot06_01[];
 extern SequenceStep *data_801eb990_slot06_01;
 extern SequenceStep *data_801eb994_slot06_01;
 
-void func_801e982c_slot06_01(Object *obj);
-void func_801e9894_slot06_01(Object *obj);
-void func_801e98e0_slot06_01(Object *a, Object *b);
+void count_down_random_start_sequence_slot06_01(Object *obj);
+void call_handler_for_both_players_slot06_01(Object *obj);
+void set_state_1_if_other_state_2_is_7_or_8_slot06_01(Object *a, Object *b);
 
-void func_801e9758_slot06_01(Object *o) {
+void call_handler_by_state_1_table_a_slot06_01(Object *o) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801ea940_slot06_01[o->state_1](o);
     }
@@ -20,46 +20,46 @@ void func_801e9758_slot06_01(Object *o) {
 }
 
 void func_801e97c4_slot06_01(Object *obj) {
-    func_801e982c_slot06_01(obj);
-    func_801e9894_slot06_01(obj);
+    count_down_random_start_sequence_slot06_01(obj);
+    call_handler_for_both_players_slot06_01(obj);
 }
 
-void func_801e97f4_slot06_01(Object *obj) {
+void reset_state_1_at_sequence_end_slot06_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = 0;
     }
     advance_sequence_checked(obj);
 }
 
-void func_801e982c_slot06_01(Object *obj) {
+void count_down_random_start_sequence_slot06_01(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->countdown = 0x40;
         if ((get_random_byte() & 7) == 0) {
             obj->state_1 = 1;
-            func_80130700(obj, data_801eb990_slot06_01);
+            set_sequence_entry(obj, data_801eb990_slot06_01);
         }
     }
 }
 
-void func_801e9894_slot06_01(Object *obj) {
+void call_handler_for_both_players_slot06_01(Object *obj) {
     Object *pair = &player_left;
 
-    func_801e98e0_slot06_01(pair, obj);
-    func_801e98e0_slot06_01(pair + 1, obj);
+    set_state_1_if_other_state_2_is_7_or_8_slot06_01(pair, obj);
+    set_state_1_if_other_state_2_is_7_or_8_slot06_01(pair + 1, obj);
 }
 
-void func_801e98e0_slot06_01(Object *a, Object *b) {
+void set_state_1_if_other_state_2_is_7_or_8_slot06_01(Object *a, Object *b) {
     if ((u8)(a->state_2 - 7) < 2) {
         b->state_1 = 2;
-        func_80130700(b, data_801eb994_slot06_01);
+        set_sequence_entry(b, data_801eb994_slot06_01);
     }
 }
 
-void func_801e9928_slot06_01(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_01(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9948_slot06_01(Object *obj) {
+void call_handler_by_state_0_2_slot06_01(Object *obj) {
     data_801ea94c_slot06_01[obj->state_0](obj);
 }

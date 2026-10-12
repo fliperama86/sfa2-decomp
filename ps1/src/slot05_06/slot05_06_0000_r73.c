@@ -6,7 +6,7 @@
 int func_801ce6f8_slot05_06(Object *obj);
 extern ObjectFn data_801dd6cc_slot05_06[];
 
-void func_801ce4c0_slot05_06(Object *obj) {
+void set_landing_sequence_when_below_ground_slot05_06(Object *obj) {
     int a;
     int t;
 
@@ -18,15 +18,15 @@ void func_801ce4c0_slot05_06(Object *obj) {
         a = (a & 1) | 0x18;
         obj->state_1 = t;
         if (obj->sound_side == 0) {
-            func_80130768(obj, a, data_1f8000b4);
+            set_sequence_from_table_5(obj, a, data_1f8000b4);
         } else {
-            func_80130768(obj, a, data_1f800164);
+            set_sequence_from_table_5(obj, a, data_1f800164);
         }
     }
     advance_sequence_checked(obj);
 }
 
-void func_801ce548_slot05_06(Object *obj) {
+void noop_slot00_2_slot05_06(Object *obj) {
 }
 
 void func_801ce550_slot05_06(Object *obj) {

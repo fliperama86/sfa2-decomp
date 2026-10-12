@@ -5,6 +5,6 @@
 
 extern ObjectFn data_801bfd2c_slot04_00[];
 
-void func_801b017c_slot04_00(Object *obj) {
+void call_handler_by_state_2_slot04_00(Object *obj) {
     data_801bfd2c_slot04_00[obj->state_2](obj);
 }

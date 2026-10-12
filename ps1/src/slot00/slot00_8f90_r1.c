@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80078f90_slot00(Object *obj) {
+void init_child_sequence_from_parent_slot00(Object *obj) {
     Object *t;
     obj->field_01 = 1;
     obj->state_0++;
@@ -22,7 +22,7 @@ void func_80078f90_slot00(Object *obj) {
     obj->frame = obj->frames + obj->sequence->frame_index;
 }
 
-void func_8007904c_slot00(Object *o) {
+void slide_and_flicker_until_gate_flag_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     if (game_state.gate_flag == 0) {
         obj->pos_x_hi += o->vel_x;

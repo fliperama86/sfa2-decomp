@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013b97c(void) {
+void choose_pair_handler_third_inactive(void) {
     if (ref_third.p->active_flag_2 == 0 && ref_second.p->active_flag_2 != 0) {
-        func_8013b824();
+        damage_second_and_third_objects();
     } else {
-        func_8013b9e0();
+        link_second_object_to_third_parent();
     }
 }

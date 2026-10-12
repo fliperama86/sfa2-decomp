@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80141248(Object *object);
+void update_gauge_from_pressed_bits(Object *object);
 int func_801468f4(Object *object);
-void func_801cc814_slot05_06(Object *obj);
-void func_801cc870_slot05_06(Object *obj, u16 *p);
-int func_801cded4_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
+void negate_value_if_facing_side_zero_slot05_06(Object *obj, u16 *p);
+int spawn_object_copying_position_slot05_06(Object *obj);
 extern u16 data_801dd478_slot05_06[];
 
 /*
@@ -17,12 +17,12 @@ extern u16 data_801dd478_slot05_06[];
  * may knock back ref_other.p, then update_sequence. With vel_x negative
  * it counts table_value down and either ends the state (state_3 + 1,
  * sequence 0x2e) or starts the sequence from data_801dd478_slot05_06.
- * The twin of func_801b3564_slot04_06 on the second side (same code, a callee that returns an int).
+ * The twin of update_multi_hit_sequence_with_knockback_slot04_06 on the second side (same code, a callee that returns an int).
  * Casts to Slot04aObj: table_value is a member of the module's record type
  * only; a local pointer of that type instead of the casts differs from
  * the original in 49 instruction lines.
  */
-void func_801cb564_slot05_06(Object *obj) {
+void update_object_state_with_knockback_slot05_06(Object *obj) {
     GameState *state = &game_state;
     /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of frame_counter through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
     GameState *state_late = state;
@@ -54,22 +54,22 @@ void func_801cb564_slot05_06(Object *obj) {
         func_80146960(obj);
     }
     if (obj->vel_x >= 0) {
-        func_801cc814_slot05_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
         if (obj->mode_flag_2 != 0) {
-            func_80141248(obj);
+            update_gauge_from_pressed_bits(obj);
             /* The result is masked to a byte; without the cast this function differs from the original in 25 instruction lines. */
-            if ((u8)func_801410c8(obj) != 0) {
+            if ((u8)drain_gauge_by_other_input(obj) != 0) {
                 obj->state_3++;
-                func_801307e0(obj, 0x2e);
+                set_sequence_by_side_and_mode(obj, 0x2e);
                 return;
             }
         }
         if ((state_late->frame_counter & 1) == 0) {
             /* The unsigned cast changes no value (a byte plus 3); without it this function differs from the original in 1 instruction line. */
             if (((Slot04aObj *)obj)->table_value < (u32)(obj->direction_index >> 1) + 3 || (((Slot04aObj *)obj)->table_value & 0x80) != 0) {
-                if (func_801cded4_slot05_06(obj) != 0) {
+                if (spawn_object_copying_position_slot05_06(obj) != 0) {
                     d = (get_random_byte() & 0xf) + 0x5c;
-                    func_801cc870_slot05_06(obj, &d);
+                    negate_value_if_facing_side_zero_slot05_06(obj, &d);
                     ref_other.p->pos_x += d;
                     d = get_random_byte();
                     d &= 0xf;
@@ -101,7 +101,7 @@ alt:
             goto test;
 b2:
             d = 0x60;
-            func_801cc870_slot05_06(obj, &d);
+            negate_value_if_facing_side_zero_slot05_06(obj, &d);
             ref_other.p->pos_x += d;
             d = get_random_byte();
             d &= 0xf;
@@ -112,7 +112,7 @@ call:
     } else {
         ((Slot04aObj *)obj)->table_value--;
         if (((Slot04aObj *)obj)->table_value != 0) {
-            func_80140cd8(obj, -0xfe, 0);
+            apply_damage_to_other_return_defeated(obj, -0xfe, 0);
             play_side_sound_at(obj, obj->side, 8);
             /* Without the signed cast the compiler warns and this function differs from the original in 45 instruction lines. */
             if ((s16)obj->other->health >= 0) {
@@ -124,10 +124,10 @@ call:
             obj->accel_x = -0xe000;
             state->state_param = 8;
             d = data_801dd478_slot05_06[((Slot04aObj *)obj)->table_value];
-            func_801307e0(obj, d);
+            set_sequence_by_side_and_mode(obj, d);
         } else {
             obj->state_3++;
-            func_801307e0(obj, 0x2e);
+            set_sequence_by_side_and_mode(obj, 0x2e);
         }
     }
 }

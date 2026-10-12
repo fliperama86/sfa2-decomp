@@ -12,7 +12,7 @@ extern u16 data_80190542;
 void func_8015c09c(void *prim);
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e91dc_slot06_0f(Slot06Layer *layer) {
+void init_layer_tile_map_params_short_slot06_0f(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801edbc4_slot06_0f;
     layer->data_table = data_801edbc4_slot06_0f;
     layer->packed_param = 0x5814;
@@ -20,7 +20,7 @@ void func_801e91dc_slot06_0f(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9208_slot06_0f(void) {
+void init_poly_ft4_buffers_gray_slot06_0f(void) {
     int i;
     int j;
     Poly28 *r;
@@ -42,13 +42,13 @@ void func_801e9208_slot06_0f(void) {
     } while (i < 2);
 }
 
-void func_801e92a8_slot06_0f(Slot06Layer *layer) {
+void update_layer_by_mode_follow_main_layer_slot06_0f(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
 
     if (layer->mode == 0) {
-        func_801369d4((Cam *)layer, 0x140, 0);
+        init_cam_position_and_consume_pending((Cam *)layer, 0x140, 0);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
@@ -67,7 +67,7 @@ void func_801e92a8_slot06_0f(Slot06Layer *layer) {
     }
 }
 
-void func_801e9380_slot06_0f(Slot06Layer *layer) {
+void init_layer_tile_map_fields_slot06_0f(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eebc4_slot06_0f;
     layer->data_table = data_801eebc4_slot06_0f;
     layer->packed_param = 0x641c;
@@ -75,7 +75,7 @@ void func_801e9380_slot06_0f(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e93ac_slot06_0f(void) {
+void init_two_buffers_of_32px_sprite_prims_slot06_0f(void) {
     Slot06TileW *p;
     int i;
     int k;

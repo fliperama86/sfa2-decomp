@@ -9,7 +9,7 @@ extern Slot12Prim data_8002c528_slot12[];
 extern u16 data_80028a58_slot12[];
 extern u16 data_80028a60_slot12[];
 
-void func_800172d0_slot12(Object *o) {
+void set_slot12_row_prim_positions_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     Slot12Prim *p;
     int i = 0;
@@ -23,7 +23,7 @@ void func_800172d0_slot12(Object *o) {
     }
 }
 
-void func_80017334_slot12(Object *o) {
+void set_slot12_end_prim_and_hud_positions_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int i = 0;
     int t = obj->entry_count << 4;
@@ -44,5 +44,5 @@ void func_80017334_slot12(Object *o) {
 }
 
 void func_800173e8_slot12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

@@ -4,22 +4,22 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80121058(GameState *state)
+void init_or_dispatch_step_by_mode_flags(GameState *state)
 {
   Entity *entity = (Entity *)state;
   char new_var;
   if (data_8018f5a0->step_index == 0)
   {
-    func_8011a744();
+    init_sprite_tables();
     data_8018f5a0->step_index++;
     new_var = 1;
     if (((data_8016e68b != 0) || (entity->mode_flag_a != 0)) || (entity->mode_flag_b != 0))
     {
-      func_8014edac(new_var);
+      close_sounds_and_load_command_4(new_var);
     }
     else
     {
-      func_8014edac(0);
+      close_sounds_and_load_command_4(0);
     }
     data_8018f5a0->substep_index = 0;
     data_8018f5a0->step_index_2 = 0;

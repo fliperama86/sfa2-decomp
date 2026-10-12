@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80142fbc(Object *object) {
+void save_facing_and_set_x_motion(Object *object) {
     object->saved_facing = object->facing_side;
     if (object->active_state == 0) {
         object->vel_x = 0x20000;

@@ -6,9 +6,9 @@
 void func_801b4e3c_slot04_09(Object *obj, Object *unused) {
     obj->state_3++;
     if (obj->counter == 0) {
-        func_80141f28(obj, 3);
+        add_to_meter_clamped(obj, 3);
     }
     play_sound_at(obj, obj->side ^ 1, 0x31b);
-    func_801307e0(obj, 0x18);
+    set_sequence_by_side_and_mode(obj, 0x18);
     set_position_from_other_box(obj);
 }

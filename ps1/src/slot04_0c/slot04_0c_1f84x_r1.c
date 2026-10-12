@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801483a4(Object *, int, int);
+void spawn_children_per_direction_index(Object *, int, int);
 
 void func_801b1f84_slot04_0c(Object *obj) {
     if ((u8)obj->step_flags) {
@@ -13,7 +13,7 @@ void func_801b1f84_slot04_0c(Object *obj) {
         } else {
             obj->field_165 = 1;
         }
-        func_801483a4(obj, -0x10, 0x2e);
+        spawn_children_per_direction_index(obj, -0x10, 0x2e);
         play_sound_at(obj, obj->side, 0x31c);
     }
     update_sequence(obj);

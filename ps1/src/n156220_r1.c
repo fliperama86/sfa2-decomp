@@ -3,28 +3,28 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80156220(void) {
+void queue_bcd_value_texts(void) {
     u32 *p = &data_8018d270;
     *p = game_state.bcd_amount;
     if (data_8018d26a != 0) {
-        func_80156398(&data_80181668, data_8018d26c << 8);
-        func_80156398(&data_80181684, data_8018d269);
-        func_80156398(&data_801816a0, data_8018d274 << 8);
-        func_80156398(&data_801816bc, *p << 8);
-        func_801519b4(&data_801816d4);
-        func_801519b4(&data_80181708);
-        func_801519b4(&data_8018171c);
-        func_801519b4(&data_80181758);
+        format_bcd_text(&data_80181668, data_8018d26c << 8);
+        format_bcd_text(&data_80181684, data_8018d269);
+        format_bcd_text(&data_801816a0, data_8018d274 << 8);
+        format_bcd_text(&data_801816bc, *p << 8);
+        add_item_to_table(&data_801816d4);
+        add_item_to_table(&data_80181708);
+        add_item_to_table(&data_8018171c);
+        add_item_to_table(&data_80181758);
     } else {
-        func_80156398(&data_80181684, data_8018d26c << 8);
-        func_80156398(&data_801816a0, data_8018d269);
-        func_80156398(&data_801816bc, *p << 8);
-        func_801519b4(&data_801816e4);
-        func_801519b4(&data_8018172c);
-        func_801519b4(&data_8018173c);
+        format_bcd_text(&data_80181684, data_8018d26c << 8);
+        format_bcd_text(&data_801816a0, data_8018d269);
+        format_bcd_text(&data_801816bc, *p << 8);
+        add_item_to_table(&data_801816e4);
+        add_item_to_table(&data_8018172c);
+        add_item_to_table(&data_8018173c);
     }
-    func_801519b4(&data_80181774);
-    func_801519b4(&data_8018178c);
+    add_item_to_table(&data_80181774);
+    add_item_to_table(&data_8018178c);
 }
 
 void func_80156390(void) {

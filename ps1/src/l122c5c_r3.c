@@ -14,12 +14,12 @@ void func_80123534(Entity *entity) {
         player_right.field_a5 = 0;
         s1 = entity->field_78;
         s2 = entity->field_7c;
-        func_80123bd4(entity, s1, s2);
+        update_best_scores_for_pair(entity, s1, s2);
         func_80123b4c(entity, s1);
         entity->kind = s1->kind;
-        func_801259a8(entity, s1, s2);
+        select_next_kind_for_object(entity, s1, s2);
         if (entity->field_90 != 0) {
-            func_801239cc(entity, s1);
+            init_entity_from_other_object(entity, s1);
         } else {
             if (s2->side == 0) {
                 entity->field_1b &= 0xfe;
@@ -27,7 +27,7 @@ void func_80123534(Entity *entity) {
                 entity->field_1b &= 0xfd;
             }
             if (s1->mode_flag_2 != 0) {
-                func_8012370c(s2, entity);
+                set_object_flags_and_hud_step_3(s2, entity);
             } else {
                 s1->field_a5 = 2;
                 s2->mode_flag_2 = 1;

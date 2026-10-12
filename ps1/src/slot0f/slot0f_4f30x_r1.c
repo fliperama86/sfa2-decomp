@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e5a28_slot0f(Object *obj);
-void func_800e5470_slot0f(Object *obj);
-void func_800e51c8_slot0f(int a);
+void advance_hud_state_or_phase_slot0f(Object *obj);
+void spawn_screen_handler_blocks_slot0f(Object *obj);
+void init_palette_buffers_from_table_slot0f(int a);
 void func_800e5258_slot0f(void);
-void func_800e5608_slot0f(Object *obj);
-void func_800e50a8_slot0f(Object *obj);
+void call_image_job_with_index_0_slot0f(Object *obj);
+void copy_rank_palette_to_two_buffers_slot0f(Object *obj);
 
 void func_800e4f30_slot0f(Object *arg) {
     Object *obj;
@@ -18,11 +18,11 @@ void func_800e4f30_slot0f(Object *arg) {
     data_8018f5a0->phase_index++;
     game_state.field_2bc = 0;
     obj = arg;
-    func_801280f0();
+    start_fade_mode_1_and_wait();
     if (obj->field_01 == 0) {
         data_801903c2 = (s16)data_801903c2 - 1;
         if ((s16)data_801903c2 == 5) {
-            func_800e5a28_slot0f(obj);
+            advance_hud_state_or_phase_slot0f(obj);
             return;
         }
     } else {
@@ -44,12 +44,12 @@ void func_800e4f30_slot0f(Object *arg) {
     r.h = 0x100;
     func_80157fc4(&r, (u8 *)0x800bf000);
     func_80157d9c(0);
-    func_800e5470_slot0f(obj);
-    func_800e51c8_slot0f(1);
+    spawn_screen_handler_blocks_slot0f(obj);
+    init_palette_buffers_from_table_slot0f(1);
     func_800e5258_slot0f();
-    func_800e5608_slot0f(obj);
-    func_800e50a8_slot0f(obj);
-    b = func_8011f1e0();
+    call_image_job_with_index_0_slot0f(obj);
+    copy_rank_palette_to_two_buffers_slot0f(obj);
+    b = pop_block_from_pool();
     if (b != 0) {
         b->block_mode = 3;
         b->active_flag = one;

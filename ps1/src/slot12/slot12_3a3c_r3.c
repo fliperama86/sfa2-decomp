@@ -9,7 +9,7 @@ void func_80013d80_slot12(void);
 
 void func_80013c74_slot12(void) {
     Rect rect;
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1e0;
@@ -24,7 +24,7 @@ void func_80013c74_slot12(void) {
 
 void func_80013cf8_slot12(void) {
     Rect rect;
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1e1;

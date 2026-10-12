@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern SequenceStep *data_801e4614_slot0b[];
-void func_801e09f4_slot0b(Object *obj);
-void func_801e0578_slot0b(Object *obj, u8 a);
+void queue_pooled_clut_upload_job_b_slot0b(Object *obj);
+void set_sequence_from_slot01_table_slot0b(Object *obj, u8 a);
 
-void func_801e0570_slot0b(Object *obj) {
+void noop_slot00_2_slot0b(Object *obj) {
 }
 
-void func_801e0578_slot0b(Object *obj, u8 a) {
-    func_80130768(obj, a, data_801e4614_slot0b);
+void set_sequence_from_slot01_table_slot0b(Object *obj, u8 a) {
+    set_sequence_from_table_5(obj, a, data_801e4614_slot0b);
 }

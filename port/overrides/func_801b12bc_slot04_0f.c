@@ -3,10 +3,10 @@
  * place of the C of the unit slot04_0f_09e4_r1_b.c; the PS1 build does not
  * use this file, and the unit keeps the exact C.
  *
- * What is different from the unit's C: the call of func_80141c4c is written
+ * What is different from the unit's C: the call of is_state_01010101_and_ready is written
  * with the argument `obj`. The unit calls it with none.
  *
- * Why: func_80141c4c reads a0 (its second instruction, `move a1,a0` at
+ * Why: is_state_01010101_and_ready reads a0 (its second instruction, `move a1,a0` at
  * 80141c50, and everything after it goes through a1). On the console no
  * call lies before the call (jal at 801b12dc): a0 is this function's own
  * first parameter, because no instruction from the entry (801b12bc) to the
@@ -14,14 +14,14 @@
  * sp, ra and v0). Compiled for a PC, the callee would read something else.
  *
  * What the function does (inferred): when the u8 hit_flag is 0 and
- * func_80141c4c returns a value that is not 0, it sets a few fields of the
+ * is_state_01010101_and_ready returns a value that is not 0, it sets a few fields of the
  * object (state_0 = 1, state_2 = 7, state_1 = 0, state_3 = 0,
  * field_15a = 6, active_flag_3 = 0) and returns 1; otherwise it returns 0.
  *
  * Contract:
  *   Argument: obj (a0), a pointer to an object; result in v0 (0 or 1).
  *   Reads: the u8 hit_flag. Writes: the six fields above, in the one arm.
- *   Callees: func_80141c4c (1 argument) is replaced in the test by a recorder
+ *   Callees: is_state_01010101_and_ready (1 argument) is replaced in the test by a recorder
  *     that logs its argument and returns 0 or 1 (the setup chooses per case,
  *     so that both arms are reached). What it does is outside the test. The
  *     test watches the whole object at the recorder's call.
@@ -36,7 +36,7 @@ int func_801b12bc_slot04_0f(Object *obj) {
     if (obj->hit_flag != 0) {
         return 0;
     }
-    if (((int (*)(Object *))func_80141c4c)(obj)) {
+    if (((int (*)(Object *))is_state_01010101_and_ready)(obj)) {
         obj->state_0 = 1;
         obj->state_2 = 7;
         obj->state_1 = 0;

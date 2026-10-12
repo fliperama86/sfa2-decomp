@@ -5,6 +5,6 @@
 
 extern ObjectFn table_80022dcc_slot12[];
 
-void func_800117ac_slot12(Object *obj) {
+void call_handler_by_state_0_slot12(Object *obj) {
     table_80022dcc_slot12[obj->state_0](obj);
 }

@@ -6,11 +6,11 @@
 extern ObjectFn data_801c6218_slot04_02[];
 extern ObjectFn data_801c6258_slot04_02[];
 
-int func_801b178c_slot04_02(Object *obj) {
+int is_active_state_set_slot04_02(Object *obj) {
     return obj->active_state != 0;
 }
 
-int func_801b1798_slot04_02(Object *obj) {
+int is_airborne_without_link_slot04_02(Object *obj) {
     int r = 0;
     int t;
 
@@ -24,7 +24,7 @@ int func_801b1798_slot04_02(Object *obj) {
     return r;
 }
 
-int func_801b17d8_slot04_02(Object *obj) {
+int has_meter_30_and_no_link_slot04_02(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -37,7 +37,7 @@ int func_801b1804_slot04_02(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b1818_slot04_02(Object *obj) {
+int has_meter_30_active_and_no_link_slot04_02(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -52,7 +52,7 @@ int func_801b1854_slot04_02(Object *obj) {
     return (s16)obj->meter >= 0x90;
 }
 
-int func_801b1868_slot04_02(Object *obj) {
+int has_remaining_count_slot04_02(Object *obj) {
     return obj->remaining_count != 0;
 }
 

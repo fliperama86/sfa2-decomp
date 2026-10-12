@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b223c_slot04_03(Object *obj);
+void move_x_by_facing_with_decel_slot04_03(Object *obj);
 
 extern Slot04_03Rec0678 data_801c0678_slot04_03[];
 
-void func_801b1eb4_slot04_03(Object *obj) {
+void start_table_launch_on_end_flag_slot04_03(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[0x18];
     s16 t;
@@ -17,7 +17,7 @@ void func_801b1eb4_slot04_03(Object *obj) {
     t = obj->step_flags;
     if (!(t & 0x8000)) {
         if ((u8)t == 0) {
-            func_801b223c_slot04_03(obj);
+            move_x_by_facing_with_decel_slot04_03(obj);
         }
     } else {
         obj->state_3++;
@@ -29,6 +29,6 @@ void func_801b1eb4_slot04_03(Object *obj) {
         o->vel_y = data_801c0678_slot04_03[obj->direction_index >> 1].vel_y;
         o->accel_y = data_801c0678_slot04_03[o->direction_index >> 1].accel_y;
         t = (o->direction_index >> 1) + 0x35;
-        func_801307e0(o, t);
+        set_sequence_by_side_and_mode(o, t);
     }
 }

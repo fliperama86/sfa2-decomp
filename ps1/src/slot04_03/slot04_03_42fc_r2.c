@@ -9,10 +9,10 @@ void func_801b445c_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (t & 0xff) {
-            if (func_80149b80(obj) & 0xff) {
+            if (consume_active_frame_flag(obj) & 0xff) {
                 obj->state_3 = 0;
             }
         }
@@ -20,13 +20,13 @@ void func_801b445c_slot04_03(Object *obj) {
     }
 }
 
-void func_801b44d0_slot04_03(Object *obj) {
+void move_x_by_table_by_step_value_facing_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
     s16 a;
     int v;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         a = t & 0xff;
         if (a == (s16)obj->countdown) {

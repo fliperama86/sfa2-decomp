@@ -18,7 +18,7 @@ typedef struct {
     u8 *map;
 } CamBlock;
 
-void func_8011fa50(Object *object, SeqRec *rec) {
+void set_sequence_and_copy_data_to_map(Object *object, SeqRec *rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[2];
     int offset, col, bits;
@@ -41,5 +41,5 @@ void func_8011fa50(Object *object, SeqRec *rec) {
         col = (s16)(pos_x & 0x1e0) / 32 * 4;
         offset = col + bits + (((object->pos_y / 32) << 22) >> 16);
     } while (0);
-    func_8011fb70(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
+    copy_block_pairs_narrow(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
 }

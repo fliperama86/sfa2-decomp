@@ -6,7 +6,7 @@
 extern char data_800100a0_slot01[];
 char *strcat(char *dest, const char *src);
 
-void func_80010bf0_slot01(int value, char *p) {
+void format_decimal_six_chars_slot01(int value, char *p) {
     int started = 0;
     int i = 0;
     int div = 100000;

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015950_slot27(Object *obj) {
+void spawn_three_linked_objects_offset_x_slot27(Object *obj) {
     Object *p;
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xa9;
@@ -14,7 +14,7 @@ void func_80015950_slot27(Object *obj) {
         p->pos_y = obj->pos_y;
         p->linked_object = (u32)obj;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xa9;
@@ -23,7 +23,7 @@ void func_80015950_slot27(Object *obj) {
         p->pos_y = obj->pos_y;
         p->linked_object = (u32)obj;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xa9;
@@ -37,7 +37,7 @@ void func_80015950_slot27(Object *obj) {
 extern void (*data_80028aa0_slot27[])(Object *obj);
 extern void (*data_80028aac_slot27[])(Object *obj);
 
-void func_80015a3c_slot27(Object *obj) {
+void call_handler_by_state_0_two_tables_slot27(Object *obj) {
     if (obj->table_index & 0x80) {
         data_80028aac_slot27[obj->state_0](obj);
     } else {

@@ -5,7 +5,7 @@
 
 void func_80015850_slot12(Object *obj);
 
-void func_8001562c_slot12(Object *obj) {
+void slide_base_x_to_target_slot12(Object *obj) {
     s16 v;
     u8 *p = &game_state.field_2bc;
     u8 a = *p;

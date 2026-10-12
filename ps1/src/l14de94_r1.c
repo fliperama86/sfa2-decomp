@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8014de94(Object *object) {
+int roll_random_bit_check_from_kind_table(Object *object) {
     u32 *table;
     Object *other;
     if (object->script_counter != 0) return 0;
@@ -27,5 +27,5 @@ int func_8014de94(Object *object) {
     } else {
         table = data_8017d534[object->kind];
     }
-    return func_8014a170(object, table) != 0;
+    return test_random_bit_in_table(object, table) != 0;
 }

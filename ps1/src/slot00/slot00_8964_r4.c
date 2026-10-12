@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80078c8c_slot00(Object *o) {
+void spawn_child_copying_object_fields_slot00(Object *o) {
     Object *obj = o;
-    Object *p = (Object *)func_8011f1e0();
+    Object *p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xc;

@@ -26,10 +26,10 @@ void func_80120c14(GameState *g) {
     }
 }
 
-void func_80120ca0(GameState *state) {
+void call_handler_by_stage_0_1(GameState *state) {
     unsigned v = ((Hud *)data_8018f5a0)->stage;
     if (v == 0) {
-        func_80120cf0(state);
+        reset_game_state_for_round(state);
     } else if (v == 1) {
         func_80120f98(state);
     }

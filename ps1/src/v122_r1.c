@@ -6,7 +6,7 @@
 
 /* Form found by automatic permutation search, then cleaned by hand. */
 /* The search's variant assigned the object to a local that nothing read. */
-int func_80128814(Object *object)
+int get_direction_table_value(Object *object)
 {
   s16 a;
   s16 base;

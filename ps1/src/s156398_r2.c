@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801565f4(void *a, Object *object) {
+void update_name_entry_with_timeout(void *a, Object *object) {
     u8 first;
     u8 second;
 

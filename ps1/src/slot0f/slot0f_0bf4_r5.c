@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_800e1074_slot0f(int *p) {
+int wait_for_event_0_to_3_slot0f(int *p) {
     while (1) {
         if (func_8015785c(p[0]) != 0) {
             return 0;
@@ -20,7 +20,7 @@ int func_800e1074_slot0f(int *p) {
     }
 }
 
-int func_800e10e8_slot0f(int *p) {
+int wait_for_event_4_to_6_slot0f(int *p) {
     while (1) {
         if (func_8015785c(p[4]) != 0) {
             return 0;

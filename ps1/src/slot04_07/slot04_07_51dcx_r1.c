@@ -5,7 +5,7 @@
 
 extern u16 data_801c2134_slot04_07[];
 
-void func_801b51dc_slot04_07(Object *obj) {
+void set_random_velocities_from_table_slot04_07(Object *obj) {
     u16 *p;
     u16 v;
     s16 k;

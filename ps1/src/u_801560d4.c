@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801560d4(void)
+void compute_bcd_bonus_and_advance_step(void)
 {
   u16 w;
   s16 *p;

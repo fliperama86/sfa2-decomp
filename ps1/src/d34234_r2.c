@@ -5,7 +5,7 @@
 
 void func_8015c0ec(void *p);
 
-void func_8011a018(void) {
+void init_sprite_cell_buffers(void) {
     unsigned i, j;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 10; j++) {

@@ -3,8 +3,8 @@
 #include "protos.h"
 #include "externs.h"
 
-/* What it does (inferred, not original names): per-frame update of an object's button words. When game_state.versus_flag is not 0 it checks the object's side against game_state.mode: on a mismatch it clears the object's input_bits, input_bits_2 and input_word, and sets all three to 0x4000 when the flag byte data_801a6984[3] is not 0; on a match it calls func_80131ab4(object) when data_801a6984[1] is not 0. Then, when facing_side is not 0, it swaps bits 0x2000 and 0x8000 of input_bits_2 (bit 13 moves to bit 15 and bit 15 to bit 13); when saved_facing is not 0 it does the same for input_word. Last it stores in pressed_bits the bits of input_bits_2 not in prev_input_bits_2, and in released_bits the bits of prev_input_bits_2 not in input_bits_2 (the pressed and the released bits). */
-void func_8013172c(Object *object) {
+/* What it does (inferred, not original names): per-frame update of an object's button words. When game_state.versus_flag is not 0 it checks the object's side against game_state.mode: on a mismatch it clears the object's input_bits, input_bits_2 and input_word, and sets all three to 0x4000 when the flag byte data_801a6984[3] is not 0; on a match it calls record_input_log(object) when data_801a6984[1] is not 0. Then, when facing_side is not 0, it swaps bits 0x2000 and 0x8000 of input_bits_2 (bit 13 moves to bit 15 and bit 15 to bit 13); when saved_facing is not 0 it does the same for input_word. Last it stores in pressed_bits the bits of input_bits_2 not in prev_input_bits_2, and in released_bits the bits of prev_input_bits_2 not in input_bits_2 (the pressed and the released bits). */
+void update_input_bits(Object *object) {
     unsigned a, b, c, d;
     u16 x;
     s16 y;
@@ -22,7 +22,7 @@ void func_8013172c(Object *object) {
                 object->input_word = 0x4000;
             }
         } else if (data_801a6984[1] != 0) {
-            func_80131ab4(object);
+            record_input_log(object);
         }
     }
     x = object->input_bits_2;

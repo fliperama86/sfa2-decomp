@@ -1,12 +1,12 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
-   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_80137e38 (original stores countdown through a0 in the delay slot). */
+   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: advance_state_2_flip_facing_side (original stores countdown through a0 in the delay slot). */
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
 
 
 
-void func_80137e94(Object *object) {
+void tick_countdown_then_reverse_x_motion(Object *object) {
     *(s16 *)&object->countdown -= 0x100;
     if ((object->countdown & 0xff00) == 0) {
         object->active_count = 1;
@@ -21,7 +21,7 @@ void func_80137e94(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_80137f00(Object *object) {
+void call_handler_2694_by_state_2(Object *object) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
@@ -30,11 +30,11 @@ void func_80137f00(Object *object) {
     func_8011ffdc(object);
 }
 
-void func_80137f70(Object *object) {
+void flip_facing_set_variant_and_advance(Object *object) {
     object->sequence_changed_flag = 1;
     object->state_2++;
     object->facing_side ^= 1;
-    func_801380f0(object);
+    call_kind_9_handler_for_player(object);
     object->countdown = (u8)object->countdown | 0x200;
     if ((object->variant_index_2 & 0x80) == 0) {
         func_80138070(object, object->variant_index_2);
@@ -42,7 +42,7 @@ void func_80137f70(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_80137fe4(Object *object) {
+void tick_countdown_and_reverse_x_motion(Object *object) {
     *(s16 *)&object->countdown -= 0x100;
     if ((s16)object->countdown < 0) {
         object->active_count = 1;
@@ -69,7 +69,7 @@ void func_80138070(Object *object, u8 index) {
     object->frame = object->frames + object->sequence->frame_index;
 }
 
-void func_801380f0(Object *object) {
+void call_kind_9_handler_for_player(Object *object) {
     if (player_left.kind == 9) {
         func_80078e44(object);
     } else if (player_right.kind == 9) {
@@ -77,7 +77,7 @@ void func_801380f0(Object *object) {
     }
 }
 
-/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The tables table_801726bc, table_80172980 and table_801729e4 hold this function and are declared with this parameter. */
+/* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The tables table_801726bc, table_80172980 and table_801729e4 hold this function and are declared with this parameter. */
 void func_80138144(Block172 *p) {
-    func_8011f240((Slab172 *)p);
+    reset_and_push_object_to_pool_table((Slab172 *)p);
 }

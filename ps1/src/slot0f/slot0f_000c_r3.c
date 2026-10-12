@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e01e0_slot0f(Object *o) {
+void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     HudState *h = data_8018f5a0;
     Object *left = &player_left;
@@ -54,22 +54,22 @@ void func_800e01e0_slot0f(Object *o) {
     right->kind = ((u8 *)&data_801ac624)[0];
     left->kind = ((u8 *)&data_801ac624)[0];
     obj->field_40 = ((u16 *)&data_801ac624)[1];
-    func_80128978();
+    update_player_inputs_and_pick_handler();
     data_80190568 = 1;
     data_801aa544[0].active_flag = 1;
     data_801aa5d4[0] = 1;
     cam_obj[0] = 1;
-    func_80137220(0, 6);
-    func_80137220(1, 0);
-    func_80137220(2, 1);
-    func_80137220(3, 2);
-    func_80137220(4, 7);
-    func_801192bc(1);
+    queue_image_upload_job(0, 6);
+    queue_image_upload_job(1, 0);
+    queue_image_upload_job(2, 1);
+    queue_image_upload_job(3, 2);
+    queue_image_upload_job(4, 7);
+    request_sound_command_and_switch_thread(1);
     func_80136dc4();
     func_801285e0();
-    func_80136bc0();
-    func_80135ef0((ObjectView *)obj);
+    clear_four_arrays_and_call_kind_handlers();
+    set_capped_value_and_ot_indices((ObjectView *)obj);
     obj->field_2c = 0xff;
-    func_8013245c();
+    init_hud_primitives();
     data_801a6938 = 0;
 }

@@ -6,7 +6,7 @@
 extern void (*data_80044608_slot28[])(Object *);
 extern ObjectFn data_80044610_slot28[];
 
-void func_800212b0_slot28(Object *obj) {
+void call_table_handler_by_table_index_3_slot28(Object *obj) {
     data_80044608_slot28[obj->table_index](obj);
     obj->field_01 = 1;
 }

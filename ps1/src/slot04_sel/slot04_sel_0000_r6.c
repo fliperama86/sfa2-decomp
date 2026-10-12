@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b18bc_slot04_sel(void) {
+void save_player_select_values_slot04_sel(void) {
     Object *p;
     u8 k;
     p = &player_left;

@@ -23,7 +23,7 @@ void func_801b5090_slot04_02(Object *obj) {
         obj->vel_x = 0x20000;
         obj->pos_y = obj->ground_y;
         obj->accel_x = data_801c650c_slot04_02[obj->direction_index >> 1];
-        func_801307e0(obj, 0x55);
+        set_sequence_by_side_and_mode(obj, 0x55);
         play_sound_at(obj, obj->side, 0x324);
     }
 }

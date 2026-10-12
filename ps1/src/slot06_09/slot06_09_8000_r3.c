@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8d00_slot06_09(Slot06Layer *layer) {
+void compute_layer_step_and_accumulators_slot06_09(Slot06Layer *layer) {
     int i;
     int n;
 

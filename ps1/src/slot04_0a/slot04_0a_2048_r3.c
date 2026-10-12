@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2158_slot04_0a(Object *obj) {
+void spawn_pooled_object_on_step_flag_slot04_0a(Object *obj) {
     Object *n;
 
     if (*(u8 *)&obj->step_flags != 0) {

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b35a8_slot04_07(Object *obj) {
+void update_countdown_state_then_reset_states_slot04_07(Object *obj) {
     u16 w;
     int t;
     int a;
@@ -40,6 +40,6 @@ void func_801b35a8_slot04_07(Object *obj) {
             set_side_flag(obj);
         }
 call:
-        func_80142fe8(obj);
+        push_other_by_vel_x(obj);
     }
 }

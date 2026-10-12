@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern Slot12Count data_800f7b74_slot0f[4];
-void func_800e6c18_slot0f(Object *obj);
-void func_800e6c74_slot0f(Object *obj);
-void func_800e6ce4_slot0f(Object *obj);
+void count_records_with_high_bit_slot0f(Object *obj);
+void count_record_bytes_in_range_c_to_f_slot0f(Object *obj);
+void count_records_with_type_16_or_more_slot0f(Object *obj);
 void func_800e6d44_slot0f(Object *obj);
 
-void func_800e6b8c_slot0f(char *src, char *dst) {
+void copy_string_with_prefix_and_terminator_slot0f(char *src, char *dst) {
     if (*src != 0) {
         *dst++ = 0x78;
         do {
@@ -21,14 +21,14 @@ void func_800e6b8c_slot0f(char *src, char *dst) {
     dst[1] = 0;
 }
 
-void func_800e6bd8_slot0f(Object *obj) {
-    func_800e6c18_slot0f(obj);
-    func_800e6c74_slot0f(obj);
-    func_800e6ce4_slot0f(obj);
+void count_record_bytes_into_four_counters_slot0f(Object *obj) {
+    count_records_with_high_bit_slot0f(obj);
+    count_record_bytes_in_range_c_to_f_slot0f(obj);
+    count_records_with_type_16_or_more_slot0f(obj);
     func_800e6d44_slot0f(obj);
 }
 
-void func_800e6c18_slot0f(Object *o) {
+void count_records_with_high_bit_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u8 *p;
     int n;
@@ -49,7 +49,7 @@ void func_800e6c18_slot0f(Object *o) {
     data_800f7b74_slot0f[0].value = n;
 }
 
-void func_800e6c74_slot0f(Object *o) {
+void count_record_bytes_in_range_c_to_f_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u8 *p;
     int n;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80153c7c(Actor *a) {
+void clear_field_and_increment_step_count(Actor *a) {
     a->field_02 = 0;
     a->step_count++;
 }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801449d4(Object *object) {
+void on_negative_step_flags_next_state_0(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->ot_depth = 0;
         object->state_0 = object->state_0 + 1;

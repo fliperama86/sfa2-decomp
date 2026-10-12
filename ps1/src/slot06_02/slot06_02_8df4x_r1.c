@@ -9,9 +9,9 @@ extern Poly28 data_801f5cf8_slot06_02[2][0x84];
    is not blank as a quad whose x offsets are interpolated between two values
    of the layer; the first row drawn is cropped at the top (inferred).
    The forms of this function are those of the model
-   func_801e8bc4_slot06_04, whose comment gives the measured effect of
+   draw_skewed_tile_layer_quads_slot06_04, whose comment gives the measured effect of
    each; they were not measured again here. */
-void func_801e8df4_slot06_02(void) {
+void draw_skewed_tile_layer_quads_slot06_02(void) {
     Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
     u16 sx;
     u16 sy;

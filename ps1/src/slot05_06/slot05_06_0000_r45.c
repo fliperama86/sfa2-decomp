@@ -4,17 +4,17 @@
 #include "../externs.h"
 
 extern ObjectFn data_801dd498_slot05_06[];
-void func_801cc61c_slot05_06(Object *object);
+void update_sequence_or_end_set_other_code_slot05_06(Object *object);
 extern ObjectFn data_801dd4a0_slot05_06[];
 
-void func_801cbcf4_slot05_06(Object *o) {
+void move_x_until_step_index_expires_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int v;
 
     obj->step_index -= 1;
     if (obj->step_index & 0x80) {
         o->state_3++;
-        func_801307e0(o, 0x33);
+        set_sequence_by_side_and_mode(o, 0x33);
     } else {
         v = 0x80000;
         if (o->facing_side == 0) {
@@ -36,13 +36,13 @@ void func_801cbdac_slot05_06(Object *obj) {
         obj->remaining_count--;
     }
     obj->field_157 = 0;
-    func_801307e0(obj, 0x3c);
+    set_sequence_by_side_and_mode(obj, 0x3c);
 }
 
-void func_801cbdfc_slot05_06(Object *o) {
+void update_sequence_or_finish_on_status_bit_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     if (obj->status_flags & 0x80) {
-        func_801cc61c_slot05_06(o);
+        update_sequence_or_end_set_other_code_slot05_06(o);
     } else {
         update_sequence(o);
     }

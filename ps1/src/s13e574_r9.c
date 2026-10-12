@@ -4,6 +4,6 @@
 #include "protos.h"
 
 
-void func_80140ec0(void) {
+void call_game_state_table_handler(void) {
     table_8017ac34[game_state.handler_index]();
 }

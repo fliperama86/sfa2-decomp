@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013bd10(void) {
+void choose_pair_response_second_to_state_2(void) {
     Object *tmp;
 
     if (ref_second.p->active_flag_2 != 0 || ref_third.p->active_flag_2 == 0) {
         tmp = ref_second.p;
         ref_second.p = ref_third.p;
         ref_third.p = tmp;
-        func_8013b9e0();
+        link_second_object_to_third_parent();
         tmp = ref_second.p;
         ref_second.p = ref_third.p;
         ref_third.p = tmp;

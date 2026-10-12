@@ -5,7 +5,7 @@
 
 void func_801b7ebc_slot04_02(Object *obj);
 
-void func_801b7d58_slot04_02(Object *obj) {
+void set_state_0_to_2_slot04_02(Object *obj) {
     obj->state_0 = 2;
 }
 

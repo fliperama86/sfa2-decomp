@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8011fcc0(SeqRec *rec)
+void store_rect_entries_and_queue_kinds(SeqRec *rec)
 {
   u8 f0;
   u8 f1;
@@ -55,23 +55,23 @@ void func_8011fcc0(SeqRec *rec)
     {
       f3 = 1;
     }
-    func_80137640(r, a, b);
+    store_image_if_enabled(r, a, b);
   }
   while (v == 0);
   if (f1)
   {
-    func_80137220(1, 0);
+    queue_image_upload_job(1, 0);
   }
   if (f2)
   {
-    func_80137220(2, 1);
+    queue_image_upload_job(2, 1);
   }
   if (f3)
   {
-    func_80137220(3, 2);
+    queue_image_upload_job(3, 2);
   }
   if (f0)
   {
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
   }
 }

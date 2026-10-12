@@ -5,7 +5,7 @@
 
 extern s32 data_801c1f10_slot04_07[];
 
-void func_801b1a50_slot04_07(Object *obj) {
+void start_jump_with_table_velocities_slot04_07(Object *obj) {
     u8 one = 1;
     s32 *p;
     s32 a;
@@ -13,8 +13,8 @@ void func_801b1a50_slot04_07(Object *obj) {
 
     obj->active_flag_4 = one;
     obj->state_3++;
-    func_80141f28(obj, 5);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 5);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->field_49 != 0) {
         obj->field_225 = one;
     }
@@ -30,10 +30,10 @@ void func_801b1a50_slot04_07(Object *obj) {
         obj->vel_x = a;
         obj->accel_x = b;
     }
-    func_801307e0(obj, 0x20);
+    set_sequence_by_side_and_mode(obj, 0x20);
 }
 
-void func_801b1b2c_slot04_07(Object *obj) {
+void set_countdown_when_step_flag_zero_slot04_07(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->active_state = 1;
         obj->state_3++;

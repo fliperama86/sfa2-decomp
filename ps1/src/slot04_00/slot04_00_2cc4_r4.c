@@ -5,10 +5,10 @@
 
 extern BoxTables data_801c0148_slot04_00[];
 
-void func_801b34c4_slot04_00(Object *obj);
-void func_801b3164_slot04_00(Object *obj);
+void set_box_tables_from_health_index_slot04_00(Object *obj);
+void call_handler_by_state_1_slot04_00(Object *obj);
 
-void func_801b2f8c_slot04_00(Object *obj) {
+void init_spawned_object_from_parent_slot04_00(Object *obj) {
     u8 a[6] = { 8, 9, 10, 0xff, 0xff, 0xff };
     int b[6] = { 0x30000, 0x3c000, 0x48000, 0x30000, 0x3c000, 0x48000 };
     int v;
@@ -21,7 +21,7 @@ void func_801b2f8c_slot04_00(Object *obj) {
     obj->field_1c = ref_other.p->field_1c;
     obj->box_tables = data_801c0148_slot04_00;
     if (obj->vel_table_index >= 6) {
-        func_801b34c4_slot04_00(obj);
+        set_box_tables_from_health_index_slot04_00(obj);
     }
     obj->countdown_2 = 5;
     obj->active_state = 0;
@@ -45,5 +45,5 @@ void func_801b2f8c_slot04_00(Object *obj) {
         obj->frames = data_1f800158;
     }
     func_80138070(obj, obj->vel_table_index >> 1);
-    func_801b3164_slot04_00(obj);
+    call_handler_by_state_1_slot04_00(obj);
 }

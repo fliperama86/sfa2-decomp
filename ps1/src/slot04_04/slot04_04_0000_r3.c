@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1f78_slot04_04(Object *obj) {
+void spawn_linked_object_field02_4_slot04_04(Object *obj) {
     Object *p;
     s16 y;
 

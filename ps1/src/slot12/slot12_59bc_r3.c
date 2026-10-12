@@ -5,9 +5,9 @@
 
 extern Slot12Rec data_8002bca4_slot12[];
 extern u8 data_8002bfb4_slot12[][10];
-void func_80015f00_slot12(u8 *src, u8 *dst, int mode);
+void copy_string_with_suffix_by_mode_slot12(u8 *src, u8 *dst, int mode);
 
-void func_80015dfc_slot12(Object *obj, int a) {
+void build_name_text_record_slot12(Object *obj, int a) {
     Slot12Rec *e;
     u8 *fr;
 
@@ -23,7 +23,7 @@ void func_80015dfc_slot12(Object *obj, int a) {
         e->field_0b = 0x1d;
     }
     fr += 4;
-    func_80015f00_slot12(fr, data_8002bfb4_slot12[obj->table_index], 0);
+    copy_string_with_suffix_by_mode_slot12(fr, data_8002bfb4_slot12[obj->table_index], 0);
     e->data_ptr = data_8002bfb4_slot12[obj->table_index];
     e->pos_x = obj->base_x + 0x30;
     e->pos_y = obj->base_y;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1058_slot04_0b(Object *obj) {
+void start_move_type_7_with_other_lock_slot04_0b(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -17,6 +17,6 @@ void func_801b1058_slot04_0b(Object *obj) {
     obj->field_6b = 0;
     obj->facing_side = obj->saved_facing;
     obj->other->field_6b = 0x13;
-    func_80146998(obj);
-    func_801307e0(obj, 0x2b);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x2b);
 }

@@ -6,21 +6,21 @@
 extern ObjectFn data_801c61a0_slot04_14[];
 extern ObjectFn data_801c61a8_slot04_14[];
 
-void func_80130dc0(Object *object);
-void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
-void func_801b0998_slot04_14(Object *obj);
+void set_sequence_and_tables_from_direction(Object *object);
+void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void move_by_velocity_until_ground_then_reset_slot04_14(Object *obj);
 
-void func_801b0734_slot04_14(Object *obj) {
+void update_sequence_or_call_reset_state_slot04_14(Object *obj) {
     s16 t = obj->step_flags;
 
     if ((t & 0x8000) != 0) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b0778_slot04_14(Object *obj) {
+void call_handler_by_state_3_set_flag_slot04_14(Object *obj) {
     obj->field_157 = 1;
     data_801c61a0_slot04_14[obj->state_3](obj);
 }
@@ -30,7 +30,7 @@ void func_801b07bc_slot04_14(Object *obj) {
 
     obj->active_flag_3 = one;
     obj->state_3 = one;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
 void func_801b07e4_slot04_14(Object *obj) {
@@ -39,8 +39,8 @@ void func_801b07e4_slot04_14(Object *obj) {
     obj->input_dir_0 = 4;
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
-    func_80130504(obj);
-    func_80141f28(obj, obj->direction_index >> 1);
+    set_direction_from_pressed_bits(obj);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     x = 0xc;
     if (obj->variant_index != 0) {
         x = 0x12;
@@ -49,10 +49,10 @@ void func_801b07e4_slot04_14(Object *obj) {
         x += 3;
     }
     x += obj->direction_index >> 1;
-    func_801307e0(obj, x);
+    set_sequence_by_side_and_mode(obj, x);
     if ((u16)obj->pos_y < (u16)(obj->ground_y - 0x50) && obj->variant_index != 0 && (obj->variant_index & 0x80) == 0 && obj->input_dir_second != 0 && obj->direction_index == 2 && (obj->input_bits_2 & 0x4000) != 0) {
-        func_801b62a8_slot04_14(obj, 1, 0, 5, 0);
-        func_801307e0(obj, 0x29);
+        set_object_states_0_to_3_slot04_14(obj, 1, 0, 5, 0);
+        set_sequence_by_side_and_mode(obj, 0x29);
     }
 }
 
@@ -67,5 +67,5 @@ void func_801b0948_slot04_14(Object *obj) {
     if (obj->facing_side != 0) {
         obj->vel_x = 0x40000;
     }
-    func_801b0998_slot04_14(obj);
+    move_by_velocity_until_ground_then_reset_slot04_14(obj);
 }

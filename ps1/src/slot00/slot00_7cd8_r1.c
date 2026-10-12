@@ -6,11 +6,11 @@
 extern void (*data_8007a038_slot00[])(Object *obj, s16 *out);
 extern u16 data_8007a044_slot00[];
 
-void func_80077cd8_slot00(Object *obj, s16 *out) {
+void call_handler_by_table_index_with_out_slot00(Object *obj, s16 *out) {
     data_8007a038_slot00[obj->table_index >> 1](obj, out);
 }
 
-void func_80077d1c_slot00(Object *obj, s16 *out) {
+void fill_random_offset_record_slot00(Object *obj, s16 *out) {
     int r = get_random_byte() & 0xff;
     s16 i = r & 0xe;
     if (obj->facing_side != 0) {

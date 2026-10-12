@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801495c4(Object *object) {
+void advance_state_0_4(Object *object) {
   object->state_0++;
 }

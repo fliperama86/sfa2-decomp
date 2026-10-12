@@ -5,7 +5,7 @@
 
 void func_80014dd0_slot12(Object *obj, int a);
 
-void func_80014c24_slot12(Object *obj) {
+void count_down_then_set_flag_5_slot12(Object *obj) {
     int t = obj->countdown - 1;
     obj->countdown = t;
     if ((s16)t < 0) {
@@ -15,7 +15,7 @@ void func_80014c24_slot12(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_80014c7c_slot12(Object *obj) {
+void advance_state_1_on_game_state_flag_8_slot12(Object *obj) {
     if (game_state.field_2bc == 8) {
         obj->countdown = 10;
         obj->state_1++;

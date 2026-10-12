@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f8478_slot06_0e[2][0xd0];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
-   records, like func_801e9080_slot06_00, with two differences: the layer of
+   records, like draw_object_tile_grid_sprites_slot06_00, with two differences: the layer of
    field_0e 8 scales part of the offset by the object's scroll_factor (divided by
    79), and objects whose field_02 is 0x41 or 0x16 take another texture page
    for some cell values. The object selects a layer by its field_0e (8, 4 or
@@ -20,7 +20,7 @@ extern Slot06Tile data_801f8478_slot06_0e[2][0xd0];
    takes a record from the table, fills in position, texture coordinates,
    texture page and a command word, and links the record into the list head
    selected by the object. */
-void func_801e9d14_slot06_0e(Object *object) {
+void draw_object_tile_grid_sprites_slot06_0e(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

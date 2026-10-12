@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b20d4_slot04_02(Object *o) {
+void update_rise_until_apex_then_set_sequence_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u16 a;
 
@@ -24,7 +24,7 @@ void func_801b20d4_slot04_02(Object *o) {
             obj->step_count = 1;
         }
         a += o->direction_index >> 1;
-        func_801307e0(o, a);
+        set_sequence_by_side_and_mode(o, a);
     } else {
         update_sequence(o);
     }

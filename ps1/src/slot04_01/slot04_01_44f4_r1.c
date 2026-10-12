@@ -23,7 +23,7 @@ void func_801b44f4_slot04_01(Object *obj) {
     one = 1;
     obj->active_flag_3 = one;
     if (obj->hit_flag_a != 0 && obj->pos_y - obj->ground_y < -0x2f
-        && (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff)) {
+        && (check_hit_other_active_state_nonzero(obj, -0x20, 0x20, 0, 0x10) & 0xff)) {
         obj->state_1 = 2;
         obj->state_0 = one;
         obj->state_2 = 0;
@@ -31,12 +31,12 @@ void func_801b44f4_slot04_01(Object *obj) {
         obj->input_dir_0 = 4;
         return;
     }
-    func_80141f28(obj, obj->direction_index >> 1);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     if (obj->variant_index != 0) {
         a = 0x12;
     }
     if (obj->input_dir_second != 0) {
         a += 3;
     }
-    func_801307e0(obj, (s16)((obj->direction_index >> 1) + a));
+    set_sequence_by_side_and_mode(obj, (s16)((obj->direction_index >> 1) + a));
 }

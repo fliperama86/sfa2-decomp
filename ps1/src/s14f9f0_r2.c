@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014fd28(Ctl *ctl) {
+void read_stream_sector_for_vab(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     int v;
     if (stream->step_count == 0) {
@@ -14,6 +14,6 @@ void func_8014fd28(Ctl *ctl) {
             stream->open_source_ptr = stream->source_ptr;
         }
     }
-    func_8015003c(stream);
+    read_stream_sector_to_source_ptr(stream);
     stream->step_count++;
 }

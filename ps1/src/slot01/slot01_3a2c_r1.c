@@ -9,7 +9,7 @@ extern int data_80055f3c_slot01;
 extern Pair data_80015a70_slot01[];
 extern u16 data_80015ac0_slot01[];
 
-void func_80013a2c_slot01(Object *obj) {
+void set_scroll_origin_from_tables_slot01(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     s16 *q = &game_state.field_d4;
@@ -29,9 +29,9 @@ void func_80013a2c_slot01(Object *obj) {
     data_80055f34_slot01 = u;
 }
 
-void func_80013ac0_slot01(Object *obj) {
+void spawn_three_linked_objects_slot01(Object *obj) {
     Object *p;
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x2b;
@@ -40,7 +40,7 @@ void func_80013ac0_slot01(Object *obj) {
         p->pos_y = obj->pos_y;
         p->linked_object = (u32)obj;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x2b;
@@ -49,7 +49,7 @@ void func_80013ac0_slot01(Object *obj) {
         p->pos_y = obj->pos_y;
         p->linked_object = (u32)obj;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x2b;

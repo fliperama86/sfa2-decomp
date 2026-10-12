@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001c864_slot28(Object *o) {
+void start_sequence_11_when_variant_set_slot28(Object *o) {
     if (o->variant_index != 0) {
         o->state_1++;
-        func_80130768(o, 11, ((Slot28Obj *)o)->sequence_ptr);
+        set_sequence_from_table_5(o, 11, ((Slot28Obj *)o)->sequence_ptr);
     }
 }
 

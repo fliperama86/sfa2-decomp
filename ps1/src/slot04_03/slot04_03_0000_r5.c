@@ -5,13 +5,13 @@
 
 extern s32 data_801c0548_slot04_03[];
 
-void func_801b06a0_slot04_03(Object *obj) {
+void move_x_by_table_per_step_value_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
     s16 x;
     int d;
 
     if ((t & 0x8000) != 0) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         x = t & 0xff;
         if (x == (s16)obj->countdown) {
@@ -34,7 +34,7 @@ void func_801b06a0_slot04_03(Object *obj) {
     }
 }
 
-void func_801b075c_slot04_03(Object *obj) {
+void update_sequence_advance_state_3_on_flag_slot04_03(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->active_state = 1;
         obj->state_3++;

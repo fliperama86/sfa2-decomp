@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_80152260(Object *object)
+void init_object_spawn_and_set_sequence(Object *object)
 {
   PtrTbl39 t;
   t = data_8016da38;
@@ -21,5 +21,5 @@ void func_80152260(Object *object)
   {
     object->field_0a = 1;
   }
-  func_80130700(object, t.entries[object->table_index][data_8018024c[object->table_index]]);
+  set_sequence_entry(object, t.entries[object->table_index][data_8018024c[object->table_index]]);
 }

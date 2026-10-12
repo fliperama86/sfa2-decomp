@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013cc4_slot27(Object *obj);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
-void func_80013628_slot27(Object *obj) {
+void move_pos_x_until_target_and_step_palette_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
     *t = obj->vel_x;
     obj->pos_x = obj->pos_x + *(u16 *)t;
@@ -13,5 +13,5 @@ void func_80013628_slot27(Object *obj) {
     if (obj->vel_y == *t) {
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }

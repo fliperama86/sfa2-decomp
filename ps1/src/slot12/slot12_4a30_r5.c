@@ -7,11 +7,11 @@ extern void (*data_800282c4_slot12[])(Object *);
 extern u16 data_800282d4_slot12[];
 extern Slot12Cell data_8002bc38_slot12[];
 
-void func_80014e30_slot12(Object *obj) {
+void call_handler_by_state_0_5_slot12(Object *obj) {
     data_800282c4_slot12[obj->state_0](obj);
 }
 
-void func_80014e70_slot12(Object *obj) {
+void init_two_cells_at_position_slot12(Object *obj) {
     Slot12Cell *c;
     int i;
     obj->ot_depth = 2;

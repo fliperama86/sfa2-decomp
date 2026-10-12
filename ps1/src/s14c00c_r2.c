@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014c468(Object *object) {
+void branch_script_if_active_flag_set(Object *object) {
     if (object->active_flag != 0) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }

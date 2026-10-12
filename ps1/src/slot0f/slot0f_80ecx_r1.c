@@ -22,14 +22,14 @@ extern u8 data_800f01e0_slot0f[];
    according to game_state.mode_flag_2 (zero or not), and hands the object, a
    byte of data_800f01e0_slot0f chosen by the object's health, and a
    sequence table (entry 0 of data_800f00fc_slot0f for zero, entry 8
-   otherwise) to func_80130768. When the second argument is 1 it sets the
-   record's byte 0xb to 0x1d and calls func_80130768 again with the table
+   otherwise) to set_sequence_from_table_5. When the second argument is 1 it sets the
+   record's byte 0xb to 0x1d and calls set_sequence_from_table_5 again with the table
    at entry 4. It then stores a pointer from data_800f01cc_slot0f
    (by health) into the record, sets a flag byte for the object in
    data_800f7d48_slot0f, copies the object's base_x and base_y into the
    record (minus 8 each) and sets the object's position to base_x + 8 and
    base_y - 8. */
-void func_800e80ec_slot0f(Object *obj, int a) {
+void init_slot0f_cell_record_with_sequence_slot0f(Object *obj, int a) {
     Slot0fRec7d50 *e = &((Slot0fRec7d50 *)data_800f7d50_slot0f)[obj->table_index];
 
     e->field_00 = 0;
@@ -41,19 +41,19 @@ void func_800e80ec_slot0f(Object *obj, int a) {
         SequenceStep **p = &data_800f00fc_slot0f[0];
 
         e->field_0b = 0x14;
-        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], p);
+        set_sequence_from_table_5(obj, data_800f01e0_slot0f[(s16)obj->health], p);
         if (a == 1) {
             e->field_0b = 0x1d;
-            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
+            set_sequence_from_table_5(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
         }
     } else {
         SequenceStep **p = &data_800f00fc_slot0f[8];
 
         e->field_0b = 0x10;
-        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], p);
+        set_sequence_from_table_5(obj, data_800f01e0_slot0f[(s16)obj->health], p);
         if (a == 1) {
             e->field_0b = 0x1d;
-            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
+            set_sequence_from_table_5(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
         }
     }
     e->data_ptr = data_800f01cc_slot0f[(s16)obj->health];

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80122d90(GameState *state) {
+void advance_step_or_reset_on_timer(GameState *state) {
     if (((Entity *)state)->field_6c == 0) {
         if (((Entity *)state)->mode_flag_b == 0) {
             ((HudBig *)data_8018f5a0)->step_count++;
@@ -21,7 +21,7 @@ void func_80122d90(GameState *state) {
             int v = ((Entity *)state)->countdown_timer - 1;
             ((Entity *)state)->countdown_timer = v;
             if ((s16)v == 0) {
-                func_80122e54(state);
+                reset_game_state_for_new_match(state);
             }
         }
     }

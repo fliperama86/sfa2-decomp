@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801417cc(Object *object);
-void func_80142adc(Object *object);
-void func_80142ba0(Object *object);
-Pooled *func_8011f4a4(void);
-void func_80138ae8(GameState *state, Object *object);
+u8 try_action_clearing_both_flags(Object *object);
+void start_action_if_buttons_pressed(Object *object);
+void set_direction_index_from_buttons_group_b(Object *object);
+Pooled *alloc_pooled_b(void);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void func_801b1510_slot04_0c(Object *obj);
 
 extern ObjectFnInt data_801bd8f8_slot04_0c[];
@@ -19,7 +19,7 @@ extern s32 data_801bd994_slot04_0c[];
 extern u16 data_801a2944[];
 extern u8 data_801ad398;
 
-void func_801b0eb0_slot04_0c(Object *obj) {
+void start_move_sequence_19_lock_other_slot04_0c(Object *obj) {
     u8 t;
 
     t = 1;
@@ -35,14 +35,14 @@ void func_801b0eb0_slot04_0c(Object *obj) {
     obj->field_157 = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x14;
-    func_801307e0(obj, 0x19);
+    set_sequence_by_side_and_mode(obj, 0x19);
 }
 
-int func_801b0f18_slot04_0c(Object *obj) {
+int try_enter_state_7_kind_1_unlinked_slot04_0c(Object *obj) {
     int r = 0;
 
     if (obj->link_flags == 0) {
-        if (func_801417cc(obj) != 0) {
+        if (try_action_clearing_both_flags(obj) != 0) {
             r = 1;
             obj->state_0 = 1;
             obj->state_1 = 0;
@@ -51,16 +51,16 @@ int func_801b0f18_slot04_0c(Object *obj) {
             obj->field_15a = 1;
             obj->active_flag_3 = 1;
             obj->facing_side = obj->saved_facing;
-            func_80142b3c(obj);
+            set_direction_index_from_buttons_group_a(obj);
         }
     }
     return r;
 }
 
-int func_801b0f9c_slot04_0c(Object *obj) {
+int try_enter_state_07_move_0_slot04_0c(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -69,16 +69,16 @@ int func_801b0f9c_slot04_0c(Object *obj) {
         obj->field_15a = 0;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }
 
-int func_801b1010_slot04_0c(Object *obj) {
+int try_enter_state_7_kind_3_slot04_0c(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -88,7 +88,7 @@ int func_801b1010_slot04_0c(Object *obj) {
         obj->field_15a = 3;
         obj->active_flag_3 = one;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }
@@ -97,15 +97,15 @@ void func_801b1088_slot04_0c(Object *obj) {
     data_801ad398 = data_801bd8f8_slot04_0c[obj->field_15a](obj);
 }
 
-int func_801b10d0_slot04_0c(Object *obj) {
+int is_link_flags_zero_slot04_0c(Object *obj) {
     return obj->link_flags == 0;
 }
 
-int func_801b10dc_slot04_0c(Object *obj) {
+int return_true_always_slot04_0c(Object *obj) {
     return 1;
 }
 
-int func_801b10e4_slot04_0c(Object *obj) {
+int has_meter_and_no_link_slot04_0c(Object *obj) {
     int r = 0;
 
     if (obj->link_flags == 0) {
@@ -136,12 +136,12 @@ void func_801b11a0_slot04_0c(Object *o) {
 
     o->active_flag_4 = 1;
     o->state_3++;
-    func_80141f28(o, 9);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 9);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     if ((get_random_byte() & 7) == 0) {
         o->other_lock = 0xff;
         if (o->field_49 == 0) {
-            job = (Job *)func_8011f4a4();
+            job = (Job *)alloc_pooled_b();
             if (job != 0) {
                 job->mode = 2;
                 job->kind = 1;
@@ -168,11 +168,11 @@ void func_801b11a0_slot04_0c(Object *o) {
     if (o->field_49 != 0) {
         a = 0x30;
     }
-    func_801307e0(o, (o->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + a);
     play_sound_at(o, o->side, 0x320);
 }
 
-void func_801b134c_slot04_0c(Object *o) {
+void set_side_flag_when_mode_zero_and_update_slot04_0c(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if (obj->mode == 0) {
@@ -184,7 +184,7 @@ void func_801b134c_slot04_0c(Object *o) {
     update_sequence(o);
 }
 
-void func_801b13a0_slot04_0c(Object *obj) {
+void move_x_by_facing_until_vel_x_negative_slot04_0c(Object *obj) {
     func_801b1510_slot04_0c(obj);
     if (obj->facing_side == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -198,7 +198,7 @@ void func_801b13a0_slot04_0c(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b142c_slot04_0c(Object *o) {
+void update_vertical_motion_until_landing_slot04_0c(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     func_801b1510_slot04_0c(o);
@@ -212,17 +212,17 @@ void func_801b142c_slot04_0c(Object *o) {
         o->active_flag_3 = 0;
         o->active_flag_4 = 0;
         o->pos_y = (u16)o->ground_y;
-        func_801209c4(o);
+        play_object_sound_by_kind(o);
     }
     update_sequence(o);
 }
 
-void func_801b14b0_slot04_0c(Object *obj) {
+void update_sequence_set_other_state_code_slot04_0c(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         obj->other->other_state_code = 5;
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -244,10 +244,10 @@ void func_801b159c_slot04_0c(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 5);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 5);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->field_49 != 0) {
         a = 0x36;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + a);
 }

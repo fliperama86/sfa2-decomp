@@ -5,18 +5,18 @@
 
 extern u16 data_801ea398_slot06_06[];
 
-void func_801e827c_slot06_06(Slot06Layer *layer);
-void func_801e822c_slot06_06(Slot06Layer *layer);
+void init_layer_tile_map_5800_conditional_slot06_06(Slot06Layer *layer);
+void init_layer_sprite_and_advance_mode_slot06_06(Slot06Layer *layer);
 
-void func_801e822c_slot06_06(Slot06Layer *layer) {
-    func_801361fc((Sprite *)layer, 0x1c0, 0);
+void init_layer_sprite_and_advance_mode_slot06_06(Slot06Layer *layer) {
+    init_sprite_position((Sprite *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->mode++;
     }
 }
 
-void func_801e827c_slot06_06(Slot06Layer *layer) {
+void init_layer_tile_map_5800_conditional_slot06_06(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ea398_slot06_06;
     if (game_state.field_0a == 6 || game_state.skip_flag != 0) {
         layer->tile_map_ptr = data_801ea398_slot06_06 + 0x800;

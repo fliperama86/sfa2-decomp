@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801510bc(void) {
+void call_active_block_handlers(void) {
     int i;
     Block172 *b = data_801ac888;
     for (i = 0; i < 16; b++, i++) {

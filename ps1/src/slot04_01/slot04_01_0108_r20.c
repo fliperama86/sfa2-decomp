@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b28_slot04_01(Object *object) {
+void clear_slots_bytes_slot04_01(Object *object) {
     u8 *p = (u8 *)object->slots;
     int i;
     u8 z = 0;

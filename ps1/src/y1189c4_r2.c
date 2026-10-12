@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80118d10(short a, short b) {
+void init_system_and_pads(short a, short b) {
     int v;
     int *p;
     func_8015efc0();
@@ -18,7 +18,7 @@ void func_80118d10(short a, short b) {
     data_801abef8 = a;
     data_801ac314 = b;
     if (v < 0) {
-        func_8012028c();
+        close_sound_and_quit();
     }
     init_sound_system();
     func_8015762c(&data_801a89a8, 4, &data_801a89ac, 4);
@@ -29,14 +29,14 @@ void func_80118d10(short a, short b) {
     scratch_word_04 = 0;
     scratch_word_10 = 0;
     func_801575dc();
-    data_801900fc = func_8015783c(0xf2000003, 2, 0x1000, func_80119444);
+    data_801900fc = func_8015783c(0xf2000003, 2, 0x1000, update_pad_and_count_frame);
     func_8015786c();
     func_8015761c(data_801900fc);
     func_8015764c(0xf2000003, 1, 0x1000);
     func_80157720(0xf2000003);
 }
 
-void func_80118e58(int a, int b, int c, int d) {
+void init_display_buffers(int a, int b, int c, int d) {
     Rect rect;
     void *buf;
     func_8015c5f0((void *)0x801fc08c, 0, 8, c, d);

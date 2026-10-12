@@ -12,8 +12,8 @@ void func_801b31a4_slot04_02(Object *obj) {
     obj->state_3 = 1;
     obj->active_flag_3 = 0;
     obj->variant_index = obj->facing_side ^ obj->direction_flag;
-    func_80141f28(obj, 2);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 2);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->accel_x = -0x3000;
     if (obj->input_dir_second != 0) {
         *(s32 *)&obj->vel_x = 0x80000;
@@ -26,9 +26,9 @@ void func_801b31a4_slot04_02(Object *obj) {
         obj->field_252 = 0;
         n = 0x64;
     }
-    func_801307e0(obj, n);
+    set_sequence_by_side_and_mode(obj, n);
     if (obj->field_7e == 0) {
-        func_80157380(obj);
+        spawn_three_child_objects(obj);
         func_801b359c_slot04_02(obj);
     }
 }

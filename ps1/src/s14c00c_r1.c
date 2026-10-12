@@ -4,28 +4,28 @@
 #include "protos.h"
 
 
-void func_8014c00c(Object *object) {
+void branch_script_if_other_health_below_own(Object *object) {
     if ((s16)object->other->health < (s16)object->health) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }
 
-void func_8014c058(Object *object) {
+void branch_script_if_other_active_moving_up(Object *object) {
     Object *other = object->other;
     if (other->active_state != 1 || other->vel_y >= 0) {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     } else {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     }
 }
 
-void func_8014c0b0(Object *object) {
+void branch_script_unless_other_moving_up(Object *object) {
     Object *other = object->other;
     if (other->active_state == 1 && other->vel_y < 0) {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     } else {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     }
 }

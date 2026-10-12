@@ -5,7 +5,7 @@
 
 extern u8 data_80185504[][16];
 u16 get_free_list_head(void);
-u16 func_8011a604(int a, u16 b);
+u16 alloc_slot_after(int a, u16 b);
 
 /*
  * What it does (inferred, not an original name): unpacks a compressed list
@@ -13,9 +13,9 @@ u16 func_8011a604(int a, u16 b);
  * from the free list, with a history of 10 records per channel
  * (p->field_02); the new entry is p->stream_index. When the free blocks plus the
  * channel's last record's blocks are fewer than (n + 15) / 16 + 1, the work
- * is left to func_8011d5b8.
+ * is left to push_front_of_cell_history.
  */
-void func_8011cf98(Slab172 *p, u16 *q) {
+void unpack_cell_list_with_history(Slab172 *p, u16 *q) {
     u16 slot;
     u16 written;
     u16 xorv;
@@ -37,12 +37,12 @@ void func_8011cf98(Slab172 *p, u16 *q) {
 
     idx = p->field_02;
     if ((q[0] + 15) / 16 + 1 > data_80184700 + data_80183dc4[idx][9]) {
-        func_8011d5b8(p, (u32)q);
+        push_front_of_cell_history(p, (u32)q);
         return;
     }
     pos = 0;
     written = 0;
-    func_8011a6b8(data_80183d9c[idx][9], data_80183dc4[idx][9]);
+    free_slot_chain(data_80183d9c[idx][9], data_80183dc4[idx][9]);
     src = q + 5;
     blocks = 0;
     head = get_free_list_head();
@@ -56,7 +56,7 @@ void func_8011cf98(Slab172 *p, u16 *q) {
             val = *src++;
             col = pos;
             if (col == 0) {
-                slot = func_8011a604(head, blocks);
+                slot = alloc_slot_after(head, blocks);
                 blocks++;
             }
             pos = (pos + 1) & 0xf;
@@ -73,7 +73,7 @@ void func_8011cf98(Slab172 *p, u16 *q) {
             xorv = base ^ (((color & 0x20) << 10) | ((color & 0x40) << 8));
             color &= 0x1f;
             if (col == 0) {
-                slot = func_8011a604(head, blocks);
+                slot = alloc_slot_after(head, blocks);
                 blocks++;
             }
             pos = (pos + 1) & 0xf;
@@ -94,7 +94,7 @@ void func_8011cf98(Slab172 *p, u16 *q) {
                 col = pos;
                 i++;
                 if (col == 0) {
-                    slot = func_8011a604(head, blocks);
+                    slot = alloc_slot_after(head, blocks);
                     blocks++;
                 }
                 data_80184704[slot][col] = val++ ^ xorv;
@@ -118,7 +118,7 @@ void func_8011cf98(Slab172 *p, u16 *q) {
                 col = pos;
                 i++;
                 if (col == 0) {
-                    slot = func_8011a604(head, blocks);
+                    slot = alloc_slot_after(head, blocks);
                     blocks++;
                 }
                 data_80184704[slot][col] = val++ ^ xorv;

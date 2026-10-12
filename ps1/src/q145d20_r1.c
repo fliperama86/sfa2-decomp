@@ -11,7 +11,7 @@ void func_80145d20(Object *object) {
   Object *o;
   int e, e2, e3;
   if (data_80197f10 >= 3) {
-    func_801460ec((u32 *) p);
+    get_three_pool_objects_sorted((u32 *) p);
     o = p[0];
     o->active_count = 1;
     o->field_02 = 3;

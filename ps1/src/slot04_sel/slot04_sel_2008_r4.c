@@ -5,7 +5,7 @@
 
 extern u16 data_801b9d64_slot04_sel;
 
-void func_801b2480_slot04_sel(void) {
+void start_selection_and_advance_step_slot04_sel(void) {
     HudState *h = data_8018f5a0;
     game_state.b0_flag = 1;
     game_state.field_80 = 0;
@@ -15,7 +15,7 @@ void func_801b2480_slot04_sel(void) {
     h->step_index_2++;
 }
 
-void func_801b24cc_slot04_sel(void) {
+void count_down_then_advance_step_slot04_sel(void) {
     int t = data_801b9d64_slot04_sel - 1;
     data_801b9d64_slot04_sel = t;
     if ((u16)t == 0) {
@@ -23,7 +23,7 @@ void func_801b24cc_slot04_sel(void) {
     }
 }
 
-void func_801b2514_slot04_sel(void) {
+void advance_substep_index_clear_step_index_2_slot04_sel(void) {
     HudState *h = data_8018f5a0;
     game_state.field_09 = 0;
     h->step_index_2 = 0;

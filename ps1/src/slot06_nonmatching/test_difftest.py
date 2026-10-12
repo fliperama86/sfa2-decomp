@@ -1336,7 +1336,7 @@ SYMBOL_TEXT = (
     "\n"
     "PROVIDE(provided = 0x2);\n"
     "PROVIDE ( prov2 = 0x3 );\n"
-    "func_801e9080_slot06_00 = 0x801e9080;\n"
+    "draw_object_tile_grid_sprites_slot06_00 = 0x801e9080;\n"
     "func_801e9 = 0x4;\n"
     "tabbed\\t=\\t0x5;\n"
     "# not an assignment: nothing = here\n"
@@ -1350,16 +1350,16 @@ def lines_of(text: str) -> list[str]:
 def case_l_drops_defined_names_in_all_forms():
     got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080", "spaced", "provided", "prov2", "tabbed"}))
     want = ["/* header: func_801e9080 = 0x1; */", "other_name=0x80010000;", "",
-            "func_801e9080_slot06_00 = 0x801e9080;", "func_801e9 = 0x4;", "# not an assignment: nothing = here"]
+            "draw_object_tile_grid_sprites_slot06_00 = 0x801e9080;", "func_801e9 = 0x4;", "# not an assignment: nothing = here"]
     return None if got == want else f"kept {got}"
 
 
 def case_l_keeps_names_that_only_begin_alike():
-    got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080_slot06_00"}))
-    if "func_801e9080 = 0x801e9080;" not in got or "func_801e9080_slot06_00 = 0x801e9080;" in got:
+    got = lines_of(D.without_assignments(SYMBOL_TEXT, {"draw_object_tile_grid_sprites_slot06_00"}))
+    if "func_801e9080 = 0x801e9080;" not in got or "draw_object_tile_grid_sprites_slot06_00 = 0x801e9080;" in got:
         return f"the longer name was not the one dropped: {got}"
     got = lines_of(D.without_assignments(SYMBOL_TEXT, {"func_801e9080"}))
-    if "func_801e9080_slot06_00 = 0x801e9080;" not in got or "func_801e9080 = 0x801e9080;" in got:
+    if "draw_object_tile_grid_sprites_slot06_00 = 0x801e9080;" not in got or "func_801e9080 = 0x801e9080;" in got:
         return f"the shorter name was not the one dropped: {got}"
     return None if len(got) == len(lines_of(SYMBOL_TEXT)) - 1 else f"{len(got)} lines kept"
 

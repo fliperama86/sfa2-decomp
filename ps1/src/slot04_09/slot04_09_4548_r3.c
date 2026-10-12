@@ -7,6 +7,6 @@ void func_801b477c_slot04_09(Object *obj) {
     obj->other_lock = 0x14;
     obj->field_157 = 0;
     obj->state_3++;
-    func_80146998(obj);
-    func_801307e0(obj, 0x37);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x37);
 }

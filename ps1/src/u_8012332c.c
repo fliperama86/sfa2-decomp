@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8012332c(GameState *state)
+void finish_countdown_and_start_next_round(GameState *state)
 {
   Entity *entity = (Entity *)state;
   int s0;
@@ -35,9 +35,9 @@ void func_8012332c(GameState *state)
   entity->field_6a = 1;
   entity->field_4a = 0x3c;
   entity->field_49 = entity->field_13;
-  func_80120444(0, 3);
-  func_80120444(1, 3);
-  func_80120408();
+  stop_sep_by_index(0, 3);
+  stop_sep_by_index(1, 3);
+  stop_all_keys_clear_table();
   player_left.field_01 = 0;
   player_right.field_01 = 0;
   if (entity->field_45 != 0)
@@ -52,7 +52,7 @@ void func_8012332c(GameState *state)
   {
     if (entity->mode_flag_a == 0)
     {
-      func_80123748(entity);
+      advance_hud_step_and_reset_entity_fields(entity);
     }
     else
     {
@@ -64,18 +64,18 @@ void func_8012332c(GameState *state)
     s0 = entity->field_48 - 1;
     if (entity->pass_count == (s0 * 2))
     {
-      func_80123ac4(&player_left, s0);
-      func_80123ac4((&player_left) + 1, s0);
+      fill_zero_entries_with_8_up_to_count(&player_left, s0);
+      fill_zero_entries_with_8_up_to_count((&player_left) + 1, s0);
     }
     func_8011eae4();
-    func_80136c8c();
+    call_handler_by_kind_index_a();
     entity->active_flag_2 = 1;
     entity->pass_count++;
     if (data_80190568 != 0)
     {
-      func_80135ef0(entity);
+      set_capped_value_and_ot_indices(entity);
     }
-    func_8013245c();
+    init_hud_primitives();
     func_801285e0();
   }
 }

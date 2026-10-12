@@ -6,7 +6,7 @@
 
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: orig keeps arg in place in $a2 and the slot pointer in $a1. */
-void func_8013e634(Object *object, int index, int arg) {
+void update_slot_timer_match_input_top_bits(Object *object, int index, int arg) {
     u16 entry;
     int mine;
     int theirs;
@@ -19,7 +19,7 @@ void func_8013e634(Object *object, int index, int arg) {
     theirs = object->input_word & -0x1000;
 
     if (!((entry & 0x400) ? (theirs & mine) != 0 : (s16)mine == (s16)theirs)) {
-        func_8013f2a8(object, (u8)index, arg);
+        reset_slot_stage_clear_result(object, (u8)index, arg);
     } else {
         u8 *p = (u8 *)object + ((u8)index << 3);
         p[0x2b4]--;

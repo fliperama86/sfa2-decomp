@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80122e54(GameState *g) {
+void reset_game_state_for_new_match(GameState *g) {
     data_8018f5a0->substep_index = 0;
     g->timer_or_bits = 0;
     data_8018f5a0->step_index_2 = 0;
@@ -33,10 +33,10 @@ void func_80122e54(GameState *g) {
     g->init_timer_value = 0x3c;
     g->round_time = g->table_value_b;
     func_8011eae4();
-    func_80136c8c();
-    func_8013245c();
+    call_handler_by_kind_index_a();
+    init_hud_primitives();
     func_801285e0();
-    func_80120408();
+    stop_all_keys_clear_table();
     if (*(u16 *)data_801a6984 != 0) {
         data_80197f1c = 0xff;
     }

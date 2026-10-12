@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012867c(void) {
+void spawn_objects_from_table(void) {
     u16 *p = table_8016f658[game_state.kind_index];
     Object *o;
     s16 h;
     while ((h = *p++) >= 0) {
         if (h != 0)
             break;
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o == 0)
             break;
         o->active_count++;

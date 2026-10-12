@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014ff20(Ctl *ctl)
+void read_stream_sequence_and_open(Ctl *ctl)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[8];
@@ -21,7 +21,7 @@ void func_8014ff20(Ctl *ctl)
     ((Stream *)ctl)->source_ptr = p;
     ((Stream *)ctl)->open_source_ptr = p;
   }
-  func_8015003c((Stream *)ctl);
+  read_stream_sector_to_source_ptr((Stream *)ctl);
   ((Stream *)ctl)->step_count++;
   if (((Stream *)ctl)->bytes_remaining == 0)
   {

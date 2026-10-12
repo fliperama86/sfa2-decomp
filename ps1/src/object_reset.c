@@ -46,7 +46,7 @@ void reset_object(Object *object) {
     } while (i < 0x4d);
     if (object->mode_flag_2) {
         object->field_d8 = 0;
-        func_8014a038(object);
+        set_table_flag_from_column_table(object);
     }
     object->field_01 = 1;
     object->health = 0x90;
@@ -61,7 +61,7 @@ void reset_object(Object *object) {
     value = -0x60;
     if (object->side != 0) value = 0x60;
     object->pos_x = object->pos_x + value;
-    func_801293d4(object);
+    set_object_spawn_by_side(object);
     if (player_left.kind == 0x0d && player_right.kind == 0x0d) {
         handler = shared_handler_15;
     } else if (player_left.kind == 0x10 && player_right.kind == 0x10) {
@@ -83,7 +83,7 @@ void reset_object(Object *object) {
     select_box_tables(object);
     func_80138d70(&game_state);
     set_side_field_0d(object);
-    func_80129448(object);
+    set_object_field_from_kind(object);
     func_80129428(object);
     object->facing_side = 1;
     object->saved_facing = 1;
@@ -95,7 +95,7 @@ void reset_object(Object *object) {
     }
     build_metrics(object);
     if (game_state.config->field_42 != 0) {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     } else {
         object->state_1 = 7;
         object->state_0 = 1;
@@ -109,7 +109,7 @@ void reset_object(Object *object) {
     set_side_ring_flag(object);
 }
 
-void func_801293d4(Object *object) {
+void set_object_spawn_by_side(Object *object) {
     object->base_x = 0x180;
     object->spawn_x = 0x60;
     object->base_y = 0;
@@ -123,9 +123,9 @@ void func_801293d4(Object *object) {
 }
 
 void func_80129428(Object *object) {
-    func_801378d8(object);
+    copy_image_rows_and_load_image(object);
 }
 
-void func_80129448(Object *object) {
+void set_object_field_from_kind(Object *object) {
     object->kind_table_f3_value = kind_table_f3[object->kind];
 }

@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8002142c_slot28(Object *obj) {
+void call_advance_sequence_checked_2_slot28(Object *obj) {
     advance_sequence_checked(obj);
 }
 
 void func_8002144c_slot28(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

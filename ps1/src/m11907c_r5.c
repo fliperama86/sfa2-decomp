@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011abe4(void) {
+void update_active_slab172_entries(void) {
     int i;
     data_801a4fe8 = (u8 *)data_801987cc[data_801a27d0];
     data_801a697c = (u8 *)data_8018db18[data_801a27d0];

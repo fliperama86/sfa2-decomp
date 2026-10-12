@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80010fa8_slot27(void) {
+void spawn_four_pool_objects_per_player_slot27(void) {
     int i;
     int one;
     i = 0;
@@ -14,26 +14,26 @@ void func_80010fa8_slot27(void) {
         if ((game_state.side_mask >> p->side) & 1) {
             p->field_d4 = 0;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = one;
             o->field_02 = 0xac;
             o->other = p;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = one;
             o->field_02 = 0xc;
             o->other = p;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->field_02 = 0x10;
             o->active_count = one;
             o->table_index = 3;
             o->other = p;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = one;
             o->field_02 = 0xd;

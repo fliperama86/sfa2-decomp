@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0410_slot04_00(Object *obj) {
+void start_move_or_input_sequence_a_slot04_00(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
@@ -15,17 +15,17 @@ void func_801b0410_slot04_00(Object *obj) {
             obj->active_flag_3 = 1;
             obj->state_3 = 2;
             obj->field_157 = 0;
-            func_80141f28(obj, 1);
-            func_80130ec0(obj);
+            add_to_meter_clamped(obj, 1);
+            reset_direction_and_action_fields(obj);
             obj->field_278 = 1;
             obj->sequence_hold_flag = 1;
-            func_801307e0(obj, 0x23);
+            set_sequence_by_side_and_mode(obj, 0x23);
         } else {
             obj->active_flag_3 = 1;
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

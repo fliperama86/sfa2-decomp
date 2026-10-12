@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9b9c_slot06_0d(Object *o) {
+void update_sequence_with_random_timer_slot06_0d(Object *o) {
     int v;
     int w;
 
@@ -21,5 +21,5 @@ void func_801e9b9c_slot06_0d(Object *o) {
         }
         advance_sequence_checked(o);
     }
-    func_80120028(o);
+    set_flag_and_push_if_mode_8(o);
 }

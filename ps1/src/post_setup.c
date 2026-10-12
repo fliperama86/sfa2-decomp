@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80130b10(Object *object) {
+void clamp_pos_x_to_bounds_and_push_other(Object *object) {
     int limit;
     int dist;
     s16 x;
@@ -40,7 +40,7 @@ push:
     }
 }
 
-void func_80130c80(Object *object) {
+void push_both_objects_inside_bounds(Object *object) {
     s16 d;
     int span;
     u16 x;
@@ -72,20 +72,20 @@ void func_80130c80(Object *object) {
     }
 }
 
-void func_80130dc0(Object *object) {
+void set_sequence_and_tables_from_direction(Object *object) {
     int half;
     s16 index;
     int bonus;
 
-    func_80130ec0(object);
+    reset_direction_and_action_fields(object);
     half = object->direction_index >> 1;
     if (object->kind != 9) {
-        func_80141f28(object, half);
+        add_to_meter_clamped(object, half);
     } else {
         object->field_225 = 1;
         if (object->counter == 0) {
             object->field_225 = 0;
-            func_80141f28(object, half);
+            add_to_meter_clamped(object, half);
         }
     }
     index = 0;
@@ -97,12 +97,12 @@ void func_80130dc0(Object *object) {
     if (object->input_dir_second != 0) bonus = 3;
     index = index + half;
     index = index + bonus;
-    func_801307e0(object, (u16)index);
+    set_sequence_by_side_and_mode(object, (u16)index);
     object->kind_table_value = kind_table_248[object->kind * 16 + index];
     object->countdown_5 = kind_table_29b[object->kind * 16 + index];
 }
 
-void func_80130ec0(Object *object) {
+void reset_direction_and_action_fields(Object *object) {
     object->field_278 = 0;
     object->dir_match_flag = 0;
     object->field_157 = 0;
@@ -110,12 +110,12 @@ void func_80130ec0(Object *object) {
     object->field_16a = 0;
     object->dir_first = 0xff;
     object->dir_second = 0xff;
-    func_80142c04(object);
+    reset_hold_flags_and_other_hit_count(object);
 }
 
 void update_sequence(Object *object) {
     advance_sequence(object);
-    func_80131020(object);
+    advance_sequence_if_state_and_not_held(object);
 }
 
 void advance_sequence(Object *object) {
@@ -138,7 +138,7 @@ void advance_sequence(Object *object) {
     }
 }
 
-void func_80131020(Object *object) {
+void advance_sequence_if_state_and_not_held(Object *object) {
     u32 w;
 
     if (object->field_7e != 0) {

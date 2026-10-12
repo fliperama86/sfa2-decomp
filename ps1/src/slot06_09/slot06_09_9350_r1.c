@@ -13,7 +13,7 @@ void func_8015c09c(void *prim);
 void func_801369b0(Cam *cam);
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e9350_slot06_09(Slot06Layer *layer) {
+void init_layer_map_fields_basic_slot06_09(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eb124_slot06_09;
     layer->data_table = data_801eb124_slot06_09;
     layer->packed_param = 0x5c02;
@@ -21,7 +21,7 @@ void func_801e9350_slot06_09(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e937c_slot06_09(void) {
+void init_two_banks_of_poly_ft4_slot06_09(void) {
     int i;
     int j;
     Poly28 *r;
@@ -43,7 +43,7 @@ void func_801e937c_slot06_09(void) {
     } while (i < 2);
 }
 
-void func_801e941c_slot06_09(Slot06Layer *layer) {
+void update_layer_by_mode_scroll_half_slot06_09(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;

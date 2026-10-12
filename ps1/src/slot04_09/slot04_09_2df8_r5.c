@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b324c_slot04_09(Object *obj) {
+void launch_toward_other_when_sequence_ends_slot04_09(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) != 0) {
         obj->active_state = 1;
         obj->accel_y = -0x6000;
@@ -17,11 +17,11 @@ void func_801b324c_slot04_09(Object *obj) {
                 obj->vel_x = 0xfff40000;
                 obj->accel_x = 0x8000;
             }
-            func_801307e0(obj, 0x33);
+            set_sequence_by_side_and_mode(obj, 0x33);
         } else {
             obj->vel_x = ((obj->other->pos_x - obj->pos_x) >> 4) << 16;
             obj->accel_x = 0;
-            func_801307e0(obj, 0x33);
+            set_sequence_by_side_and_mode(obj, 0x33);
         }
     } else {
         if (obj->active_flag != 0 && obj->other->hit_type != 0xff) {

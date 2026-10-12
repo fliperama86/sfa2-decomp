@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b3b74_slot04_02(Object *o) {
+void spawn_linked_object_on_mode_flag_b_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;
     u16 y;

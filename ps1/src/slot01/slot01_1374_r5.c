@@ -6,7 +6,7 @@
 extern int data_80055f38_slot01;
 extern u8 data_80055ea4_slot01;
 
-void func_80011864_slot01(void) {
+void fill_image_rows_and_reload_slot01(void) {
     s16 i;
     s16 j;
     s16 k;
@@ -17,10 +17,10 @@ void func_80011864_slot01(void) {
             }
         }
     }
-    func_80137b10();
+    queue_five_jobs();
 }
 
-void func_80011918_slot01(void) {
+void move_selection_index_on_buttons_slot01(void) {
     int moved = 0;
     if (data_801a696a & 0x80) {
         data_80055f38_slot01 = data_80055f38_slot01 - 1;

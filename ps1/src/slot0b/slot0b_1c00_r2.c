@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801e1d0c_slot0b(u8 arg) {
+int try_start_slot_object_slot0b(u8 arg) {
     u8 *p = &data_801ae02c;
     if (*p == 0) {
         *p = 1;

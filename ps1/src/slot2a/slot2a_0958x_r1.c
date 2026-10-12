@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
+void build_and_link_sprite_set_prims_slot2a(Object *obj, SpritePrim *prim) {
     SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;
     int count = set->count;
     u16 *offs = set->offsets;

@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8011cd68(Block172 *block) {
+void build_block_primitives(Block172 *block) {
     void *p = block->data_ptr;
-    func_8011d74c(p, block->block_mode, block->field_20, block);
-    func_8011db78(p, block->block_mode, block->field_20, block);
+    build_cell_prim_list_from_history(p, block->block_mode, block->field_20, block);
+    fill_cell_record_rects_from_history(p, block->block_mode, block->field_20, block);
 }

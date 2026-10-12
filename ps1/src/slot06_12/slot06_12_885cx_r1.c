@@ -17,7 +17,7 @@ extern s16 data_8019054e;
    second half starts at i = 8 explicitly: with i continuing, the function is
    8 bytes longer. The offset at 0x12 is read as the high half of
    end_x_fixed, which the layout has as 32 bits. */
-void func_801e885c_slot06_12(void) {
+void draw_scrolling_tile_map_layer_slot06_12(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int x;
     int pos;

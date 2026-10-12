@@ -3,62 +3,62 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8294_slot06_02(Slot06Layer *layer);
-void func_801e8800_slot06_02(Slot06Layer *layer);
+void init_first_layer_tile_map_slot06_02(Slot06Layer *layer);
+void init_layer_with_map_801eaf18_and_rect_slot06_02(Slot06Layer *layer);
 void func_801e9654_slot06_02(Slot06Layer *layer);
 void func_801e93c4_slot06_02(Slot06Layer *layer);
-void func_801e82c0_slot06_02(void);
+void init_two_tile_arrays_gray_color_slot06_02(void);
 void func_801e8844_slot06_02(void);
-void func_801e9680_slot06_02(void);
-void func_801e93f0_slot06_02(void);
-void func_801e83cc_slot06_02(void);
-void func_801e88e4_slot06_02(void);
-void func_801e9720_slot06_02(void);
-void func_801e8df4_slot06_02(void);
-void func_801e8170_slot06_02(Slot06Layer *layer);
-void func_801e81c4_slot06_02(Slot06Layer *layer);
+void init_sprite_buffers_13_32x32_gray_slot06_02(void);
+void init_poly_ft4_buffers_gray_slot06_02(void);
+void draw_tile_map_layer_16px_slot06_02(void);
+void draw_tile_layer_sprites_with_partial_row_slot06_02(void);
+void draw_tile_map_layer_32px_slot06_02(void);
+void draw_skewed_tile_layer_quads_slot06_02(void);
+void init_layer_sprite_then_advance_mode_slot06_02(Slot06Layer *layer);
+void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer);
 
-void func_801e8000_slot06_02(void) {
+void draw_background_layers_by_flags_slot06_02(void) {
     u16 *flags = &game_state.field_dc;
 
     if (*flags & 2) {
-        func_801e83cc_slot06_02();
+        draw_tile_map_layer_16px_slot06_02();
     }
     if (*flags & 4) {
-        func_801e88e4_slot06_02();
+        draw_tile_layer_sprites_with_partial_row_slot06_02();
     }
     if (*flags & 8) {
-        func_801e9720_slot06_02();
+        draw_tile_map_layer_32px_slot06_02();
     }
     if (*flags & 4) {
-        func_801e8df4_slot06_02();
+        draw_skewed_tile_layer_quads_slot06_02();
     }
 }
 
-void func_801e8098_slot06_02(void) {
-    func_801e8294_slot06_02((Slot06Layer *)data_801aa544);
-    func_801e8800_slot06_02((Slot06Layer *)data_801aa5d4);
+void init_four_layers_tile_maps_slot06_02(void) {
+    init_first_layer_tile_map_slot06_02((Slot06Layer *)data_801aa544);
+    init_layer_with_map_801eaf18_and_rect_slot06_02((Slot06Layer *)data_801aa5d4);
     func_801e9654_slot06_02((Slot06Layer *)cam_obj);
     func_801e93c4_slot06_02((Slot06Layer *)data_801904d8);
 }
 
 void func_801e80f0_slot06_02(void) {
-    func_801e82c0_slot06_02();
+    init_two_tile_arrays_gray_color_slot06_02();
     func_801e8844_slot06_02();
-    func_801e9680_slot06_02();
-    func_801e93f0_slot06_02();
+    init_sprite_buffers_13_32x32_gray_slot06_02();
+    init_poly_ft4_buffers_gray_slot06_02();
 }
 
-void func_801e8128_slot06_02(Slot06Layer *layer) {
+void call_layer_handler_by_mode_slot06_02(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e8170_slot06_02(layer);
+        init_layer_sprite_then_advance_mode_slot06_02(layer);
     } else if (layer->mode == 1) {
-        func_801e81c4_slot06_02(layer);
+        update_layer_follow_and_flag_blink_slot06_02(layer);
     }
 }
 
-void func_801e8170_slot06_02(Slot06Layer *layer) {
-    func_801361fc((Sprite *)layer, 0xc0, 0);
+void init_layer_sprite_then_advance_mode_slot06_02(Slot06Layer *layer) {
+    init_sprite_position((Sprite *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->field_8b = 3;

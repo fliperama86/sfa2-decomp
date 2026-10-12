@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8014b13c(Object *object) {
-    func_8014e7ec(object);
+void set_move_state_dir_0_countdown_if_below(Object *object) {
+    set_limits_from_script_word(object);
     object->countdown_3 = *data_80189460++;
     data_80189464 = data_80189464 - object->compare_limit;
     if ((s16)data_80189464 >= 0) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
         object->field_209 = 5;
@@ -22,12 +22,12 @@ void func_8014b13c(Object *object) {
     }
 }
 
-void func_8014b1dc(Object *object) {
-    func_8014e7ec(object);
+void set_move_state_dir_1_countdown_if_above(Object *object) {
+    set_limits_from_script_word(object);
     object->countdown_3 = *data_80189460++;
     data_80189464 = data_80189464 - object->compare_limit;
     if ((s16)data_80189464 < 0) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
         object->field_209 = 6;
@@ -40,16 +40,16 @@ void func_8014b1dc(Object *object) {
     }
 }
 
-void func_8014b27c(Object *object) {
+void set_move_state_dir_by_limit_countdown(Object *object) {
     u16 old;
     u16 value;
-    func_8014e7ec(object);
+    set_limits_from_script_word(object);
     value = *data_80189460++;
     old = data_80189464;
     object->countdown_3 = value;
     data_80189464 = old - object->compare_limit + 3;
     if (data_80189464 < 6) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
         object->field_209 = 7;

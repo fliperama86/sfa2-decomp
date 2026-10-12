@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800790e4_slot00(Object *o) {
+void unlink_from_parent_slot_and_release_slot00(Object *o) {
     Slot00Obj *t = (Slot00Obj *)o->parent;
     if (o->table_index == 0) {
         if (o == t->linked_object_a) {

@@ -6,7 +6,7 @@
 extern u8 data_80026988_slot27[];
 extern u8 data_8002f158_slot27;
 
-void func_800125f4_slot27(void) {
+void select_kind_from_pressed_direction_slot27(void) {
     Object *o;
     u32 m;
     u32 v;

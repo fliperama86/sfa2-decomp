@@ -3,26 +3,26 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80010dcc_slot01(GameState *g);
+void reset_hud_state_and_restore_kind_index_slot01(GameState *g);
 
-void func_80011634_slot01(void) {
+void increment_hud_substep_if_byte_set_slot01(void) {
     if (*(u8 *)&data_801ae066 != 0) {
         data_8018f5a0->substep_index++;
     }
 }
 
-void func_8001166c_slot01(void) {
+void fade_out_and_reset_hud_when_not_busy_slot01(void) {
     if (game_state.busy_flag == 0) {
         func_8011eae4();
         while (game_state.wait_flag != 0) {
-            func_801192bc(1);
+            request_sound_command_and_switch_thread(1);
         }
-        func_801280f0();
+        start_fade_mode_1_and_wait();
         while (game_state.wait_flag != 0) {
-            func_80138164();
-            func_8011abe4();
-            func_801192bc(1);
+            update_blocks();
+            update_active_slab172_entries();
+            request_sound_command_and_switch_thread(1);
         }
-        func_80010dcc_slot01(&game_state);
+        reset_hud_state_and_restore_kind_index_slot01(&game_state);
     }
 }

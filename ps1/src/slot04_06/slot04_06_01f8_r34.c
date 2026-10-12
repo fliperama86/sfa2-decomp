@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5eb8_slot04_06(Object *obj);
+void release_object_record_2_slot04_06(Object *obj);
 
-void func_801b5e98_slot04_06(Object *obj) {
-    func_801b5eb8_slot04_06(obj);
+void load_velocities_from_table_5_slot04_06(Object *obj) {
+    release_object_record_2_slot04_06(obj);
 }
 
-void func_801b5eb8_slot04_06(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot04_06(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

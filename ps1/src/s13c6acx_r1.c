@@ -15,7 +15,7 @@
    there is one, moves the player sideways by that overlap (bound_push_flag of the
    player zero), or the player's other object and the table object both by
    the overlap in the other direction (bound_push_flag not zero). */
-void func_8013c6ac(void)
+void push_player_out_of_type_9_object_boxes(void)
 {
     s16 last;
     s16 i;

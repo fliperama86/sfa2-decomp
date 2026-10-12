@@ -9,12 +9,12 @@ void func_801b23c8_slot04_01(Object *o) {
     o->state_3++;
     func_80145d20(o);
     func_801428e4(o);
-    func_80138b38(&game_state, o);
+    set_flag_225_add_direction_to_counter(&game_state, o);
     play_side_sound_at(o, o->side, 0xd);
-    func_801307e0(o, (o->direction_index >> 1) + 0x28);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + 0x28);
 }
 
-void func_801b2448_slot04_01(Object *o) {
+void update_sequence_spawn_on_flag_low_byte_slot04_01(Object *o) {
     if ((u8)o->step_flags != 0) {
         o->state_3++;
         if (o->field_4b == 0) {
@@ -23,7 +23,7 @@ void func_801b2448_slot04_01(Object *o) {
             o->field_165 = 1;
         }
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0x18, 0x1c);
+        spawn_children_per_direction_index(o, -0x18, 0x1c);
     }
     update_sequence(o);
 }

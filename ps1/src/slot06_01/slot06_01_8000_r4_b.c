@@ -16,7 +16,7 @@ void func_801e934c_slot06_01(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9378_slot06_01(void) {
+void init_sprite_buffers_32x32_gray_slot06_01(void) {
     Slot06TileW *p;
     int i;
     int k;

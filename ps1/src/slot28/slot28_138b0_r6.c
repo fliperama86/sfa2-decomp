@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80023fe8_slot28(Object *obj) {
+void start_sequence_2_when_variant_index_set_2_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->variant_index = 0;
         obj->countdown = 0x30;
         obj->state_1 = obj->state_1 + 1;
-        func_80130768(obj, 2, ((Slot28Obj *)obj)->sequence_ptr);
+        set_sequence_from_table_5(obj, 2, ((Slot28Obj *)obj)->sequence_ptr);
     }
 }
 
-void func_80024030_slot28(Object *obj) {
+void shake_y_alternating_until_countdown_slot28(Object *obj) {
     int d;
     if (((Slot28Obj *)obj)->timer_reload != 0) {
         d = -1;

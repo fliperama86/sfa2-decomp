@@ -3,22 +3,22 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e44_slot04_0a(Object *obj);
+void clear_sixteen_slot_words_slot04_0a(Object *obj);
 
-int func_801b1608_slot04_0a(Object *obj) {
+int try_enter_state_7_kind_6_slot04_0a(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 6;
-        func_801b3e44_slot04_0a(obj);
+        clear_sixteen_slot_words_slot04_0a(obj);
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }

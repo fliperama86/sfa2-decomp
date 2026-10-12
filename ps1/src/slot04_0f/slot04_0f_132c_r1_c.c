@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801417cc(Object *object);
-void func_80142ba0(Object *object);
+u8 try_action_clearing_both_flags(Object *object);
+void set_direction_index_from_buttons_group_b(Object *object);
 
 extern ObjectFnInt data_801c5a30_slot04_0f[];
 extern ObjectFn data_801c5a60_slot04_0f[];
 extern ObjectFn data_801c5a90_slot04_0f[];
 
-void func_801b187c_slot04_0f(Object *obj);
-void func_801b16b4_slot04_0f(Object *obj);
-int func_801b1c74_slot04_0f(Object *obj);
+void clear_direction_and_bump_slot_stage_slot04_0f(Object *obj);
+void start_special_type_9_without_check_slot04_0f(Object *obj);
+int return_true_always_slot04_0f(Object *obj);
 
-void func_801b16b4_slot04_0f(Object *obj) {
+void start_special_type_9_without_check_slot04_0f(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -29,10 +29,10 @@ void func_801b16b4_slot04_0f(Object *obj) {
     obj->field_157 = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x19;
-    func_801307e0(obj, 0x48);
+    set_sequence_by_side_and_mode(obj, 0x48);
 }
 
-int func_801b171c_slot04_0f(Object *o) {
+int try_start_move_variant_same_facing_slot04_0f(Object *o) {
     Slot *p = &o->slots[16];
     int ok;
 
@@ -40,7 +40,7 @@ int func_801b171c_slot04_0f(Object *o) {
         if (p->timer != 0) return 0;
         ok = (u8)func_801418bc(o);
     } else {
-        ok = func_801417cc(o);
+        ok = try_action_clearing_both_flags(o);
     }
     if (ok) {
         o->state_0 = 1;
@@ -50,13 +50,13 @@ int func_801b171c_slot04_0f(Object *o) {
         o->field_15a = 0;
         o->variant_index = o->facing_side = o->saved_facing;
         p[1].stage = 0;
-        func_801b187c_slot04_0f(o);
+        clear_direction_and_bump_slot_stage_slot04_0f(o);
         return 1;
     }
     return 0;
 }
 
-int func_801b17c8_slot04_0f(Object *o) {
+int try_start_move_variant_flipped_facing_slot04_0f(Object *o) {
     Slot *p = &o->slots[16];
     int ok;
     u8 t;
@@ -65,7 +65,7 @@ int func_801b17c8_slot04_0f(Object *o) {
         if (p->timer != 0) return 0;
         ok = (u8)func_801418bc(o);
     } else {
-        ok = func_801417cc(o);
+        ok = try_action_clearing_both_flags(o);
     }
     if (ok) {
         o->state_0 = 1;
@@ -77,13 +77,13 @@ int func_801b17c8_slot04_0f(Object *o) {
         o->facing_side = t;
         o->variant_index = t ^ 1;
         p[1].stage = 4;
-        func_801b187c_slot04_0f(o);
+        clear_direction_and_bump_slot_stage_slot04_0f(o);
         return 1;
     }
     return 0;
 }
 
-void func_801b187c_slot04_0f(Object *obj) {
+void clear_direction_and_bump_slot_stage_slot04_0f(Object *obj) {
     u16 t;
 
     t = obj->pressed_bits | obj->released_bits;
@@ -94,12 +94,12 @@ void func_801b187c_slot04_0f(Object *obj) {
     }
 }
 
-int func_801b18c0_slot04_0f(Object *obj) {
+int try_start_move_1_with_dir_slot04_0f(Object *obj) {
     u8 one;
     u8 t;
 
     if (obj->field_7e == 0 && obj->link_flags != 0) return 0;
-    if (!func_801417cc(obj)) return 0;
+    if (!try_action_clearing_both_flags(obj)) return 0;
     one = 1;
     obj->state_0 = one;
     obj->state_1 = 0;
@@ -111,16 +111,16 @@ int func_801b18c0_slot04_0f(Object *obj) {
     t = obj->saved_facing;
     obj->facing_side = t;
     obj->variant_index = t;
-    func_80142b3c(obj);
+    set_direction_index_from_buttons_group_a(obj);
     return 1;
 }
 
-int func_801b1958_slot04_0f(Object *obj) {
+int try_start_move_2_with_dir_slot04_0f(Object *obj) {
     u8 one;
     u8 t;
 
     if (obj->field_7e == 0 && obj->link_flags != 0) return 0;
-    if (!func_801417cc(obj)) return 0;
+    if (!try_action_clearing_both_flags(obj)) return 0;
     one = 1;
     obj->state_0 = one;
     obj->state_1 = 0;
@@ -132,16 +132,16 @@ int func_801b1958_slot04_0f(Object *obj) {
     t = obj->saved_facing;
     obj->facing_side = t;
     obj->variant_index = t;
-    func_80142b3c(obj);
+    set_direction_index_from_buttons_group_a(obj);
     return 1;
 }
 
-int func_801b19f4_slot04_0f(Object *obj) {
+int try_start_move_3_with_dir_slot04_0f(Object *obj) {
     u8 one;
     u8 t;
 
     if (obj->field_7e == 0 && obj->link_flags != 0) return 0;
-    if (!func_801417cc(obj)) return 0;
+    if (!try_action_clearing_both_flags(obj)) return 0;
     one = 1;
     obj->state_0 = one;
     obj->state_1 = 0;
@@ -153,7 +153,7 @@ int func_801b19f4_slot04_0f(Object *obj) {
     t = obj->saved_facing;
     obj->facing_side = t;
     obj->variant_index = t;
-    func_80142ba0(obj);
+    set_direction_index_from_buttons_group_b(obj);
     return 1;
 }
 
@@ -161,7 +161,7 @@ void func_801b1a90_slot04_0f(Object *obj) {
     data_801ad398 = data_801c5a30_slot04_0f[obj->field_15a](obj);
 }
 
-int func_801b1ad8_slot04_0f(Object *obj) {
+int set_slot_17_stage_from_inputs_slot04_0f(Object *obj) {
     u8 t;
 
     t = obj->saved_facing;
@@ -174,43 +174,43 @@ int func_801b1ad8_slot04_0f(Object *obj) {
     if (obj->input_dir_second != 0) {
         obj->slots[17].stage = obj->slots[17].stage + 2;
     }
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
 int func_801b1b38_slot04_0f(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->link_flags != 0) return 0;
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
 int func_801b1b7c_slot04_0f(Object *obj) {
     if (obj->link_flags != 0) return 0;
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
 int func_801b1bac_slot04_0f(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1be0_slot04_0f(Object *obj) {
+int is_remaining_count_nonzero_slot04_0f(Object *obj) {
     if (obj->remaining_count == 0) return 0;
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1c10_slot04_0f(Object *obj) {
+int is_state_2222_and_healthy_slot04_0f(Object *obj) {
     if (*(s32 *)&obj->state_0 != 0x2020202) return 0;
     if (obj->active_state != 0) return 0;
     if (obj->field_163 != 0) return 0;
     if ((s16)obj->health < 0) return 0;
-    return func_801b1c74_slot04_0f(obj);
+    return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1c74_slot04_0f(Object *obj) {
+int return_true_always_slot04_0f(Object *obj) {
     return 1;
 }
 
-int func_801b1c7c_slot04_0f(Object *obj) {
+int return_zero_slot04_0f(Object *obj) {
     return 0;
 }
 

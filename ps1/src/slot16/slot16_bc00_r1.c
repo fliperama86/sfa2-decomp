@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 extern ObjectFn data_8007e868_slot16[];
-void func_8007bc84_slot16(Object *obj);
-void func_8007bdb4_slot16(Object *obj);
+void call_handler_by_state_3_clear_field_slot16(Object *obj);
+void call_handler_by_state_3_set_flag_slot16(Object *obj);
 void func_8007bf74_slot16(Object *obj);
 void func_801b606c(Object *obj);
 void overlay_left_kind(Object *obj);
 
-void func_8007bc00_slot16(Object *obj) {
+void update_by_attack_param_or_input_dir_slot16(Object *obj) {
     if (obj->attack_param_d != 0) {
         obj->kind = 0x13;
         overlay_left_kind(obj);
@@ -18,13 +18,13 @@ void func_8007bc00_slot16(Object *obj) {
         build_metrics(obj);
         func_801b606c(obj);
     } else if (obj->input_dir_0 != 0) {
-        func_8007bdb4_slot16(obj);
+        call_handler_by_state_3_set_flag_slot16(obj);
     } else {
-        func_8007bc84_slot16(obj);
+        call_handler_by_state_3_clear_field_slot16(obj);
     }
 }
 
-void func_8007bc84_slot16(Object *obj) {
+void call_handler_by_state_3_clear_field_slot16(Object *obj) {
     obj->field_157 = 0;
     data_8007e868_slot16[obj->state_3](obj);
 }

@@ -6,7 +6,7 @@
 void func_801b2278_slot04_08(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->active_flag_4 = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

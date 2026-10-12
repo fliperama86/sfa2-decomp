@@ -8,9 +8,9 @@ extern s16 data_801e9eaa_slot06_12[];
 extern u16 data_801eb52c_slot06_12[];
 extern Slot06Tile data_801f11e0_slot06_12[2][0x10e];
 
-void func_801e872c_slot06_12(Slot06Layer *layer);
+void load_layer_timer_and_flags_from_tables_slot06_12(Slot06Layer *layer);
 
-void func_801e872c_slot06_12(Slot06Layer *layer) {
+void load_layer_timer_and_flags_from_tables_slot06_12(Slot06Layer *layer) {
     s16 k;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
@@ -31,7 +31,7 @@ void func_801e8778_slot06_12(Slot06Layer *layer) {
     layer->field_1c = 0x58;
 }
 
-void func_801e87bc_slot06_12(void) {
+void init_tile_prims_gray_bank_slot06_12(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -43,7 +43,7 @@ void func_801e87bc_slot06_12(void) {
         c = 0x80;
         do {
             r = &data_801f11e0_slot06_12[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

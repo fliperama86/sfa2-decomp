@@ -5,14 +5,14 @@
 
 extern void (*data_801dd5b0_slot05_06[])(Object *);
 extern Object *data_801dd754_slot05_06;
-void func_801cdc58_slot05_06(Object *obj);
+void follow_parent_position_and_sequence_slot05_06(Object *obj);
 
-void func_801cdac4_slot05_06(Object *obj) {
+void start_direction_sequence_state_3_slot05_06(Object *obj) {
     u16 t;
 
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
-    func_80141f28(obj, obj->direction_index >> 1);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     t = 0x12;
     if (obj->variant_index == 0) {
         t = 0xc;
@@ -21,19 +21,19 @@ void func_801cdac4_slot05_06(Object *obj) {
         t += 3;
     }
     t = (obj->direction_index >> 1) + t;
-    func_801307e0(obj, t);
+    set_sequence_by_side_and_mode(obj, t);
 }
 
-void func_801cdb44_slot05_06(Object *obj) {
-    func_8011f14c((Slab172 *)obj);
+void release_object_record_slot05_06(Object *obj) {
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }
 
-void func_801cdb64_slot05_06(Object *obj) {
+void call_handler_by_state_0_with_parent_slot05_06(Object *obj) {
     data_801dd754_slot05_06 = obj->parent;
     data_801dd5b0_slot05_06[obj->state_0](obj);
 }
 
-void func_801cdbb4_slot05_06(Object *obj) {
+void init_object_from_global_object_slot05_06(Object *obj) {
     Object *p;
 
     obj->state_0++;
@@ -45,5 +45,5 @@ void func_801cdbb4_slot05_06(Object *obj) {
     obj->image_row = data_801dd754_slot05_06->image_row;
     obj->field_0e = data_801dd754_slot05_06->field_0e;
     obj->variant_index = 0;
-    func_801cdc58_slot05_06(obj);
+    follow_parent_position_and_sequence_slot05_06(obj);
 }

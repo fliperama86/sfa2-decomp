@@ -7,7 +7,7 @@ extern s32 data_801c6380_slot04_02[];
 extern s32 data_801c6384_slot04_02[];
 extern u8 data_801c6398_slot04_02[];
 
-void func_801b2e38_slot04_02(Object *obj) {
+void update_slide_with_table_launch_on_flag_slot04_02(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     s32 unused[2];
     u8 i;

@@ -4,7 +4,7 @@
     python test_difftest_build.py --config ../build.toml
 
 The units are made from this folder's control_base.c by text edits (each edit must
-apply exactly once; the file is the nonmatching C of func_801e9080_slot06_00 as it stood before
+apply exactly once; the file is the nonmatching C of draw_object_tile_grid_sprites_slot06_00 as it stood before
 that function became exact, kept as the base of these controls) and written to a folder of this run's own under ps1/build/, which the
 repository ignores; their includes are pointed at ps1/src from there. The run removes its own
 folder in every outcome and touches no other: two runs side by side do not disturb each other,
@@ -35,7 +35,7 @@ import difftest  # noqa: E402
 import matchbuild  # noqa: E402
 
 D = difftest
-NAME = "func_801e9080_slot06_00"
+NAME = "draw_object_tile_grid_sprites_slot06_00"
 ORIGINAL_ADDRESS = 0x801E9080
 PREFIX = "run-"
 WORKSPACES = HERE.parents[1] / "build" / "difftest-controls"  # ps1/build/ is ignored by the repository

@@ -9,7 +9,7 @@
    into a1 (negu a1,v0), then negates a1 again in the else path. Here the load
    goes straight into a1. Separate pseudos (neg = -f) make the compiler fold
    -(-f) away (168 bytes); only the in-place form keeps the second negu. */
-void func_80142968(Object *object)
+void update_meter_by_direction_index(Object *object)
 {
   Pair *t = table_8017ad5c;
   short neg = (*(table_8017ad5c + (object->direction_index >> 1))).first;
@@ -26,11 +26,11 @@ void func_80142968(Object *object)
     }
     object->direction_index = v;
     object->field_255 = v;
-    func_80141f28(object, (s16) t[object->direction_index >> 1].first);
+    add_to_meter_clamped(object, (s16) t[object->direction_index >> 1].first);
   }
   else
   {
     object->field_255 = object->direction_index;
-    func_80141f28(object, (s16) (-neg));
+    add_to_meter_clamped(object, (s16) (-neg));
   }
 }

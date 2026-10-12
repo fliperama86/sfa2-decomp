@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8012f898(Object *object) {
+int is_facing_differs_from_saved(Object *object) {
     if (object->field_7e == 0 && object->saved_facing != object->facing_side) return 1;
     return 0;
 }

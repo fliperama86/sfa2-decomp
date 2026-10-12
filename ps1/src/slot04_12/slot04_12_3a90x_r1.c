@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b3a90_slot04_12(Object *obj) {
+int apply_facing_velocity_with_x_stop_slot04_12(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

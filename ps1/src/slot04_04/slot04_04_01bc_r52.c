@@ -11,7 +11,7 @@ void func_801b46b8_slot04_04(Object *obj) {
     if (obj->direction_index == 4 && obj->attack_param_d != 0) {
         obj->active_flag_3 = 1;
         obj->state_3++;
-        func_80141f28(obj, 2);
+        add_to_meter_clamped(obj, 2);
         obj->vel_y = 0x78000;
         obj->accel_x = 0;
         obj->accel_y = -0x5000;
@@ -23,7 +23,7 @@ void func_801b46b8_slot04_04(Object *obj) {
         obj->active_state = 1;
         obj->field_157 = 0;
         obj->pos_y -= 0x10;
-        func_801307e0(obj, 0x1b);
+        set_sequence_by_side_and_mode(obj, 0x1b);
     } else {
         func_801b4bc4_slot04_04(obj);
     }

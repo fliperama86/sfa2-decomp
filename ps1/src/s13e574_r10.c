@@ -4,20 +4,20 @@
 #include "protos.h"
 
 
-void func_80140f98(void) {
+void call_config_table_handler(void) {
     table_8017ac44[game_state.config->handler_index]();
 }
 
-void func_80140fe0(Object *object) {
+void update_sequence_by_pressed_bytes(Object *object) {
     if (object->mode_flag_2 != 0) {
-        func_80141058(object);
+        update_sequence_by_random_bit_twice(object);
     } else {
         if (object->pressed_bits & 0xff00) update_sequence(object);
         if (*(u8 *)&object->pressed_bits != 0) update_sequence(object);
     }
 }
 
-void func_80141058(Object *object) {
-    if (func_8014a170(object, table_8017d618)) update_sequence(object);
-    if (func_8014a170(object, table_8017d618)) update_sequence(object);
+void update_sequence_by_random_bit_twice(Object *object) {
+    if (test_random_bit_in_table(object, table_8017d618)) update_sequence(object);
+    if (test_random_bit_in_table(object, table_8017d618)) update_sequence(object);
 }

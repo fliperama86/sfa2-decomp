@@ -52,6 +52,6 @@ void func_801499c4(Object *object) {
       }
     }
     object->variant_index_2 = v;
-    func_80120028(object);
+    set_flag_and_push_if_mode_8(object);
   }
 }

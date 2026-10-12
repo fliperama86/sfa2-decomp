@@ -4,21 +4,21 @@
 #include "externs.h"
 
 /* What it does (inferred, not an original name): the sibling of
-   func_80140b5c. It makes ref_other point at the object's partner
+   compute_damage_to_other. It makes ref_other point at the object's partner
    (object->other) and computes a byte in the partner's damage from the
    same tables, in the same way, except that a value of 0x80 or more is set
-   to 0x7f (func_80140b5c clears it when bit 7 is set), there is no early
+   to 0x7f (compute_damage_to_other clears it when bit 7 is set), there is no early
    return for a == -1, and the sum of the random number and b << 5 is
-   added, not or-ed. After the handler call (func_80140ec0) it returns 0 at
+   added, not or-ed. After the handler call (call_game_state_table_handler) it returns 0 at
    once when either of two configuration bytes (fields 4d, 4e) is set.
    Otherwise it takes the byte (at least 1), records the low five bits of a
-   in object->sound_index and 0xff in field_bf, calls func_80155d4c with a
+   in object->sound_index and 0xff in field_bf, calls add_table_bcd_score_to_player with a
    table byte selected by those five bits and the object's side, subtracts
    the byte from the partner's 16-bit health, clears health when it went
    negative and bit 15 of a is set, and returns 1 when health is negative,
    else 0. The tree declares the second argument as an int; it is narrowed
    to 16 bits at entry. */
-int func_80140cd8(Object *object, int arg_a, int b) {
+int apply_damage_to_other_return_defeated(Object *object, int arg_a, int b) {
     u16 a = arg_a;
     s16 idx;
     s8 slot;
@@ -48,7 +48,7 @@ int func_80140cd8(Object *object, int arg_a, int b) {
         b = 0x7f;
     }
     ref_other.p->damage = b + ((u8 *)game_state.cursor)[(u8)b];
-    func_80140ec0();
+    call_game_state_table_handler();
     config = game_state.config;
     b = ref_other.p->damage;
     if (config->mode_flag_c | config->mode_flag_b) {
@@ -60,7 +60,7 @@ int func_80140cd8(Object *object, int arg_a, int b) {
     slot = a & 0x1f;
     object->sound_index = slot;
     object->field_bf = 0xff;
-    func_80155d4c(table_80181510[slot], (s8)object->side);
+    add_table_bcd_score_to_player(table_80181510[slot], (s8)object->side);
     ref_other.p->health = ref_other.p->health - (u8)b;
     if ((s16)ref_other.p->health < 0 && ((a >> 8) & 0x80)) {
         ref_other.p->health = 0;

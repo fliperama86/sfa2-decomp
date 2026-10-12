@@ -4,9 +4,9 @@
 #include "protos.h"
 
 
-void func_8014f59c(void) {
+void update_cd_control(void) {
     func_80150294(&ctl_80190948);
-    func_80150758(&ctl_80190948);
+    call_cd_command_handler_by_state(&ctl_80190948);
 }
 
 void set_cd_mix_mode(u8 a) {

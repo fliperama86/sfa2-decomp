@@ -10,13 +10,13 @@ void func_801b44b4_slot04_02(Object *obj) {
     obj->active_flag_4 = one;
     obj->state_3 = one;
     obj->field_157 = 0;
-    func_80141f28(obj, 1);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 1);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->field_49 != 0) {
         a = 0x6c;
         obj->field_225 = one;
     } else {
         a = 0x49;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }

@@ -6,7 +6,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80129678(Object *object)
+void count_down_damage_countdown_and_recover(Object *object)
 {
   unsigned short new_var;
   int cnt;
@@ -17,7 +17,7 @@ void func_80129678(Object *object)
     object->damage_countdown--;
     if (object->damage_countdown == new_var)
     {
-      func_801297b8(object);
+      apply_damage_and_check_defeat(object);
       return;
     }
     if (object->field_28c == new_var && (cnt = object->damage_countdown, (object->reference_count - cnt) >= 0x18))

@@ -1,7 +1,7 @@
 /*
  * Base text of the build controls (test_difftest_build.py); not a function
  * of this folder any more. It is the nonmatching C that stood here as
- * func_801e9080_slot06_00.c until that function became exact: the unit
+ * draw_object_tile_grid_sprites_slot06_00.c until that function became exact: the unit
  * ../slot06_00/slot06_00_9080x_r1.c owns the bytes now, and no differential
  * test is run on this file. It stays because the controls make their small
  * test units from this text by edits, with the contract of that name in
@@ -53,7 +53,7 @@
    the code; not an original declaration. */
 extern Slot06Tile data_801f3050_slot06_00[2][85];
 
-void func_801e9080_slot06_00(Object *object) {
+void draw_object_tile_grid_sprites_slot06_00(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

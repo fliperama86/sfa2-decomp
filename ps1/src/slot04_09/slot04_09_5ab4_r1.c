@@ -5,7 +5,7 @@
 
 void func_801b5ab4_slot04_09(Object *o) {
     Object *obj = o;
-    Object *p = (Object *)func_8011f1e0();
+    Object *p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xc;

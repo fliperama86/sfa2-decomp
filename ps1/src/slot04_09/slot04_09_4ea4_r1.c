@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4ea4_slot04_09(Object *o, Object *unused) {
+void spawn_linked_child_when_sequence_ends_slot04_09(Object *o, Object *unused) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;
     Object *q;
 
     if ((s16)o->step_flags & 0x8000) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p == 0) {
             return;
         }
@@ -39,7 +39,7 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
         play_sound_at(o, o->side ^ 1, 0x31a);
         play_side_sound_at(o, o->side, 9);
         play_side_sound_at(o, o->side, 0x10);
-        func_801307e0(o, 0x19);
+        set_sequence_by_side_and_mode(o, 0x19);
     } else {
         update_sequence(o);
     }

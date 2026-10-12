@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801361fc(Sprite *sprite, int x, int y)
+void init_sprite_position(Sprite *sprite, int x, int y)
 {
   int xm = x & 0x1ff;
   int new_var;

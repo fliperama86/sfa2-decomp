@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2e68_slot04_04(Object *obj) {
+void spawn_two_objects_follow_linked_sequence_slot04_04(Object *obj) {
     Object *p;
     s16 t;
 
@@ -14,12 +14,12 @@ void func_801b2e68_slot04_04(Object *obj) {
     t = obj->step_flags;
     if (t & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
-        func_801307e0(obj, obj->direction_index + 0x5b);
+        set_sequence_by_side_and_mode(obj, obj->direction_index + 0x5b);
         return;
     }
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0;
@@ -42,7 +42,7 @@ void func_801b2e68_slot04_04(Object *obj) {
             p->mode_id = 0x20;
             p->sound_side = obj->sound_side;
             p->parent = obj;
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->field_02 = 0;

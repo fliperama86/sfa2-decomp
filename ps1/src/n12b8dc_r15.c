@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8013d210(Object *object) {
+u8 get_pressed_bit_8(Object *object) {
     return *((u8 *)&object->pressed_bits + 1) & 1;
 }

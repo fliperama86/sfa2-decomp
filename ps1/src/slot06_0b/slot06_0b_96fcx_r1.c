@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f5290_slot06_0b[2][0x80];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
-   records, like func_801e9080_slot06_00, for the stage image 0b. The object
+   records, like draw_object_tile_grid_sprites_slot06_00, for the stage image 0b. The object
    selects a layer by its field_0e (8, 4 or 0xc pick one of three layer
    blocks, any other value uses no layer). For 4 and 0xc, and for no layer,
    the position is as in the stage 00 function. For 8 the x position also
@@ -23,7 +23,7 @@ extern Slot06Tile data_801f5290_slot06_0b[2][0x80];
    cell value: a fixed set of cell values (2, 3, 5, 6, 0x11 to 0x15, 0x2b to
    0x2e, 0x39 to 0x3c, 0x47 to 0x49) uses a page 0x40 above the usual one,
    and the cell value 0x3d a page 0x40 below it. */
-void func_801e96fc_slot06_0b(Object *object) {
+void draw_tilemap_cells_as_sprites_slot06_0b(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

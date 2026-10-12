@@ -3,27 +3,27 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801c90b4_slot05_06(Object *obj);
-int func_801c913c_slot05_06(Object *obj);
-int func_801c8d60_slot05_06(Object *obj);
-int func_801c8c64_slot05_06(Object *obj);
-int func_801c8bfc_slot05_06(Object *obj);
-int func_801c8fe4_slot05_06(Object *obj);
-int func_801c8cf0_slot05_06(Object *obj);
-int func_801c926c_slot05_06(Object *obj);
+int try_enter_state_7_kind_7_slot05_06(Object *obj);
+int try_start_meter_move_15a_9_slot05_06(Object *obj);
+int try_start_meter_move_3_slot05_06(Object *obj);
+int try_start_meter_move_15a_1_direction_4_slot05_06(Object *obj);
+int try_enter_state_7_kind_0_slot05_06(Object *obj);
+int try_enter_state_7_kind_5_slot05_06(Object *obj);
+int try_enter_state_7_kind_2_slot05_06(Object *obj);
+int try_enter_state_7_kind_a_slot05_06(Object *obj);
 int func_801c904c_slot05_06(Object *obj);
 int func_801c8de4_slot05_06(Object *obj);
 int func_801c8ee4_slot05_06(Object *obj);
 
-void func_801c8a0c_slot05_06(Object *obj) {
-    if (func_8013d210(obj) && (u8)func_801c90b4_slot05_06(obj)) return;
-    if ((u8)func_8013d1a8(obj) && (u8)func_801c913c_slot05_06(obj)) return;
-    if (func_8013ccdc(obj, 0, 0x22) && (u8)func_801c8d60_slot05_06(obj)) return;
-    if ((u8)func_8013cb70(obj, 1, 0x14) && (u8)func_801c8c64_slot05_06(obj)) return;
-    if (func_8013ccb4(obj, 2, 0x21) && (u8)func_801c8bfc_slot05_06(obj)) return;
-    if (func_8013ccb4(obj, 3, 0x23) && (u8)func_801c8fe4_slot05_06(obj)) return;
-    if ((u8)func_8013cac8(obj, 4, 0) && (u8)func_801c8cf0_slot05_06(obj)) return;
-    if ((u8)func_8013cac8(obj, 5, 5) && (u8)func_801c926c_slot05_06(obj)) return;
+void select_slot04_06_action_from_inputs_slot05_06(Object *obj) {
+    if (get_pressed_bit_8(obj) && (u8)try_enter_state_7_kind_7_slot05_06(obj)) return;
+    if ((u8)is_pressed_bits_in_table(obj) && (u8)try_start_meter_move_15a_9_slot05_06(obj)) return;
+    if (func_8013ccdc(obj, 0, 0x22) && (u8)try_start_meter_move_3_slot05_06(obj)) return;
+    if ((u8)func_8013cb70(obj, 1, 0x14) && (u8)try_start_meter_move_15a_1_direction_4_slot05_06(obj)) return;
+    if (func_8013ccb4(obj, 2, 0x21) && (u8)try_enter_state_7_kind_0_slot05_06(obj)) return;
+    if (func_8013ccb4(obj, 3, 0x23) && (u8)try_enter_state_7_kind_5_slot05_06(obj)) return;
+    if ((u8)func_8013cac8(obj, 4, 0) && (u8)try_enter_state_7_kind_2_slot05_06(obj)) return;
+    if ((u8)func_8013cac8(obj, 5, 5) && (u8)try_enter_state_7_kind_a_slot05_06(obj)) return;
     if ((u8)func_8013cac8(obj, 6, 0xe) && (u8)func_801c904c_slot05_06(obj)) return;
     if ((u8)func_8013cac8(obj, 7, 0xd) && (u8)func_801c8de4_slot05_06(obj)) return;
     if ((u8)func_8013cac8(obj, 8, 0xe)) func_801c8ee4_slot05_06(obj);

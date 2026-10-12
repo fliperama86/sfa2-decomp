@@ -5,7 +5,7 @@
 
 extern SequenceStep *data_801eb98c_slot06_01;
 
-void func_801e96d4_slot06_01(Object *obj) {
+void init_object_spawn_and_flip_pos_y_slot06_01(Object *obj) {
     u8 t;
 
     obj->countdown = 0x40;
@@ -20,5 +20,5 @@ void func_801e96d4_slot06_01(Object *obj) {
     obj->spawn_mode = 4;
     obj->state_0 = t + 1;
     *(u16 *)&obj->pos_y = 0xf8 - (u16)obj->pos_y;
-    func_80130700(obj, data_801eb98c_slot06_01);
+    set_sequence_entry(obj, data_801eb98c_slot06_01);
 }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80133df4(u8 *base, s16 index) {
+void write_player_color_bytes_to_table(u8 *base, s16 index) {
     if (player_left.field_d8 != 0) {
         data_80188d64 = 0;
         data_80188d68 = 0x30;

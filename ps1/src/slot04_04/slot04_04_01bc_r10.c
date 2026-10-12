@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b0de0_slot04_04(Object *obj) {
+u8 enter_state_1_0_7_0_type_0_slot04_04(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -15,15 +15,15 @@ u8 func_801b0de0_slot04_04(Object *obj) {
         obj->field_15a = 0;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }
 
-u8 func_801b0e54_slot04_04(Object *obj) {
+u8 enter_state_1_0_7_0_type_1_slot04_04(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -33,12 +33,12 @@ u8 func_801b0e54_slot04_04(Object *obj) {
         obj->active_flag_3 = 1;
         obj->active_flag = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }
 
-u8 func_801b0ecc_slot04_04(Object *obj) {
+u8 enter_state_1_0_7_0_type_2_if_unlinked_slot04_04(Object *obj) {
     u8 r = 0;
 
     if (obj->field_7e == 0) {
@@ -46,7 +46,7 @@ u8 func_801b0ecc_slot04_04(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -55,7 +55,7 @@ u8 func_801b0ecc_slot04_04(Object *obj) {
         obj->field_15a = 2;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }

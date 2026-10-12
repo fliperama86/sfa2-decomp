@@ -13,5 +13,5 @@ void func_80016df0_slot28(Object *obj) {
 }
 
 void func_80016e28_slot28(Object *obj, int arg) {
-    func_80130768(data_800518fc_slot28[3], arg, data_8002fce8_slot28);
+    set_sequence_from_table_5(data_800518fc_slot28[3], arg, data_8002fce8_slot28);
 }

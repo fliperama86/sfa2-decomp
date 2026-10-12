@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80150638(void) {
+void check_cd_position_and_set_command_state(void) {
     int code;
     int h;
     if ((*(u32 *)&data_80190948 & 0xff00ff) == 0x20002) {

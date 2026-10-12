@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80136bc0(void) {
+void clear_four_arrays_and_call_kind_handlers(void) {
     data_801aa548[0] = 0;
     data_801aa548[1] = 0;
     data_801aa548[2] = 0;
@@ -21,6 +21,6 @@ void func_80136bc0(void) {
     data_801904dc[1] = 0;
     data_801904dc[2] = 0;
     data_801904dc[3] = 0;
-    func_80136c8c();
+    call_handler_by_kind_index_a();
     table_80172550[game_state.kind_index]();
 }

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b0c84_slot04_00(Object *obj) {
+int try_enter_state_07_move_6_with_count_slot04_00(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0 && obj->remaining_count == 0) return 0;
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;

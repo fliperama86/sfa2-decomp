@@ -4,30 +4,30 @@
 #include "../externs.h"
 
 extern int data_8002d57c_slot12;
-void func_8001129c_slot12(void);
-int func_80012d90_slot12(u8 a);
+void play_sounds_at_countdown_timer_values_slot12(void);
+int spawn_object_once_with_arg_slot12(u8 a);
 
 void func_80010550_slot12(void) {
     while (data_8018db10) {
-        func_80138164();
-        func_8011abe4();
-        func_8001129c_slot12();
-        func_801192bc(1);
+        update_blocks();
+        update_active_slab172_entries();
+        play_sounds_at_countdown_timer_values_slot12();
+        request_sound_command_and_switch_thread(1);
     }
-    func_801373e8();
+    fill_row_columns_white_once();
     data_8018f5a0->substep_index++;
 }
 
 void func_800105cc_slot12(void) {
     data_8002d57c_slot12 = 1;
-    if (func_80012d90_slot12(3)) {
+    if (spawn_object_once_with_arg_slot12(3)) {
         int n = 4;
         int t;
         do {
-            func_80138164();
-            func_8011abe4();
-            func_8001129c_slot12();
-            func_801192bc(1);
+            update_blocks();
+            update_active_slab172_entries();
+            play_sounds_at_countdown_timer_values_slot12();
+            request_sound_command_and_switch_thread(1);
             t = n;
             n = n - 1;
         } while (t != 0);

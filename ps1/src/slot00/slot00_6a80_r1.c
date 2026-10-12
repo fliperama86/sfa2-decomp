@@ -4,19 +4,19 @@
 #include "../externs.h"
 
 extern ObjectFn data_800797e4_slot00[];
-void func_80077050_slot00(Object *obj);
+void select_box_tables_slot00_slot00(Object *obj);
 
-void func_80076a80_slot00(Object *o) {
+void move_by_velocity_and_advance_sequence_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
 
-    func_80077050_slot00(o);
+    select_box_tables_slot00_slot00(o);
     obj->pos_x_hi += o->vel_x;
     obj->pos_y_hi -= o->vel_y;
     advance_sequence_checked(o);
-    func_8011ff74(o);
+    set_state_0_if_x_outside_margin_narrow(o);
 }
 
-void func_80076ad8_slot00(Object *o) {
+void call_handler_by_state_2_unless_paused_b_slot00(Object *o) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_b | config->pause_flag_a) == 0) {
@@ -25,13 +25,13 @@ void func_80076ad8_slot00(Object *o) {
     func_8011ffdc(o);
 }
 
-void func_80076b48_slot00(Object *o) {
+void advance_state_2_set_countdown_2_slot00(Object *o) {
     o->countdown = 2;
     o->state_2++;
     func_80138070(o, o->active_flag_2);
 }
 
-void func_80076b7c_slot00(Object *o) {
+void count_down_then_reset_states_1_0_1_0_slot00(Object *o) {
     o->countdown = (s16)o->countdown - 1;
     if ((s16)o->countdown == 0) {
         o->active_count = 1;
@@ -39,7 +39,7 @@ void func_80076b7c_slot00(Object *o) {
         o->state_1 = 0;
         o->state_2 = 1;
         o->state_3 = 0;
-        func_80077050_slot00(o);
+        select_box_tables_slot00_slot00(o);
     }
     advance_sequence_checked(o);
 }

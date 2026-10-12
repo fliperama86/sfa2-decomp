@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0adc_slot04_05(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_4_slot04_05(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
-void func_801b0afc_slot04_05(Object *obj) {
+void update_sequence_or_call_finish_on_flag_slot04_05(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         update_sequence(obj);
     }

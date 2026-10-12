@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0614_slot04_01(Object *obj) {
+void walk_by_step_flags_or_finish_slot04_01(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if ((t & 0xff) != 0) {
             if (obj->facing_side == 0) {

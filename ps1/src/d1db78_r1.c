@@ -4,7 +4,7 @@
 #include "externs.h"
 
 extern Quad data_80185c04[][8];
-Tri *func_801250c0(Object *object, int offset);
+Tri *get_log_record_at_offset(Object *object, int offset);
 void func_8015bf70(u8 *a, u32 *b, u32 *c);
 
 /*
@@ -20,7 +20,7 @@ void func_8015bf70(u8 *a, u32 *b, u32 *c);
  * with a list slot and two words of a table, which links the strip into the
  * draw list.
  */
-void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
+void fill_cell_record_rects_from_history(Object *obj, u16 column, u16 frame, Block172 *second) {
     SeqHeader *r;
     SeqHeader *hdr;
     Pooled *rec;
@@ -32,7 +32,7 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
     int mode, fa, fb;
 
     idx = obj->field_02;
-    r = (SeqHeader *) func_801250c0(obj, frame);
+    r = (SeqHeader *) get_log_record_at_offset(obj, frame);
     dist = data_801900f8[idx] - r->count + 1;
     if (dist >= 10)
         return;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801428a8(Object *object) {
+void set_direction_index_from_meter_and_save(Object *object) {
     int v;
     int a = *(s16 *)&object->meter;
     object->field_299 = 1;

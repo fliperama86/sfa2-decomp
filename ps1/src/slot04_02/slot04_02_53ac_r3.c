@@ -3,19 +3,19 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6238_slot04_02(Object *object);
+void clear_slots_bytes_slot04_02(Object *object);
 
-void func_801b57b0_slot04_02(Object *obj) {
+void start_state_spawn_child_set_sequence_slot04_02(Object *obj) {
     Object *p;
     int a;
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     if (obj->active_state != 0) {
         a = 0x2f;
     } else {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         a = 0x2b;
         if (p != 0) {
             p->active_count = 1;
@@ -47,11 +47,11 @@ void func_801b5884_slot04_02(Object *obj) {
             a = 1;
             b = 0x47;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b6238_slot04_02(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot04_02(obj);
     }
     update_sequence(obj);
 }

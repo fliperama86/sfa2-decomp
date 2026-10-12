@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b188c_slot04_09(Object *obj) {
+int clear_substate_counters_return_true_slot04_09(Object *obj) {
     obj->substate_index = 0;
     obj->field_12d = 0;
     obj->step_count_2 = 0;

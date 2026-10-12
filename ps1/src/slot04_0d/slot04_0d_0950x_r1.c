@@ -10,8 +10,8 @@ void func_801b0950_slot04_0d(Object *obj) {
 
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
-    func_80130504(obj);
-    func_80141f28(obj, obj->direction_index >> 1);
+    set_direction_from_pressed_bits(obj);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     x = 0x12;
     if (obj->variant_index == 0) {
         x = 0xc;
@@ -20,5 +20,5 @@ void func_801b0950_slot04_0d(Object *obj) {
         x += 3;
     }
     x += obj->direction_index >> 1;
-    func_801307e0(obj, x);
+    set_sequence_by_side_and_mode(obj, x);
 }

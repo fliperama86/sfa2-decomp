@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0b30_slot04_0a(Object *obj) {
+void update_sequence_or_call_finish_on_flag_slot04_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         update_sequence(obj);
     }

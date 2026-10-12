@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f4df0_slot06_0a[2][0x68];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
-   records, like func_801e9080_slot06_00, for the stage image 0a. The object
+   records, like draw_object_tile_grid_sprites_slot06_00, for the stage image 0a. The object
    selects a layer by its field_0e (8, 4 or 0xc pick one of three layer
    blocks, any other value uses no layer). For the layer chosen by 4 or 0xc,
    and for no layer, the position is as in the stage 00 function. For 8 the
@@ -20,7 +20,7 @@ extern Slot06Tile data_801f4df0_slot06_0a[2][0x68];
    non-zero cell (low 14 bits) it takes a record from the table, fills in
    position, texture coordinates, texture page and a command word, and links
    the record into the list head selected by the object. */
-void func_801e8df0_slot06_0a(Object *object) {
+void draw_object_tile_grid_sprites_slot06_0a(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

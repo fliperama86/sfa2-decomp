@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80146478(Object *object, u8 a, int dx, int dy) {
+void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy) {
     Object *o;
     s16 x;
 
     x = dx;
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0 && data_801a27d4 != 0) {
         o->active_count = 1;
         o->field_02 = 4;
@@ -35,11 +35,11 @@ void func_80146478(Object *object, u8 a, int dx, int dy) {
     }
 }
 
-void func_801465b0(Object *object, int a, int dx, int dy) {
+void spawn_effect_at_other_offset(Object *object, int a, int dx, int dy) {
     Object *o;
     Object *other;
 
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0 && data_801a27d4 != 0) {
         other = object->other;
         o->active_count = 1;

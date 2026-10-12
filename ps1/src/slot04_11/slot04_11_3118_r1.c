@@ -6,10 +6,10 @@
 extern s32 data_801c74f4_slot04_11[];
 extern u8 data_801c74f8_slot04_11[][4];
 
-void func_801483a4(Object *object, int a, int b);
-void func_801b329c_slot04_11(Object *obj);
+void spawn_children_per_direction_index(Object *object, int a, int b);
+void update_dash_grab_or_end_slot04_11(Object *obj);
 
-void func_801b3118_slot04_11(Object *obj) {
+void update_sequence_with_step_flag_actions_slot04_11(Object *obj) {
     int i;
     u8 t;
 
@@ -29,7 +29,7 @@ void func_801b3118_slot04_11(Object *obj) {
     }
     if (obj->step_flags & 2) {
         obj->step_flags &= 0xfffd;
-        func_801483a4(obj, 0x28, 0x66);
+        spawn_children_per_direction_index(obj, 0x28, 0x66);
         play_sound_at(obj, obj->side, 0x31c);
     }
     if (obj->step_flags & 4) {
@@ -49,6 +49,6 @@ void func_801b3118_slot04_11(Object *obj) {
         obj->vel_x = data_801c74f4_slot04_11[obj->direction_index];
         ((ObjectWords *)obj)->word_54 = data_801c74f4_slot04_11[obj->direction_index + 1] & 0xffff0000;
         *(u16 *)&((ObjectWords *)obj)->word_54 = obj->pos_x;
-        func_801b329c_slot04_11(obj);
+        update_dash_grab_or_end_slot04_11(obj);
     }
 }

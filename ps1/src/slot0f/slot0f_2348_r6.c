@@ -6,21 +6,21 @@
 extern void (*data_800e9724_slot0f[])(void);
 extern int data_800f8578_slot0f;
 extern Menu data_800f8574_slot0f;
-void func_800e32dc_slot0f(void);
+void apply_menu_options_to_game_state_slot0f(void);
 void func_800e37a4_slot0f(void);
-void func_800e38b4_slot0f(void);
-void func_800e3b18_slot0f(void);
+void update_eleven_entry_menu_cursor_slot0f(void);
+void call_handler_by_substate_index_slot0f(void);
 
 void func_800e2880_slot0f(void) {
     HudState *h;
     if (data_800f8578_slot0f != 0) {
-        func_800e3b18_slot0f();
+        call_handler_by_substate_index_slot0f();
     } else {
         data_800e9724_slot0f[data_8018f5a0->substep_index]();
-        func_800e38b4_slot0f();
+        update_eleven_entry_menu_cursor_slot0f();
         func_800e37a4_slot0f();
         if ((data_801a696a | data_801a6976) & 0x800) {
-            func_800e32dc_slot0f();
+            apply_menu_options_to_game_state_slot0f();
             h = data_8018f5a0;
             data_800f8574_slot0f.mode_index = 3;
             h->phase_index = 1;

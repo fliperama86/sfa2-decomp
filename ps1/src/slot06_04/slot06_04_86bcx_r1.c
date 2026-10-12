@@ -14,7 +14,7 @@ extern Slot06Tile data_801f03c8_slot06_04[2][0x145];
    The local r is a copy of row: with row at its uses the function is 8 bytes
    short. The local yy holds the row's screen offset: written at its use, two
    instruction slots differ in the first loop and seven in the second. */
-void func_801e86bc_slot06_04(void) {
+void draw_tile_layer_sprites_with_partial_row_slot06_04(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int q;
     int x;

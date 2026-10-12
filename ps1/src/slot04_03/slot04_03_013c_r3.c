@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3aa0_slot04_03(Object *obj);
+void noop_slot00_slot04_03(Object *obj);
 extern ObjectFn data_801c0528_slot04_03[];
 
 void func_801b0338_slot04_03(Object *obj) {
     data_801c0528_slot04_03[obj->state_3](obj);
-    func_801b3aa0_slot04_03(obj);
+    noop_slot00_slot04_03(obj);
 }

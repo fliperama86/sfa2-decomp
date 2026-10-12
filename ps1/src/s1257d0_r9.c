@@ -3,23 +3,23 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80126620(GameState *state, Object *object) {
+void dispatch_by_phase_index_or_flags(GameState *state, Object *object) {
     if ((*(u32 *)&state->field_44 & 0xff00ff) != 0 || state->field_09 != 0)
-        func_801269e0(object);
+        clear_wait_flag(object);
     else if (object->phase_index == 0)
-        func_80126698(state, object);
+        advance_phase_and_set_wait_flag_c(state, object);
     else
         func_801266c8(state, object);
 }
 
-void func_80126698(GameState *state, Object *object) {
+void advance_phase_and_set_wait_flag_c(GameState *state, Object *object) {
     object->phase_index++;
-    func_80135c80(object, 0xc);
+    set_wait_flag(object, 0xc);
 }
 
 void func_801266c8(GameState *state, Object *object) {
-    func_80135c80(object, 0xc);
-    if (func_80126e98(state, object)) {
+    set_wait_flag(object, 0xc);
+    if (is_side_pad_bit_800_pressed(state, object)) {
         object->step_index = 2;
         object->phase_index = 0;
         object->score = 0;
@@ -31,30 +31,30 @@ void func_801266c8(GameState *state, Object *object) {
         object->repeat_count = 0;
         object->cost_index = 0;
         object->saved_side = object->side;
-        func_80126778(state, object);
+        select_phase_handler_by_phase_index(state, object);
     }
 }
 
-void func_80126758(GameState *state, Object *object) {
-    func_80126778(state, object);
+void call_add_one_to_ec4_wrapper(GameState *state, Object *object) {
+    select_phase_handler_by_phase_index(state, object);
 }
 
-void func_80126778(GameState *state, Object *object) {
+void select_phase_handler_by_phase_index(GameState *state, Object *object) {
     if (state->state_46_flag)
-        func_80126d68(state, object);
+        reset_phase_fields_and_next_step(state, object);
     else if (object->phase_index == 0)
-        func_801267d8(state, object);
+        update_join_phase_0(state, object);
     else
-        func_80126930(state, object);
+        reset_object_and_state_timers(state, object);
 }
 
-void func_801267d8(GameState *state, Object *object) {
+void update_join_phase_0(GameState *state, Object *object) {
     if (state->field_09 != 0 || state->field_04 != 0)
-        func_801269e0(object);
+        clear_wait_flag(object);
     else if (state->active_flag != 0)
-        func_80126898(state, object);
+        update_state_flags_and_call_helpers(state, object);
     else if (state->alt_flag != 0)
-        func_801268fc(state, object);
+        init_object_and_clear_wait_flag(state, object);
     else {
         object->phase_index++;
         state->field_04 = 0xff;
@@ -64,27 +64,27 @@ void func_801267d8(GameState *state, Object *object) {
         state->field_4f = 1;
         state->field_6d = 0;
         state->field_74 = 0;
-        func_80120408();
+        stop_all_keys_clear_table();
     }
 }
 
-void func_80126898(GameState *state, Object *object) {
+void update_state_flags_and_call_helpers(GameState *state, Object *object) {
     if (state->side_bits != 3) func_801388a8(state, object);
     state->active_flag = 0xff;
     if (state->field_80 == 0) state->state_2c_flag = 0;
-    func_801268fc(state, object);
+    init_object_and_clear_wait_flag(state, object);
 }
 
-void func_801268fc(GameState *state, Object *object) {
-    func_80126a00(state, object);
-    func_80135c80(object, 0);
+void init_object_and_clear_wait_flag(GameState *state, Object *object) {
+    reset_object_to_step_3_and_set_side_bits(state, object);
+    set_wait_flag(object, 0);
 }
 
-void func_80126930(GameState *state, Object *object) {
+void reset_object_and_state_timers(GameState *state, Object *object) {
     if (state->field_04 != 0)
-        func_801269e0(object);
+        clear_wait_flag(object);
     else {
-        func_80126a00(state, object);
+        reset_object_to_step_3_and_set_side_bits(state, object);
         data_801fc248[0] = 1;
         state->step_counter = 0;
         data_801fc248[1] = 0;
@@ -97,10 +97,10 @@ void func_80126930(GameState *state, Object *object) {
         state->countdown_timer_2 = 0;
         data_801fc248[5] = 0;
         state->field_cc = 0;
-        func_80135c80(object, 0);
+        set_wait_flag(object, 0);
     }
 }
 
-void func_801269e0(Object *object) {
-    func_80135c80(object, 0);
+void clear_wait_flag(Object *object) {
+    set_wait_flag(object, 0);
 }

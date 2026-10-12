@@ -7,20 +7,20 @@ extern ObjectFn data_801ee278_slot06_06[];
 extern SequenceStep *data_801ee190_slot06_06[];
 extern Slot06_06Rec83d8 data_801f83d8_slot06_06[][2];
 
-void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst);
+void copy_record_and_set_sequence_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst);
 
-void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst) {
+void copy_record_and_set_sequence_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst) {
     dst->ot_depth = src->field_01;
     dst->pos_x = src->pos_x;
     dst->pos_y = src->pos_y;
     dst->param_byte = src->param_byte;
     dst->param_word_a = src->param_word_a;
     dst->param_word_b = src->param_word_b;
-    func_80130700(obj, data_801ee190_slot06_06[src->table_index]);
+    set_sequence_entry(obj, data_801ee190_slot06_06[src->table_index]);
     dst->sequence = obj->sequence;
 }
 
-void func_801e9cf8_slot06_06(Object *obj) {
+void select_scroll_record_and_copy_to_object_slot06_06(Object *obj) {
     Slot06_06Rec83d8 *r;
 
     if ((s16)((Slot06Layer *)data_801aa5d4)->scroll_x < obj->vel_x) {
@@ -36,18 +36,18 @@ void func_801e9cf8_slot06_06(Object *obj) {
     obj->scroll_factor = r->param_word_b;
     obj->ot_depth = r->ot_depth;
     obj->field_0e = r->param_byte;
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e9db0_slot06_06(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_06(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9dd0_slot06_06(Object *obj) {
+void call_handler_by_state_0_2_slot06_06(Object *obj) {
     data_801ee278_slot06_06[obj->state_0](obj);
 }
 
-void func_801e9e10_slot06_06(Object *obj) {
+void init_object_sequence_by_game_state_slot06_06(Object *obj) {
     u8 i = 6;
 
     obj->field_0a = 1;
@@ -58,16 +58,16 @@ void func_801e9e10_slot06_06(Object *obj) {
     if (game_state.field_0a == 6 || game_state.skip_flag != 0) {
         i = 10;
     }
-    func_80130700(obj, data_801ee190_slot06_06[i + obj->table_index]);
+    set_sequence_entry(obj, data_801ee190_slot06_06[i + obj->table_index]);
 }
 
-void func_801e9ea0_slot06_06(Object *obj) {
+void advance_sequence_unless_paused_then_show_slot06_06(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }
 
-void func_801e9eec_slot06_06(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_06(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

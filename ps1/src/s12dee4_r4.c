@@ -13,15 +13,15 @@ void func_8012e4c4(Object *object) {
         func_8014cbf8(object);
     }
     if (func_80149d48(object)) {
-        func_80149fc4(object);
+        set_state_and_sequence_by_other_state(object);
     } else if (object->field_157 == 0) {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     } else {
-        func_80131468(object);
+        reset_object_to_state_1_0_0_2_sequence_1(object);
     }
 }
 
-void func_8012e550(Object *object) {
+void call_scratch_by_side_then_bound_pos(Object *object) {
     if (object->side == 0) {
         if (object->mode_flag_2 == 0) {
             scratch_call_8c(object);
@@ -36,6 +36,6 @@ void func_8012e550(Object *object) {
         }
     }
     if (object->status_flag == 0) {
-        func_80130b10(object);
+        clamp_pos_x_to_bounds_and_push_other(object);
     }
 }

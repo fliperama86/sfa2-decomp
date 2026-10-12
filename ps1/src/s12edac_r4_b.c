@@ -8,9 +8,9 @@ void func_8012f8c4(Object *object) {
     int arg;
 
     if (game_state.field_4d != 0) {
-        func_8012ff80(object);
+        set_win_or_lose_state_by_health(object);
     } else if (func_8012f56c(object)) {
-        func_8012f59c(object);
+        set_win_state_and_store_result_byte(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 0;
@@ -33,7 +33,7 @@ void func_8012f8c4(Object *object) {
 unsigned char func_8012f970(Object *object) {
     data_80186000 = 0;
     if (object->field_7e == 0) {
-        func_8012f9b0(object);
+        find_nearby_enemy_unit_set_flag(object);
         return data_80186000;
     }
     return 0;

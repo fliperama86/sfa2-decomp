@@ -5,5 +5,5 @@
 
 void func_801b2d34_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_80146998(obj);
+    spawn_offset_effect_and_play_sounds(obj);
 }

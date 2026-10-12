@@ -6,10 +6,10 @@
 
 void func_80144dcc(Object *object) {
     int v;
-    func_80144220(object);
+    update_position_x_with_accel(object);
     v = object->countdown - 1;
     object->countdown = v;
     if (v & 0x80) {
-        func_801449fc(object);
+        advance_state_0_2(object);
     }
 }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011a55c(Object *o) {
+void clear_object_side_table_entries(Object *o) {
     int i = o->table_index;
     int j = o->parent->side;
     data_80185c84[j][i][0] = 0;
@@ -19,7 +19,7 @@ u16 get_free_list_head(void) {
     return data_801846fc;
 }
 
-u16 func_8011a604(int a, u16 b) {
+u16 alloc_slot_after(int a, u16 b) {
     int head;
     int cur;
     int i;
@@ -37,7 +37,7 @@ u16 func_8011a604(int a, u16 b) {
     return head;
 }
 
-void func_8011a6b8(u16 a, u16 b) {
+void free_slot_chain(u16 a, u16 b) {
     int cur;
     u32 i;
     if (b != 0) {
@@ -51,9 +51,9 @@ void func_8011a6b8(u16 a, u16 b) {
     }
 }
 
-void func_8011a744(void) {
-    func_8011a018();
+void init_sprite_tables(void) {
+    init_sprite_cell_buffers();
     clear_side_tables();
-    func_801511c8();
-    func_801518a0();
+    init_poly_ft4_buffers();
+    init_sprite_buffers();
 }

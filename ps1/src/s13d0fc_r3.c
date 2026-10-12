@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8013d358(Object *object, u8 index, u8 arg) {
+void tick_slot_timer_and_check_input(Object *object, u8 index, u8 arg) {
     u16 entry;
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
         if ((entry & 0xf000) != (object->input_word & 0xf000)) {
@@ -18,20 +18,20 @@ void func_8013d358(Object *object, u8 index, u8 arg) {
             if (entry & 1) {
                 object->slots[index].stage++;
             }
-            func_8013f0c8(object, index, arg);
+            set_slot_random_timer_and_advance(object, index, arg);
         }
     }
 }
 
-void func_8013d418(Object *object, u8 index, u8 arg) {
+void count_down_slot_timer_check_button(Object *object, u8 index, u8 arg) {
     if (object->field_7e == 0) {
         object->slots[index].timer--;
         if (object->slots[index].timer == 0) {
-            func_8013f2a8(object, index, arg);
+            reset_slot_stage_clear_result(object, index, arg);
         }
     }
     if ((object->pressed_bits | object->released_bits) & 0x100) {
-        func_8013f2d8(object, index, arg);
+        reset_slot_stage_set_result(object, index, arg);
     } else {
         func_8013f2c8(object);
     }

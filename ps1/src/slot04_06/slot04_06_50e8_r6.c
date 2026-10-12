@@ -5,11 +5,11 @@
 
 extern Object *data_801c5758_slot04_06;
 
-void func_801b5c5c_slot04_06(Object *obj);
-void func_801b5d68_slot04_06(Object *obj, int a);
-void func_801b5d10_slot04_06(Object *obj);
+void follow_parent_position_and_sequence_slot04_06(Object *obj);
+void set_variant_sequence_by_sound_side_slot04_06(Object *obj, int a);
+void increment_state_0_slot04_06(Object *obj);
 
-void func_801b5bb8_slot04_06(Object *obj) {
+void init_object_from_global_object_slot04_06(Object *obj) {
     Object *p;
 
     obj->state_0++;
@@ -21,10 +21,10 @@ void func_801b5bb8_slot04_06(Object *obj) {
     obj->image_row = data_801c5758_slot04_06->image_row;
     obj->field_0e = data_801c5758_slot04_06->field_0e;
     obj->variant_index = 0;
-    func_801b5c5c_slot04_06(obj);
+    follow_parent_position_and_sequence_slot04_06(obj);
 }
 
-void func_801b5c5c_slot04_06(Object *obj) {
+void follow_parent_position_and_sequence_slot04_06(Object *obj) {
     Object *p;
     u8 a;
 
@@ -40,12 +40,12 @@ void func_801b5c5c_slot04_06(Object *obj) {
             obj->facing_side = p->facing_side;
             obj->field_01 = 1;
             if (obj->variant_index != a) {
-                func_801b5d68_slot04_06(obj, a);
+                set_variant_sequence_by_sound_side_slot04_06(obj, a);
             } else {
                 advance_sequence_checked(obj);
             }
         }
     } else {
-        func_801b5d10_slot04_06(obj);
+        increment_state_0_slot04_06(obj);
     }
 }

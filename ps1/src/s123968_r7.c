@@ -7,10 +7,10 @@
 int func_80125268(void) {
     u8 result = 0;
     if (game_state.mode & 1) {
-        result = func_8012543c() != 0;
+        result = is_pad_button_pressed() != 0;
     }
     if (game_state.mode & 2) {
-        if (func_80125454()) {
+        if (is_pad_button_pressed_2()) {
             result |= 1;
         }
     }

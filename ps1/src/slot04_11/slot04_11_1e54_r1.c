@@ -10,24 +10,24 @@ extern ObjectFn data_801c7420_slot04_11[];
 extern u8 data_801c7444_slot04_11[];
 extern u8 data_801c744c_slot04_11[];
 
-void func_80142adc(Object *object);
-void func_80138ae8(GameState *state, Object *object);
-int func_801b57a8_slot04_11(Object *obj);
-int func_801b5764_slot04_11(Object *obj);
+void start_action_if_buttons_pressed(Object *object);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
+int apply_facing_velocity_with_x_stop_slot04_11(Object *obj);
+int apply_velocity_and_acceleration_slot04_11(Object *obj);
 void func_801b5874_slot04_11(Object *obj);
 void func_801b5894_slot04_11(Object *obj);
 Object *func_801b5914_slot04_11(Object *obj);
 
 void func_801b1e54_slot04_11(Object *obj) {
-    func_801b57a8_slot04_11(obj);
+    apply_facing_velocity_with_x_stop_slot04_11(obj);
     if (obj->pos_y >= obj->ground_y) {
         obj->state_3++;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x3d);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3d);
     } else {
         update_sequence(obj);
     }
@@ -39,16 +39,16 @@ void func_801b1ee0_slot04_11(Object *obj) {
         ref_other.p->other_state_code = 5;
         func_801b5874_slot04_11(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
 
-void func_801b1f54_slot04_11(Object *obj) {
+void set_sequence_from_table_plus_step_limit_slot04_11(Object *obj) {
     u16 t = *(u16 *)(data_801c73fc_slot04_11 + (obj->direction_index & 0xfe));
 
     t = obj->step_limit + t;
-    func_801307e0(obj, t);
+    set_sequence_by_side_and_mode(obj, t);
 }
 
 void func_801b1f9c_slot04_11(Object *obj) {
@@ -61,17 +61,17 @@ void func_801b1fdc_slot04_11(Object *obj) {
     obj->active_flag_4 = 1;
     obj->field_29c = 2;
     obj->state_3++;
-    func_80141f28(obj, 5);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 5);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->facing_side = obj->saved_facing;
     a = 0x21;
     if (obj->field_49 != 0) {
         a = 0x3a;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + a);
 }
 
-void func_801b2060_slot04_11(Object *obj) {
+void set_vel_x_from_table_on_step_flag_slot04_11(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         obj->vel_x = data_801c7414_slot04_11[obj->direction_index >> 1];
@@ -79,7 +79,7 @@ void func_801b2060_slot04_11(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b20c0_slot04_11(Object *o) {
+void move_by_vel_x_until_step_flags_clear_slot04_11(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s32 d = o->vel_x;
 
@@ -96,7 +96,7 @@ void func_801b20c0_slot04_11(Object *o) {
     update_sequence(o);
 }
 
-void func_801b212c_slot04_11(Object *o) {
+void update_slide_with_decelerating_vel_x_slot04_11(Object *o) {
     s32 d;
     u16 t;
 
@@ -129,7 +129,7 @@ void func_801b212c_slot04_11(Object *o) {
             o->step_flags = t & 0xff00;
             o->active_flag_4 = 0;
         }
-        func_80142adc(o);
+        start_action_if_buttons_pressed(o);
         update_sequence(o);
     }
 }
@@ -143,16 +143,16 @@ void func_801b2278_slot04_11(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 6);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     a = 0x24;
     if (obj->field_49 != 0) {
         a = 0x3d;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b22e4_slot04_11(Object *obj) {
+void start_jump_toward_target_object_slot04_11(Object *obj) {
     u16 t;
     s32 d;
 
@@ -185,23 +185,23 @@ void func_801b22e4_slot04_11(Object *obj) {
     }
 }
 
-void func_801b23f8_slot04_11(Object *obj) {
-    int r = func_801b5764_slot04_11(obj);
+void update_air_land_or_wall_stick_slot04_11(Object *obj) {
+    int r = apply_velocity_and_acceleration_slot04_11(obj);
 
     if (r < 0 && obj->pos_y >= obj->ground_y) {
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->state_3 = 8;
         obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801307e0(obj, 0x37);
+        set_sequence_by_side_and_mode(obj, 0x37);
     } else if (obj->pos_y < obj->ground_y - 0x48 && (data_801c744c_slot04_11[obj->facing_side] & obj->bound_push_flag)) {
         obj->state_3++;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->vel_y = 0;
         obj->accel_y = 0;
-        func_801307e0(obj, 0x25);
+        set_sequence_by_side_and_mode(obj, 0x25);
     } else {
         update_sequence(obj);
     }

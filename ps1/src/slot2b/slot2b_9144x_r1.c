@@ -17,7 +17,7 @@
  * record's second half and the high half of the object's vel_y. All
  * position arithmetic is modulo 2^16.
  */
-void func_80079144_slot2b(Object *obj) {
+void place_object_at_target_box_offset_slot2b(Object *obj) {
     Object *parent = obj->parent;
     Object *target = parent->other;
     u16 *e;

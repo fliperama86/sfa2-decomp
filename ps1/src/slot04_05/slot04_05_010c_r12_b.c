@@ -6,7 +6,7 @@
 void func_801b34f8_slot04_05(Object *object);
 void func_801b36f4_slot04_05(Object *object);
 
-void func_801b34b8_slot04_05(Object *obj) {
+void call_handler_by_input_dir_second_2_slot04_05(Object *obj) {
     if (obj->input_dir_second != 0) {
         func_801b36f4_slot04_05(obj);
     } else {

@@ -9,11 +9,11 @@ void update_button_config_menu(void) {
     u8 sel, k, found, i;
 
     tab = table_8016e664;
-    func_801519b4(&data_801812b4);
-    func_801519b4(&data_801812c4);
-    func_801519b4(&data_801812d4);
-    func_801519b4(&data_80181324);
-    func_801519b4(&data_80181334);
+    add_item_to_table(&data_801812b4);
+    add_item_to_table(&data_801812c4);
+    add_item_to_table(&data_801812d4);
+    add_item_to_table(&data_80181324);
+    add_item_to_table(&data_80181334);
     if (game_state.field_31 != 0) {
         if ((data_801a696a & 0x800) || (data_801a6976 & 0x800)) {
             ((HudBig *)data_8018f5a0)->substate_index = 0;

@@ -11,7 +11,7 @@
  * word below the run that is not a link, so that the run is skipped at once.
  * Words outside a run are left alone.
  */
-void func_80119694(void *start) {
+void compact_linked_cell_runs(void *start) {
     int steps_left = 29;
     u32 *cell;
     u32 *run_top;

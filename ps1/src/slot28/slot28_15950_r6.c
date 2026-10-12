@@ -5,21 +5,21 @@
 
 extern u8 data_8004ea70_slot28[];
 extern int data_8004ea74_slot28[];
-void func_80026368_slot28(Object *obj);
+void randomize_position_velocity_and_sequence_2_slot28(Object *obj);
 
 void func_80026320_slot28(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     if (obj->pos_x >= 0x140) {
-        func_80026368_slot28(obj);
+        randomize_position_velocity_and_sequence_2_slot28(obj);
     }
 }
 
-void func_80026368_slot28(Object *obj) {
+void randomize_position_velocity_and_sequence_2_slot28(Object *obj) {
     int r = get_random_byte() & 0xff;
     int k = data_8004ea70_slot28[r & 3];
     int row = k - 6;
     obj->pos_x = r & 0x3f;
     obj->pos_y = 0x98 - (r & 0x7f);
     obj->vel_x = data_8004ea74_slot28[row * 8 + (r & 7)];
-    func_80130768(obj, k, (SequenceStep **)obj->box_tables);
+    set_sequence_from_table_5(obj, k, (SequenceStep **)obj->box_tables);
 }

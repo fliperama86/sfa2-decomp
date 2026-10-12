@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b5ef0_slot04_02(Object *obj);
-void func_801b5bf4_slot04_02(Object *obj);
-u8 func_801b5eb8_slot04_02(Object *obj);
+u8 is_pos_x_beyond_box_margin_slot04_02(Object *obj);
+void hit_other_on_flag_then_update_sequence_slot04_02(Object *obj);
+u8 move_by_velocity_return_vel_y_negative_slot04_02(Object *obj);
 
 void func_801b5ce8_slot04_02(Object *obj) {
     Object *o = obj->other;
     int t;
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(o, o->side, 0x31a);
     obj->facing_side = 0;
     obj->vel_x = 0x48000;
     if (obj->mode_flag_2 != 0) {
-        t = func_801b5ef0_slot04_02(obj);
+        t = is_pos_x_beyond_box_margin_slot04_02(obj);
     } else {
         t = obj->input_bits & 0x8000;
     }
@@ -26,10 +26,10 @@ void func_801b5ce8_slot04_02(Object *obj) {
     }
     obj->vel_y = 0x20000;
     obj->accel_y = -0x2000;
-    func_801307e0(obj, 0x45);
+    set_sequence_by_side_and_mode(obj, 0x45);
 }
 
-void func_801b5da8_slot04_02(Object *o) {
+void update_sequence_set_active_on_flag_2_slot04_02(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
         o->active_state = 1;
         o->state_3++;
@@ -37,12 +37,12 @@ void func_801b5da8_slot04_02(Object *o) {
     update_sequence(o);
 }
 
-void func_801b5de8_slot04_02(Object *obj) {
-    if (func_801b5eb8_slot04_02(obj)) {
+void update_arc_landing_set_state_param_slot04_02(Object *obj) {
+    if (move_by_velocity_return_vel_y_negative_slot04_02(obj)) {
         if (obj->ground_y <= obj->pos_y) {
             obj->pos_y = obj->ground_y;
             game_state.state_param = 0x18;
         }
     }
-    func_801b5bf4_slot04_02(obj);
+    hit_other_on_flag_then_update_sequence_slot04_02(obj);
 }

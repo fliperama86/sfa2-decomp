@@ -8,13 +8,13 @@ void func_80149aa8(Object *object) {
     object->field_01 = 0;
 }
 
-void func_80149ab8(Object *object) {
+void play_parent_sound_and_release_object(Object *object) {
     play_sound_at(object->parent, object->parent->side, 0x329);
-    func_8011f240(object);
+    reset_and_push_object_to_pool_table(object);
 }
 
-void func_80149af8(Object *object) {
-    ref_other.p = (Object *)func_8011f1e0();
+void spawn_object_type_6d_for_side(Object *object) {
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count++;
         ref_other.p->field_02 = 0x6d;

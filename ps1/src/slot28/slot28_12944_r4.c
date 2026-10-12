@@ -5,9 +5,9 @@
 
 extern u16 data_80048ccc_slot28[][2];
 extern s32 data_80048cf4_slot28[][2];
-void func_80022f04_slot28(Object *obj, int idx);
+void set_sequence_from_box_tables_index_slot28(Object *obj, int idx);
 
-void func_80022e4c_slot28(Object *obj) {
+void init_object_position_from_table_index_slot28(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     int k = 0;
@@ -24,9 +24,9 @@ void func_80022e4c_slot28(Object *obj) {
         obj->vel_y = data_80048cf4_slot28[j][1];
         k = 3;
     }
-    func_80022f04_slot28(obj, k);
+    set_sequence_from_box_tables_index_slot28(obj, k);
 }
 
-void func_80022f04_slot28(Object *obj, int idx) {
-    func_80130768(obj, idx, (SequenceStep **)obj->box_tables);
+void set_sequence_from_box_tables_index_slot28(Object *obj, int idx) {
+    set_sequence_from_table_5(obj, idx, (SequenceStep **)obj->box_tables);
 }

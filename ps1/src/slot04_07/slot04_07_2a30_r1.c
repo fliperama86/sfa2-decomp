@@ -6,7 +6,7 @@
 extern s32 data_801c1f94_slot04_07[];
 extern Slot04_07Rec1fc4 data_801c1fc4_slot04_07[];
 
-void func_801b2a30_slot04_07(Object *obj) {
+void start_jump_with_table_sequence_choice_slot04_07(Object *obj) {
     s32 *p;
     s32 a;
     s32 b;
@@ -14,8 +14,8 @@ void func_801b2a30_slot04_07(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     play_side_sound_at(obj, obj->side, 6);
-    func_80141f28(obj, 9);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 9);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     p = &data_801c1f94_slot04_07[(obj->direction_index >> 1) * 4];
     a = *p++;
     b = *p++;
@@ -33,5 +33,5 @@ void func_801b2a30_slot04_07(Object *obj) {
         a = 6;
     }
     a += obj->direction_index;
-    func_801307e0(obj, data_801c1fc4_slot04_07[a >> 1].value);
+    set_sequence_by_side_and_mode(obj, data_801c1fc4_slot04_07[a >> 1].value);
 }

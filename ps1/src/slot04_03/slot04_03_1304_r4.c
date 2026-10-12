@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b15f4_slot04_03(Object *obj) {
+void spawn_linked_object_on_step_flag_type0_slot04_03(Object *obj) {
     Object *p;
     s16 y;
 
@@ -41,7 +41,7 @@ void func_801b15f4_slot04_03(Object *obj) {
     }
 }
 
-void func_801b171c_slot04_03(Object *obj) {
+void update_sequence_or_reset_on_end_flag_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t == 0x100) {
@@ -49,9 +49,9 @@ void func_801b171c_slot04_03(Object *obj) {
         obj->active_flag_4 = 0;
     }
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

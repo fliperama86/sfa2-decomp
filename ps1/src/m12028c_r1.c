@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012028c(void) {
+void close_sound_and_quit(void) {
     func_8016a3b0(data_80190a44[0]);
     func_8016a3b0(data_80190a44[1]);
     func_8016a3b0(data_80190a44[2]);

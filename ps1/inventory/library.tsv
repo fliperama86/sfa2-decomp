@@ -1,10 +1,10 @@
 80157090	228	replace_blocked_name	unidentified	1	-
-80157174	128	func_80157174	unidentified	1	-
+80157174	128	copy_top_rank_data_by_side	unidentified	1	-
 801571f4	64	func_801571f4	unidentified	0	-
-80157234	60	func_80157234	unidentified	0	-
-80157270	240	func_80157270	unidentified	0	-
+80157234	60	init_object_depth_and_advance_state_0_2	unidentified	0	-
+80157270	240	update_child_countdown_follow_parent	unidentified	0	-
 80157360	32	func_80157360	unidentified	0	-
-80157380	588	func_80157380	unidentified	0	-
+80157380	588	spawn_three_child_objects	unidentified	0	-
 801575cc	12	CloseEvent	system	2	folder
 801575dc	16	EnterCriticalSection	system	9	folder
 801575ec	12	close	files	0	name
@@ -267,7 +267,7 @@
 80163678	84	SpuVmGetProgVol	sound	0	folder
 801636cc	116	SpuVmSetProgPan	sound	0	folder
 80163740	84	SpuVmGetProgPan	sound	0	folder
-80163794	964	-	sound	0	name
+80163794	964	SpuVmSetVol	sound	0	name
 80163b58	1000	SsUtKeyOn	sound	0	folder
 80163f40	512	SsUtKeyOff	sound	0	folder
 80164140	1004	SsUtKeyOnV	sound	1	folder
@@ -320,7 +320,7 @@
 80167148	328	_SsContNrpn2	sound	0	folder
 80167290	124	_SsContRpn1	sound	0	folder
 8016730c	124	_SsContRpn2	sound	0	folder
-80167388	1504	-	sound	0	name
+80167388	1504	_SsContDataEntry	sound	0	name
 80167968	716	_SsSndSetVabAttr	sound	0	folder
 80167c34	176	_SsSetPitchBend	sound	0	folder
 80167ce4	852	_SsGetMetaEvent	sound	0	folder

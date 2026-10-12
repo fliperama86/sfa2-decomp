@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014b0e4(Object *object) {
+void set_move_state_dir_1_with_countdown(Object *object) {
     u16 value = *data_80189460++;
     data_80189464 = value;
     object->countdown_3 = value;

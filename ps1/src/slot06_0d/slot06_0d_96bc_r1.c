@@ -6,13 +6,13 @@
 extern ObjectFn data_801ea520_slot06_0d[];
 extern SequenceStep *data_801eb1b0_slot06_0d[];
 
-void func_801e9828_slot06_0d(Object *obj);
-void func_801e98bc_slot06_0d(Object *obj);
-void func_801e98fc_slot06_0d(Slot06Cursor *cur);
-void func_801e9950_slot06_0d(Slot06Pal *pal);
-void func_801e998c_slot06_0d(Slot06Pal *pal, SeqRec *rec);
+void advance_state_1_on_pause_flag_or_advance_slot06_0d(Object *obj);
+void call_advance_sequence_checked_slot06_0d(Object *obj);
+void advance_cursor_record_countdown_slot06_0d(Slot06Cursor *cur);
+void load_palette_record_by_index_slot06_0d(Slot06Pal *pal);
+void set_palette_record_and_copy_data_slot06_0d(Slot06Pal *pal, SeqRec *rec);
 
-void func_801e96bc_slot06_0d(Object *obj) {
+void call_handler_by_state_0_slot06_0d(Object *obj) {
     data_801ea520_slot06_0d[obj->state_0](obj);
 }
 
@@ -30,45 +30,45 @@ void func_801e96fc_slot06_0d(Object *o) {
     o->field_0f = i;
     obj->init_param_g = 0x80;
     o->state_0 = i;
-    func_801e9950_slot06_0d((Slot06Pal *)((u8 *)o + 0x5c));
+    load_palette_record_by_index_slot06_0d((Slot06Pal *)((u8 *)o + 0x5c));
     i = game_state.count_index ? 0xa : 3;
-    func_80130700(o, data_801eb1b0_slot06_0d[i]);
+    set_sequence_entry(o, data_801eb1b0_slot06_0d[i]);
 }
 
-void func_801e97a4_slot06_0d(Object *obj) {
+void update_object_by_state_1_and_cursor_slot06_0d(Object *obj) {
     if (game_state.field_65 == 0) {
         if (game_state.field_74 == 0) {
             if (obj->state_1 == 0) {
-                func_801e9828_slot06_0d(obj);
+                advance_state_1_on_pause_flag_or_advance_slot06_0d(obj);
             } else if (obj->state_1 == 1) {
-                func_801e98bc_slot06_0d(obj);
+                call_advance_sequence_checked_slot06_0d(obj);
             }
-            func_801e98fc_slot06_0d((Slot06Cursor *)((u8 *)obj + 0x5c));
+            advance_cursor_record_countdown_slot06_0d((Slot06Cursor *)((u8 *)obj + 0x5c));
         }
     }
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e9828_slot06_0d(Object *obj) {
+void advance_state_1_on_pause_flag_or_advance_slot06_0d(Object *obj) {
     int i;
     if (game_state.pause_flag_2 != 0 && game_state.countdown_timer == 0) {
         obj->state_1 = obj->state_1 + 1;
         i = game_state.focus_object->kind != 0xd ? 0xb : 0xc;
-        func_80130700(obj, data_801eb1b0_slot06_0d[i]);
+        set_sequence_entry(obj, data_801eb1b0_slot06_0d[i]);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e98bc_slot06_0d(Object *obj) {
+void call_advance_sequence_checked_slot06_0d(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801e98dc_slot06_0d(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_0d(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e98fc_slot06_0d(Slot06Cursor *cur) {
+void advance_cursor_record_countdown_slot06_0d(Slot06Cursor *cur) {
     SeqRec *rec;
     int v = cur->remaining_count - 1;
     cur->remaining_count = v;
@@ -78,12 +78,12 @@ void func_801e98fc_slot06_0d(Slot06Cursor *cur) {
         if ((s16)cur->step_word < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_801e998c_slot06_0d((Slot06Pal *)cur, rec);
+        set_palette_record_and_copy_data_slot06_0d((Slot06Pal *)cur, rec);
     }
 }
 
-void func_801e9950_slot06_0d(Slot06Pal *pal) {
+void load_palette_record_by_index_slot06_0d(Slot06Pal *pal) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    func_801e998c_slot06_0d(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
+    set_palette_record_and_copy_data_slot06_0d(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
 }

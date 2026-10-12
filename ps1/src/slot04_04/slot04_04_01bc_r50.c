@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_801b449c_slot04_04(Object *obj);
-void func_801b44f8_slot04_04(Object *obj);
+void update_sequence_or_finish_on_flag_2_slot04_04(Object *obj);
 void func_801b4bc4_slot04_04(Object *obj);
 
 void func_801b445c_slot04_04(Object *obj) {
     if (obj->state_3 == 0) {
         func_801b449c_slot04_04(obj);
     } else {
-        func_801b44f8_slot04_04(obj);
+        update_sequence_or_finish_on_flag_2_slot04_04(obj);
     }
 }
 

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b4c_slot04_01(Object *obj);
+void play_side_sound_from_step_flags_slot04_01(Object *obj);
 extern ObjectFn data_801bef84_slot04_01[];
 
 void func_801b1540_slot04_01(Object *obj) {
@@ -16,5 +16,5 @@ void func_801b1540_slot04_01(Object *obj) {
 
 void func_801b158c_slot04_01(Object *obj) {
     data_801bef84_slot04_01[obj->state_3](obj);
-    func_801b3b4c_slot04_01(obj);
+    play_side_sound_from_step_flags_slot04_01(obj);
 }

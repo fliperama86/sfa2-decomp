@@ -11,44 +11,44 @@ extern u16 data_801c652c_slot04_14[];
 extern ObjectFn data_801c6538_slot04_14[];
 extern u16 box_margin[];
 
-void func_801b5b80_slot04_14(Object *obj);
-u8 func_801b5e44_slot04_14(Object *obj);
-u8 func_801b5e7c_slot04_14(Object *obj);
+void hit_other_on_flag_then_update_sequence_slot04_14(Object *obj);
+u8 move_by_velocity_return_vel_y_negative_slot04_14(Object *obj);
+u8 is_pos_x_beyond_box_margin_slot04_14(Object *obj);
 void set_sequence_by_side(Object *object, int arg);
-void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
 void func_801b5a90_slot04_14(Object *obj) {
     data_801c64ec_slot04_14[obj->state_3](obj);
 }
 
-void func_801b5ad0_slot04_14(Object *obj) {
+void start_sidestep_set_facing_from_input_slot04_14(Object *obj) {
     Object *o = obj->other;
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(o, o->side, 0x31a);
     obj->facing_side = 0;
     if (obj->mode_flag_2 != 0) {
-        if (func_801b5e7c_slot04_14(obj) != 0) {
+        if (is_pos_x_beyond_box_margin_slot04_14(obj) != 0) {
             obj->facing_side = obj->facing_side + 1;
         }
     } else if (obj->input_bits & 0x8000) {
         obj->facing_side = 1;
     }
-    func_801307e0(obj, (obj->input_dir_second >> 1) + 0x18);
+    set_sequence_by_side_and_mode(obj, (obj->input_dir_second >> 1) + 0x18);
 }
 
-void func_801b5b80_slot04_14(Object *obj) {
+void hit_other_on_flag_then_update_sequence_slot04_14(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80140770(obj, 0, 5, 0xf, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 0, 5, 0xf, 0, 1, 0);
     }
     update_sequence(obj);
 }
 
-void func_801b5be4_slot04_14(Object *obj) {
+void update_sequence_or_flip_facing_and_reset_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->facing_side = obj->facing_side ^ 1;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
@@ -62,12 +62,12 @@ void func_801b5c74_slot04_14(Object *obj) {
     Object *o = obj->other;
     int t;
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(o, o->side, 0x31a);
     obj->facing_side = 0;
     obj->vel_x = 0x48000;
     if (obj->mode_flag_2 != 0) {
-        t = func_801b5e7c_slot04_14(obj);
+        t = is_pos_x_beyond_box_margin_slot04_14(obj);
     } else {
         t = obj->input_bits & 0x8000;
     }
@@ -77,10 +77,10 @@ void func_801b5c74_slot04_14(Object *obj) {
     }
     obj->vel_y = 0x20000;
     obj->accel_y = -0x2000;
-    func_801307e0(obj, 0x45);
+    set_sequence_by_side_and_mode(obj, 0x45);
 }
 
-void func_801b5d34_slot04_14(Object *obj) {
+void advance_state_3_when_step_flags_zero_slot04_14(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->active_state = 1;
         obj->state_3 = obj->state_3 + 1;
@@ -88,18 +88,18 @@ void func_801b5d34_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b5d74_slot04_14(Object *obj) {
-    if (func_801b5e44_slot04_14(obj)) {
+void update_arc_landing_set_state_param_slot04_14(Object *obj) {
+    if (move_by_velocity_return_vel_y_negative_slot04_14(obj)) {
         if (obj->ground_y <= obj->pos_y) {
             obj->pos_y = obj->ground_y;
             game_state.state_param = 0x18;
         }
     }
-    func_801b5b80_slot04_14(obj);
+    hit_other_on_flag_then_update_sequence_slot04_14(obj);
 }
 
-void func_801b5dd8_slot04_14(Object *obj) {
-    if (func_801b5e44_slot04_14(obj)) {
+void check_landing_set_state_param_slot04_14(Object *obj) {
+    if (move_by_velocity_return_vel_y_negative_slot04_14(obj)) {
         if (obj->ground_y <= obj->pos_y) {
             obj->pos_y = obj->ground_y;
             game_state.state_param = 0x18;
@@ -108,42 +108,42 @@ void func_801b5dd8_slot04_14(Object *obj) {
     }
 }
 
-u8 func_801b5e44_slot04_14(Object *obj) {
+u8 move_by_velocity_return_vel_y_negative_slot04_14(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;
     return obj->vel_y < 0;
 }
 
-u8 func_801b5e7c_slot04_14(Object *obj) {
+u8 is_pos_x_beyond_box_margin_slot04_14(Object *obj) {
     return (s16)(box_margin[0] + 0xc0) < obj->pos_x;
 }
 
-void func_801b5e9c_slot04_14(Object *obj) {
+void call_handler_by_state_2_2_slot04_14(Object *obj) {
     data_801c650c_slot04_14[obj->state_2](obj);
 }
 
-void func_801b5edc_slot04_14(Object *obj) {
+void restore_facing_and_set_sequence_0_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
-void func_801b5f10_slot04_14(Object *obj) {
+void advance_state_2_when_timers_clear_slot04_14(Object *obj) {
     if (game_state.field_64 == 0 && game_state.countdown_timer == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
     update_sequence(obj);
 }
 
-void func_801b5f60_slot04_14(Object *obj) {
+void set_random_sequence_from_table_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->countdown = 0x3c;
     game_state.countdown = 0x1e;
-    set_sequence_by_side(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[get_random_byte() & 0xf])]);
+    set_sequence_by_side(obj, data_801c652c_slot04_14[(u8)get_input_mapped_value_or_default(obj, data_801c651c_slot04_14[get_random_byte() & 0xf])]);
 }
 
-void func_801b5fe8_slot04_14(Object *obj) {
+void update_sequence_with_countdown_side_bit_slot04_14(Object *obj) {
     u16 t = obj->step_flags;
     s16 c;
     if ((t & 0xff) == 1) {
@@ -162,7 +162,7 @@ void func_801b5fe8_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b608c_slot04_14(Object *obj) {
+void call_handler_by_state_2_3_slot04_14(Object *obj) {
     data_801c6538_slot04_14[obj->state_2](obj);
 }
 
@@ -173,7 +173,7 @@ void func_801b60cc_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b6108_slot04_14(Object *obj) {
+void start_sequence_by_side_with_countdown_slot04_14(Object *obj) {
     int idx = 0x28;
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->other->facing_side;
@@ -184,7 +184,7 @@ void func_801b6108_slot04_14(Object *obj) {
     set_sequence_by_side(obj, idx);
 }
 
-void func_801b6160_slot04_14(Object *obj) {
+void count_down_and_set_side_bit_slot04_14(Object *obj) {
     s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;
@@ -196,7 +196,7 @@ void func_801b6160_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b61c4_slot04_14(Object *object) {
+void clear_object_byte_block_slot04_14(Object *object) {
     u8 *p = (u8 *)object + 0x2b0;
     int i;
     u8 z = 0;

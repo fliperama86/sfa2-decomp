@@ -10,11 +10,11 @@ void func_801b22fc_slot04_08(Object *obj) {
     func_80145d20(obj);
     ((Slot04aObj *)obj)->step_index = 0;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, 0x2f);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, 0x2f);
 }
 
-void func_801b235c_slot04_08(Object *obj) {
+void update_sequence_then_start_jump_on_end_slot04_08(Object *obj) {
     s16 t;
     u8 i;
     update_sequence(obj);
@@ -28,7 +28,7 @@ void func_801b235c_slot04_08(Object *obj) {
             } else {
                 obj->field_165 = 1;
             }
-            func_801483a4(obj, -0x10, 0x3c);
+            spawn_children_per_direction_index(obj, -0x10, 0x3c);
         }
     } else {
         obj->active_state = 1;

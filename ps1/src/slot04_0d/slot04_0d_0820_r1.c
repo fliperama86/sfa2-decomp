@@ -5,16 +5,16 @@
 
 extern ObjectFn data_801c2978_slot04_0d[];
 
-void func_80142a14(Object *object);
-void func_80130dc0(Object *object);
+void update_sequence_with_input_check(Object *object);
+void set_sequence_and_tables_from_direction(Object *object);
 
 /* functions of other units of this module */
 
-void func_801b0820_slot04_0d(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_2_slot04_0d(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
-void func_801b0840_slot04_0d(Object *obj) {
+void update_sequence_with_flagged_pos_x_nudge_slot04_0d(Object *obj) {
     s16 t = obj->step_flags;
     int d;
 
@@ -31,21 +31,21 @@ void func_801b0840_slot04_0d(Object *obj) {
             update_sequence(obj);
         }
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
-void func_801b08bc_slot04_0d(Object *obj) {
+void call_handler_by_state_3_set_flag_slot04_0d(Object *obj) {
     obj->field_157 = 1;
     data_801c2978_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b0900_slot04_0d(Object *obj) {
+void advance_state_3_and_start_sequence_slot04_0d(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b0930_slot04_0d(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_3_slot04_0d(Object *obj) {
+    update_sequence_with_input_check(obj);
 }

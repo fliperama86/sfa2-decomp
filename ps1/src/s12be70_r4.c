@@ -14,7 +14,7 @@ void func_8012c89c(Object *object) {
         object->field_157++;
         index = 0xe;
     }
-    func_801308c4(object, index);
+    set_sequence_by_side_and_mode_2(object, index);
     if (object->field_6b == 0) func_8012cca8(object);
 }
 
@@ -24,22 +24,22 @@ void func_8012c92c(Object *object) {
     object->countdown = 0;
     object->field_62 = 10;
     object->field_157 = 0;
-    func_801308c4(object, 0xc);
+    set_sequence_by_side_and_mode_2(object, 0xc);
     if (object->field_6b == 0) func_8012cca8(object);
 }
 
 void func_8012c990(Object *object) {
     if (object->done_flag == 0) {
         object->done_flag++;
-        func_80152b40(object);
+        spawn_two_counted_objects_variant_0(object);
         play_sound_at(object, object->side, 0x321);
-        func_801376b8(object);
+        store_image_row_for_hit_type(object);
     }
     object->field_15b = 1;
-    func_801308c4(object, 0x13);
+    set_sequence_by_side_and_mode_2(object, 0x13);
 }
 
-void func_8012ca04(Object *object) {
+void update_hit_reaction_type_16_sound_spawn(Object *object) {
     if (object->active_state != 0) {
         object->active_state = 0xff;
         object->pair_value = 0x13;
@@ -49,10 +49,10 @@ void func_8012ca04(Object *object) {
     } else {
         if (object->done_flag == 0) {
             object->done_flag++;
-            func_80152b40(object);
+            spawn_two_counted_objects_variant_0(object);
         }
         play_sound_at(object, object->side, 0x321);
-        func_801376b8(object);
+        store_image_row_for_hit_type(object);
         if (object->hit_type == 0x16) func_8012c72c(object);
         else func_8012c5cc(object);
     }
@@ -61,15 +61,15 @@ void func_8012ca04(Object *object) {
 void func_8012cac8(Object *object) {
     if (object->once_flag_2 == 0) {
         object->once_flag_2++;
-        func_80152c34(object);
+        spawn_two_counted_objects_variant_2(object);
         play_sound_at(object, object->side, 0x321);
     }
     object->field_15b = 1;
-    func_801376b8(object);
-    func_801308c4(object, 0x13);
+    store_image_row_for_hit_type(object);
+    set_sequence_by_side_and_mode_2(object, 0x13);
 }
 
-void func_8012cb3c(Object *object) {
+void update_hit_reaction_type_17_sound_spawn(Object *object) {
     if (object->active_state != 0) {
         object->active_state = 0xff;
         object->pair_value = 0x13;
@@ -79,7 +79,7 @@ void func_8012cb3c(Object *object) {
     } else {
         if (object->once_flag_2 == 0) {
             object->once_flag_2++;
-            func_80152c34(object);
+            spawn_two_counted_objects_variant_2(object);
             play_sound_at(object, object->side, 0x321);
         }
         object->field_15b = 1;
@@ -88,20 +88,20 @@ void func_8012cb3c(Object *object) {
     }
 }
 
-void func_8012cc00(Object *object) {
+void start_hit_reaction_with_three_spawns(Object *object) {
     if (object->active_state == 0) {
         func_8012c72c(object);
     } else {
         object->pair_value = 0x21;
         object->field_60 = 2;
-        func_80152d28(object);
+        spawn_three_objects_variant_4(object);
         object->flag_25a_set = 1;
-        func_801308c4(object, 0x21);
+        set_sequence_by_side_and_mode_2(object, 0x21);
     }
 }
 
 void func_8012cc6c(Object *object) {
-    func_80152d28(object);
+    spawn_three_objects_variant_4(object);
     object->flag_25a_set = 1;
-    func_801308c4(object, 0x21);
+    set_sequence_by_side_and_mode_2(object, 0x21);
 }

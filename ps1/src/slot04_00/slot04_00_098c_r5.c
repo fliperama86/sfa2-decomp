@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b0ef8_slot04_00(Object *obj) {
+int try_enter_state_07_move_1_if_linked_slot04_00(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
@@ -11,7 +11,7 @@ int func_801b0ef8_slot04_00(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -20,16 +20,16 @@ int func_801b0ef8_slot04_00(Object *obj) {
         obj->field_15a = 1;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }
 
-int func_801b0f8c_slot04_00(Object *obj) {
+int try_enter_state_07_move_9_slot04_00(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -43,7 +43,7 @@ int func_801b0f8c_slot04_00(Object *obj) {
 }
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
-int func_801b0ff8_slot04_00(Object *obj) {
+int try_start_meter_move_state_8_type_4_slot04_00(Object *obj) {
     if ((s16)obj->meter >= 0x30) {
         if (obj->link_flags == 0) {
             if ((u8)func_80141788(obj)) {

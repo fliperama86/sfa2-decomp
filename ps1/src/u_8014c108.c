@@ -16,10 +16,10 @@ void func_8014c108(Object *object)
   new_var = v;
   if (new_var <= ((u16) new_var2->pos_y))
   {
-    func_8014c914(object);
+    read_script_word_and_dispatch(object);
   }
   else
   {
-    func_8014c528(object);
+    skip_script_block_then_read_opcode(object);
   }
 }

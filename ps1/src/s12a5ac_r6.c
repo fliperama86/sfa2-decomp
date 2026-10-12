@@ -5,12 +5,12 @@
 
 
 
-void func_8012b2c4(Object *object) {
+void update_sequence_or_return_to_idle(Object *object) {
     if ((s16)object->step_flags >= 0) {
         update_sequence(object);
     } else if (object->field_157 != 0) {
-        func_80131468(object);
+        reset_object_to_state_1_0_0_2_sequence_1(object);
     } else {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     }
 }

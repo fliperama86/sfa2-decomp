@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f6800_slot06_10[200][2];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
-   records, a relative of func_801e9080_slot06_00 with a second record table, a
+   records, a relative of draw_object_tile_grid_sprites_slot06_00 with a second record table, a
    mirrored mode and another command word. The object selects a layer by its
    field_0e (8, 4 or 0xc pick one of three layer blocks, any other value has
    no case here); the layer's scroll_x and scroll_y offset the object's

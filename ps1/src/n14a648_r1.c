@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014a648(Object *object) {
+void init_state_one_countdown_from_script(Object *object) {
     u16 value;
     object->field_208 = 0;
     object->field_209 = 0;

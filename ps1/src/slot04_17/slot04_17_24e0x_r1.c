@@ -6,18 +6,18 @@
 extern u32 data_801ce050_slot04_17[];
 extern s32 data_801ce384_slot04_17[];
 
-int func_801b56e0_slot04_17(Object *obj);
+int apply_velocity_and_acceleration_slot04_17(Object *obj);
 Object *func_801b5890_slot04_17(Object *obj);
 
-void func_801b24e0_slot04_17(Object *obj) {
+void choose_air_action_at_sequence_end_slot04_17(Object *obj) {
     int t;
     s32 a;
     int s;
 
-    func_801b56e0_slot04_17(obj);
+    apply_velocity_and_acceleration_slot04_17(obj);
     if ((obj->step_flags << 16) < 0) {
         if (obj->mode_flag_2 != 0) {
-            if (func_8014a170(obj, data_801ce050_slot04_17) != 0) {
+            if (test_random_bit_in_table(obj, data_801ce050_slot04_17) != 0) {
                 goto act_b;
             }
             if ((get_random_byte() & 1) == 0) {
@@ -45,7 +45,7 @@ act_a:
         a >>= 4;
         a -= 0x4000;
         obj->vel_y = -a;
-        func_801307e0(obj, 0x2c);
+        set_sequence_by_side_and_mode(obj, 0x2c);
         return;
 not_a:
         if ((t & 0x2000) == 0) {
@@ -61,7 +61,7 @@ act_b:
         obj->vel_x = a;
         obj->accel_x = 0;
         obj->accel_y = -0x6000;
-        func_801307e0(obj, 0x34);
+        set_sequence_by_side_and_mode(obj, 0x34);
         return;
 act_c:
         obj->state_3 = 6;
@@ -100,7 +100,7 @@ act_c:
             obj->accel_x = v1;
             obj->vel_y = v2;
             obj->accel_y = i;
-            func_801307e0(obj, a + obj->direction_index);
+            set_sequence_by_side_and_mode(obj, a + obj->direction_index);
         }
     } else {
         update_sequence(obj);

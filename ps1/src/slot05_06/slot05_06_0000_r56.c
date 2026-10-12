@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc870_slot05_06(Object *obj, u16 *value);
+void negate_value_if_facing_side_zero_slot05_06(Object *obj, u16 *value);
 
-void func_801cccf8_slot05_06(Object *obj) {
+void set_side_bits_and_place_other_on_hit_slot05_06(Object *obj) {
     u16 x;
     s8 r;
 
@@ -16,7 +16,7 @@ void func_801cccf8_slot05_06(Object *obj) {
         r = func_80146918(obj);
         if (r) {
             x = 7;
-            func_801cc870_slot05_06(obj, &x);
+            negate_value_if_facing_side_zero_slot05_06(obj, &x);
             ref_other.p->pos_x = ref_other.p->pos_x + x;
             ref_other.p->pos_y = ref_other.p->pos_y - 0x47;
             ref_other.p->spawn_flag = 1;

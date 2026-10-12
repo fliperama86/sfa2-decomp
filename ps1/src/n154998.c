@@ -6,10 +6,10 @@
 #define PRESSED(m) ((g->field_31 == 1 && (data_801a696a & (m))) || \
                     (g->field_31 == 2 && (data_801a6976 & (m))))
 
-void func_80154998(void) {
+void update_menu_cursor_and_selection(void) {
     GameState *g = &game_state;
     if (g->versus_flag == 0) {
-        func_801519b4(&data_801812e4);
+        add_item_to_table(&data_801812e4);
         if (PRESSED(0x20)) {
             if (data_8018d260 == 0) {
                 data_8018f5a0->pass_index = 0;
@@ -39,7 +39,7 @@ void func_80154998(void) {
             play_sound_at(0, 0, 0x34d);
         }
     } else if (*(u16 *)data_801a6984 == 0) {
-        func_801519b4(&data_80181304);
+        add_item_to_table(&data_80181304);
         if (PRESSED(0x40)) {
             func_80155088();
             play_sound_at(0, 0, 0x34c);
@@ -52,7 +52,7 @@ void func_80154998(void) {
                 func_80155088();
                 g->field_65 = 0xff;
                 data_80197f1c = 0xff;
-                func_80122e54(&game_state);
+                reset_game_state_for_new_match(&game_state);
             } else if (data_8018d260 == 3) {
                 data_8018f5a0->pass_index = 4;
             }
@@ -75,13 +75,13 @@ void func_80154998(void) {
             play_sound_at(0, 0, 0x34d);
         }
     } else {
-        func_801519b4(&data_80181314);
+        add_item_to_table(&data_80181314);
         if (PRESSED(0x20)) {
             if (data_8018d260 == 0) {
                 func_80155088();
                 g->field_65 = 0xff;
                 data_80197f1c = 0xff;
-                func_80122e54(&game_state);
+                reset_game_state_for_new_match(&game_state);
             } else if (data_8018d260 == 1) {
                 data_8018f5a0->pass_index = 4;
             }

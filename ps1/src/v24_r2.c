@@ -7,7 +7,7 @@
    Object has linked_object_2 as u8 and field_32 at 0x32, so a u32 field cannot be
    added there; both are written through a u32 cast. Needs a decision on the
    layout of 0x2c..0x33 (see report). */
-void func_8011ef88(Object *o) {
+void reset_object_fields(Object *o) {
     u8 *p;
     u8 z;
     func_80119b34(o);

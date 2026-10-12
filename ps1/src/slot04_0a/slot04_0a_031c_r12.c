@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1ff0_slot04_0a(Object *obj) {
+void update_sequence_or_reset_state_variant_2_slot04_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801395f8(s32 a, Object *object)
+void record_box_b_overlap(s32 a, Object *object)
 {
   u16 x;
   long new_var;

@@ -6,10 +6,10 @@
 
 
 void func_801369b0(Cam *cam) {
-    func_801369d4(cam, 0x1c0, 0);
+    init_cam_position_and_consume_pending(cam, 0x1c0, 0);
 }
 
-void func_801369d4(Cam *cam, short x, short y) {
+void init_cam_position_and_consume_pending(Cam *cam, short x, short y) {
     init_cam_position(cam, x, y);
     if (cam->pending_flag != 0) {
         cam->pending_flag = 0;

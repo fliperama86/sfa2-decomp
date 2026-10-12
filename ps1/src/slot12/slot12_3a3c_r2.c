@@ -13,7 +13,7 @@ extern u16 data_8002bc30_slot12;
 extern u16 data_8002bc34_slot12;
 void func_80013c74_slot12(void);
 
-void func_80013b5c_slot12(int a) {
+void init_palette_buffers_from_table_slot12(int a) {
     int i;
     s16 c;
     for (i = 0; i < 16; i++) {

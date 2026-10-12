@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e6bd8_slot0f(Object *obj);
-void func_800e6874_slot0f(Object *obj);
+void count_record_bytes_into_four_counters_slot0f(Object *obj);
+void init_four_prim_pairs_slot0f(Object *obj);
 void func_800e6a48_slot0f(Object *obj);
-void func_800e6db4_slot0f(Object *obj);
+void noop_slot00_9_slot0f(Object *obj);
 
-void func_800e675c_slot0f(Object *obj) {
+void init_object_with_rank_variant_and_health_slot0f(Object *obj) {
     int t;
 
     obj->pos_x = 0;
@@ -34,9 +34,9 @@ void func_800e675c_slot0f(Object *obj) {
     *(u16 *)((u8 *)obj + 0x5c) = t;
     t = *(u16 *)&game_state.ring_b[0x3f] & 0x3f;
     obj->health = t;
-    func_800e6bd8_slot0f(obj);
+    count_record_bytes_into_four_counters_slot0f(obj);
     game_state.field_2bf = 0;
-    func_800e6874_slot0f(obj);
+    init_four_prim_pairs_slot0f(obj);
     func_800e6a48_slot0f(obj);
-    func_800e6db4_slot0f(obj);
+    noop_slot00_9_slot0f(obj);
 }

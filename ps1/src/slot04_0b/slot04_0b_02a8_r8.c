@@ -5,11 +5,11 @@
 
 extern void (*data_801c24f4_slot04_0b[])(Object *);
 
-void func_801b0ab4_slot04_0b(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_3_slot04_0b(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
-void func_801b0ad4_slot04_0b(Object *obj) {
+void call_handler_by_state_3_set_flag_slot04_0b(Object *obj) {
     obj->field_157 = 1;
     data_801c24f4_slot04_0b[obj->state_3](obj);
 }

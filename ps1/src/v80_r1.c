@@ -7,13 +7,13 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-int func_801384c4(GameState *state)
+int set_table_columns_by_win_counts(GameState *state)
 {
   u8 step;
   u8 *new_var;
   if (state->field_80 != 0)
   {
-    func_80138588();
+    clear_player_field_cf();
   }
   else
   {

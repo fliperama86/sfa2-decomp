@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b84_slot04_0b(Object *obj) {
+void reset_states_when_countdown_ends_slot04_0b(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         obj->active_count = 1;

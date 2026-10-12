@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001b1c4_slot28(Object *o);
+void integrate_position_and_ground_y_motion_slot28(Object *o);
 
-void func_8001b0a0_slot28(Object *o) {
-    func_8001b1c4_slot28(o);
+void move_until_below_ground_y_slot28(Object *o) {
+    integrate_position_and_ground_y_motion_slot28(o);
     if (o->pos_y < o->ground_y) {
         o->pos_y = o->ground_y;
         o->state_1++;

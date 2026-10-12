@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011f09c(void) {
+void clear_data_block_and_game_state_bytes(void) {
     u8 *p = &data_801ae02c;
     u32 i;
     for (i = 0; i < 0xac; i++) {

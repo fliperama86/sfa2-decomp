@@ -34,10 +34,10 @@
  *     and the out_ fields through func_801397d0), data_80188f30; the
  *     player's field_241 and hit_type; the table object's active_count,
  *     state_0 to state_3, health; three bytes at data_80190468 + 0x5c.
- *   Callees that run as the original code: func_80139a1c (clears the
+ *   Callees that run as the original code: reset_hit_results (clears the
  *     overlap record; inferred) and func_801397d0 (computes the overlap).
- *     Callees replaced by recorders, which return 0: func_80139a78 (a, b),
- *     func_8013a3a8 (a, b, box), func_8013af1c (a, b, box), func_80155de0
+ *     Callees replaced by recorders, which return 0: apply_hit_box_to_target (a, b),
+ *     apply_hit_damage_to_object (a, b, box), select_min_placement_and_test (a, b, box), func_80155de0
  *     (box, b). What they do to the objects is outside the test. The
  *     original ignores the result of func_80155de0 (it tests a zero it has
  *     just set; read from the original's listing, not tested), and so does
@@ -145,7 +145,7 @@ void func_8013bfa4(void) {
             data_801904c0.p = data_80190458.p;
             box += ref_third.p->frame->active;
             ref_first.p = (Object *)box;
-            func_80139a1c();
+            reset_hit_results();
             if (ref_second.p->frame->box_a != 0) {
                 if (func_801397d0((s32)ref_third.p, ref_second.p, ref_second.p->boxes_a + ref_second.p->frame->box_a) == 0) {
                     data_80188f30++;
@@ -207,7 +207,7 @@ void func_8013bfa4(void) {
                 continue;
             }
             ref_second.p->field_241 = 1;
-            func_80139a78(ref_third.p, ref_second.p);
+            apply_hit_box_to_target(ref_third.p, ref_second.p);
             if (ref_third.p->field_02 == 0x17) {
                 ref_second.p->field_241 = 0;
                 if (ref_second.p->hit_type != 0xff) {
@@ -216,7 +216,7 @@ void func_8013bfa4(void) {
                     }
                 }
             }
-            func_8013a3a8(ref_third.p, ref_second.p, box);
+            apply_hit_damage_to_object(ref_third.p, ref_second.p, box);
             /* health is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
             if (ref_second.p->hit_type != 0xff && (s16)ref_second.p->health >= 0) {
                 /* The override: the count is masked, as the console's shift does it. */
@@ -231,7 +231,7 @@ void func_8013bfa4(void) {
                     ((StateBytes *)data_80190468.p)->mode2 = 1;
                 }
             }
-            func_8013af1c(ref_third.p, ref_second.p, box);
+            select_min_placement_and_test(ref_third.p, ref_second.p, box);
             func_80155de0((Actor *)box, ref_second.p);
             /* The original's instructions here: move v0,zero; a load; bnez v0. The mask lies outside
                the width of the byte field. Without the test the unit d3bfa4_r1.c has 448 instructions

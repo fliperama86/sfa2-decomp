@@ -5,7 +5,7 @@
 
 extern Slot06_00Rec3010 data_801f3010_slot06_00[];
 
-void func_801e8f74_slot06_00(Object *obj) {
+void update_alternating_scroll_object_slot06_00(Object *obj) {
     Slot06_00Rec3010 *r = &data_801f3010_slot06_00[obj->table_index];
     u32 m = 0x3ffffff;
 
@@ -25,6 +25,6 @@ void func_801e8f74_slot06_00(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9060_slot06_00(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_00(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

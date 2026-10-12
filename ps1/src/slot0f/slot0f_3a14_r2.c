@@ -14,7 +14,7 @@ extern u8 data_800e990f_slot0f[];
 extern u8 data_800e9783_slot0f[];
 extern u8 data_800e981b_slot0f[];
 
-void func_800e3b60_slot0f(void) {
+void init_two_column_selection_tables_slot0f(void) {
     u8 i;
 
     ((HudBig *)data_8018f5a0)->substate_index++;

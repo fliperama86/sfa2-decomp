@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001703c_slot27(Object *obj) {
+void load_velocities_from_table_3_slot27(Object *obj) {
     func_8011f38c(obj);
 }
 
-void func_8001705c_slot27(Object *obj) {
+void noop_slot00_3_slot27(Object *obj) {
 }

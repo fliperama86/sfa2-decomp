@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e898c_slot06_05(void) {
+void noop_empty_function_slot06_05(void) {
 }
 
-void func_801e8994_slot06_05(void) {
+void noop_empty_function_2_slot06_05(void) {
 }
 
-void func_801e899c_slot06_05(u8 *p) {
+void noop_byte_pointer_slot06_05(u8 *p) {
 }
 
-void func_801e89a4_slot06_05(void) {
+void noop_empty_function_3_slot06_05(void) {
 }

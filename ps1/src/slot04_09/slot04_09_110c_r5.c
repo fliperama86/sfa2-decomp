@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1644_slot04_09(Object *obj) {
+int try_start_meter_move_6_if_counter_zero_slot04_09(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30) {

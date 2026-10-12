@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-int func_8014e0b4(Object *object)
+int find_matching_script_condition_bit(Object *object)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[4];
@@ -60,7 +60,7 @@ int func_8014e0b4(Object *object)
   {
     if (object->compare_limit < 0x60)
     {
-      if (func_8014e368(object) != 0)
+      if (is_other_in_state_01010101_with_flags(object) != 0)
       {
         goto done;
       }
@@ -69,7 +69,7 @@ int func_8014e0b4(Object *object)
   data_8018946c = 3;
   if (flags & 8)
   {
-    if (func_8014e310(object) != 0)
+    if (is_state_one_and_state_two_allowed(object) != 0)
     {
       other = object->other;
       if (other->field_163 != 0)

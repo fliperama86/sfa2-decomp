@@ -5,12 +5,12 @@
 
 extern SequenceStep *data_800280bc_slot27[];
 
-void func_80014b1c_slot27(Object *o) {
+void move_down_and_follow_other_kind_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Object *other = o->other;
     if (other->kind != o->sound_side) {
         o->sound_side = other->kind;
-        func_80130768(o, other->kind, data_800280bc_slot27);
+        set_sequence_from_table_5(o, other->kind, data_800280bc_slot27);
     }
     func_8011ffdc(o);
     if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
@@ -22,10 +22,10 @@ void func_80014b1c_slot27(Object *o) {
     }
 }
 
-void func_80014be8_slot27(Object *obj) {
+void increment_state_0_2_slot27(Object *obj) {
     obj->state_0++;
 }
 
 void func_80014bfc_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

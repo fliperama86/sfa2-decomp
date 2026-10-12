@@ -4,14 +4,14 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80148774(Object *object)
+void spawn_two_offset_objects_at_object(Object *object)
 {
   u16 i;
   Object *new_object;
   int offset;
   for (i = 0; i < 2; i++)
   {
-    new_object = (Object *)func_8011f1e0();
+    new_object = (Object *)pop_block_from_pool();
     if (new_object != 0)
     {
       new_object->active_count = 1;

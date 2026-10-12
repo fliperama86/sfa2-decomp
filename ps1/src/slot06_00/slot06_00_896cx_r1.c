@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e896c_slot06_00(Slot06Layer *layer) {
+void update_layer_position_by_mode_slot06_00(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
     if (layer->mode == 0) {
-        func_801369d4((Cam *)layer, 0x140, 0);
+        init_cam_position_and_consume_pending((Cam *)layer, 0x140, 0);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;

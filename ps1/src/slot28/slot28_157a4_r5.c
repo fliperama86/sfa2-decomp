@@ -14,7 +14,7 @@ void func_80025ebc_slot28(void) {
     for (i = 0; i < 10; i++) {
         Object *p = data_80051c64_slot28[i];
         if (p != 0 && p->active_count != 0) {
-            func_8011f240((Slab172 *)p);
+            reset_and_push_object_to_pool_table((Slab172 *)p);
             data_80051c64_slot28[i] = 0;
         }
     }

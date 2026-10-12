@@ -13,7 +13,7 @@ extern u32 data_801ac87c;
 extern u32 data_801ac880;
 extern u32 data_801ac884;
 void func_80153154(void);
-void func_80153f88(void);
+void call_function_at_data_pointer(void);
 
 /*
  * What it does (inferred, not original names): queues the pieces of a
@@ -23,7 +23,7 @@ void func_80153f88(void);
  * records of data_801ac6a8, of the tables and of the strips (all picked by
  * the buffer selector sel) to func_8015bf34 together with three pointers
  * into the block at data_801987c8, calls func_801347b4 seven times with
- * the words data_801ac86c to data_801ac884, and ends with func_80135c88.
+ * the words data_801ac86c to data_801ac884, and ends with queue_player_status_text_items.
  */
 void func_80134234(void) {
     /* Only the low 16 bits of the selector count, as a signed number. */
@@ -68,7 +68,7 @@ void func_80134234(void) {
     func_8015bf34(part3c, (Cmd *)&base[sel * 16 + 0x64]);
 
     func_80153154();
-    func_80153f88();
+    call_function_at_data_pointer();
     func_8015bf34(part38, (Cmd *)&data_80188d6c[sel]);
     func_8015bf34(part38, (Cmd *)data_80188d6c[sel].unknown_1c);
     p1 = strips[sel];
@@ -92,5 +92,5 @@ void func_80134234(void) {
         func_8015bf34(part38, (Cmd *)data_80188e4c[sel]);
         func_8015bf34(part38, (Cmd *)&data_80188e4c[sel][1]);
     }
-    func_80135c88();
+    queue_player_status_text_items();
 }

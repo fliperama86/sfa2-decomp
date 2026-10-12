@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e7f90_slot0f(u8 *src, u8 *dst, int mode) {
+void copy_string_with_suffix_by_mode_slot0f(u8 *src, u8 *dst, int mode) {
     while (*src != 0) {
         *dst++ = *src++;
     }
@@ -32,10 +32,10 @@ void func_800e7f90_slot0f(u8 *src, u8 *dst, int mode) {
     *dst = 0;
 }
 
-void func_800e8064_slot0f(Object *obj, int arg) {
+void spawn_object_at_spawn_position_slot0f(Object *obj, int arg) {
     Object *b;
     if (ptr_8019040c->field_0a != 0) {
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x97;

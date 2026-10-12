@@ -32,7 +32,7 @@ extern Slot0fRec94ec *data_800e96d8_slot0f;
  * option bytes into the array data_800f8554_slot0f (index 0 from field_00;
  * index 1 the position of table_match_value among five bytes of data_800df32c_slot0f,
  * or 4 when its option byte field_03 is not zero, otherwise left as it was;
- * indices 8, 2, 3, 4, 5 from field_01, 04, 05, 07, 06), calls func_80120374
+ * indices 8, 2, 3, 4, 5 from field_01, 04, 05, 07, 06), calls set_sound_mono_or_stereo
  * with field_01 as a signed byte, copies field_0a and field_0b into indices
  * 6 and 7, and copies the block's first two rows into
  * data_800f8564_slot0f. It then sets byte 0xb of three runs of cells of
@@ -40,7 +40,7 @@ extern Slot0fRec94ec *data_800e96d8_slot0f;
  * past it, and sets six pointers into tables of 12 and 8 byte records,
  * indexed by the selections 1, 2, 6, 7, 5 and 8.
  */
-void func_800e3478_slot0f(void) {
+void load_options_from_saved_data_slot0f(void) {
     Slot0fRecf32c tbl = data_800df32c_slot0f;
     int i;
     int j;
@@ -59,7 +59,7 @@ void func_800e3478_slot0f(void) {
     data_800f8554_slot0f[3] = saved_8016e664.opts.field_05;
     data_800f8554_slot0f[4] = saved_8016e664.opts.field_07;
     data_800f8554_slot0f[5] = saved_8016e664.opts.field_06;
-    func_80120374((s8)saved_8016e664.opts.field_01);
+    set_sound_mono_or_stereo((s8)saved_8016e664.opts.field_01);
     data_800f8554_slot0f[6] = saved_8016e664.opts.field_0a;
     data_800f8554_slot0f[7] = saved_8016e664.opts.field_0b;
     for (i = 0; i < 2; i++) {

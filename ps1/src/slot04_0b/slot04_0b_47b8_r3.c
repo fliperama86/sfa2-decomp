@@ -4,18 +4,18 @@
 #include "../externs.h"
 
 void func_801b4c28_slot04_0b(Object *obj);
-void func_801b4db8_slot04_0b(Object *obj, int index);
-void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
+void set_sequence_from_other_side_table_slot04_0b(Object *obj, int index);
+void set_position_relative_to_ref_other_slot04_0b(Object *obj, int dx, int dy);
 
 void func_801b4acc_slot04_0b(Object *obj) {
     obj->image_row = 0x1f;
     obj->state_1++;
-    func_801b4e0c_slot04_0b(obj, 0xe, 0xe);
-    func_801b4db8_slot04_0b(obj, 0x14);
+    set_position_relative_to_ref_other_slot04_0b(obj, 0xe, 0xe);
+    set_sequence_from_other_side_table_slot04_0b(obj, 0x14);
     func_8011ffdc(obj);
 }
 
-void func_801b4b24_slot04_0b(Object *obj) {
+void init_arc_motion_when_other_flag_clear_slot04_0b(Object *obj) {
     if (!(ref_other.p->step_flags & 1)) {
         obj->state_1++;
         obj->state_2 = 0;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2510_slot04_0b(Object *obj);
+u8 move_ballistic_and_check_ground_slot04_0b(Object *obj);
 
 void func_801b037c_slot04_0b(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
@@ -38,11 +38,11 @@ void func_801b03f8_slot04_0b(Object *obj) {
 }
 
 void func_801b047c_slot04_0b(Object *obj) {
-    if (func_801b2510_slot04_0b(obj) == 0) {
+    if (move_ballistic_and_check_ground_slot04_0b(obj) == 0) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);

@@ -3,24 +3,24 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2994_slot04_07(Object *obj);
+void move_x_by_facing_with_decel_stop_slot04_07(Object *obj);
 
-void func_801b2300_slot04_07(Object *o) {
+void start_dash_decay_phase_slot04_07(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     o->state_3 = 2;
     o->countdown = 8;
     o->accel_x = *(s32 *)&obj->field_1c0;
-    func_801307e0(o, 0x24);
+    set_sequence_by_side_and_mode(o, 0x24);
 }
 
 void func_801b2338_slot04_07(Object *obj) {
     obj->state_3 = 2;
     obj->field_157 = 1;
     if (obj->field_49 != 0) {
-        func_801307e0(obj, 0x28);
+        set_sequence_by_side_and_mode(obj, 0x28);
     } else {
-        func_801307e0(obj, 0x2c);
+        set_sequence_by_side_and_mode(obj, 0x2c);
     }
 }
 
@@ -33,13 +33,13 @@ void func_801b2378_slot04_07(Object *obj) {
     obj->accel_y = -0x8000;
     *(u16 *)&obj->pos_y -= 1;
     if (obj->field_49 != 0) {
-        func_801307e0(obj, 0x27);
+        set_sequence_by_side_and_mode(obj, 0x27);
     } else {
-        func_801307e0(obj, 0x2b);
+        set_sequence_by_side_and_mode(obj, 0x2b);
     }
 }
 
-int func_801b23e4_slot04_07(Object *obj) {
+int is_compare_limit_below_threshold_slot04_07(Object *obj) {
     int t;
 
     if (obj->mode_flag_2 == 0) {
@@ -52,14 +52,14 @@ int func_801b23e4_slot04_07(Object *obj) {
     return (s16)obj->compare_limit < t;
 }
 
-void func_801b2428_slot04_07(Object *obj) {
+void update_sequence_with_slide_step_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if ((t & 0xff) == 0) {
-            func_801b2994_slot04_07(obj);
+            move_x_by_facing_with_decel_stop_slot04_07(obj);
         }
         update_sequence(obj);
     }

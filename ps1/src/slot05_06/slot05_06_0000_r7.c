@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
-void func_801c8858_slot05_06(Object *obj) {
+void start_move_with_x_velocity_slot05_06(Object *obj) {
     int one;
 
     obj->vel_x = 0xa0000;
@@ -13,21 +13,21 @@ void func_801c8858_slot05_06(Object *obj) {
     obj->accel_x = -0xc000;
     one = 1;
     obj->active_flag_3 = one;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
     obj->field_278 = one;
 }
 
-void func_801c88b4_slot05_06(Object *obj) {
+void update_move_with_sound_and_cancel_slot05_06(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         if ((s16)obj->step_flags == 3) {
             play_sound_at(obj, obj->side, 0x324);
         }
         if ((s16)obj->step_flags == 2 && obj->vel_x >= 0) {
-            func_801cc814_slot05_06(obj);
+            move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
         } else {
-            if (((*(u8 *)&obj->step_flags & 0x80) != 0 && (u8)func_80141618(obj) != 0) || (u8)func_801412a4(obj) != 0) {
+            if (((*(u8 *)&obj->step_flags & 0x80) != 0 && (u8)match_pressed_direction_input(obj) != 0) || (u8)try_set_direction_from_pressed_bits(obj) != 0) {
                 obj->state_3 = 0;
             }
         }

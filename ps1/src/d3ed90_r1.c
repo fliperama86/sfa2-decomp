@@ -4,7 +4,7 @@
 #include "externs.h"
 
 extern u16 table_8017ab5c[];
-void func_8013f2fc(Object *object, int index);
+void set_slot_level_from_repeat_count(Object *object, int index);
 
 /*
  * Checks an object's flag halfword (input_word) against a table entry
@@ -13,10 +13,10 @@ void func_8013f2fc(Object *object, int index);
  * decides; 0x200 and 0x100 set: flag bit 0 also passes; 0x200 set, 0x100
  * clear, 0x800 set: flag bit 1 also passes; none of these: nothing is
  * done. A pass increments the slot's repeat_count and calls func_8013f2c8; a
- * failure calls func_8013f2fc with the object and the slot index.
+ * failure calls set_slot_level_from_repeat_count with the object and the slot index.
  */
 /* The call of func_8013f2c8 passes a second and a third argument although the callee takes one: the original has index and arg in the second and third argument registers at the call. Written with one argument, this function differs from the original in 22 instruction slots. */
-void func_8013ed90(Object *object, int index, int arg) {
+void check_slot_held_input_count(Object *object, int index, int arg) {
     u16 entry;
     u16 flags;
     u16 *cnt;
@@ -43,7 +43,7 @@ void func_8013ed90(Object *object, int index, int arg) {
     cnt = (u16 *)&object->slots[index].repeat_count;
     if (!(entry & 0x200)) {
         if (mask != flags) {
-            func_8013f2fc(object, index);
+            set_slot_level_from_repeat_count(object, index);
             return;
         }
         (*cnt)++;
@@ -52,7 +52,7 @@ void func_8013ed90(Object *object, int index, int arg) {
     }
     if (entry & 0x100) {
         if (mask != flags && bit0 != 1) {
-            func_8013f2fc(object, index);
+            set_slot_level_from_repeat_count(object, index);
         } else {
             (*cnt)++;
             ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
@@ -61,7 +61,7 @@ void func_8013ed90(Object *object, int index, int arg) {
     }
     if (entry & 0x800) {
         if (mask != flags && bit1 != 2) {
-            func_8013f2fc(object, index);
+            set_slot_level_from_repeat_count(object, index);
         } else {
             (*cnt)++;
             ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);

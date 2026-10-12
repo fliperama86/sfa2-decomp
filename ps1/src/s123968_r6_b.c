@@ -5,8 +5,8 @@
 
 /* Aliases of player_left.field_b2 (read as u8) and player_right.field_b2 (read as s16); the member width differs. */
 
-void func_8012510c(void) {
+void log_both_players_state(void) {
     Object *object = &player_left;
-    func_80125144(object);
-    func_80125144(object + 1);
+    log_object_history(object);
+    log_object_history(object + 1);
 }

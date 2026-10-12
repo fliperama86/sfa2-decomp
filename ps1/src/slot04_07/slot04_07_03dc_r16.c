@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b39ec_slot04_07(Object *obj) {
+void hit_other_on_flag_then_update_sequence_slot04_07(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80140770(obj, 0, 5, 0xf, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 0, 5, 0xf, 0, 1, 0);
     }
     update_sequence(obj);
 }
 
-void func_801b3a50_slot04_07(Object *obj) {
+void update_sequence_or_flip_facing_and_reset_slot04_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->facing_side = obj->facing_side ^ 1;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

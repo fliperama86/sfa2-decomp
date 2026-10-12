@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4298_slot04_08(Object *obj) {
+void push_other_x_if_hit_check_slot04_08(Object *obj) {
     if ((u8)func_80146888(obj)) {
         if (obj->facing_side != 0) {
             ref_other.p->pos_x -= 0x20;
@@ -30,7 +30,7 @@ void func_801b4310_slot04_08(Object *obj) {
     }
 }
 
-void func_801b4354_slot04_08(Object *obj) {
+void play_sound_on_step_flag_high_byte_3_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
     if ((t & 0x8000) == 0 && (t & 0xff00) != 0 && (t & 0xff00) == 0x300 && game_state.field_48 == obj->win_count) {
         obj->step_flags = t & 0xff;

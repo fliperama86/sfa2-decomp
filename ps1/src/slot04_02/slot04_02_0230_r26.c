@@ -7,7 +7,7 @@ void func_801b63b8_slot04_02(Object *obj);
 void func_801b65f0_slot04_02(Object *obj);
 extern ObjectFn data_801c65a0_slot04_02[];
 
-void func_801b6378_slot04_02(Object *obj) {
+void call_handler_by_input_dir_second_2_slot04_02(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
         func_801b65f0_slot04_02(obj);

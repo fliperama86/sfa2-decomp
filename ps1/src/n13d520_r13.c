@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80144500(Object *object) {
+void set_leftward_velocity_on_step_flag_byte(Object *object) {
     if ((u8)object->step_flags != 0) {
         object->countdown = 0xf;
         object->vel_x = 0xfff40000;

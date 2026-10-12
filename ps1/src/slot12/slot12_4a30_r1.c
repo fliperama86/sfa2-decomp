@@ -6,5 +6,5 @@
 extern Slot12Pos data_80028200_slot12[];
 extern void (*data_800282a8_slot12[])(Object *);
 
-void func_80014a30_slot12(Object *obj) {
+void noop_slot00_5_slot12(Object *obj) {
 }

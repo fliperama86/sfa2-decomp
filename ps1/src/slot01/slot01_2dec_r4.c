@@ -7,7 +7,7 @@ extern u8 data_80024344_slot01[];
 extern u8 data_80024a7c_slot01[];
 extern SequenceStep *data_800299a8_slot01[];
 
-void func_800131ec_slot01(Object *obj) {
+void init_object_with_random_spawn_y_slot01(Object *obj) {
     obj->field_01 = 1;
     obj->ot_depth = 0;
     obj->facing_side = 0;
@@ -24,10 +24,10 @@ void func_800131ec_slot01(Object *obj) {
     if (obj->table_index == 0x81 || obj->table_index == 0x83) {
         obj->spawn_y = 0x1f4;
     }
-    func_80130768(obj, (s16)(obj->table_index - 0x80), data_800299a8_slot01);
+    set_sequence_from_table_5(obj, (s16)(obj->table_index - 0x80), data_800299a8_slot01);
 }
 
-void func_800132f0_slot01(Object *obj) {
+void advance_state_when_step_flag_negative_slot01(Object *obj) {
     data_801ae066 = obj->step_flags;
     if (data_801ae066 & 0x8000) {
         obj->field_01 = 0;

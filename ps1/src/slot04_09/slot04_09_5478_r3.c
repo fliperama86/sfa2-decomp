@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b57b4_slot04_09(Object *obj) {
+void spawn_child_table_4_at_offset_slot04_09(Object *obj) {
     Object *n;
 
-    n = (Object *)func_8011f1e0();
+    n = (Object *)pop_block_from_pool();
     if (n != 0) {
         n->active_count = 1;
         n->field_02 = 0xc;

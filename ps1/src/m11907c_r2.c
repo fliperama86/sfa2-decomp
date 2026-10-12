@@ -5,7 +5,7 @@
 
 #define VOICES ((SndVoice *)0x801fc200)
 
-void func_801191dc(int a, u32 b) {
+void open_snd_voice_thread(int a, u32 b) {
     VOICES[a].status = 2;
     func_801575dc();
     VOICES[a].thread_handle = func_8015760c(b, VOICES[a].stack_address, VOICES[a].thread_arg);

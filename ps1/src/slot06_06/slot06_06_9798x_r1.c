@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f8458_slot06_06[2][0xd0];
 
 /* What it does (inferred, not an original name): a relative of
-   func_801e9080_slot06_00 in the module of stage 06. It draws a tile map as
+   draw_object_tile_grid_sprites_slot06_00 in the module of stage 06. It draws a tile map as
    sprite records. The object selects a layer by its field_0e (8, 4 or 0xc pick
    one of three layer blocks, any other value uses no layer); the layer's
    scroll_x and scroll_y offset the object's position. For layer 8 the x
@@ -23,7 +23,7 @@ extern Slot06Tile data_801f8458_slot06_06[2][0xd0];
    part, and an object whose field_02 is 0x47 and table_index is 0 draws the cells
    0x39, 0x3a, 0x40, 0x41, 0x46, 0x47, 0x4b, 0x4c, 0x4d, 0x53, 0x54 and 0x55
    with another texture page (offset 0x7846 instead of 0x7806). */
-void func_801e9798_slot06_06(Object *object) {
+void draw_object_tile_grid_sprites_parallax_slot06_06(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

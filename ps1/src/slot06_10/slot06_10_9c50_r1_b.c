@@ -6,17 +6,17 @@
 extern ObjectFn data_801ea9d0_slot06_10[];
 extern SequenceStep *data_801ebbb8_slot06_10[];
 
-void func_80120028(Object *o);
+void set_flag_and_push_if_mode_8(Object *o);
 
-void func_801e9de8_slot06_10(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_5_slot06_10(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9e08_slot06_10(Object *obj) {
+void call_handler_by_state_0_6_slot06_10(Object *obj) {
     data_801ea9d0_slot06_10[obj->state_0](obj);
 }
 
-void func_801e9e48_slot06_10(Object *obj) {
+void init_object_with_sequence_1_low_slot06_10(Object *obj) {
     obj->field_0a = 1;
     obj->state_0 = 1;
     obj->base_x = 0x340;
@@ -26,13 +26,13 @@ void func_801e9e48_slot06_10(Object *obj) {
     obj->pos_y += 0xe0;
     obj->image_row = 0;
     obj->spawn_mode = 4;
-    func_80130700(obj, data_801ebbb8_slot06_10[1]);
+    set_sequence_entry(obj, data_801ebbb8_slot06_10[1]);
 }
 
-void func_801e9eb4_slot06_10(Object *obj) {
-    func_80120028(obj);
+void load_velocities_from_table_slot06_10(Object *obj) {
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e9ed4_slot06_10(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_6_slot06_10(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

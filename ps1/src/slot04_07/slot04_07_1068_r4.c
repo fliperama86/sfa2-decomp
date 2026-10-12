@@ -15,10 +15,10 @@ void func_801b1600_slot04_07(Object *obj) {
     obj->other->field_6b = 0x11;
     obj->field_6b = 0;
     obj->other_lock = 0x15;
-    func_801307e0(obj, 0x1d);
+    set_sequence_by_side_and_mode(obj, 0x1d);
 }
 
-int func_801b1668_slot04_07(Object *obj) {
+int try_start_meter_move_a_slot04_07(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
@@ -35,7 +35,7 @@ int func_801b1668_slot04_07(Object *obj) {
     return r;
 }
 
-int func_801b16f4_slot04_07(Object *obj) {
+int try_start_meter_move_b_slot04_07(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {

@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 
-void func_801b03a0_slot04_01(Object *obj) {
+void update_state_3_check_range_or_continue_slot04_01(Object *obj) {
     if (obj->state_3 == 0) {
         obj->state_3 = obj->state_3 + 1;
         if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
@@ -15,13 +15,13 @@ void func_801b03a0_slot04_01(Object *obj) {
                 obj->state_3 = 0;
             } else {
                 obj->active_flag_3 = 1;
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         } else {
             obj->active_flag_3 = 1;
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
-        func_80142a14(obj);
+        update_sequence_with_input_check(obj);
     }
 }

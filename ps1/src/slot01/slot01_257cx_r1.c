@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_80015420_slot01[];
-void func_8001257c_slot01(void);
+void load_and_store_16x1_image_slot01(void);
 
-void func_8001257c_slot01(void) {
+void load_and_store_16x1_image_slot01(void) {
     Rect r;
     u8 *p;
     r.x = 0x70;

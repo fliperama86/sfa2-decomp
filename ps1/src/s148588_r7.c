@@ -6,17 +6,17 @@
 
 
 void func_80148e44(Object *object) {
-    func_8011f240(object);
+    reset_and_push_object_to_pool_table(object);
 }
 
 void func_80148e64(Object *object) {
-    func_8011f240(object);
+    reset_and_push_object_to_pool_table(object);
 }
 
 u8 func_80148e84(Object *object) {
-    return func_80148ecc(object, 0);
+    return spawn_random_offset_object_with_variant(object, 0);
 }
 
 u8 func_80148ea8(Object *object) {
-    return func_80148ecc(object, 1);
+    return spawn_random_offset_object_with_variant(object, 1);
 }

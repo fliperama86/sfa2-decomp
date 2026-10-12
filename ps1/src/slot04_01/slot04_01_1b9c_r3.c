@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1b58_slot04_01(Object *object);
-void func_801b1eb8_slot04_01(Object *object);
+int move_with_gravity_and_check_ground_slot04_01(Object *object);
+void land_on_ground_set_sequence_slot04_01(Object *object);
 
-void func_801b1d58_slot04_01(Object *o) {
+void update_airborne_with_step_count_landing_slot04_01(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    if (func_801b1b58_slot04_01(o) != 0) {
-        func_801b1eb8_slot04_01(o);
+    if (move_with_gravity_and_check_ground_slot04_01(o) != 0) {
+        land_on_ground_set_sequence_slot04_01(o);
     } else if ((s16)o->step_flags & 0x8000) {
         play_sound_at(o, o->side, 0x320);
         obj->step_count = obj->step_count - 1;
         if (obj->step_count & 0x80) {
             o->state_3++;
-            func_801307e0(o, 0x21);
+            set_sequence_by_side_and_mode(o, 0x21);
         } else {
             update_sequence(o);
         }

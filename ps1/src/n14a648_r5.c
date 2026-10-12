@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e404(Object *unused) {
+u8 return_one_ignoring_object(Object *unused) {
     return 1;
 }

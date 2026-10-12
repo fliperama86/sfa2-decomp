@@ -29,7 +29,7 @@ void func_801b02cc_slot04_09(Object *obj) {
                     k = 5;
                 }
             }
-            k = (s8)func_80125734(obj, k);
+            k = (s8)get_input_mapped_value_or_default(obj, k);
             obj->variant_index = k;
             set_sequence_by_side(obj, data_801c7b94_slot04_09[k]);
         }

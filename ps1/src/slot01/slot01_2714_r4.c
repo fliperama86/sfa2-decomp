@@ -4,18 +4,18 @@
 #include "../externs.h"
 
 extern u8 data_800319b8_slot01[];
-void func_80012dec_slot01(Object *obj, u8 *a);
+void build_sized_sprite_quads_into_ot_slot01(Object *obj, u8 *a);
 
-void func_80012d08_slot01(Object *obj) {
+void update_or_draw_sprite_set_slot01(Object *obj) {
     if (obj->table_index != 0) {
         advance_sequence_checked(obj);
-        func_80120028(obj);
+        set_flag_and_push_if_mode_8(obj);
     } else {
-        func_80012dec_slot01(obj, data_800319b8_slot01 + data_801a27d0 * 0xf0);
+        build_sized_sprite_quads_into_ot_slot01(obj, data_800319b8_slot01 + data_801a27d0 * 0xf0);
     }
 }
 
-void func_80012d7c_slot01(Object *obj) {
+void unlink_from_parent_list_and_release_slot01(Object *obj) {
     Object **p = (Object **)obj->parent->linked_object;
     int n;
 

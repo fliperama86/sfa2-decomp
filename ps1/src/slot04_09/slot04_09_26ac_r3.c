@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b28dc_slot04_09(Object *o) {
+void start_grab_state_save_other_image_slot04_09(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;
     o->other_lock = 0x10;
@@ -12,17 +12,17 @@ void func_801b28dc_slot04_09(Object *o) {
     o->field_157 = 0;
     obj->field_334 = p->field_0c;
     obj->field_335 = p->image_row;
-    func_80146998(o);
-    func_801307e0(o, 0x28);
+    spawn_offset_effect_and_play_sounds(o);
+    set_sequence_by_side_and_mode(o, 0x28);
 }
 
-void func_801b2940_slot04_09(Object *obj) {
+void branch_on_step_flag_bit_one_slot04_09(Object *obj) {
     update_sequence(obj);
     if (obj->step_flags & 1) {
         if (obj->field_241 != 0) {
             obj->state_3 = 6;
             obj->other->field_6b = 0;
-            func_801307e0(obj, 0x2a);
+            set_sequence_by_side_and_mode(obj, 0x2a);
         } else {
             obj->countdown = 8;
             obj->vel_x = 0x98000;

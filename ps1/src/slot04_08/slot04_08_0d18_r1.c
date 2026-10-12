@@ -7,7 +7,7 @@ int func_801b0d18_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -27,7 +27,7 @@ int func_801b0d94_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -44,8 +44,8 @@ int func_801b0d94_slot04_08(Object *obj) {
 }
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
-int func_801b0e10_slot04_08(Object *obj) {
-    if (func_801417cc(obj) != 0) {
+int try_start_state_7_by_pressed_bits_slot04_08(Object *obj) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -53,10 +53,10 @@ int func_801b0e10_slot04_08(Object *obj) {
         obj->facing_side = obj->saved_facing;
         if (((obj->pressed_bits | obj->released_bits) & 0x6a) != 0) {
             obj->field_15a = 9;
-            func_80142ba0(obj);
+            set_direction_index_from_buttons_group_b(obj);
         } else {
             obj->field_15a = 2;
-            func_80142b3c(obj);
+            set_direction_index_from_buttons_group_a(obj);
         }
     }
 }

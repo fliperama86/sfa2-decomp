@@ -10,7 +10,7 @@ extern u8 data_800e85a8_slot0f[];
 extern u8 data_800e8588_slot0f[];
 extern Slot0fRec8618 data_800e8618_slot0f[];
 
-void func_800e25e0_slot0f(Object *o) {
+void queue_two_choice_menu_items_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     int i;
     Slot0fRec8618 *r;
@@ -20,7 +20,7 @@ void func_800e25e0_slot0f(Object *o) {
     } else {
         p = (u8 *)&data_800e8608_slot0f;
     }
-    func_801519b4(p);
+    add_item_to_table(p);
     if ((s8)obj->state_index == 2) {
         p = data_800e8558_slot0f;
     } else {
@@ -29,7 +29,7 @@ void func_800e25e0_slot0f(Object *o) {
             p = data_800e8588_slot0f;
         }
     }
-    func_801519b4(p);
+    add_item_to_table(p);
     for (i = 0; i < 2; i++) {
         r = &data_800e8618_slot0f[i];
         if (obj->field_0c == i) {
@@ -37,6 +37,6 @@ void func_800e25e0_slot0f(Object *o) {
         } else {
             r->field_0b = 0x1a;
         }
-        func_801519b4(r);
+        add_item_to_table(r);
     }
 }

@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 int rand(void);
-void func_801e9d40_slot06_07(Object *obj);
-void func_801e9d84_slot06_07(Object *obj);
-Object *func_801ea010_slot06_07(void);
+void advance_or_pick_random_sequence_slot06_07(Object *obj);
+void set_random_sequence_from_table_slot06_07(Object *obj);
+Object *call_handler_by_player_kind_flags_slot06_07(void);
 
 extern SequenceStep *data_801ee188_slot06_07[];
 extern SequenceStep *data_801ee18c_slot06_07;
@@ -17,43 +17,43 @@ extern ObjectFn data_801ee1dc_slot06_07[];
 
 void func_801e9cf4_slot06_07(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        func_801e9d40_slot06_07(obj);
+        advance_or_pick_random_sequence_slot06_07(obj);
     }
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e9d40_slot06_07(Object *obj) {
+void advance_or_pick_random_sequence_slot06_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801e9d84_slot06_07(obj);
+        set_random_sequence_from_table_slot06_07(obj);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e9d84_slot06_07(Object *obj) {
+void set_random_sequence_from_table_slot06_07(Object *obj) {
     u8 v = data_801ee1bc_slot06_07[rand() & 0xf];
-    func_80130700(obj, data_801ee188_slot06_07[v]);
+    set_sequence_entry(obj, data_801ee188_slot06_07[v]);
 }
 
-void func_801e9de0_slot06_07(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_07(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9e00_slot06_07(Object *obj) {
+void call_handler_by_state_0_3_slot06_07(Object *obj) {
     data_801ee1cc_slot06_07[obj->state_0](obj);
 }
 
-void func_801e9e40_slot06_07(Object *obj) {
+void init_object_with_fixed_sequence_a_slot06_07(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->image_row = 0;
     obj->field_0c = 0;
     obj->spawn_mode = 4;
     obj->state_0++;
-    func_80130700(obj, data_801ee18c_slot06_07);
+    set_sequence_entry(obj, data_801ee18c_slot06_07);
 }
 
-void func_801e9e90_slot06_07(Object *obj) {
+void call_handler_by_state_1_and_advance_slot06_07(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801ee1dc_slot06_07[obj->state_1](obj);
         advance_sequence_checked(obj);
@@ -61,30 +61,30 @@ void func_801e9e90_slot06_07(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9f04_slot06_07(Object *obj) {
-    Object *p = func_801ea010_slot06_07();
+void start_sequence_when_target_is_left_slot06_07(Object *obj) {
+    Object *p = call_handler_by_player_kind_flags_slot06_07();
     if (p != 0) {
         if ((u16)p->pos_x < (u16)(obj->pos_x - 0x20)) {
             obj->state_1++;
-            func_80130700(obj, data_801ee190_slot06_07);
+            set_sequence_entry(obj, data_801ee190_slot06_07);
         }
     }
 }
 
-void func_801e9f74_slot06_07(Object *obj) {
+void advance_state_1_random_countdown_on_flag_slot06_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1++;
         obj->countdown = get_random_byte();
     }
 }
 
-void func_801e9fc8_slot06_07(Object *obj) {
+void count_down_then_reset_state_1_slot06_07(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         obj->state_1 = 0;
     }
 }
 
-void func_801e9ff0_slot06_07(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_3_slot06_07(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

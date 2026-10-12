@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern Object *data_800519d8_slot28[];
-void func_8001c3ac_slot28(Object *o);
+void queue_rect_upload_job_slot28(Object *o);
 void func_8001c430_slot28(Object *o, int n);
 
 void func_8001c13c_slot28(Object *o) {
@@ -19,7 +19,7 @@ void func_8001c13c_slot28(Object *o) {
         p->variant_index = 0xff;
         p = data_800519d8_slot28[1];
         p->variant_index = 0xff;
-        func_8001c3ac_slot28(o);
+        queue_rect_upload_job_slot28(o);
         play_sound_at(0, 0, 0x305);
         func_8001c430_slot28(o, 5);
     }

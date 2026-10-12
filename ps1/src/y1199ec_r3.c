@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80119e74(AnimObj *obj, u16 n) {
+void queue_compressed_block_jobs(AnimObj *obj, u16 n) {
     void *p90 = obj->compressed_src;
     u16 idx = obj->stream_index;
     int col = data_80183910[idx];
@@ -17,7 +17,7 @@ void func_80119e74(AnimObj *obj, u16 n) {
     r.w = 4;
     r.h = 0x10;
     for (i = 0; i < n; i++) {
-        job = (Job *) func_8011f430();
+        job = (Job *) alloc_pooled_a();
         if (job == 0) {
             break;
         }

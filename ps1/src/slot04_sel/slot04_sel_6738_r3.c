@@ -7,7 +7,7 @@ extern u16 *data_801b9c38_slot04_sel[];
 extern u8 data_801b9db0_slot04_sel;
 extern u8 data_801b9db4_slot04_sel;
 
-void func_801b6a44_slot04_sel(Object *obj, u8 *rec, int n) {
+void move_selection_left_right_with_sound_slot04_sel(Object *obj, u8 *rec, int n) {
     if ((*data_801b9c38_slot04_sel[obj->side] & 0xf0) != 0) {
         data_801b9db4_slot04_sel = 1 << obj->side;
     }

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e1c_slot04_0b(Object *o, Object *unused) {
+void release_object_and_unlink_from_parent_slot04_0b(Object *o, Object *unused) {
     ref_other.p = o->parent;
     ref_other.p->link_flags--;
     if (ref_other.p->link_flags == 0) {
         ref_other.p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }

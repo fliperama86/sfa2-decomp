@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b16a0_slot04_00(Object *obj);
-void func_801b1554_slot04_00(Object *obj);
+void land_on_ground_and_update_sequence_slot04_00(Object *obj);
 
 void func_801b1438_slot04_00(Object *obj) {
     func_801b16a0_slot04_00(obj);
     if (obj->pos_y >= obj->ground_y) {
-        func_801b1554_slot04_00(obj);
+        land_on_ground_and_update_sequence_slot04_00(obj);
     } else {
         if (obj->facing_side == 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -24,21 +24,21 @@ void func_801b1438_slot04_00(Object *obj) {
     }
 }
 
-void func_801b14ec_slot04_00(Object *obj) {
+void update_vertical_fall_until_ground_slot04_00(Object *obj) {
     func_801b16a0_slot04_00(obj);
     if (obj->pos_y >= obj->ground_y) {
-        func_801b1554_slot04_00(obj);
+        land_on_ground_and_update_sequence_slot04_00(obj);
     } else if (*(u8 *)&obj->step_flags == 0) {
         update_sequence(obj);
     }
 }
 
-void func_801b1554_slot04_00(Object *obj) {
+void land_on_ground_and_update_sequence_slot04_00(Object *obj) {
     obj->state_3++;
     obj->active_state = 0;
     obj->active_flag_3 = 0;
     obj->active_flag_4 = 0;
     obj->pos_y = (u16)obj->ground_y;
-    func_801209c4(obj);
+    play_object_sound_by_kind(obj);
     update_sequence(obj);
 }

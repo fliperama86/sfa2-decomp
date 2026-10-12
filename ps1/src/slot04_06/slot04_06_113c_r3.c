@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1368_slot04_06(Object *obj) {
+int is_all_states_one_and_healthy_slot04_06(Object *obj) {
     if (*(u32 *)&obj->state_0 == 0x1010101) {
         if (obj->active_state == 0) {
             if (obj->field_163 == 0) {

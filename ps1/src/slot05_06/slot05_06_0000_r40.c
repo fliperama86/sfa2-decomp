@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
-void func_801cb2e4_slot05_06(Object *obj) {
+void advance_state_on_other_hit_or_slowdown_slot05_06(Object *obj) {
     if (obj->vel_x >= 0) {
         Object *other;
-        func_801cc814_slot05_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
         if (obj->active_flag != 0) {
             other = obj->other;
             obj->active_flag = 0;

@@ -8,24 +8,24 @@
  * of the branches before the shared tail and stores through a0; this form
  * keeps the move in the delay slot of the final call. Same cause as in
  * v2_r3. */
-void func_80142a14(Object *object)
+void update_sequence_with_input_check(Object *object)
 {
   s16 state = object->step_flags;
   if (state < 0)
   {
     if (object->input_dir_0 != 0)
     {
-      func_80131468(object);
+      reset_object_to_state_1_0_0_2_sequence_1(object);
     }
     else
     {
-      func_801312b8(object);
+      reset_object_to_state_1_0_sequence_0(object);
     }
     return;
   }
   if ((state & 0x80) == 0)
   {
-    if ((u8)func_801412a4(object) == 0)
+    if ((u8)try_set_direction_from_pressed_bits(object) == 0)
     {
       update_sequence(object);
       return;
@@ -33,7 +33,7 @@ void func_80142a14(Object *object)
   }
   else
   {
-    if ((u8)func_80141618(object) == 0 && (u8)func_801412a4(object) == 0)
+    if ((u8)match_pressed_direction_input(object) == 0 && (u8)try_set_direction_from_pressed_bits(object) == 0)
     {
       update_sequence(object);
       return;

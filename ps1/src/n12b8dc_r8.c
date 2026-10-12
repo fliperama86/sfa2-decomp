@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137c88(Object *object) {
+void tick_countdown_then_reset_to_state_1(Object *object) {
     int v = object->countdown;
     v -= 0x100;
     object->countdown = v;

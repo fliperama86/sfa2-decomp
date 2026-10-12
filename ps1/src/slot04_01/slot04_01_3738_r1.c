@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b388c_slot04_01(Object *obj);
+int move_by_velocity_return_falling_slot04_01(Object *obj);
 
-void func_801b3738_slot04_01(Object *obj) {
-    if (func_801b388c_slot04_01(obj)) {
+void update_airborne_fall_then_hit_other_slot04_01(Object *obj) {
+    if (move_by_velocity_return_falling_slot04_01(obj)) {
         if (obj->ground_y <= obj->pos_y) {
             obj->pos_y = obj->ground_y;
             game_state.state_param = 0x18;
@@ -14,13 +14,13 @@ void func_801b3738_slot04_01(Object *obj) {
     }
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80140770(obj, 0, 5, 0x11, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 0, 5, 0x11, 0, 1, 0);
     }
     update_sequence(obj);
 }
 
-void func_801b37d4_slot04_01(Object *obj) {
-    if (func_801b388c_slot04_01(obj)) {
+void check_landing_set_state_param_slot04_01(Object *obj) {
+    if (move_by_velocity_return_falling_slot04_01(obj)) {
         if (obj->ground_y <= obj->pos_y) {
             obj->pos_y = obj->ground_y;
             game_state.state_param = 0x18;
@@ -34,6 +34,6 @@ void func_801b383c_slot04_01(Object *obj) {
         update_sequence(obj);
     } else {
         obj->facing_side = obj->facing_side ^ 1;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

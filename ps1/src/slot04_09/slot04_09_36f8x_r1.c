@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 
 /* What it does (inferred, not an original name): a per-frame update of a
    character state that has another object (field_40, "other") in view. It
-   first runs func_801b2858_slot04_09 (the move). Then, when step_flags is
+   first runs apply_velocity_and_acceleration_slot04_09 (the move). Then, when step_flags is
    negative as a halfword: it sets active_state to 1, vel_y to 0x90000 and
    accel_y to -0x6000, adds 1 to state_3, and sets a velocity (vel_x,
    accel_x): when field_a3 is 0 a fixed one whose sign follows facing_side;
@@ -17,11 +17,11 @@ void func_801b2858_slot04_09(Object *o);
    other's hit_type is not 0xff it sets field_a3 to 0x80 and clears
    active_flag; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
    vel_x and accel_x; then it hands over to update_sequence. */
-void func_801b36f8_slot04_09(Object *obj) {
+void move_launch_toward_other_with_stop_check_slot04_09(Object *obj) {
     Object *p;
     int d;
 
-    func_801b2858_slot04_09(obj);
+    apply_velocity_and_acceleration_slot04_09(obj);
     if ((s16)obj->step_flags & 0x8000) {
         obj->active_state = 1;
         obj->vel_y = 0x90000;
@@ -35,7 +35,7 @@ void func_801b36f8_slot04_09(Object *obj) {
                 obj->vel_x = 0xfff20000;
                 obj->accel_x = 0x8000;
             }
-            func_801307e0(obj, 0x33);
+            set_sequence_by_side_and_mode(obj, 0x33);
         } else {
             p = obj->other;
             d = p->pos_x - obj->pos_x;
@@ -43,7 +43,7 @@ void func_801b36f8_slot04_09(Object *obj) {
             d = (d >> 4) << 16;
             obj->vel_x = d;
             obj->accel_x = 0;
-            func_801307e0(obj, 0x33);
+            set_sequence_by_side_and_mode(obj, 0x33);
         }
     } else {
         p = obj->other;

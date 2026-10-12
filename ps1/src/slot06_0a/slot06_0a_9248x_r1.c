@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9248_slot06_0a(Object *obj, int a, int b) {
+void set_position_from_scaled_offsets_3_8_slot06_0a(Object *obj, int a, int b) {
     int t;
 
     /* The steps reuse the two parameters and one local. Written as two expressions eleven instruction slots differ. */

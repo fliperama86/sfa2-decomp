@@ -5,15 +5,15 @@
 
 extern s32 data_80190544;
 
-void func_80136180(Sprite *sprite);
+void init_sprite_at_1c0_zero(Sprite *sprite);
 
-void func_801e8128_slot06_07(Slot06Layer *layer) {
+void update_layer_follow_main_layer_scaled_slot06_07(Slot06Layer *layer) {
     Slot06Layer *l2;
     int d;
     s16 e;
 
     if (layer->mode == 0) {
-        func_80136180((Sprite *)layer);
+        init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = *(s32 *)&l2->bound_x_c;

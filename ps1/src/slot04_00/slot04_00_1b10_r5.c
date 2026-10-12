@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1fb8_slot04_00(Object *obj) {
+void land_on_ground_set_sequence_slot04_00(Object *obj) {
     if (obj->active_state != 0) {
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
     }
     obj->state_3++;
     obj->pos_y_frac = 0;

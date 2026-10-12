@@ -5,10 +5,10 @@
 
 #define VOICES ((SndVoice *)0x801fc200)
 
-void func_801193fc(int a) {
+void set_voice_status_bit(int a) {
     VOICES[a].status |= 0x10;
 }
 
-void func_80119420(int a) {
+void clear_voice_status_bit(int a) {
     VOICES[a].status &= 0xffef;
 }

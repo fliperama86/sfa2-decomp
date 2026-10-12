@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern SequenceStep **data_801c4670_slot04_04[];
-void func_801b4080_slot04_04(Object *obj);
-void func_801b40ec_slot04_04(Object *obj, Object *p);
-void func_801b4198_slot04_04(Object *obj, Object *p);
-void func_801b4244_slot04_04(Object *obj);
+void update_follower_by_parent_kind_slot04_04(Object *obj);
+void follow_parent_frame_param_sequence_a_slot04_04(Object *obj, Object *p);
+void follow_parent_frame_variant_sequence_slot04_04(Object *obj, Object *p);
+void increment_state_0_slot04_04(Object *obj);
 
-void func_801b3f84_slot04_04(Object *obj) {
+void init_follower_from_parent_kind_slot04_04(Object *obj) {
     Object *p = obj->parent;
 
     obj->state_0 = obj->state_0 + 1;
@@ -32,18 +32,18 @@ void func_801b3f84_slot04_04(Object *obj) {
             data_801c4670_slot04_04[3] = data_1f8001a0;
         }
     }
-    func_801b4080_slot04_04(obj);
+    update_follower_by_parent_kind_slot04_04(obj);
 }
 
-void func_801b4080_slot04_04(Object *obj) {
+void update_follower_by_parent_kind_slot04_04(Object *obj) {
     Object *p = obj->parent;
 
     obj->field_01 = 0;
     if (p->kind != obj->state_3) {
-        func_801b4244_slot04_04(obj);
+        increment_state_0_slot04_04(obj);
     } else if (obj->table_index == 0) {
-        func_801b40ec_slot04_04(obj, p);
+        follow_parent_frame_param_sequence_a_slot04_04(obj, p);
     } else {
-        func_801b4198_slot04_04(obj, p);
+        follow_parent_frame_variant_sequence_slot04_04(obj, p);
     }
 }

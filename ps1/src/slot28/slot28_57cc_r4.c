@@ -22,7 +22,7 @@ void func_80015ac4_slot28(Object *obj) {
     }
 }
 
-void func_80015b1c_slot28(Object *obj) {
+void count_down_vel_x_to_next_state_1_slot28(Object *obj) {
     if (--obj->vel_x == 0) {
         obj->vel_x = 0x20;
         obj->state_1++;

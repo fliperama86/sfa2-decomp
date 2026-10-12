@@ -11,7 +11,7 @@ extern Slot2aSpawn data_801e22b4_slot2a[];
 extern Slot2aBank data_801e2fdc_slot2a[];
 extern u32 data_801e515c_slot2a;
 
-void func_801e0e48_slot2a(Object *obj) {
+void build_sprite_arrays_from_spawn_table_slot2a(Object *obj) {
     Slot2aSpawn *e;
     Cell20 *a;
     Cell20 *b;

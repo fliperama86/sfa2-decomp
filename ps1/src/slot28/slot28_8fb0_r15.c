@@ -8,8 +8,8 @@ void func_8001a958_slot28(Object *obj, int arg);
 
 void func_80019e28_slot28(Object *obj) {
     data_800373fc_slot28[data_8018f5a0->pass_index](obj);
-    func_80138164();
-    func_8011abe4();
+    update_blocks();
+    update_active_slab172_entries();
 }
 
 void func_80019e80_slot28(Object *obj) {

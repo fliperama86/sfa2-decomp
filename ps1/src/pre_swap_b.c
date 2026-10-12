@@ -6,7 +6,7 @@
 extern u16 data_801a6966;
 
 
-void func_80131854(Object *object) {
+void load_remapped_input(Object *object) {
     u16 sum = 0;
     u16 i;
     u32 w;

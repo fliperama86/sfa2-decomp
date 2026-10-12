@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2754_slot04_00(Object *obj) {
+void start_sequence_38_or_39_by_input_bit_slot04_00(Object *obj) {
     int n = 0x38;
 
     obj->active_flag_4 = 1;
@@ -16,5 +16,5 @@ void func_801b2754_slot04_00(Object *obj) {
     if (obj->input_bits_2 & 0x8000) {
         n = 0x39;
     }
-    func_801307e0(obj, n);
+    set_sequence_by_side_and_mode(obj, n);
 }

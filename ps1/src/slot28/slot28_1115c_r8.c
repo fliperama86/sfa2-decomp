@@ -22,8 +22,8 @@ void func_80021cc4_slot28(Object *obj) {
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t < 0) {
-        func_8014f4d4(6, 3);
-        func_801280f0();
+        set_menu_command_by_code(6, 3);
+        start_fade_mode_1_and_wait();
         data_8018f5a0->pass_index += 1;
     }
 }
@@ -35,7 +35,7 @@ void func_80021d2c_slot28(Object *obj) {
 }
 
 void func_80021d64_slot28(Object *obj, int arg) {
-    func_80130768(data_80051b90_slot28[3], arg, data_80045c6c_slot28);
+    set_sequence_from_table_5(data_80051b90_slot28[3], arg, data_80045c6c_slot28);
 }
 
 void func_80021d94_slot28(Object *obj) {

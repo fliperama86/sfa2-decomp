@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
-/* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_8014b870, func_8014b8d8 (and r2 func_8014be78, func_8014bee8): the original computes
+/* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: script_branch_if_value_ge_compare_limit, script_branch_if_value_le_compare_limit (and r2 branch_script_if_value_ge_table_column, branch_script_if_table_column_ge_value): the original computes
    script_byte_hi as sll 16 / sra 24 of the raw halfword; every form tried (>> 8, casts to s16/s8, int/unsigned/u16 locals,
    s16 pointer) folds to srl 8. */
 #include "game.h"
@@ -8,7 +8,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014b870(Object *object)
+void script_branch_if_value_ge_compare_limit(Object *object)
 {
   short new_var;
   short new_var2;
@@ -19,10 +19,10 @@ void func_8014b870(Object *object)
   object->script_byte_lo = v;
   if (v >= object->compare_limit)
   {
-    func_8014c914(object);
+    read_script_word_and_dispatch(object);
   }
   else
   {
-    func_8014c528(object);
+    skip_script_block_then_read_opcode(object);
   }
 }

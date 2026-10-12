@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80011190_slot12(void);
+void reset_to_phase_7_when_no_side_bits_slot12(void);
 
-void func_8001111c_slot12(void) {
+void wait_countdown_then_advance_step_index_slot12(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
@@ -19,6 +19,6 @@ void func_8001111c_slot12(void) {
         }
     }
     data_8018f5a0->step_index++;
-    func_8014f4d4(6, 2);
-    func_80011190_slot12();
+    set_menu_command_by_code(6, 2);
+    reset_to_phase_7_when_no_side_bits_slot12();
 }

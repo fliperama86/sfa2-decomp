@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_80143184(Object *object) {
+void set_other_sequence_3_when_close(Object *object) {
     int limit;
     Object *other = object->other;
     ref_other.p = other;
     if ((object->active_state | ref_other.p->active_state) != 0) return;
-    func_8014362c(object, other);
+    set_compare_limit_from_box_distance(object, other);
     limit = 0x40;
     if ((s16)object->compare_limit > limit) return;
     if (ref_other.p->frame->active == 0 && ref_other.p->frame->box_c == 0 &&
@@ -32,12 +32,12 @@ void func_80143184(Object *object) {
     ref_other.p->field_157 = 0;
 }
 
-int func_801433ac(Object *object) {
+int set_other_sequence_0_when_close(Object *object) {
     int limit;
     Object *other = object->other;
     ref_other.p = other;
     if ((object->active_state | ref_other.p->active_state) != 0) return 0;
-    func_8014362c(object, other);
+    set_compare_limit_from_box_distance(object, other);
     limit = 0x40;
     if ((s16)object->compare_limit > limit) return 0;
     if (ref_other.p->frame->active != 0 || ref_other.p->frame->box_c != 0 ||

@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 extern void (*data_800e87a8_slot0f[])(Object *);
-int func_800e0d30_slot0f(void);
-void func_800e2348_slot0f(Object *o);
+int get_usable_memory_card_mask_slot0f(void);
+void update_menu_selection_with_enabled_mask_slot0f(Object *o);
 
-void func_800e1a98_slot0f(Object *o) {
+void update_countdown_reset_on_button_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     if (o->pos_x_frac & 0x860) {
         obj->countdown = 1;
@@ -30,8 +30,8 @@ void func_800e1af4_slot0f(Object *o) {
 void func_800e1b34_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     o->field_01 += 1;
-    o->image_row = func_800e0d30_slot0f();
+    o->image_row = get_usable_memory_card_mask_slot0f();
     o->ot_depth = 2;
     obj->field_0b = 0;
-    func_800e2348_slot0f(o);
+    update_menu_selection_with_enabled_mask_slot0f(o);
 }

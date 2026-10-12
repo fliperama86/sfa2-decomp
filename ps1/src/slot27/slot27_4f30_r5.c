@@ -6,7 +6,7 @@
 extern Slot27Rec9348 data_80029348_slot27[];
 extern void (*data_800284fc_slot27[])(Object *);
 
-void func_800153c0_slot27(Object *obj) {
+void scroll_and_link_cell_grid_to_ot_slot27(Object *obj) {
     Cell20 *c = data_80029348_slot27[data_801a27d0].cells;
     PrimTag *ot = (PrimTag *)data_801987c8 + 0x1d;
     int i;
@@ -29,14 +29,14 @@ void func_800153c0_slot27(Object *obj) {
     ot->addr = (u32)c;
 }
 
-void func_800154b4_slot27(Object *obj) {
+void increment_state_0_3_slot27(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
 }
 
 void func_800154c8_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_800154e8_slot27(Object *obj) {
+void call_handler_by_state_0_5_slot27(Object *obj) {
     data_800284fc_slot27[obj->state_0](obj);
 }

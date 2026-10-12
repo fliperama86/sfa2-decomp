@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2b28_slot04_00(Object *obj) {
+void count_down_countdown_high_byte_slot04_00(Object *obj) {
     int a;
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
@@ -18,11 +18,11 @@ void func_801b2b28_slot04_00(Object *obj) {
         obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }
 
-void func_801b2bb4_slot04_00(Object *o) {
+void update_countdown_state_with_counter_slot04_00(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int t;
 
@@ -46,5 +46,5 @@ void func_801b2bb4_slot04_00(Object *o) {
             o->countdown = t - 0x100;
         }
     }
-    func_80142fe8(o);
+    push_other_by_vel_x(o);
 }

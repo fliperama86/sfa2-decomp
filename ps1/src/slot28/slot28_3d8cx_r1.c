@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013d8c_slot28(Object *obj, SeqRec *rec);
-void func_80013dc4_slot28(Object *obj, SeqRec *rec);
+void set_sequence_record_and_load_timer_slot28(Object *obj, SeqRec *rec);
+void init_records_from_sequence_data_words_slot28(Object *obj, SeqRec *rec);
 
-void func_80013d8c_slot28(Object *obj, SeqRec *rec) {
+void set_sequence_record_and_load_timer_slot28(Object *obj, SeqRec *rec) {
     int w;
     int t;
     obj->sequence = (SequenceStep *)rec;
@@ -15,5 +15,5 @@ void func_80013d8c_slot28(Object *obj, SeqRec *rec) {
     t = w >> 16;
     obj->step_timer = t;
     obj->step_flags = w;
-    func_80013dc4_slot28(obj, rec);
+    init_records_from_sequence_data_words_slot28(obj, rec);
 }

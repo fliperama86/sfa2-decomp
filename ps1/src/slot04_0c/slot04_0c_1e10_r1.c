@@ -6,7 +6,7 @@
 extern ObjectFn data_801bda28_slot04_0c[];
 extern s32 data_801bda44_slot04_0c[];
 
-void func_80146998(Object *object);
+void spawn_offset_effect_and_play_sounds(Object *object);
 void func_80145d20(Object *object);
 void func_801428e4(Object *object);
 
@@ -14,7 +14,7 @@ void func_801b1e10_slot04_0c(Object *obj) {
     if ((u8)obj->step_flags) {
         obj->state_3 = obj->state_3 + 1;
         obj->step_flags &= 0xff00;
-        func_80146998(obj);
+        spawn_offset_effect_and_play_sounds(obj);
         obj->countdown = 0x40;
     }
     update_sequence(obj);
@@ -23,7 +23,7 @@ void func_801b1e10_slot04_0c(Object *obj) {
 void func_801b1e70_slot04_0c(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
@@ -33,7 +33,7 @@ void func_801b1ebc_slot04_0c(Object *obj) {
     data_801bda28_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b1efc_slot04_0c(Object *obj) {
+void start_sequence_25_with_table_vel_x_slot04_0c(Object *obj) {
     s32 v;
     obj->state_3 = obj->state_3 + 1;
     v = data_801bda44_slot04_0c[obj->direction_index >> 1];
@@ -41,6 +41,6 @@ void func_801b1efc_slot04_0c(Object *obj) {
     obj->vel_x = v;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138ae8(&game_state, obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x25);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x25);
 }

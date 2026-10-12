@@ -11,10 +11,10 @@ extern u16 data_801c7884_slot04_14[];
 extern s32 data_801c7890_slot04_14[];
 extern s32 data_801c78cc_slot04_14[];
 
-int func_801b7d28_slot04_14(Object *obj, Object *parent);
-void func_801b7f1c_slot04_14(Object *obj, u8 index);
+int dispatch_table_pick_by_table_index_slot04_14(Object *obj, Object *parent);
+void set_sequence_a_by_sound_side_slot04_14(Object *obj, u8 index);
 
-void func_801b7590_slot04_14(Object *o) {
+void init_child_projectile_from_parent_tables_slot04_14(Object *o) {
     Object *p;
     int a;
     int v;
@@ -28,7 +28,7 @@ void func_801b7590_slot04_14(Object *o) {
     o->field_49 = p->field_49;
     o->field_1c = p->field_1c;
     if (o->table_index != 0) {
-        func_801b7d28_slot04_14(o, p);
+        dispatch_table_pick_by_table_index_slot04_14(o, p);
     }
     k = o->table_index >> 1;
     t = data_801c7884_slot04_14[k];
@@ -49,5 +49,5 @@ void func_801b7590_slot04_14(Object *o) {
     } else {
         ((Slot04bObj *)o)->data_pointer = (s32)data_1f800158;
     }
-    func_801b7f1c_slot04_14(o, o->vel_table_index);
+    set_sequence_a_by_sound_side_slot04_14(o, o->vel_table_index);
 }

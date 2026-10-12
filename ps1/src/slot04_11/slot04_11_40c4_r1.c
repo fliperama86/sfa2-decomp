@@ -5,45 +5,45 @@
 
 extern u8 data_801c7644_slot04_11[];
 
-u8 func_801b49e8_slot04_11(Object *obj);
-int func_801b5764_slot04_11(Object *obj);
-void func_801b4970_slot04_11(Object *obj);
+u8 get_random_table_byte_slot04_11(Object *obj);
+int apply_velocity_and_acceleration_slot04_11(Object *obj);
+void latch_pressed_bits_into_input_bits_slot04_11(Object *obj);
 
-void func_801b40c4_slot04_11(Object *obj) {
+void update_airborne_land_choose_sequence_slot04_11(Object *obj) {
     Config *c;
 
-    func_801b4970_slot04_11(obj);
-    func_801b5764_slot04_11(obj);
+    latch_pressed_bits_into_input_bits_slot04_11(obj);
+    apply_velocity_and_acceleration_slot04_11(obj);
     if (obj->pos_y >= obj->ground_y) {
         obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->active_state = 0;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         c = game_state.config;
         if ((c->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && (u8)func_8012f56c(obj) == 0) {
             obj->state_3++;
-            func_801307e0(obj, 0x4c);
+            set_sequence_by_side_and_mode(obj, 0x4c);
         } else {
             obj->state_3++;
-            func_801307e0(obj, 0x6f);
+            set_sequence_by_side_and_mode(obj, 0x6f);
         }
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b418c_slot04_11(Object *o) {
+void update_choose_jump_direction_by_input_slot04_11(Object *o) {
     u16 a;
     u8 t = 1;
     s32 d;
 
-    func_801b4970_slot04_11(o);
+    latch_pressed_bits_into_input_bits_slot04_11(o);
     if ((o->step_flags << 16) < 0) {
         a = *(u16 *)&((Slot04bObj *)o)->input_bits;
         o->active_state = t;
         o->facing_side ^= 1;
         if (o->mode_flag_2 != 0) {
-            a = func_801b49e8_slot04_11(o);
+            a = get_random_table_byte_slot04_11(o);
         }
         if (a != 0) {
             o->facing_side = t;
@@ -59,7 +59,7 @@ void func_801b418c_slot04_11(Object *o) {
                     o->accel_y = -0x6000;
                     d = (u32)~o->vel_x >> 31;
                     o->facing_side = d;
-                    func_801307e0(o, 0x4f);
+                    set_sequence_by_side_and_mode(o, 0x4f);
                     return;
                 }
             }
@@ -74,27 +74,27 @@ void func_801b418c_slot04_11(Object *o) {
         o->vel_x = d;
         o->accel_x = 0;
         o->accel_y = -0x6000;
-        func_801307e0(o, 0x4d);
+        set_sequence_by_side_and_mode(o, 0x4d);
     } else {
         update_sequence(o);
     }
 }
 
-void func_801b42f0_slot04_11(Object *obj) {
-    func_801b4970_slot04_11(obj);
-    if (func_801b5764_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
+void update_airborne_land_or_wall_contact_slot04_11(Object *obj) {
+    latch_pressed_bits_into_input_bits_slot04_11(obj);
+    if (apply_velocity_and_acceleration_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
         obj->state_3 = 0xa;
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x6f);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x6f);
     } else if (obj->ground_y + 0x48 >= obj->pos_y && (data_801c7644_slot04_11[obj->facing_side] & obj->bound_push_flag) != 0) {
         obj->state_3++;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->vel_y = 0;
         obj->accel_y = 0;
-        func_801307e0(obj, 0x4e);
+        set_sequence_by_side_and_mode(obj, 0x4e);
     } else {
         update_sequence(obj);
     }

@@ -8,9 +8,9 @@ extern Slot06TileW data_801f4cf0_slot06_12[2][0x4e];
 
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e8d20_slot06_12(Slot06Layer *layer);
+void scroll_layer_parallax_quarter_x_slot06_12(Slot06Layer *layer);
 
-void func_801e8c44_slot06_12(Slot06Layer *layer) {
+void update_layer_wrap_offset_value_slot06_12(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     int pos;
@@ -32,24 +32,24 @@ void func_801e8c44_slot06_12(Slot06Layer *layer) {
     layer->computed_value = t << 16;
 }
 
-void func_801e8cbc_slot06_12(void) {
+void noop_empty_function_slot06_12(void) {
 }
 
 void func_801e8cc4_slot06_12(Slot06Layer *layer) {
 }
 
-void func_801e8ccc_slot06_12(void) {
+void noop_empty_function_2_slot06_12(void) {
 }
 
-void func_801e8cd4_slot06_12(Slot06Layer *layer) {
+void update_layer_by_mode_slot06_12(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801369d4((Cam *)layer, 0x1c0, 0x10);
+        init_cam_position_and_consume_pending((Cam *)layer, 0x1c0, 0x10);
     } else if (layer->mode == 1) {
-        func_801e8d20_slot06_12(layer);
+        scroll_layer_parallax_quarter_x_slot06_12(layer);
     }
 }
 
-void func_801e8d20_slot06_12(Slot06Layer *layer) {
+void scroll_layer_parallax_quarter_x_slot06_12(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
@@ -79,7 +79,7 @@ void func_801e8dcc_slot06_12(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8df8_slot06_12(void) {
+void init_two_buffers_of_32px_sprite_prims_slot06_12(void) {
     Slot06TileW *p;
     int i;
     int k;

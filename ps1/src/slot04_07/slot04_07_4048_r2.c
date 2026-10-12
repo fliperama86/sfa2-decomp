@@ -5,7 +5,7 @@
 
 extern s16 data_801c1d70_slot04_07[];
 
-void func_801b414c_slot04_07(Object *obj) {
+void play_sound_from_step_flags_table_slot04_07(Object *obj) {
     u16 t = obj->step_flags;
     s16 x = t & 0x7f00;
     s16 v;

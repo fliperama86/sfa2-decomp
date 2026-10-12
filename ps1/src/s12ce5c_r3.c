@@ -5,7 +5,7 @@
 
 
 
-void func_8012d264(Object *object) {
+void set_sequence_c_or_e_by_pressed_bits(Object *object) {
     int index;
     if (object->pressed_bits == 0) {
         index = 0xc;
@@ -14,13 +14,13 @@ void func_8012d264(Object *object) {
         object->action_timer = 0;
         index = 0xe;
     }
-    func_801308c4(object, index);
+    set_sequence_by_side_and_mode_2(object, index);
 }
 
-void func_8012d2ac(Object *object) {
+void call_meter_action_or_default_sequence(Object *object) {
     if ((s16)object->meter >= 0x30 && (s16)object->health >= 0 && object->field_221 != 0) {
-        func_801303a0(object);
+        call_by_other_active_state_and_side(object);
     } else {
-        func_8012d310(object);
+        set_sequence_by_action_timer_and_other(object);
     }
 }

@@ -15,11 +15,11 @@ extern u8 data_801b7cc4_slot04_sel[];
 extern Slot04SelRec7c70 data_801b7c70_slot04_sel[];
 extern u8 data_801b7d30_slot04_sel[];
 
-void func_801b2aa4_slot04_sel(u8 *dst, u8 n);
-void func_801b310c_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
-void func_801b31f4_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
-void func_801b48f4_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, int a);
-void func_801b44ec_slot04_sel(void);
+void write_two_digit_decimal_ascii_slot04_sel(u8 *dst, u8 n);
+void update_kind_2_4_hold_counters_b_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
+void update_button_sequence_matcher_2_slot04_sel(Object *obj, Slot04SelRec9d38 *rec);
+void set_selection_from_direction_buttons_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, int a);
+void check_opposite_player_same_selection_2_slot04_sel(void);
 
 void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     TextBuf *s2 = data_801b7f64_slot04_sel[obj->side];
@@ -42,7 +42,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     } else {
         n = ((u8 *)table_801aa4e8)[obj->side * 42 + obj->kind];
     }
-    func_801b2aa4_slot04_sel(p, n);
+    write_two_digit_decimal_ascii_slot04_sel(p, n);
     p = s2->buf + 0xf;
     if (obj->kind == 0x11 || obj->kind == 0x13) {
         n = ((u8 *)table_801aa4e8)[obj->side * 42 + 0x26];
@@ -50,36 +50,36 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     } else {
         n = ((u8 *)table_801aa4e8)[obj->side * 42 + 0x15 + obj->kind];
     }
-    func_801b2aa4_slot04_sel(p, n);
-    func_801b2aa4_slot04_sel(s2->buf + 0x18, table_801aa4e8[2][0][obj->side]);
-    func_801519b4(s2);
+    write_two_digit_decimal_ascii_slot04_sel(p, n);
+    write_two_digit_decimal_ascii_slot04_sel(s2->buf + 0x18, table_801aa4e8[2][0][obj->side]);
+    add_item_to_table(s2);
     if (rec->field_04 == 0) {
         if (((game_state.side_mask >> obj->side) & 1) == 0) {
             return;
         }
         data_801b9d34_slot04_sel = rec->field_04;
-        func_801b48f4_slot04_sel(obj, rec, 0x11);
+        set_selection_from_direction_buttons_slot04_sel(obj, rec, 0x11);
         t = data_801b7cc4_slot04_sel[rec->kind_index * 5 + data_801b9d30_slot04_sel];
         rec->kind_index = t;
         data_801b9d30_slot04_sel = t;
         rec->field_04 = data_801b9d34_slot04_sel;
         obj->kind = data_801b9d30_slot04_sel;
         game_state.selection_value = data_801b9d30_slot04_sel;
-        func_801b310c_slot04_sel(obj, rec);
+        update_kind_2_4_hold_counters_b_slot04_sel(obj, rec);
         if (rec->count_2 == 0xb4 && obj->kind == 4) {
             obj->kind = 0x12;
         }
         if (data_8016e68e != 0 && rec->field_14 == 0xb4 && obj->kind == 2) {
             obj->kind = 0x14;
         }
-        func_801b31f4_slot04_sel(obj, rec);
+        update_button_sequence_matcher_2_slot04_sel(obj, rec);
         if (rec->field_04 != 0 && obj->kind == 2 && rec->field_12 != 0) {
             obj->kind = 0x14;
             data_8016e68e = -1;
         }
         s5->pos_x = data_801b7c70_slot04_sel[data_801b9d30_slot04_sel].field_00 + obj->side * 0x18;
         s5->pos_y = data_801b7c70_slot04_sel[data_801b9d30_slot04_sel].field_02;
-        func_801519b4(s5);
+        add_item_to_table(s5);
 
         i = 0;
         s3 = data_801b7ff4_slot04_sel[obj->side];
@@ -89,7 +89,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             i++;
         } while (i < 0x10);
         s3->field_0b = a1->field_0b;
-        func_801519b4(s3);
+        add_item_to_table(s3);
 
         i = 0;
         s4 = data_801b7fa4_slot04_sel[obj->side];
@@ -99,12 +99,12 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             i++;
         } while (i < 10);
         s4->palette = b1->palette;
-        func_801519b4(s4);
+        add_item_to_table(s4);
 
         if (rec->field_04 == 0) {
             return;
         }
-        func_801205c4(obj->side, data_801b7d30_slot04_sel[data_801b9d30_slot04_sel]);
+        call_func_with_side_x_origin(obj->side, data_801b7d30_slot04_sel[data_801b9d30_slot04_sel]);
         game_state.side = obj->side;
         game_state.mode |= 1 << obj->side;
         if (rec->input_bits == 0x10 || rec->input_bits == 0x80) {
@@ -132,7 +132,7 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             obj->select_value_1 = 5;
         }
         ref_other.p = obj;
-        func_801b44ec_slot04_sel();
+        check_opposite_player_same_selection_2_slot04_sel();
         if (data_8019045c[0] != 0) {
             data_8019045c[0] = 0;
             if (obj->field_d4 == 0) {
@@ -141,8 +141,8 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
             obj->field_d4 = data_8019045c[0];
         }
     } else {
-        func_801519b4(s5);
-        func_801519b4(s3);
-        func_801519b4(s4);
+        add_item_to_table(s5);
+        add_item_to_table(s3);
+        add_item_to_table(s4);
     }
 }

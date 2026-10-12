@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-void func_80142fbc(Object *object);
-void func_801428a8(Object *object);
-void func_80138b38(GameState *state, Object *object);
+void start_action_if_buttons_pressed(Object *object);
+void save_facing_and_set_x_motion(Object *object);
+void set_direction_index_from_meter_and_save(Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void set_sequence_by_side(Object *object, int arg);
-void func_801b1540_slot04_0d(Object *obj);
+void advance_state_3_start_table_sequence_alt_slot04_0d(Object *obj);
 
 extern ObjectFn data_801c2a18_slot04_0d[];
 extern u8 data_801c2770_slot04_0d[];
 
-void func_801b1540_slot04_0d(Object *o) {
+void advance_state_3_start_table_sequence_alt_slot04_0d(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int t;
     int a = 0x2b;
@@ -26,10 +26,10 @@ void func_801b1540_slot04_0d(Object *o) {
         a = 0x49;
     }
     a += t;
-    func_801307e0(o, (u8)a);
+    set_sequence_by_side_and_mode(o, (u8)a);
 }
 
-void func_801b15a4_slot04_0d(Object *obj) {
+void spawn_linked_object_on_step_flag_slot04_0d(Object *obj) {
     Object *p;
     s16 y;
 
@@ -72,11 +72,11 @@ void func_801b15a4_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b16f8_slot04_0d(Object *o) {
+void update_sequence_with_countdown_or_finish_slot04_0d(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if ((s16)o->step_flags < 0) {
-        func_801312b8(o);
+        reset_object_to_state_1_0_sequence_0(o);
     } else {
         if (obj->countdown != 0) {
             obj->countdown--;
@@ -85,7 +85,7 @@ void func_801b16f8_slot04_0d(Object *o) {
             }
             o->active_flag_4 = 0;
         }
-        func_80142adc(o);
+        start_action_if_buttons_pressed(o);
     tail:
         update_sequence(o);
     }
@@ -95,13 +95,13 @@ void func_801b1780_slot04_0d(Object *obj) {
     data_801c2a18_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b17c0_slot04_0d(Object *obj) {
+void start_sequence_by_active_state_slot04_0d(Object *obj) {
     int a;
 
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     a = 0x2f;
     if (obj->active_state == 0) {
         a = 0x2b;

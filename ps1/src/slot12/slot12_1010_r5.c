@@ -8,6 +8,6 @@ void func_80011358_slot12(void) {
         game_state.wait_flag = 0x1f;
         *(u16 *)data_80190464 = 0x2404;
         *(u16 *)data_8019046c = 0x1f00;
-        func_80119144(2, 4);
+        set_voice_thread_entry_and_open(2, 4);
     }
 }

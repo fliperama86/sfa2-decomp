@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 int func_801b0ee4_slot04_06(Object *o) {
-    if (!(u8)func_80141b28(o)) return 0;
+    if (!(u8)try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;
     o->state_3 = 0;
@@ -17,11 +17,11 @@ int func_801b0ee4_slot04_06(Object *o) {
     o->field_15a = 8;
     o->other_lock = 0x1e;
     o->other->field_6b = 0x1a;
-    func_801307e0(o, 0x39);
+    set_sequence_by_side_and_mode(o, 0x39);
     return 1;
 }
 
-void func_801b0f78_slot04_06(Object *obj) {
+void start_move_8_without_check_slot04_06(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -37,11 +37,11 @@ void func_801b0f78_slot04_06(Object *obj) {
     obj->direction_index = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x1a;
-    func_801307e0(obj, 0x39);
+    set_sequence_by_side_and_mode(obj, 0x39);
 }
 
-int func_801b0fe4_slot04_06(Object *obj) {
-    if (func_801417cc(obj)) {
+int try_enter_state_7_kind_5_slot04_06(Object *obj) {
+    if (try_action_clearing_both_flags(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -49,7 +49,7 @@ int func_801b0fe4_slot04_06(Object *obj) {
         obj->field_15a = 5;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return 1;
 }

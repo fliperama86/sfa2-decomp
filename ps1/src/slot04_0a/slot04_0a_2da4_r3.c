@@ -3,21 +3,21 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u16 func_801b1e04_slot04_0a(Object *obj);
+u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
 
-void func_801b30a0_slot04_0a(Object *obj) {
+void land_at_saved_pos_y_set_state_3_four_slot04_0a(Object *obj) {
     obj->state_3 = 4;
-    func_801209c4(obj);
+    play_object_sound_by_kind(obj);
     obj->pos_y_frac = 0;
     obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
-    func_801307e0(obj, 0x48);
+    set_sequence_by_side_and_mode(obj, 0x48);
 }
 
-void func_801b30e8_slot04_0a(Object *obj) {
+void move_airborne_with_input_x_nudge_slot04_0a(Object *obj) {
     u32 t;
 
-    if (func_801b1e04_slot04_0a(obj)) {
-        func_801b30a0_slot04_0a(obj);
+    if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+        land_at_saved_pos_y_set_state_3_four_slot04_0a(obj);
     } else {
         if (((Slot04aObj *)obj)->mode == 0 && obj->mode_flag_2 == 0) {
             t = obj->input_bits_2 & 0xa000;
@@ -38,10 +38,10 @@ void func_801b30e8_slot04_0a(Object *obj) {
     }
 }
 
-void func_801b3198_slot04_0a(Object *obj) {
+void update_sequence_or_finish_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

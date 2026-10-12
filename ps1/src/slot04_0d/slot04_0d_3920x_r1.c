@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void set_sequence_by_side(Object *object, int arg);
-void func_801b39c8_slot04_0d(Object *object, GameState *g);
+void count_down_then_set_side_bit_slot04_0d(Object *object, GameState *g);
 
 void func_801b3920_slot04_0d(Object *object) {
     int a;
@@ -20,6 +20,6 @@ void func_801b3920_slot04_0d(Object *object) {
         }
         set_sequence_by_side(object, (u8)a);
     }
-    func_801b39c8_slot04_0d(object, &game_state);
+    count_down_then_set_side_bit_slot04_0d(object, &game_state);
     update_sequence(object);
 }

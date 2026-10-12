@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f32c(void);
-void func_801eaa28_slot06_0e(Object *obj);
+Object *pop_object_from_second_pool(void);
+void start_sequence_from_lookup_index_slot06_0e(Object *obj);
 
-void func_801ea87c_slot06_0e(Object *obj) {
-    Object *c = func_8011f32c();
+void spawn_linked_child_and_init_state_slot06_0e(Object *obj) {
+    Object *c = pop_object_from_second_pool();
 
     if (c != 0) {
         c->active_count = 1;
@@ -24,6 +24,6 @@ void func_801ea87c_slot06_0e(Object *obj) {
         obj->field_0a = 1;
         obj->spawn_mode = 4;
         obj->field_0f = 1;
-        func_801eaa28_slot06_0e(obj);
+        start_sequence_from_lookup_index_slot06_0e(obj);
     }
 }

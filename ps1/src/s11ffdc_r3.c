@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801209c4(Object *o) {
+void play_object_sound_by_kind(Object *o) {
     int a, c;
     if (o->sound_select_flag != 0) {
         c = 0x32b;

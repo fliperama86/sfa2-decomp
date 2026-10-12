@@ -5,9 +5,9 @@
 
 extern u16 data_801a6966[];
 
-void func_8014e828(void) {
+void loop_check_button_bits_call_handler(void) {
     while (1) {
-        if ((data_801a6966[0] & 0x100) && (data_801a6966[2] & 0x800)) func_80152ee8();
-        func_801192bc(1);
+        if ((data_801a6966[0] & 0x100) && (data_801a6966[2] & 0x800)) switch_to_next_table_entry_and_wait();
+        request_sound_command_and_switch_thread(1);
     }
 }

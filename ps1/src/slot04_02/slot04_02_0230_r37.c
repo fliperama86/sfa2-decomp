@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b7b10_slot04_02(Object *o) {
+void increment_state_0_2_slot04_02(Object *o) {
     o->state_0++;
 }
 
-void func_801b7b24_slot04_02(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot04_02(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

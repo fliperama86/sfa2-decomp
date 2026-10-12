@@ -6,7 +6,7 @@
 extern void (*data_800267a4_slot27[])(Object *);
 extern void (*data_800267b4_slot27[])(Object *);
 
-void func_800113d8_slot27(void) {
+void clear_rows_and_queue_jobs_slot27(void) {
     int set;
     int i;
     int j;
@@ -22,14 +22,14 @@ void func_800113d8_slot27(void) {
         data_8018f598 = 1;
         data_8018db10 = data_8018db10 + 1;
     }
-    func_80137220(0, 0);
-    func_80137220(1, 1);
-    func_80137220(2, 2);
-    func_80137220(3, 3);
-    func_80137220(4, 7);
+    queue_image_upload_job(0, 0);
+    queue_image_upload_job(1, 1);
+    queue_image_upload_job(2, 2);
+    queue_image_upload_job(3, 3);
+    queue_image_upload_job(4, 7);
 }
 
-void func_800114ac_slot27(Object *object) {
+void call_handler_by_state_0_slot27(Object *object) {
     data_800267a4_slot27[object->state_0](object);
 }
 

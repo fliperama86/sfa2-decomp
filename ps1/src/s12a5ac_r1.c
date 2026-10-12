@@ -10,7 +10,7 @@ void func_8012a5ac(Object *object) {
     handler_table_19a8[object->state_3](object);
 }
 
-void func_8012a5ec(Object *object) {
+void start_motion_sequence_with_table_speed(Object *object) {
     int index;
     s32 speed;
     object->field_157 = 0;

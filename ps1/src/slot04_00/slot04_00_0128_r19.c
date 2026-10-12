@@ -6,9 +6,9 @@
 void func_801b2a18_slot04_00(Object *obj) {
     int a = 0x2b;
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     if (obj->active_state != 0) {
         a = 0x2f;
     }

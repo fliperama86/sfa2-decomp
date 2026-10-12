@@ -6,19 +6,19 @@
 extern ObjectFn data_801c5b08_slot04_0f[];
 extern ObjectFn data_801c5b18_slot04_0f[];
 
-void func_80138b38(GameState *state, Object *object);
-void func_80138ae8(GameState *state, Object *object);
-void func_80142adc(Object *object);
-void func_80142fe8(Object *object);
-void func_80142fbc(Object *object);
-void func_801428a8(Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
+void start_action_if_buttons_pressed(Object *object);
+void push_other_by_vel_x(Object *object);
+void save_facing_and_set_x_motion(Object *object);
+void set_direction_index_from_meter_and_save(Object *object);
 void func_80142c70(Object *object);
 void set_sequence_by_side(Object *object, int arg);
-void func_801495f8(Object *object, int x, int y);
-void func_8011fe40(Object *object);
-void func_80149af8(Object *object);
-void func_80143184(Object *object);
-void func_801b2ec4_slot04_0f(Object *obj);
+void spawn_effect_objects_at_offset(Object *object, int x, int y);
+void reset_side_table_and_fields(Object *object);
+void spawn_object_type_6d_for_side(Object *object);
+void set_other_sequence_3_when_close(Object *object);
+void clear_two_byte_blocks_of_object_slot04_0f(Object *obj);
 void func_801b470c_slot04_0f(Object *obj);
 
 void func_801b270c_slot04_0f(Object *obj) {
@@ -26,16 +26,16 @@ void func_801b270c_slot04_0f(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 6);
-    func_80138ae8((GameState *)game_state.config, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged((GameState *)game_state.config, obj);
     a = 0x3e;
     if (obj->field_49 != 0) {
         a = 0x5a;
     }
-    func_801307e0(obj, a + (obj->direction_index >> 1));
+    set_sequence_by_side_and_mode(obj, a + (obj->direction_index >> 1));
 }
 
-void func_801b2784_slot04_0f(Object *obj) {
+void spawn_linked_object_type_19_on_step_flag_slot04_0f(Object *obj) {
     Object *p;
     s32 y;
 
@@ -77,17 +77,17 @@ void func_801b28b8_slot04_0f(Object *obj) {
     if (obj->linked_object_3 == 0) {
         obj->active_flag_4 = 0;
         obj->state_3++;
-        func_801307e0(obj, 0x44);
+        set_sequence_by_side_and_mode(obj, 0x44);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b2904_slot04_0f(Object *obj) {
+void update_sequence_or_call_end_handler_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801b470c_slot04_0f(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -101,16 +101,16 @@ void func_801b2998_slot04_0f(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 6);
-    func_80138ae8((GameState *)game_state.config, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged((GameState *)game_state.config, obj);
     a = 0x41;
     if (obj->field_49 != 0) {
         a = 0x5d;
     }
-    func_801307e0(obj, a + (obj->direction_index >> 1));
+    set_sequence_by_side_and_mode(obj, a + (obj->direction_index >> 1));
 }
 
-void func_801b2a10_slot04_0f(Object *obj) {
+void spawn_linked_object_table2_on_step_flag_slot04_0f(Object *obj) {
     Object *p;
     s32 y;
 
@@ -153,13 +153,13 @@ void func_801b2a10_slot04_0f(Object *obj) {
 void func_801b2b5c_slot04_0f(Object *obj) {
     if (obj->linked_object_3 == 0) {
         obj->state_3++;
-        func_801307e0(obj, 0x45);
+        set_sequence_by_side_and_mode(obj, 0x45);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b2ba8_slot04_0f(Object *obj) {
+void update_with_countdown_or_finish_slot04_0f(Object *obj) {
     s16 t;
 
     if ((s16)obj->step_flags < 0) {
@@ -174,7 +174,7 @@ void func_801b2ba8_slot04_0f(Object *obj) {
             }
             obj->active_flag_4 = 0;
         }
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
     tail:
         update_sequence(obj);
     }
@@ -187,9 +187,9 @@ void func_801b2c24_slot04_0f(Object *obj) {
 void func_801b2c64_slot04_0f(Object *obj) {
     int a;
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38((GameState *)game_state.config, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter((GameState *)game_state.config, obj);
     if (obj->active_state != 0) {
         a = 0x2f;
     } else {
@@ -198,7 +198,7 @@ void func_801b2c64_slot04_0f(Object *obj) {
     set_sequence_by_side(obj, a);
 }
 
-void func_801b2cd0_slot04_0f(Object *obj) {
+void start_effects_on_step_flag_high_byte_slot04_0f(Object *obj) {
     int a = 0;
     int b = 0x55;
     if ((s16)obj->step_flags & 0xff00) {
@@ -208,11 +208,11 @@ void func_801b2cd0_slot04_0f(Object *obj) {
         if (obj->active_state == 0) {
             a = 2;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b2ec4_slot04_0f(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_two_byte_blocks_of_object_slot04_0f(obj);
     }
     update_sequence(obj);
 }
@@ -233,11 +233,11 @@ void func_801b2d5c_slot04_0f(Object *obj) {
         obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }
 
-void func_801b2de4_slot04_0f(Object *obj) {
+void update_countdown_with_press_count_slot04_0f(Object *obj) {
     obj->hit_count_3++;
     update_sequence(obj);
     ((Slot04bObj *)obj)->countdown--;
@@ -257,6 +257,6 @@ void func_801b2de4_slot04_0f(Object *obj) {
         } else if (((Slot04bObj *)obj)->field_47 != 0) {
             ((Slot04bObj *)obj)->field_47--;
         }
-        func_80142fe8(obj);
+        push_other_by_vel_x(obj);
     }
 }

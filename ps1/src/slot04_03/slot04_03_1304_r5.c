@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 void func_801b17d0_slot04_03(Object *obj);
-void func_801b1834_slot04_03(Object *obj);
+void call_handler_by_direction_index_slot04_03(Object *obj);
 
-void func_801b1790_slot04_03(Object *obj) {
+void call_handler_by_substate_index_slot04_03(Object *obj) {
     if (obj->substate_index == 0) {
         func_801b17d0_slot04_03(obj);
     } else {
-        func_801b1834_slot04_03(obj);
+        call_handler_by_direction_index_slot04_03(obj);
     }
 }
 
@@ -18,6 +18,6 @@ void func_801b17d0_slot04_03(Object *obj) {
     obj->substate_index++;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x3b);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3b);
 }

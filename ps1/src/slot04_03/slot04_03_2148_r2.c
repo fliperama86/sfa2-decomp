@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b223c_slot04_03(Object *obj) {
+void move_x_by_facing_with_decel_slot04_03(Object *obj) {
     if (obj->vel_y >= 0) {
         obj->accel_y = 0x8000;
     }

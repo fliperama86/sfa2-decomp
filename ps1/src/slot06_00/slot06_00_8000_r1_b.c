@@ -6,10 +6,10 @@
 extern Slot06Tile data_801ec390_slot06_00[2][0x72];
 extern u16 data_801e9f90_slot06_00[];
 
-void func_801e81fc_slot06_00(Slot06Layer *layer);
-void func_801e8228_slot06_00(void);
+void init_first_layer_tile_map_slot06_00(Slot06Layer *layer);
+void init_tile_sprites_gray_2x114_slot06_00(void);
 
-void func_801e81fc_slot06_00(Slot06Layer *layer) {
+void init_first_layer_tile_map_slot06_00(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801e9f90_slot06_00;
     layer->data_table = data_801e9f90_slot06_00;
     layer->packed_param = 0x5800;
@@ -17,7 +17,7 @@ void func_801e81fc_slot06_00(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8228_slot06_00(void) {
+void init_tile_sprites_gray_2x114_slot06_00(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -29,7 +29,7 @@ void func_801e8228_slot06_00(void) {
         c = 0x80;
         do {
             r = &data_801ec390_slot06_00[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

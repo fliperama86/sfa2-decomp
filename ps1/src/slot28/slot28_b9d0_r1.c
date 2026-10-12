@@ -15,7 +15,7 @@ void func_8001b9d0_slot28(Object *obj) {
     }
 }
 
-void func_8001ba18_slot28(Object *obj) {
+void scroll_objects_up_until_limit_slot28(Object *obj) {
     Object *o;
     int i;
     Object **q;

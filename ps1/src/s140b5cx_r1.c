@@ -13,10 +13,10 @@
    address is stored in game_state.cursor), clamps the value to 0x7f when it
    is 0x80 or more (bit 7 was cleared just before, so the clamp is not
    reached; inferred), adds that row's entry for the value, calls
-   func_80140ec0 (which calls through table_8017ac34, a handler that may
+   call_game_state_table_handler (which calls through table_8017ac34, a handler that may
    change damage; read from the original's listing, not tested), and
    returns damage halved when field_15b is 0, but at least 1. */
-int func_80140b5c(Object *object, s16 a, int b) {
+int compute_damage_to_other(Object *object, s16 a, int b) {
     u8 v;
     unsigned w;
     s16 idx;
@@ -44,7 +44,7 @@ int func_80140b5c(Object *object, s16 a, int b) {
             v = 0x7f;
         }
         ref_other.p->damage = v + ((u8 *)game_state.cursor)[v];
-        func_80140ec0();
+        call_game_state_table_handler();
         w = ref_other.p->damage;
         if (ref_other.p->field_15b == 0) {
             w >>= 1;

@@ -4,30 +4,30 @@
 #include "../externs.h"
 
 int func_801b4be8_slot04_04(Object *obj);
-void func_801b4adc_slot04_04(Object *obj);
+void init_jump_velocity_by_scroll_position_slot04_04(Object *obj);
 
-void func_801b49d0_slot04_04(Object *obj) {
+void set_state_5_and_start_variant_sequence_slot04_04(Object *obj) {
     int t = 0x1c;
 
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 5;
     obj->state_3 = 0;
-    func_80141f28(obj, 1);
+    add_to_meter_clamped(obj, 1);
     obj->step_limit = 0;
     obj->active_flag = 0;
     if (obj->variant_index != 0) {
         t = 0x1d;
     }
-    func_801307e0(obj, t);
+    set_sequence_by_side_and_mode(obj, t);
 }
 
 void func_801b4a40_slot04_04(Object *obj) {
     if (obj->step_limit == 0) {
         if (obj->active_flag != 0) {
-            func_801b4adc_slot04_04(obj);
+            init_jump_velocity_by_scroll_position_slot04_04(obj);
         } else if (func_801b4be8_slot04_04(obj) < 0 && !(obj->pos_y < obj->ground_y)) {
-            func_801209c4(obj);
+            play_object_sound_by_kind(obj);
             func_80131638(obj);
         } else {
             update_sequence(obj);

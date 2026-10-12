@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3510_slot04_08(Object *obj) {
+void start_sequence_by_input_bits_slot04_08(Object *obj) {
     s16 a;
 
     a = 0x58;
@@ -22,5 +22,5 @@ void func_801b3510_slot04_08(Object *obj) {
         obj->active_flag_3 = 0;
         a += 2;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }

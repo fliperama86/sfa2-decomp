@@ -5,12 +5,12 @@
 
 extern void (*data_801c09d0_slot04_03[])(Object *, Object *);
 
-void func_801b3d44_slot04_03(Object *obj, Object *p) {
+void call_handler_by_state_2_with_parent_slot04_03(Object *obj, Object *p) {
     data_801c09d0_slot04_03[obj->state_2](obj, p);
     func_8011ffdc(obj);
 }
 
-void func_801b3d98_slot04_03(Object *obj, Object *unused) {
+void advance_state_2_set_sequence_6_slot04_03(Object *obj, Object *unused) {
     obj->state_2 = obj->state_2 + 1;
     func_80138070(obj, 6);
 }
@@ -24,7 +24,7 @@ void func_801b3dc4_slot04_03(Object *obj, Object *unused) {
     }
 }
 
-void func_801b3e20_slot04_03(Object *obj, Object *unused) {
+void release_object_and_unlink_from_parent_slot04_03(Object *obj, Object *unused) {
     ref_other.p = obj->parent;
     ref_other.p->link_flags--;
     if (ref_other.p->link_flags == 0) {
@@ -33,5 +33,5 @@ void func_801b3e20_slot04_03(Object *obj, Object *unused) {
     if (obj->table_index == 0) {
         ref_other.p->field_225 = 0;
     }
-    func_8011f14c((Slab172 *)obj);
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }

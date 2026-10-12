@@ -5,9 +5,9 @@
 
 extern ObjectFn data_8007a12c_slot00[];
 
-void func_80078e44_slot00(Object *o) {
+void spawn_child_with_player_fields_slot00(Object *o) {
     Object *obj = o;
-    Object *p = (Object *)func_8011f1e0();
+    Object *p = (Object *)pop_block_from_pool();
     Object *src;
     if (p != 0) {
         p->active_count = 1;
@@ -37,6 +37,6 @@ void func_80078e44_slot00(Object *o) {
     }
 }
 
-void func_80078f50_slot00(Object *obj) {
+void call_handler_by_state_0_5_slot00(Object *obj) {
     data_8007a12c_slot00[obj->state_0](obj);
 }

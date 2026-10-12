@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5118_slot04_07(Object *obj);
+void update_two_axis_positions_by_bit_flags_slot04_07(Object *obj);
 
-void func_801b5004_slot04_07(Object *obj) {
+void update_two_part_effect_motion_and_draw_slot04_07(Object *obj) {
     int t;
     int c;
 
-    func_801b5118_slot04_07(obj);
+    update_two_axis_positions_by_bit_flags_slot04_07(obj);
     c = 0xfc0000;
     if (*(s32 *)&obj->field_60 >= c) {
         *(s32 *)&obj->field_60 = c;

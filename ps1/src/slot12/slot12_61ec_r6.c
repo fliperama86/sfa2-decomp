@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern Slot12Count data_8002c3a8_slot12[4];
-void func_80016864_slot12(Object *obj);
-void func_80016a7c_slot12(Object *obj);
+void init_entry_primitive_pairs_slot12(Object *obj);
+void init_four_prim_pairs_slot12(Object *obj);
 void func_80016c50_slot12(Object *obj);
-void func_80016de4_slot12(Object *obj);
+void count_record_bytes_into_four_counters_slot12(Object *obj);
 
-void func_800166d0_slot12(Object *obj) {
+void init_rank_list_object_slot12(Object *obj) {
     s16 t;
 
     obj->ot_depth = 4;
@@ -40,16 +40,16 @@ void func_800166d0_slot12(Object *obj) {
     obj->health = t;
     if (t >= 0) {
         obj->health = t & 0x3f;
-        func_80016de4_slot12(obj);
+        count_record_bytes_into_four_counters_slot12(obj);
         game_state.field_2bf = 0;
         obj->ground_y = 0xf;
-        func_80016a7c_slot12(obj);
+        init_four_prim_pairs_slot12(obj);
         func_80016c50_slot12(obj);
-        func_80016864_slot12(obj);
+        init_entry_primitive_pairs_slot12(obj);
     } else {
         game_state.field_2bf = 0;
         obj->vel_x = 0xb0;
-        func_80016a7c_slot12(obj);
+        init_four_prim_pairs_slot12(obj);
         func_80016c50_slot12(obj);
     }
 }

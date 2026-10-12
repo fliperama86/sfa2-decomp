@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80142adc(Object *object);
-void func_80146998(Object *object);
-void func_80138ae8(GameState *state, Object *object);
+void start_action_if_buttons_pressed(Object *object);
+void spawn_offset_effect_and_play_sounds(Object *object);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void func_801b1d8c_slot04_14(Object *obj);
 
 extern ObjectFn data_801c62b8_slot04_14[];
 extern ObjectFn data_801c62c4_slot04_14[];
 
-void func_801b1b08_slot04_14(Object *o) {
+void advance_state_3_when_mode_zero_slot04_14(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if (obj->mode == 0) {
@@ -38,12 +38,12 @@ void func_801b1b48_slot04_14(Object *obj) {
         obj->field_49 = 0;
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
     }
     update_sequence(obj);
 }
 
-void func_801b1c08_slot04_14(Object *o) {
+void update_fall_until_landing_or_mode_set_slot04_14(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s16 y;
 
@@ -59,7 +59,7 @@ void func_801b1c08_slot04_14(Object *o) {
         o->active_flag_4 = 0;
         o->active_flag_3 = 0;
         o->active_state = 0;
-        func_801209c4(o);
+        play_object_sound_by_kind(o);
     }
     update_sequence(o);
 }
@@ -68,9 +68,9 @@ void func_801b1c8c_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -84,11 +84,11 @@ void func_801b1cfc_slot04_14(Object *obj) {
         obj->accel_x = -0x8000;
         obj->vel_y = 0x90000;
         obj->accel_y = -0x6000;
-        func_801307e0(obj, 0x60);
+        set_sequence_by_side_and_mode(obj, 0x60);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80146998(obj);
+            spawn_offset_effect_and_play_sounds(obj);
         }
         update_sequence(obj);
     }
@@ -111,18 +111,18 @@ void func_801b1e18_slot04_14(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3 = 1;
-    func_80141f28(obj, 4);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 4);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     a = 0x2e;
     if (obj->field_49 != 0) {
         a = 0x65;
     }
     a += obj->direction_index >> 1;
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b1e8c_slot04_14(Object *o) {
+void spawn_child_object_when_mode_set_slot04_14(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *p;
     u16 y;
@@ -163,7 +163,7 @@ void func_801b1e8c_slot04_14(Object *o) {
     }
 }
 
-void func_801b1fdc_slot04_14(Object *obj) {
+void update_sequence_with_high_byte_countdown_slot04_14(Object *obj) {
     s16 t;
 
     if (!((s16)obj->step_flags & 0x8000)) {
@@ -173,14 +173,14 @@ void func_801b1fdc_slot04_14(Object *obj) {
             obj->countdown = t;
             if (!(t & 0xff00)) {
                 obj->active_flag_4 = 0;
-                func_80142adc(obj);
+                start_action_if_buttons_pressed(obj);
             }
         } else {
-            func_80142adc(obj);
+            start_action_if_buttons_pressed(obj);
         }
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 

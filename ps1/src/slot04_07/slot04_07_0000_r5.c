@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0620_slot04_07(Object *obj) {
+void start_move_from_direction_input_slot04_07(Object *obj) {
     int one = 1;
 
     obj->state_3 = obj->state_3 + 1;
@@ -20,18 +20,18 @@ void func_801b0620_slot04_07(Object *obj) {
         }
         if (obj->direction_index == 2 && (obj->input_bits_2 & 0x8000) != 0 && obj->field_262 != 0) {
             obj->state_3 = 2;
-            func_80141f28(obj, 1);
-            func_80130ec0(obj);
+            add_to_meter_clamped(obj, 1);
+            reset_direction_and_action_fields(obj);
             obj->field_278 = one;
             obj->sequence_hold_flag = one;
-            func_801307e0(obj, 0x1e);
+            set_sequence_by_side_and_mode(obj, 0x1e);
             return;
         }
     }
     if (obj->direction_index != 4 || ((Slot04aObj *)obj)->field_1ca != 7) {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     } else {
-        func_80130ec0(obj);
-        func_801307e0(obj, 0x3c);
+        reset_direction_and_action_fields(obj);
+        set_sequence_by_side_and_mode(obj, 0x3c);
     }
 }

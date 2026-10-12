@@ -10,31 +10,31 @@ void func_8011cbb8(Slab172 *p) {
     if (p->reload_flag != 0 || data_80183d74[p->field_02][0] != p->stream_key) {
         p->reload_flag = 0;
         if (data_80183dec[p->field_02][0] != (u32)cur || data_80183d74[p->field_02][0] != p->stream_key) {
-            func_8011cdc0(p);
+            shift_history_tables_down(p);
             if (*cur != 0) {
-                func_8011cf98(p, cur);
+                unpack_cell_list_with_history(p, cur);
             } else {
-                func_8011d5b8(p, cur);
+                push_front_of_cell_history(p, cur);
             }
             func_80119d88(p);
-            q = func_8011bdc0(p);
+            q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
-                func_8011cf98(p, q);
+                unpack_cell_list_with_history(p, q);
             } else {
-                func_8011d5b8(p, q);
+                push_front_of_cell_history(p, q);
             }
         } else {
             func_80119d88(p);
-            q = func_8011bdc0(p);
+            q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
-                func_8011cf98(p, q);
+                unpack_cell_list_with_history(p, q);
             } else {
-                func_8011d5b8(p, q);
+                push_front_of_cell_history(p, q);
             }
         }
     } else {
-        func_80119ddc(p);
+        decode_blocks_divided_by_step_divisor(p);
     }
-    func_8011d74c((Object *)p, 0, 0, p);
-    func_8011db78((Object *)p, 0, 0, p);
+    build_cell_prim_list_from_history((Object *)p, 0, 0, p);
+    fill_cell_record_rects_from_history((Object *)p, 0, 0, p);
 }

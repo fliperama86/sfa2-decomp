@@ -6,7 +6,7 @@
 extern Object *data_8002d56c_slot12;
 extern Object *data_8002d568_slot12;
 
-void func_80011010_slot12(void) {
+void countdown_then_advance_step_play_sound_slot12(void) {
     u16 *t = &game_state.countdown_2;
     int v = *t - 1;
 
@@ -23,7 +23,7 @@ void func_80011010_slot12(void) {
     }
 }
 
-void func_800110c4_slot12(void) {
+void countdown_then_advance_step_clear_status_slot12(void) {
     u16 *t = &game_state.countdown_2;
     int v = *t - 1;
 

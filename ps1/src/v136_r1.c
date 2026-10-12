@@ -5,12 +5,12 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-int func_8014e368(Object *object)
+int is_other_in_state_01010101_with_flags(Object *object)
 {
   Object *other;
   int ok;
   int result;
-  ok = func_8014e310(object);
+  ok = is_state_one_and_state_two_allowed(object);
   result = 0;
   if (ok != 0)
   {

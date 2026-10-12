@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_801227d4(Attacker *a, int side)
+void update_round_winner(Attacker *a, int side)
 {
   Object *p;
   Object *q;

@@ -11,14 +11,14 @@ extern u32 data_801e7668_slot0b;
  * records. A header reached through the object's sequence describes a grid of
  * 16-bit cells (columns, rows, a texture page offset, the x and y origin,
  * then the cells). For each cell whose low 14 bits are not 0 it initialises a
- * 0x1c-byte record through func_80136d1c, fills in the position (the object's
+ * 0x1c-byte record through init_draw_mode_prim_3, fills in the position (the object's
  * pos_x less box_margin, pos_y plus data_801aa5ea less 8, 16 pixels per cell,
  * less the origin), the texture coordinates and command word from the cell,
  * grey colour 0x80 and the texture page, and links the record into the list
  * head selected by the object. Records are taken in order from one of two
  * buffers chosen by data_801a27d0.
  */
-void func_801e1d6c_slot0b(Object *obj) {
+void draw_tilemap_cells_from_sequence_slot0b(Object *obj) {
     Tilemap *map = (Tilemap *)obj->sequence->data_ptr;
     u32 *ot;
     u32 *p = (u32 *)&data_8019d7cc;
@@ -61,7 +61,7 @@ void func_801e1d6c_slot0b(Object *obj) {
             rem = cell % 256;
             v = rem % 16;
             u = rem / 16;
-            func_80136d1c((Tx *)p);
+            init_draw_mode_prim_3((Tx *)p);
             q->tpage = tpage;
             q->x = x0 + col * 16 - w;
             q->y = ty;

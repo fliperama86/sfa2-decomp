@@ -11,7 +11,7 @@ void func_80130280(Object *object) {
     object->state_2 = 3;
     object->state_3 = 0;
     object->field_157 = 0;
-    func_80130088(object);
+    set_motion_from_table(object);
     object->variant_index = 1;
     if (!(object->input_bits_2 & 0x8000)) {
         object->variant_index = 0xff;
@@ -20,8 +20,8 @@ void func_80130280(Object *object) {
     set_sequence_by_side(object, 0x10);
 }
 
-void func_80130304(Object *object) {
-    func_80130ec0(object);
+void call_scratch_fn_by_side_and_mode(Object *object) {
+    reset_direction_and_action_fields(object);
     if (object->side == 0) {
         if (object->mode_flag_2 == 0) scratch_fn_a_left(object);
         else scratch_fn_b_left(object);
@@ -31,11 +31,11 @@ void func_80130304(Object *object) {
     }
 }
 
-void func_801303a0(Object *object) {
+void call_by_other_active_state_and_side(Object *object) {
     object->effect_request = 4;
     object->field_256 = 1;
     object->table_flag = 1;
-    func_80141f28(object, -0x30);
+    add_to_meter_clamped(object, -0x30);
     game_state.other_object = object->other;
     if (game_state.other_object->active_state != 0) {
         if (object->side == 0) scratch_fn_c_left(object);

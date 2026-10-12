@@ -35,7 +35,7 @@ void func_8011f774(Object *object) {
     }
 }
 
-void func_8011f7e8(Object *object) {
+void advance_sequence_rec(Object *object) {
     SeqRec *rec;
     int v = object->step_timer - 1;
     object->step_timer = v;
@@ -45,11 +45,11 @@ void func_8011f7e8(Object *object) {
         if ((s16)object->step_flags < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_8011f914(object, rec);
+        set_sequence_record_with_default_base(object, rec);
     }
 }
 
-void func_8011f83c(Object *object) {
+void advance_sequence_rec_2(Object *object) {
     SeqRec *rec;
     int v = object->step_timer - 1;
     object->step_timer = v;
@@ -59,11 +59,11 @@ void func_8011f83c(Object *object) {
         if ((s16)object->step_flags < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_8011f96c(object, rec);
+        set_sequence_record_with_default_base_2(object, rec);
     }
 }
 
-void func_8011f890(Object *object) {
+void advance_sequence_rec_3(Object *object) {
     SeqRec *rec;
     int v = object->step_timer - 1;
     object->step_timer = v;
@@ -73,24 +73,24 @@ void func_8011f890(Object *object) {
         if ((s16)object->step_flags < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_8011fa50(object, rec);
+        set_sequence_and_copy_data_to_map(object, rec);
     }
 }
 
-void func_8011f8e4(Object *object, SeqRec **table, u8 index) {
+void set_sequence_from_table(Object *object, SeqRec **table, u8 index) {
     SeqRec **p = table + index;
-    func_8011f914(object, *p);
+    set_sequence_record_with_default_base(object, *p);
 }
 
-void func_8011f914(Object *object, SeqRec *rec) {
-    func_8011f994(object, rec, data_801aa594);
+void set_sequence_record_with_default_base(Object *object, SeqRec *rec) {
+    set_sequence_and_copy_block(object, rec, data_801aa594);
 }
 
-void func_8011f93c(Object *object, SeqRec **table, u8 index) {
+void set_sequence_from_table_2(Object *object, SeqRec **table, u8 index) {
     SeqRec **p = table + index;
-    func_8011f96c(object, *p);
+    set_sequence_record_with_default_base_2(object, *p);
 }
 
-void func_8011f96c(Object *object, SeqRec *rec) {
-    func_8011f994(object, rec, data_801aa624);
+void set_sequence_record_with_default_base_2(Object *object, SeqRec *rec) {
+    set_sequence_and_copy_block(object, rec, data_801aa624);
 }

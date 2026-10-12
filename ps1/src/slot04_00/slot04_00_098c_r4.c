@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0e20_slot04_00(Object *obj) {
+void set_states_and_other_lock_sequence_1a_b_slot04_00(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -15,5 +15,5 @@ void func_801b0e20_slot04_00(Object *obj) {
     obj->facing_side = obj->saved_facing;
     obj->other->field_6b = 0x16;
     obj->other_lock = 0x1a;
-    func_801307e0(obj, 0x1a);
+    set_sequence_by_side_and_mode(obj, 0x1a);
 }

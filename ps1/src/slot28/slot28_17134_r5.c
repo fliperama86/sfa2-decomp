@@ -3,25 +3,25 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800279d4_slot28(Object *o);
+void update_cells_from_entry_table_slot28(Object *o);
 
-void func_800278b4_slot28(int *p) {
+void count_down_then_fade_out_step_slot28(int *p) {
     int t = data_8018f5a0->countdown_timer - 1;
     data_8018f5a0->countdown_timer = t;
     if ((s16)t < 0) {
         data_8018f5a0->step_index_2++;
-        func_801280f0();
+        start_fade_mode_1_and_wait();
     }
-    func_800279d4_slot28((Object *)p);
-    func_80138164();
-    func_8011abe4();
-    func_8014f4d4(6, 2);
+    update_cells_from_entry_table_slot28((Object *)p);
+    update_blocks();
+    update_active_slab172_entries();
+    set_menu_command_by_code(6, 2);
 }
 
-void func_80027930_slot28(int *p) {
-    func_800279d4_slot28((Object *)p);
-    func_80138164();
-    func_8011abe4();
+void finish_step_when_wait_flag_clear_slot28(int *p) {
+    update_cells_from_entry_table_slot28((Object *)p);
+    update_blocks();
+    update_active_slab172_entries();
     if (game_state.wait_flag == 0) {
         data_80190568 = 0;
         data_8018f5a0->step_index_2 = 0;
@@ -30,7 +30,7 @@ void func_80027930_slot28(int *p) {
     }
 }
 
-void func_8002799c_slot28(int *p) {
+void init_sixteen_records_to_eight_slot28(int *p) {
     int i;
     for (i = 0; i < 16; i++) {
         Slot28Rec51cf0 *c = (Slot28Rec51cf0 *)(p + 3) + i;

@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800110b8_slot27(void) {
+void spawn_two_pool_objects_a9_and_ab_slot27(void) {
     Object *o;
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0xa9;
         o->table_index = 0;
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0xab;
@@ -19,7 +19,7 @@ void func_800110b8_slot27(void) {
     }
 }
 
-void func_80011118_slot27(void) {
+void fill_rows_white_and_queue_jobs_slot27(void) {
     int i;
     int j;
     u16 *row;
@@ -30,11 +30,11 @@ void func_80011118_slot27(void) {
                 row[j] = 0x7fff;
             }
         }
-        func_80137220(0, 0);
-        func_80137220(1, 1);
-        func_80137220(2, 2);
-        func_80137220(3, 3);
-        func_80137220(4, 7);
+        queue_image_upload_job(0, 0);
+        queue_image_upload_job(1, 1);
+        queue_image_upload_job(2, 2);
+        queue_image_upload_job(3, 3);
+        queue_image_upload_job(4, 7);
         data_8018db10++;
     }
 }

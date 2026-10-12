@@ -5,9 +5,9 @@
 
 
 
-void func_8012aef8(Object *object) {
-    if (func_80149c30(object)) {
-        func_80130304(object);
+void update_sequence_or_set_state_3_to_1(Object *object) {
+    if (check_script_condition_by_mode(object)) {
+        call_scratch_fn_by_side_and_mode(object);
     } else {
         if (!func_80149d48(object)) {
             object->state_3 = 1;

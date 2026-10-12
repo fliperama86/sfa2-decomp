@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80148a74(Object *object) {
+void place_object_at_parent_with_two_tables(Object *object) {
     /* The unused local reproduces the stack frame of the original, which reserves the
        space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[24];

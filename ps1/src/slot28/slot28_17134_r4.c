@@ -5,9 +5,9 @@
 
 extern ObjectRef data_80051df0_slot28;
 extern u16 data_801a6966;
-void func_800279d4_slot28(Object *o);
+void update_cells_from_entry_table_slot28(Object *o);
 
-void func_80027748_slot28(int *p) {
+void scroll_by_step_and_end_on_variant_ff_slot28(int *p) {
     u16 *a = &data_801a6966;
     u16 *b = &data_801a6972;
     Object *o = data_80051df0_slot28.p;
@@ -32,7 +32,7 @@ void func_80027748_slot28(int *p) {
         data_8018f5a0->countdown_timer = 0xb4;
         data_8018f5a0->step_index_2++;
     }
-    func_800279d4_slot28((Object *)p);
-    func_80138164();
-    func_8011abe4();
+    update_cells_from_entry_table_slot28((Object *)p);
+    update_blocks();
+    update_active_slab172_entries();
 }

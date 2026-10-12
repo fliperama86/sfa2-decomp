@@ -5,18 +5,18 @@
 
 
 
-void func_80138c78(GameState *state, Object *object) {
-    func_80138ae8(state, object);
+void call_add_one_to_ec4_wrapper_3(GameState *state, Object *object) {
+    add_one_to_ec4_if_object_unflagged(state, object);
 }
 
-void func_80138c98(Object *object) {
+void update_script_index_for_both_players(Object *object) {
     Object *pair = &player_left;
 
-    func_80138ce0(object, pair);
-    func_80138ce0(object, pair + 1);
+    set_script_table_index_from_thresholds(object, pair);
+    set_script_table_index_from_thresholds(object, pair + 1);
 }
 
-void func_80138ce0(Object *object, Object *other) {
+void set_script_table_index_from_thresholds(Object *object, Object *other) {
     int a;
     int b;
 

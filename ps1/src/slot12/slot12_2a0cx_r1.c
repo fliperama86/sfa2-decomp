@@ -19,7 +19,7 @@ void func_8015bfe8(void *prim, int flag);
  * table of 14 pairs of halfwords), width 0xc0 and height 0x10. Both
  * records of a pair get the same position.
  */
-void func_80012a0c_slot12(Object *obj) {
+void init_black_tile_pairs_at_object_pos_slot12(Object *obj) {
     Slot12Tile *a;
     Slot12Tile *b;
     u16 *offsets = data_80022e48_slot12;

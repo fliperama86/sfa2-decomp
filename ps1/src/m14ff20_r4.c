@@ -9,10 +9,10 @@ void func_80150d58(void) {
     game_state.step_counter = 0;
     while (g->loop_mode != 0 || g->wait_flag != 0) {
         table_8017f2d8[data_8018f5a0->state_index](g);
-        func_801519b4(&data_8017f2ec);
-        func_801192bc(1);
+        add_item_to_table(&data_8017f2ec);
+        request_sound_command_and_switch_thread(1);
     }
     func_80125dc0(4, 0x20, 0x1f, 0);
-    func_80137220(4, 7);
-    func_801192f0();
+    queue_image_upload_job(4, 7);
+    close_snd_thread_and_switch_main();
 }

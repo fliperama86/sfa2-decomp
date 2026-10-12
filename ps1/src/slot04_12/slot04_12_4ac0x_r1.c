@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4ac0_slot04_12(Object *obj);
+void init_jump_velocity_by_scroll_position_slot04_12(Object *obj);
 
-void func_801b4ac0_slot04_12(Object *obj) {
+void init_jump_velocity_by_scroll_position_slot04_12(Object *obj) {
     int vel;
     int acc;
     u16 lx;

@@ -8,10 +8,10 @@ extern ObjectFn data_801be218_slot04_0c[];
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
-void func_8011f240(Slab172 *o);
+void reset_and_push_object_to_pool_table(Slab172 *o);
 void func_8011ffdc(Object *o);
 
-void func_801b46d0_slot04_0c(Object *obj) {
+void call_state_1_handler_unless_gated_slot04_0c(Object *obj) {
     if (game_state.gate_flag != 0) {
         obj->state_0++;
     } else {
@@ -34,16 +34,16 @@ void func_801b4744_slot04_0c(Object *obj) {
         } else {
             t = data_1f800164;
         }
-        func_80130768(obj, 2, t);
+        set_sequence_from_table_5(obj, 2, t);
     }
 }
 
-void func_801b47d0_slot04_0c(Object *obj) {
+void advance_state_0_when_countdown_negative_slot04_0c(Object *obj) {
     int t = obj->countdown - 1;
     obj->countdown = t;
     if ((s16)t < 0) obj->state_0 = obj->state_0 + 1;
 }
 
-void func_801b4804_slot04_0c(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot04_0c(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

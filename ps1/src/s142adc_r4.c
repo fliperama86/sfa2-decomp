@@ -9,7 +9,7 @@ void func_801439e8(Object *object) {
         if (object->step_count++ == 2) {
             object->step_count = 0;
             object->field_01 = 0;
-            func_801373e8();
+            fill_row_columns_white_once();
             object->state_1 = object->state_1 + 1;
             if (object->field_a3 == 0) play_sound_at(0, 0, 0x206);
         }
@@ -23,7 +23,7 @@ void func_80143a84(Object *object) {
     if (object->variant_index_2 == 7) {
         if (object->step_count++ == 2) {
             object->field_01 = 1;
-            func_801374c0();
+            restore_rows_from_backup_rows();
             if (object->field_a3 == 0) {
                 object->state_1--;
                 object->step_count = 1;

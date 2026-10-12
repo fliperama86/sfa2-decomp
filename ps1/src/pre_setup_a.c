@@ -5,7 +5,7 @@
 
 
 
-void func_8012fe60(Object *object) {
+void enter_state_2_6_by_button_input(Object *object) {
     object->facing_side = object->saved_facing;
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
         ref_other.p = object->other;
@@ -36,7 +36,7 @@ void func_8012fe60(Object *object) {
     }
 }
 
-void func_8012ff80(Object *object) {
+void set_win_or_lose_state_by_health(Object *object) {
     u8 v;
     s16 hp;
     int index;
@@ -68,7 +68,7 @@ void func_8012ff80(Object *object) {
     set_sequence_by_side(object, index);
 }
 
-void func_80130038(Object *object) {
+void set_vel_x_from_motion_speed_table(Object *object) {
     s32 speed;
     int held = object->input_bits_2 & 0x8000;
     object->variant_index = held == 0;

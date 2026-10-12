@@ -5,7 +5,7 @@
 
 extern SequenceStep *data_801e7630_slot0b[];
 
-void func_801e1c00_slot0b(Object *obj) {
+void init_object_position_and_sequence_slot0b(Object *obj) {
     obj->field_01 = 1;
     obj->ot_depth = 0;
     obj->facing_side = 0;
@@ -15,10 +15,10 @@ void func_801e1c00_slot0b(Object *obj) {
     obj->state_0++;
     obj->pos_x = box_margin[0];
     obj->pos_y = data_801aa5ea[0] + 8;
-    func_80130768(obj, obj->field_02, data_801e7630_slot0b);
+    set_sequence_from_table_5(obj, obj->field_02, data_801e7630_slot0b);
 }
 
-void func_801e1c6c_slot0b(Object *obj) {
+void update_object_at_box_margin_position_slot0b(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->field_01 = 0;
         obj->state_0++;
@@ -29,7 +29,7 @@ void func_801e1c6c_slot0b(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801e1cdc_slot0b(Object *obj) {
+void reset_slot_object_and_busy_flag_slot0b(Object *obj) {
     u32 *p = (u32 *)obj;
     p[0] = 0;
     p[1] = 0;

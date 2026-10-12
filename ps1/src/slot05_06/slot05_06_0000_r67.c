@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 extern Object *data_801dd754_slot05_06;
-void func_801cdd64_slot05_06(Object *obj, int a);
-void func_801cdd0c_slot05_06(Object *obj);
+void set_variant_sequence_by_sound_side_slot05_06(Object *obj, int a);
+void increment_state_0_slot05_06(Object *obj);
 extern void (*data_801dd5c0_slot05_06[])(Object *);
 
-void func_801cdc58_slot05_06(Object *obj) {
+void follow_parent_position_and_sequence_slot05_06(Object *obj) {
     Object *p;
     u8 a;
 
@@ -24,21 +24,21 @@ void func_801cdc58_slot05_06(Object *obj) {
             obj->facing_side = p->facing_side;
             obj->field_01 = 1;
             if (obj->variant_index != a) {
-                func_801cdd64_slot05_06(obj, a);
+                set_variant_sequence_by_sound_side_slot05_06(obj, a);
             } else {
                 advance_sequence_checked(obj);
             }
         }
     } else {
-        func_801cdd0c_slot05_06(obj);
+        increment_state_0_slot05_06(obj);
     }
 }
 
-void func_801cdd0c_slot05_06(Object *o) {
+void increment_state_0_slot05_06(Object *o) {
     o->state_0++;
 }
 
-void func_801cdd20_slot05_06(Object *o) {
+void release_object_unlink_global_link_slot05_06(Object *o) {
     Object *p = data_801dd754_slot05_06;
 
     if ((s32)o == p->linked_object) {
@@ -47,11 +47,11 @@ void func_801cdd20_slot05_06(Object *o) {
     func_8011f38c(o);
 }
 
-void func_801cdd5c_slot05_06(Object *o) {
+void clear_variant_index_slot05_06(Object *o) {
     o->variant_index = 0;
 }
 
-void func_801cdd64_slot05_06(Object *obj, int idx) {
+void set_variant_sequence_by_sound_side_slot05_06(Object *obj, int idx) {
     SequenceStep **table;
 
     obj->variant_index = idx;
@@ -60,9 +60,9 @@ void func_801cdd64_slot05_06(Object *obj, int idx) {
     } else {
         table = data_1f800164;
     }
-    func_80130768(obj, (u8)idx, table);
+    set_sequence_from_table_5(obj, (u8)idx, table);
 }
 
-void func_801cddac_slot05_06(Object *obj) {
+void call_handler_by_state_0_slot05_06(Object *obj) {
     data_801dd5c0_slot05_06[obj->state_0](obj);
 }

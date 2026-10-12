@@ -5,7 +5,7 @@
 
 extern s16 data_801c63d4_slot04_02[];
 
-void func_801b3678_slot04_02(Object *obj) {
+void update_state_3_spawn_child_on_step_flag_slot04_02(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     s32 unused[2];
     s16 t;
@@ -32,6 +32,6 @@ void func_801b3678_slot04_02(Object *obj) {
         play_sound_at(obj, obj->side, 0x31c);
         i = (((u8)obj->step_flags - 1) << 2) & 0x1fc;
         obj->step_flags = obj->step_flags & 0xff00;
-        func_801482e0(obj, *(s16 *)((u8 *)data_801c63d4_slot04_02 + i), *(s16 *)((u8 *)data_801c63d4_slot04_02 + i + 2));
+        spawn_child_object_with_offsets(obj, *(s16 *)((u8 *)data_801c63d4_slot04_02 + i), *(s16 *)((u8 *)data_801c63d4_slot04_02 + i + 2));
     }
 }

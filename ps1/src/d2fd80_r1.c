@@ -8,7 +8,7 @@
    when b's facing_side is set) is within reach of object a's horizontal
    position. Returns 0 when b's current frame has bit 0x80 in field_0c, 2 at
    the first step whose box is within reach, 1 when the sequence ends. */
-u8 func_8012fd80(Object *a, Object *b) {
+u8 check_wide_box_in_range_over_sequence(Object *a, Object *b) {
     SequenceStep *s;
     Box32 *box;
     int active, off;

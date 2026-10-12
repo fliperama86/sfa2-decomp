@@ -10,17 +10,17 @@
    merges only the call instruction. The index local has the callee's
    parameter type: with int the compiler drops the constant load of that
    path, because the argument register already holds the value. */
-void func_8012d310(Object *object)
+void set_sequence_by_action_timer_and_other(Object *object)
 {
   u16 index;
   index = 0xc;
   object->field_157 = 0;
-  if (object->action_timer != 0) { func_801308c4(object, 0xc); return; }
+  if (object->action_timer != 0) { set_sequence_by_side_and_mode_2(object, 0xc); return; }
   ref_other.p = object->other;
   if ((ref_other.p->active_state == 0) && (ref_other.p->field_157 != 0))
   {
     index = 0xe;
     object->field_157++;
   }
-  func_801308c4(object, index);
+  set_sequence_by_side_and_mode_2(object, index);
 }

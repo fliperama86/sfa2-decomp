@@ -16,9 +16,9 @@ void func_801b2594_slot04_0b(Object *obj) {
         obj->vel_x = 0x80000;
     }
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x3f);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3f);
 }
 
 void func_801b2624_slot04_0b(Object *obj) {
@@ -29,14 +29,14 @@ void func_801b2624_slot04_0b(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_801483a4(obj, -0x28, 0x62);
+        spawn_children_per_direction_index(obj, -0x28, 0x62);
         play_sound_at(obj, obj->side, 0x31c);
         play_side_sound_at(obj, obj->side, 7);
     }
     update_sequence(obj);
 }
 
-void func_801b26b8_slot04_0b(Object *obj) {
+void set_other_lock_from_table_slot04_0b(Object *obj) {
     update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->field_165 = 0;

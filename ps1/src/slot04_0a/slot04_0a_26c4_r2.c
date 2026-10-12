@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3f10_slot04_0a(Object *obj);
+void clear_kind10_flag_and_call_helper_slot04_0a(Object *obj);
 
-void func_801b2804_slot04_0a(Object *obj) {
+void move_by_vel_x_until_countdown_or_bound_slot04_0a(Object *obj) {
     u8 t;
     Slot04aObj *s = (Slot04aObj *)obj;
     if (obj->active_flag != 0) {
@@ -14,7 +14,7 @@ void func_801b2804_slot04_0a(Object *obj) {
         if ((t & 0x80) == 0) {
             s->countdown = t - 1;
             if (s->countdown & 0x80) {
-                func_801307e0(obj, 0x42);
+                set_sequence_by_side_and_mode(obj, 0x42);
             }
         }
     }
@@ -24,18 +24,18 @@ void func_801b2804_slot04_0a(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        func_801b3f10_slot04_0a(obj);
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x43);
+        clear_kind10_flag_and_call_helper_slot04_0a(obj);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x43);
     }
 }
 
-void func_801b28e0_slot04_0a(Object *obj) {
+void finish_sequence_restore_pos_y_and_reset_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

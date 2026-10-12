@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 int func_801ce6f8_slot05_06(Object *obj);
-void func_801ce770_slot05_06(Object *obj);
+void release_object_record_3_slot05_06(Object *obj);
 
-void func_801ce638_slot05_06(Object *obj) {
+void land_on_ground_and_advance_state_1_slot05_06(Object *obj) {
     if ((func_801ce6f8_slot05_06(obj) << 16) > 0) {
         ((Slot04aObj *)obj)->timer = 8;
         obj->step_timer = 1;
@@ -16,7 +16,7 @@ void func_801ce638_slot05_06(Object *obj) {
     }
 }
 
-void func_801ce694_slot05_06(Object *obj) {
+void count_down_timer_advance_state_0_slot05_06(Object *obj) {
     ((Slot04aObj *)obj)->timer--;
     if (((Slot04aObj *)obj)->timer & 0x80) {
         obj->state_0++;
@@ -36,10 +36,10 @@ int func_801ce6f8_slot05_06(Object *obj) {
     return (s16)(obj->pos_y - obj->ground_y);
 }
 
-void func_801ce750_slot05_06(Object *obj) {
-    func_801ce770_slot05_06(obj);
+void load_velocities_from_table_7_slot05_06(Object *obj) {
+    release_object_record_3_slot05_06(obj);
 }
 
-void func_801ce770_slot05_06(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_3_slot05_06(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

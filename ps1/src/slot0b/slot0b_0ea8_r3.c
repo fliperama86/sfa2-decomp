@@ -5,9 +5,9 @@
 
 extern u16 data_801e4b40_slot0b[];
 void func_801e1598_slot0b(Slot0bObj *obj, int arg);
-void func_801e1624_slot0b(Slot0bObj *obj);
+void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
-void func_801e1144_slot0b(Object *obj) {
+void init_moving_object_with_mirrored_variant_slot0b(Object *obj) {
     obj->field_0a = 1;
     obj->field_0e = 0;
     obj->ot_depth = 0;
@@ -37,5 +37,5 @@ void func_801e1144_slot0b(Object *obj) {
         obj->accel_y = -obj->accel_y;
     }
     func_801e1598_slot0b((Slot0bObj *)obj, obj->table_index);
-    func_801e1624_slot0b((Slot0bObj *)obj);
+    call_step_on_anim_member_slot0b((Slot0bObj *)obj);
 }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801541e0(Object *o) {
+void format_win_streak_text(Object *o) {
     u8 d[2];
     int i;
     unsigned n;
@@ -30,6 +30,6 @@ void func_801541e0(Object *o) {
             t->buf[0] = 0x20;
         }
         t->buf[1] = d[0] + 0x30;
-        func_801519b4(t);
+        add_item_to_table(t);
     }
 }

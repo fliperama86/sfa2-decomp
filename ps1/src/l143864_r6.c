@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80146ba0(Object *object, u8 index) {
+int spawn_effect_from_table_at_object(Object *object, u8 index) {
     s8 tbl[7] = {0x15, 0x16, 0x30, 0x0c, 0x0d, 0x0a, 0x12};
-    ref_other.p = (Object *)func_8011f1e0();
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
     ref_other.p->active_count = 1;
     ref_other.p->field_02 = 5;
@@ -23,11 +23,11 @@ int func_80146ba0(Object *object, u8 index) {
     return 0;
 }
 
-int func_80146cf8(Object *object, u8 index) {
+int spawn_effect_at_other_ground(Object *object, u8 index) {
     s8 tbl[2] = {0x10, 0x11};
     Object *other;
     other = object->other;
-    ref_other.p = (Object *)func_8011f1e0();
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
     ref_other.p->active_count = 1;
     ref_other.p->field_02 = 5;
@@ -45,9 +45,9 @@ int func_80146cf8(Object *object, u8 index) {
     return 0;
 }
 
-int func_80146e3c(Object *object, u8 index) {
+int spawn_effect_record_with_random_offset(Object *object, u8 index) {
     s8 tbl[10] = {0x10, 0x11, 0x0f, 0x0b, 0x0c, 0x0d, 0x0e, 0x20, 0x21, 0x22};
-    ref_other.p = (Object *)func_8011f1e0();
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
     ref_other.p->active_count = 1;
     ref_other.p->field_02 = 5;
@@ -67,7 +67,7 @@ int func_80146e3c(Object *object, u8 index) {
     return 0;
 }
 
-int func_80147000(Object *object) {
+int spawn_game_state_kind_object(Object *object) {
     Object *o;
     Object *src;
     u8 w;
@@ -75,14 +75,14 @@ int func_80147000(Object *object) {
 
     if (game_state.spawn_flag == 0) {
         game_state.spawn_flag = 0xff;
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o == 0) {
             return 0;
         }
         src = object->mode_id == 8 ? object->parent : object;
         o->active_count = 1;
         if (game_state.spawn_kind == 6) {
-            func_8014780c(object);
+            spawn_child_object_with_parent(object);
         }
         o->field_02 = 6;
         o->table_index = game_state.spawn_kind;

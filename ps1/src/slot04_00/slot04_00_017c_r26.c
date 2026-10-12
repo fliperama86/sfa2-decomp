@@ -5,15 +5,15 @@
 
 extern void (*data_801c05a0_slot04_00[])(Object *);
 
-void func_801b3bf4_slot04_00(Object *obj) {
+void update_sequence_or_call_finish_on_flag_5_slot04_00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b3c38_slot04_00(Object *obj) {
+void call_handler_by_state_3_set_flag_2_slot04_00(Object *obj) {
     obj->field_157 = 1;
     data_801c05a0_slot04_00[obj->state_3](obj);
 }
@@ -22,14 +22,14 @@ void func_801b3c7c_slot04_00(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b3cb4_slot04_00(Object *obj) {
+void update_sequence_or_finish_on_flag_3_slot04_00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);

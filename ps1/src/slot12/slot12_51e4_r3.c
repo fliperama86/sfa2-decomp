@@ -6,9 +6,9 @@
 extern void (*data_800284ac_slot12[])(Object *);
 extern void (*data_800284c4_slot12[])(Object *);
 extern void (*data_800284cc_slot12[])(Object *);
-void func_80015910_slot12(Object *obj);
+void init_record_fields_by_mode_flag_2_slot12(Object *obj);
 
-void func_800153c0_slot12(Object *obj) {
+void call_handler_by_table_index_slot12(Object *obj) {
     ref_first.p = (Object *)table_8016e5c4;
     if (game_state.mode_flag_2 != 0) {
         ref_first.p = (Object *)table_8016e614;
@@ -17,18 +17,18 @@ void func_800153c0_slot12(Object *obj) {
 }
 
 void func_8001542c_slot12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_8001544c_slot12(Object *obj) {
+void call_handler_by_state_1_3_slot12(Object *obj) {
     data_800284c4_slot12[obj->state_1](obj);
 }
 
-void func_8001548c_slot12(Object *obj) {
+void advance_state_1_and_init_vars_slot12(Object *obj) {
     obj->state_1 = obj->state_1 + 1;
-    func_80015910_slot12(obj);
+    init_record_fields_by_mode_flag_2_slot12(obj);
 }
 
-void func_800154b8_slot12(Object *obj) {
+void call_handler_by_state_1_4_slot12(Object *obj) {
     data_800284cc_slot12[obj->state_1](obj);
 }

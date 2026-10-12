@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern ObjectFn data_800797f4_slot00[];
-void func_80077050_slot00(Object *obj);
+void select_box_tables_slot00_slot00(Object *obj);
 
 void func_80076cd4_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
@@ -30,7 +30,7 @@ void func_80076cd4_slot00(Object *o) {
                     t = 7;
                 }
                 o->table_index_3 = t;
-                func_80077050_slot00(o);
+                select_box_tables_slot00_slot00(o);
             }
         }
     }

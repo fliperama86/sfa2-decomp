@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013b824(void) {
+void damage_second_and_third_objects(void) {
     ref_third.p->active_count++;
     ref_third.p->state_0 = 1;
     ref_third.p->state_1 = 1;

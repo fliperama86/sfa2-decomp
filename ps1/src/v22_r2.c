@@ -2,7 +2,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80119030(void) {
+void init_snd_voices(void) {
     int base = *(int *)0x110;
     SndVoice *v = (SndVoice *)0x801fc200;
     int i;

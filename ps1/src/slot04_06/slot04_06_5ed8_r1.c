@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b5ed8_slot04_06(Object *obj) {
-    ref_other.p = (Object *)func_8011f1e0();
+int spawn_object_copying_position_slot04_06(Object *obj) {
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count = 1;
         ref_other.p->field_02 = 0x16;

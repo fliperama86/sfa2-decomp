@@ -5,7 +5,7 @@
 
 int func_801b66fc_slot04_06(Object *obj);
 
-void func_801b64c4_slot04_06(Object *obj) {
+void set_landing_sequence_when_below_ground_slot04_06(Object *obj) {
     int a;
     int t;
 
@@ -17,9 +17,9 @@ void func_801b64c4_slot04_06(Object *obj) {
         a = (a & 1) | 0x18;
         obj->state_1 = t;
         if (obj->sound_side == 0) {
-            func_80130768(obj, a, data_1f8000b4);
+            set_sequence_from_table_5(obj, a, data_1f8000b4);
         } else {
-            func_80130768(obj, a, data_1f800164);
+            set_sequence_from_table_5(obj, a, data_1f800164);
         }
     }
     advance_sequence_checked(obj);

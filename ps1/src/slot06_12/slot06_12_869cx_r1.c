@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e872c_slot06_12(Slot06Layer *layer);
+void load_layer_timer_and_flags_from_tables_slot06_12(Slot06Layer *layer);
 
 void func_801e869c_slot06_12(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         layer->countdown_timer -= 1;
         if (layer->countdown_timer == 0) {
             layer->table_index = (layer->table_index + 1) & 7;
-            func_801e872c_slot06_12(layer);
+            load_layer_timer_and_flags_from_tables_slot06_12(layer);
         }
     }
     if (layer->field_00 != 0 && game_state.side_bits_2 == 0) {
-        func_801364a0((Sprite *)layer);
-        func_80136744((Sprite *)layer);
+        update_camera_x_from_player_span((Sprite *)layer);
+        update_cam_y_toward_players((Sprite *)layer);
     }
 }

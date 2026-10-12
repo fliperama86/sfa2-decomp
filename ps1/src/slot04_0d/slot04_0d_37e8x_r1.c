@@ -8,7 +8,7 @@ extern u8 data_801c2848_slot04_0d[];
 
 void set_sequence_by_side(Object *object, int arg);
 
-void func_801b37e8_slot04_0d(Object *object) {
+void choose_random_substate_and_set_sequence_slot04_0d(Object *object) {
     u16 a;
     ((Slot04bObj *)object)->countdown = 0x3c;
     object->state_2 = object->state_2 + 1;
@@ -27,5 +27,5 @@ void func_801b37e8_slot04_0d(Object *object) {
             a = data_801c2848_slot04_0d[a];
         }
     }
-    a = (s8)func_80125734(object, (s8)a); object->substate_index = a; a += 0x23; set_sequence_by_side(object, (s16)a);
+    a = (s8)get_input_mapped_value_or_default(object, (s8)a); object->substate_index = a; a += 0x23; set_sequence_by_side(object, (s16)a);
 }

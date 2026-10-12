@@ -17,12 +17,12 @@ extern u8 data_801b9d28_slot04_sel;
 extern u8 data_801b9cec_slot04_sel;
 extern u8 data_801b9ce8_slot04_sel;
 
-void func_801b1984_slot04_sel(void);
-void func_801b1d8c_slot04_sel(Object *obj, Slot04SelRec *p, int n);
+void check_opposite_player_same_selection_slot04_sel(void);
+void read_menu_direction_to_selection_slot04_sel(Object *obj, Slot04SelRec *p, int n);
 void func_801b1f20_slot04_sel(Object *obj, Slot04SelRec *p);
-void func_801b2008_slot04_sel(Object *obj, Slot04SelRec *p);
+void update_button_sequence_matcher_slot04_sel(Object *obj, Slot04SelRec *p);
 
-void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
+void update_side_kind_selection_slot04_sel(Object *obj, Slot04SelRec *p) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     TextItem *s2 = data_801b701c_slot04_sel[obj->side];
@@ -51,7 +51,7 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                 }
             }
             data_801b9cec_slot04_sel = p->field_04;
-            func_801b1d8c_slot04_sel(obj, p, 0x11);
+            read_menu_direction_to_selection_slot04_sel(obj, p, 0x11);
             p->kind = data_801b6de0_slot04_sel[p->kind * 5 + data_801b9ce8_slot04_sel];
             data_801b9ce8_slot04_sel = p->kind;
             p->field_04 = data_801b9cec_slot04_sel;
@@ -64,30 +64,30 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             if (data_8016e68e != 0 && p->field_18 == 0xb4 && obj->kind == 2) {
                 obj->kind = 0x14;
             }
-            func_801b2008_slot04_sel(obj, p);
+            update_button_sequence_matcher_slot04_sel(obj, p);
             if (p->field_04 != 0 && obj->kind == 2 && p->slot_d_flag != 0) {
                 obj->kind = 0x14;
                 data_8016e68e = -1;
             }
             s4->x = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_00 + obj->side * 0x18;
             s4->y = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_02;
-            func_801519b4(s4);
+            add_item_to_table(s4);
             s2 = data_801b701c_slot04_sel[obj->side];
             a1 = data_801b72f4_slot04_sel[obj->kind];
             for (i = 0; i < 0x10; i++) {
                 s2->text2[i] = a1->text2[i];
             }
             s2->palette = a1->palette;
-            func_801519b4(s2);
+            add_item_to_table(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
             s1->palette = a1->palette;
-            func_801519b4(s1);
+            add_item_to_table(s1);
             if (p->field_04 != 0) {
-                func_801205c4(obj->side, data_801b6e4c_slot04_sel[data_801b9ce8_slot04_sel]);
+                call_func_with_side_x_origin(obj->side, data_801b6e4c_slot04_sel[data_801b9ce8_slot04_sel]);
                 game_state.side = obj->side;
                 game_state.mode |= 1 << obj->side;
                 if (p->input_value == 0x10 || p->input_value == 0x80) {
@@ -115,7 +115,7 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                     obj->select_value_1 = 5;
                 }
                 ref_other.p = obj;
-                func_801b1984_slot04_sel();
+                check_opposite_player_same_selection_slot04_sel();
                 if (data_8019045c[0] != 0) {
                     data_8019045c[0] = 0;
                     if (obj->field_d4 == 0) {
@@ -130,20 +130,20 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                 s2->text2[i] = a1->text2[i];
             }
             s2->palette = a1->palette;
-            func_801519b4(s2);
+            add_item_to_table(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
             s1->palette = a1->palette;
-            func_801519b4(s1);
+            add_item_to_table(s1);
         } else {
-            func_801519b4(data_801b6f1c_slot04_sel[obj->side]);
+            add_item_to_table(data_801b6f1c_slot04_sel[obj->side]);
         }
     } else {
-        func_801519b4(s4);
-        func_801519b4(s2);
-        func_801519b4(s1);
+        add_item_to_table(s4);
+        add_item_to_table(s2);
+        add_item_to_table(s1);
     }
 }

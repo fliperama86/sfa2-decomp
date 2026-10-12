@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b62c4_slot04_06(Object *obj);
+void load_velocities_from_table_by_index_slot04_06(Object *obj);
 
-void func_801b61c0_slot04_06(Object *obj) {
-    func_801b62c4_slot04_06(obj);
+void load_velocities_from_table_6_slot04_06(Object *obj) {
+    load_velocities_from_table_by_index_slot04_06(obj);
 }

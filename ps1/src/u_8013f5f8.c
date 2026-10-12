@@ -100,7 +100,7 @@ int func_8013f5f8(Object *object, int a, int b)
   object->damage_countdown = 0;
   object->reference_count = 0;
   ref_other.p->other = object;
-  func_80138ac8((GameState *)game_state.config, object);
+  call_add_one_to_ec4_wrapper_2((GameState *)game_state.config, object);
   object->active_flag_3 = 0;
   ref_other.p->active_flag_3 = 0;
   object->field_225 = 0;

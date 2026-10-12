@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800dfa40_slot0f(GameState *state, int flag);
+void reset_hud_indices_and_state_counters_slot0f(GameState *state, int flag);
 
-void func_800dfa04_slot0f(GameState *state) {
+void check_buttons_and_call_reset_slot0f(GameState *state) {
     if (((data_801a696a | data_801a6976) & 0x820) != 0) {
-        func_800dfa40_slot0f(state, 1);
+        reset_hud_indices_and_state_counters_slot0f(state, 1);
     }
 }
 
-void func_800dfa40_slot0f(GameState *state, int flag) {
+void reset_hud_indices_and_state_counters_slot0f(GameState *state, int flag) {
     HudState *hud = data_8018f5a0;
     scratch_word_10 = 0;
     hud->state_index = 0;
@@ -27,9 +27,9 @@ void func_800dfa40_slot0f(GameState *state, int flag) {
     state->countdown_timer_2 = 0;
     state->field_cc = 0;
     func_8011eb14();
-    func_80120408();
+    stop_all_keys_clear_table();
     stop_sep_by_word(0x200);
-    func_8014f4d4(4, 0);
+    set_menu_command_by_code(4, 0);
     if (flag != 0) {
         play_sound_at(0, 0, 0x205);
     }

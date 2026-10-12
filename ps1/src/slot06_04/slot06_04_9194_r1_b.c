@@ -8,9 +8,9 @@ extern u16 data_801e9ce0_slot06_04[];
 extern Slot06TileW data_801f6660_slot06_04[2][26];
 
 void init_draw_mode_prim_4(Tx *tx);
-void func_801e93c8_slot06_04(Slot06Layer *layer);
+void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer);
 
-void func_801e93c8_slot06_04(Slot06Layer *layer) {
+void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer) {
     layer->flags_bits = data_801e9ce0_slot06_04[layer->table_index];
     layer->countdown_timer = (s16)data_801e9ce0_slot06_04[layer->table_index + 1];
 }
@@ -23,7 +23,7 @@ void func_801e9418_slot06_04(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9444_slot06_04(void) {
+void init_two_banks_of_26_tile_prims_slot06_04(void) {
     Slot06TileW *p;
     int i;
     int k;

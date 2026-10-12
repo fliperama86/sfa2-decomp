@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
-void func_801b5478_slot04_09(Object *obj);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
+void spawn_linked_pooled_object_health_2_slot04_09(Object *obj);
 
-void func_801b41c0_slot04_09(Object *obj) {
-    func_801b2858_slot04_09(obj);
+void move_and_advance_on_flag_spawn_linked_slot04_09(Object *obj) {
+    apply_velocity_and_acceleration_slot04_09(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
-        func_801b5478_slot04_09(obj);
+        spawn_linked_pooled_object_health_2_slot04_09(obj);
     }
     update_sequence(obj);
 }

@@ -3,33 +3,33 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
-void func_801cc84c_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
+void apply_vertical_velocity_slot05_06(Object *obj);
 
-void func_801ca414_slot05_06(Object *o) {
+void update_rising_arc_then_dive_sound_8_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    func_801cc84c_slot05_06(o);
+    apply_vertical_velocity_slot05_06(o);
     if (o->vel_y <= 0x1ffff && obj->field_1c8 == 0) {
         obj->field_1c8 = 1;
-        func_801307e0(o, 0x28);
+        set_sequence_by_side_and_mode(o, 0x28);
     } else if (o->vel_y >= 0) {
-        func_801cc814_slot05_06(o);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(o);
         update_sequence(o);
     } else {
         o->vel_y = -0x80000;
         o->state_3++;
         play_side_sound_at(o, o->side, 8);
-        func_801307e0(o, 0x20);
+        set_sequence_by_side_and_mode(o, 0x20);
     }
 }
 
-void func_801ca4cc_slot05_06(Object *o) {
+void update_fall_to_saved_y_and_land_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    func_801cc84c_slot05_06(o);
+    apply_vertical_velocity_slot05_06(o);
     if (o->pos_y < (s16)obj->saved_pos_y) {
-        func_801cc814_slot05_06(o);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(o);
     } else {
         o->state_3++;
         func_80146960(o);
@@ -38,6 +38,6 @@ void func_801ca4cc_slot05_06(Object *o) {
         obj->field_1c2 = 0xa;
         o->pos_y = obj->saved_pos_y;
         game_state.state_param = 0xa;
-        func_801307e0(o, 0x21);
+        set_sequence_by_side_and_mode(o, 0x21);
     }
 }

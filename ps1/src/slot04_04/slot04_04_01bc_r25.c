@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b20a8_slot04_04(Object *obj) {
+void update_countdown_high_byte_and_sequence_slot04_04(Object *obj) {
     s16 t = obj->countdown;
 
     if (t & 0xff00) {
@@ -16,9 +16,9 @@ void func_801b20a8_slot04_04(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

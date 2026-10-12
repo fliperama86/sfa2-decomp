@@ -5,15 +5,15 @@
 
 extern void (*data_801c61c8_slot04_02[])(Object *);
 
-void func_801b065c_slot04_02(Object *obj) {
+void update_sequence_or_call_finish_on_flag_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b06a0_slot04_02(Object *obj) {
+void call_handler_by_state_3_set_flag_slot04_02(Object *obj) {
     obj->field_157 = 1;
     data_801c61c8_slot04_02[obj->state_3](obj);
 }

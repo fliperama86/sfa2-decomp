@@ -7,7 +7,7 @@
 
 void func_8012d030(Object *object) {
     if ((s16)object->health < 0) {
-        func_8012f4dc(object);
+        enter_state_1_6_and_set_sequence(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 1;
@@ -18,25 +18,25 @@ void func_8012d030(Object *object) {
     }
 }
 
-void func_8012d084(Object *object) {
-    if (func_8012eff8(object) != 0) {
+void set_state_3_two_if_step_done(Object *object) {
+    if (apply_table_step_to_pos_x(object) != 0) {
         object->state_3 = 2;
     }
 }
 
-void func_8012d0bc(Object *object) {
+void play_side_sound_0(Object *object) {
     play_side_sound_at(object, object->side, 0);
 }
 
-void func_8012d0e0(Object *object) {
+void play_side_sound_1(Object *object) {
     play_side_sound_at(object, object->side, 1);
 }
 
-void func_8012d104(Object *object) {
+void call_state_3_table_function_3(Object *object) {
     table_80171a30[object->state_3](object);
 }
 
-void func_8012d144(Object *object) {
+void advance_state_3_and_call_step(Object *object) {
     object->state_3 = object->state_3 + 1;
     func_8012d170(object);
 }

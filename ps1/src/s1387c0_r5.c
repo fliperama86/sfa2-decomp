@@ -7,28 +7,28 @@
 void func_80139dbc(Object *a0, Object *a1, Box32 *a2) {
     if (a2->box_type == 2 && table_80188ed0[4] < table_80188ed0[0] &&
         table_80188ed0[4] < table_80188ed0[2]) {
-        func_8013a2a4(a0, a1, &a0->wide_boxes[a0->frame->active]);
+        hit_response_by_box_type_4(a0, a1, &a0->wide_boxes[a0->frame->active]);
     } else if ((a0->table_bits & 1) == 0) {
-        func_8013a2a4(a0, a1, &a0->wide_boxes[a0->frame->active]);
+        hit_response_by_box_type_4(a0, a1, &a0->wide_boxes[a0->frame->active]);
     } else {
-        func_8013a050(a0, a1);
+        mark_hit_and_clear_hit_count(a0, a1);
     }
 }
 
-void func_80139e5c(Object *a0, Object *a1, Box32 *unused) {
+void choose_wide_box_hit_by_table_bit_1(Object *a0, Object *a1, Box32 *unused) {
     if ((a0->table_bits & 2) == 0) {
-        func_8013a2a4(a0, a1, &a0->wide_boxes[a0->frame->active]);
+        hit_response_by_box_type_4(a0, a1, &a0->wide_boxes[a0->frame->active]);
     } else {
-        func_8013a050(a0, a1);
+        mark_hit_and_clear_hit_count(a0, a1);
     }
 }
 
 void func_80139eb4(Object *a0, Object *a1, Box32 *a2) {
     if (a0->facing_side == a1->facing_side) {
-        func_8013a154(a0, a1, a2);
-    } else if ((u8)func_80139f54(a0, a1, a2) != 0 || (u8)func_80139f84(a0, a1, a2) != 0) {
-        func_8013ca3c(a0, a1);
+        dispatch_hit_handler_by_box_type(a0, a1, a2);
+    } else if ((u8)is_flag_2_and_box_type_6(a0, a1, a2) != 0 || (u8)func_80139f84(a0, a1, a2) != 0) {
+        set_pair_hit_states_and_play_sound(a0, a1);
     } else {
-        func_8013a154(a0, a1, a2);
+        dispatch_hit_handler_by_box_type(a0, a1, a2);
     }
 }

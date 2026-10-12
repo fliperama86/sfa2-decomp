@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_800263f8_slot28(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
 void func_80026418_slot28(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

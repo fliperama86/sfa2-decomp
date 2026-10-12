@@ -8,9 +8,9 @@ extern u8 data_801c43dc_slot04_04[];
 void func_801b2b8c_slot04_04(Object *o) {
     o->state_3++;
     func_801428e4(o);
-    func_80138b38(&game_state, o);
+    set_flag_225_add_direction_to_counter(&game_state, o);
     func_80145d20(o);
-    func_801307e0(o, 0x59);
+    set_sequence_by_side_and_mode(o, 0x59);
 }
 
 void func_801b2be8_slot04_04(Object *o) {
@@ -24,11 +24,11 @@ void func_801b2be8_slot04_04(Object *o) {
         }
         play_side_sound_at(o, o->side, 8);
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0x1a, 0x33);
+        spawn_children_per_direction_index(o, -0x1a, 0x33);
     }
 }
 
-void func_801b2c74_slot04_04(Object *o) {
+void set_table_value_on_sequence_end_sound_9_slot04_04(Object *o) {
     u8 t;
 
     update_sequence(o);

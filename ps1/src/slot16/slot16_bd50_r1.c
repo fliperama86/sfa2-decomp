@@ -6,35 +6,35 @@
 extern void (*data_8007e870_slot16[])(Object *);
 extern void func_8007bf74_slot16(Object *obj);
 extern void func_8007bf98_slot16(Object *obj);
-extern void func_8007bfb8_slot16(Object *obj);
+extern void load_velocities_from_table_slot16(Object *obj);
 
-void func_8007bd50_slot16(Object *obj) {
+void update_sequence_reset_state_3_on_check_slot16(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_8007bf98_slot16(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     }
 }
 
-void func_8007bdb4_slot16(Object *obj) {
+void call_handler_by_state_3_set_flag_slot16(Object *obj) {
     obj->field_157 = 1;
     data_8007e870_slot16[obj->state_3](obj);
 }
 
-void func_8007bdf8_slot16(Object *obj) {
+void advance_state_3_restore_facing_slot16(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     func_8007bf74_slot16(obj);
 }
 
-void func_8007be28_slot16(Object *obj) {
+void update_sequence_reset_state_3_on_check_2_slot16(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_8007bfb8_slot16(obj);
+        load_velocities_from_table_slot16(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);

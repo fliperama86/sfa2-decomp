@@ -16,7 +16,7 @@ extern u32 data_80015780_slot01[];
    with its low nibble cleared) as v, each plus the size), then
    links the primitive into the ordering list whose index is
    data_80015780_slot01[object->ot_depth]. */
-void func_80012dec_slot01(Object *obj, u8 *p) {
+void build_sized_sprite_quads_into_ot_slot01(Object *obj, u8 *p) {
     Poly28 *prim = (Poly28 *)p;
     SpriteSet *shape = (SpriteSet *)obj->sequence->data_ptr;
     u32 idx = data_80015780_slot01[obj->ot_depth];

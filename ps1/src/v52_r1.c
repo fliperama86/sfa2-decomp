@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80136668(Cam *cam, short step)
+void move_cam_right(Cam *cam, short step)
 {
   if (step >= 5)
   {

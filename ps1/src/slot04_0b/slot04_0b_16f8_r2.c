@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b18a8_slot04_0b(Object *obj) {
+void apply_vertical_motion_with_fall_accel_slot04_0b(Object *obj) {
     if (obj->vel_y < 0) {
         if (obj->field_49 == 0) {
             obj->accel_y = -0x8000;

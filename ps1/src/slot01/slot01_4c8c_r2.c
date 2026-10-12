@@ -5,7 +5,7 @@
 
 extern Slot01Rec33bb4 data_80033bb4_slot01[2][2500];
 
-void func_80014e24_slot01(Object *obj) {
+void draw_tile_map_window_slot01(Object *obj) {
     Object *o = obj;
     s16 w = *(u32 *)&o->health >> 3;
     s16 px = *(u16 *)&o->pos_x;

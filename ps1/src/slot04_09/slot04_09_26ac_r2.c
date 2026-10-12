@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 
-void func_801b27f8_slot04_09(Object *obj) {
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj) {
     if (obj->vel_x >= 0) {
         if (obj->facing_side == 0) {
             obj->vel_x = 0;
@@ -17,5 +17,5 @@ void func_801b27f8_slot04_09(Object *obj) {
             obj->accel_x = 0;
         }
     }
-    func_801b2858_slot04_09(obj);
+    apply_velocity_and_acceleration_slot04_09(obj);
 }

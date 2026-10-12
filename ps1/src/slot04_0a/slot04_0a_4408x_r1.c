@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The cast of t to s16 in the call of func_80130768: without it this function differs from the original in 9 instruction slots. The local x is decremented in a statement of its own: written x = parent->countdown - 1, 2 instruction slots differ. The local t is reused for the sum with image_row: with a local of its own, 21 instruction slots differ. The sum is formed as t += v, then stored: written as t + v in the store, 12 instruction slots differ. */
-void func_801b4408_slot04_0a(Object *obj, Object *parent) {
+/* The cast of t to s16 in the call of set_sequence_from_table_5: without it this function differs from the original in 9 instruction slots. The local x is decremented in a statement of its own: written x = parent->countdown - 1, 2 instruction slots differ. The local t is reused for the sum with image_row: with a local of its own, 21 instruction slots differ. The sum is formed as t += v, then stored: written as t + v in the store, 12 instruction slots differ. */
+void follow_parent_frame_param_sequence_slot04_0a(Object *obj, Object *parent) {
     int t;
     s16 x;
 
@@ -25,9 +25,9 @@ void func_801b4408_slot04_0a(Object *obj, Object *parent) {
                 obj->image_row = parent->image_row;
                 obj->variant_index = t;
                 if (parent->side == 0) {
-                    func_80130768(obj, (s16)t, data_1f8000b4);
+                    set_sequence_from_table_5(obj, (s16)t, data_1f8000b4);
                 } else {
-                    func_80130768(obj, (s16)t, data_1f800164);
+                    set_sequence_from_table_5(obj, (s16)t, data_1f800164);
                 }
             } else if (((Slot04aObj *)obj)->mode == 0) {
                 x = parent->countdown;

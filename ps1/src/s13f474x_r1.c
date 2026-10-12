@@ -7,7 +7,7 @@
  * What it does (inferred, not original names): a sibling of func_8013fc18.
  * It tests whether the object's "other" object (field_40, also stored in
  * the global ref_other) is within horizontal reach of a, and if so returns
- * what func_8013fab4(object) returns, truncated to a byte; every refusal
+ * what apply_forced_state_to_other_object(object) returns, truncated to a byte; every refusal
  * returns 0. Refusals, in order: the object's field_49 is 0; the object's
  * field_7e is 0 and the configuration block's mode_flag_c is set; the other
  * object's other_lock is set; its frame record has no box flag (box_a, box_b
@@ -75,5 +75,5 @@ int func_8013f474(Object *object, int a, s16 limit) {
     if ((ref_other.p->active_state | (int)(((u32)diff << 24) & 0x100)) != 0) {
         return 0;
     }
-    return (u8)func_8013fab4(object);
+    return (u8)apply_forced_state_to_other_object(object);
 }

@@ -7,7 +7,7 @@
 
 
 void func_8013060c(Object *object) {
-    func_8013f3e8(object);
+    push_object_value_to_side_ring(object);
     object->field_262 = 0x10;
     if (object->field_267 == 0) {
         object->field_25c = 0;
@@ -27,7 +27,7 @@ void set_sequence_by_side(Object *object, int arg) {
     object->frame_sound_index = object->frame->sequence_param;
 }
 
-void func_80130700(Object *object, SequenceStep *entry) {
+void set_sequence_entry(Object *object, SequenceStep *entry) {
     object->sequence = entry;
     object->step_timer = entry->duration;
     object->step_flags = object->sequence->flags;
@@ -40,7 +40,7 @@ void func_80130700(Object *object, SequenceStep *entry) {
     }
 }
 
-void func_80130768(Object *object, int arg, SequenceStep **table) {
+void set_sequence_from_table_5(Object *object, int arg, SequenceStep **table) {
     s16 index = arg;
     object->sequence = table[index];
     object->step_timer = object->sequence->duration;
@@ -54,7 +54,7 @@ void func_80130768(Object *object, int arg, SequenceStep **table) {
     }
 }
 
-void func_801307e0(Object *object, int arg) {
+void set_sequence_by_side_and_mode(Object *object, int arg) {
     u16 index = arg;
     if (object->mode_flag_2 == 0) {
         if (object->side == 0) object->sequence = sequences_left[index];
@@ -68,10 +68,10 @@ void func_801307e0(Object *object, int arg) {
     object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
     object->frame_sound_index = object->frame->sequence_param;
-    func_80131020(object);
+    advance_sequence_if_state_and_not_held(object);
 }
 
-void func_801308c4(Object *object, u16 index) {
+void set_sequence_by_side_and_mode_2(Object *object, u16 index) {
     SequenceStep *entry;
     if (object->field_295 != 0) {
         if (object->side == 0) entry = seqs_6c_left[index];

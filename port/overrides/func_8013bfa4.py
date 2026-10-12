@@ -33,7 +33,7 @@ Choices made by the setup:
     the call (the box is a record of an existing list, not word aligned), so
     there is no pointee;
   - the four replaced callees return 0 and the overlap record starts with
-    random content (func_80139a1c clears it).
+    random content (reset_hit_results clears it).
 """
 
 from contracts import CallLog, Contract, Setup, fill
@@ -150,9 +150,9 @@ def setup(state, rng, sym) -> Setup:
     watch += [(obj, 0x394 // 4) for obj in objects]
     watch += [(sym["player_left"], 0x394 // 4), (sym["player_right"], 0x394 // 4)]
     log = CallLog(state, 60000, watch=watch)
-    log.replace(sym["func_80139a78"], 2, 0)
-    log.replace(sym["func_8013a3a8"], 3, 0)
-    log.replace(sym["func_8013af1c"], 3, 0)
+    log.replace(sym["apply_hit_box_to_target"], 2, 0)
+    log.replace(sym["apply_hit_damage_to_object"], 3, 0)
+    log.replace(sym["select_min_placement_and_test"], 3, 0)
     log.replace(sym["func_80155de0"], 2, 0)
     return Setup(args=(), returns_value=False)
 

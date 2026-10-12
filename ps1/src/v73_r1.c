@@ -6,7 +6,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80148220(Object *object)
+void place_object_at_parent_with_offset_table(Object *object)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[8];

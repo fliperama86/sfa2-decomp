@@ -11,8 +11,8 @@ void func_801b1998_slot04_00(Object *o) {
 
     o->active_flag_4 = t;
     o->state_3++;
-    func_80141f28(o, 6);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     o->pos_y_frac = 0;
     o->vel_y = 0x40000;
     o->active_state = t;
@@ -26,10 +26,10 @@ void func_801b1998_slot04_00(Object *o) {
         v = -v;
     }
     o->vel_x = v;
-    func_801307e0(o, 0x1e);
+    set_sequence_by_side_and_mode(o, 0x1e);
 }
 
-void func_801b1a54_slot04_00(Object *o) {
+void update_rise_then_start_fall_sequence_slot04_00(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int a = 0x20;
 
@@ -45,6 +45,6 @@ void func_801b1a54_slot04_00(Object *o) {
         if (o->field_49 != 0) {
             a = 0x42;
         }
-        func_801307e0(o, (o->direction_index >> 1) + a);
+        set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + a);
     }
 }

@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_801c0690_slot04_0a[];
-void func_801b3e68_slot04_0a(Object *obj);
+void store_image_rows_for_object_slot04_0a(Object *obj);
 
-void func_801b26c4_slot04_0a(Object *obj) {
+void update_attack_sequence_flag_events_slot04_0a(Object *obj) {
     int t;
     update_sequence(obj);
     t = (s16)obj->step_flags;
@@ -23,8 +23,8 @@ void func_801b26c4_slot04_0a(Object *obj) {
             t = 0xfff70000;
         }
         obj->vel_x = t;
-        func_801b3e68_slot04_0a(obj);
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x3c);
+        store_image_rows_for_object_slot04_0a(obj);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3c);
     } else if (t == 2) {
         obj->field_165 = 0;
         t = 0;
@@ -40,6 +40,6 @@ void func_801b26c4_slot04_0a(Object *obj) {
         }
         obj->field_165 = t;
         obj->step_flags = obj->step_flags & 0xff00;
-        func_801483a4(obj, 0x2f, 0x41);
+        spawn_children_per_direction_index(obj, 0x2f, 0x41);
     }
 }

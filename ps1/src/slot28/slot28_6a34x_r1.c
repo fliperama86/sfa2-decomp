@@ -7,7 +7,7 @@ extern ObjectRef data_80051cac_slot28;
 extern ObjectRef data_80051cb0_slot28;
 extern ObjectRef data_80051cdc_slot28;
 
-void func_80026a34_slot28(Object *obj) {
+void scroll_two_objects_until_step_flag_slot28(Object *obj) {
     Object *p = data_80051cac_slot28.p;
     s16 x = p->pos_x;
     s16 y;
@@ -23,6 +23,6 @@ void func_80026a34_slot28(Object *obj) {
     if ((s16)p->step_flags < 0) {
         p = (Object *)data_8018f5a0;
         ((HudState *)p)->pass_index++;
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

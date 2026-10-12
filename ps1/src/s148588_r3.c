@@ -5,10 +5,10 @@
 
 
 
-void func_80148734(Object *object) {
-    func_8011f240((Slab172 *)object);
+void release_object(Object *object) {
+    reset_and_push_object_to_pool_table((Slab172 *)object);
 }
 
-void func_80148754(Object *object) {
-    func_8011f240((Slab172 *)object);
+void release_object_2(Object *object) {
+    reset_and_push_object_to_pool_table((Slab172 *)object);
 }

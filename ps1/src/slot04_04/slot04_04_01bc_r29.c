@@ -5,7 +5,7 @@
 
 extern u8 data_801c4374_slot04_04[];
 
-void func_801b25dc_slot04_04(Object *obj) {
+void count_down_then_set_other_lock_sound_5_slot04_04(Object *obj) {
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;
@@ -21,7 +21,7 @@ void func_801b25dc_slot04_04(Object *obj) {
     }
 }
 
-void func_801b2688_slot04_04(Object *obj) {
+void slide_x_then_end_sequence_reset_slot04_04(Object *obj) {
     u16 t;
 
     if (obj->vel_x != 0) {
@@ -44,7 +44,7 @@ void func_801b2688_slot04_04(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

@@ -10,7 +10,7 @@ extern SequenceStep *data_8002bddc_slot28[];
 extern SequenceStep *data_8002bde4_slot28[];
 void func_80014d58_slot28(Object *obj);
 
-void func_800151b0_slot28(Object *obj) {
+void start_pass_scene_with_two_pooled_objects_slot28(Object *obj) {
     HudState *h;
     Object *p;
     int x;
@@ -22,7 +22,7 @@ void func_800151b0_slot28(Object *obj) {
         h->countdown_timer = x;
         h->pass_index = h->pass_index + 1;
         p = data_800518bc_slot28[0];
-        func_80130768(p, 1, data_8002bddc_slot28);
+        set_sequence_from_table_5(p, 1, data_8002bddc_slot28);
         one = 1;
         y = 0x50;
         p->field_01 = one;
@@ -30,7 +30,7 @@ void func_800151b0_slot28(Object *obj) {
         p->pos_y = 0x20;
         p->table_index = 0;
         p->ot_depth = 4;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80014d58_slot28(p);
             p->spawn_x = 0x60;
@@ -39,10 +39,10 @@ void func_800151b0_slot28(Object *obj) {
             p->image_row = 0;
             p->pos_x = x;
             p->pos_y = y;
-            func_80130768(p, 5, data_8002bde4_slot28);
+            set_sequence_from_table_5(p, 5, data_8002bde4_slot28);
             data_80051890_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80014d58_slot28(p);
             p->spawn_x = 0x60;
@@ -51,9 +51,9 @@ void func_800151b0_slot28(Object *obj) {
             p->ot_depth = one;
             p->image_row = 0;
             p->pos_y = 0xa0;
-            func_80130768(p, 0x10, data_8002bde4_slot28);
+            set_sequence_from_table_5(p, 0x10, data_8002bde4_slot28);
             data_80051894_slot28.p = p;
         }
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

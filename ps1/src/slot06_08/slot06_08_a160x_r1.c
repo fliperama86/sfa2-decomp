@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801ea230_slot06_08(Object *obj);
+void switch_sequence_on_player_state_2_eight_slot06_08(Object *obj);
 
 extern SequenceStep *data_801ed480_slot06_08[];
 
 /* One local holds the OR of the two flags and later the table index.
    Written as one expression for the OR, or with an index local of its own,
    this function differs from the original in seven instruction slots. */
-void func_801ea160_slot06_08(Object *obj) {
+void update_object_state_1_sequence_switch_slot06_08(Object *obj) {
     int v = game_state.field_65;
     v |= game_state.field_74;
     if (v == 0) {
@@ -21,12 +21,12 @@ void func_801ea160_slot06_08(Object *obj) {
                 if (obj->table_index != 0) {
                     v = 12;
                 }
-                func_80130700(obj, data_801ed480_slot06_08[v]);
+                set_sequence_entry(obj, data_801ed480_slot06_08[v]);
             }
             advance_sequence_checked(obj);
         } else {
-            func_801ea230_slot06_08(obj);
+            switch_sequence_on_player_state_2_eight_slot06_08(obj);
         }
     }
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }

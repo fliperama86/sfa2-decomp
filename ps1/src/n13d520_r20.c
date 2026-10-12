@@ -6,11 +6,11 @@
 void func_80145a20(Object *object) {
     if (game_state.field_65 == 0 && game_state.field_74 == 0) {
         if (object->field_0e == 4) {
-            func_8011f7e8(object);
+            advance_sequence_rec(object);
         } else if (object->field_0e == 8) {
-            func_8011f83c(object);
+            advance_sequence_rec_2(object);
         } else if (object->field_0e == 0xc) {
-            func_8011f890(object);
+            advance_sequence_rec_3(object);
         }
     }
 }

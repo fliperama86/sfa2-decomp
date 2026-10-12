@@ -6,12 +6,12 @@
 extern void (*data_80026908_slot27[])(Object *);
 extern Slot27Rec9338 data_80029338_slot27[];
 
-void func_800119c8_slot27(Object *obj) {
+void call_handler_by_state_0_with_other_slot27(Object *obj) {
     ref_other.p = obj->other;
     data_80026908_slot27[obj->state_0](obj);
 }
 
-void func_80011a18_slot27(Object *obj) {
+void clear_object_fields_slot27(Object *obj) {
     obj->box_tables = 0;
     obj->field_20 = 0;
     obj->y_scale = 0;
@@ -32,7 +32,7 @@ void func_80011a18_slot27(Object *obj) {
     obj->field_6b = 0;
 }
 
-void func_80011a64_slot27(void) {
+void clear_side_record_counters_slot27(void) {
     Slot27Rec9338 *r = &data_80029338_slot27[ref_other.p->side];
 
     r->slot_a = 0;

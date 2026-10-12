@@ -9,8 +9,8 @@
 void reset_both_players(void) {
     Object *o = &player_left;
     ref_other.p = o;
-    func_8011ef88(o);
+    reset_object_fields(o);
     o = o + 1;
     ref_other.p = o;
-    func_8011ef88(o);
+    reset_object_fields(o);
 }

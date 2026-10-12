@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80120374(int a) {
+void set_sound_mono_or_stereo(int a) {
     int x;
     if (a == 0) {
         func_8016582c();
@@ -20,7 +20,7 @@ void close_vab_and_sep(int a) {
     func_8016a70c(data_80190a44[a + 8]);
 }
 
-void func_80120408(void) {
+void stop_all_keys_clear_table(void) {
     s8 *p;
     int i;
     func_80164bbc(0);
@@ -29,8 +29,8 @@ void func_80120408(void) {
     }
 }
 
-/* b is a full word of which the low byte is used: func_8013b0c4 passes a halfword without masking it. Declared as a byte parameter, that caller differs from the original in 26 instruction slots. */
-void func_80120444(int a, int b) {
+/* b is a full word of which the low byte is used: spawn_hit_effects_and_play_sounds passes a halfword without masking it. Declared as a byte parameter, that caller differs from the original in 26 instruction slots. */
+void stop_sep_by_index(int a, int b) {
     func_8016936c(data_80190a44[a + 8], table_8016e6e0[a][(b & 0xff) * 2] & 0xfff);
 }
 
@@ -64,7 +64,7 @@ void play_sound_at(Object *o, int b, unsigned c) {
     func_80120604((c & 0xff00) >> 8, b, c & 0xff, (short)d);
 }
 
-void func_801205c4(int a, unsigned c) {
+void call_func_with_side_x_origin(int a, unsigned c) {
     int d;
     if (a == 0) {
         d = 64;

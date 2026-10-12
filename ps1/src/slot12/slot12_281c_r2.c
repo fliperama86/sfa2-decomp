@@ -5,11 +5,11 @@
 
 extern void (*data_80022e98_slot12[])(Object *);
 
-void func_80012944_slot12(Object *obj) {
+void call_handler_by_state_1_slot12(Object *obj) {
     data_80022e98_slot12[obj->state_1](obj);
 }
 
-void func_80012984_slot12(Object *o) {
+void update_y_motion_with_countdown_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int v;
 
@@ -26,9 +26,9 @@ void func_80012984_slot12(Object *o) {
     }
 }
 
-void func_800129e4_slot12(Object *obj) {
+void noop_slot00_3_slot12(Object *obj) {
 }
 
 void func_800129ec_slot12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

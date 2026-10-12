@@ -18,7 +18,7 @@ void func_801b4a3c_slot04_0e(Object *obj) {
     Object *c;
 
     if ((game_state.frame_counter & 7) == 0) {
-        c = (Object *)func_8011f1e0();
+        c = (Object *)pop_block_from_pool();
         if (c != 0) {
             c->active_count = 1;
             c->field_02 = 0x3b;

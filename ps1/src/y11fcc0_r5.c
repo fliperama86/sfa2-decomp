@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
+void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
     ref_other.p = object->other;
     ref_other.p->state_0 = 1;
     ref_other.p->state_1 = 1;
@@ -34,7 +34,7 @@ void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
         ref_other.p->facing_side = object->facing_side;
         ref_other.p->facing_side = f ^ ref_other.p->facing_side;
         ref_other.p->effect_request = 6;
-        func_80155d4c(8, (s8)ref_other.p->side);
+        add_table_bcd_score_to_player(8, (s8)ref_other.p->side);
     }
-    func_801409d8(object, c, d);
+    apply_damage_to_other_and_play_sound(object, c, d);
 }

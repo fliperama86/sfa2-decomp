@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_801c06ac_slot04_0a[];
-void func_801b3e00_slot04_0a(Object *obj);
+void apply_velocity_and_acceleration_slot04_0a(Object *obj);
 
-void func_801b2a38_slot04_0a(Object *obj) {
+void update_airborne_until_ground_then_bounce_slot04_0a(Object *obj) {
     int k;
     int b;
     u8 f;
@@ -20,7 +20,7 @@ void func_801b2a38_slot04_0a(Object *obj) {
     if (f == 0) {
         obj->field_165 = 0;
         if (((s16)obj->step_flags & 0xff00) != 0x100) {
-            func_801b3e00_slot04_0a(obj);
+            apply_velocity_and_acceleration_slot04_0a(obj);
             if (!(obj->pos_y < obj->ground_y)) {
                 k = 0xa0000;
                 b = -0x1000;
@@ -33,7 +33,7 @@ void func_801b2a38_slot04_0a(Object *obj) {
                 }
                 obj->vel_x = k;
                 obj->accel_x = b;
-                func_801307e0(obj, (obj->direction_index >> 1) + 0x33);
+                set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x33);
             }
         }
     } else if (f == 2) {

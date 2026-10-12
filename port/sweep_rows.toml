@@ -24,7 +24,7 @@
 [[row]]
 image = "slot04_00"
 address = 0x801b0008
-function = "func_801b0020_slot04_00"
+function = "init_object_and_spawn_linked_child_slot04_00"
 function_address = 0x801b0020
 data_bytes = 24
 evidence = "Two small tables of three words each, then the function's first instruction, a stack frame. Code of the module builds this address as a data address; nothing branches or jumps into it."
@@ -40,7 +40,7 @@ evidence = "The second side of slot04_00, the same two tables of three words eac
 [[row]]
 image = "slot04_11"
 address = 0x801b00c8
-function = "func_801b00d0_slot04_11"
+function = "init_object_copy_table_spawn_child_slot04_11"
 function_address = 0x801b00d0
 data_bytes = 8
 evidence = "The last two words of a table of words that runs from 0x801b0000 and has the same shape in the entries before it; a pointer to this address stands in a data table of the module, and nothing branches into it. The function's first instruction, a stack frame, follows."
@@ -56,7 +56,7 @@ evidence = "The second side of slot04_11: the last two words of the same table, 
 [[row]]
 image = "slot04_17"
 address = 0x801b00c8
-function = "func_801b00d0_slot04_17"
+function = "init_object_with_child_and_kind_13_boxes_slot04_17"
 function_address = 0x801b00d0
 data_bytes = 8
 evidence = "The last two words of a table of words that runs from 0x801b0000 and has the same shape in the entries before it; a pointer to this address stands in a data table of the module, and nothing branches into it. The function's first instruction, a stack frame, follows."
@@ -64,7 +64,7 @@ evidence = "The last two words of a table of words that runs from 0x801b0000 and
 [[row]]
 image = "slot00"
 address = 0x80075e00
-function = "func_80075e10_slot00"
+function = "call_handler_by_input_dir_0_slot00"
 function_address = 0x80075e10
 data_bytes = 16
 data_symbol = "data_80075e00_slot00"

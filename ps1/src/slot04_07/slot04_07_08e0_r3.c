@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0acc_slot04_07(Object *obj) {
+void update_sequence_with_x_nudge_slot04_07(Object *obj) {
     update_sequence(obj);
     if (obj->step_flags & 0xff) {
         if (obj->facing_side == 0) {
@@ -14,6 +14,6 @@ void func_801b0acc_slot04_07(Object *obj) {
     }
     if ((s16)obj->step_flags & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

@@ -5,7 +5,7 @@
 
 extern Slot27Rec9348 data_80029348_slot27[];
 
-void func_80015234_slot27(Object *obj) {
+void init_scrolling_sprite_cell_grids_slot27(Object *obj) {
     Cell20 *a = data_80029348_slot27[0].cells;
     Cell20 *b = data_80029348_slot27[1].cells;
     int i;

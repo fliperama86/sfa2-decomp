@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801378d8(Object *object) {
+void copy_image_rows_and_load_image(Object *object) {
     Rect r;
     u8 i, j;
 

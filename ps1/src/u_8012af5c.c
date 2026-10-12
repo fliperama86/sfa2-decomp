@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8012af5c(Object *object)
+void start_motion_from_record_flip_facing(Object *object)
 {
   s32 b;
   int new_var;

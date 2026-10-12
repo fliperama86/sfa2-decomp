@@ -7,7 +7,7 @@ extern u16 *data_801b8db0_slot04_sel[];
 extern u16 *data_801b8db8_slot04_sel[];
 extern u16 data_801b8dc0_slot04_sel[];
 
-void func_801b57c8_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
+void update_button_sequence_matcher_3_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
     u16 v;
 
     if (rec->set_flag_a == 0) {

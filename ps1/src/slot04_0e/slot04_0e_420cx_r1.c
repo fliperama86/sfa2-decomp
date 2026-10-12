@@ -10,7 +10,7 @@ extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
    it gets one, fills it as an effect object that follows this one: parent
    points back at the object, pos_x is the object's plus the high half of
    offset_x of the record that the object's side selects, pos_y is the
-   object's ground_y. It ends by calling func_801307e0 on the object with
+   object's ground_y. It ends by calling set_sequence_by_side_and_mode on the object with
    0x49. */
 void func_801b420c_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *rec;
@@ -18,7 +18,7 @@ void func_801b420c_slot04_0e(Object *obj) {
 
     obj->state_3 = 4;
     rec = &data_801c62b4_slot04_0e[obj->side];
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x3b;
@@ -40,5 +40,5 @@ void func_801b420c_slot04_0e(Object *obj) {
         p->data_ptr_a = obj->data_ptr_a;
         p->data_ptr_b = obj->data_ptr_b;
     }
-    func_801307e0(obj, 0x49);
+    set_sequence_by_side_and_mode(obj, 0x49);
 }

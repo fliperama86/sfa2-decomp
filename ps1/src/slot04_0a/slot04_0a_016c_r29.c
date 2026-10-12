@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4550_slot04_0a(Object *o, Object *unused) {
+void increment_state_0_slot04_0a(Object *o, Object *unused) {
     o->state_0++;
 }

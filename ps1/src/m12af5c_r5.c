@@ -14,7 +14,7 @@ void func_8012c7b4(Object *object) {
     if (object->active_state != 0) {
         object->field_60 = 3;
         object->active_state = 0xff;
-        func_801308c4(object, 0x12);
+        set_sequence_by_side_and_mode_2(object, 0x12);
         if (object->field_6b == 0) {
             func_8012cca8(object);
         }
@@ -33,5 +33,5 @@ void func_8012c7b4(Object *object) {
     if (object->field_157 == 0) {
         index = 0xc;
     }
-    func_801308c4(object, index);
+    set_sequence_by_side_and_mode_2(object, index);
 }

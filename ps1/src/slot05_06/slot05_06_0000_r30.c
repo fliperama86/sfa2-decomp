@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
-void func_801cc84c_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
+void apply_vertical_velocity_slot05_06(Object *obj);
 
 void func_801ca654_slot05_06(Object *obj) {
 
-    func_801cc84c_slot05_06(obj);
+    apply_vertical_velocity_slot05_06(obj);
     if (obj->vel_y <= 0x1ffff && ((Slot04aObj *)obj)->field_1c8 == 0) {
         ((Slot04aObj *)obj)->field_1c8 = 1;
-        func_801307e0(obj, 0x29);
+        set_sequence_by_side_and_mode(obj, 0x29);
     } else if (obj->vel_y >= 0) {
-        func_801cc814_slot05_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
         update_sequence(obj);
     } else {
         ((Slot04aObj *)obj)->field_1c2 = 10;
@@ -23,7 +23,7 @@ void func_801ca654_slot05_06(Object *obj) {
             obj->vel_x = 0;
             obj->accel_x = 0;
             play_side_sound_at(obj, obj->side, 5);
-            func_801307e0(obj, 0x24);
+            set_sequence_by_side_and_mode(obj, 0x24);
         }
     }
 }

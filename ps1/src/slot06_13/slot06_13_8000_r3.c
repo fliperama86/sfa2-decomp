@@ -7,30 +7,30 @@ extern u16 data_801ea5b8_slot06_13[];
 extern Slot06TileW data_801f1710_slot06_13[2][78];
 
 void init_draw_mode_prim_4(Tx *tx);
-void func_801e894c_slot06_13(Slot06Layer *layer);
-void func_801e89a0_slot06_13(Slot06Layer *layer);
+void init_layer_cam_and_advance_mode_6_slot06_13(Slot06Layer *layer);
+void update_layer_flags_and_quarter_parallax_slot06_13(Slot06Layer *layer);
 
-void func_801e88e4_slot06_13(void) {
+void noop_empty_function_slot06_13(void) {
 }
 
-void func_801e88ec_slot06_13(void) {
+void noop_empty_function_2_slot06_13(void) {
 }
 
-void func_801e88f4_slot06_13(u8 *p) {
+void noop_byte_pointer_slot06_13(u8 *p) {
 }
 
-void func_801e88fc_slot06_13(void) {
+void noop_empty_function_3_slot06_13(void) {
 }
 
-void func_801e8904_slot06_13(Slot06Layer *layer) {
+void call_layer_handler_by_mode_slot06_13(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e894c_slot06_13(layer);
+        init_layer_cam_and_advance_mode_6_slot06_13(layer);
     } else if (layer->mode == 1) {
-        func_801e89a0_slot06_13(layer);
+        update_layer_flags_and_quarter_parallax_slot06_13(layer);
     }
 }
 
-void func_801e894c_slot06_13(Slot06Layer *layer) {
+void init_layer_cam_and_advance_mode_6_slot06_13(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0x140, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
@@ -39,7 +39,7 @@ void func_801e894c_slot06_13(Slot06Layer *layer) {
     }
 }
 
-void func_801e89a0_slot06_13(Slot06Layer *layer) {
+void update_layer_flags_and_quarter_parallax_slot06_13(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
@@ -66,7 +66,7 @@ void func_801e89a0_slot06_13(Slot06Layer *layer) {
     layer->field_26 = e;
 }
 
-void func_801e8a6c_slot06_13(Slot06Layer *layer) {
+void set_layer_tile_map_params_slot06_13(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ea5b8_slot06_13;
     layer->data_table = data_801ea5b8_slot06_13;
     layer->packed_param = 0x600c;
@@ -74,7 +74,7 @@ void func_801e8a6c_slot06_13(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8a98_slot06_13(void) {
+void init_sprite_prims_32x32_slot06_13(void) {
     Slot06TileW *p;
     int i;
     int k;

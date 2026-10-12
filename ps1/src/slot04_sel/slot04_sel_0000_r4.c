@@ -3,5 +3,5 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b10c8_slot04_sel(Object *obj, Slot04SelRec *rec) {
+void noop_select_handler_slot04_sel(Object *obj, Slot04SelRec *rec) {
 }

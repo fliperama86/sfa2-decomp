@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141b28(Object *object);
+int try_spend_meter_for_action(Object *object);
 
 int func_801b2238_slot04_16(Object *obj) {
-    if (func_80141b28(obj) != 0) {
+    if (try_spend_meter_for_action(obj) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -21,7 +21,7 @@ int func_801b2238_slot04_16(Object *obj) {
         obj->facing_side = obj->saved_facing;
         ref_other.p = obj->other;
         ref_other.p->field_6b = 0x16;
-        func_801307e0(obj, 0x46);
+        set_sequence_by_side_and_mode(obj, 0x46);
     }
     return 0;
 }

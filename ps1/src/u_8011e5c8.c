@@ -7,7 +7,7 @@
    copied (move a0,v0) after the blez, and puts the flag pointer in t5 and the block
    counter in t4; mine has them swapped. Everything else matches. */
 /* Form found by automatic permutation search. */
-void func_8011e5c8(unsigned char n, unsigned char *src, unsigned int dst, unsigned int key)
+void decode_rle_nibble_swapped(unsigned char n, unsigned char *src, unsigned int dst, unsigned int key)
 {
   unsigned short flags[4];
   unsigned short i;

@@ -7,7 +7,7 @@ extern Object *data_80051cd0_slot28[];
 extern ObjectRef data_80051cdc_slot28;
 extern Object *data_80051ca4_slot28[];
 
-void func_80026d54_slot28(Object *obj) {
+void toggle_object_pos_y_until_sequence_ends_slot28(Object *obj) {
     Object *o;
     o = data_80051cd0_slot28[0];
     if (o->pos_y == 0x10) {
@@ -30,6 +30,6 @@ void func_80026d54_slot28(Object *obj) {
     o = data_80051cdc_slot28.p;
     if ((s16)o->step_flags < 0) {
         data_8018f5a0->pass_index++;
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

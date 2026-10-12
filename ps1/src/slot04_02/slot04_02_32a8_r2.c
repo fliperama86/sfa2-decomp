@@ -5,7 +5,7 @@
 
 void func_801b359c_slot04_02(Object *obj);
 
-void func_801b33fc_slot04_02(Object *obj) {
+void move_x_with_accel_until_speed_limit_slot04_02(Object *obj) {
     int t;
 
     if (obj->field_7e == 0) {
@@ -34,20 +34,20 @@ void func_801b33fc_slot04_02(Object *obj) {
     set_sequence_by_side(obj, 0);
 }
 
-void func_801b34fc_slot04_02(Object *obj) {
+void update_countdown_then_reset_to_idle_slot04_02(Object *obj) {
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
         obj->facing_side = obj->saved_facing;
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
         if (obj->field_7e == 0) {
-            func_8013788c(obj);
+            call_side_func_then_queue_job(obj);
         }
     } else {
         if (obj->field_7e == 0) {
             func_801b359c_slot04_02(obj);
         }
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

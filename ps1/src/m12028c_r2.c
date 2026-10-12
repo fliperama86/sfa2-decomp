@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80120a30(Object *o, int a, int b) {
+void play_kind_dependent_sound_by_a_and_b(Object *o, int a, int b) {
     int c;
     if (o->sound_select_flag) {
         play_sound_at(o, o->side, 0x32a);

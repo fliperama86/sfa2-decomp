@@ -6,10 +6,10 @@
 extern void (*data_80032a1c_slot28[])(Object *);
 extern int data_80051950_slot28;
 
-void func_80017490_slot28(Object *obj) {
+void call_pass_handler_and_update_blocks_b_slot28(Object *obj) {
     data_80032a1c_slot28[data_8018f5a0->pass_index](obj);
-    func_80138164();
+    update_blocks();
     if (data_80051950_slot28 == 0) {
-        func_8011abe4();
+        update_active_slab172_entries();
     }
 }

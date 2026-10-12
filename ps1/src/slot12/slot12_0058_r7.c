@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001129c_slot12(void);
-void func_80010a94_slot12(void);
+void play_sounds_at_countdown_timer_values_slot12(void);
+void spawn_block_with_saved_side_slot12(void);
 
 void func_8001065c_slot12(void) {
     Object *o;
     while (game_state.wait_flag) {
-        func_80138164();
-        func_8011abe4();
-        func_8001129c_slot12();
-        func_801192bc(1);
+        update_blocks();
+        update_active_slab172_entries();
+        play_sounds_at_countdown_timer_values_slot12();
+        request_sound_command_and_switch_thread(1);
     }
-    func_80128280();
-    func_80010a94_slot12();
-    o = (Object *)func_8011f1e0();
+    start_fade_mode_2001_no_wait();
+    spawn_block_with_saved_side_slot12();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x7b;
@@ -27,7 +27,7 @@ void func_8001065c_slot12(void) {
     data_8018f5a0->substep_index++;
 }
 
-void func_80010710_slot12(void) {
+void advance_substep_and_enable_display_slot12(void) {
     data_8018f5a0->substep_index++;
     func_80157d00(1);
 }

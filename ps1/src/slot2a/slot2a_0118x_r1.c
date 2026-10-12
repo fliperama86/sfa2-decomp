@@ -8,7 +8,7 @@ extern Block172 *data_801e25c8_slot2a[4];
 extern u32 data_801e1bdc_slot2a[];
 extern u16 *data_801e52c8_slot2a;
 
-void func_801e0118_slot2a(void) {
+void init_palette_and_blocks_for_stage_slot2a(void) {
     Rect rect;
     u16 pal[16] = {0x0000, 0x7bde, 0x6b5a, 0x6318, 0x5ad6, 0x4a52, 0x4210, 0x39ce,
                    0x294a, 0x2108, 0x18c6, 0x111a, 0x111a, 0x111a, 0x111a, 0x0842};
@@ -34,10 +34,10 @@ void func_801e0118_slot2a(void) {
         a1 = 0x503;
     }
     game_state.loop_mode = 0;
-    func_8014f4d4(1, a1);
+    set_menu_command_by_code(1, a1);
     while (data_80190949 == 0 || game_state.wait_flag != 0) {
-        func_8011a784();
-        func_801192bc(1);
+        select_buffers_and_run_first_setup();
+        request_sound_command_and_switch_thread(1);
     }
     a1 = 0;
     if (game_state.field_80 < 6) {

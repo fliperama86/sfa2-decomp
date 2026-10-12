@@ -5,7 +5,7 @@
 
 extern Slot01Rec31b98 data_80031b98_slot01[];
 
-void func_800135cc_slot01(Object *obj) {
+void scroll_sprite_grid_and_link_to_ot_slot01(Object *obj) {
     Cell20 *c = data_80031b98_slot01[data_801a27d0].cells;
     PrimTag *ot = (PrimTag *)data_801987c8 + 0x1d;
     int i;
@@ -28,6 +28,6 @@ void func_800135cc_slot01(Object *obj) {
     ot->addr = (u32)c;
 }
 
-void func_800136c0_slot01(Object *obj) {
+void increment_state_0_slot01(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
 }

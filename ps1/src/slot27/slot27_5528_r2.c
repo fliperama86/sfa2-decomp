@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 extern void (*data_80028510_slot27[])(Object *obj);
-void func_80015838_slot27(Object *obj);
+void spawn_child_object_with_kind_index_slot27(Object *obj);
 
-void func_80015650_slot27(Object *object) {
+void call_handler_by_state_1_slot01_slot27(Object *object) {
     data_80028510_slot27[object->state_1](object);
     func_8011ffdc(object);
 }
 
-void func_800156a4_slot27(Object *obj) {
+void move_pos_y_to_target_by_eight_slot27(Object *obj) {
     int a = game_state.field_d4;
     int d = a - obj->pos_y;
     if (d > 0) {
@@ -27,7 +27,7 @@ void func_800156a4_slot27(Object *obj) {
     obj->pos_y = a;
 }
 
-void func_80015708_slot27(Object *obj) {
+void move_pos_x_toward_target_slot27(Object *obj) {
     s16 *p = &game_state.field_d2;
     int a = *p;
     if (obj->pos_x - a > 0) {
@@ -43,5 +43,5 @@ void func_80015708_slot27(Object *obj) {
     }
     obj->state_1++;
     obj->pos_x = *p;
-    func_80015838_slot27(obj);
+    spawn_child_object_with_kind_index_slot27(obj);
 }

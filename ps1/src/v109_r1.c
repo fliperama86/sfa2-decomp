@@ -7,7 +7,7 @@
 
 void func_8012e168(Object *o) {
     u16 state;
-    if (func_8012eff8(o)) {
+    if (apply_table_step_to_pos_x(o)) {
         o->state_3++;
         o->facing_side = (o->facing_flag ^ 1) & 1;
         func_8012e334(o);
@@ -15,7 +15,7 @@ void func_8012e168(Object *o) {
     }
     if ((s16)o->health >= 0) {
         if (o->mode_flag_2) {
-            func_8012e264(o);
+            select_sequence_by_meter_or_other_field(o);
         } else if ((o->input_bits_2 & 0x2000) == 0) {
             update_sequence(o);
         } else {
@@ -24,12 +24,12 @@ void func_8012e168(Object *o) {
         }
     }
     if ((o->pressed_bits & 0x4000) == 0) {
-        func_801308c4(o, state);
+        set_sequence_by_side_and_mode_2(o, state);
         return;
     }
     o->field_157++;
     o->action_timer = 0;
     o->field_60 = 0;
     state = 0xe;
-    func_801308c4(o, state);
+    set_sequence_by_side_and_mode_2(o, state);
 }

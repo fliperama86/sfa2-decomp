@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800138bc_slot27(void);
-void func_80013b74_slot27(Object *obj);
-void func_80013cc4_slot27(Object *obj);
+void update_selection_from_pressed_buttons_slot27(void);
+void load_palette_anim_from_table_index_slot27(Object *obj);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
 #define SEL (*(int *)&game_state.field_354)
 
-void func_8001369c_slot27(Object *obj) {
+void update_selection_confirm_countdown_slot27(Object *obj) {
     int v;
     s16 t46;
 
-    func_800138bc_slot27();
+    update_selection_from_pressed_buttons_slot27();
     if (SEL != 0) {
         game_state.table_index_3 = (s8)data_8016e68c;
     } else {
@@ -30,7 +30,7 @@ void func_8001369c_slot27(Object *obj) {
             if (game_state.table_index != 3) {
                 *s = v + 1;
             }
-            func_801205c4(game_state.other_object->side, 0);
+            call_func_with_side_x_origin(game_state.other_object->side, 0);
         }
     }
     if (game_state.busy_flag != 0) {
@@ -58,12 +58,12 @@ void func_8001369c_slot27(Object *obj) {
         ref_first.p->field_6b = 0xff;
         t = (int *)data_8019045c;
         *t = game_state.selection;
-        func_801205c4(game_state.other_object->side, 1);
+        call_func_with_side_x_origin(game_state.other_object->side, 1);
         *t = 0xa;
         *t = obj->sound_side + 0xa;
-        func_80013b74_slot27(obj);
+        load_palette_anim_from_table_index_slot27(obj);
         return;
     }
 tail:
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }

@@ -3,32 +3,32 @@
 #include "externs.h"
 #include "protos.h"
 
-u16 func_80130470(Object *object) {
+u16 get_pressed_low_byte(Object *object) {
     return (u8)object->pressed_bits;
 }
 
 
-void func_8013047c(Object *object) {
+void set_state_1_0_5_and_read_input_direction(Object *object) {
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 5;
     object->state_3 = 0;
     if (object->field_7e == 0) object->facing_side = object->saved_facing;
-    func_80142c04(object);
+    reset_hold_flags_and_other_hit_count(object);
     object->active_flag = 0;
-    func_80130504(object);
-    object->field_157 = ((u8)func_8012f618(object) != 0) << 1;
+    set_direction_from_pressed_bits(object);
+    object->field_157 = ((u8)is_button_4000_held_or_other_flag(object) != 0) << 1;
     object->input_dir_0 = object->field_157;
-    func_8012b45c(object);
+    tick_timers_and_call_scratch_by_side(object);
 }
 
-void func_80130504(Object *object) {
-    BytePair d = func_8013054c(object);
+void set_direction_from_pressed_bits(Object *object) {
+    BytePair d = get_direction_pair_from_pressed_bits(object);
     object->direction_index = d.first;
     object->input_dir_second = d.second;
 }
 
-BytePair func_8013054c(Object *object) {
+BytePair get_direction_pair_from_pressed_bits(Object *object) {
     BytePair d;
     u16 pad = object->pressed_bits;
     d.second = 0;

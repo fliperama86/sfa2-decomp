@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 u8 func_801b1314_slot04_02(Object *obj) {
-    u8 r = func_801417cc(obj);
+    u8 r = try_action_clearing_both_flags(obj);
 
     if (r) {
-        func_801b631c_slot04_02(obj, 1, 0, 7, 0);
+        set_object_states_0_to_3_slot04_02(obj, 1, 0, 7, 0);
         obj->field_15a = 0;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }
@@ -31,16 +31,16 @@ u8 func_801b1384_slot04_02(Object *obj) {
         if (obj->pos_y >= (s16)t) return 0;
         obj->field_15a = 4;
         obj->active_flag_3 = 1;
-        func_801b631c_slot04_02(obj, 1, 0, 7, 0);
-        func_80142b3c(obj);
+        set_object_states_0_to_3_slot04_02(obj, 1, 0, 7, 0);
+        set_direction_index_from_buttons_group_a(obj);
     } else {
-        r = func_801417cc(obj);
+        r = try_action_clearing_both_flags(obj);
         if (r) {
             obj->field_15a = 1;
             obj->active_flag_3 = 1;
             obj->facing_side = obj->saved_facing;
-            func_801b631c_slot04_02(obj, 1, 0, 7, 0);
-            func_80142b3c(obj);
+            set_object_states_0_to_3_slot04_02(obj, 1, 0, 7, 0);
+            set_direction_index_from_buttons_group_a(obj);
         }
     }
     return r;

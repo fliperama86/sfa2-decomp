@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80126a00(GameState *state, Object *object) {
+void reset_object_to_step_3_and_set_side_bits(GameState *state, Object *object) {
     object->step_index = 3;
     object->phase_index = 0;
     object->phase_state = 0;
@@ -24,7 +24,7 @@ void func_80126a00(GameState *state, Object *object) {
     object->field_bf = 0;
     object->max_score = 0;
     object->kind = object->saved_side;
-    func_8011ef88(object);
+    reset_object_fields(object);
     if (object->side == 0) {
         state->side_bits |= 1;
         state->side_mask |= 1;

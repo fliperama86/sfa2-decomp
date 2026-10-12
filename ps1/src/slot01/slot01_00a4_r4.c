@@ -4,16 +4,16 @@
 #include "../externs.h"
 
 extern Object *data_80055f40_slot01;
-void func_800108d4_slot01(void);
-void func_8001180c_slot01(void);
-void func_800117b8_slot01(void);
-void func_80010724_slot01(void);
+void queue_score_text_and_win_strips_slot01(void);
+void loop_updates_while_wait_flag_slot01(void);
+void start_wait_with_two_halfword_stores_slot01(void);
+void spawn_object_and_loop_while_busy_slot01(void);
 
-void func_800105bc_slot01(void) {
+void finish_slot01_step_or_reset_hud_slot01(void) {
     Rect rect;
     int t;
 
-    func_800108d4_slot01();
+    queue_score_text_and_win_strips_slot01();
     if (game_state.field_04 != 0) {
         return;
     }
@@ -25,18 +25,18 @@ void func_800105bc_slot01(void) {
         }
     }
     if (game_state.active_flag != 0) {
-        func_8014f4d4(6, 2);
+        set_menu_command_by_code(6, 2);
         rect.x = 0x70;
         rect.y = 0x1e0;
         rect.w = 0x10;
         rect.h = 0x20;
         func_80158028(&rect, data_801a37e4);
         func_80157d9c(0);
-        func_8001180c_slot01();
+        loop_updates_while_wait_flag_slot01();
         data_80055f40_slot01->active_count = 0;
-        func_800117b8_slot01();
-        func_80010724_slot01();
-        func_8001180c_slot01();
+        start_wait_with_two_halfword_stores_slot01();
+        spawn_object_and_loop_while_busy_slot01();
+        loop_updates_while_wait_flag_slot01();
         data_8018f5a0->phase_index = 3;
         data_8018f5a0->step_index = 0;
         game_state.countdown_2 = 0;

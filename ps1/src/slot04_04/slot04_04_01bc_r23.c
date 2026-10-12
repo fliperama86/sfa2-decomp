@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1d44_slot04_04(Object *obj) {
+void update_slide_until_step_flag_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->active_state = 0;
         obj->state_3++;
@@ -22,7 +22,7 @@ void func_801b1d44_slot04_04(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b1de8_slot04_04(Object *obj) {
+void copy_vel_y_to_vel_x_on_step_end_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->active_state = 1;
         obj->state_3++;
@@ -43,6 +43,6 @@ void func_801b1e50_slot04_04(Object *obj) {
         obj->accel_x = 0;
         obj->vel_y = 0;
         obj->accel_y = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

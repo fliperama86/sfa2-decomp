@@ -17,7 +17,7 @@ void func_800e2f34_slot0f(void) {
         game_state.setup_param = v;
         data_800e96d8_slot0f = &data_800e952c_slot0f[(s8)*p];
         data_8016e686 = v;
-        func_80120374(game_state.setup_param);
+        set_sound_mono_or_stereo(game_state.setup_param);
         play_sound_at(0, 0, 0x203);
     }
 }

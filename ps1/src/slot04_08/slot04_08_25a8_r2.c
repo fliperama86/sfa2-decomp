@@ -5,12 +5,12 @@
 
 extern u16 data_801c3cc4_slot04_08[];
 
-void func_801b25a8_slot04_08(Object *obj);
+void start_next_sequence_from_step_table_slot04_08(Object *obj);
 
-void func_801b2720_slot04_08(Object *obj) {
+void count_down_then_call_next_table_step_slot04_08(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
-        func_801b25a8_slot04_08(obj);
+        start_next_sequence_from_step_table_slot04_08(obj);
     }
 }
 
@@ -22,7 +22,7 @@ void func_801b275c_slot04_08(Object *obj) {
     if (obj->direction_index != 0) {
         a = 0x78;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
 void func_801b27a4_slot04_08(Object *obj) {
@@ -33,9 +33,9 @@ void func_801b27a4_slot04_08(Object *obj) {
         obj->step_flags = t & 0xff00;
         game_state.state_param = 0x18;
         func_80146960(obj);
-        if ((u8)func_80140cd8(obj, (s16)data_801c3cc4_slot04_08[((Slot04aObj *)obj)->step_index + (obj->direction_index << 1)], 0) != 0) {
+        if ((u8)apply_damage_to_other_return_defeated(obj, (s16)data_801c3cc4_slot04_08[((Slot04aObj *)obj)->step_index + (obj->direction_index << 1)], 0) != 0) {
             game_state.spawn_kind = 4;
-            func_80147000(obj);
+            spawn_game_state_kind_object(obj);
         }
         obj->countdown = 0x10;
         obj->state_3++;

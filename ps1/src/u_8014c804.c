@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014c804(Object *object)
+void script_op_modify_bits_or_counter(Object *object)
 {
   unsigned short new_var;
   u16 bits;
@@ -41,5 +41,5 @@ void func_8014c804(Object *object)
   {
     object->script_counter++;
   }
-  func_8014c914(object);
+  read_script_word_and_dispatch(object);
 }

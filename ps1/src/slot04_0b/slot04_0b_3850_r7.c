@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4638_slot04_0b(Object *o);
+void call_handler_by_state_index_slot04_0b(Object *o);
 
-void func_801b454c_slot04_0b(Object *o) {
+void init_effect_from_ref_other_and_dispatch_slot04_0b(Object *o) {
     o->ot_depth = 1;
     o->state_0++;
     o->facing_side = ref_other.p->facing_side;
@@ -18,5 +18,5 @@ void func_801b454c_slot04_0b(Object *o) {
     if (o->table_index != 0) {
         o->image_row++;
     }
-    func_801b4638_slot04_0b(o);
+    call_handler_by_state_index_slot04_0b(o);
 }

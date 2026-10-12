@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2e7c_slot04_10(Object *obj);
-void func_801b2f98_slot04_10(Object *obj);
+void update_walk_by_input_or_random_slot04_10(Object *obj);
+void update_sequence_or_end_move_a_slot04_10(Object *obj);
 
-void func_801b2e7c_slot04_10(Object *obj) {
+void update_walk_by_input_or_random_slot04_10(Object *obj) {
     s32 a1;
 
     if ((s16)obj->step_flags != 0) {
         obj->active_flag_4 = 0;
         obj->state_3 = obj->state_3 + 1;
-        func_801b2f98_slot04_10(obj);
+        update_sequence_or_end_move_a_slot04_10(obj);
         return;
     }
     if (obj->mode_flag_2 == 0) {

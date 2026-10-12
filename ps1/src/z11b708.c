@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011b708(void) {
+void call_handler_by_mode_for_active_entries(void) {
     u8 *z = (u8 *)data_8019045c;
     u8 *i;
     *z = 0;

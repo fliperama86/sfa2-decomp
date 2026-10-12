@@ -12,7 +12,7 @@ extern Object *data_80051c24_slot28[];
 
 void func_80025058_slot28(Object *obj) {
     if (((Slot28Obj *)data_80051c5c_slot28.p)->field_3a < 0) {
-        func_801280f0();
+        start_fade_mode_1_and_wait();
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
     }
 }
@@ -24,7 +24,7 @@ void func_800250ac_slot28(Object *obj) {
 }
 
 void func_800250e4_slot28(Object *obj, int arg) {
-    func_80130768(data_80051c50_slot28[3], arg, data_8004bda4_slot28);
+    set_sequence_from_table_5(data_80051c50_slot28[3], arg, data_8004bda4_slot28);
 }
 
 void func_80025114_slot28(Object *obj) {
@@ -50,7 +50,7 @@ void func_80025174_slot28(void) {
     for (i = 0; i < 10; i++) {
         Object *p = data_80051c24_slot28[i];
         if (p != 0 && p->active_count != 0) {
-            func_8011f240((Slab172 *)p);
+            reset_and_push_object_to_pool_table((Slab172 *)p);
             data_80051c24_slot28[i] = 0;
         }
     }

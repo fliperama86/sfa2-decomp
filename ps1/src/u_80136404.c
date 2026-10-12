@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_80136404(Sprite *sprite, int x, int y)
+void init_sprite_position_wide(Sprite *sprite, int x, int y)
 {
   int xm = x & 0x3ff;
   int xd = xm - 0x100;

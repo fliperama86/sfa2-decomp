@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001387c_slot12(Object *o) {
+void fill_four_table_bytes_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int i;
 

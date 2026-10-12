@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801443b0(Object *object) {
+void finish_sequence_choose_next_with_sound(Object *object) {
     Config *config;
     if ((s16)object->step_flags < 0) {
         config = game_state.config;
         if (config->table_index != 0) {
-            func_8014448c(object);
+            set_state_2_7_and_sequence_d(object);
         } else {
             if (*(Object **)&config->object_ptr != 0) {
                 ref_first.p = *(Object **)&config->object_ptr;
@@ -18,10 +18,10 @@ void func_801443b0(Object *object) {
                     play_sound_at(0, 0, 0x208);
                 }
             }
-            if ((u8)func_801441c8(object)) {
-                func_80144090(object);
+            if ((u8)is_config_object_health_full(object)) {
+                init_move_left_from_right_sequence_c(object);
             } else {
-                func_80144e90(object);
+                advance_state_0_and_clear_config_mode(object);
             }
         }
     }

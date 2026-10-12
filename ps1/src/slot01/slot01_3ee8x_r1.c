@@ -5,9 +5,9 @@
 
 extern void (*data_80015cdc_slot01)(Object *obj);
 
-/* The form of func_80015de0_slot27 of another module, with other values and
+/* The form of init_slot27_object_position_by_mode_slot27 of another module, with other values and
    three more fields cleared. */
-void func_80013ee8_slot01(Object *obj) {
+void init_object_position_by_mode_slot01(Object *obj) {
     obj->ot_depth = 0;
     obj->field_20 = 0;
     obj->y_scale = 0;

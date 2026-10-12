@@ -3,50 +3,50 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80131468(Object *object);
+void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
 int func_80146888(Object *object);
 
-void func_801b4914_slot04_0e(Object *obj);
-void func_801b5f28_slot04_0e(Object *obj);
-void func_801b5f48_slot04_0e(Object *obj);
+void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
+void clear_active_flag_and_finish_state_slot04_0e(Object *obj);
+void start_state_1_sequence_unless_paused_slot04_0e(Object *obj);
 void func_801b6098_slot04_0e(Object *obj);
-void func_801b6128_slot04_0e(Object *obj);
+void land_on_ground_set_state_3_seven_slot04_0e(Object *obj);
 
-void func_801b5f28_slot04_0e(Object *obj) {
+void clear_active_flag_and_finish_state_slot04_0e(Object *obj) {
     obj->active_flag_4 = 0;
-    func_80131468(obj);
+    reset_object_to_state_1_0_0_2_sequence_1(obj);
 }
 
-void func_801b5f48_slot04_0e(Object *o) {
+void start_state_1_sequence_unless_paused_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int a;
 
     if (game_state.pause_flag_2 | game_state.field_4d) {
-        func_801b5f28_slot04_0e(o);
+        clear_active_flag_and_finish_state_slot04_0e(o);
     } else {
         o->state_3 = 1;
         obj->state_flag = 0;
         o->active_flag_4 = 1;
-        func_80141f28(o, 6);
+        add_to_meter_clamped(o, 6);
         a = 0x69;
         if (o->field_49 == 0) {
             a = 0x26;
         }
-        func_801307e0(o, a);
+        set_sequence_by_side_and_mode(o, a);
     }
 }
 
-void func_801b5fcc_slot04_0e(Object *o) {
+void update_move_with_bound_push_check_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int t;
 
-    func_801b4914_slot04_0e(o);
+    apply_velocity_and_accel_to_position_slot04_0e(o);
     if (o->active_flag != 0) {
         func_801b6098_slot04_0e(o);
     } else {
         obj->field_47 = obj->field_47 - 1;
         if (obj->field_47 & 0x80) {
-            func_801b6128_slot04_0e(o);
+            land_on_ground_set_state_3_seven_slot04_0e(o);
         } else {
             t = 2;
             if (o->facing_side == 0) {
@@ -67,7 +67,7 @@ void func_801b5fcc_slot04_0e(Object *o) {
 
 void func_801b6098_slot04_0e(Object *obj) {
     if (obj->field_49 != 0) {
-        func_801b6128_slot04_0e(obj);
+        land_on_ground_set_state_3_seven_slot04_0e(obj);
     } else {
         obj->active_state = 1;
         obj->vel_y = 0x80000;
@@ -83,12 +83,12 @@ void func_801b6098_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b6128_slot04_0e(Object *obj) {
+void land_on_ground_set_state_3_seven_slot04_0e(Object *obj) {
     obj->state_3 = 7;
     obj->active_state = 0;
     obj->pos_x_frac = 0;
     obj->pos_y_frac = 0;
     obj->active_flag_4 = 0;
     obj->pos_y = (u16)obj->ground_y;
-    func_801307e0(obj, 0x2b);
+    set_sequence_by_side_and_mode(obj, 0x2b);
 }

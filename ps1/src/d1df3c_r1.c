@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_8011e5c8(u16 n, u16 *src, u32 dst, u32 key);
+void decode_rle_nibble_swapped(u16 n, u16 *src, u32 dst, u32 key);
 void decode_rle(u32 n, u16 *src, u32 dst, u32 key);
 
 /*
@@ -16,7 +16,7 @@ void decode_rle(u32 n, u16 *src, u32 dst, u32 key);
  * count of items, each a literal or a (length, distance) reference back
  * into the block, chosen by one flag bit; a high byte of 0x80 means 64 flag
  * bits choosing a literal or a zero cell; any other value is handed to
- * func_8011e5c8 (bit 15 set) or decode_rle (clear), which take the
+ * decode_rle_nibble_swapped (bit 15 set) or decode_rle (clear), which take the
  * second mask (key).
  */
 void decode_compressed_block(void *data, int b, u8 *out) {
@@ -112,7 +112,7 @@ void decode_compressed_block(void *data, int b, u8 *out) {
             } while ((groups = groups_left--) != 0);
         } else {
             /* The callee gets the second mask (key); it reads only the low byte of n (inferred). */
-            func_8011e5c8(n, p, (u32)out, key);
+            decode_rle_nibble_swapped(n, p, (u32)out, key);
         }
     } else {
         p = (u16 *)(data + ((int *)data)[flags & 0x3fff]);

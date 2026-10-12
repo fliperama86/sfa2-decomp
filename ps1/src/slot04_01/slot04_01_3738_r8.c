@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4390_slot04_01(Object *obj) {
+void update_sequence_with_flagged_x_shift_slot04_01(Object *obj) {
     s16 t = obj->step_flags;
     int d = 0x20000;
 
     if ((t & 0x8000) != 0) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if ((t & 0xff) != 0) {
             if (obj->facing_side == 0) {

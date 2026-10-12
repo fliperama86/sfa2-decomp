@@ -6,7 +6,7 @@
 extern u16 data_801c64f4_slot04_02[];
 extern u16 data_801c64f8_slot04_02[];
 
-void func_801b4d28_slot04_02(Object *obj) {
+void nudge_other_x_by_table_every_fourth_tick_slot04_02(Object *obj) {
     int i;
 
     if ((game_state.tick_count & 3) == 0) {
@@ -33,11 +33,11 @@ void func_801b4d28_slot04_02(Object *obj) {
     }
 }
 
-void func_801b4e10_slot04_02(Object *obj) {
+void update_sequence_or_reset_state_variant_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

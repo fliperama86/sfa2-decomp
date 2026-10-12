@@ -7,13 +7,13 @@ extern Slot06Tile data_801f1f48_slot06_02[2][0x11a];
 extern u16 data_801e9e74_slot06_02[];
 extern u16 data_801eaf18_slot06_02[];
 
-void func_801e87dc_slot06_02(Slot06Layer *layer);
+void set_layer_flags_from_table_slot06_02(Slot06Layer *layer);
 
-void func_801e87dc_slot06_02(Slot06Layer *layer) {
+void set_layer_flags_from_table_slot06_02(Slot06Layer *layer) {
     layer->flags_bits = data_801e9e74_slot06_02[layer->table_index];
 }
 
-void func_801e8800_slot06_02(Slot06Layer *layer) {
+void init_layer_with_map_801eaf18_and_rect_slot06_02(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eaf18_slot06_02;
     layer->data_table = data_801eaf18_slot06_02;
     layer->packed_param = 0x5816;
@@ -36,7 +36,7 @@ void func_801e8844_slot06_02(void) {
         c = 0x80;
         do {
             r = &data_801f1f48_slot06_02[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

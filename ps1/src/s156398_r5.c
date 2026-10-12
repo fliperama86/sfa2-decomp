@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80157174(Object *dest, Object *object) {
+void copy_top_rank_data_by_side(Object *dest, Object *object) {
     int i;
 
     if (object->score_rank == 1) {
@@ -26,10 +26,10 @@ void func_801571f4(Block172 *block) {
     table_8018191c[object->state_0](object);
 }
 
-void func_80157234(Object *object) {
+void init_object_depth_and_advance_state_0_2(Object *object) {
     object->ot_depth = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->state_0++;
-    func_8011a55c(object);
+    clear_object_side_table_entries(object);
 }

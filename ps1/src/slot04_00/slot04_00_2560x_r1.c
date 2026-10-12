@@ -11,7 +11,7 @@
  * state_3, stores direction_index + 1 in step_count and starts a sequence. In every
  * other case it hands over to update_sequence.
  */
-void func_801b2560_slot04_00(Object *obj) {
+void update_rise_then_set_sequence_32_base_slot04_00(Object *obj) {
     if ((u8)obj->step_flags == 0) {
         u8 count;
         u16 seq;
@@ -25,7 +25,7 @@ void func_801b2560_slot04_00(Object *obj) {
             seq = (obj->direction_index >> 1) + 0x32;
             obj->state_3 = count;
             ((Slot04aObj *)obj)->step_count = obj->direction_index + 1;
-            func_801307e0(obj, seq);
+            set_sequence_by_side_and_mode(obj, seq);
             return;
         }
     }

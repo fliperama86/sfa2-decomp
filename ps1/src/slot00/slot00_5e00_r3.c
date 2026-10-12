@@ -5,19 +5,19 @@
 
 extern ObjectFn data_80079150_slot00[];
 extern ObjectFn data_80079158_slot00[];
-void func_800760e8_slot00(Object *obj);
-void func_800761c8_slot00(Object *obj);
+void call_handler_by_state_3_3_slot00(Object *obj);
+void call_handler_by_direction_index_slot00(Object *obj);
 
-void func_800760a8_slot00(Object *obj) {
+void call_handler_by_input_dir_1_slot00(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second == 0) {
-        func_800760e8_slot00(obj);
+        call_handler_by_state_3_3_slot00(obj);
     } else {
-        func_800761c8_slot00(obj);
+        call_handler_by_direction_index_slot00(obj);
     }
 }
 
-void func_800760e8_slot00(Object *obj) {
+void call_handler_by_state_3_3_slot00(Object *obj) {
     data_80079150_slot00[obj->state_3](obj);
 }
 
@@ -25,20 +25,20 @@ void func_80076128_slot00(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_80076160_slot00(Object *obj) {
+void update_sequence_or_finish_on_flag_3_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     }
 }
 
-void func_800761c8_slot00(Object *obj) {
+void call_handler_by_direction_index_slot00(Object *obj) {
     data_80079158_slot00[obj->direction_index >> 1](obj);
 }

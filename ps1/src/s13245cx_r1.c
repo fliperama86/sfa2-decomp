@@ -6,7 +6,7 @@
 extern u8 data_80186004[];
 
 void func_8015c150(u8 *record);
-void func_80153088(void);
+void reset_side_entries(void);
 void init_strips(void);
 void init_strips2(void);
 
@@ -27,11 +27,11 @@ void init_strips2(void);
  *   3. writes the constants of table_80188d08, data_80171c5c and
  *      data_80171c5d, and four words at 0x1c4 to 0x1d0 of the block;
  *   4. initialises four strips of 0x1c bytes in data_80188d6c with
- *      func_80136d1c (two per player, 0x38 bytes apart);
- * then writes data_80188ebc and data_80188ec0 and calls func_80153088,
+ *      init_draw_mode_prim_3 (two per player, 0x38 bytes apart);
+ * then writes data_80188ebc and data_80188ec0 and calls reset_side_entries,
  * init_strips and init_strips2.
  */
-void func_8013245c(void) {
+void init_hud_primitives(void) {
     HudBlk *blk = (HudBlk *)data_801ac6a8;
     u8 *base = blk->head;
     int pa, pb;
@@ -243,7 +243,7 @@ void func_8013245c(void) {
         int j;
         for (j = 0; j < 2; j++) {
             s = (Strip1c *)((u8 *)data_80188d6c + i * 0x38) + j;
-            func_80136d1c((Tx *)s);
+            init_draw_mode_prim_3((Tx *)s);
             s->pos_x = 0xa8 + j * 0x10;
             s->pos_y = 2;
             s->tex_v = 0xf0;
@@ -256,7 +256,7 @@ void func_8013245c(void) {
     }
     data_80188ebc = 0x7e07;
     data_80188ec0 = 0x7807;
-    func_80153088();
+    reset_side_entries();
     init_strips();
     init_strips2();
 }

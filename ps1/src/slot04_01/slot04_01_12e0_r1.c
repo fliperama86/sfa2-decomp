@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b1540_slot04_01(Object *obj);
-void func_801b47cc_slot04_01(Object *obj, int kind);
+void spawn_child_object_at_parent_offset_slot04_01(Object *obj, int kind);
 
-void func_801b12e0_slot04_01(Object *obj) {
+void update_horizontal_slide_with_decel_slot04_01(Object *obj) {
     func_801b1540_slot04_01(obj);
     if (obj->facing_side == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -18,17 +18,17 @@ void func_801b12e0_slot04_01(Object *obj) {
         obj->state_3++;
     }
     if (obj->direction_index == 4) {
-        func_801b47cc_slot04_01(obj, 7);
+        spawn_child_object_at_parent_offset_slot04_01(obj, 7);
     }
     update_sequence(obj);
 }
 
-void func_801b1384_slot04_01(Object *o) {
+void update_airborne_until_landing_slot04_01(Object *o) {
     if (o->direction_index == 4) {
         if (o->vel_y < 0) {
-            func_801b47cc_slot04_01(o, 8);
+            spawn_child_object_at_parent_offset_slot04_01(o, 8);
         } else {
-            func_801b47cc_slot04_01(o, 7);
+            spawn_child_object_at_parent_offset_slot04_01(o, 7);
         }
     }
     func_801b1540_slot04_01(o);
@@ -42,7 +42,7 @@ void func_801b1384_slot04_01(Object *o) {
         o->active_flag_3 = 0;
         o->active_flag_4 = 0;
         o->pos_y = (u16)o->ground_y;
-        func_801209c4(o);
+        play_object_sound_by_kind(o);
     }
     update_sequence(o);
 }

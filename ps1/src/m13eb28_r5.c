@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013f0c8(Object *object, int index, int unused) {
+void set_slot_random_timer_and_advance(Object *object, int index, int unused) {
     Bytes32 table = data_8016d9ac;
     object->slots[(u8)index].entry_index++;
     object->slots[(u8)index].timer = table.b[get_random_byte() & 0x1f];

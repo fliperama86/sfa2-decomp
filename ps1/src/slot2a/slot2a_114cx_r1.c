@@ -11,7 +11,7 @@ void func_801e12fc_slot2a(Object *obj);
 void func_801e16a8_slot2a(Object *obj);
 
 /* The masked copy of p is taken first in the loop. With it the compiler loads the mask 0xffffff before 0xff000000, as the original does. */
-void func_801e114c_slot2a(Object *obj) {
+void link_sprite_array_into_ordering_table_slot2a(Object *obj) {
     u32 i;
     u32 *p = (u32 *)((u8 *)data_801e2fdc_slot2a + obj->table_index * 0x10c0 + data_801a27d0 * 0x860);
     u32 *q = (u32 *)((u8 *)data_801987c8 + 8);

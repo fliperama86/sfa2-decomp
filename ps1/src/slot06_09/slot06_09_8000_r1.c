@@ -8,79 +8,79 @@ extern u16 data_801e9e78_slot06_09[];
 extern s16 data_801e9e7a_slot06_09[];
 extern u16 data_80190542;
 
-void func_801e836c_slot06_09(Slot06Layer *layer);
-void func_801e878c_slot06_09(Slot06Layer *layer);
+void init_first_layer_tile_map_slot06_09(Slot06Layer *layer);
+void init_layer_map_fields_main_slot06_09(Slot06Layer *layer);
 void func_801e94e8_slot06_09(Slot06Layer *layer);
-void func_801e9350_slot06_09(Slot06Layer *layer);
-void func_801e8398_slot06_09(void);
-void func_801e87d0_slot06_09(void);
+void init_layer_map_fields_basic_slot06_09(Slot06Layer *layer);
+void init_slot06_09_two_tile_groups_gray_slot06_09(void);
+void init_slot06_09_tiles_gray_slot06_09(void);
 void func_801e9514_slot06_09(void);
-void func_801e937c_slot06_09(void);
-void func_801e84ac_slot06_09(void);
-void func_801e8870_slot06_09(void);
-void func_801e95bc_slot06_09(void);
-void func_801e8d80_slot06_09(void);
-void func_801e8170_slot06_09(Slot06Layer *layer);
-void func_801e81c8_slot06_09(Slot06Layer *layer);
-int func_801e828c_slot06_09(Slot06Layer *layer);
-void func_801e831c_slot06_09(Slot06Layer *layer);
+void init_two_banks_of_poly_ft4_slot06_09(void);
+void draw_tile_map_layer_16px_slot06_09(void);
+void draw_tile_layer_sprites_with_partial_row_slot06_09(void);
+void draw_tilemap_layer_32px_7x13_slot06_09(void);
+void draw_skewed_tile_layer_quads_slot06_09(void);
+void init_layer_sprite_and_advance_mode_slot06_09(Slot06Layer *layer);
+void update_layer_half_parallax_by_state_slot06_09(Slot06Layer *layer);
+int scroll_layer_x_with_table_steps_slot06_09(Slot06Layer *layer);
+void set_layer_pos_y_and_timer_from_tables_slot06_09(Slot06Layer *layer);
 
-void func_801e8000_slot06_09(void) {
+void draw_background_layers_by_flags_slot06_09(void) {
     u16 *flags = &game_state.field_dc;
 
     if (*flags & 2) {
-        func_801e84ac_slot06_09();
+        draw_tile_map_layer_16px_slot06_09();
     }
     if (*flags & 4) {
-        func_801e8870_slot06_09();
+        draw_tile_layer_sprites_with_partial_row_slot06_09();
     }
     if (*flags & 8) {
-        func_801e95bc_slot06_09();
+        draw_tilemap_layer_32px_7x13_slot06_09();
     }
     if (*flags & 4) {
-        func_801e8d80_slot06_09();
+        draw_skewed_tile_layer_quads_slot06_09();
     }
 }
 
-void func_801e8098_slot06_09(void) {
-    func_801e836c_slot06_09((Slot06Layer *)data_801aa544);
-    func_801e878c_slot06_09((Slot06Layer *)data_801aa5d4);
+void init_four_layers_tile_maps_slot06_09(void) {
+    init_first_layer_tile_map_slot06_09((Slot06Layer *)data_801aa544);
+    init_layer_map_fields_main_slot06_09((Slot06Layer *)data_801aa5d4);
     func_801e94e8_slot06_09((Slot06Layer *)cam_obj);
-    func_801e9350_slot06_09((Slot06Layer *)data_801904d8);
+    init_layer_map_fields_basic_slot06_09((Slot06Layer *)data_801904d8);
 }
 
 void func_801e80f0_slot06_09(void) {
-    func_801e8398_slot06_09();
-    func_801e87d0_slot06_09();
+    init_slot06_09_two_tile_groups_gray_slot06_09();
+    init_slot06_09_tiles_gray_slot06_09();
     func_801e9514_slot06_09();
-    func_801e937c_slot06_09();
+    init_two_banks_of_poly_ft4_slot06_09();
 }
 
-void func_801e8128_slot06_09(Slot06Layer *layer) {
+void call_layer_handler_by_mode_slot06_09(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e8170_slot06_09(layer);
+        init_layer_sprite_and_advance_mode_slot06_09(layer);
     } else if (layer->mode == 1) {
-        func_801e81c8_slot06_09(layer);
+        update_layer_half_parallax_by_state_slot06_09(layer);
     }
 }
 
-void func_801e8170_slot06_09(Slot06Layer *layer) {
-    func_801361fc((Sprite *)layer, 0xc0, 0);
+void init_layer_sprite_and_advance_mode_slot06_09(Slot06Layer *layer) {
+    init_sprite_position((Sprite *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->table_index = 0;
         layer->mode++;
-        func_801e831c_slot06_09(layer);
+        set_layer_pos_y_and_timer_from_tables_slot06_09(layer);
     }
 }
 
-void func_801e81c8_slot06_09(Slot06Layer *layer) {
+void update_layer_half_parallax_by_state_slot06_09(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
 
     if (layer->state_index == 0) {
-        func_801e828c_slot06_09(layer);
+        scroll_layer_x_with_table_steps_slot06_09(layer);
     }
     l2 = (Slot06Layer *)data_801aa5d4;
     d = l2->field_22;
@@ -99,13 +99,13 @@ void func_801e81c8_slot06_09(Slot06Layer *layer) {
 }
 
 /* Declared int and returns nothing. With void this compiler fills a delay slot with a write to v0 and the function is 4 bytes short. The form is compatible with the original's bytes; what the original source declared is not known. */
-int func_801e828c_slot06_09(Slot06Layer *layer) {
+int scroll_layer_x_with_table_steps_slot06_09(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_x += 0x3000;
         layer->countdown_timer -= 1;
         if (layer->countdown_timer == 0) {
             layer->table_index = (layer->table_index + 2) & 0x1e;
-            func_801e831c_slot06_09(layer);
+            set_layer_pos_y_and_timer_from_tables_slot06_09(layer);
         }
         if ((s16)layer->pos_x_int >= 0x3a0) {
             *(s32 *)&layer->pos_x = 0x3a00000;
@@ -115,7 +115,7 @@ int func_801e828c_slot06_09(Slot06Layer *layer) {
     }
 }
 
-void func_801e831c_slot06_09(Slot06Layer *layer) {
+void set_layer_pos_y_and_timer_from_tables_slot06_09(Slot06Layer *layer) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
 
@@ -123,7 +123,7 @@ void func_801e831c_slot06_09(Slot06Layer *layer) {
     layer->countdown_timer = data_801e9e7a_slot06_09[layer->table_index];
 }
 
-void func_801e836c_slot06_09(Slot06Layer *layer) {
+void init_first_layer_tile_map_slot06_09(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ea124_slot06_09;
     layer->data_table = data_801ea124_slot06_09;
     layer->packed_param = 0x5800;

@@ -23,7 +23,7 @@ extern u16 data_8019019a;
  * data_80183c90; after the last run a partial group of tiles hands its
  * descriptor too. The quad cursor data_801a4fe8 advances by the quads written.
  */
-void func_8011c724(Slab172 *p) {
+void build_sprite_quads_from_stream(Slab172 *p) {
     SpriteObj *obj = (SpriteObj *)p;
     SpriteQuad *cur;
     SpriteQuad *q;

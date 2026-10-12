@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e083c_slot2a(Object *obj) {
+void increment_state_1_slot2a(Object *obj) {
     obj->state_1++;
 }

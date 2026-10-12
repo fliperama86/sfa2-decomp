@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_800e1014_slot0f(int a);
-void func_800e2550_slot0f(Object *o);
+int format_memory_card_and_check_slot0f(int a);
+void update_two_option_selection_slot0f(Object *o);
 
 void func_800e1c70_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
-    func_800e2550_slot0f(o);
+    update_two_option_selection_slot0f(o);
     b = o->pos_x_frac;
     if (b & 0x860) {
         if (b & 0x820) {
@@ -41,9 +41,9 @@ void func_800e1d2c_slot0f(Object *o) {
         obj->countdown = obj->countdown - 1;
     } else {
         if (obj->field_0b == 0) {
-            o->field_0e = func_800e1014_slot0f(0);
+            o->field_0e = format_memory_card_and_check_slot0f(0);
         } else {
-            o->field_0e = func_800e1014_slot0f(0x10);
+            o->field_0e = format_memory_card_and_check_slot0f(0x10);
         }
         t = -0x4c;
         o->field_0f = t;

@@ -7,9 +7,9 @@ extern u8 data_801b4e5c_slot04_0b[];
 extern u8 data_801b7274_slot04_0b[];
 extern u32 data_801c23e0_slot04_0b[];
 
-void func_801b05c4_slot04_0b(Object *obj);
+void noop_slot00_2_slot04_0b(Object *obj);
 
-void func_801b0000_slot04_0b(Object *obj) {
+void init_fighter_and_spawn_children_slot04_0b(Object *obj) {
     u32 *dst;
     u32 i;
     Object *c;
@@ -25,7 +25,7 @@ void func_801b0000_slot04_0b(Object *obj) {
     for (; i < 0x28; i++) {
         dst[i] = data_801c23e0_slot04_0b[i];
     }
-    d = func_8011f32c();
+    d = pop_object_from_second_pool();
     if (d != 0) {
         d->active_count = 1;
         d->field_02 = 0xb;
@@ -51,8 +51,8 @@ void func_801b0000_slot04_0b(Object *obj) {
                 } else {
                     obj->pos_x = obj->pos_x - 0x50;
                 }
-                func_801b05c4_slot04_0b(obj);
-                c = (Object *)func_8011f1e0();
+                noop_slot00_2_slot04_0b(obj);
+                c = (Object *)pop_block_from_pool();
                 if (c != 0) {
                     c->active_count = 1;
                     c->field_02 = 6;
@@ -66,7 +66,7 @@ void func_801b0000_slot04_0b(Object *obj) {
                     c->data_ptr_a = obj->data_ptr_a;
                     c->data_ptr_b = obj->data_ptr_b;
                 }
-                c = (Object *)func_8011f1e0();
+                c = (Object *)pop_block_from_pool();
                 if (c != 0) {
                     c->active_count = 1;
                     c->field_02 = 6;

@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8012c494(Object *object)
+void start_hit_sequence_from_pairs_table(Object *object)
 {
   int k = object->hit_type;
   unsigned char new_var;
@@ -14,19 +14,19 @@ void func_8012c494(Object *object)
   new_var = k;
   if ((new_var == 0x14) || (new_var == 0x16))
   {
-    func_8012ca04(object);
+    update_hit_reaction_type_16_sound_spawn(object);
   }
   else
     if ((new_var == 0x15) || (new_var == 0x17))
   {
-    func_8012cb3c(object);
+    update_hit_reaction_type_17_sound_spawn(object);
   }
   else
     if (new_var == 0xb)
   {
     object->active_state = 0xff;
     object->field_69++;
-    func_801308c4(object, object->pair_value);
+    set_sequence_by_side_and_mode_2(object, object->pair_value);
   }
   else
   {
@@ -50,6 +50,6 @@ void func_8012c494(Object *object)
         return;
       }
     }
-    func_801308c4(object, object->pair_value);
+    set_sequence_by_side_and_mode_2(object, object->pair_value);
   }
 }

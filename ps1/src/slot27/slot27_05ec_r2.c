@@ -3,37 +3,37 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80010fa8_slot27(void);
-void func_80011118_slot27(void);
-void func_800111c8_slot27(void);
-void func_800113d8_slot27(void);
+void spawn_four_pool_objects_per_player_slot27(void);
+void fill_rows_white_and_queue_jobs_slot27(void);
+void restore_rows_from_backup_and_queue_jobs_slot27(void);
+void clear_rows_and_queue_jobs_slot27(void);
 
-void func_80010728_slot27(void) {
+void alternate_row_effect_until_timer_expires_slot27(void) {
     u16 *p;
     int t;
     if (game_state.timer_or_bits & 1) {
-        func_800111c8_slot27();
-        func_800113d8_slot27();
+        restore_rows_from_backup_and_queue_jobs_slot27();
+        clear_rows_and_queue_jobs_slot27();
     } else {
-        func_800111c8_slot27();
-        func_80011118_slot27();
+        restore_rows_from_backup_and_queue_jobs_slot27();
+        fill_rows_white_and_queue_jobs_slot27();
     }
     p = &game_state.timer_or_bits;
     t = *p - 1;
     *p = t;
     if ((s16)t == 0) {
         data_8018f5a0->step_index_2++;
-        func_80010fa8_slot27();
+        spawn_four_pool_objects_per_player_slot27();
         game_state.busy_flag = 0xff;
     }
 }
 
 void func_800107c8_slot27(void) {
     data_8018f5a0->step_index_2++;
-    func_800111c8_slot27();
+    restore_rows_from_backup_and_queue_jobs_slot27();
 }
 
-void func_800107fc_slot27(void) {
+void advance_hud_substep_when_not_busy_slot27(void) {
     if (game_state.busy_flag == 0) {
         HudState *h = data_8018f5a0;
         h->substep_index++;

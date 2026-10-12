@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80019a74_slot28(Object *obj);
+void set_jump_velocity_by_table_index_slot28(Object *obj);
 
-void func_800199dc_slot28(Object *obj) {
+void update_vertical_bounce_motion_slot28(Object *obj) {
     int sum;
     ((Slot28Obj *)obj)->pos_y -= obj->vel_y;
     sum = obj->vel_y + obj->accel_y;
@@ -13,17 +13,17 @@ void func_800199dc_slot28(Object *obj) {
     if (((Slot28Obj *)obj)->timer_reload != 0) {
         if (sum >= 0) {
             ((Slot28Obj *)obj)->timer_reload = 0;
-            func_80019a74_slot28(obj);
+            set_jump_velocity_by_table_index_slot28(obj);
         }
     } else if (sum < 0) {
         ((Slot28Obj *)obj)->timer_reload = 0xff;
-        func_80019a74_slot28(obj);
+        set_jump_velocity_by_table_index_slot28(obj);
         obj->vel_y = -obj->vel_y;
         obj->accel_y = -obj->accel_y;
     }
 }
 
-void func_80019a74_slot28(Object *obj) {
+void set_jump_velocity_by_table_index_slot28(Object *obj) {
     if (obj->table_index == 4) {
         obj->vel_y = 0x14000;
     } else {

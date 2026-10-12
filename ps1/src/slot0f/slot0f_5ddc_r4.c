@@ -6,7 +6,7 @@
 extern Slot12Pos data_800efa30_slot0f[];
 extern void (*data_800efad8_slot0f[])(Object *);
 
-void func_800e61c4_slot0f(Object *obj) {
+void set_position_from_table_entry_slot0f(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     u16 *q;
@@ -21,7 +21,7 @@ void func_800e61c4_slot0f(Object *obj) {
     obj->field_62 = 0;
 }
 
-void func_800e6240_slot0f(Object *object) {
+void call_handler_by_state_1_slot0f(Object *object) {
     data_800efad8_slot0f[object->state_1](object);
 }
 
@@ -31,20 +31,20 @@ void func_800e6280_slot0f(Object *obj) {
     }
 }
 
-void func_800e62ac_slot0f(Object *obj) {
+void noop_slot00_3_slot0f(Object *obj) {
 }
 
-void func_800e62b4_slot0f(Object *obj) {
+void noop_slot00_4_slot0f(Object *obj) {
 }
 
-void func_800e62bc_slot0f(Object *obj) {
+void noop_slot00_5_slot0f(Object *obj) {
 }
 
-void func_800e62c4_slot0f(Object *obj) {
+void noop_slot00_6_slot0f(Object *obj) {
 }
 
-void func_800e62cc_slot0f(Object *obj) {
+void noop_slot00_7_slot0f(Object *obj) {
 }
 
-void func_800e62d4_slot0f(Object *obj) {
+void noop_slot00_8_slot0f(Object *obj) {
 }

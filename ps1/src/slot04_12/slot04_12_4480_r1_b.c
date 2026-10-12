@@ -8,16 +8,16 @@ extern SequenceStep **data_1f800164;
 void func_8011ffdc(Object *o);
 extern ObjectFn data_801c4ef8_slot04_12[];
 
-void func_80130dc0(Object *object);
+void set_sequence_and_tables_from_direction(Object *object);
 void func_801b4ba8_slot04_12(Object *obj);
-int func_801b4bcc_slot04_12(Object *obj);
+int apply_velocity_and_accel_return_vel_y_slot04_12(Object *obj);
 
 void func_801b4ba8_slot04_12(Object *obj) {
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-int func_801b4bcc_slot04_12(Object *obj) {
+int apply_velocity_and_accel_return_vel_y_slot04_12(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     obj->vel_x += obj->accel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
@@ -25,11 +25,11 @@ int func_801b4bcc_slot04_12(Object *obj) {
     return obj->vel_y;
 }
 
-void func_801b4c10_slot04_12(Object *obj) {
+void call_handler_by_state_0_4_slot04_12(Object *obj) {
     data_801c4ef8_slot04_12[obj->state_0](obj);
 }
 
-void func_801b4c50_slot04_12(Object *obj) {
+void init_projectile_velocity_and_sequence_slot04_12(Object *obj) {
     Object *p;
     SequenceStep *s;
 
@@ -58,10 +58,10 @@ void func_801b4c50_slot04_12(Object *obj) {
             s = *data_1f800164;
         }
     }
-    func_80130700(obj, s);
+    set_sequence_entry(obj, s);
 }
 
-void func_801b4d3c_slot04_12(Object *obj) {
+void move_by_vel_x_until_offset_then_advance_slot04_12(Object *obj) {
     if (game_state.field_65 == 0) {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
         if ((u32)(obj->pos_x - obj->accel_y + 0x20) >= 0x40) {
@@ -69,10 +69,10 @@ void func_801b4d3c_slot04_12(Object *obj) {
         }
     }
     advance_sequence_checked(obj);
-    func_8011ff74(obj);
+    set_state_0_if_x_outside_margin_narrow(obj);
     func_8011ffdc(obj);
 }
 
-void func_801b4dc8_slot04_12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot04_12(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

@@ -5,27 +5,27 @@
 
 extern Object *data_800e84f0_slot0f[];
 
-void func_800e06b8_slot0f(GameState *g, int x) {
+void update_frame_objects_and_effects_slot0f(GameState *g, int x) {
     g->frame_counter++;
     g->field_a8 = x;
-    func_80128978();
-    func_8012510c();
+    update_player_inputs_and_pick_handler();
+    log_both_players_state();
     g->field_65 = player_left.field_165 | player_right.field_165;
     update_units();
     separate_overlapping_players();
-    func_80138164();
-    func_801510bc();
+    update_blocks();
+    call_active_block_handlers();
     if (data_80190568 != 0) {
-        func_80135ef0(g);
+        set_capped_value_and_ot_indices(g);
     }
     if (g->state_param != 0) {
         g->state_param--;
     }
     func_80138ec4();
-    func_80132e84();
-    func_8011a784();
+    update_hud_bars_and_meters();
+    select_buffers_and_run_first_setup();
 }
 
-void func_800e0784_slot0f(int i) {
-    func_801519b4(data_800e84f0_slot0f[i]);
+void queue_item_from_table_by_index_slot0f(int i) {
+    add_item_to_table(data_800e84f0_slot0f[i]);
 }

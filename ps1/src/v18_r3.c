@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8011f14c(Slab172 *o) {
-    func_80119b3c(o);
+void reset_and_push_block_object_type_8(Slab172 *o) {
+    release_stream_pair_cells(o);
     clear_bytes(o, 0xc0);
     o->field_74 = 0;
     o->field_67 = 0;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013a350(Object *a0, Object *a1, Box32 *a2) {
+void set_hit_type_from_box_type_with_counter(Object *a0, Object *a1, Box32 *a2) {
     if (a0->mode_id != 8 && a0->counter != 0 && a2->box_type == 0xd) {
         a1->hit_type = 0x17;
     } else {

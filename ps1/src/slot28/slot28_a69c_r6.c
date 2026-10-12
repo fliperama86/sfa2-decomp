@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001aea8_slot28(Object *o) {
+void wait_timer_reload_then_advance_state_1_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     obj->timer_reload--;
     if (obj->timer_reload == 0) {

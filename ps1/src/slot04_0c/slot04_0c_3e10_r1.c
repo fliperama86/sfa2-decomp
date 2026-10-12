@@ -8,16 +8,16 @@ extern BoxTables *data_801be150_slot04_0c[];
 extern BoxTables *data_801be188_slot04_0c[];
 extern void (*data_801be1e0_slot04_0c[])(Object *, Object *);
 
-void func_801b3ff0_slot04_0c(Object *obj, Object *parent);
-void func_8011f14c(Slab172 *o);
+void follow_parent_frame_param_sequence_slot04_0c(Object *obj, Object *parent);
+void reset_and_push_block_object_type_8(Slab172 *o);
 
-void func_801b3e10_slot04_0c(Object *obj) {
+void clear_parent_link_and_set_sequence_6_slot04_0c(Object *obj) {
     obj->state_1++;
     obj->parent->linked_object_3 = 0;
     func_80138070(obj, 6);
 }
 
-void func_801b3e44_slot04_0c(Object *obj) {
+void reset_states_on_negative_step_flags_slot04_0c(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_0 = 3;
         obj->state_1 = 0;
@@ -34,10 +34,10 @@ void func_801b3e88_slot04_0c(Object *o) {
     if (n == 0) {
         p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_801b3ed0_slot04_0c(Object *obj) {
+void set_box_tables_by_vel_index_and_health_slot04_0c(Object *obj) {
     if (obj->vel_table_index == 6) {
         obj->box_tables = data_801be124_slot04_0c[(s16)obj->health];
     } else if (obj->vel_table_index == 8) {
@@ -47,16 +47,16 @@ void func_801b3ed0_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b3f54_slot04_0c(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_0c(Object *obj) {
     data_801be1e0_slot04_0c[obj->state_0](obj, obj->parent);
 }
 
-void func_801b3f94_slot04_0c(Object *obj, Object *parent) {
+void init_child_from_parent_fields_slot04_0c(Object *obj, Object *parent) {
     obj->state_0++;
     obj->field_1c = parent->field_1c;
     obj->table_index = parent->kind;
     obj->field_0c = parent->field_0c;
     obj->field_0e = parent->field_0e;
     obj->variant_index = 0;
-    func_801b3ff0_slot04_0c(obj, parent);
+    follow_parent_frame_param_sequence_slot04_0c(obj, parent);
 }

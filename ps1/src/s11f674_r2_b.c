@@ -5,7 +5,7 @@
 
 
 
-void func_8011fa20(Object *object, SeqRec **table, u8 index) {
+void set_sequence_from_table_3(Object *object, SeqRec **table, u8 index) {
     SeqRec **p = table + index;
-    func_8011fa50(object, *p);
+    set_sequence_and_copy_data_to_map(object, *p);
 }

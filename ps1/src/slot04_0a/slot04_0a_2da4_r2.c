@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u16 func_801b1e04_slot04_0a(Object *obj);
-void func_801b30a0_slot04_0a(Object *obj);
+u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
+void land_at_saved_pos_y_set_state_3_four_slot04_0a(Object *obj);
 
-void func_801b3054_slot04_0a(Object *obj) {
-    if (func_801b1e04_slot04_0a(obj)) {
-        func_801b30a0_slot04_0a(obj);
+void update_air_motion_or_land_slot04_0a(Object *obj) {
+    if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+        land_at_saved_pos_y_set_state_3_four_slot04_0a(obj);
     } else {
         update_sequence(obj);
     }

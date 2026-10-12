@@ -5,7 +5,7 @@
 
 extern ObjectFn data_8007994c_slot2b[];
 
-void func_80077c38_slot2b(Object *o) {
+void call_handler_by_state_2_slot2b(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_8007994c_slot2b[o->state_2](o);
     }
@@ -18,11 +18,11 @@ void func_80077ca4_slot2b(Object *o) {
     o->state_2++;
     o->facing_side ^= 1;
     o->active_flag = 0;
-    func_801380f0(o);
+    call_kind_9_handler_for_player(o);
     func_80138070(o, (o->vel_table_index >> 1) + 6);
 }
 
-void func_80077d04_slot2b(Object *o) {
+void countdown_reset_states_flip_vel_x_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s->countdown_timer--;
     if (s->countdown_timer == 0) {

@@ -5,9 +5,9 @@
 
 extern SequenceStep **data_801c3e9c_slot04_08;
 extern SequenceStep **data_801c3ea0_slot04_08;
-void func_801b45a4_slot04_08(Object *obj, Object *other);
+void increment_state_0_slot04_08(Object *obj, Object *other);
 
-void func_801b44a8_slot04_08(Object *obj, Object *other) {
+void follow_other_frame_param_sequence_slot04_08(Object *obj, Object *other) {
     obj->field_01 = 0;
     if (other->kind == obj->table_index) {
         if (other->frame->frame_param != 0) {
@@ -18,9 +18,9 @@ void func_801b44a8_slot04_08(Object *obj, Object *other) {
             if (obj->variant_index != other->frame->frame_param) {
                 obj->variant_index = other->frame->frame_param;
                 if (other->side == 0) {
-                    func_80130768(obj, obj->variant_index, data_801c3e9c_slot04_08);
+                    set_sequence_from_table_5(obj, obj->variant_index, data_801c3e9c_slot04_08);
                 } else {
-                    func_80130768(obj, obj->variant_index, data_801c3ea0_slot04_08);
+                    set_sequence_from_table_5(obj, obj->variant_index, data_801c3ea0_slot04_08);
                 }
             } else {
                 advance_sequence_checked(obj);
@@ -29,6 +29,6 @@ void func_801b44a8_slot04_08(Object *obj, Object *other) {
             obj->variant_index = 0;
         }
     } else {
-        func_801b45a4_slot04_08(obj, other);
+        increment_state_0_slot04_08(obj, other);
     }
 }

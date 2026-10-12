@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4498_slot04_07(Object *obj) {
+void start_direction_move_or_enter_state_1_2_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0) {
@@ -16,24 +16,24 @@ void func_801b4498_slot04_07(Object *obj) {
             if (obj->attack_param_d != 0) {
                 obj->active_flag_3 = 1;
                 obj->state_3 = 2;
-                func_80141f28(obj, 1);
-                func_801307e0(obj, 0x1e);
+                add_to_meter_clamped(obj, 1);
+                set_sequence_by_side_and_mode(obj, 0x1e);
             } else {
                 obj->active_flag_3 = 1;
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         } else {
             if (obj->attack_param_d != 0) {
                 obj->active_flag_3 = 1;
-                func_80141f28(obj, 2);
-                func_801307e0(obj, 0x3c);
+                add_to_meter_clamped(obj, 2);
+                set_sequence_by_side_and_mode(obj, 0x3c);
             } else {
                 obj->active_flag_3 = 1;
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         }
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

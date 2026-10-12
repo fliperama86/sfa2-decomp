@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80146998(Object *object) {
-    Object *spawned = func_80146a98(object, 6);
+void spawn_offset_effect_and_play_sounds(Object *object) {
+    Object *spawned = spawn_effect_variant_12_at_object(object, 6);
     if (spawned) {
         if (object->facing_side != 0) {
             spawned->pos_x = spawned->pos_x + table_8017ca64[object->kind].first;
@@ -19,8 +19,8 @@ void func_80146998(Object *object) {
     }
 }
 
-Object *func_80146a98(Object *object, int unused) {
-    ref_other.p = (Object *)func_8011f1e0();
+Object *spawn_effect_variant_12_at_object(Object *object, int unused) {
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count = 1;
         ref_other.p->field_02 = 5;

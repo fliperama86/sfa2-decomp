@@ -3,28 +3,28 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801417cc(Object *object);
-int func_80141b28(Object *object);
-int func_80141e34(Object *object);
+u8 try_action_clearing_both_flags(Object *object);
+int try_spend_meter_for_action(Object *object);
+int is_not_state_2_five(Object *object);
 void func_80142718(Object *object);
 void func_80142778(Object *object);
-void func_80142ba0(Object *object);
-void func_80146998(Object *object);
+void set_direction_index_from_buttons_group_b(Object *object);
+void spawn_offset_effect_and_play_sounds(Object *object);
 void select_box_tables(Object *object);
 void build_metrics(Object *object);
 
 extern ObjectFnInt data_801c732c_slot04_11[];
 extern ObjectFn data_801c7354_slot04_11[];
 
-void func_801b0fec_slot04_11(Object *obj);
-void func_801b10d8_slot04_11(Object *obj);
+void start_move_10_lock_other_slot04_11(Object *obj);
+void start_move_11_lock_other_slot04_11(Object *obj);
 int func_801b1324_slot04_11(Object *obj);
 int func_801b1358_slot04_11(Object *obj);
-void func_801b5ab8_slot04_11(Object *obj);
+void copy_kind_table_to_scratch_by_side_slot04_11(Object *obj);
 
 int func_801b0a84_slot04_11(Object *obj) {
     if (obj->kind != 0x11) return 0;
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -32,7 +32,7 @@ int func_801b0a84_slot04_11(Object *obj) {
         obj->field_15a = 1;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
         return 1;
     } else {
         return 0;
@@ -41,7 +41,7 @@ int func_801b0a84_slot04_11(Object *obj) {
 
 int func_801b0b04_slot04_11(Object *obj) {
     if (obj->kind != 0x13) return 0;
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -49,7 +49,7 @@ int func_801b0b04_slot04_11(Object *obj) {
         obj->field_15a = 2;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
         return 1;
     } else {
         return 0;
@@ -58,7 +58,7 @@ int func_801b0b04_slot04_11(Object *obj) {
 
 int func_801b0b88_slot04_11(Object *obj) {
     if (obj->kind != 0x13) return 0;
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -66,14 +66,14 @@ int func_801b0b88_slot04_11(Object *obj) {
         obj->field_15a = 3;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
         return 1;
     } else {
         return 0;
     }
 }
 
-int func_801b0c0c_slot04_11(Object *obj) {
+int start_move_4_if_kind_11_meter_ok_slot04_11(Object *obj) {
     if (obj->kind != 0x11) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if ((u8)func_80141788(obj)) {
@@ -91,7 +91,7 @@ int func_801b0c0c_slot04_11(Object *obj) {
     }
 }
 
-int func_801b0ca4_slot04_11(Object *obj) {
+int start_move_5_if_kind_11_meter_ok_slot04_11(Object *obj) {
     if (obj->kind != 0x11) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if ((u8)func_80141788(obj)) {
@@ -109,7 +109,7 @@ int func_801b0ca4_slot04_11(Object *obj) {
     }
 }
 
-int func_801b0d3c_slot04_11(Object *obj) {
+int start_move_6_if_kind_13_meter_ok_slot04_11(Object *obj) {
     if (obj->kind != 0x13) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if ((u8)func_80141788(obj)) {
@@ -147,11 +147,11 @@ int func_801b0dd4_slot04_11(Object *obj) {
     }
 }
 
-int func_801b0e94_slot04_11(Object *obj) {
+int start_move_8_or_count_failure_slot04_11(Object *obj) {
     if (*(u16 *)&obj->state_0 != 1) goto c;
     if (obj->state_2 == 5) goto z;
 c:
-    if (func_801417cc(obj)) goto b;
+    if (try_action_clearing_both_flags(obj)) goto b;
 z:
     obj->flags_28b++;
     return 0;
@@ -165,11 +165,11 @@ b:
     return 1;
 }
 
-int func_801b0f28_slot04_11(Object *obj) {
+int start_move_9_if_allowed_slot04_11(Object *obj) {
     if (obj->field_7e != 0) goto c;
     if (obj->remaining_count == 0) goto z;
 c:
-    if (func_801417cc(obj)) goto b;
+    if (try_action_clearing_both_flags(obj)) goto b;
 z:
     return 0;
 b:
@@ -183,14 +183,14 @@ b:
 }
 
 int func_801b0fb0_slot04_11(Object *obj) {
-    if (func_80141b28(obj)) {
-        func_801b0fec_slot04_11(obj);
+    if (try_spend_meter_for_action(obj)) {
+        start_move_10_lock_other_slot04_11(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b0fec_slot04_11(Object *obj) {
+void start_move_10_lock_other_slot04_11(Object *obj) {
     int a = 0x10;
     int b = 0x14;
 
@@ -211,19 +211,19 @@ void func_801b0fec_slot04_11(Object *obj) {
     ref_other.p = obj->other;
     ref_other.p->field_6b = a;
     obj->other_lock = b;
-    func_80146998(obj);
-    func_801307e0(obj, 0x1e);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x1e);
 }
 
 int func_801b109c_slot04_11(Object *obj) {
-    if (func_80141b28(obj)) {
-        func_801b10d8_slot04_11(obj);
+    if (try_spend_meter_for_action(obj)) {
+        start_move_11_lock_other_slot04_11(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b10d8_slot04_11(Object *obj) {
+void start_move_11_lock_other_slot04_11(Object *obj) {
     int a = 0x13;
     int b = 0x17;
 
@@ -244,15 +244,15 @@ void func_801b10d8_slot04_11(Object *obj) {
     ref_other.p = obj->other;
     ref_other.p->field_6b = a;
     obj->other_lock = b;
-    func_80146998(obj);
-    func_801307e0(obj, 0x1f);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x1f);
 }
 
-int func_801b1188_slot04_11(Object *obj) {
+int start_move_12_if_meter_ok_slot04_11(Object *obj) {
     if (obj->field_292 != 0) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->active_state == 0) {
-        if (!func_80141e34(obj)) return 0;
+        if (!is_not_state_2_five(obj)) return 0;
         if (!(u8)func_80141788(obj)) return 0;
         obj->state_0 = 1;
         obj->state_2 = 8;
@@ -282,7 +282,7 @@ void func_801b127c_slot04_11(Object *obj) {
         }
         if (obj->kind != k) {
             obj->kind = k;
-            func_801b5ab8_slot04_11(obj);
+            copy_kind_table_to_scratch_by_side_slot04_11(obj);
             select_box_tables(obj);
             build_metrics(obj);
         }
@@ -332,11 +332,11 @@ int func_801b140c_slot04_11(Object *obj) {
     return 0;
 }
 
-int func_801b1434_slot04_11(Object *obj) {
+int return_true_always_slot04_11(Object *obj) {
     return 1;
 }
 
-int func_801b143c_slot04_11(Object *obj) {
+int has_remaining_count_slot04_11(Object *obj) {
     return obj->remaining_count != 0;
 }
 

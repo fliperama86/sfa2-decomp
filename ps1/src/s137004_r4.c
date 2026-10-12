@@ -8,11 +8,11 @@ void set_side_flag(Object *object) {
     data_8018daf4[object->side] = 1;
 }
 
-void func_8013788c(Object *object) {
+void call_side_func_then_queue_job(Object *object) {
     if (object->side == 0) {
         func_80136e90();
     } else {
         func_80136ed0();
     }
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
 }

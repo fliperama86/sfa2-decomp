@@ -6,7 +6,7 @@
 extern Object *data_8002d574_slot12;
 
 void func_8001047c_slot12(void) {
-    Object *o = (Object *)func_8011f1e0();
+    Object *o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x7b;
@@ -14,7 +14,7 @@ void func_8001047c_slot12(void) {
         o->spawn_x = 0;
         o->spawn_y = 0x1e1;
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x7b;
@@ -24,10 +24,10 @@ void func_8001047c_slot12(void) {
     data_8018f5a0->substep_index++;
 }
 
-void func_80010510_slot12(void) {
+void increment_substep_index_2_slot12(void) {
     data_8018f5a0->substep_index++;
 }
 
-void func_80010530_slot12(void) {
+void increment_substep_index_3_slot12(void) {
     data_8018f5a0->substep_index++;
 }

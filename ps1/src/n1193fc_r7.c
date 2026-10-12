@@ -3,13 +3,13 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011f6b4(Object *object) {
+void call_counter_update_if_right_field_zero(Object *object) {
     if (player_right.field_165 == 0) {
         func_8011f70c(object);
     }
 }
 
-void func_8011f6e0(Object *object) {
+void call_counter_update_if_left_field_zero(Object *object) {
     if (player_left.field_165 == 0) {
         func_8011f70c(object);
     }

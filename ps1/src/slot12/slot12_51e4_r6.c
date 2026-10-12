@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001569c_slot12(Object *obj) {
+void spawn_three_variant_objects_slot12(Object *obj) {
     Object *a;
     obj->state_1 = obj->state_1 + 1;
-    a = (Object *)func_8011f1e0();
+    a = (Object *)pop_block_from_pool();
     if (a != 0) {
         a->active_count = 1;
         a->field_02 = 0xa2;
@@ -18,7 +18,7 @@ void func_8001569c_slot12(Object *obj) {
         a->table_index = obj->table_index;
         a->health = obj->health;
     }
-    a = (Object *)func_8011f1e0();
+    a = (Object *)pop_block_from_pool();
     if (a != 0) {
         a->active_count = 1;
         a->field_02 = 0xa2;
@@ -31,7 +31,7 @@ void func_8001569c_slot12(Object *obj) {
         a->health = obj->health;
     }
     if (((FrameRecord *)ptr_8019040c)[(s16)obj->health].offset_index == 1) {
-        a = (Object *)func_8011f1e0();
+        a = (Object *)pop_block_from_pool();
         if (a != 0) {
             a->active_count = 1;
             a->field_02 = 0xa2;

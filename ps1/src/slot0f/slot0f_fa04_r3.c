@@ -3,24 +3,24 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e483c_slot0f(void);
+void init_strips_and_load_three_images_slot0f(void);
 void func_800e4988_slot0f(void);
-void func_800e009c_slot0f(Object *obj, int a);
+void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int a);
 
-void func_800dfc6c_slot0f(GameState *state, Menu *menu) {
+void update_slot0f_button_or_timeout_exit_slot0f(GameState *state, Menu *menu) {
     if (((data_801a696a | data_801a6976) & 0x860) != 0) {
         if (((data_801a696a | data_801a6976) & 0x820) != 0) {
             data_8018f5a0->step_index = 0;
             data_8018f5a0->phase_index++;
         } else {
-            func_800e009c_slot0f((Object *)state, 1);
+            reset_hud_state_and_sound_by_arg_slot0f((Object *)state, 1);
         }
         play_sound_at(0, 0, 0x205);
         stop_sep_by_word(0x200);
     } else {
         state->step_counter = (s16)state->step_counter - 1;
         if ((s16)state->step_counter == 0) {
-            func_800e009c_slot0f((Object *)state, 1);
+            reset_hud_state_and_sound_by_arg_slot0f((Object *)state, 1);
         }
     }
     func_800e4988_slot0f();

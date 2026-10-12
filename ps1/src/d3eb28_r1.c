@@ -4,18 +4,18 @@
 #include "externs.h"
 
 extern u16 table_8017ab5c[];
-void func_8013ebf4(Object *object, int index, int arg);
+void advance_slot_stage_with_timer(Object *object, int index, int arg);
 
 /*
  * What it does (inferred, not original names): checks an object's flag
  * halfword (input_word) against a table entry (table_8017ab5c[arg]), and
- * calls func_8013ebf4 when the check passes, func_8013f2a8 when it fails.
+ * calls advance_slot_stage_with_timer when the check passes, reset_slot_stage_clear_result when it fails.
  * The entry's low byte is a required-bit mask. Entry bit 0x200 clear: the
  * mask alone decides. Bit 0x200 set with 0x100 set: the check also passes
  * when input_word bit 0 is set. Bit 0x200 set, 0x100 clear, 0x800 set: it also
  * passes when input_word bit 1 is set. Otherwise it does nothing.
  */
-void func_8013eb28(Object *object, int index, int arg) {
+void check_slot_input_against_table_entry_2(Object *object, int index, int arg) {
     u8 slot;
     int i;
     u16 ent;
@@ -38,22 +38,22 @@ void func_8013eb28(Object *object, int index, int arg) {
     flags &= t;
     if (!(ent & 0x200)) {
         if (t == flags)
-            func_8013ebf4(object, i, arg);
+            advance_slot_stage_with_timer(object, i, arg);
         else
-            func_8013f2a8(object, i, arg);
+            reset_slot_stage_clear_result(object, i, arg);
         return;
     }
     if (ent & 0x100) {
         if (t != flags && b0 != 1)
-            func_8013f2a8(object, i, arg);
+            reset_slot_stage_clear_result(object, i, arg);
         else
-            func_8013ebf4(object, slot, arg);
+            advance_slot_stage_with_timer(object, slot, arg);
         return;
     }
     if (ent & 0x800) {
         if (t != flags && f != 2)
-            func_8013f2a8(object, i, arg);
+            reset_slot_stage_clear_result(object, i, arg);
         else
-            func_8013ebf4(object, slot, arg);
+            advance_slot_stage_with_timer(object, slot, arg);
     }
 }

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6068_slot04_09(Object *obj) {
+void spawn_two_opposed_moving_children_slot04_09(Object *obj) {
     u8 f;
-    Object *c = func_8011f32c();
+    Object *c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0x1b;
@@ -28,7 +28,7 @@ void func_801b6068_slot04_09(Object *obj) {
         c->data_ptr_a = obj->data_ptr_a;
         c->data_ptr_b = obj->data_ptr_b;
     }
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0x1b;

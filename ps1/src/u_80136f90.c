@@ -10,7 +10,7 @@
    local versus direct argument, assignment order of the rect fields and of
    the table pointer. */
 /* Form found by automatic permutation search. */
-void func_80136f90(void)
+void store_image_rect_b0_1f0_to_table(void)
 {
   Rect rect;
   u8 *new_var;

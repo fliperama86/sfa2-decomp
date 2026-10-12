@@ -6,7 +6,7 @@
 void func_801b34f8_slot04_05(Object *object);
 void func_801b36f4_slot04_05(Object *object);
 
-void func_801b335c_slot04_05(Object *obj) {
+void count_down_countdown_high_byte_slot04_05(Object *obj) {
     int a;
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
@@ -21,6 +21,6 @@ void func_801b335c_slot04_05(Object *obj) {
         obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }

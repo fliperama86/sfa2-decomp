@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001d86c_slot28(Object *obj) {
+void move_right_then_spawn_object_slot28(Object *obj) {
     Object *p;
     *(int *)&obj->pos_x_frac = *(int *)&obj->pos_x_frac + 0x80000;
     if (obj->pos_x >= 0x98) {
         obj->pos_x = 0x90;
         obj->state_1 = obj->state_1 + 1;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x2e;

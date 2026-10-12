@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80014268_slot12(Object *obj) {
+void set_phase_two_clear_step_slot12(Object *obj) {
     data_8018f5a0->phase_index = 2;
     data_8018f5a0->step_index = 0;
 }
 
-void func_80014280_slot12(Object *obj) {
+void noop_slot00_4_slot12(Object *obj) {
 }
 
-void func_80014288_slot12(Object *o) {
+void advance_hud_phase_index_and_reset_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     data_8018f5a0->phase_index++;
     if (game_state.mode_flag_2 != 0) {

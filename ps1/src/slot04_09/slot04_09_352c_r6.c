@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 extern s16 data_801c7d64_slot04_09[];
-void func_801b27f8_slot04_09(Object *obj);
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
 void func_801b5ba0_slot04_09(Object *obj);
 
 void func_801b3ad8_slot04_09(Object *obj) {
     Object *other;
     u8 one = 1;
-    func_801b27f8_slot04_09(obj);
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
@@ -24,7 +24,7 @@ void func_801b3ad8_slot04_09(Object *obj) {
     if (((Slot04aObj *)other)->field_5c < 0) {
         obj->variant_index = 0xff;
     }
-    func_80140770(obj, 5, 0xd, data_801c7d64_slot04_09[(obj->direction_index & 0xfe) >> 1], 0, 1, 0);
+    set_other_hit_reaction_state_0(obj, 5, 0xd, data_801c7d64_slot04_09[(obj->direction_index & 0xfe) >> 1], 0, 1, 0);
     other = obj->other;
     if (((Slot04aObj *)other)->field_5c < 0) {
         obj->field_167 = (obj->direction_index >> 1) + 0xc;
@@ -34,7 +34,7 @@ void func_801b3ad8_slot04_09(Object *obj) {
             } else {
                 game_state.spawn_kind = 2;
             }
-            func_80147000(obj);
+            spawn_game_state_kind_object(obj);
         }
     }
     obj->vel_y = 0x40000;

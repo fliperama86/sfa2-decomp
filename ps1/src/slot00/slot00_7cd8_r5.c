@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern s32 data_8007a0ac_slot00[];
-void func_80078458_slot00(Object *obj, int mode);
+void set_sequence_by_sound_side_slot00(Object *obj, int mode);
 
-void func_800781d8_slot00(Object *obj) {
+void set_sequence_four_by_sound_side_slot00(Object *obj) {
     obj->ot_depth = 0;
     if (obj->sound_side == 0) {
         obj->sequence = seqs_a4_left[4];
@@ -18,6 +18,6 @@ void func_800781d8_slot00(Object *obj) {
     obj->sequence_changed_flag = 1;
 }
 
-void func_80078238_slot00(Object *obj) {
-    func_80078458_slot00(obj, 0);
+void set_sequence_index_0_slot00(Object *obj) {
+    set_sequence_by_sound_side_slot00(obj, 0);
 }

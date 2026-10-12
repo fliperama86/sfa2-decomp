@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b12f4_slot04_0b(Object *obj) {
+int try_start_meter_move_15a_4_slot04_0b(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
@@ -20,7 +20,7 @@ int func_801b12f4_slot04_0b(Object *obj) {
     return r;
 }
 
-int func_801b1380_slot04_0b(Object *obj) {
+int try_start_meter_move_state_8_type_5_slot04_0b(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {

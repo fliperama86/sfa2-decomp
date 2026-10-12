@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4818_slot04_06(Object *obj);
-void func_801b4850_slot04_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *obj);
+void apply_vertical_velocity_slot04_06(Object *obj);
 
-void func_801b3084_slot04_06(Object *obj) {
+void start_jump_with_fixed_velocity_slot04_06(Object *obj) {
     int v;
 
     obj->substate_index = 0;
@@ -15,8 +15,8 @@ void func_801b3084_slot04_06(Object *obj) {
     obj->step_limit = 0;
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 8);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 8);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->vel_x = 0x40000;
     obj->vel_y = 0x28000;
     obj->accel_x = 0;
@@ -27,10 +27,10 @@ void func_801b3084_slot04_06(Object *obj) {
     if (obj->field_49 == 0) {
         v = 0x2a;
     }
-    func_801307e0(obj, v);
+    set_sequence_by_side_and_mode(obj, v);
 }
 
-void func_801b3134_slot04_06(Object *obj) {
+void set_countdown_2_on_step_flag_else_update_slot04_06(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         ((Slot04aObj *)obj)->countdown_2 = 0x10;
@@ -40,8 +40,8 @@ void func_801b3134_slot04_06(Object *obj) {
 }
 
 void func_801b3178_slot04_06(Object *obj) {
-    func_801b4818_slot04_06(obj);
-    func_801b4850_slot04_06(obj);
+    move_x_by_vel_x_facing_then_accelerate_slot04_06(obj);
+    apply_vertical_velocity_slot04_06(obj);
     if (((Slot04aObj *)obj)->countdown_2 != 0) {
         if (--((Slot04aObj *)obj)->countdown_2 == 0) goto go;
     }

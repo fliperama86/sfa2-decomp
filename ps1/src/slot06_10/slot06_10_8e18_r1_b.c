@@ -9,17 +9,17 @@ extern void (*data_801ea988_slot06_10[])(Object *, Object *);
 extern SeqRec data_801ea944_slot06_10[];
 extern SequenceStep *data_801ebbc8_slot06_10[];
 
-void func_801e913c_slot06_10(Slot06Cursor *cur);
-void func_801e9190_slot06_10(Slot06Cursor *cur, SeqRec *rec);
-void func_801e9248_slot06_10(SeqRec *rec, Slot06Cursor *cur);
-void func_801e92c8_slot06_10(Slot06Cursor *cur);
-void func_801e931c_slot06_10(Slot06Cursor *cur, SeqRec *rec);
-void func_801e95c0_slot06_10(Object *obj, int unused, u8 index);
-void func_801e960c_slot06_10(Object *obj, Object *other);
-void func_801e9678_slot06_10(Object *obj, Object *other);
-void func_801e96e8_slot06_10(Object *obj, Object *other);
+void advance_record_cursor_slot06_10(Slot06Cursor *cur);
+void init_cursor_from_record_header_slot06_10(Slot06Cursor *cur, SeqRec *rec);
+void init_sequence_cursor_from_record_2_slot06_10(SeqRec *rec, Slot06Cursor *cur);
+void advance_record_cursor_2_slot06_10(Slot06Cursor *cur);
+void init_cursor_from_record_header_2_slot06_10(Slot06Cursor *cur, SeqRec *rec);
+void set_state_1_3_if_pause_flag_2_slot06_10(Object *obj, int unused, u8 index);
+void start_sequence_1_when_other_crosses_x_slot06_10(Object *obj, Object *other);
+void start_sequence_2_when_other_crosses_back_slot06_10(Object *obj, Object *other);
+void count_up_then_start_sequence_3_slot06_10(Object *obj, Object *other);
 
-void func_801e913c_slot06_10(Slot06Cursor *cur) {
+void advance_record_cursor_slot06_10(Slot06Cursor *cur) {
     SeqRec *rec;
     int v = cur->remaining_count - 1;
     cur->remaining_count = v;
@@ -29,11 +29,11 @@ void func_801e913c_slot06_10(Slot06Cursor *cur) {
         if ((s16)cur->step_word < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_801e9190_slot06_10(cur, rec);
+        init_cursor_from_record_header_slot06_10(cur, rec);
     }
 }
 
-void func_801e9190_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
+void init_cursor_from_record_header_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
     int w;
     int new_var;
     cur->rec = rec;
@@ -42,20 +42,20 @@ void func_801e9190_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
     new_var = w >> 16;
     cur->remaining_count = new_var;
     cur->step_word = w;
-    func_8011fcc0(rec);
+    store_rect_entries_and_queue_kinds(rec);
 }
 
-void func_801e91cc_slot06_10(Object *obj) {
+void call_handler_by_state_0_2_slot06_10(Object *obj) {
     data_801ea968_slot06_10[obj->state_0](obj);
 }
 
-void func_801e920c_slot06_10(Object *obj) {
+void advance_state_0_and_init_cursor_slot06_10(Object *obj) {
     obj->field_01 = 0;
     obj->state_0 = obj->state_0 + 1;
-    func_801e9248_slot06_10(data_801ea944_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x28));
+    init_sequence_cursor_from_record_2_slot06_10(data_801ea944_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x28));
 }
 
-void func_801e9248_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
+void init_sequence_cursor_from_record_2_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
     int w;
     int new_var;
     cur->rec = rec;
@@ -69,16 +69,16 @@ void func_801e9248_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
 void func_801e9268_slot06_10(Object *obj) {
     if (game_state.field_65 == 0) {
         if (game_state.field_74 == 0) {
-            func_801e92c8_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));
+            advance_record_cursor_2_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));
         }
     }
 }
 
-void func_801e92a8_slot06_10(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_10(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e92c8_slot06_10(Slot06Cursor *cur) {
+void advance_record_cursor_2_slot06_10(Slot06Cursor *cur) {
     SeqRec *rec;
     int v = cur->remaining_count - 1;
     cur->remaining_count = v;
@@ -88,11 +88,11 @@ void func_801e92c8_slot06_10(Slot06Cursor *cur) {
         if ((s16)cur->step_word < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_801e931c_slot06_10(cur, rec);
+        init_cursor_from_record_header_2_slot06_10(cur, rec);
     }
 }
 
-void func_801e931c_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
+void init_cursor_from_record_header_2_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
     int w;
     int new_var;
     cur->rec = rec;
@@ -101,14 +101,14 @@ void func_801e931c_slot06_10(Slot06Cursor *cur, SeqRec *rec) {
     new_var = w >> 16;
     cur->remaining_count = new_var;
     cur->step_word = w;
-    func_8011fcc0(rec);
+    store_rect_entries_and_queue_kinds(rec);
 }
 
-void func_801e9358_slot06_10(Object *obj) {
+void call_handler_by_state_0_3_slot06_10(Object *obj) {
     data_801ea978_slot06_10[obj->state_0](obj);
 }
 
-void func_801e9398_slot06_10(Object *obj) {
+void init_object_with_countdown_sequence_0_slot06_10(Object *obj) {
     obj->field_0f = 1;
     obj->state_0 = 1;
     obj->base_x = 0x340;
@@ -120,10 +120,10 @@ void func_801e9398_slot06_10(Object *obj) {
     obj->image_row = 0;
     obj->spawn_mode = 4;
     obj->pos_y = obj->pos_y + 0x70;
-    func_80130700(obj, data_801ebbc8_slot06_10[0]);
+    set_sequence_entry(obj, data_801ebbc8_slot06_10[0]);
 }
 
-void func_801e940c_slot06_10(Object *obj) {
+void call_state_1_handler_with_player_a_slot06_10(Object *obj) {
     Object *other;
     if ((game_state.field_65 | game_state.field_74) == 0) {
         other = &player_left;
@@ -137,8 +137,8 @@ void func_801e940c_slot06_10(Object *obj) {
 
 void func_801e9490_slot06_10(Object *obj, Object *other) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801e95c0_slot06_10(obj, (int)other, 0);
-        func_801e960c_slot06_10(obj, other);
+        set_state_1_3_if_pause_flag_2_slot06_10(obj, (int)other, 0);
+        start_sequence_1_when_other_crosses_x_slot06_10(obj, other);
     } else {
         advance_sequence_checked(obj);
     }
@@ -146,9 +146,9 @@ void func_801e9490_slot06_10(Object *obj, Object *other) {
 
 void func_801e94f4_slot06_10(Object *obj, Object *other) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801e95c0_slot06_10(obj, (int)other, 3);
-        func_801e96e8_slot06_10(obj, other);
-        func_801e9678_slot06_10(obj, other);
+        set_state_1_3_if_pause_flag_2_slot06_10(obj, (int)other, 3);
+        count_up_then_start_sequence_3_slot06_10(obj, other);
+        start_sequence_2_when_other_crosses_back_slot06_10(obj, other);
     } else {
         advance_sequence_checked(obj);
     }

@@ -6,7 +6,7 @@
 extern Slot2aSlot data_801e5164_slot2a[][2];
 extern u16 *data_801e52c8_slot2a;
 
-void func_801e14cc_slot2a(Object *obj) {
+void build_selector_sprite_pairs_slot2a(Object *obj) {
     int i;
     Cell20 *a;
     Cell20 *b;

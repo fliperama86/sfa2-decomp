@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014f7f8(Menu *m) {
+void seek_cd_position_with_retries(Menu *m) {
     u8 buf[4];
     int i;
     buf[0] = 0x80;
     if (m->pending_flag != 0) {
-        func_8015057c((Stream *)m);
+        transfer_vab_body((Stream *)m);
         m->pending_flag = 0;
     }
     func_8015cec4(m->cd_sector, &m->cd_position);

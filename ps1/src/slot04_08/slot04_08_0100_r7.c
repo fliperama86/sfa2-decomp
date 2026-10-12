@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3938_slot04_08(Object *o) {
+void count_down_low_byte_then_reset_states_slot04_08(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
 
@@ -26,6 +26,6 @@ void func_801b3938_slot04_08(Object *o) {
         } else if ((t & 0xff00) != 0) {
             o->countdown = t - 0x100;
         }
-        func_80142fe8(o);
+        push_other_by_vel_x(o);
     }
 }

@@ -3,29 +3,29 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0670_slot04_06(Object *obj);
-void func_801b0744_slot04_06(Object *obj);
+void call_handler_by_direction_index_3_slot04_06(Object *obj);
+void call_handler_by_direction_index_4_slot04_06(Object *obj);
 extern ObjectFn data_801c525c_slot04_06[];
 extern ObjectFn data_801c5268_slot04_06[];
 
-void func_801b05f0_slot04_06(Object *obj) {
+void update_sequence_or_finish_sequence_slot04_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
 void func_801b0630_slot04_06(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801b0744_slot04_06(obj);
+        call_handler_by_direction_index_4_slot04_06(obj);
     } else {
-        func_801b0670_slot04_06(obj);
+        call_handler_by_direction_index_3_slot04_06(obj);
     }
 }
 
-void func_801b0670_slot04_06(Object *obj) {
+void call_handler_by_direction_index_3_slot04_06(Object *obj) {
     data_801c525c_slot04_06[obj->direction_index >> 1](obj);
 }
 

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2ec4_slot04_0f(Object *obj);
+void clear_two_byte_blocks_of_object_slot04_0f(Object *obj);
 
-void func_801b2ec4_slot04_0f(Object *obj) {
+void clear_two_byte_blocks_of_object_slot04_0f(Object *obj) {
     int z = 0;
     int i;
     u8 *p;

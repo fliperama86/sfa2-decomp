@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4180_slot04_02(Object *obj) {
+void hit_other_and_spawn_if_health_negative_slot04_02(Object *obj) {
     Object *p = obj->other;
 
     p->field_15b = 1;
-    func_80140598(obj, 0, 3, 0x14, 0x1c, 0, 0);
+    set_other_hit_reaction_state_8(obj, 0, 3, 0x14, 0x1c, 0, 0);
     if ((s16)p->health < 0) {
         obj->field_167 = 0xf;
         game_state.spawn_kind = 6;
-        func_80147000(obj);
+        spawn_game_state_kind_object(obj);
     }
 }

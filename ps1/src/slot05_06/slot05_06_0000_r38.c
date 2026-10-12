@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
-void func_801cc84c_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
+void apply_vertical_velocity_slot05_06(Object *obj);
 
-void func_801cb134_slot05_06(Object *obj) {
+void set_countdown_2_on_step_flag_else_update_slot05_06(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         ((Slot04aObj *)obj)->countdown_2 = 0x10;
@@ -16,8 +16,8 @@ void func_801cb134_slot05_06(Object *obj) {
 }
 
 void func_801cb178_slot05_06(Object *obj) {
-    func_801cc814_slot05_06(obj);
-    func_801cc84c_slot05_06(obj);
+    move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
+    apply_vertical_velocity_slot05_06(obj);
     if (((Slot04aObj *)obj)->countdown_2 != 0) {
         if (--((Slot04aObj *)obj)->countdown_2 == 0) goto go;
     }

@@ -5,12 +5,12 @@
 
 extern u16 data_801a6966;
 
-void func_8013d834(Object *object, u8 index, u8 arg) {
+void update_slot_dpad_match_repeat(Object *object, u8 index, u8 arg) {
     u16 buttons;
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
         return;
     }
     if (data_801a6984[0] == 0) {
@@ -25,7 +25,7 @@ void func_8013d834(Object *object, u8 index, u8 arg) {
         buttons = object->input_bits & 0xf000;
     }
     if (buttons != 0) {
-        func_8013dd8c(object, index, arg);
+        set_next_order_value_by_direction(object, index, arg);
         if (buttons == data_80188f4c) {
             goto apply;
         }

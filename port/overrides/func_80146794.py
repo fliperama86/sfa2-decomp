@@ -16,7 +16,7 @@ Choices of the setup:
     to 15; the word at 0x8c leads to a block of 16 records of 16 bytes of
     random bytes. These are the memory that advance_sequence_checked reads through the
     two pointers, and it writes nothing of them;
-  - func_80120028 (1 argument) is a recorder that returns 0; the log watches
+  - set_flag_and_push_if_mode_8 (1 argument) is a recorder that returns 0; the log watches
     the object whole at every call. The sequence block is not watched: the
     callee advance_sequence_checked does not write it.
 """
@@ -51,12 +51,12 @@ def setup(state, rng, sym) -> Setup:
     state.w16(obj + 0x38, counter)
 
     log = CallLog(state, 256, watch=((obj, 0x394 // 4),))
-    log.replace(sym["func_80120028"], 1, 0)
+    log.replace(sym["set_flag_and_push_if_mode_8"], 1, 0)
     return Setup(args=(obj,), returns_value=False)
 
 
 def control(words):
-    """Alter the argument register at the call: `move a0,s0` in the delay slot of `jal func_80120028` becomes `addiu a0,s0,4`.
+    """Alter the argument register at the call: `move a0,s0` in the delay slot of `jal set_flag_and_push_if_mode_8` becomes `addiu a0,s0,4`.
 
     The build of this override has no empty delay slot there (the compiler puts the move of the argument into it),
     so the control alters that word instead of an empty one. It alters the build of this C (the tool hands it the
@@ -67,7 +67,7 @@ def control(words):
     jal = 0x0C000000 | ((0x80120028 >> 2) & 0x03FFFFFF)
     found = [i for i, w in enumerate(words) if w == jal]
     if len(found) != 1 or words[found[0] + 1] != 0x02002021:
-        raise ValueError("expected one call of func_80120028 with `move a0,s0` in its delay slot")
+        raise ValueError("expected one call of set_flag_and_push_if_mode_8 with `move a0,s0` in its delay slot")
     return found[0] + 1, 0x26040004, "the callee gets its argument + 4"
 
 

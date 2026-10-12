@@ -5,9 +5,9 @@
 
 extern Slot0bFrame data_801e4c30_slot0b[];
 void func_801e1598_slot0b(Slot0bObj *obj, int arg);
-void func_801e1624_slot0b(Slot0bObj *obj);
+void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
-void func_801e13bc_slot0b(Slot0bObj *obj) {
+void start_step_motion_on_anim_end_slot0b(Slot0bObj *obj) {
     if (data_80190468.p->phase_state == 1 || obj->anim.loop < 0) {
         obj->countdown_timer = 0xf;
         obj->fx_step = 0x180000;
@@ -26,5 +26,5 @@ void func_801e13bc_slot0b(Slot0bObj *obj) {
         }
         func_801e1598_slot0b(obj, obj->entry_index + 2);
     }
-    func_801e1624_slot0b(obj);
+    call_step_on_anim_member_slot0b(obj);
 }

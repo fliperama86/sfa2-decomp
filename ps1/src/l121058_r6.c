@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80122630(GameState *state) {
+void update_round_timer_and_end_round(GameState *state) {
     Attacker *a = (Attacker *)state;
     int mode;
     if (a->skip_flag != 0) {
@@ -32,7 +32,7 @@ void func_80122630(GameState *state) {
             a->field_64 = 0;
             a->a6_flag = 1;
         } else {
-            func_801227d4(a, mode);
+            update_round_winner(a, mode);
             func_801229b4(a);
         }
         if (a->field_4d == 0) {
@@ -50,7 +50,7 @@ void func_80122630(GameState *state) {
         a->field_76 = 0;
         player_left.field_165 = 0;
         player_right.field_165 = 0;
-        func_80138964(a);
-        func_801257d0(a);
+        update_ec4_from_round_time_and_health(a);
+        set_focus_kind_copy_from_object_b(a);
     }
 }

@@ -8,8 +8,8 @@ extern Poly28 data_801f46a4_slot06_0f[2][0x84];
 /* Draws a tile layer in perspective: for each row 44 cells, each cell that
    is not blank as a quad whose x offsets are interpolated between two values
    of the layer; the first row drawn is cropped at the top (inferred).
-   The forms of the model func_801e8bc4_slot06_04 are kept as there. */
-void func_801e8c0c_slot06_0f(void) {
+   The forms of the model draw_skewed_tile_layer_quads_slot06_04 are kept as there. */
+void draw_skewed_tile_layer_quads_slot06_0f(void) {
     Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
     u16 sx;
     u16 sy;

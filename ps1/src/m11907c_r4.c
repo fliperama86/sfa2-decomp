@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011a784(void) {
+void select_buffers_and_run_first_setup(void) {
     int n = data_801a27d0;
     data_801a4fe8 = (u8 *)data_801987cc[n];
     data_801a697c = (u8 *)data_8018db18[n];
@@ -13,13 +13,13 @@ void func_8011a784(void) {
     if (game_state.setup_done_flag == 0) {
         func_80134234();
         func_8011a880();
-        func_8011acbc();
+        draw_all_block172_entries();
         func_8011b594();
-        func_8011b708();
-        func_80136ccc();
+        call_handler_by_mode_for_active_entries();
+        call_kind_handler_if_flag_set();
         game_state.setup_done_flag = 1;
         data_801a695c = 0;
     }
     data_801aa540 = 0;
-    func_8011ff24();
+    copy_three_globals_and_clear_three();
 }

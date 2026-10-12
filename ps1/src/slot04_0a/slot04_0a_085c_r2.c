@@ -10,6 +10,6 @@ void func_801b2ec4_slot04_0a(Object *obj) {
         obj->active_state = 1;
         obj->active_flag = 0;
         obj->state_3++;
-        func_801307e0(obj, 0x22);
+        set_sequence_by_side_and_mode(obj, 0x22);
     }
 }

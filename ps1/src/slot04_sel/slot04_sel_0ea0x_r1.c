@@ -25,18 +25,18 @@ static inline Object *player_at(int n) {
  * each player the handler picked by its selection record's state, and
  * clears the records when both agree on a choice or the screen state changed.
  */
-void func_801b0ea0_slot04_sel(void) {
+void update_select_screen_step_b_slot04_sel(void) {
     Slot04SelRec *rec0;
     Slot04SelRec *rec1;
 
-    func_801519b4(data_801b701c_slot04_sel[player_at(0)->side]);
-    func_801519b4(data_801b701c_slot04_sel[player_at(1)->side]);
-    func_801519b4(data_801b6fcc_slot04_sel[player_at(0)->side]);
-    func_801519b4(data_801b6fcc_slot04_sel[player_at(1)->side]);
+    add_item_to_table(data_801b701c_slot04_sel[player_at(0)->side]);
+    add_item_to_table(data_801b701c_slot04_sel[player_at(1)->side]);
+    add_item_to_table(data_801b6fcc_slot04_sel[player_at(0)->side]);
+    add_item_to_table(data_801b6fcc_slot04_sel[player_at(1)->side]);
     data_801b797c_slot04_sel = 0xa8;
     data_801b797e_slot04_sel = 0x30;
-    func_801519b4(&data_801b7978_slot04_sel);
-    func_801519b4(data_801b7648_slot04_sel);
+    add_item_to_table(&data_801b7978_slot04_sel);
+    add_item_to_table(data_801b7648_slot04_sel);
     rec0 = data_801b9cf0_slot04_sel;
     data_801b6e70_slot04_sel[rec0->state](player_at(0), rec0);
     rec1 = rec0 + 1;

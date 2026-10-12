@@ -22,7 +22,7 @@ void func_801b1ecc_slot04_08(Object *obj) {
         if (obj->field_49 != 0) {
             i += 3;
         }
-        func_80140cd8(obj, (s16)(data_801c3c54_slot04_08[i] | m), 0);
+        apply_damage_to_other_return_defeated(obj, (s16)(data_801c3c54_slot04_08[i] | m), 0);
     }
     update_sequence(obj);
 }

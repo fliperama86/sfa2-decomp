@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801246cc(Object *a, Triple *b) {
+void update_option_menu_selection(Object *a, Triple *b) {
     int i;
     TextBuf *t0 = &data_8016e8fc;
     TextBuf *t1 = &data_8016e92c;

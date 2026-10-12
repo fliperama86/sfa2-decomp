@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80144e18(Object *object) {
+void set_state_1_from_config_mode_5(Object *object) {
     if (game_state.config->field_64 == 0 && game_state.config->mode == 5) {
         object->state_1 = 2;
         if (game_state.config->mode_flag_b == 0) {

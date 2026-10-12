@@ -11,7 +11,7 @@ void func_801b25fc_slot04_0a(Object *obj) {
 
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     obj->field_29c = 2;
     obj->kind10_flag = 0xff;
     i = obj->direction_index >> 1;
@@ -21,5 +21,5 @@ void func_801b25fc_slot04_0a(Object *obj) {
     obj->field_165 = 0;
     play_sound_at(obj, obj->side, 0x31c);
     func_80145d20(obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x39);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x39);
 }

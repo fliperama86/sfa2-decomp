@@ -9,7 +9,7 @@
    argument in each path before the shared call. Also in this form from the
    search: the early goto to the shared call when the mask is zero, and entry
    declared unsigned. */
-void func_8013e2b0(Object *object, int index, int arg)
+void update_slot_input_step_with_timer(Object *object, int index, int arg)
 {
   unsigned entry;
   int mask;
@@ -19,7 +19,7 @@ void func_8013e2b0(Object *object, int index, int arg)
   {
     arg &= 0xff;
   call_a8:
-    func_8013f2a8(object, index, arg);
+    reset_slot_stage_clear_result(object, index, arg);
     return;
   }
   arg &= 0xff;
@@ -32,9 +32,9 @@ void func_8013e2b0(Object *object, int index, int arg)
     if (((mask & entry) == 0) || (((s16) entry) != ((s16) (object->input_bits_2 & 0xf0ff))))
       goto call_a8;
     if (entry & 1)
-      func_8013f2d8(object, index, arg);
+      reset_slot_stage_set_result(object, index, arg);
     else
-      func_8013f0c8(object, index, arg);
+      set_slot_random_timer_and_advance(object, index, arg);
     return;
   }
   if (!(mask & entry))
@@ -44,7 +44,7 @@ void func_8013e2b0(Object *object, int index, int arg)
     return;
   }
   if (entry & 1)
-    func_8013f2d8(object, index, arg);
+    reset_slot_stage_set_result(object, index, arg);
   else
-    func_8013f0c8(object, index, arg);
+    set_slot_random_timer_and_advance(object, index, arg);
 }

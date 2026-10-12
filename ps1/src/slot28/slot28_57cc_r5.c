@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015b50_slot28(Object *obj) {
+void blink_object_then_advance_sequence_stage_slot28(Object *obj) {
     if (--obj->vel_x == 0) {
         obj->vel_x = 0x20;
         obj->state_1 = 0;
@@ -15,7 +15,7 @@ void func_80015b50_slot28(Object *obj) {
             if (((u8 *)&obj->countdown)[1] == 2) {
                 *(u16 *)&obj->pos_y -= 8;
             }
-            func_80130768(obj, ((u8 *)&obj->countdown)[1] + 7, (SequenceStep **)obj->box_tables);
+            set_sequence_from_table_5(obj, ((u8 *)&obj->countdown)[1] + 7, (SequenceStep **)obj->box_tables);
         }
     } else {
         obj->variant_index = obj->variant_index ^ 1;

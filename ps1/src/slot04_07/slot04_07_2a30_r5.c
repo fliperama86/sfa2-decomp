@@ -7,16 +7,16 @@ extern s16 *data_801c2060_slot04_07[];
 
 void func_801b3120_slot04_07(Object *obj);
 
-void func_801b3054_slot04_07(Object *obj) {
+void update_sequence_or_end_set_other_code_2_slot04_07(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
         obj->other->other_state_code = 5;
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     }
 }
 
-void func_801b309c_slot04_07(Object *obj) {
+void start_sequence_from_table_or_fall_slot04_07(Object *obj) {
     int a;
 
     obj->state_3++;
@@ -25,7 +25,7 @@ void func_801b309c_slot04_07(Object *obj) {
     a = obj->direction_index >> 1;
     a = data_801c2060_slot04_07[a][(s16)obj->countdown >> 1];
     if (a >= 0) {
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
     } else {
         func_801b3120_slot04_07(obj);
     }

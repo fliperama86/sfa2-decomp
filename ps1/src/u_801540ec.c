@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801540ec(Object *o)
+void format_object_score_text(Object *o)
 {
   u8 d[7];
   int i;
@@ -54,6 +54,6 @@ void func_801540ec(Object *o)
     }
     while (i < 6);
     t->buf[i] = d[6 - i] + 0x30;
-    func_801519b4(t);
+    add_item_to_table(t);
   }
 }

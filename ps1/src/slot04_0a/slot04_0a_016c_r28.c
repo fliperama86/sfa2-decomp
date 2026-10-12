@@ -5,26 +5,26 @@
 
 extern void (*data_801c0840_slot04_0a[])(Object *);
 
-void func_801b4160_slot04_0a(Object *obj) {
+void call_handler_by_state_1_slot04_0a(Object *obj) {
     data_801c0840_slot04_0a[obj->state_1](obj);
 }
 
-void func_801b41a0_slot04_0a(Object *obj) {
-    func_80137b64(obj);
+void load_velocities_from_table_6_slot04_0a(Object *obj) {
+    update_object_motion_unless_paused(obj);
 }
 
-void func_801b41c0_slot04_0a(Object *obj) {
-    func_80137be0(obj);
+void load_velocities_from_table_7_slot04_0a(Object *obj) {
+    call_state_2_handler_267c_unless_paused(obj);
 }
 
 void func_801b41e0_slot04_0a(Object *o) {
-    func_80137cc0(o);
+    call_state_2_handler_2684_unless_paused(o);
 }
 
-void func_801b4200_slot04_0a(Object *obj) {
-    func_80137dc8(obj);
+void load_velocities_from_table_8_slot04_0a(Object *obj) {
+    call_state_2_handler_268c_unless_paused(obj);
 }
 
-void func_801b4220_slot04_0a(Object *obj) {
-    func_80137f00(obj);
+void load_velocities_from_table_9_slot04_0a(Object *obj) {
+    call_handler_2694_by_state_2(obj);
 }

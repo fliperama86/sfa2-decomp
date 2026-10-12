@@ -20,7 +20,7 @@ void func_801b22e0_slot04_05(Object *obj) {
     }
 }
 
-void func_801b2370_slot04_05(Object *obj) {
+void advance_state_3_when_step_flags_byte_one_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
         obj->active_state = 1;
         obj->state_3++;
@@ -28,11 +28,11 @@ void func_801b2370_slot04_05(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b23b0_slot04_05(Object *obj) {
+void update_air_motion_land_and_set_bounce_a_slot04_05(Object *obj) {
     if (obj->vel_y < 0) {
         obj->accel_y = obj->accel_y - 0x2000;
     }
-    if ((u8)func_80130184(obj) != 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if (*(u8 *)&obj->step_flags != 2) {
             update_sequence(obj);
         }

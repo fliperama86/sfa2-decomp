@@ -6,7 +6,7 @@
 extern u16 *data_80026c30_slot27[];
 extern Slot27Rec9328 data_80029328_slot27[];
 
-void func_80013b74_slot27(Object *obj) {
+void load_palette_anim_from_table_index_slot27(Object *obj) {
     u16 *src;
     int i;
     int base;
@@ -24,5 +24,5 @@ void func_80013b74_slot27(Object *obj) {
         data_801a2b84[game_state.other_object->side * 16 + i] = *(u16 *)((u8 *)0x800ed800 + base + i * 2);
         data_801a2b84[0xa00 + game_state.other_object->side * 16 + i] = *(u16 *)((u8 *)0x800ed800 + base + i * 2);
     }
-    func_80137220(0, 0);
+    queue_image_upload_job(0, 0);
 }

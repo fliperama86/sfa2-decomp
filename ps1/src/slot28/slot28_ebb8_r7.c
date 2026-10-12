@@ -24,16 +24,16 @@ void func_8001f698_slot28(Object *obj) {
         h->countdown_timer = 0x258;
         h->pass_index++;
         func_800200ec_slot28();
-        func_80130768(data_80051b00_slot28[0], 2, data_80041498_slot28);
+        set_sequence_from_table_5(data_80051b00_slot28[0], 2, data_80041498_slot28);
         x = 0x38;
         p = data_80051b04_slot28[0];
         p->pos_x = x;
         p->pos_y = 0x20;
-        func_80130768(p, 2, data_800414a4_slot28);
+        set_sequence_from_table_5(p, 2, data_800414a4_slot28);
         p = data_80051b08_slot28.p;
         p->pos_x = x;
         p->pos_y = -0x60;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x71;
@@ -52,7 +52,7 @@ void func_8001f698_slot28(Object *obj) {
             ((Slot28Obj *)p)->sequence_ptr = data_800414d4_slot28;
         }
         play_sound_at(0, 0, 0x304);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
         func_8002005c_slot28(obj, 1);
     }
 }

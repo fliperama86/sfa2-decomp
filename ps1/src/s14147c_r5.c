@@ -6,14 +6,14 @@
 
 void func_801428e4(Object *object) {
     if (object->mode_flag_2 != 0) {
-        func_80142968(object);
+        update_meter_by_direction_index(object);
     } else {
-        func_80141f28(object, table_8017ad54[object->field_255 >> 1]);
+        add_to_meter_clamped(object, table_8017ad54[object->field_255 >> 1]);
     }
 }
 
 void func_80142940(Object *object) {
     object->direction_index = 4;
     object->field_255 = 4;
-    func_80142968(object);
+    update_meter_by_direction_index(object);
 }

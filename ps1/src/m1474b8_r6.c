@@ -22,6 +22,6 @@ void func_80148d48(Object *object) {
         }
         *(s32 *)&object->pos_x_frac = *(s32 *)&object->pos_x_frac + *wobble;
         advance_sequence_checked(object);
-        func_80120028(object);
+        set_flag_and_push_if_mode_8(object);
     }
 }

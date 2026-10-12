@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013dce0(Object *object, u8 index, u8 unused) {
+void set_neighbor_order_values_from_entry(Object *object, u8 index, u8 unused) {
     Quad order = data_8016d9a4;
     int step = object->slots[index].entry_index;
 
@@ -15,7 +15,7 @@ void func_8013dce0(Object *object, u8 index, u8 unused) {
     data_80188f50 = order.v[data_80188f50];
 }
 
-void func_8013dd8c(Object *object, u8 index) {
+void set_next_order_value_by_direction(Object *object, u8 index) {
     Quad order = data_8016d9a4;
     int step = object->slots[index].entry_index;
 

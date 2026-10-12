@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800172d0_slot12(Object *o);
-void func_80017334_slot12(Object *o);
+void set_slot12_row_prim_positions_slot12(Object *o);
+void set_slot12_end_prim_and_hud_positions_slot12(Object *o);
 
 void func_800171cc_slot12(Object *obj) {
     if (game_state.field_2bc == 5) {
@@ -19,18 +19,18 @@ void func_800171f8_slot12(Object *o) {
     if (obj->field_4c == 0) {
         obj->tick_count++;
     }
-    func_800172d0_slot12(o);
-    func_80017334_slot12(o);
+    set_slot12_row_prim_positions_slot12(o);
+    set_slot12_end_prim_and_hud_positions_slot12(o);
 }
 
-void func_80017258_slot12(Object *obj) {
+void advance_state_1_and_set_stage_3_slot12(Object *obj) {
     obj->state_1++;
     game_state.field_2bc = 3;
 }
 
-void func_8001727c_slot12(Object *obj) {
-    func_80017334_slot12(obj);
-    func_800172d0_slot12(obj);
+void update_positions_advance_state_slot12(Object *obj) {
+    set_slot12_end_prim_and_hud_positions_slot12(obj);
+    set_slot12_row_prim_positions_slot12(obj);
     if (game_state.field_2bc == 10) {
         obj->state_0++;
     }

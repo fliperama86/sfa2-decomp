@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f6ce0_slot06_04[2][0x130];
 
 /* What it does (inferred, not an original name): a relative of
-   func_801e9080_slot06_00 in the module of stage 04. It draws a tile map as
+   draw_object_tile_grid_sprites_slot06_00 in the module of stage 04. It draws a tile map as
    sprite records. The object selects a layer by its field_0e (8, 4 or 0xc pick
    one of three layer blocks). For layer 8 the x position is moved by a
    parallax term: (layer scroll_x - layer ref_x) * object parallax_factor / 64,
@@ -26,7 +26,7 @@ extern Slot06Tile data_801f6ce0_slot06_04[2][0x130];
    0xc), x and y are read without a first value. Nothing is claimed here
    about whether such a call happens, or about what the original's registers
    hold then. */
-void func_801e99b4_slot06_04(Object *object) {
+void draw_tile_grid_object_with_parallax_slot06_04(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

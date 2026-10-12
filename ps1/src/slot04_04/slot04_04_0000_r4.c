@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2d20_slot04_04(Object *obj) {
+void spawn_pooled_object_at_sequence_end_slot04_04(Object *obj) {
     Object *p;
 
     if (((s16)obj->step_flags & 0x8000) == 0) {
@@ -33,6 +33,6 @@ void func_801b2d20_slot04_04(Object *obj) {
             p->data_ptr_b = obj->data_ptr_b;
             play_side_sound_at(obj, obj->side, 0x11);
         }
-        func_801307e0(obj, obj->direction_index + 0x5a);
+        set_sequence_by_side_and_mode(obj, obj->direction_index + 0x5a);
     }
 }

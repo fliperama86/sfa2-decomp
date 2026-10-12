@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c0744_slot04_03[];
 
-void func_801b3130_slot04_03(Object *o) {
+void count_down_low_byte_then_reset_states_slot04_03(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
 
@@ -28,10 +28,10 @@ void func_801b3130_slot04_03(Object *o) {
         } else if ((t & 0xff00) != 0) {
             o->countdown = t - 0x100;
         }
-        func_80142fe8(o);
+        push_other_by_vel_x(o);
     }
 }
 
-void func_801b3204_slot04_03(Object *obj) {
+void call_handler_by_input_dir_0_3_slot04_03(Object *obj) {
     data_801c0744_slot04_03[obj->input_dir_0](obj);
 }

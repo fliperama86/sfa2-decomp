@@ -6,11 +6,11 @@
 extern ObjectRef data_8005198c_slot28;
 extern ObjectRef data_80051958_slot28;
 
-void func_80019090_slot28(Object *obj);
+void scroll_two_objects_x_with_wrap_slot28(Object *obj);
 void func_80019100_slot28(Object *obj, int arg);
-void func_80018c70_slot28(Object *obj) {
+void scroll_then_advance_pass_to_sequence_4_slot28(Object *obj) {
     Object *p;
-    func_80019090_slot28(obj);
+    scroll_two_objects_x_with_wrap_slot28(obj);
     p = data_8005198c_slot28.p;
     if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;

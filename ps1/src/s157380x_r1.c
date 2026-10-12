@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80157380(Object *obj) {
+void spawn_three_child_objects(Object *obj) {
     Object *p[3];
     /* s3 gets no value in this function: the three stores of it below write what the register holds on entry, as the original's instructions do. Nothing is claimed here about what that is. func_80142c70 has the same local. */
     s16 s3;
 
     if (data_80197f10 >= 3) {
         if (obj->field_49 == 0) {
-            func_801460ec((u32 *)p);
+            get_three_pool_objects_sorted((u32 *)p);
             p[0]->active_count = 1;
             p[0]->field_02 = 0xb;
             p[0]->table_index = 1;

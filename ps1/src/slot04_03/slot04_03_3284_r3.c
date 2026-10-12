@@ -14,22 +14,22 @@ void func_801b3530_slot04_03(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         game_state.state_param = 0x30;
-        func_80146478(obj, 2, 0, 0x40);
-        if ((func_80140cd8(obj, 0x10, 0) & 0xff) != 0) {
+        spawn_effect_at_object_offset(obj, 2, 0, 0x40);
+        if ((apply_damage_to_other_return_defeated(obj, 0x10, 0) & 0xff) != 0) {
             ref_other.p = obj->other;
             play_sound_at(ref_other.p, ref_other.p->side, 0x336);
         } else {
             ref_other.p = obj->other;
             play_sound_at(ref_other.p, ref_other.p->side, 0x304);
         }
-        func_801307e0(obj, 0x1a);
+        set_sequence_by_side_and_mode(obj, 0x1a);
     }
 }
 
 void func_801b3664_slot04_03(Object *obj) {
     if (obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80140770(obj, 0, 0xa, -0x200, 0, 0, 0);
+        set_other_hit_reaction_state_0(obj, 0, 0xa, -0x200, 0, 0, 0);
     }
     update_sequence(obj);
 }

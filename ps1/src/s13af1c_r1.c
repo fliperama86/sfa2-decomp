@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013af1c(Object *a, Object *b, Box32 *box) {
+void select_min_placement_and_test(Object *a, Object *b, Box32 *box) {
     if (data_80188ed0.in_00 < data_80188ed0.in_04) {
         if (data_80188ed0.in_00 < data_80188ed0.in_08) {
             func_8013afa4(a, b, box);
@@ -22,7 +22,7 @@ void func_8013afa4(Object *a, Object *b, Box32 *box) {
     data_80188ed0.out_40 = data_80188ed0.f_24;
     data_80188ed0.out_44 = data_80188ed0.f_10;
     data_80188ed0.out_48 = data_80188ed0.f_28;
-    func_8013b0c4(a, b, box);
+    spawn_hit_effects_and_play_sounds(a, b, box);
 }
 
 void func_8013b004(Object *a, Object *b, Box32 *box) {
@@ -30,7 +30,7 @@ void func_8013b004(Object *a, Object *b, Box32 *box) {
     data_80188ed0.out_40 = data_80188ed0.f_2c;
     data_80188ed0.out_44 = data_80188ed0.f_18;
     data_80188ed0.out_48 = data_80188ed0.f_30;
-    func_8013b0c4(a, b, box);
+    spawn_hit_effects_and_play_sounds(a, b, box);
 }
 
 void func_8013b064(Object *a, Object *b, Box32 *box) {
@@ -38,5 +38,5 @@ void func_8013b064(Object *a, Object *b, Box32 *box) {
     data_80188ed0.out_40 = data_80188ed0.f_34;
     data_80188ed0.out_44 = data_80188ed0.f_20;
     data_80188ed0.out_48 = data_80188ed0.f_38;
-    func_8013b0c4(a, b, box);
+    spawn_hit_effects_and_play_sounds(a, b, box);
 }

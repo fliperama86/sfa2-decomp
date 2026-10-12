@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014bfa8(Object *object) {
+void branch_script_if_other_health_below_arg(Object *object) {
     if ((s16) object->other->health < *(s16 *) data_80189460++) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }

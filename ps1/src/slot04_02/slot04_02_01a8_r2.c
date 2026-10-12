@@ -3,29 +3,29 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b0270_slot04_02(Object *obj) {
+void update_range_check_or_seq_27_with_hold_slot04_02(Object *obj) {
     int one = 1;
 
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
-            func_801b631c_slot04_02(obj, 1, 2, 0, 0);
+            set_object_states_0_to_3_slot04_02(obj, 1, 2, 0, 0);
             return;
         }
         if (obj->direction_index == 2 && (obj->input_bits_2 & 0x8000) != 0 && obj->field_262 != 0) {
             obj->active_flag_3 = one;
             obj->state_3 = 2;
             obj->field_157 = 0;
-            func_80141f28(obj, 1);
-            func_80130ec0(obj);
+            add_to_meter_clamped(obj, 1);
+            reset_direction_and_action_fields(obj);
             obj->sequence_hold_flag = one;
             obj->field_278 = one;
-            func_801307e0(obj, 0x27);
+            set_sequence_by_side_and_mode(obj, 0x27);
             return;
         }
     }
     obj->active_flag_3 = one;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }

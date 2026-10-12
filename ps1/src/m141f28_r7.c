@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80147238(Object *object) {
+void start_spawned_object_sound_and_sequence(Object *object) {
     u8 phase;
     u8 key;
     data_80189458 = 0;
@@ -15,8 +15,8 @@ void func_80147238(Object *object) {
         play_sound_at(0, 0, 0x32c);
         set_cd_volume(2);
         object->field_01 = 1;
-        func_801476f8(object);
-        func_80130768(object, game_state.spawn_kind, table_8017cbac);
+        set_countdown_random_by_active_state(object);
+        set_sequence_from_table_5(object, game_state.spawn_kind, table_8017cbac);
         key = object->active_state >> 1;
         if (key == 0) {
             bytes_8017cb18.first = 0;
@@ -31,7 +31,7 @@ void func_80147238(Object *object) {
             bytes_8017cb18.first = 1;
             bytes_8017cb18.second = 0x10;
         }
-        func_801477ac(object, bytes_8017cb18.first, bytes_8017cb18.second);
+        store_image_row_and_queue_job(object, bytes_8017cb18.first, bytes_8017cb18.second);
     } else {
         object->state_0 = phase + 3;
     }

@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_80138f74(void) {
+void check_player_hits_and_set_defeat_bits(void) {
     Object *pair = &player_left;
 
-    func_80139a1c();
-    func_80139304(pair, pair + 1);
-    func_80139a1c();
-    func_80139304(pair + 1, pair);
+    reset_hit_results();
+    check_hit_of_a_wide_box_against_b_boxes(pair, pair + 1);
+    reset_hit_results();
+    check_hit_of_a_wide_box_against_b_boxes(pair + 1, pair);
     if ((short)player_left.health < 0) {
         game_state.config->defeat_side_bits |= 2;
     }

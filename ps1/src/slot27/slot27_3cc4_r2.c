@@ -7,11 +7,11 @@ extern void (*data_80026ed0_slot27[])(Object *);
 extern void (*data_80026ee0_slot27[])(Object *);
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-extern void func_8001435c_slot27(Object *obj);
-extern void func_80014298_slot27(Object *obj);
+extern void set_position_from_side_table_of_other_slot27(Object *obj);
+extern void copy_other_palette_to_rows_slot27(Object *obj);
 extern SequenceStep *data_80027bc4_slot27[];
 
-void func_80013ee4_slot27(Object *object) {
+void call_handler_by_state_0_2_slot27(Object *object) {
     data_80026ed0_slot27[object->state_0](object);
 }
 
@@ -19,7 +19,7 @@ void func_80013f24_slot27(Object *object) {
     data_80026ee0_slot27[object->state_1](object);
 }
 
-void func_80013f64_slot27(Object *obj) {
+void init_object_from_other_side_and_kind_2_slot27(Object *obj) {
     Object *o;
 
     obj->ot_depth = 8;
@@ -37,6 +37,6 @@ void func_80013f64_slot27(Object *obj) {
     obj->facing_side = obj->image_row ^ 1;
     obj->table_index = o->kind;
     obj->variant_index = obj->table_index;
-    func_8001435c_slot27(obj);
-    func_80014298_slot27(obj);
+    set_position_from_side_table_of_other_slot27(obj);
+    copy_other_palette_to_rows_slot27(obj);
 }

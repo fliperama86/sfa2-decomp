@@ -19,12 +19,12 @@ void func_801c8428_slot05_06(Object *obj) {
         obj->state_3 = 0;
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }
 
-void func_801c84b0_slot05_06(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_2_slot05_06(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
 void func_801c84d0_slot05_06(Object *obj) {

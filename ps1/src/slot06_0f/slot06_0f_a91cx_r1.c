@@ -6,7 +6,7 @@
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
-void func_801ea91c_slot06_0f(Object *obj, int idx) {
+void set_sequence_from_other_side_table_slot06_0f(Object *obj, int idx) {
     SequenceStep **tbl;
 
     if (game_state.other_object->side == 0) {
@@ -14,5 +14,5 @@ void func_801ea91c_slot06_0f(Object *obj, int idx) {
     } else {
         tbl = data_1f800164;
     }
-    func_80130768(obj, idx, tbl);
+    set_sequence_from_table_5(obj, idx, tbl);
 }

@@ -3,34 +3,34 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3408_slot04_01(Object *obj) {
+void update_hit_attack_with_damage_to_other_slot04_01(Object *obj) {
     u16 t = obj->step_flags;
     Object *p = obj->other;
 
     if ((u8)t != 0) {
         obj->step_flags = t & 0xff00;
-        func_80146478(obj, 1, -0x3e, 0x39);
+        spawn_effect_at_object_offset(obj, 1, -0x3e, 0x39);
         play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 8);
-        if ((u8)func_80140cd8(obj, 0, 0) != 0) {
-            func_80140770(obj, 1, 5, 0, 0, 0, 0);
+        if ((u8)apply_damage_to_other_return_defeated(obj, 0, 0) != 0) {
+            set_other_hit_reaction_state_0(obj, 1, 5, 0, 0, 0, 0);
             obj->state_3++;
             play_sound_at(p, ((Slot04aObj *)p)->side, 0x30b);
             play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 7);
-            func_801307e0(obj, 0x2f);
+            set_sequence_by_side_and_mode(obj, 0x2f);
             return;
         }
         obj->countdown++;
         play_sound_at(p, ((Slot04aObj *)p)->side, 0x30b);
     }
-    func_80140fe0(obj);
-    if ((s16)obj->countdown == 0 || (p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+    update_sequence_by_pressed_bytes(obj);
+    if ((s16)obj->countdown == 0 || (p->field_15b != 0 && (u8)drain_gauge_by_other_input(obj) == 0)) {
         update_sequence(obj);
         return;
     }
-    func_80146478(obj, 1, -0x3e, 0x39);
-    func_80140770(obj, 1, 5, 0, 0, 0, 1);
+    spawn_effect_at_object_offset(obj, 1, -0x3e, 0x39);
+    set_other_hit_reaction_state_0(obj, 1, 5, 0, 0, 0, 1);
     play_sound_at(p, ((Slot04aObj *)p)->side, 0x30d);
     obj->state_3++;
     play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 7);
-    func_801307e0(obj, 0x2f);
+    set_sequence_by_side_and_mode(obj, 0x2f);
 }

@@ -7,7 +7,7 @@
 extern Rect data_80189470;
 extern u32 table_8017d96c[];
 extern u16 table_8017d9bc[];
-void func_80136bc0(void);
+void clear_four_arrays_and_call_kind_handlers(void);
 void func_8015808c(Rect *rect, int a, int b);
 void func_801451ac(int a);
 
@@ -25,7 +25,7 @@ void func_801451ac(int a);
  * with one more routine call.
  *
  */
-void func_8014e890(int arg) {
+void load_kind_images_to_vram(int arg) {
     int row;
     int col;
     int page;
@@ -39,15 +39,15 @@ void func_8014e890(int arg) {
     Rect *q;
 
     data_8019032d = 1;
-    func_80119144(2, 7);
-    func_801192bc(1);
+    set_voice_thread_entry_and_open(2, 7);
+    request_sound_command_and_switch_thread(1);
     close_vab_and_sep(2);
     close_vab_and_sep(3);
     func_8014f3b8(3, 1);
     func_8014f3b8(2, arg);
     /* The local g only feeds the stand-in term below. */
     g = &game_state;
-    func_80136bc0();
+    clear_four_arrays_and_call_kind_handlers();
     row = 0;
     col = 0;
     page = 0;

@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e80ec_slot0f(Object *obj, int a);
-void func_800e7e8c_slot0f(Object *obj, int a);
-void func_800e7c20_slot0f(Object *obj, int a);
-void func_800e7a4c_slot0f(Object *obj, int a);
+void init_slot0f_cell_record_with_sequence_slot0f(Object *obj, int a);
+void build_name_text_record_slot0f(Object *obj, int a);
+void build_hex_value_text_record_slot0f(Object *obj, int a);
+void build_win_count_text_record_slot0f(Object *obj, int a);
 
 void func_800e78b4_slot0f(Object *obj) {
     if (game_state.field_2bc == 10) {
@@ -16,19 +16,19 @@ void func_800e78b4_slot0f(Object *obj) {
 }
 
 void func_800e78e0_slot0f(Object *obj) {
-    func_800e80ec_slot0f(obj, 0);
-    func_800e7e8c_slot0f(obj, 0);
-    func_800e7c20_slot0f(obj, 0);
+    init_slot0f_cell_record_with_sequence_slot0f(obj, 0);
+    build_name_text_record_slot0f(obj, 0);
+    build_hex_value_text_record_slot0f(obj, 0);
     if (game_state.mode_flag_2 != 0) {
-        func_800e7a4c_slot0f(obj, 0);
+        build_win_count_text_record_slot0f(obj, 0);
     }
 }
 
 void func_800e7940_slot0f(Object *obj) {
-    func_800e80ec_slot0f(obj, 1);
-    func_800e7e8c_slot0f(obj, 1);
-    func_800e7c20_slot0f(obj, 1);
+    init_slot0f_cell_record_with_sequence_slot0f(obj, 1);
+    build_name_text_record_slot0f(obj, 1);
+    build_hex_value_text_record_slot0f(obj, 1);
     if (game_state.mode_flag_2 != 0) {
-        func_800e7a4c_slot0f(obj, 1);
+        build_win_count_text_record_slot0f(obj, 1);
     }
 }

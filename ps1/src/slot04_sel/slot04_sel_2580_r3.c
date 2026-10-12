@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2aa4_slot04_sel(u8 *dst, u8 n) {
+void write_two_digit_decimal_ascii_slot04_sel(u8 *dst, u8 n) {
     u8 buf[2];
     int i;
     for (i = 0; i < 2; i++) {

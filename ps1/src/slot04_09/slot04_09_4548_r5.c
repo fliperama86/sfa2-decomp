@@ -6,16 +6,16 @@
 extern s32 data_801c7de8_slot04_09[];
 extern u8 data_801c7de4_slot04_09[];
 
-void func_801b4b04_slot04_09(Object *o) {
+void start_dash_velocity_from_direction_table_slot04_09(Object *o) {
     int a = 0x39;
     o->active_flag_4 = 1;
     o->field_225 = 1;
     o->state_3++;
     if (o->counter == 0) {
         o->field_225 = 0;
-        func_80141f28(o, 6);
+        add_to_meter_clamped(o, 6);
     }
-    func_80138ae8(&game_state, o);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     o->vel_y = 0;
     o->accel_y = 0;
     o->vel_x = data_801c7de8_slot04_09[o->direction_index];
@@ -28,5 +28,5 @@ void func_801b4b04_slot04_09(Object *o) {
     if (o->field_49 != 0) {
         a = 0x4c;
     }
-    func_801307e0(o, (o->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + a);
 }

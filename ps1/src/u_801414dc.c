@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-u16 *func_801414dc(Object *object)
+u16 *get_direction_table_entry_pointer(Object *object)
 {
   u8 x = object->input_dir_0;
   u8 y = object->input_dir_second;

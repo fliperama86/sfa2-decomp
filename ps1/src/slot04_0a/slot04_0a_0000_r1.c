@@ -22,7 +22,7 @@ void func_801b0000_slot04_0a(Object *obj) {
     for (; i < 0x28; i++) {
         dst[i] = data_801c0450_slot04_0a[i];
     }
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0xa;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800178c8_slot27(Tx *tx) {
+void init_draw_mode_prim_with_merge_slot27(Tx *tx) {
     func_80158a2c((Prim *)tx, 0, 0, 0, 0);
     tx->mode_id = 3;
     tx->prim_code = 0x74;

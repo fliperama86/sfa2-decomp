@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b031c_slot04_0a(Object *obj) {
+void reset_states_when_step_flag_negative_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;

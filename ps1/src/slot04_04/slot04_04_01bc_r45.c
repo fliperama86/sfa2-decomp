@@ -9,7 +9,7 @@ void func_801b3ec8_slot04_04(Object *obj) {
     }
 }
 
-void func_801b3f00_slot04_04(Object *obj) {
+void reset_states_and_health_slot04_04(Object *obj) {
     obj->state_0 = 1;
     obj->active_count = 1;
     obj->state_1 = 0;

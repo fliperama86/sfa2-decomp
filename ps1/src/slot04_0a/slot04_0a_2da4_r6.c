@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3424_slot04_0a(Object *obj) {
+void start_sequence_46_or_47_by_attack_param_slot04_0a(Object *obj) {
     int a;
 
     a = 0x46;
@@ -14,5 +14,5 @@ void func_801b3424_slot04_0a(Object *obj) {
     if (obj->attack_param_d != 0) {
         a = 0x47;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }

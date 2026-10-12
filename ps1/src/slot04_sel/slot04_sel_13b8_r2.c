@@ -5,7 +5,7 @@
 
 extern u16 data_801b9d24_slot04_sel;
 
-void func_801b16b4_slot04_sel(void) {
+void set_mode_bits_from_players_and_advance_slot04_sel(void) {
     Object *r = &player_right;
     game_state.field_09 = 0xff;
     if (player_left.mode_flag_2 == 0) {
@@ -18,7 +18,7 @@ void func_801b16b4_slot04_sel(void) {
     } else {
         game_state.mode &= 0xfd;
     }
-    func_801257f4((Select *)&game_state);
+    select_kind_for_second_player((Select *)&game_state);
     data_801b9d24_slot04_sel = 0x40;
     data_8018f5a0->step_index_2++;
 }

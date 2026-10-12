@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b56e0_slot04_17(Object *obj);
+int apply_velocity_and_acceleration_slot04_17(Object *obj);
 
-void func_801b29b0_slot04_17(Object *obj) {
+void update_air_land_or_active_flag_sequence_slot04_17(Object *obj) {
     s16 t;
     int a;
     u8 s;
 
-    if (func_801b56e0_slot04_17(obj) < 0) {
+    if (apply_velocity_and_acceleration_slot04_17(obj) < 0) {
         t = obj->ground_y;
         if (obj->pos_y >= t) {
             obj->pos_y = t;
-            func_801209c4(obj);
+            play_object_sound_by_kind(obj);
             a = 0x37;
             s = obj->variant_index;
             obj->pos_y_frac = 0;
@@ -24,14 +24,14 @@ void func_801b29b0_slot04_17(Object *obj) {
             if (!(s & 0x80)) {
                 a = (s & 0x7f) + 0x38;
             }
-            func_801307e0(obj, a);
+            set_sequence_by_side_and_mode(obj, a);
         }
     }
     if (obj->active_flag != 0) {
         a = obj->variant_index + 0x35;
         obj->active_flag = 0;
         obj->variant_index |= 0x80;
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
     } else {
         update_sequence(obj);
     }

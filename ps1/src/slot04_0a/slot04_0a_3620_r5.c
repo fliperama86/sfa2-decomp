@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3ba0_slot04_0a(Object *obj) {
+void flip_facing_on_step_flag_2_slot04_0a(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 2) {
         obj->state_3++;
@@ -14,7 +14,7 @@ void func_801b3ba0_slot04_0a(Object *obj) {
 void func_801b3bf0_slot04_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->status_flag = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

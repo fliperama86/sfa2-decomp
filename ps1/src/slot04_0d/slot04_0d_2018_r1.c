@@ -6,7 +6,7 @@
 extern ObjectFn data_801c2a50_slot04_0d[];
 extern s32 data_801c27d4_slot04_0d[];
 
-void func_801b2018_slot04_0d(Object *obj) {
+void apply_gravity_vertical_motion_slot04_0d(Object *obj) {
     s16 t = ((s16 *)&obj->vel_y)[1];
 
     if (t > 0) {
@@ -28,18 +28,18 @@ void func_801b20b0_slot04_0d(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 6);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->field_157 = 0;
     a = 0x43;
     if (obj->field_49 == 0) {
         a = 0x31;
     }
     a += obj->direction_index >> 1;
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b212c_slot04_0d(Object *obj) {
+void launch_from_table_on_step_flag_slot04_0d(Object *obj) {
     s32 *t = data_801c27d4_slot04_0d;
     s32 *p;
 

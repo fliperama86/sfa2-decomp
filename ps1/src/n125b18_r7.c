@@ -6,16 +6,16 @@
 void func_8012b628(Object *object) {
     int t;
     if (game_state.field_4d != 0) {
-        func_8012ff80(object);
+        set_win_or_lose_state_by_health(object);
         return;
     }
     if (func_8012f56c(object)) {
-        func_8012f59c(object);
+        set_win_state_and_store_result_byte(object);
         return;
     }
     if (object->mode_flag_2 != 0) {
         if (!func_80149d48(object)) {
-            func_801312b8(object);
+            reset_object_to_state_1_0_sequence_0(object);
             return;
         }
         ref_other.p = object->other;
@@ -25,11 +25,11 @@ void func_8012b628(Object *object) {
         t = ref_other.p->field_157;
         goto test;
     } else {
-        if (func_80130470(object)) {
-            func_8013047c(object);
+        if (get_pressed_low_byte(object)) {
+            set_state_1_0_5_and_read_input_direction(object);
             return;
         }
-        if ((u8)func_80130258(object)) {
+        if ((u8)is_input_bit_1000_held(object)) {
             func_80130280(object);
             return;
         }
@@ -39,7 +39,7 @@ void func_8012b628(Object *object) {
             set_sequence_by_side(object, 0x17);
             return;
         }
-        t = (u8)func_8012f6d8(object);
+        t = (u8)is_button_4000_pressed(object);
 test:
         if (t) {
             object->state_3 = 2;

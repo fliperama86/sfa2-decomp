@@ -3,28 +3,28 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130dc0(Object *obj);
+void set_sequence_and_tables_from_direction(Object *obj);
 void func_801b6604_slot04_11(Object *obj);
-void func_801b6628_slot04_11(Object *obj);
-int func_801b6668_slot04_11(Object *obj);
+void shift_pos_x_by_step_flags_low_bits_slot04_11(Object *obj);
+int apply_velocity_and_acceleration_3_slot04_11(Object *obj);
 void func_801b66ac_slot04_11(Object *obj);
 void func_801b66cc_slot04_11(Object *obj);
 void func_801b66ec_slot04_11(Object *obj);
-void func_801b6480_slot04_11(Object *obj);
+void start_direction_sequence_slot04_11(Object *obj);
 void func_801b6604_slot04_11(Object *obj);
-void func_801b6628_slot04_11(Object *obj);
-int func_801b6668_slot04_11(Object *obj);
+void shift_pos_x_by_step_flags_low_bits_slot04_11(Object *obj);
+int apply_velocity_and_acceleration_3_slot04_11(Object *obj);
 void func_801b66ac_slot04_11(Object *obj);
 void func_801b66cc_slot04_11(Object *obj);
 void func_801b66ec_slot04_11(Object *obj);
-void func_801b6480_slot04_11(Object *obj);
+void start_direction_sequence_slot04_11(Object *obj);
 
 void func_801b6604_slot04_11(Object *obj) {
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b6628_slot04_11(Object *obj) {
+void shift_pos_x_by_step_flags_low_bits_slot04_11(Object *obj) {
     u16 t = obj->step_flags;
     int d = t & 0x7f;
 

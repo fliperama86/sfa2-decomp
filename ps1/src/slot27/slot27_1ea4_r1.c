@@ -8,7 +8,7 @@ extern u16 *data_80026960_slot27[];
 extern u16 *data_80026968_slot27[];
 extern u16 data_80026970_slot27[];
 
-void func_80011ea4_slot27(void) {
+void update_input_sequence_match_record_slot27(void) {
     Slot27Rec9338 *rec = &data_80029338_slot27[ref_other.p->side];
     Object *obj = ref_other.p;
     u16 v;

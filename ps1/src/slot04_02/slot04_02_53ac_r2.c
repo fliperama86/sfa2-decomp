@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b54f8_slot04_02(Object *obj) {
+void hit_other_then_set_launch_velocity_slot04_02(Object *obj) {
     Object *p;
     int a;
     update_sequence(obj);
@@ -11,7 +11,7 @@ void func_801b54f8_slot04_02(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         p = obj->other;
         p->field_15b = 1;
-        func_80140770(obj, 6, 0xf, -0x200, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 6, 0xf, -0x200, 0, 1, 0);
         if ((s16)p->health < 0) {
             a = obj->field_49;
             if (a != 0) {

@@ -5,9 +5,9 @@
 
 extern Object *data_8007ef34_slot2b;
 
-void func_800795b4_slot2b(Object *obj);
+void apply_velocity_and_acceleration_2_slot2b(Object *obj);
 
-void func_800794a0_slot2b(Object *o) {
+void advance_sequence_and_state_on_flag_slot2b(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_0++;
     }

@@ -41,6 +41,6 @@ void func_801b3590_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, -0x2c, 0x40);
+        spawn_children_per_direction_index(obj, -0x2c, 0x40);
     }
 }

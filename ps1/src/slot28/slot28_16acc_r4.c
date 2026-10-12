@@ -14,7 +14,7 @@ extern u8 data_8004ef00_slot28[];
 void func_800272ec_slot28(void);
 void func_8002725c_slot28(Object *o, int arg);
 
-void func_80026f70_slot28(Object *obj) {
+void advance_pass_if_flag_spawn_two_objects_slot28(Object *obj) {
     HudState *h;
     Object *p;
     if (data_80190949 != 0) {
@@ -23,15 +23,15 @@ void func_80026f70_slot28(Object *obj) {
             h->countdown_timer = 0x258;
             h->pass_index++;
             func_800272ec_slot28();
-            func_80130768(data_80051ccc_slot28[0], 2, data_800502c8_slot28);
+            set_sequence_from_table_5(data_80051ccc_slot28[0], 2, data_800502c8_slot28);
             p = data_80051cd0_slot28[0];
             p->pos_x = 0x68;
             p->pos_y = 0x10;
             p->ot_depth = 4;
             p->field_01 = 1;
-            func_80130768(p, 3, data_800502d4_slot28);
+            set_sequence_from_table_5(p, 3, data_800502d4_slot28);
             p->vel_y = 0x2000;
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->table_index = 0;
@@ -47,7 +47,7 @@ void func_80026f70_slot28(Object *obj) {
                 p->ot_depth = 2;
                 data_80051ca4_slot28[0] = p;
             }
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->table_index = 1;
@@ -64,7 +64,7 @@ void func_80026f70_slot28(Object *obj) {
                 data_80051ca4_slot28[1] = p;
             }
             func_8002725c_slot28(obj, 4);
-            func_80128370();
+            start_fade_mode_1a01_and_wait();
         }
     }
 }

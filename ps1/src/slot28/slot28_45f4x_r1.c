@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 extern Object *data_8005187c_slot28[];
-void func_80128370(void);
+void start_fade_mode_1a01_and_wait(void);
 void func_80014854_slot28(Object *obj, int arg);
 
 /* When the object's field_f0 is 0, sets the HUD state's countdown_timer to 600 and
    adds 1 to its pass_index, calls func_80014854_slot28 with the object and 4,
    clears field_01 of three objects held in a table of the module, and calls
-   func_80128370 (inferred). */
-void func_800145f4_slot28(Object *obj) {
+   start_fade_mode_1a01_and_wait (inferred). */
+void advance_pass_and_hide_three_objects_slot28(Object *obj) {
     HudState *h;
 
     if (obj->field_f0 == 0) {
@@ -24,6 +24,6 @@ void func_800145f4_slot28(Object *obj) {
         data_8005187c_slot28[0]->field_01 = 0;
         data_8005187c_slot28[1]->field_01 = 0;
         data_8005187c_slot28[2]->field_01 = 0;
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

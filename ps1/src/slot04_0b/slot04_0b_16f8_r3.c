@@ -8,15 +8,15 @@ void func_801b1938_slot04_0b(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 4);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 4);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->field_49 != 0) {
         a = 0x39;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + a);
 }
 
-void func_801b19b8_slot04_0b(Object *obj) {
+void play_sounds_on_step_flag_1_slot04_0b(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 0xf);

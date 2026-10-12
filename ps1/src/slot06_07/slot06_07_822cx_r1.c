@@ -19,7 +19,7 @@ void func_801e822c_slot06_07(void) {
         j = 0;
         do {
             r = (Slot06Tile *)((u8 *)data_801ee22c_slot06_07 + i * 0x738 + j * 0x1c);
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = 0x80;
             r->sprt.color_g = 0x80;
             r->sprt.color_b = 0x80;
@@ -33,7 +33,7 @@ void func_801e822c_slot06_07(void) {
         do {
             t = data_801f6384_slot06_07[0];
             sp = &t->sprt;
-            func_80136d1c((Tx *)(i * 0x10a0 + (u32)(t + j)));
+            init_draw_mode_prim_3((Tx *)(i * 0x10a0 + (u32)(t + j)));
             q = (Slot06Sprt16 *)((j * 0x1c + i * 0x10a0) + (u32)sp);
             q->color_r = 0x80;
             q->color_g = 0x80;

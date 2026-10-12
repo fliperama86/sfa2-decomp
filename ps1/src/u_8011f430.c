@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-Pooled *func_8011f430(void) {
+Pooled *alloc_pooled_a(void) {
     Pooled *p;
     Pooled *result;
     short n = data_801ac618;

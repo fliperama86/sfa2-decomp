@@ -8,12 +8,12 @@ extern u8 data_801ea964_slot06_01[];
 extern ObjectFn data_801ea988_slot06_01[];
 extern SequenceStep *data_801eb960_slot06_01[];
 
-void func_801e9c58_slot06_01(Object *obj);
+void call_handler_by_state_1_then_offset_slot06_01(Object *obj);
 
-void func_801e9ac0_slot06_01(Object *obj) {
+void call_state_1_handler_or_alt_with_accel_y_slot06_01(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         if (obj->accel_y != 0) {
-            func_801e9c58_slot06_01(obj);
+            call_handler_by_state_1_then_offset_slot06_01(obj);
             return;
         }
         data_801ea95c_slot06_01[obj->state_1](obj);
@@ -21,7 +21,7 @@ void func_801e9ac0_slot06_01(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9b4c_slot06_01(Object *obj) {
+void inc_state_1_set_countdown_then_advance_slot06_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         u8 v;
         obj->state_1++;
@@ -37,22 +37,22 @@ void func_801e9b4c_slot06_01(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801e9bc8_slot06_01(Object *obj) {
+void pick_next_sequence_at_countdown_zero_slot06_01(Object *obj) {
     int v = obj->countdown - 1;
     obj->countdown = v;
     if ((s16)v == 0) {
         obj->state_1 = 0;
         obj->accel_x = data_801ea964_slot06_01[(u8)((get_random_byte() & 3) | ((u8)obj->accel_x << 2))];
-        func_80130700(obj, data_801eb960_slot06_01[obj->accel_x]);
+        set_sequence_entry(obj, data_801eb960_slot06_01[obj->accel_x]);
     }
 }
 
-void func_801e9c58_slot06_01(Object *obj) {
+void call_handler_by_state_1_then_offset_slot06_01(Object *obj) {
     data_801ea988_slot06_01[obj->state_1](obj);
     func_8011ffdc(obj);
 }
 
-void func_801e9cac_slot06_01(Object *obj) {
+void increment_state_1_at_sequence_end_slot06_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = obj->state_1 + 1;
     }

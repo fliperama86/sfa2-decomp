@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b3048_slot04_05(Object *object);
+int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
-void func_801b2bac_slot04_05(Object *obj) {
+void update_slide_or_reset_on_end_flag_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
     if (t & 0x8000) {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         switch ((u8)t) {
         case 0:
             break;
         default:
             if (obj->vel_x >= 0) {
-                func_801b3048_slot04_05(obj);
+                move_x_by_vel_x_facing_and_accelerate_slot04_05(obj);
             }
             break;
         case 3:

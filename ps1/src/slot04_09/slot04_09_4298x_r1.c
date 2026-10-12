@@ -5,7 +5,7 @@
 
 void func_801b58dc_slot04_09(Object *obj);
 
-void func_801b4298_slot04_09(Object *obj) {
+void update_hit_sequence_spawn_child_on_flag_slot04_09(Object *obj) {
     u16 t;
     Object *p;
     update_sequence(obj);
@@ -44,6 +44,6 @@ void func_801b4298_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
-        func_801483a4(obj, 0, 0x54);
+        spawn_children_per_direction_index(obj, 0, 0x54);
     }
 }

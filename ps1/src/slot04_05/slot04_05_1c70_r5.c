@@ -6,7 +6,7 @@
 void func_801b21c8_slot04_05(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
     if (obj->facing_side != 0) {
         obj->vel_x = 0x50000;
@@ -16,10 +16,10 @@ void func_801b21c8_slot04_05(Object *obj) {
     obj->accel_x = 0;
     obj->vel_y = 0x88000;
     obj->accel_y = -0x9000;
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x29);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x29);
 }
 
-void func_801b2260_slot04_05(Object *obj) {
+void spawn_pooled_objects_on_step_flag_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         if (obj->field_4b != 0) {
@@ -28,7 +28,7 @@ void func_801b2260_slot04_05(Object *obj) {
             obj->field_165 = 0xff;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, -0x10, 0x43);
+        spawn_children_per_direction_index(obj, -0x10, 0x43);
     }
     update_sequence(obj);
 }

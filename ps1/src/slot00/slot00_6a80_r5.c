@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80076f44_slot00(Object *o) {
+void set_sequence_1_by_parent_side_slot00(Object *o) {
     SequenceStep **t;
 
     o->state_1++;
@@ -12,10 +12,10 @@ void func_80076f44_slot00(Object *o) {
     } else {
         t = data_1f80015c;
     }
-    func_80130768(o, 1, t);
+    set_sequence_from_table_5(o, 1, t);
 }
 
-void func_80076f9c_slot00(Object *o) {
+void advance_sequence_or_set_state_3_slot00(Object *o) {
     if ((s16)o->step_flags >= 0) {
         advance_sequence_checked(o);
     } else {
@@ -26,11 +26,11 @@ void func_80076f9c_slot00(Object *o) {
     }
 }
 
-void func_80076fe4_slot00(Object *o) {
+void unlink_from_parent_and_release_slot00(Object *o) {
     ref_other.p = o->parent;
     ref_other.p->link_flags--;
     if (ref_other.p->link_flags == 0) {
         ref_other.p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }

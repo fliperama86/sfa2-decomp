@@ -9,10 +9,10 @@ void func_801b0c88_slot04_0a(Object *obj) {
     data_801ad398 = data_801c0578_slot04_0a[obj->field_15a](obj);
 }
 
-int func_801b0cd0_slot04_0a(Object *obj) {
+int return_true_always_slot04_0a(Object *obj) {
     return 1;
 }
 
-int func_801b0cd8_slot04_0a(Object *obj) {
+int is_link_flags_zero_slot04_0a(Object *obj) {
     return obj->link_flags == 0;
 }

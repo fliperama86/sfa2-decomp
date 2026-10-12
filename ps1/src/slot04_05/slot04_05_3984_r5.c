@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4028_slot04_05(Object *obj) {
+void start_move_or_cancel_on_hit_range_slot04_05(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
@@ -13,6 +13,6 @@ void func_801b4028_slot04_05(Object *obj) {
         obj->state_3 = 0;
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

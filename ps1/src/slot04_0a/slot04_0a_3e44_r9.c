@@ -6,7 +6,7 @@
 void func_801b4988_slot04_0a(Object *obj);
 void func_801b4a68_slot04_0a(Object *obj);
 
-void func_801b4948_slot04_0a(Object *obj) {
+void call_handler_by_direction_index_4_slot04_0a(Object *obj) {
     if (obj->direction_index != 4) {
         func_801b4988_slot04_0a(obj);
     } else {

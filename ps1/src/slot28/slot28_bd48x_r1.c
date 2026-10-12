@@ -14,7 +14,7 @@ extern u8 data_80037a00_slot28[];
 void func_8001c430_slot28(Object *obj, int arg);
 void func_8001c4c0_slot28(void);
 
-void func_8001bd48_slot28(Object *obj) {
+void advance_slot28_scene_spawn_five_objects_slot28(Object *obj) {
     Object *p;
     Object *first;
     if (obj->field_f0 == 0) {
@@ -25,8 +25,8 @@ void func_8001bd48_slot28(Object *obj) {
         p->field_01 = 0;
         p = data_80051a08_slot28.p;
         p->field_01 = 0;
-        func_80130768(data_80051a00_slot28.p, 3, data_80039280_slot28);
-        p = (Object *)func_8011f1e0();
+        set_sequence_from_table_5(data_80051a00_slot28.p, 3, data_80039280_slot28);
+        p = (Object *)pop_block_from_pool();
         first = p;
         if (p != 0) {
             p->active_count = 1;
@@ -46,7 +46,7 @@ void func_8001bd48_slot28(Object *obj) {
             p->box_tables = (BoxTables *)data_8003929c_slot28;
             data_800519d8_slot28[0] = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x75;
@@ -66,7 +66,7 @@ void func_8001bd48_slot28(Object *obj) {
             data_800519d8_slot28[1] = p;
             ((Slot28Obj *)p)->linked_object = first;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x75;
@@ -86,7 +86,7 @@ void func_8001bd48_slot28(Object *obj) {
             p->box_tables = (BoxTables *)data_8003929c_slot28;
             data_800519d8_slot28[2] = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x75;
@@ -106,7 +106,7 @@ void func_8001bd48_slot28(Object *obj) {
             p->box_tables = (BoxTables *)data_8003929c_slot28;
             data_800519d8_slot28[3] = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x75;
@@ -127,6 +127,6 @@ void func_8001bd48_slot28(Object *obj) {
             data_800519d8_slot28[4] = p;
         }
         func_8001c430_slot28(obj, 4);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

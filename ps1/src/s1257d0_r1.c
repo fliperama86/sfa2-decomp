@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801257d0(Attacker *unused) {
+void set_focus_kind_copy_from_object_b(Attacker *unused) {
     game_state.focus_object->kind_copy = ~game_state.object_b->kind;
 }

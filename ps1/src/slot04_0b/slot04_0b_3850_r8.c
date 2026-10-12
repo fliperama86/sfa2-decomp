@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4db8_slot04_0b(Object *o, int index);
+void set_sequence_from_other_side_table_slot04_0b(Object *o, int index);
 
 void func_801b46b8_slot04_0b(Object *o) {
     o->state_1++;
     o->ot_depth = 0;
     o->pos_x = ref_other.p->pos_x;
     o->pos_y = ref_other.p->pos_y;
-    func_801b4db8_slot04_0b(o, 0x19);
+    set_sequence_from_other_side_table_slot04_0b(o, 0x19);
     func_8011ffdc(o);
 }
 
-void func_801b4728_slot04_0b(Object *o) {
+void advance_state_when_ref_step_flag_set_slot04_0b(Object *o) {
     if (ref_other.p->step_flags & 1) {
         o->state_1 = 0;
         o->state_0++;

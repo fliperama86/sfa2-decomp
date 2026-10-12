@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80016e24_slot12(Object *obj);
-void func_80016e78_slot12(Object *obj);
+void count_entries_with_high_bit_set_slot12(Object *obj);
+void count_entries_with_value_c_to_f_slot12(Object *obj);
 void func_80016ee0_slot12(Object *obj);
-void func_80016f38_slot12(Object *obj);
+void count_entries_with_value_7_or_b_slot12(Object *obj);
 extern Slot12Count data_8002c3a8_slot12[4];
 
-void func_80016de4_slot12(Object *obj) {
-    func_80016e24_slot12(obj);
-    func_80016e78_slot12(obj);
+void count_record_bytes_into_four_counters_slot12(Object *obj) {
+    count_entries_with_high_bit_set_slot12(obj);
+    count_entries_with_value_c_to_f_slot12(obj);
     func_80016ee0_slot12(obj);
-    func_80016f38_slot12(obj);
+    count_entries_with_value_7_or_b_slot12(obj);
 }
 
-void func_80016e24_slot12(Object *o) {
+void count_entries_with_high_bit_set_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     u8 *p;
     int n;
@@ -37,7 +37,7 @@ void func_80016e24_slot12(Object *o) {
     data_8002c3a8_slot12[0].value = n;
 }
 
-void func_80016e78_slot12(Object *o) {
+void count_entries_with_value_c_to_f_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     u8 *p;
     int n;

@@ -9,7 +9,7 @@ extern TextBuf *data_801b7618_slot04_sel[];
 extern u8 *data_801b7654_slot04_sel;
 extern u8 data_801b7348_slot04_sel[];
 
-void func_801b038c_slot04_sel(void) {
+void remap_select_kinds_and_mark_cursor_text_slot04_sel(void) {
     Object *l = &player_left;
     Object *r = l + 1;
     Slot04SelRec *b = &data_801b9cf0_slot04_sel[1];

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80122230(GameState *state) {
+void reset_round_fields_and_advance_step_2(GameState *state) {
     Attacker *a = (Attacker *)state;
     data_8018f5a0->step_index_2++;
     data_8018f5a0->pass_index = 0;
@@ -58,5 +58,5 @@ void func_80122230(GameState *state) {
             a->kind_code = player_right.kind;
         }
     }
-    func_80138410((GameState *)a);
+    reset_counter_a_and_table_columns((GameState *)a);
 }

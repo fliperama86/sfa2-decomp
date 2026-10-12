@@ -10,17 +10,17 @@
    The shifted value goes through t to the store: with
    object->script_opcode_high = s >> 24; it differs in 5. The pointer is read back
    from data_80189460: with p = (u16 *)object->script_ptr_1; it differs in 5. */
-void func_8014c9f4(Object *object) {
+void enter_script_mode_1_and_read_opcode(Object *object) {
     u16 *p;
     int t;
     int v;
     int s;
     s = object->script_mode == 0;
     if (s) {
-        func_8014d9ac(object);
+        init_script_from_table_index(object);
     }
     object->script_mode = 1;
-    func_8014da18(object);
+    start_random_script_from_table_index(object);
     data_80189460 = (u16 *)object->script_ptr_1;
     object->script_ptr = (s32)data_80189460;
     p = data_80189460;

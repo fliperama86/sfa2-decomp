@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1c5c_slot04_00(Object *obj);
+int move_with_gravity_and_check_ground_slot04_00(Object *obj);
 
-void func_801b25f0_slot04_00(Object *obj) {
+void update_descend_slowly_by_step_count_slot04_00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         if (--((Slot04aObj *)obj)->step_count == 0) {
             obj->state_3++;
-            func_801307e0(obj, (obj->direction_index >> 1) + 0x35);
+            set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x35);
             return;
         }
     }
@@ -17,11 +17,11 @@ void func_801b25f0_slot04_00(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2670_slot04_00(Object *obj) {
-    if (func_801b1c5c_slot04_00(obj) != 0) {
+void update_airborne_land_with_sound_slot04_00(Object *obj) {
+    if (move_with_gravity_and_check_ground_slot04_00(obj) != 0) {
         obj->state_3++;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x30);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x30);
     } else {
         update_sequence(obj);
     }

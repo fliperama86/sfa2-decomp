@@ -6,7 +6,7 @@
 extern u8 data_800e92a7_slot0f[];
 extern int data_800f0204_slot0f;
 
-void func_800e38b4_slot0f(void) {
+void update_eleven_entry_menu_cursor_slot0f(void) {
     HudState *h = data_8018f5a0;
     u16 pad = data_801a696a | data_801a6976;
     int sel = h->substep_index;

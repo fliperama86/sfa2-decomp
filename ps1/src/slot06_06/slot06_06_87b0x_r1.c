@@ -9,10 +9,10 @@ extern Slot06Tile data_801f25b0_slot06_06[2][0x4b];
    primitive list, one row of 25 cells per pass, and a last partial row when
    the vertical position is not a multiple of 16 (inferred).
    The tile mask and the column counter cc are 16-bit locals, as in the model
-   func_801e86bc_slot06_04. The local r is a copy of row and yy holds the
+   draw_tile_layer_sprites_with_partial_row_slot06_04. The local r is a copy of row and yy holds the
    row's screen offset, as in the model. In the last partial row the list
    head is addressed at each use (the local ot is not used there). */
-void func_801e87b0_slot06_06(void) {
+void draw_tile_map_layer_sprites_interpolated_slot06_06(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int q;
     int x;

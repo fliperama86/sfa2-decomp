@@ -5,7 +5,7 @@
 
 extern u8 data_801c3b48_slot04_08[];
 
-void func_801b01d8_slot04_08(Object *obj) {
+void pick_random_variant_and_set_sequence_slot04_08(Object *obj) {
     u8 k;
 
     obj->countdown = 0x3c;
@@ -13,7 +13,7 @@ void func_801b01d8_slot04_08(Object *obj) {
     if (game_state.countdown == 0) {
         game_state.countdown = 0x1e;
     }
-    k = func_80125734(obj, data_801c3b48_slot04_08[get_random_byte() & 0xf]);
+    k = get_input_mapped_value_or_default(obj, data_801c3b48_slot04_08[get_random_byte() & 0xf]);
     if (k == 3 && game_state.field_0a != 0) {
         k = 4;
     }

@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_801c0828_slot04_0a[];
-void func_801b4334_slot04_0a(Object *obj);
+void set_vel_x_from_table_by_facing_slot04_0a(Object *obj);
 
-void func_801b4054_slot04_0a(Object *obj) {
+void init_object_at_parent_offset_slot04_0a(Object *obj) {
     int a;
     int y;
 
@@ -28,7 +28,7 @@ void func_801b4054_slot04_0a(Object *obj) {
     y = ref_other.p->pos_y;
     obj->pos_x = a;
     obj->pos_y = y - 0x46;
-    func_801b4334_slot04_0a(obj);
+    set_vel_x_from_table_by_facing_slot04_0a(obj);
     if (ref_other.p->side == 0) {
         ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f8000a8;
     } else {

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 
 void func_801b29f8_slot04_09(Object *obj) {
     Object *p;
@@ -12,11 +12,11 @@ void func_801b29f8_slot04_09(Object *obj) {
         p = obj->other;
         obj->state_3 = 6;
         p->field_6b = 0;
-        func_801307e0(obj, 0x2a);
+        set_sequence_by_side_and_mode(obj, 0x2a);
     } else {
         p = obj->other;
         p->field_6b = 8;
-        if (func_8014048c(obj, -0x40, 0x40, 0x30, 0x31) != 0) {
+        if (check_hit_other_without_state_precheck(obj, -0x40, 0x40, 0x30, 0x31) != 0) {
             obj->state_3++;
             obj->step_timer = 0;
             obj->step_flags = obj->step_flags & 0xff00;
@@ -28,8 +28,8 @@ void func_801b29f8_slot04_09(Object *obj) {
             if (obj->facing_side == 0) {
                 obj->vel_x = 0xfffe0000;
             }
-            func_801307e0(obj, 0x29);
+            set_sequence_by_side_and_mode(obj, 0x29);
         }
-        func_801b2858_slot04_09(obj);
+        apply_velocity_and_acceleration_slot04_09(obj);
     }
 }

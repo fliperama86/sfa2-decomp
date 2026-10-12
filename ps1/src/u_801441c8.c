@@ -7,7 +7,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_801441c8(Object *unused)
+int is_config_object_health_full(Object *unused)
 {
   Object *p = ((ConfigHead *) game_state.config)->object;
   int result = 0;

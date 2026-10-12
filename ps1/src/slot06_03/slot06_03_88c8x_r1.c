@@ -6,7 +6,7 @@
 extern u16 data_801ec410_slot06_03[];
 extern Slot06Tile data_801f8004_slot06_03[0x30][2];
 
-void func_801e88c8_slot06_03(Slot06Layer *layer) {
+void init_layer_map_and_sprite_colors_slot06_03(Slot06Layer *layer) {
     int i = 0;
     int j;
     Slot06Sprt16 *sp;
@@ -26,7 +26,7 @@ void func_801e88c8_slot06_03(Slot06Layer *layer) {
         j = 0;
         c = 0x80;
         do {
-            func_80136d1c((Tx *)(j * 0x38 + (i * 0x1c + (u32)base)));
+            init_draw_mode_prim_3((Tx *)(j * 0x38 + (i * 0x1c + (u32)base)));
             sp = (Slot06Sprt16 *)((i * 0x1c + j * 0x38) + (u32)sp0);
             sp->color_r = c;
             sp->color_g = c;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015310_slot28(Object *obj) {
+void count_down_to_zero_then_advance_pass_slot28(Object *obj) {
     HudState *h;
     int t;
     if (obj->field_f0 == 0) {
@@ -12,7 +12,7 @@ void func_80015310_slot28(Object *obj) {
         h->countdown_timer = t;
         if ((s16)t == 0) {
             h->pass_index = h->pass_index + 1;
-            func_801282d4();
+            start_fade_mode_1801_and_wait();
         }
     }
 }

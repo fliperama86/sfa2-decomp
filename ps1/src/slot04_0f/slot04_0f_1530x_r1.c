@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141b28(Object *object);
+int try_spend_meter_for_action(Object *object);
 
 int func_801b1530_slot04_0f(Object *o) {
-    if (!func_80141b28(o)) return 0;
+    if (!try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;
     o->state_3 = 0;
@@ -18,6 +18,6 @@ int func_801b1530_slot04_0f(Object *o) {
     o->field_15a = 5;
     o->other_lock = 0x19;
     o->other->field_6b = 0x15;
-    func_801307e0(o, 0x48);
+    set_sequence_by_side_and_mode(o, 0x48);
     return 1;
 }

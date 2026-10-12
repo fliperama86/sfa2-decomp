@@ -13,8 +13,8 @@ void func_801b11cc_slot04_01(Object *o) {
     o->active_flag_4 = 1;
     o->state_3++;
     play_side_sound_at(o, obj->side, 0xb);
-    func_80141f28(o, 9);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 9);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     o->accel_x = -0x8000;
     o->accel_y = -0x6000;
     h = o->direction_index >> 1;
@@ -23,10 +23,10 @@ void func_801b11cc_slot04_01(Object *o) {
     if (o->field_49 != 0) {
         a = 0x42;
     }
-    func_801307e0(o, h + a);
+    set_sequence_by_side_and_mode(o, h + a);
 }
 
-void func_801b1298_slot04_01(Object *o) {
+void update_sequence_or_advance_state_3_slot04_01(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->mode != 0) {

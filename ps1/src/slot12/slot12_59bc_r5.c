@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015fd4_slot12(Object *obj, int a) {
+void spawn_variant_2_object_if_offset_slot12(Object *obj, int a) {
     Object *n;
 
     if (((FrameRecord *)ptr_8019040c)[(s16)obj->health].offset_index != 0) {
-        n = (Object *)func_8011f1e0();
+        n = (Object *)pop_block_from_pool();
         if (n != 0) {
             n->active_count = 1;
             n->field_02 = 0xa2;

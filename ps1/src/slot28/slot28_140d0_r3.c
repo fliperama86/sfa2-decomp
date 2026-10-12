@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800244dc_slot28(Object *o) {
+void move_with_deltas_and_count_on_timer_slot28(Object *o) {
     Slot28Obj *obj;
     ((Slot28Obj *)o)->timer_reload--;
     obj = (Slot28Obj *)o;

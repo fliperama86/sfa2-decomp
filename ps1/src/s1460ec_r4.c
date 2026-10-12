@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-u16 func_80147158(Object *object) {
+u16 get_table_value_and_count_hit(Object *object) {
     u16 result = 0xf;
     int kind;
     if (object->field_167 != 0xb) {

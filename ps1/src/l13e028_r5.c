@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* The seventh parameter is unused here. It is declared because a caller in a character module passes seven arguments; that is compatible with a parameter and does not prove one. */
-void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
+void set_other_hit_reaction_state_8(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) {
     ref_other.p = object->other;
     ref_other.p->state_0 = 1;
     ref_other.p->state_1 = 1;
@@ -31,5 +31,5 @@ void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused) 
         ref_other.p->field_1a1 = 0;
         ref_other.p->field_1a2 = 0;
     }
-    func_801409d8(object, c, d);
+    apply_damage_to_other_and_play_sound(object, c, d);
 }

@@ -5,7 +5,7 @@
 
 extern u8 data_801c0670_slot04_0a[];
 
-void func_801b243c_slot04_0a(Object *obj) {
+void count_down_then_place_at_margin_offset_slot04_0a(Object *obj) {
     int m;
     int d;
     int a;
@@ -35,6 +35,6 @@ void func_801b243c_slot04_0a(Object *obj) {
         if (obj->field_49 != 0) {
             a = 0x4c;
         }
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
     }
 }

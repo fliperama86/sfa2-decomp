@@ -6,7 +6,7 @@
 extern s8 data_800f8554_slot0f[];
 extern Slot0fRec9540 data_800e9540_slot0f[];
 
-void func_800e2964_slot0f(void) {
+void update_eight_step_bar_selection_slot0f(void) {
     s8 *p;
     s8 *q;
     int i;

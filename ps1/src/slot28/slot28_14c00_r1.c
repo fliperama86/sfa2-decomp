@@ -9,7 +9,7 @@ void func_80025174_slot28(void);
 void func_800250e4_slot28(Object *obj, int arg);
 
 /* The local n holds the byte read from the object and then the half counter of the hud. Written with one local for each, this function differs from the original in 6 instruction slots. The local c holds the constant that is stored in the hud; written with the literal at the store, the function differs in 7. */
-void func_80024c00_slot28(Object *obj) {
+void advance_hud_pass_to_stage_2_2_slot28(Object *obj) {
     int c = 0x258;
     u16 n;
     HudState *h;
@@ -23,6 +23,6 @@ void func_80024c00_slot28(Object *obj) {
         data_80051c50_slot28[0]->field_01 = 0;
         data_80051c54_slot28.p->field_01 = 0;
         func_800250e4_slot28(obj, 2);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

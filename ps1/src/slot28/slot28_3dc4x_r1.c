@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern Slot28Rec51844 data_80051844_slot28[];
-void func_80013dc4_slot28(Object *obj, SeqRec *rec);
+void init_records_from_sequence_data_words_slot28(Object *obj, SeqRec *rec);
 
-void func_80013dc4_slot28(Object *obj, SeqRec *rec) {
+void init_records_from_sequence_data_words_slot28(Object *obj, SeqRec *rec) {
     int i = 0;
     Slot28Rec51844 *r = data_80051844_slot28;
     u32 *src = (u32 *)rec->data;

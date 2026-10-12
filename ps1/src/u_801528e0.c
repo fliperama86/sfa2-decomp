@@ -11,7 +11,7 @@
    row and column, operand order, declaration order, local copies of side and
    ref_other.p. */
 /* Form found by automatic permutation search. */
-void func_801528e0(Object *object)
+void set_position_from_parent_table(Object *object)
 {
   int idx;
   int base;

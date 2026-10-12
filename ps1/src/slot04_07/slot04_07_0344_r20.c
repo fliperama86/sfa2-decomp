@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4800_slot04_07(Object *obj) {
+void update_sequence_or_finish_on_flag_slot04_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);

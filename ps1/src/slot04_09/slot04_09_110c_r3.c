@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b13ec_slot04_09(Object *obj) {
+int try_start_move_2_slot04_09(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -19,7 +19,7 @@ int func_801b13ec_slot04_09(Object *obj) {
         obj->step_count_2 = 0;
         obj->step_limit = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }
@@ -27,7 +27,7 @@ int func_801b13ec_slot04_09(Object *obj) {
 int func_801b1474_slot04_09(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -40,7 +40,7 @@ int func_801b1474_slot04_09(Object *obj) {
         obj->step_count_2 = 0;
         obj->step_limit = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }

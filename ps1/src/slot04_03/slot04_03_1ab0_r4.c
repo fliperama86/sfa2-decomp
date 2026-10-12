@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b223c_slot04_03(Object *obj);
+void move_x_by_facing_with_decel_slot04_03(Object *obj);
 
 extern u8 data_801c0674_slot04_03[];
 
@@ -24,6 +24,6 @@ void func_801b1df0_slot04_03(Object *obj) {
         play_side_sound_at(obj, obj->side, 0xd);
     }
     if ((u8)obj->step_flags == 0) {
-        func_801b223c_slot04_03(obj);
+        move_x_by_facing_with_decel_slot04_03(obj);
     }
 }

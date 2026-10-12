@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6560_slot04_02(Object *obj) {
+void update_sequence_with_fixed_x_step_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
     u8 a;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
         return;
     }
     a = t;

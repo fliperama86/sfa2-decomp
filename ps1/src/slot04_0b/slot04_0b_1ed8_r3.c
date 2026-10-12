@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b21d0_slot04_0b(Object *o) {
+void start_backward_slide_sequence_slot04_0b(Object *o) {
     o->state_3++;
     o->accel_x = 0;
     o->accel_y = 0;
@@ -14,9 +14,9 @@ void func_801b21d0_slot04_0b(Object *o) {
         o->vel_x = 0x20000;
     }
     func_801428e4(o);
-    func_80138ae8(&game_state, o);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     func_80145d20(o);
-    func_801307e0(o, (o->direction_index >> 1) + 0x2d);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + 0x2d);
 }
 
 void func_801b2258_slot04_0b(Object *o) {
@@ -27,7 +27,7 @@ void func_801b2258_slot04_0b(Object *o) {
         } else {
             o->field_165 = 0xff;
         }
-        func_801483a4(o, -0x28, 0x61);
+        spawn_children_per_direction_index(o, -0x28, 0x61);
         play_sound_at(o, o->side, 0x31c);
         play_side_sound_at(o, o->side, 7);
     }

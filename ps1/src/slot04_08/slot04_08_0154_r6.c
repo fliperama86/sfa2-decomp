@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1194_slot04_08(Object *obj);
+void start_state_7_move_7_with_other_lock_slot04_08(Object *obj);
 
 int func_801b1144_slot04_08(Object *obj) {
     int r = 0;
 
-    if ((u8)func_80141b28(obj)) {
+    if ((u8)try_spend_meter_for_action(obj)) {
         r = 1;
-        func_801b1194_slot04_08(obj);
+        start_state_7_move_7_with_other_lock_slot04_08(obj);
     }
     return r;
 }

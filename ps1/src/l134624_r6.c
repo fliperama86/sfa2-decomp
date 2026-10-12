@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801379bc(Object *object, u8 mode) {
+void store_image_rows_by_mode_and_queue_job(Object *object, u8 mode) {
     Rect rect;
     u8 *src;
     Job *job;
@@ -22,7 +22,7 @@ void func_801379bc(Object *object, u8 mode) {
     func_80158028(&rect, src);
     src = data_801a27e4 + 0x1400 + ((object->image_row + 3) << 5);
     func_80158028(&rect, src);
-    job = (Job *)func_8011f4a4();
+    job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x60;
         rect.y = object->image_row + 0x1e3;

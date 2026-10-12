@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b625c_slot04_02(Object *obj) {
+u8 tick_countdown_spawn_random_effect_slot04_02(Object *obj) {
     Object *o = obj->other;
     u8 r = 0;
     int x = obj->countdown + 0x100;
@@ -16,7 +16,7 @@ u8 func_801b625c_slot04_02(Object *obj) {
         s = get_random_byte() & 0x7f;
         t = get_random_byte();
         d = (t & 0x3f) - 0x60;
-        func_80146478(obj, 2, d, s);
+        spawn_effect_at_object_offset(obj, 2, d, s);
         if ((get_random_byte() & 1) == 0) {
             play_sound_at(o, o->side, 0x306);
         } else {

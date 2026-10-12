@@ -1,8 +1,8 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
- * Historical note, from before this unit was exact or about a function that is no longer in this unit: Residuals: func_8014edac (original keeps game_state base in a saved
+ * Historical note, from before this unit was exact or about a function that is no longer in this unit: Residuals: close_sounds_and_load_command_4 (original keeps game_state base in a saved
  * register from before the third close_vab_and_sep call, and tests/clears through
  * it; tried a local g set at top, set mid-function, ternary and if/else for
- * the argument). func_8014f038 (original derives both player addresses from
+ * the argument). load_command_8_for_player_kind_and_stage (original derives both player addresses from
  * the field_cd address in one register; tried if/else, ternary, p++,
  * default-then-override). */
 #include "game.h"

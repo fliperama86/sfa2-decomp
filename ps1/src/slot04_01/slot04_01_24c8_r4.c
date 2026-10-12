@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b29c8_slot04_01(Object *obj) {
+void start_sequence_3e_or_3f_by_input_bit_slot04_01(Object *obj) {
     int a = 0x3e;
 
     obj->active_flag_4 = 1;
@@ -16,14 +16,14 @@ void func_801b29c8_slot04_01(Object *obj) {
     if (obj->input_bits_2 & 0x8000) {
         a = 0x3f;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b2a30_slot04_01(Object *obj) {
+void update_sequence_play_sound_or_finish_slot04_01(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;

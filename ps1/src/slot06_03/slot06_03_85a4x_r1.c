@@ -11,9 +11,9 @@ extern u16 data_801f8000_slot06_03;
    and the next layer's), linked into the primitive list; the count of
    records drawn is kept in a global and ends the drawing at 0xaa
    (inferred). The locals t, sx, mask and cc are 16-bit and x holds the
-   position before the sign change, as in the model func_801e82c8_slot06_00,
+   position before the sign change, as in the model draw_tile_layer_0_16px_slot06_00,
    where the effect of each is measured. */
-void func_801e85a4_slot06_03(void) {
+void draw_tile_map_layer_16px_slot03_slot06_03(void) {
     Chan *c = data_801aa544;
     int x;
     int pos;

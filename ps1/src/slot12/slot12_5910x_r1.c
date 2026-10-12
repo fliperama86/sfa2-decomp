@@ -14,7 +14,7 @@ extern u8 data_8002bc87_slot12;
 extern u32 data_8002bc88_slot12;
 extern u32 data_800284e4_slot12[];
 
-void func_80015910_slot12(Object *obj) {
+void init_record_fields_by_mode_flag_2_slot12(Object *obj) {
     u32 v = (u32)data_8002bc7c_slot12;
     if (game_state.mode_flag_2 == 0) {
         *(u32 *)v = 0;

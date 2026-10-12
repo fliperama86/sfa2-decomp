@@ -5,14 +5,14 @@
 
 extern u8 data_80185504[][16];
 u16 get_free_list_head(void);
-u16 func_8011a604(int a, u16 b);
+u16 alloc_slot_after(int a, u16 b);
 
 /*
  * What it does (inferred, not an original name): unpacks a compressed list
  * of 16-bit texture cells (q) into the cell tables, for the entry p->stream_index
  * of the sprite entry tables. The cells go into blocks of 16 taken from a
- * free list (func_8011a604 appends a block to the entry's chain; the old
- * blocks of the entry are given back first with func_8011a6b8). q holds a
+ * free list (alloc_slot_after appends a block to the entry's chain; the old
+ * blocks of the entry are given back first with free_slot_chain). q holds a
  * count n at 0, a mode at 1 (0, 2, 4 or 6; another value stores no cells),
  * a byte source at 2 (low 5 bits) and the data from index 5:
  *   mode 0: n cells, each one word; mode 2: n pairs (word, flags);
@@ -29,9 +29,9 @@ u16 func_8011a604(int a, u16 b);
  * column 1), q, the number of blocks used and the number of cells
  * written; p->stream_index then points at it. When the free blocks plus the
  * entry's own are fewer than (n + 15) / 16 + 1, the work is left to
- * func_8011c568.
+ * drop_second_stream_cell_run.
  */
-void func_8011bf70(Slab172 *p, u16 *q) {
+void unpack_cell_list_into_stream_cells(Slab172 *p, u16 *q) {
     u16 count;
     u16 mask;
     u16 base;
@@ -48,13 +48,13 @@ void func_8011bf70(Slab172 *p, u16 *q) {
     unsigned int j;
 
     if ((q[0] + 15) / 16 + 1 > data_80184700 + data_801841bc[p->stream_index][1]) {
-        func_8011c568(p, q);
+        drop_second_stream_cell_run(p, q);
         return;
     }
     k = 0;
     count = 0;
     src = q + 5;
-    func_8011a6b8(data_80183ffc[p->stream_index][1], data_801841bc[p->stream_index][1]);
+    free_slot_chain(data_80183ffc[p->stream_index][1], data_801841bc[p->stream_index][1]);
     blocks = 0;
     entry = get_free_list_head();
     n = q[0];
@@ -67,7 +67,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
         for (i = 0; i < n; i++) {
             word = *src++;
             if (k == 0) {
-                slot = func_8011a604(entry, blocks);
+                slot = alloc_slot_after(entry, blocks);
                 blocks++;
             }
             data_80184704[slot][k] = word ^ mask;
@@ -84,7 +84,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
             mask = base ^ ((((u8) flags & 0x20) << 10) | ((flags & 0x40) << 8));
             flags &= 0x1f;
             if (k == 0) {
-                slot = func_8011a604(entry, blocks);
+                slot = alloc_slot_after(entry, blocks);
                 blocks++;
             }
             data_80184704[slot][k] = word ^ mask;
@@ -104,7 +104,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
             for (j = 0; j < reps; j++) {
                 i++;
                 if (k == 0) {
-                    slot = func_8011a604(entry, blocks);
+                    slot = alloc_slot_after(entry, blocks);
                     blocks++;
                 }
                 data_80184704[slot][k] = word++ ^ mask;
@@ -126,7 +126,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
             for (j = 0; j < reps; j++) {
                 i++;
                 if (k == 0) {
-                    slot = func_8011a604(entry, blocks);
+                    slot = alloc_slot_after(entry, blocks);
                     blocks++;
                 }
                 data_80184704[slot][k] = word++ ^ mask;

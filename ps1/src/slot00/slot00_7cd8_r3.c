@@ -41,10 +41,10 @@ ok:
             rec->pos_y -= rec->delta_y;
             obj->pos_x = rec->pos_x;
             obj->pos_y = rec->pos_y;
-            func_80120028(obj);
+            set_flag_and_push_if_mode_8(obj);
     }
 }
 
-void func_8007801c_slot00(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot00(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800213f0_slot28(Object *obj) {
+void start_sequence_2_when_variant_index_set_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->state_1++;
-        func_80130768(obj, 2, ((Slot28Obj *)obj)->sequence_ptr);
+        set_sequence_from_table_5(obj, 2, ((Slot28Obj *)obj)->sequence_ptr);
     }
 }

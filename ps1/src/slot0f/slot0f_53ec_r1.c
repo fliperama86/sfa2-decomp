@@ -7,7 +7,7 @@ extern u8 data_800ebc48_slot0f[];
 
 void func_800e53ec_slot0f(void) {
     Rect rect;
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1ff;

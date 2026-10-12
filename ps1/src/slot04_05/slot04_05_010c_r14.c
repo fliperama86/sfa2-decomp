@@ -5,7 +5,7 @@
 
 extern void (*data_801c1648_slot04_05[])(Object *, Object *);
 
-void func_801b3b14_slot04_05(Object *object) {
+void clear_slots_bytes_slot04_05(Object *object) {
     u8 *p = (u8 *)object->slots;
     int i;
     u8 z = 0;
@@ -15,6 +15,6 @@ void func_801b3b14_slot04_05(Object *object) {
     }
 }
 
-void func_801b3b38_slot04_05(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_05(Object *obj) {
     data_801c1648_slot04_05[obj->state_0](obj, obj->parent);
 }

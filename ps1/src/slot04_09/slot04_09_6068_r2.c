@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6210_slot04_09(Object *obj) {
-    Object *c = func_8011f32c();
+void spawn_one_moving_child_opposite_facing_slot04_09(Object *obj) {
+    Object *c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0x1b;

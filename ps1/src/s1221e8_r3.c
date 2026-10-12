@@ -8,19 +8,19 @@ void func_801229b4(Entity *entity) {
     u16 v;
     if (entity->countdown != 0) {
         s0 = ref_first.p->field_255 + 2;
-        v = func_80147158(ref_first.p);
+        v = get_table_value_and_count_hit(ref_first.p);
         ref_first.p->effect_code_bc = s0;
-        func_80155eac(v, ref_first.p->team_id);
-        func_80155d4c(v, ref_first.p->team_id);
+        add_table_bcd_to_player_total(v, ref_first.p->team_id);
+        add_table_bcd_score_to_player(v, ref_first.p->team_id);
     }
 }
 
-void func_80122a44(GameState *state) {
+void call_hud_handler_by_state_index(GameState *state) {
     table_8016e7d0[((HudBig *)data_8018f5a0)->state_index](state);
-    func_8012546c();
+    call_input_step_handler();
 }
 
-void func_80122a94(GameState *state) {
+void advance_state_and_set_countdown_timer_2(GameState *state) {
     ((HudBig *)data_8018f5a0)->state_index++;
     ((Entity *)state)->field_116 = 0;
     ((Entity *)state)->countdown_timer_2 = 0x32;
@@ -32,10 +32,10 @@ void func_80122a94(GameState *state) {
     if (((Entity *)state)->field_78 != 0) {
         ((Entity *)state)->field_88 = ((Entity *)state)->field_78->team_id;
     }
-    func_80122b3c(state);
+    count_down_then_advance_state_index(state);
 }
 
-void func_80122b3c(GameState *state) {
+void count_down_then_advance_state_index(GameState *state) {
     if (((Entity *)state)->countdown != 0) {
         ((Entity *)state)->field_11a = 0xff;
         ((Entity *)state)->countdown--;
@@ -43,15 +43,15 @@ void func_80122b3c(GameState *state) {
         ((HudBig *)data_8018f5a0)->state_index++;
         ((Entity *)state)->field_6c = 5;
         if (((Entity *)state)->field_11a != 0) {
-            func_8014f4d4(5, 1);
+            set_menu_command_by_code(5, 1);
         }
     }
 }
 
-void func_80122bb0(GameState *state) {
+void check_table_value_then_advance_state(GameState *state) {
     u16 v;
     if (((Entity *)state)->table_compare_value != table_8016e7e0[((Entity *)state)->table_index]) {
-        func_80122c5c((Entity *)state);
+        update_entity_countdowns_and_sounds((Entity *)state);
     } else {
         ((HudBig *)data_8018f5a0)->state_index++;
         if (((Entity *)state)->mode_flag_b != 0) {
@@ -60,7 +60,7 @@ void func_80122bb0(GameState *state) {
             ((Entity *)state)->countdown_timer = 0x5a;
         }
         if (((Entity *)state)->field_4d == 0 && ((Entity *)state)->nonzero_flag == 0) {
-            func_80155f30(((Entity *)state)->field_7c);
+            add_round_score_to_other_side(((Entity *)state)->field_7c);
         }
     }
 }

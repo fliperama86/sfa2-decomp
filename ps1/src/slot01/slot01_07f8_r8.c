@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80012d7c_slot01(Object *obj);
+void unlink_from_parent_list_and_release_slot01(Object *obj);
 
-void func_80012dcc_slot01(Object *obj) {
-    func_80012d7c_slot01(obj);
+void load_velocities_from_table_2_slot01(Object *obj) {
+    unlink_from_parent_list_and_release_slot01(obj);
 }

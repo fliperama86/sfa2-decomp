@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_800e0850_slot0f(int a, s16 *p);
-void func_800e2550_slot0f(Object *o);
-void func_800e26cc_slot0f(Object *o);
+int save_memory_card_file_slot0f(int a, s16 *p);
+void update_two_option_selection_slot0f(Object *o);
+void init_save_buffer_from_defaults_slot0f(Object *o);
 
 void func_800e1964_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
-    func_800e2550_slot0f(o);
+    update_two_option_selection_slot0f(o);
     b = o->pos_x_frac;
     if (b & 0x860) {
         if (b & 0x820) {
@@ -37,11 +37,11 @@ void func_800e1a10_slot0f(Object *o) {
     if (obj->countdown != 0) {
         obj->countdown = obj->countdown - 1;
     } else {
-        func_800e26cc_slot0f(o);
+        init_save_buffer_from_defaults_slot0f(o);
         if (obj->field_0b == 0) {
-            o->field_0e = func_800e0850_slot0f(0, &o->pos_x);
+            o->field_0e = save_memory_card_file_slot0f(0, &o->pos_x);
         } else {
-            o->field_0e = func_800e0850_slot0f(0x10, &o->pos_x);
+            o->field_0e = save_memory_card_file_slot0f(0x10, &o->pos_x);
         }
         t = -0x4c;
         o->field_0f = t;

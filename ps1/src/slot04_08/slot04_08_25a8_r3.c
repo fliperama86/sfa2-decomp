@@ -13,7 +13,7 @@ void func_801b286c_slot04_08(Object *obj) {
         obj->facing_side ^= 1;
         other->field_15b = 1;
         other->hit_flag = 1;
-        func_80140770(obj, 2, 0xf, -0x200, 0, 0, 0);
+        set_other_hit_reaction_state_0(obj, 2, 0xf, -0x200, 0, 0, 0);
         if (((Slot04aObj *)other)->field_5c < 0) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
         }

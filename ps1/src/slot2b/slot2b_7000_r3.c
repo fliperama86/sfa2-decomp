@@ -6,11 +6,11 @@
 extern ObjectFn data_8007981c_slot2b[];
 extern ObjectFn data_80079828_slot2b[];
 
-void func_80077238_slot2b(Object *obj) {
+void call_handler_by_direction_index_2_slot2b(Object *obj) {
     data_8007981c_slot2b[obj->direction_index >> 1](obj);
 }
 
-void func_8007727c_slot2b(Object *obj) {
+void call_handler_by_state_3_2_slot2b(Object *obj) {
     data_80079828_slot2b[obj->state_3](obj);
 }
 
@@ -30,11 +30,11 @@ void func_800772bc_slot2b(Object *obj) {
             obj->active_flag_3 = 1;
             obj->field_157 = 0;
             obj->active_state = 1;
-            func_80141f28(obj, 1);
-            func_801307e0(obj, 0x1c);
+            add_to_meter_clamped(obj, 1);
+            set_sequence_by_side_and_mode(obj, 0x1c);
             return;
         }
     }
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }

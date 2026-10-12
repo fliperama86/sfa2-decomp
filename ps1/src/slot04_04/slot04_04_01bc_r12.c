@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1510_slot04_04(Object *obj);
+void clear_slot_byte_runs_unless_kind_4_slot04_04(Object *obj);
 
-u8 func_801b107c_slot04_04(Object *obj) {
+u8 try_start_meter_action_state_8_variant_5_slot04_04(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter < 0x30) {
@@ -13,7 +13,7 @@ u8 func_801b107c_slot04_04(Object *obj) {
     }
     if ((u8)func_80141788(obj)) {
         r = 1;
-        func_801b1510_slot04_04(obj);
+        clear_slot_byte_runs_unless_kind_4_slot04_04(obj);
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
@@ -26,7 +26,7 @@ u8 func_801b107c_slot04_04(Object *obj) {
     return r;
 }
 
-u8 func_801b111c_slot04_04(Object *obj) {
+u8 try_start_meter_action_state_8_variant_6_slot04_04(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter < 0x30) {

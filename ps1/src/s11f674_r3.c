@@ -12,7 +12,7 @@ void set_digits_from_number(int n) {
     }
 }
 
-void func_8011ff24(void) {
+void copy_three_globals_and_clear_three(void) {
     data_801ad354 = data_8018f5e0;
     data_8018db00 = data_8019036c;
     data_8018db04 = data_801903ac;
@@ -21,7 +21,7 @@ void func_8011ff24(void) {
     data_8018f59c = 0;
 }
 
-void func_8011ff74(Object *object) {
+void set_state_0_if_x_outside_margin_narrow(Object *object) {
     int margin = box_margin[0];
     if ((u16)((u16)object->pos_x - margin + 0x40) > 0x200) {
         object->state_0 = 3;

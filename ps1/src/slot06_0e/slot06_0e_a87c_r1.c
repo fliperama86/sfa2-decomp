@@ -13,17 +13,17 @@ extern s16 data_801f8474_slot06_0e;
 extern u8 data_801fb1f8_slot06_0e[];
 
 int rand(void);
-void func_801eaa28_slot06_0e(Object *obj);
+void start_sequence_from_lookup_index_slot06_0e(Object *obj);
 
-void func_801ea9f4_slot06_0e(Object *obj) {
+void increment_state_0_slot06_0e(Object *obj) {
     obj->state_0++;
 }
 
-void func_801eaa08_slot06_0e(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_4_slot06_0e(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801eaa28_slot06_0e(Object *obj) {
+void start_sequence_from_lookup_index_slot06_0e(Object *obj) {
     Object *c = (Object *)obj->linked_object_b;
 
     data_801f8474_slot06_0e = obj->table_index + obj->countdown;
@@ -34,14 +34,14 @@ void func_801eaa28_slot06_0e(Object *obj) {
     }
     obj->pos_x = data_801ef4bc_slot06_0e[data_801f8474_slot06_0e];
     data_801f8474_slot06_0e = data_801ef4b4_slot06_0e[data_801f8474_slot06_0e];
-    func_80130700(obj, data_801ef40c_slot06_0e[data_801f8474_slot06_0e]);
+    set_sequence_entry(obj, data_801ef40c_slot06_0e[data_801f8474_slot06_0e]);
 }
 
-void func_801eaafc_slot06_0e(Object *obj) {
+void call_handler_by_state_0_7_slot06_0e(Object *obj) {
     data_801ef4c4_slot06_0e[obj->state_0](obj);
 }
 
-void func_801eab3c_slot06_0e(Object *obj) {
+void init_object_and_pick_random_8_byte_row_slot06_0e(Object *obj) {
     u32 i;
     int off;
     u8 *tbl;
@@ -53,7 +53,7 @@ void func_801eab3c_slot06_0e(Object *obj) {
     obj->image_row = 0;
     obj->field_0c = 0;
     obj->spawn_mode = 4;
-    func_80130700(obj, data_801ef418_slot06_0e[0]);
+    set_sequence_entry(obj, data_801ef418_slot06_0e[0]);
     off = rand() & 0xf;
     off <<= 3;
     i = 0;
@@ -63,7 +63,7 @@ void func_801eab3c_slot06_0e(Object *obj) {
     }
 }
 
-void func_801eabd4_slot06_0e(Object *obj) {
+void update_object_sequence_until_scroll_y_slot06_0e(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_sequence_checked(obj);
     }
@@ -75,10 +75,10 @@ void func_801eabd4_slot06_0e(Object *obj) {
     }
 }
 
-void func_801eac5c_slot06_0e(Object *obj) {
+void increment_state_0_2_slot06_0e(Object *obj) {
     obj->state_0++;
 }
 
-void func_801eac70_slot06_0e(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_5_slot06_0e(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

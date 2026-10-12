@@ -18,10 +18,10 @@ extern u8 data_801b7d90_slot04_sel[];
 extern Slot04SelRec9d38 data_801b9d38_slot04_sel[];
 extern u8 data_801b9d68_slot04_sel;
 extern u8 data_801b9d6c_slot04_sel;
-void func_801b44ec_slot04_sel(void);
+void check_opposite_player_same_selection_2_slot04_sel(void);
 
 /* The first read of the second player's side goes through the pointer to the first player. Written player_right.side, as the two later reads are, this function differs from the original in 20 instruction slots. */
-void func_801b3380_slot04_sel(void) {
+void update_select_screen_step_d_slot04_sel(void) {
     Object *l = &player_left;
     Object *r;
     Slot04SelRec9d38 *a = data_801b9d38_slot04_sel;
@@ -30,16 +30,16 @@ void func_801b3380_slot04_sel(void) {
     int t;
     int m;
 
-    func_801519b4(&data_801b7ef4_slot04_sel);
-    func_801519b4(data_801b7ff4_slot04_sel[player_left.side]);
-    func_801519b4(data_801b7ff4_slot04_sel[l[1].side]);
-    func_801519b4(&data_801b84b4_slot04_sel);
-    func_801519b4(&data_801b84cc_slot04_sel);
+    add_item_to_table(&data_801b7ef4_slot04_sel);
+    add_item_to_table(data_801b7ff4_slot04_sel[player_left.side]);
+    add_item_to_table(data_801b7ff4_slot04_sel[l[1].side]);
+    add_item_to_table(&data_801b84b4_slot04_sel);
+    add_item_to_table(&data_801b84cc_slot04_sel);
     data_801b89d8_slot04_sel = 0xa8;
     data_801b89da_slot04_sel = 0x30;
-    func_801519b4(data_801b89d4_slot04_sel);
-    func_801519b4(&data_801b84e8_slot04_sel);
-    func_801519b4(&data_801b8618_slot04_sel);
+    add_item_to_table(data_801b89d4_slot04_sel);
+    add_item_to_table(&data_801b84e8_slot04_sel);
+    add_item_to_table(&data_801b8618_slot04_sel);
     data_801b7d7c_slot04_sel[a->count](l, a);
     r = l + 1;
     b = a + 1;
@@ -64,7 +64,7 @@ void func_801b3380_slot04_sel(void) {
         if (a->field_09 == 0 && l->field_d8 != 0) {
             l->field_d4 = (l->field_d4 & 1) + 4;
             ref_other.p = l;
-            func_801b44ec_slot04_sel();
+            check_opposite_player_same_selection_2_slot04_sel();
             if (data_8019045c[0] != 0) {
                 l->field_d4 = l->field_d4 ^ *(u8 *)data_8019045c;
             }
@@ -72,7 +72,7 @@ void func_801b3380_slot04_sel(void) {
         if (b->field_09 == 0 && r->field_d8 != 0) {
             r->field_d4 = (r->field_d4 & 1) + 4;
             ref_other.p = r;
-            func_801b44ec_slot04_sel();
+            check_opposite_player_same_selection_2_slot04_sel();
             if (data_8019045c[0] != 0) {
                 r->field_d4 = r->field_d4 ^ *(u8 *)data_8019045c;
             }

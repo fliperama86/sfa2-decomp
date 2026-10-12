@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137e38(Object *object) {
+void advance_state_2_flip_facing_side(Object *object) {
     object->sequence_changed_flag = 1;
     object->state_2++;
     object->facing_side ^= 1;
-    func_801380f0(object);
+    call_kind_9_handler_for_player(object);
     object->countdown = (u8)object->countdown | 0x200;
     advance_sequence_checked(object);
 }

@@ -15,14 +15,14 @@ void func_801ca568_slot05_06(Object *obj) {
         obj->accel_x = 0;
         obj->accel_y = -0x6000;
         obj->state_3 = obj->state_3 + 1;
-        func_80140cd8(obj, *(s16 *)(data_801dd404_slot05_06 + (obj->direction_index & 0xfe)), 0);
-        func_801307e0(obj, 0x23);
+        apply_damage_to_other_return_defeated(obj, *(s16 *)(data_801dd404_slot05_06 + (obj->direction_index & 0xfe)), 0);
+        set_sequence_by_side_and_mode(obj, 0x23);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801ca610_slot05_06(Object *o) {
+void advance_state_3_on_step_flag_byte_2_slot05_06(Object *o) {
     if (*(u8 *)&o->step_flags != 0) {
         o->active_state = 1;
         ((Slot04aObj *)o)->field_1c8 = 0;

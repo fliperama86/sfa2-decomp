@@ -7,7 +7,7 @@ void func_801b03ac_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t < 0) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if ((t & 0xff) != 0) {
             if (obj->facing_side != 0) {

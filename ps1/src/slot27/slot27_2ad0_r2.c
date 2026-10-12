@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013b74_slot27(Object *obj);
+void load_palette_anim_from_table_index_slot27(Object *obj);
 
 void func_80012cd0_slot27(Object *obj) {
     int *x = (int *)data_8019045c;
@@ -20,5 +20,5 @@ void func_80012cd0_slot27(Object *obj) {
     obj->vel_y = *y;
     *x = 4;
     *x = ref_other.p->field_d8 + 4;
-    func_80013b74_slot27(obj);
+    load_palette_anim_from_table_index_slot27(obj);
 }

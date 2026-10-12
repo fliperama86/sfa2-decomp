@@ -23,18 +23,18 @@ void func_80017018_slot28(Object *o) {
     obj->field_01 = 1;
 }
 
-void func_80017090_slot28(Object *obj) {
+void advance_sequence_and_show_object_slot28(Object *obj) {
     advance_sequence_checked(obj);
     obj->field_01 = 1;
 }
 
-void func_800170c0_slot28(Object *obj) {
+void call_state_1_handler_c_advance_and_show_slot28(Object *obj) {
     data_800306c4_slot28[obj->state_1](obj);
     advance_sequence_checked(obj);
     obj->field_01 = 1;
 }
 
-void func_8001711c_slot28(Object *obj) {
+void advance_state_1_if_variant_set_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->state_1 += 1;
     }

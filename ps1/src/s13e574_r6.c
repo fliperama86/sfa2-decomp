@@ -9,7 +9,7 @@ int func_8013ee80(Object *object, int index, u8 arg) {
     return data_80188f44;
 }
 
-void func_8013eed4(Object *object, int index, int arg) {
+void init_slot_fields_and_advance_stage(Object *object, int index, int arg) {
     u8 v = object->slots[(u8)index].stage;
     object->slots[(u8)index].entry_index = 1;
     object->slots[(u8)index].repeat_count = 0;
@@ -18,5 +18,5 @@ void func_8013eed4(Object *object, int index, int arg) {
     object->slots[(u8)index].level = 1;
     object->slots[(u8)index].field_06 = 0;
     object->slots[(u8)index].stage = v + 1;
-    func_8013ef28(object, (u8)index, (u8)arg);
+    update_slot_three_input_counters(object, (u8)index, (u8)arg);
 }

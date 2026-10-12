@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1fc0_slot04_0b(Object *o) {
+void shift_pos_x_when_mode_set_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     update_sequence(o);

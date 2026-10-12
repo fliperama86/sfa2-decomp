@@ -17,7 +17,7 @@ extern u16 *data_80028b40_slot12;
    then loaded to the frame buffer rectangle (x 16, y 480, 16 wide, 1 high)
    and the function waits for the drawing to finish. It returns 1 when any
    entry differed, else 0. */
-int func_80011688_slot12(void) {
+int fade_palette_toward_target_slot12(void) {
     Rect r;
     int i;
     unsigned green_stepped, red_stepped, blue, green, red, blue_target, green_target, red_target;

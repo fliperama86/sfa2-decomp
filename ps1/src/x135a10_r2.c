@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80135c88(void) {
+void queue_player_status_text_items(void) {
     GameState *g = &game_state;
     Object *o;
     u8 s;
@@ -14,43 +14,43 @@ void func_80135c88(void) {
             if (data_80198069 != 4) {
                 s = data_801980b0 & 0xf;
                 if (s >= 12) {
-                    func_801519b4(table_80172318[s]);
+                    add_item_to_table(table_80172318[s]);
                     if (s == 14) {
-                        func_80126efc(g, o);
+                        queue_digit_text(g, o);
                     }
                 }
             } else {
                 func_80156c80(g, o);
-                func_80156bc8(g, o);
+                queue_name_text(g, o);
             }
             o = &player_right;
             if (data_801983fd != 4) {
                 s = data_80198444 & 0xf;
                 if (s >= 12) {
-                    func_801519b4(table_80172328[s]);
+                    add_item_to_table(table_80172328[s]);
                     if (s == 14) {
-                        func_80126efc(&game_state, o);
+                        queue_digit_text(&game_state, o);
                     }
                 }
             } else {
                 func_80156c80(g, o);
-                func_80156bc8(g, o);
+                queue_name_text(g, o);
             }
         } else if (data_80190138 != 0) {
             if (data_801a6984[1] != 0) {
                 if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
-                        func_801519b4(&data_80172380[0]);
+                        add_item_to_table(&data_80172380[0]);
                     } else if (g->mode & 2) {
-                        func_801519b4(&data_80172380[1]);
+                        add_item_to_table(&data_80172380[1]);
                     }
                 }
             } else if (g->versus_flag != 0 && data_801a6984[0] != 0) {
                 if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
-                        func_801519b4(&data_80172380[2]);
+                        add_item_to_table(&data_80172380[2]);
                     } else if (g->mode & 2) {
-                        func_801519b4(&data_80172380[3]);
+                        add_item_to_table(&data_80172380[3]);
                     }
                 }
             }

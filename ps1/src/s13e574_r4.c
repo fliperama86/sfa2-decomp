@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013ebf4(Object *object, int index, int arg) {
+void advance_slot_stage_with_timer(Object *object, int index, int arg) {
     Slot *slot;
     object->slots[(u8)index].stage++;
     arg = 0x20;

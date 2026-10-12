@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014e080(Object *object) {
+void init_object_mode_2(Object *object) {
     object->script_mode = 2;
     object->init_done_flag = 0;
     object->field_207 = 0;

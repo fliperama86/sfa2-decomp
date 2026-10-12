@@ -20,10 +20,10 @@ void func_80013ea0_slot28(Object *obj) {
     int one;
     h->step_index_2 = h->step_index_2 + 1;
     h->countdown_timer = 0x258;
-    func_801280f0();
+    start_fade_mode_1_and_wait();
     one = 1;
     data_80190568 = one;
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_80051878_slot28.p = o;
@@ -33,9 +33,9 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->image_row = 0;
         o->ot_depth = 0;
-        func_80130768(o, 1, data_80029ed0_slot28);
+        set_sequence_from_table_5(o, 1, data_80029ed0_slot28);
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_8005188c_slot28.p = o;
@@ -45,9 +45,9 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->image_row = 0;
         o->ot_depth = 0;
-        func_80130768(o, 0, data_80029ecc_slot28);
+        set_sequence_from_table_5(o, 0, data_80029ecc_slot28);
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_8005187c_slot28[0] = o;
@@ -57,9 +57,9 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->image_row = 0;
         o->ot_depth = 2;
-        func_80130768(o, 0, data_80029ed8_slot28);
+        set_sequence_from_table_5(o, 0, data_80029ed8_slot28);
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_8005187c_slot28[1] = o;
@@ -69,9 +69,9 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->image_row = 0;
         o->ot_depth = 3;
-        func_80130768(o, 0, data_80029ee0_slot28);
+        set_sequence_from_table_5(o, 0, data_80029ee0_slot28);
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_8005187c_slot28[2] = o;
@@ -81,9 +81,9 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->image_row = 0;
         o->ot_depth = one;
-        func_80130768(o, 0, data_80029ee4_slot28);
+        set_sequence_from_table_5(o, 0, data_80029ee4_slot28);
     }
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         func_8001420c_slot28(o);
         data_8005187c_slot28[3] = o;
@@ -94,8 +94,8 @@ void func_80013ea0_slot28(Object *obj) {
         o->table_index = one;
         o->ot_depth = 0;
         o->vel_y = 0xb8;
-        func_80130768(o, 0, data_80029ef4_slot28);
+        set_sequence_from_table_5(o, 0, data_80029ef4_slot28);
     }
     func_80151020(0x300);
-    func_8012818c();
+    start_fade_mode_c01_and_wait();
 }

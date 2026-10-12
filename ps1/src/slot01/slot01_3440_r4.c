@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013a24_slot01(Object *obj);
+void noop_slot00_2_slot01(Object *obj);
 
-void func_800138a4_slot01(Object *obj) {
+void move_pos_y_to_target_by_eight_slot01(Object *obj) {
     int a = game_state.field_d4;
     int d = a - obj->pos_y;
     if (d > 0) {
@@ -21,7 +21,7 @@ void func_800138a4_slot01(Object *obj) {
     obj->pos_y = a;
 }
 
-void func_80013908_slot01(Object *obj) {
+void move_pos_x_toward_target_slot01(Object *obj) {
     s16 *p = &game_state.field_d2;
     int a = *p;
     if (obj->pos_x - a > 0) {
@@ -37,7 +37,7 @@ void func_80013908_slot01(Object *obj) {
     }
     obj->state_1++;
     obj->pos_x = *p;
-    func_80013a24_slot01(obj);
+    noop_slot00_2_slot01(obj);
 }
 
 void func_8001398c_slot01(Object *obj) {
@@ -46,5 +46,5 @@ void func_8001398c_slot01(Object *obj) {
     }
 }
 
-void func_800139bc_slot01(Object *obj) {
+void noop_slot00_slot01(Object *obj) {
 }

@@ -16,7 +16,7 @@ void func_8001d548_slot28(Object *obj, int idx);
 void func_8001d578_slot28(Object *obj);
 void func_8001d5d8_slot28(void);
 
-void func_8001d184_slot28(Object *obj) {
+void setup_slot28_pass_objects_and_fade_slot28(Object *obj) {
     Object *o;
     int i;
     Object **slot;
@@ -25,7 +25,7 @@ void func_8001d184_slot28(Object *obj) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_8001d5d8_slot28();
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             func_8001d578_slot28(o);
             data_80051a48_slot28.p = o;
@@ -35,10 +35,10 @@ void func_8001d184_slot28(Object *obj) {
             o->spawn_y = 0x1e0;
             o->image_row = 0;
             o->ot_depth = 5;
-            func_80130768(o, 0, data_8003b510_slot28);
+            set_sequence_from_table_5(o, 0, data_8003b510_slot28);
             o->field_01 = 1;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;
             o->field_01 = 1;
@@ -56,7 +56,7 @@ void func_8001d184_slot28(Object *obj) {
             data_80051a18_slot28[0] = o;
             o->box_tables = (BoxTables *)data_8003b514_slot28;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;
             o->field_02 = 0x2e;
@@ -78,7 +78,7 @@ void func_8001d184_slot28(Object *obj) {
         one = 1;
         slot = &data_80051a18_slot28[2];
         for (; i < 6; i++) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->field_02 = 0x2e;
                 o->table_index = 3;
@@ -96,7 +96,7 @@ void func_8001d184_slot28(Object *obj) {
             }
             slot++;
         }
-        func_80130768(data_80051a40_slot28.p, 0, data_8003b504_slot28);
+        set_sequence_from_table_5(data_80051a40_slot28.p, 0, data_8003b504_slot28);
         o = data_80051a44_slot28[0];
         o->field_01 = 0;
         o = data_80051a48_slot28.p;
@@ -105,6 +105,6 @@ void func_8001d184_slot28(Object *obj) {
         o->pos_y = 0x10;
         o->ot_depth = 5;
         func_8001d548_slot28(obj, 4);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

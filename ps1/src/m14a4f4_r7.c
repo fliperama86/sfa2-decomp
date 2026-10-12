@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014da18(Object *object) {
+void start_random_script_from_table_index(Object *object) {
     u32 *table;
     u16 *list;
     u16 *p;
@@ -28,7 +28,7 @@ void func_8014da18(Object *object) {
     object->field_20c = first;
 }
 
-void func_8014dae8(Object *object) {
+void start_random_script_from_other_frame(Object *object) {
     u32 *table;
     u16 *list;
     u16 *p;

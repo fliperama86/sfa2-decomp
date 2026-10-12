@@ -4,21 +4,21 @@
 #include "protos.h"
 
 void func_80144734(Object *object) {
-    func_80144220(object);
+    update_position_x_with_accel(object);
     object->countdown = (s16)object->countdown - 1;
     if (object->countdown & 0x80) {
-        func_80144e90(object);
+        advance_state_0_and_clear_config_mode(object);
     }
 }
 
-void func_80144780(Object *object) {
+void call_state_1_handler_3(Object *object) {
     handlers_b630[object->state_1](object);
 }
 
-void func_801447c0(Object *object) {
+void call_handler_by_state_2_b640_and_advance(Object *object) {
     handlers_b640[object->state_2](object);
     advance_sequence_checked(object);
     if (object->state_2 >= 2) {
-        func_80120028(object);
+        set_flag_and_push_if_mode_8(object);
     }
 }

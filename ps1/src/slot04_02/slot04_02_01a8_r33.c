@@ -5,7 +5,7 @@
 
 extern s32 data_801c64b8_slot04_02[];
 
-void func_801b452c_slot04_02(Object *obj) {
+void load_velocities_from_table_on_step_flag_slot04_02(Object *obj) {
     int k;
 
     update_sequence(obj);

@@ -7,12 +7,12 @@ extern u16 data_801a2bc4[];
 extern u16 data_801c79b4_slot04_14[];
 extern u16 data_801c7c74_slot04_14[];
 
-void func_801b8354_slot04_14(Object *obj);
+void set_state_0_to_2_slot04_14(Object *obj);
 void func_801b8430_slot04_14(Object *obj, u8 arg);
 void func_801b84b8_slot04_14(Object *obj);
 void func_8011ffdc(Object *o);
 
-void func_801b8354_slot04_14(Object *obj) {
+void set_state_0_to_2_slot04_14(Object *obj) {
     obj->state_0 = 2;
 }
 
@@ -38,8 +38,8 @@ void func_801b8360_slot04_14(Object *obj) {
     }
 }
 
-void func_801b8410_slot04_14(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot04_14(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
 void func_801b8430_slot04_14(Object *obj, u8 arg) {
@@ -52,7 +52,7 @@ void func_801b8430_slot04_14(Object *obj, u8 arg) {
             data_801a2bc4[i] = data_801c7c74_slot04_14[i];
         }
     }
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
 }
 
 void func_801b84b8_slot04_14(Object *obj) {
@@ -67,6 +67,6 @@ void func_801b84b8_slot04_14(Object *obj) {
             data_801a2bc4[i] = data_801c7c74_slot04_14[row + i];
         }
     }
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
     obj->variant_index_2++;
 }

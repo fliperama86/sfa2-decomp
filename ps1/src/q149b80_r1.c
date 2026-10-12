@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80149b80(Object *object) {
+int consume_active_frame_flag(Object *object) {
   if (game_state.field_4d != 0) {
     return 0;
   }

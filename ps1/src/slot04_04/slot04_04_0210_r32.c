@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4de4_slot04_04(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot04_04(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

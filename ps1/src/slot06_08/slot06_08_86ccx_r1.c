@@ -5,12 +5,12 @@
 
 extern Slot06Tile data_801f085c_slot06_08[2][0x83];
 
-/* A variant of func_801e86bc_slot06_04: the row counter starts at 4, the
+/* A variant of draw_tile_layer_sprites_with_partial_row_slot06_04: the row counter starts at 4, the
    loop counter at a value derived from base_x_fixed, and the tile table has
    0x83 records per buffer (inferred). The local p2 holds x - 0x100000:
    written into the expression, the function is 8 bytes shorter and 133
    instruction slots differ. */
-void func_801e86cc_slot06_08(void) {
+void draw_scrolling_tile_map_layer_slot06_08(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int q;
     int x;

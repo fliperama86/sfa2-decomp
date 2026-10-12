@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80148b60(Object *object) {
+void spawn_three_effect_objects_with_sound(Object *object) {
     int side;
     u16 i;
     Object *o;
@@ -12,7 +12,7 @@ void func_80148b60(Object *object) {
         else side = get_random_byte() & 1;
         i = 0;
         do {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 9;

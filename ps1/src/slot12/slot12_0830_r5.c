@@ -6,7 +6,7 @@
 extern Object *data_8002d568_slot12;
 extern Object *data_8002d56c_slot12;
 
-void func_80010efc_slot12(void) {
+void update_countdown_and_spawn_blocks_slot12(void) {
     u16 *p = &game_state.countdown_2;
     int t = *p - 1;
     *p = t;
@@ -19,19 +19,19 @@ void func_80010efc_slot12(void) {
         } else {
             play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 5);
         }
-        b = func_8011f1e0();
+        b = pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x26;
             b->block_mode = 1;
         }
-        b = func_8011f1e0();
+        b = pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x7e;
             b->block_mode = 0;
         }
-        b = func_8011f1e0();
+        b = pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x7e;

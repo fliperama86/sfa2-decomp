@@ -6,7 +6,7 @@
 extern ObjectFn data_80079a18_slot2b[];
 extern u8 data_80079a00_slot2b[];
 extern Object *data_8007ef28_slot2b;
-void func_80078280_slot2b(Object *o);
+void call_handler_by_state_1_2_slot2b(Object *o);
 
 void func_80078168_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
@@ -34,9 +34,9 @@ void func_80078168_slot2b(Object *o) {
         o->frames = data_1f800158;
     }
     func_80138070(o, 4);
-    func_80078280_slot2b(o);
+    call_handler_by_state_1_2_slot2b(o);
 }
 
-void func_80078280_slot2b(Object *o) {
+void call_handler_by_state_1_2_slot2b(Object *o) {
     data_80079a18_slot2b[o->state_1](o);
 }

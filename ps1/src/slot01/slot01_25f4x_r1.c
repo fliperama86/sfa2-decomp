@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800125f4_slot01(u8 *src, u8 unused) {
+void load_and_store_16x3_image_from_src_slot01(u8 *src, u8 unused) {
     Rect r;
     u8 *p;
     r.x = 0x70;

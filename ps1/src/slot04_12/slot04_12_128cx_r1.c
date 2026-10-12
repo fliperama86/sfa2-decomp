@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80146998(Object *object);
+void spawn_offset_effect_and_play_sounds(Object *object);
 /* functions of other units of this module */
-void func_801b128c_slot04_12(Object *obj);
+void start_action_variant_8_lock_other_slot04_12(Object *obj);
 
-void func_801b128c_slot04_12(Object *obj) {
+void start_action_variant_8_lock_other_slot04_12(Object *obj) {
     ref_other.p = obj->other;
     obj->state_0 = 1;
     obj->state_1 = 0;
@@ -21,6 +21,6 @@ void func_801b128c_slot04_12(Object *obj) {
     obj->facing_side = obj->saved_facing;
     ref_other.p->field_6b = 0x14;
     ref_other.p->other_lock = 0x18;
-    func_80146998(obj);
-    func_801307e0(obj, 0x1f);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x1f);
 }

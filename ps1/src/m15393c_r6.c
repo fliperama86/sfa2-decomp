@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801544a8(int *p) {
+void disable_and_close_events(int *p) {
     func_801577cc(p[0]);
     func_801577cc(p[1]);
     func_801577cc(p[2]);

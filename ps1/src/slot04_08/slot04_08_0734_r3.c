@@ -7,7 +7,7 @@ int func_801b0ba8_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -27,7 +27,7 @@ int func_801b0c24_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -47,7 +47,7 @@ int func_801b0ca0_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;

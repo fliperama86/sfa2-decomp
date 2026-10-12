@@ -5,7 +5,7 @@
 
 
 
-int func_80130184(Object *object) {
+int apply_velocity_and_check_ground(Object *object) {
     *(s32 *)&object->pos_x_frac += object->vel_x;
     object->vel_x += object->accel_x;
     *(u32 *)&object->pos_y_frac -= object->vel_y;
@@ -13,7 +13,7 @@ int func_80130184(Object *object) {
     return object->pos_y <= object->ground_y;
 }
 
-void func_801301d8(Object *object) {
+void apply_vel_x_and_check_input_bit(Object *object) {
     if (object->variant_index != 0) {
         if (object->input_bits_2 & 0x8000) func_8012f838(object);
     } else {

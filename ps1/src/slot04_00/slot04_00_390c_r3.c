@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b4c_slot04_00(Object *obj) {
+void update_airborne_until_ground_landing_2_slot04_00(Object *obj) {
     if ((u8)obj->step_flags == 0) {
         obj->active_state = 1;
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
@@ -14,7 +14,7 @@ void func_801b3b4c_slot04_00(Object *obj) {
             obj->active_state = 0;
             obj->active_flag_3 = 0;
             obj->pos_y = obj->ground_y;
-            func_801307e0(obj, 0x30);
+            set_sequence_by_side_and_mode(obj, 0x30);
             return;
         }
     }

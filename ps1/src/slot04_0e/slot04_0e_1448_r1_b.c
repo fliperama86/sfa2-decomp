@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1bfc_slot04_0e(Object *obj) {
+void reset_states_to_seven_variant_8_slot04_0e(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -16,7 +16,7 @@ void func_801b1bfc_slot04_0e(Object *obj) {
     obj->facing_side = obj->saved_facing;
 }
 
-void func_801b1c40_slot04_0e(Object *obj) {
+void reset_states_to_seven_variant_9_slot04_0e(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;

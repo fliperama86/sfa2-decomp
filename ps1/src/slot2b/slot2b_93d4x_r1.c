@@ -5,7 +5,7 @@
 
 extern Object *data_8007ef34_slot2b;
 
-void func_800795b4_slot2b(Object *o);
+void apply_velocity_and_acceleration_2_slot2b(Object *o);
 
 /*
  * What it does (inferred, not an original name): an update step of an
@@ -17,7 +17,7 @@ void func_800795b4_slot2b(Object *o);
 void func_800793d4_slot2b(Object *o) {
     s16 y;
 
-    func_800795b4_slot2b(o);
+    apply_velocity_and_acceleration_2_slot2b(o);
     if (data_8007ef34_slot2b->ground_y < o->pos_y) {
         o->state_1++;
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
@@ -31,7 +31,7 @@ void func_800793d4_slot2b(Object *o) {
             o->pos_y = y;
             o->data_ptr_b = data_80173c9c;
         } while (0);
-        func_80130700(o, data_8017c850);
+        set_sequence_entry(o, data_8017c850);
         play_side_sound_at(o, data_8007ef34_slot2b->side, 0x10);
     } else {
         advance_sequence_checked(o);

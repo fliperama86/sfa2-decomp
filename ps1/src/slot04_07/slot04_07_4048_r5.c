@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b470c_slot04_07(Object *obj) {
+void start_back_move_or_enter_state_1_2_slot04_07(Object *obj) {
     u8 one = 1;
 
     obj->active_flag_3 = one;
@@ -24,11 +24,11 @@ void func_801b470c_slot04_07(Object *obj) {
                     obj->pos_x = obj->pos_x + 0x20;
                 }
             }
-            func_801307e0(obj, 0x2f);
+            set_sequence_by_side_and_mode(obj, 0x2f);
         } else {
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

@@ -5,15 +5,15 @@
 
 extern void (*data_80022e80_slot12[])(Object *);
 extern void (*data_80022e8c_slot12[])(Object *);
-void func_80012b5c_slot12(Object *obj);
-void func_80012a0c_slot12(Object *obj);
+void link_offset_tiles_into_ot_slot12(Object *obj);
+void init_black_tile_pairs_at_object_pos_slot12(Object *obj);
 
-void func_8001281c_slot12(Object *obj) {
+void call_handler_by_state_0_with_tile_update_slot12(Object *obj) {
     if (obj->table_index & 0x80) {
         data_80022e8c_slot12[obj->state_0](obj);
     } else {
         data_80022e80_slot12[obj->state_0](obj);
-        func_80012b5c_slot12(obj);
+        link_offset_tiles_into_ot_slot12(obj);
     }
 }
 
@@ -37,5 +37,5 @@ void func_800128b4_slot12(Object *obj) {
         obj->pos_y = 0xe0;
         obj->accel_y = -obj->accel_y;
     }
-    func_80012a0c_slot12(obj);
+    init_black_tile_pairs_at_object_pos_slot12(obj);
 }

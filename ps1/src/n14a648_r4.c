@@ -3,20 +3,20 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014c3ac(Object *object) {
+void branch_script_if_other_kind_equals_arg(Object *object) {
     s16 v = *data_80189460++;
     if (object->other->kind == v) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }
 
-void func_8014c40c(Object *object) {
+void branch_script_if_kind_equals_arg(Object *object) {
     s16 v = *data_80189460++;
     if (object->kind == v) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }

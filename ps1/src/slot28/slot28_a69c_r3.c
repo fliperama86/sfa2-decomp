@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001ac50_slot28(Object *o) {
+void start_sequence_2_on_variant_index_slot28(Object *o) {
     if (o->variant_index != 0) {
         o->state_1++;
         o->variant_index = 0;
-        func_80130768(o, 2, (SequenceStep **)o->box_tables);
+        set_sequence_from_table_5(o, 2, (SequenceStep **)o->box_tables);
     }
 }
 
-void func_8001ac90_slot28(Object *o) {
+void start_sequence_3_on_variant_index_slot28(Object *o) {
     if (o->variant_index != 0) {
         o->state_1++;
         o->variant_index = 0;
         o->countdown = 0;
-        func_80130768(o, 3, (SequenceStep **)o->box_tables);
+        set_sequence_from_table_5(o, 3, (SequenceStep **)o->box_tables);
     }
 }
 

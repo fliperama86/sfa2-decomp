@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013cc4_slot27(Object *obj);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
-void func_80013874_slot27(Object *obj) {
+void advance_state_1_on_y_scale_flag_slot27(Object *obj) {
     if (obj->y_scale & 0x8000) {
         obj->state_2 = 0;
         obj->state_3 = 0;
         obj->state_1 = obj->state_1 + 1;
     }
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }
 
-void func_800138bc_slot27(void) {
+void update_selection_from_pressed_buttons_slot27(void) {
     int *sel = (int *)&game_state.field_354;
 
     *sel = game_state.selection;
@@ -32,7 +32,7 @@ void func_800138bc_slot27(void) {
     }
 }
 
-void func_80013930_slot27(Object *obj) {
+void set_side_bit_in_pass_index_slot27(Object *obj) {
     int side;
     u16 *h;
 
@@ -43,10 +43,10 @@ void func_80013930_slot27(Object *obj) {
     *h |= 1 << side;
 }
 
-void func_80013974_slot27(Object *obj) {
+void increment_state_0_slot27(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
 }
 
 void func_80013988_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

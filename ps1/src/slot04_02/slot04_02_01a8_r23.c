@@ -8,6 +8,6 @@ void func_801b29bc_slot04_02(Object *obj) {
     obj->countdown = *(u8 *)&obj->countdown | 0x3200;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, 0x28);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, 0x28);
 }

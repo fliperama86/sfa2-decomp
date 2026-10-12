@@ -6,7 +6,7 @@
 extern u16 *data_80026958_slot27[];
 extern Slot27Rec9338 data_80029338_slot27[];
 
-void func_80011d90_slot27(void) {
+void update_hold_counters_for_kind_2_and_4_slot27(void) {
     Slot27Rec9338 *r = &data_80029338_slot27[ref_other.p->side];
     Object *o = ref_other.p;
 

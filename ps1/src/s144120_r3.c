@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014448c(Object *object) {
+void set_state_2_7_and_sequence_d(Object *object) {
     object->state_2 = 7;
     func_80144ee4(object, 0xd);
 }

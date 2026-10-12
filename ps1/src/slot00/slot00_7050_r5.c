@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800776a8_slot00(Object *obj, short delta);
+void add_delta_to_parent_if_counter_zero_slot00(Object *obj, short delta);
 
-void func_800774f0_slot00(Object *obj) {
+void spawn_effect_and_raise_parent_variant_slot00(Object *obj) {
     Object *p = obj->parent;
     Object *n;
     Object *q;
@@ -13,9 +13,9 @@ void func_800774f0_slot00(Object *obj) {
         p->variant_index_2 = p->variant_index_2 + 1;
     }
     obj->state_0 = obj->state_0 + 1;
-    func_800776a8_slot00(obj, 0x12);
+    add_delta_to_parent_if_counter_zero_slot00(obj, 0x12);
     q = ((Slot00Obj *)obj)->field_a8;
-    n = (Object *)func_8011f1e0();
+    n = (Object *)pop_block_from_pool();
     if (n != 0) {
         n->active_count = 1;
         n->table_index = 6;

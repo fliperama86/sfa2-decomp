@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6140_slot04_02(Object *object) {
+void advance_state_2_when_timer_zero_slot04_02(Object *object) {
     if (game_state.countdown_timer == 0) {
         object->state_2 = object->state_2 + 1;
     }
     update_sequence(object);
 }
 
-void func_801b617c_slot04_02(Object *obj) {
+void start_sequence_by_side_with_countdown_slot04_02(Object *obj) {
     int idx = 0x28;
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->other->facing_side;
@@ -21,7 +21,7 @@ void func_801b617c_slot04_02(Object *obj) {
     set_sequence_by_side(obj, idx);
 }
 
-void func_801b61d4_slot04_02(Object *obj) {
+void count_down_and_set_side_bit_slot04_02(Object *obj) {
     s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;

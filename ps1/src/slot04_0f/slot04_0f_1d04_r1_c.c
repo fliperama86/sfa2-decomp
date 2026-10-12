@@ -5,10 +5,10 @@
 
 extern ObjectFn data_801c5af8_slot04_0f[];
 
-void func_80142adc(Object *object);
+void start_action_if_buttons_pressed(Object *object);
 void func_801b470c_slot04_0f(Object *obj);
 
-void func_801b2504_slot04_0f(Object *o) {
+void spawn_linked_object_type_0f_on_step_flag_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *p;
     s32 y;
@@ -61,7 +61,7 @@ void func_801b2644_slot04_0f(Object *o) {
             }
             o->active_flag_4 = 0;
         }
-        func_80142adc(o);
+        start_action_if_buttons_pressed(o);
     tail:
         update_sequence(o);
     }

@@ -45,5 +45,5 @@ void func_8012cca8(Object *object) {
             return;
         }
     }
-    func_801376b8(object);
+    store_image_row_for_hit_type(object);
 }

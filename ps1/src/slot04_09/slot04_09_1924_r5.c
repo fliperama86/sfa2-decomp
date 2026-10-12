@@ -3,21 +3,21 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b27f8_slot04_09(Object *obj);
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
 void func_801b5ba0_slot04_09(Object *obj);
 
-void func_801b1ea0_slot04_09(Object *obj) {
-    func_801b27f8_slot04_09(obj);
+void update_airborne_move_with_hit_check_slot04_09(Object *obj) {
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
     if (obj->vel_y >= 0) {
         if (obj->vel_y != 0 && (obj->step_flags & 1) == 0
-            && (u8)func_8013ffe4(obj, -0x28, 0x28, 0, 0x20)) {
+            && (u8)check_hit_other_active_state_nonzero(obj, -0x28, 0x28, 0, 0x20)) {
             obj->step_count = 0xff;
             obj->countdown = 4;
             obj->state_3++;
-            func_801307e0(obj, 0x21);
+            set_sequence_by_side_and_mode(obj, 0x21);
             if (obj->counter == 0) {
-                func_80141f28(obj, 7);
+                add_to_meter_clamped(obj, 7);
             }
             play_side_sound_at(obj, obj->side, 5);
             play_sound_at(obj, obj->side ^ 1, 0x31a);
@@ -28,11 +28,11 @@ void func_801b1ea0_slot04_09(Object *obj) {
         obj->state_3 = 7;
         obj->vel_x = 0;
         obj->accel_x = 0;
-        func_801307e0(obj, 0x23);
+        set_sequence_by_side_and_mode(obj, 0x23);
     }
 }
 
-void func_801b1fb0_slot04_09(Object *obj) {
+void count_down_then_halve_velocities_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {

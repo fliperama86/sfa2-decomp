@@ -6,7 +6,7 @@
 extern void (*data_800f018c_slot0f[])(Object *);
 extern void (*data_800f01a4_slot0f[])(Object *);
 
-void func_800e73bc_slot0f(Object *obj) {
+void set_health_from_table_index_slot0f(Object *obj) {
     u16 v;
     s16 c;
     int k;
@@ -33,7 +33,7 @@ store:
     }
 }
 
-void func_800e743c_slot0f(Object *obj) {
+void call_handler_by_table_index_slot0f(Object *obj) {
     ref_first.p = (Object *)table_8016e5c4;
     if (game_state.mode_flag_2 != 0) {
         ref_first.p = (Object *)table_8016e614;
@@ -41,10 +41,10 @@ void func_800e743c_slot0f(Object *obj) {
     data_800f018c_slot0f[obj->table_index](obj);
 }
 
-void func_800e74a8_slot0f(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_5_slot0f(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_800e74c8_slot0f(Object *obj) {
+void call_handler_by_state_1_3_slot0f(Object *obj) {
     data_800f01a4_slot0f[obj->state_1](obj);
 }

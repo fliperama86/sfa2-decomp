@@ -14,18 +14,18 @@ extern Object *data_80051c10_slot28[];
 void func_80023c70_slot28(void);
 void func_80023be0_slot28(Object *obj, int arg);
 
-void func_800238b0_slot28(Object *obj) {
+void advance_pass_spawn_two_slot28_objects_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_80023c70_slot28();
-        func_80130768(data_80051c0c_slot28.p, 2, data_8004a088_slot28);
+        set_sequence_from_table_5(data_80051c0c_slot28.p, 2, data_8004a088_slot28);
         b = data_80051c10_slot28[0];
         b->pos_x = 0x38;
         b->pos_y = 0x20;
-        func_80130768(b, 1, data_8004a094_slot28);
-        b = (Object *)func_8011f1e0();
+        set_sequence_from_table_5(b, 1, data_8004a094_slot28);
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x1d;
@@ -44,7 +44,7 @@ void func_800238b0_slot28(Object *obj) {
             data_80051be4_slot28[0] = b;
             ((Slot28Obj *)b)->timer_reload = 0x20;
         }
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x1d;
@@ -64,6 +64,6 @@ void func_800238b0_slot28(Object *obj) {
             ((Slot28Obj *)b)->timer_reload = 0x20;
         }
         func_80023be0_slot28(obj, 3);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

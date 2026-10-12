@@ -6,7 +6,7 @@
 
 void func_8012e334(Object *object) {
     if ((short)object->health < 0) {
-        func_8012f4dc(object);
+        enter_state_1_6_and_set_sequence(object);
     } else {
         object->state_0 = 1;
         object->state_1 = 1;

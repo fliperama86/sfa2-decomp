@@ -5,12 +5,12 @@
 
 extern ObjectFn data_801dd4ec_slot05_06[];
 
-void func_801cc61c_slot05_06(Object *obj) {
+void update_sequence_or_end_set_other_code_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
@@ -20,7 +20,7 @@ void func_801cc660_slot05_06(Object *obj) {
 
 void func_801cc6a0_slot05_06(Object *obj) {
     obj->state_3++;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(obj->other, obj->other->side, 0x31a);
     obj->facing_side = 0;
     if (obj->mode_flag_2 != 0) {
@@ -30,5 +30,5 @@ void func_801cc6a0_slot05_06(Object *obj) {
     } else if ((obj->input_bits & 0x8000) == 0) {
         obj->facing_side = 1;
     }
-    func_801307e0(obj, 0x18);
+    set_sequence_by_side_and_mode(obj, 0x18);
 }

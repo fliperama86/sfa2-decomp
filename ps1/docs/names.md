@@ -134,12 +134,18 @@ function is in its entry and its first name follows from that.
 `ps1/docs/function-notes.tsv` has one line per function that was read for naming: its address, its image
 (empty for the resident program), its name where it has one, and one or two sentences on what its code shows.
 The sentences and the names were written by a model that read each function with the sentences of the
-functions it calls, callees first. They are inferred, like every name on this page. A name was taken only
-when two separate readings of the function gave the same name, neither gave that name to another function,
-the function has no look-alike in the resident program and is not inside Sony's library, and the name
-passed fixed rules: no empty verb such
-as `handle_`, no placeholder in it, and no word that the tree already uses. A function without a name there
-keeps `func_` and its address; its sentence is still what the readers of its callers were given.
+functions it calls, callees first. They are inferred, like every name on this page.
+
+Until 2026-10-11 a name was taken only when two separate readings of the function gave the same name. Since
+2026-10-12, by the owner's decision for wider coverage, every function that is read gets a name. The readings
+are asked for a plain name that says what the code does where the code does not show a role; where the two
+readings give different names, a third call that sees both names and the sentence picks one or neither. Such
+a name says what the code does and claims nothing about what the game uses the function for. A name still has
+to pass fixed rules: no empty verb such as `handle_`, no placeholder with its offset or address in it, and no
+word that the tree already uses. Functions of one image that got the same name are numbered in address order
+(`_2` to `_9`; where more than nine got it, none takes it). A function of a module keeps the suffix of its
+image, look-alike functions share one name, and a function inside Sony's library gets none: there the real
+name is to be found. A function without a name there keeps `func_` and its address.
 
 ## A note on every field that was read
 

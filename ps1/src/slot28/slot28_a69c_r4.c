@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001ad5c_slot28(Object *o) {
+void move_right_to_x_90_and_advance_sequence_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     obj->pos_x += 0x8000;
     if (o->pos_x >= 0x90) {

@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e44_slot04_0a(Object *obj);
+void clear_sixteen_slot_words_slot04_0a(Object *obj);
 
-int func_801b0f34_slot04_0a(Object *obj) {
+int try_start_meter_move_type_a_slot04_0a(Object *obj) {
     int r = 0;
 
     if (obj->field_292 == 0) {
         if ((s16)obj->meter >= 0x30) {
             if (obj->active_state == 0) {
-                if ((u8)func_80141e34(obj)) {
+                if ((u8)is_not_state_2_five(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->state_0 = 1;
@@ -37,7 +37,7 @@ int func_801b0f34_slot04_0a(Object *obj) {
     return r;
 }
 
-int func_801b1030_slot04_0a(Object *obj) {
+int try_enter_state_7_kind_8_slot04_0a(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
@@ -45,7 +45,7 @@ int func_801b1030_slot04_0a(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r++;
         obj->state_0 = 1;
         obj->state_2 = 7;
@@ -54,6 +54,6 @@ int func_801b1030_slot04_0a(Object *obj) {
         obj->field_15a = 8;
         obj->facing_side = obj->saved_facing;
     }
-    func_801b3e44_slot04_0a(obj);
+    clear_sixteen_slot_words_slot04_0a(obj);
     return r;
 }

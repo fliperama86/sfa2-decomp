@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8002766c_slot28(Object *obj);
+void call_handler_by_step_index_2_slot28(Object *obj);
 
-void func_80013a00_slot28(Object *obj) {
-    func_8002766c_slot28(obj);
+void load_velocities_from_table_2_slot28(Object *obj) {
+    call_handler_by_step_index_2_slot28(obj);
 }

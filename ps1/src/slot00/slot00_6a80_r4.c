@@ -6,7 +6,7 @@
 extern s32 data_800797fc_slot00[];
 extern ObjectFn data_8007980c_slot00[];
 
-void func_80076e54_slot00(Object *o) {
+void reverse_vel_x_set_vel_y_on_countdown_slot00(Object *o) {
     o->countdown = (s16)o->countdown - 1;
     if ((s16)o->countdown < 0) {
         o->active_count = 1;

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80156818(void *a, Object *object)
+void finish_name_entry_update_rank_indices(void *a, Object *object)
 {
   u8 high;
   object->step_index = object->step_index + 1;

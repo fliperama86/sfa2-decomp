@@ -4,27 +4,27 @@
 #include "protos.h"
 
 
-void func_80137b10(void) {
-    func_80137220(0, 6);
-    func_80137220(1, 0);
-    func_80137220(2, 1);
-    func_80137220(3, 2);
-    func_80137220(4, 7);
+void queue_five_jobs(void) {
+    queue_image_upload_job(0, 6);
+    queue_image_upload_job(1, 0);
+    queue_image_upload_job(2, 1);
+    queue_image_upload_job(3, 2);
+    queue_image_upload_job(4, 7);
 }
 
-void func_80137b64(Object *object) {
+void update_object_motion_unless_paused(Object *object) {
     if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
         func_8011ffdc(object);
     } else {
         *(s32 *)&object->pos_x_frac += object->vel_x;
         *(u32 *)&object->pos_y_frac -= object->vel_y;
         advance_sequence_checked(object);
-        func_8011ff74(object);
+        set_state_0_if_x_outside_margin_narrow(object);
         func_8011ffdc(object);
     }
 }
 
-void func_80137be0(Object *object) {
+void call_state_2_handler_267c_unless_paused(Object *object) {
     if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
         func_8011ffdc(object);
     } else {

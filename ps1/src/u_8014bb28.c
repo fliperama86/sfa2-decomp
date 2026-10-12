@@ -18,18 +18,18 @@ void func_8014bb28(Object *object)
   if (((other->link_flags != 0) && (other->linked_object_3 != 0)) && ((ref_other.p = (Object *) other->linked_object_3, ref_other.p->state_0 != 0)))
   {
     ref_second.p = (Object *) other->linked_object_3;
-    func_8014c4a8(object);
+    store_box_distance_to_other_x(object);
     if (object->script_byte_lo >= ((s16) data_80189464))
     {
-      func_8014c914(object);
+      read_script_word_and_dispatch(object);
     }
     else
     {
-      func_8014c528(object);
+      skip_script_block_then_read_opcode(object);
     }
   }
   else
   {
-    func_8014c528(object);
+    skip_script_block_then_read_opcode(object);
   }
 }

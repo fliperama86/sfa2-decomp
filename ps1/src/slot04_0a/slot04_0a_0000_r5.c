@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0720_slot04_0a(Object *obj) {
+void check_input_hit_range_clear_input_dir_0_slot04_0a(Object *obj) {
     obj->state_3++;
     if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x1a, 0x14) != 0) {
         obj->state_0 = 1;
@@ -13,6 +13,6 @@ void func_801b0720_slot04_0a(Object *obj) {
         obj->input_dir_0 = 0;
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

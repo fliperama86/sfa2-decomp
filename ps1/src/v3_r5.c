@@ -4,17 +4,17 @@
 #include "externs.h"
 
 /* Callees of the follower; not in the shared headers. Inferred. */
-void func_80136668(Cam *cam, short step);
-void func_801366d4(Cam *cam, short step);
+void move_cam_right(Cam *cam, short step);
+void move_cam_left(Cam *cam, short step);
 
 /*
  * One step of a horizontal scroll follower (inferred). It takes the span
  * [lo, hi] that the players cover (each covers pos_x +- half_width), then
- * moves the sprite with func_80136668 or func_801366d4 toward the span's
+ * moves the sprite with move_cam_right or move_cam_left toward the span's
  * middle when the span is 0xc0 or wider, else toward its edges, or calls
  * set_cam_pos_x when neither edge is out of range.
  */
-void func_801364a0(Sprite *sprite) {
+void update_camera_x_from_player_span(Sprite *sprite) {
     Object *left = &player_left;
     /* The second player is reached from the first: with &player_right 29 instruction lines differ. */
     Object *right = left + 1;
@@ -62,20 +62,20 @@ void func_801364a0(Sprite *sprite) {
         amount += lo;
         amount = (amount >> 1) - sprite->field_22 - 0xc0;
         if (amount < 0) {
-            func_801366d4((Cam *)sprite, amount);
+            move_cam_left((Cam *)sprite, amount);
         } else {
-            func_80136668((Cam *)sprite, amount);
+            move_cam_right((Cam *)sprite, amount);
         }
     } else {
         amount = hi;
         amount -= sprite->field_22;
         amount = amount - 0x120;
         if (amount >= 0) {
-            func_80136668((Cam *)sprite, amount);
+            move_cam_right((Cam *)sprite, amount);
         } else {
             amount = lo - sprite->field_22 - 0x60;
             if (amount <= 0) {
-                func_801366d4((Cam *)sprite, amount);
+                move_cam_left((Cam *)sprite, amount);
             } else {
                 /* The tree declares set_cam_pos_x with a Cam pointer; the sprite is cast to it. */
                 set_cam_pos_x((Cam *)sprite, (s16)sprite->field_22);

@@ -14,13 +14,13 @@ void func_8001ef04_slot28(void) {
     for (i = 0; i < 10; i++) {
         Object *p = data_80051a98_slot28[i];
         if (p != 0 && p->active_count != 0) {
-            func_8011f240((Slab172 *)p);
+            reset_and_push_object_to_pool_table((Slab172 *)p);
             data_80051a98_slot28[i] = 0;
         }
     }
 }
 
-void func_8001ef70_slot28(Object *obj) {
+void copy_two_tables_to_row_pairs_4_slot28(Object *obj) {
     int i;
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = data_8003f184_slot28[i];
@@ -36,11 +36,11 @@ void func_8001f000_slot28(Object *object) {
     data_8003f9c0_slot28[object->state_0](object);
 }
 
-void func_8001f040_slot28(Object *o) {
+void init_object_and_start_indexed_sequence_2_slot28(Object *o) {
     o->field_0e = 0;
     o->field_0c = 0;
     o->facing_side = 0;
     o->variant_index = 0;
     o->state_0++;
-    func_80130768(o, data_8003f9d0_slot28[o->table_index], (SequenceStep **)o->box_tables);
+    set_sequence_from_table_5(o, data_8003f9d0_slot28[o->table_index], (SequenceStep **)o->box_tables);
 }

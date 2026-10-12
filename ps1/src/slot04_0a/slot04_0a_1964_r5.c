@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u16 func_801b1e04_slot04_0a(Object *obj);
-void func_801b1c00_slot04_0a(Object *obj);
-void func_801b2048_slot04_0a(Object *obj);
+u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
+void land_on_ground_set_state_3_seven_slot04_0a(Object *obj);
+void nudge_pos_x_from_input_bits_slot04_0a(Object *obj);
 
 void func_801b1e6c_slot04_0a(Object *obj) {
     int k;
@@ -15,20 +15,20 @@ void func_801b1e6c_slot04_0a(Object *obj) {
             k = get_random_byte() & 3;
             if (k != 3) {
                 obj->state_3++;
-                func_801307e0(obj, k | 0x28);
-                func_80141f28(obj, 2);
-                func_80138ae8(&game_state, obj);
-                func_801b2048_slot04_0a(obj);
-                if (func_801b1e04_slot04_0a(obj)) {
-                    func_801b1c00_slot04_0a(obj);
+                set_sequence_by_side_and_mode(obj, k | 0x28);
+                add_to_meter_clamped(obj, 2);
+                add_one_to_ec4_if_object_unflagged(&game_state, obj);
+                nudge_pos_x_from_input_bits_slot04_0a(obj);
+                if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+                    land_on_ground_set_state_3_seven_slot04_0a(obj);
                 }
                 return;
             }
         }
     }
-    func_801b2048_slot04_0a(obj);
-    if (func_801b1e04_slot04_0a(obj)) {
-        func_801b1c00_slot04_0a(obj);
+    nudge_pos_x_from_input_bits_slot04_0a(obj);
+    if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+        land_on_ground_set_state_3_seven_slot04_0a(obj);
     }
     update_sequence(obj);
 }

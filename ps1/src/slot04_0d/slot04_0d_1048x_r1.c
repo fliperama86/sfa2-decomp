@@ -5,7 +5,7 @@
 
 void func_80142778(Object *object);
 
-int func_801b1048_slot04_0d(Object *obj) {
+int try_start_meter_move_eight_slot04_0d(Object *obj) {
     if ((s16)obj->meter < 0x30) goto z;
     if ((u8)func_80141788(obj)) goto b;
 z:

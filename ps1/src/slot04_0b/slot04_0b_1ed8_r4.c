@@ -5,7 +5,7 @@
 
 extern u8 data_801c25dc_slot04_0b[];
 
-void func_801b22ec_slot04_0b(Object *o) {
+void set_other_lock_from_table_with_sounds_slot04_0b(Object *o) {
     update_sequence(o);
     if (((s16)o->step_flags & 0xff00) == 0) {
         o->state_3++;
@@ -19,7 +19,7 @@ void func_801b22ec_slot04_0b(Object *o) {
     }
 }
 
-void func_801b2384_slot04_0b(Object *o) {
+void wait_mode_3_then_set_vel_x_and_move_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     update_sequence(o);

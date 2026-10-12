@@ -5,7 +5,7 @@
 
 void func_801b59c8_slot04_09(Object *obj);
 
-void func_801b06a8_slot04_09(Object *obj) {
+void update_sequence_spawn_child_on_flag_2_slot04_09(Object *obj) {
     u16 t = obj->step_flags;
 
     if ((t & 0xff) == 1) {

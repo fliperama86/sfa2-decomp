@@ -20,5 +20,5 @@ void func_80148ccc(Object *object) {
     object->accel_y = get_random_byte() & 0x30;
     object->accel_x = 0;
     object->countdown = 0;
-    func_80130768(object, object->variant_index, seqs_8017c7f8);
+    set_sequence_from_table_5(object, object->variant_index, seqs_8017c7f8);
 }

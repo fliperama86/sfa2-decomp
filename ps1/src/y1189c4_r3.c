@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801194f4(void) {
+void swap_buffers_and_submit_draw_list(void) {
     int idx;
     int i;
     char *old;
@@ -22,7 +22,7 @@ void func_801194f4(void) {
         p = &data_8018e598[i];
         if (p->active_flag != 0) {
             func_80157fc4((char *)p + 8, p->base_address);
-            func_8011f504(p);
+            release_pooled_to_stack_a(p);
         }
     }
     if (game_state.field_31 == 0) {
@@ -32,19 +32,19 @@ void func_801194f4(void) {
         p = &data_8018f5e4[i];
         if (p->active_flag != 0) {
             func_80157fc4((char *)p + 8, p->base_address);
-            func_8011f55c(p);
+            release_pooled_to_stack_b(p);
         }
     }
     if (data_8018daf4[0] != 0) {
-        func_801378d8(&player_left);
+        copy_image_rows_and_load_image(&player_left);
     }
     if (data_8018daf4[1] != 0) {
-        func_801378d8(&player_right);
+        copy_image_rows_and_load_image(&player_right);
     }
     s = old + 0x74;
     data_8018db14 = 0;
     data_801adfe4 = 0;
-    func_80119694(s);
+    compact_linked_cell_runs(s);
     func_80158300(s);
     func_80158208(data_801987c8, 0x1e);
     data_801901be = 0;

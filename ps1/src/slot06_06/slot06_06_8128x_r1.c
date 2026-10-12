@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e822c_slot06_06(Slot06Layer *layer);
+void init_layer_sprite_and_advance_mode_slot06_06(Slot06Layer *layer);
 
-void func_801e8128_slot06_06(Slot06Layer *layer) {
+void update_layer_scaled_parallax_by_mode_slot06_06(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     int h;
 
     if (layer->mode == 0) {
-        func_801e822c_slot06_06(layer);
+        init_layer_sprite_and_advance_mode_slot06_06(layer);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;

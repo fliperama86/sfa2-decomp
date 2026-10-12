@@ -7,9 +7,9 @@ extern u16 data_801ec348_slot06_04[];
 extern Poly28 data_801f4ae0_slot06_04[2][0x58];
 
 void func_8015c09c(void *prim);
-void func_801e92a8_slot06_04(Slot06Layer *layer);
-void func_801e9300_slot06_04(Slot06Layer *layer);
-void func_801e93c8_slot06_04(Slot06Layer *layer);
+void init_layer_cam_then_advance_mode_slot06_04(Slot06Layer *layer);
+void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer);
+void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer);
 
 void func_801e9194_slot06_04(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ec348_slot06_04;
@@ -19,7 +19,7 @@ void func_801e9194_slot06_04(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e91c0_slot06_04(void) {
+void init_two_banks_of_poly_ft4_slot06_04(void) {
     int i;
     int j;
     Poly28 *r;
@@ -41,20 +41,20 @@ void func_801e91c0_slot06_04(void) {
     } while (i < 2);
 }
 
-void func_801e9260_slot06_04(Slot06Layer *layer) {
+void call_layer_handler_by_mode_slot06_04(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e92a8_slot06_04(layer);
+        init_layer_cam_then_advance_mode_slot06_04(layer);
     } else if (layer->mode == 1) {
-        func_801e9300_slot06_04(layer);
+        scroll_layer_left_and_update_offsets_slot06_04(layer);
     }
 }
 
-void func_801e92a8_slot06_04(Slot06Layer *layer) {
+void init_layer_cam_then_advance_mode_slot06_04(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->table_index = 0;
         layer->mode++;
-        func_801e93c8_slot06_04(layer);
+        set_layer_flags_and_timer_from_table_slot06_04(layer);
     }
 }

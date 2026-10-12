@@ -8,7 +8,7 @@ void func_80013e24_slot12(int idx);
 
 void func_80013d80_slot12(void) {
     Rect rect;
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x140;
         rect.y = 0x1ff;
@@ -21,6 +21,6 @@ void func_80013d80_slot12(void) {
     }
 }
 
-void func_80013e04_slot12(Object *obj) {
+void call_image_job_with_index_0_slot12(Object *obj) {
     func_80013e24_slot12(0);
 }

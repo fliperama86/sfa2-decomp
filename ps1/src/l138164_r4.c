@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013b9e0(void) {
+void link_second_object_to_third_parent(void) {
     ref_third.p->active_count++;
     ref_third.p->state_0 = 1;
     ref_third.p->state_1 = 2;

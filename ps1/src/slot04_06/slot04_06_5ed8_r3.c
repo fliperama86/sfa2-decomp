@@ -5,13 +5,13 @@
 
 extern u8 data_801c5604_slot04_06[];
 extern s32 data_801c5624_slot04_06[];
-void func_801b62c4_slot04_06(Object *obj);
+void load_velocities_from_table_by_index_slot04_06(Object *obj);
 
-void func_801b61e0_slot04_06(Object *obj) {
+void init_timer_depth_and_load_velocities_slot04_06(Object *obj) {
     obj->ot_depth = 1;
     ((Slot04aObj *)obj)->timer = 0x18;
     ((Slot04aObj *)obj)->saved_pos_y -= 0x10;
-    func_801b62c4_slot04_06(obj);
+    load_velocities_from_table_by_index_slot04_06(obj);
 }
 
 void func_801b6218_slot04_06(Object *obj) {
@@ -23,10 +23,10 @@ void func_801b6218_slot04_06(Object *obj) {
     } else {
         table = data_1f800164;
     }
-    func_80130768(obj, a, table);
+    set_sequence_from_table_5(obj, a, table);
 }
 
-void func_801b6264_slot04_06(Object *obj) {
+void add_table_offset_to_position_slot04_06(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     s16 dx = *(u16 *)((u8 *)data_801c5604_slot04_06 + ((obj->table_index << 2) & 0x1fc));
@@ -39,7 +39,7 @@ void func_801b6264_slot04_06(Object *obj) {
     obj->pos_y -= dy;
 }
 
-void func_801b62c4_slot04_06(Object *obj) {
+void load_velocities_from_table_by_index_slot04_06(Object *obj) {
     s32 *p = (s32 *)((u8 *)data_801c5624_slot04_06 + ((obj->table_index << 4) & 0x3f0));
 
     obj->vel_x = *p++;

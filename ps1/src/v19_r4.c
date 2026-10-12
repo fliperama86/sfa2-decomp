@@ -5,7 +5,7 @@
 
 
 
-u8 func_8012faf8(Object *object) {
+u8 check_condition_with_other(Object *object) {
     s16 d;
     u8 r;
 
@@ -23,7 +23,7 @@ u8 func_8012faf8(Object *object) {
         if (ref_other.p->active_flag_3 == 0) {
             return 0;
         }
-        r = func_8012fd80(object, ref_other.p);
+        r = check_wide_box_in_range_over_sequence(object, ref_other.p);
         if (r != 0 && (r != 1 || (d = ref_other.p->pos_x - object->pos_x, (d < 0 ? d = -d : d), (s16)(d + 0xa0) < 0x141))) {
         } else {
         zero:

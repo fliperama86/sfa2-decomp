@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2b74_slot04_01(Object *obj) {
+void update_sequence_then_shift_pos_x_on_end_slot04_01(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -13,11 +13,11 @@ void func_801b2b74_slot04_01(Object *obj) {
         } else {
             obj->pos_x += 0x18;
         }
-        func_801307e0(obj, 0x20);
+        set_sequence_by_side_and_mode(obj, 0x20);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80146998(obj);
+            spawn_offset_effect_and_play_sounds(obj);
         }
         update_sequence(obj);
     }

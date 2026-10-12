@@ -8,7 +8,7 @@ extern Slot04_07Rec1ff4 data_801c1ff4_slot04_07[];
 
 int func_801b41c4_slot04_07(Object *obj);
 
-void func_801b2b2c_slot04_07(Object *obj) {
+void update_rising_then_start_next_sequence_slot04_07(Object *obj) {
     int k;
 
     update_sequence(obj);
@@ -23,13 +23,13 @@ void func_801b2b2c_slot04_07(Object *obj) {
                 obj->vel_x = 0;
                 obj->accel_x = 0;
                 obj->state_3++;
-                func_801307e0(obj, data_801c1fdc_slot04_07[(k + obj->direction_index) >> 1].value);
+                set_sequence_by_side_and_mode(obj, data_801c1fdc_slot04_07[(k + obj->direction_index) >> 1].value);
             }
         }
     }
 }
 
-void func_801b2bd8_slot04_07(Object *obj) {
+void update_fall_land_start_table_sequence_slot04_07(Object *obj) {
     int y;
 
     update_sequence(obj);
@@ -44,12 +44,12 @@ void func_801b2bd8_slot04_07(Object *obj) {
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->active_flag_4 = 0;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         y = 0;
         if (obj->field_49 != 0) {
             y = 6;
         }
         y += obj->direction_index;
-        func_801307e0(obj, data_801c1ff4_slot04_07[y >> 1].value);
+        set_sequence_by_side_and_mode(obj, data_801c1ff4_slot04_07[y >> 1].value);
     }
 }

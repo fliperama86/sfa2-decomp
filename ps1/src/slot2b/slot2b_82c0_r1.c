@@ -5,10 +5,10 @@
 
 extern ObjectFn data_80079a2c_slot2b[];
 extern s16 data_8007ef2c_slot2b;
-void func_80078554_slot2b(Object *o);
+void apply_velocity_and_acceleration_slot2b(Object *o);
 
-void func_80078338_slot2b(Object *o) {
-    func_80078554_slot2b(o);
+void move_until_landing_then_start_sequence_5_slot2b(Object *o) {
+    apply_velocity_and_acceleration_slot2b(o);
     if (data_8007ef2c_slot2b >= o->pos_y) {
         advance_sequence_checked(o);
     } else {

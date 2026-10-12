@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-Block172 *func_8011f1e0(void) {
+Block172 *pop_block_from_pool(void) {
     Block172 *b;
     Block172 *result;
     if (data_80197f10 != 0) {

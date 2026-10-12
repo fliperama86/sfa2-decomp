@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0530_slot04_05(Object *obj) {
+void count_down_and_set_side_bit_slot04_05(Object *obj) {
     s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;

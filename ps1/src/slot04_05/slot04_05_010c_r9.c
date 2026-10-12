@@ -11,7 +11,7 @@ void func_801b1454_slot04_05(Object *obj) {
     data_801ad398 = data_801c139c_slot04_05[obj->field_15a](obj);
 }
 
-int func_801b149c_slot04_05(Object *obj) {
+int return_true_always_slot04_05(Object *obj) {
     return 1;
 }
 
@@ -23,7 +23,7 @@ int func_801b14b8_slot04_05(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b14cc_slot04_05(Object *obj) {
+int has_remaining_count_slot04_05(Object *obj) {
     return obj->remaining_count != 0;
 }
 

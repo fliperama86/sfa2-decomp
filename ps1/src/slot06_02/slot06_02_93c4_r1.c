@@ -7,9 +7,9 @@ extern u16 data_801eaf18_slot06_02[];
 extern Poly28 data_801f5cf8_slot06_02[2][0x84];
 
 void func_8015c09c(void *prim);
-void func_801e94d8_slot06_02(Object *obj);
-void func_801e9530_slot06_02(Object *obj);
-void func_801e9604_slot06_02(Object *obj);
+void init_cam_object_then_advance_state_slot06_02(Object *obj);
+void update_object_table_timer_and_parallax_slot06_02(Object *obj);
+void set_sequence_index_from_table_slot06_02(Object *obj);
 
 void func_801e93c4_slot06_02(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eaf18_slot06_02;
@@ -19,7 +19,7 @@ void func_801e93c4_slot06_02(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e93f0_slot06_02(void) {
+void init_poly_ft4_buffers_gray_slot06_02(void) {
     int i;
     int j;
     Poly28 *r;
@@ -41,20 +41,20 @@ void func_801e93f0_slot06_02(void) {
     } while (i < 2);
 }
 
-void func_801e9490_slot06_02(Object *obj) {
+void call_handler_by_state_0_two_states_slot06_02(Object *obj) {
     if (obj->state_0 == 0) {
-        func_801e94d8_slot06_02(obj);
+        init_cam_object_then_advance_state_slot06_02(obj);
     } else if (obj->state_0 == 1) {
-        func_801e9530_slot06_02(obj);
+        update_object_table_timer_and_parallax_slot06_02(obj);
     }
 }
 
-void func_801e94d8_slot06_02(Object *obj) {
+void init_cam_object_then_advance_state_slot06_02(Object *obj) {
     init_cam_position((Cam *)obj, 0x40, 0);
     if (obj->field_01 != 0) {
         obj->field_01 = 0;
         ((Slot06Obj *)obj)->table_index = 0;
         obj->state_0++;
-        func_801e9604_slot06_02(obj);
+        set_sequence_index_from_table_slot06_02(obj);
     }
 }

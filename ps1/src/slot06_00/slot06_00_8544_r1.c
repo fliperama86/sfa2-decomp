@@ -5,20 +5,20 @@
 
 extern u16 data_801eaf90_slot06_00[];
 
-void func_8013635c(Sprite *sprite);
-void func_801363ac(Sprite *sprite);
-void func_801368c0(Cam *cam);
+void init_sprite_3ff_and_count_pending(Sprite *sprite);
+void update_camera_if_active(Sprite *sprite);
+void save_cam_prev_pos_and_set_table_ptr(Cam *cam);
 
-void func_801e8544_slot06_00(Slot06Layer *layer) {
+void update_layer_by_mode_then_cam_slot06_00(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_8013635c((Sprite *)layer);
+        init_sprite_3ff_and_count_pending((Sprite *)layer);
     } else if (layer->mode == 1) {
-        func_801363ac((Sprite *)layer);
+        update_camera_if_active((Sprite *)layer);
     }
-    func_801368c0((Cam *)layer);
+    save_cam_prev_pos_and_set_table_ptr((Cam *)layer);
 }
 
-void func_801e85a0_slot06_00(Slot06Layer *layer) {
+void init_second_layer_tile_map_slot06_00(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eaf90_slot06_00;
     layer->data_table = data_801eaf90_slot06_00;
     layer->packed_param = 0x5812;

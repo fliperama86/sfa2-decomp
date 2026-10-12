@@ -17,7 +17,7 @@ extern Slot06Tile data_801f3050_slot06_00[2][85];
    For each non-zero cell (low 14 bits) it takes a record from the table,
    fills in position, texture coordinates, texture page and a command word,
    and links the record into the list head selected by the object. */
-void func_801e9080_slot06_00(Object *object) {
+void draw_object_tile_grid_sprites_slot06_00(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80135858(void) {
+void update_round_timer_display_cells(void) {
     if ((game_state.versus_flag != 0 && *(u16 *)data_801a6984 == 0) || (game_state.round_time & 0x80) != 0) {
         Cell56 *base = data_80188d6c;
         Cell56 *e = &base[data_801a27d0];

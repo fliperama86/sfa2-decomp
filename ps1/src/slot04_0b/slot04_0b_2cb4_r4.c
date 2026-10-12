@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b37ec_slot04_0b(Object *obj);
+void clear_slots_bytes_slot04_0b(Object *obj);
 
 void func_801b3268_slot04_0b(Object *obj) {
     int a = -0x24;
@@ -17,11 +17,11 @@ void func_801b3268_slot04_0b(Object *obj) {
             a = -7;
             b = 0x5f;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b37ec_slot04_0b(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot04_0b(obj);
     }
     update_sequence(obj);
 }

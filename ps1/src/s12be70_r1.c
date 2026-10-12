@@ -5,7 +5,7 @@
 
 
 
-int func_8012be70(Object *object) {
+int is_object_pressed_bits_high_nibble_set(Object *object) {
     if (object->mode_flag_2 == 0) {
         if ((s16)object->pressed_bits & 0xf000) return 1;
     } else {
@@ -14,7 +14,7 @@ int func_8012be70(Object *object) {
     return 0;
 }
 
-int func_8012bec0(Object *object) {
+int is_prev_input_low_byte_zero(Object *object) {
     int result;
     if (object->mode_flag_2 == 0) {
         result = *(u8 *)&object->prev_input_bits_2 == 0;
@@ -37,5 +37,5 @@ int func_8012bf00(Object *object) {
 }
 
 void func_8012bf4c(Object *object) {
-    func_8014a170(object, data_8017d818);
+    test_random_bit_in_table(object, data_8017d818);
 }

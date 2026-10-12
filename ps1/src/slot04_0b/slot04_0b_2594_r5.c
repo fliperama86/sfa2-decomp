@@ -6,9 +6,9 @@
 void func_801b2b50_slot04_0b(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
-    func_801307e0(obj, 0x2c);
+    set_sequence_by_side_and_mode(obj, 0x2c);
 }
 
 void func_801b2bac_slot04_0b(Object *obj) {
@@ -19,13 +19,13 @@ void func_801b2bac_slot04_0b(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_80148494(obj, -0x10, 0x47);
+        spawn_children_per_direction_active_ff(obj, -0x10, 0x47);
         play_sound_at(obj, obj->side, 0x31c);
     }
     update_sequence(obj);
 }
 
-void func_801b2c30_slot04_0b(Object *obj) {
+void set_other_lock_3_with_sounds_slot04_0b(Object *obj) {
     update_sequence(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
         obj->field_165 = 0;

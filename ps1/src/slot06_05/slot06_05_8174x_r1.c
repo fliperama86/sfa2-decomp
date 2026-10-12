@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8174_slot06_05(Slot06Layer *layer);
+void update_layer_follow_main_layer_eighth_slot06_05(Slot06Layer *layer);
 
-void func_801e8174_slot06_05(Slot06Layer *layer) {
+void update_layer_follow_main_layer_eighth_slot06_05(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 

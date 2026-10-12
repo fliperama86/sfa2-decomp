@@ -5,7 +5,7 @@
 
 extern void (*data_801c3b68_slot04_08[])(Object *);
 
-void func_801b05c4_slot04_08(Object *obj) {
+void call_handler_by_state_3_set_flag_slot04_08(Object *obj) {
     obj->field_157 = 1;
     data_801c3b68_slot04_08[obj->state_3](obj);
 }

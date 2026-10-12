@@ -5,7 +5,7 @@
 
 extern s16 data_801bfc70_slot04_00[];
 
-void func_801b2ef8_slot04_00(Object *obj) {
+void play_side_sound_from_step_flags_slot04_00(Object *obj) {
     u16 t = obj->step_flags;
     u32 k = (t & 0x7f00) << 16;
 

@@ -18,6 +18,6 @@ void func_80144830(Object *object)
   object->spawn_x = 0x60;
   object->field_90 = (void *) 0x800fb100;
   object->pos_x = margin + 0xc0;
-  func_80130768(object, 0x41, table_8017c7f8);
+  set_sequence_from_table_5(object, 0x41, table_8017c7f8);
   func_801448c4(object);
 }

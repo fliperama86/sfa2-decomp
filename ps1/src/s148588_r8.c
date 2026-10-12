@@ -10,15 +10,15 @@ void func_801490dc(Block172 *block) {
     table_8017cef0[object->state_0](object);
 }
 
-void func_8014911c(Object *object) {
+void set_depth_one_and_advance_state_0(Object *object) {
     object->ot_depth = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->state_0 = object->state_0 + 1;
-    func_8011a55c(object);
+    clear_object_side_table_entries(object);
 }
 
-void func_80149158(Object *object) {
+void wait_countdown_then_advance_state_0(Object *object) {
     s16 old = object->countdown;
     object->countdown = old - 1;
     if (old < 0) {

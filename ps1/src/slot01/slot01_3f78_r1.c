@@ -7,7 +7,7 @@ extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern SequenceStep *data_800240f8_slot01[];
 
-void func_80013f78_slot01(Object *obj) {
+void spawn_menu_row_objects_slot01(Object *obj) {
     Rect rect;
     Object *a;
     Object *b;
@@ -21,7 +21,7 @@ void func_80013f78_slot01(Object *obj) {
     i = 0;
     if (*(s16 *)base >= 0) {
     do {
-        a = (Object *)func_8011f1e0();
+        a = (Object *)pop_block_from_pool();
         if (a != 0) {
             a->field_02 = 0x30;
             a->active_count = 1;
@@ -43,7 +43,7 @@ void func_80013f78_slot01(Object *obj) {
             a->data_ptr_b = data_800195b8_slot01;
             a->pos_x = t12;
         }
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x30;
@@ -78,13 +78,13 @@ void func_80013f78_slot01(Object *obj) {
             } else {
                 b->spawn_y = (&game_state.byte_table)[8] + 0x1e0;
             }
-            func_80130768(a, a->hit_type, data_800240f8_slot01);
-            func_80130768(b, (&game_state.byte_table)[i + 1], data_800240f8_slot01);
+            set_sequence_from_table_5(a, a->hit_type, data_800240f8_slot01);
+            set_sequence_from_table_5(b, (&game_state.byte_table)[i + 1], data_800240f8_slot01);
         }
         i++;
     } while (i <= *(s16 *)&game_state.sub_index);
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         b->active_count = 1;
         b->field_02 = 0x30;
@@ -103,9 +103,9 @@ void func_80013f78_slot01(Object *obj) {
         c->data_ptr_a = data_80019330_slot01;
         c->field_90 = (void *)0x80059000;
         c->data_ptr_b = data_800195b8_slot01;
-        func_80130768(c, 0x16, data_800240f8_slot01);
+        set_sequence_from_table_5(c, 0x16, data_800240f8_slot01);
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         b->active_count = 1;
         b->field_02 = 0x30;
@@ -124,11 +124,11 @@ void func_80013f78_slot01(Object *obj) {
         c->data_ptr_a = data_80019330_slot01;
         c->field_90 = (void *)0x80059000;
         c->data_ptr_b = data_800195b8_slot01;
-        func_80130768(c, (&game_state.byte_table)[i] + 0x17, data_800240f8_slot01);
+        set_sequence_from_table_5(c, (&game_state.byte_table)[i] + 0x17, data_800240f8_slot01);
     }
     if (i < 8) {
         do {
-            a = (Object *)func_8011f1e0();
+            a = (Object *)pop_block_from_pool();
             if (a != 0) {
                 a->field_02 = 0x30;
                 a->active_count = 1;
@@ -150,7 +150,7 @@ void func_80013f78_slot01(Object *obj) {
                 a->data_ptr_b = data_800195b8_slot01;
                 a->pos_x = t12;
             }
-            b = (Object *)func_8011f1e0();
+            b = (Object *)pop_block_from_pool();
             if (b != 0) {
                 b->active_count = 1;
                 b->field_02 = 0x30;
@@ -166,7 +166,7 @@ void func_80013f78_slot01(Object *obj) {
                 b->step_flags = (&game_state.byte_table)[i + 1];
                 b->spawn_x = 0x70;
                 if (((game_state.bit_mask >> (&game_state.byte_table)[i + 1]) & 1) && i < 7) {
-                    func_80130768(b, (&game_state.byte_table)[i + 1], data_800240f8_slot01);
+                    set_sequence_from_table_5(b, (&game_state.byte_table)[i + 1], data_800240f8_slot01);
                     rect.x = b->spawn_x;
                     rect.y = (&game_state.byte_table)[i + 1] + 0x1e0;
                     rect.w = 0x10;
@@ -177,10 +177,10 @@ void func_80013f78_slot01(Object *obj) {
                     a->spawn_y = 0x1f3;
                     a->hit_type = 0x15;
                 } else {
-                    func_80130768(b, 0x13, data_800240f8_slot01);
+                    set_sequence_from_table_5(b, 0x13, data_800240f8_slot01);
                     b->spawn_y = 0x1f3;
                 }
-                func_80130768(a, a->hit_type, data_800240f8_slot01);
+                set_sequence_from_table_5(a, a->hit_type, data_800240f8_slot01);
                 b->field_90 = (void *)0x80059000;
                 b->data_ptr_a = data_80019330_slot01;
                 b->data_ptr_b = data_800195b8_slot01;

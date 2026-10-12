@@ -52,7 +52,7 @@ typedef struct {
 extern Slot27Recb388 data_8002b388_slot27[2][0x118];
 extern Slot27Recf0c8 data_8002f0c8_slot27;
 
-void func_8001791c_slot27(void) {
+void draw_scrolling_tilemap_rows_slot27(void) {
     Slot27Scroll *scroll = (Slot27Scroll *)&data_8002f0c8_slot27;
     Slot27Prim *prim;
     u32 *ot;

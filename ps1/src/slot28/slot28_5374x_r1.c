@@ -5,11 +5,11 @@
 
 extern ObjectRef data_80051890_slot28;
 extern SequenceStep *data_8002bde4_slot28[];
-void func_80015640_slot28(Object *obj);
-void func_80015678_slot28(Object *obj);
+void init_object_data_pointers_and_spawn_b_slot28(Object *obj);
+void release_two_stored_objects_slot28(Object *obj);
 void func_8001581c_slot28(Object *obj, int arg);
 
-void func_80015374_slot28(Object *obj) {
+void advance_hud_pass_spawn_seven_objects_slot28(Object *obj) {
     HudState *h;
     Object *p;
     Object *b;
@@ -18,8 +18,8 @@ void func_80015374_slot28(Object *obj) {
         t = 0x3c0;
         data_8018f5a0->countdown_timer = t;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
-        func_80015678_slot28(obj);
-        p = (Object *)func_8011f1e0();
+        release_two_stored_objects_slot28(obj);
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -30,9 +30,9 @@ void func_80015374_slot28(Object *obj) {
             b->table_index = 1;
             b->field_0c = 0;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -43,9 +43,9 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -56,9 +56,9 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -69,9 +69,9 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -82,9 +82,9 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -95,10 +95,10 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 0;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
-            func_80015640_slot28(b);
+            init_object_data_pointers_and_spawn_b_slot28(b);
             data_80051890_slot28.p = b;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         b = p;
         if (b != 0) {
             b->active_count = 1;
@@ -109,11 +109,11 @@ void func_80015374_slot28(Object *obj) {
             b->field_0c = 0;
             b->ot_depth = 3;
             b->field_01 = 1;
-            func_80015640_slot28(b);
-            func_80130768(b, 6, data_8002bde4_slot28);
+            init_object_data_pointers_and_spawn_b_slot28(b);
+            set_sequence_from_table_5(b, 6, data_8002bde4_slot28);
         }
         t = 2;
         func_8001581c_slot28(obj, t);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

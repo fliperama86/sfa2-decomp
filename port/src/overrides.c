@@ -4,7 +4,7 @@
 #include "cd.h"
 #include "programs.h"
 
-/* func_80119030 (v22_r2.c): initialises the game's three task slots (table at 0x801fc200, 0x80 bytes each:
+/* init_snd_voices (v22_r2.c): initialises the game's three task slots (table at 0x801fc200, 0x80 bytes each:
  * a u16 state at offset 0, the u32 stack pointer for OpenTh at offset 8) and, as its C does through the
  * pointer the BIOS keeps at address 0x110, writes 0x40000404 into the BIOS's thread control blocks (stride
  * 0xc0 from that pointer + 0x94). That second part reads address 0x110, which is not mapped here, and
@@ -60,7 +60,7 @@ void port_h_FlushCache(void)
 }
 
 const struct port_override port_game_overrides[] = {
-    { "func_80119030", (void *)port_o_func_80119030, "same initialisation of the three task slots as its C, without the stores into the BIOS's thread table (address 0x110 is not mapped)" },
+    { "init_snd_voices", (void *)port_o_func_80119030, "same initialisation of the three task slots as its C, without the stores into the BIOS's thread table (address 0x110 is not mapped)" },
     { NULL, NULL, NULL }
 };
 

@@ -5,7 +5,7 @@
 
 /* Exact. The s16 local yi is assigned in both arms and again as the level
    in the later block, so the masked value stays alive next to the u8 copy yb. */
-void func_80139304(Object *a, Object *b) {
+void check_hit_of_a_wide_box_against_b_boxes(Object *a, Object *b) {
     Box32 *box;
     u8 index;
     u16 xi;
@@ -48,20 +48,20 @@ void func_80139304(Object *a, Object *b) {
         }
     }
     if (b->frame->box_a != 0) {
-        func_8013950c(a, b);
+        record_box_a_overlap(a, b);
     }
     if (b->frame->box_b != 0) {
-        func_801395f8(a, b);
+        record_box_b_overlap(a, b);
     }
     if (b->frame->box_c != 0) {
-        func_801396e4(a, b);
+        record_box_c_overlap(a, b);
     }
     if (data_80188f30 != 0) {
         b->field_241 = 0;
-        func_80139a78(a, b);
+        apply_hit_box_to_target(a, b);
         if (a->hit_skip_flag == 0) {
-            func_8013a3a8(a, b, box);
-            func_8013af1c(a, b, box);
+            apply_hit_damage_to_object(a, b, box);
+            select_min_placement_and_test(a, b, box);
             func_80155de0(box, b);
         }
     }

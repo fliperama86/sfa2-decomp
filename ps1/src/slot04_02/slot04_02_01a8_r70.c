@@ -5,11 +5,11 @@
 
 extern SequenceStep *data_801c59b0_slot04_02[];
 
-void func_801b7b44_slot04_02(Object *obj) {
-    func_80130768(obj, (u8)(obj->variant_index - 1), data_801c59b0_slot04_02);
+void set_sequence_from_variant_index_slot04_02(Object *obj) {
+    set_sequence_from_table_5(obj, (u8)(obj->variant_index - 1), data_801c59b0_slot04_02);
 }
 
-void func_801b7b74_slot04_02(Object *obj) {
+void copy_parent_position_with_facing_offset_slot04_02(Object *obj) {
     Object *p = obj->parent;
 
     obj->pos_x = p->pos_x;

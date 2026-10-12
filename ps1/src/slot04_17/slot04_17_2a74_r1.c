@@ -12,27 +12,27 @@ extern u8 data_801ce42c_slot04_17[][4];
 extern u16 data_801ce448_slot04_17[];
 
 int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
-void func_80142adc(Object *object);
-Block172 *func_8011f1e0(void);
+void start_action_if_buttons_pressed(Object *object);
+Block172 *pop_block_from_pool(void);
 void func_801428e4(Object *object);
-void func_80138b38(GameState *state, Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void func_80145d20(Object *object);
-void func_801483a4(Object *object, int a, int b);
+void spawn_children_per_direction_index(Object *object, int a, int b);
 void func_801b2e28_slot04_17(Object *o);
 void func_801b57f0_slot04_17(Object *obj);
 void func_801b5810_slot04_17(Object *obj);
-int func_801b56e0_slot04_17(Object *obj);
-void func_801b328c_slot04_17(Object *obj);
+int apply_velocity_and_acceleration_slot04_17(Object *obj);
+void move_forward_check_hit_on_other_slot04_17(Object *obj);
 
 void func_801b2a74_slot04_17(Object *obj) {
-    if (func_801b56e0_slot04_17(obj) < 0 && obj->pos_y >= obj->ground_y) {
-        func_801209c4(obj);
+    if (apply_velocity_and_acceleration_slot04_17(obj) < 0 && obj->pos_y >= obj->ground_y) {
+        play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;
         obj->state_3++;
-        func_801307e0(obj, 0x37);
+        set_sequence_by_side_and_mode(obj, 0x37);
     } else {
         update_sequence(obj);
     }
@@ -44,7 +44,7 @@ void func_801b2b00_slot04_17(Object *obj) {
         ref_other.p->other_state_code = 5;
         func_801b5810_slot04_17(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -56,9 +56,9 @@ void func_801b2b74_slot04_17(Object *obj) {
 void func_801b2bb4_slot04_17(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x50);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x50);
 }
 
 void func_801b2c18_slot04_17(Object *obj) {
@@ -77,7 +77,7 @@ void func_801b2c18_slot04_17(Object *obj) {
     }
 }
 
-void func_801b2c78_slot04_17(Object *o) {
+void update_sequence_with_flag_spawn_and_lock_slot04_17(Object *o) {
     int k;
     u8 t;
 
@@ -97,12 +97,12 @@ void func_801b2c78_slot04_17(Object *o) {
     }
     if (o->step_flags & 2) {
         o->step_flags &= 0xfffd;
-        func_801483a4(o, -6, 0x4f);
+        spawn_children_per_direction_index(o, -6, 0x4f);
         play_sound_at(o, o->side, 0x31c);
     }
 }
 
-void func_801b2d54_slot04_17(Object *obj) {
+void update_active_flag_hit_or_end_sequence_slot04_17(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->active_flag = 0;
     }
@@ -137,7 +137,7 @@ void func_801b2e28_slot04_17(Object *o) {
         ref_other.p->field_28c = c;
         ref_other.p->damage_countdown = 0x3c;
         ref_other.p->reference_count = 0x3c;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p == 0) {
             goto fail;
         }
@@ -176,12 +176,12 @@ void func_801b2ffc_slot04_17(Object *obj) {
 void func_801b303c_slot04_17(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
-    func_801307e0(obj, obj->direction_index + 0x53);
+    set_sequence_by_side_and_mode(obj, obj->direction_index + 0x53);
 }
 
-void func_801b309c_slot04_17(Object *obj) {
+void finish_sequence_restore_facing_side_slot04_17(Object *obj) {
     int v;
 
     update_sequence(obj);
@@ -199,7 +199,7 @@ void func_801b309c_slot04_17(Object *obj) {
     }
 }
 
-void func_801b3108_slot04_17(Object *obj) {
+void update_sequence_with_step_flag_actions_slot04_17(Object *obj) {
     int i;
     u8 t;
 
@@ -219,7 +219,7 @@ void func_801b3108_slot04_17(Object *obj) {
     }
     if (obj->step_flags & 2) {
         obj->step_flags &= 0xfffd;
-        func_801483a4(obj, 0x28, 0x66);
+        spawn_children_per_direction_index(obj, 0x28, 0x66);
         play_sound_at(obj, obj->side, 0x31c);
     }
     if (obj->step_flags & 4) {
@@ -239,11 +239,11 @@ void func_801b3108_slot04_17(Object *obj) {
         obj->vel_x = data_801ce428_slot04_17[obj->direction_index];
         ((ObjectWords *)obj)->word_54 = data_801ce428_slot04_17[obj->direction_index + 1] & 0xffff0000;
         *(u16 *)&((ObjectWords *)obj)->word_54 = obj->pos_x;
-        func_801b328c_slot04_17(obj);
+        move_forward_check_hit_on_other_slot04_17(obj);
     }
 }
 
-void func_801b328c_slot04_17(Object *obj) {
+void move_forward_check_hit_on_other_slot04_17(Object *obj) {
     Object *p;
     int a;
     int k;
@@ -272,7 +272,7 @@ void func_801b328c_slot04_17(Object *obj) {
             if ((s16)ref_other.p->health < 0) {
                 obj->step_limit = 0xff;
             }
-            func_801307e0(obj, obj->direction_index + 0x54);
+            set_sequence_by_side_and_mode(obj, obj->direction_index + 0x54);
             return;
         }
     }
@@ -308,5 +308,5 @@ void func_801b328c_slot04_17(Object *obj) {
     }
     obj->vel_x = 0x80000;
     obj->accel_x = 0xffff0000;
-    func_801307e0(obj, 0x59);
+    set_sequence_by_side_and_mode(obj, 0x59);
 }

@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
-/* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_8014b870, func_8014b8d8 (and r2 func_8014be78, func_8014bee8): the original computes
+/* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: script_branch_if_value_ge_compare_limit, script_branch_if_value_le_compare_limit (and r2 branch_script_if_value_ge_table_column, branch_script_if_table_column_ge_value): the original computes
    field_212 as sll 16 / sra 24 of the raw halfword; every form tried (>> 8, casts to s16/s8, int/unsigned/u16 locals,
    s16 pointer) folds to srl 8. */
 #include "game.h"
@@ -7,7 +7,7 @@
 #include "protos.h"
 
 
-void func_8014b59c(Object *object) {
+void init_script_state_by_script_arg(Object *object) {
     if (object->script_arg == 0) {
         u8 v;
         object->field_208 = 3;
@@ -21,8 +21,8 @@ void func_8014b59c(Object *object) {
         v = object->saved_facing;
         object->active_flag = 0;
         object->facing_side = v;
-        func_8014e7ec(object);
-        func_8014dd14(object);
+        set_limits_from_script_word(object);
+        decode_input_word_into_object_fields(object);
     } else if (object->script_arg == 2) {
         u8 v;
         object->field_208 = 3;
@@ -36,15 +36,15 @@ void func_8014b59c(Object *object) {
         v = object->saved_facing;
         object->active_flag = 0;
         object->facing_side = v;
-        func_8014e7ec(object);
-        func_8014dd14(object);
+        set_limits_from_script_word(object);
+        decode_input_word_into_object_fields(object);
     }
 }
 
-void func_8014b650(Object *object) {
+void set_script_state_7_if_check_passes(Object *object) {
     if (object->script_arg == 0) {
-        func_8014e7ec(object);
-        func_8014dd14(object);
+        set_limits_from_script_word(object);
+        decode_input_word_into_object_fields(object);
         if (func_8014dcc0(object)) {
             if (*(u32 *)&object->state_0 == 0x20101) {
                 object->effect_request = 2;
@@ -60,15 +60,15 @@ void func_8014b650(Object *object) {
             object->field_157 = 0;
             object->facing_side = object->saved_facing;
         } else {
-            func_8014c914(object);
+            read_script_word_and_dispatch(object);
         }
     }
 }
 
-void func_8014b704(Object *object) {
+void set_script_state_8_if_check_passes(Object *object) {
     if (object->script_arg == 0) {
-        func_8014e7ec(object);
-        func_8014dd14(object);
+        set_limits_from_script_word(object);
+        decode_input_word_into_object_fields(object);
         if (func_8014dcc0(object)) {
             if (*(u32 *)&object->state_0 == 0x20101) {
                 object->effect_request = 2;
@@ -84,20 +84,20 @@ void func_8014b704(Object *object) {
             object->field_157 = 0;
             object->facing_side = object->saved_facing;
         } else {
-            func_8014c914(object);
+            read_script_word_and_dispatch(object);
         }
     }
 }
 
-void func_8014b7b8(Object *object) {
+void dispatch_script_op_by_script_arg(Object *object) {
     if (object->script_arg == 0) {
         object->field_224++;
-        func_8014e7ec(object);
+        set_limits_from_script_word(object);
         table_8017d030[(s16)data_80189464 >> 1](object);
     } else if (object->script_arg == 2) {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     } else if (object->script_arg == 4) {
         object->field_224--;
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     }
 }

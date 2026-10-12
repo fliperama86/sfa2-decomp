@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c2efc_slot04_0b[];
 
-void func_801b3ac8_slot04_0b(Object *obj) {
+void call_handler_by_state_2_unless_paused_slot04_0b(Object *obj) {
     if ((game_state.config->pause_flag_b | game_state.config->pause_flag_a) != 0) {
         func_8011ffdc(obj);
     } else {

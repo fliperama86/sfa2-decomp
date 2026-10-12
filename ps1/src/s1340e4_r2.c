@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80135c0c(u8 *a, u8 *b, u8 index) {
+void copy_table_pair_to_two_entries(u8 *a, u8 *b, u8 index) {
     a[0x18] = data_801721c8[index];
     b[0x18] = data_801721c8[index];
     a[0x19] = data_801721c8[index + 1];
@@ -12,6 +12,6 @@ void func_80135c0c(u8 *a, u8 *b, u8 index) {
     data_80190474 = 0;
 }
 
-void func_80135c80(GameState *a, u8 v) {
+void set_wait_flag(GameState *a, u8 v) {
     a->wait_flag = v;
 }

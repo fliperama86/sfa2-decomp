@@ -5,11 +5,11 @@
 
 extern s32 data_80190544;
 
-void func_801e9604_slot06_02(Object *obj);
+void set_sequence_index_from_table_slot06_02(Object *obj);
 
 /* e is a 16-bit local: as an int ten instruction slots differ, and with
    the first sum stored without it the function is 4 bytes shorter. */
-void func_801e9530_slot06_02(Object *o) {
+void update_object_table_timer_and_parallax_slot06_02(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     s32 d;
     s16 e;
@@ -18,7 +18,7 @@ void func_801e9530_slot06_02(Object *o) {
         obj->field_30 -= 1;
         if (obj->field_30 == 0) {
             obj->table_index = (obj->table_index + 2) & 0x1e;
-            func_801e9604_slot06_02(o);
+            set_sequence_index_from_table_slot06_02(o);
         }
     }
     d = *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_c;

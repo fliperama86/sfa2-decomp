@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b422c_slot04_06(Object *o) {
+void update_timer_or_record_hit_count_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->field_134 != 0) {
@@ -13,5 +13,5 @@ void func_801b422c_slot04_06(Object *o) {
     } else if (obj->timer != 0) {
         obj->timer -= 1;
     }
-    func_80142fe8(o);
+    push_other_by_vel_x(o);
 }

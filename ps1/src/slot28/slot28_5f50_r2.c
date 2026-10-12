@@ -5,7 +5,7 @@
 
 extern u8 data_8002c838_slot28[];
 
-void func_80015ffc_slot28(Object *obj, SequenceStep *step) {
+void set_sequence_step_timer_and_flags_slot28(Object *obj, SequenceStep *step) {
     int w;
     int t;
     obj->sequence = step;
@@ -16,7 +16,7 @@ void func_80015ffc_slot28(Object *obj, SequenceStep *step) {
     obj->step_flags = w;
 }
 
-void func_8001601c_slot28(SequenceStep *step) {
+void queue_step_row_upload_jobs_slot28(SequenceStep *step) {
     u16 *p;
     Job *job;
     Rect r;
@@ -29,7 +29,7 @@ void func_8001601c_slot28(SequenceStep *step) {
             r.y = *p++;
             idx = *p++;
             last = *p++ & 0x8000;
-            job = (Job *)func_8011f4a4();
+            job = (Job *)alloc_pooled_b();
             if (job == 0) {
                 break;
             }

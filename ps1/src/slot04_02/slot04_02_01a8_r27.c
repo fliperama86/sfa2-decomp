@@ -5,6 +5,6 @@
 
 void func_801b359c_slot04_02(Object *obj) {
     if (obj->field_49 == 0) {
-        func_801379bc(obj, 1);
+        store_image_rows_by_mode_and_queue_job(obj, 1);
     }
 }

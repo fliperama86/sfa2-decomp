@@ -5,9 +5,9 @@
 
 extern SequenceStep *data_801ebc1c_slot06_0c[];
 
-void func_801e988c_slot06_0c(Slot06Pal *pal);
+void load_palette_record_by_index_slot06_0c(Slot06Pal *pal);
 
-void func_801e970c_slot06_0c(Object *obj) {
+void init_object_with_three_sequence_cursors_slot06_0c(Object *obj) {
     Slot06Pal *p0 = (Slot06Pal *)((u8 *)obj + 0x5c);
     Slot06Pal *p1 = (Slot06Pal *)((u8 *)obj + 0x70);
     Slot06Pal *p2 = (Slot06Pal *)((u8 *)obj + 0x4c);
@@ -30,8 +30,8 @@ void func_801e970c_slot06_0c(Object *obj) {
     p2->rect_y = 0x60;
     /* The listing stores state_0 twice: the incremented value above, then 1. */
     obj->state_0 = 1;
-    func_801e988c_slot06_0c(p0);
-    func_801e988c_slot06_0c(p1);
-    func_801e988c_slot06_0c(p2);
-    func_80130700(obj, data_801ebc1c_slot06_0c[1]);
+    load_palette_record_by_index_slot06_0c(p0);
+    load_palette_record_by_index_slot06_0c(p1);
+    load_palette_record_by_index_slot06_0c(p2);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[1]);
 }

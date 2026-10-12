@@ -6,12 +6,12 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80145e70(Object *object) {
+void spawn_three_child_objects_at_fixed_spawn(Object *object) {
   Object *p[3];
   Object *o;
   int e, e2, e3;
   if (data_80197f10 >= 3) {
-    func_801460ec((u32 *) p);
+    get_three_pool_objects_sorted((u32 *) p);
     o = p[0];
     o->active_count = 1;
     o->field_02 = 3;

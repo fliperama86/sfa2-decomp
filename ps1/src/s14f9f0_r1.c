@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8014f9f0(Ctl *ctl) {
+void read_stream_header_record(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     u32 *p = (u32 *)0x801e0000;
     stream->bytes_remaining = 0;
     stream->step_count = 1;
-    func_80150100(stream);
+    read_stream_sector_to_write_slot(stream);
     stream->records_start = p;
     stream->record_limit = *(u8 *)p;
     stream->current_record = stream->records_start;

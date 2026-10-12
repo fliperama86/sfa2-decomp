@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b47cc_slot04_01(Object *obj, int kind) {
+void spawn_child_object_at_parent_offset_slot04_01(Object *obj, int kind) {
     Object *p;
     int a = -0x18;
     u8 t;
 
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 1;

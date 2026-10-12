@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012a108(Object *object) {
+void update_sequence_or_set_step_flags_kind_6(Object *object) {
     if (object->kind != 6 || *(u8 *)&object->step_flags == 0) {
         update_sequence(object);
     } else {

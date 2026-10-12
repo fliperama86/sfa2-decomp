@@ -5,10 +5,10 @@
 
 extern Slot0fRec80a4 data_800f80a4_slot0f[];
 int strcmp(const char *a, const char *b);
-int func_800e0da8_slot0f(int chan);
-void func_800e0f2c_slot0f(int card);
+int check_memory_card_status_slot0f(int chan);
+void list_card_files_into_table_slot0f(int card);
 
-int func_800e0bf4_slot0f(int mask, char *name) {
+int find_named_file_on_memory_cards_slot0f(int mask, char *name) {
     u8 z = 0;
     int i;
     int status;
@@ -23,9 +23,9 @@ int func_800e0bf4_slot0f(int mask, char *name) {
     } while (i != 0);
     result = z;
     if (mask & 1) {
-        status = func_800e0da8_slot0f(0);
+        status = check_memory_card_status_slot0f(0);
         if (status == 0 || status == 2) {
-            func_800e0f2c_slot0f(0);
+            list_card_files_into_table_slot0f(0);
             q = (u8 *)data_800f80a4_slot0f;
             do {
                 p = q;
@@ -39,9 +39,9 @@ int func_800e0bf4_slot0f(int mask, char *name) {
         }
     }
     if (mask & 2) {
-        status = func_800e0da8_slot0f(0x10);
+        status = check_memory_card_status_slot0f(0x10);
         if (status == 0 || status == 2) {
-            func_800e0f2c_slot0f(1);
+            list_card_files_into_table_slot0f(1);
             i = 0;
             p = (u8 *)data_800f80a4_slot0f + 0x258;
             do {

@@ -40,7 +40,7 @@ void func_8012da2c(Object *object)
   object->accum_count = 0;
   object->field_163 = 0;
   object->count_limit = w + 5;
-  func_80155f30(object);
+  add_round_score_to_other_side(object);
   object->field_69 = 0;
   object->round_count = 0;
   if ((game_state.versus_flag != 0) && (game_state.mode != (object->side + 1)))
@@ -66,5 +66,5 @@ void func_8012da2c(Object *object)
   {
     object->countdown = table_80171174[new_var];
   }
-  func_801308c4(object, 0x1a);
+  set_sequence_by_side_and_mode_2(object, 0x1a);
 }

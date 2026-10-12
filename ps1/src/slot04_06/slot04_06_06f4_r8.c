@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3ff8_slot04_06(Object *obj) {
+void start_sequence_by_active_state_slot04_06(Object *obj) {
     int a;
 
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     a = 0x2f;
     if (obj->active_state == 0) {
         a = 0x2b;

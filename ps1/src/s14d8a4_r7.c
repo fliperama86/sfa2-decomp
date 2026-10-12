@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-u8 func_8014e504(Object *unused) {
-    func_8014e6b0();
+u8 skip_three_script_words(Object *unused) {
+    skip_three_script_words_3();
     return 1;
 }
 
-u8 func_8014e528(Object *unused) {
-    func_8014e6f0();
+u8 skip_three_script_words_2(Object *unused) {
+    skip_one_script_word();
     return 1;
 }

@@ -5,14 +5,14 @@
 
 
 void func_8011eae4(void) {
-    func_8011f010();
+    clear_four_144_byte_arrays();
     init_object_pools();
-    func_8011a744();
+    init_sprite_tables();
 }
 
 void func_8011eb14(void) {
-    func_8011ef00();
-    func_8011f010();
+    clear_players();
+    clear_four_144_byte_arrays();
     clear_game_state_fields();
     init_object_pools();
 }

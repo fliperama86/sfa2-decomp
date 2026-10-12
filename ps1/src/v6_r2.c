@@ -6,22 +6,22 @@
 
 void func_8012cf1c(Object *object) {
     int index;
-    if (func_8012eff8(object) != 0) {
+    if (apply_table_step_to_pos_x(object) != 0) {
         object->state_3 = object->state_3 + 1;
         set_side_flag(object);
         object->once_flag_2 = 0;
         object->done_flag = 0;
         object->flag_25a_set = 0;
     } else {
-        func_801376b8(object);
+        store_image_row_for_hit_type(object);
     }
     if ((s16)object->health < 0) {
         if ((s16)object->countdown >= 8) {
             object->state_3 = 3;
-            func_801308c4(object, 0x1b);
+            set_sequence_by_side_and_mode_2(object, 0x1b);
         }
     } else if (object->hit_type == 8 && object->mode_flag_2 != 0) {
-        func_8012d2ac(object);
+        call_meter_action_or_default_sequence(object);
     } else if (object->hit_type != 8 || (object->input_bits_2 & 0x2000) == 0) {
         update_sequence(object);
     } else {
@@ -32,6 +32,6 @@ void func_8012cf1c(Object *object) {
             object->field_157 = 1;
             index = 0xe;
         }
-        func_801308c4(object, index);
+        set_sequence_by_side_and_mode_2(object, index);
     }
 }

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1194_slot04_08(Object *obj) {
+void start_state_7_move_7_with_other_lock_slot04_08(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -18,5 +18,5 @@ void func_801b1194_slot04_08(Object *obj) {
     obj->field_157 = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x13;
-    func_801307e0(obj, 0x5b);
+    set_sequence_by_side_and_mode(obj, 0x5b);
 }

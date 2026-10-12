@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8012e38c(Object *object) {
-    func_80155f30(object);
+    add_round_score_to_other_side(object);
     object->field_69 = 0;
     object->round_count = 0;
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
@@ -28,14 +28,14 @@ void func_8012e38c(Object *object) {
         func_8012e4c4(object);
     } else {
         object->hold_timer = 2;
-        if (func_80130470(object) != 0) {
-            func_8013047c(object);
+        if (get_pressed_low_byte(object) != 0) {
+            set_state_1_0_5_and_read_input_direction(object);
         } else if (func_8012f970(object) != 0) {
-            func_8012fe60(object);
+            enter_state_2_6_by_button_input(object);
         } else if (object->input_bits_2 & 0x4000) {
-            func_80131468(object);
+            reset_object_to_state_1_0_0_2_sequence_1(object);
         } else {
-            func_801312b8(object);
+            reset_object_to_state_1_0_sequence_0(object);
         }
     }
 }

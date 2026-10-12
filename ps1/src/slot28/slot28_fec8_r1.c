@@ -7,7 +7,7 @@ extern Object *data_80051b04_slot28[];
 extern ObjectRef data_80051b08_slot28;
 void func_8002005c_slot28(Object *obj, int arg);
 
-void func_8001fec8_slot28(Object *obj) {
+void advance_pass_hide_object_spawn_marker_slot28(Object *obj) {
     HudState *h;
     Object *b;
 
@@ -20,7 +20,7 @@ void func_8001fec8_slot28(Object *obj) {
         b = data_80051b08_slot28.p;
         b->pos_x = 0x58;
         b->pos_y = -0x60;
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0xa6;
@@ -28,6 +28,6 @@ void func_8001fec8_slot28(Object *obj) {
             b->field_01 = 0;
         }
         func_8002005c_slot28(obj, 4);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

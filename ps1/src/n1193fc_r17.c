@@ -9,12 +9,12 @@ int func_801252f0(void) {
         return func_80125268();
     }
     if (game_state.side_bits & 1) {
-        if (func_8012543c()) {
+        if (is_pad_button_pressed()) {
             r = 1;
         }
     }
     if (game_state.side_bits & 2) {
-        if (func_80125454()) {
+        if (is_pad_button_pressed_2()) {
             r |= 1;
         }
     }

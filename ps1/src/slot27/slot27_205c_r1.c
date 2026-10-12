@@ -4,35 +4,35 @@
 #include "../externs.h"
 
 extern Slot27Rec9338 data_80029338_slot27[];
-void func_800125f4_slot27(void);
-void func_80011ea4_slot27(void);
-void func_80011d90_slot27(void);
-void func_800139a8_slot27(Object *obj);
-void func_80013a6c_slot27(void);
-void func_80013b74_slot27(Object *obj);
-void func_80013cc4_slot27(Object *obj);
+void select_kind_from_pressed_direction_slot27(void);
+void update_input_sequence_match_record_slot27(void);
+void update_hold_counters_for_kind_2_and_4_slot27(void);
+void set_sequence_and_position_by_other_kind_slot27(Object *obj);
+void check_opposite_player_same_selection_slot27(void);
+void load_palette_anim_from_table_index_slot27(Object *obj);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
-void func_8001205c_slot27(Object *obj) {
+void update_selection_input_and_confirm_slot27(Object *obj) {
     u8 *e;
     Object *s0;
     int k;
 
-    func_800125f4_slot27();
-    func_80011ea4_slot27();
+    select_kind_from_pressed_direction_slot27();
+    update_input_sequence_match_record_slot27();
     (*(s32 *)&game_state.field_354) = ref_other.p->kind;
     if ((*(s32 *)&game_state.field_354) != obj->table_index) {
-        func_801205c4(ref_other.p->side, 0);
+        call_func_with_side_x_origin(ref_other.p->side, 0);
         obj->facing_flag = 0;
         if ((*(u8 *)&data_801901ba) != 0 && (*(u8 *)&game_state.pending_flag_2) != 0) {
             (*(u8 *)&data_801901ba) = 0;
         }
         obj->table_index = *(u8 *)data_8019045c;
-        func_800139a8_slot27(obj);
+        set_sequence_and_position_by_other_kind_slot27(obj);
         goto done;
     }
     s0 = ref_other.p;
     e = (u8 *)(data_80029338_slot27 + ref_other.p->side);
-    func_80011d90_slot27();
+    update_hold_counters_for_kind_2_and_4_slot27();
     if (e[5] == 0xb4 && s0->kind == 4) {
         (*(s32 *)&game_state.field_354) = ~ref_other.p->prev_input_bits;
         (*(s32 *)data_80190464) = ref_other.p->input_bits;
@@ -94,7 +94,7 @@ setb:
         if ((*(s32 *)&game_state.field_354) == 0) goto done;
     }
     obj->state_2 = obj->state_2 + 1;
-    func_801205c4(ref_other.p->side, 1);
+    call_func_with_side_x_origin(ref_other.p->side, 1);
     k = (*(s32 *)&game_state.field_354);
     (*(s32 *)data_8019046c) = 0;
     (*(s32 *)data_80190464) = k;
@@ -114,15 +114,15 @@ setb:
     (*(s32 *)&game_state.field_354) = ref_other.p->side;
     game_state.mode |= 1 << (*(s32 *)&game_state.field_354);
     game_state.side = (*(s32 *)&game_state.field_354);
-    func_80013a6c_slot27();
+    check_opposite_player_same_selection_slot27();
     if ((*(s32 *)&game_state.field_354) != 0) {
         (*(s32 *)&game_state.field_354) = 0;
         if (ref_other.p->field_d4 == 0) (*(s32 *)&game_state.field_354) = 1;
         ref_other.p->field_d4 = (*(s32 *)&game_state.field_354);
     }
     (*(s32 *)&game_state.field_354) = 1;
-    func_80013b74_slot27(obj);
+    load_palette_anim_from_table_index_slot27(obj);
     return;
 done:
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }

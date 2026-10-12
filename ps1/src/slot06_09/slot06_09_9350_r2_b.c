@@ -9,13 +9,13 @@ extern s16 data_801ec954_slot06_09[];
 extern s16 data_801ec956_slot06_09[];
 extern u16 data_801ec958_slot06_09[];
 
-void func_801e9cc0_slot06_09(Object *obj);
+void set_accel_and_countdown_from_tables_slot06_09(Object *obj);
 
-void func_801e9ca0_slot06_09(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_09(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9cc0_slot06_09(Object *obj) {
+void set_accel_and_countdown_from_tables_slot06_09(Object *obj) {
     int i = (u8)(obj->table_index * 32 + ((Slot06Obj *)obj)->table_base_index);
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
@@ -25,11 +25,11 @@ void func_801e9cc0_slot06_09(Object *obj) {
     obj->countdown = data_801ec958_slot06_09[i];
 }
 
-void func_801e9d2c_slot06_09(Object *obj) {
+void call_handler_by_state_0_2_slot06_09(Object *obj) {
     data_801eca14_slot06_09[obj->state_0](obj);
 }
 
-void func_801e9d6c_slot06_09(Object *obj) {
+void init_object_vel_x_accel_x_from_position_slot06_09(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->spawn_mode = 4;
@@ -38,7 +38,7 @@ void func_801e9d6c_slot06_09(Object *obj) {
     obj->field_0c = 0;
     obj->state_0++;
     obj->accel_x = 0xf0 - obj->pos_y;
-    func_80130700(obj, data_801ec940_slot06_09[0]);
+    set_sequence_entry(obj, data_801ec940_slot06_09[0]);
 }
 
 void func_801e9dd4_slot06_09(Object *o) {
@@ -51,9 +51,9 @@ void func_801e9dd4_slot06_09(Object *o) {
     if (((Slot06Layer *)data_801aa544)->pos_x_int >= 0x3a0) {
         o->state_0++;
     }
-    func_80120028(o);
+    set_flag_and_push_if_mode_8(o);
 }
 
-void func_801e9e58_slot06_09(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_09(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

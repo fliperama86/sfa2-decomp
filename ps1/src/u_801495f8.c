@@ -4,13 +4,13 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_801495f8(Object *object, int x, int y)
+void spawn_effect_objects_at_offset(Object *object, int x, int y)
 {
   int dx;
   Object *new_var;
   Object *o;
   dx = x;
-  o = (Object *)func_8011f1e0();
+  o = (Object *)pop_block_from_pool();
   if (o != 0)
   {
     o->active_count = 1;
@@ -38,7 +38,7 @@ void func_801495f8(Object *object, int x, int y)
       x = 0;
       do
       {
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0)
         {
           o->active_count = 1;

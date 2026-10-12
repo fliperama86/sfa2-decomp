@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9b24_slot06_0f(Object *obj);
+void set_sequence_table_and_start_entry_slot06_0f(Object *obj);
 
-void func_801e99c8_slot06_0f(Object *obj) {
+void init_object_and_advance_state_0_slot06_0f(Object *obj) {
     obj->image_row = 0;
     obj->field_0c = 0;
     obj->field_0f = 1;
@@ -15,5 +15,5 @@ void func_801e99c8_slot06_0f(Object *obj) {
     if (obj->facing_side == 0) {
         obj->field_0a = 1;
     }
-    func_801e9b24_slot06_0f(obj);
+    set_sequence_table_and_start_entry_slot06_0f(obj);
 }

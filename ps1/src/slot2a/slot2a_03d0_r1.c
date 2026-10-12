@@ -20,7 +20,7 @@ void func_801e03d0_slot2a(void) {
     }
 }
 
-void func_801e044c_slot2a(void) {
+void count_down_field_cc_advance_pass_slot2a(void) {
     u16 *c = &game_state.field_cc;
     int t = *c - 1; *c = t;
     if ((s16)*c < 0xdc) {
@@ -42,7 +42,7 @@ void func_801e049c_slot2a(void) {
 }
 
 void func_801e0518_slot2a(void) {
-    func_8014f4d4(6, 2);
+    set_menu_command_by_code(6, 2);
     data_8018f5a0->pass_index = 0;
     data_801e52c4_slot2a = 0;
     game_state.state_2c_flag = 0;
@@ -51,9 +51,9 @@ void func_801e0518_slot2a(void) {
     func_801260ac(1, 0x20, 0);
     func_801260ac(2, 0x20, 0);
     func_801260ac(3, 0x20, 0);
-    func_80137b10();
+    queue_five_jobs();
 }
 
-void func_801e05b4_slot2a(Object *obj) {
+void call_handler_by_state_0_slot2a(Object *obj) {
     data_801e2250_slot2a[obj->state_0](obj);
 }

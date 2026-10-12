@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6e18_slot04_02(Object *obj);
+void increment_state_0_slot04_02(Object *obj);
 void func_801b6e68_slot04_02(Object *obj);
-void func_801b6ec0_slot04_02(Object *obj);
+void copy_parent_position_offset_by_facing_slot04_02(Object *obj);
 
-void func_801b6d08_slot04_02(Object *o) {
+void init_object_from_parent_fields_slot04_02(Object *o) {
     Object *p = o->parent;
     o->state_0++;
     o->field_1c = p->field_1c;
@@ -21,18 +21,18 @@ void func_801b6d08_slot04_02(Object *o) {
     o->ot_depth = 0;
 }
 
-void func_801b6d6c_slot04_02(Object *o) {
+void update_child_follow_parent_frame_param_slot04_02(Object *o) {
     Object *p = o->parent;
     int s;
     o->field_01 = 0;
     if (o->table_index != p->kind) {
-        func_801b6e18_slot04_02(o);
+        increment_state_0_slot04_02(o);
     } else {
         s = p->frame->frame_param;
         if (s == 0) {
             o->variant_index = 0;
         } else {
-            func_801b6ec0_slot04_02(o);
+            copy_parent_position_offset_by_facing_slot04_02(o);
             o->field_01 = 1;
             if (o->variant_index != s) {
                 o->variant_index = s;

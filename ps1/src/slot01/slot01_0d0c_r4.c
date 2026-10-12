@@ -10,7 +10,7 @@ void func_80011740_slot01(void);
 void func_80011224_slot01(void) {
     Object *o;
     data_8018f5a0->substep_index++;
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x2b;
@@ -21,7 +21,7 @@ void func_80011224_slot01(void) {
 void func_80011274_slot01(void) {
     Object *o;
     data_8018f5a0->substep_index++;
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x30;
@@ -32,11 +32,11 @@ void func_80011274_slot01(void) {
     }
 }
 
-void func_800112e4_slot01(void) {
+void spawn_hud_object_from_kind_slot01(void) {
     Object *o;
     data_8018f5a0->substep_index++;
     func_80011740_slot01();
-    o = (Object *)func_8011f1e0();
+    o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
         o->field_02 = 0x13;

@@ -5,7 +5,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_801259a8(Select *sel, Object *a, Object *b)
+void select_next_kind_for_object(Select *sel, Object *a, Object *b)
 {
   int flags;
   s16 i;
@@ -60,7 +60,7 @@ void func_801259a8(Select *sel, Object *a, Object *b)
       return;
     }
     b->kind = flag;
-    sel->kind_value = (u8) func_80125afc(flag);
-    func_80125b34(sel, a);
+    sel->kind_value = (u8) get_table_entry(flag);
+    set_kind_value_when_index_at_limit(sel, a);
   }
 }

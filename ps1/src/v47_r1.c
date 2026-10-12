@@ -16,23 +16,23 @@ void func_8012c5cc(Object *object) {
             step = 2;
         }
         index = step + 7;
-        func_801308c4(object, index);
+        set_sequence_by_side_and_mode_2(object, index);
     } else if (object->hit_type == 8 || object->hit_type == 0) {
         step = object->field_62;
         if (step >= 2) {
             step = 2;
         }
         index = step + 1;
-        func_801308c4(object, index);
+        set_sequence_by_side_and_mode_2(object, index);
     } else {
         step = object->field_62;
         if (step >= 2) {
             step = 2;
         }
         index = step + 4;
-        func_801308c4(object, index);
+        set_sequence_by_side_and_mode_2(object, index);
     }
-    func_80131e88(object);
+    move_other_by_kind_table_on_hit(object);
     if (object->field_6b == 0) {
         func_8012cca8(object);
     }

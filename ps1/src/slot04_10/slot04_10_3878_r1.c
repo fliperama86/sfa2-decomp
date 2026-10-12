@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80130184(Object *object);
-void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+int apply_velocity_and_check_ground(Object *object);
+void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146960(Object *object);
-void func_80142adc(Object *object);
-void func_801b1078_slot04_10(Object *obj);
+void start_action_if_buttons_pressed(Object *object);
+void load_velocities_from_table_slot04_10(Object *obj);
 void func_801b4444_slot04_10(Object *obj);
 void func_801b3d40_slot04_10(Object *obj);
 extern ObjectFn data_801c6a84_slot04_10[];
 extern u16 data_801c6aa8_slot04_10[];
 
-void func_801b3878_slot04_10(Object *obj) {
+void update_launch_attack_by_step_flag_table_slot04_10(Object *obj) {
     s16 a[12] = { 0x17, 0, 0x1b, 0, 0x1f, 0x12, 0x14, 0xf, 0x16, 0xf, 0x18, 0xf };
     s16 b[3] = { 0x20, 0x21, 0x22 };
     s32 c[12] = { 0x38000, 0x60000, 0, -0x8000, 0x30000, 0x70000, 0, -0x8400, 0x48000, 0x80000, 0, -0x8800 };
@@ -33,7 +33,7 @@ void func_801b3878_slot04_10(Object *obj) {
         obj->step_flags &= 0xff00;
         game_state.other_object = obj->other;
         game_state.other_object->field_15b = 1;
-        func_80140770(obj, ((u8 *)b)[obj->direction_index & 0xfe], 0xf, -0x200, 0, 0, 1);
+        set_other_hit_reaction_state_0(obj, ((u8 *)b)[obj->direction_index & 0xfe], 0xf, -0x200, 0, 0, 1);
         game_state.other_object = obj->other;
         if ((s16)game_state.other_object->health < 0) {
             obj->field_167 = 2;
@@ -55,13 +55,13 @@ void func_801b3878_slot04_10(Object *obj) {
         func_80146960(obj);
         update_sequence(obj);
         k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->direction_index + k) * 2 + (u32)a);
-        if ((u8)func_80140cd8(obj, p[0], p[1]) != 0) {
+        if ((u8)apply_damage_to_other_return_defeated(obj, p[0], p[1]) != 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x20;
                 obj->field_255 = 6;
                 game_state.config->countdown = 0;
-                func_80147000(obj);
+                spawn_game_state_kind_object(obj);
             }
         }
         play_sound_at(obj, obj->side, 0x319);
@@ -69,27 +69,27 @@ void func_801b3878_slot04_10(Object *obj) {
 }
 
 void func_801b3b6c_slot04_10(Object *obj) {
-    if ((u8)func_80130184(obj) != 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {
         obj->active_state = 0;
         obj->state_3++;
         obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x1f);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x1f);
     }
 }
 
-void func_801b3be8_slot04_10(Object *obj) {
+void update_or_end_with_other_state_code_5_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     } else {
         obj->active_flag_4 = 0;
         game_state.other_object = obj->other;
         game_state.other_object->other_state_code = 5;
-        func_801b1078_slot04_10(obj);
+        load_velocities_from_table_slot04_10(obj);
     }
 }
 
@@ -102,9 +102,9 @@ void func_801b3c9c_slot04_10(Object *obj) {
     game_state.other_object = obj->other;
     game_state.other_object->other_state_code = 0;
     obj->state_3++;
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x39);
-    func_80141f28(obj, 5);
-    func_80138ae8(game_state.config, obj);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x39);
+    add_to_meter_clamped(obj, 5);
+    add_one_to_ec4_if_object_unflagged(game_state.config, obj);
     if (obj->field_49 != 0) {
         obj->field_225 = 1;
     }
@@ -119,14 +119,14 @@ void func_801b3d40_slot04_10(Object *obj) {
         func_801b4444_slot04_10(obj);
     } else {
         obj->state_3++;
-        func_80141f28(obj, 0x14);
-        func_80138ae8(game_state.config, obj);
+        add_to_meter_clamped(obj, 0x14);
+        add_one_to_ec4_if_object_unflagged(game_state.config, obj);
         play_sound_at(obj, obj->side ^ 1, 0x31a);
-        func_801307e0(obj, 0x22);
+        set_sequence_by_side_and_mode(obj, 0x22);
     }
 }
 
-void func_801b3dfc_slot04_10(Object *obj) {
+void update_hit_and_shift_by_step_flag_table_slot04_10(Object *obj) {
     u16 tbl[8] = { 4, 5, 6, 0, 6, 8, 9, 0 };
     int d;
     int k;
@@ -144,7 +144,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
             i = obj->direction_index >> 1;
             k = (obj->field_49 != 0) << 2;
             i += k;
-            func_80140cd8(obj, (s16)(p[i] | m), 0);
+            apply_damage_to_other_return_defeated(obj, (s16)(p[i] | m), 0);
             obj->step_flags &= m;
             game_state.config->setup_value = 0x3c;
             play_sound_at(obj, obj->side, 0x319);
@@ -161,7 +161,7 @@ void func_801b3dfc_slot04_10(Object *obj) {
     }
 }
 
-void func_801b3f54_slot04_10(Object *obj) {
+void launch_from_table_on_step_flag_3_slot04_10(Object *obj) {
     s32 tbl[12] = { 0x24000, 0x90000, 0, -0x8000, 0x24000, 0xa0000, 0, -0x8400, 0x24000, 0xb0000, 0, -0x8800 };
 
     update_sequence(obj);

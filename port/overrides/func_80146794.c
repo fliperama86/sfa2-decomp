@@ -3,12 +3,12 @@
  * C of the unit s1460ec_r3.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
- * What is different from the unit's C: the call of func_80120028 is written
+ * What is different from the unit's C: the call of set_flag_and_push_if_mode_8 is written
  * with an argument, which is either `object` or the word that was at offset
  * 0x18 of the object (the `sequence` pointer) when advance_sequence_checked was entered.
  * The unit calls it with none.
  *
- * Why: func_80120028 reads a0 (`lbu v1,0x8(a0)` at 80120030). On the console
+ * Why: set_flag_and_push_if_mode_8 reads a0 (`lbu v1,0x8(a0)` at 80120030). On the console
  * a0 holds at that call (jal at 80146808) what the earlier call, advance_sequence_checked
  * (jal at 80146800), left in it. The function itself writes no a0 from its
  * entry to the two jals. advance_sequence_checked was read to its end in the listing: it
@@ -30,7 +30,7 @@
  *
  * What the function does (inferred): it moves pos_x by 4 for the table_index
  * values 0x10 and 0x11, raises state_0 when the halfword at 0x3a is
- * negative, calls advance_sequence_checked with the object, then func_80120028.
+ * negative, calls advance_sequence_checked with the object, then set_flag_and_push_if_mode_8.
  *
  * Contract:
  *   Argument: object (a0), a pointer to an object; no result.
@@ -42,7 +42,7 @@
  *     at 0x18 leads to, and a byte of the frame table that the pointer at
  *     0x8c leads to). The setup builds both blocks. It runs as original code
  *     so that what it leaves in a0 is what the console's code leaves.
- *     func_80120028 (1 argument) is replaced in the test by a recorder that
+ *     set_flag_and_push_if_mode_8 (1 argument) is replaced in the test by a recorder that
  *     logs its argument and returns 0. What it does is outside the test. The
  *     test watches the whole object at the recorder's call.
  *   Excluded inputs: a null object; a sequence pointer to anything but the
@@ -71,5 +71,5 @@ void func_80146794(Object *object) {
         arg = (Object *)object->sequence;
     }
     advance_sequence_checked(object);
-    ((void (*)(Object *))func_80120028)(arg);
+    ((void (*)(Object *))set_flag_and_push_if_mode_8)(arg);
 }

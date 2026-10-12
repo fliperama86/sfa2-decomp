@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
+Block172 *pop_block_from_pool(void);
 
-void func_801e99ac_slot06_11(Object *obj, int a) {
-    ref_other.p = (Object *)func_8011f1e0();
+void spawn_object_4b_type1_at_ground_slot06_11(Object *obj, int a) {
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count += 1;
         ref_other.p->field_02 = 0x4b;
@@ -17,8 +17,8 @@ void func_801e99ac_slot06_11(Object *obj, int a) {
     }
 }
 
-void func_801e9a64_slot06_11(Object *obj, int a) {
-    ref_other.p = (Object *)func_8011f1e0();
+void spawn_object_4b_child_at_ground_slot06_11(Object *obj, int a) {
+    ref_other.p = (Object *)pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count += 1;
         ref_other.p->field_02 = 0x4b;
@@ -31,7 +31,7 @@ void func_801e9a64_slot06_11(Object *obj, int a) {
     }
 }
 
-void func_801e9b4c_slot06_11(Object *obj) {
+void advance_sequence_next_state_on_loop_slot06_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
@@ -39,7 +39,7 @@ void func_801e9b4c_slot06_11(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9ba0_slot06_11(Object *obj) {
+void advance_sequence_flip_side_copy_parent_x_slot06_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
@@ -50,7 +50,7 @@ void func_801e9ba0_slot06_11(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9c1c_slot06_11(Object *obj) {
+void advance_sequence_and_flip_facing_side_slot06_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
@@ -59,7 +59,7 @@ void func_801e9c1c_slot06_11(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9c7c_slot06_11(Object *obj) {
+void advance_sequence_blink_by_frame_parity_slot06_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
@@ -71,6 +71,6 @@ void func_801e9c7c_slot06_11(Object *obj) {
     }
 }
 
-void func_801e9cfc_slot06_11(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_3_slot06_11(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

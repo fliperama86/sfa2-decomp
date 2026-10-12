@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012c6a4(Object *object) {
+void start_hit_sequence_base_7_or_4(Object *object) {
     u16 base;
     int step;
     object->field_60 = 0;
@@ -15,8 +15,8 @@ void func_8012c6a4(Object *object) {
     step = object->field_62;
     if (step >= 2) step = 2;
     base += step;
-    func_801308c4(object, base);
-    func_80131e88(object);
+    set_sequence_by_side_and_mode_2(object, base);
+    move_other_by_kind_table_on_hit(object);
     if (object->field_6b == 0) func_8012cca8(object);
 }
 
@@ -32,6 +32,6 @@ void func_8012c72c(Object *object) {
     step = object->field_62;
     if (step >= 2) step = 2;
     base += step;
-    func_801308c4(object, base);
+    set_sequence_by_side_and_mode_2(object, base);
     if (object->field_6b == 0) func_8012cca8(object);
 }

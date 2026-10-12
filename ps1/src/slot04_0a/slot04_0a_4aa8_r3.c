@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4ff0_slot04_0a(Object *obj);
-void func_801b4ff8_slot04_0a(Object *obj);
+void noop_slot00_2_slot04_0a(Object *obj);
+void noop_slot00_3_slot04_0a(Object *obj);
 
-void func_801b4d2c_slot04_0a(Object *obj) {
+void init_child_depth_and_copy_parent_field_slot04_0a(Object *obj) {
     obj->ot_depth = 4;
     obj->spawn_mode = 5;
     obj->field_0c = 0xff;
@@ -14,7 +14,7 @@ void func_801b4d2c_slot04_0a(Object *obj) {
     obj->field_1c = obj->parent->field_1c;
 }
 
-void func_801b4d60_slot04_0a(Object *obj) {
+void update_countdown_check_parent_state_slot04_0a(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->countdown = 0;
@@ -22,11 +22,11 @@ void func_801b4d60_slot04_0a(Object *obj) {
             obj->state_0 = 2;
         } else {
             if (obj->step_flags & 0x100) {
-                func_801b4ff0_slot04_0a(obj);
+                noop_slot00_2_slot04_0a(obj);
             } else if (obj->step_flags & 0x200) {
-                func_801b4ff8_slot04_0a(obj);
+                noop_slot00_3_slot04_0a(obj);
             }
-            func_80120028(obj);
+            set_flag_and_push_if_mode_8(obj);
         }
     }
 }

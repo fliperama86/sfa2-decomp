@@ -5,11 +5,11 @@
 
 extern u8 data_801e46b0_slot0b[];
 extern u8 data_801e4728_slot0b[];
-void func_801e0970_slot0b(void);
+void queue_pooled_clut_upload_job_a_slot0b(void);
 
-void func_801e08d8_slot0b(ModObj *obj) {
+void spawn_child_object_for_owner_side_slot0b(ModObj *obj) {
     Object *p = obj->owner_object;
-    ModObj *c = (ModObj *)func_8011f32c();
+    ModObj *c = (ModObj *)pop_object_from_second_pool();
     u8 side;
     if (c != 0) {
         c->active_flag = 1;
@@ -26,12 +26,12 @@ void func_801e08d8_slot0b(ModObj *obj) {
         obj->child = c;
     }
     if (p->side != 1) {
-        func_801e0970_slot0b();
+        queue_pooled_clut_upload_job_a_slot0b();
     }
 }
 
-void func_801e0970_slot0b(void) {
-    ModPool *p = (ModPool *)func_8011f4a4();
+void queue_pooled_clut_upload_job_a_slot0b(void) {
+    ModPool *p = (ModPool *)alloc_pooled_b();
     Rect r;
     if (p != 0) {
         r.x = 0x140;

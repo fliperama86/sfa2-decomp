@@ -6,7 +6,7 @@
 extern Slot06Tile data_801f29dc_slot06_01[2][300];
 extern Slot06Tile data_801fa57c_slot06_01[2][108];
 
-void func_801e860c_slot06_01(void) {
+void init_two_tile_sprite_arrays_gray_b_slot06_01(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -23,7 +23,7 @@ void func_801e860c_slot06_01(void) {
         j = 0;
         do {
             r = (Slot06Tile *)((u8 *)data_801f29dc_slot06_01 + i * 0x20d0 + j * 0x1c);
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;
@@ -31,7 +31,7 @@ void func_801e860c_slot06_01(void) {
         } while (j < 300);
         j = 0;
         do {
-            func_80136d1c((Tx *)(i * 0xbd0 + (u32)(t + j)));
+            init_draw_mode_prim_3((Tx *)(i * 0xbd0 + (u32)(t + j)));
             q = (Slot06Sprt16 *)((j * 0x1c + i * 0xbd0) + (u32)sp);
             q->color_r = c;
             q->color_g = c;

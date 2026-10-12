@@ -7,7 +7,7 @@ extern u8 data_801b4d18_slot04_08[];
 extern u8 data_801b7a18_slot04_08[];
 extern u32 data_801c3a98_slot04_08[];
 
-void func_801b0000_slot04_08(Object *obj) {
+void init_object_data_and_spawn_linked_child_slot04_08(Object *obj) {
     u32 *dst;
     u32 i;
     Object *c;
@@ -23,7 +23,7 @@ void func_801b0000_slot04_08(Object *obj) {
     for (; i < 0x28; i++) {
         dst[i] = data_801c3a98_slot04_08[i];
     }
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 8;

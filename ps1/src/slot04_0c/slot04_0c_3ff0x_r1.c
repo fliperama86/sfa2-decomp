@@ -7,7 +7,7 @@ extern void (*data_801be1e0_slot04_0c[])(Object *, Object *);
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
-void func_801b3ff0_slot04_0c(Object *obj, Object *parent) {
+void follow_parent_frame_param_sequence_slot04_0c(Object *obj, Object *parent) {
     int idx;
     int old;
 
@@ -32,8 +32,8 @@ void func_801b3ff0_slot04_0c(Object *obj, Object *parent) {
     }
     obj->variant_index = idx;
     if (parent->side == 0) {
-        func_80130768(obj, idx, data_1f8000b4);
+        set_sequence_from_table_5(obj, idx, data_1f8000b4);
     } else {
-        func_80130768(obj, idx, data_1f800164);
+        set_sequence_from_table_5(obj, idx, data_1f800164);
     }
 }

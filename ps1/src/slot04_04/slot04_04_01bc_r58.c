@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4c6c_slot04_04(Object *obj) {
+void init_projectile_velocity_and_sequence_slot04_04(Object *obj) {
     Object *p;
     SequenceStep *s;
 
@@ -32,10 +32,10 @@ void func_801b4c6c_slot04_04(Object *obj) {
             s = *data_1f800164;
         }
     }
-    func_80130700(obj, s);
+    set_sequence_entry(obj, s);
 }
 
-void func_801b4d58_slot04_04(Object *obj) {
+void move_by_vel_x_until_offset_then_advance_slot04_04(Object *obj) {
     if (game_state.field_65 == 0) {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
         if ((u32)(obj->pos_x - obj->accel_y + 0x20) >= 0x40) {
@@ -43,6 +43,6 @@ void func_801b4d58_slot04_04(Object *obj) {
         }
     }
     advance_sequence_checked(obj);
-    func_8011ff74(obj);
+    set_state_0_if_x_outside_margin_narrow(obj);
     func_8011ffdc(obj);
 }

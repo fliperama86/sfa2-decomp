@@ -16,7 +16,7 @@ void func_801e91e0_slot06_01(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e920c_slot06_01(void) {
+void init_poly_ft4_buffers_gray_slot06_01(void) {
     int i;
     int j;
     Poly28 *r;

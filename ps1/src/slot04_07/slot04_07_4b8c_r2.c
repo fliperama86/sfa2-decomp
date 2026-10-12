@@ -5,7 +5,7 @@
 
 int func_801b41c4_slot04_07(Object *obj);
 
-void func_801b4cec_slot04_07(Object *obj) {
+void update_fall_land_at_saved_y_slot04_07(Object *obj) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
     if (func_801b41c4_slot04_07(obj) >= 0 || obj->ground_y > obj->pos_y) {
@@ -16,17 +16,17 @@ void func_801b4cec_slot04_07(Object *obj) {
         obj->active_state = 0;
         obj->pos_y = o->saved_pos_y;
         play_sound_at(obj, obj->side, 0x314);
-        func_801307e0(obj, 0x2e);
+        set_sequence_by_side_and_mode(obj, 0x2e);
     }
 }
 
-void func_801b4d74_slot04_07(Object *obj) {
+void start_air_move_or_enter_state_1_2_slot04_07(Object *obj) {
     int v;
 
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
     if (obj->hit_flag_a != 0 && obj->ground_y - obj->pos_y >= 0x30 &&
-        (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x20) != 0) {
+        (u8)check_hit_other_active_state_nonzero(obj, -0x20, 0x20, 0, 0x20) != 0) {
         obj->state_1 = 2;
         obj->state_0 = 1;
         obj->state_2 = 0;
@@ -34,10 +34,10 @@ void func_801b4d74_slot04_07(Object *obj) {
         obj->input_dir_0 = 4;
         return;
     }
-    func_80141f28(obj, obj->direction_index >> 1);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     if (obj->attack_param_d != 0) {
         obj->vel_x = obj->vel_x >> 1;
-        func_801307e0(obj, 0x1f);
+        set_sequence_by_side_and_mode(obj, 0x1f);
     } else {
         v = 0xc;
         if (obj->variant_index != 0) {
@@ -46,6 +46,6 @@ void func_801b4d74_slot04_07(Object *obj) {
         if (obj->input_dir_second != 0) {
             v += 3;
         }
-        func_801307e0(obj, (s16)((obj->direction_index >> 1) + v));
+        set_sequence_by_side_and_mode(obj, (s16)((obj->direction_index >> 1) + v));
     }
 }

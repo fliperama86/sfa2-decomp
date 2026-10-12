@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077050_slot00(Object *obj);
-void func_800770b8_slot00(Object *obj);
+void select_box_tables_slot00_slot00(Object *obj);
+void set_position_from_parent_offset_slot00(Object *obj);
 
 void func_800766a0_slot00(Object *obj) {
     Slot00Obj *o = (Slot00Obj *)obj;
@@ -40,6 +40,6 @@ void func_800766a0_slot00(Object *obj) {
         obj->frames = data_1f800158;
     }
     func_80138070(obj, 2);
-    func_80077050_slot00(obj);
-    func_800770b8_slot00(obj);
+    select_box_tables_slot00_slot00(obj);
+    set_position_from_parent_offset_slot00(obj);
 }

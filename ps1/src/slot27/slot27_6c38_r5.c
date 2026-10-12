@@ -6,9 +6,9 @@
 extern Slot27Recb388 data_8002b388_slot27[2][0x118];
 extern Slot27Recf0c8 data_8002f0c8_slot27;
 extern ObjectFn data_800292d4_slot27[];
-void func_800178c8_slot27(Tx *tx);
+void init_draw_mode_prim_with_merge_slot27(Tx *tx);
 
-void func_80017064_slot27(Object *unused) {
+void init_primitives_and_copy_palette_block_slot27(Object *unused) {
     int i;
     int j;
     Slot27Recb388 *r;
@@ -21,7 +21,7 @@ void func_80017064_slot27(Object *unused) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x118; j++) {
             r = &data_8002b388_slot27[i][j];
-            func_800178c8_slot27((Tx *)r);
+            init_draw_mode_prim_with_merge_slot27((Tx *)r);
             r->field_10 = 0x80;
             r->field_11 = 0x80;
             r->field_12 = 0x80;
@@ -47,5 +47,5 @@ void func_80017064_slot27(Object *unused) {
             a[i * 16 + j] = t;
         }
     }
-    func_80137220(1, 1);
+    queue_image_upload_job(1, 1);
 }

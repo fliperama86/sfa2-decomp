@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
- * Unresolved: the 20e/20f split in func_8014c914/9f4/a7c/b1c. The original does
+ * Unresolved: the 20e/20f split in read_script_word_and_dispatch/9f4/a7c/b1c. The original does
  * sll 16 / sra 24 (and a move) where this compiles to srl 8. Calls without an
  * argument (nop in the delay slot) are written as unprototyped declarations. */
 #include "game.h"
@@ -7,33 +7,33 @@
 #include "protos.h"
 
 void func_8014cba4(Object *object) {
-    if (func_8014a170(object, (u32 *)table_8017d450) != 0) {
-        func_8014ca7c(object);
+    if (test_random_bit_in_table(object, (u32 *)table_8017d450) != 0) {
+        read_script_word_or_restore_script(object);
     } else {
-        func_8014c9f4(object);
+        enter_script_mode_1_and_read_opcode(object);
     }
 }
 
 void func_8014cbf8(Object *object) {
     if (object->field_20c == 0) {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
     } else if (object->field_20c == 2) {
-        func_8014cc80(object);
+        reset_script_to_saved_word(object);
     } else if (object->field_20c == 4) {
-        if (func_8014a170(object, (u32 *)table_8017d450) != 0) {
-            func_8014d99c(object);
+        if (test_random_bit_in_table(object, (u32 *)table_8017d450) != 0) {
+            clear_three_script_bytes(object);
         } else {
-            func_8014cc80(object);
+            reset_script_to_saved_word(object);
         }
     }
 }
 
-void func_8014cc80(Object *object) {
+void reset_script_to_saved_word(Object *object) {
     object->script_mode = 0;
     object->field_224 = 0;
     object->field_25d = 0;
     object->field_20c = object->saved_script_word;
-    func_8014cb1c(object);
+    restore_script_pointer_and_read_word(object);
 }
 
 void func_8014ccb0(Object *object) {
@@ -44,58 +44,58 @@ void func_8014ccf0(Object *object) {
     table_8017d2a8[object->field_209](object);
 }
 
-void func_8014cd30(Object *object) {
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+void check_script_wait_countdown_3(Object *object) {
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else if (object->countdown_3 == 0 || --object->countdown_3 == 0) {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
     }
 }
 
 void func_8014cda0(Object *object) {
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->field_157 != 0) {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
     }
 }
 
 void func_8014ce0c(Object *object) {
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->field_157 == 0) {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
     }
 }
 
-void func_8014ce78(Object *object) {
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+void check_script_wait_other_active_state(Object *object) {
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else if (object->other->active_state != 1) {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
     }
 }
 
-void func_8014cedc(Object *object) {
+void check_script_wait_other_height_limit(Object *object) {
     Object *other;
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else {
         other = object->other;
         if (other->active_state != 1
             || ((s16)other->pos_y >= (s16)(other->ground_y - (object->limit_lo + (object->limit_hi << 8)))
                 && other->vel_y > 0)) {
-            func_8014d99c(object);
+            clear_three_script_bytes(object);
         }
     }
 }
 
 void func_8014cf80(Object *object) {
-    if ((u8)func_8014de94(object) != 0) {
-        func_8014e080(object);
+    if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
+        init_object_mode_2(object);
     } else if (object->countdown_3 == 0 || --object->countdown_3 == 0) {
-        func_8014d99c(object);
-    } else if (func_80142378(object) != 0) {
+        clear_three_script_bytes(object);
+    } else if (find_active_wide_box_and_check_other(object) != 0) {
         object->field_208 = 3;
         object->field_209 = 0;
         object->state_0 = 1;

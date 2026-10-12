@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80150cd0(int index) {
+void load_and_exec_program_by_index(int index) {
     Node *sprite = func_8014f194(table_8017ec9c[index]);
     sprite->field_20 = 0;
     func_801575cc(data_801900fc);

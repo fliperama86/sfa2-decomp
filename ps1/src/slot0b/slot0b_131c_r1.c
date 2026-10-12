@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e1554_slot0b(Slot0bObj *obj);
-void func_801e1624_slot0b(Slot0bObj *obj);
+void update_fx_fy_with_steps_slot0b(Slot0bObj *obj);
+void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
-void func_801e131c_slot0b(Slot0bObj *obj) {
+void update_countdown_then_reset_position_slot0b(Slot0bObj *obj) {
     int v;
     if (data_80190468.p->phase_state == 1 || (v = obj->countdown_timer - 1, obj->countdown_timer = v, (s16)v < 0)) {
         obj->step_count++;
@@ -15,8 +15,8 @@ void func_801e131c_slot0b(Slot0bObj *obj) {
         }
         ((Object *)obj)->pos_x = obj->field_5c;
         ((Object *)obj)->pos_y = obj->field_5e;
-        func_801e1624_slot0b(obj);
+        call_step_on_anim_member_slot0b(obj);
     } else {
-        func_801e1554_slot0b(obj);
+        update_fx_fy_with_steps_slot0b(obj);
     }
 }

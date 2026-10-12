@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_80155f30(Object *o)
+void add_round_score_to_other_side(Object *o)
 {
   struct Object *new_var;
   new_var = o;
@@ -17,6 +17,6 @@ void func_80155f30(Object *o)
       i = 99;
     }
     new_var = new_var->other;
-    func_80155cc8(table_80181380[i], (s8) new_var->side);
+    add_bcd_score_to_player(table_80181380[i], (s8) new_var->side);
   }
 }

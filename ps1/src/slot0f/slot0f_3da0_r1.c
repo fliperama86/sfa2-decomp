@@ -24,20 +24,20 @@ extern u8 data_800f0250_slot0f;
 extern u8 data_800f0254_slot0f;
 extern u8 data_800f0258_slot0f;
 
-void func_800e3da0_slot0f(void) {
+void update_button_config_screen_slot0f(void) {
     u16 *pad;
     u8 key;
     u8 idx;
     u8 i;
     u8 j;
 
-    func_801519b4(&data_800e9750_slot0f);
-    func_801519b4(&data_800e9938_slot0f);
-    func_801519b4(&data_800e9948_slot0f);
-    func_801519b4(&data_800e9958_slot0f);
-    func_801519b4(&data_800e9968_slot0f);
-    func_801519b4(&data_800e9978_slot0f);
-    func_801519b4(&data_800e9988_slot0f);
+    add_item_to_table(&data_800e9750_slot0f);
+    add_item_to_table(&data_800e9938_slot0f);
+    add_item_to_table(&data_800e9948_slot0f);
+    add_item_to_table(&data_800e9958_slot0f);
+    add_item_to_table(&data_800e9968_slot0f);
+    add_item_to_table(&data_800e9978_slot0f);
+    add_item_to_table(&data_800e9988_slot0f);
     pad = &data_801a696a;
     if (*pad & 0x800) {
         data_8018f5a0->pass_index = 3;

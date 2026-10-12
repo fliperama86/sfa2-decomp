@@ -11,12 +11,12 @@ extern u8 *data_8002b620_slot12;
 extern u16 *data_8002b624_slot12;
 extern u16 *data_8002b628_slot12;
 extern u8 *data_8002b62c_slot12;
-void func_80013180_slot12(void);
-void func_80013224_slot12(Object *obj, u8 a, s16 x, s16 y);
-void func_80013450_slot12(Object *obj, int a);
+void begin_primitive_buffer_with_draw_mode_slot12(void);
+void add_sprite_or_finish_sprite_buffer_slot12(Object *obj, u8 a, s16 x, s16 y);
+void build_bitmap_sprite_grid_slot12(Object *obj, int a);
 
 /* The locals fp and y are 16 bits wide and the loop counters row and col are signed bytes: as int, this function differs from the original in 4, 9, 11 and 58 instruction slots. The mask 0x3f of s is a statement of its own: written in the index, 4 instruction slots differ. The local m holds 1 << col: without it, 6 instruction slots differ. */
-void func_80012f64_slot12(Object *obj) {
+void draw_bit_grid_sprites_for_object_slot12(Object *obj) {
     Object *q;
     int s;
     s16 b0;
@@ -44,7 +44,7 @@ void func_80012f64_slot12(Object *obj) {
     }
     b0 = q->countdown_timer;
     if (b0 >= 0x60) {
-        func_80013450_slot12(obj, s);
+        build_bitmap_sprite_grid_slot12(obj, s);
         return;
     }
     b2 = q->field_b2;
@@ -61,7 +61,7 @@ void func_80012f64_slot12(Object *obj) {
     data_8002b624_slot12 = data_80022ea0_slot12 + s * 2;
     y = -(fp << 2);
     v = -0x2a;
-    func_80013180_slot12();
+    begin_primitive_buffer_with_draw_mode_slot12();
     for (row = 0; row < 8; row++) {
         x = v;
         s = *data_8002b62c_slot12++;
@@ -69,7 +69,7 @@ void func_80012f64_slot12(Object *obj) {
         for (col = 7; col >= 0; col--) {
             m = 1 << col;
             if (s & m) {
-                func_80013224_slot12(obj, w, x, y);
+                add_sprite_or_finish_sprite_buffer_slot12(obj, w, x, y);
                 obj->health++;
             }
             x += 0xc;
@@ -77,5 +77,5 @@ void func_80012f64_slot12(Object *obj) {
         y += fp;
         v -= 2;
     }
-    func_80013224_slot12(obj, 0xff, 0, 0);
+    add_sprite_or_finish_sprite_buffer_slot12(obj, 0xff, 0, 0);
 }

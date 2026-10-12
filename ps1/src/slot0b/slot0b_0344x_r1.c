@@ -7,7 +7,7 @@ extern void (*data_801e4704_slot0b[])(Object *);
 extern Slot0bPair data_801e46cc_slot0b[];
 extern Slot0bPair data_801e46d4_slot0b[];
 extern u8 *data_801e46b4_slot0b[];
-void func_801e0ce8_slot0b(Object *obj, u8 *a, int b, int c, int d);
+void init_layout_polyft4_prims_slot0b(Object *obj, u8 *a, int b, int c, int d);
 
 void func_801e0344_slot0b(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -32,5 +32,5 @@ void func_801e0344_slot0b(Object *obj) {
     side = ref_other.p->side;
     s2 = func_8015bd0c(0, 0, data_801e46cc_slot0b[side].a, data_801e46cc_slot0b[side].b) & 0xffff;
     r = func_8015bdd4(data_801e46d4_slot0b[s].a, data_801e46d4_slot0b[s].b);
-    func_801e0ce8_slot0b(obj, data_801e46b4_slot0b[ref_other.p->side], s2, r & 0xffff, ref_other.p->side);
+    init_layout_polyft4_prims_slot0b(obj, data_801e46b4_slot0b[ref_other.p->side], s2, r & 0xffff, ref_other.p->side);
 }

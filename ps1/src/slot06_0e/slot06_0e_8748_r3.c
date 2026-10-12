@@ -10,12 +10,12 @@ extern Poly28 data_801f3df4_slot06_0e[2][0x84];
 extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
 extern void (*data_801eac90_slot06_0e[])(Slot06Layer *layer);
 
-int func_801e9410_slot06_0e(Slot06Layer *layer);
-void func_801e9480_slot06_0e(Slot06Layer *layer);
+int init_cam_and_advance_mode_when_flagged_slot06_0e(Slot06Layer *layer);
+void update_layer_state_and_follow_main_layer_slot06_0e(Slot06Layer *layer);
 void func_8015c09c(void *prim);
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e92fc_slot06_0e(Slot06Layer *layer) {
+void init_layer_tile_map_fields_b_slot06_0e(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ec8ec_slot06_0e;
     layer->data_table = data_801ec8ec_slot06_0e;
     layer->packed_param = 0x5810;
@@ -23,7 +23,7 @@ void func_801e92fc_slot06_0e(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9328_slot06_0e(void) {
+void init_poly_ft4_buffers_gray_slot06_0e(void) {
     int i;
     int j;
     Poly28 *r;
@@ -45,16 +45,16 @@ void func_801e9328_slot06_0e(void) {
     } while (i < 2);
 }
 
-void func_801e93c8_slot06_0e(Slot06Layer *layer) {
+void call_layer_handler_by_mode_2_slot06_0e(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e9410_slot06_0e(layer);
+        init_cam_and_advance_mode_when_flagged_slot06_0e(layer);
     } else if (layer->mode == 1) {
-        func_801e9480_slot06_0e(layer);
+        update_layer_state_and_follow_main_layer_slot06_0e(layer);
     }
 }
 
 /* Declared int and returns nothing. With void this compiler fills a delay slot with a write to v0 and the function is 4 bytes short. The form is compatible with the original's bytes; what the original source declared is not known. */
-int func_801e9410_slot06_0e(Slot06Layer *layer) {
+int init_cam_and_advance_mode_when_flagged_slot06_0e(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
@@ -66,7 +66,7 @@ int func_801e9410_slot06_0e(Slot06Layer *layer) {
     }
 }
 
-void func_801e9480_slot06_0e(Slot06Layer *layer) {
+void update_layer_state_and_follow_main_layer_slot06_0e(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
@@ -109,7 +109,7 @@ void func_801e95b4_slot06_0e(Slot06Layer *layer) {
     }
 }
 
-void func_801e9604_slot06_0e(Slot06Layer *layer) {
+void count_down_layer_timer_then_signal_layer_slot06_0e(Slot06Layer *layer) {
     layer->field_8b = 0xff;
     layer->countdown_timer -= 1;
     if (layer->countdown_timer == 0) {
@@ -119,7 +119,7 @@ void func_801e9604_slot06_0e(Slot06Layer *layer) {
     }
 }
 
-void func_801e9644_slot06_0e(Slot06Layer *layer) {
+void increment_layer_state_index_slot06_0e(Slot06Layer *layer) {
     layer->state_index++;
 }
 
@@ -127,7 +127,7 @@ void func_801e9658_slot06_0e(Slot06Layer *layer) {
     layer->field_8b = 0xff;
 }
 
-void func_801e9664_slot06_0e(Slot06Layer *layer) {
+void init_layer_tile_map_0e_front_slot06_0e(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ed8ec_slot06_0e;
     layer->data_table = data_801ed8ec_slot06_0e;
     layer->packed_param = 0x6008;

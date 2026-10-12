@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80138164(void) {
+void update_blocks(void) {
     Block172 *b = (Block172 *)data_801a89f4;
 
     game_state.field_24 = 0x28;

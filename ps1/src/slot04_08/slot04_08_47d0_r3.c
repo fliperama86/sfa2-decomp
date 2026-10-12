@@ -30,9 +30,9 @@ void func_801b4ac0_slot04_08(Object *obj, Object *other) {
         data_801c3ea8_slot04_08 = data_1f800164;
     }
     if (other->side == 0) {
-        func_80130768(obj, (u8)(obj->table_index + 8), data_801c3ea4_slot04_08);
+        set_sequence_from_table_5(obj, (u8)(obj->table_index + 8), data_801c3ea4_slot04_08);
     } else {
-        func_80130768(obj, (u8)(obj->table_index + 8), data_801c3ea8_slot04_08);
+        set_sequence_from_table_5(obj, (u8)(obj->table_index + 8), data_801c3ea8_slot04_08);
     }
     obj->field_01 = 1;
 }

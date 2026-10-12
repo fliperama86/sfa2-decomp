@@ -15,7 +15,7 @@ Choices of the setup:
     random bits above it;
   - the record counter is random from 0 to 144 minus the number of tiles
     to be drawn;
-  - the variables that func_80134e94 and func_801350c0 read (the function
+  - the variables that select_meter_level_table_entry and update_meter_animation_indices read (the function
     itself names none of them except data_80188d28; the callees take them by
     address, inferred: a stretch of data from data_80188d28 - 0x20, the byte
     table at data_80171bf8 + 0x60 (0x108 bytes), and the halfword at offset
@@ -89,7 +89,7 @@ def setup(state, rng, sym):
     log = CallLog(state, words, watch=((sym["data_80188d04"], 1), (sym["data_80188d28"], 1), (first, watched or 1)))
     log.replace(sym["func_8015bf34"], 2, 0, pointees={1: 10})
 
-    # What func_80134e94 and func_801350c0 read.
+    # What select_meter_level_table_entry and update_meter_animation_indices read.
     var = sym["data_80188d28"] - 0x20
     state.write(var, bytes(rng.getrandbits(8) if rng.random() < 0.5 else rng.randrange(0, 12) for _ in range(0x38)))
     table = sym["data_80171bf8"] + 0x60

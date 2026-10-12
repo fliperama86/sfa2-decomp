@@ -12,10 +12,10 @@ extern Slot0fRec8504 *data_800e8504_slot0f;
 char *strcat(char *dest, const char *src);
 char *strcpy(char *dest, const char *src);
 int close(int fd);
-int func_800e0da8_slot0f(int mode);
+int check_memory_card_status_slot0f(int mode);
 int func_800e11e4_slot0f(const char *name, int flags);
 long func_800e12cc_slot0f(long fd, void *buf, long n);
-void func_800e13dc_slot0f(void);
+void copy_game_tables_to_saved_block_slot0f(void);
 
 /*
  * What it does (inferred, not an original name): writes a memory-card style
@@ -33,7 +33,7 @@ void func_800e13dc_slot0f(void);
  * anything else the function closes the file and returns 1 if the close
  * returned -1, 0 if it did not.
  */
-int func_800e0850_slot0f(int mode, s16 *name) {
+int save_memory_card_file_slot0f(int mode, s16 *name) {
     Slot0fRec8504 *hdr = data_800e8504_slot0f;
     /* Stand-in, not recovered source: the local buf, which is only a copy of hdr, reproduces the original's choice of registers. Without it this function differs from the original in 27 instruction slots. */
     void *buf = hdr;
@@ -54,7 +54,7 @@ int func_800e0850_slot0f(int mode, s16 *name) {
     }
     path = (char *)(base + 7);
     strcat(path, data_800df100_slot0f);
-    result = func_800e0da8_slot0f(mode);
+    result = check_memory_card_status_slot0f(mode);
     if (result == 1) {
         return 1;
     }
@@ -86,7 +86,7 @@ int func_800e0850_slot0f(int mode, s16 *name) {
         *z++ = 0;
     }
     strcpy((char *)hdr + 4, (char *)name);
-    func_800e13dc_slot0f();
+    copy_game_tables_to_saved_block_slot0f();
     if (func_800e12cc_slot0f(fd, buf, 0x2000) != -1) {
         return close(fd) == -1;
     }

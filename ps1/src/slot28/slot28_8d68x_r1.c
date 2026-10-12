@@ -5,12 +5,12 @@
 
 extern ObjectRef data_8005198c_slot28;
 extern Object *data_80051954_slot28[];
-void func_80019090_slot28(Object *obj);
+void scroll_two_objects_x_with_wrap_slot28(Object *obj);
 void func_80019100_slot28(Object *obj, int arg);
 
-void func_80018d68_slot28(Object *obj) {
+void scroll_then_advance_pass_with_fade_slot28(Object *obj) {
     Object *p;
-    func_80019090_slot28(obj);
+    scroll_two_objects_x_with_wrap_slot28(obj);
     p = data_8005198c_slot28.p;
     if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;
@@ -18,7 +18,7 @@ void func_80018d68_slot28(Object *obj) {
         h->pass_index += 1;
         p = data_80051954_slot28[0];
         p->variant_index = 0xff;
-        func_8014f4d4(6, 1);
+        set_menu_command_by_code(6, 1);
         func_80019100_slot28(obj, 6);
     }
 }

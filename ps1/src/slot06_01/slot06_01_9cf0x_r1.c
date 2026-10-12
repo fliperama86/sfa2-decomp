@@ -21,5 +21,5 @@ void func_801e9cf0_slot06_01(Object *obj) {
     if (e < 0x61) {
         idx = 0x12;
     }
-    func_80130700(obj, data_801eb960_slot06_01[idx]);
+    set_sequence_entry(obj, data_801eb960_slot06_01[idx]);
 }

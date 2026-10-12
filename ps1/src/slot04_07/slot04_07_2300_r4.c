@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 int func_801b41c4_slot04_07(Object *obj);
-void func_801b2994_slot04_07(Object *obj);
+void move_x_by_facing_with_decel_stop_slot04_07(Object *obj);
 
 void func_801b279c_slot04_07(Object *obj) {
     s16 t;
@@ -13,14 +13,14 @@ void func_801b279c_slot04_07(Object *obj) {
     t = obj->step_flags;
     if (t & 0x8000) {
         obj->state_3 = 5;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x4c);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x4c);
     } else if (t != 0x3ff) {
         if ((t & 0xff) != 0) {
             obj->step_flags = t & 0xff00;
             obj->vel_x = 0x80000;
             obj->accel_x = -0x8000;
         }
-        func_801b2994_slot04_07(obj);
+        move_x_by_facing_with_decel_stop_slot04_07(obj);
     } else {
         obj->vel_y = 0x90000;
         obj->accel_y = 0xffff0000;
@@ -35,7 +35,7 @@ void func_801b279c_slot04_07(Object *obj) {
     }
 }
 
-void func_801b2874_slot04_07(Object *obj) {
+void update_fall_until_ground_start_landing_slot04_07(Object *obj) {
     if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
@@ -43,7 +43,7 @@ void func_801b2874_slot04_07(Object *obj) {
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->state_3 = 5;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x4c);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x4c);
     }
 }
 

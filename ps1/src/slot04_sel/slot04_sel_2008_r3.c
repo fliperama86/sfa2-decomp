@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b23a8_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
+void init_selection_record_from_object_2_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     rec->count = 0;
     rec->kind_index = obj->kind;
     rec->field_04 = 0;

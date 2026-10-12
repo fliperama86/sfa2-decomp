@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001b184_slot28(Object *o) {
+void copy_linked_object_x_and_ground_y_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *p = obj->linked_object;
     *(u16 *)&o->pos_x = *(u16 *)&p->pos_x;

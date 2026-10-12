@@ -9,7 +9,7 @@
    constant 1 (ori v1) into the branch delay slot and then the constant 2
    (ori v0); this build emits them in the opposite order. Source reorderings
    of the stores moved the stores but not the two loads. */
-void func_801297b8(Object *object)
+void apply_damage_and_check_defeat(Object *object)
 {
   int t;
   int new_var;
@@ -47,7 +47,7 @@ void func_801297b8(Object *object)
     t = (t - 12) * 2;
     game_state.other_object->field_255 = t;
     game_state.spawn_kind = 0;
-    func_80147000(object);
+    spawn_game_state_kind_object(object);
   }
   object->field_28c = object->field_28c - 1;
   if (object->field_28c & 0x80)

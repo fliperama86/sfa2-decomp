@@ -29,6 +29,6 @@ move:
         o->pos_y_hi -= obj->vel_y;
     }
     advance_sequence_checked(obj);
-    func_8011ff74(obj);
+    set_state_0_if_x_outside_margin_narrow(obj);
     func_8011ffdc(obj);
 }

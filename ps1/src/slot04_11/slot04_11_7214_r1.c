@@ -8,17 +8,17 @@ extern ObjectRef data_80190458;
 extern ObjectRef data_80190414;
 
 void func_8011f38c(Object *o);
-void func_801b73f4_slot04_11(Object *obj);
-void func_801b735c_slot04_11(Object *obj);
+void set_position_from_ref_other_with_offset_slot04_11(Object *obj);
+void follow_ref_other_and_advance_sequence_slot04_11(Object *obj);
 
-void func_801b725c_slot04_11(Object *obj) {
+void call_handler_by_state_0_with_parent_refs_slot04_11(Object *obj) {
     ref_other.p = obj->parent;
     data_80190458.p = ref_other.p->parent;
     data_80190414.p = obj->other;
     data_801c7ce0_slot04_11[obj->state_0](obj);
 }
 
-void func_801b72d8_slot04_11(Object *obj) {
+void init_object_sequence_1_at_other_slot04_11(Object *obj) {
     obj->field_01 = 1;
     obj->image_row = 2;
     obj->field_0c = 0;
@@ -27,20 +27,20 @@ void func_801b72d8_slot04_11(Object *obj) {
     obj->ot_depth = 0;
     obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
-    func_801b73f4_slot04_11(obj);
-    func_80130768(obj, 1, seqs_8017c7f8);
-    func_801b735c_slot04_11(obj);
+    set_position_from_ref_other_with_offset_slot04_11(obj);
+    set_sequence_from_table_5(obj, 1, seqs_8017c7f8);
+    follow_ref_other_and_advance_sequence_slot04_11(obj);
 }
 
-void func_801b735c_slot04_11(Object *obj) {
-    func_801b73f4_slot04_11(obj);
+void follow_ref_other_and_advance_sequence_slot04_11(Object *obj) {
+    set_position_from_ref_other_with_offset_slot04_11(obj);
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
     advance_sequence_checked(obj);
 }
 
-void func_801b73ac_slot04_11(Object *o) {
+void unlink_from_four_slots_and_release_slot04_11(Object *o) {
     Object **p = (Object **)ref_other.p->parent;
     int i;
 
@@ -55,7 +55,7 @@ void func_801b73ac_slot04_11(Object *o) {
     func_8011f38c(o);
 }
 
-void func_801b73f4_slot04_11(Object *obj) {
+void set_position_from_ref_other_with_offset_slot04_11(Object *obj) {
     obj->pos_x = (u16)ref_other.p->pos_x;
     obj->pos_y = ref_other.p->pos_y + 0x10;
     if (obj->table_index != 0) {

@@ -7,11 +7,11 @@ void func_801b39d8_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80140770(obj, 0x1c, 5, 0, 0, 0, 1);
+            set_other_hit_reaction_state_0(obj, 0x1c, 5, 0, 0, 0, 1);
         }
         update_sequence(obj);
     }

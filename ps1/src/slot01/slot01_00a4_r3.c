@@ -6,7 +6,7 @@
 extern Object *data_8002ceb0_slot01;
 extern Object *data_80055f40_slot01;
 
-void func_80010498_slot01(void) {
+void count_down_timer_then_next_substep_slot01(void) {
     int t = game_state.timer_or_bits - 1;
     game_state.timer_or_bits = t;
     if ((s16)t < 0 || func_801252f0() != 0) {
@@ -18,7 +18,7 @@ void func_80010498_slot01(void) {
     }
 }
 
-void func_80010524_slot01(void) {
+void start_timer_and_spawn_hud_object_slot01(void) {
     Object *s0;
     Object *p;
 
@@ -26,7 +26,7 @@ void func_80010524_slot01(void) {
     data_8018f5a0->substep_index++;
     game_state.timer_or_bits = 0xb4;
     data_8002ceb0_slot01->spawn_y = 0x1e9;
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p) {
         p->active_count = 1;
         p->field_02 = 0x1b;

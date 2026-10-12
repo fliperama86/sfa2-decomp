@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b00f8_slot04_06(Object *obj) {
+void update_sequence_spawn_child_on_flag_slot04_06(Object *obj) {
     Object *c;
     u8 d;
 
@@ -16,7 +16,7 @@ void func_801b00f8_slot04_06(Object *obj) {
     } else {
         if (*(u8 *)&obj->step_flags != 0) {
             *(u8 *)&obj->step_flags = 0;
-            c = (Object *)func_8011f1e0();
+            c = (Object *)pop_block_from_pool();
             if (c != 0) {
                 c->active_count = 1;
                 c->table_index = 4;

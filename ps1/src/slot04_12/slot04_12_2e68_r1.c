@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Block172 *func_8011f1e0(void);
+Block172 *pop_block_from_pool(void);
 
 void func_801b2e68_slot04_12(Object *obj) {
     Object *p;
@@ -15,12 +15,12 @@ void func_801b2e68_slot04_12(Object *obj) {
         t = obj->step_flags;
         if (t & 0x8000) {
             obj->state_3++;
-            func_801307e0(obj, obj->direction_index + 0x5b);
+            set_sequence_by_side_and_mode(obj, obj->direction_index + 0x5b);
             return;
         }
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->field_02 = 0xf;
@@ -43,7 +43,7 @@ void func_801b2e68_slot04_12(Object *obj) {
                 p->mode_id = 0x20;
                 p->sound_side = obj->sound_side;
                 p->parent = obj;
-                p = (Object *)func_8011f1e0();
+                p = (Object *)pop_block_from_pool();
                 if (p != 0) {
                     p->active_count = 1;
                     p->field_02 = 0xf;
