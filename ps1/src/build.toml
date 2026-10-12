@@ -35843,6 +35843,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot06_0b_96fcx_r1"
+image = "slot06_0b"
+source = "slot06_0b/slot06_0b_96fcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e96fc_slot06_0b", address = 0x801e96fc, size = 996 },
+]
+
+[[unit]]
 name = "slot06_0c_82d0x_r1"
 image = "slot06_0c"
 source = "slot06_0c/slot06_0c_82d0x_r1.c"
